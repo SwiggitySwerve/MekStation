@@ -4,7 +4,8 @@
  * @module campaign/scenario/__tests__/scenarioConditions
  */
 
-import { type IScenarioConditions } from '../../../../types/campaign/scenario/scenarioTypes';
+import { type IScenarioConditions } from '@/types/campaign/scenario/scenarioTypes';
+
 import { type RandomFn } from '../battleChance';
 import {
   generateRandomConditions,

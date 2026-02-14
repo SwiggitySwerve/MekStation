@@ -11,6 +11,8 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+
 import { SchematicDiagram } from '@/components/armor/schematic';
 import { useTechBaseSync } from '@/hooks/useTechBaseSync';
 import { getTotalAllocatedArmor } from '@/stores/unitState';
@@ -34,7 +36,6 @@ import {
 } from '@/utils/construction/armorCalculations';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
-import { LocationArmorData } from '../armor/ArmorDiagram';
 import { LocationArmorEditor } from '../armor/LocationArmorEditor';
 import {
   CleanTechDiagram,

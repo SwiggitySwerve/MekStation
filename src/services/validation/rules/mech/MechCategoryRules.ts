@@ -7,8 +7,8 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -16,12 +16,12 @@ import {
   UnitValidationSeverity,
   createUnitValidationError,
   createUnitValidationRuleResult,
-} from '../../../../types/validation/UnitValidationInterfaces';
+} from '@/types/validation/UnitValidationInterfaces';
 import {
   isMechType,
   requiresGyro,
   requiresMinimumHeatSinks,
-} from '../../../../utils/validation/UnitCategoryMapper';
+} from '@/utils/validation/UnitCategoryMapper';
 
 /**
  * VAL-MECH-001: Engine Required

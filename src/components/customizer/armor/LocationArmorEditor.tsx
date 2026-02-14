@@ -9,10 +9,11 @@
 
 import React, { useCallback, useMemo } from 'react';
 
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { getMaxArmorForLocation } from '@/utils/construction/armorCalculations';
 
-import { LocationArmorData } from './ArmorDiagram';
 import { FRONT_ARMOR_COLOR, REAR_ARMOR_COLOR } from './shared/ArmorFills';
 
 // =============================================================================

@@ -11,17 +11,16 @@
 
 import React, { useEffect, useState } from 'react';
 
+import type { MechConfigType } from '@/types/construction/MechConfigType';
+
 import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { MECH_CONFIG_DISPLAY_NAMES } from '@/types/construction/MechConfigType';
 
 import {
   ArmorDiagramPreview,
   DIAGRAM_VARIANT_INFO,
 } from './ArmorDiagramPreview';
-import {
-  MechConfigType,
-  getMechConfigTypes,
-  MECH_CONFIG_DISPLAY_NAMES,
-} from './shared/layout/useResolvedLayout';
+import { getMechConfigTypes } from './shared/layout/useResolvedLayout';
 import { ALL_VARIANTS, DEFAULT_VARIANT } from './shared/VariantConstants';
 import { VariantThumbnail } from './VariantThumbnail';
 

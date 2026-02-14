@@ -6,10 +6,11 @@
 
 import { renderHook } from '@testing-library/react';
 
+import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+
 import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';

@@ -5,18 +5,19 @@
  * Conventional fighters are atmospheric-only aircraft that cannot operate in space.
  */
 
-import { AerospaceLocation } from '../../../../types/construction/UnitLocation';
-import { RulesLevel } from '../../../../types/enums/RulesLevel';
-import { TechBase } from '../../../../types/enums/TechBase';
-import { WeightClass } from '../../../../types/enums/WeightClass';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { WeightClass } from '@/types/enums/WeightClass';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   ConventionalFighterEngineType,
   AerospaceCockpitType,
-} from '../../../../types/unit/AerospaceInterfaces';
-import { AerospaceMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { ISerializedUnit } from '../../../../types/unit/UnitSerialization';
+} from '@/types/unit/AerospaceInterfaces';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
+
 import {
   ConventionalFighterUnitHandler,
   createConventionalFighterHandler,

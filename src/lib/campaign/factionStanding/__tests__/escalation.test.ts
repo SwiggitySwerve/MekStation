@@ -1,7 +1,8 @@
 import {
   IFactionStanding,
   FactionStandingLevel,
-} from '../../../../types/campaign/factionStanding/IFactionStanding';
+} from '@/types/campaign/factionStanding/IFactionStanding';
+
 import {
   AccoladeLevel,
   CensureLevel,

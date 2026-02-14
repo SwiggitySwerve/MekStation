@@ -1,9 +1,10 @@
-import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
-import type { IPerson } from '../../../../types/campaign/Person';
+import type { ICampaignOptions } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
 
-import { createDefaultCampaignOptions } from '../../../../types/campaign/Campaign';
-import { CampaignPersonnelRole } from '../../../../types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '../../../../types/campaign/enums/PersonnelStatus';
+import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+
 import {
   getDoctorCapacity,
   getAssignedPatientCount,

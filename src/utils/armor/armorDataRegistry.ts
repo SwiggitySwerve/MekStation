@@ -7,8 +7,9 @@
  * @module utils/armor/armorDataRegistry
  */
 
-import { LocationArmorData } from '@/components/customizer/armor/ArmorDiagram';
-import { MechConfigType } from '@/components/customizer/armor/shared/layout/useResolvedLayout';
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+import type { MechConfigType } from '@/types/construction/MechConfigType';
+
 import { MechLocation } from '@/types/construction';
 
 /**

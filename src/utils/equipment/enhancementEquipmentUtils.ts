@@ -10,7 +10,6 @@ import {
   VARIABLE_EQUIPMENT,
 } from '@/services/equipment/EquipmentCalculatorService';
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -19,6 +18,7 @@ import {
   MiscEquipmentCategory,
   IMiscEquipment,
 } from '@/types/equipment/MiscEquipmentTypes';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { generateUnitId } from '@/utils/uuid';
 
 import { ENHANCEMENT_EQUIPMENT_IDS } from './equipmentConstants';

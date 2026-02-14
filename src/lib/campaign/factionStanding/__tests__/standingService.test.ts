@@ -9,7 +9,8 @@ import {
   FactionStandingLevel,
   REGARD_DELTAS,
   IFactionStanding,
-} from '../../../../types/campaign/factionStanding/IFactionStanding';
+} from '@/types/campaign/factionStanding/IFactionStanding';
+
 import {
   adjustRegard,
   processContractOutcome,

@@ -7,9 +7,10 @@
 
 import React, { useState, useEffect } from 'react';
 
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+
 import { MechLocation } from '@/types/construction';
 
-import { LocationArmorData } from './ArmorDiagram';
 import {
   CleanTechDiagram,
   NeonOperatorDiagram,

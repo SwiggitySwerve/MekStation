@@ -7,13 +7,14 @@
  * @spec openspec/specs/omnimech-system/spec.md
  */
 
-import { IMountedEquipmentInstance, UnitState } from '@/stores/unitState';
+import { UnitState } from '@/stores/unitState';
 import {
   MechLocation,
   LOCATION_SLOT_COUNTS,
 } from '@/types/construction/CriticalSlotAllocation';
 import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import { EquipmentCategory } from '@/types/equipment';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 // EngineType import reserved for future OmniMech engine compatibility checks
 import { calculateIntegralHeatSinks } from '@/utils/construction/engineCalculations';
 

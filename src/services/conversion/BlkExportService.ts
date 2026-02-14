@@ -8,15 +8,16 @@
  * @see BlkParserService for the corresponding import/parser
  */
 
+import type { AerospaceState } from '@/stores/aerospaceState';
+import type { BattleArmorState } from '@/stores/battleArmorState';
+import type { InfantryState } from '@/stores/infantryState';
+import type { ProtoMechState } from '@/stores/protoMechState';
+import type { VehicleState } from '@/stores/vehicleState';
+
 import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
-import { AerospaceState } from '@/stores/aerospaceState';
-import { BattleArmorState } from '@/stores/battleArmorState';
-import { InfantryState } from '@/stores/infantryState';
-import { ProtoMechState } from '@/stores/protoMechState';
-import { VehicleState } from '@/stores/vehicleState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 import {

@@ -4,9 +4,10 @@
  * Tests for aerospace fighter BLK parsing and validation
  */
 
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { AerospaceMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
 import {
   AerospaceUnitHandler,
   createAerospaceHandler,

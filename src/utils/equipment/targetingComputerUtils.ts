@@ -10,7 +10,6 @@ import {
   VARIABLE_EQUIPMENT,
 } from '@/services/equipment/EquipmentCalculatorService';
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
@@ -18,6 +17,7 @@ import {
   IElectronics,
   ElectronicsCategory,
 } from '@/types/equipment/ElectronicsTypes';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { generateUnitId } from '@/utils/uuid';
 
 import { TARGETING_COMPUTER_IDS } from './equipmentConstants';

@@ -1,4 +1,3 @@
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import {
   MechLocation,
@@ -10,6 +9,7 @@ import {
 } from '@/types/construction/EngineType';
 import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
 const SLOTTED_STRUCTURE_TYPES: readonly InternalStructureType[] = [
   InternalStructureType.ENDO_STEEL_IS,

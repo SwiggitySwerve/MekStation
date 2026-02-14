@@ -9,7 +9,7 @@
 import {
   IArmorAllocation,
   createEmptyArmorAllocation,
-} from '@/stores/unitState';
+} from '@/types/construction/ArmorAllocation';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';

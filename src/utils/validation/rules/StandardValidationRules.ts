@@ -6,7 +6,7 @@
  * @spec openspec/specs/
  */
 
-import { ARMOR_STATUS } from '@/components/customizer/armor/shared/ArmorFills';
+import { ARMOR_STATUS } from '@/constants/armorStatus';
 
 import {
   IValidationRuleDefinition,

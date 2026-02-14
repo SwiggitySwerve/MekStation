@@ -5,12 +5,12 @@
  * All created items are configuration-based (isRemovable: false).
  */
 
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import {
   InternalStructureType,
   getInternalStructureDefinition,
 } from '@/types/construction/InternalStructureType';
 import { EquipmentCategory } from '@/types/equipment';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { generateUnitId } from '@/utils/uuid';
 
 import { INTERNAL_STRUCTURE_EQUIPMENT_ID } from './equipmentConstants';

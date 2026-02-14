@@ -3,7 +3,8 @@
  * @description Tests for armor data registry utility functions and constants
  */
 
-import { MechConfigType } from '@/components/customizer/armor/shared/layout/useResolvedLayout';
+import type { MechConfigType } from '@/types/construction/MechConfigType';
+
 import { MechLocation } from '@/types/construction';
 
 import {

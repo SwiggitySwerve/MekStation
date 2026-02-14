@@ -17,6 +17,7 @@
 
 import { StoreApi } from 'zustand';
 
+import { createEmptyArmorAllocation } from '@/types/construction/ArmorAllocation';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
@@ -33,7 +34,6 @@ import {
   UnitStore,
   createDefaultUnitState,
   CreateUnitOptions,
-  createEmptyArmorAllocation,
 } from '../unitState';
 import { createUnitStore } from '../useUnitStore';
 

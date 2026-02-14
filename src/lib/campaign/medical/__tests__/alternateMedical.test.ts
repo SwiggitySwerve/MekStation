@@ -8,12 +8,10 @@
  * - Prosthetic penalty: +4
  */
 
-import { createDefaultCampaignOptions } from '../../../../types/campaign/Campaign';
-import {
-  PersonnelStatus,
-  CampaignPersonnelRole,
-} from '../../../../types/campaign/enums';
-import { IPerson, createInjury } from '../../../../types/campaign/Person';
+import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { IPerson, createInjury } from '@/types/campaign/Person';
+
 import { alternateMedicalCheck } from '../alternateMedical';
 import { MedicalSystem } from '../medicalTypes';
 

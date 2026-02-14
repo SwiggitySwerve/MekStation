@@ -9,14 +9,15 @@
 
 import { useMemo } from 'react';
 
+import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+
 import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
+import { EquipmentCategory } from '@/types/equipment';
 import {
-  IMountedEquipmentInstance,
   getTotalEquipmentWeight,
   getTotalEquipmentSlots,
   getEquipmentByCategory,
-} from '@/stores/unitState';
-import { EquipmentCategory } from '@/types/equipment';
+} from '@/types/equipment/MountedEquipment';
 
 // =============================================================================
 // Types

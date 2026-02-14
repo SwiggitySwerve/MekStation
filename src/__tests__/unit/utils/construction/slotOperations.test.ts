@@ -1,4 +1,5 @@
-import { IMountedEquipmentInstance } from '@/stores/unitState';
+import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import {
   MechLocation,

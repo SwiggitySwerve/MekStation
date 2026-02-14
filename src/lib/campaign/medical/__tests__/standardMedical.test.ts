@@ -1,10 +1,11 @@
-import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
-import type { IPerson, IInjury } from '../../../../types/campaign/Person';
+import type { ICampaignOptions } from '@/types/campaign/Campaign';
+import type { IPerson, IInjury } from '@/types/campaign/Person';
 
-import { createDefaultCampaignOptions } from '../../../../types/campaign/Campaign';
-import { CampaignPersonnelRole } from '../../../../types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '../../../../types/campaign/enums/PersonnelStatus';
-import { createInjury } from '../../../../types/campaign/Person';
+import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { createInjury } from '@/types/campaign/Person';
+
 import { MedicalSystem } from '../medicalTypes';
 import {
   standardMedicalCheck,

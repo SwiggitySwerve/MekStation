@@ -3,9 +3,11 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+
 import { MechLocation } from '@/types/construction';
 
-import { ArmorDiagram, LocationArmorData } from './ArmorDiagram';
+import { ArmorDiagram } from './ArmorDiagram';
 
 const meta: Meta<typeof ArmorDiagram> = {
   title: 'Customizer/Armor/ArmorDiagram',

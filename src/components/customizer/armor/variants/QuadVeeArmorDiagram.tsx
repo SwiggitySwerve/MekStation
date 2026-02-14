@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+
 import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
 import { MechLocation } from '@/types/construction';
 import {
@@ -7,7 +9,6 @@ import {
   QUADVEE_MODES,
 } from '@/types/construction/MechConfigurationSystem';
 
-import { LocationArmorData } from '../ArmorDiagram';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 import { GradientDefs } from '../shared/ArmorFills';
 import {

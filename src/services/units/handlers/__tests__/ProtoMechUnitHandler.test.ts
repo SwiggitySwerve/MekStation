@@ -4,9 +4,10 @@
  * Tests for ProtoMech BLK parsing and validation
  */
 
-import { TechBase } from '../../../../types/enums';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { TechBase } from '@/types/enums';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
 import {
   ProtoMechUnitHandler,
   createProtoMechHandler,
