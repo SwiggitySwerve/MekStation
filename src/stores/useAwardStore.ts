@@ -26,6 +26,8 @@ import {
   getAwardById,
 } from '@/types/award';
 
+import { getCriteriaValue } from './awardStoreUtils';
+
 // =============================================================================
 // Store State
 // =============================================================================
@@ -125,36 +127,6 @@ interface AwardStoreActions {
 }
 
 type AwardStore = AwardStoreState & AwardStoreActions;
-
-// =============================================================================
-// Helper Functions
-// =============================================================================
-
-function getCriteriaValue(
-  stats: IPilotStats,
-  criteriaType: CriteriaType,
-): number {
-  switch (criteriaType) {
-    case CriteriaType.TotalKills:
-      return stats.combat.totalKills;
-    case CriteriaType.KillsInMission:
-      return stats.combat.maxKillsInMission;
-    case CriteriaType.DamageDealt:
-      return stats.combat.totalDamageDealt;
-    case CriteriaType.DamageInMission:
-      return stats.combat.maxDamageInMission;
-    case CriteriaType.MissionsCompleted:
-      return stats.career.missionsCompleted;
-    case CriteriaType.CampaignsCompleted:
-      return stats.career.campaignsCompleted;
-    case CriteriaType.ConsecutiveSurvival:
-      return stats.career.consecutiveSurvival;
-    case CriteriaType.GamesPlayed:
-      return stats.career.gamesPlayed;
-    default:
-      return 0;
-  }
-}
 
 // =============================================================================
 // Store Implementation
