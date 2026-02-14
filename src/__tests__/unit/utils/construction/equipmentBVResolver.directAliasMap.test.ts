@@ -37,7 +37,7 @@ interface AliasEntry {
 function extractDirectAliasMap(): AliasEntry[] {
   const srcPath = path.resolve(
     __dirname,
-    '../../../../utils/construction/equipmentBVResolver.ts',
+    '../../../../utils/construction/equipmentBV/normalizationPatterns.ts',
   );
   const src = fs.readFileSync(srcPath, 'utf8');
 
