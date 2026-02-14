@@ -298,20 +298,8 @@ export function resolveModifiedClusterHits(
 }
 
 // =============================================================================
-// TAG and Semi-Guided LRM Helpers
+// Semi-Guided LRM Helpers
 // =============================================================================
-
-/**
- * Check if a target is TAG-designated.
- * TAG designation enables semi-guided LRM and provides targeting bonus.
- */
-export function isTargetTAGDesignated(
-  targetStatus: ITargetStatusFlags,
-): boolean {
-  if (!targetStatus.tagDesignated) return false;
-  if (targetStatus.ecmProtected) return false; // ECM nullifies TAG
-  return true;
-}
 
 /**
  * Calculate semi-guided LRM bonus when TAG-designated.
@@ -323,7 +311,8 @@ export function getSemiGuidedLRMBonus(
   targetStatus: ITargetStatusFlags,
 ): number {
   if (!equipment.isSemiGuided) return 0;
-  if (!isTargetTAGDesignated(targetStatus)) return 0;
+  // TAG check: target must be designated and not ECM-protected
+  if (!targetStatus.tagDesignated || targetStatus.ecmProtected) return 0;
   return 2;
 }
 
