@@ -14,7 +14,6 @@ import React, { useCallback } from 'react';
 import {
   useMovementCalculations,
   getEnhancementOptions,
-  MAX_ENGINE_RATING,
 } from '@/hooks/useMovementCalculations';
 import { useTechBaseSync } from '@/hooks/useTechBaseSync';
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
@@ -27,14 +26,18 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
-import {
-  JumpJetType,
-  JUMP_JET_DEFINITIONS,
-} from '@/utils/construction/movementCalculations';
+import { JumpJetType } from '@/utils/construction/movementCalculations';
+
+import type {
+  StructureConfigurationOption,
+  StructureEnhancementOption,
+} from './StructureTabViewTypes';
 
 import { customizerStyles as cs } from '../styles';
+import { StructureTabChassisSection } from './StructureTabChassisSection';
+import { StructureTabMovementSection } from './StructureTabMovementSection';
 
-const CONFIGURATION_OPTIONS: { value: MechConfiguration; label: string }[] = [
+const CONFIGURATION_OPTIONS: StructureConfigurationOption[] = [
   { value: MechConfiguration.BIPED, label: 'Biped' },
   { value: MechConfiguration.QUAD, label: 'Quad' },
   { value: MechConfiguration.TRIPOD, label: 'Tripod' },
@@ -148,7 +151,8 @@ export function StructureTab({
   });
 
   // Enhancement options (static data from hook module)
-  const enhancementOptions = getEnhancementOptions();
+  const enhancementOptions: readonly StructureEnhancementOption[] =
+    getEnhancementOptions();
 
   // Superheavy detection
   const isSuperheavy = tonnage > 100;
@@ -276,7 +280,6 @@ export function StructureTab({
 
   return (
     <div className={`${cs.layout.tabContent} ${className}`}>
-      {/* Compact Structural Weight Summary - at top, scrollable on mobile */}
       <div className={cs.panel.summary}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <div className="flex items-center gap-3 overflow-x-auto pb-1 text-sm sm:gap-6 sm:pb-0">
@@ -328,573 +331,54 @@ export function StructureTab({
         </div>
       </div>
 
-      {/* Two-column layout: Chassis | Movement - uses lg breakpoint for sidebar-adjacent context */}
       <div className={cs.layout.twoColumnSidebar}>
-        {/* LEFT: Chassis */}
-        <div className={cs.panel.main}>
-          <h3 className={cs.text.sectionTitle}>Chassis</h3>
+        <StructureTabChassisSection
+          readOnly={readOnly}
+          tonnage={tonnage}
+          isSuperheavy={isSuperheavy}
+          isOmni={isOmni}
+          engineType={engineType}
+          gyroType={gyroType}
+          internalStructureType={internalStructureType}
+          cockpitType={cockpitType}
+          heatSinkType={heatSinkType}
+          heatSinkCount={heatSinkCount}
+          baseChassisHeatSinks={baseChassisHeatSinks}
+          calculations={calculations}
+          filteredOptions={filteredOptions}
+          engineRating={engineRating}
+          isAtMaxEngineRating={isAtMaxEngineRating}
+          handleTonnageChange={handleTonnageChange}
+          handleEngineTypeChange={handleEngineTypeChange}
+          handleGyroTypeChange={handleGyroTypeChange}
+          handleStructureTypeChange={handleStructureTypeChange}
+          handleCockpitTypeChange={handleCockpitTypeChange}
+          handleHeatSinkTypeChange={handleHeatSinkTypeChange}
+          handleHeatSinkCountChange={handleHeatSinkCountChange}
+          handleBaseChassisHeatSinksChange={handleBaseChassisHeatSinksChange}
+        />
 
-          <div className={cs.layout.formStack}>
-            {/* Tonnage */}
-            <div className={cs.layout.field}>
-              <label className={cs.text.label}>Tonnage</label>
-              <div className={cs.layout.rowGap}>
-                <button
-                  onClick={() =>
-                    handleTonnageChange(tonnage - BATTLEMECH_TONNAGE.step)
-                  }
-                  disabled={readOnly || tonnage <= BATTLEMECH_TONNAGE.min}
-                  className={cs.button.stepperMd}
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  value={tonnage}
-                  onChange={(e) =>
-                    handleTonnageChange(
-                      parseInt(e.target.value, 10) || BATTLEMECH_TONNAGE.min,
-                    )
-                  }
-                  disabled={readOnly}
-                  min={BATTLEMECH_TONNAGE.min}
-                  max={BATTLEMECH_TONNAGE.max}
-                  step={BATTLEMECH_TONNAGE.step}
-                  className={`w-20 ${cs.input.base} text-center ${cs.input.noSpinners}`}
-                />
-                <button
-                  onClick={() =>
-                    handleTonnageChange(tonnage + BATTLEMECH_TONNAGE.step)
-                  }
-                  disabled={readOnly || tonnage >= BATTLEMECH_TONNAGE.max}
-                  className={cs.button.stepperMd}
-                >
-                  +
-                </button>
-              </div>
-              {/* Superheavy warning banner */}
-              {isSuperheavy && (
-                <div className="mt-1 rounded border border-amber-600/40 bg-amber-900/20 px-2 py-1 text-xs text-amber-300">
-                  Superheavy: double-slot crits, SUPERHEAVY cockpit/gyro
-                  required
-                </div>
-              )}
-            </div>
-
-            {/* Engine Type */}
-            <div className={cs.layout.field}>
-              <div className={cs.layout.rowBetween}>
-                <label className={cs.text.label}>Engine</label>
-                <span className={cs.text.secondary}>
-                  {calculations.engineWeight}t / {calculations.engineSlots}{' '}
-                  slots
-                </span>
-              </div>
-              <select
-                className={cs.select.compact}
-                disabled={readOnly}
-                value={engineType}
-                onChange={handleEngineTypeChange}
-              >
-                {filteredOptions.engines.map((engine) => (
-                  <option key={engine.type} value={engine.type}>
-                    {engine.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Gyro */}
-            <div className={cs.layout.field}>
-              <div className={cs.layout.rowBetween}>
-                <label className={cs.text.label}>Gyro</label>
-                <span className={cs.text.secondary}>
-                  {calculations.gyroWeight}t / {calculations.gyroSlots} slots
-                </span>
-              </div>
-              <select
-                className={cs.select.compact}
-                disabled={readOnly}
-                value={gyroType}
-                onChange={handleGyroTypeChange}
-              >
-                {filteredOptions.gyros.map((gyro) => (
-                  <option key={gyro.type} value={gyro.type}>
-                    {gyro.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Internal Structure */}
-            <div className={cs.layout.field}>
-              <div className={cs.layout.rowBetween}>
-                <label className={cs.text.label}>Structure</label>
-                <span className={cs.text.secondary}>
-                  {calculations.structureWeight}t /{' '}
-                  {calculations.structureSlots} slots
-                </span>
-              </div>
-              <select
-                className={cs.select.compact}
-                disabled={readOnly}
-                value={internalStructureType}
-                onChange={handleStructureTypeChange}
-              >
-                {filteredOptions.structures.map((structure) => (
-                  <option key={structure.type} value={structure.type}>
-                    {structure.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Cockpit */}
-            <div className={cs.layout.field}>
-              <div className={cs.layout.rowBetween}>
-                <label className={cs.text.label}>Cockpit</label>
-                <span className={cs.text.secondary}>
-                  {calculations.cockpitWeight}t / {calculations.cockpitSlots}{' '}
-                  slots
-                </span>
-              </div>
-              <select
-                className={cs.select.compact}
-                disabled={readOnly}
-                value={cockpitType}
-                onChange={handleCockpitTypeChange}
-              >
-                {filteredOptions.cockpits.map((cockpit) => (
-                  <option key={cockpit.type} value={cockpit.type}>
-                    {cockpit.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Engine Rating (derived info) */}
-            <div className={cs.layout.divider}>
-              <div className={cs.layout.rowBetween}>
-                <span className={`text-sm ${cs.text.label}`}>
-                  Engine Rating
-                </span>
-                <span
-                  className={`text-sm ${isAtMaxEngineRating ? 'text-accent font-bold' : cs.text.valueHighlight}`}
-                >
-                  {engineRating}
-                  {isAtMaxEngineRating && ' (MAX)'}
-                </span>
-              </div>
-              {isAtMaxEngineRating && (
-                <p className="text-accent mt-1 text-xs">
-                  Warning: Maximum engine rating of {MAX_ENGINE_RATING} reached.
-                  Cannot increase Walk MP further.
-                </p>
-              )}
-            </div>
-
-            {/* Heat Sinks Subsection */}
-            <div className={`${cs.layout.divider} mt-2`}>
-              <div className={cs.layout.rowBetween}>
-                <h4 className="text-sm font-semibold text-slate-300">
-                  Heat Sinks
-                </h4>
-                <span className={cs.text.secondary}>
-                  {calculations.heatSinkWeight}t / {calculations.heatSinkSlots}{' '}
-                  slots
-                </span>
-              </div>
-
-              {/* Type + Count on same line */}
-              <div className="mt-2 flex items-center gap-3">
-                <select
-                  className={`${cs.select.compact} flex-1`}
-                  disabled={readOnly}
-                  value={heatSinkType}
-                  onChange={handleHeatSinkTypeChange}
-                >
-                  {filteredOptions.heatSinks.map((hs) => (
-                    <option key={hs.type} value={hs.type}>
-                      {hs.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="flex items-center">
-                  <button
-                    onClick={() => handleHeatSinkCountChange(heatSinkCount - 1)}
-                    disabled={readOnly || heatSinkCount <= 10}
-                    className={cs.button.stepperLeft}
-                  >
-                    −
-                  </button>
-                  <input
-                    type="number"
-                    value={heatSinkCount}
-                    onChange={(e) =>
-                      handleHeatSinkCountChange(
-                        parseInt(e.target.value, 10) || 10,
-                      )
-                    }
-                    disabled={readOnly}
-                    min={10}
-                    className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-                  />
-                  <button
-                    onClick={() => handleHeatSinkCountChange(heatSinkCount + 1)}
-                    disabled={readOnly}
-                    className={cs.button.stepperRight}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              {/* Heat Sink Summary */}
-              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                <div className="bg-surface-deep/50 rounded p-2">
-                  <div className={`text-lg font-bold ${cs.text.valuePositive}`}>
-                    {calculations.integralHeatSinks}
-                  </div>
-                  <div className="text-text-theme-muted text-[10px]">Free</div>
-                </div>
-                <div className="bg-surface-deep/50 rounded p-2">
-                  <div
-                    className={`text-lg font-bold ${calculations.externalHeatSinks > 0 ? cs.text.valueWarning : cs.text.value}`}
-                  >
-                    {calculations.externalHeatSinks}
-                  </div>
-                  <div className="text-text-theme-muted text-[10px]">
-                    External
-                  </div>
-                </div>
-                <div className="bg-surface-deep/50 rounded p-2">
-                  <div
-                    className={`text-lg font-bold ${cs.text.valueHighlight}`}
-                  >
-                    {calculations.totalHeatDissipation}
-                  </div>
-                  <div className="text-text-theme-muted text-[10px]">
-                    Dissipation
-                  </div>
-                </div>
-              </div>
-
-              {/* Base Chassis Heat Sinks (OmniMech only) */}
-              {isOmni && (
-                <div className="border-border-theme-subtle mt-3 border-t pt-3">
-                  <div className={cs.layout.rowBetween}>
-                    <label className={cs.text.label}>
-                      Base Chassis Heat Sinks
-                    </label>
-                    <span className={cs.text.secondary}>
-                      {baseChassisHeatSinks === -1
-                        ? 'Auto'
-                        : `${baseChassisHeatSinks} fixed`}
-                    </span>
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <button
-                      onClick={() => handleBaseChassisHeatSinksChange(-1)}
-                      disabled={readOnly}
-                      className={`rounded px-2 py-1 text-xs ${
-                        baseChassisHeatSinks === -1
-                          ? 'bg-accent text-white'
-                          : 'bg-surface-deep text-text-theme-muted hover:bg-surface-hover'
-                      }`}
-                    >
-                      Auto
-                    </button>
-                    <div className="flex flex-1 items-center">
-                      <button
-                        onClick={() =>
-                          handleBaseChassisHeatSinksChange(
-                            (baseChassisHeatSinks === -1
-                              ? calculations.integralHeatSinks
-                              : baseChassisHeatSinks) - 1,
-                          )
-                        }
-                        disabled={readOnly || baseChassisHeatSinks <= 1}
-                        className={cs.button.stepperLeft}
-                      >
-                        −
-                      </button>
-                      <input
-                        type="number"
-                        value={
-                          baseChassisHeatSinks === -1
-                            ? calculations.integralHeatSinks
-                            : baseChassisHeatSinks
-                        }
-                        onChange={(e) =>
-                          handleBaseChassisHeatSinksChange(
-                            parseInt(e.target.value, 10) || 10,
-                          )
-                        }
-                        disabled={readOnly}
-                        min={1}
-                        max={heatSinkCount}
-                        className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-                      />
-                      <button
-                        onClick={() =>
-                          handleBaseChassisHeatSinksChange(
-                            (baseChassisHeatSinks === -1
-                              ? calculations.integralHeatSinks
-                              : baseChassisHeatSinks) + 1,
-                          )
-                        }
-                        disabled={
-                          readOnly ||
-                          (baseChassisHeatSinks !== -1 &&
-                            baseChassisHeatSinks >= heatSinkCount)
-                        }
-                        className={cs.button.stepperRight}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-text-theme-muted mt-1 text-[10px]">
-                    Heat sinks permanently fixed to the base chassis (cannot be
-                    pod-mounted)
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT: Movement */}
-        <div className={cs.panel.main}>
-          <h3 className={cs.text.sectionTitle}>Movement</h3>
-
-          <div className={cs.layout.formStack}>
-            {/* Column Headers */}
-            <div className="grid grid-cols-[80px_1fr_60px] items-center gap-2 sm:grid-cols-[140px_112px_1fr]">
-              <span></span>
-              <span
-                className={`${cs.text.secondary} text-center text-xs uppercase sm:text-sm`}
-              >
-                Base
-              </span>
-              <span
-                className={`${cs.text.secondary} text-center text-xs uppercase sm:text-sm`}
-              >
-                Final
-              </span>
-            </div>
-
-            {/* Walk MP */}
-            <div className="grid grid-cols-[80px_1fr_60px] items-center gap-2 sm:grid-cols-[140px_112px_1fr]">
-              <label className={cs.text.label}>Walk MP</label>
-              <div className="flex items-center justify-center">
-                <button
-                  onClick={() => handleWalkMPChange(walkMP - 1)}
-                  disabled={readOnly || walkMP <= walkMPRange.min}
-                  className={cs.button.stepperLeft}
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  value={walkMP}
-                  onChange={(e) =>
-                    handleWalkMPChange(
-                      parseInt(e.target.value, 10) || walkMPRange.min,
-                    )
-                  }
-                  disabled={readOnly}
-                  min={walkMPRange.min}
-                  max={walkMPRange.max}
-                  className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-                />
-                <button
-                  onClick={() => handleWalkMPChange(walkMP + 1)}
-                  disabled={readOnly || walkMP >= walkMPRange.max}
-                  className={cs.button.stepperRight}
-                >
-                  +
-                </button>
-              </div>
-              <span className={`text-sm ${cs.text.value} text-center`}>
-                {walkMP}
-              </span>
-            </div>
-
-            {/* Run MP (calculated) - no stepper, just centered value */}
-            <div className="grid grid-cols-[80px_1fr_60px] items-center gap-2 sm:grid-cols-[140px_112px_1fr]">
-              <label className={cs.text.label}>Run MP</label>
-              <span className={`text-sm ${cs.text.value} text-center`}>
-                {runMP}
-              </span>
-              <div className="flex items-center justify-center gap-1">
-                <span className={`text-sm ${cs.text.value}`}>{runMP}</span>
-                {maxRunMP && (
-                  <span
-                    className="cursor-help text-sm font-bold text-white"
-                    title={
-                      enhancement === MovementEnhancementType.MASC
-                        ? `MASC Sprint: Walk ${walkMP} × 2 = ${maxRunMP}`
-                        : enhancement === MovementEnhancementType.TSM
-                          ? `TSM at 9+ heat: Base Run ${runMP} + 1 = ${maxRunMP} (net +1 from +2 Walk, -1 heat penalty)`
-                          : enhancement === MovementEnhancementType.SUPERCHARGER
-                            ? `Supercharger Sprint: Walk ${walkMP} × 2 = ${maxRunMP}`
-                            : `Enhanced max: ${maxRunMP}`
-                    }
-                  >
-                    [{maxRunMP}]
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Jump/UMU MP */}
-            <div className="grid grid-cols-[80px_1fr_60px] items-center gap-2 sm:grid-cols-[140px_112px_1fr]">
-              <label className={cs.text.label}>Jump MP</label>
-              <div className="flex items-center justify-center">
-                <button
-                  onClick={() => handleJumpMPChange(jumpMP - 1)}
-                  disabled={readOnly || jumpMP <= 0}
-                  className={cs.button.stepperLeft}
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  value={jumpMP}
-                  onChange={(e) =>
-                    handleJumpMPChange(parseInt(e.target.value, 10) || 0)
-                  }
-                  disabled={readOnly}
-                  min={0}
-                  max={maxJumpMP}
-                  className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-                />
-                <button
-                  onClick={() => handleJumpMPChange(jumpMP + 1)}
-                  disabled={readOnly || jumpMP >= maxJumpMP}
-                  className={cs.button.stepperRight}
-                >
-                  +
-                </button>
-              </div>
-              <span className={`text-sm ${cs.text.value} text-center`}>
-                {jumpMP}
-              </span>
-            </div>
-
-            {/* Jump Type */}
-            <div className="grid grid-cols-[80px_1fr] items-center gap-2 sm:grid-cols-[140px_1fr]">
-              <label className={cs.text.label}>Jump Type</label>
-              <select
-                className={cs.select.inline}
-                disabled={readOnly}
-                value={jumpJetType}
-                onChange={handleJumpJetTypeChange}
-              >
-                {JUMP_JET_DEFINITIONS.filter(
-                  (def) => def.type !== JumpJetType.MECHANICAL,
-                ).map((def) => (
-                  <option key={def.type} value={def.type}>
-                    {def.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Mech. J. Booster MP (placeholder) */}
-            <div className="grid grid-cols-[80px_1fr_60px] items-center gap-2 sm:grid-cols-[140px_112px_1fr]">
-              <label className={cs.text.label}>Mech. J. Booster MP</label>
-              <div className="flex items-center justify-center">
-                <input
-                  type="number"
-                  value={0}
-                  disabled={true}
-                  className={`w-12 ${cs.input.compact} text-center opacity-50 ${cs.input.noSpinners}`}
-                />
-              </div>
-              <span></span>
-            </div>
-
-            {/* Movement summary info */}
-            <div className={`${cs.layout.divider} mt-3`}>
-              <p className={cs.text.secondary}>
-                Walk MP range: {walkMPRange.min}–{walkMPRange.max} (for{' '}
-                {tonnage}t mech, max engine {MAX_ENGINE_RATING})
-              </p>
-              <p className={cs.text.secondary}>
-                Max Jump MP: {maxJumpMP} (
-                {jumpJetType === JumpJetType.IMPROVED
-                  ? 'run speed'
-                  : 'walk speed'}
-                )
-              </p>
-              {jumpMP > 0 && (
-                <p className={cs.text.secondary}>
-                  Jump Jets: {calculations.jumpJetWeight}t /{' '}
-                  {calculations.jumpJetSlots} slots
-                </p>
-              )}
-            </div>
-
-            {/* Enhancement Subsection */}
-            <div className={`${cs.layout.divider} mt-2`}>
-              <h4 className="mb-3 text-sm font-semibold text-slate-300">
-                Enhancement
-              </h4>
-              <div className="grid grid-cols-[80px_1fr] items-center gap-2 sm:grid-cols-[140px_1fr]">
-                <label className={cs.text.label}>Type</label>
-                <select
-                  className={cs.select.inline}
-                  disabled={readOnly}
-                  value={enhancement ?? ''}
-                  onChange={handleEnhancementChange}
-                >
-                  {enhancementOptions.map((opt) => (
-                    <option key={opt.value ?? 'none'} value={opt.value ?? ''}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {enhancement && (
-                <p className={`${cs.text.secondary} mt-2`}>
-                  {enhancement === MovementEnhancementType.MASC &&
-                    'Sprint = Walk × 2 when activated. Risk of leg damage on failed roll.'}
-                  {enhancement === MovementEnhancementType.TSM && (
-                    <>
-                      Activates at 9+ heat: +2 Walk MP, but -1 from heat penalty
-                      = net +1 MP.
-                      <br />
-                      <span className="text-accent">
-                        Doubles physical attack damage.
-                      </span>
-                    </>
-                  )}
-                </p>
-              )}
-            </div>
-
-            {/* Motive Type (Configuration) */}
-            <div className={`${cs.layout.divider} mt-2`}>
-              <div className="grid grid-cols-[80px_1fr] items-center gap-2 sm:grid-cols-[140px_1fr]">
-                <label className={cs.text.label}>Motive Type</label>
-                <select
-                  className={cs.select.inline}
-                  disabled={readOnly}
-                  value={configuration}
-                  onChange={handleConfigurationChange}
-                >
-                  {CONFIGURATION_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
+        <StructureTabMovementSection
+          readOnly={readOnly}
+          walkMP={walkMP}
+          runMP={runMP}
+          walkMPRange={walkMPRange}
+          maxJumpMP={maxJumpMP}
+          maxRunMP={maxRunMP}
+          jumpMP={jumpMP}
+          jumpJetType={jumpJetType}
+          enhancement={enhancement}
+          enhancementOptions={enhancementOptions}
+          configuration={configuration}
+          configurationOptions={CONFIGURATION_OPTIONS}
+          tonnage={tonnage}
+          calculations={calculations}
+          handleWalkMPChange={handleWalkMPChange}
+          handleJumpMPChange={handleJumpMPChange}
+          handleJumpJetTypeChange={handleJumpJetTypeChange}
+          handleEnhancementChange={handleEnhancementChange}
+          handleConfigurationChange={handleConfigurationChange}
+        />
       </div>
     </div>
   );
