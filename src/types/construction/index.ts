@@ -4,6 +4,7 @@
  * @spec openspec/specs/construction-rules-core/spec.md
  */
 
+export { createEmptyArmorAllocation } from './ArmorAllocation';
 export * from './EngineType';
 export * from './GyroType';
 export * from './InternalStructureType';

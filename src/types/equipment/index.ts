@@ -36,6 +36,15 @@ export * from './VariableEquipment';
 // Equipment query and calculation types
 export * from './EquipmentQuery';
 
+// Mounted Equipment (equipment instances on units)
+export type { IMountedEquipmentInstance } from './MountedEquipment';
+export {
+  createMountedEquipment,
+  getTotalEquipmentWeight,
+  getTotalEquipmentSlots,
+  getEquipmentByCategory,
+} from './MountedEquipment';
+
 // ============================================================================
 // UNIFIED EQUIPMENT ACCESS
 // ============================================================================
