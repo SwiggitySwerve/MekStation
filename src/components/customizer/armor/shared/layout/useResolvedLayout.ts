@@ -97,9 +97,6 @@ export function getLayoutIds(): string[] {
   return Array.from(LAYOUT_REGISTRY.keys());
 }
 
-export type { MechConfigType };
-export { MECH_CONFIG_DISPLAY_NAMES };
-
 /**
  * Get all available mech configuration types
  */

@@ -1,6 +1,6 @@
-import { MechLocation } from '@/types/construction';
+import type { MechConfigType } from '@/types/construction/MechConfigType';
 
-import type { MechConfigType } from './layout';
+import { MechLocation } from '@/types/construction';
 
 export const LOCATION_LABELS: Partial<Record<MechLocation, string>> = {
   [MechLocation.HEAD]: 'HD',

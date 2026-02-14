@@ -14,9 +14,11 @@
 
 import React, { useState } from 'react';
 
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+import type { MechConfigType } from '@/types/construction/MechConfigType';
+
 import { MechLocation } from '@/types/construction';
 
-import { LocationArmorData } from '../ArmorDiagram';
 import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared';
 import {
   GradientDefs,
@@ -31,7 +33,6 @@ import { DiagramHeader } from '../shared/DiagramHeader';
 import {
   useResolvedLayout,
   ResolvedPosition,
-  MechConfigType,
   getLayoutIdForConfig,
 } from '../shared/layout';
 import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';

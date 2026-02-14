@@ -11,7 +11,8 @@
 
 import React, { useMemo, useCallback, useEffect, useRef } from 'react';
 
-import { IMountedEquipmentInstance } from '@/stores/unitState';
+import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+
 import { useCustomizerStore } from '@/stores/useCustomizerStore';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';

@@ -8,9 +8,9 @@
 
 import React from 'react';
 
-import { MechLocation } from '@/types/construction';
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 
-import { LocationArmorData } from './ArmorDiagram';
+import { MechLocation } from '@/types/construction';
 
 interface ArmorLocationProps {
   /** Mech location */

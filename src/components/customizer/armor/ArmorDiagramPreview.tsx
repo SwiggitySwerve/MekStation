@@ -7,6 +7,8 @@
 
 import React, { useState, useMemo } from 'react';
 
+import type { MechConfigType } from '@/types/construction/MechConfigType';
+
 import { SchematicDiagram } from '@/components/armor/schematic';
 import {
   ArmorDiagramVariant,
@@ -18,7 +20,6 @@ import {
   SAMPLE_BIPED_ARMOR_DATA,
 } from '@/utils/armor/armorDataRegistry';
 
-import { MechConfigType } from './shared/layout/useResolvedLayout';
 import {
   CleanTechDiagram,
   NeonOperatorDiagram,

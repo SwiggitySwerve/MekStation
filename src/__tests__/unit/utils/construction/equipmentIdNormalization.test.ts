@@ -11,7 +11,7 @@ import {
   normalizeEquipmentId,
   resolveEquipmentBV,
   resetCatalogCache,
-} from '../../../../utils/construction/equipmentBVResolver';
+} from '@/utils/construction/equipmentBVResolver';
 
 describe('normalizeEquipmentId', () => {
   beforeEach(() => {

@@ -18,8 +18,6 @@ import { MechLocation } from '@/types/construction';
 import { ArmorLegend } from './ArmorLegend';
 import { ArmorLocation } from './ArmorLocation';
 
-export type { LocationArmorData };
-
 export interface ArmorDiagramProps {
   /** Armor allocation for all locations */
   armorData: LocationArmorData[];

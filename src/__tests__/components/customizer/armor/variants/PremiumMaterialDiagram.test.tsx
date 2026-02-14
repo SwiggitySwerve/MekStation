@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
-import { ARMOR_STATUS } from '@/components/customizer/armor/shared/ArmorFills';
 import { PremiumMaterialDiagram } from '@/components/customizer/armor/variants/PremiumMaterialDiagram';
+import { ARMOR_STATUS } from '@/constants/armorStatus';
 import { MechLocation } from '@/types/construction';
 
 describe('PremiumMaterialDiagram', () => {

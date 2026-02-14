@@ -5,12 +5,15 @@
  * Handles targeting computer recalculation on weapon changes.
  */
 
+import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+
 import {
   equipmentCalculatorService,
   VARIABLE_EQUIPMENT,
 } from '@/services/equipment/EquipmentCalculatorService';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { IEquipmentItem } from '@/types/equipment';
+import { createMountedEquipment } from '@/types/equipment/MountedEquipment';
 import { calculateDirectFireWeaponTonnage } from '@/types/equipment/weapons/utilities';
 import {
   calculateTargetingComputerWeight,
@@ -19,9 +22,7 @@ import {
 import { logger } from '@/utils/logger';
 import { generateUnitId } from '@/utils/uuid';
 
-import type { UnitStore, IMountedEquipmentInstance } from '../unitState';
-
-import { createMountedEquipment } from '../unitState';
+import type { UnitStore } from '../unitState';
 
 // =============================================================================
 // Constants

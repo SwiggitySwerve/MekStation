@@ -9,8 +9,8 @@
 
 import { useMemo } from 'react';
 
-import { getTotalEquipmentWeight } from '@/stores/unitState';
 import { useUnitStore } from '@/stores/useUnitStore';
+import { getTotalEquipmentWeight } from '@/types/equipment/MountedEquipment';
 import { calculateStructuralWeight } from '@/utils/validation/weightValidationUtils';
 
 /**

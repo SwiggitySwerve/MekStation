@@ -7,6 +7,6 @@
  */
 
 export { ArmorDiagram } from './ArmorDiagram';
-export type { LocationArmorData } from './ArmorDiagram';
+export type { LocationArmorData } from '@/types/construction/LocationArmorData';
 export { ArmorLocation } from './ArmorLocation';
 export { ArmorLegend } from './ArmorLegend';

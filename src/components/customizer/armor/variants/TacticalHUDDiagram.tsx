@@ -14,9 +14,12 @@
 
 import React, { useState } from 'react';
 
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+import type { MechConfigType } from '@/types/construction/MechConfigType';
+
+import { ARMOR_STATUS } from '@/constants/armorStatus';
 import { MechLocation } from '@/types/construction';
 
-import { LocationArmorData } from '../ArmorDiagram';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 import {
   GradientDefs,
@@ -24,12 +27,10 @@ import {
   getTorsoFrontStatusColor,
   getTorsoRearStatusColor,
   darkenColor,
-  ARMOR_STATUS,
 } from '../shared/ArmorFills';
 import {
   useResolvedLayout,
   ResolvedPosition,
-  MechConfigType,
   getLayoutIdForConfig,
 } from '../shared/layout';
 import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';

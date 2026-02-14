@@ -7,6 +7,9 @@
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
+import type { IArmorAllocation } from '@/types/construction/ArmorAllocation';
+
+import { createEmptyArmorAllocation } from '@/types/construction/ArmorAllocation';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import {
@@ -17,9 +20,7 @@ import {
 } from '@/utils/construction/armorCalculations';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
-import type { UnitStore, IArmorAllocation } from '../unitState';
-
-import { createEmptyArmorAllocation } from '../unitState';
+import type { UnitStore } from '../unitState';
 
 // =============================================================================
 // Types

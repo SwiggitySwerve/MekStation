@@ -8,8 +8,6 @@ import React from 'react';
 
 import { ARMOR_STATUS } from '@/constants/armorStatus';
 
-export { ARMOR_STATUS };
-
 export const SELECTED_COLOR = '#3b82f6'; // blue-500
 export const SELECTED_STROKE = '#60a5fa'; // blue-400
 export const HOVER_LIGHTEN = 0.15;

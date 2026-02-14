@@ -7,7 +7,7 @@
 
 import React from 'react';
 
-import { ARMOR_STATUS } from '@/components/customizer/armor/shared/ArmorFills';
+import { ARMOR_STATUS } from '@/constants/armorStatus';
 
 export interface ArmorStatusLegendProps {
   /** Additional CSS classes */

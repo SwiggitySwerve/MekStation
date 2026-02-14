@@ -41,13 +41,8 @@ import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
-// Armor Allocation Types (Re-export Facade)
+// Armor Allocation Types
 // =============================================================================
-
-export {
-  type IArmorAllocation,
-  createEmptyArmorAllocation,
-} from '@/types/construction/ArmorAllocation';
 
 /**
  * Convert ArmorAllocationResult from calculation utility to IArmorAllocation format
@@ -170,16 +165,8 @@ export function createEmptySelectionMemory(): ISelectionMemory {
 }
 
 // =============================================================================
-// Mounted Equipment Types (Re-export Facade)
+// Mounted Equipment Types
 // =============================================================================
-
-export type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
-export {
-  createMountedEquipment,
-  getTotalEquipmentWeight,
-  getTotalEquipmentSlots,
-  getEquipmentByCategory,
-} from '@/types/equipment/MountedEquipment';
 
 // =============================================================================
 // Unit State Interface

@@ -4,11 +4,9 @@
  * @spec openspec/specs/omnimech-system/spec.md
  */
 
-import {
-  IMountedEquipmentInstance,
-  UnitState,
-  createDefaultUnitState,
-} from '@/stores/unitState';
+import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+
+import { UnitState, createDefaultUnitState } from '@/stores/unitState';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
