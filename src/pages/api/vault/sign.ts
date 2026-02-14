@@ -17,6 +17,7 @@ import type {
   ShareableContentType,
 } from '@/types/vault';
 
+import { BUILD_VERSION } from '@/constants/appVersion';
 import { getIdentityRepository } from '@/services/vault/IdentityRepository';
 import {
   unlockIdentity,
@@ -102,7 +103,7 @@ export default async function handler(
       createdAt: new Date().toISOString(),
       description: typeof description === 'string' ? description : undefined,
       tags: Array.isArray(tags) ? (tags as string[]) : undefined,
-      appVersion: process.env.npm_package_version ?? '0.1.0',
+      appVersion: BUILD_VERSION,
     };
 
     // Serialize payload

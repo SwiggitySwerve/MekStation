@@ -8,14 +8,12 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { BUILD_VERSION } from '@/constants/appVersion';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import { ISerializedUnitEnvelope } from '@/types/persistence/UnitPersistence';
 
-/**
- * Package version (would normally come from package.json)
- */
-const APP_VERSION = '1.0.0';
+const APP_VERSION = BUILD_VERSION;
 const FORMAT_VERSION = '1.0.0';
 
 /**

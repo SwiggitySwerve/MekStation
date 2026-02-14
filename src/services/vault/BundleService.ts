@@ -17,6 +17,8 @@ import type {
   IExportResult,
 } from '@/types/vault';
 
+import { BUILD_VERSION } from '@/constants/appVersion';
+
 import {
   signMessage,
   verifyMessage,
@@ -283,8 +285,7 @@ export function validateBundleMetadata(metadata: IBundleMetadata): string[] {
  * Get application version for bundle metadata
  */
 function getAppVersion(): string {
-  // In a real app, this would come from package.json or environment
-  return '0.1.0';
+  return BUILD_VERSION;
 }
 
 /**

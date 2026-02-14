@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { BUILD_VERSION } from '../../constants/appVersion';
 import { ISimulationConfig } from '../core/types';
 import { ISimulationMetrics, IAggregateMetrics } from '../metrics/types';
 import { ISimulationReport, IReportViolation } from './types';
@@ -58,7 +59,7 @@ export class ReportGenerator {
 
     return {
       timestamp,
-      generatedBy: 'MekStation Simulation System v0.1.0',
+      generatedBy: `MekStation Simulation System v${BUILD_VERSION}`,
       config,
       summary: {
         total: metrics.length,
