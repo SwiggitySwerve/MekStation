@@ -11,9 +11,9 @@ import {
   EquipmentAssignmentAdapter,
   usePlacementMode,
   PlacementModeState,
-} from '../../../components/mobile/EquipmentAssignmentAdapter';
-import { useDeviceType } from '../../../hooks/useDeviceType';
-import * as hapticFeedback from '../../../utils/hapticFeedback';
+} from '@/components/mobile/EquipmentAssignmentAdapter';
+import { useDeviceType } from '@/hooks/useDeviceType';
+import * as hapticFeedback from '@/utils/hapticFeedback';
 
 // PlacementModeState already includes activatePlacementMode, handleSlotTap, cancelPlacementMode
 // so we don't need an extended interface

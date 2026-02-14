@@ -4,9 +4,10 @@
  * Tests for unit type handler registration and lookup
  */
 
-import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
-import { UnitCategory } from '../../../types/validation/UnitValidationInterfaces';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { UnitCategory } from '@/types/validation/UnitValidationInterfaces';
+
 import {
   createVehicleHandler,
   createAerospaceHandler,

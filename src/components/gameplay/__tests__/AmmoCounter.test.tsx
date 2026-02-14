@@ -1,7 +1,8 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import React from 'react';
 
-import { tap, error, success } from '../../../utils/hapticFeedback';
+import { tap, error, success } from '@/utils/hapticFeedback';
+
 import { AmmoCounter } from '../AmmoCounter';
 
 // Mock haptic feedback

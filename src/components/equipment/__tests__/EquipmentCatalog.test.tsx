@@ -1,11 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { IEquipmentItem, EquipmentCategory } from '@/types/equipment';
+
 import type { FilterOptions } from '../EquipmentCatalog';
 
-import { RulesLevel } from '../../../types/enums/RulesLevel';
-import { TechBase } from '../../../types/enums/TechBase';
-import { IEquipmentItem, EquipmentCategory } from '../../../types/equipment';
 import { EquipmentCatalog } from '../EquipmentCatalog';
 
 const mockItems: IEquipmentItem[] = [

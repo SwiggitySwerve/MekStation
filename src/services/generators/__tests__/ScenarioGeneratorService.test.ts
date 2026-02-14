@@ -4,9 +4,10 @@
  * @spec openspec/changes/add-scenario-generators/spec.md
  */
 
-import { Faction } from '../../../constants/scenario/rats';
-import { BiomeType, ScenarioObjectiveType } from '../../../types/scenario';
-import { Era } from '../../../types/temporal/Era';
+import { Faction } from '@/constants/scenario/rats';
+import { BiomeType, ScenarioObjectiveType } from '@/types/scenario';
+import { Era } from '@/types/temporal/Era';
+
 import {
   ScenarioGeneratorService,
   scenarioGenerator,

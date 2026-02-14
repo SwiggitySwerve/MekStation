@@ -1,7 +1,8 @@
 import {
   createDefaultCampaignOptions,
   ICampaignOptions,
-} from '../../../types/campaign/Campaign';
+} from '@/types/campaign/Campaign';
+
 import { validateCampaignOptions } from '../optionValidation';
 
 describe('optionValidation', () => {

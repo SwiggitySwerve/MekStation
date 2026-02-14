@@ -1,12 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
-import { BottomNavBar, Tab } from '../../../components/mobile/BottomNavBar';
-import { useDeviceType } from '../../../hooks/useDeviceType';
-import {
-  useNavigationStore,
-  PanelId,
-} from '../../../stores/useNavigationStore';
+import { BottomNavBar, Tab } from '@/components/mobile/BottomNavBar';
+import { useDeviceType } from '@/hooks/useDeviceType';
+import { useNavigationStore, PanelId } from '@/stores/useNavigationStore';
 
 // Mock dependencies
 jest.mock('../../../stores/useNavigationStore');

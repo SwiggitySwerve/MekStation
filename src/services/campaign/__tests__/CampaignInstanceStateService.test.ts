@@ -20,15 +20,16 @@ import { IDBFactory } from 'fake-indexeddb';
 import type {
   IUnitDamageState,
   ILocationDamageState,
-} from '../../../types/campaign/CampaignInstanceInterfaces';
+} from '@/types/campaign/CampaignInstanceInterfaces';
 
-import { createEmptyDamageState } from '../../../types/campaign/CampaignInstanceInterfaces';
+import { createEmptyDamageState } from '@/types/campaign/CampaignInstanceInterfaces';
 import {
   CampaignUnitStatus,
   CampaignPilotStatus,
   XP_REWARDS,
   SKILL_IMPROVEMENT_COSTS,
-} from '../../../types/campaign/CampaignInterfaces';
+} from '@/types/campaign/CampaignInterfaces';
+
 import {
   CampaignInstanceService,
   _resetCampaignInstanceService,

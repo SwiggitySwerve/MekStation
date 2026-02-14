@@ -4,7 +4,8 @@
  * Tests parsing of BLK files for various unit types.
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
 import { getBlkParserService } from '../BlkParserService';
 
 describe('BlkParserService', () => {

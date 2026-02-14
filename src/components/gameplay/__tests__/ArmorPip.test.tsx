@@ -1,9 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
+import { tap } from '@/utils/hapticFeedback';
+
 import type { PipState } from '../ArmorPip';
 
-import { tap } from '../../../utils/hapticFeedback';
 import { ArmorPip, ArmorPipGroup } from '../ArmorPip';
 
 // Mock haptic feedback

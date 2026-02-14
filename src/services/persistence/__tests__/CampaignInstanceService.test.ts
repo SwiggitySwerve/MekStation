@@ -20,12 +20,13 @@ import { IDBFactory } from 'fake-indexeddb';
 import type {
   ICampaignUnitInstance,
   ICampaignPilotInstance,
-} from '../../../types/campaign/CampaignInstanceInterfaces';
+} from '@/types/campaign/CampaignInstanceInterfaces';
 
 import {
   CampaignUnitStatus,
   CampaignPilotStatus,
-} from '../../../types/campaign/CampaignInterfaces';
+} from '@/types/campaign/CampaignInterfaces';
+
 import {
   CampaignInstanceService,
   _resetCampaignInstanceService,
