@@ -1,8 +1,12 @@
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import {
+  ArmorTypeEnum,
+  getArmorDefinition,
+} from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/MechConfigurationSystem';
-import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
-import { ArmorAllocationResult } from './types';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+
 import { getMaxArmorForLocation, MAX_HEAD_ARMOR } from './limits';
+import { ArmorAllocationResult } from './types';
 
 export function getRecommendedArmorDistribution(): Record<string, number> {
   return {
@@ -400,22 +404,6 @@ function createEmptyAllocationResult(
     unallocated: 0,
     ...overrides,
   };
-}
-
-/**
- * Calculate armor cost
- *
- * @param armorPoints - Total armor points
- * @param armorType - Type of armor
- * @returns Cost in C-Bills
- */
-export function calculateArmorCost(
-  armorPoints: number,
-  armorType: ArmorTypeEnum,
-): number {
-  const definition = getArmorDefinition(armorType);
-  const baseCost = armorPoints * 10000; // Base 10000 C-Bills per point
-  return baseCost * (definition?.costMultiplier ?? 1);
 }
 
 /**
