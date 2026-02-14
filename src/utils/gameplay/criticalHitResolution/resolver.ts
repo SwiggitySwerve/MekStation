@@ -4,14 +4,14 @@ import {
   halveCritCount,
   isFerroLamellorArmor,
   isHardenedArmor,
-} from './criticalHitResolutionArmor';
-import { LETHAL_PILOT_WOUNDS } from './criticalHitResolutionConstants';
-import { applyCriticalHitEffect } from './criticalHitResolutionEffects';
-import { normalizeLocation } from './criticalHitResolutionManifest';
+} from './armor';
+import { LETHAL_PILOT_WOUNDS } from './constants';
+import { applyCriticalHitEffect } from './effects';
+import { normalizeLocation } from './manifest';
 import {
   rollCriticalHits,
   selectCriticalSlot,
-} from './criticalHitResolutionSelection';
+} from './selection';
 import {
   CriticalSlotManifest,
   CriticalHitEvent,
@@ -19,8 +19,8 @@ import {
   ICriticalHitApplicationResult,
   ICriticalResolutionResult,
   IComponentDamageState,
-} from './criticalHitResolutionTypes';
-import { D6Roller } from './hitLocation';
+} from './types';
+import { D6Roller } from '../hitLocation';
 
 export function resolveCriticalHits(
   unitId: string,

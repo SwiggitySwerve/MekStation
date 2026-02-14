@@ -1,11 +1,3 @@
-/**
- * Ammo Tracking Module (Facade)
- * Re-exports from focused subdirectory modules.
- *
- * @spec openspec/changes/full-combat-parity/specs/ammo-tracking/spec.md
- * @spec openspec/changes/full-combat-parity/specs/ammo-explosion-system/spec.md
- */
-
 export {
   initializeAmmoState,
   consumeAmmo,
@@ -13,7 +5,7 @@ export {
   getTotalAmmo,
   getAmmoBinsAtLocation,
   selectRandomAmmoBin,
-} from './ammoTracking/state';
+} from './state';
 export {
   resolveAmmoExplosion,
   calculateCASEEffects,
@@ -21,8 +13,8 @@ export {
   resolveGaussExplosion,
   getHeatAmmoExplosionTN,
   checkHeatAmmoExplosion,
-} from './ammoTracking/explosions';
-export { getFireableWeapons, isEnergyWeapon } from './ammoTracking/weapons';
+} from './explosions';
+export { getFireableWeapons, isEnergyWeapon } from './weapons';
 export type {
   CASEProtectionLevel,
   UnitCASEConfig,
@@ -30,4 +22,4 @@ export type {
   IAmmoConsumeResult,
   IAmmoExplosionResult,
   IGaussExplosionResult,
-} from './ammoTracking/types';
+} from './types';
