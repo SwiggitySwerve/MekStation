@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
  */
 import React, { ReactElement, useState, useRef, useEffect } from 'react';
 
+import { APP_VERSION_LABEL } from '@/constants/appVersion';
 import { useMobileSidebarStore } from '@/stores/useNavigationStore';
 
 import {
@@ -337,7 +338,7 @@ function MobileMenu({
         {/* Footer */}
         <div className="border-border-theme-subtle border-t px-4 py-3">
           <div className="text-text-theme-muted flex items-center justify-between text-xs">
-            <span>v0.1.0</span>
+            <span>{APP_VERSION_LABEL}</span>
             <a
               href="https://github.com"
               target="_blank"

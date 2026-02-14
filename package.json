@@ -1,6 +1,6 @@
 {
   "name": "mekstation-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "BattleTech unit construction and customization tool",
   "license": "SEE LICENSE IN LICENSE",

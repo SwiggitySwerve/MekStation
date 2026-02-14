@@ -1,7 +1,57 @@
 import type { NextConfig } from 'next';
 import type { Configuration, WebpackPluginInstance } from 'webpack';
 
+import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+
+const FALLBACK_APP_VERSION = '0.0.0';
+const FALLBACK_BUILD_NUMBER = '0';
+
+function runCommand(command: string): string | undefined {
+  try {
+    const output = execSync(command, {
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .toString()
+      .trim();
+
+    return output.length > 0 ? output : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function readPackageVersion(): string {
+  try {
+    const packageJsonPath = join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as {
+      version?: unknown;
+    };
+
+    if (typeof packageJson.version === 'string') {
+      const version = packageJson.version.trim();
+      if (version.length > 0) {
+        return version;
+      }
+    }
+  } catch {
+    return FALLBACK_APP_VERSION;
+  }
+
+  return FALLBACK_APP_VERSION;
+}
+
+const appVersion =
+  process.env.npm_package_version?.trim() || readPackageVersion();
+const buildNumber =
+  process.env.BUILD_NUMBER?.trim() ||
+  process.env.GITHUB_RUN_NUMBER?.trim() ||
+  runCommand('git rev-list --count HEAD') ||
+  FALLBACK_BUILD_NUMBER;
+const gitSha = runCommand('git rev-parse --short HEAD') || 'unknown';
+const buildVersion = `${appVersion}+${buildNumber}`;
 
 interface WebpackContext {
   buildId: string;
@@ -174,6 +224,14 @@ const nextConfig: NextConfig = {
   env: {
     BUNDLE_ANALYZE: process.env.ANALYZE === 'true' ? 'true' : 'false',
     BUILD_TIME: new Date().toISOString(),
+    APP_VERSION: appVersion,
+    BUILD_NUMBER: buildNumber,
+    BUILD_VERSION: buildVersion,
+    GIT_SHA: gitSha,
+    NEXT_PUBLIC_APP_VERSION: appVersion,
+    NEXT_PUBLIC_BUILD_NUMBER: buildNumber,
+    NEXT_PUBLIC_BUILD_VERSION: buildVersion,
+    NEXT_PUBLIC_GIT_SHA: gitSha,
   },
 };
 

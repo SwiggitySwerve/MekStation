@@ -11,6 +11,8 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { BUILD_VERSION } from '@/constants/appVersion';
+
 interface IHealthResponse {
   status: 'healthy' | 'unhealthy';
   timestamp: string;
@@ -65,7 +67,7 @@ export default function handler(
       status: isHealthy ? 'healthy' : 'unhealthy',
       timestamp: new Date().toISOString(),
       uptime: Math.floor((Date.now() - startTime) / 1000),
-      version: process.env.npm_package_version || '1.0.0',
+      version: BUILD_VERSION,
       environment: process.env.NODE_ENV || 'development',
       checks: {
         server: 'ok',
@@ -93,7 +95,7 @@ export default function handler(
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       uptime: Math.floor((Date.now() - startTime) / 1000),
-      version: process.env.npm_package_version || '1.0.0',
+      version: BUILD_VERSION,
       environment: process.env.NODE_ENV || 'development',
       checks: {
         server: 'error',
