@@ -11,10 +11,10 @@
  * @module campaign/medical/doctorCapacity
  */
 
-import type { ICampaignOptions } from '../../../types/campaign/Campaign';
-import type { IPerson } from '../../../types/campaign/Person';
+import type { ICampaignOptions } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
 
-import { CampaignPersonnelRole } from '../../../types/campaign/enums/CampaignPersonnelRole';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 
 /**
  * Calculate maximum patients a doctor can handle

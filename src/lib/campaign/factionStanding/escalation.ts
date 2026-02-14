@@ -8,7 +8,7 @@
  * Censures trigger when regard < 0
  */
 
-import { IFactionStanding } from '../../../types/campaign/factionStanding/IFactionStanding';
+import { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
 
 /**
  * Accolade escalation levels (0-5)

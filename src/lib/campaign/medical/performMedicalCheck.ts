@@ -1,5 +1,6 @@
-import { ICampaignOptions } from '../../../types/campaign/Campaign';
-import { IPerson, IInjury } from '../../../types/campaign/Person';
+import { ICampaignOptions } from '@/types/campaign/Campaign';
+import { IPerson, IInjury } from '@/types/campaign/Person';
+
 import { advancedMedicalCheck } from './advancedMedical';
 import { alternateMedicalCheck } from './alternateMedical';
 import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';

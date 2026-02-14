@@ -12,7 +12,8 @@ import {
   IValidationContext,
   ValidationCategory,
   ValidationSeverity,
-} from '../../../types/validation/rules/ValidationRuleInterfaces';
+} from '@/types/validation/rules/ValidationRuleInterfaces';
+
 import { pass, fail } from './validationHelpers';
 
 /**

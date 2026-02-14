@@ -4,16 +4,18 @@
  * Engine, gyro, cockpit, heat sink, and internal structure calculations.
  */
 
-import type { CockpitType } from '../../../types/construction/CockpitType';
-import type { EngineType } from '../../../types/construction/EngineType';
-import type { GyroType } from '../../../types/construction/GyroType';
-import type { HeatSinkType } from '../../../types/construction/HeatSinkType';
-import type { InternalStructureType } from '../../../types/construction/InternalStructureType';
+import type { CockpitType } from '@/types/construction/CockpitType';
+import type { EngineType } from '@/types/construction/EngineType';
+import type { GyroType } from '@/types/construction/GyroType';
+import type { HeatSinkType } from '@/types/construction/HeatSinkType';
+import type { InternalStructureType } from '@/types/construction/InternalStructureType';
+
+import { getCockpitDefinition } from '@/types/construction/CockpitType';
+import { getEngineDefinition } from '@/types/construction/EngineType';
+import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
+
 import type { ConstructionStepResult } from './types';
 
-import { getCockpitDefinition } from '../../../types/construction/CockpitType';
-import { getEngineDefinition } from '../../../types/construction/EngineType';
-import { getInternalStructureDefinition } from '../../../types/construction/InternalStructureType';
 import { ceilToHalfTon } from '../../physical/weightUtils';
 import {
   calculateEngineWeight,

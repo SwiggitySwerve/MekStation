@@ -12,8 +12,9 @@
  * @module campaign/medical/alternateMedical
  */
 
-import { ICampaignOptions } from '../../../types/campaign/Campaign';
-import { IPerson, IInjury } from '../../../types/campaign/Person';
+import { ICampaignOptions } from '@/types/campaign/Campaign';
+import { IPerson, IInjury } from '@/types/campaign/Person';
+
 import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
 
 export type RandomFn = () => number;

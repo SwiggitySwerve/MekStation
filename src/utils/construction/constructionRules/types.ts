@@ -4,12 +4,12 @@
  * Shared types and interfaces for construction validation.
  */
 
-import { ArmorTypeEnum } from '../../../types/construction/ArmorType';
-import { CockpitType } from '../../../types/construction/CockpitType';
-import { EngineType } from '../../../types/construction/EngineType';
-import { GyroType } from '../../../types/construction/GyroType';
-import { HeatSinkType } from '../../../types/construction/HeatSinkType';
-import { InternalStructureType } from '../../../types/construction/InternalStructureType';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 
 /**
  * Mech configuration for construction validation

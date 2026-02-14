@@ -7,6 +7,11 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import {
+  VEHICLE_TONNAGE,
+  VTOL_TONNAGE,
+  SUPPORT_VEHICLE_TONNAGE,
+} from '@/services/construction/constructionConstants';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
@@ -19,12 +24,6 @@ import {
   IValidatableUnit,
 } from '@/types/validation/UnitValidationInterfaces';
 import { isVehicleType } from '@/utils/validation/UnitCategoryMapper';
-
-import {
-  VEHICLE_TONNAGE,
-  VTOL_TONNAGE,
-  SUPPORT_VEHICLE_TONNAGE,
-} from '../../../construction/constructionConstants';
 
 /**
  * Extended vehicle unit interface for vehicle-specific validation

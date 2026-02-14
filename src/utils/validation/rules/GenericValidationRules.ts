@@ -1,8 +1,8 @@
-import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import {
   MechConfiguration,
   configurationRegistry,
-} from '../../../types/construction/MechConfigurationSystem';
+} from '@/types/construction/MechConfigurationSystem';
 import {
   IValidationRuleDefinition,
   IValidationRuleResult,
@@ -10,7 +10,8 @@ import {
   IValidationError,
   ValidationCategory,
   ValidationSeverity,
-} from '../../../types/validation/rules/ValidationRuleInterfaces';
+} from '@/types/validation/rules/ValidationRuleInterfaces';
+
 import { pass, fail } from './validationHelpers';
 
 export const ValidLocationsRule: IValidationRuleDefinition = {

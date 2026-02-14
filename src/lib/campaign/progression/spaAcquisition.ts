@@ -9,7 +9,7 @@
  * @module campaign/progression/spaAcquisition
  */
 
-import type { IPerson } from '../../../types/campaign/Person';
+import type { IPerson } from '@/types/campaign/Person';
 
 // =============================================================================
 // Types

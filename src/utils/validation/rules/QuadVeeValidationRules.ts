@@ -1,4 +1,4 @@
-import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import {
   IValidationRuleDefinition,
   IValidationRuleResult,
@@ -6,7 +6,8 @@ import {
   IValidationError,
   ValidationCategory,
   ValidationSeverity,
-} from '../../../types/validation/rules/ValidationRuleInterfaces';
+} from '@/types/validation/rules/ValidationRuleInterfaces';
+
 import { pass, fail, warn } from './validationHelpers';
 
 export const QuadVeeConversionEquipmentRule: IValidationRuleDefinition = {

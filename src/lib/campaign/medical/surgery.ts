@@ -1,5 +1,6 @@
-import { ICampaignOptions } from '../../../types/campaign/Campaign';
-import { IPerson, IInjury } from '../../../types/campaign/Person';
+import { ICampaignOptions } from '@/types/campaign/Campaign';
+import { IPerson, IInjury } from '@/types/campaign/Person';
+
 import { ISurgeryResult } from './medicalTypes';
 import { roll2d6, RandomFn } from './standardMedical';
 

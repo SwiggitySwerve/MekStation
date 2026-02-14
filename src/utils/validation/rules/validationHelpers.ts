@@ -1,7 +1,7 @@
 import {
   IValidationRuleResult,
   IValidationError,
-} from '../../../types/validation/rules/ValidationRuleInterfaces';
+} from '@/types/validation/rules/ValidationRuleInterfaces';
 
 export function pass(ruleId: string): IValidationRuleResult {
   return {

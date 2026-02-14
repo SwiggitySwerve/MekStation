@@ -4,14 +4,15 @@
  * Tonnage validation, structural weight, remaining tonnage, and armor weight calculations.
  */
 
-import type { ConstructionStepResult, MechBuildConfig } from './types';
-
 import {
   ArmorTypeEnum,
   getArmorDefinition,
-} from '../../../types/construction/ArmorType';
-import { getCockpitDefinition } from '../../../types/construction/CockpitType';
-import { getInternalStructureDefinition } from '../../../types/construction/InternalStructureType';
+} from '@/types/construction/ArmorType';
+import { getCockpitDefinition } from '@/types/construction/CockpitType';
+import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
+
+import type { ConstructionStepResult, MechBuildConfig } from './types';
+
 import { ceilToHalfTon } from '../../physical/weightUtils';
 import { calculateArmorWeight } from '../armorCalculations';
 import { calculateEngineWeight } from '../engineCalculations';

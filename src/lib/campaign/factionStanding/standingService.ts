@@ -4,7 +4,7 @@ import {
   FactionStandingLevel,
   REGARD_DELTAS,
   getStandingLevel,
-} from '../../../types/campaign/factionStanding/IFactionStanding';
+} from '@/types/campaign/factionStanding/IFactionStanding';
 
 /**
  * Adjusts a faction's regard by a delta amount.

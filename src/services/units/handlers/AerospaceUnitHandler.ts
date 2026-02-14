@@ -7,21 +7,22 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.3
  */
 
-import { AerospaceLocation } from '../../../types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
-import { IBlkDocument } from '../../../types/formats/BlkFormat';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   IAerospace,
   IAerospaceMountedEquipment,
   AerospaceCockpitType,
-} from '../../../types/unit/AerospaceInterfaces';
+} from '@/types/unit/AerospaceInterfaces';
 import {
   AerospaceMotionType,
   IAerospaceMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
-import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
+} from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
+import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+
 import {
   AbstractUnitTypeHandler,
   createFailureResult,

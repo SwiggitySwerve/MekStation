@@ -17,9 +17,9 @@
  * @module campaign/progression/xpAwards
  */
 
-import type { ICampaignOptions } from '../../../types/campaign/Campaign';
-import type { IPerson } from '../../../types/campaign/Person';
-import type { IXPAwardEvent } from '../../../types/campaign/progression/progressionTypes';
+import type { ICampaignOptions } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
+import type { IXPAwardEvent } from '@/types/campaign/progression/progressionTypes';
 
 // =============================================================================
 // Scenario XP
