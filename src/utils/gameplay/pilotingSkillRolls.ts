@@ -6,7 +6,7 @@
  */
 
 // Re-export everything from the subdirectory
-export * from './pilotingSkillRolls';
+export * from './pilotingSkillRolls/index';
 
 // Re-export hitLocation utilities
 export { isLegLocation } from './hitLocation';
