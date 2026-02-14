@@ -2,23 +2,14 @@ import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
 
 import {
   GamePhase,
-  GameSide,
-  GameStatus,
   GameEventType,
   IGameState,
   IUnitGameState,
   IGameEvent,
-  LockState,
-  IComponentDamageState,
-  RangeBracket,
-} from '@/types/gameplay';
-import {
   Facing,
-  MovementType,
-  IHexCoordinate,
   IHexGrid,
-  IHex,
-  IMovementCapability,
+  MovementType,
+  RangeBracket,
 } from '@/types/gameplay';
 import { CombatLocation, IAttackerState, ITargetState } from '@/types/gameplay';
 import { resolveDamage, IUnitDamageState } from '@/utils/gameplay/damage';
@@ -42,208 +33,65 @@ import {
 } from '@/utils/gameplay/pilotingSkillRolls';
 import { calculateToHit } from '@/utils/gameplay/toHit';
 
-import type { IAIUnitState, IWeapon } from '../ai/types';
 import type { BattleState as AnomalyBattleState } from '../detectors/HeatSuicideDetector';
 import type { BattleState as KeyMomentBattleState } from '../detectors/KeyMomentDetector';
 
 import { BotPlayer } from '../ai/BotPlayer';
 import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
-import { HeatSuicideDetector } from '../detectors/HeatSuicideDetector';
-import { KeyMomentDetector } from '../detectors/KeyMomentDetector';
-import { LongGameDetector } from '../detectors/LongGameDetector';
-import { NoProgressDetector } from '../detectors/NoProgressDetector';
-import { PassiveUnitDetector } from '../detectors/PassiveUnitDetector';
-import { StateCycleDetector } from '../detectors/StateCycleDetector';
 import { InvariantRunner } from '../invariants/InvariantRunner';
 import { IViolation } from '../invariants/types';
+import {
+  BASE_HEAT_SINKS,
+  DAMAGE_PSR_THRESHOLD,
+  DEFAULT_COMPONENT_DAMAGE,
+  DEFAULT_GUNNERY,
+  DEFAULT_PILOTING,
+  DEFAULT_TONNAGE,
+  ENGINE_HEAT_PER_CRITICAL,
+  HEAD_HIT_DAMAGE_CAP,
+  JUMP_HEAT,
+  LETHAL_PILOT_WOUNDS,
+  MAX_TURNS,
+  MEDIUM_LASER_HEAT,
+  RUN_HEAT,
+  WALK_HEAT,
+} from './SimulationRunnerConstants';
+import {
+  createAnomalyDetectors,
+  createKeyMomentDetector,
+  type IAnomalyDetectors,
+  buildAnomalyBattleState as buildAnomalyBattleStateFromState,
+  buildKeyMomentBattleState as buildKeyMomentBattleStateFromState,
+  convertAnomaliesToViolations as convertAnomaliesToViolationsFromDetectors,
+  runAllAnomalyDetectors as runAllAnomalyDetectorsFromDetectors,
+} from './SimulationRunnerDetection';
+import {
+  applyDamageResultToState as applyDamageResultToStateFromState,
+  applyMovementEvent as applyMovementEventFromState,
+  buildDamageState as buildDamageStateFromState,
+  createInitialState as createInitialStateFromConfig,
+  determineWinner as determineWinnerFromState,
+  isGameOver as isGameOverFromState,
+  isUnitOperable as isUnitOperableFromState,
+  resetTurnState as resetTurnStateFromState,
+} from './SimulationRunnerState';
+import {
+  createMinimalGrid,
+  createMinimalWeapon,
+  createMovementCapability,
+  getRangeBracket,
+  toAIUnitState,
+} from './SimulationRunnerSupport';
 import { ISimulationRunResult, IDetectorConfig } from './types';
-
-const MAX_TURNS = 10;
-
-/** Default tonnage for simulation minimal units */
-const DEFAULT_TONNAGE = 65;
-/** Default piloting skill */
-const DEFAULT_PILOTING = 5;
-/** Default gunnery skill */
-const DEFAULT_GUNNERY = 4;
-/** Base heat sinks for standard mech */
-const BASE_HEAT_SINKS = 10;
-/** Engine heat generated per engine critical hit */
-const ENGINE_HEAT_PER_CRITICAL = 5;
-/** Max damage to head location */
-const HEAD_HIT_DAMAGE_CAP = 3;
-/** Damage threshold for triggering PSR */
-const DAMAGE_PSR_THRESHOLD = 20;
-/** Pilot wounds that cause death */
-const LETHAL_PILOT_WOUNDS = 6;
-/** Walk movement heat */
-const WALK_HEAT = 1;
-/** Run movement heat */
-const RUN_HEAT = 2;
-/** Jump movement heat */
-const JUMP_HEAT = 3;
-/** Medium Laser heat */
-const MEDIUM_LASER_HEAT = 3;
-/** Medium Laser damage */
-const MEDIUM_LASER_DAMAGE = 5;
-/** Medium Laser short range */
-const MEDIUM_LASER_SHORT_RANGE = 3;
-/** Medium Laser medium range */
-const MEDIUM_LASER_MEDIUM_RANGE = 6;
-/** Medium Laser long range */
-const MEDIUM_LASER_LONG_RANGE = 9;
-
-/** Default component damage state (no damage) */
-const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
-  engineHits: 0,
-  gyroHits: 0,
-  sensorHits: 0,
-  lifeSupport: 0,
-  cockpitHit: false,
-  actuators: {},
-  weaponsDestroyed: [],
-  heatSinksDestroyed: 0,
-  jumpJetsDestroyed: 0,
-};
-
-/**
- * Determine range bracket from weapon ranges and distance.
- */
-function getRangeBracket(
-  distance: number,
-  shortRange: number,
-  mediumRange: number,
-  longRange: number,
-): RangeBracket {
-  if (distance <= shortRange) return RangeBracket.Short;
-  if (distance <= mediumRange) return RangeBracket.Medium;
-  if (distance <= longRange) return RangeBracket.Long;
-  return RangeBracket.OutOfRange;
-}
-
-function createMinimalGrid(radius: number): IHexGrid {
-  const hexes = new Map<string, IHex>();
-
-  for (let q = -radius; q <= radius; q++) {
-    for (let r = -radius; r <= radius; r++) {
-      if (Math.abs(q + r) <= radius) {
-        const key = `${q},${r}`;
-        hexes.set(key, {
-          coord: { q, r },
-          occupantId: null,
-          terrain: 'clear',
-          elevation: 0,
-        });
-      }
-    }
-  }
-
-  return {
-    config: { radius },
-    hexes,
-  };
-}
-
-function createMinimalWeapon(id: string): IWeapon {
-  return {
-    id,
-    name: 'Medium Laser',
-    shortRange: MEDIUM_LASER_SHORT_RANGE,
-    mediumRange: MEDIUM_LASER_MEDIUM_RANGE,
-    longRange: MEDIUM_LASER_LONG_RANGE,
-    damage: MEDIUM_LASER_DAMAGE,
-    heat: MEDIUM_LASER_HEAT,
-    minRange: 0,
-    ammoPerTon: -1,
-    destroyed: false,
-  };
-}
-
-function createMinimalUnitState(
-  id: string,
-  side: GameSide,
-  position: IHexCoordinate,
-): IUnitGameState {
-  return {
-    id,
-    side,
-    position,
-    facing: side === GameSide.Player ? Facing.South : Facing.North,
-    heat: 0,
-    movementThisTurn: MovementType.Stationary,
-    hexesMovedThisTurn: 0,
-    armor: {
-      head: 9,
-      center_torso: 31,
-      left_torso: 22,
-      right_torso: 22,
-      left_arm: 17,
-      right_arm: 17,
-      left_leg: 21,
-      right_leg: 21,
-    },
-    structure: {
-      head: 3,
-      center_torso: 21,
-      left_torso: 14,
-      right_torso: 14,
-      left_arm: 11,
-      right_arm: 11,
-      left_leg: 14,
-      right_leg: 14,
-    },
-    destroyedLocations: [],
-    destroyedEquipment: [],
-    ammo: {},
-    pilotWounds: 0,
-    pilotConscious: true,
-    destroyed: false,
-    lockState: LockState.Pending,
-    componentDamage: DEFAULT_COMPONENT_DAMAGE,
-    prone: false,
-    shutdown: false,
-    pendingPSRs: [],
-    damageThisPhase: 0,
-    weaponsFiredThisTurn: [],
-  };
-}
-
-function toAIUnitState(unit: IUnitGameState): IAIUnitState {
-  return {
-    unitId: unit.id,
-    position: unit.position,
-    facing: unit.facing,
-    heat: unit.heat,
-    weapons: [createMinimalWeapon(`${unit.id}-weapon-1`)],
-    ammo: {},
-    destroyed: unit.destroyed,
-    gunnery: DEFAULT_GUNNERY,
-    movementType: unit.movementThisTurn,
-    hexesMoved: unit.hexesMovedThisTurn,
-  };
-}
-
-function createMovementCapability(): IMovementCapability {
-  return {
-    walkMP: 4,
-    runMP: 6,
-    jumpMP: 0,
-  };
-}
 
 export class SimulationRunner {
   private readonly random: SeededRandom;
   private readonly invariantRunner: InvariantRunner;
   private readonly detectorConfig: IDetectorConfig;
-  private readonly keyMomentDetector: KeyMomentDetector;
-  private readonly anomalyDetectors: {
-    readonly heatSuicide: HeatSuicideDetector;
-    readonly passiveUnit: PassiveUnitDetector;
-    readonly noProgress: NoProgressDetector;
-    readonly longGame: LongGameDetector;
-    readonly stateCycle: StateCycleDetector;
-  };
+  private readonly keyMomentDetector = createKeyMomentDetector();
+  private readonly anomalyDetectors: IAnomalyDetectors =
+    createAnomalyDetectors();
 
   constructor(
     seed: number,
@@ -253,14 +101,6 @@ export class SimulationRunner {
     this.random = new SeededRandom(seed);
     this.invariantRunner = invariantRunner ?? new InvariantRunner();
     this.detectorConfig = detectorConfig ?? {};
-    this.keyMomentDetector = new KeyMomentDetector();
-    this.anomalyDetectors = {
-      heatSuicide: new HeatSuicideDetector(),
-      passiveUnit: new PassiveUnitDetector(),
-      noProgress: new NoProgressDetector(),
-      longGame: new LongGameDetector(),
-      stateCycle: new StateCycleDetector(),
-    };
   }
 
   private createD6Roller(): D6Roller {
@@ -420,30 +260,12 @@ export class SimulationRunner {
     events: readonly IGameEvent[],
     battleState: AnomalyBattleState,
   ): IAnomaly[] {
-    const cfg = this.detectorConfig;
-    return [
-      ...this.anomalyDetectors.heatSuicide.detect(
-        events,
-        battleState,
-        cfg.heatSuicideThreshold,
-      ),
-      ...this.anomalyDetectors.passiveUnit.detect(
-        events,
-        battleState,
-        cfg.passiveUnitTurns,
-      ),
-      ...this.anomalyDetectors.noProgress.detect(
-        events,
-        battleState,
-        cfg.noProgressTurns,
-      ),
-      ...this.anomalyDetectors.longGame.detect(events, cfg.longGameTurns),
-      ...this.anomalyDetectors.stateCycle.detect(
-        events,
-        battleState,
-        cfg.stateCycleLength,
-      ),
-    ];
+    return runAllAnomalyDetectorsFromDetectors(
+      events,
+      battleState,
+      this.anomalyDetectors,
+      this.detectorConfig,
+    );
   }
 
   /**
@@ -452,49 +274,21 @@ export class SimulationRunner {
   private convertAnomaliesToViolations(
     anomalies: readonly IAnomaly[],
   ): IViolation[] {
-    return anomalies.map((anomaly) => ({
-      invariant: `detector:${anomaly.type}`,
-      severity:
-        anomaly.severity === 'critical'
-          ? ('critical' as const)
-          : ('warning' as const),
-      message: anomaly.message,
-      context: {
-        anomalyId: anomaly.id,
-        turn: anomaly.turn,
-        unitId: anomaly.unitId,
-        thresholdUsed: anomaly.thresholdUsed,
-        actualValue: anomaly.actualValue,
-      },
-    }));
+    return convertAnomaliesToViolationsFromDetectors(anomalies);
   }
 
   /**
    * Builds a BattleState suitable for the KeyMomentDetector from game state.
    */
   private buildKeyMomentBattleState(state: IGameState): KeyMomentBattleState {
-    const units = Object.values(state.units).map((unit) => ({
-      id: unit.id,
-      name: unit.id,
-      side: unit.side,
-      bv: 1000,
-      weaponIds: [`${unit.id}-weapon-1`],
-      initialArmor: { ...unit.armor },
-      initialStructure: { ...unit.structure },
-    }));
-    return { units };
+    return buildKeyMomentBattleStateFromState(state);
   }
 
   /**
    * Builds a BattleState suitable for anomaly detectors from game state.
    */
   private buildAnomalyBattleState(state: IGameState): AnomalyBattleState {
-    const units = Object.values(state.units).map((unit) => ({
-      id: unit.id,
-      name: unit.id,
-      side: unit.side,
-    }));
-    return { units };
+    return buildAnomalyBattleStateFromState(state);
   }
 
   private createGameEvent(
@@ -1137,45 +931,8 @@ export class SimulationRunner {
     return currentState;
   }
 
-  private createSideUnits(
-    units: Record<string, IUnitGameState>,
-    config: ISimulationConfig,
-    side: GameSide,
-    rowPosition: number,
-  ): void {
-    const count =
-      side === GameSide.Player
-        ? config.unitCount.player
-        : config.unitCount.opponent;
-    const prefix = side === GameSide.Player ? 'player' : 'opponent';
-
-    for (let i = 0; i < count; i++) {
-      const id = `${prefix}-${i + 1}`;
-      const position: IHexCoordinate = { q: i - 1, r: rowPosition };
-      units[id] = createMinimalUnitState(id, side, position);
-    }
-  }
-
   private createInitialState(config: ISimulationConfig): IGameState {
-    const units: Record<string, IUnitGameState> = {};
-
-    this.createSideUnits(units, config, GameSide.Player, -config.mapRadius + 1);
-    this.createSideUnits(
-      units,
-      config,
-      GameSide.Opponent,
-      config.mapRadius - 1,
-    );
-
-    return {
-      gameId: `sim-${config.seed}`,
-      status: GameStatus.Active,
-      turn: 1,
-      phase: GamePhase.Initiative,
-      activationIndex: 0,
-      units,
-      turnEvents: [],
-    };
+    return createInitialStateFromConfig(config);
   }
 
   private applyMovementEvent(
@@ -1188,45 +945,11 @@ export class SimulationRunner {
       mpUsed: number;
     },
   ): IGameState {
-    const unit = state.units[unitId];
-    if (!unit) return state;
-
-    const updatedUnit: IUnitGameState = {
-      ...unit,
-      position: payload.to,
-      facing: payload.facing as Facing,
-      movementThisTurn: payload.movementType,
-      hexesMovedThisTurn: payload.mpUsed,
-    };
-
-    return {
-      ...state,
-      units: {
-        ...state.units,
-        [unitId]: updatedUnit,
-      },
-    };
+    return applyMovementEventFromState(state, unitId, payload);
   }
 
   private buildDamageState(unit: IUnitGameState): IUnitDamageState {
-    const armorRecord = unit.armor as Record<CombatLocation, number>;
-    const rearArmor: Record<
-      'center_torso' | 'left_torso' | 'right_torso',
-      number
-    > = {
-      center_torso: armorRecord.center_torso_rear ?? 10,
-      left_torso: armorRecord.left_torso_rear ?? 7,
-      right_torso: armorRecord.right_torso_rear ?? 7,
-    };
-    return {
-      armor: armorRecord,
-      rearArmor,
-      structure: unit.structure as Record<CombatLocation, number>,
-      destroyedLocations: unit.destroyedLocations as CombatLocation[],
-      pilotWounds: unit.pilotWounds,
-      pilotConscious: unit.pilotConscious,
-      destroyed: unit.destroyed,
-    };
+    return buildDamageStateFromState(unit);
   }
 
   private applyDamageResultToState(
@@ -1243,86 +966,25 @@ export class SimulationRunner {
       readonly unitDestroyed: boolean;
     },
   ): IGameState {
-    const target = state.units[targetId];
-    if (!target) return state;
-
-    const newArmor = { ...target.armor };
-    const newStructure = { ...target.structure };
-    const newDestroyedLocations = [...target.destroyedLocations];
-
-    for (const locDamage of damageResult.locationDamages) {
-      newArmor[locDamage.location] = locDamage.armorRemaining;
-      newStructure[locDamage.location] = locDamage.structureRemaining;
-      if (
-        locDamage.destroyed &&
-        !newDestroyedLocations.includes(locDamage.location)
-      ) {
-        newDestroyedLocations.push(locDamage.location);
-        if (
-          locDamage.location === 'left_torso' &&
-          !newDestroyedLocations.includes('left_arm')
-        ) {
-          newDestroyedLocations.push('left_arm');
-          newArmor['left_arm'] = 0;
-          newStructure['left_arm'] = 0;
-        }
-        if (
-          locDamage.location === 'right_torso' &&
-          !newDestroyedLocations.includes('right_arm')
-        ) {
-          newDestroyedLocations.push('right_arm');
-          newArmor['right_arm'] = 0;
-          newStructure['right_arm'] = 0;
-        }
-      }
-    }
-
-    const updatedUnit: IUnitGameState = {
-      ...target,
-      armor: newArmor,
-      structure: newStructure,
-      destroyedLocations: newDestroyedLocations,
-      pilotWounds: damageState.pilotWounds,
-      pilotConscious: damageState.pilotConscious,
-      destroyed: damageResult.unitDestroyed,
-    };
-
-    return {
-      ...state,
-      units: {
-        ...state.units,
-        [targetId]: updatedUnit,
-      },
-    };
+    return applyDamageResultToStateFromState(
+      state,
+      targetId,
+      damageState,
+      damageResult,
+    );
   }
 
   private isUnitOperable(u: IUnitGameState): boolean {
-    return !u.destroyed && u.pilotConscious !== false;
+    return isUnitOperableFromState(u);
   }
 
   private isGameOver(state: IGameState): boolean {
-    const playerAlive = Object.values(state.units).some(
-      (u) => u.side === GameSide.Player && this.isUnitOperable(u),
-    );
-    const opponentAlive = Object.values(state.units).some(
-      (u) => u.side === GameSide.Opponent && this.isUnitOperable(u),
-    );
-    return !playerAlive || !opponentAlive;
+    return isGameOverFromState(state);
   }
 
   private determineWinner(
     state: IGameState,
   ): 'player' | 'opponent' | 'draw' | null {
-    const playerAlive = Object.values(state.units).some(
-      (u) => u.side === GameSide.Player && this.isUnitOperable(u),
-    );
-    const opponentAlive = Object.values(state.units).some(
-      (u) => u.side === GameSide.Opponent && this.isUnitOperable(u),
-    );
-
-    if (!playerAlive && !opponentAlive) return 'draw';
-    if (!playerAlive) return 'opponent';
-    if (!opponentAlive) return 'player';
-    return null;
+    return determineWinnerFromState(state);
   }
 }
