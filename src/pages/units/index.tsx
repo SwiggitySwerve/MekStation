@@ -1,152 +1,34 @@
-/**
- * Custom Units Browser Page
- * Browse and search user-created custom units with filtering.
- */
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type { ViewMode } from '@/components/ui';
+import type { FilterState, UnitEntry } from '@/pages-modules/units/list.types';
 
 import {
+  Button,
+  EmptyState,
+  Input,
+  PageError,
   PageLayout,
   PageLoading,
-  PageError,
-  Badge,
-  TechBaseBadge,
-  Button,
   PaginationButtons,
-  Input,
   Select,
-  EmptyState,
   ViewModeToggle,
 } from '@/components/ui';
-import { UnitCardCompact } from '@/components/unit-card';
+import {
+  ITEMS_PER_PAGE,
+  UNIT_TYPE_CONFIG,
+  WEIGHT_CLASS_CONFIG,
+} from '@/pages-modules/units/list.constants';
+import {
+  UnitCardListView,
+  UnitGridView,
+  UnitTableView,
+} from '@/pages-modules/units/list.views';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-
-interface UnitEntry {
-  id: string;
-  chassis: string;
-  variant: string;
-  tonnage: number;
-  techBase: TechBase;
-  era: string;
-  rulesLevel: RulesLevel;
-  unitType: string;
-  weightClass: WeightClass;
-  currentVersion: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface FilterState {
-  search: string;
-  unitType: string;
-  techBase: TechBase | '';
-  rulesLevel: RulesLevel | '';
-  weightClass: WeightClass | '';
-}
-
-const ITEMS_PER_PAGE = 36;
-
-// Unit type display configuration
-const UNIT_TYPE_CONFIG: Record<
-  string,
-  { label: string; badgeVariant: string; color: string }
-> = {
-  [UnitType.BATTLEMECH]: {
-    label: 'BattleMech',
-    badgeVariant: 'emerald',
-    color: 'bg-emerald-500',
-  },
-  [UnitType.OMNIMECH]: {
-    label: 'OmniMech',
-    badgeVariant: 'teal',
-    color: 'bg-teal-500',
-  },
-  [UnitType.INDUSTRIALMECH]: {
-    label: 'IndustrialMech',
-    badgeVariant: 'slate',
-    color: 'bg-slate-500',
-  },
-  [UnitType.PROTOMECH]: {
-    label: 'ProtoMech',
-    badgeVariant: 'violet',
-    color: 'bg-violet-500',
-  },
-  [UnitType.VEHICLE]: {
-    label: 'Vehicle',
-    badgeVariant: 'amber',
-    color: 'bg-amber-500',
-  },
-  [UnitType.VTOL]: { label: 'VTOL', badgeVariant: 'sky', color: 'bg-sky-500' },
-  [UnitType.SUPPORT_VEHICLE]: {
-    label: 'Support Vehicle',
-    badgeVariant: 'slate',
-    color: 'bg-slate-400',
-  },
-  [UnitType.AEROSPACE]: {
-    label: 'Aerospace',
-    badgeVariant: 'cyan',
-    color: 'bg-cyan-500',
-  },
-  [UnitType.CONVENTIONAL_FIGHTER]: {
-    label: 'Conv. Fighter',
-    badgeVariant: 'sky',
-    color: 'bg-sky-400',
-  },
-  [UnitType.SMALL_CRAFT]: {
-    label: 'Small Craft',
-    badgeVariant: 'indigo',
-    color: 'bg-indigo-500',
-  },
-  [UnitType.DROPSHIP]: {
-    label: 'DropShip',
-    badgeVariant: 'fuchsia',
-    color: 'bg-fuchsia-500',
-  },
-  [UnitType.JUMPSHIP]: {
-    label: 'JumpShip',
-    badgeVariant: 'purple',
-    color: 'bg-purple-500',
-  },
-  [UnitType.WARSHIP]: {
-    label: 'WarShip',
-    badgeVariant: 'rose',
-    color: 'bg-rose-500',
-  },
-  [UnitType.SPACE_STATION]: {
-    label: 'Space Station',
-    badgeVariant: 'pink',
-    color: 'bg-pink-500',
-  },
-  [UnitType.INFANTRY]: {
-    label: 'Infantry',
-    badgeVariant: 'lime',
-    color: 'bg-lime-500',
-  },
-  [UnitType.BATTLE_ARMOR]: {
-    label: 'Battle Armor',
-    badgeVariant: 'yellow',
-    color: 'bg-yellow-500',
-  },
-};
-
-// Weight class display configuration
-const WEIGHT_CLASS_CONFIG: Record<
-  WeightClass,
-  { label: string; color: string }
-> = {
-  [WeightClass.ULTRALIGHT]: { label: 'Ultralight', color: 'text-slate-400' },
-  [WeightClass.LIGHT]: { label: 'Light', color: 'text-green-400' },
-  [WeightClass.MEDIUM]: { label: 'Medium', color: 'text-yellow-400' },
-  [WeightClass.HEAVY]: { label: 'Heavy', color: 'text-orange-400' },
-  [WeightClass.ASSAULT]: { label: 'Assault', color: 'text-red-400' },
-  [WeightClass.SUPERHEAVY]: { label: 'Superheavy', color: 'text-rose-500' },
-};
 
 export default function CustomUnitsListPage(): React.ReactElement {
   const [units, setUnits] = useState<UnitEntry[]>([]);
@@ -169,6 +51,7 @@ export default function CustomUnitsListPage(): React.ReactElement {
     filters.techBase ||
     filters.rulesLevel ||
     filters.weightClass;
+
   const activeFilterCount = [
     filters.unitType,
     filters.techBase,
@@ -176,7 +59,6 @@ export default function CustomUnitsListPage(): React.ReactElement {
     filters.weightClass,
   ].filter(Boolean).length;
 
-  // Build select options
   const unitTypeOptions = Object.values(UnitType).map((ut) => ({
     value: ut,
     label: UNIT_TYPE_CONFIG[ut]?.label ?? ut,
@@ -197,7 +79,6 @@ export default function CustomUnitsListPage(): React.ReactElement {
     label: WEIGHT_CLASS_CONFIG[wc]?.label ?? wc,
   }));
 
-  // Fetch units on mount
   useEffect(() => {
     async function fetchUnits() {
       try {
@@ -223,7 +104,6 @@ export default function CustomUnitsListPage(): React.ReactElement {
     fetchUnits();
   }, []);
 
-  // Apply filters
   const applyFilters = useCallback(() => {
     let result = [...units];
 
@@ -263,7 +143,6 @@ export default function CustomUnitsListPage(): React.ReactElement {
     applyFilters();
   }, [applyFilters]);
 
-  // Pagination
   const totalPages = Math.ceil(filteredUnits.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const displayedUnits = filteredUnits.slice(
@@ -302,13 +181,10 @@ export default function CustomUnitsListPage(): React.ReactElement {
       subtitle={`${filteredUnits.length} custom units`}
       maxWidth="wide"
     >
-      {/* Header Actions */}
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          {/* View Mode Toggle */}
           <ViewModeToggle mode={viewMode} onChange={setViewMode} />
 
-          {/* Search */}
           <div className="w-64">
             <Input
               type="text"
@@ -321,7 +197,6 @@ export default function CustomUnitsListPage(): React.ReactElement {
             />
           </div>
 
-          {/* Filter Toggle Button */}
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
@@ -358,7 +233,6 @@ export default function CustomUnitsListPage(): React.ReactElement {
         </Link>
       </div>
 
-      {/* Collapsible Filter Panel */}
       {showFilters && (
         <div className="bg-surface-base/40 border-border-theme-subtle/50 animate-fadeIn mb-4 rounded-lg border p-3">
           <div className="flex flex-wrap items-center gap-3">
@@ -424,7 +298,6 @@ export default function CustomUnitsListPage(): React.ReactElement {
         </div>
       )}
 
-      {/* Empty State for no units */}
       {units.length === 0 ? (
         <EmptyState
           title="No custom units yet"
@@ -455,7 +328,6 @@ export default function CustomUnitsListPage(): React.ReactElement {
         </>
       )}
 
-      {/* Pagination - Compact */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <span className="text-text-theme-muted text-xs">
@@ -469,226 +341,5 @@ export default function CustomUnitsListPage(): React.ReactElement {
         </div>
       )}
     </PageLayout>
-  );
-}
-
-// ============================================================================
-// View Components
-// ============================================================================
-
-interface ViewProps {
-  units: UnitEntry[];
-}
-
-function getUnitTypeDisplay(unitType: string) {
-  return (
-    UNIT_TYPE_CONFIG[unitType] || {
-      label: unitType,
-      badgeVariant: 'slate',
-      color: 'bg-slate-500',
-    }
-  );
-}
-
-function getWeightClassDisplay(weightClass: WeightClass) {
-  return (
-    WEIGHT_CLASS_CONFIG[weightClass] || {
-      label: weightClass,
-      color: 'text-slate-400',
-    }
-  );
-}
-
-// Grid View - Compact cards
-function UnitGridView({ units }: ViewProps): React.ReactElement {
-  return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-      {units.map((unit) => {
-        const typeDisplay = getUnitTypeDisplay(unit.unitType);
-        const weightDisplay = getWeightClassDisplay(unit.weightClass);
-
-        return (
-          <Link key={unit.id} href={`/units/${encodeURIComponent(unit.id)}`}>
-            <div className="group bg-surface-base/40 border-border-theme-subtle/50 hover:bg-surface-base/60 hover:border-accent/50 cursor-pointer rounded-lg border p-3 transition-all">
-              {/* Header row */}
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-text-theme-primary group-hover:text-accent/90 line-clamp-1 text-sm leading-tight font-medium">
-                    {unit.chassis}
-                  </h3>
-                  <p className="text-text-theme-secondary truncate text-xs">
-                    {unit.variant}
-                  </p>
-                </div>
-                <TechBaseBadge techBase={unit.techBase} />
-              </div>
-
-              {/* Stats row */}
-              <div className="text-text-theme-secondary mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                <span className={`font-medium ${weightDisplay.color}`}>
-                  {unit.tonnage}t
-                </span>
-                <span className={weightDisplay.color}>
-                  {weightDisplay.label}
-                </span>
-              </div>
-
-              {/* Type badge */}
-              <Badge
-                variant={
-                  typeDisplay.badgeVariant as
-                    | 'emerald'
-                    | 'teal'
-                    | 'slate'
-                    | 'violet'
-                    | 'amber'
-                    | 'sky'
-                    | 'cyan'
-                    | 'fuchsia'
-                    | 'rose'
-                    | 'lime'
-                    | 'yellow'
-                }
-                size="sm"
-              >
-                {typeDisplay.label}
-              </Badge>
-            </div>
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
-
-// Card List View - Uses UnitCardCompact components
-function UnitCardListView({ units }: ViewProps): React.ReactElement {
-  const router = useRouter();
-
-  return (
-    <div className="space-y-2">
-      {units.map((unit) => {
-        const weightDisplay = getWeightClassDisplay(unit.weightClass);
-        // TODO: These fields are not in UnitEntry yet - would need API update
-        // For now, use placeholder values
-        const battleValue = 0;
-        const walkMP = 0;
-        const runMP = 0;
-        const jumpMP = 0;
-
-        return (
-          <UnitCardCompact
-            key={unit.id}
-            id={unit.id}
-            name={`${unit.chassis} ${unit.variant}`}
-            chassis={unit.chassis}
-            model={unit.variant}
-            tonnage={unit.tonnage}
-            weightClassName={weightDisplay.label}
-            techBaseName={unit.techBase}
-            battleValue={battleValue}
-            rulesLevelName={unit.rulesLevel}
-            walkMP={walkMP}
-            runMP={runMP}
-            jumpMP={jumpMP}
-            onClick={() => router.push(`/units/${encodeURIComponent(unit.id)}`)}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-// Table View - Compact data table
-function UnitTableView({ units }: ViewProps): React.ReactElement {
-  return (
-    <div className="bg-surface-base/30 border-border-theme-subtle/50 overflow-hidden rounded-lg border">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-surface-base/60 border-border-theme-subtle/50 border-b">
-              <th className="text-text-theme-secondary px-3 py-2 text-left text-xs font-semibold tracking-wider uppercase">
-                Unit
-              </th>
-              <th className="text-text-theme-secondary px-3 py-2 text-left text-xs font-semibold tracking-wider uppercase">
-                Type
-              </th>
-              <th className="text-text-theme-secondary px-3 py-2 text-center text-xs font-semibold tracking-wider uppercase">
-                Tech
-              </th>
-              <th className="text-text-theme-secondary px-3 py-2 text-right text-xs font-semibold tracking-wider uppercase">
-                Tons
-              </th>
-              <th className="text-text-theme-secondary px-3 py-2 text-left text-xs font-semibold tracking-wider uppercase">
-                Class
-              </th>
-              <th className="text-text-theme-secondary px-3 py-2 text-left text-xs font-semibold tracking-wider uppercase">
-                Era
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-border-theme-subtle/30 divide-y">
-            {units.map((unit) => {
-              const typeDisplay = getUnitTypeDisplay(unit.unitType);
-              const weightDisplay = getWeightClassDisplay(unit.weightClass);
-
-              return (
-                <tr
-                  key={unit.id}
-                  className="hover:bg-surface-raised/20 cursor-pointer transition-colors"
-                  onClick={() =>
-                    (window.location.href = `/units/${encodeURIComponent(unit.id)}`)
-                  }
-                >
-                  <td className="px-3 py-2">
-                    <div>
-                      <span className="text-text-theme-primary font-medium">
-                        {unit.chassis}
-                      </span>
-                      <span className="text-text-theme-secondary ml-1">
-                        {unit.variant}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-3 py-2">
-                    <Badge
-                      variant={
-                        typeDisplay.badgeVariant as
-                          | 'emerald'
-                          | 'teal'
-                          | 'slate'
-                          | 'violet'
-                          | 'amber'
-                          | 'sky'
-                          | 'cyan'
-                          | 'fuchsia'
-                          | 'rose'
-                          | 'lime'
-                          | 'yellow'
-                      }
-                      size="sm"
-                    >
-                      {typeDisplay.label}
-                    </Badge>
-                  </td>
-                  <td className="px-3 py-2 text-center">
-                    <TechBaseBadge techBase={unit.techBase} />
-                  </td>
-                  <td className="text-text-theme-primary/80 px-3 py-2 text-right font-mono">
-                    {unit.tonnage}
-                  </td>
-                  <td className={`px-3 py-2 ${weightDisplay.color}`}>
-                    {weightDisplay.label}
-                  </td>
-                  <td className="text-text-theme-secondary px-3 py-2">
-                    {unit.era}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
   );
 }

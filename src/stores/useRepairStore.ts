@@ -7,7 +7,6 @@
  * @spec openspec/changes/add-repair-system/specs/repair/spec.md
  */
 
-import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -15,171 +14,26 @@ import {
   IRepairJob,
   IRepairBay,
   IDamageAssessment,
-  ISalvageInventory,
   ISalvagedPart,
-  IFieldRepairResult,
-  IRepairJobValidationResult,
   RepairJobStatus,
   DEFAULT_REPAIR_BAY,
-  generateRepairItems,
-  calculateTotalRepairCost,
-  calculateTotalRepairTime,
   calculateFieldRepair,
-  validateRepairJob,
   sortJobsByPriority,
-  findMatchingSalvage,
 } from '@/types/repair';
 
-// =============================================================================
-// Store State
-// =============================================================================
+import type { RepairStore } from './useRepairStore.types';
 
-interface RepairStoreState {
-  /** Repair jobs by campaign ID */
-  jobsByCampaign: Record<string, IRepairJob[]>;
-  /** Repair bay config by campaign ID */
-  baysByCampaign: Record<string, IRepairBay>;
-  /** Salvage inventory by campaign ID */
-  salvageByCampaign: Record<string, ISalvageInventory>;
-  /** Currently selected job ID */
-  selectedJobId: string | null;
-  /** Loading state */
-  isLoading: boolean;
-  /** Error message */
-  error: string | null;
-}
-
-interface RepairStoreActions {
-  // Job Management
-  /** Create a repair job from damage assessment */
-  createRepairJob: (
-    campaignId: string,
-    assessment: IDamageAssessment,
-    armorType?: string,
-    structureType?: string,
-  ) => string;
-  /** Get all jobs for a campaign */
-  getJobs: (campaignId: string) => readonly IRepairJob[];
-  /** Get a specific job */
-  getJob: (campaignId: string, jobId: string) => IRepairJob | undefined;
-  /** Update a repair job */
-  updateJob: (
-    campaignId: string,
-    jobId: string,
-    updates: Partial<IRepairJob>,
-  ) => boolean;
-  /** Delete a repair job */
-  deleteJob: (campaignId: string, jobId: string) => boolean;
-  /** Select/deselect repair items in a job */
-  toggleRepairItem: (
-    campaignId: string,
-    jobId: string,
-    itemId: string,
-  ) => boolean;
-  /** Select all items in a job */
-  selectAllItems: (campaignId: string, jobId: string) => boolean;
-  /** Deselect all items in a job */
-  deselectAllItems: (campaignId: string, jobId: string) => boolean;
-
-  // Queue Management
-  /** Start a repair job */
-  startJob: (campaignId: string, jobId: string) => boolean;
-  /** Complete a repair job */
-  completeJob: (campaignId: string, jobId: string) => boolean;
-  /** Cancel a repair job */
-  cancelJob: (campaignId: string, jobId: string) => boolean;
-  /** Reorder jobs in queue */
-  reorderJobs: (campaignId: string, jobIds: string[]) => boolean;
-  /** Set job priority */
-  setJobPriority: (
-    campaignId: string,
-    jobId: string,
-    priority: number,
-  ) => boolean;
-  /** Get pending jobs sorted by priority */
-  getPendingJobs: (campaignId: string) => readonly IRepairJob[];
-  /** Get active (in-progress) jobs */
-  getActiveJobs: (campaignId: string) => readonly IRepairJob[];
-
-  // Repair Bay
-  /** Get repair bay for a campaign */
-  getRepairBay: (campaignId: string) => IRepairBay;
-  /** Update repair bay config */
-  updateRepairBay: (
-    campaignId: string,
-    updates: Partial<IRepairBay>,
-  ) => boolean;
-  /** Process repair bay (advance time) */
-  advanceRepairs: (
-    campaignId: string,
-    hoursElapsed: number,
-  ) => readonly string[];
-
-  // Field Repairs
-  /** Apply field repair to a unit */
-  applyFieldRepair: (
-    campaignId: string,
-    assessment: IDamageAssessment,
-    availableSupplies: number,
-  ) => IFieldRepairResult;
-
-  // Salvage
-  /** Get salvage inventory for a campaign */
-  getSalvage: (campaignId: string) => ISalvageInventory;
-  /** Add salvaged parts */
-  addSalvage: (campaignId: string, parts: readonly ISalvagedPart[]) => boolean;
-  /** Use salvage for repair */
-  useSalvageForRepair: (
-    campaignId: string,
-    jobId: string,
-    itemId: string,
-    partId: string,
-  ) => boolean;
-  /** Remove salvage part */
-  removeSalvage: (campaignId: string, partId: string) => boolean;
-
-  // Validation
-  /** Validate a repair job */
-  validateJob: (
-    campaignId: string,
-    jobId: string,
-    availableCBills: number,
-    availableSupplies: number,
-  ) => IRepairJobValidationResult;
-
-  // Selection
-  /** Select a job */
-  selectJob: (jobId: string | null) => void;
-  /** Get selected job */
-  getSelectedJob: (campaignId: string) => IRepairJob | null;
-
-  // Utility
-  /** Clear error */
-  clearError: () => void;
-  /** Initialize campaign repair data */
-  initializeCampaign: (campaignId: string) => void;
-}
-
-type RepairStore = RepairStoreState & RepairStoreActions;
-
-// =============================================================================
-// Helper Functions
-// =============================================================================
-
-function recalculateJobTotals(job: IRepairJob): IRepairJob {
-  // Preserve timeRemainingHours for InProgress and Completed jobs
-  const preserveTime =
-    job.status === RepairJobStatus.InProgress ||
-    job.status === RepairJobStatus.Completed;
-  return {
-    ...job,
-    totalCost: calculateTotalRepairCost(job.items),
-    totalTimeHours: calculateTotalRepairTime(job.items),
-    timeRemainingHours: preserveTime
-      ? job.timeRemainingHours
-      : calculateTotalRepairTime(job.items),
-  };
-}
+import {
+  createRepairJobLogic,
+  startJobLogic,
+  completeJobLogic,
+  advanceRepairsLogic,
+  cancelJobLogic,
+  addSalvageLogic,
+  useSalvageForRepairLogic,
+  validateJobLogic,
+} from './useRepairStore.actions';
+import { recalculateJobTotals } from './useRepairStore.helpers';
 
 // =============================================================================
 // Store Implementation
@@ -226,29 +80,14 @@ export const useRepairStore = create<RepairStore>()(
       ) => {
         get().initializeCampaign(campaignId);
 
-        const items = generateRepairItems(assessment, armorType, structureType);
-        const jobId = uuidv4();
-        const now = new Date().toISOString();
-
         const existingJobs = get().jobsByCampaign[campaignId] ?? [];
-        const maxPriority = existingJobs.reduce(
-          (max, j) => Math.max(max, j.priority),
-          0,
-        );
-
-        const job: IRepairJob = {
-          id: jobId,
-          unitId: assessment.unitId,
-          unitName: assessment.unitName,
+        const job = createRepairJobLogic(
           campaignId,
-          status: RepairJobStatus.Pending,
-          items,
-          totalCost: calculateTotalRepairCost(items),
-          totalTimeHours: calculateTotalRepairTime(items),
-          timeRemainingHours: calculateTotalRepairTime(items),
-          priority: maxPriority + 1,
-          createdAt: now,
-        };
+          assessment,
+          armorType,
+          structureType,
+          existingJobs,
+        );
 
         set((state) => ({
           jobsByCampaign: {
@@ -257,7 +96,7 @@ export const useRepairStore = create<RepairStore>()(
           },
         }));
 
-        return jobId;
+        return job.id;
       },
 
       // Get jobs
@@ -363,31 +202,24 @@ export const useRepairStore = create<RepairStore>()(
         const job = get().getJob(campaignId, jobId);
         if (!job) return false;
 
-        if (job.status !== RepairJobStatus.Pending) {
-          set({ error: `Job is not pending: ${job.status}` });
-          return false;
-        }
-
         const bay = get().getRepairBay(campaignId);
-        if (bay.activeJobs.length >= bay.capacity) {
-          set({ error: 'Repair bay at capacity' });
+        const result = startJobLogic(job, bay);
+
+        if (!result.success) {
+          set({ error: result.error });
           return false;
         }
 
         // Update job status
-        get().updateJob(campaignId, jobId, {
-          status: RepairJobStatus.InProgress,
-          startedAt: new Date().toISOString(),
-        });
+        get().updateJob(campaignId, jobId, result.updates!.job);
 
         // Add to active jobs in bay
         set((state) => ({
           baysByCampaign: {
             ...state.baysByCampaign,
             [campaignId]: {
-              ...bay,
-              activeJobs: [...bay.activeJobs, jobId],
-              queuedJobs: bay.queuedJobs.filter((id) => id !== jobId),
+              ...state.baysByCampaign[campaignId],
+              ...result.updates!.bay,
             },
           },
         }));
@@ -400,21 +232,18 @@ export const useRepairStore = create<RepairStore>()(
         const job = get().getJob(campaignId, jobId);
         if (!job) return false;
 
-        get().updateJob(campaignId, jobId, {
-          status: RepairJobStatus.Completed,
-          completedAt: new Date().toISOString(),
-          timeRemainingHours: 0,
-        });
-
-        // Remove from active jobs
         const bay = get().getRepairBay(campaignId);
+        const { job: jobUpdates, bay: bayUpdates } = completeJobLogic(
+          jobId,
+          bay,
+        );
+
+        get().updateJob(campaignId, jobId, jobUpdates);
+
         set((state) => ({
           baysByCampaign: {
             ...state.baysByCampaign,
-            [campaignId]: {
-              ...bay,
-              activeJobs: bay.activeJobs.filter((id) => id !== jobId),
-            },
+            [campaignId]: bayUpdates,
           },
         }));
 
@@ -430,16 +259,13 @@ export const useRepairStore = create<RepairStore>()(
           status: RepairJobStatus.Cancelled,
         });
 
-        // Remove from bay
         const bay = get().getRepairBay(campaignId);
+        const updatedBay = cancelJobLogic(jobId, bay);
+
         set((state) => ({
           baysByCampaign: {
             ...state.baysByCampaign,
-            [campaignId]: {
-              ...bay,
-              activeJobs: bay.activeJobs.filter((id) => id !== jobId),
-              queuedJobs: bay.queuedJobs.filter((id) => id !== jobId),
-            },
+            [campaignId]: updatedBay,
           },
         }));
 
@@ -506,33 +332,9 @@ export const useRepairStore = create<RepairStore>()(
       advanceRepairs: (campaignId: string, hoursElapsed: number) => {
         const jobs = get().jobsByCampaign[campaignId] ?? [];
         const bay = get().getRepairBay(campaignId);
-        const completedJobIds: string[] = [];
 
-        // Process active jobs
-        const updatedJobs = jobs.map((job) => {
-          if (job.status !== RepairJobStatus.InProgress) return job;
-
-          const adjustedHours = hoursElapsed * bay.efficiency;
-          const newTimeRemaining = Math.max(
-            0,
-            job.timeRemainingHours - adjustedHours,
-          );
-
-          if (newTimeRemaining === 0) {
-            completedJobIds.push(job.id);
-            return {
-              ...job,
-              status: RepairJobStatus.Completed,
-              timeRemainingHours: 0,
-              completedAt: new Date().toISOString(),
-            };
-          }
-
-          return {
-            ...job,
-            timeRemainingHours: newTimeRemaining,
-          };
-        });
+        const { updatedJobs, completedJobIds, updatedBay } =
+          advanceRepairsLogic(jobs, bay, hoursElapsed);
 
         set((state) => ({
           jobsByCampaign: {
@@ -541,12 +343,7 @@ export const useRepairStore = create<RepairStore>()(
           },
           baysByCampaign: {
             ...state.baysByCampaign,
-            [campaignId]: {
-              ...bay,
-              activeJobs: bay.activeJobs.filter(
-                (id) => !completedJobIds.includes(id),
-              ),
-            },
+            [campaignId]: updatedBay,
           },
         }));
 
@@ -573,17 +370,12 @@ export const useRepairStore = create<RepairStore>()(
       addSalvage: (campaignId: string, parts: readonly ISalvagedPart[]) => {
         get().initializeCampaign(campaignId);
         const inventory = get().getSalvage(campaignId);
-
-        const newParts = [...inventory.parts, ...parts];
-        const totalValue = newParts.reduce(
-          (sum, p) => sum + p.estimatedValue,
-          0,
-        );
+        const updatedInventory = addSalvageLogic(inventory, parts);
 
         set((state) => ({
           salvageByCampaign: {
             ...state.salvageByCampaign,
-            [campaignId]: { parts: newParts, totalValue },
+            [campaignId]: updatedInventory,
           },
         }));
 
@@ -602,24 +394,15 @@ export const useRepairStore = create<RepairStore>()(
 
         if (!job) return false;
 
-        const item = job.items.find((i) => i.id === itemId);
-        const part = inventory.parts.find((p) => p.id === partId);
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const result = useSalvageForRepairLogic(job, itemId, partId, inventory);
 
-        if (!item || !part) return false;
-
-        // Check if part matches
-        const matchingPart = findMatchingSalvage(item, inventory);
-        if (!matchingPart || matchingPart.id !== partId) {
-          set({ error: 'Salvage part does not match repair item' });
+        if (!result.success) {
+          set({ error: result.error });
           return false;
         }
 
-        // Update item cost to 0 and remove from salvage
-        const updatedItems = job.items.map((i) =>
-          i.id === itemId ? { ...i, cost: 0 } : i,
-        );
-
-        get().updateJob(campaignId, jobId, { items: updatedItems });
+        get().updateJob(campaignId, jobId, { items: result.updatedItems! });
         get().removeSalvage(campaignId, partId);
 
         return true;
@@ -652,17 +435,7 @@ export const useRepairStore = create<RepairStore>()(
         availableSupplies: number,
       ) => {
         const job = get().getJob(campaignId, jobId);
-        if (!job) {
-          return {
-            valid: false,
-            errors: [`Job not found: ${jobId}`],
-            warnings: [],
-            canAfford: false,
-            shortfall: 0,
-          };
-        }
-
-        return validateRepairJob(job, availableCBills, availableSupplies);
+        return validateJobLogic(job, jobId, availableCBills, availableSupplies);
       },
 
       // Select job

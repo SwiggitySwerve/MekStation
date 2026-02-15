@@ -23,32 +23,20 @@ import {
   DEFAULT_UI_STATE,
   IWeaponStatus,
   GamePhase,
-  GameSide,
 } from '@/types/gameplay';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
-import {
-  lockMovement,
-  advancePhase,
-  canAdvancePhase,
-  rollInitiative,
-  endGame,
-  replayToSequence,
-} from '@/utils/gameplay/gameSession';
 import { logger } from '@/utils/logger';
 
-// =============================================================================
-// Interactive Mode Phases
-// =============================================================================
+import {
+  handleActionLogic,
+  InteractivePhase,
+  runAITurnLogic,
+  advanceInteractivePhaseLogic,
+  handleInteractiveTokenClickLogic,
+  skipPhaseLogic,
+} from './useGameplayStore.helpers';
 
-export enum InteractivePhase {
-  None = 'none',
-  SelectUnit = 'select_unit',
-  SelectMovement = 'select_movement',
-  SelectTarget = 'select_target',
-  SelectWeapons = 'select_weapons',
-  AITurn = 'ai_turn',
-  GameOver = 'game_over',
-}
+export { InteractivePhase };
 
 export interface SpectatorMode {
   enabled: boolean;
@@ -231,75 +219,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
 
   handleAction: (actionId: string) => {
     const { session, ui } = get();
-    if (!session) return;
-
-    const { phase } = session.currentState;
-
-    switch (actionId) {
-      case 'lock': {
-        // Lock current action for selected unit
-        const unitId = ui.selectedUnitId;
-        if (!unitId) return;
-
-        if (phase === GamePhase.Movement) {
-          const updatedSession = lockMovement(session, unitId);
-          set({ session: updatedSession });
-        }
-        // TODO: Add lockAttacks when combat phase is active
-        break;
-      }
-      case 'undo': {
-        // Replay to previous event (remove last event)
-        if (session.events.length <= 1) return; // Keep at least the created event
-        const previousSequence = session.events.length - 2;
-        const replayedState = replayToSequence(session, previousSequence);
-        const updatedSession: IGameSession = {
-          ...session,
-          events: session.events.slice(0, -1),
-          currentState: replayedState,
-          updatedAt: new Date().toISOString(),
-        };
-        set({ session: updatedSession });
-        break;
-      }
-      case 'skip': {
-        // Advance to next phase
-        if (canAdvancePhase(session)) {
-          const updatedSession = advancePhase(session);
-          set({ session: updatedSession });
-        }
-        break;
-      }
-      case 'clear':
-        set((state) => ({
-          ui: { ...state.ui, queuedWeaponIds: [] },
-        }));
-        break;
-      case 'next-turn': {
-        // Roll initiative and advance to next turn
-        if (phase === GamePhase.End || phase === GamePhase.Initiative) {
-          let updatedSession = session;
-          // If at end phase, advance to initiative first
-          if (phase === GamePhase.End) {
-            updatedSession = advancePhase(updatedSession);
-          }
-          // Roll initiative
-          updatedSession = rollInitiative(updatedSession);
-          // Advance to movement phase
-          updatedSession = advancePhase(updatedSession);
-          set({ session: updatedSession });
-        }
-        break;
-      }
-      case 'concede': {
-        // End game with concession
-        const updatedSession = endGame(session, GameSide.Opponent, 'concede');
-        set({ session: updatedSession });
-        break;
-      }
-      default:
-        logger.warn('Unknown action:', actionId);
-    }
+    handleActionLogic(actionId, session, ui, set);
   },
 
   selectUnitForMovement: (unitId: string) => {
@@ -397,75 +317,12 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
 
   runAITurn: () => {
     const { interactiveSession } = get();
-    if (!interactiveSession) return;
-
-    set({ interactivePhase: InteractivePhase.AITurn });
-
-    const state = interactiveSession.getState();
-
-    if (state.phase === GamePhase.Movement) {
-      interactiveSession.runAITurn(GameSide.Opponent);
-      interactiveSession.advancePhase(); // → WeaponAttack
-    }
-
-    if (interactiveSession.getState().phase === GamePhase.WeaponAttack) {
-      interactiveSession.runAITurn(GameSide.Opponent);
-      interactiveSession.advancePhase(); // → Heat
-    }
-
-    if (interactiveSession.getState().phase === GamePhase.Heat) {
-      interactiveSession.advancePhase(); // → End
-    }
-
-    if (interactiveSession.getState().phase === GamePhase.End) {
-      interactiveSession.advancePhase(); // → Initiative (next turn)
-    }
-
-    const gameOver = interactiveSession.isGameOver();
-
-    set({
-      session: interactiveSession.getSession(),
-      interactivePhase: gameOver
-        ? InteractivePhase.GameOver
-        : InteractivePhase.SelectUnit,
-    });
+    runAITurnLogic(interactiveSession, set);
   },
 
   advanceInteractivePhase: () => {
-    const { interactiveSession, session } = get();
-    if (!interactiveSession || !session) return;
-
-    const { phase } = interactiveSession.getState();
-
-    if (phase === GamePhase.Initiative) {
-      interactiveSession.advancePhase(); // rolls initiative, goes to Movement
-    } else if (phase === GamePhase.Movement) {
-      interactiveSession.advancePhase(); // → WeaponAttack
-    } else if (phase === GamePhase.WeaponAttack) {
-      interactiveSession.advancePhase(); // resolves attacks → Heat
-    } else if (phase === GamePhase.Heat) {
-      interactiveSession.advancePhase(); // → End
-    } else if (phase === GamePhase.End) {
-      interactiveSession.advancePhase(); // → Initiative (next turn)
-    }
-
-    const gameOver = interactiveSession.isGameOver();
-
-    set({
-      session: interactiveSession.getSession(),
-      interactivePhase: gameOver
-        ? InteractivePhase.GameOver
-        : InteractivePhase.SelectUnit,
-      validMovementHexes: [],
-      validTargetIds: [],
-      hitChance: null,
-      ui: {
-        ...get().ui,
-        selectedUnitId: null,
-        targetUnitId: null,
-        queuedWeaponIds: [],
-      },
-    });
+    const { interactiveSession } = get();
+    advanceInteractivePhaseLogic(interactiveSession, get, set);
   },
 
   handleInteractiveHexClick: (hex: { q: number; r: number }) => {
@@ -482,66 +339,20 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
 
   handleInteractiveTokenClick: (unitId: string) => {
     const { interactivePhase, interactiveSession } = get();
-    if (!interactiveSession) return;
-
-    const state = interactiveSession.getState();
-    const unit = state.units[unitId];
-    if (!unit || unit.destroyed) return;
-
-    const { phase } = state;
-    const currentInteractivePhase = interactivePhase as InteractivePhase;
-
-    if (phase === GamePhase.Movement && unit.side === GameSide.Player) {
-      get().selectUnitForMovement(unitId);
-    } else if (phase === GamePhase.WeaponAttack) {
-      if (
-        unit.side === GameSide.Player &&
-        currentInteractivePhase === InteractivePhase.SelectUnit
-      ) {
-        set((s) => ({
-          ui: { ...s.ui, selectedUnitId: unitId },
-          interactivePhase: InteractivePhase.SelectTarget,
-          validTargetIds: Object.entries(state.units)
-            .filter(([, u]) => u.side === GameSide.Opponent && !u.destroyed)
-            .map(([id]) => id),
-        }));
-      } else if (
-        unit.side === GameSide.Opponent &&
-        currentInteractivePhase === InteractivePhase.SelectTarget
-      ) {
-        get().selectAttackTarget(unitId);
-      }
-    } else if (
-      unit.side === GameSide.Player &&
-      currentInteractivePhase === InteractivePhase.SelectUnit
-    ) {
-      get().selectUnitForMovement(unitId);
-    }
+    handleInteractiveTokenClickLogic(
+      unitId,
+      interactivePhase,
+      interactiveSession,
+      get,
+      set,
+      get().selectUnitForMovement,
+      get().selectAttackTarget,
+    );
   },
 
   skipPhase: () => {
     const { interactiveSession } = get();
-    if (!interactiveSession) return;
-
-    interactiveSession.advancePhase();
-
-    const gameOver = interactiveSession.isGameOver();
-
-    set({
-      session: interactiveSession.getSession(),
-      interactivePhase: gameOver
-        ? InteractivePhase.GameOver
-        : InteractivePhase.SelectUnit,
-      validMovementHexes: [],
-      validTargetIds: [],
-      hitChance: null,
-      ui: {
-        ...get().ui,
-        selectedUnitId: null,
-        targetUnitId: null,
-        queuedWeaponIds: [],
-      },
-    });
+    skipPhaseLogic(interactiveSession, get, set);
   },
 
   checkGameOver: (): boolean => {

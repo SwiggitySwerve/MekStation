@@ -28,6 +28,7 @@ import {
   type SingletonFactory,
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
+import { rowToEncounter } from './EncounterRepository.helpers';
 
 // =============================================================================
 // Database Row Types
@@ -233,7 +234,7 @@ export class EncounterRepository implements IEncounterRepository {
       return null;
     }
 
-    return this.rowToEncounter(row);
+    return rowToEncounter(row);
   }
 
   /**
@@ -247,12 +248,9 @@ export class EncounterRepository implements IEncounterRepository {
       .prepare('SELECT * FROM encounters ORDER BY updated_at DESC')
       .all() as EncounterRow[];
 
-    return rows.map((row) => this.rowToEncounter(row));
+    return rows.map((row) => rowToEncounter(row));
   }
 
-  /**
-   * Get encounters by status.
-   */
   getEncountersByStatus(status: EncounterStatus): readonly IEncounter[] {
     this.initialize();
 
@@ -263,7 +261,7 @@ export class EncounterRepository implements IEncounterRepository {
       )
       .all(status) as EncounterRow[];
 
-    return rows.map((row) => this.rowToEncounter(row));
+    return rows.map((row) => rowToEncounter(row));
   }
 
   /**
@@ -509,43 +507,6 @@ export class EncounterRepository implements IEncounterRepository {
         'UPDATE encounters SET status = ?, updated_at = ? WHERE id = ?',
       ).run(newStatus, now, id);
     }
-  }
-
-  /**
-   * Convert database row to encounter.
-   */
-  private rowToEncounter(row: EncounterRow): IEncounter {
-    const playerForce = row.player_force_json
-      ? (JSON.parse(row.player_force_json) as IForceReference)
-      : undefined;
-    const opponentForce = row.opponent_force_json
-      ? (JSON.parse(row.opponent_force_json) as IForceReference)
-      : undefined;
-    const opForConfig = row.opfor_config_json
-      ? (JSON.parse(row.opfor_config_json) as IOpForConfig)
-      : undefined;
-    const mapConfig = JSON.parse(row.map_config_json) as IMapConfiguration;
-    const victoryConditions = JSON.parse(
-      row.victory_conditions_json,
-    ) as IVictoryCondition[];
-    const optionalRules = JSON.parse(row.optional_rules_json) as string[];
-
-    return {
-      id: row.id,
-      name: row.name,
-      description: row.description ?? undefined,
-      status: row.status as EncounterStatus,
-      template: row.template as ScenarioTemplateType | undefined,
-      playerForce,
-      opponentForce,
-      opForConfig,
-      mapConfig,
-      victoryConditions,
-      optionalRules,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      gameSessionId: row.game_session_id ?? undefined,
-    };
   }
 }
 
