@@ -23,38 +23,17 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { customizerStyles as cs } from '../styles';
-
-// =============================================================================
-// Constants
-// =============================================================================
-
-const ARMOR_TYPE_OPTIONS: { value: ArmorTypeEnum; label: string }[] = [
-  { value: ArmorTypeEnum.STANDARD, label: 'Standard' },
-  { value: ArmorTypeEnum.FERRO_FIBROUS_IS, label: 'Ferro-Fibrous (IS)' },
-  { value: ArmorTypeEnum.FERRO_FIBROUS_CLAN, label: 'Ferro-Fibrous (Clan)' },
-  { value: ArmorTypeEnum.LIGHT_FERRO, label: 'Light Ferro-Fibrous' },
-  { value: ArmorTypeEnum.HEAVY_FERRO, label: 'Heavy Ferro-Fibrous' },
-  { value: ArmorTypeEnum.STEALTH, label: 'Stealth' },
-  { value: ArmorTypeEnum.HARDENED, label: 'Hardened' },
-  { value: ArmorTypeEnum.REACTIVE, label: 'Reactive' },
-  { value: ArmorTypeEnum.REFLECTIVE, label: 'Reflective (Laser)' },
-];
-
-// Vehicle armor locations with labels
-const VEHICLE_LOCATIONS: {
-  location: VehicleLocation | VTOLLocation;
-  label: string;
-}[] = [
-  { location: VehicleLocation.FRONT, label: 'Front' },
-  { location: VehicleLocation.LEFT, label: 'Left Side' },
-  { location: VehicleLocation.RIGHT, label: 'Right Side' },
-  { location: VehicleLocation.REAR, label: 'Rear' },
-  { location: VehicleLocation.TURRET, label: 'Turret' },
-];
-
-// =============================================================================
-// Types
-// =============================================================================
+import { VehicleArmorDiagramSimple } from './VehicleArmorDiagramSimple';
+import {
+  ARMOR_TYPE_OPTIONS,
+  BASE_VEHICLE_LOCATIONS,
+} from './VehicleArmorTab.constants';
+import {
+  calculateArmorPoints,
+  getMaxVehicleArmor,
+  getMaxVehicleArmorForLocation,
+  type VehicleArmorLocation,
+} from './VehicleArmorTab.utils';
 
 interface VehicleArmorTabProps {
   /** Read-only mode */
@@ -62,109 +41,6 @@ interface VehicleArmorTabProps {
   /** Additional CSS classes */
   className?: string;
 }
-
-// =============================================================================
-// Helper Functions
-// =============================================================================
-
-/**
- * Calculate armor points from tonnage
- */
-function calculateArmorPoints(
-  tonnage: number,
-  armorType: ArmorTypeEnum,
-): number {
-  const def = getArmorDefinition(armorType);
-  const pointsPerTon = def?.pointsPerTon ?? 16;
-  return Math.floor(tonnage * pointsPerTon);
-}
-
-/**
- * Get max armor for a vehicle location based on tonnage
- * Vehicles use different formulas than mechs
- */
-function getMaxVehicleArmorForLocation(
-  tonnage: number,
-  location: VehicleLocation | VTOLLocation,
-  hasTurret: boolean,
-  isVTOL: boolean,
-): number {
-  // Vehicle armor maximums are based on tonnage and location
-  // These are simplified approximations - real values depend on internal structure
-  const baseStructure = Math.floor(tonnage / 10) + 1;
-
-  switch (location) {
-    case VehicleLocation.FRONT:
-      return baseStructure * 4; // Front gets most protection
-    case VehicleLocation.LEFT:
-    case VehicleLocation.RIGHT:
-      return baseStructure * 3;
-    case VehicleLocation.REAR:
-      return baseStructure * 2;
-    case VehicleLocation.TURRET:
-      return hasTurret ? baseStructure * 2 : 0;
-    case VTOLLocation.ROTOR:
-      return isVTOL ? 2 : 0; // Rotors have fixed max of 2
-    default:
-      return 0;
-  }
-}
-
-/**
- * Get max total armor for a vehicle
- */
-function getMaxVehicleArmor(
-  tonnage: number,
-  hasTurret: boolean,
-  isVTOL: boolean,
-): number {
-  let total = 0;
-  total += getMaxVehicleArmorForLocation(
-    tonnage,
-    VehicleLocation.FRONT,
-    hasTurret,
-    isVTOL,
-  );
-  total += getMaxVehicleArmorForLocation(
-    tonnage,
-    VehicleLocation.LEFT,
-    hasTurret,
-    isVTOL,
-  );
-  total += getMaxVehicleArmorForLocation(
-    tonnage,
-    VehicleLocation.RIGHT,
-    hasTurret,
-    isVTOL,
-  );
-  total += getMaxVehicleArmorForLocation(
-    tonnage,
-    VehicleLocation.REAR,
-    hasTurret,
-    isVTOL,
-  );
-  if (hasTurret) {
-    total += getMaxVehicleArmorForLocation(
-      tonnage,
-      VehicleLocation.TURRET,
-      hasTurret,
-      isVTOL,
-    );
-  }
-  if (isVTOL) {
-    total += getMaxVehicleArmorForLocation(
-      tonnage,
-      VTOLLocation.ROTOR,
-      hasTurret,
-      isVTOL,
-    );
-  }
-  return total;
-}
-
-// =============================================================================
-// Component
-// =============================================================================
 
 /**
  * Vehicle armor configuration tab
@@ -235,7 +111,7 @@ export function VehicleArmorTab({
   );
 
   const handleLocationArmorChange = useCallback(
-    (location: VehicleLocation | VTOLLocation, points: number) => {
+    (location: VehicleArmorLocation, points: number) => {
       const max = getMaxVehicleArmorForLocation(
         tonnage,
         location,
@@ -254,7 +130,7 @@ export function VehicleArmorTab({
 
   // Build location list based on vehicle type
   const locations = useMemo(() => {
-    const locs = [...VEHICLE_LOCATIONS];
+    const locs = [...BASE_VEHICLE_LOCATIONS];
     // Filter out turret if no turret
     const filtered = locs.filter(
       (l) => l.location !== VehicleLocation.TURRET || hasTurret,
@@ -455,81 +331,6 @@ export function VehicleArmorTab({
             />
           </div>
         </section>
-      </div>
-    </div>
-  );
-}
-
-// =============================================================================
-// Simple Vehicle Armor Diagram
-// =============================================================================
-
-interface VehicleArmorDiagramSimpleProps {
-  allocation: Record<string, number>;
-  hasTurret: boolean;
-  isVTOL: boolean;
-}
-
-/**
- * Simple text-based vehicle armor diagram
- * A visual diagram component will be created separately
- */
-function VehicleArmorDiagramSimple({
-  allocation,
-  hasTurret,
-  isVTOL,
-}: VehicleArmorDiagramSimpleProps): React.ReactElement {
-  return (
-    <div className="text-center font-mono text-sm">
-      {/* Front */}
-      <div className="mb-2">
-        <span className="text-text-theme-secondary">FRONT</span>
-        <div className="text-lg font-bold text-cyan-400">
-          {allocation[VehicleLocation.FRONT] ?? 0}
-        </div>
-      </div>
-
-      {/* Middle row: Left - Turret/Body - Right */}
-      <div className="mb-2 flex items-center justify-center gap-8">
-        <div>
-          <span className="text-text-theme-secondary">LEFT</span>
-          <div className="text-lg font-bold text-cyan-400">
-            {allocation[VehicleLocation.LEFT] ?? 0}
-          </div>
-        </div>
-
-        {hasTurret && (
-          <div className="border-border-theme rounded border px-4 py-2">
-            <span className="text-text-theme-secondary">TURRET</span>
-            <div className="text-lg font-bold text-amber-400">
-              {allocation[VehicleLocation.TURRET] ?? 0}
-            </div>
-          </div>
-        )}
-
-        {isVTOL && (
-          <div className="border-border-theme rounded border px-4 py-2">
-            <span className="text-text-theme-secondary">ROTOR</span>
-            <div className="text-lg font-bold text-sky-400">
-              {allocation[VTOLLocation.ROTOR] ?? 0}
-            </div>
-          </div>
-        )}
-
-        <div>
-          <span className="text-text-theme-secondary">RIGHT</span>
-          <div className="text-lg font-bold text-cyan-400">
-            {allocation[VehicleLocation.RIGHT] ?? 0}
-          </div>
-        </div>
-      </div>
-
-      {/* Rear */}
-      <div>
-        <span className="text-text-theme-secondary">REAR</span>
-        <div className="text-lg font-bold text-cyan-400">
-          {allocation[VehicleLocation.REAR] ?? 0}
-        </div>
       </div>
     </div>
   );
