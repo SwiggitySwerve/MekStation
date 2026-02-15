@@ -13,6 +13,21 @@ import {
 } from './useCustomizerSettingsStore';
 import { useUIBehaviorStore } from './useUIBehaviorStore';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyState = any;
+
+function getDraftOrCurrent(s: AnyState) {
+  return (
+    s.draftAppearance ?? {
+      accentColor: s.accentColor,
+      fontSize: s.fontSize,
+      animationLevel: s.animationLevel,
+      compactMode: s.compactMode,
+      uiTheme: s.uiTheme,
+    }
+  );
+}
+
 export function createAppearanceActions(
   set: (partial: Partial<unknown>) => void,
 ): {
@@ -66,19 +81,9 @@ export function createDraftAppearanceActions(
     setDraftAccentColor: (color: AccentColor): void => {
       useAppearanceStore.getState().setDraftAccentColor(color);
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         return {
-          draftAppearance: {
-            ...(s.draftAppearance ?? {
-              accentColor: s.accentColor,
-              fontSize: s.fontSize,
-              animationLevel: s.animationLevel,
-              compactMode: s.compactMode,
-              uiTheme: s.uiTheme,
-            }),
-            accentColor: color,
-          },
+          draftAppearance: { ...getDraftOrCurrent(s), accentColor: color },
           hasUnsavedOtherAppearance: true,
         };
       });
@@ -87,19 +92,9 @@ export function createDraftAppearanceActions(
     setDraftFontSize: (size: FontSize): void => {
       useAppearanceStore.getState().setDraftFontSize(size);
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         return {
-          draftAppearance: {
-            ...(s.draftAppearance ?? {
-              accentColor: s.accentColor,
-              fontSize: s.fontSize,
-              animationLevel: s.animationLevel,
-              compactMode: s.compactMode,
-              uiTheme: s.uiTheme,
-            }),
-            fontSize: size,
-          },
+          draftAppearance: { ...getDraftOrCurrent(s), fontSize: size },
           hasUnsavedOtherAppearance: true,
         };
       });
@@ -108,19 +103,9 @@ export function createDraftAppearanceActions(
     setDraftAnimationLevel: (level: AnimationLevel): void => {
       useAppearanceStore.getState().setDraftAnimationLevel(level);
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         return {
-          draftAppearance: {
-            ...(s.draftAppearance ?? {
-              accentColor: s.accentColor,
-              fontSize: s.fontSize,
-              animationLevel: s.animationLevel,
-              compactMode: s.compactMode,
-              uiTheme: s.uiTheme,
-            }),
-            animationLevel: level,
-          },
+          draftAppearance: { ...getDraftOrCurrent(s), animationLevel: level },
           hasUnsavedOtherAppearance: true,
         };
       });
@@ -129,19 +114,9 @@ export function createDraftAppearanceActions(
     setDraftCompactMode: (compact: boolean): void => {
       useAppearanceStore.getState().setDraftCompactMode(compact);
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         return {
-          draftAppearance: {
-            ...(s.draftAppearance ?? {
-              accentColor: s.accentColor,
-              fontSize: s.fontSize,
-              animationLevel: s.animationLevel,
-              compactMode: s.compactMode,
-              uiTheme: s.uiTheme,
-            }),
-            compactMode: compact,
-          },
+          draftAppearance: { ...getDraftOrCurrent(s), compactMode: compact },
           hasUnsavedOtherAppearance: true,
         };
       });
@@ -150,19 +125,9 @@ export function createDraftAppearanceActions(
     setDraftUITheme: (theme: UITheme): void => {
       useAppearanceStore.getState().setDraftUITheme(theme);
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         return {
-          draftAppearance: {
-            ...(s.draftAppearance ?? {
-              accentColor: s.accentColor,
-              fontSize: s.fontSize,
-              animationLevel: s.animationLevel,
-              compactMode: s.compactMode,
-              uiTheme: s.uiTheme,
-            }),
-            uiTheme: theme,
-          },
+          draftAppearance: { ...getDraftOrCurrent(s), uiTheme: theme },
           hasUnsavedUITheme: true,
         };
       });
@@ -171,16 +136,9 @@ export function createDraftAppearanceActions(
     initDraftAppearance: (): void => {
       useAppearanceStore.getState().initDraftAppearance();
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         return {
-          draftAppearance: {
-            accentColor: s.accentColor,
-            fontSize: s.fontSize,
-            animationLevel: s.animationLevel,
-            compactMode: s.compactMode,
-            uiTheme: s.uiTheme,
-          },
+          draftAppearance: getDraftOrCurrent(s),
           hasUnsavedUITheme: false,
           hasUnsavedOtherAppearance: false,
         };
@@ -190,21 +148,16 @@ export function createDraftAppearanceActions(
     saveUITheme: (): void => {
       useAppearanceStore.getState().saveUITheme();
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         if (!s.draftAppearance) return s;
-        return {
-          uiTheme: s.draftAppearance.uiTheme,
-          hasUnsavedUITheme: false,
-        };
+        return { uiTheme: s.draftAppearance.uiTheme, hasUnsavedUITheme: false };
       });
     },
 
     saveOtherAppearance: (): void => {
       useAppearanceStore.getState().saveOtherAppearance();
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         if (!s.draftAppearance) return s;
         return {
           accentColor: s.draftAppearance.accentColor,
@@ -257,8 +210,7 @@ export function createCustomizerActions(
     setDraftArmorDiagramMode: (mode: ArmorDiagramMode): void => {
       useCustomizerSettingsStore.getState().setDraftArmorDiagramMode(mode);
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         return {
           draftCustomizer: {
             armorDiagramMode: mode,
@@ -275,8 +227,7 @@ export function createCustomizerActions(
         .getState()
         .setDraftArmorDiagramVariant(variant);
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         return {
           draftCustomizer: {
             armorDiagramMode:
@@ -291,8 +242,7 @@ export function createCustomizerActions(
     initDraftCustomizer: (): void => {
       useCustomizerSettingsStore.getState().initDraftCustomizer();
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         return {
           draftCustomizer: {
             armorDiagramMode: s.armorDiagramMode,
@@ -306,8 +256,7 @@ export function createCustomizerActions(
     saveCustomizer: (): void => {
       useCustomizerSettingsStore.getState().saveCustomizer();
       set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+        const s = state as AnyState;
         if (!s.draftCustomizer) return s;
         return {
           armorDiagramMode: s.draftCustomizer.armorDiagramMode,
@@ -325,17 +274,11 @@ export function createCustomizerActions(
       });
     },
 
-    getEffectiveArmorDiagramMode: () => {
-      return useCustomizerSettingsStore
-        .getState()
-        .getEffectiveArmorDiagramMode();
-    },
+    getEffectiveArmorDiagramMode: () =>
+      useCustomizerSettingsStore.getState().getEffectiveArmorDiagramMode(),
 
-    getEffectiveArmorDiagramVariant: () => {
-      return useCustomizerSettingsStore
-        .getState()
-        .getEffectiveArmorDiagramVariant();
-    },
+    getEffectiveArmorDiagramVariant: () =>
+      useCustomizerSettingsStore.getState().getEffectiveArmorDiagramVariant(),
 
     setArmorDiagramMode: (mode: ArmorDiagramMode) => {
       useCustomizerSettingsStore.getState().setArmorDiagramMode(mode);
@@ -389,17 +332,25 @@ export function createOtherSettingsActions(
       useCustomizerSettingsStore.getState().resetToDefaults();
       useAccessibilityStore.getState().resetToDefaults();
       useUIBehaviorStore.getState().resetToDefaults();
-      set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
-        return {
-          ...s,
-          draftAppearance: null,
-          hasUnsavedUITheme: false,
-          hasUnsavedOtherAppearance: false,
-          draftCustomizer: null,
-          hasUnsavedCustomizer: false,
-        };
+      set({
+        accentColor: 'amber' as AccentColor,
+        fontSize: 'medium' as FontSize,
+        animationLevel: 'full' as AnimationLevel,
+        compactMode: false,
+        uiTheme: 'default' as UITheme,
+        armorDiagramMode: 'silhouette' as ArmorDiagramMode,
+        armorDiagramVariant: 'clean-tech' as ArmorDiagramVariant,
+        showArmorDiagramSelector: true,
+        sidebarDefaultCollapsed: false,
+        confirmOnClose: true,
+        showTooltips: true,
+        highContrast: false,
+        reduceMotion: false,
+        draftAppearance: null,
+        hasUnsavedUITheme: false,
+        hasUnsavedOtherAppearance: false,
+        draftCustomizer: null,
+        hasUnsavedCustomizer: false,
       });
     },
   };

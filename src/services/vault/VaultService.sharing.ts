@@ -5,21 +5,21 @@ import type {
   IPermissionGrant,
 } from '@/types/vault';
 
+import type { PermissionService } from './PermissionService';
+import type { VaultFolderRepository } from './VaultFolderRepository';
+
 import { getContactRepository } from './ContactRepository';
-import { getPermissionService } from './PermissionService';
-import { getVaultFolderRepository } from './VaultFolderRepository';
 
 export async function shareFolderWithContact(
+  folderRepo: VaultFolderRepository,
+  permissionService: PermissionService,
   folderId: string,
   contactFriendCode: string,
   level: PermissionLevel,
 ): Promise<boolean> {
-  const folderRepo = getVaultFolderRepository();
-  const permissionService = getPermissionService();
-  const contactRepo = getContactRepository();
-
   await folderRepo.setFolderShared(folderId, true);
 
+  const contactRepo = getContactRepository();
   const contact = await contactRepo.getByFriendCode(contactFriendCode);
   const contactName = contact
     ? contact.nickname || contact.displayName
@@ -37,14 +37,13 @@ export async function shareFolderWithContact(
 }
 
 export async function shareItemWithContact(
+  permissionService: PermissionService,
   itemId: string,
   itemType: ShareableContentType,
   contactFriendCode: string,
   level: PermissionLevel,
 ): Promise<boolean> {
-  const permissionService = getPermissionService();
   const contactRepo = getContactRepository();
-
   const contact = await contactRepo.getByFriendCode(contactFriendCode);
   const contactName = contact
     ? contact.nickname || contact.displayName
@@ -62,13 +61,12 @@ export async function shareItemWithContact(
 }
 
 export async function shareCategoryWithContact(
+  permissionService: PermissionService,
   category: ContentCategory,
   contactFriendCode: string,
   level: PermissionLevel,
 ): Promise<boolean> {
-  const permissionService = getPermissionService();
   const contactRepo = getContactRepository();
-
   const contact = await contactRepo.getByFriendCode(contactFriendCode);
   const contactName = contact
     ? contact.nickname || contact.displayName
@@ -86,12 +84,11 @@ export async function shareCategoryWithContact(
 }
 
 export async function unshareFolder(
+  folderRepo: VaultFolderRepository,
+  permissionService: PermissionService,
   folderId: string,
   contactFriendCode: string,
 ): Promise<boolean> {
-  const folderRepo = getVaultFolderRepository();
-  const permissionService = getPermissionService();
-
   const permissions =
     await permissionService.getGrantsForGrantee(contactFriendCode);
 
@@ -112,14 +109,16 @@ export async function unshareFolder(
   return true;
 }
 
-export async function getFolderPermissions(folderId: string): Promise<
+export async function getFolderPermissions(
+  permissionService: PermissionService,
+  folderId: string,
+): Promise<
   Array<{
     contactId: string;
     contactName: string;
     level: PermissionLevel;
   }>
 > {
-  const permissionService = getPermissionService();
   const permissions = await permissionService.getGrantsForItem(
     'folder',
     folderId,

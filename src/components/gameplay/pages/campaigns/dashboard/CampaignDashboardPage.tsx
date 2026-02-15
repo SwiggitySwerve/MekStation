@@ -20,17 +20,19 @@ import type {
 } from './CampaignDashboardPage.types';
 
 import {
+  CampaignInformationCard,
+  CampaignMissionHistoryCard,
+  CampaignQuickActionsCard,
+} from './CampaignDashboardPage.cards';
+import {
   useCampaignDayReports,
   useClientReady,
 } from './CampaignDashboardPage.hooks';
 import {
   CampaignHeaderContent,
-  CampaignInformationCard,
   CampaignLoadingState,
-  CampaignMissionHistoryCard,
   CampaignNotFoundState,
   CampaignOperationsCard,
-  CampaignQuickActionsCard,
   CampaignRosterCard,
   CampaignStatsGrid,
 } from './CampaignDashboardPage.sections';

@@ -4,8 +4,8 @@ import type {
   ContentCategory,
 } from '@/types/vault';
 
-import { getPermissionService } from './PermissionService';
-import { getVaultFolderRepository } from './VaultFolderRepository';
+import type { PermissionService } from './PermissionService';
+import type { VaultFolderRepository } from './VaultFolderRepository';
 
 export interface ISharedContent {
   fromContact: {
@@ -20,22 +20,21 @@ export interface ISharedContent {
 }
 
 export async function canAccessFolder(
+  permissionService: PermissionService,
   folderId: string,
   friendCode: string,
 ): Promise<PermissionLevel | null> {
-  const permissionService = getPermissionService();
   const result = await permissionService.check(friendCode, 'folder', folderId);
   return result.level;
 }
 
 export async function canAccessItem(
+  folderRepo: VaultFolderRepository,
+  permissionService: PermissionService,
   itemId: string,
   itemType: ShareableContentType,
   friendCode: string,
 ): Promise<PermissionLevel | null> {
-  const permissionService = getPermissionService();
-  const folderRepo = getVaultFolderRepository();
-
   const itemResult = await permissionService.check(
     friendCode,
     'item',
@@ -45,7 +44,11 @@ export async function canAccessItem(
 
   const folders = await folderRepo.getItemFolders(itemId, itemType);
   for (const folder of folders) {
-    const folderLevel = await canAccessFolder(folder.id, friendCode);
+    const folderLevel = await canAccessFolder(
+      permissionService,
+      folder.id,
+      friendCode,
+    );
     if (folderLevel) return folderLevel;
   }
 
@@ -66,9 +69,9 @@ export async function canAccessItem(
 }
 
 export async function getSharedWithMe(
+  permissionService: PermissionService,
   myFriendCode: string,
 ): Promise<ISharedContent[]> {
-  const permissionService = getPermissionService();
   const permissions = await permissionService.getGrantsForGrantee(myFriendCode);
 
   const result: ISharedContent[] = [];

@@ -1,39 +1,38 @@
-import type { PermissionLevel, ShareableContentType } from '@/types/vault';
+import type {
+  PermissionLevel,
+  ShareableContentType,
+  IFolderItem,
+} from '@/types/vault';
 
-import { getContactRepository } from './ContactRepository';
-import { getPermissionService } from './PermissionService';
-import { getVaultFolderRepository } from './VaultFolderRepository';
+import type { PermissionService } from './PermissionService';
+import type { VaultFolderRepository } from './VaultFolderRepository';
+
+import {
+  shareFolderWithContact,
+  shareItemWithContact,
+} from './VaultService.sharing';
 
 export async function shareFolderWithContacts(
+  folderRepo: VaultFolderRepository,
+  permissionService: PermissionService,
   folderId: string,
   contacts: Array<{
     friendCode: string;
     level: PermissionLevel;
   }>,
 ): Promise<{ success: number; failed: number }> {
-  const folderRepo = getVaultFolderRepository();
-  const permissionService = getPermissionService();
-  const contactRepo = getContactRepository();
-
   let success = 0;
   let failed = 0;
 
-  await folderRepo.setFolderShared(folderId, true);
-
   for (const contact of contacts) {
     try {
-      const contactData = await contactRepo.getByFriendCode(contact.friendCode);
-      const contactName = contactData
-        ? contactData.nickname || contactData.displayName
-        : contact.friendCode;
-
-      await permissionService.grant({
-        granteeId: contact.friendCode,
-        granteeName: contactName,
-        scopeType: 'folder',
-        scopeId: folderId,
-        level: contact.level,
-      });
+      await shareFolderWithContact(
+        folderRepo,
+        permissionService,
+        folderId,
+        contact.friendCode,
+        contact.level,
+      );
       success++;
     } catch {
       failed++;
@@ -44,6 +43,7 @@ export async function shareFolderWithContacts(
 }
 
 export async function shareItemsWithContact(
+  permissionService: PermissionService,
   items: Array<{
     itemId: string;
     itemType: ShareableContentType;
@@ -51,26 +51,18 @@ export async function shareItemsWithContact(
   contactFriendCode: string,
   level: PermissionLevel,
 ): Promise<{ success: number; failed: number }> {
-  const permissionService = getPermissionService();
-  const contactRepo = getContactRepository();
-
   let success = 0;
   let failed = 0;
 
-  const contact = await contactRepo.getByFriendCode(contactFriendCode);
-  const contactName = contact
-    ? contact.nickname || contact.displayName
-    : contactFriendCode;
-
   for (const item of items) {
     try {
-      await permissionService.grant({
-        granteeId: contactFriendCode,
-        granteeName: contactName,
-        scopeType: 'item',
-        scopeId: `${item.itemType}:${item.itemId}`,
+      await shareItemWithContact(
+        permissionService,
+        item.itemId,
+        item.itemType,
+        contactFriendCode,
         level,
-      });
+      );
       success++;
     } catch {
       failed++;
@@ -81,44 +73,35 @@ export async function shareItemsWithContact(
 }
 
 export async function shareFolderContentsWithContact(
+  folderRepo: VaultFolderRepository,
+  permissionService: PermissionService,
   folderId: string,
   contactFriendCode: string,
   level: PermissionLevel,
 ): Promise<{ folderShared: boolean; itemsShared: number }> {
-  const folderRepo = getVaultFolderRepository();
-  const permissionService = getPermissionService();
-  const contactRepo = getContactRepository();
-
-  await folderRepo.setFolderShared(folderId, true);
-
-  const contact = await contactRepo.getByFriendCode(contactFriendCode);
-  const contactName = contact
-    ? contact.nickname || contact.displayName
-    : contactFriendCode;
-
-  await permissionService.grant({
-    granteeId: contactFriendCode,
-    granteeName: contactName,
-    scopeType: 'folder',
-    scopeId: folderId,
+  await shareFolderWithContact(
+    folderRepo,
+    permissionService,
+    folderId,
+    contactFriendCode,
     level,
-  });
+  );
 
-  const items = await folderRepo.getFolderItems(folderId);
+  const items: IFolderItem[] = await folderRepo.getFolderItems(folderId);
   let itemsShared = 0;
 
   for (const item of items) {
     try {
-      await permissionService.grant({
-        granteeId: contactFriendCode,
-        granteeName: contactName,
-        scopeType: 'item',
-        scopeId: `${item.itemType}:${item.itemId}`,
+      await shareItemWithContact(
+        permissionService,
+        item.itemId,
+        item.itemType,
+        contactFriendCode,
         level,
-      });
+      );
       itemsShared++;
     } catch {
-      // Continue
+      // Continue with other items
     }
   }
 
@@ -126,17 +109,17 @@ export async function shareFolderContentsWithContact(
 }
 
 export async function revokeAllForContact(
+  permissionService: PermissionService,
   contactFriendCode: string,
 ): Promise<number> {
-  const permissionService = getPermissionService();
   return permissionService.revokeAllForGrantee(contactFriendCode);
 }
 
 export async function updateContactPermissionLevel(
+  permissionService: PermissionService,
   contactFriendCode: string,
   newLevel: PermissionLevel,
 ): Promise<number> {
-  const permissionService = getPermissionService();
   const permissions =
     await permissionService.getGrantsForGrantee(contactFriendCode);
   let updated = 0;
