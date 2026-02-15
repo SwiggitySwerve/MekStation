@@ -26,63 +26,13 @@ import {
   type SingletonFactory,
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
-
-// =============================================================================
-// Database Row Types
-// =============================================================================
-
-interface PilotRow {
-  id: string;
-  name: string;
-  callsign: string | null;
-  affiliation: string | null;
-  portrait: string | null;
-  background: string | null;
-  type: string;
-  status: string;
-  gunnery: number;
-  piloting: number;
-  wounds: number;
-  missions_completed: number;
-  victories: number;
-  defeats: number;
-  draws: number;
-  total_kills: number;
-  xp: number;
-  total_xp_earned: number;
-  rank: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface PilotAbilityRow {
-  id: string;
-  pilot_id: string;
-  ability_id: string;
-  acquired_date: string;
-  acquired_game_id: string | null;
-}
-
-interface PilotKillRow {
-  id: string;
-  pilot_id: string;
-  target_id: string;
-  target_name: string;
-  weapon_used: string;
-  kill_date: string;
-  game_id: string;
-}
-
-interface PilotMissionRow {
-  id: string;
-  pilot_id: string;
-  game_id: string;
-  mission_name: string;
-  mission_date: string;
-  outcome: string;
-  xp_earned: number;
-  kills: number;
-}
+import * as careerOps from './PilotRepository.career';
+import {
+  rowToPilot,
+  type PilotRow,
+  type PilotAbilityRow,
+} from './PilotRepository.helpers';
+import { buildUpdateQuery } from './PilotRepository.queries';
 
 // =============================================================================
 // Result Types
@@ -221,49 +171,12 @@ export class PilotRepository implements IPilotRepository {
     }
 
     try {
-      // Build dynamic update query
-      const fields: string[] = [];
-      const values: unknown[] = [];
-
-      if (updates.name !== undefined) {
-        fields.push('name = ?');
-        values.push(updates.name);
-      }
-      if (updates.callsign !== undefined) {
-        fields.push('callsign = ?');
-        values.push(updates.callsign || null);
-      }
-      if (updates.affiliation !== undefined) {
-        fields.push('affiliation = ?');
-        values.push(updates.affiliation || null);
-      }
-      if (updates.portrait !== undefined) {
-        fields.push('portrait = ?');
-        values.push(updates.portrait || null);
-      }
-      if (updates.background !== undefined) {
-        fields.push('background = ?');
-        values.push(updates.background || null);
-      }
-      if (updates.status !== undefined) {
-        fields.push('status = ?');
-        values.push(updates.status);
-      }
-      if (updates.skills !== undefined) {
-        fields.push('gunnery = ?', 'piloting = ?');
-        values.push(updates.skills.gunnery, updates.skills.piloting);
-      }
-      if (updates.wounds !== undefined) {
-        fields.push('wounds = ?');
-        values.push(updates.wounds);
-      }
+      const { fields, values } = buildUpdateQuery(updates, now);
 
       if (fields.length === 0) {
         return { success: true, id };
       }
 
-      fields.push('updated_at = ?');
-      values.push(now);
       values.push(id);
 
       const sql = `UPDATE pilots SET ${fields.join(', ')} WHERE id = ?`;
@@ -318,7 +231,7 @@ export class PilotRepository implements IPilotRepository {
       | undefined;
     if (!row) return null;
 
-    return this.rowToPilot(row);
+    return rowToPilot(row);
   }
 
   /**
@@ -330,19 +243,16 @@ export class PilotRepository implements IPilotRepository {
     const rows = db
       .prepare('SELECT * FROM pilots ORDER BY name')
       .all() as PilotRow[];
-    return rows.map((row) => this.rowToPilot(row));
+    return rows.map((row) => rowToPilot(row));
   }
 
-  /**
-   * List pilots by status
-   */
   listByStatus(status: PilotStatus): readonly IPilot[] {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
       .prepare('SELECT * FROM pilots WHERE status = ? ORDER BY name')
       .all(status) as PilotRow[];
-    return rows.map((row) => this.rowToPilot(row));
+    return rows.map((row) => rowToPilot(row));
   }
 
   /**
@@ -411,276 +321,31 @@ export class PilotRepository implements IPilotRepository {
     }
   }
 
-  /**
-   * Record a kill for a pilot
-   */
   recordKill(
     pilotId: string,
     kill: Omit<IKillRecord, 'date'>,
   ): IPilotOperationResult {
-    const db = getSQLiteService().getDatabase();
-    const now = new Date().toISOString();
-
-    if (!this.exists(pilotId)) {
-      return {
-        success: false,
-        error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NotFound,
-      };
-    }
-
-    try {
-      // Insert kill record
-      db.prepare(`
-        INSERT INTO pilot_kills (id, pilot_id, target_id, target_name, weapon_used, kill_date, game_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run(
-        uuidv4(),
-        pilotId,
-        kill.targetId,
-        kill.targetName,
-        kill.weaponUsed,
-        now,
-        kill.gameId,
-      );
-
-      // Update total kills
-      db.prepare(`
-        UPDATE pilots SET total_kills = total_kills + 1, updated_at = ? WHERE id = ?
-      `).run(now, pilotId);
-
-      return { success: true, id: pilotId };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return {
-        success: false,
-        error: `Failed to record kill: ${message}`,
-        errorCode: PilotErrorCode.DatabaseError,
-      };
-    }
+    return careerOps.recordKill(pilotId, kill, this.exists.bind(this));
   }
 
-  /**
-   * Record a mission for a pilot
-   */
   recordMission(
     pilotId: string,
     mission: Omit<IMissionRecord, 'date'>,
   ): IPilotOperationResult {
-    const db = getSQLiteService().getDatabase();
-    const now = new Date().toISOString();
-
-    if (!this.exists(pilotId)) {
-      return {
-        success: false,
-        error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NotFound,
-      };
-    }
-
-    try {
-      // Insert mission record
-      db.prepare(`
-        INSERT INTO pilot_missions (id, pilot_id, game_id, mission_name, mission_date, outcome, xp_earned, kills)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(
-        uuidv4(),
-        pilotId,
-        mission.gameId,
-        mission.missionName,
-        now,
-        mission.outcome,
-        mission.xpEarned,
-        mission.kills,
-      );
-
-      // Update career stats
-      const outcomeField =
-        mission.outcome === 'victory'
-          ? 'victories'
-          : mission.outcome === 'defeat'
-            ? 'defeats'
-            : 'draws';
-
-      db.prepare(`
-        UPDATE pilots SET 
-          missions_completed = missions_completed + 1,
-          ${outcomeField} = ${outcomeField} + 1,
-          xp = xp + ?,
-          total_xp_earned = total_xp_earned + ?,
-          updated_at = ?
-        WHERE id = ?
-      `).run(mission.xpEarned, mission.xpEarned, now, pilotId);
-
-      return { success: true, id: pilotId };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return {
-        success: false,
-        error: `Failed to record mission: ${message}`,
-        errorCode: PilotErrorCode.DatabaseError,
-      };
-    }
+    return careerOps.recordMission(pilotId, mission, this.exists.bind(this));
   }
 
-  /**
-   * Add XP to a pilot
-   */
   addXp(pilotId: string, amount: number): IPilotOperationResult {
-    const db = getSQLiteService().getDatabase();
-    const now = new Date().toISOString();
-
-    if (!this.exists(pilotId)) {
-      return {
-        success: false,
-        error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NotFound,
-      };
-    }
-
-    try {
-      db.prepare(`
-        UPDATE pilots SET 
-          xp = xp + ?,
-          total_xp_earned = total_xp_earned + ?,
-          updated_at = ?
-        WHERE id = ?
-      `).run(amount, amount, now, pilotId);
-
-      return { success: true, id: pilotId };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return {
-        success: false,
-        error: `Failed to add XP: ${message}`,
-        errorCode: PilotErrorCode.DatabaseError,
-      };
-    }
+    return careerOps.addXp(pilotId, amount, this.exists.bind(this));
   }
 
-  /**
-   * Spend XP from a pilot's pool
-   */
   spendXp(pilotId: string, amount: number): IPilotOperationResult {
-    const db = getSQLiteService().getDatabase();
-    const now = new Date().toISOString();
-
-    const pilot = this.getById(pilotId);
-    if (!pilot) {
-      return {
-        success: false,
-        error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NotFound,
-      };
-    }
-
-    if (!pilot.career || pilot.career.xp < amount) {
-      return {
-        success: false,
-        error: `Insufficient XP. Have ${pilot.career?.xp || 0}, need ${amount}`,
-        errorCode: PilotErrorCode.InsufficientXp,
-      };
-    }
-
-    try {
-      db.prepare(`
-        UPDATE pilots SET xp = xp - ?, updated_at = ? WHERE id = ?
-      `).run(amount, now, pilotId);
-
-      return { success: true, id: pilotId };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return {
-        success: false,
-        error: `Failed to spend XP: ${message}`,
-        errorCode: PilotErrorCode.DatabaseError,
-      };
-    }
+    return careerOps.spendXp(pilotId, amount, this.getById.bind(this));
   }
 
   // =============================================================================
   // Private Helpers
   // =============================================================================
-
-  /**
-   * Convert a database row to an IPilot object
-   */
-  private rowToPilot(row: PilotRow): IPilot {
-    const db = getSQLiteService().getDatabase();
-
-    // Load abilities
-    const abilityRows = db
-      .prepare('SELECT * FROM pilot_abilities WHERE pilot_id = ?')
-      .all(row.id) as PilotAbilityRow[];
-
-    const abilities: IPilotAbilityRef[] = abilityRows.map((a) => ({
-      abilityId: a.ability_id,
-      acquiredDate: a.acquired_date,
-      acquiredGameId: a.acquired_game_id || undefined,
-    }));
-
-    // Load career data for persistent pilots
-    let career: IPilotCareer | undefined;
-    if (row.type === PilotType.Persistent) {
-      const killRows = db
-        .prepare(
-          'SELECT * FROM pilot_kills WHERE pilot_id = ? ORDER BY kill_date DESC',
-        )
-        .all(row.id) as PilotKillRow[];
-
-      const missionRows = db
-        .prepare(
-          'SELECT * FROM pilot_missions WHERE pilot_id = ? ORDER BY mission_date DESC',
-        )
-        .all(row.id) as PilotMissionRow[];
-
-      career = {
-        missionsCompleted: row.missions_completed,
-        victories: row.victories,
-        defeats: row.defeats,
-        draws: row.draws,
-        totalKills: row.total_kills,
-        killRecords: killRows.map((k) => ({
-          targetId: k.target_id,
-          targetName: k.target_name,
-          weaponUsed: k.weapon_used,
-          date: k.kill_date,
-          gameId: k.game_id,
-        })),
-        missionHistory: missionRows.map((m) => ({
-          gameId: m.game_id,
-          missionName: m.mission_name,
-          date: m.mission_date,
-          outcome: m.outcome as 'victory' | 'defeat' | 'draw',
-          xpEarned: m.xp_earned,
-          kills: m.kills,
-        })),
-        xp: row.xp,
-        totalXpEarned: row.total_xp_earned,
-        rank: row.rank || 'MechWarrior',
-      };
-    }
-
-    return {
-      id: row.id,
-      name: row.name,
-      callsign: row.callsign || undefined,
-      affiliation: row.affiliation || undefined,
-      portrait: row.portrait || undefined,
-      background: row.background || undefined,
-      type: row.type as PilotType,
-      status: row.status as PilotStatus,
-      skills: {
-        gunnery: row.gunnery,
-        piloting: row.piloting,
-      },
-      wounds: row.wounds,
-      career,
-      abilities,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    };
-  }
 }
 
 // Singleton instance

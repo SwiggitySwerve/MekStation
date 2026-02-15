@@ -15,7 +15,15 @@ import {
   type IEventContext,
 } from '@/types/events';
 
-import { FilterChip, type FilterChipVariant } from './FilterChip';
+import { FilterChip } from './FilterChip';
+import {
+  CATEGORY_OPTIONS,
+  EVENT_TYPES_BY_CATEGORY,
+  formatEventType,
+  getActiveFilters,
+} from './queryBuilder.helpers';
+import { QueryBuilderAdvancedFilters } from './QueryBuilderAdvancedFilters';
+import { SearchIcon, ClearIcon } from './QueryBuilderIcons';
 
 // =============================================================================
 // Types
@@ -32,259 +40,6 @@ export interface QueryBuilderProps {
   isLoading?: boolean;
   /** Optional additional class names */
   className?: string;
-}
-
-// =============================================================================
-// Category Configuration
-// =============================================================================
-
-const CATEGORY_OPTIONS = [
-  { value: '', label: 'All Categories' },
-  { value: EventCategory.Game, label: 'Game Events' },
-  { value: EventCategory.Campaign, label: 'Campaign Events' },
-  { value: EventCategory.Pilot, label: 'Pilot Events' },
-  { value: EventCategory.Repair, label: 'Repair Events' },
-  { value: EventCategory.Award, label: 'Award Events' },
-  { value: EventCategory.Meta, label: 'Meta Events' },
-];
-
-// Event types by category for multi-select
-const EVENT_TYPES_BY_CATEGORY: Record<EventCategory, string[]> = {
-  [EventCategory.Game]: [
-    'game.started',
-    'game.ended',
-    'game.phase_changed',
-    'game.turn_started',
-    'game.turn_ended',
-    'game.unit_moved',
-    'game.attack_declared',
-    'game.damage_applied',
-  ],
-  [EventCategory.Campaign]: [
-    'campaign.created',
-    'campaign.mission_started',
-    'campaign.mission_completed',
-    'campaign.roster_changed',
-    'campaign.contract_accepted',
-  ],
-  [EventCategory.Pilot]: [
-    'pilot.created',
-    'pilot.xp_gained',
-    'pilot.skill_improved',
-    'pilot.wounded',
-    'pilot.recovered',
-    'pilot.killed',
-    'pilot.assigned',
-  ],
-  [EventCategory.Repair]: [
-    'repair.started',
-    'repair.completed',
-    'repair.cost_calculated',
-    'repair.parts_ordered',
-  ],
-  [EventCategory.Award]: [
-    'award.earned',
-    'award.medal_granted',
-    'award.achievement_unlocked',
-  ],
-  [EventCategory.Meta]: [
-    'meta.checkpoint_created',
-    'meta.chunk_finalized',
-    'meta.save_created',
-    'meta.save_loaded',
-  ],
-};
-
-// =============================================================================
-// Icons
-// =============================================================================
-
-const SearchIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-    className="h-4 w-4"
-  >
-    <path
-      fillRule="evenodd"
-      d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z"
-      clipRule="evenodd"
-    />
-  </svg>
-);
-
-const ClearIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-    className="h-4 w-4"
-  >
-    <path
-      fillRule="evenodd"
-      d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z"
-      clipRule="evenodd"
-    />
-  </svg>
-);
-
-const ChevronDownIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-    className="h-4 w-4"
-  >
-    <path
-      fillRule="evenodd"
-      d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-      clipRule="evenodd"
-    />
-  </svg>
-);
-
-const ChevronUpIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-    className="h-4 w-4"
-  >
-    <path
-      fillRule="evenodd"
-      d="M14.78 11.78a.75.75 0 0 1-1.06 0L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06Z"
-      clipRule="evenodd"
-    />
-  </svg>
-);
-
-// =============================================================================
-// Helper Functions
-// =============================================================================
-
-function formatEventType(type: string): string {
-  const shortType = type.includes('.')
-    ? type.split('.').slice(1).join('.')
-    : type;
-  return shortType
-    .replace(/[_-]/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function getActiveFilters(filters: IEventQueryFilters): Array<{
-  key: string;
-  label: string;
-  value: string;
-  variant: FilterChipVariant;
-  onRemove: () => IEventQueryFilters;
-}> {
-  const active: Array<{
-    key: string;
-    label: string;
-    value: string;
-    variant: FilterChipVariant;
-    onRemove: () => IEventQueryFilters;
-  }> = [];
-
-  if (filters.category) {
-    active.push({
-      key: 'category',
-      label: 'Category',
-      value:
-        CATEGORY_OPTIONS.find((o) => o.value === filters.category)?.label ||
-        filters.category,
-      variant: 'category',
-      onRemove: () => ({ ...filters, category: undefined }),
-    });
-  }
-
-  if (filters.types && filters.types.length > 0) {
-    filters.types.forEach((type, index) => {
-      active.push({
-        key: `type-${index}`,
-        label: 'Type',
-        value: formatEventType(type),
-        variant: 'type',
-        onRemove: () => ({
-          ...filters,
-          types: filters.types?.filter((t) => t !== type),
-        }),
-      });
-    });
-  }
-
-  if (filters.context) {
-    const ctx = filters.context;
-    if (ctx.campaignId) {
-      active.push({
-        key: 'ctx-campaign',
-        label: 'Campaign',
-        value: ctx.campaignId.slice(0, 8) + '...',
-        variant: 'context',
-        onRemove: () => ({
-          ...filters,
-          context: { ...ctx, campaignId: undefined },
-        }),
-      });
-    }
-    if (ctx.gameId) {
-      active.push({
-        key: 'ctx-game',
-        label: 'Game',
-        value: ctx.gameId.slice(0, 8) + '...',
-        variant: 'context',
-        onRemove: () => ({
-          ...filters,
-          context: { ...ctx, gameId: undefined },
-        }),
-      });
-    }
-    if (ctx.pilotId) {
-      active.push({
-        key: 'ctx-pilot',
-        label: 'Pilot',
-        value: ctx.pilotId.slice(0, 8) + '...',
-        variant: 'context',
-        onRemove: () => ({
-          ...filters,
-          context: { ...ctx, pilotId: undefined },
-        }),
-      });
-    }
-  }
-
-  if (filters.timeRange) {
-    active.push({
-      key: 'time',
-      label: 'Time',
-      value: `${filters.timeRange.from.split('T')[0]} → ${filters.timeRange.to.split('T')[0]}`,
-      variant: 'time',
-      onRemove: () => ({ ...filters, timeRange: undefined }),
-    });
-  }
-
-  if (filters.sequenceRange) {
-    active.push({
-      key: 'sequence',
-      label: 'Sequence',
-      value: `#${filters.sequenceRange.from} → #${filters.sequenceRange.to}`,
-      variant: 'sequence',
-      onRemove: () => ({ ...filters, sequenceRange: undefined }),
-    });
-  }
-
-  if (filters.rootEventsOnly) {
-    active.push({
-      key: 'root',
-      label: 'Filter',
-      value: 'Root only',
-      variant: 'category',
-      onRemove: () => ({ ...filters, rootEventsOnly: false }),
-    });
-  }
-
-  return active;
 }
 
 // =============================================================================
@@ -551,82 +306,14 @@ export function QueryBuilder({
         </div>
       )}
 
-      {/* Advanced Filters (Collapsible) */}
-      <div className="border-border-theme-subtle overflow-hidden rounded-lg border">
-        <button
-          type="button"
-          onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-          className="bg-surface-raised/30 text-text-theme-secondary hover:text-text-theme-primary flex w-full items-center justify-between px-4 py-3 transition-colors duration-150"
-        >
-          <span className="text-sm font-medium">Advanced Filters</span>
-          {isAdvancedOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
-        </button>
-
-        {isAdvancedOpen && (
-          <div className="border-border-theme-subtle bg-surface-base/20 space-y-4 border-t p-4">
-            {/* Context Fields */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <Input
-                label="Campaign ID"
-                placeholder="Enter campaign ID..."
-                value={filters.context?.campaignId || ''}
-                onChange={(e) =>
-                  handleContextChange('campaignId', e.target.value)
-                }
-              />
-              <Input
-                label="Game ID"
-                placeholder="Enter game ID..."
-                value={filters.context?.gameId || ''}
-                onChange={(e) => handleContextChange('gameId', e.target.value)}
-              />
-              <Input
-                label="Pilot ID"
-                placeholder="Enter pilot ID..."
-                value={filters.context?.pilotId || ''}
-                onChange={(e) => handleContextChange('pilotId', e.target.value)}
-              />
-            </div>
-
-            {/* Sequence Range */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input
-                type="number"
-                label="Sequence From"
-                placeholder="Start sequence..."
-                value={filters.sequenceRange?.from?.toString() || ''}
-                onChange={(e) =>
-                  handleSequenceRangeChange('from', e.target.value)
-                }
-                min={0}
-              />
-              <Input
-                type="number"
-                label="Sequence To"
-                placeholder="End sequence..."
-                value={filters.sequenceRange?.to?.toString() || ''}
-                onChange={(e) =>
-                  handleSequenceRangeChange('to', e.target.value)
-                }
-                min={0}
-              />
-            </div>
-
-            {/* Caused By Filter */}
-            <Input
-              label="Caused By Event ID"
-              placeholder="Filter by parent event ID..."
-              value={filters.causedByEventId || ''}
-              onChange={(e) =>
-                onChange({
-                  ...filters,
-                  causedByEventId: e.target.value || undefined,
-                })
-              }
-            />
-          </div>
-        )}
-      </div>
+      <QueryBuilderAdvancedFilters
+        isOpen={isAdvancedOpen}
+        onToggle={() => setIsAdvancedOpen(!isAdvancedOpen)}
+        filters={filters}
+        onChange={onChange}
+        onContextChange={handleContextChange}
+        onSequenceRangeChange={handleSequenceRangeChange}
+      />
 
       {/* Active Filters Chips */}
       {activeFilters.length > 0 && (

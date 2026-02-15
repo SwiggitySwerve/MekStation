@@ -10,19 +10,7 @@
  */
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import {
-  createSyncRoom,
-  joinSyncRoom,
-  leaveCurrentRoom,
-  getConnectionState,
-  getConnectedPeerCount,
-  getActiveRoom,
-  onSyncEvent,
-  getLocalPeerId,
-  getYMap,
-  cancelReconnect,
-  getRetryState,
-} from '@/lib/p2p/SyncProvider';
+
 import {
   createMockSyncRoom,
   joinMockSyncRoom,
@@ -37,8 +25,21 @@ import {
   getMockRetryState,
   shouldUseMockSync,
 } from '@/lib/p2p/MockSyncProvider';
-import { ConnectionState, type SyncEvent } from '@/lib/p2p/types';
 import { formatRoomCode } from '@/lib/p2p/roomCodes';
+import {
+  createSyncRoom,
+  joinSyncRoom,
+  leaveCurrentRoom,
+  getConnectionState,
+  getConnectedPeerCount,
+  getActiveRoom,
+  onSyncEvent,
+  getLocalPeerId,
+  getYMap,
+  cancelReconnect,
+  getRetryState,
+} from '@/lib/p2p/SyncProvider';
+import { ConnectionState, type SyncEvent } from '@/lib/p2p/types';
 
 // Block in production
 const isTestEnv =
@@ -57,29 +58,32 @@ export default function SyncTestPage() {
   // Determine if we should use mock sync (for E2E tests)
   // Use state + effect to handle SSR properly
   const [useMock, setUseMock] = useState(false);
-  
+
   useEffect(() => {
     setUseMock(shouldUseMockSync());
   }, []);
 
   // Provider functions based on mock mode
-  const providers = useMemo(() => ({
-    createRoom: useMock ? createMockSyncRoom : createSyncRoom,
-    joinRoom: useMock ? joinMockSyncRoom : joinSyncRoom,
-    leaveRoom: useMock ? leaveMockCurrentRoom : leaveCurrentRoom,
-    getState: useMock ? getMockConnectionState : getConnectionState,
-    getPeerCount: useMock ? getMockConnectedPeerCount : getConnectedPeerCount,
-    getRoom: useMock ? getMockActiveRoom : getActiveRoom,
-    onEvent: useMock ? onMockSyncEvent : onSyncEvent,
-    getPeerId: useMock ? getMockLocalPeerId : getLocalPeerId,
-    getMap: useMock ? getMockYMap : getYMap,
-    cancelRetry: useMock ? cancelMockReconnect : cancelReconnect,
-    getRetry: useMock ? getMockRetryState : getRetryState,
-  }), [useMock]);
+  const providers = useMemo(
+    () => ({
+      createRoom: useMock ? createMockSyncRoom : createSyncRoom,
+      joinRoom: useMock ? joinMockSyncRoom : joinSyncRoom,
+      leaveRoom: useMock ? leaveMockCurrentRoom : leaveCurrentRoom,
+      getState: useMock ? getMockConnectionState : getConnectionState,
+      getPeerCount: useMock ? getMockConnectedPeerCount : getConnectedPeerCount,
+      getRoom: useMock ? getMockActiveRoom : getActiveRoom,
+      onEvent: useMock ? onMockSyncEvent : onSyncEvent,
+      getPeerId: useMock ? getMockLocalPeerId : getLocalPeerId,
+      getMap: useMock ? getMockYMap : getYMap,
+      cancelRetry: useMock ? cancelMockReconnect : cancelReconnect,
+      getRetry: useMock ? getMockRetryState : getRetryState,
+    }),
+    [useMock],
+  );
 
   // Connection state
   const [connectionState, setConnectionState] = useState<ConnectionState>(
-    ConnectionState.Disconnected
+    ConnectionState.Disconnected,
   );
   const [roomCode, setRoomCode] = useState<string>('');
   const [inputRoomCode, setInputRoomCode] = useState<string>('');
@@ -87,7 +91,11 @@ export default function SyncTestPage() {
   const [localPeerId, setLocalPeerId] = useState<string | null>(null);
   const [events, setEvents] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [retryState, setRetryState] = useState({ isRetrying: false, attempts: 0, maxAttempts: 5 });
+  const [retryState, setRetryState] = useState({
+    isRetrying: false,
+    attempts: 0,
+    maxAttempts: 5,
+  });
 
   // Synced data
   const [items, setItems] = useState<Record<string, TestItem>>({});
@@ -168,7 +176,9 @@ export default function SyncTestPage() {
     if (!inputRoomCode.trim()) return;
     try {
       setError(null);
-      const room = providers.joinRoom(inputRoomCode.toUpperCase().replace(/[^A-Z0-9]/g, ''));
+      const room = providers.joinRoom(
+        inputRoomCode.toUpperCase().replace(/[^A-Z0-9]/g, ''),
+      );
       setRoomCode(room.roomCode);
       setInputRoomCode('');
     } catch (err) {
@@ -199,25 +209,31 @@ export default function SyncTestPage() {
     setNewItemName('');
   }, [newItemName, providers]);
 
-  const handleUpdateItem = useCallback((id: string) => {
-    const yMap = providers.getMap<TestItem>('test-items');
-    if (!yMap) return;
+  const handleUpdateItem = useCallback(
+    (id: string) => {
+      const yMap = providers.getMap<TestItem>('test-items');
+      if (!yMap) return;
 
-    const existing = yMap.get(id);
-    if (existing) {
-      yMap.set(id, {
-        ...existing,
-        value: existing.value + 1,
-        updatedAt: Date.now(),
-      });
-    }
-  }, [providers]);
+      const existing = yMap.get(id);
+      if (existing) {
+        yMap.set(id, {
+          ...existing,
+          value: existing.value + 1,
+          updatedAt: Date.now(),
+        });
+      }
+    },
+    [providers],
+  );
 
-  const handleDeleteItem = useCallback((id: string) => {
-    const yMap = providers.getMap<TestItem>('test-items');
-    if (!yMap) return;
-    yMap.delete(id);
-  }, [providers]);
+  const handleDeleteItem = useCallback(
+    (id: string) => {
+      const yMap = providers.getMap<TestItem>('test-items');
+      if (!yMap) return;
+      yMap.delete(id);
+    },
+    [providers],
+  );
 
   if (!isTestEnv) {
     return (
@@ -229,7 +245,14 @@ export default function SyncTestPage() {
   }
 
   return (
-    <div style={{ padding: 20, fontFamily: 'monospace', maxWidth: 800, margin: '0 auto' }}>
+    <div
+      style={{
+        padding: 20,
+        fontFamily: 'monospace',
+        maxWidth: 800,
+        margin: '0 auto',
+      }}
+    >
       <h1>P2P Sync Test Harness</h1>
       {useMock && (
         <div
@@ -249,15 +272,24 @@ export default function SyncTestPage() {
 
       {/* Connection Status Section */}
       <section
-        style={{ marginBottom: 20, padding: 15, border: '1px solid #ccc', borderRadius: 8 }}
+        style={{
+          marginBottom: 20,
+          padding: 15,
+          border: '1px solid #ccc',
+          borderRadius: 8,
+        }}
       >
         <h2>Connection</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: 8 }}>
+        <div
+          style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: 8 }}
+        >
           <span>State:</span>
           <span data-testid="connection-state">{connectionState}</span>
 
           <span>Room Code:</span>
-          <span data-testid="room-code">{roomCode ? formatRoomCode(roomCode) : 'N/A'}</span>
+          <span data-testid="room-code">
+            {roomCode ? formatRoomCode(roomCode) : 'N/A'}
+          </span>
 
           <span>Peer Count:</span>
           <span data-testid="peer-count">{peerCount}</span>
@@ -276,7 +308,13 @@ export default function SyncTestPage() {
         {error && (
           <div
             data-testid="error-message"
-            style={{ marginTop: 10, padding: 10, background: '#fee', color: '#c00', borderRadius: 4 }}
+            style={{
+              marginTop: 10,
+              padding: 10,
+              background: '#fee',
+              color: '#c00',
+              borderRadius: 4,
+            }}
           >
             {error}
           </div>
@@ -285,7 +323,12 @@ export default function SyncTestPage() {
 
       {/* Room Controls */}
       <section
-        style={{ marginBottom: 20, padding: 15, border: '1px solid #ccc', borderRadius: 8 }}
+        style={{
+          marginBottom: 20,
+          padding: 15,
+          border: '1px solid #ccc',
+          borderRadius: 8,
+        }}
       >
         <h2>Room Controls</h2>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -309,7 +352,10 @@ export default function SyncTestPage() {
           <button
             data-testid="join-room-btn"
             onClick={handleJoinRoom}
-            disabled={connectionState !== ConnectionState.Disconnected || !inputRoomCode.trim()}
+            disabled={
+              connectionState !== ConnectionState.Disconnected ||
+              !inputRoomCode.trim()
+            }
             style={{ padding: '8px 16px' }}
           >
             Join Room
@@ -328,7 +374,12 @@ export default function SyncTestPage() {
 
       {/* Synced Items */}
       <section
-        style={{ marginBottom: 20, padding: 15, border: '1px solid #ccc', borderRadius: 8 }}
+        style={{
+          marginBottom: 20,
+          padding: 15,
+          border: '1px solid #ccc',
+          borderRadius: 8,
+        }}
       >
         <h2>Synced Items</h2>
         <div style={{ display: 'flex', gap: 10, marginBottom: 15 }}>
@@ -343,7 +394,10 @@ export default function SyncTestPage() {
           <button
             data-testid="add-item-btn"
             onClick={handleAddItem}
-            disabled={connectionState !== ConnectionState.Connected || !newItemName.trim()}
+            disabled={
+              connectionState !== ConnectionState.Connected ||
+              !newItemName.trim()
+            }
             style={{ padding: '8px 16px' }}
           >
             Add Item
@@ -402,7 +456,9 @@ export default function SyncTestPage() {
       </section>
 
       {/* Event Log */}
-      <section style={{ padding: 15, border: '1px solid #ccc', borderRadius: 8 }}>
+      <section
+        style={{ padding: 15, border: '1px solid #ccc', borderRadius: 8 }}
+      >
         <h2>Event Log</h2>
         <div
           data-testid="event-log"

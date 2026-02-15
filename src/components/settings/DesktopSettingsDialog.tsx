@@ -13,8 +13,14 @@ import { ModalOverlay } from '@/components/customizer/dialogs/ModalOverlay';
 import { Button } from '@/components/ui';
 import { logger } from '@/utils/logger';
 
+import {
+  GeneralTab,
+  BackupsTab,
+  UpdatesTab,
+  AdvancedTab,
+} from './DesktopSettingsDialog.tabs';
 import { useDesktopSettings } from './useDesktopSettings';
-import { useElectron, IDesktopSettings, UpdateChannel } from './useElectron';
+import { useElectron, IDesktopSettings } from './useElectron';
 
 // Tab type
 type SettingsTab = 'general' | 'backups' | 'updates' | 'advanced';
@@ -148,367 +154,13 @@ export function DesktopSettingsDialog({
     return null;
   }
 
-  // Tab content renderers
-  const renderGeneralTab = () => (
-    <div className="space-y-4">
-      <h3 className="mb-4 text-lg font-semibold text-white">
-        General Settings
-      </h3>
-
-      {/* Startup Settings */}
-      <div className="space-y-3">
-        <h4 className="text-text-theme-secondary text-sm font-medium">
-          Startup
-        </h4>
-
-        <label className="flex cursor-pointer items-center gap-3">
-          <input
-            type="checkbox"
-            checked={localSettings.launchAtLogin}
-            onChange={(e) =>
-              updateLocalSetting('launchAtLogin', e.target.checked)
-            }
-            className="border-border-theme bg-surface-raised text-accent focus:ring-accent h-4 w-4 rounded"
-          />
-          <span className="text-text-theme-secondary text-sm">
-            Launch at login
-          </span>
-        </label>
-
-        <label className="flex cursor-pointer items-center gap-3">
-          <input
-            type="checkbox"
-            checked={localSettings.startMinimized}
-            onChange={(e) =>
-              updateLocalSetting('startMinimized', e.target.checked)
-            }
-            className="border-border-theme bg-surface-raised text-accent focus:ring-accent h-4 w-4 rounded"
-          />
-          <span className="text-text-theme-secondary text-sm">
-            Start minimized to system tray
-          </span>
-        </label>
-
-        <label className="flex cursor-pointer items-center gap-3">
-          <input
-            type="checkbox"
-            checked={localSettings.reopenLastUnit}
-            onChange={(e) =>
-              updateLocalSetting('reopenLastUnit', e.target.checked)
-            }
-            className="border-border-theme bg-surface-raised text-accent focus:ring-accent h-4 w-4 rounded"
-          />
-          <span className="text-text-theme-secondary text-sm">
-            Reopen last unit on startup
-          </span>
-        </label>
-      </div>
-
-      {/* Window Settings */}
-      <div className="border-border-theme-subtle space-y-3 border-t pt-4">
-        <h4 className="text-text-theme-secondary text-sm font-medium">
-          Window
-        </h4>
-
-        <label className="flex cursor-pointer items-center gap-3">
-          <input
-            type="checkbox"
-            checked={localSettings.rememberWindowState}
-            onChange={(e) =>
-              updateLocalSetting('rememberWindowState', e.target.checked)
-            }
-            className="border-border-theme bg-surface-raised text-accent focus:ring-accent h-4 w-4 rounded"
-          />
-          <span className="text-text-theme-secondary text-sm">
-            Remember window position and size
-          </span>
-        </label>
-      </div>
-
-      {/* Default Directory */}
-      <div className="border-border-theme-subtle space-y-2 border-t pt-4">
-        <h4 className="text-text-theme-secondary text-sm font-medium">
-          Default Save Directory
-        </h4>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={localSettings.defaultSaveDirectory}
-            onChange={(e) =>
-              updateLocalSetting('defaultSaveDirectory', e.target.value)
-            }
-            placeholder="Default save location"
-            className="bg-surface-raised border-border-theme placeholder-text-theme-secondary flex-1 rounded border px-3 py-2 text-sm text-white"
-          />
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleSelectDirectory('defaultSaveDirectory')}
-          >
-            Browse
-          </Button>
-        </div>
-        <p className="text-text-theme-secondary text-xs">
-          Leave empty to use system default
-        </p>
-      </div>
-    </div>
-  );
-
-  const renderBackupsTab = () => (
-    <div className="space-y-4">
-      <h3 className="mb-4 text-lg font-semibold text-white">Backup Settings</h3>
-
-      {/* Auto-backup Toggle */}
-      <label className="flex cursor-pointer items-center gap-3">
-        <input
-          type="checkbox"
-          checked={localSettings.enableAutoBackup}
-          onChange={(e) =>
-            updateLocalSetting('enableAutoBackup', e.target.checked)
-          }
-          className="border-border-theme bg-surface-raised text-accent focus:ring-accent h-4 w-4 rounded"
-        />
-        <span className="text-text-theme-secondary text-sm">
-          Enable automatic backups
-        </span>
-      </label>
-
-      {/* Backup Interval */}
-      <div className="space-y-2">
-        <label className="text-text-theme-secondary text-sm font-medium">
-          Backup interval (minutes)
-        </label>
-        <input
-          type="number"
-          min={1}
-          max={1440}
-          value={localSettings.backupIntervalMinutes}
-          onChange={(e) =>
-            updateLocalSetting(
-              'backupIntervalMinutes',
-              parseInt(e.target.value) || 5,
-            )
-          }
-          disabled={!localSettings.enableAutoBackup}
-          className="bg-surface-raised border-border-theme w-24 rounded border px-3 py-2 text-sm text-white disabled:opacity-50"
-        />
-      </div>
-
-      {/* Max Backups */}
-      <div className="space-y-2">
-        <label className="text-text-theme-secondary text-sm font-medium">
-          Maximum backups to keep
-        </label>
-        <input
-          type="number"
-          min={1}
-          max={100}
-          value={localSettings.maxBackupCount}
-          onChange={(e) =>
-            updateLocalSetting('maxBackupCount', parseInt(e.target.value) || 10)
-          }
-          className="bg-surface-raised border-border-theme w-24 rounded border px-3 py-2 text-sm text-white"
-        />
-      </div>
-
-      {/* Backup Directory */}
-      <div className="border-border-theme-subtle space-y-2 border-t pt-4">
-        <label className="text-text-theme-secondary text-sm font-medium">
-          Backup Directory
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={localSettings.backupDirectory}
-            onChange={(e) =>
-              updateLocalSetting('backupDirectory', e.target.value)
-            }
-            placeholder="Default backup location"
-            className="bg-surface-raised border-border-theme placeholder-text-theme-secondary flex-1 rounded border px-3 py-2 text-sm text-white"
-          />
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleSelectDirectory('backupDirectory')}
-          >
-            Browse
-          </Button>
-        </div>
-        <p className="text-text-theme-secondary text-xs">
-          Leave empty to use default location
-        </p>
-      </div>
-    </div>
-  );
-
-  const renderUpdatesTab = () => (
-    <div className="space-y-4">
-      <h3 className="mb-4 text-lg font-semibold text-white">Update Settings</h3>
-
-      {/* Auto-update Toggle */}
-      <label className="flex cursor-pointer items-center gap-3">
-        <input
-          type="checkbox"
-          checked={localSettings.checkForUpdatesAutomatically}
-          onChange={(e) =>
-            updateLocalSetting('checkForUpdatesAutomatically', e.target.checked)
-          }
-          className="border-border-theme bg-surface-raised text-accent focus:ring-accent h-4 w-4 rounded"
-        />
-        <span className="text-text-theme-secondary text-sm">
-          Check for updates automatically
-        </span>
-      </label>
-
-      {/* Update Channel */}
-      <div className="space-y-2">
-        <label className="text-text-theme-secondary text-sm font-medium">
-          Update Channel
-        </label>
-        <select
-          value={localSettings.updateChannel}
-          onChange={(e) =>
-            updateLocalSetting('updateChannel', e.target.value as UpdateChannel)
-          }
-          className="bg-surface-raised border-border-theme w-40 rounded border px-3 py-2 text-sm text-white"
-        >
-          <option value="stable">Stable</option>
-          <option value="beta">Beta</option>
-        </select>
-        <p className="text-text-theme-secondary text-xs">
-          Beta channel receives updates earlier but may be less stable
-        </p>
-      </div>
-
-      {/* Check Now Button */}
-      <div className="border-border-theme-subtle border-t pt-4">
-        <Button
-          variant="secondary"
-          onClick={async () => {
-            if (api) {
-              // Note: This triggers the update check in the main process
-              await api.serviceCall('checkForUpdates');
-            }
-          }}
-        >
-          Check for Updates Now
-        </Button>
-      </div>
-    </div>
-  );
-
-  const renderAdvancedTab = () => (
-    <div className="space-y-4">
-      <h3 className="mb-4 text-lg font-semibold text-white">
-        Advanced Settings
-      </h3>
-
-      {/* Data Directory */}
-      <div className="space-y-2">
-        <label className="text-text-theme-secondary text-sm font-medium">
-          Data Directory
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={localSettings.dataDirectory}
-            onChange={(e) =>
-              updateLocalSetting('dataDirectory', e.target.value)
-            }
-            placeholder="Default data location"
-            className="bg-surface-raised border-border-theme placeholder-text-theme-secondary flex-1 rounded border px-3 py-2 text-sm text-white"
-          />
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleSelectDirectory('dataDirectory')}
-          >
-            Browse
-          </Button>
-        </div>
-        <p className="text-text-theme-secondary text-xs">
-          Leave empty to use default location
-        </p>
-      </div>
-
-      {/* Max Recent Files */}
-      <div className="space-y-2">
-        <label className="text-text-theme-secondary text-sm font-medium">
-          Maximum recent files
-        </label>
-        <input
-          type="number"
-          min={5}
-          max={50}
-          value={localSettings.maxRecentFiles}
-          onChange={(e) =>
-            updateLocalSetting('maxRecentFiles', parseInt(e.target.value) || 15)
-          }
-          className="bg-surface-raised border-border-theme w-24 rounded border px-3 py-2 text-sm text-white"
-        />
-      </div>
-
-      {/* Developer Tools */}
-      <div className="border-border-theme-subtle border-t pt-4">
-        <label className="flex cursor-pointer items-center gap-3">
-          <input
-            type="checkbox"
-            checked={localSettings.enableDevTools}
-            onChange={(e) =>
-              updateLocalSetting('enableDevTools', e.target.checked)
-            }
-            className="border-border-theme bg-surface-raised text-accent focus:ring-accent h-4 w-4 rounded"
-          />
-          <span className="text-text-theme-secondary text-sm">
-            Enable developer tools in production
-          </span>
-        </label>
-      </div>
-
-      {/* Cache Management */}
-      <div className="border-border-theme-subtle space-y-3 border-t pt-4">
-        <h4 className="text-text-theme-secondary text-sm font-medium">
-          Cache Management
-        </h4>
-        <div className="flex items-center gap-3">
-          <Button
-            variant="secondary"
-            onClick={async () => {
-              if (
-                !confirm(
-                  'Are you sure you want to clear the application cache? This will remove temporary data but not your saved units.',
-                )
-              ) {
-                return;
-              }
-              if (api) {
-                try {
-                  await api.serviceCall('clearCache');
-                  alert('Cache cleared successfully.');
-                } catch {
-                  alert('Failed to clear cache.');
-                }
-              }
-            }}
-          >
-            Clear Cache
-          </Button>
-          <span className="text-text-theme-secondary text-xs">
-            Remove temporary files and cached data
-          </span>
-        </div>
-      </div>
-
-      {/* Danger Zone */}
-      <div className="mt-4 border-t border-red-900/50 pt-4">
-        <h4 className="mb-3 text-sm font-medium text-red-400">Danger Zone</h4>
-        <Button variant="danger" onClick={handleReset}>
-          Reset All Settings
-        </Button>
-      </div>
-    </div>
-  );
+  const tabContentProps = {
+    localSettings,
+    updateLocalSetting,
+    handleSelectDirectory,
+    handleReset,
+    api,
+  };
 
   const tabs: { id: SettingsTab; label: string }[] = [
     { id: 'general', label: 'General' },
@@ -578,10 +230,12 @@ export function DesktopSettingsDialog({
               </div>
             ) : (
               <>
-                {activeTab === 'general' && renderGeneralTab()}
-                {activeTab === 'backups' && renderBackupsTab()}
-                {activeTab === 'updates' && renderUpdatesTab()}
-                {activeTab === 'advanced' && renderAdvancedTab()}
+                {activeTab === 'general' && <GeneralTab {...tabContentProps} />}
+                {activeTab === 'backups' && <BackupsTab {...tabContentProps} />}
+                {activeTab === 'updates' && <UpdatesTab {...tabContentProps} />}
+                {activeTab === 'advanced' && (
+                  <AdvancedTab {...tabContentProps} />
+                )}
               </>
             )}
           </div>

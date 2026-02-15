@@ -21,9 +21,6 @@ import {
   ITransportBay,
   ICrewQuarters,
   ICapitalCrewConfiguration,
-  BayType,
-  QuartersType,
-  CapitalArc,
 } from '@/types/unit/CapitalShipInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
@@ -32,6 +29,21 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import {
+  calculateSpaceStationBV,
+  calculateSpaceStationCost,
+  validateSpaceStation,
+} from './SpaceStationUnitHandler.calculations';
+import {
+  parseArmorByArc,
+  parseStationType,
+  parseCrewConfiguration,
+  parseTransportBays,
+  parseQuarters,
+  parseEquipment,
+  parseNumericRaw,
+  getBooleanFromRaw,
+} from './SpaceStationUnitHandler.helpers';
 
 // ============================================================================
 // Space Station Interface
@@ -86,28 +98,6 @@ export interface ISpaceStation extends IBaseUnit {
 }
 
 // ============================================================================
-// Constants
-// ============================================================================
-
-/**
- * Map location strings to CapitalArc enum
- */
-const ARC_MAP: Record<string, CapitalArc> = {
-  nose: CapitalArc.NOSE,
-  'nose equipment': CapitalArc.NOSE,
-  'front left': CapitalArc.FRONT_LEFT,
-  'fl equipment': CapitalArc.FRONT_LEFT,
-  'front right': CapitalArc.FRONT_RIGHT,
-  'fr equipment': CapitalArc.FRONT_RIGHT,
-  'aft left': CapitalArc.AFT_LEFT,
-  'al equipment': CapitalArc.AFT_LEFT,
-  'aft right': CapitalArc.AFT_RIGHT,
-  'ar equipment': CapitalArc.AFT_RIGHT,
-  aft: CapitalArc.AFT,
-  'aft equipment': CapitalArc.AFT,
-};
-
-// ============================================================================
 // Space Station Unit Handler
 // ============================================================================
 
@@ -158,40 +148,40 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
     // Armor
     const armorType = document.armorType || 0;
     const armor = document.armor || [];
-    const armorByArc = this.parseArmorByArc(armor);
+    const armorByArc = parseArmorByArc(armor);
     const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
 
     // Station type
     const rawTags = document.rawTags || {};
-    const stationType = this.parseStationType(rawTags);
+    const stationType = parseStationType(rawTags);
 
     // Docking collars
-    const dockingCollars = this.parseNumericRaw(rawTags, 'dockingcollars') || 0;
+    const dockingCollars = parseNumericRaw(rawTags, 'dockingcollars') || 0;
 
     // Grav decks
-    const gravDecks = this.parseNumericRaw(rawTags, 'gravdecks') || 0;
+    const gravDecks = parseNumericRaw(rawTags, 'gravdecks') || 0;
 
     // HPG
-    const hasHPG = this.getBooleanFromRaw(rawTags, 'hpg');
+    const hasHPG = getBooleanFromRaw(rawTags, 'hpg');
 
     // K-F Drive (rare for stations but possible)
-    const hasKFDrive = this.getBooleanFromRaw(rawTags, 'kfdrive');
+    const hasKFDrive = getBooleanFromRaw(rawTags, 'kfdrive');
 
     // Pressurized modules
     const pressurizedModules =
-      this.parseNumericRaw(rawTags, 'pressurizedmodules') || 1;
+      parseNumericRaw(rawTags, 'pressurizedmodules') || 1;
 
     // Crew configuration
-    const crewConfiguration = this.parseCrewConfiguration(document);
+    const crewConfiguration = parseCrewConfiguration(document);
 
     // Transport bays
-    const transportBays = this.parseTransportBays(document);
+    const transportBays = parseTransportBays(document);
 
     // Crew quarters
-    const quarters = this.parseQuarters(document);
+    const quarters = parseQuarters(document);
 
     // Equipment
-    const equipment = this.parseEquipment(document);
+    const equipment = parseEquipment(document);
 
     // Escape pods and life boats
     const escapePods = document.escapePod || 0;
@@ -229,226 +219,6 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
       errors,
       warnings,
     };
-  }
-
-  /**
-   * Parse armor values into arc-keyed object
-   */
-  private parseArmorByArc(armor: readonly number[]): {
-    nose: number;
-    frontLeftSide: number;
-    frontRightSide: number;
-    aftLeftSide: number;
-    aftRightSide: number;
-    aft: number;
-  } {
-    return {
-      nose: armor[0] || 0,
-      frontLeftSide: armor[1] || 0,
-      frontRightSide: armor[2] || 0,
-      aftLeftSide: armor[3] || 0,
-      aftRightSide: armor[4] || 0,
-      aft: armor[5] || 0,
-    };
-  }
-
-  /**
-   * Parse station type from raw tags
-   */
-  private parseStationType(
-    rawTags: Record<string, string | string[]>,
-  ): SpaceStationType {
-    const typeStr =
-      this.getStringFromRaw(rawTags, 'stationtype')?.toLowerCase() || '';
-
-    if (typeStr.includes('shipyard')) return SpaceStationType.SHIPYARD;
-    if (typeStr.includes('recharge')) return SpaceStationType.RECHARGE_STATION;
-    if (typeStr.includes('habitat')) return SpaceStationType.HABITAT;
-    if (typeStr.includes('military') || typeStr.includes('defense'))
-      return SpaceStationType.MILITARY;
-    if (typeStr.includes('deep')) return SpaceStationType.DEEP_SPACE;
-
-    return SpaceStationType.ORBITAL;
-  }
-
-  /**
-   * Get string from raw tags
-   */
-  private getStringFromRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): string | undefined {
-    const value = rawTags[key];
-    if (Array.isArray(value)) {
-      return value[0];
-    }
-    return value;
-  }
-
-  /**
-   * Parse crew configuration
-   */
-  private parseCrewConfiguration(
-    document: IBlkDocument,
-  ): ICapitalCrewConfiguration {
-    return {
-      crew: document.crew || 0,
-      officers: document.officers || 0,
-      gunners: document.gunners || 0,
-      pilots: 0, // Stations don't have pilots
-      marines: document.marines || 0,
-      battleArmor: document.battlearmor || 0,
-      passengers: document.passengers || 0,
-      other: document.otherpassenger || 0,
-    };
-  }
-
-  /**
-   * Parse transport bays
-   */
-  private parseTransportBays(document: IBlkDocument): readonly ITransportBay[] {
-    const bays: ITransportBay[] = [];
-    const transporters = document.transporters || [];
-    let bayNumber = 1;
-
-    for (const transporter of transporters) {
-      const parsed = this.parseTransporterString(transporter, bayNumber);
-      if (parsed) {
-        bays.push(parsed);
-        bayNumber++;
-      }
-    }
-
-    return bays;
-  }
-
-  /**
-   * Parse a transporter string into ITransportBay
-   */
-  private parseTransporterString(
-    transporter: string,
-    bayNumber: number,
-  ): ITransportBay | null {
-    const lower = transporter.toLowerCase();
-    const parts = lower.split(':');
-
-    if (parts.length < 2) return null;
-
-    const typeStr = parts[0];
-    const capacity = parseFloat(parts[1]) || 0;
-    const doors = parts.length > 2 ? parseInt(parts[2], 10) : 1;
-
-    let type: BayType;
-    if (typeStr.includes('mech')) {
-      type = BayType.MECH;
-    } else if (typeStr.includes('vehicle')) {
-      type = BayType.VEHICLE;
-    } else if (typeStr.includes('fighter') || typeStr.includes('asf')) {
-      type = BayType.FIGHTER;
-    } else if (typeStr.includes('smallcraft')) {
-      type = BayType.SMALL_CRAFT;
-    } else if (typeStr.includes('cargo')) {
-      type = BayType.CARGO;
-    } else {
-      type = BayType.CARGO;
-    }
-
-    return { type, capacity, doors, bayNumber };
-  }
-
-  /**
-   * Parse crew quarters
-   */
-  private parseQuarters(document: IBlkDocument): readonly ICrewQuarters[] {
-    const quarters: ICrewQuarters[] = [];
-    const crew = document.crew || 0;
-    const passengers = document.passengers || 0;
-
-    if (crew > 0) {
-      quarters.push({ type: QuartersType.CREW, capacity: crew });
-    }
-    if (passengers > 0) {
-      quarters.push({ type: QuartersType.STEERAGE, capacity: passengers });
-    }
-
-    return quarters;
-  }
-
-  /**
-   * Parse equipment from BLK document
-   */
-  private parseEquipment(
-    document: IBlkDocument,
-  ): readonly ICapitalMountedEquipment[] {
-    const equipment: ICapitalMountedEquipment[] = [];
-    let mountId = 0;
-
-    for (const [locationKey, items] of Object.entries(
-      document.equipmentByLocation,
-    )) {
-      const arc = this.normalizeArc(locationKey);
-
-      for (const item of items) {
-        equipment.push({
-          id: `mount-${mountId++}`,
-          equipmentId: item,
-          name: item,
-          arc,
-          isCapital: this.isCapitalWeapon(item),
-        });
-      }
-    }
-
-    return equipment;
-  }
-
-  /**
-   * Normalize location string to CapitalArc enum
-   */
-  private normalizeArc(locationKey: string): CapitalArc {
-    const normalized = locationKey.toLowerCase();
-    return ARC_MAP[normalized] || CapitalArc.NOSE;
-  }
-
-  /**
-   * Check if weapon is capital-scale
-   */
-  private isCapitalWeapon(weaponName: string): boolean {
-    const lower = weaponName.toLowerCase();
-    return (
-      lower.includes('naval') ||
-      lower.includes('capital') ||
-      lower.includes('mass driver')
-    );
-  }
-
-  /**
-   * Parse numeric value from raw tags
-   */
-  private parseNumericRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): number {
-    const value = rawTags[key];
-    if (Array.isArray(value)) {
-      return parseFloat(value[0]) || 0;
-    }
-    return parseFloat(String(value)) || 0;
-  }
-
-  /**
-   * Get boolean value from raw tags
-   */
-  private getBooleanFromRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): boolean {
-    const value = rawTags[key];
-    if (value === undefined) return false;
-    if (Array.isArray(value)) {
-      return value[0]?.toLowerCase() === 'true' || value[0] === '1';
-    }
-    return value?.toLowerCase() === 'true' || value === '1';
   }
 
   /**
@@ -552,54 +322,12 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
     ]);
   }
 
-  /**
-   * Validate Space Station-specific rules
-   */
   protected validateTypeSpecificRules(unit: ISpaceStation): {
     errors: string[];
     warnings: string[];
     infos: string[];
   } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    const infos: string[] = [];
-
-    // SI validation
-    if (unit.structuralIntegrity < 1) {
-      errors.push('Space station must have at least 1 SI');
-    }
-
-    // Crew validation
-    if (unit.crewConfiguration.crew < 1) {
-      warnings.push('Space station has no crew assigned');
-    }
-
-    // Escape capacity check
-    const totalPersonnel =
-      unit.crewConfiguration.crew +
-      unit.crewConfiguration.passengers +
-      unit.crewConfiguration.marines;
-    const escapeCapacity = unit.escapePods * 7 + unit.lifeBoats * 6;
-    if (escapeCapacity < totalPersonnel && totalPersonnel > 0) {
-      warnings.push(
-        `Insufficient escape capacity (${escapeCapacity}) for personnel (${totalPersonnel})`,
-      );
-    }
-
-    // Station type info
-    infos.push(`Station type: ${unit.stationType}`);
-
-    // HPG info
-    if (unit.hasHPG) {
-      infos.push('Station has HPG capabilities');
-    }
-
-    // K-F Drive info
-    if (unit.hasKFDrive) {
-      infos.push('Station has K-F drive (mobile station)');
-    }
-
-    return { errors, warnings, infos };
+    return validateSpaceStation(unit);
   }
 
   /**
@@ -609,61 +337,12 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
     return unit.tonnage;
   }
 
-  /**
-   * Calculate Space Station BV
-   */
   protected calculateTypeSpecificBV(unit: ISpaceStation): number {
-    let bv = 0;
-
-    // Armor BV
-    bv += unit.totalArmorPoints * 2;
-
-    // SI contributes
-    bv += unit.structuralIntegrity * 25;
-
-    // Docking collar capacity
-    bv += unit.dockingCollars * 40;
-
-    // Transport bays
-    for (const bay of unit.transportBays) {
-      bv += bay.capacity * 3;
-    }
-
-    return Math.round(bv);
+    return calculateSpaceStationBV(unit);
   }
 
-  /**
-   * Calculate Space Station cost
-   */
   protected calculateTypeSpecificCost(unit: ISpaceStation): number {
-    let cost = 0;
-
-    // Base cost per ton
-    cost += unit.tonnage * 50000;
-
-    // Pressurized modules
-    cost += unit.pressurizedModules * 500000;
-
-    // Grav decks
-    cost += unit.gravDecks * 1000000;
-
-    // Docking collars
-    cost += unit.dockingCollars * 1000000;
-
-    // Armor cost
-    cost += unit.totalArmorPoints * 10000;
-
-    // HPG
-    if (unit.hasHPG) {
-      cost += 500000000; // HPGs are extremely expensive
-    }
-
-    // K-F Drive
-    if (unit.hasKFDrive) {
-      cost += unit.tonnage * 100000;
-    }
-
-    return Math.round(cost);
+    return calculateSpaceStationCost(unit);
   }
 }
 

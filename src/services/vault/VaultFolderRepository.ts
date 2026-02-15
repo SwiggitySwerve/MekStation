@@ -21,6 +21,7 @@ import {
   type SingletonFactory,
 } from '../core/createSingleton';
 import { ICrudRepository } from '../core/ICrudRepository';
+import { rowToFolder, rowToFolderItem } from './VaultFolderRepository.helpers';
 
 // =============================================================================
 // Repository
@@ -140,7 +141,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .prepare('SELECT * FROM vault_folders WHERE id = ?')
       .get(id) as IStoredVaultFolder | undefined;
 
-    return row ? this.rowToFolder(row) : null;
+    return row ? rowToFolder(row) : null;
   }
 
   /**
@@ -156,12 +157,9 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       )
       .all() as IStoredVaultFolder[];
 
-    return rows.map((row) => this.rowToFolder(row));
+    return rows.map((row) => rowToFolder(row));
   }
 
-  /**
-   * Get child folders of a parent
-   */
   async getChildFolders(parentId: string): Promise<IVaultFolder[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -170,12 +168,9 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .prepare('SELECT * FROM vault_folders WHERE parent_id = ? ORDER BY name')
       .all(parentId) as IStoredVaultFolder[];
 
-    return rows.map((row) => this.rowToFolder(row));
+    return rows.map((row) => rowToFolder(row));
   }
 
-  /**
-   * Get all folders
-   */
   async getAllFolders(): Promise<IVaultFolder[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -184,12 +179,9 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .prepare('SELECT * FROM vault_folders ORDER BY name')
       .all() as IStoredVaultFolder[];
 
-    return rows.map((row) => this.rowToFolder(row));
+    return rows.map((row) => rowToFolder(row));
   }
 
-  /**
-   * Get shared folders only
-   */
   async getSharedFolders(): Promise<IVaultFolder[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -198,7 +190,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .prepare('SELECT * FROM vault_folders WHERE is_shared = 1 ORDER BY name')
       .all() as IStoredVaultFolder[];
 
-    return rows.map((row) => this.rowToFolder(row));
+    return rows.map((row) => rowToFolder(row));
   }
 
   /**
@@ -463,7 +455,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       )
       .all(folderId) as IStoredFolderItem[];
 
-    return rows.map((row) => this.rowToFolderItem(row));
+    return rows.map((row) => rowToFolderItem(row));
   }
 
   /**
@@ -485,7 +477,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       `)
       .all(itemId, itemType) as IStoredVaultFolder[];
 
-    return rows.map((row) => this.rowToFolder(row));
+    return rows.map((row) => rowToFolder(row));
   }
 
   /**
@@ -582,34 +574,6 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       ), updated_at = ?
       WHERE id = ?
     `).run(folderId, now, folderId);
-  }
-
-  /**
-   * Convert database row to IVaultFolder
-   */
-  private rowToFolder(row: IStoredVaultFolder): IVaultFolder {
-    return {
-      id: row.id,
-      name: row.name,
-      description: row.description,
-      parentId: row.parent_id,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      itemCount: row.item_count,
-      isShared: row.is_shared === 1,
-    };
-  }
-
-  /**
-   * Convert database row to IFolderItem
-   */
-  private rowToFolderItem(row: IStoredFolderItem): IFolderItem {
-    return {
-      folderId: row.folder_id,
-      itemId: row.item_id,
-      itemType: row.item_type,
-      assignedAt: row.assigned_at,
-    };
   }
 }
 

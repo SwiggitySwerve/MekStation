@@ -23,32 +23,18 @@ import {
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import {
-  MechConfiguration,
-  getLocationsForConfig,
-  hasRearArmor,
-} from '@/types/construction/MechConfigurationSystem';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import {
   calculateArmorPoints,
-  getMaxArmorForLocation,
   getMaxTotalArmor,
   getArmorCriticalSlots,
 } from '@/utils/construction/armorCalculations';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { LocationArmorEditor } from '../armor/LocationArmorEditor';
-import {
-  CleanTechDiagram,
-  NeonOperatorDiagram,
-  TacticalHUDDiagram,
-  PremiumMaterialDiagram,
-  MegaMekDiagram,
-} from '../armor/variants';
-import { LAMArmorDiagram } from '../armor/variants/LAMArmorDiagram';
-import { QuadArmorDiagram } from '../armor/variants/QuadArmorDiagram';
-import { QuadVeeArmorDiagram } from '../armor/variants/QuadVeeArmorDiagram';
-import { TripodArmorDiagram } from '../armor/variants/TripodArmorDiagram';
 import { customizerStyles as cs } from '../styles';
+import { ArmorDiagramPanel } from './ArmorDiagramPanel';
+import { buildArmorData, calculatePointsDelta } from './ArmorTab.logic';
 
 // =============================================================================
 // Types
@@ -135,53 +121,14 @@ export function ArmorTab({
   const unallocatedPoints = availablePoints - allocatedPoints;
   const wastedPoints = Math.max(0, availablePoints - maxTotalArmor);
 
-  // Points delta for Auto-Allocate button:
-  // - Negative when allocated > available (need to remove points)
-  // - Positive when can allocate more (capped at max armor remaining)
-  const pointsDelta =
-    unallocatedPoints < 0
-      ? unallocatedPoints // Show negative as-is (over-allocated)
-      : Math.min(unallocatedPoints, maxTotalArmor - allocatedPoints); // Cap at max allocatable
+  const pointsDelta = useMemo(
+    () =>
+      calculatePointsDelta(unallocatedPoints, maxTotalArmor, allocatedPoints),
+    [unallocatedPoints, maxTotalArmor, allocatedPoints],
+  );
 
-  // Convert allocation to diagram format
-  // For torso locations, maximum represents the total max for front+rear combined
-  // rearMaximum represents how much of the total max can still go to rear
-  // Uses getLocationsForConfig to get configuration-specific locations
   const armorData: LocationArmorData[] = useMemo(() => {
-    const locations = getLocationsForConfig(configuration);
-
-    // Helper to get rear armor value for a torso location
-    const getRearValue = (location: MechLocation): number | undefined => {
-      if (!hasRearArmor(location)) return undefined;
-      switch (location) {
-        case MechLocation.CENTER_TORSO:
-          return armorAllocation.centerTorsoRear;
-        case MechLocation.LEFT_TORSO:
-          return armorAllocation.leftTorsoRear;
-        case MechLocation.RIGHT_TORSO:
-          return armorAllocation.rightTorsoRear;
-        default:
-          return undefined;
-      }
-    };
-
-    return locations.map((location) => {
-      const maxArmor = getMaxArmorForLocation(tonnage, location);
-      const hasRear = hasRearArmor(location);
-      const rear = getRearValue(location);
-
-      return {
-        location,
-        current: armorAllocation[location] ?? 0,
-        maximum: maxArmor,
-        ...(hasRear && rear !== undefined
-          ? {
-              rear,
-              rearMaximum: maxArmor - (armorAllocation[location] ?? 0),
-            }
-          : {}),
-      };
-    });
+    return buildArmorData(tonnage, configuration, armorAllocation);
   }, [tonnage, configuration, armorAllocation]);
 
   // Get selected location data
@@ -411,113 +358,15 @@ export function ArmorTab({
           </div>
         </div>
 
-        {/* RIGHT: Armor Diagram - Configuration-aware */}
-        <div className="space-y-4" data-testid="armor-diagram">
-          {/* QUAD configuration */}
-          {configuration === MechConfiguration.QUAD && (
-            <QuadArmorDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              variant={armorDiagramVariant}
-            />
-          )}
-
-          {/* TRIPOD configuration */}
-          {configuration === MechConfiguration.TRIPOD && (
-            <TripodArmorDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              variant={armorDiagramVariant}
-            />
-          )}
-
-          {/* LAM configuration */}
-          {configuration === MechConfiguration.LAM && (
-            <LAMArmorDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              variant={armorDiagramVariant}
-            />
-          )}
-
-          {/* QUADVEE configuration */}
-          {configuration === MechConfiguration.QUADVEE && (
-            <QuadVeeArmorDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              variant={armorDiagramVariant}
-            />
-          )}
-
-          {/* Biped configuration uses variant-based diagrams */}
-          {configuration === MechConfiguration.BIPED && (
-            <>
-              {/* Schematic Mode */}
-              {armorDiagramMode === 'schematic' && (
-                <SchematicDiagram
-                  armorData={armorData}
-                  selectedLocation={selectedLocation}
-                  onLocationClick={handleLocationClick}
-                />
-              )}
-
-              {/* Silhouette Mode - render based on variant */}
-              {armorDiagramMode === 'silhouette' &&
-                armorDiagramVariant === 'clean-tech' && (
-                  <CleanTechDiagram
-                    armorData={armorData}
-                    selectedLocation={selectedLocation}
-                    unallocatedPoints={pointsDelta}
-                    onLocationClick={handleLocationClick}
-                  />
-                )}
-              {armorDiagramMode === 'silhouette' &&
-                armorDiagramVariant === 'neon-operator' && (
-                  <NeonOperatorDiagram
-                    armorData={armorData}
-                    selectedLocation={selectedLocation}
-                    unallocatedPoints={pointsDelta}
-                    onLocationClick={handleLocationClick}
-                  />
-                )}
-              {armorDiagramMode === 'silhouette' &&
-                armorDiagramVariant === 'tactical-hud' && (
-                  <TacticalHUDDiagram
-                    armorData={armorData}
-                    selectedLocation={selectedLocation}
-                    unallocatedPoints={pointsDelta}
-                    onLocationClick={handleLocationClick}
-                  />
-                )}
-              {armorDiagramMode === 'silhouette' &&
-                armorDiagramVariant === 'premium-material' && (
-                  <PremiumMaterialDiagram
-                    armorData={armorData}
-                    selectedLocation={selectedLocation}
-                    unallocatedPoints={pointsDelta}
-                    onLocationClick={handleLocationClick}
-                  />
-                )}
-              {armorDiagramMode === 'silhouette' &&
-                armorDiagramVariant === 'megamek' && (
-                  <MegaMekDiagram
-                    armorData={armorData}
-                    selectedLocation={selectedLocation}
-                    unallocatedPoints={pointsDelta}
-                    onLocationClick={handleLocationClick}
-                  />
-                )}
-            </>
-          )}
-        </div>
+        <ArmorDiagramPanel
+          configuration={configuration}
+          armorDiagramMode={armorDiagramMode}
+          armorDiagramVariant={armorDiagramVariant}
+          armorData={armorData}
+          selectedLocation={selectedLocation}
+          pointsDelta={pointsDelta}
+          onLocationClick={handleLocationClick}
+        />
       </div>
     </div>
   );

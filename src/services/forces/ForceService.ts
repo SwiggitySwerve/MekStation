@@ -12,14 +12,11 @@ import {
   IForceWithHierarchy,
   IForceSummary,
   IForceValidation,
-  IForceValidationError,
-  IForceValidationWarning,
   ICreateForceRequest,
   IUpdateForceRequest,
   ForcePosition,
   canHaveSubForces,
 } from '@/types/force';
-import { PilotStatus } from '@/types/pilot';
 
 import {
   createSingleton,
@@ -31,26 +28,28 @@ import {
   ForceRepository,
   IForceOperationResult,
 } from './ForceRepository';
-
-// =============================================================================
-// Service Interface
-// =============================================================================
+import {
+  buildForceHierarchy,
+  buildForceSummaries,
+  findAssignmentForce,
+} from './ForceService.utils';
+import {
+  validatePilotAvailability,
+  validateForce as validateForceImpl,
+} from './ForceService.validation';
 
 export interface IForceService {
-  // Force CRUD
   createForce(request: ICreateForceRequest): IForceOperationResult;
   getForce(id: string): IForce | null;
   getAllForces(): readonly IForce[];
   updateForce(id: string, request: IUpdateForceRequest): IForceOperationResult;
   deleteForce(id: string): IForceOperationResult;
 
-  // Hierarchy
   getRootForces(): readonly IForce[];
   getChildForces(parentId: string): readonly IForce[];
   getForceHierarchy(id: string): IForceWithHierarchy | null;
   getForceSummaries(): readonly IForceSummary[];
 
-  // Assignments
   assignPilot(assignmentId: string, pilotId: string): IForceOperationResult;
   assignUnit(assignmentId: string, unitId: string): IForceOperationResult;
   assignPilotAndUnit(
@@ -69,16 +68,9 @@ export interface IForceService {
   ): IForceOperationResult;
   promoteToLead(assignmentId: string): IForceOperationResult;
 
-  // Validation
   validateForce(id: string): IForceValidation;
-
-  // Cloning
   cloneForce(id: string, newName: string): IForceOperationResult;
 }
-
-// =============================================================================
-// Service Implementation
-// =============================================================================
 
 export class ForceService implements IForceService {
   private readonly repository: ForceRepository;
@@ -87,12 +79,7 @@ export class ForceService implements IForceService {
     this.repository = getForceRepository();
   }
 
-  // ===========================================================================
-  // Force CRUD
-  // ===========================================================================
-
   createForce(request: ICreateForceRequest): IForceOperationResult {
-    // Validate request
     if (!request.name || request.name.trim().length === 0) {
       return {
         success: false,
@@ -100,7 +87,6 @@ export class ForceService implements IForceService {
       };
     }
 
-    // Validate parent if provided
     if (request.parentId) {
       const parent = this.repository.getForceById(request.parentId);
       if (!parent) {
@@ -152,10 +138,6 @@ export class ForceService implements IForceService {
     return this.repository.deleteForce(id);
   }
 
-  // ===========================================================================
-  // Hierarchy
-  // ===========================================================================
-
   getRootForces(): readonly IForce[] {
     return this.repository.getRootForces();
   }
@@ -169,55 +151,14 @@ export class ForceService implements IForceService {
     if (!force) {
       return null;
     }
-
-    const buildHierarchy = (f: IForce): IForceWithHierarchy => {
-      const children = this.repository.getChildForces(f.id);
-      return {
-        ...f,
-        children: children.map((child) => buildHierarchy(child)),
-      };
-    };
-
-    return buildHierarchy(force);
+    return buildForceHierarchy(force);
   }
 
   getForceSummaries(): readonly IForceSummary[] {
-    const summaries: IForceSummary[] = [];
-
-    const addForce = (force: IForce, depth: number): void => {
-      summaries.push({
-        id: force.id,
-        name: force.name,
-        forceType: force.forceType,
-        status: force.status,
-        affiliation: force.affiliation,
-        stats: force.stats,
-        depth,
-        parentId: force.parentId,
-      });
-
-      // Add children
-      const children = this.repository.getChildForces(force.id);
-      for (const child of children) {
-        addForce(child, depth + 1);
-      }
-    };
-
-    // Start with root forces
-    const rootForces = this.repository.getRootForces();
-    for (const force of rootForces) {
-      addForce(force, 0);
-    }
-
-    return summaries;
+    return buildForceSummaries();
   }
 
-  // ===========================================================================
-  // Assignments
-  // ===========================================================================
-
   assignPilot(assignmentId: string, pilotId: string): IForceOperationResult {
-    // Validate pilot exists
     const pilotRepo = getPilotRepository();
     const pilot = pilotRepo.getById(pilotId);
     if (!pilot) {
@@ -227,8 +168,7 @@ export class ForceService implements IForceService {
       };
     }
 
-    // Validate pilot is available for assignment
-    const availabilityCheck = this.validatePilotAvailability(pilot.status);
+    const availabilityCheck = validatePilotAvailability(pilot.status);
     if (!availabilityCheck.available) {
       return {
         success: false,
@@ -236,8 +176,7 @@ export class ForceService implements IForceService {
       };
     }
 
-    // Check if pilot is already assigned in this force
-    const force = this.findAssignmentForce(assignmentId);
+    const force = findAssignmentForce(assignmentId);
     if (force) {
       const duplicateAssignment = force.assignments.find(
         (a) => a.pilotId === pilotId && a.id !== assignmentId,
@@ -254,7 +193,6 @@ export class ForceService implements IForceService {
   }
 
   assignUnit(assignmentId: string, unitId: string): IForceOperationResult {
-    // TODO: Validate unit exists (need unit repository)
     return this.repository.updateAssignment(assignmentId, { unitId });
   }
 
@@ -263,7 +201,6 @@ export class ForceService implements IForceService {
     pilotId: string,
     unitId: string,
   ): IForceOperationResult {
-    // Validate pilot exists
     const pilotRepo = getPilotRepository();
     const pilot = pilotRepo.getById(pilotId);
     if (!pilot) {
@@ -273,8 +210,7 @@ export class ForceService implements IForceService {
       };
     }
 
-    // Validate pilot is available for assignment
-    const availabilityCheck = this.validatePilotAvailability(pilot.status);
+    const availabilityCheck = validatePilotAvailability(pilot.status);
     if (!availabilityCheck.available) {
       return {
         success: false,
@@ -282,8 +218,7 @@ export class ForceService implements IForceService {
       };
     }
 
-    // Check if pilot is already assigned in this force
-    const force = this.findAssignmentForce(assignmentId);
+    const force = findAssignmentForce(assignmentId);
     if (force) {
       const duplicateAssignment = force.assignments.find(
         (a) => a.pilotId === pilotId && a.id !== assignmentId,
@@ -295,8 +230,6 @@ export class ForceService implements IForceService {
         };
       }
     }
-
-    // TODO: Validate unit exists
 
     return this.repository.updateAssignment(assignmentId, { pilotId, unitId });
   }
@@ -316,8 +249,7 @@ export class ForceService implements IForceService {
     assignmentId: string,
     position: ForcePosition,
   ): IForceOperationResult {
-    // Find the force containing this assignment
-    const force = this.findAssignmentForce(assignmentId);
+    const force = findAssignmentForce(assignmentId);
     if (!force) {
       return {
         success: false,
@@ -325,7 +257,6 @@ export class ForceService implements IForceService {
       };
     }
 
-    // Validate position is allowed
     const validPositions = Object.values(ForcePosition);
     if (!validPositions.includes(position)) {
       return {
@@ -338,8 +269,7 @@ export class ForceService implements IForceService {
   }
 
   promoteToLead(assignmentId: string): IForceOperationResult {
-    // Find the force containing this assignment
-    const force = this.findAssignmentForce(assignmentId);
+    const force = findAssignmentForce(assignmentId);
     if (!force) {
       return {
         success: false,
@@ -347,7 +277,6 @@ export class ForceService implements IForceService {
       };
     }
 
-    // Find current lead and demote them
     const currentLead = force.assignments.find(
       (a) => a.position === ForcePosition.Lead && a.id !== assignmentId,
     );
@@ -363,66 +292,10 @@ export class ForceService implements IForceService {
       }
     }
 
-    // Promote the new lead
     return this.repository.updateAssignment(assignmentId, {
       position: ForcePosition.Lead,
     });
   }
-
-  // ===========================================================================
-  // Pilot Availability Validation
-  // ===========================================================================
-
-  /**
-   * Check if a pilot's status allows them to be assigned.
-   */
-  private validatePilotAvailability(status: PilotStatus): {
-    available: boolean;
-    reason: string;
-  } {
-    switch (status) {
-      case PilotStatus.Active:
-        return { available: true, reason: '' };
-      case PilotStatus.Injured:
-        // Injured pilots can still be assigned (gameplay decision)
-        return { available: true, reason: '' };
-      case PilotStatus.MIA:
-        return {
-          available: false,
-          reason: 'Pilot is MIA and cannot be assigned',
-        };
-      case PilotStatus.KIA:
-        return {
-          available: false,
-          reason: 'Pilot is KIA and cannot be assigned',
-        };
-      case PilotStatus.Retired:
-        return {
-          available: false,
-          reason: 'Pilot is retired and cannot be assigned',
-        };
-      default:
-        return { available: true, reason: '' };
-    }
-  }
-
-  /**
-   * Find an assignment by ID across all forces.
-   */
-  private findAssignmentForce(assignmentId: string): IForce | null {
-    const allForces = this.repository.getAllForces();
-    for (const force of allForces) {
-      const assignment = force.assignments.find((a) => a.id === assignmentId);
-      if (assignment) {
-        return force;
-      }
-    }
-    return null;
-  }
-
-  // ===========================================================================
-  // Validation
-  // ===========================================================================
 
   validateForce(id: string): IForceValidation {
     const force = this.repository.getForceById(id);
@@ -433,113 +306,8 @@ export class ForceService implements IForceService {
         warnings: [],
       };
     }
-
-    const errors: IForceValidationError[] = [];
-    const warnings: IForceValidationWarning[] = [];
-    const pilotRepo = getPilotRepository();
-
-    // Check for empty slots
-    const emptySlots = force.assignments.filter(
-      (a) => a.pilotId === null && a.unitId === null,
-    );
-    if (emptySlots.length > 0) {
-      warnings.push({
-        code: 'EMPTY_SLOTS',
-        message: `Force has ${emptySlots.length} empty slot(s)`,
-      });
-    }
-
-    // Check for pilots without mechs
-    const pilotsWithoutMechs = force.assignments.filter(
-      (a) => a.pilotId !== null && a.unitId === null,
-    );
-    for (const assignment of pilotsWithoutMechs) {
-      warnings.push({
-        code: 'PILOT_NO_MECH',
-        message: `Slot ${assignment.slot}: Pilot assigned but no mech`,
-        slot: assignment.slot,
-        assignmentId: assignment.id,
-      });
-    }
-
-    // Check for mechs without pilots
-    const mechsWithoutPilots = force.assignments.filter(
-      (a) => a.pilotId === null && a.unitId !== null,
-    );
-    for (const assignment of mechsWithoutPilots) {
-      warnings.push({
-        code: 'MECH_NO_PILOT',
-        message: `Slot ${assignment.slot}: Mech assigned but no pilot`,
-        slot: assignment.slot,
-        assignmentId: assignment.id,
-      });
-    }
-
-    // Check for no lead assigned
-    const leadAssignment = force.assignments.find(
-      (a) => a.position === 'lead' && (a.pilotId !== null || a.unitId !== null),
-    );
-    if (!leadAssignment) {
-      warnings.push({
-        code: 'NO_LEAD',
-        message: 'Force has no assigned lead',
-      });
-    }
-
-    // Check for duplicate pilot assignments
-    const pilotIds = force.assignments
-      .filter((a) => a.pilotId !== null)
-      .map((a) => a.pilotId as string);
-    const seenPilots = new Set<string>();
-    const duplicatePilots = new Set<string>();
-    for (const pilotId of pilotIds) {
-      if (seenPilots.has(pilotId)) {
-        duplicatePilots.add(pilotId);
-      }
-      seenPilots.add(pilotId);
-    }
-    duplicatePilots.forEach((duplicatePilotId) => {
-      errors.push({
-        code: 'DUPLICATE_PILOT',
-        message: `Pilot ${duplicatePilotId} is assigned to multiple slots`,
-      });
-    });
-
-    // Check for unavailable pilots (KIA, MIA, Retired)
-    for (const assignment of force.assignments) {
-      if (assignment.pilotId) {
-        const pilot = pilotRepo.getById(assignment.pilotId);
-        if (pilot) {
-          const availability = this.validatePilotAvailability(pilot.status);
-          if (!availability.available) {
-            errors.push({
-              code: 'UNAVAILABLE_PILOT',
-              message: `Slot ${assignment.slot}: ${availability.reason}`,
-              slot: assignment.slot,
-              assignmentId: assignment.id,
-            });
-          }
-        } else {
-          errors.push({
-            code: 'MISSING_PILOT',
-            message: `Slot ${assignment.slot}: Referenced pilot no longer exists`,
-            slot: assignment.slot,
-            assignmentId: assignment.id,
-          });
-        }
-      }
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors,
-      warnings,
-    };
+    return validateForceImpl(force);
   }
-
-  // ===========================================================================
-  // Cloning
-  // ===========================================================================
 
   cloneForce(id: string, newName: string): IForceOperationResult {
     const force = this.repository.getForceById(id);
@@ -550,7 +318,6 @@ export class ForceService implements IForceService {
       };
     }
 
-    // Create new force with same settings
     const result = this.repository.createForce({
       name: newName,
       forceType: force.forceType,
@@ -562,7 +329,6 @@ export class ForceService implements IForceService {
       return result;
     }
 
-    // Clone assignments
     const newForce = this.repository.getForceById(result.id);
     if (newForce) {
       for (let i = 0; i < force.assignments.length; i++) {
@@ -583,10 +349,6 @@ export class ForceService implements IForceService {
     return result;
   }
 }
-
-// =============================================================================
-// Singleton Instance
-// =============================================================================
 
 const forceServiceFactory: SingletonFactory<ForceService> = createSingleton(
   (): ForceService => new ForceService(),

@@ -10,138 +10,33 @@
 import { create } from 'zustand';
 
 import {
-  IForce,
-  IForceSummary,
-  IForceValidation,
   ICreateForceRequest,
   IUpdateForceRequest,
   ForcePosition,
 } from '@/types/force';
 
-// =============================================================================
-// API Response Types
-// =============================================================================
-
-interface ListForcesResponse {
-  forces: IForce[];
-  count: number;
-}
-
-interface CreateForceResponse {
-  success: boolean;
-  id?: string;
-  force?: IForce;
-  error?: string;
-}
-
-interface UpdateForceResponse {
-  success: boolean;
-  force?: IForce;
-  error?: string;
-}
-
-interface DeleteForceResponse {
-  success: boolean;
-  error?: string;
-}
-
-interface AssignmentResponse {
-  success: boolean;
-  error?: string;
-}
-
-interface ValidateForceResponse {
-  validation: IForceValidation;
-}
-
-// =============================================================================
-// Store State
-// =============================================================================
-
-interface ForceStoreState {
-  /** All loaded forces */
-  forces: IForce[];
-  /** Currently selected force ID */
-  selectedForceId: string | null;
-  /** Loading state */
-  isLoading: boolean;
-  /** Error message */
-  error: string | null;
-  /** Search query */
-  searchQuery: string;
-  /** Validation cache (keyed by force ID) */
-  validations: Map<string, IForceValidation>;
-}
-
-interface ForceStoreActions {
-  /** Load all forces from API */
-  loadForces: () => Promise<void>;
-  /** Get a single force by ID */
-  getForce: (id: string) => IForce | undefined;
-  /** Create a new force */
-  createForce: (request: ICreateForceRequest) => Promise<string | null>;
-  /** Update a force */
-  updateForce: (id: string, request: IUpdateForceRequest) => Promise<boolean>;
-  /** Delete a force */
-  deleteForce: (id: string) => Promise<boolean>;
-  /** Select a force */
-  selectForce: (id: string | null) => void;
-  /** Get selected force */
-  getSelectedForce: () => IForce | null;
-  /** Assign a pilot to an assignment slot */
-  assignPilot: (assignmentId: string, pilotId: string) => Promise<boolean>;
-  /** Assign a unit to an assignment slot */
-  assignUnit: (assignmentId: string, unitId: string) => Promise<boolean>;
-  /** Assign both pilot and unit to an assignment slot */
-  assignPilotAndUnit: (
-    assignmentId: string,
-    pilotId: string,
-    unitId: string,
-  ) => Promise<boolean>;
-  /** Clear an assignment */
-  clearAssignment: (assignmentId: string) => Promise<boolean>;
-  /** Swap two assignments */
-  swapAssignments: (
-    assignmentId1: string,
-    assignmentId2: string,
-  ) => Promise<boolean>;
-  /** Set assignment position */
-  setAssignmentPosition: (
-    assignmentId: string,
-    position: ForcePosition,
-  ) => Promise<boolean>;
-  /** Promote to lead */
-  promoteToLead: (assignmentId: string) => Promise<boolean>;
-  /** Validate a force */
-  validateForce: (id: string) => Promise<IForceValidation | null>;
-  /** Clone a force */
-  cloneForce: (id: string, newName: string) => Promise<string | null>;
-  /** Set search query */
-  setSearchQuery: (query: string) => void;
-  /** Get filtered forces */
-  getFilteredForces: () => IForce[];
-  /** Get force summaries */
-  getForceSummaries: () => IForceSummary[];
-  /** Clear error */
-  clearError: () => void;
-}
-
-type ForceStore = ForceStoreState & ForceStoreActions;
+import { getForceSummariesLogic } from './useForceStore.helpers';
+import {
+  ForceStore,
+  ListForcesResponse,
+  CreateForceResponse,
+  UpdateForceResponse,
+  DeleteForceResponse,
+  AssignmentResponse,
+  ValidateForceResponse,
+} from './useForceStore.types';
 
 // =============================================================================
 // Store Implementation
 // =============================================================================
 
 export const useForceStore = create<ForceStore>((set, get) => ({
-  // State
   forces: [],
   selectedForceId: null,
   isLoading: false,
   error: null,
   searchQuery: '',
   validations: new Map(),
-
-  // Load all forces
   loadForces: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -157,12 +52,9 @@ export const useForceStore = create<ForceStore>((set, get) => ({
     }
   },
 
-  // Get a force by ID
   getForce: (id: string) => {
     return get().forces.find((f) => f.id === id);
   },
-
-  // Create a new force
   createForce: async (request: ICreateForceRequest) => {
     set({ isLoading: true, error: null });
     try {
@@ -497,37 +389,8 @@ export const useForceStore = create<ForceStore>((set, get) => ({
     );
   },
 
-  // Get force summaries
-  getForceSummaries: (): IForceSummary[] => {
-    const forces = get().forces;
-    const summaries: IForceSummary[] = [];
-
-    const addForce = (force: IForce, depth: number): void => {
-      summaries.push({
-        id: force.id,
-        name: force.name,
-        forceType: force.forceType,
-        status: force.status,
-        affiliation: force.affiliation,
-        stats: force.stats,
-        depth,
-        parentId: force.parentId,
-      });
-
-      // Add children
-      const children = forces.filter((f) => f.parentId === force.id);
-      for (const child of children) {
-        addForce(child, depth + 1);
-      }
-    };
-
-    // Start with root forces
-    const rootForces = forces.filter((f) => !f.parentId);
-    for (const force of rootForces) {
-      addForce(force, 0);
-    }
-
-    return summaries;
+  getForceSummaries: () => {
+    return getForceSummariesLogic(get().forces);
   },
 
   // Clear error

@@ -2,100 +2,21 @@
  * Canonical Units Browser Page (Compendium Section)
  * Browse and search the canonical unit database with filtering and sorting.
  */
-import Link from 'next/link';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 
 import { CompendiumLayout } from '@/components/compendium';
+import { ITEMS_PER_PAGE } from '@/components/compendium/units/units.constants';
 import {
-  PageLoading,
-  PageError,
-  Card,
-  Input,
-  Select,
-  Button,
-  PaginationButtons,
-  TechBaseBadge,
-  WeightClassBadge,
-} from '@/components/ui';
-import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
-import { TechBase } from '@/types/enums/TechBase';
-import { WeightClass } from '@/types/enums/WeightClass';
+  sortUnits,
+  type SortState,
+} from '@/components/compendium/units/units.helpers';
+import {
+  UnitsFilters,
+  type FilterState,
+} from '@/components/compendium/units/UnitsFilters';
+import { UnitsTable } from '@/components/compendium/units/UnitsTable';
+import { PageLoading, PageError, PaginationButtons } from '@/components/ui';
 import { IUnitEntry } from '@/types/pages';
-
-interface FilterState {
-  search: string;
-  techBase: string;
-  weightClass: string;
-  rulesLevel: string;
-  yearMin: string;
-  yearMax: string;
-  tonnageMin: string;
-  tonnageMax: string;
-  bvMin: string;
-  bvMax: string;
-}
-
-type SortColumn =
-  | 'chassis'
-  | 'variant'
-  | 'tonnage'
-  | 'year'
-  | 'weightClass'
-  | 'techBase'
-  | 'unitType'
-  | 'rulesLevel'
-  | 'cost'
-  | 'bv';
-type SortDirection = 'asc' | 'desc';
-
-interface SortState {
-  column: SortColumn;
-  direction: SortDirection;
-}
-
-const ITEMS_PER_PAGE = 50;
-
-// Weight class sort order
-const WEIGHT_CLASS_ORDER: Record<string, number> = {
-  [WeightClass.ULTRALIGHT]: 0,
-  [WeightClass.LIGHT]: 1,
-  [WeightClass.MEDIUM]: 2,
-  [WeightClass.HEAVY]: 3,
-  [WeightClass.ASSAULT]: 4,
-  [WeightClass.SUPERHEAVY]: 5,
-};
-
-// Rules level sort order (ascending complexity)
-const RULES_LEVEL_ORDER: Record<string, number> = {
-  [RulesLevel.INTRODUCTORY]: 0,
-  [RulesLevel.STANDARD]: 1,
-  [RulesLevel.ADVANCED]: 2,
-  [RulesLevel.EXPERIMENTAL]: 3,
-};
-
-// Rules level display labels
-const RULES_LEVEL_LABELS: Record<string, string> = {
-  [RulesLevel.INTRODUCTORY]: 'Intro',
-  [RulesLevel.STANDARD]: 'Std',
-  [RulesLevel.ADVANCED]: 'Adv',
-  [RulesLevel.EXPERIMENTAL]: 'Exp',
-};
-
-const TECH_BASE_OPTIONS = [
-  { value: '', label: 'All Tech' },
-  { value: TechBase.INNER_SPHERE, label: 'Inner Sphere' },
-  { value: TechBase.CLAN, label: 'Clan' },
-];
-
-const WEIGHT_CLASS_OPTIONS = [
-  { value: '', label: 'All Classes' },
-  ...Object.values(WeightClass).map((wc) => ({ value: wc, label: wc })),
-];
-
-const RULES_LEVEL_OPTIONS = [
-  { value: '', label: 'All Levels' },
-  ...ALL_RULES_LEVELS.map((rl) => ({ value: rl, label: rl })),
-];
 
 export default function CanonicalUnitsListPage(): React.ReactElement {
   const [units, setUnits] = useState<IUnitEntry[]>([]);
@@ -230,71 +151,12 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
     applyFilters();
   }, [applyFilters]);
 
-  // Sort filtered units
-  const sortedUnits = useMemo(() => {
-    const sorted = [...filteredUnits];
-    const { column, direction } = sort;
-    const multiplier = direction === 'asc' ? 1 : -1;
+  const sortedUnits = useMemo(
+    () => sortUnits(filteredUnits, sort),
+    [filteredUnits, sort],
+  );
 
-    sorted.sort((a, b) => {
-      let aVal: string | number;
-      let bVal: string | number;
-
-      switch (column) {
-        case 'chassis':
-          aVal = a.chassis.toLowerCase();
-          bVal = b.chassis.toLowerCase();
-          break;
-        case 'variant':
-          aVal = a.variant.toLowerCase();
-          bVal = b.variant.toLowerCase();
-          break;
-        case 'tonnage':
-          aVal = a.tonnage;
-          bVal = b.tonnage;
-          break;
-        case 'year':
-          aVal = a.year ?? 9999;
-          bVal = b.year ?? 9999;
-          break;
-        case 'weightClass':
-          aVal = WEIGHT_CLASS_ORDER[a.weightClass] ?? 99;
-          bVal = WEIGHT_CLASS_ORDER[b.weightClass] ?? 99;
-          break;
-        case 'techBase':
-          aVal = a.techBase;
-          bVal = b.techBase;
-          break;
-        case 'unitType':
-          aVal = a.unitType;
-          bVal = b.unitType;
-          break;
-        case 'rulesLevel':
-          aVal = RULES_LEVEL_ORDER[a.rulesLevel ?? ''] ?? 99;
-          bVal = RULES_LEVEL_ORDER[b.rulesLevel ?? ''] ?? 99;
-          break;
-        case 'cost':
-          aVal = a.cost ?? 0;
-          bVal = b.cost ?? 0;
-          break;
-        case 'bv':
-          aVal = a.bv ?? 0;
-          bVal = b.bv ?? 0;
-          break;
-        default:
-          return 0;
-      }
-
-      if (aVal < bVal) return -1 * multiplier;
-      if (aVal > bVal) return 1 * multiplier;
-      return 0;
-    });
-
-    return sorted;
-  }, [filteredUnits, sort]);
-
-  // Handle sort column click
-  const handleSort = (column: SortColumn) => {
+  const handleSort = (column: SortState['column']) => {
     setSort((prev) => ({
       column,
       direction:
@@ -362,337 +224,22 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
       breadcrumbs={[{ label: 'Units' }]}
       maxWidth="full"
     >
-      {/* Filters */}
-      <Card className="mb-6">
-        {/* Primary Filters Row */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
-          <div className="lg:col-span-2">
-            <Input
-              type="text"
-              placeholder="Search chassis, model, or variant..."
-              value={filters.search}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              aria-label="Search units"
-            />
-          </div>
+      <UnitsFilters
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={clearFilters}
+        showAdvancedFilters={showAdvancedFilters}
+        onToggleAdvancedFilters={() =>
+          setShowAdvancedFilters(!showAdvancedFilters)
+        }
+        hasAdvancedFilters={hasAdvancedFilters}
+        displayedCount={displayedUnits.length}
+        filteredCount={filteredUnits.length}
+        totalCount={units.length}
+      />
 
-          <Select
-            value={filters.techBase}
-            onChange={(e) => handleFilterChange('techBase', e.target.value)}
-            options={TECH_BASE_OPTIONS}
-            aria-label="Filter by tech base"
-          />
+      <UnitsTable units={displayedUnits} sort={sort} onSort={handleSort} />
 
-          <Select
-            value={filters.weightClass}
-            onChange={(e) => handleFilterChange('weightClass', e.target.value)}
-            options={WEIGHT_CLASS_OPTIONS}
-            aria-label="Filter by weight class"
-          />
-
-          <Select
-            value={filters.rulesLevel}
-            onChange={(e) => handleFilterChange('rulesLevel', e.target.value)}
-            options={RULES_LEVEL_OPTIONS}
-            aria-label="Filter by rules level"
-          />
-
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className={`flex-1 text-xs ${hasAdvancedFilters ? 'text-accent' : ''}`}
-            >
-              {showAdvancedFilters ? '▼' : '▶'} Filters
-              {hasAdvancedFilters && ' •'}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={clearFilters}
-              className="px-3 text-xs"
-            >
-              Clear
-            </Button>
-          </div>
-        </div>
-
-        {/* Advanced Filters Panel */}
-        {showAdvancedFilters && (
-          <div className="border-border-theme-subtle mt-4 border-t pt-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {/* Year Range */}
-              <div>
-                <label className="text-text-theme-secondary mb-1.5 block text-xs tracking-wide uppercase">
-                  Design Year
-                </label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    value={filters.yearMin}
-                    onChange={(e) =>
-                      handleFilterChange('yearMin', e.target.value)
-                    }
-                    className="text-center text-sm"
-                    min={2000}
-                    max={3150}
-                  />
-                  <span className="text-text-theme-muted">–</span>
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    value={filters.yearMax}
-                    onChange={(e) =>
-                      handleFilterChange('yearMax', e.target.value)
-                    }
-                    className="text-center text-sm"
-                    min={2000}
-                    max={3150}
-                  />
-                </div>
-              </div>
-
-              {/* Tonnage Range */}
-              <div>
-                <label className="text-text-theme-secondary mb-1.5 block text-xs tracking-wide uppercase">
-                  Tonnage
-                </label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    value={filters.tonnageMin}
-                    onChange={(e) =>
-                      handleFilterChange('tonnageMin', e.target.value)
-                    }
-                    className="text-center text-sm"
-                    min={10}
-                    max={200}
-                    step={5}
-                  />
-                  <span className="text-text-theme-muted">–</span>
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    value={filters.tonnageMax}
-                    onChange={(e) =>
-                      handleFilterChange('tonnageMax', e.target.value)
-                    }
-                    className="text-center text-sm"
-                    min={10}
-                    max={200}
-                    step={5}
-                  />
-                </div>
-              </div>
-
-              {/* BV Range */}
-              <div>
-                <label className="text-text-theme-secondary mb-1.5 block text-xs tracking-wide uppercase">
-                  Battle Value
-                </label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    value={filters.bvMin}
-                    onChange={(e) =>
-                      handleFilterChange('bvMin', e.target.value)
-                    }
-                    className="text-center text-sm"
-                    min={0}
-                    max={5000}
-                    step={50}
-                  />
-                  <span className="text-text-theme-muted">–</span>
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    value={filters.bvMax}
-                    onChange={(e) =>
-                      handleFilterChange('bvMax', e.target.value)
-                    }
-                    className="text-center text-sm"
-                    min={0}
-                    max={5000}
-                    step={50}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Results Count */}
-        <div className="text-text-theme-secondary mt-4 flex items-center justify-between text-sm">
-          <div>
-            Showing {displayedUnits.length} of {filteredUnits.length} results
-            {filteredUnits.length !== units.length && (
-              <span className="text-accent ml-2">
-                (filtered from {units.length.toLocaleString()} total)
-              </span>
-            )}
-          </div>
-          {hasAdvancedFilters && (
-            <div className="text-accent/70 text-xs">
-              Advanced filters active
-            </div>
-          )}
-        </div>
-      </Card>
-
-      {/* Units Table - Compact */}
-      <Card variant="dark" className="overflow-hidden pb-20">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1000px]">
-            <thead className="bg-surface-base">
-              <tr className="text-text-theme-secondary text-left text-xs tracking-wide uppercase">
-                <SortableHeader
-                  label="Chassis"
-                  column="chassis"
-                  currentColumn={sort.column}
-                  direction={sort.direction}
-                  onSort={handleSort}
-                />
-                <SortableHeader
-                  label="Model"
-                  column="variant"
-                  currentColumn={sort.column}
-                  direction={sort.direction}
-                  onSort={handleSort}
-                />
-                <SortableHeader
-                  label="Weight"
-                  column="tonnage"
-                  currentColumn={sort.column}
-                  direction={sort.direction}
-                  onSort={handleSort}
-                  className="w-20 text-right"
-                />
-                <SortableHeader
-                  label="Year"
-                  column="year"
-                  currentColumn={sort.column}
-                  direction={sort.direction}
-                  onSort={handleSort}
-                  className="w-16 text-right"
-                />
-                <SortableHeader
-                  label="Class"
-                  column="weightClass"
-                  currentColumn={sort.column}
-                  direction={sort.direction}
-                  onSort={handleSort}
-                  className="w-24"
-                />
-                <SortableHeader
-                  label="Tech"
-                  column="techBase"
-                  currentColumn={sort.column}
-                  direction={sort.direction}
-                  onSort={handleSort}
-                  className="w-28"
-                />
-                <SortableHeader
-                  label="Type"
-                  column="unitType"
-                  currentColumn={sort.column}
-                  direction={sort.direction}
-                  onSort={handleSort}
-                  className="w-28"
-                />
-                <SortableHeader
-                  label="Level"
-                  column="rulesLevel"
-                  currentColumn={sort.column}
-                  direction={sort.direction}
-                  onSort={handleSort}
-                  className="w-16"
-                />
-                <SortableHeader
-                  label="Price"
-                  column="cost"
-                  currentColumn={sort.column}
-                  direction={sort.direction}
-                  onSort={handleSort}
-                  className="w-24 text-right"
-                />
-                <SortableHeader
-                  label="BV"
-                  column="bv"
-                  currentColumn={sort.column}
-                  direction={sort.direction}
-                  onSort={handleSort}
-                  className="w-16 text-right"
-                />
-              </tr>
-            </thead>
-            <tbody className="divide-border-theme-subtle/50 divide-y">
-              {displayedUnits.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={10}
-                    className="text-text-theme-secondary px-3 py-8 text-center"
-                  >
-                    No units found matching your filters
-                  </td>
-                </tr>
-              ) : (
-                displayedUnits.map((unit) => (
-                  <tr
-                    key={unit.id}
-                    className="hover:bg-surface-raised/30 transition-colors"
-                  >
-                    <td className="px-3 py-2">
-                      <Link
-                        href={`/compendium/units/${unit.id}`}
-                        className="group"
-                      >
-                        <span className="text-text-theme-primary group-hover:text-accent text-sm font-medium whitespace-nowrap transition-colors">
-                          {unit.chassis}
-                        </span>
-                      </Link>
-                    </td>
-                    <td className="text-text-theme-primary/80 px-3 py-2 text-sm whitespace-nowrap">
-                      {unit.variant}
-                    </td>
-                    <td className="text-text-theme-primary/80 px-3 py-2 text-right font-mono text-sm">
-                      {unit.tonnage} t
-                    </td>
-                    <td className="text-text-theme-secondary px-3 py-2 text-right font-mono text-sm">
-                      {unit.year ?? '—'}
-                    </td>
-                    <td className="px-3 py-2">
-                      <WeightClassBadge weightClass={unit.weightClass} />
-                    </td>
-                    <td className="px-3 py-2">
-                      <TechBaseBadge techBase={unit.techBase} />
-                    </td>
-                    <td className="text-text-theme-secondary px-3 py-2 text-sm whitespace-nowrap">
-                      {unit.unitType === 'BattleMech' ? 'Mek' : unit.unitType}
-                    </td>
-                    <td className="text-text-theme-secondary px-3 py-2 font-mono text-xs whitespace-nowrap">
-                      {RULES_LEVEL_LABELS[unit.rulesLevel ?? ''] ??
-                        unit.rulesLevel ??
-                        '—'}
-                    </td>
-                    <td className="text-text-theme-primary/80 px-3 py-2 text-right font-mono text-xs whitespace-nowrap">
-                      {unit.cost
-                        ? `${(unit.cost / 1000000).toPrecision(3)}M`
-                        : '—'}
-                    </td>
-                    <td className="text-accent px-3 py-2 text-right font-mono text-xs font-medium whitespace-nowrap">
-                      {unit.bv?.toLocaleString() ?? '—'}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-6 flex justify-center">
           <PaginationButtons
@@ -703,45 +250,5 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
         </div>
       )}
     </CompendiumLayout>
-  );
-}
-
-// Sortable table header component
-interface SortableHeaderProps {
-  label: string;
-  column: SortColumn;
-  currentColumn: SortColumn;
-  direction: SortDirection;
-  onSort: (column: SortColumn) => void;
-  className?: string;
-}
-
-function SortableHeader({
-  label,
-  column,
-  currentColumn,
-  direction,
-  onSort,
-  className = '',
-}: SortableHeaderProps) {
-  const isActive = column === currentColumn;
-  const isRightAligned = className.includes('text-right');
-
-  return (
-    <th
-      className={`hover:text-text-theme-primary cursor-pointer px-3 py-2 font-medium transition-colors select-none ${className}`}
-      onClick={() => onSort(column)}
-    >
-      <span
-        className={`flex items-center gap-1 ${isRightAligned ? 'justify-end' : ''}`}
-      >
-        {label}
-        {isActive && (
-          <span className="text-accent text-[10px]">
-            {direction === 'asc' ? '▲' : '▼'}
-          </span>
-        )}
-      </span>
-    </th>
   );
 }
