@@ -16,53 +16,16 @@ import {
   ValidationSeverity,
 } from '@/types/validation/rules/ValidationRuleInterfaces';
 
-/**
- * Helper to create a passing result
- */
-function pass(ruleId: string): IValidationRuleResult {
-  return {
-    ruleId,
-    passed: true,
-    errors: [],
-    warnings: [],
-    infos: [],
-    executionTime: 0,
-  };
-}
+import {
+  EraAvailabilityRule,
+  TechBaseCompatibilityRule,
+} from './StandardValidationRules.techEra';
+import { fail, pass, warn } from './validationHelpers';
 
-/**
- * Helper to create a failing result
- */
-function fail(
-  ruleId: string,
-  errors: IValidationError[],
-): IValidationRuleResult {
-  return {
-    ruleId,
-    passed: false,
-    errors,
-    warnings: [],
-    infos: [],
-    executionTime: 0,
-  };
-}
-
-/**
- * Helper to create a result with warnings
- */
-function warn(
-  ruleId: string,
-  warnings: IValidationError[],
-): IValidationRuleResult {
-  return {
-    ruleId,
-    passed: true,
-    errors: [],
-    warnings,
-    infos: [],
-    executionTime: 0,
-  };
-}
+export {
+  EraAvailabilityRule,
+  TechBaseCompatibilityRule,
+} from './StandardValidationRules.techEra';
 
 // ============================================================================
 // WEIGHT VALIDATION RULES
@@ -492,63 +455,6 @@ export const EngineRatingRule: IValidationRuleDefinition = {
       return fail(this.id, errors);
     }
 
-    return pass(this.id);
-  },
-};
-
-// ============================================================================
-// TECH BASE VALIDATION RULES
-// ============================================================================
-
-/**
- * Tech base compatibility
- */
-export const TechBaseCompatibilityRule: IValidationRuleDefinition = {
-  id: 'tech.compatibility',
-  name: 'Tech Base Compatibility',
-  description: 'Validates component tech base compatibility',
-  category: ValidationCategory.TECH_BASE,
-  priority: 10,
-
-  validate(context: IValidationContext): IValidationRuleResult {
-    const unit = context.unit as Record<string, unknown>;
-    const techBase = unit.techBase as string | undefined;
-
-    if (!techBase) {
-      return pass(this.id);
-    }
-
-    // This would check all components for tech base compatibility
-    // Simplified implementation
-    return pass(this.id);
-  },
-};
-
-// ============================================================================
-// ERA VALIDATION RULES
-// ============================================================================
-
-/**
- * Era availability check
- */
-export const EraAvailabilityRule: IValidationRuleDefinition = {
-  id: 'era.availability',
-  name: 'Era Availability',
-  description:
-    'Validates that all components are available in the selected era',
-  category: ValidationCategory.ERA,
-  priority: 10,
-
-  validate(context: IValidationContext): IValidationRuleResult {
-    const unit = context.unit as Record<string, unknown>;
-    const year = unit.year as number | undefined;
-
-    if (!year) {
-      return pass(this.id);
-    }
-
-    // This would check all components for era availability
-    // Simplified implementation
     return pass(this.id);
   },
 };
