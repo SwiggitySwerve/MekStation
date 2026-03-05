@@ -138,7 +138,20 @@ storybook-static/
 .opencode/.gitignore
 
 # Sisyphus agent working directory (audit screenshots, evidence, plans)
+# Sisyphus agent working directory (audit screenshots, evidence, plans)
 .sisyphus/
+
+# Root-level verification screenshots
+/verify-*.png
+/screenshots/
+
+# Generated root-level text reports
+/lint-report.txt
+/*-equipment-names.txt
+
+# Misplaced AI/agent root artifacts
+/.sisyphus*
+
 
 # Simulation snapshots (keep directory, not files)
 src/simulation/__snapshots__/failed/*.json
