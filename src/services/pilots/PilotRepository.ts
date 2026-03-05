@@ -24,10 +24,7 @@ import {
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
 import * as careerOps from './PilotRepository.career';
-import {
-  rowToPilot,
-  type PilotRow,
-} from './PilotRepository.helpers';
+import { rowToPilot, type PilotRow } from './PilotRepository.helpers';
 import { buildUpdateQuery } from './PilotRepository.queries';
 
 // =============================================================================

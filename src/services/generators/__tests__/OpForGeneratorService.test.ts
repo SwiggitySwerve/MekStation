@@ -149,7 +149,6 @@ describe('OpForGeneratorService', () => {
     });
   });
 
-
   describe('getDefaultOpForConfig', () => {
     it('should create a valid default config', () => {
       const config = getDefaultOpForConfig(5000);

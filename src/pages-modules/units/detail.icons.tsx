@@ -1,6 +1,6 @@
-import React from 'react';
 import type { JSX } from 'react';
 
+import React from 'react';
 
 export function CubeIcon(): JSX.Element {
   return (
@@ -78,7 +78,11 @@ export function FlameIcon(): JSX.Element {
   );
 }
 
-export function EditIcon({ className = '' }: { className?: string }): JSX.Element {
+export function EditIcon({
+  className = '',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

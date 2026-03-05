@@ -15,7 +15,6 @@ import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { GamePhase } from '@/types/gameplay';
 import { projectUnitPerformance } from '@/utils/gameplay/combatStatistics';
 
-
 import { EVENT_LABELS, PHASE_LABELS } from './quickGameResults.helpers';
 
 // =============================================================================

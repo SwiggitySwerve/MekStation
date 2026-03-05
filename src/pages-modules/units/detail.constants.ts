@@ -28,7 +28,10 @@ export const UNIT_TYPE_CONFIG: Record<
   [UnitType.BATTLE_ARMOR]: { label: 'Battle Armor', badgeVariant: 'yellow' },
 };
 
-export function getUnitTypeDisplay(unitType: string): { label: string; badgeVariant: string } {
+export function getUnitTypeDisplay(unitType: string): {
+  label: string;
+  badgeVariant: string;
+} {
   return (
     UNIT_TYPE_CONFIG[unitType] || { label: unitType, badgeVariant: 'slate' }
   );

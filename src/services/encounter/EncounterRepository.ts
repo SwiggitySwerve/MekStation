@@ -19,7 +19,7 @@ import {
   EncounterStatus,
   TerrainPreset,
   SCENARIO_TEMPLATES,
-  } from '@/types/encounter';
+} from '@/types/encounter';
 
 import {
   createSingleton,

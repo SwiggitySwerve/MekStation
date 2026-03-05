@@ -7,7 +7,6 @@
  * @spec openspec/changes/add-force-management/proposal.md
  */
 
-
 import {
   IForce,
   ICreateForceRequest,

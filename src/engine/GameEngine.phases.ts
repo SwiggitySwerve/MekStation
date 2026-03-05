@@ -6,7 +6,7 @@ import {
   GamePhase,
   LockState,
   type IGameSession,
-  } from '@/types/gameplay/GameSessionInterfaces';
+} from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
   RangeBracket,

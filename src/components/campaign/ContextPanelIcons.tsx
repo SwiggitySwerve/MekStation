@@ -1,7 +1,12 @@
-import React from 'react';
 import type { JSX } from 'react';
 
-export function GlobeIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
+import React from 'react';
+
+export function GlobeIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       className={className}
@@ -41,7 +46,11 @@ export function DocumentIcon({
   );
 }
 
-export function MechIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
+export function MechIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       className={className}
@@ -59,7 +68,11 @@ export function MechIcon({ className = 'w-5 h-5' }: { className?: string }): JSX
   );
 }
 
-export function PilotIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
+export function PilotIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       className={className}

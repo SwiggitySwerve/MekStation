@@ -41,20 +41,33 @@ type TabActions = {
 
 type TechBaseActions = {
   updateTechBaseMode: (tabId: string, mode: TechBaseMode) => void;
-  updateComponentTechBase: (tabId: string, component: TechBaseComponent, techBase: TechBase) => void;
-  setAllComponentTechBases: (tabId: string, techBases: IComponentTechBases) => void;
+  updateComponentTechBase: (
+    tabId: string,
+    component: TechBaseComponent,
+    techBase: TechBase,
+  ) => void;
+  setAllComponentTechBases: (
+    tabId: string,
+    techBases: IComponentTechBases,
+  ) => void;
 };
 
 type ComponentSelectionActions = {
   updateEngineType: (tabId: string, engineType: EngineType) => void;
   updateEngineRating: (tabId: string, rating: number) => void;
   updateGyroType: (tabId: string, gyroType: GyroType) => void;
-  updateStructureType: (tabId: string, structureType: InternalStructureType) => void;
+  updateStructureType: (
+    tabId: string,
+    structureType: InternalStructureType,
+  ) => void;
   updateCockpitType: (tabId: string, cockpitType: CockpitType) => void;
   updateHeatSinkType: (tabId: string, heatSinkType: HeatSinkType) => void;
   updateHeatSinkCount: (tabId: string, count: number) => void;
   updateArmorType: (tabId: string, armorType: ArmorTypeEnum) => void;
-  updateComponentSelections: (tabId: string, selections: Partial<IComponentSelections>) => void;
+  updateComponentSelections: (
+    tabId: string,
+    selections: Partial<IComponentSelections>,
+  ) => void;
 };
 
 export function createTabActions(set: SetFn, get: GetFn): TabActions {
@@ -206,7 +219,9 @@ export function createTechBaseActions(set: SetFn): TechBaseActions {
   };
 }
 
-export function createComponentSelectionActions(set: SetFn): ComponentSelectionActions {
+export function createComponentSelectionActions(
+  set: SetFn,
+): ComponentSelectionActions {
   return {
     updateEngineType: (tabId: string, engineType: EngineType): void => {
       set((state) => ({

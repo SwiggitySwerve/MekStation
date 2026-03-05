@@ -1,8 +1,12 @@
-import React from 'react';
 import type { JSX } from 'react';
 
+import React from 'react';
 
-export function MechIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
+export function MechIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -21,7 +25,11 @@ export function MechIcon({ className = 'w-5 h-5' }: { className?: string }): JSX
   );
 }
 
-export function PilotIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
+export function PilotIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -40,7 +48,11 @@ export function PilotIcon({ className = 'w-5 h-5' }: { className?: string }): JS
   );
 }
 
-export function ForceIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
+export function ForceIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +94,11 @@ export function EncounterIcon({
   );
 }
 
-export function FolderIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
+export function FolderIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -124,7 +140,11 @@ export function DocumentIcon({
   );
 }
 
-export function ShareIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
+export function ShareIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -143,7 +163,11 @@ export function ShareIcon({ className = 'w-5 h-5' }: { className?: string }): JS
   );
 }
 
-export function InboxIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
+export function InboxIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -162,7 +186,11 @@ export function InboxIcon({ className = 'w-5 h-5' }: { className?: string }): JS
   );
 }
 
-export function RefreshIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
+export function RefreshIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -181,7 +209,11 @@ export function RefreshIcon({ className = 'w-5 h-5' }: { className?: string }): 
   );
 }
 
-export function EyeIcon({ className = 'w-4 h-4' }: { className?: string }): JSX.Element {
+export function EyeIcon({
+  className = 'w-4 h-4',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -205,7 +237,11 @@ export function EyeIcon({ className = 'w-4 h-4' }: { className?: string }): JSX.
   );
 }
 
-export function TrashIcon({ className = 'w-4 h-4' }: { className?: string }): JSX.Element {
+export function TrashIcon({
+  className = 'w-4 h-4',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -224,7 +260,11 @@ export function TrashIcon({ className = 'w-4 h-4' }: { className?: string }): JS
   );
 }
 
-export function CheckIcon({ className = 'w-4 h-4' }: { className?: string }): JSX.Element {
+export function CheckIcon({
+  className = 'w-4 h-4',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

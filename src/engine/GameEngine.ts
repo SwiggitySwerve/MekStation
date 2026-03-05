@@ -5,9 +5,7 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 
-import {
-  isGameEnded,
-} from '@/services/game-resolution/GameOutcomeCalculator';
+import { isGameEnded } from '@/services/game-resolution/GameOutcomeCalculator';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
