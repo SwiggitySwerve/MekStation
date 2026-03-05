@@ -15,6 +15,7 @@ import {
   replayToSequence,
 } from '@/utils/gameplay/gameSession';
 import { logger } from '@/utils/logger';
+
 export enum InteractivePhase {
   None = 'none',
   SelectUnit = 'select_unit',
@@ -25,11 +26,38 @@ export enum InteractivePhase {
   GameOver = 'game_over',
 }
 
+/**
+ * Minimal state shape used by gameplay helper functions.
+ * Covers only the properties accessed by the helpers.
+ */
+interface GameplayHelperState {
+  session: IGameSession | null;
+  ui: IGameplayUIState;
+  interactivePhase: InteractivePhase;
+  validMovementHexes: readonly { q: number; r: number }[];
+  validTargetIds: readonly string[];
+  hitChance: number | null;
+}
+
+/**
+ * Zustand set function type for gameplay helpers.
+ * Supports both partial updates and updater functions.
+ */
+type SetFn = {
+  (partial: Partial<GameplayHelperState>): void;
+  (fn: (state: GameplayHelperState) => Partial<GameplayHelperState>): void;
+};
+
+/**
+ * Zustand get function type for gameplay helpers.
+ */
+type GetFn = () => GameplayHelperState;
+
 export function handleActionLogic(
   actionId: string,
   session: IGameSession | null,
   ui: IGameplayUIState,
-  set: (partial: Partial<unknown>) => void,
+  set: SetFn,
 ): void {
   if (!session) return;
 
@@ -67,14 +95,11 @@ export function handleActionLogic(
       break;
     }
     case 'clear':
-      set((state: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s = state as any;
+      set((state) => {
         return {
-          ui: { ...s.ui, queuedWeaponIds: [] },
+          ui: { ...state.ui, queuedWeaponIds: [] },
         };
       });
-      break;
     case 'next-turn': {
       if (phase === GamePhase.End || phase === GamePhase.Initiative) {
         let updatedSession = session;
@@ -99,7 +124,7 @@ export function handleActionLogic(
 
 export function runAITurnLogic(
   interactiveSession: InteractiveSession | null,
-  set: (partial: Partial<unknown>) => void,
+  set: SetFn,
 ): void {
   if (!interactiveSession) return;
 
@@ -137,11 +162,10 @@ export function runAITurnLogic(
 
 export function advanceInteractivePhaseLogic(
   interactiveSession: InteractiveSession | null,
-  get: () => unknown,
-  set: (partial: Partial<unknown>) => void,
+  get: GetFn,
+  set: SetFn,
 ): void {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const state = get() as any;
+  const state = get();
   if (!interactiveSession || !state.session) return;
 
   const { phase } = interactiveSession.getState();
@@ -181,8 +205,8 @@ export function handleInteractiveTokenClickLogic(
   unitId: string,
   interactivePhase: InteractivePhase,
   interactiveSession: InteractiveSession | null,
-  get: () => unknown,
-  set: (partial: Partial<unknown>) => void,
+  get: GetFn,
+  set: SetFn,
   selectUnitForMovement: (unitId: string) => void,
   selectAttackTarget: (unitId: string) => void,
 ): void {
@@ -201,11 +225,9 @@ export function handleInteractiveTokenClickLogic(
       unit.side === GameSide.Player &&
       interactivePhase === InteractivePhase.SelectUnit
     ) {
-      set((s: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const storeState = s as any;
+      set((s) => {
         return {
-          ui: { ...storeState.ui, selectedUnitId: unitId },
+          ui: { ...s.ui, selectedUnitId: unitId },
           interactivePhase: InteractivePhase.SelectTarget,
           validTargetIds: Object.entries(state.units)
             .filter(([, u]) => u.side === GameSide.Opponent && !u.destroyed)
@@ -228,8 +250,8 @@ export function handleInteractiveTokenClickLogic(
 
 export function skipPhaseLogic(
   interactiveSession: InteractiveSession | null,
-  get: () => unknown,
-  set: (partial: Partial<unknown>) => void,
+  get: GetFn,
+  set: SetFn,
 ): void {
   if (!interactiveSession) return;
 
@@ -237,8 +259,7 @@ export function skipPhaseLogic(
 
   const gameOver = interactiveSession.isGameOver();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const state = get() as any;
+  const state = get();
   set({
     session: interactiveSession.getSession(),
     interactivePhase: gameOver

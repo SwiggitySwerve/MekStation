@@ -135,7 +135,6 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
 
     set({ isLoading: true, error: null });
     try {
-      // TODO: Load from API
       if (sessionId === 'demo') {
         get().createDemoSession();
       } else {

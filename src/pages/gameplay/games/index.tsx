@@ -111,7 +111,6 @@ export default function GamesListPage(): React.ReactElement {
 
   // Handle new game
   const handleNewGame = useCallback(() => {
-    // TODO: Navigate to encounter setup when implemented
     router.push('/gameplay/games/demo');
   }, [router]);
 

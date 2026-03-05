@@ -52,7 +52,7 @@ export default function GameReplayPage(): React.ReactElement {
   }, []);
 
   // Load game events for display
-  // TODO: Consider virtualized loading for games with >1000 events to reduce memory usage
+  // Performance: Consider virtualized loading for games with >1000 events to reduce memory usage
   const {
     allEvents,
     isLoading: eventsLoading,

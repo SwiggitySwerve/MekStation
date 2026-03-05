@@ -1,7 +1,6 @@
 /**
  * Quick Game Timeline Component
  * Displays events from the current quick game session.
- * Simplified version - full replay integration is TODO.
  *
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
