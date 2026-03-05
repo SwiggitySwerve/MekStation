@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 
 export function MechIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {

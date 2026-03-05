@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 
 export function CopyIcon({ className = 'w-4 h-4' }: { className?: string }): JSX.Element {

@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 
 export function SearchIcon({ className = '' }: { className?: string }): JSX.Element {

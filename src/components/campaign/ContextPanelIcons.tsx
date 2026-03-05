@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 export function GlobeIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
   return (
