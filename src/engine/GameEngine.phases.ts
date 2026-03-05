@@ -3,11 +3,10 @@ import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import {
-  GameSide,
   GamePhase,
   LockState,
   type IGameSession,
-} from '@/types/gameplay/GameSessionInterfaces';
+  } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
   RangeBracket,

@@ -7,7 +7,6 @@
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
 
-import { v4 as uuidv4 } from 'uuid';
 
 import {
   IEncounter,
@@ -15,13 +14,11 @@ import {
   IUpdateEncounterInput,
   IMapConfiguration,
   IVictoryCondition,
-  IOpForConfig,
   IForceReference,
   EncounterStatus,
   TerrainPreset,
   SCENARIO_TEMPLATES,
-  ScenarioTemplateType,
-} from '@/types/encounter';
+  } from '@/types/encounter';
 
 import {
   createSingleton,

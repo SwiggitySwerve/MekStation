@@ -7,16 +7,12 @@
  * @spec openspec/changes/add-pilot-system/specs/pilot-system/spec.md
  */
 
-import { v4 as uuidv4 } from 'uuid';
 
 import {
   IPilot,
-  IPilotCareer,
-  IPilotAbilityRef,
   IKillRecord,
   IMissionRecord,
   ICreatePilotOptions,
-  PilotType,
   PilotStatus,
   DEFAULT_PILOT_SKILLS,
 } from '@/types/pilot';
@@ -30,7 +26,6 @@ import * as careerOps from './PilotRepository.career';
 import {
   rowToPilot,
   type PilotRow,
-  type PilotAbilityRow,
 } from './PilotRepository.helpers';
 import { buildUpdateQuery } from './PilotRepository.queries';
 

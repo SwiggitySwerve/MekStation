@@ -149,28 +149,6 @@ describe('OpForGeneratorService', () => {
     });
   });
 
-  describe('estimateSkillBVMultiplier', () => {
-    it('should return 1.0 for standard 4/5 pilots', () => {
-      const multiplier = service.estimateSkillBVMultiplier(4, 5);
-      expect(multiplier).toBe(1);
-    });
-
-    it('should return > 1.0 for better pilots', () => {
-      const multiplier = service.estimateSkillBVMultiplier(3, 4);
-      expect(multiplier).toBeGreaterThan(1);
-    });
-
-    it('should return < 1.0 for worse pilots', () => {
-      const multiplier = service.estimateSkillBVMultiplier(5, 6);
-      expect(multiplier).toBeLessThan(1);
-    });
-
-    it('should return higher multiplier for elite pilots', () => {
-      const veteran = service.estimateSkillBVMultiplier(3, 4);
-      const elite = service.estimateSkillBVMultiplier(2, 3);
-      expect(elite).toBeGreaterThan(veteran);
-    });
-  });
 
   describe('getDefaultOpForConfig', () => {
     it('should create a valid default config', () => {

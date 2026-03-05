@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function GlobeIcon({ className = 'w-5 h-5' }: { className?: string }) {
+export function GlobeIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
   return (
     <svg
       className={className}
@@ -22,7 +22,7 @@ export function DocumentIcon({
   className = 'w-5 h-5',
 }: {
   className?: string;
-}) {
+}): JSX.Element {
   return (
     <svg
       className={className}
@@ -40,7 +40,7 @@ export function DocumentIcon({
   );
 }
 
-export function MechIcon({ className = 'w-5 h-5' }: { className?: string }) {
+export function MechIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
   return (
     <svg
       className={className}
@@ -58,7 +58,7 @@ export function MechIcon({ className = 'w-5 h-5' }: { className?: string }) {
   );
 }
 
-export function PilotIcon({ className = 'w-5 h-5' }: { className?: string }) {
+export function PilotIcon({ className = 'w-5 h-5' }: { className?: string }): JSX.Element {
   return (
     <svg
       className={className}
@@ -80,7 +80,7 @@ export function CrosshairIcon({
   className = 'w-4 h-4',
 }: {
   className?: string;
-}) {
+}): JSX.Element {
   return (
     <svg
       className={className}

@@ -33,7 +33,7 @@ export function UnitEditorWithRouting({
     true,
   );
 
-  const { isReady: registryReady } = useEquipmentRegistry();
+  const { isReady: _registryReady } = useEquipmentRegistry();
 
   const unitName = useUnitStore((s) => s.name);
   const chassis = useUnitStore((s) => s.chassis);

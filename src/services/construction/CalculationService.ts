@@ -16,13 +16,7 @@ import {
   type SingletonFactory,
 } from '@/services/core/createSingleton';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { getStructurePoints } from '@/types/construction/InternalStructureType';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 import { logger } from '@/utils/logger';
 

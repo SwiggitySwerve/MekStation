@@ -1,4 +1,4 @@
-export function CubeIcon() {
+export function CubeIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -17,7 +17,7 @@ export function CubeIcon() {
   );
 }
 
-export function SpeedIcon() {
+export function SpeedIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -36,7 +36,7 @@ export function SpeedIcon() {
   );
 }
 
-export function ShieldIcon() {
+export function ShieldIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +55,7 @@ export function ShieldIcon() {
   );
 }
 
-export function FlameIcon() {
+export function FlameIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -74,7 +74,7 @@ export function FlameIcon() {
   );
 }
 
-export function EditIcon({ className = '' }: { className?: string }) {
+export function EditIcon({ className = '' }: { className?: string }): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

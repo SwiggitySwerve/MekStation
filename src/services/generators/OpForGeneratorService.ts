@@ -386,28 +386,6 @@ export class OpForGeneratorService {
     };
   }
 
-  /**
-   * Estimate the BV adjustment for pilot skills.
-   * Better skills = higher effective BV.
-   *
-   * TODO: This method is currently unused. Consider integrating it into OpFor generation
-   * to provide more accurate BV calculations that account for pilot skill differences.
-   */
-  estimateSkillBVMultiplier(gunnery: number, piloting: number): number {
-    // Standard reference is 4/5 (Regular)
-    const baseSkill = 4 + 5;
-    const actualSkill = gunnery + piloting;
-
-    // Each point of improvement is roughly +10% BV
-    // Each point worse is roughly -8% BV
-    const skillDiff = baseSkill - actualSkill;
-
-    if (skillDiff > 0) {
-      return 1 + skillDiff * 0.1;
-    } else {
-      return 1 + skillDiff * 0.08;
-    }
-  }
 }
 
 // =============================================================================

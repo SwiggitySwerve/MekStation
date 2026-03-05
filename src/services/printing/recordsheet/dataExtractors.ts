@@ -5,7 +5,6 @@
  */
 
 import {
-  MechLocation,
   LOCATION_SLOT_COUNTS,
 } from '@/types/construction/CriticalSlotAllocation';
 import {
