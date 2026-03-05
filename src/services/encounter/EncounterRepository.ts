@@ -7,6 +7,7 @@
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
 
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   IEncounter,

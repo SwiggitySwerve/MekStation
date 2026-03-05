@@ -1,3 +1,6 @@
+import React from 'react';
+
+
 export function SearchIcon({ className = '' }: { className?: string }): JSX.Element {
   return (
     <svg

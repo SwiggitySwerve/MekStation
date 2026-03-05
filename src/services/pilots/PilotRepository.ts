@@ -7,6 +7,7 @@
  * @spec openspec/changes/add-pilot-system/specs/pilot-system/spec.md
  */
 
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   IPilot,

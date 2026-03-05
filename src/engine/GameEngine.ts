@@ -3,6 +3,7 @@
  * Orchestrates battles with auto-resolve and interactive modes.
  */
 
+import type { IWeapon } from '@/simulation/ai/types';
 
 import {
   isGameEnded,
@@ -10,6 +11,7 @@ import {
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
+  GameSide,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
