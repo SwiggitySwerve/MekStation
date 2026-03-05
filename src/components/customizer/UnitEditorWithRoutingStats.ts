@@ -263,7 +263,6 @@ export function useUnitEditorRoutingStats(
       };
     }
   }, [
-    unitName,
     chassis,
     model,
     tonnage,

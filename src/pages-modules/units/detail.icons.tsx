@@ -1,3 +1,6 @@
+import React from 'react';
+
+
 export function CubeIcon(): JSX.Element {
   return (
     <svg

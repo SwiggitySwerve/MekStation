@@ -1,3 +1,6 @@
+import React from 'react';
+
+
 export function CopyIcon({ className = 'w-4 h-4' }: { className?: string }): JSX.Element {
   return (
     <svg

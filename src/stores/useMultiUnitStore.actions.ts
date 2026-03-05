@@ -17,6 +17,7 @@ import {
   IComponentSelections,
   UnitTemplate,
   MultiUnitState,
+  UnitTab,
 } from './useMultiUnitStore.types';
 
 type SetFn = (
@@ -26,7 +27,37 @@ type SetFn = (
 ) => void;
 type GetFn = () => MultiUnitState;
 
-export function createTabActions(set: SetFn, get: GetFn) {
+type TabActions = {
+  createTab: (template: UnitTemplate, customName?: string) => string;
+  duplicateTab: (tabId: string) => string | null;
+  closeTab: (tabId: string) => void;
+  selectTab: (tabId: string) => void;
+  renameTab: (tabId: string, name: string) => void;
+  markModified: (tabId: string, modified?: boolean) => void;
+  openNewTabModal: () => void;
+  closeNewTabModal: () => void;
+  getActiveTab: () => UnitTab | null;
+};
+
+type TechBaseActions = {
+  updateTechBaseMode: (tabId: string, mode: TechBaseMode) => void;
+  updateComponentTechBase: (tabId: string, component: TechBaseComponent, techBase: TechBase) => void;
+  setAllComponentTechBases: (tabId: string, techBases: IComponentTechBases) => void;
+};
+
+type ComponentSelectionActions = {
+  updateEngineType: (tabId: string, engineType: EngineType) => void;
+  updateEngineRating: (tabId: string, rating: number) => void;
+  updateGyroType: (tabId: string, gyroType: GyroType) => void;
+  updateStructureType: (tabId: string, structureType: InternalStructureType) => void;
+  updateCockpitType: (tabId: string, cockpitType: CockpitType) => void;
+  updateHeatSinkType: (tabId: string, heatSinkType: HeatSinkType) => void;
+  updateHeatSinkCount: (tabId: string, count: number) => void;
+  updateArmorType: (tabId: string, armorType: ArmorTypeEnum) => void;
+  updateComponentSelections: (tabId: string, selections: Partial<IComponentSelections>) => void;
+};
+
+export function createTabActions(set: SetFn, get: GetFn): TabActions {
   return {
     createTab: (template: UnitTemplate, customName?: string): string => {
       const newTab = createNewTab(template, customName);
@@ -110,7 +141,7 @@ export function createTabActions(set: SetFn, get: GetFn) {
   };
 }
 
-export function createTechBaseActions(set: SetFn) {
+export function createTechBaseActions(set: SetFn): TechBaseActions {
   return {
     updateTechBaseMode: (tabId: string, mode: TechBaseMode): void => {
       set((state) => ({
@@ -175,7 +206,7 @@ export function createTechBaseActions(set: SetFn) {
   };
 }
 
-export function createComponentSelectionActions(set: SetFn) {
+export function createComponentSelectionActions(set: SetFn): ComponentSelectionActions {
   return {
     updateEngineType: (tabId: string, engineType: EngineType): void => {
       set((state) => ({
