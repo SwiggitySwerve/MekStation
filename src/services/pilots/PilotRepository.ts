@@ -11,12 +11,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
   IPilot,
-  IPilotCareer,
-  IPilotAbilityRef,
   IKillRecord,
   IMissionRecord,
   ICreatePilotOptions,
-  PilotType,
   PilotStatus,
   DEFAULT_PILOT_SKILLS,
 } from '@/types/pilot';
@@ -27,11 +24,7 @@ import {
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
 import * as careerOps from './PilotRepository.career';
-import {
-  rowToPilot,
-  type PilotRow,
-  type PilotAbilityRow,
-} from './PilotRepository.helpers';
+import { rowToPilot, type PilotRow } from './PilotRepository.helpers';
 import { buildUpdateQuery } from './PilotRepository.queries';
 
 // =============================================================================

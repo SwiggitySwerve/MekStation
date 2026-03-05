@@ -4,10 +4,7 @@
  * Functions to extract record sheet data from unit configurations.
  */
 
-import {
-  MechLocation,
-  LOCATION_SLOT_COUNTS,
-} from '@/types/construction/CriticalSlotAllocation';
+import { LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
 import {
   IRecordSheetHeader,
   IRecordSheetMovement,

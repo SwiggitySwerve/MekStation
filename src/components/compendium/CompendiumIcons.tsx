@@ -1,4 +1,12 @@
-export function SearchIcon({ className = '' }: { className?: string }) {
+import type { JSX } from 'react';
+
+import React from 'react';
+
+export function SearchIcon({
+  className = '',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -17,7 +25,7 @@ export function SearchIcon({ className = '' }: { className?: string }) {
   );
 }
 
-export function EquipmentIcon() {
+export function EquipmentIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -36,7 +44,7 @@ export function EquipmentIcon() {
   );
 }
 
-export function StructureIcon() {
+export function StructureIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +63,7 @@ export function StructureIcon() {
   );
 }
 
-export function LightningIcon() {
+export function LightningIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -74,7 +82,7 @@ export function LightningIcon() {
   );
 }
 
-export function ShieldIcon() {
+export function ShieldIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +101,7 @@ export function ShieldIcon() {
   );
 }
 
-export function FlameIcon() {
+export function FlameIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +120,7 @@ export function FlameIcon() {
   );
 }
 
-export function GyroIcon() {
+export function GyroIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -131,7 +139,7 @@ export function GyroIcon() {
   );
 }
 
-export function RocketIcon() {
+export function RocketIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -150,7 +158,7 @@ export function RocketIcon() {
   );
 }
 
-export function ListIcon() {
+export function ListIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -169,7 +177,7 @@ export function ListIcon() {
   );
 }
 
-export function MechIcon() {
+export function MechIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -188,7 +196,11 @@ export function MechIcon() {
   );
 }
 
-export function ArrowIcon({ className = '' }: { className?: string }) {
+export function ArrowIcon({
+  className = '',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -207,7 +219,7 @@ export function ArrowIcon({ className = '' }: { className?: string }) {
   );
 }
 
-export function ChartIcon() {
+export function ChartIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -226,7 +238,7 @@ export function ChartIcon() {
   );
 }
 
-export function BookIcon() {
+export function BookIcon(): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

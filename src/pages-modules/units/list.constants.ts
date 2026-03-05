@@ -97,7 +97,11 @@ export const WEIGHT_CLASS_CONFIG: Record<
   [WeightClass.SUPERHEAVY]: { label: 'Superheavy', color: 'text-rose-500' },
 };
 
-export function getUnitTypeDisplay(unitType: string) {
+export function getUnitTypeDisplay(unitType: string): {
+  label: string;
+  badgeVariant: string;
+  color: string;
+} {
   return (
     UNIT_TYPE_CONFIG[unitType] || {
       label: unitType,
@@ -107,7 +111,10 @@ export function getUnitTypeDisplay(unitType: string) {
   );
 }
 
-export function getWeightClassDisplay(weightClass: WeightClass) {
+export function getWeightClassDisplay(weightClass: WeightClass): {
+  label: string;
+  color: string;
+} {
   return (
     WEIGHT_CLASS_CONFIG[weightClass] || {
       label: weightClass,

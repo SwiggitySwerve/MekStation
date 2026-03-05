@@ -1,5 +1,4 @@
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { MechLocation } from '@/types/construction';
 import {
   IMountedEquipment,
   ICriticalSlotAssignment,

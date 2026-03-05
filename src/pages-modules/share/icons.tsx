@@ -1,4 +1,12 @@
-export function CopyIcon({ className = 'w-4 h-4' }: { className?: string }) {
+import type { JSX } from 'react';
+
+import React from 'react';
+
+export function CopyIcon({
+  className = 'w-4 h-4',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -17,7 +25,11 @@ export function CopyIcon({ className = 'w-4 h-4' }: { className?: string }) {
   );
 }
 
-export function CheckIcon({ className = 'w-4 h-4' }: { className?: string }) {
+export function CheckIcon({
+  className = 'w-4 h-4',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -40,7 +52,7 @@ export function ToggleOnIcon({
   className = 'w-4 h-4',
 }: {
   className?: string;
-}) {
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -59,7 +71,11 @@ export function ToggleOnIcon({
   );
 }
 
-export function TrashIcon({ className = 'w-4 h-4' }: { className?: string }) {
+export function TrashIcon({
+  className = 'w-4 h-4',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -78,7 +94,11 @@ export function TrashIcon({ className = 'w-4 h-4' }: { className?: string }) {
   );
 }
 
-export function LinkIcon({ className = 'w-5 h-5' }: { className?: string }) {
+export function LinkIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

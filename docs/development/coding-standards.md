@@ -138,7 +138,7 @@ const ExpensiveComponent = React.memo<Props>(({ data }) => {
 
 ## File Modularity
 
-- Follow [`FILE_MODULARITY_SPEC.md`](../../FILE_MODULARITY_SPEC.md) for file-size
+- Follow [`FILE_MODULARITY_SPEC.md`](../FILE_MODULARITY_SPEC.md) for file-size
   targets and modularization rules.
 - Default runtime target is about 300 lines; prioritize responsibility-based
   splits over arbitrary line-based splits.

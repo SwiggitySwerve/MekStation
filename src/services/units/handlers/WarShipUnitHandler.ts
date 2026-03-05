@@ -14,18 +14,7 @@ import {
   IAerospaceMovement,
 } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import {
-  IWarShip,
-  ICapitalMountedEquipment,
-  ITransportBay,
-  ICrewQuarters,
-  ICapitalCrewConfiguration,
-  IGravityDeck,
-  BayType,
-  QuartersType,
-  CapitalArc,
-  KFDriveType,
-} from '@/types/unit/CapitalShipInterfaces';
+import { IWarShip, CapitalArc } from '@/types/unit/CapitalShipInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 

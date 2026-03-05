@@ -4,42 +4,26 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 
-import {
-  calculateGameOutcome,
-  isGameEnded,
-  type IGameOutcome,
-} from '@/services/game-resolution/GameOutcomeCalculator';
+import { isGameEnded } from '@/services/game-resolution/GameOutcomeCalculator';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameSide,
-  GamePhase,
-  LockState,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
   type IGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
-  Facing,
-  MovementType,
-  RangeBracket,
-  type IHexCoordinate,
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import {
   createGameSession,
   startGame,
   advancePhase,
   rollInitiative,
-  declareMovement,
-  lockMovement,
-  declareAttack,
-  lockAttack,
   resolveAllAttacks,
   resolveHeatPhase,
   endGame,

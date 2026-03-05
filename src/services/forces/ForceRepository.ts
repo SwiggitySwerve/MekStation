@@ -7,21 +7,12 @@
  * @spec openspec/changes/add-force-management/proposal.md
  */
 
-import { v4 as uuidv4 } from 'uuid';
-
 import {
   IForce,
-  IAssignment,
-  IForceStats,
   ICreateForceRequest,
   IUpdateForceRequest,
   IUpdateAssignmentRequest,
-  ForceType,
-  ForceStatus,
-  ForcePosition,
-  getDefaultSlotCount,
 } from '@/types/force';
-import { calculateUnitBV, type UnitData } from '@/utils/construction/bvAdapter';
 
 import {
   createSingleton,

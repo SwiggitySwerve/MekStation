@@ -13,7 +13,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 
-import { SchematicDiagram } from '@/components/armor/schematic';
 import { useTechBaseSync } from '@/hooks/useTechBaseSync';
 import { getTotalAllocatedArmor } from '@/stores/unitState';
 import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
@@ -23,7 +22,6 @@ import {
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import {
   calculateArmorPoints,
   getMaxTotalArmor,

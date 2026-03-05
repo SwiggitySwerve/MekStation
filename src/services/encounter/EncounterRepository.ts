@@ -15,12 +15,10 @@ import {
   IUpdateEncounterInput,
   IMapConfiguration,
   IVictoryCondition,
-  IOpForConfig,
   IForceReference,
   EncounterStatus,
   TerrainPreset,
   SCENARIO_TEMPLATES,
-  ScenarioTemplateType,
 } from '@/types/encounter';
 
 import {

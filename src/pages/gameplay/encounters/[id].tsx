@@ -5,7 +5,6 @@
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
 
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
