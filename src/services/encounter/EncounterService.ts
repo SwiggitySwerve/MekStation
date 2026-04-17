@@ -17,17 +17,23 @@ import {
   SCENARIO_TEMPLATES,
   ScenarioTemplateType,
 } from '@/types/encounter';
+import { createGameSession } from '@/utils/gameplay/gameSessionCore';
 
 import {
   createSingleton,
   type SingletonFactory,
 } from '../core/createSingleton';
 import { getForceRepository } from '../forces/ForceRepository';
+import { getPilotService } from '../pilots/PilotService';
 import {
   getEncounterRepository,
   EncounterRepository,
   IEncounterOperationResult,
 } from './EncounterRepository';
+import {
+  buildGameConfigFromEncounter,
+  buildGameUnitsFromEncounter,
+} from './encounterToGameSession';
 
 // =============================================================================
 // Service Interface
@@ -262,18 +268,29 @@ export class EncounterService implements IEncounterService {
       };
     }
 
-    // TODO: Create game session from encounter
-    // For now, just update status to launched
-    // In full implementation:
-    // 1. Create game session
-    // 2. Initialize hex grid from map config
-    // 3. Place units from forces
-    // 4. Generate OpFor if using opForConfig
-    // 5. Link game session to encounter
+    // Build the game config and units from the encounter. Force/pilot
+    // resolvers are injected so this helper stays trivially testable.
+    const forceRepo = getForceRepository();
+    const pilotService = getPilotService();
+    const { units, errors } = buildGameUnitsFromEncounter(encounter, {
+      getForceById: (forceId) => forceRepo.getForceById(forceId),
+      getPilotById: (pilotId) => pilotService.getPilot(pilotId),
+    });
 
-    // For MVP, just create a placeholder game session ID
-    const gameSessionId = `session-${Date.now()}`;
-    return this.repository.linkGameSession(id, gameSessionId);
+    if (errors.length > 0) {
+      return {
+        success: false,
+        error: `Cannot launch: ${errors.join(', ')}`,
+      };
+    }
+
+    // createGameSession returns a fully-formed IGameSession with a fresh
+    // uuid. The session object itself is ephemeral (no server-side store),
+    // but its id is what we persist on the encounter — the UI rehydrates
+    // play state from the encounter + forces, using this id as the handle.
+    const config = buildGameConfigFromEncounter(encounter);
+    const session = createGameSession(config, units);
+    return this.repository.linkGameSession(id, session.id);
   }
 
   // ===========================================================================
