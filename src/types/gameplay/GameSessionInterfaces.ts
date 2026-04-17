@@ -107,6 +107,14 @@ export enum GameEventType {
   PSRTriggered = 'psr_triggered',
   PSRResolved = 'psr_resolved',
   UnitFell = 'unit_fell',
+  /**
+   * Per `wire-piloting-skill-rolls` task 0.5.2: emitted when a prone
+   * unit successfully passes an `AttemptStand` PSR and returns to its
+   * upright state. Carries the roll + TN so UI / replay consumers can
+   * show the stand-up attempt without re-computing it from the
+   * preceding `PSRResolved` event.
+   */
+  UnitStood = 'unit_stood',
   PhysicalAttackDeclared = 'physical_attack_declared',
   PhysicalAttackResolved = 'physical_attack_resolved',
   ShutdownCheck = 'shutdown_check',
@@ -507,6 +515,17 @@ export interface IUnitFellPayload {
   readonly pilotDamage: number;
 }
 
+/**
+ * Per `wire-piloting-skill-rolls` task 0.5.4: emitted when a prone
+ * unit passes an `AttemptStand` PSR and returns to upright state.
+ */
+export interface IUnitStoodPayload {
+  readonly unitId: string;
+  readonly turn: number;
+  readonly roll: number;
+  readonly targetNumber: number;
+}
+
 export interface IPhysicalAttackDeclaredPayload {
   readonly attackerId: string;
   readonly targetId: string;
@@ -611,6 +630,7 @@ export type GameEventPayload =
   | IPSRTriggeredPayload
   | IPSRResolvedPayload
   | IUnitFellPayload
+  | IUnitStoodPayload
   | IPhysicalAttackDeclaredPayload
   | IPhysicalAttackResolvedPayload
   | IShutdownCheckPayload

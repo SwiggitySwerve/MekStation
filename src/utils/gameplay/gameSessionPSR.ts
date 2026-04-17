@@ -7,11 +7,13 @@ import {
   createPSRResolvedEvent,
   createPSRTriggeredEvent,
   createUnitFellEvent,
+  createUnitStoodEvent,
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
 import { roll2d6 as rollDice } from './hitLocation';
 import {
   checkPhaseDamagePSR,
+  createStandingUpPSR,
   isGyroDestroyed,
   resolveAllPSRs,
 } from './pilotingSkillRolls';
@@ -228,6 +230,98 @@ export function resolvePendingPSRs(
         ),
       );
     }
+  }
+
+  return currentSession;
+}
+
+/**
+ * Per `wire-piloting-skill-rolls` task 9: prone unit attempts to stand.
+ * Enqueues an `AttemptStand` PSR trigger, immediately rolls, and on
+ * success emits `UnitStood` (clears prone). On failure the unit remains
+ * prone. Fall damage is NOT applied — failing a stand-up attempt doesn't
+ * cause additional damage; the unit just fails to rise this turn.
+ *
+ * Caller decides when (movement phase) and pays the MP cost before
+ * invoking. This helper only emits the event chain.
+ */
+export function attemptStandUp(
+  session: IGameSession,
+  unitId: string,
+  diceRoller: DiceRoller = rollDice,
+): IGameSession {
+  const { turn } = session.currentState;
+  const phase = session.currentState.phase;
+  const unitState = session.currentState.units[unitId];
+  if (!unitState || !unitState.prone || unitState.destroyed) {
+    return session;
+  }
+  const unit = session.units.find((u) => u.id === unitId);
+  if (!unit) return session;
+
+  let currentSession = session;
+
+  // 1. Emit PSRTriggered so the reducer pushes the PSR onto the queue.
+  const psr = createStandingUpPSR(unitId);
+  const triggeredSeq = currentSession.events.length;
+  currentSession = appendEvent(
+    currentSession,
+    createPSRTriggeredEvent(
+      currentSession.id,
+      triggeredSeq,
+      turn,
+      phase,
+      unitId,
+      psr.reason,
+      psr.additionalModifier,
+      psr.triggerSource,
+    ),
+  );
+
+  // 2. Roll the PSR: piloting skill + gyro-hit modifier + wound
+  //    modifier + trigger-specific modifier. Canonical stand-up TN is
+  //    piloting + 0 (plus any active modifiers).
+  const componentDamage = unitState.componentDamage;
+  const gyroModifier = (componentDamage?.gyroHits ?? 0) * 3;
+  const woundModifier = unitState.pilotWounds;
+  const tn =
+    unit.piloting + gyroModifier + woundModifier + psr.additionalModifier;
+  const roll = diceRoller();
+  const passed = roll.total >= tn;
+
+  const resolvedSeq = currentSession.events.length;
+  currentSession = appendEvent(
+    currentSession,
+    createPSRResolvedEvent(
+      currentSession.id,
+      resolvedSeq,
+      turn,
+      phase,
+      unitId,
+      tn,
+      roll.total,
+      gyroModifier + woundModifier,
+      passed,
+      psr.reason,
+    ),
+  );
+
+  // 3. On success, emit UnitStood. On failure the unit stays prone;
+  //    no additional damage (per canonical standing-up rules).
+  if (passed) {
+    const stoodSeq = currentSession.events.length;
+    currentSession = appendEvent(
+      currentSession,
+      createUnitStoodEvent(
+        currentSession.id,
+        stoodSeq,
+        turn,
+        phase,
+        unitId,
+        roll.total,
+        tn,
+      ),
+    );
   }
 
   return currentSession;

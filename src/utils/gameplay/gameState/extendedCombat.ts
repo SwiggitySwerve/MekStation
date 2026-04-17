@@ -8,6 +8,7 @@ import {
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IUnitFellPayload,
+  IUnitStoodPayload,
   LockState,
 } from '@/types/gameplay';
 
@@ -84,6 +85,32 @@ export function applyUnitFell(
         prone: true,
         facing: payload.newFacing,
         pendingPSRs: [],
+      },
+    },
+  };
+}
+
+/**
+ * Per `wire-piloting-skill-rolls` task 9.3: prone unit has passed an
+ * `AttemptStand` PSR and returns upright. Clears prone flag;
+ * pendingPSRs have already been resolved by the preceding
+ * `PSRResolved` event.
+ */
+export function applyUnitStood(
+  state: IGameState,
+  payload: IUnitStoodPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        prone: false,
       },
     },
   };

@@ -21,7 +21,11 @@ export {
   resolveAllAttacks,
 } from './gameSessionAttackResolution';
 
-export { checkAndQueueDamagePSRs, resolvePendingPSRs } from './gameSessionPSR';
+export {
+  attemptStandUp,
+  checkAndQueueDamagePSRs,
+  resolvePendingPSRs,
+} from './gameSessionPSR';
 
 export { resolveHeatPhase } from './gameSessionHeat';
 
