@@ -42,3 +42,12 @@ export {
 export { calculateToHit, calculateToHitFromContext } from './calculate';
 export { calculateToHitWithC3 } from './c3';
 export type { IC3ToHitInput } from './c3';
+
+export {
+  buildToHitForecast,
+  expectedHitsTotal,
+  getTwoD6HitProbability,
+  TWO_D6_HIT_PROBABILITY,
+  type IWeaponForecastRow,
+  type IForecastInput,
+} from './forecast';
