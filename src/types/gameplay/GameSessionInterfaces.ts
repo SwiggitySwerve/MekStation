@@ -314,6 +314,15 @@ export interface IAttackResolvedPayload {
    * phase instead of approximating `weapons.length * N`.
    */
   readonly heat?: number;
+  /**
+   * Firing arc used to select the hit-location table (per
+   * `wire-firing-arc-resolution`). Exposed on the event so UI + replay
+   * consumers can show "AC/20 hit rear CT" rather than assuming Front.
+   * Values match the `FiringArc` enum ('front' | 'left' | 'right' |
+   * 'rear'). Absent on misses (no arc needed) and on same-hex
+   * invalidations.
+   */
+  readonly attackerArc?: 'front' | 'left' | 'right' | 'rear';
 }
 
 /**

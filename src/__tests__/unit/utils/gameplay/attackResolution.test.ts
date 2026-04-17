@@ -142,7 +142,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
 
       const attackEvent = updated.events.find(
@@ -186,7 +185,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
 
       const attackEvent = updated.events.find(
@@ -225,7 +223,6 @@ describe('Attack Resolution', () => {
           weapons,
           3,
           RangeBracket.Short,
-          FiringArc.Front,
         ),
       ).toThrow('Not in weapon attack phase');
     });
@@ -255,7 +252,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
 
       expect(updated.currentState.units['unit-1'].lockState).toBe(
@@ -290,7 +286,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'unit-1');
 
@@ -324,7 +319,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'unit-1');
 
@@ -372,7 +366,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'unit-1');
 
@@ -431,7 +424,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'unit-1');
 
@@ -484,7 +476,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'unit-1');
 
@@ -535,7 +526,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'unit-1');
 
@@ -546,7 +536,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'unit-2');
 
@@ -591,7 +580,6 @@ describe('Attack Resolution', () => {
         weapons,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'unit-1');
 

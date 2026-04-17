@@ -126,7 +126,6 @@ function createHeatPhaseSession(): IGameSession {
     weapons,
     10,
     RangeBracket.Medium,
-    FiringArc.Front,
   );
   session = lockAttack(session, 'player-1');
   session = lockAttack(session, 'opponent-1');

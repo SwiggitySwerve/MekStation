@@ -170,7 +170,6 @@ describe('Weapon Data Wiring', () => {
         ac20Attack,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'player-1');
       session = lockAttack(session, 'opponent-1');
@@ -215,7 +214,6 @@ describe('Weapon Data Wiring', () => {
         mediumLaserAttack,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'player-1');
       session = lockAttack(session, 'opponent-1');
@@ -258,7 +256,6 @@ describe('Weapon Data Wiring', () => {
         ppcAttack,
         6,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'player-1');
       session = lockAttack(session, 'opponent-1');
@@ -312,7 +309,6 @@ describe('Weapon Data Wiring', () => {
         multiWeaponAttack,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'player-1');
       session = lockAttack(session, 'opponent-1');
@@ -361,7 +357,6 @@ describe('Weapon Data Wiring', () => {
         attacks,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
 
       const declaredEvent = session.events.find(
@@ -420,7 +415,6 @@ describe('Weapon Data Wiring', () => {
         attacks,
         3,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'player-1');
       session = lockAttack(session, 'opponent-1');
@@ -484,7 +478,6 @@ describe('Weapon Data Wiring', () => {
         attacks,
         6,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'player-1');
       session = lockAttack(session, 'opponent-1');
@@ -541,7 +534,6 @@ describe('Weapon Data Wiring', () => {
         attacks,
         6,
         RangeBracket.Short,
-        FiringArc.Front,
       );
       session = lockAttack(session, 'player-1');
       session = lockAttack(session, 'opponent-1');

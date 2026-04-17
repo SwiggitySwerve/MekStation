@@ -78,6 +78,7 @@ export function createAttackResolvedEvent(
   location?: string,
   damage?: number,
   heat?: number,
+  attackerArc?: 'front' | 'left' | 'right' | 'rear',
 ): IGameEvent {
   const payload: IAttackResolvedPayload = {
     attackerId,
@@ -89,6 +90,7 @@ export function createAttackResolvedEvent(
     location,
     damage,
     heat,
+    attackerArc,
   };
 
   return {

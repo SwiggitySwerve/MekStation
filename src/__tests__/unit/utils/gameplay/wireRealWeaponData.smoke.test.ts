@@ -165,7 +165,6 @@ describe('wire-real-weapon-data — smoke test (Hunchback fixture)', () => {
       hunchbackWeapons,
       4,
       RangeBracket.Short,
-      FiringArc.Front,
     );
 
     const declared = session.events.find(
@@ -196,7 +195,6 @@ describe('wire-real-weapon-data — smoke test (Hunchback fixture)', () => {
       hunchbackWeapons,
       4,
       RangeBracket.Short,
-      FiringArc.Front,
     );
 
     // Guarantee hits: roll 10 (beats TN 4) for all attack-rolls; arbitrary
@@ -251,7 +249,6 @@ describe('wire-real-weapon-data — smoke test (Hunchback fixture)', () => {
       hunchbackWeapons,
       4,
       RangeBracket.Short,
-      FiringArc.Front,
     );
 
     const declared = session.events.find(
