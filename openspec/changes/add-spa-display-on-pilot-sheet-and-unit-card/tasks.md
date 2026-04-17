@@ -4,7 +4,7 @@
 
 - [ ] 1.1 Create `src/components/spa/SPABadge/SPABadge.tsx` with props
       `{ spa: ISPADefinition, designation?: ISPADesignation,
-    variant: "compact" | "expanded" }`
+variant: "compact" | "expanded" }`
 - [ ] 1.2 Badge renders category color accent, displayName, optional
       designation text
 - [ ] 1.3 Badge exposes a tooltip on hover/focus showing the full
@@ -37,7 +37,7 @@
 ## 4. Record-Sheet PDF Export
 
 - [ ] 4.1 Extend `src/services/printing/svgRecordSheetRenderer/
-    template.ts` to emit a Special Abilities block below the pilot
+template.ts` to emit a Special Abilities block below the pilot
       block
 - [ ] 4.2 Block renders each ability as `displayName (designation)` on
       its own line with a one-line truncated description
@@ -77,7 +77,7 @@
 - [ ] 7.4 Every new requirement has at least one GIVEN/WHEN/THEN
       scenario
 - [ ] 7.5 Run `openspec validate add-spa-display-on-pilot-sheet-and-
-    unit-card --strict` clean
+unit-card --strict` clean
 
 ## 8. Tests
 

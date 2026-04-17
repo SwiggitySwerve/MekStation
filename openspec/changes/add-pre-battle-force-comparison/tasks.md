@@ -3,12 +3,12 @@
 ## 1. Force Summary Shape
 
 - [ ] 1.1 Define `IForceSummary` with `{side, totalBV, totalTonnage,
-    heatDissipation, avgGunnery, avgPiloting,
-    weaponDamagePerTurnPotential, spaSummary:
-    Array<{spaId, name, unitIds: string[]}>}`
+heatDissipation, avgGunnery, avgPiloting,
+weaponDamagePerTurnPotential, spaSummary:
+Array<{spaId, name, unitIds: string[]}>}`
 - [ ] 1.2 Define `IForceComparison` with `{player: IForceSummary,
-    opponent: IForceSummary, deltas: Record<string, {value: number,
-    severity: 'low'|'moderate'|'high'}>, bvRatio: number}`
+opponent: IForceSummary, deltas: Record<string, {value: number,
+severity: 'low'|'moderate'|'high'}>, bvRatio: number}`
 
 ## 2. Force Summary Derivation
 
@@ -35,18 +35,18 @@
       heat dissipation, avg gunnery (inverted — lower gunnery is
       better), avg piloting (inverted), DPT potential
 - [ ] 3.3 `bvRatio` = `max(player.totalBV, opponent.totalBV) /
-    min(player.totalBV, opponent.totalBV)`
+min(player.totalBV, opponent.totalBV)`
 - [ ] 3.4 Severity thresholds: - BV: `bvRatio > 1.25` → high, `1.10–1.25` → moderate,
       otherwise low - Tonnage: `|delta| / max_tonnage > 0.20` → high, `> 0.10` →
       moderate, otherwise low - Pilot skill: `|avgGunnery delta| >= 1.0` OR `|avgPiloting
-      delta| >= 1.0` → high, `>= 0.5` → moderate, otherwise low - DPT: `|delta| / max_dpt > 0.25` → high, `> 0.15` → moderate,
+delta| >= 1.0` → high, `>= 0.5` → moderate, otherwise low - DPT: `|delta| / max_dpt > 0.25` → high, `> 0.15` → moderate,
       otherwise low - Heat dissipation: `|delta| / max_heat > 0.30` → high, `> 0.15`
       → moderate, otherwise low
 
 ## 4. Comparison Panel Component
 
 - [ ] 4.1 Create `ForceComparisonPanel` that takes `{comparison:
-    IForceComparison}`
+IForceComparison}`
 - [ ] 4.2 Two-column layout: Player (left) / Opponent (right) with
       the delta badge in the gap between columns
 - [ ] 4.3 Rows: Total BV, Total Tonnage, Heat Dissipation, Avg
@@ -89,7 +89,7 @@
 
 - [ ] 8.1 Above the comparison table, show a one-line hint derived
       from the highest-severity delta: e.g., `"Opponent has a 28% BV
-    advantage"` or `"Forces look evenly matched"`
+advantage"` or `"Forces look evenly matched"`
 - [ ] 8.2 If any delta is `high` severity, the panel header shows a
       warning icon
 - [ ] 8.3 Hint text SHALL be neutral and descriptive — SHALL NOT
@@ -100,7 +100,7 @@
 - [ ] 9.1 When only one side is configured, show per-side summary
       but suppress the delta columns
 - [ ] 9.2 When no forces are configured, show `"Configure forces to
-    begin"` placeholder
+begin"` placeholder
 - [ ] 9.3 When a side is configured with invalid unit IDs, surface
       `"Force contains unknown units"` and fall back to a best-effort
       partial summary (skip invalid units)

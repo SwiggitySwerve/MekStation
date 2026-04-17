@@ -3,8 +3,8 @@
 ## 1. Type Definitions
 
 - [ ] 1.1 Define/extend `IRepairTicket` with `source` (`"post_battle" |
-    "maintenance" | "manual"`), `workType` (`"armor" | "structure" |
-    "component" | "ammo"`), `expectedHours`, `priority`,
+"maintenance" | "manual"`), `workType` (`"armor" | "structure" |
+"component" | "ammo"`), `expectedHours`, `priority`,
       `partsRequired`, `sourceBattleId`
 - [ ] 1.2 Define `RepairPriority` enum: `CRITICAL`, `HIGH`, `NORMAL`, `LOW`
 - [ ] 1.3 Define `IRepairPartRequirement` with `partName`, `quantity`,
@@ -26,7 +26,7 @@
       table
 - [ ] 3.4 Priority = `NORMAL`
 - [ ] 3.5 `partsRequired` = `[{ partName: "Armor (<type>)", quantity:
-    armor-lost, matched: false }]`
+armor-lost, matched: false }]`
 
 ## 4. Structure Ticket Generation
 
@@ -47,7 +47,7 @@
 - [ ] 5.4 Priority = `CRITICAL` for engine/gyro/life support, `HIGH` for
       cockpit/sensors, `NORMAL` for weapons/heat sinks
 - [ ] 5.5 `partsRequired` = `[{ partName: component name, quantity: 1,
-    matched: false }]`
+matched: false }]`
 
 ## 6. Ammo Ticket Generation
 

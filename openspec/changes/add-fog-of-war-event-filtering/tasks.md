@@ -8,14 +8,14 @@
       to `unitId` within its sensor range, OR the target is itself
       owned by `playerId`
 - [ ] 1.3 Add convenience `visibleUnitsForPlayer(playerId, state):
-    UnitId[]` that returns the set
+UnitId[]` that returns the set
 - [ ] 1.4 Unit tests covering: adjacent LOS, LOS blocked by terrain,
       sensor range boundary, own units always visible
 
 ## 2. Event Visibility Classification
 
 - [ ] 2.1 Add `visibility` tag on every event type; values `'public' |
-    'actor-only' | 'observer-visible' | 'target-visible'`
+'actor-only' | 'observer-visible' | 'target-visible'`
 - [ ] 2.2 Classify existing event types: - `GameCreated`, `PhaseChanged`, `TurnAdvanced`, `GameEnded`,
       `match_paused`, `match_resumed` → `'public'` - `MovementDeclared` → `'actor-only'` (pre-commit) - `MovementLocked`, `FacingChanged` → `'observer-visible'` - `AttackDeclared` → `'actor-only'` - `AttackResolved`, `DamageApplied` → split:
       `'target-visible'` (target always knows they got hit) plus
@@ -25,7 +25,7 @@
 ## 3. Server-Side Filter
 
 - [ ] 3.1 Add `fogOfWar.ts` with `filterEventForPlayer(event,
-    playerId, state): IGameEvent | null`
+playerId, state): IGameEvent | null`
 - [ ] 3.2 Returns `null` if the event must not be sent to this player
 - [ ] 3.3 Returns a potentially redacted copy if partial visibility
       applies (e.g., target knows a hit was taken but not the shooter

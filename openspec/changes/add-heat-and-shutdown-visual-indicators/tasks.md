@@ -97,4 +97,4 @@
 - [ ] 11.2 Every requirement in `heat-overflow-effects` delta has a
       scenario
 - [ ] 11.3 `openspec validate add-heat-and-shutdown-visual-indicators
-    --strict` passes clean
+--strict` passes clean

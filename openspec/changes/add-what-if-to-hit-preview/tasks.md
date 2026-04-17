@@ -3,8 +3,8 @@
 ## 1. Attack Preview Shape
 
 - [ ] 1.1 Define `IAttackPreview` with `{hitProbability,
-    expectedDamage, damageStddev, critProbability, clusterHitsMean,
-    clusterHitsStddev}` (all numbers in `[0, +∞)`, probabilities in
+expectedDamage, damageStddev, critProbability, clusterHitsMean,
+clusterHitsStddev}` (all numbers in `[0, +∞)`, probabilities in
       `[0, 1]`)
 - [ ] 1.2 Document that all fields are purely informational — no dice
       rolls are performed to produce them
@@ -24,13 +24,13 @@
 - [ ] 3.1 Create `expectedDamage(weapon, hitProbability)` in the
       damage system
 - [ ] 3.2 For single-shot weapons: `expectedDamage = hitProbability *
-    weapon.damage`
+weapon.damage`
 - [ ] 3.3 For cluster weapons: `expectedDamage = hitProbability *
-    expectedClusterHits * damagePerCluster`, where
+expectedClusterHits * damagePerCluster`, where
       `expectedClusterHits` integrates the cluster hit table over all
       2d6 outcomes weighted by their 2d6 probability
 - [ ] 3.4 For Streak weapons: `expectedDamage = hitProbability *
-    rackSize * damagePerMissile` (Streak fires all-or-nothing)
+rackSize * damagePerMissile` (Streak fires all-or-nothing)
 - [ ] 3.5 For one-shot weapons: same as single-shot but capped at the
       one remaining shot
 
@@ -49,7 +49,7 @@
 - [ ] 5.1 Create `critProbability(attack)` returning the probability
       that the attack produces at least one critical hit
 - [ ] 5.2 Decompose into: `P(hit) * P(location with 0 armor) *
-    P(crit on 2d6 location roll)` for through-armor crits
+P(crit on 2d6 location roll)` for through-armor crits
 - [ ] 5.3 For cluster weapons, aggregate across expected cluster hits
 - [ ] 5.4 Simplification: the preview MAY use a closed-form
       approximation rather than full Monte Carlo; document the
@@ -67,7 +67,7 @@
 ## 7. UI Weapon State Projection Extension
 
 - [ ] 7.1 Extend `IUIWeaponState` with optional `preview: IAttackPreview
-    | null`
+| null`
 - [ ] 7.2 When `useGameplayStore.previewEnabled === false`, projection
       SHALL set `preview = null`
 - [ ] 7.3 When enabled, projection SHALL call `previewAttackOutcome`

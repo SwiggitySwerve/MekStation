@@ -3,7 +3,7 @@
 ## 1. Attack Phase State
 
 - [ ] 1.1 Extend `useGameplayStore` with `attackPlan: {attackerId,
-    targetId, selectedWeapons: Set<weaponId>}`
+targetId, selectedWeapons: Set<weaponId>}`
 - [ ] 1.2 Clear `attackPlan` on phase change away from Weapon Attack
 - [ ] 1.3 Selector `getAttackPlan(attackerId)` returns current plan
 

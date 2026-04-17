@@ -3,12 +3,12 @@
 ## 1. Lobby State Contract
 
 - [ ] 1.1 Define `ILobbyState` with `{mode: '1v1', hostPeerId,
-    guestPeerId, hostLoadout, guestLoadout, mapConfig, hostReady,
-    guestReady, matchId?}`
+guestPeerId, hostLoadout, guestLoadout, mapConfig, hostReady,
+guestReady, matchId?}`
 - [ ] 1.2 Define `ILoadout` with `{units: ISelectedUnit[],
-    pilots: ISelectedPilot[]}` for a single side
+pilots: ISelectedPilot[]}` for a single side
 - [ ] 1.3 Define `IMapConfig` with `{radius: number, terrainPreset:
-    string, turnLimit: number}`
+string, turnLimit: number}`
 - [ ] 1.4 Schema validation (zod) for incoming lobby updates from
       remote peers
 
@@ -100,4 +100,4 @@
 - [ ] 11.2 Every requirement in the `game-session-management` delta has
       at least one GIVEN/WHEN/THEN scenario
 - [ ] 11.3 `openspec validate add-game-session-invite-and-lobby-1v1
-    --strict` passes clean
+--strict` passes clean

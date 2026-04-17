@@ -3,11 +3,11 @@
 ## 1. Data Model
 
 - [ ] 1.1 Define `IPlayerRef` with `{playerId, displayName,
-    avatarUrl?}` — the server's minimum view of a player
+avatarUrl?}` — the server's minimum view of a player
 - [ ] 1.2 Define `IPlayerToken` with `{playerId, issuedAt, expiresAt,
-    publicKey, signature}`
+publicKey, signature}`
 - [ ] 1.3 Define `IPlayerProfile` with `{playerId, publicKey,
-    displayName, createdAt, lastSeenAt, matchHistory: string[]}`
+displayName, createdAt, lastSeenAt, matchHistory: string[]}`
 - [ ] 1.4 `playerId` format: `pid_{base58(firstBytes(publicKey))}`
       derived from the public key so the id and the verification key
       are inherently linked
@@ -15,7 +15,7 @@
 ## 2. Token Issuance (Client Side)
 
 - [ ] 2.1 Extend `user-identity` client API with `issuePlayerToken(ttl
-    = 1 hour): IPlayerToken`
+= 1 hour): IPlayerToken`
 - [ ] 2.2 Token is signed with the vault's Ed25519 private key over a
       canonical `{playerId, issuedAt, expiresAt}` payload
 - [ ] 2.3 Client caches the most recent unexpired token in memory;
@@ -24,7 +24,7 @@
 ## 3. Token Verification (Server Side)
 
 - [ ] 3.1 Add `auth.ts` with `verifyPlayerToken(token): {playerId} |
-    null`
+null`
 - [ ] 3.2 Verification: check `expiresAt > now`, derive `playerId`
       from `publicKey`, verify the Ed25519 signature over the
       canonical payload
@@ -64,7 +64,7 @@
 
 - [ ] 7.1 First time a client connects with a new `playerId`, the
       server calls `getOrCreatePlayer({playerId, publicKey,
-    displayName: ..., avatarUrl: ...})`
+displayName: ..., avatarUrl: ...})`
 - [ ] 7.2 Client provides `displayName` in the token request or
       separately in a profile-setup step
 - [ ] 7.3 Subsequent connections skip creation and use the existing

@@ -4,7 +4,7 @@
 
 - [ ] 1.1 Create `src/utils/effects/weaponEffectMap.ts`
 - [ ] 1.2 Map weapon types to categories: `laser | missile | ballistic
-    | physical`
+| physical`
 - [ ] 1.3 Map subtypes to colors (small/med pulse -> IR tint; med/large
       laser -> green; ER variants -> red-orange; missiles -> yellow
       trail; ballistic -> cyan tracer; physical -> white shockwave)

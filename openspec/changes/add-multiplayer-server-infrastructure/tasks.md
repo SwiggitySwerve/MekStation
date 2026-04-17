@@ -22,8 +22,8 @@
       `updateMatchMeta(matchId, patch): Promise<void>`,
       `closeMatch(matchId): Promise<void>`
 - [ ] 2.2 Define `IMatchMeta` shape: `{matchId, hostPlayerId,
-    playerIds, sideAssignments, status: 'lobby' | 'active' |
-    'completed', createdAt, updatedAt, config}`
+playerIds, sideAssignments, status: 'lobby' | 'active' |
+'completed', createdAt, updatedAt, config}`
 - [ ] 2.3 Store contract MUST be transactional: `appendEvent` is
       all-or-nothing, sequence collisions SHALL reject
 - [ ] 2.4 Store MUST be async; synchronous implementations acceptable
@@ -36,7 +36,7 @@
 - [ ] 3.3 Exposed via a factory so a production store can be swapped in
       without touching call sites
 - [ ] 3.4 Warn prominently on server startup: `"InMemoryMatchStore is
-    dev-only; configure a persistent store for production"`
+dev-only; configure a persistent store for production"`
 
 ## 4. WebSocket Upgrade Endpoint
 
@@ -63,7 +63,7 @@
 ## 6. Client Wrapper
 
 - [ ] 6.1 New `src/lib/multiplayer/client.ts` exporting `connect(url,
-    matchId, auth)` → `IMultiplayerClient`
+matchId, auth)` → `IMultiplayerClient`
 - [ ] 6.2 Client exposes `send(intent)`, `on(event, cb)`, `close()`
 - [ ] 6.3 Client handles replay on connect: accumulates events until a
       `ReplayEnd`, then fires `ready`
@@ -73,7 +73,7 @@
 ## 7. Match Creation REST
 
 - [ ] 7.1 `POST /api/multiplayer/matches` body: `{config, players:
-    IPlayerRef[]}` returns `{matchId, wsUrl}`
+IPlayerRef[]}` returns `{matchId, wsUrl}`
 - [ ] 7.2 `GET /api/multiplayer/matches/:id` returns match meta (for
       the lobby)
 - [ ] 7.3 `DELETE /api/multiplayer/matches/:id` (host-only) closes a
@@ -94,7 +94,7 @@
 ## 9. Error Handling
 
 - [ ] 9.1 Malformed message → server responds `Error {code: 'BAD_
-    ENVELOPE'}` and keeps the connection open
+ENVELOPE'}` and keeps the connection open
 - [ ] 9.2 Invalid intent (e.g., out-of-phase) → server responds
       `Error {code: 'INVALID_INTENT', reason}` without mutating state
 - [ ] 9.3 Store error during append → server closes affected match with
@@ -138,4 +138,4 @@
 - [ ] 13.2 Every requirement in the `api-layer` MODIFIED delta has at
       least one GIVEN/WHEN/THEN scenario
 - [ ] 13.3 `openspec validate add-multiplayer-server-infrastructure
-    --strict` passes clean
+--strict` passes clean

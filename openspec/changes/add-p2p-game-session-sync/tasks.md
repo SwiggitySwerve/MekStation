@@ -56,7 +56,7 @@
 ## 6. Side Ownership
 
 - [ ] 6.1 `IGameSession` gains an optional `sideOwners: Record<GameSide,
-    string>` field mapping side → peerId
+string>` field mapping side → peerId
 - [ ] 6.2 Skirmish setup screen with "Networked 1v1" lets host pick which
       side they control; the other side is auto-assigned to the guest
 - [ ] 6.3 UI disables any control that would modify a unit whose side is

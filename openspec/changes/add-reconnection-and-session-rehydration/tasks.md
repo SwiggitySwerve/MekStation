@@ -3,7 +3,7 @@
 ## 1. Connection Lifecycle Model
 
 - [ ] 1.1 Extend `IMatchSeat` with `connectionStatus: 'connected' |
-    'pending' | 'timed-out' | 'replaced-by-ai'`
+'pending' | 'timed-out' | 'replaced-by-ai'`
 - [ ] 1.2 Transitions: on WebSocket attach → `connected`; on socket
       close → `pending`; on grace timer expiry → `timed-out`;
       post-fallback → `replaced-by-ai`
@@ -17,7 +17,7 @@
       reconnect
 - [ ] 2.3 Host may adjust the grace window via
       `Intent {kind: 'SetGraceWindow', seconds}`, clamped to `[30,
-    600]`; can NOT be adjusted once a timer is already running for
+600]`; can NOT be adjusted once a timer is already running for
       that seat
 
 ## 3. Server-Side Persistence Hooks
@@ -47,17 +47,17 @@
       server does NOT advance phases or process intents from other
       clients
 - [ ] 5.2 Exception: host can override with `Intent {kind: 'ProceedWith
-    outPending'}` — matches the 4b checkpoint's "AI fills empty
+outPending'}` — matches the 4b checkpoint's "AI fills empty
       slots" posture
 - [ ] 5.3 Paused matches broadcast an `Event {type: 'match_paused',
-    payload: {pendingSeats, graceRemaining}}`
+payload: {pendingSeats, graceRemaining}}`
 - [ ] 5.4 Resumed matches broadcast `Event {type: 'match_resumed'}`
 
 ## 6. Grace Timeout Fallback
 
 - [ ] 6.1 When a seat's grace timer expires, server sets
       `connectionStatus: 'timed-out'` and broadcasts a `match_seat_
-    timed_out` event
+timed_out` event
 - [ ] 6.2 Host receives an intent prompt offering three options: - `'forfeit-side'` → ends the match with the opposite side
       winning - `'replace-with-ai'` → marks the seat `replaced-by-ai`, spawns
       a bot, match resumes - `'wait-longer'` → extends the grace timer by another
@@ -81,7 +81,7 @@
       is closed first
 - [ ] 8.2 This supports "laptop → phone while afk" scenarios
 - [ ] 8.3 Close reason sent to old socket: `Close {reason: 'SUPERSEDED
-    _BY_NEW_SESSION'}`
+_BY_NEW_SESSION'}`
 
 ## 9. Client Auto-Reconnect
 
@@ -90,13 +90,13 @@
 - [ ] 9.2 Client persists `lastSeq` in memory so reconnect resumes at
       the right place
 - [ ] 9.3 Client emits `reconnecting` / `reconnected` / `reconnect-
-    failed` lifecycle events the UI can surface
+failed` lifecycle events the UI can surface
 
 ## 10. UI Indicators
 
 - [ ] 10.1 Combat page shows a banner when the match is paused:
       `"Paused: waiting for <PlayerName> to reconnect (NN seconds
-    remaining)"`
+remaining)"`
 - [ ] 10.2 Seat pips in the scoreboard reflect `connectionStatus`
       colors
 - [ ] 10.3 Host sees the grace-timeout prompt as a modal with the
@@ -107,9 +107,9 @@
 - [ ] 11.1 Integration test: player disconnects mid-turn, match
       pauses, player reconnects, match resumes at the same event
 - [ ] 11.2 Integration test: player times out; host selects `'replace-
-    with-ai'`, match resumes with a bot
+with-ai'`, match resumes with a bot
 - [ ] 11.3 Integration test: player times out; host selects `'forfeit-
-    side'`, match ends cleanly
+side'`, match ends cleanly
 - [ ] 11.4 Integration test: server restart with an active match;
       client reconnects and receives the full log replay
 - [ ] 11.5 Integration test: multi-device reconnect closes the old
@@ -124,4 +124,4 @@
 - [ ] 12.3 Every requirement in the `auto-save-persistence` delta has
       at least one GIVEN/WHEN/THEN scenario
 - [ ] 12.4 `openspec validate add-reconnection-and-session-rehydration
-    --strict` passes clean
+--strict` passes clean

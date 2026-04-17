@@ -37,7 +37,7 @@
 ## 4. getPilotDesignation Helper
 
 - [ ] 4.1 Add `getPilotDesignation(pilot: IPilot, spaId: string):
-    ISPADesignation | undefined` to `PilotService`
+ISPADesignation | undefined` to `PilotService`
 - [ ] 4.2 Helper resolves the SPA id through `resolveSPAId()` so
       callers can pass canonical or legacy ids
 - [ ] 4.3 Helper returns `undefined` when the pilot does not own the
@@ -83,7 +83,7 @@
 - [ ] 7.3 Every new requirement has at least one GIVEN/WHEN/THEN
       scenario
 - [ ] 7.4 Run `openspec validate add-spa-designation-persistence
-    --strict` clean
+--strict` clean
 
 ## 8. Tests
 

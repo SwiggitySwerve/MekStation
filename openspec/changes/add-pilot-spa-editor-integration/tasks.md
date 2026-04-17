@@ -28,7 +28,7 @@
 - [ ] 3.2 If the resulting XP would be negative, abort with a toast
       "Insufficient XP" and leave the pilot unchanged
 - [ ] 3.3 If XP is sufficient, call `PilotService.purchaseSPA(id,
-    spaId, designation?)`
+spaId, designation?)`
 - [ ] 3.4 On success, refresh the panel with the updated pilot and
       close the modal
 
@@ -88,7 +88,7 @@
 - [ ] 9.3 Every new requirement has at least one GIVEN/WHEN/THEN
       scenario
 - [ ] 9.4 Run `openspec validate add-pilot-spa-editor-integration
-    --strict` clean
+--strict` clean
 
 ## 10. Tests
 

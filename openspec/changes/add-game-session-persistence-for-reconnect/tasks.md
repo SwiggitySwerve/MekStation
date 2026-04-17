@@ -5,7 +5,7 @@
 - [ ] 1.1 Add `matchLogStorage.ts` in `src/lib/p2p/` wrapping IndexedDB
       with an object store `matchEvents`
 - [ ] 1.2 Record shape: `{matchId: string, sequence: number, event:
-    IGameEvent, savedAt: ISO8601}`; primary key `[matchId, sequence]`
+IGameEvent, savedAt: ISO8601}`; primary key `[matchId, sequence]`
 - [ ] 1.3 Add a `matches` object store for metadata:
       `{matchId, hostPeerId, guestPeerId, status, lastActivity}`
 - [ ] 1.4 Writes SHALL be batched (single txn per animation frame)
@@ -32,9 +32,9 @@
 
 - [ ] 4.1 On page load, if URL has a `matchId`, guest opens the sync
       room and sends `{kind: 'reconnect-request', matchId,
-    lastLocalSeq}`
+lastLocalSeq}`
 - [ ] 4.2 Host responds with `{kind: 'replay-stream', events:
-    IGameEvent[]}` containing all events with `seq > lastLocalSeq`
+IGameEvent[]}` containing all events with `seq > lastLocalSeq`
 - [ ] 4.3 Guest applies the replayed events in order via `appendEvent`
 - [ ] 4.4 If the host is not present within 10 seconds, the guest falls
       back to hydrate-from-local-log and enters a `HostPending` local
@@ -43,7 +43,7 @@
 ## 5. Peer Pending Local Status
 
 - [ ] 5.1 Add `localMatchStatus: 'live' | 'guestPending' | 'hostPending'
-    | 'aborted'` to `useGameplayStore`
+| 'aborted'` to `useGameplayStore`
 - [ ] 5.2 Host sets `guestPending` when the guest's Yjs awareness is
       lost and the match is mid-play
 - [ ] 5.3 Guest sets `hostPending` when the host's Yjs awareness is lost
@@ -56,11 +56,11 @@
 - [ ] 6.1 Grace window defaults to 60 seconds (configurable per match)
 - [ ] 6.2 During the grace window, the host pauses phase advancement
       and shows a banner: `"Waiting for opponent to reconnect
-    (NN seconds remaining)..."`
+(NN seconds remaining)..."`
 - [ ] 6.3 If grace expires: host appends `GameEnded` with `reason:
-    'aborted'`; the session enters `Completed` normally
+'aborted'`; the session enters `Completed` normally
 - [ ] 6.4 If the guest reconnects within the grace window, `localMatch
-    Status` returns to `'live'` and play resumes
+Status` returns to `'live'` and play resumes
 
 ## 7. Host-Side Replay API
 
@@ -82,7 +82,7 @@
 ## 9. Persistence Cleanup
 
 - [ ] 9.1 On `GameEnded`, mark the match metadata as `status:
-    'completed'` but retain the event log for 7 days
+'completed'` but retain the event log for 7 days
 - [ ] 9.2 Add a `purgeOldMatches()` helper that deletes match logs
       older than 7 days on app startup
 - [ ] 9.3 Manual purge via debug console (`window.__mekstationDebug`)
@@ -106,4 +106,4 @@
 - [ ] 11.3 Every requirement in the `game-session-management` delta has
       at least one GIVEN/WHEN/THEN scenario
 - [ ] 11.4 `openspec validate add-game-session-persistence-for-reconnect
-    --strict` passes clean
+--strict` passes clean

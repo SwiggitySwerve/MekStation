@@ -31,7 +31,7 @@
 
 - [ ] 4.1 Extend `EventLogDisplay` renderer to handle `DamageApplied`
 - [ ] 4.2 Entry reads: `"<Target> took <N> damage to <Location> from
-    <Weapon>"`
+<Weapon>"`
 - [ ] 4.3 Entries with transfer chains render each step indented
       (`→ overflow to LT`, `→ structure breach`)
 - [ ] 4.4 Critical hit entries render with a distinct orange accent bar

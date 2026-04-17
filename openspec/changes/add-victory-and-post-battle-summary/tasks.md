@@ -31,10 +31,10 @@
 ## 4. Post-Battle Report Schema
 
 - [ ] 4.1 Define `IPostBattleReport` with `{matchId, winner, reason,
-    turnCount, units: IUnitReport[], mvpUnitId, log: IGameEvent[]}`
+turnCount, units: IUnitReport[], mvpUnitId, log: IGameEvent[]}`
 - [ ] 4.2 Define `IUnitReport` with `{unitId, side, designation,
-    damageDealt, damageReceived, kills, heatProblems,
-    physicalAttacks, xpPending: true}`
+damageDealt, damageReceived, kills, heatProblems,
+physicalAttacks, xpPending: true}`
 - [ ] 4.3 Derive the report from the session's event log
 - [ ] 4.4 Unit tests for report derivation on known event streams
 
@@ -99,4 +99,4 @@
 - [ ] 11.3 Every requirement in `combat-resolution` delta has at least
       one scenario
 - [ ] 11.4 `openspec validate add-victory-and-post-battle-summary
-    --strict` passes clean
+--strict` passes clean

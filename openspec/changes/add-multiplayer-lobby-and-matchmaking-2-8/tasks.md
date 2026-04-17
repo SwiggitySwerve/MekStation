@@ -13,8 +13,8 @@
 ## 2. Seat Slot Data Model
 
 - [ ] 2.1 Define `IMatchSeat` with `{slotId, side, seatNumber,
-    occupant: IPlayerRef | null, kind: 'human' | 'ai', ready: boolean,
-    aiProfile?: string}`
+occupant: IPlayerRef | null, kind: 'human' | 'ai', ready: boolean,
+aiProfile?: string}`
 - [ ] 2.2 Seats live on `IMatchMeta` under `seats: IMatchSeat[]`
 - [ ] 2.3 Seat `slotId` format: `{side}-{seatNumber}` e.g. `alpha-1`,
       `bravo-2`
@@ -22,7 +22,7 @@
 ## 3. Match Creation Expansion
 
 - [ ] 3.1 `POST /api/multiplayer/matches` accepts `{config,
-    layout: TeamLayout, aiSlots?: string[]}`
+layout: TeamLayout, aiSlots?: string[]}`
 - [ ] 3.2 Server generates `matchId`, invite `roomCode` (6-char,
       reusing `roomCodes.ts`), and initializes seats
 - [ ] 3.3 If `aiSlots` is provided at creation, those slots are pre-
@@ -34,7 +34,7 @@
 - [ ] 4.1 Match meta stores both `matchId` (internal) and `roomCode`
       (shareable)
 - [ ] 4.2 `GET /api/multiplayer/invites/:roomCode` returns `{matchId,
-    status}` so a joiner can resolve code → match
+status}` so a joiner can resolve code → match
 - [ ] 4.3 Joining: client hits the resolve endpoint, then connects to
       the WebSocket with the resolved match id
 - [ ] 4.4 Invite codes expire when the match enters `status: 'active'`
@@ -121,4 +121,4 @@
 - [ ] 12.2 Every requirement in the `multiplayer-sync` MODIFIED delta
       has at least one GIVEN/WHEN/THEN scenario
 - [ ] 12.3 `openspec validate add-multiplayer-lobby-and-matchmaking-2-8
-    --strict` passes clean
+--strict` passes clean

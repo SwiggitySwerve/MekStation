@@ -14,7 +14,7 @@
 - [ ] 2.1 Horizontal stacked bar with three segments (player / opponent
       / draw)
 - [ ] 2.2 Segment widths proportional to `winProbability.player /
-    opponent / draw`
+opponent / draw`
 - [ ] 2.3 Color scheme: player = theme primary, opponent = theme
       danger, draw = neutral gray
 - [ ] 2.4 Show percentage inline on each segment if its width exceeds
@@ -109,7 +109,7 @@
       `IBatchResult` fixture renders expected percentages
 - [ ] 12.2 Unit test: Empty-state renders when `totalRuns === 0`
 - [ ] 12.3 Unit test: Headline shows "Draw" when `mostLikelyOutcome ===
-    "draw"`
+"draw"`
 - [ ] 12.4 Integration test: Cancel button during a batch triggers the
       abort signal and renders the partial banner
 - [ ] 12.5 Visual snapshot test for the full panel + summary variant

@@ -10,7 +10,7 @@
       `recoveryPercentage`, `location` (for part), `damageLevel`
 - [ ] 1.4 Define `ISalvageAllocation` with `pool`, `employerAward`,
       `mercenaryAward`, `splitMethod` (`"contract" | "auction" |
-    "hostile_withdrawal"`)
+"hostile_withdrawal"`)
 - [ ] 1.5 Define `ISalvageAward` with `candidates: ISalvageCandidate[]`,
       `totalValue`, `estimatedRepairCost`
 - [ ] 1.6 Define `DamageLevel` enum: `INTACT`, `LIGHT`, `MODERATE`,

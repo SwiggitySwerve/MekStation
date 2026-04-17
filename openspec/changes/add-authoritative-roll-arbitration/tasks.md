@@ -12,7 +12,7 @@
 ## 2. Event-Recording Wrapper
 
 - [ ] 2.1 Add `recordingDiceRoller(inner: DiceRoller): {roller,
-    collected}` where `collected` accumulates every roll result
+collected}` where `collected` accumulates every roll result
 - [ ] 2.2 Before each phase resolver runs, a fresh recorder is created
 - [ ] 2.3 After resolution, the recorded rolls are attached to the
       emitted event's `payload.rolls`
@@ -35,7 +35,7 @@
 
 - [ ] 4.1 Any intent payload that contains a `rolls` field is rejected
       with `Error {code: 'INVALID_INTENT', reason: 'client-rolls-
-    forbidden'}`
+forbidden'}`
 - [ ] 4.2 Intents carry only declarations (targets, directions,
       choices) — never outcomes
 - [ ] 4.3 Zod schemas enforce the absence of result fields
@@ -101,4 +101,4 @@
 - [ ] 10.3 Every requirement in the `dice-system` delta has at least
       one GIVEN/WHEN/THEN scenario
 - [ ] 10.4 `openspec validate add-authoritative-roll-arbitration
-    --strict` passes clean
+--strict` passes clean

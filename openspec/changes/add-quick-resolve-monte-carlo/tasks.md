@@ -3,12 +3,12 @@
 ## 1. Batch Outcome Schema
 
 - [ ] 1.1 Define `IBatchOutcome` capturing `{runIndex, seed, report:
-    IPostBattleReport, durationMs}`
+IPostBattleReport, durationMs}`
 - [ ] 1.2 Define `IBatchResult` with `{totalRuns, winProbability:
-    {player, opponent, draw}, turnCount: {mean, median, p25, p75, p90,
-    min, max}, heatShutdownFrequency: {player, opponent},
-    mechDestroyedFrequency: {player, opponent}, perUnitSurvival:
-    Record<unitId, number>, mostLikelyOutcome}`
+{player, opponent, draw}, turnCount: {mean, median, p25, p75, p90,
+min, max}, heatShutdownFrequency: {player, opponent},
+mechDestroyedFrequency: {player, opponent}, perUnitSurvival:
+Record<unitId, number>, mostLikelyOutcome}`
 - [ ] 1.3 Add both shapes to `after-combat-report` spec's type exports
 
 ## 2. Batch Runner
@@ -101,7 +101,7 @@
 - [ ] 9.2 Unit test: `aggregateBatchOutcomes` with all-draws returns
       `mostLikelyOutcome = "draw"`
 - [ ] 9.3 Determinism test: `runBatch(config, { runs: 10, baseSeed: 42
-    })` called twice produces deeply equal `IBatchResult`
+})` called twice produces deeply equal `IBatchResult`
 - [ ] 9.4 Integration test: running a small batch (10 runs) on the
       Phase 1 default encounter completes without throwing
 - [ ] 9.5 Integration test: engine error in run 3 produces an error

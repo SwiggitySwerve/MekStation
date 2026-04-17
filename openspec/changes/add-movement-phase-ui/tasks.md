@@ -3,7 +3,7 @@
 ## 1. Movement Planning State
 
 - [ ] 1.1 Extend `useGameplayStore` with `plannedMovement: {unitId,
-    destination, path, mpType, facing} | null`
+destination, path, mpType, facing} | null`
 - [ ] 1.2 Add selector `getPlannedMovement(unitId)` returning the plan or
       `null`
 - [ ] 1.3 Clearing plan on phase change or deselect
@@ -15,7 +15,7 @@
 - [ ] 2.2 Memoize per selected unit; invalidate on unit facing or
       destination change
 - [ ] 2.3 Expose as `IReachableHex[]` with `{hex, mpCost, mpType,
-    reachable}`
+reachable}`
 
 ## 3. Reachable Overlay Rendering
 
