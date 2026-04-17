@@ -827,6 +827,191 @@ describe('SyncEngine', () => {
   });
 
   // ===========================================================================
+  // setItemNameFn / createConflict naming
+  // ===========================================================================
+
+  describe('setItemNameFn', () => {
+    it('names conflict records using the registered resolver', async () => {
+      mockRecordConflict.mockResolvedValue('conflict-1');
+      mockGetLatestForItem.mockResolvedValue(
+        createMockChangeLogEntry({
+          itemId: 'unit-atlas-1',
+          version: 1,
+          contentHash: 'hashA',
+          synced: false,
+        }),
+      );
+      const itemNameFn = jest
+        .fn()
+        .mockResolvedValue('Atlas AS7-D — Hero Variant');
+      syncEngine.setItemNameFn(itemNameFn);
+
+      const remote = createMockChangeLogEntry({
+        itemId: 'unit-atlas-1',
+        version: 2,
+        contentHash: 'hashB',
+      });
+      await syncEngine.applyRemoteChanges('peer-1', [remote]);
+
+      expect(itemNameFn).toHaveBeenCalledWith('unit-atlas-1', 'unit');
+      expect(mockRecordConflict).toHaveBeenCalledWith(
+        expect.objectContaining({
+          itemName: 'Atlas AS7-D — Hero Variant',
+        }),
+      );
+    });
+
+    it('falls back to the item id when no resolver is registered', async () => {
+      mockRecordConflict.mockResolvedValue('conflict-1');
+      mockGetLatestForItem.mockResolvedValue(
+        createMockChangeLogEntry({
+          itemId: 'unit-atlas-1',
+          version: 1,
+          contentHash: 'hashA',
+          synced: false,
+        }),
+      );
+
+      const remote = createMockChangeLogEntry({
+        itemId: 'unit-atlas-1',
+        version: 2,
+        contentHash: 'hashB',
+      });
+      await syncEngine.applyRemoteChanges('peer-1', [remote]);
+
+      expect(mockRecordConflict).toHaveBeenCalledWith(
+        expect.objectContaining({ itemName: 'unit-atlas-1' }),
+      );
+    });
+  });
+
+  // ===========================================================================
+  // setContentApplyFn — applyChange + acceptRemote + fork integration
+  // ===========================================================================
+
+  describe('setContentApplyFn', () => {
+    it('invokes the apply callback for non-conflicting remote changes', async () => {
+      mockGetLatestForItem.mockResolvedValue(null);
+      mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
+      const applyFn = jest.fn().mockResolvedValue(undefined);
+      syncEngine.setContentApplyFn(applyFn);
+
+      const remote = createMockChangeLogEntry({
+        itemId: 'unit-atlas-1',
+        data: '{"name":"Atlas AS7-D"}',
+      });
+      await syncEngine.applyRemoteChanges('peer-1', [remote]);
+
+      expect(applyFn).toHaveBeenCalledWith(
+        'unit-atlas-1',
+        'unit',
+        '{"name":"Atlas AS7-D"}',
+      );
+    });
+
+    it('skips the apply callback when the remote change has no data', async () => {
+      mockGetLatestForItem.mockResolvedValue(null);
+      mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
+      const applyFn = jest.fn();
+      syncEngine.setContentApplyFn(applyFn);
+
+      const remote = createMockChangeLogEntry({ data: null });
+      await syncEngine.applyRemoteChanges('peer-1', [remote]);
+
+      expect(applyFn).not.toHaveBeenCalled();
+    });
+
+    it('resolveAcceptRemote applies remote data via the callback', async () => {
+      mockResolveConflict.mockResolvedValue(true);
+      mockGetPendingConflicts.mockResolvedValue([
+        {
+          id: 'conflict-1',
+          contentType: 'unit' as ShareableContentType,
+          itemId: 'unit-atlas-1',
+          itemName: 'Atlas',
+          localVersion: 1,
+          localHash: 'a',
+          remoteVersion: 2,
+          remoteHash: 'b',
+          remotePeerId: 'peer-1',
+          detectedAt: '2024-01-15T10:00:00.000Z',
+        },
+      ]);
+      const applyFn = jest.fn().mockResolvedValue(undefined);
+      syncEngine.setContentApplyFn(applyFn);
+
+      const ok = await syncEngine.resolveAcceptRemote(
+        'conflict-1',
+        '{"remote":"payload"}',
+      );
+
+      expect(ok).toBe(true);
+      expect(applyFn).toHaveBeenCalledWith(
+        'unit-atlas-1',
+        'unit',
+        '{"remote":"payload"}',
+      );
+    });
+
+    it('resolveAcceptRemote skips apply when no remote data is supplied', async () => {
+      mockResolveConflict.mockResolvedValue(true);
+      const applyFn = jest.fn();
+      syncEngine.setContentApplyFn(applyFn);
+
+      await syncEngine.resolveAcceptRemote('conflict-1');
+
+      expect(applyFn).not.toHaveBeenCalled();
+    });
+
+    it('resolveFork creates a forked item via the callback and returns its id', async () => {
+      mockResolveConflict.mockResolvedValue(true);
+      mockGetPendingConflicts.mockResolvedValue([
+        {
+          id: 'conflict-1',
+          contentType: 'unit' as ShareableContentType,
+          itemId: 'unit-atlas-1',
+          itemName: 'Atlas',
+          localVersion: 1,
+          localHash: 'a',
+          remoteVersion: 2,
+          remoteHash: 'b',
+          remotePeerId: 'peer-1',
+          detectedAt: '2024-01-15T10:00:00.000Z',
+        },
+      ]);
+      mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
+      const applyFn = jest.fn().mockResolvedValue(undefined);
+      syncEngine.setContentApplyFn(applyFn);
+
+      const result = await syncEngine.resolveFork(
+        'conflict-1',
+        '{"remote":"payload"}',
+      );
+
+      expect(typeof result).toBe('object');
+      if (typeof result === 'object') {
+        expect(result.forkedItemId).toMatch(/^unit-atlas-1-fork-\d+$/);
+        expect(applyFn).toHaveBeenCalledWith(
+          result.forkedItemId,
+          'unit',
+          '{"remote":"payload"}',
+        );
+      }
+    });
+
+    it('resolveFork marks resolved without forking when no data is supplied', async () => {
+      mockResolveConflict.mockResolvedValue(true);
+      const applyFn = jest.fn();
+      syncEngine.setContentApplyFn(applyFn);
+
+      const result = await syncEngine.resolveFork('conflict-1');
+
+      expect(result).toBe(true);
+      expect(applyFn).not.toHaveBeenCalled();
+    });
+  });
+
+  // ===========================================================================
   // getSyncState
   // ===========================================================================
 
