@@ -14,6 +14,7 @@ import {
   BattlefieldCard,
   BVComparison,
   ForceCard,
+  MapConfigEditor,
   ModeSelection,
   ScenarioTemplateCard,
 } from '@/components/gameplay/pages/PreBattlePage.sections';
@@ -67,6 +68,7 @@ export default function PreBattlePage(): React.ReactElement {
   const {
     getEncounter,
     loadEncounters,
+    updateEncounter,
     isLoading: encountersLoading,
   } = useEncounterStore();
   const { forces, loadForces } = useForceStore();
@@ -347,6 +349,16 @@ export default function PreBattlePage(): React.ReactElement {
         </div>
 
         <BattlefieldCard mapConfig={encounter.mapConfig} />
+
+        <MapConfigEditor
+          mapConfig={encounter.mapConfig}
+          disabled={isResolving}
+          onChange={(next) => {
+            void updateEncounter(encounter.id, {
+              mapConfig: { ...encounter.mapConfig, ...next },
+            });
+          }}
+        />
 
         <div className="mb-6">
           <ModeSelection

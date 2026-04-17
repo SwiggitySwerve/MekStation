@@ -7,6 +7,26 @@ import type {
 } from '@/types/gameplay';
 
 import { HEX_COLORS } from '@/constants/hexMap';
+import { MovementType } from '@/types/gameplay';
+
+/**
+ * Per `add-movement-phase-ui` task 3.2-3.4: pick the per-type tile
+ * color (green = walk, yellow = run, blue = jump). Falls back to the
+ * uniform `movementRange` color for legacy callers that don't set a
+ * type or use Stationary.
+ */
+function colorForMovementType(type: MovementType): string {
+  switch (type) {
+    case MovementType.Walk:
+      return HEX_COLORS.movementRangeWalk;
+    case MovementType.Run:
+      return HEX_COLORS.movementRangeRun;
+    case MovementType.Jump:
+      return HEX_COLORS.movementRangeJump;
+    default:
+      return HEX_COLORS.movementRange;
+  }
+}
 
 import {
   hexToPixel,
@@ -62,7 +82,7 @@ export const HexCell = React.memo(function HexCell({
     overlayOpacity = 0.6;
   } else if (movementInfo) {
     overlayFill = movementInfo.reachable
-      ? HEX_COLORS.movementRange
+      ? colorForMovementType(movementInfo.movementType)
       : HEX_COLORS.movementRangeUnreachable;
     overlayOpacity = 0.5;
   } else if (isInAttackRange) {

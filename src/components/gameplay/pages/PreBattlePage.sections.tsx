@@ -6,6 +6,7 @@ import type {
 import type { IForce } from '@/types/force';
 
 import { Badge, Card } from '@/components/ui';
+import { TerrainPreset } from '@/types/encounter';
 
 interface ForceCardProps {
   title: string;
@@ -166,6 +167,93 @@ export function BattlefieldCard({
               {mapConfig.playerDeploymentZone} vs{' '}
               {mapConfig.opponentDeploymentZone}
             </p>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/**
+ * Per `add-skirmish-setup-ui` tasks 4 + 5: interactive editor for the
+ * battlefield's hex radius and terrain preset. Surfaces the existing
+ * encounter `mapConfig` as a controlled form and emits changes via
+ * `onChange` so the parent can persist via `useEncounterStore.updateEncounter`.
+ *
+ * Discrete radius options are 5 / 8 / 12 / 17 (canonical sizes per the
+ * roadmap; default 8 = 17×17 hex grid). Terrain presets are loaded
+ * from the `TerrainPreset` enum so adding a new preset there
+ * automatically surfaces here.
+ */
+interface MapConfigEditorProps {
+  mapConfig: IMapConfiguration;
+  onChange: (next: Partial<IMapConfiguration>) => void;
+  disabled?: boolean;
+}
+
+export const MAP_RADIUS_OPTIONS = [5, 8, 12, 17] as const;
+
+export function MapConfigEditor({
+  mapConfig,
+  onChange,
+  disabled = false,
+}: MapConfigEditorProps): React.ReactElement {
+  const hexCount = (radius: number) => 1 + 3 * radius * (radius + 1);
+
+  return (
+    <Card className="mb-6" data-testid="map-config-editor">
+      <div className="p-4">
+        <h3 className="text-text-theme-secondary mb-3 text-sm font-medium">
+          Battlefield Configuration
+        </h3>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label
+              htmlFor="map-radius-select"
+              className="text-text-theme-muted mb-1 block text-xs"
+            >
+              Hex Radius
+            </label>
+            <select
+              id="map-radius-select"
+              data-testid="map-radius-select"
+              className="bg-surface-theme text-text-theme-primary border-border-theme w-full rounded border px-2 py-1 text-sm"
+              value={mapConfig.radius}
+              disabled={disabled}
+              onChange={(e) => onChange({ radius: Number(e.target.value) })}
+            >
+              {MAP_RADIUS_OPTIONS.map((r) => (
+                <option key={r} value={r}>
+                  {r} ({hexCount(r)} hexes)
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label
+              htmlFor="terrain-preset-select"
+              className="text-text-theme-muted mb-1 block text-xs"
+            >
+              Terrain Preset
+            </label>
+            <select
+              id="terrain-preset-select"
+              data-testid="terrain-preset-select"
+              className="bg-surface-theme text-text-theme-primary border-border-theme w-full rounded border px-2 py-1 text-sm"
+              value={mapConfig.terrain}
+              disabled={disabled}
+              onChange={(e) =>
+                onChange({ terrain: e.target.value as TerrainPreset })
+              }
+            >
+              {Object.values(TerrainPreset).map((preset) => (
+                <option key={preset} value={preset}>
+                  {preset
+                    .replace('_', ' ')
+                    .replace(/\b\w/g, (c) => c.toUpperCase())}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

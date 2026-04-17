@@ -43,8 +43,16 @@ export const HEX_COLORS: Record<string, string> = {
   hexHover: '#e2e8f0',
   /** Selected hex */
   hexSelected: '#bfdbfe',
-  /** Reachable movement range */
+  /** Reachable movement range (legacy uniform color; per
+   *  add-movement-phase-ui task 3.2-3.4 use the per-type colors below
+   *  when movement type is known). */
   movementRange: '#86efac',
+  /** Walk-range tile (green per spec) */
+  movementRangeWalk: '#bbf7d0',
+  /** Run-range tile (yellow per spec) */
+  movementRangeRun: '#fef08a',
+  /** Jump-range tile (blue per spec) */
+  movementRangeJump: '#bfdbfe',
   /** Unreachable/blocked movement */
   movementRangeUnreachable: '#fca5a5',
   /** Attack range highlight */
