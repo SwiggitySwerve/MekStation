@@ -14,7 +14,16 @@ The `pilotingSkillRolls.ts` and `fallMechanics.ts` modules are fully implemented
 - Apply pilot damage (1 per fall) and queue a consciousness check
 - Mark the unit prone; standing up in a subsequent turn costs walking MP and requires its own PSR
 - Emit `PsrTriggered`, `PsrResolved`, `UnitFell`, `UnitStood`, `PilotHit` events
-- Clear the queue at end of phase if any entry resolves to failure (remaining PSRs this phase are cancelled — the unit is already down)
+- Clear the queue for a given unit if any entry resolves to failure and causes the unit to fall (remaining same-unit PSRs this phase are cancelled — the unit is already down)
+
+## Rule Sources
+
+- PSR trigger list and resolution order: **Total Warfare p.51–52** (Piloting Skill Rolls) and **Total Warfare p.127–129** (damage-triggered falls)
+- Fall damage formula `ceil(weight / 10) × (fallHeight + 1)` in 5-point clusters: **Total Warfare p.68** (Falling)
+- Fall-direction hit-location table (front/left/back/right): **Total Warfare p.69** table
+- Queue-clear-on-fall behavior: **Total Warfare p.52** — a unit that falls cannot take further PSRs caused by the same cause this phase. Multiple concurrent triggers on a still-standing unit resolve in order. Implementers: if two separate damage triggers both enqueue PSRs and the first fails (unit falls), remaining queued PSRs for that unit this phase SHALL be dropped. Other units' queues are unaffected.
+- Gyro-hit cumulative +3 modifier: **Total Warfare p.181** (Gyro critical hits)
+- Hip-actuator-crit PSR per hex moved: **Total Warfare p.178** (Hip critical)
 
 ## Dependencies
 

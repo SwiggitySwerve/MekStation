@@ -17,7 +17,11 @@ UIs in later changes all plug into this surface.
 - Bind token selection on `HexMapDisplay` to `useGameplayStore`'s selected
   unit id, and route that id into the right-side action panel
 - Action panel (new) renders the selected unit's armor diagram, heat bar,
-  weapons list, SPA list, and pilot wound indicator
+  weapons list, SPA list, and pilot wound indicator — this panel **is**
+  the Phase 1 record-sheet surface (roadmap task #10). Selecting a unit
+  shows its full record-sheet content; no separate hover/modal overlay
+  is required for Phase 1. A richer pop-out record sheet may land in a
+  later phase if needed.
 - Add a top-of-screen phase tracker that shows the current phase, turn
   number, and active side
 - Add a bottom-of-screen event log that streams `GameEvent` entries from

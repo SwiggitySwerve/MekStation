@@ -1,5 +1,12 @@
 # Tasks: Implement Physical Attack Phase
 
+## 0. Prerequisites
+
+- [ ] 0.1 `fix-combat-rule-accuracy` merged (correct piloting, consciousness, and TMM math)
+- [ ] 0.2 `integrate-damage-pipeline` merged (physical damage uses the same `resolveDamage` path as weapon hits)
+- [ ] 0.3 `wire-firing-arc-resolution` merged (physical attacks read arc for hit-location table — this is especially important for kick resolution)
+- [ ] 0.4 `wire-piloting-skill-rolls` merged (PSR triggers for hit/miss cascade into the queue this phase enqueues to)
+
 ## 1. Phase Skeleton
 
 - [ ] 1.1 Replace the empty `GamePhase.PhysicalAttack` body in `GameEngine.phases.ts` with a full resolution function
@@ -90,17 +97,44 @@
 - [ ] 10.2 Kick table (1d6): 1=RL, 2=RL, 3=LL, 4=LL, 5=RL, 6=LL (legs only per TechManual)
 - [ ] 10.3 Tables in `hitLocation.ts` with seeded RNG
 
-## 11. Bot Integration (minimal)
+## 11. Bot Integration (phase driver + minimal behavior)
 
-- [ ] 11.1 Bot SHOULD declare a kick when adjacent to a prone or lower-BV target
-- [ ] 11.2 Bot SHOULD NOT DFA or charge without heuristic justification (Lane C scope)
-- [ ] 11.3 Minimum: bot never crashes in the physical phase
+- [ ] 11.1 Add `BotPlayer.playPhysicalAttackPhase(unit, enemies, state)`
+      that returns either a `IPhysicalAttackDeclaration` or `null`
+      (skip) per bot-controlled unit. This mirrors the existing
+      `playMovementPhase` / `playAttackPhase` contract in
+      [src/engine/InteractiveSession.ts:255,290](src/engine/InteractiveSession.ts)
+- [ ] 11.2 In `GameEngine.phases.ts`'s new Physical phase body, iterate
+      bot-controlled units and append each returned declaration as a
+      `PhysicalAttackDeclared` event before entering the resolution
+      step. Without this, AI units never punch/kick during an
+      `InteractiveSession` hot-seat or human-vs-AI match — the
+      original Phase 1 roadmap gap
+- [ ] 11.3 Bot decision logic (minimum viable): - declare a kick when adjacent to a prone or lower-BV target
+      with legs still eligible per restrictions - declare a punch when adjacent and arms eligible and no
+      friendlier option - SHALL NOT DFA or charge in this change (deferred to Lane C
+      retreat/aggression spec) - SHALL use injected `SeededRandom` for any tie-breaking
+- [ ] 11.4 Bot SHALL NOT crash the phase on empty-eligibility edge
+      cases (no adjacent enemies, all limbs destroyed, etc.) — return
+      `null` and advance cleanly
+- [ ] 11.5 Unit test: two bot mechs adjacent to human mechs declare
+      punches; phase resolves; damage applied; PSRs queued
+- [ ] 11.6 Replay test: identical seed + identical board produces
+      identical bot physical declarations
 
-## 12. Validation
+## 12. Per-Change Smoke Test
 
-- [ ] 12.1 `openspec validate implement-physical-attack-phase --strict`
-- [ ] 12.2 End-to-end test: punch from adjacent → hit → damage applied → target PSR queued
-- [ ] 12.3 Kick miss test: attacker queues PSR; resolution next step may cause attacker fall
-- [ ] 12.4 DFA hit test: attacker takes leg damage, target takes ×3 damage, both take PSR
-- [ ] 12.5 Restriction test: arm that fired weapon cannot punch (rejected)
-- [ ] 12.6 Build + lint clean
+- [ ] 12.1 Fixture: 2 mechs adjacent, attacker intact, target at full armor, in Physical Attack phase
+- [ ] 12.2 Action: attacker declares a Punch (Right Arm) via `PhysicalAttackDeclared`
+- [ ] 12.3 Assert event stream in order: `PhysicalAttackDeclared { attackerId, targetId, attackType: 'Punch', limb: 'RightArm' }` → `PhysicalAttackResolved` (hit or miss) → on hit: `DamageApplied` → `PSRTriggered { triggerId: 'PhysicalAttackTarget' }`
+- [ ] 12.4 Restriction fixture: attacker's right arm fired an LRM this turn. Declaring Punch (Right Arm) SHALL emit `AttackInvalid { reason: 'WeaponFiredThisTurn' }` and NOT emit `PhysicalAttackResolved`
+- [ ] 12.5 Replay: same seed reproduces identical declare/resolve outcome
+
+## 13. Validation
+
+- [ ] 13.1 `openspec validate implement-physical-attack-phase --strict`
+- [ ] 13.2 End-to-end test: punch from adjacent → hit → damage applied → target PSR queued
+- [ ] 13.3 Kick miss test: attacker queues PSR; resolution next step may cause attacker fall
+- [ ] 13.4 DFA hit test: attacker takes leg damage, target takes ×3 damage, both take PSR
+- [ ] 13.5 Restriction test: arm that fired weapon cannot punch (rejected)
+- [ ] 13.6 Build + lint clean
