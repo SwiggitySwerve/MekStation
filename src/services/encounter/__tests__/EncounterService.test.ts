@@ -19,7 +19,7 @@ import {
   PilotSkillTemplate,
   SCENARIO_TEMPLATES,
 } from '@/types/encounter';
-import { IForce, ForceType, ForceStatus } from '@/types/force';
+import { IForce, ForceType, ForcePosition, ForceStatus } from '@/types/force';
 
 import { IEncounterOperationResult } from '../EncounterRepository';
 
@@ -47,6 +47,16 @@ jest.mock('../../forces/ForceRepository', () => ({
   getForceRepository: () => ({
     getForceById: (id: string) => mockForces.get(id) ?? null,
     getAllForces: () => Array.from(mockForces.values()),
+  }),
+}));
+
+// =============================================================================
+// Mock Pilot Service — launchEncounter resolves pilots through PilotService
+// =============================================================================
+
+jest.mock('../../pilots/PilotService', () => ({
+  getPilotService: () => ({
+    getPilot: () => null,
   }),
 }));
 
@@ -221,13 +231,20 @@ function createMockForce(
   totalBV: number = 5000,
   assignedUnits: number = 4,
 ): IForce {
+  const assignments = Array.from({ length: assignedUnits }, (_, i) => ({
+    id: `${id}-assign-${i + 1}`,
+    pilotId: `${id}-pilot-${i + 1}`,
+    unitId: `${id}-unit-${i + 1}`,
+    position: ForcePosition.Member,
+    slot: i + 1,
+  }));
   const force: IForce = {
     id,
     name,
     forceType: ForceType.Lance,
     status: ForceStatus.Active,
     childIds: [],
-    assignments: [],
+    assignments,
     stats: {
       totalBV,
       totalTonnage: 200,
