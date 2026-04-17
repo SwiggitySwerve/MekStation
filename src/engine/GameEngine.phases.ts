@@ -13,7 +13,6 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import {
   rollInitiative,
   advancePhase,
@@ -114,14 +113,7 @@ export function runAttackPhase(
         unitId,
       );
 
-      const targetUnit =
-        updatedSession.currentState.units[atkEvt.payload.targetId];
-      const firingArc = calculateFiringArc(
-        unit.position,
-        targetUnit.position,
-        targetUnit.facing,
-      );
-
+      // Arc is computed inside resolveAttack at resolve time.
       updatedSession = declareAttack(
         updatedSession,
         unitId,
@@ -129,7 +121,6 @@ export function runAttackPhase(
         weaponAttacks,
         3,
         RangeBracket.Short,
-        firingArc,
       );
     }
     updatedSession = lockAttack(updatedSession, unitId);

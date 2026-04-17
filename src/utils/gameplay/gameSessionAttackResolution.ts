@@ -57,6 +57,28 @@ export function resolveAttack(
 
   let currentSession = session;
 
+  // Edge case: attacker and target share a hex. `firingArcs.determineArc`
+  // returns Front for same-hex by convention, but per
+  // `wire-firing-arc-resolution` task 5.1 this attack should be invalidated
+  // — a mech cannot fire at another mech occupying its own hex. Log +
+  // skip every weapon in this declaration (not per-weapon; the whole
+  // attack is geometrically undefined).
+  // TODO(wire-ammo-consumption): emit AttackInvalid { reason: 'SameHex' }
+  // once that change adds the AttackInvalid event type.
+  const attackerPos = session.currentState.units[attackerId]?.position;
+  const targetPos = session.currentState.units[targetId]?.position;
+  if (
+    attackerPos &&
+    targetPos &&
+    attackerPos.q === targetPos.q &&
+    attackerPos.r === targetPos.r
+  ) {
+    logger.warn(
+      `[resolveAttack] Attacker "${attackerId}" and target "${targetId}" occupy the same hex — attack invalidated (SameHex). No AttackResolved events emitted.`,
+    );
+    return currentSession;
+  }
+
   for (const weaponId of weapons) {
     const weaponData = weaponDataMap.get(weaponId);
     if (!weaponData) {
@@ -102,14 +124,19 @@ export function resolveAttack(
     const sequence = currentSession.events.length;
     const { turn } = currentSession.currentState;
 
+    // Compute firing arc once per weapon — used for hit-location table on
+    // hit, and surfaced on `AttackResolved.attackerArc` on both hit and
+    // miss so UI / replay consumers can show the geometry of the attempt.
+    const attackerState = currentSession.currentState.units[attackerId];
+    const targetState = currentSession.currentState.units[targetId];
+    const firingArc = calculateFiringArc(
+      attackerState.position,
+      targetState.position,
+      targetState.facing,
+    );
+    const arcString = firingArcToString(firingArc);
+
     if (hit) {
-      const attackerState = currentSession.currentState.units[attackerId];
-      const targetState = currentSession.currentState.units[targetId];
-      const firingArc = calculateFiringArc(
-        attackerState.position,
-        targetState.position,
-        targetState.facing,
-      );
       const locationRoll = diceRoller();
       const hitLocationResult = determineHitLocationFromRoll(
         firingArc,
@@ -135,6 +162,7 @@ export function resolveAttack(
         location,
         damage,
         weaponData.heat,
+        arcString,
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
 
@@ -199,8 +227,7 @@ export function resolveAttack(
       }
 
       if (locationRoll.total === 2) {
-        const arc = firingArcToString(firingArc);
-        const tacLocation = checkTACTrigger(2, arc);
+        const tacLocation = checkTACTrigger(2, arcString);
         if (tacLocation) {
           const tacResult = processTAC(
             targetId,
@@ -281,7 +308,8 @@ export function resolveAttack(
     } else {
       // Miss — attacker still generates firing heat per canonical rules
       // (TechManual p.68: heat is charged at weapon-firing time, not on
-      // hit). Pass weaponData.heat so the heat phase accumulates correctly.
+      // hit). Pass weaponData.heat so the heat phase accumulates correctly,
+      // and arcString so UI consumers see where the attack was fired from.
       const resolvedEvent = createAttackResolvedEvent(
         currentSession.id,
         sequence,
@@ -295,6 +323,7 @@ export function resolveAttack(
         undefined,
         undefined,
         weaponData.heat,
+        arcString,
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
     }

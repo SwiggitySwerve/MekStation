@@ -2,7 +2,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
   Facing,
-  FiringArc,
   GamePhase,
   GameSide,
   GameStatus,
@@ -274,6 +273,11 @@ export function lockMovement(
   return appendEvent(session, event);
 }
 
+// Firing arc is intentionally NOT a parameter here. It's computed at
+// resolve time from current attacker/target positions so facing changes
+// between declaration and resolution don't corrupt hit-location selection.
+// (Per wire-firing-arc-resolution; previously `_firingArc` was accepted
+// and silently discarded.)
 export function declareAttack(
   session: IGameSession,
   attackerId: string,
@@ -281,7 +285,6 @@ export function declareAttack(
   weapons: readonly IWeaponAttack[],
   range: number,
   rangeBracket: RangeBracket,
-  _firingArc: FiringArc,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.WeaponAttack) {
     throw new Error('Not in weapon attack phase');

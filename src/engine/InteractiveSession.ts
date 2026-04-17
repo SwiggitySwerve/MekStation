@@ -30,7 +30,6 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import {
   createGameSession,
   startGame,
@@ -162,14 +161,8 @@ export class InteractiveSession {
       attackerId,
     );
 
-    const attackerState = this.session.currentState.units[attackerId];
-    const targetState = this.session.currentState.units[targetId];
-    const firingArc = calculateFiringArc(
-      attackerState.position,
-      targetState.position,
-      targetState.facing,
-    );
-
+    // Firing arc is computed inside resolveAttack from current positions +
+    // target facing at resolve time. No need to pre-compute here.
     this.session = declareAttack(
       this.session,
       attackerId,
@@ -177,7 +170,6 @@ export class InteractiveSession {
       weaponAttacks,
       3,
       RangeBracket.Short,
-      firingArc,
     );
     this.session = lockAttack(this.session, attackerId);
   }
@@ -286,14 +278,7 @@ export class InteractiveSession {
             unitId,
           );
 
-          const targetUnit =
-            this.session.currentState.units[atkEvt.payload.targetId];
-          const firingArc = calculateFiringArc(
-            unit.position,
-            targetUnit.position,
-            targetUnit.facing,
-          );
-
+          // Arc is computed inside resolveAttack at resolve time.
           this.session = declareAttack(
             this.session,
             unitId,
@@ -301,7 +286,6 @@ export class InteractiveSession {
             weaponAttacks,
             3,
             RangeBracket.Short,
-            firingArc,
           );
         }
         this.session = lockAttack(this.session, unitId);
