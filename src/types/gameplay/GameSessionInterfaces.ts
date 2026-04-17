@@ -112,6 +112,12 @@ export enum GameEventType {
   ShutdownCheck = 'shutdown_check',
   StartupAttempt = 'startup_attempt',
   AmmoConsumed = 'ammo_consumed',
+  /**
+   * Per `wire-ammo-consumption`: attack attempt was rejected before any
+   * damage, heat, or `AttackResolved` event fired. Reasons grow over
+   * time; the union is future-extensible.
+   */
+  AttackInvalid = 'attack_invalid',
 }
 
 /**
@@ -323,6 +329,31 @@ export interface IAttackResolvedPayload {
    * invalidations.
    */
   readonly attackerArc?: 'front' | 'left' | 'right' | 'rear';
+  /**
+   * Per `wire-ammo-consumption`: `null` for energy weapons; set to the
+   * bin id that was drawn from for ammo-consuming weapons. Enables UI
+   * + replay consumers to trace which bin fed each shot.
+   */
+  readonly ammoBinId?: string | null;
+}
+
+/**
+ * Attack-invalid event payload — emitted when an attack attempt is
+ * rejected BEFORE any damage, heat, or `AttackResolved` event fires.
+ * Reasons are future-extensible; initial users are `wire-ammo-consumption`
+ * (OutOfAmmo) and `wire-firing-arc-resolution` (SameHex, retrofitted).
+ */
+export interface IAttackInvalidPayload {
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly weaponId?: string;
+  readonly reason:
+    | 'OutOfAmmo'
+    | 'SameHex'
+    | 'OutOfRange'
+    | 'NoLineOfSight'
+    | 'InvalidTarget';
+  readonly details?: string;
 }
 
 /**
@@ -511,7 +542,8 @@ export type GameEventPayload =
   | IPhysicalAttackResolvedPayload
   | IShutdownCheckPayload
   | IStartupAttemptPayload
-  | IAmmoConsumedPayload;
+  | IAmmoConsumedPayload
+  | IAttackInvalidPayload;
 
 /**
  * Complete game event with payload.
@@ -560,6 +592,31 @@ export interface IGameUnit {
   readonly piloting: number;
   /** Total heat sinks on unit (default: 10 if not provided) */
   readonly heatSinks?: number;
+  /**
+   * Ammo bin construction data (one entry per ton of ammo carried).
+   * When present, `createGameSession` seeds this unit's `ammoState` so
+   * the attack resolver can consume bins per fire. When absent, the
+   * unit has zero ammo bins; any ammo-consuming weapon fire will emit
+   * `AttackInvalid { reason: 'OutOfAmmo' }`. Producers (e.g.,
+   * `InteractiveSession`) populate this from catalog / construction
+   * data per `wire-ammo-consumption`.
+   */
+  readonly ammoConstruction?: readonly IAmmoConstructionInit[];
+}
+
+/**
+ * Minimal ammo construction shape carried on `IGameUnit` for session-start
+ * bin initialization. Mirrors `IAmmoConstructionData` in
+ * `ammoTracking/types.ts` but is declared here to avoid a circular
+ * import from the types package into the gameplay utils.
+ */
+export interface IAmmoConstructionInit {
+  readonly binId: string;
+  readonly weaponType: string;
+  readonly location: string;
+  readonly maxRounds: number;
+  readonly damagePerRound: number;
+  readonly isExplosive: boolean;
 }
 
 // =============================================================================
