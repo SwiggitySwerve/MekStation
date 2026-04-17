@@ -24,8 +24,10 @@ import {
   createAttackInvalidEvent,
   createAttackResolvedEvent,
   createDamageAppliedEvent,
+  createLocationDestroyedEvent,
   createPilotHitEvent,
   createPSRTriggeredEvent,
+  createTransferDamageEvent,
   createUnitDestroyedEvent,
 } from './gameEvents';
 import {
@@ -202,12 +204,40 @@ export function resolveAttack(
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
 
+      // Per `integrate-damage-pipeline` task 7: capture the target's
+      // pre-attack `damageThisPhase` so we can detect the 20+ crossing
+      // and queue a PSR once per crossing (not per-damage-event).
+      const preAttackDamageThisPhase =
+        currentSession.currentState.units[targetId]?.damageThisPhase ?? 0;
+
       const damageState = buildDamageStateFromUnit(targetState);
       const damageResult = resolveDamagePipeline(
         damageState,
         location as CombatLocation,
         damage,
       );
+
+      // Per `integrate-damage-pipeline` tasks 3-5: emit the ordered event
+      // chain `DamageApplied` → (`LocationDestroyed` on structure == 0)
+      // → (`TransferDamage` when damage spills to the transfer target).
+      // `damageResult.result.locationDamages` is already ordered along
+      // the canonical transfer path (original → adjacent → center torso),
+      // so walking it in order preserves the replay-visible sequence.
+      //
+      // Side-torso → arm cascade: `applyDamageToLocation` also zeroes
+      // the corresponding arm's armor/structure and pushes it onto
+      // `destroyedLocations`. We detect that cascade by diffing the
+      // pre- and post-state `destroyedLocations` arrays so the
+      // `LocationDestroyed` event carries the `cascadedTo` arm id.
+      const preDestroyedSet = new Set<CombatLocation>(
+        damageState.destroyedLocations,
+      );
+      const newlyDestroyed: CombatLocation[] = [];
+      for (const loc of damageResult.state.destroyedLocations) {
+        if (!preDestroyedSet.has(loc)) {
+          newlyDestroyed.push(loc);
+        }
+      }
 
       for (const locationDamage of damageResult.result.locationDamages) {
         const damageSequence = currentSession.events.length;
@@ -223,6 +253,74 @@ export function resolveAttack(
           locationDamage.destroyed,
         );
         currentSession = appendEvent(currentSession, damageEvent);
+
+        if (locationDamage.destroyed) {
+          // The arm cascade (LT → LA, RT → RA) is set by
+          // `applyDamageToLocation` but not surfaced on the
+          // `ILocationDamage.transferredDamage` field (it's a marker,
+          // not a real damage transfer). Detect it via the set diff
+          // and attach as `cascadedTo`.
+          let cascadedArm: string | undefined;
+          if (
+            locationDamage.location === 'left_torso' &&
+            newlyDestroyed.includes('left_arm' as CombatLocation)
+          ) {
+            cascadedArm = 'left_arm';
+          } else if (
+            locationDamage.location === 'right_torso' &&
+            newlyDestroyed.includes('right_arm' as CombatLocation)
+          ) {
+            cascadedArm = 'right_arm';
+          }
+          const destroyedSequence = currentSession.events.length;
+          currentSession = appendEvent(
+            currentSession,
+            createLocationDestroyedEvent(
+              currentSession.id,
+              destroyedSequence,
+              turn,
+              targetId,
+              locationDamage.location,
+              cascadedArm,
+            ),
+          );
+
+          // If the arm cascaded, emit a second `LocationDestroyed`
+          // event for the arm itself so downstream consumers (UI,
+          // replay) don't have to dedupe off the parent event.
+          if (cascadedArm) {
+            const cascadeSequence = currentSession.events.length;
+            currentSession = appendEvent(
+              currentSession,
+              createLocationDestroyedEvent(
+                currentSession.id,
+                cascadeSequence,
+                turn,
+                targetId,
+                cascadedArm,
+              ),
+            );
+          }
+        }
+
+        if (
+          locationDamage.transferredDamage > 0 &&
+          locationDamage.transferLocation
+        ) {
+          const transferSequence = currentSession.events.length;
+          currentSession = appendEvent(
+            currentSession,
+            createTransferDamageEvent(
+              currentSession.id,
+              transferSequence,
+              turn,
+              targetId,
+              locationDamage.location,
+              locationDamage.transferLocation,
+              locationDamage.transferredDamage,
+            ),
+          );
+        }
       }
 
       const d6Roller = () => {
@@ -302,6 +400,32 @@ export function resolveAttack(
           );
           break;
         }
+      }
+
+      // Per `integrate-damage-pipeline` task 7: queue a PSR when
+      // `damageThisPhase` crosses 20 as a result of this weapon hit.
+      // The reducer (`applyDamageApplied`) has already accumulated the
+      // `DamageApplied.damage` values into `damageThisPhase`, so we
+      // read post-attack state and emit exactly once per crossing
+      // (pre < 20 && post >= 20). `wire-piloting-skill-rolls` resolves
+      // the queued PSR; this task only queues.
+      const postAttackDamageThisPhase =
+        currentSession.currentState.units[targetId]?.damageThisPhase ?? 0;
+      if (preAttackDamageThisPhase < 20 && postAttackDamageThisPhase >= 20) {
+        const phaseDamagePSRSequence = currentSession.events.length;
+        currentSession = appendEvent(
+          currentSession,
+          createPSRTriggeredEvent(
+            currentSession.id,
+            phaseDamagePSRSequence,
+            turn,
+            GamePhase.WeaponAttack,
+            targetId,
+            '20+ damage this phase',
+            0,
+            'phase_damage_20_plus',
+          ),
+        );
       }
 
       if (damageResult.result.pilotDamage) {

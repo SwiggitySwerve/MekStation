@@ -118,6 +118,26 @@ export enum GameEventType {
    * time; the union is future-extensible.
    */
   AttackInvalid = 'attack_invalid',
+  /**
+   * Per `integrate-damage-pipeline`: fired when a location's internal
+   * structure reaches zero. Also carries optional `cascadedTo` when the
+   * destruction triggers a linked-location destruction (e.g., side-torso
+   * → arm cascade).
+   */
+  LocationDestroyed = 'location_destroyed',
+  /**
+   * Per `integrate-damage-pipeline`: fired when damage transfers from one
+   * destroyed location to its canonical transfer target (arms → side
+   * torso; legs → side torso; side torso → center torso).
+   */
+  TransferDamage = 'transfer_damage',
+  /**
+   * Per `integrate-damage-pipeline`: fired when a critical-hit roll
+   * destroys a specific component (engine, gyro, weapon, heat sink, etc.)
+   * in a location. Provides the slot index so UI / replay consumers can
+   * highlight the destroyed slot on the record sheet.
+   */
+  ComponentDestroyed = 'component_destroyed',
 }
 
 /**
@@ -515,6 +535,45 @@ export interface IAmmoConsumedPayload {
 }
 
 /**
+ * Per `integrate-damage-pipeline`: a location's internal structure has
+ * reached zero. `cascadedTo` is set when the destruction triggered a
+ * linked-location destruction (e.g., LT destroyed → LA also destroyed).
+ */
+export interface ILocationDestroyedPayload {
+  readonly unitId: string;
+  readonly location: string;
+  readonly cascadedTo?: string;
+}
+
+/**
+ * Per `integrate-damage-pipeline`: damage has transferred from a
+ * destroyed `fromLocation` to its canonical `toLocation`. Multiple
+ * events may fire in sequence for a single shot (arm → side torso →
+ * center torso, etc.).
+ */
+export interface ITransferDamagePayload {
+  readonly unitId: string;
+  readonly fromLocation: string;
+  readonly toLocation: string;
+  readonly damage: number;
+}
+
+/**
+ * Per `integrate-damage-pipeline`: a critical-hit roll destroyed a
+ * specific component at `slotIndex` in `location`. `componentType`
+ * names the broad class (engine / gyro / weapon / heat sink / etc.)
+ * so UI consumers can pick the right icon without parsing
+ * `componentName`.
+ */
+export interface IComponentDestroyedPayload {
+  readonly unitId: string;
+  readonly location: string;
+  readonly componentType: string;
+  readonly slotIndex: number;
+  readonly componentName?: string;
+}
+
+/**
  * Union type for all event payloads.
  */
 export type GameEventPayload =
@@ -543,7 +602,10 @@ export type GameEventPayload =
   | IShutdownCheckPayload
   | IStartupAttemptPayload
   | IAmmoConsumedPayload
-  | IAttackInvalidPayload;
+  | IAttackInvalidPayload
+  | ILocationDestroyedPayload
+  | ITransferDamagePayload
+  | IComponentDestroyedPayload;
 
 /**
  * Complete game event with payload.

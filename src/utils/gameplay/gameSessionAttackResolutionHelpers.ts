@@ -9,6 +9,7 @@ import {
 import { type CriticalHitEvent } from './criticalHitResolution';
 import { type IUnitDamageState } from './damage';
 import {
+  createComponentDestroyedEvent,
   createCriticalHitResolvedEvent,
   createPilotHitEvent,
   createPSRTriggeredEvent,
@@ -62,6 +63,27 @@ export function emitCriticalEvents(
           payload.destroyed,
         ),
       );
+      // Per `integrate-damage-pipeline` task 8 + 0.5.4: when a
+      // `CriticalHitResolved` flags the component as destroyed, also
+      // emit a `ComponentDestroyed` event so UI + replay consumers
+      // can render the slot-specific destruction without re-parsing
+      // the `effect` string.
+      if (payload.destroyed) {
+        const componentSequence = currentSession.events.length;
+        currentSession = appendEvent(
+          currentSession,
+          createComponentDestroyedEvent(
+            currentSession.id,
+            componentSequence,
+            turn,
+            payload.unitId,
+            payload.location,
+            payload.componentType,
+            payload.slotIndex,
+            payload.componentName,
+          ),
+        );
+      }
       continue;
     }
 
