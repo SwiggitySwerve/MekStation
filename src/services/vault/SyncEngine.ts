@@ -23,6 +23,18 @@ import {
   ChangeLogRepository,
   getChangeLogRepository,
 } from './ChangeLogRepository';
+import {
+  mapPendingConflicts,
+  resolveAcceptRemote as resolveAcceptRemoteHelper,
+  resolveFork as resolveForkHelper,
+} from './SyncEngine.conflictResolution';
+import {
+  buildFolderMembershipPayload,
+  filterFolderChanges,
+  getChangesForFolder as getChangesForFolderHelper,
+  getFolderChangesForPeer as getFolderChangesForPeerHelper,
+  getFoldersWithUnsyncedChanges as getFoldersWithUnsyncedChangesHelper,
+} from './SyncEngine.folders';
 
 // =============================================================================
 // Types
@@ -65,6 +77,26 @@ export type ContentDataFn = (
   contentType: ShareableContentType | 'folder',
 ) => Promise<string | null>;
 
+/**
+ * Item name resolver — returns a human-readable display name for a
+ * conflicting item so conflict records aren't labelled with raw ids.
+ */
+export type ItemNameFn = (
+  itemId: string,
+  contentType: ShareableContentType | 'folder',
+) => Promise<string | null>;
+
+/**
+ * Content apply function — writes remote content back to local storage.
+ * Registered by the caller that owns persistence (e.g. a vault store)
+ * so the sync engine stays storage-agnostic.
+ */
+export type ContentApplyFn = (
+  itemId: string,
+  contentType: ShareableContentType | 'folder',
+  data: string,
+) => Promise<void>;
+
 // =============================================================================
 // Service
 // =============================================================================
@@ -77,6 +109,8 @@ export class SyncEngine {
   private syncStates: Map<string, ISyncState> = new Map();
   private contentHashFn?: ContentHashFn;
   private contentDataFn?: ContentDataFn;
+  private itemNameFn?: ItemNameFn;
+  private contentApplyFn?: ContentApplyFn;
 
   constructor(changeLog?: ChangeLogRepository) {
     this.changeLog = changeLog ?? getChangeLogRepository();
@@ -94,6 +128,23 @@ export class SyncEngine {
    */
   setContentDataFn(fn: ContentDataFn): void {
     this.contentDataFn = fn;
+  }
+
+  /**
+   * Register a resolver that maps (itemId, contentType) → display name.
+   * Used so conflict records carry a human-readable name rather than a raw id.
+   */
+  setItemNameFn(fn: ItemNameFn): void {
+    this.itemNameFn = fn;
+  }
+
+  /**
+   * Register a callback that persists remote content to local storage.
+   * Used by applyChange (no-conflict path) and by conflict resolution paths
+   * (acceptRemote, fork) so the sync engine stays storage-agnostic.
+   */
+  setContentApplyFn(fn: ContentApplyFn): void {
+    this.contentApplyFn = fn;
   }
 
   // ===========================================================================
@@ -235,17 +286,24 @@ export class SyncEngine {
   }
 
   /**
-   * Create a conflict record
+   * Create a conflict record. Resolves a human-readable item name via the
+   * registered itemNameFn when available, otherwise falls back to the raw id
+   * so the conflict row always carries something the UI can display.
    */
   private async createConflict(
     local: IChangeLogEntry,
     remote: IChangeLogEntry,
     peerId: string,
   ): Promise<ISyncConflict> {
+    const resolvedName =
+      (this.itemNameFn
+        ? await this.itemNameFn(local.itemId, local.contentType)
+        : null) ?? local.itemId;
+
     const conflictId = await this.changeLog.recordConflict({
       contentType: local.contentType,
       itemId: local.itemId,
-      itemName: local.itemId, // TODO: Get actual item name
+      itemName: resolvedName,
       localVersion: local.version,
       localHash: local.contentHash || '',
       remoteVersion: remote.version,
@@ -257,7 +315,7 @@ export class SyncEngine {
       id: conflictId,
       contentType: local.contentType,
       itemId: local.itemId,
-      itemName: local.itemId,
+      itemName: resolvedName,
       localVersion: local.version,
       localHash: local.contentHash || '',
       remoteVersion: remote.version,
@@ -269,13 +327,14 @@ export class SyncEngine {
   }
 
   /**
-   * Apply a remote change locally
+   * Apply a remote change locally. Records the incoming change against the
+   * changelog, then — if a content-apply callback is registered and the
+   * change carries data — writes that data back to local storage.
    */
   private async applyChange(
     change: IChangeLogEntry,
     sourceId: string,
   ): Promise<void> {
-    // Record the change as coming from a remote source
     await this.changeLog.recordChange(
       change.changeType,
       change.contentType,
@@ -285,8 +344,9 @@ export class SyncEngine {
       sourceId,
     );
 
-    // The actual content update would be handled by a callback
-    // registered with the sync engine
+    if (this.contentApplyFn && change.data) {
+      await this.contentApplyFn(change.itemId, change.contentType, change.data);
+    }
   }
 
   // ===========================================================================
@@ -298,19 +358,7 @@ export class SyncEngine {
    */
   async getPendingConflicts(): Promise<ISyncConflict[]> {
     const rows = await this.changeLog.getPendingConflicts();
-    return rows.map((row) => ({
-      id: row.id,
-      contentType: row.contentType,
-      itemId: row.itemId,
-      itemName: row.itemName,
-      localVersion: row.localVersion,
-      localHash: row.localHash,
-      remoteVersion: row.remoteVersion,
-      remoteHash: row.remoteHash,
-      remotePeerId: row.remotePeerId,
-      detectedAt: row.detectedAt,
-      resolution: 'pending' as const,
-    }));
+    return mapPendingConflicts(rows);
   }
 
   /**
@@ -321,27 +369,33 @@ export class SyncEngine {
   }
 
   /**
-   * Resolve a conflict by accepting remote version
+   * Resolve a conflict by accepting the remote version. Writes the supplied
+   * remote payload to local storage via the registered apply callback.
    */
-  async resolveAcceptRemote(conflictId: string): Promise<boolean> {
-    // Mark conflict as resolved
-    const resolved = await this.changeLog.resolveConflict(conflictId, 'remote');
-
-    // TODO: Apply the remote content to local storage
-
-    return resolved;
+  async resolveAcceptRemote(
+    conflictId: string,
+    remoteData?: string,
+  ): Promise<boolean> {
+    return resolveAcceptRemoteHelper(this.changeLog, conflictId, {
+      remoteData,
+      applyFn: this.contentApplyFn,
+    });
   }
 
   /**
-   * Resolve a conflict by forking (keep both versions)
+   * Resolve a conflict by forking — keep the local version and write the
+   * remote version into a new local item with a generated id.
    */
-  async resolveFork(conflictId: string): Promise<boolean> {
-    // Mark conflict as resolved
-    const resolved = await this.changeLog.resolveConflict(conflictId, 'forked');
-
-    // TODO: Create a copy of the item with the remote content
-
-    return resolved;
+  async resolveFork(
+    conflictId: string,
+    remoteData?: string,
+  ): Promise<boolean | { forkedItemId: string }> {
+    return resolveForkHelper(this.changeLog, conflictId, {
+      remoteData,
+      applyFn: this.contentApplyFn,
+      recordLocalChange: (contentType, itemId, data) =>
+        this.recordChange('create', contentType, itemId, data),
+    });
   }
 
   // ===========================================================================
@@ -438,13 +492,12 @@ export class SyncEngine {
     itemId: string,
     itemType: ShareableContentType,
   ): Promise<IChangeLogEntry> {
-    const data = JSON.stringify({
-      action: 'item_added',
+    return this.recordChange(
+      'update',
+      'folder',
       folderId,
-      itemId,
-      itemType,
-    });
-    return this.recordChange('update', 'folder', folderId, data);
+      buildFolderMembershipPayload('item_added', folderId, itemId, itemType),
+    );
   }
 
   /**
@@ -455,13 +508,12 @@ export class SyncEngine {
     itemId: string,
     itemType: ShareableContentType,
   ): Promise<IChangeLogEntry> {
-    const data = JSON.stringify({
-      action: 'item_removed',
+    return this.recordChange(
+      'update',
+      'folder',
       folderId,
-      itemId,
-      itemType,
-    });
-    return this.recordChange('update', 'folder', folderId, data);
+      buildFolderMembershipPayload('item_removed', folderId, itemId, itemType),
+    );
   }
 
   /**
@@ -472,38 +524,12 @@ export class SyncEngine {
     fromVersion = 0,
     limit = 100,
   ): Promise<IChangeLogEntry[]> {
-    // Get all changes since version
-    const allChanges = await this.changeLog.getChangesSince(
+    return getChangesForFolderHelper(
+      this.changeLog,
+      folderId,
       fromVersion,
-      limit * 10,
+      limit,
     );
-
-    // Filter to folder changes and items in that folder
-    // For now, we track folder-level changes directly
-    // Item membership tracking is via the folder update entries
-    return allChanges.filter(
-      (change) =>
-        (change.contentType === 'folder' && change.itemId === folderId) ||
-        this.isChangeForFolderItem(change, folderId),
-    );
-  }
-
-  /**
-   * Check if a change is for an item that belongs to a folder
-   * This uses the change data to determine folder membership
-   */
-  private isChangeForFolderItem(
-    change: IChangeLogEntry,
-    folderId: string,
-  ): boolean {
-    if (!change.data) return false;
-
-    try {
-      const data = JSON.parse(change.data) as { folderId?: string };
-      return data.folderId === folderId;
-    } catch {
-      return false;
-    }
   }
 
   /**
@@ -515,10 +541,13 @@ export class SyncEngine {
     peerId: string,
     limit = 100,
   ): Promise<IChangeLogEntry[]> {
-    const state = this.syncStates.get(peerId);
-    const fromVersion = state?.lastVersion ?? 0;
-
-    return this.getChangesForFolder(folderId, fromVersion, limit);
+    return getFolderChangesForPeerHelper(
+      this.changeLog,
+      this.syncStates,
+      folderId,
+      peerId,
+      limit,
+    );
   }
 
   /**
@@ -529,39 +558,17 @@ export class SyncEngine {
     peerId: string,
     changes: IChangeLogEntry[],
   ): Promise<IReconciliationResult> {
-    // Filter changes to only those for this folder
-    const folderChanges = changes.filter(
-      (change) =>
-        (change.contentType === 'folder' && change.itemId === folderId) ||
-        this.isChangeForFolderItem(change, folderId),
+    return this.applyRemoteChanges(
+      peerId,
+      filterFolderChanges(changes, folderId),
     );
-
-    return this.applyRemoteChanges(peerId, folderChanges);
   }
 
   /**
    * Get folders that have unsynced changes
    */
   async getFoldersWithUnsyncedChanges(): Promise<string[]> {
-    const unsynced = await this.getUnsyncedChanges();
-    const folderIds = new Set<string>();
-
-    for (const change of unsynced) {
-      if (change.contentType === 'folder') {
-        folderIds.add(change.itemId);
-      } else if (change.data) {
-        try {
-          const data = JSON.parse(change.data) as { folderId?: string };
-          if (data.folderId) {
-            folderIds.add(data.folderId);
-          }
-        } catch {
-          // Ignore parse errors
-        }
-      }
-    }
-
-    return Array.from(folderIds);
+    return getFoldersWithUnsyncedChangesHelper(this.changeLog);
   }
 
   /**
