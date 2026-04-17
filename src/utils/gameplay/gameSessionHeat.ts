@@ -21,6 +21,7 @@ import {
   createPilotHitEvent,
   createPSRTriggeredEvent,
   createShutdownCheckEvent,
+  createStartupAttemptEvent,
   createUnitDestroyedEvent,
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
@@ -87,22 +88,71 @@ export function resolveHeatPhase(
     const componentDamage = unitState.componentDamage;
     const engineHits = componentDamage?.engineHits ?? 0;
     const heatFromEngine = engineHits * ENGINE_HIT_HEAT;
-    const totalHeatGenerated =
-      heatFromMovement + heatFromWeapons + heatFromEngine;
 
-    if (totalHeatGenerated > 0) {
-      const heatGeneratedSequence = currentSession.events.length;
-      const heatGeneratedEvent = createHeatGeneratedEvent(
-        currentSession.id,
-        heatGeneratedSequence,
-        turn,
-        GamePhase.Heat,
-        unitId,
-        totalHeatGenerated,
-        heatFromEngine > 0 ? 'external' : 'weapons',
-        unitState.heat + totalHeatGenerated,
+    // Per `wire-heat-generation-and-effects` task 13.1 + 0.5.4: emit
+    // one `HeatGenerated` event per contributing source (movement /
+    // firing / engine_hit) so UI + AI consumers can break down the
+    // per-turn heat budget without summing adjacent events or parsing
+    // attack payloads. Skip sources that contributed zero.
+    //
+    // Accounting: movement heat is already baked into `unit.heat` by
+    // the `MovementDeclared` reducer (`unit.heat + payload.heatGenerated`).
+    // Firing heat + engine-hit heat are NOT accumulated by any reducer
+    // before the heat phase — they exist only on attack payloads and
+    // component-damage state — so those sources add to `newTotal`. The
+    // movement event we emit here is a log-only record (`newTotal`
+    // matches current) so the UI can still show the movement
+    // contribution without the reducer double-counting it on replay.
+    let runningHeat = unitState.heat;
+    if (heatFromMovement > 0) {
+      const seq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createHeatGeneratedEvent(
+          currentSession.id,
+          seq,
+          turn,
+          GamePhase.Heat,
+          unitId,
+          heatFromMovement,
+          'movement',
+          runningHeat,
+        ),
       );
-      currentSession = appendEvent(currentSession, heatGeneratedEvent);
+    }
+    if (heatFromWeapons > 0) {
+      runningHeat += heatFromWeapons;
+      const seq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createHeatGeneratedEvent(
+          currentSession.id,
+          seq,
+          turn,
+          GamePhase.Heat,
+          unitId,
+          heatFromWeapons,
+          'firing',
+          runningHeat,
+        ),
+      );
+    }
+    if (heatFromEngine > 0) {
+      runningHeat += heatFromEngine;
+      const seq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createHeatGeneratedEvent(
+          currentSession.id,
+          seq,
+          turn,
+          GamePhase.Heat,
+          unitId,
+          heatFromEngine,
+          'engine_hit',
+          runningHeat,
+        ),
+      );
     }
 
     const currentHeatBeforeDissipation =
@@ -128,6 +178,47 @@ export function resolveHeatPhase(
     currentSession = appendEvent(currentSession, dissipationEvent);
 
     const finalHeat = currentSession.currentState.units[unitId].heat;
+
+    // Per `wire-heat-generation-and-effects` task 10: shut-down units
+    // attempt to restart once heat has dissipated to 29 or lower. TN
+    // mirrors the shutdown TN at the current heat. Success flips
+    // `shutdown: false`; failure leaves the unit shut down for another
+    // turn. Units must be shut down AND below auto-shutdown threshold
+    // (30) to be eligible — automatic at heat 0 (TN 0).
+    const stateAfterDissipation = currentSession.currentState.units[unitId];
+    if (stateAfterDissipation.shutdown && finalHeat <= 29) {
+      const startupTN = getShutdownTN(finalHeat);
+      const autoRestart = startupTN === 0;
+      const startupRoll = autoRestart ? null : diceRoller();
+      const startupSuccess = autoRestart
+        ? true
+        : (startupRoll?.total ?? 0) >= startupTN;
+      const startupSequence = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createStartupAttemptEvent(
+          currentSession.id,
+          startupSequence,
+          turn,
+          GamePhase.Heat,
+          unitId,
+          startupTN,
+          startupRoll?.total ?? 0,
+          startupSuccess,
+        ),
+      );
+      // If startup succeeded the unit is now active and skips the
+      // shutdown check path below (it was already shut down for the
+      // whole turn, so no further shutdown check applies). If it
+      // failed, fall through to any additional effects at heat
+      // thresholds (pilot heat damage, ammo explosion still apply
+      // while shut down, so we don't `continue` out of the loop).
+      if (startupSuccess) {
+        // Continue to heat-effect processing below — pilot heat
+        // damage + ammo explosion risk still apply regardless of
+        // startup outcome.
+      }
+    }
 
     if (finalHeat >= 30) {
       const shutdownSequence = currentSession.events.length;

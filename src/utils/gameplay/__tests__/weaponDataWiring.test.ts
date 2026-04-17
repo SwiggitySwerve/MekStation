@@ -470,9 +470,20 @@ describe('Weapon Data Wiring', () => {
       );
       expect(heatGenEvents.length).toBeGreaterThan(0);
 
-      const heatPayload = heatGenEvents[0].payload as IHeatPayload;
-      // Movement heat(1) + weapon heat(7+3=10) = 11
-      expect(heatPayload.amount).toBe(11);
+      // Per `wire-heat-generation-and-effects` task 13.1: HeatGenerated
+      // now emits per-source (movement/firing/engine_hit) — assert the
+      // firing event carries the AC/20(7) + ML(3) = 10 sum. Movement
+      // event fires separately with amount 1.
+      const firingEvent = heatGenEvents.find(
+        (e) => (e.payload as IHeatPayload).source === 'firing',
+      );
+      expect(firingEvent).toBeDefined();
+      expect((firingEvent!.payload as IHeatPayload).amount).toBe(10);
+      const movementEvent = heatGenEvents.find(
+        (e) => (e.payload as IHeatPayload).source === 'movement',
+      );
+      expect(movementEvent).toBeDefined();
+      expect((movementEvent!.payload as IHeatPayload).amount).toBe(1);
     });
   });
 
@@ -526,10 +537,14 @@ describe('Weapon Data Wiring', () => {
 
       session = resolveHeatPhase(session);
 
-      // Movement reducer already applied 1 heat. Heat phase adds movement(1)+weapons(20)=21.
-      // Total before dissipation: 1 + 21 = 22. Dissipation: 15. Net: 22 - 15 = 7.
+      // Per `wire-heat-generation-and-effects`: movement heat is no
+      // longer double-counted by the heat phase (the reducer tallied
+      // +1 at movement time; the heat phase now emits a log-only
+      // `source: 'movement'` event with `newTotal` unchanged). Firing
+      // heat (20) accumulates during heat phase. Total before
+      // dissipation: 1 + 20 = 21. Dissipation: 15. Net: 21 - 15 = 6.
       const playerState = session.currentState.units['player-1'];
-      expect(playerState.heat).toBe(7);
+      expect(playerState.heat).toBe(6);
     });
 
     it('unit without heatSinks field defaults to 10', () => {
@@ -582,10 +597,12 @@ describe('Weapon Data Wiring', () => {
 
       session = resolveHeatPhase(session);
 
-      // Movement reducer applied 1 heat. Heat phase adds movement(1)+weapons(20)=21.
-      // Total before dissipation: 1 + 21 = 22. Dissipation: 10 (default). Net: 22 - 10 = 12.
+      // Per `wire-heat-generation-and-effects`: movement heat is no
+      // longer double-counted. Movement reducer applied 1. Heat phase
+      // adds firing(20). Total before dissipation: 1 + 20 = 21.
+      // Default dissipation: 10. Net: 21 - 10 = 11.
       const playerState = session.currentState.units['player-1'];
-      expect(playerState.heat).toBe(12);
+      expect(playerState.heat).toBe(11);
     });
   });
 

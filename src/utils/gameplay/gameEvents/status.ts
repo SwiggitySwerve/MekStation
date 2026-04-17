@@ -24,7 +24,7 @@ export function createHeatGeneratedEvent(
   phase: GamePhase,
   unitId: string,
   amount: number,
-  source: 'movement' | 'weapons' | 'dissipation' | 'external',
+  source: IHeatPayload['source'],
   newTotal: number,
 ): IGameEvent {
   const payload: IHeatPayload = { unitId, amount, source, newTotal };
