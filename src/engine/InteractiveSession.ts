@@ -16,6 +16,7 @@ import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameSide,
   GamePhase,
+  GameStatus,
   LockState,
   type IGameSession,
   type IGameConfig,
@@ -41,6 +42,7 @@ import {
   lockAttack,
   resolveAllAttacks,
   resolveHeatPhase,
+  endGame,
 } from '@/utils/gameplay/gameSession';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
@@ -291,6 +293,20 @@ export class InteractiveSession {
         this.session = lockAttack(this.session, unitId);
       }
     }
+  }
+
+  /**
+   * Per `add-victory-and-post-battle-summary` task 1.3 + B3 from the
+   * Phase 1 review: end the match by surrender from `side`. Appends a
+   * `GameEnded` event with `reason: 'concede'` and the OPPOSITE side
+   * as winner. No-op if the game is already over (or in setup).
+   */
+  concede(side: GameSide): void {
+    if (this.isGameOver()) return;
+    if (this.session.currentState.status !== GameStatus.Active) return;
+    const winner =
+      side === GameSide.Player ? GameSide.Opponent : GameSide.Player;
+    this.session = endGame(this.session, winner, 'concede');
   }
 
   isGameOver(): boolean {
