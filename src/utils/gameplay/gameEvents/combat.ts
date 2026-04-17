@@ -5,9 +5,12 @@ import {
   IAttackInvalidPayload,
   IAttackLockedPayload,
   IAttackResolvedPayload,
+  IComponentDestroyedPayload,
   IDamageAppliedPayload,
   IGameEvent,
+  ILocationDestroyedPayload,
   IToHitModifier,
+  ITransferDamagePayload,
   IWeaponAttackData,
 } from '@/types/gameplay';
 
@@ -167,6 +170,108 @@ export function createDamageAppliedEvent(
       gameId,
       sequence,
       GameEventType.DamageApplied,
+      turn,
+      GamePhase.WeaponAttack,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Per `integrate-damage-pipeline`: location's internal structure reached
+ * zero. Optionally carries `cascadedTo` when destruction triggered a
+ * linked-location destruction (side torso → arm cascade).
+ */
+export function createLocationDestroyedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  location: string,
+  cascadedTo?: string,
+): IGameEvent {
+  const payload: ILocationDestroyedPayload = {
+    unitId,
+    location,
+    cascadedTo,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.LocationDestroyed,
+      turn,
+      GamePhase.WeaponAttack,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Per `integrate-damage-pipeline`: damage transferred from a destroyed
+ * `fromLocation` to its canonical `toLocation`. Multiple events may
+ * fire in sequence for a single shot (arm → side torso → center torso).
+ */
+export function createTransferDamageEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  fromLocation: string,
+  toLocation: string,
+  damage: number,
+): IGameEvent {
+  const payload: ITransferDamagePayload = {
+    unitId,
+    fromLocation,
+    toLocation,
+    damage,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.TransferDamage,
+      turn,
+      GamePhase.WeaponAttack,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Per `integrate-damage-pipeline`: a specific component has been
+ * destroyed by a critical-hit roll. Provides slot index for UI highlight
+ * and `componentType` for icon selection.
+ */
+export function createComponentDestroyedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  location: string,
+  componentType: string,
+  slotIndex: number,
+  componentName?: string,
+): IGameEvent {
+  const payload: IComponentDestroyedPayload = {
+    unitId,
+    location,
+    componentType,
+    slotIndex,
+    componentName,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.ComponentDestroyed,
       turn,
       GamePhase.WeaponAttack,
       unitId,
