@@ -14,6 +14,8 @@ import {
   IUnitFellPayload,
   IUnitStoodPayload,
   IAmmoConsumedPayload,
+  IPhysicalAttackDeclaredPayload,
+  IPhysicalAttackResolvedPayload,
 } from '@/types/gameplay';
 
 import { createEventBase } from './base';
@@ -378,6 +380,79 @@ export function createAmmoConsumedEvent(
       turn,
       phase,
       unitId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Per `implement-physical-attack-phase` task 2.4: emitted when a unit
+ * declares a physical attack (punch / kick / charge / DFA / push / club).
+ */
+export function createPhysicalAttackDeclaredEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  attackerId: string,
+  targetId: string,
+  attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push',
+  toHitNumber: number,
+): IGameEvent {
+  const payload: IPhysicalAttackDeclaredPayload = {
+    attackerId,
+    targetId,
+    attackType,
+    toHitNumber,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.PhysicalAttackDeclared,
+      turn,
+      GamePhase.PhysicalAttack,
+      attackerId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Per `implement-physical-attack-phase` tasks 4-8: emitted when a
+ * physical attack is resolved (hit or miss). On hit, `damage` and
+ * `location` are set; on miss they're omitted.
+ */
+export function createPhysicalAttackResolvedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  attackerId: string,
+  targetId: string,
+  attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push',
+  roll: number,
+  toHitNumber: number,
+  hit: boolean,
+  damage?: number,
+  location?: string,
+): IGameEvent {
+  const payload: IPhysicalAttackResolvedPayload = {
+    attackerId,
+    targetId,
+    attackType,
+    roll,
+    toHitNumber,
+    hit,
+    damage,
+    location,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.PhysicalAttackResolved,
+      turn,
+      GamePhase.PhysicalAttack,
+      attackerId,
     ),
     payload,
   };
