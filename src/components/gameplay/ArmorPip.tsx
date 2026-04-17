@@ -9,6 +9,15 @@ export interface ArmorPipProps {
   onToggle: (newState: PipState) => void;
   disabled?: boolean;
   className?: string;
+  /**
+   * Per `add-damage-feedback-ui` task 2.1-2.3: when `true`, the pip
+   * flashes red at 60% opacity with a diagonal-hatch overlay for
+   * ~400ms before settling to its resting state. Reinforces the color
+   * shift with a pattern change so colorblind users (deuteranopia /
+   * protanopia) still perceive the damaged-this-turn signal without
+   * relying on hue alone (task 9.1).
+   */
+  justDamaged?: boolean;
 }
 
 const PIP_STATE_ORDER: PipState[] = [
@@ -23,10 +32,24 @@ export function ArmorPip({
   onToggle,
   disabled = false,
   className = '',
+  justDamaged = false,
 }: ArmorPipProps): React.ReactElement {
   const [previousState, setPreviousState] = useState(state);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showDamageFlash, setShowDamageFlash] = useState(false);
   const { vibrateCustom } = useHaptics();
+
+  // Per add-damage-feedback-ui task 2.2: 400ms red flash when
+  // justDamaged transitions from false → true. Auto-clears.
+  useEffect(() => {
+    if (!justDamaged) {
+      setShowDamageFlash(false);
+      return;
+    }
+    setShowDamageFlash(true);
+    const timer = setTimeout(() => setShowDamageFlash(false), 400);
+    return () => clearTimeout(timer);
+  }, [justDamaged]);
 
   useEffect(() => {
     if (previousState !== state) {
@@ -121,10 +144,28 @@ export function ArmorPip({
         minWidth: '48px',
         minHeight: '48px',
       }}
-      aria-label={`Armor pip: ${state}`}
+      aria-label={`Armor pip: ${state}${showDamageFlash ? ' (just damaged)' : ''}`}
       aria-disabled={disabled}
+      data-just-damaged={showDamageFlash || undefined}
     >
       {visual.icon}
+      {showDamageFlash && (
+        <span
+          aria-hidden="true"
+          data-testid="armor-pip-damage-flash"
+          className="pointer-events-none absolute inset-0 rounded-full"
+          style={{
+            // 60% red flash + diagonal hatch (per task 2.3 + 9.1
+            // colorblind-safe pattern reinforcement). Animates the
+            // opacity to 0 over 400ms via the `transition` below.
+            backgroundColor: 'rgba(239, 68, 68, 0.6)',
+            backgroundImage:
+              'repeating-linear-gradient(45deg, rgba(0,0,0,0.18) 0 4px, transparent 4px 8px)',
+            opacity: 1,
+            transition: 'opacity 400ms ease-out',
+          }}
+        />
+      )}
     </button>
   );
 }
