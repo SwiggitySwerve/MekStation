@@ -1,69 +1,83 @@
 # Tasks: Fix Combat Rule Accuracy
 
-## 1. Target Prone Modifier Fix
+## 0. Audit Context
 
-- [ ] 1.1 Locate the prone-modifier branch in `src/utils/gameplay/toHit/` (damageModifiers or movementModifiers)
-- [ ] 1.2 Swap the constants — adjacent attacker SHALL yield -2, non-adjacent SHALL yield +1
-- [ ] 1.3 Add/update unit tests covering adjacent vs. 2-hex vs. 5-hex attackers against a prone target
-- [ ] 1.4 Update scenario in `to-hit-resolution` spec delta to encode the corrected direction
+A pre-implementation audit (2026-04-17) confirmed 7 of the 8 originally-listed bugs have already been fixed. This change now targets:
+(a) the remaining bug — duplicate `HeatManagement.ts` heat-threshold table, and
+(b) regression-guard tests so the 7 already-fixed behaviors cannot silently re-break.
 
-## 2. TMM Bracket Table
+See `proposal.md` "Audit Evidence" section for file-by-file verification.
 
-- [ ] 2.1 Delete `ceil(hexesMoved / 5)` formula usage
-- [ ] 2.2 Introduce a constant lookup array representing the canonical brackets [0-2:+0, 3-4:+1, 5-6:+2, 7-9:+3, 10-17:+4, 18-24:+5, 25+:+6]
-- [ ] 2.3 Wire the bracket lookup into `calculateToHit()` target-movement modifier
-- [ ] 2.4 Unit tests for each bracket boundary (0, 2, 3, 4, 6, 9, 10, 17, 18, 24, 25, 40)
-- [ ] 2.5 Update `to-hit-resolution` spec delta with new scenarios
+## 1. Consolidate Divergent Heat Table (Bug #3 — only live bug)
 
-## 3. Heat Threshold Consolidation
+- [ ] 1.1 Open `src/types/validation/HeatManagement.ts`. The local `HEAT_SCALE_EFFECTS` table uses thresholds 5/10/15/18/20, divergent from the canonical 8/13/17/24 in `src/constants/heat.ts`.
+- [ ] 1.2 Determine consumers of `HEAT_SCALE_EFFECTS`, `getHeatScaleEffect`, `isShutdownRisk`, `getAmmoExplosionRisk`, `getHeatMovementPenalty`, `calculateMovementHeat`, `HeatLevel`, `TSM_ACTIVATION_THRESHOLD`. Grep shows only the file itself + its own test file as consumers today.
+- [ ] 1.3 Replace the `HEAT_SCALE_EFFECTS` table with one derived from `constants/heat.ts` primitives — either: - (a) Delete `HEAT_SCALE_EFFECTS` + `getHeatScaleEffect` entirely if no external consumer remains, and rewrite the three downstream helpers (`isShutdownRisk`, `getAmmoExplosionRisk`, `getHeatMovementPenalty`) to call `getShutdownTN`, `getAmmoExplosionTN`, `getHeatMovementPenalty` from `constants/heat.ts` directly. Re-export from HeatManagement.ts for backwards compatibility if any external type-level consumer exists. - (b) OR rebuild `HEAT_SCALE_EFFECTS` as a derived view over the canonical tables so it stays a convenience shape but cannot drift from `constants/heat.ts`.
+- [ ] 1.4 Update `HeatLevel` enum values to align with canonical thresholds: `COOL = 0`, `WARM = 8` (first to-hit penalty), `HOT = 13` (second), `DANGEROUS = 17` (third), `CRITICAL = 24` (fourth), `SHUTDOWN_RISK = 14` (shutdown-check threshold), `SHUTDOWN_LIKELY = 20`, `MELTDOWN = 30`.
+- [ ] 1.5 Remove the duplicate `getHeatMovementPenalty` in `HeatManagement.ts`; re-export from `constants/heat.ts` if needed.
+- [ ] 1.6 Update `src/__tests__/unit/types/validation/HeatManagement.test.ts` — any test asserting the old 5/10/15/18/20 thresholds SHALL be updated to the canonical thresholds.
 
-- [ ] 3.1 Identify the three heat-threshold definitions (`src/utils/gameplay/toHit.ts`, `src/types/validation/HeatManagement.ts`, `src/constants/heat.ts`)
-- [ ] 3.2 Designate `src/constants/heat.ts` as the single source of truth
-- [ ] 3.3 Set canonical thresholds: heat 8 → +1 to-hit, heat 13 → +2, heat 17 → +3, heat 24 → +4
-- [ ] 3.4 Remove the other two definitions; update imports to reference the constants module
-- [ ] 3.5 Confirm the threshold constants are used by `toHit/damageModifiers.ts` (heat mod)
-- [ ] 3.6 Unit tests across all four threshold boundaries plus interior values (0, 7, 8, 12, 13, 16, 17, 23, 24, 40)
-- [ ] 3.7 Update `heat-overflow-effects` spec delta
+## 2. Regression Test: Target Prone Modifier
 
-## 4. Consciousness Off-By-One
+- [ ] 2.1 Create `src/utils/gameplay/toHit/__tests__/damageModifiers.regression.test.ts`
+- [ ] 2.2 Test: `calculateProneModifier(true, 1)` returns `{value: -2}` (adjacent)
+- [ ] 2.3 Test: `calculateProneModifier(true, 2)` returns `{value: 1}` (2 hexes = penalty)
+- [ ] 2.4 Test: `calculateProneModifier(true, 12)` returns `{value: 1}` (long range)
+- [ ] 2.5 Test: `calculateProneModifier(false, 1)` returns `null` (standing target)
 
-- [ ] 4.1 Locate the consciousness threshold comparison in `src/utils/gameplay/damage.ts` (~line 461)
-- [ ] 4.2 Change the `>` comparison to `>=` so the boundary case rolls (per TechManual p.87)
-- [ ] 4.3 Regression test: pilot at damage == threshold SHALL be required to make consciousness roll
-- [ ] 4.4 Update `piloting-skill-rolls` spec delta for consciousness scenarios
+## 3. Regression Test: TMM Bracket Table
 
-## 5. Weapon Specialist SPA Value
+- [ ] 3.1 Create `src/utils/gameplay/toHit/__tests__/movementModifiers.regression.test.ts`
+- [ ] 3.2 Test every TMM bracket boundary: hexesMoved values `0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 17, 18, 24, 25, 40` against expected TMM values `0, 0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6`
+- [ ] 3.3 Test: `MovementType.Stationary` + 0 hexes returns `tmm = 0`
+- [ ] 3.4 Test: `MovementType.Jump` + 5 hexes still uses hex-count-based bracket (jump bonus handled separately in aggregator)
 
-- [ ] 5.1 Find Weapon Specialist definition in `src/lib/spa/catalog.ts` or equivalent
-- [ ] 5.2 Change modifier from -1 to -2
-- [ ] 5.3 Update SPA combat integration tests
-- [ ] 5.4 Update `spa-combat-integration` spec delta (MODIFIED Requirement)
+## 4. Regression Test: Heat To-Hit Modifier
 
-## 6. Sniper SPA Mechanic
+- [ ] 4.1 Create `src/constants/__tests__/heat.regression.test.ts` (new file, or append to existing heat test if present)
+- [ ] 4.2 Test `getHeatToHitModifier` at every threshold boundary: `0, 7, 8, 12, 13, 16, 17, 23, 24, 40` → `0, 0, 1, 1, 2, 2, 3, 3, 4, 4`
+- [ ] 4.3 Test: the function returns the max bracket for values beyond the last threshold (not cumulative)
 
-- [ ] 6.1 Rewrite the Sniper SPA modifier logic so it halves (floor-div) every range modifier, not just zero medium
-- [ ] 6.2 Short +0 → +0, Medium +2 → +1, Long +4 → +2, Extreme +6 → +3
-- [ ] 6.3 Add unit tests for all four range brackets while Sniper is active
-- [ ] 6.4 Update `spa-combat-integration` spec delta (MODIFIED Requirement)
+## 5. Regression Test: Consciousness Check
 
-## 7. Jumping Jack SPA Mechanic
+- [ ] 5.1 Extend `src/__tests__/unit/utils/gameplay/combat.test.ts` `applyPilotDamage` block with boundary tests
+- [ ] 5.2 Test: a pilot with 3 wounds taking 1 more wound has `consciousnessCheckRequired = true` and `consciousnessTarget = 3 + 4 = 7`
+- [ ] 5.3 Test: when `consciousnessRoll.total === consciousnessTarget`, `conscious = true` (boundary case succeeds — this is the `>=` fix)
+- [ ] 5.4 Test: when `consciousnessRoll.total === consciousnessTarget - 1`, `conscious = false`
 
-- [ ] 7.1 Rewrite the Jumping Jack SPA so it applies to the attacker's to-hit when the attacker jumped, not to the target's piloting roll
-- [ ] 7.2 Remove the incorrect wiring to `pilotingSkillRolls`
-- [ ] 7.3 Wire into `toHit/movementModifiers.ts` or `abilityModifiers.ts` as a -1 when attacker movement type is Jump
-- [ ] 7.4 Unit tests: jumping attacker with Jumping Jack receives -1 reduction on the +3 jump penalty
-- [ ] 7.5 Update `spa-combat-integration` spec delta (MODIFIED Requirement)
+## 6. Regression Test: Weapon Specialist SPA
 
-## 8. Life Support HitsToDestroy
+- [ ] 6.1 Create `src/utils/gameplay/spaModifiers/__tests__/weaponSpecialists.regression.test.ts`
+- [ ] 6.2 Test: `calculateWeaponSpecialistModifier(['weapon_specialist'], 'PPC', 'PPC')` → `{value: -2}`
+- [ ] 6.3 Test: `calculateWeaponSpecialistModifier(['weapon_specialist'], 'PPC', 'AC20')` → `null` (unmatched)
+- [ ] 6.4 Test: `calculateWeaponSpecialistModifier([], 'PPC', 'PPC')` → `null` (no SPA)
 
-- [ ] 8.1 Update `src/types/validation/CriticalHitSystem.ts` life-support entry to `hitsToDestroy: 2`
-- [ ] 8.2 Update any crit-resolution logic that assumes 1 hit destroys life support
-- [ ] 8.3 Unit test: 1 life-support crit SHALL NOT destroy life support; 2 crits SHALL destroy it
-- [ ] 8.4 Update `critical-hit-system` spec delta (MODIFIED Requirement)
+## 7. Regression Test: Sniper SPA
 
-## 9. Validation
+- [ ] 7.1 Append to `weaponSpecialists.regression.test.ts`
+- [ ] 7.2 Test: `calculateSniperModifier(['sniper'], 0)` → `null` (short range — no reduction)
+- [ ] 7.3 Test: `calculateSniperModifier(['sniper'], 2)` → `{value: -1}` (medium halved)
+- [ ] 7.4 Test: `calculateSniperModifier(['sniper'], 4)` → `{value: -2}` (long halved)
+- [ ] 7.5 Test: `calculateSniperModifier(['sniper'], 6)` → `{value: -3}` (extreme halved)
+- [ ] 7.6 Test: `calculateSniperModifier([], 4)` → `null` (no SPA)
 
-- [ ] 9.1 Run full test suite; fix all downstream tests asserting the previously-wrong values
-- [ ] 9.2 Run `openspec validate fix-combat-rule-accuracy --strict` and clear any structural issues
-- [ ] 9.3 Confirm the autonomous-fuzzer invariants still pass (simulation-system harness)
-- [ ] 9.4 Verify build + lint clean
+## 8. Regression Test: Jumping Jack SPA
+
+- [ ] 8.1 Create `src/utils/gameplay/spaModifiers/__tests__/abilityModifiers.regression.test.ts`
+- [ ] 8.2 Test: `calculateJumpingJackModifier(['jumping_jack'], MovementType.Jump)` → `{value: -2}` (attacker to-hit bonus when jumping)
+- [ ] 8.3 Test: `calculateJumpingJackModifier(['jumping_jack'], MovementType.Walk)` → `null` (not jumping)
+- [ ] 8.4 Test: `calculateJumpingJackModifier([], MovementType.Jump)` → `null` (no SPA)
+
+## 9. Regression Test: Life Support HitsToDestroy
+
+- [ ] 9.1 Create `src/types/validation/__tests__/CriticalHitSystem.regression.test.ts` (or append to existing if present)
+- [ ] 9.2 Test: `getCriticalHitEffect(CriticalComponentType.LIFE_SUPPORT)?.hitsToDestroy === 2`
+- [ ] 9.3 Test: life-support effect description mentions "Pilot takes 1 damage at end of turn"
+
+## 10. Validation
+
+- [ ] 10.1 Run `openspec validate fix-combat-rule-accuracy --strict` — structural check
+- [ ] 10.2 Run `npm test` — all new regression tests pass
+- [ ] 10.3 Run `npm run build` — build clean
+- [ ] 10.4 Run `npm run lint` — lint clean
+- [ ] 10.5 Verify no production code paths broken by `HeatManagement.ts` consolidation (grep for any imports of removed exports)
