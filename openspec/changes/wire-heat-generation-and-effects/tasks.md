@@ -1,5 +1,21 @@
 # Tasks: Wire Heat Generation and Effects
 
+## 0. Prerequisites
+
+- [ ] 0.1 `fix-combat-rule-accuracy` merged to main (canonical heat threshold table — otherwise this change will cement the wrong thresholds)
+- [ ] 0.2 `wire-real-weapon-data` merged to main (per-weapon firing heat values)
+- [ ] 0.3 `integrate-damage-pipeline` merged to main (engine-crit hits emit the events this phase reads for +5-per-hit heat)
+
+## 0.5 Event Enum Alignment
+
+Audit [src/types/gameplay/GameSessionInterfaces.ts](src/types/gameplay/GameSessionInterfaces.ts) and own the diff within THIS change.
+
+- [ ] 0.5.1 Confirm existing: `HeatGenerated` (line 97), `HeatDissipated` (98), `HeatEffectApplied` (99), `ShutdownCheck` (112), `StartupAttempt` (113)
+- [ ] 0.5.2 Reconcile: proposal text used `HeatShutdown` and `HeatStartup`. The enum already has `ShutdownCheck` and `StartupAttempt` — those are the same events. Update this change's spec scenarios + tasks to use the existing enum names (`ShutdownCheck` / `StartupAttempt`) rather than introducing aliases
+- [ ] 0.5.3 Extend existing payloads if needed: `IShutdownCheckPayload` should carry `{unitId, heat, targetNumber, roll, result}`; `IStartupAttemptPayload` should carry `{unitId, turn, targetNumber, roll, result}`. If the current interfaces don't expose these fields, add them here
+- [ ] 0.5.4 Segment the `HeatGenerated` payload by source: `source: 'movement' | 'firing' | 'engine_hit' | 'environment'`. Current payload may not have this field — add it
+- [ ] 0.5.5 Compile check: `tsc --noEmit` passes; every scenario's event name matches the enum
+
 ## 1. Movement Heat
 
 - [ ] 1.1 Replace `Jump ? 1 : 0` heat approximation in the movement path
@@ -82,9 +98,18 @@
 - [ ] 13.2 `HeatDissipated` event SHALL include base dissipation and water bonus
 - [ ] 13.3 End-of-phase `unitState.heat` SHALL equal startHeat + generated - dissipated (clamped to 0 minimum)
 
-## 14. Validation
+## 14. Per-Change Smoke Test
 
-- [ ] 14.1 `openspec validate wire-heat-generation-and-effects --strict`
-- [ ] 14.2 Autonomous fuzzer: no mech ever has negative heat; no mech silently skips a shutdown check
-- [ ] 14.3 End-to-end test: alpha-strike overheat sequence → shutdown at heat 20 → no-fire phase → cool-down startup
-- [ ] 14.4 Build + lint clean
+- [ ] 14.1 Fixture: 1 mech, 10 heat sinks, heat = 0 at start of turn, full movement options
+- [ ] 14.2 Action: mech runs 3 hexes (+2 heat) and fires 1 PPC (+10 heat)
+- [ ] 14.3 Assert events: `HeatGenerated { source: 'movement', amount: 2 }`, `HeatGenerated { source: 'firing', amount: 10 }`, `HeatDissipated { amount: 10 }`
+- [ ] 14.4 Assert final `unitState.heat` = 2 (0 + 2 + 10 - 10)
+- [ ] 14.5 Second fixture: heat = 14; fire 1 PPC; assert `ShutdownCheck` fires with correct TN per `fix-combat-rule-accuracy` threshold table
+- [ ] 14.6 Replay fidelity: same seed produces same shutdown roll outcome
+
+## 15. Validation
+
+- [ ] 15.1 `openspec validate wire-heat-generation-and-effects --strict`
+- [ ] 15.2 Autonomous fuzzer: no mech ever has negative heat; no mech silently skips a shutdown check
+- [ ] 15.3 End-to-end test: alpha-strike overheat sequence → shutdown at heat 20 → no-fire phase → cool-down startup
+- [ ] 15.4 Build + lint clean

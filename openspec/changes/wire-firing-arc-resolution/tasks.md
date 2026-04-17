@@ -1,5 +1,9 @@
 # Tasks: Wire Firing Arc Resolution
 
+## 0. Prerequisites
+
+- [ ] 0.1 `fix-combat-rule-accuracy` merged to main (to-hit math must be correct before changing which arc supplies the hit-location table)
+
 ## 1. Audit Hardcoded Arc Usage
 
 - [ ] 1.1 Grep every `FiringArc.Front` reference in the engine and gameSession paths
@@ -47,8 +51,17 @@
 - [ ] 8.1 Ensure the UI event log can display the arc string
 - [ ] 8.2 Optional: highlight arc on the hex map during attack preview
 
-## 9. Validation
+## 9. Per-Change Smoke Test
 
-- [ ] 9.1 `openspec validate wire-firing-arc-resolution --strict`
-- [ ] 9.2 Autonomous fuzzer reports no new invariant violations related to arcs
-- [ ] 9.3 Build + lint clean
+- [ ] 9.1 Fixture: attacker at hex (0,0) facing north; target at (0,3) facing north — attacker is directly south of target
+- [ ] 9.2 Action: fire any weapon from attacker
+- [ ] 9.3 Assert: `AttackResolved.payload.attackerArc === 'Rear'` (not hardcoded `Front`)
+- [ ] 9.4 Second fixture: target rotates 180° (faces south, attacker now in front arc)
+- [ ] 9.5 Assert: `attackerArc === 'Front'`
+- [ ] 9.6 Regression guard: grep source for `FiringArc.Front` in the attack-resolution path — zero matches outside test fixtures
+
+## 10. Validation
+
+- [ ] 10.1 `openspec validate wire-firing-arc-resolution --strict`
+- [ ] 10.2 Autonomous fuzzer reports no new invariant violations related to arcs
+- [ ] 10.3 Build + lint clean

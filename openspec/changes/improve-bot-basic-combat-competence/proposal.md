@@ -6,12 +6,18 @@
 
 ## What Changes
 
-- Target prioritization by threat score × kill probability (replaces uniform-random target choice in `AttackAI.selectTarget`)
+- Target prioritization by `threatScore × killProbability` (replaces uniform-random target choice in `AttackAI.selectTarget`), where:
+  - `threatScore = (sumForTurn(weapon.damage × weapon.hitChance)) × remainingHpFraction`
+  - `weapon.hitChance = probabilityFrom2d6(targetNumber)` using the table from `to-hit-resolution`. This is NOT a reciprocal of gunnery — the per-weapon hit probability already folds in gunnery skill via the computed TN, so no standalone "gunneryMod" constant is needed
+  - `remainingHpFraction = (totalArmor + totalStructure) / (maxArmor + maxStructure)` for the target, clamped to `[0, 1]`
+  - `killProbability = expectedDamage / targetRemainingHp`, clamped to `[0, 1]`
+  - Final score: `threatScore × killProbability`
+  - Tie-breaking when two targets score within 1% of each other: nearest target wins (lower hex distance); if still tied, lowest `targetId` wins (deterministic). `SeededRandom` is used for no bot decision in this change — ties are broken deterministically so replay is bit-stable
 - Firing-arc awareness: weapons that can't reach the target's current hex given the attacker's facing and torso twist state SHALL be excluded from the fire list
 - Heat management: if firing the candidate weapon set would push heat above a safe threshold (default 13), drop weapons one at a time in ascending damage-per-heat ratio until the candidate set is under threshold
 - Weapon selection order: fire highest damage-per-heat ratio weapons first, respect short/medium/long range-bracket effectiveness, and skip weapons at minimum-range penalty when better weapons are available
 - Movement positioning: prefer destination hexes that (a) keep at least one enemy in line of sight, and (b) maintain the highest-threat target in the attacker's forward firing arc after the move commits
-- Extend `IBotBehavior` with `safeHeatThreshold` (default 13) so scenario presets can tune aggression
+- Extend `IBotBehavior` with `safeHeatThreshold` (default 13) so scenario presets can tune aggression. Rationale: 13 is the second BattleTech heat threshold (per `fix-combat-rule-accuracy`), above which a +2 to-hit penalty kicks in. A bot that fires-until-13 fires hot-but-not-crippling; aggressive presets may raise to 17 (accepting the +3 to-hit penalty) and cautious presets may lower to 8 (zero penalty). All three presets are playable; default 13 balances attack volume vs. accuracy per Total Warfare p.115 heat scale
 - Keep the existing `SeededRandom` discipline — every AI branch that introduces new randomness (tie-breaking, exploration) SHALL route through the injected random source
 
 ## Dependencies

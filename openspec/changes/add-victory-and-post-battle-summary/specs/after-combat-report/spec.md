@@ -7,18 +7,37 @@
 The after-combat report system SHALL define an `IPostBattleReport`
 schema produced at the end of a tactical session, and `IUnitReport`
 per-unit entries, so the UI and the match log store can render and
-persist the outcome consistently.
+persist the outcome consistently. The schema SHALL carry an explicit
+`version` field (literal `1` at introduction) so future phases
+(especially Phase 3 campaign integration) can extend the report
+structure without silently breaking readers of stored Phase 1 match
+logs.
 
 #### Scenario: Report contains required top-level fields
 
 - **GIVEN** a session that has completed via `GameEnded`
 - **WHEN** the report is derived
-- **THEN** the report SHALL contain `matchId`, `winner`, `reason`,
-  `turnCount`, `units`, `mvpUnitId`, `log`
+- **THEN** the report SHALL contain `version: 1`, `matchId`, `winner`,
+  `reason`, `turnCount`, `units`, `mvpUnitId`, `log`
 - **AND** `winner` SHALL be one of `GameSide.Player`, `GameSide.Opponent`,
   or `"draw"`
 - **AND** `reason` SHALL be one of `"destruction"`, `"concede"`,
   `"turn_limit"`
+
+#### Scenario: Unversioned report rejected on read
+
+- **GIVEN** a stored match log whose JSON lacks a `version` field
+- **WHEN** `GET /api/matches/[id]` is called
+- **THEN** the endpoint SHALL respond 400 with body `{error:
+"unversioned report"}`
+- **AND** the UI SHALL NOT attempt to render it
+
+#### Scenario: Unknown-version report rejected on read
+
+- **GIVEN** a stored match log with `version: 99`
+- **WHEN** `GET /api/matches/[id]` is called
+- **THEN** the endpoint SHALL respond 400 with body `{error:
+"unsupported report version 99, this build supports 1"}`
 
 #### Scenario: Unit report contains damage and kill accounting
 

@@ -19,6 +19,19 @@ The turn loop advances through `GamePhase.PhysicalAttack` but the phase body is 
 - Feed damage into the damage pipeline via `integrate-damage-pipeline`
 - Emit `PhysicalAttackDeclared`, `PhysicalAttackResolved` events
 
+## Rule Sources
+
+Every attack type in this change cites **Total Warfare** as the canonical source. Implementers: where tables are referenced, copy the page's table verbatim into the delta spec so the implementation is not derived at second hand.
+
+- **Punch** (to-hit, damage, hit-location table): Total Warfare p.144–145
+- **Kick** (to-hit −2, damage floor(w/5), PSR on hit/miss, kick hit-location table): Total Warfare p.145–146
+- **Charge** (to-hit, damage to target `ceil(w/10) × (hexesMoved − 1)`, damage to attacker `ceil(targetW/10)`, both sides PSR): Total Warfare p.146–147. On MISS with an existing commitment-to-destination, the attacker still enters the target hex (displacement rule) and both sides still take collision PSRs; no damage applies on miss.
+- **DFA / Death From Above** (to-hit piloting, target damage `ceil(w/10) × 3`, attacker leg damage `ceil(w/5)`, miss → attacker fall): Total Warfare p.147–148. On MISS the attacker falls per standard fall rules (forward/backward direction roll); the attacker takes full leg damage regardless of hit or miss.
+- **Push** (to-hit −1, no damage, displacement 1 hex in attacker's facing): Total Warfare p.148. Push destination hex blocked / off-map → push fails; both units stay in place; target still takes PSR.
+- **Club / melee weapon** per-weapon stats and club damage formulas: Total Warfare p.149–150 + `physical-weapons-system` spec for the equipment-specific rows.
+- **Punch hit-location table (1d6)**: Total Warfare p.145 table. The proposal's 10.1 copy (LA / LT / CT / RT / RA / Head for rolls 1–6) SHALL be cross-checked against the printed table before implementation.
+- **Kick hit-location table (1d6)**: Total Warfare p.146 table (legs only).
+
 ## Dependencies
 
 - **Requires**: `fix-combat-rule-accuracy` (correct base math), `integrate-damage-pipeline` (physical damage feeds the same pipeline), `wire-piloting-skill-rolls` (PSR triggers fire on hit and miss), `wire-firing-arc-resolution` (physical attacks need arc for hit-location table selection)
