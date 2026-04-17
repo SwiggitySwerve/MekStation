@@ -7,6 +7,7 @@ import {
   IGameSession,
   IWeaponAttackData,
 } from '@/types/gameplay';
+import { logger } from '@/utils/logger';
 
 import { consumeAmmo, isEnergyWeapon } from './ammoTracking';
 import {
@@ -58,7 +59,18 @@ export function resolveAttack(
 
   for (const weaponId of weapons) {
     const weaponData = weaponDataMap.get(weaponId);
-    const weaponName = weaponData?.weaponName ?? weaponId;
+    if (!weaponData) {
+      // Producers (InteractiveSession / GameEngine.phases) now route through
+      // buildWeaponAttacks, which guarantees weaponAttacks is populated for
+      // every declared weapon. If this branch fires, the attack declaration
+      // is malformed (legacy test fixture, hand-crafted event, etc.). Skip
+      // the weapon rather than silently defaulting to 5 damage / 3 heat.
+      logger.warn(
+        `[resolveAttack] weaponAttacks payload missing entry for weapon "${weaponId}" on attacker "${attackerId}" — skipping. This indicates a malformed AttackDeclared event.`,
+      );
+      continue;
+    }
+    const weaponName = weaponData.weaponName;
 
     const attackerStateForAmmo = currentSession.currentState.units[attackerId];
     const ammoState = attackerStateForAmmo?.ammoState ?? {};
@@ -104,7 +116,7 @@ export function resolveAttack(
         locationRoll,
       );
       const location = hitLocationResult.location;
-      let damage = weaponData?.damage ?? 5;
+      let damage = weaponData.damage;
 
       if (isHeadHit(location) && damage > 3) {
         damage = 3;
@@ -122,6 +134,7 @@ export function resolveAttack(
         true,
         location,
         damage,
+        weaponData.heat,
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
 
@@ -266,6 +279,9 @@ export function resolveAttack(
         currentSession = appendEvent(currentSession, destroyEvent);
       }
     } else {
+      // Miss — attacker still generates firing heat per canonical rules
+      // (TechManual p.68: heat is charged at weapon-firing time, not on
+      // hit). Pass weaponData.heat so the heat phase accumulates correctly.
       const resolvedEvent = createAttackResolvedEvent(
         currentSession.id,
         sequence,
@@ -276,6 +292,9 @@ export function resolveAttack(
         attackRoll.total,
         toHitNumber,
         false,
+        undefined,
+        undefined,
+        weaponData.heat,
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
     }

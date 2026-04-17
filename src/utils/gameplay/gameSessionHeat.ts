@@ -11,6 +11,7 @@ import {
   IGameSession,
   IMovementDeclaredPayload,
 } from '@/types/gameplay';
+import { logger } from '@/utils/logger';
 
 import { resolveAmmoExplosion } from './ammoTracking';
 import { type DiceRoller } from './diceTypes';
@@ -70,7 +71,16 @@ export function resolveHeatPhase(
           heatFromWeapons += weaponAttack.heat;
         }
       } else {
-        heatFromWeapons += payload.weapons.length * 3;
+        // Producers now always populate weaponAttacks (per
+        // wire-real-weapon-data). An empty weaponAttacks with a non-empty
+        // weapons list indicates a malformed legacy event; treat it as
+        // zero firing heat rather than approximating `weapons.length * 3`
+        // (which is the original bug this change targets).
+        if (payload.weapons.length > 0) {
+          logger.warn(
+            `[gameSessionHeat] AttackDeclared event for unit "${unitId}" has ${payload.weapons.length} weapon(s) but empty weaponAttacks — firing heat for this event accumulated as 0. Source: malformed legacy event.`,
+          );
+        }
       }
     }
 

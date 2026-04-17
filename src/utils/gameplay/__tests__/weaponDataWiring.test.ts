@@ -584,14 +584,19 @@ describe('Weapon Data Wiring', () => {
     });
   });
 
-  describe('backward compatibility: events without weaponAttacks', () => {
-    it('resolveAttack falls back to damage=5 when weaponAttacks absent', () => {
+  describe('malformed events without weaponAttacks (wire-real-weapon-data)', () => {
+    it('resolveAttack skips the weapon (no AttackResolved) when weaponAttacks is absent', () => {
+      // Per wire-real-weapon-data: the silent `?? 5` damage fallback was a
+      // rule-accuracy bug — every weapon with missing data used to fire as a
+      // Medium Laser regardless of its actual stats. New behavior: log a
+      // warning and skip the weapon so the issue is observable upstream.
+      const { logger } = require('@/utils/logger');
+      const warnSpy = jest.spyOn(logger, 'warn').mockImplementation();
       const units = createUnits();
       let session = createGameSession(createConfig(), units);
       session = startGame(session, GameSide.Player);
       session = advanceToWeaponAttack(session);
 
-      // Manually create an attack event without weaponAttacks (legacy format)
       const { createAttackDeclaredEvent } = require('../gameEvents');
       const sequence = session.events.length;
       const event = createAttackDeclaredEvent(
@@ -612,9 +617,11 @@ describe('Weapon Data Wiring', () => {
       const resolvedEvents = resolved.events.filter(
         (e: { type: string }) => e.type === GameEventType.AttackResolved,
       );
-      expect(resolvedEvents.length).toBe(1);
-      const payload = resolvedEvents[0].payload as IAttackResolvedPayload;
-      expect(payload.damage).toBe(5); // fallback
+      expect(resolvedEvents.length).toBe(0);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('weaponAttacks payload missing entry'),
+      );
+      warnSpy.mockRestore();
     });
   });
 });

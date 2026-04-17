@@ -43,6 +43,7 @@ import {
   resolveAllAttacks,
   resolveHeatPhase,
 } from '@/utils/gameplay/gameSession';
+import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import type { IAdaptedUnit, IAvailableActions } from './types';
 
@@ -155,21 +156,11 @@ export class InteractiveSession {
     weaponIds: readonly string[],
   ): void {
     const unitWeapons = this.weaponsByUnit.get(attackerId) ?? [];
-    const weaponAttacks: IWeaponAttack[] = weaponIds.map((wId) => {
-      const wData = unitWeapons.find((w) => w.id === wId);
-      return {
-        weaponId: wId,
-        weaponName: wData?.name ?? wId,
-        damage: wData?.damage ?? 5,
-        heat: wData?.heat ?? 3,
-        category: 'energy' as never,
-        minRange: wData?.minRange ?? 0,
-        shortRange: wData?.shortRange ?? 3,
-        mediumRange: wData?.mediumRange ?? 6,
-        longRange: wData?.longRange ?? 9,
-        isCluster: false,
-      };
-    });
+    const weaponAttacks: IWeaponAttack[] = buildWeaponAttacks(
+      weaponIds,
+      unitWeapons,
+      attackerId,
+    );
 
     const attackerState = this.session.currentState.units[attackerId];
     const targetState = this.session.currentState.units[targetId];
@@ -289,22 +280,10 @@ export class InteractiveSession {
         );
         const atkEvt = this.botPlayer.playAttackPhase(aiUnit, enemies);
         if (atkEvt) {
-          const weaponAttacks: IWeaponAttack[] = atkEvt.payload.weapons.map(
-            (wId) => {
-              const wData = weapons.find((w) => w.id === wId);
-              return {
-                weaponId: wId,
-                weaponName: wData?.name ?? wId,
-                damage: wData?.damage ?? 5,
-                heat: wData?.heat ?? 3,
-                category: 'energy' as never,
-                minRange: wData?.minRange ?? 0,
-                shortRange: wData?.shortRange ?? 3,
-                mediumRange: wData?.mediumRange ?? 6,
-                longRange: wData?.longRange ?? 9,
-                isCluster: false,
-              };
-            },
+          const weaponAttacks: IWeaponAttack[] = buildWeaponAttacks(
+            atkEvt.payload.weapons,
+            weapons,
+            unitId,
           );
 
           const targetUnit =
