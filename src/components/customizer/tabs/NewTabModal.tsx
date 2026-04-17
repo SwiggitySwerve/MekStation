@@ -141,7 +141,7 @@ export function NewTabModal({
         </div>
 
         <div className="border-border-theme-subtle flex border-b">
-          {(['new', 'copy', 'import'] as CreationMode[]).map((tabMode) => (
+          {(['new', 'copy'] as CreationMode[]).map((tabMode) => (
             <button
               key={tabMode}
               onClick={() => setMode(tabMode)}
@@ -153,7 +153,6 @@ export function NewTabModal({
             >
               {tabMode === 'new' && 'New Unit'}
               {tabMode === 'copy' && 'Copy Current'}
-              {tabMode === 'import' && 'Import Data'}
             </button>
           ))}
         </div>
@@ -188,13 +187,6 @@ export function NewTabModal({
               </p>
             </div>
           )}
-
-          {mode === 'import' && (
-            <div className="text-text-theme-secondary py-8 text-center">
-              <p>Import from MTF, SSW, or MegaMek formats.</p>
-              <p className="mt-2 text-sm">(Coming soon)</p>
-            </div>
-          )}
         </div>
 
         <div className="border-border-theme-subtle flex justify-end gap-2 border-t px-4 py-3">
@@ -206,8 +198,7 @@ export function NewTabModal({
           </button>
           <button
             onClick={handleCreate}
-            disabled={mode === 'import'}
-            className="bg-accent hover:bg-accent-hover rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-accent hover:bg-accent-hover rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
           >
             Create Unit
           </button>
