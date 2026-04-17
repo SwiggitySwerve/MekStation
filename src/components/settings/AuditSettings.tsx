@@ -54,8 +54,11 @@ export function AuditSettings({
             </div>
           </Link>
 
-          <div className="bg-surface-raised/30 border-border-theme-subtle/50 flex items-center gap-3 rounded-lg border p-4 opacity-60">
-            <div className="bg-surface-raised text-text-theme-muted flex h-10 w-10 items-center justify-center rounded-lg">
+          <Link
+            href="/gameplay/games"
+            className="bg-surface-raised/50 border-border-theme-subtle hover:bg-surface-raised hover:border-border-theme group flex items-center gap-3 rounded-lg border p-4 transition-all"
+          >
+            <div className="bg-accent/20 text-accent group-hover:bg-accent flex h-10 w-10 items-center justify-center rounded-lg transition-colors group-hover:text-white">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -77,12 +80,14 @@ export function AuditSettings({
               </svg>
             </div>
             <div>
-              <div className="text-text-theme-secondary text-sm font-medium">
+              <div className="text-text-theme-primary group-hover:text-accent text-sm font-medium transition-colors">
                 Replay Player
               </div>
-              <div className="text-text-theme-muted text-xs">Coming soon</div>
+              <div className="text-text-theme-muted text-xs">
+                Pick a game to replay
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         <div className="border-border-theme-subtle border-t pt-4">

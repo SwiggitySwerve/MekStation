@@ -367,18 +367,23 @@ describe('Settings Page', () => {
   });
 
   describe('Audit Log Section', () => {
-    it('renders audit log content with event timeline link', () => {
+    it('renders audit log content with event timeline and replay player links', () => {
       renderSettings();
       clickSectionHeader('Audit Log');
 
       expect(screen.getByText('Event Timeline')).toBeInTheDocument();
       expect(screen.getByText('Replay Player')).toBeInTheDocument();
-      expect(screen.getByText('Coming soon')).toBeInTheDocument();
+      expect(screen.getByText('Pick a game to replay')).toBeInTheDocument();
 
       const timelineLink = screen
         .getAllByRole('link')
         .find((link) => link.getAttribute('href') === '/audit/timeline');
       expect(timelineLink).toBeDefined();
+
+      const replayLink = screen
+        .getAllByRole('link')
+        .find((link) => link.getAttribute('href') === '/gameplay/games');
+      expect(replayLink).toBeDefined();
     });
   });
 

@@ -1,7 +1,7 @@
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-export type CreationMode = 'new' | 'copy' | 'import';
+export type CreationMode = 'new' | 'copy';
 
 export type SupportedUnitType =
   | UnitType.BATTLEMECH
