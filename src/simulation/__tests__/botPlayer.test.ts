@@ -92,7 +92,11 @@ describe('BotPlayer', () => {
 
     it('should create with custom behavior', () => {
       const random = new SeededRandom(12345);
-      const behavior = { retreatThreshold: 0.5, retreatEdge: 'north' as const };
+      const behavior = {
+        retreatThreshold: 0.5,
+        retreatEdge: 'north' as const,
+        safeHeatThreshold: 13,
+      };
       const bot = new BotPlayer(random, behavior);
 
       expect(bot).toBeDefined();
