@@ -2,6 +2,7 @@ import {
   GameEventType,
   GamePhase,
   IAttackDeclaredPayload,
+  IAttackInvalidPayload,
   IAttackLockedPayload,
   IAttackResolvedPayload,
   IDamageAppliedPayload,
@@ -79,6 +80,7 @@ export function createAttackResolvedEvent(
   damage?: number,
   heat?: number,
   attackerArc?: 'front' | 'left' | 'right' | 'rear',
+  ammoBinId?: string | null,
 ): IGameEvent {
   const payload: IAttackResolvedPayload = {
     attackerId,
@@ -91,6 +93,7 @@ export function createAttackResolvedEvent(
     damage,
     heat,
     attackerArc,
+    ammoBinId,
   };
 
   return {
@@ -98,6 +101,37 @@ export function createAttackResolvedEvent(
       gameId,
       sequence,
       GameEventType.AttackResolved,
+      turn,
+      GamePhase.WeaponAttack,
+      attackerId,
+    ),
+    payload,
+  };
+}
+
+export function createAttackInvalidEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  attackerId: string,
+  targetId: string,
+  reason: IAttackInvalidPayload['reason'],
+  weaponId?: string,
+  details?: string,
+): IGameEvent {
+  const payload: IAttackInvalidPayload = {
+    attackerId,
+    targetId,
+    reason,
+    weaponId,
+    details,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.AttackInvalid,
       turn,
       GamePhase.WeaponAttack,
       attackerId,

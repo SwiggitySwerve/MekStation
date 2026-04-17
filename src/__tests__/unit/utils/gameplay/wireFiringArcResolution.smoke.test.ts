@@ -35,7 +35,6 @@ import {
   resolveAllAttacks,
   startGame,
 } from '@/utils/gameplay/gameSession';
-import { logger } from '@/utils/logger';
 
 const config: IGameConfig = {
   mapRadius: 10,
@@ -234,9 +233,9 @@ describe('wire-firing-arc-resolution — smoke test', () => {
     expect(payload.attackerArc).toBe('rear');
   });
 
-  it('same-hex attacker and target → attack invalidated (no AttackResolved)', () => {
-    const warnSpy = jest.spyOn(logger, 'warn').mockImplementation();
-
+  it('same-hex attacker and target → AttackInvalid { SameHex } emitted', () => {
+    // Per wire-ammo-consumption: SameHex invalidation now emits an
+    // AttackInvalid event (was previously logger.warn + silent return).
     // Both at (0, 0).
     let session = setupAttack(
       { q: 0, r: 0 },
@@ -258,8 +257,13 @@ describe('wire-firing-arc-resolution — smoke test', () => {
       (e: IGameEvent) => e.type === GameEventType.AttackResolved,
     );
     expect(resolved).toHaveLength(0);
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('same hex'));
-    warnSpy.mockRestore();
+
+    const invalid = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toHaveLength(1);
+    const payload = invalid[0].payload as { reason: string };
+    expect(payload.reason).toBe('SameHex');
   });
 
   it('regression guard: no hardcoded FiringArc.Front literal in attack-resolution path', () => {

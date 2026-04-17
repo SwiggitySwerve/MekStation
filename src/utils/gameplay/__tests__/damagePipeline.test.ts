@@ -70,6 +70,19 @@ function createTestUnit(overrides: Partial<IGameUnit> = {}): IGameUnit {
     gunnery: 4,
     piloting: 5,
     heatSinks: 10,
+    // Seed ammo bins so ammo-consuming weapon tests (AC/20, etc.) can
+    // fire. Per wire-ammo-consumption, firing with no matching non-empty
+    // bin emits AttackInvalid instead of AttackResolved.
+    ammoConstruction: [
+      {
+        binId: 'bin-ac20-1',
+        weaponType: 'AC/20',
+        location: 'rt',
+        maxRounds: 40,
+        damagePerRound: 20,
+        isExplosive: true,
+      },
+    ],
     ...overrides,
   };
 }

@@ -2,6 +2,7 @@ import {
   Facing,
   GamePhase,
   GameStatus,
+  IAmmoSlotState,
   IComponentDamageState,
   IGameState,
   IGameUnit,
@@ -31,6 +32,24 @@ export function createInitialUnitState(
   startPosition: IHexCoordinate,
   startFacing: Facing = Facing.North,
 ): IUnitGameState {
+  // Seed ammo bins from the unit's construction data (per
+  // `wire-ammo-consumption`). One bin per ton; each starts full. When
+  // `unit.ammoConstruction` is absent, the unit has zero bins and any
+  // ammo-consuming weapon fire will emit `AttackInvalid { OutOfAmmo }`.
+  const ammoState: Record<string, IAmmoSlotState> = {};
+  if (unit.ammoConstruction) {
+    for (const bin of unit.ammoConstruction) {
+      ammoState[bin.binId] = {
+        binId: bin.binId,
+        weaponType: bin.weaponType,
+        location: bin.location,
+        remainingRounds: bin.maxRounds,
+        maxRounds: bin.maxRounds,
+        isExplosive: bin.isExplosive,
+      };
+    }
+  }
+
   return {
     id: unit.id,
     side: unit.side,
@@ -51,7 +70,7 @@ export function createInitialUnitState(
     componentDamage: DEFAULT_COMPONENT_DAMAGE,
     prone: false,
     shutdown: false,
-    ammoState: {},
+    ammoState,
     pendingPSRs: [],
     weaponsFiredThisTurn: [],
     jammedWeapons: [],

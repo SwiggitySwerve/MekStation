@@ -51,6 +51,44 @@ function createConfig(): IGameConfig {
   };
 }
 
+// Seed ammo bins on the player unit so ammo-consuming weapon tests can fire.
+// Per wire-ammo-consumption, firing an ammo weapon with no matching bin
+// emits AttackInvalid and no AttackResolved.
+const TEST_AMMO_BINS = [
+  {
+    binId: 'bin-ac20-1',
+    weaponType: 'AC/20',
+    location: 'rt',
+    maxRounds: 40, // plenty for test flows
+    damagePerRound: 20,
+    isExplosive: true,
+  },
+  {
+    binId: 'bin-ac10-1',
+    weaponType: 'AC/10',
+    location: 'rt',
+    maxRounds: 40,
+    damagePerRound: 10,
+    isExplosive: true,
+  },
+  {
+    binId: 'bin-ac-20-1',
+    weaponType: 'AC-20',
+    location: 'rt',
+    maxRounds: 40,
+    damagePerRound: 20,
+    isExplosive: true,
+  },
+  {
+    binId: 'bin-lrm10-1',
+    weaponType: 'LRM-10',
+    location: 'ct',
+    maxRounds: 40,
+    damagePerRound: 1,
+    isExplosive: true,
+  },
+];
+
 function createUnits(options?: {
   playerHeatSinks?: number;
   opponentHeatSinks?: number;
@@ -65,6 +103,7 @@ function createUnits(options?: {
       gunnery: 4,
       piloting: 5,
       heatSinks: options?.playerHeatSinks,
+      ammoConstruction: TEST_AMMO_BINS,
     },
     {
       id: 'opponent-1',

@@ -55,6 +55,20 @@ const units: IGameUnit[] = [
     pilotRef: 'pilot-1',
     gunnery: 4,
     piloting: 5,
+    // Seed the AC/20 bin so the weapon can fire (wire-ammo-consumption
+    // now rejects ammo-weapon attempts with no matching non-empty bin).
+    ammoConstruction: [
+      {
+        binId: 'bin-ac20-1',
+        // Must match the weapon's `weaponName` (used by consumeAmmo as
+        // the matching key). The AC/20 below is named 'AC/20'.
+        weaponType: 'AC/20',
+        location: 'rt',
+        maxRounds: 5,
+        damagePerRound: 20,
+        isExplosive: true,
+      },
+    ],
   },
   {
     id: 'marauder',

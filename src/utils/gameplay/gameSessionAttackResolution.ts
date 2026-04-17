@@ -21,6 +21,7 @@ import { type DiceRoller } from './diceTypes';
 import { calculateFiringArc } from './firingArc';
 import {
   createAmmoConsumedEvent,
+  createAttackInvalidEvent,
   createAttackResolvedEvent,
   createDamageAppliedEvent,
   createPilotHitEvent,
@@ -60,11 +61,9 @@ export function resolveAttack(
   // Edge case: attacker and target share a hex. `firingArcs.determineArc`
   // returns Front for same-hex by convention, but per
   // `wire-firing-arc-resolution` task 5.1 this attack should be invalidated
-  // — a mech cannot fire at another mech occupying its own hex. Log +
-  // skip every weapon in this declaration (not per-weapon; the whole
-  // attack is geometrically undefined).
-  // TODO(wire-ammo-consumption): emit AttackInvalid { reason: 'SameHex' }
-  // once that change adds the AttackInvalid event type.
+  // — a mech cannot fire at another mech occupying its own hex. Emit
+  // `AttackInvalid { SameHex }` (per `wire-ammo-consumption` event contract)
+  // and return without resolving any weapon.
   const attackerPos = session.currentState.units[attackerId]?.position;
   const targetPos = session.currentState.units[targetId]?.position;
   if (
@@ -73,8 +72,20 @@ export function resolveAttack(
     attackerPos.q === targetPos.q &&
     attackerPos.r === targetPos.r
   ) {
-    logger.warn(
-      `[resolveAttack] Attacker "${attackerId}" and target "${targetId}" occupy the same hex — attack invalidated (SameHex). No AttackResolved events emitted.`,
+    const invalidSequence = currentSession.events.length;
+    const { turn: invalidTurn } = currentSession.currentState;
+    currentSession = appendEvent(
+      currentSession,
+      createAttackInvalidEvent(
+        currentSession.id,
+        invalidSequence,
+        invalidTurn,
+        attackerId,
+        targetId,
+        'SameHex',
+        undefined,
+        'Attacker and target occupy the same hex',
+      ),
     );
     return currentSession;
   }
@@ -94,28 +105,52 @@ export function resolveAttack(
     }
     const weaponName = weaponData.weaponName;
 
+    // Ammo consumption (per `wire-ammo-consumption`). For ammo-consuming
+    // weapons the resolver SHALL draw from the first non-empty matching
+    // bin, emit `AmmoConsumed`, and carry the consumed `ammoBinId` onto
+    // `AttackResolved` below. If no matching non-empty bin exists, emit
+    // `AttackInvalid { OutOfAmmo }` and skip the weapon — no heat, no
+    // damage, no `AttackResolved`.
+    let ammoBinIdForResolved: string | null = null;
     const attackerStateForAmmo = currentSession.currentState.units[attackerId];
     const ammoState = attackerStateForAmmo?.ammoState ?? {};
-    if (!isEnergyWeapon(weaponName) && Object.keys(ammoState).length > 0) {
+    if (!isEnergyWeapon(weaponName)) {
       const ammoResult = consumeAmmo(ammoState, attackerId, weaponName);
-      if (ammoResult) {
-        const ammoSequence = currentSession.events.length;
-        const ammoTurn = currentSession.currentState.turn;
+      if (!ammoResult) {
+        const invalidSequence = currentSession.events.length;
+        const { turn: invalidTurn } = currentSession.currentState;
         currentSession = appendEvent(
           currentSession,
-          createAmmoConsumedEvent(
+          createAttackInvalidEvent(
             currentSession.id,
-            ammoSequence,
-            ammoTurn,
-            GamePhase.WeaponAttack,
+            invalidSequence,
+            invalidTurn,
             attackerId,
-            ammoResult.event.binId,
-            ammoResult.event.weaponType,
-            ammoResult.event.roundsConsumed,
-            ammoResult.event.roundsRemaining,
+            targetId,
+            'OutOfAmmo',
+            weaponId,
+            `No matching non-empty ammo bin for "${weaponName}"`,
           ),
         );
+        continue;
       }
+      const ammoSequence = currentSession.events.length;
+      const ammoTurn = currentSession.currentState.turn;
+      currentSession = appendEvent(
+        currentSession,
+        createAmmoConsumedEvent(
+          currentSession.id,
+          ammoSequence,
+          ammoTurn,
+          GamePhase.WeaponAttack,
+          attackerId,
+          ammoResult.event.binId,
+          ammoResult.event.weaponType,
+          ammoResult.event.roundsConsumed,
+          ammoResult.event.roundsRemaining,
+        ),
+      );
+      ammoBinIdForResolved = ammoResult.event.binId;
     }
 
     const attackRoll = diceRoller();
@@ -163,6 +198,7 @@ export function resolveAttack(
         damage,
         weaponData.heat,
         arcString,
+        ammoBinIdForResolved,
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
 
@@ -309,7 +345,9 @@ export function resolveAttack(
       // Miss — attacker still generates firing heat per canonical rules
       // (TechManual p.68: heat is charged at weapon-firing time, not on
       // hit). Pass weaponData.heat so the heat phase accumulates correctly,
-      // and arcString so UI consumers see where the attack was fired from.
+      // arcString so UI consumers see where the attack was fired from, and
+      // ammoBinIdForResolved so replay / UI can still trace which bin the
+      // shot drew from even on a miss.
       const resolvedEvent = createAttackResolvedEvent(
         currentSession.id,
         sequence,
@@ -324,6 +362,7 @@ export function resolveAttack(
         undefined,
         weaponData.heat,
         arcString,
+        ammoBinIdForResolved,
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
     }
