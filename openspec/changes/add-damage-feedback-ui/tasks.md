@@ -3,7 +3,11 @@
 ## 1. Event Subscription
 
 - [ ] 1.1 Action panel subscribes to `DamageApplied`, `CriticalHit`,
-      `ConsciousnessRoll`, `PilotHit` events for the selected unit
+      `CriticalHitResolved`, and `PilotHit` events for the selected unit.
+      Consciousness state is derived from the `consciousnessRoll` /
+      `consciousnessCheck` fields on `IDamageAppliedPayload` (see
+      `GameSessionInterfaces.ts:315`) — there is no standalone
+      `ConsciousnessRoll` event
 - [ ] 1.2 Map subscribes to the same events for any unit with a token
 - [ ] 1.3 Subscriptions tear down on selection change
 
@@ -38,12 +42,15 @@
 
 ## 5. Pilot Wound Flash
 
-- [ ] 5.1 Pilot wound track on action panel subscribes to
-      `ConsciousnessRoll` events for the selected pilot
-- [ ] 5.2 On roll, the track pulses yellow briefly (roll happening)
+- [ ] 5.1 Pilot wound track on action panel reads the consciousness
+      roll from `IDamageAppliedPayload` (head-hit derived) and from
+      `PilotHit` events for the selected pilot
+- [ ] 5.2 On a roll (payload exposes `consciousnessRoll` / TN), the
+      track pulses yellow briefly (roll happening)
 - [ ] 5.3 If roll fails, a red "Unconscious" badge appears and persists
-- [ ] 5.4 If pilot consciousness state changes without a roll, the
-      badge still reconciles with state
+- [ ] 5.4 If pilot consciousness state changes without a visible roll
+      (e.g., cockpit crit kills pilot directly), the badge still
+      reconciles with `IUnitGameState` pilot state
 
 ## 6. Head Hit Emphasis
 
@@ -66,22 +73,42 @@
 - [ ] 8.2 Number shows the damage amount
 - [ ] 8.3 Floater does not block map interactions; it's a pure overlay
 
-## 9. Tests
+## 9. Accessibility — Colorblind Safety
 
-- [ ] 9.1 Unit test: `ArmorPip` flashes red when `justDamaged` flips to
-      true
-- [ ] 9.2 Unit test: crit overlay dismisses automatically after 600ms
-- [ ] 9.3 Integration test: a resolved attack that does 10 damage +
+- [ ] 9.1 Armor pip decay reinforces the color shift with a pattern
+      change (red flash + diagonal hatching) so deuteranopia / protanopia
+      users still perceive damaged-this-turn state without relying on
+      hue alone
+- [ ] 9.2 Crit hit overlay renders with both color and shape — a
+      rotating chevron or "!" glyph in addition to the orange burst
+- [ ] 9.3 Pilot-wound "Unconscious" red badge includes a glyph (e.g.,
+      a down-arrow or power icon) so it's distinguishable from other
+      red UI elements
+- [ ] 9.4 Damage-number floater uses a bold-weight font + drop shadow
+      so it reads against any map tile color
+- [ ] 9.5 Event log entries mark hits / crits / kills with leading
+      glyphs (✓ / ⚠ / ✕) in addition to color accents
+- [ ] 9.6 Snapshot test: flipping `prefers-color-scheme` and simulated
+      deuteranopia (via CSS filter in test harness) still leaves every
+      damage state legible
+
+## 10. Tests
+
+- [ ] 10.1 Unit test: `ArmorPip` flashes red when `justDamaged` flips
+      to true
+- [ ] 10.2 Unit test: crit overlay dismisses automatically after 600ms
+- [ ] 10.3 Integration test: a resolved attack that does 10 damage +
       triggers a crit produces a pip decay, a crit burst, and two log
       entries
-- [ ] 9.4 Integration test: pilot consciousness roll triggers yellow
-      pulse; failure triggers red badge
+- [ ] 10.4 Integration test: a `DamageApplied` event carrying a
+      consciousness-roll field triggers the yellow pulse; failed roll
+      triggers the red badge
 
-## 10. Spec Compliance
+## 11. Spec Compliance
 
-- [ ] 10.1 Every requirement in `damage-system` delta has at least one
+- [ ] 11.1 Every requirement in `damage-system` delta has at least one
       GIVEN/WHEN/THEN scenario
-- [ ] 10.2 Every requirement in `tactical-map-interface` delta has at
+- [ ] 11.2 Every requirement in `tactical-map-interface` delta has at
       least one scenario
-- [ ] 10.3 `openspec validate add-damage-feedback-ui --strict` passes
+- [ ] 11.3 `openspec validate add-damage-feedback-ui --strict` passes
       clean

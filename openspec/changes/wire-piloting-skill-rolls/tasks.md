@@ -1,5 +1,26 @@
 # Tasks: Wire Piloting Skill Rolls
 
+## 0. Prerequisites
+
+Every upstream change below MUST be merged to main before starting. This change wires 26 PSR triggers driven by damage / heat / physical-attack outcomes — merging before the upstream path is real produces tests that validate stubs.
+
+- [ ] 0.1 `fix-combat-rule-accuracy` merged (consciousness off-by-one)
+- [ ] 0.2 `wire-real-weapon-data` merged (damage values driving damage-triggered PSRs are real)
+- [ ] 0.3 `integrate-damage-pipeline` merged (the `DamageApplied` / `CriticalHit` events this change subscribes to carry real data)
+- [ ] 0.4 `wire-firing-arc-resolution` merged (hit-location table selection drives which location is exposed → which PSR trigger fires)
+- [ ] 0.5 `wire-heat-generation-and-effects` merged (heat-shutdown PSR path has a real trigger source)
+
+## 0.5 Event Enum Alignment
+
+Audit [src/types/gameplay/GameSessionInterfaces.ts](src/types/gameplay/GameSessionInterfaces.ts) and own the diff.
+
+- [ ] 0.5.1 Confirm existing: `PSRTriggered` (line 107, UPPERCASE P/S/R — use exactly this casing in all scenarios and code), `PSRResolved` (108), `UnitFell` (109), `PilotHit` (100)
+- [ ] 0.5.2 Add new enum value: `UnitStood = 'unit_stood'`
+- [ ] 0.5.3 Update this change's proposal + tasks + spec scenarios: rename `PsrTriggered` → `PSRTriggered`, `PsrResolved` → `PSRResolved` so they match the existing enum
+- [ ] 0.5.4 Define `IUnitStoodPayload { unitId, turn, roll, targetNumber }` and add to `IGameEventPayload` union
+- [ ] 0.5.5 Confirm `IPSRTriggeredPayload` and `IPSRResolvedPayload` carry enough fields (triggerId, baseModifier, sourceEventId, tn, roll, result) — extend if they don't
+- [ ] 0.5.6 Compile check: `tsc --noEmit` passes
+
 ## 1. PSR Queue State
 
 - [ ] 1.1 Add `psrQueue: IPsrQueuedEntry[]` to `IUnitGameState`
@@ -72,11 +93,20 @@
 - [ ] 10.1 All PSR rolls use the seeded RNG
 - [ ] 10.2 Replay test: reprocessing the event log produces identical fall outcomes
 
-## 11. Validation
+## 11. Per-Change Smoke Test
 
-- [ ] 11.1 `openspec validate wire-piloting-skill-rolls --strict`
-- [ ] 11.2 End-to-end test: heavy damage → PSR queued → failure → fall → pilot hit → consciousness check
-- [ ] 11.3 Gyro crit test: crit triggers PSR; all subsequent PSRs include +3 modifier
-- [ ] 11.4 Stand-up test: prone unit costs MP + PSR; successful roll ends prone state
-- [ ] 11.5 Autonomous fuzzer: no mech fell without an emitted `UnitFell`; every `UnitFell` has a preceding `PsrResolved { success: false }`
-- [ ] 11.6 Build + lint clean
+- [ ] 11.1 Fixture: 1 mech with gyro undamaged, pilot skill 4
+- [ ] 11.2 Action: apply a single `DamageApplied` event totaling 20 damage to the unit this phase
+- [ ] 11.3 Assert event stream: `PSRTriggered { triggerId: 'TwentyPlusPhaseDamage' }` within the phase → at phase end, `PSRResolved`
+- [ ] 11.4 If the roll fails (force seed to guarantee failure): `UnitFell` fires with damage clusters + pilot damage payload
+- [ ] 11.5 Stand-up flow: next turn, if unit opts to stand, `PSRTriggered { triggerId: 'AttemptStand' }` fires, then `PSRResolved`, then `UnitStood` on success
+- [ ] 11.6 Replay: same seed reproduces the fall-or-stand outcome exactly
+
+## 12. Validation
+
+- [ ] 12.1 `openspec validate wire-piloting-skill-rolls --strict`
+- [ ] 12.2 End-to-end test: heavy damage → PSR queued → failure → fall → pilot hit → consciousness check
+- [ ] 12.3 Gyro crit test: crit triggers PSR; all subsequent PSRs include +3 modifier
+- [ ] 12.4 Stand-up test: prone unit costs MP + PSR; successful roll ends prone state
+- [ ] 12.5 Autonomous fuzzer: no mech fell without an emitted `UnitFell`; every `UnitFell` has a preceding `PSRResolved { success: false }`
+- [ ] 12.6 Build + lint clean

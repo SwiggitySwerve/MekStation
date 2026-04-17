@@ -30,13 +30,22 @@
 
 ## 4. Post-Battle Report Schema
 
-- [ ] 4.1 Define `IPostBattleReport` with `{matchId, winner, reason,
-turnCount, units: IUnitReport[], mvpUnitId, log: IGameEvent[]}`
+- [ ] 4.1 Define `IPostBattleReport` with `{version: 1, matchId,
+winner, reason, turnCount, units: IUnitReport[], mvpUnitId,
+log: IGameEvent[]}`. The `version` field is a literal number
+      type (`1`) set at schema creation — Phase 3 campaign integration
+      will extend the schema and must bump the version to preserve
+      readability of Phase 1 stored match logs. Persistence code SHALL
+      reject reports where `version` is absent or unrecognized rather
+      than silently migrating
 - [ ] 4.2 Define `IUnitReport` with `{unitId, side, designation,
 damageDealt, damageReceived, kills, heatProblems,
 physicalAttacks, xpPending: true}`
 - [ ] 4.3 Derive the report from the session's event log
 - [ ] 4.4 Unit tests for report derivation on known event streams
+- [ ] 4.5 Unit test: GET `/api/matches/[id]` on a report missing
+      `version` SHALL return 400 with reason `"unversioned report"`
+      (protects against accidentally reading stale/broken records)
 
 ## 5. Post-Battle Report Screen
 
@@ -89,6 +98,19 @@ physicalAttacks, xpPending: true}`
       shows with `reason: turn_limit`
 - [ ] 10.4 End-to-end: post-battle report persisted and readable on
       reload
+- [ ] 10.5 **Phase 1 capstone test** — run a single seeded 2v2 skirmish
+      from `add-skirmish-setup-ui` entry through every phase
+      (initiative → movement → weapon attack → physical attack → heat
+      → end-of-turn) for N turns until a decisive outcome. Assert: - (a) session transitions to `Completed` with a concrete winner - (b) every Phase 1 spec's primary events appear in the log
+      (`MovementLocked`, `AttackDeclared`, `AttackResolved`,
+      `DamageApplied`, at least one `PhysicalAttackResolved`, at
+      least one `HeatGenerated`, at least one `PsrResolved` if
+      triggered) - (c) `IPostBattleReport` is produced and contains an MVP unit,
+      non-zero per-unit damage totals, and a populated event log - (d) the same seed produces byte-identical report JSON on
+      replay (replay fidelity)
+      This test is the single acceptance gate for the Phase 1 MVP
+      checkpoint — if it passes, the four-mech hot-seat demo is
+      demonstrable.
 
 ## 11. Spec Compliance
 

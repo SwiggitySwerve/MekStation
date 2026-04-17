@@ -1,5 +1,11 @@
 # Tasks: Wire Real Weapon Data
 
+## 0. Prerequisites
+
+Do NOT start this change until every box below is ticked. Starting early produces green-on-stub tests that mislead reviewers.
+
+- [ ] 0.1 `fix-combat-rule-accuracy` merged to main (canonical heat thresholds + TMM + consciousness fixes in place)
+
 ## 1. Audit Hardcoded Values
 
 - [ ] 1.1 Grep the engine and gameSession for `damage: 5`, `damage:5`, `damage = 5` and list every occurrence
@@ -35,47 +41,43 @@
 - [ ] 5.3 Apply `extremeRange` bracket when present and rules level allows
 - [ ] 5.4 Unit tests: AC/20 short=3, med=6, long=9; LRM-20 short=7, med=14, long=21
 
-## 6. Ammo State Initialization
+## 6. Event Payload Updates
 
-- [ ] 6.1 Audit `ammoTracking.ts` — confirm `IAmmoBin` state shape (binId, weaponType, location, remainingRounds, maxRounds, isExplosive)
-- [ ] 6.2 At session start, scan each unit's construction data for ammo components and produce one bin per ton
-- [ ] 6.3 Store the ammo bins on `IUnitGameState`
-- [ ] 6.4 Unit tests: a mech with 2 tons AC/10 ammo produces 2 bins of 10 rounds each
+- [ ] 6.1 Add `damage`, `heat`, `weaponId` fields to the attack-resolved event payload (NOT `ammoBinId` — that's `wire-ammo-consumption`)
+- [ ] 6.2 Update the event-log UI consumer to display the new fields
+- [ ] 6.3 Replay-fidelity test: replaying the same event sequence produces identical damage + heat numbers on the resolved payloads
 
-## 7. Ammo Consumption
+## 7. BotPlayer Integration (damage + heat only)
 
-- [ ] 7.1 On every weapon firing, locate the first non-empty bin matching the weapon's ammo type
-- [ ] 7.2 Decrement `remainingRounds` by 1 (salvo count for cluster weapons)
-- [ ] 7.3 Emit an `AmmoConsumed` event with the bin id and new remaining count
-- [ ] 7.4 If no matching non-empty bin exists, emit `AttackInvalid` with reason `OutOfAmmo` and do NOT resolve the attack
-- [ ] 7.5 Unit tests: firing an AC/10 with 1 bin of 10 rounds decrements to 9; firing 10 more times makes subsequent firings invalid
+- [ ] 7.1 Update `AttackAI.ts` to use real weapon damage when scoring target priority
+- [ ] 7.2 Update `AttackAI.ts` to respect heat cost when scoring weapon usage
+- [ ] 7.3 Unit test: a PPC scores higher than a Medium Laser for a target that can absorb the heat
+- [ ] 7.4 Bot ammo-awareness (skipping dry weapons) is explicitly deferred to `wire-ammo-consumption`
 
-## 8. Energy Weapon Bypass
+## 8. Test Fixture Cleanup
 
-- [ ] 8.1 Energy weapons (lasers, PPCs, flamers) SHALL NOT consume ammo and SHALL NOT produce `AmmoConsumed` events
-- [ ] 8.2 Unit test: firing a Medium Laser does not touch any ammo bin
+- [ ] 8.1 Convert `src/__tests__/unit/utils/gameplay/attackResolution.test.ts` hardcoded fixtures to real weapon data or explicit mock
+- [ ] 8.2 Document the reason for any remaining `damage: 5` literal (unit test on attack-flow plumbing only, damage value arbitrary)
+- [ ] 8.3 Full test suite passes
 
-## 9. Event Payload Updates
+## 9. Scope Boundaries
 
-- [ ] 9.1 Add `damage`, `heat`, `weaponId`, `ammoBinId` fields to the attack-resolved event payload
-- [ ] 9.2 Update the event-log UI consumer to display the new fields
-- [ ] 9.3 Add a replay-fidelity test: replaying the same event sequence produces the same unit state
+- [ ] 9.1 This change SHALL NOT add, modify, or consume `IAmmoBin` state
+- [ ] 9.2 This change SHALL NOT emit `AmmoConsumed` or `AttackInvalid { reason: OutOfAmmo }` events
+- [ ] 9.3 If during implementation an ammo-related call site is encountered, leave it stubbed (or matching the pre-existing infinite-ammo placeholder) and annotate with a `// TODO(wire-ammo-consumption)` comment
 
-## 10. BotPlayer Integration
+## 10. Per-Change Smoke Test
 
-- [ ] 10.1 Update `AttackAI.ts` to use real weapon damage when scoring target priority
-- [ ] 10.2 Update `AttackAI.ts` to respect ammo counts (don't pick a weapon with 0 rounds)
-- [ ] 10.3 Update `AttackAI.ts` to respect heat cost when scoring weapon usage
-- [ ] 10.4 Unit test: a dry AC/20 is never selected
+Proves this change's contribution to the event stream without running a full match. If the Phase 1 capstone in `add-victory-and-post-battle-summary` later fails, this smoke test isolates whether the regression is in THIS change or downstream.
 
-## 11. Test Fixture Cleanup
+- [ ] 10.1 Fixture: 1 attacker mech (Hunchback HBK-4G — catalog AC/20 + 2 ML) vs. 1 target at range 3 hexes, front arc
+- [ ] 10.2 Action: one attack phase, AC/20 + both ML fire and hit
+- [ ] 10.3 Assert: the `AttackResolved` event payloads carry `damage` matching catalog values (20, 5, 5 not 5, 5, 5), `heat` matching catalog (6, 3, 3 not 3, 3, 3), and `weaponId` matching each fired weapon
+- [ ] 10.4 Assert: firing-unit heat generated this turn = 12 (6 + 3 + 3), NOT `weapons.length * 10` = 30
+- [ ] 10.5 Replay assertion: replaying the event log produces identical payloads byte-for-byte
 
-- [ ] 11.1 Convert `src/__tests__/unit/utils/gameplay/attackResolution.test.ts` hardcoded fixtures to real weapon data or explicit mock
-- [ ] 11.2 Document the reason for any remaining `damage: 5` literal (unit test on attack-flow plumbing only, damage value arbitrary)
-- [ ] 11.3 Full test suite passes
+## 11. Validation
 
-## 12. Validation
-
-- [ ] 12.1 Run `openspec validate wire-real-weapon-data --strict`
-- [ ] 12.2 Run the autonomous fuzzer and confirm no new invariant violations
-- [ ] 12.3 Build + lint clean
+- [ ] 11.1 Run `openspec validate wire-real-weapon-data --strict`
+- [ ] 11.2 Run the autonomous fuzzer and confirm no new invariant violations
+- [ ] 11.3 Build + lint clean

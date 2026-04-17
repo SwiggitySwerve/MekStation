@@ -1,5 +1,22 @@
 # Tasks: Integrate Damage Pipeline
 
+## 0. Prerequisites
+
+- [ ] 0.1 `fix-combat-rule-accuracy` merged to main (life-support 2-hit + consciousness fixes feed into `resolveDamage` semantics)
+- [ ] 0.2 `wire-real-weapon-data` merged to main (real damage values arrive at the pipeline; otherwise every integration test runs at `damage: 5`)
+- [ ] 0.3 `wire-firing-arc-resolution` merged to main (real arc is the primary input to the hit-location table selector)
+
+## 0.5 Event Enum Alignment (type-file ownership)
+
+Audit [src/types/gameplay/GameSessionInterfaces.ts](src/types/gameplay/GameSessionInterfaces.ts) and own the diff within THIS change. Every downstream UI spec assumes these events exist; this is the change that makes them real.
+
+- [ ] 0.5.1 Confirm existing: `DamageApplied` (line 94), `CriticalHit` (103), `CriticalHitResolved` (106), `PilotHit` (100), `UnitDestroyed` (101)
+- [ ] 0.5.2 Add new enum values: `LocationDestroyed = 'location_destroyed'`, `TransferDamage = 'transfer_damage'`, `ComponentDestroyed = 'component_destroyed'`
+- [ ] 0.5.3 Reconcile name: spec text uses `AmmoExploded`; enum already has `AmmoExplosion = 'ammo_explosion'` (line 102). Align the spec and code to the enum name `AmmoExplosion` — do NOT add a second alias
+- [ ] 0.5.4 Define payload interfaces for the three new events: `ILocationDestroyedPayload { unitId, location, cascadedTo?: location }`, `ITransferDamagePayload { unitId, fromLocation, toLocation, damage }`, `IComponentDestroyedPayload { unitId, location, componentType, slotIndex }`
+- [ ] 0.5.5 Add each new payload to the `IGameEventPayload` discriminated union
+- [ ] 0.5.6 Compile check: `tsc --noEmit` passes; every new event has a payload and every new payload is in the union
+
 ## 1. Attack Path Hookup
 
 - [ ] 1.1 In `gameSessionAttackResolution.ts`, after a hit is confirmed, call `resolveDamage()` from `damage.ts`
@@ -88,10 +105,18 @@
 - [ ] 13.1 Replace `applySimpleDamage()` in `SimulationRunner.ts` with a call to `resolveDamage`
 - [ ] 13.2 Ensure the autonomous fuzzer still passes invariants (no negative armor, no locations with > max armor, etc.)
 
-## 14. Validation
+## 14. Per-Change Smoke Test
 
-- [ ] 14.1 `openspec validate integrate-damage-pipeline --strict`
-- [ ] 14.2 End-to-end test: fire 1 AC/20 to exposed CT structure → `DamageApplied` → `CriticalHit` → engine hit → `ComponentDestroyed` chain
-- [ ] 14.3 Side torso cascade test: destroy LT → LA also destroyed
-- [ ] 14.4 Head-cap test: single AC/20 to head applies only 3 damage
-- [ ] 14.5 Build + lint clean
+- [ ] 14.1 Fixture: 1 target mech with CT armor reduced to 1, CT structure full
+- [ ] 14.2 Action: fire 1 Medium Laser (5 damage) at CT front
+- [ ] 14.3 Assert event stream contains in order: `AttackResolved` → `DamageApplied { location: CT, fromArmor: 1, fromStructure: 4 }` → `CriticalHit` (structure was exposed) → `CriticalHitResolved`
+- [ ] 14.4 Assert event payload types are well-formed per the new interfaces added in 0.5.4
+- [ ] 14.5 If the crit destroys a component, assert `ComponentDestroyed` fires with `{componentType, slotIndex}`
+
+## 15. Validation
+
+- [ ] 15.1 `openspec validate integrate-damage-pipeline --strict`
+- [ ] 15.2 End-to-end test: fire 1 AC/20 to exposed CT structure → `DamageApplied` → `CriticalHit` → engine hit → `ComponentDestroyed` chain
+- [ ] 15.3 Side torso cascade test: destroy LT → LA also destroyed with `LocationDestroyed { cascadedTo: LA }`
+- [ ] 15.4 Head-cap test: single AC/20 to head applies only 3 damage
+- [ ] 15.5 Build + lint clean
