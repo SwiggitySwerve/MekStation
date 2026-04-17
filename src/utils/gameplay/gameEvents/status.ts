@@ -12,6 +12,7 @@ import {
   IStartupAttemptPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
+  IUnitStoodPayload,
   IAmmoConsumedPayload,
 } from '@/types/gameplay';
 
@@ -248,6 +249,38 @@ export function createUnitFellEvent(
       gameId,
       sequence,
       GameEventType.UnitFell,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Per `wire-piloting-skill-rolls` task 9.3: fired when a prone unit
+ * successfully passes an `AttemptStand` PSR and returns upright.
+ */
+export function createUnitStoodEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  roll: number,
+  targetNumber: number,
+): IGameEvent {
+  const payload: IUnitStoodPayload = {
+    unitId,
+    turn,
+    roll,
+    targetNumber,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.UnitStood,
       turn,
       phase,
       unitId,

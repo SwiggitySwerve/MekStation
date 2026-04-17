@@ -24,6 +24,7 @@ import {
   IStartupAttemptPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
+  IUnitStoodPayload,
   IUnitGameState,
   IGameStartedPayload,
   LockState,
@@ -51,6 +52,7 @@ import {
   applyShutdownCheck,
   applyStartupAttempt,
   applyUnitFell,
+  applyUnitStood,
 } from './extendedCombat';
 import {
   createInitialGameState,
@@ -139,6 +141,9 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitFell:
       return applyUnitFell(state, event.payload as IUnitFellPayload);
+
+    case GameEventType.UnitStood:
+      return applyUnitStood(state, event.payload as IUnitStoodPayload);
 
     case GameEventType.PhysicalAttackDeclared:
       return applyPhysicalAttackDeclared(
