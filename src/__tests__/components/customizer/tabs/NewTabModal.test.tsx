@@ -32,7 +32,7 @@ describe('NewTabModal', () => {
 
     expect(screen.getByText('New Unit')).toBeInTheDocument();
     expect(screen.getByText('Copy Current')).toBeInTheDocument();
-    expect(screen.getByText('Import Data')).toBeInTheDocument();
+    expect(screen.queryByText('Import Data')).not.toBeInTheDocument();
   });
 
   it('should call onCreateUnit when create button is clicked', async () => {
