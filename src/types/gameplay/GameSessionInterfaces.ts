@@ -402,6 +402,13 @@ export interface IDamageAppliedPayload {
 
 /**
  * Heat event payload.
+ *
+ * Per `wire-heat-generation-and-effects` task 0.5.4: the `source`
+ * union breaks heat generation down by cause so UI + AI consumers can
+ * distinguish firing heat from engine-hit heat without parsing
+ * adjacent events. `'weapons'` is kept as a legacy alias for
+ * `'firing'`; `'external'` is kept for fall / crash / jump-jet
+ * backfires that pre-date this change.
  */
 export interface IHeatPayload {
   /** Unit */
@@ -409,7 +416,14 @@ export interface IHeatPayload {
   /** Heat amount (positive for generated, negative for dissipated) */
   readonly amount: number;
   /** Heat source */
-  readonly source: 'movement' | 'weapons' | 'dissipation' | 'external';
+  readonly source:
+    | 'movement'
+    | 'firing'
+    | 'weapons'
+    | 'engine_hit'
+    | 'environment'
+    | 'dissipation'
+    | 'external';
   /** New total heat */
   readonly newTotal: number;
 }
