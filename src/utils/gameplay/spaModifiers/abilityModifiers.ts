@@ -7,6 +7,8 @@
 import { MovementType } from '@/types/gameplay';
 import { IToHitModifierDetail } from '@/types/gameplay';
 
+import { hasSPA } from './canonicalize';
+
 /**
  * Blood Stalker: -1 vs designated target, +2 vs all others.
  */
@@ -15,7 +17,7 @@ export function calculateBloodStalkerModifier(
   targetId?: string,
   designatedTargetId?: string,
 ): IToHitModifierDetail | null {
-  if (!abilities.includes('blood-stalker')) return null;
+  if (!hasSPA(abilities, 'blood_stalker')) return null;
   if (!targetId || !designatedTargetId) return null;
 
   const isDesignated = targetId === designatedTargetId;
@@ -36,7 +38,7 @@ export function calculateMultiTaskerModifier(
   abilities: readonly string[],
   isSecondaryTarget?: boolean,
 ): IToHitModifierDetail | null {
-  if (!abilities.includes('multi-tasker')) return null;
+  if (!hasSPA(abilities, 'multi_tasker')) return null;
   if (!isSecondaryTarget) return null;
 
   return {
@@ -53,7 +55,7 @@ export function calculateMultiTaskerModifier(
  * Used when resolving cluster weapon hits.
  */
 export function getClusterHitterBonus(abilities: readonly string[]): number {
-  return abilities.includes('cluster-hitter') ? 1 : 0;
+  return hasSPA(abilities, 'cluster_hitter') ? 1 : 0;
 }
 
 /**
@@ -63,7 +65,7 @@ export function calculateJumpingJackModifier(
   abilities: readonly string[],
   movementType: MovementType,
 ): IToHitModifierDetail | null {
-  if (!abilities.includes('jumping-jack')) return null;
+  if (!hasSPA(abilities, 'jumping_jack')) return null;
   if (movementType !== MovementType.Jump) return null;
 
   return {
@@ -82,7 +84,7 @@ export function calculateDodgeManeuverModifier(
   targetAbilities: readonly string[],
   isDodging?: boolean,
 ): IToHitModifierDetail | null {
-  if (!targetAbilities.includes('dodge-maneuver')) return null;
+  if (!hasSPA(targetAbilities, 'dodge_maneuver')) return null;
   if (!isDodging) return null;
 
   return {
@@ -99,7 +101,7 @@ export function calculateDodgeManeuverModifier(
 export function calculateMeleeSpecialistModifier(
   abilities: readonly string[],
 ): IToHitModifierDetail | null {
-  if (!abilities.includes('melee-specialist')) return null;
+  if (!hasSPA(abilities, 'melee_specialist')) return null;
 
   return {
     name: 'Melee Specialist',
@@ -116,14 +118,14 @@ export function calculateMeleeSpecialistModifier(
 export function getMeleeMasterDamageBonus(
   abilities: readonly string[],
 ): number {
-  return abilities.includes('melee-master') ? 1 : 0;
+  return hasSPA(abilities, 'melee_master') ? 1 : 0;
 }
 
 /**
  * Tactical Genius: +1 initiative.
  */
 export function getTacticalGeniusBonus(abilities: readonly string[]): number {
-  return abilities.includes('tactical-genius') ? 1 : 0;
+  return hasSPA(abilities, 'tactical_genius') ? 1 : 0;
 }
 
 /**
@@ -134,7 +136,7 @@ export function getEffectiveWounds(
   abilities: readonly string[],
   pilotWounds: number,
 ): number {
-  if (abilities.includes('pain-resistance') && pilotWounds > 0) {
+  if (hasSPA(abilities, 'pain_resistance') && pilotWounds > 0) {
     return pilotWounds - 1;
   }
   return pilotWounds;
@@ -144,7 +146,7 @@ export function getEffectiveWounds(
  * Iron Man: -2 to consciousness check target numbers.
  */
 export function getIronManModifier(abilities: readonly string[]): number {
-  return abilities.includes('iron-man') ? -2 : 0;
+  return hasSPA(abilities, 'iron_man') ? -2 : 0;
 }
 
 /**
@@ -154,5 +156,5 @@ export function getIronManModifier(abilities: readonly string[]): number {
 export function getHotDogShutdownThresholdBonus(
   abilities: readonly string[],
 ): number {
-  return abilities.includes('hot-dog') ? 3 : 0;
+  return hasSPA(abilities, 'hot_dog') ? 3 : 0;
 }

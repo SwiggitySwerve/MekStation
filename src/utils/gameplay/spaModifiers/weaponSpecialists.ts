@@ -6,6 +6,8 @@
 import { RangeBracket } from '@/types/gameplay';
 import { IToHitModifierDetail } from '@/types/gameplay';
 
+import { hasSPA } from './canonicalize';
+
 /**
  * Weapon Specialist: -2 to-hit for designated weapon type.
  */
@@ -14,7 +16,7 @@ export function calculateWeaponSpecialistModifier(
   weaponType?: string,
   designatedWeaponType?: string,
 ): IToHitModifierDetail | null {
-  if (!abilities.includes('weapon-specialist')) return null;
+  if (!hasSPA(abilities, 'weapon_specialist')) return null;
   if (!weaponType || !designatedWeaponType) return null;
   if (weaponType.toLowerCase() !== designatedWeaponType.toLowerCase())
     return null;
@@ -35,7 +37,7 @@ export function calculateGunnerySpecialistModifier(
   weaponCategory?: string,
   designatedCategory?: string,
 ): IToHitModifierDetail | null {
-  if (!abilities.includes('gunnery-specialist')) return null;
+  if (!hasSPA(abilities, 'specialist')) return null;
   if (!weaponCategory || !designatedCategory) return null;
 
   const isDesignated =
@@ -60,7 +62,7 @@ export function calculateRangeMasterModifier(
   designatedBracket?: RangeBracket,
   currentRangeModifier?: number,
 ): IToHitModifierDetail | null {
-  if (!abilities.includes('range-master')) return null;
+  if (!hasSPA(abilities, 'range_master')) return null;
   if (!rangeBracket || !designatedBracket) return null;
   if (rangeBracket !== designatedBracket) return null;
   if (currentRangeModifier === undefined || currentRangeModifier <= 0)
@@ -82,7 +84,7 @@ export function calculateSniperModifier(
   abilities: readonly string[],
   currentRangeModifier?: number,
 ): IToHitModifierDetail | null {
-  if (!abilities.includes('sniper')) return null;
+  if (!hasSPA(abilities, 'sniper')) return null;
   if (currentRangeModifier === undefined || currentRangeModifier <= 0)
     return null;
 
