@@ -24,6 +24,7 @@ import {
   resolveAllAttacks,
   resolveHeatPhase,
 } from '@/utils/gameplay/gameSession';
+import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { toAIUnitState } from './GameEngine.helpers';
 
@@ -107,22 +108,10 @@ export function runAttackPhase(
 
     const atkEvt = botPlayer.playAttackPhase(aiUnit, enemies);
     if (atkEvt) {
-      const weaponAttacks: IWeaponAttack[] = atkEvt.payload.weapons.map(
-        (wId) => {
-          const wData = weapons.find((w) => w.id === wId);
-          return {
-            weaponId: wId,
-            weaponName: wData?.name ?? wId,
-            damage: wData?.damage ?? 5,
-            heat: wData?.heat ?? 3,
-            category: 'energy' as never,
-            minRange: wData?.minRange ?? 0,
-            shortRange: wData?.shortRange ?? 3,
-            mediumRange: wData?.mediumRange ?? 6,
-            longRange: wData?.longRange ?? 9,
-            isCluster: false,
-          };
-        },
+      const weaponAttacks: IWeaponAttack[] = buildWeaponAttacks(
+        atkEvt.payload.weapons,
+        weapons,
+        unitId,
       );
 
       const targetUnit =
