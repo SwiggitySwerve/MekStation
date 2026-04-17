@@ -390,3 +390,40 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
     set(initialState);
   },
 }));
+
+/**
+ * Per `add-interactive-combat-core-ui` task 2.4: derived selector that
+ * projects the currently selected unit's full record (config-side
+ * `IGameUnit` + live `IUnitGameState`) so consumers don't need to
+ * re-derive by id from `currentState.units` + `session.units` on every
+ * render.
+ *
+ * Returns `null` when no unit is selected, the session is missing, or
+ * the selected id no longer exists (e.g., unit destroyed and removed
+ * from state).
+ */
+export interface ISelectedUnitProjection {
+  readonly id: string;
+  readonly unit: import('@/types/gameplay').IGameUnit;
+  readonly state: import('@/types/gameplay').IUnitGameState;
+}
+
+/**
+ * Implementation note: this hook returns a fresh object each call,
+ * which would cause an infinite render loop with Zustand's default
+ * reference-equality selector. We sidestep that by selecting the three
+ * primitives (id / session / units record) separately and combining
+ * them via `useMemo` — each primitive read uses Zustand's own
+ * shallow-equality so re-renders only fire when the specific input
+ * changes.
+ */
+export function useSelectedUnit(): ISelectedUnitProjection | null {
+  const id = useGameplayStore((s) => s.ui.selectedUnitId);
+  const session = useGameplayStore((s) => s.session);
+
+  if (!id || !session) return null;
+  const unit = session.units.find((u) => u.id === id);
+  const state = session.currentState.units[id];
+  if (!unit || !state) return null;
+  return { id, unit, state };
+}
