@@ -5,6 +5,8 @@
  * @spec openspec/changes/add-unified-event-store/specs/event-store/spec.md
  */
 
+import { sha256 as sha256Pure } from 'js-sha256';
+
 import { IBaseEvent, IEventChunk } from '@/types/events';
 
 // =============================================================================
@@ -40,10 +42,10 @@ export function toCanonicalJson(obj: unknown): string {
 
 /**
  * Compute SHA-256 hash of a string.
- * Works in both browser and Node.js environments.
+ * Prefers Web Crypto when available (browser and Node 15+); otherwise falls
+ * back to the pure-JS js-sha256 implementation.
  */
 export async function sha256(data: string): Promise<string> {
-  // Use Web Crypto API (available in browser and Node.js 15+)
   if (typeof crypto !== 'undefined' && crypto.subtle) {
     const encoder = new TextEncoder();
     const dataBuffer = encoder.encode(data);
@@ -51,34 +53,15 @@ export async function sha256(data: string): Promise<string> {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
   }
-
-  // Fallback for environments without Web Crypto
-  // This is a simple implementation for testing - use a proper library in production
-  throw new Error('SHA-256 not available in this environment');
+  return sha256Pure(data);
 }
 
 /**
- * Synchronous hash using a simple implementation.
- * For environments where async is not practical.
- *
- * TODO: Replace with real SHA-256 for production (e.g., js-sha256 or Node crypto).
- * Current implementation uses a 32-bit hash repeated for consistent output length,
- * which is sufficient for development/testing but not cryptographically secure.
- *
- * @see https://github.com/nickyout/fast-sha256-js for a sync SHA-256 option
+ * Synchronous SHA-256 hash. Cryptographically real — uses js-sha256 so the
+ * same output is produced in browser and Node.
  */
 export function sha256Sync(data: string): string {
-  // Simple hash implementation for synchronous use
-  // In production, use a proper crypto library
-  let hash = 0;
-  for (let i = 0; i < data.length; i++) {
-    const char = data.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  // Expand to 64 character hex string (SHA-256 length)
-  const base = Math.abs(hash).toString(16).padStart(8, '0');
-  return base.repeat(8);
+  return sha256Pure(data);
 }
 
 // =============================================================================
