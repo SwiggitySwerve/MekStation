@@ -95,6 +95,8 @@ export const SPA_LEGACY_ALIASES: readonly ISPAIdAlias[] = [
     source: 'systemB',
   },
   { legacyId: 'iron-man', canonicalId: 'iron_man', source: 'systemB' },
+  { legacyId: 'iron-will', canonicalId: 'iron_man', source: 'systemB' },
+  { legacyId: 'iron_will', canonicalId: 'iron_man', source: 'systemB' },
   {
     legacyId: 'pain-resistance',
     canonicalId: 'pain_resistance',

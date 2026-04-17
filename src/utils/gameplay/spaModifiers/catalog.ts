@@ -3,6 +3,7 @@
  * Complete catalog with all BattleTech special pilot abilities.
  */
 
+import { hasSPA as hasCanonicalSPA } from './canonicalize';
 import { ISPACatalogEntry, SPACategory, SPAPipeline } from './types';
 
 /**
@@ -342,26 +343,31 @@ export function getSPAsByCategory(category: SPACategory): ISPACatalogEntry[] {
 }
 
 export function hasSPA(abilities: readonly string[], spaId: string): boolean {
-  return abilities.includes(spaId);
+  // Delegate to the canonical resolver so callers can pass either the
+  // legacy kebab-case id or the canonical snake_case id and still match.
+  return hasCanonicalSPA(abilities, spaId);
 }
 
 export function getConsciousnessCheckModifier(
   abilities: readonly string[],
 ): number {
   let modifier = 0;
-  if (abilities.includes('iron-man') || abilities.includes('iron-will')) {
+  if (hasCanonicalSPA(abilities, 'iron_man')) {
     modifier -= 2;
   }
-  if (abilities.includes('toughness')) {
+  if (hasCanonicalSPA(abilities, 'pain_resistance')) {
     modifier -= 1;
   }
   return modifier;
 }
 
 export function getObliqueAttackerBonus(abilities: readonly string[]): number {
-  return abilities.includes('oblique-attacker') ? -1 : 0;
+  return hasCanonicalSPA(abilities, 'oblique_attacker') ? -1 : 0;
 }
 
 export function getSharpshooterBonus(abilities: readonly string[]): number {
+  // 'sharpshooter' doesn't exist in the canonical catalog — it's a
+  // System-B-only legacy alias. Fall back to the raw match for the id
+  // so existing callers keep working until the UI offers a real alternative.
   return abilities.includes('sharpshooter') ? -1 : 0;
 }
