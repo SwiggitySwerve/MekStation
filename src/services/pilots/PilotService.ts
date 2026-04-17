@@ -7,6 +7,7 @@
  * @spec openspec/changes/add-pilot-system/specs/pilot-system/spec.md
  */
 
+import { pickRandomSPA } from '@/lib/spa/random';
 import {
   IPilot,
   ICreatePilotOptions,
@@ -46,7 +47,10 @@ export interface IPilotService {
     level: PilotExperienceLevel,
     identity: IPilotIdentity,
   ): IPilotOperationResult;
-  createRandom(identity: IPilotIdentity): IPilotOperationResult;
+  createRandom(
+    identity: IPilotIdentity,
+    randomFn?: () => number,
+  ): IPilotOperationResult;
   createStatblock(statblock: IPilotStatblock): IPilot;
   updatePilot(id: string, updates: Partial<IPilot>): IPilotOperationResult;
   deletePilot(id: string): IPilotOperationResult;
@@ -128,23 +132,34 @@ export class PilotService implements IPilotService {
   }
 
   /**
-   * Create a pilot with random skills
+   * Create a pilot with random skills.
+   *
+   * 20% chance of rolling up a single bonus SPA from the unified
+   * catalog — positive, purchasable, non-origin-only. The RNG is
+   * injectable (defaults to Math.random) so tests can pin down the
+   * chosen ability deterministically.
    */
-  createRandom(identity: IPilotIdentity): IPilotOperationResult {
+  createRandom(
+    identity: IPilotIdentity,
+    randomFn: () => number = Math.random,
+  ): IPilotOperationResult {
     // Random skills weighted toward Regular (4/5)
     const gunneryRoll = this.rollSkill();
     const pilotingRoll = this.rollSkill();
 
-    // Small chance of a bonus ability
-    const hasAbility = Math.random() < 0.2;
+    // ~20% chance of a bonus ability. If we roll one, draw a random
+    // eligible SPA from the unified catalog; if the pool is empty for
+    // any reason, fall back to no ability rather than an empty list.
+    const hasAbility = randomFn() < 0.2;
+    const spa = hasAbility ? pickRandomSPA(randomFn) : null;
+    const abilityIds = spa ? [spa.id] : undefined;
 
     return this.repo.create({
       identity,
       type: PilotType.Persistent,
       skills: { gunnery: gunneryRoll, piloting: pilotingRoll },
       startingXp: 0,
-      // TODO: Add random ability selection when abilities are implemented
-      abilityIds: hasAbility ? [] : undefined,
+      abilityIds,
     });
   }
 
