@@ -30,6 +30,12 @@ export {
 export { resolveHeatPhase } from './gameSessionHeat';
 
 export {
+  declarePhysicalAttack,
+  resolveAllPhysicalAttacks,
+  type IPhysicalAttackContext,
+} from './gameSessionPhysical';
+
+export {
   replayToSequence,
   replayToTurn,
   generateGameLog,
