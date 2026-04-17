@@ -3,104 +3,130 @@
  *
  * Defines heat tracking and management types.
  *
+ * IMPORTANT: this module does NOT define its own heat-threshold table.
+ * All threshold values are derived from `src/constants/heat.ts` (the single
+ * source of truth). A previous revision of this file defined its own
+ * divergent table with thresholds 5/10/15/18/20 — which produced wrong
+ * to-hit penalties compared to the canonical MegaMek/TechManual values of
+ * 8/13/17/24. Rebuilding the shape from the canonical primitives eliminates
+ * the drift risk.
+ *
  * @spec openspec/specs/heat-management-system/spec.md
  * @spec openspec/specs/heat-overflow-effects/spec.md
+ * @spec openspec/changes/fix-combat-rule-accuracy/proposal.md (Bug #3)
  */
 
+import {
+  AMMO_EXPLOSION_TN_TABLE,
+  HEAT_THRESHOLDS,
+  HEAT_TO_HIT_TABLE,
+  getAmmoExplosionTN,
+  getHeatMovementPenalty as canonicalHeatMovementPenalty,
+  getHeatToHitModifier,
+  getShutdownTN,
+} from '@/constants/heat';
+
 /**
- * Heat scale effects thresholds
+ * Heat scale category labels used by UI.
+ * Numeric values align with the canonical to-hit and shutdown thresholds.
  */
 export enum HeatLevel {
   COOL = 0,
-  WARM = 5,
-  HOT = 10,
-  DANGEROUS = 15,
-  CRITICAL = 18,
-  SHUTDOWN_RISK = 20,
-  SHUTDOWN_LIKELY = 25,
-  MELTDOWN = 30,
+  WARM = HEAT_THRESHOLDS.TO_HIT_1, // 8 — first to-hit penalty
+  HOT = HEAT_THRESHOLDS.TO_HIT_2, // 13 — second to-hit penalty
+  SHUTDOWN_RISK = HEAT_THRESHOLDS.SHUTDOWN_CHECK, // 14 — shutdown checks begin
+  DANGEROUS = HEAT_THRESHOLDS.TO_HIT_3, // 17 — third to-hit penalty
+  CRITICAL = HEAT_THRESHOLDS.TO_HIT_4, // 24 — fourth to-hit penalty
+  MELTDOWN = HEAT_THRESHOLDS.AUTO_SHUTDOWN, // 30 — automatic shutdown
 }
 
 /**
  * TSM (Triple Strength Myomer) activation threshold
  * At 9+ heat, TSM activates providing +2 Walk MP
- * Note: At 9 heat, there's also a -1 movement penalty from heat scale
+ * Note: at 9 heat, there is also a -1 movement penalty from heat scale.
  */
 export const TSM_ACTIVATION_THRESHOLD = 9;
 
 /**
- * Heat scale effect
+ * Heat scale effect shape — a snapshot of every effect that applies at a
+ * given heat level.
  */
 export interface HeatScaleEffect {
   readonly threshold: number;
+  /** MP to subtract (positive integer, per canonical floor(heat/5)). */
   readonly movementPenalty: number;
+  /** To-hit modifier to apply (positive integer). */
   readonly toHitPenalty: number;
-  readonly shutdownRoll?: number; // Target number to avoid shutdown (2d6 roll)
-  readonly ammoExplosionRoll?: number; // Target number to avoid explosion (2d6 roll)
+  /** Shutdown-roll TN if applicable (Infinity means automatic shutdown). */
+  readonly shutdownRoll?: number;
+  /** Ammo-explosion TN if applicable (Infinity means automatic explosion). */
+  readonly ammoExplosionRoll?: number;
 }
 
 /**
- * Complete heat scale effects per BattleTech TechManual
- *
- * Heat | Move | To-Hit | Shutdown | Ammo
- * -----|------|--------|----------|-----
- * 0-4  | 0    | 0      | -        | -
- * 5-9  | -1   | 0      | -        | -
- * 10-14| -2   | +1     | -        | -
- * 15-17| -3   | +2     | -        | -
- * 18-19| -4   | +3     | -        | -
- * 20-21| -5   | +4     | 8+       | -
- * 22-23| -6   | +4     | 6+       | -
- * 24   | -7   | +4     | 6+       | 8+
- * 25   | -8   | +4     | 4+       | 8+
- * 26-27| -9   | +4     | 4+       | 6+
- * 28-29| -10  | +4     | 4+       | 4+
- * 30+  | Auto | -      | Auto     | Auto
+ * Build a `HeatScaleEffect` for the given heat level by reading from the
+ * canonical constants. Returned as a fresh object so callers cannot mutate
+ * shared state.
  */
-export const HEAT_SCALE_EFFECTS: readonly HeatScaleEffect[] = [
-  { threshold: 0, movementPenalty: 0, toHitPenalty: 0 },
-  { threshold: 5, movementPenalty: -1, toHitPenalty: 0 },
-  { threshold: 10, movementPenalty: -2, toHitPenalty: 1 },
-  { threshold: 15, movementPenalty: -3, toHitPenalty: 2 },
-  { threshold: 18, movementPenalty: -4, toHitPenalty: 3 },
-  { threshold: 20, movementPenalty: -5, toHitPenalty: 4, shutdownRoll: 8 },
-  { threshold: 22, movementPenalty: -6, toHitPenalty: 4, shutdownRoll: 6 },
-  {
-    threshold: 24,
-    movementPenalty: -7,
-    toHitPenalty: 4,
-    shutdownRoll: 6,
-    ammoExplosionRoll: 8,
-  },
-  {
-    threshold: 25,
-    movementPenalty: -8,
-    toHitPenalty: 4,
-    shutdownRoll: 4,
-    ammoExplosionRoll: 8,
-  },
-  {
-    threshold: 26,
-    movementPenalty: -9,
-    toHitPenalty: 4,
-    shutdownRoll: 4,
-    ammoExplosionRoll: 6,
-  },
-  {
-    threshold: 28,
-    movementPenalty: -10,
-    toHitPenalty: 4,
-    shutdownRoll: 4,
-    ammoExplosionRoll: 4,
-  },
-  {
-    threshold: 30,
-    movementPenalty: -999,
-    toHitPenalty: 0,
-    shutdownRoll: 0,
-    ammoExplosionRoll: 0,
-  }, // Auto shutdown/explosion
-] as const;
+export function getHeatScaleEffect(currentHeat: number): HeatScaleEffect {
+  const threshold =
+    HEAT_TO_HIT_TABLE.find(
+      (t) => currentHeat >= t.minHeat && currentHeat <= t.maxHeat,
+    )?.minHeat ?? 0;
+
+  const movementPenalty = canonicalHeatMovementPenalty(currentHeat);
+  const toHitPenalty = getHeatToHitModifier(currentHeat);
+
+  const shutdownTN = getShutdownTN(currentHeat);
+  const ammoExplosionTN = getAmmoExplosionTN(currentHeat);
+
+  return {
+    threshold,
+    movementPenalty,
+    toHitPenalty,
+    ...(shutdownTN > 0 ? { shutdownRoll: shutdownTN } : {}),
+    ...(ammoExplosionTN > 0 ? { ammoExplosionRoll: ammoExplosionTN } : {}),
+  };
+}
+
+/**
+ * Check if current heat level poses a shutdown risk.
+ * @returns true when the unit must roll to avoid shutdown at this heat level.
+ */
+export function isShutdownRisk(currentHeat: number): boolean {
+  return currentHeat >= HEAT_THRESHOLDS.SHUTDOWN_CHECK;
+}
+
+/**
+ * Get the target number needed to avoid ammunition explosion.
+ * @returns Target number for 2d6 roll, or null if no explosion risk.
+ */
+export function getAmmoExplosionRisk(currentHeat: number): number | null {
+  if (currentHeat < HEAT_THRESHOLDS.AMMO_EXPLOSION_1) return null;
+  const entry = AMMO_EXPLOSION_TN_TABLE.find(
+    (e) => currentHeat >= e.minHeat && currentHeat <= e.maxHeat,
+  );
+  if (entry) return entry.tn;
+  // Above the table's last entry → automatic explosion
+  return Infinity;
+}
+
+/**
+ * Check if TSM (Triple Strength Myomer) is active at given heat level.
+ * @returns true if heat >= 9 (TSM activation threshold).
+ */
+export function isTSMActive(currentHeat: number): boolean {
+  return currentHeat >= TSM_ACTIVATION_THRESHOLD;
+}
+
+/**
+ * Get the heat-induced movement penalty as a positive integer representing
+ * MP to subtract from walk/run. Re-exported from `constants/heat.ts` so
+ * callers can import from either module and get the same answer.
+ */
+export function getHeatMovementPenalty(currentHeat: number): number {
+  return canonicalHeatMovementPenalty(currentHeat);
+}
 
 /**
  * Heat source types
@@ -146,63 +172,8 @@ export interface TurnHeatBalance {
 }
 
 /**
- * Get heat scale effect for current heat level
- */
-export function getHeatScaleEffect(currentHeat: number): HeatScaleEffect {
-  // Find highest threshold that applies
-  for (let i = HEAT_SCALE_EFFECTS.length - 1; i >= 0; i--) {
-    if (currentHeat >= HEAT_SCALE_EFFECTS[i].threshold) {
-      return HEAT_SCALE_EFFECTS[i];
-    }
-  }
-  return HEAT_SCALE_EFFECTS[0];
-}
-
-/**
- * Check if current heat level poses shutdown risk
- * @param currentHeat - Current heat level
- * @returns true if shutdown roll is required
- */
-export function isShutdownRisk(currentHeat: number): boolean {
-  const effect = getHeatScaleEffect(currentHeat);
-  return effect.shutdownRoll !== undefined;
-}
-
-/**
- * Get the target number needed to avoid ammunition explosion
- * @param currentHeat - Current heat level
- * @returns Target number for 2d6 roll, or null if no explosion risk
- */
-export function getAmmoExplosionRisk(currentHeat: number): number | null {
-  const effect = getHeatScaleEffect(currentHeat);
-  return effect.ammoExplosionRoll ?? null;
-}
-
-/**
- * Check if TSM (Triple Strength Myomer) is active at given heat level
- * @param currentHeat - Current heat level
- * @returns true if heat >= 9 (TSM activation threshold)
- */
-export function isTSMActive(currentHeat: number): boolean {
-  return currentHeat >= TSM_ACTIVATION_THRESHOLD;
-}
-
-/**
- * Get movement penalty from heat including any enhancement effects
- * @param currentHeat - Current heat level
- * @returns Movement penalty (negative number, e.g., -1, -2)
- */
-export function getHeatMovementPenalty(currentHeat: number): number {
-  const effect = getHeatScaleEffect(currentHeat);
-  // At 30+ heat, movement is impossible (shutdown)
-  if (effect.threshold >= 30) {
-    return -999; // Indicates shutdown/immobile
-  }
-  return effect.movementPenalty;
-}
-
-/**
- * Calculate movement heat
+ * Calculate movement heat (per movement mode).
+ * Canonical per TechManual p.68: walk = 1, run = 2, jump = max(3, jumpMP).
  */
 export function calculateMovementHeat(
   walkMP: number,

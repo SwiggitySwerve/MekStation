@@ -2,27 +2,55 @@
 
 ## Why
 
-MekStation's combat engine is ~90% correct, but 8 rule-accuracy bugs make the remaining 10% produce wrong outcomes. Prone targets are harder to hit from adjacent hexes than from range (reversed), the TMM formula scales linearly instead of using the canonical bracket table, three separate heat-threshold tables disagree with each other and with MegaMek, the consciousness check is off by one, two SPAs have wrong numeric values (Weapon Specialist, Sniper), one SPA targets the wrong roll (Jumping Jack), and life support destructs after a single hit instead of two. Until these bugs are fixed, every downstream wiring change (weapon data, damage pipeline, PSRs) propagates incorrect math. This is the foundational cleanup: pure bug-fix delta on already-shipped specs. See `openspec/changes/archive/2026-02-12-full-combat-parity/proposal.md` Phase 0 for the source bug list.
+The original proposal drafted from `openspec/changes/archive/2026-02-12-full-combat-parity/proposal.md` Phase 0 listed 8 rule-accuracy bugs in the combat engine. A pre-implementation audit on 2026-04-17 established that **7 of the 8 bugs have already been fixed** by intermediate commits landed between the full-combat-parity archive and today. The 8th bug — a divergent heat-threshold table in `src/types/validation/HeatManagement.ts` that uses 5/10/15/18/20 thresholds instead of the canonical 8/13/17/24 — is still present in the codebase. Although `HeatManagement.ts` is currently only consumed by its own test file (no production imports), leaving a second source of truth for heat thresholds is a rule-accuracy landmine: a future refactor or new consumer could inadvertently wire the wrong table back into production. This change completes the fix-combat-rule-accuracy objective by:
+
+1. Consolidating `HeatManagement.ts` to reference or remove its divergent table so `src/constants/heat.ts` is unambiguously the single source of truth.
+2. Adding regression-guard unit tests for each of the 7 already-correct behaviors so silent re-introduction of the original bugs will fail tests at merge time.
+
+This is the last accuracy delta before Lane A's wiring work begins — downstream changes (`wire-real-weapon-data`, `integrate-damage-pipeline`, etc.) depend on every behavior in this list being provably stable.
 
 ## What Changes
 
-- **BREAKING**: Reverse the target prone modifier — adjacent attackers SHALL receive -2, attackers beyond 1 hex SHALL receive +1 (currently reversed)
-- **BREAKING**: Replace the `ceil(hexesMoved / 5)` TMM approximation with the canonical TechManual p.115 bracket table (0-2 hexes → +0, 3-4 → +1, 5-6 → +2, 7-9 → +3, 10-17 → +4, 18-24 → +5, 25+ → +6)
-- **BREAKING**: Consolidate the three contradicting heat-threshold tables (`toHit.ts`, `HeatManagement.ts`, `constants/heat.ts`) to a single MegaMek canonical source: +1 at heat 8, +2 at heat 13, +3 at heat 17, +4 at heat 24
-- Fix the consciousness check off-by-one in `damage.ts` (current `>` SHALL become `>=` so pilots at the threshold correctly roll)
-- Fix Weapon Specialist SPA to grant -2 (not -1) to the designated weapon type
-- Fix Sniper SPA to halve all range modifiers (floor division), not merely zero the medium-range penalty
-- Fix Jumping Jack SPA to modify the attacker's to-hit when jumping, not the target's piloting roll
-- Fix life support `hitsToDestroy` in `critical-hit-system` to 2 (currently 1)
+**Remove divergent heat table:**
+
+- Retarget `HeatManagement.ts` to import thresholds from `src/constants/heat.ts` instead of defining its own. The `HEAT_SCALE_EFFECTS` table SHALL either be deleted (if no consumer remains) or rebuilt from the canonical thresholds so the two sources cannot drift.
+- `HeatLevel` enum stays (it's a UI-level label mapping, not a threshold table) but its numeric values SHALL align with canonical thresholds (8, 13, 17, 24) rather than the current 5/10/15/18/20.
+- `getHeatScaleEffect`, `isShutdownRisk`, `getAmmoExplosionRisk` if still needed SHALL read from `HEAT_TO_HIT_TABLE` + `AMMO_EXPLOSION_TN_TABLE` + `getShutdownTN` in `constants/heat.ts` rather than the local `HEAT_SCALE_EFFECTS`.
+- The duplicate `getHeatMovementPenalty` in `HeatManagement.ts` SHALL be removed in favor of the one in `constants/heat.ts`.
+
+**Add regression tests** for each previously-fixed behavior so future refactors cannot silently reintroduce the bugs:
+
+- Target-prone modifier: adjacent attacker → -2; 2 hexes → +1; 12 hexes → +1; standing target → 0
+- TMM bracket table: 0/2 → 0; 3/4 → +1; 5/6 → +2; 7/8/9 → +3; 10/17 → +4; 18/24 → +5; 25/40 → +6
+- Heat to-hit modifier: 0/7 → 0; 8/12 → +1; 13/16 → +2; 17/23 → +3; 24/40 → +4
+- Consciousness check: roll of TN succeeds; roll of TN-1 fails; wound at threshold requires check
+- Weapon Specialist SPA: matched weapon type → -2; unmatched → 0; no SPA → 0
+- Sniper SPA: short mod +0 → 0 reduction; medium +2 → -1; long +4 → -2; extreme +6 → -3
+- Jumping Jack SPA: attacker jumping → -2 to attacker to-hit; attacker walking → 0
+- Life support crit: 1 hit → not destroyed; 2 hits → destroyed
 
 ## Dependencies
 
-- **Requires**: None — this is a pure bug-fix delta on existing specs
-- **Blocks**: `wire-real-weapon-data`, `wire-firing-arc-resolution`, `integrate-damage-pipeline`, `wire-heat-generation-and-effects`, `wire-piloting-skill-rolls` (all downstream wiring depends on correct underlying math)
+- **Requires**: None — this is a pure bug-fix + regression-guard delta
+- **Blocks**: `wire-real-weapon-data`, `wire-firing-arc-resolution`, `integrate-damage-pipeline`, `wire-heat-generation-and-effects`, `wire-piloting-skill-rolls` (all downstream wiring depends on these behaviors being provably stable — the regression tests make that provable)
 
 ## Impact
 
-- **Affected specs**: `to-hit-resolution` (prone, TMM, heat modifier), `heat-overflow-effects` (threshold table), `piloting-skill-rolls` (consciousness), `spa-combat-integration` (Weapon Specialist, Sniper, Jumping Jack), `critical-hit-system` (life support hitsToDestroy)
-- **Affected code**: `src/utils/gameplay/toHit/`, `src/utils/gameplay/damage.ts`, `src/utils/gameplay/spaModifiers/`, `src/lib/spa/catalog.ts`, `src/types/validation/CriticalHitSystem.ts`, `src/constants/heat.ts`
-- **No new files**. No new dependencies.
-- **Test fallout**: Existing tests that assert the wrong values will need updating; the authoritative MegaMek reference values replace them.
+- **Affected specs**: `to-hit-resolution` (MODIFIED — scenarios describe already-current behavior, added for regression coverage), `heat-overflow-effects` (MODIFIED — threshold table alignment), `piloting-skill-rolls` (MODIFIED — consciousness scenario), `spa-combat-integration` (MODIFIED — SPA scenarios), `critical-hit-system` (MODIFIED — life support scenario)
+- **Affected code**: `src/types/validation/HeatManagement.ts` (consolidate), `src/__tests__/unit/types/validation/HeatManagement.test.ts` (update for new thresholds), new regression-guard test files under `src/utils/gameplay/toHit/__tests__/`, `src/utils/gameplay/spaModifiers/__tests__/`, `src/utils/gameplay/damage/__tests__/`, `src/types/validation/__tests__/`
+- **No production-code changes to combat logic** — only the `HeatManagement.ts` consolidation is a real behavior change, and that change is a no-op for the combat engine today because no production code imports from it.
+- **Test fallout**: the existing `HeatManagement.test.ts` uses the old 5/10/15/18/20 thresholds and will need updating to the canonical 8/13/17/24.
+- **No new files or dependencies beyond test files**.
+
+## Audit Evidence (2026-04-17)
+
+| #   | Original Bug                    | Current State                                                                    | Verified At                 |
+| --- | ------------------------------- | -------------------------------------------------------------------------------- | --------------------------- |
+| 1   | Prone modifier reversed         | Fixed — `range <= 1 ? -2 : 1`                                                    | `damageModifiers.ts:16`     |
+| 2   | TMM `ceil(/5)` approximation    | Fixed — canonical bracket table                                                  | `toHit/constants.ts:38`     |
+| 3   | 3 divergent heat tables         | **Partial** — `constants/heat.ts` canonical; `HeatManagement.ts` still divergent | `HeatManagement.ts:60`      |
+| 4   | Consciousness off-by-one `>`    | Fixed — uses `>=`                                                                | `damage/pilot.ts:28`        |
+| 5   | Weapon Specialist -1            | Fixed — returns `-2`                                                             | `weaponSpecialists.ts:26`   |
+| 6   | Sniper zeroes medium only       | Fixed — `-Math.floor(mod/2)`                                                     | `weaponSpecialists.ts:91`   |
+| 7   | Jumping Jack on target piloting | Fixed — attacker to-hit on jump                                                  | `abilityModifiers.ts:64-76` |
+| 8   | Life support hitsToDestroy = 1  | Fixed — `hitsToDestroy: 2`                                                       | `CriticalHitSystem.ts:122`  |
