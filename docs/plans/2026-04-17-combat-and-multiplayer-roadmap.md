@@ -207,9 +207,13 @@ Two humans on different machines play a full match against each other; a third j
 
 ---
 
-## Phase 5 — Pilot SPA UI (formerly Tier A #5c, deferred)
+## Phase 5 — Pilot SPA UI ✅ COMPLETE (2026-04-18)
 
 **Goal:** pilot editor lets users browse all 91 SPAs by category, purchase with XP, designate options (weapon type, target, etc.); pilot sheets render SPAs; PDF export includes them.
+
+**Delivered (PR pending):** `<SPAPicker>` component (category tabs, search, source filters, ARIA tablist + keyboard nav), pilot editor integration on `/gameplay/pilots/[id]` with XP debit / refund / origin-only gating / flaw XP credits, typed `SPADesignation` discriminated union (weapon-type, weapon-category, range-bracket, target, terrain-type, edge-trigger, attribute) wired into combat modifier resolution via `populateAttackerDesignations`, SPA badges + tooltips on PilotSection (unit card) and pilot detail summary, "Special Abilities" section on the printed/SVG record sheet (capped 6 lines + "+N more"). Legacy `AbilityPurchaseCard`/`Modal`/`Constants` removed.
+
+**Deferred:** Combat-side designation read for Sandblaster, Human TRO, Environmental Specialist, Terrain Master, Oblique Attacker terrain refinement (TODO inline). Full pilot→attack-resolution end-to-end fixture asserting -2/-1/+2 to-hit deltas (bridge is unit-tested).
 
 ### Tasks
 
