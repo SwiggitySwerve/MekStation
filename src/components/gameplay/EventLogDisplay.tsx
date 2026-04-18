@@ -7,6 +7,19 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 
+import type {
+  ICriticalHitResolvedPayload,
+  IDamageAppliedPayload,
+  IPilotHitPayload,
+  IUnitDestroyedPayload,
+} from '@/types/gameplay';
+
+import {
+  formatCriticalEntry,
+  formatDamageEntry,
+  formatPilotHitEntry,
+  formatUnitDestroyedEntry,
+} from '@/components/gameplay/damageFeedback';
 import {
   GamePhase,
   GameSide,
@@ -165,14 +178,11 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
       break;
     }
     case GameEventType.DamageApplied: {
-      const payload = event.payload as {
-        unitId: string;
-        location: string;
-        damage: number;
-        locationDestroyed: boolean;
-      };
+      const payload = event.payload as IDamageAppliedPayload;
       unitId = payload.unitId;
-      text = `${payload.damage} damage to ${payload.location}${payload.locationDestroyed ? ' (DESTROYED)' : ''}`;
+      // Reuse the canonical damage-feedback formatter so the event log,
+      // action panel, and post-battle screens emit identical wording.
+      text = formatDamageEntry(payload, (id) => id);
       break;
     }
     case GameEventType.HeatGenerated: {
@@ -198,23 +208,29 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
     case GameEventType.CriticalHit: {
       const payload = event.payload as { unitId: string };
       unitId = payload.unitId;
-      text = 'Critical hit!';
+      text = '⚠ Critical hit!';
+      break;
+    }
+    case GameEventType.CriticalHitResolved: {
+      const payload = event.payload as ICriticalHitResolvedPayload;
+      unitId = payload.unitId;
+      // Canonical critical-hit wording (⚠ glyph + component) shared
+      // with the action panel and post-battle screens.
+      text = formatCriticalEntry(payload, (id) => id);
       break;
     }
     case GameEventType.UnitDestroyed: {
-      const payload = event.payload as { unitId: string; cause: string };
+      const payload = event.payload as IUnitDestroyedPayload;
       unitId = payload.unitId;
-      text = `UNIT DESTROYED (${payload.cause})`;
+      // Canonical destruction wording (✕ glyph + cause).
+      text = formatUnitDestroyedEntry(payload, (id) => id);
       break;
     }
     case GameEventType.PilotHit: {
-      const payload = event.payload as {
-        unitId: string;
-        wounds: number;
-        totalWounds: number;
-      };
+      const payload = event.payload as IPilotHitPayload;
       unitId = payload.unitId;
-      text = `Pilot hit: ${payload.wounds} wound(s) (${payload.totalWounds} total)`;
+      // Canonical pilot-hit wording (⚠/✕ + wound count).
+      text = formatPilotHitEntry(payload, (id) => id);
       break;
     }
     case GameEventType.GameEnded: {

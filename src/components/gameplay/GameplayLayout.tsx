@@ -13,6 +13,7 @@ import React, {
   useEffect,
 } from 'react';
 
+import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
 
 import {
@@ -29,6 +30,7 @@ import {
 } from '@/types/gameplay';
 
 import { ActionBar } from './ActionBar';
+import { ConcedeButton } from './ConcedeButton';
 import { EventLogDisplay } from './EventLogDisplay';
 import { HexMapDisplay } from './HexMapDisplay';
 import { PhaseBanner } from './PhaseBanner';
@@ -71,6 +73,16 @@ export interface GameplayLayoutProps {
   validTargetIds?: readonly string[];
   /** Movement range hexes for map display */
   movementRange?: readonly IMovementRangeHex[];
+  /**
+   * Live interactive session — when present, the layout mounts the
+   * always-visible Concede button in the action bar's trailing slot
+   * and routes to `/gameplay/games/[id]/victory` on `GameEnded`.
+   *
+   * @spec openspec/changes/add-victory-and-post-battle-summary/tasks.md § 1.3
+   */
+  interactiveSession?: InteractiveSession;
+  /** Player side controlling this UI (defaults to GameSide.Player). */
+  playerSide?: GameSide;
   /** Optional className for styling */
   className?: string;
 }
@@ -134,6 +146,8 @@ export function GameplayLayout({
   hitChance,
   validTargetIds = [],
   movementRange = [],
+  interactiveSession,
+  playerSide = GameSide.Player,
   className = '',
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
@@ -332,6 +346,15 @@ export function GameplayLayout({
         onAction={onAction}
         infoText={
           interactivePhase ? `Interactive: ${interactivePhase}` : undefined
+        }
+        trailingActions={
+          interactiveSession ? (
+            <ConcedeButton
+              interactiveSession={interactiveSession}
+              sessionId={session.id}
+              playerSide={playerSide}
+            />
+          ) : undefined
         }
       />
 
