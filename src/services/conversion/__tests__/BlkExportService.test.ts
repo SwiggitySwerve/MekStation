@@ -42,6 +42,7 @@ import {
   ManipulatorType,
   InfantrySpecialization,
 } from "@/types/unit/PersonnelInterfaces";
+import { InfantryMotive } from "@/types/unit/InfantryInterfaces";
 import {
   ProtoChassis,
   ProtoWeightClass,
@@ -239,6 +240,8 @@ describe("BlkExportService", () => {
     squadSize: 7,
     numberOfSquads: 4,
     motionType: SquadMotionType.FOOT,
+    infantryMotive: InfantryMotive.FOOT,
+    platoonComposition: { squads: 7, troopersPerSquad: 4 },
     groundMP: 1,
     jumpMP: 0,
     primaryWeapon: "Rifle",
