@@ -159,6 +159,38 @@ export const LaunchMatchIntentSchema = z.object({
 });
 export type ILaunchMatchIntent = z.infer<typeof LaunchMatchIntentSchema>;
 
+// ---------------------------------------------------------------------------
+// Wave 4 reconnection lobby intents
+// ---------------------------------------------------------------------------
+
+/**
+ * MarkSeatAi — host-only intent to convert a `pending` (disconnected)
+ * human seat into an AI-controlled seat so the rest of the match can
+ * continue. The seat's `kind` flips from `'human'` to `'ai'`, the
+ * pending grace timer is cleared, and if no other seats remain pending
+ * the server unpauses the match (broadcasts `MatchResumed`).
+ */
+export const MarkSeatAiIntentSchema = z.object({
+  kind: z.literal('MarkSeatAi'),
+  slotId: z.string().min(1),
+  aiProfile: z.string().min(1).optional(),
+});
+export type IMarkSeatAiIntent = z.infer<typeof MarkSeatAiIntentSchema>;
+
+/**
+ * ForfeitMatch — host-only escape hatch. Concedes the match on behalf
+ * of the side that has the timed-out seat so the other humans get
+ * credit for a clean win instead of a hung lobby. Server resolves which
+ * side to concede based on the host's own side assignment (host
+ * forfeits the OPPOSITE side — i.e., declares the host's opponent the
+ * winner). For Wave 4 we keep the resolution simple: concede the side
+ * that is NOT the host's side.
+ */
+export const ForfeitMatchIntentSchema = z.object({
+  kind: z.literal('ForfeitMatch'),
+});
+export type IForfeitMatchIntent = z.infer<typeof ForfeitMatchIntentSchema>;
+
 export const IntentPayloadSchema = z.discriminatedUnion('kind', [
   MoveIntentSchema,
   AttackIntentSchema,
@@ -171,6 +203,8 @@ export const IntentPayloadSchema = z.discriminatedUnion('kind', [
   SetHumanSlotIntentSchema,
   SetReadyIntentSchema,
   LaunchMatchIntentSchema,
+  MarkSeatAiIntentSchema,
+  ForfeitMatchIntentSchema,
 ]);
 export type IIntentPayload = z.infer<typeof IntentPayloadSchema>;
 
@@ -312,6 +346,10 @@ export const ErrorCodeSchema = z.enum([
   'AUTH_REJECTED',
   'STORE_FAILURE',
   'INTERNAL_ERROR',
+  // Wave 4: engine-mutating intent rejected because the match is
+  // paused waiting for a pending peer to reconnect (or for the host
+  // to override via MarkSeatAi / ForfeitMatch).
+  'MATCH_PAUSED',
 ]);
 export type IErrorCode = z.infer<typeof ErrorCodeSchema>;
 
@@ -355,6 +393,56 @@ export const LobbyUpdatedSchema = z.object({
 });
 export type ILobbyUpdated = z.infer<typeof LobbyUpdatedSchema>;
 
+// ---------------------------------------------------------------------------
+// Wave 4 reconnection envelopes
+// ---------------------------------------------------------------------------
+
+/**
+ * MatchPaused — broadcast when at least one human seat enters the
+ * `pending` (disconnected, awaiting reconnect) state. While paused, the
+ * server rejects engine-mutating intents with `MATCH_PAUSED`. Clients
+ * use this to render a "Waiting for X to reconnect" banner.
+ *
+ * `pendingSlots` enumerates every slotId currently pending so the
+ * client can render multi-drop scenarios (e.g., two players lost wifi
+ * simultaneously) without inferring from seat colors alone.
+ */
+export const MatchPausedSchema = z.object({
+  kind: z.literal('MatchPaused'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  reason: z.literal('peer-pending'),
+  pendingSlots: z.array(z.string().min(1)),
+});
+export type IMatchPaused = z.infer<typeof MatchPausedSchema>;
+
+/**
+ * MatchResumed — broadcast when the last pending seat reconnects (or
+ * is replaced by AI via `MarkSeatAi`). Pairs with `MatchPaused`.
+ */
+export const MatchResumedSchema = z.object({
+  kind: z.literal('MatchResumed'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+});
+export type IMatchResumed = z.infer<typeof MatchResumedSchema>;
+
+/**
+ * SeatTimedOut — broadcast when the grace timer for a `pending` seat
+ * expires without a reconnect. The host's UI promotes this to a modal
+ * offering `MarkSeatAi` / `ForfeitMatch` (or "wait longer" — in Wave 4
+ * "wait longer" is implicit; the timer simply restarts on host inaction
+ * after the next intent).
+ */
+export const SeatTimedOutSchema = z.object({
+  kind: z.literal('SeatTimedOut'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  slotId: z.string().min(1),
+  playerId: z.string().min(1),
+});
+export type ISeatTimedOut = z.infer<typeof SeatTimedOutSchema>;
+
 export const ServerMessageSchema = z.discriminatedUnion('kind', [
   ReplayStartSchema,
   ReplayChunkSchema,
@@ -364,6 +452,9 @@ export const ServerMessageSchema = z.discriminatedUnion('kind', [
   ErrorMessageSchema,
   CloseSchema,
   LobbyUpdatedSchema,
+  MatchPausedSchema,
+  MatchResumedSchema,
+  SeatTimedOutSchema,
 ]);
 export type IServerMessage = z.infer<typeof ServerMessageSchema>;
 
@@ -386,6 +477,23 @@ export const HEARTBEAT_TIMEOUT_MS = 60_000;
 export const RECONNECT_INITIAL_MS = 500;
 export const RECONNECT_MAX_MS = 30_000;
 export const RECONNECT_MULTIPLIER = 2;
+
+/**
+ * Wave 4 — default grace window before a `pending` seat times out and
+ * the host gets the SeatTimedOut prompt. Configurable per-match in a
+ * follow-up; for now this is the constant the server uses.
+ *
+ * 120s = 2x the heartbeat dead-connection window; long enough for a
+ * mobile-data hop or a wifi roam, short enough that a hung match
+ * doesn't waste the other players' evening.
+ */
+export const RECONNECT_GRACE_MS = 120_000;
+
+/**
+ * Wave 4 — replay chunk size. Long matches can accrue thousands of
+ * events; chunking the replay payload avoids one huge socket frame.
+ */
+export const REPLAY_CHUNK_SIZE = 50;
 
 // =============================================================================
 // Helper builders

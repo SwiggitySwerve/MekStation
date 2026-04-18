@@ -33,25 +33,25 @@
  * @spec openspec/changes/add-authoritative-roll-arbitration/specs/multiplayer-server/spec.md
  */
 
-import type { WebSocket as WsWebSocket } from "ws";
+import type { WebSocket as WsWebSocket } from 'ws';
 
-import type { IAdaptedUnit } from "@/engine/types";
+import type { IAdaptedUnit } from '@/engine/types';
 import type {
   IGameEvent,
   IGameUnit,
-} from "@/types/gameplay/GameSessionInterfaces";
-import type { IHexGrid } from "@/types/gameplay/HexGridInterfaces";
-import type { IMatchSeat } from "@/types/multiplayer/Lobby";
-import type { IPlayerRef } from "@/types/multiplayer/Player";
-import type { D6Roller } from "@/utils/gameplay/diceTypes";
+} from '@/types/gameplay/GameSessionInterfaces';
+import type { IHexGrid } from '@/types/gameplay/HexGridInterfaces';
+import type { IMatchSeat } from '@/types/multiplayer/Lobby';
+import type { IPlayerRef } from '@/types/multiplayer/Player';
+import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
-import { InteractiveSession } from "@/engine/InteractiveSession";
-import { SeededRandom } from "@/simulation/core/SeededRandom";
+import { InteractiveSession } from '@/engine/InteractiveSession';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameSide,
   type IGameSession,
-} from "@/types/gameplay/GameSessionInterfaces";
-import { Facing, MovementType } from "@/types/gameplay/HexGridInterfaces";
+} from '@/types/gameplay/GameSessionInterfaces';
+import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import {
   HEARTBEAT_INTERVAL_MS,
   HEARTBEAT_TIMEOUT_MS,
@@ -60,11 +60,11 @@ import {
   type ILobbyUpdated,
   type IServerMessage,
   nowIso,
-} from "@/types/multiplayer/Protocol";
+} from '@/types/multiplayer/Protocol';
 
-import type { IMatchStore } from "./IMatchStore";
+import type { IMatchStore } from './IMatchStore';
 
-import { CryptoDiceRoller, type IServerDiceRoller } from "./CryptoDiceRoller";
+import { CryptoDiceRoller, type IServerDiceRoller } from './CryptoDiceRoller';
 import {
   canLaunch,
   leaveSeat,
@@ -74,8 +74,13 @@ import {
   setAiSlot,
   setHumanSlot,
   setReady,
-} from "./lobby/lobbyStateMachine";
-import { RollCapture, SeededDiceRoller } from "./RollCapture";
+} from './lobby/lobbyStateMachine';
+import {
+  PendingPeerTracker,
+  type IPendingPeerEntry,
+} from './reconnection/PendingPeerTracker';
+import { streamReplay } from './reconnection/replayStream';
+import { RollCapture, SeededDiceRoller } from './RollCapture';
 
 // =============================================================================
 // Socket abstraction
@@ -148,6 +153,21 @@ export class ServerMatchHost {
    * from the WS upgrade handler on SessionJoin and from tests).
    */
   private readonly playerRefs = new Map<string, IPlayerRef>();
+
+  /**
+   * Wave 4: per-pending-player grace timer registry. Owns the 120s
+   * timeout per disconnected human seat. Cleared on reconnect, on
+   * `MarkSeatAi`, or on `closeMatch` (the last via `clearAll`).
+   */
+  private readonly pendingPeers = new PendingPeerTracker();
+
+  /**
+   * Wave 4: when at least one human seat is `pending`, the host pauses
+   * engine-mutating intents (`Move`, `Attack`, `AdvancePhase`,
+   * `Concede`). Lobby intents — including the `MarkSeatAi`/
+   * `ForfeitMatch` host overrides — are still allowed.
+   */
+  private isPaused = false;
 
   /**
    * Per Wave 3a: the source roller (crypto in prod, seeded in debug).
@@ -293,15 +313,22 @@ export class ServerMatchHost {
   attachSocket(socket: IMatchSocket, playerId: string): void {
     if (this.closed) {
       this.safeSend(socket, {
-        kind: "Close",
+        kind: 'Close',
         matchId: this.matchId,
         ts: nowIso(),
-        code: "UNKNOWN_MATCH",
-        reason: "Match has been closed",
+        code: 'UNKNOWN_MATCH',
+        reason: 'Match has been closed',
       });
       socket.close();
       return;
     }
+    // Wave 4: a (re)connecting socket whose playerId was on the
+    // pending list resolves the pause (or at least one slot of it).
+    // Clear the timer here; the actual MatchResumed broadcast happens
+    // in `handleSessionJoin` after we've re-bound the seat metadata,
+    // so the order matches the proposal: replay → LobbyUpdated →
+    // MatchResumed.
+    this.pendingPeers.clearPending(playerId);
     const heartbeatTimer = setInterval(() => {
       const state = this.sockets.get(socket);
       if (!state) return;
@@ -313,7 +340,7 @@ export class ServerMatchHost {
         return;
       }
       this.safeSend(socket, {
-        kind: "Heartbeat",
+        kind: 'Heartbeat',
         matchId: this.matchId,
         ts: nowIso(),
       });
@@ -322,7 +349,7 @@ export class ServerMatchHost {
     // `unref` so a dangling timer doesn't keep Node alive in tests; it
     // exists only on `NodeJS.Timeout`, never on the browser-style
     // `Timer`. We're always in Node here, but the cast keeps TS happy.
-    if (typeof (heartbeatTimer as NodeJS.Timeout).unref === "function") {
+    if (typeof (heartbeatTimer as NodeJS.Timeout).unref === 'function') {
       (heartbeatTimer as NodeJS.Timeout).unref();
     }
 
@@ -343,14 +370,107 @@ export class ServerMatchHost {
     if (!state) return;
     clearInterval(state.heartbeatTimer);
     this.sockets.delete(socket);
-    // Wave 1: disconnection MUST NOT end the match — the spec is
-    // explicit. Wave 4 will mark the seat as `pending` so reconnect
-    // works.
+    // Wave 4: if the dropping socket held a human seat in an active
+    // match, mark the seat pending and start the grace timer. Lobby
+    // status drops are NOT paused (no engine to pause yet) — pre-
+    // active reconnect just uses the seat ledger.
+    //
+    // Also guarded: the same player might still have ANOTHER socket
+    // attached (multi-tab same-account) — only mark pending when this
+    // was their last socket.
+    const playerId = state.playerId;
+    const stillHasSocket = Array.from(this.sockets.values()).some(
+      (s) => s.playerId === playerId,
+    );
+    if (!stillHasSocket && !this.closed) {
+      // Fire-and-forget — meta lookup is async but socket close is
+      // sync. Failures here just skip the pause path; the match keeps
+      // running in degraded mode rather than crashing.
+      void this.maybeMarkPlayerPending(playerId);
+    }
     try {
       socket.close();
     } catch {
       // already closed — ignore
     }
+  }
+
+  /**
+   * Wave 4: look up whether `playerId` occupies a `human` seat in an
+   * `active` match. If so, register the grace timer and broadcast
+   * `MatchPaused` (idempotent — broadcast only on first pending peer).
+   */
+  private async maybeMarkPlayerPending(playerId: string): Promise<void> {
+    let meta;
+    try {
+      meta = await this.store.getMatchMeta(this.matchId);
+    } catch {
+      return;
+    }
+    if (meta.status !== 'active') return;
+    const seats = meta.seats ?? [];
+    const seat = seats.find(
+      (s) => s.kind === 'human' && s.occupant?.playerId === playerId,
+    );
+    if (!seat) return;
+    // Tracker idempotency means this is safe to call repeatedly.
+    this.pendingPeers.markPending(playerId, seat.slotId, (entry) =>
+      this.handleGraceTimeout(entry),
+    );
+    this.broadcastPauseSnapshot();
+  }
+
+  /**
+   * Wave 4: timer handler. Broadcasts SeatTimedOut so the host's UI
+   * can prompt for `MarkSeatAi` / `ForfeitMatch`. Match stays paused
+   * until the host responds (or the player magically reconnects).
+   */
+  private handleGraceTimeout(entry: IPendingPeerEntry): void {
+    const msg: IServerMessage = {
+      kind: 'SeatTimedOut',
+      matchId: this.matchId,
+      ts: nowIso(),
+      slotId: entry.slotId,
+      playerId: entry.playerId,
+    };
+    this.broadcast(msg);
+  }
+
+  /**
+   * Wave 4: broadcast the current `MatchPaused` snapshot iff at least
+   * one peer is pending. Sets `isPaused=true` so the engine guard
+   * starts rejecting mutating intents.
+   */
+  private broadcastPauseSnapshot(): void {
+    const pending = this.pendingPeers.getAllPending();
+    if (pending.length === 0) return;
+    if (!this.isPaused) {
+      this.isPaused = true;
+    }
+    const msg: IServerMessage = {
+      kind: 'MatchPaused',
+      matchId: this.matchId,
+      ts: nowIso(),
+      reason: 'peer-pending',
+      pendingSlots: pending.map((p) => p.slotId),
+    };
+    this.broadcast(msg);
+  }
+
+  /**
+   * Wave 4: clear the pause if no peers remain pending. Broadcasts
+   * `MatchResumed` once on the transition. Idempotent.
+   */
+  private maybeResume(): void {
+    if (!this.isPaused) return;
+    if (this.pendingPeers.size() > 0) return;
+    this.isPaused = false;
+    const msg: IServerMessage = {
+      kind: 'MatchResumed',
+      matchId: this.matchId,
+      ts: nowIso(),
+    };
+    this.broadcast(msg);
   }
 
   /**
@@ -368,35 +488,80 @@ export class ServerMatchHost {
   // ---------------------------------------------------------------------------
 
   /**
-   * Send the full event history to one socket as a `ReplayStart` →
-   * `ReplayChunk` → `ReplayEnd` triple. Wave 1 emits a single chunk
-   * because matches are short; Wave 4 will paginate.
+   * Send the event history >= `fromSeq` to one socket as a
+   * `ReplayStart` → 0+ `ReplayChunk` → `ReplayEnd` triple. Wave 4
+   * paginates via `streamReplay` (default 50 events per chunk).
+   *
+   * Replay envelopes go ONLY to the requesting socket — they are NOT
+   * broadcast. Live events still go to every attached socket via
+   * `broadcast()`.
    */
   async sendReplay(socket: IMatchSocket, fromSeq = 0): Promise<void> {
     const events = await this.store.getEvents(this.matchId, fromSeq);
-    this.safeSend(socket, {
-      kind: "ReplayStart",
-      matchId: this.matchId,
-      ts: nowIso(),
-      fromSeq,
-      totalEvents: events.length,
-    });
-    if (events.length > 0) {
-      this.safeSend(socket, {
-        kind: "ReplayChunk",
+    const frames = streamReplay(this.matchId, events, fromSeq);
+    this.safeSend(socket, frames.start);
+    for (const chunk of frames.chunks) {
+      this.safeSend(socket, chunk);
+    }
+    this.safeSend(socket, frames.end);
+  }
+
+  /**
+   * Wave 4: full reconnect handshake. Called by the upgrade handler
+   * after `attachSocket` for a SessionJoin envelope. Streams missed
+   * events (via `sendReplay`), then sends a fresh `LobbyUpdated`
+   * snapshot if the match is still in lobby/active so the client can
+   * paint without waiting for the next state change. Finally, if the
+   * incoming socket cleared the last pending peer, we broadcast
+   * `MatchResumed`.
+   *
+   * @param socket   The attached socket (already passed through
+   *                 `attachSocket`).
+   * @param playerId Verified player identity (from upgrade-time auth).
+   * @param lastSeq  Optional client high-water mark. Server streams
+   *                 events with sequence > lastSeq. Omitted ⇒ full
+   *                 history (sequence >= 0).
+   */
+  async handleSessionJoin(
+    socket: IMatchSocket,
+    playerId: string,
+    lastSeq?: number,
+  ): Promise<void> {
+    // `lastSeq` is the highest seq the client has SEEN. We stream
+    // strictly newer events, so request `lastSeq + 1`. The store's
+    // `getEvents(fromSeq)` returns sequence >= fromSeq, which combined
+    // with the +1 yields the strictly-greater semantics the proposal
+    // calls for.
+    const requestFrom = lastSeq != null ? lastSeq + 1 : 0;
+    await this.sendReplay(socket, requestFrom);
+
+    // Send a current LobbyUpdated snapshot so a pre-active reconnect
+    // (or any active client that wants to confirm seat state) doesn't
+    // have to wait for the next mutation. We always send it when meta
+    // exposes seats — costs one envelope and keeps clients honest.
+    let meta;
+    try {
+      meta = await this.store.getMatchMeta(this.matchId);
+    } catch {
+      return;
+    }
+    const seats = meta.seats ?? [];
+    if (seats.length > 0) {
+      const update: ILobbyUpdated = {
+        kind: 'LobbyUpdated',
         matchId: this.matchId,
         ts: nowIso(),
-        events: events.slice() as unknown[],
-      });
+        seats: seats as IMatchSeat[],
+        status: meta.status,
+        hostPlayerId: meta.hostPlayerId,
+      };
+      this.safeSend(socket, update);
     }
-    const toSeq =
-      events.length > 0 ? events[events.length - 1].sequence : fromSeq;
-    this.safeSend(socket, {
-      kind: "ReplayEnd",
-      matchId: this.matchId,
-      ts: nowIso(),
-      toSeq,
-    });
+
+    // If the reconnecting socket cleared our last pending peer
+    // (already cleared on attachSocket above), broadcast resume.
+    this.maybeResume();
+    void playerId;
   }
 
   // ---------------------------------------------------------------------------
@@ -413,11 +578,11 @@ export class ServerMatchHost {
 
     if (this.closed) {
       const err: IServerMessage = {
-        kind: "Error",
+        kind: 'Error',
         matchId: this.matchId,
         ts: nowIso(),
-        code: "UNKNOWN_MATCH",
-        reason: "Match is closed",
+        code: 'UNKNOWN_MATCH',
+        reason: 'Match is closed',
       };
       this.broadcast(err);
       broadcasts.push(err);
@@ -434,6 +599,23 @@ export class ServerMatchHost {
       return broadcasts;
     }
 
+    // Wave 4: while paused, engine-mutating intents are rejected with
+    // MATCH_PAUSED. Lobby intents bypass this gate above (they're
+    // routed before we land here), so the host can still call
+    // MarkSeatAi/ForfeitMatch to break out of the paused state.
+    if (this.isPaused) {
+      const err: IServerMessage = {
+        kind: 'Error',
+        matchId: this.matchId,
+        ts: nowIso(),
+        code: 'MATCH_PAUSED',
+        reason: 'Match is paused waiting for a peer to reconnect',
+      };
+      this.broadcast(err);
+      broadcasts.push(err);
+      return broadcasts;
+    }
+
     // Per `add-authoritative-roll-arbitration` (Wave 3a): defense in
     // depth. The Protocol's IntentSchema already rejects payloads with
     // dice fields at the parse step, but a hand-crafted `IIntent`
@@ -442,11 +624,11 @@ export class ServerMatchHost {
     // INVALID_INTENT and do NOT touch the engine.
     if (intentHasForbiddenDiceField(envelope.intent)) {
       const err: IServerMessage = {
-        kind: "Error",
+        kind: 'Error',
         matchId: this.matchId,
         ts: nowIso(),
-        code: "INVALID_INTENT",
-        reason: "client-rolls-forbidden",
+        code: 'INVALID_INTENT',
+        reason: 'client-rolls-forbidden',
       };
       this.broadcast(err);
       broadcasts.push(err);
@@ -462,11 +644,11 @@ export class ServerMatchHost {
       this.dispatchToEngine(envelope.intent);
     } catch (e) {
       const err: IServerMessage = {
-        kind: "Error",
+        kind: 'Error',
         matchId: this.matchId,
         ts: nowIso(),
-        code: "INVALID_INTENT",
-        reason: e instanceof Error ? e.message : "Engine rejected intent",
+        code: 'INVALID_INTENT',
+        reason: e instanceof Error ? e.message : 'Engine rejected intent',
       };
       this.broadcast(err);
       broadcasts.push(err);
@@ -482,11 +664,11 @@ export class ServerMatchHost {
         await this.store.appendEvent(this.matchId, event);
       } catch (e) {
         const err: IServerMessage = {
-          kind: "Error",
+          kind: 'Error',
           matchId: this.matchId,
           ts: nowIso(),
-          code: "STORE_FAILURE",
-          reason: e instanceof Error ? e.message : "Store append failed",
+          code: 'STORE_FAILURE',
+          reason: e instanceof Error ? e.message : 'Store append failed',
         };
         this.broadcast(err);
         broadcasts.push(err);
@@ -494,7 +676,7 @@ export class ServerMatchHost {
         return broadcasts;
       }
       const envelopeOut: IServerMessage = {
-        kind: "Event",
+        kind: 'Event',
         matchId: this.matchId,
         ts: nowIso(),
         event,
@@ -517,13 +699,17 @@ export class ServerMatchHost {
   async closeMatch(): Promise<void> {
     if (this.closed) return;
     this.closed = true;
+    // Wave 4: cancel every pending grace timer so a finished match
+    // doesn't keep Node alive (and so a delayed timer doesn't fire a
+    // SeatTimedOut envelope on a closed host).
+    this.pendingPeers.clearAll();
     const socketList = Array.from(this.sockets.keys());
     for (const socket of socketList) {
       this.safeSend(socket, {
-        kind: "Close",
+        kind: 'Close',
         matchId: this.matchId,
         ts: nowIso(),
-        reason: "Match closed",
+        reason: 'Match closed',
       });
       this.detachSocket(socket);
     }
@@ -549,6 +735,22 @@ export class ServerMatchHost {
     return this.closed;
   }
 
+  /** Wave 4 test/observability: is the match currently paused? */
+  isPausedForReconnect(): boolean {
+    return this.isPaused;
+  }
+
+  /** Wave 4 test/observability: snapshot pending peers (slot+player). */
+  getPendingPeersForTests(): ReadonlyArray<{
+    readonly playerId: string;
+    readonly slotId: string;
+  }> {
+    return this.pendingPeers.getAllPending().map((p) => ({
+      playerId: p.playerId,
+      slotId: p.slotId,
+    }));
+  }
+
   // ---------------------------------------------------------------------------
   // Internals
   // ---------------------------------------------------------------------------
@@ -558,9 +760,9 @@ export class ServerMatchHost {
    * `InteractiveSession` method call. Throws on unknown / malformed
    * intent so the outer try/catch turns it into an `Error` envelope.
    */
-  private dispatchToEngine(intent: IIntent["intent"]): void {
+  private dispatchToEngine(intent: IIntent['intent']): void {
     switch (intent.kind) {
-      case "Move": {
+      case 'Move': {
         const movementType = this.parseMovementType(intent.movementType);
         const facing = intent.facing as Facing;
         // The engine reads the unit's current position; we only need to
@@ -573,7 +775,7 @@ export class ServerMatchHost {
         );
         return;
       }
-      case "Attack": {
+      case 'Attack': {
         this.session.applyAttack(
           intent.attackerId,
           intent.targetId,
@@ -581,13 +783,13 @@ export class ServerMatchHost {
         );
         return;
       }
-      case "AdvancePhase": {
+      case 'AdvancePhase': {
         this.session.advancePhase();
         return;
       }
-      case "Concede": {
+      case 'Concede': {
         const side =
-          intent.side === "player" ? GameSide.Player : GameSide.Opponent;
+          intent.side === 'player' ? GameSide.Player : GameSide.Opponent;
         this.session.concede(side);
         return;
       }
@@ -596,13 +798,15 @@ export class ServerMatchHost {
       // appear here only to keep the discriminated-union exhaustive
       // check honest — if any of them ever falls through to the engine
       // we want a typed error instead of `never` blowing up.
-      case "OccupySeat":
-      case "LeaveSeat":
-      case "ReassignSeat":
-      case "SetAiSlot":
-      case "SetHumanSlot":
-      case "SetReady":
-      case "LaunchMatch": {
+      case 'OccupySeat':
+      case 'LeaveSeat':
+      case 'ReassignSeat':
+      case 'SetAiSlot':
+      case 'SetHumanSlot':
+      case 'SetReady':
+      case 'LaunchMatch':
+      case 'MarkSeatAi':
+      case 'ForfeitMatch': {
         throw new Error(
           `Lobby intent ${intent.kind} routed to engine dispatcher (bug)`,
         );
@@ -624,17 +828,17 @@ export class ServerMatchHost {
    */
   private parseMovementType(kind: string): MovementType {
     switch (kind) {
-      case "walk":
-      case "Walk":
+      case 'walk':
+      case 'Walk':
         return MovementType.Walk;
-      case "run":
-      case "Run":
+      case 'run':
+      case 'Run':
         return MovementType.Run;
-      case "jump":
-      case "Jump":
+      case 'jump':
+      case 'Jump':
         return MovementType.Jump;
-      case "stationary":
-      case "Stationary":
+      case 'stationary':
+      case 'Stationary':
         return MovementType.Stationary;
       default:
         throw new Error(`Unknown movement type: ${kind}`);
@@ -705,7 +909,7 @@ export class ServerMatchHost {
         };
         stamped.push({
           ...evt,
-          payload: newPayload as IGameEvent["payload"],
+          payload: newPayload as IGameEvent['payload'],
         });
         attached = true;
       } else {
@@ -798,21 +1002,33 @@ export class ServerMatchHost {
 
     // Authorization gate: host-only intents.
     const hostOnly =
-      intent.kind === "ReassignSeat" ||
-      intent.kind === "SetAiSlot" ||
-      intent.kind === "SetHumanSlot" ||
-      intent.kind === "LaunchMatch";
+      intent.kind === 'ReassignSeat' ||
+      intent.kind === 'SetAiSlot' ||
+      intent.kind === 'SetHumanSlot' ||
+      intent.kind === 'LaunchMatch' ||
+      // Wave 4: reconnection overrides are host-only — only the host
+      // can decide to hand off a pending seat to AI or forfeit on
+      // behalf of the dropped player's side.
+      intent.kind === 'MarkSeatAi' ||
+      intent.kind === 'ForfeitMatch';
     if (hostOnly && envelope.playerId !== meta.hostPlayerId) {
       const err: IServerMessage = {
-        kind: "Error",
+        kind: 'Error',
         matchId: this.matchId,
         ts: nowIso(),
-        code: "AUTH_REJECTED",
+        code: 'AUTH_REJECTED',
         reason: `Intent ${intent.kind} requires host privileges`,
       };
       this.broadcast(err);
       out.push(err);
       return out;
+    }
+
+    // Wave 4: ForfeitMatch is a special case — it triggers a Concede
+    // on the engine side rather than mutating seats. Route it through
+    // the dedicated handler and return its broadcasts directly.
+    if (intent.kind === 'ForfeitMatch') {
+      return this.handleForfeitMatch(meta);
     }
 
     let nextSeats: IMatchSeat[];
@@ -821,11 +1037,11 @@ export class ServerMatchHost {
 
     try {
       switch (intent.kind) {
-        case "OccupySeat": {
+        case 'OccupySeat': {
           nextSeats = this.handleOccupySeat(seats, intent.slotId, envelope);
           break;
         }
-        case "LeaveSeat": {
+        case 'LeaveSeat': {
           nextSeats = this.handleLeaveSeat(
             seats,
             intent.slotId,
@@ -833,7 +1049,7 @@ export class ServerMatchHost {
           );
           break;
         }
-        case "ReassignSeat": {
+        case 'ReassignSeat': {
           nextSeats = this.handleReassignSeat(
             seats,
             intent.slotId,
@@ -842,7 +1058,7 @@ export class ServerMatchHost {
           );
           break;
         }
-        case "SetAiSlot": {
+        case 'SetAiSlot': {
           nextSeats = this.handleSetAiSlot(
             seats,
             intent.slotId,
@@ -850,11 +1066,11 @@ export class ServerMatchHost {
           );
           break;
         }
-        case "SetHumanSlot": {
+        case 'SetHumanSlot': {
           nextSeats = this.handleSetHumanSlot(seats, intent.slotId);
           break;
         }
-        case "SetReady": {
+        case 'SetReady': {
           nextSeats = this.handleSetReady(
             seats,
             intent.slotId,
@@ -863,24 +1079,40 @@ export class ServerMatchHost {
           );
           break;
         }
-        case "LaunchMatch": {
+        case 'LaunchMatch': {
           nextSeats = seats.slice();
           if (!canLaunch(nextSeats)) {
             throw new LobbyStateError(
-              "Cannot launch: not all seats are filled and ready",
+              'Cannot launch: not all seats are filled and ready',
             );
           }
-          nextStatus = "active";
+          nextStatus = 'active';
           clearRoomCode = true;
           // Wave 5 wires the `BotPlayer` driver per AI seat. For Wave 3b
           // we just log so integration tests can grep for the marker.
           for (const seat of nextSeats) {
-            if (seat.kind === "ai") {
+            if (seat.kind === 'ai') {
               // eslint-disable-next-line no-console
               console.info(
-                `[ServerMatchHost ${this.matchId}] AI seat would run BotPlayer here (slotId=${seat.slotId}, profile=${seat.aiProfile ?? "basic"})`,
+                `[ServerMatchHost ${this.matchId}] AI seat would run BotPlayer here (slotId=${seat.slotId}, profile=${seat.aiProfile ?? 'basic'})`,
               );
             }
+          }
+          break;
+        }
+        case 'MarkSeatAi': {
+          // Wave 4: hand off a pending human seat to the AI driver so
+          // the rest of the match can continue. The slot's previous
+          // occupant playerId is read here so we can clear its grace
+          // timer below; setAiSlot() drops the occupant ref.
+          const target = seats.find((s) => s.slotId === intent.slotId);
+          if (!target) {
+            throw new LobbyStateError(`Unknown slotId: ${intent.slotId}`);
+          }
+          const droppedPlayerId = target.occupant?.playerId ?? null;
+          nextSeats = setAiSlot(seats, intent.slotId, intent.aiProfile);
+          if (droppedPlayerId) {
+            this.pendingPeers.clearPending(droppedPlayerId);
           }
           break;
         }
@@ -892,11 +1124,11 @@ export class ServerMatchHost {
       }
     } catch (e) {
       const err: IServerMessage = {
-        kind: "Error",
+        kind: 'Error',
         matchId: this.matchId,
         ts: nowIso(),
-        code: "INVALID_INTENT",
-        reason: e instanceof Error ? e.message : "Lobby state machine rejected",
+        code: 'INVALID_INTENT',
+        reason: e instanceof Error ? e.message : 'Lobby state machine rejected',
       };
       this.broadcast(err);
       out.push(err);
@@ -911,11 +1143,11 @@ export class ServerMatchHost {
       });
     } catch (e) {
       const err: IServerMessage = {
-        kind: "Error",
+        kind: 'Error',
         matchId: this.matchId,
         ts: nowIso(),
-        code: "STORE_FAILURE",
-        reason: e instanceof Error ? e.message : "Lobby persist failed",
+        code: 'STORE_FAILURE',
+        reason: e instanceof Error ? e.message : 'Lobby persist failed',
       };
       this.broadcast(err);
       out.push(err);
@@ -923,7 +1155,7 @@ export class ServerMatchHost {
     }
 
     const update: ILobbyUpdated = {
-      kind: "LobbyUpdated",
+      kind: 'LobbyUpdated',
       matchId: this.matchId,
       ts: nowIso(),
       seats: nextSeats,
@@ -932,6 +1164,83 @@ export class ServerMatchHost {
     };
     this.broadcast(update);
     out.push(update);
+    // Wave 4: if the lobby mutation cleared the last pending peer
+    // (e.g., MarkSeatAi handing the seat off to AI), unpause and
+    // broadcast MatchResumed.
+    this.maybeResume();
+    return out;
+  }
+
+  /**
+   * Wave 4: ForfeitMatch handler. Concedes the side opposite the
+   * host's side assignment so the remaining humans (the host's side)
+   * win cleanly. Emits the standard engine events (GameEnded etc.) and
+   * persists+broadcasts them through the same path as a normal Concede
+   * intent. Clears all pending timers as part of match shutdown.
+   */
+  private async handleForfeitMatch(meta: {
+    readonly hostPlayerId: string;
+    readonly sideAssignments: readonly {
+      readonly playerId: string;
+      readonly side: 'player' | 'opponent';
+    }[];
+  }): Promise<readonly IServerMessage[]> {
+    const out: IServerMessage[] = [];
+    // Resolve the conceding side: the side OPPOSITE the host. If the
+    // host has no recorded assignment we default to conceding the
+    // opponent so a forfeit still produces a deterministic outcome.
+    const hostAssignment = meta.sideAssignments.find(
+      (a) => a.playerId === meta.hostPlayerId,
+    );
+    const concededSide: GameSide =
+      hostAssignment?.side === 'opponent' ? GameSide.Player : GameSide.Opponent;
+
+    // Wave 4: forfeit must clear pending timers and the pause flag
+    // BEFORE we run the engine so the Concede event can broadcast
+    // without being mistaken for an attempted mutation under pause.
+    this.pendingPeers.clearAll();
+    this.isPaused = false;
+
+    this.installFreshCapture();
+    try {
+      this.session.concede(concededSide);
+    } catch (e) {
+      const err: IServerMessage = {
+        kind: 'Error',
+        matchId: this.matchId,
+        ts: nowIso(),
+        code: 'INVALID_INTENT',
+        reason: e instanceof Error ? e.message : 'Forfeit rejected by engine',
+      };
+      this.broadcast(err);
+      out.push(err);
+      return out;
+    }
+    const newEvents = this.stampRollsOnNewEvents(this.drainNewEvents());
+    for (const event of newEvents) {
+      try {
+        await this.store.appendEvent(this.matchId, event);
+      } catch (e) {
+        const err: IServerMessage = {
+          kind: 'Error',
+          matchId: this.matchId,
+          ts: nowIso(),
+          code: 'STORE_FAILURE',
+          reason: e instanceof Error ? e.message : 'Store append failed',
+        };
+        this.broadcast(err);
+        out.push(err);
+        return out;
+      }
+      const envelopeOut: IServerMessage = {
+        kind: 'Event',
+        matchId: this.matchId,
+        ts: nowIso(),
+        event,
+      };
+      this.broadcast(envelopeOut);
+      out.push(envelopeOut);
+    }
     return out;
   }
 
@@ -1017,15 +1326,19 @@ export class ServerMatchHost {
  * kinds. Centralised here so `handleIntent` can route without
  * pattern-matching on the union literal in two places.
  */
-function isLobbyIntentKind(kind: IIntent["intent"]["kind"]): boolean {
+function isLobbyIntentKind(kind: IIntent['intent']['kind']): boolean {
   return (
-    kind === "OccupySeat" ||
-    kind === "LeaveSeat" ||
-    kind === "ReassignSeat" ||
-    kind === "SetAiSlot" ||
-    kind === "SetHumanSlot" ||
-    kind === "SetReady" ||
-    kind === "LaunchMatch"
+    kind === 'OccupySeat' ||
+    kind === 'LeaveSeat' ||
+    kind === 'ReassignSeat' ||
+    kind === 'SetAiSlot' ||
+    kind === 'SetHumanSlot' ||
+    kind === 'SetReady' ||
+    kind === 'LaunchMatch' ||
+    // Wave 4: host-only reconnection overrides ride the lobby
+    // dispatch path so they bypass the engine pause guard.
+    kind === 'MarkSeatAi' ||
+    kind === 'ForfeitMatch'
   );
 }
 

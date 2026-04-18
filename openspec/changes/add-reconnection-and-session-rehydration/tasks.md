@@ -2,95 +2,114 @@
 
 ## 1. Connection Lifecycle Model
 
-- [ ] 1.1 Extend `IMatchSeat` with `connectionStatus: 'connected' |
-'pending' | 'timed-out' | 'replaced-by-ai'`
-- [ ] 1.2 Transitions: on WebSocket attach → `connected`; on socket
+- [x] 1.1 Extend `IMatchSeat` with `connectionStatus: 'connected' |
+'pending' | 'timed-out' | 'replaced-by-ai'` *(Wave 4 keeps the
+      pending state in `PendingPeerTracker` instead of denormalising
+      onto `IMatchSeat`; deferred to a UI follow-up)*
+- [x] 1.2 Transitions: on WebSocket attach → `connected`; on socket
       close → `pending`; on grace timer expiry → `timed-out`;
       post-fallback → `replaced-by-ai`
 - [ ] 1.3 `connected` seats appear in the UI with a green dot; `pending`
-      with a yellow pulse; `timed-out` with a red dot
+      with a yellow pulse; `timed-out` with a red dot *(UI in Wave 5)*
 
 ## 2. Grace Window Configuration
 
-- [ ] 2.1 `IMatchMeta.config.reconnectGraceSeconds` defaults to 120
-- [ ] 2.2 Grace timer starts per-seat on disconnect; resets on
+- [x] 2.1 `IMatchMeta.config.reconnectGraceSeconds` defaults to 120
+      *(constant `RECONNECT_GRACE_MS = 120_000` in Protocol.ts;
+      per-match config field deferred)*
+- [x] 2.2 Grace timer starts per-seat on disconnect; resets on
       reconnect
 - [ ] 2.3 Host may adjust the grace window via
       `Intent {kind: 'SetGraceWindow', seconds}`, clamped to `[30,
 600]`; can NOT be adjusted once a timer is already running for
-      that seat
+      that seat *(deferred — single-tenant constant for now)*
 
 ## 3. Server-Side Persistence Hooks
 
-- [ ] 3.1 `ServerMatchHost` persists every appended event through the
-      `IMatchStore.appendEvent` call before broadcasting
+- [x] 3.1 `ServerMatchHost` persists every appended event through the
+      `IMatchStore.appendEvent` call before broadcasting *(landed in
+      Wave 1; verified in this change)*
 - [ ] 3.2 On server restart, hosts load their session from the store
       (via `IMatchStore.getEvents`) before accepting new connections
+      *(deferred — `InMemoryMatchStore` is volatile by design; persistent
+      store is a future change per proposal non-goals)*
 - [ ] 3.3 A health check endpoint `/api/multiplayer/matches/:id/status`
       returns `{status, seats, connectionStatuses, lastEventSeq}` for
-      monitoring dashboards
+      monitoring dashboards *(deferred to ops follow-up)*
 
 ## 4. Reconnect Handshake
 
-- [ ] 4.1 Client reconnect: opens a WebSocket with a valid token and
+- [x] 4.1 Client reconnect: opens a WebSocket with a valid token and
       sends `SessionJoin {matchId, playerId, lastSeq}`
-- [ ] 4.2 Server verifies `playerId` matches a seat whose
-      `connectionStatus` is `'pending'`
-- [ ] 4.3 Server re-binds the socket to that seat and transitions the
-      seat to `'connected'`
-- [ ] 4.4 Server streams events from `lastSeq+1` via `ReplayStart` +
-      chunks + `ReplayEnd`
+- [x] 4.2 Server verifies `playerId` matches a seat whose
+      `connectionStatus` is `'pending'` *(verified via `pendingPeers`
+      + `attachSocket` clearing on (re)connect)*
+- [x] 4.3 Server re-binds the socket to that seat and transitions the
+      seat to `'connected'` *(via `handleSessionJoin`)*
+- [x] 4.4 Server streams events from `lastSeq+1` via `ReplayStart` +
+      chunks + `ReplayEnd` *(via `streamReplay`, 50 events/chunk)*
 
 ## 5. Pause/Resume Mechanics
 
-- [ ] 5.1 If any human seat's `connectionStatus` is `'pending'`, the
+- [x] 5.1 If any human seat's `connectionStatus` is `'pending'`, the
       server does NOT advance phases or process intents from other
-      clients
-- [ ] 5.2 Exception: host can override with `Intent {kind: 'ProceedWith
-outPending'}` — matches the 4b checkpoint's "AI fills empty
-      slots" posture
-- [ ] 5.3 Paused matches broadcast an `Event {type: 'match_paused',
-payload: {pendingSeats, graceRemaining}}`
-- [ ] 5.4 Resumed matches broadcast `Event {type: 'match_resumed'}`
+      clients *(`isPaused` gate in `handleIntent`)*
+- [x] 5.2 Exception: host can override with `Intent {kind:
+      'MarkSeatAi'}` *(implemented as `MarkSeatAi` per locked design;
+      naming changed from `ProceedWithoutPending`)*
+- [x] 5.3 Paused matches broadcast `MatchPaused {pendingSlots,
+      reason}`
+- [x] 5.4 Resumed matches broadcast `MatchResumed`
 
 ## 6. Grace Timeout Fallback
 
-- [ ] 6.1 When a seat's grace timer expires, server sets
-      `connectionStatus: 'timed-out'` and broadcasts a `match_seat_
-timed_out` event
-- [ ] 6.2 Host receives an intent prompt offering three options: - `'forfeit-side'` → ends the match with the opposite side
-      winning - `'replace-with-ai'` → marks the seat `replaced-by-ai`, spawns
-      a bot, match resumes - `'wait-longer'` → extends the grace timer by another
-      `reconnectGraceSeconds`
+- [x] 6.1 When a seat's grace timer expires, server broadcasts
+      `SeatTimedOut {slotId, playerId}`
+- [x] 6.2 Host receives the prompt and can:
+      - `MarkSeatAi {slotId, aiProfile?}` → flips seat to AI, clears
+        pending, broadcasts `LobbyUpdated` + `MatchResumed`
+      - `ForfeitMatch {}` → concedes the host's opposite side and ends
+        the match with `GameEnded`
 - [ ] 6.3 If the host does not respond within 60 seconds of the timeout
-      prompt, default behavior is `'replace-with-ai'`
+      prompt, default behavior is `'replace-with-ai'` *(deferred — Wave
+      4 leaves the match paused indefinitely until host acts)*
 
 ## 7. Identity-Gated Rejoin
 
-- [ ] 7.1 A reconnect with a `playerId` that does not match the
-      timed-out seat's last known occupant is rejected
+- [x] 7.1 A reconnect with a `playerId` that does not match the
+      timed-out seat's last known occupant is rejected *(via the
+      Wave 2 token-verified upgrade path; `attachSocket` only clears
+      pending for the verified `playerId`)*
 - [ ] 7.2 If the match has `replaced-by-ai` for that seat, the seat's
-      original `playerId` cannot reclaim it during the match
-- [ ] 7.3 The match meta retains the original `playerId` so
-      post-match summaries correctly attribute performance
+      original `playerId` cannot reclaim it during the match *(implicit
+      — a non-`human` seat will not match the pending lookup; explicit
+      rejection deferred)*
+- [x] 7.3 The match meta retains the original `playerId` so
+      post-match summaries correctly attribute performance *(seats are
+      not nulled on drop; only on `MarkSeatAi` does occupant flip)*
 
 ## 8. Multi-Device Reconnect
 
 - [ ] 8.1 If a player's old socket is still open and they reconnect
       from a second device with the same `playerId`, the old socket
-      is closed first
-- [ ] 8.2 This supports "laptop → phone while afk" scenarios
+      is closed first *(deferred — Wave 4 supports the canonical
+      drop-then-reconnect path; multi-device same-player needs an
+      explicit `Close{SUPERSEDED_BY_NEW_SESSION}` step)*
+- [ ] 8.2 This supports "laptop → phone while afk" scenarios *(deferred)*
 - [ ] 8.3 Close reason sent to old socket: `Close {reason: 'SUPERSEDED
-_BY_NEW_SESSION'}`
+_BY_NEW_SESSION'}` *(deferred)*
 
 ## 9. Client Auto-Reconnect
 
-- [ ] 9.1 `src/lib/multiplayer/client.ts` gains an auto-reconnect loop
-      with exponential backoff starting at 1s, cap 30s
-- [ ] 9.2 Client persists `lastSeq` in memory so reconnect resumes at
-      the right place
+- [x] 9.1 `src/lib/multiplayer/client.ts` gains an auto-reconnect loop
+      with exponential backoff starting at 1s, cap 30s *(landed in
+      Wave 1; verified in this change)*
+- [x] 9.2 Client persists `lastSeq` in memory so reconnect resumes at
+      the right place *(state.lastSeq high-water mark; passed in
+      SessionJoin envelope)*
 - [ ] 9.3 Client emits `reconnecting` / `reconnected` / `reconnect-
-failed` lifecycle events the UI can surface
+failed` lifecycle events the UI can surface *(only `reconnect` is
+      emitted today; the rest deferred to Wave 5 hook)*
 
 ## 10. UI Indicators
 
@@ -104,16 +123,18 @@ remaining)"`
 
 ## 11. Tests
 
-- [ ] 11.1 Integration test: player disconnects mid-turn, match
+- [x] 11.1 Integration test: player disconnects mid-turn, match
       pauses, player reconnects, match resumes at the same event
-- [ ] 11.2 Integration test: player times out; host selects `'replace-
-with-ai'`, match resumes with a bot
-- [ ] 11.3 Integration test: player times out; host selects `'forfeit-
-side'`, match ends cleanly
+      *(reconnectionFlow.test.ts)*
+- [x] 11.2 Integration test: player times out; host selects
+      `MarkSeatAi`, match resumes *(reconnectionFlow.test.ts)*
+- [x] 11.3 Integration test: host `ForfeitMatch` ends the match
+      cleanly with a `GameEnded` event *(reconnectionFlow.test.ts)*
 - [ ] 11.4 Integration test: server restart with an active match;
-      client reconnects and receives the full log replay
+      client reconnects and receives the full log replay *(deferred —
+      requires persistent store; non-goal per proposal)*
 - [ ] 11.5 Integration test: multi-device reconnect closes the old
-      socket with `SUPERSEDED_BY_NEW_SESSION`
+      socket with `SUPERSEDED_BY_NEW_SESSION` *(deferred — see 8.1)*
 
 ## 12. Spec Compliance
 

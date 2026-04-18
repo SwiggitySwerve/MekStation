@@ -200,13 +200,22 @@ export function connect(
       state.reconnectAttempt = 0;
       // Send SessionJoin as the first frame. Validated at the schema
       // layer to catch developer typos in tests.
+      //
+      // Wave 4: `lastSeq` is the client's HIGH-WATER MARK — the
+      // highest sequence number the client has received and processed.
+      // The server interprets this as "stream me events with sequence
+      // > lastSeq" (it adds +1 internally before calling
+      // `IMatchStore.getEvents(fromSeq)`). This means a fresh
+      // connection that has seen no events sends nothing (full replay
+      // from sequence 0); a reconnect resumes precisely from where it
+      // left off.
       const join = {
         kind: 'SessionJoin' as const,
         matchId,
         ts: nowIso(),
         playerId: auth.playerId,
         token: wireToken,
-        ...(state.lastSeq >= 0 ? { lastSeq: state.lastSeq + 1 } : {}),
+        ...(state.lastSeq >= 0 ? { lastSeq: state.lastSeq } : {}),
       };
       const parsed = ClientMessageSchema.safeParse(join);
       if (!parsed.success) {
@@ -300,6 +309,23 @@ export function connect(
         } catch {
           // ignore
         }
+        return;
+      case 'LobbyUpdated':
+        // Wave 3b: re-emitted to consumers via the generic 'event'
+        // channel so the existing React hook surfaces it without
+        // adding a new event name. Consumers can branch on
+        // `kind === 'LobbyUpdated'` if they care.
+        emit('event', message);
+        return;
+      case 'MatchPaused':
+      case 'MatchResumed':
+      case 'SeatTimedOut':
+        // Wave 4: surface lifecycle envelopes via the generic 'event'
+        // channel. UI layers that care about the pause banner / host
+        // prompt can switch on `kind` in their handler. We DON'T
+        // touch state.ready or replay state — those concepts are
+        // independent of pause.
+        emit('event', message);
         return;
     }
   }
