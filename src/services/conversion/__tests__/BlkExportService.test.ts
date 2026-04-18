@@ -38,6 +38,7 @@ import {
   SquadMotionType,
   AerospaceMotionType,
 } from "@/types/unit/BaseUnitInterfaces";
+import { BAArmorType } from "@/types/unit/BattleArmorInterfaces";
 import { UnitType } from "@/types/unit/BattleMechInterfaces";
 import {
   BattleArmorChassisType,
@@ -226,6 +227,7 @@ describe("BlkExportService", () => {
     leftManipulator: ManipulatorType.BASIC,
     rightManipulator: ManipulatorType.BASIC,
     armorType: 0,
+    baArmorType: BAArmorType.STANDARD,
     armorPerTrooper: 5,
     hasAPMount: false,
     hasModularMount: false,
