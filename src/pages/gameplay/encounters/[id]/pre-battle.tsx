@@ -11,11 +11,13 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
 import type { IPilot } from '@/types/pilot';
+import type { IForceSummary } from '@/utils/gameplay/forceSummary';
 import type {
   ISkirmishLaunchConfig,
   ISkirmishUnitSelection,
 } from '@/utils/gameplay/preBattleSessionBuilder';
 
+import { ForceComparisonPanel } from '@/components/gameplay/ForceComparisonPanel';
 import {
   BattlefieldCard,
   BVComparison,
@@ -41,6 +43,8 @@ import {
   SCENARIO_TEMPLATES,
   type IEncounter,
 } from '@/types/encounter';
+import { GameSide } from '@/types/gameplay';
+import { buildForceSummary } from '@/utils/gameplay/forceSummaryBuilder';
 import { buildFromSkirmishConfig } from '@/utils/gameplay/preBattleSessionBuilder';
 import { logger } from '@/utils/logger';
 
@@ -90,6 +94,19 @@ export default function PreBattlePage(): React.ReactElement {
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
+
+  // Per-side force summary state (add-pre-battle-force-comparison §
+  // 1-3, § 7). Re-derived whenever the underlying force assignments or
+  // pilot data change — this is the page-side `onForcesChange` hookup
+  // (per-spec game-session-management § Pre-Battle Force Change
+  // Callback). Each summary fetches canonical unit data on demand so
+  // the panel can show heat dissipation + DPT potential.
+  const [playerSummary, setPlayerSummary] = useState<IForceSummary | null>(
+    null,
+  );
+  const [opponentSummary, setOpponentSummary] = useState<IForceSummary | null>(
+    null,
+  );
 
   // Per-side skirmish picker state (add-skirmish-setup-ui § 2 + § 3).
   // Local state lives here rather than a store because the launcher
@@ -178,6 +195,41 @@ export default function PreBattlePage(): React.ReactElement {
 
     void initialize();
   }, [loadEncounters, loadForces, loadPilots]);
+
+  // Derive per-side force summaries when assignments / pilots change.
+  // The effect re-runs whenever the underlying force objects swap
+  // (zustand store immutability guarantees a new reference per
+  // mutation), so adding a mech / swapping a pilot triggers a
+  // re-render of the comparison panel. Cancellation guard avoids a
+  // late `setState` after the user navigates away.
+  useEffect(() => {
+    let cancelled = false;
+    const derive = async () => {
+      const [next_player, next_opponent] = await Promise.all([
+        playerForce
+          ? buildForceSummary({
+              side: GameSide.Player,
+              force: playerForce,
+              pilots,
+            })
+          : Promise.resolve(null),
+        opponentForce
+          ? buildForceSummary({
+              side: GameSide.Opponent,
+              force: opponentForce,
+              pilots,
+            })
+          : Promise.resolve(null),
+      ]);
+      if (cancelled) return;
+      setPlayerSummary(next_player);
+      setOpponentSummary(next_opponent);
+    };
+    void derive();
+    return () => {
+      cancelled = true;
+    };
+  }, [playerForce, opponentForce, pilots]);
 
   const launchBattle = useCallback(
     async (mode: BattleMode) => {
@@ -422,6 +474,13 @@ export default function PreBattlePage(): React.ReactElement {
           <BVComparison
             playerBV={encounter.playerForce.totalBV}
             opponentBV={encounter.opponentForce.totalBV}
+          />
+        </div>
+
+        <div className="mb-6">
+          <ForceComparisonPanel
+            player={playerSummary}
+            opponent={opponentSummary}
           />
         </div>
 
