@@ -161,4 +161,17 @@ export interface IAIUnitState {
 
   /** Hexes moved this turn */
   readonly hexesMoved: number;
+
+  /**
+   * Per `add-bot-retreat-behavior` task 1.1: `true` once the unit has
+   * crossed its retreat threshold or taken a through-armor crit on
+   * cockpit/gyro/engine. Once `true`, stays `true` for the rest of
+   * the match (no toggling back to combat).
+   */
+  readonly isRetreating?: boolean;
+  /**
+   * Per task 1.1: the edge the unit is heading toward once retreating.
+   * Set once on trigger and locked. `null` until retreat begins.
+   */
+  readonly retreatTargetEdge?: 'north' | 'south' | 'east' | 'west' | null;
 }
