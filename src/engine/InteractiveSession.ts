@@ -43,6 +43,11 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import {
+  type D6Roller,
+  type DiceRoller,
+  roll2d6 as roll2d6FromD6,
+} from '@/utils/gameplay/diceTypes';
 import { createRetreatTriggeredEvent } from '@/utils/gameplay/gameEvents';
 import {
   createGameSession,
@@ -96,6 +101,16 @@ export class InteractiveSession {
   private readonly random: SeededRandom;
   private readonly grid: IHexGrid;
   private readonly botPlayer: BotPlayer;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): on the server
+   * path, callers (`ServerMatchHost`) inject a roller backed by
+   * `crypto.randomBytes` (or by a debug `SeededRandom` when the
+   * `?seed=N` query param is set) so the server is the SOLE source of
+   * randomness for game events. When omitted, resolvers fall back to
+   * the engine's existing `defaultD6Roller` (`Math.random`) — preserves
+   * single-player + hot-seat behavior.
+   */
+  private readonly d6Roller?: D6Roller;
   private startedAt: string;
   /**
    * Per `wire-encounter-to-campaign-round-trip` Wave 5: dedupe guard so
@@ -115,11 +130,13 @@ export class InteractiveSession {
     opponentUnits: readonly IAdaptedUnit[],
     gameUnits: readonly IGameUnit[],
     linkage: IInteractiveSessionLinkage = {},
+    d6Roller?: D6Roller,
   ) {
     this.random = random;
     this.grid = grid;
     this.botPlayer = new BotPlayer(random);
     this.startedAt = new Date().toISOString();
+    this.d6Roller = d6Roller;
 
     this.weaponsByUnit = new Map();
     this.movementByUnit = new Map();
@@ -241,7 +258,11 @@ export class InteractiveSession {
     const { phase } = this.session.currentState;
 
     if (phase === GamePhase.Initiative) {
-      this.session = rollInitiative(this.session);
+      this.session = rollInitiative(
+        this.session,
+        undefined,
+        this.d6RollerForResolvers(),
+      );
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.Movement) {
       // Lock any units that haven't been locked yet
@@ -266,7 +287,10 @@ export class InteractiveSession {
           this.session = lockAttack(this.session, unitId);
         }
       }
-      this.session = resolveAllAttacks(this.session);
+      this.session = resolveAllAttacks(
+        this.session,
+        this.diceRollerForResolvers(),
+      );
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.PhysicalAttack) {
       // Per `wire-bot-ai-helpers-and-capstone`: resolve any
@@ -276,10 +300,14 @@ export class InteractiveSession {
       this.session = resolveAllPhysicalAttacks(
         this.session,
         this.physicalContextByUnit(),
+        this.diceRollerForResolvers(),
       );
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.Heat) {
-      this.session = resolveHeatPhase(this.session);
+      this.session = resolveHeatPhase(
+        this.session,
+        this.diceRollerForResolvers(),
+      );
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.End) {
       if (!this.isGameOver()) {
@@ -573,6 +601,36 @@ export class InteractiveSession {
    */
   hasPublishedOutcome(): boolean {
     return this.outcomePublished;
+  }
+
+  /**
+   * Resolver-shaped `D6Roller`. Returns `undefined` when no roller was
+   * injected so the resolver's own `defaultD6Roller` (`Math.random`)
+   * remains in effect for single-player / hot-seat callers.
+   *
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): `ServerMatchHost`
+   * always injects a server-authoritative `D6Roller` (crypto-backed in
+   * prod, seeded in `?seed=N` debug mode), so this returns the live
+   * roller in multiplayer. Wrapping it via `RollCapture` further
+   * upstream is what lets the host stamp captured rolls onto event
+   * payloads.
+   */
+  private d6RollerForResolvers(): D6Roller | undefined {
+    return this.d6Roller;
+  }
+
+  /**
+   * Adapter that lifts the injected `D6Roller` into a `DiceRoller` (a
+   * full 2d6 result). Resolvers like `resolveAllAttacks` /
+   * `resolveHeatPhase` / `resolveAllPhysicalAttacks` consume `DiceRoller`
+   * — this keeps the injection point uniform without refactoring those
+   * resolvers' parameter type. Returns `undefined` to fall back to the
+   * resolver's default when no roller was injected.
+   */
+  private diceRollerForResolvers(): DiceRoller | undefined {
+    const d6 = this.d6Roller;
+    if (!d6) return undefined;
+    return () => roll2d6FromD6(d6);
   }
 
   isGameOver(): boolean {

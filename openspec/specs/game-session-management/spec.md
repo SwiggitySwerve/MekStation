@@ -667,6 +667,98 @@ The system SHALL integrate with all combat subsystems through explicit function 
 - **THEN** `ENGINE_HIT_HEAT` from heat constants SHALL be used (5 per engine hit)
 - **AND** `getShutdownTN`, `getAmmoExplosionTN`, `getPilotHeatDamage` SHALL be used for heat threshold checks
 
+### Requirement: Rolls Embedded on Randomness-Consuming Events
+
+For networked matches, every event whose resolution consumed dice SHALL
+carry the rolled values on its payload so mirror clients and post-match
+replays can display the identical outcome without re-rolling.
+
+#### Scenario: InitiativeRolled carries rolls
+
+- **GIVEN** the server resolves initiative with dice `(3,5)` for Player
+  and `(2,4)` for Opponent
+- **WHEN** the `InitiativeRolled` event is emitted
+- **THEN** `payload.rolls` SHALL contain both sides' dice values keyed
+  by side
+- **AND** the payload SHALL be sufficient to reproduce the initiative
+  winner without additional randomness
+
+#### Scenario: AttackResolved carries all attack rolls
+
+- **GIVEN** a weapon attack resolving in the Attack phase
+- **WHEN** the `AttackResolved` event is emitted
+- **THEN** `payload.rolls` SHALL include, in order, the attack roll,
+  hit-location roll, cluster-hit roll (if applicable), and crit roll
+  (if applicable)
+- **AND** the order SHALL match the rule-book resolution sequence
+
+#### Scenario: Deterministic events omit rolls
+
+- **GIVEN** an event whose resolution is deterministic (e.g.,
+  `MovementLocked`, `PhaseChanged`, `GameEnded`)
+- **WHEN** the event is emitted in a networked match
+- **THEN** the event MAY omit `payload.rolls`
+- **AND** the absence SHALL NOT be treated as an error
+
+### Requirement: Hot-Seat Backward Compatibility
+
+For non-networked local matches, the system SHALL NOT require events to
+carry `payload.rolls`, preserving existing event shapes from Phase 1.
+
+#### Scenario: Local match event without rolls
+
+- **GIVEN** a hot-seat session with no `hostPlayerId`
+- **WHEN** an attack resolves
+- **THEN** the emitted event MAY include or omit `payload.rolls`
+- **AND** validation SHALL pass either way
+
+### Requirement: Match Pause Events
+
+The system SHALL emit `match_paused` and `match_resumed` events as
+part of the session event stream, authored by the server, to record
+pause intervals in networked matches.
+
+#### Scenario: Match paused event shape
+
+- **GIVEN** a networked match pausing due to a pending seat
+- **WHEN** the server emits the event
+- **THEN** the event type SHALL be `match_paused`
+- **AND** the payload SHALL contain `pendingSeats: string[]` (slot
+  ids) and `graceRemaining: number` (seconds)
+- **AND** the event SHALL be persisted to the match store and
+  broadcast to all connected clients
+
+#### Scenario: Match resumed event shape
+
+- **GIVEN** a paused match whose pending seats have all reconnected
+- **WHEN** the server emits the resume event
+- **THEN** the event type SHALL be `match_resumed`
+- **AND** the payload SHALL contain `pausedDurationMs: number`
+
+### Requirement: Seat Fallback Events
+
+The system SHALL record seat fallback decisions as session events so
+post-match reports and spectators can reconstruct the sequence of
+events that led to an AI replacement or forfeit.
+
+#### Scenario: Seat replaced-by-AI event
+
+- **GIVEN** the host chooses `'replace-with-ai'` for a timed-out seat
+- **WHEN** the server acts
+- **THEN** an `Event {type: 'seat_replaced_by_ai', payload: {slotId,
+originalPlayerId, aiProfile}}` SHALL be appended
+- **AND** the event SHALL be persisted before the bot starts producing
+  intents
+
+#### Scenario: Forfeit event
+
+- **GIVEN** the host chooses `'forfeit-side'`
+- **WHEN** the server acts
+- **THEN** a `Event {type: 'side_forfeited', payload: {slotId,
+originalPlayerId, forfeitedSide}}` SHALL be appended
+- **AND** it SHALL be immediately followed by `GameEnded {reason:
+'forfeit'}` in the same tick
+
 ## Dependencies
 
 - **game-event-system**: All 22+ event factory functions for creating typed game events

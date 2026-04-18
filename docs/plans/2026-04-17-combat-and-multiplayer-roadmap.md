@@ -165,9 +165,13 @@ Each phase of combat needs an interactive surface:
 
 ---
 
-## Phase 4 — Multiplayer foundation
+## Phase 4 — Multiplayer foundation ✅ MVP COMPLETE (2026-04-18)
 
 **Goal:** 2–8 players on a live match, any mix of sides, authoritative state, roll arbitration.
+
+**Delivered (PR pending):** WebSocket transport on a custom Next.js server, in-memory match + player stores, Ed25519-signed `IPlayerToken` auth, server-authoritative `CryptoDiceRoller` with rolls embedded in events, lobby + invite flow for 1v1/2v2/3v3/4v4 + ffa-2..ffa-8 with AI-fill seats, 120s grace + replay-on-reconnect, lobby UI pages, capstone E2E test (2 mock clients run a full 1v1 match, drop+reconnect, concede, outcome publishes once).
+
+**Deferred:** 4a P2P sub-phase (superseded by 4b server), 4c fog-of-war (Phase 4.5), persistent SQLite/Postgres stores (in-memory now; contracts pluggable), production hosting decision, OAuth (vault Ed25519 path only), per-event roll splitting (currently stamps on first eligible event), bot driver loop wired to AI seats during gameplay.
 
 ### Architectural decision points (to confirm early in this phase)
 

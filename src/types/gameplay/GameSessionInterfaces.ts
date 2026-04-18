@@ -260,6 +260,15 @@ export interface IInitiativeRolledPayload {
   readonly winner: GameSide;
   /** Did the winner choose to move first? */
   readonly movesFirst: GameSide;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): every individual
+   * d6 the server consumed to produce this event, in consumption order
+   * (typically 4: player d6 + d6, opponent d6 + d6). OPTIONAL so legacy
+   * single-player / hot-seat resolvers (which don't go through the
+   * `RollCapture` wrapper) keep working without filling this in. The
+   * multiplayer client renders dice straight from this array.
+   */
+  readonly rolls?: readonly number[];
 }
 
 /**
@@ -373,6 +382,13 @@ export interface IAttackResolvedPayload {
    * + replay consumers to trace which bin fed each shot.
    */
   readonly ammoBinId?: string | null;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): every individual
+   * d6 the server consumed for this event, in consumption order
+   * (typically the to-hit 2d6 + the location 2d6 on hit). OPTIONAL so
+   * single-player / hot-seat resolvers compile without populating it.
+   */
+  readonly rolls?: readonly number[];
 }
 
 /**
@@ -462,6 +478,11 @@ export interface IPilotHitPayload {
   readonly consciousnessCheckRequired: boolean;
   /** Consciousness check result (if required) */
   readonly consciousnessCheckPassed?: boolean;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): consumed d6s for
+   * the consciousness check (when required). OPTIONAL.
+   */
+  readonly rolls?: readonly number[];
 }
 
 /**
@@ -500,6 +521,13 @@ export interface ICriticalHitResolvedPayload {
   readonly componentName: string;
   readonly effect: string;
   readonly destroyed: boolean;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): the server's
+   * consumed d6 sequence for this crit (determination roll + slot
+   * roll). OPTIONAL — see the field-level docs on
+   * `IInitiativeRolledPayload`.
+   */
+  readonly rolls?: readonly number[];
 }
 
 export interface IPSRTriggeredPayload {
@@ -516,6 +544,11 @@ export interface IPSRResolvedPayload {
   readonly modifiers: number;
   readonly passed: boolean;
   readonly reason: string;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): the two d6 that
+   * compose `roll`. OPTIONAL — see `IInitiativeRolledPayload.rolls`.
+   */
+  readonly rolls?: readonly number[];
 }
 
 export interface IUnitFellPayload {
@@ -523,6 +556,11 @@ export interface IUnitFellPayload {
   readonly fallDamage: number;
   readonly newFacing: Facing;
   readonly pilotDamage: number;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): consumed d6s for
+   * the fall direction + per-cluster hit-location rolls. OPTIONAL.
+   */
+  readonly rolls?: readonly number[];
 }
 
 /**
@@ -534,6 +572,11 @@ export interface IUnitStoodPayload {
   readonly turn: number;
   readonly roll: number;
   readonly targetNumber: number;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): the two d6 that
+   * compose `roll`. OPTIONAL.
+   */
+  readonly rolls?: readonly number[];
 }
 
 export interface IPhysicalAttackDeclaredPayload {
@@ -552,6 +595,11 @@ export interface IPhysicalAttackResolvedPayload {
   readonly hit: boolean;
   readonly damage?: number;
   readonly location?: string;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): consumed d6s for
+   * the to-hit + hit-location rolls (location omitted on miss). OPTIONAL.
+   */
+  readonly rolls?: readonly number[];
 }
 
 export interface IShutdownCheckPayload {
@@ -560,6 +608,11 @@ export interface IShutdownCheckPayload {
   readonly targetNumber: number;
   readonly roll: number;
   readonly shutdownOccurred: boolean;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): the two d6 that
+   * compose `roll`. OPTIONAL.
+   */
+  readonly rolls?: readonly number[];
 }
 
 export interface IStartupAttemptPayload {
@@ -567,6 +620,11 @@ export interface IStartupAttemptPayload {
   readonly targetNumber: number;
   readonly roll: number;
   readonly success: boolean;
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): the two d6 that
+   * compose `roll`. OPTIONAL.
+   */
+  readonly rolls?: readonly number[];
 }
 
 export interface IAmmoConsumedPayload {
