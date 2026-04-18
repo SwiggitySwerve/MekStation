@@ -18,7 +18,11 @@ import {
   ProtoChassis,
   ProtoWeightClass,
 } from "@/types/unit/ProtoMechInterfaces";
-import { getProtoWeightClass } from "@/utils/construction/protomech";
+import {
+  getProtoWeightClass,
+  getProtoMPCaps,
+  effectiveWalkMP,
+} from "@/utils/construction/protomech";
 import { generateUnitId as generateUUID } from "@/utils/uuid";
 
 // =============================================================================
@@ -159,10 +163,16 @@ export interface ProtoMechState {
   /** Engine rating */
   engineRating: number;
 
-  /** Cruise MP */
+  /**
+   * Base walk MP (before Myomer Booster). This is the canonical field used by
+   * VAL-PROTO-MP. Cruise MP is an alias for walk MP on ground ProtoMechs.
+   */
+  walkMP: number;
+
+  /** Cruise MP — kept for backward compat; equals walkMP */
   cruiseMP: number;
 
-  /** Flank MP (cruise * 1.5) */
+  /** Flank MP (walk + 1 after booster, then +1 run) */
   flankMP: number;
 
   /** Jump MP */
@@ -188,12 +198,24 @@ export interface ProtoMechState {
   /** Has main gun mount */
   hasMainGun: boolean;
 
+  /**
+   * Equipment ID of the weapon installed in the MainGun location.
+   * undefined when hasMainGun is false or no weapon has been assigned.
+   */
+  mainGunWeaponId: string | undefined;
+
   // =========================================================================
   // Special Systems
   // =========================================================================
 
   /** Has myomer booster */
   hasMyomerBooster: boolean;
+
+  /**
+   * Gliding wings: only legal on Glider chassis (Light class). Adds +2 jump MP
+   * via effectiveJumpMP; the base jumpMP is stored separately.
+   */
+  glidingWings: boolean;
 
   /** Has magnetic clamps */
   hasMagneticClamps: boolean;
@@ -243,10 +265,21 @@ export interface ProtoMechStoreActions {
   setPointSize: (size: number) => void;
   setQuad: (isQuad: boolean) => void;
   setGlider: (isGlider: boolean) => void;
+  /**
+   * Set the chassis type. Re-derives weight class + MP caps; resets glidingWings
+   * if the new chassis is not Glider, and clears jump MP for Ultraheavy.
+   */
+  setChassisType: (chassis: ProtoChassis) => void;
 
   // Movement Actions
   setEngineRating: (rating: number) => void;
   setCruiseMP: (mp: number) => void;
+  /**
+   * Set base walk MP. Validates against the weight-class cap and re-derives
+   * engine rating. Does NOT apply the Myomer Booster — use effectiveWalkMP()
+   * for display purposes.
+   */
+  setWalkMP: (mp: number) => void;
   setJumpMP: (mp: number) => void;
 
   // Structure & Armor Actions
@@ -258,11 +291,24 @@ export interface ProtoMechStoreActions {
 
   // Main Gun Actions
   setMainGun: (hasMainGun: boolean) => void;
+  /**
+   * Assign or clear the weapon in the MainGun location.
+   * The weapon ID is validated against PROTO_MAIN_GUN_APPROVED_WEAPON_IDS in
+   * VAL-PROTO-MAIN-GUN; this action stores the value unconditionally so the
+   * UI can show validation errors without blocking the user.
+   */
+  setMainGunWeaponId: (weaponId: string | null) => void;
 
   // Special System Actions
   setMyomerBooster: (value: boolean) => void;
   setMagneticClamps: (value: boolean) => void;
   setExtendedTorsoTwist: (value: boolean) => void;
+  /**
+   * Enable or disable Glider Wings. Only legal when chassisType is GLIDER
+   * (Light class). Storing the value unconditionally lets validation surface
+   * the error rather than silently refusing the set.
+   */
+  setGlidingWings: (enabled: boolean) => void;
 
   // Equipment Actions
   addEquipment: (item: IEquipmentItem, location?: ProtoMechLocation) => string;
@@ -331,9 +377,16 @@ export function createDefaultProtoMechState(
   const chassis = options.chassis ?? "New ProtoMech";
   const model = options.model ?? "";
   const tonnage = options.tonnage ?? 5;
+  const chassisType = options.isQuad ? ProtoChassis.QUAD : ProtoChassis.BIPED;
+  const weightClass = getProtoWeightClass(tonnage);
 
-  // Calculate cruise MP from tonnage (simplified)
-  const cruiseMP = Math.max(1, 10 - tonnage);
+  // Default walk MP to the minimum 1 — the user sets it via setWalkMP
+  const walkMP = Math.max(1, Math.min(getProtoMPCaps(weightClass).walkMax, 4));
+  // Cruise MP mirrors walk MP for ProtoMechs
+  const cruiseMP = walkMP;
+  // Effective walk (with booster = false by default) drives flank MP
+  const effWalk = effectiveWalkMP(walkMP, false);
+  const flankMP = effWalk + 1;
 
   return {
     // Identity
@@ -349,16 +402,17 @@ export function createDefaultProtoMechState(
     techBase: TechBase.CLAN, // ProtoMechs are always Clan tech
     unitType: UnitType.PROTOMECH,
     tonnage,
-    weightClass: getProtoWeightClass(tonnage),
-    chassisType: options.isQuad ? ProtoChassis.QUAD : ProtoChassis.BIPED,
+    weightClass,
+    chassisType,
     pointSize: 5,
     isQuad: options.isQuad ?? false,
     isGlider: false,
 
     // Movement
-    engineRating: tonnage * cruiseMP,
+    engineRating: tonnage * walkMP,
+    walkMP,
     cruiseMP,
-    flankMP: Math.floor(cruiseMP * 1.5),
+    flankMP,
     jumpMP: 0,
 
     // Structure & Armor
@@ -368,11 +422,13 @@ export function createDefaultProtoMechState(
 
     // Main Gun
     hasMainGun: false,
+    mainGunWeaponId: undefined,
 
     // Special Systems
     hasMyomerBooster: false,
     hasMagneticClamps: false,
     hasExtendedTorsoTwist: false,
+    glidingWings: false,
 
     // Equipment
     equipment: [],
