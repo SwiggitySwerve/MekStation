@@ -20,14 +20,14 @@ import {
   AerospaceArc,
   AerospaceEngineType,
   AerospaceSubType,
-} from "../../../types/unit/AerospaceInterfaces";
-import { maxArcArmorPoints } from "./armorArcCalculations";
-import { minFuelTons } from "./fuelCalculations";
-import { maxSI } from "./siCalculations";
+} from '../../../types/unit/AerospaceInterfaces';
+import { maxArcArmorPoints } from './armorArcCalculations';
+import { minFuelTons } from './fuelCalculations';
+import { maxSI } from './siCalculations';
 import {
   getMaxSafeThrust,
   isEngineLegalForSubType,
-} from "./thrustCalculations";
+} from './thrustCalculations';
 
 // ============================================================================
 // Validation Error Shape
@@ -66,7 +66,7 @@ export function validateTonnage(
   if (tonnage < min || tonnage > max) {
     return [
       {
-        ruleId: "VAL-AERO-TONNAGE",
+        ruleId: 'VAL-AERO-TONNAGE',
         message: `${subType} tonnage must be ${min}–${max} tons; got ${tonnage}t`,
       },
     ];
@@ -87,7 +87,7 @@ export function validateThrust(
 
   if (!isEngineLegalForSubType(engineType, subType)) {
     errors.push({
-      ruleId: "VAL-AERO-THRUST",
+      ruleId: 'VAL-AERO-THRUST',
       message: `Engine type "${engineType}" is not legal for ${subType}`,
     });
   }
@@ -95,7 +95,7 @@ export function validateThrust(
   const cap = getMaxSafeThrust(subType);
   if (safeThrust > cap) {
     errors.push({
-      ruleId: "VAL-AERO-THRUST",
+      ruleId: 'VAL-AERO-THRUST',
       message: `Safe thrust ${safeThrust} exceeds class cap of ${cap} for ${subType}`,
     });
   }
@@ -114,7 +114,7 @@ export function validateSI(
   if (si > max) {
     return [
       {
-        ruleId: "VAL-AERO-SI",
+        ruleId: 'VAL-AERO-SI',
         message: `Structural integrity ${si} exceeds class max of ${max} for ${subType}`,
       },
     ];
@@ -133,7 +133,7 @@ export function validateFuel(
   if (fuelTons < min) {
     return [
       {
-        ruleId: "VAL-AERO-FUEL",
+        ruleId: 'VAL-AERO-FUEL',
         message: `Fuel tonnage ${fuelTons}t is below minimum ${min}t for ${subType}`,
       },
     ];
@@ -160,7 +160,7 @@ export function validateArcArmor(
     if (max === 0) continue; // Arc not applicable to this sub-type
     if (points > max) {
       errors.push({
-        ruleId: "VAL-AERO-ARC-MAX",
+        ruleId: 'VAL-AERO-ARC-MAX',
         message: `Arc "${arcKey}" armor ${points} exceeds max ${max} for ${tonnage}t ${subType}`,
       });
     }
@@ -184,15 +184,15 @@ export function validateCrew(
 
   if (quartersTons <= 0) {
     errors.push({
-      ruleId: "VAL-AERO-CREW",
-      message: "Small craft must allocate tonnage for crew quarters",
+      ruleId: 'VAL-AERO-CREW',
+      message: 'Small craft must allocate tonnage for crew quarters',
     });
   }
 
   if (crewCount < 1) {
     errors.push({
-      ruleId: "VAL-AERO-CREW",
-      message: "Small craft must have at least 1 crew member",
+      ruleId: 'VAL-AERO-CREW',
+      message: 'Small craft must have at least 1 crew member',
     });
   }
 
@@ -205,12 +205,12 @@ export function validateCrew(
 
 /** All registered VAL-AERO-* rule IDs. */
 export const AERO_VALIDATION_RULE_IDS = [
-  "VAL-AERO-TONNAGE",
-  "VAL-AERO-THRUST",
-  "VAL-AERO-SI",
-  "VAL-AERO-FUEL",
-  "VAL-AERO-ARC-MAX",
-  "VAL-AERO-CREW",
+  'VAL-AERO-TONNAGE',
+  'VAL-AERO-THRUST',
+  'VAL-AERO-SI',
+  'VAL-AERO-FUEL',
+  'VAL-AERO-ARC-MAX',
+  'VAL-AERO-CREW',
 ] as const;
 
 export type AeroValidationRuleId = (typeof AERO_VALIDATION_RULE_IDS)[number];

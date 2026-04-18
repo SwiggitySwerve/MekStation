@@ -12,9 +12,9 @@ import {
   AerospaceSubType,
   IAerospaceBreakdown,
   ISmallCraftCrew,
-} from "../../../types/unit/AerospaceInterfaces";
-import { aerospaceEngineWeight } from "./engineWeightAerospace";
-import { siExtraWeightTons } from "./siCalculations";
+} from '../../../types/unit/AerospaceInterfaces';
+import { aerospaceEngineWeight } from './engineWeightAerospace';
+import { siExtraWeightTons } from './siCalculations';
 
 // ============================================================================
 // Cockpit Tonnage by Cockpit Type
@@ -25,7 +25,7 @@ const COCKPIT_TONS: Record<string, number> = {
   Standard: 3,
   Small: 2,
   Primitive: 5,
-  "Command Console": 6,
+  'Command Console': 6,
 };
 
 /** Return tonnage for a cockpit type string. Defaults to 3 (standard). */

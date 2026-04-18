@@ -8,20 +8,20 @@
  * Dimensions: 612 × 792 pts (US Letter) to match the mech sheet canvas.
  */
 
-import { IAerospaceRecordSheetData } from "@/types/printing";
+import { IAerospaceRecordSheetData } from '@/types/printing';
 
 const SVG_W = 612;
 const SVG_H = 792;
 const MARGIN = 18;
-const FONT = "Eurostile, Arial, sans-serif";
+const FONT = 'Eurostile, Arial, sans-serif';
 
 /** Escape text for safe SVG embedding. */
 function esc(s: string | number): string {
   return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 /** Horizontal pip bar for SI / fuel. */
@@ -87,12 +87,12 @@ export function renderAerospaceSVG(data: IAerospaceRecordSheetData): string {
     barW,
     structuralIntegrity,
     structuralIntegrity,
-    "Structural Integrity",
+    'Structural Integrity',
   );
 
   // ── Fuel track ───────────────────────────────────────────────────────────
   const fuelY = siY + 22;
-  body += pipBar(MARGIN + 5, fuelY, barW, fuelPoints, fuelPoints, "Fuel");
+  body += pipBar(MARGIN + 5, fuelY, barW, fuelPoints, fuelPoints, 'Fuel');
 
   // ── Bomb bay slots ───────────────────────────────────────────────────────
   const bombY = fuelY + 22;
@@ -148,17 +148,17 @@ export function renderAerospaceSVG(data: IAerospaceRecordSheetData): string {
   equipment.slice(0, maxEqRows).forEach((eq, i) => {
     const ry = hdrY + 10 + i * 9;
     const name =
-      eq.name.length > 22 ? eq.name.substring(0, 20) + ".." : eq.name;
+      eq.name.length > 22 ? eq.name.substring(0, 20) + '..' : eq.name;
     body += `
   <text x="${cols.qty}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.quantity)}</text>
   <text x="${cols.name}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(name)}</text>
   <text x="${cols.loc}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.locationAbbr)}</text>`;
     if (eq.isWeapon) {
       body += `
-  <text x="${cols.dmg}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.damage ?? "-")}</text>
-  <text x="${cols.sht}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.short || "-")}</text>
-  <text x="${cols.med}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.medium || "-")}</text>
-  <text x="${cols.lng}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.long || "-")}</text>`;
+  <text x="${cols.dmg}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.damage ?? '-')}</text>
+  <text x="${cols.sht}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.short || '-')}</text>
+  <text x="${cols.med}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.medium || '-')}</text>
+  <text x="${cols.lng}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.long || '-')}</text>`;
     } else if (eq.isAmmo) {
       body += `<text x="${cols.dmg}" y="${ry}" font-family="${FONT}" font-size="6" fill="#555">(${esc(eq.ammoCount ?? 0)} shots)</text>`;
     }

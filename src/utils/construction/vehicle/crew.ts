@@ -21,7 +21,7 @@
  * VTOL minimum is always 2 regardless of tonnage.
  */
 
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 // =============================================================================
 // Minimum Crew Table
@@ -127,7 +127,7 @@ export function validateVehicleCrew(
 
   if (configuredCrew < minimumCrew) {
     errors.push({
-      ruleId: "VAL-VEHICLE-CREW",
+      ruleId: 'VAL-VEHICLE-CREW',
       message: `Vehicle requires at least ${minimumCrew} crew members for a ${tonnage}t ${motionType} vehicle — only ${configuredCrew} configured`,
     });
   }

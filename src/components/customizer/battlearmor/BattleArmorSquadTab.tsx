@@ -6,26 +6,26 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1.3
  */
 
-import React, { useCallback } from "react";
+import React, { useCallback } from 'react';
 
-import { useBattleArmorStore } from "@/stores/useBattleArmorStore";
-import { BattleArmorLocation } from "@/types/construction/UnitLocation";
-import { IEquipmentItem } from "@/types/equipment";
+import { useBattleArmorStore } from '@/stores/useBattleArmorStore';
+import { BattleArmorLocation } from '@/types/construction/UnitLocation';
+import { IEquipmentItem } from '@/types/equipment';
 
-import { EquipmentBrowser } from "../equipment/EquipmentBrowser";
-import { customizerStyles as cs } from "../styles";
-import { BattleArmorPipGrid } from "./BattleArmorPipGrid";
+import { EquipmentBrowser } from '../equipment/EquipmentBrowser';
+import { customizerStyles as cs } from '../styles';
+import { BattleArmorPipGrid } from './BattleArmorPipGrid';
 
 // =============================================================================
 // Constants
 // =============================================================================
 
 const LOCATION_OPTIONS: { value: BattleArmorLocation; label: string }[] = [
-  { value: BattleArmorLocation.SQUAD, label: "Squad" },
-  { value: BattleArmorLocation.BODY, label: "Body" },
-  { value: BattleArmorLocation.LEFT_ARM, label: "Left Arm" },
-  { value: BattleArmorLocation.RIGHT_ARM, label: "Right Arm" },
-  { value: BattleArmorLocation.TURRET, label: "Turret" },
+  { value: BattleArmorLocation.SQUAD, label: 'Squad' },
+  { value: BattleArmorLocation.BODY, label: 'Body' },
+  { value: BattleArmorLocation.LEFT_ARM, label: 'Left Arm' },
+  { value: BattleArmorLocation.RIGHT_ARM, label: 'Right Arm' },
+  { value: BattleArmorLocation.TURRET, label: 'Turret' },
 ];
 
 // =============================================================================
@@ -43,7 +43,7 @@ interface BattleArmorSquadTabProps {
 
 export function BattleArmorSquadTab({
   readOnly = false,
-  className = "",
+  className = '',
 }: BattleArmorSquadTabProps): React.ReactElement {
   // Get state from store
   const squadSize = useBattleArmorStore((s) => s.squadSize);
@@ -183,7 +183,7 @@ export function BattleArmorSquadTab({
       {/* Mounted Equipment */}
       <div className={cs.panel.main}>
         <div className="mb-3 flex items-center justify-between">
-          <h3 className={cs.text.sectionTitle.replace("mb-4", "mb-0")}>
+          <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>
             Mounted Equipment ({equipment.length})
           </h3>
           {equipment.length > 0 && !readOnly && (

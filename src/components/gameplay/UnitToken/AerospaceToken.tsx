@@ -13,18 +13,18 @@
  *        §Aerospace Velocity + Altitude Indicators
  */
 
-import React from "react";
+import React from 'react';
 
-import type { IUnitToken } from "@/types/gameplay";
+import type { IUnitToken } from '@/types/gameplay';
 
-import { HEX_SIZE, HEX_COLORS } from "@/constants/hexMap";
-import { GameSide } from "@/types/gameplay";
+import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
 import {
   hex6ToRotationDeg,
   velocityVectorEndpoint,
-} from "@/lib/gameplay/facingRules";
+} from '@/lib/gameplay/facingRules';
+import { GameSide } from '@/types/gameplay';
 
-import type { ITokenSharedProps } from "./tokenTypes";
+import type { ITokenSharedProps } from './tokenTypes';
 
 const RING_R = HEX_SIZE * 0.7;
 // Pixels added per velocity unit for the vector arrow.
@@ -54,14 +54,14 @@ export const AerospaceToken = React.memo(function AerospaceToken({
     bodyColor = HEX_COLORS.destroyedToken;
   } else if (isLanded) {
     // Desaturate slightly for landed state.
-    bodyColor = token.side === GameSide.Player ? "#93c5fd" : "#fca5a5";
+    bodyColor = token.side === GameSide.Player ? '#93c5fd' : '#fca5a5';
   }
 
   const ringColor = token.isSelected
-    ? "#fbbf24"
+    ? '#fbbf24'
     : token.isValidTarget
-      ? "#f87171"
-      : "transparent";
+      ? '#f87171'
+      : 'transparent';
 
   // Heading from 6-hex Facing → degrees for the wedge rotation.
   const headingDeg = hex6ToRotationDeg(token.facing);
@@ -110,18 +110,18 @@ export const AerospaceToken = React.memo(function AerospaceToken({
           width={28}
           height={14}
           rx={3}
-          fill={isLanded ? "#475569" : "#1e293b"}
+          fill={isLanded ? '#475569' : '#1e293b'}
           opacity={0.85}
         />
         <text
           textAnchor="middle"
           fontSize={8}
           fontWeight="bold"
-          fill={isLanded ? "#94a3b8" : "#fbbf24"}
+          fill={isLanded ? '#94a3b8' : '#fbbf24'}
           dy={2}
           data-testid="altitude-badge"
         >
-          {isLanded ? "GND" : String(altitude)}
+          {isLanded ? 'GND' : String(altitude)}
         </text>
       </g>
 
@@ -131,7 +131,7 @@ export const AerospaceToken = React.memo(function AerospaceToken({
         textAnchor="middle"
         fontSize={8}
         fill="#1e293b"
-        style={{ pointerEvents: "none" }}
+        style={{ pointerEvents: 'none' }}
       >
         {token.designation}
       </text>

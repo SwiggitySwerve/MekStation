@@ -7,9 +7,9 @@
 import {
   IInfantryRecordSheetData,
   IInfantryFieldGunSheet,
-} from "@/types/printing";
+} from '@/types/printing';
 
-import { extractHeader } from "./dataExtractors";
+import { extractHeader } from './dataExtractors';
 
 /** Infantry-specific unit config fields. */
 export interface IInfantryUnitConfig {
@@ -26,7 +26,7 @@ export interface IInfantryUnitConfig {
   /** Total troopers in the platoon. */
   platoonSize?: number;
   /** Movement mode. */
-  motiveType?: IInfantryRecordSheetData["motiveType"];
+  motiveType?: IInfantryRecordSheetData['motiveType'];
   /** Primary weapon name. */
   primaryWeapon?: string;
   /** Secondary weapons with anti-personnel ratio. */
@@ -68,11 +68,11 @@ export function extractInfantryData(
     : undefined;
 
   return {
-    unitType: "infantry",
+    unitType: 'infantry',
     header: extractHeader(unit as Parameters<typeof extractHeader>[0]),
     platoonSize: unit.platoonSize ?? 28,
-    motiveType: unit.motiveType ?? "Foot",
-    primaryWeapon: unit.primaryWeapon ?? "Auto Rifle",
+    motiveType: unit.motiveType ?? 'Foot',
+    primaryWeapon: unit.primaryWeapon ?? 'Auto Rifle',
     secondaryWeapons: unit.secondaryWeapons ?? [],
     fieldGun,
     specialization: unit.specialization,

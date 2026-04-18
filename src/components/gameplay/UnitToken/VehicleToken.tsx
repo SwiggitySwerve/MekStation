@@ -13,15 +13,15 @@
  *        §Per-Type Facing Rules — Vehicle uses 8-direction facing
  */
 
-import React from "react";
+import React from 'react';
 
-import type { IUnitToken } from "@/types/gameplay";
+import type { IUnitToken } from '@/types/gameplay';
 
-import { HEX_SIZE, HEX_COLORS } from "@/constants/hexMap";
-import { GameSide, VehicleMotionType } from "@/types/gameplay";
-import { cardinal8ToRotationDeg } from "@/lib/gameplay/facingRules";
+import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
+import { cardinal8ToRotationDeg } from '@/lib/gameplay/facingRules';
+import { GameSide, VehicleMotionType } from '@/types/gameplay';
 
-import type { ITokenSharedProps } from "./tokenTypes";
+import type { ITokenSharedProps } from './tokenTypes';
 
 // Token geometry — rectangular body fits inside the hex.
 const BODY_W = HEX_SIZE * 0.9;
@@ -37,19 +37,19 @@ export interface VehicleTokenProps extends ITokenSharedProps {
 function motionLabel(motionType: VehicleMotionType | undefined): string {
   switch (motionType) {
     case VehicleMotionType.Tracked:
-      return "TK";
+      return 'TK';
     case VehicleMotionType.Wheeled:
-      return "WH";
+      return 'WH';
     case VehicleMotionType.Hover:
-      return "HV";
+      return 'HV';
     case VehicleMotionType.VTOL:
-      return "VT";
+      return 'VT';
     case VehicleMotionType.Naval:
-      return "NV";
+      return 'NV';
     case VehicleMotionType.WiGE:
-      return "WG";
+      return 'WG';
     default:
-      return "TK";
+      return 'TK';
   }
 }
 
@@ -68,10 +68,10 @@ export const VehicleToken = React.memo(function VehicleToken({
   }
 
   const ringColor = token.isSelected
-    ? "#fbbf24"
+    ? '#fbbf24'
     : token.isValidTarget
-      ? "#f87171"
-      : "transparent";
+      ? '#f87171'
+      : 'transparent';
 
   // Body rotation: cardinal8 direction stored in token.facing (0-7).
   // For vehicles the facing value reuses the Facing enum slot but represents
@@ -118,7 +118,7 @@ export const VehicleToken = React.memo(function VehicleToken({
         fontSize={9}
         fontWeight="bold"
         fill="white"
-        style={{ pointerEvents: "none" }}
+        style={{ pointerEvents: 'none' }}
       >
         {motionLabel(token.vehicleMotionType)}
       </text>
@@ -129,7 +129,7 @@ export const VehicleToken = React.memo(function VehicleToken({
         textAnchor="middle"
         fontSize={8}
         fill="#1e293b"
-        style={{ pointerEvents: "none" }}
+        style={{ pointerEvents: 'none' }}
       >
         {token.designation}
       </text>

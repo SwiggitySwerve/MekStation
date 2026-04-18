@@ -14,21 +14,20 @@
  *       Scenario: Squad leader indicated on trooper 0
  */
 
-import { render, screen } from "@testing-library/react";
-import React from "react";
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 
+import { BattleArmorPipGrid } from '@/components/customizer/battlearmor/BattleArmorPipGrid';
 import {
   useBattleArmorStore,
   BattleArmorStore,
-} from "@/stores/useBattleArmorStore";
+} from '@/stores/useBattleArmorStore';
 import {
   BattleArmorChassisType,
   BattleArmorWeightClass,
-} from "@/types/unit/PersonnelInterfaces";
+} from '@/types/unit/PersonnelInterfaces';
 
-import { BattleArmorPipGrid } from "@/components/customizer/battlearmor/BattleArmorPipGrid";
-
-jest.mock("@/stores/useBattleArmorStore");
+jest.mock('@/stores/useBattleArmorStore');
 const mockUseBattleArmorStore = useBattleArmorStore as jest.MockedFunction<
   typeof useBattleArmorStore
 >;
@@ -49,16 +48,16 @@ beforeEach(() => {
   );
 });
 
-describe("BattleArmorPipGrid", () => {
-  it("renders one column per trooper (default squadSize 4)", () => {
+describe('BattleArmorPipGrid', () => {
+  it('renders one column per trooper (default squadSize 4)', () => {
     render(<BattleArmorPipGrid />);
-    expect(screen.getByTestId("ba-trooper-col-0")).toBeInTheDocument();
-    expect(screen.getByTestId("ba-trooper-col-1")).toBeInTheDocument();
-    expect(screen.getByTestId("ba-trooper-col-2")).toBeInTheDocument();
-    expect(screen.getByTestId("ba-trooper-col-3")).toBeInTheDocument();
+    expect(screen.getByTestId('ba-trooper-col-0')).toBeInTheDocument();
+    expect(screen.getByTestId('ba-trooper-col-1')).toBeInTheDocument();
+    expect(screen.getByTestId('ba-trooper-col-2')).toBeInTheDocument();
+    expect(screen.getByTestId('ba-trooper-col-3')).toBeInTheDocument();
   });
 
-  it("renders 6 trooper columns when squadSize is 6", () => {
+  it('renders 6 trooper columns when squadSize is 6', () => {
     mockUseBattleArmorStore.mockImplementation((selector) =>
       selector(makeState({ squadSize: 6 }) as unknown as BattleArmorStore),
     );
@@ -66,22 +65,22 @@ describe("BattleArmorPipGrid", () => {
     for (let i = 0; i < 6; i++) {
       expect(screen.getByTestId(`ba-trooper-col-${i}`)).toBeInTheDocument();
     }
-    expect(screen.queryByTestId("ba-trooper-col-6")).not.toBeInTheDocument();
+    expect(screen.queryByTestId('ba-trooper-col-6')).not.toBeInTheDocument();
   });
 
-  it("shows the squad leader star (★) on trooper column 0", () => {
+  it('shows the squad leader star (★) on trooper column 0', () => {
     render(<BattleArmorPipGrid />);
     // The squad leader icon has aria-label "Squad leader"
-    expect(screen.getByLabelText("Squad leader")).toBeInTheDocument();
+    expect(screen.getByLabelText('Squad leader')).toBeInTheDocument();
   });
 
-  it("renders correct pip count for Medium weight class (7 pips)", () => {
+  it('renders correct pip count for Medium weight class (7 pips)', () => {
     render(<BattleArmorPipGrid />);
     // ArmorPipRow for trooper 1 (full health) → aria-label "Trooper 1: 7 of 7"
-    expect(screen.getByLabelText("Trooper 1: 7 of 7")).toBeInTheDocument();
+    expect(screen.getByLabelText('Trooper 1: 7 of 7')).toBeInTheDocument();
   });
 
-  it("renders correct pip count for Assault weight class (15 pips)", () => {
+  it('renders correct pip count for Assault weight class (15 pips)', () => {
     mockUseBattleArmorStore.mockImplementation((selector) =>
       selector(
         makeState({
@@ -90,31 +89,31 @@ describe("BattleArmorPipGrid", () => {
       ),
     );
     render(<BattleArmorPipGrid />);
-    expect(screen.getByLabelText("Trooper 1: 15 of 15")).toBeInTheDocument();
+    expect(screen.getByLabelText('Trooper 1: 15 of 15')).toBeInTheDocument();
   });
 
-  it("reduces remaining pips for a damaged trooper", () => {
+  it('reduces remaining pips for a damaged trooper', () => {
     render(<BattleArmorPipGrid damageByTrooper={[3, 0, 0, 0]} />);
     // Trooper 1 has 3 damage → 7 - 3 = 4 remaining; label "Trooper 1: 4 of 7"
-    expect(screen.getByLabelText("Trooper 1: 4 of 7")).toBeInTheDocument();
+    expect(screen.getByLabelText('Trooper 1: 4 of 7')).toBeInTheDocument();
     // Trooper 2 has 0 damage → 7 of 7
-    expect(screen.getByLabelText("Trooper 2: 7 of 7")).toBeInTheDocument();
+    expect(screen.getByLabelText('Trooper 2: 7 of 7')).toBeInTheDocument();
   });
 
-  it("renders the pip grid container with data-testid", () => {
+  it('renders the pip grid container with data-testid', () => {
     render(<BattleArmorPipGrid />);
-    expect(screen.getByTestId("battlearmor-pip-grid")).toBeInTheDocument();
+    expect(screen.getByTestId('battlearmor-pip-grid')).toBeInTheDocument();
   });
 
-  it("shows chassisType and squadSize in header", () => {
+  it('shows chassisType and squadSize in header', () => {
     render(<BattleArmorPipGrid />);
     expect(screen.getByText(/Biped.*4 troopers/)).toBeInTheDocument();
   });
 
-  it("shows correct total in summary (maxPips * squadSize)", () => {
+  it('shows correct total in summary (maxPips * squadSize)', () => {
     // Medium: 7 pips × 4 troopers = 28 total
     render(<BattleArmorPipGrid />);
     // The summary displays "Total:" followed by the count
-    expect(screen.getByText("28")).toBeInTheDocument();
+    expect(screen.getByText('28')).toBeInTheDocument();
   });
 });

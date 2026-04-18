@@ -8,20 +8,20 @@
  * Dimensions: 612 × 792 pts (US Letter) to match the mech sheet canvas.
  */
 
-import { IInfantryRecordSheetData } from "@/types/printing";
+import { IInfantryRecordSheetData } from '@/types/printing';
 
 const SVG_W = 612;
 const SVG_H = 792;
 const MARGIN = 18;
-const FONT = "Eurostile, Arial, sans-serif";
+const FONT = 'Eurostile, Arial, sans-serif';
 
 /** Escape text for safe SVG embedding. */
 function esc(s: string | number): string {
   return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 /** Draw a row of trooper pip circles (10 per row). */
@@ -29,7 +29,7 @@ function trooperPips(x: number, y: number, count: number): string {
   const PIP_R = 4;
   const PIP_GAP = 10;
   const PIPS_PER_ROW = 10;
-  let out = "";
+  let out = '';
   for (let i = 0; i < count; i++) {
     const col = i % PIPS_PER_ROW;
     const row = Math.floor(i / PIPS_PER_ROW);

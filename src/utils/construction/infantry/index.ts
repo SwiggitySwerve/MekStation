@@ -8,7 +8,7 @@ export {
   INFANTRY_WEAPON_TABLE,
   findWeaponById,
   getPrimaryWeaponOptions,
-} from "./weaponTable";
+} from './weaponTable';
 
 export {
   getDefaultComposition,
@@ -18,14 +18,14 @@ export {
   secondaryWeaponCount,
   FIELD_GUN_ALLOWED_MOTIVES,
   HEAVY_WEAPON_MOTIVES,
-} from "./platoonComposition";
+} from './platoonComposition';
 
 export {
   FIELD_GUN_CATALOG,
   findFieldGunById,
   buildFieldGun,
   totalFieldGunCrew,
-} from "./fieldGuns";
+} from './fieldGuns';
 
 export {
   validatePlatoonSize,
@@ -36,10 +36,10 @@ export {
   validateAntiMechTraining,
   validateInfantryConstruction,
   INF_VALIDATION_RULE_IDS,
-} from "./validation";
+} from './validation';
 
 export type {
   InfantryValidationInput,
   InfantryValidationResult,
   InfValidationRuleId,
-} from "./validation";
+} from './validation';

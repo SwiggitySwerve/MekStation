@@ -15,7 +15,7 @@
  *        §Per-Type Stacking Rules
  */
 
-import { TokenUnitType } from "@/types/gameplay";
+import { TokenUnitType } from '@/types/gameplay';
 
 // =============================================================================
 // Stacking Rule Descriptor
@@ -54,41 +54,41 @@ const STACKING_RULES_BY_TYPE: Readonly<Record<TokenUnitType, IStackingRules>> =
       maxPerHex: 1,
       canMount: false,
       mountTargetType: null,
-      description: "BattleMechs cannot share a hex with another BattleMech.",
+      description: 'BattleMechs cannot share a hex with another BattleMech.',
     },
     [TokenUnitType.Vehicle]: {
       maxPerHex: 1,
       canMount: false,
       mountTargetType: null,
-      description: "Vehicles cannot share a hex with another vehicle.",
+      description: 'Vehicles cannot share a hex with another vehicle.',
     },
     [TokenUnitType.Aerospace]: {
       maxPerHex: 1,
       canMount: false,
       mountTargetType: null,
       description:
-        "Aerospace units occupy one hex per altitude level; only one unit per hex on the ground.",
+        'Aerospace units occupy one hex per altitude level; only one unit per hex on the ground.',
     },
     [TokenUnitType.BattleArmor]: {
       maxPerHex: 1,
       canMount: true,
       mountTargetType: TokenUnitType.Mech,
       description:
-        "BattleArmor may share a hex by mounting on a BattleMech (renders as badge). " +
-        "One independent BA point per hex when not mounted.",
+        'BattleArmor may share a hex by mounting on a BattleMech (renders as badge). ' +
+        'One independent BA point per hex when not mounted.',
     },
     [TokenUnitType.Infantry]: {
       maxPerHex: 4,
       canMount: false,
       mountTargetType: null,
-      description: "Up to 4 infantry platoons may share a hex.",
+      description: 'Up to 4 infantry platoons may share a hex.',
     },
     [TokenUnitType.ProtoMech]: {
       maxPerHex: 1,
       canMount: false,
       mountTargetType: null,
       description:
-        "One ProtoMech point (up to 5 protos) per hex. The cluster renders inside a single token.",
+        'One ProtoMech point (up to 5 protos) per hex. The cluster renders inside a single token.',
     },
   };
 

@@ -10,18 +10,18 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2
  */
 
-import React, { useCallback } from "react";
-import { StoreApi } from "zustand";
+import React, { useCallback } from 'react';
+import { StoreApi } from 'zustand';
 
-import { toCustomizerTabConfigs } from "@/components/customizer/shared/TabSpec";
-import { INFANTRY_TABS } from "@/components/customizer/shared/tabRegistry";
-import { CustomizerTabs } from "@/components/customizer/tabs/CustomizerTabs";
-import { useCustomizerTabs } from "@/hooks/useCustomizerTabs";
+import { INFANTRY_TABS } from '@/components/customizer/shared/tabRegistry';
+import { toCustomizerTabConfigs } from '@/components/customizer/shared/TabSpec';
+import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
+import { useCustomizerTabs } from '@/hooks/useCustomizerTabs';
 import {
   InfantryStoreContext,
   InfantryStore,
   useInfantryStore,
-} from "@/stores/useInfantryStore";
+} from '@/stores/useInfantryStore';
 
 // =============================================================================
 // Types
@@ -29,14 +29,14 @@ import {
 
 /** Tab ids available in the infantry customizer */
 export type InfantryTabId =
-  | "overview"
-  | "platoon"
-  | "primaryWeapon"
-  | "secondaryWeapons"
-  | "fieldGuns"
-  | "specialization"
-  | "preview"
-  | "fluff";
+  | 'overview'
+  | 'platoon'
+  | 'primaryWeapon'
+  | 'secondaryWeapons'
+  | 'fieldGuns'
+  | 'specialization'
+  | 'preview'
+  | 'fluff';
 
 interface InfantryCustomizerProps {
   /** Infantry store instance */
@@ -127,10 +127,10 @@ function InfantryCustomizerInner({
  */
 export function InfantryCustomizer({
   store,
-  initialTab = "platoon",
+  initialTab = 'platoon',
   onTabChange,
   readOnly = false,
-  className = "",
+  className = '',
 }: InfantryCustomizerProps): React.ReactElement {
   return (
     <InfantryStoreContext.Provider value={store}>

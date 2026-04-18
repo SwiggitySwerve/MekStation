@@ -9,7 +9,7 @@
  *        Requirement: Shared Armor Pip Primitive
  */
 
-import React from "react";
+import React from 'react';
 
 // =============================================================================
 // Types
@@ -27,7 +27,7 @@ export interface ArmorPipRowProps {
    * 'row'    — pips flow left-to-right (default, used in compact location blocks)
    * 'column' — pips flow top-to-bottom (used in BA trooper columns)
    */
-  orientation?: "row" | "column";
+  orientation?: 'row' | 'column';
   /** Optional extra CSS applied to the outermost element */
   className?: string;
   /** Pip size in pixels (default 8) */
@@ -44,9 +44,9 @@ export interface ArmorPipRowProps {
  */
 function pipFill(index: number, current: number): string {
   if (index < current) {
-    return "#22d3ee"; // cyan-400 — allocated / filled pip
+    return '#22d3ee'; // cyan-400 — allocated / filled pip
   }
-  return "#334155"; // slate-700 — empty pip
+  return '#334155'; // slate-700 — empty pip
 }
 
 // =============================================================================
@@ -63,8 +63,8 @@ export function ArmorPipRow({
   label,
   current,
   max,
-  orientation = "row",
-  className = "",
+  orientation = 'row',
+  className = '',
   pipSize = 8,
 }: ArmorPipRowProps): React.ReactElement {
   // Clamp current so we never render more filled pips than slots exist
@@ -73,9 +73,9 @@ export function ArmorPipRow({
   const pips = Array.from({ length: max }, (_, i) => i);
 
   const containerClass =
-    orientation === "column"
-      ? "flex flex-col items-center gap-0.5"
-      : "flex flex-row flex-wrap gap-0.5";
+    orientation === 'column'
+      ? 'flex flex-col items-center gap-0.5'
+      : 'flex flex-row flex-wrap gap-0.5';
 
   return (
     <div
@@ -90,9 +90,9 @@ export function ArmorPipRow({
             width: pipSize,
             height: pipSize,
             borderRadius: 2,
-            display: "inline-block",
+            display: 'inline-block',
             backgroundColor: pipFill(i, filled),
-            border: "1px solid #475569", // slate-600 border on every pip
+            border: '1px solid #475569', // slate-600 border on every pip
             flexShrink: 0,
           }}
         />

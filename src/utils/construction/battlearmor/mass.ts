@@ -17,9 +17,10 @@ import {
   BA_WEIGHT_CLASS_LIMITS,
   IBAEquipmentMount,
   IBAWeaponMount,
-} from "@/types/unit/BattleArmorInterfaces";
-import { armorMassKg } from "./armor";
-import { manipulatorMassKg } from "./manipulators";
+} from '@/types/unit/BattleArmorInterfaces';
+
+import { armorMassKg } from './armor';
+import { manipulatorMassKg } from './manipulators';
 
 export interface TrooperMassBreakdown {
   /** Armor mass (kg) */

@@ -7,8 +7,8 @@
  * @spec openspec/changes/add-protomech-construction/specs/protomech-unit-system/spec.md
  */
 
-import { TechBase } from "@/types/enums/TechBase";
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 // =============================================================================
 // Enumerations
@@ -23,10 +23,10 @@ import { UnitType } from "@/types/unit/BattleMechInterfaces";
  * - Ultraheavy: 10–15 tons; no jump MP; increased armor capacity
  */
 export enum ProtoChassis {
-  BIPED = "Biped",
-  QUAD = "Quad",
-  GLIDER = "Glider",
-  ULTRAHEAVY = "Ultraheavy",
+  BIPED = 'Biped',
+  QUAD = 'Quad',
+  GLIDER = 'Glider',
+  ULTRAHEAVY = 'Ultraheavy',
 }
 
 /**
@@ -38,10 +38,10 @@ export enum ProtoChassis {
  * - Ultraheavy: 10–15 tons (MP cap walk 3, jump 0)
  */
 export enum ProtoWeightClass {
-  LIGHT = "Light",
-  MEDIUM = "Medium",
-  HEAVY = "Heavy",
-  ULTRAHEAVY = "Ultraheavy",
+  LIGHT = 'Light',
+  MEDIUM = 'Medium',
+  HEAVY = 'Heavy',
+  ULTRAHEAVY = 'Ultraheavy',
 }
 
 /**
@@ -52,17 +52,17 @@ export enum ProtoWeightClass {
  * Quad chassis substitutes FRONT_LEGS / REAR_LEGS for arms + legs.
  */
 export enum ProtoLocation {
-  HEAD = "Head",
-  TORSO = "Torso",
-  LEFT_ARM = "Left Arm",
-  RIGHT_ARM = "Right Arm",
-  LEGS = "Legs",
+  HEAD = 'Head',
+  TORSO = 'Torso',
+  LEFT_ARM = 'Left Arm',
+  RIGHT_ARM = 'Right Arm',
+  LEGS = 'Legs',
   /** Present only when hasMainGun === true */
-  MAIN_GUN = "Main Gun",
+  MAIN_GUN = 'Main Gun',
   /** Quad chassis front legs (replaces Left Arm + Right Arm) */
-  FRONT_LEGS = "Front Legs",
+  FRONT_LEGS = 'Front Legs',
   /** Quad chassis rear legs (replaces Legs) */
-  REAR_LEGS = "Rear Legs",
+  REAR_LEGS = 'Rear Legs',
 }
 
 // =============================================================================
@@ -126,15 +126,15 @@ export interface IProtoArmorMaxByTonnage {
  * Weapons not in this list are rejected by VAL-PROTO-MAIN-GUN.
  */
 export const PROTO_MAIN_GUN_APPROVED_WEAPON_IDS: ReadonlySet<string> = new Set([
-  "clan-lrm-5",
-  "clan-lrm-10",
-  "clan-ac-2",
-  "clan-ac-5",
-  "clan-gauss-rifle",
-  "clan-ppc",
-  "clan-er-ppc",
-  "clan-medium-pulse-laser",
-  "clan-er-medium-laser",
+  'clan-lrm-5',
+  'clan-lrm-10',
+  'clan-ac-2',
+  'clan-ac-5',
+  'clan-gauss-rifle',
+  'clan-ppc',
+  'clan-er-ppc',
+  'clan-medium-pulse-laser',
+  'clan-er-medium-laser',
 ]);
 
 /**
@@ -143,9 +143,9 @@ export const PROTO_MAIN_GUN_APPROVED_WEAPON_IDS: ReadonlySet<string> = new Set([
  * they must go in the MainGun location.
  */
 export enum ProtoWeaponSizeClass {
-  LIGHT = "Light",
-  MEDIUM = "Medium",
-  HEAVY = "Heavy",
+  LIGHT = 'Light',
+  MEDIUM = 'Medium',
+  HEAVY = 'Heavy',
 }
 
 // =============================================================================
@@ -201,7 +201,7 @@ export interface IProtoMechUnit {
 
   // ---- Armor ----
   /** Armor always Standard for ProtoMechs */
-  readonly armorType: "Standard";
+  readonly armorType: 'Standard';
   readonly armorByLocation: IProtoArmorByLocation;
   readonly structureByLocation: IProtoArmorByLocation;
 

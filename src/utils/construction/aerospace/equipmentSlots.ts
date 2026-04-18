@@ -8,7 +8,7 @@
  * Requirement: Equipment Mounting per Arc
  */
 
-import { AerospaceArc } from "../../../types/unit/AerospaceInterfaces";
+import { AerospaceArc } from '../../../types/unit/AerospaceInterfaces';
 
 // ============================================================================
 // Slot Counts per Arc

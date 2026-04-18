@@ -7,7 +7,7 @@
  * @spec openspec/changes/add-battlearmor-construction/specs/battle-armor-unit-system/spec.md
  */
 
-import { TechBase } from "@/types/enums/TechBase";
+import { TechBase } from '@/types/enums/TechBase';
 
 // ============================================================================
 // Chassis
@@ -19,8 +19,8 @@ import { TechBase } from "@/types/enums/TechBase";
  * Quad: four legs, no arm manipulators.
  */
 export enum BAChassisType {
-  BIPED = "Biped",
-  QUAD = "Quad",
+  BIPED = 'Biped',
+  QUAD = 'Quad',
 }
 
 // ============================================================================
@@ -32,11 +32,11 @@ export enum BAChassisType {
  * Governs mass range, armor cap, and movement limits per trooper.
  */
 export enum BAWeightClass {
-  PA_L = "PA(L)",
-  LIGHT = "Light",
-  MEDIUM = "Medium",
-  HEAVY = "Heavy",
-  ASSAULT = "Assault",
+  PA_L = 'PA(L)',
+  LIGHT = 'Light',
+  MEDIUM = 'Medium',
+  HEAVY = 'Heavy',
+  ASSAULT = 'Assault',
 }
 
 /**
@@ -123,10 +123,10 @@ export const BA_WEIGHT_CLASS_LIMITS: Readonly<
  * Governs which MP pools are relevant for this squad.
  */
 export enum BAMovementType {
-  GROUND = "Ground",
-  JUMP = "Jump",
-  VTOL = "VTOL",
-  UMU = "UMU",
+  GROUND = 'Ground',
+  JUMP = 'Jump',
+  VTOL = 'VTOL',
+  UMU = 'UMU',
 }
 
 // ============================================================================
@@ -138,14 +138,14 @@ export enum BAMovementType {
  * Each type has a different kg-per-point cost and may impose slot requirements.
  */
 export enum BAArmorType {
-  STANDARD = "Standard BA",
-  STEALTH_BASIC = "Stealth (Basic)",
-  STEALTH_IMPROVED = "Stealth (Improved)",
-  STEALTH_PROTOTYPE = "Stealth (Prototype)",
-  MIMETIC = "Mimetic",
-  REACTIVE = "Reactive",
-  REFLECTIVE = "Reflective",
-  FIRE_RESISTANT = "Fire-Resistant",
+  STANDARD = 'Standard BA',
+  STEALTH_BASIC = 'Stealth (Basic)',
+  STEALTH_IMPROVED = 'Stealth (Improved)',
+  STEALTH_PROTOTYPE = 'Stealth (Prototype)',
+  MIMETIC = 'Mimetic',
+  REACTIVE = 'Reactive',
+  REFLECTIVE = 'Reflective',
+  FIRE_RESISTANT = 'Fire-Resistant',
 }
 
 /**
@@ -213,15 +213,15 @@ export const BA_ARMOR_TYPE_DATA: Readonly<
  * Applies per arm on Biped chassis; Quad has no manipulators.
  */
 export enum BAManipulator {
-  NONE = "None",
-  BASIC_CLAW = "Basic Claw",
-  BATTLE_CLAW = "Battle Claw",
-  VIBRO_CLAW = "Vibro Claw",
-  HEAVY_CLAW = "Heavy Claw",
-  MINE_CLEARANCE = "Mine Clearance",
-  CARGO_LIFTER = "Cargo Lifter",
-  INDUSTRIAL_DRILL = "Industrial Drill",
-  MAGNET = "Magnet",
+  NONE = 'None',
+  BASIC_CLAW = 'Basic Claw',
+  BATTLE_CLAW = 'Battle Claw',
+  VIBRO_CLAW = 'Vibro Claw',
+  HEAVY_CLAW = 'Heavy Claw',
+  MINE_CLEARANCE = 'Mine Clearance',
+  CARGO_LIFTER = 'Cargo Lifter',
+  INDUSTRIAL_DRILL = 'Industrial Drill',
+  MAGNET = 'Magnet',
 }
 
 /**
@@ -321,11 +321,11 @@ export const BA_MANIPULATOR_DATA: Readonly<
  * Distinct from the runtime BattleArmorLocation to include leg slots.
  */
 export enum BALocation {
-  BODY = "Body",
-  LEFT_ARM = "Left Arm",
-  RIGHT_ARM = "Right Arm",
-  LEFT_LEG = "Left Leg",
-  RIGHT_LEG = "Right Leg",
+  BODY = 'Body',
+  LEFT_ARM = 'Left Arm',
+  RIGHT_ARM = 'Right Arm',
+  LEFT_LEG = 'Left Leg',
+  RIGHT_LEG = 'Right Leg',
 }
 
 /**
@@ -359,7 +359,7 @@ export const BA_QUAD_SLOT_CAPACITY: Readonly<Record<BALocation, number>> = {
  * Classifies whether a weapon or piece of equipment is considered heavy
  * (requires Battle Claw or Heavy Claw for arm mounting).
  */
-export type BAWeaponWeight = "light" | "heavy";
+export type BAWeaponWeight = 'light' | 'heavy';
 
 /**
  * A single weapon or equipment item mounted on a BA trooper.
@@ -424,8 +424,8 @@ export interface BAAntiMechEquipment {
  */
 export const BA_ANTI_MECH_EQUIPMENT: readonly BAAntiMechEquipment[] = [
   {
-    id: "ba-magnetic-clamp",
-    name: "Magnetic Clamp",
+    id: 'ba-magnetic-clamp',
+    name: 'Magnetic Clamp',
     massKg: 15,
     location: BALocation.BODY,
     slotsUsed: 1,
@@ -433,8 +433,8 @@ export const BA_ANTI_MECH_EQUIPMENT: readonly BAAntiMechEquipment[] = [
     bonusJumpMP: 0,
   },
   {
-    id: "ba-mechanical-jump-booster",
-    name: "Mechanical Jump Booster",
+    id: 'ba-mechanical-jump-booster',
+    name: 'Mechanical Jump Booster',
     massKg: 30,
     location: BALocation.BODY,
     slotsUsed: 1,
@@ -442,8 +442,8 @@ export const BA_ANTI_MECH_EQUIPMENT: readonly BAAntiMechEquipment[] = [
     bonusJumpMP: 1,
   },
   {
-    id: "ba-partial-wing",
-    name: "Partial Wing",
+    id: 'ba-partial-wing',
+    name: 'Partial Wing',
     massKg: 30,
     location: BALocation.BODY,
     slotsUsed: 1,
@@ -452,8 +452,8 @@ export const BA_ANTI_MECH_EQUIPMENT: readonly BAAntiMechEquipment[] = [
     restrictedToClass: BAWeightClass.LIGHT,
   },
   {
-    id: "ba-detachable-weapon-pack",
-    name: "Detachable Weapon Pack",
+    id: 'ba-detachable-weapon-pack',
+    name: 'Detachable Weapon Pack',
     massKg: 40,
     location: BALocation.BODY,
     slotsUsed: 1,
@@ -489,12 +489,12 @@ export const BA_SQUAD_SIZE_MAX = 6;
  * Validation rule identifiers for the BA construction pipeline.
  */
 export const BA_VALIDATION_RULES = {
-  VAL_BA_CLASS: "VAL-BA-CLASS",
-  VAL_BA_ARMOR: "VAL-BA-ARMOR",
-  VAL_BA_MP: "VAL-BA-MP",
-  VAL_BA_MANIPULATOR: "VAL-BA-MANIPULATOR",
-  VAL_BA_SQUAD: "VAL-BA-SQUAD",
-  VAL_BA_MOVE_TYPE: "VAL-BA-MOVE-TYPE",
+  VAL_BA_CLASS: 'VAL-BA-CLASS',
+  VAL_BA_ARMOR: 'VAL-BA-ARMOR',
+  VAL_BA_MP: 'VAL-BA-MP',
+  VAL_BA_MANIPULATOR: 'VAL-BA-MANIPULATOR',
+  VAL_BA_SQUAD: 'VAL-BA-SQUAD',
+  VAL_BA_MOVE_TYPE: 'VAL-BA-MOVE-TYPE',
 } as const;
 
 export type BAValidationRuleId =

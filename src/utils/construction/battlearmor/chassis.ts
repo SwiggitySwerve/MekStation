@@ -14,7 +14,7 @@ import {
   BA_BIPED_SLOT_CAPACITY,
   BA_QUAD_SLOT_CAPACITY,
   BAManipulator,
-} from "@/types/unit/BattleArmorInterfaces";
+} from '@/types/unit/BattleArmorInterfaces';
 
 /**
  * Return the slot capacity table for the given chassis type.

@@ -8,16 +8,22 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.1
  */
 
-import { createContext, useContext } from "react";
-import { create, StoreApi, useStore } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { createContext, useContext } from 'react';
+import { create, StoreApi, useStore } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
-import { getArmorDefinition } from "@/types/construction/ArmorType";
-import { AerospaceLocation } from "@/types/construction/UnitLocation";
-import { WeightClass } from "@/types/enums/WeightClass";
-import { IEquipmentItem } from "@/types/equipment";
-import { generateUnitId } from "@/utils/uuid";
+import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import { getArmorDefinition } from '@/types/construction/ArmorType';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { WeightClass } from '@/types/enums/WeightClass';
+import { IEquipmentItem } from '@/types/equipment';
+import {
+  AerospaceEngineType,
+  AerospaceSubType,
+  ISmallCraftCrew,
+} from '@/types/unit/AerospaceInterfaces';
+import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
+import { generateUnitId } from '@/utils/uuid';
 
 import {
   AerospaceState,
@@ -26,16 +32,10 @@ import {
   createDefaultAerospaceState,
   createAerospaceMountedEquipment,
   createEmptyAerospaceArmorAllocation,
-} from "./aerospaceState";
-import {
-  AerospaceEngineType,
-  AerospaceSubType,
-  ISmallCraftCrew,
-} from "@/types/unit/AerospaceInterfaces";
-import { calculateFuelPoints } from "@/utils/construction/aerospace/fuelCalculations";
+} from './aerospaceState';
 
 // Re-export types for convenience
-export type { AerospaceStore } from "./aerospaceState";
+export type { AerospaceStore } from './aerospaceState';
 
 // =============================================================================
 // Helper Functions
@@ -88,7 +88,7 @@ export function createAerospaceStore(
         setChassis: (chassis) =>
           set((state) => ({
             chassis,
-            name: `${chassis}${state.model ? " " + state.model : ""}`,
+            name: `${chassis}${state.model ? ' ' + state.model : ''}`,
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -96,7 +96,7 @@ export function createAerospaceStore(
         setModel: (model) =>
           set((state) => ({
             model,
-            name: `${state.chassis}${model ? " " + model : ""}`,
+            name: `${state.chassis}${model ? ' ' + model : ''}`,
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -502,8 +502,8 @@ export function useAerospaceStore<T>(
 
   if (!store) {
     throw new Error(
-      "useAerospaceStore must be used within an AerospaceStoreProvider. " +
-        "Wrap your component tree with <AerospaceStoreProvider>.",
+      'useAerospaceStore must be used within an AerospaceStoreProvider. ' +
+        'Wrap your component tree with <AerospaceStoreProvider>.',
     );
   }
 
@@ -518,7 +518,7 @@ export function useAerospaceStoreApi(): StoreApi<AerospaceStore> {
 
   if (!store) {
     throw new Error(
-      "useAerospaceStoreApi must be used within an AerospaceStoreProvider.",
+      'useAerospaceStoreApi must be used within an AerospaceStoreProvider.',
     );
   }
 

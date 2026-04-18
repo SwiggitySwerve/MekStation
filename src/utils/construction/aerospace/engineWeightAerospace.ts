@@ -8,7 +8,7 @@
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
 
-import { AerospaceEngineType } from "../../../types/unit/AerospaceInterfaces";
+import { AerospaceEngineType } from '../../../types/unit/AerospaceInterfaces';
 
 // ============================================================================
 // Standard Engine Weight Table (rating → tons, fusion baseline)

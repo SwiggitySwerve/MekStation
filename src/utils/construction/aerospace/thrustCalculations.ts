@@ -11,7 +11,7 @@
 import {
   AerospaceEngineType,
   AerospaceSubType,
-} from "../../../types/unit/AerospaceInterfaces";
+} from '../../../types/unit/AerospaceInterfaces';
 
 // ============================================================================
 // Thrust Caps by Sub-Type and Tonnage

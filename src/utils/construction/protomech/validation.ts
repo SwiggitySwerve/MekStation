@@ -19,23 +19,23 @@ import {
   ProtoChassis,
   ProtoLocation,
   ProtoWeightClass,
-} from "@/types/unit/ProtoMechInterfaces";
+} from '@/types/unit/ProtoMechInterfaces';
 
-import { isArmPlacementIllegal, isMainGunWeaponApproved } from "./mainGun";
-import { getProtoMPCaps, isMyomerBoosterLegal } from "./movementCaps";
+import { isArmPlacementIllegal, isMainGunWeaponApproved } from './mainGun';
+import { getProtoMPCaps, isMyomerBoosterLegal } from './movementCaps';
 import {
   getProtoWeightClass,
   isChassisLegalForTonnage,
   PROTO_MAX_TONNAGE,
   PROTO_MIN_TONNAGE,
-} from "./weightClass";
+} from './weightClass';
 
 // =============================================================================
 // Result type
 // =============================================================================
 
 /** Severity of a validation finding */
-export type ValidationSeverity = "error" | "warning";
+export type ValidationSeverity = 'error' | 'warning';
 
 /** Single validation finding */
 export interface ValidationFinding {
@@ -77,14 +77,14 @@ export interface ProtoMechBuildSnapshot {
 // =============================================================================
 
 /** Rule ID constant — exported so test fixtures can reference it */
-export const RULE_PROTO_TONNAGE = "VAL-PROTO-TONNAGE";
+export const RULE_PROTO_TONNAGE = 'VAL-PROTO-TONNAGE';
 
 /**
  * Validate that tonnage is in the legal range (2–15 t).
  * Ultraheavy tonnage (10–15) is checked against chassis in VAL-PROTO-CHASSIS.
  */
 export function validateProtoTonnage(
-  snapshot: Pick<ProtoMechBuildSnapshot, "tonnage">,
+  snapshot: Pick<ProtoMechBuildSnapshot, 'tonnage'>,
 ): ValidationRuleResult {
   const { tonnage } = snapshot;
   const findings: ValidationFinding[] = [];
@@ -96,7 +96,7 @@ export function validateProtoTonnage(
   ) {
     findings.push({
       ruleId: RULE_PROTO_TONNAGE,
-      severity: "error",
+      severity: 'error',
       message: `Tonnage ${tonnage} is out of the legal range (${PROTO_MIN_TONNAGE}–${PROTO_MAX_TONNAGE} t).`,
     });
   }
@@ -113,7 +113,7 @@ export function validateProtoTonnage(
 // =============================================================================
 
 /** Rule ID constant */
-export const RULE_PROTO_CHASSIS = "VAL-PROTO-CHASSIS";
+export const RULE_PROTO_CHASSIS = 'VAL-PROTO-CHASSIS';
 
 /**
  * Validate chassis × tonnage × movement compatibility:
@@ -125,7 +125,7 @@ export const RULE_PROTO_CHASSIS = "VAL-PROTO-CHASSIS";
 export function validateProtoChassis(
   snapshot: Pick<
     ProtoMechBuildSnapshot,
-    "tonnage" | "chassisType" | "jumpMP" | "myomerBooster"
+    'tonnage' | 'chassisType' | 'jumpMP' | 'myomerBooster'
   >,
 ): ValidationRuleResult {
   const { tonnage, chassisType, jumpMP, myomerBooster } = snapshot;
@@ -136,13 +136,13 @@ export function validateProtoChassis(
     if (chassisType === ProtoChassis.ULTRAHEAVY) {
       findings.push({
         ruleId: RULE_PROTO_CHASSIS,
-        severity: "error",
+        severity: 'error',
         message: `Ultraheavy chassis requires tonnage ≥ 10 (got ${tonnage} t).`,
       });
     } else if (chassisType === ProtoChassis.GLIDER) {
       findings.push({
         ruleId: RULE_PROTO_CHASSIS,
-        severity: "error",
+        severity: 'error',
         message: `Glider chassis is only legal for Light class (2–4 t); got ${tonnage} t.`,
       });
     }
@@ -152,7 +152,7 @@ export function validateProtoChassis(
   if (chassisType === ProtoChassis.ULTRAHEAVY && jumpMP > 0) {
     findings.push({
       ruleId: RULE_PROTO_CHASSIS,
-      severity: "error",
+      severity: 'error',
       message: `Ultraheavy chassis cannot have jump MP (got ${jumpMP}).`,
     });
   }
@@ -161,7 +161,7 @@ export function validateProtoChassis(
   if (myomerBooster && !isMyomerBoosterLegal(weightClass)) {
     findings.push({
       ruleId: RULE_PROTO_CHASSIS,
-      severity: "error",
+      severity: 'error',
       message: `Myomer Booster is only legal on Light or Medium ProtoMechs (current class: ${weightClass}).`,
     });
   }
@@ -178,7 +178,7 @@ export function validateProtoChassis(
 // =============================================================================
 
 /** Rule ID constant */
-export const RULE_PROTO_MP = "VAL-PROTO-MP";
+export const RULE_PROTO_MP = 'VAL-PROTO-MP';
 
 /**
  * Validate that walk MP and jump MP do not exceed the weight-class caps.
@@ -188,7 +188,7 @@ export const RULE_PROTO_MP = "VAL-PROTO-MP";
 export function validateProtoMP(
   snapshot: Pick<
     ProtoMechBuildSnapshot,
-    "tonnage" | "walkMP" | "jumpMP" | "chassisType"
+    'tonnage' | 'walkMP' | 'jumpMP' | 'chassisType'
   >,
 ): ValidationRuleResult {
   const { tonnage, walkMP, jumpMP, chassisType } = snapshot;
@@ -199,7 +199,7 @@ export function validateProtoMP(
   if (walkMP > caps.walkMax) {
     findings.push({
       ruleId: RULE_PROTO_MP,
-      severity: "error",
+      severity: 'error',
       message: `Walk MP ${walkMP} exceeds ${weightClass} class cap of ${caps.walkMax}.`,
     });
   }
@@ -207,7 +207,7 @@ export function validateProtoMP(
   if (walkMP < 1) {
     findings.push({
       ruleId: RULE_PROTO_MP,
-      severity: "error",
+      severity: 'error',
       message: `Walk MP must be at least 1 (got ${walkMP}).`,
     });
   }
@@ -216,13 +216,13 @@ export function validateProtoMP(
     if (chassisType === ProtoChassis.ULTRAHEAVY) {
       findings.push({
         ruleId: RULE_PROTO_MP,
-        severity: "error",
+        severity: 'error',
         message: `Ultraheavy cannot jump (jump MP must be 0, got ${jumpMP}).`,
       });
     } else {
       findings.push({
         ruleId: RULE_PROTO_MP,
-        severity: "error",
+        severity: 'error',
         message: `Jump MP ${jumpMP} exceeds ${weightClass} class cap of ${caps.jumpMax}.`,
       });
     }
@@ -236,7 +236,7 @@ export function validateProtoMP(
 // =============================================================================
 
 /** Rule ID constant */
-export const RULE_PROTO_MAIN_GUN = "VAL-PROTO-MAIN-GUN";
+export const RULE_PROTO_MAIN_GUN = 'VAL-PROTO-MAIN-GUN';
 
 /**
  * Validate main gun configuration:
@@ -246,7 +246,7 @@ export const RULE_PROTO_MAIN_GUN = "VAL-PROTO-MAIN-GUN";
 export function validateProtoMainGun(
   snapshot: Pick<
     ProtoMechBuildSnapshot,
-    "hasMainGun" | "mainGunWeaponId" | "weaponPlacements"
+    'hasMainGun' | 'mainGunWeaponId' | 'weaponPlacements'
   >,
 ): ValidationRuleResult {
   const { hasMainGun, mainGunWeaponId, weaponPlacements } = snapshot;
@@ -257,14 +257,14 @@ export function validateProtoMainGun(
     if (!mainGunWeaponId) {
       findings.push({
         ruleId: RULE_PROTO_MAIN_GUN,
-        severity: "error",
+        severity: 'error',
         message:
-          "Main gun is enabled but no weapon has been assigned to the MainGun location.",
+          'Main gun is enabled but no weapon has been assigned to the MainGun location.',
       });
     } else if (!isMainGunWeaponApproved(mainGunWeaponId)) {
       findings.push({
         ruleId: RULE_PROTO_MAIN_GUN,
-        severity: "error",
+        severity: 'error',
         message: `Weapon "${mainGunWeaponId}" is not in the approved main-gun list.`,
       });
     }
@@ -275,7 +275,7 @@ export function validateProtoMainGun(
     if (isArmPlacementIllegal(equipmentId, location)) {
       findings.push({
         ruleId: RULE_PROTO_MAIN_GUN,
-        severity: "error",
+        severity: 'error',
         message: `Weapon "${equipmentId}" is too heavy for arm mount "${location}"; it must be placed in the MainGun location.`,
       });
     }
@@ -293,22 +293,22 @@ export function validateProtoMainGun(
 // =============================================================================
 
 /** Rule ID constant */
-export const RULE_PROTO_TECH_BASE = "VAL-PROTO-TECH-BASE";
+export const RULE_PROTO_TECH_BASE = 'VAL-PROTO-TECH-BASE';
 
 /**
  * Warn (not error) when tech base is not Clan.
  * Inner Sphere ProtoMechs do not exist in canon.
  */
 export function validateProtoTechBase(
-  snapshot: Pick<ProtoMechBuildSnapshot, "techBase">,
+  snapshot: Pick<ProtoMechBuildSnapshot, 'techBase'>,
 ): ValidationRuleResult {
   const { techBase } = snapshot;
   const findings: ValidationFinding[] = [];
 
-  if (techBase !== "Clan") {
+  if (techBase !== 'Clan') {
     findings.push({
       ruleId: RULE_PROTO_TECH_BASE,
-      severity: "warning",
+      severity: 'warning',
       message: `ProtoMechs are Clan-only technology (tech base is "${techBase}").`,
     });
   }
@@ -362,8 +362,8 @@ export function validateProtoMech(
   ];
 
   const findings = ruleResults.flatMap((r) => r.findings);
-  const isValid = findings.every((f) => f.severity !== "error");
-  const hasWarnings = findings.some((f) => f.severity === "warning");
+  const isValid = findings.every((f) => f.severity !== 'error');
+  const hasWarnings = findings.some((f) => f.severity === 'warning');
 
   return { isValid, hasWarnings, findings, ruleResults };
 }

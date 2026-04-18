@@ -12,7 +12,7 @@ import {
   BAWeightClass,
   BA_VALIDATION_RULES,
   BA_WEIGHT_CLASS_LIMITS,
-} from "@/types/unit/BattleArmorInterfaces";
+} from '@/types/unit/BattleArmorInterfaces';
 
 export interface MovementValidationResult {
   readonly isValid: boolean;

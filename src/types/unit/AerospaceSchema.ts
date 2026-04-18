@@ -7,14 +7,14 @@
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
 
-import { z } from "zod";
+import { z } from 'zod';
 
 import {
   AerospaceArc,
   AerospaceEngineType,
   AerospaceSubType,
-} from "./AerospaceInterfaces";
-import { AerospaceCockpitType } from "./AerospaceInterfaces";
+} from './AerospaceInterfaces';
+import { AerospaceCockpitType } from './AerospaceInterfaces';
 
 // ============================================================================
 // Enum Schemas

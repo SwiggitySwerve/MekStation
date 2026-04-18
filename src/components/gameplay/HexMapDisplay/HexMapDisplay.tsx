@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from 'react';
 
 import type {
   IHexCoordinate,
@@ -7,23 +7,22 @@ import type {
   IHexTerrain,
   IHexGrid,
   IHex,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import { TerrainType } from "@/types/gameplay";
-import { coordToKey } from "@/utils/gameplay/hexMath";
-import { calculateLOS } from "@/utils/gameplay/lineOfSight";
+import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForType';
+import { TerrainType } from '@/types/gameplay';
+import { coordToKey } from '@/utils/gameplay/hexMath';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 
-import { UnitTokenForType } from "@/components/gameplay/UnitToken/UnitTokenForType";
-
-import { HexCell } from "./HexCell";
+import { HexCell } from './HexCell';
 import {
   MovementCostOverlay,
   CoverOverlay,
   LOSLine,
   TerrainPatternDefs,
-} from "./Overlays";
-import { generateHexesInRadius, hexEquals, hexInList } from "./renderHelpers";
-import { useMapInteraction } from "./useMapInteraction";
+} from './Overlays';
+import { generateHexesInRadius, hexEquals, hexInList } from './renderHelpers';
+import { useMapInteraction } from './useMapInteraction';
 
 export interface HexMapDisplayProps {
   radius: number;
@@ -52,7 +51,7 @@ export function HexMapDisplay({
   onHexHover,
   onTokenClick,
   showCoordinates = false,
-  className = "",
+  className = '',
 }: HexMapDisplayProps): React.ReactElement {
   const [hoveredHex, setHoveredHex] = useState<IHexCoordinate | null>(null);
 
@@ -269,8 +268,8 @@ export function HexMapDisplay({
             onClick={() => interaction.setShowMovementOverlay((v) => !v)}
             className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 text-xs font-medium shadow transition-colors ${
               interaction.showMovementOverlay
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-white text-slate-700 hover:bg-gray-100"
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-white text-slate-700 hover:bg-gray-100'
             }`}
             title="Toggle movement cost overlay"
             data-testid="overlay-toggle-movement"
@@ -282,8 +281,8 @@ export function HexMapDisplay({
             onClick={() => interaction.setShowCoverOverlay((v) => !v)}
             className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 text-xs font-medium shadow transition-colors ${
               interaction.showCoverOverlay
-                ? "bg-green-600 text-white hover:bg-green-700"
-                : "bg-white text-slate-700 hover:bg-gray-100"
+                ? 'bg-green-600 text-white hover:bg-green-700'
+                : 'bg-white text-slate-700 hover:bg-gray-100'
             }`}
             title="Toggle cover level overlay"
             data-testid="overlay-toggle-cover"
@@ -295,8 +294,8 @@ export function HexMapDisplay({
             onClick={() => interaction.setShowLOSOverlay((v) => !v)}
             className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 text-xs font-medium shadow transition-colors ${
               interaction.showLOSOverlay
-                ? "bg-amber-600 text-white hover:bg-amber-700"
-                : "bg-white text-slate-700 hover:bg-gray-100"
+                ? 'bg-amber-600 text-white hover:bg-amber-700'
+                : 'bg-white text-slate-700 hover:bg-gray-100'
             }`}
             title="Toggle LOS overlay"
             data-testid="overlay-toggle-los"

@@ -7,9 +7,9 @@
 import {
   IBattleArmorRecordSheetData,
   IBattleArmorTrooper,
-} from "@/types/printing";
+} from '@/types/printing';
 
-import { extractHeader } from "./dataExtractors";
+import { extractHeader } from './dataExtractors';
 
 /** BattleArmor-specific unit config fields. */
 export interface IBattleArmorUnitConfig {
@@ -72,11 +72,11 @@ export function extractBattleArmorData(
   );
 
   return {
-    unitType: "battlearmor",
+    unitType: 'battlearmor',
     header: extractHeader(unit as Parameters<typeof extractHeader>[0]),
     squadSize,
     troopers,
-    manipulators: unit.manipulators ?? { left: "None", right: "None" },
+    manipulators: unit.manipulators ?? { left: 'None', right: 'None' },
     walkMP: unit.walkMP ?? 0,
     jumpMP: unit.jumpMP ?? 0,
     umuMP: unit.umuMP ?? 0,

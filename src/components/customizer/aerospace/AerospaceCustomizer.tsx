@@ -9,21 +9,21 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4
  */
 
-import React, { useCallback } from "react";
-import { StoreApi } from "zustand";
+import React, { useCallback } from 'react';
+import { StoreApi } from 'zustand';
 
-import { toCustomizerTabConfigs } from "@/components/customizer/shared/TabSpec";
-import { AEROSPACE_TABS } from "@/components/customizer/shared/tabRegistry";
-import { CustomizerTabs } from "@/components/customizer/tabs/CustomizerTabs";
-import { useCustomizerTabs } from "@/hooks/useCustomizerTabs";
+import { AEROSPACE_TABS } from '@/components/customizer/shared/tabRegistry';
+import { toCustomizerTabConfigs } from '@/components/customizer/shared/TabSpec';
+import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
+import { useCustomizerTabs } from '@/hooks/useCustomizerTabs';
 import {
   AerospaceStoreContext,
   AerospaceStore,
   useAerospaceStore,
-} from "@/stores/useAerospaceStore";
+} from '@/stores/useAerospaceStore';
 
-import { AerospaceDiagram } from "./AerospaceDiagram";
-import { AerospaceStatusBar } from "./AerospaceStatusBar";
+import { AerospaceDiagram } from './AerospaceDiagram';
+import { AerospaceStatusBar } from './AerospaceStatusBar';
 
 // =============================================================================
 // Types
@@ -31,14 +31,14 @@ import { AerospaceStatusBar } from "./AerospaceStatusBar";
 
 /** Tab ids available in the aerospace customizer */
 export type AerospaceTabId =
-  | "overview"
-  | "structure"
-  | "armor"
-  | "equipment"
-  | "velocity"
-  | "bombs"
-  | "preview"
-  | "fluff";
+  | 'overview'
+  | 'structure'
+  | 'armor'
+  | 'equipment'
+  | 'velocity'
+  | 'bombs'
+  | 'preview'
+  | 'fluff';
 
 interface AerospaceCustomizerProps {
   /** Aerospace store instance */
@@ -148,10 +148,10 @@ function AerospaceCustomizerInner({
  */
 export function AerospaceCustomizer({
   store,
-  initialTab = "structure",
+  initialTab = 'structure',
   onTabChange,
   readOnly = false,
-  className = "",
+  className = '',
 }: AerospaceCustomizerProps): React.ReactElement {
   return (
     <AerospaceStoreContext.Provider value={store}>

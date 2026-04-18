@@ -13,7 +13,7 @@ import {
   PROTO_MAIN_GUN_APPROVED_WEAPON_IDS,
   ProtoLocation,
   ProtoWeaponSizeClass,
-} from "@/types/unit/ProtoMechInterfaces";
+} from '@/types/unit/ProtoMechInterfaces';
 
 // =============================================================================
 // Approved weapon list
@@ -94,5 +94,5 @@ export function isArmPlacementIllegal(
 }
 
 // Re-export the approved list for external consumers
-export { PROTO_MAIN_GUN_APPROVED_WEAPON_IDS } from "@/types/unit/ProtoMechInterfaces";
-export { ProtoWeaponSizeClass } from "@/types/unit/ProtoMechInterfaces";
+export { PROTO_MAIN_GUN_APPROVED_WEAPON_IDS } from '@/types/unit/ProtoMechInterfaces';
+export { ProtoWeaponSizeClass } from '@/types/unit/ProtoMechInterfaces';

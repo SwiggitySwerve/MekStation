@@ -13,7 +13,7 @@ import {
   IInfantryMP,
   PLATOON_DEFAULTS,
   MOTIVE_MP,
-} from "@/types/unit/InfantryInterfaces";
+} from '@/types/unit/InfantryInterfaces';
 
 // ============================================================================
 // Composition helpers

@@ -9,7 +9,7 @@
  * @wiredBy add-battlearmor-construction
  */
 
-import React from "react";
+import React from 'react';
 
 export interface BattleArmorJumpUMUTabProps {
   readOnly?: boolean;
@@ -21,7 +21,7 @@ export interface BattleArmorJumpUMUTabProps {
  * Construction proposal `add-battlearmor-construction` will replace the body.
  */
 export function BattleArmorJumpUMUTab({
-  className = "",
+  className = '',
 }: BattleArmorJumpUMUTabProps): React.ReactElement {
   return (
     <div className={`p-4 ${className}`} data-testid="ba-jump-umu-tab">

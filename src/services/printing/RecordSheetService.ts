@@ -8,14 +8,14 @@
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
-import { jsPDF } from "jspdf";
+import { jsPDF } from 'jspdf';
 
-import type { IPilotAbilityRef } from "@/types/pilot";
+import type { IPilotAbilityRef } from '@/types/pilot';
 
 import {
   createSingleton,
   type SingletonFactory,
-} from "@/services/core/createSingleton";
+} from '@/services/core/createSingleton';
 import {
   IRecordSheetData,
   IMechRecordSheetData,
@@ -24,9 +24,9 @@ import {
   PAPER_DIMENSIONS,
   PDF_DPI_MULTIPLIER,
   IPDFExportOptions,
-} from "@/types/printing";
+} from '@/types/printing';
 
-import { SVG_TEMPLATES, SVG_TEMPLATES_A4 } from "./recordsheet/constants";
+import { SVG_TEMPLATES, SVG_TEMPLATES_A4 } from './recordsheet/constants';
 import {
   extractHeader,
   extractMovement,
@@ -35,37 +35,37 @@ import {
   extractEquipment,
   extractHeatSinks,
   extractCriticals,
-} from "./recordsheet/dataExtractors";
-import {
-  extractVehicleData,
-  type IVehicleUnitConfig,
-} from "./recordsheet/dataExtractors.vehicle";
+} from './recordsheet/dataExtractors';
 import {
   extractAerospaceData,
   type IAerospaceUnitConfig,
-} from "./recordsheet/dataExtractors.aerospace";
+} from './recordsheet/dataExtractors.aerospace';
 import {
   extractBattleArmorData,
   type IBattleArmorUnitConfig,
-} from "./recordsheet/dataExtractors.battleArmor";
+} from './recordsheet/dataExtractors.battleArmor';
 import {
   extractInfantryData,
   type IInfantryUnitConfig,
-} from "./recordsheet/dataExtractors.infantry";
+} from './recordsheet/dataExtractors.infantry';
 import {
   extractProtoMechData,
   type IProtoMechUnitConfig,
-} from "./recordsheet/dataExtractors.protoMech";
-import { getMechType } from "./recordsheet/mechTypeUtils";
-import { buildSPASection } from "./recordsheet/spaSection";
-import { IUnitConfig } from "./recordsheet/types";
-import { SVGRecordSheetRenderer } from "./svgRecordSheetRenderer";
-import { renderVehicleSVG } from "./svgRecordSheetRenderer/vehicleRenderer";
-import { renderAerospaceSVG } from "./svgRecordSheetRenderer/aerospaceRenderer";
-import { renderBattleArmorSVG } from "./svgRecordSheetRenderer/battleArmorRenderer";
-import { renderInfantrySVG } from "./svgRecordSheetRenderer/infantryRenderer";
-import { renderProtoMechSVG } from "./svgRecordSheetRenderer/protoMechRenderer";
-import { renderToCanvasHighDPI } from "./svgRecordSheetRenderer/canvas";
+} from './recordsheet/dataExtractors.protoMech';
+import {
+  extractVehicleData,
+  type IVehicleUnitConfig,
+} from './recordsheet/dataExtractors.vehicle';
+import { getMechType } from './recordsheet/mechTypeUtils';
+import { buildSPASection } from './recordsheet/spaSection';
+import { IUnitConfig } from './recordsheet/types';
+import { SVGRecordSheetRenderer } from './svgRecordSheetRenderer';
+import { renderAerospaceSVG } from './svgRecordSheetRenderer/aerospaceRenderer';
+import { renderBattleArmorSVG } from './svgRecordSheetRenderer/battleArmorRenderer';
+import { renderToCanvasHighDPI } from './svgRecordSheetRenderer/canvas';
+import { renderInfantrySVG } from './svgRecordSheetRenderer/infantryRenderer';
+import { renderProtoMechSVG } from './svgRecordSheetRenderer/protoMechRenderer';
+import { renderVehicleSVG } from './svgRecordSheetRenderer/vehicleRenderer';
 
 export type { IUnitConfig };
 
@@ -116,21 +116,21 @@ export class RecordSheetService {
     unit: IUnitConfig & { type?: string },
     pilotAbilities?: readonly IPilotAbilityRef[],
   ): IRecordSheetData {
-    const unitType = unit.type ?? "mech";
+    const unitType = unit.type ?? 'mech';
     switch (unitType) {
-      case "mech":
+      case 'mech':
         return this.extractMechData(unit, pilotAbilities);
-      case "vehicle":
+      case 'vehicle':
         return extractVehicleData(unit as unknown as IVehicleUnitConfig);
-      case "aerospace":
+      case 'aerospace':
         return extractAerospaceData(unit as unknown as IAerospaceUnitConfig);
-      case "battlearmor":
+      case 'battlearmor':
         return extractBattleArmorData(
           unit as unknown as IBattleArmorUnitConfig,
         );
-      case "infantry":
+      case 'infantry':
         return extractInfantryData(unit as unknown as IInfantryUnitConfig);
-      case "protomech":
+      case 'protomech':
         return extractProtoMechData(unit as unknown as IProtoMechUnitConfig);
       default:
         throw new UnsupportedUnitTypeError(unitType);
@@ -149,7 +149,7 @@ export class RecordSheetService {
       : { entries: [], hasContent: false };
 
     return {
-      unitType: "mech",
+      unitType: 'mech',
       header: extractHeader(unit),
       movement: extractMovement(unit),
       armor: extractArmor(unit),
@@ -176,7 +176,7 @@ export class RecordSheetService {
     data: IRecordSheetData,
     paperSize: PaperSize = PaperSize.LETTER,
   ): Promise<void> {
-    if (data.unitType === "mech") {
+    if (data.unitType === 'mech') {
       await this.renderMechPreview(canvas, data, paperSize);
       return;
     }
@@ -194,7 +194,7 @@ export class RecordSheetService {
     data: IRecordSheetData,
     paperSize: PaperSize = PaperSize.LETTER,
   ): Promise<string> {
-    if (data.unitType === "mech") {
+    if (data.unitType === 'mech') {
       return this.getMechSVGString(data, paperSize);
     }
     return this.buildNonMechSVG(data);
@@ -216,13 +216,13 @@ export class RecordSheetService {
     const { paperSize, filename } = options;
     const { width, height } = PAPER_DIMENSIONS[paperSize];
 
-    if (data.unitType === "mech") {
+    if (data.unitType === 'mech') {
       await this.exportMechPDF(data, options);
       return;
     }
 
     // Non-mech: render SVG string → canvas → PDF
-    const canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     const scaledWidth = width * PDF_DPI_MULTIPLIER;
     const scaledHeight = height * PDF_DPI_MULTIPLIER;
     canvas.width = scaledWidth;
@@ -232,17 +232,17 @@ export class RecordSheetService {
     await renderSVGStringToCanvas(svgString, canvas, PDF_DPI_MULTIPLIER);
 
     const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "pt",
-      format: paperSize === PaperSize.A4 ? "a4" : "letter",
+      orientation: 'portrait',
+      unit: 'pt',
+      format: paperSize === PaperSize.A4 ? 'a4' : 'letter',
     });
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.95);
-    pdf.addImage(imgData, "JPEG", 0, 0, width, height);
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
 
     const pdfFilename =
       filename ||
-      `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, "-");
+      `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, '-');
     pdf.save(pdfFilename);
   }
 
@@ -296,7 +296,7 @@ export class RecordSheetService {
     const { paperSize, filename } = options;
     const { width, height } = PAPER_DIMENSIONS[paperSize];
 
-    const canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     const scaledWidth = width * PDF_DPI_MULTIPLIER;
     const scaledHeight = height * PDF_DPI_MULTIPLIER;
     canvas.width = scaledWidth;
@@ -318,17 +318,17 @@ export class RecordSheetService {
     await renderer.renderToCanvasHighDPI(canvas, PDF_DPI_MULTIPLIER);
 
     const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "pt",
-      format: paperSize === PaperSize.A4 ? "a4" : "letter",
+      orientation: 'portrait',
+      unit: 'pt',
+      format: paperSize === PaperSize.A4 ? 'a4' : 'letter',
     });
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.95);
-    pdf.addImage(imgData, "JPEG", 0, 0, width, height);
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
 
     const pdfFilename =
       filename ||
-      `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, "-");
+      `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, '-');
     pdf.save(pdfFilename);
   }
 
@@ -339,18 +339,18 @@ export class RecordSheetService {
    */
   private buildNonMechSVG(data: IRecordSheetData): string {
     switch (data.unitType) {
-      case "vehicle":
+      case 'vehicle':
         return renderVehicleSVG(data);
-      case "aerospace":
+      case 'aerospace':
         return renderAerospaceSVG(data);
-      case "battlearmor":
+      case 'battlearmor':
         return renderBattleArmorSVG(data);
-      case "infantry":
+      case 'infantry':
         return renderInfantrySVG(data);
-      case "protomech":
+      case 'protomech':
         return renderProtoMechSVG(data);
-      case "mech":
-        throw new UnsupportedUnitTypeError("mech (use mech pipeline)");
+      case 'mech':
+        throw new UnsupportedUnitTypeError('mech (use mech pipeline)');
       default: {
         // TypeScript exhaustiveness guard
         const _exhaustive: never = data;
@@ -367,18 +367,18 @@ export class RecordSheetService {
    * Print record sheet using browser print dialog.
    */
   print(canvas: HTMLCanvasElement): void {
-    const dataUrl = canvas.toDataURL("image/png");
+    const dataUrl = canvas.toDataURL('image/png');
 
-    const printWindow = window.open("", "_blank");
+    const printWindow = window.open('', '_blank');
     if (!printWindow) {
       throw new Error(
-        "Could not open print window. Check popup blocker settings.",
+        'Could not open print window. Check popup blocker settings.',
       );
     }
 
     const windowDoc = (printWindow as { document?: Document }).document;
     if (!windowDoc) {
-      throw new Error("Print window does not have document access");
+      throw new Error('Print window does not have document access');
     }
 
     windowDoc.write(`

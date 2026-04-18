@@ -9,7 +9,7 @@
  * @wiredBy add-protomech-construction
  */
 
-import React from "react";
+import React from 'react';
 
 export interface ProtoMechArmorTabProps {
   readOnly?: boolean;
@@ -21,7 +21,7 @@ export interface ProtoMechArmorTabProps {
  * Construction proposal `add-protomech-construction` will replace the body.
  */
 export function ProtoMechArmorTab({
-  className = "",
+  className = '',
 }: ProtoMechArmorTabProps): React.ReactElement {
   return (
     <div className={`p-4 ${className}`} data-testid="protomech-armor-tab">

@@ -17,18 +17,18 @@
  *        §Per-Type Stacking Rules — Infantry platoons stack to 4
  */
 
-import React from "react";
+import React from 'react';
 
-import type { IUnitToken } from "@/types/gameplay";
+import type { IUnitToken } from '@/types/gameplay';
 
-import { HEX_SIZE, HEX_COLORS } from "@/constants/hexMap";
+import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
 import {
   GameSide,
   InfantryMotiveType,
   InfantryTokenSpecialization,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import type { ITokenSharedProps } from "./tokenTypes";
+import type { ITokenSharedProps } from './tokenTypes';
 
 export const INF_TOKEN_RADIUS = HEX_SIZE * 0.38;
 export const INF_RING_RADIUS = HEX_SIZE * 0.5;
@@ -37,17 +37,17 @@ export const INF_RING_RADIUS = HEX_SIZE * 0.5;
 function motiveLabel(m: InfantryMotiveType | undefined): string {
   switch (m) {
     case InfantryMotiveType.Foot:
-      return "FT";
+      return 'FT';
     case InfantryMotiveType.Motorized:
-      return "MT";
+      return 'MT';
     case InfantryMotiveType.Jump:
-      return "JP";
+      return 'JP';
     case InfantryMotiveType.Mechanized:
-      return "MZ";
+      return 'MZ';
     case InfantryMotiveType.Beast:
-      return "BS";
+      return 'BS';
     default:
-      return "FT";
+      return 'FT';
   }
 }
 
@@ -55,15 +55,15 @@ function motiveLabel(m: InfantryMotiveType | undefined): string {
 function specLabel(s: InfantryTokenSpecialization | undefined): string | null {
   switch (s) {
     case InfantryTokenSpecialization.AntiMech:
-      return "AM";
+      return 'AM';
     case InfantryTokenSpecialization.Marine:
-      return "MR";
+      return 'MR';
     case InfantryTokenSpecialization.Scuba:
-      return "SC";
+      return 'SC';
     case InfantryTokenSpecialization.Mountain:
-      return "MN";
+      return 'MN';
     case InfantryTokenSpecialization.XCT:
-      return "XC";
+      return 'XC';
     default:
       return null;
   }
@@ -92,10 +92,10 @@ export const InfantryToken = React.memo(function InfantryToken({
   }
 
   const ringColor = token.isSelected
-    ? "#fbbf24"
+    ? '#fbbf24'
     : token.isValidTarget
-      ? "#f87171"
-      : "transparent";
+      ? '#f87171'
+      : 'transparent';
 
   const spec = specLabel(token.infantrySpecialization);
 
@@ -206,7 +206,7 @@ export const InfantryToken = React.memo(function InfantryToken({
         textAnchor="middle"
         fontSize={7}
         fill="#1e293b"
-        style={{ pointerEvents: "none" }}
+        style={{ pointerEvents: 'none' }}
       >
         {token.designation}
       </text>
@@ -233,7 +233,7 @@ export const InfantryToken = React.memo(function InfantryToken({
             fill="#fbbf24"
             dy={3}
           >
-            {"\u00d7"}
+            {'\u00d7'}
             {platoonCount}
           </text>
         </g>

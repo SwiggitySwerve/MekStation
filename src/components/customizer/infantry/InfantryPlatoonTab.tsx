@@ -12,4 +12,4 @@
  * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §6.2
  */
 
-export { InfantryBuildTab as InfantryPlatoonTab } from "./InfantryBuildTab";
+export { InfantryBuildTab as InfantryPlatoonTab } from './InfantryBuildTab';

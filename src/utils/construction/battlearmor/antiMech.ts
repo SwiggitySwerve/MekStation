@@ -13,7 +13,7 @@ import {
   BAWeightClass,
   BA_ANTI_MECH_EQUIPMENT,
   BA_VALIDATION_RULES,
-} from "@/types/unit/BattleArmorInterfaces";
+} from '@/types/unit/BattleArmorInterfaces';
 
 export interface AntiMechValidationResult {
   readonly isValid: boolean;

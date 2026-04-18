@@ -10,9 +10,9 @@
  * - None: no turret weight
  */
 
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { TurretType } from "@/types/unit/VehicleInterfaces";
-import { ceilToHalfTon } from "@/utils/physical/weightUtils";
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 // Minimum tonnage required for dual turrets
 export const DUAL_TURRET_MIN_TONNAGE = 50;
@@ -94,8 +94,8 @@ export function validateTurretEligibility(
     case TurretType.CHIN:
       if (!isVTOL) {
         errors.push({
-          ruleId: "VAL-VEHICLE-TURRET",
-          message: "Chin turret is only available on VTOL vehicles",
+          ruleId: 'VAL-VEHICLE-TURRET',
+          message: 'Chin turret is only available on VTOL vehicles',
         });
       }
       break;
@@ -105,7 +105,7 @@ export function validateTurretEligibility(
     case TurretType.SPONSON_RIGHT:
       if (isVTOL) {
         errors.push({
-          ruleId: "VAL-VEHICLE-TURRET",
+          ruleId: 'VAL-VEHICLE-TURRET',
           message: `VTOLs may only use None or Chin turret configuration — ${turretType} is not permitted`,
         });
       }
@@ -114,14 +114,14 @@ export function validateTurretEligibility(
     case TurretType.DUAL:
       if (isVTOL) {
         errors.push({
-          ruleId: "VAL-VEHICLE-TURRET",
+          ruleId: 'VAL-VEHICLE-TURRET',
           message:
-            "VTOLs may only use None or Chin turret configuration — Dual is not permitted",
+            'VTOLs may only use None or Chin turret configuration — Dual is not permitted',
         });
       }
       if (tonnage < DUAL_TURRET_MIN_TONNAGE) {
         errors.push({
-          ruleId: "VAL-VEHICLE-TURRET",
+          ruleId: 'VAL-VEHICLE-TURRET',
           message: `Dual turrets require a vehicle of at least ${DUAL_TURRET_MIN_TONNAGE} tons (this vehicle is ${tonnage}t)`,
         });
       }
@@ -167,7 +167,7 @@ export function validateTurretWeight(
   // Allow a small floating-point tolerance
   if (Math.abs(currentTurretWeight - expected) > 0.001) {
     errors.push({
-      ruleId: "VAL-VEHICLE-TURRET",
+      ruleId: 'VAL-VEHICLE-TURRET',
       message: `Turret weight should be ${expected}t (10% of ${equipmentWeight}t equipment) — found ${currentTurretWeight}t`,
     });
   }

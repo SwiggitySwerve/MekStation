@@ -11,7 +11,7 @@
  * @wiredBy add-aerospace-construction
  */
 
-import React from "react";
+import React from 'react';
 
 export interface AerospaceVelocityTabProps {
   readOnly?: boolean;
@@ -23,7 +23,7 @@ export interface AerospaceVelocityTabProps {
  * Construction proposal `add-aerospace-construction` will replace the body.
  */
 export function AerospaceVelocityTab({
-  className = "",
+  className = '',
 }: AerospaceVelocityTabProps): React.ReactElement {
   return (
     <div className={`p-4 ${className}`} data-testid="aerospace-velocity-tab">

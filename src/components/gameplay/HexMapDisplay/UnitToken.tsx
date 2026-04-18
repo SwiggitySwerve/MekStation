@@ -1,7 +1,7 @@
 // TODO: This file is superseded by src/components/gameplay/UnitToken/UnitTokenForType.tsx.
 // It remains only because addDamageFeedbackPolish.smoke.test.tsx imports UnitTokenComponent
 // from here. Remove once that smoke test is migrated to UnitTokenForType.
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 
 import type {
   ICriticalHitResolvedPayload,
@@ -10,18 +10,18 @@ import type {
   IPilotHitPayload,
   IUnitDestroyedPayload,
   IUnitToken,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import { CritHitOverlay } from "@/components/gameplay/CritHitOverlay";
+import { CritHitOverlay } from '@/components/gameplay/CritHitOverlay';
 import {
   DamageFloater,
   type DamageFloaterEntry,
-} from "@/components/gameplay/DamageFloater";
-import { PilotWoundFlash } from "@/components/gameplay/PilotWoundFlash";
-import { HEX_SIZE, HEX_COLORS } from "@/constants/hexMap";
-import { GameEventType, GameSide } from "@/types/gameplay";
+} from '@/components/gameplay/DamageFloater';
+import { PilotWoundFlash } from '@/components/gameplay/PilotWoundFlash';
+import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
+import { GameEventType, GameSide } from '@/types/gameplay';
 
-import { hexToPixel, getFacingRotation } from "./renderHelpers";
+import { hexToPixel, getFacingRotation } from './renderHelpers';
 
 export interface UnitTokenComponentProps {
   token: IUnitToken;
@@ -91,8 +91,8 @@ function projectEvents(
         // bled into structure → variant 'structure'. If both armor
         // and structure are gone (location destroyed), still mark as
         // structure so the floater reads as catastrophic.
-        const variant: DamageFloaterEntry["variant"] =
-          payload.armorRemaining === 0 ? "structure" : "armor";
+        const variant: DamageFloaterEntry['variant'] =
+          payload.armorRemaining === 0 ? 'structure' : 'armor';
         damageEntries.push({
           id: event.id,
           amount: payload.damage,
@@ -167,10 +167,10 @@ export const UnitTokenComponent = React.memo(function UnitTokenComponent({
   }
 
   const ringColor = token.isSelected
-    ? "#fbbf24"
+    ? '#fbbf24'
     : token.isValidTarget
-      ? "#f87171"
-      : "transparent";
+      ? '#f87171'
+      : 'transparent';
 
   return (
     <g
@@ -179,7 +179,7 @@ export const UnitTokenComponent = React.memo(function UnitTokenComponent({
         e.stopPropagation();
         onClick();
       }}
-      style={{ cursor: "pointer" }}
+      style={{ cursor: 'pointer' }}
       data-testid={`unit-token-${token.unitId}`}
     >
       {/* Selection/target ring */}

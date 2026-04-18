@@ -25,12 +25,13 @@ import {
   SNEAK_ARMOR_KITS,
   SNEAK_ELIGIBLE_MOTIVES,
   VTOL_MAX_TROOPERS,
-} from "@/types/unit/InfantryInterfaces";
+} from '@/types/unit/InfantryInterfaces';
+
+import { totalFieldGunCrew } from './fieldGuns';
 import {
   FIELD_GUN_ALLOWED_MOTIVES,
   HEAVY_WEAPON_MOTIVES,
-} from "./platoonComposition";
-import { totalFieldGunCrew } from "./fieldGuns";
+} from './platoonComposition';
 
 // ============================================================================
 // Individual rule validators
@@ -159,12 +160,12 @@ export function validateAntiMechTraining(
 
 /** All VAL-INF rule IDs registered by this module. */
 export const INF_VALIDATION_RULE_IDS = [
-  "VAL-INF-PLATOON",
-  "VAL-INF-MOTIVE",
-  "VAL-INF-ARMOR-KIT",
-  "VAL-INF-WEAPON",
-  "VAL-INF-FIELD-GUN",
-  "VAL-INF-ANTI-MECH",
+  'VAL-INF-PLATOON',
+  'VAL-INF-MOTIVE',
+  'VAL-INF-ARMOR-KIT',
+  'VAL-INF-WEAPON',
+  'VAL-INF-FIELD-GUN',
+  'VAL-INF-ANTI-MECH',
 ] as const;
 
 export type InfValidationRuleId = (typeof INF_VALIDATION_RULE_IDS)[number];

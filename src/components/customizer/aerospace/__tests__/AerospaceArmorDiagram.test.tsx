@@ -10,15 +10,15 @@
  *       Scenario: SI bar rendered separately
  */
 
-import { render, screen } from "@testing-library/react";
-import React from "react";
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 
-import { useAerospaceStore, AerospaceStore } from "@/stores/useAerospaceStore";
-import { AerospaceLocation } from "@/types/construction/UnitLocation";
+import { useAerospaceStore, AerospaceStore } from '@/stores/useAerospaceStore';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
 
-import { AerospaceArmorDiagram } from "../AerospaceArmorDiagram";
+import { AerospaceArmorDiagram } from '../AerospaceArmorDiagram';
 
-jest.mock("@/stores/useAerospaceStore");
+jest.mock('@/stores/useAerospaceStore');
 const mockUseAerospaceStore = useAerospaceStore as jest.MockedFunction<
   typeof useAerospaceStore
 >;
@@ -43,21 +43,21 @@ beforeEach(() => {
   );
 });
 
-describe("AerospaceArmorDiagram", () => {
-  it("renders all 4 arc labels matching aerospace-unit-system names", () => {
+describe('AerospaceArmorDiagram', () => {
+  it('renders all 4 arc labels matching aerospace-unit-system names', () => {
     render(<AerospaceArmorDiagram />);
-    expect(screen.getByText("Nose")).toBeInTheDocument();
-    expect(screen.getByText("Left Wing")).toBeInTheDocument();
-    expect(screen.getByText("Right Wing")).toBeInTheDocument();
-    expect(screen.getByText("Aft")).toBeInTheDocument();
+    expect(screen.getByText('Nose')).toBeInTheDocument();
+    expect(screen.getByText('Left Wing')).toBeInTheDocument();
+    expect(screen.getByText('Right Wing')).toBeInTheDocument();
+    expect(screen.getByText('Aft')).toBeInTheDocument();
   });
 
-  it("renders the SI bar element", () => {
+  it('renders the SI bar element', () => {
     render(<AerospaceArmorDiagram />);
-    expect(screen.getByTestId("aerospace-si-bar")).toBeInTheDocument();
+    expect(screen.getByTestId('aerospace-si-bar')).toBeInTheDocument();
   });
 
-  it("renders SI bar above arc sections", () => {
+  it('renders SI bar above arc sections', () => {
     const { container } = render(<AerospaceArmorDiagram />);
     const diagram = container.querySelector(
       '[data-testid="aerospace-armor-diagram"]',
@@ -76,8 +76,8 @@ describe("AerospaceArmorDiagram", () => {
     expect(arcInput).toBeInTheDocument();
   });
 
-  it("renders SI label containing Structural Integrity text", () => {
+  it('renders SI label containing Structural Integrity text', () => {
     render(<AerospaceArmorDiagram />);
-    expect(screen.getByText("Structural Integrity")).toBeInTheDocument();
+    expect(screen.getByText('Structural Integrity')).toBeInTheDocument();
   });
 });

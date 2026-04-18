@@ -11,20 +11,20 @@
  *   VAL-VEHICLE-POWER-AMP — power amps present when required
  */
 
-import { ArmorTypeEnum } from "@/types/construction/ArmorType";
-import { EngineType } from "@/types/construction/EngineType";
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { TurretType } from "@/types/unit/VehicleInterfaces";
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { EngineType } from '@/types/construction/EngineType';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 
-import { validateVehicleArmorLocations } from "./armor";
-import { validateVehicleCrew } from "./crew";
-import { validateVehicleEngine } from "./engine";
-import { validatePowerAmplifiers } from "./powerAmplifier";
+import { validateVehicleArmorLocations } from './armor';
+import { validateVehicleCrew } from './crew';
+import { validateVehicleEngine } from './engine';
+import { validatePowerAmplifiers } from './powerAmplifier';
 import {
   computeVehicleStructureWeight,
   VehicleStructureType,
-} from "./structure";
-import { validateTurretEligibility, validateTurretWeight } from "./turret";
+} from './structure';
+import { validateTurretEligibility, validateTurretWeight } from './turret';
 
 // =============================================================================
 // Registered Rule IDs
@@ -32,12 +32,12 @@ import { validateTurretEligibility, validateTurretWeight } from "./turret";
 
 /** All VAL-VEHICLE-* rule IDs registered in this pipeline */
 export const VEHICLE_VALIDATION_RULE_IDS = [
-  "VAL-VEHICLE-TONNAGE",
-  "VAL-VEHICLE-ENGINE",
-  "VAL-VEHICLE-TURRET",
-  "VAL-VEHICLE-ARMOR-LOC",
-  "VAL-VEHICLE-CREW",
-  "VAL-VEHICLE-POWER-AMP",
+  'VAL-VEHICLE-TONNAGE',
+  'VAL-VEHICLE-ENGINE',
+  'VAL-VEHICLE-TURRET',
+  'VAL-VEHICLE-ARMOR-LOC',
+  'VAL-VEHICLE-CREW',
+  'VAL-VEHICLE-POWER-AMP',
 ] as const;
 
 export type VehicleValidationRuleId =
@@ -141,12 +141,12 @@ export function validateVehicleConstruction(
   const maxTonnage = getMotionTypeMaxTonnage(input.motionType);
   if (input.tonnage < 1) {
     errors.push({
-      ruleId: "VAL-VEHICLE-TONNAGE",
+      ruleId: 'VAL-VEHICLE-TONNAGE',
       message: `Tonnage must be at least 1 ton`,
     });
   } else if (input.tonnage > maxTonnage) {
     errors.push({
-      ruleId: "VAL-VEHICLE-TONNAGE",
+      ruleId: 'VAL-VEHICLE-TONNAGE',
       message: `${input.motionType} vehicles cannot exceed ${maxTonnage} tons — this vehicle is ${input.tonnage}t`,
     });
   }

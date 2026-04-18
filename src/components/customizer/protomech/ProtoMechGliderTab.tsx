@@ -11,7 +11,7 @@
  * @wiredBy add-protomech-construction
  */
 
-import React from "react";
+import React from 'react';
 
 export interface ProtoMechGliderTabProps {
   readOnly?: boolean;
@@ -23,7 +23,7 @@ export interface ProtoMechGliderTabProps {
  * Construction proposal `add-protomech-construction` will replace the body.
  */
 export function ProtoMechGliderTab({
-  className = "",
+  className = '',
 }: ProtoMechGliderTabProps): React.ReactElement {
   return (
     <div className={`p-4 ${className}`} data-testid="protomech-glider-tab">

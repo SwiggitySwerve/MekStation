@@ -7,7 +7,7 @@
  * purely presentational.
  */
 
-import type { DamageFloaterEntry } from "@/components/gameplay/DamageFloater";
+import type { DamageFloaterEntry } from '@/components/gameplay/DamageFloater';
 
 /**
  * Per-unit event projection passed to each token renderer.

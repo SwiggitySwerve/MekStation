@@ -83,6 +83,6 @@
 
 ## 12. Validation
 
-- [x] 12.1 `openspec validate add-aerospace-construction --strict` — all VAL-AERO-* rules covered by jest tests
+- [x] 12.1 `openspec validate add-aerospace-construction --strict` — all VAL-AERO-\* rules covered by jest tests
 - [x] 12.2 Fixtures: Shilone (65t ASF), Stuka (100t ASF), Sparrowhawk (30t CF), Seeker (100t SmallCraft)
 - [x] 12.3 Build + lint clean — tsc --noEmit passes, 97/97 jest tests pass

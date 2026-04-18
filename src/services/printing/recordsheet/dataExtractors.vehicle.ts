@@ -11,9 +11,9 @@ import {
   IVehicleCrewMember,
   IVehicleLocationArmor,
   IRecordSheetEquipment,
-} from "@/types/printing";
+} from '@/types/printing';
 
-import { extractHeader } from "./dataExtractors";
+import { extractHeader } from './dataExtractors';
 
 /**
  * Vehicle-specific fields augmenting the base `IUnitConfig`.
@@ -43,7 +43,7 @@ export interface IVehicleUnitConfig {
     { current: number; maximum: number; bar?: number }
   >;
   crew?: Array<{
-    role: "driver" | "gunner" | "commander";
+    role: 'driver' | 'gunner' | 'commander';
     gunnery: number;
     piloting: number;
   }>;
@@ -62,15 +62,15 @@ export interface IVehicleUnitConfig {
 }
 
 /** Standard vehicle armor location order for consistent rendering. */
-const VEHICLE_LOCATION_ORDER: IVehicleLocationArmor["location"][] = [
-  "Front",
-  "Left Side",
-  "Right Side",
-  "Rear",
-  "Turret",
-  "Rotor",
-  "Chin",
-  "Body",
+const VEHICLE_LOCATION_ORDER: IVehicleLocationArmor['location'][] = [
+  'Front',
+  'Left Side',
+  'Right Side',
+  'Rear',
+  'Turret',
+  'Rotor',
+  'Chin',
+  'Body',
 ];
 
 /**
@@ -96,12 +96,12 @@ export function extractVehicleData(
   // If no allocation provided, emit a placeholder Front location so the
   // renderer always has at least one bar to draw.
   if (armorLocations.length === 0) {
-    armorLocations.push({ location: "Front", current: 0, maximum: 0 });
+    armorLocations.push({ location: 'Front', current: 0, maximum: 0 });
   }
 
   // Crew — default to a single driver when not specified
   const crew: IVehicleCrewMember[] = (
-    unit.crew ?? [{ role: "driver", gunnery: 4, piloting: 5 }]
+    unit.crew ?? [{ role: 'driver', gunnery: 4, piloting: 5 }]
   ).map((c) => ({ role: c.role, gunnery: c.gunnery, piloting: c.piloting }));
 
   // Equipment — map to the shared IRecordSheetEquipment shape
@@ -111,13 +111,13 @@ export function extractVehicleData(
       name: eq.name,
       location: eq.location,
       locationAbbr: eq.location.substring(0, 3).toUpperCase(),
-      heat: eq.heat ?? "-",
-      damage: eq.damage ?? "-",
+      heat: eq.heat ?? '-',
+      damage: eq.damage ?? '-',
       damageCode: undefined,
-      minimum: eq.ranges?.minimum ?? "-",
-      short: eq.ranges?.short ?? "-",
-      medium: eq.ranges?.medium ?? "-",
-      long: eq.ranges?.long ?? "-",
+      minimum: eq.ranges?.minimum ?? '-',
+      short: eq.ranges?.short ?? '-',
+      medium: eq.ranges?.medium ?? '-',
+      long: eq.ranges?.long ?? '-',
       quantity: 1,
       isWeapon: eq.isWeapon ?? false,
       isAmmo: eq.isAmmo ?? false,
@@ -126,15 +126,15 @@ export function extractVehicleData(
   );
 
   const motionType = (unit.motionType ??
-    "Tracked") as IVehicleRecordSheetData["motionType"];
+    'Tracked') as IVehicleRecordSheetData['motionType'];
 
   return {
-    unitType: "vehicle",
+    unitType: 'vehicle',
     header: extractHeader(unit as Parameters<typeof extractHeader>[0]),
     motionType,
     cruiseMP: unit.cruiseMP ?? 0,
     flankMP: unit.flankMP ?? 0,
-    armorType: unit.armorType ?? "Standard",
+    armorType: unit.armorType ?? 'Standard',
     armorLocations,
     crew,
     equipment,

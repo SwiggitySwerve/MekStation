@@ -9,19 +9,19 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
-import React, { useCallback } from "react";
-import { StoreApi } from "zustand";
+import React, { useCallback } from 'react';
+import { StoreApi } from 'zustand';
 
-import { toCustomizerTabConfigs } from "@/components/customizer/shared/TabSpec";
-import { BATTLE_ARMOR_TABS } from "@/components/customizer/shared/tabRegistry";
-import { CustomizerTabs } from "@/components/customizer/tabs/CustomizerTabs";
-import { useCustomizerTabs } from "@/hooks/useCustomizerTabs";
+import { BATTLE_ARMOR_TABS } from '@/components/customizer/shared/tabRegistry';
+import { toCustomizerTabConfigs } from '@/components/customizer/shared/TabSpec';
+import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
+import { useCustomizerTabs } from '@/hooks/useCustomizerTabs';
 import {
   BattleArmorStoreContext,
   BattleArmorStore,
-} from "@/stores/useBattleArmorStore";
+} from '@/stores/useBattleArmorStore';
 
-import { BattleArmorDiagram } from "./BattleArmorDiagram";
+import { BattleArmorDiagram } from './BattleArmorDiagram';
 
 // =============================================================================
 // Types
@@ -29,15 +29,15 @@ import { BattleArmorDiagram } from "./BattleArmorDiagram";
 
 /** Tab ids available in the Battle Armor customizer */
 export type BattleArmorTabId =
-  | "overview"
-  | "chassis"
-  | "squad"
-  | "manipulators"
-  | "modularWeapons"
-  | "apWeapons"
-  | "jumpUMU"
-  | "preview"
-  | "fluff";
+  | 'overview'
+  | 'chassis'
+  | 'squad'
+  | 'manipulators'
+  | 'modularWeapons'
+  | 'apWeapons'
+  | 'jumpUMU'
+  | 'preview'
+  | 'fluff';
 
 interface BattleArmorCustomizerProps {
   /** Battle Armor store instance */
@@ -64,10 +64,10 @@ interface BattleArmorCustomizerProps {
  */
 export function BattleArmorCustomizer({
   store,
-  initialTab = "chassis",
+  initialTab = 'chassis',
   onTabChange,
   readOnly = false,
-  className = "",
+  className = '',
 }: BattleArmorCustomizerProps): React.ReactElement {
   const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
     useCustomizerTabs({

@@ -9,7 +9,7 @@
  * Requirement: Structural Integrity Calculation
  */
 
-import { AerospaceSubType } from "../../../types/unit/AerospaceInterfaces";
+import { AerospaceSubType } from '../../../types/unit/AerospaceInterfaces';
 
 // ============================================================================
 // SI Maximums by Sub-Type

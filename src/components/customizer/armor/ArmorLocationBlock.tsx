@@ -8,9 +8,9 @@
  *        Requirement: Shared Armor Pip Primitive
  */
 
-import React from "react";
+import React from 'react';
 
-import { ArmorPipRow } from "./ArmorPipRow";
+import { ArmorPipRow } from './ArmorPipRow';
 
 // =============================================================================
 // Types
@@ -24,7 +24,7 @@ export interface ArmorLocationBlockProps {
   /** Maximum armor value */
   max: number;
   /** Pip orientation (default 'row') */
-  orientation?: "row" | "column";
+  orientation?: 'row' | 'column';
   /** Pip size in pixels (default 8) */
   pipSize?: number;
   /** Extra CSS classes on the outer wrapper */
@@ -47,10 +47,10 @@ export function ArmorLocationBlock({
   label,
   current,
   max,
-  orientation = "row",
+  orientation = 'row',
   pipSize = 8,
-  className = "",
-  accentClass = "text-cyan-400",
+  className = '',
+  accentClass = 'text-cyan-400',
 }: ArmorLocationBlockProps): React.ReactElement {
   const safeMax = Math.max(0, max);
 
@@ -61,7 +61,7 @@ export function ArmorLocationBlock({
     >
       {/* Label row */}
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-text-theme-secondary text-[10px] font-medium uppercase tracking-wide">
+        <span className="text-text-theme-secondary text-[10px] font-medium tracking-wide uppercase">
           {label}
         </span>
         <span className={`font-mono text-xs tabular-nums ${accentClass}`}>

@@ -14,7 +14,7 @@ import {
   BA_ARMOR_TYPE_DATA,
   BA_VALIDATION_RULES,
   BA_WEIGHT_CLASS_LIMITS,
-} from "@/types/unit/BattleArmorInterfaces";
+} from '@/types/unit/BattleArmorInterfaces';
 
 export interface ArmorValidationResult {
   readonly isValid: boolean;

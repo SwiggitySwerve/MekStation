@@ -18,13 +18,13 @@
  * Mechanized subtypes each correspond to a vehicle hull class.
  */
 export enum InfantryMotive {
-  FOOT = "Foot",
-  JUMP = "Jump",
-  MOTORIZED = "Motorized",
-  MECHANIZED_TRACKED = "MechanizedTracked",
-  MECHANIZED_WHEELED = "MechanizedWheeled",
-  MECHANIZED_HOVER = "MechanizedHover",
-  MECHANIZED_VTOL = "MechanizedVTOL",
+  FOOT = 'Foot',
+  JUMP = 'Jump',
+  MOTORIZED = 'Motorized',
+  MECHANIZED_TRACKED = 'MechanizedTracked',
+  MECHANIZED_WHEELED = 'MechanizedWheeled',
+  MECHANIZED_HOVER = 'MechanizedHover',
+  MECHANIZED_VTOL = 'MechanizedVTOL',
 }
 
 // ============================================================================
@@ -65,16 +65,16 @@ export interface IPlatoonComposition {
  * EnvironmentalSealing enables vacuum / underwater deployment.
  */
 export enum InfantryArmorKitType {
-  STANDARD = "Standard",
-  FLAK = "Flak",
-  CAMO = "Camo",
-  SNOW_CAMO = "SnowCamo",
-  ENVIRONMENTAL_SEALING = "EnvironmentalSealing",
-  SNEAK_CAMO = "SneakCamo",
-  SNEAK_IR = "SneakIR",
-  SNEAK_ECM = "SneakECM",
-  CLAN = "Clan",
-  NONE = "None",
+  STANDARD = 'Standard',
+  FLAK = 'Flak',
+  CAMO = 'Camo',
+  SNOW_CAMO = 'SnowCamo',
+  ENVIRONMENTAL_SEALING = 'EnvironmentalSealing',
+  SNEAK_CAMO = 'SneakCamo',
+  SNEAK_IR = 'SneakIR',
+  SNEAK_ECM = 'SneakECM',
+  CLAN = 'Clan',
+  NONE = 'None',
 }
 
 // ============================================================================

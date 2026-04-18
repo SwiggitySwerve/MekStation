@@ -1,29 +1,29 @@
 import {
   VehicleLocation,
   VTOLLocation,
-} from "@/types/construction/UnitLocation";
-import { EquipmentCategory } from "@/types/equipment/EquipmentCategory";
-import { IEquipmentItem } from "@/types/equipment";
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
+} from '@/types/construction/UnitLocation';
+import { IEquipmentItem } from '@/types/equipment';
+import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   TurretType,
   ITurretConfiguration,
-} from "@/types/unit/VehicleInterfaces";
+} from '@/types/unit/VehicleInterfaces';
 import {
   computePowerAmplifierWeight,
   requiresPowerAmplifiers,
-} from "@/utils/construction/vehicle/powerAmplifier";
+} from '@/utils/construction/vehicle/powerAmplifier';
 
 import {
   getVehicleWeightClass,
   calculateFlankMP,
-} from "./useVehicleStore.helpers";
+} from './useVehicleStore.helpers';
 import {
   VehicleStore,
   createEmptyVehicleArmorAllocation,
   createEmptyVTOLArmorAllocation,
-} from "./vehicleState";
+} from './vehicleState';
 
 export function setEngineRatingLogic(
   state: VehicleStore,

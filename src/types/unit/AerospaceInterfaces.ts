@@ -8,9 +8,9 @@
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
 
-import { AerospaceLocation } from "../construction/UnitLocation";
-import { IAerospaceUnit, AerospaceMotionType } from "./BaseUnitInterfaces";
-import { UnitType } from "./BattleMechInterfaces";
+import { AerospaceLocation } from '../construction/UnitLocation';
+import { IAerospaceUnit, AerospaceMotionType } from './BaseUnitInterfaces';
+import { UnitType } from './BattleMechInterfaces';
 
 // ============================================================================
 // Aerospace Sub-Type Discriminant
@@ -21,9 +21,9 @@ import { UnitType } from "./BattleMechInterfaces";
  * ASF: 5-100t fusion/XL/compact. CF: 5-50t ICE/FuelCell only. SC: 100-200t.
  */
 export enum AerospaceSubType {
-  AEROSPACE_FIGHTER = "AerospaceFighter",
-  CONVENTIONAL_FIGHTER = "ConventionalFighter",
-  SMALL_CRAFT = "SmallCraft",
+  AEROSPACE_FIGHTER = 'AerospaceFighter',
+  CONVENTIONAL_FIGHTER = 'ConventionalFighter',
+  SMALL_CRAFT = 'SmallCraft',
 }
 
 // ============================================================================
@@ -37,13 +37,13 @@ export enum AerospaceSubType {
  * FUSELAGE is an internal location with no arc-slot cap.
  */
 export enum AerospaceArc {
-  NOSE = "Nose",
-  LEFT_WING = "LeftWing",
-  RIGHT_WING = "RightWing",
-  LEFT_SIDE = "LeftSide",
-  RIGHT_SIDE = "RightSide",
-  AFT = "Aft",
-  FUSELAGE = "Fuselage",
+  NOSE = 'Nose',
+  LEFT_WING = 'LeftWing',
+  RIGHT_WING = 'RightWing',
+  LEFT_SIDE = 'LeftSide',
+  RIGHT_SIDE = 'RightSide',
+  AFT = 'Aft',
+  FUSELAGE = 'Fuselage',
 }
 
 // ============================================================================
@@ -56,11 +56,11 @@ export enum AerospaceArc {
  * Water heat sinks are forbidden on all aerospace.
  */
 export enum AerospaceEngineType {
-  FUSION = "Fusion",
-  XL = "XL",
-  COMPACT_FUSION = "CompactFusion",
-  ICE = "ICE",
-  FUEL_CELL = "FuelCell",
+  FUSION = 'Fusion',
+  XL = 'XL',
+  COMPACT_FUSION = 'CompactFusion',
+  ICE = 'ICE',
+  FUEL_CELL = 'FuelCell',
 }
 
 // ============================================================================
@@ -141,10 +141,10 @@ export interface IAerospaceMountedEquipment {
  * Cockpit type for aerospace fighters
  */
 export enum AerospaceCockpitType {
-  STANDARD = "Standard",
-  SMALL = "Small",
-  PRIMITIVE = "Primitive",
-  COMMAND_CONSOLE = "Command Console",
+  STANDARD = 'Standard',
+  SMALL = 'Small',
+  PRIMITIVE = 'Primitive',
+  COMMAND_CONSOLE = 'Command Console',
 }
 
 /**
@@ -196,13 +196,13 @@ export interface IAerospace extends IAerospaceUnit {
  * Conventional fighter engine type
  */
 export enum ConventionalFighterEngineType {
-  ICE = "ICE",
-  FUEL_CELL = "Fuel Cell",
-  ELECTRIC = "Electric",
-  MAGLEV = "MagLev",
-  SOLAR = "Solar",
-  FISSION = "Fission",
-  FUSION = "Fusion",
+  ICE = 'ICE',
+  FUEL_CELL = 'Fuel Cell',
+  ELECTRIC = 'Electric',
+  MAGLEV = 'MagLev',
+  SOLAR = 'Solar',
+  FISSION = 'Fission',
+  FUSION = 'Fusion',
 }
 
 /**

@@ -7,18 +7,18 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2
  */
 
-import { createContext, useContext } from "react";
-import { create, StoreApi, useStore } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { createContext, useContext } from 'react';
+import { create, StoreApi, useStore } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
-import { IInfantryFieldGun } from "@/types/unit/InfantryInterfaces";
+import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import { IInfantryFieldGun } from '@/types/unit/InfantryInterfaces';
 import {
   InfantryMotive,
   IPlatoonComposition,
   PLATOON_DEFAULTS,
   MOTIVE_MP,
-} from "@/types/unit/InfantryInterfaces";
+} from '@/types/unit/InfantryInterfaces';
 
 import {
   InfantryState,
@@ -26,10 +26,10 @@ import {
   CreateInfantryOptions,
   createDefaultInfantryState,
   getArmorKitDivisor,
-} from "./infantryState";
+} from './infantryState';
 
 // Re-export types for convenience
-export type { InfantryStore } from "./infantryState";
+export type { InfantryStore } from './infantryState';
 
 // =============================================================================
 // Store Factory
@@ -61,7 +61,7 @@ export function createInfantryStore(
         setChassis: (chassis) =>
           set((state) => ({
             chassis,
-            name: `${chassis}${state.model ? " " + state.model : ""}`,
+            name: `${chassis}${state.model ? ' ' + state.model : ''}`,
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -69,7 +69,7 @@ export function createInfantryStore(
         setModel: (model) =>
           set((state) => ({
             model,
-            name: `${state.chassis}${model ? " " + model : ""}`,
+            name: `${state.chassis}${model ? ' ' + model : ''}`,
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -360,8 +360,8 @@ export function useInfantryStore<T>(selector: (state: InfantryStore) => T): T {
 
   if (!store) {
     throw new Error(
-      "useInfantryStore must be used within an InfantryStoreProvider. " +
-        "Wrap your component tree with <InfantryStoreContext.Provider>.",
+      'useInfantryStore must be used within an InfantryStoreProvider. ' +
+        'Wrap your component tree with <InfantryStoreContext.Provider>.',
     );
   }
 
@@ -376,7 +376,7 @@ export function useInfantryStoreApi(): StoreApi<InfantryStore> {
 
   if (!store) {
     throw new Error(
-      "useInfantryStoreApi must be used within an InfantryStoreProvider.",
+      'useInfantryStoreApi must be used within an InfantryStoreProvider.',
     );
   }
 

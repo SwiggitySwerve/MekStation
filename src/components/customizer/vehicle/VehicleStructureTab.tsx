@@ -7,16 +7,16 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.2
  */
 
-import React, { useCallback } from "react";
+import React, { useCallback } from 'react';
 
-import { useVehicleStore } from "@/stores/useVehicleStore";
-import { EngineType } from "@/types/construction/EngineType";
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { TurretType } from "@/types/unit/VehicleInterfaces";
-import { VehicleStructureType } from "@/utils/construction/vehicle/structure";
-import { computeMinimumCrew } from "@/utils/construction/vehicle/crew";
+import { useVehicleStore } from '@/stores/useVehicleStore';
+import { EngineType } from '@/types/construction/EngineType';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { computeMinimumCrew } from '@/utils/construction/vehicle/crew';
+import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 
-import { customizerStyles as cs } from "../styles";
+import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
 // Constants
@@ -35,40 +35,40 @@ const MOTION_TYPE_OPTIONS: {
   label: string;
   maxTonnage: number;
 }[] = [
-  { value: GroundMotionType.TRACKED, label: "Tracked", maxTonnage: 200 },
-  { value: GroundMotionType.WHEELED, label: "Wheeled", maxTonnage: 80 },
-  { value: GroundMotionType.HOVER, label: "Hover", maxTonnage: 50 },
-  { value: GroundMotionType.VTOL, label: "VTOL", maxTonnage: 30 },
-  { value: GroundMotionType.NAVAL, label: "Naval", maxTonnage: 300 },
-  { value: GroundMotionType.HYDROFOIL, label: "Hydrofoil", maxTonnage: 100 },
-  { value: GroundMotionType.SUBMARINE, label: "Submarine", maxTonnage: 300 },
-  { value: GroundMotionType.WIGE, label: "WiGE", maxTonnage: 80 },
+  { value: GroundMotionType.TRACKED, label: 'Tracked', maxTonnage: 200 },
+  { value: GroundMotionType.WHEELED, label: 'Wheeled', maxTonnage: 80 },
+  { value: GroundMotionType.HOVER, label: 'Hover', maxTonnage: 50 },
+  { value: GroundMotionType.VTOL, label: 'VTOL', maxTonnage: 30 },
+  { value: GroundMotionType.NAVAL, label: 'Naval', maxTonnage: 300 },
+  { value: GroundMotionType.HYDROFOIL, label: 'Hydrofoil', maxTonnage: 100 },
+  { value: GroundMotionType.SUBMARINE, label: 'Submarine', maxTonnage: 300 },
+  { value: GroundMotionType.WIGE, label: 'WiGE', maxTonnage: 80 },
 ];
 
 const ENGINE_TYPE_OPTIONS: { value: EngineType; label: string }[] = [
-  { value: EngineType.STANDARD, label: "Standard Fusion" },
-  { value: EngineType.XL_IS, label: "XL Engine (IS)" },
-  { value: EngineType.XL_CLAN, label: "XL Engine (Clan)" },
-  { value: EngineType.LIGHT, label: "Light Engine" },
-  { value: EngineType.XXL, label: "XXL Engine" },
-  { value: EngineType.COMPACT, label: "Compact Engine" },
-  { value: EngineType.ICE, label: "ICE (Internal Combustion)" },
-  { value: EngineType.FUEL_CELL, label: "Fuel Cell" },
-  { value: EngineType.FISSION, label: "Fission" },
+  { value: EngineType.STANDARD, label: 'Standard Fusion' },
+  { value: EngineType.XL_IS, label: 'XL Engine (IS)' },
+  { value: EngineType.XL_CLAN, label: 'XL Engine (Clan)' },
+  { value: EngineType.LIGHT, label: 'Light Engine' },
+  { value: EngineType.XXL, label: 'XXL Engine' },
+  { value: EngineType.COMPACT, label: 'Compact Engine' },
+  { value: EngineType.ICE, label: 'ICE (Internal Combustion)' },
+  { value: EngineType.FUEL_CELL, label: 'Fuel Cell' },
+  { value: EngineType.FISSION, label: 'Fission' },
 ];
 
 const TURRET_TYPE_OPTIONS: { value: TurretType; label: string }[] = [
-  { value: TurretType.NONE, label: "No Turret" },
-  { value: TurretType.SINGLE, label: "Single Turret" },
-  { value: TurretType.DUAL, label: "Dual Turret" },
-  { value: TurretType.CHIN, label: "Chin Turret (VTOL)" },
+  { value: TurretType.NONE, label: 'No Turret' },
+  { value: TurretType.SINGLE, label: 'Single Turret' },
+  { value: TurretType.DUAL, label: 'Dual Turret' },
+  { value: TurretType.CHIN, label: 'Chin Turret (VTOL)' },
 ];
 
 const STRUCTURE_TYPE_OPTIONS: { value: VehicleStructureType; label: string }[] =
   [
-    { value: VehicleStructureType.STANDARD, label: "Standard" },
-    { value: VehicleStructureType.ENDO_STEEL, label: "Endo-Steel (0.5×)" },
-    { value: VehicleStructureType.COMPOSITE, label: "Composite (0.5×)" },
+    { value: VehicleStructureType.STANDARD, label: 'Standard' },
+    { value: VehicleStructureType.ENDO_STEEL, label: 'Endo-Steel (0.5×)' },
+    { value: VehicleStructureType.COMPOSITE, label: 'Composite (0.5×)' },
   ];
 
 // =============================================================================
@@ -93,7 +93,7 @@ interface VehicleStructureTabProps {
  */
 export function VehicleStructureTab({
   readOnly = false,
-  className = "",
+  className = '',
 }: VehicleStructureTabProps): React.ReactElement {
   // Get vehicle state from context
   const tonnage = useVehicleStore((s) => s.tonnage);
@@ -294,7 +294,7 @@ export function VehicleStructureTab({
           <div className="mb-4">
             <label className={cs.text.label}>
               Crew Size
-              <span className="ml-1 text-xs font-normal text-text-theme-secondary">
+              <span className="text-text-theme-secondary ml-1 text-xs font-normal">
                 (min {minimumCrew})
               </span>
             </label>

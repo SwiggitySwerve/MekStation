@@ -16,10 +16,11 @@
 import {
   EngineType,
   getEngineDefinition,
-} from "@/types/construction/EngineType";
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { ceilToHalfTon } from "@/utils/physical/weightUtils";
-import { getBaseEngineWeight } from "../engineCalculations";
+} from '@/types/construction/EngineType';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+
+import { getBaseEngineWeight } from '../engineCalculations';
 
 // Maximum engine rating for combat vehicles (TechManual rule)
 export const VEHICLE_MAX_ENGINE_RATING = 400;
@@ -127,7 +128,7 @@ export function validateVehicleEngine(
   // Rule: engine rating must not exceed 400 for combat vehicles
   if (engineRating > VEHICLE_MAX_ENGINE_RATING) {
     errors.push({
-      ruleId: "VAL-VEHICLE-ENGINE",
+      ruleId: 'VAL-VEHICLE-ENGINE',
       message: `Engine rating ${engineRating} exceeds maximum ${VEHICLE_MAX_ENGINE_RATING}`,
     });
   }
@@ -135,14 +136,14 @@ export function validateVehicleEngine(
   // Rule: fusion engine required for certain motion types
   if (requiresFusionEngine(motionType) && !isVehicleFusionEngine(engineType)) {
     errors.push({
-      ruleId: "VAL-VEHICLE-ENGINE",
+      ruleId: 'VAL-VEHICLE-ENGINE',
       message: `${motionType} vehicles require a Fusion, XL, Light, or Fuel Cell engine — ${engineType} is not permitted`,
     });
   }
 
   // Warning: cruise MP of 1 is legal but very slow
   if (cruiseMP < 2) {
-    warnings.push("Cruise MP of 1 is legal but results in a very slow vehicle");
+    warnings.push('Cruise MP of 1 is legal but results in a very slow vehicle');
   }
 
   return {

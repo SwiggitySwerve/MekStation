@@ -8,13 +8,13 @@
  * @spec openspec/changes/add-protomech-construction/specs/protomech-unit-system/spec.md
  */
 
-import { z } from "zod";
+import { z } from 'zod';
 
 import {
   ProtoChassis,
   ProtoLocation,
   ProtoWeightClass,
-} from "./ProtoMechInterfaces";
+} from './ProtoMechInterfaces';
 
 // =============================================================================
 // Enum schemas
@@ -92,8 +92,8 @@ export const ProtoMechUnitSchema = z.object({
   year: z.number().int().min(2000),
 
   // Classification
-  unitType: z.literal("ProtoMech"),
-  techBase: z.enum(["Clan", "Inner Sphere", "Mixed"]),
+  unitType: z.literal('ProtoMech'),
+  techBase: z.enum(['Clan', 'Inner Sphere', 'Mixed']),
   tonnage: z.number().int().min(2).max(15),
   weightClass: ProtoWeightClassSchema,
   chassisType: ProtoChassisSchema,
@@ -111,7 +111,7 @@ export const ProtoMechUnitSchema = z.object({
   glidingWings: z.boolean(),
 
   // Armor
-  armorType: z.literal("Standard"),
+  armorType: z.literal('Standard'),
   armorByLocation: ProtoArmorByLocationSchema,
   structureByLocation: ProtoArmorByLocationSchema,
 

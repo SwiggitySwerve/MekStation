@@ -8,22 +8,22 @@
  * @spec openspec/changes/add-protomech-construction/tasks.md §1
  */
 
-import { ProtoMechLocation } from "@/types/construction/UnitLocation";
-import { RulesLevel } from "@/types/enums/RulesLevel";
-import { TechBase } from "@/types/enums/TechBase";
-import { IEquipmentItem } from "@/types/equipment";
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
-import { IProtoMechMountedEquipment } from "@/types/unit/PersonnelInterfaces";
+import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { IEquipmentItem } from '@/types/equipment';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { IProtoMechMountedEquipment } from '@/types/unit/PersonnelInterfaces';
 import {
   ProtoChassis,
   ProtoWeightClass,
-} from "@/types/unit/ProtoMechInterfaces";
+} from '@/types/unit/ProtoMechInterfaces';
 import {
   getProtoWeightClass,
   getProtoMPCaps,
   effectiveWalkMP,
-} from "@/utils/construction/protomech";
-import { generateUnitId as generateUUID } from "@/utils/uuid";
+} from '@/utils/construction/protomech';
+import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
 // ProtoMech Armor/Structure Allocation
@@ -374,8 +374,8 @@ export function createDefaultProtoMechState(
 ): ProtoMechState {
   const now = Date.now();
   const id = options.id ?? generateUUID();
-  const chassis = options.chassis ?? "New ProtoMech";
-  const model = options.model ?? "";
+  const chassis = options.chassis ?? 'New ProtoMech';
+  const model = options.model ?? '';
   const tonnage = options.tonnage ?? 5;
   const chassisType = options.isQuad ? ProtoChassis.QUAD : ProtoChassis.BIPED;
   const weightClass = getProtoWeightClass(tonnage);
@@ -391,10 +391,10 @@ export function createDefaultProtoMechState(
   return {
     // Identity
     id,
-    name: `${chassis}${model ? " " + model : ""}`,
+    name: `${chassis}${model ? ' ' + model : ''}`,
     chassis,
     model,
-    mulId: "-1",
+    mulId: '-1',
     year: 3060,
     rulesLevel: RulesLevel.ADVANCED,
 

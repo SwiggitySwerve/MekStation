@@ -6,15 +6,15 @@
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
-import { MechLocation } from "../construction/CriticalSlotAllocation";
-import { LOCATION_ABBREVIATION_MAP } from "../construction/MechConfigurationSystem";
+import { MechLocation } from '../construction/CriticalSlotAllocation';
+import { LOCATION_ABBREVIATION_MAP } from '../construction/MechConfigurationSystem';
 
 /**
  * Paper size options for PDF generation
  */
 export enum PaperSize {
-  LETTER = "letter",
-  A4 = "a4",
+  LETTER = 'letter',
+  A4 = 'a4',
 }
 
 /**
@@ -196,7 +196,7 @@ export interface IRecordSheetSPAEntry {
 /**
  * Mech sub-type string used for template selection.
  */
-export type MechSubType = "biped" | "quad" | "tripod" | "lam" | "quadvee";
+export type MechSubType = 'biped' | 'quad' | 'tripod' | 'lam' | 'quadvee';
 
 /**
  * Mech record sheet data (existing shape, preserved for regression safety).
@@ -204,7 +204,7 @@ export type MechSubType = "biped" | "quad" | "tripod" | "lam" | "quadvee";
  * `unitType: 'mech'` is the discriminant used by the renderer dispatcher.
  */
 export interface IMechRecordSheetData {
-  readonly unitType: "mech";
+  readonly unitType: 'mech';
   readonly header: IRecordSheetHeader;
   readonly movement: IRecordSheetMovement;
   readonly armor: IRecordSheetArmor;
@@ -222,7 +222,7 @@ export interface IMechRecordSheetData {
  * Crew member on a vehicle (driver, gunner, commander).
  */
 export interface IVehicleCrewMember {
-  readonly role: "driver" | "gunner" | "commander";
+  readonly role: 'driver' | 'gunner' | 'commander';
   readonly gunnery: number;
   readonly piloting: number;
 }
@@ -232,14 +232,14 @@ export interface IVehicleCrewMember {
  */
 export interface IVehicleLocationArmor {
   readonly location:
-    | "Front"
-    | "Left Side"
-    | "Right Side"
-    | "Rear"
-    | "Turret"
-    | "Rotor"
-    | "Chin"
-    | "Body";
+    | 'Front'
+    | 'Left Side'
+    | 'Right Side'
+    | 'Rear'
+    | 'Turret'
+    | 'Rotor'
+    | 'Chin'
+    | 'Body';
   readonly current: number;
   readonly maximum: number;
   /** BAR (Barrier Armor Rating) for support vehicles — omitted for standard tanks. */
@@ -252,18 +252,18 @@ export interface IVehicleLocationArmor {
  * Covers tracked, wheeled, hover, VTOL, and WiGE combat/support vehicles.
  */
 export interface IVehicleRecordSheetData {
-  readonly unitType: "vehicle";
+  readonly unitType: 'vehicle';
   readonly header: IRecordSheetHeader;
   /** Motion type governs movement rules and record-sheet layout variant. */
   readonly motionType:
-    | "Tracked"
-    | "Wheeled"
-    | "Hover"
-    | "VTOL"
-    | "WiGE"
-    | "Naval"
-    | "Submarine"
-    | "Rail";
+    | 'Tracked'
+    | 'Wheeled'
+    | 'Hover'
+    | 'VTOL'
+    | 'WiGE'
+    | 'Naval'
+    | 'Submarine'
+    | 'Rail';
   readonly cruiseMP: number;
   readonly flankMP: number;
   readonly armorType: string;
@@ -281,7 +281,7 @@ export interface IVehicleRecordSheetData {
  * Aerospace armor per standard 4-arc layout.
  */
 export interface IAerospaceArcArmor {
-  readonly arc: "Nose" | "Left Wing" | "Right Wing" | "Aft";
+  readonly arc: 'Nose' | 'Left Wing' | 'Right Wing' | 'Aft';
   readonly current: number;
   readonly maximum: number;
 }
@@ -290,7 +290,7 @@ export interface IAerospaceArcArmor {
  * Aerospace record sheet data (aerospace fighters and conventional fighters).
  */
 export interface IAerospaceRecordSheetData {
-  readonly unitType: "aerospace";
+  readonly unitType: 'aerospace';
   readonly header: IRecordSheetHeader;
   /** Structural Integrity — the aerospace equivalent of internal structure. */
   readonly structuralIntegrity: number;
@@ -331,7 +331,7 @@ export interface IBattleArmorTrooper {
  * BattleArmor record sheet data.
  */
 export interface IBattleArmorRecordSheetData {
-  readonly unitType: "battlearmor";
+  readonly unitType: 'battlearmor';
   readonly header: IRecordSheetHeader;
   readonly squadSize: number;
   readonly troopers: readonly IBattleArmorTrooper[];
@@ -364,10 +364,10 @@ export interface IInfantryFieldGunSheet {
  * Infantry record sheet data.
  */
 export interface IInfantryRecordSheetData {
-  readonly unitType: "infantry";
+  readonly unitType: 'infantry';
   readonly header: IRecordSheetHeader;
   readonly platoonSize: number;
-  readonly motiveType: "Foot" | "Motorized" | "Jump" | "Mechanized" | "Beast";
+  readonly motiveType: 'Foot' | 'Motorized' | 'Jump' | 'Mechanized' | 'Beast';
   readonly primaryWeapon: string;
   /** Secondary weapons with anti-personnel ratio. */
   readonly secondaryWeapons: readonly {
@@ -389,7 +389,7 @@ export interface IProtoMechUnit {
   /** 1-based index within the point (1–5). */
   readonly index: number;
   readonly armorByLocation: Record<
-    "Head" | "Torso" | "Left Arm" | "Right Arm" | "Legs" | "Main Gun",
+    'Head' | 'Torso' | 'Left Arm' | 'Right Arm' | 'Legs' | 'Main Gun',
     { readonly current: number; readonly maximum: number }
   >;
 }
@@ -398,7 +398,7 @@ export interface IProtoMechUnit {
  * ProtoMech record sheet data.
  */
 export interface IProtoMechRecordSheetData {
-  readonly unitType: "protomech";
+  readonly unitType: 'protomech';
   readonly header: IRecordSheetHeader;
   /** Point composition (1–5 ProtoMechs per point). */
   readonly pointSize: number;
@@ -434,7 +434,7 @@ export type IRecordSheetData =
 export class UnsupportedUnitTypeError extends Error {
   constructor(readonly unitType: string) {
     super(`Unsupported unit type for record sheet extraction: '${unitType}'`);
-    this.name = "UnsupportedUnitTypeError";
+    this.name = 'UnsupportedUnitTypeError';
   }
 }
 

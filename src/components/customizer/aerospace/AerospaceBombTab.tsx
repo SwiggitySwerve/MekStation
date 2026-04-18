@@ -12,7 +12,7 @@
  * @wiredBy add-aerospace-construction
  */
 
-import React from "react";
+import React from 'react';
 
 export interface AerospaceBombTabProps {
   readOnly?: boolean;
@@ -24,7 +24,7 @@ export interface AerospaceBombTabProps {
  * Construction proposal `add-aerospace-construction` will replace the body.
  */
 export function AerospaceBombTab({
-  className = "",
+  className = '',
 }: AerospaceBombTabProps): React.ReactElement {
   return (
     <div className={`p-4 ${className}`} data-testid="aerospace-bomb-tab">

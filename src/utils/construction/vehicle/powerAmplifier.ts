@@ -11,9 +11,10 @@
  * - Power amps NOT required for fusion-powered vehicles
  */
 
-import { EngineType } from "@/types/construction/EngineType";
-import { ceilToHalfTon } from "@/utils/physical/weightUtils";
-import { NON_FUSION_ENGINE_TYPES } from "./engine";
+import { EngineType } from '@/types/construction/EngineType';
+import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+
+import { NON_FUSION_ENGINE_TYPES } from './engine';
 
 // =============================================================================
 // Power Amplifier Weight
@@ -78,7 +79,7 @@ export function validatePowerAmplifiers(
   if (required && totalEnergyWeaponWeight > 0) {
     if (declaredPowerAmpWeight < computedWeight - 0.001) {
       errors.push({
-        ruleId: "VAL-VEHICLE-POWER-AMP",
+        ruleId: 'VAL-VEHICLE-POWER-AMP',
         message:
           `Power amplifiers required for ${engineType} engine with ${totalEnergyWeaponWeight}t of energy weapons — ` +
           `need ${computedWeight}t, found ${declaredPowerAmpWeight}t`,

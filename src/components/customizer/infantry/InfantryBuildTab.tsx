@@ -7,31 +7,31 @@
  * @spec openspec/changes/add-infantry-construction/specs/infantry-unit-system/spec.md
  */
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from 'react';
 
-import { useInfantryStore } from "@/stores/useInfantryStore";
-import { TechBase } from "@/types/enums/TechBase";
+import { useInfantryStore } from '@/stores/useInfantryStore';
+import { TechBase } from '@/types/enums/TechBase';
 import {
   InfantryMotive,
   SNEAK_ELIGIBLE_MOTIVES,
-} from "@/types/unit/InfantryInterfaces";
+} from '@/types/unit/InfantryInterfaces';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
-} from "@/types/unit/PersonnelInterfaces";
-import {
-  INFANTRY_WEAPON_TABLE,
-  getPrimaryWeaponOptions,
-} from "@/utils/construction/infantry/weaponTable";
+} from '@/types/unit/PersonnelInterfaces';
 import {
   FIELD_GUN_CATALOG,
   buildFieldGun,
-} from "@/utils/construction/infantry/fieldGuns";
-import { HEAVY_WEAPON_MOTIVES } from "@/utils/construction/infantry/platoonComposition";
-import { totalTroopers } from "@/utils/construction/infantry/platoonComposition";
+} from '@/utils/construction/infantry/fieldGuns';
+import { HEAVY_WEAPON_MOTIVES } from '@/utils/construction/infantry/platoonComposition';
+import { totalTroopers } from '@/utils/construction/infantry/platoonComposition';
+import {
+  INFANTRY_WEAPON_TABLE,
+  getPrimaryWeaponOptions,
+} from '@/utils/construction/infantry/weaponTable';
 
-import { customizerStyles as cs } from "../styles";
-import { InfantryPlatoonCounter } from "./InfantryPlatoonCounter";
+import { customizerStyles as cs } from '../styles';
+import { InfantryPlatoonCounter } from './InfantryPlatoonCounter';
 
 // =============================================================================
 // Constants
@@ -417,7 +417,7 @@ export function InfantryBuildTab({
             <label className={cs.text.label}>Primary Weapon</label>
             {/* Dropdown from weapon table; heavy weapons hidden unless motive allows */}
             <select
-              value={primaryWeaponId ?? ""}
+              value={primaryWeaponId ?? ''}
               onChange={handlePrimaryWeaponChange}
               disabled={readOnly}
               className={cs.select.full}
@@ -426,7 +426,7 @@ export function InfantryBuildTab({
               {primaryWeaponOptions.map((w) => (
                 <option key={w.id} value={w.id}>
                   {w.name}
-                  {w.isHeavy ? " (Heavy)" : ""}
+                  {w.isHeavy ? ' (Heavy)' : ''}
                 </option>
               ))}
             </select>
@@ -439,7 +439,7 @@ export function InfantryBuildTab({
           <div>
             <label className={cs.text.label}>Secondary Weapon (optional)</label>
             <select
-              value={secondaryWeaponId ?? ""}
+              value={secondaryWeaponId ?? ''}
               onChange={handleSecondaryWeaponChange}
               disabled={readOnly}
               className={cs.select.full}
@@ -448,7 +448,7 @@ export function InfantryBuildTab({
               {INFANTRY_WEAPON_TABLE.map((w) => (
                 <option key={w.id} value={w.id}>
                   {w.name}
-                  {w.isHeavy ? " (Heavy)" : ""}
+                  {w.isHeavy ? ' (Heavy)' : ''}
                 </option>
               ))}
             </select>
@@ -549,7 +549,7 @@ export function InfantryBuildTab({
                     onChange={(e) => handleFieldGunAmmo(idx, e)}
                     disabled={readOnly}
                     min={0}
-                    className="ml-1 w-16 rounded border px-1 py-0.5 text-sm text-white bg-surface-base border-border-theme"
+                    className="bg-surface-base border-border-theme ml-1 w-16 rounded border px-1 py-0.5 text-sm text-white"
                   />
                 </label>
                 {!readOnly && (
@@ -579,7 +579,7 @@ export function InfantryBuildTab({
                 if (e.target.value) {
                   handleAddFieldGun(e.target.value);
                   // Reset after adding so the select returns to placeholder
-                  e.target.value = "";
+                  e.target.value = '';
                 }
               }}
             >
@@ -591,7 +591,7 @@ export function InfantryBuildTab({
                   disabled={addedFieldGunIds.has(g.id)}
                 >
                   {g.name} (crew {g.crewRequired})
-                  {addedFieldGunIds.has(g.id) ? " — added" : ""}
+                  {addedFieldGunIds.has(g.id) ? ' — added' : ''}
                 </option>
               ))}
             </select>
@@ -600,32 +600,32 @@ export function InfantryBuildTab({
       </div>
 
       {/* Status Bar — platoon strength summary */}
-      <div className="border-border-theme rounded border bg-surface-base px-4 py-2">
+      <div className="border-border-theme bg-surface-base rounded border px-4 py-2">
         <div className="flex flex-wrap gap-4 text-xs text-gray-400">
           <span>
-            <span className="text-white font-medium">{platoonStrength}</span>{" "}
+            <span className="font-medium text-white">{platoonStrength}</span>{' '}
             troopers
           </span>
           <span>
-            Ground MP:{" "}
-            <span className="text-white font-medium">{groundMP}</span>
+            Ground MP:{' '}
+            <span className="font-medium text-white">{groundMP}</span>
           </span>
           {jumpMP > 0 && (
             <span>
-              Jump MP: <span className="text-white font-medium">{jumpMP}</span>
+              Jump MP: <span className="font-medium text-white">{jumpMP}</span>
             </span>
           )}
           {fieldGuns.length > 0 && (
             <span>
-              Field gun crew:{" "}
-              <span className="text-white font-medium">
+              Field gun crew:{' '}
+              <span className="font-medium text-white">
                 {fieldGuns.reduce((s, g) => s + g.crew, 0)}
-              </span>{" "}
+              </span>{' '}
               / {platoonStrength} troopers
             </span>
           )}
           <span>
-            Armor: <span className="text-white font-medium">{armorKit}</span>
+            Armor: <span className="font-medium text-white">{armorKit}</span>
           </span>
         </div>
       </div>

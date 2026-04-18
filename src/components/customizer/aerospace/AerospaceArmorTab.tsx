@@ -7,38 +7,38 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.2.2
  */
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from 'react';
 
-import { getTotalAerospaceArmor } from "@/stores/aerospaceState";
-import { useAerospaceStore } from "@/stores/useAerospaceStore";
+import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
+import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import {
   ArmorTypeEnum,
   getArmorDefinition,
-} from "@/types/construction/ArmorType";
-import { AerospaceLocation } from "@/types/construction/UnitLocation";
-import { ceilToHalfTon } from "@/utils/physical/weightUtils";
+} from '@/types/construction/ArmorType';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
-import { customizerStyles as cs } from "../styles";
-import { AerospaceArmorDiagram } from "./AerospaceArmorDiagram";
+import { customizerStyles as cs } from '../styles';
+import { AerospaceArmorDiagram } from './AerospaceArmorDiagram';
 
 // =============================================================================
 // Constants
 // =============================================================================
 
 const ARMOR_TYPE_OPTIONS: { value: ArmorTypeEnum; label: string }[] = [
-  { value: ArmorTypeEnum.STANDARD, label: "Standard" },
-  { value: ArmorTypeEnum.FERRO_FIBROUS_IS, label: "Ferro-Fibrous (IS)" },
-  { value: ArmorTypeEnum.FERRO_FIBROUS_CLAN, label: "Ferro-Fibrous (Clan)" },
-  { value: ArmorTypeEnum.LIGHT_FERRO, label: "Light Ferro-Fibrous" },
-  { value: ArmorTypeEnum.HEAVY_FERRO, label: "Heavy Ferro-Fibrous" },
-  { value: ArmorTypeEnum.STEALTH, label: "Stealth" },
+  { value: ArmorTypeEnum.STANDARD, label: 'Standard' },
+  { value: ArmorTypeEnum.FERRO_FIBROUS_IS, label: 'Ferro-Fibrous (IS)' },
+  { value: ArmorTypeEnum.FERRO_FIBROUS_CLAN, label: 'Ferro-Fibrous (Clan)' },
+  { value: ArmorTypeEnum.LIGHT_FERRO, label: 'Light Ferro-Fibrous' },
+  { value: ArmorTypeEnum.HEAVY_FERRO, label: 'Heavy Ferro-Fibrous' },
+  { value: ArmorTypeEnum.STEALTH, label: 'Stealth' },
 ];
 
 const AEROSPACE_ARCS: { arc: AerospaceLocation; label: string }[] = [
-  { arc: AerospaceLocation.NOSE, label: "Nose" },
-  { arc: AerospaceLocation.LEFT_WING, label: "Left Wing" },
-  { arc: AerospaceLocation.RIGHT_WING, label: "Right Wing" },
-  { arc: AerospaceLocation.AFT, label: "Aft" },
+  { arc: AerospaceLocation.NOSE, label: 'Nose' },
+  { arc: AerospaceLocation.LEFT_WING, label: 'Left Wing' },
+  { arc: AerospaceLocation.RIGHT_WING, label: 'Right Wing' },
+  { arc: AerospaceLocation.AFT, label: 'Aft' },
 ];
 
 // =============================================================================
@@ -93,7 +93,7 @@ function getMaxTotalAerospaceArmor(tonnage: number): number {
 
 export function AerospaceArmorTab({
   readOnly = false,
-  className = "",
+  className = '',
 }: AerospaceArmorTabProps): React.ReactElement {
   // Get state from store
   const tonnage = useAerospaceStore((s) => s.tonnage);

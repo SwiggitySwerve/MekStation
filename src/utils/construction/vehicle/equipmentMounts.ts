@@ -17,9 +17,9 @@
 import {
   VehicleLocation,
   VTOLLocation,
-} from "@/types/construction/UnitLocation";
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { TurretType } from "@/types/unit/VehicleInterfaces";
+} from '@/types/construction/UnitLocation';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 // =============================================================================
 // Mount Result
@@ -114,9 +114,9 @@ export function validateEquipmentMount(
   // Rule: Rotor is structural — no weapons allowed
   if (location === VTOLLocation.ROTOR && isWeapon) {
     errors.push({
-      ruleId: "VAL-VEHICLE-MOUNT",
+      ruleId: 'VAL-VEHICLE-MOUNT',
       message:
-        "Weapons cannot be mounted on the Rotor (structural component only)",
+        'Weapons cannot be mounted on the Rotor (structural component only)',
     });
   }
 
@@ -127,15 +127,15 @@ export function validateEquipmentMount(
     motionType !== GroundMotionType.VTOL
   ) {
     errors.push({
-      ruleId: "VAL-VEHICLE-MOUNT",
-      message: "Chin turret is only available on VTOL vehicles",
+      ruleId: 'VAL-VEHICLE-MOUNT',
+      message: 'Chin turret is only available on VTOL vehicles',
     });
   }
 
   // Rule: Sponson arc — no Rear mounts
   if (!isSponsonMountLegal(location, turretType)) {
     errors.push({
-      ruleId: "VAL-VEHICLE-MOUNT",
+      ruleId: 'VAL-VEHICLE-MOUNT',
       message: `Sponson turrets fire forward-side arcs only — equipment cannot be mounted in the ${location} arc`,
     });
   }
@@ -146,9 +146,9 @@ export function validateEquipmentMount(
     turretType === TurretType.NONE
   ) {
     errors.push({
-      ruleId: "VAL-VEHICLE-MOUNT",
+      ruleId: 'VAL-VEHICLE-MOUNT',
       message:
-        "Cannot mount equipment in Turret — no turret configured on this vehicle",
+        'Cannot mount equipment in Turret — no turret configured on this vehicle',
     });
   }
 

@@ -11,7 +11,7 @@
 import {
   AerospaceEngineType,
   AerospaceSubType,
-} from "../../../types/unit/AerospaceInterfaces";
+} from '../../../types/unit/AerospaceInterfaces';
 
 // ============================================================================
 // Fuel Minimums by Sub-Type

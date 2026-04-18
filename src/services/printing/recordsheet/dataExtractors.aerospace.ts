@@ -10,9 +10,9 @@ import {
   IAerospaceArcArmor,
   IRecordSheetEquipment,
   IRecordSheetHeatSinks,
-} from "@/types/printing";
+} from '@/types/printing';
 
-import { extractHeader } from "./dataExtractors";
+import { extractHeader } from './dataExtractors';
 
 /** Aerospace-specific unit config fields. */
 export interface IAerospaceUnitConfig {
@@ -38,7 +38,7 @@ export interface IAerospaceUnitConfig {
   armorType?: string;
   /** Armor per arc. Missing arcs default to 0/0. */
   armorArcs?: Partial<
-    Record<IAerospaceArcArmor["arc"], { current: number; maximum: number }>
+    Record<IAerospaceArcArmor['arc'], { current: number; maximum: number }>
   >;
   equipment?: Array<{
     id: string;
@@ -56,11 +56,11 @@ export interface IAerospaceUnitConfig {
 }
 
 /** Canonical arc order for the 4-arc armor diagram. */
-const ARC_ORDER: IAerospaceArcArmor["arc"][] = [
-  "Nose",
-  "Left Wing",
-  "Right Wing",
-  "Aft",
+const ARC_ORDER: IAerospaceArcArmor['arc'][] = [
+  'Nose',
+  'Left Wing',
+  'Right Wing',
+  'Aft',
 ];
 
 /**
@@ -76,8 +76,8 @@ export function extractAerospaceData(
     maximum: arcAlloc[arc]?.maximum ?? 0,
   }));
 
-  const hsRaw = unit.heatSinks ?? { type: "Single", count: 10 };
-  const isDouble = hsRaw.type.toLowerCase().includes("double");
+  const hsRaw = unit.heatSinks ?? { type: 'Single', count: 10 };
+  const isDouble = hsRaw.type.toLowerCase().includes('double');
   const heatSinks: IRecordSheetHeatSinks = {
     type: hsRaw.type,
     count: hsRaw.count,
@@ -92,13 +92,13 @@ export function extractAerospaceData(
       name: eq.name,
       location: eq.location,
       locationAbbr: eq.location.substring(0, 3).toUpperCase(),
-      heat: eq.heat ?? "-",
-      damage: eq.damage ?? "-",
+      heat: eq.heat ?? '-',
+      damage: eq.damage ?? '-',
       damageCode: undefined,
-      minimum: eq.ranges?.minimum ?? "-",
-      short: eq.ranges?.short ?? "-",
-      medium: eq.ranges?.medium ?? "-",
-      long: eq.ranges?.long ?? "-",
+      minimum: eq.ranges?.minimum ?? '-',
+      short: eq.ranges?.short ?? '-',
+      medium: eq.ranges?.medium ?? '-',
+      long: eq.ranges?.long ?? '-',
       quantity: 1,
       isWeapon: eq.isWeapon ?? false,
       isAmmo: eq.isAmmo ?? false,
@@ -107,14 +107,14 @@ export function extractAerospaceData(
   );
 
   return {
-    unitType: "aerospace",
+    unitType: 'aerospace',
     header: extractHeader(unit as Parameters<typeof extractHeader>[0]),
     structuralIntegrity: unit.structuralIntegrity ?? 0,
     fuelPoints: unit.fuelPoints ?? 400,
     safeThrust: unit.safeThrust ?? 0,
     maxThrust: unit.maxThrust ?? 0,
     heatSinks,
-    armorType: unit.armorType ?? "Aerospace Standard",
+    armorType: unit.armorType ?? 'Aerospace Standard',
     armorArcs,
     equipment,
     bombBaySlots: unit.bombBaySlots ?? 0,

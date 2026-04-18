@@ -9,16 +9,16 @@
  * - Structure points per location come from the vehicle tonnage table
  */
 
-import { ceilToHalfTon } from "@/utils/physical/weightUtils";
+import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 // =============================================================================
 // Structure Types
 // =============================================================================
 
 export enum VehicleStructureType {
-  STANDARD = "Standard",
-  ENDO_STEEL = "Endo-Steel",
-  COMPOSITE = "Composite",
+  STANDARD = 'Standard',
+  ENDO_STEEL = 'Endo-Steel',
+  COMPOSITE = 'Composite',
 }
 
 /**

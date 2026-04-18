@@ -12,7 +12,7 @@ import {
   IProtoArmorMaxByTonnage,
   ProtoChassis,
   ProtoWeightClass,
-} from "@/types/unit/ProtoMechInterfaces";
+} from '@/types/unit/ProtoMechInterfaces';
 
 // =============================================================================
 // Tonnage range constants
@@ -119,4 +119,4 @@ export function isChassisLegalForTonnage(
 }
 
 // Re-export for convenience
-export { ProtoWeightClass } from "@/types/unit/ProtoMechInterfaces";
+export { ProtoWeightClass } from '@/types/unit/ProtoMechInterfaces';

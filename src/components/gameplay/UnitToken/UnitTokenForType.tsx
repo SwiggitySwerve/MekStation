@@ -15,8 +15,9 @@
  *        §Per-Type Token Rendering — dispatcher routes to correct renderer
  */
 
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 
+import type { DamageFloaterEntry } from '@/components/gameplay/DamageFloater';
 import type {
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
@@ -24,20 +25,20 @@ import type {
   IPilotHitPayload,
   IUnitDestroyedPayload,
   IUnitToken,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import type { DamageFloaterEntry } from "@/components/gameplay/DamageFloater";
-import { GameEventType, TokenUnitType } from "@/types/gameplay";
-import { hexToPixel } from "@/components/gameplay/HexMapDisplay/renderHelpers";
+import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
+import { GameEventType, TokenUnitType } from '@/types/gameplay';
 
-import { AerospaceToken } from "./AerospaceToken";
-import { BattleArmorToken } from "./BattleArmorToken";
-import { InfantryToken } from "./InfantryToken";
-import { MechToken } from "./MechToken";
-import { ProtoMechToken } from "./ProtoMechToken";
-import type { IUnitEventState } from "./tokenTypes";
-import { EMPTY_EVENT_STATE } from "./tokenTypes";
-import { VehicleToken } from "./VehicleToken";
+import type { IUnitEventState } from './tokenTypes';
+
+import { AerospaceToken } from './AerospaceToken';
+import { BattleArmorToken } from './BattleArmorToken';
+import { InfantryToken } from './InfantryToken';
+import { MechToken } from './MechToken';
+import { ProtoMechToken } from './ProtoMechToken';
+import { EMPTY_EVENT_STATE } from './tokenTypes';
+import { VehicleToken } from './VehicleToken';
 
 // =============================================================================
 // Props
@@ -87,8 +88,8 @@ function projectEvents(
       case GameEventType.DamageApplied: {
         const p = event.payload as IDamageAppliedPayload;
         if (p.unitId !== unitId) break;
-        const variant: DamageFloaterEntry["variant"] =
-          p.armorRemaining === 0 ? "structure" : "armor";
+        const variant: DamageFloaterEntry['variant'] =
+          p.armorRemaining === 0 ? 'structure' : 'armor';
         damageEntries.push({ id: event.id, amount: p.damage, variant });
         break;
       }
@@ -159,7 +160,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
             e.stopPropagation();
             onClick(token.unitId);
           }}
-          style={{ cursor: "pointer" }}
+          style={{ cursor: 'pointer' }}
           data-testid={`unit-token-${token.unitId}`}
         >
           <BattleArmorToken
@@ -183,8 +184,8 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   const wrapperProps = {
     transform: `translate(${x}, ${y})`,
     onClick: handleClick,
-    style: { cursor: "pointer" as const },
-    "data-testid": `unit-token-${token.unitId}`,
+    style: { cursor: 'pointer' as const },
+    'data-testid': `unit-token-${token.unitId}`,
   };
 
   // Route to the correct renderer based on unitType.

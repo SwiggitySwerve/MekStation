@@ -7,13 +7,13 @@
  * Requirement: Squad Composition
  */
 
-import { TechBase } from "@/types/enums/TechBase";
+import { TechBase } from '@/types/enums/TechBase';
 import {
   BA_SQUAD_SIZE_MAX,
   BA_SQUAD_SIZE_MIN,
   BA_VALIDATION_RULES,
   defaultSquadSize,
-} from "@/types/unit/BattleArmorInterfaces";
+} from '@/types/unit/BattleArmorInterfaces';
 
 export interface SquadValidationResult {
   readonly isValid: boolean;

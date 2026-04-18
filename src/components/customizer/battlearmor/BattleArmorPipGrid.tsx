@@ -19,12 +19,12 @@
  *        Requirement: BattleArmor Per-Trooper Grid
  */
 
-import React from "react";
+import React from 'react';
 
-import { useBattleArmorStore } from "@/stores/useBattleArmorStore";
-import { BattleArmorWeightClass } from "@/types/unit/PersonnelInterfaces";
+import { useBattleArmorStore } from '@/stores/useBattleArmorStore';
+import { BattleArmorWeightClass } from '@/types/unit/PersonnelInterfaces';
 
-import { ArmorPipRow } from "../armor/ArmorPipRow";
+import { ArmorPipRow } from '../armor/ArmorPipRow';
 
 // =============================================================================
 // Constants
@@ -68,7 +68,7 @@ interface BattleArmorPipGridProps {
  */
 export function BattleArmorPipGrid({
   damageByTrooper,
-  className = "",
+  className = '',
 }: BattleArmorPipGridProps): React.ReactElement {
   const squadSize = useBattleArmorStore((s) => s.squadSize);
   const armorPerTrooper = useBattleArmorStore((s) => s.armorPerTrooper);
@@ -122,7 +122,7 @@ export function BattleArmorPipGrid({
               )}
               {i !== 0 && (
                 // Spacer to keep columns aligned
-                <span style={{ fontSize: 10, visibility: "hidden" }}>★</span>
+                <span style={{ fontSize: 10, visibility: 'hidden' }}>★</span>
               )}
 
               {/* Pip column — delegates to shared primitive */}
@@ -146,11 +146,11 @@ export function BattleArmorPipGrid({
       {/* Squad summary */}
       <div className="border-border-theme-subtle flex justify-between border-t pt-2 text-xs">
         <span className="text-text-theme-secondary">
-          Armor per trooper:{" "}
+          Armor per trooper:{' '}
           <span className="font-mono text-cyan-400">{maxPips}</span>
         </span>
         <span className="text-text-theme-secondary">
-          Total:{" "}
+          Total:{' '}
           <span className="font-mono text-cyan-400">{maxPips * squadSize}</span>
         </span>
       </div>

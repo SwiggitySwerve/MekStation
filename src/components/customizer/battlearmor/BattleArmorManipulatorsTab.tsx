@@ -10,7 +10,7 @@
  * @wiredBy add-battlearmor-construction
  */
 
-import React from "react";
+import React from 'react';
 
 export interface BattleArmorManipulatorsTabProps {
   readOnly?: boolean;
@@ -22,7 +22,7 @@ export interface BattleArmorManipulatorsTabProps {
  * Construction proposal `add-battlearmor-construction` will replace the body.
  */
 export function BattleArmorManipulatorsTab({
-  className = "",
+  className = '',
 }: BattleArmorManipulatorsTabProps): React.ReactElement {
   return (
     <div className={`p-4 ${className}`} data-testid="ba-manipulators-tab">

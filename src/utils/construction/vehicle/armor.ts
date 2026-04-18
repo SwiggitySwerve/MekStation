@@ -14,12 +14,13 @@
 import {
   ArmorTypeEnum,
   getArmorDefinition,
-} from "@/types/construction/ArmorType";
-import { ceilToHalfTon } from "@/utils/physical/weightUtils";
+} from '@/types/construction/ArmorType';
+import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+
 import {
   computeVehicleMaxArmorByLocation,
   computeVehicleStructurePoints,
-} from "./structure";
+} from './structure';
 
 // =============================================================================
 // BAR Armor Table (TechManual support vehicle rules)
@@ -130,7 +131,7 @@ export function validateVehicleArmorLocations(
     const allocated = allocation[location] ?? 0;
     if (allocated > maximum) {
       violations.push({
-        ruleId: "VAL-VEHICLE-ARMOR-LOC",
+        ruleId: 'VAL-VEHICLE-ARMOR-LOC',
         location,
         allocated,
         maximum,

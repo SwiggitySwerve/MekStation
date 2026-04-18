@@ -14,15 +14,15 @@
  *        §Per-Type Token Rendering — ProtoMech point clusters in one hex
  */
 
-import React from "react";
+import React from 'react';
 
-import type { IUnitToken } from "@/types/gameplay";
+import type { IUnitToken } from '@/types/gameplay';
 
-import { HEX_SIZE, HEX_COLORS } from "@/constants/hexMap";
-import { GameSide } from "@/types/gameplay";
-import { hex6ToRotationDeg } from "@/lib/gameplay/facingRules";
+import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
+import { hex6ToRotationDeg } from '@/lib/gameplay/facingRules';
+import { GameSide } from '@/types/gameplay';
 
-import type { ITokenSharedProps } from "./tokenTypes";
+import type { ITokenSharedProps } from './tokenTypes';
 
 export const PROTO_TOKEN_RADIUS = HEX_SIZE * 0.38;
 export const PROTO_RING_RADIUS = HEX_SIZE * 0.5;
@@ -70,10 +70,10 @@ export const ProtoMechToken = React.memo(function ProtoMechToken({
   }
 
   const ringColor = token.isSelected
-    ? "#fbbf24"
+    ? '#fbbf24'
     : token.isValidTarget
-      ? "#f87171"
-      : "transparent";
+      ? '#f87171'
+      : 'transparent';
 
   // ProtoMechs use 6-hex facing (same as mechs).
   const headingDeg = hex6ToRotationDeg(token.facing);
@@ -123,10 +123,10 @@ export const ProtoMechToken = React.memo(function ProtoMechToken({
           cx={pos.x}
           cy={pos.y}
           r={PIP_R}
-          fill={isDestroyed ? "#6b7280" : bodyColor}
+          fill={isDestroyed ? '#6b7280' : bodyColor}
           stroke="white"
           strokeWidth={0.8}
-          data-testid={idx === 0 ? "proto-pip-lead" : `proto-pip-${idx}`}
+          data-testid={idx === 0 ? 'proto-pip-lead' : `proto-pip-${idx}`}
         />
       ))}
 
@@ -159,7 +159,7 @@ export const ProtoMechToken = React.memo(function ProtoMechToken({
         textAnchor="middle"
         fontSize={7}
         fill="#1e293b"
-        style={{ pointerEvents: "none" }}
+        style={{ pointerEvents: 'none' }}
       >
         {token.designation}
       </text>

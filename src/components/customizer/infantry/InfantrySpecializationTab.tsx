@@ -8,7 +8,7 @@
  * @wiredBy add-infantry-construction
  */
 
-import React from "react";
+import React from 'react';
 
 export interface InfantrySpecializationTabProps {
   readOnly?: boolean;
@@ -20,7 +20,7 @@ export interface InfantrySpecializationTabProps {
  * Construction proposal `add-infantry-construction` will replace the body.
  */
 export function InfantrySpecializationTab({
-  className = "",
+  className = '',
 }: InfantrySpecializationTabProps): React.ReactElement {
   return (
     <div

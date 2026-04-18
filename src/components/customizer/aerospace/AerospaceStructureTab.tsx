@@ -9,21 +9,21 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.2.1
  */
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from 'react';
 
-import { useAerospaceStore } from "@/stores/useAerospaceStore";
-import { EngineType } from "@/types/construction/EngineType";
-import { TechBase } from "@/types/enums/TechBase";
+import { useAerospaceStore } from '@/stores/useAerospaceStore';
+import { EngineType } from '@/types/construction/EngineType';
+import { TechBase } from '@/types/enums/TechBase';
 import {
   AerospaceCockpitType,
   AerospaceEngineType,
   AerospaceSubType,
-} from "@/types/unit/AerospaceInterfaces";
-import { AerospaceArc } from "@/types/unit/AerospaceInterfaces";
-import { validateAerospaceUnit } from "@/utils/construction/aerospace/validationRules";
-import { makeSmallCraftCrew } from "@/utils/construction/aerospace/crewCalculations";
+} from '@/types/unit/AerospaceInterfaces';
+import { AerospaceArc } from '@/types/unit/AerospaceInterfaces';
+import { makeSmallCraftCrew } from '@/utils/construction/aerospace/crewCalculations';
+import { validateAerospaceUnit } from '@/utils/construction/aerospace/validationRules';
 
-import { customizerStyles as cs } from "../styles";
+import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
 // Constants
@@ -41,39 +41,39 @@ const SMALL_CRAFT_TONNAGE_OPTIONS = [
 const SUBTYPE_OPTIONS: { value: AerospaceSubType; label: string }[] = [
   {
     value: AerospaceSubType.AEROSPACE_FIGHTER,
-    label: "Aerospace Fighter (ASF)",
+    label: 'Aerospace Fighter (ASF)',
   },
   {
     value: AerospaceSubType.CONVENTIONAL_FIGHTER,
-    label: "Conventional Fighter",
+    label: 'Conventional Fighter',
   },
-  { value: AerospaceSubType.SMALL_CRAFT, label: "Small Craft" },
+  { value: AerospaceSubType.SMALL_CRAFT, label: 'Small Craft' },
 ];
 
 const AEROSPACE_ENGINE_TYPE_OPTIONS: {
   value: AerospaceEngineType;
   label: string;
 }[] = [
-  { value: AerospaceEngineType.FUSION, label: "Fusion (Standard)" },
-  { value: AerospaceEngineType.XL, label: "XL Fusion" },
-  { value: AerospaceEngineType.COMPACT_FUSION, label: "Compact Fusion" },
-  { value: AerospaceEngineType.ICE, label: "ICE (Combustion)" },
-  { value: AerospaceEngineType.FUEL_CELL, label: "Fuel Cell" },
+  { value: AerospaceEngineType.FUSION, label: 'Fusion (Standard)' },
+  { value: AerospaceEngineType.XL, label: 'XL Fusion' },
+  { value: AerospaceEngineType.COMPACT_FUSION, label: 'Compact Fusion' },
+  { value: AerospaceEngineType.ICE, label: 'ICE (Combustion)' },
+  { value: AerospaceEngineType.FUEL_CELL, label: 'Fuel Cell' },
 ];
 
 const LEGACY_ENGINE_TYPE_OPTIONS: { value: EngineType; label: string }[] = [
-  { value: EngineType.STANDARD, label: "Standard Fusion" },
-  { value: EngineType.XL_IS, label: "XL Engine (IS)" },
-  { value: EngineType.XL_CLAN, label: "XL Engine (Clan)" },
-  { value: EngineType.LIGHT, label: "Light Engine" },
-  { value: EngineType.COMPACT, label: "Compact Engine" },
+  { value: EngineType.STANDARD, label: 'Standard Fusion' },
+  { value: EngineType.XL_IS, label: 'XL Engine (IS)' },
+  { value: EngineType.XL_CLAN, label: 'XL Engine (Clan)' },
+  { value: EngineType.LIGHT, label: 'Light Engine' },
+  { value: EngineType.COMPACT, label: 'Compact Engine' },
 ];
 
 const COCKPIT_TYPE_OPTIONS: { value: AerospaceCockpitType; label: string }[] = [
-  { value: AerospaceCockpitType.STANDARD, label: "Standard" },
-  { value: AerospaceCockpitType.SMALL, label: "Small" },
-  { value: AerospaceCockpitType.PRIMITIVE, label: "Primitive" },
-  { value: AerospaceCockpitType.COMMAND_CONSOLE, label: "Command Console" },
+  { value: AerospaceCockpitType.STANDARD, label: 'Standard' },
+  { value: AerospaceCockpitType.SMALL, label: 'Small' },
+  { value: AerospaceCockpitType.PRIMITIVE, label: 'Primitive' },
+  { value: AerospaceCockpitType.COMMAND_CONSOLE, label: 'Command Console' },
 ];
 
 // =============================================================================
@@ -100,10 +100,10 @@ function ValidationPanel({
 
   return (
     <div
-      className="border-red-500/40 bg-red-900/20 mt-4 rounded border p-3"
+      className="mt-4 rounded border border-red-500/40 bg-red-900/20 p-3"
       data-testid="aerospace-validation-errors"
     >
-      <h4 className="mb-2 text-xs font-semibold text-red-400 uppercase tracking-wide">
+      <h4 className="mb-2 text-xs font-semibold tracking-wide text-red-400 uppercase">
         Construction Errors
       </h4>
       <ul className="space-y-1">
@@ -112,7 +112,7 @@ function ValidationPanel({
             key={err.ruleId}
             className="flex items-start gap-2 text-xs text-red-300"
           >
-            <span className="font-mono text-red-500 shrink-0">
+            <span className="shrink-0 font-mono text-red-500">
               [{err.ruleId}]
             </span>
             <span>{err.message}</span>
@@ -254,7 +254,7 @@ function CrewEditor({
 
 export function AerospaceStructureTab({
   readOnly = false,
-  className = "",
+  className = '',
 }: AerospaceStructureTabProps): React.ReactElement {
   // Get state from store
   const tonnage = useAerospaceStore((s) => s.tonnage);
@@ -464,7 +464,7 @@ export function AerospaceStructureTab({
             <div
               className={`${cs.input.full} bg-surface-base mt-1 cursor-not-allowed`}
             >
-              {techBase === TechBase.INNER_SPHERE ? "Inner Sphere" : "Clan"}
+              {techBase === TechBase.INNER_SPHERE ? 'Inner Sphere' : 'Clan'}
             </div>
           </div>
 

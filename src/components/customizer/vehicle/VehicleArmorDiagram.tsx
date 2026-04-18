@@ -15,21 +15,21 @@
  *        Requirement: Vehicle Diagram Geometry
  */
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from 'react';
 
-import { useVehicleStore } from "@/stores/useVehicleStore";
+import { useVehicleStore } from '@/stores/useVehicleStore';
 import {
   VehicleLocation,
   VTOLLocation,
-} from "@/types/construction/UnitLocation";
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
+} from '@/types/construction/UnitLocation';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-import { ArmorLocationBlock } from "../armor/ArmorLocationBlock";
+import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 import {
   getMaxVehicleArmorForLocation,
   type VehicleArmorLocation,
-} from "./VehicleArmorTab.utils";
+} from './VehicleArmorTab.utils';
 
 // =============================================================================
 // Types
@@ -49,7 +49,7 @@ interface VehicleArmorDiagramProps {
  * Includes an Auto-Allocate action following TechManual distribution tables.
  */
 export function VehicleArmorDiagram({
-  className = "",
+  className = '',
 }: VehicleArmorDiagramProps): React.ReactElement {
   const motionType = useVehicleStore((s) => s.motionType);
   const unitType = useVehicleStore((s) => s.unitType);
@@ -68,14 +68,14 @@ export function VehicleArmorDiagram({
   // Build ordered list of active locations for this vehicle configuration
   const locations = useMemo<{ key: string; label: string }[]>(() => {
     const base: { key: string; label: string }[] = [
-      { key: VehicleLocation.FRONT, label: "Front" },
-      { key: VehicleLocation.LEFT, label: "Left Side" },
-      { key: VehicleLocation.RIGHT, label: "Right Side" },
-      { key: VehicleLocation.REAR, label: "Rear" },
+      { key: VehicleLocation.FRONT, label: 'Front' },
+      { key: VehicleLocation.LEFT, label: 'Left Side' },
+      { key: VehicleLocation.RIGHT, label: 'Right Side' },
+      { key: VehicleLocation.REAR, label: 'Rear' },
     ];
-    if (hasTurret) base.push({ key: VehicleLocation.TURRET, label: "Turret" });
-    if (isVTOL) base.push({ key: VTOLLocation.ROTOR, label: "Rotor" });
-    if (isSupport) base.push({ key: VehicleLocation.BODY, label: "Body" });
+    if (hasTurret) base.push({ key: VehicleLocation.TURRET, label: 'Turret' });
+    if (isVTOL) base.push({ key: VTOLLocation.ROTOR, label: 'Rotor' });
+    if (isSupport) base.push({ key: VehicleLocation.BODY, label: 'Body' });
     return base;
   }, [hasTurret, isVTOL, isSupport]);
 
@@ -195,10 +195,10 @@ export function VehicleArmorDiagram({
           );
           const accentClass =
             key === VehicleLocation.TURRET
-              ? "text-amber-400"
+              ? 'text-amber-400'
               : key === VTOLLocation.ROTOR
-                ? "text-sky-400"
-                : "text-cyan-400";
+                ? 'text-sky-400'
+                : 'text-cyan-400';
 
           return (
             <div key={key} className="flex flex-col gap-1">

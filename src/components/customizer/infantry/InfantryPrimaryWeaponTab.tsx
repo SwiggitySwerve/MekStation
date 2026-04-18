@@ -9,7 +9,7 @@
  * @wiredBy add-infantry-construction
  */
 
-import React from "react";
+import React from 'react';
 
 export interface InfantryPrimaryWeaponTabProps {
   readOnly?: boolean;
@@ -21,7 +21,7 @@ export interface InfantryPrimaryWeaponTabProps {
  * Construction proposal `add-infantry-construction` will replace the body.
  */
 export function InfantryPrimaryWeaponTab({
-  className = "",
+  className = '',
 }: InfantryPrimaryWeaponTabProps): React.ReactElement {
   return (
     <div

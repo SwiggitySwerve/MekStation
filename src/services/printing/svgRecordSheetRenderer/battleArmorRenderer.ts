@@ -8,20 +8,20 @@
  * Dimensions: 612 × 792 pts (US Letter) to match the mech sheet canvas.
  */
 
-import { IBattleArmorRecordSheetData } from "@/types/printing";
+import { IBattleArmorRecordSheetData } from '@/types/printing';
 
 const SVG_W = 612;
 const SVG_H = 792;
 const MARGIN = 18;
-const FONT = "Eurostile, Arial, sans-serif";
+const FONT = 'Eurostile, Arial, sans-serif';
 
 /** Escape text for safe SVG embedding. */
 function esc(s: string | number): string {
   return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 /**
@@ -56,7 +56,7 @@ function trooperColumn(
     const cy = y + 18 + row * PIP_GAP;
     const filled = p < armorPips;
     out += `
-  <circle cx="${cx}" cy="${cy}" r="${PIP_R}" fill="${filled ? "#333" : "#fff"}" stroke="#000" stroke-width="0.6"/>`;
+  <circle cx="${cx}" cy="${cy}" r="${PIP_R}" fill="${filled ? '#333' : '#fff'}" stroke="#000" stroke-width="0.6"/>`;
   }
 
   const labY = y + 18 + Math.ceil(maximumPips / COLS_PER_ROW) * PIP_GAP + 8;

@@ -13,7 +13,7 @@ import {
   BA_MANIPULATOR_DATA,
   BA_VALIDATION_RULES,
   IBAWeaponMount,
-} from "@/types/unit/BattleArmorInterfaces";
+} from '@/types/unit/BattleArmorInterfaces';
 
 export interface ManipulatorValidationResult {
   readonly isValid: boolean;
@@ -47,7 +47,7 @@ export function validateWeaponManipulatorCompatibility(
 ): ManipulatorValidationResult {
   const errors: string[] = [];
 
-  if (weapon.weaponWeight !== "heavy") {
+  if (weapon.weaponWeight !== 'heavy') {
     return { isValid: true, errors };
   }
 
@@ -55,9 +55,9 @@ export function validateWeaponManipulatorCompatibility(
   const { location } = weapon;
 
   let manipulator: BAManipulator | null = null;
-  if (location === "Left Arm") {
+  if (location === 'Left Arm') {
     manipulator = leftManipulator;
-  } else if (location === "Right Arm") {
+  } else if (location === 'Right Arm') {
     manipulator = rightManipulator;
   }
 

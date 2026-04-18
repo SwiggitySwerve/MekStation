@@ -7,20 +7,20 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
-import { BattleArmorLocation } from "@/types/construction/UnitLocation";
-import { RulesLevel } from "@/types/enums/RulesLevel";
-import { TechBase } from "@/types/enums/TechBase";
-import { IEquipmentItem } from "@/types/equipment";
-import { SquadMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { BAArmorType } from "@/types/unit/BattleArmorInterfaces";
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import { BattleArmorLocation } from '@/types/construction/UnitLocation';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { IEquipmentItem } from '@/types/equipment';
+import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { BAArmorType } from '@/types/unit/BattleArmorInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   BattleArmorChassisType,
   BattleArmorWeightClass,
   ManipulatorType,
   IBattleArmorMountedEquipment,
-} from "@/types/unit/PersonnelInterfaces";
-import { generateUnitId as generateUUID } from "@/utils/uuid";
+} from '@/types/unit/PersonnelInterfaces';
+import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
 // Battle Armor Mounted Equipment
@@ -292,16 +292,16 @@ export function createDefaultBattleArmorState(
 ): BattleArmorState {
   const now = Date.now();
   const id = options.id ?? generateUUID();
-  const chassis = options.chassis ?? "New Battle Armor";
-  const model = options.model ?? "";
+  const chassis = options.chassis ?? 'New Battle Armor';
+  const model = options.model ?? '';
 
   return {
     // Identity
     id,
-    name: `${chassis}${model ? " " + model : ""}`,
+    name: `${chassis}${model ? ' ' + model : ''}`,
     chassis,
     model,
-    mulId: "-1",
+    mulId: '-1',
     year: 3050,
     rulesLevel: RulesLevel.STANDARD,
 

@@ -10,12 +10,12 @@
  *   § Requirement: Validation Error Markers
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 
 import {
   TabSpec,
   filterVisibleTabs,
-} from "@/components/customizer/shared/TabSpec";
+} from '@/components/customizer/shared/TabSpec';
 
 // =============================================================================
 // Types
@@ -104,7 +104,7 @@ export function useCustomizerTabs<TState>({
   const defaultTabId =
     initialTabId && visibleSpecs.some((s) => s.id === initialTabId)
       ? initialTabId
-      : (visibleSpecs[0]?.id ?? "");
+      : (visibleSpecs[0]?.id ?? '');
 
   const [activeTab, setActiveTabRaw] = useState<string>(defaultTabId);
   const [dirtyTabs, setDirtyTabs] = useState<Set<string>>(new Set());
@@ -121,8 +121,8 @@ export function useCustomizerTabs<TState>({
 
       if (
         dirtyTabs.has(activeTab) &&
-        typeof window !== "undefined" &&
-        !window.confirm("You have unsaved changes on this tab. Leave anyway?")
+        typeof window !== 'undefined' &&
+        !window.confirm('You have unsaved changes on this tab. Leave anyway?')
       ) {
         // User cancelled — stay on the current tab
         return;

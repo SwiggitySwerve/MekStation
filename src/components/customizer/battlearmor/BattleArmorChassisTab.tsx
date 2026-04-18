@@ -12,4 +12,4 @@
  * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §5.2
  */
 
-export { BattleArmorStructureTab as BattleArmorChassisTab } from "./BattleArmorStructureTab";
+export { BattleArmorStructureTab as BattleArmorChassisTab } from './BattleArmorStructureTab';

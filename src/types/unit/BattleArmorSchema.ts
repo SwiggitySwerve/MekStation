@@ -8,9 +8,9 @@
  * @spec openspec/changes/add-battlearmor-construction/specs/battle-armor-unit-system/spec.md
  */
 
-import { z } from "zod";
+import { z } from 'zod';
 
-import { TechBase } from "@/types/enums/TechBase";
+import { TechBase } from '@/types/enums/TechBase';
 
 import {
   BAArmorType,
@@ -19,7 +19,7 @@ import {
   BAManipulator,
   BAMovementType,
   BAWeightClass,
-} from "./BattleArmorInterfaces";
+} from './BattleArmorInterfaces';
 
 // ============================================================================
 // Enum schemas
@@ -55,8 +55,8 @@ export const TechBaseSchema = z.nativeEnum(TechBase);
  * heavy weapons require Battle Claw or Heavy Claw on the arm.
  */
 export const BAWeaponWeightSchema = z.union([
-  z.literal("light"),
-  z.literal("heavy"),
+  z.literal('light'),
+  z.literal('heavy'),
 ]);
 
 /**

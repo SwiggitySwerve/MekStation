@@ -14,12 +14,12 @@
  *        Requirement: Aerospace Diagram Geometry
  */
 
-import React, { useCallback } from "react";
+import React, { useCallback } from 'react';
 
-import { useAerospaceStore } from "@/stores/useAerospaceStore";
-import { AerospaceLocation } from "@/types/construction/UnitLocation";
+import { useAerospaceStore } from '@/stores/useAerospaceStore';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
 
-import { ArmorLocationBlock } from "../armor/ArmorLocationBlock";
+import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 
 // =============================================================================
 // Helpers
@@ -54,10 +54,10 @@ interface AerospaceArmorDiagramProps {
 
 // Arc display order with labels matching aerospace-unit-system spec arc names
 const ARCS: { arc: AerospaceLocation; label: string }[] = [
-  { arc: AerospaceLocation.NOSE, label: "Nose" },
-  { arc: AerospaceLocation.LEFT_WING, label: "Left Wing" },
-  { arc: AerospaceLocation.RIGHT_WING, label: "Right Wing" },
-  { arc: AerospaceLocation.AFT, label: "Aft" },
+  { arc: AerospaceLocation.NOSE, label: 'Nose' },
+  { arc: AerospaceLocation.LEFT_WING, label: 'Left Wing' },
+  { arc: AerospaceLocation.RIGHT_WING, label: 'Right Wing' },
+  { arc: AerospaceLocation.AFT, label: 'Aft' },
 ];
 
 // =============================================================================
@@ -72,7 +72,7 @@ const ARCS: { arc: AerospaceLocation; label: string }[] = [
  * TODO(add-aerospace-construction): replace placeholder SI with store value.
  */
 export function AerospaceArmorDiagram({
-  className = "",
+  className = '',
 }: AerospaceArmorDiagramProps): React.ReactElement {
   const tonnage = useAerospaceStore((s) => s.tonnage);
   const armorAllocation = useAerospaceStore((s) => s.armorAllocation);
@@ -105,10 +105,10 @@ export function AerospaceArmorDiagram({
         data-testid="aerospace-si-bar"
       >
         <div className="flex items-baseline justify-between">
-          <span className="text-text-theme-secondary text-[10px] font-medium uppercase tracking-wide">
+          <span className="text-text-theme-secondary text-[10px] font-medium tracking-wide uppercase">
             Structural Integrity
           </span>
-          <span className="font-mono text-xs tabular-nums text-amber-400">
+          <span className="font-mono text-xs text-amber-400 tabular-nums">
             {si}
             <span className="text-text-theme-secondary">/{siMax}</span>
           </span>
@@ -118,7 +118,7 @@ export function AerospaceArmorDiagram({
           <div
             className="h-full rounded bg-amber-500 transition-all"
             style={{
-              width: siMax > 0 ? `${(si / siMax) * 100}%` : "0%",
+              width: siMax > 0 ? `${(si / siMax) * 100}%` : '0%',
             }}
           />
         </div>

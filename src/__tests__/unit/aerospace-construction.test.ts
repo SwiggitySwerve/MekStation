@@ -16,52 +16,43 @@ import {
   AerospaceArc,
   AerospaceEngineType,
   AerospaceSubType,
-} from "@/types/unit/AerospaceInterfaces";
-
+} from '@/types/unit/AerospaceInterfaces';
 // ============================================================================
 // Calculator imports
 // ============================================================================
-
-import {
-  calculateSafeThrust,
-  calculateMaxThrust,
-  getMaxSafeThrust,
-  isEngineLegalForSubType,
-} from "@/utils/construction/aerospace/thrustCalculations";
-
-import {
-  defaultSI,
-  maxSI,
-  siWeightCost,
-} from "@/utils/construction/aerospace/siCalculations";
-
-import {
-  calculateFuelPoints,
-  FUEL_POINTS_PER_TON,
-  FUEL_MINIMUM_TONS,
-  minFuelTons,
-} from "@/utils/construction/aerospace/fuelCalculations";
-
 import {
   maxArcArmorPoints,
   maxTotalArmorPoints,
   getArcsForSubType,
   ASF_CF_ARCS,
   SMALL_CRAFT_ARCS,
-} from "@/utils/construction/aerospace/armorArcCalculations";
-
-import { aerospaceEngineWeight } from "@/utils/construction/aerospace/engineWeightAerospace";
-
+} from '@/utils/construction/aerospace/armorArcCalculations';
 import {
   makeSmallCraftCrew,
   quartersWeight,
   minSmallCraftCrew,
-} from "@/utils/construction/aerospace/crewCalculations";
-
+} from '@/utils/construction/aerospace/crewCalculations';
+import { aerospaceEngineWeight } from '@/utils/construction/aerospace/engineWeightAerospace';
+import {
+  calculateFuelPoints,
+  FUEL_POINTS_PER_TON,
+  FUEL_MINIMUM_TONS,
+  minFuelTons,
+} from '@/utils/construction/aerospace/fuelCalculations';
+import {
+  defaultSI,
+  maxSI,
+  siWeightCost,
+} from '@/utils/construction/aerospace/siCalculations';
+import {
+  calculateSafeThrust,
+  calculateMaxThrust,
+  getMaxSafeThrust,
+  isEngineLegalForSubType,
+} from '@/utils/construction/aerospace/thrustCalculations';
 // ============================================================================
 // Validation imports
 // ============================================================================
-
 import {
   validateAerospaceUnit,
   validateTonnage,
@@ -70,7 +61,7 @@ import {
   validateFuel,
   validateArcArmor,
   validateCrew,
-} from "@/utils/construction/aerospace/validationRules";
+} from '@/utils/construction/aerospace/validationRules';
 
 // ============================================================================
 // Helpers
@@ -160,55 +151,55 @@ function seekerInput() {
 // thrustCalculations
 // ============================================================================
 
-describe("thrustCalculations", () => {
-  describe("calculateSafeThrust", () => {
-    it("Shilone: 65t × thrust 5 → engineRating 325 → safeThrust 5", () => {
+describe('thrustCalculations', () => {
+  describe('calculateSafeThrust', () => {
+    it('Shilone: 65t × thrust 5 → engineRating 325 → safeThrust 5', () => {
       // engineRating = 65 × 5 = 325; floor(325/65) = 5
       expect(
         calculateSafeThrust(325, 65, AerospaceSubType.AEROSPACE_FIGHTER),
       ).toBe(5);
     });
 
-    it("Stuka: 100t × thrust 4 → engineRating 400 → safeThrust 4", () => {
+    it('Stuka: 100t × thrust 4 → engineRating 400 → safeThrust 4', () => {
       expect(
         calculateSafeThrust(400, 100, AerospaceSubType.AEROSPACE_FIGHTER),
       ).toBe(4);
     });
 
-    it("Sparrowhawk: 30t × thrust 7 → engineRating 210 → safeThrust 7", () => {
+    it('Sparrowhawk: 30t × thrust 7 → engineRating 210 → safeThrust 7', () => {
       expect(
         calculateSafeThrust(210, 30, AerospaceSubType.CONVENTIONAL_FIGHTER),
       ).toBe(7);
     });
 
-    it("clamps safeThrust to sub-type cap (ASF cap=12)", () => {
+    it('clamps safeThrust to sub-type cap (ASF cap=12)', () => {
       // rating would give 15 thrust but capped at 12
       expect(
         calculateSafeThrust(1500, 100, AerospaceSubType.AEROSPACE_FIGHTER),
       ).toBe(12);
     });
 
-    it("small craft cap is 6", () => {
+    it('small craft cap is 6', () => {
       expect(getMaxSafeThrust(AerospaceSubType.SMALL_CRAFT)).toBe(6);
     });
   });
 
-  describe("calculateMaxThrust", () => {
-    it("safeThrust 5 → maxThrust 7 (floor(5×1.5))", () => {
+  describe('calculateMaxThrust', () => {
+    it('safeThrust 5 → maxThrust 7 (floor(5×1.5))', () => {
       expect(calculateMaxThrust(5)).toBe(7);
     });
 
-    it("safeThrust 4 → maxThrust 6", () => {
+    it('safeThrust 4 → maxThrust 6', () => {
       expect(calculateMaxThrust(4)).toBe(6);
     });
 
-    it("safeThrust 7 → maxThrust 10", () => {
+    it('safeThrust 7 → maxThrust 10', () => {
       expect(calculateMaxThrust(7)).toBe(10);
     });
   });
 
-  describe("isEngineLegalForSubType", () => {
-    it("Fusion is legal for ASF", () => {
+  describe('isEngineLegalForSubType', () => {
+    it('Fusion is legal for ASF', () => {
       expect(
         isEngineLegalForSubType(
           AerospaceEngineType.FUSION,
@@ -217,7 +208,7 @@ describe("thrustCalculations", () => {
       ).toBe(true);
     });
 
-    it("ICE is illegal for ASF", () => {
+    it('ICE is illegal for ASF', () => {
       expect(
         isEngineLegalForSubType(
           AerospaceEngineType.ICE,
@@ -226,7 +217,7 @@ describe("thrustCalculations", () => {
       ).toBe(false);
     });
 
-    it("Fusion is illegal for CF (must use ICE or FuelCell)", () => {
+    it('Fusion is illegal for CF (must use ICE or FuelCell)', () => {
       expect(
         isEngineLegalForSubType(
           AerospaceEngineType.FUSION,
@@ -235,7 +226,7 @@ describe("thrustCalculations", () => {
       ).toBe(false);
     });
 
-    it("ICE is legal for CF", () => {
+    it('ICE is legal for CF', () => {
       expect(
         isEngineLegalForSubType(
           AerospaceEngineType.ICE,
@@ -244,7 +235,7 @@ describe("thrustCalculations", () => {
       ).toBe(true);
     });
 
-    it("Fusion is legal for small craft", () => {
+    it('Fusion is legal for small craft', () => {
       expect(
         isEngineLegalForSubType(
           AerospaceEngineType.FUSION,
@@ -259,37 +250,37 @@ describe("thrustCalculations", () => {
 // siCalculations
 // ============================================================================
 
-describe("siCalculations", () => {
-  it("defaultSI: 65t → ceil(65/10) = 7", () => {
+describe('siCalculations', () => {
+  it('defaultSI: 65t → ceil(65/10) = 7', () => {
     expect(defaultSI(65)).toBe(7);
   });
 
-  it("defaultSI: 100t → 10", () => {
+  it('defaultSI: 100t → 10', () => {
     expect(defaultSI(100)).toBe(10);
   });
 
-  it("defaultSI: 30t → 3", () => {
+  it('defaultSI: 30t → 3', () => {
     expect(defaultSI(30)).toBe(3);
   });
 
-  it("maxSI: ASF → 20", () => {
+  it('maxSI: ASF → 20', () => {
     expect(maxSI(AerospaceSubType.AEROSPACE_FIGHTER)).toBe(20);
   });
 
-  it("maxSI: CF → 15", () => {
+  it('maxSI: CF → 15', () => {
     expect(maxSI(AerospaceSubType.CONVENTIONAL_FIGHTER)).toBe(15);
   });
 
-  it("maxSI: small craft → 30", () => {
+  it('maxSI: small craft → 30', () => {
     expect(maxSI(AerospaceSubType.SMALL_CRAFT)).toBe(30);
   });
 
-  it("siWeightCost: SI at default → 0 extra tons", () => {
+  it('siWeightCost: SI at default → 0 extra tons', () => {
     // Shilone: 65t, default SI = 7, cost for SI=7 → 0
     expect(siWeightCost(7, 65)).toBe(0);
   });
 
-  it("siWeightCost: 1 extra SI on 65t unit → (1 extra) × (65/10) × 0.5 = 3.25t", () => {
+  it('siWeightCost: 1 extra SI on 65t unit → (1 extra) × (65/10) × 0.5 = 3.25t', () => {
     // SI=8 on 65t: extra=1, cost = 1 × 6.5 × 0.5 = 3.25
     expect(siWeightCost(8, 65)).toBeCloseTo(3.25);
   });
@@ -299,36 +290,36 @@ describe("siCalculations", () => {
 // fuelCalculations
 // ============================================================================
 
-describe("fuelCalculations", () => {
-  it("Fusion: 5t → 400 fuel points (5 × 80)", () => {
+describe('fuelCalculations', () => {
+  it('Fusion: 5t → 400 fuel points (5 × 80)', () => {
     expect(calculateFuelPoints(5, AerospaceEngineType.FUSION)).toBe(400);
   });
 
-  it("ICE: 2t → 80 fuel points (2 × 40)", () => {
+  it('ICE: 2t → 80 fuel points (2 × 40)', () => {
     expect(calculateFuelPoints(2, AerospaceEngineType.ICE)).toBe(80);
   });
 
-  it("FuelCell: 3t → 180 fuel points (3 × 60)", () => {
+  it('FuelCell: 3t → 180 fuel points (3 × 60)', () => {
     expect(calculateFuelPoints(3, AerospaceEngineType.FUEL_CELL)).toBe(180);
   });
 
-  it("XL uses same rate as Fusion (80 pts/ton)", () => {
+  it('XL uses same rate as Fusion (80 pts/ton)', () => {
     expect(FUEL_POINTS_PER_TON[AerospaceEngineType.XL]).toBe(80);
   });
 
-  it("minFuelTons: ASF → 5t", () => {
+  it('minFuelTons: ASF → 5t', () => {
     expect(minFuelTons(AerospaceSubType.AEROSPACE_FIGHTER)).toBe(5);
   });
 
-  it("minFuelTons: CF → 2t", () => {
+  it('minFuelTons: CF → 2t', () => {
     expect(minFuelTons(AerospaceSubType.CONVENTIONAL_FIGHTER)).toBe(2);
   });
 
-  it("minFuelTons: small craft → 20t", () => {
+  it('minFuelTons: small craft → 20t', () => {
     expect(minFuelTons(AerospaceSubType.SMALL_CRAFT)).toBe(20);
   });
 
-  it("Seeker: 20t Fusion → 1600 fuel points", () => {
+  it('Seeker: 20t Fusion → 1600 fuel points', () => {
     expect(calculateFuelPoints(20, AerospaceEngineType.FUSION)).toBe(1600);
   });
 });
@@ -337,8 +328,8 @@ describe("fuelCalculations", () => {
 // armorArcCalculations
 // ============================================================================
 
-describe("armorArcCalculations", () => {
-  it("ASF/CF arcs are [Nose, LeftWing, RightWing, Aft]", () => {
+describe('armorArcCalculations', () => {
+  it('ASF/CF arcs are [Nose, LeftWing, RightWing, Aft]', () => {
     expect(getArcsForSubType(AerospaceSubType.AEROSPACE_FIGHTER)).toEqual(
       ASF_CF_ARCS,
     );
@@ -347,13 +338,13 @@ describe("armorArcCalculations", () => {
     );
   });
 
-  it("small craft arcs are [Nose, LeftSide, RightSide, Aft]", () => {
+  it('small craft arcs are [Nose, LeftSide, RightSide, Aft]', () => {
     expect(getArcsForSubType(AerospaceSubType.SMALL_CRAFT)).toEqual(
       SMALL_CRAFT_ARCS,
     );
   });
 
-  it("Shilone 65t ASF nose max = floor(65 × 0.28) = 18", () => {
+  it('Shilone 65t ASF nose max = floor(65 × 0.28) = 18', () => {
     expect(
       maxArcArmorPoints(
         AerospaceArc.NOSE,
@@ -363,7 +354,7 @@ describe("armorArcCalculations", () => {
     ).toBe(18);
   });
 
-  it("Shilone 65t ASF wing max = floor(65 × 0.20) = 13", () => {
+  it('Shilone 65t ASF wing max = floor(65 × 0.20) = 13', () => {
     expect(
       maxArcArmorPoints(
         AerospaceArc.LEFT_WING,
@@ -373,7 +364,7 @@ describe("armorArcCalculations", () => {
     ).toBe(13);
   });
 
-  it("Shilone 65t ASF aft max = floor(65 × 0.12) = 7", () => {
+  it('Shilone 65t ASF aft max = floor(65 × 0.12) = 7', () => {
     expect(
       maxArcArmorPoints(
         AerospaceArc.AFT,
@@ -383,7 +374,7 @@ describe("armorArcCalculations", () => {
     ).toBe(7);
   });
 
-  it("small craft: LEFT_WING factor is 0 (side arcs instead)", () => {
+  it('small craft: LEFT_WING factor is 0 (side arcs instead)', () => {
     expect(
       maxArcArmorPoints(
         AerospaceArc.LEFT_WING,
@@ -393,7 +384,7 @@ describe("armorArcCalculations", () => {
     ).toBe(0);
   });
 
-  it("small craft: LEFT_SIDE max = floor(100 × 0.20) = 20", () => {
+  it('small craft: LEFT_SIDE max = floor(100 × 0.20) = 20', () => {
     expect(
       maxArcArmorPoints(
         AerospaceArc.LEFT_SIDE,
@@ -403,7 +394,7 @@ describe("armorArcCalculations", () => {
     ).toBe(20);
   });
 
-  it("maxTotalArmorPoints: 100t ASF = nose+wing+wing+aft = 28+20+20+12 = 80", () => {
+  it('maxTotalArmorPoints: 100t ASF = nose+wing+wing+aft = 28+20+20+12 = 80', () => {
     expect(maxTotalArmorPoints(100, AerospaceSubType.AEROSPACE_FIGHTER)).toBe(
       80,
     );
@@ -414,23 +405,23 @@ describe("armorArcCalculations", () => {
 // engineWeightAerospace
 // ============================================================================
 
-describe("engineWeightAerospace", () => {
-  it("Shilone: rating 325, Fusion → table lookup 20t", () => {
+describe('engineWeightAerospace', () => {
+  it('Shilone: rating 325, Fusion → table lookup 20t', () => {
     // FUSION_ENGINE_WEIGHT[325] = 20.0
     expect(aerospaceEngineWeight(325, AerospaceEngineType.FUSION)).toBe(20);
   });
 
-  it("Sparrowhawk: rating 210, ICE → table weight × 2.0", () => {
+  it('Sparrowhawk: rating 210, ICE → table weight × 2.0', () => {
     // FUSION_ENGINE_WEIGHT[210] = 9.0, ICE ×2 = 18t
     expect(aerospaceEngineWeight(210, AerospaceEngineType.ICE)).toBe(18);
   });
 
-  it("XL engine halves the weight", () => {
+  it('XL engine halves the weight', () => {
     // rating 200, Fusion → 8.5t; XL → 4.25 → ceil to 4.5t
     expect(aerospaceEngineWeight(200, AerospaceEngineType.XL)).toBe(4.5);
   });
 
-  it("result is always a multiple of 0.5", () => {
+  it('result is always a multiple of 0.5', () => {
     for (const rating of [50, 100, 150, 200, 250, 300, 350, 400]) {
       const weight = aerospaceEngineWeight(rating, AerospaceEngineType.FUSION);
       expect(weight % 0.5).toBe(0);
@@ -442,33 +433,33 @@ describe("engineWeightAerospace", () => {
 // crewCalculations
 // ============================================================================
 
-describe("crewCalculations", () => {
-  it("quartersWeight: 3 crew, 0 pax, 0 marines → 15t", () => {
+describe('crewCalculations', () => {
+  it('quartersWeight: 3 crew, 0 pax, 0 marines → 15t', () => {
     expect(
       quartersWeight({ crew: 3, passengers: 0, marines: 0, quartersTons: 0 }),
     ).toBe(15);
   });
 
-  it("quartersWeight: 2 crew + 4 pax → 2×5 + 4×3 = 22t", () => {
+  it('quartersWeight: 2 crew + 4 pax → 2×5 + 4×3 = 22t', () => {
     expect(
       quartersWeight({ crew: 2, passengers: 4, marines: 0, quartersTons: 0 }),
     ).toBe(22);
   });
 
-  it("makeSmallCraftCrew computes quartersTons automatically", () => {
+  it('makeSmallCraftCrew computes quartersTons automatically', () => {
     const crew = makeSmallCraftCrew(3, 0, 0);
     expect(crew.quartersTons).toBe(15);
   });
 
-  it("minSmallCraftCrew: 100t → 3 crew", () => {
+  it('minSmallCraftCrew: 100t → 3 crew', () => {
     expect(minSmallCraftCrew(100)).toBe(3);
   });
 
-  it("minSmallCraftCrew: 150t → 4 crew", () => {
+  it('minSmallCraftCrew: 150t → 4 crew', () => {
     expect(minSmallCraftCrew(150)).toBe(4);
   });
 
-  it("minSmallCraftCrew: 200t → 6 crew", () => {
+  it('minSmallCraftCrew: 200t → 6 crew', () => {
     expect(minSmallCraftCrew(200)).toBe(6);
   });
 });
@@ -477,57 +468,57 @@ describe("crewCalculations", () => {
 // VAL-AERO-TONNAGE
 // ============================================================================
 
-describe("VAL-AERO-TONNAGE", () => {
-  it("Shilone 65t ASF — valid, no errors", () => {
+describe('VAL-AERO-TONNAGE', () => {
+  it('Shilone 65t ASF — valid, no errors', () => {
     expect(
       validateTonnage(65, AerospaceSubType.AEROSPACE_FIGHTER),
     ).toHaveLength(0);
   });
 
-  it("Stuka 100t ASF — valid, no errors", () => {
+  it('Stuka 100t ASF — valid, no errors', () => {
     expect(
       validateTonnage(100, AerospaceSubType.AEROSPACE_FIGHTER),
     ).toHaveLength(0);
   });
 
-  it("Sparrowhawk 30t CF — valid, no errors", () => {
+  it('Sparrowhawk 30t CF — valid, no errors', () => {
     expect(
       validateTonnage(30, AerospaceSubType.CONVENTIONAL_FIGHTER),
     ).toHaveLength(0);
   });
 
-  it("Seeker 100t SmallCraft — valid, no errors", () => {
+  it('Seeker 100t SmallCraft — valid, no errors', () => {
     expect(validateTonnage(100, AerospaceSubType.SMALL_CRAFT)).toHaveLength(0);
   });
 
-  it("ASF under 5t → VAL-AERO-TONNAGE error", () => {
+  it('ASF under 5t → VAL-AERO-TONNAGE error', () => {
     const errors = validateTonnage(4, AerospaceSubType.AEROSPACE_FIGHTER);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-TONNAGE");
+    expect(errors[0].ruleId).toBe('VAL-AERO-TONNAGE');
   });
 
-  it("ASF over 100t → VAL-AERO-TONNAGE error", () => {
+  it('ASF over 100t → VAL-AERO-TONNAGE error', () => {
     const errors = validateTonnage(101, AerospaceSubType.AEROSPACE_FIGHTER);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-TONNAGE");
+    expect(errors[0].ruleId).toBe('VAL-AERO-TONNAGE');
   });
 
-  it("CF over 50t → VAL-AERO-TONNAGE error", () => {
+  it('CF over 50t → VAL-AERO-TONNAGE error', () => {
     const errors = validateTonnage(55, AerospaceSubType.CONVENTIONAL_FIGHTER);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-TONNAGE");
+    expect(errors[0].ruleId).toBe('VAL-AERO-TONNAGE');
   });
 
-  it("SmallCraft under 100t → VAL-AERO-TONNAGE error", () => {
+  it('SmallCraft under 100t → VAL-AERO-TONNAGE error', () => {
     const errors = validateTonnage(90, AerospaceSubType.SMALL_CRAFT);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-TONNAGE");
+    expect(errors[0].ruleId).toBe('VAL-AERO-TONNAGE');
   });
 
-  it("SmallCraft over 200t → VAL-AERO-TONNAGE error", () => {
+  it('SmallCraft over 200t → VAL-AERO-TONNAGE error', () => {
     const errors = validateTonnage(210, AerospaceSubType.SMALL_CRAFT);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-TONNAGE");
+    expect(errors[0].ruleId).toBe('VAL-AERO-TONNAGE');
   });
 });
 
@@ -535,8 +526,8 @@ describe("VAL-AERO-TONNAGE", () => {
 // VAL-AERO-THRUST
 // ============================================================================
 
-describe("VAL-AERO-THRUST", () => {
-  it("Shilone Fusion ASF thrust 5 — no errors", () => {
+describe('VAL-AERO-THRUST', () => {
+  it('Shilone Fusion ASF thrust 5 — no errors', () => {
     expect(
       validateThrust(
         AerospaceEngineType.FUSION,
@@ -546,7 +537,7 @@ describe("VAL-AERO-THRUST", () => {
     ).toHaveLength(0);
   });
 
-  it("Sparrowhawk ICE CF thrust 7 — no errors", () => {
+  it('Sparrowhawk ICE CF thrust 7 — no errors', () => {
     expect(
       validateThrust(
         AerospaceEngineType.ICE,
@@ -556,40 +547,40 @@ describe("VAL-AERO-THRUST", () => {
     ).toHaveLength(0);
   });
 
-  it("Fusion on CF → VAL-AERO-THRUST (illegal engine)", () => {
+  it('Fusion on CF → VAL-AERO-THRUST (illegal engine)', () => {
     const errors = validateThrust(
       AerospaceEngineType.FUSION,
       5,
       AerospaceSubType.CONVENTIONAL_FIGHTER,
     );
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-THRUST")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-THRUST')).toBe(true);
   });
 
-  it("ICE on ASF → VAL-AERO-THRUST (illegal engine)", () => {
+  it('ICE on ASF → VAL-AERO-THRUST (illegal engine)', () => {
     const errors = validateThrust(
       AerospaceEngineType.ICE,
       5,
       AerospaceSubType.AEROSPACE_FIGHTER,
     );
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-THRUST")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-THRUST')).toBe(true);
   });
 
-  it("safeThrust 13 on ASF → VAL-AERO-THRUST (exceeds cap of 12)", () => {
+  it('safeThrust 13 on ASF → VAL-AERO-THRUST (exceeds cap of 12)', () => {
     const errors = validateThrust(
       AerospaceEngineType.FUSION,
       13,
       AerospaceSubType.AEROSPACE_FIGHTER,
     );
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-THRUST")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-THRUST')).toBe(true);
   });
 
-  it("safeThrust 7 on SmallCraft → VAL-AERO-THRUST (exceeds cap of 6)", () => {
+  it('safeThrust 7 on SmallCraft → VAL-AERO-THRUST (exceeds cap of 6)', () => {
     const errors = validateThrust(
       AerospaceEngineType.FUSION,
       7,
       AerospaceSubType.SMALL_CRAFT,
     );
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-THRUST")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-THRUST')).toBe(true);
   });
 });
 
@@ -597,35 +588,35 @@ describe("VAL-AERO-THRUST", () => {
 // VAL-AERO-SI
 // ============================================================================
 
-describe("VAL-AERO-SI", () => {
-  it("Shilone SI=7 on 65t ASF — no errors", () => {
+describe('VAL-AERO-SI', () => {
+  it('Shilone SI=7 on 65t ASF — no errors', () => {
     expect(validateSI(7, AerospaceSubType.AEROSPACE_FIGHTER)).toHaveLength(0);
   });
 
-  it("SI at maximum (20) for ASF — no errors", () => {
+  it('SI at maximum (20) for ASF — no errors', () => {
     expect(validateSI(20, AerospaceSubType.AEROSPACE_FIGHTER)).toHaveLength(0);
   });
 
-  it("SI=21 on ASF → VAL-AERO-SI error (max 20)", () => {
+  it('SI=21 on ASF → VAL-AERO-SI error (max 20)', () => {
     const errors = validateSI(21, AerospaceSubType.AEROSPACE_FIGHTER);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-SI");
+    expect(errors[0].ruleId).toBe('VAL-AERO-SI');
   });
 
-  it("SI=16 on CF → VAL-AERO-SI error (max 15)", () => {
+  it('SI=16 on CF → VAL-AERO-SI error (max 15)', () => {
     const errors = validateSI(16, AerospaceSubType.CONVENTIONAL_FIGHTER);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-SI");
+    expect(errors[0].ruleId).toBe('VAL-AERO-SI');
   });
 
-  it("SI=30 on SmallCraft — no errors (at maximum)", () => {
+  it('SI=30 on SmallCraft — no errors (at maximum)', () => {
     expect(validateSI(30, AerospaceSubType.SMALL_CRAFT)).toHaveLength(0);
   });
 
-  it("SI=31 on SmallCraft → VAL-AERO-SI error (max 30)", () => {
+  it('SI=31 on SmallCraft → VAL-AERO-SI error (max 30)', () => {
     const errors = validateSI(31, AerospaceSubType.SMALL_CRAFT);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-SI");
+    expect(errors[0].ruleId).toBe('VAL-AERO-SI');
   });
 });
 
@@ -633,37 +624,37 @@ describe("VAL-AERO-SI", () => {
 // VAL-AERO-FUEL
 // ============================================================================
 
-describe("VAL-AERO-FUEL", () => {
-  it("Shilone 5t fuel ASF — no errors (exactly at minimum)", () => {
+describe('VAL-AERO-FUEL', () => {
+  it('Shilone 5t fuel ASF — no errors (exactly at minimum)', () => {
     expect(validateFuel(5, AerospaceSubType.AEROSPACE_FIGHTER)).toHaveLength(0);
   });
 
-  it("Sparrowhawk 2t fuel CF — no errors (exactly at minimum)", () => {
+  it('Sparrowhawk 2t fuel CF — no errors (exactly at minimum)', () => {
     expect(validateFuel(2, AerospaceSubType.CONVENTIONAL_FIGHTER)).toHaveLength(
       0,
     );
   });
 
-  it("Seeker 20t fuel SmallCraft — no errors (exactly at minimum)", () => {
+  it('Seeker 20t fuel SmallCraft — no errors (exactly at minimum)', () => {
     expect(validateFuel(20, AerospaceSubType.SMALL_CRAFT)).toHaveLength(0);
   });
 
-  it("ASF with 4t fuel → VAL-AERO-FUEL error (min 5t)", () => {
+  it('ASF with 4t fuel → VAL-AERO-FUEL error (min 5t)', () => {
     const errors = validateFuel(4, AerospaceSubType.AEROSPACE_FIGHTER);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-FUEL");
+    expect(errors[0].ruleId).toBe('VAL-AERO-FUEL');
   });
 
-  it("CF with 1t fuel → VAL-AERO-FUEL error (min 2t)", () => {
+  it('CF with 1t fuel → VAL-AERO-FUEL error (min 2t)', () => {
     const errors = validateFuel(1, AerospaceSubType.CONVENTIONAL_FIGHTER);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-FUEL");
+    expect(errors[0].ruleId).toBe('VAL-AERO-FUEL');
   });
 
-  it("SmallCraft with 19t fuel → VAL-AERO-FUEL error (min 20t)", () => {
+  it('SmallCraft with 19t fuel → VAL-AERO-FUEL error (min 20t)', () => {
     const errors = validateFuel(19, AerospaceSubType.SMALL_CRAFT);
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-FUEL");
+    expect(errors[0].ruleId).toBe('VAL-AERO-FUEL');
   });
 });
 
@@ -671,8 +662,8 @@ describe("VAL-AERO-FUEL", () => {
 // VAL-AERO-ARC-MAX
 // ============================================================================
 
-describe("VAL-AERO-ARC-MAX", () => {
-  it("Shilone: valid arc allocations — no errors", () => {
+describe('VAL-AERO-ARC-MAX', () => {
+  it('Shilone: valid arc allocations — no errors', () => {
     // maxArcArmorPoints(NOSE, 65, ASF) = 18; allocating 10 is fine
     expect(
       validateArcArmor(
@@ -688,7 +679,7 @@ describe("VAL-AERO-ARC-MAX", () => {
     ).toHaveLength(0);
   });
 
-  it("Stuka: valid arc allocations — no errors", () => {
+  it('Stuka: valid arc allocations — no errors', () => {
     expect(
       validateArcArmor(
         {
@@ -703,7 +694,7 @@ describe("VAL-AERO-ARC-MAX", () => {
     ).toHaveLength(0);
   });
 
-  it("Nose over max → VAL-AERO-ARC-MAX error", () => {
+  it('Nose over max → VAL-AERO-ARC-MAX error', () => {
     // max nose for 65t ASF = floor(65×0.28) = 18; allocating 19 violates
     const errors = validateArcArmor(
       { [AerospaceArc.NOSE]: 19 },
@@ -711,10 +702,10 @@ describe("VAL-AERO-ARC-MAX", () => {
       AerospaceSubType.AEROSPACE_FIGHTER,
     );
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-ARC-MAX");
+    expect(errors[0].ruleId).toBe('VAL-AERO-ARC-MAX');
   });
 
-  it("Wing over max → VAL-AERO-ARC-MAX error", () => {
+  it('Wing over max → VAL-AERO-ARC-MAX error', () => {
     // max wing for 65t ASF = floor(65×0.20) = 13; allocating 14 violates
     const errors = validateArcArmor(
       { [AerospaceArc.LEFT_WING]: 14 },
@@ -722,10 +713,10 @@ describe("VAL-AERO-ARC-MAX", () => {
       AerospaceSubType.AEROSPACE_FIGHTER,
     );
     expect(errors).toHaveLength(1);
-    expect(errors[0].ruleId).toBe("VAL-AERO-ARC-MAX");
+    expect(errors[0].ruleId).toBe('VAL-AERO-ARC-MAX');
   });
 
-  it("Seeker small craft: valid side arc allocations — no errors", () => {
+  it('Seeker small craft: valid side arc allocations — no errors', () => {
     expect(
       validateArcArmor(
         {
@@ -740,7 +731,7 @@ describe("VAL-AERO-ARC-MAX", () => {
     ).toHaveLength(0);
   });
 
-  it("Inapplicable arcs (factor=0) are silently ignored", () => {
+  it('Inapplicable arcs (factor=0) are silently ignored', () => {
     // LEFT_WING has factor 0 for small craft — allocating any amount should not error
     expect(
       validateArcArmor(
@@ -756,36 +747,36 @@ describe("VAL-AERO-ARC-MAX", () => {
 // VAL-AERO-CREW
 // ============================================================================
 
-describe("VAL-AERO-CREW", () => {
-  it("ASF: crew rule is a no-op (always passes)", () => {
+describe('VAL-AERO-CREW', () => {
+  it('ASF: crew rule is a no-op (always passes)', () => {
     expect(validateCrew(AerospaceSubType.AEROSPACE_FIGHTER, 0, 0)).toHaveLength(
       0,
     );
   });
 
-  it("CF: crew rule is a no-op (always passes)", () => {
+  it('CF: crew rule is a no-op (always passes)', () => {
     expect(
       validateCrew(AerospaceSubType.CONVENTIONAL_FIGHTER, 0, 0),
     ).toHaveLength(0);
   });
 
-  it("SmallCraft with quarters + crew — no errors", () => {
+  it('SmallCraft with quarters + crew — no errors', () => {
     expect(validateCrew(AerospaceSubType.SMALL_CRAFT, 15, 3)).toHaveLength(0);
   });
 
-  it("SmallCraft with 0 quarters → VAL-AERO-CREW error", () => {
+  it('SmallCraft with 0 quarters → VAL-AERO-CREW error', () => {
     const errors = validateCrew(AerospaceSubType.SMALL_CRAFT, 0, 3);
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-CREW")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-CREW')).toBe(true);
   });
 
-  it("SmallCraft with 0 crew → VAL-AERO-CREW error", () => {
+  it('SmallCraft with 0 crew → VAL-AERO-CREW error', () => {
     const errors = validateCrew(AerospaceSubType.SMALL_CRAFT, 15, 0);
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-CREW")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-CREW')).toBe(true);
   });
 
-  it("SmallCraft with 0 quarters AND 0 crew → two VAL-AERO-CREW errors", () => {
+  it('SmallCraft with 0 quarters AND 0 crew → two VAL-AERO-CREW errors', () => {
     const errors = validateCrew(AerospaceSubType.SMALL_CRAFT, 0, 0);
-    expect(errors.filter((e) => e.ruleId === "VAL-AERO-CREW")).toHaveLength(2);
+    expect(errors.filter((e) => e.ruleId === 'VAL-AERO-CREW')).toHaveLength(2);
   });
 });
 
@@ -793,48 +784,48 @@ describe("VAL-AERO-CREW", () => {
 // validateAerospaceUnit (full runner)
 // ============================================================================
 
-describe("validateAerospaceUnit — full runner", () => {
-  it("Shilone (ASF, 65t, Fusion, thrust 5) — clean build", () => {
+describe('validateAerospaceUnit — full runner', () => {
+  it('Shilone (ASF, 65t, Fusion, thrust 5) — clean build', () => {
     expect(validateAerospaceUnit(shiloneInput())).toHaveLength(0);
   });
 
-  it("Stuka (ASF, 100t, Fusion, thrust 4) — clean build", () => {
+  it('Stuka (ASF, 100t, Fusion, thrust 4) — clean build', () => {
     expect(validateAerospaceUnit(stukaInput())).toHaveLength(0);
   });
 
-  it("Sparrowhawk (CF, 30t, ICE, thrust 7) — clean build", () => {
+  it('Sparrowhawk (CF, 30t, ICE, thrust 7) — clean build', () => {
     expect(validateAerospaceUnit(sparrowhawkInput())).toHaveLength(0);
   });
 
-  it("Seeker (SmallCraft, 100t, Fusion, crew 3) — clean build", () => {
+  it('Seeker (SmallCraft, 100t, Fusion, crew 3) — clean build', () => {
     expect(validateAerospaceUnit(seekerInput())).toHaveLength(0);
   });
 
-  it("Shilone with Fusion engine swapped to ICE → VAL-AERO-THRUST", () => {
+  it('Shilone with Fusion engine swapped to ICE → VAL-AERO-THRUST', () => {
     const input = { ...shiloneInput(), engineType: AerospaceEngineType.ICE };
     const errors = validateAerospaceUnit(input);
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-THRUST")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-THRUST')).toBe(true);
   });
 
-  it("Shilone with tonnage 101 → VAL-AERO-TONNAGE", () => {
+  it('Shilone with tonnage 101 → VAL-AERO-TONNAGE', () => {
     const input = { ...shiloneInput(), tonnage: 101 };
     const errors = validateAerospaceUnit(input);
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-TONNAGE")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-TONNAGE')).toBe(true);
   });
 
-  it("Shilone with SI=21 → VAL-AERO-SI", () => {
+  it('Shilone with SI=21 → VAL-AERO-SI', () => {
     const input = { ...shiloneInput(), structuralIntegrity: 21 };
     const errors = validateAerospaceUnit(input);
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-SI")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-SI')).toBe(true);
   });
 
-  it("Shilone with fuelTons=4 → VAL-AERO-FUEL", () => {
+  it('Shilone with fuelTons=4 → VAL-AERO-FUEL', () => {
     const input = { ...shiloneInput(), fuelTons: 4 };
     const errors = validateAerospaceUnit(input);
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-FUEL")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-FUEL')).toBe(true);
   });
 
-  it("Shilone with nose armor over max → VAL-AERO-ARC-MAX", () => {
+  it('Shilone with nose armor over max → VAL-AERO-ARC-MAX', () => {
     const input = {
       ...shiloneInput(),
       arcArmor: {
@@ -845,16 +836,16 @@ describe("validateAerospaceUnit — full runner", () => {
       },
     };
     const errors = validateAerospaceUnit(input);
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-ARC-MAX")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-ARC-MAX')).toBe(true);
   });
 
-  it("Seeker with no quarters → VAL-AERO-CREW", () => {
+  it('Seeker with no quarters → VAL-AERO-CREW', () => {
     const input = { ...seekerInput(), quartersTons: 0 };
     const errors = validateAerospaceUnit(input);
-    expect(errors.some((e) => e.ruleId === "VAL-AERO-CREW")).toBe(true);
+    expect(errors.some((e) => e.ruleId === 'VAL-AERO-CREW')).toBe(true);
   });
 
-  it("multiple violations are all reported", () => {
+  it('multiple violations are all reported', () => {
     // Tonnage + fuel both wrong
     const input = {
       ...shiloneInput(),
@@ -863,7 +854,7 @@ describe("validateAerospaceUnit — full runner", () => {
     };
     const errors = validateAerospaceUnit(input);
     const ruleIds = errors.map((e) => e.ruleId);
-    expect(ruleIds).toContain("VAL-AERO-TONNAGE");
-    expect(ruleIds).toContain("VAL-AERO-FUEL");
+    expect(ruleIds).toContain('VAL-AERO-TONNAGE');
+    expect(ruleIds).toContain('VAL-AERO-FUEL');
   });
 });

@@ -9,18 +9,18 @@
  *        §Per-Type Token Rendering — Mech unit renders mech token
  */
 
-import React from "react";
+import React from 'react';
 
-import type { IUnitToken } from "@/types/gameplay";
+import type { IUnitToken } from '@/types/gameplay';
 
-import { CritHitOverlay } from "@/components/gameplay/CritHitOverlay";
-import { DamageFloater } from "@/components/gameplay/DamageFloater";
-import { PilotWoundFlash } from "@/components/gameplay/PilotWoundFlash";
-import { HEX_SIZE, HEX_COLORS } from "@/constants/hexMap";
-import { GameSide } from "@/types/gameplay";
-import { getFacingRotation } from "@/components/gameplay/HexMapDisplay/renderHelpers";
+import { CritHitOverlay } from '@/components/gameplay/CritHitOverlay';
+import { DamageFloater } from '@/components/gameplay/DamageFloater';
+import { getFacingRotation } from '@/components/gameplay/HexMapDisplay/renderHelpers';
+import { PilotWoundFlash } from '@/components/gameplay/PilotWoundFlash';
+import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
+import { GameSide } from '@/types/gameplay';
 
-import type { ITokenSharedProps } from "./tokenTypes";
+import type { ITokenSharedProps } from './tokenTypes';
 
 // Token radius constants — exported so UnitTokenForType can scale the selection ring.
 export const MECH_TOKEN_RADIUS = HEX_SIZE * 0.5;
@@ -52,10 +52,10 @@ export const MechToken = React.memo(function MechToken({
   }
 
   const ringColor = token.isSelected
-    ? "#fbbf24"
+    ? '#fbbf24'
     : token.isValidTarget
-      ? "#f87171"
-      : "transparent";
+      ? '#f87171'
+      : 'transparent';
 
   return (
     <>

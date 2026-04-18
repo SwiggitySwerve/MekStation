@@ -12,7 +12,7 @@
 import {
   AerospaceArc,
   AerospaceSubType,
-} from "../../../types/unit/AerospaceInterfaces";
+} from '../../../types/unit/AerospaceInterfaces';
 
 // ============================================================================
 // Arc Factor Tables

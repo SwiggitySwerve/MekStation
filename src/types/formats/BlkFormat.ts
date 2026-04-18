@@ -17,9 +17,9 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.2
  */
 
-import type { ResultType } from "@/services/core/types/BaseTypes";
+import type { ResultType } from '@/services/core/types/BaseTypes';
 
-import { UnitType } from "../unit/BattleMechInterfaces";
+import { UnitType } from '../unit/BattleMechInterfaces';
 
 /**
  * Raw parsed BLK document before type-specific conversion
@@ -383,12 +383,12 @@ export interface IUnsupportedBlkResult {
  * - 'unsupported'→ IUnsupportedBlkResult
  */
 export type BlkDispatchResult =
-  | { readonly kind: "vehicle"; readonly data: IVehicleBlkResult }
-  | { readonly kind: "aerospace"; readonly data: IAerospaceBlkResult }
-  | { readonly kind: "battlearmor"; readonly data: IBattleArmorBlkResult }
-  | { readonly kind: "infantry"; readonly data: IInfantryBlkResult }
-  | { readonly kind: "protomech"; readonly data: IProtoMechBlkResult }
-  | { readonly kind: "unsupported"; readonly data: IUnsupportedBlkResult };
+  | { readonly kind: 'vehicle'; readonly data: IVehicleBlkResult }
+  | { readonly kind: 'aerospace'; readonly data: IAerospaceBlkResult }
+  | { readonly kind: 'battlearmor'; readonly data: IBattleArmorBlkResult }
+  | { readonly kind: 'infantry'; readonly data: IInfantryBlkResult }
+  | { readonly kind: 'protomech'; readonly data: IProtoMechBlkResult }
+  | { readonly kind: 'unsupported'; readonly data: IUnsupportedBlkResult };
 
 /**
  * Result of parseByUnitType call: either a dispatched result or a parse failure.
@@ -434,19 +434,19 @@ export const BLK_UNIT_TYPE_MAP: Record<string, UnitType> = {
  */
 export const BLK_EQUIPMENT_LOCATIONS: Record<string, readonly string[]> = {
   // Vehicles
-  Vehicle: ["Front", "Left", "Right", "Rear", "Turret", "Body"],
-  VTOL: ["Front", "Left", "Right", "Rear", "Turret", "Body", "Rotor"],
+  Vehicle: ['Front', 'Left', 'Right', 'Rear', 'Turret', 'Body'],
+  VTOL: ['Front', 'Left', 'Right', 'Rear', 'Turret', 'Body', 'Rotor'],
   // Aerospace
-  Aero: ["Nose", "Left Wing", "Right Wing", "Aft", "Wings", "Fuselage"],
+  Aero: ['Nose', 'Left Wing', 'Right Wing', 'Aft', 'Wings', 'Fuselage'],
   // Capital ships
-  Dropship: ["Nose", "Left Side", "Right Side", "Aft", "Hull"],
-  Capital: ["Nose", "FL", "FR", "AL", "AR", "Aft", "LBS", "RBS"],
+  Dropship: ['Nose', 'Left Side', 'Right Side', 'Aft', 'Hull'],
+  Capital: ['Nose', 'FL', 'FR', 'AL', 'AR', 'Aft', 'LBS', 'RBS'],
   // Battle Armor
-  BattleArmor: ["Squad", "Body", "Left Arm", "Right Arm", "Turret"],
+  BattleArmor: ['Squad', 'Body', 'Left Arm', 'Right Arm', 'Turret'],
   // Infantry - no location-based equipment
   Infantry: [],
   // ProtoMech
-  ProtoMech: ["Head", "Torso", "Main Gun", "Left Arm", "Right Arm", "Legs"],
+  ProtoMech: ['Head', 'Torso', 'Main Gun', 'Left Arm', 'Right Arm', 'Legs'],
 };
 
 /**
@@ -454,42 +454,42 @@ export const BLK_EQUIPMENT_LOCATIONS: Record<string, readonly string[]> = {
  */
 export const BLK_EQUIPMENT_BLOCK_TAGS: readonly string[] = [
   // Standard location-based
-  "Front Equipment",
-  "Left Equipment",
-  "Left Side Equipment",
-  "Right Equipment",
-  "Right Side Equipment",
-  "Rear Equipment",
-  "Turret Equipment",
-  "Body Equipment",
+  'Front Equipment',
+  'Left Equipment',
+  'Left Side Equipment',
+  'Right Equipment',
+  'Right Side Equipment',
+  'Rear Equipment',
+  'Turret Equipment',
+  'Body Equipment',
   // Aerospace
-  "Nose Equipment",
-  "Left Wing Equipment",
-  "Right Wing Equipment",
-  "Aft Equipment",
-  "Wings Equipment",
-  "Fuselage Equipment",
-  "Hull Equipment",
+  'Nose Equipment',
+  'Left Wing Equipment',
+  'Right Wing Equipment',
+  'Aft Equipment',
+  'Wings Equipment',
+  'Fuselage Equipment',
+  'Hull Equipment',
   // Capital arcs
-  "FL Equipment",
-  "FR Equipment",
-  "AL Equipment",
-  "AR Equipment",
-  "LBS Equipment",
-  "RBS Equipment",
+  'FL Equipment',
+  'FR Equipment',
+  'AL Equipment',
+  'AR Equipment',
+  'LBS Equipment',
+  'RBS Equipment',
   // Battle Armor
-  "Squad Equipment",
-  "Trooper 1 Equipment",
-  "Trooper 2 Equipment",
-  "Trooper 3 Equipment",
-  "Trooper 4 Equipment",
-  "Trooper 5 Equipment",
-  "Trooper 6 Equipment",
+  'Squad Equipment',
+  'Trooper 1 Equipment',
+  'Trooper 2 Equipment',
+  'Trooper 3 Equipment',
+  'Trooper 4 Equipment',
+  'Trooper 5 Equipment',
+  'Trooper 6 Equipment',
   // ProtoMech
-  "Head Equipment",
-  "Torso Equipment",
-  "Main Gun Equipment",
-  "Left Arm Equipment",
-  "Right Arm Equipment",
-  "Legs Equipment",
+  'Head Equipment',
+  'Torso Equipment',
+  'Main Gun Equipment',
+  'Left Arm Equipment',
+  'Right Arm Equipment',
+  'Legs Equipment',
 ];

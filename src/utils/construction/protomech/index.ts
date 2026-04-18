@@ -17,7 +17,7 @@ export {
   PROTO_MIN_TONNAGE,
   PROTO_MIN_ULTRAHEAVY_TONNAGE,
   ProtoWeightClass,
-} from "./weightClass";
+} from './weightClass';
 
 // Movement caps and engine formulas
 export {
@@ -29,7 +29,7 @@ export {
   getProtoMPCaps,
   isMyomerBoosterLegal,
   PROTO_ENGINE_WEIGHT_FACTOR,
-} from "./movementCaps";
+} from './movementCaps';
 
 // Main gun approved list and arm-placement helpers
 export {
@@ -40,7 +40,7 @@ export {
   PROTO_MAIN_GUN_APPROVED_WEAPON_IDS,
   ProtoWeaponSizeClass,
   requiresMainGunMount,
-} from "./mainGun";
+} from './mainGun';
 
 // Validation rules (VAL-PROTO-*)
 export {
@@ -56,10 +56,10 @@ export {
   validateProtoMP,
   validateProtoTechBase,
   validateProtoTonnage,
-} from "./validation";
+} from './validation';
 
 // Types re-exported for convenience
-export type { IProtoMPCaps } from "./movementCaps";
+export type { IProtoMPCaps } from './movementCaps';
 export type {
   ProtoMechBuildSnapshot,
   ProtoMechValidationResult,
@@ -67,4 +67,4 @@ export type {
   ValidationFinding,
   ValidationRuleResult,
   ValidationSeverity,
-} from "./validation";
+} from './validation';

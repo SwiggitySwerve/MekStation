@@ -8,30 +8,30 @@
  * Dimensions: 612 × 792 pts (US Letter) to match the mech sheet canvas.
  */
 
-import { IProtoMechRecordSheetData } from "@/types/printing";
+import { IProtoMechRecordSheetData } from '@/types/printing';
 
 const SVG_W = 612;
 const SVG_H = 792;
 const MARGIN = 18;
-const FONT = "Eurostile, Arial, sans-serif";
+const FONT = 'Eurostile, Arial, sans-serif';
 
 /** Escape text for safe SVG embedding. */
 function esc(s: string | number): string {
   return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 /** Ordered list of proto armor locations to render. */
 const PROTO_LOCATIONS = [
-  "Head",
-  "Torso",
-  "Left Arm",
-  "Right Arm",
-  "Legs",
-  "Main Gun",
+  'Head',
+  'Torso',
+  'Left Arm',
+  'Right Arm',
+  'Legs',
+  'Main Gun',
 ] as const;
 
 type ProtoLoc = (typeof PROTO_LOCATIONS)[number];
@@ -78,26 +78,26 @@ export function renderProtoMechSVG(data: IProtoMechRecordSheetData): string {
 
   // ── Movement + flags ─────────────────────────────────────────────────────
   const moveY = MARGIN + 46;
-  const flags = [hasUMU && "UMU", isGlider && "Glider"]
+  const flags = [hasUMU && 'UMU', isGlider && 'Glider']
     .filter(Boolean)
-    .join(", ");
+    .join(', ');
   body += `
   <!-- Movement -->
   <text x="${MARGIN}" y="${moveY}" font-family="${FONT}" font-size="8" font-weight="bold" fill="#000">MOVEMENT</text>
-  <text x="${MARGIN + 4}" y="${moveY + 13}" font-family="${FONT}" font-size="7" fill="#000">Walk: ${esc(walkMP)}  Jump: ${esc(jumpMP)}${flags ? `  [${esc(flags)}]` : ""}</text>`;
+  <text x="${MARGIN + 4}" y="${moveY + 13}" font-family="${FONT}" font-size="7" fill="#000">Walk: ${esc(walkMP)}  Jump: ${esc(jumpMP)}${flags ? `  [${esc(flags)}]` : ''}</text>`;
 
   // ── Main gun block ───────────────────────────────────────────────────────
   const gunY = moveY + 28;
   if (mainGun) {
     body += `
   <!-- Main gun -->
-  <text x="${MARGIN}" y="${gunY}" font-family="${FONT}" font-size="8" font-weight="bold" fill="#000">MAIN GUN: ${esc(mainGun)}${mainGunAmmo !== undefined ? `  (${esc(mainGunAmmo)} shots)` : ""}</text>`;
+  <text x="${MARGIN}" y="${gunY}" font-family="${FONT}" font-size="8" font-weight="bold" fill="#000">MAIN GUN: ${esc(mainGun)}${mainGunAmmo !== undefined ? `  (${esc(mainGunAmmo)} shots)` : ''}</text>`;
   }
 
   // ── Per-proto armor columns ──────────────────────────────────────────────
   const armorStartY = mainGun ? gunY + 16 : gunY;
   body += `
-  <!-- Per-proto armor (${esc(pointSize)} unit${pointSize !== 1 ? "s" : ""}) -->
+  <!-- Per-proto armor (${esc(pointSize)} unit${pointSize !== 1 ? 's' : ''}) -->
   <text x="${MARGIN}" y="${armorStartY}" font-family="${FONT}" font-size="8" font-weight="bold" fill="#000">ARMOR BY LOCATION</text>`;
 
   const colW = Math.floor((SVG_W - MARGIN * 2) / Math.max(pointSize, 1));
@@ -157,17 +157,17 @@ export function renderProtoMechSVG(data: IProtoMechRecordSheetData): string {
     equipment.slice(0, maxEqRows).forEach((eq, i) => {
       const ry = hdrY + 10 + i * 9;
       const name =
-        eq.name.length > 22 ? eq.name.substring(0, 20) + ".." : eq.name;
+        eq.name.length > 22 ? eq.name.substring(0, 20) + '..' : eq.name;
       body += `
   <text x="${cols.qty}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.quantity)}</text>
   <text x="${cols.name}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(name)}</text>
   <text x="${cols.loc}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.locationAbbr)}</text>`;
       if (eq.isWeapon) {
         body += `
-  <text x="${cols.dmg}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.damage ?? "-")}</text>
-  <text x="${cols.sht}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.short || "-")}</text>
-  <text x="${cols.med}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.medium || "-")}</text>
-  <text x="${cols.lng}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.long || "-")}</text>`;
+  <text x="${cols.dmg}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.damage ?? '-')}</text>
+  <text x="${cols.sht}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.short || '-')}</text>
+  <text x="${cols.med}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.medium || '-')}</text>
+  <text x="${cols.lng}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.long || '-')}</text>`;
       } else if (eq.isAmmo) {
         body += `<text x="${cols.dmg}" y="${ry}" font-family="${FONT}" font-size="6" fill="#555">(${esc(eq.ammoCount ?? 0)} shots)</text>`;
       }

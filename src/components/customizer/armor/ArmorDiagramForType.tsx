@@ -8,15 +8,15 @@
  *        Requirement: Per-Type Diagram Selection
  */
 
-import React from "react";
+import React from 'react';
 
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-import { AerospaceArmorDiagram } from "../aerospace/AerospaceArmorDiagram";
-import { BattleArmorPipGrid } from "../battlearmor/BattleArmorPipGrid";
-import { InfantryPlatoonCounter } from "../infantry/InfantryPlatoonCounter";
-import { ProtoMechArmorDiagram } from "../protomech/ProtoMechArmorDiagram";
-import { VehicleArmorDiagram } from "../vehicle/VehicleArmorDiagram";
+import { AerospaceArmorDiagram } from '../aerospace/AerospaceArmorDiagram';
+import { BattleArmorPipGrid } from '../battlearmor/BattleArmorPipGrid';
+import { InfantryPlatoonCounter } from '../infantry/InfantryPlatoonCounter';
+import { ProtoMechArmorDiagram } from '../protomech/ProtoMechArmorDiagram';
+import { VehicleArmorDiagram } from '../vehicle/VehicleArmorDiagram';
 
 // =============================================================================
 // Types
@@ -49,7 +49,7 @@ export interface ArmorDiagramForTypeProps {
  */
 export function ArmorDiagramForType({
   unitType,
-  className = "",
+  className = '',
 }: ArmorDiagramForTypeProps): React.ReactElement {
   switch (unitType) {
     case UnitType.VEHICLE:
@@ -81,7 +81,7 @@ export function ArmorDiagramForType({
         <div
           className={`text-text-theme-secondary p-4 text-center text-sm ${className}`}
         >
-          Use <code className="font-mono text-xs">&lt;ArmorDiagram&gt;</code>{" "}
+          Use <code className="font-mono text-xs">&lt;ArmorDiagram&gt;</code>{' '}
           for mech-type units.
         </div>
       );

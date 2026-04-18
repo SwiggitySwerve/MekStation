@@ -8,11 +8,11 @@
  * @spec openspec/specs/customizer-responsive-layout/spec.md
  */
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from 'react';
 
-import { ValidationTabBadge } from "@/components/customizer/shared/ValidationTabBadge";
-import { useTabKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
-import { ValidationCountsByTab } from "@/utils/validation/validationNavigation";
+import { ValidationTabBadge } from '@/components/customizer/shared/ValidationTabBadge';
+import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
+import { ValidationCountsByTab } from '@/utils/validation/validationNavigation';
 
 /**
  * Customizer tab configuration
@@ -173,13 +173,13 @@ const TabIcons: Record<string, React.ReactNode> = {
  * Note: Preview tab added for record sheet generation per add-record-sheet-pdf-export change
  */
 export const DEFAULT_CUSTOMIZER_TABS: CustomizerTabConfig[] = [
-  { id: "overview", label: "Overview", icon: TabIcons.overview },
-  { id: "structure", label: "Structure", icon: TabIcons.structure },
-  { id: "armor", label: "Armor", icon: TabIcons.armor },
-  { id: "equipment", label: "Equipment", icon: TabIcons.equipment },
-  { id: "criticals", label: "Critical Slots", icon: TabIcons.criticals },
-  { id: "fluff", label: "Fluff", icon: TabIcons.fluff },
-  { id: "preview", label: "Preview", icon: TabIcons.preview },
+  { id: 'overview', label: 'Overview', icon: TabIcons.overview },
+  { id: 'structure', label: 'Structure', icon: TabIcons.structure },
+  { id: 'armor', label: 'Armor', icon: TabIcons.armor },
+  { id: 'equipment', label: 'Equipment', icon: TabIcons.equipment },
+  { id: 'criticals', label: 'Critical Slots', icon: TabIcons.criticals },
+  { id: 'fluff', label: 'Fluff', icon: TabIcons.fluff },
+  { id: 'preview', label: 'Preview', icon: TabIcons.preview },
 ];
 
 /**
@@ -195,7 +195,7 @@ export function CustomizerTabs({
   activeTab,
   onTabChange,
   readOnly = false,
-  className = "",
+  className = '',
   validationCounts,
   dirtyTabs,
   errorTabs,
@@ -218,12 +218,12 @@ export function CustomizerTabs({
     };
 
     checkScroll();
-    container.addEventListener("scroll", checkScroll);
-    window.addEventListener("resize", checkScroll);
+    container.addEventListener('scroll', checkScroll);
+    window.addEventListener('resize', checkScroll);
 
     return () => {
-      container.removeEventListener("scroll", checkScroll);
-      window.removeEventListener("resize", checkScroll);
+      container.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
     };
   }, [tabs]);
 
@@ -256,9 +256,9 @@ export function CustomizerTabs({
             disabled={tab.disabled}
             className={`focus:ring-accent flex min-h-[44px] min-w-[44px] flex-1 items-center justify-center gap-1 border-b-2 px-2 py-2 text-sm font-medium whitespace-nowrap transition-colors focus:ring-2 focus:outline-none focus:ring-inset sm:gap-2 sm:px-4 ${
               tab.id === activeTab
-                ? "text-accent border-accent"
-                : "text-text-theme-secondary hover:border-border-theme-subtle border-transparent hover:text-white"
-            } ${tab.disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"} ${readOnly ? "pointer-events-none" : ""} `}
+                ? 'text-accent border-accent'
+                : 'text-text-theme-secondary hover:border-border-theme-subtle border-transparent hover:text-white'
+            } ${tab.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${readOnly ? 'pointer-events-none' : ''} `}
           >
             {tab.icon}
             <span className="hidden sm:inline">{tab.label}</span>
@@ -312,7 +312,7 @@ export function CustomizerTabs({
  * Hook for managing customizer tab state
  */
 export function useCustomizerTabs(
-  initialTab: string = "overview",
+  initialTab: string = 'overview',
   tabs: CustomizerTabConfig[] = DEFAULT_CUSTOMIZER_TABS,
 ): {
   tabs: CustomizerTabConfig[];

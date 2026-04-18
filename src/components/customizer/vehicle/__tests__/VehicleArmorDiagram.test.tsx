@@ -14,20 +14,20 @@
  *       Scenario: Turret configured shows Turret location
  */
 
-import { render, screen } from "@testing-library/react";
-import React from "react";
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 
-import { useVehicleStore, VehicleStore } from "@/stores/useVehicleStore";
+import { useVehicleStore, VehicleStore } from '@/stores/useVehicleStore';
 import {
   VehicleLocation,
   VTOLLocation,
-} from "@/types/construction/UnitLocation";
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
+} from '@/types/construction/UnitLocation';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-import { VehicleArmorDiagram } from "../VehicleArmorDiagram";
+import { VehicleArmorDiagram } from '../VehicleArmorDiagram';
 
-jest.mock("@/stores/useVehicleStore");
+jest.mock('@/stores/useVehicleStore');
 const mockUseVehicleStore = useVehicleStore as jest.MockedFunction<
   typeof useVehicleStore
 >;
@@ -57,26 +57,26 @@ beforeEach(() => {
   );
 });
 
-describe("VehicleArmorDiagram", () => {
-  it("renders the 4 base armor location labels", () => {
+describe('VehicleArmorDiagram', () => {
+  it('renders the 4 base armor location labels', () => {
     render(<VehicleArmorDiagram />);
-    expect(screen.getByText("Front")).toBeInTheDocument();
-    expect(screen.getByText("Left Side")).toBeInTheDocument();
-    expect(screen.getByText("Right Side")).toBeInTheDocument();
-    expect(screen.getByText("Rear")).toBeInTheDocument();
+    expect(screen.getByText('Front')).toBeInTheDocument();
+    expect(screen.getByText('Left Side')).toBeInTheDocument();
+    expect(screen.getByText('Right Side')).toBeInTheDocument();
+    expect(screen.getByText('Rear')).toBeInTheDocument();
   });
 
-  it("shows Turret location when hasTurret", () => {
+  it('shows Turret location when hasTurret', () => {
     mockUseVehicleStore.mockImplementation((selector) =>
       selector(
-        makeState({ turret: { type: "Single" } }) as unknown as VehicleStore,
+        makeState({ turret: { type: 'Single' } }) as unknown as VehicleStore,
       ),
     );
     render(<VehicleArmorDiagram />);
-    expect(screen.getByText("Turret")).toBeInTheDocument();
+    expect(screen.getByText('Turret')).toBeInTheDocument();
   });
 
-  it("shows Rotor location when VTOL", () => {
+  it('shows Rotor location when VTOL', () => {
     mockUseVehicleStore.mockImplementation((selector) =>
       selector(
         makeState({
@@ -86,10 +86,10 @@ describe("VehicleArmorDiagram", () => {
       ),
     );
     render(<VehicleArmorDiagram />);
-    expect(screen.getByText("Rotor")).toBeInTheDocument();
+    expect(screen.getByText('Rotor')).toBeInTheDocument();
   });
 
-  it("shows Body location when support vehicle", () => {
+  it('shows Body location when support vehicle', () => {
     mockUseVehicleStore.mockImplementation((selector) =>
       selector(
         makeState({
@@ -98,20 +98,20 @@ describe("VehicleArmorDiagram", () => {
       ),
     );
     render(<VehicleArmorDiagram />);
-    expect(screen.getByText("Body")).toBeInTheDocument();
+    expect(screen.getByText('Body')).toBeInTheDocument();
   });
 
-  it("disables auto-allocate button when armorTonnage is 0", () => {
+  it('disables auto-allocate button when armorTonnage is 0', () => {
     mockUseVehicleStore.mockImplementation((selector) =>
       selector(makeState({ armorTonnage: 0 }) as unknown as VehicleStore),
     );
     render(<VehicleArmorDiagram />);
-    const btn = screen.getByTestId("vehicle-armor-auto-allocate");
+    const btn = screen.getByTestId('vehicle-armor-auto-allocate');
     expect(btn).toBeDisabled();
   });
 
-  it("does not show Turret when turret is null", () => {
+  it('does not show Turret when turret is null', () => {
     render(<VehicleArmorDiagram />);
-    expect(screen.queryByText("Turret")).not.toBeInTheDocument();
+    expect(screen.queryByText('Turret')).not.toBeInTheDocument();
   });
 });

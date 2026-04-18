@@ -13,14 +13,15 @@ import {
   BA_VALIDATION_RULES,
   BA_WEIGHT_CLASS_LIMITS,
   IBattleArmorUnit,
-} from "@/types/unit/BattleArmorInterfaces";
-import { validateAntiMechEquipment } from "./antiMech";
-import { validateArmor } from "./armor";
-import { isArmLocation, isLegLocation } from "./chassis";
-import { computeTrooperMass } from "./mass";
-import { validateAllManipulatorCompatibility } from "./manipulators";
-import { validateMovement } from "./movement";
-import { validateSquadSize } from "./squad";
+} from '@/types/unit/BattleArmorInterfaces';
+
+import { validateAntiMechEquipment } from './antiMech';
+import { validateArmor } from './armor';
+import { isArmLocation, isLegLocation } from './chassis';
+import { validateAllManipulatorCompatibility } from './manipulators';
+import { computeTrooperMass } from './mass';
+import { validateMovement } from './movement';
+import { validateSquadSize } from './squad';
 
 // ============================================================================
 // Result types
@@ -28,7 +29,7 @@ import { validateSquadSize } from "./squad";
 
 export interface BAConstructionIssue {
   readonly ruleId: string;
-  readonly severity: "error" | "warning";
+  readonly severity: 'error' | 'warning';
   readonly message: string;
 }
 
@@ -67,20 +68,20 @@ function validateSlots(unit: IBattleArmorUnit): string[] {
 
   // Slot capacity differs by chassis type
   const capacity =
-    unit.chassisType === "Biped"
+    unit.chassisType === 'Biped'
       ? {
           Body: 2,
-          "Left Arm": 2,
-          "Right Arm": 2,
-          "Left Leg": 1,
-          "Right Leg": 1,
+          'Left Arm': 2,
+          'Right Arm': 2,
+          'Left Leg': 1,
+          'Right Leg': 1,
         }
       : {
           Body: 2,
-          "Left Arm": 0,
-          "Right Arm": 0,
-          "Left Leg": 1,
-          "Right Leg": 1,
+          'Left Arm': 0,
+          'Right Arm': 0,
+          'Left Leg': 1,
+          'Right Leg': 1,
         };
 
   for (const [loc, used] of Object.entries(slotUsage)) {
@@ -93,7 +94,7 @@ function validateSlots(unit: IBattleArmorUnit): string[] {
   }
 
   // Arm-mounted weapons on Quad are always illegal
-  if (unit.chassisType === "Quad") {
+  if (unit.chassisType === 'Quad') {
     for (const weapon of unit.weapons) {
       if (isArmLocation(weapon.location)) {
         errors.push(
@@ -121,10 +122,10 @@ function validateSlots(unit: IBattleArmorUnit): string[] {
 
 function installedAntiMechIds(unit: IBattleArmorUnit): string[] {
   const ids: string[] = [];
-  if (unit.hasMagneticClamp) ids.push("ba-magnetic-clamp");
-  if (unit.hasMechanicalJumpBooster) ids.push("ba-mechanical-jump-booster");
-  if (unit.hasPartialWing) ids.push("ba-partial-wing");
-  if (unit.hasDetachableWeaponPack) ids.push("ba-detachable-weapon-pack");
+  if (unit.hasMagneticClamp) ids.push('ba-magnetic-clamp');
+  if (unit.hasMechanicalJumpBooster) ids.push('ba-mechanical-jump-booster');
+  if (unit.hasPartialWing) ids.push('ba-partial-wing');
+  if (unit.hasDetachableWeaponPack) ids.push('ba-detachable-weapon-pack');
   return ids;
 }
 
@@ -134,12 +135,12 @@ function installedAntiMechIds(unit: IBattleArmorUnit): string[] {
 
 function extractRuleId(message: string): string {
   const match = /^(VAL-BA-[\w-]+)/.exec(message);
-  return match?.[1] ?? "UNKNOWN";
+  return match?.[1] ?? 'UNKNOWN';
 }
 
 function toIssues(
   messages: readonly string[],
-  severity: "error" | "warning",
+  severity: 'error' | 'warning',
 ): BAConstructionIssue[] {
   return messages.map((message) => ({
     ruleId: extractRuleId(message),
@@ -230,8 +231,8 @@ export function validateBattleArmorConstruction(
   }
 
   const issues: BAConstructionIssue[] = [
-    ...toIssues(errors, "error"),
-    ...toIssues(warnings, "warning"),
+    ...toIssues(errors, 'error'),
+    ...toIssues(warnings, 'warning'),
   ];
 
   return {

@@ -8,23 +8,23 @@
  * @spec openspec/changes/add-protomech-construction/tasks.md §10.2
  */
 
-import React, { useCallback } from "react";
+import React, { useCallback } from 'react';
 
-import { useProtoMechStore } from "@/stores/useProtoMechStore";
-import { ProtoMechLocation } from "@/types/construction/UnitLocation";
+import { useProtoMechStore } from '@/stores/useProtoMechStore';
+import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import {
   ProtoChassis,
   PROTO_MAIN_GUN_APPROVED_WEAPON_IDS,
-} from "@/types/unit/ProtoMechInterfaces";
+} from '@/types/unit/ProtoMechInterfaces';
 import {
   effectiveJumpMP,
   effectiveWalkMP,
   getProtoWeightClass,
   getProtoMPCaps,
-} from "@/utils/construction/protomech";
+} from '@/utils/construction/protomech';
 
-import { customizerStyles as cs } from "../styles";
-import { ProtoMechArmorDiagram } from "./ProtoMechArmorDiagram";
+import { customizerStyles as cs } from '../styles';
+import { ProtoMechArmorDiagram } from './ProtoMechArmorDiagram';
 
 // =============================================================================
 // Constants
@@ -37,20 +37,20 @@ const ULTRAHEAVY_TONNAGE_OPTIONS = [10, 11, 12, 13, 14, 15];
 
 /** Human-readable chassis labels */
 const CHASSIS_LABELS: Record<ProtoChassis, string> = {
-  [ProtoChassis.BIPED]: "Biped",
-  [ProtoChassis.QUAD]: "Quad",
-  [ProtoChassis.GLIDER]: "Glider (Light only)",
-  [ProtoChassis.ULTRAHEAVY]: "Ultraheavy (10–15 t)",
+  [ProtoChassis.BIPED]: 'Biped',
+  [ProtoChassis.QUAD]: 'Quad',
+  [ProtoChassis.GLIDER]: 'Glider (Light only)',
+  [ProtoChassis.ULTRAHEAVY]: 'Ultraheavy (10–15 t)',
 };
 
 /** Armor location display labels */
 const LOCATION_LABELS: Record<string, string> = {
-  [ProtoMechLocation.HEAD]: "Head",
-  [ProtoMechLocation.TORSO]: "Torso",
-  [ProtoMechLocation.LEFT_ARM]: "Left Arm",
-  [ProtoMechLocation.RIGHT_ARM]: "Right Arm",
-  [ProtoMechLocation.LEGS]: "Legs",
-  [ProtoMechLocation.MAIN_GUN]: "Main Gun",
+  [ProtoMechLocation.HEAD]: 'Head',
+  [ProtoMechLocation.TORSO]: 'Torso',
+  [ProtoMechLocation.LEFT_ARM]: 'Left Arm',
+  [ProtoMechLocation.RIGHT_ARM]: 'Right Arm',
+  [ProtoMechLocation.LEGS]: 'Legs',
+  [ProtoMechLocation.MAIN_GUN]: 'Main Gun',
 };
 
 /**
@@ -58,15 +58,15 @@ const LOCATION_LABELS: Record<string, string> = {
  * Order: lightest/most common first.
  */
 const MAIN_GUN_WEAPON_OPTIONS = [
-  { id: "clan-lrm-5", label: "LRM-5" },
-  { id: "clan-lrm-10", label: "LRM-10" },
-  { id: "clan-ac-2", label: "AC/2" },
-  { id: "clan-ac-5", label: "AC/5" },
-  { id: "clan-medium-pulse-laser", label: "Medium Pulse Laser" },
-  { id: "clan-er-medium-laser", label: "ER Medium Laser" },
-  { id: "clan-ppc", label: "PPC" },
-  { id: "clan-er-ppc", label: "ER PPC" },
-  { id: "clan-gauss-rifle", label: "Gauss Rifle" },
+  { id: 'clan-lrm-5', label: 'LRM-5' },
+  { id: 'clan-lrm-10', label: 'LRM-10' },
+  { id: 'clan-ac-2', label: 'AC/2' },
+  { id: 'clan-ac-5', label: 'AC/5' },
+  { id: 'clan-medium-pulse-laser', label: 'Medium Pulse Laser' },
+  { id: 'clan-er-medium-laser', label: 'ER Medium Laser' },
+  { id: 'clan-ppc', label: 'PPC' },
+  { id: 'clan-er-ppc', label: 'ER PPC' },
+  { id: 'clan-gauss-rifle', label: 'Gauss Rifle' },
 ] as const;
 
 // =============================================================================
@@ -245,7 +245,7 @@ export function ProtoMechStructureTab({
           <div>
             <label className={cs.text.label}>Weight Class</label>
             {/* Derived read-only display */}
-            <div className="bg-surface-raised border-border-theme rounded border px-3 py-2 text-sm font-semibold text-accent">
+            <div className="bg-surface-raised border-border-theme text-accent rounded border px-3 py-2 text-sm font-semibold">
               {weightClass}
             </div>
           </div>
@@ -258,7 +258,7 @@ export function ProtoMechStructureTab({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label className={cs.text.label}>
-              Walk MP{" "}
+              Walk MP{' '}
               <span className={cs.text.secondary}>(cap: {mpCaps.walkMax})</span>
             </label>
             <input
@@ -281,7 +281,7 @@ export function ProtoMechStructureTab({
           </div>
           <div>
             <label className={cs.text.label}>
-              Jump MP{" "}
+              Jump MP{' '}
               {isUltraheavy ? (
                 <span className="text-red-400">(Ultraheavy: 0)</span>
               ) : (
@@ -329,7 +329,7 @@ export function ProtoMechStructureTab({
               className="border-border-theme bg-surface-raised rounded"
             />
             <span className="text-sm text-white">
-              Myomer Booster{" "}
+              Myomer Booster{' '}
               <span className={cs.text.secondary}>
                 (Light / Medium only; +1 walk)
               </span>
@@ -347,7 +347,7 @@ export function ProtoMechStructureTab({
                 className="border-border-theme bg-surface-raised rounded"
               />
               <span className="text-sm text-white">
-                Gliding Wings{" "}
+                Gliding Wings{' '}
                 <span className={cs.text.secondary}>(+2 jump MP)</span>
               </span>
             </label>
@@ -373,11 +373,11 @@ export function ProtoMechStructureTab({
           <div>
             <label className={cs.text.label}>Weapon</label>
             <select
-              value={mainGunWeaponId ?? ""}
+              value={mainGunWeaponId ?? ''}
               onChange={(e) => {
                 if (!readOnly) {
                   const val = e.target.value;
-                  setMainGunWeaponId(val === "" ? null : val);
+                  setMainGunWeaponId(val === '' ? null : val);
                 }
               }}
               disabled={readOnly}
@@ -404,7 +404,7 @@ export function ProtoMechStructureTab({
       {/* Armor Allocation */}
       <div className={cs.panel.main}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className={cs.text.sectionTitle.replace("mb-4", "mb-0")}>
+          <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>
             Armor Allocation
           </h3>
           <div className="flex gap-2">

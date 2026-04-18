@@ -12,14 +12,14 @@
  *        §Per-Type Facing Rules
  */
 
-import { TokenUnitType } from "@/types/gameplay";
+import { TokenUnitType } from '@/types/gameplay';
 
 // =============================================================================
 // Facing Mode Discriminant
 // =============================================================================
 
 /** The three canonical facing conventions used across all unit types. */
-export type FacingMode = "hex6" | "cardinal8" | "vector" | "none";
+export type FacingMode = 'hex6' | 'cardinal8' | 'vector' | 'none';
 
 /**
  * Describes how a unit type expresses its facing on the map.
@@ -58,14 +58,14 @@ export interface IFacingRules {
  * Index 0 = North, increasing clockwise.
  */
 export const CARDINAL8_LABELS: readonly string[] = [
-  "N",
-  "NE",
-  "E",
-  "SE",
-  "S",
-  "SW",
-  "W",
-  "NW",
+  'N',
+  'NE',
+  'E',
+  'SE',
+  'S',
+  'SW',
+  'W',
+  'NW',
 ] as const;
 
 /**
@@ -73,12 +73,12 @@ export const CARDINAL8_LABELS: readonly string[] = [
  * Aligns with the Facing enum (0=North through 5=Northwest).
  */
 export const HEX6_LABELS: readonly string[] = [
-  "N",
-  "NE",
-  "SE",
-  "S",
-  "SW",
-  "NW",
+  'N',
+  'NE',
+  'SE',
+  'S',
+  'SW',
+  'NW',
 ] as const;
 
 // =============================================================================
@@ -87,39 +87,39 @@ export const HEX6_LABELS: readonly string[] = [
 
 const FACING_RULES_BY_TYPE: Readonly<Record<TokenUnitType, IFacingRules>> = {
   [TokenUnitType.Mech]: {
-    mode: "hex6",
+    mode: 'hex6',
     stateCount: 6,
-    indicatorLabel: "Hex facing",
+    indicatorLabel: 'Hex facing',
     tokenRotates: true,
   },
   [TokenUnitType.ProtoMech]: {
-    mode: "hex6",
+    mode: 'hex6',
     stateCount: 6,
-    indicatorLabel: "Hex facing",
+    indicatorLabel: 'Hex facing',
     tokenRotates: true,
   },
   [TokenUnitType.Vehicle]: {
-    mode: "cardinal8",
+    mode: 'cardinal8',
     stateCount: 8,
-    indicatorLabel: "Cardinal facing",
+    indicatorLabel: 'Cardinal facing',
     tokenRotates: true,
   },
   [TokenUnitType.Aerospace]: {
-    mode: "vector",
+    mode: 'vector',
     stateCount: Infinity,
-    indicatorLabel: "Velocity vector",
+    indicatorLabel: 'Velocity vector',
     tokenRotates: true,
   },
   [TokenUnitType.Infantry]: {
-    mode: "none",
+    mode: 'none',
     stateCount: 0,
-    indicatorLabel: "No facing",
+    indicatorLabel: 'No facing',
     tokenRotates: false,
   },
   [TokenUnitType.BattleArmor]: {
-    mode: "none",
+    mode: 'none',
     stateCount: 0,
-    indicatorLabel: "No facing",
+    indicatorLabel: 'No facing',
     tokenRotates: false,
   },
 };
@@ -196,11 +196,11 @@ export function facingLabel(
 ): string {
   const rules = getFacingRules(unitType);
   switch (rules.mode) {
-    case "hex6":
-      return HEX6_LABELS[facing % 6] ?? "N";
-    case "cardinal8":
-      return CARDINAL8_LABELS[facing % 8] ?? "N";
+    case 'hex6':
+      return HEX6_LABELS[facing % 6] ?? 'N';
+    case 'cardinal8':
+      return CARDINAL8_LABELS[facing % 8] ?? 'N';
     default:
-      return "";
+      return '';
   }
 }

@@ -8,18 +8,18 @@ import {
   IProtoMechRecordSheetData,
   IProtoMechUnit,
   IRecordSheetEquipment,
-} from "@/types/printing";
+} from '@/types/printing';
 
-import { extractHeader } from "./dataExtractors";
+import { extractHeader } from './dataExtractors';
 
 /** ProtoMech location keys. */
 type ProtoLoc =
-  | "Head"
-  | "Torso"
-  | "Left Arm"
-  | "Right Arm"
-  | "Legs"
-  | "Main Gun";
+  | 'Head'
+  | 'Torso'
+  | 'Left Arm'
+  | 'Right Arm'
+  | 'Legs'
+  | 'Main Gun';
 
 /** ProtoMech-specific unit config fields. */
 export interface IProtoMechUnitConfig {
@@ -68,10 +68,10 @@ export interface IProtoMechUnitConfig {
 const DEFAULT_ARMOR: Record<ProtoLoc, { current: number; maximum: number }> = {
   Head: { current: 0, maximum: 0 },
   Torso: { current: 0, maximum: 0 },
-  "Left Arm": { current: 0, maximum: 0 },
-  "Right Arm": { current: 0, maximum: 0 },
+  'Left Arm': { current: 0, maximum: 0 },
+  'Right Arm': { current: 0, maximum: 0 },
   Legs: { current: 0, maximum: 0 },
-  "Main Gun": { current: 0, maximum: 0 },
+  'Main Gun': { current: 0, maximum: 0 },
 };
 
 /**
@@ -82,12 +82,12 @@ function buildArmorMap(
   raw?: Partial<Record<ProtoLoc, { current: number; maximum: number }>>,
 ): Record<ProtoLoc, { current: number; maximum: number }> {
   const locs: ProtoLoc[] = [
-    "Head",
-    "Torso",
-    "Left Arm",
-    "Right Arm",
-    "Legs",
-    "Main Gun",
+    'Head',
+    'Torso',
+    'Left Arm',
+    'Right Arm',
+    'Legs',
+    'Main Gun',
   ];
   const result = {} as Record<ProtoLoc, { current: number; maximum: number }>;
   for (const loc of locs) {
@@ -120,13 +120,13 @@ export function extractProtoMechData(
       name: eq.name,
       location: eq.location,
       locationAbbr: eq.location.substring(0, 3).toUpperCase(),
-      heat: eq.heat ?? "-",
-      damage: eq.damage ?? "-",
+      heat: eq.heat ?? '-',
+      damage: eq.damage ?? '-',
       damageCode: undefined,
-      minimum: eq.ranges?.minimum ?? "-",
-      short: eq.ranges?.short ?? "-",
-      medium: eq.ranges?.medium ?? "-",
-      long: eq.ranges?.long ?? "-",
+      minimum: eq.ranges?.minimum ?? '-',
+      short: eq.ranges?.short ?? '-',
+      medium: eq.ranges?.medium ?? '-',
+      long: eq.ranges?.long ?? '-',
       quantity: 1,
       isWeapon: eq.isWeapon ?? false,
       isAmmo: eq.isAmmo ?? false,
@@ -135,7 +135,7 @@ export function extractProtoMechData(
   );
 
   return {
-    unitType: "protomech",
+    unitType: 'protomech',
     header: extractHeader(unit as Parameters<typeof extractHeader>[0]),
     pointSize,
     protos,

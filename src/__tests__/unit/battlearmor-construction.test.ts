@@ -7,6 +7,7 @@
  * @spec openspec/changes/add-battlearmor-construction/specs/battle-armor-unit-system/spec.md
  */
 
+import { TechBase } from '@/types/enums/TechBase';
 import {
   BAArmorType,
   BAChassisType,
@@ -22,33 +23,29 @@ import {
   IBattleArmorUnit,
   IBAWeaponMount,
   IBAEquipmentMount,
-} from "@/types/unit/BattleArmorInterfaces";
-
-import { TechBase } from "@/types/enums/TechBase";
-
-import {
-  validateBattleArmorConstruction,
-  registeredBARules,
-} from "@/utils/construction/battlearmor/validation";
-
+} from '@/types/unit/BattleArmorInterfaces';
 import {
   validateArmor,
   armorMassKg,
-} from "@/utils/construction/battlearmor/armor";
-import { computeTrooperMass } from "@/utils/construction/battlearmor/mass";
-import {
-  validateMovement,
-  validateJumpMP,
-} from "@/utils/construction/battlearmor/movement";
-import { validateSquadSize } from "@/utils/construction/battlearmor/squad";
-import {
-  validateAllManipulatorCompatibility,
-  manipulatorMassKg,
-} from "@/utils/construction/battlearmor/manipulators";
+} from '@/utils/construction/battlearmor/armor';
 import {
   getSlotCapacity,
   isArmLocation,
-} from "@/utils/construction/battlearmor/chassis";
+} from '@/utils/construction/battlearmor/chassis';
+import {
+  validateAllManipulatorCompatibility,
+  manipulatorMassKg,
+} from '@/utils/construction/battlearmor/manipulators';
+import { computeTrooperMass } from '@/utils/construction/battlearmor/mass';
+import {
+  validateMovement,
+  validateJumpMP,
+} from '@/utils/construction/battlearmor/movement';
+import { validateSquadSize } from '@/utils/construction/battlearmor/squad';
+import {
+  validateBattleArmorConstruction,
+  registeredBARules,
+} from '@/utils/construction/battlearmor/validation';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -57,10 +54,10 @@ import {
 /** Build a minimal valid IBattleArmorUnit for the given weight class */
 function makeUnit(overrides: Partial<IBattleArmorUnit> = {}): IBattleArmorUnit {
   return {
-    id: "test-unit",
-    name: "Test BA",
-    chassis: "Test",
-    model: "",
+    id: 'test-unit',
+    name: 'Test BA',
+    chassis: 'Test',
+    model: '',
     techBase: TechBase.INNER_SPHERE,
     chassisType: BAChassisType.BIPED,
     weightClass: BAWeightClass.MEDIUM,
@@ -88,20 +85,20 @@ function makeUnit(overrides: Partial<IBattleArmorUnit> = {}): IBattleArmorUnit {
 // 1. Trooper mass — weight class representative samples
 // ---------------------------------------------------------------------------
 
-describe("Trooper mass (BA_WEIGHT_CLASS_LIMITS)", () => {
-  test("PA(L) max mass is 400 kg", () => {
+describe('Trooper mass (BA_WEIGHT_CLASS_LIMITS)', () => {
+  test('PA(L) max mass is 400 kg', () => {
     expect(BA_WEIGHT_CLASS_LIMITS[BAWeightClass.PA_L].maxMassKg).toBe(400);
   });
 
-  test("Medium max mass is 1000 kg", () => {
+  test('Medium max mass is 1000 kg', () => {
     expect(BA_WEIGHT_CLASS_LIMITS[BAWeightClass.MEDIUM].maxMassKg).toBe(1000);
   });
 
-  test("Assault max mass is 2000 kg", () => {
+  test('Assault max mass is 2000 kg', () => {
     expect(BA_WEIGHT_CLASS_LIMITS[BAWeightClass.ASSAULT].maxMassKg).toBe(2000);
   });
 
-  test("computeTrooperMass — standard armor + no extras stays well within Medium range", () => {
+  test('computeTrooperMass — standard armor + no extras stays well within Medium range', () => {
     // 5 pts Standard armor = 250 kg; no manipulators, no weapons → 250 kg total
     const breakdown = computeTrooperMass(
       5,
@@ -119,15 +116,15 @@ describe("Trooper mass (BA_WEIGHT_CLASS_LIMITS)", () => {
     );
   });
 
-  test("VAL-BA-CLASS fires when trooper mass exceeds class cap", () => {
+  test('VAL-BA-CLASS fires when trooper mass exceeds class cap', () => {
     // Assault max = 2000 kg; 15 pts Standard armor = 750 kg, two Heavy Claws = 50 kg
     // Add a weapon of 1400 kg to push over the cap
     const heavyWeapon: IBAWeaponMount = {
-      equipmentId: "fake-heavy",
-      name: "Over-Cap Weapon",
+      equipmentId: 'fake-heavy',
+      name: 'Over-Cap Weapon',
       location: BALocation.BODY,
       massKg: 1400,
-      weaponWeight: "heavy",
+      weaponWeight: 'heavy',
       isAPWeapon: false,
     };
     const unit = makeUnit({
@@ -147,7 +144,7 @@ describe("Trooper mass (BA_WEIGHT_CLASS_LIMITS)", () => {
 // 2. Armor cap per weight class
 // ---------------------------------------------------------------------------
 
-describe("Armor cap (VAL-BA-ARMOR)", () => {
+describe('Armor cap (VAL-BA-ARMOR)', () => {
   const cases: [BAWeightClass, number][] = [
     [BAWeightClass.PA_L, 2],
     [BAWeightClass.LIGHT, 5],
@@ -156,11 +153,11 @@ describe("Armor cap (VAL-BA-ARMOR)", () => {
     [BAWeightClass.ASSAULT, 14],
   ];
 
-  test.each(cases)("%s max armor points is %i", (wc, cap) => {
+  test.each(cases)('%s max armor points is %i', (wc, cap) => {
     expect(BA_WEIGHT_CLASS_LIMITS[wc].maxArmorPoints).toBe(cap);
   });
 
-  test("validateArmor passes at exactly the cap", () => {
+  test('validateArmor passes at exactly the cap', () => {
     const result = validateArmor(
       BA_WEIGHT_CLASS_LIMITS[BAWeightClass.MEDIUM].maxArmorPoints,
       BAArmorType.STANDARD,
@@ -169,7 +166,7 @@ describe("Armor cap (VAL-BA-ARMOR)", () => {
     expect(result.isValid).toBe(true);
   });
 
-  test("validateArmor fails one point above the cap", () => {
+  test('validateArmor fails one point above the cap', () => {
     const cap = BA_WEIGHT_CLASS_LIMITS[BAWeightClass.PA_L].maxArmorPoints;
     const result = validateArmor(
       cap + 1,
@@ -180,27 +177,27 @@ describe("Armor cap (VAL-BA-ARMOR)", () => {
     expect(result.errors[0]).toMatch(/VAL-BA-ARMOR/);
   });
 
-  test("Mimetic armor forbidden on Heavy", () => {
+  test('Mimetic armor forbidden on Heavy', () => {
     const result = validateArmor(5, BAArmorType.MIMETIC, BAWeightClass.HEAVY);
     expect(result.isValid).toBe(false);
-    expect(result.errors.some((e) => e.includes("VAL-BA-ARMOR"))).toBe(true);
+    expect(result.errors.some((e) => e.includes('VAL-BA-ARMOR'))).toBe(true);
   });
 
-  test("Mimetic armor forbidden on Assault", () => {
+  test('Mimetic armor forbidden on Assault', () => {
     const result = validateArmor(5, BAArmorType.MIMETIC, BAWeightClass.ASSAULT);
     expect(result.isValid).toBe(false);
   });
 
-  test("Mimetic armor allowed on Light", () => {
+  test('Mimetic armor allowed on Light', () => {
     const result = validateArmor(3, BAArmorType.MIMETIC, BAWeightClass.LIGHT);
     expect(result.isValid).toBe(true);
   });
 
-  test("armorMassKg: Stealth costs 60 kg/pt", () => {
+  test('armorMassKg: Stealth costs 60 kg/pt', () => {
     expect(armorMassKg(4, BAArmorType.STEALTH_BASIC)).toBe(240);
   });
 
-  test("armorMassKg: Standard costs 50 kg/pt", () => {
+  test('armorMassKg: Standard costs 50 kg/pt', () => {
     expect(armorMassKg(6, BAArmorType.STANDARD)).toBe(300);
   });
 });
@@ -209,14 +206,14 @@ describe("Armor cap (VAL-BA-ARMOR)", () => {
 // 3. Movement MP caps
 // ---------------------------------------------------------------------------
 
-describe("Movement MP caps (VAL-BA-MP / VAL-BA-MOVE-TYPE)", () => {
+describe('Movement MP caps (VAL-BA-MP / VAL-BA-MOVE-TYPE)', () => {
   test.each([
     [BAWeightClass.PA_L, 3],
     [BAWeightClass.LIGHT, 3],
     [BAWeightClass.MEDIUM, 2],
     [BAWeightClass.HEAVY, 2],
     [BAWeightClass.ASSAULT, 1],
-  ] as [BAWeightClass, number][])("%s max ground MP is %i", (wc, cap) => {
+  ] as [BAWeightClass, number][])('%s max ground MP is %i', (wc, cap) => {
     expect(BA_WEIGHT_CLASS_LIMITS[wc].maxGroundMP).toBe(cap);
   });
 
@@ -226,17 +223,17 @@ describe("Movement MP caps (VAL-BA-MP / VAL-BA-MOVE-TYPE)", () => {
     [BAWeightClass.MEDIUM, 3],
     [BAWeightClass.HEAVY, 2],
     [BAWeightClass.ASSAULT, 0],
-  ] as [BAWeightClass, number][])("%s max jump MP is %i", (wc, cap) => {
+  ] as [BAWeightClass, number][])('%s max jump MP is %i', (wc, cap) => {
     expect(BA_WEIGHT_CLASS_LIMITS[wc].maxJumpMP).toBe(cap);
   });
 
-  test("Assault cannot jump — VAL-BA-MP fires", () => {
+  test('Assault cannot jump — VAL-BA-MP fires', () => {
     const result = validateJumpMP(1, BAWeightClass.ASSAULT);
     expect(result.isValid).toBe(false);
     expect(result.errors[0]).toMatch(/VAL-BA-MP/);
   });
 
-  test("VTOL rejected on PA(L) — VAL-BA-MOVE-TYPE fires", () => {
+  test('VTOL rejected on PA(L) — VAL-BA-MOVE-TYPE fires', () => {
     const result = validateMovement(
       BAMovementType.VTOL,
       0,
@@ -245,12 +242,12 @@ describe("Movement MP caps (VAL-BA-MP / VAL-BA-MOVE-TYPE)", () => {
       BAWeightClass.PA_L,
     );
     expect(result.isValid).toBe(false);
-    expect(result.errors.some((e) => e.includes("VAL-BA-MOVE-TYPE"))).toBe(
+    expect(result.errors.some((e) => e.includes('VAL-BA-MOVE-TYPE'))).toBe(
       true,
     );
   });
 
-  test("VTOL allowed on Light", () => {
+  test('VTOL allowed on Light', () => {
     const result = validateMovement(
       BAMovementType.VTOL,
       0,
@@ -261,7 +258,7 @@ describe("Movement MP caps (VAL-BA-MP / VAL-BA-MOVE-TYPE)", () => {
     expect(result.isValid).toBe(true);
   });
 
-  test("UMU max 3 on any class; 4 fires VAL-BA-MP", () => {
+  test('UMU max 3 on any class; 4 fires VAL-BA-MP', () => {
     const result = validateMovement(
       BAMovementType.UMU,
       0,
@@ -270,7 +267,7 @@ describe("Movement MP caps (VAL-BA-MP / VAL-BA-MOVE-TYPE)", () => {
       BAWeightClass.MEDIUM,
     );
     expect(result.isValid).toBe(false);
-    expect(result.errors.some((e) => e.includes("VAL-BA-MP"))).toBe(true);
+    expect(result.errors.some((e) => e.includes('VAL-BA-MP'))).toBe(true);
   });
 });
 
@@ -278,17 +275,17 @@ describe("Movement MP caps (VAL-BA-MP / VAL-BA-MOVE-TYPE)", () => {
 // 4. Manipulator gate
 // ---------------------------------------------------------------------------
 
-describe("Manipulator gate (VAL-BA-MANIPULATOR)", () => {
+describe('Manipulator gate (VAL-BA-MANIPULATOR)', () => {
   const heavyArmWeapon: IBAWeaponMount = {
-    equipmentId: "srm-2",
-    name: "SRM 2",
+    equipmentId: 'srm-2',
+    name: 'SRM 2',
     location: BALocation.LEFT_ARM,
     massKg: 200,
-    weaponWeight: "heavy",
+    weaponWeight: 'heavy',
     isAPWeapon: false,
   };
 
-  test("Battle Claw allows heavy weapon on arm", () => {
+  test('Battle Claw allows heavy weapon on arm', () => {
     const result = validateAllManipulatorCompatibility(
       BAChassisType.BIPED,
       [heavyArmWeapon],
@@ -298,7 +295,7 @@ describe("Manipulator gate (VAL-BA-MANIPULATOR)", () => {
     expect(result.isValid).toBe(true);
   });
 
-  test("Heavy Claw allows heavy weapon on arm", () => {
+  test('Heavy Claw allows heavy weapon on arm', () => {
     const result = validateAllManipulatorCompatibility(
       BAChassisType.BIPED,
       [heavyArmWeapon],
@@ -308,7 +305,7 @@ describe("Manipulator gate (VAL-BA-MANIPULATOR)", () => {
     expect(result.isValid).toBe(true);
   });
 
-  test("Basic Claw rejects heavy weapon — VAL-BA-MANIPULATOR fires", () => {
+  test('Basic Claw rejects heavy weapon — VAL-BA-MANIPULATOR fires', () => {
     const result = validateAllManipulatorCompatibility(
       BAChassisType.BIPED,
       [heavyArmWeapon],
@@ -319,7 +316,7 @@ describe("Manipulator gate (VAL-BA-MANIPULATOR)", () => {
     expect(result.errors[0]).toMatch(/VAL-BA-MANIPULATOR/);
   });
 
-  test("Cargo Lifter has lift capability", () => {
+  test('Cargo Lifter has lift capability', () => {
     // Verified via manipulatorMassKg — Cargo Lifter adds 15 kg
     expect(
       manipulatorMassKg(
@@ -330,7 +327,7 @@ describe("Manipulator gate (VAL-BA-MANIPULATOR)", () => {
     ).toBe(15);
   });
 
-  test("Quad chassis ignores arm manipulator check (no arms)", () => {
+  test('Quad chassis ignores arm manipulator check (no arms)', () => {
     const result = validateAllManipulatorCompatibility(
       BAChassisType.QUAD,
       [heavyArmWeapon],
@@ -346,45 +343,45 @@ describe("Manipulator gate (VAL-BA-MANIPULATOR)", () => {
 // 5. Squad composition
 // ---------------------------------------------------------------------------
 
-describe("Squad composition (VAL-BA-SQUAD)", () => {
-  test("IS default squad size is 4", () => {
+describe('Squad composition (VAL-BA-SQUAD)', () => {
+  test('IS default squad size is 4', () => {
     expect(defaultSquadSize(TechBase.INNER_SPHERE)).toBe(4);
   });
 
-  test("Clan default squad size is 5", () => {
+  test('Clan default squad size is 5', () => {
     expect(defaultSquadSize(TechBase.CLAN)).toBe(5);
   });
 
-  test("Squad sizes 1-6 are legal", () => {
+  test('Squad sizes 1-6 are legal', () => {
     expect(BA_SQUAD_SIZE_MIN).toBe(1);
     expect(BA_SQUAD_SIZE_MAX).toBe(6);
   });
 
-  test("Squad size 0 is a hard error", () => {
+  test('Squad size 0 is a hard error', () => {
     const result = validateSquadSize(0, TechBase.INNER_SPHERE);
     expect(result.isValid).toBe(false);
     expect(result.errors[0]).toMatch(/VAL-BA-SQUAD/);
   });
 
-  test("Squad size 7 is a hard error", () => {
+  test('Squad size 7 is a hard error', () => {
     const result = validateSquadSize(7, TechBase.INNER_SPHERE);
     expect(result.isValid).toBe(false);
   });
 
-  test("IS squad of 3 is a warning, not an error", () => {
+  test('IS squad of 3 is a warning, not an error', () => {
     const result = validateSquadSize(3, TechBase.INNER_SPHERE);
     expect(result.isValid).toBe(true);
     expect(result.warnings.length).toBeGreaterThan(0);
     expect(result.warnings[0]).toMatch(/VAL-BA-SQUAD/);
   });
 
-  test("Clan squad of 4 is a warning, not an error", () => {
+  test('Clan squad of 4 is a warning, not an error', () => {
     const result = validateSquadSize(4, TechBase.CLAN);
     expect(result.isValid).toBe(true);
     expect(result.warnings.length).toBeGreaterThan(0);
   });
 
-  test("IS squad of 4 is clean (no errors, no warnings)", () => {
+  test('IS squad of 4 is clean (no errors, no warnings)', () => {
     const result = validateSquadSize(4, TechBase.INNER_SPHERE);
     expect(result.isValid).toBe(true);
     expect(result.errors).toHaveLength(0);
@@ -396,8 +393,8 @@ describe("Squad composition (VAL-BA-SQUAD)", () => {
 // 6. Anti-mech class restriction — Assault cannot jump/swarm
 // ---------------------------------------------------------------------------
 
-describe("Anti-mech class restrictions (VAL-BA-CLASS / VAL-BA-MP)", () => {
-  test("Partial Wing restricted to Light class — fires VAL-BA-CLASS on Medium", () => {
+describe('Anti-mech class restrictions (VAL-BA-CLASS / VAL-BA-MP)', () => {
+  test('Partial Wing restricted to Light class — fires VAL-BA-CLASS on Medium', () => {
     const unit = makeUnit({
       weightClass: BAWeightClass.MEDIUM,
       hasPartialWing: true,
@@ -409,7 +406,7 @@ describe("Anti-mech class restrictions (VAL-BA-CLASS / VAL-BA-MP)", () => {
     ).toBe(true);
   });
 
-  test("Assault cannot jump — validateBattleArmorConstruction fires VAL-BA-MP", () => {
+  test('Assault cannot jump — validateBattleArmorConstruction fires VAL-BA-MP', () => {
     const unit = makeUnit({
       weightClass: BAWeightClass.ASSAULT,
       movementType: BAMovementType.JUMP,
@@ -429,28 +426,28 @@ describe("Anti-mech class restrictions (VAL-BA-CLASS / VAL-BA-MP)", () => {
 // 7. Quad chassis — no arm locations for weapons
 // ---------------------------------------------------------------------------
 
-describe("Quad chassis (VAL-BA-MANIPULATOR)", () => {
-  test("Quad slot capacity has 0 arm slots", () => {
+describe('Quad chassis (VAL-BA-MANIPULATOR)', () => {
+  test('Quad slot capacity has 0 arm slots', () => {
     const cap = getSlotCapacity(BAChassisType.QUAD);
     expect(cap[BALocation.LEFT_ARM]).toBe(0);
     expect(cap[BALocation.RIGHT_ARM]).toBe(0);
     expect(cap[BALocation.BODY]).toBe(2);
   });
 
-  test("isArmLocation correctly identifies arm locations", () => {
+  test('isArmLocation correctly identifies arm locations', () => {
     expect(isArmLocation(BALocation.LEFT_ARM)).toBe(true);
     expect(isArmLocation(BALocation.RIGHT_ARM)).toBe(true);
     expect(isArmLocation(BALocation.BODY)).toBe(false);
     expect(isArmLocation(BALocation.LEFT_LEG)).toBe(false);
   });
 
-  test("Quad with arm-mounted weapon fires slot overflow / arm restriction error", () => {
+  test('Quad with arm-mounted weapon fires slot overflow / arm restriction error', () => {
     const armWeapon: IBAWeaponMount = {
-      equipmentId: "mg",
-      name: "Machine Gun",
+      equipmentId: 'mg',
+      name: 'Machine Gun',
       location: BALocation.LEFT_ARM,
       massKg: 100,
-      weaponWeight: "light",
+      weaponWeight: 'light',
       isAPWeapon: false,
     };
     const unit = makeUnit({
@@ -461,7 +458,7 @@ describe("Quad chassis (VAL-BA-MANIPULATOR)", () => {
     expect(result.isValid).toBe(false);
   });
 
-  test("Quad manipulator mass is always 0 regardless of manipulator values", () => {
+  test('Quad manipulator mass is always 0 regardless of manipulator values', () => {
     expect(
       manipulatorMassKg(
         BAChassisType.QUAD,
@@ -476,24 +473,24 @@ describe("Quad chassis (VAL-BA-MANIPULATOR)", () => {
 // 8. All 6 VAL-BA-* rule IDs registered
 // ---------------------------------------------------------------------------
 
-describe("registeredBARules — rule ID registration", () => {
+describe('registeredBARules — rule ID registration', () => {
   const EXPECTED_RULE_IDS = [
-    "VAL-BA-CLASS",
-    "VAL-BA-ARMOR",
-    "VAL-BA-MP",
-    "VAL-BA-MANIPULATOR",
-    "VAL-BA-SQUAD",
-    "VAL-BA-MOVE-TYPE",
+    'VAL-BA-CLASS',
+    'VAL-BA-ARMOR',
+    'VAL-BA-MP',
+    'VAL-BA-MANIPULATOR',
+    'VAL-BA-SQUAD',
+    'VAL-BA-MOVE-TYPE',
   ];
 
-  test("BA_VALIDATION_RULES contains all 6 expected rule IDs", () => {
+  test('BA_VALIDATION_RULES contains all 6 expected rule IDs', () => {
     const registered = Object.values(BA_VALIDATION_RULES);
     for (const id of EXPECTED_RULE_IDS) {
       expect(registered).toContain(id);
     }
   });
 
-  test("registeredBARules() returns all 6 rule IDs", () => {
+  test('registeredBARules() returns all 6 rule IDs', () => {
     const registered = registeredBARules();
     expect(registered).toHaveLength(6);
     for (const id of EXPECTED_RULE_IDS) {
@@ -506,8 +503,8 @@ describe("registeredBARules — rule ID registration", () => {
 // 9. Happy-path: valid unit passes all rules
 // ---------------------------------------------------------------------------
 
-describe("End-to-end: valid unit passes all construction rules", () => {
-  test("Elemental-style Clan Medium unit passes validation", () => {
+describe('End-to-end: valid unit passes all construction rules', () => {
+  test('Elemental-style Clan Medium unit passes validation', () => {
     const unit = makeUnit({
       techBase: TechBase.CLAN,
       chassisType: BAChassisType.BIPED,
@@ -527,7 +524,7 @@ describe("End-to-end: valid unit passes all construction rules", () => {
     expect(result.errors).toHaveLength(0);
   });
 
-  test("IS Heavy unit with ground movement passes validation", () => {
+  test('IS Heavy unit with ground movement passes validation', () => {
     const unit = makeUnit({
       techBase: TechBase.INNER_SPHERE,
       chassisType: BAChassisType.BIPED,

@@ -9,7 +9,7 @@
  * Requirement: Small Craft Crew Quarters
  */
 
-import { ISmallCraftCrew } from "../../../types/unit/AerospaceInterfaces";
+import { ISmallCraftCrew } from '../../../types/unit/AerospaceInterfaces';
 
 // ============================================================================
 // Constants

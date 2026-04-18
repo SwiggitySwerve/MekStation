@@ -18,14 +18,14 @@
  *        §Selection + Range Scaling — BA selection ring scales down
  */
 
-import React from "react";
+import React from 'react';
 
-import type { IUnitToken } from "@/types/gameplay";
+import type { IUnitToken } from '@/types/gameplay';
 
-import { HEX_SIZE, HEX_COLORS } from "@/constants/hexMap";
-import { GameSide } from "@/types/gameplay";
+import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
+import { GameSide } from '@/types/gameplay';
 
-import type { ITokenSharedProps } from "./tokenTypes";
+import type { ITokenSharedProps } from './tokenTypes';
 
 // BA tokens are deliberately smaller than mech tokens.
 export const BA_TOKEN_RADIUS = HEX_SIZE * 0.35;
@@ -80,10 +80,10 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
       ? HEX_COLORS.playerToken
       : HEX_COLORS.opponentToken;
   const ringColor = token.isSelected
-    ? "#fbbf24"
+    ? '#fbbf24'
     : token.isValidTarget
-      ? "#f87171"
-      : "transparent";
+      ? '#f87171'
+      : 'transparent';
 
   if (mountedBadge) {
     // Compact badge variant — small rounded rect with trooper count.
@@ -137,7 +137,7 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
       {/* Background circle to anchor the pip cluster */}
       <circle
         r={BA_TOKEN_RADIUS}
-        fill={isDestroyed ? HEX_COLORS.destroyedToken : "#1e293b"}
+        fill={isDestroyed ? HEX_COLORS.destroyedToken : '#1e293b'}
         stroke={dotColor}
         strokeWidth={2}
       />
@@ -150,7 +150,7 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
           cy={pos.y}
           // Squad leader (index 0) is slightly larger.
           r={idx === 0 ? DOT_LEADER_R : DOT_TROOPER_R}
-          fill={isDestroyed ? "#6b7280" : dotColor}
+          fill={isDestroyed ? '#6b7280' : dotColor}
           stroke="white"
           strokeWidth={0.8}
         />
@@ -162,7 +162,7 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
         textAnchor="middle"
         fontSize={7}
         fill="#1e293b"
-        style={{ pointerEvents: "none" }}
+        style={{ pointerEvents: 'none' }}
       >
         {token.designation}
       </text>

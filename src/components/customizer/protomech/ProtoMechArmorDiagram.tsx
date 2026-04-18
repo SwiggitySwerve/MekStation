@@ -16,12 +16,12 @@
  *        Requirement: ProtoMech 5-Location Compact Diagram
  */
 
-import React, { useCallback } from "react";
+import React, { useCallback } from 'react';
 
-import { useProtoMechStore } from "@/stores/useProtoMechStore";
-import { ProtoMechLocation } from "@/types/construction/UnitLocation";
+import { useProtoMechStore } from '@/stores/useProtoMechStore';
+import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 
-import { ArmorLocationBlock } from "../armor/ArmorLocationBlock";
+import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 
 // =============================================================================
 // Helpers
@@ -62,11 +62,11 @@ interface ProtoMechArmorDiagramProps {
 
 // Standard 5-location display order
 const BASE_LOCATIONS: { loc: ProtoMechLocation; label: string }[] = [
-  { loc: ProtoMechLocation.HEAD, label: "Head" },
-  { loc: ProtoMechLocation.TORSO, label: "Torso" },
-  { loc: ProtoMechLocation.LEFT_ARM, label: "LA" },
-  { loc: ProtoMechLocation.RIGHT_ARM, label: "RA" },
-  { loc: ProtoMechLocation.LEGS, label: "Legs" },
+  { loc: ProtoMechLocation.HEAD, label: 'Head' },
+  { loc: ProtoMechLocation.TORSO, label: 'Torso' },
+  { loc: ProtoMechLocation.LEFT_ARM, label: 'LA' },
+  { loc: ProtoMechLocation.RIGHT_ARM, label: 'RA' },
+  { loc: ProtoMechLocation.LEGS, label: 'Legs' },
 ];
 
 // =============================================================================
@@ -80,7 +80,7 @@ const BASE_LOCATIONS: { loc: ProtoMechLocation; label: string }[] = [
  * Inputs are small number spinners; pip rows use 6px pips to stay narrow.
  */
 export function ProtoMechArmorDiagram({
-  className = "",
+  className = '',
 }: ProtoMechArmorDiagramProps): React.ReactElement {
   const tonnage = useProtoMechStore((s) => s.tonnage);
   const hasMainGun = useProtoMechStore((s) => s.hasMainGun);
@@ -98,7 +98,7 @@ export function ProtoMechArmorDiagram({
   );
 
   const locations = hasMainGun
-    ? [...BASE_LOCATIONS, { loc: ProtoMechLocation.MAIN_GUN, label: "MG" }]
+    ? [...BASE_LOCATIONS, { loc: ProtoMechLocation.MAIN_GUN, label: 'MG' }]
     : BASE_LOCATIONS;
 
   return (
@@ -107,7 +107,7 @@ export function ProtoMechArmorDiagram({
       data-testid="protomech-armor-diagram"
     >
       {/* Compact header */}
-      <h4 className="text-center text-[10px] font-semibold uppercase tracking-wide text-white">
+      <h4 className="text-center text-[10px] font-semibold tracking-wide text-white uppercase">
         Armor
       </h4>
 

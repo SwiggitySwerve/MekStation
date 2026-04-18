@@ -19,9 +19,9 @@
  *        Requirement: Infantry Platoon Counter
  */
 
-import React from "react";
+import React from 'react';
 
-import { useInfantryStore } from "@/stores/useInfantryStore";
+import { useInfantryStore } from '@/stores/useInfantryStore';
 
 // =============================================================================
 // Types
@@ -41,7 +41,7 @@ interface InfantryPlatoonCounterProps {
 // Helpers
 // =============================================================================
 
-type HealthThreshold = "full" | "wounded" | "casualty";
+type HealthThreshold = 'full' | 'wounded' | 'casualty';
 
 /**
  * Map a ratio to the three display thresholds.
@@ -50,9 +50,9 @@ type HealthThreshold = "full" | "wounded" | "casualty";
  *   ≤ 0.25  → casualty (red)
  */
 function getThreshold(ratio: number): HealthThreshold {
-  if (ratio > 0.75) return "full";
-  if (ratio > 0.25) return "wounded";
-  return "casualty";
+  if (ratio > 0.75) return 'full';
+  if (ratio > 0.25) return 'wounded';
+  return 'casualty';
 }
 
 const THRESHOLD_STYLES: Record<
@@ -60,19 +60,19 @@ const THRESHOLD_STYLES: Record<
   { counter: string; bar: string; label: string }
 > = {
   full: {
-    counter: "text-green-400",
-    bar: "bg-green-500",
-    label: "Full Strength",
+    counter: 'text-green-400',
+    bar: 'bg-green-500',
+    label: 'Full Strength',
   },
   wounded: {
-    counter: "text-amber-400",
-    bar: "bg-amber-500",
-    label: "Wounded",
+    counter: 'text-amber-400',
+    bar: 'bg-amber-500',
+    label: 'Wounded',
   },
   casualty: {
-    counter: "text-red-400",
-    bar: "bg-red-500",
-    label: "Casualties",
+    counter: 'text-red-400',
+    bar: 'bg-red-500',
+    label: 'Casualties',
   },
 };
 
@@ -91,7 +91,7 @@ const THRESHOLD_STYLES: Record<
  */
 export function InfantryPlatoonCounter({
   currentTroopers,
-  className = "",
+  className = '',
 }: InfantryPlatoonCounterProps): React.ReactElement {
   const squadSize = useInfantryStore((s) => s.squadSize);
   const numberOfSquads = useInfantryStore((s) => s.numberOfSquads);
@@ -169,7 +169,7 @@ export function InfantryPlatoonCounter({
         <p className="text-text-theme-secondary text-[10px] leading-relaxed">
           <span className="font-semibold text-white">
             No per-location armor.
-          </span>{" "}
+          </span>{' '}
           Infantry damage reduces trooper count directly (TechManual §infantry
           damage). Armor kits apply a damage divisor, not ablative points.
         </p>

@@ -12,7 +12,7 @@
 import {
   ProtoChassis,
   ProtoWeightClass,
-} from "@/types/unit/ProtoMechInterfaces";
+} from '@/types/unit/ProtoMechInterfaces';
 
 // =============================================================================
 // MP cap table

@@ -12,18 +12,18 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.3
  */
 
-import React, { useCallback } from "react";
-import { StoreApi } from "zustand";
+import React, { useCallback } from 'react';
+import { StoreApi } from 'zustand';
 
-import { toCustomizerTabConfigs } from "@/components/customizer/shared/TabSpec";
-import { PROTOMECH_TABS } from "@/components/customizer/shared/tabRegistry";
-import { CustomizerTabs } from "@/components/customizer/tabs/CustomizerTabs";
-import { useCustomizerTabs } from "@/hooks/useCustomizerTabs";
+import { PROTOMECH_TABS } from '@/components/customizer/shared/tabRegistry';
+import { toCustomizerTabConfigs } from '@/components/customizer/shared/TabSpec';
+import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
+import { useCustomizerTabs } from '@/hooks/useCustomizerTabs';
 import {
   ProtoMechStoreContext,
   ProtoMechStore,
   useProtoMechStore,
-} from "@/stores/useProtoMechStore";
+} from '@/stores/useProtoMechStore';
 
 // =============================================================================
 // Types
@@ -31,14 +31,14 @@ import {
 
 /** Tab ids available in the ProtoMech customizer */
 export type ProtoMechTabId =
-  | "overview"
-  | "structure"
-  | "armor"
-  | "mainGun"
-  | "equipment"
-  | "glider"
-  | "preview"
-  | "fluff";
+  | 'overview'
+  | 'structure'
+  | 'armor'
+  | 'mainGun'
+  | 'equipment'
+  | 'glider'
+  | 'preview'
+  | 'fluff';
 
 interface ProtoMechCustomizerProps {
   /** ProtoMech store instance */
@@ -129,10 +129,10 @@ function ProtoMechCustomizerInner({
  */
 export function ProtoMechCustomizer({
   store,
-  initialTab = "structure",
+  initialTab = 'structure',
   onTabChange,
   readOnly = false,
-  className = "",
+  className = '',
 }: ProtoMechCustomizerProps): React.ReactElement {
   return (
     <ProtoMechStoreContext.Provider value={store}>

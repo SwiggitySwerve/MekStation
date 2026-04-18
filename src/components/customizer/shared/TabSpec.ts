@@ -11,7 +11,7 @@
  * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
  */
 
-import React from "react";
+import React from 'react';
 
 // =============================================================================
 // Core TabSpec type

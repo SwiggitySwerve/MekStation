@@ -9,17 +9,17 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3
  */
 
-import React, { useCallback } from "react";
-import { StoreApi } from "zustand";
+import React, { useCallback } from 'react';
+import { StoreApi } from 'zustand';
 
-import { CustomizerTabs } from "@/components/customizer/tabs/CustomizerTabs";
-import { toCustomizerTabConfigs } from "@/components/customizer/shared/TabSpec";
-import { VEHICLE_TABS } from "@/components/customizer/shared/tabRegistry";
-import { useCustomizerTabs } from "@/hooks/useCustomizerTabs";
-import { VehicleStoreContext, VehicleStore } from "@/stores/useVehicleStore";
+import { VEHICLE_TABS } from '@/components/customizer/shared/tabRegistry';
+import { toCustomizerTabConfigs } from '@/components/customizer/shared/TabSpec';
+import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
+import { useCustomizerTabs } from '@/hooks/useCustomizerTabs';
+import { VehicleStoreContext, VehicleStore } from '@/stores/useVehicleStore';
 
-import { VehicleDiagram } from "./VehicleDiagram";
-import { VehicleStatusBar } from "./VehicleStatusBar";
+import { VehicleDiagram } from './VehicleDiagram';
+import { VehicleStatusBar } from './VehicleStatusBar';
 
 // =============================================================================
 // Types
@@ -27,13 +27,13 @@ import { VehicleStatusBar } from "./VehicleStatusBar";
 
 /** Tab ids available in the vehicle customizer */
 export type VehicleTabId =
-  | "overview"
-  | "structure"
-  | "armor"
-  | "turret"
-  | "equipment"
-  | "preview"
-  | "fluff";
+  | 'overview'
+  | 'structure'
+  | 'armor'
+  | 'turret'
+  | 'equipment'
+  | 'preview'
+  | 'fluff';
 
 interface VehicleCustomizerProps {
   /** Vehicle store instance */
@@ -60,10 +60,10 @@ interface VehicleCustomizerProps {
  */
 export function VehicleCustomizer({
   store,
-  initialTab = "structure",
+  initialTab = 'structure',
   onTabChange,
   readOnly = false,
-  className = "",
+  className = '',
 }: VehicleCustomizerProps): React.ReactElement {
   // Vehicle tabs have no visibleWhen predicates — pass an empty state object
   const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
