@@ -13,6 +13,10 @@ import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
 import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
+import {
+  calculateAerospaceBV,
+  type IAerospaceBVEquipment,
+} from '@/utils/construction/aerospace/aerospaceBV';
 
 // =============================================================================
 // Types
@@ -88,6 +92,7 @@ export function AerospaceStatusBar({
   const equipment = useAerospaceStore((s) => s.equipment);
   const engineType = useAerospaceStore((s) => s.engineType);
   const engineRating = useAerospaceStore((s) => s.engineRating);
+  const aerospaceSubType = useAerospaceStore((s) => s.aerospaceSubType);
 
   // Calculate weight breakdown
   const weightBreakdown = useMemo(() => {
@@ -139,6 +144,47 @@ export function AerospaceStatusBar({
   // Heat dissipation
   const heatDissipation = doubleHeatSinks ? heatSinks * 2 : heatSinks;
 
+  // Live BV breakdown (TechManual BV 2.0 aerospace path)
+  const bv = useMemo(() => {
+    const bvEquipment: IAerospaceBVEquipment[] = equipment.map((item) => ({
+      id: item.equipmentId,
+      location: item.location,
+    }));
+    return calculateAerospaceBV({
+      subType: aerospaceSubType,
+      tonnage,
+      structuralIntegrity,
+      safeThrust,
+      maxThrust,
+      armorType,
+      totalArmorPoints: armorStats.allocated,
+      equipment: bvEquipment,
+    });
+  }, [
+    aerospaceSubType,
+    tonnage,
+    structuralIntegrity,
+    safeThrust,
+    maxThrust,
+    armorType,
+    armorStats.allocated,
+    equipment,
+  ]);
+
+  // Locate the highest-contribution arc for status-bar display
+  const primaryArcLabel = useMemo(() => {
+    if (!bv.primaryArc) return '—';
+    const labels: Record<string, string> = {
+      Nose: 'Nose',
+      LeftWing: 'L Wing',
+      RightWing: 'R Wing',
+      LeftSide: 'L Side',
+      RightSide: 'R Side',
+      Aft: 'Aft',
+    };
+    return labels[bv.primaryArc] ?? bv.primaryArc;
+  }, [bv.primaryArc]);
+
   // Status indicators
   const weightStatus =
     weightBreakdown.remaining < 0
@@ -181,6 +227,7 @@ export function AerospaceStatusBar({
         >
           {weightBreakdown.remaining.toFixed(1)}t free
         </span>
+        <span className="font-medium text-white">BV {bv.final}</span>
       </div>
     );
   }
@@ -234,6 +281,20 @@ export function AerospaceStatusBar({
 
       {/* Equipment Count */}
       <StatusItem label="Equipment" value={equipment.length} subValue="items" />
+
+      {/* Battle Value */}
+      <StatusItem
+        label="Battle Value"
+        value={bv.final}
+        subValue={`D ${Math.round(bv.defensive)} / O ${Math.round(bv.offensive)}`}
+      />
+
+      {/* Primary Arc */}
+      <StatusItem
+        label="Primary Arc"
+        value={primaryArcLabel}
+        subValue={`SF ×${bv.speedFactor.toFixed(2)}`}
+      />
     </div>
   );
 }
