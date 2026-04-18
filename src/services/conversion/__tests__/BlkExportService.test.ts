@@ -28,7 +28,11 @@ import {
 import { RulesLevel } from "@/types/enums/RulesLevel";
 import { TechBase } from "@/types/enums/TechBase";
 import { WeightClass } from "@/types/enums/WeightClass";
-import { AerospaceCockpitType } from "@/types/unit/AerospaceInterfaces";
+import {
+  AerospaceCockpitType,
+  AerospaceEngineType,
+  AerospaceSubType,
+} from "@/types/unit/AerospaceInterfaces";
 import {
   GroundMotionType,
   SquadMotionType,
@@ -162,16 +166,21 @@ describe("BlkExportService", () => {
     weightClass: WeightClass.MEDIUM,
     techBase: TechBase.INNER_SPHERE,
     unitType: UnitType.AEROSPACE,
+    aerospaceSubType: AerospaceSubType.AEROSPACE_FIGHTER,
     motionType: AerospaceMotionType.AERODYNE,
     isOmni: false,
     engineType: EngineType.STANDARD,
+    aerospaceEngineType: AerospaceEngineType.FUSION,
     engineRating: 200,
     safeThrust: 5,
     maxThrust: 8,
+    fuelTons: 5,
+    fuelPoints: 400,
     fuel: 400,
     structuralIntegrity: 5,
     cockpitType: AerospaceCockpitType.STANDARD,
     heatSinks: 10,
+    heatSinkPool: 10,
     doubleHeatSinks: false,
     armorType: ArmorTypeEnum.STANDARD,
     armorTonnage: 5,
@@ -185,6 +194,7 @@ describe("BlkExportService", () => {
     bombCapacity: 0,
     hasReinforcedCockpit: false,
     hasEjectionSeat: true,
+    crew: null,
     equipment: [],
     isModified: false,
     createdAt: Date.now(),

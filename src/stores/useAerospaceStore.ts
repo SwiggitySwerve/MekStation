@@ -8,16 +8,16 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.1
  */
 
-import { createContext, useContext } from 'react';
-import { create, StoreApi, useStore } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { createContext, useContext } from "react";
+import { create, StoreApi, useStore } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { getArmorDefinition } from '@/types/construction/ArmorType';
-import { AerospaceLocation } from '@/types/construction/UnitLocation';
-import { WeightClass } from '@/types/enums/WeightClass';
-import { IEquipmentItem } from '@/types/equipment';
-import { generateUnitId } from '@/utils/uuid';
+import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
+import { getArmorDefinition } from "@/types/construction/ArmorType";
+import { AerospaceLocation } from "@/types/construction/UnitLocation";
+import { WeightClass } from "@/types/enums/WeightClass";
+import { IEquipmentItem } from "@/types/equipment";
+import { generateUnitId } from "@/utils/uuid";
 
 import {
   AerospaceState,
@@ -26,10 +26,16 @@ import {
   createDefaultAerospaceState,
   createAerospaceMountedEquipment,
   createEmptyAerospaceArmorAllocation,
-} from './aerospaceState';
+} from "./aerospaceState";
+import {
+  AerospaceEngineType,
+  AerospaceSubType,
+  ISmallCraftCrew,
+} from "@/types/unit/AerospaceInterfaces";
+import { calculateFuelPoints } from "@/utils/construction/aerospace/fuelCalculations";
 
 // Re-export types for convenience
-export type { AerospaceStore } from './aerospaceState';
+export type { AerospaceStore } from "./aerospaceState";
 
 // =============================================================================
 // Helper Functions
@@ -82,7 +88,7 @@ export function createAerospaceStore(
         setChassis: (chassis) =>
           set((state) => ({
             chassis,
-            name: `${chassis}${state.model ? ' ' + state.model : ''}`,
+            name: `${chassis}${state.model ? " " + state.model : ""}`,
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -90,7 +96,7 @@ export function createAerospaceStore(
         setModel: (model) =>
           set((state) => ({
             model,
-            name: `${state.chassis}${model ? ' ' + model : ''}`,
+            name: `${state.chassis}${model ? " " + model : ""}`,
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -143,6 +149,13 @@ export function createAerospaceStore(
             lastModifiedAt: Date.now(),
           }),
 
+        setAerospaceSubType: (subType: AerospaceSubType) =>
+          set({
+            aerospaceSubType: subType,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
         // =================================================================
         // Engine & Movement Actions
         // =================================================================
@@ -172,12 +185,32 @@ export function createAerospaceStore(
             lastModifiedAt: Date.now(),
           })),
 
+        setAerospaceEngineType: (type: AerospaceEngineType) =>
+          set((state) => ({
+            aerospaceEngineType: type,
+            // Recompute fuel points when engine type changes (different points/ton)
+            fuelPoints: calculateFuelPoints(state.fuelTons, type),
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          })),
+
         setFuel: (fuel) =>
           set({
             fuel: Math.max(0, fuel),
             isModified: true,
             lastModifiedAt: Date.now(),
           }),
+
+        setFuelTons: (tons: number) =>
+          set((state) => ({
+            fuelTons: Math.max(0, tons),
+            fuelPoints: calculateFuelPoints(
+              Math.max(0, tons),
+              state.aerospaceEngineType,
+            ),
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          })),
 
         // =================================================================
         // Structure & Cockpit Actions
@@ -207,6 +240,17 @@ export function createAerospaceStore(
         setDoubleHeatSinks: (value) =>
           set({
             doubleHeatSinks: value,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        // =================================================================
+        // Crew Actions (small craft only)
+        // =================================================================
+
+        setCrew: (crew: ISmallCraftCrew | null) =>
+          set({
+            crew,
             isModified: true,
             lastModifiedAt: Date.now(),
           }),
@@ -393,12 +437,15 @@ export function createAerospaceStore(
           tonnage: state.tonnage,
           techBase: state.techBase,
           unitType: state.unitType,
+          aerospaceSubType: state.aerospaceSubType,
           motionType: state.motionType,
           isOmni: state.isOmni,
           engineType: state.engineType,
+          aerospaceEngineType: state.aerospaceEngineType,
           engineRating: state.engineRating,
           safeThrust: state.safeThrust,
           fuel: state.fuel,
+          fuelTons: state.fuelTons,
           structuralIntegrity: state.structuralIntegrity,
           cockpitType: state.cockpitType,
           heatSinks: state.heatSinks,
@@ -410,6 +457,7 @@ export function createAerospaceStore(
           bombCapacity: state.bombCapacity,
           hasReinforcedCockpit: state.hasReinforcedCockpit,
           hasEjectionSeat: state.hasEjectionSeat,
+          crew: state.crew,
           equipment: state.equipment,
           isModified: state.isModified,
           createdAt: state.createdAt,
@@ -454,8 +502,8 @@ export function useAerospaceStore<T>(
 
   if (!store) {
     throw new Error(
-      'useAerospaceStore must be used within an AerospaceStoreProvider. ' +
-        'Wrap your component tree with <AerospaceStoreProvider>.',
+      "useAerospaceStore must be used within an AerospaceStoreProvider. " +
+        "Wrap your component tree with <AerospaceStoreProvider>.",
     );
   }
 
@@ -470,7 +518,7 @@ export function useAerospaceStoreApi(): StoreApi<AerospaceStore> {
 
   if (!store) {
     throw new Error(
-      'useAerospaceStoreApi must be used within an AerospaceStoreProvider.',
+      "useAerospaceStoreApi must be used within an AerospaceStoreProvider.",
     );
   }
 
