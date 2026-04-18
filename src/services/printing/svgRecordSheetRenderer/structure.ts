@@ -3,10 +3,10 @@
  * Handles loading pre-made structure pip SVGs and generating dynamic pips for non-biped mechs
  */
 
-import { IRecordSheetData, ILocationStructure } from '@/types/printing';
-import { logger } from '@/utils/logger';
+import { IMechRecordSheetData, ILocationStructure } from "@/types/printing";
+import { logger } from "@/utils/logger";
 
-import { ArmorPipLayout } from '../ArmorPipLayout';
+import { ArmorPipLayout } from "../ArmorPipLayout";
 import {
   SVG_NS,
   PIPS_BASE_PATH,
@@ -17,8 +17,8 @@ import {
   BIPED_STRUCTURE_PIP_GROUP_IDS,
   QUAD_STRUCTURE_PIP_GROUP_IDS,
   TRIPOD_STRUCTURE_PIP_GROUP_IDS,
-} from './constants';
-import { setTextContent } from './template';
+} from "./constants";
+import { setTextContent } from "./template";
 
 /**
  * Fill template with structure pips and text values
@@ -28,7 +28,7 @@ import { setTextContent } from './template';
 export async function fillStructurePips(
   svgDoc: Document,
   svgRoot: SVGSVGElement,
-  structure: IRecordSheetData['structure'],
+  structure: IMechRecordSheetData["structure"],
   tonnage: number,
   mechType?: string,
 ): Promise<void> {
@@ -41,7 +41,7 @@ export async function fillStructurePips(
   });
 
   // Check if this mech type uses pre-made pip files
-  const usePremadePips = PREMADE_PIP_TYPES.includes(mechType || 'biped');
+  const usePremadePips = PREMADE_PIP_TYPES.includes(mechType || "biped");
 
   if (usePremadePips) {
     // Biped: Load pre-made structure pip SVG files
@@ -52,14 +52,14 @@ export async function fillStructurePips(
     if (!structurePipsGroup) {
       const templatePips = svgDoc.getElementById(ELEMENT_IDS.STRUCTURE_PIPS);
       if (templatePips) {
-        templatePips.setAttribute('visibility', 'hidden');
+        templatePips.setAttribute("visibility", "hidden");
       }
 
-      const newGroup = svgDoc.createElementNS(SVG_NS, 'g');
-      newGroup.setAttribute('id', 'structure-pips-loaded');
+      const newGroup = svgDoc.createElementNS(SVG_NS, "g");
+      newGroup.setAttribute("id", "structure-pips-loaded");
       newGroup.setAttribute(
-        'transform',
-        'matrix(0.971,0,0,0.971,-378.511,-376.966)',
+        "transform",
+        "matrix(0.971,0,0,0.971,-378.511,-376.966)",
       );
       svgRoot.appendChild(newGroup);
       structurePipsGroup = newGroup;
@@ -73,7 +73,7 @@ export async function fillStructurePips(
     );
   } else {
     // Non-biped (quad, tripod, etc.): Generate pips dynamically using template rects
-    generateDynamicStructurePips(svgDoc, structure, mechType || 'quad');
+    generateDynamicStructurePips(svgDoc, structure, mechType || "quad");
   }
 }
 
@@ -121,30 +121,30 @@ async function loadAndInsertStructurePips(
 
     const pipSvgText = await response.text();
     const parser = new DOMParser();
-    const pipDoc = parser.parseFromString(pipSvgText, 'image/svg+xml');
+    const pipDoc = parser.parseFromString(pipSvgText, "image/svg+xml");
 
     // Extract the path elements from the pip SVG
-    const paths = pipDoc.querySelectorAll('path');
+    const paths = pipDoc.querySelectorAll("path");
 
     if (paths.length === 0) return;
 
     // Create a group for this location's structure pips
-    const locationGroup = svgDoc.createElementNS(SVG_NS, 'g');
-    locationGroup.setAttribute('id', `is_pips_${locationAbbr}`);
-    locationGroup.setAttribute('class', 'structure-pips');
+    const locationGroup = svgDoc.createElementNS(SVG_NS, "g");
+    locationGroup.setAttribute("id", `is_pips_${locationAbbr}`);
+    locationGroup.setAttribute("class", "structure-pips");
 
     // Clone each path into our template
     paths.forEach((path) => {
       const clonedPath = svgDoc.importNode(path, true) as SVGPathElement;
       // Ensure proper styling for structure pips (white fill with black stroke)
       if (
-        !clonedPath.getAttribute('fill') ||
-        clonedPath.getAttribute('fill') === 'none'
+        !clonedPath.getAttribute("fill") ||
+        clonedPath.getAttribute("fill") === "none"
       ) {
-        clonedPath.setAttribute('fill', '#FFFFFF');
+        clonedPath.setAttribute("fill", "#FFFFFF");
       }
-      if (!clonedPath.getAttribute('stroke')) {
-        clonedPath.setAttribute('stroke', '#000000');
+      if (!clonedPath.getAttribute("stroke")) {
+        clonedPath.setAttribute("stroke", "#000000");
       }
       locationGroup.appendChild(clonedPath);
     });
@@ -176,7 +176,7 @@ export function generateStructurePipsForLocationFallback(
 
   // Get all existing pip paths in this group to determine positions
   const existingPips = existingPipGroup.querySelectorAll(
-    'path.pip.structure, circle.pip.structure',
+    "path.pip.structure, circle.pip.structure",
   );
 
   // If there are existing pips, we can use them as templates
@@ -191,11 +191,11 @@ export function generateStructurePipsForLocationFallback(
       const pip = existingPips[i] as SVGElement;
       if (i < pipsToShow) {
         // Show this pip with proper styling
-        pip.setAttribute('fill', '#FFFFFF');
-        pip.setAttribute('visibility', 'visible');
+        pip.setAttribute("fill", "#FFFFFF");
+        pip.setAttribute("visibility", "visible");
       } else {
         // Hide excess pips
-        pip.setAttribute('visibility', 'hidden');
+        pip.setAttribute("visibility", "hidden");
       }
     }
 
@@ -235,7 +235,7 @@ function generateAdditionalStructurePips(
   const parentG = referencePip.parentElement;
   if (!parentG) return;
 
-  const transform = parentG.getAttribute('transform') || '';
+  const transform = parentG.getAttribute("transform") || "";
   const translateMatch = transform.match(/translate\(([\d.-]+),([\d.-]+)\)/);
 
   if (!translateMatch) return;
@@ -249,20 +249,20 @@ function generateAdditionalStructurePips(
 
   // Generate additional pips in a row/column pattern
   for (let i = 0; i < count; i++) {
-    const pipGroup = svgDoc.createElementNS(SVG_NS, 'g');
+    const pipGroup = svgDoc.createElementNS(SVG_NS, "g");
     pipGroup.setAttribute(
-      'transform',
+      "transform",
       `translate(${baseX + (i + 1) * spacing},${baseY})`,
     );
 
-    const pip = svgDoc.createElementNS(SVG_NS, 'circle');
-    pip.setAttribute('cx', '0');
-    pip.setAttribute('cy', '0');
-    pip.setAttribute('r', String(radius));
-    pip.setAttribute('fill', '#FFFFFF');
-    pip.setAttribute('stroke', '#000000');
-    pip.setAttribute('stroke-width', '0.5');
-    pip.setAttribute('class', 'pip structure');
+    const pip = svgDoc.createElementNS(SVG_NS, "circle");
+    pip.setAttribute("cx", "0");
+    pip.setAttribute("cy", "0");
+    pip.setAttribute("r", String(radius));
+    pip.setAttribute("fill", "#FFFFFF");
+    pip.setAttribute("stroke", "#000000");
+    pip.setAttribute("stroke-width", "0.5");
+    pip.setAttribute("class", "pip structure");
 
     pipGroup.appendChild(pip);
     parentGroup.appendChild(pipGroup);
@@ -299,22 +299,22 @@ function generateStructurePipGrid(
   const radius = 1.75;
   const spacing = 4.5;
 
-  const group = svgDoc.createElementNS(SVG_NS, 'g');
-  group.setAttribute('id', `gen_is_pips_${locationAbbr}`);
-  group.setAttribute('class', 'structure-pips-generated');
+  const group = svgDoc.createElementNS(SVG_NS, "g");
+  group.setAttribute("id", `gen_is_pips_${locationAbbr}`);
+  group.setAttribute("class", "structure-pips-generated");
 
   for (let i = 0; i < count; i++) {
     const col = i % layout.cols;
     const row = Math.floor(i / layout.cols);
 
-    const pip = svgDoc.createElementNS(SVG_NS, 'circle');
-    pip.setAttribute('cx', String(layout.startX + col * spacing));
-    pip.setAttribute('cy', String(layout.startY + row * spacing));
-    pip.setAttribute('r', String(radius));
-    pip.setAttribute('fill', '#FFFFFF');
-    pip.setAttribute('stroke', '#000000');
-    pip.setAttribute('stroke-width', '0.5');
-    pip.setAttribute('class', 'pip structure');
+    const pip = svgDoc.createElementNS(SVG_NS, "circle");
+    pip.setAttribute("cx", String(layout.startX + col * spacing));
+    pip.setAttribute("cy", String(layout.startY + row * spacing));
+    pip.setAttribute("r", String(radius));
+    pip.setAttribute("fill", "#FFFFFF");
+    pip.setAttribute("stroke", "#000000");
+    pip.setAttribute("stroke-width", "0.5");
+    pip.setAttribute("class", "pip structure");
 
     group.appendChild(pip);
   }
@@ -328,7 +328,7 @@ function generateStructurePipGrid(
  */
 function generateDynamicStructurePips(
   svgDoc: Document,
-  structure: IRecordSheetData['structure'],
+  structure: IMechRecordSheetData["structure"],
   mechType: string,
 ): void {
   // Get the structure pip group IDs based on mech type
@@ -354,9 +354,9 @@ function generateDynamicStructurePips(
     // Use ArmorPipLayout to generate pips within the bounding rects
     if (loc.points > 0) {
       ArmorPipLayout.addPips(svgDoc, pipArea, loc.points, {
-        fill: '#FFFFFF',
+        fill: "#FFFFFF",
         strokeWidth: 0.5,
-        className: 'pip structure',
+        className: "pip structure",
       });
     }
   });
@@ -369,11 +369,11 @@ function getStructurePipGroupIdsForMechType(
   mechType: string,
 ): Record<string, string> {
   switch (mechType) {
-    case 'quad':
+    case "quad":
       return QUAD_STRUCTURE_PIP_GROUP_IDS;
-    case 'tripod':
+    case "tripod":
       return TRIPOD_STRUCTURE_PIP_GROUP_IDS;
-    case 'biped':
+    case "biped":
     default:
       return BIPED_STRUCTURE_PIP_GROUP_IDS;
   }

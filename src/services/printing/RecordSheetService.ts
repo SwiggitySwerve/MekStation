@@ -6,23 +6,25 @@
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
-import { jsPDF } from 'jspdf';
+import { jsPDF } from "jspdf";
 
-import type { IPilotAbilityRef } from '@/types/pilot';
+import type { IPilotAbilityRef } from "@/types/pilot";
 
 import {
   createSingleton,
   type SingletonFactory,
-} from '@/services/core/createSingleton';
+} from "@/services/core/createSingleton";
 import {
   IRecordSheetData,
+  IMechRecordSheetData,
+  UnsupportedUnitTypeError,
   PaperSize,
   PAPER_DIMENSIONS,
   PDF_DPI_MULTIPLIER,
   IPDFExportOptions,
-} from '@/types/printing';
+} from "@/types/printing";
 
-import { SVG_TEMPLATES, SVG_TEMPLATES_A4 } from './recordsheet/constants';
+import { SVG_TEMPLATES, SVG_TEMPLATES_A4 } from "./recordsheet/constants";
 import {
   extractHeader,
   extractMovement,
@@ -31,11 +33,11 @@ import {
   extractEquipment,
   extractHeatSinks,
   extractCriticals,
-} from './recordsheet/dataExtractors';
-import { getMechType } from './recordsheet/mechTypeUtils';
-import { buildSPASection } from './recordsheet/spaSection';
-import { IUnitConfig } from './recordsheet/types';
-import { SVGRecordSheetRenderer } from './svgRecordSheetRenderer';
+} from "./recordsheet/dataExtractors";
+import { getMechType } from "./recordsheet/mechTypeUtils";
+import { buildSPASection } from "./recordsheet/spaSection";
+import { IUnitConfig } from "./recordsheet/types";
+import { SVGRecordSheetRenderer } from "./svgRecordSheetRenderer";
 
 export type { IUnitConfig };
 
@@ -50,15 +52,56 @@ export class RecordSheetService {
    * Special Abilities block is built and included on the output. Omit
    * to render a sheet without the SPA section (legacy behaviour).
    */
+  /**
+   * Extract mech record sheet data from a mech unit configuration.
+   *
+   * Routes to `extractMechData` under the hood. For non-mech units, see
+   * `extractDataByType` which dispatches on `unit.type`.
+   *
+   * Phase 5 Wave 3: when `pilotAbilities` is supplied, the printable
+   * Special Abilities block is built and included on the output. Omit
+   * to render a sheet without the SPA section (legacy behaviour).
+   */
   extractData(
     unit: IUnitConfig,
     pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IMechRecordSheetData {
+    return this.extractMechData(unit, pilotAbilities);
+  }
+
+  /**
+   * Extract record sheet data dispatching on `unit.type`.
+   *
+   * Returns the appropriate `IRecordSheetData` variant. Throws
+   * `UnsupportedUnitTypeError` for unit types not yet supported.
+   */
+  extractDataByType(
+    unit: IUnitConfig & { type?: string },
+    pilotAbilities?: readonly IPilotAbilityRef[],
   ): IRecordSheetData {
+    const unitType = (unit as { type?: string }).type ?? "mech";
+    switch (unitType) {
+      case "mech":
+      case undefined:
+        return this.extractMechData(unit, pilotAbilities);
+      default:
+        throw new UnsupportedUnitTypeError(unitType);
+    }
+  }
+
+  /**
+   * Extract mech-specific record sheet data.
+   */
+  private extractMechData(
+    unit: IUnitConfig,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IMechRecordSheetData {
     const spaBlock = pilotAbilities
       ? buildSPASection(pilotAbilities)
       : { entries: [], hasContent: false };
 
     return {
+      unitType: "mech",
       header: extractHeader(unit),
       movement: extractMovement(unit),
       armor: extractArmor(unit),
@@ -77,7 +120,7 @@ export class RecordSheetService {
    */
   async renderPreview(
     canvas: HTMLCanvasElement,
-    data: IRecordSheetData,
+    data: IMechRecordSheetData,
     paperSize: PaperSize = PaperSize.LETTER,
   ): Promise<void> {
     const templates =
@@ -97,7 +140,7 @@ export class RecordSheetService {
   }
 
   async getSVGString(
-    data: IRecordSheetData,
+    data: IMechRecordSheetData,
     paperSize: PaperSize = PaperSize.LETTER,
   ): Promise<string> {
     const templates =
@@ -121,7 +164,7 @@ export class RecordSheetService {
    * Uses SVG template rendering with high-DPI (3x) for crisp text and graphics.
    */
   async exportPDF(
-    data: IRecordSheetData,
+    data: IMechRecordSheetData,
     options: IPDFExportOptions = {
       paperSize: PaperSize.LETTER,
       includePilotData: false,
@@ -130,7 +173,7 @@ export class RecordSheetService {
     const { paperSize, filename } = options;
     const { width, height } = PAPER_DIMENSIONS[paperSize];
 
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     const scaledWidth = width * PDF_DPI_MULTIPLIER;
     const scaledHeight = height * PDF_DPI_MULTIPLIER;
     canvas.width = scaledWidth;
@@ -152,17 +195,17 @@ export class RecordSheetService {
     await renderer.renderToCanvasHighDPI(canvas, PDF_DPI_MULTIPLIER);
 
     const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'pt',
-      format: paperSize === PaperSize.A4 ? 'a4' : 'letter',
+      orientation: "portrait",
+      unit: "pt",
+      format: paperSize === PaperSize.A4 ? "a4" : "letter",
     });
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
+    const imgData = canvas.toDataURL("image/jpeg", 0.95);
+    pdf.addImage(imgData, "JPEG", 0, 0, width, height);
 
     const pdfFilename =
       filename ||
-      `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, '-');
+      `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, "-");
     pdf.save(pdfFilename);
   }
 
@@ -170,18 +213,18 @@ export class RecordSheetService {
    * Print record sheet using browser print dialog
    */
   print(canvas: HTMLCanvasElement): void {
-    const dataUrl = canvas.toDataURL('image/png');
+    const dataUrl = canvas.toDataURL("image/png");
 
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open("", "_blank");
     if (!printWindow) {
       throw new Error(
-        'Could not open print window. Check popup blocker settings.',
+        "Could not open print window. Check popup blocker settings.",
       );
     }
 
     const windowDoc = (printWindow as { document?: Document }).document;
     if (!windowDoc) {
-      throw new Error('Print window does not have document access');
+      throw new Error("Print window does not have document access");
     }
 
     windowDoc.write(`
