@@ -13,11 +13,11 @@ modifiers are bridged. What's missing is the player-facing chrome: a picker,
 an editor button on the pilot detail page, designation prompts for SPAs that
 need them, and SPA display on the unit card + pilot sheet + printed record.
 
-| Change                                       | Roadmap PR        | Surface                        |
-| -------------------------------------------- | ----------------- | ------------------------------ |
-| `add-spa-picker-component`                   | #1 picker         | Reusable `<SPAPicker>`         |
-| `add-pilot-spa-editor-integration`           | #2 editor wiring  | Pilot detail page              |
-| `add-spa-designation-persistence`            | #3 designations   | Pilot record contract          |
+| Change                                         | Roadmap PR            | Surface                      |
+| ---------------------------------------------- | --------------------- | ---------------------------- |
+| `add-spa-picker-component`                     | #1 picker             | Reusable `<SPAPicker>`       |
+| `add-pilot-spa-editor-integration`             | #2 editor wiring      | Pilot detail page            |
+| `add-spa-designation-persistence`              | #3 designations       | Pilot record contract        |
 | `add-spa-display-on-pilot-sheet-and-unit-card` | #4 + #5 display + PDF | Card / sheet / record export |
 
 Total scope: ~401 task checkboxes across 4 changes.
@@ -65,12 +65,12 @@ but touch different files: 2a touches the pilot detail page + pilot service,
 
 ## File-scope ownership matrix
 
-| Change         | Creates                                                                                                                    | Modifies                                                                                                       |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **1. picker**  | `src/components/spa/SPAPicker/{SPAPicker.tsx, CategoryTabs.tsx, SearchInput.tsx, SourceFilters.tsx, SPAItem.tsx}` + tests | (none — purely additive)                                                                                       |
-| **2a. editor** | (none new — extends existing pilots components)                                                                            | `src/pages/gameplay/pilots/[id].tsx`, `src/components/pilots/AbilityPurchase*.tsx`, `src/services/pilots/...`  |
-| **2b. designation** | `src/types/pilot/SPADesignation.ts`, `src/lib/spa/designation/applyDesignation.ts`                                    | `src/types/pilot/PilotInterfaces.ts`, `src/types/campaign/Person.ts`, `src/lib/spa/spaCombat...` (hand-off)    |
-| **3. display** | `src/components/spa/SPABadge.tsx`, `src/components/spa/SPAList.tsx`, `src/components/spa/SPATooltip.tsx`                  | `src/components/pilot-mech-card/PilotSection.tsx`, `src/services/printing/recordsheet/...` (PDF section)      |
+| Change              | Creates                                                                                                                   | Modifies                                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **1. picker**       | `src/components/spa/SPAPicker/{SPAPicker.tsx, CategoryTabs.tsx, SearchInput.tsx, SourceFilters.tsx, SPAItem.tsx}` + tests | (none — purely additive)                                                                                      |
+| **2a. editor**      | (none new — extends existing pilots components)                                                                           | `src/pages/gameplay/pilots/[id].tsx`, `src/components/pilots/AbilityPurchase*.tsx`, `src/services/pilots/...` |
+| **2b. designation** | `src/types/pilot/SPADesignation.ts`, `src/lib/spa/designation/applyDesignation.ts`                                        | `src/types/pilot/PilotInterfaces.ts`, `src/types/campaign/Person.ts`, `src/lib/spa/spaCombat...` (hand-off)   |
+| **3. display**      | `src/components/spa/SPABadge.tsx`, `src/components/spa/SPAList.tsx`, `src/components/spa/SPATooltip.tsx`                  | `src/components/pilot-mech-card/PilotSection.tsx`, `src/services/printing/recordsheet/...` (PDF section)      |
 
 **Conflict points:**
 
@@ -87,12 +87,12 @@ first, then Wave 2b. The plan's "parallel" was optimistic.
 
 ## Sub-branch execution plan
 
-| Wave | Sub-branch                                    | Agent         | Depends on        |
-| ---- | --------------------------------------------- | ------------- | ----------------- |
-| 1    | `feat/phase-5--picker`                        | hephaestus #1 | main              |
-| 2a   | `feat/phase-5--editor`                        | hephaestus #2 | Wave 1            |
-| 2b   | `feat/phase-5--designation`                   | hephaestus #3 | Wave 2a (serial)  |
-| 3    | `feat/phase-5--display`                       | hephaestus #4 | Wave 2b           |
+| Wave | Sub-branch                  | Agent         | Depends on       |
+| ---- | --------------------------- | ------------- | ---------------- |
+| 1    | `feat/phase-5--picker`      | hephaestus #1 | main             |
+| 2a   | `feat/phase-5--editor`      | hephaestus #2 | Wave 1           |
+| 2b   | `feat/phase-5--designation` | hephaestus #3 | Wave 2a (serial) |
+| 3    | `feat/phase-5--display`     | hephaestus #4 | Wave 2b          |
 
 All waves work directly on the integration branch (no isolated worktrees) since
 Phase 5 has minimal cross-wave conflict potential.

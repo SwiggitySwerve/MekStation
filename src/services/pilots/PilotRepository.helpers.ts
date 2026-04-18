@@ -38,6 +38,10 @@ export interface PilotAbilityRow {
   ability_id: string;
   acquired_date: string;
   acquired_game_id: string | null;
+  // Phase 5 Wave 2a — nullable on legacy rows.
+  designation_kind: string | null;
+  designation_value: string | null;
+  xp_spent: number | null;
 }
 
 export interface PilotKillRow {
@@ -72,6 +76,11 @@ export function rowToPilot(row: PilotRow): IPilot {
     abilityId: a.ability_id,
     acquiredDate: a.acquired_date,
     acquiredGameId: a.acquired_game_id || undefined,
+    designation:
+      a.designation_kind && a.designation_value
+        ? { kind: a.designation_kind, value: a.designation_value }
+        : undefined,
+    xpSpent: a.xp_spent ?? undefined,
   }));
 
   let career: IPilotCareer | undefined;

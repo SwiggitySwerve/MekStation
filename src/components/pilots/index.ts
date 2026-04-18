@@ -5,7 +5,8 @@
 
 export { PilotCreationWizard } from './PilotCreationWizard';
 export { PilotProgressionPanel } from './PilotProgressionPanel';
-export { AbilityPurchaseModal } from './AbilityPurchaseModal';
+export { PilotAbilitiesPanel } from './PilotAbilitiesPanel';
+export type { IPilotAbilitiesPanelProps } from './PilotAbilitiesPanel';
 export {
   StatusBadge,
   DeleteConfirmModal,

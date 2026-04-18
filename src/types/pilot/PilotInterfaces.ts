@@ -304,6 +304,20 @@ export enum AbilityEffectType {
 }
 
 /**
+ * Stub designation payload stored alongside an SPA. Wave 2b replaces this
+ * shape with a typed discriminated union that pulls real options from the
+ * weapon + terrain catalogs — the picker contract here intentionally
+ * mirrors `SPADesignation` from `@/components/spa/SPAPicker/types` so we
+ * don't grow a hidden third shape.
+ */
+export interface IPilotAbilityDesignation {
+  /** SPA designationType slug, or 'unknown' if the SPA didn't declare one. */
+  readonly kind: string;
+  /** User-visible label of the option chosen at purchase time. */
+  readonly value: string;
+}
+
+/**
  * Reference to an ability owned by a pilot.
  */
 export interface IPilotAbilityRef {
@@ -313,6 +327,13 @@ export interface IPilotAbilityRef {
   readonly acquiredDate: string;
   /** Game session where acquired (if applicable) */
   readonly acquiredGameId?: string;
+  /** Designation chosen at purchase (Weapon Specialist target, Range Master
+   *  bracket, etc). Optional — present only for SPAs that require one. */
+  readonly designation?: IPilotAbilityDesignation;
+  /** XP cost paid at acquisition. Used to refund the exact amount when an
+   *  ability is removed during the creation flow. Nullable for legacy rows
+   *  inserted before Phase 5 Wave 2a. */
+  readonly xpSpent?: number;
 }
 
 /**

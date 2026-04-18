@@ -23,12 +23,14 @@ export default function CreatePilotPage(): React.ReactElement {
     router.push('/gameplay/pilots');
   }, [router]);
 
-  // Handle successful pilot creation
+  // Handle successful pilot creation. Phase 5 Wave 2a appends
+  // `?creating=1` so the detail page's `<PilotAbilitiesPanel>` opens in
+  // creation flow — that lets the player tweak SPAs (remove free
+  // origin-only picks, add flaws) before the campaign starts.
   const handleCreated = useCallback(
     (pilotId: string | null) => {
       if (pilotId) {
-        // Navigate to the new pilot's detail page
-        router.push(`/gameplay/pilots/${pilotId}`);
+        router.push(`/gameplay/pilots/${pilotId}?creating=1`);
       } else {
         // If no ID (statblock pilot), go back to roster
         router.push('/gameplay/pilots');

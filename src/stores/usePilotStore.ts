@@ -101,6 +101,26 @@ interface PilotStoreActions {
     abilityId: string,
     xpCost: number,
   ) => Promise<boolean>;
+  /**
+   * Purchase a Phase 5 SPA. Hits the unified endpoint with `spaId`,
+   * forwarding designation + creation-flow flags. Returns true on
+   * success and refreshes the pilot list so the panel sees the new XP
+   * pool / ability roster.
+   */
+  purchaseSPA: (
+    pilotId: string,
+    spaId: string,
+    options?: {
+      designation?: import('@/types/pilot').IPilotAbilityDesignation;
+      isCreationFlow?: boolean;
+    },
+  ) => Promise<boolean>;
+  /** Remove an SPA from a pilot (creation flow only). Refunds XP. */
+  removeSPA: (
+    pilotId: string,
+    spaId: string,
+    options?: { isCreationFlow?: boolean },
+  ) => Promise<boolean>;
   /** Set filter */
   setShowActiveOnly: (value: boolean) => void;
   /** Set search query */
@@ -465,6 +485,73 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Failed to purchase ability';
+      set({ error: message });
+      return false;
+    }
+  },
+
+  purchaseSPA: async (pilotId, spaId, options) => {
+    set({ error: null });
+
+    try {
+      const response = await fetch(`/api/pilots/${pilotId}/purchase-ability`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          spaId,
+          designation: options?.designation,
+          isCreationFlow: options?.isCreationFlow,
+        }),
+      });
+
+      const data = (await response.json()) as {
+        success: boolean;
+        error?: string;
+      };
+
+      if (data.success) {
+        await get().loadPilots();
+        return true;
+      } else {
+        set({ error: data.error || 'Failed to purchase SPA' });
+        return false;
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to purchase SPA';
+      set({ error: message });
+      return false;
+    }
+  },
+
+  removeSPA: async (pilotId, spaId, options) => {
+    set({ error: null });
+
+    try {
+      const response = await fetch(`/api/pilots/${pilotId}/purchase-ability`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          spaId,
+          isCreationFlow: options?.isCreationFlow,
+        }),
+      });
+
+      const data = (await response.json()) as {
+        success: boolean;
+        error?: string;
+      };
+
+      if (data.success) {
+        await get().loadPilots();
+        return true;
+      } else {
+        set({ error: data.error || 'Failed to remove SPA' });
+        return false;
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to remove SPA';
       set({ error: message });
       return false;
     }
