@@ -176,6 +176,20 @@ export interface IRecordSheetPilot {
 }
 
 /**
+ * Printable Special Abilities entry — Phase 5 Wave 3.
+ * Mirrors `ISPASectionEntry` from the recordsheet helper but is duplicated
+ * here so the print-types layer doesn't depend on `@/lib/spa`.
+ */
+export interface IRecordSheetSPAEntry {
+  readonly abilityId: string;
+  readonly displayName: string;
+  readonly category: string;
+  readonly headline: string;
+  readonly truncatedDescription: string;
+  readonly xpSpent?: number;
+}
+
+/**
  * Complete record sheet data extracted from unit
  */
 export interface IRecordSheetData {
@@ -187,6 +201,9 @@ export interface IRecordSheetData {
   readonly heatSinks: IRecordSheetHeatSinks;
   readonly criticals: readonly ILocationCriticals[];
   readonly pilot?: IRecordSheetPilot;
+  /** Phase 5 Wave 3 — printable Special Abilities block. Empty when the
+   *  pilot has no resolvable SPAs; renderer skips the section then. */
+  readonly specialAbilities?: readonly IRecordSheetSPAEntry[];
   readonly mechType: 'biped' | 'quad' | 'tripod' | 'lam' | 'quadvee';
 }
 

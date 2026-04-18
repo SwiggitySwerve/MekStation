@@ -2,8 +2,10 @@ import {
   IPilot,
   IPilotCareer,
   IPilotAbilityRef,
+  ISPADesignation,
   PilotType,
   PilotStatus,
+  legacyDesignationToTyped,
 } from '@/types/pilot';
 
 import { getSQLiteService } from '../persistence/SQLiteService';
@@ -38,6 +40,10 @@ export interface PilotAbilityRow {
   ability_id: string;
   acquired_date: string;
   acquired_game_id: string | null;
+  // Phase 5 Wave 2a — nullable on legacy rows.
+  designation_kind: string | null;
+  designation_value: string | null;
+  xp_spent: number | null;
 }
 
 export interface PilotKillRow {
@@ -72,6 +78,8 @@ export function rowToPilot(row: PilotRow): IPilot {
     abilityId: a.ability_id,
     acquiredDate: a.acquired_date,
     acquiredGameId: a.acquired_game_id || undefined,
+    designation: decodeDesignation(a.designation_kind, a.designation_value),
+    xpSpent: a.xp_spent ?? undefined,
   }));
 
   let career: IPilotCareer | undefined;
@@ -134,4 +142,64 @@ export function rowToPilot(row: PilotRow): IPilot {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+// =============================================================================
+// Designation encode/decode (Wave 2b)
+// =============================================================================
+//
+// Storage convention: `designation_kind` stays in its own column so we
+// can index/filter on it without a JSON extract; `designation_value`
+// stores a JSON-encoded payload of the variant's body (everything except
+// `kind`). When the column predates Wave 2b we fall back to the legacy
+// `{ kind: string, value: string }` migrator so the row decodes cleanly.
+
+/**
+ * Encode a typed `ISPADesignation` for SQLite storage. Splits the
+ * discriminator off into its own column and JSON-encodes the body. A
+ * missing/undefined designation returns `{ kind: null, value: null }`
+ * so callers can spread the result into a parameterized INSERT.
+ */
+export function encodeDesignation(
+  designation: ISPADesignation | null | undefined,
+): { kind: string | null; value: string | null } {
+  if (!designation) return { kind: null, value: null };
+  // Strip the discriminator from the body. Cast through a generic
+  // record so TS doesn't widen the union to the concrete branches.
+  const { kind, ...body } = designation as ISPADesignation & {
+    [k: string]: unknown;
+  };
+  return { kind, value: JSON.stringify(body) };
+}
+
+/**
+ * Decode an SQLite row's `(designation_kind, designation_value)` pair
+ * back into a typed `ISPADesignation`. Returns `undefined` when the row
+ * has no designation; tries the JSON-typed shape first and falls back to
+ * the legacy `{ kind, value }` migrator so older rows keep loading.
+ */
+export function decodeDesignation(
+  kind: string | null,
+  value: string | null,
+): ISPADesignation | undefined {
+  if (!kind || !value) return undefined;
+
+  // Try the Wave 2b JSON body first.
+  try {
+    const body = JSON.parse(value) as Record<string, unknown>;
+    // The body must be a non-array object. Arrays / primitives are legacy.
+    if (body && typeof body === 'object' && !Array.isArray(body)) {
+      // Reattach the discriminator and trust the union shape — the
+      // service layer validates with zod before insert.
+      return { kind, ...body } as ISPADesignation;
+    }
+  } catch {
+    // Falls through to the legacy migrator below.
+  }
+
+  // Legacy stub `{ kind: string, value: string }` shape — wrap and
+  // migrate. The migrator returns null for unknown kinds; we collapse
+  // that to undefined so the ability ref drops the field cleanly.
+  const legacy = legacyDesignationToTyped({ kind, value });
+  return legacy ?? undefined;
 }

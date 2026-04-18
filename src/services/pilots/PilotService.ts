@@ -7,16 +7,21 @@
  * @spec openspec/changes/add-pilot-system/specs/pilot-system/spec.md
  */
 
+import { getSPADefinition, resolveSPAId } from '@/lib/spa';
 import { pickRandomSPA } from '@/lib/spa/random';
 import {
   IPilot,
+  IPilotAbilityDesignation,
   ICreatePilotOptions,
   IPilotIdentity,
   IPilotStatblock,
+  ISPADesignation,
   PilotType,
   PilotStatus,
   PilotExperienceLevel,
   PILOT_TEMPLATES,
+  SPA_DESIGNATION_SCHEMA,
+  catalogDesignationToKind,
   getGunneryImprovementCost,
   getPilotingImprovementCost,
   isValidSkillValue,
@@ -81,6 +86,31 @@ export interface IPilotService {
   // Wounds
   applyWound(pilotId: string): IPilotOperationResult;
   healWounds(pilotId: string): IPilotOperationResult;
+
+  // SPA editor (Phase 5 Wave 2a + 2b)
+  purchaseSPA(
+    pilotId: string,
+    spaId: string,
+    options?: {
+      designation?: IPilotAbilityDesignation;
+      isCreationFlow?: boolean;
+    },
+  ): IPilotOperationResult;
+  removeSPA(
+    pilotId: string,
+    spaId: string,
+    options?: { isCreationFlow?: boolean },
+  ): IPilotOperationResult;
+  /**
+   * Wave 2b — pure helper for the combat layer to look up a stored
+   * designation. Resolves the SPA id through `resolveSPAId()` so callers
+   * can pass canonical or legacy ids. Returns `undefined` when the pilot
+   * doesn't own the SPA or when the row predates the designation column.
+   */
+  getPilotDesignation(
+    pilot: IPilot,
+    spaId: string,
+  ): ISPADesignation | undefined;
 
   // Validation
   validatePilot(pilot: Partial<IPilot>): string[];
@@ -448,6 +478,254 @@ export class PilotService implements IPilotService {
       wounds: 0,
       status: PilotStatus.Active,
     });
+  }
+
+  // ===========================================================================
+  // SPA Editor (Phase 5 Wave 2a)
+  // ===========================================================================
+
+  /**
+   * Purchase an SPA from the canonical catalog. Handles both standard
+   * positive-cost SPAs (XP debited) and flaws (negative cost = XP credit).
+   *
+   * Validation order matches the spec delta:
+   *   1. Pilot exists.
+   *   2. SPA id resolves in the canonical catalog.
+   *   3. Pilot doesn't already own it.
+   *   4. Origin-only SPAs require `isCreationFlow === true`.
+   *   5. For positive-cost purchases, pilot has the required XP.
+   *   6. Flaws CANNOT be taken outside the creation flow per spec
+   *      task 4.3 — campaign XP rules don't yet allow it.
+   *
+   * On success the SPA is appended to the pilot, XP is deducted (or
+   * credited for flaws), and the operation result carries the pilot id.
+   */
+  purchaseSPA(
+    pilotId: string,
+    spaId: string,
+    options?: {
+      designation?: IPilotAbilityDesignation;
+      isCreationFlow?: boolean;
+    },
+  ): IPilotOperationResult {
+    const pilot = this.repo.getById(pilotId);
+    if (!pilot) {
+      return {
+        success: false,
+        error: `Pilot ${pilotId} not found`,
+        errorCode: PilotErrorCode.NotFound,
+      };
+    }
+
+    const spa = getSPADefinition(spaId);
+    if (!spa) {
+      return {
+        success: false,
+        error: `Unknown SPA: ${spaId}`,
+        errorCode: PilotErrorCode.ValidationError,
+      };
+    }
+
+    // No-op guard — preserves the caller's idempotency expectations.
+    const alreadyOwned = pilot.abilities.some((a) => a.abilityId === spa.id);
+    if (alreadyOwned) {
+      return {
+        success: false,
+        error: `Pilot already has SPA: ${spa.displayName}`,
+        errorCode: PilotErrorCode.ValidationError,
+      };
+    }
+
+    const isCreationFlow = options?.isCreationFlow === true;
+
+    // Origin-only entries are character-creation territory.
+    if (spa.isOriginOnly && !isCreationFlow) {
+      return {
+        success: false,
+        error: `${spa.displayName} can only be taken at pilot creation`,
+        errorCode: PilotErrorCode.ValidationError,
+      };
+    }
+
+    // Flaws need the creation flow window for now (per task 4.3 — the
+    // future campaign XP rules will lift this).
+    if (spa.isFlaw && !isCreationFlow) {
+      return {
+        success: false,
+        error: `Flaws can only be taken at pilot creation`,
+        errorCode: PilotErrorCode.ValidationError,
+      };
+    }
+
+    // Wave 2b — typed designation validation.
+    // Required: SPA flags `requiresDesignation === true` ↔ caller MUST
+    // supply a designation, AND the designation `kind` MUST match the
+    // SPA's declared `designationType`. Zod parses the body shape too so
+    // a malformed payload (e.g. wrong field set for the kind) is caught
+    // at the service boundary — the picker emits typed payloads, but the
+    // API surface accepts foreign callers as well.
+    const designation = options?.designation;
+    if (spa.requiresDesignation) {
+      if (!designation) {
+        return {
+          success: false,
+          error: `Designation required for ${spa.displayName}`,
+          errorCode: PilotErrorCode.ValidationError,
+        };
+      }
+      if (spa.designationType) {
+        const expectedKind = catalogDesignationToKind(spa.designationType);
+        if (designation.kind !== expectedKind) {
+          return {
+            success: false,
+            error: `Designation type mismatch — expected ${expectedKind}, got ${designation.kind}`,
+            errorCode: PilotErrorCode.ValidationError,
+          };
+        }
+      }
+      const parsed = SPA_DESIGNATION_SCHEMA.safeParse(designation);
+      if (!parsed.success) {
+        return {
+          success: false,
+          error: `Invalid designation payload: ${parsed.error.issues[0]?.message ?? 'validation failed'}`,
+          errorCode: PilotErrorCode.ValidationError,
+        };
+      }
+    }
+
+    const xpCost = spa.xpCost ?? 0;
+
+    // Positive-cost purchases burn XP from the pool.
+    if (xpCost > 0) {
+      const availableXp = pilot.career?.xp ?? 0;
+      if (availableXp < xpCost) {
+        return {
+          success: false,
+          error: `Insufficient XP. Need ${xpCost}, have ${availableXp}`,
+          errorCode: PilotErrorCode.InsufficientXp,
+        };
+      }
+      const spendResult = this.repo.spendXp(pilotId, xpCost);
+      if (!spendResult.success) return spendResult;
+    } else if (xpCost < 0) {
+      // Negative cost = flaw grant. Refund credits the spendable pool
+      // without inflating totalXpEarned (this isn't earned XP).
+      const refund = Math.abs(xpCost);
+      const refundResult = this.repo.refundXp(pilotId, refund);
+      if (!refundResult.success) return refundResult;
+    }
+    // xpCost === 0 (origin-only at creation) — no XP movement.
+
+    const addResult = this.repo.addAbility(
+      pilotId,
+      spa.id,
+      undefined,
+      options?.designation,
+      xpCost,
+    );
+
+    if (!addResult.success) {
+      // Roll back the XP move so the pilot isn't left in a half-applied state.
+      if (xpCost > 0) {
+        this.repo.refundXp(pilotId, xpCost);
+      } else if (xpCost < 0) {
+        // The flaw refund failed to attach — re-debit the credit we issued.
+        this.repo.spendXp(pilotId, Math.abs(xpCost));
+      }
+      return addResult;
+    }
+
+    return { success: true, id: pilotId };
+  }
+
+  /**
+   * Remove an SPA from the pilot. Allowed only during the creation flow
+   * per spec task 6.1 — abilities are permanent once the campaign starts.
+   *
+   * On removal during creation, refunds the exact XP spent at purchase
+   * (recorded in `xpSpent` on the ability row). For flaws this returns
+   * the credited XP back to the pool; for purchases it tops up the pool
+   * by the original cost. Falls back to the canonical SPA cost when an
+   * older ability row predates the Wave 2a `xpSpent` column.
+   */
+  removeSPA(
+    pilotId: string,
+    spaId: string,
+    options?: { isCreationFlow?: boolean },
+  ): IPilotOperationResult {
+    if (options?.isCreationFlow !== true) {
+      return {
+        success: false,
+        error: 'Abilities cannot be removed after pilot creation',
+        errorCode: PilotErrorCode.ValidationError,
+      };
+    }
+
+    const pilot = this.repo.getById(pilotId);
+    if (!pilot) {
+      return {
+        success: false,
+        error: `Pilot ${pilotId} not found`,
+        errorCode: PilotErrorCode.NotFound,
+      };
+    }
+
+    const ref = pilot.abilities.find((a) => a.abilityId === spaId);
+    if (!ref) {
+      return {
+        success: false,
+        error: `Pilot does not have SPA: ${spaId}`,
+        errorCode: PilotErrorCode.ValidationError,
+      };
+    }
+
+    // Compute the refund amount. Prefer the recorded xpSpent (Wave 2a
+    // accuracy); fall back to the catalog cost for legacy rows.
+    const fallback = getSPADefinition(spaId)?.xpCost ?? 0;
+    const recorded = ref.xpSpent ?? fallback;
+
+    const removeResult = this.repo.removeAbility(pilotId, spaId);
+    if (!removeResult.success) return removeResult;
+
+    if (recorded > 0) {
+      // Standard purchase — refund the XP into the pool.
+      const refundResult = this.repo.refundXp(pilotId, recorded);
+      if (!refundResult.success) return refundResult;
+    } else if (recorded < 0) {
+      // Flaw removal — claw back the credit we granted on purchase.
+      const debitResult = this.repo.spendXp(pilotId, Math.abs(recorded));
+      if (!debitResult.success) return debitResult;
+    }
+
+    return { success: true, id: pilotId };
+  }
+
+  // ===========================================================================
+  // Designation lookup (Wave 2b)
+  // ===========================================================================
+
+  /**
+   * Pure helper used by the combat layer to look up a stored designation
+   * for one of the pilot's owned SPAs. Resolves the input id through the
+   * canonical alias table so callers can pass either form. Returns
+   * `undefined` when:
+   *   - the spa id doesn't resolve to a canonical id, or
+   *   - the pilot doesn't own that SPA, or
+   *   - the ability row predates Wave 2a (no designation stored).
+   *
+   * Pure — does not mutate the pilot record.
+   */
+  getPilotDesignation(
+    pilot: IPilot,
+    spaId: string,
+  ): ISPADesignation | undefined {
+    const canonical = resolveSPAId(spaId);
+    if (!canonical) return undefined;
+    const ref = pilot.abilities.find((a) => {
+      const aCanon = resolveSPAId(a.abilityId);
+      return aCanon === canonical;
+    });
+    return ref?.designation;
   }
 
   // ===========================================================================

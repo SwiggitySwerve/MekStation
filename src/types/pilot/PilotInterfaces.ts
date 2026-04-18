@@ -6,6 +6,7 @@
  */
 
 import type { IPilotAward, IPilotStats } from '../award/AwardInterfaces';
+import type { ISPADesignation } from './SPADesignation';
 
 import { IEntity } from '../core/IEntity';
 
@@ -304,6 +305,16 @@ export enum AbilityEffectType {
 }
 
 /**
+ * Designation payload stored alongside an SPA. Wave 2b replaced the
+ * original `{ kind: string; value: string }` stub with the typed
+ * discriminated union exported from `./SPADesignation`. We keep
+ * `IPilotAbilityDesignation` as a re-export alias so code paths that
+ * still spell the old name (Wave 2a wiring, the SQLite repository, the
+ * picker prop type) continue to compile after the swap.
+ */
+export type IPilotAbilityDesignation = ISPADesignation;
+
+/**
  * Reference to an ability owned by a pilot.
  */
 export interface IPilotAbilityRef {
@@ -313,6 +324,13 @@ export interface IPilotAbilityRef {
   readonly acquiredDate: string;
   /** Game session where acquired (if applicable) */
   readonly acquiredGameId?: string;
+  /** Designation chosen at purchase (Weapon Specialist target, Range Master
+   *  bracket, etc). Optional — present only for SPAs that require one. */
+  readonly designation?: IPilotAbilityDesignation;
+  /** XP cost paid at acquisition. Used to refund the exact amount when an
+   *  ability is removed during the creation flow. Nullable for legacy rows
+   *  inserted before Phase 5 Wave 2a. */
+  readonly xpSpent?: number;
 }
 
 /**

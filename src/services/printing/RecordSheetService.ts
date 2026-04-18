@@ -8,6 +8,8 @@
 
 import { jsPDF } from 'jspdf';
 
+import type { IPilotAbilityRef } from '@/types/pilot';
+
 import {
   createSingleton,
   type SingletonFactory,
@@ -31,6 +33,7 @@ import {
   extractCriticals,
 } from './recordsheet/dataExtractors';
 import { getMechType } from './recordsheet/mechTypeUtils';
+import { buildSPASection } from './recordsheet/spaSection';
 import { IUnitConfig } from './recordsheet/types';
 import { SVGRecordSheetRenderer } from './svgRecordSheetRenderer';
 
@@ -41,9 +44,20 @@ export type { IUnitConfig };
  */
 export class RecordSheetService {
   /**
-   * Extract record sheet data from unit configuration
+   * Extract record sheet data from unit configuration.
+   *
+   * Phase 5 Wave 3: when `pilotAbilities` is supplied, the printable
+   * Special Abilities block is built and included on the output. Omit
+   * to render a sheet without the SPA section (legacy behaviour).
    */
-  extractData(unit: IUnitConfig): IRecordSheetData {
+  extractData(
+    unit: IUnitConfig,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData {
+    const spaBlock = pilotAbilities
+      ? buildSPASection(pilotAbilities)
+      : { entries: [], hasContent: false };
+
     return {
       header: extractHeader(unit),
       movement: extractMovement(unit),
@@ -53,6 +67,7 @@ export class RecordSheetService {
       heatSinks: extractHeatSinks(unit),
       criticals: extractCriticals(unit),
       pilot: undefined,
+      specialAbilities: spaBlock.hasContent ? spaBlock.entries : undefined,
       mechType: getMechType(unit.configuration),
     };
   }

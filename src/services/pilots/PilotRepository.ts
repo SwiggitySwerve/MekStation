@@ -13,6 +13,7 @@ import {
   IPilot,
   IKillRecord,
   IMissionRecord,
+  IPilotAbilityDesignation,
   ICreatePilotOptions,
   PilotStatus,
   DEFAULT_PILOT_SKILLS,
@@ -24,7 +25,11 @@ import {
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
 import * as careerOps from './PilotRepository.career';
-import { rowToPilot, type PilotRow } from './PilotRepository.helpers';
+import {
+  encodeDesignation,
+  rowToPilot,
+  type PilotRow,
+} from './PilotRepository.helpers';
 import { buildUpdateQuery } from './PilotRepository.queries';
 
 // =============================================================================
@@ -62,8 +67,16 @@ export interface IPilotRepository {
     pilotId: string,
     abilityId: string,
     gameId?: string,
+    designation?: IPilotAbilityDesignation,
+    xpSpent?: number,
   ): IPilotOperationResult;
   removeAbility(pilotId: string, abilityId: string): IPilotOperationResult;
+  /**
+   * Refund XP without inflating totalXpEarned. Used by the SPA editor
+   * removal flow during pilot creation — the pilot earned the XP once,
+   * and an undone purchase should not inflate the lifetime counter.
+   */
+  refundXp(pilotId: string, amount: number): IPilotOperationResult;
   recordKill(
     pilotId: string,
     kill: Omit<IKillRecord, 'date'>,
@@ -258,12 +271,16 @@ export class PilotRepository implements IPilotRepository {
   }
 
   /**
-   * Add an ability to a pilot
+   * Add an ability to a pilot. Phase 5 Wave 2a accepts an optional
+   * designation payload + xpSpent so the editor can record the exact cost
+   * paid (for refunds) and the option chosen (for record sheet display).
    */
   addAbility(
     pilotId: string,
     abilityId: string,
     gameId?: string,
+    designation?: IPilotAbilityDesignation,
+    xpSpent?: number,
   ): IPilotOperationResult {
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
@@ -277,10 +294,27 @@ export class PilotRepository implements IPilotRepository {
     }
 
     try {
-      db.prepare(`
-        INSERT INTO pilot_abilities (id, pilot_id, ability_id, acquired_date, acquired_game_id)
-        VALUES (?, ?, ?, ?, ?)
-      `).run(uuidv4(), pilotId, abilityId, now, gameId || null);
+      // Wave 2b — JSON-encode the typed designation body so the storage
+      // shape matches the discriminated union without a schema change.
+      const encoded = encodeDesignation(designation);
+      db.prepare(
+        `
+        INSERT INTO pilot_abilities (
+          id, pilot_id, ability_id, acquired_date, acquired_game_id,
+          designation_kind, designation_value, xp_spent
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ).run(
+        uuidv4(),
+        pilotId,
+        abilityId,
+        now,
+        gameId || null,
+        encoded.kind,
+        encoded.value,
+        xpSpent ?? null,
+      );
 
       return { success: true, id: pilotId };
     } catch (error) {
@@ -288,6 +322,38 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Failed to add ability: ${message}`,
+        errorCode: PilotErrorCode.DatabaseError,
+      };
+    }
+  }
+
+  /**
+   * Refund XP without inflating `total_xp_earned`. Mirror of `addXp` but
+   * only touches the spendable pool — used by SPA removal during creation
+   * so the pilot's lifetime XP counter stays honest.
+   */
+  refundXp(pilotId: string, amount: number): IPilotOperationResult {
+    const db = getSQLiteService().getDatabase();
+    const now = new Date().toISOString();
+
+    if (!this.exists(pilotId)) {
+      return {
+        success: false,
+        error: `Pilot ${pilotId} not found`,
+        errorCode: PilotErrorCode.NotFound,
+      };
+    }
+
+    try {
+      db.prepare(
+        'UPDATE pilots SET xp = xp + ?, updated_at = ? WHERE id = ?',
+      ).run(amount, now, pilotId);
+      return { success: true, id: pilotId };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      return {
+        success: false,
+        error: `Failed to refund XP: ${message}`,
         errorCode: PilotErrorCode.DatabaseError,
       };
     }

@@ -960,7 +960,10 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
     });
   });
 
-  it('should reject purchase when missing abilityId', async () => {
+  it('should reject purchase when missing abilityId / spaId', async () => {
+    // Phase 5 Wave 2a — the route now also accepts an `spaId` body field
+    // (unified SPA editor path), so the error message reflects both
+    // entry points.
     const req = createMockRequest('POST', {}, { id: 'pilot-1' });
     const res = createMockResponse();
 
@@ -969,7 +972,7 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
-      error: 'Missing abilityId in request body',
+      error: 'Missing abilityId or spaId in body',
     });
   });
 
@@ -1206,13 +1209,15 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
     });
   });
 
-  it('should reject non-POST methods', async () => {
+  it('should reject non-POST/DELETE methods', async () => {
+    // Phase 5 Wave 2a — DELETE is now an accepted method on this route
+    // for SPA removal during the creation flow.
     const req = createMockRequest('GET', {}, { id: 'pilot-1' });
     const res = createMockResponse();
 
     await purchaseAbilityHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(405);
-    expect(res.setHeader).toHaveBeenCalledWith('Allow', ['POST']);
+    expect(res.setHeader).toHaveBeenCalledWith('Allow', ['POST', 'DELETE']);
   });
 });

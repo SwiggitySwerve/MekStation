@@ -243,6 +243,22 @@ const MIGRATIONS: readonly IMigration[] = [
       CREATE INDEX IF NOT EXISTS idx_pilot_instances_status ON campaign_pilot_instances(status);
     `,
   },
+  {
+    version: 4,
+    name: 'pilot_abilities_spa_designation',
+    up: `
+      -- SPA designation + xp accounting columns on pilot_abilities.
+      -- Phase 5 Wave 2a (add-pilot-spa-editor-integration). Wave 2b later
+      -- replaces designation_value with a typed payload — keep these
+      -- columns nullable so the upgrade can land without a data migration.
+      ALTER TABLE pilot_abilities ADD COLUMN designation_kind TEXT;
+      ALTER TABLE pilot_abilities ADD COLUMN designation_value TEXT;
+      -- xp_spent stores the XP cost paid at acquisition so the panel can
+      -- refund the exact amount during the creation flow. Nullable for
+      -- pre-Wave-2a rows (no historical record of cost).
+      ALTER TABLE pilot_abilities ADD COLUMN xp_spent INTEGER;
+    `,
+  },
 ];
 
 /**
@@ -345,10 +361,12 @@ export class SQLiteService implements ISQLiteService {
     try {
       // Check if migrations table exists
       const tableExists = this.db
-        .prepare(`
+        .prepare(
+          `
         SELECT name FROM sqlite_master 
         WHERE type='table' AND name='migrations'
-      `)
+      `,
+        )
         .get();
 
       if (!tableExists) {
@@ -357,9 +375,11 @@ export class SQLiteService implements ISQLiteService {
 
       // Get max version
       const result = this.db
-        .prepare(`
+        .prepare(
+          `
         SELECT MAX(version) as version FROM migrations
-      `)
+      `,
+        )
         .get() as { version: number | null } | undefined;
 
       return result?.version ?? 0;
@@ -387,17 +407,21 @@ export class SQLiteService implements ISQLiteService {
     try {
       // Check if this migration is already recorded
       const existing = this.db
-        .prepare(`
+        .prepare(
+          `
         SELECT 1 FROM migrations WHERE version = ?
-      `)
+      `,
+        )
         .get(migration.version);
 
       if (!existing) {
         this.db
-          .prepare(`
+          .prepare(
+            `
           INSERT INTO migrations (version, name, applied_at)
           VALUES (?, ?, ?)
-        `)
+        `,
+          )
           .run(migration.version, migration.name, new Date().toISOString());
       }
     } catch (err) {
