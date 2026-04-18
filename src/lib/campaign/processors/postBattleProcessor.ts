@@ -23,32 +23,33 @@
  * @module lib/campaign/processors/postBattleProcessor
  */
 
-import type { IDayProcessor, IDayProcessorResult } from "../dayPipeline";
+import type { ICampaign, IContract, IMission } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
+import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 import type {
   ICombatOutcome,
   IUnitCombatDelta,
-} from "@/types/combat/CombatOutcome";
-import type { ICampaign, IContract, IMission } from "@/types/campaign/Campaign";
-import type { IPerson } from "@/types/campaign/Person";
-import type { IUnitCombatState } from "@/types/campaign/UnitCombatState";
+} from '@/types/combat/CombatOutcome';
 
+import { MissionStatus, PersonnelStatus } from '@/types/campaign/enums';
+import { isContract } from '@/types/campaign/Mission';
+import { createInitialCombatState } from '@/types/campaign/UnitCombatState';
 import {
   CombatEndReason,
   PilotFinalStatus,
   UnitFinalStatus,
-} from "@/types/combat/CombatOutcome";
-import { GameSide } from "@/types/gameplay/GameSessionInterfaces";
-import { MissionStatus, PersonnelStatus } from "@/types/campaign/enums";
-import { isContract } from "@/types/campaign/Mission";
-import { logger } from "@/utils/logger";
+} from '@/types/combat/CombatOutcome';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
+import { logger } from '@/utils/logger';
 
-import { createInitialCombatState } from "@/types/campaign/UnitCombatState";
+import type { IDayProcessor, IDayProcessorResult } from '../dayPipeline';
+
+import { DayPhase, type IDayEvent } from '../dayPipeline';
 import {
   applyXPAward,
   awardKillXP,
   awardScenarioXP,
-} from "../progression/xpAwards";
-import { DayPhase, type IDayEvent } from "../dayPipeline";
+} from '../progression/xpAwards';
 
 // =============================================================================
 // Extended Campaign Surface
@@ -243,9 +244,9 @@ function applyUnitDelta(
   const newComponents = delta.destroyedComponents
     .filter((name) => !seenNames.has(name))
     .map((name) => ({
-      location: "unknown" as const,
+      location: 'unknown' as const,
       slot: -1,
-      componentType: "unknown" as const,
+      componentType: 'unknown' as const,
       name,
       destroyedAt: matchId,
     }));
@@ -284,7 +285,7 @@ function playerWon(outcome: ICombatOutcome): boolean {
   // optional access keeps the processor working with stub reports too.
   const winner = (
     outcome.report as unknown as {
-      readonly winner?: GameSide | "draw";
+      readonly winner?: GameSide | 'draw';
     }
   ).winner;
   return winner === GameSide.Player;
@@ -447,9 +448,9 @@ function applyOutcome(
 
   const events: IDayEvent[] = [
     {
-      type: "post_battle_applied",
+      type: 'post_battle_applied',
       description: `Battle ${outcome.matchId} resolved: ${pilotsUpdated.length} pilot(s), ${unitsUpdated.length} unit(s) updated`,
-      severity: "info",
+      severity: 'info',
       data: {
         matchId: outcome.matchId,
         contractId: outcome.contractId,
@@ -500,10 +501,10 @@ export function applyPostBattle(
  * is up to date before `contractProcessor` final-payment logic runs.
  */
 export const postBattleProcessor: IDayProcessor = {
-  id: "post-battle",
+  id: 'post-battle',
   // Slightly before MISSIONS so contractProcessor sees flipped statuses.
   phase: DayPhase.MISSIONS - 50,
-  displayName: "Post-Battle Processing",
+  displayName: 'Post-Battle Processing',
 
   process(campaign: ICampaign): IDayProcessorResult {
     const extended = campaign as ICampaignWithBattleState;
@@ -532,6 +533,6 @@ export function registerPostBattleProcessor(): void {
   // Inline import avoids a cycle with `processorRegistration.ts`.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { getDayPipeline } =
-    require("../dayPipeline") as typeof import("../dayPipeline");
+    require('../dayPipeline') as typeof import('../dayPipeline');
   getDayPipeline().register(postBattleProcessor);
 }

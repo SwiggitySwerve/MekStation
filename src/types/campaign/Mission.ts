@@ -148,6 +148,33 @@ export interface IContract extends IMission {
   /** Salvage rights: None, Exchange, or Integrated */
   readonly salvageRights: SalvageRights;
 
+  /**
+   * Numeric mercenary share of salvage (0–100). Optional override layered
+   * on top of `salvageRights`. Wave 3 (`add-salvage-rules-engine`)
+   * introduces this so contracts can express granular splits like 35%
+   * mercenary that the legacy enum can't represent. When omitted, the
+   * salvage engine derives a percent from `salvageRights`:
+   * `None → 0`, `Exchange → 50`, `Integrated → 50` (Wave 3 MVP — Wave 4
+   * UI can refine this).
+   */
+  readonly salvagePercent?: number;
+
+  /**
+   * Whether the battlefield is in territory hostile to the employer.
+   * Used by the salvage engine to halve the mercenary award when the
+   * player withdraws (`endReason = WITHDRAWAL`). Optional; defaults to
+   * `false` when undefined.
+   */
+  readonly hostileTerritory?: boolean;
+
+  /**
+   * When true, the contract routes salvage through an auction draft
+   * instead of a percentage split. Maps to the spec's `exchangeSalvage`
+   * flag. Defaults to false; the legacy `salvageRights = 'Exchange'`
+   * enum value implies `true` when `exchangeSalvage` is undefined.
+   */
+  readonly exchangeSalvage?: boolean;
+
   /** Command rights: Independent, House, or Integrated */
   readonly commandRights: CommandRights;
 

@@ -3,35 +3,35 @@
  *
  * @spec openspec/changes/add-post-battle-processor/specs/post-battle-processor/spec.md
  */
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from '@jest/globals';
 
+import type { IPerson } from '@/types/campaign/Person';
 import type {
   ICombatOutcome,
   IUnitCombatDelta,
-} from "@/types/combat/CombatOutcome";
-import type { IPerson } from "@/types/campaign/Person";
-import type { IPostBattleReport } from "@/utils/gameplay/postBattleReport";
+} from '@/types/combat/CombatOutcome';
+import type { IPostBattleReport } from '@/utils/gameplay/postBattleReport';
 
-import { createDefaultCampaignOptions } from "@/types/campaign/Campaign";
-import { CampaignType } from "@/types/campaign/CampaignType";
-import { CampaignPersonnelRole } from "@/types/campaign/enums/CampaignPersonnelRole";
-import { MissionStatus } from "@/types/campaign/enums/MissionStatus";
-import { PersonnelStatus } from "@/types/campaign/enums/PersonnelStatus";
-import { Money } from "@/types/campaign/Money";
+import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { createContract } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
 import {
   CombatEndReason,
   COMBAT_OUTCOME_VERSION,
   PilotFinalStatus,
   UnitFinalStatus,
-} from "@/types/combat/CombatOutcome";
-import { GameSide } from "@/types/gameplay/GameSessionInterfaces";
-import { createContract } from "@/types/campaign/Mission";
+} from '@/types/combat/CombatOutcome';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
   applyPostBattle,
   postBattleProcessor,
   type ICampaignWithBattleState,
-} from "../postBattleProcessor";
+} from '../postBattleProcessor';
 
 // ----------------------------------------------------------------------------
 // Test Fixtures
@@ -39,12 +39,12 @@ import {
 
 function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
   return {
-    id: "pilot-1",
-    name: "Test Pilot",
+    id: 'pilot-1',
+    name: 'Test Pilot',
     status: PersonnelStatus.ACTIVE,
     primaryRole: CampaignPersonnelRole.PILOT,
-    rank: "MechWarrior",
-    recruitmentDate: new Date("3024-01-01"),
+    rank: 'MechWarrior',
+    recruitmentDate: new Date('3024-01-01'),
     missionsCompleted: 0,
     totalKills: 0,
     xp: 0,
@@ -65,8 +65,8 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
       Edge: 0,
     },
     pilotSkills: { gunnery: 4, piloting: 5 },
-    createdAt: "3024-01-01T00:00:00Z",
-    updatedAt: "3025-01-01T00:00:00Z",
+    createdAt: '3024-01-01T00:00:00Z',
+    updatedAt: '3025-01-01T00:00:00Z',
     awards: [],
     ...overrides,
   };
@@ -76,34 +76,34 @@ function createTestCampaign(
   overrides: Partial<ICampaignWithBattleState> = {},
 ): ICampaignWithBattleState {
   return {
-    id: "camp-1",
-    name: "Test Campaign",
-    currentDate: new Date("3025-06-15T00:00:00Z"),
-    factionId: "mercenary",
+    id: 'camp-1',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15T00:00:00Z'),
+    factionId: 'mercenary',
     personnel: new Map(),
     forces: new Map(),
-    rootForceId: "root",
+    rootForceId: 'root',
     missions: new Map(),
     finances: { transactions: [], balance: new Money(0) },
     factionStandings: {},
     shoppingList: { items: [] },
     options: createDefaultCampaignOptions(),
     campaignType: CampaignType.MERCENARY,
-    createdAt: "3024-12-01T00:00:00Z",
-    updatedAt: "3025-06-14T00:00:00Z",
+    createdAt: '3024-12-01T00:00:00Z',
+    updatedAt: '3025-06-14T00:00:00Z',
     ...overrides,
   };
 }
 
 function createTestReport(
   matchId: string,
-  winner: GameSide | "draw" = GameSide.Player,
+  winner: GameSide | 'draw' = GameSide.Player,
 ): IPostBattleReport {
   return {
     version: 1,
     matchId,
     winner,
-    reason: "destruction",
+    reason: 'destruction',
     turnCount: 5,
     units: [],
     mvpUnitId: null,
@@ -125,7 +125,7 @@ function createDelta(
     destroyedLocations: [],
     destroyedComponents: [],
     heatEnd: 4,
-    ammoRemaining: { "srm6-1": 12 },
+    ammoRemaining: { 'srm6-1': 12 },
     pilotState: {
       conscious: true,
       wounds: 0,
@@ -139,7 +139,7 @@ function createDelta(
 function createOutcome(
   overrides: Partial<ICombatOutcome> = {},
 ): ICombatOutcome {
-  const matchId = overrides.matchId ?? "match-1";
+  const matchId = overrides.matchId ?? 'match-1';
   return {
     version: COMBAT_OUTCOME_VERSION,
     matchId,
@@ -148,7 +148,7 @@ function createOutcome(
     endReason: CombatEndReason.Destruction,
     report: createTestReport(matchId, GameSide.Player),
     unitDeltas: [],
-    capturedAt: "3025-06-15T12:00:00Z",
+    capturedAt: '3025-06-15T12:00:00Z',
     ...overrides,
   };
 }
@@ -157,16 +157,16 @@ function createOutcome(
 // Tests
 // ----------------------------------------------------------------------------
 
-describe("postBattleProcessor", () => {
-  describe("metadata", () => {
-    it("has correct id and displayName", () => {
-      expect(postBattleProcessor.id).toBe("post-battle");
-      expect(postBattleProcessor.displayName).toBe("Post-Battle Processing");
+describe('postBattleProcessor', () => {
+  describe('metadata', () => {
+    it('has correct id and displayName', () => {
+      expect(postBattleProcessor.id).toBe('post-battle');
+      expect(postBattleProcessor.displayName).toBe('Post-Battle Processing');
     });
   });
 
-  describe("empty queue", () => {
-    it("returns no events when no pending outcomes", () => {
+  describe('empty queue', () => {
+    it('returns no events when no pending outcomes', () => {
       const campaign = createTestCampaign();
       const result = postBattleProcessor.process(
         campaign,
@@ -177,61 +177,61 @@ describe("postBattleProcessor", () => {
     });
   });
 
-  describe("unit damage persistence", () => {
-    it("writes IUnitCombatState reflecting destroyed locations", () => {
+  describe('unit damage persistence', () => {
+    it('writes IUnitCombatState reflecting destroyed locations', () => {
       const campaign = createTestCampaign();
       const outcome = createOutcome({
         unitDeltas: [
-          createDelta("unit-A", {
+          createDelta('unit-A', {
             destroyed: true,
             finalStatus: UnitFinalStatus.Destroyed,
-            destroyedLocations: ["CT"],
+            destroyedLocations: ['CT'],
             internalsRemaining: { CT: 0, LT: 8, RT: 8 },
           }),
         ],
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      const state = next.unitCombatStates?.["unit-A"];
+      const state = next.unitCombatStates?.['unit-A'];
       expect(state).toBeDefined();
-      expect(state?.destroyedLocations).toContain("CT");
-      expect(state?.currentStructurePerLocation["CT"]).toBe(0);
+      expect(state?.destroyedLocations).toContain('CT');
+      expect(state?.currentStructurePerLocation['CT']).toBe(0);
       expect(state?.combatReady).toBe(false);
     });
 
-    it("clamps ammo at zero", () => {
+    it('clamps ammo at zero', () => {
       const campaign = createTestCampaign();
       const outcome = createOutcome({
-        unitDeltas: [createDelta("unit-A", { ammoRemaining: { "lrm-1": 0 } })],
+        unitDeltas: [createDelta('unit-A', { ammoRemaining: { 'lrm-1': 0 } })],
       });
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      expect(next.unitCombatStates?.["unit-A"]?.ammoRemaining["lrm-1"]).toBe(0);
+      expect(next.unitCombatStates?.['unit-A']?.ammoRemaining['lrm-1']).toBe(0);
     });
 
-    it("marks combatReady false when finalStatus = Destroyed", () => {
+    it('marks combatReady false when finalStatus = Destroyed', () => {
       const campaign = createTestCampaign();
       const outcome = createOutcome({
         unitDeltas: [
-          createDelta("unit-A", {
+          createDelta('unit-A', {
             destroyed: true,
             finalStatus: UnitFinalStatus.Destroyed,
           }),
         ],
       });
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      expect(next.unitCombatStates?.["unit-A"]?.combatReady).toBe(false);
+      expect(next.unitCombatStates?.['unit-A']?.combatReady).toBe(false);
     });
   });
 
-  describe("pilot status mapping", () => {
-    it("marks KIA pilot KIA + records deathDate", () => {
-      const pilot = createTestPerson({ id: "pilot-1" });
-      const personnel = new Map<string, IPerson>([["pilot-1", pilot]]);
+  describe('pilot status mapping', () => {
+    it('marks KIA pilot KIA + records deathDate', () => {
+      const pilot = createTestPerson({ id: 'pilot-1' });
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({ personnel });
 
       const outcome = createOutcome({
         unitDeltas: [
-          createDelta("pilot-1", {
+          createDelta('pilot-1', {
             destroyed: true,
             finalStatus: UnitFinalStatus.Destroyed,
             pilotState: {
@@ -245,19 +245,19 @@ describe("postBattleProcessor", () => {
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      const updated = next.personnel.get("pilot-1");
+      const updated = next.personnel.get('pilot-1');
       expect(updated?.status).toBe(PersonnelStatus.KIA);
       expect(updated?.deathDate).toBe(campaign.currentDate);
     });
 
-    it("marks Wounded pilot WOUNDED + sets healing days", () => {
-      const pilot = createTestPerson({ id: "pilot-1" });
-      const personnel = new Map<string, IPerson>([["pilot-1", pilot]]);
+    it('marks Wounded pilot WOUNDED + sets healing days', () => {
+      const pilot = createTestPerson({ id: 'pilot-1' });
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({ personnel });
 
       const outcome = createOutcome({
         unitDeltas: [
-          createDelta("pilot-1", {
+          createDelta('pilot-1', {
             pilotState: {
               conscious: true,
               wounds: 2,
@@ -269,20 +269,20 @@ describe("postBattleProcessor", () => {
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      const updated = next.personnel.get("pilot-1");
+      const updated = next.personnel.get('pilot-1');
       expect(updated?.status).toBe(PersonnelStatus.WOUNDED);
       expect(updated?.hits).toBe(2);
       expect(updated?.daysToWaitForHealing).toBeGreaterThanOrEqual(14);
     });
 
-    it("maps Captured pilot to POW", () => {
-      const pilot = createTestPerson({ id: "pilot-1" });
-      const personnel = new Map<string, IPerson>([["pilot-1", pilot]]);
+    it('maps Captured pilot to POW', () => {
+      const pilot = createTestPerson({ id: 'pilot-1' });
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({ personnel });
 
       const outcome = createOutcome({
         unitDeltas: [
-          createDelta("pilot-1", {
+          createDelta('pilot-1', {
             pilotState: {
               conscious: true,
               wounds: 1,
@@ -294,37 +294,37 @@ describe("postBattleProcessor", () => {
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      expect(next.personnel.get("pilot-1")?.status).toBe(PersonnelStatus.POW);
+      expect(next.personnel.get('pilot-1')?.status).toBe(PersonnelStatus.POW);
     });
   });
 
-  describe("XP application", () => {
-    it("awards scenario XP per pilot", () => {
+  describe('XP application', () => {
+    it('awards scenario XP per pilot', () => {
       const pilot = createTestPerson({
-        id: "pilot-1",
+        id: 'pilot-1',
         xp: 0,
         totalXpEarned: 0,
       });
-      const personnel = new Map<string, IPerson>([["pilot-1", pilot]]);
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({ personnel });
 
       const outcome = createOutcome({
-        unitDeltas: [createDelta("pilot-1")],
+        unitDeltas: [createDelta('pilot-1')],
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      const updated = next.personnel.get("pilot-1");
+      const updated = next.personnel.get('pilot-1');
       expect(updated?.xp).toBeGreaterThanOrEqual(1);
       expect(updated?.totalXpEarned).toBeGreaterThanOrEqual(1);
     });
 
-    it("awards bonus kill XP to player-side survivors when they win", () => {
+    it('awards bonus kill XP to player-side survivors when they win', () => {
       const pilot = createTestPerson({
-        id: "pilot-1",
+        id: 'pilot-1',
         xp: 0,
         totalXpEarned: 0,
       });
-      const personnel = new Map<string, IPerson>([["pilot-1", pilot]]);
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({
         personnel,
         options: {
@@ -336,114 +336,114 @@ describe("postBattleProcessor", () => {
       });
 
       const outcome = createOutcome({
-        report: createTestReport("match-1", GameSide.Player),
-        unitDeltas: [createDelta("pilot-1", { side: GameSide.Player })],
+        report: createTestReport('match-1', GameSide.Player),
+        unitDeltas: [createDelta('pilot-1', { side: GameSide.Player })],
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      const updated = next.personnel.get("pilot-1");
+      const updated = next.personnel.get('pilot-1');
       // 1 scenario + 2 kill = 3
       expect(updated?.xp).toBe(3);
     });
   });
 
-  describe("contract progression", () => {
-    it("flips contract to SUCCESS when player wins on objective", () => {
+  describe('contract progression', () => {
+    it('flips contract to SUCCESS when player wins on objective', () => {
       const contract = createContract({
-        id: "contract-1",
-        name: "Test Contract",
-        employerId: "davion",
-        targetId: "liao",
+        id: 'contract-1',
+        name: 'Test Contract',
+        employerId: 'davion',
+        targetId: 'liao',
         status: MissionStatus.ACTIVE,
       });
       const missions = new Map([[contract.id, contract]]);
       const campaign = createTestCampaign({ missions });
 
       const outcome = createOutcome({
-        contractId: "contract-1",
+        contractId: 'contract-1',
         endReason: CombatEndReason.ObjectiveMet,
-        report: createTestReport("match-1", GameSide.Player),
-        unitDeltas: [createDelta("unit-A")],
+        report: createTestReport('match-1', GameSide.Player),
+        unitDeltas: [createDelta('unit-A')],
       });
 
       const { campaign: next, summary } = applyPostBattle(outcome, campaign);
-      expect(next.missions.get("contract-1")?.status).toBe(
+      expect(next.missions.get('contract-1')?.status).toBe(
         MissionStatus.SUCCESS,
       );
-      expect(summary.contractUpdated).toBe("contract-1");
+      expect(summary.contractUpdated).toBe('contract-1');
     });
 
-    it("flips contract to FAILED when player loses on objective", () => {
+    it('flips contract to FAILED when player loses on objective', () => {
       const contract = createContract({
-        id: "contract-1",
-        name: "Test Contract",
-        employerId: "davion",
-        targetId: "liao",
+        id: 'contract-1',
+        name: 'Test Contract',
+        employerId: 'davion',
+        targetId: 'liao',
         status: MissionStatus.ACTIVE,
       });
       const missions = new Map([[contract.id, contract]]);
       const campaign = createTestCampaign({ missions });
 
       const outcome = createOutcome({
-        contractId: "contract-1",
+        contractId: 'contract-1',
         endReason: CombatEndReason.ObjectiveMet,
-        report: createTestReport("match-1", GameSide.Opponent),
-        unitDeltas: [createDelta("unit-A")],
+        report: createTestReport('match-1', GameSide.Opponent),
+        unitDeltas: [createDelta('unit-A')],
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      expect(next.missions.get("contract-1")?.status).toBe(
+      expect(next.missions.get('contract-1')?.status).toBe(
         MissionStatus.FAILED,
       );
     });
   });
 
-  describe("idempotency", () => {
-    it("skips outcomes already applied (matchId in processedBattleIds)", () => {
+  describe('idempotency', () => {
+    it('skips outcomes already applied (matchId in processedBattleIds)', () => {
       const pilot = createTestPerson({
-        id: "pilot-1",
+        id: 'pilot-1',
         xp: 0,
         totalXpEarned: 0,
       });
-      const personnel = new Map<string, IPerson>([["pilot-1", pilot]]);
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({ personnel });
 
       const outcome = createOutcome({
-        unitDeltas: [createDelta("pilot-1")],
+        unitDeltas: [createDelta('pilot-1')],
       });
 
       // First apply increments XP.
       const { campaign: c1 } = applyPostBattle(outcome, campaign);
-      const xpAfterFirst = c1.personnel.get("pilot-1")?.xp ?? 0;
+      const xpAfterFirst = c1.personnel.get('pilot-1')?.xp ?? 0;
       expect(xpAfterFirst).toBeGreaterThan(0);
-      expect(c1.processedBattleIds).toContain("match-1");
+      expect(c1.processedBattleIds).toContain('match-1');
 
       // Second apply with same matchId is a no-op.
       const { campaign: c2, summary } = applyPostBattle(outcome, c1);
       expect(summary.skippedDuplicate).toBe(true);
-      expect(c2.personnel.get("pilot-1")?.xp).toBe(xpAfterFirst);
+      expect(c2.personnel.get('pilot-1')?.xp).toBe(xpAfterFirst);
     });
   });
 
-  describe("unknown ids", () => {
-    it("skips unknown pilot id gracefully but still updates unit state", () => {
+  describe('unknown ids', () => {
+    it('skips unknown pilot id gracefully but still updates unit state', () => {
       const campaign = createTestCampaign();
       const outcome = createOutcome({
-        unitDeltas: [createDelta("ghost-pilot")],
+        unitDeltas: [createDelta('ghost-pilot')],
       });
 
       const { campaign: next, summary } = applyPostBattle(outcome, campaign);
       expect(summary.pilotsUpdated).toHaveLength(0);
-      expect(summary.unitsUpdated).toContain("ghost-pilot");
-      expect(next.unitCombatStates?.["ghost-pilot"]).toBeDefined();
+      expect(summary.unitsUpdated).toContain('ghost-pilot');
+      expect(next.unitCombatStates?.['ghost-pilot']).toBeDefined();
     });
 
-    it("skips unknown contract id gracefully", () => {
+    it('skips unknown contract id gracefully', () => {
       const campaign = createTestCampaign();
       const outcome = createOutcome({
-        contractId: "phantom-contract",
+        contractId: 'phantom-contract',
         endReason: CombatEndReason.ObjectiveMet,
-        unitDeltas: [createDelta("unit-A")],
+        unitDeltas: [createDelta('unit-A')],
       });
 
       const { summary } = applyPostBattle(outcome, campaign);
@@ -451,24 +451,24 @@ describe("postBattleProcessor", () => {
     });
   });
 
-  describe("day pipeline integration", () => {
-    it("processes the entire pendingBattleOutcomes queue in one call", () => {
+  describe('day pipeline integration', () => {
+    it('processes the entire pendingBattleOutcomes queue in one call', () => {
       const pilot = createTestPerson({
-        id: "pilot-1",
+        id: 'pilot-1',
         xp: 0,
         totalXpEarned: 0,
       });
-      const personnel = new Map<string, IPerson>([["pilot-1", pilot]]);
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({
         personnel,
         pendingBattleOutcomes: [
           createOutcome({
-            matchId: "match-1",
-            unitDeltas: [createDelta("pilot-1")],
+            matchId: 'match-1',
+            unitDeltas: [createDelta('pilot-1')],
           }),
           createOutcome({
-            matchId: "match-2",
-            unitDeltas: [createDelta("pilot-1")],
+            matchId: 'match-2',
+            unitDeltas: [createDelta('pilot-1')],
           }),
         ],
       });
@@ -480,7 +480,7 @@ describe("postBattleProcessor", () => {
       const updated = result.campaign as ICampaignWithBattleState;
       expect(updated.pendingBattleOutcomes).toHaveLength(0);
       expect(updated.processedBattleIds).toEqual(
-        expect.arrayContaining(["match-1", "match-2"]),
+        expect.arrayContaining(['match-1', 'match-2']),
       );
       expect(result.events).toHaveLength(2);
     });

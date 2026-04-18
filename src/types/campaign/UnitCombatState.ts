@@ -109,7 +109,7 @@ export function createInitialCombatState(params: {
  */
 export function isUnitCombatReady(state: IUnitCombatState): boolean {
   if (!state.combatReady) return false;
-  const ct = state.currentStructurePerLocation["CT"];
+  const ct = state.currentStructurePerLocation['CT'];
   if (ct !== undefined && ct <= 0) return false;
   return true;
 }
