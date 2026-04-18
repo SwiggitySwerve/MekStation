@@ -12,7 +12,7 @@ import { create, StoreApi, useStore } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
-import { IInfantryFieldGun } from "@/types/unit/PersonnelInterfaces";
+import { IInfantryFieldGun } from "@/types/unit/InfantryInterfaces";
 import {
   InfantryMotive,
   IPlatoonComposition,

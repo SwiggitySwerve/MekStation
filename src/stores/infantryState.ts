@@ -15,8 +15,8 @@ import { UnitType } from "@/types/unit/BattleMechInterfaces";
 import {
   InfantryArmorKit,
   InfantrySpecialization,
-  IInfantryFieldGun,
 } from "@/types/unit/PersonnelInterfaces";
+import { IInfantryFieldGun } from "@/types/unit/InfantryInterfaces";
 import {
   InfantryMotive,
   IPlatoonComposition,
