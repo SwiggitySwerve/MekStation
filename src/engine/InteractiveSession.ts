@@ -7,12 +7,20 @@ import type { IWeapon } from '@/simulation/ai/types';
 import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 
 import {
+  deriveCombatOutcome,
+  type IDeriveCombatOutcomeOptions,
+} from '@/lib/combat/outcome/combatOutcome';
+import {
   calculateGameOutcome,
   isGameEnded,
   type IGameOutcome,
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
+import {
+  CombatNotCompleteError,
+  type ICombatOutcome,
+} from '@/types/combat/CombatOutcome';
 import {
   GameSide,
   GamePhase,
@@ -446,5 +454,23 @@ export class InteractiveSession {
       startedAt: this.startedAt,
       endedAt: new Date().toISOString(),
     });
+  }
+
+  /**
+   * Per `add-combat-outcome-model` task 3.1: derive the campaign-facing
+   * `ICombatOutcome` for the just-finished match. Only valid once the
+   * session has reached `GameStatus.Completed`; throws
+   * `CombatNotCompleteError` otherwise so callers cannot accidentally
+   * persist outcomes mid-match.
+   *
+   * `options.contractId` / `options.scenarioId` are the Wave 5 wiring
+   * hooks: the engine never knows them, but the campaign orchestrator
+   * passes them through here so the persisted outcome is self-describing.
+   */
+  getOutcome(options: IDeriveCombatOutcomeOptions = {}): ICombatOutcome {
+    if (!this.isGameOver()) {
+      throw new CombatNotCompleteError();
+    }
+    return deriveCombatOutcome(this.session, options);
   }
 }
