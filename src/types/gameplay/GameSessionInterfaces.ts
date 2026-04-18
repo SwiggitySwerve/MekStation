@@ -691,6 +691,23 @@ export interface IGameConfig {
   readonly optionalRules: readonly string[];
   /** Environmental conditions (default: standard daylight, 1.0g, etc.) */
   readonly environmentalConditions?: IEnvironmentalConditions;
+  /**
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5: encounter that
+   * launched this session. Always populated when the session originated
+   * from `EncounterService.launchEncounter`. Null/undefined for the
+   * legacy quick-play / SimulationRunner flows that bypass that path.
+   */
+  readonly encounterId?: string | null;
+  /**
+   * Campaign contract this session resolves. Populated when the encounter
+   * was generated from a contract. Null for standalone encounters.
+   */
+  readonly contractId?: string | null;
+  /**
+   * Scenario instance this session represents. Populated when scenario
+   * generation produced the encounter. Null for handcrafted encounters.
+   */
+  readonly scenarioId?: string | null;
 }
 
 /**

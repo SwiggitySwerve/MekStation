@@ -66,10 +66,12 @@ function makeDamagedState(): IUnitCombatState {
 }
 
 describe('repairQueueBuilderProcessor', () => {
-  it("registers under id 'repair-queue-builder' in DayPhase.UNITS", () => {
+  it("registers under id 'repair-queue-builder' in the battle-effects block", () => {
     expect(repairQueueBuilderProcessor.id).toBe('repair-queue-builder');
-    // DayPhase.UNITS = 500
-    expect(repairQueueBuilderProcessor.phase).toBe(500);
+    // Wave 5 (round-trip wiring) promoted repair from DayPhase.UNITS
+    // (500) to MISSIONS - 10 (390) so it runs after postBattle (350)
+    // and salvage (375) but before contracts (400).
+    expect(repairQueueBuilderProcessor.phase).toBe(390);
   });
 
   it('returns the campaign unchanged when there are no pending outcomes', () => {

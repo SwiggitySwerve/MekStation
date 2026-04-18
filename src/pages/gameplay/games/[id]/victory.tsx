@@ -43,6 +43,14 @@ export interface VictoryScreenProps {
   readonly pilotNames?: Record<string, string>;
   /** Optional callback for the back button (defaults to a Link). */
   readonly onBack?: () => void;
+  /**
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5 (task 4.1): when
+   * the session is part of a campaign (config.contractId set), surface
+   * a "Continue to Review" CTA that navigates to the post-battle
+   * review screen. The Phase 1 victory screen stays available for
+   * standalone matches via the existing "Back to Encounter Hub" CTA.
+   */
+  readonly reviewHref?: string | null;
 }
 
 /**
@@ -56,6 +64,7 @@ export function VictoryScreen({
   playerSide = GameSide.Player,
   pilotNames = {},
   onBack,
+  reviewHref = null,
 }: VictoryScreenProps): React.ReactElement {
   const report = useMemo(() => derivePostBattleReport(session), [session]);
 
@@ -174,11 +183,24 @@ export function VictoryScreen({
           </table>
         </div>
 
-        {/* Back to hub */}
-        <div className="mt-10 flex justify-center">
+        {/* Wave 5: when this match is part of a campaign, surface a
+            primary "Continue to Review" CTA — the player flows into the
+            post-battle review page where the outcome is applied to the
+            campaign and the contract closes out. The encounter-hub link
+            stays available as a secondary action. */}
+        <div className="mt-10 flex flex-col items-center gap-3">
+          {reviewHref ? (
+            <Link
+              href={reviewHref}
+              className="inline-flex min-h-[44px] items-center rounded-lg bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-700"
+              data-testid="victory-continue-to-review"
+            >
+              Continue to Review
+            </Link>
+          ) : null}
           {onBack ? (
             <Button
-              variant="primary"
+              variant={reviewHref ? 'secondary' : 'primary'}
               onClick={onBack}
               data-testid="victory-back"
             >
@@ -187,7 +209,11 @@ export function VictoryScreen({
           ) : (
             <Link
               href="/gameplay/encounters"
-              className="inline-flex min-h-[44px] items-center rounded-lg bg-blue-600 px-6 py-3 text-base font-medium text-white hover:bg-blue-700"
+              className={
+                reviewHref
+                  ? 'text-text-theme-secondary inline-flex min-h-[44px] items-center px-3 py-2 text-sm hover:underline'
+                  : 'inline-flex min-h-[44px] items-center rounded-lg bg-blue-600 px-6 py-3 text-base font-medium text-white hover:bg-blue-700'
+              }
               data-testid="victory-back"
             >
               Back to Encounter Hub
@@ -266,6 +292,13 @@ export default function VictoryPage(): React.ReactElement {
         session={session}
         playerSide={GameSide.Player}
         pilotNames={pilotNames}
+        reviewHref={
+          // Wave 5: campaign-bound matches show the "Continue to Review"
+          // CTA. Standalone encounters keep the legacy hub-only layout.
+          session.config.contractId
+            ? `/gameplay/games/${session.id}/review`
+            : null
+        }
       />
     </>
   );

@@ -289,13 +289,19 @@ export const salvageProcessor: IDayProcessor = {
   process(campaign: ICampaign): IDayProcessorResult {
     const extended = campaign as ICampaignWithSalvageState;
 
-    // Two sources for outcomes the processor should consider:
-    //   - any `pendingBattleOutcomes` still on the queue (post-battle
-    //     normally drains these first; if it didn't, we still want to
-    //     register a salvage record).
-    //   - any outcomes carried on the optional `salvagePendingOutcomes`
-    //     field — Wave 4 wiring will populate this from `recentlyApplied`.
+    // Three sources for outcomes the processor should consider:
+    //   - `recentlyAppliedOutcomes` — populated by `postBattleProcessor`
+    //     as it drains the queue (Wave 5 staging field, primary source).
+    //   - any `pendingBattleOutcomes` still on the queue (defensive — if
+    //     postBattle didn't run for some reason).
+    //   - any outcomes on the optional `salvagePendingOutcomes` field
+    //     (Wave 4-style direct injection).
     const queue: readonly ICombatOutcome[] = [
+      ...((
+        extended as ICampaignWithSalvageState & {
+          readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+        }
+      ).recentlyAppliedOutcomes ?? []),
       ...(extended.pendingBattleOutcomes ?? []),
       ...((
         extended as ICampaignWithSalvageState & {

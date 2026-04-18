@@ -58,11 +58,30 @@ function deriveTurnLimit(conditions: readonly IVictoryCondition[]): number {
 }
 
 /**
+ * Per `wire-encounter-to-campaign-round-trip` Wave 5: optional campaign
+ * linkage threaded through `EncounterService.launchEncounter` into the
+ * resulting `IGameSession.config`. The engine itself never looks at
+ * these — they're carried so `InteractiveSession.getOutcome()` can stamp
+ * the `ICombatOutcome` with contract/scenario IDs the campaign store
+ * uses to route the post-battle pipeline.
+ */
+export interface IEncounterLinkage {
+  readonly contractId?: string | null;
+  readonly scenarioId?: string | null;
+}
+
+/**
  * Build an IGameConfig from an encounter's map/victory/optional-rules fields.
  * Pure and sync — no force lookups required.
+ *
+ * The optional `linkage` argument carries Wave 5 round-trip identifiers
+ * (contractId, scenarioId). The encounter's own id is always written to
+ * `config.encounterId` so consumers never need to chase it through the
+ * encounter repository.
  */
 export function buildGameConfigFromEncounter(
   encounter: IEncounter,
+  linkage: IEncounterLinkage = {},
 ): IGameConfig {
   return {
     mapRadius: encounter.mapConfig.radius,
@@ -71,6 +90,9 @@ export function buildGameConfigFromEncounter(
       victoryConditionToString,
     ),
     optionalRules: [...encounter.optionalRules],
+    encounterId: encounter.id,
+    contractId: linkage.contractId ?? null,
+    scenarioId: linkage.scenarioId ?? null,
   };
 }
 
