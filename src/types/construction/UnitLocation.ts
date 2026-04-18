@@ -9,7 +9,7 @@
  */
 
 // Re-export MechLocation for consistency
-export { MechLocation } from './CriticalSlotAllocation';
+export { MechLocation } from "./CriticalSlotAllocation";
 
 /**
  * Vehicle locations
@@ -17,17 +17,17 @@ export { MechLocation } from './CriticalSlotAllocation';
  */
 export enum VehicleLocation {
   /** Front facing armor and equipment */
-  FRONT = 'Front',
+  FRONT = "Front",
   /** Left side armor and equipment */
-  LEFT = 'Left',
+  LEFT = "Left",
   /** Right side armor and equipment */
-  RIGHT = 'Right',
+  RIGHT = "Right",
   /** Rear facing armor and equipment */
-  REAR = 'Rear',
+  REAR = "Rear",
   /** Turret (if equipped) - can rotate 360 degrees */
-  TURRET = 'Turret',
+  TURRET = "Turret",
   /** Body/chassis - internal components */
-  BODY = 'Body',
+  BODY = "Body",
 }
 
 /**
@@ -35,15 +35,15 @@ export enum VehicleLocation {
  * Extends vehicle locations with rotor
  */
 export enum VTOLLocation {
-  FRONT = 'Front',
-  LEFT = 'Left',
-  RIGHT = 'Right',
-  REAR = 'Rear',
+  FRONT = "Front",
+  LEFT = "Left",
+  RIGHT = "Right",
+  REAR = "Rear",
   /** Turret (chin turret typically) */
-  TURRET = 'Turret',
-  BODY = 'Body',
+  TURRET = "Turret",
+  BODY = "Body",
   /** Rotor assembly - critical for flight */
-  ROTOR = 'Rotor',
+  ROTOR = "Rotor",
 }
 
 /**
@@ -52,15 +52,15 @@ export enum VTOLLocation {
  */
 export enum AerospaceLocation {
   /** Forward firing arc */
-  NOSE = 'Nose',
+  NOSE = "Nose",
   /** Left wing - includes left aft arc */
-  LEFT_WING = 'Left Wing',
+  LEFT_WING = "Left Wing",
   /** Right wing - includes right aft arc */
-  RIGHT_WING = 'Right Wing',
+  RIGHT_WING = "Right Wing",
   /** Rear firing arc */
-  AFT = 'Aft',
+  AFT = "Aft",
   /** Main body/fuselage - internal components */
-  FUSELAGE = 'Fuselage',
+  FUSELAGE = "Fuselage",
 }
 
 /**
@@ -74,12 +74,12 @@ export type ConventionalFighterLocation = AerospaceLocation;
  * Similar to aerospace but may have additional internal bays
  */
 export enum SmallCraftLocation {
-  NOSE = 'Nose',
-  LEFT_SIDE = 'Left Side',
-  RIGHT_SIDE = 'Right Side',
-  AFT = 'Aft',
+  NOSE = "Nose",
+  LEFT_SIDE = "Left Side",
+  RIGHT_SIDE = "Right Side",
+  AFT = "Aft",
   /** Main hull - structural and cargo areas */
-  HULL = 'Hull',
+  HULL = "Hull",
 }
 
 /**
@@ -88,20 +88,20 @@ export enum SmallCraftLocation {
  */
 export enum DropShipLocation {
   /** Forward firing arc */
-  NOSE = 'Nose',
+  NOSE = "Nose",
   /** Forward left arc */
-  FRONT_LEFT_SIDE = 'Front Left Side',
+  FRONT_LEFT_SIDE = "Front Left Side",
   /** Forward right arc */
-  FRONT_RIGHT_SIDE = 'Front Right Side',
+  FRONT_RIGHT_SIDE = "Front Right Side",
   /** Aft left arc */
-  AFT_LEFT_SIDE = 'Aft Left Side',
+  AFT_LEFT_SIDE = "Aft Left Side",
   /** Aft right arc */
-  AFT_RIGHT_SIDE = 'Aft Right Side',
+  AFT_RIGHT_SIDE = "Aft Right Side",
   /** Rear firing arc */
-  AFT = 'Aft',
+  AFT = "Aft",
   /** Broadside arcs (spheroid only) */
-  LEFT_SIDE = 'Left Side',
-  RIGHT_SIDE = 'Right Side',
+  LEFT_SIDE = "Left Side",
+  RIGHT_SIDE = "Right Side",
 }
 
 /**
@@ -110,20 +110,20 @@ export enum DropShipLocation {
  */
 export enum CapitalShipLocation {
   /** Forward firing arc */
-  NOSE = 'Nose',
+  NOSE = "Nose",
   /** Forward left arc */
-  FRONT_LEFT_SIDE = 'FL',
+  FRONT_LEFT_SIDE = "FL",
   /** Forward right arc */
-  FRONT_RIGHT_SIDE = 'FR',
+  FRONT_RIGHT_SIDE = "FR",
   /** Aft left arc */
-  AFT_LEFT_SIDE = 'AL',
+  AFT_LEFT_SIDE = "AL",
   /** Aft right arc */
-  AFT_RIGHT_SIDE = 'AR',
+  AFT_RIGHT_SIDE = "AR",
   /** Rear firing arc */
-  AFT = 'Aft',
+  AFT = "Aft",
   /** Broadside - both sides */
-  LEFT_BROADSIDE = 'LBS',
-  RIGHT_BROADSIDE = 'RBS',
+  LEFT_BROADSIDE = "LBS",
+  RIGHT_BROADSIDE = "RBS",
 }
 
 /**
@@ -138,15 +138,19 @@ export type SpaceStationLocation = CapitalShipLocation;
  */
 export enum BattleArmorLocation {
   /** Entire squad - shared equipment */
-  SQUAD = 'Squad',
+  SQUAD = "Squad",
   /** Individual trooper body */
-  BODY = 'Body',
+  BODY = "Body",
   /** Left arm/manipulator */
-  LEFT_ARM = 'Left Arm',
+  LEFT_ARM = "Left Arm",
   /** Right arm/manipulator */
-  RIGHT_ARM = 'Right Arm',
+  RIGHT_ARM = "Right Arm",
+  /** Left leg — AP weapons only */
+  LEFT_LEG = "Left Leg",
+  /** Right leg — AP weapons only */
+  RIGHT_LEG = "Right Leg",
   /** Turret mount (if equipped) */
-  TURRET = 'Turret',
+  TURRET = "Turret",
 }
 
 /**
@@ -154,13 +158,13 @@ export enum BattleArmorLocation {
  * Simplified mech-like structure
  */
 export enum ProtoMechLocation {
-  HEAD = 'Head',
-  TORSO = 'Torso',
-  LEFT_ARM = 'Left Arm',
-  RIGHT_ARM = 'Right Arm',
-  LEGS = 'Legs',
+  HEAD = "Head",
+  TORSO = "Torso",
+  LEFT_ARM = "Left Arm",
+  RIGHT_ARM = "Right Arm",
+  LEGS = "Legs",
   /** Main gun mount - special equipment slot */
-  MAIN_GUN = 'Main Gun',
+  MAIN_GUN = "Main Gun",
 }
 
 /**
@@ -169,9 +173,9 @@ export enum ProtoMechLocation {
  */
 export enum InfantryLocation {
   /** Entire platoon/squad */
-  PLATOON = 'Platoon',
+  PLATOON = "Platoon",
   /** Field guns or support weapons */
-  FIELD_GUN = 'Field Gun',
+  FIELD_GUN = "Field Gun",
 }
 
 /**
@@ -179,13 +183,13 @@ export enum InfantryLocation {
  * Varies by chassis type but generally simpler than combat vehicles
  */
 export enum SupportVehicleLocation {
-  FRONT = 'Front',
-  LEFT = 'Left',
-  RIGHT = 'Right',
-  REAR = 'Rear',
-  BODY = 'Body',
+  FRONT = "Front",
+  LEFT = "Left",
+  RIGHT = "Right",
+  REAR = "Rear",
+  BODY = "Body",
   /** Pintle mount (external weapon mount) */
-  PINTLE = 'Pintle',
+  PINTLE = "Pintle",
 }
 
 /**
@@ -206,8 +210,8 @@ export type UnitLocation =
 /**
  * Get locations available for a unit type
  */
-import { UnitType } from '../unit/BattleMechInterfaces';
-import { MechLocation } from './CriticalSlotAllocation';
+import { UnitType } from "../unit/BattleMechInterfaces";
+import { MechLocation } from "./CriticalSlotAllocation";
 
 /**
  * Returns the appropriate location enum values for a given unit type
