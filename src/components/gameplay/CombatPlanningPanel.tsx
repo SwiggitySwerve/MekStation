@@ -87,6 +87,12 @@ export function CombatPlanningPanel({
   );
   const togglePlannedWeapon = useGameplayStore((s) => s.togglePlannedWeapon);
   const commitAttack = useGameplayStore((s) => s.commitAttack);
+  // Per `add-what-if-to-hit-preview` § 8.2: toggle state lives on the
+  // store so other surfaces (e.g. ToHitForecastModal) can subscribe to
+  // the same flag without prop drilling. Selector is a primitive read
+  // so re-renders only fire when the toggle actually flips.
+  const previewEnabled = useGameplayStore((s) => s.previewEnabled);
+  const setPreviewEnabled = useGameplayStore((s) => s.setPreviewEnabled);
 
   // The orphan we're now wiring in — projects { id, unit, state } in
   // one shot for the currently selected unit.
@@ -244,7 +250,11 @@ export function CombatPlanningPanel({
       // weapons read from the unit's live ammo record.
       ammoMap[w.id] = selected.state.ammo[w.id] ?? -1;
     }
-    const previewEnabled =
+    // Renamed from `previewEnabled` (which now refers to the
+    // what-if Damage Preview toggle, per `add-what-if-to-hit-preview`
+    // § 8.2) to `forecastReady` so the two flags don't shadow each
+    // other inside the same scope.
+    const forecastReady =
       attackPlan.targetUnitId !== null &&
       attackPlan.selectedWeapons.length > 0 &&
       attackerState !== null &&
@@ -262,13 +272,17 @@ export function CombatPlanningPanel({
           selectedWeaponIds={attackPlan.selectedWeapons}
           ammo={ammoMap}
           onToggle={togglePlannedWeapon}
+          attacker={attackerState}
+          target={targetState}
+          previewEnabled={previewEnabled}
+          onTogglePreview={setPreviewEnabled}
         />
         <button
           type="button"
           onClick={() => setForecastOpen(true)}
-          disabled={!previewEnabled}
+          disabled={!forecastReady}
           className={`min-h-[44px] rounded px-4 py-2 font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
-            previewEnabled
+            forecastReady
               ? 'cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
               : 'cursor-not-allowed bg-gray-300 text-gray-500'
           }`}
@@ -283,6 +297,8 @@ export function CombatPlanningPanel({
             target={targetState}
             range={rangeToTarget}
             weapons={forecastWeapons}
+            previewEnabled={previewEnabled}
+            attackerWeapons={weapons}
             onConfirm={handleConfirmFire}
             onClose={() => setForecastOpen(false)}
           />
