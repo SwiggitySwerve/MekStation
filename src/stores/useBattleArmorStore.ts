@@ -7,13 +7,13 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
-import { createContext, useContext } from 'react';
-import { create, StoreApi, useStore } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { createContext, useContext } from "react";
+import { create, StoreApi, useStore } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { IEquipmentItem } from '@/types/equipment';
-import { generateUnitId } from '@/utils/uuid';
+import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
+import { IEquipmentItem } from "@/types/equipment";
+import { generateUnitId } from "@/utils/uuid";
 
 import {
   BattleArmorState,
@@ -21,10 +21,10 @@ import {
   CreateBattleArmorOptions,
   createDefaultBattleArmorState,
   createBattleArmorMountedEquipment,
-} from './battleArmorState';
+} from "./battleArmorState";
 
 // Re-export types for convenience
-export type { BattleArmorStore } from './battleArmorState';
+export type { BattleArmorStore } from "./battleArmorState";
 
 // =============================================================================
 // Store Factory
@@ -56,7 +56,7 @@ export function createBattleArmorStore(
         setChassis: (chassis) =>
           set((state) => ({
             chassis,
-            name: `${chassis}${state.model ? ' ' + state.model : ''}`,
+            name: `${chassis}${state.model ? " " + state.model : ""}`,
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -64,7 +64,7 @@ export function createBattleArmorStore(
         setModel: (model) =>
           set((state) => ({
             model,
-            name: `${state.chassis}${model ? ' ' + model : ''}`,
+            name: `${state.chassis}${model ? " " + model : ""}`,
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -193,6 +193,13 @@ export function createBattleArmorStore(
         setArmorType: (armorType) =>
           set({
             armorType,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setBaArmorType: (baArmorType) =>
+          set({
+            baArmorType,
             isModified: true,
             lastModifiedAt: Date.now(),
           }),
@@ -362,6 +369,7 @@ export function createBattleArmorStore(
           leftManipulator: state.leftManipulator,
           rightManipulator: state.rightManipulator,
           armorType: state.armorType,
+          baArmorType: state.baArmorType,
           armorPerTrooper: state.armorPerTrooper,
           hasAPMount: state.hasAPMount,
           hasModularMount: state.hasModularMount,
@@ -410,8 +418,8 @@ export function useBattleArmorStore<T>(
 
   if (!store) {
     throw new Error(
-      'useBattleArmorStore must be used within a BattleArmorStoreProvider. ' +
-        'Wrap your component tree with <BattleArmorStoreContext.Provider>.',
+      "useBattleArmorStore must be used within a BattleArmorStoreProvider. " +
+        "Wrap your component tree with <BattleArmorStoreContext.Provider>.",
     );
   }
 
@@ -426,7 +434,7 @@ export function useBattleArmorStoreApi(): StoreApi<BattleArmorStore> {
 
   if (!store) {
     throw new Error(
-      'useBattleArmorStoreApi must be used within a BattleArmorStoreProvider.',
+      "useBattleArmorStoreApi must be used within a BattleArmorStoreProvider.",
     );
   }
 

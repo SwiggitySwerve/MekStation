@@ -7,14 +7,18 @@
  */
 
 // Main customizer
-export { AerospaceCustomizer } from './AerospaceCustomizer';
-export type { AerospaceTabId } from './AerospaceCustomizer';
+export { AerospaceCustomizer } from "./AerospaceCustomizer";
+export type { AerospaceTabId } from "./AerospaceCustomizer";
 
-// Individual tabs
-export { AerospaceStructureTab } from './AerospaceStructureTab';
-export { AerospaceArmorTab } from './AerospaceArmorTab';
-export { AerospaceEquipmentTab } from './AerospaceEquipmentTab';
+// Individual tabs (existing)
+export { AerospaceStructureTab } from "./AerospaceStructureTab";
+export { AerospaceArmorTab } from "./AerospaceArmorTab";
+export { AerospaceEquipmentTab } from "./AerospaceEquipmentTab";
+
+// Placeholder tabs (wired by add-aerospace-construction)
+export { AerospaceVelocityTab } from "./AerospaceVelocityTab";
+export { AerospaceBombTab } from "./AerospaceBombTab";
 
 // Utility components
-export { AerospaceDiagram } from './AerospaceDiagram';
-export { AerospaceStatusBar } from './AerospaceStatusBar';
+export { AerospaceDiagram } from "./AerospaceDiagram";
+export { AerospaceStatusBar } from "./AerospaceStatusBar";

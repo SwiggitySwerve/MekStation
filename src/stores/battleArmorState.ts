@@ -7,19 +7,20 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
-import { BattleArmorLocation } from '@/types/construction/UnitLocation';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { TechBase } from '@/types/enums/TechBase';
-import { IEquipmentItem } from '@/types/equipment';
-import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { BattleArmorLocation } from "@/types/construction/UnitLocation";
+import { RulesLevel } from "@/types/enums/RulesLevel";
+import { TechBase } from "@/types/enums/TechBase";
+import { IEquipmentItem } from "@/types/equipment";
+import { SquadMotionType } from "@/types/unit/BaseUnitInterfaces";
+import { BAArmorType } from "@/types/unit/BattleArmorInterfaces";
+import { UnitType } from "@/types/unit/BattleMechInterfaces";
 import {
   BattleArmorChassisType,
   BattleArmorWeightClass,
   ManipulatorType,
   IBattleArmorMountedEquipment,
-} from '@/types/unit/PersonnelInterfaces';
-import { generateUnitId as generateUUID } from '@/utils/uuid';
+} from "@/types/unit/PersonnelInterfaces";
+import { generateUnitId as generateUUID } from "@/utils/uuid";
 
 // =============================================================================
 // Battle Armor Mounted Equipment
@@ -132,8 +133,11 @@ export interface BattleArmorState {
   // Armor
   // =========================================================================
 
-  /** Armor type code */
+  /** Armor type code (legacy numeric; use baArmorType for typed access) */
   armorType: number;
+
+  /** Typed armor type for construction validation */
+  baArmorType: BAArmorType;
 
   /** Armor points per trooper */
   armorPerTrooper: number;
@@ -224,6 +228,8 @@ export interface BattleArmorStoreActions {
 
   // Armor Actions
   setArmorType: (type: number) => void;
+  /** Set the typed BA armor type used by construction validation */
+  setBaArmorType: (type: BAArmorType) => void;
   setArmorPerTrooper: (points: number) => void;
 
   // Mount Actions
@@ -286,16 +292,16 @@ export function createDefaultBattleArmorState(
 ): BattleArmorState {
   const now = Date.now();
   const id = options.id ?? generateUUID();
-  const chassis = options.chassis ?? 'New Battle Armor';
-  const model = options.model ?? '';
+  const chassis = options.chassis ?? "New Battle Armor";
+  const model = options.model ?? "";
 
   return {
     // Identity
     id,
-    name: `${chassis}${model ? ' ' + model : ''}`,
+    name: `${chassis}${model ? " " + model : ""}`,
     chassis,
     model,
-    mulId: '-1',
+    mulId: "-1",
     year: 3050,
     rulesLevel: RulesLevel.STANDARD,
 
@@ -320,6 +326,7 @@ export function createDefaultBattleArmorState(
 
     // Armor
     armorType: 0, // Standard BA armor
+    baArmorType: BAArmorType.STANDARD,
     armorPerTrooper: 5,
 
     // Mount Options

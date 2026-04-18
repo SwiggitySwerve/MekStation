@@ -5,8 +5,8 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import { GamePhase, GameSide, IToHitModifier } from './GameSessionInterfaces';
-import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
+import { GamePhase, GameSide, IToHitModifier } from "./GameSessionInterfaces";
+import { IHexCoordinate, Facing, MovementType } from "./HexGridInterfaces";
 
 // =============================================================================
 // Layout Types
@@ -15,7 +15,7 @@ import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
 /**
  * Panel emphasis state for contextual layout.
  */
-export type PanelEmphasis = 'map' | 'recordSheet' | 'balanced';
+export type PanelEmphasis = "map" | "recordSheet" | "balanced";
 
 /**
  * Layout configuration for gameplay view.
@@ -35,7 +35,7 @@ export interface ILayoutConfig {
  * Default layout configuration.
  */
 export const DEFAULT_LAYOUT_CONFIG: ILayoutConfig = {
-  emphasis: 'balanced',
+  emphasis: "balanced",
   mapPanelWidth: 50,
   eventLogCollapsed: false,
   minPanelWidth: 300,
@@ -47,14 +47,14 @@ export const DEFAULT_LAYOUT_CONFIG: ILayoutConfig = {
 export function getLayoutForPhase(phase: GamePhase): Partial<ILayoutConfig> {
   switch (phase) {
     case GamePhase.Movement:
-      return { emphasis: 'map', mapPanelWidth: 60 };
+      return { emphasis: "map", mapPanelWidth: 60 };
     case GamePhase.WeaponAttack:
     case GamePhase.PhysicalAttack:
-      return { emphasis: 'recordSheet', mapPanelWidth: 40 };
+      return { emphasis: "recordSheet", mapPanelWidth: 40 };
     case GamePhase.Heat:
-      return { emphasis: 'recordSheet', mapPanelWidth: 35 };
+      return { emphasis: "recordSheet", mapPanelWidth: 35 };
     default:
-      return { emphasis: 'balanced', mapPanelWidth: 50 };
+      return { emphasis: "balanced", mapPanelWidth: 50 };
   }
 }
 
@@ -63,7 +63,57 @@ export function getLayoutForPhase(phase: GamePhase): Partial<ILayoutConfig> {
 // =============================================================================
 
 /**
+ * Unit type discriminator for per-type token rendering.
+ * Aligns with BattleTech unit classifications.
+ */
+export enum TokenUnitType {
+  Mech = "mech",
+  Vehicle = "vehicle",
+  Aerospace = "aerospace",
+  BattleArmor = "battle_armor",
+  Infantry = "infantry",
+  ProtoMech = "protomech",
+}
+
+/**
+ * Vehicle motion type — determines the icon overlay on a VehicleToken
+ * and applies the appropriate movement rules.
+ */
+export enum VehicleMotionType {
+  Tracked = "tracked",
+  Wheeled = "wheeled",
+  Hover = "hover",
+  VTOL = "vtol",
+  Naval = "naval",
+  WiGE = "wige",
+}
+
+/**
+ * Infantry motive type — determines the badge shown on an InfantryToken.
+ */
+export enum InfantryMotiveType {
+  Foot = "foot",
+  Motorized = "motorized",
+  Jump = "jump",
+  Mechanized = "mechanized",
+  Beast = "beast",
+}
+
+/**
+ * Infantry specialization — optional icon overlay on InfantryToken.
+ */
+export enum InfantryTokenSpecialization {
+  AntiMech = "anti_mech",
+  Marine = "marine",
+  Scuba = "scuba",
+  Mountain = "mountain",
+  XCT = "xct",
+}
+
+/**
  * Visual token representing a unit on the hex map.
+ * Extended with per-type discriminated data so token renderers receive
+ * everything they need without querying outside the token prop.
  */
 export interface IUnitToken {
   /** Unit ID */
@@ -84,6 +134,69 @@ export interface IUnitToken {
   readonly isDestroyed: boolean;
   /** Short designation (e.g., "ATL-1") */
   readonly designation: string;
+  /**
+   * Unit type discriminator. Defaults to `TokenUnitType.Mech` when absent
+   * so Phase-1 callers remain unmodified.
+   */
+  readonly unitType?: TokenUnitType;
+
+  // -------------------------------------------------------------------------
+  // Vehicle-specific fields (present when unitType === TokenUnitType.Vehicle)
+  // -------------------------------------------------------------------------
+  /** Vehicle motion type — used for icon overlay. */
+  readonly vehicleMotionType?: VehicleMotionType;
+  /** Turret facing in 8-directions (0=N, 1=NE, …, 7=NW). Absent if no turret. */
+  readonly turretFacing?: number;
+
+  // -------------------------------------------------------------------------
+  // Aerospace-specific fields (present when unitType === TokenUnitType.Aerospace)
+  // -------------------------------------------------------------------------
+  /**
+   * Current altitude level (0–10). 0 = landed.
+   * TODO: wire from aerospace combat-behavior proposal when landed.
+   */
+  readonly altitude?: number;
+  /**
+   * Current velocity in thrust points.
+   * TODO: wire from aerospace combat-behavior proposal.
+   */
+  readonly velocity?: number;
+
+  // -------------------------------------------------------------------------
+  // BattleArmor-specific fields (present when unitType === TokenUnitType.BattleArmor)
+  // -------------------------------------------------------------------------
+  /**
+   * ID of the unit this BA is mounted on. When set, the BA token renders
+   * as a passenger badge on the host mech rather than a standalone token.
+   * TODO: wire from battlearmor combat-behavior proposal.
+   */
+  readonly mountedOn?: string;
+  /** Number of surviving troopers (1–6). */
+  readonly trooperCount?: number;
+  /** Is jump / UMU movement active this turn? */
+  readonly jumpActive?: boolean;
+
+  // -------------------------------------------------------------------------
+  // Infantry-specific fields (present when unitType === TokenUnitType.Infantry)
+  // -------------------------------------------------------------------------
+  /** Number of surviving troopers (1–30 for a platoon). */
+  readonly infantryCount?: number;
+  /** How many platoons share this hex (for stack indicator). */
+  readonly platoonCount?: number;
+  /** Motive type badge. */
+  readonly infantryMotiveType?: InfantryMotiveType;
+  /** Specialization icon. */
+  readonly infantrySpecialization?: InfantryTokenSpecialization;
+
+  // -------------------------------------------------------------------------
+  // ProtoMech-specific fields (present when unitType === TokenUnitType.ProtoMech)
+  // -------------------------------------------------------------------------
+  /** Number of surviving protos in this point (1–5). */
+  readonly protoCount?: number;
+  /** Glider variant — renders extended wings. */
+  readonly isGlider?: boolean;
+  /** Has main gun equipped. */
+  readonly hasMainGun?: boolean;
 }
 
 // =============================================================================
@@ -177,7 +290,7 @@ export interface IWeaponAttackPreview {
   /** Range to target in hexes */
   readonly range: number;
   /** Range bracket */
-  readonly rangeBracket: 'short' | 'medium' | 'long' | 'out';
+  readonly rangeBracket: "short" | "medium" | "long" | "out";
   /** Base to-hit (gunnery) */
   readonly baseToHit: number;
   /** All modifiers */
@@ -283,13 +396,13 @@ export interface IFormattedEvent {
   readonly text: string;
   /** Icon/type indicator */
   readonly icon:
-    | 'movement'
-    | 'attack'
-    | 'damage'
-    | 'heat'
-    | 'critical'
-    | 'status'
-    | 'phase';
+    | "movement"
+    | "attack"
+    | "damage"
+    | "heat"
+    | "critical"
+    | "status"
+    | "phase";
   /** Side that triggered event */
   readonly side?: GameSide;
   /** Related unit ID */
@@ -333,53 +446,53 @@ export function getPhaseActions(
     case GamePhase.Movement:
       return [
         {
-          id: 'lock',
-          label: 'Lock Movement',
+          id: "lock",
+          label: "Lock Movement",
           primary: true,
           enabled: true,
-          shortcut: 'Enter',
+          shortcut: "Enter",
         },
         {
-          id: 'undo',
-          label: 'Undo',
+          id: "undo",
+          label: "Undo",
           primary: false,
           enabled: canUndo,
-          shortcut: 'Ctrl+Z',
+          shortcut: "Ctrl+Z",
         },
-        { id: 'skip', label: 'Skip', primary: false, enabled: true },
+        { id: "skip", label: "Skip", primary: false, enabled: true },
       ];
     case GamePhase.WeaponAttack:
       return [
         {
-          id: 'lock',
-          label: 'Lock Attacks',
+          id: "lock",
+          label: "Lock Attacks",
           primary: true,
           enabled: true,
-          shortcut: 'Enter',
+          shortcut: "Enter",
         },
-        { id: 'clear', label: 'Clear All', primary: false, enabled: true },
-        { id: 'skip', label: 'Skip Attacks', primary: false, enabled: true },
+        { id: "clear", label: "Clear All", primary: false, enabled: true },
+        { id: "skip", label: "Skip Attacks", primary: false, enabled: true },
       ];
     case GamePhase.Heat:
       return [
         {
-          id: 'continue',
-          label: 'Continue',
+          id: "continue",
+          label: "Continue",
           primary: true,
           enabled: true,
-          shortcut: 'Enter',
+          shortcut: "Enter",
         },
       ];
     case GamePhase.End:
       return [
         {
-          id: 'next-turn',
-          label: 'Next Turn',
+          id: "next-turn",
+          label: "Next Turn",
           primary: true,
           enabled: true,
-          shortcut: 'Enter',
+          shortcut: "Enter",
         },
-        { id: 'concede', label: 'Concede', primary: false, enabled: true },
+        { id: "concede", label: "Concede", primary: false, enabled: true },
       ];
     default:
       return [];

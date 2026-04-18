@@ -3,10 +3,10 @@
  * Handles loading pre-made armor pip SVGs and generating dynamic pips for non-biped mechs
  */
 
-import { IRecordSheetData } from '@/types/printing';
-import { logger } from '@/utils/logger';
+import { IMechRecordSheetData } from "@/types/printing";
+import { logger } from "@/utils/logger";
 
-import { ArmorPipLayout } from '../ArmorPipLayout';
+import { ArmorPipLayout } from "../ArmorPipLayout";
 import {
   SVG_NS,
   PIPS_BASE_PATH,
@@ -18,8 +18,8 @@ import {
   BIPED_PIP_GROUP_IDS,
   QUAD_PIP_GROUP_IDS,
   TRIPOD_PIP_GROUP_IDS,
-} from './constants';
-import { setTextContent } from './template';
+} from "./constants";
+import { setTextContent } from "./template";
 
 /**
  * Fill template with armor pips and text values (async - fetches pip SVGs)
@@ -27,7 +27,7 @@ import { setTextContent } from './template';
 export async function fillArmorPips(
   svgDoc: Document,
   svgRoot: SVGSVGElement,
-  armor: IRecordSheetData['armor'],
+  armor: IMechRecordSheetData["armor"],
   mechType?: string,
 ): Promise<void> {
   // Fill armor text labels with armor point values
@@ -48,7 +48,7 @@ export async function fillArmorPips(
   });
 
   // Check if this mech type uses pre-made pip files
-  const usePremadePips = PREMADE_PIP_TYPES.includes(mechType || 'biped');
+  const usePremadePips = PREMADE_PIP_TYPES.includes(mechType || "biped");
 
   if (usePremadePips) {
     // Biped: Load pre-made pip SVG files
@@ -59,13 +59,13 @@ export async function fillArmorPips(
     }
     if (!armorPipsGroup) {
       logger.warn(
-        'Could not find canonArmorPips or armorPips group in template',
+        "Could not find canonArmorPips or armorPips group in template",
       );
-      const rootGroup = svgDoc.createElementNS(SVG_NS, 'g');
-      rootGroup.setAttribute('id', 'armor-pips-generated');
+      const rootGroup = svgDoc.createElementNS(SVG_NS, "g");
+      rootGroup.setAttribute("id", "armor-pips-generated");
       rootGroup.setAttribute(
-        'transform',
-        'matrix(0.975,0,0,0.975,-390.621,-44.241)',
+        "transform",
+        "matrix(0.975,0,0,0.975,-390.621,-44.241)",
       );
       svgRoot.appendChild(rootGroup);
       await loadAllArmorPips(svgDoc, rootGroup, armor);
@@ -75,7 +75,7 @@ export async function fillArmorPips(
     await loadAllArmorPips(svgDoc, armorPipsGroup, armor);
   } else {
     // Non-biped (quad, tripod, etc.): Generate pips dynamically using template rects
-    await generateDynamicArmorPips(svgDoc, armor, mechType || 'quad');
+    await generateDynamicArmorPips(svgDoc, armor, mechType || "quad");
   }
 }
 
@@ -85,7 +85,7 @@ export async function fillArmorPips(
 async function loadAllArmorPips(
   svgDoc: Document,
   parentGroup: Element,
-  armor: IRecordSheetData['armor'],
+  armor: IMechRecordSheetData["armor"],
 ): Promise<void> {
   // Load pips for each armor location
   const pipPromises = armor.locations.map(async (loc) => {
@@ -125,7 +125,7 @@ async function loadAndInsertPips(
 ): Promise<void> {
   // Build the pip file path
   // Format: Armor_<Location>_<Count>_Humanoid.svg or Armor_<Location>_R_<Count>_Humanoid.svg
-  const rearSuffix = isRear ? '_R' : '';
+  const rearSuffix = isRear ? "_R" : "";
   const pipFileName = `Armor_${locationName}${rearSuffix}_${pipCount}_Humanoid.svg`;
   const pipPath = `${PIPS_BASE_PATH}/${pipFileName}`;
 
@@ -138,30 +138,30 @@ async function loadAndInsertPips(
 
     const pipSvgText = await response.text();
     const parser = new DOMParser();
-    const pipDoc = parser.parseFromString(pipSvgText, 'image/svg+xml');
+    const pipDoc = parser.parseFromString(pipSvgText, "image/svg+xml");
 
     // Extract the path elements from the pip SVG
     // Pip files have paths inside <switch><g>...</g></switch>
-    const paths = pipDoc.querySelectorAll('path');
+    const paths = pipDoc.querySelectorAll("path");
 
     if (paths.length === 0) return;
 
     // Create a group for this location's pips
     // MegaMekLab imports pip paths directly - the parent's transform handles positioning
     // NO additional transform needed on location groups
-    const locationGroup = svgDoc.createElementNS(SVG_NS, 'g');
-    locationGroup.setAttribute('id', `pips_${locationName}${rearSuffix}`);
-    locationGroup.setAttribute('class', 'armor-pips');
+    const locationGroup = svgDoc.createElementNS(SVG_NS, "g");
+    locationGroup.setAttribute("id", `pips_${locationName}${rearSuffix}`);
+    locationGroup.setAttribute("class", "armor-pips");
 
     // Clone each path into our template
     paths.forEach((path) => {
       const clonedPath = svgDoc.importNode(path, true) as SVGPathElement;
       // Ensure the path styling is preserved
-      if (!clonedPath.getAttribute('fill')) {
-        clonedPath.setAttribute('fill', '#FFFFFF');
+      if (!clonedPath.getAttribute("fill")) {
+        clonedPath.setAttribute("fill", "#FFFFFF");
       }
-      if (!clonedPath.getAttribute('stroke')) {
-        clonedPath.setAttribute('stroke', '#000000');
+      if (!clonedPath.getAttribute("stroke")) {
+        clonedPath.setAttribute("stroke", "#000000");
       }
       locationGroup.appendChild(clonedPath);
     });
@@ -178,7 +178,7 @@ async function loadAndInsertPips(
  */
 async function generateDynamicArmorPips(
   svgDoc: Document,
-  armor: IRecordSheetData['armor'],
+  armor: IMechRecordSheetData["armor"],
   mechType: string,
 ): Promise<void> {
   // Get the pip group IDs based on mech type
@@ -202,9 +202,9 @@ async function generateDynamicArmorPips(
     // Use ArmorPipLayout to generate pips within the bounding rects
     if (loc.current > 0) {
       ArmorPipLayout.addPips(svgDoc, pipArea, loc.current, {
-        fill: '#FFFFFF',
+        fill: "#FFFFFF",
         strokeWidth: 0.5,
-        className: 'pip armor',
+        className: "pip armor",
       });
     }
   });
@@ -221,9 +221,9 @@ async function generateDynamicArmorPips(
         const pipArea = svgDoc.getElementById(rearGroupId);
         if (pipArea && loc.rear > 0) {
           ArmorPipLayout.addPips(svgDoc, pipArea, loc.rear, {
-            fill: '#FFFFFF',
+            fill: "#FFFFFF",
             strokeWidth: 0.5,
-            className: 'pip armor rear',
+            className: "pip armor rear",
           });
         }
       }
@@ -236,11 +236,11 @@ async function generateDynamicArmorPips(
  */
 function getPipGroupIdsForMechType(mechType: string): Record<string, string> {
   switch (mechType) {
-    case 'quad':
+    case "quad":
       return QUAD_PIP_GROUP_IDS;
-    case 'tripod':
+    case "tripod":
       return TRIPOD_PIP_GROUP_IDS;
-    case 'biped':
+    case "biped":
     default:
       return BIPED_PIP_GROUP_IDS;
   }
