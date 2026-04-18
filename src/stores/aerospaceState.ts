@@ -298,21 +298,31 @@ export interface AerospaceActions {
   setYear: (year: number) => void;
   setRulesLevel: (rulesLevel: RulesLevel) => void;
 
-  // Chassis
+  // Chassis & sub-type
   setTonnage: (tonnage: number) => void;
   setIsOmni: (isOmni: boolean) => void;
+  /** Set the aerospace sub-type (ASF / CF / SmallCraft) */
+  setAerospaceSubType: (subType: AerospaceSubType) => void;
 
   // Engine & Movement
   setEngineType: (type: EngineType) => void;
+  /** Set the aerospace-canonical engine type used for construction calculations */
+  setAerospaceEngineType: (type: AerospaceEngineType) => void;
   setEngineRating: (rating: number) => void;
   setSafeThrust: (thrust: number) => void;
   setFuel: (fuel: number) => void;
+  /** Set fuel tonnage; recomputes fuelPoints automatically */
+  setFuelTons: (tons: number) => void;
 
   // Structure & Cockpit
   setStructuralIntegrity: (si: number) => void;
   setCockpitType: (type: AerospaceCockpitType) => void;
   setHeatSinks: (count: number) => void;
   setDoubleHeatSinks: (value: boolean) => void;
+
+  // Crew (small craft only)
+  /** Set crew configuration; pass null to clear (ASF/CF) */
+  setCrew: (crew: ISmallCraftCrew | null) => void;
 
   // Armor
   setArmorType: (type: ArmorTypeEnum) => void;
