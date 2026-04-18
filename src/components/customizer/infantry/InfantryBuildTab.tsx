@@ -6,17 +6,18 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2.2
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
 
-import { useInfantryStore } from '@/stores/useInfantryStore';
-import { TechBase } from '@/types/enums/TechBase';
-import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { useInfantryStore } from "@/stores/useInfantryStore";
+import { TechBase } from "@/types/enums/TechBase";
+import { SquadMotionType } from "@/types/unit/BaseUnitInterfaces";
 import {
   InfantryArmorKit,
   InfantrySpecialization,
-} from '@/types/unit/PersonnelInterfaces';
+} from "@/types/unit/PersonnelInterfaces";
 
-import { customizerStyles as cs } from '../styles';
+import { customizerStyles as cs } from "../styles";
+import { InfantryPlatoonCounter } from "./InfantryPlatoonCounter";
 
 // =============================================================================
 // Constants
@@ -244,7 +245,7 @@ export function InfantryBuildTab({
             <label className={cs.text.label}>Secondary Weapon</label>
             <input
               type="text"
-              value={secondaryWeapon ?? ''}
+              value={secondaryWeapon ?? ""}
               onChange={(e) =>
                 !readOnly && setSecondaryWeapon(e.target.value || undefined)
               }
@@ -324,6 +325,9 @@ export function InfantryBuildTab({
           </div>
         </div>
       </div>
+
+      {/* Platoon strength counter — replaces armor diagram for infantry */}
+      <InfantryPlatoonCounter />
     </div>
   );
 }

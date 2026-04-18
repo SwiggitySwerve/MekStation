@@ -7,37 +7,38 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.2.2
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from "react";
 
-import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
-import { useAerospaceStore } from '@/stores/useAerospaceStore';
+import { getTotalAerospaceArmor } from "@/stores/aerospaceState";
+import { useAerospaceStore } from "@/stores/useAerospaceStore";
 import {
   ArmorTypeEnum,
   getArmorDefinition,
-} from '@/types/construction/ArmorType';
-import { AerospaceLocation } from '@/types/construction/UnitLocation';
-import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+} from "@/types/construction/ArmorType";
+import { AerospaceLocation } from "@/types/construction/UnitLocation";
+import { ceilToHalfTon } from "@/utils/physical/weightUtils";
 
-import { customizerStyles as cs } from '../styles';
+import { customizerStyles as cs } from "../styles";
+import { AerospaceArmorDiagram } from "./AerospaceArmorDiagram";
 
 // =============================================================================
 // Constants
 // =============================================================================
 
 const ARMOR_TYPE_OPTIONS: { value: ArmorTypeEnum; label: string }[] = [
-  { value: ArmorTypeEnum.STANDARD, label: 'Standard' },
-  { value: ArmorTypeEnum.FERRO_FIBROUS_IS, label: 'Ferro-Fibrous (IS)' },
-  { value: ArmorTypeEnum.FERRO_FIBROUS_CLAN, label: 'Ferro-Fibrous (Clan)' },
-  { value: ArmorTypeEnum.LIGHT_FERRO, label: 'Light Ferro-Fibrous' },
-  { value: ArmorTypeEnum.HEAVY_FERRO, label: 'Heavy Ferro-Fibrous' },
-  { value: ArmorTypeEnum.STEALTH, label: 'Stealth' },
+  { value: ArmorTypeEnum.STANDARD, label: "Standard" },
+  { value: ArmorTypeEnum.FERRO_FIBROUS_IS, label: "Ferro-Fibrous (IS)" },
+  { value: ArmorTypeEnum.FERRO_FIBROUS_CLAN, label: "Ferro-Fibrous (Clan)" },
+  { value: ArmorTypeEnum.LIGHT_FERRO, label: "Light Ferro-Fibrous" },
+  { value: ArmorTypeEnum.HEAVY_FERRO, label: "Heavy Ferro-Fibrous" },
+  { value: ArmorTypeEnum.STEALTH, label: "Stealth" },
 ];
 
 const AEROSPACE_ARCS: { arc: AerospaceLocation; label: string }[] = [
-  { arc: AerospaceLocation.NOSE, label: 'Nose' },
-  { arc: AerospaceLocation.LEFT_WING, label: 'Left Wing' },
-  { arc: AerospaceLocation.RIGHT_WING, label: 'Right Wing' },
-  { arc: AerospaceLocation.AFT, label: 'Aft' },
+  { arc: AerospaceLocation.NOSE, label: "Nose" },
+  { arc: AerospaceLocation.LEFT_WING, label: "Left Wing" },
+  { arc: AerospaceLocation.RIGHT_WING, label: "Right Wing" },
+  { arc: AerospaceLocation.AFT, label: "Aft" },
 ];
 
 // =============================================================================
@@ -92,7 +93,7 @@ function getMaxTotalAerospaceArmor(tonnage: number): number {
 
 export function AerospaceArmorTab({
   readOnly = false,
-  className = '',
+  className = "",
 }: AerospaceArmorTabProps): React.ReactElement {
   // Get state from store
   const tonnage = useAerospaceStore((s) => s.tonnage);
@@ -344,63 +345,11 @@ export function AerospaceArmorTab({
             })}
           </div>
 
-          {/* Simple Arc Diagram */}
-          <div
-            className="bg-surface-raised/30 mt-6 rounded-lg p-4"
-            data-testid="aerospace-armor-diagram"
-          >
-            <AerospaceArmorDiagramSimple allocation={armorAllocation} />
+          {/* Aerospace Armor Diagram */}
+          <div className="mt-6">
+            <AerospaceArmorDiagram />
           </div>
         </section>
-      </div>
-    </div>
-  );
-}
-
-// =============================================================================
-// Simple Aerospace Armor Diagram
-// =============================================================================
-
-interface AerospaceArmorDiagramSimpleProps {
-  allocation: Record<string, number>;
-}
-
-function AerospaceArmorDiagramSimple({
-  allocation,
-}: AerospaceArmorDiagramSimpleProps): React.ReactElement {
-  return (
-    <div className="text-center font-mono text-sm">
-      {/* Nose */}
-      <div className="mb-4">
-        <span className="text-text-theme-secondary">NOSE</span>
-        <div className="text-lg font-bold text-cyan-400">
-          {allocation[AerospaceLocation.NOSE] ?? 0}
-        </div>
-      </div>
-
-      {/* Wings */}
-      <div className="mb-4 flex items-center justify-center gap-12">
-        <div>
-          <span className="text-text-theme-secondary">L.WING</span>
-          <div className="text-lg font-bold text-cyan-400">
-            {allocation[AerospaceLocation.LEFT_WING] ?? 0}
-          </div>
-        </div>
-        <div className="border-border-theme h-8 w-8 rounded-full border-2" />
-        <div>
-          <span className="text-text-theme-secondary">R.WING</span>
-          <div className="text-lg font-bold text-cyan-400">
-            {allocation[AerospaceLocation.RIGHT_WING] ?? 0}
-          </div>
-        </div>
-      </div>
-
-      {/* Aft */}
-      <div>
-        <span className="text-text-theme-secondary">AFT</span>
-        <div className="text-lg font-bold text-cyan-400">
-          {allocation[AerospaceLocation.AFT] ?? 0}
-        </div>
       </div>
     </div>
   );

@@ -6,12 +6,13 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.3.2
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
 
-import { useProtoMechStore } from '@/stores/useProtoMechStore';
-import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { useProtoMechStore } from "@/stores/useProtoMechStore";
+import { ProtoMechLocation } from "@/types/construction/UnitLocation";
 
-import { customizerStyles as cs } from '../styles';
+import { customizerStyles as cs } from "../styles";
+import { ProtoMechArmorDiagram } from "./ProtoMechArmorDiagram";
 
 // =============================================================================
 // Constants
@@ -20,12 +21,12 @@ import { customizerStyles as cs } from '../styles';
 const TONNAGE_OPTIONS = [2, 3, 4, 5, 6, 7, 8, 9];
 
 const LOCATION_LABELS: Record<string, string> = {
-  [ProtoMechLocation.HEAD]: 'Head',
-  [ProtoMechLocation.TORSO]: 'Torso',
-  [ProtoMechLocation.LEFT_ARM]: 'Left Arm',
-  [ProtoMechLocation.RIGHT_ARM]: 'Right Arm',
-  [ProtoMechLocation.LEGS]: 'Legs',
-  [ProtoMechLocation.MAIN_GUN]: 'Main Gun',
+  [ProtoMechLocation.HEAD]: "Head",
+  [ProtoMechLocation.TORSO]: "Torso",
+  [ProtoMechLocation.LEFT_ARM]: "Left Arm",
+  [ProtoMechLocation.RIGHT_ARM]: "Right Arm",
+  [ProtoMechLocation.LEGS]: "Legs",
+  [ProtoMechLocation.MAIN_GUN]: "Main Gun",
 };
 
 // =============================================================================
@@ -224,7 +225,7 @@ export function ProtoMechStructureTab({
       {/* Armor */}
       <div className={cs.panel.main}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>
+          <h3 className={cs.text.sectionTitle.replace("mb-4", "mb-0")}>
             Armor Allocation
           </h3>
           <div className="flex gap-2">
@@ -276,6 +277,11 @@ export function ProtoMechStructureTab({
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Compact armor diagram */}
+      <div className="flex justify-center">
+        <ProtoMechArmorDiagram />
       </div>
     </div>
   );
