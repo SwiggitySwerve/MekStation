@@ -3,22 +3,22 @@
  * Orchestrates battles with auto-resolve and interactive modes.
  */
 
-import type { IWeapon } from "@/simulation/ai/types";
+import type { IWeapon } from '@/simulation/ai/types';
 
-import { isGameEnded } from "@/services/game-resolution/GameOutcomeCalculator";
-import { BotPlayer } from "@/simulation/ai/BotPlayer";
-import { SeededRandom } from "@/simulation/core/SeededRandom";
+import { isGameEnded } from '@/services/game-resolution/GameOutcomeCalculator';
+import { BotPlayer } from '@/simulation/ai/BotPlayer';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameSide,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
   type IGameState,
-} from "@/types/gameplay/GameSessionInterfaces";
+} from '@/types/gameplay/GameSessionInterfaces';
 import {
   type IHexGrid,
   type IMovementCapability,
-} from "@/types/gameplay/HexGridInterfaces";
+} from '@/types/gameplay/HexGridInterfaces';
 import {
   createGameSession,
   startGame,
@@ -27,17 +27,17 @@ import {
   resolveAllAttacks,
   resolveHeatPhase,
   endGame,
-} from "@/utils/gameplay/gameSession";
+} from '@/utils/gameplay/gameSession';
 
-import type { IGameEngineConfig, IAdaptedUnit } from "./types";
+import type { IGameEngineConfig, IAdaptedUnit } from './types';
 
-import { createMinimalGrid, toMovementCapability } from "./GameEngine.helpers";
+import { createMinimalGrid, toMovementCapability } from './GameEngine.helpers';
 import {
   runMovementPhase,
   runAttackPhase,
   runPhysicalAttackPhase,
-} from "./GameEngine.phases";
-import { InteractiveSession } from "./InteractiveSession";
+} from './GameEngine.phases';
+import { InteractiveSession } from './InteractiveSession';
 
 export { InteractiveSession };
 
@@ -88,7 +88,7 @@ export class GameEngine {
     const gameConfig: IGameConfig = {
       mapRadius: this.mapRadius,
       turnLimit: this.turnLimit,
-      victoryConditions: ["elimination"],
+      victoryConditions: ['elimination'],
       optionalRules: [],
     };
 
@@ -134,7 +134,7 @@ export class GameEngine {
 
       if (isGameEnded(session.currentState, gameConfig)) {
         const winner = this.determineWinnerFromState(session.currentState);
-        session = endGame(session, winner, "destruction");
+        session = endGame(session, winner, 'destruction');
         return session;
       }
 
@@ -143,7 +143,7 @@ export class GameEngine {
 
     // Turn limit reached
     const winner = this.determineWinnerFromState(session.currentState);
-    session = endGame(session, winner, "turn_limit");
+    session = endGame(session, winner, 'turn_limit');
     return session;
   }
 
@@ -166,7 +166,7 @@ export class GameEngine {
     );
   }
 
-  private determineWinnerFromState(state: IGameState): GameSide | "draw" {
+  private determineWinnerFromState(state: IGameState): GameSide | 'draw' {
     const playerAlive = Object.values(state.units).some(
       (u) => u.side === GameSide.Player && !u.destroyed,
     );
@@ -174,7 +174,7 @@ export class GameEngine {
       (u) => u.side === GameSide.Opponent && !u.destroyed,
     );
 
-    if (!playerAlive && !opponentAlive) return "draw";
+    if (!playerAlive && !opponentAlive) return 'draw';
     if (!opponentAlive) return GameSide.Player;
     if (!playerAlive) return GameSide.Opponent;
     // Turn limit — compare surviving counts
@@ -186,6 +186,6 @@ export class GameEngine {
     ).length;
     if (pCount > oCount) return GameSide.Player;
     if (oCount > pCount) return GameSide.Opponent;
-    return "draw";
+    return 'draw';
   }
 }

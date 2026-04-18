@@ -1,19 +1,19 @@
-import type { IWeapon } from "@/simulation/ai/types";
-import type { IWeaponAttack } from "@/types/gameplay/CombatInterfaces";
+import type { IWeapon } from '@/simulation/ai/types';
+import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 
-import { BotPlayer } from "@/simulation/ai/BotPlayer";
+import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import {
   GamePhase,
   LockState,
   type IGameSession,
-} from "@/types/gameplay/GameSessionInterfaces";
+} from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
   RangeBracket,
   type IHexGrid,
   type IMovementCapability,
-} from "@/types/gameplay/HexGridInterfaces";
-import { createRetreatTriggeredEvent } from "@/utils/gameplay/gameEvents";
+} from '@/types/gameplay/HexGridInterfaces';
+import { createRetreatTriggeredEvent } from '@/utils/gameplay/gameEvents';
 import {
   rollInitiative,
   advancePhase,
@@ -27,10 +27,10 @@ import {
   declarePhysicalAttack,
   resolveAllPhysicalAttacks,
   type IPhysicalAttackContext,
-} from "@/utils/gameplay/gameSession";
-import { buildWeaponAttacks } from "@/utils/gameplay/weaponAttackBuilder";
+} from '@/utils/gameplay/gameSession';
+import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
-import { toAIUnitState } from "./GameEngine.helpers";
+import { toAIUnitState } from './GameEngine.helpers';
 
 /**
  * Per `wire-bot-ai-helpers-and-capstone`: default attacker tonnage

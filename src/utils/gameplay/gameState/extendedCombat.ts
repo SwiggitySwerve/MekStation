@@ -11,7 +11,7 @@ import {
   IUnitFellPayload,
   IUnitStoodPayload,
   LockState,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
 export function applyPSRTriggered(
   state: IGameState,

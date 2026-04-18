@@ -4,26 +4,26 @@ import type {
   IHexGrid,
   IMovementCapability,
   IUnitPosition,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import { GameEventType, GamePhase, MovementType } from "@/types/gameplay";
+import { GameEventType, GamePhase, MovementType } from '@/types/gameplay';
 import {
   chooseBestPhysicalAttack,
   type PhysicalAttackType,
-} from "@/utils/gameplay/physicalAttacks";
+} from '@/utils/gameplay/physicalAttacks';
 
-import type { SeededRandom } from "../core/SeededRandom";
-import type { IBotBehavior, IAIUnitState, IMove, IWeapon } from "./types";
+import type { SeededRandom } from '../core/SeededRandom';
+import type { IBotBehavior, IAIUnitState, IMove, IWeapon } from './types';
 
-import { AttackAI, applyHeatBudget } from "./AttackAI";
-import { MoveAI } from "./MoveAI";
+import { AttackAI, applyHeatBudget } from './AttackAI';
+import { MoveAI } from './MoveAI';
 import {
   effectiveSafeHeatThreshold,
   resolveEdge,
   retreatMovementType,
   shouldRetreat,
-} from "./RetreatAI";
-import { DEFAULT_BEHAVIOR } from "./types";
+} from './RetreatAI';
+import { DEFAULT_BEHAVIOR } from './types';
 
 export interface IMovementEvent {
   type: GameEventType.MovementDeclared;
@@ -57,8 +57,8 @@ export interface IRetreatEvent {
   type: GameEventType.RetreatTriggered;
   payload: {
     unitId: string;
-    edge: "north" | "south" | "east" | "west";
-    reason: "structural_threshold" | "vital_crit";
+    edge: 'north' | 'south' | 'east' | 'west';
+    reason: 'structural_threshold' | 'vital_crit';
   };
 }
 
@@ -84,7 +84,7 @@ export type BotGameEvent =
   | IPhysicalAttackEvent;
 
 /** Vital component types whose destruction triggers a retreat per spec § 2. */
-const VITAL_COMPONENT_TYPES = new Set(["cockpit", "engine", "gyro"]);
+const VITAL_COMPONENT_TYPES = new Set(['cockpit', 'engine', 'gyro']);
 
 /** Default attacker tonnage when caller doesn't supply per-unit data. */
 const DEFAULT_ATTACKER_TONNAGE = 65;
@@ -151,7 +151,7 @@ export class BotPlayer {
     );
     if (!edge) return null;
 
-    const reason = hasVitalCrit ? "vital_crit" : "structural_threshold";
+    const reason = hasVitalCrit ? 'vital_crit' : 'structural_threshold';
     return {
       type: GameEventType.RetreatTriggered,
       payload: { unitId: unit.unitId, edge, reason },
@@ -379,11 +379,11 @@ export class BotPlayer {
         runAvailable: capability.runMP > 0,
       });
       switch (choice) {
-        case "run":
+        case 'run':
           return MovementType.Run;
-        case "walk":
+        case 'walk':
           return MovementType.Walk;
-        case "stationary":
+        case 'stationary':
         default:
           return MovementType.Stationary;
       }

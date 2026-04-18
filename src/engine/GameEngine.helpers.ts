@@ -1,12 +1,12 @@
-import type { IWeapon, IAIUnitState } from "@/simulation/ai/types";
-import type { IUnitGameState } from "@/types/gameplay/GameSessionInterfaces";
+import type { IWeapon, IAIUnitState } from '@/simulation/ai/types';
+import type { IUnitGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHex,
   IHexGrid,
   IMovementCapability,
-} from "@/types/gameplay/HexGridInterfaces";
+} from '@/types/gameplay/HexGridInterfaces';
 
-import type { IAdaptedUnit } from "./types";
+import type { IAdaptedUnit } from './types';
 
 export function createMinimalGrid(radius: number): IHexGrid {
   const hexes = new Map<string, IHex>();
@@ -17,7 +17,7 @@ export function createMinimalGrid(radius: number): IHexGrid {
         hexes.set(key, {
           coord: { q, r },
           occupantId: null,
-          terrain: "clear",
+          terrain: 'clear',
           elevation: 0,
         });
       }

@@ -3,16 +3,16 @@
  * Turn-by-turn game session with player and AI control.
  */
 
-import type { IWeapon } from "@/simulation/ai/types";
-import type { IWeaponAttack } from "@/types/gameplay/CombatInterfaces";
+import type { IWeapon } from '@/simulation/ai/types';
+import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 
 import {
   calculateGameOutcome,
   isGameEnded,
   type IGameOutcome,
-} from "@/services/game-resolution/GameOutcomeCalculator";
-import { BotPlayer } from "@/simulation/ai/BotPlayer";
-import { SeededRandom } from "@/simulation/core/SeededRandom";
+} from '@/services/game-resolution/GameOutcomeCalculator';
+import { BotPlayer } from '@/simulation/ai/BotPlayer';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameSide,
   GamePhase,
@@ -22,7 +22,7 @@ import {
   type IGameConfig,
   type IGameUnit,
   type IGameState,
-} from "@/types/gameplay/GameSessionInterfaces";
+} from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
   MovementType,
@@ -30,7 +30,8 @@ import {
   type IHexCoordinate,
   type IHexGrid,
   type IMovementCapability,
-} from "@/types/gameplay/HexGridInterfaces";
+} from '@/types/gameplay/HexGridInterfaces';
+import { createRetreatTriggeredEvent } from '@/utils/gameplay/gameEvents';
 import {
   createGameSession,
   startGame,
@@ -47,13 +48,12 @@ import {
   resolveAllPhysicalAttacks,
   endGame,
   type IPhysicalAttackContext,
-} from "@/utils/gameplay/gameSession";
-import { createRetreatTriggeredEvent } from "@/utils/gameplay/gameEvents";
-import { buildWeaponAttacks } from "@/utils/gameplay/weaponAttackBuilder";
+} from '@/utils/gameplay/gameSession';
+import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
-import type { IAdaptedUnit, IAvailableActions } from "./types";
+import type { IAdaptedUnit, IAvailableActions } from './types';
 
-import { toAIUnitState, toMovementCapability } from "./GameEngine.helpers";
+import { toAIUnitState, toMovementCapability } from './GameEngine.helpers';
 
 export class InteractiveSession {
   private session: IGameSession;
@@ -107,7 +107,7 @@ export class InteractiveSession {
     this.gameConfig = {
       mapRadius,
       turnLimit,
-      victoryConditions: ["elimination"],
+      victoryConditions: ['elimination'],
       optionalRules: [],
     };
 
@@ -430,7 +430,7 @@ export class InteractiveSession {
     if (this.session.currentState.status !== GameStatus.Active) return;
     const winner =
       side === GameSide.Player ? GameSide.Opponent : GameSide.Player;
-    this.session = endGame(this.session, winner, "concede");
+    this.session = endGame(this.session, winner, 'concede');
   }
 
   isGameOver(): boolean {

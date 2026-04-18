@@ -13,11 +13,12 @@
  * work together inside the GameEngine's autonomous run loop.
  */
 
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from '@jest/globals';
 
-import { GameEngine } from "@/engine/GameEngine";
-import type { IAdaptedUnit } from "@/engine/types";
-import type { IWeapon } from "@/simulation/ai/types";
+import type { IAdaptedUnit } from '@/engine/types';
+import type { IWeapon } from '@/simulation/ai/types';
+
+import { GameEngine } from '@/engine/GameEngine';
 import {
   Facing,
   GameEventType,
@@ -26,13 +27,13 @@ import {
   LockState,
   MovementType,
   type IGameUnit,
-} from "@/types/gameplay";
-import { derivePostBattleReport } from "@/utils/gameplay/postBattleReport";
+} from '@/types/gameplay';
+import { derivePostBattleReport } from '@/utils/gameplay/postBattleReport';
 
 function mediumLaser(id: string): IWeapon {
   return {
     id,
-    name: "Medium Laser",
+    name: 'Medium Laser',
     shortRange: 3,
     mediumRange: 6,
     longRange: 9,
@@ -97,7 +98,7 @@ function makeGameUnit(id: string, side: GameSide): IGameUnit {
     name: id,
     side,
     unitRef: id,
-    pilotRef: "default",
+    pilotRef: 'default',
     gunnery: 4,
     piloting: 5,
   };
@@ -109,23 +110,23 @@ function runMatch(seed: number) {
   // turn cap (otherwise the match still ends via the turn-limit
   // branch which also emits GameEnded).
   const engine = new GameEngine({ mapRadius: 5, turnLimit: 30, seed });
-  const player = makeAdaptedUnit("player-1", GameSide.Player, {
+  const player = makeAdaptedUnit('player-1', GameSide.Player, {
     q: 0,
     r: -3,
   });
-  const opponent = makeAdaptedUnit("opponent-1", GameSide.Opponent, {
+  const opponent = makeAdaptedUnit('opponent-1', GameSide.Opponent, {
     q: 0,
     r: 3,
   });
   const gameUnits = [
-    makeGameUnit("player-1", GameSide.Player),
-    makeGameUnit("opponent-1", GameSide.Opponent),
+    makeGameUnit('player-1', GameSide.Player),
+    makeGameUnit('opponent-1', GameSide.Opponent),
   ];
   return engine.runToCompletion([player], [opponent], gameUnits);
 }
 
-describe("Phase 1 capstone — full bot-vs-bot match (M5)", () => {
-  it("runs to completion, emits GameEnded, and produces a valid post-battle report", () => {
+describe('Phase 1 capstone — full bot-vs-bot match (M5)', () => {
+  it('runs to completion, emits GameEnded, and produces a valid post-battle report', () => {
     const session = runMatch(42);
 
     // Match terminated cleanly.
@@ -140,7 +141,7 @@ describe("Phase 1 capstone — full bot-vs-bot match (M5)", () => {
       winner: string;
       reason: string;
     };
-    expect(["player", "opponent", "draw"]).toContain(endedPayload.winner);
+    expect(['player', 'opponent', 'draw']).toContain(endedPayload.winner);
 
     // Report derives without throwing and carries Phase 1 schema.
     const report = derivePostBattleReport(session);
@@ -151,13 +152,13 @@ describe("Phase 1 capstone — full bot-vs-bot match (M5)", () => {
 
     // Both units appear in the report with their original IDs.
     const ids = report.units.map((u) => u.unitId).sort();
-    expect(ids).toEqual(["opponent-1", "player-1"]);
+    expect(ids).toEqual(['opponent-1', 'player-1']);
 
     // Turn count is non-zero — the match actually ran turns.
     expect(report.turnCount).toBeGreaterThan(0);
   });
 
-  it("bot decisions are deterministic for the same seed (movement + attack declarations match)", () => {
+  it('bot decisions are deterministic for the same seed (movement + attack declarations match)', () => {
     // NOTE: full event-stream determinism isn't possible until the
     // attack/heat resolvers thread `SeededRandom` through their dice
     // rollers (currently they fall back to Math.random — see
@@ -184,7 +185,7 @@ describe("Phase 1 capstone — full bot-vs-bot match (M5)", () => {
     expect(declarationsOf(b).length).toBeGreaterThan(0);
   });
 
-  it("cycles through all 5 main phases in order including PhysicalAttack", () => {
+  it('cycles through all 5 main phases in order including PhysicalAttack', () => {
     const session = runMatch(99);
 
     // Collect every distinct (toPhase) appearing in PhaseChanged events.
@@ -193,11 +194,11 @@ describe("Phase 1 capstone — full bot-vs-bot match (M5)", () => {
       .map((e) => (e.payload as { toPhase: string }).toPhase);
 
     // The match should have visited every phase at least once.
-    expect(phaseChanges).toContain("initiative");
-    expect(phaseChanges).toContain("movement");
-    expect(phaseChanges).toContain("weapon_attack");
-    expect(phaseChanges).toContain("physical_attack");
-    expect(phaseChanges).toContain("heat");
-    expect(phaseChanges).toContain("end");
+    expect(phaseChanges).toContain('initiative');
+    expect(phaseChanges).toContain('movement');
+    expect(phaseChanges).toContain('weapon_attack');
+    expect(phaseChanges).toContain('physical_attack');
+    expect(phaseChanges).toContain('heat');
+    expect(phaseChanges).toContain('end');
   });
 });

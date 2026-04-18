@@ -3,19 +3,19 @@ import type {
   IHexGrid,
   IUnitPosition,
   IMovementCapability,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import { Facing, MovementType } from "@/types/gameplay";
-import { hexDistance } from "@/utils/gameplay/hexMath";
+import { Facing, MovementType } from '@/types/gameplay';
+import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
   getValidDestinations,
   calculateMovementHeat,
-} from "@/utils/gameplay/movement";
+} from '@/utils/gameplay/movement';
 
-import type { SeededRandom } from "../core/SeededRandom";
-import type { IAIUnitState, IBotBehavior, IMove } from "./types";
+import type { SeededRandom } from '../core/SeededRandom';
+import type { IAIUnitState, IBotBehavior, IMove } from './types';
 
-import { scoreRetreatMove } from "./RetreatAI";
+import { scoreRetreatMove } from './RetreatAI';
 
 /**
  * Per `wire-bot-ai-helpers-and-capstone`: facing → unit axial vector.
@@ -36,15 +36,15 @@ const FACING_VECTORS: Record<Facing, IHexCoordinate> = {
  * edges to its axial unit vector. Used both for distance-to-edge and
  * facing-alignment checks.
  */
-function edgeVector(edge: "north" | "south" | "east" | "west"): IHexCoordinate {
+function edgeVector(edge: 'north' | 'south' | 'east' | 'west'): IHexCoordinate {
   switch (edge) {
-    case "north":
+    case 'north':
       return { q: 0, r: -1 };
-    case "south":
+    case 'south':
       return { q: 0, r: 1 };
-    case "east":
+    case 'east':
       return { q: 1, r: 0 };
-    case "west":
+    case 'west':
       return { q: -1, r: 0 };
   }
 }
@@ -61,18 +61,18 @@ function edgeVector(edge: "north" | "south" | "east" | "west"): IHexCoordinate {
  */
 function distanceToEdge(
   position: IHexCoordinate,
-  edge: "north" | "south" | "east" | "west",
+  edge: 'north' | 'south' | 'east' | 'west',
   mapRadius: number,
 ): number {
   switch (edge) {
-    case "north":
+    case 'north':
       // `resolveEdge` defines dNorth = mapRadius - position.r.
       return mapRadius - position.r;
-    case "south":
+    case 'south':
       return position.r - -mapRadius;
-    case "east":
+    case 'east':
       return mapRadius - position.q;
-    case "west":
+    case 'west':
       return position.q - -mapRadius;
   }
 }
@@ -85,7 +85,7 @@ function distanceToEdge(
  */
 function endingFacingTowardEdge(
   endingFacing: Facing,
-  edge: "north" | "south" | "east" | "west",
+  edge: 'north' | 'south' | 'east' | 'west',
 ): boolean {
   const facingVec = FACING_VECTORS[endingFacing];
   const edgeVec = edgeVector(edge);
