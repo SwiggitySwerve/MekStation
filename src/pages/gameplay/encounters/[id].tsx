@@ -8,10 +8,14 @@
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { IBatchResult } from '@/simulation/batchOutcome';
 import type { IQuickResolveBattleConfig } from '@/simulation/QuickResolveService';
 import type { IGeneratedScenario } from '@/types/scenario';
 
-import { GenerateScenarioModal } from '@/components/gameplay';
+import {
+  GenerateScenarioModal,
+  QuickSimResultSummary,
+} from '@/components/gameplay';
 import {
   DeleteEncounterConfirmDialog,
   EncounterActionsFooter,
@@ -65,6 +69,11 @@ export default function EncounterDetailPage(): React.ReactElement {
   const [quickResolveBattle, setQuickResolveBattle] =
     useState<IQuickResolveBattleConfig | null>(null);
   const [isPreparingBattle, setIsPreparingBattle] = useState(false);
+  // Latest aggregated batch result, surfaced in `QuickSimResultSummary`
+  // on the page sidebar after a Quick Resolve completes. Lives in local
+  // state — Phase 3 will move it to a persisted store keyed by encounter.
+  const [quickResolveResult, setQuickResolveResult] =
+    useState<IBatchResult | null>(null);
 
   const encounter = id && typeof id === 'string' ? getEncounter(id) : null;
   const validation =
@@ -283,6 +292,21 @@ export default function EncounterDetailPage(): React.ReactElement {
 
       <EncounterValidationCard validation={validation} />
 
+      {/* Quick Resolve summary — empty CTA before any batch, compact
+          result row after one runs. Hidden once the encounter is
+          launched/completed since the result no longer represents the
+          live battle state. */}
+      {!isLaunched && !isCompleted && canLaunch && (
+        <div className="mb-6">
+          <QuickSimResultSummary
+            encounterId={encounterId}
+            result={quickResolveResult}
+            onRunBatch={() => void openQuickResolveModal()}
+            runBatchDisabled={isPreparingBattle}
+          />
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <EncounterForcesCard encounter={encounter} encounterId={encounterId} />
         <EncounterBattleSettingsCard
@@ -334,15 +358,18 @@ export default function EncounterDetailPage(): React.ReactElement {
               baseSeed: result.baseSeed,
               winProbability: result.winProbability,
             });
-            // Sub-Branch B owns the result-display surface at
-            // `/gameplay/encounters/[id]/sim`. For now we close the
-            // modal and emit a toast — once B lands the surface we'll
-            // route there with the result in route state / query.
+            // Cache the aggregated result locally so the encounter page
+            // can render the compact `QuickSimResultSummary` in the
+            // sidebar with a deep-link to `/gameplay/encounters/[id]/sim`.
+            // Sub-Branch B owns the full result-display surface at that
+            // route — the launcher itself also embeds the full panel
+            // and a "View Full Results" link, so users can review here
+            // OR navigate without losing context.
+            setQuickResolveResult(result);
             showToast({
               message: `Batch complete — Player wins ${(result.winProbability.player * 100).toFixed(1)}%`,
               variant: 'success',
             });
-            closeQuickResolveModal();
           }}
         />
       )}

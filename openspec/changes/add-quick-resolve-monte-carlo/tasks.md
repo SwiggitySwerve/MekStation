@@ -74,10 +74,13 @@ Record<unitId, number>, mostLikelyOutcome}`
       (default), 500
 - [x] 6.3 On confirm, dispatch `useQuickResolve()` and show a progress
       bar `runsCompleted / totalRuns`
-- [x] 6.4 On completion, surface the result inline (Sub-Branch B owns
-      the richer result-display surface at
-      `/gameplay/encounters/[id]/sim`; integration PR will swap the
-      inline summary for a route to that surface).
+- [x] 6.4 On completion, surface the result inline. Sub-Branch B (now
+      landed via `add-quick-sim-result-display`) provides the richer
+      result-display surface at `/gameplay/encounters/[id]/sim`. The
+      launcher modal now embeds `QuickSimResultPanel` inline AND links
+      to that surface; the encounter detail page renders the compact
+      `QuickSimResultSummary` row beneath the validation card after
+      a batch completes.
 
 ## 7. Error Handling
 
