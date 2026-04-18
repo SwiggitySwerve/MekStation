@@ -11,11 +11,13 @@
  * @spec openspec/changes/add-quick-resolve-monte-carlo/specs/simulation-system/spec.md § 6
  */
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
 import type { IBatchResult } from '@/simulation/batchOutcome';
 import type { IQuickResolveBattleConfig } from '@/simulation/QuickResolveService';
 
+import { QuickSimResultPanel } from '@/components/gameplay/QuickSimResultPanel';
 import { Button } from '@/components/ui';
 import { DialogTemplate } from '@/components/ui/DialogTemplate';
 import { useQuickResolve } from '@/hooks/useQuickResolve';
@@ -171,16 +173,18 @@ export function QuickResolveLauncher({
 
         {!isRunning && result && (
           <div
-            className="rounded-md border border-emerald-600/30 bg-emerald-900/20 p-3 text-sm text-emerald-200"
+            className="flex flex-col gap-3"
             data-testid="quick-resolve-summary"
           >
-            <div className="font-semibold">
-              Most likely outcome: {result.mostLikelyOutcome}
-            </div>
-            <div className="mt-1 text-xs text-emerald-300">
-              Player {Math.round(result.winProbability.player * 100)}% /
-              Opponent {Math.round(result.winProbability.opponent * 100)}% /
-              Draw {Math.round(result.winProbability.draw * 100)}%
+            <QuickSimResultPanel result={result} unitMeta={battle.gameUnits} />
+            <div className="flex justify-end">
+              <Link
+                href={`/gameplay/encounters/${encounterId}/sim`}
+                className="text-sm font-medium text-blue-400 hover:text-blue-300"
+                data-testid="quick-resolve-view-full-link"
+              >
+                Open full Quick Sim page
+              </Link>
             </div>
           </div>
         )}
