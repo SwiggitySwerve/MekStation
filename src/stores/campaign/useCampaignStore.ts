@@ -12,36 +12,37 @@
  * Persists entire campaign state to IndexedDB via clientSafeStorage.
  */
 
-import { create, StoreApi } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create, StoreApi } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
-import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
+import type { IShoppingList } from "@/types/campaign/acquisition/acquisitionTypes";
+import type { IFactionStanding } from "@/types/campaign/factionStanding/IFactionStanding";
+import type { ICombatOutcome } from "@/types/combat/CombatOutcome";
 
 import {
   advanceDay as advanceDayPure,
   advanceDays as advanceDaysPure,
   DayReport,
-} from '@/lib/campaign/dayAdvancement';
-import { registerBuiltinProcessors } from '@/lib/campaign/processors';
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+} from "@/lib/campaign/dayAdvancement";
+import { registerBuiltinProcessors } from "@/lib/campaign/processors";
+import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
 import {
   ICampaign,
   ICampaignOptions,
   IMission,
   createCampaign as createCampaignEntity,
-} from '@/types/campaign/Campaign';
-import { CampaignType } from '@/types/campaign/CampaignType';
-import { ForceRole, FormationLevel } from '@/types/campaign/enums';
-import { TransactionType } from '@/types/campaign/enums/TransactionType';
-import { IForce } from '@/types/campaign/Force';
-import { Money } from '@/types/campaign/Money';
-import { IPerson } from '@/types/campaign/Person';
-import { Transaction } from '@/types/campaign/Transaction';
+} from "@/types/campaign/Campaign";
+import { CampaignType } from "@/types/campaign/CampaignType";
+import { ForceRole, FormationLevel } from "@/types/campaign/enums";
+import { TransactionType } from "@/types/campaign/enums/TransactionType";
+import { IForce } from "@/types/campaign/Force";
+import { Money } from "@/types/campaign/Money";
+import { IPerson } from "@/types/campaign/Person";
+import { Transaction } from "@/types/campaign/Transaction";
 
-import { createForcesStore, ForcesStore } from './useForcesStore';
-import { createMissionsStore, MissionsStore } from './useMissionsStore';
-import { createPersonnelStore, PersonnelStore } from './usePersonnelStore';
+import { createForcesStore, ForcesStore } from "./useForcesStore";
+import { createMissionsStore, MissionsStore } from "./useMissionsStore";
+import { createPersonnelStore, PersonnelStore } from "./usePersonnelStore";
 
 // =============================================================================
 // Serialized Campaign State (for persistence)
@@ -86,6 +87,13 @@ interface CampaignState {
   /** Current campaign (null if no campaign loaded) */
   campaign: ICampaign | null;
 
+  /**
+   * Queue of combat outcomes awaiting application by `postBattleProcessor`.
+   * Wave 5 (engine wiring) populates this when `IGameSession.getOutcome()`
+   * resolves. The processor drains it on each day-advance.
+   */
+  pendingBattleOutcomes: ICombatOutcome[];
+
   /** Sub-store instances (created when campaign is loaded/created) */
   personnelStore: StoreApi<PersonnelStore> | null;
   forcesStore: StoreApi<ForcesStore> | null;
@@ -126,6 +134,21 @@ interface CampaignActions {
 
   /** Get missions store */
   getMissionsStore: () => StoreApi<MissionsStore> | null;
+
+  /**
+   * Enqueue a combat outcome for the next day-advance cycle.
+   * Idempotent: outcomes with a matchId already in the queue are skipped.
+   */
+  enqueueOutcome: (outcome: ICombatOutcome) => void;
+
+  /**
+   * Remove an outcome from the queue by matchId. Returns true if an
+   * outcome was removed.
+   */
+  dequeueOutcome: (matchId: string) => boolean;
+
+  /** Read the current pending outcome queue (immutable snapshot). */
+  getPendingOutcomes: () => readonly ICombatOutcome[];
 }
 
 export type CampaignStore = CampaignState & CampaignActions;
@@ -233,6 +256,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
       (set, get) => ({
         // Initial state
         campaign: null,
+        pendingBattleOutcomes: [],
         personnelStore: null,
         forcesStore: null,
         missionsStore: null,
@@ -459,9 +483,33 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         getPersonnelStore: () => get().personnelStore,
         getForcesStore: () => get().forcesStore,
         getMissionsStore: () => get().missionsStore,
+
+        enqueueOutcome: (outcome) => {
+          const { pendingBattleOutcomes } = get();
+          if (
+            pendingBattleOutcomes.some((o) => o.matchId === outcome.matchId)
+          ) {
+            return;
+          }
+          set({
+            pendingBattleOutcomes: [...pendingBattleOutcomes, outcome],
+          });
+        },
+
+        dequeueOutcome: (matchId) => {
+          const { pendingBattleOutcomes } = get();
+          const next = pendingBattleOutcomes.filter(
+            (o) => o.matchId !== matchId,
+          );
+          if (next.length === pendingBattleOutcomes.length) return false;
+          set({ pendingBattleOutcomes: next });
+          return true;
+        },
+
+        getPendingOutcomes: () => get().pendingBattleOutcomes,
       }),
       {
-        name: 'campaign-store',
+        name: "campaign-store",
         storage: createJSONStorage(() => clientSafeStorage),
         // Only persist campaign metadata, not sub-stores
         partialize: (state) => {
