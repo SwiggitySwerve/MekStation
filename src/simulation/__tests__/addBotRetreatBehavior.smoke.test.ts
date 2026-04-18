@@ -30,8 +30,7 @@ import { Facing, MovementType } from '@/types/gameplay';
 const baseBehavior: IBotBehavior = {
   retreatThreshold: 0.5,
   retreatEdge: 'nearest',
-  // safeHeatThreshold lives in #315; cast preserves test independence
-  ...({ safeHeatThreshold: 13 } as object),
+  safeHeatThreshold: 13,
 };
 
 const stationaryUnit: IAIUnitState = {
@@ -178,10 +177,9 @@ describe('add-bot-retreat-behavior — smoke test', () => {
     });
 
     it('floors at 0', () => {
-      // safeHeatThreshold lives in #315; cast preserves independence
       const lowThreshold: IBotBehavior = {
         ...baseBehavior,
-        ...({ safeHeatThreshold: 1 } as object),
+        safeHeatThreshold: 1,
       };
       const retreating: IAIUnitState = {
         ...stationaryUnit,
