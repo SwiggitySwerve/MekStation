@@ -20,10 +20,10 @@ reachable}`
 ## 3. Reachable Overlay Rendering
 
 - [ ] 3.1 Render overlay tiles over reachable hexes
-- [ ] 3.2 Walk-range tiles use green (`#bbf7d0`)
-- [ ] 3.3 Run-range tiles use yellow (`#fef08a`)
+- [x] 3.2 Walk-range tiles use green (`#bbf7d0`)
+- [x] 3.3 Run-range tiles use yellow (`#fef08a`)
 - [ ] 3.4 Jump-range tiles use blue (`#bfdbfe`) with distinct pattern
-- [ ] 3.5 Each tile shows its MP cost as small text
+- [x] 3.5 Each tile shows its MP cost as small text
 
 ## 4. Path Preview on Hover
 
@@ -67,10 +67,10 @@ reachable}`
 
 ## 9. Movement Heat Preview
 
-- [ ] 9.1 Action panel shows "Heat this turn: +X" below the MP type
+- [x] 9.1 Action panel shows "Heat this turn: +X" below the MP type
       buttons
-- [ ] 9.2 Walk=+1, Run=+2, Jump=max(3, jumpMP) per canonical rules
-- [ ] 9.3 Value updates live as MP type changes
+- [x] 9.2 Walk=+1, Run=+2, Jump=max(3, jumpMP) per canonical rules
+- [x] 9.3 Value updates live as MP type changes
 
 ## 10. Phase Boundary Behavior
 

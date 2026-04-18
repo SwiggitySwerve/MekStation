@@ -18,7 +18,16 @@
 import type { InteractiveSession } from '@/engine/GameEngine';
 
 import { useGameplayStore } from '@/stores/useGameplayStore';
-import { Facing, MovementType } from '@/types/gameplay';
+import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
+import {
+  Facing,
+  GameEventType,
+  GamePhase,
+  GameSide,
+  MovementType,
+  type IGameSession,
+  type IPhysicalAttackDeclaredPayload,
+} from '@/types/gameplay';
 
 interface FakeSessionCalls {
   movement: Array<{
@@ -257,6 +266,190 @@ describe('useGameplayStore — combat-phase planning actions', () => {
         targetUnitId: null,
         selectedWeapons: [],
       });
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// usePhysicalAttackPlanStore — per add-physical-attack-phase-ui
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a minimal `IGameSession` snapshot the fake `InteractiveSession`
+ * returns from `getSession()`. The standalone
+ * `gameSessionPhysical.declarePhysicalAttack` only needs to read
+ * `currentState.units[attackerId]` (heat / prone / componentDamage)
+ * and the events list — everything else is filler typed via
+ * `unknown` to avoid duplicating every field of `IUnitGameState`.
+ */
+function buildPhysicalSession(): IGameSession {
+  return {
+    id: 'fake-physical-session',
+    createdAt: '',
+    updatedAt: '',
+    config: {
+      mapRadius: 5,
+      turnLimit: 0,
+      victoryConditions: [],
+      optionalRules: [],
+    },
+    units: [],
+    events: [],
+    currentState: {
+      gameId: 'fake-physical-session',
+      status: 'active',
+      turn: 1,
+      phase: GamePhase.PhysicalAttack,
+      activationIndex: 0,
+      units: {
+        'phys-attacker': {
+          id: 'phys-attacker',
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+          facing: 0,
+          heat: 0,
+          movementThisTurn: 'walk',
+          hexesMovedThisTurn: 0,
+          armor: {},
+          structure: {},
+          destroyedLocations: [],
+          destroyedEquipment: [],
+          ammo: {},
+          pilotWounds: 0,
+          pilotConscious: true,
+          destroyed: false,
+          lockState: 'unlocked',
+        },
+        'phys-defender': {
+          id: 'phys-defender',
+          side: GameSide.Opponent,
+          position: { q: 1, r: 0 },
+          facing: 0,
+          heat: 0,
+          movementThisTurn: 'walk',
+          hexesMovedThisTurn: 0,
+          armor: {},
+          structure: {},
+          destroyedLocations: [],
+          destroyedEquipment: [],
+          ammo: {},
+          pilotWounds: 0,
+          pilotConscious: true,
+          destroyed: false,
+          lockState: 'unlocked',
+        },
+      },
+      turnEvents: [],
+    },
+  } as unknown as IGameSession;
+}
+
+function buildPhysicalFakeSession(): InteractiveSession {
+  let snapshot = buildPhysicalSession();
+  return {
+    getSession: () => snapshot,
+    getState: () => snapshot.currentState,
+    isGameOver: () => false,
+    getResult: () => null,
+    advancePhase: () => undefined,
+    runAITurn: () => undefined,
+    getAvailableActions: () => ({ validMoves: [], validTargets: [] }),
+    concede: () => undefined,
+    applyMovement: () => undefined,
+    applyAttack: () => undefined,
+    __setSession: (s: IGameSession) => {
+      snapshot = s;
+    },
+  } as unknown as InteractiveSession;
+}
+
+describe('usePhysicalAttackPlanStore', () => {
+  beforeEach(() => {
+    usePhysicalAttackPlanStore.getState().clearPhysicalAttackPlan();
+  });
+
+  it('starts with an empty plan', () => {
+    expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
+      targetUnitId: null,
+      attackType: null,
+    });
+  });
+
+  it('setPhysicalAttackTarget sets the target id', () => {
+    usePhysicalAttackPlanStore
+      .getState()
+      .setPhysicalAttackTarget('phys-defender');
+    expect(
+      usePhysicalAttackPlanStore.getState().physicalAttackPlan.targetUnitId,
+    ).toBe('phys-defender');
+  });
+
+  it('setPhysicalAttackType sets the attack type', () => {
+    usePhysicalAttackPlanStore.getState().setPhysicalAttackType('punch');
+    expect(
+      usePhysicalAttackPlanStore.getState().physicalAttackPlan.attackType,
+    ).toBe('punch');
+  });
+
+  it('clearPhysicalAttackPlan resets target + type', () => {
+    const store = usePhysicalAttackPlanStore.getState();
+    store.setPhysicalAttackTarget('phys-defender');
+    store.setPhysicalAttackType('kick');
+    store.clearPhysicalAttackPlan();
+    expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
+      targetUnitId: null,
+      attackType: null,
+    });
+  });
+
+  it('commitPhysicalAttack returns null when target / type are missing', () => {
+    const fake = buildPhysicalFakeSession();
+    const next = usePhysicalAttackPlanStore.getState().commitPhysicalAttack({
+      interactiveSession: fake,
+      attackerId: 'phys-attacker',
+      attackerPiloting: 4,
+    });
+    expect(next).toBeNull();
+  });
+
+  it('commitPhysicalAttack pushes a PhysicalAttackDeclared event onto the session', () => {
+    const fake = buildPhysicalFakeSession();
+    const store = usePhysicalAttackPlanStore.getState();
+    store.setPhysicalAttackTarget('phys-defender');
+    store.setPhysicalAttackType('punch');
+
+    const next = usePhysicalAttackPlanStore.getState().commitPhysicalAttack({
+      interactiveSession: fake,
+      attackerId: 'phys-attacker',
+      attackerPiloting: 4,
+      attackerTonnage: 50,
+      targetTonnage: 50,
+    });
+
+    expect(next).not.toBeNull();
+    const declared = next!.events.find(
+      (e) => e.type === GameEventType.PhysicalAttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IPhysicalAttackDeclaredPayload;
+    expect(payload.attackerId).toBe('phys-attacker');
+    expect(payload.targetId).toBe('phys-defender');
+    expect(payload.attackType).toBe('punch');
+  });
+
+  it('commitPhysicalAttack clears the plan after a successful commit', () => {
+    const fake = buildPhysicalFakeSession();
+    const store = usePhysicalAttackPlanStore.getState();
+    store.setPhysicalAttackTarget('phys-defender');
+    store.setPhysicalAttackType('kick');
+    usePhysicalAttackPlanStore.getState().commitPhysicalAttack({
+      interactiveSession: fake,
+      attackerId: 'phys-attacker',
+      attackerPiloting: 4,
+    });
+    expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
+      targetUnitId: null,
+      attackType: null,
     });
   });
 });

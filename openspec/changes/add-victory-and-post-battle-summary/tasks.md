@@ -2,13 +2,13 @@
 
 ## 1. Win Condition Detection
 
-- [ ] 1.1 Extend session End-phase victory check: last side standing
+- [x] 1.1 Extend session End-phase victory check: last side standing
       (already exists) + turn-limit reached + concede
-- [ ] 1.2 Turn-limit behavior: if `turn > config.turnLimit` with both
+- [x] 1.2 Turn-limit behavior: if `turn > config.turnLimit` with both
       sides still active, `GameEnded` fires with `reason: 'turn_limit'`
-- [ ] 1.3 Concede: `InteractiveSession.concede(side)` appends `GameEnded`
+- [x] 1.3 Concede: `InteractiveSession.concede(side)` appends `GameEnded`
       with `reason: 'concede'` and the opposite side as winner
-- [ ] 1.4 Unit tests for each of the three end conditions
+- [x] 1.4 Unit tests for each of the three end conditions
 
 ## 2. Concede Button
 
@@ -30,7 +30,7 @@
 
 ## 4. Post-Battle Report Schema
 
-- [ ] 4.1 Define `IPostBattleReport` with `{version: 1, matchId,
+- [x] 4.1 Define `IPostBattleReport` with `{version: 1, matchId,
 winner, reason, turnCount, units: IUnitReport[], mvpUnitId,
 log: IGameEvent[]}`. The `version` field is a literal number
       type (`1`) set at schema creation — Phase 3 campaign integration
@@ -38,11 +38,11 @@ log: IGameEvent[]}`. The `version` field is a literal number
       readability of Phase 1 stored match logs. Persistence code SHALL
       reject reports where `version` is absent or unrecognized rather
       than silently migrating
-- [ ] 4.2 Define `IUnitReport` with `{unitId, side, designation,
+- [x] 4.2 Define `IUnitReport` with `{unitId, side, designation,
 damageDealt, damageReceived, kills, heatProblems,
 physicalAttacks, xpPending: true}`
-- [ ] 4.3 Derive the report from the session's event log
-- [ ] 4.4 Unit tests for report derivation on known event streams
+- [x] 4.3 Derive the report from the session's event log
+- [x] 4.4 Unit tests for report derivation on known event streams
 - [ ] 4.5 Unit test: GET `/api/matches/[id]` on a report missing
       `version` SHALL return 400 with reason `"unversioned report"`
       (protects against accidentally reading stale/broken records)
@@ -65,19 +65,19 @@ physicalAttacks, xpPending: true}`
 
 ## 7. Victory Reason Labels
 
-- [ ] 7.1 `destruction` → "Last side standing"
-- [ ] 7.2 `concede` → "Opponent conceded" (or "You conceded" when
+- [x] 7.1 `destruction` → "Last side standing"
+- [x] 7.2 `concede` → "Opponent conceded" (or "You conceded" when
       applicable)
-- [ ] 7.3 `turn_limit` → "Turn limit reached"
-- [ ] 7.4 Labels are externalized for future localization
+- [x] 7.3 `turn_limit` → "Turn limit reached"
+- [x] 7.4 Labels are externalized for future localization
 
 ## 8. MVP Determination
 
-- [ ] 8.1 MVP is the unit with the highest `damageDealt` on the winning
+- [x] 8.1 MVP is the unit with the highest `damageDealt` on the winning
       side
-- [ ] 8.2 Ties broken by lowest `damageReceived`, then alphabetical
+- [x] 8.2 Ties broken by lowest `damageReceived`, then alphabetical
       designation
-- [ ] 8.3 If no damage was dealt by the winner, MVP is null (e.g.,
+- [x] 8.3 If no damage was dealt by the winner, MVP is null (e.g.,
       turn-limit + zero-damage draw)
 
 ## 9. Draw Handling
@@ -114,11 +114,11 @@ physicalAttacks, xpPending: true}`
 
 ## 11. Spec Compliance
 
-- [ ] 11.1 Every requirement in `game-session-management` delta has at
+- [x] 11.1 Every requirement in `game-session-management` delta has at
       least one GIVEN/WHEN/THEN scenario
-- [ ] 11.2 Every requirement in `after-combat-report` delta has at
+- [x] 11.2 Every requirement in `after-combat-report` delta has at
       least one scenario
-- [ ] 11.3 Every requirement in `combat-resolution` delta has at least
+- [x] 11.3 Every requirement in `combat-resolution` delta has at least
       one scenario
-- [ ] 11.4 `openspec validate add-victory-and-post-battle-summary
+- [x] 11.4 `openspec validate add-victory-and-post-battle-summary
 --strict` passes clean

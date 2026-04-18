@@ -2,9 +2,9 @@
 
 ## 1. Pre-battle Page Scaffold
 
-- [ ] 1.1 Route `/gameplay/encounters/[id]/pre-battle` renders a dedicated
+- [x] 1.1 Route `/gameplay/encounters/[id]/pre-battle` renders a dedicated
       setup layout (not the combat layout)
-- [ ] 1.2 Load the existing encounter via `useEncounterStore.getEncounter`
+- [x] 1.2 Load the existing encounter via `useEncounterStore.getEncounter`
       and short-circuit with a 404 placeholder if not found
 - [ ] 1.3 Page has a single submit affordance "Launch Skirmish" that stays
       disabled until config validates
@@ -28,18 +28,18 @@
 
 ## 4. Map Radius Selection
 
-- [ ] 4.1 Radius control presents discrete options (5, 8, 12, 17) with live
+- [x] 4.1 Radius control presents discrete options (5, 8, 12, 17) with live
       hex-count labels
 - [ ] 4.2 Changing radius updates the map preview immediately
 - [ ] 4.3 Default radius is 8 hexes (standard BattleTech battlefield)
 
 ## 5. Terrain Preset Selection
 
-- [ ] 5.1 Preset selector lists at least four presets: Open, Woods, Urban,
+- [x] 5.1 Preset selector lists at least four presets: Open, Woods, Urban,
       Mountains
 - [ ] 5.2 Selecting a preset loads its terrain map into the preview
 - [ ] 5.3 Legend renders next to the preview showing each terrain color
-- [ ] 5.4 Custom terrain is explicitly marked out of scope and hidden
+- [x] 5.4 Custom terrain is explicitly marked out of scope and hidden
 
 ## 6. Deployment Zones
 
@@ -68,11 +68,11 @@
 
 ## 9. Spec Compliance
 
-- [ ] 9.1 All new requirements in `game-session-management` spec delta have
+- [x] 9.1 All new requirements in `game-session-management` spec delta have
       at least one GIVEN/WHEN/THEN scenario
-- [ ] 9.2 All new requirements in `tactical-map-interface` spec delta have
+- [x] 9.2 All new requirements in `tactical-map-interface` spec delta have
       at least one GIVEN/WHEN/THEN scenario
-- [ ] 9.3 Run `openspec validate add-skirmish-setup-ui --strict` clean
+- [x] 9.3 Run `openspec validate add-skirmish-setup-ui --strict` clean
 
 ## 10. Tests
 

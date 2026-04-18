@@ -84,7 +84,7 @@ targetId, selectedWeapons: Set<weaponId>}`
 
 - [ ] 11.1 Unit test: selecting a weapon adds it to `attackPlan`
 - [ ] 11.2 Unit test: out-of-range weapons cannot be fired
-- [ ] 11.3 Unit test: forecast shows correct final TN for known modifier
+- [x] 11.3 Unit test: forecast shows correct final TN for known modifier
       stack
 - [ ] 11.4 Integration test: pick target → select weapons → preview →
       confirm → event log has AttackDeclared entry
@@ -92,7 +92,7 @@ targetId, selectedWeapons: Set<weaponId>}`
 
 ## 12. Spec Compliance
 
-- [ ] 12.1 Every delta requirement across `to-hit-resolution`,
+- [x] 12.1 Every delta requirement across `to-hit-resolution`,
       `weapon-resolution-system`, and `tactical-map-interface` has at
       least one GIVEN/WHEN/THEN scenario
-- [ ] 12.2 `openspec validate add-attack-phase-ui --strict` passes clean
+- [x] 12.2 `openspec validate add-attack-phase-ui --strict` passes clean

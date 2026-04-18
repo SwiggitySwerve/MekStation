@@ -2,17 +2,17 @@
 
 ## 1. Behavior Configuration
 
-- [ ] 1.1 Extend `IBotBehavior` in `src/simulation/ai/types.ts` with `safeHeatThreshold: number` (default 13)
-- [ ] 1.2 Update `DEFAULT_BEHAVIOR` constant with the new field
+- [x] 1.1 Extend `IBotBehavior` in `src/simulation/ai/types.ts` with `safeHeatThreshold: number` (default 13)
+- [x] 1.2 Update `DEFAULT_BEHAVIOR` constant with the new field
 - [ ] 1.3 Write unit tests that instantiate `BotPlayer` with overridden thresholds and confirm the value is honored
 
 ## 2. Threat Scoring
 
-- [ ] 2.1 Add `scoreTarget(attacker, target)` helper in `AttackAI` that returns `threat * killProbability`
+- [x] 2.1 Add `scoreTarget(attacker, target)` helper in `AttackAI` that returns `threat * killProbability`
 - [ ] 2.2 Implement threat = `totalWeaponDamagePerTurn / gunneryMod * remainingHpFraction` (higher damage, better gunnery, healthier = more threatening)
 - [ ] 2.3 Implement killProbability = `1 - (toHitTN / 12)` clamped to `[0, 1]`; use the attacker's gunnery + range modifier + firing-arc modifier as the TN estimate
 - [ ] 2.4 Write unit tests: assault mech with intact armor scores higher than crippled light mech at equal range; target at +4 TN scores lower than target at +2 TN
-- [ ] 2.5 Update `AttackAI.selectTarget` to pick the highest-score target, using the injected `SeededRandom` only for tie-breaking
+- [x] 2.5 Update `AttackAI.selectTarget` to pick the highest-score target, using the injected `SeededRandom` only for tie-breaking
 
 ## 3. Firing-Arc Awareness
 
@@ -29,10 +29,10 @@
 
 ## 5. Heat Management
 
-- [ ] 5.1 Compute projected heat = `currentHeat + movementHeat + sum(candidateWeaponHeat)` for the proposed fire list
-- [ ] 5.2 While `projectedHeat > behavior.safeHeatThreshold` and the candidate list is non-empty, remove the weapon with the lowest `damage / heat` ratio and recompute
+- [x] 5.1 Compute projected heat = `currentHeat + movementHeat + sum(candidateWeaponHeat)` for the proposed fire list
+- [x] 5.2 While `projectedHeat > behavior.safeHeatThreshold` and the candidate list is non-empty, remove the weapon with the lowest `damage / heat` ratio and recompute
 - [ ] 5.3 Preserve the ordering invariant (section 4) — removal SHALL come from the tail of the sorted list
-- [ ] 5.4 Write unit tests: candidate set of {PPC:10, ML:3, SL:1} with current heat 10 and threshold 13 drops PPC; same set with current heat 3 fires everything
+- [x] 5.4 Write unit tests: candidate set of {PPC:10, ML:3, SL:1} with current heat 10 and threshold 13 drops PPC; same set with current heat 3 fires everything
 
 ## 6. Line-of-Sight Movement Positioning
 
