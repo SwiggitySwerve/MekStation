@@ -43,3 +43,23 @@ export type {
   InfantryValidationResult,
   InfValidationRuleId,
 } from './validation';
+
+export {
+  calculateInfantryBV,
+  calculateInfantryPerTrooperBV,
+  calculateInfantryPrimaryBV,
+  calculateInfantrySecondaryBV,
+  calculateInfantryFieldGunBV,
+  getInfantryMotiveMultiplier,
+  getInfantryPilotMultiplier,
+} from './infantryBV';
+
+export type {
+  InfantryBVInput,
+  InfantryWeaponRef,
+  InfantryFieldGunMount,
+  IInfantryBVBreakdown,
+} from './infantryBV';
+
+export { computeInfantryBVFromState } from './infantryBVAdapter';
+export type { InfantryStateLike } from './infantryBVAdapter';
