@@ -232,6 +232,8 @@ export default function GameSessionPage(): React.ReactElement {
           hitChance={hitChance}
           validTargetIds={validTargetIds}
           movementRange={movementRangeHexes}
+          interactiveSession={interactiveSession ?? undefined}
+          playerSide={GameSide.Player}
         />
       </div>
     </>
