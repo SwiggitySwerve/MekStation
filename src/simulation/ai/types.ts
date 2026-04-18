@@ -36,6 +36,18 @@ export interface IBotBehavior {
    * Default: 'nearest'
    */
   readonly retreatEdge: RetreatEdge;
+
+  /**
+   * Per `improve-bot-basic-combat-competence` task 1.1: heat ceiling
+   * the bot tries to stay at or below when picking a fire list.
+   * Above this value the bot drops the lowest damage-per-heat weapon
+   * from the candidate list until projected heat fits.
+   *
+   * Default: 13 (corresponds to the +1 to-hit canonical heat threshold;
+   * past it the bot starts taking penalties). Tuning per-difficulty
+   * profiles can override this without recompiling the AI.
+   */
+  readonly safeHeatThreshold: number;
 }
 
 /**
@@ -44,6 +56,7 @@ export interface IBotBehavior {
 export const DEFAULT_BEHAVIOR: IBotBehavior = {
   retreatThreshold: 0.3,
   retreatEdge: 'nearest',
+  safeHeatThreshold: 13,
 };
 
 // =============================================================================
