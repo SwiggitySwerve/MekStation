@@ -41,3 +41,11 @@ export { ToHitForecastModal } from './ToHitForecastModal';
 export type { ToHitForecastModalProps } from './ToHitForecastModal';
 export { CombatPlanningPanel } from './CombatPlanningPanel';
 export type { CombatPlanningPanelProps } from './CombatPlanningPanel';
+
+// add-physical-attack-phase-ui components
+export { PhysicalAttackTypePicker } from './PhysicalAttackTypePicker';
+export type { PhysicalAttackTypePickerProps } from './PhysicalAttackTypePicker';
+export { PhysicalAttackForecastModal } from './PhysicalAttackForecastModal';
+export type { PhysicalAttackForecastModalProps } from './PhysicalAttackForecastModal';
+export { PhysicalAttackPanel } from './PhysicalAttackPanel';
+export type { PhysicalAttackPanelProps } from './PhysicalAttackPanel';

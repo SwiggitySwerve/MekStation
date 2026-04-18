@@ -14,9 +14,9 @@
 
 ## 2. Physical Attack Plan State
 
-- [ ] 2.1 Extend `useGameplayStore` with `physicalAttackPlan: {attackerId, targetId, attackType, limb?} | null`
-- [ ] 2.2 Target-lock interaction (click adjacent enemy while friendly selected) sets `targetId` — same pattern as weapon attack, but restricted to adjacent hexes
-- [ ] 2.3 `physicalAttackPlan` clears on phase transition away from Physical Attack
+- [x] 2.1 Extend `useGameplayStore` with `physicalAttackPlan: {attackerId, targetId, attackType, limb?} | null`
+- [x] 2.2 Target-lock interaction (click adjacent enemy while friendly selected) sets `targetId` — same pattern as weapon attack, but restricted to adjacent hexes
+- [x] 2.3 `physicalAttackPlan` clears on phase transition away from Physical Attack
 
 ## 3. Eligible Declarations Projection
 
@@ -27,25 +27,25 @@
 
 ## 4. Physical Attacks Sub-Panel
 
-- [ ] 4.1 Sub-panel header reads `"Physical Attacks"` and lists up to six option rows (punch × up to 2 arms, kick × up to 2 legs, charge, DFA, push, club)
+- [x] 4.1 Sub-panel header reads `"Physical Attacks"` and lists up to six option rows (punch × up to 2 arms, kick × up to 2 legs, charge, DFA, push, club)
 - [ ] 4.2 Each row shows attack-type icon + limb + target designation + to-hit (TN) + damage
 - [ ] 4.3 Row hover highlights the target token + shows the attack arc on the map (see task 7)
-- [ ] 4.4 Disabled rows render with a red strikethrough + tooltip (`"Right arm fired LRM-10 — cannot punch this turn"`)
-- [ ] 4.5 Each eligible row has a "Declare" button
+- [x] 4.4 Disabled rows render with a red strikethrough + tooltip (`"Right arm fired LRM-10 — cannot punch this turn"`)
+- [x] 4.5 Each eligible row has a "Declare" button
 
 ## 5. Declaration Flow
 
-- [ ] 5.1 Click "Declare" opens the forecast modal (see task 6)
-- [ ] 5.2 Modal "Confirm" appends `PhysicalAttackDeclared { attackerId, targetId, attackType, limb? }` to the session
+- [x] 5.1 Click "Declare" opens the forecast modal (see task 6)
+- [x] 5.2 Modal "Confirm" appends `PhysicalAttackDeclared { attackerId, targetId, attackType, limb? }` to the session
 - [ ] 5.3 After commit, the attacker token shows a "Declared" overlay; the sub-panel collapses to a summary ("Punch declared vs. Enemy-3")
-- [ ] 5.4 "Skip" button on the sub-panel appends a no-op declaration so the phase can proceed
+- [x] 5.4 "Skip" button on the sub-panel appends a no-op declaration so the phase can proceed
 
 ## 6. Forecast Modal (Physical Variant)
 
-- [ ] 6.1 Reuse `ToHitForecastModal` from `add-attack-phase-ui`, parameterized to render a `PhysicalAttackForecast` variant
-- [ ] 6.2 Modifier breakdown surfaces: piloting base, attack-type base (kick −2, push −1, punch 0, DFA 0, charge +attacker-movement), actuator damage mods, TMM, prone-target mods
-- [ ] 6.3 For charge + DFA, modal includes a "Self-risk" row showing damage-to-attacker and auto-fall conditions
-- [ ] 6.4 Confirm / Back buttons match the weapon-attack forecast contract
+- [x] 6.1 Reuse `ToHitForecastModal` from `add-attack-phase-ui`, parameterized to render a `PhysicalAttackForecast` variant
+- [x] 6.2 Modifier breakdown surfaces: piloting base, attack-type base (kick −2, push −1, punch 0, DFA 0, charge +attacker-movement), actuator damage mods, TMM, prone-target mods
+- [x] 6.3 For charge + DFA, modal includes a "Self-risk" row showing damage-to-attacker and auto-fall conditions
+- [x] 6.4 Confirm / Back buttons match the weapon-attack forecast contract
 
 ## 7. Map Overlays
 
@@ -70,11 +70,11 @@
 
 ## 10. Tests
 
-- [ ] 10.1 Unit test: `getEligiblePhysicalAttacks` returns punch + kick for a fully-intact mech adjacent to an enemy
-- [ ] 10.2 Unit test: an arm that fired a weapon this turn returns a punch option with `restrictionsFailed: ['WeaponFiredThisTurn']`
-- [ ] 10.3 Integration test: select attacker → select adjacent target → declare punch → `PhysicalAttackDeclared` appears in event log with the right payload
+- [x] 10.1 Unit test: `getEligiblePhysicalAttacks` returns punch + kick for a fully-intact mech adjacent to an enemy
+- [x] 10.2 Unit test: an arm that fired a weapon this turn returns a punch option with `restrictionsFailed: ['WeaponFiredThisTurn']`
+- [x] 10.3 Integration test: select attacker → select adjacent target → declare punch → `PhysicalAttackDeclared` appears in event log with the right payload
 - [ ] 10.4 Integration test: charge + DFA intent arrows render on hover and clear on mouse-out
-- [ ] 10.5 Integration test: "Skip" proceeds to end-of-phase without any declaration
+- [x] 10.5 Integration test: "Skip" proceeds to end-of-phase without any declaration
 - [ ] 10.6 Accessibility test: simulated-deuteranopia snapshot still distinguishes the three intent arrow types
 
 ## 11. Spec Compliance
