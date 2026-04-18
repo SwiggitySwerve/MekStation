@@ -1,8 +1,11 @@
 # pilot-system Specification
 
 ## Purpose
+
 TBD - created by archiving change add-spa-picker-component. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Pilot-Facing SPA Browsing Surface
 
 The pilot system SHALL expose a single browsing surface — the `SPAPicker`
@@ -309,4 +312,3 @@ renders them as expanded badges.
 - **THEN** the unknown id SHALL be omitted from the output
 - **AND** remaining abilities SHALL render normally
 - **AND** no runtime error SHALL be thrown
-

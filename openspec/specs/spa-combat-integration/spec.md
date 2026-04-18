@@ -3,7 +3,9 @@
 ## Purpose
 
 TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Gunnery SPA — Weapon Specialist
 
 The Weapon Specialist SPA SHALL grant a -2 to-hit modifier when firing the
@@ -497,4 +499,3 @@ the pilot record directly.
 - **THEN** the modifier SHALL evaluate to zero (no-op) rather than
   throwing
 - **AND** a debug-level log SHALL note the missing designation
-

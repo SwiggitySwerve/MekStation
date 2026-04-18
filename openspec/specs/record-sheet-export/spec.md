@@ -3,7 +3,9 @@
 ## Purpose
 
 TBD - created by archiving change add-record-sheet-pdf-export. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Record Sheet Data Model
 
 The system SHALL define data structures for record sheet generation.
@@ -565,4 +567,3 @@ SPA catalog.
 - **WHEN** `extractAbilities(unit)` is called
 - **THEN** the unknown id SHALL be omitted from the returned list
 - **AND** no error SHALL be thrown
-

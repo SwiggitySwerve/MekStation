@@ -1,8 +1,11 @@
 # spa-ui Specification
 
 ## Purpose
+
 TBD - created by archiving change add-spa-picker-component. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: SPA Picker Layout
 
 The system SHALL provide a reusable `SPAPicker` component that renders the
@@ -288,4 +291,3 @@ card, below the wounds indicator.
 - **WHEN** the card renders
 - **THEN** the unknown id SHALL be skipped without error
 - **AND** remaining known abilities SHALL render normally
-
