@@ -28,6 +28,25 @@ export { GenerateScenarioModal } from './GenerateScenarioModal';
 export type { GenerateScenarioModalProps } from './GenerateScenarioModal';
 export { SpectatorView } from './SpectatorView';
 
+// add-damage-feedback-ui — polish components (CritHitOverlay,
+// PilotWoundFlash, DamageFloater) wired into UnitToken so any token
+// on the hex map auto-renders feedback when the matching event fires.
+export { CritHitOverlay } from './CritHitOverlay';
+export type { CritHitOverlayProps } from './CritHitOverlay';
+export { PilotWoundFlash } from './PilotWoundFlash';
+export type { PilotWoundFlashProps } from './PilotWoundFlash';
+export { DamageFloater } from './DamageFloater';
+export type { DamageFloaterProps, DamageFloaterEntry } from './DamageFloater';
+export {
+  formatHeadHitEntry,
+  formatPilotKilledEntry,
+  formatPilotUnconsciousEntry,
+  isHeadHit,
+  isPilotKilled,
+  isPilotUnconscious,
+} from './damageFeedback';
+export type { IFormattedHeadOrPilotEntry } from './damageFeedback';
+
 // add-combat-phase-ui-flows components
 export { MovementTypeSwitcher } from './MovementTypeSwitcher';
 export type { MovementTypeSwitcherProps } from './MovementTypeSwitcher';
