@@ -148,6 +148,12 @@ export class AttackAI {
       return targets[index];
     }
     // Threat-scored pick: highest score wins; ties broken by random.
+    // ALWAYS call `random.nextInt` (even when tied.length === 1) so the
+    // bot consumes a constant number of randoms per call, matching the
+    // legacy path's draw rate. This keeps downstream event sequences
+    // deterministic across runs that share a seed (regression: the
+    // SimulationRunner determinism tests were flaky when the random
+    // consumption depended on whether a tie existed).
     const scored = targets.map((t) => ({
       target: t,
       score: scoreTarget(attacker, t),
@@ -155,7 +161,6 @@ export class AttackAI {
     scored.sort((a, b) => b.score - a.score);
     const topScore = scored[0].score;
     const tied = scored.filter((s) => s.score === topScore);
-    if (tied.length === 1) return tied[0].target;
     const idx = random.nextInt(tied.length);
     return tied[idx].target;
   }
