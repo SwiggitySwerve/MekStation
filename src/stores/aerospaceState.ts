@@ -3,24 +3,34 @@
  *
  * Defines the complete state for aerospace fighters and conventional fighters.
  * Parallels VehicleState but with aerospace-specific properties.
+ * Extended by add-aerospace-construction with fuel tonnage, fuel points,
+ * heat sink pool, sub-type discriminant, and crew fields.
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.1
+ * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
 
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { EngineType } from '@/types/construction/EngineType';
-import { AerospaceLocation } from '@/types/construction/UnitLocation';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { TechBase } from '@/types/enums/TechBase';
-import { WeightClass } from '@/types/enums/WeightClass';
-import { IEquipmentItem } from '@/types/equipment';
+import { ArmorTypeEnum } from "@/types/construction/ArmorType";
+import { EngineType } from "@/types/construction/EngineType";
+import { AerospaceLocation } from "@/types/construction/UnitLocation";
+import { RulesLevel } from "@/types/enums/RulesLevel";
+import { TechBase } from "@/types/enums/TechBase";
+import { WeightClass } from "@/types/enums/WeightClass";
+import { IEquipmentItem } from "@/types/equipment";
 import {
   AerospaceCockpitType,
+  AerospaceEngineType,
+  AerospaceSubType,
   IAerospaceMountedEquipment,
-} from '@/types/unit/AerospaceInterfaces';
-import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { generateUnitId as generateUUID } from '@/utils/uuid';
+  ISmallCraftCrew,
+} from "@/types/unit/AerospaceInterfaces";
+import { AerospaceMotionType } from "@/types/unit/BaseUnitInterfaces";
+import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import {
+  calculateFuelPoints,
+  FUEL_POINTS_PER_TON,
+} from "@/utils/construction/aerospace/fuelCalculations";
+import { generateUnitId as generateUUID } from "@/utils/uuid";
 
 // =============================================================================
 // Aerospace Armor Allocation
@@ -139,6 +149,12 @@ export interface AerospaceState {
   /** Unit type (Aerospace or Conventional Fighter) */
   readonly unitType: UnitType.AEROSPACE | UnitType.CONVENTIONAL_FIGHTER;
 
+  /**
+   * Aerospace construction sub-type discriminant.
+   * Drives tonnage range, engine legality, arc shape, and crew rules.
+   */
+  aerospaceSubType: AerospaceSubType;
+
   /** Motion type (always Aerodyne for fighters) */
   motionType: AerospaceMotionType;
 
@@ -149,8 +165,14 @@ export interface AerospaceState {
   // Engine & Movement
   // =========================================================================
 
-  /** Engine type */
+  /** Engine type (legacy EngineType enum retained for UI compatibility) */
   engineType: EngineType;
+
+  /**
+   * Aerospace engine type used for construction calculations.
+   * Kept separate from engineType to avoid breaking existing UI bindings.
+   */
+  aerospaceEngineType: AerospaceEngineType;
 
   /** Engine rating */
   engineRating: number;
@@ -158,10 +180,25 @@ export interface AerospaceState {
   /** Safe thrust */
   safeThrust: number;
 
-  /** Max thrust (safe * 1.5) */
+  /** Max thrust (floor(safeThrust × 1.5)) */
   readonly maxThrust: number;
 
-  /** Fuel points */
+  /**
+   * Fuel tonnage allocated (drives fuelPoints and minimum validation).
+   * Replaces the old `fuel` field for construction purposes.
+   */
+  fuelTons: number;
+
+  /**
+   * Computed fuel points (fuelTons × pointsPerTon by engine type).
+   * Stored for quick display; recomputed whenever fuelTons or engineType changes.
+   */
+  readonly fuelPoints: number;
+
+  /**
+   * Legacy: fuel points carried forward for backward compatibility.
+   * @deprecated Use fuelTons + fuelPoints instead.
+   */
   fuel: number;
 
   // =========================================================================
@@ -174,8 +211,17 @@ export interface AerospaceState {
   /** Cockpit type */
   cockpitType: AerospaceCockpitType;
 
-  /** Heat sinks (total, including engine integral) */
+  /**
+   * Total heat sinks installed (engine-free baseline = 10).
+   * Sinks above 10 cost 1 ton each.
+   */
   heatSinks: number;
+
+  /**
+   * Heat sink pool: total dissipation capacity.
+   * SHS: heatSinks × 1; DHS: heatSinks × 2.
+   */
+  readonly heatSinkPool: number;
 
   /** Double heat sinks */
   doubleHeatSinks: boolean;
@@ -208,6 +254,12 @@ export interface AerospaceState {
 
   /** Has ejection seat */
   hasEjectionSeat: boolean;
+
+  /**
+   * Crew configuration (small craft only; null for ASF and CF).
+   * Drives quarters tonnage in the weight breakdown.
+   */
+  crew: ISmallCraftCrew | null;
 
   // =========================================================================
   // Equipment
@@ -343,9 +395,9 @@ export function createDefaultAerospaceState(
   const engineRating = options.tonnage * safeThrust;
 
   // Parse name into chassis and model
-  const nameParts = options.name.split(' ');
-  const defaultChassis = nameParts[0] || 'New Fighter';
-  const defaultModel = nameParts.slice(1).join(' ') || '';
+  const nameParts = options.name.split(" ");
+  const defaultChassis = nameParts[0] || "New Fighter";
+  const defaultModel = nameParts.slice(1).join(" ") || "";
 
   return {
     // Identity
@@ -353,7 +405,7 @@ export function createDefaultAerospaceState(
     name: options.name,
     chassis: defaultChassis,
     model: defaultModel,
-    mulId: '-1',
+    mulId: "-1",
     year: 3025,
     rulesLevel: RulesLevel.STANDARD,
     tonnage: options.tonnage,
@@ -364,20 +416,32 @@ export function createDefaultAerospaceState(
     unitType: isConventional
       ? UnitType.CONVENTIONAL_FIGHTER
       : UnitType.AEROSPACE,
+    aerospaceSubType: isConventional
+      ? AerospaceSubType.CONVENTIONAL_FIGHTER
+      : AerospaceSubType.AEROSPACE_FIGHTER,
     motionType: AerospaceMotionType.AERODYNE,
     isOmni: false,
 
     // Engine & Movement
     engineType: EngineType.STANDARD,
+    aerospaceEngineType: isConventional
+      ? AerospaceEngineType.ICE
+      : AerospaceEngineType.FUSION,
     engineRating,
     safeThrust,
     maxThrust: Math.floor(safeThrust * 1.5),
-    fuel: options.tonnage * 5, // Default: 5 fuel points per ton
+    fuelTons: isConventional ? 2 : 5,
+    fuelPoints: calculateFuelPoints(
+      isConventional ? 2 : 5,
+      isConventional ? AerospaceEngineType.ICE : AerospaceEngineType.FUSION,
+    ),
+    fuel: options.tonnage * 5, // Legacy field
 
     // Structure & Cockpit
     structuralIntegrity: Math.ceil(options.tonnage / 10),
     cockpitType: AerospaceCockpitType.STANDARD,
     heatSinks: 10, // Default 10 heat sinks
+    heatSinkPool: 10,
     doubleHeatSinks: false,
 
     // Armor
@@ -390,6 +454,7 @@ export function createDefaultAerospaceState(
     bombCapacity: 0,
     hasReinforcedCockpit: false,
     hasEjectionSeat: true, // Most fighters have ejection seats
+    crew: null,
 
     // Equipment
     equipment: [],
