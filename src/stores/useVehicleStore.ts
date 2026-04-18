@@ -8,13 +8,13 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.1
  */
 
-import { createContext, useContext } from 'react';
-import { create, StoreApi, useStore } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { createContext, useContext } from "react";
+import { create, StoreApi, useStore } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { IEquipmentItem } from '@/types/equipment';
-import { generateUnitId } from '@/utils/uuid';
+import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
+import { IEquipmentItem } from "@/types/equipment";
+import { generateUnitId } from "@/utils/uuid";
 
 import {
   VehicleState,
@@ -22,22 +22,24 @@ import {
   CreateVehicleOptions,
   createDefaultVehicleState,
   createVehicleMountedEquipment,
-} from './vehicleState';
+} from "./vehicleState";
 
 // Re-export types for convenience
-export type { VehicleStore } from './vehicleState';
+export type { VehicleStore } from "./vehicleState";
 import {
   autoAllocateArmorLogic,
+  clearAllArmorLogic,
+  derivePowerAmpWeightLogic,
+  setCruiseMPLogic,
+  setEngineRatingLogic,
+  setLocationArmorLogic,
   setMotionTypeLogic,
+  setTonnageLogic,
   setTurretTypeLogic,
   setTurretWeightLogic,
-  setTonnageLogic,
-  setEngineRatingLogic,
-  setCruiseMPLogic,
-  setLocationArmorLogic,
-  clearAllArmorLogic,
   updateEquipmentLocationLogic,
-} from './useVehicleStore.actions';
+} from "./useVehicleStore.actions";
+import { VehicleStructureType } from "@/utils/construction/vehicle/structure";
 
 // =============================================================================
 // Store Factory
@@ -69,7 +71,7 @@ export function createVehicleStore(
         setChassis: (chassis) =>
           set((state) => ({
             chassis,
-            name: `${chassis}${state.model ? ' ' + state.model : ''}`,
+            name: `${chassis}${state.model ? " " + state.model : ""}`,
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -77,7 +79,7 @@ export function createVehicleStore(
         setModel: (model) =>
           set((state) => ({
             model,
-            name: `${state.chassis}${model ? ' ' + model : ''}`,
+            name: `${state.chassis}${model ? " " + model : ""}`,
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -171,6 +173,41 @@ export function createVehicleStore(
         autoAllocateArmor: () => set((state) => autoAllocateArmorLogic(state)),
 
         clearAllArmor: () => set((state) => clearAllArmorLogic(state)),
+
+        // =================================================================
+        // Construction Field Actions
+        // =================================================================
+
+        setStructureType: (structureType: VehicleStructureType) =>
+          set({
+            structureType,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setCrewSize: (crewSize: number) =>
+          set({
+            crewSize: Math.max(0, crewSize),
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setPassengerSlots: (passengerSlots: number) =>
+          set({
+            passengerSlots: Math.max(0, passengerSlots),
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setBarRating: (barRating: number | null) =>
+          set({
+            barRating,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        derivePowerAmpWeight: (resolvedItems?: IEquipmentItem[]) =>
+          set((state) => derivePowerAmpWeightLogic(state, resolvedItems)),
 
         // =================================================================
         // Special Features Actions
@@ -322,6 +359,11 @@ export function createVehicleStore(
           isAmphibious: state.isAmphibious,
           hasTrailerHitch: state.hasTrailerHitch,
           isTrailer: state.isTrailer,
+          structureType: state.structureType,
+          crewSize: state.crewSize,
+          passengerSlots: state.passengerSlots,
+          barRating: state.barRating,
+          powerAmpWeight: state.powerAmpWeight,
           equipment: state.equipment,
           isModified: state.isModified,
           createdAt: state.createdAt,
@@ -365,8 +407,8 @@ export function useVehicleStore<T>(selector: (state: VehicleStore) => T): T {
 
   if (!store) {
     throw new Error(
-      'useVehicleStore must be used within a VehicleStoreProvider. ' +
-        'Wrap your component tree with <VehicleStoreProvider>.',
+      "useVehicleStore must be used within a VehicleStoreProvider. " +
+        "Wrap your component tree with <VehicleStoreProvider>.",
     );
   }
 
@@ -381,7 +423,7 @@ export function useVehicleStoreApi(): StoreApi<VehicleStore> {
 
   if (!store) {
     throw new Error(
-      'useVehicleStoreApi must be used within a VehicleStoreProvider.',
+      "useVehicleStoreApi must be used within a VehicleStoreProvider.",
     );
   }
 
