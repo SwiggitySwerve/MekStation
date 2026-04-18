@@ -174,13 +174,52 @@ export const IntentPayloadSchema = z.discriminatedUnion('kind', [
 ]);
 export type IIntentPayload = z.infer<typeof IntentPayloadSchema>;
 
-export const IntentSchema = z.object({
-  kind: z.literal('Intent'),
-  matchId: matchIdSchema,
-  ts: tsSchema,
-  playerId: z.string().min(1),
-  intent: IntentPayloadSchema,
-});
+/**
+ * Per `add-authoritative-roll-arbitration` (Wave 3a): the server is the
+ * SOLE source of randomness. Any intent that smuggles dice values
+ * (`roll`, `rolls`, `diceValue`, etc.) must be rejected at the parse
+ * step so a malicious or misbehaving client can't bias outcomes by
+ * pre-supplying results. We test the entire intent payload as an
+ * unknown record because zod's `discriminatedUnion` does not strip
+ * unknown keys by default — extra fields would otherwise sail through
+ * unchallenged.
+ */
+const FORBIDDEN_DICE_KEYS = [
+  'roll',
+  'rolls',
+  'diceValue',
+  'diceValues',
+  'dice',
+  'rollResult',
+  'rollResults',
+] as const;
+
+/**
+ * Returns true iff the parsed intent payload carries any of the
+ * server-forbidden dice fields. Exported so tests can drive it
+ * directly.
+ */
+export function intentHasForbiddenDiceField(payload: unknown): boolean {
+  if (!payload || typeof payload !== 'object') return false;
+  const record = payload as Record<string, unknown>;
+  for (const key of FORBIDDEN_DICE_KEYS) {
+    if (key in record) return true;
+  }
+  return false;
+}
+
+export const IntentSchema = z
+  .object({
+    kind: z.literal('Intent'),
+    matchId: matchIdSchema,
+    ts: tsSchema,
+    playerId: z.string().min(1),
+    intent: IntentPayloadSchema,
+  })
+  .refine((envelope) => !intentHasForbiddenDiceField(envelope.intent), {
+    message: 'client-rolls-forbidden',
+    path: ['intent'],
+  });
 export type IIntent = z.infer<typeof IntentSchema>;
 
 /**

@@ -23,11 +23,11 @@
  * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
  */
 
-const { createServer } = require('node:http');
-const { parse } = require('node:url');
-const { webcrypto } = require('node:crypto');
-const next = require('next');
-const { WebSocketServer } = require('ws');
+const { createServer } = require("node:http");
+const { parse } = require("node:url");
+const { webcrypto } = require("node:crypto");
+const next = require("next");
+const { WebSocketServer } = require("ws");
 
 // =============================================================================
 // Inlined Wave 2 token verification (mirror of src/lib/multiplayer/server/auth.ts)
@@ -40,13 +40,13 @@ const { WebSocketServer } = require('ws');
 // =============================================================================
 
 const BASE58_ALPHABET =
-  '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-const PLAYER_ID_PREFIX = 'pid_';
+  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const PLAYER_ID_PREFIX = "pid_";
 const PLAYER_ID_BYTES = 20;
 const CLOCK_DRIFT_MS = 10_000;
 
 function bytesToBase58(bytes) {
-  if (bytes.length === 0) return '';
+  if (bytes.length === 0) return "";
   let leadingZeros = 0;
   while (leadingZeros < bytes.length && bytes[leadingZeros] === 0) {
     leadingZeros += 1;
@@ -61,7 +61,7 @@ function bytesToBase58(bytes) {
     value /= 58n;
   }
   for (let i = 0; i < leadingZeros; i += 1) out.push(BASE58_ALPHABET[0]);
-  return out.reverse().join('');
+  return out.reverse().join("");
 }
 
 function deriveServerPlayerId(publicKeyBytes) {
@@ -77,10 +77,10 @@ function canonicalPayload(playerId, issuedAt, expiresAt) {
 }
 
 function decodeWireToken(wire) {
-  if (typeof wire !== 'string' || wire.length === 0) return null;
+  if (typeof wire !== "string" || wire.length === 0) return null;
   let json;
   try {
-    json = Buffer.from(wire, 'base64').toString('utf8');
+    json = Buffer.from(wire, "base64").toString("utf8");
   } catch {
     return null;
   }
@@ -90,14 +90,14 @@ function decodeWireToken(wire) {
   } catch {
     return null;
   }
-  if (!parsed || typeof parsed !== 'object') return null;
+  if (!parsed || typeof parsed !== "object") return null;
   const { playerId, issuedAt, expiresAt, publicKey, signature } = parsed;
   if (
-    typeof playerId !== 'string' ||
-    typeof issuedAt !== 'string' ||
-    typeof expiresAt !== 'string' ||
-    typeof publicKey !== 'string' ||
-    typeof signature !== 'string'
+    typeof playerId !== "string" ||
+    typeof issuedAt !== "string" ||
+    typeof expiresAt !== "string" ||
+    typeof publicKey !== "string" ||
+    typeof signature !== "string"
   ) {
     return null;
   }
@@ -110,29 +110,29 @@ function decodeWireToken(wire) {
  */
 async function verifyWireToken(wire, nowMs = Date.now()) {
   const token = decodeWireToken(wire);
-  if (!token) return { ok: false, reason: 'malformed' };
+  if (!token) return { ok: false, reason: "malformed" };
 
   const expiresMs = Date.parse(token.expiresAt);
-  if (!Number.isFinite(expiresMs)) return { ok: false, reason: 'malformed' };
-  if (expiresMs <= nowMs) return { ok: false, reason: 'expired' };
+  if (!Number.isFinite(expiresMs)) return { ok: false, reason: "malformed" };
+  if (expiresMs <= nowMs) return { ok: false, reason: "expired" };
 
   const issuedMs = Date.parse(token.issuedAt);
-  if (!Number.isFinite(issuedMs)) return { ok: false, reason: 'malformed' };
+  if (!Number.isFinite(issuedMs)) return { ok: false, reason: "malformed" };
   if (issuedMs > nowMs + CLOCK_DRIFT_MS) {
-    return { ok: false, reason: 'clock-drift' };
+    return { ok: false, reason: "clock-drift" };
   }
 
   let publicKeyBytes;
   let signatureBytes;
   try {
-    publicKeyBytes = new Uint8Array(Buffer.from(token.publicKey, 'base64'));
-    signatureBytes = new Uint8Array(Buffer.from(token.signature, 'base64'));
+    publicKeyBytes = new Uint8Array(Buffer.from(token.publicKey, "base64"));
+    signatureBytes = new Uint8Array(Buffer.from(token.signature, "base64"));
   } catch {
-    return { ok: false, reason: 'malformed' };
+    return { ok: false, reason: "malformed" };
   }
   const derivedId = deriveServerPlayerId(publicKeyBytes);
   if (!derivedId || derivedId !== token.playerId) {
-    return { ok: false, reason: 'pid-mismatch' };
+    return { ok: false, reason: "pid-mismatch" };
   }
 
   const payload = canonicalPayload(
@@ -144,22 +144,22 @@ async function verifyWireToken(wire, nowMs = Date.now()) {
   let verified = false;
   try {
     const key = await webcrypto.subtle.importKey(
-      'raw',
+      "raw",
       publicKeyBytes,
-      { name: 'Ed25519' },
+      { name: "Ed25519" },
       false,
-      ['verify'],
+      ["verify"],
     );
     verified = await webcrypto.subtle.verify(
-      'Ed25519',
+      "Ed25519",
       key,
       signatureBytes,
       payloadBytes,
     );
   } catch {
-    return { ok: false, reason: 'bad-signature' };
+    return { ok: false, reason: "bad-signature" };
   }
-  if (!verified) return { ok: false, reason: 'bad-signature' };
+  if (!verified) return { ok: false, reason: "bad-signature" };
 
   return { ok: true, playerId: token.playerId };
 }
@@ -168,9 +168,9 @@ async function verifyWireToken(wire, nowMs = Date.now()) {
 // Boot Next.js
 // =============================================================================
 
-const dev = process.env.NODE_ENV !== 'production';
-const port = parseInt(process.env.PORT ?? '3000', 10);
-const hostname = process.env.HOSTNAME ?? 'localhost';
+const dev = process.env.NODE_ENV !== "production";
+const port = parseInt(process.env.PORT ?? "3000", 10);
+const hostname = process.env.HOSTNAME ?? "localhost";
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
@@ -180,7 +180,7 @@ const handle = app.getRequestHandler();
 // `ws` library is installed, which Wave 1 guarantees)
 // =============================================================================
 
-const WS_UPGRADE_PATH = '/api/multiplayer/socket';
+const WS_UPGRADE_PATH = "/api/multiplayer/socket";
 
 /**
  * Lazily resolve the multiplayer registry. We use a dynamic import so
@@ -204,48 +204,59 @@ app
   .then(() => {
     const server = createServer(async (req, res) => {
       try {
-        const parsedUrl = parse(req.url ?? '/', true);
+        const parsedUrl = parse(req.url ?? "/", true);
         await handle(req, res, parsedUrl);
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error('Error handling request', req.url, err);
+        console.error("Error handling request", req.url, err);
         res.statusCode = 500;
-        res.end('Internal Server Error');
+        res.end("Internal Server Error");
       }
     });
 
     const wss = new WebSocketServer({ noServer: true });
 
-    wss.on('connection', (ws, req) => {
+    wss.on("connection", (ws, req) => {
       // The upgrade handler attaches the verified playerId on the
       // request object before emitting the connection. Wave 3 will wire
       // a real ServerMatchHost lookup here; Wave 2 just confirms the
       // handshake succeeded and closes with a Wave 2 marker so the
       // existing Wave 1 client tests keep their close-on-handshake
       // expectations.
+      //
+      // Wave 3a: the upgrade handler also parses an OPTIONAL `?seed=N`
+      // query param and stashes it on `req._mpDiceSeed`. When the host
+      // factory wires through to `MatchHostRegistry.getOrCreate`, this
+      // value flips the host's dice roller from `CryptoDiceRoller`
+      // (production) to a deterministic `SeededDiceRoller` (debug). It
+      // is intentionally OFF by default and used only for reproducing
+      // bug reports.
       const verifiedPlayerId = req._mpVerifiedPlayerId;
-      const url = parse(req.url ?? '/', true);
+      const diceSeed = req._mpDiceSeed;
+      const url = parse(req.url ?? "/", true);
       const matchId = url.query.matchId;
       // eslint-disable-next-line no-console
       console.log(
-        `[mp-socket] connection accepted matchId=${matchId} playerId=${verifiedPlayerId}`,
+        `[mp-socket] connection accepted matchId=${matchId} playerId=${verifiedPlayerId}${
+          diceSeed != null ? ` diceSeed=${diceSeed}` : ""
+        }`,
       );
       ws.send(
         JSON.stringify({
-          kind: 'Close',
-          matchId: matchId ?? '',
+          kind: "Close",
+          matchId: matchId ?? "",
           ts: new Date().toISOString(),
-          code: 'INTERNAL_ERROR',
+          code: "INTERNAL_ERROR",
           reason:
-            'WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3',
+            "WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3",
         }),
       );
-      ws.close(1011, 'wave-2-stub');
+      ws.close(1011, "wave-2-stub");
     });
 
-    server.on('upgrade', async (req, socket, head) => {
+    server.on("upgrade", async (req, socket, head) => {
       try {
-        const parsedUrl = parse(req.url ?? '/', true);
+        const parsedUrl = parse(req.url ?? "/", true);
         if (parsedUrl.pathname !== WS_UPGRADE_PATH) {
           socket.destroy();
           return;
@@ -255,7 +266,7 @@ app
         if (!matchId || !token) {
           // Missing either parameter — 400 over the raw socket so a
           // browser sees a meaningful error instead of a hung handshake.
-          socket.write('HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n');
+          socket.write("HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n");
           socket.destroy();
           return;
         }
@@ -272,7 +283,7 @@ app
             `[mp-socket] upgrade rejected matchId=${matchId} reason=${verification.reason}`,
           );
           socket.write(
-            'HTTP/1.1 401 Unauthorized\r\nContent-Length: 0\r\n\r\n',
+            "HTTP/1.1 401 Unauthorized\r\nContent-Length: 0\r\n\r\n",
           );
           socket.destroy();
           return;
@@ -282,12 +293,23 @@ app
         // private-prefixed property avoids collisions with existing
         // request fields.
         req._mpVerifiedPlayerId = verification.playerId;
+        // Wave 3a: optional debug seed for bug reproduction. Parse a
+        // finite integer from `?seed=N`; ignore anything else so a
+        // malformed query can't destabilize production. Off by default.
+        const rawSeed = parsedUrl.query.seed;
+        const seedString = Array.isArray(rawSeed) ? rawSeed[0] : rawSeed;
+        if (typeof seedString === "string" && seedString.length > 0) {
+          const seedValue = Number.parseInt(seedString, 10);
+          if (Number.isFinite(seedValue)) {
+            req._mpDiceSeed = seedValue;
+          }
+        }
         wss.handleUpgrade(req, socket, head, (ws) => {
-          wss.emit('connection', ws, req);
+          wss.emit("connection", ws, req);
         });
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error('Upgrade error', err);
+        console.error("Upgrade error", err);
         try {
           socket.destroy();
         } catch {
@@ -305,6 +327,6 @@ app
   })
   .catch((err) => {
     // eslint-disable-next-line no-console
-    console.error('Failed to prepare Next.js app', err);
+    console.error("Failed to prepare Next.js app", err);
     process.exit(1);
   });
