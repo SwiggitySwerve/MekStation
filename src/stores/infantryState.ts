@@ -208,6 +208,24 @@ export interface InfantryStoreActions {
   setAntiMechTraining: (value: boolean) => void;
   setAugmented: (value: boolean, type?: string) => void;
 
+  // Infantry Motive / Composition Actions
+  /**
+   * Change the platoon motive type.
+   * Re-derives platoonComposition from TechManual defaults and re-sets
+   * groundMP / jumpMP from MOTIVE_MP — all in a single atomic update.
+   */
+  setInfantryMotive: (motive: InfantryMotive) => void;
+  /**
+   * Override the platoon composition (squads × troopersPerSquad).
+   * Does not change the motive type or MP values.
+   */
+  setPlatoonComposition: (comp: IPlatoonComposition) => void;
+  /**
+   * Update ammo rounds for a field gun at the given index.
+   * No-op if idx is out of range.
+   */
+  setFieldGunAmmo: (idx: number, rounds: number) => void;
+
   // Field Gun Actions
   addFieldGun: (gun: IInfantryFieldGun) => void;
   removeFieldGun: (equipmentId: string) => void;
