@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { AwardGrid } from '@/components/award';
 import { PilotProgressionPanel } from '@/components/pilots/PilotProgressionPanel';
+import { SPAList, type ISPAListEntry } from '@/components/spa';
 import { Card, CardSection, Badge, StatRow, StatList } from '@/components/ui';
 import {
   IPilot,
@@ -45,6 +46,20 @@ export function PilotOverviewTab({
       winRate,
     };
   }, [pilot?.career]);
+
+  // Phase 5 Wave 3 — Read-only SPA summary. The progression panel on the
+  // right hosts the Wave 2a editor; this card mirrors what the printed
+  // record sheet shows so players can quickly review their loadout.
+  // Empty state: rendered as `null` so the column collapses cleanly.
+  const spaEntries: readonly ISPAListEntry[] = useMemo(
+    () =>
+      (pilot.abilities ?? []).map((ref) => ({
+        abilityId: ref.abilityId,
+        designation: ref.designation,
+        xpSpent: ref.xpSpent,
+      })),
+    [pilot.abilities],
+  );
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -205,6 +220,22 @@ export function PilotOverviewTab({
               <StatRow label="Win Rate" value={`${careerStats.winRate}%`} />
               <StatRow label="Total Kills" value={careerStats.totalKills} />
             </StatList>
+          </Card>
+        )}
+
+        {/* Special Abilities Summary — Phase 5 Wave 3 (read-only) */}
+        {spaEntries.length > 0 && (
+          <Card variant="dark">
+            <CardSection title="Special Abilities" />
+            <div className="mt-3">
+              <SPAList
+                abilities={spaEntries}
+                variant="expanded"
+                groupByCategory
+                withTooltip
+                ariaLabel="Pilot special abilities (read-only summary)"
+              />
+            </div>
           </Card>
         )}
 

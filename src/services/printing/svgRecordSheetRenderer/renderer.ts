@@ -14,6 +14,7 @@ import { renderToCanvasHighDPI } from './canvas';
 import { ELEMENT_IDS } from './constants';
 import { renderCriticalSlots } from './criticals';
 import { renderEquipmentTable } from './equipment';
+import { renderSPASection } from './spaSection';
 import { fillStructurePips } from './structure';
 import {
   loadSVGTemplate,
@@ -109,6 +110,15 @@ export class SVGRecordSheetRenderer {
 
     renderEquipmentTable(this.svgDoc, data.equipment);
     renderCriticalSlots(this.svgDoc, data.criticals);
+
+    // Phase 5 Wave 3 — render the Special Abilities block when present.
+    // Helper skips when there are no resolvable entries.
+    if (data.specialAbilities && data.specialAbilities.length > 0) {
+      renderSPASection(this.svgDoc, {
+        entries: data.specialAbilities,
+        hasContent: true,
+      });
+    }
   }
 
   async fillArmorPips(

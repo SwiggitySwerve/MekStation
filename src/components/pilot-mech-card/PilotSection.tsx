@@ -7,8 +7,9 @@
  * @spec Phase 2 - Gameplay Roadmap
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 
+import { SPAList, type ISPAListEntry } from '@/components/spa';
 import { Badge } from '@/components/ui/Badge';
 import { formatSkills } from '@/services/pilot-mech-card';
 import { IPilotMechCardData } from '@/types/pilot/pilot-mech-card';
@@ -183,6 +184,15 @@ export function PilotSection({
     consciousnessTarget,
   } = data;
 
+  // The unit-card data flattens IPilotAbilityRef[] to a string[] of ids
+  // (designation is dropped at the mapper boundary). Adapt the shape to
+  // SPAList's entry contract so badges still render — designation will
+  // appear empty for the unit-card surface, which matches the spec.
+  const spaEntries: readonly ISPAListEntry[] = useMemo(
+    () => abilities.map((abilityId) => ({ abilityId })),
+    [abilities],
+  );
+
   // Determine status badge variant
   const getStatusVariant = (): 'emerald' | 'amber' | 'rose' | 'muted' => {
     switch (status) {
@@ -259,21 +269,18 @@ export function PilotSection({
         />
       )}
 
-      {/* Abilities */}
-      {showAbilities && abilities.length > 0 && (
+      {/* Special Pilot Abilities — Phase 5 Wave 3 */}
+      {showAbilities && spaEntries.length > 0 && (
         <div>
           <span className="text-text-theme-muted mb-2 block text-xs tracking-wider uppercase">
-            Abilities
+            Special Abilities
           </span>
-          <div className="flex flex-wrap gap-2">
-            {abilities.map((ability) => (
-              <Badge key={ability} variant="violet" size="md">
-                {ability
-                  .replace(/-/g, ' ')
-                  .replace(/\b\w/g, (c) => c.toUpperCase())}
-              </Badge>
-            ))}
-          </div>
+          <SPAList
+            abilities={spaEntries}
+            variant="compact"
+            withTooltip={true}
+            ariaLabel="Pilot special abilities"
+          />
         </div>
       )}
     </div>

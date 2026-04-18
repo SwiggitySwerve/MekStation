@@ -20,3 +20,4 @@ export * from './structure';
 export * from './equipment';
 export * from './criticals';
 export * from './canvas';
+export * from './spaSection';
