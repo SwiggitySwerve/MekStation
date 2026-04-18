@@ -9,7 +9,7 @@
     "email": "swervelabs@proton.me"
   },
   "scripts": {
-    "dev": "npx kill-port 3000 --silent && next dev",
+    "dev": "npx kill-port 3000 --silent && node server.js",
     "dev:e2e": "npx kill-port 3000 --silent && next dev --webpack",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
