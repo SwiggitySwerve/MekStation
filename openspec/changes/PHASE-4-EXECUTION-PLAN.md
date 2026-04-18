@@ -33,14 +33,14 @@ Phase 4 has THREE pre-spec'd sub-phases:
 
 Total Phase-4-this-branch scope: 5 OpenSpec changes, ~604 task checkboxes.
 
-| Change                                          | Roadmap PR(s)         | Surface                        |
-| ----------------------------------------------- | --------------------- | ------------------------------ |
-| `add-multiplayer-server-infrastructure`         | #1 transport, #2 auth | Server scaffold + WebSocket    |
-| `add-player-identity-and-auth`                  | #5 auth               | Identity + token contract      |
-| `add-authoritative-roll-arbitration`            | #3 server authority   | Server-only DiceRoller         |
-| `add-multiplayer-lobby-and-matchmaking-2-8`     | #4 lobby              | Lobby + invite + AI fill       |
-| `add-reconnection-and-session-rehydration`      | #6 reconnect          | Replay-on-rejoin               |
-| `phase-4-capstone-ui-and-e2e` (this branch only)| #7 (integration)      | UI + capstone E2E + outcome    |
+| Change                                           | Roadmap PR(s)         | Surface                     |
+| ------------------------------------------------ | --------------------- | --------------------------- |
+| `add-multiplayer-server-infrastructure`          | #1 transport, #2 auth | Server scaffold + WebSocket |
+| `add-player-identity-and-auth`                   | #5 auth               | Identity + token contract   |
+| `add-authoritative-roll-arbitration`             | #3 server authority   | Server-only DiceRoller      |
+| `add-multiplayer-lobby-and-matchmaking-2-8`      | #4 lobby              | Lobby + invite + AI fill    |
+| `add-reconnection-and-session-rehydration`       | #6 reconnect          | Replay-on-rejoin            |
+| `phase-4-capstone-ui-and-e2e` (this branch only) | #7 (integration)      | UI + capstone E2E + outcome |
 
 Last row is **NOT** a separate OpenSpec change — it's the integration glue this
 branch lands inline with Wave 5: lobby UI page, multiplayer client hook,
@@ -102,14 +102,14 @@ reconnect → UI).
 
 ## File-scope ownership matrix
 
-| Change                     | Creates                                                                                                                                                                                                                                                                                          | Modifies                                                                                                       |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| **1. server-infra**        | `src/types/multiplayer/Protocol.ts` (msg unions), `src/lib/multiplayer/server/IMatchStore.ts`, `src/lib/multiplayer/server/InMemoryMatchStore.ts`, `src/lib/multiplayer/server/ServerMatchHost.ts`, `src/lib/multiplayer/client.ts`, `src/pages/api/multiplayer/socket.ts`, `server.js` (custom)  | `package.json` (add `ws` + `zod` if missing), `next.config.js` (allow custom server)                           |
-| **2. identity-auth**       | `src/types/multiplayer/Player.ts` (`IPlayerRef`, `IPlayerToken`, `IPlayerProfile`), `src/lib/multiplayer/server/auth.ts`, `src/lib/multiplayer/server/IPlayerStore.ts`, `src/lib/multiplayer/server/InMemoryPlayerStore.ts`, `src/lib/multiplayer/client/issuePlayerToken.ts`                     | `src/pages/api/multiplayer/socket.ts` (require token), `src/lib/multiplayer/server/ServerMatchHost.ts`         |
-| **3a. roll-arbitration**   | `src/lib/multiplayer/server/CryptoDiceRoller.ts`, `src/lib/multiplayer/server/__tests__/CryptoDiceRoller.test.ts`                                                                                                                                                                                | `src/lib/multiplayer/server/ServerMatchHost.ts` (inject roller), event payloads add `rolls: number[]`†         |
-| **3b. lobby**              | `src/types/multiplayer/Lobby.ts` (`TeamLayout`, `IMatchSeat`), `src/lib/multiplayer/server/lobby/lobbyStateMachine.ts`, `src/pages/api/multiplayer/matches/index.ts`, `src/pages/api/multiplayer/matches/[id].ts`, `src/pages/api/multiplayer/invites/[roomCode].ts`                              | `src/lib/multiplayer/server/IMatchStore.ts` (extend `IMatchMeta` with seats), `ServerMatchHost.ts` (intents)   |
-| **4. reconnection**        | `src/lib/multiplayer/server/reconnection/PendingPeerTracker.ts`, `src/lib/multiplayer/server/reconnection/replayStream.ts`                                                                                                                                                                       | `src/lib/multiplayer/server/ServerMatchHost.ts`, `src/lib/multiplayer/client.ts` (resume from `lastSeq`)       |
-| **5. capstone**            | `src/pages/multiplayer/index.tsx`, `src/pages/multiplayer/lobby/[roomCode].tsx`, `src/components/multiplayer/LobbyPanel.tsx`, `src/hooks/useMultiplayerSession.ts`, `src/__tests__/integration/phase4Multiplayer.test.ts`                                                                         | `src/engine/combatOutcomeBus.ts` (server-emit passthrough), campaign dashboard (banner shows MP matches)       |
+| Change                   | Creates                                                                                                                                                                                                                                                                                          | Modifies                                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| **1. server-infra**      | `src/types/multiplayer/Protocol.ts` (msg unions), `src/lib/multiplayer/server/IMatchStore.ts`, `src/lib/multiplayer/server/InMemoryMatchStore.ts`, `src/lib/multiplayer/server/ServerMatchHost.ts`, `src/lib/multiplayer/client.ts`, `src/pages/api/multiplayer/socket.ts`, `server.js` (custom) | `package.json` (add `ws` + `zod` if missing), `next.config.js` (allow custom server)                         |
+| **2. identity-auth**     | `src/types/multiplayer/Player.ts` (`IPlayerRef`, `IPlayerToken`, `IPlayerProfile`), `src/lib/multiplayer/server/auth.ts`, `src/lib/multiplayer/server/IPlayerStore.ts`, `src/lib/multiplayer/server/InMemoryPlayerStore.ts`, `src/lib/multiplayer/client/issuePlayerToken.ts`                    | `src/pages/api/multiplayer/socket.ts` (require token), `src/lib/multiplayer/server/ServerMatchHost.ts`       |
+| **3a. roll-arbitration** | `src/lib/multiplayer/server/CryptoDiceRoller.ts`, `src/lib/multiplayer/server/__tests__/CryptoDiceRoller.test.ts`                                                                                                                                                                                | `src/lib/multiplayer/server/ServerMatchHost.ts` (inject roller), event payloads add `rolls: number[]`†       |
+| **3b. lobby**            | `src/types/multiplayer/Lobby.ts` (`TeamLayout`, `IMatchSeat`), `src/lib/multiplayer/server/lobby/lobbyStateMachine.ts`, `src/pages/api/multiplayer/matches/index.ts`, `src/pages/api/multiplayer/matches/[id].ts`, `src/pages/api/multiplayer/invites/[roomCode].ts`                             | `src/lib/multiplayer/server/IMatchStore.ts` (extend `IMatchMeta` with seats), `ServerMatchHost.ts` (intents) |
+| **4. reconnection**      | `src/lib/multiplayer/server/reconnection/PendingPeerTracker.ts`, `src/lib/multiplayer/server/reconnection/replayStream.ts`                                                                                                                                                                       | `src/lib/multiplayer/server/ServerMatchHost.ts`, `src/lib/multiplayer/client.ts` (resume from `lastSeq`)     |
+| **5. capstone**          | `src/pages/multiplayer/index.tsx`, `src/pages/multiplayer/lobby/[roomCode].tsx`, `src/components/multiplayer/LobbyPanel.tsx`, `src/hooks/useMultiplayerSession.ts`, `src/__tests__/integration/phase4Multiplayer.test.ts`                                                                        | `src/engine/combatOutcomeBus.ts` (server-emit passthrough), campaign dashboard (banner shows MP matches)     |
 
 **† Audit correction (Wave 3a)**: Existing event types in
 `src/types/gameplay/GameSessionInterfaces.ts` may not all have a `rolls` field.
@@ -133,13 +133,13 @@ backward compatibility holds with single-player and Phase 1-3 code.
 
 ## Sub-branch execution plan
 
-| Wave | Sub-branch                              | Agent                | Depends on        |
-| ---- | --------------------------------------- | -------------------- | ----------------- |
-| 1    | `feat/phase-4--server-infra`            | hephaestus #1        | Phase 1+2+3 (main)|
-| 2    | `feat/phase-4--identity-auth`           | hephaestus #2        | Wave 1            |
-| 3    | `feat/phase-4--roll-arb` ∥ `feat/phase-4--lobby` | hephaestus #3a + #3b | Wave 2            |
-| 4    | `feat/phase-4--reconnect`               | hephaestus #4        | Wave 3 (both)     |
-| 5    | `feat/phase-4--capstone`                | hephaestus #5        | Wave 4            |
+| Wave | Sub-branch                                       | Agent                | Depends on         |
+| ---- | ------------------------------------------------ | -------------------- | ------------------ |
+| 1    | `feat/phase-4--server-infra`                     | hephaestus #1        | Phase 1+2+3 (main) |
+| 2    | `feat/phase-4--identity-auth`                    | hephaestus #2        | Wave 1             |
+| 3    | `feat/phase-4--roll-arb` ∥ `feat/phase-4--lobby` | hephaestus #3a + #3b | Wave 2             |
+| 4    | `feat/phase-4--reconnect`                        | hephaestus #4        | Wave 3 (both)      |
+| 5    | `feat/phase-4--capstone`                         | hephaestus #5        | Wave 4             |
 
 Each wave merges into `feat/phase-4-multiplayer-foundation` before the next
 wave spawns. Wave 3's two agents merge in either order with manual conflict
@@ -182,18 +182,18 @@ These avoid agent debate and shorten briefs:
 
 ## Reusable Phase 1 / Phase 2 / Phase 3 / existing code (verified)
 
-| Need                                   | Path                                                                                          | Notes                                          |
-| -------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| Engine session                         | `src/engine/InteractiveSession.ts`                                                            | Wraps GameEngine, exposes `getOutcome()`       |
-| Combat outcome bus                     | `src/engine/combatOutcomeBus.ts`                                                              | Already in-process pub/sub                     |
-| BotPlayer (AI)                         | `src/simulation/ai/BotPlayer.ts`                                                              | `playMovementPhase` / `playAttackPhase` etc.   |
-| SeededRandom                           | `src/simulation/core/SeededRandom.ts`                                                         | Server uses crypto for prod, seeded for tests  |
-| Existing user-identity (Ed25519)       | `src/services/vault/identity/VaultIdentityService.ts` or `src/lib/identity/...`               | Look for Ed25519 keypair store                 |
-| Encounter service                      | `src/services/encounter/EncounterService.ts`                                                  | Phase 3 launches single-player matches         |
-| Combat outcome model                   | `src/types/combat/CombatOutcome.ts` + `src/lib/combat/outcome/combatOutcome.ts`               | Phase 3 — multiplayer reuses                   |
-| Existing 6-char room codes (vault P2P) | `src/lib/p2p/roomCodes.ts` or similar                                                         | Reuse for invite codes                         |
-| Pages Router API pattern               | `src/pages/api/encounters/[id]/launch.ts` etc.                                                | Reference shape for new `/api/multiplayer/*`   |
-| Game session interfaces                | `src/types/gameplay/GameSessionInterfaces.ts`                                                 | `IGameEvent`, payload shapes                   |
+| Need                                   | Path                                                                            | Notes                                         |
+| -------------------------------------- | ------------------------------------------------------------------------------- | --------------------------------------------- |
+| Engine session                         | `src/engine/InteractiveSession.ts`                                              | Wraps GameEngine, exposes `getOutcome()`      |
+| Combat outcome bus                     | `src/engine/combatOutcomeBus.ts`                                                | Already in-process pub/sub                    |
+| BotPlayer (AI)                         | `src/simulation/ai/BotPlayer.ts`                                                | `playMovementPhase` / `playAttackPhase` etc.  |
+| SeededRandom                           | `src/simulation/core/SeededRandom.ts`                                           | Server uses crypto for prod, seeded for tests |
+| Existing user-identity (Ed25519)       | `src/services/vault/identity/VaultIdentityService.ts` or `src/lib/identity/...` | Look for Ed25519 keypair store                |
+| Encounter service                      | `src/services/encounter/EncounterService.ts`                                    | Phase 3 launches single-player matches        |
+| Combat outcome model                   | `src/types/combat/CombatOutcome.ts` + `src/lib/combat/outcome/combatOutcome.ts` | Phase 3 — multiplayer reuses                  |
+| Existing 6-char room codes (vault P2P) | `src/lib/p2p/roomCodes.ts` or similar                                           | Reuse for invite codes                        |
+| Pages Router API pattern               | `src/pages/api/encounters/[id]/launch.ts` etc.                                  | Reference shape for new `/api/multiplayer/*`  |
+| Game session interfaces                | `src/types/gameplay/GameSessionInterfaces.ts`                                   | `IGameEvent`, payload shapes                  |
 
 ---
 
@@ -219,9 +219,9 @@ These avoid agent debate and shorten briefs:
 6. **`combatOutcomeBus` already exists** (Phase 3 shipped). Wave 5 just needs
    to ensure server-side hosts publish via the same module.
 7. **Conflict resolution Wave 3a/3b**: 3a writes `runSession()` (engine loop
-   + roller injection). 3b writes lobby state machine + intent handlers.
-   Keep them in DIFFERENT methods of `ServerMatchHost.ts` to avoid textual
-   conflict.
+   - roller injection). 3b writes lobby state machine + intent handlers.
+     Keep them in DIFFERENT methods of `ServerMatchHost.ts` to avoid textual
+     conflict.
 
 ---
 
@@ -266,16 +266,16 @@ npx next build                                        # build success required
 
 ## Risk register
 
-| Risk                                                              | Likelihood | Mitigation                                                            |
-| ----------------------------------------------------------------- | ---------- | --------------------------------------------------------------------- |
-| Custom `server.js` breaks `next dev` HMR                          | Medium     | Use Next.js docs pattern verbatim; verify HMR works post-merge        |
-| `ws` upgrade not firing under Next.js's request handler           | Medium     | Standard Node `http.Server.on('upgrade')` pattern                     |
-| Wave 3a/3b textual conflict in `ServerMatchHost.ts`               | Medium     | Brief both agents to keep edits in different methods                  |
-| Existing identity API surface shape unknown                       | Medium     | Wave 2 agent grep first, adapt to actual API                          |
-| Event payload field bloat (`rolls` everywhere)                    | Low        | Optional field; only attached where dice were rolled                  |
-| Reconnect race: `appendEvent` arrives between `getEvents` snapshot and stream end | Medium | Use sequence cursor + tail-subscribe pattern    |
-| Bot driving via AI in server context: `setInterval` leaks         | Low        | `ServerMatchHost` lifecycle owns timers, cleared on `closeMatch`      |
-| `ICombatOutcome` derive flow expects `InteractiveSession` (single-player) | Medium | Server's `ServerMatchHost` reuses `InteractiveSession` internally|
+| Risk                                                                              | Likelihood | Mitigation                                                        |
+| --------------------------------------------------------------------------------- | ---------- | ----------------------------------------------------------------- |
+| Custom `server.js` breaks `next dev` HMR                                          | Medium     | Use Next.js docs pattern verbatim; verify HMR works post-merge    |
+| `ws` upgrade not firing under Next.js's request handler                           | Medium     | Standard Node `http.Server.on('upgrade')` pattern                 |
+| Wave 3a/3b textual conflict in `ServerMatchHost.ts`                               | Medium     | Brief both agents to keep edits in different methods              |
+| Existing identity API surface shape unknown                                       | Medium     | Wave 2 agent grep first, adapt to actual API                      |
+| Event payload field bloat (`rolls` everywhere)                                    | Low        | Optional field; only attached where dice were rolled              |
+| Reconnect race: `appendEvent` arrives between `getEvents` snapshot and stream end | Medium     | Use sequence cursor + tail-subscribe pattern                      |
+| Bot driving via AI in server context: `setInterval` leaks                         | Low        | `ServerMatchHost` lifecycle owns timers, cleared on `closeMatch`  |
+| `ICombatOutcome` derive flow expects `InteractiveSession` (single-player)         | Medium     | Server's `ServerMatchHost` reuses `InteractiveSession` internally |
 
 ---
 

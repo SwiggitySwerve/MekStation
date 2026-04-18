@@ -45,8 +45,8 @@ dev-only; configure a persistent store for production"`
       (placeholder route returns 426; actual upgrade lives in
       `server.js`)
 - [~] 4.2 First message from a client MUST be `SessionJoin`; server
-      replies with either `ReplayStart` + log or `Error` (Wave 1
-      stub closes with `INTERNAL_ERROR` — full handshake in Wave 2)
+  replies with either `ReplayStart` + log or `Error` (Wave 1
+  stub closes with `INTERNAL_ERROR` — full handshake in Wave 2)
 - [x] 4.3 Server maintains a `Set<WebSocket>` per match id for
       broadcasting (in `ServerMatchHost.sockets`)
 - [x] 4.4 Disconnection removes the socket from the set but does NOT
@@ -61,8 +61,8 @@ dev-only; configure a persistent store for production"`
       events to all connected clients for that match
 - [x] 5.3 Host persists after every appended event (write-through)
 - [~] 5.4 Host loads its session from the store on creation so a server
-      restart can resume (Wave 4 reconnect work — Wave 1 has the
-      contract via `getEvents(fromSeq)` but does not rehydrate)
+  restart can resume (Wave 4 reconnect work — Wave 1 has the
+  contract via `getEvents(fromSeq)` but does not rehydrate)
 
 ## 6. Client Wrapper
 
@@ -88,18 +88,18 @@ IPlayerRef[]}` returns `{matchId, wsUrl}`
 ## 8. Observability
 
 - [~] 8.1 Each `ServerMatchHost` logs key events (Wave 2 will route
-      through the `logging-system`; Wave 1 uses `console.warn` /
-      `console.log` for startup + storage failures)
+  through the `logging-system`; Wave 1 uses `console.warn` /
+  `console.log` for startup + storage failures)
 - [ ] 8.2 A metrics hook exposes active match count and connected
       player count for future dashboards (deferred to Wave 5 capstone)
 - [~] 8.3 Correlate logs with `matchId` so a failing match can be
-      traced end-to-end (current logs include matchId in the prefix)
+  traced end-to-end (current logs include matchId in the prefix)
 
 ## 9. Error Handling
 
 - [~] 9.1 Malformed message → server responds `Error {code: 'BAD_
 ENVELOPE'}` and keeps the connection open (Wave 1 client validates
-      via zod; the upgrade-handler dispatch path lands in Wave 2)
+  via zod; the upgrade-handler dispatch path lands in Wave 2)
 - [x] 9.2 Invalid intent (e.g., out-of-phase) → server responds
       `Error {code: 'INVALID_INTENT', reason}` without mutating state
 - [x] 9.3 Store error during append → server closes affected match with
@@ -121,8 +121,8 @@ ENVELOPE'}` and keeps the connection open (Wave 1 client validates
       sequence collision)
 - [x] 11.2 Unit test envelope validation (valid + malformed samples)
 - [~] 11.3 Integration test: spin up the server in-process, connect two
-      clients (Wave 1 covers via `ServerMatchHost.test.ts` mock-socket
-      broadcast assertions; full WebSocket round-trip is Wave 2)
+  clients (Wave 1 covers via `ServerMatchHost.test.ts` mock-socket
+  broadcast assertions; full WebSocket round-trip is Wave 2)
 - [ ] 11.4 Integration test: a server restart reloads the match
       (Wave 4 reconnect)
 - [ ] 11.5 Load test (smoke only): 8 clients, 500 intents (Wave 5)

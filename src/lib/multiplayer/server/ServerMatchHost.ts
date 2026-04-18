@@ -45,6 +45,10 @@ import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
+import {
+  publishCombatOutcome,
+  type ICombatOutcomeReadyEvent,
+} from '@/engine/combatOutcomeBus';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
@@ -168,6 +172,17 @@ export class ServerMatchHost {
    * `ForfeitMatch` host overrides — are still allowed.
    */
   private isPaused = false;
+
+  /**
+   * Wave 5: server-side `CombatOutcomeReady` publish guard. The
+   * `InteractiveSession.tryFinalizeAndPublish` is the primary publisher
+   * (already wired) — this host-side guard is the safety net that
+   * fires when the engine path is bypassed (e.g., closeMatch on a
+   * server-driven shutdown that left the session in `Active` but the
+   * win-condition predicate already trips). Idempotent — once set, no
+   * further publishes happen for this match.
+   */
+  private hostOutcomePublished = false;
 
   /**
    * Per Wave 3a: the source roller (crypto in prod, seeded in debug).
@@ -685,6 +700,15 @@ export class ServerMatchHost {
       broadcasts.push(envelopeOut);
     }
 
+    // Wave 5: belt-and-suspenders publish. The engine's
+    // `tryFinalizeAndPublish` already fires the bus event from inside
+    // the relevant `InteractiveSession` methods, so this is normally a
+    // no-op (the engine guard short-circuits and our host-side guard
+    // also short-circuits). The host-side path matters when the engine
+    // path is bypassed — e.g., a direct external mutation that ends the
+    // game without traversing `concede`/`advancePhase`. Idempotent.
+    this.tryPublishOutcome();
+
     return broadcasts;
   }
 
@@ -703,6 +727,13 @@ export class ServerMatchHost {
     // doesn't keep Node alive (and so a delayed timer doesn't fire a
     // SeatTimedOut envelope on a closed host).
     this.pendingPeers.clearAll();
+    // Wave 5: last-chance publish before we tear everything down.
+    // If the match ended naturally (engine reached Completed) the bus
+    // already fired through `InteractiveSession.tryFinalizeAndPublish`
+    // and our local `hostOutcomePublished` guard makes this a no-op.
+    // If the match was force-closed mid-fight (host crash, admin kill)
+    // and the win-condition predicate happens to trip, this catches it.
+    this.tryPublishOutcome();
     const socketList = Array.from(this.sockets.keys());
     for (const socket of socketList) {
       this.safeSend(socket, {
@@ -714,6 +745,61 @@ export class ServerMatchHost {
       this.detachSocket(socket);
     }
     await this.store.closeMatch(this.matchId);
+  }
+
+  /**
+   * Wave 5: server-side `CombatOutcomeReady` publish helper. Defensive
+   * safety net — `InteractiveSession.tryFinalizeAndPublish` is the
+   * primary path and runs synchronously inside `concede`,
+   * `advancePhase`, `applyAttack`, etc., so by the time `handleIntent`
+   * returns the bus has usually already fired (and our local guard
+   * mirrors the engine's `outcomePublished`). This method exists so
+   * the integration test can prove the bus emits even on the
+   * server-side `closeMatch` path, and so a future code path that
+   * bypasses the engine's lifecycle methods can still feed the
+   * campaign store.
+   *
+   * Behavior:
+   *   - Skip if we've already published from this host.
+   *   - Skip if the engine's own guard already published (we mirror
+   *     by reading `hasPublishedOutcome` so we never double-emit).
+   *   - Skip if the session isn't game-over (most common case).
+   *   - Otherwise, lift the outcome via `getOutcome()` and publish.
+   *
+   * Listener errors don't propagate (the bus swallows them).
+   */
+  private tryPublishOutcome(): void {
+    if (this.hostOutcomePublished) return;
+    if (this.session.hasPublishedOutcome()) {
+      // Engine already fired; mirror the guard so we don't try again.
+      this.hostOutcomePublished = true;
+      return;
+    }
+    if (!this.session.isGameOver()) return;
+    let outcome;
+    try {
+      outcome = this.session.getOutcome();
+    } catch {
+      // Defensive: derivation should be safe post-game-over, but if
+      // anything throws we don't want to crash the host.
+      return;
+    }
+    // `getOutcome()` itself routes through `tryFinalizeAndPublish`,
+    // which means by the time it returns the engine guard is set and
+    // the bus has fired. Re-check the engine guard so we mirror it.
+    if (this.session.hasPublishedOutcome()) {
+      this.hostOutcomePublished = true;
+      return;
+    }
+    // Defensive belt: the engine guard didn't trip (shouldn't happen)
+    // — publish ourselves. Mark our guard before emitting so a
+    // re-entrant subscriber can't loop.
+    this.hostOutcomePublished = true;
+    const event: ICombatOutcomeReadyEvent = {
+      matchId: outcome.matchId,
+      outcome,
+    };
+    publishCombatOutcome(event);
   }
 
   /** Test/observability: number of currently-connected sockets. */
@@ -1241,6 +1327,11 @@ export class ServerMatchHost {
       this.broadcast(envelopeOut);
       out.push(envelopeOut);
     }
+    // Wave 5: ForfeitMatch ends the match cleanly, so the bus event
+    // should fire here too (engine's `concede` already runs the engine
+    // guard; this mirrors it on the host side for symmetry with
+    // `handleIntent`).
+    this.tryPublishOutcome();
     return out;
   }
 

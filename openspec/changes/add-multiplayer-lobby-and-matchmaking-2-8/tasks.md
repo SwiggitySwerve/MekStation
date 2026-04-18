@@ -78,7 +78,7 @@ status}` so a joiner can resolve code → match
 ## 8. AI Slot Wiring
 
 - [~] 8.1 Server spawns a `BotPlayer` per AI slot when the match
-      launches (Wave 3b: stub log on launch; full BotPlayer driver in Wave 5)
+  launches (Wave 3b: stub log on launch; full BotPlayer driver in Wave 5)
 - [ ] 8.2 Bot players run inside the server process; they consume
       events and produce intents through an in-process bus (not
       WebSocket) — Wave 5
@@ -97,9 +97,9 @@ status}` so a joiner can resolve code → match
 ## 10. Launching Into 2-8 Match
 
 - [~] 10.1 On `LaunchMatch`, server emits `GameCreated` with side
-      assignments derived from seats (Wave 3b: status flips to active +
-      LobbyUpdated emits; full GameCreated event from seat→side derivation
-      remains for the client transition wave)
+  assignments derived from seats (Wave 3b: status flips to active +
+  LobbyUpdated emits; full GameCreated event from seat→side derivation
+  remains for the client transition wave)
 - [x] 10.2 Server persists the `seat → side` map on `IMatchMeta`
 - [ ] 10.3 All clients transition from lobby page to combat page
       `/gameplay/games/[matchId]` (client wave)
@@ -110,7 +110,7 @@ status}` so a joiner can resolve code → match
       (covers: 2v2 occupy + launch, host-only authz, canLaunch gate,
       LeaveSeat, room code expiry on launch)
 - [~] 11.2 Integration test: create `'ffa-4'` with 2 humans and 2 AI
-      slots; verify bots generate valid intents in-process — Wave 5
+  slots; verify bots generate valid intents in-process — Wave 5
 - [ ] 11.3 Integration test: host toggles a human slot to AI after
       one player joins that slot; player is kicked from the seat
       (covered as unit test on `setAiSlot` evicting occupant)
