@@ -13,10 +13,10 @@
 
 ## 2. Armor Pip Decay Animation
 
-- [ ] 2.1 Extend `ArmorPip` with a `justDamaged` prop
+- [x] 2.1 Extend `ArmorPip` with a `justDamaged` prop
 - [ ] 2.2 On `DamageApplied` for a location, pips for that location set
       `justDamaged = true` for 400ms
-- [ ] 2.3 During that window, pip flashes red at 60% opacity then fades
+- [x] 2.3 During that window, pip flashes red at 60% opacity then fades
       to empty
 - [ ] 2.4 Armor-to-structure transfers animate in sequence (armor pip
       drains first, then structure pip flashes)
@@ -75,7 +75,7 @@
 
 ## 9. Accessibility — Colorblind Safety
 
-- [ ] 9.1 Armor pip decay reinforces the color shift with a pattern
+- [x] 9.1 Armor pip decay reinforces the color shift with a pattern
       change (red flash + diagonal hatching) so deuteranopia / protanopia
       users still perceive damaged-this-turn state without relying on
       hue alone
@@ -86,7 +86,7 @@
       red UI elements
 - [ ] 9.4 Damage-number floater uses a bold-weight font + drop shadow
       so it reads against any map tile color
-- [ ] 9.5 Event log entries mark hits / crits / kills with leading
+- [x] 9.5 Event log entries mark hits / crits / kills with leading
       glyphs (✓ / ⚠ / ✕) in addition to color accents
 - [ ] 9.6 Snapshot test: flipping `prefers-color-scheme` and simulated
       deuteranopia (via CSS filter in test harness) still leaves every
@@ -94,7 +94,7 @@
 
 ## 10. Tests
 
-- [ ] 10.1 Unit test: `ArmorPip` flashes red when `justDamaged` flips
+- [x] 10.1 Unit test: `ArmorPip` flashes red when `justDamaged` flips
       to true
 - [ ] 10.2 Unit test: crit overlay dismisses automatically after 600ms
 - [ ] 10.3 Integration test: a resolved attack that does 10 damage +
@@ -106,9 +106,9 @@
 
 ## 11. Spec Compliance
 
-- [ ] 11.1 Every requirement in `damage-system` delta has at least one
+- [x] 11.1 Every requirement in `damage-system` delta has at least one
       GIVEN/WHEN/THEN scenario
-- [ ] 11.2 Every requirement in `tactical-map-interface` delta has at
+- [x] 11.2 Every requirement in `tactical-map-interface` delta has at
       least one scenario
-- [ ] 11.3 `openspec validate add-damage-feedback-ui --strict` passes
+- [x] 11.3 `openspec validate add-damage-feedback-ui --strict` passes
       clean
