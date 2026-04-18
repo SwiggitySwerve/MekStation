@@ -42,6 +42,7 @@ import {
   ManipulatorType,
   InfantrySpecialization,
 } from "@/types/unit/PersonnelInterfaces";
+import { VehicleStructureType } from "@/utils/construction/vehicle/structure";
 import { InfantryMotive } from "@/types/unit/InfantryInterfaces";
 import {
   ProtoChassis,
@@ -114,6 +115,11 @@ describe("BlkExportService", () => {
     isAmphibious: false,
     hasTrailerHitch: false,
     isTrailer: false,
+    structureType: VehicleStructureType.STANDARD,
+    crewSize: 0,
+    passengerSlots: 0,
+    barRating: null,
+    powerAmpWeight: 0,
     equipment: [],
     isModified: false,
     createdAt: Date.now(),
