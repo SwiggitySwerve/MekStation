@@ -21,3 +21,7 @@ export { InfantryPrimaryWeaponTab } from './InfantryPrimaryWeaponTab';
 export { InfantrySecondaryWeaponsTab } from './InfantrySecondaryWeaponsTab';
 export { InfantryFieldGunsTab } from './InfantryFieldGunsTab';
 export { InfantrySpecializationTab } from './InfantrySpecializationTab';
+
+// Live BV status bar + breakdown dialog (wired by add-infantry-battle-value)
+export { InfantryStatusBar } from './InfantryStatusBar';
+export { InfantryBVBreakdownDialog } from './InfantryBVBreakdownDialog';

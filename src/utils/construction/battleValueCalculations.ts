@@ -1,9 +1,9 @@
-export * from './battleValueExplosivePenalties';
-export * from './battleValueMovement';
-export * from './battleValueDefensive';
-export * from './battleValueOffensive';
-export * from './battleValueTotals';
-export * from './battleValuePilot';
+export * from "./battleValueExplosivePenalties";
+export * from "./battleValueMovement";
+export * from "./battleValueDefensive";
+export * from "./battleValueOffensive";
+export * from "./battleValueTotals";
+export * from "./battleValuePilot";
 
 // Vehicle BV — separate calculator for combat vehicles, VTOLs, and support vehicles.
 // Callers use `calculateVehicleBV(input)` for vehicle units; the existing
@@ -16,7 +16,7 @@ export {
   calculateVehicleTMM,
   calculateVehicleSpeedFactor,
   getVehicleEffectiveMP,
-} from './vehicle/vehicleBV';
+} from "./vehicle/vehicleBV";
 export type {
   VehicleBVInput,
   VehicleWeaponMount,
@@ -28,7 +28,7 @@ export type {
   IVehicleBVBreakdown,
   VehicleDefensiveBVBreakdown,
   VehicleOffensiveBVBreakdown,
-} from './vehicle/vehicleBV';
+} from "./vehicle/vehicleBV";
 
 // Battle Armor BV — per-type dispatch for BA squads.
 // Callers use `calculateBattleArmorBV(input)` for BA units; the existing
@@ -41,7 +41,7 @@ export {
   getBAArmorBVMultiplier,
   getBAManipulatorMeleeBV,
   getBAMoveClassMultiplier,
-} from './battlearmor/battleArmorBV';
+} from "./battlearmor/battleArmorBV";
 export type {
   BAAmmoBVMount,
   BADefensiveBVBreakdown,
@@ -51,9 +51,31 @@ export type {
   BAWeaponBVMount,
   IBABreakdown,
   IBattleArmorBVInput,
-} from './battlearmor/battleArmorBV';
+} from "./battlearmor/battleArmorBV";
 export {
   buildBattleArmorBVInput,
   calculateBattleArmorBVFromState,
   partitionBAEquipment,
-} from './battlearmor/battleArmorBVAdapter';
+} from "./battlearmor/battleArmorBVAdapter";
+
+// Infantry BV — separate calculator for conventional infantry platoons.
+// Callers route IInfantryUnit (store state) through `computeInfantryBVFromState`
+// in the adapter, which builds a well-typed `InfantryBVInput` and calls
+// `calculateInfantryBV`. The existing `calculateTotalBV(config)` remains the
+// mech/battlemech entry point.
+// @spec openspec/changes/add-infantry-battle-value/specs/battle-value-system/spec.md
+export {
+  calculateInfantryBV,
+  calculateInfantryPerTrooperBV,
+  calculateInfantryPrimaryBV,
+  calculateInfantrySecondaryBV,
+  calculateInfantryFieldGunBV,
+  getInfantryMotiveMultiplier,
+  getInfantryPilotMultiplier,
+} from "./infantry/infantryBV";
+export type {
+  InfantryBVInput,
+  InfantryWeaponRef,
+  InfantryFieldGunMount,
+  IInfantryBVBreakdown,
+} from "./infantry/infantryBV";
