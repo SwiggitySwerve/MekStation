@@ -20,11 +20,11 @@ import type {
   IRepairPartRequirement,
   IRepairTicket,
   RepairTicketKind,
-} from '@/types/campaign/RepairTicket';
+} from "@/types/campaign/RepairTicket";
 import type {
   IUnitCombatState,
   IUnitMaxState,
-} from '@/types/campaign/UnitCombatState';
+} from "@/types/campaign/UnitCombatState";
 
 // =============================================================================
 // Hour Estimates
@@ -49,15 +49,15 @@ export function estimateRepairHours(
   points: number,
 ): number {
   switch (kind) {
-    case 'armor':
+    case "armor":
       return Math.max(0, points) * HOURS_PER_ARMOR_POINT;
-    case 'structure':
+    case "structure":
       return Math.max(0, points) * HOURS_PER_STRUCTURE_POINT;
-    case 'component':
+    case "component":
       return Math.max(1, points) * HOURS_PER_COMPONENT_SWAP;
-    case 'ammo':
+    case "ammo":
       return HOURS_PER_AMMO_RESTOCK;
-    case 'heat-recovery':
+    case "heat-recovery":
       return HOURS_PER_HEAT_RECOVERY;
     default:
       return 0;
@@ -96,7 +96,7 @@ function buildTicketId(
   kind: RepairTicketKind,
   discriminator: string,
 ): string {
-  const match = matchId ?? 'manual';
+  const match = matchId ?? "manual";
   return `ticket-${match}-${unitId}-${kind}-${discriminator}`;
 }
 
@@ -144,23 +144,23 @@ export function buildTicketsFromUnitState(
     const lost = maxArmor - currentArmor;
     if (lost > 0) {
       tickets.push({
-        ticketId: buildTicketId(matchId, state.unitId, 'armor', location),
+        ticketId: buildTicketId(matchId, state.unitId, "armor", location),
         unitId: state.unitId,
-        kind: 'armor',
+        kind: "armor",
         location,
         pointsToRestore: lost,
-        expectedHours: estimateRepairHours('armor', lost),
+        expectedHours: estimateRepairHours("armor", lost),
         partsRequired: [
           {
-            partId: 'standard-armor-pt',
+            partId: "standard-armor-pt",
             quantity: lost,
             matched: false,
           },
         ],
-        source: 'combat',
+        source: "combat",
         matchId,
         createdAt,
-        status: 'queued',
+        status: "queued",
       });
     }
   }
@@ -175,12 +175,12 @@ export function buildTicketsFromUnitState(
     const lost = maxStructure - currentStructure;
     if (lost > 0) {
       tickets.push({
-        ticketId: buildTicketId(matchId, state.unitId, 'structure', location),
+        ticketId: buildTicketId(matchId, state.unitId, "structure", location),
         unitId: state.unitId,
-        kind: 'structure',
+        kind: "structure",
         location,
         pointsToRestore: lost,
-        expectedHours: estimateRepairHours('structure', lost),
+        expectedHours: estimateRepairHours("structure", lost),
         partsRequired: [
           {
             partId: `internal-structure-${location.toLowerCase()}`,
@@ -188,40 +188,40 @@ export function buildTicketsFromUnitState(
             matched: false,
           },
         ],
-        source: 'combat',
+        source: "combat",
         matchId,
         createdAt,
-        status: 'queued',
+        status: "queued",
       });
     }
   }
 
   // 3. Component tickets — one per destroyed component
   for (const component of state.destroyedComponents) {
-    const discriminator = `${component.location}-${component.componentName}-${component.slotIndex ?? 0}`;
+    const discriminator = `${component.location}-${component.name}-${component.slot ?? 0}`;
     tickets.push({
       ticketId: buildTicketId(
         matchId,
         state.unitId,
-        'component',
+        "component",
         discriminator,
       ),
       unitId: state.unitId,
-      kind: 'component',
+      kind: "component",
       location: component.location,
-      componentName: component.componentName,
-      expectedHours: estimateRepairHours('component', 1),
+      componentName: component.name,
+      expectedHours: estimateRepairHours("component", 1),
       partsRequired: [
         {
-          partId: component.componentName,
+          partId: component.name,
           quantity: 1,
           matched: false,
         },
       ],
-      source: 'combat',
+      source: "combat",
       matchId,
       createdAt,
-      status: 'parts-needed',
+      status: "parts-needed",
     });
   }
 
@@ -231,12 +231,12 @@ export function buildTicketsFromUnitState(
     const missing = maxAmmo - currentAmmo;
     if (missing > 0) {
       tickets.push({
-        ticketId: buildTicketId(matchId, state.unitId, 'ammo', binId),
+        ticketId: buildTicketId(matchId, state.unitId, "ammo", binId),
         unitId: state.unitId,
-        kind: 'ammo',
+        kind: "ammo",
         ammoBinId: binId,
         pointsToRestore: missing,
-        expectedHours: estimateRepairHours('ammo', missing),
+        expectedHours: estimateRepairHours("ammo", missing),
         partsRequired: [
           {
             partId: `ammo-${binId}`,
@@ -244,10 +244,10 @@ export function buildTicketsFromUnitState(
             matched: false,
           },
         ],
-        source: 'combat',
+        source: "combat",
         matchId,
         createdAt,
-        status: 'queued',
+        status: "queued",
       });
     }
   }
@@ -297,7 +297,7 @@ export function matchPartsAgainstSalvage(
   // to queued. Otherwise leave the status untouched.
   const allMatched = matchedParts.every((p) => p.matched);
   const nextStatus =
-    ticket.status === 'parts-needed' && allMatched ? 'queued' : ticket.status;
+    ticket.status === "parts-needed" && allMatched ? "queued" : ticket.status;
 
   return {
     ...ticket,

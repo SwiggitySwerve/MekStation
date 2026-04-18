@@ -97,6 +97,26 @@ export function createInitialCombatState(params: {
 }
 
 /**
+ * Per Wave 3b (`add-repair-queue-integration`): the "full health"
+ * reference state for a unit, used by the repair queue builder to
+ * diff against current `IUnitCombatState` and emit one ticket per
+ * damaged location, destroyed component, and depleted ammo bin.
+ *
+ * Source of truth: the unit's construction state at deploy time. The
+ * builder treats absent locations as "unknown max" (skip diffing) so
+ * non-mech / partial-data units don't generate spurious tickets.
+ */
+export interface IUnitMaxState {
+  readonly unitId: string;
+  /** Max armor points per location code (e.g., `LT`, `CT`). */
+  readonly maxArmorPerLocation: Readonly<Record<string, number>>;
+  /** Max internal structure points per location code. */
+  readonly maxStructurePerLocation: Readonly<Record<string, number>>;
+  /** Max rounds per ammo bin id. */
+  readonly maxAmmoPerBin: Readonly<Record<string, number>>;
+}
+
+/**
  * Returns true when the unit can deploy in another battle.
  *
  * Combat-ready requires:
@@ -109,7 +129,7 @@ export function createInitialCombatState(params: {
  */
 export function isUnitCombatReady(state: IUnitCombatState): boolean {
   if (!state.combatReady) return false;
-  const ct = state.currentStructurePerLocation['CT'];
+  const ct = state.currentStructurePerLocation["CT"];
   if (ct !== undefined && ct <= 0) return false;
   return true;
 }
