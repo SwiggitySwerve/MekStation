@@ -19,6 +19,7 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import { type D6Roller, type DiceRoller } from '@/utils/gameplay/diceTypes';
 import {
   createGameSession,
   startGame,
@@ -97,8 +98,27 @@ export class GameEngine {
 
     const botPlayer = new BotPlayer(this.random);
 
+    // Per `add-quick-resolve-monte-carlo`: thread the engine's
+    // `SeededRandom` into every PRNG-consuming phase call so the
+    // Monte Carlo wrapper can replay batches deterministically. Without
+    // this, `resolveAllAttacks` / `resolveHeatPhase` / `rollInitiative`
+    // fall back to `Math.random()` and the same seed produces different
+    // aggregate outcomes across runs.
+    const d6Roller: D6Roller = () => this.random.nextInt(6) + 1;
+    const diceRoller: DiceRoller = () => {
+      const die1 = d6Roller();
+      const die2 = d6Roller();
+      const total = die1 + die2;
+      return {
+        dice: [die1, die2] as const,
+        total,
+        isSnakeEyes: total === 2,
+        isBoxcars: total === 12,
+      };
+    };
+
     for (let turn = 0; turn < this.turnLimit; turn++) {
-      session = rollInitiative(session);
+      session = rollInitiative(session, undefined, d6Roller);
       session = advancePhase(session);
 
       session = runMovementPhase(
@@ -117,7 +137,7 @@ export class GameEngine {
         weaponsByUnit,
         gunneryByUnit,
       );
-      session = resolveAllAttacks(session);
+      session = resolveAllAttacks(session, diceRoller);
       session = advancePhase(session);
       // Per `wire-bot-ai-helpers-and-capstone`: PhysicalAttack phase
       // body — declare melee attacks via the bot, then resolve them.
@@ -127,9 +147,10 @@ export class GameEngine {
         weaponsByUnit,
         gunneryByUnit,
         pilotingByUnit,
+        d6Roller,
       );
       session = advancePhase(session);
-      session = resolveHeatPhase(session);
+      session = resolveHeatPhase(session, diceRoller);
       session = advancePhase(session);
 
       if (isGameEnded(session.currentState, gameConfig)) {

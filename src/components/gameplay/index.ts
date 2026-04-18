@@ -76,3 +76,19 @@ export { PhysicalAttackForecastModal } from './PhysicalAttackForecastModal';
 export type { PhysicalAttackForecastModalProps } from './PhysicalAttackForecastModal';
 export { PhysicalAttackPanel } from './PhysicalAttackPanel';
 export type { PhysicalAttackPanelProps } from './PhysicalAttackPanel';
+
+// add-quick-sim-result-display — Phase 2 result-display surface for
+// the Quick Resolve Monte Carlo batch (sub-branch B). Exports both the
+// full panel and the compact summary variant for the encounter
+// detail page sidebar, plus the standalone TurnCountHistogram bar
+// chart used by the panel.
+export { QuickSimResultPanel } from './QuickSimResultPanel';
+export type { QuickSimResultPanelProps } from './QuickSimResultPanel';
+export { QuickSimResultSummary } from './QuickSimResultSummary';
+export type { QuickSimResultSummaryProps } from './QuickSimResultSummary';
+export { TurnCountHistogram } from './TurnCountHistogram';
+export type { TurnCountHistogramProps } from './TurnCountHistogram';
+
+// add-pre-battle-force-comparison: pre-battle two-column comparison panel
+export { ForceComparisonPanel } from './ForceComparisonPanel';
+export type { ForceComparisonPanelProps } from './ForceComparisonPanel';

@@ -89,6 +89,16 @@ interface GameplayState {
    * sentinel is `{ targetUnitId: null, selectedWeapons: [] }`.
    */
   attackPlan: IAttackPlan;
+  /**
+   * Per `add-what-if-to-hit-preview`: session-scoped UI toggle the
+   * weapon-picker reads to decide whether to show the "Exp. Dmg /
+   * stddev / Crit %" preview columns. Pure UI flag — flipping it
+   * never appends a `AttackDeclared` event, mutates session state,
+   * or clears the attack plan. Resets to `false` on `reset()` and
+   * does NOT persist across page reloads (intentionally
+   * session-scoped per the change's non-goals).
+   */
+  previewEnabled: boolean;
 }
 
 interface GameplayActions {
@@ -141,6 +151,13 @@ interface GameplayActions {
   togglePlannedWeapon: (weaponId: string) => void;
   clearAttackPlan: () => void;
   commitAttack: () => void;
+  /**
+   * Per `add-what-if-to-hit-preview` § 8: flip the "Preview Damage"
+   * toggle. The weapon-picker subscribes to `previewEnabled` and
+   * shows the expected-damage / stddev / crit% columns when ON.
+   * NEVER calls `applyAction` or appends an event — pure UI flag.
+   */
+  setPreviewEnabled: (enabled: boolean) => void;
 }
 
 type GameplayStore = GameplayState & GameplayActions;
@@ -167,6 +184,7 @@ const initialState: GameplayState = {
   heatSinks: {},
   plannedMovement: null,
   attackPlan: { targetUnitId: null, selectedWeapons: [] },
+  previewEnabled: false,
 };
 
 // =============================================================================
@@ -456,6 +474,10 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   togglePlannedWeapon: (weaponId) => togglePlannedWeaponLogic(weaponId, set),
   clearAttackPlan: () => clearAttackPlanLogic(set),
   commitAttack: () => commitAttackLogic(get, set),
+  // Pure UI flag — flipping it intentionally never touches session
+  // state, the attack plan, or the interactive session. The
+  // weapon-picker subscribes via the `previewEnabled` selector.
+  setPreviewEnabled: (enabled) => set({ previewEnabled: enabled }),
 }));
 
 /**
