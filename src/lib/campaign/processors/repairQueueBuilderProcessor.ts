@@ -125,13 +125,29 @@ function processOutcomeUnit(
  */
 export const repairQueueBuilderProcessor: IDayProcessor = {
   id: 'repair-queue-builder',
-  phase: DayPhase.UNITS,
+  // Per `wire-encounter-to-campaign-round-trip` Wave 5 spec
+  // ("Day Advancement Applies Pending Outcomes"): repair queue building
+  // MUST run before `contractProcessor` so the contract panel can
+  // reference the freshly-created tickets when computing closure costs.
+  // Sit just after salvage (MISSIONS - 25) and before contracts at
+  // MISSIONS so the ordering invariant holds: post-battle → salvage →
+  // repair → contracts → (rest of MISSIONS / UNITS).
+  phase: DayPhase.MISSIONS - 10,
   displayName: 'Repair Queue Builder',
 
   process(campaign: ICampaign, date: Date): IDayProcessorResult {
     // Narrow to extended campaign (all extension fields are optional).
-    const extended = campaign as ICampaignWithBattleState;
-    const outcomes = extended.pendingBattleOutcomes ?? [];
+    const extended = campaign as ICampaignWithBattleState & {
+      readonly recentlyAppliedOutcomes?: readonly IPendingBattleOutcome[];
+    };
+    // Per `wire-encounter-to-campaign-round-trip`: the canonical source
+    // is `recentlyAppliedOutcomes` (postBattleProcessor stages outcomes
+    // here as it drains the pending queue). Fall back to the raw queue
+    // for defensive cases where postBattle didn't run first.
+    const outcomes = [
+      ...(extended.recentlyAppliedOutcomes ?? []),
+      ...(extended.pendingBattleOutcomes ?? []),
+    ];
 
     // Fast exit when there's nothing to do.
     if (outcomes.length === 0) {
@@ -146,7 +162,15 @@ export const repairQueueBuilderProcessor: IDayProcessor = {
 
     for (const outcome of outcomes) {
       let perOutcomeCount = 0;
-      for (const unitId of outcome.unitIds) {
+      // Real `ICombatOutcome` (Wave 1) carries `unitDeltas` — derive
+      // unitIds from there. Fall back to the stripped-down
+      // `IPendingBattleOutcome.unitIds` when present (legacy callers).
+      const outcomeAny = outcome as IPendingBattleOutcome & {
+        readonly unitDeltas?: readonly { readonly unitId: string }[];
+      };
+      const unitIds: readonly string[] =
+        outcomeAny.unitDeltas?.map((d) => d.unitId) ?? outcomeAny.unitIds ?? [];
+      for (const unitId of unitIds) {
         const ticketsForUnit = processOutcomeUnit(
           extended,
           outcome,

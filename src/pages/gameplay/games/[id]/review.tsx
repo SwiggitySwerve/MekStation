@@ -234,9 +234,13 @@ export default function PostBattleReviewPage(): React.ReactElement {
       state.updateCampaign(result.campaign);
       state.dequeueOutcome(outcome.matchId);
       setApplied(true);
-      // Navigate back to the campaign dashboard so the player can see
-      // the day-pipeline effects on next advance.
-      void router.push('/campaign');
+      // Per `wire-encounter-to-campaign-round-trip` Wave 5 (task 4.3):
+      // navigate to the campaign dashboard with `?pendingBattle=<matchId>`
+      // so the dashboard can highlight the just-applied outcome. The
+      // campaign id comes from the live store; falls back to the
+      // campaigns index when somehow the campaign disappeared mid-flow.
+      const target = `/gameplay/campaigns/${campaign.id}?pendingBattle=${outcome.matchId}`;
+      void router.push(target);
     } finally {
       setIsApplying(false);
     }

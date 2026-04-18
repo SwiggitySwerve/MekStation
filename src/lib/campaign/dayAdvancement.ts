@@ -11,6 +11,27 @@
  * Based on MekHQ's daily advancement loop, simplified for MVP.
  *
  * @module lib/campaign/dayAdvancement
+ *
+ * # Pipeline Order (Wave 5 / `wire-encounter-to-campaign-round-trip`)
+ *
+ * The legacy `advanceDay` in this file is a fallback for code paths that
+ * don't go through the registry pipeline. The campaign store
+ * (`useCampaignStore.advanceDay`) routes through `advanceDayViaPipeline`
+ * and the `DayPipelineRegistry`. The canonical order — sorted by each
+ * processor's `phase` value — is:
+ *
+ *   1. healingProcessor            (PERSONNEL = 100)
+ *   2. postBattleProcessor         (MISSIONS - 50 = 350)
+ *   3. salvageProcessor            (MISSIONS - 25 = 375)
+ *   4. repairQueueBuilderProcessor (MISSIONS - 10 = 390)
+ *   5. contractProcessor           (MISSIONS = 400)
+ *   6. dailyCostsProcessor         (FINANCES = 700)
+ *   7. randomEventsProcessor / market processors (EVENTS = 800)
+ *
+ * The post-battle → salvage → repair → contract chain (#2–#5) is the
+ * Wave 5 invariant: each step consumes the previous step's output, and
+ * contract closure logic depends on all three battle-effects processors
+ * having completed.
  */
 
 import { ICampaign } from '@/types/campaign/Campaign';

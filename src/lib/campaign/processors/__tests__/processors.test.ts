@@ -1,36 +1,36 @@
 import {
   ICampaign,
   createDefaultCampaignOptions,
-} from "@/types/campaign/Campaign";
-import { CampaignType } from "@/types/campaign/CampaignType";
+} from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import {
   PersonnelStatus,
   MissionStatus,
   CampaignPersonnelRole,
   ForceRole,
   FormationLevel,
-} from "@/types/campaign/enums";
-import { IForce } from "@/types/campaign/Force";
-import { IMission, createContract } from "@/types/campaign/Mission";
-import { Money } from "@/types/campaign/Money";
-import { IPerson } from "@/types/campaign/Person";
-import { createInjury } from "@/types/campaign/Person";
+} from '@/types/campaign/enums';
+import { IForce } from '@/types/campaign/Force';
+import { IMission, createContract } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
+import { IPerson } from '@/types/campaign/Person';
+import { createInjury } from '@/types/campaign/Person';
 
-import { DayPhase, getDayPipeline, _resetDayPipeline } from "../../dayPipeline";
-import { contractProcessor } from "../contractProcessor";
-import { dailyCostsProcessor } from "../dailyCostsProcessor";
-import { healingProcessor } from "../healingProcessor";
-import { registerBuiltinProcessors, _resetBuiltinRegistration } from "../index";
+import { DayPhase, getDayPipeline, _resetDayPipeline } from '../../dayPipeline';
+import { contractProcessor } from '../contractProcessor';
+import { dailyCostsProcessor } from '../dailyCostsProcessor';
+import { healingProcessor } from '../healingProcessor';
+import { registerBuiltinProcessors, _resetBuiltinRegistration } from '../index';
 
 function createTestPerson(overrides?: Partial<IPerson>): IPerson {
   return {
-    id: "person-001",
-    name: "John Smith",
-    callsign: "Hammer",
+    id: 'person-001',
+    name: 'John Smith',
+    callsign: 'Hammer',
     status: PersonnelStatus.ACTIVE,
     primaryRole: CampaignPersonnelRole.PILOT,
-    rank: "MechWarrior",
-    recruitmentDate: new Date("3025-01-01"),
+    rank: 'MechWarrior',
+    recruitmentDate: new Date('3025-01-01'),
     missionsCompleted: 5,
     totalKills: 3,
     xp: 100,
@@ -51,8 +51,8 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
       Edge: 0,
     },
     pilotSkills: { gunnery: 4, piloting: 5 },
-    createdAt: "2026-01-01T00:00:00Z",
-    updatedAt: "2026-01-01T00:00:00Z",
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
     ...overrides,
   };
 }
@@ -66,56 +66,56 @@ function createTestForce(id: string, unitIds: string[] = []): IForce {
     unitIds,
     forceType: ForceRole.STANDARD,
     formationLevel: FormationLevel.LANCE,
-    createdAt: "2026-01-01T00:00:00Z",
-    updatedAt: "2026-01-01T00:00:00Z",
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
   };
 }
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
   return {
-    id: "campaign-001",
-    name: "Test Campaign",
-    currentDate: new Date("3025-06-15T00:00:00Z"),
-    factionId: "mercenary",
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15T00:00:00Z'),
+    factionId: 'mercenary',
     personnel: new Map<string, IPerson>(),
     forces: new Map<string, IForce>(),
-    rootForceId: "force-root",
+    rootForceId: 'force-root',
     missions: new Map<string, IMission>(),
     finances: { transactions: [], balance: new Money(1000000) },
     factionStandings: {},
     shoppingList: { items: [] },
     options: createDefaultCampaignOptions(),
     campaignType: CampaignType.MERCENARY,
-    createdAt: "2026-01-01T00:00:00Z",
-    updatedAt: "2026-01-01T00:00:00Z",
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
     ...overrides,
   };
 }
 
-describe("healingProcessor", () => {
-  it("should have correct id, phase, and displayName", () => {
-    expect(healingProcessor.id).toBe("healing");
+describe('healingProcessor', () => {
+  it('should have correct id, phase, and displayName', () => {
+    expect(healingProcessor.id).toBe('healing');
     expect(healingProcessor.phase).toBe(DayPhase.PERSONNEL);
-    expect(healingProcessor.displayName).toBe("Personnel Healing");
+    expect(healingProcessor.displayName).toBe('Personnel Healing');
   });
 
-  it("should return healing events for wounded personnel", () => {
+  it('should return healing events for wounded personnel', () => {
     const injury = createInjury({
-      id: "inj-1",
-      type: "Broken Arm",
-      location: "Left Arm",
+      id: 'inj-1',
+      type: 'Broken Arm',
+      location: 'Left Arm',
       severity: 2,
       daysToHeal: 1,
       permanent: false,
-      acquired: new Date("3025-01-01"),
+      acquired: new Date('3025-01-01'),
     });
 
     const personnel = new Map<string, IPerson>();
     personnel.set(
-      "p1",
+      'p1',
       createTestPerson({
-        id: "p1",
-        name: "Jane",
+        id: 'p1',
+        name: 'Jane',
         status: PersonnelStatus.WOUNDED,
         injuries: [injury],
         daysToWaitForHealing: 0,
@@ -126,13 +126,13 @@ describe("healingProcessor", () => {
     const result = healingProcessor.process(campaign, campaign.currentDate);
 
     expect(result.events).toHaveLength(1);
-    expect(result.events[0].type).toBe("healing");
-    expect(result.campaign.personnel.get("p1")!.status).toBe(
+    expect(result.events[0].type).toBe('healing');
+    expect(result.campaign.personnel.get('p1')!.status).toBe(
       PersonnelStatus.ACTIVE,
     );
   });
 
-  it("should return empty events when no healing occurs", () => {
+  it('should return empty events when no healing occurs', () => {
     const campaign = createTestCampaign();
     const result = healingProcessor.process(campaign, campaign.currentDate);
 
@@ -140,24 +140,24 @@ describe("healingProcessor", () => {
   });
 });
 
-describe("contractProcessor", () => {
-  it("should have correct id, phase, and displayName", () => {
-    expect(contractProcessor.id).toBe("contracts");
+describe('contractProcessor', () => {
+  it('should have correct id, phase, and displayName', () => {
+    expect(contractProcessor.id).toBe('contracts');
     expect(contractProcessor.phase).toBe(DayPhase.MISSIONS);
-    expect(contractProcessor.displayName).toBe("Contract Processing");
+    expect(contractProcessor.displayName).toBe('Contract Processing');
   });
 
-  it("should return events for expired contracts", () => {
+  it('should return events for expired contracts', () => {
     const missions = new Map<string, IMission>();
     missions.set(
-      "c1",
+      'c1',
       createContract({
-        id: "c1",
-        name: "Garrison",
-        employerId: "davion",
-        targetId: "liao",
+        id: 'c1',
+        name: 'Garrison',
+        employerId: 'davion',
+        targetId: 'liao',
         status: MissionStatus.ACTIVE,
-        endDate: "3025-01-01",
+        endDate: '3025-01-01',
       }),
     );
 
@@ -165,43 +165,43 @@ describe("contractProcessor", () => {
     const result = contractProcessor.process(campaign, campaign.currentDate);
 
     expect(result.events).toHaveLength(1);
-    expect(result.events[0].type).toBe("contract_expired");
-    expect(result.campaign.missions.get("c1")!.status).toBe(
+    expect(result.events[0].type).toBe('contract_expired');
+    expect(result.campaign.missions.get('c1')!.status).toBe(
       MissionStatus.SUCCESS,
     );
   });
 });
 
-describe("dailyCostsProcessor", () => {
-  it("should have correct id, phase, and displayName", () => {
-    expect(dailyCostsProcessor.id).toBe("dailyCosts");
+describe('dailyCostsProcessor', () => {
+  it('should have correct id, phase, and displayName', () => {
+    expect(dailyCostsProcessor.id).toBe('dailyCosts');
     expect(dailyCostsProcessor.phase).toBe(DayPhase.FINANCES);
-    expect(dailyCostsProcessor.displayName).toBe("Daily Costs");
+    expect(dailyCostsProcessor.displayName).toBe('Daily Costs');
   });
 
-  it("should return cost events when there are costs", () => {
+  it('should return cost events when there are costs', () => {
     const personnel = new Map<string, IPerson>();
     personnel.set(
-      "p1",
-      createTestPerson({ id: "p1", status: PersonnelStatus.ACTIVE }),
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
     );
 
     const forces = new Map<string, IForce>();
-    forces.set("force-root", createTestForce("force-root", ["unit-1"]));
+    forces.set('force-root', createTestForce('force-root', ['unit-1']));
 
     const campaign = createTestCampaign({ personnel, forces });
     const result = dailyCostsProcessor.process(campaign, campaign.currentDate);
 
     expect(result.events).toHaveLength(1);
-    expect(result.events[0].type).toBe("daily_costs");
-    expect(result.events[0].severity).toBe("info");
+    expect(result.events[0].type).toBe('daily_costs');
+    expect(result.events[0].severity).toBe('info');
   });
 
-  it("should return warning severity when balance goes negative", () => {
+  it('should return warning severity when balance goes negative', () => {
     const personnel = new Map<string, IPerson>();
     personnel.set(
-      "p1",
-      createTestPerson({ id: "p1", status: PersonnelStatus.ACTIVE }),
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
     );
 
     const campaign = createTestCampaign({
@@ -210,10 +210,10 @@ describe("dailyCostsProcessor", () => {
     });
     const result = dailyCostsProcessor.process(campaign, campaign.currentDate);
 
-    expect(result.events[0].severity).toBe("warning");
+    expect(result.events[0].severity).toBe('warning');
   });
 
-  it("should return empty events when no costs", () => {
+  it('should return empty events when no costs', () => {
     const campaign = createTestCampaign();
     const result = dailyCostsProcessor.process(campaign, campaign.currentDate);
 
@@ -221,13 +221,13 @@ describe("dailyCostsProcessor", () => {
   });
 });
 
-describe("registerBuiltinProcessors", () => {
+describe('registerBuiltinProcessors', () => {
   afterEach(() => {
     _resetDayPipeline();
     _resetBuiltinRegistration();
   });
 
-  it("should register all twelve builtin processors", () => {
+  it('should register all twelve builtin processors', () => {
     registerBuiltinProcessors();
     const processors = getDayPipeline().getProcessors();
 
@@ -236,23 +236,23 @@ describe("registerBuiltinProcessors", () => {
     expect(processors).toHaveLength(12);
     expect(processors.map((p) => p.id).sort()).toEqual(
       [
-        "healing",
-        "auto-awards",
-        "unit-market",
-        "personnel-market",
-        "contract-market",
-        "post-battle",
-        "salvage",
-        "contracts",
-        "repair-queue-builder",
-        "dailyCosts",
-        "acquisition",
-        "random-events",
+        'healing',
+        'auto-awards',
+        'unit-market',
+        'personnel-market',
+        'contract-market',
+        'post-battle',
+        'salvage',
+        'contracts',
+        'repair-queue-builder',
+        'dailyCosts',
+        'acquisition',
+        'random-events',
       ].sort(),
     );
   });
 
-  it("should be idempotent (calling twice registers once)", () => {
+  it('should be idempotent (calling twice registers once)', () => {
     registerBuiltinProcessors();
     registerBuiltinProcessors();
 
@@ -260,14 +260,16 @@ describe("registerBuiltinProcessors", () => {
     expect(processors).toHaveLength(12);
   });
 
-  it("should register processors in correct phase order", () => {
+  it('should register processors in correct phase order', () => {
     registerBuiltinProcessors();
     const processors = getDayPipeline().getProcessors();
 
-    // post-battle (350) and salvage (375) sit between MARKETS (300) and
-    // MISSIONS (400). The pipeline sorts ascending by phase, so the
-    // expected order is: PERSONNEL × 2, MARKETS × 3, post-battle,
-    // salvage, MISSIONS, FINANCES, EVENTS × 2.
+    // Wave 5 (round-trip wiring) reordered the battle-effects block:
+    //   postBattle (350) → salvage (375) → repair (390) → contracts (400)
+    // so contracts see fully-applied salvage + repair state. Pipeline
+    // sorts ascending by phase, so the expected order is:
+    //   PERSONNEL × 2, MARKETS × 3, post-battle, salvage, repair,
+    //   contracts, FINANCES, EVENTS × 2.
     expect(processors[0].phase).toBe(DayPhase.PERSONNEL);
     expect(processors[1].phase).toBe(DayPhase.PERSONNEL);
     expect(processors[2].phase).toBe(DayPhase.MARKETS);
@@ -275,8 +277,8 @@ describe("registerBuiltinProcessors", () => {
     expect(processors[4].phase).toBe(DayPhase.MARKETS);
     expect(processors[5].phase).toBe(DayPhase.MISSIONS - 50); // post-battle
     expect(processors[6].phase).toBe(DayPhase.MISSIONS - 25); // salvage
-    expect(processors[7].phase).toBe(DayPhase.MISSIONS); // contracts
-    expect(processors[8].phase).toBe(DayPhase.UNITS); // repair-queue-builder
+    expect(processors[7].phase).toBe(DayPhase.MISSIONS - 10); // repair
+    expect(processors[8].phase).toBe(DayPhase.MISSIONS); // contracts
     expect(processors[9].phase).toBe(DayPhase.FINANCES);
     expect(processors[10].phase).toBe(DayPhase.EVENTS);
     expect(processors[11].phase).toBe(DayPhase.EVENTS);

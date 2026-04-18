@@ -44,6 +44,7 @@ import { logger } from '@/utils/logger';
 
 import type { IDayProcessor, IDayProcessorResult } from '../dayPipeline';
 
+import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
 import {
   applyXPAward,
@@ -436,13 +437,29 @@ function applyOutcome(
     (o) => o.matchId !== outcome.matchId,
   );
 
-  const updatedCampaign: ICampaignWithBattleState = {
+  // Per `wire-encounter-to-campaign-round-trip`: hand the just-applied
+  // outcome to downstream battle-effects processors (salvage, repair)
+  // via `recentlyAppliedOutcomes`. Without this stage, those processors
+  // would see an empty queue (we just drained it) and emit nothing.
+  const recentlyApplied = [
+    ...((
+      campaign as ICampaignWithBattleState & {
+        readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+      }
+    ).recentlyAppliedOutcomes ?? []),
+    outcome,
+  ];
+
+  const updatedCampaign: ICampaignWithBattleState & {
+    readonly recentlyAppliedOutcomes: readonly ICombatOutcome[];
+  } = {
     ...campaign,
     personnel,
     missions,
     pendingBattleOutcomes: remainingQueue,
     processedBattleIds: [...processed, outcome.matchId],
     unitCombatStates: unitStates,
+    recentlyAppliedOutcomes: recentlyApplied,
     updatedAt: nowIso,
   };
 
@@ -530,9 +547,7 @@ export const postBattleProcessor: IDayProcessor = {
  * `processorRegistration.ts`.
  */
 export function registerPostBattleProcessor(): void {
-  // Inline import avoids a cycle with `processorRegistration.ts`.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { getDayPipeline } =
-    require('../dayPipeline') as typeof import('../dayPipeline');
+  // Static import lives at the top of the file — `processorRegistration`
+  // already does the same, so there's no real cycle to dodge here.
   getDayPipeline().register(postBattleProcessor);
 }
