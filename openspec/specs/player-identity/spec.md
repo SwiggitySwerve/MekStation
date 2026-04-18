@@ -1,8 +1,11 @@
 # player-identity Specification
 
 ## Purpose
+
 TBD - created by archiving change add-player-identity-and-auth. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Player Reference Model
 
 The system SHALL represent a networked player with an `IPlayerRef`
@@ -134,4 +137,3 @@ survive token expiry without losing the connection.
 - **WHEN** the server verifies it
 - **THEN** verification SHALL pass
 - **AND** the drift SHALL be tolerated up to 10 seconds
-

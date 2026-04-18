@@ -1,8 +1,11 @@
 # multiplayer-server Specification
 
 ## Purpose
+
 TBD - created by archiving change add-multiplayer-server-infrastructure. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: WebSocket Transport
 
 The system SHALL provide a bidirectional WebSocket channel for clients
@@ -615,4 +618,3 @@ matches; the authoritative state SHALL be recoverable from the
 'active'` and re-instantiate `ServerMatchHost` for each
 - **AND** clients reconnecting after restart SHALL receive the full
   replay starting from their `lastSeq`
-

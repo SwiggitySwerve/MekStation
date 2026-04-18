@@ -3,7 +3,9 @@
 ## Purpose
 
 The Dice System provides the foundational random number generation and dice rolling functionality for all BattleTech gameplay mechanics. It defines two complementary roller types—`D6Roller` for single die rolls and `DiceRoller` for complete 2d6 results—and implements the injectable dependency injection pattern to enable deterministic testing, seeded randomness, and replay functionality. This system is the single source of truth for all dice operations across combat resolution, fall mechanics, physical attacks, and other gameplay systems that require randomness.
+
 ## Requirements
+
 ### Requirement: D6Roller Type Definition
 
 The system SHALL define a `D6Roller` type as a function that returns a single d6 value (1-6) with no parameters.
@@ -306,4 +308,3 @@ display values SHALL come from event payloads.
 - **THEN** a console error SHALL be logged with the event's `type`
   and `sequence`
 - **AND** the display SHALL show `"?"` rather than a fabricated value
-

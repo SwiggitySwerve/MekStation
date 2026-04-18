@@ -7,7 +7,9 @@ The Game Session Management system is the top-level orchestrator for BattleTech 
 The session operates on an immutable, event-sourced architecture. Every action (movement declaration, attack declaration, attack resolution, damage application, heat generation) produces an immutable event that is appended to the session's event log. The current game state is always derived from the full event sequence via the game-state-management system. This ensures deterministic replay, complete audit trails, and consistent state across all consumers. The session layer orchestrates the _flow_ of gameplay—it determines when actions are valid, sequences resolution steps correctly, and enforces phase discipline—while delegating the mechanics of each subsystem to their respective modules.
 
 **Implementation**: `src/utils/gameplay/gameSession.ts`
+
 ## Requirements
+
 ### Requirement: Session Creation
 
 The system SHALL create a new game session from a configuration and a list of units, producing an initial event log with a single GameCreated event and a derived initial state.

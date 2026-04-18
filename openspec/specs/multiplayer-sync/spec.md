@@ -1,8 +1,11 @@
 # multiplayer-sync Specification
 
 ## Purpose
+
 TBD - created by archiving change add-multiplayer-lobby-and-matchmaking-2-8. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Lobby Update Broadcast
 
 The server SHALL broadcast lobby state to all connected clients in the
@@ -54,4 +57,3 @@ lobby page via the code.
 - **THEN** the page SHALL render an error message
   `"This match has already started"`
 - **AND** offer a link back to the landing page
-

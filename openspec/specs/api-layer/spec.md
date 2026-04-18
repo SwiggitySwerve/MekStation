@@ -3,7 +3,9 @@
 ## Purpose
 
 Defines the complete REST API layer for MekStation, covering all 58 HTTP endpoints across 10 resource domains. Provides standardized request/response patterns, error handling, validation rules, and authentication mechanisms for client-server communication.
+
 ## Requirements
+
 ### Requirement: Health Check Endpoint
 
 The system SHALL provide a health check endpoint for monitoring and load balancing.

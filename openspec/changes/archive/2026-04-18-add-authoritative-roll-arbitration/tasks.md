@@ -9,8 +9,7 @@
       (implementation pulls from a 64-byte refill buffer one byte at
       a time and mods 6 — functionally equivalent and reduces
       `randomBytes` system calls)
-- [x] 1.3 Include a rejection-sampling loop to avoid mod bias (bytes
-      >= 252 are discarded and re-drawn so retained bytes map
+- [x] 1.3 Include a rejection-sampling loop to avoid mod bias (bytes >= 252 are discarded and re-drawn so retained bytes map
       uniformly onto [1, 6])
 - [x] 1.4 Unit test: 100,000 rolls show uniform distribution across
       1–6 within a 1% tolerance per face (shipped at 2% tolerance in
@@ -136,7 +135,7 @@ test.ts: produces deterministic InitiativeRolled output for the
       same diceSeed`)
 - [x] 9.2 Integration test: attempting to send an intent with embedded
       rolls is rejected (`ServerMatchHostRollArbitration.test.ts:
-      rejects an intent whose payload carries a forbidden dice field`)
+  rejects an intent whose payload carries a forbidden dice field`)
 - [ ] 9.3 Integration test: every networked event inspected across a
       20-turn match either carries no `rolls` (deterministic event) or
       a non-empty `rolls` array (dice event) → deferred: 20-turn

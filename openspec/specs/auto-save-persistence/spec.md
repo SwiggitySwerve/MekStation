@@ -43,7 +43,9 @@ This specification defines the auto-save and state persistence subsystem for Mek
 - **Debouncing**: Delay before autosave triggers after state change, preventing excessive writes during rapid edits
 
 ---
+
 ## Requirements
+
 ### Requirement: Auto-Save Indicator
 
 The system SHALL provide a `useAutoSaveIndicator` hook that subscribes to unit store changes and displays a success toast after a debounce period.
