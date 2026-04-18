@@ -5,15 +5,21 @@
  * ProtoMechs are small, Clan-tech combat walkers operating in points.
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.3
+ * @spec openspec/changes/add-protomech-construction/tasks.md §1
  */
 
-import { ProtoMechLocation } from '@/types/construction/UnitLocation';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { TechBase } from '@/types/enums/TechBase';
-import { IEquipmentItem } from '@/types/equipment';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { IProtoMechMountedEquipment } from '@/types/unit/PersonnelInterfaces';
-import { generateUnitId as generateUUID } from '@/utils/uuid';
+import { ProtoMechLocation } from "@/types/construction/UnitLocation";
+import { RulesLevel } from "@/types/enums/RulesLevel";
+import { TechBase } from "@/types/enums/TechBase";
+import { IEquipmentItem } from "@/types/equipment";
+import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import { IProtoMechMountedEquipment } from "@/types/unit/PersonnelInterfaces";
+import {
+  ProtoChassis,
+  ProtoWeightClass,
+} from "@/types/unit/ProtoMechInterfaces";
+import { getProtoWeightClass } from "@/utils/construction/protomech";
+import { generateUnitId as generateUUID } from "@/utils/uuid";
 
 // =============================================================================
 // ProtoMech Armor/Structure Allocation
@@ -128,16 +134,22 @@ export interface ProtoMechState {
   /** Unit type (always PROTOMECH) */
   unitType: UnitType.PROTOMECH;
 
-  /** Weight per unit in tons (2-9 tons) */
+  /** Weight per unit in tons (2–15 tons; Ultraheavy up to 15) */
   tonnage: number;
+
+  /** Derived weight class from tonnage */
+  weightClass: ProtoWeightClass;
+
+  /** Chassis type (Biped / Quad / Glider / Ultraheavy) — canonical field */
+  chassisType: ProtoChassis;
 
   /** Point size (typically 5 ProtoMechs per point) */
   pointSize: number;
 
-  /** Is this a quad ProtoMech */
+  /** @deprecated Use chassisType === ProtoChassis.QUAD. Kept for backward compat. */
   isQuad: boolean;
 
-  /** Is this a glider ProtoMech */
+  /** @deprecated Use chassisType === ProtoChassis.GLIDER. Kept for backward compat. */
   isGlider: boolean;
 
   // =========================================================================
@@ -316,8 +328,8 @@ export function createDefaultProtoMechState(
 ): ProtoMechState {
   const now = Date.now();
   const id = options.id ?? generateUUID();
-  const chassis = options.chassis ?? 'New ProtoMech';
-  const model = options.model ?? '';
+  const chassis = options.chassis ?? "New ProtoMech";
+  const model = options.model ?? "";
   const tonnage = options.tonnage ?? 5;
 
   // Calculate cruise MP from tonnage (simplified)
@@ -326,10 +338,10 @@ export function createDefaultProtoMechState(
   return {
     // Identity
     id,
-    name: `${chassis}${model ? ' ' + model : ''}`,
+    name: `${chassis}${model ? " " + model : ""}`,
     chassis,
     model,
-    mulId: '-1',
+    mulId: "-1",
     year: 3060,
     rulesLevel: RulesLevel.ADVANCED,
 
@@ -337,6 +349,8 @@ export function createDefaultProtoMechState(
     techBase: TechBase.CLAN, // ProtoMechs are always Clan tech
     unitType: UnitType.PROTOMECH,
     tonnage,
+    weightClass: getProtoWeightClass(tonnage),
+    chassisType: options.isQuad ? ProtoChassis.QUAD : ProtoChassis.BIPED,
     pointSize: 5,
     isQuad: options.isQuad ?? false,
     isGlider: false,
