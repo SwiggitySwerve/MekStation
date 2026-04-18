@@ -22,3 +22,4 @@ export * from './useTouchTarget';
 export * from './useEquipmentFiltering';
 export * from './useMovementCalculations';
 export * from './useSyncToasts';
+export * from './useQuickResolve';

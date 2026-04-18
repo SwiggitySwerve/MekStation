@@ -185,13 +185,17 @@ export function roll2d6(diceRoller: D6Roller = defaultD6Roller): number {
 export function rollInitiative(
   session: IGameSession,
   movesFirst?: GameSide,
+  diceRoller: D6Roller = defaultD6Roller,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Initiative) {
     throw new Error('Not in initiative phase');
   }
 
-  const playerRoll = roll2d6();
-  const opponentRoll = roll2d6();
+  // Per `add-quick-resolve-monte-carlo`: accept an injectable D6 roller
+  // so the Monte Carlo wrapper can drive initiative deterministically
+  // from a SeededRandom. Default preserves prior behavior (Math.random).
+  const playerRoll = roll2d6(diceRoller);
+  const opponentRoll = roll2d6(diceRoller);
 
   let winner: GameSide;
   if (playerRoll > opponentRoll) {

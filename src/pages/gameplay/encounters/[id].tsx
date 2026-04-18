@@ -6,8 +6,9 @@
  */
 
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { IQuickResolveBattleConfig } from '@/simulation/QuickResolveService';
 import type { IGeneratedScenario } from '@/types/scenario';
 
 import { GenerateScenarioModal } from '@/components/gameplay';
@@ -23,10 +24,13 @@ import {
   EncounterForcesCard,
   EncounterValidationCard,
 } from '@/components/gameplay/pages/EncounterDetailPage.sections';
+import { buildPreparedBattleData } from '@/components/gameplay/pages/preBattleSessionBuilder';
+import { QuickResolveLauncher } from '@/components/gameplay/quickResolve/QuickResolveLauncher';
 import { useToast } from '@/components/shared/Toast';
 import { Badge, Button, PageLayout } from '@/components/ui';
 import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useForceStore } from '@/stores/useForceStore';
+import { usePilotStore } from '@/stores/usePilotStore';
 import { EncounterStatus, SCENARIO_TEMPLATES } from '@/types/encounter';
 import { getStatusColor, getStatusLabel } from '@/utils/encounterStatus';
 import { logger } from '@/utils/logger';
@@ -47,11 +51,20 @@ export default function EncounterDetailPage(): React.ReactElement {
     clearError,
   } = useEncounterStore();
 
-  const { loadForces } = useForceStore();
+  const { forces, loadForces } = useForceStore();
+  const { pilots, loadPilots } = usePilotStore();
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
+
+  // Quick Resolve UI state — modal open + selected run count + a
+  // memoized battle config built on demand from the encounter forces.
+  const [showQuickResolveModal, setShowQuickResolveModal] = useState(false);
+  const [quickResolveRunCount, setQuickResolveRunCount] = useState(100);
+  const [quickResolveBattle, setQuickResolveBattle] =
+    useState<IQuickResolveBattleConfig | null>(null);
+  const [isPreparingBattle, setIsPreparingBattle] = useState(false);
 
   const encounter = id && typeof id === 'string' ? getEncounter(id) : null;
   const validation =
@@ -64,12 +77,12 @@ export default function EncounterDetailPage(): React.ReactElement {
 
   useEffect(() => {
     const initialize = async () => {
-      await Promise.all([loadEncounters(), loadForces()]);
+      await Promise.all([loadEncounters(), loadForces(), loadPilots()]);
       setIsInitialized(true);
     };
 
     void initialize();
-  }, [loadEncounters, loadForces]);
+  }, [loadEncounters, loadForces, loadPilots]);
 
   useEffect(() => {
     if (isInitialized && id && typeof id === 'string') {
@@ -125,6 +138,73 @@ export default function EncounterDetailPage(): React.ReactElement {
     [id, clearError, validateEncounter, showToast],
   );
 
+  // ---------------------------------------------------------------------------
+  // Quick Resolve handlers (Phase 2 add-quick-resolve-monte-carlo § 6)
+  // ---------------------------------------------------------------------------
+
+  // Resolve the encounter's actual force objects from the store. Memoized
+  // so the open handler's dep list is stable across renders.
+  const playerForce = useMemo(() => {
+    if (!encounter?.playerForce) return undefined;
+    return forces.find((f) => f.id === encounter.playerForce?.forceId);
+  }, [encounter, forces]);
+  const opponentForce = useMemo(() => {
+    if (!encounter?.opponentForce) return undefined;
+    return forces.find((f) => f.id === encounter.opponentForce?.forceId);
+  }, [encounter, forces]);
+
+  const openQuickResolveModal = useCallback(async () => {
+    if (!playerForce || !opponentForce) {
+      showToast({
+        message: 'Both forces must be configured to Quick Resolve',
+        variant: 'error',
+      });
+      return;
+    }
+    setIsPreparingBattle(true);
+    try {
+      const prepared = await buildPreparedBattleData({
+        playerForce,
+        opponentForce,
+        pilots,
+      });
+      if (
+        prepared.playerAdapted.length === 0 ||
+        prepared.opponentAdapted.length === 0
+      ) {
+        showToast({
+          message: 'Failed to load unit data for one or both forces',
+          variant: 'error',
+        });
+        return;
+      }
+      setQuickResolveBattle({
+        playerUnits: prepared.playerAdapted,
+        opponentUnits: prepared.opponentAdapted,
+        gameUnits: prepared.gameUnits,
+      });
+      setShowQuickResolveModal(true);
+    } catch (err) {
+      logger.error('Quick Resolve setup failed:', err);
+      showToast({
+        message:
+          err instanceof Error
+            ? err.message
+            : 'Failed to prepare Quick Resolve',
+        variant: 'error',
+      });
+    } finally {
+      setIsPreparingBattle(false);
+    }
+  }, [playerForce, opponentForce, pilots, showToast]);
+
+  const closeQuickResolveModal = useCallback(() => {
+    setShowQuickResolveModal(false);
+    // Keep `quickResolveBattle` so the modal can re-open without
+    // reloading; reset on encounter change naturally happens via
+    // unmount of the page.
+  }, []);
+
   if (!isInitialized || isLoading) {
     return <EncounterDetailLoadingState />;
   }
@@ -163,19 +243,34 @@ export default function EncounterDetailPage(): React.ReactElement {
           </Badge>
 
           {!isLaunched && !isCompleted && (
-            <Button
-              variant="primary"
-              disabled={!canLaunch}
-              onClick={handleLaunch}
-              title={
-                canLaunch
-                  ? 'Launch this encounter'
-                  : 'Fix validation errors first'
-              }
-              data-testid="launch-encounter-btn"
-            >
-              Launch Battle
-            </Button>
+            <>
+              <Button
+                variant="secondary"
+                disabled={!canLaunch || isPreparingBattle}
+                onClick={() => void openQuickResolveModal()}
+                title={
+                  canLaunch
+                    ? 'Run a Monte Carlo batch to estimate win probability'
+                    : 'Fix validation errors first'
+                }
+                data-testid="quick-resolve-btn"
+              >
+                {isPreparingBattle ? 'Preparing...' : 'Quick Resolve'}
+              </Button>
+              <Button
+                variant="primary"
+                disabled={!canLaunch}
+                onClick={handleLaunch}
+                title={
+                  canLaunch
+                    ? 'Launch this encounter'
+                    : 'Fix validation errors first'
+                }
+                data-testid="launch-encounter-btn"
+              >
+                Launch Battle
+              </Button>
+            </>
           )}
         </div>
       }
@@ -224,6 +319,33 @@ export default function EncounterDetailPage(): React.ReactElement {
         playerUnitCount={encounter.playerForce?.unitCount || 0}
         onGenerate={handleGenerateScenario}
       />
+
+      {showQuickResolveModal && quickResolveBattle && (
+        <QuickResolveLauncher
+          battle={quickResolveBattle}
+          encounterId={encounterId}
+          runCount={quickResolveRunCount}
+          onRunCountChange={setQuickResolveRunCount}
+          onClose={closeQuickResolveModal}
+          onComplete={(result) => {
+            logger.info('Quick Resolve batch complete', {
+              encounterId,
+              totalRuns: result.totalRuns,
+              baseSeed: result.baseSeed,
+              winProbability: result.winProbability,
+            });
+            // Sub-Branch B owns the result-display surface at
+            // `/gameplay/encounters/[id]/sim`. For now we close the
+            // modal and emit a toast — once B lands the surface we'll
+            // route there with the result in route state / query.
+            showToast({
+              message: `Batch complete — Player wins ${(result.winProbability.player * 100).toFixed(1)}%`,
+              variant: 'success',
+            });
+            closeQuickResolveModal();
+          }}
+        />
+      )}
     </PageLayout>
   );
 }

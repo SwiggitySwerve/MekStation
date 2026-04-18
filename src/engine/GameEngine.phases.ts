@@ -13,6 +13,11 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import {
+  type D6Roller,
+  type DiceRoller,
+  defaultD6Roller,
+} from '@/utils/gameplay/diceTypes';
 import { createRetreatTriggeredEvent } from '@/utils/gameplay/gameEvents';
 import {
   rollInitiative,
@@ -31,6 +36,25 @@ import {
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { toAIUnitState } from './GameEngine.helpers';
+
+/**
+ * Adapt a single-d6 roller into the 2d6 `DiceRoller` shape used by
+ * combat resolution helpers. Centralizes the conversion so callers only
+ * need to wire one PRNG-backed function.
+ */
+function toDiceRoller(d6: D6Roller): DiceRoller {
+  return () => {
+    const die1 = d6();
+    const die2 = d6();
+    const total = die1 + die2;
+    return {
+      dice: [die1, die2] as const,
+      total,
+      isSnakeEyes: total === 2,
+      isBoxcars: total === 12,
+    };
+  };
+}
 
 /**
  * Per `wire-bot-ai-helpers-and-capstone`: default attacker tonnage
@@ -212,6 +236,7 @@ export function runPhysicalAttackPhase(
   weaponsByUnit: Map<string, readonly IWeapon[]>,
   gunneryByUnit: Map<string, number>,
   pilotingByUnit: Map<string, number>,
+  d6Roller: D6Roller = defaultD6Roller,
 ): IGameSession {
   let updatedSession = session;
 
@@ -263,7 +288,13 @@ export function runPhysicalAttackPhase(
       hexesMoved: u.hexesMovedThisTurn,
     });
   }
-  updatedSession = resolveAllPhysicalAttacks(updatedSession, contextMap);
+  // Per `add-quick-resolve-monte-carlo`: thread the seeded roller into
+  // physical-attack resolution so Monte Carlo batches stay deterministic.
+  updatedSession = resolveAllPhysicalAttacks(
+    updatedSession,
+    contextMap,
+    toDiceRoller(d6Roller),
+  );
 
   return updatedSession;
 }
