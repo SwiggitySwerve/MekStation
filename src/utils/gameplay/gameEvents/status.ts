@@ -8,6 +8,7 @@ import {
   IPilotHitPayload,
   IPSRResolvedPayload,
   IPSRTriggeredPayload,
+  IRetreatTriggeredPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IUnitDestroyedPayload,
@@ -453,6 +454,36 @@ export function createPhysicalAttackResolvedEvent(
       turn,
       GamePhase.PhysicalAttack,
       attackerId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Per `wire-bot-ai-helpers-and-capstone`: emitted when a bot-controlled
+ * unit crosses its retreat trigger. `edge` is the resolved concrete edge
+ * (`'nearest'` is converted upstream by `resolveEdge`). `phase` carries
+ * the phase at the time of trigger so replay consumers can show "X
+ * started retreating during Movement on turn 4".
+ */
+export function createRetreatTriggeredEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  edge: 'north' | 'south' | 'east' | 'west',
+  reason: 'structural_threshold' | 'vital_crit',
+): IGameEvent {
+  const payload: IRetreatTriggeredPayload = { unitId, edge, reason };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.RetreatTriggered,
+      turn,
+      phase,
+      unitId,
     ),
     payload,
   };

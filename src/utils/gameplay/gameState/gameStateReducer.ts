@@ -20,6 +20,7 @@ import {
   IPilotHitPayload,
   IPSRResolvedPayload,
   IPSRTriggeredPayload,
+  IRetreatTriggeredPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IUnitDestroyedPayload,
@@ -49,6 +50,7 @@ import {
   applyPhysicalAttackResolved,
   applyPSRResolved,
   applyPSRTriggered,
+  applyRetreatTriggered,
   applyShutdownCheck,
   applyStartupAttempt,
   applyUnitFell,
@@ -168,6 +170,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.AmmoConsumed:
       return applyAmmoConsumed(state, event.payload as IAmmoConsumedPayload);
+
+    case GameEventType.RetreatTriggered:
+      return applyRetreatTriggered(
+        state,
+        event.payload as IRetreatTriggeredPayload,
+      );
 
     case GameEventType.TurnEnded:
     case GameEventType.InitiativeOrderSet:

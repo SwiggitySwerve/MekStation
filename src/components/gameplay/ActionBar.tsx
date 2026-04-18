@@ -24,6 +24,14 @@ export interface ActionBarProps {
   onAction: (actionId: string) => void;
   /** Optional additional info to display */
   infoText?: string;
+  /**
+   * Optional content rendered in the top-right of the bar (e.g. the
+   * always-visible Concede button). Kept as an opaque slot so the
+   * action bar does not need to know about session/router internals.
+   *
+   * @spec openspec/changes/add-victory-and-post-battle-summary
+   */
+  trailingActions?: React.ReactNode;
   /** Optional className for styling */
   className?: string;
 }
@@ -90,6 +98,7 @@ export function ActionBar({
   canAct,
   onAction,
   infoText,
+  trailingActions,
   className = '',
 }: ActionBarProps): React.ReactElement {
   const actions = getPhaseActions(phase, canUndo);
@@ -154,9 +163,22 @@ export function ActionBar({
           />
         ))}
       </div>
-      {infoText && (
-        <div className="text-text-theme-secondary text-sm">{infoText}</div>
-      )}
+      <div className="flex items-center gap-3">
+        {infoText && (
+          <div className="text-text-theme-secondary text-sm">{infoText}</div>
+        )}
+        {/* Trailing slot — used by GameplayLayout to mount the always-visible
+            Concede button (and any future high-priority controls) without
+            forcing a new prop-cascade through every action-bar consumer. */}
+        {trailingActions && (
+          <div
+            className="flex items-center gap-2"
+            data-testid="action-bar-trailing"
+          >
+            {trailingActions}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
