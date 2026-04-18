@@ -24,6 +24,10 @@
  */
 
 import {
+  encodeTokenForWire,
+  type IPlayerToken,
+} from '@/types/multiplayer/Player';
+import {
   ClientMessageSchema,
   ServerMessageSchema,
   RECONNECT_INITIAL_MS,
@@ -117,21 +121,38 @@ interface IClientState {
 // =============================================================================
 
 /**
+ * Auth blob accepted by `connect`. Wave 2 prefers a structured
+ * `IPlayerToken` (signed Ed25519 bearer); a raw `string` is still
+ * accepted for backward compatibility with Wave 1 fixtures and unit
+ * tests that don't want to mint a real signature.
+ */
+export type IClientAuth =
+  | { playerId: string; token: IPlayerToken }
+  | { playerId: string; token: string };
+
+/**
  * Connect to a multiplayer server and return a client handle.
  *
  * @param url      Full WebSocket URL (`ws://host/api/multiplayer/socket`)
  * @param matchId  Match identifier; appended as `?matchId=` query param
- * @param auth     Auth blob with `playerId` + opaque `token` string.
- *                 Wave 2 makes the token meaningful; Wave 1 just routes
- *                 it through.
+ * @param auth     Auth blob with `playerId` + token. Token is a signed
+ *                 `IPlayerToken` in production; a raw string is still
+ *                 accepted for legacy/test paths.
  * @param options  Reconnect / factory overrides for tests.
  */
 export function connect(
   url: string,
   matchId: string,
-  auth: { playerId: string; token: string },
+  auth: IClientAuth,
   options: IConnectOptions = {},
 ): IMultiplayerClient {
+  // Pre-encode the token to its wire form ONCE so every URL/SessionJoin
+  // sees the same bytes. Structured tokens become base64-of-JSON; raw
+  // strings pass through (legacy/test path).
+  const wireToken: string =
+    typeof auth.token === 'string'
+      ? auth.token
+      : encodeTokenForWire(auth.token);
   const listeners = new Map<IClientEventName, Set<IClientEventHandler>>();
 
   const state: IClientState = {
@@ -165,7 +186,7 @@ export function connect(
     const sep = url.includes('?') ? '&' : '?';
     const params = new URLSearchParams({
       matchId,
-      token: auth.token,
+      token: wireToken,
       playerId: auth.playerId,
     });
     return `${url}${sep}${params.toString()}`;
@@ -184,7 +205,7 @@ export function connect(
         matchId,
         ts: nowIso(),
         playerId: auth.playerId,
-        token: auth.token,
+        token: wireToken,
         ...(state.lastSeq >= 0 ? { lastSeq: state.lastSeq + 1 } : {}),
       };
       const parsed = ClientMessageSchema.safeParse(join);

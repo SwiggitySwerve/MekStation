@@ -25,8 +25,144 @@
 
 const { createServer } = require('node:http');
 const { parse } = require('node:url');
+const { webcrypto } = require('node:crypto');
 const next = require('next');
 const { WebSocketServer } = require('ws');
+
+// =============================================================================
+// Inlined Wave 2 token verification (mirror of src/lib/multiplayer/server/auth.ts)
+//
+// server.js is plain CommonJS so it can't import the TS verification path
+// directly. The logic below is intentionally a small mirror of `auth.ts`
+// — both must produce byte-identical canonical signing payloads or
+// every upgrade will fail. If you change the canonical payload or the
+// playerId derivation here, also change the TS side (and vice versa).
+// =============================================================================
+
+const BASE58_ALPHABET =
+  '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const PLAYER_ID_PREFIX = 'pid_';
+const PLAYER_ID_BYTES = 20;
+const CLOCK_DRIFT_MS = 10_000;
+
+function bytesToBase58(bytes) {
+  if (bytes.length === 0) return '';
+  let leadingZeros = 0;
+  while (leadingZeros < bytes.length && bytes[leadingZeros] === 0) {
+    leadingZeros += 1;
+  }
+  let value = 0n;
+  for (const byte of bytes) {
+    value = (value << 8n) | BigInt(byte);
+  }
+  const out = [];
+  while (value > 0n) {
+    out.push(BASE58_ALPHABET[Number(value % 58n)]);
+    value /= 58n;
+  }
+  for (let i = 0; i < leadingZeros; i += 1) out.push(BASE58_ALPHABET[0]);
+  return out.reverse().join('');
+}
+
+function deriveServerPlayerId(publicKeyBytes) {
+  if (publicKeyBytes.length < PLAYER_ID_BYTES) return null;
+  return (
+    PLAYER_ID_PREFIX + bytesToBase58(publicKeyBytes.slice(0, PLAYER_ID_BYTES))
+  );
+}
+
+function canonicalPayload(playerId, issuedAt, expiresAt) {
+  // Object key order MUST be alphabetical — matches TS auth.ts canonicalTokenPayload.
+  return JSON.stringify({ expiresAt, issuedAt, playerId });
+}
+
+function decodeWireToken(wire) {
+  if (typeof wire !== 'string' || wire.length === 0) return null;
+  let json;
+  try {
+    json = Buffer.from(wire, 'base64').toString('utf8');
+  } catch {
+    return null;
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return null;
+  }
+  if (!parsed || typeof parsed !== 'object') return null;
+  const { playerId, issuedAt, expiresAt, publicKey, signature } = parsed;
+  if (
+    typeof playerId !== 'string' ||
+    typeof issuedAt !== 'string' ||
+    typeof expiresAt !== 'string' ||
+    typeof publicKey !== 'string' ||
+    typeof signature !== 'string'
+  ) {
+    return null;
+  }
+  return { playerId, issuedAt, expiresAt, publicKey, signature };
+}
+
+/**
+ * Verify a wire-format token. Returns `{ ok: true, playerId }` on
+ * success, or `{ ok: false, reason }` on failure.
+ */
+async function verifyWireToken(wire, nowMs = Date.now()) {
+  const token = decodeWireToken(wire);
+  if (!token) return { ok: false, reason: 'malformed' };
+
+  const expiresMs = Date.parse(token.expiresAt);
+  if (!Number.isFinite(expiresMs)) return { ok: false, reason: 'malformed' };
+  if (expiresMs <= nowMs) return { ok: false, reason: 'expired' };
+
+  const issuedMs = Date.parse(token.issuedAt);
+  if (!Number.isFinite(issuedMs)) return { ok: false, reason: 'malformed' };
+  if (issuedMs > nowMs + CLOCK_DRIFT_MS) {
+    return { ok: false, reason: 'clock-drift' };
+  }
+
+  let publicKeyBytes;
+  let signatureBytes;
+  try {
+    publicKeyBytes = new Uint8Array(Buffer.from(token.publicKey, 'base64'));
+    signatureBytes = new Uint8Array(Buffer.from(token.signature, 'base64'));
+  } catch {
+    return { ok: false, reason: 'malformed' };
+  }
+  const derivedId = deriveServerPlayerId(publicKeyBytes);
+  if (!derivedId || derivedId !== token.playerId) {
+    return { ok: false, reason: 'pid-mismatch' };
+  }
+
+  const payload = canonicalPayload(
+    token.playerId,
+    token.issuedAt,
+    token.expiresAt,
+  );
+  const payloadBytes = new TextEncoder().encode(payload);
+  let verified = false;
+  try {
+    const key = await webcrypto.subtle.importKey(
+      'raw',
+      publicKeyBytes,
+      { name: 'Ed25519' },
+      false,
+      ['verify'],
+    );
+    verified = await webcrypto.subtle.verify(
+      'Ed25519',
+      key,
+      signatureBytes,
+      payloadBytes,
+    );
+  } catch {
+    return { ok: false, reason: 'bad-signature' };
+  }
+  if (!verified) return { ok: false, reason: 'bad-signature' };
+
+  return { ok: true, playerId: token.playerId };
+}
 
 // =============================================================================
 // Boot Next.js
@@ -81,15 +217,18 @@ app
     const wss = new WebSocketServer({ noServer: true });
 
     wss.on('connection', (ws, req) => {
-      // Wave 1 stub: log the connection + close it immediately with a
-      // friendly message. Wave 2 will wire `ServerMatchHost` lookups
-      // through the registry and start the SessionJoin handshake.
+      // The upgrade handler attaches the verified playerId on the
+      // request object before emitting the connection. Wave 3 will wire
+      // a real ServerMatchHost lookup here; Wave 2 just confirms the
+      // handshake succeeded and closes with a Wave 2 marker so the
+      // existing Wave 1 client tests keep their close-on-handshake
+      // expectations.
+      const verifiedPlayerId = req._mpVerifiedPlayerId;
       const url = parse(req.url ?? '/', true);
       const matchId = url.query.matchId;
-      const token = url.query.token;
       // eslint-disable-next-line no-console
       console.log(
-        `[mp-socket] connection accepted matchId=${matchId} hasToken=${!!token}`,
+        `[mp-socket] connection accepted matchId=${matchId} playerId=${verifiedPlayerId}`,
       );
       ws.send(
         JSON.stringify({
@@ -98,13 +237,13 @@ app
           ts: new Date().toISOString(),
           code: 'INTERNAL_ERROR',
           reason:
-            'WebSocket handler is a Wave 1 stub; full intent dispatch lands in Wave 2',
+            'WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3',
         }),
       );
-      ws.close(1011, 'wave-1-stub');
+      ws.close(1011, 'wave-2-stub');
     });
 
-    server.on('upgrade', (req, socket, head) => {
+    server.on('upgrade', async (req, socket, head) => {
       try {
         const parsedUrl = parse(req.url ?? '/', true);
         if (parsedUrl.pathname !== WS_UPGRADE_PATH) {
@@ -114,12 +253,35 @@ app
         const matchId = parsedUrl.query.matchId;
         const token = parsedUrl.query.token;
         if (!matchId || !token) {
-          // Reject the upgrade — return a 400 over the raw socket so a
+          // Missing either parameter — 400 over the raw socket so a
           // browser sees a meaningful error instead of a hung handshake.
           socket.write('HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n');
           socket.destroy();
           return;
         }
+        // Wave 2: cryptographically verify the bearer token before
+        // upgrading. On failure, return 401 over the raw socket so the
+        // client sees a clean rejection (the handshake never completes,
+        // so there's no WS frame to send — this is the standard ws
+        // server pattern).
+        const wireToken = Array.isArray(token) ? token[0] : token;
+        const verification = await verifyWireToken(wireToken);
+        if (!verification.ok) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[mp-socket] upgrade rejected matchId=${matchId} reason=${verification.reason}`,
+          );
+          socket.write(
+            'HTTP/1.1 401 Unauthorized\r\nContent-Length: 0\r\n\r\n',
+          );
+          socket.destroy();
+          return;
+        }
+        // Stash the verified id on the request so the connection
+        // handler can attach it to the per-socket bookkeeping. Using a
+        // private-prefixed property avoids collisions with existing
+        // request fields.
+        req._mpVerifiedPlayerId = verification.playerId;
         wss.handleUpgrade(req, socket, head, (ws) => {
           wss.emit('connection', ws, req);
         });

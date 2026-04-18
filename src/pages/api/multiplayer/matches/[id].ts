@@ -2,17 +2,20 @@
  * Multiplayer Matches API — single-match endpoints.
  *
  * `GET /api/multiplayer/matches/:id` — returns the match meta blob so
- * the lobby can render participants + status.
+ * the lobby can render participants + status. Requires authentication
+ * but no further authorization (any logged-in player can see lobbies).
  *
- * `DELETE /api/multiplayer/matches/:id` — host-only close. Wave 1 just
- * checks that the bearer token's playerId matches `meta.hostPlayerId`.
- * Wave 2 swaps in real Ed25519 verification.
+ * `DELETE /api/multiplayer/matches/:id` — host-only close. Wave 2
+ * verifies the Ed25519 bearer token, then asserts the verified
+ * `playerId === meta.hostPlayerId`.
  *
+ * @spec openspec/changes/add-player-identity-and-auth/specs/player-identity/spec.md
  * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import {
   MatchNotFoundError,
   type IMatchMeta,
@@ -37,18 +40,6 @@ interface IErrorResponse {
 }
 
 // =============================================================================
-// Helpers
-// =============================================================================
-
-function requirePlayerId(req: NextApiRequest): string | null {
-  const auth = req.headers.authorization ?? '';
-  const match = /^Bearer\s+(.+)$/i.exec(auth);
-  if (!match) return null;
-  const token = match[1].trim();
-  return token.length > 0 ? token : null;
-}
-
-// =============================================================================
 // Handler
 // =============================================================================
 
@@ -67,6 +58,11 @@ export default async function handler(
   const store = getDefaultMatchStore();
 
   if (req.method === 'GET') {
+    const auth = await authenticateRequest(req);
+    if (!auth.ok) {
+      res.status(401).json({ error: `Unauthorized: ${auth.reason}` });
+      return;
+    }
     try {
       const meta = await store.getMatchMeta(id);
       res.status(200).json({ meta });
@@ -84,9 +80,9 @@ export default async function handler(
   }
 
   if (req.method === 'DELETE') {
-    const playerId = requirePlayerId(req);
-    if (!playerId) {
-      res.status(401).json({ error: 'Missing Bearer token (playerId)' });
+    const auth = await authenticateRequest(req);
+    if (!auth.ok) {
+      res.status(401).json({ error: `Unauthorized: ${auth.reason}` });
       return;
     }
     let meta: IMatchMeta;
@@ -102,7 +98,7 @@ export default async function handler(
       });
       return;
     }
-    if (meta.hostPlayerId !== playerId) {
+    if (meta.hostPlayerId !== auth.playerId) {
       res.status(403).json({ error: 'Only the host may close the match' });
       return;
     }
