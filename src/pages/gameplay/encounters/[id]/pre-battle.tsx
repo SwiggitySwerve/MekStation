@@ -10,6 +10,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
+import type { IPilot } from '@/types/pilot';
+import type {
+  ISkirmishLaunchConfig,
+  ISkirmishUnitSelection,
+} from '@/utils/gameplay/preBattleSessionBuilder';
+
 import {
   BattlefieldCard,
   BVComparison,
@@ -17,6 +23,7 @@ import {
   MapConfigEditor,
   ModeSelection,
   ScenarioTemplateCard,
+  SkirmishLauncher,
 } from '@/components/gameplay/pages/PreBattlePage.sections';
 import {
   buildPreparedBattleData,
@@ -29,7 +36,12 @@ import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useForceStore } from '@/stores/useForceStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { usePilotStore } from '@/stores/usePilotStore';
-import { SCENARIO_TEMPLATES, type IEncounter } from '@/types/encounter';
+import {
+  EncounterStatus,
+  SCENARIO_TEMPLATES,
+  type IEncounter,
+} from '@/types/encounter';
+import { buildFromSkirmishConfig } from '@/utils/gameplay/preBattleSessionBuilder';
 import { logger } from '@/utils/logger';
 
 type BattleMode = 'auto' | 'interactive' | 'spectator';
@@ -78,6 +90,71 @@ export default function PreBattlePage(): React.ReactElement {
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
+
+  // Per-side skirmish picker state (add-skirmish-setup-ui § 2 + § 3).
+  // Local state lives here rather than a store because the launcher
+  // does not need to survive page navigation and a fresh skirmish
+  // should always start clean.
+  const [skirmishPlayerUnits, setSkirmishPlayerUnits] = useState<
+    readonly ISkirmishUnitSelection[]
+  >([]);
+  const [skirmishOpponentUnits, setSkirmishOpponentUnits] = useState<
+    readonly ISkirmishUnitSelection[]
+  >([]);
+  const [isSkirmishLaunching, setIsSkirmishLaunching] = useState(false);
+
+  // Mover-not-duplicator helper (spec § 3.3): if `pilot` is already
+  // assigned to a unit on either side, removes it from there before
+  // applying the new assignment. Updates BOTH side states atomically
+  // so the assignedPilotIds set the pickers compute stays consistent.
+  const assignPilotMoving = useCallback(
+    (
+      targetSide: 'player' | 'opponent',
+      unitId: string,
+      pilot: IPilot | null,
+    ) => {
+      const stripPilot = (
+        list: readonly ISkirmishUnitSelection[],
+      ): readonly ISkirmishUnitSelection[] => {
+        if (!pilot) {
+          return list;
+        }
+        return list.map((u) =>
+          u.pilot?.pilotId === pilot.id ? { ...u, pilot: null } : u,
+        );
+      };
+
+      const applyToTarget = (
+        list: readonly ISkirmishUnitSelection[],
+      ): readonly ISkirmishUnitSelection[] => {
+        return list.map((u) =>
+          u.unitId === unitId
+            ? {
+                ...u,
+                pilot: pilot
+                  ? {
+                      pilotId: pilot.id,
+                      callsign: pilot.callsign ?? pilot.name,
+                      gunnery: pilot.skills.gunnery,
+                      piloting: pilot.skills.piloting,
+                    }
+                  : null,
+              }
+            : u,
+        );
+      };
+
+      setSkirmishPlayerUnits((prev) => {
+        const stripped = stripPilot(prev);
+        return targetSide === 'player' ? applyToTarget(stripped) : stripped;
+      });
+      setSkirmishOpponentUnits((prev) => {
+        const stripped = stripPilot(prev);
+        return targetSide === 'opponent' ? applyToTarget(stripped) : stripped;
+      });
+    },
+    [],
+  );
 
   const encounter: IEncounter | undefined =
     id && typeof id === 'string' ? getEncounter(id) : undefined;
