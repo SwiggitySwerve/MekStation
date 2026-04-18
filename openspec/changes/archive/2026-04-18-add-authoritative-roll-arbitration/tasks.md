@@ -130,12 +130,12 @@ forbidden'}` (`Protocol.ts.intentHasForbiddenDiceField` +
 ## 9. Tests
 
 - [x] 9.1 Unit test: a seeded server session produces deterministic
-      outputs given a fixed seed (`ServerMatchHostRollArbitration.
-test.ts: produces deterministic InitiativeRolled output for the
-      same diceSeed`)
+      outputs given a fixed seed — see
+      `ServerMatchHostRollArbitration.test.ts` "produces deterministic
+      InitiativeRolled output for the same diceSeed"
 - [x] 9.2 Integration test: attempting to send an intent with embedded
-      rolls is rejected (`ServerMatchHostRollArbitration.test.ts:
-  rejects an intent whose payload carries a forbidden dice field`)
+      rolls is rejected — see `ServerMatchHostRollArbitration.test.ts`
+      "rejects an intent whose payload carries a forbidden dice field"
 - [ ] 9.3 Integration test: every networked event inspected across a
       20-turn match either carries no `rolls` (deterministic event) or
       a non-empty `rolls` array (dice event) → deferred: 20-turn
