@@ -1,16 +1,17 @@
-import { getDayPipeline } from "../dayPipeline";
-import { registerAcquisitionProcessor } from "./acquisitionProcessor";
-import { autoAwardsProcessor } from "./autoAwardsProcessor";
-import { contractProcessor } from "./contractProcessor";
-import { dailyCostsProcessor } from "./dailyCostsProcessor";
-import { healingProcessor } from "./healingProcessor";
+import { getDayPipeline } from '../dayPipeline';
+import { registerAcquisitionProcessor } from './acquisitionProcessor';
+import { autoAwardsProcessor } from './autoAwardsProcessor';
+import { contractProcessor } from './contractProcessor';
+import { dailyCostsProcessor } from './dailyCostsProcessor';
+import { healingProcessor } from './healingProcessor';
 import {
   contractMarketProcessor,
   personnelMarketProcessor,
   unitMarketProcessor,
-} from "./marketProcessors";
-import { postBattleProcessor } from "./postBattleProcessor";
-import { randomEventsProcessor } from "./randomEventsProcessor";
+} from './marketProcessors';
+import { postBattleProcessor } from './postBattleProcessor';
+import { randomEventsProcessor } from './randomEventsProcessor';
+import { salvageProcessor } from './salvageProcessor';
 
 let registered = false;
 
@@ -19,9 +20,13 @@ export function registerBuiltinProcessors(): void {
 
   const pipeline = getDayPipeline();
   // Post-battle runs FIRST so that healing sees fresh wounds and
-  // contractProcessor sees flipped mission statuses (Wave 3 will slot
-  // salvage / repair after this and before contractProcessor).
+  // contractProcessor sees flipped mission statuses. Wave 3 slots
+  // salvage AFTER post-battle (consuming its outcome data) and BEFORE
+  // contractProcessor (so contracts see salvage-derived state when
+  // computing final payments). Repair (Sub-Branch 3b) will follow
+  // salvage in a subsequent registration order.
   pipeline.register(postBattleProcessor);
+  pipeline.register(salvageProcessor);
   pipeline.register(healingProcessor);
   pipeline.register(contractProcessor);
   pipeline.register(dailyCostsProcessor);

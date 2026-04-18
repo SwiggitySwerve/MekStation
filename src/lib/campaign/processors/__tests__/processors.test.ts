@@ -227,22 +227,27 @@ describe('registerBuiltinProcessors', () => {
     _resetBuiltinRegistration();
   });
 
-  it('should register all nine builtin processors', () => {
+  it('should register all eleven builtin processors', () => {
     registerBuiltinProcessors();
     const processors = getDayPipeline().getProcessors();
 
-    expect(processors).toHaveLength(9);
-    expect(processors.map((p) => p.id)).toEqual([
-      'healing',
-      'auto-awards',
-      'unit-market',
-      'personnel-market',
-      'contract-market',
-      'contracts',
-      'dailyCosts',
-      'acquisition',
-      'random-events',
-    ]);
+    // 11 = 9 original + post-battle (Wave 2) + salvage (Wave 3).
+    expect(processors).toHaveLength(11);
+    expect(processors.map((p) => p.id).sort()).toEqual(
+      [
+        'healing',
+        'auto-awards',
+        'unit-market',
+        'personnel-market',
+        'contract-market',
+        'post-battle',
+        'salvage',
+        'contracts',
+        'dailyCosts',
+        'acquisition',
+        'random-events',
+      ].sort(),
+    );
   });
 
   it('should be idempotent (calling twice registers once)', () => {
@@ -250,21 +255,27 @@ describe('registerBuiltinProcessors', () => {
     registerBuiltinProcessors();
 
     const processors = getDayPipeline().getProcessors();
-    expect(processors).toHaveLength(9);
+    expect(processors).toHaveLength(11);
   });
 
   it('should register processors in correct phase order', () => {
     registerBuiltinProcessors();
     const processors = getDayPipeline().getProcessors();
 
+    // post-battle (350) and salvage (375) sit between MARKETS (300) and
+    // MISSIONS (400). The pipeline sorts ascending by phase, so the
+    // expected order is: PERSONNEL × 2, MARKETS × 3, post-battle,
+    // salvage, MISSIONS, FINANCES, EVENTS × 2.
     expect(processors[0].phase).toBe(DayPhase.PERSONNEL);
     expect(processors[1].phase).toBe(DayPhase.PERSONNEL);
     expect(processors[2].phase).toBe(DayPhase.MARKETS);
     expect(processors[3].phase).toBe(DayPhase.MARKETS);
     expect(processors[4].phase).toBe(DayPhase.MARKETS);
-    expect(processors[5].phase).toBe(DayPhase.MISSIONS);
-    expect(processors[6].phase).toBe(DayPhase.FINANCES);
-    expect(processors[7].phase).toBe(DayPhase.EVENTS);
-    expect(processors[8].phase).toBe(DayPhase.EVENTS);
+    expect(processors[5].phase).toBe(DayPhase.MISSIONS - 50); // post-battle
+    expect(processors[6].phase).toBe(DayPhase.MISSIONS - 25); // salvage
+    expect(processors[7].phase).toBe(DayPhase.MISSIONS); // contracts
+    expect(processors[8].phase).toBe(DayPhase.FINANCES);
+    expect(processors[9].phase).toBe(DayPhase.EVENTS);
+    expect(processors[10].phase).toBe(DayPhase.EVENTS);
   });
 });
