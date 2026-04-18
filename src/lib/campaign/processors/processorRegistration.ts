@@ -1,17 +1,18 @@
-import { getDayPipeline } from '../dayPipeline';
-import { registerAcquisitionProcessor } from './acquisitionProcessor';
-import { autoAwardsProcessor } from './autoAwardsProcessor';
-import { contractProcessor } from './contractProcessor';
-import { dailyCostsProcessor } from './dailyCostsProcessor';
-import { healingProcessor } from './healingProcessor';
+import { getDayPipeline } from "../dayPipeline";
+import { registerAcquisitionProcessor } from "./acquisitionProcessor";
+import { autoAwardsProcessor } from "./autoAwardsProcessor";
+import { contractProcessor } from "./contractProcessor";
+import { dailyCostsProcessor } from "./dailyCostsProcessor";
+import { healingProcessor } from "./healingProcessor";
 import {
   contractMarketProcessor,
   personnelMarketProcessor,
   unitMarketProcessor,
-} from './marketProcessors';
-import { postBattleProcessor } from './postBattleProcessor';
-import { randomEventsProcessor } from './randomEventsProcessor';
-import { salvageProcessor } from './salvageProcessor';
+} from "./marketProcessors";
+import { postBattleProcessor } from "./postBattleProcessor";
+import { randomEventsProcessor } from "./randomEventsProcessor";
+import { repairQueueBuilderProcessor } from "./repairQueueBuilderProcessor";
+import { salvageProcessor } from "./salvageProcessor";
 
 let registered = false;
 
@@ -36,6 +37,10 @@ export function registerBuiltinProcessors(): void {
   pipeline.register(unitMarketProcessor);
   pipeline.register(personnelMarketProcessor);
   pipeline.register(contractMarketProcessor);
+  // Repair queue builder runs in DayPhase.UNITS — appended; final
+  // ordering relative to Wave 2 (post-battle) and Sub-Branch 3a
+  // (salvage) is owned by Wave 5.
+  pipeline.register(repairQueueBuilderProcessor);
 
   registered = true;
 }
