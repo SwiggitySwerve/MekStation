@@ -32,6 +32,8 @@ import type {
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexGrid } from '@/types/gameplay/HexGridInterfaces';
+import type { IMatchSeat } from '@/types/multiplayer/Lobby';
+import type { IPlayerRef } from '@/types/multiplayer/Player';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
@@ -44,11 +46,23 @@ import {
   HEARTBEAT_INTERVAL_MS,
   HEARTBEAT_TIMEOUT_MS,
   type IIntent,
+  type ILobbyUpdated,
   type IServerMessage,
   nowIso,
 } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
+
+import {
+  canLaunch,
+  leaveSeat,
+  LobbyStateError,
+  occupySeat,
+  reassignSeat,
+  setAiSlot,
+  setHumanSlot,
+  setReady,
+} from './lobby/lobbyStateMachine';
 
 // =============================================================================
 // Socket abstraction
@@ -107,6 +121,12 @@ export class ServerMatchHost {
   private readonly session: InteractiveSession;
   private lastBroadcastSeq: number;
   private closed = false;
+  /**
+   * Wave 3b: cache of `playerId -> IPlayerRef` so OccupySeat intents
+   * can resolve a display name. Populated by `registerPlayerRef` (called
+   * from the WS upgrade handler on SessionJoin and from tests).
+   */
+  private readonly playerRefs = new Map<string, IPlayerRef>();
 
   /**
    * Construct directly from an existing `InteractiveSession`. Used by
@@ -293,6 +313,16 @@ export class ServerMatchHost {
       return broadcasts;
     }
 
+    // Wave 3b: split lobby intents off the engine path. Lobby intents
+    // mutate `meta.seats` and emit `LobbyUpdated` envelopes; they never
+    // touch the `InteractiveSession`. Routing here keeps the engine
+    // dispatcher's switch statement (Wave 1 + 3a territory) unchanged.
+    if (isLobbyIntentKind(envelope.intent.kind)) {
+      const lobbyMessages = await this.handleLobbyIntent(envelope);
+      for (const m of lobbyMessages) broadcasts.push(m);
+      return broadcasts;
+    }
+
     try {
       this.dispatchToEngine(envelope.intent);
     } catch (e) {
@@ -426,10 +456,25 @@ export class ServerMatchHost {
         this.session.concede(side);
         return;
       }
+      // Wave 3b lobby intents are handled in `handleLobbyIntent` BEFORE
+      // we reach the engine dispatcher (see `handleIntent` above). They
+      // appear here only to keep the discriminated-union exhaustive
+      // check honest — if any of them ever falls through to the engine
+      // we want a typed error instead of `never` blowing up.
+      case 'OccupySeat':
+      case 'LeaveSeat':
+      case 'ReassignSeat':
+      case 'SetAiSlot':
+      case 'SetHumanSlot':
+      case 'SetReady':
+      case 'LaunchMatch': {
+        throw new Error(
+          `Lobby intent ${intent.kind} routed to engine dispatcher (bug)`,
+        );
+      }
       default: {
-        // Wave 3b will extend `IIntentPayload` with lobby intents; the
-        // exhaustive `never` keeps the compiler honest if a variant is
-        // added without a handler here.
+        // Exhaustive — any future intent variant added without a handler
+        // here will fail typecheck.
         const _exhaustive: never = intent;
         throw new Error(
           `Unknown intent kind: ${(intent as { kind: string }).kind} (${String(_exhaustive)})`,
@@ -530,6 +575,267 @@ export class ServerMatchHost {
       // ignore
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Wave 3b — lobby intent handlers
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Public test hook so the integration suite can simulate "host joined
+   * via WS and registered a player ref" without standing up the whole
+   * REST + auth path. Production wiring sets the ref on first
+   * SessionJoin so subsequent OccupySeat intents have a name to use.
+   */
+  registerPlayerRef(ref: IPlayerRef): void {
+    this.playerRefs.set(ref.playerId, ref);
+  }
+
+  /**
+   * Top-level lobby intent dispatcher. Loads the current meta, routes
+   * by kind, persists the new seats, and broadcasts a `LobbyUpdated`
+   * envelope to every attached socket. Returns the broadcasts (errors +
+   * the LobbyUpdated message) so tests can assert without reaching
+   * into the socket mock.
+   */
+  private async handleLobbyIntent(
+    envelope: IIntent,
+  ): Promise<readonly IServerMessage[]> {
+    const out: IServerMessage[] = [];
+    const meta = await this.store.getMatchMeta(this.matchId);
+    const seats = meta.seats ?? [];
+    const intent = envelope.intent;
+
+    // Authorization gate: host-only intents.
+    const hostOnly =
+      intent.kind === 'ReassignSeat' ||
+      intent.kind === 'SetAiSlot' ||
+      intent.kind === 'SetHumanSlot' ||
+      intent.kind === 'LaunchMatch';
+    if (hostOnly && envelope.playerId !== meta.hostPlayerId) {
+      const err: IServerMessage = {
+        kind: 'Error',
+        matchId: this.matchId,
+        ts: nowIso(),
+        code: 'AUTH_REJECTED',
+        reason: `Intent ${intent.kind} requires host privileges`,
+      };
+      this.broadcast(err);
+      out.push(err);
+      return out;
+    }
+
+    let nextSeats: IMatchSeat[];
+    let nextStatus = meta.status;
+    let clearRoomCode = false;
+
+    try {
+      switch (intent.kind) {
+        case 'OccupySeat': {
+          nextSeats = this.handleOccupySeat(seats, intent.slotId, envelope);
+          break;
+        }
+        case 'LeaveSeat': {
+          nextSeats = this.handleLeaveSeat(
+            seats,
+            intent.slotId,
+            envelope.playerId,
+          );
+          break;
+        }
+        case 'ReassignSeat': {
+          nextSeats = this.handleReassignSeat(
+            seats,
+            intent.slotId,
+            intent.toSide,
+            intent.toSeat,
+          );
+          break;
+        }
+        case 'SetAiSlot': {
+          nextSeats = this.handleSetAiSlot(
+            seats,
+            intent.slotId,
+            intent.aiProfile,
+          );
+          break;
+        }
+        case 'SetHumanSlot': {
+          nextSeats = this.handleSetHumanSlot(seats, intent.slotId);
+          break;
+        }
+        case 'SetReady': {
+          nextSeats = this.handleSetReady(
+            seats,
+            intent.slotId,
+            envelope.playerId,
+            intent.ready,
+          );
+          break;
+        }
+        case 'LaunchMatch': {
+          nextSeats = seats.slice();
+          if (!canLaunch(nextSeats)) {
+            throw new LobbyStateError(
+              'Cannot launch: not all seats are filled and ready',
+            );
+          }
+          nextStatus = 'active';
+          clearRoomCode = true;
+          // Wave 5 wires the `BotPlayer` driver per AI seat. For Wave 3b
+          // we just log so integration tests can grep for the marker.
+          for (const seat of nextSeats) {
+            if (seat.kind === 'ai') {
+              // eslint-disable-next-line no-console
+              console.info(
+                `[ServerMatchHost ${this.matchId}] AI seat would run BotPlayer here (slotId=${seat.slotId}, profile=${seat.aiProfile ?? 'basic'})`,
+              );
+            }
+          }
+          break;
+        }
+        default: {
+          throw new LobbyStateError(
+            `Unhandled lobby intent: ${(intent as { kind: string }).kind}`,
+          );
+        }
+      }
+    } catch (e) {
+      const err: IServerMessage = {
+        kind: 'Error',
+        matchId: this.matchId,
+        ts: nowIso(),
+        code: 'INVALID_INTENT',
+        reason: e instanceof Error ? e.message : 'Lobby state machine rejected',
+      };
+      this.broadcast(err);
+      out.push(err);
+      return out;
+    }
+
+    try {
+      await this.store.updateMatchMeta(this.matchId, {
+        seats: nextSeats,
+        status: nextStatus,
+        ...(clearRoomCode ? { roomCode: undefined as unknown as string } : {}),
+      });
+    } catch (e) {
+      const err: IServerMessage = {
+        kind: 'Error',
+        matchId: this.matchId,
+        ts: nowIso(),
+        code: 'STORE_FAILURE',
+        reason: e instanceof Error ? e.message : 'Lobby persist failed',
+      };
+      this.broadcast(err);
+      out.push(err);
+      return out;
+    }
+
+    const update: ILobbyUpdated = {
+      kind: 'LobbyUpdated',
+      matchId: this.matchId,
+      ts: nowIso(),
+      seats: nextSeats,
+      status: nextStatus,
+      hostPlayerId: meta.hostPlayerId,
+    };
+    this.broadcast(update);
+    out.push(update);
+    return out;
+  }
+
+  /**
+   * Resolve the player ref for an occupy intent. We trust auth: the
+   * envelope's `playerId` is the verified socket identity. Display
+   * name comes from the most recent `SessionJoin`/`registerPlayerRef`
+   * call; if we have no ref yet we synthesise a minimal one from the
+   * playerId so the lobby still has *something* to render.
+   */
+  private handleOccupySeat(
+    seats: readonly IMatchSeat[],
+    slotId: string,
+    envelope: IIntent,
+  ): IMatchSeat[] {
+    const ref =
+      this.playerRefs.get(envelope.playerId) ??
+      ({
+        playerId: envelope.playerId,
+        displayName: envelope.playerId,
+      } as IPlayerRef);
+    return occupySeat(seats, slotId, ref);
+  }
+
+  private handleLeaveSeat(
+    seats: readonly IMatchSeat[],
+    slotId: string,
+    playerId: string,
+  ): IMatchSeat[] {
+    return leaveSeat(seats, slotId, playerId);
+  }
+
+  private handleReassignSeat(
+    seats: readonly IMatchSeat[],
+    slotId: string,
+    toSide: string,
+    toSeat: number,
+  ): IMatchSeat[] {
+    return reassignSeat(seats, slotId, toSide, toSeat);
+  }
+
+  private handleSetAiSlot(
+    seats: readonly IMatchSeat[],
+    slotId: string,
+    aiProfile?: string,
+  ): IMatchSeat[] {
+    return setAiSlot(seats, slotId, aiProfile);
+  }
+
+  private handleSetHumanSlot(
+    seats: readonly IMatchSeat[],
+    slotId: string,
+  ): IMatchSeat[] {
+    return setHumanSlot(seats, slotId);
+  }
+
+  /**
+   * Self-readiness check + setReady delegation. The slot owner is the
+   * only player allowed to flip their own ready flag — host doesn't
+   * get a shortcut here (per spec 6.1).
+   */
+  private handleSetReady(
+    seats: readonly IMatchSeat[],
+    slotId: string,
+    playerId: string,
+    ready: boolean,
+  ): IMatchSeat[] {
+    const seat = seats.find((s) => s.slotId === slotId);
+    if (!seat) {
+      throw new LobbyStateError(`Unknown slotId: ${slotId}`);
+    }
+    if (!seat.occupant || seat.occupant.playerId !== playerId) {
+      throw new LobbyStateError(
+        `Player ${playerId} cannot toggle ready on slot ${slotId} they don't occupy`,
+      );
+    }
+    return setReady(seats, slotId, ready);
+  }
+}
+
+/**
+ * Type guard that returns true for any of the Wave 3b lobby intent
+ * kinds. Centralised here so `handleIntent` can route without
+ * pattern-matching on the union literal in two places.
+ */
+function isLobbyIntentKind(kind: IIntent['intent']['kind']): boolean {
+  return (
+    kind === 'OccupySeat' ||
+    kind === 'LeaveSeat' ||
+    kind === 'ReassignSeat' ||
+    kind === 'SetAiSlot' ||
+    kind === 'SetHumanSlot' ||
+    kind === 'SetReady' ||
+    kind === 'LaunchMatch'
+  );
 }
 
 // Re-export the WebSocket type for the upgrade handler so it doesn't

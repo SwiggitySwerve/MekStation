@@ -25,10 +25,19 @@ import type {
   IMatchMeta,
   ISideAssignment,
 } from '@/lib/multiplayer/server/IMatchStore';
+import type { IPlayerRef } from '@/types/multiplayer/Player';
 
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/InMemoryMatchStore';
 import { getDefaultPlayerStore } from '@/lib/multiplayer/server/InMemoryPlayerStore';
+import { setAiSlot } from '@/lib/multiplayer/server/lobby/lobbyStateMachine';
+import { generateRoomCode } from '@/lib/p2p/roomCodes';
+import {
+  defaultSeats,
+  TeamLayoutSchema,
+  type IMatchSeat,
+  type TeamLayout,
+} from '@/types/multiplayer/Lobby';
 
 // =============================================================================
 // Request / Response types
@@ -42,13 +51,25 @@ interface ICreateMatchBody {
    * from the body — it's derived from the verified bearer token.
    */
   displayName?: string;
-  playerIds: readonly string[];
+  /**
+   * Wave 1: explicit player roster (required when no `layout`).
+   * Wave 3b: with `layout` set, the seats array drives the roster
+   * lazily as players join via room code, so `playerIds` becomes
+   * optional and defaults to `[hostPlayerId]`.
+   */
+  playerIds?: readonly string[];
   sideAssignments?: readonly ISideAssignment[];
+  /** Wave 3b: team layout (`'1v1'` ... `'ffa-8'`). */
+  layout?: TeamLayout;
+  /** Wave 3b: pre-mark these slot ids as `kind: 'ai'` at creation. */
+  aiSlots?: readonly string[];
 }
 
 interface ICreateMatchResponse {
   matchId: string;
   wsUrl: string;
+  /** Wave 3b: 6-char invite code so the host can share the lobby. */
+  roomCode?: string;
   meta: IMatchMeta;
 }
 
@@ -63,9 +84,28 @@ interface IErrorResponse {
 function isValidBody(body: unknown): body is ICreateMatchBody {
   if (typeof body !== 'object' || body === null) return false;
   const b = body as Partial<ICreateMatchBody>;
-  if (!Array.isArray(b.playerIds) || b.playerIds.length === 0) return false;
-  if (!b.playerIds.every((p) => typeof p === 'string' && p.length > 0)) {
-    return false;
+  // Wave 3b made `playerIds` optional in favour of `layout`; require
+  // ONE of the two paths so we never fall through to a roster-less match.
+  const hasLayout = b.layout !== undefined;
+  if (!hasLayout) {
+    if (!Array.isArray(b.playerIds) || b.playerIds.length === 0) return false;
+    if (!b.playerIds.every((p) => typeof p === 'string' && p.length > 0)) {
+      return false;
+    }
+  } else {
+    if (!TeamLayoutSchema.safeParse(b.layout).success) return false;
+    if (b.playerIds !== undefined) {
+      if (!Array.isArray(b.playerIds)) return false;
+      if (!b.playerIds.every((p) => typeof p === 'string' && p.length > 0)) {
+        return false;
+      }
+    }
+    if (b.aiSlots !== undefined) {
+      if (!Array.isArray(b.aiSlots)) return false;
+      if (!b.aiSlots.every((s) => typeof s === 'string' && s.length > 0)) {
+        return false;
+      }
+    }
   }
   if (typeof b.config !== 'object' || b.config === null) return false;
   const cfg = b.config as Partial<IMatchConfig>;
@@ -142,9 +182,40 @@ export default async function handler(
 
   // Make sure the host id is present in playerIds — clients sometimes
   // forget to include themselves. Splice it in deterministically.
-  const playerIds = body.playerIds.includes(hostPlayerId)
-    ? body.playerIds
-    : [hostPlayerId, ...body.playerIds];
+  // With layout, default the roster to just the host and let join-by-
+  // room-code expand it.
+  const incomingPlayerIds = body.playerIds ?? [hostPlayerId];
+  const playerIds = incomingPlayerIds.includes(hostPlayerId)
+    ? incomingPlayerIds
+    : [hostPlayerId, ...incomingPlayerIds];
+
+  // Wave 3b: build seats from layout, mark any pre-specified AI slots,
+  // and auto-occupy the first open human seat with the host. Generate
+  // a 6-char invite code so the host can share the lobby out-of-band.
+  let seats: IMatchSeat[] | undefined;
+  let roomCode: string | undefined;
+  if (body.layout) {
+    seats = defaultSeats(body.layout);
+    if (body.aiSlots) {
+      for (const slotId of body.aiSlots) {
+        seats = setAiSlot(seats, slotId);
+      }
+    }
+    // Find the first open human seat and stamp the host into it.
+    const hostRef: IPlayerRef = {
+      playerId: hostPlayerId,
+      displayName: body.displayName ?? hostPlayerId,
+    };
+    const target = seats.find((s) => s.kind === 'human' && !s.occupant);
+    if (target) {
+      seats = seats.map((s) =>
+        s.slotId === target.slotId
+          ? { ...s, occupant: hostRef, ready: false }
+          : s,
+      );
+    }
+    roomCode = generateRoomCode();
+  }
 
   const matchId = randomUUID();
   const now = new Date().toISOString();
@@ -162,6 +233,9 @@ export default async function handler(
     createdAt: now,
     updatedAt: now,
     config: body.config,
+    layout: body.layout,
+    seats,
+    roomCode,
   };
 
   try {
@@ -177,6 +251,7 @@ export default async function handler(
   res.status(201).json({
     matchId,
     wsUrl: buildWsUrl(req, matchId),
+    roomCode,
     meta,
   });
 }

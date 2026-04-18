@@ -20,6 +20,7 @@
  */
 
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import type { IMatchSeat, TeamLayout } from '@/types/multiplayer/Lobby';
 
 // =============================================================================
 // Match metadata
@@ -70,6 +71,16 @@ export interface IMatchMeta {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly config: IMatchConfig;
+  /**
+   * Wave 3b additions — lobby/matchmaking. `roomCode` is the 6-char
+   * shareable invite code (case-insensitive); `layout` drives seat
+   * generation; `seats` is the live lobby state. Optional on the
+   * interface so Wave 1 fixtures stay backwards-compatible, but
+   * Wave 3b match creation always populates them.
+   */
+  readonly roomCode?: string;
+  readonly layout?: TeamLayout;
+  readonly seats?: readonly IMatchSeat[];
 }
 
 /**
@@ -79,7 +90,14 @@ export interface IMatchMeta {
 export type IMatchMetaPatch = Partial<
   Pick<
     IMatchMeta,
-    'hostPlayerId' | 'playerIds' | 'sideAssignments' | 'status' | 'config'
+    | 'hostPlayerId'
+    | 'playerIds'
+    | 'sideAssignments'
+    | 'status'
+    | 'config'
+    | 'seats'
+    | 'layout'
+    | 'roomCode'
   >
 >;
 
@@ -152,6 +170,15 @@ export interface IMatchStore {
    * the match doesn't exist.
    */
   getMatchMeta(matchId: string): Promise<IMatchMeta>;
+
+  /**
+   * Wave 3b: resolve a 6-char invite room code to the underlying
+   * match meta. Returns `null` if no match has that code (or the
+   * match's `roomCode` was cleared on launch). Implementations MUST
+   * normalise input to upper-case and ignore separator characters
+   * before looking up.
+   */
+  getMatchByRoomCode(roomCode: string): Promise<IMatchMeta | null>;
 
   /**
    * Apply a partial patch to the meta blob. The `updatedAt` field is

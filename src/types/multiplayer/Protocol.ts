@@ -24,6 +24,8 @@
 
 import { z } from 'zod';
 
+import { MatchSeatSchema } from './Lobby';
+
 // =============================================================================
 // Shared envelope fragments
 // =============================================================================
@@ -96,11 +98,79 @@ export const ConcedeIntentSchema = z.object({
 });
 export type IConcedeIntent = z.infer<typeof ConcedeIntentSchema>;
 
+// ---------------------------------------------------------------------------
+// Wave 3b lobby intents
+// ---------------------------------------------------------------------------
+
+/**
+ * Lobby intents drive seat occupancy / readiness / launch. They share
+ * the same `Intent` envelope as engine intents — the server's intent
+ * dispatcher routes by `kind` to either the engine handler (Wave 1) or
+ * the lobby handler (Wave 3b).
+ *
+ * Authorization: `ReassignSeat`, `SetAiSlot`, `SetHumanSlot`, and
+ * `LaunchMatch` are host-only and the host check happens in the
+ * dispatcher (the per-socket `playerId` from auth is compared to
+ * `meta.hostPlayerId`). `OccupySeat`/`LeaveSeat`/`SetReady` are
+ * scoped to the requesting player.
+ */
+export const OccupySeatIntentSchema = z.object({
+  kind: z.literal('OccupySeat'),
+  slotId: z.string().min(1),
+});
+export type IOccupySeatIntent = z.infer<typeof OccupySeatIntentSchema>;
+
+export const LeaveSeatIntentSchema = z.object({
+  kind: z.literal('LeaveSeat'),
+  slotId: z.string().min(1),
+});
+export type ILeaveSeatIntent = z.infer<typeof LeaveSeatIntentSchema>;
+
+export const ReassignSeatIntentSchema = z.object({
+  kind: z.literal('ReassignSeat'),
+  slotId: z.string().min(1),
+  toSide: z.string().min(1),
+  toSeat: z.number().int().positive(),
+});
+export type IReassignSeatIntent = z.infer<typeof ReassignSeatIntentSchema>;
+
+export const SetAiSlotIntentSchema = z.object({
+  kind: z.literal('SetAiSlot'),
+  slotId: z.string().min(1),
+  aiProfile: z.string().min(1).optional(),
+});
+export type ISetAiSlotIntent = z.infer<typeof SetAiSlotIntentSchema>;
+
+export const SetHumanSlotIntentSchema = z.object({
+  kind: z.literal('SetHumanSlot'),
+  slotId: z.string().min(1),
+});
+export type ISetHumanSlotIntent = z.infer<typeof SetHumanSlotIntentSchema>;
+
+export const SetReadyIntentSchema = z.object({
+  kind: z.literal('SetReady'),
+  slotId: z.string().min(1),
+  ready: z.boolean(),
+});
+export type ISetReadyIntent = z.infer<typeof SetReadyIntentSchema>;
+
+export const LaunchMatchIntentSchema = z.object({
+  kind: z.literal('LaunchMatch'),
+});
+export type ILaunchMatchIntent = z.infer<typeof LaunchMatchIntentSchema>;
+
 export const IntentPayloadSchema = z.discriminatedUnion('kind', [
   MoveIntentSchema,
   AttackIntentSchema,
   AdvancePhaseIntentSchema,
   ConcedeIntentSchema,
+  OccupySeatIntentSchema,
+  LeaveSeatIntentSchema,
+  ReassignSeatIntentSchema,
+  SetAiSlotIntentSchema,
+  SetHumanSlotIntentSchema,
+  SetReadyIntentSchema,
+  LaunchMatchIntentSchema,
 ]);
 export type IIntentPayload = z.infer<typeof IntentPayloadSchema>;
 
@@ -229,6 +299,23 @@ export const CloseSchema = z.object({
 });
 export type IClose = z.infer<typeof CloseSchema>;
 
+/**
+ * LobbyUpdated — Wave 3b. Broadcast to all sockets in the match
+ * whenever the seats array or status changes (occupy, leave, reassign,
+ * AI toggle, ready, launch). Joiners haven't built an
+ * `InteractiveSession` yet but still need to render the lobby grid, so
+ * this envelope is intentionally separate from `Event`.
+ */
+export const LobbyUpdatedSchema = z.object({
+  kind: z.literal('LobbyUpdated'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  seats: z.array(MatchSeatSchema),
+  status: z.enum(['lobby', 'active', 'completed']),
+  hostPlayerId: z.string().min(1),
+});
+export type ILobbyUpdated = z.infer<typeof LobbyUpdatedSchema>;
+
 export const ServerMessageSchema = z.discriminatedUnion('kind', [
   ReplayStartSchema,
   ReplayChunkSchema,
@@ -237,6 +324,7 @@ export const ServerMessageSchema = z.discriminatedUnion('kind', [
   HeartbeatSchema,
   ErrorMessageSchema,
   CloseSchema,
+  LobbyUpdatedSchema,
 ]);
 export type IServerMessage = z.infer<typeof ServerMessageSchema>;
 
