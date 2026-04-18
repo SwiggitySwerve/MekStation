@@ -7,16 +7,18 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.6
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 
-import { useVehicleStore } from '@/stores/useVehicleStore';
-import { getTotalVehicleArmor } from '@/stores/vehicleState';
-import { getArmorDefinition } from '@/types/construction/ArmorType';
+import { useVehicleStore } from "@/stores/useVehicleStore";
+import { getTotalVehicleArmor } from "@/stores/vehicleState";
+import { getArmorDefinition } from "@/types/construction/ArmorType";
 import {
   EngineType,
   getEngineDefinition,
-} from '@/types/construction/EngineType';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+} from "@/types/construction/EngineType";
+import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
+import { TurretType } from "@/types/unit/VehicleInterfaces";
+import { validateVehicleConstruction } from "@/utils/construction/vehicle/vehicleValidation";
 
 // =============================================================================
 // Types
@@ -33,7 +35,7 @@ interface StatusItemProps {
   label: string;
   value: string | number;
   subValue?: string;
-  status?: 'normal' | 'warning' | 'error' | 'success';
+  status?: "normal" | "warning" | "error" | "success";
 }
 
 // =============================================================================
@@ -70,13 +72,13 @@ function StatusItem({
   label,
   value,
   subValue,
-  status = 'normal',
+  status = "normal",
 }: StatusItemProps): React.ReactElement {
   const statusColors: Record<string, string> = {
-    normal: 'text-white',
-    warning: 'text-amber-400',
-    error: 'text-red-400',
-    success: 'text-green-400',
+    normal: "text-white",
+    warning: "text-amber-400",
+    error: "text-red-400",
+    success: "text-green-400",
   };
 
   return (
@@ -106,7 +108,7 @@ function StatusItem({
  * Compact status bar showing vehicle statistics
  */
 export function VehicleStatusBar({
-  className = '',
+  className = "",
   compact = false,
 }: VehicleStatusBarProps): React.ReactElement {
   // Get state from store
@@ -120,6 +122,9 @@ export function VehicleStatusBar({
   const armorAllocation = useVehicleStore((s) => s.armorAllocation);
   const turret = useVehicleStore((s) => s.turret);
   const equipment = useVehicleStore((s) => s.equipment);
+  const crewSize = useVehicleStore((s) => s.crewSize);
+  const structureType = useVehicleStore((s) => s.structureType);
+  const powerAmpWeight = useVehicleStore((s) => s.powerAmpWeight);
 
   // Derived state
   const isVTOL = motionType === GroundMotionType.VTOL;
@@ -180,32 +185,66 @@ export function VehicleStatusBar({
     };
   }, [armorAllocation, hasTurret, armorType, armorTonnage]);
 
+  // Run full VAL-VEHICLE-* validation — result surfaced in status bar
+  const validationResult = useMemo(
+    () =>
+      validateVehicleConstruction({
+        tonnage,
+        motionType,
+        engineType,
+        cruiseMP,
+        turretType: turret?.type ?? TurretType.NONE,
+        turretEquipmentWeight: 0, // equipment weights not fully resolved here
+        turretStructureWeight: turret?.currentWeight ?? 0,
+        secondaryTurretEquipmentWeight: 0,
+        secondaryTurretStructureWeight: 0,
+        armorType,
+        armorAllocation: armorAllocation as Record<string, number>,
+        crewSize,
+        energyWeaponWeight: 0, // resolved by equipment tab; power amp check deferred
+        powerAmpWeight,
+        structureType,
+      }),
+    [
+      tonnage,
+      motionType,
+      engineType,
+      cruiseMP,
+      turret,
+      armorType,
+      armorAllocation,
+      crewSize,
+      powerAmpWeight,
+      structureType,
+    ],
+  );
+
   // Determine status indicators
   const weightStatus =
     weightBreakdown.remaining < 0
-      ? 'error'
+      ? "error"
       : weightBreakdown.remaining === 0
-        ? 'success'
-        : 'normal';
+        ? "success"
+        : "normal";
   const armorStatus =
     armorStats.unallocated < 0
-      ? 'error'
+      ? "error"
       : armorStats.unallocated > 0
-        ? 'warning'
-        : 'success';
+        ? "warning"
+        : "success";
 
   // Get motion type label
   const motionLabel: Record<GroundMotionType, string> = {
-    [GroundMotionType.TRACKED]: 'TRK',
-    [GroundMotionType.WHEELED]: 'WHL',
-    [GroundMotionType.HOVER]: 'HVR',
-    [GroundMotionType.VTOL]: 'VTOL',
-    [GroundMotionType.NAVAL]: 'NAV',
-    [GroundMotionType.HYDROFOIL]: 'HYD',
-    [GroundMotionType.SUBMARINE]: 'SUB',
-    [GroundMotionType.WIGE]: 'WiGE',
-    [GroundMotionType.RAIL]: 'RAIL',
-    [GroundMotionType.MAGLEV]: 'MAG',
+    [GroundMotionType.TRACKED]: "TRK",
+    [GroundMotionType.WHEELED]: "WHL",
+    [GroundMotionType.HOVER]: "HVR",
+    [GroundMotionType.VTOL]: "VTOL",
+    [GroundMotionType.NAVAL]: "NAV",
+    [GroundMotionType.HYDROFOIL]: "HYD",
+    [GroundMotionType.SUBMARINE]: "SUB",
+    [GroundMotionType.WIGE]: "WiGE",
+    [GroundMotionType.RAIL]: "RAIL",
+    [GroundMotionType.MAGLEV]: "MAG",
   };
 
   if (compact) {
@@ -221,18 +260,18 @@ export function VehicleStatusBar({
         </span>
         <span
           className={
-            armorStatus === 'error'
-              ? 'text-red-400'
-              : 'text-text-theme-secondary'
+            armorStatus === "error"
+              ? "text-red-400"
+              : "text-text-theme-secondary"
           }
         >
           {armorStats.allocated} armor
         </span>
         <span
           className={
-            weightStatus === 'error'
-              ? 'text-red-400'
-              : 'text-text-theme-secondary'
+            weightStatus === "error"
+              ? "text-red-400"
+              : "text-text-theme-secondary"
           }
         >
           {weightBreakdown.remaining.toFixed(1)}t free
@@ -264,7 +303,7 @@ export function VehicleStatusBar({
       <StatusItem
         label="Movement"
         value={`${cruiseMP}/${flankMP}`}
-        subValue={isVTOL ? 'Cruise/Flank' : 'Cruise/Flank'}
+        subValue={isVTOL ? "Cruise/Flank" : "Cruise/Flank"}
       />
 
       {/* Armor */}
@@ -273,8 +312,8 @@ export function VehicleStatusBar({
         value={armorStats.allocated}
         subValue={
           armorStats.unallocated !== 0
-            ? `${armorStats.unallocated > 0 ? '+' : ''}${armorStats.unallocated} unalloc`
-            : 'allocated'
+            ? `${armorStats.unallocated > 0 ? "+" : ""}${armorStats.unallocated} unalloc`
+            : "allocated"
         }
         status={armorStatus}
       />
@@ -285,12 +324,28 @@ export function VehicleStatusBar({
           label="Turret"
           value={`${turret.currentWeight.toFixed(1)}t`}
           subValue={`/${turret.maxWeight.toFixed(1)}t`}
-          status={turret.currentWeight > turret.maxWeight ? 'error' : 'normal'}
+          status={turret.currentWeight > turret.maxWeight ? "error" : "normal"}
         />
       )}
 
       {/* Equipment Count */}
       <StatusItem label="Equipment" value={equipment.length} subValue="items" />
+
+      {/* Validation Status */}
+      <StatusItem
+        label="Valid"
+        value={
+          validationResult.isValid
+            ? "OK"
+            : `${validationResult.errors.length} err`
+        }
+        subValue={
+          validationResult.isValid
+            ? "passes"
+            : validationResult.errors[0]?.ruleId
+        }
+        status={validationResult.isValid ? "success" : "error"}
+      />
     </div>
   );
 }

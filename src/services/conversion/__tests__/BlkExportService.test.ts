@@ -46,6 +46,12 @@ import {
   ManipulatorType,
   InfantrySpecialization,
 } from "@/types/unit/PersonnelInterfaces";
+import { VehicleStructureType } from "@/utils/construction/vehicle/structure";
+import { InfantryMotive } from "@/types/unit/InfantryInterfaces";
+import {
+  ProtoChassis,
+  ProtoWeightClass,
+} from "@/types/unit/ProtoMechInterfaces";
 
 describe("BlkExportService", () => {
   let service: BlkExportService;
@@ -113,6 +119,11 @@ describe("BlkExportService", () => {
     isAmphibious: false,
     hasTrailerHitch: false,
     isTrailer: false,
+    structureType: VehicleStructureType.STANDARD,
+    crewSize: 0,
+    passengerSlots: 0,
+    barRating: null,
+    powerAmpWeight: 0,
     equipment: [],
     isModified: false,
     createdAt: Date.now(),
@@ -245,6 +256,8 @@ describe("BlkExportService", () => {
     squadSize: 7,
     numberOfSquads: 4,
     motionType: SquadMotionType.FOOT,
+    infantryMotive: InfantryMotive.FOOT,
+    platoonComposition: { squads: 7, troopersPerSquad: 4 },
     groundMP: 1,
     jumpMP: 0,
     primaryWeapon: "Rifle",
@@ -278,10 +291,13 @@ describe("BlkExportService", () => {
     techBase: TechBase.CLAN,
     unitType: UnitType.PROTOMECH,
     tonnage: 5,
+    weightClass: ProtoWeightClass.MEDIUM,
+    chassisType: ProtoChassis.BIPED,
     pointSize: 5,
     isQuad: false,
     isGlider: false,
     engineRating: 25,
+    walkMP: 5,
     cruiseMP: 5,
     flankMP: 8,
     jumpMP: 3,
@@ -303,7 +319,9 @@ describe("BlkExportService", () => {
     },
     armorType: 0,
     hasMainGun: true,
+    mainGunWeaponId: undefined,
     hasMyomerBooster: false,
+    glidingWings: false,
     hasMagneticClamps: false,
     hasExtendedTorsoTwist: false,
     equipment: [],
