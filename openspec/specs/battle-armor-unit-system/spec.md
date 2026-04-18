@@ -8,7 +8,6 @@ Define the construction, state management, serialization, and customizer UI rule
 
 - Combat mechanics (damage resolution, swarm attacks, anti-mech tactics) are OUT OF SCOPE
 - Pilot/warrior skill progression is OUT OF SCOPE
-- Battle Value 2.0 detailed calculation beyond simplified armor-based formula is OUT OF SCOPE
 - Campaign-level BA repair and replacement is OUT OF SCOPE
 
 ## Requirements
@@ -410,20 +409,43 @@ The system SHALL calculate BA cost based on weight class and squad size.
   - Assault: 500,000 C-bills
 - **AND** total cost SHALL be `baseCost * squadSize`
 
-### Requirement: Simplified BV Calculation
+### Requirement: Scope — BV Calculation Included
 
-The system SHALL calculate a simplified Battle Value for BA units.
+BA construction SHALL include full BV 2.0 calculation (previously scoped as simplified only).
 
-#### Scenario: Base BV from armor
+#### Scenario: Full BA BV supported
 
-- **WHEN** calculating BV
-- **THEN** base BV SHALL be `armorPerTrooper * 20 * squadSize`
+- **GIVEN** any legally constructed BA squad
+- **WHEN** `calculateBattleValue` runs
+- **THEN** the full BV 2.0 BA formula SHALL be applied (per-trooper defensive + offensive, squad scaled, pilot adjusted)
+- **AND** the legacy simplified formula SHALL no longer be used
 
-#### Scenario: Jump modifier
+### Requirement: BA BV Breakdown on Unit State
 
-- **WHEN** the unit has `jumpMP > 0`
-- **THEN** BV SHALL be multiplied by 1.1
-- **AND** the result SHALL be rounded to the nearest integer
+Every BA squad SHALL carry an `IBABreakdown` populated by the calculator.
+
+#### Scenario: Breakdown shape
+
+- **GIVEN** a BA squad after construction completes
+- **WHEN** BV is computed
+- **THEN** `unit.bvBreakdown` SHALL contain `perTrooper.defensive`, `perTrooper.offensive`, `squadTotal`, `pilotMultiplier`, `final`
+
+#### Scenario: Breakdown recomputed on edit
+
+- **GIVEN** an existing squad with BV 500
+- **WHEN** the user adds an SRM-2 to each trooper
+- **THEN** `unit.bvBreakdown.perTrooper.offensive` SHALL increase
+- **AND** `unit.bvBreakdown.final` SHALL update live
+
+### Requirement: BA BV Parity Harness
+
+The validation tooling SHALL produce a BA BV parity report.
+
+#### Scenario: Validator output
+
+- **WHEN** the BA BV validator runs
+- **THEN** it SHALL emit `validation-output/battle-armor-bv-validation-report.json`
+- **AND** the report SHALL list each squad with `computedBV`, `mulBV`, `delta`, `deltaPct`
 
 ## Data Model
 
@@ -767,5 +789,4 @@ The handler SHALL extend `AbstractUnitTypeHandler<IBattleArmor>`:
 
 - PA(L) weight class code `0` is treated as falsy by the BLK parser's `||` operator, defaulting to Medium; a `??` operator would be more correct
 - Deserialization from standard format is not yet implemented (returns failure)
-- BV calculation is simplified (armor-based only, no equipment BV contribution)
 - Cost calculation uses fixed base costs per weight class without equipment cost additions
