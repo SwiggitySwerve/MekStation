@@ -51,3 +51,12 @@ export {
   type IWeaponForecastRow,
   type IForecastInput,
 } from './forecast';
+
+export {
+  critProbability,
+  previewAttackOutcome,
+  ZERO_PREVIEW,
+  type IAttackPreview,
+  type IAttackPreviewInput,
+  type ICritProbabilityOptions,
+} from './preview';

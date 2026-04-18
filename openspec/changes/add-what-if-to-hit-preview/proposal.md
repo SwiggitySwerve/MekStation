@@ -53,7 +53,7 @@ damageStddev, critProbability, clusterHitsMean, clusterHitsStddev}`
     optional `preview` field; the weapon-picker toggles population)
 - Affected code: new `src/utils/gameplay/toHit/preview.ts`, new
   `src/utils/gameplay/damage/expectedDamage.ts`,
-  `src/components/gameplay/WeaponPicker.tsx` (adds toggle + preview
+  `src/components/gameplay/WeaponSelector.tsx` (adds toggle + preview
   columns), `src/stores/useGameplayStore.ts` (gains `previewEnabled:
 boolean` UI flag)
 - Non-goals: predicting hit location (random), predicting specific

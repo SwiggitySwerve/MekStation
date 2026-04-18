@@ -14,6 +14,16 @@ export {
   PILOT_DEATH_WOUND_THRESHOLD,
   STANDARD_STRUCTURE_TABLE,
 } from './constants';
+export {
+  clusterHitStats,
+  clusterHitsVariance,
+  damageVariance,
+  expectedClusterHits,
+  expectedDamage,
+  TWO_D6_PROBABILITY_MASS,
+  type IClusterHitStats,
+  type IExpectedDamageOptions,
+} from './expectedDamage';
 export type {
   IDamageWithTransferResult,
   IDestructionCheckResult,
