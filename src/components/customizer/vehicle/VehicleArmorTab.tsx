@@ -7,33 +7,33 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.2
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from "react";
 
-import { useVehicleStore } from '@/stores/useVehicleStore';
-import { getTotalVehicleArmor } from '@/stores/vehicleState';
+import { useVehicleStore } from "@/stores/useVehicleStore";
+import { getTotalVehicleArmor } from "@/stores/vehicleState";
 import {
   ArmorTypeEnum,
   getArmorDefinition,
-} from '@/types/construction/ArmorType';
+} from "@/types/construction/ArmorType";
 import {
   VehicleLocation,
   VTOLLocation,
-} from '@/types/construction/UnitLocation';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+} from "@/types/construction/UnitLocation";
+import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
+import { ceilToHalfTon } from "@/utils/physical/weightUtils";
 
-import { customizerStyles as cs } from '../styles';
-import { VehicleArmorDiagramSimple } from './VehicleArmorDiagramSimple';
+import { customizerStyles as cs } from "../styles";
+import { VehicleArmorDiagram } from "./VehicleArmorDiagram";
 import {
   ARMOR_TYPE_OPTIONS,
   BASE_VEHICLE_LOCATIONS,
-} from './VehicleArmorTab.constants';
+} from "./VehicleArmorTab.constants";
 import {
   calculateArmorPoints,
   getMaxVehicleArmor,
   getMaxVehicleArmorForLocation,
   type VehicleArmorLocation,
-} from './VehicleArmorTab.utils';
+} from "./VehicleArmorTab.utils";
 
 interface VehicleArmorTabProps {
   /** Read-only mode */
@@ -47,7 +47,7 @@ interface VehicleArmorTabProps {
  */
 export function VehicleArmorTab({
   readOnly = false,
-  className = '',
+  className = "",
 }: VehicleArmorTabProps): React.ReactElement {
   // Get vehicle state from context
   const tonnage = useVehicleStore((s) => s.tonnage);
@@ -137,7 +137,7 @@ export function VehicleArmorTab({
     );
     // Add rotor for VTOLs
     if (isVTOL) {
-      filtered.push({ location: VTOLLocation.ROTOR, label: 'Rotor' });
+      filtered.push({ location: VTOLLocation.ROTOR, label: "Rotor" });
     }
     return filtered;
   }, [hasTurret, isVTOL]);
@@ -322,13 +322,9 @@ export function VehicleArmorTab({
             })}
           </div>
 
-          {/* Simple Vehicle Diagram */}
-          <div className="bg-surface-raised/30 mt-6 rounded-lg p-4">
-            <VehicleArmorDiagramSimple
-              allocation={armorAllocation}
-              hasTurret={hasTurret}
-              isVTOL={isVTOL}
-            />
+          {/* Vehicle Armor Diagram */}
+          <div className="mt-6">
+            <VehicleArmorDiagram />
           </div>
         </section>
       </div>

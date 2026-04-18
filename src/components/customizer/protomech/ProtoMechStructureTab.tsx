@@ -24,6 +24,7 @@ import {
 } from "@/utils/construction/protomech";
 
 import { customizerStyles as cs } from "../styles";
+import { ProtoMechArmorDiagram } from "./ProtoMechArmorDiagram";
 
 // =============================================================================
 // Constants
@@ -455,6 +456,11 @@ export function ProtoMechStructureTab({
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Compact armor diagram */}
+      <div className="flex justify-center">
+        <ProtoMechArmorDiagram />
       </div>
     </div>
   );

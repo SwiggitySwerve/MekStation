@@ -31,6 +31,7 @@ import { HEAVY_WEAPON_MOTIVES } from "@/utils/construction/infantry/platoonCompo
 import { totalTroopers } from "@/utils/construction/infantry/platoonComposition";
 
 import { customizerStyles as cs } from "../styles";
+import { InfantryPlatoonCounter } from "./InfantryPlatoonCounter";
 
 // =============================================================================
 // Constants
@@ -628,6 +629,9 @@ export function InfantryBuildTab({
           </span>
         </div>
       </div>
+
+      {/* Platoon strength counter — replaces armor diagram for infantry */}
+      <InfantryPlatoonCounter />
     </div>
   );
 }
