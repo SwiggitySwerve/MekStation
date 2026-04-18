@@ -7,24 +7,25 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.1
  */
 
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { EngineType } from '@/types/construction/EngineType';
+import { ArmorTypeEnum } from "@/types/construction/ArmorType";
+import { EngineType } from "@/types/construction/EngineType";
 import {
   VehicleLocation,
   VTOLLocation,
-} from '@/types/construction/UnitLocation';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { TechBase } from '@/types/enums/TechBase';
-import { WeightClass } from '@/types/enums/WeightClass';
-import { IEquipmentItem } from '@/types/equipment';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+} from "@/types/construction/UnitLocation";
+import { RulesLevel } from "@/types/enums/RulesLevel";
+import { TechBase } from "@/types/enums/TechBase";
+import { WeightClass } from "@/types/enums/WeightClass";
+import { IEquipmentItem } from "@/types/equipment";
+import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
+import { UnitType } from "@/types/unit/BattleMechInterfaces";
 import {
   TurretType,
   ITurretConfiguration,
   IVehicleMountedEquipment,
-} from '@/types/unit/VehicleInterfaces';
-import { generateUnitId as generateUUID } from '@/utils/uuid';
+} from "@/types/unit/VehicleInterfaces";
+import { VehicleStructureType } from "@/utils/construction/vehicle/structure";
+import { generateUnitId as generateUUID } from "@/utils/uuid";
 
 // =============================================================================
 // Vehicle Armor Allocation
@@ -253,6 +254,25 @@ export interface VehicleState {
   isTrailer: boolean;
 
   // =========================================================================
+  // Construction Fields (added by add-vehicle-construction)
+  // =========================================================================
+
+  /** Internal structure type */
+  structureType: VehicleStructureType;
+
+  /** Crew size (at least the computed minimum) */
+  crewSize: number;
+
+  /** Passenger slots (beyond minimum crew) */
+  passengerSlots: number;
+
+  /** BAR rating for support vehicles (1–10); null for combat vehicles */
+  barRating: number | null;
+
+  /** Power amplifier weight (tons) — required on ICE/Fuel Cell vehicles with energy weapons */
+  powerAmpWeight: number;
+
+  // =========================================================================
   // Equipment
   // =========================================================================
 
@@ -398,9 +418,9 @@ export function createDefaultVehicleState(
   const engineRating = options.tonnage * cruiseMP;
 
   // Parse name into chassis and model
-  const nameParts = options.name.split(' ');
-  const defaultChassis = nameParts[0] || 'New Vehicle';
-  const defaultModel = nameParts.slice(1).join(' ') || '';
+  const nameParts = options.name.split(" ");
+  const defaultChassis = nameParts[0] || "New Vehicle";
+  const defaultModel = nameParts.slice(1).join(" ") || "";
 
   // Determine if VTOL
   const isVTOL =
@@ -412,7 +432,7 @@ export function createDefaultVehicleState(
     name: options.name,
     chassis: defaultChassis,
     model: defaultModel,
-    mulId: '-1',
+    mulId: "-1",
     year: 3145,
     rulesLevel: RulesLevel.STANDARD,
     tonnage: options.tonnage,
@@ -448,6 +468,13 @@ export function createDefaultVehicleState(
     isAmphibious: false,
     hasTrailerHitch: false,
     isTrailer: false,
+
+    // Construction Fields
+    structureType: VehicleStructureType.STANDARD,
+    crewSize: 0,
+    passengerSlots: 0,
+    barRating: unitType === UnitType.SUPPORT_VEHICLE ? 7 : null,
+    powerAmpWeight: 0,
 
     // Equipment
     equipment: [],
