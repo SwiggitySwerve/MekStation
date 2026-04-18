@@ -67,8 +67,17 @@ class MatchHostRegistry {
    *
    * The registry boots the host with stub data Wave 1; later waves can
    * inject a richer bootstrap factory.
+   *
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): an optional
+   * `diceSeed` lets the WebSocket upgrade handler propagate the
+   * `?seed=N` debug query param. When set, the host's dice roller is
+   * `SeededDiceRoller` (deterministic) instead of `CryptoDiceRoller`
+   * (production). Off by default — production never reads it.
    */
-  async getOrCreate(matchId: string): Promise<ServerMatchHost | null> {
+  async getOrCreate(
+    matchId: string,
+    options: { diceSeed?: number } = {},
+  ): Promise<ServerMatchHost | null> {
     const existing = this.hosts.get(matchId);
     if (existing && !existing.isClosed()) return existing;
 
@@ -94,6 +103,7 @@ class MatchHostRegistry {
       playerUnits: [],
       opponentUnits: [],
       gameUnits,
+      diceSeed: options.diceSeed,
     });
     this.hosts.set(matchId, host);
     return host;

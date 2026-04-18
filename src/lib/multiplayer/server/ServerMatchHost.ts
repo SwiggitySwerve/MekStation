@@ -1,7 +1,7 @@
 /**
  * ServerMatchHost — server-side wrapper around one `InteractiveSession`.
  *
- * Responsibilities (Wave 1 scope):
+ * Responsibilities:
  *   - Own the lifetime of one `InteractiveSession` per active match.
  *   - Accept `Intent` envelopes, validate, dispatch into the engine.
  *   - Compute the *diff* of new events produced by the engine call,
@@ -14,14 +14,23 @@
  *   - Expose `closeMatch` for clean shutdown (clears sockets, kills
  *     heartbeats, marks the store closed).
  *
- * Out of scope for Wave 1 (handled by later waves):
+ * Wave 3a — authoritative roll arbitration:
+ *   - The host owns a single `IServerDiceRoller` (crypto-backed by
+ *     default, `SeededDiceRoller` when the debug `?seed=N` query was
+ *     supplied) and exposes it to `InteractiveSession` via a stable
+ *     indirection callback. Per-intent, the host swaps in a fresh
+ *     `RollCapture` so every d6 the engine consumes lands in a buffer
+ *     scoped to the intent. After the engine returns, the host stamps
+ *     the captured rolls onto the new event payloads (via `payload.rolls`)
+ *     and ALSO rejects any inbound intent whose payload smuggles dice
+ *     fields (zod refinement on `IntentSchema`).
+ *
+ * Out of scope for this wave:
  *   - Lobby intents (Wave 3b)
- *   - Server-side dice arbitration (Wave 3a) — for now the engine's own
- *     `SeededRandom` produces rolls; arbitrating crypto rolls server-
- *     side is a Wave 3a concern.
  *   - Outcome bus passthrough (Wave 5 wires it).
  *
  * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
+ * @spec openspec/changes/add-authoritative-roll-arbitration/specs/multiplayer-server/spec.md
  */
 
 import type { WebSocket as WsWebSocket } from 'ws';
@@ -32,6 +41,7 @@ import type {
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexGrid } from '@/types/gameplay/HexGridInterfaces';
+import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
@@ -43,12 +53,16 @@ import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import {
   HEARTBEAT_INTERVAL_MS,
   HEARTBEAT_TIMEOUT_MS,
+  intentHasForbiddenDiceField,
   type IIntent,
   type IServerMessage,
   nowIso,
 } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
+
+import { CryptoDiceRoller, type IServerDiceRoller } from './CryptoDiceRoller';
+import { RollCapture, SeededDiceRoller } from './RollCapture';
 
 // =============================================================================
 // Socket abstraction
@@ -96,6 +110,14 @@ export interface IMatchHostBootstrap {
   readonly playerUnits: readonly IAdaptedUnit[];
   readonly opponentUnits: readonly IAdaptedUnit[];
   readonly gameUnits: readonly IGameUnit[];
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): optional debug
+   * seed for reproducing bug reports. When set, the server replaces the
+   * crypto-backed dice roller with a `SeededRandom`-backed one so two
+   * runs with the same seed produce identical events. Off by default —
+   * production never reads this field.
+   */
+  readonly diceSeed?: number;
 }
 
 // =============================================================================
@@ -109,15 +131,53 @@ export class ServerMatchHost {
   private closed = false;
 
   /**
+   * Per Wave 3a: the source roller (crypto in prod, seeded in debug).
+   * Stable for the entire match lifetime.
+   */
+  private readonly sourceRoller: IServerDiceRoller;
+
+  /**
+   * Per Wave 3a: the *currently active* `RollCapture`. Reset between
+   * intent ticks via `installFreshCapture()` so each engine call's
+   * consumed rolls land in a buffer scoped to that call. The
+   * `dispatchD6Roller` callback handed to `InteractiveSession` reads
+   * THROUGH this pointer — that's how a fixed callback can target
+   * different capture buffers across intents.
+   */
+  private currentCapture: RollCapture;
+
+  /**
+   * Per Wave 3a: stable `D6Roller` callback handed to
+   * `InteractiveSession` at construction. Each invocation routes through
+   * `currentCapture` (which the host swaps per-intent), so the engine
+   * doesn't need to know rolls are being recorded.
+   */
+  private readonly dispatchD6Roller: D6Roller;
+
+  /**
    * Construct directly from an existing `InteractiveSession`. Used by
    * tests + by the registry once it has a session ready.
+   *
+   * Per Wave 3a: when the caller pre-built the session, they are
+   * responsible for wiring the host's `dispatchD6Roller` into the
+   * `InteractiveSession` constructor (or accepting that the engine will
+   * fall back to its default `Math.random`). For the production code
+   * path, prefer `ServerMatchHost.create()` which threads the dice
+   * plumbing automatically.
    */
   constructor(
     public readonly matchId: string,
     private readonly store: IMatchStore,
     session: InteractiveSession,
+    sourceRoller?: IServerDiceRoller,
   ) {
     this.session = session;
+    this.sourceRoller = sourceRoller ?? new CryptoDiceRoller();
+    this.currentCapture = new RollCapture(this.sourceRoller);
+    // Stable callback identity — engine holds this reference for the
+    // lifetime of the match. Routes every d6 through whatever
+    // `currentCapture` points at right now.
+    this.dispatchD6Roller = () => this.currentCapture.d6();
     // The engine appends `GameCreated` + `GameStarted` events during
     // construction. Persist them BEFORE accepting any intents so the
     // store + the in-memory session never drift.
@@ -129,12 +189,31 @@ export class ServerMatchHost {
   /**
    * Convenience factory: build a `ServerMatchHost` from a bootstrap
    * blob without forcing the caller to import `InteractiveSession`.
+   *
+   * Per Wave 3a: this is THE production code path for spinning up a
+   * server-authoritative session. Sets up the dice plumbing
+   * (crypto-backed by default; `SeededDiceRoller` if `bootstrap.diceSeed`
+   * is set) and threads a stable indirection callback into the engine
+   * so per-intent `RollCapture` swaps stay invisible to resolvers.
    */
   static create(
     matchId: string,
     store: IMatchStore,
     bootstrap: IMatchHostBootstrap,
   ): ServerMatchHost {
+    // Build the source roller first so the indirection callback can
+    // close over a known instance even before the host exists.
+    const sourceRoller: IServerDiceRoller =
+      bootstrap.diceSeed != null
+        ? new SeededDiceRoller(new SeededRandom(bootstrap.diceSeed))
+        : new CryptoDiceRoller();
+
+    // Mutable capture pointer shared between the engine callback and the
+    // host instance. The host re-assigns this between intents; the
+    // callback always reads the current value.
+    const captureRef = { current: new RollCapture(sourceRoller) };
+    const engineCallback: D6Roller = () => captureRef.current.d6();
+
     const session = new InteractiveSession(
       bootstrap.mapRadius,
       bootstrap.turnLimit,
@@ -143,9 +222,42 @@ export class ServerMatchHost {
       bootstrap.playerUnits,
       bootstrap.opponentUnits,
       bootstrap.gameUnits,
+      {},
+      engineCallback,
     );
-    return new ServerMatchHost(matchId, store, session);
+
+    const host = new ServerMatchHost(matchId, store, session, sourceRoller);
+    // Hand the host the same captureRef so it can swap between intents.
+    host.adoptExternalCaptureRef(captureRef);
+    return host;
   }
+
+  /**
+   * Per Wave 3a internal: replace the host's capture pointer with the
+   * one closed over by the engine callback. Without this, the host's
+   * `currentCapture` and the callback's pointer would diverge after the
+   * first swap. Called only from `static create`.
+   */
+  private adoptExternalCaptureRef(ref: { current: RollCapture }): void {
+    // The host's own `currentCapture` is irrelevant once we have an
+    // external ref — we re-route both reads + writes through `ref`.
+    // We do this by overwriting `currentCapture` with the ref's current
+    // value AND replacing the in-memory swap helper to mutate `ref`.
+    this.currentCapture = ref.current;
+    this.captureSwap = (next: RollCapture) => {
+      ref.current = next;
+      this.currentCapture = next;
+    };
+  }
+
+  /**
+   * Default capture swap (no external ref): just update the host field.
+   * Overridden by `adoptExternalCaptureRef` when the session was built
+   * via `static create`.
+   */
+  private captureSwap: (next: RollCapture) => void = (next) => {
+    this.currentCapture = next;
+  };
 
   // ---------------------------------------------------------------------------
   // Socket management
@@ -293,6 +405,30 @@ export class ServerMatchHost {
       return broadcasts;
     }
 
+    // Per `add-authoritative-roll-arbitration` (Wave 3a): defense in
+    // depth. The Protocol's IntentSchema already rejects payloads with
+    // dice fields at the parse step, but a hand-crafted `IIntent`
+    // bypassing the schema (e.g., another server module synthesizing an
+    // intent) MUST still be refused here. We log + reply with
+    // INVALID_INTENT and do NOT touch the engine.
+    if (intentHasForbiddenDiceField(envelope.intent)) {
+      const err: IServerMessage = {
+        kind: 'Error',
+        matchId: this.matchId,
+        ts: nowIso(),
+        code: 'INVALID_INTENT',
+        reason: 'client-rolls-forbidden',
+      };
+      this.broadcast(err);
+      broadcasts.push(err);
+      return broadcasts;
+    }
+
+    // Per Wave 3a: install a fresh `RollCapture` so every d6 the engine
+    // consumes during `dispatchToEngine` lands in a buffer scoped to
+    // this intent. Stamped onto the resulting events below.
+    this.installFreshCapture();
+
     try {
       this.dispatchToEngine(envelope.intent);
     } catch (e) {
@@ -311,7 +447,7 @@ export class ServerMatchHost {
     // Drain any new events the engine produced this tick and persist +
     // broadcast each one IN ORDER. Persisting first means a store
     // failure shuts down the match before clients see a phantom event.
-    const newEvents = this.drainNewEvents();
+    const newEvents = this.stampRollsOnNewEvents(this.drainNewEvents());
     for (const event of newEvents) {
       try {
         await this.store.appendEvent(this.matchId, event);
@@ -477,6 +613,62 @@ export class ServerMatchHost {
       this.lastBroadcastSeq = fresh[fresh.length - 1].sequence;
     }
     return fresh;
+  }
+
+  /**
+   * Per `add-authoritative-roll-arbitration` (Wave 3a): swap the active
+   * `RollCapture` for a fresh empty one so the next engine call's
+   * consumed rolls land in a clean buffer. Identity of the engine
+   * callback is stable — it reads through `currentCapture`.
+   */
+  private installFreshCapture(): void {
+    this.captureSwap(new RollCapture(this.sourceRoller));
+  }
+
+  /**
+   * Per Wave 3a: stamp the captured d6 sequence onto every fresh event
+   * before persistence + broadcast. Strategy: ALL captured rolls land
+   * on the FIRST event whose payload doesn't already carry `rolls`.
+   *
+   * Why first-event attribution: splitting rolls across multiple events
+   * by consumption order requires per-resolver instrumentation (each
+   * resolver would need to drain a slice into its own emitted event).
+   * For Wave 3a MVP we surface the full buffer on the lead event so
+   * clients can render dice without re-rolling — finer-grained
+   * attribution is a follow-up if a resolver emits more than one
+   * dice-bearing event per intent.
+   *
+   * If the buffer is empty (deterministic intent like `Move` or
+   * `AdvancePhase` from a phase that consumes no dice), we no-op.
+   */
+  private stampRollsOnNewEvents(
+    events: readonly IGameEvent[],
+  ): readonly IGameEvent[] {
+    const captured = this.currentCapture.drain();
+    if (captured.length === 0 || events.length === 0) {
+      return events;
+    }
+    const stamped: IGameEvent[] = [];
+    let attached = false;
+    for (const evt of events) {
+      if (!attached) {
+        // Clone the payload with `rolls` stamped on. We use a shallow
+        // spread because the payload types we touch are flat objects
+        // (no nested readonly arrays we'd need to deep-clone).
+        const newPayload = {
+          ...(evt.payload as Record<string, unknown>),
+          rolls: captured,
+        };
+        stamped.push({
+          ...evt,
+          payload: newPayload as IGameEvent['payload'],
+        });
+        attached = true;
+      } else {
+        stamped.push(evt);
+      }
+    }
+    return stamped;
   }
 
   /**
