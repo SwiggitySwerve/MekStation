@@ -228,6 +228,8 @@ export interface BattleArmorStoreActions {
 
   // Armor Actions
   setArmorType: (type: number) => void;
+  /** Set the typed BA armor type used by construction validation */
+  setBaArmorType: (type: BAArmorType) => void;
   setArmorPerTrooper: (points: number) => void;
 
   // Mount Actions
