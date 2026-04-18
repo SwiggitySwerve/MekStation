@@ -17,7 +17,6 @@ import { BattleArmorPipGrid } from "../battlearmor/BattleArmorPipGrid";
 import { InfantryPlatoonCounter } from "../infantry/InfantryPlatoonCounter";
 import { ProtoMechArmorDiagram } from "../protomech/ProtoMechArmorDiagram";
 import { VehicleArmorDiagram } from "../vehicle/VehicleArmorDiagram";
-import { ArmorDiagram } from "./ArmorDiagram";
 
 // =============================================================================
 // Types
