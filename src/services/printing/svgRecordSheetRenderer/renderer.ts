@@ -7,22 +7,22 @@
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
-import { IRecordSheetData, PREVIEW_DPI_MULTIPLIER } from '@/types/printing';
+import { IMechRecordSheetData, PREVIEW_DPI_MULTIPLIER } from "@/types/printing";
 
-import { fillArmorPips } from './armor';
-import { renderToCanvasHighDPI } from './canvas';
-import { ELEMENT_IDS } from './constants';
-import { renderCriticalSlots } from './criticals';
-import { renderEquipmentTable } from './equipment';
-import { renderSPASection } from './spaSection';
-import { fillStructurePips } from './structure';
+import { fillArmorPips } from "./armor";
+import { renderToCanvasHighDPI } from "./canvas";
+import { ELEMENT_IDS } from "./constants";
+import { renderCriticalSlots } from "./criticals";
+import { renderEquipmentTable } from "./equipment";
+import { renderSPASection } from "./spaSection";
+import { fillStructurePips } from "./structure";
 import {
   loadSVGTemplate,
   addDocumentMargins,
   hideSecondCrewPanel,
   fixCopyrightYear,
   setTextContent,
-} from './template';
+} from "./template";
 
 export class SVGRecordSheetRenderer {
   private svgDoc: Document | null = null;
@@ -35,9 +35,9 @@ export class SVGRecordSheetRenderer {
     addDocumentMargins(this.svgRoot);
   }
 
-  fillTemplate(data: IRecordSheetData): void {
+  fillTemplate(data: IMechRecordSheetData): void {
     if (!this.svgDoc || !this.svgRoot) {
-      throw new Error('Template not loaded. Call loadTemplate first.');
+      throw new Error("Template not loaded. Call loadTemplate first.");
     }
 
     setTextContent(
@@ -56,7 +56,7 @@ export class SVGRecordSheetRenderer {
       ELEMENT_IDS.RULES_LEVEL,
       data.header.rulesLevel,
     );
-    setTextContent(this.svgDoc, ELEMENT_IDS.ROLE, 'Juggernaut');
+    setTextContent(this.svgDoc, ELEMENT_IDS.ROLE, "Juggernaut");
 
     const engineRating = data.header.tonnage * data.movement.walkMP;
     setTextContent(this.svgDoc, ELEMENT_IDS.ENGINE_TYPE, `${engineRating} XL`);
@@ -101,9 +101,9 @@ export class SVGRecordSheetRenderer {
       `${data.heatSinks.count}`,
     );
 
-    setTextContent(this.svgDoc, ELEMENT_IDS.PILOT_NAME, '');
-    setTextContent(this.svgDoc, ELEMENT_IDS.GUNNERY_SKILL, '');
-    setTextContent(this.svgDoc, ELEMENT_IDS.PILOTING_SKILL, '');
+    setTextContent(this.svgDoc, ELEMENT_IDS.PILOT_NAME, "");
+    setTextContent(this.svgDoc, ELEMENT_IDS.GUNNERY_SKILL, "");
+    setTextContent(this.svgDoc, ELEMENT_IDS.PILOTING_SKILL, "");
 
     fixCopyrightYear(this.svgDoc);
     hideSecondCrewPanel(this.svgDoc);
@@ -122,22 +122,22 @@ export class SVGRecordSheetRenderer {
   }
 
   async fillArmorPips(
-    armor: IRecordSheetData['armor'],
+    armor: IMechRecordSheetData["armor"],
     mechType?: string,
   ): Promise<void> {
     if (!this.svgDoc || !this.svgRoot) {
-      throw new Error('Template not loaded');
+      throw new Error("Template not loaded");
     }
     await fillArmorPips(this.svgDoc, this.svgRoot, armor, mechType);
   }
 
   async fillStructurePips(
-    structure: IRecordSheetData['structure'],
+    structure: IMechRecordSheetData["structure"],
     tonnage: number,
     mechType?: string,
   ): Promise<void> {
     if (!this.svgDoc || !this.svgRoot) {
-      throw new Error('Template not loaded');
+      throw new Error("Template not loaded");
     }
     await fillStructurePips(
       this.svgDoc,
@@ -150,7 +150,7 @@ export class SVGRecordSheetRenderer {
 
   getSVGString(): string {
     if (!this.svgDoc) {
-      throw new Error('Template not loaded');
+      throw new Error("Template not loaded");
     }
     const serializer = new XMLSerializer();
     return serializer.serializeToString(this.svgDoc);
