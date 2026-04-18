@@ -76,3 +76,7 @@ export { PhysicalAttackForecastModal } from './PhysicalAttackForecastModal';
 export type { PhysicalAttackForecastModalProps } from './PhysicalAttackForecastModal';
 export { PhysicalAttackPanel } from './PhysicalAttackPanel';
 export type { PhysicalAttackPanelProps } from './PhysicalAttackPanel';
+
+// add-pre-battle-force-comparison: pre-battle two-column comparison panel
+export { ForceComparisonPanel } from './ForceComparisonPanel';
+export type { ForceComparisonPanelProps } from './ForceComparisonPanel';
