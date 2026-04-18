@@ -23,3 +23,17 @@ export type { ScenarioGeneratorProps } from './ScenarioGenerator';
 export { GenerateScenarioModal } from './GenerateScenarioModal';
 export type { GenerateScenarioModalProps } from './GenerateScenarioModal';
 export { SpectatorView } from './SpectatorView';
+
+// add-combat-phase-ui-flows components
+export { MovementTypeSwitcher } from './MovementTypeSwitcher';
+export type { MovementTypeSwitcherProps } from './MovementTypeSwitcher';
+export { FacingPicker } from './FacingPicker';
+export type { FacingPickerProps } from './FacingPicker';
+export { CommitMoveButton } from './CommitMoveButton';
+export type { CommitMoveButtonProps } from './CommitMoveButton';
+export { WeaponSelector } from './WeaponSelector';
+export type { WeaponSelectorProps } from './WeaponSelector';
+export { ToHitForecastModal } from './ToHitForecastModal';
+export type { ToHitForecastModalProps } from './ToHitForecastModal';
+export { CombatPlanningPanel } from './CombatPlanningPanel';
+export type { CombatPlanningPanelProps } from './CombatPlanningPanel';

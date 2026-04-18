@@ -28,6 +28,17 @@ import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { logger } from '@/utils/logger';
 
 import {
+  clearAttackPlanLogic,
+  clearPlannedMovementLogic,
+  commitAttackLogic,
+  commitPlannedMovementLogic,
+  setAttackTargetLogic,
+  setPlannedMovementLogic,
+  togglePlannedWeaponLogic,
+  type IAttackPlan,
+  type IPlannedMovement,
+} from './useGameplayStore.combatFlows';
+import {
   handleActionLogic,
   InteractivePhase,
   runAITurnLogic,
@@ -37,6 +48,7 @@ import {
 } from './useGameplayStore.helpers';
 
 export { InteractivePhase };
+export type { IPlannedMovement, IAttackPlan };
 
 export interface SpectatorMode {
   enabled: boolean;
@@ -64,6 +76,19 @@ interface GameplayState {
   maxStructure: Record<string, Record<string, number>>;
   pilotNames: Record<string, string>;
   heatSinks: Record<string, number>;
+  /**
+   * Per `add-combat-phase-ui-flows`: in-progress movement the player is
+   * building in the Movement phase. `null` until they pick a
+   * destination + facing + type.
+   */
+  plannedMovement: IPlannedMovement | null;
+  /**
+   * Per `add-combat-phase-ui-flows`: in-progress attack plan the
+   * player is building in the Attack phase. Always present (never
+   * null) so multi-select works without nil-checks; the empty-attack
+   * sentinel is `{ targetUnitId: null, selectedWeapons: [] }`.
+   */
+  attackPlan: IAttackPlan;
 }
 
 interface GameplayActions {
@@ -92,6 +117,30 @@ interface GameplayActions {
   handleInteractiveTokenClick: (unitId: string) => void;
   skipPhase: () => void;
   checkGameOver: () => boolean;
+  /**
+   * Per `add-combat-phase-ui-flows`: Movement-phase planning actions.
+   * `setPlannedMovement` replaces the in-progress plan (used by both
+   * hex picker and facing picker so each can update the plan
+   * incrementally). `clearPlannedMovement` resets it to `null` (called
+   * when the type switcher changes types or the player picks a new
+   * destination). `commitPlannedMovement` emits a `MovementDeclared`
+   * event via `interactiveSession.applyMovement` and clears the plan.
+   */
+  setPlannedMovement: (plan: IPlannedMovement) => void;
+  clearPlannedMovement: () => void;
+  commitPlannedMovement: () => void;
+  /**
+   * Per `add-combat-phase-ui-flows`: Attack-phase planning actions.
+   * `setAttackTarget` sets the target id when an enemy token is
+   * clicked. `togglePlannedWeapon` flips a weapon id in the
+   * `selectedWeapons` queue. `clearAttackPlan` resets target +
+   * weapons. `commitAttack` emits an `AttackDeclared` event via
+   * `interactiveSession.applyAttack` and clears the plan.
+   */
+  setAttackTarget: (unitId: string | null) => void;
+  togglePlannedWeapon: (weaponId: string) => void;
+  clearAttackPlan: () => void;
+  commitAttack: () => void;
 }
 
 type GameplayStore = GameplayState & GameplayActions;
@@ -116,6 +165,8 @@ const initialState: GameplayState = {
   maxStructure: {},
   pilotNames: {},
   heatSinks: {},
+  plannedMovement: null,
+  attackPlan: { targetUnitId: null, selectedWeapons: [] },
 };
 
 // =============================================================================
@@ -276,8 +327,13 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
 
     const hitChance = 58; // Base hit chance (gunnery 4 = 58% on 2d6)
 
+    // Per `add-combat-phase-ui-flows`: also seed the structured
+    // `attackPlan.targetUnitId` so the new WeaponSelector and
+    // ToHitForecastModal can read a single source of truth instead of
+    // dual-tracking with the legacy `ui.targetUnitId` field.
     set((state) => ({
       ui: { ...state.ui, targetUnitId: targetUnitId },
+      attackPlan: { ...state.attackPlan, targetUnitId },
       interactivePhase: InteractivePhase.SelectWeapons,
       hitChance,
     }));
@@ -389,6 +445,17 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   reset: () => {
     set(initialState);
   },
+
+  // Per `add-combat-phase-ui-flows`: planning flows live in
+  // `useGameplayStore.combatFlows.ts` to keep this file under the
+  // per-file line budget. Each store action is a thin pass-through.
+  setPlannedMovement: (plan) => setPlannedMovementLogic(plan, set),
+  clearPlannedMovement: () => clearPlannedMovementLogic(set),
+  commitPlannedMovement: () => commitPlannedMovementLogic(get, set),
+  setAttackTarget: (unitId) => setAttackTargetLogic(unitId, set),
+  togglePlannedWeapon: (weaponId) => togglePlannedWeaponLogic(weaponId, set),
+  clearAttackPlan: () => clearAttackPlanLogic(set),
+  commitAttack: () => commitAttackLogic(get, set),
 }));
 
 /**
