@@ -10,6 +10,7 @@ import {
   unitMarketProcessor,
 } from './marketProcessors';
 import { randomEventsProcessor } from './randomEventsProcessor';
+import { repairQueueBuilderProcessor } from './repairQueueBuilderProcessor';
 
 let registered = false;
 
@@ -26,6 +27,10 @@ export function registerBuiltinProcessors(): void {
   pipeline.register(unitMarketProcessor);
   pipeline.register(personnelMarketProcessor);
   pipeline.register(contractMarketProcessor);
+  // Repair queue builder runs in DayPhase.UNITS — appended; final
+  // ordering relative to Wave 2 (post-battle) and Sub-Branch 3a
+  // (salvage) is owned by Wave 5.
+  pipeline.register(repairQueueBuilderProcessor);
 
   registered = true;
 }
