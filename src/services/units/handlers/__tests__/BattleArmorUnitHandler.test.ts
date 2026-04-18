@@ -7,20 +7,20 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.4
  */
 
-import { BattleArmorLocation } from "@/types/construction/UnitLocation";
-import { IBlkDocument } from "@/types/formats/BlkFormat";
-import { SquadMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import { BattleArmorLocation } from '@/types/construction/UnitLocation';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   BattleArmorWeightClass,
   BattleArmorChassisType,
   ManipulatorType,
-} from "@/types/unit/PersonnelInterfaces";
+} from '@/types/unit/PersonnelInterfaces';
 
 import {
   BattleArmorUnitHandler,
   createBattleArmorHandler,
-} from "../BattleArmorUnitHandler";
+} from '../BattleArmorUnitHandler';
 
 // ============================================================================
 // Test Fixtures
@@ -34,22 +34,22 @@ function createMockBlkDocument(
 ): IBlkDocument {
   return {
     blockVersion: 1,
-    version: "MAM0",
-    unitType: "BattleArmor",
+    version: 'MAM0',
+    unitType: 'BattleArmor',
     mappedUnitType: UnitType.BATTLE_ARMOR,
-    name: "Elemental",
-    model: "Point",
+    name: 'Elemental',
+    model: 'Point',
     year: 2868,
-    type: "Clan Level 2",
+    type: 'Clan Level 2',
     tonnage: 4, // Total squad weight (4 troopers * 1 ton each)
-    chassis: "biped",
+    chassis: 'biped',
     trooperCount: 5,
     weightClass: 3, // Heavy
     cruiseMP: 1,
     jumpingMP: 3,
     armor: [10], // Armor per trooper
     equipmentByLocation: {
-      "Squad Equipment": ["BA Small Laser", "BA SRM-2"],
+      'Squad Equipment': ['BA Small Laser', 'BA SRM-2'],
     },
     rawTags: {},
     ...overrides,
@@ -61,9 +61,9 @@ function createMockBlkDocument(
  */
 function createPALDocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Nighthawk PA(L)",
-    model: "XXI",
-    type: "IS Level 2",
+    name: 'Nighthawk PA(L)',
+    model: 'XXI',
+    type: 'IS Level 2',
     tonnage: 0.4, // 100kg per trooper * 4 = 400kg total
     weightClass: 0, // PA(L)
     trooperCount: 4,
@@ -71,7 +71,7 @@ function createPALDocument(): IBlkDocument {
     jumpingMP: 3,
     armor: [2],
     equipmentByLocation: {
-      "Squad Equipment": ["BA Laser Rifle"],
+      'Squad Equipment': ['BA Laser Rifle'],
     },
   });
 }
@@ -81,9 +81,9 @@ function createPALDocument(): IBlkDocument {
  */
 function createLightBADocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Infiltrator Mk I",
-    model: "Standard",
-    type: "IS Level 2",
+    name: 'Infiltrator Mk I',
+    model: 'Standard',
+    type: 'IS Level 2',
     tonnage: 2, // 500kg per trooper * 4 = 2000kg total
     weightClass: 1, // Light
     trooperCount: 4,
@@ -91,7 +91,7 @@ function createLightBADocument(): IBlkDocument {
     jumpingMP: 2,
     armor: [4],
     equipmentByLocation: {
-      "Squad Equipment": ["BA Laser Rifle"],
+      'Squad Equipment': ['BA Laser Rifle'],
     },
   });
 }
@@ -101,9 +101,9 @@ function createLightBADocument(): IBlkDocument {
  */
 function createMediumBADocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Inner Sphere Standard",
-    model: "IS Std",
-    type: "IS Level 2",
+    name: 'Inner Sphere Standard',
+    model: 'IS Std',
+    type: 'IS Level 2',
     tonnage: 4, // 1000kg per trooper * 4 = 4000kg total
     weightClass: 2, // Medium
     trooperCount: 4,
@@ -111,7 +111,7 @@ function createMediumBADocument(): IBlkDocument {
     jumpingMP: 3,
     armor: [6],
     equipmentByLocation: {
-      "Squad Equipment": ["BA Small Laser", "BA SRM-2"],
+      'Squad Equipment': ['BA Small Laser', 'BA SRM-2'],
     },
   });
 }
@@ -121,9 +121,9 @@ function createMediumBADocument(): IBlkDocument {
  */
 function createHeavyBADocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Elemental",
-    model: "Standard",
-    type: "Clan Level 2",
+    name: 'Elemental',
+    model: 'Standard',
+    type: 'Clan Level 2',
     tonnage: 5, // 1000kg per trooper * 5 = 5000kg total
     weightClass: 3, // Heavy
     trooperCount: 5,
@@ -131,7 +131,7 @@ function createHeavyBADocument(): IBlkDocument {
     jumpingMP: 3,
     armor: [10],
     equipmentByLocation: {
-      "Squad Equipment": ["BA Small Laser", "BA SRM-2"],
+      'Squad Equipment': ['BA Small Laser', 'BA SRM-2'],
     },
   });
 }
@@ -141,9 +141,9 @@ function createHeavyBADocument(): IBlkDocument {
  */
 function createAssaultBADocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Kanazuchi",
-    model: "Standard",
-    type: "IS Level 3",
+    name: 'Kanazuchi',
+    model: 'Standard',
+    type: 'IS Level 3',
     tonnage: 8, // 2000kg per trooper * 4 = 8000kg total
     weightClass: 4, // Assault
     trooperCount: 4,
@@ -151,7 +151,7 @@ function createAssaultBADocument(): IBlkDocument {
     jumpingMP: 0,
     armor: [14],
     equipmentByLocation: {
-      "Squad Equipment": ["BA Heavy Machine Gun", "BA Heavy Recoilless Rifle"],
+      'Squad Equipment': ['BA Heavy Machine Gun', 'BA Heavy Recoilless Rifle'],
     },
   });
 }
@@ -161,10 +161,10 @@ function createAssaultBADocument(): IBlkDocument {
  */
 function createQuadBADocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Fenrir",
-    model: "Standard",
-    type: "Clan Level 3",
-    chassis: "quad",
+    name: 'Fenrir',
+    model: 'Standard',
+    type: 'Clan Level 3',
+    chassis: 'quad',
     tonnage: 5,
     weightClass: 3,
     trooperCount: 5,
@@ -179,13 +179,13 @@ function createQuadBADocument(): IBlkDocument {
  */
 function createVTOLBADocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Rogue Bear",
-    model: "Standard",
-    type: "Clan Level 3",
+    name: 'Rogue Bear',
+    model: 'Standard',
+    type: 'Clan Level 3',
     tonnage: 3,
     weightClass: 2,
     trooperCount: 4,
-    motionType: "vtol",
+    motionType: 'vtol',
     cruiseMP: 5,
     jumpingMP: 0,
     armor: [6],
@@ -197,18 +197,18 @@ function createVTOLBADocument(): IBlkDocument {
  */
 function createUMUBADocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Undine",
-    model: "Standard",
-    type: "Clan Level 2",
+    name: 'Undine',
+    model: 'Standard',
+    type: 'Clan Level 2',
     tonnage: 4,
     weightClass: 2,
     trooperCount: 5,
-    motionType: "umu",
+    motionType: 'umu',
     cruiseMP: 1,
     jumpingMP: 2,
     armor: [6],
     rawTags: {
-      umump: "4",
+      umump: '4',
     },
   });
 }
@@ -218,13 +218,13 @@ function createUMUBADocument(): IBlkDocument {
  */
 function createMechanizedBADocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Gray Death Scout Suit",
-    model: "Standard",
-    type: "IS Level 2",
+    name: 'Gray Death Scout Suit',
+    model: 'Standard',
+    type: 'IS Level 2',
     tonnage: 2,
     weightClass: 1,
     trooperCount: 4,
-    motionType: "mechanized",
+    motionType: 'mechanized',
     cruiseMP: 1,
     jumpingMP: 0,
     armor: [3],
@@ -236,16 +236,16 @@ function createMechanizedBADocument(): IBlkDocument {
  */
 function createBAWithManipulatorsDocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Elemental",
-    model: "Heavy Battle Manipulators",
-    type: "Clan Level 2",
+    name: 'Elemental',
+    model: 'Heavy Battle Manipulators',
+    type: 'Clan Level 2',
     tonnage: 5,
     weightClass: 3,
     trooperCount: 5,
     armor: [10],
     rawTags: {
-      leftmanipulator: "Heavy Battle",
-      rightmanipulator: "Heavy Battle",
+      leftmanipulator: 'Heavy Battle',
+      rightmanipulator: 'Heavy Battle',
     },
   });
 }
@@ -255,21 +255,21 @@ function createBAWithManipulatorsDocument(): IBlkDocument {
  */
 function createBAWithSpecialEquipmentDocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Purifier",
-    model: "Adaptive",
-    type: "IS Level 3",
+    name: 'Purifier',
+    model: 'Adaptive',
+    type: 'IS Level 3',
     tonnage: 4,
     weightClass: 2,
     trooperCount: 4,
     armor: [6],
     rawTags: {
-      apmount: "true",
-      modularmount: "true",
-      turretmount: "1",
-      stealth: "true",
-      mimetic: "false",
-      fireresistant: "true",
-      mechanicaljumpboosters: "true",
+      apmount: 'true',
+      modularmount: 'true',
+      turretmount: '1',
+      stealth: 'true',
+      mimetic: 'false',
+      fireresistant: 'true',
+      mechanicaljumpboosters: 'true',
     },
   });
 }
@@ -279,19 +279,19 @@ function createBAWithSpecialEquipmentDocument(): IBlkDocument {
  */
 function createBAWithTurretDocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Longinus",
-    model: "Standard",
-    type: "IS Level 2",
+    name: 'Longinus',
+    model: 'Standard',
+    type: 'IS Level 2',
     tonnage: 4,
     weightClass: 2,
     trooperCount: 4,
     armor: [7],
     equipmentByLocation: {
-      "Squad Equipment": ["BA Small Laser"],
-      "Turret Equipment": ["BA Micro Grenade Launcher"],
+      'Squad Equipment': ['BA Small Laser'],
+      'Turret Equipment': ['BA Micro Grenade Launcher'],
     },
     rawTags: {
-      turretmount: "true",
+      turretmount: 'true',
     },
   });
 }
@@ -301,19 +301,19 @@ function createBAWithTurretDocument(): IBlkDocument {
  */
 function createBAWithAPMountDocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Gnome",
-    model: "Standard",
-    type: "IS Level 2",
+    name: 'Gnome',
+    model: 'Standard',
+    type: 'IS Level 2',
     tonnage: 3,
     weightClass: 2,
     trooperCount: 4,
     armor: [7],
     equipmentByLocation: {
-      "Squad Equipment": ["BA Machine Gun"],
-      "AP Equipment": ["BA Light Machine Gun"],
+      'Squad Equipment': ['BA Machine Gun'],
+      'AP Equipment': ['BA Light Machine Gun'],
     },
     rawTags: {
-      apmount: "true",
+      apmount: 'true',
     },
   });
 }
@@ -323,18 +323,18 @@ function createBAWithAPMountDocument(): IBlkDocument {
  */
 function createBAWithMultipleLocationsDocument(): IBlkDocument {
   return createMockBlkDocument({
-    name: "Test BA",
-    model: "Multi-Location",
-    type: "IS Level 2",
+    name: 'Test BA',
+    model: 'Multi-Location',
+    type: 'IS Level 2',
     tonnage: 4,
     weightClass: 2,
     trooperCount: 4,
     armor: [6],
     equipmentByLocation: {
-      "Squad Equipment": ["BA Small Laser"],
-      "Body Equipment": ["BA ECM Suite"],
-      "Left Arm Equipment": ["Battle Claw"],
-      "Right Arm Equipment": ["Battle Claw"],
+      'Squad Equipment': ['BA Small Laser'],
+      'Body Equipment': ['BA ECM Suite'],
+      'Left Arm Equipment': ['Battle Claw'],
+      'Right Arm Equipment': ['Battle Claw'],
     },
   });
 }
@@ -345,13 +345,13 @@ function createBAWithMultipleLocationsDocument(): IBlkDocument {
 function createMinimalBADocument(): IBlkDocument {
   return {
     blockVersion: 1,
-    version: "MAM0",
-    unitType: "BattleArmor",
+    version: 'MAM0',
+    unitType: 'BattleArmor',
     mappedUnitType: UnitType.BATTLE_ARMOR,
-    name: "Minimal",
-    model: "",
+    name: 'Minimal',
+    model: '',
     year: 3050,
-    type: "IS Level 2",
+    type: 'IS Level 2',
     tonnage: 2,
     armor: [4],
     equipmentByLocation: {},
@@ -374,7 +374,7 @@ function createUnusualSquadSizeDocument(size: number): IBlkDocument {
 // Tests
 // ============================================================================
 
-describe("BattleArmorUnitHandler", () => {
+describe('BattleArmorUnitHandler', () => {
   let handler: BattleArmorUnitHandler;
 
   beforeEach(() => {
@@ -385,16 +385,16 @@ describe("BattleArmorUnitHandler", () => {
   // Constructor and Properties
   // ==========================================================================
 
-  describe("constructor and properties", () => {
-    it("should have unitType of BATTLE_ARMOR", () => {
+  describe('constructor and properties', () => {
+    it('should have unitType of BATTLE_ARMOR', () => {
       expect(handler.unitType).toBe(UnitType.BATTLE_ARMOR);
     });
 
     it('should have displayName of "Battle Armor"', () => {
-      expect(handler.displayName).toBe("Battle Armor");
+      expect(handler.displayName).toBe('Battle Armor');
     });
 
-    it("should return BattleArmorLocation values from getLocations()", () => {
+    it('should return BattleArmorLocation values from getLocations()', () => {
       const locations = handler.getLocations();
       expect(locations).toContain(BattleArmorLocation.SQUAD);
       expect(locations).toContain(BattleArmorLocation.BODY);
@@ -411,39 +411,39 @@ describe("BattleArmorUnitHandler", () => {
   // canHandle
   // ==========================================================================
 
-  describe("canHandle", () => {
-    it("should handle BattleArmor unit type", () => {
+  describe('canHandle', () => {
+    it('should handle BattleArmor unit type', () => {
       const doc = createMockBlkDocument();
       expect(handler.canHandle(doc)).toBe(true);
     });
 
-    it("should not handle Vehicle unit type", () => {
+    it('should not handle Vehicle unit type', () => {
       const doc = createMockBlkDocument({
-        unitType: "Tank",
+        unitType: 'Tank',
         mappedUnitType: UnitType.VEHICLE,
       });
       expect(handler.canHandle(doc)).toBe(false);
     });
 
-    it("should not handle Infantry unit type", () => {
+    it('should not handle Infantry unit type', () => {
       const doc = createMockBlkDocument({
-        unitType: "Infantry",
+        unitType: 'Infantry',
         mappedUnitType: UnitType.INFANTRY,
       });
       expect(handler.canHandle(doc)).toBe(false);
     });
 
-    it("should not handle ProtoMech unit type", () => {
+    it('should not handle ProtoMech unit type', () => {
       const doc = createMockBlkDocument({
-        unitType: "ProtoMech",
+        unitType: 'ProtoMech',
         mappedUnitType: UnitType.PROTOMECH,
       });
       expect(handler.canHandle(doc)).toBe(false);
     });
 
-    it("should not handle BattleMech unit type", () => {
+    it('should not handle BattleMech unit type', () => {
       const doc = createMockBlkDocument({
-        unitType: "BattleMech",
+        unitType: 'BattleMech',
         mappedUnitType: UnitType.BATTLEMECH,
       });
       expect(handler.canHandle(doc)).toBe(false);
@@ -454,28 +454,28 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Basic
   // ==========================================================================
 
-  describe("parse - basic", () => {
-    it("should parse valid Elemental successfully", () => {
+  describe('parse - basic', () => {
+    it('should parse valid Elemental successfully', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
       expect(result.data?.unit).toBeDefined();
       expect(result.data?.unit?.unitType).toBe(UnitType.BATTLE_ARMOR);
-      expect(result.data?.unit?.metadata.chassis).toBe("Elemental");
+      expect(result.data?.unit?.metadata.chassis).toBe('Elemental');
     });
 
-    it("should parse unit name correctly", () => {
-      const doc = createMockBlkDocument({ name: "Test BA", model: "Mk II" });
+    it('should parse unit name correctly', () => {
+      const doc = createMockBlkDocument({ name: 'Test BA', model: 'Mk II' });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.name).toBe("Test BA Mk II");
-      expect(result.data?.unit?.metadata.chassis).toBe("Test BA");
-      expect(result.data?.unit?.metadata.model).toBe("Mk II");
+      expect(result.data?.unit?.name).toBe('Test BA Mk II');
+      expect(result.data?.unit?.metadata.chassis).toBe('Test BA');
+      expect(result.data?.unit?.metadata.model).toBe('Mk II');
     });
 
-    it("should parse year correctly", () => {
+    it('should parse year correctly', () => {
       const doc = createMockBlkDocument({ year: 2868 });
       const result = handler.parse(doc);
 
@@ -483,7 +483,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.metadata.year).toBe(2868);
     });
 
-    it("should parse minimal BA document with defaults", () => {
+    it('should parse minimal BA document with defaults', () => {
       const doc = createMinimalBADocument();
       const result = handler.parse(doc);
 
@@ -499,16 +499,16 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Chassis Type
   // ==========================================================================
 
-  describe("parse - chassis type", () => {
-    it("should parse biped chassis type", () => {
-      const doc = createMockBlkDocument({ chassis: "biped" });
+  describe('parse - chassis type', () => {
+    it('should parse biped chassis type', () => {
+      const doc = createMockBlkDocument({ chassis: 'biped' });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
       expect(result.data?.unit?.chassisType).toBe(BattleArmorChassisType.BIPED);
     });
 
-    it("should parse quad chassis type", () => {
+    it('should parse quad chassis type', () => {
       const doc = createQuadBADocument();
       const result = handler.parse(doc);
 
@@ -516,7 +516,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.chassisType).toBe(BattleArmorChassisType.QUAD);
     });
 
-    it("should default to biped for unspecified chassis", () => {
+    it('should default to biped for unspecified chassis', () => {
       const doc = createMockBlkDocument({ chassis: undefined });
       const result = handler.parse(doc);
 
@@ -524,8 +524,8 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.chassisType).toBe(BattleArmorChassisType.BIPED);
     });
 
-    it("should default to biped for unknown chassis string", () => {
-      const doc = createMockBlkDocument({ chassis: "unknown" });
+    it('should default to biped for unknown chassis string', () => {
+      const doc = createMockBlkDocument({ chassis: 'unknown' });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
@@ -537,8 +537,8 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Squad Size
   // ==========================================================================
 
-  describe("parse - squad size", () => {
-    it("should parse standard squad size of 4", () => {
+  describe('parse - squad size', () => {
+    it('should parse standard squad size of 4', () => {
       const doc = createMockBlkDocument({ trooperCount: 4 });
       const result = handler.parse(doc);
 
@@ -546,7 +546,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.squadSize).toBe(4);
     });
 
-    it("should parse Clan Elemental squad size of 5", () => {
+    it('should parse Clan Elemental squad size of 5', () => {
       const doc = createMockBlkDocument({ trooperCount: 5 });
       const result = handler.parse(doc);
 
@@ -554,7 +554,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.squadSize).toBe(5);
     });
 
-    it("should parse squad size of 6", () => {
+    it('should parse squad size of 6', () => {
       const doc = createUnusualSquadSizeDocument(6);
       const result = handler.parse(doc);
 
@@ -562,7 +562,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.squadSize).toBe(6);
     });
 
-    it("should parse minimum squad size of 1", () => {
+    it('should parse minimum squad size of 1', () => {
       const doc = createUnusualSquadSizeDocument(1);
       const result = handler.parse(doc);
 
@@ -570,7 +570,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.squadSize).toBe(1);
     });
 
-    it("should default to squad size of 4 when not specified", () => {
+    it('should default to squad size of 4 when not specified', () => {
       const doc = createMockBlkDocument({ trooperCount: undefined });
       const result = handler.parse(doc);
 
@@ -578,7 +578,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.squadSize).toBe(4);
     });
 
-    it("should parse unusual squad size with warning", () => {
+    it('should parse unusual squad size with warning', () => {
       const doc = createUnusualSquadSizeDocument(10);
       const result = handler.parse(doc);
 
@@ -592,16 +592,16 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Weight Class
   // ==========================================================================
 
-  describe("parse - weight class", () => {
-    it("should parse weight class code 0 as PA(L)", () => {
+  describe('parse - weight class', () => {
+    it('should parse weight class code 0 as PA(L)', () => {
       // Note: The handler uses `document.weightClass || 2` which treats 0 as falsy.
       // To properly test PA(L), we need the weightClass to be explicitly set and not 0,
       // or we need to check if the handler should use ?? instead of ||.
       // For now, test that when weightClass is passed as a truthy value via string conversion.
       const doc = createMockBlkDocument({
-        name: "Nighthawk PA(L)",
-        model: "XXI",
-        type: "IS Level 2",
+        name: 'Nighthawk PA(L)',
+        model: 'XXI',
+        type: 'IS Level 2',
         tonnage: 0.4, // 100kg per trooper * 4 = 400kg total
         weightClass: undefined, // Will default to 2 (Medium) due to || operator
         trooperCount: 4,
@@ -615,7 +615,7 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse weight class code 0 explicitly when provided as non-falsy", () => {
+    it('should parse weight class code 0 explicitly when provided as non-falsy', () => {
       // This tests that weight class 1-4 work correctly
       // Weight class 0 (PA_L) defaults to Medium due to || operator in handler
       const doc = createMockBlkDocument({ weightClass: 1 }); // Light
@@ -627,7 +627,7 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse weight class code 1 as LIGHT", () => {
+    it('should parse weight class code 1 as LIGHT', () => {
       const doc = createLightBADocument();
       const result = handler.parse(doc);
 
@@ -637,7 +637,7 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse weight class code 2 as MEDIUM", () => {
+    it('should parse weight class code 2 as MEDIUM', () => {
       const doc = createMediumBADocument();
       const result = handler.parse(doc);
 
@@ -647,7 +647,7 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse weight class code 3 as HEAVY", () => {
+    it('should parse weight class code 3 as HEAVY', () => {
       const doc = createHeavyBADocument();
       const result = handler.parse(doc);
 
@@ -657,7 +657,7 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse weight class code 4 as ASSAULT", () => {
+    it('should parse weight class code 4 as ASSAULT', () => {
       const doc = createAssaultBADocument();
       const result = handler.parse(doc);
 
@@ -667,7 +667,7 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should default to MEDIUM for unspecified weight class", () => {
+    it('should default to MEDIUM for unspecified weight class', () => {
       const doc = createMockBlkDocument({ weightClass: undefined });
       const result = handler.parse(doc);
 
@@ -677,7 +677,7 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should default to MEDIUM for invalid weight class code", () => {
+    it('should default to MEDIUM for invalid weight class code', () => {
       const doc = createMockBlkDocument({ weightClass: 99 });
       const result = handler.parse(doc);
 
@@ -692,32 +692,32 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Motion Type
   // ==========================================================================
 
-  describe("parse - motion type", () => {
-    it("should parse jump motion type", () => {
-      const doc = createMockBlkDocument({ motionType: "jump" });
+  describe('parse - motion type', () => {
+    it('should parse jump motion type', () => {
+      const doc = createMockBlkDocument({ motionType: 'jump' });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
       expect(result.data?.unit?.motionType).toBe(SquadMotionType.JUMP);
     });
 
-    it("should parse leg/foot motion type", () => {
-      const doc = createMockBlkDocument({ motionType: "leg" });
+    it('should parse leg/foot motion type', () => {
+      const doc = createMockBlkDocument({ motionType: 'leg' });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
       expect(result.data?.unit?.motionType).toBe(SquadMotionType.FOOT);
     });
 
-    it("should parse foot motion type", () => {
-      const doc = createMockBlkDocument({ motionType: "foot" });
+    it('should parse foot motion type', () => {
+      const doc = createMockBlkDocument({ motionType: 'foot' });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
       expect(result.data?.unit?.motionType).toBe(SquadMotionType.FOOT);
     });
 
-    it("should parse VTOL motion type", () => {
+    it('should parse VTOL motion type', () => {
       const doc = createVTOLBADocument();
       const result = handler.parse(doc);
 
@@ -725,7 +725,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.motionType).toBe(SquadMotionType.VTOL);
     });
 
-    it("should parse UMU motion type", () => {
+    it('should parse UMU motion type', () => {
       const doc = createUMUBADocument();
       const result = handler.parse(doc);
 
@@ -733,7 +733,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.motionType).toBe(SquadMotionType.UMU);
     });
 
-    it("should parse mechanized motion type", () => {
+    it('should parse mechanized motion type', () => {
       const doc = createMechanizedBADocument();
       const result = handler.parse(doc);
 
@@ -741,7 +741,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.motionType).toBe(SquadMotionType.MECHANIZED);
     });
 
-    it("should default to jump for unspecified motion type", () => {
+    it('should default to jump for unspecified motion type', () => {
       const doc = createMockBlkDocument({ motionType: undefined });
       const result = handler.parse(doc);
 
@@ -749,8 +749,8 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.motionType).toBe(SquadMotionType.JUMP);
     });
 
-    it("should default to jump for unknown motion type", () => {
-      const doc = createMockBlkDocument({ motionType: "unknown" });
+    it('should default to jump for unknown motion type', () => {
+      const doc = createMockBlkDocument({ motionType: 'unknown' });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
@@ -762,8 +762,8 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Movement
   // ==========================================================================
 
-  describe("parse - movement", () => {
-    it("should parse ground MP", () => {
+  describe('parse - movement', () => {
+    it('should parse ground MP', () => {
       const doc = createMockBlkDocument({ cruiseMP: 2 });
       const result = handler.parse(doc);
 
@@ -771,7 +771,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.movement.groundMP).toBe(2);
     });
 
-    it("should parse jump MP", () => {
+    it('should parse jump MP', () => {
       const doc = createMockBlkDocument({ jumpingMP: 3 });
       const result = handler.parse(doc);
 
@@ -780,7 +780,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.movement.jumpMP).toBe(3);
     });
 
-    it("should parse UMU MP from raw tags", () => {
+    it('should parse UMU MP from raw tags', () => {
       const doc = createUMUBADocument();
       const result = handler.parse(doc);
 
@@ -789,7 +789,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.movement.umuMP).toBe(4);
     });
 
-    it("should default ground MP to 1", () => {
+    it('should default ground MP to 1', () => {
       const doc = createMockBlkDocument({ cruiseMP: undefined });
       const result = handler.parse(doc);
 
@@ -797,7 +797,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.movement.groundMP).toBe(1);
     });
 
-    it("should default jump MP to 0", () => {
+    it('should default jump MP to 0', () => {
       const doc = createMockBlkDocument({ jumpingMP: undefined });
       const result = handler.parse(doc);
 
@@ -805,7 +805,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.jumpMP).toBe(0);
     });
 
-    it("should default UMU MP to 0", () => {
+    it('should default UMU MP to 0', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
 
@@ -818,12 +818,12 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Manipulators
   // ==========================================================================
 
-  describe("parse - manipulators", () => {
-    it("should parse armored glove manipulator", () => {
+  describe('parse - manipulators', () => {
+    it('should parse armored glove manipulator', () => {
       const doc = createMockBlkDocument({
         rawTags: {
-          leftmanipulator: "Armored Glove",
-          rightmanipulator: "Armored Glove",
+          leftmanipulator: 'Armored Glove',
+          rightmanipulator: 'Armored Glove',
         },
       });
       const result = handler.parse(doc);
@@ -837,11 +837,11 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse basic manipulator", () => {
+    it('should parse basic manipulator', () => {
       const doc = createMockBlkDocument({
         rawTags: {
-          leftmanipulator: "Basic",
-          rightmanipulator: "Basic",
+          leftmanipulator: 'Basic',
+          rightmanipulator: 'Basic',
         },
       });
       const result = handler.parse(doc);
@@ -851,11 +851,11 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.BASIC);
     });
 
-    it("should parse battle manipulator", () => {
+    it('should parse battle manipulator', () => {
       const doc = createMockBlkDocument({
         rawTags: {
-          leftmanipulator: "Battle",
-          rightmanipulator: "Battle",
+          leftmanipulator: 'Battle',
+          rightmanipulator: 'Battle',
         },
       });
       const result = handler.parse(doc);
@@ -865,7 +865,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.BATTLE);
     });
 
-    it("should parse heavy battle manipulator", () => {
+    it('should parse heavy battle manipulator', () => {
       const doc = createBAWithManipulatorsDocument();
       const result = handler.parse(doc);
 
@@ -878,11 +878,11 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse battle vibro manipulator", () => {
+    it('should parse battle vibro manipulator', () => {
       const doc = createMockBlkDocument({
         rawTags: {
-          leftmanipulator: "Battle Vibro Claw",
-          rightmanipulator: "Battle Vibro Claw",
+          leftmanipulator: 'Battle Vibro Claw',
+          rightmanipulator: 'Battle Vibro Claw',
         },
       });
       const result = handler.parse(doc);
@@ -896,11 +896,11 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse heavy battle vibro manipulator", () => {
+    it('should parse heavy battle vibro manipulator', () => {
       const doc = createMockBlkDocument({
         rawTags: {
-          leftmanipulator: "Heavy Battle Vibro Claw",
-          rightmanipulator: "Heavy Battle Vibro Claw",
+          leftmanipulator: 'Heavy Battle Vibro Claw',
+          rightmanipulator: 'Heavy Battle Vibro Claw',
         },
       });
       const result = handler.parse(doc);
@@ -914,11 +914,11 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse cargo lifter manipulator", () => {
+    it('should parse cargo lifter manipulator', () => {
       const doc = createMockBlkDocument({
         rawTags: {
-          leftmanipulator: "Cargo Lifter",
-          rightmanipulator: "None",
+          leftmanipulator: 'Cargo Lifter',
+          rightmanipulator: 'None',
         },
       });
       const result = handler.parse(doc);
@@ -930,10 +930,10 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.NONE);
     });
 
-    it("should parse industrial drill manipulator", () => {
+    it('should parse industrial drill manipulator', () => {
       const doc = createMockBlkDocument({
         rawTags: {
-          leftmanipulator: "Industrial Drill",
+          leftmanipulator: 'Industrial Drill',
         },
       });
       const result = handler.parse(doc);
@@ -944,10 +944,10 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse salvage arm manipulator", () => {
+    it('should parse salvage arm manipulator', () => {
       const doc = createMockBlkDocument({
         rawTags: {
-          leftmanipulator: "Salvage Arm",
+          leftmanipulator: 'Salvage Arm',
         },
       });
       const result = handler.parse(doc);
@@ -958,10 +958,10 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse basic mine clearance manipulator", () => {
+    it('should parse basic mine clearance manipulator', () => {
       const doc = createMockBlkDocument({
         rawTags: {
-          leftmanipulator: "Basic Mine Clearance",
+          leftmanipulator: 'Basic Mine Clearance',
         },
       });
       const result = handler.parse(doc);
@@ -972,7 +972,7 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should default to NONE for unspecified manipulator", () => {
+    it('should default to NONE for unspecified manipulator', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
 
@@ -986,8 +986,8 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Armor
   // ==========================================================================
 
-  describe("parse - armor", () => {
-    it("should parse armor per trooper", () => {
+  describe('parse - armor', () => {
+    it('should parse armor per trooper', () => {
       const doc = createMockBlkDocument({ armor: [10] });
       const result = handler.parse(doc);
 
@@ -995,7 +995,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.armorPerTrooper).toBe(10);
     });
 
-    it("should parse zero armor", () => {
+    it('should parse zero armor', () => {
       const doc = createMockBlkDocument({ armor: [0] });
       const result = handler.parse(doc);
 
@@ -1003,7 +1003,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.armorPerTrooper).toBe(0);
     });
 
-    it("should default to 0 armor for undefined", () => {
+    it('should default to 0 armor for undefined', () => {
       const doc = createMockBlkDocument({ armor: [] });
       const result = handler.parse(doc);
 
@@ -1011,7 +1011,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.armorPerTrooper).toBe(0);
     });
 
-    it("should parse armor type", () => {
+    it('should parse armor type', () => {
       const doc = createMockBlkDocument({ armorType: 1 });
       const result = handler.parse(doc);
 
@@ -1024,18 +1024,18 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Equipment
   // ==========================================================================
 
-  describe("parse - equipment", () => {
-    it("should parse squad equipment", () => {
+  describe('parse - equipment', () => {
+    it('should parse squad equipment', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
       expect(result.data?.unit?.equipment.length).toBe(2);
-      expect(result.data?.unit?.equipment[0].name).toBe("BA Small Laser");
-      expect(result.data?.unit?.equipment[1].name).toBe("BA SRM-2");
+      expect(result.data?.unit?.equipment[0].name).toBe('BA Small Laser');
+      expect(result.data?.unit?.equipment[1].name).toBe('BA SRM-2');
     });
 
-    it("should normalize equipment location to SQUAD", () => {
+    it('should normalize equipment location to SQUAD', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
 
@@ -1045,18 +1045,18 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should parse body equipment with correct location", () => {
+    it('should parse body equipment with correct location', () => {
       const doc = createBAWithMultipleLocationsDocument();
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
       const bodyEquip = result.data?.unit?.equipment.find(
-        (e) => e.name === "BA ECM Suite",
+        (e) => e.name === 'BA ECM Suite',
       );
       expect(bodyEquip?.location).toBe(BattleArmorLocation.BODY);
     });
 
-    it("should parse left arm equipment with correct location", () => {
+    it('should parse left arm equipment with correct location', () => {
       const doc = createBAWithMultipleLocationsDocument();
       const result = handler.parse(doc);
 
@@ -1067,7 +1067,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(leftArmEquip).toBeDefined();
     });
 
-    it("should parse right arm equipment with correct location", () => {
+    it('should parse right arm equipment with correct location', () => {
       const doc = createBAWithMultipleLocationsDocument();
       const result = handler.parse(doc);
 
@@ -1078,7 +1078,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(rightArmEquip).toBeDefined();
     });
 
-    it("should mark turret equipment correctly", () => {
+    it('should mark turret equipment correctly', () => {
       const doc = createBAWithTurretDocument();
       const result = handler.parse(doc);
 
@@ -1090,7 +1090,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(turretEquip?.location).toBe(BattleArmorLocation.TURRET);
     });
 
-    it("should mark AP mount equipment correctly", () => {
+    it('should mark AP mount equipment correctly', () => {
       const doc = createBAWithAPMountDocument();
       const result = handler.parse(doc);
 
@@ -1099,7 +1099,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(apEquip).toBeDefined();
     });
 
-    it("should handle empty equipment", () => {
+    it('should handle empty equipment', () => {
       const doc = createMinimalBADocument();
       const result = handler.parse(doc);
 
@@ -1107,7 +1107,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.equipment.length).toBe(0);
     });
 
-    it("should assign unique IDs to equipment mounts", () => {
+    it('should assign unique IDs to equipment mounts', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
 
@@ -1122,8 +1122,8 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Special Features
   // ==========================================================================
 
-  describe("parse - special features", () => {
-    it("should parse AP mount feature", () => {
+  describe('parse - special features', () => {
+    it('should parse AP mount feature', () => {
       const doc = createBAWithSpecialEquipmentDocument();
       const result = handler.parse(doc);
 
@@ -1131,7 +1131,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.hasAPMount).toBe(true);
     });
 
-    it("should parse modular mount feature", () => {
+    it('should parse modular mount feature', () => {
       const doc = createBAWithSpecialEquipmentDocument();
       const result = handler.parse(doc);
 
@@ -1139,7 +1139,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.hasModularMount).toBe(true);
     });
 
-    it("should parse turret mount feature", () => {
+    it('should parse turret mount feature', () => {
       const doc = createBAWithSpecialEquipmentDocument();
       const result = handler.parse(doc);
 
@@ -1147,7 +1147,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.hasTurretMount).toBe(true);
     });
 
-    it("should parse stealth system feature", () => {
+    it('should parse stealth system feature', () => {
       const doc = createBAWithSpecialEquipmentDocument();
       const result = handler.parse(doc);
 
@@ -1155,7 +1155,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.hasStealthSystem).toBe(true);
     });
 
-    it("should parse mimetic armor feature as false", () => {
+    it('should parse mimetic armor feature as false', () => {
       const doc = createBAWithSpecialEquipmentDocument();
       const result = handler.parse(doc);
 
@@ -1163,7 +1163,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.hasMimeticArmor).toBe(false);
     });
 
-    it("should parse fire resistant armor feature", () => {
+    it('should parse fire resistant armor feature', () => {
       const doc = createBAWithSpecialEquipmentDocument();
       const result = handler.parse(doc);
 
@@ -1171,7 +1171,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.hasFireResistantArmor).toBe(true);
     });
 
-    it("should parse mechanical jump boosters feature", () => {
+    it('should parse mechanical jump boosters feature', () => {
       const doc = createBAWithSpecialEquipmentDocument();
       const result = handler.parse(doc);
 
@@ -1179,7 +1179,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.hasMechanicalJumpBoosters).toBe(true);
     });
 
-    it("should default special features to false", () => {
+    it('should default special features to false', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
 
@@ -1198,8 +1198,8 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Capabilities
   // ==========================================================================
 
-  describe("parse - capabilities", () => {
-    it("should allow swarm for non-assault BA", () => {
+  describe('parse - capabilities', () => {
+    it('should allow swarm for non-assault BA', () => {
       const doc = createMediumBADocument();
       const result = handler.parse(doc);
 
@@ -1207,7 +1207,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.canSwarm).toBe(true);
     });
 
-    it("should disallow swarm for assault BA", () => {
+    it('should disallow swarm for assault BA', () => {
       const doc = createAssaultBADocument();
       const result = handler.parse(doc);
 
@@ -1215,7 +1215,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.canSwarm).toBe(false);
     });
 
-    it("should allow leg attack for all BA", () => {
+    it('should allow leg attack for all BA', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
 
@@ -1223,7 +1223,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.canLegAttack).toBe(true);
     });
 
-    it("should allow omni mount for non-assault BA", () => {
+    it('should allow omni mount for non-assault BA', () => {
       const doc = createMediumBADocument();
       const result = handler.parse(doc);
 
@@ -1231,7 +1231,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.canMountOmni).toBe(true);
     });
 
-    it("should disallow omni mount for assault BA", () => {
+    it('should disallow omni mount for assault BA', () => {
       const doc = createAssaultBADocument();
       const result = handler.parse(doc);
 
@@ -1239,7 +1239,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.canMountOmni).toBe(false);
     });
 
-    it("should allow anti-mech for all BA", () => {
+    it('should allow anti-mech for all BA', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
 
@@ -1252,29 +1252,29 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Tech Base
   // ==========================================================================
 
-  describe("parse - tech base", () => {
-    it("should parse Clan tech base", () => {
-      const doc = createMockBlkDocument({ type: "Clan Level 2" });
+  describe('parse - tech base', () => {
+    it('should parse Clan tech base', () => {
+      const doc = createMockBlkDocument({ type: 'Clan Level 2' });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.techBase).toBe("Clan");
+      expect(result.data?.unit?.techBase).toBe('Clan');
     });
 
-    it("should parse Inner Sphere tech base", () => {
-      const doc = createMockBlkDocument({ type: "IS Level 2" });
+    it('should parse Inner Sphere tech base', () => {
+      const doc = createMockBlkDocument({ type: 'IS Level 2' });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.techBase).toBe("Inner Sphere");
+      expect(result.data?.unit?.techBase).toBe('Inner Sphere');
     });
 
-    it("should default to Inner Sphere for mixed tech", () => {
-      const doc = createMockBlkDocument({ type: "Mixed Level 2" });
+    it('should default to Inner Sphere for mixed tech', () => {
+      const doc = createMockBlkDocument({ type: 'Mixed Level 2' });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.techBase).toBe("Inner Sphere");
+      expect(result.data?.unit?.techBase).toBe('Inner Sphere');
     });
   });
 
@@ -1282,8 +1282,8 @@ describe("BattleArmorUnitHandler", () => {
   // Parsing - Weight Per Trooper
   // ==========================================================================
 
-  describe("parse - weight per trooper", () => {
-    it("should calculate weight per trooper correctly for standard squad", () => {
+  describe('parse - weight per trooper', () => {
+    it('should calculate weight per trooper correctly for standard squad', () => {
       const doc = createMockBlkDocument({
         tonnage: 4,
         trooperCount: 4,
@@ -1295,7 +1295,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.weightPerTrooper).toBe(1000);
     });
 
-    it("should calculate weight per trooper for 5-trooper squad", () => {
+    it('should calculate weight per trooper for 5-trooper squad', () => {
       const doc = createMockBlkDocument({
         tonnage: 5,
         trooperCount: 5,
@@ -1307,7 +1307,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.weightPerTrooper).toBe(1000);
     });
 
-    it("should calculate weight per trooper for PA(L)", () => {
+    it('should calculate weight per trooper for PA(L)', () => {
       const doc = createPALDocument();
       const result = handler.parse(doc);
 
@@ -1321,8 +1321,8 @@ describe("BattleArmorUnitHandler", () => {
   // Validation - Squad Size
   // ==========================================================================
 
-  describe("validate - squad size", () => {
-    it("should pass validation for valid squad size of 4", () => {
+  describe('validate - squad size', () => {
+    it('should pass validation for valid squad size of 4', () => {
       const doc = createMockBlkDocument({ trooperCount: 4 });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1331,7 +1331,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(validation.isValid).toBe(true);
     });
 
-    it("should pass validation for valid squad size of 5", () => {
+    it('should pass validation for valid squad size of 5', () => {
       const doc = createMockBlkDocument({ trooperCount: 5 });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1340,7 +1340,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(validation.isValid).toBe(true);
     });
 
-    it("should pass validation for valid squad size of 6", () => {
+    it('should pass validation for valid squad size of 6', () => {
       const doc = createUnusualSquadSizeDocument(6);
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1349,7 +1349,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(validation.isValid).toBe(true);
     });
 
-    it("should pass validation for valid squad size of 1", () => {
+    it('should pass validation for valid squad size of 1', () => {
       const doc = createUnusualSquadSizeDocument(1);
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1358,7 +1358,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(validation.isValid).toBe(true);
     });
 
-    it("should fail parsing for squad size of 0 due to zero tonnage", () => {
+    it('should fail parsing for squad size of 0 due to zero tonnage', () => {
       // When using createUnusualSquadSizeDocument(0), tonnage also becomes 0
       // The parser rejects tonnage: 0 as invalid
       const doc = createUnusualSquadSizeDocument(0);
@@ -1367,15 +1367,15 @@ describe("BattleArmorUnitHandler", () => {
       // Parse fails due to invalid tonnage (0)
       expect(result.success).toBe(false);
       expect(
-        result.error!.errors.some((e) => e.toLowerCase().includes("tonnage")),
+        result.error!.errors.some((e) => e.toLowerCase().includes('tonnage')),
       ).toBe(true);
     });
 
-    it("should default trooperCount 0 to 4 when tonnage is valid", () => {
+    it('should default trooperCount 0 to 4 when tonnage is valid', () => {
       // Test with valid tonnage but trooperCount: 0
       // Due to || operator, trooperCount: 0 defaults to 4
       const doc = createMockBlkDocument({
-        name: "Test BA",
+        name: 'Test BA',
         trooperCount: 0, // Will default to 4 due to || operator
         tonnage: 4, // Valid tonnage
       });
@@ -1385,26 +1385,26 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.data?.unit?.squadSize).toBe(4); // Defaults to 4
     });
 
-    it("should fail validation for squad size of 7", () => {
+    it('should fail validation for squad size of 7', () => {
       const doc = createUnusualSquadSizeDocument(7);
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some((e) => e.includes("squad size"))).toBe(
+      expect(validation.errors.some((e) => e.includes('squad size'))).toBe(
         true,
       );
     });
 
-    it("should fail validation for squad size of 10", () => {
+    it('should fail validation for squad size of 10', () => {
       const doc = createUnusualSquadSizeDocument(10);
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some((e) => e.includes("squad size"))).toBe(
+      expect(validation.errors.some((e) => e.includes('squad size'))).toBe(
         true,
       );
     });
@@ -1414,8 +1414,8 @@ describe("BattleArmorUnitHandler", () => {
   // Validation - Weight Per Trooper vs Weight Class
   // ==========================================================================
 
-  describe("validate - weight per trooper vs weight class", () => {
-    it("should pass for PA(L) with weight 80-400kg", () => {
+  describe('validate - weight per trooper vs weight class', () => {
+    it('should pass for PA(L) with weight 80-400kg', () => {
       const doc = createMockBlkDocument({
         tonnage: 1.6, // 400kg per trooper * 4
         trooperCount: 4,
@@ -1427,12 +1427,12 @@ describe("BattleArmorUnitHandler", () => {
       const validation = handler.validate(result.data!.unit);
       // May have warnings but should not have errors for weight
       expect(
-        validation.errors.filter((e) => e.includes("Weight per trooper"))
+        validation.errors.filter((e) => e.includes('Weight per trooper'))
           .length,
       ).toBe(0);
     });
 
-    it("should pass for LIGHT with weight 401-750kg", () => {
+    it('should pass for LIGHT with weight 401-750kg', () => {
       const doc = createMockBlkDocument({
         tonnage: 2.5, // ~625kg per trooper * 4
         trooperCount: 4,
@@ -1443,12 +1443,12 @@ describe("BattleArmorUnitHandler", () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(
-        validation.errors.filter((e) => e.includes("Weight per trooper"))
+        validation.errors.filter((e) => e.includes('Weight per trooper'))
           .length,
       ).toBe(0);
     });
 
-    it("should pass for MEDIUM with weight 751-1000kg", () => {
+    it('should pass for MEDIUM with weight 751-1000kg', () => {
       const doc = createMockBlkDocument({
         tonnage: 4, // 1000kg per trooper * 4
         trooperCount: 4,
@@ -1459,12 +1459,12 @@ describe("BattleArmorUnitHandler", () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(
-        validation.errors.filter((e) => e.includes("Weight per trooper"))
+        validation.errors.filter((e) => e.includes('Weight per trooper'))
           .length,
       ).toBe(0);
     });
 
-    it("should pass for HEAVY with weight 1001-1500kg", () => {
+    it('should pass for HEAVY with weight 1001-1500kg', () => {
       const doc = createMockBlkDocument({
         tonnage: 5, // 1250kg per trooper * 4
         trooperCount: 4,
@@ -1475,12 +1475,12 @@ describe("BattleArmorUnitHandler", () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(
-        validation.errors.filter((e) => e.includes("Weight per trooper"))
+        validation.errors.filter((e) => e.includes('Weight per trooper'))
           .length,
       ).toBe(0);
     });
 
-    it("should pass for ASSAULT with weight 1501-2000kg", () => {
+    it('should pass for ASSAULT with weight 1501-2000kg', () => {
       const doc = createMockBlkDocument({
         tonnage: 8, // 2000kg per trooper * 4
         trooperCount: 4,
@@ -1491,12 +1491,12 @@ describe("BattleArmorUnitHandler", () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(
-        validation.errors.filter((e) => e.includes("Weight per trooper"))
+        validation.errors.filter((e) => e.includes('Weight per trooper'))
           .length,
       ).toBe(0);
     });
 
-    it("should warn when weight does not match class", () => {
+    it('should warn when weight does not match class', () => {
       const doc = createMockBlkDocument({
         tonnage: 8, // 2000kg per trooper - Assault weight
         trooperCount: 4,
@@ -1507,7 +1507,7 @@ describe("BattleArmorUnitHandler", () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(
-        validation.warnings.some((w) => w.includes("Weight per trooper")),
+        validation.warnings.some((w) => w.includes('Weight per trooper')),
       ).toBe(true);
     });
   });
@@ -1516,8 +1516,8 @@ describe("BattleArmorUnitHandler", () => {
   // Validation - Assault BA Limitations
   // ==========================================================================
 
-  describe("validate - assault BA limitations", () => {
-    it("should fail if assault BA has canSwarm true", () => {
+  describe('validate - assault BA limitations', () => {
+    it('should fail if assault BA has canSwarm true', () => {
       const doc = createAssaultBADocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1530,10 +1530,10 @@ describe("BattleArmorUnitHandler", () => {
 
       const validation = handler.validate(invalidUnit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some((e) => e.includes("swarm"))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('swarm'))).toBe(true);
     });
 
-    it("should fail if assault BA has canMountOmni true", () => {
+    it('should fail if assault BA has canMountOmni true', () => {
       const doc = createAssaultBADocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1546,21 +1546,21 @@ describe("BattleArmorUnitHandler", () => {
 
       const validation = handler.validate(invalidUnit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some((e) => e.includes("OmniMech"))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('OmniMech'))).toBe(true);
     });
 
-    it("should pass for correctly configured assault BA", () => {
+    it('should pass for correctly configured assault BA', () => {
       const doc = createAssaultBADocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
       // Should not have assault-specific errors
-      expect(validation.errors.filter((e) => e.includes("swarm")).length).toBe(
+      expect(validation.errors.filter((e) => e.includes('swarm')).length).toBe(
         0,
       );
       expect(
-        validation.errors.filter((e) => e.includes("OmniMech")).length,
+        validation.errors.filter((e) => e.includes('OmniMech')).length,
       ).toBe(0);
     });
   });
@@ -1569,8 +1569,8 @@ describe("BattleArmorUnitHandler", () => {
   // Validation - Armor Per Trooper
   // ==========================================================================
 
-  describe("validate - armor per trooper", () => {
-    it("should pass for PA(L) with armor <= 2", () => {
+  describe('validate - armor per trooper', () => {
+    it('should pass for PA(L) with armor <= 2', () => {
       const doc = createMockBlkDocument({
         armor: [2],
         weightClass: 0, // PA(L)
@@ -1581,12 +1581,12 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.filter((e) => e.includes("Armor")).length).toBe(
+      expect(validation.errors.filter((e) => e.includes('Armor')).length).toBe(
         0,
       );
     });
 
-    it("should fail for PA(L) with armor > 2", () => {
+    it('should fail for PA(L) with armor > 2', () => {
       // Note: weightClass: 0 is treated as falsy and defaults to 2 (Medium)
       // So this test will use weightClass: 1 (Light) with max armor 5 to test the boundary
       const doc = createMockBlkDocument({
@@ -1599,10 +1599,10 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.some((e) => e.includes("Armor"))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('Armor'))).toBe(true);
     });
 
-    it("should pass for LIGHT with armor <= 5", () => {
+    it('should pass for LIGHT with armor <= 5', () => {
       const doc = createMockBlkDocument({
         armor: [5],
         weightClass: 1, // Light
@@ -1613,12 +1613,12 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.filter((e) => e.includes("Armor")).length).toBe(
+      expect(validation.errors.filter((e) => e.includes('Armor')).length).toBe(
         0,
       );
     });
 
-    it("should fail for LIGHT with armor > 5", () => {
+    it('should fail for LIGHT with armor > 5', () => {
       const doc = createMockBlkDocument({
         armor: [6],
         weightClass: 1, // Light
@@ -1629,10 +1629,10 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.some((e) => e.includes("Armor"))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('Armor'))).toBe(true);
     });
 
-    it("should pass for MEDIUM with armor <= 8", () => {
+    it('should pass for MEDIUM with armor <= 8', () => {
       const doc = createMockBlkDocument({
         armor: [8],
         weightClass: 2, // Medium
@@ -1643,12 +1643,12 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.filter((e) => e.includes("Armor")).length).toBe(
+      expect(validation.errors.filter((e) => e.includes('Armor')).length).toBe(
         0,
       );
     });
 
-    it("should fail for MEDIUM with armor > 8", () => {
+    it('should fail for MEDIUM with armor > 8', () => {
       const doc = createMockBlkDocument({
         armor: [9],
         weightClass: 2, // Medium
@@ -1659,10 +1659,10 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.some((e) => e.includes("Armor"))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('Armor'))).toBe(true);
     });
 
-    it("should pass for HEAVY with armor <= 10", () => {
+    it('should pass for HEAVY with armor <= 10', () => {
       const doc = createMockBlkDocument({
         armor: [10],
         weightClass: 3, // Heavy
@@ -1673,12 +1673,12 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.filter((e) => e.includes("Armor")).length).toBe(
+      expect(validation.errors.filter((e) => e.includes('Armor')).length).toBe(
         0,
       );
     });
 
-    it("should fail for HEAVY with armor > 10", () => {
+    it('should fail for HEAVY with armor > 10', () => {
       const doc = createMockBlkDocument({
         armor: [11],
         weightClass: 3, // Heavy
@@ -1689,10 +1689,10 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.some((e) => e.includes("Armor"))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('Armor'))).toBe(true);
     });
 
-    it("should pass for ASSAULT with armor <= 14", () => {
+    it('should pass for ASSAULT with armor <= 14', () => {
       const doc = createMockBlkDocument({
         armor: [14],
         weightClass: 4, // Assault
@@ -1703,12 +1703,12 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.filter((e) => e.includes("Armor")).length).toBe(
+      expect(validation.errors.filter((e) => e.includes('Armor')).length).toBe(
         0,
       );
     });
 
-    it("should fail for ASSAULT with armor > 14", () => {
+    it('should fail for ASSAULT with armor > 14', () => {
       const doc = createMockBlkDocument({
         armor: [15],
         weightClass: 4, // Assault
@@ -1719,7 +1719,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.some((e) => e.includes("Armor"))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('Armor'))).toBe(true);
     });
   });
 
@@ -1727,8 +1727,8 @@ describe("BattleArmorUnitHandler", () => {
   // Calculations - Weight
   // ==========================================================================
 
-  describe("calculateWeight", () => {
-    it("should calculate weight as weightPerTrooper * squadSize / 1000", () => {
+  describe('calculateWeight', () => {
+    it('should calculate weight as weightPerTrooper * squadSize / 1000', () => {
       const doc = createMockBlkDocument({
         tonnage: 4, // 1000kg per trooper
         trooperCount: 4,
@@ -1741,7 +1741,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(weight).toBe(4);
     });
 
-    it("should calculate weight for 5-trooper squad", () => {
+    it('should calculate weight for 5-trooper squad', () => {
       const doc = createMockBlkDocument({
         tonnage: 5, // 1000kg per trooper
         trooperCount: 5,
@@ -1754,7 +1754,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(weight).toBe(5);
     });
 
-    it("should calculate weight for PA(L)", () => {
+    it('should calculate weight for PA(L)', () => {
       const doc = createPALDocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1764,7 +1764,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(weight).toBeCloseTo(0.4, 2);
     });
 
-    it("should return positive value", () => {
+    it('should return positive value', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1778,8 +1778,8 @@ describe("BattleArmorUnitHandler", () => {
   // Calculations - BV
   // ==========================================================================
 
-  describe("calculateBV", () => {
-    it("should calculate BV based on armor", () => {
+  describe('calculateBV', () => {
+    it('should calculate BV based on armor', () => {
       const doc = createMockBlkDocument({
         armor: [10],
         trooperCount: 5,
@@ -1793,7 +1793,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(bv).toBe(1000);
     });
 
-    it("should apply 1.1x modifier for jump capability", () => {
+    it('should apply 1.1x modifier for jump capability', () => {
       const doc = createMockBlkDocument({
         armor: [10],
         trooperCount: 5,
@@ -1807,7 +1807,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(bv).toBe(1100);
     });
 
-    it("should not apply jump modifier for non-jump BA", () => {
+    it('should not apply jump modifier for non-jump BA', () => {
       const doc = createMockBlkDocument({
         armor: [10],
         trooperCount: 4,
@@ -1821,7 +1821,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(bv).toBe(800);
     });
 
-    it("should return positive value", () => {
+    it('should return positive value', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1830,7 +1830,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(bv).toBeGreaterThan(0);
     });
 
-    it("should return integer value", () => {
+    it('should return integer value', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1844,8 +1844,8 @@ describe("BattleArmorUnitHandler", () => {
   // Calculations - Cost
   // ==========================================================================
 
-  describe("calculateCost", () => {
-    it("should calculate cost based on weight class", () => {
+  describe('calculateCost', () => {
+    it('should calculate cost based on weight class', () => {
       // Note: PA(L) (weightClass: 0) defaults to Medium due to || operator
       // Testing with Light BA instead
       const doc = createLightBADocument();
@@ -1857,7 +1857,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(cost).toBe(800000);
     });
 
-    it("should calculate cost for LIGHT at 200,000 base", () => {
+    it('should calculate cost for LIGHT at 200,000 base', () => {
       const doc = createLightBADocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1867,7 +1867,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(cost).toBe(800000);
     });
 
-    it("should calculate cost for MEDIUM at 300,000 base", () => {
+    it('should calculate cost for MEDIUM at 300,000 base', () => {
       const doc = createMediumBADocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1877,7 +1877,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(cost).toBe(1200000);
     });
 
-    it("should calculate cost for HEAVY at 400,000 base", () => {
+    it('should calculate cost for HEAVY at 400,000 base', () => {
       const doc = createHeavyBADocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1887,7 +1887,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(cost).toBe(2000000);
     });
 
-    it("should calculate cost for ASSAULT at 500,000 base", () => {
+    it('should calculate cost for ASSAULT at 500,000 base', () => {
       const doc = createAssaultBADocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1897,7 +1897,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(cost).toBe(2000000);
     });
 
-    it("should return positive value", () => {
+    it('should return positive value', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
@@ -1911,8 +1911,8 @@ describe("BattleArmorUnitHandler", () => {
   // Serialization
   // ==========================================================================
 
-  describe("serialize", () => {
-    it("should serialize successfully", () => {
+  describe('serialize', () => {
+    it('should serialize successfully', () => {
       const doc = createMockBlkDocument();
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
@@ -1922,7 +1922,7 @@ describe("BattleArmorUnitHandler", () => {
       expect(serializeResult.data?.serialized).toBeDefined();
     });
 
-    it("should include unit type in serialized output", () => {
+    it('should include unit type in serialized output', () => {
       const doc = createMockBlkDocument();
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
@@ -1933,7 +1933,7 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should include tonnage in serialized output", () => {
+    it('should include tonnage in serialized output', () => {
       const doc = createMockBlkDocument({ tonnage: 5 });
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
@@ -1942,13 +1942,13 @@ describe("BattleArmorUnitHandler", () => {
       expect(serializeResult.data?.serialized?.tonnage).toBe(5);
     });
 
-    it("should include chassis in serialized output", () => {
-      const doc = createMockBlkDocument({ name: "Elemental" });
+    it('should include chassis in serialized output', () => {
+      const doc = createMockBlkDocument({ name: 'Elemental' });
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
       const serializeResult = handler.serialize(parseResult.data!.unit);
-      expect(serializeResult.data?.serialized?.chassis).toBe("Elemental");
+      expect(serializeResult.data?.serialized?.chassis).toBe('Elemental');
     });
   });
 
@@ -1956,8 +1956,8 @@ describe("BattleArmorUnitHandler", () => {
   // serializeTypeSpecificFields
   // ==========================================================================
 
-  describe("serializeTypeSpecificFields (via serialize)", () => {
-    it("should include configuration (chassis type) in output", () => {
+  describe('serializeTypeSpecificFields (via serialize)', () => {
+    it('should include configuration (chassis type) in output', () => {
       const doc = createQuadBADocument();
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
@@ -1968,8 +1968,8 @@ describe("BattleArmorUnitHandler", () => {
       );
     });
 
-    it("should include rulesLevel in output", () => {
-      const doc = createMockBlkDocument({ type: "IS Level 2" });
+    it('should include rulesLevel in output', () => {
+      const doc = createMockBlkDocument({ type: 'IS Level 2' });
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
@@ -1982,8 +1982,8 @@ describe("BattleArmorUnitHandler", () => {
   // Deserialize
   // ==========================================================================
 
-  describe("deserialize", () => {
-    it("should return failure (not implemented)", () => {
+  describe('deserialize', () => {
+    it('should return failure (not implemented)', () => {
       // Parse a valid BA to get a serializable unit, then serialize it
       const doc = createMockBlkDocument();
       const parseResult = handler.parse(doc);
@@ -1996,7 +1996,7 @@ describe("BattleArmorUnitHandler", () => {
       const result = handler.deserialize(serializeResult.data!.serialized);
       expect(result.success).toBe(false);
       expect(
-        result.error!.errors.some((e) => e.includes("not yet implemented")),
+        result.error!.errors.some((e) => e.includes('not yet implemented')),
       ).toBe(true);
     });
   });
@@ -2005,13 +2005,13 @@ describe("BattleArmorUnitHandler", () => {
   // Factory Function
   // ==========================================================================
 
-  describe("createBattleArmorHandler", () => {
-    it("should create a BattleArmorUnitHandler instance", () => {
+  describe('createBattleArmorHandler', () => {
+    it('should create a BattleArmorUnitHandler instance', () => {
       const newHandler = createBattleArmorHandler();
       expect(newHandler).toBeInstanceOf(BattleArmorUnitHandler);
     });
 
-    it("should create independent instances", () => {
+    it('should create independent instances', () => {
       const handler1 = createBattleArmorHandler();
       const handler2 = createBattleArmorHandler();
       expect(handler1).not.toBe(handler2);
