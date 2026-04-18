@@ -69,11 +69,12 @@ function InfantryCustomizerInner({
   // Read motionType to drive the Field Guns tab visibility predicate
   const motionType = useInfantryStore((s) => s.motionType);
 
-  const { visibleSpecs, activeTab, setActiveTab } = useCustomizerTabs({
-    specs: INFANTRY_TABS,
-    state: { motionType },
-    initialTabId: initialTab,
-  });
+  const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
+    useCustomizerTabs({
+      specs: INFANTRY_TABS,
+      state: { motionType },
+      initialTabId: initialTab,
+    });
 
   const tabConfigs = toCustomizerTabConfigs(visibleSpecs);
 
@@ -97,6 +98,8 @@ function InfantryCustomizerInner({
         activeTab={activeTab}
         onTabChange={handleTabChange}
         readOnly={readOnly}
+        dirtyTabs={dirtyTabs}
+        errorTabs={errorTabs}
       />
 
       {/* Main Content Area */}

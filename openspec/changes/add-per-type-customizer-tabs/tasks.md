@@ -81,12 +81,12 @@
 - [x] 9.1 `dirtyTabs` state correctly flags a tab when its fields have pending changes
       Note: `useCustomizerTabs` exposes `dirtyTabs: Set<string>`, `markDirty(tabId)`, `clearDirty(tabId)`,
       `clearAllDirty()`. Tab components call markDirty from field onChange handlers.
-- [ ] 9.2 Navigation warning: leaving a dirty tab prompts confirm
-      Note: Hook provides `dirtyTabs` state; the confirm dialog is a UI concern left to each construction
-      proposal to wire (they own the save/navigation flow). Deferred to add-vehicle-construction et al.
-- [ ] 9.3 Validation errors on a tab surface a red dot on the tab label
-      Note: Hook provides `errorTabs: Set<string>` and `setErrorTabs(tabIds)`. Visual rendering of the error
-      dot requires integration with each type's validation hook. Deferred to construction proposals.
+- [x] 9.2 Navigation warning: leaving a dirty tab prompts confirm
+      Note: Implemented in `useCustomizerTabs.setActiveTab` — calls `window.confirm` when the current tab
+      is in `dirtyTabs` and the user navigates away. All per-type customizers inherit this automatically.
+- [x] 9.3 Validation errors on a tab surface a red dot on the tab label
+      Note: `CustomizerTabs` now accepts `dirtyTabs` and `errorTabs` props and renders yellow/red ● markers
+      with ARIA labels. All five per-type customizers pass these props from `useCustomizerTabs`.
 
 ## 10. Spec Compliance
 

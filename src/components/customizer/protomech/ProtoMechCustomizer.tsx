@@ -71,11 +71,12 @@ function ProtoMechCustomizerInner({
   // Read tonnage to drive the Glider tab visibility predicate
   const tonnage = useProtoMechStore((s) => s.tonnage);
 
-  const { visibleSpecs, activeTab, setActiveTab } = useCustomizerTabs({
-    specs: PROTOMECH_TABS,
-    state: { tonnage },
-    initialTabId: initialTab,
-  });
+  const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
+    useCustomizerTabs({
+      specs: PROTOMECH_TABS,
+      state: { tonnage },
+      initialTabId: initialTab,
+    });
 
   const tabConfigs = toCustomizerTabConfigs(visibleSpecs);
 
@@ -99,6 +100,8 @@ function ProtoMechCustomizerInner({
         activeTab={activeTab}
         onTabChange={handleTabChange}
         readOnly={readOnly}
+        dirtyTabs={dirtyTabs}
+        errorTabs={errorTabs}
       />
 
       {/* Main Content Area */}

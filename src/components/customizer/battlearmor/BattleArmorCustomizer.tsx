@@ -69,11 +69,12 @@ export function BattleArmorCustomizer({
   readOnly = false,
   className = "",
 }: BattleArmorCustomizerProps): React.ReactElement {
-  const { visibleSpecs, activeTab, setActiveTab } = useCustomizerTabs({
-    specs: BATTLE_ARMOR_TABS,
-    state: {},
-    initialTabId: initialTab,
-  });
+  const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
+    useCustomizerTabs({
+      specs: BATTLE_ARMOR_TABS,
+      state: {},
+      initialTabId: initialTab,
+    });
 
   const tabConfigs = toCustomizerTabConfigs(visibleSpecs);
 
@@ -98,6 +99,8 @@ export function BattleArmorCustomizer({
           activeTab={activeTab}
           onTabChange={handleTabChange}
           readOnly={readOnly}
+          dirtyTabs={dirtyTabs}
+          errorTabs={errorTabs}
         />
 
         {/* Main Content Area */}

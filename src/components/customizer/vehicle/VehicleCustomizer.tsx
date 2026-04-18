@@ -66,11 +66,12 @@ export function VehicleCustomizer({
   className = "",
 }: VehicleCustomizerProps): React.ReactElement {
   // Vehicle tabs have no visibleWhen predicates — pass an empty state object
-  const { visibleSpecs, activeTab, setActiveTab } = useCustomizerTabs({
-    specs: VEHICLE_TABS,
-    state: {},
-    initialTabId: initialTab,
-  });
+  const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
+    useCustomizerTabs({
+      specs: VEHICLE_TABS,
+      state: {},
+      initialTabId: initialTab,
+    });
 
   const tabConfigs = toCustomizerTabConfigs(visibleSpecs);
 
@@ -102,6 +103,8 @@ export function VehicleCustomizer({
           activeTab={activeTab}
           onTabChange={handleTabChange}
           readOnly={readOnly}
+          dirtyTabs={dirtyTabs}
+          errorTabs={errorTabs}
           data-testid="vehicle-tab-bar"
         />
 

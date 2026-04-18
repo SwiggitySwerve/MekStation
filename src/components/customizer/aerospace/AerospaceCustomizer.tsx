@@ -71,11 +71,12 @@ function AerospaceCustomizerInner({
   // Read unitType to drive the Bombs tab visibility predicate
   const unitType = useAerospaceStore((s) => s.unitType);
 
-  const { visibleSpecs, activeTab, setActiveTab } = useCustomizerTabs({
-    specs: AEROSPACE_TABS,
-    state: { unitType },
-    initialTabId: initialTab,
-  });
+  const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
+    useCustomizerTabs({
+      specs: AEROSPACE_TABS,
+      state: { unitType },
+      initialTabId: initialTab,
+    });
 
   const tabConfigs = toCustomizerTabConfigs(visibleSpecs);
 
@@ -102,6 +103,8 @@ function AerospaceCustomizerInner({
         activeTab={activeTab}
         onTabChange={handleTabChange}
         readOnly={readOnly}
+        dirtyTabs={dirtyTabs}
+        errorTabs={errorTabs}
         data-testid="aerospace-tab-bar"
       />
 

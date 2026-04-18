@@ -110,14 +110,29 @@ export function useCustomizerTabs<TState>({
   const [dirtyTabs, setDirtyTabs] = useState<Set<string>>(new Set());
   const [errorTabs, setErrorTabsState] = useState<Set<string>>(new Set());
 
-  // Only navigate to tabs that are in the visible set; silently ignore invalid ids
+  // Navigate to tabs in the visible set. When the current tab has unsaved
+  // changes, show a browser-native confirm before leaving so users don't lose
+  // in-flight edits. This satisfies Spec § Requirement: Tab Dirty Tracking.
   const setActiveTab = useCallback(
     (tabId: string) => {
-      if (visibleSpecs.some((s) => s.id === tabId)) {
-        setActiveTabRaw(tabId);
+      if (!visibleSpecs.some((s) => s.id === tabId)) return;
+      // Only prompt if navigating *away* from the current tab
+      if (tabId === activeTab) return;
+
+      if (
+        dirtyTabs.has(activeTab) &&
+        typeof window !== "undefined" &&
+        !window.confirm("You have unsaved changes on this tab. Leave anyway?")
+      ) {
+        // User cancelled — stay on the current tab
+        return;
       }
+
+      setActiveTabRaw(tabId);
     },
-    [visibleSpecs],
+    // activeTab and dirtyTabs are captured values; including them ensures the
+    // closure sees the latest state each render.
+    [visibleSpecs, activeTab, dirtyTabs],
   );
 
   const markDirty = useCallback((tabId: string) => {
