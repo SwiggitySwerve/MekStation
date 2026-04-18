@@ -25,7 +25,11 @@ import {
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
 import * as careerOps from './PilotRepository.career';
-import { rowToPilot, type PilotRow } from './PilotRepository.helpers';
+import {
+  encodeDesignation,
+  rowToPilot,
+  type PilotRow,
+} from './PilotRepository.helpers';
 import { buildUpdateQuery } from './PilotRepository.queries';
 
 // =============================================================================
@@ -290,6 +294,9 @@ export class PilotRepository implements IPilotRepository {
     }
 
     try {
+      // Wave 2b — JSON-encode the typed designation body so the storage
+      // shape matches the discriminated union without a schema change.
+      const encoded = encodeDesignation(designation);
       db.prepare(
         `
         INSERT INTO pilot_abilities (
@@ -304,8 +311,8 @@ export class PilotRepository implements IPilotRepository {
         abilityId,
         now,
         gameId || null,
-        designation?.kind ?? null,
-        designation?.value ?? null,
+        encoded.kind,
+        encoded.value,
         xpSpent ?? null,
       );
 

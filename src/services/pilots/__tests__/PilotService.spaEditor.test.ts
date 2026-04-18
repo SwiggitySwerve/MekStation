@@ -340,12 +340,16 @@ describe('PilotService.purchaseSPA', () => {
   });
 
   it('persists the designation payload alongside the ability', () => {
-    const spa = getCheapPurchasable();
+    // Pick a designation-aware SPA (Weapon Specialist) so the
+    // type-mismatch guard in purchaseSPA approves the payload.
+    const spa = getAllSPAs().find((s) => s.id === 'weapon_specialist')!;
+    expect(spa).toBeDefined();
     const pilot = makePilot(500);
     const service = new PilotService();
     const designation: IPilotAbilityDesignation = {
       kind: 'weapon_type',
-      value: 'PPC',
+      weaponTypeId: 'ppc',
+      displayLabel: 'PPC',
     };
 
     const result = service.purchaseSPA(pilot.id, spa.id, { designation });
@@ -355,6 +359,98 @@ describe('PilotService.purchaseSPA', () => {
       .get(pilot.id)!
       .abilities.find((a) => a.abilityId === spa.id);
     expect(ref?.designation).toEqual(designation);
+  });
+
+  // -------------------------------------------------------------------
+  // Wave 2b — designation validation
+  // -------------------------------------------------------------------
+
+  it('rejects purchase of a designation-required SPA without a designation', () => {
+    const spa = getAllSPAs().find((s) => s.id === 'weapon_specialist')!;
+    const pilot = makePilot(500);
+    const service = new PilotService();
+
+    const result = service.purchaseSPA(pilot.id, spa.id);
+
+    expect(result.success).toBe(false);
+    expect(result.errorCode).toBe(PilotErrorCode.ValidationError);
+    expect(result.error).toMatch(/Designation required/i);
+  });
+
+  it('rejects a designation whose kind does not match the SPA type', () => {
+    const spa = getAllSPAs().find((s) => s.id === 'weapon_specialist')!;
+    const pilot = makePilot(500);
+    const service = new PilotService();
+    const wrongKind: IPilotAbilityDesignation = {
+      kind: 'range_bracket',
+      bracket: 'short',
+      displayLabel: 'Short',
+    };
+
+    const result = service.purchaseSPA(pilot.id, spa.id, {
+      designation: wrongKind,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.errorCode).toBe(PilotErrorCode.ValidationError);
+    expect(result.error).toMatch(/Designation type mismatch/i);
+  });
+});
+
+// =============================================================================
+// getPilotDesignation (Wave 2b)
+// =============================================================================
+
+describe('PilotService.getPilotDesignation', () => {
+  it('returns the stored designation for an owned SPA', () => {
+    const spa = getAllSPAs().find((s) => s.id === 'weapon_specialist')!;
+    const pilot = makePilot(500);
+    const service = new PilotService();
+    const designation: IPilotAbilityDesignation = {
+      kind: 'weapon_type',
+      weaponTypeId: 'gauss_rifle',
+      displayLabel: 'Gauss Rifle',
+    };
+    service.purchaseSPA(pilot.id, spa.id, { designation });
+
+    const updated = mockPilots.get(pilot.id)!;
+    const got = service.getPilotDesignation(updated, 'weapon_specialist');
+    expect(got).toEqual(designation);
+  });
+
+  it('returns undefined when the pilot does not own the SPA', () => {
+    const pilot = makePilot(0);
+    const service = new PilotService();
+    expect(
+      service.getPilotDesignation(pilot, 'weapon_specialist'),
+    ).toBeUndefined();
+  });
+
+  it('resolves a legacy alias id to the canonical SPA', () => {
+    const spa = getAllSPAs().find((s) => s.id === 'weapon_specialist')!;
+    const pilot = makePilot(500);
+    const service = new PilotService();
+    service.purchaseSPA(pilot.id, spa.id, {
+      designation: {
+        kind: 'weapon_type',
+        weaponTypeId: 'ppc',
+        displayLabel: 'PPC',
+      },
+    });
+
+    const updated = mockPilots.get(pilot.id)!;
+    // 'weapon-specialist' is a legacy alias for 'weapon_specialist' —
+    // both should resolve to the same row.
+    const fromLegacy = service.getPilotDesignation(
+      updated,
+      'weapon-specialist',
+    );
+    const fromCanonical = service.getPilotDesignation(
+      updated,
+      'weapon_specialist',
+    );
+    expect(fromLegacy).toBeDefined();
+    expect(fromLegacy).toEqual(fromCanonical);
   });
 });
 

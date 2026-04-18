@@ -6,6 +6,7 @@
  */
 
 import type { IPilotAward, IPilotStats } from '../award/AwardInterfaces';
+import type { ISPADesignation } from './SPADesignation';
 
 import { IEntity } from '../core/IEntity';
 
@@ -304,18 +305,14 @@ export enum AbilityEffectType {
 }
 
 /**
- * Stub designation payload stored alongside an SPA. Wave 2b replaces this
- * shape with a typed discriminated union that pulls real options from the
- * weapon + terrain catalogs — the picker contract here intentionally
- * mirrors `SPADesignation` from `@/components/spa/SPAPicker/types` so we
- * don't grow a hidden third shape.
+ * Designation payload stored alongside an SPA. Wave 2b replaced the
+ * original `{ kind: string; value: string }` stub with the typed
+ * discriminated union exported from `./SPADesignation`. We keep
+ * `IPilotAbilityDesignation` as a re-export alias so code paths that
+ * still spell the old name (Wave 2a wiring, the SQLite repository, the
+ * picker prop type) continue to compile after the swap.
  */
-export interface IPilotAbilityDesignation {
-  /** SPA designationType slug, or 'unknown' if the SPA didn't declare one. */
-  readonly kind: string;
-  /** User-visible label of the option chosen at purchase time. */
-  readonly value: string;
-}
+export type IPilotAbilityDesignation = ISPADesignation;
 
 /**
  * Reference to an ability owned by a pilot.

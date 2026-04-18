@@ -33,7 +33,10 @@ export {
   getSPAsForPipeline,
   hasSPA,
 } from './catalog';
-export { calculateAttackerSPAModifiers } from './integration';
+export {
+  calculateAttackerSPAModifiers,
+  populateAttackerDesignations,
+} from './integration';
 export type {
   EdgeTriggerType,
   IEdgeState,

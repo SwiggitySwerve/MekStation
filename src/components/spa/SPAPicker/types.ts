@@ -1,35 +1,32 @@
 /**
  * SPAPicker — local types and constants.
  *
- * Wave 1 ships a STUB `SPADesignation` shape so the picker can compile
- * and emit selection payloads without the real designation domain
- * model. Wave 2b replaces `SPADesignation` with a discriminated-union
- * type that carries the canonical weapon-type / target / range-bracket
- * payloads, and replaces `getDesignationOptions()` with a registry that
- * pulls real options from the equipment + terrain catalogs.
+ * Wave 2b replaced the original stub `SPADesignation = { kind, value }`
+ * with the canonical typed discriminated union `ISPADesignation` exported
+ * from `@/types/pilot/SPADesignation`. The picker emits the typed
+ * variant directly; downstream consumers (Wave 2a editor, Wave 2c
+ * read-only sheet) keep the same prop signatures because we re-alias the
+ * old type name here.
  *
- * Until then, every consumer of the picker can rely on this contract:
- *   - `kind` is the SPA's `designationType` (or "unknown" if absent)
- *   - `value` is the user-visible label of whatever they picked
+ * Deprecation notes:
+ *   - `STUB_DESIGNATION_OPTIONS` was removed; the live registry lives in
+ *     `@/lib/spa/designation/getDesignationOptions.ts`.
+ *   - `getDesignationOptions` is re-exported from this module pointing to
+ *     the real registry so existing imports keep resolving.
  */
 
-import type {
-  ISPADefinition,
-  SPADesignationType,
-  SPASource,
-} from '@/types/spa/SPADefinition';
+import type { ISPADesignation } from '@/types/pilot/SPADesignation';
+import type { ISPADefinition, SPASource } from '@/types/spa/SPADefinition';
+
+import { getDesignationOptions as getRealDesignationOptions } from '@/lib/spa/designation';
 
 /**
- * Stub designation payload — Wave 2b replaces with a typed discriminated union.
- * Keep the shape deliberately narrow so consumers don't grow dependencies on
- * fields that won't survive the Wave 2b rewrite.
+ * Typed designation payload — the picker now emits the real
+ * `ISPADesignation` variant declared in `@/types/pilot/SPADesignation`.
+ * Aliased here so consumers can keep importing `SPADesignation` from the
+ * picker's barrel without churn.
  */
-export interface SPADesignation {
-  /** SPA designationType, or 'unknown' if the SPA didn't declare one. */
-  readonly kind: SPADesignationType | 'unknown';
-  /** User-visible label of the selected option (what the user picked). */
-  readonly value: string;
-}
+export type SPADesignation = ISPADesignation;
 
 /** Filter mode for the picker — affects price label + origin-only handling. */
 export type SPAPickerMode = 'browse' | 'purchase';
@@ -57,48 +54,15 @@ export interface SPAPickerProps {
 }
 
 // =============================================================================
-// Designation option registry (STUB — Wave 2b replaces)
+// Designation option registry — re-export of the live Wave 2b registry
 // =============================================================================
 
 /**
- * STUB designation registry. Wave 2b replaces these literals with lookups
- * against the real weapon catalog, terrain presets, and skill list. The
- * shape (string label list) is what Wave 2b will produce, so picker code
- * doesn't need to change when the real registry lands.
+ * Returns the typed option set for the SPA's `designationType`. Thin
+ * re-export of `@/lib/spa/designation/getDesignationOptions` so existing
+ * picker code keeps the same import path.
  */
-const STUB_DESIGNATION_OPTIONS: Record<SPADesignationType, readonly string[]> =
-  {
-    weapon_type: [
-      'AC/2',
-      'AC/5',
-      'AC/10',
-      'AC/20',
-      'Medium Laser',
-      'Large Laser',
-      'PPC',
-      'LRM-10',
-      'LRM-20',
-      'SRM-6',
-      'Gauss Rifle',
-      'Machine Gun',
-    ],
-    weapon_category: ['Energy', 'Ballistic', 'Missile', 'Melee'],
-    target: ['Enemy commander', 'Heaviest enemy', 'Closest enemy'],
-    range_bracket: ['Short', 'Medium', 'Long'],
-    skill: ['Gunnery', 'Piloting'],
-    terrain: ['Woods', 'Jungle', 'Urban', 'Desert', 'Snow', 'Swamp'],
-  };
-
-/**
- * Returns the stub option list for the given SPA's `designationType`.
- * When the SPA has no `designationType` (or the type isn't in the stub
- * registry) returns an empty array — consumers should treat this as
- * "no designation needed".
- */
-export function getDesignationOptions(spa: ISPADefinition): readonly string[] {
-  if (!spa.requiresDesignation || !spa.designationType) return [];
-  return STUB_DESIGNATION_OPTIONS[spa.designationType] ?? [];
-}
+export const getDesignationOptions = getRealDesignationOptions;
 
 // =============================================================================
 // Category UI metadata

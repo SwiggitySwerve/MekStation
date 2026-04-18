@@ -4,19 +4,30 @@
  * Renders the SPA's display name, description, source/category badges,
  * and an XP-cost label whose styling depends on the picker `mode`.
  *
- * Designation flow (Wave 1, stub):
- *   - When the row's SPA has `requiresDesignation === true`, clicking
- *     "Select" reveals an inline designation form with a `<select>`
- *     populated from `getDesignationOptions(spa)`. Confirm emits
- *     `{ kind, value }`; Cancel restores the row to its idle state.
+ * Designation flow (Wave 2b — typed):
+ *   - When the SPA needs a designation, clicking "Select" reveals an
+ *     inline form whose control varies per designation kind:
+ *       * weapon_type / weapon_category / range_bracket / terrain / skill
+ *         → `<select>` populated from the live registry
+ *       * target → no select; an inline notice explains that the unit
+ *         will be assigned later from the unit-card UI. The selection
+ *         emits a `target` designation with empty `targetUnitId` so the
+ *         purchase still completes.
  *   - When no designation is required, "Select" emits immediately.
  *
- * Wave 2b replaces the `<select>` with real designation UI sourced from
- * the equipment + terrain catalogs.
+ * The emitted designation is the typed `ISPADesignation` variant whose
+ * `kind` matches the SPA's `designationType`. The picker no longer
+ * fabricates an `'unknown'` kind — SPAs that lack `designationType`
+ * fall through to the no-designation branch.
  */
 
 import React, { useState } from 'react';
 
+import type {
+  ISPADesignation,
+  SPARangeBracket,
+  SPAWeaponCategory,
+} from '@/types/pilot/SPADesignation';
 import type { ISPADefinition } from '@/types/spa/SPADefinition';
 
 import {
@@ -51,32 +62,109 @@ export function SPAItem({
 }: SPAItemProps): React.ReactElement {
   // Local designation-prompt state. Only matters when the SPA needs one.
   const [designating, setDesignating] = useState(false);
-  const designationOptions = getDesignationOptions(spa);
-  const [chosen, setChosen] = useState<string>(designationOptions[0] ?? '');
+  const optionSet = getDesignationOptions(spa);
+  const firstValue = optionSet.options[0]?.value ?? '';
+  const [chosenValue, setChosenValue] = useState<string>(firstValue);
 
   const colorSlug = SPA_CATEGORY_COLORS[spa.category] ?? 'slate';
   const categoryLabel = SPA_CATEGORY_LABELS[spa.category] ?? spa.category;
   const disabled = excluded || (mode === 'purchase' && unaffordable);
 
+  // True when this SPA needs a designation prompt that the picker can
+  // actually render (either real options or the deferred `target` notice).
+  const needsPrompt =
+    spa.requiresDesignation &&
+    optionSet.kind !== null &&
+    (optionSet.options.length > 0 || optionSet.deferred);
+
   /**
    * Click handler for the primary Select button. When a designation is
-   * required, reveal the inline form instead of emitting immediately.
+   * required and the registry can render a prompt, reveal the inline
+   * form; otherwise emit immediately.
    */
   const handleSelectClick = (): void => {
     if (disabled) return;
-    if (spa.requiresDesignation && designationOptions.length > 0) {
+    if (needsPrompt) {
       setDesignating(true);
       return;
     }
     onSelect(spa);
   };
 
+  /**
+   * Build the typed designation payload for the user's selection. Returns
+   * `null` when the SPA's kind doesn't map to any variant (defensive —
+   * shouldn't happen with the canonical catalog).
+   */
+  const buildDesignation = (): ISPADesignation | null => {
+    const kind = optionSet.kind;
+    if (!kind) return null;
+
+    // Deferred target binding — no select to read; we emit a placeholder
+    // designation so the SPA is still purchasable. The real unit binding
+    // happens later from the unit-card UI.
+    if (kind === 'target') {
+      return {
+        kind: 'target',
+        targetUnitId: '',
+        displayLabel: 'To be assigned',
+      };
+    }
+
+    const opt = optionSet.options.find((o) => o.value === chosenValue);
+    if (!opt) return null;
+
+    switch (kind) {
+      case 'weapon_type':
+        return {
+          kind: 'weapon_type',
+          weaponTypeId: opt.value,
+          displayLabel: opt.label,
+        };
+      case 'weapon_category':
+        return {
+          kind: 'weapon_category',
+          category: opt.value as SPAWeaponCategory,
+          displayLabel: opt.label,
+        };
+      case 'range_bracket':
+        return {
+          kind: 'range_bracket',
+          bracket: opt.value as SPARangeBracket,
+          displayLabel: opt.label,
+        };
+      case 'terrain':
+        return {
+          kind: 'terrain',
+          terrainTypeId: opt.value,
+          displayLabel: opt.label,
+        };
+      case 'skill':
+        return {
+          kind: 'skill',
+          skillId: opt.value,
+          displayLabel: opt.label,
+        };
+      default: {
+        // Exhaustiveness — adding a new kind without updating this switch
+        // is a compile error.
+        const _exhaustive: never = kind;
+        void _exhaustive;
+        return null;
+      }
+    }
+  };
+
   /** Confirm the designation and emit the selection. */
   const handleConfirm = (): void => {
-    onSelect(spa, {
-      kind: spa.designationType ?? 'unknown',
-      value: chosen,
-    });
+    const designation = buildDesignation();
+    if (designation) {
+      onSelect(spa, designation);
+    } else {
+      // Defensive fallback — if we couldn't build a typed payload, emit
+      // the bare selection and let the service layer reject it.
+      onSelect(spa);
+    }
     setDesignating(false);
   };
 
@@ -175,24 +263,34 @@ export function SPAItem({
           aria-label="Choose designation"
           className="border-border-theme-subtle bg-surface-base flex flex-wrap items-center gap-2 rounded border p-2"
         >
-          <label
-            htmlFor={`designation-${spa.id}`}
-            className="text-text-theme-muted text-xs font-medium tracking-wide uppercase"
-          >
-            Designation
-          </label>
-          <select
-            id={`designation-${spa.id}`}
-            value={chosen}
-            onChange={(e) => setChosen(e.target.value)}
-            className="border-border-theme-subtle bg-surface-raised text-text-theme-primary rounded border px-2 py-1 text-sm"
-          >
-            {designationOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
+          {optionSet.deferred ? (
+            // Target designation: deferred binding. No select; the real
+            // unit id is bound later from the unit-card UI.
+            <p className="text-text-theme-secondary text-xs">
+              Target will be assigned during play from the unit card.
+            </p>
+          ) : (
+            <>
+              <label
+                htmlFor={`designation-${spa.id}`}
+                className="text-text-theme-muted text-xs font-medium tracking-wide uppercase"
+              >
+                Designation
+              </label>
+              <select
+                id={`designation-${spa.id}`}
+                value={chosenValue}
+                onChange={(e) => setChosenValue(e.target.value)}
+                className="border-border-theme-subtle bg-surface-raised text-text-theme-primary rounded border px-2 py-1 text-sm"
+              >
+                {optionSet.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
           <div className="ml-auto flex gap-2">
             <button
               type="button"

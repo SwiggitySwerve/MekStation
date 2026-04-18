@@ -7,7 +7,7 @@
  * @spec openspec/changes/add-pilot-system/specs/pilot-system/spec.md
  */
 
-import { getSPADefinition } from '@/lib/spa';
+import { getSPADefinition, resolveSPAId } from '@/lib/spa';
 import { pickRandomSPA } from '@/lib/spa/random';
 import {
   IPilot,
@@ -15,10 +15,13 @@ import {
   ICreatePilotOptions,
   IPilotIdentity,
   IPilotStatblock,
+  ISPADesignation,
   PilotType,
   PilotStatus,
   PilotExperienceLevel,
   PILOT_TEMPLATES,
+  SPA_DESIGNATION_SCHEMA,
+  catalogDesignationToKind,
   getGunneryImprovementCost,
   getPilotingImprovementCost,
   isValidSkillValue,
@@ -84,7 +87,7 @@ export interface IPilotService {
   applyWound(pilotId: string): IPilotOperationResult;
   healWounds(pilotId: string): IPilotOperationResult;
 
-  // SPA editor (Phase 5 Wave 2a)
+  // SPA editor (Phase 5 Wave 2a + 2b)
   purchaseSPA(
     pilotId: string,
     spaId: string,
@@ -98,6 +101,16 @@ export interface IPilotService {
     spaId: string,
     options?: { isCreationFlow?: boolean },
   ): IPilotOperationResult;
+  /**
+   * Wave 2b — pure helper for the combat layer to look up a stored
+   * designation. Resolves the SPA id through `resolveSPAId()` so callers
+   * can pass canonical or legacy ids. Returns `undefined` when the pilot
+   * doesn't own the SPA or when the row predates the designation column.
+   */
+  getPilotDesignation(
+    pilot: IPilot,
+    spaId: string,
+  ): ISPADesignation | undefined;
 
   // Validation
   validatePilot(pilot: Partial<IPilot>): string[];
@@ -544,6 +557,42 @@ export class PilotService implements IPilotService {
       };
     }
 
+    // Wave 2b — typed designation validation.
+    // Required: SPA flags `requiresDesignation === true` ↔ caller MUST
+    // supply a designation, AND the designation `kind` MUST match the
+    // SPA's declared `designationType`. Zod parses the body shape too so
+    // a malformed payload (e.g. wrong field set for the kind) is caught
+    // at the service boundary — the picker emits typed payloads, but the
+    // API surface accepts foreign callers as well.
+    const designation = options?.designation;
+    if (spa.requiresDesignation) {
+      if (!designation) {
+        return {
+          success: false,
+          error: `Designation required for ${spa.displayName}`,
+          errorCode: PilotErrorCode.ValidationError,
+        };
+      }
+      if (spa.designationType) {
+        const expectedKind = catalogDesignationToKind(spa.designationType);
+        if (designation.kind !== expectedKind) {
+          return {
+            success: false,
+            error: `Designation type mismatch — expected ${expectedKind}, got ${designation.kind}`,
+            errorCode: PilotErrorCode.ValidationError,
+          };
+        }
+      }
+      const parsed = SPA_DESIGNATION_SCHEMA.safeParse(designation);
+      if (!parsed.success) {
+        return {
+          success: false,
+          error: `Invalid designation payload: ${parsed.error.issues[0]?.message ?? 'validation failed'}`,
+          errorCode: PilotErrorCode.ValidationError,
+        };
+      }
+    }
+
     const xpCost = spa.xpCost ?? 0;
 
     // Positive-cost purchases burn XP from the pool.
@@ -649,6 +698,34 @@ export class PilotService implements IPilotService {
     }
 
     return { success: true, id: pilotId };
+  }
+
+  // ===========================================================================
+  // Designation lookup (Wave 2b)
+  // ===========================================================================
+
+  /**
+   * Pure helper used by the combat layer to look up a stored designation
+   * for one of the pilot's owned SPAs. Resolves the input id through the
+   * canonical alias table so callers can pass either form. Returns
+   * `undefined` when:
+   *   - the spa id doesn't resolve to a canonical id, or
+   *   - the pilot doesn't own that SPA, or
+   *   - the ability row predates Wave 2a (no designation stored).
+   *
+   * Pure — does not mutate the pilot record.
+   */
+  getPilotDesignation(
+    pilot: IPilot,
+    spaId: string,
+  ): ISPADesignation | undefined {
+    const canonical = resolveSPAId(spaId);
+    if (!canonical) return undefined;
+    const ref = pilot.abilities.find((a) => {
+      const aCanon = resolveSPAId(a.abilityId);
+      return aCanon === canonical;
+    });
+    return ref?.designation;
   }
 
   // ===========================================================================

@@ -127,13 +127,16 @@ describe('SPAPicker', () => {
       name: /Choose designation/i,
     });
     const select = within(group).getByRole('combobox') as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: 'PPC' } });
+    // Wave 2b — values are canonical slugs ("ppc"), not the display label.
+    fireEvent.change(select, { target: { value: 'ppc' } });
     fireEvent.click(within(row).getByRole('button', { name: /Confirm/i }));
 
     expect(onSelect).toHaveBeenCalledTimes(1);
+    // Wave 2b — typed weapon_type variant with slug + label fields.
     expect(onSelect).toHaveBeenCalledWith(wpnSpec, {
       kind: 'weapon_type',
-      value: 'PPC',
+      weaponTypeId: 'ppc',
+      displayLabel: 'PPC',
     });
   });
 

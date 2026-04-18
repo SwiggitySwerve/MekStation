@@ -120,7 +120,7 @@ function OwnedAbilityRow({
           </h4>
           {abilityRef.designation && (
             <Badge variant="cyan" size="sm">
-              {abilityRef.designation.value}
+              {abilityRef.designation.displayLabel}
             </Badge>
           )}
           {spa.isFlaw && (
