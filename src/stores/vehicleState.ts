@@ -333,6 +333,20 @@ export interface VehicleActions {
   autoAllocateArmor: () => void;
   clearAllArmor: () => void;
 
+  // Construction fields
+  setStructureType: (structureType: VehicleStructureType) => void;
+  setCrewSize: (crewSize: number) => void;
+  setPassengerSlots: (passengerSlots: number) => void;
+  setBarRating: (barRating: number | null) => void;
+  /**
+   * Recompute powerAmpWeight from current equipment list and engine type.
+   * Caller may pass resolved catalog items to determine energy weapon weights;
+   * if omitted, powerAmpWeight is reset to 0.
+   */
+  derivePowerAmpWeight: (
+    resolvedItems?: import("@/types/equipment").IEquipmentItem[],
+  ) => void;
+
   // Special Features
   setEnvironmentalSealing: (value: boolean) => void;
   setFlotationHull: (value: boolean) => void;
