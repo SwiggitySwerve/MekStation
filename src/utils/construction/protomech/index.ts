@@ -68,3 +68,12 @@ export type {
   ValidationRuleResult,
   ValidationSeverity,
 } from './validation';
+
+// Battle Value (BV 2.0) calculator + breakdown types
+export {
+  calculateProtoMechBV,
+  calculateProtoPointBV,
+  calculateProtoSpeedFactor,
+  getProtoChassisMultiplier,
+} from './protoMechBV';
+export type { IProtoMechBVBreakdown, IProtoMechBVOptions } from './protoMechBV';

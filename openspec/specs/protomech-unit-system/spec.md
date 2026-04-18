@@ -8,7 +8,6 @@ Define the construction, state management, serialization, and customizer UI rule
 
 - Combat mechanics (damage resolution, hit location tables, critical hits) are OUT OF SCOPE
 - Pilot/warrior skill progression is OUT OF SCOPE
-- Battle Value 2.0 detailed calculation beyond simplified armor/movement-based formula is OUT OF SCOPE
 - Campaign-level ProtoMech repair and replacement is OUT OF SCOPE
 - Inner Sphere ProtoMech variants are OUT OF SCOPE (ProtoMechs are Clan-only)
 
@@ -408,18 +407,37 @@ The system SHALL calculate ProtoMech cost based on tonnage and special equipment
 - **AND** magnetic clamps cost per unit SHALL add 75,000 C-bills if `hasMagneticClamps`
 - **AND** total cost SHALL be `costPerUnit * pointSize`
 
-### Requirement: Simplified BV Calculation
+### Requirement: Scope — Full BV Calculation Included
 
-The system SHALL calculate a simplified Battle Value for ProtoMech units.
+ProtoMech construction SHALL include full BV 2.0 calculation (previously scoped as simplified only).
 
-#### Scenario: Base BV from armor and movement
+#### Scenario: Full proto BV supported
 
-- **WHEN** calculating BV
-- **THEN** base BV per unit SHALL be `armorPerTrooper * 15`
-- **AND** movement BV per unit SHALL add `cruiseMP * 10`
-- **AND** if `jumpMP > 0`, jump BV per unit SHALL add `jumpMP * 15`
-- **AND** total BV SHALL be `perUnitBV * pointSize`
-- **AND** the result SHALL be rounded to the nearest integer
+- **GIVEN** any legally constructed ProtoMech
+- **WHEN** `calculateBattleValue` runs
+- **THEN** the full BV 2.0 proto formula SHALL be applied (defensive + offensive, chassis multiplier, pilot adjustment)
+- **AND** the legacy simplified formula SHALL no longer be used
+
+### Requirement: ProtoMech BV Breakdown on Unit State
+
+Every ProtoMech SHALL carry an `IProtoMechBVBreakdown` populated by the calculator.
+
+#### Scenario: Breakdown shape
+
+- **GIVEN** a ProtoMech after construction completes
+- **WHEN** BV is computed
+- **THEN** `unit.bvBreakdown` SHALL contain `defensive`, `offensive`, `chassisMultiplier`, `pilotMultiplier`, `final`
+
+### Requirement: Proto Point BV Aggregation
+
+The system SHALL support aggregating up to 5 proto BVs into a point BV for force-level reporting.
+
+#### Scenario: Point aggregation
+
+- **GIVEN** a point of 5 protos with BVs 250, 300, 275, 290, 310
+- **WHEN** point BV is computed
+- **THEN** point BV SHALL equal the sum = 1425
+- **AND** the aggregate SHALL be displayed in force-level tools (not used during combat dispatch)
 
 ## Data Model
 
