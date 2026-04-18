@@ -42,6 +42,11 @@ export function toAIUnitState(
     gunnery,
     movementType: unit.movementThisTurn,
     hexesMoved: unit.hexesMovedThisTurn,
+    // Per `wire-bot-ai-helpers-and-capstone`: propagate retreat latch
+    // through to the AI so RetreatAI helpers can read it without a
+    // round-trip through the session lookup.
+    isRetreating: unit.isRetreating,
+    retreatTargetEdge: unit.retreatTargetEdge,
   };
 }
 

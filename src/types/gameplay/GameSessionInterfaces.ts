@@ -146,6 +146,16 @@ export enum GameEventType {
    * highlight the destroyed slot on the record sheet.
    */
   ComponentDestroyed = 'component_destroyed',
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: fired when a bot-controlled
+   * unit crosses its retreat threshold (structural integrity or
+   * through-armor crit on cockpit/gyro/engine) and commits to disengage
+   * toward a chosen edge. Once emitted for a unit, that unit's
+   * `isRetreating` flag stays true for the rest of the match (no
+   * toggling back to combat). Carries the resolved edge so the move AI
+   * can score subsequent moves against it.
+   */
+  RetreatTriggered = 'retreat_triggered',
 }
 
 /**
@@ -607,6 +617,19 @@ export interface IComponentDestroyedPayload {
 }
 
 /**
+ * Per `wire-bot-ai-helpers-and-capstone`: bot-controlled unit has crossed
+ * its retreat threshold and committed to disengage. Carries the resolved
+ * concrete edge so subsequent move scoring (via `scoreRetreatMove`) can
+ * compute progress toward it. `reason` distinguishes structural-loss
+ * triggers from through-armor-crit triggers for replay / UI consumers.
+ */
+export interface IRetreatTriggeredPayload {
+  readonly unitId: string;
+  readonly edge: 'north' | 'south' | 'east' | 'west';
+  readonly reason: 'structural_threshold' | 'vital_crit';
+}
+
+/**
  * Union type for all event payloads.
  */
 export type GameEventPayload =
@@ -639,7 +662,8 @@ export type GameEventPayload =
   | IAttackInvalidPayload
   | ILocationDestroyedPayload
   | ITransferDamagePayload
-  | IComponentDestroyedPayload;
+  | IComponentDestroyedPayload
+  | IRetreatTriggeredPayload;
 
 /**
  * Complete game event with payload.
@@ -841,6 +865,18 @@ export interface IUnitGameState {
   readonly narcedBy?: readonly string[];
   /** Target is TAG-designated this turn */
   readonly tagDesignated?: boolean;
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: bot-controlled unit has
+   * committed to retreat. Set true by `RetreatTriggered` reducer; never
+   * cleared back to false in the same match (one-way latch).
+   */
+  readonly isRetreating?: boolean;
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: the concrete edge the unit
+   * is heading toward once retreating. Set once on `RetreatTriggered`
+   * and locked. `undefined` until retreat begins.
+   */
+  readonly retreatTargetEdge?: 'north' | 'south' | 'east' | 'west';
 }
 
 /**

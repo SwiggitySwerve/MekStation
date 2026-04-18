@@ -32,7 +32,11 @@ import {
 import type { IGameEngineConfig, IAdaptedUnit } from './types';
 
 import { createMinimalGrid, toMovementCapability } from './GameEngine.helpers';
-import { runMovementPhase, runAttackPhase } from './GameEngine.phases';
+import {
+  runMovementPhase,
+  runAttackPhase,
+  runPhysicalAttackPhase,
+} from './GameEngine.phases';
 import { InteractiveSession } from './InteractiveSession';
 
 export { InteractiveSession };
@@ -68,6 +72,9 @@ export class GameEngine {
     const weaponsByUnit = new Map<string, readonly IWeapon[]>();
     const movementByUnit = new Map<string, IMovementCapability>();
     const gunneryByUnit = new Map<string, number>();
+    // Per `wire-bot-ai-helpers-and-capstone`: piloting needed by
+    // `runPhysicalAttackPhase` for to-hit calculation.
+    const pilotingByUnit = new Map<string, number>();
 
     for (const u of [...playerUnits, ...opponentUnits]) {
       weaponsByUnit.set(u.id, u.weapons);
@@ -75,6 +82,7 @@ export class GameEngine {
     }
     for (const gu of gameUnits) {
       gunneryByUnit.set(gu.id, gu.gunnery);
+      pilotingByUnit.set(gu.id, gu.piloting);
     }
 
     const gameConfig: IGameConfig = {
@@ -111,6 +119,15 @@ export class GameEngine {
       );
       session = resolveAllAttacks(session);
       session = advancePhase(session);
+      // Per `wire-bot-ai-helpers-and-capstone`: PhysicalAttack phase
+      // body — declare melee attacks via the bot, then resolve them.
+      session = runPhysicalAttackPhase(
+        session,
+        botPlayer,
+        weaponsByUnit,
+        gunneryByUnit,
+        pilotingByUnit,
+      );
       session = advancePhase(session);
       session = resolveHeatPhase(session);
       session = advancePhase(session);
