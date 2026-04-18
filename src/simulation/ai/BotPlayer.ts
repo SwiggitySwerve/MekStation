@@ -1,17 +1,29 @@
 import type {
+  IComponentDestroyedPayload,
+  IGameSession,
   IHexGrid,
   IMovementCapability,
   IUnitPosition,
-} from '@/types/gameplay';
+} from "@/types/gameplay";
 
-import { GameEventType, MovementType } from '@/types/gameplay';
+import { GameEventType, GamePhase, MovementType } from "@/types/gameplay";
+import {
+  chooseBestPhysicalAttack,
+  type PhysicalAttackType,
+} from "@/utils/gameplay/physicalAttacks";
 
-import type { SeededRandom } from '../core/SeededRandom';
-import type { IBotBehavior, IAIUnitState, IMove } from './types';
+import type { SeededRandom } from "../core/SeededRandom";
+import type { IBotBehavior, IAIUnitState, IMove, IWeapon } from "./types";
 
-import { AttackAI } from './AttackAI';
-import { MoveAI } from './MoveAI';
-import { DEFAULT_BEHAVIOR } from './types';
+import { AttackAI, applyHeatBudget } from "./AttackAI";
+import { MoveAI } from "./MoveAI";
+import {
+  effectiveSafeHeatThreshold,
+  resolveEdge,
+  retreatMovementType,
+  shouldRetreat,
+} from "./RetreatAI";
+import { DEFAULT_BEHAVIOR } from "./types";
 
 export interface IMovementEvent {
   type: GameEventType.MovementDeclared;
@@ -35,17 +47,115 @@ export interface IAttackEvent {
   };
 }
 
-export type BotGameEvent = IMovementEvent | IAttackEvent;
+/**
+ * Per `wire-bot-ai-helpers-and-capstone`: bot's emitted retreat trigger.
+ * Returned from `evaluateRetreat`; callers (InteractiveSession,
+ * GameEngine.phases) append it to the session before calling the
+ * movement / attack phases so subsequent move scoring sees `isRetreating`.
+ */
+export interface IRetreatEvent {
+  type: GameEventType.RetreatTriggered;
+  payload: {
+    unitId: string;
+    edge: "north" | "south" | "east" | "west";
+    reason: "structural_threshold" | "vital_crit";
+  };
+}
+
+/**
+ * Per `wire-bot-ai-helpers-and-capstone`: physical attack declaration
+ * the bot emits during the PhysicalAttack phase. Caller routes this
+ * through `declarePhysicalAttack` to produce the canonical session
+ * event (which includes the to-hit number computed inside the resolver).
+ */
+export interface IPhysicalAttackEvent {
+  type: GameEventType.PhysicalAttackDeclared;
+  payload: {
+    attackerId: string;
+    targetId: string;
+    attackType: PhysicalAttackType;
+  };
+}
+
+export type BotGameEvent =
+  | IMovementEvent
+  | IAttackEvent
+  | IRetreatEvent
+  | IPhysicalAttackEvent;
+
+/** Vital component types whose destruction triggers a retreat per spec § 2. */
+const VITAL_COMPONENT_TYPES = new Set(["cockpit", "engine", "gyro"]);
+
+/** Default attacker tonnage when caller doesn't supply per-unit data. */
+const DEFAULT_ATTACKER_TONNAGE = 65;
+/** Default piloting skill for physical-attack to-hit when not supplied. */
+const DEFAULT_PILOTING_SKILL = 5;
+/** Melee range in hexes — punches/kicks/charges all need adjacency. */
+const MELEE_RANGE_HEXES = 1;
 
 export class BotPlayer {
   private readonly moveAI: MoveAI;
   private readonly attackAI: AttackAI;
   private readonly random: SeededRandom;
+  private readonly behavior: IBotBehavior;
 
   constructor(random: SeededRandom, behavior: IBotBehavior = DEFAULT_BEHAVIOR) {
     this.random = random;
+    this.behavior = behavior;
     this.moveAI = new MoveAI(behavior);
     this.attackAI = new AttackAI();
+  }
+
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: detect retreat triggers for
+   * `unit` based on cumulative session state. Returns a
+   * `RetreatTriggered` event when both:
+   *
+   *   1. `shouldRetreat(behavior, ratio, hasVitalCrit)` fires, AND
+   *   2. The unit is not already latched as retreating (one-way).
+   *
+   * `destructionRatio` = destroyed locations / total locations. Vital
+   * crit is computed by scanning `session.events` for any
+   * `ComponentDestroyed` payload with `componentType` ∈
+   * {cockpit, engine, gyro} for this unit.
+   *
+   * Caller is responsible for appending the returned event to the
+   * session before calling movement/attack phases — that way the
+   * next call sees `isRetreating: true` on the AI unit state.
+   */
+  evaluateRetreat(
+    unit: IAIUnitState,
+    session: IGameSession,
+  ): IRetreatEvent | null {
+    if (unit.destroyed) return null;
+    if (unit.isRetreating) return null;
+
+    const sessionUnit = session.currentState.units[unit.unitId];
+    if (!sessionUnit) return null;
+
+    const { ratio, hasVitalCrit } = computeRetreatSignals(
+      unit.unitId,
+      session,
+      sessionUnit.destroyedLocations,
+      Object.keys(sessionUnit.armor),
+    );
+
+    if (!shouldRetreat(this.behavior, ratio, hasVitalCrit)) {
+      return null;
+    }
+
+    const edge = resolveEdge(
+      this.behavior,
+      unit.position,
+      session.config.mapRadius,
+    );
+    if (!edge) return null;
+
+    const reason = hasVitalCrit ? "vital_crit" : "structural_threshold";
+    return {
+      type: GameEventType.RetreatTriggered,
+      payload: { unitId: unit.unitId, edge, reason },
+    };
   }
 
   playMovementPhase(
@@ -64,7 +174,7 @@ export class BotPlayer {
       prone: false,
     };
 
-    const movementType = this.selectMovementType(capability);
+    const movementType = this.selectMovementType(unit, capability);
     const moves = this.moveAI.getValidMoves(
       grid,
       position,
@@ -85,6 +195,7 @@ export class BotPlayer {
     const selectedMove = this.moveAI.selectMove(
       nonStationaryMoves,
       this.random,
+      unit,
     );
     if (!selectedMove) {
       return null;
@@ -117,12 +228,38 @@ export class BotPlayer {
       return null;
     }
 
-    const target = this.attackAI.selectTarget(validTargets, this.random);
+    // Per `improve-bot-basic-combat-competence` task 2.5: pass attacker
+    // so the threat-scored selector picks the most threatening target
+    // instead of a uniform-random pick.
+    const target = this.attackAI.selectTarget(
+      validTargets,
+      this.random,
+      attacker,
+    );
     if (!target) {
       return null;
     }
 
-    const weapons = this.attackAI.selectWeapons(attacker, target);
+    const candidateWeapons = this.attackAI.selectWeapons(attacker, target);
+    if (candidateWeapons.length === 0) {
+      return null;
+    }
+
+    // Per `improve-bot-basic-combat-competence` task 5: trim the fire
+    // list against the heat budget. `effectiveSafeHeatThreshold` lowers
+    // the ceiling by 2 when the bot is retreating so it stops firing
+    // sooner and runs faster.
+    const movementHeat = computeMovementHeat(
+      attacker.movementType,
+      attacker.hexesMoved,
+    );
+    const threshold = effectiveSafeHeatThreshold(attacker, this.behavior);
+    const weapons: readonly IWeapon[] = applyHeatBudget(
+      candidateWeapons,
+      attacker.heat,
+      movementHeat,
+      threshold,
+    );
     if (weapons.length === 0) {
       return null;
     }
@@ -137,9 +274,119 @@ export class BotPlayer {
     };
   }
 
-  private selectMovementType(capability: IMovementCapability): MovementType {
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: pick the best physical attack
+   * for `attacker` against an in-melee-range target. Returns null when:
+   *
+   *   - attacker is destroyed
+   *   - no targets exist
+   *   - no living target is within melee range (≤ 1 hex)
+   *   - `chooseBestPhysicalAttack` rejects every candidate (e.g.,
+   *     destroyed actuators, prone state, etc.)
+   *
+   * `attackerTonnage`/`pilotingSkill` default to the SimulationRunner
+   * stand-ins when the caller doesn't have per-unit catalog data.
+   * Caller takes the returned declaration and routes it through
+   * `declarePhysicalAttack` to emit the canonical session event.
+   */
+  playPhysicalAttackPhase(
+    attacker: IAIUnitState,
+    targets: readonly IAIUnitState[],
+    options: {
+      attackerTonnage?: number;
+      pilotingSkill?: number;
+    } = {},
+  ): IPhysicalAttackEvent | null {
+    if (attacker.destroyed) return null;
+    if (targets.length === 0) return null;
+
+    const meleeTargets = targets.filter((target) => {
+      if (target.destroyed) return false;
+      if (target.unitId === attacker.unitId) return false;
+      const dq = target.position.q - attacker.position.q;
+      const dr = target.position.r - attacker.position.r;
+      const ds = -dq - dr;
+      const distance = (Math.abs(dq) + Math.abs(dr) + Math.abs(ds)) / 2;
+      return distance <= MELEE_RANGE_HEXES;
+    });
+
+    if (meleeTargets.length === 0) return null;
+
+    // Pick the most threatening adjacent target via the same scorer
+    // used for ranged combat.
+    const target = this.attackAI.selectTarget(
+      meleeTargets,
+      this.random,
+      attacker,
+    );
+    if (!target) return null;
+
+    const tonnage = options.attackerTonnage ?? DEFAULT_ATTACKER_TONNAGE;
+    const piloting = options.pilotingSkill ?? DEFAULT_PILOTING_SKILL;
+
+    const bestAttack = chooseBestPhysicalAttack(
+      tonnage,
+      piloting,
+      {
+        engineHits: 0,
+        gyroHits: 0,
+        sensorHits: 0,
+        lifeSupport: 0,
+        cockpitHit: false,
+        actuators: {},
+        weaponsDestroyed: [],
+        heatSinksDestroyed: 0,
+        jumpJetsDestroyed: 0,
+      },
+      {
+        attackerProne: false,
+        heat: attacker.heat,
+        weaponsFiredFromLeftArm: [],
+        weaponsFiredFromRightArm: [],
+      },
+    );
+
+    if (!bestAttack) return null;
+
+    return {
+      type: GameEventType.PhysicalAttackDeclared,
+      payload: {
+        attackerId: attacker.unitId,
+        targetId: target.unitId,
+        attackType: bestAttack,
+      },
+    };
+  }
+
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: when the unit is retreating
+   * we override the random walk/run/jump pick to call
+   * `retreatMovementType`, which prefers Run, falls back to Walk, and
+   * NEVER selects Jump. Otherwise the legacy behavior is preserved
+   * (20% jump when available, then 60/40 run/walk).
+   */
+  private selectMovementType(
+    unit: IAIUnitState,
+    capability: IMovementCapability,
+  ): MovementType {
     if (capability.walkMP === 0 && capability.jumpMP === 0) {
       return MovementType.Stationary;
+    }
+
+    if (unit.isRetreating) {
+      const choice = retreatMovementType({
+        walkAvailable: capability.walkMP > 0,
+        runAvailable: capability.runMP > 0,
+      });
+      switch (choice) {
+        case "run":
+          return MovementType.Run;
+        case "walk":
+          return MovementType.Walk;
+        case "stationary":
+        default:
+          return MovementType.Stationary;
+      }
     }
 
     const roll = this.random.next();
@@ -152,3 +399,71 @@ export class BotPlayer {
     return MovementType.Walk;
   }
 }
+
+/**
+ * Per `wire-bot-ai-helpers-and-capstone`: structural-loss + vital-crit
+ * signals derived from session state for a single unit.
+ *
+ * Exported (file-scope helper) so unit tests can pin the math without
+ * standing up a full BotPlayer instance.
+ */
+function computeRetreatSignals(
+  unitId: string,
+  session: IGameSession,
+  destroyedLocations: readonly string[],
+  allLocationKeys: readonly string[],
+): { ratio: number; hasVitalCrit: boolean } {
+  const totalLocations = allLocationKeys.length;
+  const destroyedCount = destroyedLocations.length;
+  const ratio = totalLocations > 0 ? destroyedCount / totalLocations : 0;
+
+  let hasVitalCrit = false;
+  for (const event of session.events) {
+    if (event.type !== GameEventType.ComponentDestroyed) continue;
+    const payload = event.payload as IComponentDestroyedPayload;
+    if (payload.unitId !== unitId) continue;
+    if (VITAL_COMPONENT_TYPES.has(payload.componentType)) {
+      hasVitalCrit = true;
+      break;
+    }
+  }
+
+  return { ratio, hasVitalCrit };
+}
+
+/**
+ * Per `wire-bot-ai-helpers-and-capstone`: heat budget projection needs
+ * the movement heat the unit has already committed to this turn. We
+ * mirror `calculateMovementHeat` from `utils/gameplay/movement` rather
+ * than importing it to keep the BotPlayer module free of grid /
+ * hex utility deps. Behavior must stay in sync with that helper.
+ */
+function computeMovementHeat(
+  movementType: MovementType,
+  hexesMoved: number,
+): number {
+  switch (movementType) {
+    case MovementType.Stationary:
+      return 0;
+    case MovementType.Walk:
+      return 1;
+    case MovementType.Run:
+      return 2;
+    case MovementType.Jump:
+      return Math.max(hexesMoved, 3);
+    default:
+      return 0;
+  }
+}
+
+/**
+ * Per `wire-bot-ai-helpers-and-capstone`: re-export the phase enum and
+ * vital-component constants so test suites can assert on them without
+ * reaching into the private internals.
+ */
+export const __testing__ = {
+  computeRetreatSignals,
+  computeMovementHeat,
+  VITAL_COMPONENT_TYPES,
+  GamePhase,
+};

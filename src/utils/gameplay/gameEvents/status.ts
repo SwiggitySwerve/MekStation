@@ -8,6 +8,7 @@ import {
   IPilotHitPayload,
   IPSRResolvedPayload,
   IPSRTriggeredPayload,
+  IRetreatTriggeredPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IUnitDestroyedPayload,
@@ -16,9 +17,9 @@ import {
   IAmmoConsumedPayload,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
-} from '@/types/gameplay';
+} from "@/types/gameplay";
 
-import { createEventBase } from './base';
+import { createEventBase } from "./base";
 
 export function createHeatGeneratedEvent(
   gameId: string,
@@ -27,7 +28,7 @@ export function createHeatGeneratedEvent(
   phase: GamePhase,
   unitId: string,
   amount: number,
-  source: IHeatPayload['source'],
+  source: IHeatPayload["source"],
   newTotal: number,
 ): IGameEvent {
   const payload: IHeatPayload = { unitId, amount, source, newTotal };
@@ -55,7 +56,7 @@ export function createHeatDissipatedEvent(
   const payload: IHeatPayload = {
     unitId,
     amount: -Math.abs(amount),
-    source: 'dissipation',
+    source: "dissipation",
     newTotal,
   };
 
@@ -80,7 +81,7 @@ export function createPilotHitEvent(
   unitId: string,
   wounds: number,
   totalWounds: number,
-  source: 'head_hit' | 'ammo_explosion' | 'mech_destruction',
+  source: "head_hit" | "ammo_explosion" | "mech_destruction",
   consciousnessCheckRequired: boolean,
   consciousnessCheckPassed?: boolean,
 ): IGameEvent {
@@ -112,7 +113,7 @@ export function createUnitDestroyedEvent(
   turn: number,
   phase: GamePhase,
   unitId: string,
-  cause: 'damage' | 'ammo_explosion' | 'pilot_death' | 'shutdown',
+  cause: "damage" | "ammo_explosion" | "pilot_death" | "shutdown",
 ): IGameEvent {
   const payload: IUnitDestroyedPayload = { unitId, cause };
 
@@ -395,7 +396,7 @@ export function createPhysicalAttackDeclaredEvent(
   turn: number,
   attackerId: string,
   targetId: string,
-  attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push',
+  attackType: "punch" | "kick" | "charge" | "dfa" | "push",
   toHitNumber: number,
 ): IGameEvent {
   const payload: IPhysicalAttackDeclaredPayload = {
@@ -428,7 +429,7 @@ export function createPhysicalAttackResolvedEvent(
   turn: number,
   attackerId: string,
   targetId: string,
-  attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push',
+  attackType: "punch" | "kick" | "charge" | "dfa" | "push",
   roll: number,
   toHitNumber: number,
   hit: boolean,
@@ -453,6 +454,36 @@ export function createPhysicalAttackResolvedEvent(
       turn,
       GamePhase.PhysicalAttack,
       attackerId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Per `wire-bot-ai-helpers-and-capstone`: emitted when a bot-controlled
+ * unit crosses its retreat trigger. `edge` is the resolved concrete edge
+ * (`'nearest'` is converted upstream by `resolveEdge`). `phase` carries
+ * the phase at the time of trigger so replay consumers can show "X
+ * started retreating during Movement on turn 4".
+ */
+export function createRetreatTriggeredEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  edge: "north" | "south" | "east" | "west",
+  reason: "structural_threshold" | "vital_crit",
+): IGameEvent {
+  const payload: IRetreatTriggeredPayload = { unitId, edge, reason };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.RetreatTriggered,
+      turn,
+      phase,
+      unitId,
     ),
     payload,
   };

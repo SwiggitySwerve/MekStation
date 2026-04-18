@@ -5,12 +5,13 @@ import {
   IPhysicalAttackResolvedPayload,
   IPSRResolvedPayload,
   IPSRTriggeredPayload,
+  IRetreatTriggeredPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IUnitFellPayload,
   IUnitStoodPayload,
   LockState,
-} from '@/types/gameplay';
+} from "@/types/gameplay";
 
 export function applyPSRTriggered(
   state: IGameState,
@@ -242,6 +243,37 @@ export function applyAmmoConsumed(
             remainingRounds: payload.roundsRemaining,
           },
         },
+      },
+    },
+  };
+}
+
+/**
+ * Per `wire-bot-ai-helpers-and-capstone`: latch the unit's `isRetreating`
+ * flag and store the resolved retreat edge. One-way — once true, stays
+ * true for the rest of the match. Subsequent triggers on the same unit
+ * are no-ops, preserving the originally chosen edge so the move scorer
+ * doesn't oscillate between targets.
+ */
+export function applyRetreatTriggered(
+  state: IGameState,
+  payload: IRetreatTriggeredPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+  if (unit.isRetreating) {
+    return state;
+  }
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        isRetreating: true,
+        retreatTargetEdge: payload.edge,
       },
     },
   };

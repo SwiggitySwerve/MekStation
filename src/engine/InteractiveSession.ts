@@ -3,16 +3,16 @@
  * Turn-by-turn game session with player and AI control.
  */
 
-import type { IWeapon } from '@/simulation/ai/types';
-import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
+import type { IWeapon } from "@/simulation/ai/types";
+import type { IWeaponAttack } from "@/types/gameplay/CombatInterfaces";
 
 import {
   calculateGameOutcome,
   isGameEnded,
   type IGameOutcome,
-} from '@/services/game-resolution/GameOutcomeCalculator';
-import { BotPlayer } from '@/simulation/ai/BotPlayer';
-import { SeededRandom } from '@/simulation/core/SeededRandom';
+} from "@/services/game-resolution/GameOutcomeCalculator";
+import { BotPlayer } from "@/simulation/ai/BotPlayer";
+import { SeededRandom } from "@/simulation/core/SeededRandom";
 import {
   GameSide,
   GamePhase,
@@ -22,7 +22,7 @@ import {
   type IGameConfig,
   type IGameUnit,
   type IGameState,
-} from '@/types/gameplay/GameSessionInterfaces';
+} from "@/types/gameplay/GameSessionInterfaces";
 import {
   Facing,
   MovementType,
@@ -30,11 +30,12 @@ import {
   type IHexCoordinate,
   type IHexGrid,
   type IMovementCapability,
-} from '@/types/gameplay/HexGridInterfaces';
+} from "@/types/gameplay/HexGridInterfaces";
 import {
   createGameSession,
   startGame,
   advancePhase,
+  appendEvent,
   rollInitiative,
   declareMovement,
   lockMovement,
@@ -42,13 +43,17 @@ import {
   lockAttack,
   resolveAllAttacks,
   resolveHeatPhase,
+  declarePhysicalAttack,
+  resolveAllPhysicalAttacks,
   endGame,
-} from '@/utils/gameplay/gameSession';
-import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
+  type IPhysicalAttackContext,
+} from "@/utils/gameplay/gameSession";
+import { createRetreatTriggeredEvent } from "@/utils/gameplay/gameEvents";
+import { buildWeaponAttacks } from "@/utils/gameplay/weaponAttackBuilder";
 
-import type { IAdaptedUnit, IAvailableActions } from './types';
+import type { IAdaptedUnit, IAvailableActions } from "./types";
 
-import { toAIUnitState, toMovementCapability } from './GameEngine.helpers';
+import { toAIUnitState, toMovementCapability } from "./GameEngine.helpers";
 
 export class InteractiveSession {
   private session: IGameSession;
@@ -56,6 +61,12 @@ export class InteractiveSession {
   private readonly weaponsByUnit: Map<string, readonly IWeapon[]>;
   private readonly movementByUnit: Map<string, IMovementCapability>;
   private readonly gunneryByUnit: Map<string, number>;
+  // Per `wire-bot-ai-helpers-and-capstone`: piloting + tonnage are
+  // required by `declarePhysicalAttack` / `resolveAllPhysicalAttacks`.
+  // Sourced from `IGameUnit` (piloting) and the adapter (tonnage stays
+  // as the Phase 1 default until catalog data flows through).
+  private readonly pilotingByUnit: Map<string, number>;
+  private readonly tonnageByUnit: Map<string, number>;
   private readonly random: SeededRandom;
   private readonly grid: IHexGrid;
   private readonly botPlayer: BotPlayer;
@@ -78,19 +89,25 @@ export class InteractiveSession {
     this.weaponsByUnit = new Map();
     this.movementByUnit = new Map();
     this.gunneryByUnit = new Map();
+    this.pilotingByUnit = new Map();
+    this.tonnageByUnit = new Map();
 
     for (const u of [...playerUnits, ...opponentUnits]) {
       this.weaponsByUnit.set(u.id, u.weapons);
       this.movementByUnit.set(u.id, toMovementCapability(u));
+      // Phase 1 stand-in: catalog tonnage isn't on `IAdaptedUnit` yet,
+      // so we default to 65t (matches `SimulationRunnerConstants`).
+      this.tonnageByUnit.set(u.id, 65);
     }
     for (const gu of gameUnits) {
       this.gunneryByUnit.set(gu.id, gu.gunnery);
+      this.pilotingByUnit.set(gu.id, gu.piloting);
     }
 
     this.gameConfig = {
       mapRadius,
       turnLimit,
-      victoryConditions: ['elimination'],
+      victoryConditions: ["elimination"],
       optionalRules: [],
     };
 
@@ -208,6 +225,14 @@ export class InteractiveSession {
       this.session = resolveAllAttacks(this.session);
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.PhysicalAttack) {
+      // Per `wire-bot-ai-helpers-and-capstone`: resolve any
+      // PhysicalAttackDeclared events for the current turn before
+      // advancing — without this, declarations made by `runAITurn`
+      // would silently expire when the phase rolls over.
+      this.session = resolveAllPhysicalAttacks(
+        this.session,
+        this.physicalContextByUnit(),
+      );
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.Heat) {
       this.session = resolveHeatPhase(this.session);
@@ -236,7 +261,12 @@ export class InteractiveSession {
       };
 
       if (phase === GamePhase.Movement) {
-        const aiUnit = toAIUnitState(unit, weapons, gunnery);
+        // Per `wire-bot-ai-helpers-and-capstone`: evaluate retreat
+        // BEFORE movement so the move scorer sees `isRetreating: true`
+        // when picking the destination.
+        this.maybeEmitRetreat(unitId, weapons, gunnery);
+        const refreshedUnit = this.session.currentState.units[unitId];
+        const aiUnit = toAIUnitState(refreshedUnit, weapons, gunnery);
         const moveEvt = this.botPlayer.playMovementPhase(
           aiUnit,
           this.grid,
@@ -246,7 +276,7 @@ export class InteractiveSession {
           this.session = declareMovement(
             this.session,
             unitId,
-            unit.position,
+            refreshedUnit.position,
             moveEvt.payload.to,
             moveEvt.payload.facing as Facing,
             moveEvt.payload.movementType,
@@ -256,7 +286,12 @@ export class InteractiveSession {
         }
         this.session = lockMovement(this.session, unitId);
       } else if (phase === GamePhase.WeaponAttack) {
-        const aiUnit = toAIUnitState(unit, weapons, gunnery);
+        // Per `wire-bot-ai-helpers-and-capstone`: re-evaluate retreat
+        // here too — a unit might trigger retreat from damage taken
+        // during weapon resolution this turn.
+        this.maybeEmitRetreat(unitId, weapons, gunnery);
+        const refreshedUnit = this.session.currentState.units[unitId];
+        const aiUnit = toAIUnitState(refreshedUnit, weapons, gunnery);
         const allAI = Object.keys(this.session.currentState.units).map(
           (uid) => {
             const u = this.session.currentState.units[uid];
@@ -291,8 +326,97 @@ export class InteractiveSession {
           );
         }
         this.session = lockAttack(this.session, unitId);
+      } else if (phase === GamePhase.PhysicalAttack) {
+        // Per `wire-bot-ai-helpers-and-capstone`: declare physical
+        // attacks during the PhysicalAttack phase. The phase resolver
+        // (advancePhase) calls `resolveAllPhysicalAttacks` to actually
+        // apply damage / PSRs / `PhysicalAttackResolved` events.
+        const aiUnit = toAIUnitState(unit, weapons, gunnery);
+        const allAI = Object.keys(this.session.currentState.units).map(
+          (uid) => {
+            const u = this.session.currentState.units[uid];
+            return toAIUnitState(
+              u,
+              this.weaponsByUnit.get(uid) ?? [],
+              this.gunneryByUnit.get(uid) ?? 4,
+            );
+          },
+        );
+        const enemies = allAI.filter(
+          (a) =>
+            !a.destroyed &&
+            this.session.currentState.units[a.unitId].side !== side,
+        );
+        const physEvt = this.botPlayer.playPhysicalAttackPhase(aiUnit, enemies);
+        if (physEvt) {
+          const piloting = this.pilotingByUnit.get(unitId) ?? 5;
+          this.session = declarePhysicalAttack(
+            this.session,
+            physEvt.payload.attackerId,
+            physEvt.payload.targetId,
+            physEvt.payload.attackType,
+            {
+              attackerTonnage: this.tonnageByUnit.get(unitId) ?? 65,
+              pilotingSkill: piloting,
+              hexesMoved: unit.hexesMovedThisTurn,
+            },
+          );
+        }
       }
     }
+  }
+
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: helper that runs the bot's
+   * retreat evaluation against the live session and appends the
+   * resulting RetreatTriggered event when the trigger fires. Idempotent
+   * — once `isRetreating` is true, `evaluateRetreat` returns null on
+   * subsequent calls.
+   */
+  private maybeEmitRetreat(
+    unitId: string,
+    weapons: readonly IWeapon[],
+    gunnery: number,
+  ): void {
+    const unit = this.session.currentState.units[unitId];
+    if (!unit) return;
+    const aiUnit = toAIUnitState(unit, weapons, gunnery);
+    const evt = this.botPlayer.evaluateRetreat(aiUnit, this.session);
+    if (!evt) return;
+    const sequence = this.session.events.length;
+    const { turn, phase } = this.session.currentState;
+    this.session = appendEvent(
+      this.session,
+      createRetreatTriggeredEvent(
+        this.session.id,
+        sequence,
+        turn,
+        phase,
+        evt.payload.unitId,
+        evt.payload.edge,
+        evt.payload.reason,
+      ),
+    );
+  }
+
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: build the per-attacker
+   * physical-attack context map needed by `resolveAllPhysicalAttacks`.
+   * Defaults match the SimulationRunner stand-ins (65t / piloting 5)
+   * when caller-supplied data is absent.
+   */
+  private physicalContextByUnit(): Map<string, IPhysicalAttackContext> {
+    const map = new Map<string, IPhysicalAttackContext>();
+    for (const [unitId, unit] of Object.entries(
+      this.session.currentState.units,
+    )) {
+      map.set(unitId, {
+        attackerTonnage: this.tonnageByUnit.get(unitId) ?? 65,
+        pilotingSkill: this.pilotingByUnit.get(unitId) ?? 5,
+        hexesMoved: unit.hexesMovedThisTurn,
+      });
+    }
+    return map;
   }
 
   /**
@@ -306,7 +430,7 @@ export class InteractiveSession {
     if (this.session.currentState.status !== GameStatus.Active) return;
     const winner =
       side === GameSide.Player ? GameSide.Opponent : GameSide.Player;
-    this.session = endGame(this.session, winner, 'concede');
+    this.session = endGame(this.session, winner, "concede");
   }
 
   isGameOver(): boolean {

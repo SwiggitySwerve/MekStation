@@ -20,6 +20,7 @@ import {
   IPilotHitPayload,
   IPSRResolvedPayload,
   IPSRTriggeredPayload,
+  IRetreatTriggeredPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IUnitDestroyedPayload,
@@ -28,46 +29,47 @@ import {
   IUnitGameState,
   IGameStartedPayload,
   LockState,
-} from '@/types/gameplay';
+} from "@/types/gameplay";
 
 import {
   applyAttackDeclared,
   applyAttackLocked,
   applyMovementDeclared,
   applyMovementLocked,
-} from './actionLocking';
+} from "./actionLocking";
 import {
   applyCriticalHitResolved,
   applyDamageApplied,
   applyHeatChange,
   applyPilotHit,
   applyUnitDestroyed,
-} from './damageResolution';
+} from "./damageResolution";
 import {
   applyAmmoConsumed,
   applyPhysicalAttackDeclared,
   applyPhysicalAttackResolved,
   applyPSRResolved,
   applyPSRTriggered,
+  applyRetreatTriggered,
   applyShutdownCheck,
   applyStartupAttempt,
   applyUnitFell,
   applyUnitStood,
-} from './extendedCombat';
+} from "./extendedCombat";
 import {
   createInitialGameState,
   createInitialUnitState,
-} from './initialization';
+} from "./initialization";
 import {
   applyGameCreated,
   applyGameEnded,
   applyGameStarted,
-} from './lifecycle';
+} from "./lifecycle";
 import {
   applyInitiativeRolled,
   applyPhaseChanged,
   applyTurnStarted,
-} from './phaseManagement';
+} from "./phaseManagement";
 
 export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
   switch (event.type) {
@@ -168,6 +170,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.AmmoConsumed:
       return applyAmmoConsumed(state, event.payload as IAmmoConsumedPayload);
+
+    case GameEventType.RetreatTriggered:
+      return applyRetreatTriggered(
+        state,
+        event.payload as IRetreatTriggeredPayload,
+      );
 
     case GameEventType.TurnEnded:
     case GameEventType.InitiativeOrderSet:
@@ -271,7 +279,7 @@ function isSideEliminated(state: IGameState, side: GameSide): boolean {
   return countSurvivingUnits(state, side) === 0;
 }
 
-function determineWinnerByForces(state: IGameState): GameSide | 'draw' {
+function determineWinnerByForces(state: IGameState): GameSide | "draw" {
   const playerCount = countSurvivingUnits(state, GameSide.Player);
   const opponentCount = countSurvivingUnits(state, GameSide.Opponent);
 
@@ -283,18 +291,18 @@ function determineWinnerByForces(state: IGameState): GameSide | 'draw' {
     return GameSide.Opponent;
   }
 
-  return 'draw';
+  return "draw";
 }
 
 export function checkVictoryConditions(
   state: IGameState,
   config: IGameConfig,
-): GameSide | 'draw' | null {
+): GameSide | "draw" | null {
   const playerEliminated = isSideEliminated(state, GameSide.Player);
   const opponentEliminated = isSideEliminated(state, GameSide.Opponent);
 
   if (playerEliminated && opponentEliminated) {
-    return 'draw';
+    return "draw";
   }
 
   if (playerEliminated) {

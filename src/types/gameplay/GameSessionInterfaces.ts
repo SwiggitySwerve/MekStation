@@ -5,11 +5,11 @@
  * @spec openspec/changes/add-game-session-core/specs/game-session-core/spec.md
  */
 
-import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import { ActuatorType } from "@/types/construction/MechConfigurationSystem";
 
-import type { IEnvironmentalConditions } from './EnvironmentalConditions';
+import type { IEnvironmentalConditions } from "./EnvironmentalConditions";
 
-import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
+import { IHexCoordinate, Facing, MovementType } from "./HexGridInterfaces";
 
 // =============================================================================
 // Enums
@@ -20,13 +20,13 @@ import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
  */
 export enum GameStatus {
   /** Game is being configured */
-  Setup = 'setup',
+  Setup = "setup",
   /** Game is actively being played */
-  Active = 'active',
+  Active = "active",
   /** Game has ended */
-  Completed = 'completed',
+  Completed = "completed",
   /** Game was abandoned */
-  Abandoned = 'abandoned',
+  Abandoned = "abandoned",
 }
 
 /**
@@ -34,17 +34,17 @@ export enum GameStatus {
  */
 export enum GamePhase {
   /** Determine initiative order */
-  Initiative = 'initiative',
+  Initiative = "initiative",
   /** Units move in alternating order */
-  Movement = 'movement',
+  Movement = "movement",
   /** Weapon attacks are declared and resolved */
-  WeaponAttack = 'weapon_attack',
+  WeaponAttack = "weapon_attack",
   /** Physical attacks (future) */
-  PhysicalAttack = 'physical_attack',
+  PhysicalAttack = "physical_attack",
   /** Heat accumulation and dissipation */
-  Heat = 'heat',
+  Heat = "heat",
   /** End of turn cleanup and victory check */
-  End = 'end',
+  End = "end",
 }
 
 /**
@@ -52,15 +52,15 @@ export enum GamePhase {
  */
 export enum LockState {
   /** Action not yet started */
-  Pending = 'pending',
+  Pending = "pending",
   /** Action is being planned (can be changed) */
-  Planning = 'planning',
+  Planning = "planning",
   /** Action is locked (cannot be changed) */
-  Locked = 'locked',
+  Locked = "locked",
   /** Action has been revealed */
-  Revealed = 'revealed',
+  Revealed = "revealed",
   /** Action has been resolved */
-  Resolved = 'resolved',
+  Resolved = "resolved",
 }
 
 /**
@@ -68,45 +68,45 @@ export enum LockState {
  */
 export enum GameEventType {
   // Lifecycle events
-  GameCreated = 'game_created',
-  GameStarted = 'game_started',
-  GameEnded = 'game_ended',
+  GameCreated = "game_created",
+  GameStarted = "game_started",
+  GameEnded = "game_ended",
 
   // Turn/Phase events
-  TurnStarted = 'turn_started',
-  TurnEnded = 'turn_ended',
-  PhaseChanged = 'phase_changed',
+  TurnStarted = "turn_started",
+  TurnEnded = "turn_ended",
+  PhaseChanged = "phase_changed",
 
   // Initiative events
-  InitiativeRolled = 'initiative_rolled',
-  InitiativeOrderSet = 'initiative_order_set',
+  InitiativeRolled = "initiative_rolled",
+  InitiativeOrderSet = "initiative_order_set",
 
   // Movement events
-  MovementDeclared = 'movement_declared',
-  MovementLocked = 'movement_locked',
-  FacingChanged = 'facing_changed',
+  MovementDeclared = "movement_declared",
+  MovementLocked = "movement_locked",
+  FacingChanged = "facing_changed",
 
   // Combat events
-  AttackDeclared = 'attack_declared',
-  AttackLocked = 'attack_locked',
-  AttacksRevealed = 'attacks_revealed',
-  AttackResolved = 'attack_resolved',
-  DamageApplied = 'damage_applied',
+  AttackDeclared = "attack_declared",
+  AttackLocked = "attack_locked",
+  AttacksRevealed = "attacks_revealed",
+  AttackResolved = "attack_resolved",
+  DamageApplied = "damage_applied",
 
   // Status events
-  HeatGenerated = 'heat_generated',
-  HeatDissipated = 'heat_dissipated',
-  HeatEffectApplied = 'heat_effect_applied',
-  PilotHit = 'pilot_hit',
-  UnitDestroyed = 'unit_destroyed',
-  AmmoExplosion = 'ammo_explosion',
-  CriticalHit = 'critical_hit',
+  HeatGenerated = "heat_generated",
+  HeatDissipated = "heat_dissipated",
+  HeatEffectApplied = "heat_effect_applied",
+  PilotHit = "pilot_hit",
+  UnitDestroyed = "unit_destroyed",
+  AmmoExplosion = "ammo_explosion",
+  CriticalHit = "critical_hit",
 
   // Phase 4: Extended combat events
-  CriticalHitResolved = 'critical_hit_resolved',
-  PSRTriggered = 'psr_triggered',
-  PSRResolved = 'psr_resolved',
-  UnitFell = 'unit_fell',
+  CriticalHitResolved = "critical_hit_resolved",
+  PSRTriggered = "psr_triggered",
+  PSRResolved = "psr_resolved",
+  UnitFell = "unit_fell",
   /**
    * Per `wire-piloting-skill-rolls` task 0.5.2: emitted when a prone
    * unit successfully passes an `AttemptStand` PSR and returns to its
@@ -114,46 +114,56 @@ export enum GameEventType {
    * show the stand-up attempt without re-computing it from the
    * preceding `PSRResolved` event.
    */
-  UnitStood = 'unit_stood',
-  PhysicalAttackDeclared = 'physical_attack_declared',
-  PhysicalAttackResolved = 'physical_attack_resolved',
-  ShutdownCheck = 'shutdown_check',
-  StartupAttempt = 'startup_attempt',
-  AmmoConsumed = 'ammo_consumed',
+  UnitStood = "unit_stood",
+  PhysicalAttackDeclared = "physical_attack_declared",
+  PhysicalAttackResolved = "physical_attack_resolved",
+  ShutdownCheck = "shutdown_check",
+  StartupAttempt = "startup_attempt",
+  AmmoConsumed = "ammo_consumed",
   /**
    * Per `wire-ammo-consumption`: attack attempt was rejected before any
    * damage, heat, or `AttackResolved` event fired. Reasons grow over
    * time; the union is future-extensible.
    */
-  AttackInvalid = 'attack_invalid',
+  AttackInvalid = "attack_invalid",
   /**
    * Per `integrate-damage-pipeline`: fired when a location's internal
    * structure reaches zero. Also carries optional `cascadedTo` when the
    * destruction triggers a linked-location destruction (e.g., side-torso
    * → arm cascade).
    */
-  LocationDestroyed = 'location_destroyed',
+  LocationDestroyed = "location_destroyed",
   /**
    * Per `integrate-damage-pipeline`: fired when damage transfers from one
    * destroyed location to its canonical transfer target (arms → side
    * torso; legs → side torso; side torso → center torso).
    */
-  TransferDamage = 'transfer_damage',
+  TransferDamage = "transfer_damage",
   /**
    * Per `integrate-damage-pipeline`: fired when a critical-hit roll
    * destroys a specific component (engine, gyro, weapon, heat sink, etc.)
    * in a location. Provides the slot index so UI / replay consumers can
    * highlight the destroyed slot on the record sheet.
    */
-  ComponentDestroyed = 'component_destroyed',
+  ComponentDestroyed = "component_destroyed",
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: fired when a bot-controlled
+   * unit crosses its retreat threshold (structural integrity or
+   * through-armor crit on cockpit/gyro/engine) and commits to disengage
+   * toward a chosen edge. Once emitted for a unit, that unit's
+   * `isRetreating` flag stays true for the rest of the match (no
+   * toggling back to combat). Carries the resolved edge so the move AI
+   * can score subsequent moves against it.
+   */
+  RetreatTriggered = "retreat_triggered",
 }
 
 /**
  * Side/team in the game.
  */
 export enum GameSide {
-  Player = 'player',
-  Opponent = 'opponent',
+  Player = "player",
+  Opponent = "opponent",
 }
 
 // =============================================================================
@@ -205,9 +215,9 @@ export interface IGameStartedPayload {
  */
 export interface IGameEndedPayload {
   /** Winning side */
-  readonly winner: GameSide | 'draw';
+  readonly winner: GameSide | "draw";
   /** Reason for game end */
-  readonly reason: 'destruction' | 'concede' | 'turn_limit' | 'objective';
+  readonly reason: "destruction" | "concede" | "turn_limit" | "objective";
 }
 
 /**
@@ -216,7 +226,7 @@ export interface IGameEndedPayload {
  */
 export interface ITurnStartedPayload {
   /** Intentionally empty - turn number is in the event base */
-  readonly _type?: 'turn_started';
+  readonly _type?: "turn_started";
 }
 
 /**
@@ -225,7 +235,7 @@ export interface ITurnStartedPayload {
  */
 export interface ITurnEndedPayload {
   /** Intentionally empty - turn number is in the event base */
-  readonly _type?: 'turn_ended';
+  readonly _type?: "turn_ended";
 }
 
 /**
@@ -356,7 +366,7 @@ export interface IAttackResolvedPayload {
    * 'rear'). Absent on misses (no arc needed) and on same-hex
    * invalidations.
    */
-  readonly attackerArc?: 'front' | 'left' | 'right' | 'rear';
+  readonly attackerArc?: "front" | "left" | "right" | "rear";
   /**
    * Per `wire-ammo-consumption`: `null` for energy weapons; set to the
    * bin id that was drawn from for ammo-consuming weapons. Enables UI
@@ -376,11 +386,11 @@ export interface IAttackInvalidPayload {
   readonly targetId: string;
   readonly weaponId?: string;
   readonly reason:
-    | 'OutOfAmmo'
-    | 'SameHex'
-    | 'OutOfRange'
-    | 'NoLineOfSight'
-    | 'InvalidTarget';
+    | "OutOfAmmo"
+    | "SameHex"
+    | "OutOfRange"
+    | "NoLineOfSight"
+    | "InvalidTarget";
   readonly details?: string;
 }
 
@@ -425,13 +435,13 @@ export interface IHeatPayload {
   readonly amount: number;
   /** Heat source */
   readonly source:
-    | 'movement'
-    | 'firing'
-    | 'weapons'
-    | 'engine_hit'
-    | 'environment'
-    | 'dissipation'
-    | 'external';
+    | "movement"
+    | "firing"
+    | "weapons"
+    | "engine_hit"
+    | "environment"
+    | "dissipation"
+    | "external";
   /** New total heat */
   readonly newTotal: number;
 }
@@ -447,7 +457,7 @@ export interface IPilotHitPayload {
   /** Total wounds */
   readonly totalWounds: number;
   /** Source of the hit */
-  readonly source: 'head_hit' | 'ammo_explosion' | 'mech_destruction';
+  readonly source: "head_hit" | "ammo_explosion" | "mech_destruction";
   /** Consciousness check required? */
   readonly consciousnessCheckRequired: boolean;
   /** Consciousness check result (if required) */
@@ -461,7 +471,7 @@ export interface IUnitDestroyedPayload {
   /** Unit that was destroyed */
   readonly unitId: string;
   /** Cause of destruction */
-  readonly cause: 'damage' | 'ammo_explosion' | 'pilot_death' | 'shutdown';
+  readonly cause: "damage" | "ammo_explosion" | "pilot_death" | "shutdown";
   /** Unit that killed this unit (undefined for self-destruction: ammo explosions, pilot death, etc.) */
   readonly killerUnitId?: string;
 }
@@ -529,14 +539,14 @@ export interface IUnitStoodPayload {
 export interface IPhysicalAttackDeclaredPayload {
   readonly attackerId: string;
   readonly targetId: string;
-  readonly attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push';
+  readonly attackType: "punch" | "kick" | "charge" | "dfa" | "push";
   readonly toHitNumber: number;
 }
 
 export interface IPhysicalAttackResolvedPayload {
   readonly attackerId: string;
   readonly targetId: string;
-  readonly attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push';
+  readonly attackType: "punch" | "kick" | "charge" | "dfa" | "push";
   readonly roll: number;
   readonly toHitNumber: number;
   readonly hit: boolean;
@@ -607,6 +617,19 @@ export interface IComponentDestroyedPayload {
 }
 
 /**
+ * Per `wire-bot-ai-helpers-and-capstone`: bot-controlled unit has crossed
+ * its retreat threshold and committed to disengage. Carries the resolved
+ * concrete edge so subsequent move scoring (via `scoreRetreatMove`) can
+ * compute progress toward it. `reason` distinguishes structural-loss
+ * triggers from through-armor-crit triggers for replay / UI consumers.
+ */
+export interface IRetreatTriggeredPayload {
+  readonly unitId: string;
+  readonly edge: "north" | "south" | "east" | "west";
+  readonly reason: "structural_threshold" | "vital_crit";
+}
+
+/**
  * Union type for all event payloads.
  */
 export type GameEventPayload =
@@ -639,7 +662,8 @@ export type GameEventPayload =
   | IAttackInvalidPayload
   | ILocationDestroyedPayload
   | ITransferDamagePayload
-  | IComponentDestroyedPayload;
+  | IComponentDestroyedPayload
+  | IRetreatTriggeredPayload;
 
 /**
  * Complete game event with payload.
@@ -841,6 +865,18 @@ export interface IUnitGameState {
   readonly narcedBy?: readonly string[];
   /** Target is TAG-designated this turn */
   readonly tagDesignated?: boolean;
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: bot-controlled unit has
+   * committed to retreat. Set true by `RetreatTriggered` reducer; never
+   * cleared back to false in the same match (one-way latch).
+   */
+  readonly isRetreating?: boolean;
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: the concrete edge the unit
+   * is heading toward once retreating. Set once on `RetreatTriggered`
+   * and locked. `undefined` until retreat begins.
+   */
+  readonly retreatTargetEdge?: "north" | "south" | "east" | "west";
 }
 
 /**
@@ -867,7 +903,7 @@ export interface IGameState {
   readonly turnEvents: readonly IGameEvent[];
   /** Game result (if completed) */
   readonly result?: {
-    readonly winner: GameSide | 'draw';
+    readonly winner: GameSide | "draw";
     readonly reason: string;
   };
 }
@@ -904,17 +940,17 @@ export interface IGameSession {
  * Type guard for IGameEvent.
  */
 export function isGameEvent(obj: unknown): obj is IGameEvent {
-  if (typeof obj !== 'object' || obj === null) return false;
+  if (typeof obj !== "object" || obj === null) return false;
   const event = obj as IGameEvent;
   return (
-    typeof event.id === 'string' &&
-    typeof event.gameId === 'string' &&
-    typeof event.sequence === 'number' &&
-    typeof event.timestamp === 'string' &&
-    typeof event.type === 'string' &&
-    typeof event.turn === 'number' &&
-    typeof event.phase === 'string' &&
-    typeof event.payload === 'object'
+    typeof event.id === "string" &&
+    typeof event.gameId === "string" &&
+    typeof event.sequence === "number" &&
+    typeof event.timestamp === "string" &&
+    typeof event.type === "string" &&
+    typeof event.turn === "number" &&
+    typeof event.phase === "string" &&
+    typeof event.payload === "object"
   );
 }
 
@@ -922,14 +958,14 @@ export function isGameEvent(obj: unknown): obj is IGameEvent {
  * Type guard for IGameSession.
  */
 export function isGameSession(obj: unknown): obj is IGameSession {
-  if (typeof obj !== 'object' || obj === null) return false;
+  if (typeof obj !== "object" || obj === null) return false;
   const session = obj as IGameSession;
   return (
-    typeof session.id === 'string' &&
-    typeof session.createdAt === 'string' &&
-    typeof session.config === 'object' &&
+    typeof session.id === "string" &&
+    typeof session.createdAt === "string" &&
+    typeof session.config === "object" &&
     Array.isArray(session.units) &&
     Array.isArray(session.events) &&
-    typeof session.currentState === 'object'
+    typeof session.currentState === "object"
   );
 }

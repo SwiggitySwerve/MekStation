@@ -3,22 +3,22 @@
  * Orchestrates battles with auto-resolve and interactive modes.
  */
 
-import type { IWeapon } from '@/simulation/ai/types';
+import type { IWeapon } from "@/simulation/ai/types";
 
-import { isGameEnded } from '@/services/game-resolution/GameOutcomeCalculator';
-import { BotPlayer } from '@/simulation/ai/BotPlayer';
-import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { isGameEnded } from "@/services/game-resolution/GameOutcomeCalculator";
+import { BotPlayer } from "@/simulation/ai/BotPlayer";
+import { SeededRandom } from "@/simulation/core/SeededRandom";
 import {
   GameSide,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
   type IGameState,
-} from '@/types/gameplay/GameSessionInterfaces';
+} from "@/types/gameplay/GameSessionInterfaces";
 import {
   type IHexGrid,
   type IMovementCapability,
-} from '@/types/gameplay/HexGridInterfaces';
+} from "@/types/gameplay/HexGridInterfaces";
 import {
   createGameSession,
   startGame,
@@ -27,13 +27,17 @@ import {
   resolveAllAttacks,
   resolveHeatPhase,
   endGame,
-} from '@/utils/gameplay/gameSession';
+} from "@/utils/gameplay/gameSession";
 
-import type { IGameEngineConfig, IAdaptedUnit } from './types';
+import type { IGameEngineConfig, IAdaptedUnit } from "./types";
 
-import { createMinimalGrid, toMovementCapability } from './GameEngine.helpers';
-import { runMovementPhase, runAttackPhase } from './GameEngine.phases';
-import { InteractiveSession } from './InteractiveSession';
+import { createMinimalGrid, toMovementCapability } from "./GameEngine.helpers";
+import {
+  runMovementPhase,
+  runAttackPhase,
+  runPhysicalAttackPhase,
+} from "./GameEngine.phases";
+import { InteractiveSession } from "./InteractiveSession";
 
 export { InteractiveSession };
 
@@ -68,6 +72,9 @@ export class GameEngine {
     const weaponsByUnit = new Map<string, readonly IWeapon[]>();
     const movementByUnit = new Map<string, IMovementCapability>();
     const gunneryByUnit = new Map<string, number>();
+    // Per `wire-bot-ai-helpers-and-capstone`: piloting needed by
+    // `runPhysicalAttackPhase` for to-hit calculation.
+    const pilotingByUnit = new Map<string, number>();
 
     for (const u of [...playerUnits, ...opponentUnits]) {
       weaponsByUnit.set(u.id, u.weapons);
@@ -75,12 +82,13 @@ export class GameEngine {
     }
     for (const gu of gameUnits) {
       gunneryByUnit.set(gu.id, gu.gunnery);
+      pilotingByUnit.set(gu.id, gu.piloting);
     }
 
     const gameConfig: IGameConfig = {
       mapRadius: this.mapRadius,
       turnLimit: this.turnLimit,
-      victoryConditions: ['elimination'],
+      victoryConditions: ["elimination"],
       optionalRules: [],
     };
 
@@ -111,13 +119,22 @@ export class GameEngine {
       );
       session = resolveAllAttacks(session);
       session = advancePhase(session);
+      // Per `wire-bot-ai-helpers-and-capstone`: PhysicalAttack phase
+      // body — declare melee attacks via the bot, then resolve them.
+      session = runPhysicalAttackPhase(
+        session,
+        botPlayer,
+        weaponsByUnit,
+        gunneryByUnit,
+        pilotingByUnit,
+      );
       session = advancePhase(session);
       session = resolveHeatPhase(session);
       session = advancePhase(session);
 
       if (isGameEnded(session.currentState, gameConfig)) {
         const winner = this.determineWinnerFromState(session.currentState);
-        session = endGame(session, winner, 'destruction');
+        session = endGame(session, winner, "destruction");
         return session;
       }
 
@@ -126,7 +143,7 @@ export class GameEngine {
 
     // Turn limit reached
     const winner = this.determineWinnerFromState(session.currentState);
-    session = endGame(session, winner, 'turn_limit');
+    session = endGame(session, winner, "turn_limit");
     return session;
   }
 
@@ -149,7 +166,7 @@ export class GameEngine {
     );
   }
 
-  private determineWinnerFromState(state: IGameState): GameSide | 'draw' {
+  private determineWinnerFromState(state: IGameState): GameSide | "draw" {
     const playerAlive = Object.values(state.units).some(
       (u) => u.side === GameSide.Player && !u.destroyed,
     );
@@ -157,7 +174,7 @@ export class GameEngine {
       (u) => u.side === GameSide.Opponent && !u.destroyed,
     );
 
-    if (!playerAlive && !opponentAlive) return 'draw';
+    if (!playerAlive && !opponentAlive) return "draw";
     if (!opponentAlive) return GameSide.Player;
     if (!playerAlive) return GameSide.Opponent;
     // Turn limit — compare surviving counts
@@ -169,6 +186,6 @@ export class GameEngine {
     ).length;
     if (pCount > oCount) return GameSide.Player;
     if (oCount > pCount) return GameSide.Opponent;
-    return 'draw';
+    return "draw";
   }
 }
