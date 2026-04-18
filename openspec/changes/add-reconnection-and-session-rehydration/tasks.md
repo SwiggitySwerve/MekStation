@@ -54,10 +54,10 @@
       server does NOT advance phases or process intents from other
       clients _(`isPaused` gate in `handleIntent`)_
 - [x] 5.2 Exception: host can override with `Intent {kind:
-    'MarkSeatAi'}` _(implemented as `MarkSeatAi` per locked design;
+'MarkSeatAi'}` _(implemented as `MarkSeatAi` per locked design;
       naming changed from `ProceedWithoutPending`)_
 - [x] 5.3 Paused matches broadcast `MatchPaused {pendingSlots,
-    reason}`
+reason}`
 - [x] 5.4 Resumed matches broadcast `MatchResumed`
 
 ## 6. Grace Timeout Fallback
