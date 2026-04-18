@@ -170,11 +170,22 @@ export class GameEngine {
 
   /**
    * Create an interactive turn-by-turn session.
+   *
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5: optional
+   * `linkage` argument propagates campaign linkage (contract / scenario
+   * / encounter ids) onto the resulting session. The campaign
+   * orchestrator passes these so `InteractiveSession.tryFinalizeAndPublish`
+   * can stamp them onto the published `ICombatOutcome`.
    */
   createInteractiveSession(
     playerUnits: readonly IAdaptedUnit[],
     opponentUnits: readonly IAdaptedUnit[],
     gameUnits: readonly IGameUnit[],
+    linkage?: {
+      readonly contractId?: string | null;
+      readonly scenarioId?: string | null;
+      readonly encounterId?: string | null;
+    },
   ): InteractiveSession {
     return new InteractiveSession(
       this.mapRadius,
@@ -184,6 +195,7 @@ export class GameEngine {
       playerUnits,
       opponentUnits,
       gameUnits,
+      linkage,
     );
   }
 

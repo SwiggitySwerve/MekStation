@@ -36,6 +36,27 @@ import {
 } from './encounterToGameSession';
 
 // =============================================================================
+// Launch Options
+// =============================================================================
+
+/**
+ * Per `wire-encounter-to-campaign-round-trip` Wave 5: round-trip linkage
+ * the campaign orchestrator passes when launching a scenario-generated
+ * encounter. The fields are threaded onto the `IGameSession.config` so
+ * `InteractiveSession.getOutcome()` can stamp the resulting
+ * `ICombatOutcome` with the contract/scenario IDs the post-battle
+ * processors need to advance contract status and award salvage.
+ *
+ * Standalone (non-campaign) encounters omit these — they default to null
+ * on the config and the spec scenario "Standalone encounter has encounter
+ * id only" passes naturally.
+ */
+export interface ILaunchEncounterOptions {
+  readonly contractId?: string | null;
+  readonly scenarioId?: string | null;
+}
+
+// =============================================================================
 // Service Interface
 // =============================================================================
 
@@ -72,7 +93,10 @@ export interface IEncounterService {
   canLaunch(id: string): boolean;
 
   // Launch
-  launchEncounter(id: string): IEncounterOperationResult;
+  launchEncounter(
+    id: string,
+    options?: ILaunchEncounterOptions,
+  ): IEncounterOperationResult;
 
   // Cloning
   cloneEncounter(id: string, newName: string): IEncounterOperationResult;
@@ -235,7 +259,10 @@ export class EncounterService implements IEncounterService {
   // Launch
   // ===========================================================================
 
-  launchEncounter(id: string): IEncounterOperationResult {
+  launchEncounter(
+    id: string,
+    options: ILaunchEncounterOptions = {},
+  ): IEncounterOperationResult {
     const encounter = this.getEncounter(id);
     if (!encounter) {
       return {
@@ -288,7 +315,17 @@ export class EncounterService implements IEncounterService {
     // uuid. The session object itself is ephemeral (no server-side store),
     // but its id is what we persist on the encounter — the UI rehydrates
     // play state from the encounter + forces, using this id as the handle.
-    const config = buildGameConfigFromEncounter(encounter);
+    //
+    // Per `wire-encounter-to-campaign-round-trip` Wave 5: thread campaign
+    // linkage (contractId, scenarioId) into the config so the eventual
+    // `ICombatOutcome` is self-describing. The encounter id is always
+    // stamped — see `buildGameConfigFromEncounter`. When `contractId` is
+    // present we also assert "fail-fast" by surfacing it on the result so
+    // tests can confirm linkage propagated end-to-end.
+    const config = buildGameConfigFromEncounter(encounter, {
+      contractId: options.contractId ?? null,
+      scenarioId: options.scenarioId ?? null,
+    });
     const session = createGameSession(config, units);
     return this.repository.linkGameSession(id, session.id);
   }

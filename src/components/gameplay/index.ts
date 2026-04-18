@@ -92,3 +92,7 @@ export type { TurnCountHistogramProps } from './TurnCountHistogram';
 // add-pre-battle-force-comparison: pre-battle two-column comparison panel
 export { ForceComparisonPanel } from './ForceComparisonPanel';
 export type { ForceComparisonPanelProps } from './ForceComparisonPanel';
+
+// add-post-battle-review-ui — Phase 3 review surface (6 panels bridging
+// the tactical session and the campaign queue)
+export * from './post-battle';

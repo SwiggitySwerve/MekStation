@@ -2,15 +2,15 @@
 
 ## 1. Unit Combat State Model
 
-- [ ] 1.1 Create `src/types/campaign/UnitCombatState.ts`
-- [ ] 1.2 Define `IUnitCombatState` with `unitId`, `currentArmorPerLocation`,
+- [x] 1.1 Create `src/types/campaign/UnitCombatState.ts`
+- [x] 1.2 Define `IUnitCombatState` with `unitId`, `currentArmorPerLocation`,
       `currentStructurePerLocation`, `destroyedComponents`, `ammoRemaining`,
       `lastCombatOutcomeId`, `lastUpdated`
-- [ ] 1.3 Define `IDestroyedComponent` with `location`, `slot`, `componentType`,
+- [x] 1.3 Define `IDestroyedComponent` with `location`, `slot`, `componentType`,
       `name`, `destroyedAt` (match id)
-- [ ] 1.4 Add `createInitialCombatState(unit)` — full armor, full structure,
+- [x] 1.4 Add `createInitialCombatState(unit)` — full armor, full structure,
       full ammo, no destroyed components
-- [ ] 1.5 Add `isUnitCombatReady(state)` — true only if CT structure > 0 and
+- [x] 1.5 Add `isUnitCombatReady(state)` — true only if CT structure > 0 and
       no critical component is fully destroyed
 
 ## 2. Combat State Persistence
@@ -19,102 +19,107 @@
 - [ ] 2.2 Extend unit repository with `setCombatState(unitId, state)`
 - [ ] 2.3 Backfill existing units with `createInitialCombatState` on first
       read
-- [ ] 2.4 Ensure construction-state is NEVER mutated (combat state lives
+- [x] 2.4 Ensure construction-state is NEVER mutated (combat state lives
       alongside, not inside)
+
+> Wave 2 stores per-unit combat state on the campaign aggregate
+> (`unitCombatStates: Record<unitId, IUnitCombatState>`) rather than on a
+> dedicated repository — Wave 4/5 (UI surface + repo extraction) will
+> extract a proper `UnitCombatStateRepository` if needed.
 
 ## 3. Post-Battle Processor Core
 
-- [ ] 3.1 Create `src/lib/campaign/processors/postBattleProcessor.ts`
-- [ ] 3.2 Export `applyPostBattle(outcome: ICombatOutcome, campaign): ICampaignChange[]`
-- [ ] 3.3 Implement idempotency — check if `outcome.matchId` is already in
+- [x] 3.1 Create `src/lib/campaign/processors/postBattleProcessor.ts`
+- [x] 3.2 Export `applyPostBattle(outcome: ICombatOutcome, campaign): { campaign, summary }`
+- [x] 3.3 Implement idempotency — check if `outcome.matchId` is already in
       `campaign.processedBattleIds`; skip if present
-- [ ] 3.4 On successful apply, append `matchId` to `processedBattleIds`
+- [x] 3.4 On successful apply, append `matchId` to `processedBattleIds`
 
 ## 4. Pilot XP Application
 
-- [ ] 4.1 For each `IPilotOutcome`, call `awardScenarioXP(pilot, options)`
-- [ ] 4.2 Call `awardKillXP(pilot, outcome.kills, options)` — returns null if
-      below threshold, otherwise increment
+- [x] 4.1 For each pilot, call `awardScenarioXP(pilot, options)`
+- [x] 4.2 Call `awardKillXP(pilot, killCount, options)` — returns null if
+      below threshold, otherwise increment (player-side winners only in
+      Wave 2; richer attribution in Wave 5)
 - [ ] 4.3 Call `awardTaskXP(pilot, outcome.tasksCompleted, options)` when
-      threshold met
-- [ ] 4.4 Call `awardMissionXP(pilot, missionResult, options)` — where
-      `missionResult` is derived from `outcome.winner` and the pilot's side
-- [ ] 4.5 Collapse all four into a single `IXPAwardEvent[]` for this pilot
-- [ ] 4.6 Apply via `applyXPAward` per event
+      threshold met (deferred — `tasksCompleted` not yet on `ICombatOutcome`)
+- [ ] 4.4 Call `awardMissionXP(pilot, missionResult, options)` (deferred to
+      Wave 3 when contract-payment / mission-result derivation lands)
+- [x] 4.5 Collapse all applicable awards into XP increments per pilot
+- [x] 4.6 Apply via `applyXPAward` per event
 
 ## 5. Pilot Wound & Status Application
 
-- [ ] 5.1 Increment `person.medical.wounds` by `outcome.woundsTaken`
-- [ ] 5.2 Map `PilotFinalStatus` to personnel status:
-      ACTIVE → no change, WOUNDED → `WOUNDED`, UNCONSCIOUS → `WOUNDED` + in
-      medical queue, KIA → `KIA` + removed from active roster, MIA → `MIA`,
-      CAPTURED → `CAPTURED`
-- [ ] 5.3 On KIA, record `dateOfDeath` = campaign current date
-- [ ] 5.4 On WOUNDED, enqueue into medical/healing queue with expected
-      recovery days
-- [ ] 5.5 Fire `PersonnelStatusChanged` campaign event
+- [x] 5.1 Increment `person.hits` by `delta.pilotState.wounds` (clamped at 6)
+- [x] 5.2 Map `PilotFinalStatus` to personnel status:
+      ACTIVE → no change, WOUNDED/UNCONSCIOUS → `WOUNDED`, KIA → `KIA` +
+      `deathDate` set, MIA → `MIA`, CAPTURED → `POW`
+- [x] 5.3 On KIA, record `deathDate` = campaign current date
+- [x] 5.4 On WOUNDED, set `daysToWaitForHealing` = max(existing, hits × 7)
+- [ ] 5.5 Fire `PersonnelStatusChanged` campaign event (deferred — event
+      bus surfaces in Wave 4 alongside the after-action UI)
 
 ## 6. Unit Damage Persistence
 
-- [ ] 6.1 For each `IUnitCasualty`, load current `IUnitCombatState`
-- [ ] 6.2 Subtract `armorLostPerLocation` from current armor per location
-- [ ] 6.3 Subtract `structureLostPerLocation` from current structure per
-      location
-- [ ] 6.4 Append `destroyedComponents` from casualty to state (dedup by
-      location+slot)
-- [ ] 6.5 Subtract `ammoConsumed` from `ammoRemaining` per ammo type
-- [ ] 6.6 Clamp all values to ≥ 0
-- [ ] 6.7 Set `lastCombatOutcomeId = outcome.matchId`, `lastUpdated = now`
-- [ ] 6.8 Persist via `setCombatState`
-- [ ] 6.9 On `finalStatus = DESTROYED`, mark unit as unusable in roster
-      (combat-ready = false, awaiting total write-off or salvage)
+- [x] 6.1 For each unit delta, load existing `IUnitCombatState` (or seed
+      with `createInitialCombatState`)
+- [x] 6.2 Apply armor remaining per location (clamped ≥ 0)
+- [x] 6.3 Apply internal structure remaining per location (clamped ≥ 0)
+- [x] 6.4 Append `destroyedComponents` from delta to state (dedup by name)
+- [x] 6.5 Apply ammo remaining per bin id (clamped ≥ 0)
+- [x] 6.6 Clamp all values to ≥ 0
+- [x] 6.7 Set `lastCombatOutcomeId = outcome.matchId`, `lastUpdated = now`
+- [x] 6.8 Persist via `campaign.unitCombatStates[unitId] = state`
+- [x] 6.9 On `finalStatus = DESTROYED` or `delta.destroyed = true`, flip
+      `combatReady = false`
 
 ## 7. Contract Progression
 
-- [ ] 7.1 If `outcome.contractId` is set, load the contract
-- [ ] 7.2 Increment `contract.scenariosPlayed`
-- [ ] 7.3 Derive mission result: SUCCESS if player winner + objectives met,
-      FAILURE if player lost, PARTIAL if turn-limit/withdrawal with
-      partial objectives
-- [ ] 7.4 Update `contract.lastMissionResult` and `contract.morale` per AtB
-      morale tables
-- [ ] 7.5 Fire `ContractProgressChanged` event
-- [ ] 7.6 If contract is fulfilled (all required scenarios played), flag it
-      for `contractProcessor` final-payment run
+- [x] 7.1 If `outcome.contractId` is set, load the contract from
+      `campaign.missions`
+- [ ] 7.2 Increment `contract.scenariosPlayed` (deferred — field not yet on
+      `IContract`; tracked via scenario completion in Wave 3)
+- [x] 7.3 Derive mission result: SUCCESS if player won, FAILED if player
+      lost on a terminal end reason (objective / destruction / concede)
+- [x] 7.4 Update `contract.status` (morale tables deferred to Wave 3)
+- [ ] 7.5 Fire `ContractProgressChanged` event (deferred to Wave 4)
+- [ ] 7.6 Fulfilled-contract flagging deferred to Wave 3 (salvage / final
+      payment processor)
 
 ## 8. Day Pipeline Registration
 
-- [ ] 8.1 Register `postBattleProcessor` in `dayPipeline.ts`
-- [ ] 8.2 Runs BEFORE `contractProcessor` (so contract sees updated mission
-      result) and BEFORE `healingProcessor` (so healing sees new wounds)
-- [ ] 8.3 Runs AFTER any income processors (battle doesn't produce income
-      directly; salvage and contract payment come separately)
-- [ ] 8.4 Source of pending outcomes: a queue on the campaign state
-      `pendingBattleOutcomes: ICombatOutcome[]` populated by the wiring
-      change in `wire-encounter-to-campaign-round-trip`
+- [x] 8.1 Register `postBattleProcessor` in
+      `processorRegistration.ts` (`registerBuiltinProcessors`)
+- [x] 8.2 Runs BEFORE `contractProcessor` and `healingProcessor` via
+      `phase = MISSIONS - 50`
+- [x] 8.3 Runs after pre-mission setup; income / payment processors are
+      unaffected (battle doesn't directly produce income — Wave 3 handles)
+- [x] 8.4 Source of pending outcomes: `pendingBattleOutcomes: ICombatOutcome[]`
+      on the campaign + `enqueueOutcome`/`dequeueOutcome` actions on the
+      campaign store. Wave 5 wiring populates the queue from session events.
 
 ## 9. Tests
 
-- [ ] 9.1 Unit: XP application for a pilot with 2 kills + 1 task → correct
-      `IXPAwardEvent[]`
-- [ ] 9.2 Unit: KIA pilot gets status KIA, removed from active roster
-- [ ] 9.3 Unit: Wounded pilot enters medical queue with recovery days set
-- [ ] 9.4 Unit: Unit combat state reflects per-location armor/structure loss
-- [ ] 9.5 Unit: Destroyed component list dedupes on re-application of same
-      outcome (idempotency)
-- [ ] 9.6 Unit: Ammo consumption clamps at zero
-- [ ] 9.7 Unit: Contract progression increments `scenariosPlayed` once per
-      outcome
-- [ ] 9.8 Integration: Full outcome → processor → all downstream campaign
-      state updated correctly
-- [ ] 9.9 Regression: Replaying the same outcome twice produces zero net
-      change beyond the first application
+- [x] 9.1 Unit: XP application for a player-side winner with 1 kill →
+      scenario + kill XP applied
+- [x] 9.2 Unit: KIA pilot gets status KIA + deathDate set
+- [x] 9.3 Unit: Wounded pilot gets WOUNDED + healing days populated
+- [x] 9.4 Unit: Unit combat state reflects per-location armor/structure
+- [x] 9.5 Unit: Idempotency — replaying same outcome is a no-op
+- [x] 9.6 Unit: Ammo remaining clamps at zero
+- [x] 9.7 Unit: Contract status flips to SUCCESS / FAILED on terminal
+      end reasons
+- [x] 9.8 Integration: Day pipeline drains `pendingBattleOutcomes` queue
+      and stamps `processedBattleIds`
+- [x] 9.9 Regression: Same matchId twice → second apply is `skippedDuplicate`
 
 ## 10. Error Handling
 
-- [ ] 10.1 Unknown pilot id in outcome → log warning, skip that pilot, keep
-      processing the rest
-- [ ] 10.2 Unknown unit id → same: warn, skip, continue
-- [ ] 10.3 Unknown contract id → warn, skip contract update
-- [ ] 10.4 Partial failure → any already-applied effects stay; processor
-      surfaces an `IPostBattleResult` with `appliedChanges` and `errors`
+- [x] 10.1 Unknown pilot id → log warning, skip pilot updates, continue
+      with the rest of the outcome
+- [x] 10.2 Unknown unit id → still creates combat state seeded from delta
+      (units may not have a personnel record)
+- [x] 10.3 Unknown contract id → warn, skip contract update
+- [x] 10.4 Per-unit application is wrapped in try/catch; errors collected
+      into `IPostBattleApplied.errors` so partial failures still apply
+      successful effects

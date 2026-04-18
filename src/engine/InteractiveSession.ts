@@ -7,12 +7,24 @@ import type { IWeapon } from '@/simulation/ai/types';
 import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 
 import {
+  publishCombatOutcome,
+  type ICombatOutcomeReadyEvent,
+} from '@/engine/combatOutcomeBus';
+import {
+  deriveCombatOutcome,
+  type IDeriveCombatOutcomeOptions,
+} from '@/lib/combat/outcome/combatOutcome';
+import {
   calculateGameOutcome,
   isGameEnded,
   type IGameOutcome,
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
+import {
+  CombatNotCompleteError,
+  type ICombatOutcome,
+} from '@/types/combat/CombatOutcome';
 import {
   GameSide,
   GamePhase,
@@ -55,6 +67,20 @@ import type { IAdaptedUnit, IAvailableActions } from './types';
 
 import { toAIUnitState, toMovementCapability } from './GameEngine.helpers';
 
+/**
+ * Per `wire-encounter-to-campaign-round-trip` Wave 5: campaign linkage
+ * the orchestrator threads into a session at construction time. The
+ * engine never reads these fields itself — they're held verbatim and
+ * stamped onto the published `ICombatOutcome` when the session ends so
+ * the campaign store knows which contract / scenario / encounter the
+ * outcome resolves.
+ */
+export interface IInteractiveSessionLinkage {
+  readonly contractId?: string | null;
+  readonly scenarioId?: string | null;
+  readonly encounterId?: string | null;
+}
+
 export class InteractiveSession {
   private session: IGameSession;
   private readonly gameConfig: IGameConfig;
@@ -71,6 +97,14 @@ export class InteractiveSession {
   private readonly grid: IHexGrid;
   private readonly botPlayer: BotPlayer;
   private startedAt: string;
+  /**
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5: dedupe guard so
+   * `CombatOutcomeReady` fires exactly once per session even when
+   * multiple methods ((concede + advancePhase) cause us to re-evaluate
+   * `isGameOver`). Spec: "Event idempotent per session".
+   */
+  private outcomePublished = false;
+  private readonly linkage: IInteractiveSessionLinkage;
 
   constructor(
     mapRadius: number,
@@ -80,6 +114,7 @@ export class InteractiveSession {
     playerUnits: readonly IAdaptedUnit[],
     opponentUnits: readonly IAdaptedUnit[],
     gameUnits: readonly IGameUnit[],
+    linkage: IInteractiveSessionLinkage = {},
   ) {
     this.random = random;
     this.grid = grid;
@@ -109,7 +144,14 @@ export class InteractiveSession {
       turnLimit,
       victoryConditions: ['elimination'],
       optionalRules: [],
+      // Wave 5 linkage: round-trip identifiers stamped on the config so
+      // any later consumer of `IGameSession` (review UI, persistence
+      // layer) can read them without keeping a parallel map.
+      encounterId: linkage.encounterId ?? null,
+      contractId: linkage.contractId ?? null,
+      scenarioId: linkage.scenarioId ?? null,
     };
+    this.linkage = linkage;
 
     this.session = createGameSession(this.gameConfig, gameUnits);
     this.session = startGame(this.session, GameSide.Player);
@@ -166,6 +208,7 @@ export class InteractiveSession {
       movementType === MovementType.Jump ? 1 : 0,
     );
     this.session = lockMovement(this.session, unitId);
+    this.tryFinalizeAndPublish();
   }
 
   applyAttack(
@@ -191,6 +234,7 @@ export class InteractiveSession {
       RangeBracket.Short,
     );
     this.session = lockAttack(this.session, attackerId);
+    this.tryFinalizeAndPublish();
   }
 
   advancePhase(): void {
@@ -242,6 +286,11 @@ export class InteractiveSession {
         this.session = advancePhase(this.session);
       }
     }
+    // Wave 5: any phase transition can land us in a victory condition
+    // (e.g., the final attack resolution destroys the last opponent
+    // unit). Try to finalize+publish here so the campaign store is
+    // notified within the same call.
+    this.tryFinalizeAndPublish();
   }
 
   runAITurn(side: GameSide): void {
@@ -364,6 +413,10 @@ export class InteractiveSession {
         }
       }
     }
+    // Wave 5: AI turn might have eliminated the player force; check
+    // game-over here so the bus fires before control returns to the
+    // caller.
+    this.tryFinalizeAndPublish();
   }
 
   /**
@@ -424,13 +477,102 @@ export class InteractiveSession {
    * Phase 1 review: end the match by surrender from `side`. Appends a
    * `GameEnded` event with `reason: 'concede'` and the OPPOSITE side
    * as winner. No-op if the game is already over (or in setup).
+   *
+   * Wave 5 (`wire-encounter-to-campaign-round-trip`): every entry point
+   * that may transition the session into `Completed` (concede here,
+   * advancePhase / runAITurn / applyAttack indirectly via the auto-end
+   * check) routes through `tryFinalizeAndPublish` so the
+   * `CombatOutcomeReady` bus event fires exactly once per session.
    */
   concede(side: GameSide): void {
-    if (this.isGameOver()) return;
+    if (this.isGameOver()) {
+      this.tryFinalizeAndPublish();
+      return;
+    }
     if (this.session.currentState.status !== GameStatus.Active) return;
     const winner =
       side === GameSide.Player ? GameSide.Opponent : GameSide.Player;
     this.session = endGame(this.session, winner, 'concede');
+    this.tryFinalizeAndPublish();
+  }
+
+  /**
+   * Auto-finalize the session when the win-condition predicate trips
+   * (turn limit reached, side eliminated) but no explicit `endGame` has
+   * fired yet, then publish `CombatOutcomeReady` exactly once. Idempotent
+   * — once `outcomePublished` is true, subsequent calls are no-ops.
+   *
+   * The publishing path is intentionally synchronous: subscribers run
+   * inside `publishCombatOutcome`, so by the time this method returns
+   * the campaign store has already enqueued the outcome (see
+   * `useCampaignStore.subscribeToOutcomeBus`). This makes the round-trip
+   * provable in a single tick — exactly what the capstone integration
+   * test relies on.
+   */
+  private tryFinalizeAndPublish(): void {
+    if (this.outcomePublished) return;
+    if (!this.isGameOver()) return;
+
+    // Auto-end via the win-condition predicate when status is still
+    // Active. Without this, naturally-ended games (turn limit, side
+    // elimination) never reach `Completed`, and `getOutcome()` would
+    // throw `CombatNotCompleteError`.
+    if (this.session.currentState.status === GameStatus.Active) {
+      const result = calculateGameOutcome({
+        state: this.session.currentState,
+        events: this.session.events,
+        config: this.gameConfig,
+        startedAt: this.startedAt,
+        endedAt: new Date().toISOString(),
+      });
+      const reason: 'destruction' | 'concede' | 'turn_limit' | 'objective' =
+        result.reason === 'concede'
+          ? 'concede'
+          : result.reason === 'turn_limit'
+            ? 'turn_limit'
+            : result.reason === 'objective'
+              ? 'objective'
+              : 'destruction';
+      // `IGameOutcome.winner` uses the string-literal form ("player" /
+      // "opponent" / "draw") while `endGame` expects `GameSide | "draw"`.
+      // The string values are identical to GameSide enum values, so the
+      // cast is sound — we re-narrow to the engine's enum form here.
+      const winner: GameSide | 'draw' =
+        result.winner === 'draw' ? 'draw' : (result.winner as GameSide);
+      this.session = endGame(this.session, winner, reason);
+    }
+
+    if (this.session.currentState.status !== GameStatus.Completed) {
+      return;
+    }
+
+    let outcome: ICombatOutcome;
+    try {
+      outcome = deriveCombatOutcome(this.session, {
+        contractId: this.linkage.contractId ?? undefined,
+        scenarioId: this.linkage.scenarioId ?? undefined,
+      });
+    } catch {
+      // Defensive: outcome derivation should never throw post-Completed,
+      // but we don't want a derivation bug to make the engine unusable.
+      return;
+    }
+
+    this.outcomePublished = true;
+    const event: ICombatOutcomeReadyEvent = {
+      matchId: outcome.matchId,
+      outcome,
+    };
+    publishCombatOutcome(event);
+  }
+
+  /**
+   * Test-observability accessor for the once-per-session publish guard.
+   * The capstone E2E test asserts double-publish suppression by reading
+   * this flag.
+   */
+  hasPublishedOutcome(): boolean {
+    return this.outcomePublished;
   }
 
   isGameOver(): boolean {
@@ -446,5 +588,36 @@ export class InteractiveSession {
       startedAt: this.startedAt,
       endedAt: new Date().toISOString(),
     });
+  }
+
+  /**
+   * Per `add-combat-outcome-model` task 3.1: derive the campaign-facing
+   * `ICombatOutcome` for the just-finished match. Only valid once the
+   * session has reached `GameStatus.Completed`; throws
+   * `CombatNotCompleteError` otherwise so callers cannot accidentally
+   * persist outcomes mid-match.
+   *
+   * `options.contractId` / `options.scenarioId` are the Wave 5 wiring
+   * hooks: the engine never knows them, but the campaign orchestrator
+   * passes them through here so the persisted outcome is self-describing.
+   */
+  getOutcome(options: IDeriveCombatOutcomeOptions = {}): ICombatOutcome {
+    if (!this.isGameOver()) {
+      throw new CombatNotCompleteError();
+    }
+    // Wave 5: ensure the session reaches `Completed` and the bus event
+    // fires before we return — keeps `getOutcome()` as a one-stop entry
+    // for legacy callers (review page, tests) that don't go through the
+    // phase-transition methods.
+    this.tryFinalizeAndPublish();
+    // Merge caller-provided options with our linkage so explicit
+    // callsite overrides win (tests sometimes inject deterministic
+    // capturedAt values).
+    const merged: IDeriveCombatOutcomeOptions = {
+      contractId: options.contractId ?? this.linkage.contractId ?? undefined,
+      scenarioId: options.scenarioId ?? this.linkage.scenarioId ?? undefined,
+      capturedAt: options.capturedAt,
+    };
+    return deriveCombatOutcome(this.session, merged);
   }
 }

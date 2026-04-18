@@ -27,6 +27,7 @@ import {
 import {
   useCampaignDayReports,
   useClientReady,
+  usePendingOutcomes,
 } from './CampaignDashboardPage.hooks';
 import {
   CampaignHeaderContent,
@@ -36,6 +37,7 @@ import {
   CampaignRosterCard,
   CampaignStatsGrid,
 } from './CampaignDashboardPage.sections';
+import { PendingOutcomesBanner } from './PendingOutcomesBanner';
 
 export default function CampaignDashboardPage(): React.ReactElement {
   const router = useRouter();
@@ -54,6 +56,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const missionCount = rosterStore.getState().missionCount;
 
   const isClient = useClientReady();
+  const pendingOutcomes = usePendingOutcomes();
   const [isGenerating, setIsGenerating] = useState(false);
 
   const {
@@ -165,6 +168,8 @@ export default function CampaignDashboardPage(): React.ReactElement {
       }
     >
       <CampaignNavigation campaignId={campaign.id} currentPage="dashboard" />
+
+      <PendingOutcomesBanner outcomes={pendingOutcomes} />
 
       {dayReports.length > 0 && (
         <DayReportPanel
