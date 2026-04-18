@@ -10,7 +10,9 @@
       close → `pending`; on grace timer expiry → `timed-out`;
       post-fallback → `replaced-by-ai`
 - [ ] 1.3 `connected` seats appear in the UI with a green dot; `pending`
-      with a yellow pulse; `timed-out` with a red dot _(UI in Wave 5)_
+      with a yellow pulse; `timed-out` with a red dot → deferred:
+      lobby UI shipped without per-seat connection-status pips; UI
+      indicator pass is a follow-up
 
 ## 2. Grace Window Configuration
 
@@ -22,7 +24,9 @@
 - [ ] 2.3 Host may adjust the grace window via
       `Intent {kind: 'SetGraceWindow', seconds}`, clamped to `[30,
 600]`; can NOT be adjusted once a timer is already running for
-      that seat _(deferred — single-tenant constant for now)_
+      that seat → deferred: single-tenant constant
+      (`RECONNECT_GRACE_MS = 120_000`) is sufficient for Phase 4;
+      per-host adjustability is a follow-up
 
 ## 3. Server-Side Persistence Hooks
 
@@ -31,11 +35,12 @@
       Wave 1; verified in this change)_
 - [ ] 3.2 On server restart, hosts load their session from the store
       (via `IMatchStore.getEvents`) before accepting new connections
-      _(deferred — `InMemoryMatchStore` is volatile by design; persistent
-      store is a future change per proposal non-goals)_
+      → deferred: `InMemoryMatchStore` is volatile by design;
+      persistent store is a future change per proposal non-goals
 - [ ] 3.3 A health check endpoint `/api/multiplayer/matches/:id/status`
       returns `{status, seats, connectionStatuses, lastEventSeq}` for
-      monitoring dashboards _(deferred to ops follow-up)_
+      monitoring dashboards → deferred: ops monitoring follow-up
+      (no dashboard consumers exist yet)
 
 ## 4. Reconnect Handshake
 
@@ -68,8 +73,9 @@ reason}`
       pending, broadcasts `LobbyUpdated` + `MatchResumed` - `ForfeitMatch {}` → concedes the host's opposite side and ends
       the match with `GameEnded`
 - [ ] 6.3 If the host does not respond within 60 seconds of the timeout
-      prompt, default behavior is `'replace-with-ai'` _(deferred — Wave
-      4 leaves the match paused indefinitely until host acts)_
+      prompt, default behavior is `'replace-with-ai'` → deferred:
+      match remains paused indefinitely until host acts; auto-default
+      timer is a follow-up
 
 ## 7. Identity-Gated Rejoin
 
@@ -78,9 +84,10 @@ reason}`
       Wave 2 token-verified upgrade path; `attachSocket` only clears
       pending for the verified `playerId`)_
 - [ ] 7.2 If the match has `replaced-by-ai` for that seat, the seat's
-      original `playerId` cannot reclaim it during the match _(implicit
-      — a non-`human` seat will not match the pending lookup; explicit
-      rejection deferred)_
+      original `playerId` cannot reclaim it during the match →
+      deferred: implicit reject (a non-`human` seat will not match
+      the pending lookup); explicit "seat replaced by AI" error is
+      a follow-up
 - [x] 7.3 The match meta retains the original `playerId` so
       post-match summaries correctly attribute performance _(seats are
       not nulled on drop; only on `MarkSeatAi` does occupant flip)_
@@ -89,12 +96,12 @@ reason}`
 
 - [ ] 8.1 If a player's old socket is still open and they reconnect
       from a second device with the same `playerId`, the old socket
-      is closed first _(deferred — Wave 4 supports the canonical
-      drop-then-reconnect path; multi-device same-player needs an
-      explicit `Close{SUPERSEDED_BY_NEW_SESSION}` step)_
-- [ ] 8.2 This supports "laptop → phone while afk" scenarios _(deferred)_
+      is closed first → deferred: canonical drop-then-reconnect
+      works; multi-device-same-player supersede is a follow-up
+- [ ] 8.2 This supports "laptop → phone while afk" scenarios →
+      deferred: depends on 8.1
 - [ ] 8.3 Close reason sent to old socket: `Close {reason: 'SUPERSEDED
-_BY_NEW_SESSION'}` _(deferred)_
+_BY_NEW_SESSION'}` → deferred: depends on 8.1
 
 ## 9. Client Auto-Reconnect
 
@@ -105,18 +112,21 @@ _BY_NEW_SESSION'}` _(deferred)_
       the right place _(state.lastSeq high-water mark; passed in
       SessionJoin envelope)_
 - [ ] 9.3 Client emits `reconnecting` / `reconnected` / `reconnect-
-failed` lifecycle events the UI can surface _(only `reconnect` is
-      emitted today; the rest deferred to Wave 5 hook)_
+failed` lifecycle events the UI can surface → deferred: only
+      `reconnect` is emitted today; richer lifecycle hooks are a
+      UX follow-up
 
 ## 10. UI Indicators
 
 - [ ] 10.1 Combat page shows a banner when the match is paused:
       `"Paused: waiting for <PlayerName> to reconnect (NN seconds
-remaining)"`
+remaining)"` → deferred: combat page UI not yet built
 - [ ] 10.2 Seat pips in the scoreboard reflect `connectionStatus`
-      colors
+      colors → deferred: depends on 10.1 + UI indicator pass
 - [ ] 10.3 Host sees the grace-timeout prompt as a modal with the
-      three fallback options
+      three fallback options → deferred: depends on 10.1; host
+      currently must invoke `MarkSeatAi` / `ForfeitMatch` programmat-
+      ically through `useMultiplayerSession`
 
 ## 11. Tests
 
@@ -128,18 +138,21 @@ remaining)"`
 - [x] 11.3 Integration test: host `ForfeitMatch` ends the match
       cleanly with a `GameEnded` event _(reconnectionFlow.test.ts)_
 - [ ] 11.4 Integration test: server restart with an active match;
-      client reconnects and receives the full log replay _(deferred —
-      requires persistent store; non-goal per proposal)_
+      client reconnects and receives the full log replay → deferred:
+      requires persistent store (proposal non-goal)
 - [ ] 11.5 Integration test: multi-device reconnect closes the old
-      socket with `SUPERSEDED_BY_NEW_SESSION` _(deferred — see 8.1)_
+      socket with `SUPERSEDED_BY_NEW_SESSION` → deferred: see 8.1
 
 ## 12. Spec Compliance
 
 - [ ] 12.1 Every requirement in the `multiplayer-server` delta has at
-      least one GIVEN/WHEN/THEN scenario
+      least one GIVEN/WHEN/THEN scenario → deferred: scenario
+      backfill at archive time
 - [ ] 12.2 Every requirement in the `game-session-management` delta
-      has at least one GIVEN/WHEN/THEN scenario
+      has at least one GIVEN/WHEN/THEN scenario → deferred: same as
+      12.1
 - [ ] 12.3 Every requirement in the `auto-save-persistence` delta has
-      at least one GIVEN/WHEN/THEN scenario
+      at least one GIVEN/WHEN/THEN scenario → deferred: same as 12.1
 - [ ] 12.4 `openspec validate add-reconnection-and-session-rehydration
---strict` passes clean
+--strict` passes clean → deferred: run as part of archive step
+      (non-strict validate run during this audit pass)
