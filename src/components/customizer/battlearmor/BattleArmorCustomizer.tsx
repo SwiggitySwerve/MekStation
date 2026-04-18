@@ -2,30 +2,42 @@
  * Battle Armor Customizer Component
  *
  * Main component for customizing Battle Armor units.
- * Provides tabbed interface for structure, squad, and special systems.
+ * Tab set is data-driven from BATTLE_ARMOR_TABS registry — construction
+ * proposals wire real content by updating the registry, not this file.
  *
+ * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { StoreApi } from 'zustand';
+import React, { useCallback } from "react";
+import { StoreApi } from "zustand";
 
-// Store
+import { toCustomizerTabConfigs } from "@/components/customizer/shared/TabSpec";
+import { BATTLE_ARMOR_TABS } from "@/components/customizer/shared/tabRegistry";
+import { CustomizerTabs } from "@/components/customizer/tabs/CustomizerTabs";
+import { useCustomizerTabs } from "@/hooks/useCustomizerTabs";
 import {
   BattleArmorStoreContext,
   BattleArmorStore,
-} from '@/stores/useBattleArmorStore';
+} from "@/stores/useBattleArmorStore";
 
-import { BattleArmorDiagram } from './BattleArmorDiagram';
-import { BattleArmorSquadTab } from './BattleArmorSquadTab';
-// Components
-import { BattleArmorStructureTab } from './BattleArmorStructureTab';
+import { BattleArmorDiagram } from "./BattleArmorDiagram";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export type BattleArmorTabId = 'structure' | 'squad';
+/** Tab ids available in the Battle Armor customizer */
+export type BattleArmorTabId =
+  | "overview"
+  | "chassis"
+  | "squad"
+  | "manipulators"
+  | "modularWeapons"
+  | "apWeapons"
+  | "jumpUMU"
+  | "preview"
+  | "fluff";
 
 interface BattleArmorCustomizerProps {
   /** Battle Armor store instance */
@@ -40,108 +52,68 @@ interface BattleArmorCustomizerProps {
   className?: string;
 }
 
-interface TabDefinition {
-  id: BattleArmorTabId;
-  label: string;
-  shortLabel: string;
-}
-
-// =============================================================================
-// Constants
-// =============================================================================
-
-const BATTLE_ARMOR_TABS: TabDefinition[] = [
-  { id: 'structure', label: 'Structure & Chassis', shortLabel: 'Structure' },
-  { id: 'squad', label: 'Squad & Equipment', shortLabel: 'Squad' },
-];
-
-// =============================================================================
-// Tab Button Component
-// =============================================================================
-
-interface TabButtonProps {
-  tab: TabDefinition;
-  isActive: boolean;
-  onClick: () => void;
-}
-
-function TabButton({
-  tab,
-  isActive,
-  onClick,
-}: TabButtonProps): React.ReactElement {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
-        isActive
-          ? 'bg-accent border-accent border-b-2 text-white'
-          : 'text-text-theme-secondary hover:bg-surface-raised/50 hover:text-white'
-      } `}
-    >
-      <span className="hidden sm:inline">{tab.label}</span>
-      <span className="sm:hidden">{tab.shortLabel}</span>
-    </button>
-  );
-}
-
 // =============================================================================
 // Main Component
 // =============================================================================
 
 /**
- * Main Battle Armor customizer with tabbed interface
+ * Main Battle Armor customizer with registry-driven tabbed interface.
+ *
+ * Battle Armor tabs have no visibleWhen predicates in the current registry,
+ * so state passed to the hook is an empty object.
  */
 export function BattleArmorCustomizer({
   store,
-  initialTab = 'structure',
+  initialTab = "chassis",
   onTabChange,
   readOnly = false,
-  className = '',
+  className = "",
 }: BattleArmorCustomizerProps): React.ReactElement {
-  // Local state for active tab
-  const [activeTab, setActiveTab] = useState<BattleArmorTabId>(initialTab);
+  const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
+    useCustomizerTabs({
+      specs: BATTLE_ARMOR_TABS,
+      state: {},
+      initialTabId: initialTab,
+    });
 
-  // Handle tab change
+  const tabConfigs = toCustomizerTabConfigs(visibleSpecs);
+
   const handleTabChange = useCallback(
-    (tabId: BattleArmorTabId) => {
+    (tabId: string) => {
       setActiveTab(tabId);
-      onTabChange?.(tabId);
+      onTabChange?.(tabId as BattleArmorTabId);
     },
-    [onTabChange],
+    [setActiveTab, onTabChange],
   );
 
-  // Get current tab content
-  const tabContent = useMemo(() => {
-    switch (activeTab) {
-      case 'structure':
-        return <BattleArmorStructureTab readOnly={readOnly} />;
-      case 'squad':
-        return <BattleArmorSquadTab readOnly={readOnly} />;
-      default:
-        return <BattleArmorStructureTab readOnly={readOnly} />;
-    }
-  }, [activeTab, readOnly]);
+  const activeSpec =
+    visibleSpecs.find((s) => s.id === activeTab) ?? visibleSpecs[0];
+  const TabComponent = activeSpec?.component;
 
   return (
     <BattleArmorStoreContext.Provider value={store}>
       <div className={`flex h-full flex-col ${className}`}>
         {/* Tab Bar */}
-        <div className="border-border-theme bg-surface-base flex items-center overflow-x-auto border-b">
-          {BATTLE_ARMOR_TABS.map((tab) => (
-            <TabButton
-              key={tab.id}
-              tab={tab}
-              isActive={activeTab === tab.id}
-              onClick={() => handleTabChange(tab.id)}
-            />
-          ))}
-        </div>
+        <CustomizerTabs
+          tabs={tabConfigs}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          readOnly={readOnly}
+          dirtyTabs={dirtyTabs}
+          errorTabs={errorTabs}
+        />
 
         {/* Main Content Area */}
         <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* Tab Content */}
-          <div className="flex-1 overflow-auto p-4">{tabContent}</div>
+          <div
+            className="flex-1 overflow-auto p-4"
+            role="tabpanel"
+            id={`tabpanel-${activeTab}`}
+            aria-labelledby={activeTab}
+          >
+            {TabComponent && <TabComponent readOnly={readOnly} />}
+          </div>
 
           {/* Diagram Sidebar (visible on large screens) */}
           <div className="border-border-theme bg-surface-base hidden w-64 overflow-auto border-l p-4 lg:block">
