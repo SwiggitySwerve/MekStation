@@ -17,6 +17,8 @@ import {
   getEngineDefinition,
 } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { validateVehicleConstruction } from '@/utils/construction/vehicle/vehicleValidation';
 
 // =============================================================================
 // Types
@@ -120,6 +122,9 @@ export function VehicleStatusBar({
   const armorAllocation = useVehicleStore((s) => s.armorAllocation);
   const turret = useVehicleStore((s) => s.turret);
   const equipment = useVehicleStore((s) => s.equipment);
+  const crewSize = useVehicleStore((s) => s.crewSize);
+  const structureType = useVehicleStore((s) => s.structureType);
+  const powerAmpWeight = useVehicleStore((s) => s.powerAmpWeight);
 
   // Derived state
   const isVTOL = motionType === GroundMotionType.VTOL;
@@ -179,6 +184,40 @@ export function VehicleStatusBar({
       unallocated: available - allocated,
     };
   }, [armorAllocation, hasTurret, armorType, armorTonnage]);
+
+  // Run full VAL-VEHICLE-* validation — result surfaced in status bar
+  const validationResult = useMemo(
+    () =>
+      validateVehicleConstruction({
+        tonnage,
+        motionType,
+        engineType,
+        cruiseMP,
+        turretType: turret?.type ?? TurretType.NONE,
+        turretEquipmentWeight: 0, // equipment weights not fully resolved here
+        turretStructureWeight: turret?.currentWeight ?? 0,
+        secondaryTurretEquipmentWeight: 0,
+        secondaryTurretStructureWeight: 0,
+        armorType,
+        armorAllocation: armorAllocation as Record<string, number>,
+        crewSize,
+        energyWeaponWeight: 0, // resolved by equipment tab; power amp check deferred
+        powerAmpWeight,
+        structureType,
+      }),
+    [
+      tonnage,
+      motionType,
+      engineType,
+      cruiseMP,
+      turret,
+      armorType,
+      armorAllocation,
+      crewSize,
+      powerAmpWeight,
+      structureType,
+    ],
+  );
 
   // Determine status indicators
   const weightStatus =
@@ -291,6 +330,22 @@ export function VehicleStatusBar({
 
       {/* Equipment Count */}
       <StatusItem label="Equipment" value={equipment.length} subValue="items" />
+
+      {/* Validation Status */}
+      <StatusItem
+        label="Valid"
+        value={
+          validationResult.isValid
+            ? 'OK'
+            : `${validationResult.errors.length} err`
+        }
+        subValue={
+          validationResult.isValid
+            ? 'passes'
+            : validationResult.errors[0]?.ruleId
+        }
+        status={validationResult.isValid ? 'success' : 'error'}
+      />
     </div>
   );
 }

@@ -12,7 +12,13 @@ import { create, StoreApi, useStore } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { IInfantryFieldGun } from '@/types/unit/PersonnelInterfaces';
+import { IInfantryFieldGun } from '@/types/unit/InfantryInterfaces';
+import {
+  InfantryMotive,
+  IPlatoonComposition,
+  PLATOON_DEFAULTS,
+  MOTIVE_MP,
+} from '@/types/unit/InfantryInterfaces';
 
 import {
   InfantryState,
@@ -137,6 +143,42 @@ export function createInfantryStore(
             jumpMP: Math.max(0, jumpMP),
             isModified: true,
             lastModifiedAt: Date.now(),
+          }),
+
+        // -----------------------------------------------------------------
+        // Infantry Motive / Composition Actions
+        // -----------------------------------------------------------------
+
+        setInfantryMotive: (motive: InfantryMotive) =>
+          set({
+            infantryMotive: motive,
+            // Re-derive composition defaults from TechManual tables
+            platoonComposition: PLATOON_DEFAULTS[motive],
+            // Re-derive MP from motive
+            groundMP: MOTIVE_MP[motive].groundMP,
+            jumpMP: MOTIVE_MP[motive].jumpMP,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setPlatoonComposition: (comp: IPlatoonComposition) =>
+          set({
+            platoonComposition: comp,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setFieldGunAmmo: (idx: number, rounds: number) =>
+          set((state) => {
+            if (idx < 0 || idx >= state.fieldGuns.length) return {};
+            const updated = state.fieldGuns.map((g, i) =>
+              i === idx ? { ...g, ammoRounds: Math.max(0, rounds) } : g,
+            );
+            return {
+              fieldGuns: updated,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
           }),
 
         // =================================================================
@@ -265,6 +307,8 @@ export function createInfantryStore(
           squadSize: state.squadSize,
           numberOfSquads: state.numberOfSquads,
           motionType: state.motionType,
+          infantryMotive: state.infantryMotive,
+          platoonComposition: state.platoonComposition,
           groundMP: state.groundMP,
           jumpMP: state.jumpMP,
           primaryWeapon: state.primaryWeapon,

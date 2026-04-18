@@ -197,6 +197,13 @@ export function createBattleArmorStore(
             lastModifiedAt: Date.now(),
           }),
 
+        setBaArmorType: (baArmorType) =>
+          set({
+            baArmorType,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
         setArmorPerTrooper: (armorPerTrooper) =>
           set({
             armorPerTrooper: Math.max(0, armorPerTrooper),
@@ -362,6 +369,7 @@ export function createBattleArmorStore(
           leftManipulator: state.leftManipulator,
           rightManipulator: state.rightManipulator,
           armorType: state.armorType,
+          baArmorType: state.baArmorType,
           armorPerTrooper: state.armorPerTrooper,
           hasAPMount: state.hasAPMount,
           hasModularMount: state.hasModularMount,

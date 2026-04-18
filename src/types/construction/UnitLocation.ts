@@ -145,6 +145,10 @@ export enum BattleArmorLocation {
   LEFT_ARM = 'Left Arm',
   /** Right arm/manipulator */
   RIGHT_ARM = 'Right Arm',
+  /** Left leg — AP weapons only */
+  LEFT_LEG = 'Left Leg',
+  /** Right leg — AP weapons only */
+  RIGHT_LEG = 'Right Leg',
   /** Turret mount (if equipped) */
   TURRET = 'Turret',
 }

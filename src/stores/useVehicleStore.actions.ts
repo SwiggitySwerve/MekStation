@@ -2,12 +2,18 @@ import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
+import { IEquipmentItem } from '@/types/equipment';
+import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   TurretType,
   ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
+import {
+  computePowerAmplifierWeight,
+  requiresPowerAmplifiers,
+} from '@/utils/construction/vehicle/powerAmplifier';
 
 import {
   getVehicleWeightClass,
@@ -224,6 +230,46 @@ export function autoAllocateArmorLogic(
 
   return {
     armorAllocation: newAllocation,
+    isModified: true,
+    lastModifiedAt: Date.now(),
+  };
+}
+
+/**
+ * Recompute powerAmpWeight from the currently mounted equipment.
+ *
+ * Accepts the resolved catalog items so the store doesn't need direct
+ * access to the equipment database. The caller (UI or action dispatcher)
+ * resolves each mounted equipmentId to its full IEquipmentItem before
+ * invoking this logic.  If resolvedItems is omitted powerAmpWeight resets to 0.
+ */
+export function derivePowerAmpWeightLogic(
+  state: VehicleStore,
+  resolvedItems?: IEquipmentItem[],
+): Partial<VehicleStore> {
+  if (!requiresPowerAmplifiers(state.engineType) || !resolvedItems) {
+    // Fusion engines need no power amps; also reset when items unavailable
+    return {
+      powerAmpWeight: 0,
+      isModified: true,
+      lastModifiedAt: Date.now(),
+    };
+  }
+
+  // Build a set of mounted equipmentIds for quick lookup
+  const mountedIds = new Set(state.equipment.map((e) => e.equipmentId));
+
+  // Sum weights of energy weapons that are actually mounted on this vehicle
+  const totalEnergyWeight = resolvedItems
+    .filter(
+      (item) =>
+        mountedIds.has(item.id) &&
+        item.category === EquipmentCategory.ENERGY_WEAPON,
+    )
+    .reduce((sum, item) => sum + item.weight, 0);
+
+  return {
+    powerAmpWeight: computePowerAmplifierWeight(totalEnergyWeight),
     isModified: true,
     lastModifiedAt: Date.now(),
   };

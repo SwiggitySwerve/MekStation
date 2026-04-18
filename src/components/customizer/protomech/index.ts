@@ -8,6 +8,13 @@
 
 // Main customizer
 export { ProtoMechCustomizer } from './ProtoMechCustomizer';
+export type { ProtoMechTabId } from './ProtoMechCustomizer';
 
-// Individual tabs
+// Individual tabs (existing)
 export { ProtoMechStructureTab } from './ProtoMechStructureTab';
+
+// Placeholder tabs (wired by add-protomech-construction)
+export { ProtoMechArmorTab } from './ProtoMechArmorTab';
+export { ProtoMechMainGunTab } from './ProtoMechMainGunTab';
+export { ProtoMechEquipmentTab } from './ProtoMechEquipmentTab';
+export { ProtoMechGliderTab } from './ProtoMechGliderTab';

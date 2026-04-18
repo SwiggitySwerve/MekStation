@@ -1,3 +1,6 @@
+// TODO: This file is superseded by src/components/gameplay/UnitToken/UnitTokenForType.tsx.
+// It remains only because addDamageFeedbackPolish.smoke.test.tsx imports UnitTokenComponent
+// from here. Remove once that smoke test is migrated to UnitTokenForType.
 import React, { useMemo } from 'react';
 
 import type {

@@ -400,8 +400,10 @@ describe('BattleArmorUnitHandler', () => {
       expect(locations).toContain(BattleArmorLocation.BODY);
       expect(locations).toContain(BattleArmorLocation.LEFT_ARM);
       expect(locations).toContain(BattleArmorLocation.RIGHT_ARM);
+      expect(locations).toContain(BattleArmorLocation.LEFT_LEG);
+      expect(locations).toContain(BattleArmorLocation.RIGHT_LEG);
       expect(locations).toContain(BattleArmorLocation.TURRET);
-      expect(locations.length).toBe(5);
+      expect(locations.length).toBe(7);
     });
   });
 

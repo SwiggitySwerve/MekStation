@@ -9,6 +9,7 @@ import type {
   IHex,
 } from '@/types/gameplay';
 
+import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForType';
 import { TerrainType } from '@/types/gameplay';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
@@ -21,7 +22,6 @@ import {
   TerrainPatternDefs,
 } from './Overlays';
 import { generateHexesInRadius, hexEquals, hexInList } from './renderHelpers';
-import { UnitTokenComponent } from './UnitToken';
 import { useMapInteraction } from './useMapInteraction';
 
 export interface HexMapDisplayProps {
@@ -194,10 +194,11 @@ export function HexMapDisplay({
 
         <g>
           {tokens.map((token) => (
-            <UnitTokenComponent
+            <UnitTokenForType
               key={token.unitId}
               token={token}
-              onClick={() => handleTokenClick(token.unitId)}
+              onClick={handleTokenClick}
+              allTokens={tokens}
             />
           ))}
         </g>

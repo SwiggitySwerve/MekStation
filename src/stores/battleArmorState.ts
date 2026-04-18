@@ -12,6 +12,7 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { IEquipmentItem } from '@/types/equipment';
 import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { BAArmorType } from '@/types/unit/BattleArmorInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   BattleArmorChassisType,
@@ -132,8 +133,11 @@ export interface BattleArmorState {
   // Armor
   // =========================================================================
 
-  /** Armor type code */
+  /** Armor type code (legacy numeric; use baArmorType for typed access) */
   armorType: number;
+
+  /** Typed armor type for construction validation */
+  baArmorType: BAArmorType;
 
   /** Armor points per trooper */
   armorPerTrooper: number;
@@ -224,6 +228,8 @@ export interface BattleArmorStoreActions {
 
   // Armor Actions
   setArmorType: (type: number) => void;
+  /** Set the typed BA armor type used by construction validation */
+  setBaArmorType: (type: BAArmorType) => void;
   setArmorPerTrooper: (points: number) => void;
 
   // Mount Actions
@@ -320,6 +326,7 @@ export function createDefaultBattleArmorState(
 
     // Armor
     armorType: 0, // Standard BA armor
+    baArmorType: BAArmorType.STANDARD,
     armorPerTrooper: 5,
 
     // Mount Options

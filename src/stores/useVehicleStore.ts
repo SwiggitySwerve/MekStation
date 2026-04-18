@@ -26,16 +26,19 @@ import {
 
 // Re-export types for convenience
 export type { VehicleStore } from './vehicleState';
+import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
+
 import {
   autoAllocateArmorLogic,
+  clearAllArmorLogic,
+  derivePowerAmpWeightLogic,
+  setCruiseMPLogic,
+  setEngineRatingLogic,
+  setLocationArmorLogic,
   setMotionTypeLogic,
+  setTonnageLogic,
   setTurretTypeLogic,
   setTurretWeightLogic,
-  setTonnageLogic,
-  setEngineRatingLogic,
-  setCruiseMPLogic,
-  setLocationArmorLogic,
-  clearAllArmorLogic,
   updateEquipmentLocationLogic,
 } from './useVehicleStore.actions';
 
@@ -171,6 +174,41 @@ export function createVehicleStore(
         autoAllocateArmor: () => set((state) => autoAllocateArmorLogic(state)),
 
         clearAllArmor: () => set((state) => clearAllArmorLogic(state)),
+
+        // =================================================================
+        // Construction Field Actions
+        // =================================================================
+
+        setStructureType: (structureType: VehicleStructureType) =>
+          set({
+            structureType,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setCrewSize: (crewSize: number) =>
+          set({
+            crewSize: Math.max(0, crewSize),
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setPassengerSlots: (passengerSlots: number) =>
+          set({
+            passengerSlots: Math.max(0, passengerSlots),
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setBarRating: (barRating: number | null) =>
+          set({
+            barRating,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        derivePowerAmpWeight: (resolvedItems?: IEquipmentItem[]) =>
+          set((state) => derivePowerAmpWeightLogic(state, resolvedItems)),
 
         // =================================================================
         // Special Features Actions
@@ -322,6 +360,11 @@ export function createVehicleStore(
           isAmphibious: state.isAmphibious,
           hasTrailerHitch: state.hasTrailerHitch,
           isTrailer: state.isTrailer,
+          structureType: state.structureType,
+          crewSize: state.crewSize,
+          passengerSlots: state.passengerSlots,
+          barRating: state.barRating,
+          powerAmpWeight: state.powerAmpWeight,
           equipment: state.equipment,
           isModified: state.isModified,
           createdAt: state.createdAt,

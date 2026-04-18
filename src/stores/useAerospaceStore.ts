@@ -17,6 +17,12 @@ import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { IEquipmentItem } from '@/types/equipment';
+import {
+  AerospaceEngineType,
+  AerospaceSubType,
+  ISmallCraftCrew,
+} from '@/types/unit/AerospaceInterfaces';
+import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
 import { generateUnitId } from '@/utils/uuid';
 
 import {
@@ -143,6 +149,13 @@ export function createAerospaceStore(
             lastModifiedAt: Date.now(),
           }),
 
+        setAerospaceSubType: (subType: AerospaceSubType) =>
+          set({
+            aerospaceSubType: subType,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
         // =================================================================
         // Engine & Movement Actions
         // =================================================================
@@ -172,12 +185,32 @@ export function createAerospaceStore(
             lastModifiedAt: Date.now(),
           })),
 
+        setAerospaceEngineType: (type: AerospaceEngineType) =>
+          set((state) => ({
+            aerospaceEngineType: type,
+            // Recompute fuel points when engine type changes (different points/ton)
+            fuelPoints: calculateFuelPoints(state.fuelTons, type),
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          })),
+
         setFuel: (fuel) =>
           set({
             fuel: Math.max(0, fuel),
             isModified: true,
             lastModifiedAt: Date.now(),
           }),
+
+        setFuelTons: (tons: number) =>
+          set((state) => ({
+            fuelTons: Math.max(0, tons),
+            fuelPoints: calculateFuelPoints(
+              Math.max(0, tons),
+              state.aerospaceEngineType,
+            ),
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          })),
 
         // =================================================================
         // Structure & Cockpit Actions
@@ -207,6 +240,17 @@ export function createAerospaceStore(
         setDoubleHeatSinks: (value) =>
           set({
             doubleHeatSinks: value,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        // =================================================================
+        // Crew Actions (small craft only)
+        // =================================================================
+
+        setCrew: (crew: ISmallCraftCrew | null) =>
+          set({
+            crew,
             isModified: true,
             lastModifiedAt: Date.now(),
           }),
@@ -393,12 +437,15 @@ export function createAerospaceStore(
           tonnage: state.tonnage,
           techBase: state.techBase,
           unitType: state.unitType,
+          aerospaceSubType: state.aerospaceSubType,
           motionType: state.motionType,
           isOmni: state.isOmni,
           engineType: state.engineType,
+          aerospaceEngineType: state.aerospaceEngineType,
           engineRating: state.engineRating,
           safeThrust: state.safeThrust,
           fuel: state.fuel,
+          fuelTons: state.fuelTons,
           structuralIntegrity: state.structuralIntegrity,
           cockpitType: state.cockpitType,
           heatSinks: state.heatSinks,
@@ -410,6 +457,7 @@ export function createAerospaceStore(
           bombCapacity: state.bombCapacity,
           hasReinforcedCockpit: state.hasReinforcedCockpit,
           hasEjectionSeat: state.hasEjectionSeat,
+          crew: state.crew,
           equipment: state.equipment,
           isModified: state.isModified,
           createdAt: state.createdAt,

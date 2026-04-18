@@ -10,10 +10,14 @@
 export { AerospaceCustomizer } from './AerospaceCustomizer';
 export type { AerospaceTabId } from './AerospaceCustomizer';
 
-// Individual tabs
+// Individual tabs (existing)
 export { AerospaceStructureTab } from './AerospaceStructureTab';
 export { AerospaceArmorTab } from './AerospaceArmorTab';
 export { AerospaceEquipmentTab } from './AerospaceEquipmentTab';
+
+// Placeholder tabs (wired by add-aerospace-construction)
+export { AerospaceVelocityTab } from './AerospaceVelocityTab';
+export { AerospaceBombTab } from './AerospaceBombTab';
 
 // Utility components
 export { AerospaceDiagram } from './AerospaceDiagram';

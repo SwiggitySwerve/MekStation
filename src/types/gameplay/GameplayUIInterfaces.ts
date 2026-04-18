@@ -63,7 +63,57 @@ export function getLayoutForPhase(phase: GamePhase): Partial<ILayoutConfig> {
 // =============================================================================
 
 /**
+ * Unit type discriminator for per-type token rendering.
+ * Aligns with BattleTech unit classifications.
+ */
+export enum TokenUnitType {
+  Mech = 'mech',
+  Vehicle = 'vehicle',
+  Aerospace = 'aerospace',
+  BattleArmor = 'battle_armor',
+  Infantry = 'infantry',
+  ProtoMech = 'protomech',
+}
+
+/**
+ * Vehicle motion type — determines the icon overlay on a VehicleToken
+ * and applies the appropriate movement rules.
+ */
+export enum VehicleMotionType {
+  Tracked = 'tracked',
+  Wheeled = 'wheeled',
+  Hover = 'hover',
+  VTOL = 'vtol',
+  Naval = 'naval',
+  WiGE = 'wige',
+}
+
+/**
+ * Infantry motive type — determines the badge shown on an InfantryToken.
+ */
+export enum InfantryMotiveType {
+  Foot = 'foot',
+  Motorized = 'motorized',
+  Jump = 'jump',
+  Mechanized = 'mechanized',
+  Beast = 'beast',
+}
+
+/**
+ * Infantry specialization — optional icon overlay on InfantryToken.
+ */
+export enum InfantryTokenSpecialization {
+  AntiMech = 'anti_mech',
+  Marine = 'marine',
+  Scuba = 'scuba',
+  Mountain = 'mountain',
+  XCT = 'xct',
+}
+
+/**
  * Visual token representing a unit on the hex map.
+ * Extended with per-type discriminated data so token renderers receive
+ * everything they need without querying outside the token prop.
  */
 export interface IUnitToken {
   /** Unit ID */
@@ -84,6 +134,69 @@ export interface IUnitToken {
   readonly isDestroyed: boolean;
   /** Short designation (e.g., "ATL-1") */
   readonly designation: string;
+  /**
+   * Unit type discriminator. Defaults to `TokenUnitType.Mech` when absent
+   * so Phase-1 callers remain unmodified.
+   */
+  readonly unitType?: TokenUnitType;
+
+  // -------------------------------------------------------------------------
+  // Vehicle-specific fields (present when unitType === TokenUnitType.Vehicle)
+  // -------------------------------------------------------------------------
+  /** Vehicle motion type — used for icon overlay. */
+  readonly vehicleMotionType?: VehicleMotionType;
+  /** Turret facing in 8-directions (0=N, 1=NE, …, 7=NW). Absent if no turret. */
+  readonly turretFacing?: number;
+
+  // -------------------------------------------------------------------------
+  // Aerospace-specific fields (present when unitType === TokenUnitType.Aerospace)
+  // -------------------------------------------------------------------------
+  /**
+   * Current altitude level (0–10). 0 = landed.
+   * TODO: wire from aerospace combat-behavior proposal when landed.
+   */
+  readonly altitude?: number;
+  /**
+   * Current velocity in thrust points.
+   * TODO: wire from aerospace combat-behavior proposal.
+   */
+  readonly velocity?: number;
+
+  // -------------------------------------------------------------------------
+  // BattleArmor-specific fields (present when unitType === TokenUnitType.BattleArmor)
+  // -------------------------------------------------------------------------
+  /**
+   * ID of the unit this BA is mounted on. When set, the BA token renders
+   * as a passenger badge on the host mech rather than a standalone token.
+   * TODO: wire from battlearmor combat-behavior proposal.
+   */
+  readonly mountedOn?: string;
+  /** Number of surviving troopers (1–6). */
+  readonly trooperCount?: number;
+  /** Is jump / UMU movement active this turn? */
+  readonly jumpActive?: boolean;
+
+  // -------------------------------------------------------------------------
+  // Infantry-specific fields (present when unitType === TokenUnitType.Infantry)
+  // -------------------------------------------------------------------------
+  /** Number of surviving troopers (1–30 for a platoon). */
+  readonly infantryCount?: number;
+  /** How many platoons share this hex (for stack indicator). */
+  readonly platoonCount?: number;
+  /** Motive type badge. */
+  readonly infantryMotiveType?: InfantryMotiveType;
+  /** Specialization icon. */
+  readonly infantrySpecialization?: InfantryTokenSpecialization;
+
+  // -------------------------------------------------------------------------
+  // ProtoMech-specific fields (present when unitType === TokenUnitType.ProtoMech)
+  // -------------------------------------------------------------------------
+  /** Number of surviving protos in this point (1–5). */
+  readonly protoCount?: number;
+  /** Glider variant — renders extended wings. */
+  readonly isGlider?: boolean;
+  /** Has main gun equipped. */
+  readonly hasMainGun?: boolean;
 }
 
 // =============================================================================

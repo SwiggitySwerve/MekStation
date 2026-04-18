@@ -7,7 +7,7 @@
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
-import { IRecordSheetData, PREVIEW_DPI_MULTIPLIER } from '@/types/printing';
+import { IMechRecordSheetData, PREVIEW_DPI_MULTIPLIER } from '@/types/printing';
 
 import { fillArmorPips } from './armor';
 import { renderToCanvasHighDPI } from './canvas';
@@ -35,7 +35,7 @@ export class SVGRecordSheetRenderer {
     addDocumentMargins(this.svgRoot);
   }
 
-  fillTemplate(data: IRecordSheetData): void {
+  fillTemplate(data: IMechRecordSheetData): void {
     if (!this.svgDoc || !this.svgRoot) {
       throw new Error('Template not loaded. Call loadTemplate first.');
     }
@@ -122,7 +122,7 @@ export class SVGRecordSheetRenderer {
   }
 
   async fillArmorPips(
-    armor: IRecordSheetData['armor'],
+    armor: IMechRecordSheetData['armor'],
     mechType?: string,
   ): Promise<void> {
     if (!this.svgDoc || !this.svgRoot) {
@@ -132,7 +132,7 @@ export class SVGRecordSheetRenderer {
   }
 
   async fillStructurePips(
-    structure: IRecordSheetData['structure'],
+    structure: IMechRecordSheetData['structure'],
     tonnage: number,
     mechType?: string,
   ): Promise<void> {

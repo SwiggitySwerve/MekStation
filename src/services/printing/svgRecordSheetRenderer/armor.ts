@@ -3,7 +3,7 @@
  * Handles loading pre-made armor pip SVGs and generating dynamic pips for non-biped mechs
  */
 
-import { IRecordSheetData } from '@/types/printing';
+import { IMechRecordSheetData } from '@/types/printing';
 import { logger } from '@/utils/logger';
 
 import { ArmorPipLayout } from '../ArmorPipLayout';
@@ -27,7 +27,7 @@ import { setTextContent } from './template';
 export async function fillArmorPips(
   svgDoc: Document,
   svgRoot: SVGSVGElement,
-  armor: IRecordSheetData['armor'],
+  armor: IMechRecordSheetData['armor'],
   mechType?: string,
 ): Promise<void> {
   // Fill armor text labels with armor point values
@@ -85,7 +85,7 @@ export async function fillArmorPips(
 async function loadAllArmorPips(
   svgDoc: Document,
   parentGroup: Element,
-  armor: IRecordSheetData['armor'],
+  armor: IMechRecordSheetData['armor'],
 ): Promise<void> {
   // Load pips for each armor location
   const pipPromises = armor.locations.map(async (loc) => {
@@ -178,7 +178,7 @@ async function loadAndInsertPips(
  */
 async function generateDynamicArmorPips(
   svgDoc: Document,
-  armor: IRecordSheetData['armor'],
+  armor: IMechRecordSheetData['armor'],
   mechType: string,
 ): Promise<void> {
   // Get the pip group IDs based on mech type

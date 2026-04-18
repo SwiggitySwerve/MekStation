@@ -20,7 +20,7 @@ import {
   fillStructurePips,
   generateStructurePipsForLocationFallback,
 } from '@/services/printing/svgRecordSheetRenderer/structure';
-import { IRecordSheetData, ILocationStructure } from '@/types/printing';
+import { IMechRecordSheetData, ILocationStructure } from '@/types/printing';
 import { logger } from '@/utils/logger';
 
 jest.mock('@/utils/logger', () => ({
@@ -102,7 +102,7 @@ const createMockSVGResponse = (
  */
 const createMockStructure = (
   locations: Array<{ abbreviation: string; points: number }>,
-): IRecordSheetData['structure'] => ({
+): IMechRecordSheetData['structure'] => ({
   type: 'Standard',
   totalPoints: locations.reduce((sum, loc) => sum + loc.points, 0),
   locations: locations.map(({ abbreviation, points }) => ({
@@ -117,7 +117,7 @@ const createMockStructure = (
  */
 const createBipedStructure = (
   tonnage: number = 50,
-): IRecordSheetData['structure'] => {
+): IMechRecordSheetData['structure'] => {
   // Standard IS points vary by tonnage, using simplified values for tests
   const isPoints: Record<string, number> = {
     HD: 3,
@@ -141,7 +141,7 @@ const createBipedStructure = (
 /**
  * Creates quad mech structure data
  */
-const createQuadStructure = (): IRecordSheetData['structure'] => {
+const createQuadStructure = (): IMechRecordSheetData['structure'] => {
   return createMockStructure([
     { abbreviation: 'HD', points: 3 },
     { abbreviation: 'CT', points: 25 },

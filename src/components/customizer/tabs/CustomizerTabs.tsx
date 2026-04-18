@@ -35,6 +35,18 @@ interface CustomizerTabsProps {
   readOnly?: boolean;
   className?: string;
   validationCounts?: ValidationCountsByTab;
+  /**
+   * Set of tab ids that have unsaved field changes.
+   * When a tab id is present here the label shows a yellow dirty marker (●).
+   * Satisfies Spec § Requirement: Tab Dirty Tracking.
+   */
+  dirtyTabs?: Set<string>;
+  /**
+   * Set of tab ids whose fields currently fail validation.
+   * When a tab id is present here the label shows a red error dot (●).
+   * Satisfies Spec § Requirement: Validation Error Markers.
+   */
+  errorTabs?: Set<string>;
 }
 
 // Simple SVG icons for mobile view
@@ -185,6 +197,8 @@ export function CustomizerTabs({
   readOnly = false,
   className = '',
   validationCounts,
+  dirtyTabs,
+  errorTabs,
 }: CustomizerTabsProps): React.ReactElement {
   const handleKeyDown = useTabKeyboardNavigation(tabs, activeTab, onTabChange);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -248,6 +262,28 @@ export function CustomizerTabs({
           >
             {tab.icon}
             <span className="hidden sm:inline">{tab.label}</span>
+            {/* Dirty marker — yellow dot for unsaved changes */}
+            {dirtyTabs?.has(tab.id) && (
+              <span
+                className="ml-1 text-yellow-400"
+                aria-label="Unsaved changes"
+                role="img"
+                title="Unsaved changes"
+              >
+                ●
+              </span>
+            )}
+            {/* Validation error marker — red dot for failing constraints */}
+            {errorTabs?.has(tab.id) && (
+              <span
+                className="ml-1 text-red-500"
+                aria-label="Validation error"
+                role="img"
+                title="Validation error"
+              >
+                ●
+              </span>
+            )}
             {validationCounts && (
               <ValidationTabBadge
                 counts={

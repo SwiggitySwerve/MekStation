@@ -14,6 +14,12 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import {
+  effectiveWalkMP,
+  getProtoMPCaps,
+  getProtoWeightClass,
+} from '@/utils/construction/protomech';
 import { generateUnitId } from '@/utils/uuid';
 
 import {
@@ -131,6 +137,34 @@ export function createProtoMechStore(
             lastModifiedAt: Date.now(),
           }),
 
+        setChassisType: (chassisType) =>
+          set((state) => {
+            const weightClass = getProtoWeightClass(state.tonnage);
+            const caps = getProtoMPCaps(weightClass);
+            // Clamp walk MP to new caps
+            const walkMP = Math.min(state.walkMP, caps.walkMax);
+            const effWalk = effectiveWalkMP(walkMP, state.hasMyomerBooster);
+            // Ultraheavy cannot jump; Glider gains +2 via effectiveJumpMP at display time
+            const jumpMP =
+              chassisType === ProtoChassis.ULTRAHEAVY ? 0 : state.jumpMP;
+            // Gliding wings only valid on Glider chassis
+            const glidingWings =
+              chassisType === ProtoChassis.GLIDER ? state.glidingWings : false;
+            return {
+              chassisType,
+              isQuad: chassisType === ProtoChassis.QUAD,
+              isGlider: chassisType === ProtoChassis.GLIDER,
+              walkMP,
+              cruiseMP: walkMP,
+              flankMP: effWalk + 1,
+              engineRating: state.tonnage * walkMP,
+              jumpMP,
+              glidingWings,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+
         // =================================================================
         // Movement Actions
         // =================================================================
@@ -152,6 +186,23 @@ export function createProtoMechStore(
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
+
+        setWalkMP: (mp) =>
+          set((state) => {
+            const weightClass = getProtoWeightClass(state.tonnage);
+            const caps = getProtoMPCaps(weightClass);
+            // Clamp to [1, cap]
+            const walkMP = Math.max(1, Math.min(mp, caps.walkMax));
+            const effWalk = effectiveWalkMP(walkMP, state.hasMyomerBooster);
+            return {
+              walkMP,
+              cruiseMP: walkMP,
+              flankMP: effWalk + 1,
+              engineRating: state.tonnage * walkMP,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
 
         setJumpMP: (jumpMP) =>
           set({
@@ -230,6 +281,16 @@ export function createProtoMechStore(
         setMainGun: (hasMainGun) =>
           set({
             hasMainGun,
+            // Clear the weapon ID when disabling the main gun mount
+            mainGunWeaponId: hasMainGun ? undefined : undefined,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setMainGunWeaponId: (weaponId) =>
+          set({
+            // null means "clear"; store as undefined for JSON cleanliness
+            mainGunWeaponId: weaponId ?? undefined,
             isModified: true,
             lastModifiedAt: Date.now(),
           }),
@@ -239,10 +300,15 @@ export function createProtoMechStore(
         // =================================================================
 
         setMyomerBooster: (hasMyomerBooster) =>
-          set({
-            hasMyomerBooster,
-            isModified: true,
-            lastModifiedAt: Date.now(),
+          set((state) => {
+            // Recompute flank MP because the booster changes effective walk
+            const effWalk = effectiveWalkMP(state.walkMP, hasMyomerBooster);
+            return {
+              hasMyomerBooster,
+              flankMP: effWalk + 1,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
           }),
 
         setMagneticClamps: (hasMagneticClamps) =>
@@ -255,6 +321,13 @@ export function createProtoMechStore(
         setExtendedTorsoTwist: (hasExtendedTorsoTwist) =>
           set({
             hasExtendedTorsoTwist,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          }),
+
+        setGlidingWings: (glidingWings) =>
+          set({
+            glidingWings,
             isModified: true,
             lastModifiedAt: Date.now(),
           }),
@@ -342,10 +415,13 @@ export function createProtoMechStore(
           techBase: state.techBase,
           unitType: state.unitType,
           tonnage: state.tonnage,
+          weightClass: state.weightClass,
+          chassisType: state.chassisType,
           pointSize: state.pointSize,
           isQuad: state.isQuad,
           isGlider: state.isGlider,
           engineRating: state.engineRating,
+          walkMP: state.walkMP,
           cruiseMP: state.cruiseMP,
           flankMP: state.flankMP,
           jumpMP: state.jumpMP,
@@ -353,7 +429,9 @@ export function createProtoMechStore(
           armorByLocation: state.armorByLocation,
           armorType: state.armorType,
           hasMainGun: state.hasMainGun,
+          mainGunWeaponId: state.mainGunWeaponId,
           hasMyomerBooster: state.hasMyomerBooster,
+          glidingWings: state.glidingWings,
           hasMagneticClamps: state.hasMagneticClamps,
           hasExtendedTorsoTwist: state.hasExtendedTorsoTwist,
           equipment: state.equipment,

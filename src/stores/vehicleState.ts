@@ -24,6 +24,7 @@ import {
   ITurretConfiguration,
   IVehicleMountedEquipment,
 } from '@/types/unit/VehicleInterfaces';
+import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -253,6 +254,25 @@ export interface VehicleState {
   isTrailer: boolean;
 
   // =========================================================================
+  // Construction Fields (added by add-vehicle-construction)
+  // =========================================================================
+
+  /** Internal structure type */
+  structureType: VehicleStructureType;
+
+  /** Crew size (at least the computed minimum) */
+  crewSize: number;
+
+  /** Passenger slots (beyond minimum crew) */
+  passengerSlots: number;
+
+  /** BAR rating for support vehicles (1–10); null for combat vehicles */
+  barRating: number | null;
+
+  /** Power amplifier weight (tons) — required on ICE/Fuel Cell vehicles with energy weapons */
+  powerAmpWeight: number;
+
+  // =========================================================================
   // Equipment
   // =========================================================================
 
@@ -312,6 +332,20 @@ export interface VehicleActions {
   ) => void;
   autoAllocateArmor: () => void;
   clearAllArmor: () => void;
+
+  // Construction fields
+  setStructureType: (structureType: VehicleStructureType) => void;
+  setCrewSize: (crewSize: number) => void;
+  setPassengerSlots: (passengerSlots: number) => void;
+  setBarRating: (barRating: number | null) => void;
+  /**
+   * Recompute powerAmpWeight from current equipment list and engine type.
+   * Caller may pass resolved catalog items to determine energy weapon weights;
+   * if omitted, powerAmpWeight is reset to 0.
+   */
+  derivePowerAmpWeight: (
+    resolvedItems?: import('@/types/equipment').IEquipmentItem[],
+  ) => void;
 
   // Special Features
   setEnvironmentalSealing: (value: boolean) => void;
@@ -448,6 +482,13 @@ export function createDefaultVehicleState(
     isAmphibious: false,
     hasTrailerHitch: false,
     isTrailer: false,
+
+    // Construction Fields
+    structureType: VehicleStructureType.STANDARD,
+    crewSize: 0,
+    passengerSlots: 0,
+    barRating: unitType === UnitType.SUPPORT_VEHICLE ? 7 : null,
+    powerAmpWeight: 0,
 
     // Equipment
     equipment: [],

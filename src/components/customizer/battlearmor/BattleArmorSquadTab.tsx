@@ -14,6 +14,7 @@ import { IEquipmentItem } from '@/types/equipment';
 
 import { EquipmentBrowser } from '../equipment/EquipmentBrowser';
 import { customizerStyles as cs } from '../styles';
+import { BattleArmorPipGrid } from './BattleArmorPipGrid';
 
 // =============================================================================
 // Constants
@@ -237,6 +238,9 @@ export function BattleArmorSquadTab({
           </div>
         )}
       </div>
+
+      {/* Per-trooper armor pip grid */}
+      <BattleArmorPipGrid />
     </div>
   );
 }

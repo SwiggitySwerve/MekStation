@@ -2,13 +2,116 @@
  * Aerospace Unit Interfaces
  *
  * Defines interfaces for aerospace fighters, conventional fighters, and small craft.
+ * Extended by add-aerospace-construction to include construction-time types.
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
+ * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
 
 import { AerospaceLocation } from '../construction/UnitLocation';
 import { IAerospaceUnit, AerospaceMotionType } from './BaseUnitInterfaces';
 import { UnitType } from './BattleMechInterfaces';
+
+// ============================================================================
+// Aerospace Sub-Type Discriminant
+// ============================================================================
+
+/**
+ * Aerospace chassis sub-type used to discriminate construction rules.
+ * ASF: 5-100t fusion/XL/compact. CF: 5-50t ICE/FuelCell only. SC: 100-200t.
+ */
+export enum AerospaceSubType {
+  AEROSPACE_FIGHTER = 'AerospaceFighter',
+  CONVENTIONAL_FIGHTER = 'ConventionalFighter',
+  SMALL_CRAFT = 'SmallCraft',
+}
+
+// ============================================================================
+// Aerospace Arc Enum (construction-canonical)
+// ============================================================================
+
+/**
+ * Arc names used during construction and validation.
+ * ASF/CF share NOSE/LEFT_WING/RIGHT_WING/AFT.
+ * Small craft replaces LEFT_WING/RIGHT_WING with LEFT_SIDE/RIGHT_SIDE.
+ * FUSELAGE is an internal location with no arc-slot cap.
+ */
+export enum AerospaceArc {
+  NOSE = 'Nose',
+  LEFT_WING = 'LeftWing',
+  RIGHT_WING = 'RightWing',
+  LEFT_SIDE = 'LeftSide',
+  RIGHT_SIDE = 'RightSide',
+  AFT = 'Aft',
+  FUSELAGE = 'Fuselage',
+}
+
+// ============================================================================
+// Aerospace Engine Type (construction-canonical)
+// ============================================================================
+
+/**
+ * Engine types legal for aerospace construction.
+ * Conventional fighters are restricted to ICE and FuelCell.
+ * Water heat sinks are forbidden on all aerospace.
+ */
+export enum AerospaceEngineType {
+  FUSION = 'Fusion',
+  XL = 'XL',
+  COMPACT_FUSION = 'CompactFusion',
+  ICE = 'ICE',
+  FUEL_CELL = 'FuelCell',
+}
+
+// ============================================================================
+// Small Craft Crew Interface
+// ============================================================================
+
+/**
+ * Crew and quarters breakdown for small craft construction.
+ * Standard quarters cost 5 tons/crew; steerage costs 3 tons/passenger.
+ */
+export interface ISmallCraftCrew {
+  /** Number of crew requiring standard quarters */
+  readonly crew: number;
+  /** Number of passengers using steerage quarters */
+  readonly passengers: number;
+  /** Number of marine berths (same weight as crew quarters) */
+  readonly marines: number;
+  /** Total tonnage consumed by quarters and life support */
+  readonly quartersTons: number;
+}
+
+// ============================================================================
+// Aerospace Weight Breakdown
+// ============================================================================
+
+/**
+ * Complete weight-usage summary for an aerospace unit at construction time.
+ * All values in tons.
+ */
+export interface IAerospaceBreakdown {
+  /** Engine tonnage (from rating × weight table) */
+  readonly engineTons: number;
+  /** Structural integrity tonnage above default */
+  readonly siTons: number;
+  /** Fuel tonnage allocated */
+  readonly fuelTons: number;
+  /** Armor tonnage */
+  readonly armorTons: number;
+  /** Heat sink tonnage (sinks above the 10 engine-free baseline) */
+  readonly heatSinkTons: number;
+  /** Cockpit tonnage (3 for standard, 2 for small) */
+  readonly cockpitTons: number;
+  /** Crew quarters tonnage (small craft only; 0 for ASF/CF) */
+  readonly quartersTons: number;
+  /** Equipment tonnage (sum of all mounted items) */
+  readonly equipmentTons: number;
+  /** Total tons used */
+  readonly totalUsed: number;
+  /** Tons remaining (chassis tonnage − totalUsed) */
+  readonly remaining: number;
+}
 
 // ============================================================================
 // Aerospace Equipment

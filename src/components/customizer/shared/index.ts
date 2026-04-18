@@ -20,3 +20,16 @@ export {
 export type { IComponentValues } from './TechBaseConfiguration';
 export { GlobalStatusBar } from './GlobalStatusBar';
 export type { StatusBarStats } from './GlobalStatusBar';
+
+// Tab registry infrastructure (add-per-type-customizer-tabs)
+export type { TabSpec, TabPanelBaseProps } from './TabSpec';
+export { filterVisibleTabs, toCustomizerTabConfigs } from './TabSpec';
+export {
+  MECH_TABS,
+  VEHICLE_TABS,
+  AEROSPACE_TABS,
+  BATTLE_ARMOR_TABS,
+  INFANTRY_TABS,
+  PROTOMECH_TABS,
+  getTabSpecsForUnitType,
+} from './tabRegistry';

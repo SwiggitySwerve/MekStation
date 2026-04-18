@@ -5,16 +5,23 @@
  * Infantry are conventional troops with various weapon and armor configurations.
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2
+ * @spec openspec/changes/add-infantry-construction/specs/infantry-unit-system/spec.md
  */
 
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { IInfantryFieldGun } from '@/types/unit/InfantryInterfaces';
+import {
+  InfantryMotive,
+  IPlatoonComposition,
+  PLATOON_DEFAULTS,
+  MOTIVE_MP,
+} from '@/types/unit/InfantryInterfaces';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
-  IInfantryFieldGun,
 } from '@/types/unit/PersonnelInterfaces';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
@@ -71,8 +78,20 @@ export interface InfantryState {
   /** Number of squads in platoon */
   numberOfSquads: number;
 
-  /** Motion type */
+  /** Motion type (legacy SquadMotionType for UI compat) */
   motionType: SquadMotionType;
+
+  /**
+   * Infantry motive type — construction-layer granular classification.
+   * Drives default composition, MP derivation, and VAL-INF-* rules.
+   */
+  infantryMotive: InfantryMotive;
+
+  /**
+   * Platoon composition: squads × troopersPerSquad.
+   * Defaults are derived from infantryMotive via PLATOON_DEFAULTS.
+   */
+  platoonComposition: IPlatoonComposition;
 
   /** Ground MP */
   groundMP: number;
@@ -189,6 +208,24 @@ export interface InfantryStoreActions {
   setAntiMechTraining: (value: boolean) => void;
   setAugmented: (value: boolean, type?: string) => void;
 
+  // Infantry Motive / Composition Actions
+  /**
+   * Change the platoon motive type.
+   * Re-derives platoonComposition from TechManual defaults and re-sets
+   * groundMP / jumpMP from MOTIVE_MP — all in a single atomic update.
+   */
+  setInfantryMotive: (motive: InfantryMotive) => void;
+  /**
+   * Override the platoon composition (squads × troopersPerSquad).
+   * Does not change the motive type or MP values.
+   */
+  setPlatoonComposition: (comp: IPlatoonComposition) => void;
+  /**
+   * Update ammo rounds for a field gun at the given index.
+   * No-op if idx is out of range.
+   */
+  setFieldGunAmmo: (idx: number, rounds: number) => void;
+
   // Field Gun Actions
   addFieldGun: (gun: IInfantryFieldGun) => void;
   removeFieldGun: (equipmentId: string) => void;
@@ -250,8 +287,10 @@ export function createDefaultInfantryState(
     squadSize: options.squadSize ?? 7,
     numberOfSquads: options.numberOfSquads ?? 4,
     motionType: options.motionType ?? SquadMotionType.FOOT,
-    groundMP: 1,
-    jumpMP: 0,
+    infantryMotive: InfantryMotive.FOOT,
+    platoonComposition: PLATOON_DEFAULTS[InfantryMotive.FOOT],
+    groundMP: MOTIVE_MP[InfantryMotive.FOOT].groundMP,
+    jumpMP: MOTIVE_MP[InfantryMotive.FOOT].jumpMP,
 
     // Weapons
     primaryWeapon: 'Rifle',

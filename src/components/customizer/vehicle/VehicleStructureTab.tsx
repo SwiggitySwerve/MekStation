@@ -13,6 +13,8 @@ import { useVehicleStore } from '@/stores/useVehicleStore';
 import { EngineType } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { computeMinimumCrew } from '@/utils/construction/vehicle/crew';
+import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 
 import { customizerStyles as cs } from '../styles';
 
@@ -62,6 +64,13 @@ const TURRET_TYPE_OPTIONS: { value: TurretType; label: string }[] = [
   { value: TurretType.CHIN, label: 'Chin Turret (VTOL)' },
 ];
 
+const STRUCTURE_TYPE_OPTIONS: { value: VehicleStructureType; label: string }[] =
+  [
+    { value: VehicleStructureType.STANDARD, label: 'Standard' },
+    { value: VehicleStructureType.ENDO_STEEL, label: 'Endo-Steel (0.5×)' },
+    { value: VehicleStructureType.COMPOSITE, label: 'Composite (0.5×)' },
+  ];
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -97,6 +106,11 @@ export function VehicleStructureTab({
   const isOmni = useVehicleStore((s) => s.isOmni);
   const isSuperheavy = useVehicleStore((s) => s.isSuperheavy);
 
+  // Construction fields
+  const structureType = useVehicleStore((s) => s.structureType);
+  const crewSize = useVehicleStore((s) => s.crewSize);
+  const passengerSlots = useVehicleStore((s) => s.passengerSlots);
+
   // Special features
   const hasEnvironmentalSealing = useVehicleStore(
     (s) => s.hasEnvironmentalSealing,
@@ -113,6 +127,9 @@ export function VehicleStructureTab({
   const setCruiseMP = useVehicleStore((s) => s.setCruiseMP);
   const setTurretType = useVehicleStore((s) => s.setTurretType);
   const setIsOmni = useVehicleStore((s) => s.setIsOmni);
+  const setStructureType = useVehicleStore((s) => s.setStructureType);
+  const setCrewSize = useVehicleStore((s) => s.setCrewSize);
+  const setPassengerSlots = useVehicleStore((s) => s.setPassengerSlots);
   const setEnvironmentalSealing = useVehicleStore(
     (s) => s.setEnvironmentalSealing,
   );
@@ -120,6 +137,9 @@ export function VehicleStructureTab({
   const setAmphibious = useVehicleStore((s) => s.setAmphibious);
   const setTrailerHitch = useVehicleStore((s) => s.setTrailerHitch);
   const setIsTrailer = useVehicleStore((s) => s.setIsTrailer);
+
+  // Derived: minimum crew for current tonnage + motion type
+  const minimumCrew = computeMinimumCrew(tonnage, motionType);
 
   // Get max tonnage for current motion type
   const maxTonnageForMotion =
@@ -248,6 +268,74 @@ export function VehicleStructureTab({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Internal Structure Type */}
+          <div className="mb-4">
+            <label className={cs.text.label}>Internal Structure</label>
+            <select
+              value={structureType}
+              onChange={(e) =>
+                setStructureType(e.target.value as VehicleStructureType)
+              }
+              disabled={readOnly}
+              className={`${cs.select.full} mt-1`}
+              data-testid="vehicle-structure-type-select"
+            >
+              {STRUCTURE_TYPE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Crew Size */}
+          <div className="mb-4">
+            <label className={cs.text.label}>
+              Crew Size
+              <span className="text-text-theme-secondary ml-1 text-xs font-normal">
+                (min {minimumCrew})
+              </span>
+            </label>
+            <div className="mt-1 flex items-center gap-2">
+              <input
+                type="number"
+                value={crewSize}
+                onChange={(e) => setCrewSize(Number(e.target.value))}
+                min={minimumCrew}
+                max={99}
+                step={1}
+                disabled={readOnly}
+                className={`${cs.input.number} w-16`}
+                data-testid="vehicle-crew-size-input"
+              />
+              <span className={cs.text.secondary}>crew</span>
+            </div>
+            {crewSize < minimumCrew && crewSize > 0 && (
+              <p className="mt-1 text-xs text-red-400">
+                Below minimum crew ({minimumCrew})
+              </p>
+            )}
+          </div>
+
+          {/* Passenger Slots */}
+          <div className="mb-4">
+            <label className={cs.text.label}>Passenger Slots</label>
+            <div className="mt-1 flex items-center gap-2">
+              <input
+                type="number"
+                value={passengerSlots}
+                onChange={(e) => setPassengerSlots(Number(e.target.value))}
+                min={0}
+                max={99}
+                step={1}
+                disabled={readOnly}
+                className={`${cs.input.number} w-16`}
+                data-testid="vehicle-passenger-slots-input"
+              />
+              <span className={cs.text.secondary}>passengers</span>
+            </div>
           </div>
 
           {/* OmniVehicle Toggle */}

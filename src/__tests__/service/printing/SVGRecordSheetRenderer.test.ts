@@ -11,7 +11,7 @@
  */
 
 import { SVGRecordSheetRenderer } from '@/services/printing/svgRecordSheetRenderer';
-import { IRecordSheetData } from '@/types/printing';
+import { IMechRecordSheetData } from '@/types/printing';
 
 // Mock fetch for SVG template loading
 global.fetch = jest.fn();
@@ -114,7 +114,9 @@ const createMockTemplate = (config: 'biped' | 'quad' | 'tripod') => {
 };
 
 // Create mock armor data for testing
-const createMockArmorData = (mechType: string): IRecordSheetData['armor'] => {
+const createMockArmorData = (
+  mechType: string,
+): IMechRecordSheetData['armor'] => {
   const baseLocations = [
     { location: 'Head', abbreviation: 'HD', current: 9, maximum: 9 },
     {
@@ -326,7 +328,8 @@ describe('SVGRecordSheetRenderer', () => {
     });
 
     it('should fill armor pips for all biped locations', async () => {
-      const armorData: IRecordSheetData['armor'] = createMockArmorData('biped');
+      const armorData: IMechRecordSheetData['armor'] =
+        createMockArmorData('biped');
 
       await renderer.fillArmorPips(armorData, 'biped');
 
@@ -335,7 +338,8 @@ describe('SVGRecordSheetRenderer', () => {
     });
 
     it('should set armor text values', async () => {
-      const armorData: IRecordSheetData['armor'] = createMockArmorData('biped');
+      const armorData: IMechRecordSheetData['armor'] =
+        createMockArmorData('biped');
 
       await renderer.fillArmorPips(armorData, 'biped');
 
@@ -357,7 +361,7 @@ describe('SVGRecordSheetRenderer', () => {
     });
 
     it('should fill structure pips for all biped locations', async () => {
-      const structureData: IRecordSheetData['structure'] = {
+      const structureData: IMechRecordSheetData['structure'] = {
         type: 'Standard',
         totalPoints: 83,
         locations: [
@@ -390,7 +394,7 @@ describe('SVGRecordSheetRenderer', () => {
     });
 
     it('should fill header data', () => {
-      const data: Partial<IRecordSheetData> = {
+      const data: Partial<IMechRecordSheetData> = {
         header: {
           unitName: 'Atlas AS7-D',
           chassis: 'Atlas',
@@ -433,7 +437,7 @@ describe('SVGRecordSheetRenderer', () => {
         mechType: 'biped',
       };
 
-      renderer.fillTemplate(data as IRecordSheetData);
+      renderer.fillTemplate(data as IMechRecordSheetData);
 
       const svgString = renderer.getSVGString();
       expect(svgString).toBeDefined();
@@ -443,7 +447,7 @@ describe('SVGRecordSheetRenderer', () => {
       const freshRenderer = new SVGRecordSheetRenderer();
 
       expect(() => {
-        freshRenderer.fillTemplate({} as IRecordSheetData);
+        freshRenderer.fillTemplate({} as IMechRecordSheetData);
       }).toThrow('Template not loaded');
     });
   });
@@ -482,7 +486,7 @@ describe('SVGRecordSheetRenderer', () => {
           '/record-sheets/templates_us/mek_quad_default.svg',
         );
 
-        const armorData: IRecordSheetData['armor'] =
+        const armorData: IMechRecordSheetData['armor'] =
           createMockArmorData('quad');
         await renderer.fillArmorPips(armorData, 'quad');
 
@@ -500,7 +504,7 @@ describe('SVGRecordSheetRenderer', () => {
           '/record-sheets/templates_us/mek_tripod_default.svg',
         );
 
-        const armorData: IRecordSheetData['armor'] =
+        const armorData: IMechRecordSheetData['armor'] =
           createMockArmorData('tripod');
         await renderer.fillArmorPips(armorData, 'tripod');
 
@@ -516,7 +520,7 @@ describe('SVGRecordSheetRenderer', () => {
           '/record-sheets/templates_us/mek_tripod_default.svg',
         );
 
-        const armorData: IRecordSheetData['armor'] = {
+        const armorData: IMechRecordSheetData['armor'] = {
           type: 'Standard',
           totalPoints: 20,
           locations: [
@@ -545,7 +549,8 @@ describe('SVGRecordSheetRenderer', () => {
           '/record-sheets/templates_us/mek_lam_default.svg',
         );
 
-        const armorData: IRecordSheetData['armor'] = createMockArmorData('lam');
+        const armorData: IMechRecordSheetData['armor'] =
+          createMockArmorData('lam');
         await renderer.fillArmorPips(armorData, 'lam');
 
         // LAM uses biped pip group IDs
@@ -562,7 +567,7 @@ describe('SVGRecordSheetRenderer', () => {
           '/record-sheets/templates_us/mek_quad_default.svg',
         );
 
-        const armorData: IRecordSheetData['armor'] =
+        const armorData: IMechRecordSheetData['armor'] =
           createMockArmorData('quadvee');
         await renderer.fillArmorPips(armorData, 'quadvee');
 

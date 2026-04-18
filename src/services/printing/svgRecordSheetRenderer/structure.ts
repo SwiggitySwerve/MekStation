@@ -3,7 +3,7 @@
  * Handles loading pre-made structure pip SVGs and generating dynamic pips for non-biped mechs
  */
 
-import { IRecordSheetData, ILocationStructure } from '@/types/printing';
+import { IMechRecordSheetData, ILocationStructure } from '@/types/printing';
 import { logger } from '@/utils/logger';
 
 import { ArmorPipLayout } from '../ArmorPipLayout';
@@ -28,7 +28,7 @@ import { setTextContent } from './template';
 export async function fillStructurePips(
   svgDoc: Document,
   svgRoot: SVGSVGElement,
-  structure: IRecordSheetData['structure'],
+  structure: IMechRecordSheetData['structure'],
   tonnage: number,
   mechType?: string,
 ): Promise<void> {
@@ -328,7 +328,7 @@ function generateStructurePipGrid(
  */
 function generateDynamicStructurePips(
   svgDoc: Document,
-  structure: IRecordSheetData['structure'],
+  structure: IMechRecordSheetData['structure'],
   mechType: string,
 ): void {
   // Get the structure pip group IDs based on mech type

@@ -23,7 +23,7 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { customizerStyles as cs } from '../styles';
-import { VehicleArmorDiagramSimple } from './VehicleArmorDiagramSimple';
+import { VehicleArmorDiagram } from './VehicleArmorDiagram';
 import {
   ARMOR_TYPE_OPTIONS,
   BASE_VEHICLE_LOCATIONS,
@@ -322,13 +322,9 @@ export function VehicleArmorTab({
             })}
           </div>
 
-          {/* Simple Vehicle Diagram */}
-          <div className="bg-surface-raised/30 mt-6 rounded-lg p-4">
-            <VehicleArmorDiagramSimple
-              allocation={armorAllocation}
-              hasTurret={hasTurret}
-              isVTOL={isVTOL}
-            />
+          {/* Vehicle Armor Diagram */}
+          <div className="mt-6">
+            <VehicleArmorDiagram />
           </div>
         </section>
       </div>

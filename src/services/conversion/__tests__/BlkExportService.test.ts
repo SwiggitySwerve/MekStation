@@ -28,13 +28,19 @@ import {
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
-import { AerospaceCockpitType } from '@/types/unit/AerospaceInterfaces';
+import {
+  AerospaceCockpitType,
+  AerospaceEngineType,
+  AerospaceSubType,
+} from '@/types/unit/AerospaceInterfaces';
 import {
   GroundMotionType,
   SquadMotionType,
   AerospaceMotionType,
 } from '@/types/unit/BaseUnitInterfaces';
+import { BAArmorType } from '@/types/unit/BattleArmorInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { InfantryMotive } from '@/types/unit/InfantryInterfaces';
 import {
   BattleArmorChassisType,
   BattleArmorWeightClass,
@@ -42,6 +48,11 @@ import {
   ManipulatorType,
   InfantrySpecialization,
 } from '@/types/unit/PersonnelInterfaces';
+import {
+  ProtoChassis,
+  ProtoWeightClass,
+} from '@/types/unit/ProtoMechInterfaces';
+import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 
 describe('BlkExportService', () => {
   let service: BlkExportService;
@@ -109,6 +120,11 @@ describe('BlkExportService', () => {
     isAmphibious: false,
     hasTrailerHitch: false,
     isTrailer: false,
+    structureType: VehicleStructureType.STANDARD,
+    crewSize: 0,
+    passengerSlots: 0,
+    barRating: null,
+    powerAmpWeight: 0,
     equipment: [],
     isModified: false,
     createdAt: Date.now(),
@@ -151,16 +167,21 @@ describe('BlkExportService', () => {
     weightClass: WeightClass.MEDIUM,
     techBase: TechBase.INNER_SPHERE,
     unitType: UnitType.AEROSPACE,
+    aerospaceSubType: AerospaceSubType.AEROSPACE_FIGHTER,
     motionType: AerospaceMotionType.AERODYNE,
     isOmni: false,
     engineType: EngineType.STANDARD,
+    aerospaceEngineType: AerospaceEngineType.FUSION,
     engineRating: 200,
     safeThrust: 5,
     maxThrust: 8,
+    fuelTons: 5,
+    fuelPoints: 400,
     fuel: 400,
     structuralIntegrity: 5,
     cockpitType: AerospaceCockpitType.STANDARD,
     heatSinks: 10,
+    heatSinkPool: 10,
     doubleHeatSinks: false,
     armorType: ArmorTypeEnum.STANDARD,
     armorTonnage: 5,
@@ -174,6 +195,7 @@ describe('BlkExportService', () => {
     bombCapacity: 0,
     hasReinforcedCockpit: false,
     hasEjectionSeat: true,
+    crew: null,
     equipment: [],
     isModified: false,
     createdAt: Date.now(),
@@ -205,6 +227,7 @@ describe('BlkExportService', () => {
     leftManipulator: ManipulatorType.BASIC,
     rightManipulator: ManipulatorType.BASIC,
     armorType: 0,
+    baArmorType: BAArmorType.STANDARD,
     armorPerTrooper: 5,
     hasAPMount: false,
     hasModularMount: false,
@@ -235,6 +258,8 @@ describe('BlkExportService', () => {
     squadSize: 7,
     numberOfSquads: 4,
     motionType: SquadMotionType.FOOT,
+    infantryMotive: InfantryMotive.FOOT,
+    platoonComposition: { squads: 7, troopersPerSquad: 4 },
     groundMP: 1,
     jumpMP: 0,
     primaryWeapon: 'Rifle',
@@ -268,10 +293,13 @@ describe('BlkExportService', () => {
     techBase: TechBase.CLAN,
     unitType: UnitType.PROTOMECH,
     tonnage: 5,
+    weightClass: ProtoWeightClass.MEDIUM,
+    chassisType: ProtoChassis.BIPED,
     pointSize: 5,
     isQuad: false,
     isGlider: false,
     engineRating: 25,
+    walkMP: 5,
     cruiseMP: 5,
     flankMP: 8,
     jumpMP: 3,
@@ -293,7 +321,9 @@ describe('BlkExportService', () => {
     },
     armorType: 0,
     hasMainGun: true,
+    mainGunWeaponId: undefined,
     hasMyomerBooster: false,
+    glidingWings: false,
     hasMagneticClamps: false,
     hasExtendedTorsoTwist: false,
     equipment: [],
