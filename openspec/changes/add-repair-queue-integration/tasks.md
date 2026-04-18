@@ -17,7 +17,7 @@
 
 - [x] 2.1 Create `src/lib/campaign/repair/repairQueueBuilder.ts`
 - [x] 2.2 Export `buildTicketsFromUnitState({ state, maxState, matchId,
-  createdAt }): IRepairTicket[]`
+createdAt }): IRepairTicket[]`
 - [ ] 2.3 Return tickets sorted by priority descending _(deferred with 1.2)_
 
 ## 3. Armor Ticket Generation
@@ -87,7 +87,7 @@ matched: false }]`
 - [x] 8.5 Fire `repair-tickets-created` event with ticket count and
       match ID per outcome
 - [x] 8.6 Idempotency: deterministic `ticketId` keyed off `(matchId,
-  unitId, kind, discriminator)` — duplicates are filtered before
+unitId, kind, discriminator)` — duplicates are filtered before
       append
 
 ## 9. Integration with Existing Repair System
