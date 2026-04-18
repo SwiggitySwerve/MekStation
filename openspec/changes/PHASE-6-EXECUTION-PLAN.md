@@ -14,13 +14,13 @@ Phase 6 brings vehicles, aerospace, BattleArmor, infantry, and ProtoMechs to ful
 
 **This plan adds 5 gap-filler proposals** to close the UI / rendering / data-import surface the roadmap explicitly called for with "→ display" and that construction proposals explicitly deferred with "Record-sheet PDF layout for vehicles — follow-up work":
 
-| Gap-filler (authored 2026-04-18)              | Covers                                                 |
-| --------------------------------------------- | ------------------------------------------------------ |
-| `add-per-type-customizer-tabs`                | Canonical tab set per type + dispatcher                |
-| `add-per-type-armor-diagrams`                 | Per-type armor diagram components + shared primitive   |
-| `add-multi-type-record-sheet-export`          | Per-type SVG record sheet rendering + extractors       |
-| `add-per-type-hex-tokens`                     | Per-type combat-map tokens (shape/facing/stacking)     |
-| `add-blk-import-per-type`                     | BLK → per-type JSON catalog generation                 |
+| Gap-filler (authored 2026-04-18)     | Covers                                               |
+| ------------------------------------ | ---------------------------------------------------- |
+| `add-per-type-customizer-tabs`       | Canonical tab set per type + dispatcher              |
+| `add-per-type-armor-diagrams`        | Per-type armor diagram components + shared primitive |
+| `add-multi-type-record-sheet-export` | Per-type SVG record sheet rendering + extractors     |
+| `add-per-type-hex-tokens`            | Per-type combat-map tokens (shape/facing/stacking)   |
+| `add-blk-import-per-type`            | BLK → per-type JSON catalog generation               |
 
 **Total Phase 6 scope: 20 OpenSpec changes. Rough size: 25 PRs, 4–6 months sequential (can be parallelized per unit type after foundation lands).**
 
@@ -29,6 +29,7 @@ Phase 6 brings vehicles, aerospace, BattleArmor, infantry, and ProtoMechs to ful
 ## Full change inventory (20 changes)
 
 ### Foundation (horizontal, apply to all types)
+
 1. `add-per-type-customizer-tabs` — tab architecture
 2. `add-per-type-armor-diagrams` — armor diagram per type
 3. `add-multi-type-record-sheet-export` — PDF/SVG export per type
@@ -36,6 +37,7 @@ Phase 6 brings vehicles, aerospace, BattleArmor, infantry, and ProtoMechs to ful
 5. `add-blk-import-per-type` — catalog generation per type
 
 ### Vertical per unit type (5 types × 3 changes = 15)
+
 6. `add-vehicle-construction` + `add-vehicle-battle-value` + `add-vehicle-combat-behavior`
 7. `add-aerospace-construction` + `add-aerospace-battle-value` + `add-aerospace-combat-behavior`
 8. `add-battlearmor-construction` + `add-battlearmor-battle-value` + `add-battlearmor-combat-behavior`
@@ -78,14 +80,14 @@ Wave 1-5 (sequential OR parallel per type):
 
 ## Sub-branch execution plan (recommended)
 
-| Wave | Sub-branch                                              | Changes merged                                                                                                                              | Notes                              |
-| ---- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| 0    | `feat/phase-6--foundation`                              | `add-per-type-customizer-tabs`, `add-per-type-armor-diagrams`, `add-per-type-hex-tokens`                                                    | Blocks all per-type work           |
-| 1    | `feat/phase-6--vehicles`                                | `add-vehicle-construction`, `add-vehicle-battle-value`, `add-vehicle-combat-behavior`, vehicle record sheet + vehicle BLK import (per-type deltas of the multi-type changes) | Most common secondary unit         |
-| 2    | `feat/phase-6--aerospace`                               | `add-aerospace-construction`, `add-aerospace-battle-value`, `add-aerospace-combat-behavior`, aerospace record sheet + aerospace BLK import  | Air-to-ground campaigns            |
-| 3    | `feat/phase-6--battlearmor`                             | `add-battlearmor-*` stack + BA record sheet + BA BLK import                                                                                 | Common hostile infantry in contracts |
-| 4    | `feat/phase-6--infantry`                                | `add-infantry-*` stack + infantry record sheet + infantry BLK import                                                                        | Occupy-ground role                 |
-| 5    | `feat/phase-6--protomech`                               | `add-protomech-*` stack + proto record sheet + proto BLK import                                                                             | Niche, Clan-only                   |
+| Wave | Sub-branch                  | Changes merged                                                                                                                                                               | Notes                                |
+| ---- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| 0    | `feat/phase-6--foundation`  | `add-per-type-customizer-tabs`, `add-per-type-armor-diagrams`, `add-per-type-hex-tokens`                                                                                     | Blocks all per-type work             |
+| 1    | `feat/phase-6--vehicles`    | `add-vehicle-construction`, `add-vehicle-battle-value`, `add-vehicle-combat-behavior`, vehicle record sheet + vehicle BLK import (per-type deltas of the multi-type changes) | Most common secondary unit           |
+| 2    | `feat/phase-6--aerospace`   | `add-aerospace-construction`, `add-aerospace-battle-value`, `add-aerospace-combat-behavior`, aerospace record sheet + aerospace BLK import                                   | Air-to-ground campaigns              |
+| 3    | `feat/phase-6--battlearmor` | `add-battlearmor-*` stack + BA record sheet + BA BLK import                                                                                                                  | Common hostile infantry in contracts |
+| 4    | `feat/phase-6--infantry`    | `add-infantry-*` stack + infantry record sheet + infantry BLK import                                                                                                         | Occupy-ground role                   |
+| 5    | `feat/phase-6--protomech`   | `add-protomech-*` stack + proto record sheet + proto BLK import                                                                                                              | Niche, Clan-only                     |
 
 Each wave merges to `feat/phase-6-combined-arms` before the next spawns. Waves 1–5 can partially overlap after Foundation provided agents scope file edits tightly.
 
