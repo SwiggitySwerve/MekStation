@@ -17,9 +17,9 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.2
  */
 
-import type { ResultType } from '@/services/core/types/BaseTypes';
+import type { ResultType } from "@/services/core/types/BaseTypes";
 
-import { UnitType } from '../unit/BattleMechInterfaces';
+import { UnitType } from "../unit/BattleMechInterfaces";
 
 /**
  * Raw parsed BLK document before type-specific conversion
@@ -190,6 +190,213 @@ export interface IBlkParseError {
  */
 export type IBlkParseResult = ResultType<IBlkParseData, IBlkParseError>;
 
+// ============================================================================
+// Per-Type Discriminated Union Results
+// ============================================================================
+
+/**
+ * Parsed vehicle-specific data extracted from a BLK document.
+ * Covers Tank, VTOL, SupportTank, SupportVTOL, and Naval unit types.
+ */
+export interface IVehicleBlkResult {
+  /** Chassis name */
+  readonly name: string;
+  /** Model/variant designation */
+  readonly model: string;
+  /** Master Unit List ID */
+  readonly mulId?: number;
+  /** Introduction year */
+  readonly year: number;
+  /** Tonnage */
+  readonly tonnage: number;
+  /** Tech base (INNER_SPHERE | CLAN | MIXED) */
+  readonly techBase: string;
+  /** Motion type string as in BLK (Tracked, Wheeled, Hover, VTOL, etc.) */
+  readonly motionType: string;
+  /** Cruise MP */
+  readonly cruiseMP: number;
+  /** Jumping / UMU MP */
+  readonly jumpingMP: number;
+  /** Armor values: [Front, Right, Left, Rear, Turret?] */
+  readonly armor: readonly number[];
+  /** BAR rating for support vehicles (0 for standard combat vehicles) */
+  readonly barRating: number;
+  /** Engine type code */
+  readonly engineType: number;
+  /** Armor type code */
+  readonly armorType: number;
+  /** Equipment keyed by location (Front, Left, Right, Rear, Turret, Body) */
+  readonly equipmentByLocation: Record<string, readonly string[]>;
+  /** Role */
+  readonly role?: string;
+  /** Source book */
+  readonly source?: string;
+  /** Quirks */
+  readonly quirks?: readonly string[];
+  /** Raw BLK unit type string (Tank | VTOL | SupportTank | Naval | …) */
+  readonly blkUnitType: string;
+}
+
+/**
+ * Parsed aerospace-specific data from a BLK document.
+ * Covers Aero / AeroSpaceFighter, ConvFighter, and SmallCraft.
+ */
+export interface IAerospaceBlkResult {
+  readonly name: string;
+  readonly model: string;
+  readonly mulId?: number;
+  readonly year: number;
+  readonly tonnage: number;
+  readonly techBase: string;
+  /** Safe thrust (acceleration thrust points) */
+  readonly safeThrust: number;
+  /** Maximum thrust (2 × safe for most fighters) */
+  readonly maxThrust: number;
+  /** Fuel points */
+  readonly fuelPoints: number;
+  /** Structural integrity */
+  readonly structuralIntegrity: number;
+  /** Heat sinks count */
+  readonly heatsinks: number;
+  /** Heat sink type (0 = single, 1 = double) */
+  readonly sinkType: number;
+  /** Cockpit type code */
+  readonly cockpitType: number;
+  /** Armor per arc: [Nose, LW, RW, Aft] */
+  readonly armor: readonly number[];
+  /** Equipment by firing arc (Nose, Left Wing, Right Wing, Aft, Wings, Fuselage) */
+  readonly equipmentByLocation: Record<string, readonly string[]>;
+  readonly role?: string;
+  readonly source?: string;
+  readonly quirks?: readonly string[];
+  /** Raw BLK unit type (Aero | AeroSpaceFighter | ConvFighter | SmallCraft) */
+  readonly blkUnitType: string;
+}
+
+/**
+ * Parsed Battle Armor-specific data from a BLK document.
+ */
+export interface IBattleArmorBlkResult {
+  readonly name: string;
+  readonly model: string;
+  readonly mulId?: number;
+  readonly year: number;
+  /** Weight per trooper (kg) — derived from weightclass tag */
+  readonly weightClass: number;
+  readonly techBase: string;
+  /** Motion type (Jump, Ground, UMU, etc.) */
+  readonly motionType: string;
+  /** Cruise MP */
+  readonly cruiseMP: number;
+  /** Jump MP */
+  readonly jumpMP: number;
+  /** Chassis type (biped | quad) */
+  readonly chassis: string;
+  /** Trooper count per point/squad */
+  readonly trooperCount: number;
+  /** Armor points per trooper */
+  readonly armorPerTrooper: number;
+  /** Armor type code */
+  readonly armorType: number;
+  /** Equipment list from Point Equipment block (pre-parsed location suffixes) */
+  readonly equipmentByLocation: Record<string, readonly string[]>;
+  readonly role?: string;
+  readonly source?: string;
+  readonly quirks?: readonly string[];
+}
+
+/**
+ * Parsed Infantry-specific data from a BLK document.
+ */
+export interface IInfantryBlkResult {
+  readonly name: string;
+  readonly model: string;
+  readonly mulId?: number;
+  readonly year: number;
+  readonly techBase: string;
+  /** Motion type (Leg, Wheeled, Motorized, Jump, etc.) */
+  readonly motionType: string;
+  /** Squad size (soldiers per squad) */
+  readonly squadSize: number;
+  /** Number of squads */
+  readonly squadCount: number;
+  /** Primary weapon equipment ID */
+  readonly primaryWeapon: string;
+  /** Secondary weapon equipment ID */
+  readonly secondaryWeapon?: string;
+  /** Number of secondary weapons */
+  readonly secondaryCount: number;
+  /** Armor kit type */
+  readonly armorKit?: string;
+  readonly role?: string;
+  readonly source?: string;
+}
+
+/**
+ * Parsed ProtoMech-specific data from a BLK document.
+ */
+export interface IProtoMechBlkResult {
+  readonly name: string;
+  readonly model: string;
+  readonly mulId?: number;
+  readonly year: number;
+  readonly tonnage: number;
+  readonly techBase: string;
+  /** Motion type (Biped | Quad | Glider | UMU) */
+  readonly motionType: string;
+  /** Cruise MP */
+  readonly cruiseMP: number;
+  /** Jump MP */
+  readonly jumpMP: number;
+  /** Is glider proto */
+  readonly isGlider: boolean;
+  /** Armor values: [Head, Torso, L Arm, R Arm, Legs, Main Gun?] — order matches BLK armor tag */
+  readonly armor: readonly number[];
+  /** Equipment by location */
+  readonly equipmentByLocation: Record<string, readonly string[]>;
+  readonly role?: string;
+  readonly source?: string;
+  readonly quirks?: readonly string[];
+}
+
+/**
+ * Result for an unsupported/skipped unit type (WarShip, DropShip, JumpShip, LAM, QuadVee, Mobile Structure)
+ */
+export interface IUnsupportedBlkResult {
+  /** Reason key identifying the unsupported type */
+  readonly reason: string;
+  /** Human-readable name if parseable */
+  readonly name?: string;
+  /** Raw unit type string from BLK */
+  readonly blkUnitType: string;
+}
+
+/**
+ * Discriminated union result from parseByUnitType.
+ *
+ * Discriminator is `kind`:
+ * - 'vehicle'    → IVehicleBlkResult
+ * - 'aerospace'  → IAerospaceBlkResult
+ * - 'battlearmor'→ IBattleArmorBlkResult
+ * - 'infantry'   → IInfantryBlkResult
+ * - 'protomech'  → IProtoMechBlkResult
+ * - 'unsupported'→ IUnsupportedBlkResult
+ */
+export type BlkDispatchResult =
+  | { readonly kind: "vehicle"; readonly data: IVehicleBlkResult }
+  | { readonly kind: "aerospace"; readonly data: IAerospaceBlkResult }
+  | { readonly kind: "battlearmor"; readonly data: IBattleArmorBlkResult }
+  | { readonly kind: "infantry"; readonly data: IInfantryBlkResult }
+  | { readonly kind: "protomech"; readonly data: IProtoMechBlkResult }
+  | { readonly kind: "unsupported"; readonly data: IUnsupportedBlkResult };
+
+/**
+ * Result of parseByUnitType call: either a dispatched result or a parse failure.
+ */
+export type BlkDispatchParseResult =
+  | { readonly success: true; readonly result: BlkDispatchResult }
+  | { readonly success: false; readonly errors: readonly string[] };
+
 /**
  * BLK unit type strings and their UnitType mappings
  */
@@ -227,19 +434,19 @@ export const BLK_UNIT_TYPE_MAP: Record<string, UnitType> = {
  */
 export const BLK_EQUIPMENT_LOCATIONS: Record<string, readonly string[]> = {
   // Vehicles
-  Vehicle: ['Front', 'Left', 'Right', 'Rear', 'Turret', 'Body'],
-  VTOL: ['Front', 'Left', 'Right', 'Rear', 'Turret', 'Body', 'Rotor'],
+  Vehicle: ["Front", "Left", "Right", "Rear", "Turret", "Body"],
+  VTOL: ["Front", "Left", "Right", "Rear", "Turret", "Body", "Rotor"],
   // Aerospace
-  Aero: ['Nose', 'Left Wing', 'Right Wing', 'Aft', 'Wings', 'Fuselage'],
+  Aero: ["Nose", "Left Wing", "Right Wing", "Aft", "Wings", "Fuselage"],
   // Capital ships
-  Dropship: ['Nose', 'Left Side', 'Right Side', 'Aft', 'Hull'],
-  Capital: ['Nose', 'FL', 'FR', 'AL', 'AR', 'Aft', 'LBS', 'RBS'],
+  Dropship: ["Nose", "Left Side", "Right Side", "Aft", "Hull"],
+  Capital: ["Nose", "FL", "FR", "AL", "AR", "Aft", "LBS", "RBS"],
   // Battle Armor
-  BattleArmor: ['Squad', 'Body', 'Left Arm', 'Right Arm', 'Turret'],
+  BattleArmor: ["Squad", "Body", "Left Arm", "Right Arm", "Turret"],
   // Infantry - no location-based equipment
   Infantry: [],
   // ProtoMech
-  ProtoMech: ['Head', 'Torso', 'Main Gun', 'Left Arm', 'Right Arm', 'Legs'],
+  ProtoMech: ["Head", "Torso", "Main Gun", "Left Arm", "Right Arm", "Legs"],
 };
 
 /**
@@ -247,42 +454,42 @@ export const BLK_EQUIPMENT_LOCATIONS: Record<string, readonly string[]> = {
  */
 export const BLK_EQUIPMENT_BLOCK_TAGS: readonly string[] = [
   // Standard location-based
-  'Front Equipment',
-  'Left Equipment',
-  'Left Side Equipment',
-  'Right Equipment',
-  'Right Side Equipment',
-  'Rear Equipment',
-  'Turret Equipment',
-  'Body Equipment',
+  "Front Equipment",
+  "Left Equipment",
+  "Left Side Equipment",
+  "Right Equipment",
+  "Right Side Equipment",
+  "Rear Equipment",
+  "Turret Equipment",
+  "Body Equipment",
   // Aerospace
-  'Nose Equipment',
-  'Left Wing Equipment',
-  'Right Wing Equipment',
-  'Aft Equipment',
-  'Wings Equipment',
-  'Fuselage Equipment',
-  'Hull Equipment',
+  "Nose Equipment",
+  "Left Wing Equipment",
+  "Right Wing Equipment",
+  "Aft Equipment",
+  "Wings Equipment",
+  "Fuselage Equipment",
+  "Hull Equipment",
   // Capital arcs
-  'FL Equipment',
-  'FR Equipment',
-  'AL Equipment',
-  'AR Equipment',
-  'LBS Equipment',
-  'RBS Equipment',
+  "FL Equipment",
+  "FR Equipment",
+  "AL Equipment",
+  "AR Equipment",
+  "LBS Equipment",
+  "RBS Equipment",
   // Battle Armor
-  'Squad Equipment',
-  'Trooper 1 Equipment',
-  'Trooper 2 Equipment',
-  'Trooper 3 Equipment',
-  'Trooper 4 Equipment',
-  'Trooper 5 Equipment',
-  'Trooper 6 Equipment',
+  "Squad Equipment",
+  "Trooper 1 Equipment",
+  "Trooper 2 Equipment",
+  "Trooper 3 Equipment",
+  "Trooper 4 Equipment",
+  "Trooper 5 Equipment",
+  "Trooper 6 Equipment",
   // ProtoMech
-  'Head Equipment',
-  'Torso Equipment',
-  'Main Gun Equipment',
-  'Left Arm Equipment',
-  'Right Arm Equipment',
-  'Legs Equipment',
+  "Head Equipment",
+  "Torso Equipment",
+  "Main Gun Equipment",
+  "Left Arm Equipment",
+  "Right Arm Equipment",
+  "Legs Equipment",
 ];
