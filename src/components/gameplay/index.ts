@@ -41,3 +41,11 @@ export { ToHitForecastModal } from './ToHitForecastModal';
 export type { ToHitForecastModalProps } from './ToHitForecastModal';
 export { CombatPlanningPanel } from './CombatPlanningPanel';
 export type { CombatPlanningPanelProps } from './CombatPlanningPanel';
+
+// add-skirmish-setup-ui pickers (per-side unit + pilot, deployment preview)
+export { UnitPicker } from './UnitPicker';
+export type { UnitPickerProps } from './UnitPicker';
+export { PilotPicker } from './PilotPicker';
+export type { PilotPickerProps } from './PilotPicker';
+export { DeploymentZonePreview } from './DeploymentZonePreview';
+export type { DeploymentZonePreviewProps } from './DeploymentZonePreview';
