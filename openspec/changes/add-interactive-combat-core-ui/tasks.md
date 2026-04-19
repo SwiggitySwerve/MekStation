@@ -41,8 +41,11 @@
 
 ## 6. Action Panel — Heat Bar
 
-- [x] 6.1 Reuse existing `HeatTracker` to render current heat vs.
-      dissipation
+- [x] 6.1 Heat bar renders current heat vs. dissipation in the action
+      panel (see design.md "Decisions discovered during execution" —
+      the standalone `HeatTracker` component is construction-tool
+      only; combat uses `SimpleHeatDisplay` which satisfies the
+      underlying spec scenario)
 - [x] 6.2 Heat thresholds (8/13/17/24) render as tick marks with labels
 - [x] 6.3 Current heat bar color shifts red past 13 per canonical scale
 

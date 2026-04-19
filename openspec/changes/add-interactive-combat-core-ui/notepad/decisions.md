@@ -39,3 +39,27 @@
 **Rationale**: The spec's Scenario 2 ("Click empty hex clears selection") is the missing hook. Implementing it inside `handleInteractiveHexClick` keeps the mode-aware behaviour in one place.
 
 **Impact**: Edit `useGameplayStore.ts` `handleInteractiveHexClick` branch + a non-interactive fallback in `[id].tsx`.
+
+## [2026-04-18] Task 5.1 — compact ArmorPipRail instead of literal ArmorPip reuse
+
+**Choice**: Introduce a new `ArmorPipRail` sub-component in `RecordSheetPanels.tsx` that renders per-location armor and internal structure as dense 8×8px dots (green = armor filled, amber = structure filled, red = location destroyed, gray = empty). Do not mount the existing full-size `ArmorPip` button component (48×48px, interactive cycle state machine) inside the combat record sheet.
+
+**Rationale**: The spec language is "panel SHALL include armor pips for all eight locations" — generic pip visualization, not a specific React component. The existing `ArmorPip` is a click-to-damage toggle designed for the construction-tool record sheet; with up to 30 armor points per location it would blow the dense combat panel layout. The rail reuses `ArmorPip`'s visual palette (`bg-green-500`, `bg-red-500`, `bg-gray-300`) so the two surfaces remain visually consistent.
+
+**Impact**: `RecordSheetPanels.tsx` exports `ArmorPipRail`; `LocationStatusRow` renders one AR + one IS rail per location, plus a RR rail on torsos. Existing numeric `N/M` row preserved for tests that key on it.
+
+## [2026-04-18] Task 6.1 — keep SimpleHeatDisplay instead of reusing HeatTracker
+
+**Choice**: Do not swap the combat action-panel heat readout to the standalone `HeatTracker` component. Keep `SimpleHeatDisplay` as the live-combat renderer.
+
+**Rationale**: `HeatTracker` is built for construction-tool previews — it carries a scale selector (Single/Double/Triple heat mode), a cooling countdown, and a "MAX HEAT - SHUTDOWN" banner keyed to the old 30/50/70 scale. None of those are appropriate for live combat. `SimpleHeatDisplay` already satisfies the underlying spec scenario ("heat bar SHALL show current heat and dissipation capacity AND tick marks SHALL label canonical thresholds 8, 13, 17, 24") and §§ 6.2 + 6.3 render canonical tick marks + canonical color scale. Swapping to HeatTracker would regress those features.
+
+**Impact**: Task 6.1 remains intentionally unchecked with a rationale note; 6.2 and 6.3 satisfy the spec requirement. Leave for a future change that consolidates the two heat renderers.
+
+## [2026-04-18] Task 7.2 — thin InlineAmmoCounter instead of literal AmmoCounter reuse
+
+**Choice**: Render ammo inline inside `WeaponRow` via a small `InlineAmmoCounter` sub-component that matches the `AmmoCounter` visual idiom (N/M rds, amber tint at 25%, red at empty) without mounting the full fire/reload UI.
+
+**Rationale**: The real `AmmoCounter` component (`src/components/gameplay/AmmoCounter.tsx`) carries `onFire` + `onReload` callbacks and renders a full fire button, reload progress ring, and haptic feedback. That is the "combat ammo HUD" shape — wrong for a dense weapon row where ammo is secondary information. The spec's "reuse" intent is "match the visual language", which the inline renderer does.
+
+**Impact**: Consistent ammo UX across the record sheet and fire HUD; no behavior split. Future change can promote the inline renderer into its own file if it grows.
