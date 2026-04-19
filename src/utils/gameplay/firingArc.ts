@@ -23,9 +23,9 @@
  * @spec openspec/changes/archive/2026-02-12-full-combat-parity/specs/firing-arc-calculation/spec.md
  */
 
-import { IHexCoordinate, Facing, FiringArc } from "@/types/gameplay";
+import { IHexCoordinate, Facing, FiringArc } from '@/types/gameplay';
 
-import { determineArc } from "./firingArcs";
+import { determineArc } from './firingArcs';
 
 // =============================================================================
 // Core Firing Arc Calculation
@@ -39,10 +39,10 @@ export function calculateFiringArc(
   attackerPos: IHexCoordinate,
   targetPos: IHexCoordinate,
   targetFacing: Facing,
-  torsoTwist?: "left" | "right",
+  torsoTwist?: 'left' | 'right',
 ): FiringArc {
   const targetAsUnit = {
-    unitId: "_target",
+    unitId: '_target',
     coord: targetPos,
     facing: torsoTwist
       ? getTwistedFacing(targetFacing, torsoTwist)
@@ -63,10 +63,10 @@ export function calculateFiringArc(
  */
 export function getTwistedFacing(
   facing: Facing,
-  twist: "left" | "right",
+  twist: 'left' | 'right',
 ): Facing {
   // Left: +1 (clockwise), Right: -1 (counter-clockwise) mod 6
-  return twist === "left"
+  return twist === 'left'
     ? (((facing + 1) % 6) as Facing)
     : (((facing - 1 + 6) % 6) as Facing);
 }
