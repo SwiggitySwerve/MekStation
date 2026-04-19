@@ -12,6 +12,7 @@ import {
 import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
+import { logger } from '@/utils/logger';
 
 import type { IAdaptedUnit, IAdaptUnitOptions, IWeaponData } from '../types';
 
@@ -215,10 +216,100 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
 };
 
 /**
- * Look up static weapon data by equipment ID.
+ * IS/Clan weapon ID canonicalization.
+ *
+ * Weapon ids arrive from several upstream sources (unit JSON, MTF parser,
+ * compendium catalog, ad-hoc test fixtures) in inconsistent shapes. Per
+ * `wire-real-weapon-data` task 2.3, `getWeaponData` SHALL resolve both IS
+ * and Clan variants against the static engine weapon database without the
+ * caller having to know which casing / prefix / separator a given producer
+ * uses.
+ *
+ * Normalization rules:
+ * - Lowercase + trim
+ * - Replace whitespace and slashes with hyphens (`AC/20` → `ac-20`,
+ *   `Medium Laser` → `medium-laser`)
+ * - Strip `clan-`, `clan `, `cl-`, and `c-` prefixes BEFORE lookup when the
+ *   clan variant is not present in the static DB — the engine DB only ships
+ *   IS stats today, so Clan weapons fall back to the IS equivalent. When
+ *   proper Clan stats land (follow-up change), add the Clan rows to the DB
+ *   and this prefix strip becomes a no-op for those ids (direct hit wins).
+ * - Strip common abbreviations' ambiguity (`ML` → `medium-laser`,
+ *   `SL` → `small-laser`, `LL` → `large-laser`, `MG` → `machine-gun`,
+ *   `PPC` stays `ppc`).
+ *
+ * The returned record is the IS entry from `WEAPON_DATABASE`. Callers that
+ * need tech-base awareness SHALL read it elsewhere; this helper is
+ * stat-resolution only.
+ */
+const WEAPON_ID_ALIASES: Readonly<Record<string, string>> = {
+  // Common abbreviations
+  ml: 'medium-laser',
+  sl: 'small-laser',
+  ll: 'large-laser',
+  mg: 'machine-gun',
+  // Slash-style canonical (from MegaMek-ish sources)
+  'ac-2': 'ac-2',
+  'ac-5': 'ac-5',
+  'ac-10': 'ac-10',
+  'ac-20': 'ac-20',
+  // LRM / SRM "LRM-N" vs "lrm-N"
+  'lrm-5': 'lrm-5',
+  'lrm-10': 'lrm-10',
+  'lrm-15': 'lrm-15',
+  'lrm-20': 'lrm-20',
+  'srm-2': 'srm-2',
+  'srm-4': 'srm-4',
+  'srm-6': 'srm-6',
+  // Explicit "Inner Sphere" prefixes
+  'is-medium-laser': 'medium-laser',
+  'is-small-laser': 'small-laser',
+  'is-large-laser': 'large-laser',
+  'is-ppc': 'ppc',
+  'is-ac-2': 'ac-2',
+  'is-ac-5': 'ac-5',
+  'is-ac-10': 'ac-10',
+  'is-ac-20': 'ac-20',
+};
+
+const CLAN_PREFIX_PATTERNS: readonly RegExp[] = [/^clan-/, /^cl-/, /^c-/];
+
+export function canonicalizeWeaponId(equipmentId: string): string {
+  if (!equipmentId) return equipmentId;
+  const raw = equipmentId.toLowerCase().trim();
+  // Normalize separators: whitespace → hyphen, slash → hyphen, collapse dupes.
+  const normalized = raw.replace(/[\s/]+/g, '-').replace(/-+/g, '-');
+  // Direct alias hit (abbreviations, IS-prefixed)
+  if (WEAPON_ID_ALIASES[normalized]) {
+    return WEAPON_ID_ALIASES[normalized];
+  }
+  // Direct catalog hit — done.
+  if (WEAPON_DATABASE[normalized]) {
+    return normalized;
+  }
+  // Clan-prefixed fallback: strip prefix and re-check against catalog or
+  // alias map. The static DB only holds IS rows today, so this fall-through
+  // gives Clan variants the IS equivalent stats (documented below).
+  for (const pattern of CLAN_PREFIX_PATTERNS) {
+    if (pattern.test(normalized)) {
+      const stripped = normalized.replace(pattern, '');
+      if (WEAPON_DATABASE[stripped]) return stripped;
+      if (WEAPON_ID_ALIASES[stripped]) return WEAPON_ID_ALIASES[stripped];
+    }
+  }
+  return normalized;
+}
+
+/**
+ * Look up static weapon data by equipment ID. Accepts both IS and Clan
+ * variants via `canonicalizeWeaponId`. Returns `undefined` when no entry
+ * matches — callers are expected to surface the miss (e.g., via
+ * `weaponAttackBuilder` logger.warn + skip, per task 3.3) rather than
+ * silently defaulting to a 5-damage / 3-heat placeholder.
  */
 export function getWeaponData(equipmentId: string): IWeaponData | undefined {
-  return WEAPON_DATABASE[equipmentId];
+  const canonicalId = canonicalizeWeaponId(equipmentId);
+  return WEAPON_DATABASE[canonicalId];
 }
 
 // =============================================================================
@@ -313,15 +404,33 @@ function extractWeapons(
   const idCounts = new Map<string, number>();
 
   for (const item of equipment) {
-    const data = WEAPON_DATABASE[item.id];
-    if (!data) continue;
+    // Canonicalize the incoming equipment id so IS/Clan/abbreviation
+    // variants all resolve against the static DB (task 2.3). Without this
+    // step, an upstream producer that emits "Medium Laser" or
+    // "clan-medium-laser" would silently drop the weapon from the unit's
+    // inventory — and later the weaponAttackBuilder would warn about a
+    // missing weapon that was actually discarded here.
+    const canonicalId = canonicalizeWeaponId(item.id);
+    const data = WEAPON_DATABASE[canonicalId];
+    if (!data) {
+      // Task 3.3: do not silently skip — surface the miss so data-pipeline
+      // bugs are observable. Combat resilience is preserved because the
+      // weapon simply isn't added to the unit's inventory, and the bot /
+      // player cannot then declare it as a firing weapon.
+      logger.warn(
+        `[CompendiumAdapter] Weapon id "${item.id}" on unit "${unitId}" ` +
+          `(canonical: "${canonicalId}") has no static catalog entry — ` +
+          `skipping. Add it to WEAPON_DATABASE or WEAPON_ID_ALIASES.`,
+      );
+      continue;
+    }
 
-    const count = (idCounts.get(item.id) ?? 0) + 1;
-    idCounts.set(item.id, count);
+    const count = (idCounts.get(canonicalId) ?? 0) + 1;
+    idCounts.set(canonicalId, count);
 
     weapons.push({
       ...data,
-      id: `${unitId}-${item.id}-${count}`,
+      id: `${unitId}-${canonicalId}-${count}`,
     });
   }
 

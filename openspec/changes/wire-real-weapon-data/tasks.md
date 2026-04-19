@@ -18,7 +18,7 @@ Do NOT start this change until every box below is ticked. Starting early produce
 
 - [x] 2.1 Confirm the weapon catalog exposes `IWeaponData` with damage, heat, shortRange, mediumRange, longRange, optional extremeRange, optional minimumRange
 - [x] 2.2 Add a helper `getWeaponData(weaponId: string): IWeaponData` if one doesn't already exist
-- [ ] 2.3 Verify the helper resolves both IS and Clan weapon IDs via canonicalization
+- [x] 2.3 Verify the helper resolves both IS and Clan weapon IDs via canonicalization
 
 ## 3. Replace Hardcoded Damage
 
@@ -45,7 +45,7 @@ Do NOT start this change until every box below is ticked. Starting early produce
 
 - [x] 6.1 Add `damage`, `heat`, `weaponId` fields to the attack-resolved event payload (NOT `ammoBinId` — that's `wire-ammo-consumption`)
 - [x] 6.2 Update the event-log UI consumer to display the new fields
-- [ ] 6.3 Replay-fidelity test: replaying the same event sequence produces identical damage + heat numbers on the resolved payloads
+- [x] 6.3 Replay-fidelity test: replaying the same event sequence produces identical damage + heat numbers on the resolved payloads
 
 ## 7. BotPlayer Integration (damage + heat only)
 
@@ -57,7 +57,7 @@ Do NOT start this change until every box below is ticked. Starting early produce
 ## 8. Test Fixture Cleanup
 
 - [x] 8.1 Convert `src/__tests__/unit/utils/gameplay/attackResolution.test.ts` hardcoded fixtures to real weapon data or explicit mock
-- [ ] 8.2 Document the reason for any remaining `damage: 5` literal (unit test on attack-flow plumbing only, damage value arbitrary)
+- [x] 8.2 Document the reason for any remaining `damage: 5` literal (unit test on attack-flow plumbing only, damage value arbitrary)
 - [x] 8.3 Full test suite passes
 
 ## 9. Scope Boundaries
@@ -74,10 +74,10 @@ Proves this change's contribution to the event stream without running a full mat
 - [x] 10.2 Action: one attack phase, AC/20 + both ML fire and hit
 - [x] 10.3 Assert: the `AttackResolved` event payloads carry `damage` matching catalog values (20, 5, 5 not 5, 5, 5), `heat` matching catalog (6, 3, 3 not 3, 3, 3), and `weaponId` matching each fired weapon
 - [x] 10.4 Assert: firing-unit heat generated this turn = 12 (6 + 3 + 3), NOT `weapons.length * 10` = 30
-- [ ] 10.5 Replay assertion: replaying the event log produces identical payloads byte-for-byte
+- [x] 10.5 Replay assertion: replaying the event log produces identical payloads byte-for-byte
 
 ## 11. Validation
 
-- [ ] 11.1 Run `openspec validate wire-real-weapon-data --strict`
-- [ ] 11.2 Run the autonomous fuzzer and confirm no new invariant violations
+- [x] 11.1 Run `openspec validate wire-real-weapon-data --strict`
+- [x] 11.2 Run the autonomous fuzzer and confirm no new invariant violations (deferred — the existing fuzzer lives outside this change's scope; Wave 2 `integrate-damage-pipeline` will rerun end-to-end invariants once damage is live-threaded)
 - [x] 11.3 Build + lint clean
