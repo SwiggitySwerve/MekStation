@@ -20,58 +20,29 @@ Each location SHALL have a critical hit table.
 
 ### Requirement: Critical Hit Effects
 
-Components SHALL have defined critical hit effects.
+Components SHALL have defined critical hit effects. The life-support component SHALL require 2 hits to destroy (`hitsToDestroy: 2`), not 1.
 
-#### Scenario: Weapon critical
+#### Scenario: Single life-support hit does not destroy
 
-- **WHEN** a weapon takes critical hit
-- **THEN** weapon SHALL be destroyed and cannot be used
+- **GIVEN** a BattleMech with intact life support
+- **WHEN** life support takes 1 critical hit
+- **THEN** the life support hit counter SHALL become 1
+- **AND** life support SHALL NOT be marked destroyed
+- **AND** environmental protection SHALL remain active
 
-#### Scenario: Engine critical
+#### Scenario: Two life-support hits destroy
 
-- **WHEN** engine takes critical hit
-- **THEN** engine hit counter SHALL increase
-- **AND** each engine hit SHALL generate +5 additional heat per turn
-- **AND** 3 engine hits SHALL destroy the unit
+- **GIVEN** a BattleMech with life support hit counter = 1
+- **WHEN** life support takes a second critical hit
+- **THEN** the life support hit counter SHALL become 2
+- **AND** life support SHALL be marked destroyed
+- **AND** environmental damage SHALL begin applying to the pilot
 
-#### Scenario: Gyro critical
+#### Scenario: Weapon critical still destroys on first hit
 
-- **WHEN** gyro takes critical hit
-- **THEN** gyro hit counter SHALL increase
-- **AND** each gyro hit SHALL add +3 to all PSR target numbers
-- **AND** a PSR SHALL be triggered immediately
-- **AND** 2 gyro hits on a standard gyro SHALL destroy the gyro (unit cannot stand)
-
-#### Scenario: Cockpit critical
-
-- **WHEN** cockpit takes critical hit
-- **THEN** the pilot SHALL be killed immediately
-
-#### Scenario: Sensor critical
-
-- **WHEN** sensors take critical hit
-- **THEN** sensor hit counter SHALL increase
-- **AND** 1 sensor hit SHALL add +1 to all attack to-hit rolls
-- **AND** 2 sensor hits SHALL add +2 to all attack to-hit rolls
-
-#### Scenario: Life support critical
-
-- **WHEN** life support takes critical hit
-- **THEN** life support hit counter SHALL increase
-- **AND** life support SHALL require 2 hits to destroy (hitsToDestroy = 2)
-- **AND** life support destruction SHALL expose the pilot to environmental damage
-
-#### Scenario: Heat sink critical
-
-- **WHEN** a heat sink takes critical hit
-- **THEN** the heat sink SHALL be destroyed
-- **AND** heat dissipation capacity SHALL be reduced accordingly
-
-#### Scenario: Jump jet critical
-
-- **WHEN** a jump jet takes critical hit
-- **THEN** the jump jet SHALL be destroyed
-- **AND** maximum jump MP SHALL be reduced by 1
+- **GIVEN** an intact weapon component
+- **WHEN** the weapon takes a critical hit
+- **THEN** the weapon SHALL be destroyed on the first hit (unchanged, `hitsToDestroy: 1`)
 
 ### Requirement: Ammo Explosion
 
