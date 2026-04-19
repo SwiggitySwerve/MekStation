@@ -12,11 +12,9 @@
  * @spec openspec/changes/add-interactive-combat-core-ui/tasks.md § 12
  */
 
-import { fireEvent, render, screen } from "@testing-library/react";
-import React from "react";
-import "@testing-library/jest-dom";
-
-import { GameplayLayout } from "@/components/gameplay/GameplayLayout";
+import { fireEvent, render, screen } from '@testing-library/react';
+import React from 'react';
+import '@testing-library/jest-dom';
 import {
   createDemoHeatSinks,
   createDemoMaxArmor,
@@ -25,7 +23,8 @@ import {
   createDemoSession,
   createDemoUnitSpas,
   createDemoWeapons,
-} from "@/__fixtures__/gameplay";
+} from '@/__fixtures__/gameplay';
+import { GameplayLayout } from '@/components/gameplay/GameplayLayout';
 import {
   GameEventType,
   GamePhase,
@@ -33,7 +32,7 @@ import {
   type IDamageAppliedPayload,
   type IGameEvent,
   type IGameSession,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -81,14 +80,14 @@ function renderLayout(
 // 12.1 — Token selection swaps action panel content
 // ---------------------------------------------------------------------------
 
-describe("12.1 Token selection swaps record sheet", () => {
+describe('12.1 Token selection swaps record sheet', () => {
   it("shows the selected unit's name and updates when selection changes", () => {
     // First render with player unit selected.
     const { rerender, session } = renderLayout({
-      selectedUnitId: "unit-player-1",
+      selectedUnitId: 'unit-player-1',
     });
 
-    const header1 = screen.getByTestId("record-sheet-unit-name");
+    const header1 = screen.getByTestId('record-sheet-unit-name');
     expect(header1).toHaveTextContent(/Atlas/i);
 
     // Re-render with the opponent unit selected; the record sheet's
@@ -110,17 +109,17 @@ describe("12.1 Token selection swaps record sheet", () => {
       />,
     );
 
-    const header2 = screen.getByTestId("record-sheet-unit-name");
+    const header2 = screen.getByTestId('record-sheet-unit-name');
     expect(header2).toHaveTextContent(/Hunchback/i);
 
     // Side badge must also swap from Player (blue) → Opponent (red).
-    const badge = screen.getByTestId("record-sheet-side-badge");
-    expect(badge.dataset.side).toBe("opponent");
+    const badge = screen.getByTestId('record-sheet-side-badge');
+    expect(badge.dataset.side).toBe('opponent');
   });
 
-  it("shows the placeholder when no unit is selected", () => {
+  it('shows the placeholder when no unit is selected', () => {
     renderLayout({ selectedUnitId: null });
-    expect(screen.getByTestId("no-unit-selected")).toHaveTextContent(
+    expect(screen.getByTestId('no-unit-selected')).toHaveTextContent(
       /Select a unit to view its status/i,
     );
   });
@@ -130,13 +129,13 @@ describe("12.1 Token selection swaps record sheet", () => {
 // 12.2 — Phase change advances the tracker
 // ---------------------------------------------------------------------------
 
-describe("12.2 PhaseBanner reacts to session phase change", () => {
+describe('12.2 PhaseBanner reacts to session phase change', () => {
   it("renders the new phase when the session's currentState.phase flips", () => {
     const session = createDemoSession();
     // Demo session starts in WeaponAttack; flip to Movement and
     // confirm the banner re-renders with the new phase label.
     const initial = renderLayout({ session });
-    expect(screen.getByTestId("phase-name")).toHaveTextContent(
+    expect(screen.getByTestId('phase-name')).toHaveTextContent(
       /Weapon Attack/i,
     );
 
@@ -161,7 +160,7 @@ describe("12.2 PhaseBanner reacts to session phase change", () => {
       />,
     );
 
-    expect(screen.getByTestId("phase-name")).toHaveTextContent(/Movement/i);
+    expect(screen.getByTestId('phase-name')).toHaveTextContent(/Movement/i);
   });
 });
 
@@ -169,18 +168,18 @@ describe("12.2 PhaseBanner reacts to session phase change", () => {
 // 12.3 — Damage event appears in the event log
 // ---------------------------------------------------------------------------
 
-describe("12.3 Damage event adds an entry to the event log", () => {
-  it("renders a new event-row when a DamageApplied event is appended", () => {
+describe('12.3 Damage event adds an entry to the event log', () => {
+  it('renders a new event-row when a DamageApplied event is appended', () => {
     const session = createDemoSession();
     const initial = renderLayout({ session });
 
     // Baseline: two demo events (TurnStarted + PhaseChanged).
-    const baselineCount = screen.getAllByTestId("event-row").length;
+    const baselineCount = screen.getAllByTestId('event-row').length;
     expect(baselineCount).toBe(session.events.length);
 
     const damagePayload: IDamageAppliedPayload = {
-      unitId: "unit-opponent-1",
-      location: "center_torso",
+      unitId: 'unit-opponent-1',
+      location: 'center_torso',
       damage: 20,
       armorRemaining: 2,
       structureRemaining: 16,
@@ -188,7 +187,7 @@ describe("12.3 Damage event adds an entry to the event log", () => {
     };
 
     const damageEvent: IGameEvent = {
-      id: "evt-damage-1",
+      id: 'evt-damage-1',
       gameId: session.id,
       sequence: session.events.length + 1,
       timestamp: new Date().toISOString(),
@@ -220,12 +219,12 @@ describe("12.3 Damage event adds an entry to the event log", () => {
       />,
     );
 
-    const rows = screen.getAllByTestId("event-row");
+    const rows = screen.getAllByTestId('event-row');
     expect(rows.length).toBe(baselineCount + 1);
     // Newest-first ordering — the first row must be our damage row.
-    expect(rows[0]).toHaveAttribute("data-event-id", "evt-damage-1");
+    expect(rows[0]).toHaveAttribute('data-event-id', 'evt-damage-1');
     // Event-count badge on the header updates too.
-    expect(screen.getByTestId("event-log-count")).toHaveTextContent(
+    expect(screen.getByTestId('event-log-count')).toHaveTextContent(
       `(${updatedSession.events.length})`,
     );
   });
@@ -235,7 +234,7 @@ describe("12.3 Damage event adds an entry to the event log", () => {
 // 12.4 — Narrow viewport collapses action panel into a drawer
 // ---------------------------------------------------------------------------
 
-describe("12.4 Narrow viewport collapses record sheet into drawer", () => {
+describe('12.4 Narrow viewport collapses record sheet into drawer', () => {
   /**
    * jsdom's default matchMedia mock (defined in jest.setup.js)
    * answers `matches: false` for every query — i.e., desktop. We
@@ -261,7 +260,7 @@ describe("12.4 Narrow viewport collapses record sheet into drawer", () => {
     }));
     // innerWidth is read on initial state (SSR-safe fallback path);
     // push it below the breakpoint so the first render is narrow.
-    Object.defineProperty(window, "innerWidth", {
+    Object.defineProperty(window, 'innerWidth', {
       writable: true,
       configurable: true,
       value: 800,
@@ -274,34 +273,34 @@ describe("12.4 Narrow viewport collapses record sheet into drawer", () => {
     } else {
       mmFn.mockReset();
     }
-    Object.defineProperty(window, "innerWidth", {
+    Object.defineProperty(window, 'innerWidth', {
       writable: true,
       configurable: true,
       value: originalInnerWidth,
     });
   });
 
-  it("hides the split-view record sheet panel and exposes a drawer toggle", () => {
-    renderLayout({ selectedUnitId: "unit-player-1" });
+  it('hides the split-view record sheet panel and exposes a drawer toggle', () => {
+    renderLayout({ selectedUnitId: 'unit-player-1' });
 
     // Split-view panel and resize handle are absent below `lg:`.
-    expect(screen.queryByTestId("record-sheet-panel")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("resize-handle")).not.toBeInTheDocument();
+    expect(screen.queryByTestId('record-sheet-panel')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('resize-handle')).not.toBeInTheDocument();
 
     // Drawer is not yet open — overlay should NOT be mounted.
-    expect(screen.queryByTestId("record-sheet-drawer")).not.toBeInTheDocument();
+    expect(screen.queryByTestId('record-sheet-drawer')).not.toBeInTheDocument();
 
     // PhaseBanner hosts the toggle button; clicking it opens the drawer.
-    const toggle = screen.getByTestId("record-sheet-drawer-toggle");
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    const toggle = screen.getByTestId('record-sheet-drawer-toggle');
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
     fireEvent.click(toggle);
 
-    const drawer = screen.getByTestId("record-sheet-drawer");
+    const drawer = screen.getByTestId('record-sheet-drawer');
     expect(drawer).toBeInTheDocument();
-    expect(screen.getByTestId("record-sheet-drawer-toggle")).toHaveAttribute(
-      "aria-expanded",
-      "true",
+    expect(screen.getByTestId('record-sheet-drawer-toggle')).toHaveAttribute(
+      'aria-expanded',
+      'true',
     );
     // The drawer renders the same record-sheet body, keyed to the
     // same selection — confirm by looking for the unit-name header
@@ -309,8 +308,8 @@ describe("12.4 Narrow viewport collapses record sheet into drawer", () => {
     expect(drawer).toHaveTextContent(/Atlas/i);
 
     // Closing via the drawer's own close button hides it again.
-    fireEvent.click(screen.getByTestId("record-sheet-drawer-close"));
-    expect(screen.queryByTestId("record-sheet-drawer")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('record-sheet-drawer-close'));
+    expect(screen.queryByTestId('record-sheet-drawer')).not.toBeInTheDocument();
   });
 });
 
@@ -318,14 +317,14 @@ describe("12.4 Narrow viewport collapses record sheet into drawer", () => {
 // § 6.2 — Heat threshold tick marks
 // ---------------------------------------------------------------------------
 
-describe("6.2 Heat bar tick marks at canonical thresholds", () => {
-  it("renders a tick and label for each of the 8/13/17/24 breakpoints", () => {
-    renderLayout({ selectedUnitId: "unit-player-1" });
+describe('6.2 Heat bar tick marks at canonical thresholds', () => {
+  it('renders a tick and label for each of the 8/13/17/24 breakpoints', () => {
+    renderLayout({ selectedUnitId: 'unit-player-1' });
     for (const threshold of [8, 13, 17, 24]) {
       expect(screen.getByTestId(`heat-tick-${threshold}`)).toBeInTheDocument();
       const label = screen.getByTestId(`heat-tick-label-${threshold}`);
       expect(label).toBeInTheDocument();
-      expect(label).toHaveAttribute("data-threshold", String(threshold));
+      expect(label).toHaveAttribute('data-threshold', String(threshold));
     }
   });
 });
@@ -334,20 +333,20 @@ describe("6.2 Heat bar tick marks at canonical thresholds", () => {
 // § 5.1 — Armor pip rail (read-only pip visualization)
 // ---------------------------------------------------------------------------
 
-describe("5.1 Armor diagram renders pips per location", () => {
-  it("shows an armor pip rail and structure pip rail for every location", () => {
-    renderLayout({ selectedUnitId: "unit-player-1" });
+describe('5.1 Armor diagram renders pips per location', () => {
+  it('shows an armor pip rail and structure pip rail for every location', () => {
+    renderLayout({ selectedUnitId: 'unit-player-1' });
     // Every canonical location must have a pip container so damage
     // is readable at a glance, not just as a text ratio.
     for (const location of [
-      "head",
-      "center_torso",
-      "left_torso",
-      "right_torso",
-      "left_arm",
-      "right_arm",
-      "left_leg",
-      "right_leg",
+      'head',
+      'center_torso',
+      'left_torso',
+      'right_torso',
+      'left_arm',
+      'right_arm',
+      'left_leg',
+      'right_leg',
     ]) {
       expect(
         screen.getByTestId(`location-pips-${location}`),
@@ -359,7 +358,7 @@ describe("5.1 Armor diagram renders pips per location", () => {
     }
 
     // § 5.2 — torso locations must include a rear armor pip rail.
-    for (const torso of ["center_torso", "left_torso", "right_torso"]) {
+    for (const torso of ['center_torso', 'left_torso', 'right_torso']) {
       expect(
         screen.getByTestId(`armor-pips-${torso}_rear`),
       ).toBeInTheDocument();

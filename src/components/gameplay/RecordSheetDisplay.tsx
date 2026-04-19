@@ -6,22 +6,22 @@
  * @spec openspec/changes/add-interactive-combat-core-ui/specs/tactical-map-interface/spec.md
  */
 
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 
 import {
   GameSide,
   IPilotSpaSummary,
   IUnitGameState,
   IWeaponStatus,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import { LOCATION_ORDER, REAR_ARMOR_LOCATIONS } from "./recordSheet.helpers";
+import { LOCATION_ORDER, REAR_ARMOR_LOCATIONS } from './recordSheet.helpers';
 import {
   LocationStatusRow,
   WeaponRow,
   SimpleHeatDisplay,
   PilotStatus,
-} from "./RecordSheetPanels";
+} from './RecordSheetPanels';
 
 // =============================================================================
 // Types
@@ -106,7 +106,7 @@ export function RecordSheetDisplay({
   tonnage,
   chassis,
   spas,
-  className = "",
+  className = '',
 }: RecordSheetDisplayProps): React.ReactElement {
   // Build location statuses
   const locationStatuses = useMemo(() => {
@@ -144,21 +144,21 @@ export function RecordSheetDisplay({
           </h2>
           {side && (
             <span
-              className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+              className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${
                 side === GameSide.Player
-                  ? "bg-blue-100 text-blue-700"
-                  : "bg-red-100 text-red-700"
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'bg-red-100 text-red-700'
               }`}
               data-testid="record-sheet-side-badge"
-              data-side={side === GameSide.Player ? "player" : "opponent"}
+              data-side={side === GameSide.Player ? 'player' : 'opponent'}
             >
               <span
                 aria-hidden="true"
                 className={`h-2 w-2 rounded-full ${
-                  side === GameSide.Player ? "bg-blue-500" : "bg-red-500"
+                  side === GameSide.Player ? 'bg-blue-500' : 'bg-red-500'
                 }`}
               />
-              {side === GameSide.Player ? "Player" : "Opponent"}
+              {side === GameSide.Player ? 'Player' : 'Opponent'}
             </span>
           )}
           {state.destroyed && (
@@ -294,7 +294,7 @@ export function RecordSheetDisplay({
         <strong data-testid="movement-type">{state.movementThisTurn}</strong>
         {state.hexesMovedThisTurn > 0 && (
           <span data-testid="hexes-moved">
-            {" "}
+            {' '}
             ({state.hexesMovedThisTurn} hexes)
           </span>
         )}

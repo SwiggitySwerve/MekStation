@@ -20,7 +20,7 @@ import {
   Facing,
   MovementType,
   ITurnStartedPayload,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
 // =============================================================================
 // Demo Session Factory
@@ -32,25 +32,25 @@ import {
  */
 export function createDemoSession(): IGameSession {
   const now = new Date().toISOString();
-  const gameId = "demo-game-001";
+  const gameId = 'demo-game-001';
 
   // Create demo units
   const playerUnit = {
-    id: "unit-player-1",
-    name: "Atlas AS7-D",
+    id: 'unit-player-1',
+    name: 'Atlas AS7-D',
     side: GameSide.Player,
-    unitRef: "AS7-D",
-    pilotRef: "pilot-1",
+    unitRef: 'AS7-D',
+    pilotRef: 'pilot-1',
     gunnery: 4,
     piloting: 5,
   };
 
   const opponentUnit = {
-    id: "unit-opponent-1",
-    name: "Hunchback HBK-4G",
+    id: 'unit-opponent-1',
+    name: 'Hunchback HBK-4G',
     side: GameSide.Opponent,
-    unitRef: "HBK-4G",
-    pilotRef: "pilot-2",
+    unitRef: 'HBK-4G',
+    pilotRef: 'pilot-2',
     gunnery: 4,
     piloting: 5,
   };
@@ -90,9 +90,9 @@ export function createDemoSession(): IGameSession {
     destroyedLocations: [] as string[],
     destroyedEquipment: [] as string[],
     ammo: {
-      "ac20-ammo": 10,
-      "lrm20-ammo": 12,
-      "srm6-ammo": 15,
+      'ac20-ammo': 10,
+      'lrm20-ammo': 12,
+      'srm6-ammo': 15,
     },
     pilotWounds: 0,
     pilotConscious: true,
@@ -134,8 +134,8 @@ export function createDemoSession(): IGameSession {
     destroyedLocations: [] as string[],
     destroyedEquipment: [] as string[],
     ammo: {
-      "ac20-ammo": 5,
-      "ml-ammo": 0,
+      'ac20-ammo': 5,
+      'ml-ammo': 0,
     },
     pilotWounds: 1,
     pilotConscious: true,
@@ -162,7 +162,7 @@ export function createDemoSession(): IGameSession {
   // Create demo events
   const events: IGameEvent[] = [
     {
-      id: "evt-1",
+      id: 'evt-1',
       gameId,
       sequence: 1,
       timestamp: now,
@@ -172,7 +172,7 @@ export function createDemoSession(): IGameSession {
       payload: {} as ITurnStartedPayload,
     },
     {
-      id: "evt-2",
+      id: 'evt-2',
       gameId,
       sequence: 2,
       timestamp: now,
@@ -193,7 +193,7 @@ export function createDemoSession(): IGameSession {
     config: {
       mapRadius: 5,
       turnLimit: 0,
-      victoryConditions: ["destroy_all"],
+      victoryConditions: ['destroy_all'],
       optionalRules: [],
     },
     units: [playerUnit, opponentUnit],
@@ -211,11 +211,11 @@ export function createDemoSession(): IGameSession {
  */
 export function createDemoWeapons(): Record<string, readonly IWeaponStatus[]> {
   return {
-    "unit-player-1": [
+    'unit-player-1': [
       {
-        id: "weapon-1",
-        name: "AC/20",
-        location: "right_torso",
+        id: 'weapon-1',
+        name: 'AC/20',
+        location: 'right_torso',
         destroyed: false,
         firedThisTurn: false,
         ammoRemaining: 10,
@@ -224,20 +224,20 @@ export function createDemoWeapons(): Record<string, readonly IWeaponStatus[]> {
         ranges: { short: 3, medium: 6, long: 9 },
       },
       {
-        id: "weapon-2",
-        name: "LRM 20",
-        location: "left_torso",
+        id: 'weapon-2',
+        name: 'LRM 20',
+        location: 'left_torso',
         destroyed: false,
         firedThisTurn: false,
         ammoRemaining: 12,
         heat: 6,
-        damage: "1/missile",
+        damage: '1/missile',
         ranges: { short: 7, medium: 14, long: 21, minimum: 6 },
       },
       {
-        id: "weapon-3",
-        name: "Medium Laser",
-        location: "center_torso",
+        id: 'weapon-3',
+        name: 'Medium Laser',
+        location: 'center_torso',
         destroyed: false,
         firedThisTurn: false,
         heat: 3,
@@ -245,22 +245,22 @@ export function createDemoWeapons(): Record<string, readonly IWeaponStatus[]> {
         ranges: { short: 3, medium: 6, long: 9 },
       },
       {
-        id: "weapon-4",
-        name: "SRM 6",
-        location: "left_torso",
+        id: 'weapon-4',
+        name: 'SRM 6',
+        location: 'left_torso',
         destroyed: false,
         firedThisTurn: false,
         ammoRemaining: 15,
         heat: 4,
-        damage: "2/missile",
+        damage: '2/missile',
         ranges: { short: 3, medium: 6, long: 9 },
       },
     ],
-    "unit-opponent-1": [
+    'unit-opponent-1': [
       {
-        id: "weapon-5",
-        name: "AC/20",
-        location: "right_torso",
+        id: 'weapon-5',
+        name: 'AC/20',
+        location: 'right_torso',
         destroyed: false,
         firedThisTurn: false,
         ammoRemaining: 5,
@@ -269,9 +269,9 @@ export function createDemoWeapons(): Record<string, readonly IWeaponStatus[]> {
         ranges: { short: 3, medium: 6, long: 9 },
       },
       {
-        id: "weapon-6",
-        name: "Medium Laser",
-        location: "head",
+        id: 'weapon-6',
+        name: 'Medium Laser',
+        location: 'head',
         destroyed: false,
         firedThisTurn: false,
         heat: 3,
@@ -279,9 +279,9 @@ export function createDemoWeapons(): Record<string, readonly IWeaponStatus[]> {
         ranges: { short: 3, medium: 6, long: 9 },
       },
       {
-        id: "weapon-7",
-        name: "Small Laser",
-        location: "head",
+        id: 'weapon-7',
+        name: 'Small Laser',
+        location: 'head',
         destroyed: false,
         firedThisTurn: false,
         heat: 1,
@@ -301,7 +301,7 @@ export function createDemoWeapons(): Record<string, readonly IWeaponStatus[]> {
  */
 export function createDemoMaxArmor(): Record<string, Record<string, number>> {
   return {
-    "unit-player-1": {
+    'unit-player-1': {
       head: 9,
       center_torso: 47,
       center_torso_rear: 14,
@@ -314,7 +314,7 @@ export function createDemoMaxArmor(): Record<string, Record<string, number>> {
       left_leg: 41,
       right_leg: 41,
     },
-    "unit-opponent-1": {
+    'unit-opponent-1': {
       head: 9,
       center_torso: 24,
       center_torso_rear: 8,
@@ -338,7 +338,7 @@ export function createDemoMaxStructure(): Record<
   Record<string, number>
 > {
   return {
-    "unit-player-1": {
+    'unit-player-1': {
       head: 3,
       center_torso: 31,
       left_torso: 21,
@@ -348,7 +348,7 @@ export function createDemoMaxStructure(): Record<
       left_leg: 21,
       right_leg: 21,
     },
-    "unit-opponent-1": {
+    'unit-opponent-1': {
       head: 3,
       center_torso: 16,
       left_torso: 12,
@@ -370,8 +370,8 @@ export function createDemoMaxStructure(): Record<
  */
 export function createDemoPilotNames(): Record<string, string> {
   return {
-    "unit-player-1": "Captain Marcus Chen",
-    "unit-opponent-1": "Lieutenant Sarah Walsh",
+    'unit-player-1': 'Captain Marcus Chen',
+    'unit-opponent-1': 'Lieutenant Sarah Walsh',
   };
 }
 
@@ -380,8 +380,8 @@ export function createDemoPilotNames(): Record<string, string> {
  */
 export function createDemoHeatSinks(): Record<string, number> {
   return {
-    "unit-player-1": 20,
-    "unit-opponent-1": 10,
+    'unit-player-1': 20,
+    'unit-opponent-1': 10,
   };
 }
 
@@ -397,20 +397,20 @@ export function createDemoUnitSpas(): Record<
   readonly IPilotSpaSummary[]
 > {
   return {
-    "unit-player-1": [
+    'unit-player-1': [
       {
-        id: "melee-specialist",
-        displayLabel: "Melee Specialist",
+        id: 'melee-specialist',
+        displayLabel: 'Melee Specialist',
         description:
-          "Reduces the to-hit number on physical attacks by 1. Eligible with any mech weighing at least 20 tons.",
+          'Reduces the to-hit number on physical attacks by 1. Eligible with any mech weighing at least 20 tons.',
       },
       {
-        id: "sandblinder",
-        displayLabel: "Sandblinder",
+        id: 'sandblinder',
+        displayLabel: 'Sandblinder',
         description:
-          "Ignores penalties from sand and dust and may force opponents who cannot see through it to take piloting checks.",
+          'Ignores penalties from sand and dust and may force opponents who cannot see through it to take piloting checks.',
       },
     ],
-    "unit-opponent-1": [],
+    'unit-opponent-1': [],
   };
 }

@@ -5,9 +5,9 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import React from "react";
+import React from 'react';
 
-import { GamePhase, GameSide } from "@/types/gameplay";
+import { GamePhase, GameSide } from '@/types/gameplay';
 
 // =============================================================================
 // Types
@@ -38,19 +38,19 @@ export interface PhaseBannerProps {
 function getPhaseDisplayName(phase: GamePhase): string {
   switch (phase) {
     case GamePhase.Initiative:
-      return "Initiative";
+      return 'Initiative';
     case GamePhase.Movement:
-      return "Movement Phase";
+      return 'Movement Phase';
     case GamePhase.WeaponAttack:
-      return "Weapon Attack Phase";
+      return 'Weapon Attack Phase';
     case GamePhase.PhysicalAttack:
-      return "Physical Attack Phase";
+      return 'Physical Attack Phase';
     case GamePhase.Heat:
-      return "Heat Phase";
+      return 'Heat Phase';
     case GamePhase.End:
-      return "End Phase";
+      return 'End Phase';
     default:
-      return "Unknown Phase";
+      return 'Unknown Phase';
   }
 }
 
@@ -60,19 +60,19 @@ function getPhaseDisplayName(phase: GamePhase): string {
 function getPhaseColor(phase: GamePhase): string {
   switch (phase) {
     case GamePhase.Initiative:
-      return "bg-blue-600";
+      return 'bg-blue-600';
     case GamePhase.Movement:
-      return "bg-green-600";
+      return 'bg-green-600';
     case GamePhase.WeaponAttack:
-      return "bg-red-600";
+      return 'bg-red-600';
     case GamePhase.PhysicalAttack:
-      return "bg-orange-600";
+      return 'bg-orange-600';
     case GamePhase.Heat:
-      return "bg-yellow-600";
+      return 'bg-yellow-600';
     case GamePhase.End:
-      return "bg-gray-600";
+      return 'bg-gray-600';
     default:
-      return "bg-gray-500";
+      return 'bg-gray-500';
   }
 }
 
@@ -95,15 +95,15 @@ function getActiveSideClasses(side: GameSide): {
 } {
   if (side === GameSide.Player) {
     return {
-      dot: "bg-blue-500",
-      text: "text-blue-100",
-      label: "Player",
+      dot: 'bg-blue-500',
+      text: 'text-blue-100',
+      label: 'Player',
     };
   }
   return {
-    dot: "bg-red-500",
-    text: "text-red-100",
-    label: "Opponent",
+    dot: 'bg-red-500',
+    text: 'text-red-100',
+    label: 'Opponent',
   };
 }
 
@@ -129,13 +129,13 @@ export function PhaseBanner({
   activeSide,
   isPlayerTurn,
   statusText,
-  className = "",
+  className = '',
   drawer,
 }: PhaseBannerProps & {
   readonly drawer?: PhaseBannerDrawerToggle;
 }): React.ReactElement {
   const phaseColor = getPhaseColor(phase);
-  const turnText = isPlayerTurn ? "Your Turn" : "Opponent's Turn";
+  const turnText = isPlayerTurn ? 'Your Turn' : "Opponent's Turn";
   const sideClasses = getActiveSideClasses(activeSide);
 
   return (
@@ -154,9 +154,9 @@ export function PhaseBanner({
           {turnText}
         </span>
         <span
-          className="flex items-center gap-1 rounded-full bg-black/25 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide"
+          className="flex items-center gap-1 rounded-full bg-black/25 px-2 py-0.5 text-xs font-semibold tracking-wide uppercase"
           data-testid="active-side-indicator"
-          data-side={activeSide === GameSide.Player ? "player" : "opponent"}
+          data-side={activeSide === GameSide.Player ? 'player' : 'opponent'}
           aria-label={`Active side: ${sideClasses.label}`}
         >
           <span
@@ -184,12 +184,12 @@ export function PhaseBanner({
           <button
             type="button"
             onClick={drawer.onToggleDrawer}
-            className="ml-2 rounded bg-black/25 px-3 py-1 text-xs font-semibold uppercase tracking-wide hover:bg-black/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white lg:hidden"
+            className="ml-2 rounded bg-black/25 px-3 py-1 text-xs font-semibold tracking-wide uppercase hover:bg-black/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white lg:hidden"
             data-testid="record-sheet-drawer-toggle"
             aria-expanded={drawer.isDrawerOpen}
             aria-controls="record-sheet-drawer"
           >
-            {drawer.isDrawerOpen ? "Close Sheet" : "Record Sheet"}
+            {drawer.isDrawerOpen ? 'Close Sheet' : 'Record Sheet'}
           </button>
         )}
       </div>

@@ -5,9 +5,9 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import { create } from "zustand";
+import { create } from 'zustand';
 
-import type { InteractiveSession } from "@/engine/GameEngine";
+import type { InteractiveSession } from '@/engine/GameEngine';
 
 import {
   createDemoSession,
@@ -17,7 +17,7 @@ import {
   createDemoPilotNames,
   createDemoHeatSinks,
   createDemoUnitSpas,
-} from "@/__fixtures__/gameplay";
+} from '@/__fixtures__/gameplay';
 import {
   IGameSession,
   IGameplayUIState,
@@ -25,9 +25,9 @@ import {
   IWeaponStatus,
   IPilotSpaSummary,
   GamePhase,
-} from "@/types/gameplay";
-import { Facing, MovementType } from "@/types/gameplay/HexGridInterfaces";
-import { logger } from "@/utils/logger";
+} from '@/types/gameplay';
+import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import { logger } from '@/utils/logger';
 
 import {
   clearAttackPlanLogic,
@@ -39,7 +39,7 @@ import {
   togglePlannedWeaponLogic,
   type IAttackPlan,
   type IPlannedMovement,
-} from "./useGameplayStore.combatFlows";
+} from './useGameplayStore.combatFlows';
 import {
   handleActionLogic,
   InteractivePhase,
@@ -47,7 +47,7 @@ import {
   advanceInteractivePhaseLogic,
   handleInteractiveTokenClickLogic,
   skipPhaseLogic,
-} from "./useGameplayStore.helpers";
+} from './useGameplayStore.helpers';
 
 export { InteractivePhase };
 export type { IPlannedMovement, IAttackPlan };
@@ -215,14 +215,14 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
 
     set({ isLoading: true, error: null });
     try {
-      if (sessionId === "demo") {
+      if (sessionId === 'demo') {
         get().createDemoSession();
       } else {
-        throw new Error("Session not found");
+        throw new Error('Session not found');
       }
     } catch (err) {
       set({
-        error: err instanceof Error ? err.message : "Failed to load session",
+        error: err instanceof Error ? err.message : 'Failed to load session',
         isLoading: false,
       });
     }
@@ -374,7 +374,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
     if (!interactiveSession || !ui.selectedUnitId || !ui.targetUnitId) return;
 
     const weaponIds =
-      ui.queuedWeaponIds.length > 0 ? ui.queuedWeaponIds : ["medium-laser"];
+      ui.queuedWeaponIds.length > 0 ? ui.queuedWeaponIds : ['medium-laser'];
 
     interactiveSession.applyAttack(
       ui.selectedUnitId,
@@ -469,7 +469,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
         session: interactiveSession.getSession(),
         interactivePhase: InteractivePhase.GameOver,
       });
-      logger.info("Game over", result);
+      logger.info('Game over', result);
       return true;
     }
     return false;
@@ -524,8 +524,8 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
  */
 export interface ISelectedUnitProjection {
   readonly id: string;
-  readonly unit: import("@/types/gameplay").IGameUnit;
-  readonly state: import("@/types/gameplay").IUnitGameState;
+  readonly unit: import('@/types/gameplay').IGameUnit;
+  readonly state: import('@/types/gameplay').IUnitGameState;
 }
 
 /**
