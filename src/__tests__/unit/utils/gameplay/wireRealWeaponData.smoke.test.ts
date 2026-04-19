@@ -12,7 +12,7 @@
  * @spec openspec/changes/wire-real-weapon-data/tasks.md § 10
  */
 
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from '@jest/globals';
 
 import {
   FiringArc,
@@ -26,8 +26,8 @@ import {
   MovementType,
   RangeBracket,
   WeaponCategory,
-} from "@/types/gameplay";
-import { Facing } from "@/types/gameplay";
+} from '@/types/gameplay';
+import { Facing } from '@/types/gameplay';
 import {
   advancePhase,
   createGameSession,
@@ -37,34 +37,34 @@ import {
   lockMovement,
   resolveAllAttacks,
   startGame,
-} from "@/utils/gameplay/gameSession";
-import { replayToSequence } from "@/utils/gameplay/gameSessionReplay";
+} from '@/utils/gameplay/gameSession';
+import { replayToSequence } from '@/utils/gameplay/gameSessionReplay';
 
 const config: IGameConfig = {
   mapRadius: 10,
   turnLimit: 10,
-  victoryConditions: ["destruction"],
+  victoryConditions: ['destruction'],
   optionalRules: [],
 };
 
 const units: IGameUnit[] = [
   {
-    id: "hbk",
-    name: "Hunchback HBK-4G",
+    id: 'hbk',
+    name: 'Hunchback HBK-4G',
     side: GameSide.Player,
-    unitRef: "hbk-4g",
-    pilotRef: "pilot-1",
+    unitRef: 'hbk-4g',
+    pilotRef: 'pilot-1',
     gunnery: 4,
     piloting: 5,
     // Seed the AC/20 bin so the weapon can fire (wire-ammo-consumption
     // now rejects ammo-weapon attempts with no matching non-empty bin).
     ammoConstruction: [
       {
-        binId: "bin-ac20-1",
+        binId: 'bin-ac20-1',
         // Must match the weapon's `weaponName` (used by consumeAmmo as
         // the matching key). The AC/20 below is named 'AC/20'.
-        weaponType: "AC/20",
-        location: "rt",
+        weaponType: 'AC/20',
+        location: 'rt',
         maxRounds: 5,
         damagePerRound: 20,
         isExplosive: true,
@@ -72,11 +72,11 @@ const units: IGameUnit[] = [
     ],
   },
   {
-    id: "marauder",
-    name: "Marauder",
+    id: 'marauder',
+    name: 'Marauder',
     side: GameSide.Opponent,
-    unitRef: "mad-3r",
-    pilotRef: "pilot-2",
+    unitRef: 'mad-3r',
+    pilotRef: 'pilot-2',
     gunnery: 4,
     piloting: 5,
   },
@@ -84,8 +84,8 @@ const units: IGameUnit[] = [
 
 const hunchbackWeapons = [
   {
-    weaponId: "ac20-1",
-    weaponName: "AC/20",
+    weaponId: 'ac20-1',
+    weaponName: 'AC/20',
     damage: 20,
     heat: 7,
     category: WeaponCategory.BALLISTIC,
@@ -96,8 +96,8 @@ const hunchbackWeapons = [
     isCluster: false,
   },
   {
-    weaponId: "ml-1",
-    weaponName: "Medium Laser",
+    weaponId: 'ml-1',
+    weaponName: 'Medium Laser',
     damage: 5,
     heat: 3,
     category: WeaponCategory.ENERGY,
@@ -108,8 +108,8 @@ const hunchbackWeapons = [
     isCluster: false,
   },
   {
-    weaponId: "ml-2",
-    weaponName: "Medium Laser",
+    weaponId: 'ml-2',
+    weaponName: 'Medium Laser',
     damage: 5,
     heat: 3,
     category: WeaponCategory.ENERGY,
@@ -145,7 +145,7 @@ function setupAttackPhase() {
   // Place units 3 hexes apart (short range for AC/20 and MLs)
   session = declareMovement(
     session,
-    "hbk",
+    'hbk',
     { q: 0, r: 0 },
     { q: 0, r: 0 },
     Facing.North,
@@ -153,10 +153,10 @@ function setupAttackPhase() {
     0,
     0,
   );
-  session = lockMovement(session, "hbk");
+  session = lockMovement(session, 'hbk');
   session = declareMovement(
     session,
-    "marauder",
+    'marauder',
     { q: 0, r: -3 },
     { q: 0, r: -3 },
     Facing.South,
@@ -164,19 +164,19 @@ function setupAttackPhase() {
     0,
     0,
   );
-  session = lockMovement(session, "marauder");
+  session = lockMovement(session, 'marauder');
 
   session = advancePhase(session); // weapon attack
   return session;
 }
 
-describe("wire-real-weapon-data — smoke test (Hunchback fixture)", () => {
-  it("AttackDeclared payload carries real damage + heat + range for every weapon", () => {
+describe('wire-real-weapon-data — smoke test (Hunchback fixture)', () => {
+  it('AttackDeclared payload carries real damage + heat + range for every weapon', () => {
     let session = setupAttackPhase();
     session = declareAttack(
       session,
-      "hbk",
-      "marauder",
+      'hbk',
+      'marauder',
       hunchbackWeapons,
       4,
       RangeBracket.Short,
@@ -193,20 +193,20 @@ describe("wire-real-weapon-data — smoke test (Hunchback fixture)", () => {
     const byId = new Map(
       (payload.weaponAttacks ?? []).map((w) => [w.weaponId, w]),
     );
-    expect(byId.get("ac20-1")?.damage).toBe(20);
-    expect(byId.get("ac20-1")?.heat).toBe(7);
-    expect(byId.get("ml-1")?.damage).toBe(5);
-    expect(byId.get("ml-1")?.heat).toBe(3);
-    expect(byId.get("ml-2")?.damage).toBe(5);
-    expect(byId.get("ml-2")?.heat).toBe(3);
+    expect(byId.get('ac20-1')?.damage).toBe(20);
+    expect(byId.get('ac20-1')?.heat).toBe(7);
+    expect(byId.get('ml-1')?.damage).toBe(5);
+    expect(byId.get('ml-1')?.heat).toBe(3);
+    expect(byId.get('ml-2')?.damage).toBe(5);
+    expect(byId.get('ml-2')?.heat).toBe(3);
   });
 
-  it("AttackResolved payloads carry real per-weapon damage + heat (not ?? 5 / ?? 3)", () => {
+  it('AttackResolved payloads carry real per-weapon damage + heat (not ?? 5 / ?? 3)', () => {
     let session = setupAttackPhase();
     session = declareAttack(
       session,
-      "hbk",
-      "marauder",
+      'hbk',
+      'marauder',
       hunchbackWeapons,
       4,
       RangeBracket.Short,
@@ -240,27 +240,27 @@ describe("wire-real-weapon-data — smoke test (Hunchback fixture)", () => {
     // Damage: AC/20 hit a non-head location should carry damage=20; head
     // caps at 3. Assert both a damage value > 0 AND the catalog-sourced
     // heat that accompanies it.
-    expect(byWeapon.get("ac20-1")?.heat).toBe(7);
-    expect(byWeapon.get("ml-1")?.heat).toBe(3);
-    expect(byWeapon.get("ml-2")?.heat).toBe(3);
+    expect(byWeapon.get('ac20-1')?.heat).toBe(7);
+    expect(byWeapon.get('ml-1')?.heat).toBe(3);
+    expect(byWeapon.get('ml-2')?.heat).toBe(3);
 
     // Damage is either the catalog value (20/5/5) or the head-cap of 3.
     // Since we rolled a hit-location of 7 (= head per front-table in some
     // configs), assert damage is either full or head-capped — both are
     // valid per the head cap rule, both require real catalog damage to be
     // meaningful (head cap would not fire if damage defaulted to 5).
-    const ac20Damage = byWeapon.get("ac20-1")?.damage;
+    const ac20Damage = byWeapon.get('ac20-1')?.damage;
     expect(ac20Damage).toBeGreaterThan(0);
     // If hit-location was head, damage capped at 3. Otherwise damage 20.
     expect([3, 20]).toContain(ac20Damage);
   });
 
-  it("total firing heat sums real catalog values, not weapons.length * 3", () => {
+  it('total firing heat sums real catalog values, not weapons.length * 3', () => {
     let session = setupAttackPhase();
     session = declareAttack(
       session,
-      "hbk",
-      "marauder",
+      'hbk',
+      'marauder',
       hunchbackWeapons,
       4,
       RangeBracket.Short,
@@ -289,12 +289,12 @@ describe("wire-real-weapon-data — smoke test (Hunchback fixture)", () => {
   // session — a silent divergence between "authoritative state" and "recorded
   // history" that would poison save/load, post-battle summaries, and any
   // downstream analytics.
-  it("replay-fidelity: replaying the event log yields byte-identical AttackResolved payloads", () => {
+  it('replay-fidelity: replaying the event log yields byte-identical AttackResolved payloads', () => {
     let session = setupAttackPhase();
     session = declareAttack(
       session,
-      "hbk",
-      "marauder",
+      'hbk',
+      'marauder',
       hunchbackWeapons,
       4,
       RangeBracket.Short,
@@ -344,8 +344,8 @@ describe("wire-real-weapon-data — smoke test (Hunchback fixture)", () => {
     // not placeholders. If this assertion breaks, the replay will "match"
     // but it's matching the wrong numbers.
     const byWeapon = new Map(originalResolved.map((p) => [p.weaponId, p]));
-    expect(byWeapon.get("ac20-1")?.heat).toBe(7);
-    expect(byWeapon.get("ml-1")?.heat).toBe(3);
-    expect(byWeapon.get("ml-2")?.heat).toBe(3);
+    expect(byWeapon.get('ac20-1')?.heat).toBe(7);
+    expect(byWeapon.get('ml-1')?.heat).toBe(3);
+    expect(byWeapon.get('ml-2')?.heat).toBe(3);
   });
 });
