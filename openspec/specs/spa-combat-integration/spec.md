@@ -8,35 +8,19 @@ TBD - created by archiving change full-combat-parity. Update Purpose after archi
 
 ### Requirement: Gunnery SPA — Weapon Specialist
 
-The Weapon Specialist SPA SHALL grant a -2 to-hit modifier when firing the
-weapon type stored as the pilot's Weapon Specialist designation on the
-pilot record. The combat layer SHALL obtain the designated weapon type
-via `getPilotDesignation(pilot, "weapon_specialist")`.
+The Weapon Specialist SPA SHALL grant a -2 to-hit modifier (not -1) when firing the designated weapon type. This corrects the previous value which halved the intended benefit.
 
-#### Scenario: Weapon Specialist with stored weapon-type designation
+#### Scenario: Weapon Specialist with designated weapon
 
-- **GIVEN** a pilot owns `weapon_specialist` with designation
-  `{ type: "weapon_type", value: "medium_laser" }`
+- **GIVEN** a pilot with Weapon Specialist (Medium Laser)
 - **WHEN** the pilot fires a Medium Laser
-- **THEN** the combat layer SHALL call `getPilotDesignation` to resolve
-  the weapon type
-- **AND** the attack SHALL receive a -2 to-hit modifier
+- **THEN** the attack SHALL receive a -2 to-hit modifier
 
-#### Scenario: Weapon Specialist with non-matching weapon
+#### Scenario: Weapon Specialist with non-designated weapon
 
-- **GIVEN** a pilot owns `weapon_specialist` with designation
-  `{ type: "weapon_type", value: "medium_laser" }`
+- **GIVEN** a pilot with Weapon Specialist (Medium Laser)
 - **WHEN** the pilot fires an AC/10
 - **THEN** no Weapon Specialist modifier SHALL apply
-
-#### Scenario: Weapon Specialist without a designation recorded
-
-- **GIVEN** a pilot owns `weapon_specialist` but the pilot record has
-  no designation (legacy pilot)
-- **WHEN** the pilot fires any weapon
-- **THEN** the combat layer SHALL fall back to its placeholder
-  behaviour (no Weapon Specialist modifier applied) and SHALL NOT
-  throw
 
 ### Requirement: Gunnery SPA — Gunnery Specialist
 
@@ -104,17 +88,31 @@ obtain the designated bracket via `getPilotDesignation(pilot,
 
 ### Requirement: Gunnery SPA — Sniper
 
-The Sniper SPA SHALL halve all range modifiers (round down).
+The Sniper SPA SHALL halve (floor-divide) every range modifier — short, medium, long, extreme — not merely zero the medium-range penalty.
 
-#### Scenario: Sniper halves range modifiers
+#### Scenario: Sniper at short range
 
-- **WHEN** a pilot with Sniper fires at long range (normally +4)
-- **THEN** the range modifier SHALL be halved to +2
+- **GIVEN** a pilot with Sniper firing at short range (base +0)
+- **WHEN** the range modifier is computed
+- **THEN** the range modifier SHALL be +0 (floor(0 / 2))
 
 #### Scenario: Sniper at medium range
 
-- **WHEN** a pilot with Sniper fires at medium range (normally +2)
-- **THEN** the range modifier SHALL be halved to +1
+- **GIVEN** a pilot with Sniper firing at medium range (base +2)
+- **WHEN** the range modifier is computed
+- **THEN** the range modifier SHALL be +1 (floor(2 / 2))
+
+#### Scenario: Sniper at long range
+
+- **GIVEN** a pilot with Sniper firing at long range (base +4)
+- **WHEN** the range modifier is computed
+- **THEN** the range modifier SHALL be +2 (floor(4 / 2))
+
+#### Scenario: Sniper at extreme range
+
+- **GIVEN** a pilot with Sniper firing at extreme range (base +6)
+- **WHEN** the range modifier is computed
+- **THEN** the range modifier SHALL be +3 (floor(6 / 2))
 
 ### Requirement: Gunnery SPA — Multi-Tasker
 
@@ -177,12 +175,28 @@ The Sharpshooter SPA SHALL reduce called shot modifier by 1 (from +3 to +2).
 
 ### Requirement: Piloting SPA — Jumping Jack
 
-The Jumping Jack SPA SHALL reduce the jump attack to-hit modifier from +3 to +1.
+The Jumping Jack SPA SHALL modify the attacker's to-hit when the attacker jumped this turn, NOT the target's piloting roll.
 
-#### Scenario: Jumping Jack reduces jump attack penalty
+When an attacker with Jumping Jack jumped, the jump-movement to-hit penalty (normally +3) SHALL be reduced by 1 (net +2). The SPA SHALL NOT affect any piloting-skill-roll calculation.
 
-- **WHEN** a pilot with Jumping Jack fires after jumping
-- **THEN** the jump movement to-hit modifier SHALL be +1 (instead of +3)
+#### Scenario: Attacker with Jumping Jack jumps and fires
+
+- **GIVEN** an attacker with the Jumping Jack SPA who jumped this turn
+- **WHEN** the to-hit modifier is computed
+- **THEN** the jumping-attacker penalty SHALL be +2 (reduced from +3)
+
+#### Scenario: Attacker with Jumping Jack did not jump
+
+- **GIVEN** an attacker with the Jumping Jack SPA who walked this turn
+- **WHEN** the to-hit modifier is computed
+- **THEN** no Jumping Jack modifier SHALL apply
+- **AND** the standard walking penalty (+1) SHALL apply
+
+#### Scenario: Jumping Jack no longer affects PSRs
+
+- **GIVEN** an attacker with the Jumping Jack SPA who triggers a piloting-skill roll
+- **WHEN** the PSR modifiers are aggregated
+- **THEN** Jumping Jack SHALL NOT contribute any modifier to the PSR
 
 ### Requirement: Piloting SPA — Dodge Maneuver
 

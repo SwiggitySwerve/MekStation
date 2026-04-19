@@ -77,7 +77,7 @@ The previous approximation `ceil(hexesMoved / 5)` SHALL NOT be used.
 - **THEN** the modifier SHALL be +0
 - **AND** a target that moved 3 hexes (first value in +1 bracket) SHALL yield +1
 
-### Requirement: Heat To-Hit Modifier
+### Requirement: Heat Modifiers
 
 The system SHALL apply a cumulative heat-based to-hit penalty using the MegaMek canonical thresholds as the single source of truth.
 

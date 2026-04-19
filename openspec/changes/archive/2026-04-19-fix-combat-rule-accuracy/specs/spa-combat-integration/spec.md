@@ -46,7 +46,7 @@ The Sniper SPA SHALL halve (floor-divide) every range modifier — short, medium
 - **WHEN** the range modifier is computed
 - **THEN** the range modifier SHALL be +3 (floor(6 / 2))
 
-### Requirement: Movement SPA — Jumping Jack
+### Requirement: Piloting SPA — Jumping Jack
 
 The Jumping Jack SPA SHALL modify the attacker's to-hit when the attacker jumped this turn, NOT the target's piloting roll.
 
