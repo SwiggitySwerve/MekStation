@@ -5,21 +5,21 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from "react";
 
 import type {
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
   IPilotHitPayload,
   IUnitDestroyedPayload,
-} from '@/types/gameplay';
+} from "@/types/gameplay";
 
 import {
   formatCriticalEntry,
   formatDamageEntry,
   formatPilotHitEntry,
   formatUnitDestroyedEntry,
-} from '@/components/gameplay/damageFeedback';
+} from "@/components/gameplay/damageFeedback";
 import {
   GamePhase,
   GameSide,
@@ -27,7 +27,7 @@ import {
   IGameEvent,
   IEventLogFilter,
   IFormattedEvent,
-} from '@/types/gameplay';
+} from "@/types/gameplay";
 
 // =============================================================================
 // Types
@@ -65,54 +65,54 @@ export interface EventLogDisplayProps {
 /**
  * Get icon type for an event.
  */
-function getEventIcon(type: GameEventType): IFormattedEvent['icon'] {
+function getEventIcon(type: GameEventType): IFormattedEvent["icon"] {
   switch (type) {
     case GameEventType.MovementDeclared:
     case GameEventType.MovementLocked:
     case GameEventType.FacingChanged:
-      return 'movement';
+      return "movement";
     case GameEventType.AttackDeclared:
     case GameEventType.AttackLocked:
     case GameEventType.AttacksRevealed:
     case GameEventType.AttackResolved:
-      return 'attack';
+      return "attack";
     case GameEventType.DamageApplied:
-      return 'damage';
+      return "damage";
     case GameEventType.HeatGenerated:
     case GameEventType.HeatDissipated:
     case GameEventType.HeatEffectApplied:
-      return 'heat';
+      return "heat";
     case GameEventType.CriticalHit:
     case GameEventType.AmmoExplosion:
-      return 'critical';
+      return "critical";
     case GameEventType.PhaseChanged:
     case GameEventType.TurnStarted:
     case GameEventType.TurnEnded:
-      return 'phase';
+      return "phase";
     default:
-      return 'status';
+      return "status";
   }
 }
 
 /**
  * Get color classes for event icon.
  */
-function getIconColor(icon: IFormattedEvent['icon']): string {
+function getIconColor(icon: IFormattedEvent["icon"]): string {
   switch (icon) {
-    case 'movement':
-      return 'text-green-600';
-    case 'attack':
-      return 'text-red-600';
-    case 'damage':
-      return 'text-orange-600';
-    case 'heat':
-      return 'text-yellow-600';
-    case 'critical':
-      return 'text-purple-600';
-    case 'phase':
-      return 'text-blue-600';
+    case "movement":
+      return "text-green-600";
+    case "attack":
+      return "text-red-600";
+    case "damage":
+      return "text-orange-600";
+    case "heat":
+      return "text-yellow-600";
+    case "critical":
+      return "text-purple-600";
+    case "phase":
+      return "text-blue-600";
     default:
-      return 'text-gray-600';
+      return "text-gray-600";
   }
 }
 
@@ -121,7 +121,7 @@ function getIconColor(icon: IFormattedEvent['icon']): string {
  */
 function formatEvent(event: IGameEvent): IFormattedEvent {
   const icon = getEventIcon(event.type);
-  let text = '';
+  let text = "";
   let unitId: string | undefined;
   let side: GameSide | undefined;
 
@@ -135,7 +135,7 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
         fromPhase: GamePhase;
         toPhase: GamePhase;
       };
-      text = `Phase: ${payload.toPhase.replace('_', ' ')}`;
+      text = `Phase: ${payload.toPhase.replace("_", " ")}`;
       break;
     }
     case GameEventType.InitiativeRolled: {
@@ -176,12 +176,20 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
         toHitNumber: number;
         damage?: number;
         location?: string;
+        attackerArc?: "front" | "left" | "right" | "rear";
       };
       unitId = payload.attackerId;
+      // Per `wire-firing-arc-resolution` task 8.1: surface the computed arc
+      // (front/left/right/rear) in the event log so players can see which
+      // hit-location table + armor side was consulted. Fall back to an
+      // empty suffix for legacy events that predate arc wiring.
+      const arcSuffix = payload.attackerArc
+        ? ` [${payload.attackerArc} arc]`
+        : "";
       if (payload.hit) {
-        text = `Attack HIT (${payload.roll} vs ${payload.toHitNumber}): ${payload.damage} damage to ${payload.location}`;
+        text = `Attack HIT (${payload.roll} vs ${payload.toHitNumber}): ${payload.damage} damage to ${payload.location}${arcSuffix}`;
       } else {
-        text = `Attack MISSED (${payload.roll} vs ${payload.toHitNumber})`;
+        text = `Attack MISSED (${payload.roll} vs ${payload.toHitNumber})${arcSuffix}`;
       }
       break;
     }
@@ -216,7 +224,7 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
     case GameEventType.CriticalHit: {
       const payload = event.payload as { unitId: string };
       unitId = payload.unitId;
-      text = '⚠ Critical hit!';
+      text = "⚠ Critical hit!";
       break;
     }
     case GameEventType.CriticalHitResolved: {
@@ -243,14 +251,14 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
     }
     case GameEventType.GameEnded: {
       const payload = event.payload as {
-        winner: GameSide | 'draw';
+        winner: GameSide | "draw";
         reason: string;
       };
-      text = `Game ended: ${payload.winner === 'draw' ? 'Draw' : `${payload.winner} wins`} (${payload.reason})`;
+      text = `Game ended: ${payload.winner === "draw" ? "Draw" : `${payload.winner} wins`} (${payload.reason})`;
       break;
     }
     default:
-      text = event.type.replace(/_/g, ' ');
+      text = event.type.replace(/_/g, " ");
   }
 
   return {
@@ -353,13 +361,13 @@ function EventRow({ event, actorLookup }: EventRowProps): React.ReactElement {
         data-testid="event-icon"
         data-icon-type={event.icon}
       >
-        {event.icon === 'movement' && '→'}
-        {event.icon === 'attack' && '⚔'}
-        {event.icon === 'damage' && '💥'}
-        {event.icon === 'heat' && '🔥'}
-        {event.icon === 'critical' && '⚠'}
-        {event.icon === 'phase' && '◆'}
-        {event.icon === 'status' && '•'}
+        {event.icon === "movement" && "→"}
+        {event.icon === "attack" && "⚔"}
+        {event.icon === "damage" && "💥"}
+        {event.icon === "heat" && "🔥"}
+        {event.icon === "critical" && "⚠"}
+        {event.icon === "phase" && "◆"}
+        {event.icon === "status" && "•"}
       </span>
       <span className="w-8 text-xs text-gray-500" data-testid="event-turn">
         T{event.turn}
@@ -403,7 +411,7 @@ export function EventLogDisplay({
   onCollapsedChange,
   maxHeight = 200,
   actorLookup,
-  className = '',
+  className = "",
 }: EventLogDisplayProps): React.ReactElement {
   const [localCollapsed, setLocalCollapsed] = useState(collapsed);
   const isCollapsed = onCollapsedChange ? collapsed : localCollapsed;
@@ -437,7 +445,7 @@ export function EventLogDisplay({
         <span className="text-sm font-medium" data-testid="event-log-count">
           Event Log ({events.length})
         </span>
-        <span className="text-gray-500">{isCollapsed ? '▼' : '▲'}</span>
+        <span className="text-gray-500">{isCollapsed ? "▼" : "▲"}</span>
       </button>
 
       {/* Content */}

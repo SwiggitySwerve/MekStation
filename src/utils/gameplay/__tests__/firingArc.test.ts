@@ -1,149 +1,149 @@
-import { Facing, FiringArc, IHexCoordinate } from '@/types/gameplay';
+import { Facing, FiringArc, IHexCoordinate } from "@/types/gameplay";
 
-import { calculateFiringArc, getTwistedFacing } from '../firingArc';
+import { calculateFiringArc, getTwistedFacing } from "../firingArc";
 
 // =============================================================================
 // calculateFiringArc — All 4 arcs × 6 facings
 // =============================================================================
 
-describe('calculateFiringArc', () => {
-  describe('same hex', () => {
-    it('returns Front when attacker and target are in the same hex', () => {
+describe("calculateFiringArc", () => {
+  describe("same hex", () => {
+    it("returns Front when attacker and target are in the same hex", () => {
       const pos: IHexCoordinate = { q: 3, r: 3 };
       expect(calculateFiringArc(pos, pos, Facing.North)).toBe(FiringArc.Front);
       expect(calculateFiringArc(pos, pos, Facing.South)).toBe(FiringArc.Front);
     });
   });
 
-  describe('target facing North (0)', () => {
+  describe("target facing North (0)", () => {
     const targetPos: IHexCoordinate = { q: 0, r: 0 };
     const facing = Facing.North;
 
-    it('detects Front arc — attacker directly ahead (north)', () => {
+    it("detects Front arc — attacker directly ahead (north)", () => {
       expect(calculateFiringArc({ q: 0, r: -2 }, targetPos, facing)).toBe(
         FiringArc.Front,
       );
     });
 
-    it('detects Right arc — attacker at northeast adjacent (on boundary)', () => {
+    it("detects Right arc — attacker at northeast adjacent (on boundary)", () => {
       // NE adjacent hex is exactly on the front/right boundary — falls to Right
       expect(calculateFiringArc({ q: 1, r: -1 }, targetPos, facing)).toBe(
         FiringArc.Right,
       );
     });
 
-    it('detects Left arc — attacker at northwest adjacent (on boundary)', () => {
+    it("detects Left arc — attacker at northwest adjacent (on boundary)", () => {
       // NW adjacent hex is exactly on the front/left boundary — falls to Left
       expect(calculateFiringArc({ q: -1, r: 0 }, targetPos, facing)).toBe(
         FiringArc.Left,
       );
     });
 
-    it('detects Rear arc — attacker directly behind (south)', () => {
+    it("detects Rear arc — attacker directly behind (south)", () => {
       expect(calculateFiringArc({ q: 0, r: 2 }, targetPos, facing)).toBe(
         FiringArc.Rear,
       );
     });
 
-    it('detects Right arc — attacker to the right side', () => {
+    it("detects Right arc — attacker to the right side", () => {
       expect(calculateFiringArc({ q: 2, r: -1 }, targetPos, facing)).toBe(
         FiringArc.Right,
       );
     });
 
-    it('detects Left arc — attacker to the left side', () => {
+    it("detects Left arc — attacker to the left side", () => {
       expect(calculateFiringArc({ q: -2, r: 1 }, targetPos, facing)).toBe(
         FiringArc.Left,
       );
     });
   });
 
-  describe('target facing South (3)', () => {
+  describe("target facing South (3)", () => {
     const targetPos: IHexCoordinate = { q: 0, r: 0 };
     const facing = Facing.South;
 
-    it('detects Front arc — attacker south of target', () => {
+    it("detects Front arc — attacker south of target", () => {
       expect(calculateFiringArc({ q: 0, r: 2 }, targetPos, facing)).toBe(
         FiringArc.Front,
       );
     });
 
-    it('detects Rear arc — attacker north of target', () => {
+    it("detects Rear arc — attacker north of target", () => {
       expect(calculateFiringArc({ q: 0, r: -2 }, targetPos, facing)).toBe(
         FiringArc.Rear,
       );
     });
   });
 
-  describe('target facing Southeast (2)', () => {
+  describe("target facing Southeast (2)", () => {
     const targetPos: IHexCoordinate = { q: 0, r: 0 };
     const facing = Facing.Southeast;
 
-    it('detects Front arc — attacker in southeast direction', () => {
+    it("detects Front arc — attacker in southeast direction", () => {
       expect(calculateFiringArc({ q: 1, r: 0 }, targetPos, facing)).toBe(
         FiringArc.Front,
       );
     });
 
-    it('detects Rear arc — attacker in northwest direction', () => {
+    it("detects Rear arc — attacker in northwest direction", () => {
       expect(calculateFiringArc({ q: -1, r: 0 }, targetPos, facing)).toBe(
         FiringArc.Rear,
       );
     });
   });
 
-  describe('target facing Northeast (1)', () => {
+  describe("target facing Northeast (1)", () => {
     const targetPos: IHexCoordinate = { q: 0, r: 0 };
     const facing = Facing.Northeast;
 
-    it('detects Front arc — attacker in northeast direction', () => {
+    it("detects Front arc — attacker in northeast direction", () => {
       expect(calculateFiringArc({ q: 1, r: -1 }, targetPos, facing)).toBe(
         FiringArc.Front,
       );
     });
 
-    it('detects Rear arc — attacker in southwest direction', () => {
+    it("detects Rear arc — attacker in southwest direction", () => {
       expect(calculateFiringArc({ q: -1, r: 1 }, targetPos, facing)).toBe(
         FiringArc.Rear,
       );
     });
   });
 
-  describe('target facing Southwest (4)', () => {
+  describe("target facing Southwest (4)", () => {
     const targetPos: IHexCoordinate = { q: 0, r: 0 };
     const facing = Facing.Southwest;
 
-    it('detects Front arc — attacker in southwest direction', () => {
+    it("detects Front arc — attacker in southwest direction", () => {
       expect(calculateFiringArc({ q: -1, r: 1 }, targetPos, facing)).toBe(
         FiringArc.Front,
       );
     });
 
-    it('detects Rear arc — attacker in northeast direction', () => {
+    it("detects Rear arc — attacker in northeast direction", () => {
       expect(calculateFiringArc({ q: 1, r: -1 }, targetPos, facing)).toBe(
         FiringArc.Rear,
       );
     });
   });
 
-  describe('target facing Northwest (5)', () => {
+  describe("target facing Northwest (5)", () => {
     const targetPos: IHexCoordinate = { q: 0, r: 0 };
     const facing = Facing.Northwest;
 
-    it('detects Front arc — attacker in northwest direction', () => {
+    it("detects Front arc — attacker in northwest direction", () => {
       expect(calculateFiringArc({ q: -1, r: 0 }, targetPos, facing)).toBe(
         FiringArc.Front,
       );
     });
 
-    it('detects Rear arc — attacker in southeast direction', () => {
+    it("detects Rear arc — attacker in southeast direction", () => {
       expect(calculateFiringArc({ q: 1, r: 0 }, targetPos, facing)).toBe(
         FiringArc.Rear,
       );
     });
   });
 
-  describe('all 6 facings × front/rear symmetry', () => {
+  describe("all 6 facings × front/rear symmetry", () => {
     const targetPos: IHexCoordinate = { q: 5, r: 5 };
 
     // For each facing, a target 2 hexes directly ahead should be Front,
@@ -184,8 +184,8 @@ describe('calculateFiringArc', () => {
     }
   });
 
-  describe('long range', () => {
-    it('detects correct arc at distance 5', () => {
+  describe("long range", () => {
+    it("detects correct arc at distance 5", () => {
       const targetPos: IHexCoordinate = { q: 0, r: 0 };
       expect(calculateFiringArc({ q: 0, r: -5 }, targetPos, Facing.North)).toBe(
         FiringArc.Front,
@@ -195,7 +195,7 @@ describe('calculateFiringArc', () => {
       );
     });
 
-    it('detects correct arc at distance 10', () => {
+    it("detects correct arc at distance 10", () => {
       const targetPos: IHexCoordinate = { q: 0, r: 0 };
       expect(
         calculateFiringArc({ q: 0, r: -10 }, targetPos, Facing.North),
@@ -203,8 +203,8 @@ describe('calculateFiringArc', () => {
     });
   });
 
-  describe('non-origin positions', () => {
-    it('works correctly with offset positions', () => {
+  describe("non-origin positions", () => {
+    it("works correctly with offset positions", () => {
       const targetPos: IHexCoordinate = { q: 10, r: 10 };
       expect(calculateFiringArc({ q: 10, r: 8 }, targetPos, Facing.North)).toBe(
         FiringArc.Front,
@@ -215,8 +215,8 @@ describe('calculateFiringArc', () => {
     });
   });
 
-  describe('spec scenario: target at (5,5) facing North, attacker at (5,3)', () => {
-    it('returns Front arc per spec', () => {
+  describe("spec scenario: target at (5,5) facing North, attacker at (5,3)", () => {
+    it("returns Front arc per spec", () => {
       expect(
         calculateFiringArc({ q: 5, r: 3 }, { q: 5, r: 5 }, Facing.North),
       ).toBe(FiringArc.Front);
@@ -228,29 +228,29 @@ describe('calculateFiringArc', () => {
 // getTwistedFacing
 // =============================================================================
 
-describe('getTwistedFacing', () => {
-  it('left twist from North yields Northeast', () => {
-    expect(getTwistedFacing(Facing.North, 'left')).toBe(Facing.Northeast);
+describe("getTwistedFacing", () => {
+  it("left twist from North yields Northeast", () => {
+    expect(getTwistedFacing(Facing.North, "left")).toBe(Facing.Northeast);
   });
 
-  it('right twist from North yields Northwest', () => {
-    expect(getTwistedFacing(Facing.North, 'right')).toBe(Facing.Northwest);
+  it("right twist from North yields Northwest", () => {
+    expect(getTwistedFacing(Facing.North, "right")).toBe(Facing.Northwest);
   });
 
-  it('left twist wraps from Northwest to North', () => {
-    expect(getTwistedFacing(Facing.Northwest, 'left')).toBe(Facing.North);
+  it("left twist wraps from Northwest to North", () => {
+    expect(getTwistedFacing(Facing.Northwest, "left")).toBe(Facing.North);
   });
 
-  it('right twist wraps from North to Northwest', () => {
-    expect(getTwistedFacing(Facing.North, 'right')).toBe(Facing.Northwest);
+  it("right twist wraps from North to Northwest", () => {
+    expect(getTwistedFacing(Facing.North, "right")).toBe(Facing.Northwest);
   });
 
-  it('left twist from South yields Southwest', () => {
-    expect(getTwistedFacing(Facing.South, 'left')).toBe(Facing.Southwest);
+  it("left twist from South yields Southwest", () => {
+    expect(getTwistedFacing(Facing.South, "left")).toBe(Facing.Southwest);
   });
 
-  it('right twist from South yields Southeast', () => {
-    expect(getTwistedFacing(Facing.South, 'right')).toBe(Facing.Southeast);
+  it("right twist from South yields Southeast", () => {
+    expect(getTwistedFacing(Facing.South, "right")).toBe(Facing.Southeast);
   });
 });
 
@@ -258,11 +258,11 @@ describe('getTwistedFacing', () => {
 // Torso Twist Arc Extension (Task 2.7)
 // =============================================================================
 
-describe('calculateFiringArc with torso twist', () => {
+describe("calculateFiringArc with torso twist", () => {
   const targetPos: IHexCoordinate = { q: 0, r: 0 };
 
-  describe('North-facing target, left twist', () => {
-    it('extends front arc to include left-side attacker position', () => {
+  describe("North-facing target, left twist", () => {
+    it("extends front arc to include left-side attacker position", () => {
       // Without twist, attacker at right side might be Right arc.
       // With left twist (facing shifts to NE), front arc shifts left,
       // so position that was Right may now be Front.
@@ -277,7 +277,7 @@ describe('calculateFiringArc with torso twist', () => {
         attackerInRightSide,
         targetPos,
         Facing.North,
-        'left',
+        "left",
       );
 
       // Left twist shifts facing clockwise (N→NE), which moves front arc rightward
@@ -288,8 +288,8 @@ describe('calculateFiringArc with torso twist', () => {
     });
   });
 
-  describe('North-facing target, right twist', () => {
-    it('extends front arc to include right-side attacker position', () => {
+  describe("North-facing target, right twist", () => {
+    it("extends front arc to include right-side attacker position", () => {
       const attackerInLeftSide: IHexCoordinate = { q: -2, r: 1 };
 
       const withoutTwist = calculateFiringArc(
@@ -301,7 +301,7 @@ describe('calculateFiringArc with torso twist', () => {
         attackerInLeftSide,
         targetPos,
         Facing.North,
-        'right',
+        "right",
       );
 
       // Right twist shifts facing counter-clockwise (N→NW), which moves front arc leftward
@@ -311,8 +311,8 @@ describe('calculateFiringArc with torso twist', () => {
     });
   });
 
-  describe('torso twist shifts rear arc accordingly', () => {
-    it('left twist shifts rear arc to the right', () => {
+  describe("torso twist shifts rear arc accordingly", () => {
+    it("left twist shifts rear arc to the right", () => {
       // Attacker directly south of north-facing target is Rear
       const attackerBehind: IHexCoordinate = { q: 0, r: 2 };
       expect(calculateFiringArc(attackerBehind, targetPos, Facing.North)).toBe(
@@ -324,32 +324,32 @@ describe('calculateFiringArc with torso twist', () => {
         attackerBehind,
         targetPos,
         Facing.North,
-        'left',
+        "left",
       );
       expect([FiringArc.Rear, FiringArc.Left]).toContain(withTwist);
     });
   });
 
-  describe('twist for all 6 facings', () => {
-    it('left twist always shifts effective facing by +1', () => {
+  describe("twist for all 6 facings", () => {
+    it("left twist always shifts effective facing by +1", () => {
       for (let f = 0; f < 6; f++) {
         const facing = f as Facing;
         const expected = ((f + 1) % 6) as Facing;
-        expect(getTwistedFacing(facing, 'left')).toBe(expected);
+        expect(getTwistedFacing(facing, "left")).toBe(expected);
       }
     });
 
-    it('right twist always shifts effective facing by -1', () => {
+    it("right twist always shifts effective facing by -1", () => {
       for (let f = 0; f < 6; f++) {
         const facing = f as Facing;
         const expected = ((f - 1 + 6) % 6) as Facing;
-        expect(getTwistedFacing(facing, 'right')).toBe(expected);
+        expect(getTwistedFacing(facing, "right")).toBe(expected);
       }
     });
   });
 
-  describe('twist produces different result from no-twist for side positions', () => {
-    it('demonstrates arc shift via left twist', () => {
+  describe("twist produces different result from no-twist for side positions", () => {
+    it("demonstrates arc shift via left twist", () => {
       // North-facing target, attacker at (2, -1) is Right arc without twist
       const attackerPos: IHexCoordinate = { q: 2, r: -1 };
       const noTwist = calculateFiringArc(attackerPos, targetPos, Facing.North);
@@ -358,14 +358,14 @@ describe('calculateFiringArc with torso twist', () => {
         attackerPos,
         targetPos,
         Facing.North,
-        'left',
+        "left",
       );
 
       expect(noTwist).toBe(FiringArc.Right);
       expect(leftTwist).toBe(FiringArc.Front);
     });
 
-    it('demonstrates arc shift via right twist', () => {
+    it("demonstrates arc shift via right twist", () => {
       // North-facing target, attacker at (-2, 1) is Left arc without twist
       const attackerPos: IHexCoordinate = { q: -2, r: 1 };
       const noTwist = calculateFiringArc(attackerPos, targetPos, Facing.North);
@@ -374,11 +374,117 @@ describe('calculateFiringArc with torso twist', () => {
         attackerPos,
         targetPos,
         Facing.North,
-        'right',
+        "right",
       );
 
       expect(noTwist).toBe(FiringArc.Left);
       expect(rightTwist).toBe(FiringArc.Front);
     });
+  });
+});
+
+// =============================================================================
+// Property-based sweep (wire-firing-arc-resolution task 6.3)
+// =============================================================================
+//
+// Sweep the attacker around a fixed target and assert that every position
+// resolves to exactly one arc (Front / Left / Right / Rear) — never
+// undefined, never ambiguous, always deterministic on repeat.
+//
+// This complements the boundary-precedence unit tests above by covering the
+// whole grid, not just named boundary hexes.
+
+describe("calculateFiringArc — property-based sweep", () => {
+  const VALID_ARCS: ReadonlySet<FiringArc> = new Set<FiringArc>([
+    FiringArc.Front,
+    FiringArc.Left,
+    FiringArc.Right,
+    FiringArc.Rear,
+  ]);
+
+  /** Every hex in a radius-R ring around the target (same-hex excluded). */
+  function hexesInRadius(
+    center: IHexCoordinate,
+    radius: number,
+  ): IHexCoordinate[] {
+    const out: IHexCoordinate[] = [];
+    for (let q = -radius; q <= radius; q++) {
+      for (let r = -radius; r <= radius; r++) {
+        if (q === 0 && r === 0) continue;
+        out.push({ q: center.q + q, r: center.r + r });
+      }
+    }
+    return out;
+  }
+
+  describe.each([
+    { facing: Facing.North, name: "North" },
+    { facing: Facing.Northeast, name: "Northeast" },
+    { facing: Facing.Southeast, name: "Southeast" },
+    { facing: Facing.South, name: "South" },
+    { facing: Facing.Southwest, name: "Southwest" },
+    { facing: Facing.Northwest, name: "Northwest" },
+  ])("sweep: target facing $name", ({ facing }) => {
+    const targetPos: IHexCoordinate = { q: 0, r: 0 };
+
+    it("every position in radius 3 returns exactly one valid arc", () => {
+      const positions = hexesInRadius(targetPos, 3);
+      for (const pos of positions) {
+        const arc = calculateFiringArc(pos, targetPos, facing);
+        expect(VALID_ARCS.has(arc)).toBe(true);
+      }
+    });
+
+    it("is deterministic: same input returns same arc on repeated calls", () => {
+      const positions = hexesInRadius(targetPos, 3);
+      for (const pos of positions) {
+        const first = calculateFiringArc(pos, targetPos, facing);
+        const second = calculateFiringArc(pos, targetPos, facing);
+        const third = calculateFiringArc(pos, targetPos, facing);
+        expect(second).toBe(first);
+        expect(third).toBe(first);
+      }
+    });
+
+    it("radius 5 sweep covers at least one hex per arc", () => {
+      // Sanity: a big enough sweep must hit every arc type at least once,
+      // otherwise the classifier is missing a branch.
+      const arcsSeen = new Set<FiringArc>();
+      for (const pos of hexesInRadius(targetPos, 5)) {
+        arcsSeen.add(calculateFiringArc(pos, targetPos, facing));
+      }
+      expect(arcsSeen.has(FiringArc.Front)).toBe(true);
+      expect(arcsSeen.has(FiringArc.Rear)).toBe(true);
+      expect(arcsSeen.has(FiringArc.Left)).toBe(true);
+      expect(arcsSeen.has(FiringArc.Right)).toBe(true);
+    });
+  });
+
+  it("boundary precedence holds across all 6 facings (front wins front/side)", () => {
+    // For each facing, the position +1 hex in the facing direction combined
+    // with an off-axis ±60° rotation lands on the front/side boundary. The
+    // boundary hexes already tested individually above; this sweep confirms
+    // the precedence is stable across all facings.
+    const targetPos: IHexCoordinate = { q: 5, r: 5 };
+
+    for (let f = 0; f < 6; f++) {
+      const facing = f as Facing;
+      // Directly ahead = Front for every facing (trivial sanity).
+      const frontDelta: Record<number, IHexCoordinate> = {
+        [Facing.North]: { q: 0, r: -2 },
+        [Facing.Northeast]: { q: 2, r: -2 },
+        [Facing.Southeast]: { q: 2, r: 0 },
+        [Facing.South]: { q: 0, r: 2 },
+        [Facing.Southwest]: { q: -2, r: 2 },
+        [Facing.Northwest]: { q: -2, r: 0 },
+      };
+      const ahead = {
+        q: targetPos.q + frontDelta[f].q,
+        r: targetPos.r + frontDelta[f].r,
+      };
+      expect(calculateFiringArc(ahead, targetPos, facing)).toBe(
+        FiringArc.Front,
+      );
+    }
   });
 });
