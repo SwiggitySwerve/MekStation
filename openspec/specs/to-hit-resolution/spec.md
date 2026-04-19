@@ -108,101 +108,122 @@ The system SHALL apply to-hit penalties based on the attacker's movement type.
 
 ### Requirement: Target Movement Modifier (TMM)
 
-The system SHALL calculate Target Movement Modifier based on hexes moved and movement type using canonical TMM brackets.
+The system SHALL apply a target-movement modifier based on the number of hexes the target moved this turn, using the TechManual p.115 bracket table.
 
-#### Scenario: Stationary target TMM 0
+The bracket table SHALL be: 0-2 hexes → +0, 3-4 → +1, 5-6 → +2, 7-9 → +3, 10-17 → +4, 18-24 → +5, 25 or more → +6.
 
-- **WHEN** the target did not move (0 hexes)
-- **THEN** the TMM SHALL be 0
+The previous approximation `ceil(hexesMoved / 5)` SHALL NOT be used.
 
-#### Scenario: Target moved 3 hexes TMM 1
+#### Scenario: Target moved 0 hexes
 
-- **WHEN** the target moved 3 hexes walking
-- **THEN** the TMM SHALL be +1
+- **GIVEN** a target that did not move this turn
+- **WHEN** computing the TMM
+- **THEN** the modifier SHALL be +0
 
-#### Scenario: Target moved 5 hexes TMM 2
+#### Scenario: Target moved 3 hexes
 
-- **WHEN** the target moved 5 hexes walking
-- **THEN** the TMM SHALL be +2
+- **GIVEN** a target that moved 3 hexes this turn
+- **WHEN** computing the TMM
+- **THEN** the modifier SHALL be +1 (from bracket 3-4)
 
-#### Scenario: Target moved 7 hexes TMM 3
+#### Scenario: Target moved 9 hexes
 
-- **WHEN** the target moved 7 hexes walking
-- **THEN** the TMM SHALL be +3
+- **GIVEN** a target that moved 9 hexes this turn
+- **WHEN** computing the TMM
+- **THEN** the modifier SHALL be +3 (from bracket 7-9)
 
-#### Scenario: Target moved 10 hexes TMM 4
+#### Scenario: Target moved 17 hexes
 
-- **WHEN** the target moved 10 hexes walking
-- **THEN** the TMM SHALL be +4
+- **GIVEN** a target that moved 17 hexes this turn
+- **WHEN** computing the TMM
+- **THEN** the modifier SHALL be +4 (from bracket 10-17)
 
-#### Scenario: Target moved 18 hexes TMM 5
+#### Scenario: Target moved 25 hexes
 
-- **WHEN** the target moved 18 hexes walking
-- **THEN** the TMM SHALL be +5
+- **GIVEN** a target that moved 25 hexes this turn
+- **WHEN** computing the TMM
+- **THEN** the modifier SHALL be +6 (from bracket 25+)
 
-#### Scenario: Target moved 25 hexes TMM 6
+#### Scenario: Bracket boundary transitions
 
-- **WHEN** the target moved 25 hexes walking
-- **THEN** the TMM SHALL be +6
-
-#### Scenario: Jump adds +1 to TMM
-
-- **WHEN** the target jumped 5 hexes
-- **THEN** the base TMM SHALL be 2 (for 5 hexes) + 1 (jump bonus) = +3
-
----
+- **GIVEN** a target that moved 2 hexes (last value in +0 bracket)
+- **WHEN** computing the TMM
+- **THEN** the modifier SHALL be +0
+- **AND** a target that moved 3 hexes (first value in +1 bracket) SHALL yield +1
 
 ### Requirement: Heat Modifiers
 
-The system SHALL apply to-hit penalties based on the attacker's current heat level using the HEAT_TO_HIT_TABLE.
+The system SHALL apply a cumulative heat-based to-hit penalty using the MegaMek canonical thresholds as the single source of truth.
 
-#### Scenario: Heat 0-7 no penalty
+Thresholds: heat ≥ 8 → +1, heat ≥ 13 → +2, heat ≥ 17 → +3, heat ≥ 24 → +4. Penalties are not additive across thresholds — the highest applicable threshold SHALL determine the modifier.
 
-- **WHEN** the attacker has heat level 5
-- **THEN** the heat modifier SHALL be +0
+The duplicate threshold tables previously defined in `src/utils/gameplay/toHit.ts` and `src/types/validation/HeatManagement.ts` SHALL be removed. `src/constants/heat.ts` SHALL be the single source of truth.
 
-#### Scenario: Heat 8-12 penalty +1
+#### Scenario: Heat 7 (below first threshold)
 
-- **WHEN** the attacker has heat level 10
-- **THEN** the heat modifier SHALL be +1
+- **GIVEN** an attacker with heat 7
+- **WHEN** computing the heat to-hit modifier
+- **THEN** the modifier SHALL be +0
 
-#### Scenario: Heat 13-16 penalty +2
+#### Scenario: Heat 8 (first threshold)
 
-- **WHEN** the attacker has heat level 15
-- **THEN** the heat modifier SHALL be +2
+- **GIVEN** an attacker with heat 8
+- **WHEN** computing the heat to-hit modifier
+- **THEN** the modifier SHALL be +1
 
-#### Scenario: Heat 17-23 penalty +3
+#### Scenario: Heat 13 (second threshold)
 
-- **WHEN** the attacker has heat level 20
-- **THEN** the heat modifier SHALL be +3
+- **GIVEN** an attacker with heat 13
+- **WHEN** computing the heat to-hit modifier
+- **THEN** the modifier SHALL be +2
 
-#### Scenario: Heat 24-25 penalty +4
+#### Scenario: Heat 17 (third threshold)
 
-- **WHEN** the attacker has heat level 24
-- **THEN** the heat modifier SHALL be +4
+- **GIVEN** an attacker with heat 17
+- **WHEN** computing the heat to-hit modifier
+- **THEN** the modifier SHALL be +3
 
-#### Scenario: Heat 26+ penalty +5
+#### Scenario: Heat 24 (fourth threshold)
 
-- **WHEN** the attacker has heat level 28
-- **THEN** the heat modifier SHALL be +5
+- **GIVEN** an attacker with heat 24
+- **WHEN** computing the heat to-hit modifier
+- **THEN** the modifier SHALL be +4
 
----
+#### Scenario: Heat 40 (above all thresholds)
+
+- **GIVEN** an attacker with heat 40
+- **WHEN** computing the heat to-hit modifier
+- **THEN** the modifier SHALL be +4 (max bracket only, not cumulative)
 
 ### Requirement: Target Prone Modifier
 
-The system SHALL apply modifiers when the target is prone based on range.
+The system SHALL apply the target-prone modifier based on the attacker's range to the prone target, per TechManual p.113.
 
-#### Scenario: Prone target adjacent easier to hit
+When the attacker is in a hex adjacent to the prone target (range ≤ 1 hex), the attacker SHALL receive a -2 to-hit modifier (the prone target is an easier target at melee range). When the attacker is more than 1 hex away, the attacker SHALL receive a +1 to-hit modifier (the prone target is harder to hit at range).
 
-- **WHEN** the target is prone and range is 1 hex
-- **THEN** the prone modifier SHALL be -2 (easier to hit)
+#### Scenario: Adjacent attacker against prone target
 
-#### Scenario: Prone target at range harder to hit
+- **GIVEN** a target in prone state at hex distance 1 from the attacker
+- **WHEN** computing the target-prone modifier
+- **THEN** the modifier SHALL be -2
 
-- **WHEN** the target is prone and range is 5 hexes
-- **THEN** the prone modifier SHALL be +1 (harder to hit)
+#### Scenario: Attacker 2 hexes away from prone target
 
----
+- **GIVEN** a target in prone state at hex distance 2 from the attacker
+- **WHEN** computing the target-prone modifier
+- **THEN** the modifier SHALL be +1
+
+#### Scenario: Attacker at long range against prone target
+
+- **GIVEN** a target in prone state at hex distance 12 from the attacker
+- **WHEN** computing the target-prone modifier
+- **THEN** the modifier SHALL be +1
+
+#### Scenario: Standing target receives no prone modifier
+
+- **GIVEN** a target that is NOT in the prone state
+- **WHEN** computing the target-prone modifier
+- **THEN** the modifier SHALL be 0
 
 ### Requirement: Target Immobile Modifier
 
