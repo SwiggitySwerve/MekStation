@@ -308,6 +308,49 @@ The system SHALL support bomb bay configuration for aerospace fighters.
 **AND** the parser SHALL check raw tags for "bombbay" key
 **AND** bomb capacity SHALL be floor(tonnage × 0.1) when detected
 
+### Requirement: Aerospace BV Breakdown on Unit State
+
+Every `IAerospaceUnit` SHALL carry an `IAerospaceBVBreakdown`.
+
+#### Scenario: Breakdown shape
+
+- **GIVEN** an aerospace unit after construction completes
+- **WHEN** BV is computed
+- **THEN** `unit.bvBreakdown` SHALL contain at minimum `defensive`, `offensive`, `pilotMultiplier`, `arcContributions`, `final`
+
+#### Scenario: Arc contributions exposed
+
+- **GIVEN** an ASF with 200 BV in Nose, 100 BV in each Wing, 50 in Aft
+- **WHEN** arc contributions are computed
+- **THEN** the breakdown SHALL include per-arc percentage and weighted BV
+- **AND** the status bar SHALL display the primary-arc label
+
+### Requirement: Aerospace BV Parity Harness
+
+The validation tooling SHALL produce an aerospace BV parity report.
+
+#### Scenario: Validator output
+
+- **WHEN** the aerospace BV validator runs
+- **THEN** it SHALL emit `validation-output/aerospace-bv-validation-report.json`
+- **AND** the report SHALL list each fighter with `computedBV`, `mulBV`, `delta`, `deltaPct`
+
+### Requirement: Aerospace Combat State
+
+Aerospace units SHALL carry a combat state struct updated by the combat engine.
+
+#### Scenario: Combat state shape
+
+- **GIVEN** any `IAerospaceUnit`
+- **WHEN** combat begins
+- **THEN** `unit.combatState.aero` SHALL contain `currentSI`, `armorByArc`, `heat`, `fuelRemaining`, `controlRollsFailed`, `thrustPenalty`, `offMap`, `offMapReturnTurn`
+
+#### Scenario: SI capped by max
+
+- **GIVEN** an ASF with construction SI 6 that takes negative-damage events (e.g., repair mid-combat, future)
+- **WHEN** SI changes
+- **THEN** `currentSI` SHALL never exceed the unit's construction SI
+
 ---
 
 ## Data Model Requirements

@@ -8,6 +8,8 @@
 
 export * from './antiMech';
 export * from './armor';
+export * from './battleArmorBV';
+export * from './battleArmorBVAdapter';
 export * from './chassis';
 export * from './manipulators';
 export * from './mass';

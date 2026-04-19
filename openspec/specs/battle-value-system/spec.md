@@ -251,3 +251,367 @@ BV calculation SHALL handle uninitialized equipment registry gracefully.
 - **THEN** offensive BV SHALL return 0
 - **AND** registry initialization SHALL be triggered asynchronously
 - **AND** calculation SHALL be retried when registry becomes ready
+
+### Requirement: Vehicle BV Dispatch
+
+The BV calculator SHALL route `IVehicleUnit` inputs to a vehicle-specific calculation path distinct from the BattleMech path.
+
+#### Scenario: Vehicle unit dispatch
+
+- **GIVEN** a combat vehicle with `unitType === UnitType.VEHICLE`
+- **WHEN** `calculateBattleValue(unit)` is called
+- **THEN** the vehicle calculator SHALL be invoked
+- **AND** the return SHALL include an `IVehicleBVBreakdown` object with `defensive`, `offensive`, `pilotMultiplier`, and `final` fields
+
+#### Scenario: Support vehicle dispatch
+
+- **GIVEN** a support vehicle with BAR rating 7
+- **WHEN** BV is calculated
+- **THEN** the vehicle calculator SHALL run with BAR-adjusted armor BV
+
+### Requirement: Vehicle Defensive BV
+
+Vehicle defensive BV SHALL combine armor, structure, defensive equipment, and motive-type TMM.
+
+#### Scenario: Defensive BV formula
+
+- **WHEN** computing vehicle defensive BV
+- **THEN** base defensive BV SHALL equal `armor × 2.5 × armorMult + structure × 1.5 × structureMult + defEquipBV − explosivePenalty`
+- **AND** defensive factor SHALL equal `1 + ((TMM × 0.5) / 10)`
+- **AND** final defensive BV SHALL equal `base × defensive factor`
+
+#### Scenario: VTOL TMM bonus
+
+- **GIVEN** a VTOL with flank MP 15
+- **WHEN** TMM is computed
+- **THEN** the TMM SHALL equal the 15-MP table value + 1 (altitude bonus)
+
+#### Scenario: BAR armor scaling
+
+- **GIVEN** a BAR-6 support vehicle with 40 armor points
+- **WHEN** armor BV is computed
+- **THEN** armor BV SHALL equal `40 × 2.5 × 1.0 × (6/10) = 60`
+
+### Requirement: Vehicle Offensive BV
+
+Vehicle offensive BV SHALL combine weapon BV, ammo BV, offensive equipment BV, turret multipliers, and speed factor.
+
+#### Scenario: Turret multiplier
+
+- **GIVEN** a vehicle with one Single turret containing 100 BV of weapons
+- **WHEN** offensive BV is computed
+- **THEN** the turret-mounted weapons SHALL receive a 1.05 multiplier (5% turret bonus)
+
+#### Scenario: Sponson pair multiplier
+
+- **GIVEN** a vehicle with a pair of Sponson turrets each holding 50 BV
+- **WHEN** offensive BV is computed
+- **THEN** each sponson SHALL receive a 1.025 multiplier (2.5% sponson bonus)
+
+#### Scenario: Rear-arc weapon penalty
+
+- **GIVEN** a combat vehicle with a rear-mounted AC/10 (no turret)
+- **WHEN** offensive BV is computed
+- **THEN** the rear-only weapon BV SHALL be multiplied by 0.5
+
+### Requirement: Vehicle Speed Factor
+
+Vehicle speed factor SHALL use flank MP with per-motion-type adjustments.
+
+#### Scenario: Tracked vehicle speed factor
+
+- **GIVEN** a tracked vehicle with flank MP 6
+- **WHEN** speed factor is computed
+- **THEN** `sf = round(pow(1 + (6 − 5) / 10, 1.2) × 100) / 100 = 1.12`
+
+#### Scenario: VTOL speed factor
+
+- **GIVEN** a VTOL with flank MP 15
+- **WHEN** speed factor is computed
+- **THEN** `sf = round(pow(1 + (15 − 5) / 10, 1.2) × 100) / 100 = 2.30`
+
+### Requirement: Vehicle Pilot Skill Adjustment
+
+Vehicle final BV SHALL apply the shared gunnery / piloting multiplier table identical to the mech calculator.
+
+#### Scenario: Standard crew
+
+- **GIVEN** a vehicle with gunnery 4 piloting 5
+- **WHEN** final BV is computed
+- **THEN** the pilot multiplier SHALL equal 1.00
+
+### Requirement: Aerospace BV Dispatch
+
+The BV calculator SHALL route `IAerospaceUnit` inputs to an aerospace-specific calculation path.
+
+#### Scenario: ASF dispatch
+
+- **GIVEN** an aerospace fighter
+- **WHEN** `calculateBattleValue` is called
+- **THEN** the aerospace calculator SHALL be invoked
+- **AND** the return SHALL include an `IAerospaceBVBreakdown`
+
+#### Scenario: Conventional fighter multiplier
+
+- **GIVEN** a conventional fighter
+- **WHEN** final BV is computed
+- **THEN** `(defensive + offensive)` SHALL be multiplied by 0.8 before pilot adjustment
+
+### Requirement: Aerospace Defensive BV
+
+Aerospace defensive BV SHALL use Structural Integrity in place of the mech gyro term.
+
+#### Scenario: SI BV
+
+- **GIVEN** a 50-ton ASF with SI 5
+- **WHEN** SI BV is computed
+- **THEN** siBV SHALL equal `5 × 0.5 × 50 = 125`
+
+#### Scenario: Defensive factor uses Max Thrust
+
+- **GIVEN** an ASF with maxThrust 9
+- **WHEN** defensive factor is computed
+- **THEN** defensive factor SHALL equal `1 + (9 / 10) = 1.9`
+
+### Requirement: Aerospace Offensive BV Arc Fire Pool
+
+Aerospace offensive BV SHALL combine arc-weighted weapon contributions.
+
+#### Scenario: Primary arc contributes 100%
+
+- **GIVEN** an ASF whose Nose arc holds the highest-BV weapon pool
+- **WHEN** offensive BV is computed
+- **THEN** the Nose arc SHALL contribute at 100%
+- **AND** the Aft arc SHALL contribute at 25%
+- **AND** the LeftWing and RightWing SHALL each contribute at 50%
+- **AND** Fuselage weapons SHALL always contribute at 100%
+
+#### Scenario: Primary arc not Nose
+
+- **GIVEN** an ASF whose LeftWing arc has higher BV than Nose
+- **WHEN** fire-pool weighting is applied
+- **THEN** LeftWing SHALL contribute at 100%
+- **AND** RightWing (opposite arc) SHALL contribute at 25%
+- **AND** Nose / Aft SHALL contribute at 50% each
+
+### Requirement: Aerospace Speed Factor
+
+Aerospace speed factor SHALL use the average of Safe and Max Thrust.
+
+#### Scenario: Speed factor calculation
+
+- **GIVEN** an ASF with safeThrust 5, maxThrust 7
+- **WHEN** speed factor is computed
+- **THEN** avgThrust SHALL equal 6
+- **AND** speed factor SHALL equal `round(pow(1 + (6 − 5) / 10, 1.2) × 100) / 100 = 1.12`
+
+### Requirement: BattleArmor BV Dispatch
+
+The BV calculator SHALL route `IBattleArmorUnit` inputs to a BA-specific calculation path.
+
+#### Scenario: BA dispatch
+
+- **GIVEN** a BA squad
+- **WHEN** `calculateBattleValue` is called
+- **THEN** the BA calculator SHALL be invoked
+- **AND** the return SHALL include an `IBABreakdown`
+
+### Requirement: Per-Trooper Defensive BV
+
+BA defensive BV SHALL combine armor points, movement, and anti-mech equipment per trooper.
+
+#### Scenario: Armor BV with Standard armor
+
+- **GIVEN** a trooper with 5 points Standard BA armor
+- **WHEN** defensive BV is computed
+- **THEN** armorBV SHALL equal `5 × 2.5 × 1.0 = 12.5`
+
+#### Scenario: Stealth armor multiplier
+
+- **GIVEN** a trooper with 5 points Basic Stealth BA armor
+- **WHEN** defensive BV is computed
+- **THEN** armorBV SHALL equal `5 × 2.5 × 1.5 = 18.75`
+
+#### Scenario: Magnetic Clamp anti-mech bonus
+
+- **GIVEN** a trooper equipped with Magnetic Clamps
+- **WHEN** defensive BV is computed
+- **THEN** an additional 5 BV SHALL be added per trooper
+
+#### Scenario: Move BV by class
+
+- **GIVEN** a Medium-class trooper with ground MP 2
+- **WHEN** move BV is computed
+- **THEN** moveBV SHALL equal `2 × 0.75 = 1.5`
+
+### Requirement: Per-Trooper Offensive BV
+
+BA offensive BV SHALL combine weapon, ammo, and manipulator BV per trooper.
+
+#### Scenario: Manipulator melee BV
+
+- **GIVEN** a trooper with Vibro-Claws on both arms
+- **WHEN** offensive BV is computed
+- **THEN** manipulator BV SHALL contribute `3 × 2 = 6` BV
+
+#### Scenario: Weapon BV identical to catalog
+
+- **GIVEN** a trooper with an SRM-2 (catalog BV 21)
+- **WHEN** offensive BV is computed
+- **THEN** weaponBV SHALL equal 21
+
+### Requirement: Squad-Scale BV
+
+BA BV SHALL scale linearly with squad size.
+
+#### Scenario: Clan 5-trooper squad
+
+- **GIVEN** a Clan squad with trooperBV = 100 and squadSize = 5
+- **WHEN** squad BV is computed
+- **THEN** squadBV SHALL equal 500 (before pilot skill)
+
+#### Scenario: IS 4-trooper squad
+
+- **GIVEN** an IS squad with trooperBV = 80 and squadSize = 4
+- **WHEN** squad BV is computed
+- **THEN** squadBV SHALL equal 320 (before pilot skill)
+
+### Requirement: BA Pilot Skill Multiplier
+
+The shared gunnery × piloting table SHALL apply to BA final BV.
+
+#### Scenario: Elite BA crew
+
+- **GIVEN** a BA squad with gunnery 3 piloting 4
+- **WHEN** final BV is computed
+- **THEN** the pilot multiplier SHALL be read from the table row g=3 p=4
+
+### Requirement: Infantry BV Dispatch
+
+The BV calculator SHALL route `IInfantryUnit` inputs to an infantry-specific calculation path.
+
+#### Scenario: Infantry dispatch
+
+- **GIVEN** an infantry platoon
+- **WHEN** `calculateBattleValue` is called
+- **THEN** the infantry calculator SHALL be invoked
+- **AND** the return SHALL include an `IInfantryBVBreakdown`
+
+### Requirement: Infantry Per-Trooper BV
+
+Infantry per-trooper BV SHALL combine primary weapon, secondary weapon (ratio-adjusted), and armor kit modifier.
+
+#### Scenario: Primary weapon contribution
+
+- **GIVEN** a trooper with primary Laser Rifle (BV 12, damageDivisor 1.0)
+- **WHEN** per-trooper BV is computed
+- **THEN** primary contribution SHALL equal `12 / 1.0 = 12`
+
+#### Scenario: Secondary ratio scaling
+
+- **GIVEN** a platoon with secondary SRM Launcher (BV 25) at ratio 1-per-4
+- **WHEN** per-trooper secondary is computed
+- **THEN** secondary contribution SHALL equal `25 × (1 / 4) = 6.25`
+
+#### Scenario: Armor kit modifier
+
+- **GIVEN** a trooper wearing Sneak Camo
+- **WHEN** per-trooper BV is computed
+- **THEN** an additional 3 BV SHALL be added from the kit modifier
+
+### Requirement: Infantry Platoon BV with Motive Multiplier
+
+Infantry platoon BV SHALL scale by trooper count with a motive-type multiplier.
+
+#### Scenario: Foot platoon BV
+
+- **GIVEN** a 28-trooper Foot platoon with perTrooperBV 15
+- **WHEN** platoon BV is computed
+- **THEN** platoonBV SHALL equal `15 × 28 × 1.0 = 420`
+
+#### Scenario: Mechanized multiplier
+
+- **GIVEN** a 20-trooper Mechanized-Tracked platoon with perTrooperBV 20
+- **WHEN** platoon BV is computed
+- **THEN** platoonBV SHALL equal `20 × 20 × 1.15 = 460`
+
+### Requirement: Infantry Anti-Mech Training Multiplier
+
+Platoons with anti-mech training SHALL have final BV multiplied by 1.1.
+
+#### Scenario: Anti-mech trained platoon
+
+- **GIVEN** an anti-mech-trained Foot platoon with platoonBV 420
+- **WHEN** final BV is computed (before pilot multiplier)
+- **THEN** BV SHALL equal `420 × 1.1 = 462`
+
+### Requirement: Infantry Field Gun BV Addition
+
+A field gun's BV SHALL be added to the platoon BV using the mech-scale equipment resolver.
+
+#### Scenario: AC/5 field gun
+
+- **GIVEN** a Foot platoon crewing an AC/5 field gun with 20 rounds of ammo
+- **WHEN** BV is computed
+- **THEN** field gun contribution SHALL equal `AC/5 BV (70) + ammo BV` per catalog
+- **AND** this SHALL be added to platoonBV before pilot multiplier
+
+### Requirement: ProtoMech BV Dispatch
+
+The BV calculator SHALL route `IProtoMechUnit` inputs to a proto-specific calculation path.
+
+#### Scenario: Proto dispatch
+
+- **GIVEN** a ProtoMech
+- **WHEN** `calculateBattleValue` is called
+- **THEN** the proto calculator SHALL be invoked
+- **AND** the return SHALL include an `IProtoMechBVBreakdown`
+
+### Requirement: ProtoMech Defensive BV
+
+The proto defensive BV SHALL combine armor, structure, defensive equipment, explosive penalty, and a TMM-based factor.
+
+#### Scenario: Armor BV baseline
+
+- **GIVEN** a Medium proto with 20 armor points
+- **WHEN** armorBV is computed
+- **THEN** armorBV SHALL equal `20 × 2.5 × 1.0 = 50`
+
+#### Scenario: Structure BV baseline
+
+- **GIVEN** a Medium proto with 12 structure points
+- **WHEN** structureBV is computed
+- **THEN** structureBV SHALL equal `12 × 1.5 × 1.0 = 18`
+
+### Requirement: ProtoMech Offensive BV and Main Gun
+
+Proto offensive BV SHALL include arm weapons and a MainGun location weapon with the same BV as a mech-mounted instance.
+
+#### Scenario: Main gun BV at full value
+
+- **GIVEN** a proto with a main-gun PPC (catalog BV 176)
+- **WHEN** offensive BV is computed
+- **THEN** the main gun contribution SHALL equal 176 BV (no proto-specific modifier)
+
+#### Scenario: Proto speed factor
+
+- **GIVEN** a proto with walkMP 6 and jumpMP 4
+- **WHEN** speed factor is computed
+- **THEN** `mp = 6 + round(4 / 2) = 8`
+- **AND** `sf = round(pow(1 + (8 − 5) / 10, 1.2) × 100) / 100`
+
+### Requirement: ProtoMech Chassis Multiplier
+
+Proto final BV SHALL be adjusted by chassis type.
+
+#### Scenario: Glider multiplier
+
+- **GIVEN** a Glider proto with pre-multiplier BV 280
+- **WHEN** the chassis multiplier is applied
+- **THEN** BV SHALL equal `280 × 0.9 = 252`
+
+#### Scenario: Ultraheavy multiplier
+
+- **GIVEN** an Ultraheavy proto with pre-multiplier BV 600
+- **WHEN** the chassis multiplier is applied
+- **THEN** BV SHALL equal `600 × 1.15 = 690`

@@ -7,7 +7,7 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.6
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { useVehicleStore } from '@/stores/useVehicleStore';
 import { getTotalVehicleArmor } from '@/stores/vehicleState';
@@ -18,7 +18,10 @@ import {
 } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { computeVehicleBVFromState } from '@/utils/construction/vehicle/vehicleBVAdapter';
 import { validateVehicleConstruction } from '@/utils/construction/vehicle/vehicleValidation';
+
+import { VehicleBVBreakdownDialog } from './VehicleBVBreakdownDialog';
 
 // =============================================================================
 // Types
@@ -121,6 +124,8 @@ export function VehicleStatusBar({
   const armorTonnage = useVehicleStore((s) => s.armorTonnage);
   const armorAllocation = useVehicleStore((s) => s.armorAllocation);
   const turret = useVehicleStore((s) => s.turret);
+  const secondaryTurret = useVehicleStore((s) => s.secondaryTurret);
+  const barRating = useVehicleStore((s) => s.barRating);
   const equipment = useVehicleStore((s) => s.equipment);
   const crewSize = useVehicleStore((s) => s.crewSize);
   const structureType = useVehicleStore((s) => s.structureType);
@@ -130,6 +135,9 @@ export function VehicleStatusBar({
   const isVTOL = motionType === GroundMotionType.VTOL;
   const hasTurret = turret !== null;
   const flankMP = Math.floor(cruiseMP * 1.5);
+
+  // BV breakdown dialog open state
+  const [bvDialogOpen, setBvDialogOpen] = useState(false);
 
   // Calculate weight breakdown
   const weightBreakdown = useMemo(() => {
@@ -184,6 +192,40 @@ export function VehicleStatusBar({
       unallocated: available - allocated,
     };
   }, [armorAllocation, hasTurret, armorType, armorTonnage]);
+
+  // Compute live Battle Value (defensive/offensive split + pilot-adjusted final)
+  // @spec openspec/changes/add-vehicle-battle-value/specs/vehicle-unit-system/spec.md
+  const bvBreakdown = useMemo(() => {
+    try {
+      return computeVehicleBVFromState({
+        motionType,
+        tonnage,
+        cruiseMP,
+        armorType: String(armorType),
+        armorAllocation: armorAllocation as Record<string, unknown>,
+        structureType: String(structureType),
+        turret: turret ? { type: turret.type } : null,
+        secondaryTurret: secondaryTurret
+          ? { type: secondaryTurret.type }
+          : null,
+        barRating,
+        equipment,
+      });
+    } catch {
+      return null;
+    }
+  }, [
+    motionType,
+    tonnage,
+    cruiseMP,
+    armorType,
+    armorAllocation,
+    structureType,
+    turret,
+    secondaryTurret,
+    barRating,
+    equipment,
+  ]);
 
   // Run full VAL-VEHICLE-* validation — result surfaced in status bar
   const validationResult = useMemo(
@@ -276,6 +318,11 @@ export function VehicleStatusBar({
         >
           {weightBreakdown.remaining.toFixed(1)}t free
         </span>
+        {bvBreakdown && (
+          <span className="font-medium text-white" title="Battle Value">
+            BV {bvBreakdown.final}
+          </span>
+        )}
       </div>
     );
   }
@@ -331,6 +378,23 @@ export function VehicleStatusBar({
       {/* Equipment Count */}
       <StatusItem label="Equipment" value={equipment.length} subValue="items" />
 
+      {/* Battle Value — final + defensive/offensive split; click opens dialog */}
+      {bvBreakdown && (
+        <button
+          type="button"
+          onClick={() => setBvDialogOpen(true)}
+          className="hover:bg-surface-hover focus:ring-accent-theme/40 rounded transition focus:ring-2 focus:outline-none"
+          aria-label="Show Battle Value breakdown"
+          data-testid="vehicle-bv-status-item"
+        >
+          <StatusItem
+            label="BV"
+            value={bvBreakdown.final}
+            subValue={`${Math.round(bvBreakdown.defensive)}D / ${Math.round(bvBreakdown.offensive)}O`}
+          />
+        </button>
+      )}
+
       {/* Validation Status */}
       <StatusItem
         label="Valid"
@@ -346,6 +410,14 @@ export function VehicleStatusBar({
         }
         status={validationResult.isValid ? 'success' : 'error'}
       />
+
+      {/* Breakdown dialog */}
+      {bvDialogOpen && bvBreakdown && (
+        <VehicleBVBreakdownDialog
+          breakdown={bvBreakdown}
+          onClose={() => setBvDialogOpen(false)}
+        />
+      )}
     </div>
   );
 }

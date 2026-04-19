@@ -590,6 +590,33 @@ The system SHALL classify Infantry platoons by transport dependency based on mot
 - **WHEN** an Infantry platoon has `motionType` of `FOOT` or `JUMP`
 - **THEN** the platoon is classified as independent (no transport required)
 
+### Requirement: Infantry BV Breakdown on Unit State
+
+Every infantry platoon SHALL carry an `IInfantryBVBreakdown` populated by the calculator.
+
+#### Scenario: Breakdown shape
+
+- **GIVEN** an infantry platoon after construction completes
+- **WHEN** BV is computed
+- **THEN** `unit.bvBreakdown` SHALL contain `perTrooper`, `motiveMultiplier`, `antiMechMultiplier`, `fieldGunBV`, `platoonBV`, `pilotMultiplier`, `final`
+
+#### Scenario: Breakdown live update
+
+- **GIVEN** an existing platoon with BV 420
+- **WHEN** the user toggles Anti-Mech training on
+- **THEN** `unit.bvBreakdown.antiMechMultiplier` SHALL become 1.1
+- **AND** `unit.bvBreakdown.final` SHALL update live
+
+### Requirement: Infantry BV Parity Harness
+
+The validation tooling SHALL produce an infantry BV parity report.
+
+#### Scenario: Validator output
+
+- **WHEN** the infantry BV validator runs
+- **THEN** it SHALL emit `validation-output/infantry-bv-validation-report.json`
+- **AND** the report SHALL list each platoon with `computedBV`, `mulBV`, `delta`, `deltaPct`
+
 ## Implementation Mapping
 
 | Concept                                      | Source File                                                         |
@@ -620,3 +647,41 @@ The system SHALL classify Infantry platoons by transport dependency based on mot
 - **Force Builder** — Infantry platoons can be added to combat forces
 - **Record Sheet Export** — Infantry record sheet generation
 - **Compendium** — Infantry units in unit catalog
+
+### Requirement: Infantry Platoon Combat State
+
+Each infantry platoon SHALL carry combat state tracked across the battle.
+
+#### Scenario: Combat state initialization
+
+- **GIVEN** a 28-trooper Foot platoon entering combat
+- **WHEN** combat state is initialized
+- **THEN** `unit.combatState.platoon.survivingTroopers` SHALL equal 28
+- **AND** `morale = "normal"`, `pinned = false`, `routed = false`
+- **AND** `fieldGunOperational` SHALL reflect whether the field gun is present and crewed
+- **AND** `antiMechCommitted` SHALL be `false`
+
+#### Scenario: State after casualties
+
+- **GIVEN** the same platoon after taking 15 casualties
+- **WHEN** combat state is read
+- **THEN** `survivingTroopers` SHALL equal 13
+- **AND** casualties past 75% SHALL have triggered a morale check
+
+### Requirement: Field Gun Crew Damage
+
+Field gun crew SHALL share in platoon damage; per 2 points of kit-adjusted damage, 1 crew is lost.
+
+#### Scenario: Field gun crew casualty
+
+- **GIVEN** an AC/5 field gun with 3 crew, operated by an otherwise-20-trooper platoon
+- **WHEN** 4 kit-adjusted damage hits the field gun hex
+- **THEN** 2 field gun crew SHALL die
+- **AND** field gun remains operational (1 crew left)
+
+#### Scenario: Field gun destroyed
+
+- **GIVEN** a 3-crew field gun where all 3 die
+- **WHEN** the final crew death event fires
+- **THEN** `FieldGunDestroyed` SHALL fire
+- **AND** the field gun SHALL no longer be a firing option

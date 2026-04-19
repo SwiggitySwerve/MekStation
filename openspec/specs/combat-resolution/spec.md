@@ -50,6 +50,38 @@ The system SHALL distribute damage across units based on battle intensity and ou
 - **WHEN** distributeDamage is called
 - **THEN** units receive 20-50% damage on average
 
+#### Scenario: Aerospace fly-off counts as surviving
+
+- **GIVEN** a battle where an aerospace unit exited the map before destruction
+- **WHEN** distributeDamage is called
+- **THEN** the aerospace unit SHALL be treated as surviving (not wrecked)
+- **AND** only actual SI/arc damage SHALL be recorded
+
+#### Scenario: Vehicle damage respects motive penalties
+
+- **GIVEN** a battle that destroys a vehicle by motive immobilization
+- **WHEN** damage is distributed
+- **THEN** the immobilized-but-intact vehicle SHALL count as combat-eligible salvage, not wreckage
+
+#### Scenario: Routed infantry surviving at 0 combat strength
+
+- **GIVEN** a battle where an infantry platoon routed off-board
+- **WHEN** distributeDamage is called
+- **THEN** the routed platoon SHALL count as surviving-but-withdrawn (not wrecked)
+- **AND** only actual casualties SHALL be recorded
+
+#### Scenario: Partial BA squad survival
+
+- **GIVEN** a battle where a 4-trooper BA squad ends with 2 surviving troopers
+- **WHEN** distributeDamage is called
+- **THEN** the squad SHALL be counted at 50% strength for post-battle reporting
+
+#### Scenario: Abandoned proto counts as destroyed
+
+- **GIVEN** a battle where a proto was abandoned due to pilot kill
+- **WHEN** distributeDamage is called
+- **THEN** the proto SHALL be counted as destroyed for victory/salvage purposes
+
 ### Requirement: Casualty Determination
 
 The system SHALL determine personnel casualties based on battle intensity and unit damage.
@@ -411,3 +443,431 @@ Weapon attack resolution SHALL emit fine-grained events for each combat effect.
   2. `DamageApplied` (location, armor/structure changes)
   3. `CriticalHitRolled` (if structure exposed, slot selection, component hit)
   4. Additional cascade events as appropriate (AmmoExplosion, PilotHit, UnitDestroyed)
+
+### Requirement: Aerospace Combat Dispatch
+
+The combat resolution engine SHALL route aerospace targets to an aerospace-specific damage pipeline distinct from the BattleMech and Vehicle paths.
+
+#### Scenario: Aerospace target routing
+
+- **GIVEN** an attack whose target has `unitType === UnitType.AEROSPACE_FIGHTER`, `CONVENTIONAL_FIGHTER`, or `SMALL_CRAFT`
+- **WHEN** the engine resolves the hit
+- **THEN** `aerospaceResolveDamage()` SHALL be invoked
+- **AND** aerospace-specific hit-location and critical-hit tables SHALL be used
+
+### Requirement: Aerospace Damage Chain
+
+The system SHALL apply aerospace damage to arc armor first, then reduce Structural Integrity.
+
+#### Scenario: Damage absorbed by armor
+
+- **GIVEN** an ASF whose Nose arc has 20 armor and the current SI is 6
+- **WHEN** 15 damage hits the Nose
+- **THEN** Nose armor SHALL be reduced to 5
+- **AND** SI SHALL remain 6
+
+#### Scenario: Damage reduces SI
+
+- **GIVEN** the same ASF after Nose armor has dropped to 0
+- **WHEN** 20 additional damage hits the Nose
+- **THEN** SI SHALL be reduced by `floor(20 / 10) = 2`
+- **AND** SI SHALL equal 4
+
+#### Scenario: SI destruction destroys unit
+
+- **GIVEN** an aerospace unit with SI 1
+- **WHEN** damage reduces SI to 0 or below
+- **THEN** the unit SHALL be destroyed
+- **AND** a `UnitDestroyed` event SHALL fire
+
+### Requirement: Aerospace Control Roll
+
+Damage exceeding 10% of current SI SHALL trigger a Control Roll.
+
+#### Scenario: Control roll trigger
+
+- **GIVEN** an ASF with SI 10 that takes 3 damage in a single hit
+- **WHEN** damage is applied
+- **THEN** a Control Roll SHALL be required (3 > 10 × 0.1 = 1.0)
+- **AND** a `ControlRoll` event SHALL fire with its pass/fail result
+
+#### Scenario: Control roll failure penalty
+
+- **GIVEN** a failed Control Roll
+- **WHEN** effects are applied
+- **THEN** the unit SHALL take 1 additional SI damage
+- **AND** the next movement phase SHALL begin with a −1 thrust penalty
+
+### Requirement: Vehicle Combat Dispatch
+
+The combat resolution engine SHALL route vehicle targets to a vehicle-specific damage pipeline distinct from the BattleMech path.
+
+#### Scenario: Vehicle target routing
+
+- **GIVEN** an attack whose target has `unitType === UnitType.VEHICLE`, `VTOL`, or `SUPPORT_VEHICLE`
+- **WHEN** the engine resolves the hit
+- **THEN** `vehicleResolveDamage()` SHALL be invoked (not the mech `resolveDamage`)
+- **AND** vehicle-specific hit-location and crit tables SHALL be used
+
+#### Scenario: Mech target unchanged
+
+- **GIVEN** an attack whose target is a BattleMech
+- **WHEN** the engine resolves the hit
+- **THEN** the existing BattleMech pipeline SHALL continue unchanged
+
+### Requirement: Vehicle Motive Damage Roll
+
+When damage exposes structure at a vehicle's Front, Side, or Rear location, the system SHALL roll for motive damage.
+
+#### Scenario: Motive roll on structure exposure
+
+- **GIVEN** a tracked vehicle whose Side location reaches internal structure
+- **WHEN** the hit is resolved
+- **THEN** the engine SHALL roll 2d6 against the motive-damage table
+- **AND** the resulting motive penalty SHALL be applied to the vehicle's cruise MP
+
+#### Scenario: Motive table outcomes
+
+- **WHEN** the 2d6 roll is evaluated
+- **THEN** 2-5 SHALL apply no effect
+- **AND** 6-7 SHALL apply -1 cruise MP (minor)
+- **AND** 8-9 SHALL apply -2 cruise MP (moderate)
+- **AND** 10-11 SHALL apply -3 cruise MP (heavy)
+- **AND** 12 SHALL immobilize the vehicle
+
+#### Scenario: Hover motive sensitivity
+
+- **GIVEN** a Hover vehicle
+- **WHEN** any damage is taken (structure exposure not required)
+- **THEN** a motive-damage roll SHALL be made
+
+### Requirement: Vehicle Hit Location Tables
+
+The system SHALL use vehicle-specific hit-location tables per attack direction.
+
+#### Scenario: Front attack table
+
+- **GIVEN** an attack from the Front arc
+- **WHEN** 2d6 is rolled
+- **THEN** 2 SHALL resolve to Front (TAC)
+- **AND** 3-4 SHALL resolve to Right Side
+- **AND** 5-7 SHALL resolve to Front
+- **AND** 8-9 SHALL resolve to Left Side
+- **AND** 10-11 SHALL resolve to Turret
+- **AND** 12 SHALL resolve to Front (TAC)
+
+#### Scenario: VTOL roll 12 hits Rotor
+
+- **GIVEN** a VTOL target
+- **WHEN** a Front or Rear hit location roll is 12
+- **THEN** the hit SHALL land on Rotor instead of Turret
+
+### Requirement: Vehicle Critical Hit Table
+
+The system SHALL use a vehicle-specific critical-hit table.
+
+#### Scenario: Crit table outcomes
+
+- **WHEN** a vehicle critical hit is rolled (2d6)
+- **THEN** outcomes SHALL map:
+  - 2-5 = no critical
+  - 6 = Crew Stunned
+  - 7 = Weapon Destroyed
+  - 8 = Cargo / Infantry Hit
+  - 9 = Driver Hit
+  - 10 = Fuel Tank Hit (ICE/FuelCell only; energy → reroll)
+  - 11 = Engine Hit
+  - 12 = Ammo Explosion (if ammo in crit slot)
+
+#### Scenario: Crew Stunned effect
+
+- **GIVEN** a vehicle that rolls Crew Stunned
+- **WHEN** the effect is applied
+- **THEN** a `VehicleCrewStunned` event SHALL fire
+- **AND** the vehicle SHALL skip its next movement phase and next weapon-attack phase
+
+#### Scenario: Engine Hit effect
+
+- **GIVEN** a vehicle that takes its first Engine Hit
+- **WHEN** the effect is applied
+- **THEN** the vehicle SHALL be disabled for the current turn
+- **AND** a second Engine Hit SHALL destroy the vehicle
+
+### Requirement: Infantry Combat Dispatch
+
+The combat resolution engine SHALL route infantry targets to an infantry-specific damage pipeline.
+
+#### Scenario: Infantry target routing
+
+- **GIVEN** an attack whose target has `unitType === UnitType.INFANTRY`
+- **WHEN** the engine resolves the hit
+- **THEN** `infantryResolveDamage()` SHALL be invoked
+- **AND** damage SHALL convert to trooper casualties after applying the weapon damage divisor
+
+#### Scenario: No mech-style criticals on infantry
+
+- **GIVEN** damage applied to an infantry platoon
+- **WHEN** critical-hit resolution runs
+- **THEN** mech-style crit slot effects SHALL NOT be computed
+
+### Requirement: Infantry Damage Divisor
+
+Incoming damage on infantry SHALL be multiplied by the weapon's anti-infantry divisor before converting to casualties.
+
+#### Scenario: Flamer doubles damage
+
+- **GIVEN** a Flamer dealing 2 damage base to an infantry platoon
+- **WHEN** effective damage is computed
+- **THEN** effective damage SHALL equal `2 × 2 = 4`
+
+#### Scenario: Machine Gun doubles damage
+
+- **GIVEN** an MG dealing 2 damage base to infantry
+- **WHEN** effective damage is computed
+- **THEN** effective damage SHALL equal `2 × 2 = 4`
+
+#### Scenario: PPC baseline on infantry
+
+- **GIVEN** a PPC dealing 10 damage base to infantry
+- **WHEN** effective damage is computed
+- **THEN** effective damage SHALL equal 10 (multiplier 1.0)
+
+### Requirement: Infantry Casualties from Effective Damage
+
+The system SHALL convert effective damage to casualties using trooper resilience.
+
+#### Scenario: Simple casualty math
+
+- **GIVEN** a 28-trooper Foot platoon with trooper resilience 1 (no Flak)
+- **WHEN** effective damage of 5 is applied
+- **THEN** 5 troopers SHALL die
+- **AND** `survivingTroopers` SHALL become 23
+- **AND** an `InfantryCasualties` event SHALL fire
+
+#### Scenario: Flak reduces ballistic damage
+
+- **GIVEN** the same platoon wearing Flak kit taking 10 effective ballistic damage
+- **WHEN** casualties are computed
+- **THEN** ballistic damage SHALL be divided by 2 per Flak rule, yielding 5 casualties
+
+### Requirement: Infantry Morale Rule
+
+When a platoon drops below 25% of starting strength, the system SHALL roll morale.
+
+#### Scenario: Morale check trigger
+
+- **GIVEN** a 28-trooper Foot platoon reduced to 6 troopers (below 25% = 7)
+- **WHEN** the Casualties event fires
+- **THEN** an `InfantryMoraleCheck` SHALL be queued
+
+#### Scenario: Failed morale → pinned
+
+- **GIVEN** a morale check that fails by 1 (e.g., rolls 7 vs TN 8)
+- **WHEN** the result is applied
+- **THEN** `InfantryPinned` SHALL fire
+- **AND** the platoon SHALL skip firing and movement next phase
+
+#### Scenario: Failed morale by 2+ → routed
+
+- **GIVEN** a morale check that fails by 3 or more
+- **WHEN** the result is applied
+- **THEN** `InfantryRouted` SHALL fire
+- **AND** the platoon SHALL retreat off-board and no longer participate in combat
+
+### Requirement: Field Gun Firing
+
+Field guns SHALL fire once per turn at the gun's mech-scale damage, consuming ammo.
+
+#### Scenario: AC/5 field gun fires
+
+- **GIVEN** a platoon crewing an AC/5 field gun with 10 rounds
+- **WHEN** the field gun fires
+- **THEN** damage to the target SHALL equal the AC/5 catalog damage
+- **AND** ammo SHALL decrement by 1
+- **AND** `FieldGunFired` SHALL fire
+
+#### Scenario: Field gun cannot fire when pinned
+
+- **GIVEN** a pinned platoon
+- **WHEN** the field gun firing option is evaluated
+- **THEN** firing SHALL be disallowed
+
+### Requirement: BattleArmor Combat Dispatch
+
+The combat resolution engine SHALL route BA targets to a BA-specific damage pipeline.
+
+#### Scenario: BA target routing
+
+- **GIVEN** an attack whose target has `unitType === UnitType.BATTLE_ARMOR`
+- **WHEN** the engine resolves the hit
+- **THEN** `battleArmorResolveDamage()` SHALL be invoked
+- **AND** damage SHALL distribute across surviving troopers per the cluster-hits table
+
+#### Scenario: No mech-style criticals on BA
+
+- **GIVEN** damage applied to a BA squad
+- **WHEN** critical-hit resolution runs
+- **THEN** mech-style crit slot effects SHALL NOT be computed
+- **AND** trooper death SHALL be the only structural consequence
+
+### Requirement: Squad Damage Distribution
+
+Damage to a BA squad SHALL distribute across surviving troopers one hit at a time.
+
+#### Scenario: One hit kills one trooper
+
+- **GIVEN** a BA squad with 4 troopers each having 5 armor
+- **WHEN** a single 5-damage weapon hits the squad
+- **THEN** exactly one random surviving trooper SHALL take 5 damage and be eliminated
+- **AND** a `TrooperKilled` event SHALL fire
+
+#### Scenario: Cluster weapon distributes per table
+
+- **GIVEN** the same squad hit by an LRM-10 (10 missiles)
+- **WHEN** damage is resolved
+- **THEN** the cluster-hits table SHALL determine how many missiles hit
+- **AND** each hit SHALL land on a random surviving trooper (seeded RNG)
+
+#### Scenario: Squad eliminated
+
+- **GIVEN** a BA squad with 1 surviving trooper on 2 armor
+- **WHEN** 5 damage is dealt
+- **THEN** the trooper SHALL die
+- **AND** a `SquadEliminated` event SHALL fire
+- **AND** the squad SHALL be removed from active play
+
+### Requirement: Anti-Mech Leg Attack
+
+BA in base contact with a mech SHALL be able to declare a Leg Attack during the physical-attack phase.
+
+#### Scenario: Leg attack success
+
+- **GIVEN** a BA squad adjacent to a mech with 4 surviving troopers
+- **WHEN** Leg Attack is declared and the roll succeeds
+- **THEN** the mech SHALL take `4 × 4 = 16` damage to the target leg
+- **AND** the `LegAttack` event SHALL record success
+
+#### Scenario: Leg attack failure
+
+- **GIVEN** the same attack failing its roll
+- **WHEN** failure effect is applied
+- **THEN** the BA squad SHALL take 1d6 damage distributed across troopers
+
+### Requirement: Anti-Mech Swarm Attack
+
+BA with Magnetic Clamps SHALL be able to swarm an adjacent mech and deal damage each turn.
+
+#### Scenario: Swarm attach
+
+- **GIVEN** a clamped BA squad in base contact with a mech
+- **WHEN** Swarm is declared and the roll succeeds
+- **THEN** `swarmingUnitId` SHALL be set to the mech
+- **AND** a `SwarmAttached` event SHALL fire
+
+#### Scenario: Swarm damage per turn
+
+- **GIVEN** a swarming BA squad with 3 surviving troopers
+- **WHEN** a combat turn ends with the squad still swarming
+- **THEN** the attached mech SHALL take `1d6 + 3 = 4-9` damage to a random location
+- **AND** a `SwarmDamage` event SHALL fire
+
+#### Scenario: Dismount attempt
+
+- **GIVEN** a mech with a swarming BA squad
+- **WHEN** the mech declares a dismount action with a successful Piloting roll
+- **THEN** the BA squad SHALL take 2d6 damage
+- **AND** the swarm SHALL end
+- **AND** a `SwarmDismounted` event SHALL fire
+
+### Requirement: Mimetic and Stealth Armor To-Hit Penalties
+
+The system SHALL apply mimetic and stealth to-hit penalties to attackers targeting BA.
+
+#### Scenario: Mimetic active
+
+- **GIVEN** a BA squad that did not move this turn and is wearing Mimetic armor
+- **WHEN** an attacker shoots at the squad
+- **THEN** the attack's to-hit TN SHALL increase by 1
+
+#### Scenario: Basic Stealth
+
+- **GIVEN** a BA squad wearing Basic Stealth armor
+- **WHEN** any attacker shoots at the squad
+- **THEN** the to-hit TN SHALL increase by 1 at all ranges
+
+#### Scenario: Improved Stealth with range
+
+- **GIVEN** a BA squad wearing Improved Stealth armor
+- **WHEN** an attacker shoots at long range
+- **THEN** the to-hit TN SHALL increase by 3
+
+### Requirement: ProtoMech Combat Dispatch
+
+The combat resolution engine SHALL route ProtoMech targets to a proto-specific damage pipeline.
+
+#### Scenario: Proto target routing
+
+- **GIVEN** an attack whose target has `unitType === UnitType.PROTOMECH`
+- **WHEN** the engine resolves the hit
+- **THEN** `protoMechResolveDamage()` SHALL be invoked
+- **AND** proto-specific hit-location and crit tables SHALL be used
+
+### Requirement: ProtoMech Damage Chain
+
+The proto damage chain SHALL apply armor-then-structure per location with no cross-location transfer.
+
+#### Scenario: Damage contained to location
+
+- **GIVEN** a proto where the LeftArm has 3 armor and 3 structure
+- **WHEN** 15 damage hits the LeftArm
+- **THEN** armor and structure SHALL both be reduced to 0
+- **AND** the LeftArm SHALL be destroyed
+- **AND** the 9 excess damage SHALL be discarded (not transferred to Torso)
+
+#### Scenario: Torso destruction destroys proto
+
+- **GIVEN** a proto whose Torso armor and structure drop to 0
+- **WHEN** the destruction event fires
+- **THEN** the proto SHALL be flagged destroyed
+- **AND** a `UnitDestroyed` event SHALL fire
+
+#### Scenario: Main gun destruction
+
+- **GIVEN** a proto whose MainGun location is destroyed
+- **WHEN** the destruction event fires
+- **THEN** the main gun weapon SHALL be removed
+- **AND** a `ProtoLocationDestroyed` event SHALL specify MainGun
+- **AND** the proto SHALL continue operating (not destroyed)
+
+### Requirement: ProtoMech Critical Hit Table
+
+The system SHALL use a proto-specific crit table simpler than the mech table.
+
+#### Scenario: Proto crit outcomes
+
+- **WHEN** a proto critical hit is rolled (2d6)
+- **THEN** outcomes SHALL map:
+  - 2-7 = no critical
+  - 8-9 = random equipment destroyed at the hit location
+  - 10-11 = engine hit (1st = -1 MP, 2nd = engine destroyed → proto destroyed)
+  - 12 = pilot killed (proto abandoned, counts as destroyed)
+
+#### Scenario: Pilot killed ends participation
+
+- **GIVEN** a proto whose 12 crit fires
+- **WHEN** the event is applied
+- **THEN** a `ProtoPilotKilled` event SHALL fire
+- **AND** the proto SHALL be removed from active play
+
+### Requirement: Glider ProtoMech Fall Rule
+
+Glider protos SHALL make a fall roll on any structure-exposing damage while airborne.
+
+#### Scenario: Fall roll triggered
+
+- **GIVEN** an airborne Glider proto that takes damage exposing structure
+- **WHEN** the damage resolves
+- **THEN** a piloting roll vs TN 7 SHALL be made
+- **AND** on failure a `GliderFall` event SHALL fire
+- **AND** the proto SHALL take `10 × altitude` fall damage
+- **AND** altitude SHALL reset to 0

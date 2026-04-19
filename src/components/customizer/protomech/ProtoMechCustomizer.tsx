@@ -15,6 +15,7 @@
 import React, { useCallback } from 'react';
 import { StoreApi } from 'zustand';
 
+import { ProtoMechStatusBar } from '@/components/customizer/protomech/ProtoMechStatusBar';
 import { PROTOMECH_TABS } from '@/components/customizer/shared/tabRegistry';
 import { toCustomizerTabConfigs } from '@/components/customizer/shared/TabSpec';
 import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
@@ -94,6 +95,9 @@ function ProtoMechCustomizerInner({
 
   return (
     <div className="flex h-full flex-col">
+      {/* BV + point-aggregate status banner (Task 8 §ProtoMech Status Bar) */}
+      <ProtoMechStatusBar />
+
       {/* Tab Bar */}
       <CustomizerTabs
         tabs={tabConfigs}
