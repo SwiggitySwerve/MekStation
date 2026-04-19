@@ -19,7 +19,7 @@ runs:
   using: composite
   steps:
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.node-version }}
         cache: npm
@@ -29,7 +29,7 @@ runs:
 
     - name: Cache Next.js build cache (.next/cache)
       if: inputs.skip-nextjs-cache != 'true'
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: .next/cache
         key: ${{ runner.os }}-nextjs-${{ inputs.node-version }}-${{ hashFiles('package-lock.json') }}
@@ -38,7 +38,7 @@ runs:
           ${{ runner.os }}-nextjs-
 
     - name: Cache Electron downloads (desktop/.electron-cache)
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           desktop/.electron-cache
@@ -54,7 +54,7 @@ runs:
 
     - name: Cache mm-data assets
       if: inputs.fetch-assets == 'true'
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       id: mm-data-cache
       with:
         path: public/record-sheets
