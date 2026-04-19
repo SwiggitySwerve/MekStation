@@ -1,6 +1,7 @@
 # Learnings — add-battlearmor-combat-behavior
 
 ## Codebase Conventions
+
 - Vehicle combat was added as top-level files (`vehicleDamage.ts`, `vehicleHitLocation.ts`, etc.) under `src/utils/gameplay/`. Aerospace was added as a subfolder `src/utils/gameplay/aerospace/` with smaller files. Either layout is acceptable; aerospace's subfolder pattern is cleaner and will be followed for BA.
 - Combat state is kept OUT of construction interfaces — use a separate `IBattleArmorCombatState` type under `src/types/gameplay/`.
 - RNG: inject `D6Roller` / `defaultD6Roller` from `diceTypes.ts` to let tests drive deterministic outcomes.
@@ -8,6 +9,7 @@
 - Dispatch: aerospace uses `dispatch.ts` in its folder; vehicle uses top-level `damageDispatch.ts`. For BA we'll extend the existing `damageDispatch.ts` to add a `'battlearmor'` kind.
 
 ## BA-specific Rules
+
 - BA has NO heat (task 4.3) and NO mech-style criticals (task 1.4, spec scenario "No mech-style criticals on BA"). Do not reuse the crit pipeline.
 - Damage model: per-trooper armor pool. One hit → one random surviving trooper takes the whole hit; excess kills that trooper, next hit picks a new random survivor.
 - Cluster weapons: damage distributed via cluster-hits table with squadSize used as cluster size (each missile/shell rolled as a hit).
@@ -19,6 +21,7 @@
 - Vibro-claw: 1 + ceil(0.5 × survivingTroopers) per claw.
 
 ## Phase 7 Wave Pattern (from Waves 1-3)
+
 - Wave 3 (vehicle + aerospace combat) deferred integration tests that required full GameEngine/AI wiring and marked them as `.skip()` with a TODO comment. Apply same pattern here.
 - Units tests for each module go in `__tests__/` sibling folder.
 - Verification: `npx oxfmt --check`, `npx oxlint`, `npx tsc --noEmit -p .`, jest on affected suites.
