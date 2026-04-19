@@ -11,9 +11,9 @@ import {
   Facing,
   FiringArc,
   IArcResult,
-} from '@/types/gameplay';
+} from "@/types/gameplay";
 
-import { hexAngle, facingToAngle, hexEquals } from './hexMath';
+import { hexAngle, facingToAngle, hexEquals } from "./hexMath";
 
 // =============================================================================
 // Arc Constants
@@ -38,6 +38,31 @@ const ARC_HALF_WIDTHS = {
 /**
  * Determine which arc a target is in relative to the attacker.
  *
+ * Arc-boundary convention (per `wire-firing-arc-resolution` spec task 6.2):
+ *
+ *   - Front arc: |relativeAngle| <= 60°
+ *   - Rear  arc: |relativeAngle| >= 120°
+ *   - Right arc: relativeAngle  >  0° and within (60°, 120°)
+ *   - Left  arc: relativeAngle  <  0° and within (-120°, -60°)
+ *
+ * Because the front check uses `<=` and the rear check uses `>=`, the
+ * front/side boundary (±60°) resolves to FRONT and the rear/side boundary
+ * (±120°) resolves to REAR. Side arcs only claim the strict interior.
+ *
+ * This gives the two precedence rules the spec requires:
+ *   * Front precedence: front arc wins at the front/side boundary.
+ *   * Rear  precedence: rear  arc wins at the rear/side boundary.
+ *
+ * The function is pure and deterministic — the same `(attacker, target)`
+ * pair always returns the same `FiringArc`. A property-based sweep test
+ * (see `__tests__/firingArc.test.ts`) verifies that rotating an attacker
+ * around a target returns exactly one arc per position with no ambiguity.
+ *
+ * Same-hex case: any attacker/target sharing a hex resolves to `Front` with
+ * `angle: 0`. Upstream (`gameSessionAttackResolution.ts`) rejects the
+ * attack with `AttackInvalid { SameHex }` before calling — this branch
+ * only matters for non-combat visualisation callers (`getArcHexes`).
+ *
  * @param attacker Attacker's position with facing
  * @param target Target's coordinate
  * @returns The firing arc the target is in
@@ -46,7 +71,8 @@ export function determineArc(
   attacker: IUnitPosition,
   target: IHexCoordinate,
 ): IArcResult {
-  // Same hex is always front arc
+  // Same hex is always front arc (visualisation fallback — combat path
+  // rejects same-hex attacks upstream).
   if (hexEquals(attacker.coord, target)) {
     return {
       arc: FiringArc.Front,
@@ -67,13 +93,18 @@ export function determineArc(
   while (relativeAngle > 180) relativeAngle -= 360;
   while (relativeAngle < -180) relativeAngle += 360;
 
-  // Determine arc based on relative angle
+  // Determine arc based on relative angle — boundary precedence documented
+  // in the JSDoc above. ORDER MATTERS: front check first (front precedence
+  // at ±60°), then rear check (rear precedence at ±120°), then sides fill
+  // the remaining strict interiors.
   const absRelative = Math.abs(relativeAngle);
 
   let arc: FiringArc;
   if (absRelative <= ARC_HALF_WIDTHS.front) {
+    // Front precedence: <= 60° inclusive
     arc = FiringArc.Front;
   } else if (absRelative >= 180 - ARC_HALF_WIDTHS.front) {
+    // Rear precedence: >= 120° inclusive
     arc = FiringArc.Rear;
   } else if (relativeAngle > 0) {
     arc = FiringArc.Right;
@@ -98,7 +129,7 @@ export function getArcHexes(
   maxRange: number,
 ): readonly IHexCoordinate[] {
   const position: IUnitPosition = {
-    unitId: 'temp',
+    unitId: "temp",
     coord: center,
     facing,
     prone: false,

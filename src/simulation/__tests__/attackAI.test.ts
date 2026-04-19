@@ -1,14 +1,14 @@
-import { Facing, MovementType } from '@/types/gameplay';
+import { Facing, MovementType } from "@/types/gameplay";
 
-import type { IAIUnitState, IWeapon } from '../ai/types';
+import type { IAIUnitState, IWeapon } from "../ai/types";
 
-import { AttackAI } from '../ai/AttackAI';
-import { SeededRandom } from '../core/SeededRandom';
+import { AttackAI } from "../ai/AttackAI";
+import { SeededRandom } from "../core/SeededRandom";
 
 function createMockWeapon(overrides: Partial<IWeapon> = {}): IWeapon {
   return {
-    id: 'weapon-1',
-    name: 'Medium Laser',
+    id: "weapon-1",
+    name: "Medium Laser",
     shortRange: 3,
     mediumRange: 6,
     longRange: 9,
@@ -23,7 +23,7 @@ function createMockWeapon(overrides: Partial<IWeapon> = {}): IWeapon {
 
 function createMockUnit(overrides: Partial<IAIUnitState> = {}): IAIUnitState {
   return {
-    unitId: 'unit-1',
+    unitId: "unit-1",
     position: { q: 0, r: 0 },
     facing: Facing.North,
     heat: 0,
@@ -37,18 +37,18 @@ function createMockUnit(overrides: Partial<IAIUnitState> = {}): IAIUnitState {
   };
 }
 
-describe('AttackAI', () => {
-  describe('getValidTargets', () => {
-    it('should return targets within weapon range', () => {
+describe("AttackAI", () => {
+  describe("getValidTargets", () => {
+    it("should return targets within weapon range", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
         weapons: [createMockWeapon({ longRange: 9 })],
       });
       const targets: IAIUnitState[] = [
-        createMockUnit({ unitId: 'target-1', position: { q: 3, r: 0 } }),
-        createMockUnit({ unitId: 'target-2', position: { q: 6, r: 0 } }),
-        createMockUnit({ unitId: 'target-3', position: { q: 9, r: 0 } }),
+        createMockUnit({ unitId: "target-1", position: { q: 3, r: 0 } }),
+        createMockUnit({ unitId: "target-2", position: { q: 6, r: 0 } }),
+        createMockUnit({ unitId: "target-3", position: { q: 9, r: 0 } }),
       ];
 
       const validTargets = attackAI.getValidTargets(attacker, targets);
@@ -56,34 +56,34 @@ describe('AttackAI', () => {
       expect(validTargets.length).toBe(3);
     });
 
-    it('should filter out targets beyond weapon range', () => {
+    it("should filter out targets beyond weapon range", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
         weapons: [createMockWeapon({ longRange: 5 })],
       });
       const targets: IAIUnitState[] = [
-        createMockUnit({ unitId: 'target-1', position: { q: 3, r: 0 } }),
-        createMockUnit({ unitId: 'target-2', position: { q: 10, r: 0 } }),
+        createMockUnit({ unitId: "target-1", position: { q: 3, r: 0 } }),
+        createMockUnit({ unitId: "target-2", position: { q: 10, r: 0 } }),
       ];
 
       const validTargets = attackAI.getValidTargets(attacker, targets);
 
       expect(validTargets.length).toBe(1);
-      expect(validTargets[0].unitId).toBe('target-1');
+      expect(validTargets[0].unitId).toBe("target-1");
     });
 
-    it('should filter out destroyed targets', () => {
+    it("should filter out destroyed targets", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({ position: { q: 0, r: 0 } });
       const targets: IAIUnitState[] = [
         createMockUnit({
-          unitId: 'alive',
+          unitId: "alive",
           position: { q: 3, r: 0 },
           destroyed: false,
         }),
         createMockUnit({
-          unitId: 'dead',
+          unitId: "dead",
           position: { q: 3, r: 0 },
           destroyed: true,
         }),
@@ -92,17 +92,17 @@ describe('AttackAI', () => {
       const validTargets = attackAI.getValidTargets(attacker, targets);
 
       expect(validTargets.length).toBe(1);
-      expect(validTargets[0].unitId).toBe('alive');
+      expect(validTargets[0].unitId).toBe("alive");
     });
 
-    it('should return empty array when no weapons can reach any target', () => {
+    it("should return empty array when no weapons can reach any target", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
         weapons: [createMockWeapon({ longRange: 2 })],
       });
       const targets: IAIUnitState[] = [
-        createMockUnit({ unitId: 'target-1', position: { q: 10, r: 0 } }),
+        createMockUnit({ unitId: "target-1", position: { q: 10, r: 0 } }),
       ];
 
       const validTargets = attackAI.getValidTargets(attacker, targets);
@@ -110,14 +110,14 @@ describe('AttackAI', () => {
       expect(validTargets.length).toBe(0);
     });
 
-    it('should return empty array when attacker has no weapons', () => {
+    it("should return empty array when attacker has no weapons", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
         weapons: [],
       });
       const targets: IAIUnitState[] = [
-        createMockUnit({ unitId: 'target-1', position: { q: 3, r: 0 } }),
+        createMockUnit({ unitId: "target-1", position: { q: 3, r: 0 } }),
       ];
 
       const validTargets = attackAI.getValidTargets(attacker, targets);
@@ -125,32 +125,32 @@ describe('AttackAI', () => {
       expect(validTargets.length).toBe(0);
     });
 
-    it('should filter out self from targets', () => {
+    it("should filter out self from targets", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
-        unitId: 'self',
+        unitId: "self",
         position: { q: 0, r: 0 },
       });
       const targets: IAIUnitState[] = [
-        createMockUnit({ unitId: 'self', position: { q: 0, r: 0 } }),
-        createMockUnit({ unitId: 'other', position: { q: 3, r: 0 } }),
+        createMockUnit({ unitId: "self", position: { q: 0, r: 0 } }),
+        createMockUnit({ unitId: "other", position: { q: 3, r: 0 } }),
       ];
 
       const validTargets = attackAI.getValidTargets(attacker, targets);
 
       expect(validTargets.length).toBe(1);
-      expect(validTargets[0].unitId).toBe('other');
+      expect(validTargets[0].unitId).toBe("other");
     });
   });
 
-  describe('selectTarget', () => {
-    it('should return a target from the provided list', () => {
+  describe("selectTarget", () => {
+    it("should return a target from the provided list", () => {
       const attackAI = new AttackAI();
       const random = new SeededRandom(12345);
       const targets: IAIUnitState[] = [
-        createMockUnit({ unitId: 'target-1' }),
-        createMockUnit({ unitId: 'target-2' }),
-        createMockUnit({ unitId: 'target-3' }),
+        createMockUnit({ unitId: "target-1" }),
+        createMockUnit({ unitId: "target-2" }),
+        createMockUnit({ unitId: "target-3" }),
       ];
 
       const selected = attackAI.selectTarget(targets, random);
@@ -159,7 +159,7 @@ describe('AttackAI', () => {
       expect(targets.map((t) => t.unitId)).toContain(selected?.unitId);
     });
 
-    it('should return null when no targets available', () => {
+    it("should return null when no targets available", () => {
       const attackAI = new AttackAI();
       const random = new SeededRandom(12345);
 
@@ -168,14 +168,14 @@ describe('AttackAI', () => {
       expect(selected).toBeNull();
     });
 
-    it('should be deterministic with same seed', () => {
+    it("should be deterministic with same seed", () => {
       const attackAI = new AttackAI();
       const targets: IAIUnitState[] = [
-        createMockUnit({ unitId: 'target-1' }),
-        createMockUnit({ unitId: 'target-2' }),
-        createMockUnit({ unitId: 'target-3' }),
-        createMockUnit({ unitId: 'target-4' }),
-        createMockUnit({ unitId: 'target-5' }),
+        createMockUnit({ unitId: "target-1" }),
+        createMockUnit({ unitId: "target-2" }),
+        createMockUnit({ unitId: "target-3" }),
+        createMockUnit({ unitId: "target-4" }),
+        createMockUnit({ unitId: "target-5" }),
       ];
 
       const random1 = new SeededRandom(54321);
@@ -187,7 +187,7 @@ describe('AttackAI', () => {
       expect(selected1?.unitId).toBe(selected2?.unitId);
     });
 
-    it('should produce different results with different seeds', () => {
+    it("should produce different results with different seeds", () => {
       const attackAI = new AttackAI();
       const targets: IAIUnitState[] = Array.from({ length: 20 }, (_, i) =>
         createMockUnit({ unitId: `target-${i}` }),
@@ -206,14 +206,14 @@ describe('AttackAI', () => {
     });
   });
 
-  describe('selectWeapons', () => {
-    it('should return all weapons in range', () => {
+  describe("selectWeapons", () => {
+    it("should return all weapons in range", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
         weapons: [
-          createMockWeapon({ id: 'w1', longRange: 9 }),
-          createMockWeapon({ id: 'w2', longRange: 9 }),
+          createMockWeapon({ id: "w1", longRange: 9 }),
+          createMockWeapon({ id: "w2", longRange: 9 }),
         ],
       });
       const target = createMockUnit({ position: { q: 5, r: 0 } });
@@ -223,13 +223,13 @@ describe('AttackAI', () => {
       expect(weapons.length).toBe(2);
     });
 
-    it('should exclude weapons out of range', () => {
+    it("should exclude weapons out of range", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
         weapons: [
-          createMockWeapon({ id: 'short', longRange: 3 }),
-          createMockWeapon({ id: 'long', longRange: 15 }),
+          createMockWeapon({ id: "short", longRange: 3 }),
+          createMockWeapon({ id: "long", longRange: 15 }),
         ],
       });
       const target = createMockUnit({ position: { q: 10, r: 0 } });
@@ -237,16 +237,16 @@ describe('AttackAI', () => {
       const weapons = attackAI.selectWeapons(attacker, target);
 
       expect(weapons.length).toBe(1);
-      expect(weapons[0].id).toBe('long');
+      expect(weapons[0].id).toBe("long");
     });
 
-    it('should exclude destroyed weapons', () => {
+    it("should exclude destroyed weapons", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
         weapons: [
-          createMockWeapon({ id: 'working', destroyed: false }),
-          createMockWeapon({ id: 'broken', destroyed: true }),
+          createMockWeapon({ id: "working", destroyed: false }),
+          createMockWeapon({ id: "broken", destroyed: true }),
         ],
       });
       const target = createMockUnit({ position: { q: 3, r: 0 } });
@@ -254,16 +254,16 @@ describe('AttackAI', () => {
       const weapons = attackAI.selectWeapons(attacker, target);
 
       expect(weapons.length).toBe(1);
-      expect(weapons[0].id).toBe('working');
+      expect(weapons[0].id).toBe("working");
     });
 
-    it('should exclude weapons without ammo', () => {
+    it("should exclude weapons without ammo", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
         weapons: [
-          createMockWeapon({ id: 'laser', ammoPerTon: -1 }),
-          createMockWeapon({ id: 'ac10', ammoPerTon: 10 }),
+          createMockWeapon({ id: "laser", ammoPerTon: -1 }),
+          createMockWeapon({ id: "ac10", ammoPerTon: 10 }),
         ],
         ammo: { laser: -1, ac10: 0 },
       });
@@ -272,14 +272,14 @@ describe('AttackAI', () => {
       const weapons = attackAI.selectWeapons(attacker, target);
 
       expect(weapons.length).toBe(1);
-      expect(weapons[0].id).toBe('laser');
+      expect(weapons[0].id).toBe("laser");
     });
 
-    it('should include energy weapons regardless of ammo tracking', () => {
+    it("should include energy weapons regardless of ammo tracking", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
-        weapons: [createMockWeapon({ id: 'laser', ammoPerTon: -1 })],
+        weapons: [createMockWeapon({ id: "laser", ammoPerTon: -1 })],
         ammo: {},
       });
       const target = createMockUnit({ position: { q: 3, r: 0 } });
@@ -287,14 +287,14 @@ describe('AttackAI', () => {
       const weapons = attackAI.selectWeapons(attacker, target);
 
       expect(weapons.length).toBe(1);
-      expect(weapons[0].id).toBe('laser');
+      expect(weapons[0].id).toBe("laser");
     });
 
-    it('should include ballistic weapons with remaining ammo', () => {
+    it("should include ballistic weapons with remaining ammo", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
-        weapons: [createMockWeapon({ id: 'ac10', ammoPerTon: 10 })],
+        weapons: [createMockWeapon({ id: "ac10", ammoPerTon: 10 })],
         ammo: { ac10: 5 },
       });
       const target = createMockUnit({ position: { q: 3, r: 0 } });
@@ -302,20 +302,109 @@ describe('AttackAI', () => {
       const weapons = attackAI.selectWeapons(attacker, target);
 
       expect(weapons.length).toBe(1);
-      expect(weapons[0].id).toBe('ac10');
+      expect(weapons[0].id).toBe("ac10");
     });
 
-    it('should return empty array when target is out of all weapon ranges', () => {
+    it("should return empty array when target is out of all weapon ranges", () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
-        weapons: [createMockWeapon({ id: 'short', longRange: 3 })],
+        weapons: [createMockWeapon({ id: "short", longRange: 3 })],
       });
       const target = createMockUnit({ position: { q: 20, r: 0 } });
 
       const weapons = attackAI.selectWeapons(attacker, target);
 
       expect(weapons.length).toBe(0);
+    });
+  });
+
+  // ==========================================================================
+  // Rear-arc safety (wire-firing-arc-resolution tasks 7.1 / 7.2)
+  // ==========================================================================
+  //
+  // Task 7.2 (mandatory): the AI must not crash when the attacker is in the
+  // target's rear arc, or vice versa. Task 7.1 (optional tactical heuristic)
+  // is NOT implemented here — `IAIUnitState` does not yet expose per-arc
+  // armor totals, so the AI cannot prefer rear-exposing arcs. That lives
+  // downstream when the AI surface is extended.
+  describe("rear-arc safety", () => {
+    it("scoreTarget does not throw when target is in attacker rear arc", () => {
+      const attackAI = new AttackAI();
+      const attacker = createMockUnit({
+        unitId: "attacker",
+        position: { q: 0, r: 0 },
+        facing: Facing.North, // facing north, target is south = attacker's rear
+      });
+      const target = createMockUnit({
+        unitId: "target",
+        position: { q: 0, r: 3 },
+        facing: Facing.North,
+      });
+
+      expect(() => {
+        attackAI.getValidTargets(attacker, [target]);
+      }).not.toThrow();
+
+      expect(() => {
+        attackAI.selectWeapons(attacker, target);
+      }).not.toThrow();
+    });
+
+    it("selectTarget does not throw when attacker is in target rear arc", () => {
+      const attackAI = new AttackAI();
+      const random = new SeededRandom(42);
+      // Target faces north; attacker is directly south → attacker is in
+      // target's rear arc. AttackAI has no arc-aware code yet, so this
+      // should simply behave identically to any other targeting scenario.
+      const attacker = createMockUnit({
+        unitId: "attacker",
+        position: { q: 0, r: 3 },
+        facing: Facing.North,
+      });
+      const target = createMockUnit({
+        unitId: "target",
+        position: { q: 0, r: 0 },
+        facing: Facing.North,
+      });
+
+      expect(() => {
+        const valid = attackAI.getValidTargets(attacker, [target]);
+        attackAI.selectTarget(valid, random, attacker);
+      }).not.toThrow();
+    });
+
+    it("selectWeapons returns sensible result across all 4 arc orientations", () => {
+      // Walk through front/right/left/rear attacker positions relative to a
+      // north-facing target and confirm the AI produces a weapon list (or
+      // empty) without crashing in any arc configuration.
+      const attackAI = new AttackAI();
+      const target = createMockUnit({
+        unitId: "target",
+        position: { q: 0, r: 0 },
+        facing: Facing.North,
+      });
+
+      const attackerPositions = [
+        { q: 0, r: -2, label: "front" },
+        { q: 2, r: -1, label: "right" },
+        { q: -2, r: 1, label: "left" },
+        { q: 0, r: 2, label: "rear" },
+      ];
+
+      for (const pos of attackerPositions) {
+        const attacker = createMockUnit({
+          unitId: `attacker-${pos.label}`,
+          position: { q: pos.q, r: pos.r },
+          facing: Facing.North,
+        });
+
+        expect(() => {
+          const weapons = attackAI.selectWeapons(attacker, target);
+          // Any non-negative-length result is fine; what matters is no crash.
+          expect(weapons.length).toBeGreaterThanOrEqual(0);
+        }).not.toThrow();
+      }
     });
   });
 });
