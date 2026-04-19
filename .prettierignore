@@ -1,1 +1,16 @@
+# oxfmt reads .gitignore and .prettierignore by default (NOT .oxfmtignore).
+# Keep project-specific format excludes here so they actually take effect.
 next-env.d.ts
+
+# Spec-driven artifacts — machine-authored delta specs, tasks.md checkboxes,
+# proposal templates. Formatter opinions create pointless churn and break
+# openspec validation-sensitive whitespace.
+openspec/
+
+# Build/config trees not covered by .gitignore
+.disabled/
+.github/
+.storybook/
+.worktrees/
+dist/
+public/record-sheets/
