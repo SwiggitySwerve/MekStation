@@ -1,6 +1,6 @@
 # piloting-skill-rolls (delta)
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Pilot Consciousness Check
 
