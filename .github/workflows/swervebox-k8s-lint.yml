@@ -1,9 +1,9 @@
-# Runs yamllint + kubeconform on kubernetes/ via the org reusable workflow.
-# Uses self-hosted ARC runners (label: swervebox-arc), not GitHub-hosted minutes.
-#
-# Prerequisite: swervebox-ci repo Settings → Actions → General must allow this
-# repo to use its workflows (org access or explicit allowlist).
+# Runs yamllint + kubeconform on kubernetes/ via SwiggitySwerve/swervebox-ci.
+# Jobs execute on self-hosted ARC runners (label: swervebox-arc).
 name: Swervebox — Kubernetes lint
+
+permissions:
+  contents: read
 
 on:
   pull_request:
