@@ -6,4 +6,5 @@ export * from './movement';
 export * from './combat';
 export * from './status';
 export * from './vehicle';
+export * from './battleArmor';
 export * from './serialization';

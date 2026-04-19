@@ -133,3 +133,6 @@ export * from './spaModifiers';
 
 // Terrain Generator - Procedural terrain generation
 export * from './terrainGenerator';
+
+// Battle Armor Combat Behavior
+export * from './battlearmor';

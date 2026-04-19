@@ -7,6 +7,16 @@
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
+import type {
+  ILegAttackPayload,
+  IMimeticBonusPayload,
+  ISquadEliminatedPayload,
+  IStealthBonusPayload,
+  ISwarmAttachedPayload,
+  ISwarmDamagePayload,
+  ISwarmDismountedPayload,
+  ITrooperKilledPayload,
+} from './BattleArmorCombatInterfaces';
 import type { IEnvironmentalConditions } from './EnvironmentalConditions';
 
 import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
@@ -193,6 +203,50 @@ export enum GameEventType {
    * that will apply on a failed check (10 × altitude).
    */
   VTOLCrashCheck = 'vtol_crash_check',
+
+  // Phase 7 Wave 4: Battle Armor combat events
+  /**
+   * Per `add-battlearmor-combat-behavior`: a single BA trooper was killed by
+   * an incoming hit. Carries the trooper index (into the squad's troopers
+   * array) and the surviving-trooper count after the casualty.
+   */
+  TrooperKilled = 'trooper_killed',
+  /**
+   * Per `add-battlearmor-combat-behavior`: the final trooper in the squad
+   * fell; the squad is removed from active play.
+   */
+  SquadEliminated = 'squad_eliminated',
+  /**
+   * Per `add-battlearmor-combat-behavior`: a BA squad with Magnetic Clamps
+   * successfully attached to a mech via a swarm attack.
+   */
+  SwarmAttached = 'swarm_attached',
+  /**
+   * Per `add-battlearmor-combat-behavior`: a swarming BA squad dealt its
+   * per-turn attack-tick damage against the host mech.
+   */
+  SwarmDamage = 'swarm_damage',
+  /**
+   * Per `add-battlearmor-combat-behavior`: the swarming BA squad detached
+   * from its host mech (dismount roll, squad destroyed, or host destroyed).
+   */
+  SwarmDismounted = 'swarm_dismounted',
+  /**
+   * Per `add-battlearmor-combat-behavior`: a BA leg-attack was declared and
+   * resolved (success or failure). Carries the target leg damage and any
+   * BA self-damage on a failed roll.
+   */
+  LegAttack = 'leg_attack',
+  /**
+   * Per `add-battlearmor-combat-behavior`: mimetic to-hit bonus applied to
+   * an attacker targeting this squad (e.g., +1 when the squad stood still).
+   */
+  MimeticBonus = 'mimetic_bonus',
+  /**
+   * Per `add-battlearmor-combat-behavior`: stealth to-hit bonus applied to
+   * an attacker targeting this squad (Basic / Improved / Prototype).
+   */
+  StealthBonus = 'stealth_bonus',
 }
 
 /**
@@ -837,7 +891,15 @@ export type GameEventPayload =
   | IVehicleImmobilizedPayload
   | ITurretLockedPayload
   | IVehicleCrewStunnedPayload
-  | IVTOLCrashCheckPayload;
+  | IVTOLCrashCheckPayload
+  | ITrooperKilledPayload
+  | ISquadEliminatedPayload
+  | ISwarmAttachedPayload
+  | ISwarmDamagePayload
+  | ISwarmDismountedPayload
+  | ILegAttackPayload
+  | IMimeticBonusPayload
+  | IStealthBonusPayload;
 
 /**
  * Complete game event with payload.
