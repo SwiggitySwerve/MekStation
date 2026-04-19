@@ -6,7 +6,7 @@ Define the construction, state management, serialization, and customizer UI rule
 
 ## Non-Goals
 
-- Combat mechanics (damage resolution, hit location tables, critical hits) are OUT OF SCOPE
+- Detailed combat tables and crit/hit-location rules live in `combat-resolution`; this spec only defines the per-unit combat state shape and heat baseline the combat pipeline reads
 - Pilot/warrior skill progression is OUT OF SCOPE
 - Campaign-level ProtoMech repair and replacement is OUT OF SCOPE
 - Inner Sphere ProtoMech variants are OUT OF SCOPE (ProtoMechs are Clan-only)
@@ -438,6 +438,43 @@ The system SHALL support aggregating up to 5 proto BVs into a point BV for force
 - **WHEN** point BV is computed
 - **THEN** point BV SHALL equal the sum = 1425
 - **AND** the aggregate SHALL be displayed in force-level tools (not used during combat dispatch)
+
+### Requirement: ProtoMech Combat State
+
+Each ProtoMech SHALL carry combat state covering per-location armor / structure and pilot status.
+
+#### Scenario: Combat state initialization
+
+- **GIVEN** a Medium Biped ProtoMech entering combat
+- **WHEN** combat state is initialized
+- **THEN** `unit.combatState.proto.armorByLocation` SHALL contain entries for Head, Torso, LeftArm, RightArm, Legs, and MainGun (if present)
+- **AND** `unit.combatState.proto.structureByLocation` SHALL mirror the armor keys
+- **AND** `unit.combatState.proto.pilotWounded` SHALL be `false`
+- **AND** `unit.combatState.proto.destroyed` SHALL be `false`
+
+#### Scenario: Quad proto legs layout
+
+- **GIVEN** a Quad ProtoMech
+- **WHEN** combat state is initialized
+- **THEN** the leg entries SHALL be `FrontLegs` and `RearLegs` instead of `Legs`
+- **AND** no Arm entries SHALL be present
+
+### Requirement: ProtoMech Heat Rules
+
+The system SHALL apply simplified proto heat rules separate from the mech heat table.
+
+#### Scenario: Proto shutdown threshold
+
+- **GIVEN** a proto whose heat reaches 4
+- **WHEN** heat effects are computed
+- **THEN** a shutdown check SHALL be triggered (lower threshold than mechs)
+
+#### Scenario: Proto heat sink baseline
+
+- **GIVEN** any proto
+- **WHEN** heat-sink count is read
+- **THEN** the base SHALL be 2 (engine-integrated)
+- **AND** extra heat sinks SHALL be the only configurable additions
 
 ## Data Model
 
