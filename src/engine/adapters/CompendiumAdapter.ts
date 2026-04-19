@@ -3,26 +3,27 @@
  * Converts compendium unit data to IUnitGameState for the game engine.
  */
 
-import type { IWeapon } from '@/simulation/ai/types';
+import type { IWeapon } from "@/simulation/ai/types";
 
 import {
   type IFullUnit,
   getCanonicalUnitService,
-} from '@/services/units/CanonicalUnitService';
-import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
-import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
-import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
+} from "@/services/units/CanonicalUnitService";
+import { GameSide, LockState } from "@/types/gameplay/GameSessionInterfaces";
+import { Facing, MovementType } from "@/types/gameplay/HexGridInterfaces";
+import { STANDARD_STRUCTURE_TABLE } from "@/utils/gameplay/damage";
+import { logger } from "@/utils/logger";
 
-import type { IAdaptedUnit, IAdaptUnitOptions, IWeaponData } from '../types';
+import type { IAdaptedUnit, IAdaptUnitOptions, IWeaponData } from "../types";
 
 // =============================================================================
 // Static Weapon Database
 // =============================================================================
 
 const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
-  'small-laser': {
-    id: 'small-laser',
-    name: 'Small Laser',
+  "small-laser": {
+    id: "small-laser",
+    name: "Small Laser",
     shortRange: 1,
     mediumRange: 2,
     longRange: 3,
@@ -32,9 +33,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: -1,
     destroyed: false,
   },
-  'medium-laser': {
-    id: 'medium-laser',
-    name: 'Medium Laser',
+  "medium-laser": {
+    id: "medium-laser",
+    name: "Medium Laser",
     shortRange: 3,
     mediumRange: 6,
     longRange: 9,
@@ -44,9 +45,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: -1,
     destroyed: false,
   },
-  'large-laser': {
-    id: 'large-laser',
-    name: 'Large Laser',
+  "large-laser": {
+    id: "large-laser",
+    name: "Large Laser",
     shortRange: 5,
     mediumRange: 10,
     longRange: 15,
@@ -57,8 +58,8 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     destroyed: false,
   },
   ppc: {
-    id: 'ppc',
-    name: 'PPC',
+    id: "ppc",
+    name: "PPC",
     shortRange: 6,
     mediumRange: 12,
     longRange: 18,
@@ -68,9 +69,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: -1,
     destroyed: false,
   },
-  'ac-2': {
-    id: 'ac-2',
-    name: 'AC/2',
+  "ac-2": {
+    id: "ac-2",
+    name: "AC/2",
     shortRange: 8,
     mediumRange: 16,
     longRange: 24,
@@ -80,9 +81,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 45,
     destroyed: false,
   },
-  'ac-5': {
-    id: 'ac-5',
-    name: 'AC/5',
+  "ac-5": {
+    id: "ac-5",
+    name: "AC/5",
     shortRange: 6,
     mediumRange: 12,
     longRange: 18,
@@ -92,9 +93,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 20,
     destroyed: false,
   },
-  'ac-10': {
-    id: 'ac-10',
-    name: 'AC/10',
+  "ac-10": {
+    id: "ac-10",
+    name: "AC/10",
     shortRange: 5,
     mediumRange: 10,
     longRange: 15,
@@ -104,9 +105,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 10,
     destroyed: false,
   },
-  'ac-20': {
-    id: 'ac-20',
-    name: 'AC/20',
+  "ac-20": {
+    id: "ac-20",
+    name: "AC/20",
     shortRange: 3,
     mediumRange: 6,
     longRange: 9,
@@ -116,9 +117,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 5,
     destroyed: false,
   },
-  'lrm-5': {
-    id: 'lrm-5',
-    name: 'LRM 5',
+  "lrm-5": {
+    id: "lrm-5",
+    name: "LRM 5",
     shortRange: 7,
     mediumRange: 14,
     longRange: 21,
@@ -128,9 +129,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 24,
     destroyed: false,
   },
-  'lrm-10': {
-    id: 'lrm-10',
-    name: 'LRM 10',
+  "lrm-10": {
+    id: "lrm-10",
+    name: "LRM 10",
     shortRange: 7,
     mediumRange: 14,
     longRange: 21,
@@ -140,9 +141,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 12,
     destroyed: false,
   },
-  'lrm-15': {
-    id: 'lrm-15',
-    name: 'LRM 15',
+  "lrm-15": {
+    id: "lrm-15",
+    name: "LRM 15",
     shortRange: 7,
     mediumRange: 14,
     longRange: 21,
@@ -152,9 +153,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 8,
     destroyed: false,
   },
-  'lrm-20': {
-    id: 'lrm-20',
-    name: 'LRM 20',
+  "lrm-20": {
+    id: "lrm-20",
+    name: "LRM 20",
     shortRange: 7,
     mediumRange: 14,
     longRange: 21,
@@ -164,9 +165,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 6,
     destroyed: false,
   },
-  'srm-2': {
-    id: 'srm-2',
-    name: 'SRM 2',
+  "srm-2": {
+    id: "srm-2",
+    name: "SRM 2",
     shortRange: 3,
     mediumRange: 6,
     longRange: 9,
@@ -176,9 +177,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 50,
     destroyed: false,
   },
-  'srm-4': {
-    id: 'srm-4',
-    name: 'SRM 4',
+  "srm-4": {
+    id: "srm-4",
+    name: "SRM 4",
     shortRange: 3,
     mediumRange: 6,
     longRange: 9,
@@ -188,9 +189,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 25,
     destroyed: false,
   },
-  'srm-6': {
-    id: 'srm-6',
-    name: 'SRM 6',
+  "srm-6": {
+    id: "srm-6",
+    name: "SRM 6",
     shortRange: 3,
     mediumRange: 6,
     longRange: 9,
@@ -200,9 +201,9 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
     ammoPerTon: 15,
     destroyed: false,
   },
-  'machine-gun': {
-    id: 'machine-gun',
-    name: 'Machine Gun',
+  "machine-gun": {
+    id: "machine-gun",
+    name: "Machine Gun",
     shortRange: 1,
     mediumRange: 2,
     longRange: 3,
@@ -215,10 +216,100 @@ const WEAPON_DATABASE: Readonly<Record<string, IWeaponData>> = {
 };
 
 /**
- * Look up static weapon data by equipment ID.
+ * IS/Clan weapon ID canonicalization.
+ *
+ * Weapon ids arrive from several upstream sources (unit JSON, MTF parser,
+ * compendium catalog, ad-hoc test fixtures) in inconsistent shapes. Per
+ * `wire-real-weapon-data` task 2.3, `getWeaponData` SHALL resolve both IS
+ * and Clan variants against the static engine weapon database without the
+ * caller having to know which casing / prefix / separator a given producer
+ * uses.
+ *
+ * Normalization rules:
+ * - Lowercase + trim
+ * - Replace whitespace and slashes with hyphens (`AC/20` → `ac-20`,
+ *   `Medium Laser` → `medium-laser`)
+ * - Strip `clan-`, `clan `, `cl-`, and `c-` prefixes BEFORE lookup when the
+ *   clan variant is not present in the static DB — the engine DB only ships
+ *   IS stats today, so Clan weapons fall back to the IS equivalent. When
+ *   proper Clan stats land (follow-up change), add the Clan rows to the DB
+ *   and this prefix strip becomes a no-op for those ids (direct hit wins).
+ * - Strip common abbreviations' ambiguity (`ML` → `medium-laser`,
+ *   `SL` → `small-laser`, `LL` → `large-laser`, `MG` → `machine-gun`,
+ *   `PPC` stays `ppc`).
+ *
+ * The returned record is the IS entry from `WEAPON_DATABASE`. Callers that
+ * need tech-base awareness SHALL read it elsewhere; this helper is
+ * stat-resolution only.
+ */
+const WEAPON_ID_ALIASES: Readonly<Record<string, string>> = {
+  // Common abbreviations
+  ml: "medium-laser",
+  sl: "small-laser",
+  ll: "large-laser",
+  mg: "machine-gun",
+  // Slash-style canonical (from MegaMek-ish sources)
+  "ac-2": "ac-2",
+  "ac-5": "ac-5",
+  "ac-10": "ac-10",
+  "ac-20": "ac-20",
+  // LRM / SRM "LRM-N" vs "lrm-N"
+  "lrm-5": "lrm-5",
+  "lrm-10": "lrm-10",
+  "lrm-15": "lrm-15",
+  "lrm-20": "lrm-20",
+  "srm-2": "srm-2",
+  "srm-4": "srm-4",
+  "srm-6": "srm-6",
+  // Explicit "Inner Sphere" prefixes
+  "is-medium-laser": "medium-laser",
+  "is-small-laser": "small-laser",
+  "is-large-laser": "large-laser",
+  "is-ppc": "ppc",
+  "is-ac-2": "ac-2",
+  "is-ac-5": "ac-5",
+  "is-ac-10": "ac-10",
+  "is-ac-20": "ac-20",
+};
+
+const CLAN_PREFIX_PATTERNS: readonly RegExp[] = [/^clan-/, /^cl-/, /^c-/];
+
+export function canonicalizeWeaponId(equipmentId: string): string {
+  if (!equipmentId) return equipmentId;
+  const raw = equipmentId.toLowerCase().trim();
+  // Normalize separators: whitespace → hyphen, slash → hyphen, collapse dupes.
+  const normalized = raw.replace(/[\s/]+/g, "-").replace(/-+/g, "-");
+  // Direct alias hit (abbreviations, IS-prefixed)
+  if (WEAPON_ID_ALIASES[normalized]) {
+    return WEAPON_ID_ALIASES[normalized];
+  }
+  // Direct catalog hit — done.
+  if (WEAPON_DATABASE[normalized]) {
+    return normalized;
+  }
+  // Clan-prefixed fallback: strip prefix and re-check against catalog or
+  // alias map. The static DB only holds IS rows today, so this fall-through
+  // gives Clan variants the IS equivalent stats (documented below).
+  for (const pattern of CLAN_PREFIX_PATTERNS) {
+    if (pattern.test(normalized)) {
+      const stripped = normalized.replace(pattern, "");
+      if (WEAPON_DATABASE[stripped]) return stripped;
+      if (WEAPON_ID_ALIASES[stripped]) return WEAPON_ID_ALIASES[stripped];
+    }
+  }
+  return normalized;
+}
+
+/**
+ * Look up static weapon data by equipment ID. Accepts both IS and Clan
+ * variants via `canonicalizeWeaponId`. Returns `undefined` when no entry
+ * matches — callers are expected to surface the miss (e.g., via
+ * `weaponAttackBuilder` logger.warn + skip, per task 3.3) rather than
+ * silently defaulting to a 5-damage / 3-heat placeholder.
  */
 export function getWeaponData(equipmentId: string): IWeaponData | undefined {
-  return WEAPON_DATABASE[equipmentId];
+  const canonicalId = canonicalizeWeaponId(equipmentId);
+  return WEAPON_DATABASE[canonicalId];
 }
 
 // =============================================================================
@@ -226,19 +317,19 @@ export function getWeaponData(equipmentId: string): IWeaponData | undefined {
 // =============================================================================
 
 const LOCATION_KEY_MAP: Readonly<Record<string, string>> = {
-  HEAD: 'head',
-  CENTER_TORSO: 'center_torso',
-  LEFT_TORSO: 'left_torso',
-  RIGHT_TORSO: 'right_torso',
-  LEFT_ARM: 'left_arm',
-  RIGHT_ARM: 'right_arm',
-  LEFT_LEG: 'left_leg',
-  RIGHT_LEG: 'right_leg',
+  HEAD: "head",
+  CENTER_TORSO: "center_torso",
+  LEFT_TORSO: "left_torso",
+  RIGHT_TORSO: "right_torso",
+  LEFT_ARM: "left_arm",
+  RIGHT_ARM: "right_arm",
+  LEFT_LEG: "left_leg",
+  RIGHT_LEG: "right_leg",
 };
 
 function toLowerLocation(upperKey: string): string {
   return (
-    LOCATION_KEY_MAP[upperKey] ?? upperKey.toLowerCase().replace(/ /g, '_')
+    LOCATION_KEY_MAP[upperKey] ?? upperKey.toLowerCase().replace(/ /g, "_")
   );
 }
 
@@ -285,14 +376,14 @@ function extractArmor(
 
   for (const [upperKey, value] of Object.entries(armorData)) {
     const lowerKey = toLowerLocation(upperKey);
-    if (typeof value === 'number') {
+    if (typeof value === "number") {
       result[lowerKey] = value;
-    } else if (typeof value === 'object' && value !== null) {
+    } else if (typeof value === "object" && value !== null) {
       const obj = value as { front?: number; rear?: number };
-      if (typeof obj.front === 'number') {
+      if (typeof obj.front === "number") {
         result[lowerKey] = obj.front;
       }
-      if (typeof obj.rear === 'number') {
+      if (typeof obj.rear === "number") {
         result[`${lowerKey}_rear`] = obj.rear;
       }
     }
@@ -313,15 +404,33 @@ function extractWeapons(
   const idCounts = new Map<string, number>();
 
   for (const item of equipment) {
-    const data = WEAPON_DATABASE[item.id];
-    if (!data) continue;
+    // Canonicalize the incoming equipment id so IS/Clan/abbreviation
+    // variants all resolve against the static DB (task 2.3). Without this
+    // step, an upstream producer that emits "Medium Laser" or
+    // "clan-medium-laser" would silently drop the weapon from the unit's
+    // inventory — and later the weaponAttackBuilder would warn about a
+    // missing weapon that was actually discarded here.
+    const canonicalId = canonicalizeWeaponId(item.id);
+    const data = WEAPON_DATABASE[canonicalId];
+    if (!data) {
+      // Task 3.3: do not silently skip — surface the miss so data-pipeline
+      // bugs are observable. Combat resilience is preserved because the
+      // weapon simply isn't added to the unit's inventory, and the bot /
+      // player cannot then declare it as a firing weapon.
+      logger.warn(
+        `[CompendiumAdapter] Weapon id "${item.id}" on unit "${unitId}" ` +
+          `(canonical: "${canonicalId}") has no static catalog entry — ` +
+          `skipping. Add it to WEAPON_DATABASE or WEAPON_ID_ALIASES.`,
+      );
+      continue;
+    }
 
-    const count = (idCounts.get(item.id) ?? 0) + 1;
-    idCounts.set(item.id, count);
+    const count = (idCounts.get(canonicalId) ?? 0) + 1;
+    idCounts.set(canonicalId, count);
 
     weapons.push({
       ...data,
-      id: `${unitId}-${item.id}-${count}`,
+      id: `${unitId}-${canonicalId}-${count}`,
     });
   }
 
