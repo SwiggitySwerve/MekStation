@@ -24,3 +24,6 @@ export * from './CombatInterfaces';
 
 // Gameplay UI
 export * from './GameplayUIInterfaces';
+
+// Vehicle Combat Behavior
+export * from './VehicleCombatInterfaces';

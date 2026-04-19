@@ -156,6 +156,43 @@ export enum GameEventType {
    * can score subsequent moves against it.
    */
   RetreatTriggered = 'retreat_triggered',
+  /**
+   * Per `add-vehicle-combat-behavior`: fired when a vehicle takes a
+   * structure-exposing hit (or an any-hit for Hover/Naval/Hydrofoil/Submarine/WiGE
+   * motion types) triggering a motive-damage roll. Carries the 2d6 dice,
+   * severity, and resulting MP penalty so replay / UI can explain the
+   * cruise-MP drop.
+   */
+  MotiveDamaged = 'motive_damaged',
+  /**
+   * Per `add-vehicle-combat-behavior`: emitted after a motive-damage roll
+   * mutates the vehicle's effective MP (cruise/flank). Distinct from
+   * `MotiveDamaged` so consumers that only care about MP changes (e.g., AI
+   * pathfinder invalidation) don't have to parse the roll payload.
+   */
+  MotivePenaltyApplied = 'motive_penalty_applied',
+  /**
+   * Per `add-vehicle-combat-behavior`: fired when a motive roll immobilizes
+   * the vehicle (natural 12, wheeled/hover aggravation on "heavy", or a
+   * VTOL rotor kill). Immobilized is one-way for the rest of the game.
+   */
+  VehicleImmobilized = 'vehicle_immobilized',
+  /**
+   * Per `add-vehicle-combat-behavior`: fired when a vehicle crit or damage
+   * roll locks a turret. Locked turrets fire in the chassis Front arc only.
+   */
+  TurretLocked = 'turret_locked',
+  /**
+   * Per `add-vehicle-combat-behavior`: fired when a vehicle crew-stunned
+   * crit applies — crew skips the next movement + weapon phase.
+   */
+  VehicleCrewStunned = 'vehicle_crew_stunned',
+  /**
+   * Per `add-vehicle-combat-behavior` §7: VTOL rotor damage triggers a
+   * crash check. Carries the altitude at trigger time and the fall-damage
+   * that will apply on a failed check (10 × altitude).
+   */
+  VTOLCrashCheck = 'vtol_crash_check',
 }
 
 /**
@@ -688,6 +725,79 @@ export interface IRetreatTriggeredPayload {
 }
 
 /**
+ * Per `add-vehicle-combat-behavior` §4: emitted when a vehicle hit
+ * triggers a motive-damage roll. Carries the consumed 2d6, the severity
+ * outcome, and the resulting MP penalty.
+ */
+export interface IMotiveDamagedPayload {
+  readonly unitId: string;
+  readonly severity: 'none' | 'minor' | 'moderate' | 'heavy' | 'immobilized';
+  readonly mpPenalty: number;
+  /**
+   * The two d6 that compose the motive roll (same convention as the
+   * existing PSR / crit events).
+   */
+  readonly rolls?: readonly number[];
+}
+
+/**
+ * Per `add-vehicle-combat-behavior` §4: emitted after motive damage has
+ * been applied to the running combat state. Consumers such as the move
+ * pathfinder use this to invalidate cached reachability.
+ */
+export interface IMotivePenaltyAppliedPayload {
+  readonly unitId: string;
+  readonly previousCruiseMP: number;
+  readonly newCruiseMP: number;
+  readonly newFlankMP: number;
+}
+
+/**
+ * Per `add-vehicle-combat-behavior` §4/§5: vehicle has become immobilized
+ * (natural 12, Wheeled/Hover "heavy" aggravation, rotor kill, or two
+ * engine hits).
+ */
+export interface IVehicleImmobilizedPayload {
+  readonly unitId: string;
+  readonly cause:
+    | 'motive_roll'
+    | 'aggravation'
+    | 'rotor_destroyed'
+    | 'engine_destroyed'
+    | 'crew_killed';
+}
+
+/**
+ * Per `add-vehicle-combat-behavior` §6: a vehicle turret has been locked
+ * (either primary or secondary). A locked turret fires in the chassis
+ * Front arc only.
+ */
+export interface ITurretLockedPayload {
+  readonly unitId: string;
+  readonly secondary: boolean;
+}
+
+/**
+ * Per `add-vehicle-combat-behavior` §6: Crew Stunned crit effect. The
+ * vehicle skips `phasesStunned` upcoming phases (movement + weapon).
+ */
+export interface IVehicleCrewStunnedPayload {
+  readonly unitId: string;
+  readonly phasesStunned: number;
+}
+
+/**
+ * Per `add-vehicle-combat-behavior` §7: VTOL rotor damage triggered a
+ * crash check. Carries the altitude at the trigger time and the
+ * resulting fall damage (10 × altitude).
+ */
+export interface IVTOLCrashCheckPayload {
+  readonly unitId: string;
+  readonly altitude: number;
+  readonly fallDamage: number;
+}
+
+/**
  * Union type for all event payloads.
  */
 export type GameEventPayload =
@@ -721,7 +831,13 @@ export type GameEventPayload =
   | ILocationDestroyedPayload
   | ITransferDamagePayload
   | IComponentDestroyedPayload
-  | IRetreatTriggeredPayload;
+  | IRetreatTriggeredPayload
+  | IMotiveDamagedPayload
+  | IMotivePenaltyAppliedPayload
+  | IVehicleImmobilizedPayload
+  | ITurretLockedPayload
+  | IVehicleCrewStunnedPayload
+  | IVTOLCrashCheckPayload;
 
 /**
  * Complete game event with payload.
