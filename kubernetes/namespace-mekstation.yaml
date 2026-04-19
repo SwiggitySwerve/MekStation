@@ -1,0 +1,6 @@
+# Minimal manifests for local kubeconform / yamllint smoke checks in CI.
+# Extend this directory with real MekStation deployment resources as needed.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mekstation
