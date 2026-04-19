@@ -11,9 +11,9 @@ import {
   Facing,
   FiringArc,
   IArcResult,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import { hexAngle, facingToAngle, hexEquals } from "./hexMath";
+import { hexAngle, facingToAngle, hexEquals } from './hexMath';
 
 // =============================================================================
 // Arc Constants
@@ -129,7 +129,7 @@ export function getArcHexes(
   maxRange: number,
 ): readonly IHexCoordinate[] {
   const position: IUnitPosition = {
-    unitId: "temp",
+    unitId: 'temp',
     coord: center,
     facing,
     prone: false,
