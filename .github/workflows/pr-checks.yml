@@ -6,6 +6,9 @@ on:
       - main
     types: [opened, synchronize, reopened, ready_for_review]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   lint-and-test:
     name: Lint and Test
@@ -14,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
@@ -47,7 +50,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
@@ -66,7 +69,7 @@ jobs:
         run: npm run build
 
       - name: Upload web build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-build
           path: |
@@ -95,7 +98,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
@@ -104,7 +107,7 @@ jobs:
           skip-nextjs-cache: 'true'
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: web-build
 

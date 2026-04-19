@@ -2,11 +2,30 @@ import React from 'react';
 
 import {
   MAX_HEAT,
+  HEAT_THRESHOLDS,
   getHeatColorClass,
   getActiveHeatEffects,
 } from '@/constants/heat';
-import { IWeaponStatus } from '@/types/gameplay';
+/**
+ * Per `add-interactive-combat-core-ui` § 6.2: the heat bar labels the
+ * four canonical to-hit threshold breakpoints (8 = +1, 13 = +2, 17 =
+ * +3, 24 = +4) as inline tick marks so the player can see "how close
+ * am I to the next penalty" at a glance. Values are pulled from
+ * `HEAT_THRESHOLDS` so they stay in sync with the combat engine's
+ * canonical table rather than drifting into a local literal.
+ */
+export const HEAT_TICK_THRESHOLDS: ReadonlyArray<{
+  readonly value: number;
+  readonly label: string;
+  readonly modifier: string;
+}> = [
+  { value: HEAT_THRESHOLDS.TO_HIT_1, label: '8', modifier: '+1' },
+  { value: HEAT_THRESHOLDS.TO_HIT_2, label: '13', modifier: '+2' },
+  { value: HEAT_THRESHOLDS.TO_HIT_3, label: '17', modifier: '+3' },
+  { value: HEAT_THRESHOLDS.TO_HIT_4, label: '24', modifier: '+4' },
+];
 
+import { ArmorPipRail } from './ArmorPipRail';
 import { LOCATION_NAMES, getStatusColor } from './recordSheet.helpers';
 
 // =============================================================================
@@ -44,71 +63,111 @@ export function LocationStatusRow({
 
   return (
     <div
-      className={`px-3 py-2 md:flex md:items-center md:px-2 md:py-1 ${destroyed ? 'line-through opacity-50' : ''}`}
+      className={`px-3 py-2 md:px-2 md:py-1 ${destroyed ? 'line-through opacity-50' : ''}`}
       data-testid={`location-row-${location}`}
     >
-      <div className="mb-1 flex items-center justify-between md:mb-0 md:w-28">
-        <span className="text-text-theme-primary text-base font-medium md:text-sm">
-          {displayName}
-        </span>
+      <div className="md:flex md:items-center">
+        <div className="mb-1 flex items-center justify-between md:mb-0 md:w-28">
+          <span className="text-text-theme-primary text-base font-medium md:text-sm">
+            {displayName}
+          </span>
+          {destroyed && (
+            <span
+              className="text-xs font-bold text-red-600 md:hidden"
+              data-testid={`location-destroyed-${location}-mobile`}
+            >
+              DESTROYED
+            </span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 md:flex md:flex-1 md:items-center md:gap-4">
+          <div className="flex items-center gap-1">
+            <span className="text-text-theme-secondary text-sm md:w-6 md:text-xs">
+              AR:
+            </span>
+            <span
+              className={`font-mono text-base md:w-8 md:text-right md:text-sm ${armorColor}`}
+              data-testid={`location-armor-${location}`}
+            >
+              {armor}/{maxArmor}
+            </span>
+          </div>
+          {rearArmor !== undefined && maxRearArmor !== undefined ? (
+            <div className="flex items-center gap-1">
+              <span className="text-text-theme-secondary text-sm md:w-6 md:text-xs">
+                RR:
+              </span>
+              <span
+                className={`font-mono text-base md:w-8 md:text-right md:text-sm ${rearArmorColor}`}
+                data-testid={`location-armor-${location}_rear`}
+              >
+                {rearArmor}/{maxRearArmor}
+              </span>
+            </div>
+          ) : (
+            <div className="md:hidden" />
+          )}
+          <div className="flex items-center gap-1">
+            <span className="text-text-theme-secondary text-sm md:w-6 md:text-xs">
+              IS:
+            </span>
+            <span
+              className={`font-mono text-base md:w-8 md:text-right md:text-sm ${structureColor}`}
+              data-testid={`location-structure-${location}`}
+            >
+              {structure}/{maxStructure}
+            </span>
+          </div>
+        </div>
+
         {destroyed && (
           <span
-            className="text-xs font-bold text-red-600 md:hidden"
-            data-testid={`location-destroyed-${location}-mobile`}
+            className="ml-2 hidden text-xs font-bold text-red-600 md:inline"
+            data-testid={`location-destroyed-${location}`}
           >
             DESTROYED
           </span>
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-2 md:flex md:flex-1 md:items-center md:gap-4">
-        <div className="flex items-center gap-1">
-          <span className="text-text-theme-secondary text-sm md:w-6 md:text-xs">
-            AR:
-          </span>
-          <span
-            className={`font-mono text-base md:w-8 md:text-right md:text-sm ${armorColor}`}
-            data-testid={`location-armor-${location}`}
-          >
-            {armor}/{maxArmor}
-          </span>
-        </div>
-        {rearArmor !== undefined && maxRearArmor !== undefined ? (
-          <div className="flex items-center gap-1">
-            <span className="text-text-theme-secondary text-sm md:w-6 md:text-xs">
-              RR:
-            </span>
-            <span
-              className={`font-mono text-base md:w-8 md:text-right md:text-sm ${rearArmorColor}`}
-              data-testid={`location-armor-${location}_rear`}
-            >
-              {rearArmor}/{maxRearArmor}
-            </span>
-          </div>
-        ) : (
-          <div className="md:hidden" />
+      {/*
+        Per § 5.1 the panel renders armor pips for every location so
+        players can see remaining protection at a glance without
+        parsing numbers. The numeric row above is preserved because
+        many players (and existing tests) key on it directly.
+      */}
+      <div
+        className="mt-1 flex flex-col gap-0.5"
+        data-testid={`location-pips-${location}`}
+      >
+        <ArmorPipRail
+          label="AR"
+          current={armor}
+          max={maxArmor}
+          destroyed={destroyed}
+          kind="armor"
+          testId={`armor-pips-${location}`}
+        />
+        {rearArmor !== undefined && maxRearArmor !== undefined && (
+          <ArmorPipRail
+            label="RR"
+            current={rearArmor}
+            max={maxRearArmor}
+            destroyed={destroyed}
+            kind="armor"
+            testId={`armor-pips-${location}_rear`}
+          />
         )}
-        <div className="flex items-center gap-1">
-          <span className="text-text-theme-secondary text-sm md:w-6 md:text-xs">
-            IS:
-          </span>
-          <span
-            className={`font-mono text-base md:w-8 md:text-right md:text-sm ${structureColor}`}
-            data-testid={`location-structure-${location}`}
-          >
-            {structure}/{maxStructure}
-          </span>
-        </div>
+        <ArmorPipRail
+          label="IS"
+          current={structure}
+          max={maxStructure}
+          destroyed={destroyed}
+          kind="structure"
+          testId={`structure-pips-${location}`}
+        />
       </div>
-
-      {destroyed && (
-        <span
-          className="ml-2 hidden text-xs font-bold text-red-600 md:inline"
-          data-testid={`location-destroyed-${location}`}
-        >
-          DESTROYED
-        </span>
-      )}
     </div>
   );
 }
@@ -117,119 +176,7 @@ export function LocationStatusRow({
 // Weapon Row
 // =============================================================================
 
-interface WeaponRowProps {
-  weapon: IWeaponStatus;
-  isSelected: boolean;
-  onToggle?: () => void;
-}
-
-export function WeaponRow({
-  weapon,
-  isSelected,
-  onToggle,
-}: WeaponRowProps): React.ReactElement {
-  const isAvailable = !weapon.destroyed;
-  const rowClasses = weapon.destroyed
-    ? 'opacity-50 line-through'
-    : weapon.firedThisTurn
-      ? 'bg-yellow-50'
-      : '';
-
-  return (
-    <div
-      className={`hover:bg-surface-deep px-3 py-3 md:flex md:items-center md:px-2 md:py-1 ${rowClasses}`}
-      onClick={isAvailable && onToggle ? onToggle : undefined}
-      style={{ cursor: isAvailable && onToggle ? 'pointer' : 'default' }}
-      data-testid={`weapon-row-${weapon.id}`}
-    >
-      <div className="md:hidden">
-        <div className="mb-2 flex items-center gap-3">
-          {onToggle && (
-            <input
-              type="checkbox"
-              checked={isSelected}
-              onChange={onToggle}
-              disabled={!isAvailable}
-              className="h-5 min-h-[44px] w-5 min-w-[44px] touch-manipulation"
-              data-testid={`weapon-checkbox-${weapon.id}-mobile`}
-            />
-          )}
-          <span
-            className="flex-1 text-base font-medium"
-            data-testid={`weapon-name-${weapon.id}`}
-          >
-            {weapon.name}
-          </span>
-          <span className="text-text-theme-secondary text-sm">
-            {weapon.location}
-          </span>
-        </div>
-        <div className="text-text-theme-secondary flex items-center gap-4 pl-8 text-sm">
-          <span data-testid={`weapon-heat-${weapon.id}-mobile`}>
-            {weapon.heat}H
-          </span>
-          <span data-testid={`weapon-damage-${weapon.id}-mobile`}>
-            {weapon.damage}D
-          </span>
-          <span>
-            S/M/L: {weapon.ranges.short}/{weapon.ranges.medium}/
-            {weapon.ranges.long}
-          </span>
-          {weapon.ammoRemaining !== undefined && (
-            <span data-testid={`weapon-ammo-${weapon.id}-mobile`}>
-              {weapon.ammoRemaining} rds
-            </span>
-          )}
-        </div>
-      </div>
-
-      <div className="hidden md:contents">
-        {onToggle && (
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={onToggle}
-            disabled={!isAvailable}
-            className="mr-2"
-            data-testid={`weapon-checkbox-${weapon.id}`}
-          />
-        )}
-        <span
-          className="flex-1 text-sm"
-          data-testid={`weapon-name-${weapon.id}-desktop`}
-        >
-          {weapon.name}
-        </span>
-        <span className="text-text-theme-secondary w-16 text-xs">
-          {weapon.location}
-        </span>
-        <span
-          className="text-text-theme-secondary w-8 text-center text-xs"
-          data-testid={`weapon-heat-${weapon.id}`}
-        >
-          {weapon.heat}H
-        </span>
-        <span
-          className="text-text-theme-secondary w-8 text-center text-xs"
-          data-testid={`weapon-damage-${weapon.id}`}
-        >
-          {weapon.damage}D
-        </span>
-        <span className="text-text-theme-secondary w-20 text-xs">
-          {weapon.ranges.short}/{weapon.ranges.medium}/{weapon.ranges.long}
-        </span>
-        {weapon.ammoRemaining !== undefined && (
-          <span
-            className="text-text-theme-secondary w-12 text-right text-xs"
-            data-testid={`weapon-ammo-${weapon.id}`}
-          >
-            {weapon.ammoRemaining} rds
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
+export { WeaponRow } from './WeaponRow';
 
 // =============================================================================
 // Simple Heat Display
@@ -249,12 +196,62 @@ export function SimpleHeatDisplay({
     <div className="bg-surface-raised rounded p-2" data-testid="heat-display">
       <div className="mb-2 flex items-center gap-4">
         <div className="flex-1">
-          <div className="bg-surface-deep h-4 overflow-hidden rounded">
+          {/*
+            Relative wrapper so the § 6.2 threshold tick marks can be
+            absolute-positioned on top of the bar without disturbing
+            the existing fill layout. Tick marks render as thin
+            vertical lines at 8/13/17/24 with a label strip below so
+            they are legible at the default 16px bar height.
+          */}
+          <div className="relative">
             <div
-              className={`h-full ${getHeatColorClass(heat)} transition-all`}
-              style={{ width: `${heatPercent}%` }}
-              data-testid="heat-bar"
-            />
+              className="bg-surface-deep relative h-4 overflow-hidden rounded"
+              data-testid="heat-bar-track"
+            >
+              <div
+                className={`h-full ${getHeatColorClass(heat)} transition-all`}
+                style={{ width: `${heatPercent}%` }}
+                data-testid="heat-bar"
+              />
+              {HEAT_TICK_THRESHOLDS.map((tick) => {
+                const left = Math.min((tick.value / MAX_HEAT) * 100, 100);
+                return (
+                  <span
+                    key={tick.value}
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 w-px bg-gray-600/70"
+                    style={{ left: `${left}%` }}
+                    data-testid={`heat-tick-${tick.value}`}
+                  />
+                );
+              })}
+            </div>
+            {/*
+              Threshold label strip — each tick's numeric breakpoint
+              and to-hit modifier is rendered inline so the player can
+              read the scale without hovering. Absolute-positioned so
+              the strip never disturbs the main flex layout.
+            */}
+            <div
+              className="text-text-theme-secondary pointer-events-none relative h-4 text-[9px] leading-none"
+              data-testid="heat-threshold-labels"
+            >
+              {HEAT_TICK_THRESHOLDS.map((tick) => {
+                const left = Math.min((tick.value / MAX_HEAT) * 100, 100);
+                return (
+                  <span
+                    key={tick.value}
+                    className="absolute -translate-x-1/2 font-mono whitespace-nowrap"
+                    style={{ left: `${left}%`, top: 2 }}
+                    data-testid={`heat-tick-label-${tick.value}`}
+                    data-threshold={tick.value}
+                  >
+                    <span className="font-semibold">{tick.label}</span>
+                    <span className="ml-0.5 opacity-70">{tick.modifier}</span>
+                  </span>
+                );
+              })}
+            </div>
           </div>
         </div>
         <div className="font-mono text-sm">
@@ -314,6 +311,23 @@ export function PilotStatus({
 
   return (
     <div className="bg-surface-raised rounded p-2" data-testid="pilot-status">
+      {/*
+        Per `add-interactive-combat-core-ui` § 9.3: an unconscious
+        pilot gets a full-width red banner at the top of the pilot
+        panel so the player sees the state immediately even when
+        the small inline "UNCONSCIOUS" label is clipped. The
+        original inline label is preserved for tests and accessibility.
+      */}
+      {!conscious && (
+        <div
+          className="mb-2 flex items-center gap-2 rounded border border-red-700 bg-red-600 px-2 py-1 text-xs font-bold tracking-wide text-white uppercase"
+          data-testid="pilot-unconscious-banner"
+          role="alert"
+        >
+          <span aria-hidden="true">⚠</span>
+          <span>Pilot unconscious — cannot act this turn</span>
+        </div>
+      )}
       <div className="mb-2 flex items-center justify-between">
         <span
           className="text-text-theme-primary font-medium"

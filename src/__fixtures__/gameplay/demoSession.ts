@@ -16,6 +16,7 @@ import {
   GameEventType,
   LockState,
   IWeaponStatus,
+  IPilotSpaSummary,
   Facing,
   MovementType,
   ITurnStartedPayload,
@@ -381,5 +382,35 @@ export function createDemoHeatSinks(): Record<string, number> {
   return {
     'unit-player-1': 20,
     'unit-opponent-1': 10,
+  };
+}
+
+/**
+ * Per `add-interactive-combat-core-ui` § 8: demo Special Pilot Ability
+ * projections. Seeds one unit with two representative SPAs so the
+ * happy-path render exercises the list layout and description
+ * tooltips, and leaves the opponent without SPAs so the "No SPAs"
+ * empty-state placeholder is exercised in the same session.
+ */
+export function createDemoUnitSpas(): Record<
+  string,
+  readonly IPilotSpaSummary[]
+> {
+  return {
+    'unit-player-1': [
+      {
+        id: 'melee-specialist',
+        displayLabel: 'Melee Specialist',
+        description:
+          'Reduces the to-hit number on physical attacks by 1. Eligible with any mech weighing at least 20 tons.',
+      },
+      {
+        id: 'sandblinder',
+        displayLabel: 'Sandblinder',
+        description:
+          'Ignores penalties from sand and dust and may force opponents who cannot see through it to take piloting checks.',
+      },
+    ],
+    'unit-opponent-1': [],
   };
 }

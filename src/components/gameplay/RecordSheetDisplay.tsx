@@ -3,11 +3,17 @@
  * Shows unit status in traditional record sheet format.
  *
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
+ * @spec openspec/changes/add-interactive-combat-core-ui/specs/tactical-map-interface/spec.md
  */
 
 import React, { useMemo } from 'react';
 
-import { IUnitGameState, IWeaponStatus } from '@/types/gameplay';
+import {
+  GameSide,
+  IPilotSpaSummary,
+  IUnitGameState,
+  IWeaponStatus,
+} from '@/types/gameplay';
 
 import { LOCATION_ORDER, REAR_ARMOR_LOCATIONS } from './recordSheet.helpers';
 import {
@@ -46,6 +52,32 @@ export interface RecordSheetDisplayProps {
   selectedWeaponIds?: readonly string[];
   /** Callback when weapon selection changes */
   onWeaponToggle?: (weaponId: string) => void;
+  /**
+   * Per `add-interactive-combat-core-ui` § 4.2: the side controlling
+   * this unit, rendered as a colored badge in the header (blue =
+   * Player, red = Opponent). Matches the hex-map token palette.
+   */
+  side?: GameSide;
+  /**
+   * Per `add-interactive-combat-core-ui` § 4.2: unit tonnage shown in
+   * the header. Optional because not all upstream unit records carry
+   * a `tonnage` field yet — when absent the header omits the weight
+   * line rather than rendering a misleading zero.
+   */
+  tonnage?: number;
+  /**
+   * Per `add-interactive-combat-core-ui` § 4.2: unit chassis string
+   * ("Atlas", "Hunchback", …). Optional for the same reason as
+   * `tonnage` — when absent the header falls back to `unitName`.
+   */
+  chassis?: string;
+  /**
+   * Per `add-interactive-combat-core-ui` § 8: Special Pilot Abilities
+   * for this unit. Empty array → "No SPAs" placeholder; `undefined`
+   * → same as empty so callers that don't project SPAs see the same
+   * placeholder (conservative default).
+   */
+  spas?: readonly IPilotSpaSummary[];
   /** Optional className for styling */
   className?: string;
 }
@@ -70,6 +102,10 @@ export function RecordSheetDisplay({
   heatSinks,
   selectedWeaponIds = [],
   onWeaponToggle,
+  side,
+  tonnage,
+  chassis,
+  spas,
   className = '',
 }: RecordSheetDisplayProps): React.ReactElement {
   // Build location statuses
@@ -94,28 +130,53 @@ export function RecordSheetDisplay({
       className={`bg-surface-base overflow-y-auto p-4 ${className}`}
       data-testid="record-sheet"
     >
-      {/* Header */}
+      {/* Header — per § 4.2 shows designation, chassis, tonnage, side
+          badge. Side badge uses the same blue/red palette as the hex
+          map tokens so the selected-unit → token visual link is
+          preserved. */}
       <div className="border-border-theme mb-4 border-b pb-2">
-        <h2
-          className="text-text-theme-primary text-lg font-bold"
-          data-testid="record-sheet-unit-name"
-        >
-          {unitName}
-        </h2>
-        <span
-          className="text-text-theme-secondary text-sm"
-          data-testid="record-sheet-designation"
-        >
-          {designation}
-        </span>
-        {state.destroyed && (
-          <span
-            className="ml-4 font-bold text-red-600"
-            data-testid="record-sheet-destroyed"
+        <div className="flex items-center gap-3">
+          <h2
+            className="text-text-theme-primary text-lg font-bold"
+            data-testid="record-sheet-unit-name"
           >
-            DESTROYED
-          </span>
-        )}
+            {unitName}
+          </h2>
+          {side && (
+            <span
+              className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${
+                side === GameSide.Player
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'bg-red-100 text-red-700'
+              }`}
+              data-testid="record-sheet-side-badge"
+              data-side={side === GameSide.Player ? 'player' : 'opponent'}
+            >
+              <span
+                aria-hidden="true"
+                className={`h-2 w-2 rounded-full ${
+                  side === GameSide.Player ? 'bg-blue-500' : 'bg-red-500'
+                }`}
+              />
+              {side === GameSide.Player ? 'Player' : 'Opponent'}
+            </span>
+          )}
+          {state.destroyed && (
+            <span
+              className="ml-auto font-bold text-red-600"
+              data-testid="record-sheet-destroyed"
+            >
+              DESTROYED
+            </span>
+          )}
+        </div>
+        <div className="text-text-theme-secondary mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+          <span data-testid="record-sheet-designation">{designation}</span>
+          {chassis && <span data-testid="record-sheet-chassis">{chassis}</span>}
+          {tonnage !== undefined && (
+            <span data-testid="record-sheet-tonnage">{tonnage} tons</span>
+          )}
+        </div>
       </div>
 
       {/* Pilot Status */}
@@ -165,7 +226,7 @@ export function RecordSheetDisplay({
             <span className="w-8 text-center">Heat</span>
             <span className="w-8 text-center">Dmg</span>
             <span className="w-20">S/M/L</span>
-            <span className="w-12 text-right">Ammo</span>
+            <span className="w-20 text-right">Ammo</span>
           </div>
           {weapons.map((weapon) => (
             <WeaponRow
@@ -178,6 +239,50 @@ export function RecordSheetDisplay({
             />
           ))}
         </div>
+      </div>
+
+      {/* SPAs — per § 8: list each Special Pilot Ability with a
+          description tooltip; empty list shows the "No SPAs"
+          placeholder so the panel never renders an orphan header. */}
+      <div className="mb-4" data-testid="spa-section">
+        <h3 className="text-text-theme-primary mb-2 text-sm font-bold">
+          SPECIAL PILOT ABILITIES
+        </h3>
+        {spas && spas.length > 0 ? (
+          <ul
+            className="border-border-theme divide-y rounded border"
+            data-testid="spa-list"
+          >
+            {spas.map((spa) => (
+              <li
+                key={spa.id}
+                className="bg-surface-raised px-3 py-2 text-sm"
+                data-testid={`spa-row-${spa.id}`}
+                title={spa.description}
+              >
+                <span
+                  className="text-text-theme-primary font-medium"
+                  data-testid={`spa-label-${spa.id}`}
+                >
+                  {spa.displayLabel}
+                </span>
+                <span
+                  className="text-text-theme-secondary ml-2 text-xs"
+                  data-testid={`spa-description-${spa.id}`}
+                >
+                  {spa.description}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p
+            className="text-text-theme-secondary text-sm italic"
+            data-testid="spa-empty"
+          >
+            No SPAs
+          </p>
+        )}
       </div>
 
       {/* Movement info */}

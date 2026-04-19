@@ -351,6 +351,21 @@ export interface IWeaponStatus {
   readonly firedThisTurn: boolean;
   /** Ammo remaining (if ammo-using) */
   readonly ammoRemaining?: number;
+  /**
+   * Maximum ammo capacity per the unit's construction. Optional so pre-
+   * existing callers that only fill `ammoRemaining` keep compiling; the
+   * record-sheet inline ammo counter falls back to `ammoRemaining` as
+   * the max when this is absent (renders a flat "N rds" line).
+   */
+  readonly ammoMax?: number;
+  /**
+   * Per `add-interactive-combat-core-ui` § 7.3: weapons may be jammed
+   * (UAC / RAC jam, or future weapon-specific jam mechanics). Jammed
+   * weapons render disabled with a "JAMMED" badge and never resolve
+   * hits this turn. Separate from `destroyed` so a later clear-jam
+   * action can transition back.
+   */
+  readonly jammed?: boolean;
   /** Heat generated */
   readonly heat: number;
   /** Damage */
@@ -362,6 +377,22 @@ export interface IWeaponStatus {
     readonly long: number;
     readonly minimum?: number;
   };
+}
+
+/**
+ * Per `add-interactive-combat-core-ui` § 8: compact Special Pilot
+ * Ability projection used by the action panel. Full-fat `ISPADesignation`
+ * metadata lives on the pilot record; this shape is the minimum the UI
+ * needs to list the ability and surface a description tooltip. Projection
+ * happens in the gameplay store so render code stays dumb.
+ */
+export interface IPilotSpaSummary {
+  /** Canonical ability id (catalog slug). */
+  readonly id: string;
+  /** Display label including designation when applicable. */
+  readonly displayLabel: string;
+  /** Short human description rendered as a hover tooltip. */
+  readonly description: string;
 }
 
 // =============================================================================

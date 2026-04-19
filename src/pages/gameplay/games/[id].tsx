@@ -40,6 +40,7 @@ export default function GameSessionPage(): React.ReactElement {
     maxStructure,
     pilotNames,
     heatSinks,
+    unitSpas,
     clearError,
     interactiveSession,
     interactivePhase,
@@ -228,6 +229,7 @@ export default function GameSessionPage(): React.ReactElement {
           maxStructure={maxStructure}
           pilotNames={pilotNames}
           heatSinks={heatSinks}
+          unitSpas={unitSpas}
           interactivePhase={isInteractive ? interactivePhase : undefined}
           hitChance={hitChance}
           validTargetIds={validTargetIds}

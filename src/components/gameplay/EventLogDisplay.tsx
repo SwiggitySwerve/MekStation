@@ -46,6 +46,14 @@ export interface EventLogDisplayProps {
   onCollapsedChange?: (collapsed: boolean) => void;
   /** Maximum height in pixels (for scrolling) */
   maxHeight?: number;
+  /**
+   * Per `add-interactive-combat-core-ui` § 11.3: map of unit id →
+   * short designation (e.g., "ATL-7K") so each event row can render
+   * the acting unit's designation inline instead of an opaque id.
+   * Optional — when omitted rows fall back to the raw unit id, and
+   * events without a unit id render only phase + summary.
+   */
+  actorLookup?: Record<string, string>;
   /** Optional className for styling */
   className?: string;
 }
@@ -290,12 +298,49 @@ function filterEvents(
 // Sub-Components
 // =============================================================================
 
-interface EventRowProps {
-  event: IFormattedEvent;
+/**
+ * Per `add-interactive-combat-core-ui` § 11.3: short phase label
+ * shown next to each event row. We title-case the enum and collapse
+ * multi-word phases (e.g., `weapon_attack` → "Weapon Attack") so the
+ * inline chip stays legible at the default 13–14px event log font.
+ */
+function getPhaseLabel(phase: GamePhase): string {
+  switch (phase) {
+    case GamePhase.Initiative:
+      return 'Init';
+    case GamePhase.Movement:
+      return 'Move';
+    case GamePhase.WeaponAttack:
+      return 'Atk';
+    case GamePhase.PhysicalAttack:
+      return 'Phys';
+    case GamePhase.Heat:
+      return 'Heat';
+    case GamePhase.End:
+      return 'End';
+    default: {
+      // Defensive branch — if a new GamePhase enum member is added
+      // upstream we still render something readable instead of
+      // blowing up at runtime.
+      const raw = String(phase);
+      return raw.replace(/_/g, ' ');
+    }
+  }
 }
 
-function EventRow({ event }: EventRowProps): React.ReactElement {
+interface EventRowProps {
+  event: IFormattedEvent;
+  actorLookup?: Record<string, string>;
+}
+
+function EventRow({ event, actorLookup }: EventRowProps): React.ReactElement {
   const iconColor = getIconColor(event.icon);
+  // § 11.3: actor resolves to the unit's short designation when we
+  // have one; falls back to the raw id so nothing disappears. Events
+  // without an attached unit id render no actor column at all.
+  const actor = event.unitId
+    ? (actorLookup?.[event.unitId] ?? event.unitId)
+    : undefined;
 
   return (
     <div
@@ -319,6 +364,23 @@ function EventRow({ event }: EventRowProps): React.ReactElement {
       <span className="w-8 text-xs text-gray-500" data-testid="event-turn">
         T{event.turn}
       </span>
+      <span
+        className="w-12 rounded bg-gray-100 px-1 text-center text-[10px] font-semibold tracking-wide text-gray-600 uppercase"
+        data-testid="event-phase"
+        data-phase={event.phase}
+      >
+        {getPhaseLabel(event.phase)}
+      </span>
+      {actor && (
+        <span
+          className="w-20 truncate text-xs font-medium text-gray-700"
+          data-testid="event-actor"
+          data-unit-id={event.unitId}
+          title={actor}
+        >
+          {actor}
+        </span>
+      )}
       <span className="flex-1" data-testid="event-text">
         {event.text}
       </span>
@@ -340,6 +402,7 @@ export function EventLogDisplay({
   collapsed = false,
   onCollapsedChange,
   maxHeight = 200,
+  actorLookup,
   className = '',
 }: EventLogDisplayProps): React.ReactElement {
   const [localCollapsed, setLocalCollapsed] = useState(collapsed);
@@ -393,7 +456,11 @@ export function EventLogDisplay({
             </div>
           ) : (
             formattedEvents.map((event) => (
-              <EventRow key={event.id} event={event} />
+              <EventRow
+                key={event.id}
+                event={event}
+                actorLookup={actorLookup}
+              />
             ))
           )}
         </div>

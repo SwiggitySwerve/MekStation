@@ -10,4 +10,5 @@ export {
   createDemoMaxStructure,
   createDemoPilotNames,
   createDemoHeatSinks,
+  createDemoUnitSpas,
 } from './demoSession';

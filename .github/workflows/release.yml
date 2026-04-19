@@ -16,6 +16,9 @@ on:
     types:
       - completed
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   release-context:
     name: Determine release tag
@@ -27,7 +30,7 @@ jobs:
       prev_tag: ${{ steps.resolve_tag.outputs.prev_tag }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -73,19 +76,19 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ needs.release-context.outputs.ref }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cache-node-modules
         with:
           path: |
@@ -103,7 +106,7 @@ jobs:
         run: npm ci
 
       - name: Cache mm-data assets
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: mm-data-cache
         with:
           path: public/record-sheets
@@ -126,7 +129,7 @@ jobs:
         run: npm run build
 
       - name: Upload web build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-build
           path: |
@@ -156,13 +159,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ needs.release-context.outputs.ref }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -175,7 +178,7 @@ jobs:
           echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_ENV"
 
       - name: Cache Electron downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/electron
@@ -189,7 +192,7 @@ jobs:
             ${{ runner.os }}-electron-
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cache-node-modules
         with:
           path: |
@@ -207,7 +210,7 @@ jobs:
         run: npm ci
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: web-build
 
@@ -272,7 +275,7 @@ jobs:
           fi
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform }}-artifacts
           path: |
@@ -288,7 +291,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ needs.release-context.outputs.ref }}
@@ -332,7 +335,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ needs.release-context.outputs.ref }}
@@ -384,7 +387,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ needs.release-context.outputs.ref }}
@@ -393,7 +396,7 @@ jobs:
         run: git fetch --tags --force
 
       - name: Download release artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: '*-artifacts'
           path: artifacts
