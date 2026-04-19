@@ -6,25 +6,25 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { useCallback, useEffect } from 'react';
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { useCallback, useEffect } from "react";
 
-import { GameplayLayout, SpectatorView } from '@/components/gameplay';
+import { GameplayLayout, SpectatorView } from "@/components/gameplay";
 import {
   CompletedGame,
   GameError,
   GameLoading,
-} from '@/components/gameplay/pages/GameSessionPage.states';
-import { useGameplayStore, InteractivePhase } from '@/stores/useGameplayStore';
-import { GameSide, GameStatus, MovementType } from '@/types/gameplay';
-import { logger } from '@/utils/logger';
+} from "@/components/gameplay/pages/GameSessionPage.states";
+import { useGameplayStore, InteractivePhase } from "@/stores/useGameplayStore";
+import { GameSide, GameStatus, MovementType } from "@/types/gameplay";
+import { logger } from "@/utils/logger";
 
 export default function GameSessionPage(): React.ReactElement {
   const router = useRouter();
   const { id, campaignId, missionId } = router.query;
-  const campaignIdStr = typeof campaignId === 'string' ? campaignId : undefined;
-  const missionIdStr = typeof missionId === 'string' ? missionId : undefined;
+  const campaignIdStr = typeof campaignId === "string" ? campaignId : undefined;
+  const missionIdStr = typeof missionId === "string" ? missionId : undefined;
 
   const {
     session,
@@ -40,6 +40,7 @@ export default function GameSessionPage(): React.ReactElement {
     maxStructure,
     pilotNames,
     heatSinks,
+    unitSpas,
     clearError,
     interactiveSession,
     interactivePhase,
@@ -57,9 +58,9 @@ export default function GameSessionPage(): React.ReactElement {
   } = useGameplayStore();
 
   useEffect(() => {
-    if (id === 'demo') {
+    if (id === "demo") {
       createDemoSession();
-    } else if (typeof id === 'string') {
+    } else if (typeof id === "string") {
       void loadSession(id);
     }
   }, [id, loadSession, createDemoSession]);
@@ -71,7 +72,7 @@ export default function GameSessionPage(): React.ReactElement {
       if (interactiveSession) {
         handleInteractiveHexClick(hex);
       } else {
-        logger.debug('Hex clicked:', hex);
+        logger.debug("Hex clicked:", hex);
       }
     },
     [interactiveSession, handleInteractiveHexClick],
@@ -79,7 +80,7 @@ export default function GameSessionPage(): React.ReactElement {
 
   const handleRetry = useCallback(() => {
     clearError();
-    if (typeof id === 'string') {
+    if (typeof id === "string") {
       void loadSession(id);
     }
   }, [id, loadSession, clearError]);
@@ -108,20 +109,20 @@ export default function GameSessionPage(): React.ReactElement {
       }
 
       switch (actionId) {
-        case 'lock':
-        case 'skip':
+        case "lock":
+        case "skip":
           skipPhase();
           break;
-        case 'next-turn':
+        case "next-turn":
           runAITurn();
           break;
-        case 'fire':
+        case "fire":
           fireWeapons();
           break;
-        case 'advance':
+        case "advance":
           advanceInteractivePhase();
           break;
-        case 'concede':
+        case "concede":
           handleAction(actionId);
           break;
         default:
@@ -175,14 +176,14 @@ export default function GameSessionPage(): React.ReactElement {
     !spectatorMode
   ) {
     const result = interactiveSession.getResult();
-    const rawWinner = result?.winner ?? 'draw';
-    const winner: GameSide | 'draw' =
-      rawWinner === 'player'
+    const rawWinner = result?.winner ?? "draw";
+    const winner: GameSide | "draw" =
+      rawWinner === "player"
         ? GameSide.Player
-        : rawWinner === 'opponent'
+        : rawWinner === "opponent"
           ? GameSide.Opponent
-          : 'draw';
-    const reason = result?.reason ?? 'unknown';
+          : "draw";
+    const reason = result?.reason ?? "unknown";
 
     return (
       <CompletedGame
@@ -228,6 +229,7 @@ export default function GameSessionPage(): React.ReactElement {
           maxStructure={maxStructure}
           pilotNames={pilotNames}
           heatSinks={heatSinks}
+          unitSpas={unitSpas}
           interactivePhase={isInteractive ? interactivePhase : undefined}
           hitChance={hitChance}
           validTargetIds={validTargetIds}

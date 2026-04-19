@@ -5,9 +5,9 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import { create } from 'zustand';
+import { create } from "zustand";
 
-import type { InteractiveSession } from '@/engine/GameEngine';
+import type { InteractiveSession } from "@/engine/GameEngine";
 
 import {
   createDemoSession,
@@ -16,16 +16,18 @@ import {
   createDemoMaxStructure,
   createDemoPilotNames,
   createDemoHeatSinks,
-} from '@/__fixtures__/gameplay';
+  createDemoUnitSpas,
+} from "@/__fixtures__/gameplay";
 import {
   IGameSession,
   IGameplayUIState,
   DEFAULT_UI_STATE,
   IWeaponStatus,
+  IPilotSpaSummary,
   GamePhase,
-} from '@/types/gameplay';
-import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
-import { logger } from '@/utils/logger';
+} from "@/types/gameplay";
+import { Facing, MovementType } from "@/types/gameplay/HexGridInterfaces";
+import { logger } from "@/utils/logger";
 
 import {
   clearAttackPlanLogic,
@@ -37,7 +39,7 @@ import {
   togglePlannedWeaponLogic,
   type IAttackPlan,
   type IPlannedMovement,
-} from './useGameplayStore.combatFlows';
+} from "./useGameplayStore.combatFlows";
 import {
   handleActionLogic,
   InteractivePhase,
@@ -45,7 +47,7 @@ import {
   advanceInteractivePhaseLogic,
   handleInteractiveTokenClickLogic,
   skipPhaseLogic,
-} from './useGameplayStore.helpers';
+} from "./useGameplayStore.helpers";
 
 export { InteractivePhase };
 export type { IPlannedMovement, IAttackPlan };
@@ -76,6 +78,14 @@ interface GameplayState {
   maxStructure: Record<string, Record<string, number>>;
   pilotNames: Record<string, string>;
   heatSinks: Record<string, number>;
+  /**
+   * Per `add-interactive-combat-core-ui` § 8: projected SPA list per unit,
+   * used by the action panel's "Special Pilot Abilities" section. Keyed by
+   * unit id so the record-sheet display stays dumb — it just renders
+   * whatever the store says. Empty array → renders the "No SPAs" empty
+   * state. Missing key → treated the same as an empty array.
+   */
+  unitSpas: Record<string, readonly IPilotSpaSummary[]>;
   /**
    * Per `add-combat-phase-ui-flows`: in-progress movement the player is
    * building in the Movement phase. `null` until they pick a
@@ -182,6 +192,7 @@ const initialState: GameplayState = {
   maxStructure: {},
   pilotNames: {},
   heatSinks: {},
+  unitSpas: {},
   plannedMovement: null,
   attackPlan: { targetUnitId: null, selectedWeapons: [] },
   previewEnabled: false,
@@ -204,14 +215,14 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
 
     set({ isLoading: true, error: null });
     try {
-      if (sessionId === 'demo') {
+      if (sessionId === "demo") {
         get().createDemoSession();
       } else {
-        throw new Error('Session not found');
+        throw new Error("Session not found");
       }
     } catch (err) {
       set({
-        error: err instanceof Error ? err.message : 'Failed to load session',
+        error: err instanceof Error ? err.message : "Failed to load session",
         isLoading: false,
       });
     }
@@ -226,6 +237,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
       maxStructure: createDemoMaxStructure(),
       pilotNames: createDemoPilotNames(),
       heatSinks: createDemoHeatSinks(),
+      unitSpas: createDemoUnitSpas(),
       isLoading: false,
       error: null,
     });
@@ -362,7 +374,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
     if (!interactiveSession || !ui.selectedUnitId || !ui.targetUnitId) return;
 
     const weaponIds =
-      ui.queuedWeaponIds.length > 0 ? ui.queuedWeaponIds : ['medium-laser'];
+      ui.queuedWeaponIds.length > 0 ? ui.queuedWeaponIds : ["medium-laser"];
 
     interactiveSession.applyAttack(
       ui.selectedUnitId,
@@ -399,7 +411,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   },
 
   handleInteractiveHexClick: (hex: { q: number; r: number }) => {
-    const { interactivePhase, ui, interactiveSession } = get();
+    const { interactivePhase, ui, interactiveSession, session } = get();
     if (!interactiveSession) return;
 
     if (
@@ -407,6 +419,25 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
       ui.selectedUnitId
     ) {
       get().moveUnit(ui.selectedUnitId, hex);
+      return;
+    }
+
+    // Per `add-interactive-combat-core-ui` § 2 Scenario 2: when the
+    // player clicks an empty hex during the default SelectUnit phase,
+    // the current unit selection is cleared (the action panel then
+    // shows the "Select a unit to view its status" placeholder). We
+    // detect "empty" by checking the live `currentState.units` for any
+    // unit whose position matches the clicked hex — matches the same
+    // source of truth the hex map uses to render tokens.
+    if (interactivePhase === InteractivePhase.SelectUnit && session) {
+      const occupyingUnit = Object.values(session.currentState.units).find(
+        (u) => u.position.q === hex.q && u.position.r === hex.r,
+      );
+      if (!occupyingUnit) {
+        set((state) => ({
+          ui: { ...state.ui, selectedUnitId: null },
+        }));
+      }
     }
   },
 
@@ -438,7 +469,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
         session: interactiveSession.getSession(),
         interactivePhase: InteractivePhase.GameOver,
       });
-      logger.info('Game over', result);
+      logger.info("Game over", result);
       return true;
     }
     return false;
@@ -493,8 +524,8 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
  */
 export interface ISelectedUnitProjection {
   readonly id: string;
-  readonly unit: import('@/types/gameplay').IGameUnit;
-  readonly state: import('@/types/gameplay').IUnitGameState;
+  readonly unit: import("@/types/gameplay").IGameUnit;
+  readonly state: import("@/types/gameplay").IUnitGameState;
 }
 
 /**

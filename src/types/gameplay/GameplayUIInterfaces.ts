@@ -5,8 +5,8 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import { GamePhase, GameSide, IToHitModifier } from './GameSessionInterfaces';
-import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
+import { GamePhase, GameSide, IToHitModifier } from "./GameSessionInterfaces";
+import { IHexCoordinate, Facing, MovementType } from "./HexGridInterfaces";
 
 // =============================================================================
 // Layout Types
@@ -15,7 +15,7 @@ import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
 /**
  * Panel emphasis state for contextual layout.
  */
-export type PanelEmphasis = 'map' | 'recordSheet' | 'balanced';
+export type PanelEmphasis = "map" | "recordSheet" | "balanced";
 
 /**
  * Layout configuration for gameplay view.
@@ -35,7 +35,7 @@ export interface ILayoutConfig {
  * Default layout configuration.
  */
 export const DEFAULT_LAYOUT_CONFIG: ILayoutConfig = {
-  emphasis: 'balanced',
+  emphasis: "balanced",
   mapPanelWidth: 50,
   eventLogCollapsed: false,
   minPanelWidth: 300,
@@ -47,14 +47,14 @@ export const DEFAULT_LAYOUT_CONFIG: ILayoutConfig = {
 export function getLayoutForPhase(phase: GamePhase): Partial<ILayoutConfig> {
   switch (phase) {
     case GamePhase.Movement:
-      return { emphasis: 'map', mapPanelWidth: 60 };
+      return { emphasis: "map", mapPanelWidth: 60 };
     case GamePhase.WeaponAttack:
     case GamePhase.PhysicalAttack:
-      return { emphasis: 'recordSheet', mapPanelWidth: 40 };
+      return { emphasis: "recordSheet", mapPanelWidth: 40 };
     case GamePhase.Heat:
-      return { emphasis: 'recordSheet', mapPanelWidth: 35 };
+      return { emphasis: "recordSheet", mapPanelWidth: 35 };
     default:
-      return { emphasis: 'balanced', mapPanelWidth: 50 };
+      return { emphasis: "balanced", mapPanelWidth: 50 };
   }
 }
 
@@ -67,12 +67,12 @@ export function getLayoutForPhase(phase: GamePhase): Partial<ILayoutConfig> {
  * Aligns with BattleTech unit classifications.
  */
 export enum TokenUnitType {
-  Mech = 'mech',
-  Vehicle = 'vehicle',
-  Aerospace = 'aerospace',
-  BattleArmor = 'battle_armor',
-  Infantry = 'infantry',
-  ProtoMech = 'protomech',
+  Mech = "mech",
+  Vehicle = "vehicle",
+  Aerospace = "aerospace",
+  BattleArmor = "battle_armor",
+  Infantry = "infantry",
+  ProtoMech = "protomech",
 }
 
 /**
@@ -80,34 +80,34 @@ export enum TokenUnitType {
  * and applies the appropriate movement rules.
  */
 export enum VehicleMotionType {
-  Tracked = 'tracked',
-  Wheeled = 'wheeled',
-  Hover = 'hover',
-  VTOL = 'vtol',
-  Naval = 'naval',
-  WiGE = 'wige',
+  Tracked = "tracked",
+  Wheeled = "wheeled",
+  Hover = "hover",
+  VTOL = "vtol",
+  Naval = "naval",
+  WiGE = "wige",
 }
 
 /**
  * Infantry motive type — determines the badge shown on an InfantryToken.
  */
 export enum InfantryMotiveType {
-  Foot = 'foot',
-  Motorized = 'motorized',
-  Jump = 'jump',
-  Mechanized = 'mechanized',
-  Beast = 'beast',
+  Foot = "foot",
+  Motorized = "motorized",
+  Jump = "jump",
+  Mechanized = "mechanized",
+  Beast = "beast",
 }
 
 /**
  * Infantry specialization — optional icon overlay on InfantryToken.
  */
 export enum InfantryTokenSpecialization {
-  AntiMech = 'anti_mech',
-  Marine = 'marine',
-  Scuba = 'scuba',
-  Mountain = 'mountain',
-  XCT = 'xct',
+  AntiMech = "anti_mech",
+  Marine = "marine",
+  Scuba = "scuba",
+  Mountain = "mountain",
+  XCT = "xct",
 }
 
 /**
@@ -290,7 +290,7 @@ export interface IWeaponAttackPreview {
   /** Range to target in hexes */
   readonly range: number;
   /** Range bracket */
-  readonly rangeBracket: 'short' | 'medium' | 'long' | 'out';
+  readonly rangeBracket: "short" | "medium" | "long" | "out";
   /** Base to-hit (gunnery) */
   readonly baseToHit: number;
   /** All modifiers */
@@ -351,6 +351,21 @@ export interface IWeaponStatus {
   readonly firedThisTurn: boolean;
   /** Ammo remaining (if ammo-using) */
   readonly ammoRemaining?: number;
+  /**
+   * Maximum ammo capacity per the unit's construction. Optional so pre-
+   * existing callers that only fill `ammoRemaining` keep compiling; the
+   * record-sheet inline ammo counter falls back to `ammoRemaining` as
+   * the max when this is absent (renders a flat "N rds" line).
+   */
+  readonly ammoMax?: number;
+  /**
+   * Per `add-interactive-combat-core-ui` § 7.3: weapons may be jammed
+   * (UAC / RAC jam, or future weapon-specific jam mechanics). Jammed
+   * weapons render disabled with a "JAMMED" badge and never resolve
+   * hits this turn. Separate from `destroyed` so a later clear-jam
+   * action can transition back.
+   */
+  readonly jammed?: boolean;
   /** Heat generated */
   readonly heat: number;
   /** Damage */
@@ -362,6 +377,22 @@ export interface IWeaponStatus {
     readonly long: number;
     readonly minimum?: number;
   };
+}
+
+/**
+ * Per `add-interactive-combat-core-ui` § 8: compact Special Pilot
+ * Ability projection used by the action panel. Full-fat `ISPADesignation`
+ * metadata lives on the pilot record; this shape is the minimum the UI
+ * needs to list the ability and surface a description tooltip. Projection
+ * happens in the gameplay store so render code stays dumb.
+ */
+export interface IPilotSpaSummary {
+  /** Canonical ability id (catalog slug). */
+  readonly id: string;
+  /** Display label including designation when applicable. */
+  readonly displayLabel: string;
+  /** Short human description rendered as a hover tooltip. */
+  readonly description: string;
 }
 
 // =============================================================================
@@ -396,13 +427,13 @@ export interface IFormattedEvent {
   readonly text: string;
   /** Icon/type indicator */
   readonly icon:
-    | 'movement'
-    | 'attack'
-    | 'damage'
-    | 'heat'
-    | 'critical'
-    | 'status'
-    | 'phase';
+    | "movement"
+    | "attack"
+    | "damage"
+    | "heat"
+    | "critical"
+    | "status"
+    | "phase";
   /** Side that triggered event */
   readonly side?: GameSide;
   /** Related unit ID */
@@ -446,53 +477,53 @@ export function getPhaseActions(
     case GamePhase.Movement:
       return [
         {
-          id: 'lock',
-          label: 'Lock Movement',
+          id: "lock",
+          label: "Lock Movement",
           primary: true,
           enabled: true,
-          shortcut: 'Enter',
+          shortcut: "Enter",
         },
         {
-          id: 'undo',
-          label: 'Undo',
+          id: "undo",
+          label: "Undo",
           primary: false,
           enabled: canUndo,
-          shortcut: 'Ctrl+Z',
+          shortcut: "Ctrl+Z",
         },
-        { id: 'skip', label: 'Skip', primary: false, enabled: true },
+        { id: "skip", label: "Skip", primary: false, enabled: true },
       ];
     case GamePhase.WeaponAttack:
       return [
         {
-          id: 'lock',
-          label: 'Lock Attacks',
+          id: "lock",
+          label: "Lock Attacks",
           primary: true,
           enabled: true,
-          shortcut: 'Enter',
+          shortcut: "Enter",
         },
-        { id: 'clear', label: 'Clear All', primary: false, enabled: true },
-        { id: 'skip', label: 'Skip Attacks', primary: false, enabled: true },
+        { id: "clear", label: "Clear All", primary: false, enabled: true },
+        { id: "skip", label: "Skip Attacks", primary: false, enabled: true },
       ];
     case GamePhase.Heat:
       return [
         {
-          id: 'continue',
-          label: 'Continue',
+          id: "continue",
+          label: "Continue",
           primary: true,
           enabled: true,
-          shortcut: 'Enter',
+          shortcut: "Enter",
         },
       ];
     case GamePhase.End:
       return [
         {
-          id: 'next-turn',
-          label: 'Next Turn',
+          id: "next-turn",
+          label: "Next Turn",
           primary: true,
           enabled: true,
-          shortcut: 'Enter',
+          shortcut: "Enter",
         },
-        { id: 'concede', label: 'Concede', primary: false, enabled: true },
+        { id: "concede", label: "Concede", primary: false, enabled: true },
       ];
     default:
       return [];
