@@ -3,6 +3,13 @@
  * Tests for attack declaration and resolution flow.
  *
  * @spec openspec/changes/add-combat-resolution/specs/combat-resolution/spec.md
+ *
+ * Note on `damage: 5` literals below (task 8.2 of wire-real-weapon-data):
+ * these fixtures exercise the attack-flow plumbing (declaration →
+ * resolution → damage-applied events), NOT catalog damage values. The
+ * damage value is arbitrary for the plumbing assertions — catalog
+ * coverage lives in `wireRealWeaponData.smoke.test.ts` where the
+ * AttackResolved payload is compared against the real IWeaponData.
  */
 
 import { describe, it, expect } from '@jest/globals';
