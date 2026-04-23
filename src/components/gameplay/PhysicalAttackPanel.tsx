@@ -1,30 +1,42 @@
 /**
  * PhysicalAttackPanel
  *
- * Per `add-physical-attack-phase-ui`: sibling panel to
- * `CombatPlanningPanel` that the gameplay page mounts during the
- * `GamePhase.PhysicalAttack` phase. Sister panel rather than a child
- * because the brief explicitly scopes us out of editing
- * `CombatPlanningPanel`.
+ * Per `add-physical-attack-phase-ui` tasks 4.x + 5.x + 7.x + 9.x:
+ * the sub-panel that mounts under the action bar during
+ * `GamePhase.PhysicalAttack`. Owns the target list, the per-row
+ * eligibility table (populated by `getEligiblePhysicalAttacks`), and
+ * hover-driven intent-arrow emission for the map overlay.
  *
- * Responsibilities:
- *  - List adjacent enemy targets (hex distance == 1) the selected
- *    friendly unit can melee this turn.
- *  - Render `PhysicalAttackTypePicker` so the player can pick punch /
- *    kick / charge / DFA / hatchet / sword / mace.
- *  - Open `PhysicalAttackForecastModal` on "Preview Forecast", and
- *    commit the chosen attack via the dedicated
- *    `usePhysicalAttackPlanStore` (which calls the engine's
- *    `declarePhysicalAttack`).
- *  - On commit, push the updated session back into
- *    `useGameplayStore` so token state, event log, etc. update in
- *    one render.
+ * Flow:
+ *  1. Player picks an adjacent enemy target from the target list.
+ *  2. Panel projects `getEligiblePhysicalAttacks(attacker, target, ...)`
+ *     into one row per attack type (punch L/R, kick L/R, charge, DFA,
+ *     push, + any equipped melee weapons).
+ *  3. Each row shows attack type + limb + to-hit TN + damage preview.
+ *     Ineligible rows render disabled with a tooltip listing the
+ *     blocking restriction codes (task 4.4 + 9.4).
+ *  4. Hover on an eligible row emits a variant hint (`charge` | `dfa`
+ *     | `push`) via `onIntentChange` so the parent can render the
+ *     matching `PhysicalAttackIntentArrow` overlay (task 4.3 + 7.5).
+ *  5. Declare button on each eligible row opens the forecast modal
+ *     seeded with that row's config. Confirm commits via
+ *     `usePhysicalAttackPlanStore.commitPhysicalAttack`, which in turn
+ *     calls the engine helper `declarePhysicalAttack` (task 5.3).
+ *  6. After a successful commit the panel collapses to a summary line
+ *     (task 5.4) until the player advances past the PhysicalAttack
+ *     phase.
+ *
+ * @spec openspec/changes/add-physical-attack-phase-ui/specs/tactical-map-interface/spec.md
+ * @spec openspec/changes/add-physical-attack-phase-ui/specs/physical-attack-system/spec.md
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
 
 import type {
   IPhysicalAttackInput,
+  IPhysicalAttackOption,
+  PhysicalAttackInvalidReason,
+  PhysicalAttackLimb,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
@@ -36,15 +48,35 @@ import {
   type IHexCoordinate,
 } from '@/types/gameplay';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
+
+import type { PhysicalAttackIntentVariant } from './overlays/PhysicalAttackIntentArrow';
 
 import { PhysicalAttackForecastModal } from './PhysicalAttackForecastModal';
-import { PhysicalAttackTypePicker } from './PhysicalAttackTypePicker';
+
+/**
+ * Per task 7.5 + `tactical-map-interface` delta "Physical Attack Intent
+ * Arrows": the on-hover hint the parent mounts into `HexMapDisplay` as
+ * a `<PhysicalAttackIntentArrow>`. `null` clears the overlay.
+ */
+export interface PhysicalAttackIntent {
+  readonly variant: PhysicalAttackIntentVariant;
+  readonly from: IHexCoordinate;
+  readonly to: IHexCoordinate;
+}
 
 export interface PhysicalAttackPanelProps {
   /** Tonnage of the selected attacker (forwarded to the engine helpers). */
   attackerTonnage?: number;
   /** Optional list of melee weapons the attacker has equipped. */
   meleeWeaponsEquipped?: readonly PhysicalAttackType[];
+  /**
+   * Emitted when the player hovers an eligible row whose attack type
+   * supports an intent arrow (charge / dfa / push). Parent (typically
+   * the gameplay page) threads this to `HexMapDisplay` which mounts the
+   * `PhysicalAttackIntentArrow` overlay. `null` clears the arrow.
+   */
+  onIntentChange?: (intent: PhysicalAttackIntent | null) => void;
   /** Optional className passthrough. */
   className?: string;
 }
@@ -67,9 +99,77 @@ interface MeleeTarget {
   position: IHexCoordinate;
 }
 
+/**
+ * Per task 9.4: friendly copy for every `PhysicalAttackInvalidReason`
+ * so the disabled-row tooltip stays human-readable.
+ */
+const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
+  WeaponFiredThisTurn: 'Arm fired a weapon this turn',
+  MissingActuator: 'Required actuator is missing',
+  HipDestroyed: 'Hip actuator destroyed',
+  ShoulderDestroyed: 'Shoulder actuator destroyed',
+  SameLimbUsedThisTurn: 'Limb already used for a physical attack',
+  NoJumpThisTurn: 'DFA requires jumping this turn',
+  NoRunThisTurn: 'Charge requires running this turn',
+  LimbMissing: 'Limb is missing',
+  AttackerProne: 'Attacker is prone',
+  UnsupportedAttackType: 'Attack type is unsupported',
+  DestinationBlocked: 'Push destination is blocked',
+};
+
+/**
+ * Per task 4.2: row-level display helpers. Keeps JSX readable.
+ */
+function attackTypeLabel(
+  attackType: PhysicalAttackType,
+  limb?: PhysicalAttackLimb,
+): string {
+  const base: Record<PhysicalAttackType, string> = {
+    punch: 'Punch',
+    kick: 'Kick',
+    charge: 'Charge',
+    dfa: 'Death-from-Above',
+    push: 'Push',
+    hatchet: 'Hatchet',
+    sword: 'Sword',
+    mace: 'Mace',
+    lance: 'Lance',
+  };
+  const label = base[attackType];
+  if (!limb) return label;
+  const limbLabel: Record<PhysicalAttackLimb, string> = {
+    leftArm: 'L Arm',
+    rightArm: 'R Arm',
+    leftLeg: 'L Leg',
+    rightLeg: 'R Leg',
+  };
+  return `${label} (${limbLabel[limb]})`;
+}
+
+/**
+ * Per task 7.5: the intent-arrow variant for a given row. Rows that
+ * don't map to an arrow (punch / kick / melee weapon) return `null` —
+ * the parent then keeps the overlay unmounted.
+ */
+function intentVariantFor(
+  attackType: PhysicalAttackType,
+): PhysicalAttackIntentVariant | null {
+  switch (attackType) {
+    case 'charge':
+      return 'charge';
+    case 'dfa':
+      return 'dfa';
+    case 'push':
+      return 'push';
+    default:
+      return null;
+  }
+}
+
 export function PhysicalAttackPanel({
   attackerTonnage = 65,
   meleeWeaponsEquipped,
+  onIntentChange,
   className = '',
 }: PhysicalAttackPanelProps): React.ReactElement | null {
   const session = useGameplayStore((s) => s.session);
@@ -94,6 +194,12 @@ export function PhysicalAttackPanel({
   );
 
   const [forecastOpen, setForecastOpen] = useState(false);
+  /**
+   * Per task 5.4: sticky summary line after a successful commit so the
+   * player sees the locked-in declaration for the rest of the phase.
+   * Cleared when the phase changes (effectful `return null` guard).
+   */
+  const [committedSummary, setCommittedSummary] = useState<string | null>(null);
 
   const phase = session?.currentState.phase;
 
@@ -123,17 +229,49 @@ export function PhysicalAttackPanel({
   }, [selected, session]);
 
   /**
-   * Build the `IPhysicalAttackInput` the picker + modal both consume.
-   * Memoized on the attacker + plan so the modal doesn't recompute
-   * per render.
+   * Current target `IUnitGameState` picked from the store plan. Memoized
+   * so the eligibility projection below doesn't recompute on unrelated
+   * renders.
    */
-  const attackInput = useMemo<IPhysicalAttackInput | null>(() => {
-    if (!selected) return null;
+  const targetState = useMemo(() => {
+    if (!physicalAttackPlan.targetUnitId || !session) return null;
+    return session.currentState.units[physicalAttackPlan.targetUnitId] ?? null;
+  }, [physicalAttackPlan.targetUnitId, session]);
+
+  /**
+   * Per task 3.1-3.3: project the engine's `getEligiblePhysicalAttacks`
+   * into one row per attack type. Rows include both eligible and
+   * ineligible options — ineligible rows render disabled + with a
+   * tooltip (task 4.4).
+   */
+  const options = useMemo<readonly IPhysicalAttackOption[]>(() => {
+    if (!selected || !targetState) return [];
+    return getEligiblePhysicalAttacks(selected.state, targetState, {
+      attackerTonnage,
+      attackerPilotingSkill: selected.unit.piloting,
+      targetTonnage: attackerTonnage,
+      weaponsFiredFromLeftArm: selected.state.weaponsFiredThisTurn,
+      weaponsFiredFromRightArm: selected.state.weaponsFiredThisTurn,
+      limbsUsedThisTurn: undefined,
+      attackerRanThisTurn: false,
+      attackerJumpedThisTurn: false,
+      meleeWeaponsEquipped,
+    });
+  }, [selected, targetState, attackerTonnage, meleeWeaponsEquipped]);
+
+  /**
+   * Build the attack input consumed by the forecast modal when a
+   * specific row's Declare button is clicked. The input mirrors the
+   * row's attack type + limb, so the modal's TN + damage numbers
+   * match the row the player clicked.
+   */
+  const forecastInput = useMemo<IPhysicalAttackInput | null>(() => {
+    if (!selected || !physicalAttackPlan.attackType) return null;
     return {
       attackerTonnage,
       pilotingSkill: selected.unit.piloting,
       componentDamage: selected.state.componentDamage ?? EMPTY_DAMAGE,
-      attackType: physicalAttackPlan.attackType ?? 'punch',
+      attackType: physicalAttackPlan.attackType,
       heat: selected.state.heat,
       attackerProne: selected.state.prone,
       hexesMoved: selected.state.hexesMovedThisTurn,
@@ -148,13 +286,48 @@ export function PhysicalAttackPanel({
   const handleSelectTarget = useCallback(
     (unitId: string) => {
       setPhysicalAttackTarget(unitId);
+      // Clear any previously-selected attack type when the target
+      // changes — the restriction set may differ.
+      setPhysicalAttackType(null);
+      onIntentChange?.(null);
     },
-    [setPhysicalAttackTarget],
+    [setPhysicalAttackTarget, setPhysicalAttackType, onIntentChange],
   );
 
-  const handleSelectType = useCallback(
-    (attackType: PhysicalAttackType) => {
-      setPhysicalAttackType(attackType);
+  /**
+   * Per task 4.3 + 7.5: hover emits the intent variant so the parent
+   * can render the overlay. Ignored for rows whose attack type has no
+   * arrow variant (punch / kick / melee weapon).
+   */
+  const handleRowHover = useCallback(
+    (option: IPhysicalAttackOption) => {
+      if (!selected || !targetState || !onIntentChange) return;
+      const variant = intentVariantFor(option.attackType);
+      if (!variant) {
+        onIntentChange(null);
+        return;
+      }
+      onIntentChange({
+        variant,
+        from: selected.state.position,
+        to: targetState.position,
+      });
+    },
+    [selected, targetState, onIntentChange],
+  );
+
+  const handleRowLeave = useCallback(() => {
+    onIntentChange?.(null);
+  }, [onIntentChange]);
+
+  /**
+   * Per task 5.2-5.3: per-row Declare. Stashes the attack type + limb
+   * on the plan store and opens the forecast modal. Confirm commits.
+   */
+  const handleDeclare = useCallback(
+    (option: IPhysicalAttackOption) => {
+      setPhysicalAttackType(option.attackType);
+      setForecastOpen(true);
     },
     [setPhysicalAttackType],
   );
@@ -168,20 +341,40 @@ export function PhysicalAttackPanel({
       attackerTonnage,
       hexesMoved: selected.state.hexesMovedThisTurn,
     });
-    if (next) setSession(next);
+    if (next) {
+      setSession(next);
+      const target = meleeTargets.find(
+        (t) => t.id === physicalAttackPlan.targetUnitId,
+      );
+      setCommittedSummary(
+        `Declared ${attackTypeLabel(physicalAttackPlan.attackType ?? 'punch')} vs ${target?.name ?? 'target'}`,
+      );
+    }
     setForecastOpen(false);
+    onIntentChange?.(null);
   }, [
     interactiveSession,
     selected,
     commitPhysicalAttack,
     setSession,
     attackerTonnage,
+    meleeTargets,
+    physicalAttackPlan.targetUnitId,
+    physicalAttackPlan.attackType,
+    onIntentChange,
   ]);
 
+  /**
+   * Per task 5.5 + spec "Skip affordance": Skip clears the draft plan
+   * so the player can advance past PhysicalAttack without committing.
+   * Keeps the committed summary (if any) so the phase banner reflects
+   * the real decision.
+   */
   const handleSkip = useCallback(() => {
     clearPhysicalAttackPlan();
     setForecastOpen(false);
-  }, [clearPhysicalAttackPlan]);
+    onIntentChange?.(null);
+  }, [clearPhysicalAttackPlan, onIntentChange]);
 
   // ---------------------------------------------------------------------------
   // Render
@@ -190,10 +383,7 @@ export function PhysicalAttackPanel({
   if (!session || !selected) return null;
   if (phase !== GamePhase.PhysicalAttack) return null;
 
-  const previewEnabled =
-    physicalAttackPlan.targetUnitId !== null &&
-    physicalAttackPlan.attackType !== null &&
-    attackInput !== null;
+  const hasTarget = physicalAttackPlan.targetUnitId !== null;
 
   return (
     <section
@@ -206,9 +396,19 @@ export function PhysicalAttackPanel({
           Physical Attacks
         </h3>
         <p className="text-text-theme-muted text-xs">
-          Pick an adjacent enemy and a melee attack type.
+          Pick an adjacent enemy, then declare an attack from the row list.
         </p>
       </header>
+
+      {committedSummary && (
+        <p
+          className="rounded border border-green-300 bg-green-50 px-2 py-1 text-xs text-green-900"
+          data-testid="physical-attack-committed-summary"
+          role="status"
+        >
+          {committedSummary}
+        </p>
+      )}
 
       {meleeTargets.length === 0 ? (
         <p
@@ -248,51 +448,97 @@ export function PhysicalAttackPanel({
         </ul>
       )}
 
-      {attackInput && (
-        <PhysicalAttackTypePicker
-          selected={physicalAttackPlan.attackType}
-          attackerTonnage={attackerTonnage}
-          pilotingSkill={selected.unit.piloting}
-          componentDamage={selected.state.componentDamage ?? EMPTY_DAMAGE}
-          heat={selected.state.heat}
-          attackerProne={selected.state.prone}
-          weaponsFiredFromLeftArm={selected.state.weaponsFiredThisTurn}
-          weaponsFiredFromRightArm={selected.state.weaponsFiredThisTurn}
-          meleeWeaponsEquipped={meleeWeaponsEquipped}
-          canCharge={false}
-          canDFA={false}
-          onSelect={handleSelectType}
-        />
+      {hasTarget && options.length > 0 && (
+        <ul
+          className="flex flex-col gap-1"
+          data-testid="physical-attack-option-list"
+          aria-label="Eligible physical attacks"
+          aria-live="polite"
+        >
+          {options.map((option, idx) => {
+            const isEligible = option.restrictionsFailed.length === 0;
+            const reasonTooltip = option.restrictionsFailed
+              .map((r) => REASON_COPY[r])
+              .join('; ');
+            const rowKey = `${option.attackType}-${option.limb ?? 'body'}-${idx}`;
+            return (
+              <li
+                key={rowKey}
+                onMouseEnter={() => isEligible && handleRowHover(option)}
+                onMouseLeave={handleRowLeave}
+                onFocus={() => isEligible && handleRowHover(option)}
+                onBlur={handleRowLeave}
+              >
+                <div
+                  className={`flex items-center justify-between gap-2 rounded border px-2 py-1 ${
+                    isEligible
+                      ? 'border-gray-200 bg-white'
+                      : 'border-gray-200 bg-gray-100 opacity-60'
+                  }`}
+                  title={reasonTooltip || undefined}
+                  data-testid={`physical-attack-option-${option.attackType}-${option.limb ?? 'body'}`}
+                  data-eligible={isEligible ? 'true' : 'false'}
+                >
+                  <div className="flex flex-1 flex-col text-xs">
+                    <span
+                      className={`font-medium ${
+                        isEligible
+                          ? 'text-text-theme-primary'
+                          : 'text-gray-500 line-through'
+                      }`}
+                    >
+                      {attackTypeLabel(option.attackType, option.limb)}
+                    </span>
+                    <span className="text-text-theme-muted">
+                      TN {option.toHit.finalToHit}+ ·{' '}
+                      {option.damage.targetDamage} dmg
+                      {option.selfRisk.damageToAttacker > 0 &&
+                        ` · self ${option.selfRisk.damageToAttacker}`}
+                      {option.selfRisk.onMiss === 'AttackerFalls' &&
+                        ' · fall on miss'}
+                    </span>
+                    {!isEligible && reasonTooltip && (
+                      <span className="text-xs text-red-600">
+                        {reasonTooltip}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDeclare(option)}
+                    disabled={!isEligible}
+                    aria-label={`Declare ${attackTypeLabel(option.attackType, option.limb)}`}
+                    className={`min-h-[32px] rounded px-2 py-1 text-xs font-medium focus:ring-2 focus:ring-offset-2 focus:outline-none ${
+                      isEligible
+                        ? 'cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
+                        : 'cursor-not-allowed bg-gray-300 text-gray-500'
+                    }`}
+                    data-testid={`physical-attack-declare-${option.attackType}-${option.limb ?? 'body'}`}
+                  >
+                    Declare
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
 
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => setForecastOpen(true)}
-          disabled={!previewEnabled}
-          className={`min-h-[44px] flex-1 rounded px-4 py-2 font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
-            previewEnabled
-              ? 'cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
-              : 'cursor-not-allowed bg-gray-300 text-gray-500'
-          }`}
-          data-testid="physical-attack-preview-button"
-        >
-          Preview Forecast
-        </button>
-        <button
-          type="button"
           onClick={handleSkip}
-          className="bg-surface-deep text-text-theme-primary hover:bg-surface-base min-h-[44px] rounded px-4 py-2 font-medium focus:ring-2 focus:ring-offset-2 focus:outline-none"
+          className="bg-surface-deep text-text-theme-primary hover:bg-surface-base min-h-[44px] flex-1 rounded px-4 py-2 font-medium focus:ring-2 focus:ring-offset-2 focus:outline-none"
           data-testid="physical-attack-skip-button"
         >
           Skip
         </button>
       </div>
 
-      {attackInput && (
+      {forecastInput && (
         <PhysicalAttackForecastModal
           open={forecastOpen}
-          attackInput={attackInput}
+          attackInput={forecastInput}
           targetName={
             meleeTargets.find((t) => t.id === physicalAttackPlan.targetUnitId)
               ?.name

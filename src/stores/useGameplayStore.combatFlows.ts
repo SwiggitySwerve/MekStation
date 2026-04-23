@@ -18,6 +18,7 @@ import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types'
 
 import {
   Facing,
+  GamePhase,
   IHexCoordinate,
   IGameSession,
   IGameplayUIState,
@@ -320,3 +321,20 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
     },
   }),
 );
+
+// ---------------------------------------------------------------------------
+// Phase selectors (task 1.1)
+// ---------------------------------------------------------------------------
+
+/**
+ * Per `add-physical-attack-phase-ui` task 1.1: selector-style helper
+ * that reads the current `IGameSession.currentState.phase` and returns
+ * `true` when the session is in `GamePhase.PhysicalAttack`. Kept as a
+ * pure function rather than a hook so it composes into both
+ * React-rendered components (via a Zustand selector) and
+ * non-component call sites (tests, integration helpers).
+ */
+export function isPhysicalAttackPhase(session: IGameSession | null): boolean {
+  if (!session) return false;
+  return session.currentState.phase === GamePhase.PhysicalAttack;
+}
