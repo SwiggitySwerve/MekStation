@@ -32,11 +32,19 @@ import { buildDamageStateFromUnit } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 import { roll2d6 as rollDice } from './hitLocation';
 import {
+  calculatePhysicalToHit,
+  canCharge,
+  canDFA,
   canKick,
+  canMeleeWeapon,
   canPunch,
+  determinePhysicalHitLocation,
   IPhysicalAttackInput,
+  IPhysicalAttackRestriction,
+  PhysicalAttackLimb,
   PhysicalAttackType,
   resolvePhysicalAttack,
+  splitPhysicalDamageIntoClusters,
 } from './physicalAttacks';
 
 /**
@@ -50,6 +58,59 @@ export interface IPhysicalAttackContext {
   readonly arm?: 'left' | 'right';
   readonly hexesMoved?: number;
   readonly weaponsFiredFromArm?: readonly string[];
+  /**
+   * Per `implement-physical-attack-phase` task 4.3 / 5.3: target movement
+   * modifier (TMM). Threaded into punch / kick / melee / DFA to-hit.
+   */
+  readonly targetMovementModifier?: number;
+  /**
+   * Per task 6.1: attacker-movement modifier for charge to-hit.
+   */
+  readonly attackerMovementModifier?: number;
+  /**
+   * Per task 3.5: limbs already used for physical attacks this turn
+   * (same limb cannot punch AND kick in one turn).
+   */
+  readonly limbsUsedThisTurn?: readonly PhysicalAttackLimb[];
+  /**
+   * Per task 2.3: the limb this declaration targets (required for punch
+   * and kick; optional for club attacks).
+   */
+  readonly limb?: PhysicalAttackLimb;
+  /**
+   * Per tasks 3.3 / 3.4: actuator-presence booleans feed the restriction
+   * validator — destruction lives in `componentDamage`, but "mech was
+   * built without this actuator" is a separate concern.
+   */
+  readonly lowerArmActuatorPresent?: boolean;
+  readonly handActuatorPresent?: boolean;
+  readonly upperLegActuatorPresent?: boolean;
+  readonly footActuatorPresent?: boolean;
+  /**
+   * Per tasks 3.6 / 3.7: DFA requires a jump; charge requires a run.
+   */
+  readonly attackerJumpedThisTurn?: boolean;
+  readonly attackerRanThisTurn?: boolean;
+  /**
+   * Per task 8.5: the destination hex for a push. If `false` the caller
+   * has already determined the push target hex is blocked / off-map.
+   */
+  readonly pushDestinationValid?: boolean;
+}
+
+/**
+ * Per `implement-physical-attack-phase` task 3.8: project a
+ * restriction result's reason code to the canonical trigger source
+ * consumed by the PSR queue. Used only for `AttackerProne` and
+ * `LimbMissing` today; unknown codes fall through to a generic
+ * descriptor.
+ */
+function buildRestrictionEventReason(
+  restriction: IPhysicalAttackRestriction,
+): string {
+  return (
+    restriction.reasonCode ?? restriction.reason ?? 'PhysicalAttackInvalid'
+  );
 }
 
 /**
@@ -94,27 +155,47 @@ export function declarePhysicalAttack(
     weaponsFiredFromArm: context.weaponsFiredFromArm,
     attackerProne: attackerState.prone,
     targetTonnage: context.targetTonnage,
+    targetMovementModifier: context.targetMovementModifier,
+    attackerMovementModifier: context.attackerMovementModifier,
+    attackerJumpedThisTurn: context.attackerJumpedThisTurn,
+    attackerRanThisTurn: context.attackerRanThisTurn,
+    limbsUsedThisTurn: context.limbsUsedThisTurn,
+    limb: context.limb,
+    lowerArmActuatorPresent: context.lowerArmActuatorPresent,
+    handActuatorPresent: context.handActuatorPresent,
+    upperLegActuatorPresent: context.upperLegActuatorPresent,
+    footActuatorPresent: context.footActuatorPresent,
   };
 
-  // Restriction check before declaration. Kick / punch are the two
-  // restriction-rich types for Phase 1; other types fall through.
-  let restriction;
+  // Per task 3.1 / 3.2 / 3.3 / 3.4 / 3.5 / 3.6 / 3.7: restrictions run
+  // per attack type. Charge / DFA / melee gate on the same helpers used
+  // by the to-hit layer.
+  let restriction: IPhysicalAttackRestriction;
   if (attackType === 'punch') {
     restriction = canPunch(input);
   } else if (attackType === 'kick') {
     restriction = canKick(input);
+  } else if (attackType === 'charge') {
+    restriction = canCharge(input);
+  } else if (attackType === 'dfa') {
+    restriction = canDFA(input);
+  } else if (
+    attackType === 'hatchet' ||
+    attackType === 'sword' ||
+    attackType === 'mace' ||
+    attackType === 'lance'
+  ) {
+    restriction = canMeleeWeapon(input);
   } else {
     restriction = { allowed: true };
   }
 
   if (!restriction.allowed) {
-    // Emit a synthetic AttackInvalid-style event payload via a generic
-    // PhysicalAttackResolved miss with `roll: 0` is wrong (would bake a
-    // false to-hit into replay). Per spec task 3.8 we emit a dedicated
-    // invalid signal — for Phase 1 we surface restrictions as a
-    // `PhysicalAttackResolved` event with `hit: false, roll: 0,
-    // toHitNumber: Infinity`. Future change can introduce a richer
-    // `PhysicalAttackInvalid` event if UI needs it.
+    // Per spec task 3.8: rejections surface as a
+    // `PhysicalAttackResolved { hit:false, roll:0, toHitNumber:Infinity }`
+    // event whose `location` field carries the reason code so replay +
+    // UI can distinguish rejections from rolled misses. A future change
+    // can promote this to a dedicated `PhysicalAttackInvalid` event.
     const sequence = session.events.length;
     const { turn } = session.currentState;
     return appendEvent(
@@ -125,10 +206,12 @@ export function declarePhysicalAttack(
         turn,
         attackerId,
         targetId,
-        attackType as 'punch' | 'kick' | 'charge' | 'dfa' | 'push',
+        attackType,
         0,
         Infinity,
         false,
+        undefined,
+        buildRestrictionEventReason(restriction),
       ),
     );
   }

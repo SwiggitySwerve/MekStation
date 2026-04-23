@@ -727,22 +727,55 @@ export interface IUnitStoodPayload {
   readonly rolls?: readonly number[];
 }
 
+/**
+ * Per `implement-physical-attack-phase` task 2.2: physical attack event
+ * types include core physical attacks plus the four melee-weapon variants
+ * (hatchet, sword, mace, lance). The resolved payload uses the same
+ * union so club swings and charges emit the same event shape.
+ */
+export type PhysicalAttackEventType =
+  | 'punch'
+  | 'kick'
+  | 'charge'
+  | 'dfa'
+  | 'push'
+  | 'hatchet'
+  | 'sword'
+  | 'mace'
+  | 'lance';
+
 export interface IPhysicalAttackDeclaredPayload {
   readonly attackerId: string;
   readonly targetId: string;
-  readonly attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push';
+  readonly attackType: PhysicalAttackEventType;
   readonly toHitNumber: number;
+  /**
+   * Per `implement-physical-attack-phase` task 2.3: limb targeted by the
+   * declaration. Required for `punch` and `kick`; may be supplied for
+   * club attacks. OPTIONAL.
+   */
+  readonly limb?: 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg';
 }
 
 export interface IPhysicalAttackResolvedPayload {
   readonly attackerId: string;
   readonly targetId: string;
-  readonly attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push';
+  readonly attackType: PhysicalAttackEventType;
   readonly roll: number;
   readonly toHitNumber: number;
   readonly hit: boolean;
   readonly damage?: number;
   readonly location?: string;
+  /**
+   * Per `implement-physical-attack-phase` tasks 6.4 / 7.4: per-cluster
+   * (damage, location) pairs for charge and DFA, where the total damage
+   * is split into 5-point clusters and each cluster rolls a fresh
+   * hit-location. OPTIONAL — omitted for single-cluster attacks.
+   */
+  readonly clusters?: readonly {
+    readonly damage: number;
+    readonly location: string;
+  }[];
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): consumed d6s for
    * the to-hit + hit-location rolls (location omitted on miss). OPTIONAL.
