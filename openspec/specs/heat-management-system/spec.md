@@ -5,9 +5,7 @@
 Defines terrain-based heat effects for BattleMech combat, specifically water cooling bonuses and terrain heat modifiers.
 
 **Scope**: This spec covers only the terrain-based heat utilities in `src/utils/gameplay/heat.ts`. For complete heat system behavior including generation, dissipation, shutdown checks, and engine critical hits, see related specs and implementation in `gameSession.ts`, `movement.ts`, and `constants/heat.ts`.
-
 ## Requirements
-
 ### Requirement: Water Cooling Bonus
 
 Heat dissipation SHALL include water cooling bonuses when a unit is standing in water.
@@ -145,3 +143,26 @@ The unit's heat level SHALL never be negative; dissipation that would reduce hea
 - **GIVEN** a unit at heat 3 with dissipation 10
 - **WHEN** the heat phase ends
 - **THEN** the unit's heat SHALL be 0 (not -7)
+
+### Requirement: Real Weapon Heat Accumulation
+
+The heat-management system SHALL accumulate heat from fired weapons using each weapon's catalog `heat` value. The `weapons.length * 10` approximation SHALL be removed.
+
+#### Scenario: Firing multiple weapons sums real heats
+
+- **GIVEN** a unit that fires 1 PPC (heat 10) and 2 Medium Lasers (heat 3 each)
+- **WHEN** the firing heat is computed
+- **THEN** the firing heat SHALL be 10 + 3 + 3 = 16
+
+#### Scenario: No firing produces no heat
+
+- **GIVEN** a unit that fires no weapons this turn
+- **WHEN** the firing heat is computed
+- **THEN** the firing heat contribution SHALL be 0
+
+#### Scenario: Legacy approximation removed
+
+- **GIVEN** the heat generation code path
+- **WHEN** the path is statically searched for `weapons.length * 10`
+- **THEN** no occurrences SHALL remain in production code
+
