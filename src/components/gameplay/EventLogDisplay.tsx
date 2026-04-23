@@ -315,23 +315,23 @@ function filterEvents(
 function getPhaseLabel(phase: GamePhase): string {
   switch (phase) {
     case GamePhase.Initiative:
-      return "Init";
+      return 'Init';
     case GamePhase.Movement:
-      return "Move";
+      return 'Move';
     case GamePhase.WeaponAttack:
-      return "Atk";
+      return 'Atk';
     case GamePhase.PhysicalAttack:
-      return "Phys";
+      return 'Phys';
     case GamePhase.Heat:
-      return "Heat";
+      return 'Heat';
     case GamePhase.End:
-      return "End";
+      return 'End';
     default: {
       // Defensive branch — if a new GamePhase enum member is added
       // upstream we still render something readable instead of
       // blowing up at runtime.
       const raw = String(phase);
-      return raw.replace(/_/g, " ");
+      return raw.replace(/_/g, ' ');
     }
   }
 }
