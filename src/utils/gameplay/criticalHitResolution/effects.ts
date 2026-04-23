@@ -156,7 +156,9 @@ function describeEffect(effect: ICriticalEffect): string {
     case CriticalEffectType.SensorHit:
       return 'Sensor hit — to-hit penalty';
     case CriticalEffectType.LifeSupportHit:
-      return 'Life support hit';
+      return effect.lifeSupportDisabled
+        ? 'Life support disabled — pilot heat damage at 15+/25+ heat'
+        : 'Life support hit';
     case CriticalEffectType.ActuatorHit:
       return `Actuator destroyed: ${effect.equipmentDestroyed ?? 'unknown'}`;
     case CriticalEffectType.WeaponDestroyed:

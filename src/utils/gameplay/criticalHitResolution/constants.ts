@@ -1,5 +1,12 @@
 export const ENGINE_DESTRUCTION_THRESHOLD = 3;
 export const ENGINE_HEAT_PER_HIT = 5;
+/**
+ * Per `fix-combat-rule-accuracy` and Total Warfare p. 43: two life-support
+ * critical hits disable life support. Once disabled, the pilot suffers
+ * heat-damage on every subsequent heat phase. Canonical OpenSpec change:
+ * integrate-damage-pipeline / task 10.5.
+ */
+export const LIFE_SUPPORT_DESTRUCTION_THRESHOLD = 2;
 export const GYRO_PSR_MODIFIER_PER_HIT = 3;
 export const GYRO_CANNOT_STAND_THRESHOLD = 2;
 export const CANNOT_STAND_PENALTY = 999;
