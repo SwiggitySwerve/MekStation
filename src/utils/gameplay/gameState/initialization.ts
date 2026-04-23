@@ -76,6 +76,13 @@ export function createInitialUnitState(
     jammedWeapons: [],
     narcedBy: [],
     tagDesignated: false,
+    // Retreat fields (per `add-bot-retreat-behavior` § 1.2): explicit
+    // defaults so replayed states always observe the same shape as
+    // freshly constructed ones. `isRetreating`/`hasRetreated` latches
+    // flip one-way via RetreatTriggered / UnitRetreated events.
+    isRetreating: false,
+    retreatTargetEdge: undefined,
+    hasRetreated: false,
   };
 }
 

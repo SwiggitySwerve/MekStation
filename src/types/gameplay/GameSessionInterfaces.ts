@@ -167,6 +167,16 @@ export enum GameEventType {
    */
   RetreatTriggered = 'retreat_triggered',
   /**
+   * Per `add-bot-retreat-behavior` § 7: fired when a retreating bot unit
+   * successfully reaches a hex on its locked `retreatTargetEdge`. The unit
+   * is considered to have withdrawn from the battlefield — it is marked
+   * as no-longer-participating for victory-check purposes but is
+   * distinguished from combat destruction (see `IUnitGameState.hasRetreated`).
+   * Emitted in the same turn as the `MovementDeclared` event that placed
+   * the unit on the edge hex.
+   */
+  UnitRetreated = 'unit_retreated',
+  /**
    * Per `add-vehicle-combat-behavior`: fired when a vehicle takes a
    * structure-exposing hit (or an any-hit for Hover/Naval/Hydrofoil/Submarine/WiGE
    * motion types) triggering a motive-damage roll. Carries the 2d6 dice,
@@ -826,6 +836,20 @@ export interface IRetreatTriggeredPayload {
 }
 
 /**
+ * Per `add-bot-retreat-behavior` § 7: a retreating bot unit has reached a
+ * hex on its locked `retreatTargetEdge`. The unit withdraws from the
+ * battlefield — victory-check treats it as no-longer-participating but
+ * post-battle summaries can distinguish withdrawal from combat destruction
+ * via the `hasRetreated` flag on `IUnitGameState`. `turn` is the game
+ * turn on which the retreat completed, for replay consumers.
+ */
+export interface IUnitRetreatedPayload {
+  readonly unitId: string;
+  readonly retreatEdge: 'north' | 'south' | 'east' | 'west';
+  readonly turn: number;
+}
+
+/**
  * Per `add-vehicle-combat-behavior` §4: emitted when a vehicle hit
  * triggers a motive-damage roll. Carries the consumed 2d6, the severity
  * outcome, and the resulting MP penalty.
@@ -934,6 +958,7 @@ export type GameEventPayload =
   | ITransferDamagePayload
   | IComponentDestroyedPayload
   | IRetreatTriggeredPayload
+  | IUnitRetreatedPayload
   | IMotiveDamagedPayload
   | IMotivePenaltyAppliedPayload
   | IVehicleImmobilizedPayload
@@ -1187,6 +1212,15 @@ export interface IUnitGameState {
    * and locked. `undefined` until retreat begins.
    */
   readonly retreatTargetEdge?: 'north' | 'south' | 'east' | 'west';
+  /**
+   * Per `add-bot-retreat-behavior` § 7.4: set `true` by the
+   * `UnitRetreated` reducer once a retreating unit reaches its target
+   * map edge. Victory-check treats `hasRetreated` as "no longer
+   * participating" (equivalent to destroyed for side-elimination
+   * purposes) but keeps it distinct from `destroyed` so post-battle
+   * summaries can list withdrawn units separately from combat losses.
+   */
+  readonly hasRetreated?: boolean;
 }
 
 /**
