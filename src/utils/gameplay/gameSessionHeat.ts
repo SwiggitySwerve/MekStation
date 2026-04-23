@@ -9,6 +9,7 @@ import {
   GamePhase,
   IAttackDeclaredPayload,
   IGameSession,
+  IHexCoordinate,
   IMovementDeclaredPayload,
 } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
@@ -16,6 +17,7 @@ import { logger } from '@/utils/logger';
 import { resolveAmmoExplosion } from './ammoTracking';
 import { type DiceRoller } from './diceTypes';
 import {
+  createAmmoExplosionEvent,
   createHeatDissipatedEvent,
   createHeatGeneratedEvent,
   createPilotHitEvent,
@@ -25,11 +27,25 @@ import {
   createUnitDestroyedEvent,
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
+import { getWaterCoolingBonus } from './heat';
 import { roll2d6 as rollDice } from './hitLocation';
+
+/**
+ * Per `wire-heat-generation-and-effects` task 5 (water cooling) and
+ * decisions.md: `IHex.terrain` is a plain `string` at runtime with no
+ * structured depth. Callers who track water depth externally pass a
+ * resolver via `options.getWaterDepth`; when omitted, water bonus is
+ * zero and dissipation falls back to real-heat-sink math only (tasks
+ * 4.2 / 4.3).
+ */
+export interface IResolveHeatPhaseOptions {
+  readonly getWaterDepth?: (unitId: string, position: IHexCoordinate) => number;
+}
 
 export function resolveHeatPhase(
   session: IGameSession,
   diceRoller: DiceRoller = rollDice,
+  options?: IResolveHeatPhaseOptions,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Heat) {
     throw new Error('Not in heat phase');
@@ -158,14 +174,41 @@ export function resolveHeatPhase(
     const currentHeatBeforeDissipation =
       currentSession.currentState.units[unitId].heat;
 
+    // Per `wire-heat-generation-and-effects` tasks 4.2 / 4.3 /
+    // decisions.md "Double heat sink modeling": dissipation uses a
+    // per-sink rating derived from `unit.heatSinkType`. Singles = 1,
+    // doubles = 2. Destroyed sinks lose their rating too, so a
+    // destroyed double correctly loses 2 dissipation (not 1). When
+    // `heatSinkType` is absent, we default to singles for back-compat.
     const unitHeatSinks = unit.heatSinks ?? 10;
     const heatSinksDestroyed = componentDamage?.heatSinksDestroyed ?? 0;
-    const totalDissipation = Math.max(0, unitHeatSinks - heatSinksDestroyed);
+    const heatSinkRating = unit.heatSinkType === 'double' ? 2 : 1;
+    const baseDissipation = Math.max(
+      0,
+      (unitHeatSinks - heatSinksDestroyed) * heatSinkRating,
+    );
+
+    // Per `wire-heat-generation-and-effects` task 5.1 / 5.2: water
+    // cooling adds +2 dissipation at depth 1 and +4 at depth 2+. The
+    // map's `IHex.terrain` is a raw string (no depth metadata), so we
+    // read depth via the `getWaterDepth` provider callback. Callers
+    // that don't track water (legacy + tests) omit it, yielding a zero
+    // bonus and preserving existing behaviour.
+    const unitPosition = currentSession.currentState.units[unitId].position;
+    const waterDepth =
+      options?.getWaterDepth !== undefined
+        ? options.getWaterDepth(unitId, unitPosition)
+        : 0;
+    const waterBonus = getWaterCoolingBonus(waterDepth);
+
+    const totalDissipation = baseDissipation + waterBonus;
     const newHeat = Math.max(
       0,
       currentHeatBeforeDissipation - totalDissipation,
     );
 
+    // Per task 13.2: attach `breakdown` so UI + replay can show
+    // base-dissipation vs water-bonus split in the per-turn heat log.
     const dissipationSequence = currentSession.events.length;
     const dissipationEvent = createHeatDissipatedEvent(
       currentSession.id,
@@ -174,6 +217,7 @@ export function resolveHeatPhase(
       unitId,
       totalDissipation,
       newHeat,
+      { baseDissipation, waterBonus },
     );
     currentSession = appendEvent(currentSession, dissipationEvent);
 
@@ -292,6 +336,17 @@ export function resolveHeatPhase(
       }
     }
 
+    // Per `wire-heat-generation-and-effects` task 11.4: when an
+    // explosive ammo bin detonates from heat, emit an
+    // `AmmoExplosion` event first (location, damage, bin metadata,
+    // source = "HeatInduced"). Only emit `UnitDestroyed` when the
+    // explosion damage actually destroys the unit — the damage
+    // pipeline (parallel `integrate-damage-pipeline` change) owns CT
+    // internal structure accounting, so here we conservatively treat
+    // "explosion result present with damage > 0" as a destruction
+    // trigger to preserve legacy behavior while the new event is
+    // emitted to consumers. CASE / CASE II protection routing stays
+    // out of scope per decisions.md (deferred to damage pipeline).
     const ammoExplosionTN = getAmmoExplosionTN(finalHeat);
     if (ammoExplosionTN > 0) {
       const unitAmmoState =
@@ -311,6 +366,25 @@ export function resolveHeatPhase(
                 'none',
               );
               if (explosionResult && explosionResult.totalDamage > 0) {
+                const explosionSequence = currentSession.events.length;
+                currentSession = appendEvent(
+                  currentSession,
+                  createAmmoExplosionEvent(
+                    currentSession.id,
+                    explosionSequence,
+                    turn,
+                    GamePhase.Heat,
+                    unitId,
+                    explosionResult.location,
+                    explosionResult.totalDamage,
+                    'HeatInduced',
+                    {
+                      binId: explosionResult.binId,
+                      weaponType: explosionResult.weaponType,
+                      roundsDestroyed: bin.remainingRounds,
+                    },
+                  ),
+                );
                 const destroySequence = currentSession.events.length;
                 currentSession = appendEvent(
                   currentSession,
@@ -341,6 +415,25 @@ export function resolveHeatPhase(
                 'none',
               );
               if (explosionResult && explosionResult.totalDamage > 0) {
+                const explosionSequence = currentSession.events.length;
+                currentSession = appendEvent(
+                  currentSession,
+                  createAmmoExplosionEvent(
+                    currentSession.id,
+                    explosionSequence,
+                    turn,
+                    GamePhase.Heat,
+                    unitId,
+                    explosionResult.location,
+                    explosionResult.totalDamage,
+                    'HeatInduced',
+                    {
+                      binId: explosionResult.binId,
+                      weaponType: explosionResult.weaponType,
+                      roundsDestroyed: explosiveBin.remainingRounds,
+                    },
+                  ),
+                );
                 const destroySequence = currentSession.events.length;
                 currentSession = appendEvent(
                   currentSession,
@@ -360,6 +453,11 @@ export function resolveHeatPhase(
       }
     }
 
+    // Per `wire-heat-generation-and-effects` task 12.3: pilot damage
+    // from heat thresholds uses `source: 'heat'`, not `'head_hit'`.
+    // Heat damage bypasses head-location armor and isn't a head crit,
+    // so consumers (UI, replay, AI threat models) must distinguish it
+    // from head-location hits.
     const lifeSupportHits = componentDamage?.lifeSupport ?? 0;
     const pilotDamage = getPilotHeatDamage(finalHeat, lifeSupportHits);
     if (pilotDamage > 0) {
@@ -376,7 +474,7 @@ export function resolveHeatPhase(
           unitId,
           pilotDamage,
           totalWounds,
-          'head_hit',
+          'heat',
           true,
           totalWounds < 6,
         ),

@@ -551,6 +551,18 @@ export interface IHeatPayload {
     | 'external';
   /** New total heat */
   readonly newTotal: number;
+  /**
+   * Per `wire-heat-generation-and-effects` task 13.2: optional
+   * dissipation breakdown. Populated only on `HeatDissipated` events
+   * so UI / replay consumers can show "10 base + 4 water" without
+   * re-reading terrain state. `baseDissipation` is the heat-sink
+   * contribution (count × rating − destroyed × rating), `waterBonus`
+   * is the water-cooling add per `getWaterCoolingBonus(depth)`.
+   */
+  readonly breakdown?: {
+    readonly baseDissipation: number;
+    readonly waterBonus: number;
+  };
 }
 
 /**
@@ -563,8 +575,15 @@ export interface IPilotHitPayload {
   readonly wounds: number;
   /** Total wounds */
   readonly totalWounds: number;
-  /** Source of the hit */
-  readonly source: 'head_hit' | 'ammo_explosion' | 'mech_destruction';
+  /**
+   * Source of the hit.
+   *
+   * Per `wire-heat-generation-and-effects` task 12.3: `'heat'` is
+   * emitted when the heat phase applies pilot damage (heat ≥ 15 with
+   * life-support damage); distinct from `'head_hit'` (head-location
+   * critical) so UI / replay consumers can show the right cause.
+   */
+  readonly source: 'head_hit' | 'ammo_explosion' | 'mech_destruction' | 'heat';
   /** Consciousness check required? */
   readonly consciousnessCheckRequired: boolean;
   /** Consciousness check result (if required) */
@@ -574,6 +593,34 @@ export interface IPilotHitPayload {
    * the consciousness check (when required). OPTIONAL.
    */
   readonly rolls?: readonly number[];
+}
+
+/**
+ * Ammo explosion event payload.
+ *
+ * Per `wire-heat-generation-and-effects` task 11.4: emitted when an
+ * explosive ammo bin detonates. `source` distinguishes heat-induced
+ * explosions (rolled during the heat phase at heat ≥ 19) from
+ * crit-induced explosions (explosive component destroyed by through-
+ * armor crit or damage-transfer). `damage` is the total point value
+ * delivered to the bin's location (`remainingRounds × damagePerRound`
+ * for heat, or the crit-caller's damage for `CritInduced`).
+ */
+export interface IAmmoExplosionPayload {
+  /** Unit whose ammo exploded */
+  readonly unitId: string;
+  /** Location of the bin that exploded */
+  readonly location: string;
+  /** Bin id that exploded (when known) */
+  readonly binId?: string;
+  /** Weapon type the bin fed (when known) */
+  readonly weaponType?: string;
+  /** Rounds destroyed in the blast */
+  readonly roundsDestroyed?: number;
+  /** Damage delivered to the internal structure */
+  readonly damage: number;
+  /** Why the bin exploded */
+  readonly source: 'HeatInduced' | 'CritInduced';
 }
 
 /**
@@ -870,6 +917,7 @@ export type GameEventPayload =
   | IDamageAppliedPayload
   | IHeatPayload
   | IPilotHitPayload
+  | IAmmoExplosionPayload
   | IUnitDestroyedPayload
   | ICriticalHitResolvedPayload
   | IPSRTriggeredPayload
@@ -965,6 +1013,15 @@ export interface IGameUnit {
   readonly piloting: number;
   /** Total heat sinks on unit (default: 10 if not provided) */
   readonly heatSinks?: number;
+  /**
+   * Per `wire-heat-generation-and-effects` task 4.2: heat-sink rating.
+   * - `'single'` → 1 dissipation per sink (default when omitted)
+   * - `'double'` → 2 dissipation per sink (IS or Clan DHS)
+   *
+   * Destroyed sinks in `IComponentDamageState.heatSinksDestroyed` are
+   * also debited at this rating (a destroyed DHS loses 2 dissipation).
+   */
+  readonly heatSinkType?: 'single' | 'double';
   /**
    * Ammo bin construction data (one entry per ton of ammo carried).
    * When present, `createGameSession` seeds this unit's `ammoState` so

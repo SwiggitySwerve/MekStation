@@ -35,6 +35,7 @@ import {
   resolvePendingPSRs,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { toAIUnitState } from './GameEngine.helpers';
@@ -303,6 +304,7 @@ export function runPhysicalAttackPhase(
 
 export function runInteractivePhaseAdvance(
   session: IGameSession,
+  grid?: IHexGrid,
 ): IGameSession {
   let updatedSession = session;
   const { phase } = updatedSession.currentState;
@@ -346,7 +348,23 @@ export function runInteractivePhaseAdvance(
     updatedSession = checkAndQueueDamagePSRs(updatedSession);
     updatedSession = advancePhase(updatedSession);
   } else if (phase === GamePhase.Heat) {
-    updatedSession = resolveHeatPhase(updatedSession);
+    // Per `wire-heat-generation-and-effects` task 5: when a `grid`
+    // is available, pass a water-depth resolver so flooded hexes
+    // dissipate +2 / +4. Legacy callers that omit `grid` get zero
+    // bonus — back-compat preserved.
+    const heatOptions =
+      grid !== undefined
+        ? {
+            getWaterDepth: (
+              unitId: string,
+              _position: import('@/types/gameplay').IHexCoordinate,
+            ) => {
+              const unit = updatedSession.currentState.units[unitId];
+              return unit ? waterDepthAtPosition(grid, unit.position) : 0;
+            },
+          }
+        : undefined;
+    updatedSession = resolveHeatPhase(updatedSession, undefined, heatOptions);
     updatedSession = advancePhase(updatedSession);
   } else if (phase === GamePhase.End) {
     // Per `wire-piloting-skill-rolls` § 7: drain the queue at end of

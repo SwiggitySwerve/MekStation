@@ -88,6 +88,39 @@ describe('movement', () => {
       expect(getMaxMP(cap, MovementType.Run)).toBe(6);
       expect(getMaxMP(cap, MovementType.Jump)).toBe(4);
     });
+
+    // Task 7.3 (wire-heat-generation-and-effects):
+    // floor(heat/5) reduces effective walk + run MP.
+    // walk 5, run 8, heat 15 → effective walk 2, effective run 5.
+    it('subtracts heat penalty from walk/run/jump MP', () => {
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 4 };
+
+      // Heat 15 → penalty 3
+      expect(getMaxMP(cap, MovementType.Walk, 3)).toBe(2);
+      expect(getMaxMP(cap, MovementType.Run, 3)).toBe(5);
+      expect(getMaxMP(cap, MovementType.Jump, 3)).toBe(1);
+
+      // No penalty when heat < 5
+      expect(getMaxMP(cap, MovementType.Walk, 0)).toBe(5);
+      expect(getMaxMP(cap, MovementType.Run, 0)).toBe(8);
+    });
+
+    it('clamps effective MP at 0 (never negative)', () => {
+      const cap = { walkMP: 3, runMP: 5, jumpMP: 2 };
+
+      // Huge penalty → 0, not negative
+      expect(getMaxMP(cap, MovementType.Walk, 10)).toBe(0);
+      expect(getMaxMP(cap, MovementType.Run, 10)).toBe(0);
+      expect(getMaxMP(cap, MovementType.Jump, 10)).toBe(0);
+    });
+
+    it('legacy callers (no heatPenalty arg) are unaffected', () => {
+      const cap = createMovementCapability(6, 4);
+      // Default heatPenalty = 0 → raw MP values
+      expect(getMaxMP(cap, MovementType.Walk)).toBe(6);
+      expect(getMaxMP(cap, MovementType.Run)).toBe(9);
+      expect(getMaxMP(cap, MovementType.Jump)).toBe(4);
+    });
   });
 
   // =========================================================================
@@ -225,6 +258,69 @@ describe('movement', () => {
 
       expect(result.valid).toBe(false);
       expect(result.error).toContain('occupied');
+    });
+
+    // Task 7.3 (wire-heat-generation-and-effects):
+    // validateMovement with currentHeat=15 (penalty 3) + walkMP=5
+    // caps effective walkMP at 2 — distance 3 must fail.
+    it('rejects walk distance > effective MP when heat penalty applies', () => {
+      const hotGrid = createHexGrid({ radius: 5 });
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 0 };
+      const pos: IUnitPosition = {
+        unitId: 'hot',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      // Distance 3 should fail at heat 15 (effective walk=2)
+      const fail = validateMovement(
+        hotGrid,
+        pos,
+        { q: 3, r: 0 },
+        Facing.North,
+        MovementType.Walk,
+        cap,
+        15, // currentHeat
+      );
+      expect(fail.valid).toBe(false);
+      expect(fail.error).toContain('max range');
+      // Error should mention the reduced max, not the raw max
+      expect(fail.error).toContain('2');
+
+      // Distance 2 should still succeed
+      const ok = validateMovement(
+        hotGrid,
+        pos,
+        { q: 2, r: 0 },
+        Facing.North,
+        MovementType.Walk,
+        cap,
+        15,
+      );
+      expect(ok.valid).toBe(true);
+    });
+
+    it('accepts walk distance when heat penalty is zero', () => {
+      const cleanGrid = createHexGrid({ radius: 5 });
+      const cap = { walkMP: 5, runMP: 8, jumpMP: 0 };
+      const pos: IUnitPosition = {
+        unitId: 'cold',
+        coord: { q: 0, r: 0 },
+        facing: Facing.North,
+        prone: false,
+      };
+
+      const ok = validateMovement(
+        cleanGrid,
+        pos,
+        { q: 4, r: 0 },
+        Facing.North,
+        MovementType.Walk,
+        cap,
+        0,
+      );
+      expect(ok.valid).toBe(true);
     });
   });
 

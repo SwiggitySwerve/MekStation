@@ -3,6 +3,7 @@ import {
   GameEventType,
   GamePhase,
   ICriticalHitResolvedPayload,
+  IAmmoExplosionPayload,
   IGameEvent,
   IHeatPayload,
   IPilotHitPayload,
@@ -52,12 +53,14 @@ export function createHeatDissipatedEvent(
   unitId: string,
   amount: number,
   newTotal: number,
+  breakdown?: IHeatPayload['breakdown'],
 ): IGameEvent {
   const payload: IHeatPayload = {
     unitId,
     amount: -Math.abs(amount),
     source: 'dissipation',
     newTotal,
+    ...(breakdown ? { breakdown } : {}),
   };
 
   return {
@@ -81,7 +84,7 @@ export function createPilotHitEvent(
   unitId: string,
   wounds: number,
   totalWounds: number,
-  source: 'head_hit' | 'ammo_explosion' | 'mech_destruction',
+  source: 'head_hit' | 'ammo_explosion' | 'mech_destruction' | 'heat',
   consciousnessCheckRequired: boolean,
   consciousnessCheckPassed?: boolean,
 ): IGameEvent {
@@ -122,6 +125,53 @@ export function createUnitDestroyedEvent(
       gameId,
       sequence,
       GameEventType.UnitDestroyed,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Per `wire-heat-generation-and-effects` task 11.4: emitted when an
+ * explosive ammo bin detonates. `source` distinguishes heat-induced
+ * (rolled during the heat phase) from crit-induced explosions.
+ */
+export function createAmmoExplosionEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  location: string,
+  damage: number,
+  source: IAmmoExplosionPayload['source'],
+  options?: {
+    readonly binId?: string;
+    readonly weaponType?: string;
+    readonly roundsDestroyed?: number;
+  },
+): IGameEvent {
+  const payload: IAmmoExplosionPayload = {
+    unitId,
+    location,
+    damage,
+    source,
+    ...(options?.binId !== undefined ? { binId: options.binId } : {}),
+    ...(options?.weaponType !== undefined
+      ? { weaponType: options.weaponType }
+      : {}),
+    ...(options?.roundsDestroyed !== undefined
+      ? { roundsDestroyed: options.roundsDestroyed }
+      : {}),
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.AmmoExplosion,
       turn,
       phase,
       unitId,
