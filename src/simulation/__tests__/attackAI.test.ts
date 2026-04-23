@@ -305,6 +305,40 @@ describe('AttackAI', () => {
       expect(weapons[0].id).toBe('ac10');
     });
 
+    // Per `wire-ammo-consumption` tasks § 6.1/6.2/6.3: the bot SHALL
+    // skip weapons whose ammo type has zero non-empty bins (i.e. the
+    // `ammo[weaponId]` count is 0). Given a dry AC/20 (ballistic,
+    // ammoPerTon > 0, ammo = 0) alongside a non-dry Medium Laser
+    // (energy, ammoPerTon = -1), the laser SHALL be the sole survivor.
+    it('skips dry AC/20 and picks Medium Laser (wire-ammo-consumption § 6.3)', () => {
+      const attackAI = new AttackAI();
+      const attacker = createMockUnit({
+        position: { q: 0, r: 0 },
+        weapons: [
+          createMockWeapon({
+            id: 'ac20',
+            ammoPerTon: 5,
+            damage: 20,
+            shortRange: 3,
+            mediumRange: 6,
+            longRange: 9,
+          }),
+          createMockWeapon({
+            id: 'mlaser',
+            ammoPerTon: -1,
+            damage: 5,
+          }),
+        ],
+        ammo: { ac20: 0 },
+      });
+      const target = createMockUnit({ position: { q: 3, r: 0 } });
+
+      const weapons = attackAI.selectWeapons(attacker, target);
+
+      expect(weapons.length).toBe(1);
+      expect(weapons[0].id).toBe('mlaser');
+    });
+
     it('should return empty array when target is out of all weapon ranges', () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
