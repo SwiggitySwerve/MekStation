@@ -3,7 +3,12 @@
  * Interfaces for bot behavior, movement, and weapon handling.
  */
 
-import { IHexCoordinate, Facing, MovementType } from '@/types/gameplay';
+import {
+  IHexCoordinate,
+  Facing,
+  FiringArc,
+  MovementType,
+} from '@/types/gameplay';
 
 // =============================================================================
 // Bot Behavior
@@ -121,6 +126,19 @@ export interface IWeapon {
 
   /** Is this weapon destroyed? */
   readonly destroyed: boolean;
+
+  /**
+   * Per `improve-bot-basic-combat-competence` task 3.1: the arc the
+   * weapon is mounted in. Front is the default (and matches the
+   * pre-change behavior — most 'Mech weapons are front-mounted).
+   * When present, `AttackAI.selectWeapons` filters weapons by whether
+   * the target hex lies in the weapon's mounted arc given the
+   * attacker's facing (and optional torso twist).
+   *
+   * Optional so existing test fixtures and runtime wiring (which
+   * build `IWeapon` without arc data) keep working — missing = Front.
+   */
+  readonly mountingArc?: FiringArc;
 }
 
 // =============================================================================
@@ -161,6 +179,27 @@ export interface IAIUnitState {
 
   /** Hexes moved this turn */
   readonly hexesMoved: number;
+
+  /**
+   * Per `improve-bot-basic-combat-competence` task 2.2: fraction of
+   * max armor + structure remaining on this unit. Used in threat
+   * scoring — full-health units are bigger threats than crippled
+   * ones. Clamped to `[0, 1]`.
+   *
+   * Optional for backward compat: callers that do not supply it
+   * get a default of `1.0` (treat as undamaged), which preserves
+   * the pre-change scoring for legacy wiring paths that have not
+   * been updated yet.
+   */
+  readonly remainingHpFraction?: number;
+
+  /**
+   * Per `improve-bot-basic-combat-competence` task 3.2: optional
+   * pending torso-twist state used when filtering weapons by arc.
+   * When present, the twist shifts the forward arc by one hex side.
+   * `undefined` = no twist (most common case).
+   */
+  readonly torsoTwist?: 'left' | 'right';
 
   /**
    * Per `add-bot-retreat-behavior` task 1.1: `true` once the unit has

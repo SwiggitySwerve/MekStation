@@ -5,8 +5,10 @@ import type {
   IMovementCapability,
 } from '@/types/gameplay';
 
-import { Facing, MovementType } from '@/types/gameplay';
+import { Facing, FiringArc, MovementType } from '@/types/gameplay';
+import { determineArc } from '@/utils/gameplay/firingArcs';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import {
   getValidDestinations,
   calculateMovementHeat,
@@ -96,6 +98,109 @@ function endingFacingTowardEdge(
   return facingVec.q * edgeVec.q + facingVec.r * edgeVec.r >= 1;
 }
 
+/**
+ * Per `improve-bot-basic-combat-competence` task 6.1–6.4: context
+ * passed to `scoreMove` for combat-time movement scoring. Pulling this
+ * into its own interface keeps the scorer pure and testable without
+ * constructing a full `BotPlayer` harness.
+ *
+ *   - `attacker` is the unit being moved (used for facing/arc math).
+ *   - `allUnits` is the full bot-visible unit list; we filter to
+ *     non-destroyed enemies inside the scorer.
+ *   - `grid` is needed for `calculateLOS` terrain blocking.
+ *   - `highestThreatTarget` is optional — when supplied we give +500
+ *     if the target ends up in the attacker's forward arc after the
+ *     move. When omitted we skip the forward-arc bonus entirely
+ *     (legacy callers that haven't migrated).
+ */
+export interface IScoreMoveContext {
+  readonly attacker: IAIUnitState;
+  readonly allUnits: readonly IAIUnitState[];
+  readonly grid: IHexGrid;
+  readonly highestThreatTarget?: IAIUnitState;
+}
+
+/**
+ * Per `improve-bot-basic-combat-competence` task 6: score a candidate
+ * non-retreat move. Higher = better.
+ *
+ * Scoring terms (additive):
+ *   - `+1000` if at least one non-destroyed enemy has line of sight
+ *     to the destination hex (task 6.2). We score the destination,
+ *     not the path — the bot cares about where it ENDS, not
+ *     intermediate squares.
+ *   - `+500` if `highestThreatTarget` is in the resulting FRONT arc
+ *     (task 6.3), where "front" uses the move's `facing` as the
+ *     attacker's new facing. Torso twist is NOT applied here — the
+ *     movement phase commits the unit's body facing, which is what
+ *     the weapon-arc resolver keys off.
+ *   - `-100` per hex of distance from the nearest non-destroyed
+ *     enemy (task 6.4) — discourages backing off. When no enemies
+ *     exist, this term is 0.
+ *   - `-1` per point of `move.heatGenerated` (task 6.4) — modest
+ *     penalty so running/jumping for no combat reason loses to
+ *     walking / standing.
+ *
+ * Pure function — never mutates inputs. Identical ctx + move => same
+ * score, matching the determinism contract for the AI module.
+ */
+export function scoreMove(move: IMove, ctx: IScoreMoveContext): number {
+  const { attacker, allUnits, grid, highestThreatTarget } = ctx;
+  let score = 0;
+
+  // Task 6.2: LoS bonus. Uses `calculateLOS`, which already accounts
+  // for terrain blocking (intervening woods, buildings, elevation).
+  // We look for ANY enemy with LoS — having multiple doesn't
+  // compound the score; we only need the bot to be visible to
+  // something so it can be shot at (which means it can also shoot).
+  const livingEnemies = allUnits.filter(
+    (u) => !u.destroyed && u.unitId !== attacker.unitId,
+  );
+  const anyEnemyHasLOS = livingEnemies.some((enemy) => {
+    const los = calculateLOS(enemy.position, move.destination, grid);
+    return los.hasLOS;
+  });
+  if (anyEnemyHasLOS) score += 1000;
+
+  // Task 6.3: forward-arc bonus. Uses `determineArc` with the
+  // ATTACKER as the observer — "is the target in front of the new
+  // attacker facing?" — the same primitive `AttackAI.selectWeapons`
+  // uses for weapon filtering. We apply no torso twist here: the
+  // movement phase commits the body's forward facing, and downstream
+  // twist is a separate phase-time adjustment.
+  if (highestThreatTarget && !highestThreatTarget.destroyed) {
+    const arcResult = determineArc(
+      {
+        unitId: attacker.unitId,
+        coord: move.destination,
+        facing: move.facing,
+        prone: false,
+      },
+      highestThreatTarget.position,
+    );
+    if (arcResult.arc === FiringArc.Front) score += 500;
+  }
+
+  // Task 6.4a: nearest-enemy distance penalty. Bot should close
+  // distance rather than back off. `-100` per hex to the nearest
+  // living enemy. Zero enemies => no penalty (nothing to close on).
+  if (livingEnemies.length > 0) {
+    let nearestDistance = Infinity;
+    for (const enemy of livingEnemies) {
+      const d = hexDistance(move.destination, enemy.position);
+      if (d < nearestDistance) nearestDistance = d;
+    }
+    score -= 100 * nearestDistance;
+  }
+
+  // Task 6.4b: movement-heat penalty. Small so it only breaks ties
+  // among otherwise-equivalent moves (a running move that gains a
+  // forward-arc bonus easily outweighs the run's heat cost).
+  score -= move.heatGenerated;
+
+  return score;
+}
+
 export class MoveAI {
   constructor(private readonly behavior: IBotBehavior) {}
 
@@ -132,20 +237,31 @@ export class MoveAI {
   }
 
   /**
-   * Per `wire-bot-ai-helpers-and-capstone`: when `unit.isRetreating` is
-   * true and the unit has a `retreatTargetEdge`, score every candidate
-   * move with `scoreRetreatMove` and pick the highest. Ties broken by
-   * deterministic random (preserves the legacy non-retreat code path
-   * which uses random pick directly).
+   * Per `wire-bot-ai-helpers-and-capstone` + `improve-bot-basic-combat-competence`:
    *
-   * When `unit` is undefined or not retreating, falls back to uniform
-   * random pick — matches the original signature for callers that
-   * haven't been migrated yet.
+   *   1. If `unit.isRetreating` and `unit.retreatTargetEdge` are set, use
+   *      the retreat scoring path (unchanged from the retreat change).
+   *   2. Else if a combat context (`ctx`) is supplied, score moves with
+   *      `scoreMove` and pick the highest (tasks 6/7). Ties broken by
+   *      `SeededRandom.nextInt` so determinism is preserved across runs
+   *      sharing a seed.
+   *   3. Else (legacy callers) fall back to uniform random pick. Kept
+   *      so existing tests and the simulation runner can migrate in
+   *      steps rather than all at once.
+   *
+   * Random consumption is CONSTANT per call regardless of which branch
+   * runs — retreat always calls `nextInt(bestMoves.length)` (even on
+   * length 1), combat always calls `nextInt(bestMoves.length)`, and
+   * the legacy path calls `nextInt(moves.length)`. This keeps
+   * downstream `SimulationRunner` seed sequences stable across the
+   * AI upgrades. (Fixes the same class of determinism regression as
+   * `AttackAI.selectTarget`.)
    */
   selectMove(
     moves: readonly IMove[],
     random: SeededRandom,
     unit?: IAIUnitState,
+    ctx?: IScoreMoveContext,
   ): IMove | null {
     if (moves.length === 0) {
       return null;
@@ -179,7 +295,25 @@ export class MoveAI {
         }
       }
 
-      if (bestMoves.length === 1) return bestMoves[0];
+      const idx = random.nextInt(bestMoves.length);
+      return bestMoves[idx];
+    }
+
+    // Task 7.1: combat scoring path. Only runs when the caller
+    // supplies a context (enemy list + grid). Highest score wins,
+    // ties broken by random.
+    if (ctx) {
+      let bestScore = -Infinity;
+      let bestMoves: IMove[] = [];
+      for (const move of moves) {
+        const score = scoreMove(move, ctx);
+        if (score > bestScore) {
+          bestScore = score;
+          bestMoves = [move];
+        } else if (score === bestScore) {
+          bestMoves.push(move);
+        }
+      }
       const idx = random.nextInt(bestMoves.length);
       return bestMoves[idx];
     }
@@ -210,3 +344,17 @@ function inferMapRadiusFromMoves(
   }
   return radius;
 }
+
+/**
+ * Per-change test hook for `improve-bot-basic-combat-competence`:
+ * re-export internal helpers so unit tests can pin the retreat math
+ * without standing up a full `MoveAI` instance. Not part of the public
+ * surface.
+ */
+export const __testing__ = {
+  FACING_VECTORS,
+  distanceToEdge,
+  edgeVector,
+  endingFacingTowardEdge,
+  inferMapRadiusFromMoves,
+};
