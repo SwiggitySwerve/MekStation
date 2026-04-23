@@ -130,6 +130,15 @@ export interface IUnitToken {
   readonly isSelected: boolean;
   /** Is this unit a valid target? */
   readonly isValidTarget: boolean;
+  /**
+   * Per `add-attack-phase-ui` § 2.2: is this unit the currently
+   * locked-in attack target (i.e. `useGameplayStore.attackPlan.targetUnitId
+   * === unitId` during the Weapon Attack phase)?  When true the per-type
+   * token renderers paint a pulsing red ring around the token.  Distinct
+   * from `isValidTarget` (which flags every fireable enemy) — only one
+   * token is the "active" target at a time.
+   */
+  readonly isActiveTarget?: boolean;
   /** Is this unit destroyed? */
   readonly isDestroyed: boolean;
   /** Short designation (e.g., "ATL-1") */
