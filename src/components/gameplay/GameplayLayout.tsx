@@ -20,6 +20,7 @@ import {
   GamePhase,
   GameSide,
   IGameSession,
+  IHexCoordinate,
   IPilotSpaSummary,
   IUnitGameState,
   IUnitToken,
@@ -80,6 +81,37 @@ export interface GameplayLayoutProps {
   validTargetIds?: readonly string[];
   /** Movement range hexes for map display */
   movementRange?: readonly IMovementRangeHex[];
+  /**
+   * Per `add-movement-phase-ui` § 4.1: hovered-path preview — the
+   * in-progress A* path from the selected unit to the currently
+   * hovered reachable hex. Rendered by the HexMapDisplay as a
+   * highlighted path overlay.
+   */
+  highlightPath?: readonly IHexCoordinate[];
+  /**
+   * Per `add-movement-phase-ui` § 4.3: cumulative MP cost of the
+   * previewed path. Surfaced as a badge at the hovered destination.
+   */
+  hoverMpCost?: number;
+  /**
+   * Per `add-movement-phase-ui` § 4.4: `true` when the user hovers a
+   * hex outside the reachable set — drives the shared "Unreachable"
+   * tooltip on the map.
+   */
+  hoverUnreachable?: boolean;
+  /**
+   * Per `add-movement-phase-ui` task 10.1: per-MP-type legend shown in
+   * the map's bottom-left corner during the Movement phase.
+   */
+  mpLegend?: {
+    readonly active: 'walk' | 'run' | 'jump';
+    readonly jumpAvailable: boolean;
+  };
+  /**
+   * Hover callback — parent uses this to drive path preview + MP
+   * badge + unreachable tooltip computations.
+   */
+  onHexHover?: (hex: IHexCoordinate | null) => void;
   /**
    * Live interactive session — when present, the layout mounts the
    * always-visible Concede button in the action bar's trailing slot
@@ -142,6 +174,7 @@ export function GameplayLayout({
   onUnitSelect,
   onAction,
   onHexClick,
+  onHexHover,
   canUndo = false,
   isPlayerTurn = true,
   unitWeapons = {},
@@ -154,6 +187,10 @@ export function GameplayLayout({
   hitChance,
   validTargetIds = [],
   movementRange = [],
+  highlightPath = [],
+  hoverMpCost,
+  hoverUnreachable = false,
+  mpLegend,
   interactiveSession,
   playerSide = GameSide.Player,
   className = '',
@@ -397,7 +434,12 @@ export function GameplayLayout({
             tokens={tokens}
             selectedHex={selectedUnit?.position || null}
             movementRange={movementRange}
+            highlightPath={highlightPath}
+            hoverMpCost={hoverMpCost}
+            hoverUnreachable={hoverUnreachable}
+            mpLegend={mpLegend}
             onHexClick={handleHexClick}
+            onHexHover={onHexHover}
             onTokenClick={handleTokenClick}
             className="h-full"
           />

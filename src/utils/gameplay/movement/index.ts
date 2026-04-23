@@ -19,3 +19,4 @@ export {
   calculateAttackerMovementModifier,
 } from './modifiers';
 export { findPath } from './pathfinding';
+export { deriveReachableHexes } from './reachable';
