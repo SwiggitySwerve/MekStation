@@ -75,7 +75,15 @@ export type { PhysicalAttackTypePickerProps } from './PhysicalAttackTypePicker';
 export { PhysicalAttackForecastModal } from './PhysicalAttackForecastModal';
 export type { PhysicalAttackForecastModalProps } from './PhysicalAttackForecastModal';
 export { PhysicalAttackPanel } from './PhysicalAttackPanel';
-export type { PhysicalAttackPanelProps } from './PhysicalAttackPanel';
+export type {
+  PhysicalAttackPanelProps,
+  PhysicalAttackIntent,
+} from './PhysicalAttackPanel';
+export { PhysicalAttackIntentArrow } from './overlays/PhysicalAttackIntentArrow';
+export type {
+  PhysicalAttackIntentArrowProps,
+  PhysicalAttackIntentVariant,
+} from './overlays/PhysicalAttackIntentArrow';
 
 // add-quick-sim-result-display — Phase 2 result-display surface for
 // the Quick Resolve Monte Carlo batch (sub-branch B). Exports both the

@@ -536,3 +536,146 @@ describe('usePhysicalAttackPlanStore', () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// getEligiblePhysicalAttacks projection
+// ---------------------------------------------------------------------------
+//
+// Covers `add-physical-attack-phase-ui` task 3.1-3.4 + `physical-attack-system`
+// delta "UI-Facing Eligibility Projection". Exercises the adjacency gate,
+// per-row shape, and restriction surfacing.
+
+describe('getEligiblePhysicalAttacks', () => {
+  const { getEligiblePhysicalAttacks } =
+    // Inline require: the test suite already mocks zustand stores up top
+    // and we want the projection under test without re-plumbing imports.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('@/utils/gameplay/physicalAttacks/eligibility');
+
+  function makeUnit(
+    id: string,
+    side: GameSide,
+    q: number,
+    r: number,
+  ): import('@/types/gameplay').IUnitGameState {
+    return {
+      id,
+      side,
+      position: { q, r },
+      facing: 0 as unknown as import('@/types/gameplay').Facing,
+      heat: 0,
+      movementThisTurn:
+        'Walk' as unknown as import('@/types/gameplay').MovementType,
+      hexesMovedThisTurn: 0,
+      armor: {},
+      structure: {},
+      destroyedLocations: [],
+      destroyedEquipment: [],
+      ammo: {},
+      pilotWounds: 0,
+      pilotConscious: true,
+      destroyed: false,
+      lockState: 'Unlocked' as unknown as import('@/types/gameplay').LockState,
+      componentDamage: EMPTY_DAMAGE,
+      prone: false,
+    };
+  }
+
+  const baseContext = {
+    attackerTonnage: 65,
+    attackerPilotingSkill: 4,
+    targetTonnage: 65,
+  };
+
+  it('returns an empty list when the target is non-adjacent', () => {
+    const attacker = makeUnit('a', GameSide.Player, 0, 0);
+    const target = makeUnit('b', GameSide.Opponent, 3, 3);
+    const options = getEligiblePhysicalAttacks(attacker, target, baseContext);
+    expect(options).toEqual([]);
+  });
+
+  it('emits punch + kick + charge + dfa + push for an adjacent target', () => {
+    const attacker = makeUnit('a', GameSide.Player, 0, 0);
+    const target = makeUnit('b', GameSide.Opponent, 1, 0);
+    const options = getEligiblePhysicalAttacks(attacker, target, baseContext);
+    const types = options.map(
+      (o: { attackType: PhysicalAttackType }) => o.attackType,
+    );
+    expect(types).toContain('punch');
+    expect(types).toContain('kick');
+    expect(types).toContain('charge');
+    expect(types).toContain('dfa');
+    expect(types).toContain('push');
+  });
+
+  it('marks charge row as restricted when the attacker did not run this turn', () => {
+    const attacker = makeUnit('a', GameSide.Player, 0, 0);
+    const target = makeUnit('b', GameSide.Opponent, 1, 0);
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      ...baseContext,
+      attackerRanThisTurn: false,
+    });
+    const chargeRow = options.find(
+      (o: { attackType: string }) => o.attackType === 'charge',
+    ) as { restrictionsFailed: readonly string[] } | undefined;
+    expect(chargeRow).toBeDefined();
+    expect(chargeRow!.restrictionsFailed).toContain('NoRunThisTurn');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PhysicalAttackIntentArrow — visual smoke
+// ---------------------------------------------------------------------------
+
+describe('PhysicalAttackIntentArrow', () => {
+  // Inline require so the module isn't hoisted above the jest.mock calls
+  // earlier in the file (Zustand + catalog mocks).
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const {
+    PhysicalAttackIntentArrow,
+  } = require('@/components/gameplay/overlays/PhysicalAttackIntentArrow');
+
+  it('renders the charge variant arrow', () => {
+    render(
+      <svg>
+        <PhysicalAttackIntentArrow
+          from={{ q: 0, r: 0 }}
+          to={{ q: 1, r: 0 }}
+          variant="charge"
+          side={GameSide.Player}
+        />
+      </svg>,
+    );
+    expect(screen.getByTestId('intent-arrow-charge')).toBeInTheDocument();
+  });
+
+  it('renders the DFA variant arrow (dashed arc)', () => {
+    render(
+      <svg>
+        <PhysicalAttackIntentArrow
+          from={{ q: 0, r: 0 }}
+          to={{ q: 1, r: 0 }}
+          variant="dfa"
+          side={GameSide.Player}
+        />
+      </svg>,
+    );
+    expect(screen.getByTestId('intent-arrow-dfa')).toBeInTheDocument();
+  });
+
+  it('renders the push ghost-hex with invalid marker when flagged', () => {
+    render(
+      <svg>
+        <PhysicalAttackIntentArrow
+          from={{ q: 0, r: 0 }}
+          to={{ q: 1, r: 0 }}
+          variant="push"
+          pushDestination={{ q: 2, r: 0 }}
+          pushDestinationValid={false}
+        />
+      </svg>,
+    );
+    expect(screen.getByTestId('intent-arrow-push')).toBeInTheDocument();
+    expect(screen.getByTestId('intent-arrow-push-invalid')).toBeInTheDocument();
+  });
+});

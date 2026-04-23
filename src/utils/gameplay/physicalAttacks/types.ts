@@ -195,3 +195,69 @@ export interface IPhysicalAttackUnitStatePair {
   attacker: IUnitGameState;
   target: IUnitGameState;
 }
+
+/**
+ * Per `add-physical-attack-phase-ui` task 3.2 + `physical-attack-system`
+ * delta "Self-Risk Summary in Options": attacker-side consequences
+ * surfaced in the forecast modal. Kept deliberately thin so the UI can
+ * render it without importing rule engine internals.
+ */
+export interface IPhysicalAttackSelfRisk {
+  /**
+   * Collision / DFA-to-self / etc. damage applied to the attacker's
+   * own hit-location table on resolution. `0` for attacks that don't
+   * self-damage.
+   */
+  readonly damageToAttacker: number;
+  /**
+   * Per-leg damage for attacks that split damage between legs (DFA).
+   * `0` when the attack type doesn't inflict leg damage.
+   */
+  readonly legDamagePerLeg: number;
+  /**
+   * Piloting-skill-roll trigger surfaced to the UI. `null` when the
+   * attack imposes no PSR on the attacker.
+   */
+  readonly pilotingSkillRoll: {
+    readonly trigger: string;
+    readonly required: boolean;
+  } | null;
+  /**
+   * Consequence when the attack misses (typed enum so the forecast
+   * modal can render discoverable copy: "On miss: attacker falls").
+   * `null` when a miss has no attacker-side consequence.
+   */
+  readonly onMiss: 'AttackerFalls' | 'None' | null;
+}
+
+/**
+ * Per `add-physical-attack-phase-ui` task 3.1-3.3 + `physical-attack-system`
+ * delta ADDED requirement "UI-Facing Eligibility Projection": one row
+ * per eligible physical attack surfaced to the sub-panel. The UI renders
+ * both eligible options (empty `restrictionsFailed`) and ineligible
+ * options (non-empty `restrictionsFailed`) so restriction copy lives on
+ * the engine side, not the client.
+ */
+export interface IPhysicalAttackOption {
+  /** Attack type (punch / kick / charge / dfa / push / hatchet / ...). */
+  readonly attackType: PhysicalAttackType;
+  /** Limb for punches / kicks; undefined for whole-body attacks. */
+  readonly limb?: PhysicalAttackLimb;
+  /**
+   * Full to-hit breakdown. `allowed: false` when the attack type is
+   * eligible only for restriction-adjacent reasons (the UI still shows
+   * the TN it would have been as "what would-have-been" per spec
+   * scenario "Arm that fired weapon returns failed restriction").
+   */
+  readonly toHit: IPhysicalToHitResult;
+  /** Expected damage summary (target + attacker + PSR flags). */
+  readonly damage: IPhysicalDamageResult;
+  /** Attacker-side consequences. See IPhysicalAttackSelfRisk docstring. */
+  readonly selfRisk: IPhysicalAttackSelfRisk;
+  /**
+   * Restriction reason codes blocking the attack. Empty list means the
+   * attack is eligible. UI renders the list as a tooltip on disabled
+   * rows.
+   */
+  readonly restrictionsFailed: readonly PhysicalAttackInvalidReason[];
+}
