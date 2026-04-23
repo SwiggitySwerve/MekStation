@@ -15,8 +15,8 @@ import {
 import type { SeededRandom } from '../core/SeededRandom';
 import type { IBotBehavior, IAIUnitState, IMove, IWeapon } from './types';
 
-import { AttackAI, applyHeatBudget } from './AttackAI';
-import { MoveAI } from './MoveAI';
+import { AttackAI, applyHeatBudget, scoreTarget } from './AttackAI';
+import { MoveAI, type IScoreMoveContext } from './MoveAI';
 import {
   effectiveSafeHeatThreshold,
   resolveEdge,
@@ -158,10 +158,22 @@ export class BotPlayer {
     };
   }
 
+  /**
+   * Per `improve-bot-basic-combat-competence` task 7.2: pass the
+   * full unit list into `playMovementPhase` so movement scoring can
+   * see the enemy set (for LoS + closing-distance penalties + the
+   * forward-arc bonus on the highest-threat target).
+   *
+   * `allUnits` is optional for backward compatibility — callers that
+   * haven't migrated yet still get the pre-change behavior (uniform
+   * random pick, or retreat scoring when retreating). Once every
+   * caller is updated, this can be made required.
+   */
   playMovementPhase(
     unit: IAIUnitState,
     grid: IHexGrid,
     capability: IMovementCapability,
+    allUnits?: readonly IAIUnitState[],
   ): IMovementEvent | null {
     if (unit.destroyed) {
       return null;
@@ -192,10 +204,41 @@ export class BotPlayer {
       return null;
     }
 
+    // Task 7.2: build the movement scoring context when we have the
+    // enemy list. `highestThreatTarget` is the enemy with the
+    // highest `scoreTarget` from the ATTACKER's current position —
+    // the +500 forward-arc bonus tries to end the move looking at
+    // that threat. If no enemies are left we skip ctx entirely and
+    // fall through to the retreat / legacy path in `selectMove`.
+    let ctx: IScoreMoveContext | undefined;
+    if (allUnits && !unit.isRetreating) {
+      const livingEnemies = allUnits.filter(
+        (u) => !u.destroyed && u.unitId !== unit.unitId,
+      );
+      if (livingEnemies.length > 0) {
+        let bestScore = -Infinity;
+        let best: IAIUnitState | undefined;
+        for (const enemy of livingEnemies) {
+          const s = scoreTarget(unit, enemy);
+          if (s > bestScore) {
+            bestScore = s;
+            best = enemy;
+          }
+        }
+        ctx = {
+          attacker: unit,
+          allUnits,
+          grid,
+          highestThreatTarget: best,
+        };
+      }
+    }
+
     const selectedMove = this.moveAI.selectMove(
       nonStationaryMoves,
       this.random,
       unit,
+      ctx,
     );
     if (!selectedMove) {
       return null;
