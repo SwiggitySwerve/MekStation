@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
+import type { IAdaptedUnit } from '@/engine/types';
 import type { IPilot } from '@/types/pilot';
 import type { IForceSummary } from '@/utils/gameplay/forceSummary';
 import type {
@@ -33,6 +34,7 @@ import {
 } from '@/components/gameplay/pages/preBattleSessionBuilder';
 import { useToast } from '@/components/shared/Toast';
 import { Card, PageLayout } from '@/components/ui';
+import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { GameEngine } from '@/engine/GameEngine';
 import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useForceStore } from '@/stores/useForceStore';
@@ -43,7 +45,7 @@ import {
   SCENARIO_TEMPLATES,
   type IEncounter,
 } from '@/types/encounter';
-import { GameSide } from '@/types/gameplay';
+import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { buildForceSummary } from '@/utils/gameplay/forceSummaryBuilder';
 import { buildFromSkirmishConfig } from '@/utils/gameplay/preBattleSessionBuilder';
 import { logger } from '@/utils/logger';
@@ -355,6 +357,175 @@ export default function PreBattlePage(): React.ReactElement {
     ],
   );
 
+  // Per-side add handlers for the SkirmishLauncher. Each side caps at
+  // two units (DEFAULT_SLOTS_PER_SIDE inside the launcher); the cap is
+  // enforced here too as a defensive guard so callers cannot push a
+  // third entry by holding a stale reference.
+  const addPlayerUnit = useCallback((selection: ISkirmishUnitSelection) => {
+    setSkirmishPlayerUnits((prev) =>
+      prev.length >= 2 || prev.some((u) => u.unitId === selection.unitId)
+        ? prev
+        : [...prev, selection],
+    );
+  }, []);
+
+  const removePlayerUnit = useCallback((unitId: string) => {
+    setSkirmishPlayerUnits((prev) => prev.filter((u) => u.unitId !== unitId));
+  }, []);
+
+  const addOpponentUnit = useCallback((selection: ISkirmishUnitSelection) => {
+    setSkirmishOpponentUnits((prev) =>
+      prev.length >= 2 || prev.some((u) => u.unitId === selection.unitId)
+        ? prev
+        : [...prev, selection],
+    );
+  }, []);
+
+  const removeOpponentUnit = useCallback((unitId: string) => {
+    setSkirmishOpponentUnits((prev) => prev.filter((u) => u.unitId !== unitId));
+  }, []);
+
+  const assignPlayerPilot = useCallback(
+    (unitId: string, pilot: IPilot | null) => {
+      assignPilotMoving('player', unitId, pilot);
+    },
+    [assignPilotMoving],
+  );
+
+  const assignOpponentPilot = useCallback(
+    (unitId: string, pilot: IPilot | null) => {
+      assignPilotMoving('opponent', unitId, pilot);
+    },
+    [assignPilotMoving],
+  );
+
+  /**
+   * Launch handshake for the skirmish setup flow (spec § 7).
+   *
+   * 1. Guard: encounter must not already be launched / completed (§ 8.3).
+   * 2. Build the `IGameSession` via `buildFromSkirmishConfig` — this
+   *    validates radius + pilot coverage and throws on failure.
+   * 3. Adapt each picked unit via `adaptUnit` so the engine receives the
+   *    full `IAdaptedUnit` (includes armor, weapons, equipment).
+   * 4. Create the `InteractiveSession` and hand it to `useGameplayStore`
+   *    so the core combat page can hydrate it.
+   * 5. Navigate to `/gameplay/games/[id]` on success; on failure show a
+   *    toast and leave the user's picks intact (§ 7.4).
+   */
+  const launchSkirmish = useCallback(
+    async (config: ISkirmishLaunchConfig) => {
+      if (!encounter) {
+        showToast({ message: 'Encounter not loaded', variant: 'error' });
+        return;
+      }
+      if (
+        encounter.status === EncounterStatus.Launched ||
+        encounter.status === EncounterStatus.Completed
+      ) {
+        showToast({
+          message:
+            'Encounter already launched — return to the encounter page to continue.',
+          variant: 'error',
+        });
+        return;
+      }
+
+      setIsSkirmishLaunching(true);
+      try {
+        // Build the session scaffold. Throws on invalid config; we let
+        // the catch branch display the error verbatim so the user can
+        // fix the exact field (e.g. missing pilot).
+        const session = buildFromSkirmishConfig(config);
+
+        // Adapt each picked unit in parallel — `adaptUnit` pulls full
+        // unit data from the compendium and snaps the pilot skills onto
+        // the adapted instance. Nulls are filtered so a single bad
+        // unitRef doesn't abort the whole launch.
+        const adaptSelection = async (
+          selection: ISkirmishUnitSelection,
+          side: GameSide,
+        ): Promise<IAdaptedUnit | null> => {
+          const pilot = selection.pilot;
+          return adaptUnit(selection.unitId, {
+            side,
+            gunnery: pilot?.gunnery ?? 4,
+            piloting: pilot?.piloting ?? 5,
+          });
+        };
+
+        const [playerAdapted, opponentAdapted] = await Promise.all([
+          Promise.all(
+            config.player.units.map((u) => adaptSelection(u, GameSide.Player)),
+          ),
+          Promise.all(
+            config.opponent.units.map((u) =>
+              adaptSelection(u, GameSide.Opponent),
+            ),
+          ),
+        ]);
+
+        const playerUnits = playerAdapted.filter(
+          (u): u is IAdaptedUnit => u !== null,
+        );
+        const opponentUnits = opponentAdapted.filter(
+          (u): u is IAdaptedUnit => u !== null,
+        );
+
+        if (
+          playerUnits.length !== config.player.units.length ||
+          opponentUnits.length !== config.opponent.units.length
+        ) {
+          throw new Error(
+            'Failed to adapt one or more picked units — check the unit catalog',
+          );
+        }
+
+        const gameUnits: IGameUnit[] = session.units.map((u) => ({
+          id: u.id,
+          name: u.name,
+          side: u.side,
+          unitRef: u.unitRef,
+          pilotRef: u.pilotRef,
+          gunnery: u.gunnery,
+          piloting: u.piloting,
+        }));
+
+        const engine = new GameEngine({ seed: Date.now() });
+        const interactiveSession = engine.createInteractiveSession(
+          playerUnits,
+          opponentUnits,
+          gameUnits,
+          { encounterId: encounter.id },
+        );
+        const liveSession = interactiveSession.getSession();
+
+        setInteractiveSession(interactiveSession);
+
+        logger.info('Skirmish session launched', {
+          sessionId: liveSession.id,
+          encounterId: encounter.id,
+        });
+
+        showToast({
+          message: 'Launching skirmish…',
+          variant: 'success',
+        });
+
+        void router.push(`/gameplay/games/${liveSession.id}`);
+      } catch (err) {
+        logger.error('Skirmish launch failed:', err);
+        showToast({
+          message:
+            err instanceof Error ? err.message : 'Failed to launch skirmish',
+          variant: 'error',
+        });
+      } finally {
+        setIsSkirmishLaunching(false);
+      }
+    },
+    [encounter, router, setInteractiveSession, showToast],
+  );
+
   const startAutoResolve = useCallback(() => {
     void launchBattle('auto');
   }, [launchBattle]);
@@ -406,27 +577,13 @@ export default function PreBattlePage(): React.ReactElement {
     );
   }
 
-  if (!encounter.playerForce || !encounter.opponentForce) {
-    return (
-      <PageLayout
-        title="Incomplete Encounter"
-        backLink={`/gameplay/encounters/${id as string}`}
-        backLabel="Back to Encounter"
-      >
-        <Card>
-          <p className="text-text-theme-secondary">
-            Both player and opponent forces must be configured before battle.
-          </p>
-          <Link
-            href={`/gameplay/encounters/${id as string}`}
-            className="text-accent mt-4 inline-block hover:underline"
-          >
-            Configure Encounter
-          </Link>
-        </Card>
-      </PageLayout>
-    );
-  }
+  // Note: forces may be unset when the user enters skirmish mode
+  // directly — we still render the SkirmishLauncher below. The legacy
+  // force-based comparison + ModeSelection blocks are only shown when
+  // both sides have a pre-configured force on the encounter record.
+  const hasBothForces = Boolean(
+    encounter.playerForce && encounter.opponentForce,
+  );
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
@@ -452,43 +609,47 @@ export default function PreBattlePage(): React.ReactElement {
       >
         {template && <ScenarioTemplateCard template={template} />}
 
-        <div
-          className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2"
-          data-testid="forces-comparison"
-        >
-          <ForceCard
-            title="Player Force"
-            forceRef={encounter.playerForce}
-            force={playerForce}
-            side="player"
-          />
-          <ForceCard
-            title="Opponent Force"
-            forceRef={encounter.opponentForce}
-            force={opponentForce}
-            side="opponent"
-          />
-        </div>
+        {hasBothForces && encounter.playerForce && encounter.opponentForce && (
+          <>
+            <div
+              className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2"
+              data-testid="forces-comparison"
+            >
+              <ForceCard
+                title="Player Force"
+                forceRef={encounter.playerForce}
+                force={playerForce}
+                side="player"
+              />
+              <ForceCard
+                title="Opponent Force"
+                forceRef={encounter.opponentForce}
+                force={opponentForce}
+                side="opponent"
+              />
+            </div>
 
-        <div className="mb-6">
-          <BVComparison
-            playerBV={encounter.playerForce.totalBV}
-            opponentBV={encounter.opponentForce.totalBV}
-          />
-        </div>
+            <div className="mb-6">
+              <BVComparison
+                playerBV={encounter.playerForce.totalBV}
+                opponentBV={encounter.opponentForce.totalBV}
+              />
+            </div>
 
-        <div className="mb-6">
-          <ForceComparisonPanel
-            player={playerSummary}
-            opponent={opponentSummary}
-          />
-        </div>
+            <div className="mb-6">
+              <ForceComparisonPanel
+                player={playerSummary}
+                opponent={opponentSummary}
+              />
+            </div>
+          </>
+        )}
 
         <BattlefieldCard mapConfig={encounter.mapConfig} />
 
         <MapConfigEditor
           mapConfig={encounter.mapConfig}
-          disabled={isResolving}
+          disabled={isResolving || isSkirmishLaunching}
           onChange={(next) => {
             void updateEncounter(encounter.id, {
               mapConfig: { ...encounter.mapConfig, ...next },
@@ -496,14 +657,48 @@ export default function PreBattlePage(): React.ReactElement {
           }}
         />
 
-        <div className="mb-6">
-          <ModeSelection
-            onAutoResolve={startAutoResolve}
-            onInteractive={startInteractive}
-            onSpectate={startSpectator}
-            isResolving={isResolving}
+        {/*
+         * add-skirmish-setup-ui § 1-8: Skirmish launcher. Shown always —
+         * even when the encounter has a pre-configured force — so the
+         * user can choose between the legacy force-based flow and the
+         * fresh 2v2 skirmish flow.
+         */}
+        <div className="mb-6" data-testid="skirmish-launcher-section">
+          <h2 className="text-text-theme-primary mb-3 text-lg font-medium">
+            Skirmish Setup
+          </h2>
+          <p className="text-text-theme-muted mb-4 text-sm">
+            Pick two units and two pilots per side, then launch the match.
+          </p>
+          <SkirmishLauncher
+            encounterId={encounter.id}
+            mapConfig={encounter.mapConfig}
+            pilots={pilots}
+            playerUnits={skirmishPlayerUnits}
+            opponentUnits={skirmishOpponentUnits}
+            onAddPlayerUnit={addPlayerUnit}
+            onRemovePlayerUnit={removePlayerUnit}
+            onAssignPlayerPilot={assignPlayerPilot}
+            onAddOpponentUnit={addOpponentUnit}
+            onRemoveOpponentUnit={removeOpponentUnit}
+            onAssignOpponentPilot={assignOpponentPilot}
+            onLaunch={(config) => {
+              void launchSkirmish(config);
+            }}
+            isLaunching={isSkirmishLaunching}
           />
         </div>
+
+        {hasBothForces && (
+          <div className="mb-6">
+            <ModeSelection
+              onAutoResolve={startAutoResolve}
+              onInteractive={startInteractive}
+              onSpectate={startSpectator}
+              isResolving={isResolving}
+            />
+          </div>
+        )}
       </PageLayout>
     </>
   );
