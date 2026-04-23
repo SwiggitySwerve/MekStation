@@ -37,7 +37,9 @@ import {
   declareMovement,
   DiceRoller,
   lockMovement,
+  replayToSequence,
   resolveAllAttacks,
+  resolveAttack,
   startGame,
 } from '@/utils/gameplay/gameSession';
 
@@ -342,16 +344,17 @@ describe('wire-ammo-consumption — smoke test', () => {
     expect(resolved).toHaveLength(0);
   });
 
-  it('bin drains cleanly across 10 shots; 11th emits AttackInvalid', () => {
+  // Per tasks.md § 8.3: precisely 10 `AmmoConsumed` events with
+  // `roundsRemaining` walking 9..0. We drive `resolveAttack` directly
+  // against a single synthetic AttackDeclared event per iteration so
+  // each resolve consumes exactly one round (the looser variant above
+  // relied on `resolveAllAttacks` re-processing every declared event
+  // per call, which made the per-shot sequence non-observable).
+  it('fires AC10 10 times — exactly 10 AmmoConsumed events with remainingRounds 9..0', () => {
     let session = setupAttackPhase(hunchbackWithBins(10));
-
-    // Fire 10 rounds sequentially by declaring + resolving an attack each
-    // turn. For simplicity, stay in the WeaponAttack phase by re-declaring
-    // in the same phase (the resolver accepts multiple AttackDeclared
-    // events per turn because locks may not have fired yet).
     const roller = mockDiceRoller([
-      { dice: [5, 5], total: 10 },
-      { dice: [3, 4], total: 7 },
+      { dice: [5, 5], total: 10 }, // hit
+      { dice: [3, 4], total: 7 }, // location
     ]);
 
     for (let shot = 0; shot < 10; shot++) {
@@ -363,20 +366,197 @@ describe('wire-ammo-consumption — smoke test', () => {
         4,
         RangeBracket.Short,
       );
-      session = resolveAllAttacks(session, roller);
-      // Mark the just-resolved AttackDeclared so subsequent resolveAll
-      // passes don't re-process it. resolveAllAttacks filters by turn +
-      // event type, so we clear the turn via advancePhase cycling.
+      // Find the newest AttackDeclared and resolve only it.
+      const decls = session.events.filter(
+        (e: IGameEvent) => e.type === GameEventType.AttackDeclared,
+      );
+      const latest = decls[decls.length - 1];
+      session = resolveAttack(session, latest, roller);
     }
 
-    // After 10 firings, bin should be empty.
+    const consumed = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AmmoConsumed,
+    );
+    expect(consumed).toHaveLength(10);
+    const remainingSeq = consumed.map(
+      (e: IGameEvent) => (e.payload as IAmmoConsumedPayload).roundsRemaining,
+    );
+    expect(remainingSeq).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+
     const bin = session.currentState.units['hbk'].ammoState!['bin-ac10-1'];
-    // The resolver re-processes all AttackDeclared events each turn, so
-    // the bin count reflects the cumulative consumption of whatever
-    // resolved. At minimum it must have been drained to 0 by the loop
-    // (10 shots × 1 round each). Accept anything that proves consumption
-    // worked.
-    expect(bin.remainingRounds).toBeLessThanOrEqual(10);
-    expect(bin.remainingRounds).toBeGreaterThanOrEqual(0);
+    expect(bin.remainingRounds).toBe(0);
+
+    // § 8.4/8.5: 11th firing emits AttackInvalid { OutOfAmmo } and no
+    // AttackResolved / no AmmoConsumed for this attempt.
+    session = declareAttack(
+      session,
+      'hbk',
+      'marauder',
+      [ac10],
+      4,
+      RangeBracket.Short,
+    );
+    const decls2 = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AttackDeclared,
+    );
+    const eleventh = decls2[decls2.length - 1];
+    const beforeResolved = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AttackResolved,
+    ).length;
+    session = resolveAttack(session, eleventh, roller);
+    const afterConsumed = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AmmoConsumed,
+    );
+    const afterResolved = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AttackResolved,
+    );
+    const invalid = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AttackInvalid,
+    );
+    expect(afterConsumed).toHaveLength(10); // unchanged
+    expect(afterResolved).toHaveLength(beforeResolved); // unchanged
+    expect(
+      invalid.some(
+        (e: IGameEvent) =>
+          (e.payload as IAttackInvalidPayload).reason === 'OutOfAmmo',
+      ),
+    ).toBe(true);
+  });
+
+  // Per tasks.md § 3.6: cluster weapons (LRM-20) decrement their bin
+  // by exactly 1 salvo per firing, not by the missile count (20).
+  // `consumeAmmo` is called once per weapon firing with a default
+  // `rounds = 1`; the resolver invokes it identically for single-shot
+  // and cluster weapons, so the bin moves by 1 per fire regardless of
+  // cluster roll.
+  it('LRM-20 decrements bin by 1 salvo per firing (not 20)', () => {
+    const lrmLauncher: IGameUnit = {
+      id: 'arc',
+      name: 'Archer ARC-2R',
+      side: GameSide.Player,
+      unitRef: 'arc-2r',
+      pilotRef: 'pilot-1',
+      gunnery: 4,
+      piloting: 5,
+      ammoConstruction: [
+        {
+          binId: 'bin-lrm20-1',
+          weaponType: 'LRM20',
+          location: 'lt',
+          maxRounds: 6, // canonical — 1 ton of LRM-20 = 6 salvos
+          damagePerRound: 20,
+          isExplosive: true,
+        },
+      ],
+    };
+    const lrm20 = {
+      weaponId: 'lrm20-1',
+      weaponName: 'LRM20',
+      damage: 12,
+      heat: 6,
+      category: WeaponCategory.MISSILE,
+      minRange: 6,
+      shortRange: 7,
+      mediumRange: 14,
+      longRange: 21,
+      isCluster: true,
+    };
+
+    let session = setupAttackPhase(lrmLauncher);
+    const roller = mockDiceRoller([
+      { dice: [5, 5], total: 10 },
+      { dice: [3, 4], total: 7 },
+    ]);
+    session = declareAttack(
+      session,
+      'arc',
+      'marauder',
+      [lrm20],
+      4,
+      RangeBracket.Medium,
+    );
+    const decls = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AttackDeclared,
+    );
+    session = resolveAttack(session, decls[decls.length - 1], roller);
+
+    const consumed = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AmmoConsumed,
+    );
+    expect(consumed).toHaveLength(1);
+    const payload = consumed[0].payload as IAmmoConsumedPayload;
+    expect(payload.roundsConsumed).toBe(1);
+    expect(payload.roundsRemaining).toBe(5);
+    expect(
+      session.currentState.units['arc'].ammoState!['bin-lrm20-1']
+        .remainingRounds,
+    ).toBe(5);
+  });
+
+  // Per tasks.md § 7.1/7.2/7.3 + § 8.7: replaying the event stream
+  // from session creation SHALL yield identical bin state at every
+  // prefix. `applyAmmoConsumed` stores `payload.roundsRemaining`
+  // (absolute post-state), so the reducer is inherently idempotent:
+  // replaying the same sequence reconstructs the same state without
+  // re-firing any validation path (§ 7.3 — the original
+  // `AttackInvalid { OutOfAmmo }` is a historical record and is not
+  // retried; its reducer effect is zero on ammo state).
+  it('replay fidelity — every prefix of the event stream reconstructs identical bin state', () => {
+    let session = setupAttackPhase(hunchbackWithBins(3));
+    const roller = mockDiceRoller([
+      { dice: [5, 5], total: 10 },
+      { dice: [3, 4], total: 7 },
+    ]);
+
+    // Fire 4 times: 3 consume, 4th invalidates (OutOfAmmo).
+    for (let shot = 0; shot < 4; shot++) {
+      session = declareAttack(
+        session,
+        'hbk',
+        'marauder',
+        [ac10],
+        4,
+        RangeBracket.Short,
+      );
+      const decls = session.events.filter(
+        (e: IGameEvent) => e.type === GameEventType.AttackDeclared,
+      );
+      session = resolveAttack(session, decls[decls.length - 1], roller);
+    }
+
+    // Walk every sequence number and confirm the replayed state's bin
+    // matches what the live session would have held at that prefix.
+    // We compare against a running expected value: the bin starts at 3,
+    // decrements by 1 after each AmmoConsumed event, and never changes
+    // for any other event type (including AttackInvalid).
+    let expectedRounds = 3;
+    for (const event of session.events) {
+      if (event.type === GameEventType.AmmoConsumed) {
+        const p = event.payload as IAmmoConsumedPayload;
+        expectedRounds = p.roundsRemaining;
+      }
+      const replayed = replayToSequence(session, event.sequence);
+      const replayedBin = replayed.units['hbk']?.ammoState?.['bin-ac10-1'];
+      expect(replayedBin?.remainingRounds).toBe(expectedRounds);
+    }
+
+    // Terminal state: 3 consumptions (2, 1, 0) + 1 invalid (no change).
+    const consumed = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AmmoConsumed,
+    );
+    const invalid = session.events.filter(
+      (e: IGameEvent) => e.type === GameEventType.AttackInvalid,
+    );
+    expect(consumed).toHaveLength(3);
+    expect(
+      invalid.some(
+        (e: IGameEvent) =>
+          (e.payload as IAttackInvalidPayload).reason === 'OutOfAmmo',
+      ),
+    ).toBe(true);
+    expect(
+      session.currentState.units['hbk'].ammoState!['bin-ac10-1']
+        .remainingRounds,
+    ).toBe(0);
   });
 });
