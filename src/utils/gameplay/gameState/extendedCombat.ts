@@ -9,6 +9,7 @@ import {
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IUnitFellPayload,
+  IUnitRetreatedPayload,
   IUnitStoodPayload,
   LockState,
 } from '@/types/gameplay';
@@ -274,6 +275,37 @@ export function applyRetreatTriggered(
         ...unit,
         isRetreating: true,
         retreatTargetEdge: payload.edge,
+      },
+    },
+  };
+}
+
+/**
+ * Per `add-bot-retreat-behavior` § 7.4: latch `hasRetreated = true` on
+ * the withdrawing unit so victory-check predicates can treat it as
+ * no-longer-participating. Idempotent — re-applying does nothing. Does
+ * NOT set `destroyed` so post-battle summaries can distinguish the
+ * withdrawn unit from combat losses (see GameOutcomeCalculator for the
+ * survival predicate that treats destroyed-OR-retreated as "out").
+ */
+export function applyUnitRetreated(
+  state: IGameState,
+  payload: IUnitRetreatedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+  if (unit.hasRetreated) {
+    return state;
+  }
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        hasRetreated: true,
       },
     },
   };

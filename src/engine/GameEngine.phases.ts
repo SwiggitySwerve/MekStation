@@ -2,6 +2,7 @@ import type { IWeapon } from '@/simulation/ai/types';
 import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
+import { hasReachedEdge } from '@/simulation/ai/RetreatAI';
 import {
   GamePhase,
   LockState,
@@ -18,7 +19,10 @@ import {
   type DiceRoller,
   defaultD6Roller,
 } from '@/utils/gameplay/diceTypes';
-import { createRetreatTriggeredEvent } from '@/utils/gameplay/gameEvents';
+import {
+  createRetreatTriggeredEvent,
+  createUnitRetreatedEvent,
+} from '@/utils/gameplay/gameEvents';
 import {
   rollInitiative,
   advancePhase,
@@ -157,6 +161,45 @@ export function runMovementPhase(
       );
     }
     updatedSession = lockMovement(updatedSession, unitId);
+
+    // Per `add-bot-retreat-behavior` § 7.2–7.3: after the unit locks in
+    // its movement, check whether the new position touches the locked
+    // retreat edge. If so, emit `UnitRetreated` — the reducer latches
+    // `hasRetreated: true` (distinct from `destroyed`) so the victory
+    // predicate can distinguish withdrawal from combat destruction.
+    //
+    // Idempotent: `applyUnitRetreated` short-circuits on re-entry, and
+    // the guard below also prevents re-emission within the same phase.
+    const postMoveUnit = updatedSession.currentState.units[unitId];
+    if (
+      postMoveUnit &&
+      !postMoveUnit.destroyed &&
+      postMoveUnit.isRetreating &&
+      !postMoveUnit.hasRetreated &&
+      postMoveUnit.retreatTargetEdge
+    ) {
+      if (
+        hasReachedEdge(
+          postMoveUnit.position,
+          postMoveUnit.retreatTargetEdge,
+          updatedSession.config.mapRadius,
+        )
+      ) {
+        const sequence = updatedSession.events.length;
+        const { turn, phase } = updatedSession.currentState;
+        updatedSession = appendEvent(
+          updatedSession,
+          createUnitRetreatedEvent(
+            updatedSession.id,
+            sequence,
+            turn,
+            phase,
+            unitId,
+            postMoveUnit.retreatTargetEdge,
+          ),
+        );
+      }
+    }
   }
 
   return updatedSession;

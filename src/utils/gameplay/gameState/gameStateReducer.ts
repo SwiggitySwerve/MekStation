@@ -25,6 +25,7 @@ import {
   IStartupAttemptPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
+  IUnitRetreatedPayload,
   IUnitStoodPayload,
   IUnitGameState,
   IGameStartedPayload,
@@ -54,6 +55,7 @@ import {
   applyShutdownCheck,
   applyStartupAttempt,
   applyUnitFell,
+  applyUnitRetreated,
   applyUnitStood,
 } from './extendedCombat';
 import {
@@ -176,6 +178,9 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
         state,
         event.payload as IRetreatTriggeredPayload,
       );
+
+    case GameEventType.UnitRetreated:
+      return applyUnitRetreated(state, event.payload as IUnitRetreatedPayload);
 
     case GameEventType.TurnEnded:
     case GameEventType.InitiativeOrderSet:

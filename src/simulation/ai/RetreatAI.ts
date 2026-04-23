@@ -139,6 +139,42 @@ export function retreatMovementType(opts: {
 }
 
 /**
+ * Per `add-bot-retreat-behavior` § 7.2–7.3: test whether `position`
+ * touches the specified map edge. Used after a retreating unit locks
+ * in its movement to decide whether to emit `UnitRetreated`.
+ *
+ * A unit is considered to have reached its retreat edge when its axial
+ * coordinate sits on the outermost row/column for that edge:
+ *   - north: `r === +mapRadius`
+ *   - south: `r === -mapRadius`
+ *   - east:  `q === +mapRadius`
+ *   - west:  `q === -mapRadius`
+ *
+ * Pure helper — same convention as `resolveEdge`. Returns false when
+ * `edge` is null (safety guard for callers that didn't gate on the
+ * latch).
+ */
+export function hasReachedEdge(
+  position: IHexCoordinate,
+  edge: ConcreteRetreatEdge,
+  mapRadius: number,
+): boolean {
+  switch (edge) {
+    case 'north':
+      return position.r >= mapRadius;
+    case 'south':
+      return position.r <= -mapRadius;
+    case 'east':
+      return position.q >= mapRadius;
+    case 'west':
+      return position.q <= -mapRadius;
+    case null:
+    default:
+      return false;
+  }
+}
+
+/**
  * Re-export for downstream consumers using string-literal edges.
  */
 export type { RetreatEdge };

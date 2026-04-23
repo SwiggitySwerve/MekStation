@@ -14,6 +14,7 @@ import {
   IStartupAttemptPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
+  IUnitRetreatedPayload,
   IUnitStoodPayload,
   IAmmoConsumedPayload,
   IPhysicalAttackDeclaredPayload,
@@ -531,6 +532,36 @@ export function createRetreatTriggeredEvent(
       gameId,
       sequence,
       GameEventType.RetreatTriggered,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Per `add-bot-retreat-behavior` § 7: emitted when a retreating unit's
+ * movement places it on a hex along its locked `retreatTargetEdge`.
+ * Pairs with a `MovementDeclared` event in the same turn; the reducer
+ * (`applyUnitRetreated`) latches `hasRetreated = true` so the unit is
+ * excluded from active-side counts for victory resolution while staying
+ * distinct from combat destruction for post-battle summaries.
+ */
+export function createUnitRetreatedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  retreatEdge: 'north' | 'south' | 'east' | 'west',
+): IGameEvent {
+  const payload: IUnitRetreatedPayload = { unitId, retreatEdge, turn };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.UnitRetreated,
       turn,
       phase,
       unitId,
