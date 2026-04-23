@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
   MAX_HEAT,
@@ -41,6 +41,20 @@ interface LocationStatusRowProps {
   destroyed: boolean;
   rearArmor?: number;
   maxRearArmor?: number;
+  /**
+   * Per `add-damage-feedback-ui` task 2.4: monotonic count of
+   * `DamageApplied` events this unit has absorbed at this location.
+   * Each increment triggers a sequential animation — armor rail
+   * flashes first (0ms delay, 400ms flash), then the structure rail
+   * flashes when the armor flash completes (400ms delay, 400ms flash)
+   * so total animation time stays under the 900ms spec budget.
+   *
+   * Per spec scenario "Unselected unit's damage does not animate" the
+   * parent (`RecordSheetDisplay`) only passes a non-zero count for
+   * the currently-selected unit — unselected units see no counter
+   * increment because the parent keys the projection by unitId.
+   */
+  damageHitCount?: number;
 }
 
 export function LocationStatusRow({
@@ -52,6 +66,7 @@ export function LocationStatusRow({
   destroyed,
   rearArmor,
   maxRearArmor,
+  damageHitCount = 0,
 }: LocationStatusRowProps): React.ReactElement {
   const displayName = LOCATION_NAMES[location] || location;
   const armorColor = getStatusColor(armor, maxArmor);
@@ -141,6 +156,15 @@ export function LocationStatusRow({
         className="mt-1 flex flex-col gap-0.5"
         data-testid={`location-pips-${location}`}
       >
+        {/*
+          Per task 2.4: armor rail flashes first on a DamageApplied
+          hit (0ms delay), then the structure rail flashes 400ms
+          later. Total animation time is 400ms (armor) + 400ms
+          (structure) = 800ms, inside the 900ms spec budget. The
+          rear-armor rail shares the armor flash window because
+          rear damage is still "armor" damage for animation purposes
+          (structure comes after all armor is depleted).
+        */}
         <ArmorPipRail
           label="AR"
           current={armor}
@@ -148,6 +172,8 @@ export function LocationStatusRow({
           destroyed={destroyed}
           kind="armor"
           testId={`armor-pips-${location}`}
+          flashCount={damageHitCount}
+          flashDelayMs={0}
         />
         {rearArmor !== undefined && maxRearArmor !== undefined && (
           <ArmorPipRail
@@ -157,6 +183,8 @@ export function LocationStatusRow({
             destroyed={destroyed}
             kind="armor"
             testId={`armor-pips-${location}_rear`}
+            flashCount={damageHitCount}
+            flashDelayMs={0}
           />
         )}
         <ArmorPipRail
@@ -166,6 +194,8 @@ export function LocationStatusRow({
           destroyed={destroyed}
           kind="structure"
           testId={`structure-pips-${location}`}
+          flashCount={damageHitCount}
+          flashDelayMs={400}
         />
       </div>
     </div>
@@ -280,19 +310,49 @@ export function SimpleHeatDisplay({
 // Pilot Status
 // =============================================================================
 
+export interface PilotStatusProps {
+  name: string;
+  gunnery: number;
+  piloting: number;
+  wounds: number;
+  conscious: boolean;
+  /**
+   * Per `add-damage-feedback-ui` task 1.1 + 5.1 + 5.2: monotonic
+   * counter of `PilotHit` events consumed by the parent
+   * `RecordSheetDisplay`. Each increment re-triggers the yellow
+   * consciousness-roll pulse on the wound track for 500ms so the
+   * player sees the roll happen even if it passes. The parent owns
+   * the source-of-truth `conscious` flag (reactive to `IUnitGameState`
+   * per spec scenario "passed roll leaves no badge") so this counter
+   * only drives the transient pulse animation — never the persistent
+   * unconscious banner.
+   */
+  pilotHitCount?: number;
+}
+
 export function PilotStatus({
   name,
   gunnery,
   piloting,
   wounds,
   conscious,
-}: {
-  name: string;
-  gunnery: number;
-  piloting: number;
-  wounds: number;
-  conscious: boolean;
-}): React.ReactElement {
+  pilotHitCount = 0,
+}: PilotStatusProps): React.ReactElement {
+  // Per task 5.2: pulse the wound track yellow for 500ms whenever a
+  // new PilotHit lands. We dedupe against the previous count so
+  // re-renders with the same count don't retrigger the pulse.
+  const lastSeenCount = useRef(pilotHitCount);
+  const [isPulsing, setIsPulsing] = useState(false);
+  useEffect(() => {
+    if (pilotHitCount > lastSeenCount.current) {
+      lastSeenCount.current = pilotHitCount;
+      setIsPulsing(true);
+      const t = setTimeout(() => setIsPulsing(false), 500);
+      return () => clearTimeout(t);
+    }
+    lastSeenCount.current = pilotHitCount;
+  }, [pilotHitCount]);
+
   const woundIndicators = [];
   for (let i = 0; i < 6; i++) {
     woundIndicators.push(
@@ -352,7 +412,22 @@ export function PilotStatus({
           Piloting: <strong>{piloting}</strong>
         </span>
       </div>
-      <div className="mt-2 flex items-center gap-1" data-testid="pilot-wounds">
+      {/*
+        Per `add-damage-feedback-ui` task 5.2: the wound track frame
+        pulses yellow for 500ms on a new PilotHit, then fades. The
+        ring is a pure overlay on top of the wound pips — it does
+        not affect the pips themselves so the per-pip tests keep
+        working.
+      */}
+      <div
+        className={`relative mt-2 flex items-center gap-1 rounded transition-shadow duration-500 ${
+          isPulsing
+            ? 'bg-yellow-100 shadow-[0_0_0_2px_rgba(250,204,21,0.7)]'
+            : ''
+        }`}
+        data-testid="pilot-wounds"
+        data-pulsing={isPulsing || undefined}
+      >
         <span className="text-text-theme-secondary mr-2 text-xs">Wounds:</span>
         {woundIndicators}
       </div>

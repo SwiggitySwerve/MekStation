@@ -34,8 +34,10 @@ import {
   clearPlannedMovementLogic,
   commitAttackLogic,
   commitPlannedMovementLogic,
+  getAttackPlanFor,
   setAttackTargetLogic,
   setPlannedMovementLogic,
+  shouldClearAttackPlanOnPhaseChange,
   togglePlannedWeaponLogic,
   type IAttackPlan,
   type IPlannedMovement,
@@ -161,6 +163,14 @@ interface GameplayActions {
   togglePlannedWeapon: (weaponId: string) => void;
   clearAttackPlan: () => void;
   commitAttack: () => void;
+  /**
+   * Per `add-attack-phase-ui` task 1.3: returns the current attack
+   * plan scoped to the passed `attackerId`. Returns `null` when the
+   * active attacker (the store's selected unit) isn't the requested
+   * attacker — callers use this to avoid rendering another unit's
+   * target lock/weapon selection on a sibling panel.
+   */
+  getAttackPlan: (attackerId: string) => IAttackPlan | null;
   /**
    * Per `add-what-if-to-hit-preview` § 8: flip the "Preview Damage"
    * toggle. The weapon-picker subscribes to `previewEnabled` and
@@ -411,7 +421,8 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   },
 
   handleInteractiveHexClick: (hex: { q: number; r: number }) => {
-    const { interactivePhase, ui, interactiveSession, session } = get();
+    const { interactivePhase, ui, interactiveSession, session, attackPlan } =
+      get();
     if (!interactiveSession) return;
 
     if (
@@ -420,6 +431,26 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
     ) {
       get().moveUnit(ui.selectedUnitId, hex);
       return;
+    }
+
+    // Per `add-attack-phase-ui` § 2.3: during WeaponAttack, clicking an
+    // empty hex clears the current attack target (pulsing ring goes
+    // away, WeaponSelector collapses back to the pre-target view). We
+    // only key off `attackPlan.targetUnitId` so the clear is a no-op
+    // when no target is set.
+    if (
+      session &&
+      session.currentState.phase === GamePhase.WeaponAttack &&
+      attackPlan.targetUnitId
+    ) {
+      const occupyingUnit = Object.values(session.currentState.units).find(
+        (u) => u.position.q === hex.q && u.position.r === hex.r,
+      );
+      if (!occupyingUnit) {
+        get().clearAttackPlan();
+        set({ interactivePhase: InteractivePhase.SelectTarget });
+        return;
+      }
     }
 
     // Per `add-interactive-combat-core-ui` § 2 Scenario 2: when the
@@ -442,7 +473,24 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   },
 
   handleInteractiveTokenClick: (unitId: string) => {
-    const { interactivePhase, interactiveSession } = get();
+    const { interactivePhase, interactiveSession, attackPlan, session } = get();
+
+    // Per `add-attack-phase-ui` § 2.3: during WeaponAttack, clicking
+    // the *same* token that is currently the active attack target
+    // clears the plan (matches the "click again to clear" pattern the
+    // spec calls out for the pulsing-ring target). We short-circuit
+    // before the generic dispatch so the target isn't immediately
+    // re-set by `selectAttackTarget`.
+    if (
+      session &&
+      session.currentState.phase === GamePhase.WeaponAttack &&
+      attackPlan.targetUnitId === unitId
+    ) {
+      get().clearAttackPlan();
+      set({ interactivePhase: InteractivePhase.SelectTarget });
+      return;
+    }
+
     handleInteractiveTokenClickLogic(
       unitId,
       interactivePhase,
@@ -505,6 +553,14 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   togglePlannedWeapon: (weaponId) => togglePlannedWeaponLogic(weaponId, set),
   clearAttackPlan: () => clearAttackPlanLogic(set),
   commitAttack: () => commitAttackLogic(get, set),
+  getAttackPlan: (attackerId) => {
+    const state = get();
+    return getAttackPlanFor(
+      state.attackPlan,
+      state.ui.selectedUnitId,
+      attackerId,
+    );
+  },
   // Pure UI flag — flipping it intentionally never touches session
   // state, the attack plan, or the interactive session. The
   // weapon-picker subscribes via the `previewEnabled` selector.
@@ -547,3 +603,34 @@ export function useSelectedUnit(): ISelectedUnitProjection | null {
   if (!unit || !state) return null;
   return { id, unit, state };
 }
+
+// ---------------------------------------------------------------------------
+// Phase-change side effects (task 1.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * Per `add-attack-phase-ui` task 1.2: whenever the session's phase
+ * transitions away from Weapon Attack, flush any in-progress attack
+ * plan. The plan's target + weapon selections are scoped to that
+ * phase — carrying them into Heat / End / Movement is meaningless and
+ * would leak stale state onto the next attack phase.
+ *
+ * Implemented as a module-level Zustand subscription so it fires
+ * regardless of which mutator drives the phase change (engine-driven
+ * phase advance, skipPhase, runAITurn, setSession, etc.). We track
+ * the previous phase across runs via a closed-over variable — that's
+ * the canonical Zustand pattern for "derived effects on value
+ * transitions".
+ */
+let previousPhaseForAttackPlan: GamePhase | null = null;
+useGameplayStore.subscribe((state) => {
+  const nextPhase = state.session?.currentState.phase ?? null;
+  if (
+    shouldClearAttackPlanOnPhaseChange(previousPhaseForAttackPlan, nextPhase) &&
+    (state.attackPlan.targetUnitId !== null ||
+      state.attackPlan.selectedWeapons.length > 0)
+  ) {
+    state.clearAttackPlan();
+  }
+  previousPhaseForAttackPlan = nextPhase;
+});

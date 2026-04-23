@@ -9,8 +9,8 @@
 ## 1. Phase Detection
 
 - [x] 1.1 Store selector exposes `isPhysicalAttackPhase` derived from `GameSession.currentPhase`
-- [ ] 1.2 Action panel switches the "Attacks" section from weapons list (grayed) to physical attacks sub-panel when this selector is true
-- [ ] 1.3 Weapons list is visible but fully disabled during physical phase (avoids confusing hard-hides)
+- [x] 1.2 Action panel switches the "Attacks" section from weapons list (grayed) to physical attacks sub-panel when this selector is true
+- [x] 1.3 Weapons list is visible but fully disabled during physical phase (avoids confusing hard-hides)
 
 ## 2. Physical Attack Plan State
 
@@ -57,16 +57,16 @@
 
 ## 8. Resolution Handling
 
-- [ ] 8.1 On `PhysicalAttackResolved`, the event log receives one entry per attack (hit/miss + location + damage + any self-damage)
-- [ ] 8.2 `add-damage-feedback-ui` already animates the damage pips — no new animation work here; this change only confirms the event hookup is wired
-- [ ] 8.3 If resolution causes a fall, the existing `UnitFell` event path handles the token state change
+- [x] 8.1 On `PhysicalAttackResolved`, the event log receives one entry per attack (hit/miss + location + damage + any self-damage)
+- [x] 8.2 `add-damage-feedback-ui` already animates the damage pips — no new animation work here; this change only confirms the event hookup is wired
+- [x] 8.3 If resolution causes a fall, the existing `UnitFell` event path handles the token state change
 
 ## 9. Accessibility
 
 - [x] 9.1 Intent arrows carry both color + shape (arrowhead style) + dash pattern — deuteranopia users still distinguish charge vs. DFA vs. push
 - [x] 9.2 Disabled rows use strikethrough + tooltip (not color alone) to signal ineligibility
-- [ ] 9.3 Keyboard: sub-panel is tabbable; Enter declares the focused row, Escape closes the modal
-- [ ] 9.4 `aria-live` region announces phase-state changes (`"Physical Attack phase — 2 eligible options"`)
+- [x] 9.3 Keyboard: sub-panel is tabbable; Enter declares the focused row, Escape closes the modal
+- [x] 9.4 `aria-live` region announces phase-state changes (`"Physical Attack phase — 2 eligible options"`)
 
 ## 10. Tests
 
@@ -75,10 +75,10 @@
 - [x] 10.3 Integration test: select attacker → select adjacent target → declare punch → `PhysicalAttackDeclared` appears in event log with the right payload
 - [x] 10.4 Integration test: charge + DFA intent arrows render on hover and clear on mouse-out
 - [x] 10.5 Integration test: "Skip" proceeds to end-of-phase without any declaration
-- [ ] 10.6 Accessibility test: simulated-deuteranopia snapshot still distinguishes the three intent arrow types
+- [x] 10.6 Accessibility test: simulated-deuteranopia snapshot still distinguishes the three intent arrow types
 
 ## 11. Spec Compliance
 
-- [ ] 11.1 Every requirement in the `tactical-map-interface` delta has at least one GIVEN/WHEN/THEN scenario
-- [ ] 11.2 Every requirement in the `physical-attack-system` delta has at least one scenario
-- [ ] 11.3 `openspec validate add-physical-attack-phase-ui --strict` passes clean
+- [x] 11.1 Every requirement in the `tactical-map-interface` delta has at least one GIVEN/WHEN/THEN scenario
+- [x] 11.2 Every requirement in the `physical-attack-system` delta has at least one scenario
+- [x] 11.3 `openspec validate add-physical-attack-phase-ui --strict` passes clean

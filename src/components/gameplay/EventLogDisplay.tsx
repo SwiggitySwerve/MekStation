@@ -10,6 +10,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import type {
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
+  IPhysicalAttackDeclaredPayload,
+  IPhysicalAttackResolvedPayload,
   IPilotHitPayload,
   IUnitDestroyedPayload,
 } from '@/types/gameplay';
@@ -19,6 +21,7 @@ import {
   formatDamageEntry,
   formatPilotHitEntry,
   formatUnitDestroyedEntry,
+  humanLocation,
 } from '@/components/gameplay/damageFeedback';
 import {
   GamePhase,
@@ -28,6 +31,28 @@ import {
   IEventLogFilter,
   IFormattedEvent,
 } from '@/types/gameplay';
+
+/**
+ * Per `add-damage-feedback-ui` task 4.3 + 7.2: the event log needs to
+ * render indented transfer-chain steps under the damage entry that
+ * caused them, AND group all `DamageApplied` entries for a single
+ * attack under the parent `AttackResolved` row. We extend the base
+ * `IFormattedEvent` with two optional fields the row renderer uses
+ * for layout:
+ *
+ * - `indentLevel` — 0 for the parent row, 1 for each chained transfer
+ *   step. Drives left-padding + the leading `→` glyph.
+ * - `transferPrefix` — short callout prepended to the text for
+ *   transfer-chain rows (e.g., `"→ overflow to LT"`). Lives alongside
+ *   the original text so the existing formatter output is preserved.
+ *
+ * These fields are local to the event log — they intentionally do not
+ * bleed into `IFormattedEvent` consumers outside this file.
+ */
+interface IFormattedEventWithGrouping extends IFormattedEvent {
+  readonly indentLevel?: 0 | 1;
+  readonly transferPrefix?: string;
+}
 
 // =============================================================================
 // Types
@@ -54,6 +79,13 @@ export interface EventLogDisplayProps {
    * events without a unit id render only phase + summary.
    */
   actorLookup?: Record<string, string>;
+  /**
+   * Per `add-attack-phase-ui` task 8.1: map of weapon id → display
+   * name so AttackResolved rows can read "Medium Laser HIT ..." rather
+   * than rely on the raw `weaponId`. Missing entries fall back to the
+   * raw id so the row never blanks.
+   */
+  weaponLookup?: Record<string, string>;
   /** Optional className for styling */
   className?: string;
 }
@@ -75,6 +107,12 @@ function getEventIcon(type: GameEventType): IFormattedEvent['icon'] {
     case GameEventType.AttackLocked:
     case GameEventType.AttacksRevealed:
     case GameEventType.AttackResolved:
+    // Per `add-physical-attack-phase-ui` tasks 8.1 + 8.3: physical
+    // attack declaration / resolution share the "attack" icon so
+    // players see a single chronologically-consistent attack trail
+    // in the event log regardless of weapon vs. melee path.
+    case GameEventType.PhysicalAttackDeclared:
+    case GameEventType.PhysicalAttackResolved:
       return 'attack';
     case GameEventType.DamageApplied:
       return 'damage';
@@ -118,8 +156,14 @@ function getIconColor(icon: IFormattedEvent['icon']): string {
 
 /**
  * Format an event for display.
+ *
+ * `weaponLookup` — per `add-attack-phase-ui` task 8.1: maps weapon id
+ * → display name. Defaults to `{}` so legacy callers keep working.
  */
-function formatEvent(event: IGameEvent): IFormattedEvent {
+function formatEvent(
+  event: IGameEvent,
+  weaponLookup: Record<string, string> = {},
+): IFormattedEvent {
   const icon = getEventIcon(event.type);
   let text = '';
   let unitId: string | undefined;
@@ -171,6 +215,7 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
     case GameEventType.AttackResolved: {
       const payload = event.payload as {
         attackerId: string;
+        weaponId?: string;
         hit: boolean;
         roll: number;
         toHitNumber: number;
@@ -179,6 +224,13 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
         attackerArc?: 'front' | 'left' | 'right' | 'rear';
       };
       unitId = payload.attackerId;
+      // Per `add-attack-phase-ui` task 8.1: prefix the row with the
+      // weapon display name so `AttackResolved` entries read
+      // "Medium Laser HIT ..." instead of generic "Attack HIT ...".
+      // Falls back to the raw weaponId when lookup is empty.
+      const weaponLabel = payload.weaponId
+        ? (weaponLookup[payload.weaponId] ?? payload.weaponId)
+        : 'Attack';
       // Per `wire-firing-arc-resolution` task 8.1: surface the computed arc
       // (front/left/right/rear) in the event log so players can see which
       // hit-location table + armor side was consulted. Fall back to an
@@ -187,9 +239,40 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
         ? ` [${payload.attackerArc} arc]`
         : '';
       if (payload.hit) {
-        text = `Attack HIT (${payload.roll} vs ${payload.toHitNumber}): ${payload.damage} damage to ${payload.location}${arcSuffix}`;
+        text = `${weaponLabel} HIT (${payload.roll} vs ${payload.toHitNumber}): ${payload.damage} damage to ${payload.location}${arcSuffix}`;
       } else {
-        text = `Attack MISSED (${payload.roll} vs ${payload.toHitNumber})${arcSuffix}`;
+        text = `${weaponLabel} MISSED (${payload.roll} vs ${payload.toHitNumber})${arcSuffix}`;
+      }
+      break;
+    }
+    // Per `add-physical-attack-phase-ui` task 8.1: `PhysicalAttackDeclared`
+    // surfaces one event-log entry per declaration so the player's log
+    // trail matches the sub-panel "Declared" collapse (task 5.3).
+    case GameEventType.PhysicalAttackDeclared: {
+      const payload = event.payload as IPhysicalAttackDeclaredPayload;
+      unitId = payload.attackerId;
+      const limbSuffix = payload.limb ? ` (${payload.limb})` : '';
+      text = `Physical attack declared: ${payload.attackType}${limbSuffix} vs ${payload.targetId}, TN ${payload.toHitNumber}+`;
+      break;
+    }
+    // Per `add-physical-attack-phase-ui` tasks 8.1 + 8.3: a
+    // `PhysicalAttackResolved` event produces one log row per attack
+    // (hit / miss + location + damage + any self-damage). `UnitFell`
+    // is emitted separately by the engine and rendered via its own
+    // default branch — we don't re-derive falls here (task 8.3).
+    case GameEventType.PhysicalAttackResolved: {
+      const payload = event.payload as IPhysicalAttackResolvedPayload;
+      unitId = payload.attackerId;
+      if (payload.hit) {
+        const locationPart =
+          payload.location && payload.damage !== undefined
+            ? `: ${payload.damage} damage to ${payload.location}`
+            : payload.damage !== undefined
+              ? `: ${payload.damage} damage`
+              : '';
+        text = `Physical ${payload.attackType} HIT (${payload.roll} vs ${payload.toHitNumber})${locationPart}`;
+      } else {
+        text = `Physical ${payload.attackType} MISSED (${payload.roll} vs ${payload.toHitNumber})`;
       }
       break;
     }
@@ -302,6 +385,117 @@ function filterEvents(
   });
 }
 
+/**
+ * Per `add-damage-feedback-ui` task 4.3 + 7.2: decorate formatted
+ * events with indent + transfer-prefix metadata so the event log
+ * renders a transfer chain nested under the damage entry that caused
+ * it, AND nests every per-weapon `DamageApplied` under the parent
+ * `AttackResolved` row that produced the cluster.
+ *
+ * Walks the chronological stream once (oldest-first) and tags the
+ * second-and-later `DamageApplied` / `CriticalHitResolved` /
+ * `PilotHit` entries that share an `attackId` with an earlier event.
+ * The FIRST entry in a chain stays at `indentLevel: 0` (parent row);
+ * all follow-ups get `indentLevel: 1` + a short `transferPrefix`
+ * describing the step.
+ */
+function annotateGroupedEvents(
+  events: readonly IGameEvent[],
+  formatted: readonly IFormattedEvent[],
+): readonly IFormattedEventWithGrouping[] {
+  // Track whether an attackId has already produced a parent row. The
+  // "parent" is either the `AttackResolved` itself, OR — for orphan
+  // damage streams lacking a parent AttackResolved — the very first
+  // `DamageApplied` we see for that attackId.
+  const seenParent = new Map<string, boolean>();
+  const lastDamageLocation = new Map<string, string>();
+
+  const result: IFormattedEventWithGrouping[] = [];
+  for (let i = 0; i < events.length; i++) {
+    const ev = events[i];
+    const fmt = formatted[i];
+    const base: IFormattedEventWithGrouping = fmt;
+
+    // Parent declaration for cluster attacks → future DamageApplied
+    // entries sharing this attackId will nest under it.
+    if (ev.type === GameEventType.AttackResolved) {
+      const payload = ev.payload as {
+        attackId?: string;
+        attackerId?: string;
+      };
+      const attackId = payload.attackId ?? payload.attackerId;
+      if (attackId) {
+        seenParent.set(attackId, true);
+      }
+      result.push(base);
+      continue;
+    }
+
+    if (ev.type === GameEventType.DamageApplied) {
+      const payload = ev.payload as IDamageAppliedPayload;
+      const attackId = payload.attackId;
+      if (!attackId) {
+        result.push(base);
+        continue;
+      }
+      const hasParent = seenParent.get(attackId) === true;
+      if (!hasParent) {
+        // First hit in this attackId with no upstream AttackResolved —
+        // keep it as the parent row (level 0) and mark the attack as
+        // seen so siblings nest under it.
+        seenParent.set(attackId, true);
+        lastDamageLocation.set(attackId, payload.location);
+        result.push(base);
+        continue;
+      }
+      // Sibling hit — nest under the parent. If a prior
+      // DamageApplied in the same attack already landed, call this
+      // out as a transfer step (armor → structure overflow or
+      // location→location overflow).
+      const prevLocation = lastDamageLocation.get(attackId);
+      lastDamageLocation.set(attackId, payload.location);
+      const transferPrefix = prevLocation
+        ? `→ overflow to ${humanLocation(payload.location)}`
+        : `→ ${humanLocation(payload.location)}`;
+      result.push({
+        ...base,
+        indentLevel: 1,
+        transferPrefix,
+      });
+      continue;
+    }
+
+    if (
+      ev.type === GameEventType.CriticalHit ||
+      ev.type === GameEventType.CriticalHitResolved ||
+      ev.type === GameEventType.PilotHit
+    ) {
+      // These events don't carry attackId today. Keep them flat but
+      // nest behind the most recent in-progress attack if one is
+      // open. We approximate this by checking if the immediately
+      // preceding event is part of an attack chain. Cheaper than
+      // threading attackId through every crit payload.
+      const prev = events[i - 1];
+      const prevIsInAttack =
+        prev &&
+        (prev.type === GameEventType.DamageApplied ||
+          prev.type === GameEventType.AttackResolved);
+      if (prevIsInAttack) {
+        result.push({
+          ...base,
+          indentLevel: 1,
+          transferPrefix: '→ structure breach',
+        });
+        continue;
+      }
+    }
+
+    result.push(base);
+  }
+
+  return result;
+}
+
 // =============================================================================
 // Sub-Components
 // =============================================================================
@@ -337,7 +531,7 @@ function getPhaseLabel(phase: GamePhase): string {
 }
 
 interface EventRowProps {
-  event: IFormattedEvent;
+  event: IFormattedEventWithGrouping;
   actorLookup?: Record<string, string>;
 }
 
@@ -350,11 +544,20 @@ function EventRow({ event, actorLookup }: EventRowProps): React.ReactElement {
     ? (actorLookup?.[event.unitId] ?? event.unitId)
     : undefined;
 
+  // Per `add-damage-feedback-ui` task 4.3 + 7.2: transfer-chain / child
+  // entries render at `indentLevel: 1` with a left pad + a subdued
+  // text treatment so the parent→child relationship reads at a glance
+  // in the dense event log. Level 0 rows render unchanged.
+  const isNested = event.indentLevel === 1;
+
   return (
     <div
-      className="flex items-start gap-2 px-2 py-1 text-sm hover:bg-gray-50"
+      className={`flex items-start gap-2 px-2 py-1 text-sm hover:bg-gray-50 ${
+        isNested ? 'pl-8 text-gray-600 italic' : ''
+      }`}
       data-testid="event-row"
       data-event-id={event.id}
+      data-indent-level={event.indentLevel ?? 0}
     >
       <span
         className={`${iconColor} w-4 font-bold`}
@@ -390,6 +593,14 @@ function EventRow({ event, actorLookup }: EventRowProps): React.ReactElement {
         </span>
       )}
       <span className="flex-1" data-testid="event-text">
+        {event.transferPrefix && (
+          <span
+            className="mr-1 text-gray-500"
+            data-testid="event-transfer-prefix"
+          >
+            {event.transferPrefix}
+          </span>
+        )}
         {event.text}
       </span>
     </div>
@@ -411,6 +622,7 @@ export function EventLogDisplay({
   onCollapsedChange,
   maxHeight = 200,
   actorLookup,
+  weaponLookup,
   className = '',
 }: EventLogDisplayProps): React.ReactElement {
   const [localCollapsed, setLocalCollapsed] = useState(collapsed);
@@ -424,11 +636,18 @@ export function EventLogDisplay({
     }
   }, [isCollapsed, onCollapsedChange]);
 
-  // Filter and format events
-  const formattedEvents = useMemo(() => {
+  // Filter and format events. We annotate BEFORE reversing so the
+  // grouping walk (which needs chronological order to know which
+  // entry is the "parent" for an attackId) sees events oldest-first.
+  // After annotation we reverse for display (newest-first).
+  const formattedEvents = useMemo<
+    readonly IFormattedEventWithGrouping[]
+  >(() => {
     const filtered = filterEvents(events, filter);
-    return filtered.map(formatEvent).reverse(); // Newest first
-  }, [events, filter]);
+    const formatted = filtered.map((e) => formatEvent(e, weaponLookup));
+    const grouped = annotateGroupedEvents(filtered, formatted);
+    return [...grouped].reverse();
+  }, [events, filter, weaponLookup]);
 
   return (
     <div

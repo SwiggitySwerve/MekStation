@@ -15,7 +15,7 @@
  * `forecast.ts` percentages so the two modals feel consistent).
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import type {
   IPhysicalAttackInput,
@@ -105,6 +105,22 @@ export function PhysicalAttackForecastModal({
   onConfirm,
   onClose,
 }: PhysicalAttackForecastModalProps): React.ReactElement | null {
+  // Per `add-physical-attack-phase-ui` task 9.3: ESC closes the modal.
+  // We install a document-level listener while open so focus inside
+  // the modal still dispatches keydown events to us (the modal body
+  // is not a focusable element by default).
+  useEffect(() => {
+    if (!open) return undefined;
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+      }
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   const toHit = calculatePhysicalToHit(attackInput);

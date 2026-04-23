@@ -282,6 +282,21 @@ export function GameplayLayout({
     return lookup;
   }, [units]);
 
+  // Per `add-attack-phase-ui` § 8.1: AttackResolved events now carry a
+  // `weaponId`; the event log turns that id into a human label (e.g.,
+  // "Medium Laser HIT / MISSED") using this flat map. Built from the
+  // already-available `unitWeapons` so each weapon's display name is
+  // reachable in O(1).
+  const eventWeaponLookup = useMemo(() => {
+    const lookup: Record<string, string> = {};
+    for (const weapons of Object.values(unitWeapons)) {
+      for (const weapon of weapons) {
+        lookup[weapon.id] = weapon.name;
+      }
+    }
+    return lookup;
+  }, [unitWeapons]);
+
   const tokens = useMemo(() => {
     return Object.entries(currentState.units).map(([unitId, state]) => {
       const unitInfo = unitInfoLookup[unitId] || {
@@ -402,6 +417,8 @@ export function GameplayLayout({
         side={selectedUnitInfo.side}
         chassis={selectedUnitInfo.name}
         spas={selectedUnitId ? (unitSpas[selectedUnitId] ?? []) : []}
+        unitId={selectedUnitId ?? undefined}
+        events={events}
         className="h-full"
       />
     ) : (
@@ -571,6 +588,7 @@ export function GameplayLayout({
         }
         maxHeight={150}
         actorLookup={eventActorLookup}
+        weaponLookup={eventWeaponLookup}
       />
     </div>
   );
