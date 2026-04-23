@@ -16,6 +16,7 @@ import React, {
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
 
+import { useGameplayStore } from '@/stores/useGameplayStore';
 import {
   GamePhase,
   GameSide,
@@ -139,6 +140,7 @@ function unitStateToToken(
   unitInfo: { name: string; side: GameSide },
   isSelected: boolean,
   isValidTarget: boolean,
+  isActiveTarget: boolean,
 ): IUnitToken {
   // Generate a short designation from the unit name
   const designation = unitInfo.name
@@ -156,6 +158,7 @@ function unitStateToToken(
     facing: state.facing,
     isSelected,
     isValidTarget,
+    isActiveTarget,
     isDestroyed: state.destroyed,
     designation,
   };
@@ -196,6 +199,11 @@ export function GameplayLayout({
   className = '',
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
+  // Per `add-attack-phase-ui` § 2.2: subscribe to the locked-in attack
+  // target id so the token for that specific unit can render a pulsing
+  // red ring (distinct from the static validTarget ring painted on
+  // every fireable enemy).
+  const activeTargetId = useGameplayStore((s) => s.attackPlan.targetUnitId);
   const [layout, setLayout] = useState<ILayoutConfig>(DEFAULT_LAYOUT_CONFIG);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -286,6 +294,14 @@ export function GameplayLayout({
         (currentState.phase === GamePhase.WeaponAttack &&
           unitInfo.side === GameSide.Opponent &&
           !state.destroyed);
+      // Per `add-attack-phase-ui` § 2.2 + spec scenario "Target ring only
+      // in Weapon Attack phase": only the token whose id matches the
+      // locked-in target AND only while the WeaponAttack phase is
+      // actually active gets the pulsing red ring.
+      const isActiveTarget =
+        currentState.phase === GamePhase.WeaponAttack &&
+        activeTargetId !== null &&
+        unitId === activeTargetId;
 
       return unitStateToToken(
         unitId,
@@ -293,9 +309,16 @@ export function GameplayLayout({
         unitInfo,
         isSelected,
         isValidTarget,
+        isActiveTarget,
       );
     });
-  }, [currentState, unitInfoLookup, selectedUnitId, validTargetIds]);
+  }, [
+    currentState,
+    unitInfoLookup,
+    selectedUnitId,
+    validTargetIds,
+    activeTargetId,
+  ]);
 
   // Selected unit data
   const selectedUnit = selectedUnitId
