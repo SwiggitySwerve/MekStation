@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PhysicalAttackIntentArrow deuteranopia: shape carries the variant signal DFA renders a dashed <path> arc — distinguishable by shape: dfa-shape 1`] = `
+<svg
+  data-testid="dfa-svg"
+>
+  <g
+    data-testid="intent-arrow-dfa"
+    pointer-events="none"
+  >
+    <defs>
+      <marker
+        id="dfa-arrow-player"
+        markerHeight="8"
+        markerWidth="8"
+        orient="auto-start-reverse"
+        refX="10"
+        refY="6"
+        viewBox="0 0 12 12"
+      >
+        <path
+          d="M0,0 L12,6 L0,12 L3,6 Z"
+          fill="#2563eb"
+        />
+      </marker>
+    </defs>
+    <path
+      d="M 15.588457268119894 8.999999999999998 Q 30 -22.67949192431123 44.411542731880104 25.641016151377542"
+      fill="none"
+      marker-end="url(#dfa-arrow-player)"
+      stroke="#2563eb"
+      stroke-dasharray="8,4"
+      stroke-opacity="0.85"
+      stroke-width="3"
+    />
+  </g>
+</svg>
+`;
+
+exports[`PhysicalAttackIntentArrow deuteranopia: shape carries the variant signal charge renders a solid <line> with no strokeDasharray: charge-shape 1`] = `
+<svg
+  data-testid="charge-svg"
+>
+  <g
+    data-testid="intent-arrow-charge"
+    pointer-events="none"
+  >
+    <defs>
+      <marker
+        id="charge-arrow-player"
+        markerHeight="8"
+        markerWidth="8"
+        orient="auto-start-reverse"
+        refX="10"
+        refY="6"
+        viewBox="0 0 12 12"
+      >
+        <path
+          d="M0,0 L12,6 L0,12 L3,6 Z"
+          fill="#2563eb"
+        />
+      </marker>
+    </defs>
+    <line
+      marker-end="url(#charge-arrow-player)"
+      stroke="#2563eb"
+      stroke-opacity="0.85"
+      stroke-width="3"
+      x1="15.588457268119894"
+      x2="44.411542731880104"
+      y1="8.999999999999998"
+      y2="25.641016151377542"
+    />
+  </g>
+</svg>
+`;
+
+exports[`PhysicalAttackIntentArrow deuteranopia: shape carries the variant signal push renders a dashed polygon (not a line/arc): push-shape 1`] = `
+<svg
+  data-testid="push-svg"
+>
+  <g
+    data-testid="intent-arrow-push"
+    pointer-events="none"
+  >
+    <polygon
+      fill="none"
+      points="146,69.28203230275508 133,91.79869280115048 107,91.7986928011505 94,69.28203230275508 106.99999999999999,46.76537180435969 132.99999999999997,46.765371804359674"
+      stroke="#6366f1"
+      stroke-dasharray="4,3"
+      stroke-opacity="0.9"
+      stroke-width="2"
+    />
+  </g>
+</svg>
+`;
