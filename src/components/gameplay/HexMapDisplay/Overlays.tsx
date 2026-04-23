@@ -142,6 +142,32 @@ export const LOSLine = React.memo(function LOSLine({
 export function TerrainPatternDefs(): React.ReactElement {
   return (
     <defs>
+      {/*
+        Per `add-movement-phase-ui` task 3.4 / spec "Jump-range tiles
+        rendered blue with pattern": landing hexes reachable via jump
+        are tinted blue AND overlaid with a distinct diagonal hatch
+        so the player can tell them apart from the attack-range tint
+        or a selected hex at a glance. Pattern id consumed by
+        `HexCell.tsx` via `url(#pattern-jump-range)`.
+      */}
+      <pattern
+        id="pattern-jump-range"
+        patternUnits="userSpaceOnUse"
+        width="8"
+        height="8"
+        patternTransform="rotate(45)"
+      >
+        <rect width="8" height="8" fill="transparent" />
+        <line
+          x1="0"
+          y1="0"
+          x2="0"
+          y2="8"
+          stroke="#1d4ed8"
+          strokeWidth="1.5"
+          opacity="0.7"
+        />
+      </pattern>
       <pattern
         id="pattern-light-woods"
         patternUnits="userSpaceOnUse"

@@ -32,6 +32,29 @@ export interface HexMapDisplayProps {
   movementRange?: readonly IMovementRangeHex[];
   attackRange?: readonly IHexCoordinate[];
   highlightPath?: readonly IHexCoordinate[];
+  /**
+   * Per `add-movement-phase-ui` task 4.3: cumulative MP cost of the
+   * currently-previewed path. When present (hovering a reachable
+   * hex) the map shows an MP badge at the hovered destination.
+   */
+  hoverMpCost?: number;
+  /**
+   * Per § 4.4: `true` when the user hovers a hex outside the
+   * reachable set during the Movement phase — drives the shared
+   * "Unreachable" tooltip the map renders in its HTML overlay.
+   */
+  hoverUnreachable?: boolean;
+  /**
+   * Per task 10.1 / legend scenarios: when the host page is in the
+   * Movement phase we also draw a small MP-type legend at the
+   * bottom-left of the map. Each row lights up for the currently
+   * active MP type so the player can tell at a glance what the
+   * overlay colors mean.
+   */
+  mpLegend?: {
+    readonly active: 'walk' | 'run' | 'jump';
+    readonly jumpAvailable: boolean;
+  };
   onHexClick?: (hex: IHexCoordinate) => void;
   onHexHover?: (hex: IHexCoordinate | null) => void;
   onTokenClick?: (unitId: string) => void;
@@ -47,6 +70,9 @@ export function HexMapDisplay({
   movementRange = [],
   attackRange = [],
   highlightPath = [],
+  hoverMpCost,
+  hoverUnreachable = false,
+  mpLegend,
   onHexClick,
   onHexHover,
   onTokenClick,
@@ -173,6 +199,17 @@ export function HexMapDisplay({
             const isInAttackRange = hexInList(hex, attackRange);
             const isInPath = hexInList(hex, highlightPath);
 
+            // Per add-movement-phase-ui § 4.3: only the currently
+            // hovered reachable hex gets the MP cost badge.
+            const cellHoverMpCost =
+              isHovered && hoverMpCost !== undefined && movementInfo?.reachable
+                ? hoverMpCost
+                : undefined;
+            // Per § 4.4: flag the hovered cell when it's outside the
+            // reachable envelope so the tooltip layer keys off it.
+            const cellIsUnreachableHover =
+              isHovered && hoverUnreachable && !movementInfo?.reachable;
+
             return (
               <HexCell
                 key={key}
@@ -184,6 +221,8 @@ export function HexMapDisplay({
                 isInAttackRange={isInAttackRange}
                 isInPath={isInPath}
                 showCoordinate={showCoordinates}
+                hoverMpCost={cellHoverMpCost}
+                isUnreachableHover={cellIsUnreachableHover}
                 onClick={() => handleHexClick(hex)}
                 onMouseEnter={() => handleHexHover(hex)}
                 onMouseLeave={() => handleHexHover(null)}
@@ -257,6 +296,67 @@ export function HexMapDisplay({
           </g>
         )}
       </svg>
+
+      {/*
+        Per add-movement-phase-ui § 4.4 "Hover unreachable hex shows
+        tooltip": when the consumer flags the currently-hovered hex as
+        unreachable we render a single shared "Unreachable" tooltip in
+        HTML above the SVG rather than duplicating DOM per cell.
+      */}
+      {hoverUnreachable && (
+        <div
+          className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 rounded bg-slate-900/90 px-2 py-1 text-xs font-medium text-slate-100 shadow"
+          data-testid="hex-unreachable-tooltip"
+          role="tooltip"
+        >
+          Unreachable
+        </div>
+      )}
+
+      {/*
+        Per add-movement-phase-ui task 10.1 / scenarios "Legend
+        reflects current MP type" + "Jump unavailable dims Jump row":
+        draw a small legend so the player knows what the walk/run/jump
+        tints mean. Active row bolded + outlined; inactive rows dim;
+        Jump row dims further and shows a tooltip when the unit has no
+        jump capability.
+      */}
+      {mpLegend && (
+        <div
+          className="pointer-events-none absolute bottom-4 left-4 flex flex-col gap-1 rounded bg-white/90 p-2 text-xs shadow"
+          data-testid="mp-legend"
+        >
+          {(['walk', 'run', 'jump'] as const).map((kind) => {
+            const isActive = mpLegend.active === kind;
+            const isJumpDisabled = kind === 'jump' && !mpLegend.jumpAvailable;
+            const swatch =
+              kind === 'walk'
+                ? 'bg-green-500'
+                : kind === 'run'
+                  ? 'bg-yellow-500'
+                  : 'bg-blue-500';
+            const label =
+              kind === 'walk' ? 'Walk' : kind === 'run' ? 'Run' : 'Jump';
+            return (
+              <div
+                key={kind}
+                className={`flex items-center gap-2 rounded px-1 py-0.5 ${
+                  isActive
+                    ? 'font-semibold ring-1 ring-slate-700'
+                    : 'opacity-70'
+                } ${isJumpDisabled ? 'opacity-40' : ''}`}
+                data-testid={`mp-legend-${kind}`}
+                data-active={isActive ? 'true' : undefined}
+                data-disabled={isJumpDisabled ? 'true' : undefined}
+                title={isJumpDisabled ? 'No jump capability' : undefined}
+              >
+                <span className={`inline-block h-3 w-3 rounded-sm ${swatch}`} />
+                <span>{label}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <div
         className="absolute right-4 bottom-4 flex gap-2"

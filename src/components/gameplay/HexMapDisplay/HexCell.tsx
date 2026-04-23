@@ -10,6 +10,16 @@ import { HEX_COLORS } from '@/constants/hexMap';
 import { MovementType } from '@/types/gameplay';
 
 /**
+ * Per `add-movement-phase-ui` task 3.4: when jump-range tiles render
+ * they need a distinct diagonal-hatch pattern on top of the blue
+ * tint so the player can visually distinguish "land here by
+ * jumping" from "walk/run here." The pattern id is defined in
+ * `Overlays.tsx` under <TerrainPatternDefs> so every HexCell can
+ * reference it by URL.
+ */
+const JUMP_PATTERN_URL = 'url(#pattern-jump-range)';
+
+/**
  * Per `add-movement-phase-ui` task 3.2-3.4: pick the per-type tile
  * color (green = walk, yellow = run, blue = jump). Falls back to the
  * uniform `movementRange` color for legacy callers that don't set a
@@ -44,6 +54,24 @@ export interface HexCellProps {
   isInAttackRange: boolean;
   isInPath: boolean;
   showCoordinate: boolean;
+  /**
+   * Per `add-movement-phase-ui` § 4.3: when the user hovers a
+   * reachable hex the destination tile shows the cumulative MP cost
+   * in a readable badge. We pass the MP cost explicitly (rather than
+   * lifting it off `movementInfo`) because the path-preview feature
+   * must display the number even when the hovered tile is the path
+   * terminus with pathHighlight overlay.
+   */
+  hoverMpCost?: number;
+  /**
+   * Per § 4.4 / spec delta "Hover unreachable hex shows tooltip":
+   * when the user hovers a hex outside the reachable set we surface
+   * the canonical `"Unreachable"` tooltip. The cell itself doesn't
+   * render the tooltip DOM — the parent `HexMapDisplay` renders a
+   * shared tooltip layer — but we mark the cell with
+   * `data-unreachable` so the tooltip layer can key off it.
+   */
+  isUnreachableHover?: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
@@ -58,6 +86,8 @@ export const HexCell = React.memo(function HexCell({
   isInAttackRange,
   isInPath,
   showCoordinate,
+  hoverMpCost,
+  isUnreachableHover,
   onClick,
   onMouseEnter,
   onMouseLeave,
@@ -74,6 +104,10 @@ export const HexCell = React.memo(function HexCell({
   let overlayFill: string | null = null;
   let overlayOpacity = 0.5;
 
+  // Reasoning: path-preview wins over the type-tint so the player can
+  // always see where the planned path lands, even when the hex is
+  // also part of the walk/run/jump reachable envelope (which it
+  // always is — you can't draw a path to an unreachable hex).
   if (isSelected) {
     overlayFill = HEX_COLORS.hexSelected;
     overlayOpacity = 0.7;
@@ -93,6 +127,9 @@ export const HexCell = React.memo(function HexCell({
     overlayOpacity = 0.4;
   }
 
+  const isJumpTile =
+    movementInfo?.reachable && movementInfo.movementType === MovementType.Jump;
+
   return (
     <g
       onClick={onClick}
@@ -100,6 +137,9 @@ export const HexCell = React.memo(function HexCell({
       onMouseLeave={onMouseLeave}
       style={{ cursor: 'pointer' }}
       data-testid={`hex-${hex.q}-${hex.r}`}
+      data-unreachable={isUnreachableHover ? 'true' : undefined}
+      data-reachable={movementInfo?.reachable ? 'true' : undefined}
+      data-movement-type={movementInfo?.movementType}
     >
       <path
         d={pathD}
@@ -116,15 +156,47 @@ export const HexCell = React.memo(function HexCell({
           pointerEvents="none"
         />
       )}
+      {isJumpTile && !isInPath && (
+        <path
+          d={pathD}
+          fill={JUMP_PATTERN_URL}
+          opacity={0.6}
+          pointerEvents="none"
+          data-testid={`jump-pattern-${hex.q}-${hex.r}`}
+        />
+      )}
       {showCoordinate && (
         <text x={x} y={y + 4} textAnchor="middle" fontSize={10} fill="#64748b">
           {hex.q},{hex.r}
         </text>
       )}
-      {movementInfo && movementInfo.reachable && (
+      {movementInfo && movementInfo.reachable && hoverMpCost === undefined && (
         <text x={x} y={y + 12} textAnchor="middle" fontSize={8} fill="#166534">
           {movementInfo.mpCost}MP
         </text>
+      )}
+      {hoverMpCost !== undefined && (
+        <g pointerEvents="none" data-testid={`hex-mp-badge-${hex.q}-${hex.r}`}>
+          <rect
+            x={x - 14}
+            y={y + 6}
+            width={28}
+            height={12}
+            rx={3}
+            fill="#1e293b"
+            opacity={0.9}
+          />
+          <text
+            x={x}
+            y={y + 15}
+            textAnchor="middle"
+            fontSize={9}
+            fontWeight="bold"
+            fill="#f8fafc"
+          >
+            {hoverMpCost} MP
+          </text>
+        </g>
       )}
     </g>
   );

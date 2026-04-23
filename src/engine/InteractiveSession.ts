@@ -185,6 +185,28 @@ export class InteractiveSession {
     return this.session;
   }
 
+  /**
+   * Per `add-movement-phase-ui` § 2: surface the cached
+   * `IMovementCapability` (walk/run/jump MP) for a unit so the
+   * Movement-phase UI can derive reachable hexes without
+   * re-adapting the unit catalog. Returns `null` when the id is
+   * unknown (callers treat missing capability as "no movement").
+   */
+  getMovementCapability(unitId: string): IMovementCapability | null {
+    return this.movementByUnit.get(unitId) ?? null;
+  }
+
+  /**
+   * Per `add-movement-phase-ui` § 2: expose the cached `IHexGrid`
+   * the engine builds at session start. The UI's
+   * `deriveReachableHexes` + A* path-preview helpers both need the
+   * same grid the pathfinder uses so movement costs stay in lockstep
+   * with simulation outcomes.
+   */
+  getGrid(): IHexGrid {
+    return this.grid;
+  }
+
   getAvailableActions(unitId: string): IAvailableActions {
     const unit = this.session.currentState.units[unitId];
     if (!unit || unit.destroyed) {
