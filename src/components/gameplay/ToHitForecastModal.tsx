@@ -148,6 +148,13 @@ function ForecastRow({
   preview,
   showPreview,
 }: ForecastRowProps): React.ReactElement {
+  // Per `add-attack-phase-ui` task 6.3: the per-weapon modifier
+  // breakdown collapses by default. Clicking the row toggles it open.
+  // Zero-value modifiers are filtered below (also covers task 10.2:
+  // zero-impact SPAs SHALL NOT render). Hook is declared above the
+  // out-of-range early return to satisfy rules-of-hooks.
+  const [expanded, setExpanded] = useState(false);
+
   if (row.outOfRange) {
     return (
       <li
@@ -164,12 +171,6 @@ function ForecastRow({
     );
   }
 
-  // Per `add-attack-phase-ui` task 6.3: the per-weapon modifier
-  // breakdown collapses by default. Clicking the row toggles it open.
-  // Per spec "Modifier breakdown expands" + "zero-value modifiers SHALL
-  // be omitted" — we filter to non-zero modifiers before render. Also
-  // covers task 10.2 (zero-impact SPAs SHALL NOT render).
-  const [expanded, setExpanded] = useState(false);
   const visibleModifiers = row.modifiers.filter((m) => m.value !== 0);
 
   return (
