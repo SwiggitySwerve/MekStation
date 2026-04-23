@@ -29,6 +29,7 @@ import {
   resolveHeatPhase,
   endGame,
 } from '@/utils/gameplay/gameSession';
+import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 
 import type { IGameEngineConfig, IAdaptedUnit } from './types';
 
@@ -150,7 +151,18 @@ export class GameEngine {
         d6Roller,
       );
       session = advancePhase(session);
-      session = resolveHeatPhase(session, diceRoller);
+      // Per `wire-heat-generation-and-effects` task 5: pass a
+      // grid-aware water depth resolver so flooded hexes dissipate
+      // +2 (depth 1) / +4 (depth ≥2). Current `createMinimalGrid`
+      // only emits `'clear'` hexes, yielding 0 bonus today — zero
+      // behavioural change until water-tagged grids arrive.
+      const grid = this.grid;
+      session = resolveHeatPhase(session, diceRoller, {
+        getWaterDepth: (unitId, position) => {
+          const unit = session.currentState.units[unitId];
+          return waterDepthAtPosition(grid, unit?.position ?? position);
+        },
+      });
       session = advancePhase(session);
 
       if (isGameEnded(session.currentState, gameConfig)) {

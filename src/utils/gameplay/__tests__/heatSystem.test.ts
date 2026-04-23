@@ -696,3 +696,251 @@ describe('Heat System Edge Cases', () => {
     expect(session.currentState.units['unit-1'].heat).toBe(15);
   });
 });
+
+// =============================================================================
+// Task 4.3 — Heat Sink Rating (singles vs doubles, destroyed)
+// =============================================================================
+
+describe('Heat Sink Rating (Task 4.3)', () => {
+  function setupWithHeatSinkType(heatSinks: number, type: 'single' | 'double') {
+    const config = {
+      mapRadius: 10,
+      turnLimit: 10,
+      victoryConditions: ['destruction'],
+      optionalRules: [],
+    };
+    const units: IGameUnit[] = [
+      {
+        id: 'unit-1',
+        name: 'Player Mech',
+        side: GameSide.Player,
+        unitRef: 'p1',
+        pilotRef: 'pp1',
+        gunnery: 4,
+        piloting: 5,
+        heatSinks: 1, // placeholder; we test unit-2
+      },
+      {
+        id: 'unit-2',
+        name: 'Subject Mech',
+        side: GameSide.Opponent,
+        unitRef: 's1',
+        pilotRef: 'sp1',
+        gunnery: 4,
+        piloting: 5,
+        heatSinks,
+        heatSinkType: type,
+      },
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    session = advancePhase(session); // Movement
+    session = advancePhase(session); // Weapon
+    session = advancePhase(session); // Physical
+    session = advancePhase(session); // Heat
+    return session;
+  }
+
+  it('10 single heat sinks dissipate 10 (rating 1)', () => {
+    let session = setupWithHeatSinkType(10, 'single');
+    session = setUnitHeat(session, 'unit-2', 12);
+
+    session = resolveHeatPhase(session, createDiceRoller(12));
+
+    // 10 HS × 1 = 10 dissipation. 12 - 10 = 2.
+    expect(session.currentState.units['unit-2'].heat).toBe(2);
+    const dissipationEvents = session.events.filter(
+      (e) => e.type === GameEventType.HeatDissipated && e.actorId === 'unit-2',
+    );
+    expect(dissipationEvents).toHaveLength(1);
+    const payload = dissipationEvents[0].payload as IHeatPayload;
+    // `amount` on HeatDissipated is a negative delta per `createHeatDissipatedEvent`
+    expect(payload.amount).toBe(-10);
+    expect(payload.breakdown?.baseDissipation).toBe(10);
+    expect(payload.breakdown?.waterBonus).toBe(0);
+  });
+
+  it('10 double heat sinks dissipate 20 (rating 2)', () => {
+    let session = setupWithHeatSinkType(10, 'double');
+    session = setUnitHeat(session, 'unit-2', 25);
+
+    session = resolveHeatPhase(session, createDiceRoller(12));
+
+    // 10 HS × 2 = 20 dissipation. 25 - 20 = 5.
+    expect(session.currentState.units['unit-2'].heat).toBe(5);
+    const dissipationEvents = session.events.filter(
+      (e) => e.type === GameEventType.HeatDissipated && e.actorId === 'unit-2',
+    );
+    expect(dissipationEvents).toHaveLength(1);
+    const payload = dissipationEvents[0].payload as IHeatPayload;
+    // Negative delta representation
+    expect(payload.amount).toBe(-20);
+    expect(payload.breakdown?.baseDissipation).toBe(20);
+  });
+
+  it('10 single heat sinks with 3 destroyed dissipate 7', () => {
+    let session = setupWithHeatSinkType(10, 'single');
+    session = setUnitHeat(session, 'unit-2', 10);
+    session = setComponentDamage(session, 'unit-2', {
+      heatSinksDestroyed: 3,
+    });
+
+    session = resolveHeatPhase(session, createDiceRoller(12));
+
+    // (10 - 3) × 1 = 7 dissipation. 10 - 7 = 3.
+    expect(session.currentState.units['unit-2'].heat).toBe(3);
+    const dissipationEvents = session.events.filter(
+      (e) => e.type === GameEventType.HeatDissipated && e.actorId === 'unit-2',
+    );
+    const payload = dissipationEvents[0].payload as IHeatPayload;
+    expect(payload.breakdown?.baseDissipation).toBe(7);
+  });
+
+  it('10 double heat sinks with 3 destroyed dissipate 14 (rating respected on loss)', () => {
+    let session = setupWithHeatSinkType(10, 'double');
+    session = setUnitHeat(session, 'unit-2', 20);
+    session = setComponentDamage(session, 'unit-2', {
+      heatSinksDestroyed: 3,
+    });
+
+    session = resolveHeatPhase(session, createDiceRoller(12));
+
+    // (10 - 3) × 2 = 14 dissipation. 20 - 14 = 6.
+    expect(session.currentState.units['unit-2'].heat).toBe(6);
+    const dissipationEvents = session.events.filter(
+      (e) => e.type === GameEventType.HeatDissipated && e.actorId === 'unit-2',
+    );
+    const payload = dissipationEvents[0].payload as IHeatPayload;
+    expect(payload.breakdown?.baseDissipation).toBe(14);
+  });
+});
+
+// =============================================================================
+// Task 5.3 — Water Cooling
+// =============================================================================
+
+describe('Water Cooling (Task 5.3)', () => {
+  it('depth-2 water adds +4 dissipation via getWaterDepth option', () => {
+    let session = setupGameAtHeatPhase();
+    // unit-2 has 10 single HS → base 10 dissipation. With depth 2 water:
+    // +4 bonus = 14 total. Heat 15 → 15 - 14 = 1.
+    session = setUnitHeat(session, 'unit-2', 15);
+
+    session = resolveHeatPhase(session, createDiceRoller(12), {
+      getWaterDepth: (unitId) => (unitId === 'unit-2' ? 2 : 0),
+    });
+
+    expect(session.currentState.units['unit-2'].heat).toBe(1);
+
+    const dissipationEvents = session.events.filter(
+      (e) => e.type === GameEventType.HeatDissipated && e.actorId === 'unit-2',
+    );
+    expect(dissipationEvents).toHaveLength(1);
+    const payload = dissipationEvents[0].payload as IHeatPayload;
+    // Negative delta representation
+    expect(payload.amount).toBe(-14);
+    expect(payload.breakdown?.baseDissipation).toBe(10);
+    expect(payload.breakdown?.waterBonus).toBe(4);
+  });
+
+  it('depth-1 water adds +2 dissipation', () => {
+    let session = setupGameAtHeatPhase();
+    session = setUnitHeat(session, 'unit-2', 15);
+
+    session = resolveHeatPhase(session, createDiceRoller(12), {
+      getWaterDepth: (unitId) => (unitId === 'unit-2' ? 1 : 0),
+    });
+
+    // 10 HS + 2 water = 12 dissipation. 15 - 12 = 3.
+    expect(session.currentState.units['unit-2'].heat).toBe(3);
+    const dissipationEvents = session.events.filter(
+      (e) => e.type === GameEventType.HeatDissipated && e.actorId === 'unit-2',
+    );
+    const payload = dissipationEvents[0].payload as IHeatPayload;
+    expect(payload.breakdown?.waterBonus).toBe(2);
+  });
+
+  it('no getWaterDepth option → zero water bonus (back-compat)', () => {
+    let session = setupGameAtHeatPhase();
+    session = setUnitHeat(session, 'unit-2', 15);
+
+    session = resolveHeatPhase(session, createDiceRoller(12));
+
+    // No water bonus: 15 - 10 = 5.
+    expect(session.currentState.units['unit-2'].heat).toBe(5);
+    const dissipationEvents = session.events.filter(
+      (e) => e.type === GameEventType.HeatDissipated && e.actorId === 'unit-2',
+    );
+    const payload = dissipationEvents[0].payload as IHeatPayload;
+    expect(payload.breakdown?.waterBonus).toBe(0);
+  });
+});
+
+// =============================================================================
+// Task 14.5 / 14.6 — Shutdown Check TN + Replay Fidelity
+// =============================================================================
+
+describe('Smoke: ShutdownCheck TN & Replay Fidelity (Tasks 14.5 / 14.6)', () => {
+  it('heat 14 at start-of-heat → ShutdownCheck with TN 4', () => {
+    // Task 14.5: fixture ramps unit to heat 14 BEFORE dissipation; this
+    // must trigger a shutdown check with the canonical threshold TN.
+    //
+    // unit-2 has 10 HS. We want heat 14 AFTER dissipation so set to 24.
+    // 24 - 10 = 14 → TN = 4.
+    let session = setupGameAtHeatPhase();
+    session = setUnitHeat(session, 'unit-2', 24);
+
+    session = resolveHeatPhase(session, createDiceRoller(6));
+
+    const shutdownEvents = session.events.filter(
+      (e) => e.type === GameEventType.ShutdownCheck && e.actorId === 'unit-2',
+    );
+    expect(shutdownEvents).toHaveLength(1);
+    const payload = shutdownEvents[0].payload as IShutdownCheckPayload;
+    expect(payload.heatLevel).toBe(14);
+    expect(payload.targetNumber).toBe(4);
+    expect(payload.roll).toBe(6);
+    expect(payload.shutdownOccurred).toBe(false);
+  });
+
+  it('replay fidelity: same seeded dice sequence produces identical shutdown outcome', () => {
+    // Task 14.6: deterministic roller → identical shutdown roll outcome
+    // when the same session is resolved twice under the same roller.
+    const buildSession = () => {
+      let session = setupGameAtHeatPhase();
+      session = setUnitHeat(session, 'unit-2', 24);
+      return session;
+    };
+
+    // Same fixed roll (total 3 → shutdown on TN 4)
+    const sessionA = resolveHeatPhase(buildSession(), createDiceRoller(3));
+    const sessionB = resolveHeatPhase(buildSession(), createDiceRoller(3));
+
+    const shutdownsA = sessionA.events.filter(
+      (e) => e.type === GameEventType.ShutdownCheck && e.actorId === 'unit-2',
+    );
+    const shutdownsB = sessionB.events.filter(
+      (e) => e.type === GameEventType.ShutdownCheck && e.actorId === 'unit-2',
+    );
+
+    expect(shutdownsA).toHaveLength(1);
+    expect(shutdownsB).toHaveLength(1);
+
+    const payloadA = shutdownsA[0].payload as IShutdownCheckPayload;
+    const payloadB = shutdownsB[0].payload as IShutdownCheckPayload;
+
+    expect(payloadA.roll).toBe(payloadB.roll);
+    expect(payloadA.targetNumber).toBe(payloadB.targetNumber);
+    expect(payloadA.heatLevel).toBe(payloadB.heatLevel);
+    expect(payloadA.shutdownOccurred).toBe(payloadB.shutdownOccurred);
+    expect(payloadA.shutdownOccurred).toBe(true);
+
+    // Final unit state also identical
+    expect(sessionA.currentState.units['unit-2'].heat).toBe(
+      sessionB.currentState.units['unit-2'].heat,
+    );
+    expect(sessionA.currentState.units['unit-2'].shutdown).toBe(
+      sessionB.currentState.units['unit-2'].shutdown,
+    );
+  });
+});

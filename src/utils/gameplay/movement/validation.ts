@@ -2,6 +2,7 @@
  * Movement Validation
  */
 
+import { getHeatMovementPenalty } from '@/constants/heat';
 import {
   IHexCoordinate,
   IHexGrid,
@@ -19,6 +20,13 @@ import { calculateMovementHeat } from './modifiers';
 
 /**
  * Validate a movement action.
+ *
+ * Per `wire-heat-generation-and-effects` task 7.3: when `currentHeat`
+ * is provided, `getHeatMovementPenalty(currentHeat)` is subtracted
+ * from the unit's effective MP so overheated units cannot over-move.
+ * At heat 15 (penalty 3), a walk-5 unit validates against walk-2
+ * (not walk-5); attempting distance > 2 fails validation with the
+ * heat-penalised range in the error string.
  */
 export function validateMovement(
   grid: IHexGrid,
@@ -27,6 +35,7 @@ export function validateMovement(
   newFacing: Facing,
   movementType: MovementType,
   capability: IMovementCapability,
+  currentHeat: number = 0,
 ): IMovementValidation {
   if (!isInBounds(grid, destination)) {
     return {
@@ -60,7 +69,8 @@ export function validateMovement(
     };
   }
 
-  const maxMP = getMaxMP(capability, movementType);
+  const heatPenalty = currentHeat > 0 ? getHeatMovementPenalty(currentHeat) : 0;
+  const maxMP = getMaxMP(capability, movementType, heatPenalty);
 
   if (distance > maxMP) {
     return {
@@ -122,14 +132,20 @@ export function getStandingCost(capability: IMovementCapability): number {
 
 /**
  * Get all valid destinations for a movement type.
+ *
+ * Per `wire-heat-generation-and-effects` task 7.3: when `currentHeat`
+ * is provided, destinations are constrained by the heat-reduced MP
+ * so UI previews + bot planning both respect the penalty.
  */
 export function getValidDestinations(
   grid: IHexGrid,
   position: IUnitPosition,
   movementType: MovementType,
   capability: IMovementCapability,
+  currentHeat: number = 0,
 ): readonly IHexCoordinate[] {
-  const maxMP = getMaxMP(capability, movementType);
+  const heatPenalty = currentHeat > 0 ? getHeatMovementPenalty(currentHeat) : 0;
+  const maxMP = getMaxMP(capability, movementType, heatPenalty);
   if (maxMP === 0) {
     return [position.coord];
   }
@@ -150,6 +166,7 @@ export function getValidDestinations(
         position.facing,
         movementType,
         capability,
+        currentHeat,
       );
 
       if (validation.valid) {

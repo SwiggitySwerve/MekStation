@@ -39,8 +39,27 @@ export function createMovementCapability(
 
 /**
  * Get the maximum MP available for a movement type.
+ *
+ * Per `wire-heat-generation-and-effects` tasks 7.1 / 7.2 /
+ * decisions.md "Heat movement penalty integration point":
+ * overheated units lose MP by `floor(heat / 5)`. Callers that
+ * track current heat pass `heatPenalty`; legacy callers that omit
+ * it get the raw MP. Jump MP also has heat applied (per heat
+ * chart — total MP reduction). The penalty never drives MP
+ * negative; floor is 0 so a heat-30 walking unit still has 0
+ * walkMP, not -N.
  */
 export function getMaxMP(
+  capability: IMovementCapability,
+  movementType: MovementType,
+  heatPenalty: number = 0,
+): number {
+  const raw = getRawMaxMP(capability, movementType);
+  if (heatPenalty <= 0) return raw;
+  return Math.max(0, raw - heatPenalty);
+}
+
+function getRawMaxMP(
   capability: IMovementCapability,
   movementType: MovementType,
 ): number {

@@ -68,6 +68,7 @@ import {
   endGame,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import type { IAdaptedUnit, IAvailableActions } from './types';
@@ -315,9 +316,16 @@ export class InteractiveSession {
       this.session = checkAndQueueDamagePSRs(this.session);
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.Heat) {
+      // Per `wire-heat-generation-and-effects` task 5 (water cooling):
+      // `resolveHeatPhase` accepts an optional `getWaterDepth`
+      // provider. `IHex.terrain` is a plain `string` here (no
+      // structured depth), so we parse the `water:N` convention (used
+      // by future water-tagged hexes) and return 0 for any terrain
+      // that doesn't match. Existing grids use `'clear'` → bonus 0.
       this.session = resolveHeatPhase(
         this.session,
         this.diceRollerForResolvers(),
+        { getWaterDepth: (_unitId, position) => this.waterDepthAt(position) },
       );
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.End) {
@@ -649,6 +657,20 @@ export class InteractiveSession {
     const d6 = this.d6Roller;
     if (!d6) return undefined;
     return () => roll2d6FromD6(d6);
+  }
+
+  /**
+   * Per `wire-heat-generation-and-effects` task 5 + decisions.md
+   * "Water cooling integration point": `IHex.terrain` is a plain
+   * `string` today. We parse the `water:N` convention so a future
+   * map author can tag a hex as `'water:1'` / `'water:2'` and get
+   * the dissipation bonus immediately; all other terrain strings
+   * (including `'clear'`, `'woods'`, etc.) return depth 0 → no
+   * water cooling contribution. Calling `getWaterCoolingBonus(0)`
+   * yields 0, preserving behaviour for every existing grid.
+   */
+  private waterDepthAt(position: IHexCoordinate): number {
+    return waterDepthAtPosition(this.grid, position);
   }
 
   isGameOver(): boolean {
