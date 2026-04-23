@@ -21,7 +21,7 @@
  * commit guarantee — see preview.ts and the integration test).
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IAttackerState, ITargetState } from '@/types/gameplay';
@@ -72,17 +72,51 @@ export interface WeaponSelectorProps {
 interface RangeBadgeProps {
   label: string;
   range: number;
+  /**
+   * Per `add-attack-phase-ui` task 4.2: when `true`, the badge gets a
+   * high-contrast highlight so the player can spot the live range
+   * bracket without reading each value.
+   */
+  active?: boolean;
 }
 
-function RangeBadge({ label, range }: RangeBadgeProps): React.ReactElement {
+function RangeBadge({
+  label,
+  range,
+  active = false,
+}: RangeBadgeProps): React.ReactElement {
+  const base = 'rounded px-1.5 py-0.5 text-xs transition-colors border';
+  const tone = active
+    ? 'bg-blue-600 text-white border-blue-700 font-semibold shadow-sm'
+    : 'text-text-theme-muted bg-gray-100 border-transparent';
   return (
     <span
-      className="text-text-theme-muted rounded bg-gray-100 px-1.5 py-0.5 text-xs"
+      className={`${base} ${tone}`}
       data-testid={`range-badge-${label.toLowerCase()}`}
+      data-active={active}
+      aria-pressed={active}
     >
       {label}:{range}
     </span>
   );
+}
+
+/**
+ * Pick the active range bracket for `range` vs the weapon's thresholds.
+ * Returns `null` when the range is below minimum (in-range, but none of
+ * S/M/L is the "active" bracket because minRange gating applies) or
+ * above long (out of range — no bracket to highlight). Matches the
+ * bracket semantics used by `buildToHitForecast`.
+ */
+function pickActiveBracket(
+  range: number,
+  weapon: IWeapon,
+): 'S' | 'M' | 'L' | null {
+  if (weapon.minRange > 0 && range < weapon.minRange) return null;
+  if (range > weapon.longRange) return null;
+  if (range <= weapon.shortRange) return 'S';
+  if (range <= weapon.mediumRange) return 'M';
+  return 'L';
 }
 
 interface StatusBadgeProps {
@@ -228,6 +262,9 @@ function WeaponRow({
     (weapon.minRange > 0 && rangeToTarget < weapon.minRange);
 
   const disabled = destroyed || noAmmo || outOfRange;
+  // Per `add-attack-phase-ui` task 4.2: highlight the bracket that the
+  // current range falls into (null when OOR or inside min-range).
+  const activeBracket = pickActiveBracket(rangeToTarget, weapon);
 
   return (
     <li
@@ -254,9 +291,21 @@ function WeaponRow({
         </span>
       </label>
       <div className="ml-6 flex flex-wrap items-center gap-1.5">
-        <RangeBadge label="S" range={weapon.shortRange} />
-        <RangeBadge label="M" range={weapon.mediumRange} />
-        <RangeBadge label="L" range={weapon.longRange} />
+        <RangeBadge
+          label="S"
+          range={weapon.shortRange}
+          active={activeBracket === 'S'}
+        />
+        <RangeBadge
+          label="M"
+          range={weapon.mediumRange}
+          active={activeBracket === 'M'}
+        />
+        <RangeBadge
+          label="L"
+          range={weapon.longRange}
+          active={activeBracket === 'L'}
+        />
         {ammoRemaining >= 0 && (
           <span
             className="text-text-theme-muted rounded bg-gray-100 px-1.5 py-0.5 text-xs"
@@ -280,10 +329,15 @@ function WeaponRow({
           />
         )}
         {!destroyed && outOfRange && (
+          /*
+           * Per `add-attack-phase-ui` task 4.3: out-of-range indicator
+           * uses the red tone so it's visually distinct from amber
+           * warnings (previously both used amber which blurred meaning).
+           */
           <StatusBadge
             label="Out of range"
             testid={`weapon-out-of-range-${weapon.id}`}
-            tone="amber"
+            tone="red"
           />
         )}
       </div>
@@ -380,6 +434,12 @@ export function WeaponSelector({
     return out;
   }, [previewEnabled, attacker, target, weapons, rangeToTarget]);
 
+  // Per `add-attack-phase-ui` task 3.1: the Weapons list is collapsible
+  // so the action panel stays compact when the player has already
+  // finalized their selection. Default is open — critical target info
+  // must not hide itself on first render.
+  const [expanded, setExpanded] = useState(true);
+
   if (weapons.length === 0) {
     return (
       <div
@@ -391,42 +451,70 @@ export function WeaponSelector({
     );
   }
 
+  const selectedCount = selectedWeaponIds.length;
+
   return (
     <div
       className={`flex flex-col gap-2 ${className}`}
       data-testid="weapon-selector"
+      data-expanded={expanded}
     >
-      {onTogglePreview && (
-        <header
-          className="flex items-center justify-between"
-          data-testid="weapon-selector-header"
+      <header
+        className="flex items-center justify-between gap-2"
+        data-testid="weapon-selector-header"
+      >
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-controls="weapon-selector-list"
+          onClick={() => setExpanded((v) => !v)}
+          data-testid="weapon-selector-toggle"
+          className="text-text-theme-secondary inline-flex items-center gap-1.5 rounded text-xs font-semibold uppercase hover:text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none"
         >
-          <span className="text-text-theme-secondary text-xs font-semibold uppercase">
-            Weapons
+          <span
+            aria-hidden="true"
+            className={`inline-block transition-transform ${expanded ? 'rotate-90' : ''}`}
+          >
+            ▶
           </span>
+          <span>Weapons</span>
+          <span
+            className="text-text-theme-muted ml-1 font-normal normal-case"
+            data-testid="weapon-selector-count"
+          >
+            ({selectedCount}/{weapons.length} selected)
+          </span>
+        </button>
+        {onTogglePreview && (
           <PreviewToggle enabled={previewEnabled} onToggle={onTogglePreview} />
-        </header>
+        )}
+      </header>
+      {expanded && (
+        <ul
+          id="weapon-selector-list"
+          className="flex flex-col gap-2"
+          data-testid="weapon-list"
+        >
+          {weapons.map((weapon) => {
+            // Default to -1 (energy / unlimited) when the unit has no
+            // ammo entry — matches how `IAIUnitState.ammo` is shaped.
+            const ammoRemaining = ammo[weapon.id] ?? -1;
+            const preview = previews[weapon.id] ?? null;
+            return (
+              <WeaponRow
+                key={weapon.id}
+                weapon={weapon}
+                rangeToTarget={rangeToTarget}
+                selected={selectedWeaponIds.includes(weapon.id)}
+                ammoRemaining={ammoRemaining}
+                onToggle={() => onToggle(weapon.id)}
+                preview={preview}
+                showPreview={previewEnabled && Boolean(attacker && target)}
+              />
+            );
+          })}
+        </ul>
       )}
-      <ul className="flex flex-col gap-2" data-testid="weapon-list">
-        {weapons.map((weapon) => {
-          // Default to -1 (energy / unlimited) when the unit has no
-          // ammo entry — matches how `IAIUnitState.ammo` is shaped.
-          const ammoRemaining = ammo[weapon.id] ?? -1;
-          const preview = previews[weapon.id] ?? null;
-          return (
-            <WeaponRow
-              key={weapon.id}
-              weapon={weapon}
-              rangeToTarget={rangeToTarget}
-              selected={selectedWeaponIds.includes(weapon.id)}
-              ammoRemaining={ammoRemaining}
-              onToggle={() => onToggle(weapon.id)}
-              preview={preview}
-              showPreview={previewEnabled && Boolean(attacker && target)}
-            />
-          );
-        })}
-      </ul>
       <div
         className="text-text-theme-secondary border-t border-gray-200 pt-2 text-xs"
         data-testid="weapon-selector-total-heat"

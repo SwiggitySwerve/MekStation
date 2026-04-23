@@ -338,3 +338,49 @@ export function isPhysicalAttackPhase(session: IGameSession | null): boolean {
   if (!session) return false;
   return session.currentState.phase === GamePhase.PhysicalAttack;
 }
+
+// ---------------------------------------------------------------------------
+// Attack-plan selectors (tasks 1.2 + 1.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Per `add-attack-phase-ui` task 1.3: selector-style helper returning
+ * the current attack plan when the supplied `attackerId` matches the
+ * currently-selected attacker in the store. Returns `null` when the
+ * requested attacker is not the one the plan was built for so callers
+ * don't confuse another unit's UI state with their own.
+ *
+ * Pure function — keeps composability identical to `isPhysicalAttackPhase`
+ * (tests + non-component callers can invoke it without a hook).
+ */
+export function getAttackPlanFor(
+  plan: IAttackPlan,
+  activeAttackerId: string | null,
+  attackerId: string,
+): IAttackPlan | null {
+  if (activeAttackerId !== attackerId) return null;
+  return plan;
+}
+
+/**
+ * Per `add-attack-phase-ui` task 1.2: derive whether a session's
+ * phase-change requires clearing the in-progress attack plan. The plan
+ * is scoped to the Weapon Attack phase; any transition away from that
+ * phase invalidates the currently queued target + weapons.
+ *
+ * Returns `true` when both:
+ *   - the previous phase was `WeaponAttack`
+ *   - the next phase is anything else (including the same phase re-entered)
+ */
+export function shouldClearAttackPlanOnPhaseChange(
+  prevPhase: GamePhase | null,
+  nextPhase: GamePhase | null,
+): boolean {
+  if (
+    prevPhase === GamePhase.WeaponAttack &&
+    nextPhase !== GamePhase.WeaponAttack
+  ) {
+    return true;
+  }
+  return false;
+}

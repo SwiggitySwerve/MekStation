@@ -51,11 +51,15 @@ export const MechToken = React.memo(function MechToken({
     color = HEX_COLORS.destroyedToken;
   }
 
+  // Active target takes precedence over generic valid-target tone; the
+  // selection (yellow) ring still wins for the controlled attacker.
   const ringColor = token.isSelected
     ? '#fbbf24'
-    : token.isValidTarget
-      ? '#f87171'
-      : 'transparent';
+    : token.isActiveTarget
+      ? '#dc2626'
+      : token.isValidTarget
+        ? '#f87171'
+        : 'transparent';
 
   return (
     <>
@@ -66,6 +70,35 @@ export const MechToken = React.memo(function MechToken({
         stroke={ringColor}
         strokeWidth={3}
       />
+
+      {/* Pulsing ring overlay — only painted when this unit is the
+          attacker's active target (spec: tactical-map-interface §Target
+          Lock Visualization). Uses SVG <animate> so the effect works
+          inside static SVG snapshots / JSDOM tests. */}
+      {token.isActiveTarget && !isDestroyed && (
+        <circle
+          data-testid="unit-active-target-pulse"
+          r={MECH_RING_RADIUS + 2}
+          fill="none"
+          stroke="#dc2626"
+          strokeWidth={3}
+          pointerEvents="none"
+          aria-hidden="true"
+        >
+          <animate
+            attributeName="stroke-opacity"
+            values="1;0.25;1"
+            dur="1.1s"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="r"
+            values={`${MECH_RING_RADIUS + 2};${MECH_RING_RADIUS + 5};${MECH_RING_RADIUS + 2}`}
+            dur="1.1s"
+            repeatCount="indefinite"
+          />
+        </circle>
+      )}
 
       {/* Circular mech body */}
       <circle

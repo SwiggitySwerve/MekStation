@@ -20,7 +20,7 @@
  * session state.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IAttackerState, ITargetState } from '@/types/gameplay';
@@ -164,14 +164,38 @@ function ForecastRow({
     );
   }
 
+  // Per `add-attack-phase-ui` task 6.3: the per-weapon modifier
+  // breakdown collapses by default. Clicking the row toggles it open.
+  // Per spec "Modifier breakdown expands" + "zero-value modifiers SHALL
+  // be omitted" — we filter to non-zero modifiers before render. Also
+  // covers task 10.2 (zero-impact SPAs SHALL NOT render).
+  const [expanded, setExpanded] = useState(false);
+  const visibleModifiers = row.modifiers.filter((m) => m.value !== 0);
+
   return (
     <li
       className="bg-surface-base flex flex-col gap-1 rounded border border-gray-200 p-2"
       data-testid={`forecast-row-${row.weaponId}`}
+      data-expanded={expanded}
     >
-      <div className="flex items-center justify-between">
-        <span className="text-text-theme-primary font-medium">
-          {row.weaponName}
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
+        aria-controls={`forecast-modifiers-${row.weaponId}`}
+        className="flex items-center justify-between gap-2 rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none"
+        data-testid={`forecast-row-toggle-${row.weaponId}`}
+      >
+        <span className="flex items-center gap-1.5">
+          <span
+            aria-hidden="true"
+            className={`inline-block text-xs transition-transform ${expanded ? 'rotate-90' : ''}`}
+          >
+            ▶
+          </span>
+          <span className="text-text-theme-primary font-medium">
+            {row.weaponName}
+          </span>
         </span>
         <div className="flex items-center gap-3">
           <span
@@ -187,23 +211,36 @@ function ForecastRow({
             {row.hitProbability}%
           </span>
         </div>
-      </div>
-      <ul
-        className="text-text-theme-muted ml-2 text-xs"
-        data-testid={`forecast-modifiers-${row.weaponId}`}
-      >
-        {row.modifiers.map((m, idx) => (
-          <li
-            key={`${row.weaponId}-mod-${idx}`}
-            className="flex justify-between"
-          >
-            <span>{m.name}</span>
-            <span className="font-mono">
-              {m.value >= 0 ? `+${m.value}` : `${m.value}`}
-            </span>
-          </li>
-        ))}
-      </ul>
+      </button>
+      {expanded && (
+        <ul
+          id={`forecast-modifiers-${row.weaponId}`}
+          className="text-text-theme-muted ml-2 text-xs"
+          data-testid={`forecast-modifiers-${row.weaponId}`}
+        >
+          {visibleModifiers.length === 0 ? (
+            <li
+              className="text-text-theme-muted italic"
+              data-testid={`forecast-modifiers-empty-${row.weaponId}`}
+            >
+              No modifiers applied
+            </li>
+          ) : (
+            visibleModifiers.map((m, idx) => (
+              <li
+                key={`${row.weaponId}-mod-${idx}`}
+                className="flex justify-between"
+                data-testid={`forecast-modifier-${row.weaponId}-${idx}`}
+              >
+                <span>{m.name}</span>
+                <span className="font-mono">
+                  {m.value >= 0 ? `+${m.value}` : `${m.value}`}
+                </span>
+              </li>
+            ))
+          )}
+        </ul>
+      )}
       {showPreview && (
         <PreviewSubRow weaponId={row.weaponId} preview={preview} />
       )}
