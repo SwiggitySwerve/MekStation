@@ -8,7 +8,14 @@
 
 import React, { useMemo } from 'react';
 
+import type {
+  IDamageAppliedPayload,
+  IGameEvent,
+  IPilotHitPayload,
+} from '@/types/gameplay';
+
 import {
+  GameEventType,
   GameSide,
   IPilotSpaSummary,
   IUnitGameState,
@@ -78,6 +85,23 @@ export interface RecordSheetDisplayProps {
    * placeholder (conservative default).
    */
   spas?: readonly IPilotSpaSummary[];
+  /**
+   * Per `add-damage-feedback-ui` task 1.1: the selected unit's id, used
+   * to project `events` down to just the events that should animate
+   * on this action panel. When omitted, subscriptions are no-ops
+   * (legacy callers that render a static record sheet stay working).
+   */
+  unitId?: string;
+  /**
+   * Per `add-damage-feedback-ui` task 1.1 + 1.3: the full game event
+   * stream. The record sheet projects it down to `DamageApplied` /
+   * `CriticalHit` / `PilotHit` events for this `unitId` and feeds
+   * them to the appropriate child components (pilot wound track,
+   * future armor-pip animation). The subscription is a pure
+   * `useMemo` over props, so it automatically tears down when the
+   * selected unit changes (task 1.3).
+   */
+  events?: readonly IGameEvent[];
   /** Optional className for styling */
   className?: string;
 }
@@ -106,8 +130,38 @@ export function RecordSheetDisplay({
   tonnage,
   chassis,
   spas,
+  unitId,
+  events,
   className = '',
 }: RecordSheetDisplayProps): React.ReactElement {
+  // Per task 1.1 + 5.1: project the event stream down to the pieces
+  // this unit's action panel cares about. `useMemo` subscription
+  // automatically tears down (recomputes) when `unitId` changes per
+  // task 1.3 — no manual unsubscribe needed because derivation is
+  // pure.
+  const unitEvents = useMemo(() => {
+    if (!unitId || !events || events.length === 0) {
+      return {
+        pilotHitCount: 0,
+        damageHitsByLocation: {} as Record<string, number>,
+      };
+    }
+    let pilotHitCount = 0;
+    const damageHitsByLocation: Record<string, number> = {};
+    for (const ev of events) {
+      if (ev.type === GameEventType.PilotHit) {
+        const payload = ev.payload as IPilotHitPayload;
+        if (payload.unitId === unitId) pilotHitCount += 1;
+      } else if (ev.type === GameEventType.DamageApplied) {
+        const payload = ev.payload as IDamageAppliedPayload;
+        if (payload.unitId !== unitId) continue;
+        damageHitsByLocation[payload.location] =
+          (damageHitsByLocation[payload.location] ?? 0) + 1;
+      }
+    }
+    return { pilotHitCount, damageHitsByLocation };
+  }, [unitId, events]);
+
   // Build location statuses
   const locationStatuses = useMemo(() => {
     return LOCATION_ORDER.map((location) => {
@@ -188,6 +242,7 @@ export function RecordSheetDisplay({
           name={pilotName}
           gunnery={gunnery}
           piloting={piloting}
+          pilotHitCount={unitEvents.pilotHitCount}
           wounds={state.pilotWounds}
           conscious={state.pilotConscious}
         />
@@ -201,14 +256,23 @@ export function RecordSheetDisplay({
         <SimpleHeatDisplay heat={state.heat} heatSinks={heatSinks} />
       </div>
 
-      {/* Armor/Structure */}
+      {/* Armor/Structure — per task 2.4: each row receives a
+          per-location `damageHitCount` sourced from the projected
+          DamageApplied events. Incrementing the count drives the
+          sequential armor → structure flash animation. */}
       <div className="mb-4" data-testid="armor-structure-section">
         <h3 className="text-text-theme-primary mb-2 text-sm font-bold">
           ARMOR / STRUCTURE
         </h3>
         <div className="border-border-theme divide-y rounded border">
           {locationStatuses.map((loc) => (
-            <LocationStatusRow key={loc.location} {...loc} />
+            <LocationStatusRow
+              key={loc.location}
+              {...loc}
+              damageHitCount={
+                unitEvents.damageHitsByLocation[loc.location] ?? 0
+              }
+            />
           ))}
         </div>
       </div>
