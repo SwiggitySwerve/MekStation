@@ -2,7 +2,7 @@
 
 ## 1. Event Subscription
 
-- [ ] 1.1 Action panel subscribes to `DamageApplied`, `CriticalHit`,
+- [x] 1.1 Action panel subscribes to `DamageApplied`, `CriticalHit`,
       `CriticalHitResolved`, and `PilotHit` events for the selected unit.
       Consciousness state is derived from the `consciousnessRoll` /
       `consciousnessCheck` fields on `IDamageAppliedPayload` (see
@@ -18,7 +18,7 @@
       `justDamaged = true` for 400ms
 - [x] 2.3 During that window, pip flashes red at 60% opacity then fades
       to empty
-- [ ] 2.4 Armor-to-structure transfers animate in sequence (armor pip
+- [x] 2.4 Armor-to-structure transfers animate in sequence (armor pip
       drains first, then structure pip flashes)
 
 ## 3. Critical Hit Overlay
@@ -36,13 +36,13 @@
 - [x] 4.1 Extend `EventLogDisplay` renderer to handle `DamageApplied`
 - [x] 4.2 Entry reads: `"<Target> took <N> damage to <Location> from
 <Weapon>"`
-- [ ] 4.3 Entries with transfer chains render each step indented
+- [x] 4.3 Entries with transfer chains render each step indented
       (`→ overflow to LT`, `→ structure breach`)
 - [x] 4.4 Critical hit entries render with a distinct orange accent bar
 
 ## 5. Pilot Wound Flash
 
-- [ ] 5.1 Pilot wound track on action panel reads the consciousness
+- [x] 5.1 Pilot wound track on action panel reads the consciousness
       roll from `IDamageAppliedPayload` (head-hit derived) and from
       `PilotHit` events for the selected pilot
 - [x] 5.2 On a roll (payload exposes `consciousnessRoll` / TN), the
@@ -63,7 +63,7 @@
 
 - [x] 7.1 Multiple `DamageApplied` events from one weapon's cluster roll
       animate sequentially with a 50ms stagger
-- [ ] 7.2 Event log groups them under a parent entry for the attack
+- [x] 7.2 Event log groups them under a parent entry for the attack
 - [x] 7.3 Animation queue drains without dropping events
 
 ## 8. Damage Number Floater

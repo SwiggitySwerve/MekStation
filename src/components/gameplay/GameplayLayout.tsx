@@ -402,6 +402,8 @@ export function GameplayLayout({
         side={selectedUnitInfo.side}
         chassis={selectedUnitInfo.name}
         spas={selectedUnitId ? (unitSpas[selectedUnitId] ?? []) : []}
+        unitId={selectedUnitId ?? undefined}
+        events={events}
         className="h-full"
       />
     ) : (
