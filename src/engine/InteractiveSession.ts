@@ -63,6 +63,8 @@ import {
   resolveHeatPhase,
   declarePhysicalAttack,
   resolveAllPhysicalAttacks,
+  checkAndQueueDamagePSRs,
+  resolvePendingPSRs,
   endGame,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
@@ -291,6 +293,11 @@ export class InteractiveSession {
         this.session,
         this.diceRollerForResolvers(),
       );
+      // Per `wire-piloting-skill-rolls` § 2: after weapon damage has
+      // accumulated via the reducer, scan every unit and enqueue a
+      // `TwentyPlusPhaseDamage` PSR on any that crossed 20 damage.
+      // Resolution deliberately waits for the End phase.
+      this.session = checkAndQueueDamagePSRs(this.session);
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.PhysicalAttack) {
       // Per `wire-bot-ai-helpers-and-capstone`: resolve any
@@ -302,6 +309,10 @@ export class InteractiveSession {
         this.physicalContextByUnit(),
         this.diceRollerForResolvers(),
       );
+      // Per `wire-piloting-skill-rolls` § 5: physical-attack damage can
+      // also breach the 20+ threshold. Queue any new damage PSRs before
+      // the phase flips so they resolve in the End phase.
+      this.session = checkAndQueueDamagePSRs(this.session);
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.Heat) {
       this.session = resolveHeatPhase(
@@ -310,6 +321,13 @@ export class InteractiveSession {
       );
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.End) {
+      // Per `wire-piloting-skill-rolls` § 7: drain the PSR queue for
+      // every unit. Failures invoke `applyFall` (→ `UnitFell` +
+      // `PilotHit`) and clear the remaining queue on that unit.
+      this.session = resolvePendingPSRs(
+        this.session,
+        this.diceRollerForResolvers(),
+      );
       if (!this.isGameOver()) {
         this.session = advancePhase(this.session);
       }

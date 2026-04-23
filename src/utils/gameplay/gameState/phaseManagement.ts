@@ -48,9 +48,16 @@ export function applyTurnStarted(
 ): IGameState {
   const units = { ...state.units };
   for (const unitId of Object.keys(units)) {
+    // Per `wire-piloting-skill-rolls` task 1.3: clear any PSRs that
+    // survived the prior turn's End phase (a defensive reset — the
+    // End phase's `resolvePendingPSRs` should have drained them, but
+    // if a caller advanced past End without resolving, a stale queue
+    // would carry into a fresh turn). TW p.52: PSRs do not persist
+    // across turn boundaries.
     units[unitId] = {
       ...units[unitId],
       weaponsFiredThisTurn: [],
+      pendingPSRs: [],
     };
   }
 

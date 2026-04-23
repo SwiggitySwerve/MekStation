@@ -1,0 +1,8 @@
+{
+  "active_change": "wire-piloting-skill-rolls",
+  "started_at": "2026-04-23T00:00:00Z",
+  "current_wave": 0,
+  "completed_tasks": [],
+  "in_progress_tasks": ["audit"],
+  "branch": "feat/wire-piloting-skill-rolls"
+}
