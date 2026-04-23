@@ -318,4 +318,93 @@ describe('AttackAI', () => {
       expect(weapons.length).toBe(0);
     });
   });
+
+  // ==========================================================================
+  // Rear-arc safety (wire-firing-arc-resolution tasks 7.1 / 7.2)
+  // ==========================================================================
+  //
+  // Task 7.2 (mandatory): the AI must not crash when the attacker is in the
+  // target's rear arc, or vice versa. Task 7.1 (optional tactical heuristic)
+  // is NOT implemented here — `IAIUnitState` does not yet expose per-arc
+  // armor totals, so the AI cannot prefer rear-exposing arcs. That lives
+  // downstream when the AI surface is extended.
+  describe('rear-arc safety', () => {
+    it('scoreTarget does not throw when target is in attacker rear arc', () => {
+      const attackAI = new AttackAI();
+      const attacker = createMockUnit({
+        unitId: 'attacker',
+        position: { q: 0, r: 0 },
+        facing: Facing.North, // facing north, target is south = attacker's rear
+      });
+      const target = createMockUnit({
+        unitId: 'target',
+        position: { q: 0, r: 3 },
+        facing: Facing.North,
+      });
+
+      expect(() => {
+        attackAI.getValidTargets(attacker, [target]);
+      }).not.toThrow();
+
+      expect(() => {
+        attackAI.selectWeapons(attacker, target);
+      }).not.toThrow();
+    });
+
+    it('selectTarget does not throw when attacker is in target rear arc', () => {
+      const attackAI = new AttackAI();
+      const random = new SeededRandom(42);
+      // Target faces north; attacker is directly south → attacker is in
+      // target's rear arc. AttackAI has no arc-aware code yet, so this
+      // should simply behave identically to any other targeting scenario.
+      const attacker = createMockUnit({
+        unitId: 'attacker',
+        position: { q: 0, r: 3 },
+        facing: Facing.North,
+      });
+      const target = createMockUnit({
+        unitId: 'target',
+        position: { q: 0, r: 0 },
+        facing: Facing.North,
+      });
+
+      expect(() => {
+        const valid = attackAI.getValidTargets(attacker, [target]);
+        attackAI.selectTarget(valid, random, attacker);
+      }).not.toThrow();
+    });
+
+    it('selectWeapons returns sensible result across all 4 arc orientations', () => {
+      // Walk through front/right/left/rear attacker positions relative to a
+      // north-facing target and confirm the AI produces a weapon list (or
+      // empty) without crashing in any arc configuration.
+      const attackAI = new AttackAI();
+      const target = createMockUnit({
+        unitId: 'target',
+        position: { q: 0, r: 0 },
+        facing: Facing.North,
+      });
+
+      const attackerPositions = [
+        { q: 0, r: -2, label: 'front' },
+        { q: 2, r: -1, label: 'right' },
+        { q: -2, r: 1, label: 'left' },
+        { q: 0, r: 2, label: 'rear' },
+      ];
+
+      for (const pos of attackerPositions) {
+        const attacker = createMockUnit({
+          unitId: `attacker-${pos.label}`,
+          position: { q: pos.q, r: pos.r },
+          facing: Facing.North,
+        });
+
+        expect(() => {
+          const weapons = attackAI.selectWeapons(attacker, target);
+          // Any non-negative-length result is fine; what matters is no crash.
+          expect(weapons.length).toBeGreaterThanOrEqual(0);
+        }).not.toThrow();
+      }
+    });
+  });
 });

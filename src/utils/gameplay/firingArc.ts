@@ -1,7 +1,26 @@
 /**
- * Firing Arc Calculation
+ * Firing Arc Calculation — attack-path entry point.
  *
- * @spec openspec/changes/full-combat-parity/specs/firing-arc-calculation/spec.md
+ * This module is the CANONICAL entry point for the attack-resolution path.
+ * Callers that are resolving an attack (to-hit, hit location, arc on event
+ * payloads) SHALL import `calculateFiringArc` from here and SHALL NOT call
+ * `determineArc` from `./firingArcs` directly.
+ *
+ * Layering (do not merge these two files — they are layered, not duplicates):
+ *   - `firingArc.ts`  (this file, singular): attack-path API.
+ *     Handles same-hex + torso-twist shortcuts, returns a `FiringArc`.
+ *   - `firingArcs.ts` (plural): low-level geometry + arc utilities
+ *     (`determineArc`, `canFireFromArc`, `getArcHitModifier`,
+ *     `targetsRearArmor`, `getArcHexes`, `getFront/RearArcDirections`, ...).
+ *
+ * Arc-boundary convention (decided + documented in `determineArc` — repeated
+ * here for callers): front arc wins at the front/side boundary (±60°); rear
+ * arc wins at the rear/side boundary (±120°). This is deterministic — the
+ * same `(attackerPos, targetPos, targetFacing)` triple always returns the
+ * same `FiringArc`. See `firingArcs.ts: determineArc` for the boundary math.
+ *
+ * @spec openspec/changes/wire-firing-arc-resolution/specs/firing-arc-calculation/spec.md
+ * @spec openspec/changes/archive/2026-02-12-full-combat-parity/specs/firing-arc-calculation/spec.md
  */
 
 import { IHexCoordinate, Facing, FiringArc } from '@/types/gameplay';

@@ -176,12 +176,20 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
         toHitNumber: number;
         damage?: number;
         location?: string;
+        attackerArc?: 'front' | 'left' | 'right' | 'rear';
       };
       unitId = payload.attackerId;
+      // Per `wire-firing-arc-resolution` task 8.1: surface the computed arc
+      // (front/left/right/rear) in the event log so players can see which
+      // hit-location table + armor side was consulted. Fall back to an
+      // empty suffix for legacy events that predate arc wiring.
+      const arcSuffix = payload.attackerArc
+        ? ` [${payload.attackerArc} arc]`
+        : '';
       if (payload.hit) {
-        text = `Attack HIT (${payload.roll} vs ${payload.toHitNumber}): ${payload.damage} damage to ${payload.location}`;
+        text = `Attack HIT (${payload.roll} vs ${payload.toHitNumber}): ${payload.damage} damage to ${payload.location}${arcSuffix}`;
       } else {
-        text = `Attack MISSED (${payload.roll} vs ${payload.toHitNumber})`;
+        text = `Attack MISSED (${payload.roll} vs ${payload.toHitNumber})${arcSuffix}`;
       }
       break;
     }

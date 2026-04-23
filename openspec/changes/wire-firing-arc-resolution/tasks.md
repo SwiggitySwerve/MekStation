@@ -2,7 +2,7 @@
 
 ## 0. Prerequisites
 
-- [ ] 0.1 `fix-combat-rule-accuracy` merged to main (to-hit math must be correct before changing which arc supplies the hit-location table)
+- [x] 0.1 `fix-combat-rule-accuracy` merged to main (to-hit math must be correct before changing which arc supplies the hit-location table) — satisfied by PR #338
 
 ## 1. Audit Hardcoded Arc Usage
 
@@ -14,7 +14,7 @@
 
 - [x] 2.1 Review `firingArc.ts` / `firingArcs.ts` — confirm signature is `computeFiringArc(attackerHex, targetHex, targetFacing): FiringArc`
 - [x] 2.2 Confirm boundary handling is consistent (front precedence on front/side boundary, rear precedence on rear/side boundary)
-- [ ] 2.3 If duplicate helpers exist across the two files, pick one and deprecate the other
+- [x] 2.3 If duplicate helpers exist across the two files, pick one and deprecate the other — NO duplicates: `firingArc.ts` is the attack-path API wrapping `firingArcs.ts` low-level `determineArc`. Layering documented in `src/utils/gameplay/firingArc.ts` header.
 
 ## 3. Wire Arc Computation Into Attack Path
 
@@ -38,18 +38,18 @@
 ## 6. Boundary Determinism
 
 - [x] 6.1 Select a consistent convention for hex-side boundaries (front precedence over side; rear precedence over side)
-- [ ] 6.2 Document the convention in the arc helper
-- [ ] 6.3 Add a property-based test that sweeping attacker position around the target returns exactly one arc per position (no ambiguity)
+- [x] 6.2 Document the convention in the arc helper — see JSDoc on `determineArc` in `src/utils/gameplay/firingArcs.ts` and header comment on `src/utils/gameplay/firingArc.ts`
+- [x] 6.3 Add a property-based test that sweeping attacker position around the target returns exactly one arc per position (no ambiguity) — see `src/utils/gameplay/__tests__/firingArc.test.ts` § "property-based sweep" (6 facings × radius 3/5)
 
 ## 7. Bot Integration
 
-- [ ] 7.1 `AttackAI` SHOULD prefer arcs that expose rear armor (optional tactical heuristic)
-- [ ] 7.2 Minimum: `AttackAI` must not crash when target is in rear arc
+- [ ] 7.1 `AttackAI` SHOULD prefer arcs that expose rear armor (optional tactical heuristic) — DEFERRED: `IAIUnitState` does not yet expose per-arc armor totals; tracked for a later AI surface extension
+- [x] 7.2 Minimum: `AttackAI` must not crash when target is in rear arc — see `src/simulation/__tests__/attackAI.test.ts` § "rear-arc safety"
 
 ## 8. UI Consumers (non-blocking)
 
-- [ ] 8.1 Ensure the UI event log can display the arc string
-- [ ] 8.2 Optional: highlight arc on the hex map during attack preview
+- [x] 8.1 Ensure the UI event log can display the arc string — `EventLogDisplay.tsx` now appends `[<arc> arc]` to AttackResolved rows; tested in `EventLogDisplay.arc.test.tsx`
+- [ ] 8.2 Optional: highlight arc on the hex map during attack preview — DEFERRED to a later UI wave (non-blocking per task 8 header)
 
 ## 9. Per-Change Smoke Test
 
@@ -62,6 +62,6 @@
 
 ## 10. Validation
 
-- [ ] 10.1 `openspec validate wire-firing-arc-resolution --strict`
-- [ ] 10.2 Autonomous fuzzer reports no new invariant violations related to arcs
-- [ ] 10.3 Build + lint clean
+- [x] 10.1 `openspec validate wire-firing-arc-resolution --strict` — clean (1.3.0)
+- [ ] 10.2 Autonomous fuzzer reports no new invariant violations related to arcs — DEFERRED to Wave 2: autonomous fuzzer harness is not yet in-repo; tracked as follow-up
+- [ ] 10.3 Build + lint clean — verified in PR pipeline (see PR description)
