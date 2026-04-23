@@ -2,7 +2,7 @@ export { applyDamageToLocation, applyDamageWithTransfer } from './location';
 export { checkCriticalHitTrigger, getCriticalHitCount } from './critical';
 export { applyPilotDamage } from './pilot';
 export { checkUnitDestruction } from './destruction';
-export { resolveDamage } from './resolve';
+export { resolveDamage, HEAD_DAMAGE_CAP_PER_HIT } from './resolve';
 export { applyDamageWithTerrainEffects } from './terrain';
 export {
   createDamageState,

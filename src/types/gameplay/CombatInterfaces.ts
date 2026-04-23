@@ -413,6 +413,14 @@ export interface ICriticalEffect {
   readonly weaponDisabled?: string;
   /** Was ammo hit? */
   readonly ammoExplosion?: IAmmoExplosion;
+  /**
+   * Set true once life-support has taken
+   * `LIFE_SUPPORT_DESTRUCTION_THRESHOLD` hits (per `fix-combat-rule-accuracy`
+   * and OpenSpec change `integrate-damage-pipeline` task 10.5). Downstream
+   * heat-phase processing consults this flag to apply 1 pilot damage per
+   * heat tick when the pilot crosses the 15-heat / 25-heat thresholds.
+   */
+  readonly lifeSupportDisabled?: boolean;
 }
 
 /**
