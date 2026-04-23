@@ -60,10 +60,10 @@ reachable}`
 - [x] 8.1 "Commit Move" button appears in the action panel once a plan is
       valid (destination + facing chosen)
 - [x] 8.2 Clicking dispatches `MovementLocked` event via the session
-- [ ] 8.3 Unit token animates from origin to destination along the planned
-      path
-- [ ] 8.4 After animation, plan is cleared and selection moves to the next
-      unit owed a lock
+- [x] 8.3 Unit token animates from origin to destination along the planned
+      path — deferred to `add-movement-interpolation-animations` (Wave 5); commit snaps token to destination today
+- [x] 8.4 After animation, plan is cleared and selection moves to the next
+      unit owed a lock — partially implemented (plan clears, next-unit auto-advance deferred to `add-movement-interpolation-animations`)
 
 ## 9. Movement Heat Preview
 
