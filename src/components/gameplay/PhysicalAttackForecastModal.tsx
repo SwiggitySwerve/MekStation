@@ -93,6 +93,8 @@ function attackTypeLabel(attackType: PhysicalAttackType): string {
       return 'Sword';
     case 'mace':
       return 'Mace';
+    case 'lance':
+      return 'Lance';
   }
 }
 
