@@ -19,6 +19,7 @@ import {
   IAmmoConsumedPayload,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
+  PhysicalAttackEventType,
 } from '@/types/gameplay';
 
 import { createEventBase } from './base';
@@ -447,14 +448,16 @@ export function createPhysicalAttackDeclaredEvent(
   turn: number,
   attackerId: string,
   targetId: string,
-  attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push',
+  attackType: PhysicalAttackEventType,
   toHitNumber: number,
+  limb?: IPhysicalAttackDeclaredPayload['limb'],
 ): IGameEvent {
   const payload: IPhysicalAttackDeclaredPayload = {
     attackerId,
     targetId,
     attackType,
     toHitNumber,
+    limb,
   };
   return {
     ...createEventBase(
@@ -480,12 +483,13 @@ export function createPhysicalAttackResolvedEvent(
   turn: number,
   attackerId: string,
   targetId: string,
-  attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push',
+  attackType: PhysicalAttackEventType,
   roll: number,
   toHitNumber: number,
   hit: boolean,
   damage?: number,
   location?: string,
+  clusters?: IPhysicalAttackResolvedPayload['clusters'],
 ): IGameEvent {
   const payload: IPhysicalAttackResolvedPayload = {
     attackerId,
@@ -496,6 +500,7 @@ export function createPhysicalAttackResolvedEvent(
     hit,
     damage,
     location,
+    clusters,
   };
   return {
     ...createEventBase(

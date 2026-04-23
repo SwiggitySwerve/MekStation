@@ -8,8 +8,11 @@ import {
   DFA_TARGET_DAMAGE_DIVISOR,
   HATCHET_DAMAGE_DIVISOR,
   KICK_DAMAGE_DIVISOR,
+  LANCE_CHARGE_DAMAGE_MULTIPLIER,
+  LANCE_DAMAGE_DIVISOR,
   MACE_DAMAGE_DIVISOR,
   MACE_WEIGHT_MULTIPLIER,
+  PHYSICAL_CLUSTER_SIZE,
   PUNCH_DAMAGE_DIVISOR,
   SWORD_DAMAGE_BONUS,
   SWORD_DAMAGE_DIVISOR,
@@ -157,6 +160,48 @@ export function calculateMaceDamage(input: IPhysicalAttackInput): number {
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
+/**
+ * Per `implement-physical-attack-phase` task 9.4: lance damage is
+ * floor(weight / 5); when the attacker is charging (caller sets
+ * `attackType: 'charge'` with lance context, or passes an override via
+ * `hexesMoved`), the result is doubled. We keep the charge-multiplier
+ * decision at the caller (`resolvePhysicalAttack`) because the same
+ * lance-equipped mech can deliver either a stationary swing or a charge.
+ */
+export function calculateLanceDamage(
+  input: IPhysicalAttackInput,
+  isCharging: boolean = false,
+): number {
+  const effectiveWeight = getEffectiveWeight(
+    input.attackerTonnage,
+    input.heat ?? 0,
+    input.hasTSM ?? false,
+  );
+  const base = Math.floor(effectiveWeight / LANCE_DAMAGE_DIVISOR);
+  const damage = isCharging ? base * LANCE_CHARGE_DAMAGE_MULTIPLIER : base;
+  return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
+}
+
+/**
+ * Per `implement-physical-attack-phase` tasks 6.4 / 7.4: split damage
+ * into 5-point clusters before hit-location resolution. Zero damage
+ * returns an empty list; damage under the cluster size returns a single
+ * cluster of the remaining damage.
+ */
+export function splitPhysicalDamageIntoClusters(
+  totalDamage: number,
+): readonly number[] {
+  if (totalDamage <= 0) return [];
+  const clusters: number[] = [];
+  let remaining = totalDamage;
+  while (remaining > 0) {
+    const size = Math.min(PHYSICAL_CLUSTER_SIZE, remaining);
+    clusters.push(size);
+    remaining -= size;
+  }
+  return clusters;
+}
+
 export function calculatePhysicalDamage(
   input: IPhysicalAttackInput,
 ): IPhysicalDamageResult {
@@ -241,6 +286,20 @@ export function calculatePhysicalDamage(
     case 'mace':
       return {
         targetDamage: calculateMaceDamage(input),
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
+    case 'lance':
+      return {
+        // Per task 9.4: the charge-double variant is applied at the
+        // resolution layer when the attacker is simultaneously charging;
+        // the baseline damage path is used here.
+        targetDamage: calculateLanceDamage(input, false),
         attackerDamage: 0,
         attackerLegDamagePerLeg: 0,
         targetPSR: false,
