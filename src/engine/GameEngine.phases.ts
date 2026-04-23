@@ -31,6 +31,8 @@ import {
   resolveHeatPhase,
   declarePhysicalAttack,
   resolveAllPhysicalAttacks,
+  checkAndQueueDamagePSRs,
+  resolvePendingPSRs,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
@@ -330,13 +332,28 @@ export function runInteractivePhaseAdvance(
       }
     }
     updatedSession = resolveAllAttacks(updatedSession);
+    // Per `wire-piloting-skill-rolls` task 2.1 + TW p.51: damage-driven
+    // PSRs are queued at end of weapon phase (when `damageThisPhase` is
+    // final). Resolution happens in the End phase so heat + physical
+    // phase mods land first.
+    updatedSession = checkAndQueueDamagePSRs(updatedSession);
     updatedSession = advancePhase(updatedSession);
   } else if (phase === GamePhase.PhysicalAttack) {
+    // Per `wire-piloting-skill-rolls` § 5: physical-attack triggers
+    // (kick / charge / DFA / push hit-or-miss) are enqueued by the
+    // physical-attack resolver. Any additional damage-driven PSRs from
+    // physical damage are captured here before the phase advances.
+    updatedSession = checkAndQueueDamagePSRs(updatedSession);
     updatedSession = advancePhase(updatedSession);
   } else if (phase === GamePhase.Heat) {
     updatedSession = resolveHeatPhase(updatedSession);
     updatedSession = advancePhase(updatedSession);
   } else if (phase === GamePhase.End) {
+    // Per `wire-piloting-skill-rolls` § 7: drain the queue at end of
+    // turn. `resolvePendingPSRs` rolls 2d6 vs TN for each entry, emits
+    // `PSRResolved`, and on failure invokes `applyFall` → emits
+    // `UnitFell` + `PilotHit`.
+    updatedSession = resolvePendingPSRs(updatedSession);
     updatedSession = advancePhase(updatedSession);
   }
 
