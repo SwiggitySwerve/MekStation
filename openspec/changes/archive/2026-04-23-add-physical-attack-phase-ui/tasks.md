@@ -2,9 +2,9 @@
 
 ## 0. Prerequisites
 
-- [ ] 0.1 `implement-physical-attack-phase` merged (engine must emit `PhysicalAttackDeclared` / `PhysicalAttackResolved` and accept `IPhysicalAttackDeclaration`)
-- [ ] 0.2 `add-interactive-combat-core-ui` merged (action panel + phase HUD)
-- [ ] 0.3 `add-attack-phase-ui` merged (target-lock and forecast-modal patterns are reused)
+- [x] 0.1 `implement-physical-attack-phase` merged (engine must emit `PhysicalAttackDeclared` / `PhysicalAttackResolved` and accept `IPhysicalAttackDeclaration`) — PR #348 (WIP merge; follow-up tasks tracked in that change)
+- [x] 0.2 `add-interactive-combat-core-ui` merged (action panel + phase HUD)
+- [x] 0.3 `add-attack-phase-ui` merged (target-lock and forecast-modal patterns are reused) — PR #351 + #357
 
 ## 1. Phase Detection
 

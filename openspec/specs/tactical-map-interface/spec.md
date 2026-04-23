@@ -44,9 +44,7 @@ Defines the interactive hex map rendering and interaction system for BattleTech 
 - **Level of Detail (LOD)**: Rendering optimization based on zoom level
 
 ---
-
 ## Requirements
-
 ### Requirement: Hex Grid Rendering
 
 The system SHALL render a hex grid using SVG with flat-top orientation and axial coordinates.
@@ -529,6 +527,526 @@ session emits a `facing_changed` event.
   red X)
 
 ---
+
+### Requirement: Pre-Battle Map Preview
+
+The tactical map interface SHALL render a non-interactive preview of the
+prospective skirmish map on the pre-battle setup screen, using the same hex
+grid, terrain, and viewport framing that will be used once combat begins.
+
+**Priority**: Critical
+
+#### Scenario: Preview reflects selected radius
+
+- **GIVEN** the user selects map radius 8 on the pre-battle screen
+- **WHEN** the preview renders
+- **THEN** the preview SHALL show `3 * 8^2 + 3 * 8 + 1 = 217` hexes
+- **AND** the preview viewport SHALL frame the entire hex grid with padding
+
+#### Scenario: Preview reflects selected terrain preset
+
+- **GIVEN** the user selects terrain preset `"Woods"`
+- **WHEN** the preview renders
+- **THEN** each hex SHALL be filled with the terrain color for the preset's
+  per-hex `TerrainType`
+- **AND** preview SHALL NOT respond to click or hover (non-interactive)
+
+#### Scenario: Preview updates live on config change
+
+- **GIVEN** the user changes radius from 8 to 12
+- **WHEN** the configuration value updates
+- **THEN** the preview SHALL re-render within the same frame with the new
+  radius
+- **AND** no stale hexes from the previous radius SHALL remain visible
+
+### Requirement: Deployment Zone Overlay
+
+The tactical map interface SHALL render per-side deployment zone overlays on
+the pre-battle preview, visually distinguishing Player and Opponent zones
+while preserving underlying terrain colors.
+
+**Priority**: High
+
+#### Scenario: Zones rendered with side colors
+
+- **GIVEN** deployment zones for Player (west) and Opponent (east)
+- **WHEN** the preview renders with zone overlays enabled
+- **THEN** Player zone hexes SHALL have a semi-transparent blue tint
+  (rgba(59,130,246,0.35))
+- **AND** Opponent zone hexes SHALL have a semi-transparent red tint
+  (rgba(239,68,68,0.35))
+- **AND** terrain color SHALL remain visible under the tint
+
+#### Scenario: Zone tooltip on hover
+
+- **GIVEN** zone overlays are visible
+- **WHEN** the user hovers a hex in the Player zone
+- **THEN** a tooltip SHALL display `"Player deployment"` and the zone's
+  hex count
+- **AND** moving to an Opponent hex SHALL switch the tooltip to
+  `"Opponent deployment"`
+
+#### Scenario: Empty zones handled
+
+- **GIVEN** a terrain preset that produces no valid deployment hexes for a
+  side
+- **WHEN** the preview renders
+- **THEN** a warning banner SHALL display
+  `"No valid deployment hexes for <side>"`
+- **AND** "Launch Skirmish" SHALL be disabled
+
+### Requirement: Terrain Preset Legend
+
+The tactical map interface SHALL render a legend adjacent to the pre-battle
+preview showing the colors and labels of terrain types present in the
+selected preset.
+
+**Priority**: Medium
+
+#### Scenario: Legend matches preview
+
+- **GIVEN** a preset that contains Clear, LightWoods, and HeavyWoods hexes
+- **WHEN** the legend renders
+- **THEN** exactly three entries SHALL be listed (no duplicates, no extras)
+- **AND** each entry's swatch color SHALL match the same terrain color used
+  in the preview
+- **AND** each entry's label SHALL use the canonical terrain name from
+  `terrain-system`
+
+### Requirement: Target Lock Visualization
+
+The tactical map interface SHALL render a pulsing red target ring around a
+locked-in enemy unit token during the Weapon Attack phase, binding the
+ring's visibility to `useGameplayStore.attackPlan.targetId`.
+
+**Priority**: Critical
+
+#### Scenario: Target lock pulses red
+
+- **GIVEN** `attackPlan.targetId = "unit-42"` during Weapon Attack phase
+- **WHEN** the token for unit-42 renders
+- **THEN** a red target ring SHALL pulse around the token
+- **AND** the ring stroke width SHALL be 3px
+
+#### Scenario: Clearing target removes ring
+
+- **GIVEN** a target ring is visible
+- **WHEN** `attackPlan.targetId` becomes `null`
+- **THEN** the ring SHALL disappear within a single re-render
+
+#### Scenario: Target ring only in Weapon Attack phase
+
+- **GIVEN** `attackPlan.targetId` is set but phase is Heat
+- **WHEN** the token renders
+- **THEN** the red target ring SHALL NOT be visible
+
+### Requirement: To-Hit Forecast Modal
+
+The tactical map interface SHALL provide a modal surface that displays the
+breakdown of to-hit modifiers for each selected weapon and the final TN
+for each, based on the `forecastToHit` projection from
+`to-hit-resolution`.
+
+**Priority**: Critical
+
+#### Scenario: Modal opens from Preview Forecast
+
+- **GIVEN** a valid attack plan with at least one selected weapon
+- **WHEN** the player clicks "Preview Forecast"
+- **THEN** the modal SHALL open centered over the combat surface
+- **AND** each selected weapon SHALL render a row with the final TN and
+  an expandable modifier breakdown
+
+#### Scenario: Modifier breakdown expands
+
+- **GIVEN** the modal is open and a weapon row is collapsed
+- **WHEN** the player clicks the row
+- **THEN** the row SHALL expand to show per-modifier labels and signed
+  integer values
+- **AND** zero-value modifiers SHALL be omitted from the breakdown
+
+#### Scenario: Hit probability shown per weapon
+
+- **GIVEN** a weapon with final TN 8
+- **WHEN** the modal renders
+- **THEN** the row SHALL display the probability from `hitProbability(8)`
+  formatted as a percentage (e.g., `"41.7%"`)
+
+#### Scenario: Modal footer shows expected hits
+
+- **GIVEN** three selected weapons with probabilities 0.9, 0.5, 0.1
+- **WHEN** the modal renders
+- **THEN** the footer SHALL display `"Expected hits: 1.5"` (sum of
+  probabilities rounded to 1 decimal)
+
+### Requirement: Waiting-for-Opponent Banner
+
+The tactical map interface SHALL render a dismissible "Waiting for
+Opponent..." banner after the Player side confirms fire during Weapon
+Attack phase and before `attacks_revealed` fires.
+
+**Priority**: High
+
+#### Scenario: Banner appears on Player confirm fire
+
+- **GIVEN** the Player side appends `AttackDeclared` events for all its
+  active units
+- **WHEN** the combat surface re-renders
+- **THEN** a "Waiting for Opponent..." banner SHALL be visible
+- **AND** the weapon selector checkboxes SHALL be disabled
+
+#### Scenario: Banner dismisses on attacks revealed
+
+- **GIVEN** the banner is visible
+- **WHEN** the session emits `attacks_revealed`
+- **THEN** the banner SHALL dismiss
+- **AND** weapon selector checkboxes SHALL remain disabled (locked for
+  phase)
+
+### Requirement: Armor Pip Decay Animation
+
+The tactical map interface SHALL animate the transition of armor pips on
+the action panel from filled to empty when a `DamageApplied` event lands,
+giving the player a visible pulse per hit.
+
+**Priority**: High
+
+#### Scenario: Pip flashes then clears on damage
+
+- **GIVEN** the action panel is showing unit A with 5 armor pips at RA
+- **WHEN** a `DamageApplied` event reports 3 armor damage to RA
+- **THEN** three rightmost filled pips SHALL flash red at 60% opacity
+  for 400ms
+- **AND** after the flash the three pips SHALL render empty
+- **AND** the 2 remaining pips SHALL stay filled
+
+#### Scenario: Armor then structure animate sequentially
+
+- **GIVEN** 8 damage applied to RA (5 armor, 3 structure)
+- **WHEN** the animation runs
+- **THEN** armor pips SHALL animate first
+- **AND** structure pips SHALL begin animating when the armor animation
+  completes
+- **AND** total animation time SHALL not exceed 900ms
+
+#### Scenario: Unselected unit's damage does not animate
+
+- **GIVEN** unit B takes damage but the action panel shows unit A
+- **WHEN** the `DamageApplied` event fires
+- **THEN** the action panel SHALL NOT animate
+- **AND** switching selection to unit B after the event SHALL show the
+  post-damage state without replaying the animation
+
+### Requirement: Critical Hit Burst Overlay
+
+The tactical map interface SHALL render a short burst animation over a
+unit's token when a `CriticalHit` event fires, and the overlay SHALL
+auto-dismiss without blocking map interactions.
+
+**Priority**: High
+
+#### Scenario: Crit burst animates over token
+
+- **GIVEN** a `CriticalHit` event for unit-42
+- **WHEN** the overlay renders
+- **THEN** a burst animation SHALL play centered on unit-42's token for
+  ~600ms
+- **AND** the overlay SHALL dismiss automatically
+
+#### Scenario: Crit overlay does not intercept clicks
+
+- **GIVEN** the crit burst is visible over a token
+- **WHEN** the user clicks on that token
+- **THEN** the token click SHALL still register (overlay is
+  pointer-events: none)
+
+#### Scenario: Simultaneous crits queue
+
+- **GIVEN** two `CriticalHit` events fire in the same frame for the
+  same unit
+- **WHEN** the overlays render
+- **THEN** the second burst SHALL start after the first completes
+- **AND** no more than one burst SHALL be on-screen at a time per unit
+
+### Requirement: Damage Number Floater
+
+The tactical map interface SHALL render a floating red damage number
+above each token that takes damage, visualizing the magnitude of hits.
+
+**Priority**: Medium
+
+#### Scenario: Floater appears on damage
+
+- **GIVEN** unit-42 takes 10 damage from a weapon hit
+- **WHEN** the floater renders
+- **THEN** a red number `"10"` SHALL appear above the token
+- **AND** the number SHALL rise upward ~40 pixels over 800ms while
+  fading to transparent
+
+#### Scenario: Multiple hits stack vertically
+
+- **GIVEN** a cluster attack that lands 3 hits for 2 damage each
+- **WHEN** the floaters render
+- **THEN** three floaters SHALL render with 50ms stagger
+- **AND** each floater SHALL rise independently
+
+### Requirement: Pilot Wound Flash
+
+The tactical map interface SHALL visually emphasize pilot consciousness
+rolls on the action panel's pilot wound track, so the player sees when a
+roll fires and how it resolved.
+
+**Priority**: High
+
+#### Scenario: Consciousness roll pulses yellow
+
+- **GIVEN** a `ConsciousnessRoll` event fires for the selected unit's
+  pilot
+- **WHEN** the wound track renders
+- **THEN** the track SHALL pulse yellow for 500ms
+
+#### Scenario: Failed roll shows Unconscious badge
+
+- **GIVEN** a `ConsciousnessRoll` event with `passed = false`
+- **WHEN** the wound track renders post-pulse
+- **THEN** a persistent red "Unconscious" badge SHALL appear across the
+  track
+- **AND** the badge SHALL stay until pilot state changes back to
+  conscious
+
+#### Scenario: Passed roll leaves no badge
+
+- **GIVEN** a `ConsciousnessRoll` event with `passed = true`
+- **WHEN** the wound track renders post-pulse
+- **THEN** the yellow pulse SHALL fade
+- **AND** no badge SHALL appear
+
+### Requirement: Physical Attack Sub-Panel
+
+During the Physical Attack phase, the action panel SHALL render a "Physical Attacks" sub-panel that lists every eligible physical attack type (punch, kick, charge, DFA, push, club) for the currently selected unit against the currently locked-in target, along with disabled rows for ineligible attacks showing the restriction reason.
+
+**Priority**: Critical
+
+#### Scenario: Eligible punch row renders
+
+- **GIVEN** the Physical Attack phase is active
+- **AND** the selected friendly unit has both arms intact and has not fired any arm-mounted weapon this turn
+- **AND** an adjacent enemy is locked as the target
+- **WHEN** the sub-panel renders
+- **THEN** a "Punch (Right Arm)" row SHALL be visible
+- **AND** a "Punch (Left Arm)" row SHALL be visible
+- **AND** each row SHALL show the attack-type icon, the target designation, the to-hit TN, and the damage number
+
+#### Scenario: Ineligible punch row renders disabled
+
+- **GIVEN** the Physical Attack phase is active
+- **AND** the selected unit's right arm fired an LRM-10 earlier this turn
+- **WHEN** the sub-panel renders
+- **THEN** the "Punch (Right Arm)" row SHALL render with a red strikethrough
+- **AND** a tooltip SHALL read "Right arm fired LRM-10 — cannot punch this turn"
+- **AND** the row's Declare button SHALL be disabled
+
+#### Scenario: No eligible attacks renders empty state
+
+- **GIVEN** the Physical Attack phase is active
+- **AND** no enemy is adjacent to the selected unit
+- **WHEN** the sub-panel renders
+- **THEN** the sub-panel SHALL show "No eligible physical attacks this turn"
+- **AND** a "Skip Physical Attack" button SHALL be visible
+
+### Requirement: Physical Attack Forecast Modal Variant
+
+The to-hit forecast modal SHALL accept a `PhysicalAttackForecast` variant that replaces weapon range/heat modifiers with physical-specific modifiers: attack-type base, actuator damage mods, piloting skill, TMM, prone-target adjustments, and for charge/DFA a "Self-risk" row showing damage-to-attacker + auto-fall conditions.
+
+**Priority**: Critical
+
+#### Scenario: Kick forecast shows −2 base modifier
+
+- **GIVEN** a player declares a kick
+- **WHEN** the forecast modal opens
+- **THEN** the modifier breakdown SHALL include "Kick base −2"
+- **AND** the breakdown SHALL include the piloting skill, TMM, and any leg actuator damage modifiers
+
+#### Scenario: Charge forecast surfaces self-damage
+
+- **GIVEN** a player declares a charge against a 50-ton target
+- **WHEN** the forecast modal opens
+- **THEN** a "Self-risk" row SHALL be visible
+- **AND** the row SHALL show `damage to attacker = ceil(50 / 10) = 5`
+- **AND** the row SHALL note "Attacker takes collision PSR"
+
+#### Scenario: DFA forecast surfaces miss-fall
+
+- **GIVEN** a player declares a DFA
+- **WHEN** the forecast modal opens
+- **THEN** the Self-risk row SHALL state "On miss: attacker falls"
+- **AND** the expected leg damage to attacker SHALL be shown
+
+### Requirement: Physical Attack Intent Arrows
+
+When a physical-attack row is hovered OR an attack of that type is declared, the map SHALL render an intent arrow that visually communicates the action's motion — solid for charge, dashed arc for DFA, and a ghost-hex displacement marker for push.
+
+**Priority**: High
+
+#### Scenario: Charge intent arrow renders on hover
+
+- **GIVEN** the sub-panel shows a "Charge" row
+- **WHEN** the player hovers the row
+- **THEN** a solid arrow SHALL render from attacker hex center to target hex center
+- **AND** the arrow color SHALL match the attacker's side color
+
+#### Scenario: DFA intent arrow is dashed arc
+
+- **GIVEN** the sub-panel shows a "DFA" row
+- **WHEN** the player hovers the row
+- **THEN** a dashed arrow rendering an arc (lift + crash) SHALL appear between attacker and target
+- **AND** the dash pattern SHALL make the DFA arrow distinguishable from the charge arrow under simulated deuteranopia
+
+#### Scenario: Push ghost hex shows displacement
+
+- **GIVEN** the sub-panel shows a "Push" row
+- **WHEN** the player hovers the row
+- **THEN** a ghost outline SHALL appear on the hex where the target would be pushed to
+- **AND** if the destination hex is invalid (off-map, blocked), the ghost SHALL render in red with an "X" overlay
+
+### Requirement: Physical Attack Declaration Commit
+
+Clicking "Declare" on an eligible row SHALL append a `PhysicalAttackDeclared` event to the session with the attacker id, target id, attack type, and limb when applicable. After commit, the sub-panel SHALL collapse to a summary row and disable further declarations for that attacker this phase.
+
+**Priority**: Critical
+
+#### Scenario: Punch declaration appends event
+
+- **GIVEN** a player clicks "Declare" on the "Punch (Right Arm)" row for attacker `unit-1` targeting `unit-42`
+- **WHEN** the confirmation modal is accepted
+- **THEN** a `PhysicalAttackDeclared` event SHALL be appended
+- **AND** its payload SHALL be `{attackerId: "unit-1", targetId: "unit-42", attackType: "Punch", limb: "RightArm"}`
+
+#### Scenario: Post-declaration collapse
+
+- **GIVEN** a player just declared a punch
+- **WHEN** the sub-panel re-renders
+- **THEN** the sub-panel SHALL show only a summary row ("Punch declared vs. unit-42")
+- **AND** all Declare buttons SHALL be disabled
+- **AND** the "Skip" button SHALL be hidden (declaration already made)
+
+### Requirement: Reachable Hex Overlay by MP Type
+
+The tactical map interface SHALL render a reachable-hex overlay during the
+Movement phase for the selected Player-side unit, coloring each tile by the
+movement type (Walk, Run, Jump) required to reach it.
+
+**Priority**: Critical
+
+#### Scenario: Walk-range tiles rendered green
+
+- **GIVEN** a selected unit has 5 walk MP and the player selects MP type
+  Walk
+- **WHEN** the overlay renders
+- **THEN** every hex with `mpCost <= 5` via walk SHALL be tinted green
+  (`#bbf7d0`)
+- **AND** each tile SHALL display its MP cost in small text
+
+#### Scenario: Run-range tiles rendered yellow
+
+- **GIVEN** the player selects MP type Run
+- **WHEN** the overlay renders
+- **THEN** tiles reachable only with run MP SHALL be tinted yellow
+  (`#fef08a`)
+- **AND** walk-reachable tiles SHALL retain their green tint under the
+  run set
+
+#### Scenario: Jump-range tiles rendered blue with pattern
+
+- **GIVEN** the player selects MP type Jump
+- **WHEN** the overlay renders
+- **THEN** landing hexes reachable with jump SHALL be tinted blue
+  (`#bfdbfe`) with a distinct diagonal pattern
+- **AND** tiles unreachable by any MP type SHALL have no overlay tint
+
+### Requirement: Path Preview on Hover
+
+The tactical map interface SHALL render a hover-driven path preview from the
+selected unit to the hovered reachable hex, using the existing A\*
+pathfinder.
+
+**Priority**: Critical
+
+#### Scenario: Hover reachable hex draws path
+
+- **GIVEN** a selected unit at {0,0} with the Walk overlay active
+- **WHEN** the user hovers a reachable hex at {3,0}
+- **THEN** every hex along the pathfinder's cheapest path SHALL be
+  highlighted yellow (`#fef9c3`)
+- **AND** the hovered hex SHALL display cumulative MP cost
+
+#### Scenario: Hover unreachable hex shows tooltip
+
+- **GIVEN** a hex not in the reachable set
+- **WHEN** the user hovers it
+- **THEN** no path SHALL be drawn
+- **AND** a tooltip SHALL display `"Unreachable"`
+
+#### Scenario: Clicking reachable hex commits destination
+
+- **GIVEN** a hover path is visible
+- **WHEN** the user clicks the hovered hex
+- **THEN** the path SHALL persist as the committed plan
+- **AND** the hover path SHALL lock until the plan is cleared
+
+### Requirement: Facing Picker Overlay
+
+The tactical map interface SHALL render a facing picker overlay at the
+committed destination hex, allowing the player to rotate the unit in 60°
+increments before locking movement.
+
+**Priority**: High
+
+#### Scenario: Picker appears on destination commit
+
+- **GIVEN** the player has committed a destination hex
+- **WHEN** the picker renders
+- **THEN** six arrow buttons SHALL be drawn radially around the
+  destination hex, one per `Facing` value
+- **AND** the default highlighted arrow SHALL match the travel direction
+  of the final path segment
+
+#### Scenario: Clicking arrow updates planned facing
+
+- **GIVEN** the picker is visible with default facing Northeast
+- **WHEN** the user clicks the South arrow
+- **THEN** `plannedMovement.facing` SHALL equal `Facing.South`
+- **AND** the ghost unit token on the destination hex SHALL rotate to
+  face South
+
+#### Scenario: Picker dismisses on commit or cancel
+
+- **GIVEN** the picker is visible
+- **WHEN** the user clicks "Commit Move" or clears the plan
+- **THEN** the picker SHALL dismiss
+- **AND** no residual arrow buttons SHALL remain on the map
+
+### Requirement: MP Type Indicator in Overlay Legend
+
+The tactical map interface SHALL include a visible legend adjacent to the
+map showing which MP type is currently driving the reachable overlay, and
+what the colors mean.
+
+**Priority**: Medium
+
+#### Scenario: Legend reflects current MP type
+
+- **GIVEN** the player has switched to Run
+- **WHEN** the legend renders
+- **THEN** the Run row SHALL be visually emphasized (bold + outline)
+- **AND** Walk and Jump rows SHALL be dimmed
+
+#### Scenario: Jump unavailable dims Jump row
+
+- **GIVEN** the selected unit has `jumpMP = 0`
+- **WHEN** the legend renders
+- **THEN** the Jump row SHALL be rendered at 40% opacity
+- **AND** hovering Jump SHALL show a tooltip `"No jump capability"`
 
 ## Data Model Requirements
 
