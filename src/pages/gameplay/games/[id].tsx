@@ -472,10 +472,16 @@ export default function GameSessionPage(): React.ReactElement {
 
   const isPlayerTurn = session.currentState.firstMover === GameSide.Player;
 
+  // Per `add-physical-attack-phase-ui` task 1.2: extend the planning
+  // panel to mount during the Physical Attack phase so the
+  // `PhysicalAttackPanel` sub-panel replaces the weapons list while
+  // keeping the locked weapons visible below it.
   const showPlanningPanel =
     isInteractive &&
     isPlayerControlled &&
-    (phase === GamePhase.Movement || phase === GamePhase.WeaponAttack);
+    (phase === GamePhase.Movement ||
+      phase === GamePhase.WeaponAttack ||
+      phase === GamePhase.PhysicalAttack);
 
   return (
     <>

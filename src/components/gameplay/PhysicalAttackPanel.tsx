@@ -385,6 +385,24 @@ export function PhysicalAttackPanel({
 
   const hasTarget = physicalAttackPlan.targetUnitId !== null;
 
+  // Per task 3.4 + 9.4: count of eligible rows so the aria-live region
+  // can announce "Physical Attack phase — N eligible options" when the
+  // sub-panel mounts or the option list shifts.
+  const eligibleCount = options.filter(
+    (o) => o.restrictionsFailed.length === 0,
+  ).length;
+
+  // Per task 9.4: `aria-live` copy for screen readers. We keep the
+  // message short + factual — the component re-renders when `options`
+  // or `meleeTargets` change, so the region speaks whenever the state
+  // the player cares about (eligibility) changes.
+  const announcement =
+    meleeTargets.length === 0
+      ? 'Physical Attack phase — no eligible targets in adjacent hexes'
+      : !hasTarget
+        ? `Physical Attack phase — ${meleeTargets.length} adjacent target${meleeTargets.length === 1 ? '' : 's'}`
+        : `Physical Attack phase — ${eligibleCount} eligible option${eligibleCount === 1 ? '' : 's'}`;
+
   return (
     <section
       className={`bg-surface-base flex flex-col gap-3 border-t border-gray-200 p-3 ${className}`}
@@ -399,6 +417,20 @@ export function PhysicalAttackPanel({
           Pick an adjacent enemy, then declare an attack from the row list.
         </p>
       </header>
+
+      {/* Per task 9.4: aria-live phase announcement. `aria-live=polite`
+          + `role=status` means assistive tech batches updates and reads
+          them when the user pauses — avoids interrupting rapid hovers.
+          Hidden visually with `sr-only` so sighted players see the
+          regular header copy, not a duplicate. */}
+      <p
+        role="status"
+        aria-live="polite"
+        className="sr-only"
+        data-testid="physical-attack-phase-announcement"
+      >
+        {announcement}
+      </p>
 
       {committedSummary && (
         <p
@@ -464,10 +496,31 @@ export function PhysicalAttackPanel({
             return (
               <li
                 key={rowKey}
+                // Per task 9.3: the row is tabbable so keyboard users
+                // can Tab through options; Enter on the focused row
+                // declares that attack even if focus is on the wrapper
+                // instead of the inner Declare button. Ineligible
+                // rows keep tabIndex=-1 to skip them in the tab order.
+                tabIndex={isEligible ? 0 : -1}
+                role="group"
+                aria-label={`${attackTypeLabel(option.attackType, option.limb)} — TN ${option.toHit.finalToHit}+, ${option.damage.targetDamage} damage${isEligible ? '' : ` (disabled: ${reasonTooltip})`}`}
                 onMouseEnter={() => isEligible && handleRowHover(option)}
                 onMouseLeave={handleRowLeave}
                 onFocus={() => isEligible && handleRowHover(option)}
                 onBlur={handleRowLeave}
+                onKeyDown={(event) => {
+                  if (!isEligible) return;
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    // Only fire when focus is on the wrapper itself —
+                    // the inner Declare button has its own native
+                    // Enter/Space behavior and would double-fire
+                    // otherwise.
+                    if (event.target === event.currentTarget) {
+                      event.preventDefault();
+                      handleDeclare(option);
+                    }
+                  }
+                }}
               >
                 <div
                   className={`flex items-center justify-between gap-2 rounded border px-2 py-1 ${

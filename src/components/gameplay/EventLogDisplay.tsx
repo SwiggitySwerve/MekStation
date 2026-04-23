@@ -10,6 +10,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import type {
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
+  IPhysicalAttackDeclaredPayload,
+  IPhysicalAttackResolvedPayload,
   IPilotHitPayload,
   IUnitDestroyedPayload,
 } from '@/types/gameplay';
@@ -98,6 +100,12 @@ function getEventIcon(type: GameEventType): IFormattedEvent['icon'] {
     case GameEventType.AttackLocked:
     case GameEventType.AttacksRevealed:
     case GameEventType.AttackResolved:
+    // Per `add-physical-attack-phase-ui` tasks 8.1 + 8.3: physical
+    // attack declaration / resolution share the "attack" icon so
+    // players see a single chronologically-consistent attack trail
+    // in the event log regardless of weapon vs. melee path.
+    case GameEventType.PhysicalAttackDeclared:
+    case GameEventType.PhysicalAttackResolved:
       return 'attack';
     case GameEventType.DamageApplied:
       return 'damage';
@@ -213,6 +221,37 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
         text = `Attack HIT (${payload.roll} vs ${payload.toHitNumber}): ${payload.damage} damage to ${payload.location}${arcSuffix}`;
       } else {
         text = `Attack MISSED (${payload.roll} vs ${payload.toHitNumber})${arcSuffix}`;
+      }
+      break;
+    }
+    // Per `add-physical-attack-phase-ui` task 8.1: `PhysicalAttackDeclared`
+    // surfaces one event-log entry per declaration so the player's log
+    // trail matches the sub-panel "Declared" collapse (task 5.3).
+    case GameEventType.PhysicalAttackDeclared: {
+      const payload = event.payload as IPhysicalAttackDeclaredPayload;
+      unitId = payload.attackerId;
+      const limbSuffix = payload.limb ? ` (${payload.limb})` : '';
+      text = `Physical attack declared: ${payload.attackType}${limbSuffix} vs ${payload.targetId}, TN ${payload.toHitNumber}+`;
+      break;
+    }
+    // Per `add-physical-attack-phase-ui` tasks 8.1 + 8.3: a
+    // `PhysicalAttackResolved` event produces one log row per attack
+    // (hit / miss + location + damage + any self-damage). `UnitFell`
+    // is emitted separately by the engine and rendered via its own
+    // default branch — we don't re-derive falls here (task 8.3).
+    case GameEventType.PhysicalAttackResolved: {
+      const payload = event.payload as IPhysicalAttackResolvedPayload;
+      unitId = payload.attackerId;
+      if (payload.hit) {
+        const locationPart =
+          payload.location && payload.damage !== undefined
+            ? `: ${payload.damage} damage to ${payload.location}`
+            : payload.damage !== undefined
+              ? `: ${payload.damage} damage`
+              : '';
+        text = `Physical ${payload.attackType} HIT (${payload.roll} vs ${payload.toHitNumber})${locationPart}`;
+      } else {
+        text = `Physical ${payload.attackType} MISSED (${payload.roll} vs ${payload.toHitNumber})`;
       }
       break;
     }

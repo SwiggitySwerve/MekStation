@@ -36,6 +36,10 @@ import { hexDistance } from '@/utils/gameplay/hexMath';
 import { CommitMoveButton } from './CommitMoveButton';
 import { FacingPicker } from './FacingPicker';
 import { MovementTypeSwitcher } from './MovementTypeSwitcher';
+import {
+  PhysicalAttackPanel,
+  type PhysicalAttackIntent,
+} from './PhysicalAttackPanel';
 import { ToHitForecastModal } from './ToHitForecastModal';
 import { WeaponSelector } from './WeaponSelector';
 
@@ -49,6 +53,23 @@ export interface CombatPlanningPanelProps {
    * parent). Sourced from the unit's catalog data.
    */
   weapons?: readonly IWeapon[];
+  /**
+   * Per `add-physical-attack-phase-ui` task 1.2 + 7.5: forwarded
+   * straight to the nested `PhysicalAttackPanel` during
+   * `GamePhase.PhysicalAttack`. Emits the hovered row's intent arrow
+   * config so the parent can mount a `PhysicalAttackIntentArrow`
+   * overlay on the hex map. `null` clears the overlay. Unused outside
+   * the physical phase.
+   */
+  onPhysicalAttackIntentChange?: (intent: PhysicalAttackIntent | null) => void;
+  /**
+   * Per `add-physical-attack-phase-ui` task 1.2: tonnage of the
+   * currently selected attacker, forwarded to the physical attack
+   * panel so the eligibility projection can return correctly sized
+   * damage / self-risk numbers. Optional because the weapon / movement
+   * sub-panels don't need it.
+   */
+  attackerTonnage?: number;
   /** Optional className */
   className?: string;
 }
@@ -73,6 +94,8 @@ export function CombatPlanningPanel({
   walkMP = 0,
   jumpMP = 0,
   weapons = [],
+  onPhysicalAttackIntentChange,
+  attackerTonnage,
   className = '',
 }: CombatPlanningPanelProps): React.ReactElement | null {
   // Reasoning: each of these reads is a primitive selector so Zustand
@@ -303,6 +326,60 @@ export function CombatPlanningPanel({
             onClose={() => setForecastOpen(false)}
           />
         )}
+      </section>
+    );
+  }
+
+  if (phase === GamePhase.PhysicalAttack) {
+    // Per `add-physical-attack-phase-ui` tasks 1.2 + 1.3 +
+    // `tactical-map-interface` delta "Physical Attack Sub-Panel":
+    // during the Physical Attack phase the weapon list is visible but
+    // fully inert — we keep the row grid mounted (so the player can
+    // still read range bands + ammo counts + heat values) while
+    // blocking pointer events and dropping opacity so the UI reads as
+    // "locked". The actual interaction surface is the
+    // `PhysicalAttackPanel` rendered underneath.
+    const ammoMap: Record<string, number> = {};
+    for (const w of weapons) {
+      ammoMap[w.id] = selected.state.ammo[w.id] ?? -1;
+    }
+    return (
+      <section
+        className={`bg-surface-base flex flex-col gap-3 border-t border-gray-200 p-3 ${className}`}
+        aria-label="Physical attack planning"
+        data-testid="combat-planning-panel-physical"
+      >
+        {weapons.length > 0 && (
+          <div
+            // Pointer-events-none + aria-disabled keeps the list
+            // readable but un-clickable during the physical phase
+            // (task 1.3). `opacity-50` communicates the locked state
+            // visually; the sibling banner spells it out for
+            // accessibility-tree consumers.
+            className="pointer-events-none opacity-50 select-none"
+            aria-disabled="true"
+            data-testid="weapon-list-locked"
+          >
+            <p className="text-text-theme-muted mb-1 text-xs font-semibold uppercase">
+              Weapons locked — Physical Attack phase
+            </p>
+            <WeaponSelector
+              weapons={weapons}
+              rangeToTarget={0}
+              selectedWeaponIds={attackPlan.selectedWeapons}
+              ammo={ammoMap}
+              // No-op toggle: even though pointer-events-none blocks
+              // clicks, keyboard assistive tech might still reach the
+              // checkbox — the no-op guarantees the selection model
+              // can't drift during the physical phase.
+              onToggle={() => undefined}
+            />
+          </div>
+        )}
+        <PhysicalAttackPanel
+          attackerTonnage={attackerTonnage}
+          onIntentChange={onPhysicalAttackIntentChange}
+        />
       </section>
     );
   }
