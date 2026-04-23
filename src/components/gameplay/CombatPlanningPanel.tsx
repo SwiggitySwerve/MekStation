@@ -30,7 +30,13 @@ import type {
 import type { IForecastInput } from '@/utils/gameplay/toHit/forecast';
 
 import { useGameplayStore, useSelectedUnit } from '@/stores/useGameplayStore';
-import { Facing, GamePhase, MovementType } from '@/types/gameplay';
+import {
+  Facing,
+  GameEventType,
+  GamePhase,
+  LockState,
+  MovementType,
+} from '@/types/gameplay';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 
 import { CommitMoveButton } from './CommitMoveButton';
@@ -273,47 +279,119 @@ export function CombatPlanningPanel({
       // weapons read from the unit's live ammo record.
       ammoMap[w.id] = selected.state.ammo[w.id] ?? -1;
     }
+
+    // Per `add-attack-phase-ui` task 5.3: any selected weapon with
+    // `ammoRemaining === 0` blocks the forecast preview so the player
+    // can't walk into a Confirm-Fire screen that mixes a dry launcher
+    // with live ones. -1 is the energy sentinel (unlimited) and > 0 is
+    // a live bin; only === 0 is blocking.
+    const hasZeroAmmoSelected = attackPlan.selectedWeapons.some(
+      (weaponId) => ammoMap[weaponId] === 0,
+    );
+
+    // Per `add-attack-phase-ui` task 7.3: attacker lockState becomes
+    // Locked once the session processes the AttackLocked event emitted
+    // by commitAttack. When locked, we render the planning view with
+    // checkboxes grayed out (via `disabled`-style props) + a banner.
+    const attackerLocked = selected.state.lockState === LockState.Locked;
+
+    // Per `add-attack-phase-ui` tasks 9.1–9.3: the "Waiting for
+    // Opponent..." banner is shown after the Player commits attacks
+    // and dismissed once the session emits `attacks_revealed`. We
+    // scan the event tail — the banner SHOULD disappear the same tick
+    // that `attacks_revealed` appears, even if we haven't yet advanced
+    // to the next phase.
+    const events = session.currentState ? session.events : [];
+    const lastRevealIndex = events.findLastIndex(
+      (e) => e.type === GameEventType.AttacksRevealed,
+    );
+    const lastPlayerLockIndex = events.findLastIndex(
+      (e) =>
+        e.type === GameEventType.AttackLocked && e.actorId === selected.unit.id,
+    );
+    const waitingForOpponent =
+      attackerLocked && lastPlayerLockIndex > lastRevealIndex;
+
     // Renamed from `previewEnabled` (which now refers to the
     // what-if Damage Preview toggle, per `add-what-if-to-hit-preview`
     // § 8.2) to `forecastReady` so the two flags don't shadow each
-    // other inside the same scope.
+    // other inside the same scope. Also per task 5.3: zero-ammo
+    // selections block forecast preview. Per task 9.3: the forecast
+    // modal is locked out after commit (attackerLocked).
     const forecastReady =
       attackPlan.targetUnitId !== null &&
       attackPlan.selectedWeapons.length > 0 &&
       attackerState !== null &&
-      targetState !== null;
+      targetState !== null &&
+      !hasZeroAmmoSelected &&
+      !attackerLocked;
 
     return (
       <section
         className={`bg-surface-base flex flex-col gap-3 border-t border-gray-200 p-3 ${className}`}
         aria-label="Attack planning"
         data-testid="combat-planning-panel-attack"
+        data-attacker-locked={attackerLocked}
       >
-        <WeaponSelector
-          weapons={weapons}
-          rangeToTarget={rangeToTarget}
-          selectedWeaponIds={attackPlan.selectedWeapons}
-          ammo={ammoMap}
-          onToggle={togglePlannedWeapon}
-          attacker={attackerState}
-          target={targetState}
-          previewEnabled={previewEnabled}
-          onTogglePreview={setPreviewEnabled}
-        />
-        <button
-          type="button"
-          onClick={() => setForecastOpen(true)}
-          disabled={!forecastReady}
-          className={`min-h-[44px] rounded px-4 py-2 font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
-            forecastReady
-              ? 'cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
-              : 'cursor-not-allowed bg-gray-300 text-gray-500'
+        {waitingForOpponent && (
+          <div
+            className="rounded border border-amber-300 bg-amber-50 p-2 text-center text-sm font-semibold text-amber-800"
+            role="status"
+            aria-live="polite"
+            data-testid="waiting-for-opponent-banner"
+          >
+            Waiting for Opponent...
+          </div>
+        )}
+        {attackerLocked && !waitingForOpponent && (
+          <div
+            className="rounded border border-gray-300 bg-gray-100 p-2 text-center text-sm font-semibold text-gray-700"
+            data-testid="attacker-locked-banner"
+          >
+            Attacks locked. Awaiting phase resolution.
+          </div>
+        )}
+        <fieldset
+          disabled={attackerLocked}
+          className={`flex flex-col gap-3 border-0 p-0 ${
+            attackerLocked ? 'pointer-events-none opacity-60' : ''
           }`}
-          data-testid="preview-forecast-button"
+          data-testid="combat-planning-fieldset"
         >
-          Preview Forecast
-        </button>
-        {attackerState && targetState && (
+          <WeaponSelector
+            weapons={weapons}
+            rangeToTarget={rangeToTarget}
+            selectedWeaponIds={attackPlan.selectedWeapons}
+            ammo={ammoMap}
+            onToggle={togglePlannedWeapon}
+            attacker={attackerState}
+            target={targetState}
+            previewEnabled={previewEnabled}
+            onTogglePreview={setPreviewEnabled}
+          />
+          <button
+            type="button"
+            onClick={() => setForecastOpen(true)}
+            disabled={!forecastReady}
+            className={`min-h-[44px] rounded px-4 py-2 font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
+              forecastReady
+                ? 'cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
+                : 'cursor-not-allowed bg-gray-300 text-gray-500'
+            }`}
+            data-testid="preview-forecast-button"
+          >
+            Preview Forecast
+          </button>
+          {hasZeroAmmoSelected && (
+            <p
+              className="text-xs font-semibold text-red-700"
+              data-testid="zero-ammo-block-message"
+            >
+              One or more selected weapons have no ammo remaining.
+            </p>
+          )}
+        </fieldset>
+        {attackerState && targetState && !attackerLocked && (
           <ToHitForecastModal
             open={forecastOpen}
             attacker={attackerState}
