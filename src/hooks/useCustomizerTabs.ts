@@ -58,17 +58,20 @@ export interface UseCustomizerTabsResult<TState> {
   clearAllDirty: () => void;
 
   /**
-   * Set of tab ids whose fields currently fail validation.
-   * The tab bar renders an error dot on each errored tab.
+   * Map of tab ids whose fields currently fail validation to the rule code of
+   * the first failing constraint.  The tab bar renders an error dot on each
+   * errored tab with an ARIA label naming the rule code, satisfying Spec
+   * § Requirement: Validation Error Markers — "an ARIA label naming the
+   * failing rule (`VAL-VEHICLE-ARMOR-MAX`)".
    */
-  errorTabs: Set<string>;
+  errorTabs: Map<string, string>;
 
   /**
-   * Replace the full set of tabs with validation errors.
-   * Call with the set of tab ids that have failing constraints after each
-   * validation pass.
+   * Replace the full map of tabs with validation errors.
+   * Call with a Map of tab ids → rule codes after each validation pass.
+   * Tabs not present in the map are considered error-free.
    */
-  setErrorTabs: (tabIds: Set<string>) => void;
+  setErrorTabs: (tabErrors: Map<string, string>) => void;
 
   /**
    * True when the active tab id is not present in visibleSpecs (e.g. the
@@ -108,7 +111,9 @@ export function useCustomizerTabs<TState>({
 
   const [activeTab, setActiveTabRaw] = useState<string>(defaultTabId);
   const [dirtyTabs, setDirtyTabs] = useState<Set<string>>(new Set());
-  const [errorTabs, setErrorTabsState] = useState<Set<string>>(new Set());
+  const [errorTabs, setErrorTabsState] = useState<Map<string, string>>(
+    new Map(),
+  );
 
   // Navigate to tabs in the visible set. When the current tab has unsaved
   // changes, show a browser-native confirm before leaving so users don't lose
@@ -155,8 +160,8 @@ export function useCustomizerTabs<TState>({
     setDirtyTabs(new Set());
   }, []);
 
-  const setErrorTabs = useCallback((tabIds: Set<string>) => {
-    setErrorTabsState(tabIds);
+  const setErrorTabs = useCallback((tabErrors: Map<string, string>) => {
+    setErrorTabsState(tabErrors);
   }, []);
 
   const activeTabIsHidden = !visibleSpecs.some((s) => s.id === activeTab);

@@ -42,11 +42,17 @@ interface CustomizerTabsProps {
    */
   dirtyTabs?: Set<string>;
   /**
-   * Set of tab ids whose fields currently fail validation.
-   * When a tab id is present here the label shows a red error dot (●).
-   * Satisfies Spec § Requirement: Validation Error Markers.
+   * Map of tab ids whose fields currently fail validation to the rule code of
+   * the failing constraint (e.g. `VAL-VEHICLE-ARMOR-MAX`).  When a tab id is
+   * present the label shows a red error dot (●) whose ARIA label is the rule
+   * code.  For backwards compatibility a plain Set is still accepted; when a
+   * Set is supplied the ARIA label falls back to the generic string
+   * "Validation error".
+   *
+   * Satisfies Spec § Requirement: Validation Error Markers — "an ARIA label
+   * naming the failing rule (`VAL-VEHICLE-ARMOR-MAX`)".
    */
-  errorTabs?: Set<string>;
+  errorTabs?: Map<string, string> | Set<string>;
 }
 
 // Simple SVG icons for mobile view
@@ -166,6 +172,27 @@ const TabIcons: Record<string, React.ReactNode> = {
 };
 
 /**
+ * Compute the ARIA label + tooltip string for a validation-error dot.
+ *
+ * When `errorTabs` is a Map the value is the rule code (e.g.
+ * `VAL-VEHICLE-ARMOR-MAX`) and is used verbatim so screen-reader users hear
+ * the specific failing rule.  When `errorTabs` is a Set (legacy) or the map
+ * entry has an empty/undefined value we fall back to the generic label.
+ *
+ * Satisfies Spec § Requirement: Validation Error Markers.
+ */
+function getErrorRuleCode(
+  errorTabs: Map<string, string> | Set<string>,
+  tabId: string,
+): string {
+  if (errorTabs instanceof Map) {
+    const ruleCode = errorTabs.get(tabId);
+    if (ruleCode && ruleCode.length > 0) return ruleCode;
+  }
+  return 'Validation error';
+}
+
+/**
  * Default customizer tabs
  *
  * @spec openspec/specs/customizer-tabs/spec.md
@@ -273,13 +300,18 @@ export function CustomizerTabs({
                 ●
               </span>
             )}
-            {/* Validation error marker — red dot for failing constraints */}
+            {/* Validation error marker — red dot for failing constraints.
+                When errorTabs is a Map, the value is the rule code (e.g.
+                "VAL-VEHICLE-ARMOR-MAX") and becomes the ARIA label + tooltip
+                so screen-reader users hear the specific failing rule.  A
+                plain Set falls back to the generic "Validation error" label.
+                Satisfies Spec § Requirement: Validation Error Markers. */}
             {errorTabs?.has(tab.id) && (
               <span
                 className="ml-1 text-red-500"
-                aria-label="Validation error"
+                aria-label={getErrorRuleCode(errorTabs, tab.id)}
                 role="img"
-                title="Validation error"
+                title={getErrorRuleCode(errorTabs, tab.id)}
               >
                 ●
               </span>
