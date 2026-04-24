@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 
 import type {
   IHexCoordinate,
@@ -23,7 +23,10 @@ import {
   TerrainPatternDefs,
 } from './Overlays';
 import { generateHexesInRadius, hexEquals, hexInList } from './renderHelpers';
-import { useMapInteraction } from './useMapInteraction';
+import {
+  useMapInteraction,
+  type MapInteractionState,
+} from './useMapInteraction';
 
 export interface HexMapDisplayProps {
   radius: number;
@@ -59,6 +62,28 @@ export interface HexMapDisplayProps {
   onHexClick?: (hex: IHexCoordinate) => void;
   onHexHover?: (hex: IHexCoordinate | null) => void;
   onTokenClick?: (unitId: string) => void;
+  /**
+   * Per `add-minimap-and-camera-controls` task 2.3 and task 7.x: the
+   * host handles double-click on a unit token by centering the camera
+   * on that unit and selecting it. Delegated up so the host (which
+   * owns selection state) can do both in one dispatch.
+   */
+  onTokenDoubleClick?: (unitId: string) => void;
+  /**
+   * Optional — called once the map's internal `useMapInteraction`
+   * state exists so the host can forward the camera controls to the
+   * minimap and the hotkey layer. The map remains the single owner
+   * of camera state; this is a read/action bridge, not a sync.
+   */
+  onInteractionReady?: (state: MapInteractionState) => void;
+  /**
+   * Host-supplied extras rendered inside the map's positioned
+   * container (above the SVG, below the zoom/overlay controls).
+   * Used by the GameplayLayout to mount the minimap + hotkey hint +
+   * help overlay without having to duplicate the container
+   * positioning logic.
+   */
+  overlayChildren?: React.ReactNode;
   showCoordinates?: boolean;
   className?: string;
 }
@@ -77,6 +102,9 @@ export function HexMapDisplay({
   onHexClick,
   onHexHover,
   onTokenClick,
+  onTokenDoubleClick,
+  onInteractionReady,
+  overlayChildren,
   showCoordinates = false,
   className = '',
 }: HexMapDisplayProps): React.ReactElement {
@@ -168,6 +196,20 @@ export function HexMapDisplay({
     [onTokenClick],
   );
 
+  const handleTokenDoubleClick = useCallback(
+    (unitId: string) => {
+      onTokenDoubleClick?.(unitId);
+    },
+    [onTokenDoubleClick],
+  );
+
+  // Publish the interaction bridge once mounted (and whenever the
+  // underlying callable surface changes). The host uses this to wire
+  // the minimap + hotkey layer without owning camera state itself.
+  useEffect(() => {
+    onInteractionReady?.(interaction);
+  }, [onInteractionReady, interaction]);
+
   return (
     <div
       className={`relative overflow-hidden bg-slate-100 ${className}`}
@@ -247,6 +289,7 @@ export function HexMapDisplay({
               key={token.unitId}
               token={token}
               onClick={handleTokenClick}
+              onDoubleClick={handleTokenDoubleClick}
               allTokens={tokens}
             />
           ))}
@@ -446,6 +489,11 @@ export function HexMapDisplay({
           </button>
         </div>
       </div>
+
+      {/* Host-supplied overlays (minimap, hotkey help, hint badge).
+          Rendered inside the positioned container so they share the
+          map's coordinate space. Per add-minimap-and-camera-controls. */}
+      {overlayChildren}
     </div>
   );
 }
