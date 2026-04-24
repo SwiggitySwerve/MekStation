@@ -51,7 +51,17 @@ const customJestConfig = {
     'node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend|react-window)/)',
   ],
   transform: {
-    '^.+\\.(ts|tsx|js|jsx)$': ['babel-jest', { presets: ['next/babel'] }],
+    '^.+\\.(ts|tsx|js|jsx)$': [
+      '@swc/jest',
+      {
+        jsc: {
+          parser: { syntax: 'typescript', tsx: true, decorators: false },
+          transform: { react: { runtime: 'automatic' } },
+          target: 'es2022',
+        },
+        module: { type: 'commonjs' },
+      },
+    ],
   },
 };
 
