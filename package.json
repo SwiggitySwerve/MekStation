@@ -55,6 +55,7 @@
     "validate:ba-bv": "npx tsx scripts/validate-battle-armor-bv.ts",
     "validate:proto": "npx tsx scripts/validate-proto-bv.ts",
     "validate:infantry": "npx tsx scripts/validate-infantry-bv.ts",
+    "validate:vehicle": "npx tsx scripts/validate-vehicle-bv.ts",
     "validate:refactor": "npm run test && npm run lint && npm run build",
     "analyze:files": "./scripts/monitor-file-sizes.sh",
     "analyze:files:report": "./scripts/monitor-file-sizes.sh > file-analysis-report.txt && cat file-analysis-report.txt",

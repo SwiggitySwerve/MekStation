@@ -2,7 +2,10 @@
  * Tests for Battle Value calculation utilities
  */
 
+import type { IVehicle } from '@/types/unit/VehicleInterfaces';
+
 import { TechBase } from '@/types/enums/TechBase';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   ProtoChassis,
@@ -217,5 +220,97 @@ describe('calculateBattleValueForUnit — PROTOMECH dispatch', () => {
       unitType: UnitType.BATTLEMECH,
     } as const;
     expect(calculateBattleValueForUnit(notAProto)).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// calculateBattleValueForUnit — VEHICLE dispatch
+// =============================================================================
+
+/**
+ * Build a minimal, well-typed combat vehicle for dispatcher tests.
+ *
+ * Only the fields the calculator actually reads are populated; the cast
+ * narrows the structural shape to `IVehicle` since the full IBaseUnit chain
+ * carries many fields the BV path does not consult.
+ */
+function buildDispatchVehicle(): IVehicle {
+  return {
+    unitType: UnitType.VEHICLE,
+    motionType: GroundMotionType.TRACKED,
+    tonnage: 50,
+    totalArmorPoints: 100,
+    movement: {
+      cruiseMP: 4,
+      flankMP: 6,
+      jumpMP: 0,
+    },
+    armor: [],
+    armorByLocation: {
+      // Minimal armor map — the adapter sums values to seed defensive BV.
+      Front: 30,
+      Left: 20,
+      Right: 20,
+      Rear: 15,
+      Turret: 15,
+    } as unknown as IVehicle['armorByLocation'],
+    equipment: [],
+    internalStructureType: 0,
+    isSuperheavy: false,
+    hasEnvironmentalSealing: false,
+    hasFlotationHull: false,
+    isAmphibious: false,
+    hasTrailerHitch: false,
+    isTrailer: false,
+  } as unknown as IVehicle;
+}
+
+describe('calculateBattleValueForUnit — VEHICLE dispatch', () => {
+  /*
+   * @spec openspec/changes/add-vehicle-battle-value/specs/battle-value-system/spec.md
+   *       — Requirement: Vehicle BV Dispatch
+   */
+  it('routes a VEHICLE unit to the vehicle calculator and returns its breakdown', () => {
+    const vehicle = buildDispatchVehicle();
+
+    const dispatched = calculateBattleValueForUnit(vehicle);
+
+    // Dispatcher must invoke the vehicle path and surface the breakdown
+    // under a `vehicle`-tagged result; the spec requires the return to
+    // include an IVehicleBVBreakdown.
+    expect(dispatched).toBeDefined();
+    expect(dispatched?.kind).toBe('vehicle');
+    if (dispatched?.kind !== 'vehicle') {
+      throw new Error('Expected vehicle dispatch result');
+    }
+
+    // Breakdown shape — spec calls out at least these fields.
+    expect(dispatched.breakdown.defensive).toBeDefined();
+    expect(dispatched.breakdown.offensive).toBeDefined();
+    expect(typeof dispatched.breakdown.pilotMultiplier).toBe('number');
+    expect(typeof dispatched.breakdown.turretModifier).toBe('number');
+    expect(typeof dispatched.breakdown.final).toBe('number');
+
+    // A vehicle with positive armor should always produce a non-zero
+    // defensive BV; catches regressions where dispatch returns a zero stub.
+    expect(dispatched.breakdown.defensive).toBeGreaterThan(0);
+  });
+
+  it('routes a VTOL unit through the same vehicle dispatch branch', () => {
+    // VTOL shares the vehicle dispatch — the union covers VEHICLE, VTOL,
+    // and SUPPORT_VEHICLE.
+    const vtol = {
+      unitType: UnitType.VTOL,
+      motionType: GroundMotionType.VTOL,
+      tonnage: 20,
+      totalArmorPoints: 40,
+      movement: { cruiseMP: 8, flankMP: 12, jumpMP: 0 },
+      armor: [],
+      equipment: [],
+    } as unknown as IVehicle;
+
+    const dispatched = calculateBattleValueForUnit(vtol);
+
+    expect(dispatched?.kind).toBe('vehicle');
   });
 });
