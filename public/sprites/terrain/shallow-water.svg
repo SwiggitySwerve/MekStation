@@ -1,0 +1,27 @@
+<!--
+  Shallow water — light blue with sparse wave pattern.
+
+  Shape signature: wavy lines are the water marker. Shallow = sparse,
+  short wavelets. Homemade, original art.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" aria-label="Shallow water terrain">
+  <defs>
+    <clipPath id="shallow-water-hex-clip">
+      <polygon points="200,100 150,186.6 50,186.6 0,100 50,13.4 150,13.4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#shallow-water-hex-clip)" data-shape="wave-pattern">
+    <rect x="0" y="0" width="200" height="200" fill="#bce3f5" />
+    <g stroke="#5ba8d2" stroke-width="1.5" fill="none" stroke-linecap="round">
+      <path d="M20,60 Q30,54 40,60 T60,60" />
+      <path d="M80,60 Q90,54 100,60 T120,60" />
+      <path d="M140,60 Q150,54 160,60 T180,60" />
+      <path d="M40,100 Q50,94 60,100 T80,100" />
+      <path d="M100,100 Q110,94 120,100 T140,100" />
+      <path d="M160,100 Q170,94 180,100" />
+      <path d="M20,140 Q30,134 40,140 T60,140" />
+      <path d="M80,140 Q90,134 100,140 T120,140" />
+      <path d="M140,140 Q150,134 160,140 T180,140" />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,29 @@
+<!--
+  Clear terrain — open ground.
+
+  Shape signature: flat pastel green wash with a subtle cross-hatch grass
+  pattern so the eye can distinguish "clear" from an absence of terrain
+  even without color. Homemade, original art.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" aria-label="Clear terrain">
+  <defs>
+    <clipPath id="clear-hex-clip">
+      <polygon points="200,100 150,186.6 50,186.6 0,100 50,13.4 150,13.4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clear-hex-clip)" data-shape="grass-wash">
+    <rect x="0" y="0" width="200" height="200" fill="#e6f4d8" />
+    <g stroke="#a6c482" stroke-width="1.2" stroke-linecap="round" opacity="0.55">
+      <line x1="20" y1="60" x2="26" y2="52" />
+      <line x1="60" y1="90" x2="66" y2="82" />
+      <line x1="110" y1="70" x2="116" y2="62" />
+      <line x1="150" y1="110" x2="156" y2="102" />
+      <line x1="40" y1="140" x2="46" y2="132" />
+      <line x1="90" y1="160" x2="96" y2="152" />
+      <line x1="140" y1="150" x2="146" y2="142" />
+      <line x1="170" y1="50" x2="176" y2="42" />
+      <line x1="80" y1="40" x2="86" y2="32" />
+      <line x1="120" y1="130" x2="126" y2="122" />
+    </g>
+  </g>
+</svg>

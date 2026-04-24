@@ -6,6 +6,7 @@ import type {
   IHexTerrain,
 } from '@/types/gameplay';
 
+import { TerrainArtLayer } from '@/components/gameplay/terrain/TerrainArtLayer';
 import { HEX_COLORS } from '@/constants/hexMap';
 import { MovementType } from '@/types/gameplay';
 
@@ -48,6 +49,18 @@ import {
 export interface HexCellProps {
   hex: IHexCoordinate;
   terrain?: IHexTerrain;
+  /**
+   * Per `add-terrain-rendering` tasks 4-5: the terrain art layer
+   * needs access to neighbor elevations to render contour edges and
+   * to keep the visual-key lookup consistent with the parent map.
+   * `HexMapDisplay` already maintains this Map; `HexCell` threads it
+   * through to `TerrainArtLayer` without re-deriving it per cell.
+   *
+   * Optional: when omitted (legacy / test callers), the cell renders
+   * without terrain art — the flat polygon stands alone exactly like
+   * the Phase 1 MVP.
+   */
+  terrainLookup?: ReadonlyMap<string, IHexTerrain>;
   isSelected: boolean;
   isHovered: boolean;
   movementInfo?: IMovementRangeHex;
@@ -80,6 +93,7 @@ export interface HexCellProps {
 export const HexCell = React.memo(function HexCell({
   hex,
   terrain,
+  terrainLookup,
   isSelected,
   isHovered,
   movementInfo,
@@ -130,6 +144,17 @@ export const HexCell = React.memo(function HexCell({
   const isJumpTile =
     movementInfo?.reachable && movementInfo.movementType === MovementType.Jump;
 
+  /*
+   * Per `add-terrain-rendering` task 5: the terrain art layer
+   * renders BENEATH the hex polygon. When art is present the
+   * polygon fill becomes transparent so the art shows through, but
+   * the polygon keeps its grid stroke AND stays the primary
+   * hit-test target (pointer events fire on the polygon via the
+   * enclosing <g>). When `terrainLookup` is absent we fall back to
+   * the Phase 1 MVP flat color.
+   */
+  const hasTerrainArt = Boolean(terrainLookup);
+  const polygonFill = hasTerrainArt ? 'transparent' : terrainFill;
   return (
     <g
       onClick={onClick}
@@ -141,9 +166,16 @@ export const HexCell = React.memo(function HexCell({
       data-reachable={movementInfo?.reachable ? 'true' : undefined}
       data-movement-type={movementInfo?.movementType}
     >
+      {hasTerrainArt && terrainLookup && (
+        <TerrainArtLayer
+          hex={hex}
+          terrain={terrain}
+          terrainLookup={terrainLookup}
+        />
+      )}
       <path
         d={pathD}
-        fill={terrainFill}
+        fill={polygonFill}
         stroke={HEX_COLORS.gridLine}
         strokeWidth={1}
         data-terrain={terrainType}

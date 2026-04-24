@@ -1,0 +1,29 @@
+<!--
+  Light woods — sparse triangular tree canopies over a clear base.
+
+  Shape signature: discrete triangular canopies at low density (~4 trees).
+  The canopy shape is the accessibility marker — trees read as triangles
+  even under colorblind simulation. Homemade, original art.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" aria-label="Light woods terrain">
+  <defs>
+    <clipPath id="light-woods-hex-clip">
+      <polygon points="200,100 150,186.6 50,186.6 0,100 50,13.4 150,13.4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#light-woods-hex-clip)" data-shape="triangular-canopy">
+    <rect x="0" y="0" width="200" height="200" fill="#d8e9c4" />
+    <g fill="#4a7a2f" stroke="#2f5019" stroke-width="1.5" stroke-linejoin="round">
+      <polygon points="60,90 45,120 75,120" />
+      <polygon points="130,70 115,100 145,100" />
+      <polygon points="90,140 75,170 105,170" />
+      <polygon points="150,130 135,160 165,160" />
+    </g>
+    <g fill="#2f5019">
+      <rect x="58" y="118" width="4" height="6" />
+      <rect x="128" y="98" width="4" height="6" />
+      <rect x="88" y="168" width="4" height="6" />
+      <rect x="148" y="158" width="4" height="6" />
+    </g>
+  </g>
+</svg>

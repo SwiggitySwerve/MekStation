@@ -1,0 +1,27 @@
+<!--
+  Hardened building — reinforced bunker / armored structure.
+
+  Shape signature: rectangular outline with reinforced corner gussets +
+  crosshatch armor pattern. Hardened = thickest walls + bracing.
+  Homemade, original art.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" aria-label="Hardened building terrain">
+  <defs>
+    <clipPath id="hardened-building-hex-clip">
+      <polygon points="200,100 150,186.6 50,186.6 0,100 50,13.4 150,13.4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#hardened-building-hex-clip)" data-shape="rectangular-outline">
+    <rect x="0" y="0" width="200" height="200" fill="#a6a6a6" />
+    <rect x="40" y="40" width="120" height="120" fill="#4a453d" stroke="#17140f" stroke-width="4" />
+    <polygon points="40,40 60,40 60,60 40,60" fill="#17140f" />
+    <polygon points="160,40 140,40 140,60 160,60" fill="#17140f" />
+    <polygon points="40,160 60,160 60,140 40,140" fill="#17140f" />
+    <polygon points="160,160 140,160 140,140 160,140" fill="#17140f" />
+    <g stroke="#17140f" stroke-width="1.5">
+      <line x1="60" y1="60" x2="140" y2="140" />
+      <line x1="140" y1="60" x2="60" y2="140" />
+    </g>
+    <rect x="90" y="90" width="20" height="20" fill="#d4a73f" stroke="#17140f" stroke-width="2" />
+  </g>
+</svg>

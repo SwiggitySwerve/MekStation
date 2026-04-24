@@ -1048,6 +1048,33 @@ what the colors mean.
 - **THEN** the Jump row SHALL be rendered at 40% opacity
 - **AND** hovering Jump SHALL show a tooltip `"No jump capability"`
 
+---
+
+### Requirement: Unit Token Rendering Uses Sprite System
+
+The tactical map interface SHALL render unit tokens via the sprite system, replacing the abstract marker used in the Phase 1 MVP.
+
+#### Scenario: Token uses MechSprite component
+
+- **GIVEN** a unit is placed on the hex map
+- **WHEN** the token renders
+- **THEN** a `MechSprite` component SHALL render the silhouette
+- **AND** an `ArmorPipRing` SHALL render the damage overlay
+- **AND** the outer `<g>` element SHALL remain the click target for selection hit-testing
+
+#### Scenario: Selection binding preserved
+
+- **GIVEN** a user clicks a token
+- **WHEN** the click fires
+- **THEN** `useGameplayStore.setSelectedUnitId` SHALL be called with the clicked unit's ID exactly as before the sprite swap
+
+#### Scenario: Side color preserved
+
+- **GIVEN** the Phase 1 MVP applied a side-color tint
+- **WHEN** the sprite renders
+- **THEN** the same side color SHALL drive the sprite's tint
+- **AND** existing accessibility overlays SHALL continue to apply
+
 ## Data Model Requirements
 
 ### Required Interfaces
@@ -1549,6 +1576,29 @@ const props: IHexMapDisplayProps = {
 
 ---
 
+### Requirement: Hex Cell Composition
+
+Each hex cell SHALL compose a terrain art layer and an elevation
+shading layer beneath the existing interaction polygon.
+
+#### Scenario: Hex cell includes art layer
+
+- **GIVEN** a hex cell renders
+- **WHEN** its layers compose
+- **THEN** a `TerrainArtLayer` SHALL render beneath the hex polygon
+- **AND** the hex polygon SHALL remain the primary hit target
+- **AND** elevation shading SHALL apply to the fill beneath all art
+
+#### Scenario: Overlays still render above terrain
+
+- **GIVEN** a selected hex with movement-cost overlay visible
+- **WHEN** the hex renders
+- **THEN** terrain art SHALL render beneath the overlay
+- **AND** the overlay text SHALL remain legible
+- **AND** the unit token layer SHALL still render above everything
+
+---
+
 ## Changelog
 
 ### Version 1.0 (2026-01-31)
@@ -1556,3 +1606,9 @@ const props: IHexMapDisplayProps = {
 - Initial specification based on existing HexMapDisplay implementation
 - Covers SVG rendering, pan/zoom, terrain visualization, overlays, unit tokens
 - Defines interaction patterns and visual feedback requirements
+
+### Version 1.1 (2026-04-23)
+
+- Added `Requirement: Unit Token Rendering Uses Sprite System` via change `add-mech-silhouette-sprite-set`
+- Unit tokens now render through `MechSprite` + `ArmorPipRing` instead of the flat disc marker
+- Selection binding and side tint contracts preserved from Phase 1 MVP
