@@ -18,10 +18,13 @@ import type {
 import type { IAerospaceUnit } from '@/types/unit/BaseUnitInterfaces';
 import type { IInfantry } from '@/types/unit/PersonnelInterfaces';
 import type { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
+import type { IVehicleUnit } from '@/types/unit/VehicleInterfaces';
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { isVehicleUnitShape } from '@/types/unit/VehicleInterfaces';
 
 import type { IInfantryBVBreakdown } from './infantry/infantryBV';
+import type { IVehicleBVBreakdown } from './vehicle/vehicleBV';
 
 import {
   calculateAerospaceBVFromUnit as _calculateAerospaceBVFromUnit,
@@ -34,6 +37,7 @@ import {
   type IProtoMechBVBreakdown,
   type IProtoMechBVOptions,
 } from './protomech/protoMechBV';
+import { calculateVehicleBVFromUnit as _calculateVehicleBVFromUnit } from './vehicle/vehicleBVAdapter';
 
 export * from './battleValueExplosivePenalties';
 export * from './battleValueMovement';
@@ -66,6 +70,16 @@ export type {
   VehicleDefensiveBVBreakdown,
   VehicleOffensiveBVBreakdown,
 } from './vehicle/vehicleBV';
+export {
+  calculateVehicleBVFromUnit,
+  toVehicleBVInputFromUnit,
+  computeVehicleBVFromState,
+  toVehicleBVInput,
+} from './vehicle/vehicleBVAdapter';
+export type {
+  VehicleBVStateSubset,
+  VehicleBVUnitOptions,
+} from './vehicle/vehicleBVAdapter';
 
 // Battle Armor BV — per-type dispatch for BA squads.
 // Callers use `calculateBattleArmorBV(input)` for BA units; the existing
@@ -174,9 +188,15 @@ export interface IUnitBVOptions extends IProtoMechBVOptions {
  * Unified per-unit BV dispatcher result.
  *
  * `kind` identifies which calculator produced the breakdown so callers can
- * narrow on the payload. Currently implemented for ProtoMech, Infantry, and
- * Aerospace; mech and vehicle units continue to go through their existing
- * dedicated paths.
+ * narrow on the payload. Currently implemented for ProtoMech, Infantry,
+ * Vehicle (combat / VTOL / support), and Aerospace (ASF / Conventional
+ * Fighter / Small Craft); BattleMech units continue to go through the
+ * existing `CalculationService` path.
+ *
+ * @spec openspec/changes/add-vehicle-battle-value/specs/battle-value-system/spec.md
+ *       — Requirement: Vehicle BV Dispatch
+ * @spec openspec/changes/add-aerospace-battle-value/specs/battle-value-system/spec.md
+ *       — Requirement: Aerospace BV Dispatch
  */
 export type UnitBVResult =
   | {
@@ -186,6 +206,10 @@ export type UnitBVResult =
   | {
       readonly kind: 'infantry';
       readonly breakdown: IInfantryBVBreakdown;
+    }
+  | {
+      readonly kind: 'vehicle';
+      readonly breakdown: IVehicleBVBreakdown;
     }
   | {
       readonly kind: 'aerospace';
@@ -205,12 +229,12 @@ type AerospaceDispatchUnit =
 
 /**
  * Route a unit to its per-type BV calculator. Currently implemented for
- * ProtoMech, Infantry, and Aerospace (ASF / Conventional Fighter / Small
- * Craft); other unit types fall through with `undefined` so the caller can
- * keep using its existing path unchanged.
+ * ProtoMech, Infantry, Vehicle, and Aerospace (ASF / Conventional Fighter /
+ * Small Craft); other unit types fall through with `undefined` so the caller
+ * can keep using its existing mech path unchanged.
  *
- * @param unit  A discriminated unit value (`IProtoMechUnit`, `IInfantry`, or
- *              an aerospace shape).
+ * @param unit  A discriminated unit value (`IProtoMechUnit`, `IInfantry`,
+ *              `IVehicleUnit`, or an aerospace shape).
  * @param options Optional per-type overrides (skill, etc.).
  */
 export function calculateBattleValueForUnit(
@@ -222,6 +246,10 @@ export function calculateBattleValueForUnit(
   options?: IUnitBVOptions,
 ): UnitBVResult;
 export function calculateBattleValueForUnit(
+  unit: IVehicleUnit,
+  options?: IUnitBVOptions,
+): UnitBVResult;
+export function calculateBattleValueForUnit(
   unit: AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult;
@@ -230,6 +258,7 @@ export function calculateBattleValueForUnit(
     | { readonly unitType?: UnitType | string }
     | IProtoMechUnit
     | IInfantry
+    | IVehicleUnit
     | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined;
@@ -238,6 +267,7 @@ export function calculateBattleValueForUnit(
     | { readonly unitType?: UnitType | string }
     | IProtoMechUnit
     | IInfantry
+    | IVehicleUnit
     | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined {
@@ -254,6 +284,20 @@ export function calculateBattleValueForUnit(
       piloting: options?.piloting,
     });
     return { kind: 'infantry', breakdown };
+  }
+  // Vehicle dispatch — covers VEHICLE, VTOL, and SUPPORT_VEHICLE via the
+  // shared IVehicleUnit shape. The narrowing guard ensures we only pass
+  // vehicle-class unit shapes to the vehicle BV calculator.
+  if (
+    unit &&
+    typeof (unit as { unitType?: UnitType }).unitType !== 'undefined' &&
+    isVehicleUnitShape(unit as { unitType: UnitType })
+  ) {
+    const breakdown = _calculateVehicleBVFromUnit(unit as IVehicleUnit, {
+      gunnery: options?.gunnery,
+      piloting: options?.piloting,
+    });
+    return { kind: 'vehicle', breakdown };
   }
   // Aerospace dispatch: routes ASF / Conventional Fighter / Small Craft into
   // the aerospace BV path. The guard uses the discriminant on `unitType` so

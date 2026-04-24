@@ -113,6 +113,20 @@ export interface IVehicle extends IGroundUnit {
 
   /** Is this a trailer (no engine) */
   readonly isTrailer: boolean;
+
+  /**
+   * Last-computed BV 2.0 breakdown for this combat vehicle.
+   *
+   * Populated by the vehicle BV path (see {@link calculateVehicleBV}) and
+   * persisted on the unit so status bars, force-level tools, and the parity
+   * harness can read the breakdown without recomputing. Optional because
+   * legacy fixtures and freshly-parsed units may not yet have a breakdown
+   * attached.
+   *
+   * @spec openspec/changes/add-vehicle-battle-value/specs/vehicle-unit-system/spec.md
+   *       — Requirement: Vehicle BV Breakdown on Unit State
+   */
+  readonly bvBreakdown?: import('@/utils/construction/vehicle/vehicleBV').IVehicleBVBreakdown;
 }
 
 // ============================================================================
@@ -142,6 +156,14 @@ export interface IVTOL extends IGroundUnit {
 
   /** Equipment mounted on this VTOL */
   readonly equipment: readonly IVehicleMountedEquipment[];
+
+  /**
+   * Last-computed BV 2.0 breakdown for this VTOL.
+   *
+   * @spec openspec/changes/add-vehicle-battle-value/specs/vehicle-unit-system/spec.md
+   *       — Requirement: Vehicle BV Breakdown on Unit State
+   */
+  readonly bvBreakdown?: import('@/utils/construction/vehicle/vehicleBV').IVehicleBVBreakdown;
 }
 
 // ============================================================================
@@ -192,7 +214,39 @@ export interface ISupportVehicle extends IGroundUnit {
 
   /** Equipment mounted on this vehicle */
   readonly equipment: readonly IVehicleMountedEquipment[];
+
+  /**
+   * Last-computed BV 2.0 breakdown for this support vehicle.
+   *
+   * @spec openspec/changes/add-vehicle-battle-value/specs/vehicle-unit-system/spec.md
+   *       — Requirement: Vehicle BV Breakdown on Unit State
+   */
+  readonly bvBreakdown?: import('@/utils/construction/vehicle/vehicleBV').IVehicleBVBreakdown;
 }
+
+// ============================================================================
+// Vehicle Unit Discriminated Union
+// ============================================================================
+
+/**
+ * Canonical vehicle unit shape across all three vehicle subtypes.
+ *
+ * The BV dispatcher (`calculateBattleValueForUnit`) and per-unit consumers
+ * (status bars, force-level tools, the parity harness) accept any of the
+ * three vehicle interfaces, so we publish them under a single discriminated
+ * union and narrow on `unitType`.
+ *
+ * Each member carries an optional `bvBreakdown` populated by the vehicle BV
+ * calculator. The optionality matches BattleArmor / ProtoMech / Infantry —
+ * legacy fixtures may not have a breakdown attached until the calculator
+ * runs against them.
+ *
+ * @spec openspec/changes/add-vehicle-battle-value/specs/vehicle-unit-system/spec.md
+ *       — Requirement: Vehicle BV Breakdown on Unit State
+ * @spec openspec/changes/add-vehicle-battle-value/specs/battle-value-system/spec.md
+ *       — Requirement: Vehicle BV Dispatch
+ */
+export type IVehicleUnit = IVehicle | IVTOL | ISupportVehicle;
 
 // ============================================================================
 // Type Guards
@@ -219,4 +273,22 @@ export function isSupportVehicle(unit: {
   unitType: UnitType;
 }): unit is ISupportVehicle {
   return unit.unitType === UnitType.SUPPORT_VEHICLE;
+}
+
+/**
+ * Narrowing type guard for the {@link IVehicleUnit} discriminated union.
+ *
+ * Returns `true` when the candidate carries a vehicle-class `unitType`
+ * (`VEHICLE`, `VTOL`, or `SUPPORT_VEHICLE`). Callers that hold a generic
+ * `{ unitType }` reference can use this to narrow into the union before
+ * routing to the vehicle BV calculator.
+ */
+export function isVehicleUnitShape(unit: {
+  unitType: UnitType;
+}): unit is IVehicleUnit {
+  return (
+    unit.unitType === UnitType.VEHICLE ||
+    unit.unitType === UnitType.VTOL ||
+    unit.unitType === UnitType.SUPPORT_VEHICLE
+  );
 }
