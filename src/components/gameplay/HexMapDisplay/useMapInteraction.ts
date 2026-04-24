@@ -16,16 +16,16 @@
  *     tests and components share a single contract.
  */
 
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 
-import type { IHexCoordinate } from '@/types/gameplay';
+import type { IHexCoordinate } from "@/types/gameplay";
 
 import {
   HEX_SIZE,
   HEX_WIDTH,
   HEX_HEIGHT,
   hexToPixel,
-} from '@/constants/hexMap';
+} from "@/constants/hexMap";
 
 interface ViewBox {
   x: number;
@@ -492,29 +492,56 @@ export function useMapInteraction(radius: number): MapInteractionState {
     return `${x} ${y} ${width} ${height}`;
   }, [viewBox, zoom, pan]);
 
-  return {
-    svgRef,
-    transformedViewBox,
-    viewBox,
-    zoom,
-    pan,
-    setZoom,
-    setPan,
-    showMovementOverlay,
-    setShowMovementOverlay,
-    showCoverOverlay,
-    setShowCoverOverlay,
-    showLOSOverlay,
-    setShowLOSOverlay,
-    panBy,
-    zoomTo,
-    centerOn,
-    handleWheel,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
-  };
+  // Memoize the returned object so consumers (e.g. HexMapDisplay's
+  // `onInteractionReady` effect in GameplayLayout) see a stable
+  // identity across renders. Without this, every render produced a
+  // fresh object, which caused the parent's `setMapInteraction` effect
+  // to fire on every render — an infinite loop that hung the
+  // gameplay smoke test and cancelled CI at the 20-min ceiling.
+  return useMemo(
+    () => ({
+      svgRef,
+      transformedViewBox,
+      viewBox,
+      zoom,
+      pan,
+      setZoom,
+      setPan,
+      showMovementOverlay,
+      setShowMovementOverlay,
+      showCoverOverlay,
+      setShowCoverOverlay,
+      showLOSOverlay,
+      setShowLOSOverlay,
+      panBy,
+      zoomTo,
+      centerOn,
+      handleWheel,
+      handleMouseDown,
+      handleMouseMove,
+      handleMouseUp,
+      handleTouchStart,
+      handleTouchMove,
+      handleTouchEnd,
+    }),
+    [
+      transformedViewBox,
+      viewBox,
+      zoom,
+      pan,
+      showMovementOverlay,
+      showCoverOverlay,
+      showLOSOverlay,
+      panBy,
+      zoomTo,
+      centerOn,
+      handleWheel,
+      handleMouseDown,
+      handleMouseMove,
+      handleMouseUp,
+      handleTouchStart,
+      handleTouchMove,
+      handleTouchEnd,
+    ],
+  );
 }
