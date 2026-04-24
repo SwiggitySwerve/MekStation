@@ -140,6 +140,17 @@ jobs:
       - name: Build Storybook
         run: npm run storybook:build
 
+  # Aggregator that preserves the "Lint and Test" required-check name
+  # from before the fan-out. Passes only if every fan-out job passed.
+  lint-and-test:
+    name: Lint and Test
+    needs: [lint, format-check, typecheck, test, validate-bv, storybook-build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: All fan-out checks passed
+        run: echo "All fan-out checks passed"
+
   prepare-build:
     name: Prepare Build Artifacts
     runs-on: ubuntu-latest
