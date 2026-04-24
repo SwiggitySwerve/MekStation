@@ -21,6 +21,7 @@ import {
 } from '@/types/unit/PersonnelInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+import { calculateInfantryBVFromUnit } from '@/utils/construction/infantry';
 
 import {
   AbstractUnitTypeHandler,
@@ -388,31 +389,17 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   }
 
   /**
-   * Calculate Infantry BV
+   * Calculate Infantry BV using the spec-compliant per-trooper calculator.
+   *
+   * Delegates to `calculateInfantryBVFromUnit` (adapter over
+   * `calculateInfantryBV`) so BV obeys motive multiplier, armor-kit
+   * multiplier, secondary-weapon damage/trooper rules, field guns, and
+   * anti-mech × 1.1 uplift.
+   *
+   * @spec openspec/changes/add-infantry-battle-value/specs/battle-value-system/spec.md
    */
   protected calculateTypeSpecificBV(unit: IInfantry): number {
-    // Base BV per soldier
-    let bvPerSoldier = 2;
-
-    // Modify by weapon
-    if (unit.primaryWeapon.toLowerCase().includes('laser')) {
-      bvPerSoldier += 1;
-    }
-    if (unit.primaryWeapon.toLowerCase().includes('srm')) {
-      bvPerSoldier += 2;
-    }
-
-    // Anti-mech bonus
-    if (unit.hasAntiMechTraining) {
-      bvPerSoldier += 1;
-    }
-
-    // Armor bonus
-    if (unit.armorKit !== InfantryArmorKit.NONE) {
-      bvPerSoldier += 0.5;
-    }
-
-    return Math.round(unit.platoonStrength * bvPerSoldier);
+    return calculateInfantryBVFromUnit(unit).final;
   }
 
   /**

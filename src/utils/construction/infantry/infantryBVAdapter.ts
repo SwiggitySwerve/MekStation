@@ -18,12 +18,13 @@
  * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
  */
 
+import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { IInfantryFieldGun } from '@/types/unit/InfantryInterfaces';
 import {
   InfantryMotive,
   IPlatoonComposition,
 } from '@/types/unit/InfantryInterfaces';
-import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
+import { IInfantry, InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 
 import {
   calculateInfantryBV,
@@ -257,4 +258,97 @@ export function computeInfantryBVFromState(
   };
 
   return calculateInfantryBV(input);
+}
+
+// =============================================================================
+// IInfantry (handler-shape) adapter
+// =============================================================================
+
+/**
+ * Map a handler-layer `SquadMotionType` to the BV-layer `InfantryMotive`.
+ *
+ * The handler uses the coarser `SquadMotionType` enum (Foot / Jump / Motorized /
+ * Mechanized / Wheeled / Tracked / Hover / VTOL / Beast), while the BV
+ * calculator needs the more granular `InfantryMotive` (which distinguishes the
+ * four Mechanized sub-types used by the multiplier table).
+ *
+ * When the handler carries the plain `MECHANIZED` value (BLK files that did not
+ * specify a hull sub-type), we fall back to `MECHANIZED_TRACKED` — all four
+ * mechanized multipliers are 1.15, so the exact sub-type does not change the
+ * numeric result. `WHEELED`/`TRACKED`/`HOVER`/`VTOL` map to their granular
+ * mechanized counterparts. `UMU` and `BEAST` have no BV-layer equivalent and
+ * map to `FOOT` (1.0×) — the safest baseline.
+ */
+function mapSquadMotionToInfantryMotive(
+  motion: SquadMotionType,
+): InfantryMotive {
+  switch (motion) {
+    case SquadMotionType.FOOT:
+      return InfantryMotive.FOOT;
+    case SquadMotionType.JUMP:
+      return InfantryMotive.JUMP;
+    case SquadMotionType.MOTORIZED:
+      return InfantryMotive.MOTORIZED;
+    case SquadMotionType.MECHANIZED:
+    case SquadMotionType.TRACKED:
+      return InfantryMotive.MECHANIZED_TRACKED;
+    case SquadMotionType.WHEELED:
+      return InfantryMotive.MECHANIZED_WHEELED;
+    case SquadMotionType.HOVER:
+      return InfantryMotive.MECHANIZED_HOVER;
+    case SquadMotionType.VTOL:
+      return InfantryMotive.MECHANIZED_VTOL;
+    case SquadMotionType.UMU:
+    case SquadMotionType.BEAST:
+    default:
+      return InfantryMotive.FOOT;
+  }
+}
+
+/**
+ * Compute the infantry BV breakdown from the handler-shape `IInfantry` unit.
+ *
+ * The handler populates `IInfantry` from parsed BLK documents; this adapter
+ * bridges that shape into the store-shape consumed by `computeInfantryBVFromState`.
+ *
+ * Field guns on `IInfantry` do not carry `ammoRounds` (the handler-level
+ * `IInfantryFieldGun` is a simpler shape) — we synthesize one ammo bin per gun
+ * so the excessive-ammo cap in the BV calculator still behaves correctly.
+ *
+ * @spec openspec/changes/add-infantry-battle-value/specs/battle-value-system/spec.md
+ */
+export function calculateInfantryBVFromUnit(
+  unit: IInfantry,
+  options: { gunnery?: number; piloting?: number } = {},
+): IInfantryBVBreakdown {
+  const motive = mapSquadMotionToInfantryMotive(unit.motionType);
+  const platoonComposition: IPlatoonComposition = {
+    squads: unit.numberOfSquads,
+    troopersPerSquad: unit.squadSize,
+  };
+
+  // Synthesize handler-level field guns into store-shape guns with one ammo
+  // bin each — the BV layer only needs equipmentId + a non-zero ammoRounds
+  // flag to emit an ammo entry.
+  const fieldGuns: readonly IInfantryFieldGun[] = unit.fieldGuns.map((gun) => ({
+    equipmentId: gun.equipmentId,
+    name: gun.name,
+    crew: gun.crew,
+    ammoRounds: 1,
+  }));
+
+  const state: InfantryStateLike = {
+    infantryMotive: motive,
+    platoonComposition,
+    armorKit: unit.armorKit,
+    hasAntiMechTraining: unit.hasAntiMechTraining,
+    primaryWeapon: unit.primaryWeapon,
+    primaryWeaponId: unit.primaryWeaponId,
+    secondaryWeapon: unit.secondaryWeapon,
+    secondaryWeaponId: unit.secondaryWeaponId,
+    secondaryWeaponCount: unit.secondaryWeaponCount,
+    fieldGuns,
+  };
+
+  return computeInfantryBVFromState(state, options);
 }

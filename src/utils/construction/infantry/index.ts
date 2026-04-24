@@ -61,5 +61,8 @@ export type {
   IInfantryBVBreakdown,
 } from './infantryBV';
 
-export { computeInfantryBVFromState } from './infantryBVAdapter';
+export {
+  computeInfantryBVFromState,
+  calculateInfantryBVFromUnit,
+} from './infantryBVAdapter';
 export type { InfantryStateLike } from './infantryBVAdapter';
