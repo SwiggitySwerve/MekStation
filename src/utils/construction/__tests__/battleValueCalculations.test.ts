@@ -199,8 +199,11 @@ describe('calculateBattleValueForUnit — PROTOMECH dispatch', () => {
     // Must match a direct call to the canonical calculator — dispatch is a
     // routing concern, not a recomputation.
     const direct = calculateProtoMechBV(proto);
-    expect(dispatched?.breakdown.final).toBe(direct.final);
-    expect(dispatched?.breakdown.baseBV).toBe(direct.baseBV);
+    if (dispatched?.kind !== 'protomech') {
+      throw new Error('Expected protomech dispatch result');
+    }
+    expect(dispatched.breakdown.final).toBe(direct.final);
+    expect(dispatched.breakdown.baseBV).toBe(direct.baseBV);
 
     // Proto with positive armor + structure should always produce a non-zero
     // final BV; catches regressions where dispatch returns a zero stub.

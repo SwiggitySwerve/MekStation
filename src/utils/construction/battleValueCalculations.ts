@@ -10,10 +10,14 @@
  * @spec openspec/changes/add-protomech-battle-value/specs/battle-value-system/spec.md
  */
 
+import type { IInfantry } from '@/types/unit/PersonnelInterfaces';
 import type { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+import type { IInfantryBVBreakdown } from './infantry/infantryBV';
+
+import { calculateInfantryBVFromUnit as _calculateInfantryBVFromUnit } from './infantry/infantryBVAdapter';
 import {
   calculateProtoMechBV as _calculateProtoMechBV,
   type IProtoMechBVBreakdown,
@@ -116,36 +120,59 @@ export type {
 } from './protomech/protoMechBV';
 
 /**
+ * Options accepted by `calculateBattleValueForUnit`.
+ *
+ * ProtoMech options are the existing shape. Infantry options carry gunnery /
+ * piloting skill overrides — both default to 4/5 (baseline pilot) when absent.
+ * The union is structurally compatible since no field name collides.
+ */
+export interface IUnitBVOptions extends IProtoMechBVOptions {
+  /** Infantry pilot gunnery (default 4). */
+  gunnery?: number;
+  /** Infantry pilot piloting / anti-mech skill (default 5). */
+  piloting?: number;
+}
+
+/**
  * Unified per-unit BV dispatcher result.
  *
  * `kind` identifies which calculator produced the breakdown so callers can
- * narrow on the payload (currently only `protomech` is implemented here;
- * mech units continue to go through the existing `CalculationService` path).
+ * narrow on the payload. Currently implemented for ProtoMech and Infantry;
+ * mech units continue to go through the existing `CalculationService` path.
  */
-export type UnitBVResult = {
-  readonly kind: 'protomech';
-  readonly breakdown: IProtoMechBVBreakdown;
-};
+export type UnitBVResult =
+  | {
+      readonly kind: 'protomech';
+      readonly breakdown: IProtoMechBVBreakdown;
+    }
+  | {
+      readonly kind: 'infantry';
+      readonly breakdown: IInfantryBVBreakdown;
+    };
 
 /**
  * Route a unit to its per-type BV calculator. Currently implemented for
- * ProtoMech; other unit types fall through with `undefined` so the caller
- * can keep using its existing mech path unchanged.
+ * ProtoMech and Infantry; other unit types fall through with `undefined` so
+ * the caller can keep using its existing mech path unchanged.
  *
- * @param unit  A discriminated unit value (currently `IProtoMechUnit`).
+ * @param unit  A discriminated unit value (`IProtoMechUnit` or `IInfantry`).
  * @param options Optional per-type overrides (skill, etc.).
  */
 export function calculateBattleValueForUnit(
   unit: IProtoMechUnit,
-  options?: IProtoMechBVOptions,
+  options?: IUnitBVOptions,
 ): UnitBVResult;
 export function calculateBattleValueForUnit(
-  unit: { readonly unitType?: UnitType | string } | IProtoMechUnit,
-  options?: IProtoMechBVOptions,
+  unit: IInfantry,
+  options?: IUnitBVOptions,
+): UnitBVResult;
+export function calculateBattleValueForUnit(
+  unit: { readonly unitType?: UnitType | string } | IProtoMechUnit | IInfantry,
+  options?: IUnitBVOptions,
 ): UnitBVResult | undefined;
 export function calculateBattleValueForUnit(
-  unit: { readonly unitType?: UnitType | string } | IProtoMechUnit,
-  options?: IProtoMechBVOptions,
+  unit: { readonly unitType?: UnitType | string } | IProtoMechUnit | IInfantry,
+  options?: IUnitBVOptions,
 ): UnitBVResult | undefined {
   if (unit && (unit as IProtoMechUnit).unitType === UnitType.PROTOMECH) {
     const breakdown = _calculateProtoMechBV(
@@ -153,6 +180,13 @@ export function calculateBattleValueForUnit(
       options ?? {},
     );
     return { kind: 'protomech', breakdown };
+  }
+  if (unit && (unit as IInfantry).unitType === UnitType.INFANTRY) {
+    const breakdown = _calculateInfantryBVFromUnit(unit as IInfantry, {
+      gunnery: options?.gunnery,
+      piloting: options?.piloting,
+    });
+    return { kind: 'infantry', breakdown };
   }
   return undefined;
 }

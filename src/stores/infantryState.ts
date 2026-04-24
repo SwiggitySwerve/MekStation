@@ -8,6 +8,8 @@
  * @spec openspec/changes/add-infantry-construction/specs/infantry-unit-system/spec.md
  */
 
+import type { IInfantryBVBreakdown } from '@/utils/construction/infantry/infantryBV';
+
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
@@ -23,6 +25,7 @@ import {
   InfantryArmorKit,
   InfantrySpecialization,
 } from '@/types/unit/PersonnelInterfaces';
+import { computeInfantryBVFromState } from '@/utils/construction/infantry/infantryBVAdapter';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -150,6 +153,23 @@ export interface InfantryState {
 
   /** Field guns (if any) */
   fieldGuns: IInfantryFieldGun[];
+
+  // =========================================================================
+  // Computed Battle Value
+  // =========================================================================
+
+  /**
+   * Computed BV breakdown — recomputed reactively by the store on every action
+   * that changes a BV input (motive, composition, weapons, armor kit, field
+   * guns, anti-mech training).
+   *
+   * May be `undefined` during initial state creation before the first
+   * reactive recomputation runs. Consumers (e.g., `InfantryStatusBar`) should
+   * handle the undefined case gracefully.
+   *
+   * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
+   */
+  bvBreakdown?: IInfantryBVBreakdown;
 
   // =========================================================================
   // Metadata
@@ -324,6 +344,41 @@ export function createDefaultInfantryState(
  */
 export function calculatePlatoonStrength(state: InfantryState): number {
   return state.squadSize * state.numberOfSquads;
+}
+
+/**
+ * Recompute the infantry BV breakdown from the current store state.
+ *
+ * Delegates to `computeInfantryBVFromState` in the adapter. Kept on the state
+ * module (rather than the Zustand factory) so tests and snapshot code can
+ * derive the same breakdown without instantiating a store.
+ *
+ * Returns `undefined` on calculator throw — callers fall back to the previous
+ * breakdown or render a neutral UI state. Throws are unexpected (the
+ * calculator is pure and handles missing catalog entries gracefully), so the
+ * guard is defensive only.
+ *
+ * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
+ */
+export function computeInfantryStateBV(
+  state: InfantryState,
+): IInfantryBVBreakdown | undefined {
+  try {
+    return computeInfantryBVFromState({
+      infantryMotive: state.infantryMotive,
+      platoonComposition: state.platoonComposition,
+      armorKit: state.armorKit,
+      hasAntiMechTraining: state.hasAntiMechTraining,
+      primaryWeapon: state.primaryWeapon,
+      primaryWeaponId: state.primaryWeaponId,
+      secondaryWeapon: state.secondaryWeapon,
+      secondaryWeaponId: state.secondaryWeaponId,
+      secondaryWeaponCount: state.secondaryWeaponCount,
+      fieldGuns: state.fieldGuns,
+    });
+  } catch {
+    return undefined;
+  }
 }
 
 /**

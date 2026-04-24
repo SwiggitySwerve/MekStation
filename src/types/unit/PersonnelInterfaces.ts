@@ -298,6 +298,17 @@ export interface IInfantry extends ISquadUnit {
 
   /** Can make leg attacks */
   readonly canLegAttack: boolean;
+
+  /**
+   * Computed Battle Value breakdown populated by the infantry BV calculator.
+   *
+   * Optional to stay backwards-compatible with BLK-parsed units prior to the
+   * calculator running. Populated by the handler after construction (or on
+   * first BV-affecting store mutation) and consumed by the customizer UI.
+   *
+   * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
+   */
+  readonly bvBreakdown?: import('@/utils/construction/infantry/infantryBV').IInfantryBVBreakdown;
 }
 
 // ============================================================================

@@ -15,7 +15,6 @@
 import React, { useMemo, useState } from 'react';
 
 import { useInfantryStore } from '@/stores/useInfantryStore';
-import { computeInfantryBVFromState } from '@/utils/construction/infantry/infantryBVAdapter';
 import { totalTroopers } from '@/utils/construction/infantry/platoonComposition';
 
 import { InfantryBVBreakdownDialog } from './InfantryBVBreakdownDialog';
@@ -81,33 +80,38 @@ function StatusItem({
 /**
  * Compact status bar showing infantry platoon statistics.
  *
- * BV breakdown is computed via `computeInfantryBVFromState`. The store slice
- * selector is intentionally granular so the bar re-computes only when inputs
- * that matter for BV change (motive, composition, weapons, armor kit, etc.).
+ * BV breakdown is read directly from the store's `bvBreakdown` field, which is
+ * recomputed reactively by the store on every BV-affecting action (motive,
+ * composition, weapons, armor kit, anti-mech, field guns). The bar no longer
+ * runs its own calculator — the store is the single source of truth so all
+ * consumers (status bar, breakdown dialog, serialization, handler BV) observe
+ * identical values.
+ *
+ * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
  */
 export function InfantryStatusBar({
   className = '',
   compact = false,
 }: InfantryStatusBarProps): React.ReactElement {
-  // Identity / composition
+  // Identity / composition — pulled individually to preserve fine-grained
+  // reactivity (each subscriber re-renders only when its slice changes).
   const infantryMotive = useInfantryStore((s) => s.infantryMotive);
   const platoonComposition = useInfantryStore((s) => s.platoonComposition);
   const armorKit = useInfantryStore((s) => s.armorKit);
   const hasAntiMechTraining = useInfantryStore((s) => s.hasAntiMechTraining);
 
-  // Weapons
-  const primaryWeapon = useInfantryStore((s) => s.primaryWeapon);
-  const primaryWeaponId = useInfantryStore((s) => s.primaryWeaponId);
-  const secondaryWeapon = useInfantryStore((s) => s.secondaryWeapon);
-  const secondaryWeaponId = useInfantryStore((s) => s.secondaryWeaponId);
-  const secondaryWeaponCount = useInfantryStore((s) => s.secondaryWeaponCount);
-
-  // Field guns
+  // Field guns — shown as a chip; length + names are the only fields read
+  // here so the whole array reference is acceptable.
   const fieldGuns = useInfantryStore((s) => s.fieldGuns);
 
   // MP (for display — not for BV)
   const groundMP = useInfantryStore((s) => s.groundMP);
   const jumpMP = useInfantryStore((s) => s.jumpMP);
+
+  // BV breakdown is live-maintained by the store. The status bar consumes
+  // the pre-computed value rather than running its own calculator.
+  // @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
+  const bvBreakdown = useInfantryStore((s) => s.bvBreakdown);
 
   // BV dialog open state
   const [bvDialogOpen, setBvDialogOpen] = useState(false);
@@ -116,38 +120,6 @@ export function InfantryStatusBar({
     () => totalTroopers(platoonComposition),
     [platoonComposition],
   );
-
-  // Live BV — re-runs when any BV-relevant field changes.
-  // @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
-  const bvBreakdown = useMemo(() => {
-    try {
-      return computeInfantryBVFromState({
-        infantryMotive,
-        platoonComposition,
-        armorKit,
-        hasAntiMechTraining,
-        primaryWeapon,
-        primaryWeaponId,
-        secondaryWeapon,
-        secondaryWeaponId,
-        secondaryWeaponCount,
-        fieldGuns,
-      });
-    } catch {
-      return null;
-    }
-  }, [
-    infantryMotive,
-    platoonComposition,
-    armorKit,
-    hasAntiMechTraining,
-    primaryWeapon,
-    primaryWeaponId,
-    secondaryWeapon,
-    secondaryWeaponId,
-    secondaryWeaponCount,
-    fieldGuns,
-  ]);
 
   // Compact rendering (used in narrow layouts)
   if (compact) {
