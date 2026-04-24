@@ -5,6 +5,10 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
+import { WeightClass } from '@/types/enums/WeightClass';
+
+import type { ArmorPipState, ChassisArchetype } from './UnitSpriteTypes';
+
 import { GamePhase, GameSide, IToHitModifier } from './GameSessionInterfaces';
 import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
 
@@ -206,6 +210,30 @@ export interface IUnitToken {
   readonly isGlider?: boolean;
   /** Has main gun equipped. */
   readonly hasMainGun?: boolean;
+
+  // -------------------------------------------------------------------------
+  // Mech-sprite-system fields (optional — consumed by `MechSprite` +
+  // `ArmorPipRing`; see add-mech-silhouette-sprite-set/specs/unit-sprite-system).
+  // When any of these is absent, the renderer falls back to the
+  // "medium humanoid, undamaged" silhouette so Phase-1 callers keep
+  // rendering cleanly.
+  // -------------------------------------------------------------------------
+  /** Tonnage-class bucket used to pick the sprite's weight silhouette. */
+  readonly weightClass?: WeightClass;
+  /**
+   * Silhouette archetype override. When absent, a biped with `isQuad ||
+   * isLAM` flags drives selection; otherwise the humanoid sprite is used.
+   */
+  readonly chassisArchetype?: ChassisArchetype;
+  /** Is this a quadruped 'Mech chassis? Feeds sprite selection. */
+  readonly isQuad?: boolean;
+  /** Is this a Land-Air 'Mech? Feeds sprite selection. */
+  readonly isLAM?: boolean;
+  /**
+   * Per-location armor+structure state for the damage pip ring. When
+   * absent, the ring renders every location as `full` (fresh-off-the-lot).
+   */
+  readonly armorPipState?: ArmorPipState;
 }
 
 // =============================================================================
