@@ -7,6 +7,10 @@
  * @spec openspec/changes/add-protomech-construction/specs/protomech-unit-system/spec.md
  */
 
+// Type-only import avoids a runtime cycle with `protoMechBV.ts`, which imports
+// runtime values (enums) from this file. BV breakdown is erased at runtime.
+import type { IProtoMechBVBreakdown } from '@/utils/construction/protomech/protoMechBV';
+
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
@@ -213,6 +217,19 @@ export interface IProtoMechUnit {
 
   // ---- Equipment ----
   readonly equipment: ReadonlyArray<IProtoMechMountedEquipment>;
+
+  // ---- BV ----
+  /**
+   * Last-computed BV 2.0 breakdown for this ProtoMech. Populated by the proto
+   * BV path (see {@link calculateProtoMechBV}) and persisted on the unit so
+   * status bars, force-level tools, and the parity harness can read the
+   * breakdown without recomputing. Optional because legacy fixtures and
+   * freshly-parsed units may not yet have a breakdown attached.
+   *
+   * @spec openspec/changes/add-protomech-battle-value/specs/protomech-unit-system/spec.md
+   *       — Requirement: ProtoMech BV Breakdown on Unit State
+   */
+  readonly bvBreakdown?: IProtoMechBVBreakdown;
 
   // ---- Metadata ----
   readonly isModified: boolean;

@@ -18,8 +18,17 @@ import {
   IProtoMech,
   IProtoMechMountedEquipment,
 } from '@/types/unit/PersonnelInterfaces';
+import {
+  ProtoChassis,
+  ProtoLocation,
+  ProtoWeightClass,
+  type IProtoArmorByLocation,
+  type IProtoMechMountedEquipment as IProtoMechMountedEquipmentV2,
+  type IProtoMechUnit,
+} from '@/types/unit/ProtoMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
 
 import {
   AbstractUnitTypeHandler,
@@ -406,26 +415,153 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   }
 
   /**
-   * Calculate ProtoMech BV
+   * Calculate ProtoMech BV using the full BV 2.0 calculator.
+   *
+   * Adapts the legacy `IProtoMech` shape (used by this handler) onto the
+   * canonical `IProtoMechUnit` shape consumed by
+   * {@link calculateProtoMechBV}, then returns the `final` breakdown field.
+   *
+   * The legacy stub that combined armor × 15 + cruiseMP × 10 + jumpMP × 15
+   * is replaced: per the spec, the full BV 2.0 proto formula (defensive +
+   * offensive, chassis multiplier, pilot adjustment) now applies.
+   *
+   * @spec openspec/changes/add-protomech-battle-value/specs/protomech-unit-system/spec.md
+   *       — Requirement: Scope — Full BV Calculation Included
+   * @spec openspec/changes/add-protomech-battle-value/specs/battle-value-system/spec.md
+   *       — Requirement: ProtoMech BV Dispatch
    */
   protected calculateTypeSpecificBV(unit: IProtoMech): number {
-    let bv = 0;
+    const adapted = this.toProtoMechUnit(unit);
+    const breakdown = calculateProtoMechBV(adapted);
+    return breakdown.final;
+  }
 
-    // Base BV from armor
-    bv += unit.armorPerTrooper * 15;
+  /**
+   * Adapter: legacy IProtoMech → canonical IProtoMechUnit for the BV path.
+   *
+   * The BV calculator only reads a subset of fields on the unit — armor,
+   * structure, equipment, MP, chassis, tonnage. This adapter fills those
+   * accurately and uses sensible defaults for identity fields that the
+   * calculator does not inspect but TypeScript still requires.
+   */
+  private toProtoMechUnit(unit: IProtoMech): IProtoMechUnit {
+    const chassisType: ProtoChassis = unit.isGlider
+      ? ProtoChassis.GLIDER
+      : unit.isQuad
+        ? ProtoChassis.QUAD
+        : unit.weightPerUnit >= 10
+          ? ProtoChassis.ULTRAHEAVY
+          : ProtoChassis.BIPED;
 
-    // Movement bonus
-    bv += unit.cruiseMP * 10;
-    if (unit.jumpMP > 0) {
-      bv += unit.jumpMP * 15;
+    const weightClass: ProtoWeightClass =
+      unit.weightPerUnit <= 4
+        ? ProtoWeightClass.LIGHT
+        : unit.weightPerUnit <= 7
+          ? ProtoWeightClass.MEDIUM
+          : unit.weightPerUnit <= 9
+            ? ProtoWeightClass.HEAVY
+            : ProtoWeightClass.ULTRAHEAVY;
+
+    const armorByLocation: IProtoArmorByLocation = {
+      [ProtoLocation.HEAD]: unit.armorByLocation[ProtoMechLocation.HEAD] ?? 0,
+      [ProtoLocation.TORSO]: unit.armorByLocation[ProtoMechLocation.TORSO] ?? 0,
+      [ProtoLocation.LEFT_ARM]:
+        unit.armorByLocation[ProtoMechLocation.LEFT_ARM] ?? 0,
+      [ProtoLocation.RIGHT_ARM]:
+        unit.armorByLocation[ProtoMechLocation.RIGHT_ARM] ?? 0,
+      [ProtoLocation.LEGS]: unit.armorByLocation[ProtoMechLocation.LEGS] ?? 0,
+      [ProtoLocation.MAIN_GUN]:
+        unit.armorByLocation[ProtoMechLocation.MAIN_GUN] ?? 0,
+    };
+    const structureByLocation: IProtoArmorByLocation = {
+      [ProtoLocation.HEAD]:
+        unit.structureByLocation[ProtoMechLocation.HEAD] ?? 0,
+      [ProtoLocation.TORSO]:
+        unit.structureByLocation[ProtoMechLocation.TORSO] ?? 0,
+      [ProtoLocation.LEFT_ARM]:
+        unit.structureByLocation[ProtoMechLocation.LEFT_ARM] ?? 0,
+      [ProtoLocation.RIGHT_ARM]:
+        unit.structureByLocation[ProtoMechLocation.RIGHT_ARM] ?? 0,
+      [ProtoLocation.LEGS]:
+        unit.structureByLocation[ProtoMechLocation.LEGS] ?? 0,
+      [ProtoLocation.MAIN_GUN]:
+        unit.structureByLocation[ProtoMechLocation.MAIN_GUN] ?? 0,
+    };
+
+    const equipment: ReadonlyArray<IProtoMechMountedEquipmentV2> =
+      unit.equipment.map((mount) => ({
+        id: mount.id,
+        equipmentId: mount.equipmentId,
+        name: mount.name,
+        location: this.toBVLocation(mount.location),
+        linkedAmmoId: mount.linkedAmmoId,
+        // A mount in the MainGun slot is treated as a main gun. IProtoMech
+        // doesn't carry an explicit isMainGun flag, so we derive from loc.
+        isMainGun: mount.location === ProtoMechLocation.MAIN_GUN,
+      }));
+
+    // Legacy IProtoMech uses `cruiseMP` for walk; flank/run comes from
+    // cruise + 1 (standard ProtoMech run formula).
+    const walkMP = unit.cruiseMP;
+    const runMP = unit.cruiseMP + 1;
+
+    return {
+      id: unit.id,
+      name: unit.name,
+      chassis: unit.metadata?.chassis ?? '',
+      model: unit.metadata?.model ?? '',
+      // IUnitMetadata has no mulId; legacy IProtoMech handler does not track
+      // it. The BV calculator does not read this field, so we pass a stable
+      // placeholder to satisfy the IProtoMechUnit shape.
+      mulId: '-1',
+      year: unit.metadata?.year ?? 3060,
+      unitType: UnitType.PROTOMECH,
+      techBase: unit.techBase,
+      tonnage: unit.weightPerUnit,
+      weightClass,
+      chassisType,
+      pointSize: unit.pointSize,
+      walkMP,
+      runMP,
+      jumpMP: unit.jumpMP,
+      engineRating: unit.engineRating,
+      engineWeight: unit.engineRating * 0.025,
+      myomerBooster: unit.hasMyomerBooster,
+      glidingWings: unit.isGlider,
+      armorType: 'Standard',
+      armorByLocation,
+      structureByLocation,
+      hasMainGun: unit.hasMainGun,
+      mainGunWeaponId: undefined,
+      equipment,
+      isModified: false,
+      createdAt: 0,
+      lastModifiedAt: 0,
+    };
+  }
+
+  /**
+   * Map the handler's ProtoMechLocation enum onto the BV calculator's
+   * ProtoLocation enum. Both use identical string values today, but this
+   * explicit map localizes any future divergence.
+   */
+  private toBVLocation(loc: ProtoMechLocation): ProtoLocation {
+    switch (loc) {
+      case ProtoMechLocation.HEAD:
+        return ProtoLocation.HEAD;
+      case ProtoMechLocation.TORSO:
+        return ProtoLocation.TORSO;
+      case ProtoMechLocation.LEFT_ARM:
+        return ProtoLocation.LEFT_ARM;
+      case ProtoMechLocation.RIGHT_ARM:
+        return ProtoLocation.RIGHT_ARM;
+      case ProtoMechLocation.LEGS:
+        return ProtoLocation.LEGS;
+      case ProtoMechLocation.MAIN_GUN:
+        return ProtoLocation.MAIN_GUN;
+      default:
+        return ProtoLocation.TORSO;
     }
-
-    // Per-unit BV multiplied by point size
-    bv *= unit.pointSize;
-
-    // Equipment BV would be added here
-
-    return Math.round(bv);
   }
 
   /**

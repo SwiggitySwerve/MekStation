@@ -2,7 +2,21 @@
  * Tests for Battle Value calculation utilities
  */
 
-import { calculateAdjustedBV } from '../battleValueCalculations';
+import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  ProtoChassis,
+  ProtoLocation,
+  ProtoWeightClass,
+  type IProtoArmorByLocation,
+  type IProtoMechUnit,
+} from '@/types/unit/ProtoMechInterfaces';
+
+import {
+  calculateAdjustedBV,
+  calculateBattleValueForUnit,
+  calculateProtoMechBV,
+} from '../battleValueCalculations';
 
 describe('calculateAdjustedBV', () => {
   describe('baseline pilot (4/5)', () => {
@@ -106,5 +120,99 @@ describe('calculateAdjustedBV', () => {
       expect(calculateAdjustedBV(1000, 8, 8)).toBe(640); // matrix[8][8] = 0.64
       expect(calculateAdjustedBV(1000, 5, 8)).toBe(770); // matrix[5][8] = 0.77
     });
+  });
+});
+
+// =============================================================================
+// calculateBattleValueForUnit — per-unit dispatch
+// =============================================================================
+
+/**
+ * Build a minimal, well-typed ProtoMech for dispatcher tests.
+ *
+ * Only the fields the calculator actually reads are non-zero; every other
+ * field uses a stable default so the fixture is safe to reuse.
+ */
+function zeroArmor(): IProtoArmorByLocation {
+  return {
+    [ProtoLocation.HEAD]: 0,
+    [ProtoLocation.TORSO]: 0,
+    [ProtoLocation.LEFT_ARM]: 0,
+    [ProtoLocation.RIGHT_ARM]: 0,
+    [ProtoLocation.LEGS]: 0,
+    [ProtoLocation.MAIN_GUN]: 0,
+  };
+}
+
+function buildDispatchProto(): IProtoMechUnit {
+  return {
+    id: 'dispatch-proto',
+    name: 'Dispatch Proto',
+    chassis: 'Dispatch',
+    model: 'Prime',
+    mulId: 'TEST-1',
+    year: 3075,
+    unitType: UnitType.PROTOMECH,
+    techBase: TechBase.CLAN,
+    tonnage: 5,
+    weightClass: ProtoWeightClass.MEDIUM,
+    chassisType: ProtoChassis.BIPED,
+    pointSize: 5,
+    walkMP: 5,
+    runMP: 6,
+    jumpMP: 0,
+    engineRating: 25,
+    engineWeight: 0.625,
+    myomerBooster: false,
+    glidingWings: false,
+    armorType: 'Standard',
+    // Populate torso armor + structure so defensive BV is non-trivial and the
+    // dispatcher cannot accidentally short-circuit to 0.
+    armorByLocation: { ...zeroArmor(), [ProtoLocation.TORSO]: 10 },
+    structureByLocation: { ...zeroArmor(), [ProtoLocation.TORSO]: 5 },
+    hasMainGun: false,
+    mainGunWeaponId: undefined,
+    equipment: [],
+    isModified: false,
+    createdAt: 0,
+    lastModifiedAt: 0,
+  };
+}
+
+describe('calculateBattleValueForUnit — PROTOMECH dispatch', () => {
+  /*
+   * @spec openspec/changes/add-protomech-battle-value/specs/battle-value-system/spec.md
+   *       — Requirement: ProtoMech BV Dispatch
+   */
+  it('routes a PROTOMECH unit to the proto calculator and returns its breakdown', () => {
+    const proto = buildDispatchProto();
+
+    const dispatched = calculateBattleValueForUnit(proto);
+
+    // The dispatcher must invoke the proto path and surface the breakdown
+    // under a `protomech`-tagged result; the spec requires the return to
+    // include an IProtoMechBVBreakdown.
+    expect(dispatched).toBeDefined();
+    expect(dispatched?.kind).toBe('protomech');
+    expect(dispatched?.breakdown).toBeDefined();
+
+    // Must match a direct call to the canonical calculator — dispatch is a
+    // routing concern, not a recomputation.
+    const direct = calculateProtoMechBV(proto);
+    expect(dispatched?.breakdown.final).toBe(direct.final);
+    expect(dispatched?.breakdown.baseBV).toBe(direct.baseBV);
+
+    // Proto with positive armor + structure should always produce a non-zero
+    // final BV; catches regressions where dispatch returns a zero stub.
+    expect(direct.final).toBeGreaterThan(0);
+  });
+
+  it('returns undefined for non-ProtoMech shapes so mech callers fall through', () => {
+    // A stand-in mech-shaped value: the dispatcher must not try to treat it
+    // as a proto and must leave the caller to use the existing mech path.
+    const notAProto = {
+      unitType: UnitType.BATTLEMECH,
+    } as const;
+    expect(calculateBattleValueForUnit(notAProto)).toBeUndefined();
   });
 });

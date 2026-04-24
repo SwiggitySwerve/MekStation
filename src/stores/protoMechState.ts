@@ -16,13 +16,21 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { IProtoMechMountedEquipment } from '@/types/unit/PersonnelInterfaces';
 import {
   ProtoChassis,
+  ProtoLocation,
   ProtoWeightClass,
+  type IProtoArmorByLocation,
+  type IProtoMechMountedEquipment as IProtoMechMountedEquipmentV2,
+  type IProtoMechUnit,
 } from '@/types/unit/ProtoMechInterfaces';
 import {
   getProtoWeightClass,
   getProtoMPCaps,
   effectiveWalkMP,
 } from '@/utils/construction/protomech';
+import {
+  calculateProtoMechBV,
+  type IProtoMechBVBreakdown,
+} from '@/utils/construction/protomech/protoMechBV';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -242,6 +250,24 @@ export interface ProtoMechState {
 
   /** Timestamp of last modification */
   lastModifiedAt: number;
+
+  // =========================================================================
+  // Battle Value
+  // =========================================================================
+
+  /**
+   * Last-computed BV 2.0 breakdown for this ProtoMech. Kept on the state
+   * (not just the selectors) so the parity harness, force-level tools, and
+   * the status bar can read the breakdown without recomputing.
+   *
+   * Refreshed on every BV-affecting mutation via `recomputeBV` from the
+   * store actions. Optional because legacy persisted state may predate this
+   * field; the first mutation (or an explicit `recomputeBV()` call) fills it.
+   *
+   * @spec openspec/changes/add-protomech-battle-value/specs/protomech-unit-system/spec.md
+   *       — Requirement: ProtoMech BV Breakdown on Unit State
+   */
+  bvBreakdown?: IProtoMechBVBreakdown;
 }
 
 // =============================================================================
@@ -325,6 +351,19 @@ export interface ProtoMechStoreActions {
 
   // Metadata Actions
   markModified: (modified?: boolean) => void;
+
+  // BV Actions
+
+  /**
+   * Recompute the BV breakdown from the current state and persist it on
+   * `state.bvBreakdown`. Called automatically by every BV-affecting setter;
+   * exposed on the store so callers can force a refresh after bulk updates
+   * (e.g. after importing a serialized unit).
+   *
+   * @spec openspec/changes/add-protomech-battle-value/specs/protomech-unit-system/spec.md
+   *       — Requirement: ProtoMech BV Breakdown on Unit State
+   */
+  recomputeBV: () => void;
 }
 
 /**
@@ -438,4 +477,121 @@ export function createDefaultProtoMechState(
     createdAt: now,
     lastModifiedAt: now,
   };
+}
+
+// =============================================================================
+// BV recomputation
+// =============================================================================
+
+/**
+ * Mapping from the ProtoMechLocation store enum ('Head', 'Torso', ...) to the
+ * ProtoLocation enum used by the BV calculator. Both use identical string
+ * values today, but we keep an explicit map so that any future divergence is
+ * localized here rather than relying on value-equality by accident.
+ */
+const STATE_LOC_TO_BV_LOC: Record<ProtoMechLocation, ProtoLocation> = {
+  [ProtoMechLocation.HEAD]: ProtoLocation.HEAD,
+  [ProtoMechLocation.TORSO]: ProtoLocation.TORSO,
+  [ProtoMechLocation.LEFT_ARM]: ProtoLocation.LEFT_ARM,
+  [ProtoMechLocation.RIGHT_ARM]: ProtoLocation.RIGHT_ARM,
+  [ProtoMechLocation.LEGS]: ProtoLocation.LEGS,
+  [ProtoMechLocation.MAIN_GUN]: ProtoLocation.MAIN_GUN,
+};
+
+/**
+ * Project the {@link ProtoMechState} store shape onto the canonical
+ * {@link IProtoMechUnit} expected by {@link calculateProtoMechBV}.
+ *
+ * This is a pure, synchronous adapter: it does not mutate state and does not
+ * depend on external services. The calculator only reads a subset of the
+ * unit's fields (armor/structure/equipment/MP/chassis/tonnage) so we fill
+ * the other identity fields with the closest store equivalents.
+ */
+function toProtoMechUnit(state: ProtoMechState): IProtoMechUnit {
+  const armorByLocation: IProtoArmorByLocation = {
+    [ProtoLocation.HEAD]: state.armorByLocation[ProtoMechLocation.HEAD] ?? 0,
+    [ProtoLocation.TORSO]: state.armorByLocation[ProtoMechLocation.TORSO] ?? 0,
+    [ProtoLocation.LEFT_ARM]:
+      state.armorByLocation[ProtoMechLocation.LEFT_ARM] ?? 0,
+    [ProtoLocation.RIGHT_ARM]:
+      state.armorByLocation[ProtoMechLocation.RIGHT_ARM] ?? 0,
+    [ProtoLocation.LEGS]: state.armorByLocation[ProtoMechLocation.LEGS] ?? 0,
+    [ProtoLocation.MAIN_GUN]:
+      state.armorByLocation[ProtoMechLocation.MAIN_GUN] ?? 0,
+  };
+  const structureByLocation: IProtoArmorByLocation = {
+    [ProtoLocation.HEAD]:
+      state.structureByLocation[ProtoMechLocation.HEAD] ?? 0,
+    [ProtoLocation.TORSO]:
+      state.structureByLocation[ProtoMechLocation.TORSO] ?? 0,
+    [ProtoLocation.LEFT_ARM]:
+      state.structureByLocation[ProtoMechLocation.LEFT_ARM] ?? 0,
+    [ProtoLocation.RIGHT_ARM]:
+      state.structureByLocation[ProtoMechLocation.RIGHT_ARM] ?? 0,
+    [ProtoLocation.LEGS]:
+      state.structureByLocation[ProtoMechLocation.LEGS] ?? 0,
+    [ProtoLocation.MAIN_GUN]:
+      state.structureByLocation[ProtoMechLocation.MAIN_GUN] ?? 0,
+  };
+
+  const equipment: ReadonlyArray<IProtoMechMountedEquipmentV2> =
+    state.equipment.map((mount) => ({
+      id: mount.id,
+      equipmentId: mount.equipmentId,
+      name: mount.name,
+      location: STATE_LOC_TO_BV_LOC[mount.location] ?? ProtoLocation.TORSO,
+      linkedAmmoId: mount.linkedAmmoId,
+      // A mount is treated as a main gun by the calculator when it sits in
+      // the Main Gun location; the store does not carry an isMainGun flag.
+      isMainGun: mount.location === ProtoMechLocation.MAIN_GUN,
+    }));
+
+  const walkMP = state.walkMP ?? state.cruiseMP ?? 1;
+  const runMP = state.flankMP ?? walkMP + 1;
+
+  return {
+    id: state.id,
+    name: state.name,
+    chassis: state.chassis,
+    model: state.model,
+    mulId: state.mulId,
+    year: state.year,
+    unitType: UnitType.PROTOMECH,
+    techBase: state.techBase,
+    tonnage: state.tonnage,
+    weightClass: state.weightClass,
+    chassisType: state.chassisType,
+    pointSize: state.pointSize,
+    walkMP,
+    runMP,
+    jumpMP: state.jumpMP,
+    engineRating: state.engineRating,
+    engineWeight: state.engineRating * 0.025,
+    myomerBooster: state.hasMyomerBooster,
+    glidingWings: state.glidingWings,
+    armorType: 'Standard',
+    armorByLocation,
+    structureByLocation,
+    hasMainGun: state.hasMainGun,
+    mainGunWeaponId: state.mainGunWeaponId,
+    equipment,
+    isModified: state.isModified,
+    createdAt: state.createdAt,
+    lastModifiedAt: state.lastModifiedAt,
+  };
+}
+
+/**
+ * Compute the BV 2.0 breakdown for a ProtoMech store state. Pure — does not
+ * mutate the state. Used by the store's `recomputeBV` action and exported so
+ * tests, selectors, and the parity harness can derive a breakdown from a raw
+ * state snapshot.
+ *
+ * @spec openspec/changes/add-protomech-battle-value/specs/protomech-unit-system/spec.md
+ *       — Requirement: ProtoMech BV Breakdown on Unit State
+ */
+export function computeProtoMechBVFromState(
+  state: ProtoMechState,
+): IProtoMechBVBreakdown {
+  return calculateProtoMechBV(toProtoMechUnit(state));
 }
