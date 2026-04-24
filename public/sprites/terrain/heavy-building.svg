@@ -1,0 +1,30 @@
+<!--
+  Heavy building — multi-section rectangular fortress.
+
+  Shape signature: rectangular outline; heavy density = wider footprint +
+  multiple bays + thicker walls. Homemade, original art.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" aria-label="Heavy building terrain">
+  <defs>
+    <clipPath id="heavy-building-hex-clip">
+      <polygon points="200,100 150,186.6 50,186.6 0,100 50,13.4 150,13.4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#heavy-building-hex-clip)" data-shape="rectangular-outline">
+    <rect x="0" y="0" width="200" height="200" fill="#b5b5b5" />
+    <rect x="40" y="40" width="120" height="120" fill="#6f6a62" stroke="#27231d" stroke-width="3" />
+    <line x1="80" y1="40" x2="80" y2="160" stroke="#27231d" stroke-width="1.5" />
+    <line x1="120" y1="40" x2="120" y2="160" stroke="#27231d" stroke-width="1.5" />
+    <line x1="40" y1="80" x2="160" y2="80" stroke="#27231d" stroke-width="1.5" />
+    <line x1="40" y1="120" x2="160" y2="120" stroke="#27231d" stroke-width="1.5" />
+    <rect x="52" y="52" width="14" height="18" fill="#27231d" />
+    <rect x="92" y="52" width="16" height="18" fill="#27231d" />
+    <rect x="132" y="52" width="14" height="18" fill="#27231d" />
+    <rect x="52" y="92" width="14" height="18" fill="#27231d" />
+    <rect x="92" y="92" width="16" height="18" fill="#27231d" />
+    <rect x="132" y="92" width="14" height="18" fill="#27231d" />
+    <rect x="52" y="132" width="14" height="18" fill="#27231d" />
+    <rect x="92" y="132" width="16" height="18" fill="#27231d" />
+    <rect x="132" y="132" width="14" height="18" fill="#27231d" />
+  </g>
+</svg>
