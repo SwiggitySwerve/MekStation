@@ -24,6 +24,7 @@ yarn-error.log*
 
 # AI/Assistant files
 .claude/
+.cursor/
 
 # OS files
 .DS_Store
