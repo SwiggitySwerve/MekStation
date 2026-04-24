@@ -15,6 +15,12 @@ import { calculateBattleArmorBVFromState } from '@/utils/construction/battlearmo
 
 import { BattleArmorBVBreakdownDialog } from './BattleArmorBVBreakdownDialog';
 
+// The BA store keeps `bvBreakdown` in sync with every BV input (armor,
+// weapons, manipulators, squad size, etc.) via its set() wrapper, so this
+// component just reads it from state. The `useMemo` below stays as a
+// safety fallback in case an older persisted snapshot is ever missing the
+// derived field.
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -69,14 +75,20 @@ function StatusItem({
 export function BattleArmorStatusBar({
   className = '',
 }: BattleArmorStatusBarProps): React.ReactElement {
-  // Subscribe to every field that feeds into BV so the hook recomputes live.
+  // Subscribe to every field that feeds into BV so the component re-renders
+  // whenever any BV input changes. The store itself keeps `bvBreakdown` in
+  // sync via its set() wrapper — we read it directly as the source of truth.
   const state = useBattleArmorStore((s) => s);
   const [showBreakdown, setShowBreakdown] = useState(false);
 
+  // Source of truth is `state.bvBreakdown` (kept in sync by the store).
+  // Fall back to a local recomputation if a legacy persisted snapshot is
+  // ever missing the derived field.
   const breakdown = useMemo(
-    () => calculateBattleArmorBVFromState(state),
+    () => state.bvBreakdown ?? calculateBattleArmorBVFromState(state),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
+      state.bvBreakdown,
       state.weightClass,
       state.squadSize,
       state.groundMP,
