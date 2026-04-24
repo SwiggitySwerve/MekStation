@@ -110,13 +110,25 @@ describe('compareForces', () => {
       expect(cmp.deltas.totalBV.severity).toBe('low');
     });
 
-    it('tonnage delta > 20% (100 vs 130) → high', () => {
+    it('tonnage delta at 20% exactly (100 vs 125) → high (spec boundary)', () => {
+      // Spec scenario (after-combat-report § Tonnage severity based on
+      // percentage): player=100, opponent=125 ⇒ |25|/125 = 0.20 exactly
+      // SHALL produce "high". Boundary is inclusive (>=).
       const cmp = compareForces(
         summary(GameSide.Player, { totalTonnage: 100 }),
-        summary(GameSide.Opponent, { totalTonnage: 130 }),
+        summary(GameSide.Opponent, { totalTonnage: 125 }),
       );
-      // |delta|/max = 30/130 ≈ 0.231 → high (>0.20)
       expect(cmp.deltas.totalTonnage.severity).toBe('high');
+    });
+
+    it('tonnage delta just below 20% (100 vs 124) → moderate (boundary-below)', () => {
+      // |24|/124 ≈ 0.1935 → moderate. Verifies the inclusive boundary
+      // at 0.20 doesn't leak to just-under-threshold values.
+      const cmp = compareForces(
+        summary(GameSide.Player, { totalTonnage: 100 }),
+        summary(GameSide.Opponent, { totalTonnage: 124 }),
+      );
+      expect(cmp.deltas.totalTonnage.severity).toBe('moderate');
     });
 
     it('tonnage delta around 15% → moderate', () => {
@@ -124,7 +136,7 @@ describe('compareForces', () => {
         summary(GameSide.Player, { totalTonnage: 100 }),
         summary(GameSide.Opponent, { totalTonnage: 120 }),
       );
-      // |delta|/max = 20/120 ≈ 0.167 → moderate (>0.10, ≤0.20)
+      // |delta|/max = 20/120 ≈ 0.167 → moderate (>=0.10, <0.20)
       expect(cmp.deltas.totalTonnage.severity).toBe('moderate');
     });
 

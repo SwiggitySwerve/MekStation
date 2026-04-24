@@ -104,8 +104,12 @@ function pctSeverity(
   const max = Math.max(Math.abs(player), Math.abs(opponent));
   if (max === 0) return 'low';
   const pct = Math.abs(delta) / max;
-  if (pct > highThreshold) return 'high';
-  if (pct > moderateThreshold) return 'moderate';
+  // Inclusive comparison (>=) so boundary values (e.g. exactly 20% for
+  // tonnage, 25% for DPT) land on the higher severity tier. Matches
+  // the spec scenario "100 vs 125 tonnage → high" where the ratio is
+  // 25/125 = 0.20 exactly.
+  if (pct >= highThreshold) return 'high';
+  if (pct >= moderateThreshold) return 'moderate';
   return 'low';
 }
 
