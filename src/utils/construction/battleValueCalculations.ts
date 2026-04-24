@@ -10,6 +10,12 @@
  * @spec openspec/changes/add-protomech-battle-value/specs/battle-value-system/spec.md
  */
 
+import type {
+  IAerospace,
+  IConventionalFighter,
+  ISmallCraft,
+} from '@/types/unit/AerospaceInterfaces';
+import type { IAerospaceUnit } from '@/types/unit/BaseUnitInterfaces';
 import type { IInfantry } from '@/types/unit/PersonnelInterfaces';
 import type { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 import type { IVehicleUnit } from '@/types/unit/VehicleInterfaces';
@@ -20,6 +26,11 @@ import { isVehicleUnitShape } from '@/types/unit/VehicleInterfaces';
 import type { IInfantryBVBreakdown } from './infantry/infantryBV';
 import type { IVehicleBVBreakdown } from './vehicle/vehicleBV';
 
+import {
+  calculateAerospaceBVFromUnit as _calculateAerospaceBVFromUnit,
+  isAerospaceUnitType as _isAerospaceUnitType,
+  type IAerospaceBVBreakdown,
+} from './aerospace/aerospaceBV';
 import { calculateInfantryBVFromUnit as _calculateInfantryBVFromUnit } from './infantry/infantryBVAdapter';
 import {
   calculateProtoMechBV as _calculateProtoMechBV,
@@ -133,6 +144,32 @@ export type {
   IProtoMechBVOptions,
 } from './protomech/protoMechBV';
 
+// Aerospace BV — separate calculator for ASF / Conventional Fighter / Small
+// Craft. Re-exported so the unified per-unit dispatcher and downstream tools
+// (status bar, parity harness) can import from the same barrel as the mech
+// BV utilities.
+// @spec openspec/changes/add-aerospace-battle-value/specs/battle-value-system/spec.md
+export {
+  calculateAerospaceBV,
+  calculateAerospaceBVFromUnit,
+  calculateAerospaceDefensiveBV,
+  calculateAerospaceOffensiveBV,
+  calculateAerospaceSpeedFactor,
+  calculateAerospaceArcContributions,
+  buildAerospaceBVInputFromUnit,
+  getAerospaceSubTypeMultiplier,
+  getAerospacePilotMultiplier,
+  isAerospaceUnitType,
+} from './aerospace/aerospaceBV';
+export type {
+  IAerospaceBVBreakdown,
+  IAerospaceBVInput,
+  IAerospaceBVEquipment,
+  IAerospaceBVAmmo,
+  IAerospaceArcContribution,
+  AerospaceBVDispatchInput,
+} from './aerospace/aerospaceBV';
+
 /**
  * Options accepted by `calculateBattleValueForUnit`.
  *
@@ -151,12 +188,15 @@ export interface IUnitBVOptions extends IProtoMechBVOptions {
  * Unified per-unit BV dispatcher result.
  *
  * `kind` identifies which calculator produced the breakdown so callers can
- * narrow on the payload. Currently implemented for ProtoMech, Infantry, and
- * Vehicle (combat / VTOL / support); BattleMech units continue to go through
- * the existing `CalculationService` path.
+ * narrow on the payload. Currently implemented for ProtoMech, Infantry,
+ * Vehicle (combat / VTOL / support), and Aerospace (ASF / Conventional
+ * Fighter / Small Craft); BattleMech units continue to go through the
+ * existing `CalculationService` path.
  *
  * @spec openspec/changes/add-vehicle-battle-value/specs/battle-value-system/spec.md
  *       — Requirement: Vehicle BV Dispatch
+ * @spec openspec/changes/add-aerospace-battle-value/specs/battle-value-system/spec.md
+ *       — Requirement: Aerospace BV Dispatch
  */
 export type UnitBVResult =
   | {
@@ -170,15 +210,31 @@ export type UnitBVResult =
   | {
       readonly kind: 'vehicle';
       readonly breakdown: IVehicleBVBreakdown;
+    }
+  | {
+      readonly kind: 'aerospace';
+      readonly breakdown: IAerospaceBVBreakdown;
     };
 
 /**
+ * Aerospace dispatch input — accepts the three concrete subtypes plus the
+ * generic `IAerospaceUnit` shape so dispatchers and harnesses that build a
+ * minimal aerospace-shaped value can flow through this entry point.
+ */
+type AerospaceDispatchUnit =
+  | IAerospace
+  | IConventionalFighter
+  | ISmallCraft
+  | IAerospaceUnit;
+
+/**
  * Route a unit to its per-type BV calculator. Currently implemented for
- * ProtoMech, Infantry, and Vehicle; other unit types fall through with
- * `undefined` so the caller can keep using its existing mech path unchanged.
+ * ProtoMech, Infantry, Vehicle, and Aerospace (ASF / Conventional Fighter /
+ * Small Craft); other unit types fall through with `undefined` so the caller
+ * can keep using its existing mech path unchanged.
  *
- * @param unit  A discriminated unit value (`IProtoMechUnit`, `IInfantry`, or
- *              `IVehicleUnit`).
+ * @param unit  A discriminated unit value (`IProtoMechUnit`, `IInfantry`,
+ *              `IVehicleUnit`, or an aerospace shape).
  * @param options Optional per-type overrides (skill, etc.).
  */
 export function calculateBattleValueForUnit(
@@ -194,11 +250,16 @@ export function calculateBattleValueForUnit(
   options?: IUnitBVOptions,
 ): UnitBVResult;
 export function calculateBattleValueForUnit(
+  unit: AerospaceDispatchUnit,
+  options?: IUnitBVOptions,
+): UnitBVResult;
+export function calculateBattleValueForUnit(
   unit:
     | { readonly unitType?: UnitType | string }
     | IProtoMechUnit
     | IInfantry
-    | IVehicleUnit,
+    | IVehicleUnit
+    | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined;
 export function calculateBattleValueForUnit(
@@ -206,7 +267,8 @@ export function calculateBattleValueForUnit(
     | { readonly unitType?: UnitType | string }
     | IProtoMechUnit
     | IInfantry
-    | IVehicleUnit,
+    | IVehicleUnit
+    | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined {
   if (unit && (unit as IProtoMechUnit).unitType === UnitType.PROTOMECH) {
@@ -236,6 +298,21 @@ export function calculateBattleValueForUnit(
       piloting: options?.piloting,
     });
     return { kind: 'vehicle', breakdown };
+  }
+  // Aerospace dispatch: routes ASF / Conventional Fighter / Small Craft into
+  // the aerospace BV path. The guard uses the discriminant on `unitType` so
+  // we never accidentally treat a mech-shaped value as aerospace.
+  // @spec openspec/changes/add-aerospace-battle-value/specs/battle-value-system/spec.md
+  //       — Requirement: Aerospace BV Dispatch
+  if (_isAerospaceUnitType(unit)) {
+    const breakdown = _calculateAerospaceBVFromUnit(
+      unit as AerospaceDispatchUnit,
+      {
+        gunnery: options?.gunnery,
+        piloting: options?.piloting,
+      },
+    );
+    return { kind: 'aerospace', breakdown };
   }
   return undefined;
 }

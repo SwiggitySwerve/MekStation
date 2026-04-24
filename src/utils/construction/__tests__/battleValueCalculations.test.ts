@@ -17,6 +17,7 @@ import {
 
 import {
   calculateAdjustedBV,
+  calculateAerospaceBVFromUnit,
   calculateBattleValueForUnit,
   calculateProtoMechBV,
 } from '../battleValueCalculations';
@@ -312,5 +313,107 @@ describe('calculateBattleValueForUnit — VEHICLE dispatch', () => {
     const dispatched = calculateBattleValueForUnit(vtol);
 
     expect(dispatched?.kind).toBe('vehicle');
+  });
+});
+
+// =============================================================================
+// calculateBattleValueForUnit — AEROSPACE dispatch
+// =============================================================================
+
+/**
+ * Build a minimal aerospace-shaped value for dispatcher tests. The aerospace
+ * BV calculator only reads tonnage / SI / thrust / armor / equipment fields,
+ * so the fixture stays intentionally narrow — extra `IAerospaceUnit` fields
+ * are not required to exercise the dispatch path.
+ */
+function buildDispatchAerospace(unitType: UnitType = UnitType.AEROSPACE): {
+  unitType: UnitType;
+  tonnage: number;
+  structuralIntegrity: number;
+  movement: { safeThrust: number; maxThrust: number };
+  armorType: string;
+  totalArmorPoints: number;
+  equipment: ReadonlyArray<{ equipmentId: string; location: string }>;
+} {
+  return {
+    unitType,
+    tonnage: 50,
+    structuralIntegrity: 5,
+    movement: { safeThrust: 5, maxThrust: 8 },
+    // Use the canonical string key so the dispatcher's adapter forwards it
+    // verbatim to `getArmorBVMultiplier` (no numeric → string fallback).
+    armorType: 'standard',
+    totalArmorPoints: 100,
+    equipment: [
+      // No matching equipment in the catalogue — that's fine for dispatch
+      // testing; the aerospace calculator still produces a valid breakdown
+      // with a zero weapon fire pool.
+      { equipmentId: 'medlas', location: 'Nose' },
+    ],
+  };
+}
+
+describe('calculateBattleValueForUnit — AEROSPACE dispatch', () => {
+  /*
+   * @spec openspec/changes/add-aerospace-battle-value/specs/battle-value-system/spec.md
+   *       — Requirement: Aerospace BV Dispatch
+   */
+  it('routes an AEROSPACE unit to the aerospace calculator and returns its breakdown', () => {
+    const aero = buildDispatchAerospace(UnitType.AEROSPACE);
+
+    // The cast widens our minimal fixture to the dispatcher's accepted union.
+    // We intentionally keep the fixture narrow — adding the full IAerospace
+    // surface (motionType, armorByArc, etc.) would obscure what's being tested.
+    const dispatched = calculateBattleValueForUnit(
+      aero as unknown as Parameters<typeof calculateBattleValueForUnit>[0],
+    );
+
+    expect(dispatched).toBeDefined();
+    expect(dispatched?.kind).toBe('aerospace');
+
+    if (dispatched?.kind !== 'aerospace') {
+      throw new Error('Expected aerospace dispatch result');
+    }
+
+    // Must match a direct call to the canonical adapter — dispatch is a
+    // routing concern, not a recomputation.
+    const direct = calculateAerospaceBVFromUnit(
+      aero as unknown as Parameters<typeof calculateAerospaceBVFromUnit>[0],
+    );
+    expect(dispatched.breakdown.final).toBe(direct.final);
+    expect(dispatched.breakdown.defensive).toBe(direct.defensive);
+    expect(dispatched.breakdown.offensive).toBe(direct.offensive);
+
+    // Required-by-spec fields on the breakdown.
+    expect(dispatched.breakdown).toHaveProperty('arcContributions');
+    expect(dispatched.breakdown).toHaveProperty('pilotMultiplier');
+    expect(dispatched.breakdown).toHaveProperty('defensiveFactor');
+  });
+
+  it('routes a CONVENTIONAL_FIGHTER unit through the aerospace path', () => {
+    const cf = buildDispatchAerospace(UnitType.CONVENTIONAL_FIGHTER);
+    const dispatched = calculateBattleValueForUnit(
+      cf as unknown as Parameters<typeof calculateBattleValueForUnit>[0],
+    );
+    expect(dispatched?.kind).toBe('aerospace');
+    if (dispatched?.kind !== 'aerospace') {
+      throw new Error('Expected aerospace dispatch result');
+    }
+    // Conventional fighters get a 0.8 sub-type multiplier per spec.
+    expect(dispatched.breakdown.subTypeMultiplier).toBeCloseTo(0.8, 4);
+  });
+
+  it('routes a SMALL_CRAFT unit through the aerospace path', () => {
+    const sc = buildDispatchAerospace(UnitType.SMALL_CRAFT);
+    const dispatched = calculateBattleValueForUnit(
+      sc as unknown as Parameters<typeof calculateBattleValueForUnit>[0],
+    );
+    expect(dispatched?.kind).toBe('aerospace');
+    if (dispatched?.kind !== 'aerospace') {
+      throw new Error('Expected aerospace dispatch result');
+    }
+    // Small craft retain a 1.0 sub-type multiplier (the 1.2× armor bonus is
+    // applied inside the defensive block, not as a final multiplier).
+    expect(dispatched.breakdown.subTypeMultiplier).toBeCloseTo(1.0, 4);
   });
 });
