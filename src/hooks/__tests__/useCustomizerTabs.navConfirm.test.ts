@@ -98,17 +98,32 @@ describe('useCustomizerTabs — dirty tracking', () => {
 // ---------------------------------------------------------------------------
 
 describe('useCustomizerTabs — error tracking', () => {
-  it('setErrorTabs replaces the error set', () => {
+  it('setErrorTabs replaces the error map and exposes rule codes per tab', () => {
     const { result } = renderTabsHook();
-    act(() => result.current.setErrorTabs(new Set(['armor', 'equipment'])));
+    act(() =>
+      result.current.setErrorTabs(
+        new Map([
+          ['armor', 'VAL-MECH-ARMOR-MAX'],
+          ['equipment', 'VAL-MECH-EQUIP-WEIGHT'],
+        ]),
+      ),
+    );
     expect(result.current.errorTabs.has('armor')).toBe(true);
     expect(result.current.errorTabs.has('equipment')).toBe(true);
+    // The value for each entry is the rule code — this is the data the tab
+    // bar renders as an ARIA label.
+    expect(result.current.errorTabs.get('armor')).toBe('VAL-MECH-ARMOR-MAX');
+    expect(result.current.errorTabs.get('equipment')).toBe(
+      'VAL-MECH-EQUIP-WEIGHT',
+    );
   });
 
-  it('setErrorTabs with empty set clears all errors', () => {
+  it('setErrorTabs with an empty map clears all errors', () => {
     const { result } = renderTabsHook();
-    act(() => result.current.setErrorTabs(new Set(['armor'])));
-    act(() => result.current.setErrorTabs(new Set()));
+    act(() =>
+      result.current.setErrorTabs(new Map([['armor', 'VAL-MECH-ARMOR-MAX']])),
+    );
+    act(() => result.current.setErrorTabs(new Map()));
     expect(result.current.errorTabs.size).toBe(0);
   });
 });
