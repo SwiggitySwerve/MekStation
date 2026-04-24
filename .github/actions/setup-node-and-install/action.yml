@@ -15,6 +15,11 @@ inputs:
     required: false
     default: 'false'
 
+outputs:
+  node-modules-cache-hit:
+    description: Whether node_modules cache was restored (true means npm ci was skipped)
+    value: ${{ steps.node-modules-cache.outputs.cache-hit }}
+
 runs:
   using: composite
   steps:
@@ -26,6 +31,15 @@ runs:
         cache-dependency-path: |
           package-lock.json
           desktop/package-lock.json
+
+    - name: Cache node_modules
+      id: node-modules-cache
+      uses: actions/cache@v5
+      with:
+        path: |
+          node_modules
+          desktop/node_modules
+        key: ${{ runner.os }}-node${{ inputs.node-version }}-modules-${{ hashFiles('package-lock.json', 'desktop/package-lock.json') }}
 
     - name: Cache Next.js build cache (.next/cache)
       if: inputs.skip-nextjs-cache != 'true'
@@ -63,10 +77,12 @@ runs:
           mm-data-assets-
 
     - name: Install root dependencies
+      if: steps.node-modules-cache.outputs.cache-hit != 'true'
       shell: bash
       run: npm ci
 
     - name: Install desktop dependencies
+      if: steps.node-modules-cache.outputs.cache-hit != 'true'
       shell: bash
       working-directory: desktop
       run: npm ci
