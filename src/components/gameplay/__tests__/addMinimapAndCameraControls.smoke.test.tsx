@@ -28,27 +28,26 @@ import {
   render,
   renderHook,
   screen,
-} from "@testing-library/react";
-import React from "react";
-import "@testing-library/jest-dom";
-
+} from '@testing-library/react';
+import React from 'react';
+import '@testing-library/jest-dom';
 import {
   HotkeyHelpOverlay,
   HotkeyHintBadge,
-} from "@/components/gameplay/help/HotkeyHelpOverlay";
-import { Minimap } from "@/components/gameplay/minimap/Minimap";
+} from '@/components/gameplay/help/HotkeyHelpOverlay';
+import { useMapInteraction } from '@/components/gameplay/HexMapDisplay/useMapInteraction';
+import { Minimap } from '@/components/gameplay/minimap/Minimap';
 import {
   minimapPixelToWorld,
   viewportRectOnMinimap,
   worldBoundsForRadius,
   worldToMinimapPixel,
   MINIMAP_SIZE,
-} from "@/components/gameplay/minimap/minimapGeometry";
-import { useMapInteraction } from "@/components/gameplay/HexMapDisplay/useMapInteraction";
-import { useCameraControls } from "@/hooks/useCameraControls";
-import { useGameplayHotkeys } from "@/hooks/useGameplayHotkeys";
-import { HEX_WIDTH } from "@/constants/hexMap";
-import { GameSide, TokenUnitType, type IUnitToken } from "@/types/gameplay";
+} from '@/components/gameplay/minimap/minimapGeometry';
+import { HEX_WIDTH } from '@/constants/hexMap';
+import { useCameraControls } from '@/hooks/useCameraControls';
+import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
+import { GameSide, TokenUnitType, type IUnitToken } from '@/types/gameplay';
 
 // =============================================================================
 // Helpers
@@ -105,7 +104,7 @@ function tokenAt(q: number, r: number, side = GameSide.Player): IUnitToken {
     isValidTarget: false,
     isActiveTarget: false,
     isDestroyed: false,
-    designation: "TST",
+    designation: 'TST',
     unitType: TokenUnitType.Mech,
   };
 }
@@ -114,8 +113,8 @@ function tokenAt(q: number, r: number, side = GameSide.Player): IUnitToken {
 // 10.1 — zoomTo cursor-anchor (pure math)
 // =============================================================================
 
-describe("zoomTo cursor anchor (task 10.1)", () => {
-  it("keeps cursor hex world point stable within 1px when zooming", () => {
+describe('zoomTo cursor anchor (task 10.1)', () => {
+  it('keeps cursor hex world point stable within 1px when zooming', () => {
     const { result } = setupInteraction(7);
     // Seed a non-trivial zoom so the before/after math differs.
     act(() => {
@@ -159,7 +158,7 @@ describe("zoomTo cursor anchor (task 10.1)", () => {
     expect(after.zoom).toBeGreaterThan(before.zoom);
   });
 
-  it("clamps zoom to [0.3, 2.0]", () => {
+  it('clamps zoom to [0.3, 2.0]', () => {
     const { result } = setupInteraction(7);
     act(() => {
       result.current.zoomTo(0.05);
@@ -176,8 +175,8 @@ describe("zoomTo cursor anchor (task 10.1)", () => {
 // 10.2 — centerOn places hex at viewport center
 // =============================================================================
 
-describe("centerOn (task 10.2)", () => {
-  it("snaps pan to center on the target hex when animate=false", () => {
+describe('centerOn (task 10.2)', () => {
+  it('snaps pan to center on the target hex when animate=false', () => {
     const { result } = setupInteraction(7);
     act(() => {
       result.current.centerOn({ q: 2, r: -1 }, { animate: false });
@@ -194,7 +193,7 @@ describe("centerOn (task 10.2)", () => {
     expect(Math.abs(result.current.pan.y)).toBeLessThan(1);
   });
 
-  it("bumps zoom to FOCUS_BUMP_ZOOM (0.8) when current zoom < 0.6", () => {
+  it('bumps zoom to FOCUS_BUMP_ZOOM (0.8) when current zoom < 0.6', () => {
     const { result } = setupInteraction(7);
     act(() => {
       result.current.zoomTo(0.5);
@@ -213,8 +212,8 @@ describe("centerOn (task 10.2)", () => {
 // 10.3 — panBy clamps to bounds
 // =============================================================================
 
-describe("panBy clamping (task 10.3)", () => {
-  it("cannot pan beyond the map bounds", () => {
+describe('panBy clamping (task 10.3)', () => {
+  it('cannot pan beyond the map bounds', () => {
     const { result } = setupInteraction(7);
     // Blast the pan to +∞ — expect it clamped.
     act(() => {
@@ -234,26 +233,26 @@ describe("panBy clamping (task 10.3)", () => {
 // 10.4 — WASD panBy one hex-width per keystroke
 // =============================================================================
 
-describe("useCameraControls panByHex (task 10.4)", () => {
-  it("each direction pans by exactly HEX_WIDTH pixels", () => {
+describe('useCameraControls panByHex (task 10.4)', () => {
+  it('each direction pans by exactly HEX_WIDTH pixels', () => {
     const { result } = setupInteraction(7);
     // Wrap in a second hook render to expose useCameraControls over
     // the interaction state.
     const cam = renderHook(() => useCameraControls(result.current));
     act(() => {
-      cam.result.current.panByHex("left");
+      cam.result.current.panByHex('left');
     });
     expect(result.current.pan.x).toBeCloseTo(HEX_WIDTH, 5);
     act(() => {
-      cam.result.current.panByHex("right");
+      cam.result.current.panByHex('right');
     });
     expect(result.current.pan.x).toBeCloseTo(0, 5);
     act(() => {
-      cam.result.current.panByHex("up");
+      cam.result.current.panByHex('up');
     });
     expect(result.current.pan.y).toBeCloseTo(HEX_WIDTH, 5);
     act(() => {
-      cam.result.current.panByHex("down");
+      cam.result.current.panByHex('down');
     });
     expect(result.current.pan.y).toBeCloseTo(0, 5);
   });
@@ -263,15 +262,15 @@ describe("useCameraControls panByHex (task 10.4)", () => {
 // 10.5 — double-click unit flow (unit-test proxy)
 // =============================================================================
 
-describe("token double-click focus (task 10.5)", () => {
-  it("UnitTokenForType calls onDoubleClick with unit id", () => {
+describe('token double-click focus (task 10.5)', () => {
+  it('UnitTokenForType calls onDoubleClick with unit id', () => {
     // We avoid rendering the full HexMapDisplay (complex dependency
     // graph). Instead we assert the prop flow that GameplayLayout
     // relies on: UnitTokenForType's double-click fires with the
     // unit id, so the GameplayLayout handler (which calls
     // centerOn + onUnitSelect) gets everything it needs.
     const { UnitTokenForType } = jest.requireActual(
-      "@/components/gameplay/UnitToken/UnitTokenForType",
+      '@/components/gameplay/UnitToken/UnitTokenForType',
     );
     const onDouble = jest.fn();
     render(
@@ -286,7 +285,7 @@ describe("token double-click focus (task 10.5)", () => {
     const group = document.querySelector('[data-testid="unit-token-u-1-2"]');
     expect(group).not.toBeNull();
     fireEvent.doubleClick(group as Element);
-    expect(onDouble).toHaveBeenCalledWith("u-1-2");
+    expect(onDouble).toHaveBeenCalledWith('u-1-2');
   });
 });
 
@@ -294,8 +293,8 @@ describe("token double-click focus (task 10.5)", () => {
 // 10.6 — minimap click pans
 // =============================================================================
 
-describe("Minimap click routes to onCenterAt (task 10.6)", () => {
-  it("fires onCenterAt with a world-space point when the SVG is clicked outside the viewport rect", () => {
+describe('Minimap click routes to onCenterAt (task 10.6)', () => {
+  it('fires onCenterAt with a world-space point when the SVG is clicked outside the viewport rect', () => {
     const onCenterAt = jest.fn();
     const onDragPan = jest.fn();
     const { container } = render(
@@ -332,8 +331,8 @@ describe("Minimap click routes to onCenterAt (task 10.6)", () => {
     });
     expect(onCenterAt).toHaveBeenCalled();
     const call = onCenterAt.mock.calls[0][0];
-    expect(typeof call.x).toBe("number");
-    expect(typeof call.y).toBe("number");
+    expect(typeof call.x).toBe('number');
+    expect(typeof call.y).toBe('number');
   });
 });
 
@@ -341,8 +340,8 @@ describe("Minimap click routes to onCenterAt (task 10.6)", () => {
 // 10.7 — help overlay toggle
 // =============================================================================
 
-describe("HotkeyHelpOverlay (task 10.7)", () => {
-  it("renders nothing when closed", () => {
+describe('HotkeyHelpOverlay (task 10.7)', () => {
+  it('renders nothing when closed', () => {
     const { container } = render(
       <HotkeyHelpOverlay open={false} onClose={() => {}} />,
     );
@@ -351,15 +350,15 @@ describe("HotkeyHelpOverlay (task 10.7)", () => {
     ).toBeNull();
   });
 
-  it("renders when open and dismisses on close-button click", () => {
+  it('renders when open and dismisses on close-button click', () => {
     const onClose = jest.fn();
     render(<HotkeyHelpOverlay open={true} onClose={onClose} />);
-    expect(screen.getByTestId("hotkey-help-overlay")).toBeInTheDocument();
+    expect(screen.getByTestId('hotkey-help-overlay')).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText(/close shortcuts help/i));
     expect(onClose).toHaveBeenCalled();
   });
 
-  it("? hotkey toggles help via useGameplayHotkeys", () => {
+  it('? hotkey toggles help via useGameplayHotkeys', () => {
     const calls: string[] = [];
     const camera = {
       zoom: 1,
@@ -376,20 +375,20 @@ describe("HotkeyHelpOverlay (task 10.7)", () => {
       useGameplayHotkeys({
         camera,
         selectedUnitHex: null,
-        onToggleMinimap: () => calls.push("minimap"),
-        onToggleArcs: () => calls.push("arcs"),
-        onToggleLOS: () => calls.push("los"),
-        onToggleHelp: () => calls.push("help"),
-        onEscape: () => calls.push("escape"),
+        onToggleMinimap: () => calls.push('minimap'),
+        onToggleArcs: () => calls.push('arcs'),
+        onToggleLOS: () => calls.push('los'),
+        onToggleHelp: () => calls.push('help'),
+        onEscape: () => calls.push('escape'),
         modalOpen: false,
       });
       return <div />;
     }
     render(<Probe />);
-    fireEvent.keyDown(window, { key: "?" });
-    expect(calls).toContain("help");
-    fireEvent.keyDown(window, { key: "Escape" });
-    expect(calls).toContain("escape");
+    fireEvent.keyDown(window, { key: '?' });
+    expect(calls).toContain('help');
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(calls).toContain('escape');
   });
 });
 
@@ -397,8 +396,8 @@ describe("HotkeyHelpOverlay (task 10.7)", () => {
 // Extra — minimap geometry sanity (supports tasks 5.1, 5.3)
 // =============================================================================
 
-describe("minimapGeometry", () => {
-  it("round-trips world → pixel → world", () => {
+describe('minimapGeometry', () => {
+  it('round-trips world → pixel → world', () => {
     const bounds = worldBoundsForRadius(7);
     const world = { x: 50, y: -30 };
     const pixel = worldToMinimapPixel(world, bounds, MINIMAP_SIZE);
@@ -407,7 +406,7 @@ describe("minimapGeometry", () => {
     expect(back.y).toBeCloseTo(world.y, 5);
   });
 
-  it("viewport rect shrinks as zoom increases", () => {
+  it('viewport rect shrinks as zoom increases', () => {
     const bounds = worldBoundsForRadius(7);
     const zoomed = viewportRectOnMinimap(
       { viewBox: bounds, zoom: 2, pan: { x: 0, y: 0 } },
@@ -427,7 +426,7 @@ describe("minimapGeometry", () => {
 // Extra — HotkeyHintBadge auto-dismiss
 // =============================================================================
 
-describe("HotkeyHintBadge", () => {
+describe('HotkeyHintBadge', () => {
   beforeEach(() => {
     // Ensure the "seen" flag is cleared so the badge mounts.
     try {
@@ -437,8 +436,8 @@ describe("HotkeyHintBadge", () => {
     }
   });
 
-  it("mounts when the user has not seen the hint yet", () => {
+  it('mounts when the user has not seen the hint yet', () => {
     render(<HotkeyHintBadge />);
-    expect(screen.queryByRole("status")).toBeInTheDocument();
+    expect(screen.queryByRole('status')).toBeInTheDocument();
   });
 });

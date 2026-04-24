@@ -11,15 +11,15 @@ import React, {
   useMemo,
   useRef,
   useEffect,
-} from "react";
+} from 'react';
 
-import type { InteractiveSession } from "@/engine/InteractiveSession";
-import type { InteractivePhase } from "@/stores/useGameplayStore";
+import type { InteractiveSession } from '@/engine/InteractiveSession';
+import type { InteractivePhase } from '@/stores/useGameplayStore';
 
-import { pixelToHex } from "@/constants/hexMap";
-import { useCameraControls } from "@/hooks/useCameraControls";
-import { useGameplayHotkeys } from "@/hooks/useGameplayHotkeys";
-import { useGameplayStore } from "@/stores/useGameplayStore";
+import { pixelToHex } from '@/constants/hexMap';
+import { useCameraControls } from '@/hooks/useCameraControls';
+import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
+import { useGameplayStore } from '@/stores/useGameplayStore';
 import {
   GamePhase,
   GameSide,
@@ -33,18 +33,18 @@ import {
   IMovementRangeHex,
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import type { MapInteractionState } from "./HexMapDisplay/useMapInteraction";
+import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
-import { ActionBar } from "./ActionBar";
-import { ConcedeButton } from "./ConcedeButton";
-import { EventLogDisplay } from "./EventLogDisplay";
-import { HotkeyHelpOverlay, HotkeyHintBadge } from "./help/HotkeyHelpOverlay";
-import { HexMapDisplay } from "./HexMapDisplay";
-import { Minimap } from "./minimap/Minimap";
-import { PhaseBanner } from "./PhaseBanner";
-import { RecordSheetDisplay } from "./RecordSheetDisplay";
+import { ActionBar } from './ActionBar';
+import { ConcedeButton } from './ConcedeButton';
+import { EventLogDisplay } from './EventLogDisplay';
+import { HotkeyHelpOverlay, HotkeyHintBadge } from './help/HotkeyHelpOverlay';
+import { HexMapDisplay } from './HexMapDisplay';
+import { Minimap } from './minimap/Minimap';
+import { PhaseBanner } from './PhaseBanner';
+import { RecordSheetDisplay } from './RecordSheetDisplay';
 
 // No-op stub passed to `useCameraControls` before HexMapDisplay has
 // published its live interaction state. Keeps the hook contract
@@ -54,7 +54,7 @@ import { RecordSheetDisplay } from "./RecordSheetDisplay";
 // should treat the `enabled` flag as authoritative.
 const noopInteraction: MapInteractionState = {
   svgRef: { current: null },
-  transformedViewBox: "0 0 0 0",
+  transformedViewBox: '0 0 0 0',
   viewBox: { x: 0, y: 0, width: 0, height: 0 },
   zoom: 1,
   pan: { x: 0, y: 0 },
@@ -144,7 +144,7 @@ export interface GameplayLayoutProps {
    * the map's bottom-left corner during the Movement phase.
    */
   mpLegend?: {
-    readonly active: "walk" | "run" | "jump";
+    readonly active: 'walk' | 'run' | 'jump';
     readonly jumpAvailable: boolean;
   };
   /**
@@ -185,7 +185,7 @@ function unitStateToToken(
   const designation = unitInfo.name
     .split(/[\s-]+/)
     .map((word) => word[0])
-    .join("")
+    .join('')
     .toUpperCase()
     .slice(0, 4);
 
@@ -235,7 +235,7 @@ export function GameplayLayout({
   mpLegend,
   interactiveSession,
   playerSide = GameSide.Player,
-  className = "",
+  className = '',
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
   // Per `add-attack-phase-ui` § 2.2: subscribe to the locked-in attack
@@ -283,22 +283,22 @@ export function GameplayLayout({
   // `matchMedia` listener is the canonical reactive way to do this
   // without polling.
   const [isNarrow, setIsNarrow] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
+    if (typeof window === 'undefined') return false;
     return window.innerWidth < 1024;
   });
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(max-width: 1023.98px)");
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(max-width: 1023.98px)');
     const update = () => setIsNarrow(mq.matches);
     update();
     // Older Safari uses addListener; prefer addEventListener where
     // available (Chromium/Firefox/modern Safari). Type-guard so we
     // don't crash in jsdom test envs where only one shape exists.
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", update);
-      return () => mq.removeEventListener("change", update);
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', update);
+      return () => mq.removeEventListener('change', update);
     }
     const legacy = mq as MediaQueryList & {
       addListener?: (cb: () => void) => void;
@@ -367,7 +367,7 @@ export function GameplayLayout({
   const tokens = useMemo(() => {
     return Object.entries(currentState.units).map(([unitId, state]) => {
       const unitInfo = unitInfoLookup[unitId] || {
-        name: "Unknown",
+        name: 'Unknown',
         side: GameSide.Player,
       };
       const isSelected = unitId === selectedUnitId;
@@ -434,11 +434,11 @@ export function GameplayLayout({
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
       return () => {
-        window.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("mouseup", handleMouseUp);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
       };
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
@@ -554,7 +554,7 @@ export function GameplayLayout({
         maxArmor={maxArmor[selectedUnitId!] || {}}
         maxStructure={maxStructure[selectedUnitId!] || {}}
         weapons={unitWeapons[selectedUnitId!] || []}
-        pilotName={pilotNames[selectedUnitId!] || "Unknown Pilot"}
+        pilotName={pilotNames[selectedUnitId!] || 'Unknown Pilot'}
         gunnery={selectedUnitFromSession.gunnery}
         piloting={selectedUnitFromSession.piloting}
         heatSinks={heatSinks[selectedUnitId!] || 10}
@@ -610,7 +610,7 @@ export function GameplayLayout({
             split-view config. */}
         <div
           className="relative"
-          style={{ width: isNarrow ? "100%" : `${layout.mapPanelWidth}%` }}
+          style={{ width: isNarrow ? '100%' : `${layout.mapPanelWidth}%` }}
           data-testid="map-panel"
         >
           <HexMapDisplay

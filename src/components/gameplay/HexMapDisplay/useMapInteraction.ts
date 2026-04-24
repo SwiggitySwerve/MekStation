@@ -16,16 +16,16 @@
  *     tests and components share a single contract.
  */
 
-import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
-import type { IHexCoordinate } from "@/types/gameplay";
+import type { IHexCoordinate } from '@/types/gameplay';
 
 import {
   HEX_SIZE,
   HEX_WIDTH,
   HEX_HEIGHT,
   hexToPixel,
-} from "@/constants/hexMap";
+} from '@/constants/hexMap';
 
 interface ViewBox {
   x: number;

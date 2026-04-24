@@ -21,12 +21,12 @@
  *   - `role="region"` with `aria-label`
  */
 
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
-import type { IHexCoordinate, IUnitToken } from "@/types/gameplay";
+import type { IHexCoordinate, IUnitToken } from '@/types/gameplay';
 
-import { hexToPixel } from "@/constants/hexMap";
-import { GameSide, TokenUnitType } from "@/types/gameplay";
+import { hexToPixel } from '@/constants/hexMap';
+import { GameSide, TokenUnitType } from '@/types/gameplay';
 
 import {
   MINIMAP_MARGIN,
@@ -35,7 +35,7 @@ import {
   viewportRectOnMinimap,
   worldBoundsForRadius,
   worldToMinimapPixel,
-} from "./minimapGeometry";
+} from './minimapGeometry';
 
 export interface MinimapProps {
   /** Hex radius of the map (same value fed to HexMapDisplay). */
@@ -98,11 +98,11 @@ function dotRadiusForUnitType(unitType: TokenUnitType | undefined): number {
 function dotColorForSide(side: GameSide): string {
   switch (side) {
     case GameSide.Player:
-      return "#3b82f6"; // blue-500
+      return '#3b82f6'; // blue-500
     case GameSide.Opponent:
-      return "#ef4444"; // red-500
+      return '#ef4444'; // red-500
     default:
-      return "#6b7280"; // gray-500
+      return '#6b7280'; // gray-500
   }
 }
 
@@ -113,11 +113,11 @@ function dotColorForSide(side: GameSide): string {
 function sideLabel(side: GameSide): string {
   switch (side) {
     case GameSide.Player:
-      return "Player";
+      return 'Player';
     case GameSide.Opponent:
-      return "Opponent";
+      return 'Opponent';
     default:
-      return "Neutral";
+      return 'Neutral';
   }
 }
 
@@ -388,12 +388,12 @@ export function Minimap({
               cy={dot.cy}
               r={dot.r}
               fill={dotColorForSide(dot.side)}
-              stroke={dot.isSelected ? "#fef08a" : "#0f172a"}
+              stroke={dot.isSelected ? '#fef08a' : '#0f172a'}
               strokeWidth={dot.isSelected ? 1.5 : 0.5}
               data-testid={`minimap-dot-${dot.unitId}`}
               onMouseEnter={() => setHoveredUnitId(dot.unitId)}
               onMouseLeave={() => setHoveredUnitId(null)}
-              style={{ cursor: "pointer" }}
+              style={{ cursor: 'pointer' }}
             >
               {/* <title> is the accessible, browser-native tooltip
                   for SVG per WAI-ARIA. */}
@@ -427,7 +427,7 @@ export function Minimap({
         >
           {(() => {
             const d = dots.find((x) => x.unitId === hoveredUnitId);
-            return d ? `${d.name} — ${sideLabel(d.side)}` : "";
+            return d ? `${d.name} — ${sideLabel(d.side)}` : '';
           })()}
         </div>
       )}
@@ -438,5 +438,5 @@ export function Minimap({
 // Re-export the world-bounds type so consumers can pass the main
 // camera's viewBox by value without importing from the geometry
 // helper directly.
-export { worldBoundsForRadius } from "./minimapGeometry";
+export { worldBoundsForRadius } from './minimapGeometry';
 export type { IHexCoordinate };
