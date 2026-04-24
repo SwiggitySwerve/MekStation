@@ -14,6 +14,11 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
+// Type-only import avoids a runtime cycle with the aerospace BV calculator,
+// which imports unit/arc enums from this module to read unit shape during
+// dispatch. Only used as the return type of `IAerospaceUnit.bvBreakdown`.
+import type { IAerospaceBVBreakdown } from '@/utils/construction/aerospace/aerospaceBV';
+
 import {
   IEntity,
   ITechBaseEntity,
@@ -218,6 +223,21 @@ export interface IAerospaceUnit extends IBaseUnit {
 
   /** Total armor points */
   readonly totalArmorPoints: number;
+
+  /**
+   * Last-computed BV 2.0 breakdown for this aerospace unit. Populated by the
+   * aerospace BV path (see `calculateAerospaceBV`) and surfaced on the unit so
+   * status bars, force-level tools, and the parity harness can read the
+   * breakdown without recomputing. Optional because legacy fixtures and
+   * freshly-parsed units may not yet have a breakdown attached.
+   *
+   * Type imported via `type`-only import avoids a runtime cycle with the
+   * aerospace BV calculator, which imports types from this module.
+   *
+   * @spec openspec/changes/add-aerospace-battle-value/specs/aerospace-unit-system/spec.md
+   *       — Requirement: Aerospace BV Breakdown on Unit State
+   */
+  readonly bvBreakdown?: IAerospaceBVBreakdown;
 }
 
 // ============================================================================

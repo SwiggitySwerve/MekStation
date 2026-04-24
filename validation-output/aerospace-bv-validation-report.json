@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "status": "deferred",
+  "reason": "aerospace MUL cache not yet available — checked: E:\\Projects\\MekStation\\.claude\\worktrees\\agent-aero-bv\\public\\data\\units\\aerospace_units, E:\\Projects\\MekStation\\.claude\\worktrees\\agent-aero-bv\\public\\data\\units\\aerospacefighters, E:\\Projects\\MekStation\\.claude\\worktrees\\agent-aero-bv\\public\\data\\units\\aerospace",
+  "coverage": "no_mul_data",
+  "generatedAt": "2026-04-24T22:30:56.577Z",
+  "units": []
+}
