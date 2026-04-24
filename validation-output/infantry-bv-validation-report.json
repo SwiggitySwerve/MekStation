@@ -1,0 +1,88 @@
+{
+  "version": "1",
+  "generatedAt": "2026-04-24T19:42:16.455Z",
+  "totalPlatoons": 3,
+  "parityCoverage": {
+    "withMulBV": 0,
+    "withinOnePercent": 0,
+    "withinFivePercent": 0
+  },
+  "deferral": {
+    "reason": "MUL BV cache for conventional infantry platoons is partial. Fixtures without a mulBV field emit delta/deltaPct as null; once the MegaMek MUL extract is seeded under public/data/units/infantry/, each fixture should gain a mulBV value and delta coverage will rise automatically.",
+    "trackedBy": "openspec/changes/add-infantry-battle-value/tasks.md (task 7.2 deferred)"
+  },
+  "platoons": [
+    {
+      "id": "inf-foot-rifle-28",
+      "name": "Foot Rifle Platoon",
+      "source": "public\\data\\units\\infantry\\foot-rifle-platoon.json",
+      "computedBV": 0,
+      "mulBV": null,
+      "delta": null,
+      "deltaPct": null,
+      "breakdown": {
+        "perTrooper": 0,
+        "motiveMultiplier": 1,
+        "antiMechMultiplier": 1,
+        "fieldGunBV": 0,
+        "platoonBV": 0,
+        "pilotMultiplier": 1,
+        "final": 0,
+        "primaryBV": 0,
+        "secondaryBV": 0,
+        "armorKitBV": 0,
+        "fieldGunWeaponBV": 0,
+        "fieldGunAmmoBV": 0,
+        "troopers": 28
+      }
+    },
+    {
+      "id": "inf-jump-srm-21",
+      "name": "Jump SRM Platoon",
+      "source": "public\\data\\units\\infantry\\jump-srm-platoon.json",
+      "computedBV": 51,
+      "mulBV": null,
+      "delta": null,
+      "deltaPct": null,
+      "breakdown": {
+        "perTrooper": 2,
+        "motiveMultiplier": 1.1,
+        "antiMechMultiplier": 1.1,
+        "fieldGunBV": 0,
+        "platoonBV": 50.82000000000001,
+        "pilotMultiplier": 1,
+        "final": 51,
+        "primaryBV": 0,
+        "secondaryBV": 0,
+        "armorKitBV": 2,
+        "fieldGunWeaponBV": 0,
+        "fieldGunAmmoBV": 0,
+        "troopers": 21
+      }
+    },
+    {
+      "id": "inf-mechanized-tracked-20",
+      "name": "Mechanized Tracked Rifle Platoon",
+      "source": "public\\data\\units\\infantry\\mechanized-tracked-platoon.json",
+      "computedBV": 0,
+      "mulBV": null,
+      "delta": null,
+      "deltaPct": null,
+      "breakdown": {
+        "perTrooper": 0,
+        "motiveMultiplier": 1.15,
+        "antiMechMultiplier": 1,
+        "fieldGunBV": 0,
+        "platoonBV": 0,
+        "pilotMultiplier": 1,
+        "final": 0,
+        "primaryBV": 0,
+        "secondaryBV": 0,
+        "armorKitBV": 0,
+        "fieldGunWeaponBV": 0,
+        "fieldGunAmmoBV": 0,
+        "troopers": 20
+      }
+    }
+  ]
+}
