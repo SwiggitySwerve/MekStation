@@ -130,12 +130,17 @@ P(crit on 2d6 location roll)` for through-armor crits
       `inRange === false`
 - [x] 11.4 Integration test: Toggling Preview Damage does not append
       events
-- [ ] 11.5 Integration test: Preview stays accurate when the player
-      switches targets mid-phase (deferred — the memoization keys
-      include the `target` reference so the recompute is structurally
-      guaranteed; full E2E coverage will land with the Phase 2
-      capstone test that walks the gameplay page through a real
-      target switch)
+- [x] 11.5 Integration test: Preview stays accurate when the player
+      switches targets mid-phase (covered in
+      `addWhatIfToHitPreview.smoke.test.tsx` under the "Preview
+      recomputes on target switch (§ 11.5)" suite — two cases: swap
+      `target` reference with a new movement profile, and swap
+      `rangeToTarget` against a locked target. Both verify the
+      Exp. Dmg / stddev / crit values actually change between renders
+      AND that `onToggle` / `onTogglePreview` stay untouched, wiring
+      the target-switch path to both the recompute guarantee from
+      weapon-resolution-system/spec.md "Memo miss when target changes"
+      and the zero-commit guarantee from § 9)
 
 ## 12. Spec Compliance
 
