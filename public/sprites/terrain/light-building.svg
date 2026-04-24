@@ -1,0 +1,22 @@
+<!--
+  Light building — single small rectangular outline with pavement peeking.
+
+  Shape signature: rectangular outline is the building signature.
+  "Light" = small single structure, thin walls. Homemade, original art.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" aria-label="Light building terrain">
+  <defs>
+    <clipPath id="light-building-hex-clip">
+      <polygon points="200,100 150,186.6 50,186.6 0,100 50,13.4 150,13.4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#light-building-hex-clip)" data-shape="rectangular-outline">
+    <rect x="0" y="0" width="200" height="200" fill="#d4d4d4" />
+    <rect x="70" y="70" width="60" height="60" fill="#b5b0a8" stroke="#5a564f" stroke-width="2" />
+    <rect x="78" y="82" width="12" height="14" fill="#5a564f" />
+    <rect x="110" y="82" width="12" height="14" fill="#5a564f" />
+    <rect x="78" y="106" width="12" height="14" fill="#5a564f" />
+    <rect x="110" y="106" width="12" height="14" fill="#5a564f" />
+    <line x1="70" y1="100" x2="130" y2="100" stroke="#5a564f" stroke-width="1" />
+  </g>
+</svg>

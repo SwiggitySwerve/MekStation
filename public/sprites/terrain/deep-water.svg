@@ -1,0 +1,28 @@
+<!--
+  Deep water — dark blue with dense wave pattern.
+
+  Shape signature: wavy lines at high density + longer wavelength to
+  read as deeper/open water. Homemade, original art.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" aria-label="Deep water terrain">
+  <defs>
+    <clipPath id="deep-water-hex-clip">
+      <polygon points="200,100 150,186.6 50,186.6 0,100 50,13.4 150,13.4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#deep-water-hex-clip)" data-shape="wave-pattern">
+    <rect x="0" y="0" width="200" height="200" fill="#2a5a8a" />
+    <g stroke="#c5dceb" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8">
+      <path d="M10,40 Q25,32 40,40 T70,40 T100,40" />
+      <path d="M110,40 Q125,32 140,40 T170,40 T200,40" />
+      <path d="M10,70 Q25,62 40,70 T70,70 T100,70" />
+      <path d="M110,70 Q125,62 140,70 T170,70" />
+      <path d="M10,100 Q25,92 40,100 T70,100 T100,100 T130,100" />
+      <path d="M140,100 Q155,92 170,100 T200,100" />
+      <path d="M10,130 Q25,122 40,130 T70,130 T100,130" />
+      <path d="M110,130 Q125,122 140,130 T170,130 T200,130" />
+      <path d="M10,160 Q25,152 40,160 T70,160 T100,160" />
+      <path d="M110,160 Q125,152 140,160 T170,160" />
+    </g>
+  </g>
+</svg>

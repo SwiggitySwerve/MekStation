@@ -1,0 +1,29 @@
+<!--
+  Medium building — two-story rectangular outline, more windows.
+
+  Shape signature: rectangular outline; medium density = taller / more
+  windows than light. Homemade, original art.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" aria-label="Medium building terrain">
+  <defs>
+    <clipPath id="medium-building-hex-clip">
+      <polygon points="200,100 150,186.6 50,186.6 0,100 50,13.4 150,13.4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#medium-building-hex-clip)" data-shape="rectangular-outline">
+    <rect x="0" y="0" width="200" height="200" fill="#c4c4c4" />
+    <rect x="60" y="50" width="80" height="100" fill="#8f8a83" stroke="#3a362f" stroke-width="2.5" />
+    <rect x="70" y="62" width="14" height="14" fill="#3a362f" />
+    <rect x="96" y="62" width="14" height="14" fill="#3a362f" />
+    <rect x="122" y="62" width="14" height="14" fill="#3a362f" />
+    <rect x="70" y="86" width="14" height="14" fill="#3a362f" />
+    <rect x="96" y="86" width="14" height="14" fill="#3a362f" />
+    <rect x="122" y="86" width="14" height="14" fill="#3a362f" />
+    <rect x="70" y="110" width="14" height="14" fill="#3a362f" />
+    <rect x="96" y="110" width="14" height="14" fill="#3a362f" />
+    <rect x="122" y="110" width="14" height="14" fill="#3a362f" />
+    <line x1="60" y1="80" x2="140" y2="80" stroke="#3a362f" stroke-width="1" />
+    <line x1="60" y1="104" x2="140" y2="104" stroke="#3a362f" stroke-width="1" />
+    <line x1="60" y1="128" x2="140" y2="128" stroke="#3a362f" stroke-width="1" />
+  </g>
+</svg>
