@@ -13,9 +13,9 @@ import type { IProtoMechBVBreakdown } from '@/utils/construction/protomech/proto
 import {
   BattleArmorLocation,
   ProtoMechLocation,
-} from '../construction/UnitLocation';
-import { ISquadUnit, SquadMotionType } from './BaseUnitInterfaces';
-import { UnitType } from './BattleMechInterfaces';
+} from "../construction/UnitLocation";
+import { ISquadUnit, SquadMotionType } from "./BaseUnitInterfaces";
+import { UnitType } from "./BattleMechInterfaces";
 
 // ============================================================================
 // Battle Armor Types
@@ -25,36 +25,36 @@ import { UnitType } from './BattleMechInterfaces';
  * Battle Armor chassis type
  */
 export enum BattleArmorChassisType {
-  BIPED = 'Biped',
-  QUAD = 'Quad',
+  BIPED = "Biped",
+  QUAD = "Quad",
 }
 
 /**
  * Battle Armor weight class
  */
 export enum BattleArmorWeightClass {
-  PA_L = 'PA(L)',
-  LIGHT = 'Light',
-  MEDIUM = 'Medium',
-  HEAVY = 'Heavy',
-  ASSAULT = 'Assault',
+  PA_L = "PA(L)",
+  LIGHT = "Light",
+  MEDIUM = "Medium",
+  HEAVY = "Heavy",
+  ASSAULT = "Assault",
 }
 
 /**
  * Battle Armor manipulator type
  */
 export enum ManipulatorType {
-  NONE = 'None',
-  ARMORED_GLOVE = 'Armored Glove',
-  BASIC = 'Basic',
-  BASIC_MINE_CLEARANCE = 'Basic/Mine Clearance',
-  BATTLE = 'Battle',
-  BATTLE_VIBRO = 'Battle Vibro',
-  HEAVY_BATTLE = 'Heavy Battle',
-  HEAVY_BATTLE_VIBRO = 'Heavy Battle Vibro',
-  CARGO_LIFTER = 'Cargo Lifter',
-  INDUSTRIAL_DRILL = 'Industrial Drill',
-  SALVAGE_ARM = 'Salvage Arm',
+  NONE = "None",
+  ARMORED_GLOVE = "Armored Glove",
+  BASIC = "Basic",
+  BASIC_MINE_CLEARANCE = "Basic/Mine Clearance",
+  BATTLE = "Battle",
+  BATTLE_VIBRO = "Battle Vibro",
+  HEAVY_BATTLE = "Heavy Battle",
+  HEAVY_BATTLE_VIBRO = "Heavy Battle Vibro",
+  CARGO_LIFTER = "Cargo Lifter",
+  INDUSTRIAL_DRILL = "Industrial Drill",
+  SALVAGE_ARM = "Salvage Arm",
 }
 
 // ============================================================================
@@ -176,48 +176,48 @@ export interface IBattleArmor extends ISquadUnit {
  * Infantry primary weapon type
  */
 export enum InfantryPrimaryWeaponType {
-  RIFLE = 'Rifle',
-  LASER = 'Laser',
-  SRM = 'SRM',
-  FLAMER = 'Flamer',
-  MACHINE_GUN = 'Machine Gun',
-  AUTO_RIFLE = 'Auto-Rifle',
-  NEEDLER = 'Needler',
-  GYROJET = 'Gyrojet',
-  SUPPORT = 'Support',
-  ARCHAIC = 'Archaic',
+  RIFLE = "Rifle",
+  LASER = "Laser",
+  SRM = "SRM",
+  FLAMER = "Flamer",
+  MACHINE_GUN = "Machine Gun",
+  AUTO_RIFLE = "Auto-Rifle",
+  NEEDLER = "Needler",
+  GYROJET = "Gyrojet",
+  SUPPORT = "Support",
+  ARCHAIC = "Archaic",
 }
 
 /**
  * Infantry armor kit type
  */
 export enum InfantryArmorKit {
-  NONE = 'None',
-  STANDARD = 'Standard',
-  FLAK = 'Flak',
-  ABLATIVE = 'Ablative',
-  SNEAK_CAMO = 'Sneak (Camo)',
-  SNEAK_IR = 'Sneak (IR)',
-  SNEAK_ECM = 'Sneak (ECM)',
-  SNEAK_CAMO_IR = 'Sneak (Camo/IR)',
-  SNEAK_IR_ECM = 'Sneak (IR/ECM)',
-  SNEAK_COMPLETE = 'Sneak (Complete)',
-  CLAN = 'Clan',
-  ENVIRONMENTAL = 'Environmental',
+  NONE = "None",
+  STANDARD = "Standard",
+  FLAK = "Flak",
+  ABLATIVE = "Ablative",
+  SNEAK_CAMO = "Sneak (Camo)",
+  SNEAK_IR = "Sneak (IR)",
+  SNEAK_ECM = "Sneak (ECM)",
+  SNEAK_CAMO_IR = "Sneak (Camo/IR)",
+  SNEAK_IR_ECM = "Sneak (IR/ECM)",
+  SNEAK_COMPLETE = "Sneak (Complete)",
+  CLAN = "Clan",
+  ENVIRONMENTAL = "Environmental",
 }
 
 /**
  * Infantry specialization
  */
 export enum InfantrySpecialization {
-  NONE = 'None',
-  ANTI_MECH = 'Anti-Mech',
-  PARATROOPER = 'Paratrooper',
-  MOUNTAIN = 'Mountain',
-  MARINE = 'Marine',
-  XCT = 'XCT',
-  TAG = 'TAG',
-  ENGINEER = 'Engineer',
+  NONE = "None",
+  ANTI_MECH = "Anti-Mech",
+  PARATROOPER = "Paratrooper",
+  MOUNTAIN = "Mountain",
+  MARINE = "Marine",
+  XCT = "XCT",
+  TAG = "TAG",
+  ENGINEER = "Engineer",
 }
 
 // ============================================================================
@@ -298,6 +298,17 @@ export interface IInfantry extends ISquadUnit {
 
   /** Can make leg attacks */
   readonly canLegAttack: boolean;
+
+  /**
+   * Computed Battle Value breakdown populated by the infantry BV calculator.
+   *
+   * Optional to stay backwards-compatible with BLK-parsed units prior to the
+   * calculator running. Populated by the handler after construction (or on
+   * first BV-affecting store mutation) and consumed by the customizer UI.
+   *
+   * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
+   */
+  readonly bvBreakdown?: import("@/utils/construction/infantry/infantryBV").IInfantryBVBreakdown;
 }
 
 // ============================================================================
