@@ -1,0 +1,32 @@
+<!--
+  Pavement — flat gridded concrete surface.
+
+  Shape signature: regular gridded pattern of panels with expansion
+  joints is the pavement marker. Homemade, original art.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" aria-label="Pavement terrain">
+  <defs>
+    <clipPath id="pavement-hex-clip">
+      <polygon points="200,100 150,186.6 50,186.6 0,100 50,13.4 150,13.4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#pavement-hex-clip)" data-shape="gridded-pattern">
+    <rect x="0" y="0" width="200" height="200" fill="#bfbcb7" />
+    <g stroke="#6a665e" stroke-width="1.5">
+      <line x1="0" y1="50" x2="200" y2="50" />
+      <line x1="0" y1="100" x2="200" y2="100" />
+      <line x1="0" y1="150" x2="200" y2="150" />
+      <line x1="50" y1="0" x2="50" y2="200" />
+      <line x1="100" y1="0" x2="100" y2="200" />
+      <line x1="150" y1="0" x2="150" y2="200" />
+    </g>
+    <g stroke="#8a867f" stroke-width="0.6" stroke-dasharray="3 3" opacity="0.6">
+      <line x1="0" y1="75" x2="200" y2="75" />
+      <line x1="0" y1="125" x2="200" y2="125" />
+      <line x1="25" y1="0" x2="25" y2="200" />
+      <line x1="75" y1="0" x2="75" y2="200" />
+      <line x1="125" y1="0" x2="125" y2="200" />
+      <line x1="175" y1="0" x2="175" y2="200" />
+    </g>
+  </g>
+</svg>

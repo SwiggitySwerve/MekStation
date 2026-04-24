@@ -1,0 +1,30 @@
+<!--
+  Heavy woods — dense triangular canopies packing the hex.
+
+  Shape signature: 8-9 overlapping triangular canopies in two shades so
+  "heavy" reads as visually denser than "light" even without color.
+  Homemade, original art.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" aria-label="Heavy woods terrain">
+  <defs>
+    <clipPath id="heavy-woods-hex-clip">
+      <polygon points="200,100 150,186.6 50,186.6 0,100 50,13.4 150,13.4" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#heavy-woods-hex-clip)" data-shape="triangular-canopy-dense">
+    <rect x="0" y="0" width="200" height="200" fill="#b8d4a0" />
+    <g fill="#2f5019" stroke="#1e3510" stroke-width="1.5" stroke-linejoin="round">
+      <polygon points="45,70 30,105 60,105" />
+      <polygon points="90,55 75,90 105,90" />
+      <polygon points="140,80 125,115 155,115" />
+      <polygon points="70,130 55,165 85,165" />
+      <polygon points="120,135 105,170 135,170" />
+      <polygon points="160,140 145,175 175,175" />
+    </g>
+    <g fill="#4a7a2f" stroke="#2f5019" stroke-width="1.2" stroke-linejoin="round">
+      <polygon points="60,90 48,115 72,115" />
+      <polygon points="110,100 98,125 122,125" />
+      <polygon points="150,60 138,85 162,85" />
+    </g>
+  </g>
+</svg>

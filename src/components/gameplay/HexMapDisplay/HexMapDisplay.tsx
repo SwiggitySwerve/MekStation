@@ -9,6 +9,7 @@ import type {
   IHex,
 } from '@/types/gameplay';
 
+import { TerrainSymbolDefs } from '@/components/gameplay/terrain/TerrainSymbolDefs';
 import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForType';
 import { TerrainType } from '@/types/gameplay';
 import { coordToKey } from '@/utils/gameplay/hexMath';
@@ -187,6 +188,14 @@ export function HexMapDisplay({
         data-testid="hex-grid"
       >
         <TerrainPatternDefs />
+        {/*
+          Per `add-terrain-rendering` task 9.1: terrain art is emitted
+          once as `<symbol>` nodes in the SVG defs so each HexCell can
+          reference it via `<use>`. Keeps per-hex render cost O(1).
+        */}
+        <defs>
+          <TerrainSymbolDefs />
+        </defs>
         <g>
           {hexes.map((hex) => {
             const key = `${hex.q},${hex.r}`;
@@ -215,6 +224,7 @@ export function HexMapDisplay({
                 key={key}
                 hex={hex}
                 terrain={terrain}
+                terrainLookup={terrainLookup}
                 isSelected={isSelected}
                 isHovered={isHovered}
                 movementInfo={movementInfo}
