@@ -6,6 +6,10 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
+// Type-only import avoids a runtime cycle; IProtoMechBVBreakdown is erased at
+// runtime and is only used to tag the optional breakdown on IProtoMech.
+import type { IProtoMechBVBreakdown } from '@/utils/construction/protomech/protoMechBV';
+
 import {
   BattleArmorLocation,
   ProtoMechLocation,
@@ -367,6 +371,16 @@ export interface IProtoMech extends ISquadUnit {
 
   /** Has extended torso twist */
   readonly hasExtendedTorsoTwist: boolean;
+
+  /**
+   * Last-computed BV 2.0 breakdown. Populated by the ProtoMech handler when
+   * `calculateBV` runs; consumed by status bars, force-level tooling, and the
+   * parity harness.
+   *
+   * @spec openspec/changes/add-protomech-battle-value/specs/protomech-unit-system/spec.md
+   *       — Requirement: ProtoMech BV Breakdown on Unit State
+   */
+  readonly bvBreakdown?: IProtoMechBVBreakdown;
 }
 
 // ============================================================================
