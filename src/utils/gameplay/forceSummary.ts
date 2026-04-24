@@ -159,8 +159,10 @@ export function deriveForceSummary(input: IForceSummaryInput): IForceSummary {
   }
 
   // Empty force shortcut — keep numeric fields zeroed, spas empty.
+  // Freeze so consumers can't mutate the snapshot (Force Config
+  // Stability requirement).
   if (validUnits.length === 0) {
-    return {
+    return Object.freeze({
       side: input.side,
       totalBV: 0,
       totalTonnage: 0,
@@ -168,10 +170,10 @@ export function deriveForceSummary(input: IForceSummaryInput): IForceSummary {
       avgGunnery: 0,
       avgPiloting: 0,
       weaponDamagePerTurnPotential: 0,
-      spaSummary: [],
+      spaSummary: Object.freeze([]) as readonly IForceSummarySpaEntry[],
       unitCount: 0,
-      warnings,
-    };
+      warnings: Object.freeze(warnings) as readonly string[],
+    });
   }
 
   let totalBV = 0;
@@ -234,16 +236,22 @@ export function deriveForceSummary(input: IForceSummaryInput): IForceSummary {
   const avgGunnery = pilotedUnits > 0 ? gunneryAccumulator / pilotedUnits : 0;
   const avgPiloting = pilotedUnits > 0 ? pilotingAccumulator / pilotedUnits : 0;
 
+  // Freeze SPA entries + their unitIds arrays so consumers can't mutate
+  // the snapshot at runtime. Spec (game-session-management §
+  // Force Config Stability) requires emitted configs to be immutable
+  // snapshots; compile-time `readonly` is not enforced at runtime.
   const spaSummary: IForceSummarySpaEntry[] = [];
   spaMap.forEach((entry, spaId) => {
-    spaSummary.push({
-      spaId,
-      name: entry.name,
-      unitIds: [...entry.unitIds],
-    });
+    spaSummary.push(
+      Object.freeze({
+        spaId,
+        name: entry.name,
+        unitIds: Object.freeze([...entry.unitIds]) as readonly string[],
+      }),
+    );
   });
 
-  return {
+  return Object.freeze({
     side: input.side,
     totalBV,
     totalTonnage,
@@ -251,10 +259,10 @@ export function deriveForceSummary(input: IForceSummaryInput): IForceSummary {
     avgGunnery,
     avgPiloting,
     weaponDamagePerTurnPotential,
-    spaSummary,
+    spaSummary: Object.freeze(spaSummary) as readonly IForceSummarySpaEntry[],
     unitCount: validUnits.length,
-    warnings,
-  };
+    warnings: Object.freeze(warnings) as readonly string[],
+  });
 }
 
 // =============================================================================
@@ -348,10 +356,15 @@ export function deriveForceSummaryFromAdaptedUnits(
     missingContext &&
     !summary.warnings.includes('Force contains unknown units')
   ) {
-    return {
+    // Re-freeze after spreading the base summary so the returned value
+    // stays immutable (Force Config Stability).
+    return Object.freeze({
       ...summary,
-      warnings: [...summary.warnings, 'Force contains unknown units'],
-    };
+      warnings: Object.freeze([
+        ...summary.warnings,
+        'Force contains unknown units',
+      ]) as readonly string[],
+    });
   }
   return summary;
 }
