@@ -7,6 +7,8 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
+import type { IBABreakdown } from '@/utils/construction/battlearmor/battleArmorBV';
+
 import { BattleArmorLocation } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -179,6 +181,27 @@ export interface BattleArmorState {
   equipment: IBattleArmorMountedEquipment[];
 
   // =========================================================================
+  // Derived
+  // =========================================================================
+
+  /**
+   * Latest BV breakdown derived from the construction inputs above.
+   *
+   * Kept on the store (and therefore on the unit snapshot) so UI and
+   * downstream consumers can read BV directly without having to recompute
+   * locally. Recomputed reactively whenever any BV input changes via the
+   * action middleware in `useBattleArmorStore.ts`.
+   *
+   * Optional at the type level for back-compat with test fixtures and
+   * rehydrated legacy snapshots, but always populated by the store factory
+   * (`createBattleArmorStore` seeds it and re-derives on every mutation).
+   *
+   * @spec openspec/changes/add-battlearmor-battle-value/specs/battle-armor-unit-system/spec.md
+   *       Requirement: BA BV Breakdown on Unit State
+   */
+  bvBreakdown?: IBABreakdown;
+
+  // =========================================================================
   // Metadata
   // =========================================================================
 
@@ -342,6 +365,32 @@ export function createDefaultBattleArmorState(
 
     // Equipment
     equipment: [],
+
+    // Derived — placeholder breakdown; the store wraps set() so this is
+    // refreshed whenever any BV input changes. Seeded here to keep the
+    // initial state typed without ever being `undefined`.
+    bvBreakdown: {
+      perTrooper: {
+        defensive: {
+          armorBV: 0,
+          moveBV: 0,
+          jumpBV: 0,
+          antiMechBonus: 0,
+          total: 0,
+        },
+        offensive: {
+          weaponBV: 0,
+          ammoBV: 0,
+          manipulatorBV: 0,
+          total: 0,
+        },
+        total: 0,
+      },
+      squadSize: options.squadSize ?? 4,
+      squadTotal: 0,
+      pilotMultiplier: 1,
+      final: 0,
+    },
 
     // Metadata
     isModified: false,

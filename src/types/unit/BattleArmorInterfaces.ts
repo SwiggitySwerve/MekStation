@@ -549,4 +549,20 @@ export interface IBattleArmorUnit {
   readonly hasMechanicalJumpBooster: boolean;
   readonly hasPartialWing: boolean;
   readonly hasDetachableWeaponPack: boolean;
+
+  // --- Derived ---
+  /**
+   * Latest BV breakdown produced by `calculateBattleArmorBV`. Derived from
+   * the construction inputs above and kept on the unit so UI layers and
+   * downstream consumers can read BV directly from the unit state instead
+   * of recomputing locally.
+   *
+   * Matches the shape called out in the spec delta
+   * (`perTrooper.defensive`, `perTrooper.offensive`, `squadTotal`,
+   * `pilotMultiplier`, `final`).
+   *
+   * @spec openspec/changes/add-battlearmor-battle-value/specs/battle-armor-unit-system/spec.md
+   *       Requirement: BA BV Breakdown on Unit State
+   */
+  readonly bvBreakdown?: import('@/utils/construction/battlearmor/battleArmorBV').IBABreakdown;
 }

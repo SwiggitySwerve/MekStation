@@ -1,0 +1,26 @@
+{
+  "id": "is-cavalier-sqd4",
+  "chassis": "Cavalier",
+  "model": "Standard (Sqd4)",
+  "name": "Cavalier Battle Armor",
+  "unitType": "BATTLEARMOR",
+  "weightClass": "Medium",
+  "squadSize": 4,
+  "groundMP": 2,
+  "jumpMP": 0,
+  "umuMP": 0,
+  "armorPointsPerTrooper": 7,
+  "armorType": "Standard BA",
+  "leftManipulator": "Battle Claw",
+  "rightManipulator": "Battle Claw",
+  "weapons": [
+    { "id": "machine-gun", "bvOverride": 5 },
+    { "id": "machine-gun", "bvOverride": 5 }
+  ],
+  "ammo": [{ "id": "mg-ammo", "bvOverride": 1 }],
+  "hasMagneticClamp": false,
+  "gunnery": 4,
+  "piloting": 5,
+  "mulBV": 128,
+  "source": "Synthesized fixture for add-battlearmor-battle-value parity harness. Mirrors battleArmorBV.test.ts 'IS Cavalier' scenario. BV reference matches the test-suite expected value."
+}

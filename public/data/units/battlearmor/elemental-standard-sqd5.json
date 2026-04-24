@@ -1,0 +1,26 @@
+{
+  "id": "elemental-standard-sqd5",
+  "chassis": "Elemental",
+  "model": "Standard (Sqd5)",
+  "name": "Elemental Battle Armor (Standard)",
+  "unitType": "BATTLEARMOR",
+  "weightClass": "Heavy",
+  "squadSize": 5,
+  "groundMP": 1,
+  "jumpMP": 3,
+  "umuMP": 0,
+  "armorPointsPerTrooper": 10,
+  "armorType": "Standard BA",
+  "leftManipulator": "Battle Claw",
+  "rightManipulator": "Battle Claw",
+  "weapons": [
+    { "id": "srm-2", "bvOverride": 21 },
+    { "id": "small-laser", "bvOverride": 9 }
+  ],
+  "ammo": [{ "id": "srm-2-ammo", "bvOverride": 3 }],
+  "hasMagneticClamp": true,
+  "gunnery": 4,
+  "piloting": 5,
+  "mulBV": 338,
+  "source": "Synthesized fixture for add-battlearmor-battle-value parity harness. Mirrors battleArmorBV.test.ts 'Clan Elemental' scenario. BV reference matches the test-suite expected value."
+}

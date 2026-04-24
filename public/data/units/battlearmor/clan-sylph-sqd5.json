@@ -1,0 +1,23 @@
+{
+  "id": "clan-sylph-sqd5",
+  "chassis": "Sylph",
+  "model": "Standard (Sqd5)",
+  "name": "Sylph Battle Armor",
+  "unitType": "BATTLEARMOR",
+  "weightClass": "Light",
+  "squadSize": 5,
+  "groundMP": 1,
+  "jumpMP": 7,
+  "umuMP": 0,
+  "armorPointsPerTrooper": 4,
+  "armorType": "Standard BA",
+  "leftManipulator": "None",
+  "rightManipulator": "None",
+  "weapons": [{ "id": "er-small-laser", "bvOverride": 17 }],
+  "ammo": [],
+  "hasMagneticClamp": false,
+  "gunnery": 4,
+  "piloting": 5,
+  "mulBV": 155,
+  "source": "Synthesized fixture for add-battlearmor-battle-value parity harness. Mirrors battleArmorBV.test.ts 'Clan Sylph' scenario (Light VTOL carrier, jumpMP stores flight MP). BV reference matches the test-suite expected value."
+}

@@ -13,6 +13,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { IEquipmentItem } from '@/types/equipment';
+import { calculateBattleArmorBVFromState } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 import { generateUnitId } from '@/utils/uuid';
 
 import {
@@ -36,313 +37,355 @@ export type { BattleArmorStore } from './battleArmorState';
 export function createBattleArmorStore(
   initialState: BattleArmorState,
 ): StoreApi<BattleArmorStore> {
+  // Seed the initial BV breakdown from the initial inputs so the store is
+  // born consistent — tests and UI code can read `state.bvBreakdown`
+  // immediately after construction.
+  const seededInitial: BattleArmorState = {
+    ...initialState,
+    bvBreakdown: calculateBattleArmorBVFromState(initialState),
+  };
+
   return create<BattleArmorStore>()(
     persist(
-      (set, _get) => ({
-        // Spread initial state
-        ...initialState,
+      (rawSet, _get) => {
+        // Every mutation re-derives `bvBreakdown` from the resulting state
+        // so consumers never see stale BV after editing any input (armor,
+        // weapons, manipulators, squad size, etc.). Actions that don't
+        // touch BV inputs still pay a cheap pure recomputation — acceptable
+        // given how small the BA calculator is.
+        const set: typeof rawSet = (partial, replace) => {
+          const applyAndDerive = (
+            state: BattleArmorStore,
+          ): BattleArmorStore => {
+            const patch =
+              typeof partial === 'function'
+                ? (
+                    partial as (
+                      s: BattleArmorStore,
+                    ) => BattleArmorStore | Partial<BattleArmorStore>
+                  )(state)
+                : partial;
+            const merged = { ...state, ...patch } as BattleArmorStore;
+            return {
+              ...merged,
+              bvBreakdown: calculateBattleArmorBVFromState(merged),
+            };
+          };
+          // `replace: true` is unused by our actions (they all pass partials)
+          // but we preserve the signature for safety.
+          if (replace === true) {
+            rawSet(partial as BattleArmorStore, true);
+            return;
+          }
+          rawSet((state) => applyAndDerive(state));
+        };
 
-        // =================================================================
-        // Identity Actions
-        // =================================================================
+        return {
+          // Spread initial state
+          ...seededInitial,
 
-        setName: (name) =>
-          set({
-            name,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          // =================================================================
+          // Identity Actions
+          // =================================================================
 
-        setChassis: (chassis) =>
-          set((state) => ({
-            chassis,
-            name: `${chassis}${state.model ? ' ' + state.model : ''}`,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
+          setName: (name) =>
+            set({
+              name,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setModel: (model) =>
-          set((state) => ({
-            model,
-            name: `${state.chassis}${model ? ' ' + model : ''}`,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
+          setChassis: (chassis) =>
+            set((state) => ({
+              chassis,
+              name: `${chassis}${state.model ? ' ' + state.model : ''}`,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            })),
 
-        setMulId: (mulId) =>
-          set({
-            mulId,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setModel: (model) =>
+            set((state) => ({
+              model,
+              name: `${state.chassis}${model ? ' ' + model : ''}`,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            })),
 
-        setYear: (year) =>
-          set({
-            year,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setMulId: (mulId) =>
+            set({
+              mulId,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setRulesLevel: (rulesLevel) =>
-          set({
-            rulesLevel,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setYear: (year) =>
+            set({
+              year,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        // =================================================================
-        // Classification Actions
-        // =================================================================
+          setRulesLevel: (rulesLevel) =>
+            set({
+              rulesLevel,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setTechBase: (techBase) =>
-          set({
-            techBase,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          // =================================================================
+          // Classification Actions
+          // =================================================================
 
-        setChassisType: (chassisType) =>
-          set({
-            chassisType,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setTechBase: (techBase) =>
+            set({
+              techBase,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setWeightClass: (weightClass) =>
-          set({
-            weightClass,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setChassisType: (chassisType) =>
+            set({
+              chassisType,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setWeightPerTrooper: (weightPerTrooper) =>
-          set({
-            weightPerTrooper: Math.max(0, weightPerTrooper),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setWeightClass: (weightClass) =>
+            set({
+              weightClass,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        // =================================================================
-        // Squad Actions
-        // =================================================================
+          setWeightPerTrooper: (weightPerTrooper) =>
+            set({
+              weightPerTrooper: Math.max(0, weightPerTrooper),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setSquadSize: (squadSize) =>
-          set({
-            squadSize: Math.max(1, Math.min(6, squadSize)),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          // =================================================================
+          // Squad Actions
+          // =================================================================
 
-        setMotionType: (motionType) =>
-          set({
-            motionType,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setSquadSize: (squadSize) =>
+            set({
+              squadSize: Math.max(1, Math.min(6, squadSize)),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setGroundMP: (groundMP) =>
-          set({
-            groundMP: Math.max(0, groundMP),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setMotionType: (motionType) =>
+            set({
+              motionType,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setJumpMP: (jumpMP) =>
-          set({
-            jumpMP: Math.max(0, jumpMP),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setGroundMP: (groundMP) =>
+            set({
+              groundMP: Math.max(0, groundMP),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setMechanicalJumpBoosters: (hasMechanicalJumpBoosters) =>
-          set({
-            hasMechanicalJumpBoosters,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setJumpMP: (jumpMP) =>
+            set({
+              jumpMP: Math.max(0, jumpMP),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setUmuMP: (umuMP) =>
-          set({
-            umuMP: Math.max(0, umuMP),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setMechanicalJumpBoosters: (hasMechanicalJumpBoosters) =>
+            set({
+              hasMechanicalJumpBoosters,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        // =================================================================
-        // Manipulator Actions
-        // =================================================================
+          setUmuMP: (umuMP) =>
+            set({
+              umuMP: Math.max(0, umuMP),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setLeftManipulator: (leftManipulator) =>
-          set({
-            leftManipulator,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          // =================================================================
+          // Manipulator Actions
+          // =================================================================
 
-        setRightManipulator: (rightManipulator) =>
-          set({
-            rightManipulator,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setLeftManipulator: (leftManipulator) =>
+            set({
+              leftManipulator,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        // =================================================================
-        // Armor Actions
-        // =================================================================
+          setRightManipulator: (rightManipulator) =>
+            set({
+              rightManipulator,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setArmorType: (armorType) =>
-          set({
-            armorType,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          // =================================================================
+          // Armor Actions
+          // =================================================================
 
-        setBaArmorType: (baArmorType) =>
-          set({
-            baArmorType,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setArmorType: (armorType) =>
+            set({
+              armorType,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setArmorPerTrooper: (armorPerTrooper) =>
-          set({
-            armorPerTrooper: Math.max(0, armorPerTrooper),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setBaArmorType: (baArmorType) =>
+            set({
+              baArmorType,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        // =================================================================
-        // Mount Actions
-        // =================================================================
+          setArmorPerTrooper: (armorPerTrooper) =>
+            set({
+              armorPerTrooper: Math.max(0, armorPerTrooper),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setAPMount: (hasAPMount) =>
-          set({
-            hasAPMount,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          // =================================================================
+          // Mount Actions
+          // =================================================================
 
-        setModularMount: (hasModularMount) =>
-          set({
-            hasModularMount,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setAPMount: (hasAPMount) =>
+            set({
+              hasAPMount,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setTurretMount: (hasTurretMount) =>
-          set({
-            hasTurretMount,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setModularMount: (hasModularMount) =>
+            set({
+              hasModularMount,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        // =================================================================
-        // Special System Actions
-        // =================================================================
+          setTurretMount: (hasTurretMount) =>
+            set({
+              hasTurretMount,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setStealthSystem: (hasStealthSystem, stealthType) =>
-          set({
-            hasStealthSystem,
-            stealthType: hasStealthSystem ? stealthType : undefined,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          // =================================================================
+          // Special System Actions
+          // =================================================================
 
-        setMimeticArmor: (hasMimeticArmor) =>
-          set({
-            hasMimeticArmor,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setStealthSystem: (hasStealthSystem, stealthType) =>
+            set({
+              hasStealthSystem,
+              stealthType: hasStealthSystem ? stealthType : undefined,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        setFireResistantArmor: (hasFireResistantArmor) =>
-          set({
-            hasFireResistantArmor,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setMimeticArmor: (hasMimeticArmor) =>
+            set({
+              hasMimeticArmor,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        // =================================================================
-        // Equipment Actions
-        // =================================================================
+          setFireResistantArmor: (hasFireResistantArmor) =>
+            set({
+              hasFireResistantArmor,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        addEquipment: (item: IEquipmentItem, location?) => {
-          const instanceId = generateUnitId();
-          const mountedEquipment = createBattleArmorMountedEquipment(
-            item,
-            instanceId,
-            location,
-          );
+          // =================================================================
+          // Equipment Actions
+          // =================================================================
 
-          set((state) => ({
-            equipment: [...state.equipment, mountedEquipment],
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }));
+          addEquipment: (item: IEquipmentItem, location?) => {
+            const instanceId = generateUnitId();
+            const mountedEquipment = createBattleArmorMountedEquipment(
+              item,
+              instanceId,
+              location,
+            );
 
-          return instanceId;
-        },
+            set((state) => ({
+              equipment: [...state.equipment, mountedEquipment],
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }));
 
-        removeEquipment: (instanceId: string) =>
-          set((state) => ({
-            equipment: state.equipment.filter((e) => e.id !== instanceId),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
+            return instanceId;
+          },
 
-        updateEquipmentLocation: (instanceId: string, location) =>
-          set((state) => ({
-            equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, location } : e,
-            ),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
+          removeEquipment: (instanceId: string) =>
+            set((state) => ({
+              equipment: state.equipment.filter((e) => e.id !== instanceId),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            })),
 
-        setEquipmentAPMount: (instanceId: string, isAPMount) =>
-          set((state) => ({
-            equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, isAPMount } : e,
-            ),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
+          updateEquipmentLocation: (instanceId: string, location) =>
+            set((state) => ({
+              equipment: state.equipment.map((e) =>
+                e.id === instanceId ? { ...e, location } : e,
+              ),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            })),
 
-        setEquipmentTurretMount: (instanceId: string, isTurretMounted) =>
-          set((state) => ({
-            equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, isTurretMounted } : e,
-            ),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
+          setEquipmentAPMount: (instanceId: string, isAPMount) =>
+            set((state) => ({
+              equipment: state.equipment.map((e) =>
+                e.id === instanceId ? { ...e, isAPMount } : e,
+              ),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            })),
 
-        setEquipmentModular: (instanceId: string, isModular) =>
-          set((state) => ({
-            equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, isModular } : e,
-            ),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
+          setEquipmentTurretMount: (instanceId: string, isTurretMounted) =>
+            set((state) => ({
+              equipment: state.equipment.map((e) =>
+                e.id === instanceId ? { ...e, isTurretMounted } : e,
+              ),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            })),
 
-        clearAllEquipment: () =>
-          set({
-            equipment: [],
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+          setEquipmentModular: (instanceId: string, isModular) =>
+            set((state) => ({
+              equipment: state.equipment.map((e) =>
+                e.id === instanceId ? { ...e, isModular } : e,
+              ),
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            })),
 
-        // =================================================================
-        // Metadata Actions
-        // =================================================================
+          clearAllEquipment: () =>
+            set({
+              equipment: [],
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            }),
 
-        markModified: (modified = true) =>
-          set({
-            isModified: modified,
-            lastModifiedAt: Date.now(),
-          }),
-      }),
+          // =================================================================
+          // Metadata Actions
+          // =================================================================
+
+          markModified: (modified = true) =>
+            set({
+              isModified: modified,
+              lastModifiedAt: Date.now(),
+            }),
+        };
+      },
       {
         name: `megamek-battlearmor-${initialState.id}`,
         storage: createJSONStorage(() => clientSafeStorage),
