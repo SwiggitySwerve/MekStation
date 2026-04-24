@@ -162,6 +162,34 @@ describe('getProtoChassisMultiplier', () => {
   it('Quad → 1.0', () => {
     expect(getProtoChassisMultiplier(ProtoChassis.QUAD)).toBe(1.0);
   });
+
+  /*
+   * @spec openspec/changes/add-protomech-battle-value/specs/battle-value-system/spec.md
+   *       — Scenario: Glider multiplier
+   *
+   * Pre-multiplier BV 280 × 0.9 = 252 exactly. This test asserts the spec's
+   * literal numeric result using the multiplier and the same rounding the
+   * calculator applies at its final step.
+   */
+  it('Glider: pre-multiplier BV 280 → final 252 (exact)', () => {
+    const multiplier = getProtoChassisMultiplier(ProtoChassis.GLIDER);
+    expect(multiplier).toBe(0.9);
+    // The calculator's final step is Math.round(baseBV × chassis × pilot).
+    // With baseline pilot (1.0) this reduces to Math.round(280 × 0.9).
+    expect(Math.round(280 * multiplier * 1.0)).toBe(252);
+  });
+
+  /*
+   * @spec openspec/changes/add-protomech-battle-value/specs/battle-value-system/spec.md
+   *       — Scenario: Ultraheavy multiplier
+   *
+   * Pre-multiplier BV 600 × 1.15 = 690 exactly.
+   */
+  it('Ultraheavy: pre-multiplier BV 600 → final 690 (exact)', () => {
+    const multiplier = getProtoChassisMultiplier(ProtoChassis.ULTRAHEAVY);
+    expect(multiplier).toBe(1.15);
+    expect(Math.round(600 * multiplier * 1.0)).toBe(690);
+  });
 });
 
 // =============================================================================
