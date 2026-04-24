@@ -10,10 +10,16 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  lint-and-test:
-    name: Lint and Test
+  # ---------------------------------------------------------------
+  # install-deps runs first so the other lint/test/type/build jobs
+  # can reuse a single `npm ci`. It populates the node_modules cache
+  # keyed on (OS, node version, lockfile hash); fan-out jobs restore
+  # from that cache and skip `npm ci` entirely on a hit.
+  # ---------------------------------------------------------------
+  install-deps:
+    name: Install Dependencies
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
@@ -25,20 +31,111 @@ jobs:
           node-version: '20'
           fetch-assets: 'true'
 
+  lint:
+    name: Lint
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
       - name: Run linter
         run: npm run lint
+
+  format-check:
+    name: Format Check
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
 
       - name: Check formatting
         run: npm run format:check
 
+  typecheck:
+    name: Type Check
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
       - name: Run type check
         run: npx tsc --noEmit
+
+  test:
+    name: Test
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
 
       - name: Run tests
         run: npm test -- --ci
 
+  validate-bv:
+    name: Validate BV Parity
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+          fetch-assets: 'true'
+
       - name: Validate BV parity
         run: npm run validate:bv
+
+  storybook-build:
+    name: Build Storybook
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
 
       - name: Build Storybook
         run: npm run storybook:build
