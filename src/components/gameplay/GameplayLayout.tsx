@@ -11,12 +11,15 @@ import React, {
   useMemo,
   useRef,
   useEffect,
-} from 'react';
+} from "react";
 
-import type { InteractiveSession } from '@/engine/InteractiveSession';
-import type { InteractivePhase } from '@/stores/useGameplayStore';
+import type { InteractiveSession } from "@/engine/InteractiveSession";
+import type { InteractivePhase } from "@/stores/useGameplayStore";
 
-import { useGameplayStore } from '@/stores/useGameplayStore';
+import { pixelToHex } from "@/constants/hexMap";
+import { useCameraControls } from "@/hooks/useCameraControls";
+import { useGameplayHotkeys } from "@/hooks/useGameplayHotkeys";
+import { useGameplayStore } from "@/stores/useGameplayStore";
 import {
   GamePhase,
   GameSide,
@@ -30,14 +33,50 @@ import {
   IMovementRangeHex,
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
-} from '@/types/gameplay';
+} from "@/types/gameplay";
 
-import { ActionBar } from './ActionBar';
-import { ConcedeButton } from './ConcedeButton';
-import { EventLogDisplay } from './EventLogDisplay';
-import { HexMapDisplay } from './HexMapDisplay';
-import { PhaseBanner } from './PhaseBanner';
-import { RecordSheetDisplay } from './RecordSheetDisplay';
+import type { MapInteractionState } from "./HexMapDisplay/useMapInteraction";
+
+import { ActionBar } from "./ActionBar";
+import { ConcedeButton } from "./ConcedeButton";
+import { EventLogDisplay } from "./EventLogDisplay";
+import { HotkeyHelpOverlay, HotkeyHintBadge } from "./help/HotkeyHelpOverlay";
+import { HexMapDisplay } from "./HexMapDisplay";
+import { Minimap } from "./minimap/Minimap";
+import { PhaseBanner } from "./PhaseBanner";
+import { RecordSheetDisplay } from "./RecordSheetDisplay";
+
+// No-op stub passed to `useCameraControls` before HexMapDisplay has
+// published its live interaction state. Keeps the hook contract
+// stable (no conditional hook call) and ensures camera actions that
+// arrive during the initial render are harmless no-ops. The shape
+// mirrors MapInteractionState so TypeScript is satisfied; consumers
+// should treat the `enabled` flag as authoritative.
+const noopInteraction: MapInteractionState = {
+  svgRef: { current: null },
+  transformedViewBox: "0 0 0 0",
+  viewBox: { x: 0, y: 0, width: 0, height: 0 },
+  zoom: 1,
+  pan: { x: 0, y: 0 },
+  setZoom: () => {},
+  setPan: () => {},
+  showMovementOverlay: false,
+  setShowMovementOverlay: () => {},
+  showCoverOverlay: false,
+  setShowCoverOverlay: () => {},
+  showLOSOverlay: false,
+  setShowLOSOverlay: () => {},
+  panBy: () => {},
+  zoomTo: () => {},
+  centerOn: () => {},
+  handleWheel: () => {},
+  handleMouseDown: () => {},
+  handleMouseMove: () => {},
+  handleMouseUp: () => {},
+  handleTouchStart: () => {},
+  handleTouchMove: () => {},
+  handleTouchEnd: () => {},
+};
 
 // =============================================================================
 // Types
@@ -105,7 +144,7 @@ export interface GameplayLayoutProps {
    * the map's bottom-left corner during the Movement phase.
    */
   mpLegend?: {
-    readonly active: 'walk' | 'run' | 'jump';
+    readonly active: "walk" | "run" | "jump";
     readonly jumpAvailable: boolean;
   };
   /**
@@ -146,7 +185,7 @@ function unitStateToToken(
   const designation = unitInfo.name
     .split(/[\s-]+/)
     .map((word) => word[0])
-    .join('')
+    .join("")
     .toUpperCase()
     .slice(0, 4);
 
@@ -196,7 +235,7 @@ export function GameplayLayout({
   mpLegend,
   interactiveSession,
   playerSide = GameSide.Player,
-  className = '',
+  className = "",
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
   // Per `add-attack-phase-ui` § 2.2: subscribe to the locked-in attack
@@ -208,6 +247,34 @@ export function GameplayLayout({
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Per `add-minimap-and-camera-controls`: capture the map's live
+  // `useMapInteraction` state via a bridge callback so the minimap,
+  // the `useCameraControls` facade, and the keyboard hotkey layer all
+  // drive the same camera. We hold it in state so React re-renders
+  // the minimap when pan/zoom change. See HexMapDisplay
+  // `onInteractionReady` for the contract.
+  const [mapInteraction, setMapInteraction] =
+    useState<MapInteractionState | null>(null);
+
+  // Minimap visibility (M hotkey toggles).
+  const [minimapVisible, setMinimapVisible] = useState<boolean>(true);
+
+  // Firing-arc overlay toggle (A hotkey). The arc overlay itself is
+  // defined in a sibling change; we track the toggle state here so
+  // the hotkey works consistently across phases even when the arc
+  // renderer is absent — the state bleeds into a data-attribute so
+  // future overlays can subscribe without new plumbing.
+  const [_arcsVisible, setArcsVisible] = useState<boolean>(false);
+
+  // LOS overlay toggle (L hotkey) — forwarded into the map's
+  // interaction state so the existing LOS overlay reacts.
+  const toggleLOS = useCallback(() => {
+    mapInteraction?.setShowLOSOverlay((v) => !v);
+  }, [mapInteraction]);
+
+  // Hotkey help overlay (? hotkey).
+  const [helpOpen, setHelpOpen] = useState<boolean>(false);
+
   // Per `add-interactive-combat-core-ui` § 1.3: on viewports narrower
   // than `lg:` (1024px) the record-sheet pane collapses into a
   // drawer. We track the current breakpoint in state so React can
@@ -216,22 +283,22 @@ export function GameplayLayout({
   // `matchMedia` listener is the canonical reactive way to do this
   // without polling.
   const [isNarrow, setIsNarrow] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === "undefined") return false;
     return window.innerWidth < 1024;
   });
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia('(max-width: 1023.98px)');
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 1023.98px)");
     const update = () => setIsNarrow(mq.matches);
     update();
     // Older Safari uses addListener; prefer addEventListener where
     // available (Chromium/Firefox/modern Safari). Type-guard so we
     // don't crash in jsdom test envs where only one shape exists.
-    if (typeof mq.addEventListener === 'function') {
-      mq.addEventListener('change', update);
-      return () => mq.removeEventListener('change', update);
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", update);
+      return () => mq.removeEventListener("change", update);
     }
     const legacy = mq as MediaQueryList & {
       addListener?: (cb: () => void) => void;
@@ -300,7 +367,7 @@ export function GameplayLayout({
   const tokens = useMemo(() => {
     return Object.entries(currentState.units).map(([unitId, state]) => {
       const unitInfo = unitInfoLookup[unitId] || {
-        name: 'Unknown',
+        name: "Unknown",
         side: GameSide.Player,
       };
       const isSelected = unitId === selectedUnitId;
@@ -367,11 +434,11 @@ export function GameplayLayout({
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
       return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
       };
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
@@ -392,6 +459,83 @@ export function GameplayLayout({
     [onHexClick],
   );
 
+  // Per `add-minimap-and-camera-controls` § 7 (Unit Focus): a double-
+  // click on a token selects the unit AND centers the camera on its
+  // hex. Selection and focus are separate concerns (§ 7.4 requires
+  // both). We look up the unit's current position from the live state
+  // bag so this works regardless of whether the token was already
+  // selected.
+  const handleTokenDoubleClick = useCallback(
+    (unitId: string) => {
+      const unitState = currentState.units[unitId];
+      if (!unitState || !unitState.position) return;
+      onUnitSelect(unitId);
+      mapInteraction?.centerOn(unitState.position, {
+        animate: true,
+        bumpLowZoom: true,
+      });
+    },
+    [currentState.units, onUnitSelect, mapInteraction],
+  );
+
+  // Camera facade — only meaningful once the HexMapDisplay has
+  // mounted and published its interaction. A no-op stub keeps the
+  // hook contract stable while mapInteraction is still null (first
+  // render), so we don't violate the Rules of Hooks with a
+  // conditional hook call.
+  const camera = useCameraControls(mapInteraction ?? noopInteraction);
+
+  // Minimap and hotkey callbacks — declared as stable useCallbacks so
+  // the hotkey hook's dep array doesn't churn on every render.
+  const handleToggleMinimap = useCallback(
+    () => setMinimapVisible((v) => !v),
+    [],
+  );
+  const handleToggleArcs = useCallback(() => setArcsVisible((v) => !v), []);
+  const handleToggleHelp = useCallback(() => setHelpOpen((v) => !v), []);
+  const handleEscape = useCallback(() => {
+    setHelpOpen(false);
+  }, []);
+  const handleCloseHelp = useCallback(() => setHelpOpen(false), []);
+
+  // Selected unit's hex — fed to Space hotkey (recenter on selection).
+  const selectedUnitHex = selectedUnit?.position ?? null;
+
+  useGameplayHotkeys({
+    camera,
+    selectedUnitHex,
+    onToggleMinimap: handleToggleMinimap,
+    onToggleArcs: handleToggleArcs,
+    onToggleLOS: toggleLOS,
+    onToggleHelp: handleToggleHelp,
+    onEscape: handleEscape,
+    modalOpen: helpOpen,
+    enabled: mapInteraction !== null,
+  });
+
+  // Minimap click → center camera. The minimap delivers a world-space
+  // point; we convert to an axial hex via the same math the main map
+  // uses for pixel→hex, then hand off to camera.centerOn.
+  const handleMinimapCenterAt = useCallback(
+    (world: { x: number; y: number }) => {
+      const hex = pixelToHex(world.x, world.y);
+      camera.centerOn(hex);
+    },
+    [camera],
+  );
+
+  // Minimap drag on the viewport rectangle → continuous pan. The
+  // minimap emits world-space delta; we feed it straight into panBy.
+  // `panBy` already takes screen-pixel deltas in the map's space,
+  // and the world-delta from the minimap IS that space (SVG uses
+  // world units as its drawing unit), so no scaling is needed.
+  const handleMinimapDragPan = useCallback(
+    (worldDelta: { x: number; y: number }) => {
+      camera.panBy(-worldDelta.x, -worldDelta.y);
+    },
+    [camera],
+  );
+
   // Per `add-interactive-combat-core-ui` § 4.1/§ 4.2/§ 8: the record
   // sheet pane is rendered in two different containers (desktop split
   // view vs mobile drawer). Factor the body into a single
@@ -410,7 +554,7 @@ export function GameplayLayout({
         maxArmor={maxArmor[selectedUnitId!] || {}}
         maxStructure={maxStructure[selectedUnitId!] || {}}
         weapons={unitWeapons[selectedUnitId!] || []}
-        pilotName={pilotNames[selectedUnitId!] || 'Unknown Pilot'}
+        pilotName={pilotNames[selectedUnitId!] || "Unknown Pilot"}
         gunnery={selectedUnitFromSession.gunnery}
         piloting={selectedUnitFromSession.piloting}
         heatSinks={heatSinks[selectedUnitId!] || 10}
@@ -466,7 +610,7 @@ export function GameplayLayout({
             split-view config. */}
         <div
           className="relative"
-          style={{ width: isNarrow ? '100%' : `${layout.mapPanelWidth}%` }}
+          style={{ width: isNarrow ? "100%" : `${layout.mapPanelWidth}%` }}
           data-testid="map-panel"
         >
           <HexMapDisplay
@@ -481,6 +625,34 @@ export function GameplayLayout({
             onHexClick={handleHexClick}
             onHexHover={onHexHover}
             onTokenClick={handleTokenClick}
+            onTokenDoubleClick={handleTokenDoubleClick}
+            onInteractionReady={setMapInteraction}
+            overlayChildren={
+              <>
+                {/* Minimap — top-right panel driven by the main
+                    camera's live pan/zoom. Receives callbacks that
+                    route clicks and drags back through the same
+                    camera facade the keyboard uses. */}
+                <Minimap
+                  radius={config.mapRadius}
+                  tokens={tokens}
+                  camera={{ zoom: camera.zoom, pan: camera.pan }}
+                  onCenterAt={handleMinimapCenterAt}
+                  onDragPan={handleMinimapDragPan}
+                  visible={minimapVisible}
+                />
+
+                {/* Hotkey help overlay — `?` opens, Esc/`?` closes.
+                    Rendered here so it stacks above the map but below
+                    global modals (if any). */}
+                <HotkeyHelpOverlay open={helpOpen} onClose={handleCloseHelp} />
+
+                {/* First-session prompt — fades out after 8s or on
+                    first help open. HotkeyHintBadge self-reads the
+                    localStorage flag set by HotkeyHelpOverlay. */}
+                <HotkeyHintBadge />
+              </>
+            }
             className="h-full"
           />
           {interactivePhase &&

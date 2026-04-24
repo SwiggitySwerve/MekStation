@@ -50,6 +50,13 @@ export interface UnitTokenForTypeProps {
   /** Click handler — called with the unitId of the token that was clicked. */
   onClick: (unitId: string) => void;
   /**
+   * Double-click handler — per `add-minimap-and-camera-controls`
+   * task 2.3, double-clicking a unit centers the camera on it and
+   * selects it. The dispatcher stops propagation so the map's own
+   * pan-drag doesn't also fire.
+   */
+  onDoubleClick?: (unitId: string) => void;
+  /**
    * Full game-event history. The dispatcher projects down to per-unit state
    * and passes the result into the child renderer as `eventState`.
    */
@@ -138,6 +145,7 @@ function projectEvents(
 export const UnitTokenForType = React.memo(function UnitTokenForType({
   token,
   onClick,
+  onDoubleClick,
   events,
   allTokens,
 }: UnitTokenForTypeProps): React.ReactElement | null {
@@ -145,6 +153,15 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     () => projectEvents(token.unitId, events),
     [token.unitId, events],
   );
+
+  // Double-click handler shared across mounted-badge and standalone
+  // code paths. Per `add-minimap-and-camera-controls` task 2.3, we
+  // stop propagation so the map's pan-drag doesn't also fire.
+  const handleDoubleClick = (e: React.MouseEvent): void => {
+    if (!onDoubleClick) return;
+    e.stopPropagation();
+    onDoubleClick(token.unitId);
+  };
 
   // BA mounted on a mech: render as a badge overlaid on the host mech token,
   // not as a standalone token at its own hex position.
@@ -160,6 +177,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
             e.stopPropagation();
             onClick(token.unitId);
           }}
+          onDoubleClick={handleDoubleClick}
           style={{ cursor: 'pointer' }}
           data-testid={`unit-token-${token.unitId}`}
         >
@@ -184,6 +202,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   const wrapperProps = {
     transform: `translate(${x}, ${y})`,
     onClick: handleClick,
+    onDoubleClick: handleDoubleClick,
     style: { cursor: 'pointer' as const },
     'data-testid': `unit-token-${token.unitId}`,
   };
