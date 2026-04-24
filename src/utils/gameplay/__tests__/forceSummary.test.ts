@@ -182,4 +182,103 @@ describe('deriveForceSummary', () => {
       deriveForceSummary({ side: GameSide.Player, units: [] }),
     ).not.toThrow();
   });
+
+  // =============================================================================
+  // Force Config Stability (game-session-management § Force Config
+  // Stability). Emitted summaries SHALL be immutable snapshots — mutating
+  // one SHALL NOT affect the source or a subsequent derivation.
+  // =============================================================================
+  describe('immutable snapshots (Force Config Stability)', () => {
+    it('returns a frozen summary object (cannot be mutated at runtime)', () => {
+      const summary = deriveForceSummary({
+        side: GameSide.Player,
+        units: [baseUnit()],
+      });
+      expect(Object.isFrozen(summary)).toBe(true);
+      // Attempting to mutate a frozen object throws in strict mode
+      // (Jest runs tests in strict mode via ESM semantics).
+      expect(() => {
+        (summary as { totalBV: number }).totalBV = 9999;
+      }).toThrow();
+    });
+
+    it('returns a frozen spaSummary array (cannot push new entries)', () => {
+      const summary = deriveForceSummary({
+        side: GameSide.Player,
+        units: [
+          baseUnit({
+            unitId: 'u-1',
+            spas: [{ spaId: 'sniper', name: 'Sniper' }],
+          }),
+        ],
+      });
+      expect(Object.isFrozen(summary.spaSummary)).toBe(true);
+      expect(() => {
+        (
+          summary.spaSummary as Array<{
+            spaId: string;
+            name: string;
+            unitIds: readonly string[];
+          }>
+        ).push({ spaId: 'x', name: 'X', unitIds: [] });
+      }).toThrow();
+    });
+
+    it('mutation of one snapshot does not affect a subsequent derivation on the same input', () => {
+      // Spec scenario: "a subsequent onForcesChange emission SHALL
+      // reflect the true session state (not the mutated snapshot)".
+      const input = {
+        side: GameSide.Player,
+        units: [
+          baseUnit({
+            unitId: 'u-1',
+            battleValue: 1500,
+            spas: [{ spaId: 'sniper', name: 'Sniper' }],
+          }),
+        ],
+      };
+
+      const first = deriveForceSummary(input);
+
+      // Attempt to mutate the first snapshot. Freezing guarantees this
+      // throws; we catch so the test still exercises the stability
+      // invariant regardless of strict-mode semantics.
+      try {
+        (
+          first.spaSummary as Array<{
+            spaId: string;
+            name: string;
+            unitIds: readonly string[];
+          }>
+        ).push({ spaId: 'tampered', name: 'Tampered', unitIds: ['u-fake'] });
+      } catch {
+        /* expected — object is frozen */
+      }
+
+      const second = deriveForceSummary(input);
+
+      // Second derivation is a fresh object, untouched by the attempted
+      // tampering on `first`.
+      expect(second).not.toBe(first);
+      expect(second.spaSummary).toHaveLength(1);
+      expect(second.spaSummary[0].spaId).toBe('sniper');
+      expect(second.totalBV).toBe(1500);
+    });
+
+    it('two derivations on the same input are deeply equal (stable snapshots)', () => {
+      // Spec scenario: "Deep-equal snapshots across emissions". Same
+      // input must produce deeply-equal output so subscribers can rely
+      // on referential-stability semantics when nothing changed.
+      const input = {
+        side: GameSide.Player,
+        units: [
+          baseUnit({ unitId: 'u-1', battleValue: 1500 }),
+          baseUnit({ unitId: 'u-2', battleValue: 2000 }),
+        ],
+      };
+      const first = deriveForceSummary(input);
+      const second = deriveForceSummary(input);
+      expect(second).toEqual(first);
+    });
+  });
 });
