@@ -3,6 +3,8 @@
  *
  * @spec openspec/changes/add-vehicle-combat-behavior/specs/combat-resolution/spec.md
  *   #requirement vehicle-combat-dispatch
+ * @spec openspec/changes/add-battlearmor-combat-behavior/specs/combat-resolution/spec.md
+ *   #requirement battlearmor-combat-dispatch
  */
 
 import {
@@ -14,6 +16,7 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import type { IUnitDamageState } from '../damage/types';
 
+import { createBattleArmorCombatState } from '../battlearmor/state';
 import { dispatchDamage } from '../damageDispatch';
 import { createVehicleCombatState } from '../vehicleDamage';
 
@@ -102,6 +105,39 @@ describe('damageDispatch', () => {
     expect(r.kind).toBe('mech');
     if (r.kind === 'mech') {
       expect(r.result.locationDamages.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('routes battlearmor input to battleArmorResolveDamage', () => {
+    // Spec: BattleArmor Combat Dispatch — a BA target SHALL be resolved by
+    // the BA-specific pipeline, with damage distributed across surviving
+    // troopers. We use a deterministic d6 roller so the trooper selection is
+    // reproducible (any value works because there's only one hit).
+    const baState = createBattleArmorCombatState({
+      unitId: 'ba-1',
+      squadSize: 4,
+      armorPointsPerTrooper: 5,
+      stealthKind: 'none',
+      hasMagneticClamp: false,
+      hasVibroClaws: false,
+      vibroClawCount: 0,
+    });
+
+    const r = dispatchDamage({
+      kind: 'battlearmor',
+      state: baState,
+      perHitDamage: [3],
+      options: { diceRoller: () => 4 }, // 4 % 4 = 0 → trooper index 0
+    });
+
+    expect(r.kind).toBe('battlearmor');
+    if (r.kind === 'battlearmor') {
+      // At least one trooper took damage from the dispatched hit.
+      expect(r.result.hits.length).toBeGreaterThanOrEqual(1);
+      expect(r.result.hits[0].damage).toBe(3);
+      // The selected trooper's armor pool reflects the hit (5 - 3 = 2).
+      const hitIdx = r.result.hits[0].trooperIndex;
+      expect(r.state.troopers[hitIdx].armorRemaining).toBe(2);
     }
   });
 });
