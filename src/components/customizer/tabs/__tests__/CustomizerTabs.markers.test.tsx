@@ -140,6 +140,62 @@ describe('CustomizerTabs — error markers', () => {
     const marker = screen.getByRole('img', { name: 'Validation error' });
     expect(marker).toHaveAttribute('title', 'Validation error');
   });
+
+  // Spec § Requirement: Validation Error Markers —
+  // "an ARIA label naming the failing rule (`VAL-VEHICLE-ARMOR-MAX`)".
+  describe('rule-code ARIA labels (Map form)', () => {
+    it('uses the rule code from the Map as the ARIA label', () => {
+      renderTabs({
+        errorTabs: new Map([['armor', 'VAL-VEHICLE-ARMOR-MAX']]),
+      });
+
+      const marker = screen.getByRole('img', { name: 'VAL-VEHICLE-ARMOR-MAX' });
+      expect(marker).toBeInTheDocument();
+      const armorBtn = screen.getByRole('tab', { name: 'Armor' });
+      expect(armorBtn).toContainElement(marker);
+    });
+
+    it('uses the rule code as the tooltip title as well', () => {
+      renderTabs({
+        errorTabs: new Map([['armor', 'VAL-VEHICLE-ARMOR-MAX']]),
+      });
+
+      const marker = screen.getByRole('img', { name: 'VAL-VEHICLE-ARMOR-MAX' });
+      expect(marker).toHaveAttribute('title', 'VAL-VEHICLE-ARMOR-MAX');
+    });
+
+    it('renders distinct rule codes per tab when multiple tabs have errors', () => {
+      renderTabs({
+        errorTabs: new Map([
+          ['armor', 'VAL-VEHICLE-ARMOR-MAX'],
+          ['equipment', 'VAL-VEHICLE-EQUIP-WEIGHT'],
+        ]),
+      });
+
+      expect(
+        screen.getByRole('img', { name: 'VAL-VEHICLE-ARMOR-MAX' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('img', { name: 'VAL-VEHICLE-EQUIP-WEIGHT' }),
+      ).toBeInTheDocument();
+    });
+
+    it('falls back to generic label when Map entry has an empty rule code', () => {
+      renderTabs({
+        errorTabs: new Map([['armor', '']]),
+      });
+
+      const marker = screen.getByRole('img', { name: 'Validation error' });
+      expect(marker).toBeInTheDocument();
+    });
+
+    it('falls back to generic label when errorTabs is a plain Set', () => {
+      renderTabs({ errorTabs: new Set(['armor']) });
+
+      const marker = screen.getByRole('img', { name: 'Validation error' });
+      expect(marker).toBeInTheDocument();
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------
