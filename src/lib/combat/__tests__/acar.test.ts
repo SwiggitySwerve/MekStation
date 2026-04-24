@@ -239,6 +239,153 @@ describe('distributeDamage — aerospace fly-off survival', () => {
   });
 });
 
+// Spec: combat-resolution — "Routed infantry surviving at 0 combat strength"
+// (openspec/changes/add-infantry-combat-behavior/specs/combat-resolution/spec.md)
+describe('distributeDamage — routed infantry survivor', () => {
+  it('treats a routed infantry platoon as surviving-but-withdrawn (not wrecked)', () => {
+    // Routed + not destroyed → record only actual casualties taken, no RNG.
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['inf-1', { routed: true, destroyed: false, actualDamagePercent: 35 }],
+    ]);
+    const result = distributeDamage(['inf-1'], 0.8, seededRandom, unitStates);
+
+    expect(result.size).toBe(1);
+    expect(result.get('inf-1')).toBe(35);
+    // Survivor must NOT be at 100% (not wrecked).
+    expect(result.get('inf-1')).toBeLessThan(100);
+    // No RNG roll for the routed survivor.
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+
+  it('still classifies a destroyed routed infantry platoon as wrecked (100%)', () => {
+    // Routed + destroyed → still wrecked (e.g. shot up while fleeing).
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['inf-1', { routed: true, destroyed: true }],
+    ]);
+    const result = distributeDamage(['inf-1'], 0.3, seededRandom, unitStates);
+
+    expect(result.get('inf-1')).toBe(100);
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+
+  it('defaults actualDamagePercent to 0 when omitted for a routed survivor', () => {
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['inf-1', { routed: true, destroyed: false }],
+    ]);
+    const result = distributeDamage(['inf-1'], 0.8, seededRandom, unitStates);
+
+    expect(result.get('inf-1')).toBe(0);
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+});
+
+// Spec: combat-resolution — "Abandoned proto counts as destroyed"
+// (openspec/changes/add-protomech-combat-behavior/specs/combat-resolution/spec.md)
+describe('distributeDamage — abandoned proto', () => {
+  it('forces 100% damage on abandonedProto=true even without destroyed flag', () => {
+    // Pilot-kill abandonment → unit lost for victory/salvage. Skip RNG.
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['proto-1', { abandonedProto: true }],
+    ]);
+    const result = distributeDamage(['proto-1'], 0.8, seededRandom, unitStates);
+
+    expect(result.get('proto-1')).toBe(100);
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+
+  it('forces 100% even when actualDamagePercent suggests survival', () => {
+    // Distinct from offMap survivor: abandonment overrides actualDamagePercent.
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['proto-1', { abandonedProto: true, actualDamagePercent: 20 }],
+    ]);
+    const result = distributeDamage(['proto-1'], 0.5, seededRandom, unitStates);
+
+    expect(result.get('proto-1')).toBe(100);
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+});
+
+// Spec: combat-resolution — "Vehicle damage respects motive penalties"
+// (openspec/changes/add-vehicle-combat-behavior/specs/combat-resolution/spec.md)
+describe('distributeDamage — immobilized vehicle', () => {
+  it('treats an immobilized vehicle as combat-eligible salvage (not wreckage)', () => {
+    // Motive-killed vehicle with intact chassis → record actual damage only.
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      [
+        'tank-1',
+        { immobilized: true, destroyed: false, actualDamagePercent: 45 },
+      ],
+    ]);
+    const result = distributeDamage(['tank-1'], 0.8, seededRandom, unitStates);
+
+    expect(result.get('tank-1')).toBe(45);
+    expect(result.get('tank-1')).toBeLessThan(100);
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+
+  it('classifies an immobilized + destroyed vehicle as wrecked (100%)', () => {
+    // Immobilized then catastrophically destroyed → wreckage.
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['tank-1', { immobilized: true, destroyed: true }],
+    ]);
+    const result = distributeDamage(['tank-1'], 0.3, seededRandom, unitStates);
+
+    expect(result.get('tank-1')).toBe(100);
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+});
+
+// Spec: combat-resolution — "Partial BA squad survival"
+// (openspec/changes/add-battlearmor-combat-behavior/specs/combat-resolution/spec.md)
+describe('distributeDamage — BA squad strength', () => {
+  it('records 50% damage for a 4-trooper squad at 50% strength (2 alive)', () => {
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['ba-1', { squadStrengthPercent: 50 }],
+    ]);
+    const result = distributeDamage(['ba-1'], 0.8, seededRandom, unitStates);
+
+    expect(result.get('ba-1')).toBe(50);
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+
+  it('records 75% damage at 25% strength (1 of 4 troopers alive)', () => {
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['ba-1', { squadStrengthPercent: 25 }],
+    ]);
+    const result = distributeDamage(['ba-1'], 0.8, seededRandom, unitStates);
+
+    expect(result.get('ba-1')).toBe(75);
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+
+  it('clamps squadStrengthPercent at the lower bound (negative → 100% damage)', () => {
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['ba-1', { squadStrengthPercent: -10 }],
+    ]);
+    const result = distributeDamage(['ba-1'], 0.5, () => 0.5, unitStates);
+
+    expect(result.get('ba-1')).toBe(100);
+  });
+
+  it('clamps squadStrengthPercent at the upper bound (>100 → 0% damage)', () => {
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['ba-1', { squadStrengthPercent: 250 }],
+    ]);
+    const result = distributeDamage(['ba-1'], 0.5, () => 0.5, unitStates);
+
+    expect(result.get('ba-1')).toBe(0);
+  });
+});
+
 describe('determineCasualties', () => {
   it('should return empty Map when personnelIds array is empty', () => {
     const result = determineCasualties([], 0.5);
