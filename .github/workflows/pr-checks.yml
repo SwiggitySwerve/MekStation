@@ -11,6 +11,41 @@ env:
 
 jobs:
   # ---------------------------------------------------------------
+  # detect-changes gates the expensive build jobs. Docs/openspec-only
+  # PRs skip prepare-build and the 3-platform build-test matrix.
+  # ---------------------------------------------------------------
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Filter paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'public/**'
+              - 'desktop/**'
+              - 'scripts/**'
+              - 'config/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'next.config.*'
+              - 'tsconfig.json'
+              - 'jest.config.*'
+              - 'jest.setup.*'
+              - '.babelrc*'
+              - '.github/workflows/**'
+              - '.github/actions/**'
+
+  # ---------------------------------------------------------------
   # install-deps runs first so the other lint/test/type/build jobs
   # can reuse a single `npm ci`. It populates the node_modules cache
   # keyed on (OS, node version, lockfile hash); fan-out jobs restore
@@ -153,6 +188,8 @@ jobs:
 
   prepare-build:
     name: Prepare Build Artifacts
+    needs: detect-changes
+    if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -189,7 +226,8 @@ jobs:
 
   build-test:
     name: Build Test / ${{ matrix.platform }}
-    needs: prepare-build
+    needs: [detect-changes, prepare-build]
+    if: needs.detect-changes.outputs.code == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
