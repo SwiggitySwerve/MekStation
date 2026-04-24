@@ -5,6 +5,7 @@ import {
   distributeDamage,
   determineCasualties,
   resolveScenario,
+  type IUnitDamageState,
 } from '../acar';
 
 describe('calculateVictoryProbability', () => {
@@ -152,6 +153,89 @@ describe('distributeDamage', () => {
     const result = distributeDamage(['unit1'], 0, seededRandom);
     expect(result.size).toBe(1);
     expect(result.get('unit1')).toBe(0); // 0 * (0.5 + 1.0 * 0.5) * 100 = 0
+  });
+});
+
+// Spec: combat-resolution — "Aerospace fly-off counts as surviving"
+// (openspec/changes/add-aerospace-combat-behavior/specs/combat-resolution/spec.md)
+describe('distributeDamage — aerospace fly-off survival', () => {
+  it('treats an off-map aerospace unit as surviving, not wrecked', () => {
+    // Off-map + not destroyed → record only the actual SI/arc damage,
+    // bypass the severity roll entirely. RNG must not be consumed.
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['asf-1', { offMap: true, destroyed: false, actualDamagePercent: 22 }],
+    ]);
+    const result = distributeDamage(['asf-1'], 0.8, seededRandom, unitStates);
+
+    expect(result.size).toBe(1);
+    expect(result.get('asf-1')).toBe(22);
+    // Survivor must NOT be at 100% (not wrecked).
+    expect(result.get('asf-1')).toBeLessThan(100);
+    // No RNG roll for the off-map survivor.
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+
+  it('still classifies a destroyed off-map aerospace unit as wrecked (100%)', () => {
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['asf-1', { offMap: true, destroyed: true }],
+    ]);
+    const result = distributeDamage(['asf-1'], 0.3, seededRandom, unitStates);
+
+    expect(result.get('asf-1')).toBe(100);
+    expect(seededRandom).not.toHaveBeenCalled();
+  });
+
+  it('defaults actualDamagePercent to 0 when omitted for an off-map survivor', () => {
+    const seededRandom = jest.fn(() => 0.5);
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['asf-1', { offMap: true, destroyed: false }],
+    ]);
+    const result = distributeDamage(['asf-1'], 0.8, seededRandom, unitStates);
+
+    expect(result.get('asf-1')).toBe(0);
+  });
+
+  it('clamps actualDamagePercent into [0, 100] for off-map survivors', () => {
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['hi', { offMap: true, destroyed: false, actualDamagePercent: 250 }],
+      ['lo', { offMap: true, destroyed: false, actualDamagePercent: -10 }],
+    ]);
+    const result = distributeDamage(['hi', 'lo'], 0.5, () => 0.5, unitStates);
+
+    expect(result.get('hi')).toBe(100);
+    expect(result.get('lo')).toBe(0);
+  });
+
+  it('mixes survivors and on-field units in a single distribution', () => {
+    // Two on-field units roll normally, one off-map survivor records 15.
+    let call = 0;
+    const seededRandom = () => {
+      call += 1;
+      // 0.0 then 1.0 → on-field units get min then max severity damage.
+      return call === 1 ? 0.0 : 1.0;
+    };
+    const unitStates = new Map<string, IUnitDamageState>([
+      ['asf-1', { offMap: true, destroyed: false, actualDamagePercent: 15 }],
+    ]);
+    const result = distributeDamage(
+      ['mech-1', 'asf-1', 'mech-2'],
+      0.8,
+      seededRandom,
+      unitStates,
+    );
+
+    expect(result.get('mech-1')).toBeCloseTo(40, 5); // 0.8 * (0.5 + 0.0 * 0.5) * 100
+    expect(result.get('asf-1')).toBe(15); // survivor — actual damage only
+    expect(result.get('mech-2')).toBeCloseTo(80, 5); // 0.8 * (0.5 + 1.0 * 0.5) * 100
+  });
+
+  it('falls back to legacy distribution when unitStates is omitted', () => {
+    // Existing call sites (no unitStates) must keep current behavior.
+    const seededRandom = () => 0.5;
+    const result = distributeDamage(['unit1'], 0.5, seededRandom);
+    expect(result.get('unit1')).toBeCloseTo(37.5, 5);
   });
 });
 

@@ -18,6 +18,39 @@ export interface ISalvageItem {
 }
 
 /**
+ * Per-unit combat state hint for damage distribution.
+ *
+ * The default `distributeDamage(unitIds, severity, random)` path treats every
+ * unit as a participant on the field — its damage is rolled by severity.
+ * For aerospace units that fled the map before the battle ended, the spec
+ * (combat-resolution: "Aerospace fly-off counts as surviving") says we
+ * MUST NOT treat them as wrecked. They are surviving units, and only the
+ * actual SI/arc damage they took should be recorded.
+ *
+ * Callers that have access to per-unit combat state can pass a map of
+ * `unitId → IUnitDamageState` to `distributeDamage` to opt into this
+ * behavior. Existing callers that pass nothing keep the legacy distribution.
+ *
+ * @spec openspec/changes/add-aerospace-combat-behavior/specs/combat-resolution/spec.md
+ */
+export interface IUnitDamageState {
+  /**
+   * True when the unit flew off the map before the battle ended (aerospace).
+   * Off-map + not-destroyed → surviving, with `actualDamagePercent` recorded.
+   * Off-map + destroyed → still wrecked (caller should set destroyed=true).
+   */
+  offMap?: boolean;
+  /** True when the unit was destroyed during the battle. */
+  destroyed?: boolean;
+  /**
+   * Actual damage taken during the battle as a percentage (0-100).
+   * Used when `offMap` is true and `destroyed` is false. Defaults to 0
+   * if omitted.
+   */
+  actualDamagePercent?: number;
+}
+
+/**
  * Result of resolving a combat scenario
  */
 export interface ResolveScenarioResult {
@@ -58,27 +91,67 @@ export function calculateVictoryProbability(
 }
 
 /**
- * Distributes damage across multiple units based on severity
- * Each unit receives damage calculated as: severity * (0.5 + random() * 0.5) * 100, capped at 100%
+ * Distributes damage across multiple units based on severity.
+ *
+ * Each unit receives damage calculated as
+ * `severity * (0.5 + random() * 0.5) * 100`, capped at 100%.
+ *
+ * When the optional `unitStates` map is provided, units flagged with
+ * `offMap=true` and `destroyed=false` are treated as having survived (per
+ * the aerospace fly-off spec scenario): their reported damage equals the
+ * unit's `actualDamagePercent` (defaulting to 0) — NOT a severity-driven
+ * roll — and no random number is consumed for them. Units with
+ * `destroyed=true` get a flat 100% damage and skip the RNG. This keeps
+ * fly-off survivors out of the wrecked bucket while preserving exact
+ * legacy behavior for every caller that omits the map.
  *
  * @param unitIds - Array of unit identifiers to distribute damage to
  * @param severity - Damage severity multiplier between 0 and 1
  * @param random - Optional random number generator function (defaults to Math.random)
+ * @param unitStates - Optional per-unit combat-state hints. When supplied,
+ *                     off-map / destroyed units are handled deterministically.
  * @returns Map of unitId to damage percentage (0-100)
  *
  * @example
  * distributeDamage(['unit1', 'unit2'], 0.8)
  * // Returns Map { 'unit1' => 65.3, 'unit2' => 72.1 }
+ *
+ * @example
+ * distributeDamage(['asf-1'], 0.8, rng, new Map([
+ *   ['asf-1', { offMap: true, destroyed: false, actualDamagePercent: 22 }],
+ * ]))
+ * // Returns Map { 'asf-1' => 22 } — survivor, only actual damage recorded.
+ *
+ * @spec openspec/changes/add-aerospace-combat-behavior/specs/combat-resolution/spec.md
  */
 export function distributeDamage(
   unitIds: string[],
   severity: number,
   random: () => number = Math.random,
+  unitStates?: Map<string, IUnitDamageState>,
 ): Map<string, number> {
   const damageMap = new Map<string, number>();
 
   for (const unitId of unitIds) {
-    // Formula: severity * (0.5 + random() * 0.5) * 100, capped at 100
+    const state = unitStates?.get(unitId);
+
+    if (state?.destroyed === true) {
+      // Destroyed units (including off-map ones that died during fly-off)
+      // are wrecked: 100% damage. RNG is not consumed.
+      damageMap.set(unitId, 100);
+      continue;
+    }
+
+    if (state?.offMap === true) {
+      // Aerospace fly-off survivor: NOT wrecked. Record only the actual
+      // SI/arc damage taken before exiting the map. RNG is not consumed
+      // so deterministic callers stay deterministic.
+      const actual = state.actualDamagePercent ?? 0;
+      damageMap.set(unitId, Math.max(0, Math.min(actual, 100)));
+      continue;
+    }
+
+    // Default path: severity * (0.5 + random() * 0.5) * 100, capped at 100
     const damage = Math.min(severity * (0.5 + random() * 0.5) * 100, 100);
     damageMap.set(unitId, damage);
   }
