@@ -8,24 +8,25 @@
  * @spec openspec/changes/add-infantry-construction/specs/infantry-unit-system/spec.md
  */
 
-import { RulesLevel } from "@/types/enums/RulesLevel";
-import { TechBase } from "@/types/enums/TechBase";
-import { SquadMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
-import { IInfantryFieldGun } from "@/types/unit/InfantryInterfaces";
+import type { IInfantryBVBreakdown } from '@/utils/construction/infantry/infantryBV';
+
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { IInfantryFieldGun } from '@/types/unit/InfantryInterfaces';
 import {
   InfantryMotive,
   IPlatoonComposition,
   PLATOON_DEFAULTS,
   MOTIVE_MP,
-} from "@/types/unit/InfantryInterfaces";
+} from '@/types/unit/InfantryInterfaces';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
-} from "@/types/unit/PersonnelInterfaces";
-import type { IInfantryBVBreakdown } from "@/utils/construction/infantry/infantryBV";
-import { computeInfantryBVFromState } from "@/utils/construction/infantry/infantryBVAdapter";
-import { generateUnitId as generateUUID } from "@/utils/uuid";
+} from '@/types/unit/PersonnelInterfaces';
+import { computeInfantryBVFromState } from '@/utils/construction/infantry/infantryBVAdapter';
+import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
 // Infantry State Interface
@@ -285,16 +286,16 @@ export function createDefaultInfantryState(
 ): InfantryState {
   const now = Date.now();
   const id = options.id ?? generateUUID();
-  const chassis = options.chassis ?? "Rifle Platoon";
-  const model = options.model ?? "";
+  const chassis = options.chassis ?? 'Rifle Platoon';
+  const model = options.model ?? '';
 
   return {
     // Identity
     id,
-    name: `${chassis}${model ? " " + model : ""}`,
+    name: `${chassis}${model ? ' ' + model : ''}`,
     chassis,
     model,
-    mulId: "-1",
+    mulId: '-1',
     year: 3025,
     rulesLevel: RulesLevel.INTRODUCTORY,
 
@@ -312,7 +313,7 @@ export function createDefaultInfantryState(
     jumpMP: MOTIVE_MP[InfantryMotive.FOOT].jumpMP,
 
     // Weapons
-    primaryWeapon: "Rifle",
+    primaryWeapon: 'Rifle',
     primaryWeaponId: undefined,
     secondaryWeapon: undefined,
     secondaryWeaponId: undefined,

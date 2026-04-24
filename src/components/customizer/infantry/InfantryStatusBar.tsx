@@ -12,12 +12,12 @@
  * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
  */
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState } from 'react';
 
-import { useInfantryStore } from "@/stores/useInfantryStore";
-import { totalTroopers } from "@/utils/construction/infantry/platoonComposition";
+import { useInfantryStore } from '@/stores/useInfantryStore';
+import { totalTroopers } from '@/utils/construction/infantry/platoonComposition';
 
-import { InfantryBVBreakdownDialog } from "./InfantryBVBreakdownDialog";
+import { InfantryBVBreakdownDialog } from './InfantryBVBreakdownDialog';
 
 // =============================================================================
 // Types
@@ -34,7 +34,7 @@ interface StatusItemProps {
   label: string;
   value: string | number;
   subValue?: string;
-  status?: "normal" | "warning" | "error" | "success";
+  status?: 'normal' | 'warning' | 'error' | 'success';
 }
 
 // =============================================================================
@@ -45,13 +45,13 @@ function StatusItem({
   label,
   value,
   subValue,
-  status = "normal",
+  status = 'normal',
 }: StatusItemProps): React.ReactElement {
   const statusColors: Record<string, string> = {
-    normal: "text-white",
-    warning: "text-amber-400",
-    error: "text-red-400",
-    success: "text-green-400",
+    normal: 'text-white',
+    warning: 'text-amber-400',
+    error: 'text-red-400',
+    success: 'text-green-400',
   };
 
   return (
@@ -90,7 +90,7 @@ function StatusItem({
  * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
  */
 export function InfantryStatusBar({
-  className = "",
+  className = '',
   compact = false,
 }: InfantryStatusBarProps): React.ReactElement {
   // Identity / composition — pulled individually to preserve fine-grained
@@ -132,14 +132,14 @@ export function InfantryStatusBar({
         </span>
         <span className="text-text-theme-secondary">
           {groundMP}
-          {jumpMP > 0 ? `/${jumpMP}J` : ""} MP
+          {jumpMP > 0 ? `/${jumpMP}J` : ''} MP
         </span>
         {hasAntiMechTraining && (
           <span className="text-text-theme-secondary">Anti-Mech</span>
         )}
         {fieldGuns.length > 0 && (
           <span className="text-text-theme-secondary">
-            {fieldGuns.length} gun{fieldGuns.length === 1 ? "" : "s"}
+            {fieldGuns.length} gun{fieldGuns.length === 1 ? '' : 's'}
           </span>
         )}
         {bvBreakdown && (
@@ -167,7 +167,7 @@ export function InfantryStatusBar({
         <StatusItem
           label="Motive"
           value={infantryMotive}
-          subValue={`${groundMP}${jumpMP > 0 ? `/${jumpMP}J` : ""} MP`}
+          subValue={`${groundMP}${jumpMP > 0 ? `/${jumpMP}J` : ''} MP`}
         />
 
         {/* Armor kit */}
@@ -176,8 +176,8 @@ export function InfantryStatusBar({
         {/* Anti-Mech */}
         <StatusItem
           label="Anti-Mech"
-          value={hasAntiMechTraining ? "Yes" : "No"}
-          status={hasAntiMechTraining ? "success" : "normal"}
+          value={hasAntiMechTraining ? 'Yes' : 'No'}
+          status={hasAntiMechTraining ? 'success' : 'normal'}
         />
 
         {/* Field Guns */}
@@ -186,8 +186,8 @@ export function InfantryStatusBar({
           value={fieldGuns.length}
           subValue={
             fieldGuns.length > 0
-              ? fieldGuns.map((g) => g.name).join(", ")
-              : "none"
+              ? fieldGuns.map((g) => g.name).join(', ')
+              : 'none'
           }
         />
 
