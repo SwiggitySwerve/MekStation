@@ -7,17 +7,17 @@ import {
   IHexGrid,
   IMovementCapability,
   MovementType,
-} from "@/types/gameplay";
-import { TERRAIN_PROPERTIES, TerrainType } from "@/types/gameplay/TerrainTypes";
+} from '@/types/gameplay';
+import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
 import {
   getHeatMovementPenalty,
   isTSMActive,
-} from "@/types/validation/HeatManagement";
+} from '@/types/validation/HeatManagement';
 
-import type { UnitMovementType } from "./types";
+import type { UnitMovementType } from './types';
 
-import { getHex } from "../hexGrid";
-import { hexDistance } from "../hexMath";
+import { getHex } from '../hexGrid';
+import { hexDistance } from '../hexMath';
 
 /**
  * Calculate running MP from walking MP.
@@ -88,7 +88,7 @@ function getRawMaxMP(
 export function getHexMovementCost(
   grid: IHexGrid,
   coord: IHexCoordinate,
-  movementType: UnitMovementType = "walk",
+  movementType: UnitMovementType = 'walk',
   fromCoord?: IHexCoordinate,
 ): number {
   const hex = getHex(grid, coord);
@@ -105,14 +105,14 @@ export function getHexMovementCost(
       terrainModifier = terrainProps.movementCostModifier[movementType] || 0;
 
       if (terrainType === TerrainType.Water) {
-        if (movementType === "walk" || movementType === "run") {
+        if (movementType === 'walk' || movementType === 'run') {
           return Infinity;
         }
       }
     }
   }
 
-  if (movementType === "jump") {
+  if (movementType === 'jump') {
     terrainModifier = 0;
   }
 
@@ -126,7 +126,7 @@ export function getHexMovementCost(
 
         if (
           elevationChange > 2 &&
-          (movementType === "walk" || movementType === "run")
+          (movementType === 'walk' || movementType === 'run')
         ) {
           return Infinity;
         }
