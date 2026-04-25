@@ -14,16 +14,11 @@ import {
   AerospaceMotionType,
   IAerospaceMovement,
 } from '@/types/unit/BaseUnitInterfaces';
-import { IBaseUnit } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import {
-  ICapitalMountedEquipment,
-  ITransportBay,
-  ICrewQuarters,
-  ICapitalCrewConfiguration,
-} from '@/types/unit/CapitalShipInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+
+import type { ISpaceStation } from './SpaceStationUnitHandler.types';
 
 import {
   AbstractUnitTypeHandler,
@@ -44,58 +39,15 @@ import {
   parseNumericRaw,
   getBooleanFromRaw,
 } from './SpaceStationUnitHandler.helpers';
+import { SpaceStationType } from './SpaceStationUnitHandler.types';
 
-// ============================================================================
-// Space Station Interface
-// ============================================================================
-
-/**
- * Space station type
- */
-export enum SpaceStationType {
-  ORBITAL = 'Orbital',
-  DEEP_SPACE = 'Deep Space',
-  RECHARGE_STATION = 'Recharge Station',
-  SHIPYARD = 'Shipyard',
-  HABITAT = 'Habitat',
-  MILITARY = 'Military',
-}
-
-/**
- * Space Station unit interface
- */
-export interface ISpaceStation extends IBaseUnit {
-  readonly unitType: UnitType.SPACE_STATION;
-  readonly motionType: AerospaceMotionType.SPHEROID;
-  readonly stationType: SpaceStationType;
-  readonly movement: IAerospaceMovement;
-  readonly fuel: number;
-  readonly structuralIntegrity: number;
-  readonly heatSinks: number;
-  readonly heatSinkType: number;
-  readonly armorType: number;
-  readonly armor: readonly number[];
-  readonly armorByArc: {
-    readonly nose: number;
-    readonly frontLeftSide: number;
-    readonly frontRightSide: number;
-    readonly aftLeftSide: number;
-    readonly aftRightSide: number;
-    readonly aft: number;
-  };
-  readonly totalArmorPoints: number;
-  readonly dockingCollars: number;
-  readonly gravDecks: number;
-  readonly crewConfiguration: ICapitalCrewConfiguration;
-  readonly transportBays: readonly ITransportBay[];
-  readonly quarters: readonly ICrewQuarters[];
-  readonly equipment: readonly ICapitalMountedEquipment[];
-  readonly escapePods: number;
-  readonly lifeBoats: number;
-  readonly hasHPG: boolean;
-  readonly hasKFDrive: boolean;
-  readonly pressurizedModules: number;
-}
+// Re-export the handler-local interface and station-type enum so
+// existing consumers can still import them from this module (or via
+// the barrel `index.ts`). The canonical definitions now live in
+// `./SpaceStationUnitHandler.types` to break the orchestrator <->
+// leaf circular import.
+export { SpaceStationType };
+export type { ISpaceStation };
 
 // ============================================================================
 // Space Station Unit Handler
