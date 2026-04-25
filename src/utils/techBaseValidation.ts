@@ -1,98 +1,42 @@
 /**
- * Tech Base Validation Utilities
+ * Tech Base Validation Utilities - Public Aggregator
  *
- * Abstracted validation system for component selections based on tech base.
- * Uses a registry pattern to make it easy to add new component types.
+ * High-level entry point used by stores and UI code. Re-exports the
+ * shared types, the validator registry, and the helper functions, and
+ * provides the orchestrating `getFullyValidatedSelections` function
+ * plus the per-component getValidTypes/isValid/getDefault aliases.
+ *
+ * The shared interfaces and the COMPONENT_VALIDATORS registry live in
+ * `techBaseValidation.types.ts`. The selection-update helpers live in
+ * `techBaseValidation.helpers.ts`. The component-to-affected-selection
+ * mapping lives in `techBaseValidation.mapping.ts`. None of those may
+ * import from this file or a 3-way cycle returns.
  *
  * @spec openspec/specs/component-configuration/spec.md
  * @spec openspec/specs/tech-base-integration/spec.md
  */
 
 import { ISelectionMemory } from '@/stores/unitState';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { IComponentTechBases } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 
-import {
-  filterEngineTypes,
-  filterGyroTypes,
-  filterStructureTypes,
-  filterCockpitTypes,
-  filterHeatSinkTypes,
-  filterArmorTypes,
-} from './techBaseValidation.filters';
 import { getValueWithMemory } from './techBaseValidation.helpers';
+import {
+  COMPONENT_VALIDATORS,
+  type ComponentSelections,
+} from './techBaseValidation.types';
+
+// Re-export shared types/registry so existing consumers keep working.
+export {
+  COMPONENT_VALIDATORS,
+  type ComponentSelections,
+  type ComponentValidator,
+} from './techBaseValidation.types';
 
 export {
   getValidatedSelectionUpdates,
   getSelectionWithMemory,
 } from './techBaseValidation.helpers';
-
-// =============================================================================
-// Component Selections Interface
-// =============================================================================
-
-export interface ComponentSelections {
-  engineType: EngineType;
-  gyroType: GyroType;
-  internalStructureType: InternalStructureType;
-  cockpitType: CockpitType;
-  heatSinkType: HeatSinkType;
-  armorType: ArmorTypeEnum;
-}
-
-// =============================================================================
-// Component Validator Interface
-// =============================================================================
-
-export interface ComponentValidator<T> {
-  getValidTypes: (techBase: TechBase) => T[];
-  isValid: (value: T, techBase: TechBase) => boolean;
-  getDefault: (techBase: TechBase) => T;
-  fallbackDefault: T;
-}
-
-/**
- * Create a validator for a component type
- */
-function createValidator<T>(
-  filterFn: (techBase: TechBase) => T[],
-  fallbackDefault: T,
-): ComponentValidator<T> {
-  return {
-    getValidTypes: filterFn,
-    isValid: (value: T, techBase: TechBase) =>
-      filterFn(techBase).includes(value),
-    getDefault: (techBase: TechBase) =>
-      filterFn(techBase)[0] ?? fallbackDefault,
-    fallbackDefault,
-  };
-}
-
-// =============================================================================
-// Component Validators Registry
-// =============================================================================
-
-/**
- * Registry of all component validators
- * Add new component types here to integrate them into the validation system
- */
-export const COMPONENT_VALIDATORS = {
-  engine: createValidator(filterEngineTypes, EngineType.STANDARD),
-  gyro: createValidator(filterGyroTypes, GyroType.STANDARD),
-  structure: createValidator(
-    filterStructureTypes,
-    InternalStructureType.STANDARD,
-  ),
-  cockpit: createValidator(filterCockpitTypes, CockpitType.STANDARD),
-  heatSink: createValidator(filterHeatSinkTypes, HeatSinkType.SINGLE),
-  armor: createValidator(filterArmorTypes, ArmorTypeEnum.STANDARD),
-} as const;
 
 // =============================================================================
 // Public API - Generic Functions
