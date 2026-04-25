@@ -27,6 +27,7 @@ import {
 import {
   validateArmor,
   armorMassKg,
+  camoBodySlots,
 } from '@/utils/construction/battlearmor/armor';
 import {
   getSlotCapacity,
@@ -41,11 +42,16 @@ import {
   validateMovement,
   validateJumpMP,
 } from '@/utils/construction/battlearmor/movement';
-import { validateSquadSize } from '@/utils/construction/battlearmor/squad';
+import {
+  validateSquadSize,
+  assertSquadHomogeneous,
+  isSquadHomogeneous,
+} from '@/utils/construction/battlearmor/squad';
 import {
   validateBattleArmorConstruction,
   registeredBARules,
 } from '@/utils/construction/battlearmor/validation';
+import { validateHeavyWeaponClass } from '@/utils/construction/battlearmor/weaponGates';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -539,5 +545,339 @@ describe('End-to-end: valid unit passes all construction rules', () => {
     });
     const result = validateBattleArmorConstruction(unit);
     expect(result.isValid).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 10. Stealth armor camo body slot reservation
+//     (Requirement 2 "Armor Points per Trooper" / tasks.md §5.3)
+// ---------------------------------------------------------------------------
+
+describe('Stealth armor camo body slot (VAL-BA-CLASS)', () => {
+  test('camoBodySlots returns 1 for Stealth (Basic)', () => {
+    expect(camoBodySlots(BAArmorType.STEALTH_BASIC)).toBe(1);
+  });
+
+  test('camoBodySlots returns 1 for Stealth (Improved)', () => {
+    expect(camoBodySlots(BAArmorType.STEALTH_IMPROVED)).toBe(1);
+  });
+
+  test('camoBodySlots returns 1 for Stealth (Prototype)', () => {
+    expect(camoBodySlots(BAArmorType.STEALTH_PROTOTYPE)).toBe(1);
+  });
+
+  test('camoBodySlots returns 1 for Mimetic armor', () => {
+    expect(camoBodySlots(BAArmorType.MIMETIC)).toBe(1);
+  });
+
+  test('camoBodySlots returns 0 for Standard armor', () => {
+    expect(camoBodySlots(BAArmorType.STANDARD)).toBe(0);
+  });
+
+  test('camoBodySlots returns 0 for Reactive armor', () => {
+    expect(camoBodySlots(BAArmorType.REACTIVE)).toBe(0);
+  });
+
+  test('Stealth unit with 2 body weapons fires VAL-BA-CLASS slot overflow', () => {
+    // Basic Stealth reserves 1 Body slot for the camo generator, so a Biped
+    // trooper only has 1 usable Body slot instead of the normal 2. Mounting
+    // two body weapons must trip VAL-BA-CLASS.
+    const bodyWeapon: IBAWeaponMount = {
+      equipmentId: 'mg',
+      name: 'Machine Gun',
+      location: BALocation.BODY,
+      massKg: 100,
+      weaponWeight: 'light',
+      isAPWeapon: false,
+    };
+    const unit = makeUnit({
+      // Light class so the 2 light weapons below don't trip the heavy-weapon
+      // gate; we want the camo-slot overflow isolated.
+      weightClass: BAWeightClass.LIGHT,
+      armorType: BAArmorType.STEALTH_BASIC,
+      armorPointsPerTrooper: 3, // 180 kg stealth, stays in Light mass band
+      movementType: BAMovementType.GROUND,
+      groundMP: 1,
+      jumpMP: 0,
+      umuMP: 0,
+      weapons: [
+        { ...bodyWeapon, equipmentId: 'mg-1' },
+        { ...bodyWeapon, equipmentId: 'mg-2' },
+      ],
+    });
+    const result = validateBattleArmorConstruction(unit);
+    expect(result.isValid).toBe(false);
+    expect(
+      result.errors.some((e) => /VAL-BA-CLASS.*Body slot overflow/i.test(e)),
+    ).toBe(true);
+  });
+
+  test('Standard-armor unit with 2 body weapons does NOT trip body slot overflow', () => {
+    // Control: the same 2-body-weapon loadout on Standard armor fits because
+    // the full 2 Body slots are available. This proves the stealth test
+    // above is isolating the camo-slot reservation, not some other rule.
+    const bodyWeapon: IBAWeaponMount = {
+      equipmentId: 'mg',
+      name: 'Machine Gun',
+      location: BALocation.BODY,
+      massKg: 100,
+      weaponWeight: 'light',
+      isAPWeapon: false,
+    };
+    const unit = makeUnit({
+      weightClass: BAWeightClass.LIGHT,
+      armorType: BAArmorType.STANDARD,
+      armorPointsPerTrooper: 3,
+      movementType: BAMovementType.GROUND,
+      groundMP: 1,
+      jumpMP: 0,
+      umuMP: 0,
+      weapons: [
+        { ...bodyWeapon, equipmentId: 'mg-1' },
+        { ...bodyWeapon, equipmentId: 'mg-2' },
+      ],
+    });
+    const result = validateBattleArmorConstruction(unit);
+    expect(
+      result.errors.some((e) => /VAL-BA-CLASS.*Body slot overflow/i.test(e)),
+    ).toBe(false);
+  });
+
+  test('Stealth unit with 1 body weapon passes (camo generator + 1 weapon fits)', () => {
+    const unit = makeUnit({
+      weightClass: BAWeightClass.LIGHT,
+      armorType: BAArmorType.STEALTH_BASIC,
+      armorPointsPerTrooper: 3,
+      movementType: BAMovementType.GROUND,
+      groundMP: 1,
+      jumpMP: 0,
+      umuMP: 0,
+      weapons: [
+        {
+          equipmentId: 'mg',
+          name: 'Machine Gun',
+          location: BALocation.BODY,
+          massKg: 100,
+          weaponWeight: 'light',
+          isAPWeapon: false,
+        },
+      ],
+    });
+    const result = validateBattleArmorConstruction(unit);
+    expect(
+      result.errors.some((e) => /VAL-BA-CLASS.*Body slot overflow/i.test(e)),
+    ).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 11. Heavy-weapon weight-class gate (tasks.md §7.1)
+//     Direct tests for validateHeavyWeaponClass and the integrated pipeline.
+// ---------------------------------------------------------------------------
+
+describe('Heavy weapon weight-class gate (VAL-BA-CLASS / §7.1)', () => {
+  const heavyBodyWeapon: IBAWeaponMount = {
+    equipmentId: 'srm-2',
+    name: 'SRM 2',
+    location: BALocation.BODY,
+    massKg: 200,
+    weaponWeight: 'heavy',
+    isAPWeapon: false,
+  };
+
+  const lightWeapon: IBAWeaponMount = {
+    equipmentId: 'mg-light',
+    name: 'Machine Gun',
+    location: BALocation.BODY,
+    massKg: 100,
+    weaponWeight: 'light',
+    isAPWeapon: false,
+  };
+
+  test('PA(L) class cannot mount heavy weapon — VAL-BA-CLASS fires', () => {
+    const result = validateHeavyWeaponClass(
+      heavyBodyWeapon,
+      BAWeightClass.PA_L,
+    );
+    expect(result.isValid).toBe(false);
+    expect(result.errors[0]).toMatch(
+      /VAL-BA-CLASS.*heavy BA weapon.*Medium class or heavier/i,
+    );
+  });
+
+  test('Light class cannot mount heavy weapon — VAL-BA-CLASS fires', () => {
+    const result = validateHeavyWeaponClass(
+      heavyBodyWeapon,
+      BAWeightClass.LIGHT,
+    );
+    expect(result.isValid).toBe(false);
+    expect(result.errors[0]).toMatch(
+      /VAL-BA-CLASS.*heavy BA weapon.*Medium class or heavier/i,
+    );
+  });
+
+  test('Medium class can mount heavy weapon — no VAL-BA-CLASS weight error', () => {
+    const result = validateHeavyWeaponClass(
+      heavyBodyWeapon,
+      BAWeightClass.MEDIUM,
+    );
+    expect(result.isValid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  test('Heavy class can mount heavy weapon', () => {
+    const result = validateHeavyWeaponClass(
+      heavyBodyWeapon,
+      BAWeightClass.HEAVY,
+    );
+    expect(result.isValid).toBe(true);
+  });
+
+  test('Assault class can mount heavy weapon', () => {
+    const result = validateHeavyWeaponClass(
+      heavyBodyWeapon,
+      BAWeightClass.ASSAULT,
+    );
+    expect(result.isValid).toBe(true);
+  });
+
+  test('Light-classed weapon never trips the heavy-weapon gate, regardless of class', () => {
+    for (const wc of [
+      BAWeightClass.PA_L,
+      BAWeightClass.LIGHT,
+      BAWeightClass.MEDIUM,
+      BAWeightClass.HEAVY,
+      BAWeightClass.ASSAULT,
+    ]) {
+      const result = validateHeavyWeaponClass(lightWeapon, wc);
+      expect(result.isValid).toBe(true);
+    }
+  });
+
+  test('End-to-end: Light BA with heavy weapon trips VAL-BA-CLASS in the full pipeline', () => {
+    const unit = makeUnit({
+      weightClass: BAWeightClass.LIGHT,
+      armorType: BAArmorType.STANDARD,
+      armorPointsPerTrooper: 3,
+      movementType: BAMovementType.GROUND,
+      groundMP: 1,
+      jumpMP: 0,
+      umuMP: 0,
+      leftManipulator: BAManipulator.BATTLE_CLAW,
+      rightManipulator: BAManipulator.BASIC_CLAW,
+      weapons: [heavyBodyWeapon],
+    });
+    const result = validateBattleArmorConstruction(unit);
+    expect(result.isValid).toBe(false);
+    expect(
+      result.errors.some((e) => /VAL-BA-CLASS.*heavy BA weapon/i.test(e)),
+    ).toBe(true);
+  });
+
+  test('End-to-end: PA(L) BA with heavy weapon trips VAL-BA-CLASS in the full pipeline', () => {
+    const unit = makeUnit({
+      weightClass: BAWeightClass.PA_L,
+      armorType: BAArmorType.STANDARD,
+      armorPointsPerTrooper: 1,
+      movementType: BAMovementType.GROUND,
+      groundMP: 1,
+      jumpMP: 0,
+      umuMP: 0,
+      leftManipulator: BAManipulator.BATTLE_CLAW,
+      rightManipulator: BAManipulator.BASIC_CLAW,
+      weapons: [heavyBodyWeapon],
+    });
+    const result = validateBattleArmorConstruction(unit);
+    expect(result.isValid).toBe(false);
+    expect(
+      result.errors.some((e) => /VAL-BA-CLASS.*heavy BA weapon/i.test(e)),
+    ).toBe(true);
+  });
+
+  test('End-to-end: Medium BA with heavy weapon passes the heavy-weapon gate', () => {
+    const unit = makeUnit({
+      weightClass: BAWeightClass.MEDIUM,
+      armorType: BAArmorType.STANDARD,
+      armorPointsPerTrooper: 5,
+      movementType: BAMovementType.GROUND,
+      groundMP: 1,
+      jumpMP: 0,
+      umuMP: 0,
+      leftManipulator: BAManipulator.BATTLE_CLAW,
+      rightManipulator: BAManipulator.BASIC_CLAW,
+      weapons: [heavyBodyWeapon],
+    });
+    const result = validateBattleArmorConstruction(unit);
+    // No heavy-weapon weight-class error
+    expect(
+      result.errors.some((e) => /VAL-BA-CLASS.*heavy BA weapon/i.test(e)),
+    ).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 12. Squad loadout homogeneity (tasks.md §3.4)
+// ---------------------------------------------------------------------------
+
+describe('Squad loadout homogeneity (VAL-BA-SQUAD / §3.4)', () => {
+  test('assertSquadHomogeneous does not throw on a valid unit', () => {
+    const unit = makeUnit({});
+    expect(() => assertSquadHomogeneous(unit)).not.toThrow();
+  });
+
+  test('isSquadHomogeneous returns true for the default makeUnit shape', () => {
+    expect(isSquadHomogeneous(makeUnit({}))).toBe(true);
+  });
+
+  test('isSquadHomogeneous returns true for a unit with weapons + equipment', () => {
+    const weapon: IBAWeaponMount = {
+      equipmentId: 'mg',
+      name: 'Machine Gun',
+      location: BALocation.RIGHT_ARM,
+      massKg: 100,
+      weaponWeight: 'light',
+      isAPWeapon: false,
+    };
+    const equipment: IBAEquipmentMount = {
+      equipmentId: 'ba-searchlight',
+      name: 'Searchlight',
+      location: BALocation.BODY,
+      massKg: 5,
+      slotsUsed: 1,
+    };
+    const unit = makeUnit({ weapons: [weapon], equipment: [equipment] });
+    expect(isSquadHomogeneous(unit)).toBe(true);
+  });
+
+  test('assertSquadHomogeneous throws VAL-BA-SQUAD when weapons is not an array', () => {
+    // Defensive branch — the type system prevents this legally, but a future
+    // refactor that swaps a per-trooper map in would trip this assertion.
+    // We cast through unknown to simulate a broken shape at runtime.
+    const broken = makeUnit({});
+    const tampered = {
+      ...broken,
+      weapons: {} as unknown as IBAWeaponMount[],
+    } as unknown as IBattleArmorUnit;
+    expect(() => assertSquadHomogeneous(tampered)).toThrow(/VAL-BA-SQUAD/);
+    expect(isSquadHomogeneous(tampered)).toBe(false);
+  });
+
+  test('assertSquadHomogeneous throws VAL-BA-SQUAD when equipment is not an array', () => {
+    const broken = makeUnit({});
+    const tampered = {
+      ...broken,
+      equipment: null as unknown as IBAEquipmentMount[],
+    } as unknown as IBattleArmorUnit;
+    expect(() => assertSquadHomogeneous(tampered)).toThrow(/VAL-BA-SQUAD/);
+    expect(isSquadHomogeneous(tampered)).toBe(false);
+  });
+
+  test('isSquadHomogeneous returns false when the assertion throws', () => {
+    const broken = makeUnit({});
+    const tampered = {
+      ...broken,
+      weapons: undefined as unknown as IBAWeaponMount[],
+    } as unknown as IBattleArmorUnit;
+    expect(isSquadHomogeneous(tampered)).toBe(false);
   });
 });
