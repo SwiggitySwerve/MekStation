@@ -2,23 +2,31 @@
 
 ### Requirement: Quad ProtoMech Hit-Location Remapping
 
-The system SHALL remap arm hit-location rolls on Quad ProtoMechs (chassis configuration with four legs and no arms) to leg locations: rolls that would resolve to `RightArm` resolve to `FrontLegs`, and rolls that would resolve to `LeftArm` resolve to `RearLegs` (or the equivalent quad-leg locations defined in the protomech location enum).
+The system SHALL remap arm and leg hit-location slots on Quad ProtoMechs (chassis configuration with four legs and no arms) to the quad-specific leg locations defined in the protomech location enum: BOTH `left_arm` and `right_arm` slot rolls resolve to `FRONT_LEGS`, and the `legs` slot resolves to `REAR_LEGS`. This matches the canonical MegaMek/TechManual treatment where Quad protos replace arms with front legs and replace the standard `Legs` location with rear legs.
 
-This requirement makes explicit a remapping noted in archived `wire-piloting-skill-rolls` and `add-protomech-combat-behavior` learnings but never covered by an end-to-end test.
+This requirement makes explicit a remapping noted in archived `wire-piloting-skill-rolls` and `add-protomech-combat-behavior` learnings but never covered by an end-to-end test. Implementation lives at `src/utils/gameplay/protomech/hitLocation.ts::mapSlotToLocation`.
 
-#### Scenario: Quad ProtoMech right-arm roll resolves to front-legs
+#### Scenario: Quad ProtoMech right-arm slot resolves to front-legs
 
-- **WHEN** a hit-location roll on a Quad ProtoMech yields a value that maps to `RightArm` on a biped ProtoMech
-- **THEN** the resolver returns `FrontLegs` (or the canonical quad-leg-front location)
-- **AND** damage applies to the front-leg armor/structure pool
+- **WHEN** `mapSlotToLocation('right_arm', ProtoChassis.QUAD, hasMainGun)` is called
+- **THEN** the resolver returns `ProtoLocation.FRONT_LEGS`
+- **AND** subsequent damage application targets the front-leg armor/structure pool
 
-#### Scenario: Quad ProtoMech left-arm roll resolves to rear-legs
+#### Scenario: Quad ProtoMech left-arm slot also resolves to front-legs
 
-- **WHEN** a hit-location roll on a Quad ProtoMech yields a value that maps to `LeftArm` on a biped ProtoMech
-- **THEN** the resolver returns `RearLegs` (or the canonical quad-leg-rear location)
-- **AND** damage applies to the rear-leg armor/structure pool
+- **WHEN** `mapSlotToLocation('left_arm', ProtoChassis.QUAD, hasMainGun)` is called
+- **THEN** the resolver returns `ProtoLocation.FRONT_LEGS`
+- **AND** the result intentionally matches the right-arm remap (Quad protos do not distinguish left vs right front-leg hits at the slot-mapping layer)
 
-#### Scenario: Biped ProtoMech location resolution unchanged
+#### Scenario: Quad ProtoMech legs slot resolves to rear-legs
 
-- **WHEN** a hit-location roll on a biped ProtoMech resolves to `RightArm` or `LeftArm`
-- **THEN** the resolver returns the same arm location with no remapping
+- **WHEN** `mapSlotToLocation('legs', ProtoChassis.QUAD, hasMainGun)` is called
+- **THEN** the resolver returns `ProtoLocation.REAR_LEGS`
+- **AND** subsequent damage application targets the rear-leg armor/structure pool
+
+#### Scenario: Biped ProtoMech location resolution preserves left/right distinction
+
+- **WHEN** `mapSlotToLocation('right_arm', ProtoChassis.BIPED, hasMainGun)` is called
+- **THEN** the resolver returns `ProtoLocation.RIGHT_ARM` (no remap)
+- **AND** the symmetric `'left_arm'` call returns `ProtoLocation.LEFT_ARM`
+- **AND** the `'legs'` slot returns `ProtoLocation.LEGS` (no remap)

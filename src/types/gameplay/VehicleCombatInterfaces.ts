@@ -168,6 +168,16 @@ export interface IVehicleCombatState {
   readonly destroyedLocations: readonly (VehicleLocation | VTOLLocation)[];
   readonly motive: IMotiveDamageState;
   readonly turretLock: ITurretLockState;
+  /**
+   * Per `tier5-audit-cleanup` Phase C 3.A: True when the vehicle's primary
+   * turret pivoted from its previous facing during the current turn. Used
+   * by `calculateChinTurretPivotModifier` (toHit/vehicleModifiers.ts) to
+   * apply the +1 chin-turret-pivot penalty. Callers SHALL set this true
+   * when the turret rotates and SHALL clear it at end-of-turn alongside
+   * other per-turn flags. Optional for backward-compat; absent/false on
+   * legacy state objects means no penalty applies.
+   */
+  readonly turretPivotedThisTurn?: boolean;
   /** Altitude for VTOLs (0 = hover, 1-5 = flight). Undefined for ground vehicles. */
   readonly altitude?: number;
   readonly destroyed: boolean;

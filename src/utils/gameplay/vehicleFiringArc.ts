@@ -46,7 +46,8 @@ export const VEHICLE_ARC_DEGREES: Readonly<Record<FiringArc, number>> = {
 /**
  * Arc span for a turret given its type and lock state.
  *  - Single / Dual: 360° (or Front if locked).
- *  - Chin: 360° (with pivot penalty applied elsewhere).
+ *  - Chin: 360° (a +1 pivot penalty fires when the turret rotated this
+ *    turn — see `calculateChinTurretPivotModifier` in `toHit/vehicleModifiers.ts`).
  *  - Sponson (left/right): 180° forward-side hemisphere — modeled as two
  *    arcs (Front + same-side Side).
  *  - None: no turret arc.

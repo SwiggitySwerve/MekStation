@@ -98,7 +98,33 @@ export interface IUnitCombatDelta {
   readonly heatEnd: number;
   /** Ammo bin remaining-rounds, keyed by binId. */
   readonly ammoRemaining: Readonly<Record<string, number>>;
-  /** Pilot state snapshot used by the campaign roster pipeline. */
+  /**
+   * Pilot state snapshot used by the campaign roster pipeline.
+   *
+   * @remarks
+   * **Wave 4 limitation — `PilotFinalStatus.KIA` is currently unreachable.**
+   *
+   * The KIA derivation lives at `src/lib/combat/outcome/combatOutcome.ts:128-133`
+   * (`computePilotFinalStatus` returns KIA only when `state.destroyed &&
+   * !state.pilotConscious`). However, no engine event in Wave 4 flips
+   * `pilotConscious=false` — the consciousness-roll path was never wired
+   * end-to-end into the session reducer. Consequence: a destroyed unit will
+   * surface `finalStatus: 'INJURED'` (or similar) rather than `'KIA'`, even
+   * when narratively the pilot should be killed.
+   *
+   * Downstream consumers (post-battle-review-ui, repair-queue-integration,
+   * roster processors) MUST plan around this limitation rather than rely on
+   * KIA-driven branching until Wave-5 pilot-event wiring lands.
+   *
+   * **Unblock dependency:** the Wave-5 pilot-event wiring change (folded
+   * into `wire-interactive-psr-integration` if pilot consciousness events
+   * are routed through the PSR queue, otherwise authored as a standalone
+   * `wire-pilot-consciousness-events` change). When that lands, this
+   * `@remarks` block should be removed and the KIA path documented as
+   * fully reachable.
+   *
+   * @see openspec/changes/tier5-audit-cleanup/specs/combat-resolution/spec.md
+   */
   readonly pilotState: {
     readonly conscious: boolean;
     readonly wounds: number;

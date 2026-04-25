@@ -161,6 +161,11 @@ export function clampLocationArmor(
     Rear: maxByLocation.rear,
     Turret: hasTurret ? maxByLocation.turret : 0,
     Rotor: isVTOL ? maxByLocation.rotor : 0,
+    // Body is intentionally non-armored on standard combat ground vehicles —
+    // the location exists in the data model for support-vehicle BAR rules
+    // (Wave 5: support-vehicle customizer surface owns the real BAR-aware
+    // rule). For combat vehicles this clamps any user-supplied armor request
+    // to 0 to enforce the TechManual restriction without an extra VAL guard.
     Body: 0,
   };
   const max = locationMap[location] ?? 0;

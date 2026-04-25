@@ -9,6 +9,10 @@ import {
   MovementType,
 } from '@/types/gameplay';
 import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
+import {
+  getHeatMovementPenalty,
+  isTSMActive,
+} from '@/types/validation/HeatManagement';
 
 import type { UnitMovementType } from './types';
 
@@ -142,4 +146,35 @@ export function estimateMovementCost(
   to: IHexCoordinate,
 ): number {
   return hexDistance(from, to);
+}
+
+/**
+ * Compute the effective walk MP for a unit given its base walk MP, current
+ * heat, and TSM equipment status. Combines the canonical Total Warfare
+ * arithmetic for the two simultaneous walk-MP modifiers:
+ *
+ *   - TSM (Triple Strength Myomer) bonus: +2 walk MP when active (heat >= 9
+ *     activation threshold, see `isTSMActive`).
+ *   - Heat-induced movement penalty: -1 / -2 / -3 / -4 MP at heat 5+ / 7+ /
+ *     8+ / 10+ respectively (see `getHeatMovementPenalty`).
+ *
+ * The two modifiers stack additively against base walk MP and the result is
+ * floored at 0 (an overheated TSM-less mech never has negative walk MP).
+ *
+ * @spec openspec/changes/tier5-audit-cleanup/specs/heat-management-system/spec.md
+ *   Requirement: TSM Walk-MP Combined With Heat Penalty
+ *
+ * @param baseWalkMP - The unit's nominal walk MP (engine rating / tonnage).
+ * @param currentHeat - Current heat level on the unit's heat track.
+ * @param hasTSM - Whether the unit has Triple Strength Myomer installed.
+ * @returns The effective walk MP after both modifiers combine, never below 0.
+ */
+export function getEffectiveWalkMP(
+  baseWalkMP: number,
+  currentHeat: number,
+  hasTSM: boolean,
+): number {
+  const tsmBonus = hasTSM && isTSMActive(currentHeat) ? 2 : 0;
+  const heatPenalty = getHeatMovementPenalty(currentHeat);
+  return Math.max(0, baseWalkMP + tsmBonus - heatPenalty);
 }
