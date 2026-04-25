@@ -41,6 +41,7 @@ import {
   getRangeModifierForBracket,
   getRangeBracket,
 } from './rangeModifiers';
+import { calculateChinTurretPivotModifier } from './vehicleModifiers';
 
 export function calculateToHit(
   attacker: IAttackerState,
@@ -128,6 +129,27 @@ export function calculateToHit(
       attacker.abilities,
     );
     if (calledMod) modifiers.push(calledMod);
+  }
+
+  // Vehicle-only chin-turret pivot penalty. Per archived
+  // `tier5-audit-cleanup` Phase C 1.A and the firing-arc-calculation spec
+  // ("Vehicle Chin Turret Pivot Penalty"), a ground vehicle that pivots its
+  // chin turret during the current turn incurs +1 to-hit on every weapon
+  // attack from that turret. The fields below are populated only when the
+  // attacker is a vehicle; mech callers leave them undefined and the
+  // modifier returns null.
+  if (
+    attacker.vehicleTurretType !== undefined &&
+    attacker.vehicleWeaponMountLocation !== undefined &&
+    attacker.vehicleWeaponIsTurretMounted !== undefined
+  ) {
+    const chinPivotMod = calculateChinTurretPivotModifier({
+      turretType: attacker.vehicleTurretType,
+      turretPivotedThisTurn: attacker.vehicleTurretPivotedThisTurn ?? false,
+      weaponMountLocation: attacker.vehicleWeaponMountLocation,
+      weaponIsTurretMounted: attacker.vehicleWeaponIsTurretMounted,
+    });
+    if (chinPivotMod) modifiers.push(chinPivotMod);
   }
 
   const rangeModValue = RANGE_MODIFIERS[rangeBracket] ?? 0;

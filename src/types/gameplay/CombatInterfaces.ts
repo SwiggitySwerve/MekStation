@@ -7,8 +7,10 @@
 
 // Re-export from construction for backwards compatibility
 import { MechLocation } from '../construction/CriticalSlotAllocation';
+import { VehicleLocation, VTOLLocation } from '../construction/UnitLocation';
 // Re-export from equipment for backwards compatibility
 import { WeaponCategory } from '../equipment/weapons/interfaces';
+import { TurretType } from '../unit/VehicleInterfaces';
 import { IToHitModifier } from './GameSessionInterfaces';
 import { FiringArc, RangeBracket, MovementType } from './HexGridInterfaces';
 
@@ -600,6 +602,18 @@ export interface IAttackerState {
   readonly designatedRangeBracket?: RangeBracket;
   readonly unitQuirks?: readonly string[];
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
+  /**
+   * Vehicle-only context fields. Populated when the attacker is a ground or
+   * VTOL combat vehicle so the to-hit pipeline can apply vehicle-scoped
+   * modifiers (e.g. chin-turret pivot penalty). Mech / aerospace / battle
+   * armor callers leave these undefined and incur no vehicle penalty paths.
+   *
+   * @see calculateChinTurretPivotModifier (utils/gameplay/toHit/vehicleModifiers.ts)
+   */
+  readonly vehicleTurretType?: TurretType;
+  readonly vehicleTurretPivotedThisTurn?: boolean;
+  readonly vehicleWeaponMountLocation?: VehicleLocation | VTOLLocation;
+  readonly vehicleWeaponIsTurretMounted?: boolean;
 }
 
 /**

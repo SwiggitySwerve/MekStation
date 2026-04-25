@@ -45,7 +45,9 @@ export interface IPSRBatchResult {
 }
 
 /**
- * PSR trigger types — all 26 canonical trigger sources.
+ * PSR trigger types — all 27 canonical trigger sources, including the
+ * `EngineHit` entry required by the piloting-skill-rolls spec
+ * ("PSR Trigger Catalog") and consistent with MegaMek's engine-crit PSR.
  */
 export enum PSRTrigger {
   // Damage triggers
@@ -55,6 +57,7 @@ export enum PSRTrigger {
   // Component damage triggers
   HipActuatorDestroyed = 'hip_actuator_destroyed',
   GyroHit = 'gyro_hit',
+  EngineHit = 'engine_hit',
   UpperLegActuatorHit = 'upper_leg_actuator_hit',
   LowerLegActuatorHit = 'lower_leg_actuator_hit',
   FootActuatorHit = 'foot_actuator_hit',

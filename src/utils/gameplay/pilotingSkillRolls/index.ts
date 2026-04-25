@@ -19,6 +19,7 @@ export {
   createLegDamagePSR,
   createHipActuatorPSR,
   createGyroPSR,
+  createEngineHitPSR,
   createUpperLegActuatorPSR,
   createLowerLegActuatorPSR,
   createFootActuatorPSR,

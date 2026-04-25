@@ -7,6 +7,10 @@ import {
   JumpJetType,
   JUMP_JET_DEFINITIONS,
 } from '@/utils/construction/movementCalculations';
+import {
+  calculateRunMP,
+  getEffectiveWalkMP,
+} from '@/utils/gameplay/movement/calculations';
 
 import type {
   StructureConfigurationOption,
@@ -65,6 +69,16 @@ export function StructureTabMovementSection({
   handleEnhancementChange,
   handleConfigurationChange,
 }: StructureTabMovementSectionProps): React.ReactElement {
+  // Compute the canonical TSM-active walk / run preview for the tooltip.
+  // `getEffectiveWalkMP` is the single source of truth for the combined
+  // TSM bonus + heat-induced movement penalty (per the heat-management
+  // spec's "TSM Walk-MP Combined With Heat Penalty" requirement). Sample
+  // at heat 9 — the TSM activation threshold — so the tooltip surfaces
+  // the canonical "TSM active" walk MP rather than embedding the
+  // arithmetic inline.
+  const tsmEffectiveWalkMP = getEffectiveWalkMP(walkMP, 9, true);
+  const tsmEffectiveRunMP = calculateRunMP(tsmEffectiveWalkMP);
+
   return (
     <div className={cs.panel.main}>
       <h3 className={cs.text.sectionTitle}>Movement</h3>
@@ -134,7 +148,7 @@ export function StructureTabMovementSection({
                   enhancement === MovementEnhancementType.MASC
                     ? `MASC Sprint: Walk ${walkMP} × 2 = ${maxRunMP}`
                     : enhancement === MovementEnhancementType.TSM
-                      ? `TSM at 9+ heat: Base Run ${runMP} + 1 = ${maxRunMP} (net +1 from +2 Walk, -1 heat penalty)`
+                      ? `TSM at 9+ heat: effective Walk ${tsmEffectiveWalkMP} (base ${walkMP} + 2 TSM − 1 heat), Run ${tsmEffectiveRunMP}`
                       : enhancement === MovementEnhancementType.SUPERCHARGER
                         ? `Supercharger Sprint: Walk ${walkMP} × 2 = ${maxRunMP}`
                         : `Enhanced max: ${maxRunMP}`
