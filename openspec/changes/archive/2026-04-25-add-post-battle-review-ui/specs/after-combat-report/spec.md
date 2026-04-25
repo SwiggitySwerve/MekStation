@@ -28,16 +28,6 @@ campaign-relevant dimension of the battle in a single page layout.
 
 #### Scenario: Return-to-campaign commits outcome
 
-> DEFERRED to Wave 5: "marks reviewed in the session store" requires a
-> `reviewed` flag on `useGameplayStore` that does not exist yet. The
-> dequeue from `useCampaignStore.pendingBattleOutcomes` is the de-facto
-> reviewed signal today — when the player clicks "Apply outcome" the
-> outcome is removed from the queue, `applyPostBattle` is invoked, and
-> the router pushes the campaign dashboard, so two of the three SHALL
-> clauses are met. The session-store flag lands with the Wave 5
-> session-lifecycle cleanup. (pickup:
-> `src/pages/gameplay/games/[id]/review.tsx:218`)
-
 - **GIVEN** a review page for an outcome not yet committed to the
   campaign pending queue
 - **WHEN** the user clicks "Return to Campaign"

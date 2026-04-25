@@ -56,10 +56,40 @@ pointer. The notepad pattern below mirrors the spec entries.
 | 6.3    | Scenarios-played counter is contract-pipeline state            | `src/components/gameplay/post-battle/ContractPanel.tsx:78` |
 | 6.5    | Morale-shift is contract-pipeline state                        | `src/types/combat/CombatOutcome.ts:115`                 |
 | 7.3    | `IRepairTicket.estimatedCBills` does not exist yet             | `src/components/gameplay/post-battle/RepairPreviewPanel.tsx:94` |
-| 8.3    | `useGameplayStore.reviewed` flag does not exist                | `src/pages/gameplay/games/[id]/review.tsx:218`          |
+| 8.3    | ~~Deferred~~ — landed via `markBattleReviewed` audit follow-up | `src/stores/campaign/useCampaignStore.ts`               |
 | 8.5    | No global toast surface mounted                                | `src/pages/gameplay/games/[id]/review.tsx:240`          |
 | 9.1/9.2| `/gameplay/matches/[id]` route does not exist (Wave 5)         | `src/pages/gameplay/games/[id]/review.tsx`              |
 | 12.1/2 | Screenshots blocked on visual-regression pipeline              | n/a                                                     |
+
+# 2026-04-25 audit follow-up — task 8.3 reviewed-flag
+
+Closing the last archive blocker for this change. Audit found the
+"Return to Campaign" CTA dequeued the outcome but the page-level UX
+for "battle reviewed" was implicit (queue absence). Implementation:
+
+- **Why epoch-ms reviewedAt over a boolean:** future-audit visibility.
+  A timestamp lets later UIs surface "reviewed 3 days ago" or order
+  the post-battle log by review time without bolting on a separate
+  audit trail.
+- **Why on the campaign store, not `useGameplayStore`:** the original
+  spec text suggested the gameplay session store, but the pending-
+  outcome queue lives on the campaign store. Co-locating
+  `reviewedBattleIds: Record<string, number>` with
+  `pendingBattleOutcomes` keeps queue-membership and review-status
+  reads cheap and racy-free (single source of truth).
+- **Why a sibling map instead of widening `ICombatOutcome`:** the
+  outcome is the engine hand-off shape (campaign-consumable, persisted
+  via the bus). Adding UI lifecycle state to it would pollute the
+  engine model. The store-side map is a UI ledger, mirroring the
+  same pattern used by `processedBattleIds`.
+- **`markBattleReviewed(matchId)` semantics:** stamp-and-filter — sets
+  the reviewed timestamp AND removes from the pending queue. The CTA
+  invokes it after `applyPostBattle` so the existing dequeue + apply
+  contract is preserved verbatim (no behavioral change to processors,
+  the dashboard banner, or the round-trip integration test).
+- **Spec update:** `specs/after-combat-report/spec.md` "Return-to-
+  campaign commits outcome" scenario no longer carries the DEFERRED
+  blockquote; all three SHALL clauses are now met.
 
 ## Conventions observed
 

@@ -166,11 +166,14 @@
 - [x] 8.2 On click: commit outcome to `campaign.pendingBattleOutcomes` if
       not already present _(invokes `applyPostBattle` then dequeues.)_
 - [x] 8.3 Close the tactical session in session store (mark reviewed) —
-      DEFERRED: `useGameplayStore` does not yet carry a `reviewed`
-      flag; the campaign-store dequeue is the de-facto "reviewed"
-      signal today. Wiring a session-store flag is queued behind the
-      Wave 5 session-lifecycle cleanup (pickup:
-      src/pages/gameplay/games/[id]/review.tsx:218)
+      Implemented on the campaign store (NOT the gameplay store) via
+      `markBattleReviewed(matchId)` which stamps `reviewedBattleIds`
+      with `Date.now()` and drains the entry from
+      `pendingBattleOutcomes` so the dashboard banner stops surfacing
+      it. The "Return to Campaign" CTA invokes it after
+      `applyPostBattle`. See
+      `src/stores/campaign/useCampaignStore.ts` and
+      `src/pages/gameplay/games/[id]/review.tsx:219`.
 - [x] 8.4 Navigate to campaign dashboard
 - [x] 8.5 Show toast: "Battle outcome recorded — advance day to apply
       effects" — DEFERRED: project does not yet have a global toast

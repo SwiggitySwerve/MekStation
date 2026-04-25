@@ -107,6 +107,15 @@ interface CampaignState {
    */
   processedBattleIds: string[];
 
+  /**
+   * Per `add-post-battle-review-ui` § 8.3: matchId → epoch-ms timestamp
+   * recorded when the player clicked "Return to Campaign" on the
+   * post-battle review screen. Pairs with `markBattleReviewed` to keep
+   * a future-audit trail without polluting `ICombatOutcome` (the
+   * engine hand-off shape) with UI lifecycle state.
+   */
+  reviewedBattleIds: Record<string, number>;
+
   /** Sub-store instances (created when campaign is loaded/created) */
   personnelStore: StoreApi<PersonnelStore> | null;
   forcesStore: StoreApi<ForcesStore> | null;
@@ -189,6 +198,22 @@ interface CampaignActions {
    * here after `advanceDay()`.
    */
   getProcessedBattleIds: () => readonly string[];
+
+  /**
+   * Per `add-post-battle-review-ui` § 8.3 + after-combat-report
+   * "Return-to-campaign commits outcome" scenario: stamp the matchId
+   * with `Date.now()` and dequeue it from `pendingBattleOutcomes` so
+   * the dashboard banner and review page no longer surface it. Used
+   * by the post-battle review screen's "Return to Campaign" CTA.
+   */
+  markBattleReviewed: (matchId: string) => void;
+
+  /**
+   * Returns the epoch-ms timestamp when `markBattleReviewed` was called
+   * for the given matchId, or null when the battle has not been
+   * reviewed. Powers audit views and idempotency checks.
+   */
+  getReviewedAt: (matchId: string) => number | null;
 }
 
 export type CampaignStore = CampaignState & CampaignActions;
@@ -325,6 +350,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         campaign: null,
         pendingBattleOutcomes: [],
         processedBattleIds: [],
+        reviewedBattleIds: {},
         personnelStore: null,
         forcesStore: null,
         missionsStore: null,
@@ -647,6 +673,25 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         reviewReady: (matchId) => {
           if (!matchId) return false;
           return get().pendingBattleOutcomes.some((o) => o.matchId === matchId);
+        },
+
+        markBattleReviewed: (matchId) => {
+          if (!matchId) return;
+          const { pendingBattleOutcomes, reviewedBattleIds } = get();
+          set({
+            reviewedBattleIds: {
+              ...reviewedBattleIds,
+              [matchId]: Date.now(),
+            },
+            pendingBattleOutcomes: pendingBattleOutcomes.filter(
+              (o) => o.matchId !== matchId,
+            ),
+          });
+        },
+
+        getReviewedAt: (matchId) => {
+          if (!matchId) return null;
+          return get().reviewedBattleIds[matchId] ?? null;
         },
       }),
       {

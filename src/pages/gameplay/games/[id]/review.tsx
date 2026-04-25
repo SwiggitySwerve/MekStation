@@ -212,9 +212,11 @@ export default function PostBattleReviewPage(): React.ReactElement {
   }
 
   /**
-   * Apply the outcome to the campaign and dequeue it. Uses the
+   * Apply the outcome to the campaign and mark it reviewed. Uses the
    * processor's `applyPostBattle` so the same idempotency / status
    * mapping logic the day pipeline runs is exercised here too.
+   * `markBattleReviewed` stamps the reviewed-at timestamp AND drains
+   * the pending queue so the dashboard banner stops surfacing it.
    */
   const handleApply = (): void => {
     setIsApplying(true);
@@ -222,17 +224,17 @@ export default function PostBattleReviewPage(): React.ReactElement {
       const state = store.getState();
       const campaign = state.campaign as ICampaign | null;
       if (!campaign) {
-        // No campaign loaded — fall back to just dequeueing so the
-        // user isn't stuck. Real-world this branch is unreachable
+        // No campaign loaded — fall back to just marking reviewed so
+        // the user isn't stuck. Real-world this branch is unreachable
         // because the outcome could only have been enqueued against
         // a loaded campaign.
-        state.dequeueOutcome(outcome.matchId);
+        state.markBattleReviewed(outcome.matchId);
         setApplied(true);
         return;
       }
       const result = applyPostBattle(outcome, campaign);
       state.updateCampaign(result.campaign);
-      state.dequeueOutcome(outcome.matchId);
+      state.markBattleReviewed(outcome.matchId);
       setApplied(true);
       // Per `wire-encounter-to-campaign-round-trip` Wave 5 (task 4.3):
       // navigate to the campaign dashboard with `?pendingBattle=<matchId>`
