@@ -36,26 +36,16 @@ import {
   extractHeatSinks,
   extractCriticals,
 } from './recordsheet/dataExtractors';
+import { extractAerospaceData } from './recordsheet/dataExtractors.aerospace';
+import { extractBattleArmorData } from './recordsheet/dataExtractors.battleArmor';
+import { extractInfantryData } from './recordsheet/dataExtractors.infantry';
+import { extractProtoMechData } from './recordsheet/dataExtractors.protoMech';
+import { extractVehicleData } from './recordsheet/dataExtractors.vehicle';
 import {
-  extractAerospaceData,
-  type IAerospaceUnitConfig,
-} from './recordsheet/dataExtractors.aerospace';
-import {
-  extractBattleArmorData,
-  type IBattleArmorUnitConfig,
-} from './recordsheet/dataExtractors.battleArmor';
-import {
-  extractInfantryData,
-  type IInfantryUnitConfig,
-} from './recordsheet/dataExtractors.infantry';
-import {
-  extractProtoMechData,
-  type IProtoMechUnitConfig,
-} from './recordsheet/dataExtractors.protoMech';
-import {
-  extractVehicleData,
-  type IVehicleUnitConfig,
-} from './recordsheet/dataExtractors.vehicle';
+  dispatchTargetFromLegacyConfig,
+  isRecordSheetDispatchTarget,
+  type IRecordSheetDispatchTarget,
+} from './recordsheet/dispatchTarget';
 import { getMechType } from './recordsheet/mechTypeUtils';
 import { buildSPASection } from './recordsheet/spaSection';
 import { IUnitConfig } from './recordsheet/types';
@@ -107,33 +97,62 @@ export class RecordSheetService {
   }
 
   /**
-   * Extract record sheet data dispatching on `unit.type`.
+   * Extract record sheet data dispatching on a discriminated union.
    *
-   * Returns the appropriate `IRecordSheetData` variant. Throws
-   * `UnsupportedUnitTypeError` for unknown unit types.
+   * Callers pass an `IRecordSheetDispatchTarget` whose `kind` selects
+   * which extractor runs and tells TypeScript exactly which config
+   * shape `unit` must have. This replaces the legacy
+   * `extractDataByType(unit & { type?: string })` signature, which
+   * required `as unknown as IFooUnitConfig` casts inside the switch.
+   *
+   * For backward compatibility there is an overload that accepts the
+   * legacy fat config with an optional `type` discriminant; that path
+   * forwards to `dispatchTargetFromLegacyConfig` to build a proper
+   * dispatch target, with the cast localized to one place.
+   *
+   * Throws `UnsupportedUnitTypeError` for unknown discriminants.
    */
+  extractDataByType(
+    target: IRecordSheetDispatchTarget,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
   extractDataByType(
     unit: IUnitConfig & { type?: string },
     pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+  extractDataByType(
+    targetOrUnit:
+      | IRecordSheetDispatchTarget
+      | (IUnitConfig & { type?: string }),
+    pilotAbilities?: readonly IPilotAbilityRef[],
   ): IRecordSheetData {
-    const unitType = unit.type ?? 'mech';
-    switch (unitType) {
+    const target = isRecordSheetDispatchTarget(targetOrUnit)
+      ? targetOrUnit
+      : dispatchTargetFromLegacyConfig(targetOrUnit);
+
+    switch (target.kind) {
       case 'mech':
-        return this.extractMechData(unit, pilotAbilities);
+        return this.extractMechData(target.unit, pilotAbilities);
       case 'vehicle':
-        return extractVehicleData(unit as unknown as IVehicleUnitConfig);
+        return extractVehicleData(target.unit);
       case 'aerospace':
-        return extractAerospaceData(unit as unknown as IAerospaceUnitConfig);
+        return extractAerospaceData(target.unit);
       case 'battlearmor':
-        return extractBattleArmorData(
-          unit as unknown as IBattleArmorUnitConfig,
-        );
+        return extractBattleArmorData(target.unit);
       case 'infantry':
-        return extractInfantryData(unit as unknown as IInfantryUnitConfig);
+        return extractInfantryData(target.unit);
       case 'protomech':
-        return extractProtoMechData(unit as unknown as IProtoMechUnitConfig);
-      default:
-        throw new UnsupportedUnitTypeError(unitType);
+        return extractProtoMechData(target.unit);
+      default: {
+        // Exhaustiveness check — TypeScript narrows `target` to `never`
+        // here, so any new discriminant added to
+        // `IRecordSheetDispatchTarget` will fail compilation until it is
+        // wired into the switch above.
+        const exhaustive: never = target;
+        throw new UnsupportedUnitTypeError(
+          (exhaustive as { kind: string }).kind,
+        );
+      }
     }
   }
 
