@@ -1,4 +1,4 @@
-import { parseField } from './MTFParserHelpers';
+import { parseField } from './MTFParser.types';
 
 export function parseEngine(lines: string[]): { type: string; rating: number } {
   const engineLine = parseField(lines, 'engine');
