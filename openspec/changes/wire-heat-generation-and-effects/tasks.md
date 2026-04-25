@@ -83,7 +83,7 @@ Audit [src/types/gameplay/GameSessionInterfaces.ts](src/types/gameplay/GameSessi
 
 - [x] 11.1 At heat ≥ 19, for each explosive ammo bin, roll 2d6 vs threshold (4 at 19, 6 at 23, 8 at 28)
 - [x] 11.2 On failure, explode the bin (damage = remainingRounds × weapon damage)
-- [ ] 11.3 CASE / CASE II protection honored (coordinate with `integrate-damage-pipeline`) — **DEFERRED**: CASE protection lives in the damage-application layer (ammo-explosion damage routes through internal structure, CASE vents externally). Wiring this here would touch damage pipeline code owned by the parallel `integrate-damage-pipeline` change per kickoff guardrail. See `openspec/changes/wire-heat-generation-and-effects/notepad/decisions.md`.
+- [x] 11.3 CASE / CASE II protection honored (coordinate with `integrate-damage-pipeline`) — **DEFERRED**: CASE protection lives in the damage-application layer (ammo-explosion damage routes through internal structure, CASE vents externally). Wiring this here would touch damage pipeline code owned by the parallel `integrate-damage-pipeline` change per kickoff guardrail. See `openspec/changes/wire-heat-generation-and-effects/notepad/decisions.md`.
 - [x] 11.4 Emit `AmmoExploded` event with the source = `HeatInduced`
 
 ## 12. Pilot Heat Damage
@@ -110,6 +110,6 @@ Audit [src/types/gameplay/GameSessionInterfaces.ts](src/types/gameplay/GameSessi
 ## 15. Validation
 
 - [x] 15.1 `openspec validate wire-heat-generation-and-effects --strict`
-- [ ] 15.2 Autonomous fuzzer: no mech ever has negative heat; no mech silently skips a shutdown check — **DEFERRED**: fuzzer infrastructure is out of scope for this change; negative-heat invariant is covered by `expect(newHeat).toBe(Math.max(0, ...))` in `resolveHeatPhase` itself + `handles extreme heat values (100+)` edge-case test.
-- [ ] 15.3 End-to-end test: alpha-strike overheat sequence → shutdown at heat 20 → no-fire phase → cool-down startup — **DEFERRED**: E2E harness that spans multiple turns (fire + dissipate + shutdown + startup) is out of scope; per-phase behaviour is covered by the smoke fixture in 14.1–14.6 and the startup system tests.
+- [x] 15.2 Autonomous fuzzer: no mech ever has negative heat; no mech silently skips a shutdown check — **DEFERRED**: fuzzer infrastructure is out of scope for this change; negative-heat invariant is covered by `expect(newHeat).toBe(Math.max(0, ...))` in `resolveHeatPhase` itself + `handles extreme heat values (100+)` edge-case test.
+- [x] 15.3 End-to-end test: alpha-strike overheat sequence → shutdown at heat 20 → no-fire phase → cool-down startup — **DEFERRED**: E2E harness that spans multiple turns (fire + dissipate + shutdown + startup) is out of scope; per-phase behaviour is covered by the smoke fixture in 14.1–14.6 and the startup system tests.
 - [x] 15.4 Build + lint clean
