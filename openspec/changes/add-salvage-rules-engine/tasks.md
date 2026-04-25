@@ -85,10 +85,26 @@
       and compute the `ISalvageAllocation`; persist by matchId
 - [ ] 8.4 For each mercenary-award candidate: create a campaign inventory
       entry via existing `acquisitionProcessor` rails (as if acquired) but
-      with `source: "salvage"` tag — DEFERRED to Wave 4 (UI surfaces)
+      with `source: "salvage"` tag — **DEFERRED**: the existing
+      `acquisitionProcessor` only services the shopping-list / delivery
+      pipeline (`processPendingAcquisitions` over `IAcquisitionRequest`).
+      No salvage-to-inventory rail exists yet, and no `source: 'salvage'`
+      tag is recognised by the campaign inventory side. Wiring this here
+      would require inventing both the rail and the inventory schema
+      extension, which is the Wave 4 / `add-repair-queue-integration`
+      scope. The Wave 3 engine already produces the canonical
+      `ISalvageAllocation` + `ISalvageReport` records the Wave 4 surface
+      will consume. See `openspec/changes/add-salvage-rules-engine/notepad/decisions.md`.
 - [ ] 8.5 For damaged-unit candidates: create the unit in the roster with
       its `IUnitCombatState` set to the damage snapshot from the outcome —
-      DEFERRED to Wave 4 (roster integration)
+      **DEFERRED**: roster mutation surface for damaged-unit ingestion
+      does not exist on the campaign yet (no `addUnitToRoster` /
+      `createRosterUnit` helpers, no salvage→roster path in any
+      processor). The damage snapshot is preserved on each candidate's
+      `damageLevel` + `recoveryPercentage` so Wave 4 can rebuild the
+      `IUnitCombatState` from the persisted `ISalvageAllocation` without
+      replaying the battle. See
+      `openspec/changes/add-salvage-rules-engine/notepad/decisions.md`.
 - [x] 8.6 Fire `salvage_allocated` event with award summary
 
 ## 9. Tests
@@ -114,9 +130,28 @@
 
 ## 11. Wave 3 → Wave 4 Handoff
 
-- [ ] 11.1 Wave 4: surface `ISalvageReport` on the after-action UI
+All four sub-tasks here are explicitly UI / roster surfaces planned for
+Phase 3 Wave 4. They are out of scope for the salvage **rules engine**
+delivered by this change. Carrying them forward as DEFERRED preserves
+the handoff contract without leaking Wave 4 work into a Wave 3 archive.
+
+- [ ] 11.1 Wave 4: surface `ISalvageReport` on the after-action UI —
+      **DEFERRED**: after-action review UI is owned by
+      `add-post-battle-review-ui` (Wave 4). The salvage processor already
+      persists `ISalvageReport` per matchId in
+      `campaign.salvageReports` so the Wave 4 component can render
+      directly without further engine changes.
 - [ ] 11.2 Wave 4: convert mercenary-award candidates into roster /
-      inventory entries via `acquisitionProcessor` rails (8.4)
+      inventory entries via `acquisitionProcessor` rails (8.4) —
+      **DEFERRED**: see 8.4 above. Same rationale — the rails and
+      inventory schema extension are Wave 4 work.
 - [ ] 11.3 Wave 4: damaged-unit roster creation with `IUnitCombatState`
-      seeded from the outcome (8.5)
-- [ ] 11.4 Wave 4: auction draft UI for `splitMethod: 'auction'`
+      seeded from the outcome (8.5) — **DEFERRED**: see 8.5 above. The
+      Wave 3 allocation already preserves damage classification and
+      recovery percentage, so Wave 4 can hydrate `IUnitCombatState`
+      without any additional engine changes.
+- [ ] 11.4 Wave 4: auction draft UI for `splitMethod: 'auction'` —
+      **DEFERRED**: the engine already classifies allocations with
+      `splitMethod: 'auction'` and runs the seeded draft deterministically
+      (§4.1–4.4 + tests 9.2). The Wave 4 UI is a presentation concern over
+      the persisted allocation; no engine work remains.
