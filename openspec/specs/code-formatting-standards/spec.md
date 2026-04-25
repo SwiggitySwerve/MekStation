@@ -6,11 +6,15 @@
 
 ---
 
+## Purpose
+
+This specification defines the code formatting standards for MekStation using oxfmt as the project's official code formatter. It documents configuration, integration points, and developer workflows to ensure consistent code style across the codebase.
+
 ## Overview
 
 ### Purpose
 
-This specification defines the code formatting standards for MekStation using oxfmt as the project's official code formatter. It documents configuration, integration points, and developer workflows to ensure consistent code style across the codebase.
+See top-level `## Purpose` above.
 
 ### Scope
 
@@ -42,7 +46,7 @@ This specification defines the code formatting standards for MekStation using ox
 
 ---
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: oxfmt Formatter Configuration
 

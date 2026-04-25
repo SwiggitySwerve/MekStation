@@ -59,7 +59,7 @@ The Clan ECM Suite SHALL be equivalent to the Angel ECM Suite in capability.
 
 ### Requirement: ECCM Counter
 
-An ECM-equipped unit MAY operate in ECCM mode to counter one enemy ECM suite.
+An ECM-equipped unit SHALL support an ECCM mode that, when activated by the controller, counters one enemy ECM suite within its operational radius. ECCM mode and standard ECM protection SHALL NOT operate simultaneously on the same unit.
 
 #### Scenario: ECCM counters enemy ECM
 
