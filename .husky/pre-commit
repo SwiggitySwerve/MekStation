@@ -1,5 +1,20 @@
 #!/usr/bin/env sh
+# Pre-commit gate.
+#
+# 1. Run lint-staged on every staged file (per-file format/lint, fast).
+# 2. Run full Next.js build only when TypeScript files are staged.
+#    Python-only / openspec-only / docs-only commits skip the ~5min build,
+#    which previously forced contributors to use --no-verify (CLAUDE.md
+#    guardrail violation). The build only catches TS-level issues, so
+#    skipping it for non-TS commits is functionally safe — CI still runs
+#    the full gauntlet on the PR.
+
 npx lint-staged
 
-# Run full build to catch any issues not caught by per-file checks
-npm run build
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+if echo "$STAGED" | grep -qE '\.(ts|tsx)$'; then
+  echo "TypeScript files staged — running full build..."
+  npm run build
+else
+  echo "No TypeScript files staged — skipping build (Python / openspec / docs only)"
+fi
