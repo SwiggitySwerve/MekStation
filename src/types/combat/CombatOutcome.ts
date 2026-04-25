@@ -123,7 +123,7 @@ export interface IUnitCombatDelta {
    * `@remarks` block should be removed and the KIA path documented as
    * fully reachable.
    *
-   * @see openspec/changes/tier5-audit-cleanup/specs/combat-resolution/spec.md
+   * @see openspec/changes/archive/2026-04-25-tier5-audit-cleanup/specs/combat-resolution/spec.md
    */
   readonly pilotState: {
     readonly conscious: boolean;
