@@ -20,14 +20,14 @@ import {
   IUnitGameState,
   Facing,
   MovementType,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
 import {
   calculateGameOutcome,
   isGameEnded,
   determineWinner,
   IOutcomeCalculationInput,
-} from "../GameOutcomeCalculator";
+} from '../GameOutcomeCalculator';
 
 // =============================================================================
 // Test Helpers
@@ -73,7 +73,7 @@ function createMockState(
   }
 
   return {
-    gameId: "test-game",
+    gameId: 'test-game',
     status: GameStatus.Active,
     turn,
     phase: GamePhase.Initiative,
@@ -87,7 +87,7 @@ function createMockConfig(turnLimit: number = 0): IGameConfig {
   return {
     mapRadius: 10,
     turnLimit,
-    victoryConditions: ["elimination"],
+    victoryConditions: ['elimination'],
     optionalRules: [],
   };
 }
@@ -101,8 +101,8 @@ function createMockInput(
     state,
     events,
     config,
-    startedAt: "2024-01-01T00:00:00Z",
-    endedAt: "2024-01-01T01:00:00Z",
+    startedAt: '2024-01-01T00:00:00Z',
+    endedAt: '2024-01-01T01:00:00Z',
   };
 }
 
@@ -116,16 +116,16 @@ function createMockInput(
 function makeDamageEvent(targetUnitId: string, damage: number): IGameEvent {
   return {
     id: `dmg-${targetUnitId}-${damage}`,
-    gameId: "test-game",
+    gameId: 'test-game',
     sequence: 0,
-    timestamp: "2024-01-01T00:30:00Z",
+    timestamp: '2024-01-01T00:30:00Z',
     type: GameEventType.DamageApplied,
     turn: 5,
     phase: GamePhase.WeaponAttack,
-    actorId: "attacker",
+    actorId: 'attacker',
     payload: {
       unitId: targetUnitId,
-      location: "center_torso",
+      location: 'center_torso',
       damage,
       armorRemaining: 0,
       structureRemaining: 0,
@@ -138,56 +138,56 @@ function makeDamageEvent(targetUnitId: string, damage: number): IGameEvent {
 // Tests
 // =============================================================================
 
-describe("GameOutcomeCalculator", () => {
-  describe("calculateGameOutcome", () => {
-    it("should detect player victory by elimination", () => {
+describe('GameOutcomeCalculator', () => {
+  describe('calculateGameOutcome', () => {
+    it('should detect player victory by elimination', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: false }],
-        [{ id: "o1", destroyed: true }],
+        [{ id: 'p1', destroyed: false }],
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
       const input = createMockInput(state, config);
 
       const outcome = calculateGameOutcome(input);
 
-      expect(outcome.winner).toBe("player");
-      expect(outcome.reason).toBe("elimination");
+      expect(outcome.winner).toBe('player');
+      expect(outcome.reason).toBe('elimination');
       expect(outcome.playerUnitsSurviving).toBe(1);
       expect(outcome.opponentUnitsSurviving).toBe(0);
       expect(outcome.opponentUnitsDestroyed).toBe(1);
     });
 
-    it("should detect opponent victory by elimination", () => {
+    it('should detect opponent victory by elimination', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: true }],
-        [{ id: "o1", destroyed: false }],
+        [{ id: 'p1', destroyed: true }],
+        [{ id: 'o1', destroyed: false }],
       );
       const config = createMockConfig();
       const input = createMockInput(state, config);
 
       const outcome = calculateGameOutcome(input);
 
-      expect(outcome.winner).toBe("opponent");
-      expect(outcome.reason).toBe("elimination");
+      expect(outcome.winner).toBe('opponent');
+      expect(outcome.reason).toBe('elimination');
       expect(outcome.playerUnitsSurviving).toBe(0);
       expect(outcome.opponentUnitsSurviving).toBe(1);
     });
 
-    it("should detect draw by mutual destruction", () => {
+    it('should detect draw by mutual destruction', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: true }],
-        [{ id: "o1", destroyed: true }],
+        [{ id: 'p1', destroyed: true }],
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
       const input = createMockInput(state, config);
 
       const outcome = calculateGameOutcome(input);
 
-      expect(outcome.winner).toBe("draw");
-      expect(outcome.reason).toBe("mutual_destruction");
+      expect(outcome.winner).toBe('draw');
+      expect(outcome.reason).toBe('mutual_destruction');
     });
 
-    it("should handle turn limit with player advantage (damage delta beyond 5%)", () => {
+    it('should handle turn limit with player advantage (damage delta beyond 5%)', () => {
       // Per add-victory-and-post-battle-summary D3: turn-limit
       // tie-break is now damage-based with 5% tolerance, NOT
       // surviving unit count. Player-side dealt 300 damage to o1,
@@ -195,56 +195,56 @@ describe("GameOutcomeCalculator", () => {
       // the 5% tolerance, so player wins.
       const state = createMockState(
         [
-          { id: "p1", destroyed: false },
-          { id: "p2", destroyed: false },
+          { id: 'p1', destroyed: false },
+          { id: 'p2', destroyed: false },
         ],
-        [{ id: "o1", destroyed: false }],
+        [{ id: 'o1', destroyed: false }],
         10,
       );
       const config = createMockConfig(10);
       const events: IGameEvent[] = [
-        makeDamageEvent("o1", 300), // player dealt 300 to opponent unit
-        makeDamageEvent("p1", 100), // opponent dealt 100 to player unit
-        makeDamageEvent("p2", 100), // opponent dealt 100 to player unit
+        makeDamageEvent('o1', 300), // player dealt 300 to opponent unit
+        makeDamageEvent('p1', 100), // opponent dealt 100 to player unit
+        makeDamageEvent('p2', 100), // opponent dealt 100 to player unit
       ];
       const input = createMockInput(state, config, events);
 
       const outcome = calculateGameOutcome(input);
 
-      expect(outcome.winner).toBe("player");
-      expect(outcome.reason).toBe("turn_limit");
+      expect(outcome.winner).toBe('player');
+      expect(outcome.reason).toBe('turn_limit');
       expect(outcome.playerUnitsSurviving).toBe(2);
       expect(outcome.opponentUnitsSurviving).toBe(1);
     });
 
-    it("should handle turn limit with opponent advantage (damage delta beyond 5%)", () => {
+    it('should handle turn limit with opponent advantage (damage delta beyond 5%)', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: false }],
+        [{ id: 'p1', destroyed: false }],
         [
-          { id: "o1", destroyed: false },
-          { id: "o2", destroyed: false },
+          { id: 'o1', destroyed: false },
+          { id: 'o2', destroyed: false },
         ],
         10,
       );
       const config = createMockConfig(10);
       const events: IGameEvent[] = [
         // Opponent dealt more damage → opponent wins under D3 rule.
-        makeDamageEvent("p1", 300),
-        makeDamageEvent("o1", 100),
-        makeDamageEvent("o2", 100),
+        makeDamageEvent('p1', 300),
+        makeDamageEvent('o1', 100),
+        makeDamageEvent('o2', 100),
       ];
       const input = createMockInput(state, config, events);
 
       const outcome = calculateGameOutcome(input);
 
-      expect(outcome.winner).toBe("opponent");
-      expect(outcome.reason).toBe("turn_limit");
+      expect(outcome.winner).toBe('opponent');
+      expect(outcome.reason).toBe('turn_limit');
     });
 
-    it("should handle turn limit draw", () => {
+    it('should handle turn limit draw', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: false }],
-        [{ id: "o1", destroyed: false }],
+        [{ id: 'p1', destroyed: false }],
+        [{ id: 'o1', destroyed: false }],
         10,
       );
       const config = createMockConfig(10);
@@ -252,22 +252,22 @@ describe("GameOutcomeCalculator", () => {
 
       const outcome = calculateGameOutcome(input);
 
-      expect(outcome.winner).toBe("draw");
-      expect(outcome.reason).toBe("turn_limit");
+      expect(outcome.winner).toBe('draw');
+      expect(outcome.reason).toBe('turn_limit');
     });
 
-    it("should calculate duration correctly", () => {
+    it('should calculate duration correctly', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: false }],
-        [{ id: "o1", destroyed: true }],
+        [{ id: 'p1', destroyed: false }],
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
       const input: IOutcomeCalculationInput = {
         state,
         events: [],
         config,
-        startedAt: "2024-01-01T00:00:00Z",
-        endedAt: "2024-01-01T00:30:00Z", // 30 minutes
+        startedAt: '2024-01-01T00:00:00Z',
+        endedAt: '2024-01-01T00:30:00Z', // 30 minutes
       };
 
       const outcome = calculateGameOutcome(input);
@@ -275,16 +275,16 @@ describe("GameOutcomeCalculator", () => {
       expect(outcome.durationMs).toBe(30 * 60 * 1000); // 30 minutes in ms
     });
 
-    it("should count units correctly", () => {
+    it('should count units correctly', () => {
       const state = createMockState(
         [
-          { id: "p1", destroyed: false },
-          { id: "p2", destroyed: true },
-          { id: "p3", destroyed: false },
+          { id: 'p1', destroyed: false },
+          { id: 'p2', destroyed: true },
+          { id: 'p3', destroyed: false },
         ],
         [
-          { id: "o1", destroyed: true },
-          { id: "o2", destroyed: true },
+          { id: 'o1', destroyed: true },
+          { id: 'o2', destroyed: true },
         ],
       );
       const config = createMockConfig();
@@ -299,31 +299,31 @@ describe("GameOutcomeCalculator", () => {
     });
   });
 
-  describe("isGameEnded", () => {
-    it("should return true when player is eliminated", () => {
+  describe('isGameEnded', () => {
+    it('should return true when player is eliminated', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: true }],
-        [{ id: "o1", destroyed: false }],
+        [{ id: 'p1', destroyed: true }],
+        [{ id: 'o1', destroyed: false }],
       );
       const config = createMockConfig();
 
       expect(isGameEnded(state, config)).toBe(true);
     });
 
-    it("should return true when opponent is eliminated", () => {
+    it('should return true when opponent is eliminated', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: false }],
-        [{ id: "o1", destroyed: true }],
+        [{ id: 'p1', destroyed: false }],
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
 
       expect(isGameEnded(state, config)).toBe(true);
     });
 
-    it("should return true when turn limit exceeded", () => {
+    it('should return true when turn limit exceeded', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: false }],
-        [{ id: "o1", destroyed: false }],
+        [{ id: 'p1', destroyed: false }],
+        [{ id: 'o1', destroyed: false }],
         11, // Turn 11
       );
       const config = createMockConfig(10);
@@ -331,10 +331,10 @@ describe("GameOutcomeCalculator", () => {
       expect(isGameEnded(state, config)).toBe(true);
     });
 
-    it("should return false when game continues", () => {
+    it('should return false when game continues', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: false }],
-        [{ id: "o1", destroyed: false }],
+        [{ id: 'p1', destroyed: false }],
+        [{ id: 'o1', destroyed: false }],
         5,
       );
       const config = createMockConfig(10);
@@ -342,10 +342,10 @@ describe("GameOutcomeCalculator", () => {
       expect(isGameEnded(state, config)).toBe(false);
     });
 
-    it("should return false when no turn limit", () => {
+    it('should return false when no turn limit', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: false }],
-        [{ id: "o1", destroyed: false }],
+        [{ id: 'p1', destroyed: false }],
+        [{ id: 'o1', destroyed: false }],
         100,
       );
       const config = createMockConfig(0);
@@ -354,41 +354,41 @@ describe("GameOutcomeCalculator", () => {
     });
   });
 
-  describe("determineWinner", () => {
-    it("should return player when opponent eliminated", () => {
+  describe('determineWinner', () => {
+    it('should return player when opponent eliminated', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: false }],
-        [{ id: "o1", destroyed: true }],
+        [{ id: 'p1', destroyed: false }],
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
 
-      expect(determineWinner(state, config)).toBe("player");
+      expect(determineWinner(state, config)).toBe('player');
     });
 
-    it("should return opponent when player eliminated", () => {
+    it('should return opponent when player eliminated', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: true }],
-        [{ id: "o1", destroyed: false }],
+        [{ id: 'p1', destroyed: true }],
+        [{ id: 'o1', destroyed: false }],
       );
       const config = createMockConfig();
 
-      expect(determineWinner(state, config)).toBe("opponent");
+      expect(determineWinner(state, config)).toBe('opponent');
     });
 
-    it("should return draw when both eliminated", () => {
+    it('should return draw when both eliminated', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: true }],
-        [{ id: "o1", destroyed: true }],
+        [{ id: 'p1', destroyed: true }],
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
 
-      expect(determineWinner(state, config)).toBe("draw");
+      expect(determineWinner(state, config)).toBe('draw');
     });
 
-    it("should return null when game not over", () => {
+    it('should return null when game not over', () => {
       const state = createMockState(
-        [{ id: "p1", destroyed: false }],
-        [{ id: "o1", destroyed: false }],
+        [{ id: 'p1', destroyed: false }],
+        [{ id: 'o1', destroyed: false }],
         5,
       );
       const config = createMockConfig(10);

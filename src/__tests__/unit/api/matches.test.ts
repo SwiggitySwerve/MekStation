@@ -17,19 +17,19 @@
  * @spec openspec/changes/add-victory-and-post-battle-summary/specs/game-session-management/spec.md
  */
 
-import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
-import { mkdtempSync, rmSync } from "fs";
-import { tmpdir } from "os";
-import { join } from "path";
+import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { mkdtempSync, rmSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
-import getMatchesById from "@/pages/api/matches/[id]";
-import postMatches from "@/pages/api/matches";
-import { getSQLiteService } from "@/services/persistence/SQLiteService";
-import { GameSide } from "@/types/gameplay";
+import postMatches from '@/pages/api/matches';
+import getMatchesById from '@/pages/api/matches/[id]';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { GameSide } from '@/types/gameplay';
 import {
   POST_BATTLE_REPORT_VERSION,
   type IPostBattleReport,
-} from "@/utils/gameplay/postBattleReport";
+} from '@/utils/gameplay/postBattleReport';
 
 // =============================================================================
 // Test harness — minimal req/res mocks
@@ -48,7 +48,7 @@ function mockReqRes(overrides: {
 }): { req: any; res: any; result: MockResponse } {
   const result: MockResponse = { statusCode: 0, body: undefined, headers: {} };
   const req = {
-    method: overrides.method ?? "GET",
+    method: overrides.method ?? 'GET',
     query: overrides.query ?? {},
     body: overrides.body,
   };
@@ -74,9 +74,9 @@ function makeReport(
 ): IPostBattleReport {
   return {
     version: POST_BATTLE_REPORT_VERSION,
-    matchId: "test-match-" + Math.random().toString(36).slice(2, 10),
+    matchId: 'test-match-' + Math.random().toString(36).slice(2, 10),
     winner: GameSide.Player,
-    reason: "destruction",
+    reason: 'destruction',
     turnCount: 10,
     units: [],
     mvpUnitId: null,
@@ -93,9 +93,9 @@ let tempDir: string;
 let originalPath: string | undefined;
 
 beforeAll(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "matches-test-"));
+  tempDir = mkdtempSync(join(tmpdir(), 'matches-test-'));
   originalPath = process.env.DATABASE_PATH;
-  process.env.DATABASE_PATH = join(tempDir, "test.db");
+  process.env.DATABASE_PATH = join(tempDir, 'test.db');
   // Force re-init by closing any existing instance.
   try {
     getSQLiteService().close();
@@ -123,31 +123,31 @@ afterAll(() => {
 // Tests
 // =============================================================================
 
-describe("POST /api/matches", () => {
-  it("persists a versioned report and returns 201 with matchId", async () => {
-    const report = makeReport({ matchId: "m-create-ok" });
-    const { req, res, result } = mockReqRes({ method: "POST", body: report });
+describe('POST /api/matches', () => {
+  it('persists a versioned report and returns 201 with matchId', async () => {
+    const report = makeReport({ matchId: 'm-create-ok' });
+    const { req, res, result } = mockReqRes({ method: 'POST', body: report });
     await postMatches(req, res);
     expect(result.statusCode).toBe(201);
-    expect(result.body).toEqual({ matchId: "m-create-ok" });
+    expect(result.body).toEqual({ matchId: 'm-create-ok' });
   });
 
   it('rejects an unversioned report with 400 + "unversioned report" body', async () => {
     // Spec scenario: "Unversioned report rejected on read" — same
     // gate is enforced on the write side too so we don't store a
     // blob the read endpoint would reject.
-    const report = makeReport({ matchId: "m-bad-no-version" });
+    const report = makeReport({ matchId: 'm-bad-no-version' });
     delete (report as any).version;
-    const { req, res, result } = mockReqRes({ method: "POST", body: report });
+    const { req, res, result } = mockReqRes({ method: 'POST', body: report });
     await postMatches(req, res);
     expect(result.statusCode).toBe(400);
-    expect(result.body).toEqual({ error: "unversioned report" });
+    expect(result.body).toEqual({ error: 'unversioned report' });
   });
 
-  it("rejects an unknown-version report with 400 + descriptive error", async () => {
-    const report = makeReport({ matchId: "m-bad-version" });
+  it('rejects an unknown-version report with 400 + descriptive error', async () => {
+    const report = makeReport({ matchId: 'm-bad-version' });
     (report as any).version = 99;
-    const { req, res, result } = mockReqRes({ method: "POST", body: report });
+    const { req, res, result } = mockReqRes({ method: 'POST', body: report });
     await postMatches(req, res);
     expect(result.statusCode).toBe(400);
     expect(result.body).toEqual({
@@ -155,42 +155,42 @@ describe("POST /api/matches", () => {
     });
   });
 
-  it("rejects non-POST methods with 405", async () => {
-    const { req, res, result } = mockReqRes({ method: "GET" });
+  it('rejects non-POST methods with 405', async () => {
+    const { req, res, result } = mockReqRes({ method: 'GET' });
     await postMatches(req, res);
     expect(result.statusCode).toBe(405);
-    expect(result.headers.Allow).toBe("POST");
+    expect(result.headers.Allow).toBe('POST');
   });
 });
 
-describe("GET /api/matches/[id]", () => {
-  it("round-trips a persisted report", async () => {
+describe('GET /api/matches/[id]', () => {
+  it('round-trips a persisted report', async () => {
     // Spec scenario: "Reload reads persisted report".
-    const report = makeReport({ matchId: "m-roundtrip", turnCount: 7 });
-    const post = mockReqRes({ method: "POST", body: report });
+    const report = makeReport({ matchId: 'm-roundtrip', turnCount: 7 });
+    const post = mockReqRes({ method: 'POST', body: report });
     await postMatches(post.req, post.res);
     expect(post.result.statusCode).toBe(201);
 
     const get = mockReqRes({
-      method: "GET",
-      query: { id: "m-roundtrip" },
+      method: 'GET',
+      query: { id: 'm-roundtrip' },
     });
     await getMatchesById(get.req, get.res);
     expect(get.result.statusCode).toBe(200);
     const fetched = get.result.body as IPostBattleReport;
-    expect(fetched.matchId).toBe("m-roundtrip");
+    expect(fetched.matchId).toBe('m-roundtrip');
     expect(fetched.turnCount).toBe(7);
     expect(fetched.version).toBe(POST_BATTLE_REPORT_VERSION);
   });
 
-  it("returns 404 for missing match", async () => {
+  it('returns 404 for missing match', async () => {
     const { req, res, result } = mockReqRes({
-      method: "GET",
-      query: { id: "no-such-match" },
+      method: 'GET',
+      query: { id: 'no-such-match' },
     });
     await getMatchesById(req, res);
     expect(result.statusCode).toBe(404);
-    expect(result.body).toEqual({ error: "not found" });
+    expect(result.body).toEqual({ error: 'not found' });
   });
 
   it('returns 400 with "unversioned report" body for stored payload missing version', async () => {
@@ -203,16 +203,16 @@ describe("GET /api/matches/[id]", () => {
          (id, version, winner, reason, turn_count, payload, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
     ).run(
-      "m-unversioned",
+      'm-unversioned',
       0,
-      "player",
-      "destruction",
+      'player',
+      'destruction',
       5,
       JSON.stringify({
         // no `version` field at all
-        matchId: "m-unversioned",
-        winner: "player",
-        reason: "destruction",
+        matchId: 'm-unversioned',
+        winner: 'player',
+        reason: 'destruction',
         turnCount: 5,
         units: [],
         mvpUnitId: null,
@@ -222,15 +222,15 @@ describe("GET /api/matches/[id]", () => {
     );
 
     const { req, res, result } = mockReqRes({
-      method: "GET",
-      query: { id: "m-unversioned" },
+      method: 'GET',
+      query: { id: 'm-unversioned' },
     });
     await getMatchesById(req, res);
     expect(result.statusCode).toBe(400);
-    expect(result.body).toEqual({ error: "unversioned report" });
+    expect(result.body).toEqual({ error: 'unversioned report' });
   });
 
-  it("returns 400 with version-mismatch error for stored payload at version 99", async () => {
+  it('returns 400 with version-mismatch error for stored payload at version 99', async () => {
     // Spec scenario verbatim.
     const db = getSQLiteService().getDatabase();
     db.prepare(
@@ -238,16 +238,16 @@ describe("GET /api/matches/[id]", () => {
          (id, version, winner, reason, turn_count, payload, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
     ).run(
-      "m-v99",
+      'm-v99',
       99,
-      "player",
-      "destruction",
+      'player',
+      'destruction',
       5,
       JSON.stringify({
         version: 99,
-        matchId: "m-v99",
-        winner: "player",
-        reason: "destruction",
+        matchId: 'm-v99',
+        winner: 'player',
+        reason: 'destruction',
         turnCount: 5,
         units: [],
         mvpUnitId: null,
@@ -257,8 +257,8 @@ describe("GET /api/matches/[id]", () => {
     );
 
     const { req, res, result } = mockReqRes({
-      method: "GET",
-      query: { id: "m-v99" },
+      method: 'GET',
+      query: { id: 'm-v99' },
     });
     await getMatchesById(req, res);
     expect(result.statusCode).toBe(400);
@@ -267,13 +267,13 @@ describe("GET /api/matches/[id]", () => {
     });
   });
 
-  it("rejects non-GET methods with 405", async () => {
+  it('rejects non-GET methods with 405', async () => {
     const { req, res, result } = mockReqRes({
-      method: "POST",
-      query: { id: "whatever" },
+      method: 'POST',
+      query: { id: 'whatever' },
     });
     await getMatchesById(req, res);
     expect(result.statusCode).toBe(405);
-    expect(result.headers.Allow).toBe("GET");
+    expect(result.headers.Allow).toBe('GET');
   });
 });
