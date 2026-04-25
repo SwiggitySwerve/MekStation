@@ -74,6 +74,25 @@ Charges SHALL be available only when the attacker ran this turn. Damage to the t
 - **WHEN** resolution completes
 - **THEN** a `MissedCharge` PSR SHALL be queued on the attacker
 
+### Requirement: Charge Miss Displaces Attacker To Side Hex
+
+When a charge misses, the attacker SHALL be displaced to one of the two hexes 60 degrees off the charge direction (i.e., `(facing + 1) % 6` or `(facing + 5) % 6` from the attacker's pre-charge source hex), not into the target hex. The resolver SHALL prefer the higher-elevation candidate; on tie, the seeded RNG picks. If neither side hex is a valid displacement target, the attacker SHALL remain at the source hex. The target SHALL NOT receive a `PhysicalAttackTarget` PSR on miss because no contact occurs.
+
+#### Scenario: Charge miss displaces attacker to side hex
+
+- **GIVEN** an attacker that charged target hex `T` from source hex `S` along facing `F` and missed the to-hit roll
+- **WHEN** miss displacement resolves
+- **THEN** the attacker SHALL be moved to either `S.translated((F + 1) % 6)` or `S.translated((F + 5) % 6)`
+- **AND** the higher-elevation side hex SHALL be preferred; ties break via the seeded RNG
+- **AND** the attacker SHALL NOT enter target hex `T`
+
+#### Scenario: Charge miss with both side hexes invalid
+
+- **GIVEN** a charge miss where both side hexes are off-map or blocked
+- **WHEN** miss displacement resolves
+- **THEN** the attacker SHALL remain at source hex `S`
+- **AND** a `MissedCharge` PSR SHALL still be queued on the attacker
+
 ### Requirement: Death From Above (DFA) Resolution
 
 DFA SHALL be available only when the attacker jumped this turn. Target damage = `ceil(attacker.weight / 10) × 3`. Attacker leg damage = `ceil(attacker.weight / 5)`.

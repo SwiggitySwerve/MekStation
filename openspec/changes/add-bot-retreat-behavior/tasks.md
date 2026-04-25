@@ -9,8 +9,8 @@
 ## 2. Retreat Trigger Evaluation
 
 - [x] 2.1 Add `shouldRetreat(unit, behavior)` helper in `BotPlayer` (or new `RetreatAI.ts` module) that returns true when either trigger fires
-- [x] 2.2 Trigger A: `sum(destroyed internal structure points) / sum(starting internal structure points) > behavior.retreatThreshold`
-- [ ] 2.3 Trigger B: unit has received any through-armor critical on cockpit, gyro, or engine this match (check game event log for `CriticalHitApplied` events with matching locations)
+- [ ] 2.2 Trigger A: `sum(destroyed internal structure points) / sum(starting internal structure points) > behavior.retreatThreshold`. **NOTE:** the current `computeRetreatSignals` helper uses `destroyedLocations.length / totalLocations` (location-count ratio), which does NOT match the spec's points-of-internal-structure ratio. Apply wave MUST replace the implementation with a true points-based ratio. See design.md "Apply-Wave Note".
+- [ ] 2.3 Trigger B: unit has received any through-armor critical on cockpit, gyro, or engine this match — implemented via a scan of `session.events` for `GameEventType.ComponentDestroyed` events with `payload.unitId` matching and `payload.componentType ∈ {cockpit, gyro, engine}`. Per design.md R1, we reuse the existing `ComponentDestroyed` event rather than introducing a new `CriticalHitApplied` type. See `BotPlayer.computeRetreatSignals` (`src/simulation/ai/BotPlayer.ts:453-475`).
 - [ ] 2.4 Set `isRetreating = true` and `retreatTargetEdge = resolveEdge(behavior, unit, grid)` once triggered — lock the edge for the rest of the match
 - [x] 2.5 Write unit tests: unit at 51% structural loss triggers; cockpit TAC triggers even at 0% structural loss; `retreatEdge = 'none'` suppresses trigger
 

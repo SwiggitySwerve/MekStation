@@ -59,7 +59,11 @@ physicalAttacks, xpPending: true}`
 
 The after-combat report SHALL compute a single `mvpUnitId` selecting the
 winner-side unit with the greatest `damageDealt`, tie-broken first by
-lowest `damageReceived`, then by alphabetical designation.
+lowest `damageReceived`, then by alphabetical `designation`, and finally
+by lexicographic `unitId`. The final `unitId` guard ensures the picker
+is fully deterministic even when two units share the same chassis
+designation (a common case for duplicate-loadout hot-seat forces) and
+input ordering varies between runs of the same seeded session.
 
 #### Scenario: Clear MVP by damage dealt
 
@@ -73,6 +77,26 @@ lowest `damageReceived`, then by alphabetical designation.
   100
 - **WHEN** MVP is determined
 - **THEN** `mvpUnitId` SHALL equal unit A's id
+
+#### Scenario: Tie broken by alphabetical designation when damage taken equal
+
+- **GIVEN** two winner-side units both dealt 200 damage and both
+  received 80 damage; unit A's designation is `"Atlas AS7-D"` and unit
+  B's designation is `"Banshee BNC-3M"`
+- **WHEN** MVP is determined
+- **THEN** `mvpUnitId` SHALL equal the unit whose designation sorts
+  first lexicographically (unit A — `"Atlas"` < `"Banshee"`)
+
+#### Scenario: Final tie broken by lexicographic unitId
+
+- **GIVEN** two winner-side units that share every tie-break input
+  (same `damageDealt`, same `damageReceived`, same `designation` —
+  e.g., two `Atlas AS7-D` instances), with `unitId` values `"u-002"` and
+  `"u-001"`
+- **WHEN** MVP is determined
+- **THEN** `mvpUnitId` SHALL equal `"u-001"` (lexicographically first)
+- **AND** the result SHALL NOT depend on input ordering of the units
+  array
 
 #### Scenario: No MVP for zero-damage winner
 
