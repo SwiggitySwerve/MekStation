@@ -4,6 +4,15 @@
 
 ### Requirement: Post-Battle Ticket Source
 
+> DEFERRED naming alignment to Wave 5: this wave ships
+> `source: "combat" | "maintenance" | "manual"` (not `"post_battle"`)
+> and a `matchId` field (not `sourceBattleId`). Semantics match this
+> requirement exactly — `combat` is the post-battle origin tag, and
+> `matchId` is the originating battle id. Wave 5
+> (`add-post-battle-review-ui`) renames to align with this spec
+> verbatim once the review-ui's typed shape is locked. Today's union
+> is documented in `src/types/campaign/RepairTicket.ts:46-53,114-115`.
+
 The `IRepairTicket` model SHALL carry a `source` field distinguishing
 `"post_battle"` tickets (created by the repair queue builder) from
 `"maintenance"` tickets (periodic wear-and-tear) and `"manual"` tickets
