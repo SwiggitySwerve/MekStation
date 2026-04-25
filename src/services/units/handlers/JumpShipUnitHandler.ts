@@ -14,16 +14,11 @@ import {
   AerospaceMotionType,
   IAerospaceMovement,
 } from '@/types/unit/BaseUnitInterfaces';
-import { IBaseUnit } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import {
-  ICapitalMountedEquipment,
-  ITransportBay,
-  ICrewQuarters,
-  ICapitalCrewConfiguration,
-} from '@/types/unit/CapitalShipInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+
+import type { IJumpShip } from './JumpShipUnitHandler.types';
 
 import {
   AbstractUnitTypeHandler,
@@ -45,49 +40,12 @@ import {
   getBooleanFromRaw,
 } from './JumpShipUnitHandler.helpers';
 
-// ============================================================================
-// JumpShip Interface
-// ============================================================================
-
-/**
- * JumpShip unit interface
- */
-export interface IJumpShip extends IBaseUnit {
-  readonly unitType: UnitType.JUMPSHIP;
-  readonly motionType: AerospaceMotionType;
-  readonly movement: IAerospaceMovement;
-  readonly fuel: number;
-  readonly structuralIntegrity: number;
-  readonly heatSinks: number;
-  readonly heatSinkType: number;
-  readonly engineType: number;
-  readonly armorType: number;
-  readonly armor: readonly number[];
-  readonly armorByArc: {
-    readonly nose: number;
-    readonly frontLeftSide: number;
-    readonly frontRightSide: number;
-    readonly aftLeftSide: number;
-    readonly aftRightSide: number;
-    readonly aft: number;
-  };
-  readonly totalArmorPoints: number;
-  readonly kfDrive: {
-    readonly rating: number;
-    readonly integrityPoints: number;
-    readonly hasDriveCore: boolean;
-    readonly hasLithiumFusion: boolean;
-  };
-  readonly dockingCollars: number;
-  readonly crewConfiguration: ICapitalCrewConfiguration;
-  readonly transportBays: readonly ITransportBay[];
-  readonly quarters: readonly ICrewQuarters[];
-  readonly equipment: readonly ICapitalMountedEquipment[];
-  readonly escapePods: number;
-  readonly lifeBoats: number;
-  readonly gravDecks: number;
-  readonly hpg?: boolean;
-}
+// Re-export the handler-local interface so existing consumers can
+// still `import { IJumpShip } from './JumpShipUnitHandler'` (or via
+// the barrel `index.ts`). The canonical definition now lives in
+// `./JumpShipUnitHandler.types` to break the orchestrator <->
+// leaf circular import.
+export type { IJumpShip };
 
 // ============================================================================
 // JumpShip Unit Handler

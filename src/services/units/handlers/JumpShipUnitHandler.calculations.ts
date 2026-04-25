@@ -1,4 +1,4 @@
-import { IJumpShip } from './JumpShipUnitHandler';
+import type { IJumpShip } from './JumpShipUnitHandler.types';
 
 export function validateJumpShip(unit: IJumpShip): {
   errors: string[];
