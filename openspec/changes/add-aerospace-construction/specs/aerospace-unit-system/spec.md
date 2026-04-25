@@ -127,6 +127,38 @@ Small craft SHALL require crew and passenger quarters weight in construction.
 - **WHEN** validation runs
 - **THEN** `VAL-AERO-CREW` SHALL emit an error
 
+### Requirement: Wing-Mounted Heavy Weapon Cap
+
+The system SHALL cap the total tonnage of heavy weapons (PPC family, Gauss family, AC/20) mounted in any single wing arc of an ASF or CF at `floor(unitTonnage / 10)`. Small craft are exempt — `VAL-AERO-WING-HEAVY` SHALL NOT fire for sub-type Small Craft.
+
+#### Scenario: Wing cap exceeded on ASF
+
+- **GIVEN** a 65t ASF (cap = 6t per wing)
+- **WHEN** a 15t Gauss Rifle is mounted in the right wing
+- **THEN** `VAL-AERO-WING-HEAVY` SHALL emit an error
+
+#### Scenario: Small craft exempt
+
+- **GIVEN** a 100t small craft with 20t of PPCs in a side arc
+- **WHEN** validation runs
+- **THEN** `VAL-AERO-WING-HEAVY` SHALL NOT fire
+
+### Requirement: Small Craft Bomb Bay Configuration
+
+Small craft SHALL support multiple configurable bomb bays. Each bay SHALL cost `1 + capacityBombs` tons (1 ton structure + 1 ton per bomb of capacity). Total bomb-bay tonnage SHALL NOT exceed `floor(unitTonnage / 2)`. ASF and CF SHALL NOT declare configurable bomb bays — `VAL-AERO-BOMB-BAY` SHALL emit an error if they do.
+
+#### Scenario: Bomb bays exceed cap
+
+- **GIVEN** a 100t small craft (cap = 50t)
+- **WHEN** two bays totalling 56t are configured
+- **THEN** `VAL-AERO-BOMB-BAY` SHALL emit an error
+
+#### Scenario: ASF declares bomb bays
+
+- **GIVEN** a 65t ASF with a bomb bay declared
+- **WHEN** validation runs
+- **THEN** `VAL-AERO-BOMB-BAY` SHALL emit an error — only small craft may use configurable bays
+
 ### Requirement: Aerospace Construction Validation Rules
 
 The validation registry SHALL include the `VAL-AERO-*` rule group.
@@ -134,4 +166,4 @@ The validation registry SHALL include the `VAL-AERO-*` rule group.
 #### Scenario: Rule ids registered
 
 - **WHEN** the validation registry initializes
-- **THEN** `VAL-AERO-TONNAGE`, `VAL-AERO-THRUST`, `VAL-AERO-SI`, `VAL-AERO-FUEL`, `VAL-AERO-ARC-MAX`, and `VAL-AERO-CREW` SHALL be registered
+- **THEN** `VAL-AERO-TONNAGE`, `VAL-AERO-THRUST`, `VAL-AERO-SI`, `VAL-AERO-FUEL`, `VAL-AERO-ARC-MAX`, `VAL-AERO-CREW`, `VAL-AERO-WING-HEAVY`, and `VAL-AERO-BOMB-BAY` SHALL be registered

@@ -42,6 +42,11 @@ import {
 } from '@/utils/construction/aerospace/crewCalculations';
 import { aerospaceEngineWeight } from '@/utils/construction/aerospace/engineWeightAerospace';
 import {
+  arcSlotAvailable,
+  arcSlotLimit,
+  overLimitArcs,
+} from '@/utils/construction/aerospace/equipmentSlots';
+import {
   calculateFuelPoints,
   FUEL_POINTS_PER_TON,
   FUEL_MINIMUM_TONS,
@@ -1326,5 +1331,97 @@ describe('AERO_VALIDATION_RULE_IDS includes new rules', () => {
 
   it('includes VAL-AERO-BOMB-BAY', () => {
     expect(AERO_VALIDATION_RULE_IDS).toContain('VAL-AERO-BOMB-BAY');
+  });
+});
+
+// ============================================================================
+// Arc slot capacity (Equipment Mounting per Arc — slot count rules)
+// ============================================================================
+
+describe('arc slot capacity', () => {
+  describe('arcSlotLimit', () => {
+    it('Nose arc → 6', () => {
+      expect(arcSlotLimit(AerospaceArc.NOSE)).toBe(6);
+    });
+
+    it('LeftWing arc → 6', () => {
+      expect(arcSlotLimit(AerospaceArc.LEFT_WING)).toBe(6);
+    });
+
+    it('RightWing arc → 6', () => {
+      expect(arcSlotLimit(AerospaceArc.RIGHT_WING)).toBe(6);
+    });
+
+    it('Aft arc → 4', () => {
+      expect(arcSlotLimit(AerospaceArc.AFT)).toBe(4);
+    });
+
+    it('Fuselage arc → null (unlimited)', () => {
+      expect(arcSlotLimit(AerospaceArc.FUSELAGE)).toBeNull();
+    });
+  });
+
+  describe('arcSlotAvailable', () => {
+    it('Nose with 5 items: slot 6 still available → true', () => {
+      expect(arcSlotAvailable(AerospaceArc.NOSE, 5)).toBe(true);
+    });
+
+    it('Nose with 6 items: 7th slot rejected → false', () => {
+      // Mounting a 7th weapon in the Nose violates the cap of 6.
+      expect(arcSlotAvailable(AerospaceArc.NOSE, 6)).toBe(false);
+    });
+
+    it('Aft with 3 items: slot 4 still available → true', () => {
+      expect(arcSlotAvailable(AerospaceArc.AFT, 3)).toBe(true);
+    });
+
+    it('Aft with 4 items: 5th slot rejected → false', () => {
+      expect(arcSlotAvailable(AerospaceArc.AFT, 4)).toBe(false);
+    });
+
+    it('Fuselage with 999 items still allowed → true (unlimited)', () => {
+      expect(arcSlotAvailable(AerospaceArc.FUSELAGE, 999)).toBe(true);
+    });
+  });
+
+  describe('overLimitArcs', () => {
+    it('Nose with 7 items → returns [NOSE]', () => {
+      // 7 > limit of 6 → over-limit
+      const equipment = Array.from({ length: 7 }, () => ({
+        location: AerospaceArc.NOSE,
+      }));
+      expect(overLimitArcs(equipment)).toEqual([AerospaceArc.NOSE]);
+    });
+
+    it('all arcs within limits → returns []', () => {
+      const equipment = [
+        { location: AerospaceArc.NOSE },
+        { location: AerospaceArc.NOSE },
+        { location: AerospaceArc.LEFT_WING },
+        { location: AerospaceArc.LEFT_WING },
+        { location: AerospaceArc.RIGHT_WING },
+        { location: AerospaceArc.AFT },
+        { location: AerospaceArc.AFT },
+      ];
+      expect(overLimitArcs(equipment)).toEqual([]);
+    });
+
+    it('empty equipment list → returns []', () => {
+      expect(overLimitArcs([])).toEqual([]);
+    });
+
+    it('Fuselage with 50 items is never over-limit (unlimited)', () => {
+      const equipment = Array.from({ length: 50 }, () => ({
+        location: AerospaceArc.FUSELAGE,
+      }));
+      expect(overLimitArcs(equipment)).toEqual([]);
+    });
+
+    it('Aft with 5 items → returns [AFT] (cap is 4)', () => {
+      const equipment = Array.from({ length: 5 }, () => ({
+        location: AerospaceArc.AFT,
+      }));
+      expect(overLimitArcs(equipment)).toEqual([AerospaceArc.AFT]);
+    });
   });
 });
