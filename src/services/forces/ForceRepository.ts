@@ -26,25 +26,19 @@ import {
   updateAssignmentOperation,
   swapAssignmentsOperation,
 } from './ForceRepository.operations';
+import {
+  ForceErrorCode,
+  type IForceOperationResult,
+} from './ForceRepository.types';
 
 // =============================================================================
 // Result Types
 // =============================================================================
 
-export enum ForceErrorCode {
-  NotFound = 'NOT_FOUND',
-  DuplicateName = 'DUPLICATE_NAME',
-  ValidationError = 'VALIDATION_ERROR',
-  DatabaseError = 'DATABASE_ERROR',
-  CircularHierarchy = 'CIRCULAR_HIERARCHY',
-}
-
-export interface IForceOperationResult {
-  readonly success: boolean;
-  readonly id?: string;
-  readonly error?: string;
-  readonly errorCode?: ForceErrorCode;
-}
+// Re-exported from ForceRepository.types so existing consumers that import
+// these from `@/services/forces/ForceRepository` keep working unchanged.
+export { ForceErrorCode };
+export type { IForceOperationResult };
 
 // =============================================================================
 // Repository Interface
