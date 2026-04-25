@@ -16,7 +16,7 @@ import {
 } from '@/types/unit/BattleArmorInterfaces';
 
 import { validateAntiMechEquipment } from './antiMech';
-import { validateArmor } from './armor';
+import { camoBodySlots, validateArmor } from './armor';
 import { isArmLocation, isLegLocation } from './chassis';
 import { validateAllManipulatorCompatibility } from './manipulators';
 import { computeTrooperMass } from './mass';
@@ -87,6 +87,16 @@ function validateSlots(unit: IBattleArmorUnit): string[] {
           'Left Leg': 1,
           'Right Leg': 1,
         };
+
+  // Reserve Body slots consumed by armor-type fixtures (e.g., Stealth armor's
+  // camouflage generator, §Requirement 2 "Armor Points per Trooper" /
+  // tasks.md §5.3). These are not user-mounted equipment — they are a
+  // fixed cost of the chosen armor type — so we deduct them from Body
+  // capacity BEFORE the overflow check runs. A Stealth unit that mounts
+  // 2 body weapons now correctly trips VAL-BA-CLASS because only 1 Body
+  // slot is actually available.
+  const reservedBodySlots = camoBodySlots(unit.armorType);
+  capacity.Body -= reservedBodySlots;
 
   for (const [loc, used] of Object.entries(slotUsage)) {
     const cap = capacity[loc as keyof typeof capacity] ?? 0;
