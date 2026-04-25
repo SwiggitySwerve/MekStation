@@ -21,7 +21,11 @@ import { isArmLocation, isLegLocation } from './chassis';
 import { validateAllManipulatorCompatibility } from './manipulators';
 import { computeTrooperMass } from './mass';
 import { validateMovement } from './movement';
-import { validateSquadSize } from './squad';
+import { assertSquadHomogeneous, validateSquadSize } from './squad';
+import {
+  validateAPWeaponSlot,
+  validateAllHeavyWeaponClasses,
+} from './weaponGates';
 
 // ============================================================================
 // Result types
@@ -212,7 +216,31 @@ export function validateBattleArmorConstruction(
   );
   errors.push(...antiMechResult.errors);
 
-  // VAL-BA-CLASS: trooper mass
+  // VAL-BA-CLASS: heavy weapon weight class gate (§7.1)
+  const heavyWeaponResult = validateAllHeavyWeaponClasses(
+    unit.weapons,
+    unit.weightClass,
+  );
+  errors.push(...heavyWeaponResult.errors);
+
+  // VAL-BA-CLASS: AP weapon slot is Light-class-only (§8.4)
+  const apWeaponResult = validateAPWeaponSlot(unit.weapons, unit.weightClass);
+  errors.push(...apWeaponResult.errors);
+
+  // VAL-BA-SQUAD: squad loadout homogeneity invariant (§3.4)
+  // Runtime guard — the type system already prevents heterogeneous loadouts,
+  // this check catches any future refactor that would break the invariant.
+  try {
+    assertSquadHomogeneous(unit);
+  } catch (e) {
+    errors.push(
+      e instanceof Error
+        ? e.message
+        : `${BA_VALIDATION_RULES.VAL_BA_SQUAD}: squad loadout is not homogeneous`,
+    );
+  }
+
+  // VAL-BA-CLASS: trooper mass (includes extra-MP weight cost per §4.5)
   const massBreakdown = computeTrooperMass(
     unit.armorPointsPerTrooper,
     unit.armorType,
@@ -221,6 +249,12 @@ export function validateBattleArmorConstruction(
     unit.rightManipulator,
     unit.weapons,
     unit.equipment,
+    {
+      groundMP: unit.groundMP,
+      jumpMP: unit.jumpMP,
+      umuMP: unit.umuMP,
+      weightClass: unit.weightClass,
+    },
   );
 
   const classLimits = BA_WEIGHT_CLASS_LIMITS[unit.weightClass];
