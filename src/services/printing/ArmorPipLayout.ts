@@ -1,5 +1,10 @@
 import { processGroupedByFiveLayout } from './ArmorPipLayout.grouped';
 import { processStandardLayout } from './ArmorPipLayout.processing';
+import { Bounds } from './ArmorPipLayout.types';
+
+// Re-export Bounds for backward compatibility — historical consumers
+// imported it from './ArmorPipLayout' before the leaf-extraction refactor.
+export { Bounds };
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const PRECISION = 0.01;
@@ -15,43 +20,6 @@ export interface PipOptions {
   className?: string;
   staggered?: boolean;
   groupByFive?: boolean;
-}
-
-export class Bounds {
-  constructor(
-    public readonly left: number,
-    public readonly top: number,
-    public readonly right: number,
-    public readonly bottom: number,
-  ) {}
-
-  get width(): number {
-    return this.right - this.left;
-  }
-
-  get height(): number {
-    return this.bottom - this.top;
-  }
-
-  get centerX(): number {
-    return this.left + this.width / 2;
-  }
-
-  get centerY(): number {
-    return this.top + this.height / 2;
-  }
-
-  static fromRect(rect: Element): Bounds {
-    const x = parseFloat(rect.getAttribute('x') || '0');
-    const y = parseFloat(rect.getAttribute('y') || '0');
-    const width = parseFloat(rect.getAttribute('width') || '0');
-    const height = parseFloat(rect.getAttribute('height') || '0');
-    return new Bounds(x, y, x + width, y + height);
-  }
-
-  static empty(): Bounds {
-    return new Bounds(0, 0, 0, 0);
-  }
 }
 
 export class ArmorPipLayout {
