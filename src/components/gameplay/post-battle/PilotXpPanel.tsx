@@ -15,16 +15,16 @@
  * @module components/gameplay/post-battle/PilotXpPanel
  */
 
-import React from 'react';
+import React from "react";
 
-import { Badge } from '@/components/ui/Badge';
-import { Card, CardSection } from '@/components/ui/Card';
+import { Badge } from "@/components/ui/Badge";
+import { Card, CardSection } from "@/components/ui/Card";
 import {
   type ICombatOutcome,
   type IUnitCombatDelta,
   PilotFinalStatus,
-} from '@/types/combat/CombatOutcome';
-import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
+} from "@/types/combat/CombatOutcome";
+import { GameSide } from "@/types/gameplay/GameSessionInterfaces";
 
 export interface PilotXpPanelProps {
   /** Hand-off shape from the engine. */
@@ -40,24 +40,24 @@ export interface PilotXpPanelProps {
 }
 
 function pilotStatusBadge(status: PilotFinalStatus): {
-  variant: 'emerald' | 'amber' | 'orange' | 'red' | 'slate';
+  variant: "emerald" | "amber" | "orange" | "red" | "slate";
   label: string;
 } {
   switch (status) {
     case PilotFinalStatus.Active:
-      return { variant: 'emerald', label: 'ACTIVE' };
+      return { variant: "emerald", label: "ACTIVE" };
     case PilotFinalStatus.Wounded:
-      return { variant: 'amber', label: 'WOUNDED' };
+      return { variant: "amber", label: "WOUNDED" };
     case PilotFinalStatus.Unconscious:
-      return { variant: 'orange', label: 'UNCONSCIOUS' };
+      return { variant: "orange", label: "UNCONSCIOUS" };
     case PilotFinalStatus.KIA:
-      return { variant: 'red', label: 'KIA' };
+      return { variant: "red", label: "KIA" };
     case PilotFinalStatus.MIA:
-      return { variant: 'slate', label: 'MIA' };
+      return { variant: "slate", label: "MIA" };
     case PilotFinalStatus.Captured:
-      return { variant: 'slate', label: 'CAPTURED' };
+      return { variant: "slate", label: "CAPTURED" };
     default:
-      return { variant: 'slate', label: String(status).toUpperCase() };
+      return { variant: "slate", label: String(status).toUpperCase() };
   }
 }
 
@@ -101,6 +101,13 @@ function PilotRow({
   const { variant, label } = pilotStatusBadge(delta.pilotState.finalStatus);
   const displayName = pilotNames[delta.unitId] ?? delta.unitId;
   const xp = estimateXpGain(outcome, delta, scenarioXpBase, killXpPerKill);
+  // KIA pilots do not receive posthumous XP per campaign rules — the
+  // panel hides the XP estimate row for them and shows only the wound
+  // tracker + status badge.
+  const isKia = delta.pilotState.finalStatus === PilotFinalStatus.KIA;
+  // Clamp wounds to the 0..6 tracker capacity so junk data never
+  // produces 7+ filled dots.
+  const wounds = Math.min(6, Math.max(0, delta.pilotState.wounds));
 
   return (
     <li
@@ -109,10 +116,39 @@ function PilotRow({
     >
       <div>
         <div className="text-text-theme-primary font-medium">{displayName}</div>
-        <div className="text-text-theme-secondary mt-1 text-xs">
-          Wounds: {delta.pilotState.wounds}/6 &middot; XP gain:{' '}
-          <span className="text-emerald-400">+{xp}</span>
+        <div
+          className="mt-1 flex items-center gap-1"
+          aria-label={`Wounds taken: ${wounds} of 6`}
+          data-testid={`pilot-wound-tracker-${delta.unitId}`}
+        >
+          {Array.from({ length: 6 }).map((_, i) => (
+            <span
+              key={i}
+              data-testid={`pilot-wound-dot-${delta.unitId}-${i}`}
+              data-filled={i < wounds ? "true" : "false"}
+              className={
+                i < wounds
+                  ? "inline-block h-2 w-2 rounded-full bg-red-500"
+                  : "inline-block h-2 w-2 rounded-full bg-slate-600/60"
+              }
+            />
+          ))}
+          <span className="text-text-theme-secondary ml-2 text-xs">
+            {wounds}/6
+          </span>
         </div>
+        {isKia ? (
+          <div
+            className="mt-1 text-xs text-red-400"
+            data-testid={`pilot-kia-notice-${delta.unitId}`}
+          >
+            KIA — no posthumous XP awarded.
+          </div>
+        ) : (
+          <div className="text-text-theme-secondary mt-1 text-xs">
+            XP gain: <span className="text-emerald-400">+{xp}</span>
+          </div>
+        )}
       </div>
       <Badge
         variant={variant}

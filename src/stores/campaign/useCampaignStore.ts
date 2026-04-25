@@ -12,41 +12,41 @@
  * Persists entire campaign state to IndexedDB via clientSafeStorage.
  */
 
-import { create, StoreApi } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create, StoreApi } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
-import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
-import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
+import type { IShoppingList } from "@/types/campaign/acquisition/acquisitionTypes";
+import type { IFactionStanding } from "@/types/campaign/factionStanding/IFactionStanding";
+import type { ICombatOutcome } from "@/types/combat/CombatOutcome";
 
 import {
   subscribeToCombatOutcome,
   type ICombatOutcomeReadyEvent,
-} from '@/engine/combatOutcomeBus';
+} from "@/engine/combatOutcomeBus";
 import {
   advanceDayViaPipeline,
   DayReport,
-} from '@/lib/campaign/dayAdvancement';
-import { getDayPipeline } from '@/lib/campaign/dayPipeline';
-import { registerBuiltinProcessors } from '@/lib/campaign/processors';
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+} from "@/lib/campaign/dayAdvancement";
+import { getDayPipeline } from "@/lib/campaign/dayPipeline";
+import { registerBuiltinProcessors } from "@/lib/campaign/processors";
+import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
 import {
   ICampaign,
   ICampaignOptions,
   IMission,
   createCampaign as createCampaignEntity,
-} from '@/types/campaign/Campaign';
-import { CampaignType } from '@/types/campaign/CampaignType';
-import { ForceRole, FormationLevel } from '@/types/campaign/enums';
-import { TransactionType } from '@/types/campaign/enums/TransactionType';
-import { IForce } from '@/types/campaign/Force';
-import { Money } from '@/types/campaign/Money';
-import { IPerson } from '@/types/campaign/Person';
-import { Transaction } from '@/types/campaign/Transaction';
+} from "@/types/campaign/Campaign";
+import { CampaignType } from "@/types/campaign/CampaignType";
+import { ForceRole, FormationLevel } from "@/types/campaign/enums";
+import { TransactionType } from "@/types/campaign/enums/TransactionType";
+import { IForce } from "@/types/campaign/Force";
+import { Money } from "@/types/campaign/Money";
+import { IPerson } from "@/types/campaign/Person";
+import { Transaction } from "@/types/campaign/Transaction";
 
-import { createForcesStore, ForcesStore } from './useForcesStore';
-import { createMissionsStore, MissionsStore } from './useMissionsStore';
-import { createPersonnelStore, PersonnelStore } from './usePersonnelStore';
+import { createForcesStore, ForcesStore } from "./useForcesStore";
+import { createMissionsStore, MissionsStore } from "./useMissionsStore";
+import { createPersonnelStore, PersonnelStore } from "./usePersonnelStore";
 
 // =============================================================================
 // Serialized Campaign State (for persistence)
@@ -165,6 +165,15 @@ interface CampaignActions {
 
   /** Read the current pending outcome queue (immutable snapshot). */
   getPendingOutcomes: () => readonly ICombatOutcome[];
+
+  /**
+   * Per `add-post-battle-review-ui` § 10.1: returns true when an
+   * outcome for the given match id is currently in the pending queue
+   * — i.e., the post-battle review page can render with real data.
+   * Returns false otherwise (queue empty, or already-applied outcome
+   * has been dequeued).
+   */
+  reviewReady: (matchId: string) => boolean;
 
   /**
    * Per Wave 5 (`wire-encounter-to-campaign-round-trip`): banner
@@ -635,9 +644,13 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         getPendingOutcomes: () => get().pendingBattleOutcomes,
         getPendingOutcomeCount: () => get().pendingBattleOutcomes.length,
         getProcessedBattleIds: () => get().processedBattleIds,
+        reviewReady: (matchId) => {
+          if (!matchId) return false;
+          return get().pendingBattleOutcomes.some((o) => o.matchId === matchId);
+        },
       }),
       {
-        name: 'campaign-store',
+        name: "campaign-store",
         storage: createJSONStorage(() => clientSafeStorage),
         // Only persist campaign metadata, not sub-stores
         partialize: (state) => {
