@@ -150,13 +150,17 @@ describe('add-victory-and-post-battle-summary — smoke test', () => {
       expect(payload.winner).toBe(GameSide.Player);
     });
 
-    it('is a no-op once the game is already over', () => {
+    it('throws once the game is already over', () => {
       const engine = new GameEngine({ seed: 11111 });
       const interactive = engine.createInteractiveSession([], [], units);
       interactive.concede(GameSide.Player);
-      // Calling again should not append a second GameEnded event.
-      interactive.concede(GameSide.Player);
-      interactive.concede(GameSide.Opponent);
+
+      expect(() => interactive.concede(GameSide.Player)).toThrow(
+        'Game is not active',
+      );
+      expect(() => interactive.concede(GameSide.Opponent)).toThrow(
+        'Game is not active',
+      );
 
       const endedCount = interactive
         .getSession()
