@@ -78,6 +78,8 @@ Charges SHALL be available only when the attacker ran this turn. Damage to the t
 
 When a charge misses, the attacker SHALL be displaced to one of the two hexes 60 degrees off the charge direction (i.e., `(facing + 1) % 6` or `(facing + 5) % 6` from the attacker's pre-charge source hex), not into the target hex. The resolver SHALL prefer the higher-elevation candidate; on tie, the seeded RNG picks. If neither side hex is a valid displacement target, the attacker SHALL remain at the source hex. The target SHALL NOT receive a `PhysicalAttackTarget` PSR on miss because no contact occurs.
 
+> DEFERRED to Wave 4 (displacement persistence): the `computeMissedChargeDisplacement` helper ships in `physicalAttacks/displacement.ts` (validated by `physicalAttacksDisplacement.test.ts`) and computes the resolved destination deterministically. Applying the position change as a session-level reducer event (`UnitDisplaced`) is bundled into the Wave 4 displacement spec alongside push-displacement persistence — both share the same reducer hook + replay-event format.
+
 #### Scenario: Charge miss displaces attacker to side hex
 
 - **GIVEN** an attacker that charged target hex `T` from source hex `S` along facing `F` and missed the to-hit roll
@@ -114,6 +116,8 @@ DFA SHALL be available only when the attacker jumped this turn. Target damage = 
 ### Requirement: Push Resolution
 
 Pushes SHALL use piloting skill - 1 for to-hit, apply no damage, and displace the target 1 hex in the attacker's facing direction on success.
+
+> DEFERRED to Wave 4 (displacement persistence): the `computePushDisplacement` helper ships in `physicalAttacks/displacement.ts` and the resolver flags `targetDisplaced: true` on hit. The actual position change (and the "push fails into blocked hex → attacker falls" branch) requires the Wave 4 `UnitDisplaced` event + reducer hook. Push to-hit, no-damage semantics, target PSR queueing, and the helper-level "blocked hex" detection (`isValidDisplacement`) all ship in this change.
 
 #### Scenario: Push hit displaces target
 

@@ -327,33 +327,137 @@ export function resolveAllPhysicalAttacks(
     );
 
     if (result.hit && result.targetDamage > 0 && result.hitLocation) {
-      const damageState = buildDamageStateFromUnit(targetState);
-      const damageResult = resolveDamagePipeline(
-        damageState,
-        result.hitLocation as CombatLocation,
-        result.targetDamage,
-      );
-      for (const locationDamage of damageResult.result.locationDamages) {
-        const damageSeq = currentSession.events.length;
-        currentSession = appendEvent(
-          currentSession,
-          createDamageAppliedEvent(
-            currentSession.id,
-            damageSeq,
-            turn,
-            payload.targetId,
-            locationDamage.location,
-            locationDamage.damage,
-            locationDamage.armorRemaining,
-            locationDamage.structureRemaining,
-            locationDamage.destroyed,
-          ),
+      // Per `implement-physical-attack-phase` tasks 6.4 / 7.4: charge +
+      // DFA damage SHALL split into 5-point clusters with a hit-location
+      // roll per cluster. Punch / kick / push / club apply as a single
+      // chunk via the existing damage pipeline (their damage is rarely
+      // > 5 and tabletop applies them as one cluster).
+      const usesClusters =
+        payload.attackType === 'charge' || payload.attackType === 'dfa';
+      const clusters: readonly number[] = usesClusters
+        ? splitPhysicalDamageIntoClusters(result.targetDamage)
+        : [result.targetDamage];
+
+      for (const clusterDamage of clusters) {
+        // Per task 6.5 / 7.4-7.5: each cluster rolls its own hit-location
+        // (using the same hit-table the resolver already chose). The first
+        // cluster reuses the hit-location the resolver computed; later
+        // clusters re-roll.
+        const clusterIndex = clusters.indexOf(clusterDamage);
+        const clusterHitLocation =
+          clusterIndex === 0
+            ? result.hitLocation
+            : determinePhysicalHitLocation(
+                payload.attackType === 'kick' ? 'kick' : 'punch',
+                d6Roller,
+              );
+
+        const damageState = buildDamageStateFromUnit(targetState);
+        const damageResult = resolveDamagePipeline(
+          damageState,
+          clusterHitLocation as CombatLocation,
+          clusterDamage,
         );
+        for (const locationDamage of damageResult.result.locationDamages) {
+          const damageSeq = currentSession.events.length;
+          currentSession = appendEvent(
+            currentSession,
+            createDamageAppliedEvent(
+              currentSession.id,
+              damageSeq,
+              turn,
+              payload.targetId,
+              locationDamage.location,
+              locationDamage.damage,
+              locationDamage.armorRemaining,
+              locationDamage.structureRemaining,
+              locationDamage.destroyed,
+            ),
+          );
+        }
+      }
+    }
+
+    // Per task 7.4 / 7.5: DFA also damages the attacker's legs. Split
+    // attacker leg damage into 5-point clusters; alternate legs.
+    if (
+      result.hit &&
+      payload.attackType === 'dfa' &&
+      result.attackerLegDamagePerLeg > 0
+    ) {
+      const legClusters = splitPhysicalDamageIntoClusters(
+        result.attackerLegDamagePerLeg * 2,
+      );
+      let legIndex = 0;
+      for (const clusterDamage of legClusters) {
+        const leg = legIndex % 2 === 0 ? 'left_leg' : 'right_leg';
+        legIndex += 1;
+        const damageState = buildDamageStateFromUnit(attackerState);
+        const damageResult = resolveDamagePipeline(
+          damageState,
+          leg as CombatLocation,
+          clusterDamage,
+        );
+        for (const locationDamage of damageResult.result.locationDamages) {
+          const damageSeq = currentSession.events.length;
+          currentSession = appendEvent(
+            currentSession,
+            createDamageAppliedEvent(
+              currentSession.id,
+              damageSeq,
+              turn,
+              payload.attackerId,
+              locationDamage.location,
+              locationDamage.damage,
+              locationDamage.armorRemaining,
+              locationDamage.structureRemaining,
+              locationDamage.destroyed,
+            ),
+          );
+        }
+      }
+    }
+
+    // Per task 6.3: charge also damages the attacker. Apply as clusters.
+    if (
+      result.hit &&
+      payload.attackType === 'charge' &&
+      result.attackerDamage > 0
+    ) {
+      const attackerClusters = splitPhysicalDamageIntoClusters(
+        result.attackerDamage,
+      );
+      for (const clusterDamage of attackerClusters) {
+        const hitLocation = determinePhysicalHitLocation('punch', d6Roller);
+        const damageState = buildDamageStateFromUnit(attackerState);
+        const damageResult = resolveDamagePipeline(
+          damageState,
+          hitLocation as CombatLocation,
+          clusterDamage,
+        );
+        for (const locationDamage of damageResult.result.locationDamages) {
+          const damageSeq = currentSession.events.length;
+          currentSession = appendEvent(
+            currentSession,
+            createDamageAppliedEvent(
+              currentSession.id,
+              damageSeq,
+              turn,
+              payload.attackerId,
+              locationDamage.location,
+              locationDamage.damage,
+              locationDamage.armorRemaining,
+              locationDamage.structureRemaining,
+              locationDamage.destroyed,
+            ),
+          );
+        }
       }
     }
 
     // PSR queueing: target gets PhysicalAttackTarget on hit; attacker
-    // gets the per-attack-type miss PSR on miss.
+    // gets the per-attack-type miss PSR on miss. Per task 6.6 / 7.5,
+    // charge + DFA hits queue PSRs for BOTH attacker and target.
     if (result.hit && result.targetPSR) {
       const psrSeq = currentSession.events.length;
       currentSession = appendEvent(
@@ -367,6 +471,31 @@ export function resolveAllPhysicalAttacks(
           'Hit by physical attack',
           0,
           'physical_attack_target',
+        ),
+      );
+    }
+    if (result.hit && result.attackerPSR) {
+      // Per task 6.6 / 7.5: on charge / DFA hit the attacker also rolls a
+      // PSR. Use a typed trigger source so the PSR resolver can apply the
+      // attack-specific modifier table.
+      const attackerHitTrigger =
+        payload.attackType === 'charge'
+          ? 'charge_attacker_hit'
+          : payload.attackType === 'dfa'
+            ? 'dfa_attacker_hit'
+            : 'physical_attacker_hit';
+      const psrSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createPSRTriggeredEvent(
+          currentSession.id,
+          psrSeq,
+          turn,
+          GamePhase.PhysicalAttack,
+          payload.attackerId,
+          `Hit ${payload.attackType}`,
+          result.attackerPSRModifier,
+          attackerHitTrigger,
         ),
       );
     }
