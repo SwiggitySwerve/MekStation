@@ -26,16 +26,18 @@ Usage:
         --output /path/to/public/data/units/infantry
 """
 
+import os
 import sys
 import json
 import re
 import argparse
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 
 try:
     from enum_mappings import (
+        default_mm_data_root,
         map_tech_base,
         map_rules_level,
         map_year_to_era,
@@ -43,6 +45,14 @@ try:
         normalize_equipment_id,
     )
 except ImportError:
+    def default_mm_data_root() -> str:
+        env = os.environ.get("MM_DATA_ROOT")
+        if env:
+            return env
+        if os.name == "nt":
+            return r"E:\Projects\mm-data\data"
+        return "/e/Projects/mm-data/data"
+
     def map_tech_base(v: str) -> str:
         return "CLAN" if "Clan" in v else "INNER_SPHERE"
 
@@ -308,37 +318,62 @@ def convert_infantry_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dic
 # ---------------------------------------------------------------------------
 
 PARITY_TARGETS = [
-    # Verify platoon compositions for key infantry types
-    {"chassis": "Clan Anti-Infantry", "min_squad": 3, "max_squad": 6, "field": "squadSize"},
-    {"chassis": "Field Gun Infantry",  "min_squad": 2, "max_squad": 4, "field": "squadCount"},
-    {"chassis": "Clan Space Marine",   "min_squad": 3, "max_squad": 6, "field": "squadSize"},
+    # 10 canonical infantry platoons covering foot/jump/motorized/marine/etc.
+    {"chassis": "Clan Anti-Infantry",       "min_squad": 3, "max_squad": 6, "field": "squadSize"},
+    {"chassis": "Field Gun Infantry",       "min_squad": 2, "max_squad": 4, "field": "squadCount"},
+    {"chassis": "Clan Space Marine",        "min_squad": 3, "max_squad": 6, "field": "squadSize"},
+    {"chassis": "Clan Foot Point",          "min_squad": 4, "max_squad": 6, "field": "squadSize"},
+    {"chassis": "Clan Heavy Foot Infantry", "min_squad": 4, "max_squad": 6, "field": "squadSize"},
+    {"chassis": "Clan Jump Point",          "min_squad": 4, "max_squad": 6, "field": "squadSize"},
+    {"chassis": "Anti-'Mech Jump Infantry", "min_squad": 5, "max_squad": 8, "field": "squadSize"},
+    {"chassis": "AA Jump Infantry",         "min_squad": 5, "max_squad": 8, "field": "squadSize"},
+    {"chassis": "AA Mechanized Infantry",   "min_squad": 4, "max_squad": 7, "field": "squadSize"},
+    {"chassis": "Bandit Motorized Point",   "min_squad": 4, "max_squad": 6, "field": "squadSize"},
 ]
 
 
-def run_parity_checks(manifest: List[Dict[str, Any]], logger: logging.Logger) -> int:
+def run_parity_checks(
+    manifest: List[Dict[str, Any]],
+    logger: logging.Logger,
+) -> Tuple[int, List[Dict[str, Any]]]:
+    """Returns (failures, parity_records). BV parity deferred to wave 5."""
     failures = 0
     index: Dict[str, Dict[str, Any]] = {}
     for entry in manifest:
         key = entry.get("chassis", "").lower()
         index.setdefault(key, entry)
 
+    records: List[Dict[str, Any]] = []
     for target in PARITY_TARGETS:
         key = target["chassis"].lower()
         entry = index.get(key)
+        record: Dict[str, Any] = {
+            "chassis": target["chassis"],
+            "field": target["field"],
+            "expected_min": target["min_squad"],
+            "expected_max": target["max_squad"],
+        }
         if entry is None:
             logger.warning(f"Parity: '{target['chassis']}' not found in output")
+            record["status"] = "missing"
             failures += 1
+            records.append(record)
             continue
         val = entry.get(target["field"], 0)
+        record["actual"] = val
+        record["actual_equipment_count"] = len(entry.get("equipment", []) or [])
         if not (target["min_squad"] <= val <= target["max_squad"]):
             logger.error(
                 f"Parity FAIL: {target['chassis']} {target['field']}={val} "
                 f"expected [{target['min_squad']},{target['max_squad']}]"
             )
+            record["status"] = "fail"
             failures += 1
         else:
             logger.info(f"Parity OK: {target['chassis']} {target['field']}={val}")
-    return failures
+            record["status"] = "ok"
+        records.append(record)
+    return failures, records
 
 
 # ---------------------------------------------------------------------------
@@ -374,7 +409,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Convert BLK infantry files to MekStation JSON")
     parser.add_argument(
         "--source",
-        default=str(Path("/e/Projects/mm-data/data/mekfiles/infantry")),
+        default=str(Path(default_mm_data_root()) / "mekfiles" / "infantry"),
         help="Path to mm-data infantry directory",
     )
     parser.add_argument(
@@ -435,7 +470,32 @@ def main() -> int:
     manifest_path.write_text(json.dumps(manifest_data, indent=2, ensure_ascii=False), encoding="utf-8")
     logger.info(f"Manifest written: {manifest_path} ({len(manifest)} units)")
 
-    parity_failures = run_parity_checks(manifest, logger)
+    # Manifest size budget check (task 8.3): manifests > 5 MB defeat lazy loading.
+    MANIFEST_MAX_BYTES = 5 * 1024 * 1024
+    manifest_bytes = manifest_path.stat().st_size
+    if manifest_bytes > MANIFEST_MAX_BYTES:
+        logger.error(
+            f"Manifest size {manifest_bytes} bytes exceeds 5 MB budget — "
+            "trim per-entry metadata or split the manifest."
+        )
+        errors += 1
+    else:
+        logger.info(f"Manifest size OK: {manifest_bytes} bytes (budget 5 MB)")
+
+    parity_failures, parity_records = run_parity_checks(manifest, logger)
+
+    parity_report_dir = Path(__file__).parent.parent.parent / "validation-output"
+    parity_report_dir.mkdir(parents=True, exist_ok=True)
+    parity_report_path = parity_report_dir / "blk-infantry-parity.json"
+    parity_report_path.write_text(
+        json.dumps(
+            {"type": "infantry", "fixture_count": len(parity_records),
+             "failures": parity_failures, "records": parity_records},
+            indent=2, ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    logger.info(f"Parity report written: {parity_report_path}")
 
     logger.info(
         f"Done. converted={converted} skipped={skipped} errors={errors} parity_failures={parity_failures}"
@@ -451,6 +511,14 @@ def main() -> int:
         "parity_failures": parity_failures,
     }
     print(json.dumps(run_log))
+
+    # Persist the run-log (task 7.3).
+    log_dir = Path(__file__).parent.parent.parent / "validation-output"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / "blk-infantry-run-log.json"
+    log_path.write_text(json.dumps(run_log, indent=2), encoding="utf-8")
+    logger.info(f"Run log written: {log_path}")
+
     return 1 if (errors > 0 or parity_failures > 0) else 0
 
 
