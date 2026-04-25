@@ -21,10 +21,28 @@ This requirement is therefore **regression-protection-only**: it adds an explici
 - **AND** the phase transitions from Weapon Attack to Physical Attack within the same turn (via `applyPhaseChanged`)
 - **THEN** `state.pendingPSRs` retains the queued PSR (intended for resolution at turn N's End phase per archived `wire-piloting-skill-rolls` task 1.3 decision)
 
-## REMOVED Requirements
+## MODIFIED Requirements
 
-### Requirement: HeadStructureDamage PSR
+### Requirement: PSR Trigger Catalog
 
-**Reason:** Canonical Total Warfare treats head hits as a wound + consciousness check (handled by the damage pipeline via `applyPilotDamage` and the consciousness-roll system), not as a stability PSR. The original task in archived `wire-piloting-skill-rolls` (task 2.3) conflated two separate mechanics. The pilot-damage and consciousness-roll paths are already wired; the redundant "stability PSR on head hit" reference is being removed to prevent future contributors from re-implementing a mechanic that does not exist in TW.
+The system SHALL implement the canonical PSR trigger set including (but not limited to): `TwentyPlusPhaseDamage`, `LegStructureDamage`, `HipActuatorCrit`, `GyroCrit`, `LegActuatorCrit`, `EngineHit`, `JumpIntoWater`, `Skid`, `MASCFailure`, `SuperchargerFailure`, `AttemptStand`, `PhysicalAttackTarget`, `MissedDFA`, `MissedCharge`, `HeatShutdown`.
 
-**Migration:** Consumers requiring head-breach pilot effects SHALL use `applyPilotDamage` (cluster damage when head front + rear armor is breached) and the existing pilot consciousness-roll path. No replacement PSR factory or queue entry is required. The `archive/2026-04-25-wire-piloting-skill-rolls/tasks.md` task 2.3 SHALL be annotated `[x] DE-SCOPED — see tier5-audit-cleanup` for audit-trail integrity.
+`HeadStructureDamage` is intentionally absent from this catalog — canonical Total Warfare treats head hits as a wound + consciousness check (handled by the damage pipeline via `applyPilotDamage` and the consciousness-roll system), not as a stability PSR. The original task in archived `wire-piloting-skill-rolls` (task 2.3) conflated two separate mechanics. Consumers requiring head-breach pilot effects SHALL use `applyPilotDamage` (cluster damage when head front + rear armor is breached) and the existing pilot consciousness-roll path. No replacement PSR factory or queue entry is required.
+
+#### Scenario: Hip actuator crit fires PSR
+
+- **GIVEN** a hip actuator takes a critical hit
+- **WHEN** the crit effect is applied
+- **THEN** a `HipActuatorCrit` PSR SHALL be queued with `resolveAt: Immediate`
+
+#### Scenario: MASC failure queues PSR
+
+- **GIVEN** a unit uses MASC and the activation roll fails
+- **WHEN** the failure is processed
+- **THEN** a `MASCFailure` PSR SHALL be queued
+
+#### Scenario: Physical attack hit queues PSR
+
+- **GIVEN** a unit is hit by a kick / charge / DFA / push
+- **WHEN** the physical attack resolves
+- **THEN** a `PhysicalAttackTarget` PSR SHALL be queued for the target
