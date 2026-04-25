@@ -109,6 +109,27 @@ export default function GameSessionPage(): React.ReactElement {
     }
   }, [id, loadSession, createDemoSession]);
 
+  // Per `add-victory-and-post-battle-summary` design D7 + spec
+  // `game-session-management` "Game Completed Store Projection":
+  // when the session flips to `Completed` AND this is a standalone
+  // (non-campaign) match, redirect to the new victory screen at
+  // `/gameplay/games/[id]/victory`. Campaign-bound matches keep
+  // their existing `CompletedGame` flow (Wave 5 review path) so we
+  // don't double-redirect.
+  const isCompletedForRedirect =
+    session?.currentState.status === GameStatus.Completed;
+  const isCampaignBound = !!session?.config.contractId;
+  useEffect(() => {
+    if (
+      isCompletedForRedirect &&
+      !isCampaignBound &&
+      typeof id === 'string' &&
+      id !== 'demo'
+    ) {
+      void router.replace(`/gameplay/games/${id}/victory`);
+    }
+  }, [isCompletedForRedirect, isCampaignBound, id, router]);
+
   const isInteractive = !!interactiveSession;
 
   // Per add-movement-phase-ui § 4: track the hex the user is currently
