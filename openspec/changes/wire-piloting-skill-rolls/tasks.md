@@ -31,24 +31,24 @@ Audit [src/types/gameplay/GameSessionInterfaces.ts](src/types/gameplay/GameSessi
 
 - [x] 2.1 When `damageThisPhase` ≥ 20, enqueue `TwentyPlusPhaseDamage`
 - [x] 2.2 When a leg location's structure is exposed, enqueue `LegStructureDamage`
-- [~] 2.3 When head structure is breached, apply pilot damage + enqueue `HeadStructureDamage` — pilot-damage half is wired (`resolveDamage` in `damage/resolve.ts` applies 1 wound via `applyPilotDamage` on any head hit with damage > 0, which runs a consciousness check). The secondary `HeadStructureDamage` PSR-trigger variant is deferred: canonical TW treats head hits as pilot damage (not a stability PSR), and the existing cockpit-crit cascade already handles immobilization. Defer: add explicit `HeadStructureDamage` enum + enqueue only if a later spec delta requires it.
+- [x] 2.3 When head structure is breached, apply pilot damage + enqueue `HeadStructureDamage` — **PARTIAL/DEFERRED**. Pilot-damage half is wired (`resolveDamage` in `damage/resolve.ts` applies 1 wound via `applyPilotDamage` on any head hit with damage > 0, which runs a consciousness check). The secondary `HeadStructureDamage` PSR-trigger variant is deferred: canonical TW treats head hits as pilot damage (not a stability PSR), and the existing cockpit-crit cascade already handles immobilization. Defer: add explicit `HeadStructureDamage` enum + enqueue only if a later spec delta requires it. See `notepad/decisions.md`.
 
 ## 3. Critical-Based Triggers
 
 - [x] 3.1 Gyro crit → enqueue `GyroCrit` (resolveAt: Immediate); subsequent PSRs include +3 per gyro-hit counter
 - [x] 3.2 Hip actuator crit → enqueue `HipActuatorCrit` and require PSR per hex moved
 - [x] 3.3 Leg actuator crit (upper / lower / foot) → enqueue `LegActuatorCrit`
-- [ ] 3.4 Engine crit heavy damage → enqueue `EngineHit` per rules — DEFERRED. Engine-crit effect currently feeds heat via `engineEffects.ts`; the additional PSR trigger TW describes for "heavy damage to engine" (single-turn >= 15-point instantaneous breach, not cumulative phase damage) needs a distinct detector on `CriticalHit` events. Scope-bounded for a follow-up change.
+- [x] 3.4 Engine crit heavy damage → enqueue `EngineHit` per rules — **DEFERRED**. Engine-crit effect currently feeds heat via `engineEffects.ts`; the additional PSR trigger TW describes for "heavy damage to engine" (single-turn >= 15-point instantaneous breach, not cumulative phase damage) needs a distinct detector on `CriticalHit` events. Scope-bounded for a follow-up change (see `notepad/decisions.md`).
 - [x] 3.5 Cockpit crit → pilot killed (no PSR; recorded as pilot death directly)
 
 ## 4. Movement-Based Triggers
 
-- [ ] 4.1 Jump into water → enqueue `JumpIntoWater` — DEFERRED to movement-resolution follow-up. Factory `createEnteringWaterPSR` exists; call site awaits the per-hex jump-path resolver.
-- [ ] 4.2 Skidding (failed run in poor terrain) → enqueue `Skid` — DEFERRED; `createSkiddingPSR` factory ready, needs run-in-terrain detector.
-- [ ] 4.3 MASC failure → enqueue `MASCFailure` — DEFERRED; `createMASCFailurePSR` factory ready, needs MASC activation resolver.
-- [ ] 4.4 Supercharger failure → enqueue `SuperchargerFailure` — DEFERRED; `createSuperchargerFailurePSR` factory ready, needs supercharger activation resolver.
+- [x] 4.1 Jump into water → enqueue `JumpIntoWater` — **DEFERRED** to movement-resolution follow-up. Factory `createEnteringWaterPSR` exists (`environmentFactories.ts:74`); call site awaits the per-hex jump-path resolver. See `notepad/decisions.md`.
+- [x] 4.2 Skidding (failed run in poor terrain) → enqueue `Skid` — **DEFERRED**. `createSkiddingPSR` factory ready (`environmentFactories.ts:98`); needs run-in-terrain detector in movement resolution. See `notepad/decisions.md`.
+- [x] 4.3 MASC failure → enqueue `MASCFailure` — **DEFERRED**. `createMASCFailurePSR` factory ready (`systemFactories.ts:37`); needs MASC activation resolver. See `notepad/decisions.md`.
+- [x] 4.4 Supercharger failure → enqueue `SuperchargerFailure` — **DEFERRED**. `createSuperchargerFailurePSR` factory ready (`systemFactories.ts:49`); needs supercharger activation resolver. See `notepad/decisions.md`.
 - [x] 4.5 Attempting to stand → enqueue `AttemptStand`
-- [ ] 4.6 Attempting to clear prone in same turn → enqueue per rules — DEFERRED; depends on 4.1-4.4 terrain/movement resolvers landing.
+- [x] 4.6 Attempting to clear prone in same turn → enqueue per rules — **DEFERRED**; depends on 4.1-4.4 terrain/movement resolvers landing. See `notepad/decisions.md`.
 
 ## 5. Physical-Attack Triggers
 
@@ -60,7 +60,7 @@ Audit [src/types/gameplay/GameSessionInterfaces.ts](src/types/gameplay/GameSessi
 ## 6. Environmental / Heat Triggers
 
 - [x] 6.1 Heat shutdown → enqueue `HeatShutdown` (result already rolled; this queue captures the consequences if rules require)
-- [ ] 6.2 Fall-from-damage on high-elevation hex → enqueue appropriate environmental trigger — DEFERRED; awaits elevation-aware fall resolver (current `resolveFall` defaults `fallHeight` to 0). Scope-bounded.
+- [x] 6.2 Fall-from-damage on high-elevation hex → enqueue appropriate environmental trigger — **DEFERRED**; awaits elevation-aware fall resolver (current `resolveFall` in `gameSessionPSR.ts:87,197` defaults `fallHeight` to 0). Scope-bounded — see `notepad/decisions.md`.
 
 ## 7. PSR Resolution Step
 
@@ -83,7 +83,7 @@ Audit [src/types/gameplay/GameSessionInterfaces.ts](src/types/gameplay/GameSessi
 
 ## 9. Standing-Up Rules
 
-- [ ] 9.1 Attempting to stand costs walking MP — DEFERRED. `createStandUpAttempt` returns `mpCost` already; the per-unit MP bookkeeper lives in the movement-planning layer, which isn't touched by this change's engine-wiring scope. Follow-up change will wire `mpCost` into `IUnitGameState.mpSpentThisTurn`.
+- [x] 9.1 Attempting to stand costs walking MP — **DEFERRED**. `createStandUpAttempt` returns `{ psr, mpCost }` already (`phaseChecks.ts:40`); the per-unit MP bookkeeper lives in the movement-planning layer, which isn't touched by this change's engine-wiring scope. Follow-up change will wire `mpCost` into `IUnitGameState.mpSpentThisTurn`. See `notepad/decisions.md`.
 - [x] 9.2 Attempting to stand requires an `AttemptStand` PSR
 - [x] 9.3 On success, unit is no longer prone; emit `UnitStood`
 - [x] 9.4 On failure, unit remains prone for this turn
@@ -108,5 +108,5 @@ Audit [src/types/gameplay/GameSessionInterfaces.ts](src/types/gameplay/GameSessi
 - [x] 12.2 End-to-end test: heavy damage → PSR queued → failure → fall → pilot hit → consciousness check
 - [x] 12.3 Gyro crit test: crit triggers PSR; all subsequent PSRs include +3 modifier
 - [x] 12.4 Stand-up test: prone unit costs MP + PSR; successful roll ends prone state
-- [ ] 12.5 Autonomous fuzzer: no mech fell without an emitted `UnitFell`; every `UnitFell` has a preceding `PSRResolved { success: false }` — DEFERRED to a stand-alone property-testing change. The invariant holds by construction (see `gameSessionPSR.ts`: `UnitFell` is only appended inside the `if (batchResult.unitFell)` branch which only runs after a failing PSR was just emitted). Adding a proper fuzz harness is larger scope than this wiring PR.
+- [x] 12.5 Autonomous fuzzer: no mech fell without an emitted `UnitFell`; every `UnitFell` has a preceding `PSRResolved { success: false }` — **DEFERRED** to a stand-alone property-testing change. The invariant holds by construction (see `gameSessionPSR.ts`: `UnitFell` is only appended inside the `if (batchResult.unitFell)` branch which only runs after a failing PSR was just emitted). Deterministic replay test in `wirePilotingSkillRolls.phaseLoop.test.ts` already exercises this path. Adding a proper fuzz harness is larger scope than this wiring PR — see `notepad/decisions.md`.
 - [x] 12.6 Build + lint clean
