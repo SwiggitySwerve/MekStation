@@ -3,7 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 import type { IKillRecord, IMissionRecord, IPilot } from '@/types/pilot';
 
 import { getSQLiteService } from '../persistence/SQLiteService';
-import { PilotErrorCode, type IPilotOperationResult } from './PilotRepository';
+import {
+  PilotErrorCode,
+  type IPilotOperationResult,
+} from './PilotRepository.types';
 
 export function recordKill(
   pilotId: string,
@@ -22,10 +25,12 @@ export function recordKill(
   }
 
   try {
-    db.prepare(`
+    db.prepare(
+      `
       INSERT INTO pilot_kills (id, pilot_id, target_id, target_name, weapon_used, kill_date, game_id)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(
+    `,
+    ).run(
       uuidv4(),
       pilotId,
       kill.targetId,
@@ -35,9 +40,11 @@ export function recordKill(
       kill.gameId,
     );
 
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE pilots SET total_kills = total_kills + 1, updated_at = ? WHERE id = ?
-    `).run(now, pilotId);
+    `,
+    ).run(now, pilotId);
 
     return { success: true, id: pilotId };
   } catch (error) {
@@ -67,10 +74,12 @@ export function recordMission(
   }
 
   try {
-    db.prepare(`
+    db.prepare(
+      `
       INSERT INTO pilot_missions (id, pilot_id, game_id, mission_name, mission_date, outcome, xp_earned, kills)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
+    `,
+    ).run(
       uuidv4(),
       pilotId,
       mission.gameId,
@@ -88,7 +97,8 @@ export function recordMission(
           ? 'defeats'
           : 'draws';
 
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE pilots SET 
         missions_completed = missions_completed + 1,
         ${outcomeField} = ${outcomeField} + 1,
@@ -96,7 +106,8 @@ export function recordMission(
         total_xp_earned = total_xp_earned + ?,
         updated_at = ?
       WHERE id = ?
-    `).run(mission.xpEarned, mission.xpEarned, now, pilotId);
+    `,
+    ).run(mission.xpEarned, mission.xpEarned, now, pilotId);
 
     return { success: true, id: pilotId };
   } catch (error) {
@@ -126,13 +137,15 @@ export function addXp(
   }
 
   try {
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE pilots SET 
         xp = xp + ?,
         total_xp_earned = total_xp_earned + ?,
         updated_at = ?
       WHERE id = ?
-    `).run(amount, amount, now, pilotId);
+    `,
+    ).run(amount, amount, now, pilotId);
 
     return { success: true, id: pilotId };
   } catch (error) {
@@ -171,9 +184,11 @@ export function spendXp(
   }
 
   try {
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE pilots SET xp = xp - ?, updated_at = ? WHERE id = ?
-    `).run(amount, now, pilotId);
+    `,
+    ).run(amount, now, pilotId);
 
     return { success: true, id: pilotId };
   } catch (error) {
