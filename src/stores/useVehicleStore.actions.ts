@@ -1,29 +1,29 @@
 import {
   VehicleLocation,
   VTOLLocation,
-} from '@/types/construction/UnitLocation';
-import { IEquipmentItem } from '@/types/equipment';
-import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+} from "@/types/construction/UnitLocation";
+import { IEquipmentItem } from "@/types/equipment";
+import { EquipmentCategory } from "@/types/equipment/EquipmentCategory";
+import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
+import { UnitType } from "@/types/unit/BattleMechInterfaces";
 import {
   TurretType,
   ITurretConfiguration,
-} from '@/types/unit/VehicleInterfaces';
+} from "@/types/unit/VehicleInterfaces";
 import {
   computePowerAmplifierWeight,
   requiresPowerAmplifiers,
-} from '@/utils/construction/vehicle/powerAmplifier';
+} from "@/utils/construction/vehicle/powerAmplifier";
 
 import {
   getVehicleWeightClass,
   calculateFlankMP,
-} from './useVehicleStore.helpers';
+} from "./useVehicleStore.helpers";
 import {
   VehicleStore,
   createEmptyVehicleArmorAllocation,
   createEmptyVTOLArmorAllocation,
-} from './vehicleState';
+} from "./vehicleState";
 
 export function setEngineRatingLogic(
   state: VehicleStore,
@@ -195,9 +195,9 @@ export function autoAllocateArmorLogic(
   const hasTurret = state.turret !== null;
   const isVTOL = state.motionType === GroundMotionType.VTOL;
 
-  const frontPercent = 0.35;
+  const frontPercent = 0.4;
   const sidePercent = 0.2;
-  const rearPercent = 0.15;
+  const rearPercent = 0.1;
   const turretPercent = hasTurret ? 0.1 : 0;
   const rotorPercent = isVTOL ? 0.02 : 0;
 
