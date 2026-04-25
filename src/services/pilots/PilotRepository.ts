@@ -31,25 +31,20 @@ import {
   type PilotRow,
 } from './PilotRepository.helpers';
 import { buildUpdateQuery } from './PilotRepository.queries';
+import {
+  PilotErrorCode,
+  type IPilotOperationResult,
+} from './PilotRepository.types';
 
 // =============================================================================
 // Result Types
 // =============================================================================
 
-export enum PilotErrorCode {
-  NotFound = 'NOT_FOUND',
-  DuplicateName = 'DUPLICATE_NAME',
-  ValidationError = 'VALIDATION_ERROR',
-  DatabaseError = 'DATABASE_ERROR',
-  InsufficientXp = 'INSUFFICIENT_XP',
-}
-
-export interface IPilotOperationResult {
-  readonly success: boolean;
-  readonly id?: string;
-  readonly error?: string;
-  readonly errorCode?: PilotErrorCode;
-}
+// Re-exported from PilotRepository.types so existing consumers that import
+// these from `@/services/pilots/PilotRepository` (or via the pilots barrel
+// index) keep working unchanged.
+export { PilotErrorCode };
+export type { IPilotOperationResult };
 
 // =============================================================================
 // Repository Interface

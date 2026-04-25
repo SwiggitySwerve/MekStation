@@ -10,11 +10,14 @@ import {
 } from '@/types/force';
 
 import { getSQLiteService } from '../persistence/SQLiteService';
-import { ForceErrorCode, type IForceOperationResult } from './ForceRepository';
 import {
   wouldCreateCycle,
   type AssignmentRow,
 } from './ForceRepository.helpers';
+import {
+  ForceErrorCode,
+  type IForceOperationResult,
+} from './ForceRepository.types';
 
 export function createForceOperation(
   request: ICreateForceRequest,
