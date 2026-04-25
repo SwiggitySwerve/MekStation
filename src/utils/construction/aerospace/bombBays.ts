@@ -27,8 +27,9 @@
  * Requirement: Equipment Mounting per Arc
  */
 
-import { AerospaceSubType } from "../../../types/unit/AerospaceInterfaces";
-import type { AerospaceValidationError } from "./validationRules";
+import type { AerospaceValidationError } from './validationRules';
+
+import { AerospaceSubType } from '../../../types/unit/AerospaceInterfaces';
 
 // ============================================================================
 // Configuration Types
@@ -106,7 +107,7 @@ export function validateBombBays(
   if (subType !== AerospaceSubType.SMALL_CRAFT) {
     if (bays.length > 0) {
       errors.push({
-        ruleId: "VAL-AERO-BOMB-BAY",
+        ruleId: 'VAL-AERO-BOMB-BAY',
         message: `Bomb bays are only configurable on small craft; ${subType} must use the single bombCapacity field`,
       });
     }
@@ -117,7 +118,7 @@ export function validateBombBays(
   for (const bay of bays) {
     if (!Number.isInteger(bay.capacityBombs) || bay.capacityBombs < 0) {
       errors.push({
-        ruleId: "VAL-AERO-BOMB-BAY",
+        ruleId: 'VAL-AERO-BOMB-BAY',
         message: `Bomb bay "${bay.id}" capacity must be a non-negative integer; got ${bay.capacityBombs}`,
       });
     }
@@ -128,7 +129,7 @@ export function validateBombBays(
   const cap = maxBombBayTons(tonnage, subType);
   if (totalTons > cap) {
     errors.push({
-      ruleId: "VAL-AERO-BOMB-BAY",
+      ruleId: 'VAL-AERO-BOMB-BAY',
       message: `Bomb bay tonnage ${totalTons}t exceeds cap ${cap}t for ${tonnage}t ${subType}`,
     });
   }

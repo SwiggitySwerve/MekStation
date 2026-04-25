@@ -23,11 +23,12 @@
  * Requirement: Equipment Mounting per Arc
  */
 
+import type { AerospaceValidationError } from './validationRules';
+
 import {
   AerospaceArc,
   AerospaceSubType,
-} from "../../../types/unit/AerospaceInterfaces";
-import type { AerospaceValidationError } from "./validationRules";
+} from '../../../types/unit/AerospaceInterfaces';
 
 // ============================================================================
 // Heavy Weapon Classification
@@ -40,11 +41,11 @@ import type { AerospaceValidationError } from "./validationRules";
  * new family requires reviewing the cap value too.
  */
 const HEAVY_WEAPON_FRAGMENTS: readonly string[] = [
-  "ppc",
-  "gauss",
-  "ac/20",
-  "ac20",
-  "autocannon/20",
+  'ppc',
+  'gauss',
+  'ac/20',
+  'ac20',
+  'autocannon/20',
 ];
 
 /**
@@ -154,7 +155,7 @@ export function validateWingHeavyWeapons(
   tons.forEach((sum, arc) => {
     if (sum > cap) {
       errors.push({
-        ruleId: "VAL-AERO-WING-HEAVY",
+        ruleId: 'VAL-AERO-WING-HEAVY',
         message: `Wing "${arc}" carries ${sum}t of heavy weapons; cap for ${tonnage}t ${subType} is ${cap}t`,
       });
     }
