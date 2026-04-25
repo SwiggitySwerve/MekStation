@@ -1,6 +1,7 @@
 import { ISerializedFluff } from '@/types/unit/UnitSerialization';
 
 import { normalizeEquipmentId, normalizeLocation } from './MTFParser.mapping';
+import { parseField } from './MTFParser.types';
 
 export {
   parseEngine,
@@ -18,6 +19,7 @@ export {
   normalizeLocation,
   generateUnitId,
 } from './MTFParser.mapping';
+export { parseField } from './MTFParser.types';
 
 const LOCATION_HEADERS: Record<string, string> = {
   'Left Arm:': 'LEFT_ARM',
@@ -64,20 +66,6 @@ export interface ParsedMTFHeader {
   clanname?: string;
   isOmni: boolean;
   baseChassisHeatSinks?: number;
-}
-
-export function parseField(
-  lines: string[],
-  fieldName: string,
-): string | undefined {
-  const pattern = new RegExp(`^${fieldName}:(.*)$`, 'i');
-  for (const line of lines) {
-    const match = line.match(pattern);
-    if (match) {
-      return match[1].trim();
-    }
-  }
-  return undefined;
 }
 
 export function parseHeader(lines: string[]): ParsedMTFHeader {
