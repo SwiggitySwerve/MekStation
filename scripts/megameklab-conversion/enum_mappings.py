@@ -8,7 +8,24 @@ Usage:
     from enum_mappings import map_tech_base, map_engine_type, map_armor_location
 """
 
+import os
 from typing import Optional, Dict
+
+
+def default_mm_data_root() -> str:
+    """Return the platform-correct default mm-data root.
+
+    Honours the ``MM_DATA_ROOT`` env var. Otherwise falls back to the canonical
+    install location used by MekStation contributors. On Windows the path uses
+    a drive letter; elsewhere we keep the POSIX-style path so the docs example
+    still resolves cleanly.
+    """
+    env = os.environ.get("MM_DATA_ROOT")
+    if env:
+        return env
+    if os.name == "nt":
+        return r"E:\Projects\mm-data\data"
+    return "/e/Projects/mm-data/data"
 
 # =============================================================================
 # TECH BASE MAPPINGS

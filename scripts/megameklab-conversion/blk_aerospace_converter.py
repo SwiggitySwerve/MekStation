@@ -30,6 +30,7 @@ from typing import Dict, List, Optional, Any, Tuple
 
 try:
     from enum_mappings import (
+        default_mm_data_root,
         map_tech_base,
         map_rules_level,
         map_engine_type,
@@ -38,6 +39,14 @@ try:
         normalize_equipment_id,
     )
 except ImportError:
+    def default_mm_data_root() -> str:
+        env = os.environ.get("MM_DATA_ROOT")
+        if env:
+            return env
+        if os.name == "nt":
+            return r"E:\Projects\mm-data\data"
+        return "/e/Projects/mm-data/data"
+
     def map_tech_base(v: str) -> str:
         m = {"Clan": "CLAN", "Mixed": "MIXED"}
         return m.get(v.strip(), "INNER_SPHERE")
@@ -471,34 +480,58 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
 # ---------------------------------------------------------------------------
 
 PARITY_TARGETS = [
-    {"chassis": "Shilone",    "model": "SL-17",  "min_tons": 60, "max_tons": 70},
-    {"chassis": "Stuka",      "model": "",        "min_tons": 95, "max_tons": 105},
-    {"chassis": "Sparrowhawk","model": "",        "min_tons": 25, "max_tons": 35},
-    {"chassis": "Firebird",   "model": "FR-1",    "min_tons": 40, "max_tons": 50},
+    # 10 canonical aerospace fighters with verified MUL tonnage ranges.
+    {"chassis": "Shilone",     "model": "SL-17", "min_tons": 60,  "max_tons": 70},
+    {"chassis": "Stuka",       "model": "",      "min_tons": 95,  "max_tons": 105},
+    {"chassis": "Sparrowhawk", "model": "",      "min_tons": 25,  "max_tons": 35},
+    {"chassis": "Firebird",    "model": "FR-1",  "min_tons": 40,  "max_tons": 50},
+    {"chassis": "Sabre",       "model": "",      "min_tons": 20,  "max_tons": 30},
+    {"chassis": "Sholagar",    "model": "",      "min_tons": 30,  "max_tons": 40},
+    {"chassis": "Lucifer",     "model": "",      "min_tons": 60,  "max_tons": 70},
+    {"chassis": "Slayer",      "model": "",      "min_tons": 75,  "max_tons": 85},
+    {"chassis": "Hellcat",     "model": "",      "min_tons": 55,  "max_tons": 65},
+    {"chassis": "Eagle",       "model": "",      "min_tons": 70,  "max_tons": 80},
 ]
 
 
-def run_parity_checks(manifest: List[Dict[str, Any]], logger: logging.Logger) -> int:
+def run_parity_checks(
+    manifest: List[Dict[str, Any]],
+    logger: logging.Logger,
+) -> Tuple[int, List[Dict[str, Any]]]:
+    """Returns (failures, parity_records). BV parity deferred to wave 5."""
     failures = 0
     index: Dict[str, Dict[str, Any]] = {}
     for entry in manifest:
         key = entry.get("chassis", "").lower()
         index[key] = entry
 
+    records: List[Dict[str, Any]] = []
     for target in PARITY_TARGETS:
         key = target["chassis"].lower()
         entry = index.get(key)
+        record: Dict[str, Any] = {
+            "chassis": target["chassis"],
+            "expected_min_tons": target["min_tons"],
+            "expected_max_tons": target["max_tons"],
+        }
         if entry is None:
             logger.warning(f"Parity: '{target['chassis']}' not found in output")
+            record["status"] = "missing"
             failures += 1
+            records.append(record)
             continue
         tonnage = entry.get("tonnage", 0)
+        record["actual_tons"] = tonnage
+        record["actual_equipment_count"] = len(entry.get("equipment", []) or [])
         if not (target["min_tons"] <= tonnage <= target["max_tons"]):
             logger.error(f"Parity FAIL: {target['chassis']} tonnage={tonnage} expected [{target['min_tons']},{target['max_tons']}]")
+            record["status"] = "fail"
             failures += 1
         else:
             logger.info(f"Parity OK: {target['chassis']} tonnage={tonnage}")
-    return failures
+            record["status"] = "ok"
+        records.append(record)
+    return failures, records
 
 
 # ---------------------------------------------------------------------------
@@ -535,7 +568,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Convert BLK aerospace files to MekStation JSON")
     parser.add_argument(
         "--source",
-        default=str(Path("/e/Projects/mm-data/data/mekfiles")),
+        default=str(Path(default_mm_data_root()) / "mekfiles"),
         help="Path to mm-data mekfiles root (contains fighters/, convfighter/, smallcraft/)",
     )
     parser.add_argument(
@@ -607,7 +640,32 @@ def main() -> int:
     manifest_path.write_text(json.dumps(manifest_data, indent=2, ensure_ascii=False), encoding="utf-8")
     logger.info(f"Manifest written: {manifest_path} ({len(manifest)} units)")
 
-    parity_failures = run_parity_checks(manifest, logger)
+    # Manifest size budget check (task 8.3): manifests > 5 MB defeat lazy loading.
+    MANIFEST_MAX_BYTES = 5 * 1024 * 1024
+    manifest_bytes = manifest_path.stat().st_size
+    if manifest_bytes > MANIFEST_MAX_BYTES:
+        logger.error(
+            f"Manifest size {manifest_bytes} bytes exceeds 5 MB budget — "
+            "trim per-entry metadata or split the manifest."
+        )
+        errors += 1
+    else:
+        logger.info(f"Manifest size OK: {manifest_bytes} bytes (budget 5 MB)")
+
+    parity_failures, parity_records = run_parity_checks(manifest, logger)
+
+    parity_report_dir = Path(__file__).parent.parent.parent / "validation-output"
+    parity_report_dir.mkdir(parents=True, exist_ok=True)
+    parity_report_path = parity_report_dir / "blk-aerospace-parity.json"
+    parity_report_path.write_text(
+        json.dumps(
+            {"type": "aerospace", "fixture_count": len(parity_records),
+             "failures": parity_failures, "records": parity_records},
+            indent=2, ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    logger.info(f"Parity report written: {parity_report_path}")
 
     logger.info(
         f"Done. converted={converted} skipped_unsupported={skipped_unsupported} "
@@ -625,6 +683,14 @@ def main() -> int:
         "parity_failures": parity_failures,
     }
     print(json.dumps(run_log))
+
+    # Persist the run-log (task 7.3).
+    log_dir = Path(__file__).parent.parent.parent / "validation-output"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / "blk-aerospace-run-log.json"
+    log_path.write_text(json.dumps(run_log, indent=2), encoding="utf-8")
+    logger.info(f"Run log written: {log_path}")
+
     return 1 if (errors > 0 or parity_failures > 0) else 0
 
 
