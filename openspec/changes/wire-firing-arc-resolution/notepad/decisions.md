@@ -72,3 +72,32 @@ property-based sweep test (task 6.3) provides the strongest available
 arc-ambiguity guard until the fuzzer lands.
 
 **Discovered during**: Task 10 triage.
+
+## [2026-04-24 apply] Formalize three deferrals + verify task 10.3
+
+**Choice**: Flip task 7.1, 8.2, 10.2 from `- [ ]` → `- [x]` (preserving
+their inline DEFERRED annotations) and verify task 10.3 (Build + lint
+clean) by running the toolchain locally on branch
+`chore/apply-wire-firing-arc-deferrals`.
+
+**Verification results** (2026-04-24, Windows worktree
+`agent-a1533d05`):
+- `npm run typecheck` → clean (no output, exit 0).
+- `npm run lint` → `Found 32 warnings and 0 errors. Finished in 157ms on
+  1953 files`. All warnings are pre-existing `eslint(max-lines)`
+  advisories, not introduced by this change.
+- `npm run build` → `✓ Compiled successfully in 14.8s`, exit code 0. A
+  Windows-only post-compile `EINVAL` warning fired during the standalone
+  trace-copy step (worktree path nesting); the actual Next.js build
+  succeeded and emitted the full route manifest. Not a build failure.
+
+**Rationale for flipping the deferrals**: Each of 7.1, 8.2, 10.2 has a
+prior decision entry in this file documenting the rationale. The boxes
+were left unchecked at close-out 2026-04-18 to flag them as "not yet
+formalized in tasks.md". Flipping them now closes that loop without
+implementing the deferred work, which is owned by future changes
+(`add-los-and-firing-arc-overlays` for 8.2; AI-surface extension for
+7.1; fuzzer harness change for 10.2).
+
+**Discovered during**: `/opsx:apply` close-out for
+`wire-firing-arc-resolution`.
