@@ -14,14 +14,14 @@
  *       Scenario: Compact layout fits 5 ProtoMechs side-by-side
  */
 
-import { fireEvent, render, screen } from '@testing-library/react';
-import React from 'react';
+import { fireEvent, render, screen } from "@testing-library/react";
+import React from "react";
 
-import { ProtoMechArmorDiagram } from '@/components/customizer/protomech/ProtoMechArmorDiagram';
-import { useProtoMechStore, ProtoMechStore } from '@/stores/useProtoMechStore';
-import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { ProtoMechArmorDiagram } from "@/components/customizer/protomech/ProtoMechArmorDiagram";
+import { useProtoMechStore, ProtoMechStore } from "@/stores/useProtoMechStore";
+import { ProtoMechLocation } from "@/types/construction/UnitLocation";
 
-jest.mock('@/stores/useProtoMechStore');
+jest.mock("@/stores/useProtoMechStore");
 const mockUseProtoMechStore = useProtoMechStore as jest.MockedFunction<
   typeof useProtoMechStore
 >;
@@ -52,13 +52,13 @@ beforeEach(() => {
   );
 });
 
-describe('ProtoMechArmorDiagram', () => {
-  it('renders the diagram container with data-testid', () => {
+describe("ProtoMechArmorDiagram", () => {
+  it("renders the diagram container with data-testid", () => {
     render(<ProtoMechArmorDiagram />);
-    expect(screen.getByTestId('protomech-armor-diagram')).toBeInTheDocument();
+    expect(screen.getByTestId("protomech-armor-diagram")).toBeInTheDocument();
   });
 
-  it('renders all 5 base location inputs', () => {
+  it("renders all 5 base location inputs", () => {
     render(<ProtoMechArmorDiagram />);
     expect(
       screen.getByTestId(`proto-armor-input-${ProtoMechLocation.HEAD}`),
@@ -77,14 +77,14 @@ describe('ProtoMechArmorDiagram', () => {
     ).toBeInTheDocument();
   });
 
-  it('does not render Main Gun input when hasMainGun is false', () => {
+  it("does not render Main Gun input when hasMainGun is false", () => {
     render(<ProtoMechArmorDiagram />);
     expect(
       screen.queryByTestId(`proto-armor-input-${ProtoMechLocation.MAIN_GUN}`),
     ).not.toBeInTheDocument();
   });
 
-  it('renders Main Gun input when hasMainGun is true', () => {
+  it("renders Main Gun input when hasMainGun is true", () => {
     mockUseProtoMechStore.mockImplementation((selector) =>
       selector(makeState({ hasMainGun: true }) as unknown as ProtoMechStore),
     );
@@ -94,34 +94,34 @@ describe('ProtoMechArmorDiagram', () => {
     ).toBeInTheDocument();
   });
 
-  it('location inputs have correct aria-labels', () => {
+  it("location inputs have correct aria-labels", () => {
     render(<ProtoMechArmorDiagram />);
-    expect(screen.getByLabelText('Head armor value')).toBeInTheDocument();
-    expect(screen.getByLabelText('Torso armor value')).toBeInTheDocument();
-    expect(screen.getByLabelText('LA armor value')).toBeInTheDocument();
-    expect(screen.getByLabelText('RA armor value')).toBeInTheDocument();
-    expect(screen.getByLabelText('Legs armor value')).toBeInTheDocument();
+    expect(screen.getByLabelText("Head armor value")).toBeInTheDocument();
+    expect(screen.getByLabelText("Torso armor value")).toBeInTheDocument();
+    expect(screen.getByLabelText("LA armor value")).toBeInTheDocument();
+    expect(screen.getByLabelText("RA armor value")).toBeInTheDocument();
+    expect(screen.getByLabelText("Legs armor value")).toBeInTheDocument();
   });
 
-  it('inputs reflect armorByLocation values from the store', () => {
+  it("inputs reflect armorByLocation values from the store", () => {
     render(<ProtoMechArmorDiagram />);
     const headInput = screen.getByTestId(
       `proto-armor-input-${ProtoMechLocation.HEAD}`,
     ) as HTMLInputElement;
-    expect(headInput.value).toBe('1');
+    expect(headInput.value).toBe("1");
 
     const torsoInput = screen.getByTestId(
       `proto-armor-input-${ProtoMechLocation.TORSO}`,
     ) as HTMLInputElement;
-    expect(torsoInput.value).toBe('3');
+    expect(torsoInput.value).toBe("3");
   });
 
-  it('calls setLocationArmor when a location input value changes', () => {
+  it("calls setLocationArmor when a location input value changes", () => {
     render(<ProtoMechArmorDiagram />);
     const torsoInput = screen.getByTestId(
       `proto-armor-input-${ProtoMechLocation.TORSO}`,
     );
-    fireEvent.change(torsoInput, { target: { value: '2' } });
+    fireEvent.change(torsoInput, { target: { value: "2" } });
     expect(mockSetLocationArmor).toHaveBeenCalledWith(
       ProtoMechLocation.TORSO,
       2,
@@ -130,13 +130,14 @@ describe('ProtoMechArmorDiagram', () => {
 
   it('renders "Armor" heading', () => {
     render(<ProtoMechArmorDiagram />);
-    expect(screen.getByText('Armor')).toBeInTheDocument();
+    expect(screen.getByText("Armor")).toBeInTheDocument();
   });
 
-  it('renders ArmorLocationBlock for Torso location showing pip row', () => {
+  it("renders ArmorLocationBlock for Torso location showing pip row", () => {
     render(<ProtoMechArmorDiagram />);
     // ArmorLocationBlock renders an aria-label "Torso: current of max"
-    // With tonnage 5, Torso max = ceil(5/5) * 3 = 3; current = 3 → "Torso: 3 of 3"
-    expect(screen.getByLabelText('Torso: 3 of 3')).toBeInTheDocument();
+    // With tonnage 5, Torso max = 14 per the TM Companion p.196 weight
+    // table; current = 3 → "Torso: 3 of 14"
+    expect(screen.getByLabelText("Torso: 3 of 14")).toBeInTheDocument();
   });
 });

@@ -3,33 +3,44 @@
  *
  * Full per-type armor diagram for ground vehicles, VTOLs, and support vehicles.
  * Renders 4 base locations (Front/Left/Right/Rear) plus conditional locations:
- *   - Turret when turret is configured (any turret type)
- *   - Rotor  when motionType === VTOL
- *   - Body   when the vehicle is a support vehicle
+ *   - Turret      when turret is configured (any non-CHIN turret type)
+ *   - Chin Turret when turret.type === TurretType.CHIN
+ *   - Rotor       when motionType === VTOL
+ *   - Body        when the vehicle is a support vehicle
  *
  * Reads state from useVehicleStore; wires inputs back via setLocationArmor /
- * autoAllocateArmor.  Auto-allocate follows TM pp.86-87 distribution:
+ * autoAllocateArmor. Auto-allocate follows TM pp.86-87 distribution:
  *   40% Front, 20% Left, 20% Right, 10% Rear, remainder Turret.
+ *
+ * Accessibility:
+ *   - Each per-location numeric input is rendered via the shared
+ *     <ArmorAllocationInput> primitive which clamps to the location's max
+ *     and supports ArrowLeft/ArrowRight navigation between inputs in the
+ *     same group ('vehicle-armor').
+ *   - Auto-Allocate prompts a confirm() dialog when the diagram is not in
+ *     its default (all-zero) state to prevent accidental loss of work.
  *
  * @spec openspec/changes/add-per-type-armor-diagrams/specs/armor-diagram/spec.md
  *        Requirement: Vehicle Diagram Geometry
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from "react";
 
-import { useVehicleStore } from '@/stores/useVehicleStore';
+import { useVehicleStore } from "@/stores/useVehicleStore";
 import {
   VehicleLocation,
   VTOLLocation,
-} from '@/types/construction/UnitLocation';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+} from "@/types/construction/UnitLocation";
+import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
+import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import { TurretType } from "@/types/unit/VehicleInterfaces";
 
-import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
+import { ArmorAllocationInput } from "../armor/ArmorAllocationInput";
+import { ArmorLocationBlock } from "../armor/ArmorLocationBlock";
 import {
   getMaxVehicleArmorForLocation,
   type VehicleArmorLocation,
-} from './VehicleArmorTab.utils';
+} from "./VehicleArmorTab.utils";
 
 // =============================================================================
 // Types
@@ -38,6 +49,13 @@ import {
 interface VehicleArmorDiagramProps {
   className?: string;
 }
+
+// Synthetic location key used for the chin-turret slot.
+// (TurretType.CHIN exists but the VehicleLocation enum has no CHIN_TURRET
+//  member yet; until the construction proposal lands we route chin armor
+//  through the existing VehicleLocation.TURRET slot but display it under
+//  the "Chin Turret" label.)
+const CHIN_TURRET_KEY = VehicleLocation.TURRET;
 
 // =============================================================================
 // Component
@@ -49,7 +67,7 @@ interface VehicleArmorDiagramProps {
  * Includes an Auto-Allocate action following TechManual distribution tables.
  */
 export function VehicleArmorDiagram({
-  className = '',
+  className = "",
 }: VehicleArmorDiagramProps): React.ReactElement {
   const motionType = useVehicleStore((s) => s.motionType);
   const unitType = useVehicleStore((s) => s.unitType);
@@ -64,20 +82,28 @@ export function VehicleArmorDiagram({
   // Support vehicles carry a Body location per spec
   const isSupport = unitType === UnitType.SUPPORT_VEHICLE;
   const hasTurret = turret !== null;
+  const isChinTurret = turret?.type === TurretType.CHIN;
 
-  // Build ordered list of active locations for this vehicle configuration
+  // Build ordered list of active locations for this vehicle configuration.
+  // The turret slot's label switches to "Chin Turret" when turret.type === CHIN
+  // so the user sees the configured variant clearly.
   const locations = useMemo<{ key: string; label: string }[]>(() => {
     const base: { key: string; label: string }[] = [
-      { key: VehicleLocation.FRONT, label: 'Front' },
-      { key: VehicleLocation.LEFT, label: 'Left Side' },
-      { key: VehicleLocation.RIGHT, label: 'Right Side' },
-      { key: VehicleLocation.REAR, label: 'Rear' },
+      { key: VehicleLocation.FRONT, label: "Front" },
+      { key: VehicleLocation.LEFT, label: "Left Side" },
+      { key: VehicleLocation.RIGHT, label: "Right Side" },
+      { key: VehicleLocation.REAR, label: "Rear" },
     ];
-    if (hasTurret) base.push({ key: VehicleLocation.TURRET, label: 'Turret' });
-    if (isVTOL) base.push({ key: VTOLLocation.ROTOR, label: 'Rotor' });
-    if (isSupport) base.push({ key: VehicleLocation.BODY, label: 'Body' });
+    if (hasTurret) {
+      base.push({
+        key: isChinTurret ? CHIN_TURRET_KEY : VehicleLocation.TURRET,
+        label: isChinTurret ? "Chin Turret" : "Turret",
+      });
+    }
+    if (isVTOL) base.push({ key: VTOLLocation.ROTOR, label: "Rotor" });
+    if (isSupport) base.push({ key: VehicleLocation.BODY, label: "Body" });
     return base;
-  }, [hasTurret, isVTOL, isSupport]);
+  }, [hasTurret, isChinTurret, isVTOL, isSupport]);
 
   const handleChange = useCallback(
     (location: VehicleArmorLocation, raw: number) => {
@@ -95,11 +121,29 @@ export function VehicleArmorDiagram({
   // Available points derived from armor tonnage (standard 16 pts/ton for display)
   const availablePoints = Math.floor(armorTonnage * 16);
 
+  // Detect "non-default" state for the confirm-on-auto-allocate UX.
+  // Default = every location at 0; if any location has armor, prompt before
+  // clobbering the user's manual allocation.
+  const hasNonDefaultArmor = useMemo(
+    () =>
+      Object.values(armorAllocation as Record<string, number>).some(
+        (v) => (v ?? 0) > 0,
+      ),
+    [armorAllocation],
+  );
+
   const handleAutoAllocate = useCallback(() => {
-    // Delegate to the store action which already has TM logic; fall back to
-    // local tmAutoAllocate if the store action is generic.
+    if (hasNonDefaultArmor) {
+      const ok =
+        typeof window === "undefined" ||
+        // eslint-disable-next-line no-alert -- intentional confirm for destructive action
+        window.confirm(
+          "Auto-allocate will overwrite your current armor distribution. Continue?",
+        );
+      if (!ok) return;
+    }
     autoAllocateArmor();
-  }, [autoAllocateArmor]);
+  }, [autoAllocateArmor, hasNonDefaultArmor]);
 
   return (
     <div
@@ -152,12 +196,21 @@ export function VehicleArmorDiagram({
             className="fill-surface-raised stroke-border-theme"
             strokeWidth="1.5"
           />
-          {/* Turret ring */}
-          {hasTurret && (
+          {/* Turret ring (chin turret renders as a smaller forward-mounted ring) */}
+          {hasTurret && !isChinTurret && (
             <circle
               cx="80"
               cy="110"
               r="20"
+              className="fill-amber-900/30 stroke-amber-500"
+              strokeWidth="1.5"
+            />
+          )}
+          {hasTurret && isChinTurret && (
+            <circle
+              cx="80"
+              cy="55"
+              r="10"
               className="fill-amber-900/30 stroke-amber-500"
               strokeWidth="1.5"
             />
@@ -195,10 +248,10 @@ export function VehicleArmorDiagram({
           );
           const accentClass =
             key === VehicleLocation.TURRET
-              ? 'text-amber-400'
+              ? "text-amber-400"
               : key === VTOLLocation.ROTOR
-                ? 'text-sky-400'
-                : 'text-cyan-400';
+                ? "text-sky-400"
+                : "text-cyan-400";
 
           return (
             <div key={key} className="flex flex-col gap-1">
@@ -208,20 +261,16 @@ export function VehicleArmorDiagram({
                 max={max}
                 accentClass={accentClass}
               />
-              {/* Numeric input */}
-              <input
-                type="number"
+              {/* Shared numeric input — clamps + arrow navigation */}
+              <ArmorAllocationInput
+                label={label}
                 value={current}
-                min={0}
                 max={max}
-                onChange={(e) =>
-                  handleChange(
-                    key as VehicleArmorLocation,
-                    Number(e.target.value),
-                  )
+                groupId="vehicle-armor"
+                data-testid={`vehicle-armor-input-${key}`}
+                onChange={(next) =>
+                  handleChange(key as VehicleArmorLocation, next)
                 }
-                className="w-full rounded border border-slate-600 bg-slate-800 px-2 py-0.5 text-center text-xs text-white"
-                aria-label={`${label} armor value`}
               />
             </div>
           );
