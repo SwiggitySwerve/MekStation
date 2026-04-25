@@ -315,8 +315,10 @@ function applyContractDelta(
     return null;
   }
 
-  // Only flip status on terminal end reasons. Withdrawal / turn limit
-  // leave the contract Active for now — the player can re-engage.
+  // Only flip status on terminal end reasons. Withdrawal leaves the
+  // contract Active for now — the player can re-engage. TurnLimit is a
+  // soft terminal: flip to PARTIAL so downstream payout logic treats
+  // it as a draw outcome rather than leaving the mission Active.
   let nextStatus = mission.status;
   if (outcome.endReason === CombatEndReason.ObjectiveMet) {
     nextStatus = playerWon(outcome)
@@ -329,6 +331,11 @@ function applyContractDelta(
     nextStatus = playerWon(outcome)
       ? MissionStatus.SUCCESS
       : MissionStatus.FAILED;
+  } else if (outcome.endReason === CombatEndReason.TurnLimit) {
+    // Turn-limit ended matches are draws by construction — map to the
+    // mission-contracts spec's "PARTIAL" scenario regardless of which
+    // side nominally "won" via objective tally.
+    nextStatus = MissionStatus.PARTIAL;
   }
 
   const updated: IContract = {
@@ -530,12 +537,38 @@ export const postBattleProcessor: IDayProcessor = {
       return { events: [], campaign };
     }
 
+    // Per Req 4 ("Failed application keeps outcome in queue"), each
+    // outcome is applied in its own try/catch. A throw from
+    // `applyOutcome` leaves `working` unchanged — the failing outcome
+    // stays in `pendingBattleOutcomes` for a later retry, and we surface
+    // a campaign-level error event so the day report flags it. Other
+    // queued outcomes continue processing.
     let working: ICampaignWithBattleState = extended;
     const events: IDayEvent[] = [];
     for (const outcome of queue) {
-      const result = applyOutcome(working, outcome);
-      working = result.campaign;
-      events.push(...result.events);
+      try {
+        const result = applyOutcome(working, outcome);
+        working = result.campaign;
+        events.push(...result.events);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        logger.error(
+          `[postBattleProcessor] Failed to apply outcome ${outcome.matchId}; keeping in queue for retry:`,
+          err,
+        );
+        events.push({
+          type: 'post_battle_apply_failed',
+          description: `Post-battle apply failed for match ${outcome.matchId}: ${message}`,
+          severity: 'critical',
+          data: {
+            matchId: outcome.matchId,
+            contractId: outcome.contractId,
+            error: message,
+          },
+        });
+        // `working` is intentionally NOT reassigned — the outcome stays
+        // in `working.pendingBattleOutcomes` so the next run can retry.
+      }
     }
 
     return { events, campaign: working };

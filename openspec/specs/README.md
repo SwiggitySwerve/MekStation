@@ -415,7 +415,9 @@ When adding new specifications:
 
 ## References
 
+- Workspace layout (changes, archive, planning): `../README.md`
 - Template: `../templates/spec-template.md`
 - Design Template: `../templates/design-template.md`
 - Example: `../templates/example-tech-base-spec.md`
 - Guide: `../templates/TEMPLATE_GUIDE.md`
+- Phase roadmaps: `../planning/PHASE-*-EXECUTION-PLAN.md`

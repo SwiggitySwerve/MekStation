@@ -30,7 +30,7 @@
  *      human + one AI seat (no follow-up turn execution; host's bot
  *      driver wiring is a follow-up wave).
  *
- * @spec openspec/changes/PHASE-4-EXECUTION-PLAN.md
+ * @spec openspec/planning/PHASE-4-EXECUTION-PLAN.md
  */
 
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';

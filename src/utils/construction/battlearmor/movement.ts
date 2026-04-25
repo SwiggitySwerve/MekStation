@@ -10,9 +10,35 @@
 import {
   BAMovementType,
   BAWeightClass,
+  BA_EXTRA_MP_MASS_KG,
   BA_VALIDATION_RULES,
   BA_WEIGHT_CLASS_LIMITS,
 } from '@/types/unit/BattleArmorInterfaces';
+
+/**
+ * Base MP is free; every point beyond the first in the **dominant movement
+ * track** (max of ground / jump / UMU) costs the weight-class kg-per-MP rate.
+ *
+ * Examples:
+ *   PA(L) ground 2 + jump 0 + UMU 0 → extras = max(2,0,0) − 1 = 1 MP, mass = 25 kg
+ *   Medium jump 3 + ground 1 + UMU 0 → extras = max(1,3,0) − 1 = 2 MP, mass = 160 kg
+ *   Assault ground 1 + jump 0 → extras = max(1,0,0) − 1 = 0 MP, mass = 0 kg
+ *
+ * The free base point is paid from the chassis budget, so this helper only
+ * bills the **extra** points (>= 2 MP in the dominant track).
+ *
+ * @spec openspec/changes/add-battlearmor-construction/tasks.md §4.5
+ */
+export function extraMPMassKg(
+  groundMP: number,
+  jumpMP: number,
+  umuMP: number,
+  weightClass: BAWeightClass,
+): number {
+  const dominant = Math.max(groundMP, jumpMP, umuMP);
+  const extras = Math.max(0, dominant - 1);
+  return extras * BA_EXTRA_MP_MASS_KG[weightClass];
+}
 
 export interface MovementValidationResult {
   readonly isValid: boolean;

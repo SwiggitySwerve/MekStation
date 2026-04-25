@@ -165,7 +165,7 @@ npx next build                                        # build success required
 
 - [ ] All 4 OpenSpec changes' tasks.md fully checked off
 - [ ] One squashed PR `feat/phase-2-quick-simulation` → `main` merged
-- [ ] All 4 OpenSpec changes archived (moved to `openspec/archive/`)
+- [ ] All 4 OpenSpec changes archived (moved to `openspec/changes/archive/`)
 - [ ] Roadmap doc Phase 2 section marked complete
 - [ ] CHANGELOG entry (if convention exists)
 - [ ] Determinism: same seed list → same `IBatchResult` aggregate (regression test)

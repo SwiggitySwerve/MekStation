@@ -255,7 +255,7 @@ npx next build                                        # build success required
 
 - [ ] All 5 OpenSpec changes' `tasks.md` fully checked off
 - [ ] One squashed PR `feat/phase-4-multiplayer-foundation` → `main` merged
-- [ ] All 5 OpenSpec changes archived to `openspec/archive/`
+- [ ] All 5 OpenSpec changes archived to `openspec/changes/archive/`
 - [ ] Roadmap doc Phase 4 section marked complete (notes 4a + 4c deferred)
 - [ ] E2E test: 2 mock clients + 1 AI seat finish a 1v1+AI match end-to-end
       with rolls in events and outcome published to bus
