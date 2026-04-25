@@ -9,7 +9,7 @@
 import type { IChangeLogEntry, ISyncConflict } from '@/types/vault';
 
 import type { ChangeLogRepository } from './ChangeLogRepository';
-import type { ContentApplyFn } from './SyncEngine';
+import type { ContentApplyFn } from './SyncEngine.types';
 
 /**
  * Shape returned by the pending-conflict lookup on ChangeLogRepository.
