@@ -20,6 +20,7 @@ import {
   type IGameOutcome,
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
+import { hasReachedEdge } from '@/simulation/ai/RetreatAI';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   CombatNotCompleteError,
@@ -48,7 +49,10 @@ import {
   type DiceRoller,
   roll2d6 as roll2d6FromD6,
 } from '@/utils/gameplay/diceTypes';
-import { createRetreatTriggeredEvent } from '@/utils/gameplay/gameEvents';
+import {
+  createRetreatTriggeredEvent,
+  createUnitRetreatedEvent,
+} from '@/utils/gameplay/gameEvents';
 import {
   createGameSession,
   startGame,
@@ -372,9 +376,15 @@ export class InteractiveSession {
   runAITurn(side: GameSide): void {
     const { phase } = this.session.currentState;
 
-    for (const [unitId, unit] of Object.entries(
-      this.session.currentState.units,
-    )) {
+    // Per `implement-physical-attack-phase` design Resolved 4: iterate
+    // bot units in deterministic `unitId`-ascending order. JS object
+    // iteration order is implementation-defined for keys derived from
+    // serialized state — sorting here makes downstream event streams
+    // identical across runs sharing a seed.
+    const sortedEntries = Object.entries(this.session.currentState.units).sort(
+      ([a], [b]) => a.localeCompare(b),
+    );
+    for (const [unitId, unit] of sortedEntries) {
       if (unit.side !== side || unit.destroyed) continue;
 
       const weapons = this.weaponsByUnit.get(unitId) ?? [];
@@ -410,6 +420,41 @@ export class InteractiveSession {
           );
         }
         this.session = lockMovement(this.session, unitId);
+
+        // Per `add-bot-retreat-behavior` § 7.2–7.3: after the unit
+        // commits its movement, check whether the new position touches
+        // the locked retreat edge. If so, emit `UnitRetreated` — the
+        // reducer latches `hasRetreated: true` (distinct from `destroyed`)
+        // so the post-battle summary can distinguish withdrawal from a
+        // combat loss. Idempotent — guarded by `!postMoveUnit.hasRetreated`
+        // and the reducer's own short-circuit.
+        const postMoveUnit = this.session.currentState.units[unitId];
+        if (
+          postMoveUnit &&
+          !postMoveUnit.destroyed &&
+          postMoveUnit.isRetreating &&
+          !postMoveUnit.hasRetreated &&
+          postMoveUnit.retreatTargetEdge &&
+          hasReachedEdge(
+            postMoveUnit.position,
+            postMoveUnit.retreatTargetEdge,
+            this.session.config.mapRadius,
+          )
+        ) {
+          const sequence = this.session.events.length;
+          const { turn, phase: currentPhase } = this.session.currentState;
+          this.session = appendEvent(
+            this.session,
+            createUnitRetreatedEvent(
+              this.session.id,
+              sequence,
+              turn,
+              currentPhase,
+              unitId,
+              postMoveUnit.retreatTargetEdge,
+            ),
+          );
+        }
       } else if (phase === GamePhase.WeaponAttack) {
         // Per `wire-bot-ai-helpers-and-capstone`: re-evaluate retreat
         // here too — a unit might trigger retreat from damage taken
@@ -552,7 +597,15 @@ export class InteractiveSession {
    * Per `add-victory-and-post-battle-summary` task 1.3 + B3 from the
    * Phase 1 review: end the match by surrender from `side`. Appends a
    * `GameEnded` event with `reason: 'concede'` and the OPPOSITE side
-   * as winner. No-op if the game is already over (or in setup).
+   * as winner.
+   *
+   * Per `add-victory-and-post-battle-summary` design D2 + spec scenario
+   * "Concede rejected after completion": when the session is not in
+   * `GameStatus.Active` (e.g., already `Completed` because the AI just
+   * destroyed the player force, or the session is still in `Setup`),
+   * the call SHALL throw `Error('Game is not active')` rather than
+   * silently no-op. Surfacing the contract violation is what lets
+   * tests + UI guards catch a wrongly-routed concede press.
    *
    * Wave 5 (`wire-encounter-to-campaign-round-trip`): every entry point
    * that may transition the session into `Completed` (concede here,
@@ -561,11 +614,9 @@ export class InteractiveSession {
    * `CombatOutcomeReady` bus event fires exactly once per session.
    */
   concede(side: GameSide): void {
-    if (this.isGameOver()) {
-      this.tryFinalizeAndPublish();
-      return;
+    if (this.session.currentState.status !== GameStatus.Active) {
+      throw new Error('Game is not active');
     }
-    if (this.session.currentState.status !== GameStatus.Active) return;
     const winner =
       side === GameSide.Player ? GameSide.Opponent : GameSide.Player;
     this.session = endGame(this.session, winner, 'concede');
