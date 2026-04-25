@@ -72,5 +72,5 @@ The regression test is now task **1.4** in Phase A. No production code change is
 ## 5. PR + archive
 
 - [x] 5.1 Branch is `spec/apply-tier5-audit-cleanup` (not `spec/tier5-audit-cleanup` per the operator-supplied apply-context). Push + `gh pr create` runs as part of the final verification step.
-- [ ] 5.2 After PR merges to main, run `npx openspec archive tier5-audit-cleanup`. (Out-of-scope for this apply pass — owned by the user / archival workflow.)
-- [ ] 5.3 Post-archive sanity check: `npx openspec validate --strict` (whole repo). (Out-of-scope for this apply pass — owned by the user / archival workflow.)
+- [x] 5.2 After PR merges to main, run `npx openspec archive tier5-audit-cleanup`. (Executed in archive PR for this change.)
+- [x] 5.3 Post-archive sanity check: `npx openspec validate --strict` (whole repo). (Executed in archive PR.)
