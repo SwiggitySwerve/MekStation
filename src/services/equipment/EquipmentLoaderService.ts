@@ -9,6 +9,7 @@
  * @module services/equipment/EquipmentLoaderService
  */
 
+import { WeaponContract } from '@/types/contracts';
 import { IAmmunition } from '@/types/equipment/AmmunitionTypes';
 import { IElectronics } from '@/types/equipment/ElectronicsTypes';
 import { IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
@@ -101,6 +102,71 @@ function getIndexedFileList(
 }
 
 /**
+ * Detect whether an `IEquipmentFile.$schema` reference points at the
+ * canonical weapon-schema. Files like `weapons/physical.json` carry a
+ * `$schema` that targets `physical-weapon-schema.json` instead and must
+ * NOT be parsed against the weapon contract — they belong to a sibling
+ * shape that PR-A2 wires.
+ */
+function isWeaponShapeFile(schemaRef: string | undefined): boolean {
+  if (!schemaRef) return false;
+  // Accept any path/filename that ends in `weapon-schema.json`. We
+  // deliberately exclude `physical-weapon-schema.json` because it
+  // sub-strings differently in URL form.
+  const fileName = schemaRef.split(/[\\/]/).pop() ?? schemaRef;
+  return fileName === 'weapon-schema.json';
+}
+
+/**
+ * Validate every weapon item against the canonical `WeaponContract`.
+ *
+ * Behaviour:
+ *  - Default (PR-A1): collect failures and emit a single
+ *    `console.warn` summarising drift. Non-throwing because the corpus
+ *    is known to have 6 X-Pulse / VSP entries missing `costCBills`,
+ *    and PR-A2 will fix that data before flipping to throw mode.
+ *  - `MEKSTATION_STRICT_SCHEMA_BRIDGE=1`: throw with an aggregated
+ *    error message. Useful for one-off `npx jest` runs where you want
+ *    to fail fast on any new drift introduced by a code change.
+ *
+ * Dev/test only — production callers never reach this code path because
+ * the surrounding `process.env.NODE_ENV !== 'production'` gate.
+ */
+function validateWeaponItems(
+  fileLabel: string,
+  items: readonly unknown[],
+): void {
+  // Collect ALL failures rather than throwing on the first so the dev
+  // gets one clear list per file rather than a death-by-a-thousand-cuts.
+  const failures: string[] = [];
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index];
+    const result = WeaponContract.safeParse(item);
+    if (!result.success) {
+      const id = (item as { id?: unknown } | null | undefined)?.id ?? '<no id>';
+      const issuePaths = result.error.issues
+        .slice(0, 3)
+        .map((issue) => `${issue.path.join('.') || '<root>'}: ${issue.message}`)
+        .join('; ');
+      failures.push(`  [${index}] id=${String(id)} -> ${issuePaths}`);
+    }
+  }
+  if (failures.length === 0) return;
+
+  const message =
+    `EquipmentLoaderService: ${failures.length} weapon(s) in ${fileLabel} ` +
+    `failed WeaponContract.safeParse:\n${failures.slice(0, 8).join('\n')}` +
+    (failures.length > 8 ? `\n... and ${failures.length - 8} more` : '');
+
+  if (process.env.MEKSTATION_STRICT_SCHEMA_BRIDGE === '1') {
+    throw new Error(message);
+  }
+  // Non-strict default for PR-A1: surface drift loudly without
+  // breaking dev runs that happen to load the X-Pulse / VSP entries.
+  console.warn(`[schema-bridge] ${message}`);
+}
+
+/**
  * Equipment Loader Service
  *
  * Loads and caches equipment data from JSON files for runtime use.
@@ -158,6 +224,26 @@ export class EquipmentLoaderService {
           basePath,
         );
         if (weaponData) {
+          // Cross-language schema-bridge gate (PR-A1).
+          //
+          // In dev/test we round-trip every weapon through the canonical
+          // WeaponContract before handing it to `convertWeapon`. This is
+          // the TypeScript-side mirror of `schema_gate.validate_weapon`
+          // in Python; together they catch silent shape drift between
+          // the writer and reader sides at first contact.
+          //
+          // Production builds skip this cost. The CI `schema-bridge`
+          // job already gates merges on corpus conformance, so re-parsing
+          // at runtime in production buys nothing but allocations. The
+          // wrapping `IEquipmentFile.$schema` reference is checked so
+          // shapes other than `weapon` (e.g. `weapons/physical.json`,
+          // which is actually a physical-weapon shape) bypass cleanly.
+          if (
+            process.env.NODE_ENV !== 'production' &&
+            isWeaponShapeFile(weaponData.$schema)
+          ) {
+            validateWeaponItems(weaponFile, weaponData.items);
+          }
           weaponData.items.forEach((item) => {
             const weapon = convertWeapon(item);
             this.weapons.set(weapon.id, weapon);
