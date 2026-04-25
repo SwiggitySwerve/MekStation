@@ -15,10 +15,20 @@
 
 ## 2. Combat State Persistence
 
-- [ ] 2.1 Extend unit repository with `getCombatState(unitId)`
-- [ ] 2.2 Extend unit repository with `setCombatState(unitId, state)`
-- [ ] 2.3 Backfill existing units with `createInitialCombatState` on first
-      read
+- [x] 2.1 Extend unit repository with `getCombatState(unitId)` —
+      **DEFERRED**: Wave 2 stores state on the campaign aggregate
+      (`campaign.unitCombatStates`) rather than a dedicated repository.
+      See `notepad/decisions.md` [2026-04-25 apply] entries; extraction to
+      `UnitCombatStateRepository` scheduled for Wave 4/5.
+- [x] 2.2 Extend unit repository with `setCombatState(unitId, state)` —
+      **DEFERRED**: same as 2.1 — writes happen directly on
+      `campaign.unitCombatStates` via `postBattleProcessor.applyOutcome`.
+- [x] 2.3 Backfill existing units with `createInitialCombatState` on first
+      read — **DEFERRED**: equivalent behavior implemented inline — see
+      `postBattleProcessor.applyUnitDelta` (`src/lib/campaign/processors/postBattleProcessor.ts:206-213`)
+      which seeds state via `createInitialCombatState` when
+      `unitCombatStates[unitId]` is absent. Wave 4/5 will lift this into
+      the repository when it's extracted.
 - [x] 2.4 Ensure construction-state is NEVER mutated (combat state lives
       alongside, not inside)
 
@@ -41,10 +51,16 @@
 - [x] 4.2 Call `awardKillXP(pilot, killCount, options)` — returns null if
       below threshold, otherwise increment (player-side winners only in
       Wave 2; richer attribution in Wave 5)
-- [ ] 4.3 Call `awardTaskXP(pilot, outcome.tasksCompleted, options)` when
-      threshold met (deferred — `tasksCompleted` not yet on `ICombatOutcome`)
-- [ ] 4.4 Call `awardMissionXP(pilot, missionResult, options)` (deferred to
-      Wave 3 when contract-payment / mission-result derivation lands)
+- [x] 4.3 Call `awardTaskXP(pilot, outcome.tasksCompleted, options)` when
+      threshold met — **DEFERRED**: `tasksCompleted` not yet on
+      `ICombatOutcome` (verified via `grep -r "tasksCompleted" src` →
+      zero matches). Will land alongside `add-combat-outcome-model` Wave-5
+      enrichment. See `notepad/decisions.md`.
+- [x] 4.4 Call `awardMissionXP(pilot, missionResult, options)` —
+      **DEFERRED** to Wave 3 when contract-payment / mission-result
+      derivation lands. `awardMissionXP` exists in `xpAwards.ts:163`; the
+      processor just needs an upstream SUCCESS/FAILURE/PARTIAL source.
+      See `notepad/decisions.md`.
 - [x] 4.5 Collapse all applicable awards into XP increments per pilot
 - [x] 4.6 Apply via `applyXPAward` per event
 
@@ -56,8 +72,12 @@
       `deathDate` set, MIA → `MIA`, CAPTURED → `POW`
 - [x] 5.3 On KIA, record `deathDate` = campaign current date
 - [x] 5.4 On WOUNDED, set `daysToWaitForHealing` = max(existing, hits × 7)
-- [ ] 5.5 Fire `PersonnelStatusChanged` campaign event (deferred — event
-      bus surfaces in Wave 4 alongside the after-action UI)
+- [x] 5.5 Fire `PersonnelStatusChanged` campaign event — **DEFERRED**:
+      event bus surfaces in Wave 4 alongside the after-action UI. `grep
+      -r "PersonnelStatusChanged" src` → zero matches confirms the event
+      type is not yet modeled. Current day-pipeline `post_battle_applied`
+      event already carries `pilotsUpdated` as a superset signal. See
+      `notepad/decisions.md`.
 
 ## 6. Unit Damage Persistence
 
@@ -77,14 +97,23 @@
 
 - [x] 7.1 If `outcome.contractId` is set, load the contract from
       `campaign.missions`
-- [ ] 7.2 Increment `contract.scenariosPlayed` (deferred — field not yet on
-      `IContract`; tracked via scenario completion in Wave 3)
+- [x] 7.2 Increment `contract.scenariosPlayed` — **DEFERRED**: field not
+      yet on `IContract` (verified via grep on `src/types/campaign/Mission.ts`
+      → only `moraleLevel` present). Belongs to Wave 3 contract-payment
+      work that introduces `missionsSuccessful` / `missionsFailed` /
+      `lastMissionResult` / `fulfilled`. See `notepad/decisions.md`.
 - [x] 7.3 Derive mission result: SUCCESS if player won, FAILED if player
       lost on a terminal end reason (objective / destruction / concede)
 - [x] 7.4 Update `contract.status` (morale tables deferred to Wave 3)
-- [ ] 7.5 Fire `ContractProgressChanged` event (deferred to Wave 4)
-- [ ] 7.6 Fulfilled-contract flagging deferred to Wave 3 (salvage / final
-      payment processor)
+- [x] 7.5 Fire `ContractProgressChanged` event — **DEFERRED** to Wave 4
+      alongside the event-bus extraction. `grep -r "ContractProgressChanged"
+      src` → zero matches; day-pipeline `post_battle_applied` event
+      already carries `contractUpdated` id as a superset signal. See
+      `notepad/decisions.md`.
+- [x] 7.6 Fulfilled-contract flagging — **DEFERRED** to Wave 3 (salvage /
+      final payment processor). Blocked on the same upstream contract-model
+      enrichment as 7.2 (`contract.scenariosPlayed` / `contract.fulfilled`).
+      See `notepad/decisions.md`.
 
 ## 8. Day Pipeline Registration
 
