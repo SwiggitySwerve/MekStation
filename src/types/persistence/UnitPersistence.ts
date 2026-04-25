@@ -6,7 +6,7 @@
  * @spec openspec/specs/unit-versioning/spec.md
  */
 
-import type { ResultType } from '@/services/core/types/BaseTypes';
+import type { ResultType } from '@/types/common/result';
 
 import { Era } from '../enums/Era';
 import { RulesLevel } from '../enums/RulesLevel';

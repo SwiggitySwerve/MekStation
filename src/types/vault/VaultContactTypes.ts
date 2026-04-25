@@ -6,7 +6,7 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import type { ResultType } from '@/services/core/types/BaseTypes';
+import type { ResultType } from '@/types/common/result';
 
 import type { ShareableContentType } from './VaultCoreTypes';
 

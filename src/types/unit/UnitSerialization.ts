@@ -6,7 +6,7 @@
  * @spec openspec/specs/serialization-formats/spec.md
  */
 
-import type { ResultType } from '@/services/core/types/BaseTypes';
+import type { ResultType } from '@/types/common/result';
 
 import { IBattleMech } from './BattleMechInterfaces';
 

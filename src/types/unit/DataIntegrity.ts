@@ -6,7 +6,7 @@
  * @spec openspec/specs/data-integrity-validation/spec.md
  */
 
-import type { ResultType } from '@/services/core/types/BaseTypes';
+import type { ResultType } from '@/types/common/result';
 
 /**
  * Integrity check severity
