@@ -42,7 +42,9 @@ For each queued PSR, the system SHALL roll 2d6 (via seeded RNG) against a target
 
 ### Requirement: PSR Trigger Catalog
 
-The system SHALL implement the canonical PSR trigger set including (but not limited to): `TwentyPlusPhaseDamage`, `LegStructureDamage`, `HipActuatorCrit`, `GyroCrit`, `LegActuatorCrit`, `EngineHit`, `JumpIntoWater`, `Skid`, `MASCFailure`, `SuperchargerFailure`, `AttemptStand`, `PhysicalAttackTarget`, `MissedDFA`, `MissedCharge`, `HeatShutdown`, `HeadStructureDamage`.
+The system SHALL implement the canonical PSR trigger set including (but not limited to): `TwentyPlusPhaseDamage`, `LegStructureDamage`, `HipActuatorCrit`, `GyroCrit`, `LegActuatorCrit`, `EngineHit`, `JumpIntoWater`, `Skid`, `MASCFailure`, `SuperchargerFailure`, `AttemptStand`, `PhysicalAttackTarget`, `MissedDFA`, `MissedCharge`, `HeatShutdown`.
+
+> **Note (post-archive amendment):** `HeadStructureDamage` was originally listed here but has been DE-SCOPED by `tier5-audit-cleanup` (Tier 5 follow-up, design **D4**). Canonical Total Warfare treats head hits as a wound + consciousness check (handled by `applyPilotDamage` and the consciousness-roll system in the damage pipeline), NOT as a stability PSR. The original task 2.3 conflated two separate mechanics. See `openspec/changes/tier5-audit-cleanup/specs/piloting-skill-rolls/spec.md` for the formal `## REMOVED Requirements` delta.
 
 #### Scenario: Hip actuator crit fires PSR
 

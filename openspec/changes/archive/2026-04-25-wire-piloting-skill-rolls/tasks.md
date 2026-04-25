@@ -31,7 +31,7 @@ Audit [src/types/gameplay/GameSessionInterfaces.ts](src/types/gameplay/GameSessi
 
 - [x] 2.1 When `damageThisPhase` ≥ 20, enqueue `TwentyPlusPhaseDamage`
 - [x] 2.2 When a leg location's structure is exposed, enqueue `LegStructureDamage`
-- [x] 2.3 When head structure is breached, apply pilot damage + enqueue `HeadStructureDamage` — **PARTIAL/DEFERRED**. Pilot-damage half is wired (`resolveDamage` in `damage/resolve.ts` applies 1 wound via `applyPilotDamage` on any head hit with damage > 0, which runs a consciousness check). The secondary `HeadStructureDamage` PSR-trigger variant is deferred: canonical TW treats head hits as pilot damage (not a stability PSR), and the existing cockpit-crit cascade already handles immobilization. Defer: add explicit `HeadStructureDamage` enum + enqueue only if a later spec delta requires it. See `notepad/decisions.md`.
+- [x] 2.3 When head structure is breached, apply pilot damage + enqueue `HeadStructureDamage` — **DE-SCOPED — see `tier5-audit-cleanup` (design D4).** Pilot-damage half is wired and remains intact (`resolveDamage` in `damage/resolve.ts` applies 1 wound via `applyPilotDamage` on any head hit with damage > 0, which runs a consciousness check). The secondary `HeadStructureDamage` PSR-trigger variant has been formally REMOVED from the spec catalog: canonical TW treats head hits as a wound + consciousness check, NOT as a stability PSR. The original task conflated two separate mechanics. Acknowledging the design **D7** precedent that we are intentionally editing an archived change for audit-trail integrity (one-off, not a new norm). See the `## REMOVED Requirements` block in `openspec/changes/tier5-audit-cleanup/specs/piloting-skill-rolls/spec.md`.
 
 ## 3. Critical-Based Triggers
 
