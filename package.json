@@ -97,6 +97,8 @@
     "postinstall": "node scripts/mm-data/check-assets.js || true",
     "validate:assets": "npx tsx scripts/mm-data/validate-assets.ts",
     "validate:assets:strict": "npx tsx scripts/mm-data/validate-assets.ts --strict",
+    "schema:gen": "node scripts/generate-zod-schemas.mjs",
+    "schema:gen-check": "node scripts/generate-zod-schemas.mjs --check",
     "simulate": "npx tsx scripts/run-simulation.ts",
     "simulate:batch": "npx tsx scripts/run-simulation.ts --count=100"
   },
@@ -177,6 +179,7 @@
     "jest-axe": "^10.0.0",
     "jest-environment-jsdom": "^30.0.0",
     "jest-environment-node": "^30.0.0",
+    "json-schema-to-zod": "^2.8.1",
     "lint-staged": "^16.2.7",
     "minimatch": "^3.1.2",
     "node-mocks-http": "^1.17.2",
