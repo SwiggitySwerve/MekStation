@@ -6,6 +6,7 @@
 
 export * from './aerospaceBV';
 export * from './armorArcCalculations';
+export * from './bombBays';
 export * from './crewCalculations';
 export * from './engineWeightAerospace';
 export * from './equipmentSlots';
@@ -14,3 +15,4 @@ export * from './siCalculations';
 export * from './thrustCalculations';
 export * from './validationRules';
 export * from './weightBreakdown';
+export * from './wingHeavyWeapons';

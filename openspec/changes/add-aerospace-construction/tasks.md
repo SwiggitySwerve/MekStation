@@ -49,8 +49,8 @@
 
 - [x] 7.1 Equipment can be mounted in Nose, LWing, RWing, Aft, or Fuselage (internal; no arc restriction)
 - [x] 7.2 Slot count per arc: Nose 6, each Wing 6, Aft 4, Fuselage unlimited (bounded by tonnage)
-- [ ] 7.3 Wing-mounted heavy weapons (PPC, Gauss) — tonnage cap per wing
-- [ ] 7.4 Bomb bays — small craft only, configurable bays
+- [x] 7.3 Wing-mounted heavy weapons (PPC, Gauss) — tonnage cap per wing
+- [x] 7.4 Bomb bays — small craft only, configurable bays
 
 ## 8. Heat Sink Pool
 

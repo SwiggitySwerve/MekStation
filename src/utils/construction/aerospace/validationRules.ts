@@ -5,12 +5,14 @@
  * Each rule returns a ValidationError[] — empty means the unit is legal.
  *
  * Rules:
- *   VAL-AERO-TONNAGE  — tonnage within sub-type range
- *   VAL-AERO-THRUST   — engine type legal for sub-type; safeThrust ≤ cap
- *   VAL-AERO-SI       — structural integrity within class max
- *   VAL-AERO-FUEL     — fuel tonnage ≥ minimum for sub-type
- *   VAL-AERO-ARC-MAX  — per-arc armor ≤ arc maximum
- *   VAL-AERO-CREW     — small craft has crew quarters
+ *   VAL-AERO-TONNAGE     — tonnage within sub-type range
+ *   VAL-AERO-THRUST      — engine type legal for sub-type; safeThrust ≤ cap
+ *   VAL-AERO-SI          — structural integrity within class max
+ *   VAL-AERO-FUEL        — fuel tonnage ≥ minimum for sub-type
+ *   VAL-AERO-ARC-MAX     — per-arc armor ≤ arc maximum
+ *   VAL-AERO-CREW        — small craft has crew quarters
+ *   VAL-AERO-WING-HEAVY  — wing heavy-weapon tons ≤ floor(tonnage/10) per wing
+ *   VAL-AERO-BOMB-BAY    — small-craft bomb-bay tonnage ≤ floor(tonnage/2)
  *
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  * Requirement: Aerospace Construction Validation Rules
@@ -22,12 +24,17 @@ import {
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
 import { maxArcArmorPoints } from './armorArcCalculations';
+import { validateBombBays, type IBombBay } from './bombBays';
 import { minFuelTons } from './fuelCalculations';
 import { maxSI } from './siCalculations';
 import {
   getMaxSafeThrust,
   isEngineLegalForSubType,
 } from './thrustCalculations';
+import {
+  validateWingHeavyWeapons,
+  type WingMountInput,
+} from './wingHeavyWeapons';
 
 // ============================================================================
 // Validation Error Shape
@@ -211,6 +218,8 @@ export const AERO_VALIDATION_RULE_IDS = [
   'VAL-AERO-FUEL',
   'VAL-AERO-ARC-MAX',
   'VAL-AERO-CREW',
+  'VAL-AERO-WING-HEAVY',
+  'VAL-AERO-BOMB-BAY',
 ] as const;
 
 export type AeroValidationRuleId = (typeof AERO_VALIDATION_RULE_IDS)[number];
@@ -229,16 +238,27 @@ export interface AerospaceValidationInput {
   readonly arcArmor: Partial<Record<AerospaceArc, number>>;
   readonly quartersTons: number;
   readonly crewCount: number;
+  /**
+   * Optional wing-mounted equipment list (ASF / CF only).
+   * When omitted, the wing-heavy rule contributes no errors.
+   */
+  readonly wingMounts?: ReadonlyArray<WingMountInput>;
+  /**
+   * Optional small-craft bomb bay list. When omitted, the bay rule
+   * contributes no errors. Non-empty for ASF/CF triggers a sub-type error.
+   */
+  readonly bombBays?: ReadonlyArray<IBombBay>;
 }
 
 /**
  * Run all VAL-AERO-* rules against a unit configuration.
- * Returns a flat array of all violations.
+ * Returns a flat array of all violations. Wing-mount and bomb-bay rules
+ * are evaluated only when the corresponding optional inputs are provided.
  */
 export function validateAerospaceUnit(
   input: AerospaceValidationInput,
 ): AerospaceValidationError[] {
-  return [
+  const errors: AerospaceValidationError[] = [
     ...validateTonnage(input.tonnage, input.subType),
     ...validateThrust(input.engineType, input.safeThrust, input.subType),
     ...validateSI(input.structuralIntegrity, input.subType),
@@ -246,4 +266,20 @@ export function validateAerospaceUnit(
     ...validateArcArmor(input.arcArmor, input.tonnage, input.subType),
     ...validateCrew(input.subType, input.quartersTons, input.crewCount),
   ];
+
+  if (input.wingMounts) {
+    errors.push(
+      ...validateWingHeavyWeapons(
+        input.wingMounts,
+        input.tonnage,
+        input.subType,
+      ),
+    );
+  }
+  if (input.bombBays) {
+    errors.push(
+      ...validateBombBays(input.bombBays, input.tonnage, input.subType),
+    );
+  }
+  return errors;
 }

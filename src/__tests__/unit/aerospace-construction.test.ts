@@ -28,6 +28,14 @@ import {
   SMALL_CRAFT_ARCS,
 } from '@/utils/construction/aerospace/armorArcCalculations';
 import {
+  bayTons,
+  totalBombBayTons,
+  totalBombCapacity,
+  maxBombBayTons,
+  validateBombBays,
+  BAY_STRUCTURE_TONS,
+} from '@/utils/construction/aerospace/bombBays';
+import {
   makeSmallCraftCrew,
   quartersWeight,
   minSmallCraftCrew,
@@ -61,7 +69,15 @@ import {
   validateFuel,
   validateArcArmor,
   validateCrew,
+  AERO_VALIDATION_RULE_IDS,
 } from '@/utils/construction/aerospace/validationRules';
+import {
+  isWingHeavyWeapon,
+  maxHeavyWeaponTonsPerWing,
+  canMountHeavyOnWing,
+  heavyTonsByWing,
+  validateWingHeavyWeapons,
+} from '@/utils/construction/aerospace/wingHeavyWeapons';
 
 // ============================================================================
 // Helpers
@@ -856,5 +872,459 @@ describe('validateAerospaceUnit — full runner', () => {
     const ruleIds = errors.map((e) => e.ruleId);
     expect(ruleIds).toContain('VAL-AERO-TONNAGE');
     expect(ruleIds).toContain('VAL-AERO-FUEL');
+  });
+});
+
+// ============================================================================
+// Task 7.3 — Wing-mounted heavy weapons (PPC, Gauss) tonnage cap
+// ============================================================================
+
+describe('wingHeavyWeapons (Task 7.3)', () => {
+  describe('isWingHeavyWeapon', () => {
+    it('identifies PPC variants by id', () => {
+      expect(isWingHeavyWeapon('isppc')).toBe(true);
+      expect(isWingHeavyWeapon('clERPPC')).toBe(true);
+      expect(isWingHeavyWeapon('ISHeavyPPC')).toBe(true);
+    });
+
+    it('identifies PPC variants by display name', () => {
+      expect(isWingHeavyWeapon('PPC')).toBe(true);
+      expect(isWingHeavyWeapon('ER PPC')).toBe(true);
+      expect(isWingHeavyWeapon('Snub-Nose PPC')).toBe(true);
+    });
+
+    it('identifies Gauss family', () => {
+      expect(isWingHeavyWeapon('isgaussrifle')).toBe(true);
+      expect(isWingHeavyWeapon('Heavy Gauss Rifle')).toBe(true);
+      expect(isWingHeavyWeapon('Light Gauss Rifle')).toBe(true);
+    });
+
+    it('identifies AC/20 variants', () => {
+      expect(isWingHeavyWeapon('AC/20')).toBe(true);
+      expect(isWingHeavyWeapon('isac20')).toBe(true);
+      expect(isWingHeavyWeapon('Autocannon/20')).toBe(true);
+    });
+
+    it('rejects light/medium weapons', () => {
+      expect(isWingHeavyWeapon('Medium Laser')).toBe(false);
+      expect(isWingHeavyWeapon('ismediumlaser')).toBe(false);
+      expect(isWingHeavyWeapon('Machine Gun')).toBe(false);
+      expect(isWingHeavyWeapon('LRM 5')).toBe(false);
+      expect(isWingHeavyWeapon('AC/2')).toBe(false);
+    });
+  });
+
+  describe('maxHeavyWeaponTonsPerWing', () => {
+    it('Shilone (65t ASF) → cap 6', () => {
+      expect(
+        maxHeavyWeaponTonsPerWing(65, AerospaceSubType.AEROSPACE_FIGHTER),
+      ).toBe(6);
+    });
+
+    it('Stuka (100t ASF) → cap 10', () => {
+      expect(
+        maxHeavyWeaponTonsPerWing(100, AerospaceSubType.AEROSPACE_FIGHTER),
+      ).toBe(10);
+    });
+
+    it('Sparrowhawk (30t CF) → cap 3', () => {
+      expect(
+        maxHeavyWeaponTonsPerWing(30, AerospaceSubType.CONVENTIONAL_FIGHTER),
+      ).toBe(3);
+    });
+
+    it('small craft → cap 0 (rule does not apply)', () => {
+      expect(maxHeavyWeaponTonsPerWing(100, AerospaceSubType.SMALL_CRAFT)).toBe(
+        0,
+      );
+    });
+  });
+
+  describe('canMountHeavyOnWing', () => {
+    it('Stuka left wing has 4t already, can add 6t (10t cap)', () => {
+      expect(
+        canMountHeavyOnWing(
+          AerospaceArc.LEFT_WING,
+          4,
+          6,
+          100,
+          AerospaceSubType.AEROSPACE_FIGHTER,
+        ),
+      ).toBe(true);
+    });
+
+    it('Stuka left wing has 7t already, cannot add 4t (would hit 11)', () => {
+      expect(
+        canMountHeavyOnWing(
+          AerospaceArc.LEFT_WING,
+          7,
+          4,
+          100,
+          AerospaceSubType.AEROSPACE_FIGHTER,
+        ),
+      ).toBe(false);
+    });
+
+    it('Nose arc has no wing cap (always allowed)', () => {
+      expect(
+        canMountHeavyOnWing(
+          AerospaceArc.NOSE,
+          99,
+          50,
+          50,
+          AerospaceSubType.AEROSPACE_FIGHTER,
+        ),
+      ).toBe(true);
+    });
+
+    it('Aft arc has no wing cap', () => {
+      expect(
+        canMountHeavyOnWing(
+          AerospaceArc.AFT,
+          0,
+          50,
+          50,
+          AerospaceSubType.AEROSPACE_FIGHTER,
+        ),
+      ).toBe(true);
+    });
+
+    it('Fuselage arc has no wing cap', () => {
+      expect(
+        canMountHeavyOnWing(
+          AerospaceArc.FUSELAGE,
+          99,
+          99,
+          50,
+          AerospaceSubType.AEROSPACE_FIGHTER,
+        ),
+      ).toBe(true);
+    });
+  });
+
+  describe('heavyTonsByWing', () => {
+    it('aggregates only heavy weapons in wing arcs', () => {
+      const items = [
+        { arc: AerospaceArc.LEFT_WING, idOrName: 'PPC', tons: 7 },
+        { arc: AerospaceArc.LEFT_WING, idOrName: 'Medium Laser', tons: 1 },
+        { arc: AerospaceArc.RIGHT_WING, idOrName: 'Gauss Rifle', tons: 15 },
+        { arc: AerospaceArc.NOSE, idOrName: 'PPC', tons: 7 }, // not in wing arc
+        { arc: AerospaceArc.AFT, idOrName: 'AC/20', tons: 14 }, // not in wing arc
+      ];
+      const result = heavyTonsByWing(items);
+      expect(result.get(AerospaceArc.LEFT_WING)).toBe(7);
+      expect(result.get(AerospaceArc.RIGHT_WING)).toBe(15);
+    });
+
+    it('empty input → both wings at 0', () => {
+      const result = heavyTonsByWing([]);
+      expect(result.get(AerospaceArc.LEFT_WING)).toBe(0);
+      expect(result.get(AerospaceArc.RIGHT_WING)).toBe(0);
+    });
+  });
+
+  describe('validateWingHeavyWeapons (VAL-AERO-WING-HEAVY)', () => {
+    it('Stuka with PPC + ER Large Laser on left wing — within 10t cap', () => {
+      const items = [
+        { arc: AerospaceArc.LEFT_WING, idOrName: 'PPC', tons: 7 },
+        { arc: AerospaceArc.LEFT_WING, idOrName: 'ER Large Laser', tons: 5 },
+      ];
+      // PPC=7t counts as heavy, ER Large Laser does not. 7 ≤ 10. Pass.
+      expect(
+        validateWingHeavyWeapons(
+          items,
+          100,
+          AerospaceSubType.AEROSPACE_FIGHTER,
+        ),
+      ).toHaveLength(0);
+    });
+
+    it('Stuka with two PPCs on left wing → exceeds 10t cap', () => {
+      const items = [
+        { arc: AerospaceArc.LEFT_WING, idOrName: 'PPC', tons: 7 },
+        { arc: AerospaceArc.LEFT_WING, idOrName: 'ER PPC', tons: 7 },
+      ];
+      const errors = validateWingHeavyWeapons(
+        items,
+        100,
+        AerospaceSubType.AEROSPACE_FIGHTER,
+      );
+      expect(errors).toHaveLength(1);
+      expect(errors[0].ruleId).toBe('VAL-AERO-WING-HEAVY');
+      expect(errors[0].message).toContain('LeftWing');
+    });
+
+    it('Shilone (65t ASF) Gauss Rifle (15t) on right wing → exceeds 6t cap', () => {
+      const items = [
+        { arc: AerospaceArc.RIGHT_WING, idOrName: 'Gauss Rifle', tons: 15 },
+      ];
+      const errors = validateWingHeavyWeapons(
+        items,
+        65,
+        AerospaceSubType.AEROSPACE_FIGHTER,
+      );
+      expect(errors).toHaveLength(1);
+      expect(errors[0].ruleId).toBe('VAL-AERO-WING-HEAVY');
+    });
+
+    it('Heavy weapon in nose arc does NOT trigger wing cap', () => {
+      const items = [
+        { arc: AerospaceArc.NOSE, idOrName: 'Heavy Gauss Rifle', tons: 18 },
+      ];
+      expect(
+        validateWingHeavyWeapons(items, 65, AerospaceSubType.AEROSPACE_FIGHTER),
+      ).toHaveLength(0);
+    });
+
+    it('Both wings overloaded → two errors', () => {
+      const items = [
+        { arc: AerospaceArc.LEFT_WING, idOrName: 'PPC', tons: 7 },
+        { arc: AerospaceArc.LEFT_WING, idOrName: 'Gauss Rifle', tons: 15 },
+        { arc: AerospaceArc.RIGHT_WING, idOrName: 'PPC', tons: 7 },
+        { arc: AerospaceArc.RIGHT_WING, idOrName: 'Gauss Rifle', tons: 15 },
+      ];
+      const errors = validateWingHeavyWeapons(
+        items,
+        100,
+        AerospaceSubType.AEROSPACE_FIGHTER,
+      );
+      expect(errors).toHaveLength(2);
+      expect(errors.every((e) => e.ruleId === 'VAL-AERO-WING-HEAVY')).toBe(
+        true,
+      );
+    });
+
+    it('Small craft is exempt — heavy tonnage in side arc passes', () => {
+      const items = [
+        { arc: AerospaceArc.LEFT_WING, idOrName: 'PPC', tons: 99 },
+      ];
+      expect(
+        validateWingHeavyWeapons(items, 100, AerospaceSubType.SMALL_CRAFT),
+      ).toHaveLength(0);
+    });
+
+    it('Empty equipment list → no errors', () => {
+      expect(
+        validateWingHeavyWeapons([], 100, AerospaceSubType.AEROSPACE_FIGHTER),
+      ).toHaveLength(0);
+    });
+  });
+
+  describe('validateAerospaceUnit integration with wingMounts', () => {
+    it('Shilone with no wing mounts supplied → no wing-heavy errors', () => {
+      const errors = validateAerospaceUnit(shiloneInput());
+      expect(errors.some((e) => e.ruleId === 'VAL-AERO-WING-HEAVY')).toBe(
+        false,
+      );
+    });
+
+    it('Shilone with overloaded right wing → VAL-AERO-WING-HEAVY', () => {
+      const input = {
+        ...shiloneInput(),
+        wingMounts: [
+          { arc: AerospaceArc.RIGHT_WING, idOrName: 'PPC', tons: 7 },
+        ],
+      };
+      // 65t ASF cap = 6, PPC = 7t → violation
+      const errors = validateAerospaceUnit(input);
+      expect(errors.some((e) => e.ruleId === 'VAL-AERO-WING-HEAVY')).toBe(true);
+    });
+
+    it('Stuka with legal wing PPC mount → clean build', () => {
+      const input = {
+        ...stukaInput(),
+        wingMounts: [
+          { arc: AerospaceArc.LEFT_WING, idOrName: 'PPC', tons: 7 },
+          { arc: AerospaceArc.RIGHT_WING, idOrName: 'PPC', tons: 7 },
+        ],
+      };
+      // Cap = 10 per wing, 7 ≤ 10. Pass.
+      expect(validateAerospaceUnit(input)).toHaveLength(0);
+    });
+  });
+});
+
+// ============================================================================
+// Task 7.4 — Bomb bays (small craft, configurable)
+// ============================================================================
+
+describe('bombBays (Task 7.4)', () => {
+  describe('bayTons', () => {
+    it('0-capacity bay still costs 1t structure', () => {
+      expect(bayTons({ id: 'b1', capacityBombs: 0 })).toBe(BAY_STRUCTURE_TONS);
+    });
+
+    it('4-bomb bay → 4 + 1 = 5t', () => {
+      expect(bayTons({ id: 'b1', capacityBombs: 4 })).toBe(5);
+    });
+
+    it('10-bomb bay → 10 + 1 = 11t', () => {
+      expect(bayTons({ id: 'b1', capacityBombs: 10 })).toBe(11);
+    });
+
+    it('negative capacity is clamped to 0', () => {
+      expect(bayTons({ id: 'b1', capacityBombs: -3 })).toBe(BAY_STRUCTURE_TONS);
+    });
+  });
+
+  describe('totalBombBayTons / totalBombCapacity', () => {
+    it('sum across multiple bays', () => {
+      const bays = [
+        { id: 'b1', capacityBombs: 4 },
+        { id: 'b2', capacityBombs: 8 },
+        { id: 'b3', capacityBombs: 0 },
+      ];
+      // Tons: (4+1) + (8+1) + (0+1) = 15
+      expect(totalBombBayTons(bays)).toBe(15);
+      // Capacity: 4 + 8 + 0 = 12
+      expect(totalBombCapacity(bays)).toBe(12);
+    });
+
+    it('empty list → 0', () => {
+      expect(totalBombBayTons([])).toBe(0);
+      expect(totalBombCapacity([])).toBe(0);
+    });
+  });
+
+  describe('maxBombBayTons', () => {
+    it('100t small craft → 50t cap', () => {
+      expect(maxBombBayTons(100, AerospaceSubType.SMALL_CRAFT)).toBe(50);
+    });
+
+    it('200t small craft → 100t cap', () => {
+      expect(maxBombBayTons(200, AerospaceSubType.SMALL_CRAFT)).toBe(100);
+    });
+
+    it('ASF → 0 (rule N/A)', () => {
+      expect(maxBombBayTons(100, AerospaceSubType.AEROSPACE_FIGHTER)).toBe(0);
+    });
+
+    it('CF → 0 (rule N/A)', () => {
+      expect(maxBombBayTons(50, AerospaceSubType.CONVENTIONAL_FIGHTER)).toBe(0);
+    });
+  });
+
+  describe('validateBombBays (VAL-AERO-BOMB-BAY)', () => {
+    it('small craft with no bays → no errors', () => {
+      expect(
+        validateBombBays([], 100, AerospaceSubType.SMALL_CRAFT),
+      ).toHaveLength(0);
+    });
+
+    it('small craft with legal bays under cap → no errors', () => {
+      // 100t cap = 50t. Bays: (10+1) + (10+1) = 22t. Pass.
+      const bays = [
+        { id: 'b1', capacityBombs: 10 },
+        { id: 'b2', capacityBombs: 10 },
+      ];
+      expect(
+        validateBombBays(bays, 100, AerospaceSubType.SMALL_CRAFT),
+      ).toHaveLength(0);
+    });
+
+    it('small craft with bays exceeding cap → VAL-AERO-BOMB-BAY', () => {
+      // 100t cap = 50t. Bays: (49+1) + (5+1) = 56t > 50.
+      const bays = [
+        { id: 'b1', capacityBombs: 49 },
+        { id: 'b2', capacityBombs: 5 },
+      ];
+      const errors = validateBombBays(bays, 100, AerospaceSubType.SMALL_CRAFT);
+      expect(errors).toHaveLength(1);
+      expect(errors[0].ruleId).toBe('VAL-AERO-BOMB-BAY');
+      expect(errors[0].message).toContain('56t');
+      expect(errors[0].message).toContain('50t');
+    });
+
+    it('small craft bay with negative capacity → VAL-AERO-BOMB-BAY', () => {
+      const bays = [{ id: 'b1', capacityBombs: -2 }];
+      const errors = validateBombBays(bays, 100, AerospaceSubType.SMALL_CRAFT);
+      expect(errors.some((e) => e.ruleId === 'VAL-AERO-BOMB-BAY')).toBe(true);
+    });
+
+    it('small craft bay with non-integer capacity → VAL-AERO-BOMB-BAY', () => {
+      const bays = [{ id: 'b1', capacityBombs: 3.5 }];
+      const errors = validateBombBays(bays, 100, AerospaceSubType.SMALL_CRAFT);
+      expect(errors.some((e) => e.ruleId === 'VAL-AERO-BOMB-BAY')).toBe(true);
+    });
+
+    it('ASF with bombBays declared → VAL-AERO-BOMB-BAY (sub-type illegal)', () => {
+      const bays = [{ id: 'b1', capacityBombs: 4 }];
+      const errors = validateBombBays(
+        bays,
+        65,
+        AerospaceSubType.AEROSPACE_FIGHTER,
+      );
+      expect(errors).toHaveLength(1);
+      expect(errors[0].ruleId).toBe('VAL-AERO-BOMB-BAY');
+      expect(errors[0].message).toMatch(/only configurable on small craft/);
+    });
+
+    it('CF with bombBays declared → VAL-AERO-BOMB-BAY (sub-type illegal)', () => {
+      const bays = [{ id: 'b1', capacityBombs: 4 }];
+      const errors = validateBombBays(
+        bays,
+        30,
+        AerospaceSubType.CONVENTIONAL_FIGHTER,
+      );
+      expect(errors).toHaveLength(1);
+      expect(errors[0].ruleId).toBe('VAL-AERO-BOMB-BAY');
+    });
+
+    it('ASF with no bombBays → no errors (single hasBombBay path is unaffected)', () => {
+      expect(
+        validateBombBays([], 65, AerospaceSubType.AEROSPACE_FIGHTER),
+      ).toHaveLength(0);
+    });
+  });
+
+  describe('validateAerospaceUnit integration with bombBays', () => {
+    it('Seeker with no bombBays supplied → no bay errors', () => {
+      const errors = validateAerospaceUnit(seekerInput());
+      expect(errors.some((e) => e.ruleId === 'VAL-AERO-BOMB-BAY')).toBe(false);
+    });
+
+    it('Seeker with two legal bays → clean build', () => {
+      const input = {
+        ...seekerInput(),
+        bombBays: [
+          { id: 'fwd', capacityBombs: 10 },
+          { id: 'aft', capacityBombs: 10 },
+        ],
+      };
+      expect(validateAerospaceUnit(input)).toHaveLength(0);
+    });
+
+    it('Seeker with oversized bay → VAL-AERO-BOMB-BAY', () => {
+      const input = {
+        ...seekerInput(),
+        bombBays: [{ id: 'huge', capacityBombs: 60 }],
+      };
+      // 100t × 0.5 = 50 cap; bay = 60+1 = 61. Violation.
+      const errors = validateAerospaceUnit(input);
+      expect(errors.some((e) => e.ruleId === 'VAL-AERO-BOMB-BAY')).toBe(true);
+    });
+
+    it('Shilone with bombBays → VAL-AERO-BOMB-BAY (ASF cannot use small-craft bays)', () => {
+      const input = {
+        ...shiloneInput(),
+        bombBays: [{ id: 'b1', capacityBombs: 4 }],
+      };
+      const errors = validateAerospaceUnit(input);
+      expect(errors.some((e) => e.ruleId === 'VAL-AERO-BOMB-BAY')).toBe(true);
+    });
+  });
+});
+
+// ============================================================================
+// Validation registry — both new rules registered
+// ============================================================================
+
+describe('AERO_VALIDATION_RULE_IDS includes new rules', () => {
+  it('includes VAL-AERO-WING-HEAVY', () => {
+    expect(AERO_VALIDATION_RULE_IDS).toContain('VAL-AERO-WING-HEAVY');
+  });
+
+  it('includes VAL-AERO-BOMB-BAY', () => {
+    expect(AERO_VALIDATION_RULE_IDS).toContain('VAL-AERO-BOMB-BAY');
   });
 });
