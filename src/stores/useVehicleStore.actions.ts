@@ -195,9 +195,9 @@ export function autoAllocateArmorLogic(
   const hasTurret = state.turret !== null;
   const isVTOL = state.motionType === GroundMotionType.VTOL;
 
-  const frontPercent = 0.35;
+  const frontPercent = 0.4;
   const sidePercent = 0.2;
-  const rearPercent = 0.15;
+  const rearPercent = 0.1;
   const turretPercent = hasTurret ? 0.1 : 0;
   const rotorPercent = isVTOL ? 0.02 : 0;
 

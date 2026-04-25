@@ -31,6 +31,7 @@ from typing import Dict, List, Optional, Any, Tuple
 # ---------------------------------------------------------------------------
 try:
     from enum_mappings import (
+        default_mm_data_root,
         map_tech_base,
         map_rules_level,
         map_engine_type,
@@ -41,6 +42,14 @@ try:
     )
 except ImportError:
     # Stub implementations used when run standalone without enum_mappings on path
+    def default_mm_data_root() -> str:
+        env = os.environ.get("MM_DATA_ROOT")
+        if env:
+            return env
+        if os.name == "nt":
+            return r"E:\Projects\mm-data\data"
+        return "/e/Projects/mm-data/data"
+
     def map_tech_base(v: str) -> str:
         m = {"Clan": "CLAN", "Mixed": "MIXED", "Both": "BOTH"}
         return m.get(v.strip(), "INNER_SPHERE")
@@ -479,19 +488,32 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
 # ---------------------------------------------------------------------------
 
 PARITY_TARGETS: List[Dict[str, Any]] = [
-    # (chassis, model, min_tons, max_tons, note)
-    {"chassis": "Manticore Heavy Tank", "model": "",  "min_tons": 55, "max_tons": 65},
-    {"chassis": "Puma Assault Tank",    "model": "PAT-001", "min_tons": 90, "max_tons": 100},
-    {"chassis": "Savannah Master",      "model": "",  "min_tons": 4,  "max_tons": 6},
-    {"chassis": "Scorpion",             "model": "",  "min_tons": 25, "max_tons": 35},
-    {"chassis": "Demolisher",           "model": "",  "min_tons": 75, "max_tons": 85},
+    # 10 canonical vehicles with chassis-name match (BLK chassis includes
+    # qualifier like 'Heavy Tank') and tonnage tolerance.
+    {"chassis": "Manticore Heavy Tank",         "model": "",        "min_tons": 55, "max_tons": 65},
+    {"chassis": "Puma Assault Tank",            "model": "PAT-001", "min_tons": 90, "max_tons": 100},
+    {"chassis": "Savannah Master Hovercraft",   "model": "",        "min_tons": 4,  "max_tons": 6},
+    {"chassis": "Scorpion Light Tank",          "model": "",        "min_tons": 20, "max_tons": 30},
+    {"chassis": "Demolisher Heavy Tank",        "model": "",        "min_tons": 75, "max_tons": 85},
+    {"chassis": "LRM Carrier",                  "model": "",        "min_tons": 55, "max_tons": 65},
+    {"chassis": "SRM Carrier",                  "model": "",        "min_tons": 55, "max_tons": 65},
+    {"chassis": "Hetzer Wheeled Assault Gun",   "model": "",        "min_tons": 35, "max_tons": 45},
+    {"chassis": "Pegasus Scout Hover Tank",     "model": "",        "min_tons": 30, "max_tons": 40},
+    {"chassis": "Galleon Light Tank",           "model": "",        "min_tons": 25, "max_tons": 35},
 ]
 
 
-def run_parity_checks(manifest: List[Dict[str, Any]], logger: logging.Logger) -> int:
+def run_parity_checks(
+    manifest: List[Dict[str, Any]],
+    logger: logging.Logger,
+) -> Tuple[int, List[Dict[str, Any]]]:
     """
-    Run basic parity assertions against known canonical vehicles.
-    Returns number of failures.
+    Run parity assertions against known canonical vehicles.
+
+    Returns (failures, parity_records). parity_records is the per-target
+    comparison data the caller serialises to ``blk-vehicle-parity.json``.
+    Note: BV / equipment-list-length parity is deferred until per-type BV
+    calculators land — see add-vehicle-construction wave 5.
     """
     failures = 0
     index: Dict[str, Dict[str, Any]] = {}
@@ -499,23 +521,36 @@ def run_parity_checks(manifest: List[Dict[str, Any]], logger: logging.Logger) ->
         key = entry.get("chassis", "").lower()
         index[key] = entry
 
+    records: List[Dict[str, Any]] = []
     for target in PARITY_TARGETS:
         chassis_key = target["chassis"].lower()
         entry = index.get(chassis_key)
+        record: Dict[str, Any] = {
+            "chassis": target["chassis"],
+            "expected_min_tons": target["min_tons"],
+            "expected_max_tons": target["max_tons"],
+        }
         if entry is None:
             logger.warning(f"Parity: '{target['chassis']}' not found in output")
+            record["status"] = "missing"
             failures += 1
+            records.append(record)
             continue
         tonnage = entry.get("tonnage", 0)
+        record["actual_tons"] = tonnage
+        record["actual_equipment_count"] = len(entry.get("equipment", []) or [])
         if not (target["min_tons"] <= tonnage <= target["max_tons"]):
             logger.error(
                 f"Parity FAIL: {target['chassis']} tonnage={tonnage} "
                 f"expected [{target['min_tons']},{target['max_tons']}]"
             )
+            record["status"] = "fail"
             failures += 1
         else:
             logger.info(f"Parity OK: {target['chassis']} tonnage={tonnage}")
-    return failures
+            record["status"] = "ok"
+        records.append(record)
+    return failures, records
 
 
 # ---------------------------------------------------------------------------
@@ -548,7 +583,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Convert BLK vehicle files to MekStation JSON")
     parser.add_argument(
         "--source",
-        default=str(Path(__file__).parent.parent.parent / "E:/Projects/mm-data/data/mekfiles/vehicles"),
+        default=str(Path(default_mm_data_root()) / "mekfiles" / "vehicles"),
         help="Path to mm-data vehicles directory",
     )
     parser.add_argument(
@@ -603,7 +638,11 @@ def main() -> int:
                 skipped_other += 1
             continue
 
-        out_path = output_dir / f"{unit['chassis']} {unit['model']}.json".strip()
+        # Sanitize filename: BLK chassis/model can contain '/' (e.g. "AC/2 Carrier")
+        # which Path interprets as a directory separator. Replace with '-'.
+        raw_name = f"{unit['chassis']} {unit['model']}".strip()
+        safe_name = re.sub(r"[\\/:*?\"<>|]", "-", raw_name)
+        out_path = output_dir / f"{safe_name}.json"
         try:
             out_path.write_text(json.dumps(unit, indent=2, ensure_ascii=False), encoding="utf-8")
             converted += 1
@@ -622,8 +661,39 @@ def main() -> int:
     manifest_path.write_text(json.dumps(manifest_data, indent=2, ensure_ascii=False), encoding="utf-8")
     logger.info(f"Manifest written: {manifest_path} ({len(manifest)} units)")
 
+    # Manifest size budget check (task 8.3): manifests > 5 MB defeat lazy loading.
+    MANIFEST_MAX_BYTES = 5 * 1024 * 1024
+    manifest_bytes = manifest_path.stat().st_size
+    if manifest_bytes > MANIFEST_MAX_BYTES:
+        logger.error(
+            f"Manifest size {manifest_bytes} bytes exceeds 5 MB budget — "
+            "trim per-entry metadata or split the manifest."
+        )
+        errors += 1
+    else:
+        logger.info(f"Manifest size OK: {manifest_bytes} bytes (budget 5 MB)")
+
     # --- Parity checks ---
-    parity_failures = run_parity_checks(manifest, logger)
+    parity_failures, parity_records = run_parity_checks(manifest, logger)
+
+    # Write the parity report referenced by the unit-data-import spec scenario.
+    parity_report_dir = Path(__file__).parent.parent.parent / "validation-output"
+    parity_report_dir.mkdir(parents=True, exist_ok=True)
+    parity_report_path = parity_report_dir / "blk-vehicle-parity.json"
+    parity_report_path.write_text(
+        json.dumps(
+            {
+                "type": "vehicles",
+                "fixture_count": len(parity_records),
+                "failures": parity_failures,
+                "records": parity_records,
+            },
+            indent=2,
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    logger.info(f"Parity report written: {parity_report_path}")
 
     # --- Summary ---
     logger.info(
@@ -643,6 +713,13 @@ def main() -> int:
         "parity_failures": parity_failures,
     }
     print(json.dumps(run_log))
+
+    # Persist the run-log for CI / parity-regression auditing (task 7.3).
+    log_dir = Path(__file__).parent.parent.parent / "validation-output"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / "blk-vehicle-run-log.json"
+    log_path.write_text(json.dumps(run_log, indent=2), encoding="utf-8")
+    logger.info(f"Run log written: {log_path}")
 
     return 1 if (errors > 0 or parity_failures > 0) else 0
 

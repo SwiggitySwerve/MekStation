@@ -129,11 +129,22 @@ export interface IBuildTicketsInput {
  *   4. One ammo ticket per bin where current < max
  *
  * If the unit is intact, returns an empty array.
+ *
+ * Per the `damage-system` spec ("Destroyed Units Produce No Tickets"):
+ * a unit whose `combatReady` flag is false is treated as a write-off
+ * (salvage candidate) and never enters the repair queue. The salvage
+ * pipeline handles those units; this builder skips them outright.
  */
 export function buildTicketsFromUnitState(
   input: IBuildTicketsInput,
 ): IRepairTicket[] {
   const { state, maxState, matchId, createdAt } = input;
+
+  // Destroyed unit (combat-ready flag flipped) → write-off, no tickets.
+  if (state.combatReady === false) {
+    return [];
+  }
+
   const tickets: IRepairTicket[] = [];
 
   // 1. Armor tickets — diff current vs max per location

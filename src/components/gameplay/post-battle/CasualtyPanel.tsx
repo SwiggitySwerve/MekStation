@@ -3,7 +3,8 @@
  *
  * Lists every player-side unit that ended damaged, destroyed, or
  * ejected with a per-unit damage summary: final status badge,
- * destroyed locations, destroyed components, and final heat reading.
+ * destroyed locations, destroyed components, ammo bins consumed, and
+ * final heat reading.
  *
  * Operates entirely on the campaign-facing `IUnitCombatDelta` slice of
  * the outcome — no need to walk the raw event log.
@@ -117,6 +118,19 @@ function CasualtyRow({
           Components destroyed:{' '}
           <span className="text-amber-400">
             {delta.destroyedComponents.join(', ')}
+          </span>
+        </div>
+      ) : null}
+      {Object.keys(delta.ammoRemaining).length > 0 ? (
+        <div
+          className="text-text-theme-secondary mt-1 text-xs"
+          data-testid={`casualty-ammo-${delta.unitId}`}
+        >
+          Ammo bins remaining:{' '}
+          <span className="text-cyan-400">
+            {Object.entries(delta.ammoRemaining)
+              .map(([binId, rounds]) => `${binId}: ${rounds}`)
+              .join(', ')}
           </span>
         </div>
       ) : null}

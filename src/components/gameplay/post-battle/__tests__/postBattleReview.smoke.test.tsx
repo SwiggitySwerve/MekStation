@@ -302,4 +302,126 @@ describe('Post-battle review panels', () => {
     fireEvent.click(screen.getByTestId('apply-outcome-cta'));
     expect(onApply).toHaveBeenCalledTimes(1);
   });
+
+  // Task 2.4: end-reason label derivation. Verifies every CombatEndReason
+  // enum value flows through PostBattleHeader to the expected human-
+  // readable string so the spec's "all required sections" scenario stays
+  // legible regardless of how the engine ended.
+  it.each([
+    [CombatEndReason.Destruction, 'Destruction'],
+    [CombatEndReason.Concede, 'Concede'],
+    [CombatEndReason.TurnLimit, 'Turn Limit'],
+    [CombatEndReason.ObjectiveMet, 'Objective Met'],
+    [CombatEndReason.Withdrawal, 'Withdrawal'],
+  ])(
+    'PostBattleHeader maps %s to its human-readable label',
+    (reason, label) => {
+      render(<PostBattleHeader outcome={makeOutcome({ endReason: reason })} />);
+      expect(screen.getByTestId('post-battle-end-reason')).toHaveTextContent(
+        label,
+      );
+    },
+  );
+
+  // Task 3.5: ammo bins remaining are surfaced on each casualty row so the
+  // player can spot units that ran dry mid-battle.
+  it('CasualtyPanel surfaces ammo bins remaining for damaged units', () => {
+    render(<CasualtyPanel outcome={makeOutcome()} />);
+    expect(screen.getByTestId('casualty-ammo-unit-player-1')).toHaveTextContent(
+      'ac20-bin-1: 4',
+    );
+  });
+
+  // Task 4.4: six-slot wound tracker with filled/empty dots.
+  it('PilotXpPanel renders a six-dot wound tracker with the correct fills', () => {
+    render(<PilotXpPanel outcome={makeOutcome()} />);
+    const tracker = screen.getByTestId('pilot-wound-tracker-unit-player-1');
+    expect(tracker).toBeInTheDocument();
+    // Fixture pilot has 1 wound → 1 filled dot, 5 empty.
+    const dots = Array.from({ length: 6 }, (_, i) =>
+      screen.getByTestId(`pilot-wound-dot-unit-player-1-${i}`),
+    );
+    expect(dots).toHaveLength(6);
+    expect(dots[0]).toHaveAttribute('data-filled', 'true');
+    expect(dots[1]).toHaveAttribute('data-filled', 'false');
+    expect(dots[5]).toHaveAttribute('data-filled', 'false');
+  });
+
+  // Spec scenario: KIA pilot has terminal status badge and no XP breakdown.
+  it('PilotXpPanel hides XP estimate for KIA pilots', () => {
+    const outcome = makeOutcome({
+      unitDeltas: [
+        {
+          unitId: 'unit-player-1',
+          side: GameSide.Player,
+          destroyed: true,
+          finalStatus: UnitFinalStatus.Destroyed,
+          armorRemaining: {},
+          internalsRemaining: {},
+          destroyedLocations: ['CT'],
+          destroyedComponents: [],
+          heatEnd: 0,
+          ammoRemaining: {},
+          pilotState: {
+            conscious: false,
+            wounds: 6,
+            killed: true,
+            finalStatus: PilotFinalStatus.KIA,
+          },
+        },
+      ],
+    });
+    render(<PilotXpPanel outcome={outcome} />);
+    expect(screen.getByTestId('pilot-status-unit-player-1')).toHaveTextContent(
+      'KIA',
+    );
+    expect(
+      screen.getByTestId('pilot-kia-notice-unit-player-1'),
+    ).toBeInTheDocument();
+    // No `XP gain:` row should be rendered for KIA pilots.
+    expect(screen.queryByText(/XP gain:/i)).not.toBeInTheDocument();
+  });
+
+  // Task 11.6: integration smoke — full review screen renders all panels
+  // when given a populated outcome + salvage + repair fixture.
+  it('PostBattleReviewScreen renders all six required panel surfaces', () => {
+    render(
+      <PostBattleReviewScreen
+        outcome={makeOutcome()}
+        salvageReport={makeSalvageReport()}
+        repairTickets={[makeRepairTicket()]}
+        contractName="Wolf Hunt"
+        employerName="Federated Suns"
+      />,
+    );
+    expect(screen.getByTestId('post-battle-review-screen')).toBeInTheDocument();
+    expect(screen.getByTestId('post-battle-header')).toBeInTheDocument();
+    expect(screen.getByTestId('casualty-panel')).toBeInTheDocument();
+    expect(screen.getByTestId('pilot-xp-panel')).toBeInTheDocument();
+    expect(screen.getByTestId('salvage-panel')).toBeInTheDocument();
+    expect(screen.getByTestId('contract-panel')).toBeInTheDocument();
+    expect(screen.getByTestId('repair-preview-panel')).toBeInTheDocument();
+  });
+
+  // Task 11.7 (partial): a11y — wound tracker provides a non-visual
+  // alternative via `aria-label`. Full screen-reader audit is deferred.
+  it('PilotXpPanel wound tracker exposes an aria-label for screenreaders', () => {
+    render(<PilotXpPanel outcome={makeOutcome()} />);
+    const tracker = screen.getByTestId('pilot-wound-tracker-unit-player-1');
+    expect(tracker).toHaveAttribute('aria-label', 'Wounds taken: 1 of 6');
+  });
+
+  // Spec scenario: Standalone skirmish (contractId = null) hides the
+  // contract panel AND keeps the salvage panel rendering its empty state.
+  it('PostBattleReviewScreen hides ContractPanel for standalone skirmishes', () => {
+    render(
+      <PostBattleReviewScreen
+        outcome={makeOutcome({ contractId: null })}
+        salvageReport={makeSalvageReport(true)}
+        repairTickets={[]}
+      />,
+    );
+    expect(screen.queryByTestId('contract-panel')).not.toBeInTheDocument();
+    expect(screen.getByTestId('salvage-empty')).toBeInTheDocument();
+  });
 });

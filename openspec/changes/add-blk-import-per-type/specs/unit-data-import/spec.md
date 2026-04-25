@@ -54,6 +54,17 @@ Each per-type converter SHALL emit JSON files conforming to the `I<Type>Unit` in
 
 Each converter SHALL emit a parity report comparing key fields (tonnage, BV, equipment list length) against expected MegaMek/MUL values for a sample set of 10 canonical units per type.
 
+> **Partial DEFERRED to Wave 5 (per-type BV calculators):** the BV portion of
+> the comparison is deferred until each non-mech construction proposal (vehicles,
+> aerospace, BattleArmor, infantry, ProtoMechs) ships its BV calculator and
+> exposes a callable from the converter. Tonnage and equipment-list-length
+> parity are implemented today; per-fixture BV comparison will be wired in by
+> the wave that lands `validate-bv` coverage for that unit type. Pickup:
+> `scripts/validate-bv.ts` (currently mech-only) and the per-type calculator
+> deltas listed in `add-vehicle-construction`, `add-aerospace-construction`,
+> `add-battlearmor-construction`, `add-infantry-construction`,
+> `add-protomech-construction`.
+
 **Priority**: High
 
 #### Scenario: Parity report generated
@@ -87,6 +98,13 @@ The BLK converters SHALL reuse the existing `EquipmentNameMapper` aliases so BLK
 ### Requirement: Per-Type Unit Manifest
 
 Each type's converter SHALL write a `units-manifest.json` at `public/data/units/<type>/units-manifest.json` listing every converted unit with id, chassis, model, tonnage, BV — used by the app for manifest-driven lazy loading.
+
+> **Partial DEFERRED to Wave 5:** the `BV` column in each manifest entry is
+> populated as `null` until the per-type BV calculator lands (see the
+> deferred note on the parity requirement above). All other manifest fields
+> (id, chassis, model, tonnage) are populated today, and the manifest path /
+> shape contract is satisfied. Pickup: `build_manifest_entry()` in each
+> converter once a BV calculator becomes callable.
 
 **Priority**: High
 

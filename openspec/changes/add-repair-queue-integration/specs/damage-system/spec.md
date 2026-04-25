@@ -41,6 +41,14 @@ the unit.
 
 ### Requirement: Repair Priority From Damage Severity
 
+> DEFERRED to Wave 5: priority is a UI-tier concern owned by the
+> `add-post-battle-review-ui` change. This wave omits the
+> `RepairPriority` enum and ships kind-keyed tickets only
+> (`armor` / `structure` / `component` / `ammo`). Wave 5 derives
+> priority from `kind` + `location` + `componentType` once the
+> review-ui consumer surface is concrete; the queue payload remains
+> additive (no breaking change).
+
 Each repair ticket's priority SHALL be derived from the component and
 location affected.
 

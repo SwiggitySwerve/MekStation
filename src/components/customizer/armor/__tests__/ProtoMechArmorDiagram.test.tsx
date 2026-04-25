@@ -136,7 +136,8 @@ describe('ProtoMechArmorDiagram', () => {
   it('renders ArmorLocationBlock for Torso location showing pip row', () => {
     render(<ProtoMechArmorDiagram />);
     // ArmorLocationBlock renders an aria-label "Torso: current of max"
-    // With tonnage 5, Torso max = ceil(5/5) * 3 = 3; current = 3 → "Torso: 3 of 3"
-    expect(screen.getByLabelText('Torso: 3 of 3')).toBeInTheDocument();
+    // With tonnage 5, Torso max = 14 per the TM Companion p.196 weight
+    // table; current = 3 → "Torso: 3 of 14"
+    expect(screen.getByLabelText('Torso: 3 of 14')).toBeInTheDocument();
   });
 });

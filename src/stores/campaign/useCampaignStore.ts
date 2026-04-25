@@ -167,6 +167,15 @@ interface CampaignActions {
   getPendingOutcomes: () => readonly ICombatOutcome[];
 
   /**
+   * Per `add-post-battle-review-ui` § 10.1: returns true when an
+   * outcome for the given match id is currently in the pending queue
+   * — i.e., the post-battle review page can render with real data.
+   * Returns false otherwise (queue empty, or already-applied outcome
+   * has been dequeued).
+   */
+  reviewReady: (matchId: string) => boolean;
+
+  /**
    * Per Wave 5 (`wire-encounter-to-campaign-round-trip`): banner
    * selector for the campaign dashboard. Reads the live queue length so
    * the dashboard can show "N battles pending review" without
@@ -635,6 +644,10 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         getPendingOutcomes: () => get().pendingBattleOutcomes,
         getPendingOutcomeCount: () => get().pendingBattleOutcomes.length,
         getProcessedBattleIds: () => get().processedBattleIds,
+        reviewReady: (matchId) => {
+          if (!matchId) return false;
+          return get().pendingBattleOutcomes.some((o) => o.matchId === matchId);
+        },
       }),
       {
         name: 'campaign-store',
