@@ -21,6 +21,7 @@ import {
   createLegDamagePSR,
   createHipActuatorPSR,
   createGyroPSR,
+  createEngineHitPSR,
   createUpperLegActuatorPSR,
   createLowerLegActuatorPSR,
   createFootActuatorPSR,
@@ -312,7 +313,7 @@ describe('Piloting Skill Rolls', () => {
     });
   });
 
-  describe('PSR Trigger Generators — all 26 triggers', () => {
+  describe('PSR Trigger Generators — all 27 triggers', () => {
     const triggerTests: Array<{
       fn: (id: string) => IPendingPSR;
       expectedSource: PSRTrigger;
@@ -334,6 +335,11 @@ describe('Piloting Skill Rolls', () => {
         expectedMod: 0,
       },
       { fn: createGyroPSR, expectedSource: PSRTrigger.GyroHit, expectedMod: 0 },
+      {
+        fn: createEngineHitPSR,
+        expectedSource: PSRTrigger.EngineHit,
+        expectedMod: 0,
+      },
       {
         fn: createUpperLegActuatorPSR,
         expectedSource: PSRTrigger.UpperLegActuatorHit,
@@ -462,8 +468,8 @@ describe('Piloting Skill Rolls', () => {
       },
     );
 
-    it('should have exactly 27 trigger types (26 + standing up)', () => {
-      expect(triggerTests).toHaveLength(27);
+    it('should have exactly 28 trigger types (27 catalog entries + standing up)', () => {
+      expect(triggerTests).toHaveLength(28);
     });
   });
 
