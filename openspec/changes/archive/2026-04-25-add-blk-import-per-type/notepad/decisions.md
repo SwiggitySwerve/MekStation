@@ -41,7 +41,7 @@
 
 - **Task 8.2** (`App loads manifest first`): outside this change scope. The build-time manifest is in place; UI integration belongs to the per-type customizer change. Pickup: `src/components/units/UnitCatalogService.ts` once that proposal lands.
 - **Spec: Parity Validation BV column**: deferred to wave 5 once `validate-bv` covers non-mech types. Tonnage / equipment-count parity is implemented today.
-- **Spec: Per-Type Unit Manifest BV field**: same deferral — manifest entries currently have `bv: null` for all non-mech units.
+- **Spec: Per-Type Unit Manifest BV field**: same deferral — manifest entries explicitly carry `bv: null` for all non-mech units (added to every `build_manifest_entry()` return on 2026-04-25 as an audit follow-up; the prior wording suggested it was already populated as `null`, but the key was actually absent from the dicts. Now it's present, which closes the spec/code contract gap and lets consumers `entry["bv"]` without a `KeyError`). Wave 5 swaps `None` for the calculated value once per-type calculators are callable.
 
 ### Files touched
 
