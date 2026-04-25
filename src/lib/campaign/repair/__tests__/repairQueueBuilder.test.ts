@@ -271,6 +271,46 @@ describe('buildTicketsFromUnitState', () => {
     expect(first[0].ticketId).toBe(second[0].ticketId);
   });
 
+  it('returns no tickets for a destroyed unit (combatReady=false)', () => {
+    // Per the damage-system spec ("Destroyed Units Produce No Tickets"):
+    // a write-off must skip the repair queue entirely — those units are
+    // salvage candidates, not repair candidates.
+    const maxState = makeMaxState('u1');
+    const state: IUnitCombatState = {
+      ...makeIntactState('u1', maxState),
+      // Heavy damage that would otherwise produce many tickets.
+      currentArmorPerLocation: {
+        ...maxState.maxArmorPerLocation,
+        CT: 0,
+        LT: 0,
+        RT: 0,
+      },
+      currentStructurePerLocation: {
+        ...maxState.maxStructurePerLocation,
+        CT: 0,
+      },
+      destroyedLocations: ['CT'],
+      destroyedComponents: [
+        {
+          location: 'CT',
+          name: 'Engine',
+          slot: 0,
+          componentType: 'engine',
+          destroyedAt: TEST_MATCH_ID,
+        },
+      ],
+      ammoRemaining: { 'ac20-rt': 0, 'srm6-lt': 0 },
+      combatReady: false,
+    };
+    const tickets = buildTicketsFromUnitState({
+      state,
+      maxState,
+      matchId: TEST_MATCH_ID,
+      createdAt: FIXED_TIMESTAMP,
+    });
+    expect(tickets).toEqual([]);
+  });
+
   it('emits combined tickets across all kinds when unit is heavily damaged', () => {
     const maxState = makeMaxState('u1');
     const state: IUnitCombatState = {
