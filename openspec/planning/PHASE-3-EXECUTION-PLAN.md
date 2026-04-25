@@ -184,7 +184,7 @@ npx next build                                        # build success required
 
 - [ ] All 6 OpenSpec changes' tasks.md fully checked off
 - [ ] One squashed PR `feat/phase-3-campaign-combat-integration` → `main` merged
-- [ ] All 6 OpenSpec changes archived to `openspec/archive/`
+- [ ] All 6 OpenSpec changes archived to `openspec/changes/archive/`
 - [ ] Roadmap doc Phase 3 section marked complete
 - [ ] E2E test: accept contract → battle → outcome → next day → all deltas applied
 - [ ] No regressions: existing 19,863 jest tests still passing
