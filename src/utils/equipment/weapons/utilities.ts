@@ -1,15 +1,22 @@
 /**
  * Weapon Utility Functions
  *
- * Query and filter functions for weapons.
+ * Query and filter functions for weapons. These are runtime helpers
+ * (they call into `getEquipmentLoader()` for loaded weapon data) and
+ * therefore must live under `src/utils/`, not `src/types/`. This file
+ * was repatriated from `src/types/equipment/weapons/utilities.ts` —
+ * the original location pulled a runtime import
+ * (`@/services/equipment/EquipmentLoaderService`) into the type layer,
+ * violating the rule that `src/types/` should not depend on runtime
+ * services. The barrel `src/types/equipment/weapons/index.ts` continues
+ * to re-export these helpers for backward compatibility.
  *
  * @spec openspec/specs/weapon-system/spec.md
  */
 
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
-
-import { TechBase } from '../../enums/TechBase';
-import { IWeapon, WeaponCategory } from './interfaces';
+import { TechBase } from '@/types/enums/TechBase';
+import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
 
 /**
  * Get all standard weapons (excluding artillery and capital weapons)

@@ -18,7 +18,7 @@ import { JUMP_JETS } from '@/types/equipment/MiscEquipmentTypes';
 import {
   getWeaponById,
   isDirectFireWeaponById,
-} from '@/types/equipment/weapons/utilities';
+} from '@/utils/equipment/weapons/utilities';
 import { logger } from '@/utils/logger';
 
 const JUMP_JET_IDS = new Set(JUMP_JETS.map((jj) => jj.id));
