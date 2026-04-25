@@ -20,6 +20,10 @@ import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { createContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import {
+  createInitialCombatState,
+  isUnitCombatReady,
+} from '@/types/campaign/UnitCombatState';
+import {
   CombatEndReason,
   COMBAT_OUTCOME_VERSION,
   PilotFinalStatus,
@@ -483,6 +487,215 @@ describe('postBattleProcessor', () => {
         expect.arrayContaining(['match-1', 'match-2']),
       );
       expect(result.events).toHaveLength(2);
+    });
+  });
+
+  describe('isUnitCombatReady (direct)', () => {
+    // Req 2: Combat-Ready Classification
+    // Scenarios: "Unit with intact state is combat-ready" and
+    //            "Unit with destroyed CT is not combat-ready".
+
+    it('returns true for an intact state with healthy CT and combatReady flag', () => {
+      const state = createInitialCombatState({
+        unitId: 'unit-intact',
+        armorPerLocation: { CT: 20, LT: 15, RT: 15 },
+        structurePerLocation: { CT: 10, LT: 8, RT: 8 },
+      });
+      expect(isUnitCombatReady(state)).toBe(true);
+    });
+
+    it('returns false when CT structure is 0 (CT destroyed)', () => {
+      const base = createInitialCombatState({
+        unitId: 'unit-ct-dead',
+        armorPerLocation: { CT: 0, LT: 15, RT: 15 },
+        structurePerLocation: { CT: 0, LT: 8, RT: 8 },
+      });
+      expect(isUnitCombatReady(base)).toBe(false);
+    });
+
+    it('returns false when combatReady flag is explicitly false even if CT is healthy', () => {
+      const base = createInitialCombatState({
+        unitId: 'unit-retired',
+        armorPerLocation: { CT: 20, LT: 15, RT: 15 },
+        structurePerLocation: { CT: 10, LT: 8, RT: 8 },
+      });
+      const flipped = { ...base, combatReady: false };
+      expect(isUnitCombatReady(flipped)).toBe(false);
+    });
+  });
+
+  describe('per-outcome error isolation', () => {
+    // Req 4: "Failed application keeps outcome in queue" — one outcome
+    // throwing must NOT lose the outcome, and must NOT block the rest
+    // of the queue.
+
+    it('keeps a failing outcome in pendingBattleOutcomes and still processes the next valid one', () => {
+      const pilot = createTestPerson({
+        id: 'pilot-1',
+        xp: 0,
+        totalXpEarned: 0,
+      });
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
+
+      // A malformed outcome: report is missing (triggers a throw inside
+      // `playerWon` / contract handling when winner is accessed on a
+      // deliberately-broken report object). We force the break by
+      // inserting a getter that throws on access.
+      const brokenReport = {
+        get winner(): GameSide {
+          throw new Error('synthetic boom from broken report');
+        },
+      } as unknown as IPostBattleReport;
+
+      const malformed = createOutcome({
+        matchId: 'match-broken',
+        report: brokenReport,
+        unitDeltas: [createDelta('pilot-1')],
+      });
+      const good = createOutcome({
+        matchId: 'match-good',
+        unitDeltas: [createDelta('pilot-1')],
+      });
+
+      const campaign = createTestCampaign({
+        personnel,
+        pendingBattleOutcomes: [malformed, good],
+      });
+
+      const result = postBattleProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
+      const updated = result.campaign as ICampaignWithBattleState;
+
+      // Broken outcome stays in the queue so a later retry can address it.
+      expect(updated.pendingBattleOutcomes).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ matchId: 'match-broken' }),
+        ]),
+      );
+      // Good outcome was drained and marked processed.
+      expect(updated.pendingBattleOutcomes).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ matchId: 'match-good' }),
+        ]),
+      );
+      expect(updated.processedBattleIds).toContain('match-good');
+      expect(updated.processedBattleIds).not.toContain('match-broken');
+
+      // A campaign-level error event SHALL be surfaced (severity is
+      // `critical` per the IDayEvent union).
+      const errorEvents = result.events.filter(
+        (e) => e.severity === 'critical',
+      );
+      expect(errorEvents.length).toBeGreaterThanOrEqual(1);
+      expect(errorEvents[0]?.description).toContain('match-broken');
+    });
+  });
+
+  describe('contract TURN_LIMIT handling', () => {
+    // Req 6: turn-limit ended outcome SHALL flip mission to PARTIAL.
+
+    it('flips contract to PARTIAL on CombatEndReason.TurnLimit', () => {
+      const contract = createContract({
+        id: 'contract-tl',
+        name: 'Turn Limit Contract',
+        employerId: 'davion',
+        targetId: 'liao',
+        status: MissionStatus.ACTIVE,
+      });
+      const missions = new Map([[contract.id, contract]]);
+      const campaign = createTestCampaign({ missions });
+
+      const outcome = createOutcome({
+        contractId: 'contract-tl',
+        endReason: CombatEndReason.TurnLimit,
+        report: createTestReport('match-tl', 'draw'),
+        unitDeltas: [createDelta('unit-A')],
+      });
+
+      const { campaign: next } = applyPostBattle(outcome, campaign);
+      expect(next.missions.get('contract-tl')?.status).toBe(
+        MissionStatus.PARTIAL,
+      );
+    });
+  });
+
+  describe('pilot final-status mapping (Req 9)', () => {
+    // Req 9 — status transitions for MIA / Unconscious / Active.
+
+    it('maps finalStatus = MIA to PersonnelStatus.MIA', () => {
+      const pilot = createTestPerson({ id: 'pilot-1' });
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
+      const campaign = createTestCampaign({ personnel });
+
+      const outcome = createOutcome({
+        unitDeltas: [
+          createDelta('pilot-1', {
+            pilotState: {
+              conscious: false,
+              wounds: 3,
+              killed: false,
+              finalStatus: PilotFinalStatus.MIA,
+            },
+          }),
+        ],
+      });
+
+      const { campaign: next } = applyPostBattle(outcome, campaign);
+      expect(next.personnel.get('pilot-1')?.status).toBe(PersonnelStatus.MIA);
+    });
+
+    it('maps finalStatus = Unconscious to PersonnelStatus.WOUNDED', () => {
+      const pilot = createTestPerson({ id: 'pilot-1' });
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
+      const campaign = createTestCampaign({ personnel });
+
+      const outcome = createOutcome({
+        unitDeltas: [
+          createDelta('pilot-1', {
+            pilotState: {
+              conscious: false,
+              wounds: 1,
+              killed: false,
+              finalStatus: PilotFinalStatus.Unconscious,
+            },
+          }),
+        ],
+      });
+
+      const { campaign: next } = applyPostBattle(outcome, campaign);
+      expect(next.personnel.get('pilot-1')?.status).toBe(
+        PersonnelStatus.WOUNDED,
+      );
+    });
+
+    it('leaves personnel status unchanged on finalStatus = Active', () => {
+      const pilot = createTestPerson({
+        id: 'pilot-1',
+        status: PersonnelStatus.ACTIVE,
+      });
+      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
+      const campaign = createTestCampaign({ personnel });
+
+      const outcome = createOutcome({
+        unitDeltas: [
+          createDelta('pilot-1', {
+            pilotState: {
+              conscious: true,
+              wounds: 0,
+              killed: false,
+              finalStatus: PilotFinalStatus.Active,
+            },
+          }),
+        ],
+      });
+
+      const { campaign: next } = applyPostBattle(outcome, campaign);
+      // Active → pilot status SHALL remain unchanged.
+      expect(next.personnel.get('pilot-1')?.status).toBe(
+        PersonnelStatus.ACTIVE,
+      );
     });
   });
 });
