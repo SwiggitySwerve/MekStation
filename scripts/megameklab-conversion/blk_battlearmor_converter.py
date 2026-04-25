@@ -496,6 +496,7 @@ def build_manifest_entry(unit: Dict[str, Any]) -> Dict[str, Any]:
         "year": unit["year"],
         "weightClass": unit["weightClass"],
         "squadSize": unit["squadSize"],
+        "bv": None,
         "motionType": unit["motionType"],
         "role": unit.get("role"),
         "source": unit.get("source"),

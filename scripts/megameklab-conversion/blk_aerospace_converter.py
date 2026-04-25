@@ -549,6 +549,7 @@ def build_manifest_entry(unit: Dict[str, Any]) -> Dict[str, Any]:
         "era": unit["era"],
         "year": unit["year"],
         "tonnage": unit["tonnage"],
+        "bv": None,
         "motionType": unit.get("motionType", "AERODYNE"),
         "role": unit.get("role"),
         "source": unit.get("source"),

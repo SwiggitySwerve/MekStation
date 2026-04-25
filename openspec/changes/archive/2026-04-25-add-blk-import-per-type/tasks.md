@@ -66,7 +66,7 @@
 
 ## 8. Data Manifest
 
-- [x] 8.1 One `units-manifest.json` per type listing all unit ids and basic metadata (chassis, model, tonnage, BV)
+- [x] 8.1 One `units-manifest.json` per type listing all unit ids and basic metadata (chassis, model, tonnage, BV) — `bv: null` field added to all 5 `build_manifest_entry()` returns per audit follow-up; per-type BV calculator wires the value in Wave 5
 - [x] 8.2 App loads manifest first, then fetches individual unit files on demand — DEFERRED: this is frontend wiring outside the BLK-import scope. The build-time manifest is in place; UI integration belongs to the per-type customizer change (pickup: `src/components/units/UnitCatalogService.ts` once the proposal lands).
 - [x] 8.3 Size budget check: manifests < 5MB each — enforced in every converter at write time (largest current manifest: infantry at 836 KB, well under the 5 MB budget)
 

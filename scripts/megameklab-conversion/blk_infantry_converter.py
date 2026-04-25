@@ -394,6 +394,7 @@ def build_manifest_entry(unit: Dict[str, Any]) -> Dict[str, Any]:
         "squadSize": platoon.get("squadSize"),
         "squadCount": platoon.get("squadCount"),
         "totalTroopers": platoon.get("totalTroopers"),
+        "bv": None,
         "specialization": unit.get("specialization"),
         "role": unit.get("role"),
         "source": unit.get("source"),
