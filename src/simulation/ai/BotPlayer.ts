@@ -136,8 +136,8 @@ export class BotPlayer {
     const { ratio, hasVitalCrit } = computeRetreatSignals(
       unit.unitId,
       session,
-      sessionUnit.destroyedLocations,
-      Object.keys(sessionUnit.armor),
+      sessionUnit.structure,
+      sessionUnit.startingInternalStructure ?? {},
     );
 
     if (!shouldRetreat(this.behavior, ratio, hasVitalCrit)) {
@@ -283,7 +283,18 @@ export class BotPlayer {
       return null;
     }
 
-    const candidateWeapons = this.attackAI.selectWeapons(attacker, target);
+    // Per `add-bot-retreat-behavior` § 6.2: retreating units do NOT torso
+    // twist. Suppressing the twist forces `selectWeapons` to filter
+    // weapons by the unit's actual forward facing — backward shots are
+    // excluded automatically because the arc resolver keys off
+    // `attacker.facing + torsoTwist`. Rear-mounted weapons still fire
+    // (their `mountingArc === Rear` matches a target in the unit's rear
+    // arc), which is the spec-mandated "rear weapons cover the escape
+    // vector" behavior. Non-retreating units pass through unchanged.
+    const arcAttacker: IAIUnitState = attacker.isRetreating
+      ? { ...attacker, torsoTwist: undefined }
+      : attacker;
+    const candidateWeapons = this.attackAI.selectWeapons(arcAttacker, target);
     if (candidateWeapons.length === 0) {
       return null;
     }
@@ -341,6 +352,13 @@ export class BotPlayer {
     } = {},
   ): IPhysicalAttackEvent | null {
     if (attacker.destroyed) return null;
+    // Per `add-bot-retreat-behavior` § 6.3: retreating units skip
+    // physical attacks entirely. The unit is fleeing — even if a
+    // melee target is adjacent, declaring a punch/kick would commit
+    // the unit to face the target rather than the retreat edge,
+    // contradicting the retreat vector. Skip cleanly so the phase
+    // resolver continues without emitting `PhysicalAttackDeclared`.
+    if (attacker.isRetreating) return null;
     if (targets.length === 0) return null;
 
     const meleeTargets = targets.filter((target) => {
@@ -444,8 +462,19 @@ export class BotPlayer {
 }
 
 /**
- * Per `wire-bot-ai-helpers-and-capstone`: structural-loss + vital-crit
- * signals derived from session state for a single unit.
+ * Per `add-bot-retreat-behavior` § 2 (Trigger A) + `wire-bot-ai-helpers-and-capstone`:
+ * structural-loss + vital-crit signals derived from session state.
+ *
+ * Structural ratio is the SPEC-MANDATED points-of-internal-structure ratio
+ * `sum(starting - current) / sum(starting)` — NOT the legacy
+ * count-of-destroyed-locations ratio. The previous implementation used
+ * the location-count flavor, which fired only after entire locations
+ * were torn off (much later than the spec intended). This implementation
+ * matches MegaMek's `Mek.isCrippled` semantics: once accumulated
+ * internal-structure damage crosses the threshold, the unit retreats.
+ *
+ * When `startingStructure` is empty (legacy callers / pre-bootstrap
+ * units), ratio falls back to 0 — only the crit trigger can fire.
  *
  * Exported (file-scope helper) so unit tests can pin the math without
  * standing up a full BotPlayer instance.
@@ -453,12 +482,23 @@ export class BotPlayer {
 function computeRetreatSignals(
   unitId: string,
   session: IGameSession,
-  destroyedLocations: readonly string[],
-  allLocationKeys: readonly string[],
+  currentStructure: Readonly<Record<string, number>>,
+  startingStructure: Readonly<Record<string, number>>,
 ): { ratio: number; hasVitalCrit: boolean } {
-  const totalLocations = allLocationKeys.length;
-  const destroyedCount = destroyedLocations.length;
-  const ratio = totalLocations > 0 ? destroyedCount / totalLocations : 0;
+  // Sum starting + current internal structure points across all known
+  // starting-structure locations. Locations missing from startingStructure
+  // are skipped (they were never seeded — pre-damage units in non-CompendiumAdapter
+  // wiring paths). Locations present in startingStructure but missing
+  // from currentStructure default to 0 (location obliterated).
+  let sumStarting = 0;
+  let sumCurrent = 0;
+  for (const [location, starting] of Object.entries(startingStructure)) {
+    if (typeof starting !== 'number') continue;
+    sumStarting += starting;
+    const current = currentStructure[location];
+    sumCurrent += typeof current === 'number' ? current : 0;
+  }
+  const ratio = sumStarting > 0 ? (sumStarting - sumCurrent) / sumStarting : 0;
 
   let hasVitalCrit = false;
   for (const event of session.events) {

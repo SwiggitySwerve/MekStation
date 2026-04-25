@@ -247,13 +247,36 @@ describe('wire-bot-ai-helpers-and-capstone — smoke test', () => {
       };
       const bot = new BotPlayer(random, behavior);
       const aiUnit = makeAIUnit('u1', { q: 0, r: 0 }, []);
-      // 5 of 8 locations destroyed > 0.3 threshold.
+      // Per `add-bot-retreat-behavior` § 2 (Trigger A): the points-of-IS
+      // ratio is `sum(starting - current) / sum(starting)`. Total starting
+      // = 43 (3+8+6+6+4+4+6+6); 22 points lost (head + CT + LA + RA + LL
+      // zeroed) → ratio ≈ 0.51 > 0.3 threshold → trigger.
       const sessionUnit = makeUnitGameState(
         'u1',
         GameSide.Player,
         { q: 0, r: 0 },
         {
           destroyedLocations: ['head', 'ct', 'la', 'ra', 'll'],
+          structure: {
+            head: 0,
+            ct: 0,
+            lt: 6,
+            rt: 6,
+            la: 0,
+            ra: 0,
+            ll: 0,
+            rl: 6,
+          },
+          startingInternalStructure: {
+            head: 3,
+            ct: 8,
+            lt: 6,
+            rt: 6,
+            la: 4,
+            ra: 4,
+            ll: 6,
+            rl: 6,
+          },
         },
       );
       const session = makeMockSession([sessionUnit]);

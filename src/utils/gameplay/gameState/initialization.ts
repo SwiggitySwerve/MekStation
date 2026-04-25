@@ -60,6 +60,15 @@ export function createInitialUnitState(
     hexesMovedThisTurn: 0,
     armor: {},
     structure: {},
+    // Per `add-bot-retreat-behavior` § 2 (Trigger A): the retreat trigger
+    // needs the points-of-internal-structure ratio
+    // `sum(starting - current) / sum(starting)`. The base initialization
+    // path leaves `structure` empty (production callers, e.g. CompendiumAdapter,
+    // override with per-tonnage values); we mirror that here. The damage
+    // reducer (`applyDamageApplied`) bootstraps `startingInternalStructure`
+    // on first damage to a location when a producer didn't seed it
+    // explicitly, so legacy callers keep working without a migration.
+    startingInternalStructure: {},
     destroyedLocations: [],
     destroyedEquipment: [],
     ammo: {},
