@@ -86,7 +86,7 @@ A shutdown unit SHALL attempt to restart at the beginning of its turn by rolling
 
 ### Requirement: Shutdown Override
 
-A pilot MAY attempt to override automatic shutdown by accepting a consciousness check risk.
+The system SHALL permit a pilot to attempt to override an automatic shutdown by accepting a consciousness check risk. The override choice SHALL be presented when the automatic-shutdown trigger fires and the pilot is conscious.
 
 #### Scenario: Override shutdown attempt
 

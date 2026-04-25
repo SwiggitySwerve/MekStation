@@ -78,9 +78,9 @@ Semi-guided LRM attacks SHALL require TAG designation and use a different hit de
 
 ### Requirement: Arrow IV Indirect Fire (Future)
 
-> **Note**: Arrow IV artillery is not currently implemented. This requirement is reserved for future implementation.
+Arrow IV artillery SHALL use a separate indirect fire mechanic from standard LRM indirect fire when implemented.
 
-Arrow IV artillery SHALL use a separate indirect fire mechanic from standard LRM indirect fire.
+> **Note**: Arrow IV artillery is not currently implemented. This requirement is reserved for future implementation.
 
 #### Scenario: Arrow IV indirect fire
 
