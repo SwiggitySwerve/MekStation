@@ -1,6 +1,6 @@
 import type { ProcessLayoutParams } from './ArmorPipLayout.types';
 
-import { Bounds } from './ArmorPipLayout';
+import { Bounds } from './ArmorPipLayout.types';
 
 const PRECISION = 0.01;
 const DEFAULT_PIP_SIZE = 0.4;

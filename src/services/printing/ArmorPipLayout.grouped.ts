@@ -1,6 +1,6 @@
 import type { ProcessLayoutParams } from './ArmorPipLayout.types';
 
-import { Bounds } from './ArmorPipLayout';
+import { Bounds } from './ArmorPipLayout.types';
 
 export function processGroupedByFiveLayout(
   params: ProcessLayoutParams,
