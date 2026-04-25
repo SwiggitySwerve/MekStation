@@ -28,6 +28,14 @@ When a session completes, the derived `ICombatOutcome` SHALL be persisted to
 the match store alongside the event log. Reloads of the match SHALL restore
 the outcome without re-deriving.
 
+> DEFERRED to Wave 4 (persistence sub-branch): the `/api/matches` POST and
+> `GET /api/matches/[id]/outcome` endpoints are not implemented in Wave 1.
+> No Wave 1/2 consumer reads persisted outcomes — the in-memory
+> `getOutcome()` on `InteractiveSession` (`src/engine/InteractiveSession.ts`)
+> is the only consumer today and it covers the round-trip integration
+> tests. Wave 4 will pick up the matches POST handler and add the
+> outcome-only retrieval route.
+
 #### Scenario: Outcome written on completion
 
 - **GIVEN** a session that has just emitted `GameEnded`

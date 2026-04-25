@@ -8,6 +8,14 @@ Every completed combat session SHALL produce a single `ICombatOutcome` as
 its terminal artifact. The session pipeline SHALL NOT be considered complete
 until the outcome has been derived and made available to campaign consumers.
 
+> PARTIALLY DEFERRED to Wave 5: derivation + `session.getOutcome()` /
+> `CombatNotCompleteError` are wired in Wave 1 (see
+> `src/engine/InteractiveSession.ts` and `src/engine/combatOutcomeBus.ts`).
+> The session-event-stream `CombatOutcomeReady` entry (task 3.3) is
+> deferred — the in-memory `combatOutcomeBus` already notifies local
+> subscribers; the formal session-event entry lands when the persistence
+> pipeline (Wave 4) introduces a cross-system subscriber that needs it.
+
 #### Scenario: Completion triggers outcome derivation
 
 - **GIVEN** an `InteractiveSession` that emits `GameEnded`
@@ -27,6 +35,14 @@ until the outcome has been derived and made available to campaign consumers.
 `ICombatOutcome` SHALL carry `encounterId`, `contractId`, and `scenarioId`
 fields populated from the session's configuration, enabling downstream
 campaign processors to route effects back to the correct campaign entities.
+
+> PARTIALLY DEFERRED to Wave 5: `contractId` and `scenarioId` are wired in
+> Wave 1 via `IDeriveCombatOutcomeOptions` at
+> `src/lib/combat/outcome/combatOutcome.ts:36-52` (the engine accepts them
+> from the caller and they default to `null`). `encounterId` is not yet a
+> field on `ICombatOutcome` — Wave 5 will add it alongside the encounter
+> roster wiring. Standalone-skirmish "all linkage null" path is honored
+> today via the option defaults.
 
 #### Scenario: Encounter-launched session carries encounter id
 
