@@ -10,13 +10,13 @@
  *        Requirement: Shared Armor Pip Primitive
  */
 
-import { fireEvent, render, screen } from "@testing-library/react";
-import React from "react";
+import { fireEvent, render, screen } from '@testing-library/react';
+import React from 'react';
 
-import { ArmorAllocationInput } from "../ArmorAllocationInput";
+import { ArmorAllocationInput } from '../ArmorAllocationInput';
 
-describe("ArmorAllocationInput", () => {
-  it("clamps values above max", () => {
+describe('ArmorAllocationInput', () => {
+  it('clamps values above max', () => {
     const onChange = jest.fn();
     render(
       <ArmorAllocationInput
@@ -27,13 +27,13 @@ describe("ArmorAllocationInput", () => {
       />,
     );
     const input = screen.getByLabelText(
-      "Front armor value",
+      'Front armor value',
     ) as HTMLInputElement;
-    fireEvent.change(input, { target: { value: "50" } });
+    fireEvent.change(input, { target: { value: '50' } });
     expect(onChange).toHaveBeenCalledWith(10);
   });
 
-  it("clamps values below min (default 0)", () => {
+  it('clamps values below min (default 0)', () => {
     const onChange = jest.fn();
     render(
       <ArmorAllocationInput
@@ -43,12 +43,12 @@ describe("ArmorAllocationInput", () => {
         onChange={onChange}
       />,
     );
-    const input = screen.getByLabelText("Rear armor value") as HTMLInputElement;
-    fireEvent.change(input, { target: { value: "-3" } });
+    const input = screen.getByLabelText('Rear armor value') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: '-3' } });
     expect(onChange).toHaveBeenCalledWith(0);
   });
 
-  it("passes through valid values inside range", () => {
+  it('passes through valid values inside range', () => {
     const onChange = jest.fn();
     render(
       <ArmorAllocationInput
@@ -59,13 +59,13 @@ describe("ArmorAllocationInput", () => {
       />,
     );
     const input = screen.getByLabelText(
-      "Turret armor value",
+      'Turret armor value',
     ) as HTMLInputElement;
-    fireEvent.change(input, { target: { value: "7" } });
+    fireEvent.change(input, { target: { value: '7' } });
     expect(onChange).toHaveBeenCalledWith(7);
   });
 
-  it("arrow-right at end-of-input focuses next sibling within the group", () => {
+  it('arrow-right at end-of-input focuses next sibling within the group', () => {
     const onChange = jest.fn();
     render(
       <div>
@@ -87,14 +87,14 @@ describe("ArmorAllocationInput", () => {
         />
       </div>,
     );
-    const a = screen.getByTestId("a") as HTMLInputElement;
-    const b = screen.getByTestId("b") as HTMLInputElement;
+    const a = screen.getByTestId('a') as HTMLInputElement;
+    const b = screen.getByTestId('b') as HTMLInputElement;
     a.focus();
-    fireEvent.keyDown(a, { key: "ArrowRight" });
+    fireEvent.keyDown(a, { key: 'ArrowRight' });
     expect(document.activeElement).toBe(b);
   });
 
-  it("arrow-left at start-of-input focuses previous sibling within the group", () => {
+  it('arrow-left at start-of-input focuses previous sibling within the group', () => {
     const onChange = jest.fn();
     render(
       <div>
@@ -116,10 +116,10 @@ describe("ArmorAllocationInput", () => {
         />
       </div>,
     );
-    const a = screen.getByTestId("a") as HTMLInputElement;
-    const b = screen.getByTestId("b") as HTMLInputElement;
+    const a = screen.getByTestId('a') as HTMLInputElement;
+    const b = screen.getByTestId('b') as HTMLInputElement;
     b.focus();
-    fireEvent.keyDown(b, { key: "ArrowLeft" });
+    fireEvent.keyDown(b, { key: 'ArrowLeft' });
     expect(document.activeElement).toBe(a);
   });
 });

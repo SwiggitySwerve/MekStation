@@ -15,16 +15,16 @@
  *        Requirement: BattleArmor Per-Trooper Grid
  */
 
-import React from "react";
+import React from 'react';
 
-import { BattleArmorPipGrid } from "./BattleArmorPipGrid";
+import { BattleArmorPipGrid } from './BattleArmorPipGrid';
 
 interface BattleArmorDiagramProps {
   className?: string;
 }
 
 export function BattleArmorDiagram({
-  className = "",
+  className = '',
 }: BattleArmorDiagramProps): React.ReactElement {
   return <BattleArmorPipGrid className={className} />;
 }

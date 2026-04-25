@@ -8,24 +8,24 @@
  *       Requirement: Per-Type Diagram Selection
  */
 
-import { render, screen } from "@testing-library/react";
-import React from "react";
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 
-import { useAerospaceStore } from "@/stores/useAerospaceStore";
-import { useBattleArmorStore } from "@/stores/useBattleArmorStore";
-import { useInfantryStore } from "@/stores/useInfantryStore";
-import { useProtoMechStore } from "@/stores/useProtoMechStore";
-import { useVehicleStore } from "@/stores/useVehicleStore";
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import { useAerospaceStore } from '@/stores/useAerospaceStore';
+import { useBattleArmorStore } from '@/stores/useBattleArmorStore';
+import { useInfantryStore } from '@/stores/useInfantryStore';
+import { useProtoMechStore } from '@/stores/useProtoMechStore';
+import { useVehicleStore } from '@/stores/useVehicleStore';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-import { ArmorDiagramForType } from "../ArmorDiagramForType";
+import { ArmorDiagramForType } from '../ArmorDiagramForType';
 
-jest.mock("@/stores/useVehicleStore");
-jest.mock("@/stores/useAerospaceStore");
-jest.mock("@/stores/useBattleArmorStore");
-jest.mock("@/stores/useInfantryStore");
-jest.mock("@/stores/useProtoMechStore");
+jest.mock('@/stores/useVehicleStore');
+jest.mock('@/stores/useAerospaceStore');
+jest.mock('@/stores/useBattleArmorStore');
+jest.mock('@/stores/useInfantryStore');
+jest.mock('@/stores/useProtoMechStore');
 
 const mockVehicle = useVehicleStore as jest.MockedFunction<
   typeof useVehicleStore
@@ -67,14 +67,14 @@ beforeEach(() => {
       armorAllocation: { NOSE: 0, LEFT_WING: 0, RIGHT_WING: 0, AFT: 0 },
       structuralIntegrity: 5,
       maxStructuralIntegrity: 10,
-      armorType: "STANDARD",
-      subType: "AEROSPACE_FIGHTER",
+      armorType: 'STANDARD',
+      subType: 'AEROSPACE_FIGHTER',
       setArcArmor: jest.fn(),
       autoAllocateArmor: jest.fn(),
     })) as never);
   mockBattleArmor.mockImplementation(((selector: any) =>
     selector({
-      chassis: { weightClass: "MEDIUM" },
+      chassis: { weightClass: 'MEDIUM' },
       squadSize: 4,
       damagePerTrooper: [],
     })) as never);
@@ -90,51 +90,51 @@ beforeEach(() => {
       armorByLocation: {
         Head: 0,
         Torso: 0,
-        "Left Arm": 0,
-        "Right Arm": 0,
+        'Left Arm': 0,
+        'Right Arm': 0,
         Legs: 0,
       },
       setLocationArmor: jest.fn(),
     })) as never);
 });
 
-describe("ArmorDiagramForType — Per-Type Diagram Selection", () => {
-  it("routes VEHICLE to VehicleArmorDiagram", () => {
+describe('ArmorDiagramForType — Per-Type Diagram Selection', () => {
+  it('routes VEHICLE to VehicleArmorDiagram', () => {
     render(<ArmorDiagramForType unitType={UnitType.VEHICLE} />);
-    expect(screen.getByTestId("vehicle-armor-diagram")).toBeInTheDocument();
-    expect(screen.queryByTestId("aerospace-armor-diagram")).toBeNull();
-    expect(screen.queryByTestId("infantry-platoon-counter")).toBeNull();
+    expect(screen.getByTestId('vehicle-armor-diagram')).toBeInTheDocument();
+    expect(screen.queryByTestId('aerospace-armor-diagram')).toBeNull();
+    expect(screen.queryByTestId('infantry-platoon-counter')).toBeNull();
   });
 
-  it("routes VTOL to VehicleArmorDiagram", () => {
+  it('routes VTOL to VehicleArmorDiagram', () => {
     render(<ArmorDiagramForType unitType={UnitType.VTOL} />);
-    expect(screen.getByTestId("vehicle-armor-diagram")).toBeInTheDocument();
+    expect(screen.getByTestId('vehicle-armor-diagram')).toBeInTheDocument();
   });
 
-  it("routes SUPPORT_VEHICLE to VehicleArmorDiagram", () => {
+  it('routes SUPPORT_VEHICLE to VehicleArmorDiagram', () => {
     render(<ArmorDiagramForType unitType={UnitType.SUPPORT_VEHICLE} />);
-    expect(screen.getByTestId("vehicle-armor-diagram")).toBeInTheDocument();
+    expect(screen.getByTestId('vehicle-armor-diagram')).toBeInTheDocument();
   });
 
-  it("routes AEROSPACE to AerospaceArmorDiagram", () => {
+  it('routes AEROSPACE to AerospaceArmorDiagram', () => {
     render(<ArmorDiagramForType unitType={UnitType.AEROSPACE} />);
-    expect(screen.getByTestId("aerospace-armor-diagram")).toBeInTheDocument();
-    expect(screen.queryByTestId("vehicle-armor-diagram")).toBeNull();
+    expect(screen.getByTestId('aerospace-armor-diagram')).toBeInTheDocument();
+    expect(screen.queryByTestId('vehicle-armor-diagram')).toBeNull();
   });
 
-  it("routes CONVENTIONAL_FIGHTER to AerospaceArmorDiagram", () => {
+  it('routes CONVENTIONAL_FIGHTER to AerospaceArmorDiagram', () => {
     render(<ArmorDiagramForType unitType={UnitType.CONVENTIONAL_FIGHTER} />);
-    expect(screen.getByTestId("aerospace-armor-diagram")).toBeInTheDocument();
+    expect(screen.getByTestId('aerospace-armor-diagram')).toBeInTheDocument();
   });
 
-  it("routes INFANTRY to InfantryPlatoonCounter (NOT a per-location diagram)", () => {
+  it('routes INFANTRY to InfantryPlatoonCounter (NOT a per-location diagram)', () => {
     render(<ArmorDiagramForType unitType={UnitType.INFANTRY} />);
-    expect(screen.getByTestId("infantry-platoon-counter")).toBeInTheDocument();
-    expect(screen.queryByTestId("vehicle-armor-diagram")).toBeNull();
-    expect(screen.queryByTestId("aerospace-armor-diagram")).toBeNull();
+    expect(screen.getByTestId('infantry-platoon-counter')).toBeInTheDocument();
+    expect(screen.queryByTestId('vehicle-armor-diagram')).toBeNull();
+    expect(screen.queryByTestId('aerospace-armor-diagram')).toBeNull();
   });
 
-  it("routes BATTLE_ARMOR to BattleArmorPipGrid", () => {
+  it('routes BATTLE_ARMOR to BattleArmorPipGrid', () => {
     const { container } = render(
       <ArmorDiagramForType unitType={UnitType.BATTLE_ARMOR} />,
     );
@@ -143,7 +143,7 @@ describe("ArmorDiagramForType — Per-Type Diagram Selection", () => {
     expect(container.querySelector('[aria-label*="Trooper"]')).toBeTruthy();
   });
 
-  it("routes PROTOMECH to ProtoMechArmorDiagram", () => {
+  it('routes PROTOMECH to ProtoMechArmorDiagram', () => {
     const { container } = render(
       <ArmorDiagramForType unitType={UnitType.PROTOMECH} />,
     );

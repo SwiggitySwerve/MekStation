@@ -12,41 +12,41 @@
  * Persists entire campaign state to IndexedDB via clientSafeStorage.
  */
 
-import { create, StoreApi } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { create, StoreApi } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-import type { IShoppingList } from "@/types/campaign/acquisition/acquisitionTypes";
-import type { IFactionStanding } from "@/types/campaign/factionStanding/IFactionStanding";
-import type { ICombatOutcome } from "@/types/combat/CombatOutcome";
+import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
+import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
+import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import {
   subscribeToCombatOutcome,
   type ICombatOutcomeReadyEvent,
-} from "@/engine/combatOutcomeBus";
+} from '@/engine/combatOutcomeBus';
 import {
   advanceDayViaPipeline,
   DayReport,
-} from "@/lib/campaign/dayAdvancement";
-import { getDayPipeline } from "@/lib/campaign/dayPipeline";
-import { registerBuiltinProcessors } from "@/lib/campaign/processors";
-import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
+} from '@/lib/campaign/dayAdvancement';
+import { getDayPipeline } from '@/lib/campaign/dayPipeline';
+import { registerBuiltinProcessors } from '@/lib/campaign/processors';
+import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
   ICampaign,
   ICampaignOptions,
   IMission,
   createCampaign as createCampaignEntity,
-} from "@/types/campaign/Campaign";
-import { CampaignType } from "@/types/campaign/CampaignType";
-import { ForceRole, FormationLevel } from "@/types/campaign/enums";
-import { TransactionType } from "@/types/campaign/enums/TransactionType";
-import { IForce } from "@/types/campaign/Force";
-import { Money } from "@/types/campaign/Money";
-import { IPerson } from "@/types/campaign/Person";
-import { Transaction } from "@/types/campaign/Transaction";
+} from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
+import { IForce } from '@/types/campaign/Force';
+import { Money } from '@/types/campaign/Money';
+import { IPerson } from '@/types/campaign/Person';
+import { Transaction } from '@/types/campaign/Transaction';
 
-import { createForcesStore, ForcesStore } from "./useForcesStore";
-import { createMissionsStore, MissionsStore } from "./useMissionsStore";
-import { createPersonnelStore, PersonnelStore } from "./usePersonnelStore";
+import { createForcesStore, ForcesStore } from './useForcesStore';
+import { createMissionsStore, MissionsStore } from './useMissionsStore';
+import { createPersonnelStore, PersonnelStore } from './usePersonnelStore';
 
 // =============================================================================
 // Serialized Campaign State (for persistence)
@@ -650,7 +650,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         },
       }),
       {
-        name: "campaign-store",
+        name: 'campaign-store',
         storage: createJSONStorage(() => clientSafeStorage),
         // Only persist campaign metadata, not sub-stores
         partialize: (state) => {

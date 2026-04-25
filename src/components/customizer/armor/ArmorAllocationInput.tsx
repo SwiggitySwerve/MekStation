@@ -12,7 +12,7 @@
  *        Requirement: Shared Armor Pip Primitive
  */
 
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef } from 'react';
 
 // =============================================================================
 // Types
@@ -32,7 +32,7 @@ export interface ArmorAllocationInputProps {
   /** Change handler — receives the clamped value */
   onChange: (next: number) => void;
   /** Test id passthrough */
-  "data-testid"?: string;
+  'data-testid'?: string;
   /** Extra Tailwind classes appended to the <input> */
   className?: string;
   /** Optional grouping key: enables arrow-key navigation between sibling inputs sharing the same group */
@@ -57,9 +57,9 @@ function clamp(raw: number, min: number, max: number): number {
  */
 function focusSibling(
   current: HTMLInputElement,
-  direction: "prev" | "next",
+  direction: 'prev' | 'next',
 ): void {
-  const group = current.getAttribute("data-armor-group");
+  const group = current.getAttribute('data-armor-group');
   if (!group) return;
   const siblings = Array.from(
     document.querySelectorAll<HTMLInputElement>(
@@ -68,7 +68,7 @@ function focusSibling(
   );
   const index = siblings.indexOf(current);
   if (index === -1) return;
-  const next = direction === "next" ? siblings[index + 1] : siblings[index - 1];
+  const next = direction === 'next' ? siblings[index + 1] : siblings[index - 1];
   next?.focus();
   next?.select();
 }
@@ -92,8 +92,8 @@ export function ArmorAllocationInput({
   min = 0,
   step = 1,
   onChange,
-  "data-testid": testId,
-  className = "",
+  'data-testid': testId,
+  className = '',
   groupId,
 }: ArmorAllocationInputProps): React.ReactElement {
   const ref = useRef<HTMLInputElement>(null);
@@ -115,12 +115,12 @@ export function ArmorAllocationInput({
       // ArrowUp/ArrowDown spinner behaviour is left untouched.
       if (!groupId) return;
       const input = event.currentTarget;
-      if (event.key === "ArrowRight") {
+      if (event.key === 'ArrowRight') {
         event.preventDefault();
-        focusSibling(input, "next");
-      } else if (event.key === "ArrowLeft") {
+        focusSibling(input, 'next');
+      } else if (event.key === 'ArrowLeft') {
         event.preventDefault();
-        focusSibling(input, "prev");
+        focusSibling(input, 'prev');
       }
     },
     [groupId],

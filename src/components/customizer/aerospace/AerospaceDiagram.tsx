@@ -15,9 +15,9 @@
  *        Requirement: Aerospace Diagram Geometry
  */
 
-import React from "react";
+import React from 'react';
 
-import { AerospaceArmorDiagram } from "./AerospaceArmorDiagram";
+import { AerospaceArmorDiagram } from './AerospaceArmorDiagram';
 
 interface AerospaceDiagramProps {
   className?: string;
@@ -26,7 +26,7 @@ interface AerospaceDiagramProps {
 }
 
 export function AerospaceDiagram({
-  className = "",
+  className = '',
 }: AerospaceDiagramProps): React.ReactElement {
   return <AerospaceArmorDiagram className={className} />;
 }

@@ -16,9 +16,9 @@
  *        Requirement: Vehicle Diagram Geometry
  */
 
-import React from "react";
+import React from 'react';
 
-import { VehicleArmorDiagram } from "./VehicleArmorDiagram";
+import { VehicleArmorDiagram } from './VehicleArmorDiagram';
 
 interface VehicleDiagramProps {
   className?: string;
@@ -27,7 +27,7 @@ interface VehicleDiagramProps {
 }
 
 export function VehicleDiagram({
-  className = "",
+  className = '',
 }: VehicleDiagramProps): React.ReactElement {
   return <VehicleArmorDiagram className={className} />;
 }

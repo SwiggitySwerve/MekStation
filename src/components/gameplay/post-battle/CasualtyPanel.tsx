@@ -13,16 +13,16 @@
  * @module components/gameplay/post-battle/CasualtyPanel
  */
 
-import React from "react";
+import React from 'react';
 
-import { Badge } from "@/components/ui/Badge";
-import { Card, CardSection } from "@/components/ui/Card";
+import { Badge } from '@/components/ui/Badge';
+import { Card, CardSection } from '@/components/ui/Card';
 import {
   type ICombatOutcome,
   type IUnitCombatDelta,
   UnitFinalStatus,
-} from "@/types/combat/CombatOutcome";
-import { GameSide } from "@/types/gameplay/GameSessionInterfaces";
+} from '@/types/combat/CombatOutcome';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 export interface CasualtyPanelProps {
   /** Hand-off shape from the engine. */
@@ -39,20 +39,20 @@ export interface CasualtyPanelProps {
  */
 function statusBadgeVariant(
   status: UnitFinalStatus,
-): "emerald" | "amber" | "orange" | "red" | "slate" {
+): 'emerald' | 'amber' | 'orange' | 'red' | 'slate' {
   switch (status) {
     case UnitFinalStatus.Intact:
-      return "emerald";
+      return 'emerald';
     case UnitFinalStatus.Damaged:
-      return "amber";
+      return 'amber';
     case UnitFinalStatus.Crippled:
-      return "orange";
+      return 'orange';
     case UnitFinalStatus.Destroyed:
-      return "red";
+      return 'red';
     case UnitFinalStatus.Ejected:
-      return "slate";
+      return 'slate';
     default:
-      return "slate";
+      return 'slate';
   }
 }
 
@@ -102,10 +102,10 @@ function CasualtyRow({
         Heat at end: {delta.heatEnd}
         {delta.destroyedLocations.length > 0 ? (
           <>
-            {" "}
-            &middot; Destroyed locations:{" "}
+            {' '}
+            &middot; Destroyed locations:{' '}
             <span className="text-red-400">
-              {delta.destroyedLocations.join(", ")}
+              {delta.destroyedLocations.join(', ')}
             </span>
           </>
         ) : null}
@@ -115,9 +115,9 @@ function CasualtyRow({
           className="text-text-theme-secondary mt-1 text-xs"
           data-testid={`casualty-components-${delta.unitId}`}
         >
-          Components destroyed:{" "}
+          Components destroyed:{' '}
           <span className="text-amber-400">
-            {delta.destroyedComponents.join(", ")}
+            {delta.destroyedComponents.join(', ')}
           </span>
         </div>
       ) : null}
@@ -126,11 +126,11 @@ function CasualtyRow({
           className="text-text-theme-secondary mt-1 text-xs"
           data-testid={`casualty-ammo-${delta.unitId}`}
         >
-          Ammo bins remaining:{" "}
+          Ammo bins remaining:{' '}
           <span className="text-cyan-400">
             {Object.entries(delta.ammoRemaining)
               .map(([binId, rounds]) => `${binId}: ${rounds}`)
-              .join(", ")}
+              .join(', ')}
           </span>
         </div>
       ) : null}

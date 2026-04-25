@@ -15,16 +15,16 @@
  * @module components/gameplay/post-battle/PilotXpPanel
  */
 
-import React from "react";
+import React from 'react';
 
-import { Badge } from "@/components/ui/Badge";
-import { Card, CardSection } from "@/components/ui/Card";
+import { Badge } from '@/components/ui/Badge';
+import { Card, CardSection } from '@/components/ui/Card';
 import {
   type ICombatOutcome,
   type IUnitCombatDelta,
   PilotFinalStatus,
-} from "@/types/combat/CombatOutcome";
-import { GameSide } from "@/types/gameplay/GameSessionInterfaces";
+} from '@/types/combat/CombatOutcome';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 export interface PilotXpPanelProps {
   /** Hand-off shape from the engine. */
@@ -40,24 +40,24 @@ export interface PilotXpPanelProps {
 }
 
 function pilotStatusBadge(status: PilotFinalStatus): {
-  variant: "emerald" | "amber" | "orange" | "red" | "slate";
+  variant: 'emerald' | 'amber' | 'orange' | 'red' | 'slate';
   label: string;
 } {
   switch (status) {
     case PilotFinalStatus.Active:
-      return { variant: "emerald", label: "ACTIVE" };
+      return { variant: 'emerald', label: 'ACTIVE' };
     case PilotFinalStatus.Wounded:
-      return { variant: "amber", label: "WOUNDED" };
+      return { variant: 'amber', label: 'WOUNDED' };
     case PilotFinalStatus.Unconscious:
-      return { variant: "orange", label: "UNCONSCIOUS" };
+      return { variant: 'orange', label: 'UNCONSCIOUS' };
     case PilotFinalStatus.KIA:
-      return { variant: "red", label: "KIA" };
+      return { variant: 'red', label: 'KIA' };
     case PilotFinalStatus.MIA:
-      return { variant: "slate", label: "MIA" };
+      return { variant: 'slate', label: 'MIA' };
     case PilotFinalStatus.Captured:
-      return { variant: "slate", label: "CAPTURED" };
+      return { variant: 'slate', label: 'CAPTURED' };
     default:
-      return { variant: "slate", label: String(status).toUpperCase() };
+      return { variant: 'slate', label: String(status).toUpperCase() };
   }
 }
 
@@ -125,11 +125,11 @@ function PilotRow({
             <span
               key={i}
               data-testid={`pilot-wound-dot-${delta.unitId}-${i}`}
-              data-filled={i < wounds ? "true" : "false"}
+              data-filled={i < wounds ? 'true' : 'false'}
               className={
                 i < wounds
-                  ? "inline-block h-2 w-2 rounded-full bg-red-500"
-                  : "inline-block h-2 w-2 rounded-full bg-slate-600/60"
+                  ? 'inline-block h-2 w-2 rounded-full bg-red-500'
+                  : 'inline-block h-2 w-2 rounded-full bg-slate-600/60'
               }
             />
           ))}

@@ -26,15 +26,15 @@
  *        Requirement: Aerospace Diagram Geometry
  */
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from 'react';
 
-import { useAerospaceStore } from "@/stores/useAerospaceStore";
-import { getArmorDefinition } from "@/types/construction/ArmorType";
-import { AerospaceLocation } from "@/types/construction/UnitLocation";
-import { AerospaceSubType } from "@/types/unit/AerospaceInterfaces";
+import { useAerospaceStore } from '@/stores/useAerospaceStore';
+import { getArmorDefinition } from '@/types/construction/ArmorType';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 
-import { ArmorAllocationInput } from "../armor/ArmorAllocationInput";
-import { ArmorLocationBlock } from "../armor/ArmorLocationBlock";
+import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
+import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 
 // =============================================================================
 // Helpers
@@ -102,10 +102,10 @@ interface AerospaceArmorDiagramProps {
 
 // Arc display order with labels matching aerospace-unit-system spec arc names
 const ARCS: { arc: AerospaceLocation; label: string }[] = [
-  { arc: AerospaceLocation.NOSE, label: "Nose" },
-  { arc: AerospaceLocation.LEFT_WING, label: "Left Wing" },
-  { arc: AerospaceLocation.RIGHT_WING, label: "Right Wing" },
-  { arc: AerospaceLocation.AFT, label: "Aft" },
+  { arc: AerospaceLocation.NOSE, label: 'Nose' },
+  { arc: AerospaceLocation.LEFT_WING, label: 'Left Wing' },
+  { arc: AerospaceLocation.RIGHT_WING, label: 'Right Wing' },
+  { arc: AerospaceLocation.AFT, label: 'Aft' },
 ];
 
 // =============================================================================
@@ -120,7 +120,7 @@ const ARCS: { arc: AerospaceLocation; label: string }[] = [
  * TODO(add-aerospace-construction): replace placeholder SI with store value.
  */
 export function AerospaceArmorDiagram({
-  className = "",
+  className = '',
 }: AerospaceArmorDiagramProps): React.ReactElement {
   const tonnage = useAerospaceStore((s) => s.tonnage);
   const armorTonnage = useAerospaceStore((s) => s.armorTonnage);
@@ -162,10 +162,10 @@ export function AerospaceArmorDiagram({
   const handleAutoAllocate = useCallback(() => {
     if (hasNonDefaultArmor) {
       const ok =
-        typeof window === "undefined" ||
+        typeof window === 'undefined' ||
         // eslint-disable-next-line no-alert -- intentional confirm for destructive action
         window.confirm(
-          "Auto-allocate will overwrite your current armor distribution. Continue?",
+          'Auto-allocate will overwrite your current armor distribution. Continue?',
         );
       if (!ok) return;
     }
@@ -210,7 +210,7 @@ export function AerospaceArmorDiagram({
           <div
             className="h-full rounded bg-amber-500 transition-all"
             style={{
-              width: siMax > 0 ? `${(si / siMax) * 100}%` : "0%",
+              width: siMax > 0 ? `${(si / siMax) * 100}%` : '0%',
             }}
           />
         </div>

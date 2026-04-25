@@ -11,12 +11,13 @@
 import {
   VehicleLocation,
   VTOLLocation,
-} from "@/types/construction/UnitLocation";
-import { GroundMotionType } from "@/types/unit/BaseUnitInterfaces";
-import { TurretType } from "@/types/unit/VehicleInterfaces";
+} from '@/types/construction/UnitLocation';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 
-import { autoAllocateArmorLogic } from "../useVehicleStore.actions";
-import type { VehicleStore } from "../vehicleState";
+import type { VehicleStore } from '../vehicleState';
+
+import { autoAllocateArmorLogic } from '../useVehicleStore.actions';
 
 function makeState(overrides: Partial<VehicleStore> = {}): VehicleStore {
   return {
@@ -28,8 +29,8 @@ function makeState(overrides: Partial<VehicleStore> = {}): VehicleStore {
   } as unknown as VehicleStore;
 }
 
-describe("autoAllocateArmorLogic — TechManual pp.86-87 distribution", () => {
-  it("distributes 40/20/20/10 for a tracked vehicle WITHOUT turret", () => {
+describe('autoAllocateArmorLogic — TechManual pp.86-87 distribution', () => {
+  it('distributes 40/20/20/10 for a tracked vehicle WITHOUT turret', () => {
     // 5t × 16 pts/ton = 80 points total, no turret
     const result = autoAllocateArmorLogic(makeState({ armorTonnage: 5 }));
     const alloc = result.armorAllocation as Record<string, number>;
@@ -53,14 +54,14 @@ describe("autoAllocateArmorLogic — TechManual pp.86-87 distribution", () => {
     );
   });
 
-  it("distributes 40/20/20/10/10 for a tracked vehicle WITH turret", () => {
+  it('distributes 40/20/20/10/10 for a tracked vehicle WITH turret', () => {
     const state = makeState({
       armorTonnage: 5,
       turret: {
-        type: TurretType.STANDARD,
+        type: TurretType.SINGLE,
         weight: 0.5,
         rotationArc: 360,
-      } as unknown as VehicleStore["turret"],
+      } as unknown as VehicleStore['turret'],
     });
     const result = autoAllocateArmorLogic(state);
     const alloc = result.armorAllocation as Record<string, number>;
@@ -79,7 +80,7 @@ describe("autoAllocateArmorLogic — TechManual pp.86-87 distribution", () => {
     expect(sum).toBeGreaterThanOrEqual(78);
   });
 
-  it("adds Rotor location for a VTOL", () => {
+  it('adds Rotor location for a VTOL', () => {
     const result = autoAllocateArmorLogic(
       makeState({
         armorTonnage: 5,
@@ -91,7 +92,7 @@ describe("autoAllocateArmorLogic — TechManual pp.86-87 distribution", () => {
     expect(alloc[VehicleLocation.FRONT]).toBeGreaterThan(0);
   });
 
-  it("returns zero allocation when armorTonnage is 0", () => {
+  it('returns zero allocation when armorTonnage is 0', () => {
     const result = autoAllocateArmorLogic(makeState({ armorTonnage: 0 }));
     const alloc = result.armorAllocation as Record<string, number>;
     expect(alloc[VehicleLocation.FRONT]).toBe(0);
