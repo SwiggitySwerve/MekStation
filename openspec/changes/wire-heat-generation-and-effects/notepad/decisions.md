@@ -15,6 +15,22 @@
 ## [2026-04-23] CASE / CASE II coordination (11.3)
 **Choice**: DEFER. Out-of-scope for this change per kickoff "stay out of damage-pipeline internals" guardrail. `integrate-damage-pipeline` owns CASE routing.
 **Rationale**: CASE protection lives in the damage-application layer (ammo explosion damage routes through internal structure but CASE vents externally). Wiring this here would touch damage pipeline code the parallel change is owning.
+**Alt-coverage**: Heat-induced ammo-explosion event emission (11.4) IS in this change (`AmmoExploded` with `source = 'HeatInduced'`); the actual damage-routing-with-CASE-vent semantics belongs to `integrate-damage-pipeline` (now archived as `2026-04-24-integrate-damage-pipeline`). Future hardening tracked there.
+
+## [2026-04-24] Autonomous fuzzer deferral (15.2)
+**Choice**: DEFER. Fuzzer harness infrastructure (property-based / random-input generator over heat-phase invariants) is out of scope for this change.
+**Rationale**: This change wires existing heat mechanics; building a fuzzer would more than double its surface area and overlap with future test-infra work. The two specific invariants the task names — "no mech ever has negative heat" and "no mech silently skips a shutdown check" — are already validated by deterministic tests.
+**Alt-coverage**:
+- Negative-heat invariant: `src/utils/gameplay/gameSessionHeat.ts` line 205-208 clamps via `newHeat = Math.max(0, currentHeatBeforeDissipation - totalDissipation)`. Tests: `src/utils/gameplay/__tests__/heatSystem.test.ts` line 373 (`does not go below 0 heat`) and line 677 (`handles extreme heat values (100+)`).
+- Shutdown-check invariant: `resolveHeatPhase` deterministically iterates every active unit and emits `ShutdownCheck` for any unit at heat ≥ 14, covered by the smoke fixture in `src/__tests__/unit/utils/gameplay/wireHeatGenerationAndEffects.smoke.test.ts` (case 14.5: heat=14 produces `ShutdownCheck` with correct TN) plus `heatSystem.test.ts` `getShutdownTN` tests.
+
+## [2026-04-24] End-to-end multi-turn alpha-strike test deferral (15.3)
+**Choice**: DEFER. A multi-turn E2E harness that scripts `fire → dissipate → shutdown → idle turn → startup` against the live engine is out of scope.
+**Rationale**: This change is a heat-phase wiring change, not a turn-loop change. Building an E2E harness that drives `advancePhase` across multiple full turns belongs to a dedicated E2E / integration testing initiative. Per-phase behaviour is exhaustively covered by unit + smoke tests.
+**Alt-coverage**:
+- Smoke fixture in `src/__tests__/unit/utils/gameplay/wireHeatGenerationAndEffects.smoke.test.ts` (tasks 14.1-14.6): asserts per-source HeatGenerated events, dissipation, final heat, and shutdown attempt at heat=14 with the expected TN.
+- Startup branch: same smoke file (test `shutdown unit attempts a startup roll after dissipation brings heat ≤ 29`) seeds a shutdown unit at heat=20, runs `resolveHeatPhase`, and asserts a `StartupAttempt` event fires with `success=true`.
+- Startup TN formula coverage: `heatSystem.test.ts` `startup system → getStartupTN formula → matches shutdown TN for same heat level` (line 621-629).
 
 ## [2026-04-23] Water cooling integration point
 **Choice**: Extend `resolveHeatPhase` with optional `options` arg including `getWaterDepth?: (unitId: string, position: IHexCoordinate) => number`. When provided, call it once per unit per phase and add `getWaterCoolingBonus(depth)` to dissipation. When omitted (legacy callers), water cooling contributes 0 — same behavior as today.
