@@ -91,3 +91,52 @@ order. The existing call sites in `GameEngine.phases.ts:298-326` and
 `InteractiveSession.ts:454-490` use `Object.keys()` already (which is
 insertion-ordered for string keys in JS, NOT sorted). We add sort calls in
 this apply wave to lock determinism end-to-end.
+
+## [2026-04-25 apply] Final close-out — implementation + DEFERRED bookkeeping
+
+Final apply agent (third in the chain) buttoned up the change. Implementation
+landed:
+
+1. **Displacement helpers** (commit b10e3cf9): `translateHex`,
+   `isValidDisplacement`, `computeMissedChargeDisplacement`,
+   `computePushDisplacement` in `src/utils/gameplay/physicalAttacks/displacement.ts:24-115`.
+   Tests in `src/__tests__/unit/utils/gameplay/physicalAttacksDisplacement.test.ts:20-122`
+   cover translateHex symmetry (with signed-zero-safe arithmetic comparison
+   per the Phase 2 fix), isValidDisplacement bounds/occupancy, charge miss
+   side-hex selection, both-off-map fallback, elevation preference, and push
+   facing.
+
+2. **Cluster fan-out + dual PSR queueing** (commit b014df4d) in
+   `src/utils/gameplay/gameSessionPhysical.ts:329-490`:
+   - Charge / DFA target damage splits via `splitPhysicalDamageIntoClusters`
+     with per-cluster hit-location rolls (the first cluster reuses the
+     resolver-computed hit-location; subsequent clusters re-roll).
+   - Charge attacker damage applies as clusters with per-cluster hit-locations.
+   - DFA attacker leg damage = `attackerLegDamagePerLeg * 2`, clustered,
+     split across alternating left/right legs.
+   - Hit + attackerPSR queues `charge_attacker_hit` / `dfa_attacker_hit` PSRs
+     with the attack-specific trigger source (separate from the existing miss
+     branches `kick_miss` / `charge_miss` / `dfa_miss`).
+
+3. **DFA + charge cluster fan-out test** (commit 75bbc9b4):
+   `src/__tests__/unit/utils/gameplay/physicalAttackChargeDFA.test.ts` covers
+   task 13.4 + reinforces 6.4-6.6 / 7.4-7.5: DFA hit total damage = 18 +
+   attacker leg damage 12; charge hit total damage = 20 + attacker damage 7;
+   both PSRs queued via the typed trigger sources above.
+
+### DEFERRED items (in tasks.md + spec.md blockquotes)
+
+- **8.3 / 8.5 push displacement persistence → Wave 4** — the helper +
+  resolver flag exist; only the `UnitDisplaced` event + reducer hook is
+  pending.
+- **Charge miss displacement persistence → Wave 4** — same reducer hook
+  applies (Wave 4 displacement spec bundles both push + charge miss).
+- **11.5 / 11.6 bot replay determinism scenarios → Wave 4** — the basic
+  two-bot punch scenario lives in
+  `wire-bot-ai-helpers-and-capstone.smoke.test.ts`; comprehensive
+  seed-based replay coverage needs the Wave 4 SeededRandom-injected harness.
+- **12.5 replay determinism smoke → Wave 4** — same harness as 11.5.
+
+The 0.x prerequisites are marked DEFERRED with verification refs to the
+already-archived dependency changes (fix-combat-rule-accuracy,
+integrate-damage-pipeline, wire-firing-arc-resolution, wire-piloting-skill-rolls).
