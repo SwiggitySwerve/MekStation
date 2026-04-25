@@ -7,11 +7,7 @@ import {
   DayPhase,
   IDayEvent,
 } from '../dayPipeline';
-
-// oxlint-disable-next-line @typescript-eslint/no-explicit-any
-function castToRecord(data: any): Record<string, unknown> {
-  return data as Record<string, unknown>;
-}
+import { asEventDataRecord } from '../utils/processorHelpers';
 
 export const contractProcessor: IDayProcessor = {
   id: 'contracts',
@@ -25,7 +21,7 @@ export const contractProcessor: IDayProcessor = {
       type: 'contract_expired',
       description: `Contract "${evt.contractName}" completed`,
       severity: 'info' as const,
-      data: castToRecord(evt),
+      data: asEventDataRecord(evt),
     }));
 
     const updatedCampaign: ICampaign = {

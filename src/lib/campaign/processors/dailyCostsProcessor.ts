@@ -7,11 +7,7 @@ import {
   DayPhase,
   IDayEvent,
 } from '../dayPipeline';
-
-// oxlint-disable-next-line @typescript-eslint/no-explicit-any
-function castToRecord(data: any): Record<string, unknown> {
-  return data as Record<string, unknown>;
-}
+import { asEventDataRecord } from '../utils/processorHelpers';
 
 export const dailyCostsProcessor: IDayProcessor = {
   id: 'dailyCosts',
@@ -32,7 +28,7 @@ export const dailyCostsProcessor: IDayProcessor = {
         type: 'daily_costs',
         description: `Daily costs: ${result.costs.total.format()} (${result.costs.personnelCount} personnel, ${result.costs.unitCount} units)`,
         severity: result.finances.balance.isNegative() ? 'warning' : 'info',
-        data: castToRecord(result.costs),
+        data: asEventDataRecord(result.costs),
       });
     }
 

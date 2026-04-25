@@ -7,11 +7,7 @@ import {
   DayPhase,
   IDayEvent,
 } from '../dayPipeline';
-
-// oxlint-disable-next-line @typescript-eslint/no-explicit-any
-function castToRecord(data: any): Record<string, unknown> {
-  return data as Record<string, unknown>;
-}
+import { asEventDataRecord } from '../utils/processorHelpers';
 
 export const healingProcessor: IDayProcessor = {
   id: 'healing',
@@ -27,7 +23,7 @@ export const healingProcessor: IDayProcessor = {
         ? `${evt.personName} returned to active duty`
         : `${evt.personName} healed ${evt.healedInjuries.length} injury(s)`,
       severity: 'info' as const,
-      data: castToRecord(evt),
+      data: asEventDataRecord(evt),
     }));
 
     const updatedCampaign: ICampaign = {
