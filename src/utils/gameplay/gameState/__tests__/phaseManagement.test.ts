@@ -15,7 +15,7 @@
  *   Requirement: Pending PSR Queue Cleared At Turn Boundary (Regression Protection)
  */
 
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from '@jest/globals';
 
 import {
   Facing,
@@ -29,9 +29,9 @@ import {
   type IGameState,
   type IPendingPSR,
   type IUnitGameState,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import { applyPhaseChanged, applyTurnStarted } from "../phaseManagement";
+import { applyPhaseChanged, applyTurnStarted } from '../phaseManagement';
 
 // =============================================================================
 // Test fixtures
@@ -39,10 +39,10 @@ import { applyPhaseChanged, applyTurnStarted } from "../phaseManagement";
 
 function makePSR(overrides: Partial<IPendingPSR> = {}): IPendingPSR {
   return {
-    entityId: "unit-1",
-    reason: "twenty-plus-damage",
+    entityId: 'unit-1',
+    reason: 'twenty-plus-damage',
     additionalModifier: 0,
-    triggerSource: "attack",
+    triggerSource: 'attack',
     ...overrides,
   };
 }
@@ -76,8 +76,8 @@ function makeUnit(
 
 function makeState(units: Record<string, IUnitGameState>): IGameState {
   return {
-    gameId: "test-game",
-    status: GameStatus.InProgress,
+    gameId: 'test-game',
+    status: GameStatus.Active,
     turn: 1,
     phase: GamePhase.WeaponAttack,
     activationIndex: 0,
@@ -88,8 +88,8 @@ function makeState(units: Record<string, IUnitGameState>): IGameState {
 
 function makeTurnStartedEvent(turn: number): IGameEvent {
   return {
-    id: "evt-turn-started",
-    gameId: "test-game",
+    id: 'evt-turn-started',
+    gameId: 'test-game',
     sequence: 100,
     timestamp: new Date().toISOString(),
     type: GameEventType.TurnStarted,
@@ -104,8 +104,8 @@ function makePhaseChangedEvent(
   toPhase: GamePhase,
 ): IGameEvent {
   return {
-    id: "evt-phase-changed",
-    gameId: "test-game",
+    id: 'evt-phase-changed',
+    gameId: 'test-game',
     sequence: 50,
     timestamp: new Date().toISOString(),
     type: GameEventType.PhaseChanged,
@@ -119,55 +119,55 @@ function makePhaseChangedEvent(
 // Tests
 // =============================================================================
 
-describe("applyTurnStarted — pendingPSRs clear (regression protection)", () => {
-  it("clears pendingPSRs for every unit at TurnStarted boundary", () => {
+describe('applyTurnStarted — pendingPSRs clear (regression protection)', () => {
+  it('clears pendingPSRs for every unit at TurnStarted boundary', () => {
     // Two units carrying queued PSRs into turn 2 — could happen if the End
     // phase advanced without resolving them (defensive reset per TW p.52).
-    const stalePSR = makePSR({ entityId: "unit-1", reason: "fall-from-prev" });
+    const stalePSR = makePSR({ entityId: 'unit-1', reason: 'fall-from-prev' });
     const stalePSR2 = makePSR({
-      entityId: "unit-2",
-      reason: "damage-from-prev",
+      entityId: 'unit-2',
+      reason: 'damage-from-prev',
     });
 
     const initial = makeState({
-      "unit-1": makeUnit("unit-1", [stalePSR]),
-      "unit-2": makeUnit("unit-2", [stalePSR2]),
+      'unit-1': makeUnit('unit-1', [stalePSR]),
+      'unit-2': makeUnit('unit-2', [stalePSR2]),
     });
 
     const result = applyTurnStarted(initial, makeTurnStartedEvent(2));
 
-    expect(result.units["unit-1"].pendingPSRs).toEqual([]);
-    expect(result.units["unit-2"].pendingPSRs).toEqual([]);
+    expect(result.units['unit-1'].pendingPSRs).toEqual([]);
+    expect(result.units['unit-2'].pendingPSRs).toEqual([]);
   });
 
-  it("also resets per-turn flags (weaponsFiredThisTurn) on the same boundary", () => {
+  it('also resets per-turn flags (weaponsFiredThisTurn) on the same boundary', () => {
     // The PSR clear is paired with other turn-scoped resets in the same loop.
     // Lock that pairing in to prevent a future refactor from splitting them.
     const initial = makeState({
-      "unit-1": makeUnit("unit-1", [makePSR()], ["weapon-a", "weapon-b"]),
+      'unit-1': makeUnit('unit-1', [makePSR()], ['weapon-a', 'weapon-b']),
     });
 
     const result = applyTurnStarted(initial, makeTurnStartedEvent(2));
 
-    expect(result.units["unit-1"].weaponsFiredThisTurn).toEqual([]);
-    expect(result.units["unit-1"].pendingPSRs).toEqual([]);
+    expect(result.units['unit-1'].weaponsFiredThisTurn).toEqual([]);
+    expect(result.units['unit-1'].pendingPSRs).toEqual([]);
   });
 
-  it("leaves units with empty pendingPSRs untouched (idempotent on empty queue)", () => {
+  it('leaves units with empty pendingPSRs untouched (idempotent on empty queue)', () => {
     const initial = makeState({
-      "unit-1": makeUnit("unit-1", []),
+      'unit-1': makeUnit('unit-1', []),
     });
 
     const result = applyTurnStarted(initial, makeTurnStartedEvent(2));
 
-    expect(result.units["unit-1"].pendingPSRs).toEqual([]);
+    expect(result.units['unit-1'].pendingPSRs).toEqual([]);
   });
 
-  it("advances turn counter and resets phase to Initiative", () => {
+  it('advances turn counter and resets phase to Initiative', () => {
     // Sanity guard: confirm the rest of applyTurnStarted's contract works
     // alongside the PSR clear.
     const initial = makeState({
-      "unit-1": makeUnit("unit-1", [makePSR()]),
+      'unit-1': makeUnit('unit-1', [makePSR()]),
     });
 
     const result = applyTurnStarted(initial, makeTurnStartedEvent(2));
@@ -178,14 +178,14 @@ describe("applyTurnStarted — pendingPSRs clear (regression protection)", () =>
   });
 });
 
-describe("applyPhaseChanged — pendingPSRs preserved within turn", () => {
-  it("does NOT clear pendingPSRs when transitioning from WeaponAttack to PhysicalAttack", () => {
+describe('applyPhaseChanged — pendingPSRs preserved within turn', () => {
+  it('does NOT clear pendingPSRs when transitioning from WeaponAttack to PhysicalAttack', () => {
     // Per archived `wire-piloting-skill-rolls` task 1.3: PSRs accumulate
     // through phase transitions and resolve in the End phase. Clearing them
     // at phase change would break the queue lifecycle.
-    const queuedPSR = makePSR({ reason: "twenty-plus-damage" });
+    const queuedPSR = makePSR({ reason: 'twenty-plus-damage' });
     const initial = makeState({
-      "unit-1": makeUnit("unit-1", [queuedPSR]),
+      'unit-1': makeUnit('unit-1', [queuedPSR]),
     });
 
     const result = applyPhaseChanged(
@@ -194,19 +194,18 @@ describe("applyPhaseChanged — pendingPSRs preserved within turn", () => {
       {
         fromPhase: GamePhase.WeaponAttack,
         toPhase: GamePhase.PhysicalAttack,
-        turn: 1,
       },
     );
 
-    expect(result.units["unit-1"].pendingPSRs).toEqual([queuedPSR]);
+    expect(result.units['unit-1'].pendingPSRs).toEqual([queuedPSR]);
   });
 
-  it("preserves PSRs across multiple intra-turn phase transitions", () => {
+  it('preserves PSRs across multiple intra-turn phase transitions', () => {
     // Simulate phase progression: queued in WeaponAttack, must survive
     // PhysicalAttack, Heat, and arrive intact at End for resolution.
-    const queuedPSR = makePSR({ reason: "fall-attack" });
+    const queuedPSR = makePSR({ reason: 'fall-attack' });
     let state = makeState({
-      "unit-1": makeUnit("unit-1", [queuedPSR]),
+      'unit-1': makeUnit('unit-1', [queuedPSR]),
     });
 
     state = applyPhaseChanged(
@@ -215,10 +214,9 @@ describe("applyPhaseChanged — pendingPSRs preserved within turn", () => {
       {
         fromPhase: GamePhase.WeaponAttack,
         toPhase: GamePhase.PhysicalAttack,
-        turn: 1,
       },
     );
-    expect(state.units["unit-1"].pendingPSRs).toEqual([queuedPSR]);
+    expect(state.units['unit-1'].pendingPSRs).toEqual([queuedPSR]);
 
     state = applyPhaseChanged(
       state,
@@ -226,26 +224,25 @@ describe("applyPhaseChanged — pendingPSRs preserved within turn", () => {
       {
         fromPhase: GamePhase.PhysicalAttack,
         toPhase: GamePhase.Heat,
-        turn: 1,
       },
     );
-    expect(state.units["unit-1"].pendingPSRs).toEqual([queuedPSR]);
+    expect(state.units['unit-1'].pendingPSRs).toEqual([queuedPSR]);
 
     state = applyPhaseChanged(
       state,
       makePhaseChangedEvent(GamePhase.Heat, GamePhase.End),
-      { fromPhase: GamePhase.Heat, toPhase: GamePhase.End, turn: 1 },
+      { fromPhase: GamePhase.Heat, toPhase: GamePhase.End },
     );
-    expect(state.units["unit-1"].pendingPSRs).toEqual([queuedPSR]);
+    expect(state.units['unit-1'].pendingPSRs).toEqual([queuedPSR]);
   });
 
-  it("still resets the per-phase damage and lock-state fields", () => {
+  it('still resets the per-phase damage and lock-state fields', () => {
     // Sanity: confirm applyPhaseChanged still does its primary job (lock
     // state reset) while leaving pendingPSRs alone.
     const queuedPSR = makePSR();
     const initial = makeState({
-      "unit-1": {
-        ...makeUnit("unit-1", [queuedPSR]),
+      'unit-1': {
+        ...makeUnit('unit-1', [queuedPSR]),
         lockState: LockState.Locked,
         damageThisPhase: 7,
       },
@@ -257,13 +254,12 @@ describe("applyPhaseChanged — pendingPSRs preserved within turn", () => {
       {
         fromPhase: GamePhase.WeaponAttack,
         toPhase: GamePhase.PhysicalAttack,
-        turn: 1,
       },
     );
 
-    expect(result.units["unit-1"].lockState).toBe(LockState.Pending);
-    expect(result.units["unit-1"].damageThisPhase).toBe(0);
+    expect(result.units['unit-1'].lockState).toBe(LockState.Pending);
+    expect(result.units['unit-1'].damageThisPhase).toBe(0);
     // Critical: PSR queue survives the phase change.
-    expect(result.units["unit-1"].pendingPSRs).toEqual([queuedPSR]);
+    expect(result.units['unit-1'].pendingPSRs).toEqual([queuedPSR]);
   });
 });
