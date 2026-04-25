@@ -30,16 +30,16 @@ import React from 'react';
 
 import type { IUnitToken } from '@/types/gameplay';
 
+import { HEX_SIZE } from '@/constants/hexMap';
+import { useAccessibilityStore } from '@/stores/useAccessibilityStore';
+import { Facing, GameSide } from '@/types/gameplay';
 import {
   ARCHETYPE_GLYPHS,
   SPRITE_ANCHOR_X,
   SPRITE_ANCHOR_Y,
   SPRITE_VIEWBOX_SIZE,
   getSpriteSvg,
-} from '@/components/gameplay/sprites/spriteCatalog';
-import { HEX_SIZE } from '@/constants/hexMap';
-import { useAccessibilityStore } from '@/stores/useAccessibilityStore';
-import { Facing, GameSide } from '@/types/gameplay';
+} from '@/utils/sprites/spriteCatalog';
 import { selectSprite } from '@/utils/sprites/spriteSelector';
 
 // =============================================================================

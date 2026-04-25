@@ -17,7 +17,7 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.2
  */
 
-import type { ResultType } from '@/services/core/types/BaseTypes';
+import type { ResultType } from '@/types/common/result';
 
 import { UnitType } from '../unit/BattleMechInterfaces';
 

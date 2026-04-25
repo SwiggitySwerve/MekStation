@@ -26,13 +26,13 @@ import type {
   SpriteWeightBucket,
 } from '@/types/gameplay';
 
-import { spriteId } from '@/components/gameplay/sprites/spriteCatalog';
+import { weightClassToBucket } from '@/types/gameplay';
+import { spriteId } from '@/utils/sprites/spriteCatalog';
 import {
   SPRITE_ANCHOR_X,
   SPRITE_ANCHOR_Y,
   SPRITE_VIEWBOX,
-} from '@/components/gameplay/sprites/spriteCatalog';
-import { weightClassToBucket } from '@/types/gameplay';
+} from '@/utils/sprites/spriteCatalog';
 
 /**
  * Token-shape subset that feeds the selector. Accepting a wide `Pick`

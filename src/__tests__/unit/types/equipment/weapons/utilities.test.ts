@@ -180,7 +180,7 @@ import {
   calculateDirectFireWeaponTonnage,
   calculateDirectFireTonnageFromWeapons,
   DIRECT_FIRE_CATEGORIES,
-} from '@/types/equipment/weapons/utilities';
+} from '@/utils/equipment/weapons/utilities';
 
 describe('Weapon Utilities', () => {
   describe('Basic Query Functions', () => {

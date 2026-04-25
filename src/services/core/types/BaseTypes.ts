@@ -36,26 +36,12 @@ export interface IService {
 // RESULT TYPE
 // ============================================================================
 
-/**
- * Result type for operations that can fail
- *
- * This is a discriminated union type that represents either:
- * - A successful result with data
- * - A failed result with an error
- *
- * @example
- * ```typescript
- * const result = await service.doSomething();
- * if (result.success) {
- *   logger.debug(result.data);
- * } else {
- *   logger.error(result.error);
- * }
- * ```
- */
-export type ResultType<T, E = string> =
-  | { success: true; data: T; error?: never }
-  | { success: false; error: E; data?: never };
+// Canonical type definition lives in `@/types/common/result` so that the
+// type layer does not depend on the service layer. This re-export is kept
+// for backwards compatibility with existing service-layer importers.
+export type { ResultType, AsyncResult } from '@/types/common/result';
+
+import type { ResultType } from '@/types/common/result';
 
 /**
  * Result class with static factory methods
@@ -165,15 +151,6 @@ export class Result {
     return result as ResultType<U, E>;
   }
 }
-
-// ============================================================================
-// ASYNC RESULT TYPE
-// ============================================================================
-
-/**
- * Async result type for operations that return promises
- */
-export type AsyncResult<T, E = string> = Promise<ResultType<T, E>>;
 
 // ============================================================================
 // SERVICE CONFIGURATION

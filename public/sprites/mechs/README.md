@@ -24,7 +24,7 @@ published unit is named, traced, or rendered here.
   (north). Rotation in the renderer carries the notch with the body.
 - Fills use `currentColor` so the parent can tint via CSS `color`.
 - The runtime renderer consumes **inline** versions of these sprites from
-  `src/components/gameplay/sprites/spriteCatalog.ts` (the same geometry).
+  `src/utils/sprites/spriteCatalog.ts` (the same geometry).
   The files here satisfy the spec's file-path contract and provide an
   out-of-band reference for future asset pipelines.
 

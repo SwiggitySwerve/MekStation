@@ -14,11 +14,11 @@ import {
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { createMountedEquipment } from '@/types/equipment/MountedEquipment';
-import { calculateDirectFireWeaponTonnage } from '@/types/equipment/weapons/utilities';
 import {
   calculateTargetingComputerWeight,
   calculateTargetingComputerSlots,
 } from '@/utils/equipment/equipmentListUtils';
+import { calculateDirectFireWeaponTonnage } from '@/utils/equipment/weapons/utilities';
 import { logger } from '@/utils/logger';
 import { generateUnitId } from '@/utils/uuid';
 

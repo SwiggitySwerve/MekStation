@@ -48,6 +48,7 @@ import { IDayPipelineResult, IDayEvent } from './dayPipeline';
 import { getBestAvailableDoctor } from './medical/doctorCapacity';
 import { MedicalSystem } from './medical/medicalTypes';
 import { performMedicalCheck } from './medical/performMedicalCheck';
+import { asEventDataShape } from './utils/processorHelpers';
 
 // =============================================================================
 // Constants
@@ -485,28 +486,22 @@ export function advanceDays(campaign: ICampaign, count: number): DayReport[] {
 // Pipeline Integration
 // =============================================================================
 
-// Helper to safely cast event data to specific types
-// oxlint-disable-next-line @typescript-eslint/no-explicit-any
-function castEventData<T>(data: any): T {
-  return data as T;
-}
-
 export function convertToLegacyDayReport(
   result: IDayPipelineResult,
 ): DayReport {
   const healedPersonnel: HealedPersonEvent[] = result.events
     .filter((e: IDayEvent) => e.type === 'healing')
-    .map((e: IDayEvent) => castEventData<HealedPersonEvent>(e.data));
+    .map((e: IDayEvent) => asEventDataShape<HealedPersonEvent>(e.data));
 
   const expiredContracts: ExpiredContractEvent[] = result.events
     .filter((e: IDayEvent) => e.type === 'contract_expired')
-    .map((e: IDayEvent) => castEventData<ExpiredContractEvent>(e.data));
+    .map((e: IDayEvent) => asEventDataShape<ExpiredContractEvent>(e.data));
 
   const costEvent = result.events.find(
     (e: IDayEvent) => e.type === 'daily_costs',
   );
   const costs: DailyCostBreakdown = costEvent?.data
-    ? castEventData<DailyCostBreakdown>(costEvent.data)
+    ? asEventDataShape<DailyCostBreakdown>(costEvent.data)
     : {
         salaries: Money.ZERO,
         maintenance: Money.ZERO,
