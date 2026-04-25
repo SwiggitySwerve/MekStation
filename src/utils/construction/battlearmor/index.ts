@@ -16,3 +16,4 @@ export * from './mass';
 export * from './movement';
 export * from './squad';
 export * from './validation';
+export * from './weaponGates';

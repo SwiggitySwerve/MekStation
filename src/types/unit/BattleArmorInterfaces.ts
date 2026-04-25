@@ -61,6 +61,31 @@ export interface BAWeightClassLimits {
 }
 
 /**
+ * Per-weight-class kg cost for each **extra** movement point beyond the
+ * free base 1 MP. Applies equally to extra ground / jump / UMU MP.
+ *
+ * Values follow Total Warfare p.260 (BA construction movement mass table):
+ *   PA(L)    25 kg / extra MP
+ *   Light    40 kg / extra MP
+ *   Medium   80 kg / extra MP
+ *   Heavy   120 kg / extra MP
+ *   Assault 150 kg / extra MP
+ *
+ * Extra MP beyond the first costs the weight-class MP cost per point in
+ * the dominant movement track. Since a BA squad pays for its highest
+ * single track (ground, jump, UMU — whichever is greater beyond base 1),
+ * the helper `extraMPMassKg` takes the greatest of those three and bills
+ * that many extra points.
+ */
+export const BA_EXTRA_MP_MASS_KG: Readonly<Record<BAWeightClass, number>> = {
+  [BAWeightClass.PA_L]: 25,
+  [BAWeightClass.LIGHT]: 40,
+  [BAWeightClass.MEDIUM]: 80,
+  [BAWeightClass.HEAVY]: 120,
+  [BAWeightClass.ASSAULT]: 150,
+};
+
+/**
  * Weight-class limit table.
  * Values from Total Warfare / Tactical Operations construction rules.
  */

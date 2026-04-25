@@ -21,6 +21,7 @@ import {
 
 import { armorMassKg } from './armor';
 import { manipulatorMassKg } from './manipulators';
+import { extraMPMassKg } from './movement';
 
 export interface TrooperMassBreakdown {
   /** Armor mass (kg) */
@@ -31,8 +32,26 @@ export interface TrooperMassBreakdown {
   readonly weaponMass: number;
   /** Equipment mass (kg) */
   readonly equipmentMass: number;
+  /**
+   * Mass consumed by extra movement points beyond the free base 1 MP
+   * (groundMP/jumpMP/umuMP — highest track billed, see `extraMPMassKg`).
+   *
+   * @spec openspec/changes/add-battlearmor-construction/tasks.md §4.5
+   */
+  readonly movementMass: number;
   /** Total trooper mass (kg) */
   readonly totalMass: number;
+}
+
+/**
+ * Optional movement inputs for `computeTrooperMass`. Omitted values default
+ * to 0 so existing callers that do not yet pass movement still compile.
+ */
+export interface TrooperMovementInputs {
+  readonly groundMP?: number;
+  readonly jumpMP?: number;
+  readonly umuMP?: number;
+  readonly weightClass?: BAWeightClass;
 }
 
 export interface MassValidationResult {
@@ -43,6 +62,14 @@ export interface MassValidationResult {
 
 /**
  * Compute the full per-trooper mass breakdown.
+ *
+ * Movement mass (extra MP beyond the free base 1 MP) is included when the
+ * optional `movement` argument carries a `weightClass`. Omitting `movement`
+ * keeps the legacy 5-field behaviour (movementMass = 0) for callers that
+ * have not been migrated yet.
+ *
+ * @spec openspec/changes/add-battlearmor-construction/specs/battle-armor-unit-system/spec.md
+ * Requirement: Trooper Mass Validation (and tasks §4.5 — extra MP mass cost)
  */
 export function computeTrooperMass(
   armorPoints: number,
@@ -52,6 +79,7 @@ export function computeTrooperMass(
   rightManipulator: BAManipulator,
   weapons: readonly IBAWeaponMount[],
   equipment: readonly IBAEquipmentMount[],
+  movement?: TrooperMovementInputs,
 ): TrooperMassBreakdown {
   const armorMass = armorMassKg(armorPoints, armorType);
   const manipulatorMass = manipulatorMassKg(
@@ -61,9 +89,28 @@ export function computeTrooperMass(
   );
   const weaponMass = weapons.reduce((sum, w) => sum + w.massKg, 0);
   const equipmentMass = equipment.reduce((sum, e) => sum + e.massKg, 0);
-  const totalMass = armorMass + manipulatorMass + weaponMass + equipmentMass;
 
-  return { armorMass, manipulatorMass, weaponMass, equipmentMass, totalMass };
+  const movementMass =
+    movement?.weightClass !== undefined
+      ? extraMPMassKg(
+          movement.groundMP ?? 0,
+          movement.jumpMP ?? 0,
+          movement.umuMP ?? 0,
+          movement.weightClass,
+        )
+      : 0;
+
+  const totalMass =
+    armorMass + manipulatorMass + weaponMass + equipmentMass + movementMass;
+
+  return {
+    armorMass,
+    manipulatorMass,
+    weaponMass,
+    equipmentMass,
+    movementMass,
+    totalMass,
+  };
 }
 
 /**
@@ -90,6 +137,7 @@ export function validateTrooperMass(
     manipulatorMass: 0,
     weaponMass: 0,
     equipmentMass: 0,
+    movementMass: 0,
     totalMass: totalMassKg,
   };
 

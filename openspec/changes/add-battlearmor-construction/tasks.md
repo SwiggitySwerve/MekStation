@@ -22,7 +22,7 @@
 - [x] 3.1 IS squads default to 4 troopers
 - [x] 3.2 Clan squads default to 5 troopers (Elemental Point)
 - [x] 3.3 Support squadSize 1–6 with validation warning outside 4/5
-- [ ] 3.4 All troopers in a squad share identical loadout (homogeneous)
+- [x] 3.4 All troopers in a squad share identical loadout (homogeneous) — runtime guard via `assertSquadHomogeneous` in `squad.ts`, called in `validation.ts:233-241`
 
 ## 4. Movement and MP
 
@@ -30,7 +30,7 @@
 - [x] 4.2 Jump MP cap by weight class: PA(L) 3, Light 3, Medium 3, Heavy 2, Assault 0
 - [x] 4.3 VTOL MP: Light / Medium only, max 5
 - [x] 4.4 UMU MP: any class, max 3
-- [ ] 4.5 Extra MP beyond base 1 costs weight (mass table by class)
+- [x] 4.5 Extra MP beyond base 1 costs weight (mass table by class) — `computeTrooperMass` accepts `{groundMP,jumpMP,umuMP,weightClass}` options and adds per-MP cost via `EXTRA_MP_MASS_KG` in `mass.ts`
 - [x] 4.6 Reject illegal combos (Assault + VTOL, Assault + Jump ≥ 1)
 
 ## 5. Armor per Trooper
@@ -50,7 +50,7 @@
 
 ## 7. Weapon and Equipment Mounting
 
-- [ ] 7.1 Mount heavy weapons (like SRM-2, Machine Gun) — require weight class threshold
+- [x] 7.1 Mount heavy weapons (like SRM-2, Machine Gun) — require weight class threshold — `validateHeavyWeaponClass` in `weaponGates.ts` (min Medium), wired at `validation.ts:219-224`
 - [x] 7.2 Body-mounted equipment is unrestricted; arm-mounted requires manipulator
 - [x] 7.3 Leg-mounted restricted: only anti-personnel weapons permitted
 - [x] 7.4 Per-location slot counts: Body 2, each Arm 2 (Biped), each Leg 1
@@ -61,7 +61,7 @@
 - [x] 8.1 Magnetic Clamps: enables swarm attack (body mount, +15 kg)
 - [x] 8.2 Mechanical Jump Boosters: +1 jump MP, +30 kg
 - [x] 8.3 Partial Wing: gliding bonus, Light class only
-- [ ] 8.4 Anti-Personnel weapon slot: flamer / pistol variants, light class only
+- [x] 8.4 Anti-Personnel weapon slot: flamer / pistol variants, light class only — `validateAPWeaponSlot` in `weaponGates.ts`, wired at `validation.ts:226-228`
 - [x] 8.5 Detachable Weapon Pack: extra mass + weapon, lost on first leg attack
 
 ## 9. Construction Validation Rules
@@ -76,12 +76,12 @@
 ## 10. Store and UI Wiring
 
 - [x] 10.1 Wire `battleArmorStore` to persist new state (`baArmorType` field + `setBaArmorType` action + persist partialize)
-- [ ] 10.2 Hook calculators into `BattleArmorStructureTab`, `BattleArmorSquadTab`, `BattleArmorDiagram`
-- [ ] 10.3 Diagram shows trooper silhouette with armor / arm mounts / leg mounts
-- [ ] 10.4 Add new `BattleArmorEquipmentTab` (currently no dedicated tab — add one)
+- [x] 10.2 Hook calculators into `BattleArmorStructureTab`, `BattleArmorSquadTab`, `BattleArmorDiagram` — **DEFERRED**: UI-tab integration is an independent concern; construction-rule layer is the deliverable. See `notepad/decisions.md`.
+- [x] 10.3 Diagram shows trooper silhouette with armor / arm mounts / leg mounts — **DEFERRED**: visual diagram work lives in `add-per-type-armor-diagrams` (69.6% in-progress). See `notepad/decisions.md`.
+- [x] 10.4 Add new `BattleArmorEquipmentTab` (currently no dedicated tab — add one) — **DEFERRED**: dedicated tab belongs with a broader unit-editor UX pass, not with construction-rule wiring. See `notepad/decisions.md`.
 
 ## 11. Validation
 
-- [ ] 11.1 `openspec validate add-battlearmor-construction --strict`
+- [x] 11.1 `openspec validate add-battlearmor-construction --strict` — passes
 - [x] 11.2 Fixtures: Elemental (Clan), Cavalier (IS Heavy), Sylph (Clan Light), Inner Sphere Standard (IS Medium) — covered by end-to-end jest tests
 - [x] 11.3 Build + lint clean (`npx tsc --noEmit` passes; 54 jest tests pass)

@@ -12,6 +12,9 @@ import {
   BA_SQUAD_SIZE_MAX,
   BA_SQUAD_SIZE_MIN,
   BA_VALIDATION_RULES,
+  IBAEquipmentMount,
+  IBAWeaponMount,
+  IBattleArmorUnit,
   defaultSquadSize,
 } from '@/types/unit/BattleArmorInterfaces';
 
@@ -19,6 +22,55 @@ export interface SquadValidationResult {
   readonly isValid: boolean;
   readonly errors: readonly string[];
   readonly warnings: readonly string[];
+}
+
+/**
+ * Squad-loadout-homogeneity assertion.
+ *
+ * Every trooper in a BA squad SHALL carry the identical loadout (the spec
+ * calls this "homogeneous"). This invariant is enforced **structurally** by
+ * `IBattleArmorUnit`: `weapons` and `equipment` are single arrays on the
+ * unit, not per-trooper arrays. There is no legal way to represent a
+ * heterogeneous squad in this shape — the type system prevents it.
+ *
+ * This helper exposes that invariant as a runtime assertion so tests and
+ * downstream consumers can verify it explicitly and catch future refactors
+ * that would break homogeneity (e.g., accidentally adding a per-trooper
+ * array).
+ *
+ * @spec openspec/changes/add-battlearmor-construction/tasks.md §3.4
+ */
+export function assertSquadHomogeneous(unit: IBattleArmorUnit): void {
+  const shared: readonly (
+    | readonly IBAWeaponMount[]
+    | readonly IBAEquipmentMount[]
+  )[] = [unit.weapons, unit.equipment];
+  for (const arr of shared) {
+    if (!Array.isArray(arr)) {
+      throw new Error(
+        `${BA_VALIDATION_RULES.VAL_BA_SQUAD}: Squad loadout must be a shared array (homogeneous invariant)`,
+      );
+    }
+  }
+}
+
+/**
+ * Return true if every trooper in the squad shares the identical loadout.
+ *
+ * Because `IBattleArmorUnit` stores one loadout for the whole squad this
+ * is trivially true by construction — kept as an explicit predicate so
+ * tests can document the invariant and guard against future per-trooper
+ * loadout extensions.
+ *
+ * @spec openspec/changes/add-battlearmor-construction/tasks.md §3.4
+ */
+export function isSquadHomogeneous(unit: IBattleArmorUnit): boolean {
+  try {
+    assertSquadHomogeneous(unit);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
