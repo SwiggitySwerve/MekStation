@@ -23,64 +23,34 @@ Usage:
         --output /path/to/public/data/units/protomechs
 """
 
-import os
-import sys
-import json
-import re
 import argparse
+import json
 import logging
+import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-try:
-    from enum_mappings import (
-        default_mm_data_root,
-        map_tech_base,
-        map_rules_level,
-        map_engine_type,
-        map_year_to_era,
-        generate_id_from_name,
-        normalize_equipment_id,
-    )
-except ImportError:
-    def default_mm_data_root() -> str:
-        env = os.environ.get("MM_DATA_ROOT")
-        if env:
-            return env
-        if os.name == "nt":
-            return r"E:\Projects\mm-data\data"
-        return "/e/Projects/mm-data/data"
-
-    def map_tech_base(v: str) -> str:
-        return "CLAN" if "Clan" in v else "INNER_SPHERE"
-
-    def map_rules_level(v: str) -> str:
-        return "STANDARD"
-
-    def map_engine_type(v: str) -> str:
-        return {"0": "FUSION", "1": "XL"}.get(v.strip(), "FUSION")
-
-    def map_year_to_era(year: int) -> str:
-        if year < 2781:
-            return "STAR_LEAGUE"
-        elif year < 3050:
-            return "SUCCESSION_WARS"
-        return "CLAN_INVASION"
-
-    def generate_id_from_name(chassis: str, model: str) -> str:
-        combined = f"{chassis}-{model}".lower()
-        id_str = re.sub(r"[^a-z0-9\-]", "-", combined)
-        while "--" in id_str:
-            id_str = id_str.replace("--", "-")
-        return id_str.strip("-")
-
-    def normalize_equipment_id(name: str) -> str:
-        id_str = name.lower()
-        id_str = id_str.replace(" ", "-").replace("/", "-")
-        id_str = re.sub(r"[^a-z0-9\-]", "", id_str)
-        while "--" in id_str:
-            id_str = id_str.replace("--", "-")
-        return id_str.strip("-")
+# Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
+# extraction rationale (2026-04-25 maintenance sweep).
+from blk_common import (
+    default_mm_data_root,
+    extract_tags,
+    generate_id_from_name,
+    get_string,
+    map_armor_code,
+    map_engine_type,
+    map_rules_level,
+    map_tech_base,
+    map_year_to_era,
+    normalize_equipment_id,
+    parse_armor_array,
+    parse_number,
+    remove_comments,
+    setup_logger,
+    write_manifest,
+    write_parity_report,
+    write_run_log,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -116,6 +86,7 @@ ARMOR_CODE_MAP: Dict[int, str] = {
     4: "HARDENED", 34: "FERRO_FIBROUS_CLAN",
 }
 
+
 # Weight class thresholds for ProtoMechs (by tonnage)
 # ProtoMechs range from 2t (PA(L)) to 9t (Assault)
 def get_proto_weight_class(tonnage: float) -> str:
@@ -129,69 +100,6 @@ def get_proto_weight_class(tonnage: float) -> str:
         return "HEAVY"
     else:
         return "ASSAULT"
-
-
-# ---------------------------------------------------------------------------
-# Shared parsing helpers
-# ---------------------------------------------------------------------------
-
-def remove_comments(content: str) -> str:
-    lines = [ln for ln in content.splitlines() if not ln.strip().startswith("#")]
-    return "\n".join(lines)
-
-
-def extract_tags(content: str) -> Dict[str, Any]:
-    tags: Dict[str, Any] = {}
-    pattern = re.compile(r"<([^/][^>]*)>\s*(.*?)\s*</\1>", re.DOTALL)
-    for match in pattern.finditer(content):
-        tag_name = match.group(1).strip()
-        raw_value = match.group(2).strip()
-        if tag_name.endswith("Equipment"):
-            tags[tag_name] = [ln.strip() for ln in raw_value.splitlines() if ln.strip()]
-        else:
-            tags[tag_name] = raw_value
-    return tags
-
-
-def parse_number(value: Any) -> Optional[float]:
-    if value is None:
-        return None
-    try:
-        return float(str(value).strip())
-    except (ValueError, TypeError):
-        return None
-
-
-def get_string(tags: Dict[str, Any], *keys: str) -> Optional[str]:
-    for key in keys:
-        val = tags.get(key)
-        if val is not None and str(val).strip():
-            return str(val).strip()
-    return None
-
-
-def parse_armor_array(raw: Any) -> List[int]:
-    if raw is None:
-        return []
-    lines = raw if isinstance(raw, list) else str(raw).strip().splitlines()
-    result = []
-    for ln in lines:
-        ln = ln.strip()
-        if ln:
-            try:
-                result.append(int(float(ln)))
-            except ValueError:
-                pass
-    return result
-
-
-def map_armor_code(code: Any) -> str:
-    if code is None:
-        return "STANDARD"
-    try:
-        return ARMOR_CODE_MAP.get(int(float(str(code))), "STANDARD")
-    except (ValueError, TypeError):
-        return "STANDARD"
 
 
 # ---------------------------------------------------------------------------
@@ -267,7 +175,7 @@ def convert_protomech_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
     armor_code = get_string(tags, "armor_type")
-    armor_type_str = map_armor_code(armor_code)
+    armor_type_str = map_armor_code(armor_code, ARMOR_CODE_MAP)
 
     armor_by_location: Dict[str, int] = {}
     for i, loc in enumerate(PROTO_ARMOR_LOCATIONS):
@@ -469,9 +377,7 @@ def main() -> int:
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
-    log_level = logging.DEBUG if args.verbose else logging.INFO
-    logging.basicConfig(level=log_level, format="%(levelname)s %(message)s", stream=sys.stderr)
-    logger = logging.getLogger("blk_protomech_converter")
+    logger = setup_logger("blk_protomech_converter", args.verbose)
 
     source_dir = Path(args.source)
     output_dir = Path(args.output)
@@ -506,42 +412,17 @@ def main() -> int:
             logger.error(f"Failed to write {out_path}: {e}")
             errors += 1
 
-    # Manifest
+    # --- Manifest + budget check ---
     manifest_path = output_dir / "units-manifest.json"
-    manifest_data = {
-        "type": "protomechs",
-        "count": len(manifest),
-        "units": sorted(manifest, key=lambda u: (u["chassis"], u["model"])),
-    }
-    manifest_path.write_text(json.dumps(manifest_data, indent=2, ensure_ascii=False), encoding="utf-8")
-    logger.info(f"Manifest written: {manifest_path} ({len(manifest)} units)")
+    errors += write_manifest(manifest, manifest_path, "protomechs", logger)
 
-    # Manifest size budget check (task 8.3): manifests > 5 MB defeat lazy loading.
-    MANIFEST_MAX_BYTES = 5 * 1024 * 1024
-    manifest_bytes = manifest_path.stat().st_size
-    if manifest_bytes > MANIFEST_MAX_BYTES:
-        logger.error(
-            f"Manifest size {manifest_bytes} bytes exceeds 5 MB budget — "
-            "trim per-entry metadata or split the manifest."
-        )
-        errors += 1
-    else:
-        logger.info(f"Manifest size OK: {manifest_bytes} bytes (budget 5 MB)")
-
+    # --- Parity checks ---
     parity_failures, parity_records = run_parity_checks(manifest, logger)
 
-    parity_report_dir = Path(__file__).parent.parent.parent / "validation-output"
-    parity_report_dir.mkdir(parents=True, exist_ok=True)
-    parity_report_path = parity_report_dir / "blk-protomech-parity.json"
-    parity_report_path.write_text(
-        json.dumps(
-            {"type": "protomechs", "fixture_count": len(parity_records),
-             "failures": parity_failures, "records": parity_records},
-            indent=2, ensure_ascii=False,
-        ),
-        encoding="utf-8",
+    parity_report_path = (
+        Path(__file__).parent.parent.parent / "validation-output" / "blk-protomech-parity.json"
     )
-    logger.info(f"Parity report written: {parity_report_path}")
+    write_parity_report("protomechs", parity_records, parity_failures, parity_report_path, logger)
 
     logger.info(
         f"Done. converted={converted} skipped={skipped} errors={errors} parity_failures={parity_failures}"
@@ -556,14 +437,8 @@ def main() -> int:
         "errors": errors,
         "parity_failures": parity_failures,
     }
-    print(json.dumps(run_log))
-
-    # Persist the run-log (task 7.3).
-    log_dir = Path(__file__).parent.parent.parent / "validation-output"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_path = log_dir / "blk-protomech-run-log.json"
-    log_path.write_text(json.dumps(run_log, indent=2), encoding="utf-8")
-    logger.info(f"Run log written: {log_path}")
+    log_path = Path(__file__).parent.parent.parent / "validation-output" / "blk-protomech-run-log.json"
+    write_run_log(run_log, log_path, logger)
 
     return 1 if (errors > 0 or parity_failures > 0) else 0
 
