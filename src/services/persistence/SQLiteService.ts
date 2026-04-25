@@ -259,6 +259,37 @@ const MIGRATIONS: readonly IMigration[] = [
       ALTER TABLE pilot_abilities ADD COLUMN xp_spent INTEGER;
     `,
   },
+  {
+    version: 5,
+    name: 'match_logs',
+    up: `
+      -- Per add-victory-and-post-battle-summary design D10: match log
+      -- persistence. Stores the full IPostBattleReport JSON blob
+      -- keyed by match id. Narrow column set — only fields we filter /
+      -- order on get real types; the JSON payload is the source of
+      -- truth for read.
+      --
+      -- Version field is denormalized as a column (cheap server-side
+      -- filter) AND embedded in the JSON payload (read-time
+      -- authority, re-validated on GET).
+      CREATE TABLE IF NOT EXISTS match_logs (
+        id          TEXT    PRIMARY KEY,        -- IPostBattleReport.matchId == IGameSession.id
+        version     INTEGER NOT NULL,           -- POST_BATTLE_REPORT_VERSION literal (currently 1)
+        winner      TEXT    NOT NULL,           -- 'player' | 'opponent' | 'draw'
+        reason      TEXT    NOT NULL,           -- 'destruction' | 'concede' | 'turn_limit'
+        turn_count  INTEGER NOT NULL,           -- IPostBattleReport.turnCount
+        payload     TEXT    NOT NULL,           -- JSON-stringified IPostBattleReport
+        created_at  INTEGER NOT NULL            -- Date.now() at insert (epoch ms)
+      );
+
+      -- created_at: match-history list view sorts by recency.
+      -- version: operators upgrading across a future schema bump can
+      --   query stale rows (SELECT id FROM match_logs WHERE version < ?)
+      --   before running a migration.
+      CREATE INDEX IF NOT EXISTS idx_match_logs_created_at ON match_logs(created_at);
+      CREATE INDEX IF NOT EXISTS idx_match_logs_version    ON match_logs(version);
+    `,
+  },
 ];
 
 /**

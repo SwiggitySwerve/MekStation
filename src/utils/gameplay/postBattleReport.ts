@@ -26,6 +26,15 @@ import { GameEventType } from '@/types/gameplay';
 export type PostBattleReportVersion = 1;
 
 /**
+ * Runtime constant carrying the current schema version. Persistence
+ * layer + API routes compare against this value to reject stored
+ * reports authored under a different version per spec scenarios
+ * "Unversioned report rejected on read" and "Unknown-version report
+ * rejected on read".
+ */
+export const POST_BATTLE_REPORT_VERSION: PostBattleReportVersion = 1;
+
+/**
  * Per-unit summary captured in the after-action report.
  */
 export interface IUnitReport {

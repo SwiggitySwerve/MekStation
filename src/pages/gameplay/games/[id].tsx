@@ -119,6 +119,43 @@ export default function GameSessionPage(): React.ReactElement {
   const isCompletedForRedirect =
     session?.currentState.status === GameStatus.Completed;
   const isCampaignBound = !!session?.config.contractId;
+
+  // Per `add-victory-and-post-battle-summary` design D4 + spec
+  // `game-session-management` "Match Log Persistence Handshake":
+  // when `GameEnded` lands, derive an `IPostBattleReport` and POST
+  // it to `/api/matches` so the report survives a page reload.
+  // Persistence is fire-and-forget — a failed POST surfaces a
+  // console warning but does NOT block the victory-screen redirect
+  // (per the design risks section: in-memory report is still
+  // viewable immediately).
+  //
+  // The `persistedRef` guard makes the hook idempotent across
+  // re-renders so we never POST the same report twice. Demo
+  // sessions skip persistence — there's no stable id to read
+  // back.
+  const [hasPersisted, setHasPersisted] = useState(false);
+  useEffect(() => {
+    if (!session || !isCompletedForRedirect || hasPersisted) return;
+    if (typeof id !== 'string' || id === 'demo') return;
+    let cancelled = false;
+    void import('@/lib/combat/combatResolution').then(({ finalize }) =>
+      finalize(session)
+        .then(() => {
+          if (!cancelled) setHasPersisted(true);
+        })
+        .catch((err: unknown) => {
+          if (cancelled) return;
+          // Logged but not surfaced as a hard error — the victory
+          // screen still renders from the in-memory report.
+          logger.warn('match log persistence failed:', err);
+          setHasPersisted(true); // mark to avoid retry storms
+        }),
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [session, isCompletedForRedirect, hasPersisted, id]);
+
   useEffect(() => {
     if (
       isCompletedForRedirect &&
