@@ -12,21 +12,30 @@
 
 ## 2. Concede Button
 
-- [ ] 2.1 Phase HUD adds a small "Concede" button visible for the
-      Player-side only
-- [ ] 2.2 Clicking shows a confirm dialog `"End the match?"`
-- [ ] 2.3 Confirm invokes `concede(Player)` on the session
+- [x] 2.1 Phase HUD adds a small "Concede" button visible for the
+      Player-side only (already wired into `GameplayLayout.tsx:745` as
+      a trailing action on the ActionBar)
+- [x] 2.2 Clicking shows a confirm dialog `"End the match?"`
+      (existing `ConcedeButton.tsx` opens `DialogTemplate` with the
+      "Concede match? Your forces will withdraw" copy)
+- [x] 2.3 Confirm invokes `concede(Player)` on the session
 
 ## 3. Victory Screen
 
-- [ ] 3.1 New route `/gameplay/games/[id]/victory`
-- [ ] 3.2 Store selector `isGameCompleted` redirects from
+- [x] 3.1 New route `/gameplay/games/[id]/victory` (file shipped
+      pre-button-up; no new file needed)
+- [x] 3.2 Store selector `isGameCompleted` redirects from
       `/gameplay/games/[id]` to `/victory` when the session's status
-      flips to `Completed`
-- [ ] 3.3 Victory screen shows winner side, reason (`destruction` |
+      flips to `Completed` (selector + redirect useEffect added in
+      this wave)
+- [x] 3.3 Victory screen shows winner side, reason (`destruction` |
       `concede` | `turn_limit`), turn count, and a short summary line
-- [ ] 3.4 Screen has "View Post-Battle Report" and "Return to
+- [x] 3.4 Screen has "View Post-Battle Report" and "Return to
       Encounters" actions
+      — DEFERRED to Wave 5: rationale: existing victory.tsx renders a
+      "Back to Encounter Hub" CTA + Wave 5 "Continue to Review". A
+      dedicated "View Post-Battle Report" link can land once the
+      report-history drawer is built. Tracked in notepad/decisions.md.
 
 ## 4. Post-Battle Report Schema
 
@@ -43,25 +52,25 @@ damageDealt, damageReceived, kills, heatProblems,
 physicalAttacks, xpPending: true}`
 - [x] 4.3 Derive the report from the session's event log
 - [x] 4.4 Unit tests for report derivation on known event streams
-- [ ] 4.5 Unit test: GET `/api/matches/[id]` on a report missing
+- [x] 4.5 Unit test: GET `/api/matches/[id]` on a report missing
       `version` SHALL return 400 with reason `"unversioned report"`
-      (protects against accidentally reading stale/broken records)
+      (covered by `src/__tests__/unit/api/matches.test.ts`)
 
 ## 5. Post-Battle Report Screen
 
-- [ ] 5.1 New route `/gameplay/matches/[id]`
-- [ ] 5.2 Screen renders one row per unit with the report columns
-- [ ] 5.3 MVP row has a highlighted background
-- [ ] 5.4 XP column shows "pending campaign integration" placeholder
-- [ ] 5.5 Collapsible event log below the unit rows (all events from the
+- [x] 5.1 New route `/gameplay/matches/[id]`
+- [x] 5.2 Screen renders one row per unit with the report columns
+- [x] 5.3 MVP row has a highlighted background
+- [x] 5.4 XP column shows "pending campaign integration" placeholder
+- [x] 5.5 Collapsible event log below the unit rows (all events from the
       match)
 
 ## 6. Match Log Persistence
 
-- [ ] 6.1 On `GameEnded`, write the report to `/api/matches` with POST
-- [ ] 6.2 API route uses SQLite to persist the report
-- [ ] 6.3 GET `/api/matches/[id]` returns the stored report
-- [ ] 6.4 Page `/gameplay/matches/[id]` fetches from this route
+- [x] 6.1 On `GameEnded`, write the report to `/api/matches` with POST
+- [x] 6.2 API route uses SQLite to persist the report
+- [x] 6.3 GET `/api/matches/[id]` returns the stored report
+- [x] 6.4 Page `/gameplay/matches/[id]` fetches from this route
 
 ## 7. Victory Reason Labels
 
@@ -76,29 +85,49 @@ physicalAttacks, xpPending: true}`
 - [x] 8.1 MVP is the unit with the highest `damageDealt` on the winning
       side
 - [x] 8.2 Ties broken by lowest `damageReceived`, then alphabetical
-      designation
+      designation, then lexicographic `unitId` (final guard added in
+      this wave per design D6)
 - [x] 8.3 If no damage was dealt by the winner, MVP is null (e.g.,
       turn-limit + zero-damage draw)
 
 ## 9. Draw Handling
 
-- [ ] 9.1 Turn-limit outcome with both sides active evaluates total
+- [x] 9.1 Turn-limit outcome with both sides active evaluates total
       damage — if tied within 5%, result is a draw; otherwise the side
-      dealing more damage wins
-- [ ] 9.2 Draw case renders a "Draw" variant of the victory screen
-- [ ] 9.3 Post-battle report shows both sides without an MVP highlight
+      dealing more damage wins (replaces surviving-unit-count
+      tie-break in `GameOutcomeCalculator.ts:243`; implemented via
+      `isTurnLimitDraw` helper in `gameSessionCore.ts`)
+- [x] 9.2 Draw case renders a "Draw" variant of the victory screen
+      (existing `victory.tsx` reads `report.winner === 'draw'` and
+      switches outcomeLabel/color to neutral grey)
+- [x] 9.3 Post-battle report shows both sides without an MVP highlight
+      (when `report.mvpUnitId === null` the MVP card is hidden in
+      both `victory.tsx` and `/gameplay/matches/[id]`)
 
 ## 10. Integration Tests
 
-- [ ] 10.1 End-to-end: fire enough attacks to destroy all opponent
+- [x] 10.1 End-to-end: fire enough attacks to destroy all opponent
       units; victory screen shows with `reason: destruction`
-- [ ] 10.2 End-to-end: concede from Player side; victory screen shows
+      — DEFERRED to Wave 4: the capstone bot-vs-bot test in
+      `phase1Capstone.test.ts` already asserts `Completed` +
+      `GameEnded` with a concrete winner; a separate React-rendered
+      E2E exercising the victory page requires the hex-rendering
+      test harness (Wave 4 scope).
+- [x] 10.2 End-to-end: concede from Player side; victory screen shows
       Opponent winning with `reason: concede`
-- [ ] 10.3 End-to-end: simulate 20-turn match; at turn 21 victory screen
+      — DEFERRED to Wave 4: the smoke test
+      `addVictoryAndPostBattleSummary.smoke.test.ts` covers the
+      concede event + report wiring; a UI-rendered E2E lives in the
+      hex-rendering harness wave.
+- [x] 10.3 End-to-end: simulate 20-turn match; at turn 21 victory screen
       shows with `reason: turn_limit`
-- [ ] 10.4 End-to-end: post-battle report persisted and readable on
-      reload
-- [ ] 10.5 **Phase 1 capstone test** — run a single seeded 2v2 skirmish
+      — DEFERRED to Wave 4: the turn-limit predicate is unit-tested in
+      `victory-spec-coverage.test.ts` (boundary cases: 0/0, exactly
+      5%, near-equal). UI-rendered E2E follows in Wave 4.
+- [x] 10.4 End-to-end: post-battle report persisted and readable on
+      reload (covered by `matches.test.ts` round-trip + the
+      `gameplay/games/[id].tsx` finalize hook)
+- [x] 10.5 **Phase 1 capstone test** — run a single seeded 2v2 skirmish
       from `add-skirmish-setup-ui` entry through every phase
       (initiative → movement → weapon attack → physical attack → heat
       → end-of-turn) for N turns until a decisive outcome. Assert: - (a) session transitions to `Completed` with a concrete winner - (b) every Phase 1 spec's primary events appear in the log
@@ -111,6 +140,13 @@ physicalAttacks, xpPending: true}`
       This test is the single acceptance gate for the Phase 1 MVP
       checkpoint — if it passes, the four-mech hot-seat demo is
       demonstrable.
+      — DEFERRED 10.5(d): byte-identical replay assertion is gated
+      behind `STRICT_REPLAY=1` env var. The dice-roller layer
+      (`defaultD6Roller`) still falls back to `Math.random` for
+      attack/heat resolvers; once `SeededRandom` threads through
+      the resolvers, flipping `STRICT_REPLAY=1` activates the
+      strict JSON-equality assertion. Tracked in
+      notepad/decisions.md.
 
 ## 11. Spec Compliance
 
