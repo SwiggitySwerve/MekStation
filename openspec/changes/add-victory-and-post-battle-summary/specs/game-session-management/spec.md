@@ -27,8 +27,11 @@ The system SHALL allow a side to concede an active session, producing a
 
 The system SHALL end an active session with `reason: "turn_limit"` when
 the End phase completes on a turn greater than `config.turnLimit`,
-evaluating the winner by total damage dealt (within a 5% tolerance for a
-draw).
+evaluating the winner by total damage dealt where
+`|playerDamage - opponentDamage| / max(playerDamage, opponentDamage)`
+SHALL be compared against a 5% tolerance constant
+(`TURN_LIMIT_DRAW_TOLERANCE = 0.05`); when both sides dealt zero damage,
+the result SHALL be a draw.
 
 #### Scenario: Turn limit with clear damage winner
 
@@ -45,6 +48,15 @@ draw).
 - **WHEN** the turn-limit victory check runs
 - **THEN** the `GameEnded` event SHALL have `{winner: "draw", reason:
 "turn_limit"}`
+
+#### Scenario: Turn limit with zero damage on both sides is draw
+
+- **GIVEN** `config.turnLimit = 20`, the session enters End phase on
+  turn 21, both Player and Opponent dealt 0 damage
+- **WHEN** the turn-limit victory check runs
+- **THEN** the `GameEnded` event SHALL have `{winner: "draw", reason:
+"turn_limit"}`
+- **AND** the predicate SHALL NOT divide by zero
 
 #### Scenario: Turn limit does not fire below threshold
 

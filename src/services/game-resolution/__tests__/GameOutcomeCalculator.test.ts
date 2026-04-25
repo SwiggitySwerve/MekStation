@@ -1,13 +1,21 @@
 /**
- * Tests for Game Outcome Calculator
+ * Tests for Game Outcome Calculator.
+ *
+ * Per `add-victory-and-post-battle-summary` design D3: turn-limit
+ * tie-break uses total damage dealt with a 5% tolerance, NOT
+ * surviving unit count. Tests that hit the turn-limit branch must
+ * inject `DamageApplied` events into `input.events` so
+ * `sumDamageBySide` has data to compare.
  */
 
 import {
   IGameState,
   IGameConfig,
+  IGameEvent,
   GameStatus,
   GamePhase,
   GameSide,
+  GameEventType,
   LockState,
   IUnitGameState,
   Facing,
@@ -87,13 +95,42 @@ function createMockConfig(turnLimit: number = 0): IGameConfig {
 function createMockInput(
   state: IGameState,
   config: IGameConfig,
+  events: readonly IGameEvent[] = [],
 ): IOutcomeCalculationInput {
   return {
     state,
-    events: [],
+    events,
     config,
     startedAt: '2024-01-01T00:00:00Z',
     endedAt: '2024-01-01T01:00:00Z',
+  };
+}
+
+/**
+ * Build a synthetic DamageApplied event. The turn-limit tie-break
+ * walks `events` and sums per-side damage from these payloads, so
+ * tests that exercise the turn-limit branch need at least one
+ * damage event per side to deviate from the zero-damage draw
+ * outcome.
+ */
+function makeDamageEvent(targetUnitId: string, damage: number): IGameEvent {
+  return {
+    id: `dmg-${targetUnitId}-${damage}`,
+    gameId: 'test-game',
+    sequence: 0,
+    timestamp: '2024-01-01T00:30:00Z',
+    type: GameEventType.DamageApplied,
+    turn: 5,
+    phase: GamePhase.WeaponAttack,
+    actorId: 'attacker',
+    payload: {
+      unitId: targetUnitId,
+      location: 'center_torso',
+      damage,
+      armorRemaining: 0,
+      structureRemaining: 0,
+      locationDestroyed: false,
+    },
   };
 }
 
@@ -150,7 +187,12 @@ describe('GameOutcomeCalculator', () => {
       expect(outcome.reason).toBe('mutual_destruction');
     });
 
-    it('should handle turn limit with player advantage', () => {
+    it('should handle turn limit with player advantage (damage delta beyond 5%)', () => {
+      // Per add-victory-and-post-battle-summary D3: turn-limit
+      // tie-break is now damage-based with 5% tolerance, NOT
+      // surviving unit count. Player-side dealt 300 damage to o1,
+      // opponent-side dealt 200 damage split across p1+p2 — outside
+      // the 5% tolerance, so player wins.
       const state = createMockState(
         [
           { id: 'p1', destroyed: false },
@@ -160,7 +202,12 @@ describe('GameOutcomeCalculator', () => {
         10,
       );
       const config = createMockConfig(10);
-      const input = createMockInput(state, config);
+      const events: IGameEvent[] = [
+        makeDamageEvent('o1', 300), // player dealt 300 to opponent unit
+        makeDamageEvent('p1', 100), // opponent dealt 100 to player unit
+        makeDamageEvent('p2', 100), // opponent dealt 100 to player unit
+      ];
+      const input = createMockInput(state, config, events);
 
       const outcome = calculateGameOutcome(input);
 
@@ -170,7 +217,7 @@ describe('GameOutcomeCalculator', () => {
       expect(outcome.opponentUnitsSurviving).toBe(1);
     });
 
-    it('should handle turn limit with opponent advantage', () => {
+    it('should handle turn limit with opponent advantage (damage delta beyond 5%)', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
         [
@@ -180,7 +227,13 @@ describe('GameOutcomeCalculator', () => {
         10,
       );
       const config = createMockConfig(10);
-      const input = createMockInput(state, config);
+      const events: IGameEvent[] = [
+        // Opponent dealt more damage → opponent wins under D3 rule.
+        makeDamageEvent('p1', 300),
+        makeDamageEvent('o1', 100),
+        makeDamageEvent('o2', 100),
+      ];
+      const input = createMockInput(state, config, events);
 
       const outcome = calculateGameOutcome(input);
 

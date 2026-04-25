@@ -17,6 +17,38 @@ import {
   RangeBracket,
 } from '@/types/gameplay';
 
+/**
+ * Per `add-victory-and-post-battle-summary` design D3 + spec scenario
+ * "Turn limit with near-equal damage is draw": tolerance against which
+ * total damage delta is compared when deciding the turn-limit winner.
+ *
+ * The predicate is `|p - o| / max(p, o) <= TURN_LIMIT_DRAW_TOLERANCE`
+ * with a `max === 0` short-circuit to draw (both sides dealt zero
+ * damage). Codified as an exported constant so the
+ * `GameOutcomeCalculator`, UI labels, and tests all read the same
+ * number.
+ */
+export const TURN_LIMIT_DRAW_TOLERANCE = 0.05;
+
+/**
+ * Per `add-victory-and-post-battle-summary` design D3: pure predicate
+ * answering "given the two sides' total damage, is this a draw under
+ * the turn-limit rule?" Centralized so the engine, the
+ * `GameOutcomeCalculator`, and tests all use one implementation. The
+ * `max === 0` guard prevents division-by-zero on zero-damage matches
+ * (spec scenario: "Turn limit with zero damage on both sides is
+ * draw").
+ */
+export function isTurnLimitDraw(
+  playerDamage: number,
+  opponentDamage: number,
+): boolean {
+  const max = Math.max(playerDamage, opponentDamage);
+  if (max === 0) return true;
+  const delta = Math.abs(playerDamage - opponentDamage) / max;
+  return delta <= TURN_LIMIT_DRAW_TOLERANCE;
+}
+
 import { type D6Roller, defaultD6Roller } from './diceTypes';
 import {
   createAttackDeclaredEvent,

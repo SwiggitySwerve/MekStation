@@ -25,6 +25,7 @@ import {
   IWeaponStatus,
   IPilotSpaSummary,
   GamePhase,
+  GameStatus,
 } from '@/types/gameplay';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { logger } from '@/utils/logger';
@@ -602,6 +603,35 @@ export function useSelectedUnit(): ISelectedUnitProjection | null {
   const state = session.currentState.units[id];
   if (!unit || !state) return null;
   return { id, unit, state };
+}
+
+// ---------------------------------------------------------------------------
+// Game-completion selector (add-victory-and-post-battle-summary D7)
+// ---------------------------------------------------------------------------
+
+/**
+ * Per `add-victory-and-post-battle-summary` design D7 + spec
+ * `game-session-management` "Game Completed Store Projection": the
+ * combat page reads this selector to decide when to redirect to the
+ * victory screen. Centralized here so the redirect logic in
+ * `/gameplay/games/[id]` is one line and the selector itself is
+ * unit-testable in isolation. Returns `true` exactly when the
+ * session's `currentState.status === GameStatus.Completed`.
+ *
+ * Selector form is a function that takes the entire store state and
+ * returns the boolean — usable directly via
+ * `useGameplayStore(selectIsGameCompleted)` in components.
+ */
+export const selectIsGameCompleted = (state: {
+  session: IGameSession | null;
+}): boolean => state.session?.currentState.status === GameStatus.Completed;
+
+/**
+ * Hook form of `selectIsGameCompleted` for components that prefer
+ * the named-hook idiom over passing the selector directly.
+ */
+export function useIsGameCompleted(): boolean {
+  return useGameplayStore(selectIsGameCompleted);
 }
 
 // ---------------------------------------------------------------------------
