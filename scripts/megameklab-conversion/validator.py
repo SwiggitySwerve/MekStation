@@ -1,10 +1,23 @@
 import os
 import json
-import psycopg2
-import psycopg2.extras
 import re
-from jsonschema import validate, exceptions as jsonschema_exceptions, RefResolver
 from pathlib import Path
+
+# psycopg2 is only needed by the legacy PostgreSQL helpers below
+# (``get_db_connection``, ``fetch_unit_by_id``, ``fetch_validation_options``).
+# The cross-language schema-bridge CLI added at the bottom of the file
+# (PR-A1) does NOT need psycopg2, and the deprecated PostgreSQL flow has
+# been superseded by the SQLite migration. Make the import optional so
+# ``python validator.py --strict`` works without psycopg2 installed.
+try:
+    import psycopg2
+    import psycopg2.extras
+    _HAS_PSYCOPG2 = True
+except ImportError:  # pragma: no cover — legacy fallback
+    psycopg2 = None  # type: ignore[assignment]
+    _HAS_PSYCOPG2 = False
+
+from jsonschema import validate, exceptions as jsonschema_exceptions, RefResolver
 
 # --- Database Connection Parameters ---
 DB_HOST = os.environ.get("DB_HOST", "localhost")
@@ -14,7 +27,13 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD", "password")
 
 # --- Helper Functions ---
 def get_db_connection():
-    """Establishes and returns a database connection."""
+    """Establishes and returns a database connection (legacy PostgreSQL flow)."""
+    if not _HAS_PSYCOPG2:
+        print(
+            "Error: psycopg2 not installed. The legacy PostgreSQL flow is "
+            "deprecated; use the SQLite migration under mekstation-app/data/."
+        )
+        return None
     conn = None
     try:
         conn = psycopg2.connect(
@@ -257,3 +276,65 @@ def validate_unit_data(db_unit_row, validation_options, equipment_data_map, base
         if legality_errors: all_errors_warnings.extend([f"[Legality] {e}" for e in legality_errors])
 
     return all_errors_warnings
+
+
+# ---------------------------------------------------------------------------
+# CLI entry point (cross-language schema-bridge, PR-A1)
+# ---------------------------------------------------------------------------
+# Historically this module was only ever imported by ``run_validation.py``
+# (the deprecated PostgreSQL flow). PR-A1 adds a thin CLI so ``validator.py``
+# can be invoked directly with ``--strict`` for ad-hoc / CI use:
+#
+#     python scripts/megameklab-conversion/validator.py --strict --shape weapon
+#
+# The CLI delegates straight to ``run_schema_validation_only.main`` — it
+# is just an alternate alias so callers used to "run validator.py" find
+# the new gate without having to learn a new file name. Without
+# ``--strict`` the script exits 0 even when the corpus has drift.
+def _run_cli() -> int:
+    import argparse  # local import: keep module-level imports unchanged
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run the cross-language schema-bridge validator over the "
+            "equipment corpus. Wraps run_schema_validation_only.py so "
+            "callers can invoke validator.py directly."
+        ),
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Exit non-zero on any conformance failure.",
+    )
+    parser.add_argument(
+        "--shape",
+        action="append",
+        default=None,
+        help=(
+            "Shape(s) to validate. Repeatable. Defaults to ['weapon'] in "
+            "PR-A1; pass --shape all once PR-A2 has fixed corpus drift."
+        ),
+    )
+    args = parser.parse_args()
+
+    # Defer to run_schema_validation_only by mutating sys.argv. This is
+    # uglier than importing main() and passing args, but main() takes no
+    # args today and rebuilding the script's argparse here would
+    # duplicate the spec. Better one ugly trampoline than two CLIs.
+    import sys
+    forwarded = ["run_schema_validation_only.py"]
+    if args.strict:
+        forwarded.append("--strict")
+    for shape in args.shape or []:
+        forwarded.extend(["--shape", shape])
+    sys.argv = forwarded
+
+    # Import lazily so the legacy ``import validator`` from
+    # ``run_validation.py`` doesn't pay the cost.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from run_schema_validation_only import main as _main  # noqa: WPS433
+    return _main()
+
+
+if __name__ == "__main__":
+    import sys as _sys
+    _sys.exit(_run_cli())

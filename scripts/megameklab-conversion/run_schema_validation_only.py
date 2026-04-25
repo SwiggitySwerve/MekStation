@@ -1,108 +1,242 @@
-import os
+"""
+run_schema_validation_only.py — corpus conformance harness for the
+cross-language schema bridge.
+
+Walks the equipment-data corpus under
+``public/data/equipment/official/<shape>/*.json`` and validates every
+``items[]`` entry against the canonical JSON Schemas via
+``schema_gate.py``. Used by the ``schema-bridge`` CI job.
+
+Modes:
+  - ``--shape weapon`` (default) — only validate weapon shape; PR-A1 is
+    weapon-pilot only. Repeat the flag to enable additional shapes; use
+    ``--shape all`` to enable every shape ``schema_gate`` knows.
+  - ``--strict`` — exit code 1 on any conformance failure. Without
+    ``--strict`` the script reports failure counts but always exits 0,
+    which is what PR-A1 wants (corpus is known to have ~6 drift items
+    that PR-A2 will fix).
+
+Output:
+  - Human-readable summary printed to stdout.
+  - ``validation-output/schema-bridge-report.json`` written for CI logs
+    and follow-up analysis. Each entry contains ``file``, ``id``, and
+    the list of failure messages.
+
+This script replaces a much earlier PostgreSQL-flavoured stub (which
+referenced a no-longer-existing ``schemas/`` directory and an old
+``validator.py`` import path). The historical version validated the
+mekfiles tree against per-unit-type schemas; that flow has been
+superseded by the SQLite migration and the cross-language schema bridge,
+so the file is repurposed here. Anything that needs the legacy mekfiles
+walk should use the SQLite-side validator at ``mekstation-app/data/``.
+"""
+
+from __future__ import annotations
+
+import argparse
 import json
-from pathlib import Path
+import os
 import sys
+from pathlib import Path
+from typing import Dict, List
 
-# Ensure validator.py can be imported.
-# Assuming validator.py is in the same directory or accessible via PYTHONPATH.
-# If run_validation.py and validator.py are in the root, this should work.
-sys.path.append(os.getcwd())
-try:
-    from validator import validate_schema_compliance, load_json_schema # Corrected import
-except ImportError as e:
-    print(f"Failed to import from validator.py: {e}")
-    print("Ensure validator.py is in the current working directory or accessible via PYTHONPATH.")
-    sys.exit(1)
+# Ensure ``schema_gate`` resolves regardless of how the script is
+# invoked (from repo root, from the script directory, or via CI).
+_SCRIPT_DIR = Path(__file__).resolve().parent
+if str(_SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_DIR))
 
-CONVERTED_MEKFILES_DIR = "megameklab_converted_output/mekfiles"
-SCHEMAS_DIR = "schemas"
-OUTPUT_REPORT_FILE = "schema_validation_report.json"
+from schema_gate import SHAPE_VALIDATORS  # noqa: E402
 
-def determine_unit_type_from_path(file_path: Path, base_mekfiles_dir: Path) -> str:
+_REPO_ROOT = _SCRIPT_DIR.parent.parent
+_EQUIPMENT_ROOT = _REPO_ROOT / "public" / "data" / "equipment" / "official"
+
+# Map each schema-gate shape -> the on-disk subdirectory + filename glob
+# that holds its corpus. Some shapes (``unit``) live elsewhere; we leave
+# them out of PR-A1's reach so the harness stays focused on equipment.
+SHAPE_TO_CORPUS = {
+    "weapon": ("weapons", "*.json"),
+    "ammunition": ("ammunition", "*.json"),
+    "electronics": ("electronics", "*.json"),
+    "misc_equipment": ("miscellaneous", "*.json"),
+    # `physical` lives inside `weapons/physical.json` — handled below.
+    "physical_weapon": ("weapons", "physical.json"),
+}
+
+# Files inside the weapons directory that DO NOT match weapon-schema.json
+# (they belong to the physical_weapon shape). Excluded from the weapon
+# walk so we don't mis-attribute drift.
+_WEAPON_EXCLUSIONS = {"physical.json"}
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Validate equipment JSON corpus against the canonical JSON Schemas.",
+    )
+    parser.add_argument(
+        "--shape",
+        action="append",
+        default=None,
+        help=(
+            "Shape(s) to validate. Repeatable. Defaults to ['weapon']. "
+            "Use --shape all to validate every supported shape. "
+            f"Valid shapes: {sorted(SHAPE_TO_CORPUS)}."
+        ),
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Exit non-zero if any item fails validation.",
+    )
+    parser.add_argument(
+        "--report-path",
+        default=str(_REPO_ROOT / "validation-output" / "schema-bridge-report.json"),
+        help="Where to write the JSON report.",
+    )
+    return parser.parse_args()
+
+
+def resolve_shapes(requested: List[str] | None) -> List[str]:
+    """Resolve the --shape arg into a concrete list, defaulting to weapon."""
+    if not requested:
+        return ["weapon"]
+    if "all" in requested:
+        return sorted(SHAPE_TO_CORPUS)
+    unknown = [s for s in requested if s not in SHAPE_TO_CORPUS]
+    if unknown:
+        raise SystemExit(
+            f"run_schema_validation_only: unknown shape(s) {unknown}; "
+            f"valid shapes: {sorted(SHAPE_TO_CORPUS)}"
+        )
+    return requested
+
+
+def collect_files(shape: str) -> List[Path]:
+    """Return the list of corpus files for ``shape``."""
+    subdir, glob = SHAPE_TO_CORPUS[shape]
+    base = _EQUIPMENT_ROOT / subdir
+    if not base.is_dir():
+        return []
+    files = sorted(base.glob(glob))
+    if shape == "weapon":
+        files = [p for p in files if p.name not in _WEAPON_EXCLUSIONS]
+    return files
+
+
+def validate_shape(shape: str) -> Dict[str, List[Dict[str, object]]]:
     """
-    Determines unit type based on the first subdirectory within the base_mekfiles_dir.
-    Example: megameklab_converted_output/mekfiles/meks/somefile.json -> meks
+    Validate every item in every file of ``shape``. Returns a dict
+    keyed by relative file path; values are a list of per-item failure
+    records. Files with zero failures are still included with an empty
+    list so the report distinguishes "validated, all-clean" from
+    "skipped".
     """
-    try:
-        relative_path = file_path.relative_to(base_mekfiles_dir)
-        # The first part of the relative path should be the unit type directory
-        if relative_path.parts:
-            return relative_path.parts[0]
-    except ValueError:
-        # This can happen if file_path is not under base_mekfiles_dir, though it shouldn't in this script's logic.
-        pass
-    return "unknown" # Default or fallback
+    validator = SHAPE_VALIDATORS[shape]
+    out: Dict[str, List[Dict[str, object]]] = {}
+    files = collect_files(shape)
+    if not files:
+        print(f"  WARN: no corpus files for shape={shape} under {_EQUIPMENT_ROOT}")
+        return out
 
-def main():
-    print(f"Starting schema-only validation of files in: {CONVERTED_MEKFILES_DIR}")
-    print(f"Using schemas from: {SCHEMAS_DIR}")
+    for fpath in files:
+        rel = str(fpath.relative_to(_REPO_ROOT)).replace(os.sep, "/")
+        try:
+            with fpath.open(encoding="utf-8") as fh:
+                data = json.load(fh)
+        except json.JSONDecodeError as e:
+            out[rel] = [{"id": "<file>", "errors": [f"JSON decode error: {e}"]}]
+            continue
 
-    base_mekfiles_path = Path(CONVERTED_MEKFILES_DIR)
-    if not base_mekfiles_path.is_dir():
-        print(f"Error: Converted mekfiles directory not found: {CONVERTED_MEKFILES_DIR}")
-        return
+        items = data.get("items") if isinstance(data, dict) else None
+        if not isinstance(items, list):
+            out[rel] = [
+                {"id": "<file>", "errors": ["File missing 'items' array."]}
+            ]
+            continue
 
-    if not Path(SCHEMAS_DIR).is_dir():
-        print(f"Error: Schemas directory not found: {SCHEMAS_DIR}")
-        return
+        failures: List[Dict[str, object]] = []
+        for index, item in enumerate(items):
+            errors = validator(item)
+            if errors:
+                failures.append(
+                    {
+                        "index": index,
+                        "id": (item.get("id") if isinstance(item, dict) else None),
+                        "errors": errors,
+                    }
+                )
+        out[rel] = failures
+    return out
 
-    validation_results = {}
-    files_processed = 0
-    files_with_errors = 0
 
-    for dirpath, _, filenames in os.walk(base_mekfiles_path):
-        for filename in filenames:
-            if filename.endswith(".json") and filename not in ["derivedEquipment.json", "UnitVerifierOptions.json"]:
-                filepath = Path(dirpath) / filename
-                unit_id_for_report = str(filepath.relative_to(base_mekfiles_path))
-                files_processed += 1
+def main() -> int:
+    args = parse_args()
+    shapes = resolve_shapes(args.shape)
 
-                if files_processed % 500 == 0:
-                    print(f"Processed {files_processed} files...")
+    print("schema-bridge: corpus conformance check")
+    print(f"  shapes:   {shapes}")
+    print(f"  strict:   {args.strict}")
+    print(f"  root:     {_EQUIPMENT_ROOT}")
+    print()
 
-                unit_type = determine_unit_type_from_path(filepath, base_mekfiles_path)
-                if unit_type == "unknown":
-                    validation_results[unit_id_for_report] = [f"Validator Error: Could not determine unit_type for {filepath}"]
-                    files_with_errors += 1
-                    continue
+    report: Dict[str, Dict[str, List[Dict[str, object]]]] = {}
+    total_files = 0
+    total_items = 0
+    total_failures = 0
 
-                try:
-                    with open(filepath, 'r', encoding='utf-8') as f:
-                        unit_json_data = json.load(f)
-                except json.JSONDecodeError as e:
-                    validation_results[unit_id_for_report] = [f"JSON Decode Error: {e}"]
-                    files_with_errors += 1
-                    continue
-                except Exception as e:
-                    validation_results[unit_id_for_report] = [f"File Read Error: {e}"]
-                    files_with_errors += 1
-                    continue
+    for shape in shapes:
+        shape_results = validate_shape(shape)
+        report[shape] = shape_results
+        for rel, failures in shape_results.items():
+            total_files += 1
+            # We need the item count for the summary; reread the file
+            # cheaply (it was already JSON-parsed during validation, but
+            # the parsed object is not retained to keep memory bounded).
+            try:
+                with (_REPO_ROOT / rel).open(encoding="utf-8") as fh:
+                    data = json.load(fh)
+                total_items += len(data.get("items") or [])
+            except Exception:
+                pass
+            total_failures += len(failures)
+            failure_count = len(failures)
+            status = "OK" if failure_count == 0 else f"FAIL ({failure_count})"
+            print(f"  [{shape}] {rel}: {status}")
 
-                # Ensure unit_json_data is a dict, as expected by validate_schema_compliance
-                if not isinstance(unit_json_data, dict):
-                    validation_results[unit_id_for_report] = [f"Validator Error: Unit data is not a JSON object (dict). Found type: {type(unit_json_data)}"]
-                    files_with_errors +=1
-                    continue
+    # Always write the report so CI logs can attach it as an artifact.
+    report_path = Path(args.report_path)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with report_path.open("w", encoding="utf-8") as fh:
+        json.dump(
+            {
+                "shapes": shapes,
+                "totals": {
+                    "files": total_files,
+                    "items": total_items,
+                    "failures": total_failures,
+                },
+                "results": report,
+            },
+            fh,
+            indent=2,
+            ensure_ascii=False,
+        )
 
-                errors = validate_schema_compliance(unit_json_data, unit_type, SCHEMAS_DIR)
-                if errors:
-                    validation_results[unit_id_for_report] = errors
-                    files_with_errors += 1
+    print()
+    print("--- Summary ---")
+    print(f"  files:    {total_files}")
+    print(f"  items:    {total_items}")
+    print(f"  failures: {total_failures}")
+    print(f"  report:   {report_path}")
 
-    print(f"Saving schema validation report to {OUTPUT_REPORT_FILE}...")
-    try:
-        with open(OUTPUT_REPORT_FILE, 'w', encoding='utf-8') as f:
-            json.dump(validation_results, f, indent=2, ensure_ascii=False)
-        print("Schema validation report saved.")
-    except Exception as e:
-        print(f"Error saving schema validation report: {e}")
+    if total_failures > 0 and args.strict:
+        print(
+            "\nschema-bridge: --strict mode triggered; corpus has "
+            f"{total_failures} item(s) failing canonical schemas."
+        )
+        return 1
+    return 0
 
-    print("\n--- Schema Validation Summary ---")
-    print(f"Total JSON files processed (excluding derivedEquipment & UnitVerifierOptions): {files_processed}")
-    print(f"Files with schema errors or processing issues: {files_with_errors}")
-    if files_processed > 0:
-        error_rate = (files_with_errors / files_processed) * 100
-        print(f"Error rate: {error_rate:.2f}%")
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
