@@ -1,12 +1,12 @@
 /**
  * Post-Battle Report Derivation
  *
- * Pure function that walks the session's event log and derives the
+ * Pure function that walks the session event log and derives the
  * after-action report (per-unit damage dealt/received, kills, heat
  * problems, MVP nomination). Schema is versioned so Phase 3 campaign
  * integration can extend it without losing stored Phase 1 records.
  *
- * @spec openspec/changes/add-victory-and-post-battle-summary/tasks.md § 4, § 8
+ * @spec openspec/changes/add-victory-and-post-battle-summary/tasks.md sec 4, sec 8
  */
 
 import type {
@@ -15,20 +15,18 @@ import type {
   IGameEndedPayload,
   IGameEvent,
   IGameSession,
-  IHeatPayload,
   IPhysicalAttackResolvedPayload,
+  IShutdownCheckPayload,
   IUnitDestroyedPayload,
 } from '@/types/gameplay';
 
 import { GameEventType } from '@/types/gameplay';
 
-/** Schema version literal — bump on breaking changes to the report. */
+/** Schema version literal -- bump on breaking changes to the report. */
 export type PostBattleReportVersion = 1;
 
 /**
- * Per-unit summary captured in the after-action report. Damage totals
- * include both player and opponent units; presentation layer filters
- * by side.
+ * Per-unit summary captured in the after-action report.
  */
 export interface IUnitReport {
   readonly unitId: string;
@@ -37,11 +35,16 @@ export interface IUnitReport {
   readonly damageDealt: number;
   readonly damageReceived: number;
   readonly kills: number;
-  /** Number of heat-generation events that pushed the unit ≥ 14. */
+  /**
+   * Per add-victory-and-post-battle-summary design D3: count of
+   * ShutdownCheck events for this unit during the match. Each
+   * shutdown check fires when post-event heat required an
+   * avoid-shutdown PSR (or a forced shutdown).
+   */
   readonly heatProblems: number;
   /** Count of physical attacks declared by this unit. */
   readonly physicalAttacks: number;
-  /** XP integration is Phase 3 — placeholder flag for the UI. */
+  /** XP integration is Phase 3 -- placeholder flag for the UI. */
   readonly xpPending: true;
 }
 
@@ -58,13 +61,10 @@ export interface IPostBattleReport {
   readonly log: readonly IGameEvent[];
 }
 
-const HEAT_PROBLEM_THRESHOLD = 14;
-
 /**
- * Per task 8: MVP is the unit with highest `damageDealt` on the
- * winning side. Ties broken by lowest `damageReceived`, then
- * alphabetical designation. Returns null when no winner-side unit
- * dealt damage (e.g., turn-limit + zero-damage draw).
+ * Per task 8 + design D6: MVP picker with deterministic tie-break.
+ * Final tie-break is lexicographic unitId so duplicate-chassis sides
+ * (two Atlas AS7-D) pick a stable winner regardless of input order.
  */
 function pickMvp(
   units: readonly IUnitReport[],
@@ -79,22 +79,19 @@ function pickMvp(
       if (a.damageReceived !== b.damageReceived) {
         return a.damageReceived - b.damageReceived;
       }
-      return a.designation.localeCompare(b.designation);
+      const designationCompare = a.designation.localeCompare(b.designation);
+      if (designationCompare !== 0) return designationCompare;
+      return a.unitId.localeCompare(b.unitId);
     });
   return candidates[0]?.unitId ?? null;
 }
 
 /**
- * Derive the post-battle report from a session. The session SHOULD be
- * Completed (have a `GameEnded` event) but the function works on
- * mid-match sessions for testing / preview — `winner`/`reason` come
- * from the GameEnded event when present, otherwise default to 'draw' /
- * 'destruction'.
+ * Derive the post-battle report from a session.
  */
 export function derivePostBattleReport(
   session: IGameSession,
 ): IPostBattleReport {
-  // 1. Build per-unit zeroed reports keyed by id.
   const reports = new Map<string, IUnitReport>();
   for (const unit of session.units) {
     reports.set(unit.id, {
@@ -110,10 +107,7 @@ export function derivePostBattleReport(
     });
   }
 
-  // 2. Walk the log to accumulate per-unit stats.
-  // Track each AttackResolved's attackerId + targetId so we can credit
-  // the subsequent DamageApplied to the right attacker.
-  const damageAttribution = new Map<string, string>(); // targetId → attackerId for last unattributed attack
+  const damageAttribution = new Map<string, string>();
   for (const event of session.events) {
     if (event.type === GameEventType.AttackResolved) {
       const p = event.payload as { attackerId: string; targetId: string };
@@ -155,16 +149,14 @@ export function derivePostBattleReport(
       }
       continue;
     }
-    if (event.type === GameEventType.HeatGenerated) {
-      const p = event.payload as IHeatPayload;
-      if (p.newTotal >= HEAT_PROBLEM_THRESHOLD) {
-        const unit = reports.get(p.unitId);
-        if (unit) {
-          reports.set(p.unitId, {
-            ...unit,
-            heatProblems: unit.heatProblems + 1,
-          });
-        }
+    if (event.type === GameEventType.ShutdownCheck) {
+      const p = event.payload as IShutdownCheckPayload;
+      const unit = reports.get(p.unitId);
+      if (unit) {
+        reports.set(p.unitId, {
+          ...unit,
+          heatProblems: unit.heatProblems + 1,
+        });
       }
       continue;
     }
@@ -181,7 +173,6 @@ export function derivePostBattleReport(
     }
   }
 
-  // 3. Extract winner / reason from GameEnded event.
   const ended = session.events.find((e) => e.type === GameEventType.GameEnded);
   const endedPayload = ended?.payload as IGameEndedPayload | undefined;
   const winner = endedPayload?.winner ?? 'draw';
@@ -203,8 +194,7 @@ export function derivePostBattleReport(
 }
 
 /**
- * Per task 7: human-readable label for a victory reason. Externalized
- * here so future localization can swap the table.
+ * Per task 7: human-readable label for a victory reason.
  */
 export function victoryReasonLabel(
   reason: IPostBattleReport['reason'],
