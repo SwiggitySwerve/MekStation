@@ -518,6 +518,12 @@ export function adaptUnitFromData(
     hexesMovedThisTurn: 0,
     armor,
     structure,
+    // Per `add-bot-retreat-behavior` § 2 (Trigger A): seed the retreat
+    // baseline with a copy of the starting structure values so the trigger
+    // can compute the spec-mandated points-of-internal-structure ratio
+    // `sum(starting - current) / sum(starting)`. We deep-copy via spread
+    // to avoid aliasing the runtime structure record.
+    startingInternalStructure: { ...structure },
     destroyedLocations: [],
     destroyedEquipment: [],
     ammo,

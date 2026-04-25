@@ -1196,6 +1196,19 @@ export interface IUnitGameState {
   readonly armor: Record<string, number>;
   /** Structure remaining per location */
   readonly structure: Record<string, number>;
+  /**
+   * Per `add-bot-retreat-behavior` § 2 (Trigger A): starting internal-structure
+   * points per location, captured at session creation. Used by the retreat
+   * trigger to compute `sum(starting - current) / sum(starting)` — the
+   * spec-mandated points-of-internal-structure ratio (NOT the legacy
+   * count-of-destroyed-locations ratio).
+   *
+   * Optional for backward compat: when missing or empty, callers fall back
+   * to the legacy ratio. Producers (CompendiumAdapter, session builders)
+   * SHALL seed this with the unit's full starting internal structure so
+   * the trigger fires at the correct damage threshold.
+   */
+  readonly startingInternalStructure?: Record<string, number>;
   /** Destroyed locations */
   readonly destroyedLocations: readonly string[];
   /** Destroyed equipment */

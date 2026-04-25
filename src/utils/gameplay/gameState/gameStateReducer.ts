@@ -271,8 +271,13 @@ function getSurvivingUnitsForSide(
   state: IGameState,
   side: GameSide,
 ): readonly IUnitGameState[] {
+  // Per `add-bot-retreat-behavior` § 7.4: a unit that has emitted
+  // `UnitRetreated` (i.e., crossed a map edge during retreat) is
+  // considered withdrawn and SHALL NOT count toward its side's
+  // remaining-unit total — even though `destroyed` stays false so that
+  // post-battle summaries can distinguish withdrawal from combat loss.
   return Object.values(state.units).filter(
-    (unit) => !unit.destroyed && unit.side === side,
+    (unit) => !unit.destroyed && !unit.hasRetreated && unit.side === side,
   );
 }
 

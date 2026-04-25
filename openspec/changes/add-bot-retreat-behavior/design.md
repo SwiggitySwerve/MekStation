@@ -218,6 +218,40 @@ Fifteen tasks in `tasks.md` are checked `[x]` — but several of those checkmark
 - 6.3 (skip physical attacks — early return missing in `playPhysicalAttackPhase`)
 - 6.4 / 7.1–7.5 / 8.2–8.5 (event emission, removal, edge cases — most untouched)
 
+## Decisions discovered during execution
+
+### Decision: Structure-points baseline propagated via `IUnitGameState.startingInternalStructure`
+
+**Choice**: Add an optional `startingInternalStructure: Record<string, number>` field on `IUnitGameState`. Seed it from `CompendiumAdapter.adaptUnitFromData` (production path) AND bootstrap it on first damage via `applyDamageApplied` (legacy / fixture path). `BotPlayer.computeRetreatSignals` then computes the spec-mandated `sum(starting - current) / sum(starting)` ratio.
+
+**Rationale**: The spec mandates a points-of-IS ratio but neither tonnage nor a separate "max structure" lived on the engine state. Adding a starting baseline that travels with the unit was the lowest-friction path: callers that have catalog data seed it explicitly; callers that don't get a usable baseline captured at the moment of first damage. Without this, the only computable ratio was 0/0 and the structural trigger would never fire correctly.
+
+**Discovered during**: Tasks 1.2, 2.2, 2.5.
+
+### Decision: `UnitRetreated` emission lives at the engine wiring layer
+
+**Choice**: `BotPlayer.playMovementPhase` continues to return only `MovementDeclared`. `GameEngine.phases.runMovementPhase` AND `InteractiveSession.runAITurn` both invoke `RetreatAI.hasReachedEdge` after `lockMovement(...)` and emit `UnitRetreated` directly via `appendEvent + createUnitRetreatedEvent`.
+
+**Rationale**: `BotPlayer` is intentionally pure — it has no session reference, no game ID, no sequence counter. Pushing event emission into the engine layer keeps `BotPlayer` orthogonal to event infrastructure and mirrors how `RetreatTriggered` is already emitted (the bot returns a payload-only event; the engine wraps and appends it). Both phase drivers (autonomous + interactive) achieve parity by calling the same `hasReachedEdge` helper.
+
+**Discovered during**: Tasks 7.2, 7.3, 8.2, 8.4.
+
+### Decision: `hasRetreated` excludes from victory check; `destroyed` stays false
+
+**Choice**: `applyUnitRetreated` sets `hasRetreated: true` only — does NOT also flip `destroyed: true`. `getSurvivingUnitsForSide` (the victory-check predicate) is updated to filter on `!destroyed && !hasRetreated`, so retreated units don't count toward side totals while staying semantically distinct from combat losses.
+
+**Rationale**: The spec says "treat as destroyed for victory-check purposes but distinguish from combat destruction". Overloading `destroyed` with a sub-discriminator would force every consumer to re-classify; keeping the two flags independent and updating the single victory predicate is cleaner. Post-battle summaries (sibling spec) can render `hasRetreated && !destroyed` as "withdrawn" without ambiguity.
+
+**Discovered during**: Tasks 7.4, 7.5.
+
+### Decision: Arc filter via torso-twist suppression in `playAttackPhase`
+
+**Choice**: When `attacker.isRetreating === true`, `BotPlayer.playAttackPhase` builds a clone with `torsoTwist: undefined` and passes that to `AttackAI.selectWeapons`. The existing arc-filter inside `selectWeapons` keys off `attacker.facing + torsoTwist`, so suppressing the twist forces weapon selection through the unit's true forward facing.
+
+**Rationale**: Single-point intervention — no parallel "filter weapons by retreat" code path needed. The existing arc machinery handles the rear-mount edge case automatically (rear-mounted weapons match a rear target's relative arc regardless of twist), satisfying the spec scenario "rear-mounted weapons cover the escape vector".
+
+**Discovered during**: Tasks 6.2, 6.4.
+
 ## Open Questions (Deferred)
 
 - Should the retreat trigger include a "morale" damper that prevents triggering on the very first turn (e.g., a Glass Jaw mech at 0% structure shouldn't retreat before firing once)? Current spec says no — first-turn retreat is valid if structural damage exceeds threshold. Keeping spec as-is for Phase 1.

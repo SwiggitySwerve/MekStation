@@ -33,6 +33,24 @@ export function applyDamageApplied(
   const newArmor = { ...unit.armor };
   const newStructure = { ...unit.structure };
 
+  // Per `add-bot-retreat-behavior` § 2 (Trigger A): bootstrap the retreat
+  // baseline. If a producer didn't seed `startingInternalStructure` for
+  // this location yet, capture the pre-damage value as the starting
+  // baseline. The first damage event for a location is the canonical
+  // moment to lock the starting points — by definition the location was
+  // at full structure before this hit. After bootstrap the value is
+  // immutable for the rest of the match (subsequent damage updates
+  // `structure`, never `startingInternalStructure`).
+  const newStartingStructure: Record<string, number> = {
+    ...(unit.startingInternalStructure ?? {}),
+  };
+  if (newStartingStructure[payload.location] === undefined) {
+    const preDamage = unit.structure[payload.location];
+    if (typeof preDamage === 'number') {
+      newStartingStructure[payload.location] = preDamage;
+    }
+  }
+
   newArmor[payload.location] = payload.armorRemaining;
   newStructure[payload.location] = payload.structureRemaining;
 
@@ -56,6 +74,7 @@ export function applyDamageApplied(
     ...unit,
     armor: newArmor,
     structure: newStructure,
+    startingInternalStructure: newStartingStructure,
     destroyedLocations: newDestroyedLocations,
     destroyedEquipment: payload.criticals
       ? [...unit.destroyedEquipment, ...payload.criticals]
