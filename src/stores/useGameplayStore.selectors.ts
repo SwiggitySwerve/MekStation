@@ -1,55 +1,28 @@
 /**
- * Selector hooks + projections for `useGameplayStore`.
+ * Pure selector functions + projection types for `useGameplayStore`.
  *
  * Pulled out of the main store file so the per-file LOC budget stays
- * under the lint warning threshold. Public API surface
- * (`useSelectedUnit`, `useIsGameCompleted`, `selectIsGameCompleted`,
- * `ISelectedUnitProjection`) is unchanged — the same names still
- * import cleanly from `@/stores/useGameplayStore` thanks to a
- * re-export in the main store file.
+ * under the lint warning threshold. Kept as pure functions (no
+ * `useGameplayStore` import) to avoid a circular module dep — the
+ * hook wrappers (`useSelectedUnit`, `useIsGameCompleted`) live in the
+ * main store file and call into these selectors.
  */
 
 import type { IGameSession, IGameUnit, IUnitGameState } from '@/types/gameplay';
 
 import { GameStatus } from '@/types/gameplay';
 
-import { useGameplayStore } from './useGameplayStore';
-
 /**
- * Per `add-interactive-combat-core-ui` task 2.4: derived selector that
- * projects the currently selected unit's full record (config-side
- * `IGameUnit` + live `IUnitGameState`) so consumers don't need to
- * re-derive by id from `currentState.units` + `session.units` on every
- * render.
- *
- * Returns `null` when no unit is selected, the session is missing, or
- * the selected id no longer exists (e.g., unit destroyed and removed
- * from state).
+ * Per `add-interactive-combat-core-ui` task 2.4: derived projection
+ * shape combining the config-side `IGameUnit` with the live
+ * `IUnitGameState`. Returned by `useSelectedUnit` so consumers don't
+ * need to re-derive by id from `currentState.units` + `session.units`
+ * on every render.
  */
 export interface ISelectedUnitProjection {
   readonly id: string;
   readonly unit: IGameUnit;
   readonly state: IUnitGameState;
-}
-
-/**
- * Implementation note: this hook returns a fresh object each call,
- * which would cause an infinite render loop with Zustand's default
- * reference-equality selector. We sidestep that by selecting the three
- * primitives (id / session / units record) separately and combining
- * them via plain reads — each primitive read uses Zustand's own
- * shallow-equality so re-renders only fire when the specific input
- * changes.
- */
-export function useSelectedUnit(): ISelectedUnitProjection | null {
-  const id = useGameplayStore((s) => s.ui.selectedUnitId);
-  const session = useGameplayStore((s) => s.session);
-
-  if (!id || !session) return null;
-  const unit = session.units.find((u) => u.id === id);
-  const state = session.currentState.units[id];
-  if (!unit || !state) return null;
-  return { id, unit, state };
 }
 
 /**
@@ -70,9 +43,24 @@ export const selectIsGameCompleted = (state: {
 }): boolean => state.session?.currentState.status === GameStatus.Completed;
 
 /**
- * Hook form of `selectIsGameCompleted` for components that prefer
- * the named-hook idiom over passing the selector directly.
+ * Project the currently-selected unit (or `null`) from the relevant
+ * store fields. Pure helper so the hook wrapper can compose the three
+ * Zustand selector reads (`id`, `session`, etc.) and combine them
+ * outside of an effectful render.
+ *
+ * Returns `null` when:
+ *   - no unit is selected,
+ *   - the session is missing,
+ *   - or the selected id no longer exists (e.g., unit destroyed and
+ *     removed from `currentState.units`).
  */
-export function useIsGameCompleted(): boolean {
-  return useGameplayStore(selectIsGameCompleted);
+export function projectSelectedUnit(
+  id: string | null,
+  session: IGameSession | null,
+): ISelectedUnitProjection | null {
+  if (!id || !session) return null;
+  const unit = session.units.find((u) => u.id === id);
+  const state = session.currentState.units[id];
+  if (!unit || !state) return null;
+  return { id, unit, state };
 }

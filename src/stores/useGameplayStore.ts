@@ -65,6 +65,11 @@ import {
   toggleWeaponLogic,
 } from './useGameplayStore.interactions';
 import {
+  projectSelectedUnit,
+  selectIsGameCompleted,
+  type ISelectedUnitProjection,
+} from './useGameplayStore.selectors';
+import {
   createDemoSessionLogic,
   loadSessionLogic,
   setInteractiveSessionLogic,
@@ -72,14 +77,13 @@ import {
   type SpectatorMode,
 } from './useGameplayStore.session';
 
-export { InteractivePhase };
-export type { IAttackPlan, IPlannedMovement, SpectatorMode };
-export {
-  selectIsGameCompleted,
-  useIsGameCompleted,
-  useSelectedUnit,
-  type ISelectedUnitProjection,
-} from './useGameplayStore.selectors';
+export { InteractivePhase, selectIsGameCompleted };
+export type {
+  IAttackPlan,
+  IPlannedMovement,
+  ISelectedUnitProjection,
+  SpectatorMode,
+};
 
 // =============================================================================
 // Types
@@ -365,6 +369,30 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   // weapon-picker subscribes via the `previewEnabled` selector.
   setPreviewEnabled: (enabled) => set({ previewEnabled: enabled }),
 }));
+
+// ---------------------------------------------------------------------------
+// Selector hooks
+// ---------------------------------------------------------------------------
+
+/**
+ * Subscribe to the currently selected unit's projection. Selects the
+ * three primitives (id / session) separately so Zustand's
+ * shallow-equality only re-renders when the relevant inputs change —
+ * `projectSelectedUnit` then composes them into the projected shape.
+ */
+export function useSelectedUnit(): ISelectedUnitProjection | null {
+  const id = useGameplayStore((s) => s.ui.selectedUnitId);
+  const session = useGameplayStore((s) => s.session);
+  return projectSelectedUnit(id, session);
+}
+
+/**
+ * Hook form of `selectIsGameCompleted` for components that prefer
+ * the named-hook idiom over passing the selector directly.
+ */
+export function useIsGameCompleted(): boolean {
+  return useGameplayStore(selectIsGameCompleted);
+}
 
 // ---------------------------------------------------------------------------
 // Phase-change side effects (task 1.2)
