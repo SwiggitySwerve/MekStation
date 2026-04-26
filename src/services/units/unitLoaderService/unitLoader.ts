@@ -45,6 +45,7 @@ import {
 import { mapEquipment } from './equipmentMapping';
 import { hasSerializedUnitStructure } from './typeGuards';
 import { IRawSerializedUnit, UnitSource, ILoadUnitResult } from './types';
+import { parseUnit, UnitContractParseError } from './unitContractAdapter';
 
 /**
  * Unit Loader Service
@@ -76,9 +77,20 @@ export class UnitLoaderService {
         return { success: false, error: `Canonical unit "${id}" not found` };
       }
 
-      const state = this.mapToUnitState(fullUnit as IRawSerializedUnit, true);
+      // Schema-bridge boundary: route the fetched JSON through `parseUnit`
+      // so any drift between the on-disk shape and `UnitContract` surfaces
+      // here with a Zod issue path instead of silently producing a
+      // malformed `UnitState` deep inside the mapper. The full BattleMech
+      // corpus is verified by `unit.contract.test.ts` so this should be
+      // a no-op for canonical data; if a hand-edited unit JSON regresses
+      // we want to know loudly.
+      const validated = parseUnit(fullUnit, `canonical:${id}`);
+      const state = this.mapToUnitState(validated, true);
       return { success: true, state };
     } catch (error) {
+      if (error instanceof UnitContractParseError) {
+        return { success: false, error: error.message };
+      }
       const message =
         error instanceof Error
           ? error.message
@@ -102,19 +114,29 @@ export class UnitLoaderService {
       }
 
       // Custom units may already be in UnitState format (saved from customizer)
-      // or in serialized format (imported)
-      // IFullUnit has [key: string]: unknown, so we can use it as ISerializedUnit if it has the right structure
+      // or in serialized format (imported). The structural pre-check stays
+      // because UnitState has a different shape (no top-level `tonnage`/
+      // `techBase` etc.) and `parseUnit` would reject it — that's the wrong
+      // failure mode for already-customizer-saved units which the loader
+      // currently silently passes through. Once UnitState gets its own
+      // contract this branch can collapse into a single parse.
       if (!hasSerializedUnitStructure(fullUnit)) {
         return {
           success: false,
           error: 'Custom unit data is not in serialized format',
         };
       }
-      // Type assertion is safe here because we've verified the structure matches IRawSerializedUnit
-      // and IFullUnit's index signature [key: string]: unknown makes it compatible
-      const state = this.mapToUnitState(fullUnit as IRawSerializedUnit, false);
+      // Schema-bridge boundary for serialized-format custom units (the
+      // shape we just structurally narrowed to). Same drift-catch guarantee
+      // as the canonical path: any field that doesn't conform to
+      // `UnitContract` fails here with a Zod issue path.
+      const validated = parseUnit(fullUnit, `custom:${id}`);
+      const state = this.mapToUnitState(validated, false);
       return { success: true, state };
     } catch (error) {
+      if (error instanceof UnitContractParseError) {
+        return { success: false, error: error.message };
+      }
       const message =
         error instanceof Error ? error.message : 'Failed to load custom unit';
       return { success: false, error: message };

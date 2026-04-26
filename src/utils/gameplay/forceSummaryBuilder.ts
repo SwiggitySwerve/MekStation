@@ -77,9 +77,11 @@ function extractHeatSinks(unit: IFullUnit): {
   count: number;
   kind: HeatSinkKind;
 } {
-  const raw = (unit as unknown as Record<string, unknown>).heatSinks as
-    | { count?: number; type?: string }
-    | undefined;
+  // `IFullUnit` already has a `[key: string]: unknown` index signature,
+  // so reading `.heatSinks` directly yields `unknown`. The previous
+  // double-cast through `Record<string, unknown>` was a no-op — narrow
+  // straight to the optional shape we want.
+  const raw = unit.heatSinks as { count?: number; type?: string } | undefined;
   return {
     count: raw?.count ?? 10,
     kind: toHeatSinkKind(raw?.type),
@@ -88,7 +90,9 @@ function extractHeatSinks(unit: IFullUnit): {
 
 /** Pull BV from a full-unit record (sometimes present, often null). */
 function extractBattleValue(unit: IFullUnit): number {
-  const bv = (unit as unknown as Record<string, unknown>).bv;
+  // Same as above — `unit.bv` already type-narrows from the index
+  // signature without the double-cast.
+  const bv = unit.bv;
   if (typeof bv === 'number') return bv;
   return 0;
 }
