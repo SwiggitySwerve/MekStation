@@ -48,10 +48,11 @@ cross-language schema bridge introduced by PR-A1:
   `run_schema_validation_only.py`.
 
 - `blk_common.py` — adds `write_weapon_json` / `write_unit_json` /
-  `write_equipment_json` choke points. Validation runs only when
-  `MEKSTATION_VALIDATE_WRITES=1` is set in the environment. PR-A1
-  ships this opt-in; PR-A2 will flip it on by default once corpus
-  drift is patched.
+  `write_equipment_json` choke points. Validation is **enabled by
+  default**: every write checks the JSON Schema and raises `ValueError`
+  on drift. Set `MEKSTATION_VALIDATE_WRITES=0` (or `false`/`no`/`off`)
+  to disable for legacy data-regeneration runs that need to tolerate
+  pre-bridge drift.
 
 - `run_schema_validation_only.py` — corpus harness used by the
   `schema-bridge` CI job. Walks
@@ -88,18 +89,29 @@ print(validate_weapon({'id': 'x'}))
 "
 ```
 
-### Opt-in write-time validation
+### Write-time validation (default ON)
 
-Run any BLK / equipment writer with `MEKSTATION_VALIDATE_WRITES=1` to
-have `blk_common.write_*_json` raise `ValueError` on any drift before
-serialising:
+`blk_common.write_*_json` validates by default — every write through
+the helpers raises `ValueError` on drift before serialising. Normal
+conversion runs need no env flag:
 
 ```bash
-MEKSTATION_VALIDATE_WRITES=1 npm run convert:blk
+npm run convert:blk
 ```
 
-PR-A1 makes this opt-in so existing converter runs are not perturbed;
-PR-A2 flips the default on after corpus conformance is fixed.
+The historical opt-out is still available for legacy data-regeneration
+runs that need to bypass the gate (e.g. importing a known-bad corpus
+for diff inspection):
+
+```bash
+MEKSTATION_VALIDATE_WRITES=0 npm run convert:blk
+```
+
+Accepted disable values: `0`, `false`, `no`, `off` (case-insensitive).
+Anything else — including unset, empty, `1`, `true`, `yes`, `on` — keeps
+validation enabled. The default flipped after PR #429 verified the
+entire 5-shape corpus rounds-trip clean and the `--strict` CI gate
+turned green.
 
 ### Source of truth
 

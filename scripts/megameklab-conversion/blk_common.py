@@ -295,27 +295,46 @@ def write_run_log(
 # ---------------------------------------------------------------------------
 # Every Python writer that produces JSON consumed by the TypeScript
 # runtime should funnel through these helpers. They are guarded by the
-# ``MEKSTATION_VALIDATE_WRITES`` env var so PR-A1 can land without
-# perturbing existing conversion runs:
+# ``MEKSTATION_VALIDATE_WRITES`` env var:
 #
-#   * unset / "0"  -> no validation, behaves like ``json.dump``.
-#   * "1"          -> validate against the canonical JSON Schema before
-#                     writing. A non-empty error list raises ``ValueError``,
-#                     which existing run-log error counters can catch.
+#   * unset / "1" / "true" / "yes" / "on"  -> validation ENABLED (default).
+#                                              Validates against the canonical
+#                                              JSON Schema before writing. A
+#                                              non-empty error list raises
+#                                              ``ValueError`` so existing
+#                                              run-log error counters catch it.
+#   * "0" / "false" / "no" / "off"          -> validation DISABLED. Writer
+#                                              behaves like a plain
+#                                              ``json.dump``. Use only as an
+#                                              escape hatch for legacy data
+#                                              regeneration runs that need to
+#                                              tolerate pre-bridge corpus
+#                                              drift.
 #
-# PR-A2 flips the default to "1" once corpus drift (the X-Pulse / VSP
-# costCBills gap surfaced in PR-A1) is patched.
+# Default-on was flipped after PR #429 verified the entire 5-shape corpus
+# round-trips clean and the ``--strict`` CI gate flipped green. Treating
+# validation as the default means new writers can never silently drift
+# again — they fail loudly during local dev instead.
 #
 # The helpers are intentionally tiny: schema_gate is the single source
 # of truth for what "valid" means; this layer just decides when to call it.
 
 _VALIDATE_ENV_VAR = "MEKSTATION_VALIDATE_WRITES"
 
+# Explicit opt-out values. Anything else (including unset) leaves validation on.
+_DISABLE_VALUES = frozenset({"0", "false", "no", "off"})
+
 
 def _validate_writes_enabled() -> bool:
-    """Read the ``MEKSTATION_VALIDATE_WRITES`` flag (truthy strings: '1', 'true', 'yes')."""
-    val = os.environ.get(_VALIDATE_ENV_VAR, "")
-    return val.strip().lower() in {"1", "true", "yes", "on"}
+    """
+    Return whether schema validation should run before writing.
+
+    Default is ENABLED. Validation is only skipped when the env var is set
+    to one of ``_DISABLE_VALUES`` (``0`` / ``false`` / ``no`` / ``off``).
+    Unset, empty, and any truthy spelling all keep validation on.
+    """
+    val = os.environ.get(_VALIDATE_ENV_VAR, "").strip().lower()
+    return val not in _DISABLE_VALUES
 
 
 def _maybe_validate(shape: str, data: Any) -> None:
