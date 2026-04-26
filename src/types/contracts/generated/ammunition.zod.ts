@@ -27,8 +27,11 @@ export const AmmunitionContract = z
         'NARC',
         'Artillery',
         'AMS',
+        'Energy',
       ])
-      .describe('Ammunition category'),
+      .describe(
+        "Ammunition category. 'Energy' covers chemical-laser ammo and similar energy-weapon consumables.",
+      ),
     variant: z
       .enum([
         'Standard',
@@ -61,8 +64,10 @@ export const AmmunitionContract = z
       .describe('Rules level/complexity'),
     compatibleWeaponIds: z
       .array(z.string())
-      .min(1)
-      .describe('List of weapon IDs this ammo is compatible with'),
+      .min(0)
+      .describe(
+        'List of weapon IDs this ammo is compatible with. Empty array is allowed for ammo whose compatibility is resolved at runtime via name-mappings (e.g. ATM/SRM variants that share a base weapon).',
+      ),
     shotsPerTon: z
       .number()
       .int()
@@ -90,21 +95,21 @@ export const AmmunitionContract = z
     introductionYear: z
       .number()
       .int()
-      .gte(1950)
-      .lte(3200)
+      .gte(1000)
+      .lte(9999)
       .describe('Year the ammunition was introduced'),
     extinctionYear: z
       .number()
       .int()
-      .gte(1950)
-      .lte(3200)
+      .gte(1000)
+      .lte(9999)
       .describe('Year the ammunition became extinct (if applicable)')
       .optional(),
     reintroductionYear: z
       .number()
       .int()
-      .gte(1950)
-      .lte(3200)
+      .gte(1000)
+      .lte(9999)
       .describe('Year the ammunition was reintroduced (if applicable)')
       .optional(),
     special: z

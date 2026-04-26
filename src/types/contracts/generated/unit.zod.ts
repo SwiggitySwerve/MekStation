@@ -14,8 +14,16 @@ export const UnitContract = z
       .string()
       .regex(new RegExp('^[a-z0-9-]+$'))
       .describe('Unique identifier for the unit (kebab-case)'),
-    chassis: z.string().min(1).describe("Chassis name (e.g., 'Atlas')"),
-    model: z.string().min(1).describe("Model designation (e.g., 'AS7-D')"),
+    chassis: z
+      .string()
+      .min(1)
+      .describe("Chassis name (e.g., 'Atlas')")
+      .optional(),
+    model: z
+      .string()
+      .min(1)
+      .describe("Model designation (e.g., 'AS7-D')")
+      .optional(),
     variant: z.string().describe('Optional variant name').optional(),
     unitType: z
       .enum([
@@ -35,14 +43,17 @@ export const UnitContract = z
         'Infantry',
         'Battle Armor',
         'Support Vehicle',
+        'BATTLEARMOR',
       ])
       .describe('Type of unit'),
     configuration: z
       .enum(['Biped', 'Quad', 'Tripod', 'LAM', 'QuadVee'])
-      .describe('Mech configuration'),
+      .describe('Mech configuration')
+      .optional(),
     techBase: z
       .enum(['INNER_SPHERE', 'CLAN', 'MIXED'])
-      .describe('Technology base'),
+      .describe('Technology base')
+      .optional(),
     rulesLevel: z
       .enum([
         'INTRODUCTORY',
@@ -51,10 +62,17 @@ export const UnitContract = z
         'EXPERIMENTAL',
         'UNOFFICIAL',
       ])
-      .describe('Rules level/complexity'),
-    era: z.string().describe('BattleTech era identifier'),
-    year: z.number().int().gte(1950).lte(3200).describe('Introduction year'),
-    tonnage: z.number().gte(10).lte(200).describe('Unit tonnage'),
+      .describe('Rules level/complexity')
+      .optional(),
+    era: z.string().describe('BattleTech era identifier').optional(),
+    year: z
+      .number()
+      .int()
+      .gte(1000)
+      .lte(9999)
+      .describe('Introduction year')
+      .optional(),
+    tonnage: z.number().gte(0).lte(200).describe('Unit tonnage').optional(),
     engine: z
       .object({
         type: z
@@ -72,14 +90,16 @@ export const UnitContract = z
           .describe('Engine type'),
         rating: z.number().int().gte(10).lte(500).describe('Engine rating'),
       })
-      .strict(),
+      .strict()
+      .optional(),
     gyro: z
       .object({
         type: z
           .enum(['STANDARD', 'XL', 'COMPACT', 'HEAVY_DUTY', 'NONE'])
           .describe('Gyro type'),
       })
-      .strict(),
+      .strict()
+      .optional(),
     cockpit: z
       .enum([
         'STANDARD',
@@ -92,8 +112,10 @@ export const UnitContract = z
         'SUPERHEAVY_TRIPOD',
         'INTERFACE',
         'QUADVEE',
+        'PRIMITIVE_INDUSTRIAL',
       ])
-      .describe('Cockpit type'),
+      .describe('Cockpit type')
+      .optional(),
     structure: z
       .object({
         type: z
@@ -105,10 +127,12 @@ export const UnitContract = z
             'REINFORCED',
             'COMPOSITE',
             'INDUSTRIAL',
+            'ENDO_COMPOSITE_CLAN',
           ])
           .describe('Internal structure type'),
       })
-      .strict(),
+      .strict()
+      .optional(),
     armor: z
       .object({
         type: z
@@ -124,6 +148,10 @@ export const UnitContract = z
             'HARDENED',
             'PRIMITIVE',
             'INDUSTRIAL',
+            'HEAVY_INDUSTRIAL',
+            'COMMERCIAL',
+            'IMPACT_RESISTANT',
+            'FERRO_LAMELLOR',
           ])
           .describe('Armor type'),
         allocation: z
@@ -179,7 +207,8 @@ export const UnitContract = z
           )
           .describe('Armor points per location'),
       })
-      .strict(),
+      .strict()
+      .optional(),
     heatSinks: z
       .object({
         type: z
@@ -187,11 +216,12 @@ export const UnitContract = z
           .describe('Heat sink type'),
         count: z.number().int().gte(0).describe('Total number of heat sinks'),
       })
-      .strict(),
+      .strict()
+      .optional(),
     movement: z
       .object({
-        walk: z.number().int().gte(0).describe('Walking MP'),
-        jump: z.number().int().gte(0).describe('Jumping MP'),
+        walk: z.number().int().gte(0).describe('Walking MP').optional(),
+        jump: z.number().int().gte(0).describe('Jumping MP').optional(),
         jumpJetType: z
           .enum(['STANDARD', 'IMPROVED', 'MECHANICAL', 'UMU'])
           .describe('Jump jet type')
@@ -201,7 +231,8 @@ export const UnitContract = z
           .describe('Movement enhancements (MASC, Supercharger, etc.)')
           .optional(),
       })
-      .strict(),
+      .catchall(z.any())
+      .optional(),
     equipment: z
       .array(
         z
@@ -220,7 +251,8 @@ export const UnitContract = z
           })
           .strict(),
       )
-      .describe('Mounted equipment list'),
+      .describe('Mounted equipment list')
+      .optional(),
     criticalSlots: z
       .record(
         z.string(),
@@ -266,7 +298,8 @@ export const UnitContract = z
           }),
         ),
       )
-      .describe('Critical slot assignments per location'),
+      .describe('Critical slot assignments per location')
+      .optional(),
     quirks: z.array(z.string()).describe('Unit quirks').optional(),
     fluff: z
       .object({
@@ -287,7 +320,8 @@ export const UnitContract = z
     role: z.string().describe('Combat role').optional(),
     source: z.string().describe('Source book/publication').optional(),
   })
-  .strict()
+  .catchall(z.any())
+  .and(z.intersection(z.any(), z.any()))
   .describe(
     'Schema for serialized BattleTech unit definitions (BattleMechs, vehicles, etc.)',
   );

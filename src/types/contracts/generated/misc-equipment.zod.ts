@@ -23,8 +23,11 @@ export const MiscEquipmentContract = z
         'Defensive',
         'Myomer',
         'Industrial',
+        'Miscellaneous',
       ])
-      .describe('Equipment category'),
+      .describe(
+        "Equipment category. 'Miscellaneous' is a catch-all bucket for equipment that doesn't fit the canonical sub-categories (jump-jet variants, MASC, supercharger, CASE, etc.).",
+      ),
     techBase: z
       .enum(['INNER_SPHERE', 'CLAN', 'BOTH'])
       .describe('Technology base for the equipment'),
@@ -57,21 +60,21 @@ export const MiscEquipmentContract = z
     introductionYear: z
       .number()
       .int()
-      .gte(1950)
-      .lte(3200)
+      .gte(1000)
+      .lte(9999)
       .describe('Year the equipment was introduced'),
     extinctionYear: z
       .number()
       .int()
-      .gte(1950)
-      .lte(3200)
+      .gte(1000)
+      .lte(9999)
       .describe('Year the equipment became extinct (if applicable)')
       .optional(),
     reintroductionYear: z
       .number()
       .int()
-      .gte(1950)
-      .lte(3200)
+      .gte(1000)
+      .lte(9999)
       .describe('Year the equipment was reintroduced (if applicable)')
       .optional(),
     special: z
