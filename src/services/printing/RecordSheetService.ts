@@ -8,8 +8,6 @@
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
-import { jsPDF } from 'jspdf';
-
 import type { IPilotAbilityRef } from '@/types/pilot';
 
 import {
@@ -68,6 +66,19 @@ async function renderSVGStringToCanvas(
   dpiMultiplier: number,
 ): Promise<void> {
   await renderToCanvasHighDPI(svgString, canvas, dpiMultiplier);
+}
+
+/**
+ * Lazily import the `jsPDF` constructor.
+ *
+ * jsPDF is a heavyweight client bundle (~280 KB minified). Loading it eagerly
+ * pulls it into the main app chunk even for users who never export a PDF.
+ * Resolving it via `await import('jspdf')` lets Webpack split it into its own
+ * async chunk that's only fetched on first PDF export.
+ */
+async function getJsPDFConstructor(): Promise<typeof import('jspdf').jsPDF> {
+  const { jsPDF } = await import('jspdf');
+  return jsPDF;
 }
 
 /**
@@ -250,7 +261,8 @@ export class RecordSheetService {
     const svgString = this.buildNonMechSVG(data);
     await renderSVGStringToCanvas(svgString, canvas, PDF_DPI_MULTIPLIER);
 
-    const pdf = new jsPDF({
+    const PDF = await getJsPDFConstructor();
+    const pdf = new PDF({
       orientation: 'portrait',
       unit: 'pt',
       format: paperSize === PaperSize.A4 ? 'a4' : 'letter',
@@ -336,7 +348,8 @@ export class RecordSheetService {
     );
     await renderer.renderToCanvasHighDPI(canvas, PDF_DPI_MULTIPLIER);
 
-    const pdf = new jsPDF({
+    const PDF = await getJsPDFConstructor();
+    const pdf = new PDF({
       orientation: 'portrait',
       unit: 'pt',
       format: paperSize === PaperSize.A4 ? 'a4' : 'letter',

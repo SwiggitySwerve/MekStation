@@ -135,8 +135,19 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run tests
-        run: npm test -- --ci
+      - name: Run unit tests
+        # Scope to the `unit` Jest project so unit and a11y failures are
+        # attributed to distinct steps in the CI log. Both projects still
+        # run in the same job to preserve the "Test" branch-protection
+        # required-check name.
+        run: npx jest --selectProjects unit --ci
+
+      - name: Run a11y tests (axe-core)
+        # Gates accessibility regressions for in-scope components. Runs
+        # the dedicated `a11y` Jest project — see jest.config.js for the
+        # `**/*.a11y.test.(ts|tsx)` glob and jest.setup.a11y.ts for
+        # `expect(...).toHaveNoViolations()` matchers.
+        run: npx jest --selectProjects a11y --ci
 
   validate-bv:
     name: Validate BV Parity
