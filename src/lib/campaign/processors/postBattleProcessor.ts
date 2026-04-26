@@ -282,14 +282,11 @@ function applyUnitDelta(
  * richer player-side check (multi-player teams, etc.).
  */
 function playerWon(outcome: ICombatOutcome): boolean {
-  // The composed report contains the original session winner. Defensive
-  // optional access keeps the processor working with stub reports too.
-  const winner = (
-    outcome.report as unknown as {
-      readonly winner?: GameSide | 'draw';
-    }
-  ).winner;
-  return winner === GameSide.Player;
+  // The composed report contains the original session winner.
+  // `IPostBattleReport.winner` is required + already typed as
+  // `GameSide | 'draw'` — the previous double-cast was a no-op
+  // defensive shim from before the report shape was tightened.
+  return outcome.report.winner === GameSide.Player;
 }
 
 /**

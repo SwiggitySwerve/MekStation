@@ -173,7 +173,11 @@ export class KeyMomentDetector {
     metadata?: Record<string, unknown>,
   ): IKeyMoment {
     const id = `km-${type}-${event.turn}-${state.momentCounter++}`;
-    const momentType = type as unknown as keyof typeof TIER_MAP;
+    // `type` is the caller-supplied string discriminator that we already
+    // hand-constructed from `keyof typeof TIER_MAP` upstream — narrow
+    // with a single cast since `string` is the supertype of `keyof
+    // typeof TIER_MAP` here, so the double-cast was redundant.
+    const momentType = type as keyof typeof TIER_MAP;
 
     return {
       id,
