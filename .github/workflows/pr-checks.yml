@@ -175,11 +175,71 @@ jobs:
       - name: Build Storybook
         run: npm run storybook:build
 
+  # ---------------------------------------------------------------
+  # schema-bridge gates the cross-language schema contract:
+  #   1. Generated Zod matches the canonical JSON Schema source
+  #   2. Python validator passes on the corpus (PR-A1 = weapon only,
+  #      non-strict; PR-A2 will flip to --strict --shape all)
+  #   3. TypeScript round-trip Jest tests pass for the weapon shape
+  # The job runs in parallel after install-deps and is included in
+  # the `lint-and-test` aggregator so branch protection picks it up.
+  # ---------------------------------------------------------------
+  schema-bridge:
+    name: Schema Bridge
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python schema-bridge deps
+        run: pip install jsonschema
+
+      - name: Verify generated Zod matches JSON Schema
+        run: npm run schema:gen-check
+
+      - name: Validate weapon corpus (non-blocking in PR-A1)
+        # PR-A1 corpus has 6 X-Pulse / VSP entries missing costCBills.
+        # PR-A2 fixes the data and adds --strict here.
+        run: python scripts/megameklab-conversion/run_schema_validation_only.py --shape weapon
+
+      - name: Run weapon round-trip Jest tests
+        run: npx jest src/types/contracts --ci --no-coverage
+
+      - name: Upload schema-bridge report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: schema-bridge-report
+          path: validation-output/schema-bridge-report.json
+          retention-days: 7
+
   # Aggregator that preserves the "Lint and Test" required-check name
   # from before the fan-out. Passes only if every fan-out job passed.
   lint-and-test:
     name: Lint and Test
-    needs: [lint, format-check, typecheck, test, validate-bv, storybook-build]
+    needs:
+      [
+        lint,
+        format-check,
+        typecheck,
+        test,
+        validate-bv,
+        storybook-build,
+        schema-bridge,
+      ]
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:

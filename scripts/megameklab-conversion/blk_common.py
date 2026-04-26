@@ -290,6 +290,117 @@ def write_run_log(
     logger.info(f"Run log written: {log_path}")
 
 
+# ---------------------------------------------------------------------------
+# Cross-language schema-bridge write choke points
+# ---------------------------------------------------------------------------
+# Every Python writer that produces JSON consumed by the TypeScript
+# runtime should funnel through these helpers. They are guarded by the
+# ``MEKSTATION_VALIDATE_WRITES`` env var so PR-A1 can land without
+# perturbing existing conversion runs:
+#
+#   * unset / "0"  -> no validation, behaves like ``json.dump``.
+#   * "1"          -> validate against the canonical JSON Schema before
+#                     writing. A non-empty error list raises ``ValueError``,
+#                     which existing run-log error counters can catch.
+#
+# PR-A2 flips the default to "1" once corpus drift (the X-Pulse / VSP
+# costCBills gap surfaced in PR-A1) is patched.
+#
+# The helpers are intentionally tiny: schema_gate is the single source
+# of truth for what "valid" means; this layer just decides when to call it.
+
+_VALIDATE_ENV_VAR = "MEKSTATION_VALIDATE_WRITES"
+
+
+def _validate_writes_enabled() -> bool:
+    """Read the ``MEKSTATION_VALIDATE_WRITES`` flag (truthy strings: '1', 'true', 'yes')."""
+    val = os.environ.get(_VALIDATE_ENV_VAR, "")
+    return val.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _maybe_validate(shape: str, data: Any) -> None:
+    """
+    Run ``schema_gate.validate_<shape>`` if the env var is set.
+
+    Importing ``schema_gate`` lazily keeps this module usable when
+    ``jsonschema`` isn't installed (rare, but possible in slim CI shells
+    that only need the BLK parsing primitives).
+    """
+    if not _validate_writes_enabled():
+        return
+    try:
+        from schema_gate import SHAPE_VALIDATORS  # type: ignore
+    except ImportError as exc:
+        raise RuntimeError(
+            f"{_VALIDATE_ENV_VAR}=1 set but schema_gate unavailable: {exc}"
+        ) from exc
+    validator = SHAPE_VALIDATORS.get(shape)
+    if validator is None:
+        raise ValueError(f"blk_common: no validator for shape {shape!r}")
+    errors = validator(data)
+    if errors:
+        raise ValueError(
+            f"blk_common.write_{shape}_json: schema validation failed:\n  - "
+            + "\n  - ".join(errors[:8])
+        )
+
+
+def write_weapon_json(path: Path, data: Dict[str, Any]) -> None:
+    """
+    Write a single weapon dict to ``path``, optionally validating first.
+
+    PR-A1 makes no production callers go through this — the BLK
+    converters today emit per-unit BLK output, not weapon equipment
+    files. The helper exists so that any future weapon-emitting writer
+    (e.g. the planned MTF -> equipment extraction work) gets the
+    schema-bridge gate for free.
+    """
+    _maybe_validate("weapon", data)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(data, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+
+def write_unit_json(path: Path, data: Dict[str, Any]) -> None:
+    """
+    Write a single unit dict to ``path``, optionally validating first.
+
+    Placeholder choke point for PR-A1: the BLK converters currently
+    serialise units inline via ``json.dumps`` per-file rather than
+    routing through here. PR-A2 migrates the converters to call this
+    helper so the env-var-gated validation engages automatically.
+    """
+    _maybe_validate("unit", data)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(data, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+
+def write_equipment_json(
+    path: Path,
+    shape: str,
+    data: Dict[str, Any],
+) -> None:
+    """
+    Write an arbitrary-shape equipment dict, optionally validating first.
+
+    ``shape`` is one of ``schema_gate.SHAPE_VALIDATORS`` (``ammunition``,
+    ``electronics``, ``misc_equipment``, ``physical_weapon``). Like
+    ``write_unit_json`` this is a placeholder for PR-A1 — it exists so
+    the API surface is locked-in before PR-A2 wires the consumers.
+    """
+    _maybe_validate(shape, data)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(data, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+
 __all__ = [
     # enum_mappings re-exports
     "default_mm_data_root",
@@ -313,4 +424,8 @@ __all__ = [
     "write_manifest",
     "write_parity_report",
     "write_run_log",
+    # Schema-bridge write choke points (PR-A1)
+    "write_weapon_json",
+    "write_unit_json",
+    "write_equipment_json",
 ]
