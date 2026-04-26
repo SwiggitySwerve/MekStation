@@ -30,7 +30,7 @@
  * @spec openspec/changes/add-physical-attack-phase-ui/specs/physical-attack-system/spec.md
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from "react";
 
 import type {
   IPhysicalAttackInput,
@@ -38,21 +38,21 @@ import type {
   PhysicalAttackInvalidReason,
   PhysicalAttackLimb,
   PhysicalAttackType,
-} from '@/utils/gameplay/physicalAttacks/types';
+} from "@/utils/gameplay/physicalAttacks/types";
 
-import { useGameplayStore, useSelectedUnit } from '@/stores/useGameplayStore';
-import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
+import { selectFromStore, useSelectedUnit } from "@/stores/useGameplayStore";
+import { usePhysicalAttackPlanStore } from "@/stores/useGameplayStore.combatFlows";
 import {
   GamePhase,
   type IComponentDamageState,
   type IHexCoordinate,
-} from '@/types/gameplay';
-import { hexDistance } from '@/utils/gameplay/hexMath';
-import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
+} from "@/types/gameplay";
+import { hexDistance } from "@/utils/gameplay/hexMath";
+import { getEligiblePhysicalAttacks } from "@/utils/gameplay/physicalAttacks/eligibility";
 
-import type { PhysicalAttackIntentVariant } from './overlays/PhysicalAttackIntentArrow';
+import type { PhysicalAttackIntentVariant } from "./overlays/PhysicalAttackIntentArrow";
 
-import { PhysicalAttackForecastModal } from './PhysicalAttackForecastModal';
+import { PhysicalAttackForecastModal } from "./PhysicalAttackForecastModal";
 
 /**
  * Per task 7.5 + `tactical-map-interface` delta "Physical Attack Intent
@@ -104,17 +104,17 @@ interface MeleeTarget {
  * so the disabled-row tooltip stays human-readable.
  */
 const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
-  WeaponFiredThisTurn: 'Arm fired a weapon this turn',
-  MissingActuator: 'Required actuator is missing',
-  HipDestroyed: 'Hip actuator destroyed',
-  ShoulderDestroyed: 'Shoulder actuator destroyed',
-  SameLimbUsedThisTurn: 'Limb already used for a physical attack',
-  NoJumpThisTurn: 'DFA requires jumping this turn',
-  NoRunThisTurn: 'Charge requires running this turn',
-  LimbMissing: 'Limb is missing',
-  AttackerProne: 'Attacker is prone',
-  UnsupportedAttackType: 'Attack type is unsupported',
-  DestinationBlocked: 'Push destination is blocked',
+  WeaponFiredThisTurn: "Arm fired a weapon this turn",
+  MissingActuator: "Required actuator is missing",
+  HipDestroyed: "Hip actuator destroyed",
+  ShoulderDestroyed: "Shoulder actuator destroyed",
+  SameLimbUsedThisTurn: "Limb already used for a physical attack",
+  NoJumpThisTurn: "DFA requires jumping this turn",
+  NoRunThisTurn: "Charge requires running this turn",
+  LimbMissing: "Limb is missing",
+  AttackerProne: "Attacker is prone",
+  UnsupportedAttackType: "Attack type is unsupported",
+  DestinationBlocked: "Push destination is blocked",
 };
 
 /**
@@ -125,23 +125,23 @@ function attackTypeLabel(
   limb?: PhysicalAttackLimb,
 ): string {
   const base: Record<PhysicalAttackType, string> = {
-    punch: 'Punch',
-    kick: 'Kick',
-    charge: 'Charge',
-    dfa: 'Death-from-Above',
-    push: 'Push',
-    hatchet: 'Hatchet',
-    sword: 'Sword',
-    mace: 'Mace',
-    lance: 'Lance',
+    punch: "Punch",
+    kick: "Kick",
+    charge: "Charge",
+    dfa: "Death-from-Above",
+    push: "Push",
+    hatchet: "Hatchet",
+    sword: "Sword",
+    mace: "Mace",
+    lance: "Lance",
   };
   const label = base[attackType];
   if (!limb) return label;
   const limbLabel: Record<PhysicalAttackLimb, string> = {
-    leftArm: 'L Arm',
-    rightArm: 'R Arm',
-    leftLeg: 'L Leg',
-    rightLeg: 'R Leg',
+    leftArm: "L Arm",
+    rightArm: "R Arm",
+    leftLeg: "L Leg",
+    rightLeg: "R Leg",
   };
   return `${label} (${limbLabel[limb]})`;
 }
@@ -155,12 +155,12 @@ function intentVariantFor(
   attackType: PhysicalAttackType,
 ): PhysicalAttackIntentVariant | null {
   switch (attackType) {
-    case 'charge':
-      return 'charge';
-    case 'dfa':
-      return 'dfa';
-    case 'push':
-      return 'push';
+    case "charge":
+      return "charge";
+    case "dfa":
+      return "dfa";
+    case "push":
+      return "push";
     default:
       return null;
   }
@@ -170,11 +170,11 @@ export function PhysicalAttackPanel({
   attackerTonnage = 65,
   meleeWeaponsEquipped,
   onIntentChange,
-  className = '',
+  className = "",
 }: PhysicalAttackPanelProps): React.ReactElement | null {
-  const session = useGameplayStore((s) => s.session);
-  const interactiveSession = useGameplayStore((s) => s.interactiveSession);
-  const setSession = useGameplayStore((s) => s.setSession);
+  const session = selectFromStore((s) => s.session);
+  const interactiveSession = selectFromStore((s) => s.interactiveSession);
+  const setSession = selectFromStore((s) => s.setSession);
   const selected = useSelectedUnit();
 
   const physicalAttackPlan = usePhysicalAttackPlanStore(
@@ -347,7 +347,7 @@ export function PhysicalAttackPanel({
         (t) => t.id === physicalAttackPlan.targetUnitId,
       );
       setCommittedSummary(
-        `Declared ${attackTypeLabel(physicalAttackPlan.attackType ?? 'punch')} vs ${target?.name ?? 'target'}`,
+        `Declared ${attackTypeLabel(physicalAttackPlan.attackType ?? "punch")} vs ${target?.name ?? "target"}`,
       );
     }
     setForecastOpen(false);
@@ -398,10 +398,10 @@ export function PhysicalAttackPanel({
   // the player cares about (eligibility) changes.
   const announcement =
     meleeTargets.length === 0
-      ? 'Physical Attack phase — no eligible targets in adjacent hexes'
+      ? "Physical Attack phase — no eligible targets in adjacent hexes"
       : !hasTarget
-        ? `Physical Attack phase — ${meleeTargets.length} adjacent target${meleeTargets.length === 1 ? '' : 's'}`
-        : `Physical Attack phase — ${eligibleCount} eligible option${eligibleCount === 1 ? '' : 's'}`;
+        ? `Physical Attack phase — ${meleeTargets.length} adjacent target${meleeTargets.length === 1 ? "" : "s"}`
+        : `Physical Attack phase — ${eligibleCount} eligible option${eligibleCount === 1 ? "" : "s"}`;
 
   return (
     <section
@@ -467,8 +467,8 @@ export function PhysicalAttackPanel({
                   onClick={() => handleSelectTarget(target.id)}
                   className={`min-h-[36px] w-full rounded border px-2 py-1 text-left ${
                     isSelected
-                      ? 'border-blue-500 bg-blue-50 text-blue-900'
-                      : 'text-text-theme-primary border-gray-200 bg-white hover:bg-gray-50'
+                      ? "border-blue-500 bg-blue-50 text-blue-900"
+                      : "text-text-theme-primary border-gray-200 bg-white hover:bg-gray-50"
                   }`}
                   data-testid={`physical-attack-target-${target.id}`}
                 >
@@ -491,8 +491,8 @@ export function PhysicalAttackPanel({
             const isEligible = option.restrictionsFailed.length === 0;
             const reasonTooltip = option.restrictionsFailed
               .map((r) => REASON_COPY[r])
-              .join('; ');
-            const rowKey = `${option.attackType}-${option.limb ?? 'body'}-${idx}`;
+              .join("; ");
+            const rowKey = `${option.attackType}-${option.limb ?? "body"}-${idx}`;
             return (
               <li
                 key={rowKey}
@@ -503,14 +503,14 @@ export function PhysicalAttackPanel({
                 // rows keep tabIndex=-1 to skip them in the tab order.
                 tabIndex={isEligible ? 0 : -1}
                 role="group"
-                aria-label={`${attackTypeLabel(option.attackType, option.limb)} — TN ${option.toHit.finalToHit}+, ${option.damage.targetDamage} damage${isEligible ? '' : ` (disabled: ${reasonTooltip})`}`}
+                aria-label={`${attackTypeLabel(option.attackType, option.limb)} — TN ${option.toHit.finalToHit}+, ${option.damage.targetDamage} damage${isEligible ? "" : ` (disabled: ${reasonTooltip})`}`}
                 onMouseEnter={() => isEligible && handleRowHover(option)}
                 onMouseLeave={handleRowLeave}
                 onFocus={() => isEligible && handleRowHover(option)}
                 onBlur={handleRowLeave}
                 onKeyDown={(event) => {
                   if (!isEligible) return;
-                  if (event.key === 'Enter' || event.key === ' ') {
+                  if (event.key === "Enter" || event.key === " ") {
                     // Only fire when focus is on the wrapper itself —
                     // the inner Declare button has its own native
                     // Enter/Space behavior and would double-fire
@@ -525,30 +525,30 @@ export function PhysicalAttackPanel({
                 <div
                   className={`flex items-center justify-between gap-2 rounded border px-2 py-1 ${
                     isEligible
-                      ? 'border-gray-200 bg-white'
-                      : 'border-gray-200 bg-gray-100 opacity-60'
+                      ? "border-gray-200 bg-white"
+                      : "border-gray-200 bg-gray-100 opacity-60"
                   }`}
                   title={reasonTooltip || undefined}
-                  data-testid={`physical-attack-option-${option.attackType}-${option.limb ?? 'body'}`}
-                  data-eligible={isEligible ? 'true' : 'false'}
+                  data-testid={`physical-attack-option-${option.attackType}-${option.limb ?? "body"}`}
+                  data-eligible={isEligible ? "true" : "false"}
                 >
                   <div className="flex flex-1 flex-col text-xs">
                     <span
                       className={`font-medium ${
                         isEligible
-                          ? 'text-text-theme-primary'
-                          : 'text-gray-500 line-through'
+                          ? "text-text-theme-primary"
+                          : "text-gray-500 line-through"
                       }`}
                     >
                       {attackTypeLabel(option.attackType, option.limb)}
                     </span>
                     <span className="text-text-theme-muted">
-                      TN {option.toHit.finalToHit}+ ·{' '}
+                      TN {option.toHit.finalToHit}+ ·{" "}
                       {option.damage.targetDamage} dmg
                       {option.selfRisk.damageToAttacker > 0 &&
                         ` · self ${option.selfRisk.damageToAttacker}`}
-                      {option.selfRisk.onMiss === 'AttackerFalls' &&
-                        ' · fall on miss'}
+                      {option.selfRisk.onMiss === "AttackerFalls" &&
+                        " · fall on miss"}
                     </span>
                     {!isEligible && reasonTooltip && (
                       <span className="text-xs text-red-600">
@@ -563,10 +563,10 @@ export function PhysicalAttackPanel({
                     aria-label={`Declare ${attackTypeLabel(option.attackType, option.limb)}`}
                     className={`min-h-[32px] rounded px-2 py-1 text-xs font-medium focus:ring-2 focus:ring-offset-2 focus:outline-none ${
                       isEligible
-                        ? 'cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
-                        : 'cursor-not-allowed bg-gray-300 text-gray-500'
+                        ? "cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
+                        : "cursor-not-allowed bg-gray-300 text-gray-500"
                     }`}
-                    data-testid={`physical-attack-declare-${option.attackType}-${option.limb ?? 'body'}`}
+                    data-testid={`physical-attack-declare-${option.attackType}-${option.limb ?? "body"}`}
                   >
                     Declare
                   </button>
