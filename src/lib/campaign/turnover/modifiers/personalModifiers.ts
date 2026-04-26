@@ -73,7 +73,17 @@ export function getOfficerModifier(person: IPerson): number {
   return person.isCommander || person.isSecondInCommand ? OFFICER_MODIFIER : 0;
 }
 
-// TODO: Needs per-person contract term tracking to implement properly
+/**
+ * Service contract modifier — currently a no-op.
+ *
+ * FIXME(person-contract-tracking): MekHQ applies a turnover modifier when a
+ * personnel contract is approaching expiry (typically `-1` if < 6 months
+ * left, `+2` once expired). Implementing this requires `IPerson` to grow
+ * `serviceContractStart: Date` + `serviceContractEnd: Date` (or a single
+ * `serviceContract: IPersonContract` shape). When those fields land, switch
+ * this body to compare `campaign.currentDate` against `person.serviceContract.endDate`
+ * and return the corresponding modifier per MekHQ's `Personnel#getServiceContractModifier`.
+ */
 export function getServiceContractModifier(_person: IPerson): number {
   return 0;
 }

@@ -6,12 +6,14 @@
  * @stub This is a stub implementation. Full functionality requires Plan 3 (Repair System)
  * to provide parts inventory and unit maintenance state.
  *
- * TODO: Implement actual parts scanning when Plan 3 is complete
- * - Scan all units in campaign forces
- * - Check repair jobs for needed parts
- * - Compare against stock target percentage
- * - Generate acquisition requests for missing parts
- * - Skip parts already in shopping list
+ * FIXME(plan-3-parts-scanning): wire to repair-system parts inventory once Plan 3 lands.
+ * Unblocking dependencies (must exist before this stub becomes a real implementation):
+ *   1. `IRepairJob.requiredParts: IPartId[]` — exposed by the repair store/service.
+ *   2. `IPartsInventory` snapshot reachable from `ICampaign` (per-warehouse counts).
+ *   3. `IPartCatalog.stockTargetPercent` — target stocking ratio per part type.
+ * When those land, replace the stub body with: walk `campaign.forces` → collect open
+ * repair jobs → diff `requiredParts` against `IPartsInventory` → emit
+ * `IAcquisitionRequest` for the gap, deduped against `campaign.shoppingList`.
  */
 
 import type { IAcquisitionRequest } from '@/types/campaign/acquisition/acquisitionTypes';
@@ -23,12 +25,8 @@ import type { ICampaign } from '@/types/campaign/Campaign';
  * @stub This is a stub implementation. Full functionality requires Plan 3 (Repair System)
  * to provide parts inventory and unit maintenance state.
  *
- * TODO: Implement actual parts scanning when Plan 3 is complete
- * - Scan all units in campaign forces
- * - Check repair jobs for needed parts
- * - Compare against stock target percentage
- * - Generate acquisition requests for missing parts
- * - Skip parts already in shopping list
+ * FIXME(plan-3-parts-scanning): see file-level comment for the unblock checklist.
+ * Returns `[]` until the repair-system inventory + parts catalog are wired up.
  *
  * @param campaign - Campaign to scan
  * @param options - Auto-logistics options (stock target, etc.)

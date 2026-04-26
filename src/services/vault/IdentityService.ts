@@ -193,10 +193,13 @@ export async function verifySignature(
 // =============================================================================
 
 /**
- * Encode a public key as a human-friendly friend code
+ * Encode a public key as a human-friendly friend code.
  *
- * Format: XXXX-XXXX-XXXX-XXXX (16 chars from 32-char alphabet)
- * Encodes first 10 bytes of public key (80 bits)
+ * Output shape: four groups of four characters separated by dashes
+ * (e.g. `K7HQ-MN4P-RV2X-9YZB`), drawing from a 32-character ambiguity-free
+ * alphabet (no `0/O`, `1/I/L`, etc.). Encodes the first 10 bytes (80 bits)
+ * of the public key — sufficient for human-readable identification while
+ * keeping copy/paste short.
  */
 export function encodeFriendCode(publicKey: Uint8Array): string {
   // Use first 10 bytes (80 bits) of public key
