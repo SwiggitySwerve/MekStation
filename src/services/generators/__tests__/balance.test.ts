@@ -109,8 +109,11 @@ describe('Balance Testing', () => {
   describe('Difficulty Scaling', () => {
     const difficulties = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 
-    // FLAKY: seeded-random tolerance window edge case. See MEMORY.md "Husky Pre-Commit Gotchas" / handoff. Unskip after balance generator is reworked.
-    it.skip('should scale OpFor BV proportionally with difficulty', () => {
+    // De-flaked 2026-04-25: pin a seeded RNG per difficulty step so the
+    // `hardBV > easyBV` and `extremeBV > normalBV * 0.8` comparisons are
+    // deterministic. Previously this used Math.random and tripped the
+    // tolerance window in ~1/few-hundred CI runs.
+    it('should scale OpFor BV proportionally with difficulty', () => {
       const playerBV = 10000;
       const results: { difficulty: number; bv: number }[] = [];
 
@@ -123,7 +126,14 @@ describe('Balance Testing', () => {
           ),
           difficultyMultiplier: difficulty,
         };
-        const result = opForGenerator.generate(config);
+        // Use a fixed seed per-step for deterministic comparison across
+        // difficulty levels. Same seed each step removes Math.random jitter
+        // that caused the original flake while preserving the relative
+        // ordering produced by the difficultyMultiplier scaling.
+        const seededRandom = new SeededRandom(42);
+        const result = opForGenerator.generate(config, () =>
+          seededRandom.next(),
+        );
         results.push({ difficulty, bv: result.totalBV });
       }
 
