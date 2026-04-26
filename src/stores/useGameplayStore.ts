@@ -1,6 +1,19 @@
 /**
  * Gameplay Store
- * Zustand store for game session state management.
+ *
+ * Zustand store for game session state management. The store body is
+ * a thin composition layer that delegates to four sibling slice files:
+ *
+ *   - useGameplayStore.session.ts      — load/demo/setSession/spectator
+ *   - useGameplayStore.interactions.ts — selectUnit/move/fire/click handlers
+ *   - useGameplayStore.combatFlows.ts  — movement + attack plan helpers
+ *   - useGameplayStore.helpers.ts      — phase advance / AI turn / skip
+ *   - useGameplayStore.selectors.ts    — useSelectedUnit, useIsGameCompleted
+ *
+ * The split keeps each file under the per-file LOC budget while
+ * leaving the public hook surface (`useGameplayStore`,
+ * `InteractivePhase`, `useSelectedUnit`, `selectIsGameCompleted`,
+ * `useIsGameCompleted`) unchanged.
  *
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
@@ -10,24 +23,13 @@ import { create } from 'zustand';
 import type { InteractiveSession } from '@/engine/GameEngine';
 
 import {
-  createDemoSession,
-  createDemoWeapons,
-  createDemoMaxArmor,
-  createDemoMaxStructure,
-  createDemoPilotNames,
-  createDemoHeatSinks,
-  createDemoUnitSpas,
-} from '@/__fixtures__/gameplay';
-import {
+  DEFAULT_UI_STATE,
+  GamePhase,
   IGameSession,
   IGameplayUIState,
-  DEFAULT_UI_STATE,
-  IWeaponStatus,
   IPilotSpaSummary,
-  GamePhase,
-  GameStatus,
+  IWeaponStatus,
 } from '@/types/gameplay';
-import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { logger } from '@/utils/logger';
 
 import {
@@ -44,22 +46,44 @@ import {
   type IPlannedMovement,
 } from './useGameplayStore.combatFlows';
 import {
+  advanceInteractivePhaseLogic,
   handleActionLogic,
+  handleInteractiveTokenClickLogic,
   InteractivePhase,
   runAITurnLogic,
-  advanceInteractivePhaseLogic,
-  handleInteractiveTokenClickLogic,
   skipPhaseLogic,
 } from './useGameplayStore.helpers';
+import {
+  fireWeaponsLogic,
+  handleInteractiveHexClickLogic,
+  moveUnitLogic,
+  selectAttackTargetLogic,
+  selectUnitForMovementLogic,
+  selectUnitLogic,
+  selectWeaponLogic,
+  setTargetLogic,
+  toggleWeaponLogic,
+} from './useGameplayStore.interactions';
+import {
+  projectSelectedUnit,
+  selectIsGameCompleted,
+  type ISelectedUnitProjection,
+} from './useGameplayStore.selectors';
+import {
+  createDemoSessionLogic,
+  loadSessionLogic,
+  setInteractiveSessionLogic,
+  setSpectatorModeLogic,
+  type SpectatorMode,
+} from './useGameplayStore.session';
 
-export { InteractivePhase };
-export type { IPlannedMovement, IAttackPlan };
-
-export interface SpectatorMode {
-  enabled: boolean;
-  playing: boolean;
-  speed: 1 | 2 | 4;
-}
+export { InteractivePhase, selectIsGameCompleted };
+export type {
+  IAttackPlan,
+  IPlannedMovement,
+  ISelectedUnitProjection,
+  SpectatorMode,
+};
 
 // =============================================================================
 // Types
@@ -216,264 +240,64 @@ const initialState: GameplayState = {
 export const useGameplayStore = create<GameplayStore>((set, get) => ({
   ...initialState,
 
-  loadSession: async (sessionId: string) => {
-    // If session is already loaded (e.g. from setSession via auto-resolve), skip
-    const existing = get().session;
-    if (existing && existing.id === sessionId) {
-      set({ isLoading: false, error: null });
-      return;
-    }
-
-    set({ isLoading: true, error: null });
-    try {
-      if (sessionId === 'demo') {
-        get().createDemoSession();
-      } else {
-        throw new Error('Session not found');
-      }
-    } catch (err) {
-      set({
-        error: err instanceof Error ? err.message : 'Failed to load session',
-        isLoading: false,
-      });
-    }
+  // -------------------------------------------------------------------------
+  // Session lifecycle (delegated to useGameplayStore.session)
+  // -------------------------------------------------------------------------
+  loadSession: (sessionId) =>
+    loadSessionLogic(sessionId, get, set, () => get().createDemoSession()),
+  createDemoSession: () => createDemoSessionLogic(set),
+  setSession: (session) => {
+    set({ session, isLoading: false, error: null });
+  },
+  setInteractiveSession: (interactiveSession) =>
+    setInteractiveSessionLogic(interactiveSession, set),
+  setSpectatorMode: (interactiveSession, spectatorMode) =>
+    setSpectatorModeLogic(interactiveSession, spectatorMode, set),
+  clearError: () => {
+    set({ error: null });
+  },
+  reset: () => {
+    set(initialState);
   },
 
-  createDemoSession: () => {
-    const session = createDemoSession();
-    set({
-      session,
-      unitWeapons: createDemoWeapons(),
-      maxArmor: createDemoMaxArmor(),
-      maxStructure: createDemoMaxStructure(),
-      pilotNames: createDemoPilotNames(),
-      heatSinks: createDemoHeatSinks(),
-      unitSpas: createDemoUnitSpas(),
-      isLoading: false,
-      error: null,
-    });
-  },
+  // -------------------------------------------------------------------------
+  // Interaction actions (delegated to useGameplayStore.interactions)
+  // -------------------------------------------------------------------------
+  selectUnit: (unitId) => selectUnitLogic(unitId, set),
+  setTarget: (unitId) => setTargetLogic(unitId, set),
+  toggleWeapon: (weaponId) => toggleWeaponLogic(weaponId, set),
+  selectWeapon: (weaponId) => selectWeaponLogic(weaponId, set),
+  selectUnitForMovement: (unitId) =>
+    selectUnitForMovementLogic(unitId, get, set),
+  moveUnit: (unitId, targetHex) => moveUnitLogic(unitId, targetHex, get, set),
+  selectAttackTarget: (targetUnitId) =>
+    selectAttackTargetLogic(targetUnitId, get, set),
+  fireWeapons: () => fireWeaponsLogic(get, set),
+  handleInteractiveHexClick: (hex) =>
+    handleInteractiveHexClickLogic(
+      hex,
+      get,
+      set,
+      get().moveUnit,
+      get().clearAttackPlan,
+    ),
 
-  setSession: (session: IGameSession) => {
-    set({
-      session,
-      isLoading: false,
-      error: null,
-    });
-  },
-
-  setInteractiveSession: (interactiveSession: InteractiveSession) => {
-    const session = interactiveSession.getSession();
-    const phase = session.currentState.phase;
-
-    let interactivePhase = InteractivePhase.SelectUnit;
-    if (phase === GamePhase.Initiative)
-      interactivePhase = InteractivePhase.SelectUnit;
-
-    set({
-      session,
-      interactiveSession,
-      interactivePhase,
-      spectatorMode: null,
-      isLoading: false,
-      error: null,
-    });
-  },
-
-  setSpectatorMode: (
-    interactiveSession: InteractiveSession,
-    spectatorMode: SpectatorMode,
-  ) => {
-    const session = interactiveSession.getSession();
-
-    set({
-      session,
-      interactiveSession,
-      interactivePhase: InteractivePhase.AITurn,
-      spectatorMode,
-      isLoading: false,
-      error: null,
-    });
-  },
-
-  selectUnit: (unitId: string | null) => {
-    set((state) => ({
-      ui: { ...state.ui, selectedUnitId: unitId },
-    }));
-  },
-
-  setTarget: (unitId: string | null) => {
-    set((state) => ({
-      ui: { ...state.ui, targetUnitId: unitId },
-    }));
-  },
-
-  handleAction: (actionId: string) => {
+  // -------------------------------------------------------------------------
+  // Phase / AI / engine handshake (delegated to useGameplayStore.helpers)
+  // -------------------------------------------------------------------------
+  handleAction: (actionId) => {
     const { session, ui } = get();
     handleActionLogic(actionId, session, ui, set);
   },
-
-  selectUnitForMovement: (unitId: string) => {
-    const { interactiveSession } = get();
-    if (!interactiveSession) return;
-
-    const actions = interactiveSession.getAvailableActions(unitId);
-
-    set((state) => ({
-      ui: { ...state.ui, selectedUnitId: unitId },
-      interactivePhase: InteractivePhase.SelectMovement,
-      validMovementHexes: actions.validMoves,
-    }));
-  },
-
-  moveUnit: (unitId: string, targetHex: { q: number; r: number }) => {
-    const { interactiveSession } = get();
-    if (!interactiveSession) return;
-
-    interactiveSession.applyMovement(
-      unitId,
-      targetHex,
-      Facing.North,
-      MovementType.Walk,
-    );
-
-    set({
-      session: interactiveSession.getSession(),
-      interactivePhase: InteractivePhase.SelectUnit,
-      validMovementHexes: [],
-      ui: { ...get().ui, selectedUnitId: null },
-    });
-  },
-
-  selectWeapon: (weaponId: string) => {
-    set((state) => {
-      const current = state.ui.queuedWeaponIds;
-      const newQueued = current.includes(weaponId)
-        ? current.filter((id) => id !== weaponId)
-        : [...current, weaponId];
-      return {
-        ui: { ...state.ui, queuedWeaponIds: newQueued },
-      };
-    });
-  },
-
-  selectAttackTarget: (targetUnitId: string) => {
-    const { interactiveSession, ui } = get();
-    if (!interactiveSession || !ui.selectedUnitId) return;
-
-    const attackerState =
-      interactiveSession.getState().units[ui.selectedUnitId];
-    const targetState = interactiveSession.getState().units[targetUnitId];
-    if (!attackerState || !targetState) return;
-
-    const hitChance = 58; // Base hit chance (gunnery 4 = 58% on 2d6)
-
-    // Per `add-combat-phase-ui-flows`: also seed the structured
-    // `attackPlan.targetUnitId` so the new WeaponSelector and
-    // ToHitForecastModal can read a single source of truth instead of
-    // dual-tracking with the legacy `ui.targetUnitId` field.
-    set((state) => ({
-      ui: { ...state.ui, targetUnitId: targetUnitId },
-      attackPlan: { ...state.attackPlan, targetUnitId },
-      interactivePhase: InteractivePhase.SelectWeapons,
-      hitChance,
-    }));
-  },
-
-  fireWeapons: () => {
-    const { interactiveSession, ui } = get();
-    if (!interactiveSession || !ui.selectedUnitId || !ui.targetUnitId) return;
-
-    const weaponIds =
-      ui.queuedWeaponIds.length > 0 ? ui.queuedWeaponIds : ['medium-laser'];
-
-    interactiveSession.applyAttack(
-      ui.selectedUnitId,
-      ui.targetUnitId,
-      weaponIds,
-    );
-
-    const gameOver = interactiveSession.isGameOver();
-
-    set({
-      session: interactiveSession.getSession(),
-      interactivePhase: gameOver
-        ? InteractivePhase.GameOver
-        : InteractivePhase.SelectUnit,
-      validTargetIds: [],
-      hitChance: null,
-      ui: {
-        ...get().ui,
-        selectedUnitId: null,
-        targetUnitId: null,
-        queuedWeaponIds: [],
-      },
-    });
-  },
-
   runAITurn: () => {
     const { interactiveSession } = get();
     runAITurnLogic(interactiveSession, set);
   },
-
   advanceInteractivePhase: () => {
     const { interactiveSession } = get();
     advanceInteractivePhaseLogic(interactiveSession, get, set);
   },
-
-  handleInteractiveHexClick: (hex: { q: number; r: number }) => {
-    const { interactivePhase, ui, interactiveSession, session, attackPlan } =
-      get();
-    if (!interactiveSession) return;
-
-    if (
-      interactivePhase === InteractivePhase.SelectMovement &&
-      ui.selectedUnitId
-    ) {
-      get().moveUnit(ui.selectedUnitId, hex);
-      return;
-    }
-
-    // Per `add-attack-phase-ui` § 2.3: during WeaponAttack, clicking an
-    // empty hex clears the current attack target (pulsing ring goes
-    // away, WeaponSelector collapses back to the pre-target view). We
-    // only key off `attackPlan.targetUnitId` so the clear is a no-op
-    // when no target is set.
-    if (
-      session &&
-      session.currentState.phase === GamePhase.WeaponAttack &&
-      attackPlan.targetUnitId
-    ) {
-      const occupyingUnit = Object.values(session.currentState.units).find(
-        (u) => u.position.q === hex.q && u.position.r === hex.r,
-      );
-      if (!occupyingUnit) {
-        get().clearAttackPlan();
-        set({ interactivePhase: InteractivePhase.SelectTarget });
-        return;
-      }
-    }
-
-    // Per `add-interactive-combat-core-ui` § 2 Scenario 2: when the
-    // player clicks an empty hex during the default SelectUnit phase,
-    // the current unit selection is cleared (the action panel then
-    // shows the "Select a unit to view its status" placeholder). We
-    // detect "empty" by checking the live `currentState.units` for any
-    // unit whose position matches the clicked hex — matches the same
-    // source of truth the hex map uses to render tokens.
-    if (interactivePhase === InteractivePhase.SelectUnit && session) {
-      const occupyingUnit = Object.values(session.currentState.units).find(
-        (u) => u.position.q === hex.q && u.position.r === hex.r,
-      );
-      if (!occupyingUnit) {
-        set((state) => ({
-          ui: { ...state.ui, selectedUnitId: null },
-        }));
-      }
-    }
-  },
-
-  handleInteractiveTokenClick: (unitId: string) => {
+  handleInteractiveTokenClick: (unitId) => {
     const { interactivePhase, interactiveSession, attackPlan, session } = get();
 
     // Per `add-attack-phase-ui` § 2.3: during WeaponAttack, clicking
@@ -502,12 +326,10 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
       get().selectAttackTarget,
     );
   },
-
   skipPhase: () => {
     const { interactiveSession } = get();
     skipPhaseLogic(interactiveSession, get, set);
   },
-
   checkGameOver: (): boolean => {
     const { interactiveSession } = get();
     if (!interactiveSession) return false;
@@ -524,29 +346,9 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
     return false;
   },
 
-  toggleWeapon: (weaponId: string) => {
-    set((state) => {
-      const current = state.ui.queuedWeaponIds;
-      const newQueued = current.includes(weaponId)
-        ? current.filter((id) => id !== weaponId)
-        : [...current, weaponId];
-      return {
-        ui: { ...state.ui, queuedWeaponIds: newQueued },
-      };
-    });
-  },
-
-  clearError: () => {
-    set({ error: null });
-  },
-
-  reset: () => {
-    set(initialState);
-  },
-
-  // Per `add-combat-phase-ui-flows`: planning flows live in
-  // `useGameplayStore.combatFlows.ts` to keep this file under the
-  // per-file line budget. Each store action is a thin pass-through.
+  // -------------------------------------------------------------------------
+  // Movement / attack plan (delegated to useGameplayStore.combatFlows)
+  // -------------------------------------------------------------------------
   setPlannedMovement: (plan) => setPlannedMovementLogic(plan, set),
   clearPlannedMovement: () => clearPlannedMovementLogic(set),
   commitPlannedMovement: () => commitPlannedMovementLogic(get, set),
@@ -568,63 +370,21 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   setPreviewEnabled: (enabled) => set({ previewEnabled: enabled }),
 }));
 
-/**
- * Per `add-interactive-combat-core-ui` task 2.4: derived selector that
- * projects the currently selected unit's full record (config-side
- * `IGameUnit` + live `IUnitGameState`) so consumers don't need to
- * re-derive by id from `currentState.units` + `session.units` on every
- * render.
- *
- * Returns `null` when no unit is selected, the session is missing, or
- * the selected id no longer exists (e.g., unit destroyed and removed
- * from state).
- */
-export interface ISelectedUnitProjection {
-  readonly id: string;
-  readonly unit: import('@/types/gameplay').IGameUnit;
-  readonly state: import('@/types/gameplay').IUnitGameState;
-}
+// ---------------------------------------------------------------------------
+// Selector hooks
+// ---------------------------------------------------------------------------
 
 /**
- * Implementation note: this hook returns a fresh object each call,
- * which would cause an infinite render loop with Zustand's default
- * reference-equality selector. We sidestep that by selecting the three
- * primitives (id / session / units record) separately and combining
- * them via `useMemo` — each primitive read uses Zustand's own
- * shallow-equality so re-renders only fire when the specific input
- * changes.
+ * Subscribe to the currently selected unit's projection. Selects the
+ * three primitives (id / session) separately so Zustand's
+ * shallow-equality only re-renders when the relevant inputs change —
+ * `projectSelectedUnit` then composes them into the projected shape.
  */
 export function useSelectedUnit(): ISelectedUnitProjection | null {
   const id = useGameplayStore((s) => s.ui.selectedUnitId);
   const session = useGameplayStore((s) => s.session);
-
-  if (!id || !session) return null;
-  const unit = session.units.find((u) => u.id === id);
-  const state = session.currentState.units[id];
-  if (!unit || !state) return null;
-  return { id, unit, state };
+  return projectSelectedUnit(id, session);
 }
-
-// ---------------------------------------------------------------------------
-// Game-completion selector (add-victory-and-post-battle-summary D7)
-// ---------------------------------------------------------------------------
-
-/**
- * Per `add-victory-and-post-battle-summary` design D7 + spec
- * `game-session-management` "Game Completed Store Projection": the
- * combat page reads this selector to decide when to redirect to the
- * victory screen. Centralized here so the redirect logic in
- * `/gameplay/games/[id]` is one line and the selector itself is
- * unit-testable in isolation. Returns `true` exactly when the
- * session's `currentState.status === GameStatus.Completed`.
- *
- * Selector form is a function that takes the entire store state and
- * returns the boolean — usable directly via
- * `useGameplayStore(selectIsGameCompleted)` in components.
- */
-export const selectIsGameCompleted = (state: {
-  session: IGameSession | null;
-}): boolean => state.session?.currentState.status === GameStatus.Completed;
 
 /**
  * Hook form of `selectIsGameCompleted` for components that prefer

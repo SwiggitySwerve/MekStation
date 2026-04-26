@@ -80,7 +80,13 @@ export function useSyncToasts(): void {
 }
 
 /**
- * Format room code for display (XXX-XXX format).
+ * Format a 6-character room code as `ABC-DEF` for display.
+ *
+ * Strips any existing dashes, upper-cases the result, and inserts a single
+ * dash between the 3rd and 4th characters when the cleaned input is exactly
+ * 6 characters long. Inputs of any other length are returned upper-cased
+ * without re-grouping (used as-is by the toast layer for diagnostic codes
+ * that don't follow the canonical 6-char format).
  */
 function formatRoomCode(code: string): string {
   const clean = code.replace(/-/g, '').toUpperCase();
