@@ -4,27 +4,7 @@
   "title": "BattleTech Unit",
   "description": "Schema for serialized BattleTech unit definitions (BattleMechs, vehicles, etc.)",
   "type": "object",
-  "required": [
-    "id",
-    "chassis",
-    "model",
-    "unitType",
-    "configuration",
-    "techBase",
-    "rulesLevel",
-    "era",
-    "year",
-    "tonnage",
-    "engine",
-    "gyro",
-    "cockpit",
-    "structure",
-    "armor",
-    "heatSinks",
-    "movement",
-    "equipment",
-    "criticalSlots"
-  ],
+  "required": ["id", "unitType"],
   "properties": {
     "id": {
       "type": "string",
@@ -63,7 +43,8 @@
         "Space Station",
         "Infantry",
         "Battle Armor",
-        "Support Vehicle"
+        "Support Vehicle",
+        "BATTLEARMOR"
       ],
       "description": "Type of unit"
     },
@@ -79,7 +60,13 @@
     },
     "rulesLevel": {
       "type": "string",
-      "enum": ["INTRODUCTORY", "STANDARD", "ADVANCED", "EXPERIMENTAL", "UNOFFICIAL"],
+      "enum": [
+        "INTRODUCTORY",
+        "STANDARD",
+        "ADVANCED",
+        "EXPERIMENTAL",
+        "UNOFFICIAL"
+      ],
       "description": "Rules level/complexity"
     },
     "era": {
@@ -88,13 +75,13 @@
     },
     "year": {
       "type": "integer",
-      "minimum": 1950,
-      "maximum": 3200,
+      "minimum": 1000,
+      "maximum": 9999,
       "description": "Introduction year"
     },
     "tonnage": {
       "type": "number",
-      "minimum": 10,
+      "minimum": 0,
       "maximum": 200,
       "description": "Unit tonnage"
     },
@@ -104,7 +91,17 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["FUSION", "XL", "CLAN_XL", "LIGHT", "COMPACT", "XXL", "ICE", "FUEL_CELL", "FISSION"],
+          "enum": [
+            "FUSION",
+            "XL",
+            "CLAN_XL",
+            "LIGHT",
+            "COMPACT",
+            "XXL",
+            "ICE",
+            "FUEL_CELL",
+            "FISSION"
+          ],
           "description": "Engine type"
         },
         "rating": {
@@ -140,7 +137,8 @@
         "SUPERHEAVY",
         "SUPERHEAVY_TRIPOD",
         "INTERFACE",
-        "QUADVEE"
+        "QUADVEE",
+        "PRIMITIVE_INDUSTRIAL"
       ],
       "description": "Cockpit type"
     },
@@ -157,7 +155,8 @@
             "ENDO_COMPOSITE",
             "REINFORCED",
             "COMPOSITE",
-            "INDUSTRIAL"
+            "INDUSTRIAL",
+            "ENDO_COMPOSITE_CLAN"
           ],
           "description": "Internal structure type"
         }
@@ -181,7 +180,11 @@
             "REFLECTIVE",
             "HARDENED",
             "PRIMITIVE",
-            "INDUSTRIAL"
+            "INDUSTRIAL",
+            "HEAVY_INDUSTRIAL",
+            "COMMERCIAL",
+            "IMPACT_RESISTANT",
+            "FERRO_LAMELLOR"
           ],
           "description": "Armor type"
         },
@@ -190,13 +193,22 @@
           "description": "Armor points per location",
           "additionalProperties": {
             "oneOf": [
-              { "type": "integer", "minimum": 0 },
+              {
+                "type": "integer",
+                "minimum": 0
+              },
               {
                 "type": "object",
                 "required": ["front", "rear"],
                 "properties": {
-                  "front": { "type": "integer", "minimum": 0 },
-                  "rear": { "type": "integer", "minimum": 0 }
+                  "front": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "rear": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
                 },
                 "additionalProperties": false
               }
@@ -225,7 +237,7 @@
     },
     "movement": {
       "type": "object",
-      "required": ["walk", "jump"],
+      "required": [],
       "properties": {
         "walk": {
           "type": "integer",
@@ -244,11 +256,13 @@
         },
         "enhancements": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Movement enhancements (MASC, Supercharger, etc.)"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "equipment": {
       "type": "array",
@@ -266,7 +280,9 @@
           },
           "slots": {
             "type": "array",
-            "items": { "type": "integer" },
+            "items": {
+              "type": "integer"
+            },
             "description": "Specific slot indices"
           },
           "isRearMounted": {
@@ -290,31 +306,55 @@
         "type": "array",
         "items": {
           "oneOf": [
-            { "type": "string" },
-            { "type": "null" }
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
           ]
         }
       }
     },
     "quirks": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Unit quirks"
     },
     "fluff": {
       "type": "object",
       "properties": {
-        "overview": { "type": "string" },
-        "capabilities": { "type": "string" },
-        "history": { "type": "string" },
-        "deployment": { "type": "string" },
-        "variants": { "type": "string" },
-        "notableUnits": { "type": "string" },
-        "manufacturer": { "type": "string" },
-        "primaryFactory": { "type": "string" },
+        "overview": {
+          "type": "string"
+        },
+        "capabilities": {
+          "type": "string"
+        },
+        "history": {
+          "type": "string"
+        },
+        "deployment": {
+          "type": "string"
+        },
+        "variants": {
+          "type": "string"
+        },
+        "notableUnits": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "primaryFactory": {
+          "type": "string"
+        },
         "systemManufacturer": {
           "type": "object",
-          "additionalProperties": { "type": "string" }
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false,
@@ -333,6 +373,77 @@
       "description": "Source book/publication"
     }
   },
-  "additionalProperties": false
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "unitType": {
+            "enum": [
+              "BattleMech",
+              "OmniMech",
+              "IndustrialMech",
+              "ProtoMech",
+              "Vehicle",
+              "VTOL",
+              "Support Vehicle",
+              "Aerospace",
+              "Conventional Fighter",
+              "Small Craft"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "id",
+          "chassis",
+          "model",
+          "unitType",
+          "configuration",
+          "techBase",
+          "rulesLevel",
+          "era",
+          "year",
+          "tonnage",
+          "engine",
+          "gyro",
+          "cockpit",
+          "structure",
+          "armor",
+          "heatSinks",
+          "movement",
+          "equipment",
+          "criticalSlots"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "unitType": {
+            "enum": [
+              "BattleMech",
+              "OmniMech",
+              "IndustrialMech",
+              "ProtoMech",
+              "Vehicle",
+              "VTOL",
+              "Support Vehicle",
+              "Aerospace",
+              "Conventional Fighter",
+              "Small Craft"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "movement": {
+            "required": ["walk", "jump"]
+          }
+        }
+      }
+    }
+  ]
 }
-

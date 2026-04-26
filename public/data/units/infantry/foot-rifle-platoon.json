@@ -4,9 +4,9 @@
   "unitType": "Infantry",
   "tonnage": 2.24,
   "weightClass": "Light",
-  "techBase": "Inner Sphere",
+  "techBase": "INNER_SPHERE",
   "era": "Late Succession Wars",
-  "rulesLevel": "Introductory",
+  "rulesLevel": "INTRODUCTORY",
   "source": "TechManual",
   "role": "Infantry Support",
   "squadSize": 7,
@@ -37,8 +37,8 @@
     "chassis": "Foot Rifle Platoon",
     "model": "",
     "year": 3025,
-    "rulesLevel": "Introductory",
-    "techBase": "Inner Sphere",
+    "rulesLevel": "INTRODUCTORY",
+    "techBase": "INNER_SPHERE",
     "role": "Infantry Support"
   },
   "mulBV": null

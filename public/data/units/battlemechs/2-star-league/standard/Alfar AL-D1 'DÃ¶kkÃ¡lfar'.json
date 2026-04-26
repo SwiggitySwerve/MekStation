@@ -1,5 +1,5 @@
 {
-  "id": "alfar-al-d1-dã¶kkã¡lfar",
+  "id": "alfar-al-d1-dakkalfar",
   "chassis": "Alfar",
   "model": "AL-D1 'DÃ¶kkÃ¡lfar'",
   "unitType": "BattleMech",
@@ -156,9 +156,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "non_standard"
-  ],
+  "quirks": ["non_standard"],
   "fluff": {
     "history": "This unit is technically unofficial and has been included for completeness, the tech level has also been changed to a 5 until an official record sheet is available."
   },
