@@ -451,6 +451,7 @@
       },
       "weight": 1,
       "criticalSlots": 1,
+      "costCBills": 31000,
       "battleValue": 21,
       "introductionYear": 3057,
       "special": ["-2 to-hit modifier"]
@@ -472,6 +473,7 @@
       },
       "weight": 2,
       "criticalSlots": 1,
+      "costCBills": 110000,
       "battleValue": 71,
       "introductionYear": 3057,
       "special": ["-2 to-hit modifier"]
@@ -493,6 +495,7 @@
       },
       "weight": 7,
       "criticalSlots": 2,
+      "costCBills": 275000,
       "battleValue": 178,
       "introductionYear": 3057,
       "special": ["-2 to-hit modifier"]
@@ -514,6 +517,7 @@
       },
       "weight": 2,
       "criticalSlots": 1,
+      "costCBills": 60000,
       "battleValue": 22,
       "introductionYear": 3070,
       "special": ["variable damage (5/4/3)"]
@@ -535,6 +539,7 @@
       },
       "weight": 4,
       "criticalSlots": 2,
+      "costCBills": 200000,
       "battleValue": 56,
       "introductionYear": 3070,
       "special": ["variable damage (9/7/5)"]
@@ -556,6 +561,7 @@
       },
       "weight": 9,
       "criticalSlots": 4,
+      "costCBills": 465000,
       "battleValue": 123,
       "introductionYear": 3070,
       "special": ["variable damage (11/9/7)"]
