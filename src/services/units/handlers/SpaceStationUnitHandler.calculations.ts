@@ -4,7 +4,7 @@
  * BV and cost calculation methods.
  */
 
-import { ISpaceStation } from './SpaceStationUnitHandler';
+import type { ISpaceStation } from './SpaceStationUnitHandler.types';
 
 /**
  * Calculate Space Station BV

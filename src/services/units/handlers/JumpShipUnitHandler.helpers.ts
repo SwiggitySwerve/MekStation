@@ -9,7 +9,7 @@ import {
   CapitalArc,
 } from '@/types/unit/CapitalShipInterfaces';
 
-import { IJumpShip } from './JumpShipUnitHandler';
+import type { IJumpShip } from './JumpShipUnitHandler.types';
 
 const ARC_MAP: Record<string, CapitalArc> = {
   nose: CapitalArc.NOSE,

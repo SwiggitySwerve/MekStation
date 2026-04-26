@@ -15,7 +15,7 @@ import {
   CapitalArc,
 } from '@/types/unit/CapitalShipInterfaces';
 
-import { SpaceStationType } from './SpaceStationUnitHandler';
+import { SpaceStationType } from './SpaceStationUnitHandler.types';
 
 /**
  * Map location strings to CapitalArc enum
