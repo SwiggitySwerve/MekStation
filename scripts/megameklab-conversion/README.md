@@ -59,7 +59,8 @@ cross-language schema bridge introduced by PR-A1:
   `items[]` entry, writes a JSON report to
   `validation-output/schema-bridge-report.json`. Flags:
   - `--shape weapon` (default in PR-A1) — repeat to enable additional
-    shapes; `--shape all` enables every shape.
+    shapes; `--shape all` enables every shape. PR-A2's CI gate uses
+    `--shape all --strict`.
   - `--strict` — exit non-zero on any failure.
 
 `validator.py` exposes the same harness via a thin `--strict --shape`

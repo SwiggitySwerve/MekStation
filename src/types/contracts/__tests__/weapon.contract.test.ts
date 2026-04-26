@@ -64,18 +64,11 @@ const FIXTURES = [
   {
     file: 'energy-laser.json',
     label: 'Energy/Laser',
-    // X-Pulse and Variable-Speed-Pulse (VSP) laser entries in the corpus
-    // are missing the required `costCBills` field. Tracked for PR-A2 to
-    // fix the source data; PR-A2 also flips the gate from non-blocking
-    // to strict so the corpus drift becomes a hard CI failure.
-    knownDriftIds: [
-      'small-x-pulse-laser',
-      'medium-x-pulse-laser',
-      'large-x-pulse-laser',
-      'small-vsp-laser',
-      'medium-vsp-laser',
-      'large-vsp-laser',
-    ],
+    // PR-A2 fixed the 6 X-Pulse + VSP laser entries that were missing
+    // `costCBills` (values sourced from MegaMek Java equipment classes)
+    // and flipped the schema-bridge CI job to --strict, so the corpus
+    // is now drift-free for the weapon shape.
+    knownDriftIds: [],
   },
   { file: 'energy-ppc.json', label: 'Energy/PPC', knownDriftIds: [] },
   {

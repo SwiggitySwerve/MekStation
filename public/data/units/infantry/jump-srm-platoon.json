@@ -4,9 +4,9 @@
   "unitType": "Infantry",
   "tonnage": 1.68,
   "weightClass": "Light",
-  "techBase": "Inner Sphere",
+  "techBase": "INNER_SPHERE",
   "era": "Late Succession Wars",
-  "rulesLevel": "Standard",
+  "rulesLevel": "STANDARD",
   "source": "TechManual",
   "role": "Fire Support",
   "squadSize": 7,
@@ -37,8 +37,8 @@
     "chassis": "Jump SRM Platoon",
     "model": "",
     "year": 3025,
-    "rulesLevel": "Standard",
-    "techBase": "Inner Sphere",
+    "rulesLevel": "STANDARD",
+    "techBase": "INNER_SPHERE",
     "role": "Fire Support"
   },
   "mulBV": null

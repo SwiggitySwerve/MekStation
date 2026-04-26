@@ -43,9 +43,10 @@
         "ATM",
         "NARC",
         "Artillery",
-        "AMS"
+        "AMS",
+        "Energy"
       ],
-      "description": "Ammunition category"
+      "description": "Ammunition category. 'Energy' covers chemical-laser ammo and similar energy-weapon consumables."
     },
     "variant": {
       "type": "string",
@@ -74,14 +75,22 @@
     },
     "rulesLevel": {
       "type": "string",
-      "enum": ["INTRODUCTORY", "STANDARD", "ADVANCED", "EXPERIMENTAL", "UNOFFICIAL"],
+      "enum": [
+        "INTRODUCTORY",
+        "STANDARD",
+        "ADVANCED",
+        "EXPERIMENTAL",
+        "UNOFFICIAL"
+      ],
       "description": "Rules level/complexity"
     },
     "compatibleWeaponIds": {
       "type": "array",
-      "items": { "type": "string" },
-      "minItems": 1,
-      "description": "List of weapon IDs this ammo is compatible with"
+      "items": {
+        "type": "string"
+      },
+      "minItems": 0,
+      "description": "List of weapon IDs this ammo is compatible with. Empty array is allowed for ammo whose compatibility is resolved at runtime via name-mappings (e.g. ATM/SRM variants that share a base weapon)."
     },
     "shotsPerTon": {
       "type": "integer",
@@ -122,30 +131,34 @@
     },
     "introductionYear": {
       "type": "integer",
-      "minimum": 1950,
-      "maximum": 3200,
+      "minimum": 1000,
+      "maximum": 9999,
       "description": "Year the ammunition was introduced"
     },
     "extinctionYear": {
       "type": "integer",
-      "minimum": 1950,
-      "maximum": 3200,
+      "minimum": 1000,
+      "maximum": 9999,
       "description": "Year the ammunition became extinct (if applicable)"
     },
     "reintroductionYear": {
       "type": "integer",
-      "minimum": 1950,
-      "maximum": 3200,
+      "minimum": 1000,
+      "maximum": 9999,
       "description": "Year the ammunition was reintroduced (if applicable)"
     },
     "special": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Special rules for this ammunition type"
     },
     "flags": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Equipment behavior flags (e.g., EXPLOSIVE, INCENDIARY)"
     },
     "allowedUnitTypes": {
@@ -153,11 +166,22 @@
       "items": {
         "type": "string",
         "enum": [
-          "BattleMech", "OmniMech", "IndustrialMech", "ProtoMech",
-          "Vehicle", "VTOL", "Support Vehicle",
-          "Aerospace", "Conventional Fighter", "Small Craft",
-          "DropShip", "JumpShip", "WarShip", "Space Station",
-          "Infantry", "Battle Armor"
+          "BattleMech",
+          "OmniMech",
+          "IndustrialMech",
+          "ProtoMech",
+          "Vehicle",
+          "VTOL",
+          "Support Vehicle",
+          "Aerospace",
+          "Conventional Fighter",
+          "Small Craft",
+          "DropShip",
+          "JumpShip",
+          "WarShip",
+          "Space Station",
+          "Infantry",
+          "Battle Armor"
         ]
       },
       "description": "Unit types that can use this ammunition. If omitted, defaults to BattleMech, Vehicle, Aerospace."
@@ -165,4 +189,3 @@
   },
   "additionalProperties": false
 }
-

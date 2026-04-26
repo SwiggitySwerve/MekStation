@@ -51,7 +51,13 @@
     },
     "rulesLevel": {
       "type": "string",
-      "enum": ["INTRODUCTORY", "STANDARD", "ADVANCED", "EXPERIMENTAL", "UNOFFICIAL"],
+      "enum": [
+        "INTRODUCTORY",
+        "STANDARD",
+        "ADVANCED",
+        "EXPERIMENTAL",
+        "UNOFFICIAL"
+      ],
       "description": "Rules level/complexity"
     },
     "weightFormula": {
@@ -103,14 +109,16 @@
     },
     "validLocations": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "minItems": 1,
       "description": "Valid mounting locations"
     },
     "introductionYear": {
       "type": "integer",
-      "minimum": 1950,
-      "maximum": 3200,
+      "minimum": 1000,
+      "maximum": 9999,
       "description": "Year the weapon was introduced"
     },
     "costFormula": {
@@ -119,12 +127,16 @@
     },
     "special": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Special rules for this weapon"
     },
     "flags": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Equipment behavior flags"
     },
     "allowedUnitTypes": {
@@ -132,11 +144,22 @@
       "items": {
         "type": "string",
         "enum": [
-          "BattleMech", "OmniMech", "IndustrialMech", "ProtoMech",
-          "Vehicle", "VTOL", "Support Vehicle",
-          "Aerospace", "Conventional Fighter", "Small Craft",
-          "DropShip", "JumpShip", "WarShip", "Space Station",
-          "Infantry", "Battle Armor"
+          "BattleMech",
+          "OmniMech",
+          "IndustrialMech",
+          "ProtoMech",
+          "Vehicle",
+          "VTOL",
+          "Support Vehicle",
+          "Aerospace",
+          "Conventional Fighter",
+          "Small Craft",
+          "DropShip",
+          "JumpShip",
+          "WarShip",
+          "Space Station",
+          "Infantry",
+          "Battle Armor"
         ]
       },
       "description": "Unit types that can mount this weapon. Physical weapons are typically limited to BattleMechs."
@@ -144,4 +167,3 @@
   },
   "additionalProperties": false
 }
-

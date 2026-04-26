@@ -47,13 +47,25 @@
     },
     "rulesLevel": {
       "type": "string",
-      "enum": ["INTRODUCTORY", "STANDARD", "ADVANCED", "EXPERIMENTAL", "UNOFFICIAL"],
+      "enum": [
+        "INTRODUCTORY",
+        "STANDARD",
+        "ADVANCED",
+        "EXPERIMENTAL",
+        "UNOFFICIAL"
+      ],
       "description": "Rules level/complexity"
     },
     "damage": {
       "oneOf": [
-        { "type": "number", "minimum": 0 },
-        { "type": "string", "description": "Variable damage like '1/missile'" }
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "string",
+          "description": "Variable damage like '1/missile'"
+        }
       ],
       "description": "Damage value or formula"
     },
@@ -121,20 +133,20 @@
     },
     "introductionYear": {
       "type": "integer",
-      "minimum": 1950,
-      "maximum": 3200,
+      "minimum": 1000,
+      "maximum": 9999,
       "description": "Year the weapon was introduced"
     },
     "extinctionYear": {
       "type": "integer",
-      "minimum": 1950,
-      "maximum": 3200,
+      "minimum": 1000,
+      "maximum": 9999,
       "description": "Year the weapon became extinct (if applicable)"
     },
     "reintroductionYear": {
       "type": "integer",
-      "minimum": 1950,
-      "maximum": 3200,
+      "minimum": 1000,
+      "maximum": 9999,
       "description": "Year the weapon was reintroduced (if applicable)"
     },
     "isExplosive": {
@@ -144,12 +156,16 @@
     },
     "special": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Special abilities or rules"
     },
     "flags": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Equipment behavior flags for rules processing (e.g., PULSE, DIRECT_FIRE, AMS)"
     },
     "allowedUnitTypes": {
@@ -157,21 +173,33 @@
       "items": {
         "type": "string",
         "enum": [
-          "BattleMech", "OmniMech", "IndustrialMech", "ProtoMech",
-          "Vehicle", "VTOL", "Support Vehicle",
-          "Aerospace", "Conventional Fighter", "Small Craft",
-          "DropShip", "JumpShip", "WarShip", "Space Station",
-          "Infantry", "Battle Armor"
+          "BattleMech",
+          "OmniMech",
+          "IndustrialMech",
+          "ProtoMech",
+          "Vehicle",
+          "VTOL",
+          "Support Vehicle",
+          "Aerospace",
+          "Conventional Fighter",
+          "Small Craft",
+          "DropShip",
+          "JumpShip",
+          "WarShip",
+          "Space Station",
+          "Infantry",
+          "Battle Armor"
         ]
       },
       "description": "Unit types that can mount this weapon. If omitted, defaults to BattleMech, Vehicle, Aerospace."
     },
     "allowedLocations": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Specific locations where this weapon can be mounted. If omitted, any valid weapon location is allowed."
     }
   },
   "additionalProperties": false
 }
-

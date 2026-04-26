@@ -210,12 +210,15 @@ jobs:
       - name: Verify generated Zod matches JSON Schema
         run: npm run schema:gen-check
 
-      - name: Validate weapon corpus (non-blocking in PR-A1)
-        # PR-A1 corpus has 6 X-Pulse / VSP entries missing costCBills.
-        # PR-A2 fixes the data and adds --strict here.
-        run: python scripts/megameklab-conversion/run_schema_validation_only.py --shape weapon
+      - name: Validate full corpus (all 6 shapes, strict)
+        # PR-A2 flips the gate to --shape all --strict. Drift in any of
+        # weapon / ammunition / electronics / misc_equipment /
+        # physical_weapon / unit fails the build immediately.
+        run: python scripts/megameklab-conversion/run_schema_validation_only.py --shape all --strict
 
-      - name: Run weapon round-trip Jest tests
+      - name: Run cross-language schema-bridge Jest tests
+        # All 6 contract test suites (weapon + unit + ammunition +
+        # electronics + misc-equipment + physical-weapon).
         run: npx jest src/types/contracts --ci --no-coverage
 
       - name: Upload schema-bridge report

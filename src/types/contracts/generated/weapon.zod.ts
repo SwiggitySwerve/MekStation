@@ -112,21 +112,21 @@ export const WeaponContract = z
     introductionYear: z
       .number()
       .int()
-      .gte(1950)
-      .lte(3200)
+      .gte(1000)
+      .lte(9999)
       .describe('Year the weapon was introduced'),
     extinctionYear: z
       .number()
       .int()
-      .gte(1950)
-      .lte(3200)
+      .gte(1000)
+      .lte(9999)
       .describe('Year the weapon became extinct (if applicable)')
       .optional(),
     reintroductionYear: z
       .number()
       .int()
-      .gte(1950)
-      .lte(3200)
+      .gte(1000)
+      .lte(9999)
       .describe('Year the weapon was reintroduced (if applicable)')
       .optional(),
     isExplosive: z
