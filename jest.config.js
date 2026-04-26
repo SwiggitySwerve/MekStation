@@ -23,15 +23,20 @@ const customJestConfig = {
     '!**/*.d.ts',
   ],
   // Coverage thresholds - will fail if coverage drops below these levels
-  // Set based on coverage analysis from 2025-12-03
+  // Ratcheted on 2026-04-25 after Tier 1 BV-core invariant tests landed
+  // (PR-C1: ~110 new tests for battleValue*, aerospace, engine/gyro/heat-sink/
+  // armor/cost, equipmentBV, techBaseValidation). Pre-PR baseline reported
+  // 67.43% statements / 58.23% branches / 60.37% functions / 69.48% lines
+  // globally; new threshold sits well below the baseline to act as a true
+  // ratchet without flapping on small refactors.
   // Note: Directory-specific thresholds removed due to Jest path matching issues.
   // Global thresholds are sufficient for CI enforcement.
   coverageThreshold: {
     global: {
-      statements: 45,
-      branches: 35,
-      functions: 40,
-      lines: 45,
+      statements: 55,
+      branches: 45,
+      functions: 50,
+      lines: 55,
     },
   },
   // Report formats: text, lcov (for CI), html (for browsing)
