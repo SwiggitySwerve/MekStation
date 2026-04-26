@@ -18,6 +18,10 @@
  * Requirement: Aerospace Construction Validation Rules
  */
 
+// AerospaceValidationError lives in `./validationRules.types` to break the
+// 3-way cycle with bombBays.ts and wingHeavyWeapons.ts. Re-exported below.
+import type { AerospaceValidationError } from './validationRules.types';
+
 import {
   AerospaceArc,
   AerospaceEngineType,
@@ -31,22 +35,14 @@ import {
   getMaxSafeThrust,
   isEngineLegalForSubType,
 } from './thrustCalculations';
+// ============================================================================
+// Validation Error Shape
+// ============================================================================
 import {
   validateWingHeavyWeapons,
   type WingMountInput,
 } from './wingHeavyWeapons';
-
-// ============================================================================
-// Validation Error Shape
-// ============================================================================
-
-/** A single construction validation failure. */
-export interface AerospaceValidationError {
-  /** Stable rule identifier, e.g. "VAL-AERO-TONNAGE" */
-  readonly ruleId: string;
-  /** Human-readable description of the violation */
-  readonly message: string;
-}
+export type { AerospaceValidationError };
 
 // ============================================================================
 // Tonnage Range Table

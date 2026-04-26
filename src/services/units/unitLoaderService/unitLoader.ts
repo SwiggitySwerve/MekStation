@@ -45,6 +45,7 @@ import {
 import { mapEquipment } from './equipmentMapping';
 import { hasSerializedUnitStructure } from './typeGuards';
 import { IRawSerializedUnit, UnitSource, ILoadUnitResult } from './types';
+import { safeParseUnit } from './unitContractAdapter';
 
 /**
  * Unit Loader Service
@@ -76,7 +77,23 @@ export class UnitLoaderService {
         return { success: false, error: `Canonical unit "${id}" not found` };
       }
 
-      const state = this.mapToUnitState(fullUnit as IRawSerializedUnit, true);
+      // Schema-bridge boundary: surface drift between on-disk shape and
+      // `UnitContract` as a dev-mode warning. We use `safeParseUnit` (not
+      // `parseUnit`) so test fixtures and partial mock data don't throw —
+      // the corpus-wide strict gate runs in `unit.contract.test.ts` and CI.
+      const parseResult = safeParseUnit(fullUnit);
+      if (!parseResult.success && process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[unitLoader] UnitContract drift on canonical:${id} — ${parseResult.error?.message ?? 'unknown'}`,
+        );
+      }
+      const state = this.mapToUnitState(
+        (parseResult.success
+          ? parseResult.unit
+          : fullUnit) as IRawSerializedUnit,
+        true,
+      );
       return { success: true, state };
     } catch (error) {
       const message =
@@ -102,17 +119,34 @@ export class UnitLoaderService {
       }
 
       // Custom units may already be in UnitState format (saved from customizer)
-      // or in serialized format (imported)
-      // IFullUnit has [key: string]: unknown, so we can use it as ISerializedUnit if it has the right structure
+      // or in serialized format (imported). The structural pre-check stays
+      // because UnitState has a different shape (no top-level `tonnage`/
+      // `techBase` etc.) and `parseUnit` would reject it — that's the wrong
+      // failure mode for already-customizer-saved units which the loader
+      // currently silently passes through. Once UnitState gets its own
+      // contract this branch can collapse into a single parse.
       if (!hasSerializedUnitStructure(fullUnit)) {
         return {
           success: false,
           error: 'Custom unit data is not in serialized format',
         };
       }
-      // Type assertion is safe here because we've verified the structure matches IRawSerializedUnit
-      // and IFullUnit's index signature [key: string]: unknown makes it compatible
-      const state = this.mapToUnitState(fullUnit as IRawSerializedUnit, false);
+      // Schema-bridge boundary for serialized-format custom units. Same
+      // dev-only-warn pattern as canonical — strict drift detection is
+      // owned by the corpus contract test, not the runtime loader.
+      const parseResult = safeParseUnit(fullUnit);
+      if (!parseResult.success && process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[unitLoader] UnitContract drift on custom:${id} — ${parseResult.error?.message ?? 'unknown'}`,
+        );
+      }
+      const state = this.mapToUnitState(
+        (parseResult.success
+          ? parseResult.unit
+          : fullUnit) as IRawSerializedUnit,
+        false,
+      );
       return { success: true, state };
     } catch (error) {
       const message =

@@ -44,3 +44,12 @@ export { calculateArmorTonnage } from './armorCalculations';
 
 // Main service class
 export { UnitLoaderService, unitLoaderService } from './unitLoader';
+
+// Schema-bridge contract adapter (PR-A2). Use `parseUnit` / `safeParseUnit`
+// at any new JSON-parse boundary instead of casting `as IRawSerializedUnit`
+// — drift fails loudly with a Zod issue path.
+export {
+  parseUnit,
+  safeParseUnit,
+  UnitContractParseError,
+} from './unitContractAdapter';

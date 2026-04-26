@@ -19,9 +19,10 @@ Usage::
     if errors:
         raise ValueError(f"weapon failed schema: {errors}")
 
-In PR-A1 the choke point is opt-in via ``MEKSTATION_VALIDATE_WRITES=1``
-so existing converter runs are not perturbed. PR-A2 flips the default to
-on after corpus conformance is fixed.
+The choke point is **default-on**: ``blk_common.write_*_json`` calls run
+this validator unless ``MEKSTATION_VALIDATE_WRITES`` is explicitly set
+to ``0`` / ``false`` / ``no`` / ``off``. Default flipped after PR #429
+verified corpus conformance and the strict CI gate turned green.
 
 The 6 public ``validate_<shape>`` functions reuse a single compiled
 ``Draft7Validator`` per shape (compile-once-reuse). Compilation is lazy

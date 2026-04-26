@@ -6,7 +6,7 @@ import {
 } from '@/components/repair';
 import { Card } from '@/components/ui';
 
-import { UnitRepairCard } from './RepairBayPage.sections';
+import { UnitRepairCard } from './RepairBayPage.UnitRepairCard';
 
 interface RepairWorkspaceProps {
   filteredJobs: IRepairJob[];

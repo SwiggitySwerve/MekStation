@@ -87,4 +87,13 @@ export const AMMUNITION_CATALOG_FILES: readonly CatalogDataFile[] = [
   ammunitionSrm,
 ] as const;
 
+// FIXME(schema-bridge): name-mappings.json doesn't yet have a Zod
+// contract (no `_schema/name-mappings-schema.json` Zod generation).
+// Once authored, replace this double-cast with a `parseNameMappings`
+// adapter call in line with the `parseUnit` pattern from
+// `services/units/unitLoaderService/unitContractAdapter.ts`. The cast
+// is safe today because the JSON is committed verbatim and validated
+// statically — runtime drift would be caught at the next BV regression
+// run rather than at parse-time, which is the only thing the contract
+// adapter would buy us here.
 export const NAME_MAPPINGS_DATA = nameMappings as unknown as NameMappingsData;
