@@ -19,35 +19,35 @@
  * separately.
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from "react";
 
-import type { IWeapon } from '@/simulation/ai/types';
+import type { IWeapon } from "@/simulation/ai/types";
 import type {
   IAttackerState,
   IHexCoordinate,
   ITargetState,
-} from '@/types/gameplay';
-import type { IForecastInput } from '@/utils/gameplay/toHit/forecast';
+} from "@/types/gameplay";
+import type { IForecastInput } from "@/utils/gameplay/toHit/forecast";
 
-import { useGameplayStore, useSelectedUnit } from '@/stores/useGameplayStore';
+import { selectFromStore, useSelectedUnit } from "@/stores/useGameplayStore";
 import {
   Facing,
   GameEventType,
   GamePhase,
   LockState,
   MovementType,
-} from '@/types/gameplay';
-import { hexDistance } from '@/utils/gameplay/hexMath';
+} from "@/types/gameplay";
+import { hexDistance } from "@/utils/gameplay/hexMath";
 
-import { CommitMoveButton } from './CommitMoveButton';
-import { FacingPicker } from './FacingPicker';
-import { MovementTypeSwitcher } from './MovementTypeSwitcher';
+import { CommitMoveButton } from "./CommitMoveButton";
+import { FacingPicker } from "./FacingPicker";
+import { MovementTypeSwitcher } from "./MovementTypeSwitcher";
 import {
   PhysicalAttackPanel,
   type PhysicalAttackIntent,
-} from './PhysicalAttackPanel';
-import { ToHitForecastModal } from './ToHitForecastModal';
-import { WeaponSelector } from './WeaponSelector';
+} from "./PhysicalAttackPanel";
+import { ToHitForecastModal } from "./ToHitForecastModal";
+import { WeaponSelector } from "./WeaponSelector";
 
 export interface CombatPlanningPanelProps {
   /** Walk MP for the currently selected unit (provided by parent). */
@@ -102,26 +102,24 @@ export function CombatPlanningPanel({
   weapons = [],
   onPhysicalAttackIntentChange,
   attackerTonnage,
-  className = '',
+  className = "",
 }: CombatPlanningPanelProps): React.ReactElement | null {
   // Reasoning: each of these reads is a primitive selector so Zustand
   // can short-circuit re-renders unless the specific slice changes.
-  const session = useGameplayStore((s) => s.session);
-  const plannedMovement = useGameplayStore((s) => s.plannedMovement);
-  const attackPlan = useGameplayStore((s) => s.attackPlan);
-  const setPlannedMovement = useGameplayStore((s) => s.setPlannedMovement);
-  const clearPlannedMovement = useGameplayStore((s) => s.clearPlannedMovement);
-  const commitPlannedMovement = useGameplayStore(
-    (s) => s.commitPlannedMovement,
-  );
-  const togglePlannedWeapon = useGameplayStore((s) => s.togglePlannedWeapon);
-  const commitAttack = useGameplayStore((s) => s.commitAttack);
+  const session = selectFromStore((s) => s.session);
+  const plannedMovement = selectFromStore((s) => s.plannedMovement);
+  const attackPlan = selectFromStore((s) => s.attackPlan);
+  const setPlannedMovement = selectFromStore((s) => s.setPlannedMovement);
+  const clearPlannedMovement = selectFromStore((s) => s.clearPlannedMovement);
+  const commitPlannedMovement = selectFromStore((s) => s.commitPlannedMovement);
+  const togglePlannedWeapon = selectFromStore((s) => s.togglePlannedWeapon);
+  const commitAttack = selectFromStore((s) => s.commitAttack);
   // Per `add-what-if-to-hit-preview` § 8.2: toggle state lives on the
   // store so other surfaces (e.g. ToHitForecastModal) can subscribe to
   // the same flag without prop drilling. Selector is a primitive read
   // so re-renders only fire when the toggle actually flips.
-  const previewEnabled = useGameplayStore((s) => s.previewEnabled);
-  const setPreviewEnabled = useGameplayStore((s) => s.setPreviewEnabled);
+  const previewEnabled = selectFromStore((s) => s.previewEnabled);
+  const setPreviewEnabled = selectFromStore((s) => s.setPreviewEnabled);
 
   // The orphan we're now wiring in — projects { id, unit, state } in
   // one shot for the currently selected unit.
@@ -354,7 +352,7 @@ export function CombatPlanningPanel({
         <fieldset
           disabled={attackerLocked}
           className={`flex flex-col gap-3 border-0 p-0 ${
-            attackerLocked ? 'pointer-events-none opacity-60' : ''
+            attackerLocked ? "pointer-events-none opacity-60" : ""
           }`}
           data-testid="combat-planning-fieldset"
         >
@@ -375,8 +373,8 @@ export function CombatPlanningPanel({
             disabled={!forecastReady}
             className={`min-h-[44px] rounded px-4 py-2 font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
               forecastReady
-                ? 'cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
-                : 'cursor-not-allowed bg-gray-300 text-gray-500'
+                ? "cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
+                : "cursor-not-allowed bg-gray-300 text-gray-500"
             }`}
             data-testid="preview-forecast-button"
           >

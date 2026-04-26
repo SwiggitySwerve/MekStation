@@ -7,21 +7,21 @@
  * @spec openspec/changes/add-movement-phase-ui/specs/tactical-map-interface/spec.md
  */
 
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   CombatPlanningPanel,
   GameplayLayout,
   SpectatorView,
-} from '@/components/gameplay';
+} from "@/components/gameplay";
 import {
   CompletedGame,
   GameError,
   GameLoading,
-} from '@/components/gameplay/pages/GameSessionPage.states';
-import { useGameplayStore, InteractivePhase } from '@/stores/useGameplayStore';
+} from "@/components/gameplay/pages/GameSessionPage.states";
+import { useGameplayStore, InteractivePhase } from "@/stores/useGameplayStore";
 import {
   Facing,
   GamePhase,
@@ -30,11 +30,11 @@ import {
   IHexCoordinate,
   IMovementRangeHex,
   MovementType,
-} from '@/types/gameplay';
-import { AXIAL_DIRECTION_DELTAS } from '@/types/gameplay/HexGridInterfaces';
-import { findPath } from '@/utils/gameplay/movement/pathfinding';
-import { deriveReachableHexes } from '@/utils/gameplay/movement/reachable';
-import { logger } from '@/utils/logger';
+} from "@/types/gameplay";
+import { AXIAL_DIRECTION_DELTAS } from "@/types/gameplay/HexGridInterfaces";
+import { findPath } from "@/utils/gameplay/movement/pathfinding";
+import { deriveReachableHexes } from "@/utils/gameplay/movement/reachable";
+import { logger } from "@/utils/logger";
 
 /**
  * Per `add-movement-phase-ui` § 5: derive the default facing from the
@@ -65,9 +65,18 @@ function facingFromPath(
 export default function GameSessionPage(): React.ReactElement {
   const router = useRouter();
   const { id, campaignId, missionId } = router.query;
-  const campaignIdStr = typeof campaignId === 'string' ? campaignId : undefined;
-  const missionIdStr = typeof missionId === 'string' ? missionId : undefined;
+  const campaignIdStr = typeof campaignId === "string" ? campaignId : undefined;
+  const missionIdStr = typeof missionId === "string" ? missionId : undefined;
 
+  // INTENTIONAL FULL-STORE DESTRUCTURE (selectFromStore POC opt-out):
+  // this page consumes 30+ fields from the gameplay store. Splitting
+  // each into its own per-field selector would add dozens of
+  // subscription objects and the page already re-renders on most
+  // gameplay mutations anyway (it owns the active session view), so
+  // the per-field overhead would outweigh the re-render savings.
+  // Smaller consumers (SpectatorView, pre-battle) DO use the
+  // `selectFromStore` helper — see `useGameplayStore.ts` selector
+  // helper docs for the heuristic.
   const {
     session,
     isLoading,
@@ -102,9 +111,9 @@ export default function GameSessionPage(): React.ReactElement {
   } = useGameplayStore();
 
   useEffect(() => {
-    if (id === 'demo') {
+    if (id === "demo") {
       createDemoSession();
-    } else if (typeof id === 'string') {
+    } else if (typeof id === "string") {
       void loadSession(id);
     }
   }, [id, loadSession, createDemoSession]);
@@ -136,9 +145,9 @@ export default function GameSessionPage(): React.ReactElement {
   const [hasPersisted, setHasPersisted] = useState(false);
   useEffect(() => {
     if (!session || !isCompletedForRedirect || hasPersisted) return;
-    if (typeof id !== 'string' || id === 'demo') return;
+    if (typeof id !== "string" || id === "demo") return;
     let cancelled = false;
-    void import('@/lib/combat/combatResolution').then(({ finalize }) =>
+    void import("@/lib/combat/combatResolution").then(({ finalize }) =>
       finalize(session)
         .then(() => {
           if (!cancelled) setHasPersisted(true);
@@ -147,7 +156,7 @@ export default function GameSessionPage(): React.ReactElement {
           if (cancelled) return;
           // Logged but not surfaced as a hard error — the victory
           // screen still renders from the in-memory report.
-          logger.warn('match log persistence failed:', err);
+          logger.warn("match log persistence failed:", err);
           setHasPersisted(true); // mark to avoid retry storms
         }),
     );
@@ -160,8 +169,8 @@ export default function GameSessionPage(): React.ReactElement {
     if (
       isCompletedForRedirect &&
       !isCampaignBound &&
-      typeof id === 'string' &&
-      id !== 'demo'
+      typeof id === "string" &&
+      id !== "demo"
     ) {
       void router.replace(`/gameplay/games/${id}/victory`);
     }
@@ -329,10 +338,10 @@ export default function GameSessionPage(): React.ReactElement {
     }
     const active =
       movementType === MovementType.Jump
-        ? ('jump' as const)
+        ? ("jump" as const)
         : movementType === MovementType.Run
-          ? ('run' as const)
-          : ('walk' as const);
+          ? ("run" as const)
+          : ("walk" as const);
     return {
       active,
       jumpAvailable: capability.jumpMP > 0,
@@ -381,7 +390,7 @@ export default function GameSessionPage(): React.ReactElement {
       if (interactiveSession) {
         handleInteractiveHexClick(hex);
       } else {
-        logger.debug('Hex clicked:', hex);
+        logger.debug("Hex clicked:", hex);
       }
     },
     [
@@ -407,7 +416,7 @@ export default function GameSessionPage(): React.ReactElement {
 
   const handleRetry = useCallback(() => {
     clearError();
-    if (typeof id === 'string') {
+    if (typeof id === "string") {
       void loadSession(id);
     }
   }, [id, loadSession, clearError]);
@@ -436,20 +445,20 @@ export default function GameSessionPage(): React.ReactElement {
       }
 
       switch (actionId) {
-        case 'lock':
-        case 'skip':
+        case "lock":
+        case "skip":
           skipPhase();
           break;
-        case 'next-turn':
+        case "next-turn":
           runAITurn();
           break;
-        case 'fire':
+        case "fire":
           fireWeapons();
           break;
-        case 'advance':
+        case "advance":
           advanceInteractivePhase();
           break;
-        case 'concede':
+        case "concede":
           handleAction(actionId);
           break;
         default:
@@ -503,14 +512,14 @@ export default function GameSessionPage(): React.ReactElement {
     !spectatorMode
   ) {
     const result = interactiveSession.getResult();
-    const rawWinner = result?.winner ?? 'draw';
-    const winner: GameSide | 'draw' =
-      rawWinner === 'player'
+    const rawWinner = result?.winner ?? "draw";
+    const winner: GameSide | "draw" =
+      rawWinner === "player"
         ? GameSide.Player
-        : rawWinner === 'opponent'
+        : rawWinner === "opponent"
           ? GameSide.Opponent
-          : 'draw';
-    const reason = result?.reason ?? 'unknown';
+          : "draw";
+    const reason = result?.reason ?? "unknown";
 
     return (
       <CompletedGame
