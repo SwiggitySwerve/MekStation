@@ -7,7 +7,8 @@ import type { VehicleState } from '@/stores/vehicleState';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 
-import { IBlkExportResult } from './BlkExportServiceCore';
+import type { IBlkExportResult } from './BlkExportServiceCore.types';
+
 import {
   formatMotionType,
   formatBAMotionType,

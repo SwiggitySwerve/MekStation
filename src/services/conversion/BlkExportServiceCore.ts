@@ -20,6 +20,11 @@ import {
 } from '@/services/core/createSingleton';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+import type {
+  ExportableUnitState,
+  IBlkExportResult,
+} from './BlkExportServiceCore.types';
+
 import {
   exportVehicle,
   exportAerospace,
@@ -28,24 +33,12 @@ import {
   exportProtoMech,
 } from './BlkExportServiceCore.exporters';
 
-/**
- * Result of exporting to BLK format
- */
-export interface IBlkExportResult {
-  readonly success: boolean;
-  readonly content?: string;
-  readonly errors: string[];
-}
-
-/**
- * Union type for all exportable unit states
- */
-export type ExportableUnitState =
-  | VehicleState
-  | AerospaceState
-  | BattleArmorState
-  | InfantryState
-  | ProtoMechState;
+// Re-export leaf types so existing consumers (BlkExportService.ts shim,
+// exporters.ts file, and downstream importers) keep working unchanged.
+export type {
+  ExportableUnitState,
+  IBlkExportResult,
+} from './BlkExportServiceCore.types';
 
 /**
  * BLK Export Service
