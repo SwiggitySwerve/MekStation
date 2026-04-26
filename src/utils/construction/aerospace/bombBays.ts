@@ -27,7 +27,7 @@
  * Requirement: Equipment Mounting per Arc
  */
 
-import type { AerospaceValidationError } from './validationRules';
+import type { AerospaceValidationError } from './validationRules.types';
 
 import { AerospaceSubType } from '../../../types/unit/AerospaceInterfaces';
 
