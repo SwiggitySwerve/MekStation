@@ -45,7 +45,7 @@ import {
 import { mapEquipment } from './equipmentMapping';
 import { hasSerializedUnitStructure } from './typeGuards';
 import { IRawSerializedUnit, UnitSource, ILoadUnitResult } from './types';
-import { safeParseUnit } from './unitContractAdapter';
+import { resolveRawUnit, safeParseUnit } from './unitContractAdapter';
 
 /**
  * Unit Loader Service
@@ -89,9 +89,7 @@ export class UnitLoaderService {
         );
       }
       const state = this.mapToUnitState(
-        (parseResult.success
-          ? parseResult.unit
-          : fullUnit) as IRawSerializedUnit,
+        resolveRawUnit(parseResult, fullUnit),
         true,
       );
       return { success: true, state };
@@ -142,9 +140,7 @@ export class UnitLoaderService {
         );
       }
       const state = this.mapToUnitState(
-        (parseResult.success
-          ? parseResult.unit
-          : fullUnit) as IRawSerializedUnit,
+        resolveRawUnit(parseResult, fullUnit),
         false,
       );
       return { success: true, state };

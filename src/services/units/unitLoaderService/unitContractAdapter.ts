@@ -124,3 +124,40 @@ export function safeParseUnit(
     throw err;
   }
 }
+
+/**
+ * Resolve a `safeParseUnit` result back into the boundary
+ * `IRawSerializedUnit` shape, falling back to the original JSON when
+ * parsing produced drift warnings. Drift is dev-only-warned upstream
+ * (the corpus contract test owns strict failure), so the loader keeps
+ * loading even when the contract trips — but it must still hand
+ * `mapToUnitState` an `IRawSerializedUnit`-shaped value.
+ *
+ * Centralising the fallback coercion here removes the duplicated
+ * `(parseResult.success ? parseResult.unit : fullUnit) as IRawSerializedUnit`
+ * pattern from each loader call site. The single coercion is justified
+ * because:
+ *   - upstream services type their cached JSON as `IFullUnit` /
+ *     `IUnitWithVersion`, both of which carry `[key: string]: unknown`
+ *     index signatures wide enough to accept the structurally-richer
+ *     `IRawSerializedUnit`,
+ *   - `hasSerializedUnitStructure` already runs ahead of this in the
+ *     custom-unit branch to confirm the shape is the serialized variant
+ *     (chassis/tonnage/techBase present),
+ *   - the contract adapter has already validated the parse on the
+ *     happy path, and the corpus test guarantees no canonical fixture
+ *     can stay drifted.
+ *
+ * If the wire shape ever needs a structural transform (e.g. armor
+ * allocation reshaping), this helper is the single place to do it
+ * without re-fanning the cast across loader entry points.
+ */
+export function resolveRawUnit(
+  parseResult: ReturnType<typeof safeParseUnit>,
+  fallback: unknown,
+): IRawSerializedUnit {
+  if (parseResult.success) {
+    return parseResult.unit;
+  }
+  return fallback as IRawSerializedUnit;
+}
