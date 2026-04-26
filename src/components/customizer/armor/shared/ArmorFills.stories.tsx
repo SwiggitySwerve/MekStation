@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
-import React from "react";
+import React from 'react';
 
 import {
   FRONT_ARMOR_COLOR,
@@ -13,7 +13,7 @@ import {
   getArmorStatusColor,
   getMegaMekStatusColor,
   lightenColor,
-} from "./ArmorFills";
+} from './ArmorFills';
 
 /**
  * ArmorFills exports SVG gradient definitions, helper colour utilities, and
@@ -22,14 +22,14 @@ import {
  * without spinning up a full mech configurator.
  */
 const meta: Meta = {
-  title: "Customizer/Armor/ArmorFills",
-  tags: ["autodocs"],
+  title: 'Customizer/Armor/ArmorFills',
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
+    layout: 'centered',
     docs: {
       description: {
         component:
-          "SVG fill primitives for armor diagrams: gradient defs, tank-style clip paths, and palette helpers.",
+          'SVG fill primitives for armor diagrams: gradient defs, tank-style clip paths, and palette helpers.',
       },
     },
   },
@@ -39,13 +39,13 @@ export default meta;
 type Story = StoryObj;
 
 const GRADIENT_IDS: Array<{ id: string; label: string }> = [
-  { id: "armor-gradient-healthy", label: "Healthy" },
-  { id: "armor-gradient-moderate", label: "Moderate" },
-  { id: "armor-gradient-low", label: "Low" },
-  { id: "armor-gradient-critical", label: "Critical" },
-  { id: "armor-gradient-selected", label: "Selected" },
-  { id: "armor-gradient-front", label: "Front" },
-  { id: "armor-gradient-rear", label: "Rear" },
+  { id: 'armor-gradient-healthy', label: 'Healthy' },
+  { id: 'armor-gradient-moderate', label: 'Moderate' },
+  { id: 'armor-gradient-low', label: 'Low' },
+  { id: 'armor-gradient-critical', label: 'Critical' },
+  { id: 'armor-gradient-selected', label: 'Selected' },
+  { id: 'armor-gradient-front', label: 'Front' },
+  { id: 'armor-gradient-rear', label: 'Rear' },
 ];
 
 export const GradientGallery: Story = {
@@ -82,12 +82,12 @@ export const GradientGallery: Story = {
 };
 
 const STATUS_RATIOS: Array<{ label: string; current: number; max: number }> = [
-  { label: "Full (100%)", current: 30, max: 30 },
-  { label: "Healthy (80%)", current: 24, max: 30 },
-  { label: "Moderate (55%)", current: 17, max: 30 },
-  { label: "Low (30%)", current: 9, max: 30 },
-  { label: "Critical (10%)", current: 3, max: 30 },
-  { label: "Destroyed (0%)", current: 0, max: 30 },
+  { label: 'Full (100%)', current: 30, max: 30 },
+  { label: 'Healthy (80%)', current: 24, max: 30 },
+  { label: 'Moderate (55%)', current: 17, max: 30 },
+  { label: 'Low (30%)', current: 9, max: 30 },
+  { label: 'Critical (10%)', current: 3, max: 30 },
+  { label: 'Destroyed (0%)', current: 0, max: 30 },
 ];
 
 export const StatusColorScale: Story = {
@@ -109,7 +109,7 @@ export const StatusColorScale: Story = {
                 width: 64,
                 height: 80,
                 borderRadius: 4,
-                border: "1px solid #1e293b",
+                border: '1px solid #1e293b',
               }}
             />
             <span className="text-text-theme-secondary mt-1 text-center text-xs">
@@ -134,7 +134,7 @@ export const StatusColorScale: Story = {
                 width: 64,
                 height: 80,
                 borderRadius: 4,
-                border: "1px solid #1e293b",
+                border: '1px solid #1e293b',
               }}
             />
             <span className="text-text-theme-secondary mt-1 text-center text-xs">
@@ -203,9 +203,9 @@ export const TankFillProgression: Story = {
 };
 
 const FACING_PALETTE: Array<{ label: string; color: string }> = [
-  { label: "FRONT", color: FRONT_ARMOR_COLOR },
-  { label: "REAR", color: REAR_ARMOR_COLOR },
-  { label: "SELECTED", color: SELECTED_COLOR },
+  { label: 'FRONT', color: FRONT_ARMOR_COLOR },
+  { label: 'REAR', color: REAR_ARMOR_COLOR },
+  { label: 'SELECTED', color: SELECTED_COLOR },
 ];
 
 export const FacingPalette: Story = {
@@ -262,7 +262,7 @@ export const ColorTransforms: Story = {
                       width: 64,
                       height: 64,
                       borderRadius: 4,
-                      border: "1px solid #1e293b",
+                      border: '1px solid #1e293b',
                     }}
                   />
                   <span className="text-text-theme-secondary mt-1 text-xs">
@@ -292,7 +292,7 @@ export const ColorTransforms: Story = {
                       width: 64,
                       height: 64,
                       borderRadius: 4,
-                      border: "1px solid #1e293b",
+                      border: '1px solid #1e293b',
                     }}
                   />
                   <span className="text-text-theme-secondary mt-1 text-xs">

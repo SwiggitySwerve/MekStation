@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
-import React from "react";
+import React from 'react';
 
-import { MechLocation } from "@/types/construction";
+import { MechLocation } from '@/types/construction';
 
 import {
   BATTLEMECH_SILHOUETTE,
@@ -15,15 +15,15 @@ import {
   REALISTIC_SILHOUETTE,
   type SilhouetteConfig,
   TRIPOD_SILHOUETTE,
-} from "./MechSilhouette";
+} from './MechSilhouette';
 
-type SilhouetteVariant = "biped" | "quad" | "tripod" | "fighter";
+type SilhouetteVariant = 'biped' | 'quad' | 'tripod' | 'fighter';
 
 function resolveLocationLabel(
   location: MechLocation,
   variant: SilhouetteVariant,
 ): string {
-  if (variant === "fighter") {
+  if (variant === 'fighter') {
     return FIGHTER_LOCATION_LABELS[location] ?? location;
   }
   return getLocationLabel(location, variant);
@@ -36,14 +36,14 @@ function resolveLocationLabel(
  * can be reviewed in isolation without the rest of the armor pipeline.
  */
 const meta: Meta = {
-  title: "Customizer/Armor/MechSilhouette",
-  tags: ["autodocs"],
+  title: 'Customizer/Armor/MechSilhouette',
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
+    layout: 'centered',
     docs: {
       description: {
         component:
-          "Visual reference for the silhouette path data exported from MechSilhouette. Each story renders the configured viewBox and per-location SVG paths.",
+          'Visual reference for the silhouette path data exported from MechSilhouette. Each story renders the configured viewBox and per-location SVG paths.',
       },
     },
   },
@@ -65,16 +65,16 @@ interface SilhouettePreviewProps {
 function SilhouettePreview({
   config,
   height = 360,
-  variant = "biped",
+  variant = 'biped',
 }: SilhouettePreviewProps): React.ReactElement {
   const entries = Object.entries(config.locations) as Array<
-    [MechLocation, NonNullable<SilhouetteConfig["locations"][MechLocation]>]
+    [MechLocation, NonNullable<SilhouetteConfig['locations'][MechLocation]>]
   >;
 
   return (
     <svg
       viewBox={config.viewBox}
-      style={{ height, width: "auto", display: "block" }}
+      style={{ height, width: 'auto', display: 'block' }}
       role="img"
       aria-label="Mech silhouette preview"
     >
@@ -118,7 +118,7 @@ function SilhouettePreview({
               dominantBaseline="middle"
               fontSize={10}
               fill="#f8fafc"
-              style={{ pointerEvents: "none", fontWeight: 600 }}
+              style={{ pointerEvents: 'none', fontWeight: 600 }}
             >
               {label}
             </text>
@@ -167,20 +167,20 @@ export const VariantGallery: Story = {
       {(
         [
           {
-            label: "Realistic",
+            label: 'Realistic',
             config: REALISTIC_SILHOUETTE,
-            variant: "biped",
+            variant: 'biped',
           },
           {
-            label: "BattleMech",
+            label: 'BattleMech',
             config: BATTLEMECH_SILHOUETTE,
-            variant: "biped",
+            variant: 'biped',
           },
-          { label: "MegaMek", config: MEGAMEK_SILHOUETTE, variant: "biped" },
+          { label: 'MegaMek', config: MEGAMEK_SILHOUETTE, variant: 'biped' },
           {
-            label: "Geometric",
+            label: 'Geometric',
             config: GEOMETRIC_SILHOUETTE,
-            variant: "biped",
+            variant: 'biped',
           },
         ] as const
       ).map(({ label, config, variant }) => (
@@ -197,7 +197,7 @@ export const VariantGallery: Story = {
     </div>
   ),
   parameters: {
-    layout: "fullscreen",
+    layout: 'fullscreen',
   },
   decorators: [
     (Story) => (

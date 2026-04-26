@@ -1,28 +1,28 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { fn } from "@storybook/test";
-import { useState } from "react";
+import { fn } from '@storybook/test';
+import { useState } from 'react';
 
 import {
   TechBaseComponent,
   TechBaseMode,
   createDefaultComponentTechBases,
   type IComponentTechBases,
-} from "@/types/construction/TechBaseConfiguration";
-import { TechBase } from "@/types/enums/TechBase";
+} from '@/types/construction/TechBaseConfiguration';
+import { TechBase } from '@/types/enums/TechBase';
 
-import { TechBaseConfiguration } from "./TechBaseConfiguration";
+import { TechBaseConfiguration } from './TechBaseConfiguration';
 
 const meta: Meta<typeof TechBaseConfiguration> = {
-  title: "Customizer/Shared/TechBaseConfiguration",
+  title: 'Customizer/Shared/TechBaseConfiguration',
   component: TechBaseConfiguration,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
+    layout: 'centered',
     docs: {
       description: {
         component:
-          "Combined panel showing component selections and tech base toggles. Supports Inner Sphere, Clan, and Mixed Tech modes per BattleTech TechManual mixed tech rules.",
+          'Combined panel showing component selections and tech base toggles. Supports Inner Sphere, Clan, and Mixed Tech modes per BattleTech TechManual mixed tech rules.',
       },
     },
   },
@@ -59,14 +59,14 @@ const mixedComponents: IComponentTechBases = {
 };
 
 const sampleComponentValues = {
-  chassis: "Endo Steel",
-  gyro: "XL",
-  engine: "XL Fusion 300",
-  heatsink: "Double",
-  targeting: "Standard",
-  myomer: "TSM",
-  movement: "Jump Jets",
-  armor: "Ferro-Fibrous",
+  chassis: 'Endo Steel',
+  gyro: 'XL',
+  engine: 'XL Fusion 300',
+  heatsink: 'Double',
+  targeting: 'Standard',
+  myomer: 'TSM',
+  movement: 'Jump Jets',
+  armor: 'Ferro-Fibrous',
 };
 
 export const InnerSphereMode: Story = {
@@ -84,7 +84,7 @@ export const ClanMode: Story = {
     components: clanComponents,
     componentValues: {
       ...sampleComponentValues,
-      armor: "Ferro-Fibrous (Clan)",
+      armor: 'Ferro-Fibrous (Clan)',
     },
     readOnly: false,
   },

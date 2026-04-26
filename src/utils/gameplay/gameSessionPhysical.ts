@@ -32,7 +32,6 @@ import { buildDamageStateFromUnit } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 import { roll2d6 as rollDice } from './hitLocation';
 import {
-  calculatePhysicalToHit,
   canCharge,
   canDFA,
   canKick,

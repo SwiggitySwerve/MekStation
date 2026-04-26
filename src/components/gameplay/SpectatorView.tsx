@@ -4,31 +4,34 @@
  * Both sides are controlled by BotPlayer; the user watches with play/pause/speed/step controls.
  */
 
-import Head from "next/head";
-import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Head from 'next/head';
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { selectFromStore, useGameplayStore } from "@/stores/useGameplayStore";
-import { GamePhase, GameSide } from "@/types/gameplay";
+import {
+  useGameplaySelector,
+  useGameplayStore,
+} from '@/stores/useGameplayStore';
+import { GamePhase, GameSide } from '@/types/gameplay';
 
-import { HexMapDisplay } from "./HexMapDisplay";
+import { HexMapDisplay } from './HexMapDisplay';
 import {
   unitStateToToken,
   speedToInterval,
   PlaybackControls,
   UnitRoster,
   ResultsOverlay,
-} from "./SpectatorViewPanels";
+} from './SpectatorViewPanels';
 
 export function SpectatorView(): React.ReactElement {
-  // Per-field selectors (selectFromStore POC): each subscription
+  // Per-field selectors (useGameplaySelector POC): each subscription
   // re-renders only when its own field reference changes, instead of
   // on every gameplay-store mutation. `useGameplayStore.setState`
   // remains the static-method imperative escape hatch for the
   // spectator's manual session-sync below.
-  const session = selectFromStore((s) => s.session);
-  const interactiveSession = selectFromStore((s) => s.interactiveSession);
-  const spectatorMode = selectFromStore((s) => s.spectatorMode);
+  const session = useGameplaySelector((s) => s.session);
+  const interactiveSession = useGameplaySelector((s) => s.interactiveSession);
+  const spectatorMode = useGameplaySelector((s) => s.spectatorMode);
 
   const [playing, setPlaying] = useState(spectatorMode?.playing ?? true);
   const [speed, setSpeed] = useState<1 | 2 | 4>(spectatorMode?.speed ?? 1);
@@ -132,7 +135,7 @@ export function SpectatorView(): React.ReactElement {
     if (!session) return [];
     return Object.entries(session.currentState.units).map(([unitId, state]) => {
       const unitInfo = unitInfoLookup[unitId] || {
-        name: "Unknown",
+        name: 'Unknown',
         side: GameSide.Player,
       };
       return unitStateToToken(unitId, state, unitInfo);

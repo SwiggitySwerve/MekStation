@@ -1,15 +1,15 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { fn } from "@storybook/test";
-import { useState } from "react";
+import { fn } from '@storybook/test';
+import { useState } from 'react';
 
-import { MechLocation } from "@/types/construction/CriticalSlotAllocation";
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
 import {
   ArmorDiagram,
   type ArmorAllocationType,
   type ArmorData,
-} from "./ArmorDiagram";
+} from './ArmorDiagram';
 
 /**
  * The armor/ArmorDiagram component is a self-contained front/rear armor
@@ -18,15 +18,15 @@ import {
  * optional auto-allocation requests.
  */
 const meta: Meta<typeof ArmorDiagram> = {
-  title: "Armor/ArmorDiagram",
+  title: 'Armor/ArmorDiagram',
   component: ArmorDiagram,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
+    layout: 'centered',
     docs: {
       description: {
         component:
-          "Standalone armor diagram with front/rear toggle and optional auto-allocate dropdown. Renders a CSS-grid silhouette layout on desktop and a vertical stack on mobile.",
+          'Standalone armor diagram with front/rear toggle and optional auto-allocate dropdown. Renders a CSS-grid silhouette layout on desktop and a vertical stack on mobile.',
       },
     },
   },
@@ -155,7 +155,7 @@ export const Interactive: Story = {
     const handleArmorChange = (
       location: MechLocation,
       value: number,
-      facing: "front" | "rear",
+      facing: 'front' | 'rear',
     ) => {
       setArmor((prev) => ({
         ...prev,
@@ -166,7 +166,7 @@ export const Interactive: Story = {
     const handleAutoAllocate = (type: ArmorAllocationType) => {
       // Naive demo: distribute max armor evenly across the front face
       // (front-weighted/rear-weighted variants left as stub).
-      if (type === "even") {
+      if (type === 'even') {
         setArmor((prev) => ({
           ...prev,
           front: { ...prev.max },

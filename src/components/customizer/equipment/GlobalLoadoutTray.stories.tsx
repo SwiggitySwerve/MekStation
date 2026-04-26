@@ -1,28 +1,28 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { fn } from "@storybook/test";
-import { useState } from "react";
+import { fn } from '@storybook/test';
+import { useState } from 'react';
 
-import { MechLocation } from "@/types/construction";
-import { EquipmentCategory } from "@/types/equipment";
+import { MechLocation } from '@/types/construction';
+import { EquipmentCategory } from '@/types/equipment';
 
 import type {
   AvailableLocation,
   LoadoutEquipmentItem,
-} from "./GlobalLoadoutTray.types";
+} from './GlobalLoadoutTray.types';
 
-import { GlobalLoadoutTray } from "./GlobalLoadoutTray";
+import { GlobalLoadoutTray } from './GlobalLoadoutTray';
 
 const meta: Meta<typeof GlobalLoadoutTray> = {
-  title: "Customizer/Equipment/GlobalLoadoutTray",
+  title: 'Customizer/Equipment/GlobalLoadoutTray',
   component: GlobalLoadoutTray,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "fullscreen",
+    layout: 'fullscreen',
     docs: {
       description: {
         component:
-          "Global loadout tray showing unallocated and allocated equipment with category filters, drag-and-drop, quick assign, and remove confirmation. Uses react-dnd HTML5 backend (provided globally by the Storybook DndDecorator).",
+          'Global loadout tray showing unallocated and allocated equipment with category filters, drag-and-drop, quick assign, and remove confirmation. Uses react-dnd HTML5 backend (provided globally by the Storybook DndDecorator).',
       },
     },
   },
@@ -53,10 +53,10 @@ type Story = StoryObj<typeof GlobalLoadoutTray>;
  */
 function makeItem(
   overrides: Partial<LoadoutEquipmentItem> &
-    Pick<LoadoutEquipmentItem, "instanceId" | "name" | "category">,
+    Pick<LoadoutEquipmentItem, 'instanceId' | 'name' | 'category'>,
 ): LoadoutEquipmentItem {
   return {
-    equipmentId: overrides.name.toLowerCase().replace(/\s+/g, "-"),
+    equipmentId: overrides.name.toLowerCase().replace(/\s+/g, '-'),
     weight: 1,
     criticalSlots: 1,
     isAllocated: false,
@@ -67,15 +67,15 @@ function makeItem(
 
 const sampleEquipment: LoadoutEquipmentItem[] = [
   makeItem({
-    instanceId: "eq-1",
-    name: "Medium Laser",
+    instanceId: 'eq-1',
+    name: 'Medium Laser',
     category: EquipmentCategory.ENERGY_WEAPON,
     heat: 3,
     damage: 5,
   }),
   makeItem({
-    instanceId: "eq-2",
-    name: "Large Laser",
+    instanceId: 'eq-2',
+    name: 'Large Laser',
     category: EquipmentCategory.ENERGY_WEAPON,
     heat: 8,
     damage: 8,
@@ -83,42 +83,42 @@ const sampleEquipment: LoadoutEquipmentItem[] = [
     criticalSlots: 2,
   }),
   makeItem({
-    instanceId: "eq-3",
-    name: "AC/10",
+    instanceId: 'eq-3',
+    name: 'AC/10',
     category: EquipmentCategory.BALLISTIC_WEAPON,
     weight: 12,
     criticalSlots: 7,
     heat: 3,
     damage: 10,
     isAllocated: true,
-    location: "Right Torso",
+    location: 'Right Torso',
   }),
   makeItem({
-    instanceId: "eq-4",
-    name: "AC/10 Ammo",
+    instanceId: 'eq-4',
+    name: 'AC/10 Ammo',
     category: EquipmentCategory.AMMUNITION,
     weight: 1,
   }),
   makeItem({
-    instanceId: "eq-5",
-    name: "LRM 15",
+    instanceId: 'eq-5',
+    name: 'LRM 15',
     category: EquipmentCategory.MISSILE_WEAPON,
     weight: 7,
     criticalSlots: 3,
     heat: 5,
-    damage: "1/missile",
+    damage: '1/missile',
     isAllocated: true,
-    location: "Left Torso",
+    location: 'Left Torso',
   }),
   makeItem({
-    instanceId: "eq-6",
-    name: "LRM Ammo",
+    instanceId: 'eq-6',
+    name: 'LRM Ammo',
     category: EquipmentCategory.AMMUNITION,
     weight: 1,
   }),
   makeItem({
-    instanceId: "eq-7",
-    name: "CASE",
+    instanceId: 'eq-7',
+    name: 'CASE',
     category: EquipmentCategory.MISC_EQUIPMENT,
     weight: 0.5,
     isRemovable: false,
@@ -133,31 +133,31 @@ const omniEquipment: LoadoutEquipmentItem[] = sampleEquipment.map((item) => ({
 const sampleAvailableLocations: AvailableLocation[] = [
   {
     location: MechLocation.LEFT_ARM,
-    label: "Left Arm",
+    label: 'Left Arm',
     availableSlots: 4,
     canFit: true,
   },
   {
     location: MechLocation.RIGHT_ARM,
-    label: "Right Arm",
+    label: 'Right Arm',
     availableSlots: 4,
     canFit: true,
   },
   {
     location: MechLocation.LEFT_TORSO,
-    label: "Left Torso",
+    label: 'Left Torso',
     availableSlots: 8,
     canFit: true,
   },
   {
     location: MechLocation.CENTER_TORSO,
-    label: "Center Torso",
+    label: 'Center Torso',
     availableSlots: 2,
     canFit: false,
   },
   {
     location: MechLocation.RIGHT_TORSO,
-    label: "Right Torso",
+    label: 'Right Torso',
     availableSlots: 6,
     canFit: true,
   },
@@ -201,7 +201,7 @@ export const SelectedItem: Story = {
     equipment: sampleEquipment,
     equipmentCount: sampleEquipment.length,
     isExpanded: true,
-    selectedEquipmentId: "eq-1",
+    selectedEquipmentId: 'eq-1',
     availableLocations: sampleAvailableLocations,
     isOmni: false,
   },
@@ -223,7 +223,7 @@ export const FullyAllocated: Story = {
     equipment: sampleEquipment.map((item) => ({
       ...item,
       isAllocated: true,
-      location: item.location ?? "Right Torso",
+      location: item.location ?? 'Right Torso',
     })),
     equipmentCount: sampleEquipment.length,
     isExpanded: true,

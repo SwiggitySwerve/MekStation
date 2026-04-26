@@ -18,9 +18,9 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import { create } from "zustand";
+import { create } from 'zustand';
 
-import type { InteractiveSession } from "@/engine/GameEngine";
+import type { InteractiveSession } from '@/engine/GameEngine';
 
 import {
   DEFAULT_UI_STATE,
@@ -29,8 +29,8 @@ import {
   IGameplayUIState,
   IPilotSpaSummary,
   IWeaponStatus,
-} from "@/types/gameplay";
-import { logger } from "@/utils/logger";
+} from '@/types/gameplay';
+import { logger } from '@/utils/logger';
 
 import {
   clearAttackPlanLogic,
@@ -44,7 +44,7 @@ import {
   togglePlannedWeaponLogic,
   type IAttackPlan,
   type IPlannedMovement,
-} from "./useGameplayStore.combatFlows";
+} from './useGameplayStore.combatFlows';
 import {
   advanceInteractivePhaseLogic,
   handleActionLogic,
@@ -52,7 +52,7 @@ import {
   InteractivePhase,
   runAITurnLogic,
   skipPhaseLogic,
-} from "./useGameplayStore.helpers";
+} from './useGameplayStore.helpers';
 import {
   fireWeaponsLogic,
   handleInteractiveHexClickLogic,
@@ -63,19 +63,19 @@ import {
   selectWeaponLogic,
   setTargetLogic,
   toggleWeaponLogic,
-} from "./useGameplayStore.interactions";
+} from './useGameplayStore.interactions';
 import {
   projectSelectedUnit,
   selectIsGameCompleted,
   type ISelectedUnitProjection,
-} from "./useGameplayStore.selectors";
+} from './useGameplayStore.selectors';
 import {
   createDemoSessionLogic,
   loadSessionLogic,
   setInteractiveSessionLogic,
   setSpectatorModeLogic,
   type SpectatorMode,
-} from "./useGameplayStore.session";
+} from './useGameplayStore.session';
 
 export { InteractivePhase, selectIsGameCompleted };
 export type {
@@ -340,7 +340,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
         session: interactiveSession.getSession(),
         interactivePhase: InteractivePhase.GameOver,
       });
-      logger.info("Game over", result);
+      logger.info('Game over', result);
       return true;
     }
     return false;
@@ -407,8 +407,8 @@ export function useIsGameCompleted(): boolean {
 // unrelated mutations.
 //
 // Pattern:
-//   const session = selectFromStore((s) => s.session);
-//   const phase  = selectFromStore((s) => s.interactivePhase);
+//   const session = useGameplaySelector((s) => s.session);
+//   const phase  = useGameplaySelector((s) => s.interactivePhase);
 //
 // Note: Zustand's `useStore(selector)` already implements this — the
 // helper exists purely to give a named, store-scoped convention so
@@ -420,7 +420,9 @@ export function useIsGameCompleted(): boolean {
 // reference-equality will re-render on every store mutation that
 // recreates the object — use `zustand/shallow` or split into multiple
 // primitive selectors to avoid the trap.
-export function selectFromStore<T>(selector: (state: GameplayStore) => T): T {
+export function useGameplaySelector<T>(
+  selector: (state: GameplayStore) => T,
+): T {
   return useGameplayStore(selector);
 }
 

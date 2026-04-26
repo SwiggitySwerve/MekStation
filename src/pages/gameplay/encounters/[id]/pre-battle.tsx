@@ -5,20 +5,20 @@
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
 
-import Head from "next/head";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useCallback, useEffect, useState } from 'react';
 
-import type { IAdaptedUnit } from "@/engine/types";
-import type { IPilot } from "@/types/pilot";
-import type { IForceSummary } from "@/utils/gameplay/forceSummary";
+import type { IAdaptedUnit } from '@/engine/types';
+import type { IPilot } from '@/types/pilot';
+import type { IForceSummary } from '@/utils/gameplay/forceSummary';
 import type {
   ISkirmishLaunchConfig,
   ISkirmishUnitSelection,
-} from "@/utils/gameplay/preBattleSessionBuilder";
+} from '@/utils/gameplay/preBattleSessionBuilder';
 
-import { ForceComparisonPanel } from "@/components/gameplay/ForceComparisonPanel";
+import { ForceComparisonPanel } from '@/components/gameplay/ForceComparisonPanel';
 import {
   BattlefieldCard,
   BVComparison,
@@ -27,54 +27,54 @@ import {
   ModeSelection,
   ScenarioTemplateCard,
   SkirmishLauncher,
-} from "@/components/gameplay/pages/PreBattlePage.sections";
+} from '@/components/gameplay/pages/PreBattlePage.sections';
 import {
   buildPreparedBattleData,
   getAssignedUnitIds,
-} from "@/components/gameplay/pages/preBattleSessionBuilder";
-import { useToast } from "@/components/shared/Toast";
-import { Card, PageLayout } from "@/components/ui";
-import { adaptUnit } from "@/engine/adapters/CompendiumAdapter";
-import { GameEngine } from "@/engine/GameEngine";
-import { useEncounterStore } from "@/stores/useEncounterStore";
-import { useForceStore } from "@/stores/useForceStore";
-import { selectFromStore } from "@/stores/useGameplayStore";
-import { usePilotStore } from "@/stores/usePilotStore";
+} from '@/components/gameplay/pages/preBattleSessionBuilder';
+import { useToast } from '@/components/shared/Toast';
+import { Card, PageLayout } from '@/components/ui';
+import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
+import { GameEngine } from '@/engine/GameEngine';
+import { useEncounterStore } from '@/stores/useEncounterStore';
+import { useForceStore } from '@/stores/useForceStore';
+import { useGameplaySelector } from '@/stores/useGameplayStore';
+import { usePilotStore } from '@/stores/usePilotStore';
 import {
   EncounterStatus,
   SCENARIO_TEMPLATES,
   type IEncounter,
-} from "@/types/encounter";
-import { GameSide, type IGameUnit } from "@/types/gameplay";
-import { buildForceSummary } from "@/utils/gameplay/forceSummaryBuilder";
-import { buildFromSkirmishConfig } from "@/utils/gameplay/preBattleSessionBuilder";
-import { logger } from "@/utils/logger";
+} from '@/types/encounter';
+import { GameSide, type IGameUnit } from '@/types/gameplay';
+import { buildForceSummary } from '@/utils/gameplay/forceSummaryBuilder';
+import { buildFromSkirmishConfig } from '@/utils/gameplay/preBattleSessionBuilder';
+import { logger } from '@/utils/logger';
 
-type BattleMode = "auto" | "interactive" | "spectator";
+type BattleMode = 'auto' | 'interactive' | 'spectator';
 
 function getLaunchErrorMessage(mode: BattleMode): string {
   switch (mode) {
-    case "auto":
-      return "Failed to resolve battle";
-    case "interactive":
-      return "Failed to start interactive mode";
-    case "spectator":
-      return "Failed to start spectator mode";
+    case 'auto':
+      return 'Failed to resolve battle';
+    case 'interactive':
+      return 'Failed to start interactive mode';
+    case 'spectator':
+      return 'Failed to start spectator mode';
     default:
-      return "Failed to launch battle";
+      return 'Failed to launch battle';
   }
 }
 
 function getLaunchErrorLogLabel(mode: BattleMode): string {
   switch (mode) {
-    case "auto":
-      return "Auto-resolve failed:";
-    case "interactive":
-      return "Interactive mode failed:";
-    case "spectator":
-      return "Spectator mode failed:";
+    case 'auto':
+      return 'Auto-resolve failed:';
+    case 'interactive':
+      return 'Interactive mode failed:';
+    case 'spectator':
+      return 'Spectator mode failed:';
     default:
-      return "Battle launch failed:";
+      return 'Battle launch failed:';
   }
 }
 
@@ -91,14 +91,16 @@ export default function PreBattlePage(): React.ReactElement {
   } = useEncounterStore();
   const { forces, loadForces } = useForceStore();
   const { pilots, loadPilots } = usePilotStore();
-  // Per-field selectors (selectFromStore POC). All three are stable
+  // Per-field selectors (useGameplaySelector POC). All three are stable
   // action references, so each subscription is effectively static —
   // we still pull them individually to keep the convention uniform
   // and to avoid re-rendering when unrelated gameplay-store fields
   // mutate during the launch handshake.
-  const setSession = selectFromStore((s) => s.setSession);
-  const setInteractiveSession = selectFromStore((s) => s.setInteractiveSession);
-  const setSpectatorMode = selectFromStore((s) => s.setSpectatorMode);
+  const setSession = useGameplaySelector((s) => s.setSession);
+  const setInteractiveSession = useGameplaySelector(
+    (s) => s.setInteractiveSession,
+  );
+  const setSpectatorMode = useGameplaySelector((s) => s.setSpectatorMode);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
@@ -134,7 +136,7 @@ export default function PreBattlePage(): React.ReactElement {
   // so the assignedPilotIds set the pickers compute stays consistent.
   const assignPilotMoving = useCallback(
     (
-      targetSide: "player" | "opponent",
+      targetSide: 'player' | 'opponent',
       unitId: string,
       pilot: IPilot | null,
     ) => {
@@ -171,18 +173,18 @@ export default function PreBattlePage(): React.ReactElement {
 
       setSkirmishPlayerUnits((prev) => {
         const stripped = stripPilot(prev);
-        return targetSide === "player" ? applyToTarget(stripped) : stripped;
+        return targetSide === 'player' ? applyToTarget(stripped) : stripped;
       });
       setSkirmishOpponentUnits((prev) => {
         const stripped = stripPilot(prev);
-        return targetSide === "opponent" ? applyToTarget(stripped) : stripped;
+        return targetSide === 'opponent' ? applyToTarget(stripped) : stripped;
       });
     },
     [],
   );
 
   const encounter: IEncounter | undefined =
-    id && typeof id === "string" ? getEncounter(id) : undefined;
+    id && typeof id === 'string' ? getEncounter(id) : undefined;
 
   const template = encounter?.template
     ? SCENARIO_TEMPLATES.find((item) => item.type === encounter.template)
@@ -243,8 +245,8 @@ export default function PreBattlePage(): React.ReactElement {
     async (mode: BattleMode) => {
       if (!encounter || !encounter.playerForce || !encounter.opponentForce) {
         showToast({
-          message: "Encounter forces not configured",
-          variant: "error",
+          message: 'Encounter forces not configured',
+          variant: 'error',
         });
         return;
       }
@@ -257,8 +259,8 @@ export default function PreBattlePage(): React.ReactElement {
 
         if (playerUnitIds.length === 0 || opponentUnitIds.length === 0) {
           showToast({
-            message: "Both forces need at least one unit assigned",
-            variant: "error",
+            message: 'Both forces need at least one unit assigned',
+            variant: 'error',
           });
           return;
         }
@@ -272,15 +274,15 @@ export default function PreBattlePage(): React.ReactElement {
 
         if (playerAdapted.length === 0 || opponentAdapted.length === 0) {
           showToast({
-            message: "Failed to load unit data for one or both forces",
-            variant: "error",
+            message: 'Failed to load unit data for one or both forces',
+            variant: 'error',
           });
           return;
         }
 
         const engine = new GameEngine({ seed: Date.now() });
 
-        if (mode === "auto") {
+        if (mode === 'auto') {
           const session = engine.runToCompletion(
             playerAdapted,
             opponentAdapted,
@@ -289,15 +291,15 @@ export default function PreBattlePage(): React.ReactElement {
 
           setSession(session);
 
-          logger.info("Auto-resolve complete", {
+          logger.info('Auto-resolve complete', {
             sessionId: session.id,
             turns: session.currentState.turn,
             result: session.currentState.result,
           });
 
           showToast({
-            message: "Battle resolved! Reviewing results...",
-            variant: "success",
+            message: 'Battle resolved! Reviewing results...',
+            variant: 'success',
           });
 
           void router.push(`/gameplay/games/${session.id}`);
@@ -311,14 +313,14 @@ export default function PreBattlePage(): React.ReactElement {
         );
         const session = interactiveSession.getSession();
 
-        if (mode === "interactive") {
+        if (mode === 'interactive') {
           setInteractiveSession(interactiveSession);
 
-          logger.info("Interactive session created", { sessionId: session.id });
+          logger.info('Interactive session created', { sessionId: session.id });
 
           showToast({
-            message: "Launching interactive battle...",
-            variant: "success",
+            message: 'Launching interactive battle...',
+            variant: 'success',
           });
 
           void router.push(`/gameplay/games/${session.id}`);
@@ -331,11 +333,11 @@ export default function PreBattlePage(): React.ReactElement {
           speed: 1,
         });
 
-        logger.info("Spectator session created", { sessionId: session.id });
+        logger.info('Spectator session created', { sessionId: session.id });
 
         showToast({
-          message: "Launching spectator mode...",
-          variant: "success",
+          message: 'Launching spectator mode...',
+          variant: 'success',
         });
 
         void router.push(`/gameplay/games/${session.id}`);
@@ -344,7 +346,7 @@ export default function PreBattlePage(): React.ReactElement {
         showToast({
           message:
             err instanceof Error ? err.message : getLaunchErrorMessage(mode),
-          variant: "error",
+          variant: 'error',
         });
       } finally {
         setIsResolving(false);
@@ -393,14 +395,14 @@ export default function PreBattlePage(): React.ReactElement {
 
   const assignPlayerPilot = useCallback(
     (unitId: string, pilot: IPilot | null) => {
-      assignPilotMoving("player", unitId, pilot);
+      assignPilotMoving('player', unitId, pilot);
     },
     [assignPilotMoving],
   );
 
   const assignOpponentPilot = useCallback(
     (unitId: string, pilot: IPilot | null) => {
-      assignPilotMoving("opponent", unitId, pilot);
+      assignPilotMoving('opponent', unitId, pilot);
     },
     [assignPilotMoving],
   );
@@ -421,7 +423,7 @@ export default function PreBattlePage(): React.ReactElement {
   const launchSkirmish = useCallback(
     async (config: ISkirmishLaunchConfig) => {
       if (!encounter) {
-        showToast({ message: "Encounter not loaded", variant: "error" });
+        showToast({ message: 'Encounter not loaded', variant: 'error' });
         return;
       }
       if (
@@ -430,8 +432,8 @@ export default function PreBattlePage(): React.ReactElement {
       ) {
         showToast({
           message:
-            "Encounter already launched — return to the encounter page to continue.",
-          variant: "error",
+            'Encounter already launched — return to the encounter page to continue.',
+          variant: 'error',
         });
         return;
       }
@@ -482,7 +484,7 @@ export default function PreBattlePage(): React.ReactElement {
           opponentUnits.length !== config.opponent.units.length
         ) {
           throw new Error(
-            "Failed to adapt one or more picked units — check the unit catalog",
+            'Failed to adapt one or more picked units — check the unit catalog',
           );
         }
 
@@ -507,23 +509,23 @@ export default function PreBattlePage(): React.ReactElement {
 
         setInteractiveSession(interactiveSession);
 
-        logger.info("Skirmish session launched", {
+        logger.info('Skirmish session launched', {
           sessionId: liveSession.id,
           encounterId: encounter.id,
         });
 
         showToast({
-          message: "Launching skirmish…",
-          variant: "success",
+          message: 'Launching skirmish…',
+          variant: 'success',
         });
 
         void router.push(`/gameplay/games/${liveSession.id}`);
       } catch (err) {
-        logger.error("Skirmish launch failed:", err);
+        logger.error('Skirmish launch failed:', err);
         showToast({
           message:
-            err instanceof Error ? err.message : "Failed to launch skirmish",
-          variant: "error",
+            err instanceof Error ? err.message : 'Failed to launch skirmish',
+          variant: 'error',
         });
       } finally {
         setIsSkirmishLaunching(false);
@@ -533,22 +535,22 @@ export default function PreBattlePage(): React.ReactElement {
   );
 
   const startAutoResolve = useCallback(() => {
-    void launchBattle("auto");
+    void launchBattle('auto');
   }, [launchBattle]);
 
   const startInteractive = useCallback(() => {
-    void launchBattle("interactive");
+    void launchBattle('interactive');
   }, [launchBattle]);
 
   const startSpectator = useCallback(() => {
-    void launchBattle("spectator");
+    void launchBattle('spectator');
   }, [launchBattle]);
 
   if (!isInitialized || encountersLoading) {
     return (
       <PageLayout
         title="Loading..."
-        backLink={`/gameplay/encounters/${id ?? ""}`}
+        backLink={`/gameplay/encounters/${id ?? ''}`}
         backLabel="Back to Encounter"
       >
         <div className="flex items-center justify-center py-16">
@@ -592,11 +594,11 @@ export default function PreBattlePage(): React.ReactElement {
   );
 
   const breadcrumbs = [
-    { label: "Home", href: "/" },
-    { label: "Gameplay", href: "/gameplay" },
-    { label: "Encounters", href: "/gameplay/encounters" },
+    { label: 'Home', href: '/' },
+    { label: 'Gameplay', href: '/gameplay' },
+    { label: 'Encounters', href: '/gameplay/encounters' },
     { label: encounter.name, href: `/gameplay/encounters/${id as string}` },
-    { label: "Pre-Battle" },
+    { label: 'Pre-Battle' },
   ];
 
   return (
