@@ -67,6 +67,7 @@ import {
 } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
+import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { CryptoDiceRoller, type IServerDiceRoller } from './CryptoDiceRoller';
 import {
@@ -90,16 +91,9 @@ import { RollCapture, SeededDiceRoller } from './RollCapture';
 // Socket abstraction
 // =============================================================================
 
-/**
- * Minimal interface the host needs from a connected socket. Lets tests
- * inject a `Set<MockSocket>` without standing up a real WebSocket
- * server. In production this is a `ws.WebSocket`.
- */
-export interface IMatchSocket {
-  send(data: string): void;
-  close(code?: number, reason?: string): void;
-  readonly readyState: number;
-}
+// Re-exported for external consumers (e.g. websocket upgrade handler) so the
+// canonical home (`ServerMatchSocketTypes`) doesn't force a path change.
+export type { IMatchSocket } from './ServerMatchSocketTypes';
 
 /**
  * Per-socket bookkeeping kept in a side-Map. We don't subclass the
