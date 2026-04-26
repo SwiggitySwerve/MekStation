@@ -4,9 +4,11 @@
  * Two assertions matter:
  *   1. Range: every roll lands in [1, 6]. Anything else means the
  *      rejection-sampling cutoff is wrong.
- *   2. Distribution: across 100k rolls, each face is within ~1% of the
- *      expected 1/6 frequency. The rejection-sampling path eliminates
- *      modulo bias so the tolerance can stay tight.
+ *   2. Distribution: across 100k rolls, each face is within 3% of the
+ *      expected 1/6 frequency (~4.2σ). The rejection-sampling path
+ *      eliminates modulo bias; the 3% tolerance is wide enough to be
+ *      effectively flake-free in CI while still catching a broken
+ *      sampler (which would skew at least one face by 16%+).
  *
  * @spec openspec/changes/add-authoritative-roll-arbitration/specs/multiplayer-server/spec.md
  */
@@ -24,8 +26,11 @@ describe('CryptoDiceRoller', () => {
     }
   });
 
-  // FLAKY: 2% tolerance is ~2.8σ — fires once every few hundred CI runs in practice. Sibling to balance.test.ts flake (PR #421). Unskip after raising tolerance to 3σ or pinning seed.
-  it.skip('100k rolls show uniform distribution within 2% of expected', () => {
+  // De-flaked 2026-04-25: tolerance widened from 2% (~2.8σ) to 3% (~4.2σ)
+  // per face. The original tolerance fired once every few hundred CI runs.
+  // 3% still detects a broken rejection-sampling path (which would skew at
+  // least one face by 16%+) but pushes the flake rate to effectively zero.
+  it('100k rolls show uniform distribution within 3% of expected', () => {
     const roller = new CryptoDiceRoller();
     const SAMPLES = 100_000;
     const counts = [0, 0, 0, 0, 0, 0];
@@ -33,12 +38,12 @@ describe('CryptoDiceRoller', () => {
       counts[roller.d6() - 1] += 1;
     }
     const expected = SAMPLES / 6;
-    // 2% tolerance per face. Multinomial std dev for one face at this
-    // sample size is sqrt(N * p * (1-p)) ≈ 117.85, so 2% (≈333) is
-    // ~2.8 standard deviations — flake-resistant under CI noise but
-    // still tight enough to catch a broken rejection-sampling path
-    // (which would skew at least one face by 16%+).
-    const tolerance = expected * 0.02;
+    // 3% tolerance per face. Multinomial std dev for one face at this
+    // sample size is sqrt(N * p * (1-p)) ≈ 117.85, so 3% (≈500) is
+    // ~4.2 standard deviations — effectively zero false-positive rate
+    // under CI noise while still tight enough to catch a broken
+    // rejection-sampling path (which would skew at least one face by 16%+).
+    const tolerance = expected * 0.03;
     for (let face = 0; face < 6; face += 1) {
       expect(Math.abs(counts[face] - expected)).toBeLessThan(tolerance);
     }
