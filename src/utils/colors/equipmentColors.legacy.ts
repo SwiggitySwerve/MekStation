@@ -6,8 +6,8 @@
 
 import { EquipmentCategory } from '@/types/equipment';
 
-import { EQUIPMENT_CATEGORY_COLORS } from './equipmentColors';
 import { classifyEquipmentByName } from './equipmentColors.classification';
+import { EQUIPMENT_CATEGORY_COLORS } from './equipmentColors.types';
 
 // =============================================================================
 // Legacy Types

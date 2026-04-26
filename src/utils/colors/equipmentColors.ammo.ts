@@ -8,7 +8,7 @@ import { EquipmentCategory } from '@/types/equipment';
 import {
   EQUIPMENT_CATEGORY_COLORS,
   type CategoryColorDefinition,
-} from './equipmentColors';
+} from './equipmentColors.types';
 
 // =============================================================================
 // Ammunition Sub-Types

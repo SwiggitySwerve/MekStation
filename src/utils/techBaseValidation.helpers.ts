@@ -2,13 +2,12 @@ import { ISelectionMemory } from '@/stores/unitState';
 import { TechBaseComponent } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 
-import type {
-  ComponentSelections,
-  ComponentValidator,
-} from './techBaseValidation';
-
-import { COMPONENT_VALIDATORS } from './techBaseValidation';
 import { COMPONENT_AFFECTED_SELECTIONS } from './techBaseValidation.mapping';
+import {
+  COMPONENT_VALIDATORS,
+  type ComponentSelections,
+  type ComponentValidator,
+} from './techBaseValidation.types';
 
 export function getValueWithMemory<T>(
   validator: ComponentValidator<T>,

@@ -1,6 +1,6 @@
 import { TechBaseComponent } from '@/types/construction/TechBaseConfiguration';
 
-import type { ComponentSelections } from './techBaseValidation';
+import type { ComponentSelections } from './techBaseValidation.types';
 
 export const COMPONENT_AFFECTED_SELECTIONS: Record<
   TechBaseComponent,
