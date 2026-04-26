@@ -5,7 +5,7 @@ import type {
   ContractData,
   MechData,
   PilotData,
-} from './ContextPanel';
+} from './ContextPanel.types';
 
 import {
   formatPopulation,

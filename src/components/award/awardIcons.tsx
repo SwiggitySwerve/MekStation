@@ -11,6 +11,8 @@ import React from 'react';
 
 import { AwardCategory, AwardRarity } from '@/types/award/AwardInterfaces';
 
+import type { IconProps } from './awardIcons.types';
+
 import {
   SwordsIcon,
   TargetIcon,
@@ -55,11 +57,7 @@ export {
 // Types
 // =============================================================================
 
-export interface IconProps {
-  className?: string;
-  size?: number;
-  strokeWidth?: number;
-}
+export type { IconProps } from './awardIcons.types';
 
 type IconComponent = React.FC<IconProps>;
 
