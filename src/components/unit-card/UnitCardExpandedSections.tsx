@@ -1,6 +1,9 @@
 import React from 'react';
 
-import type { EquipmentEntry, CriticalSlotSummary } from './UnitCardExpanded';
+import type {
+  EquipmentEntry,
+  CriticalSlotSummary,
+} from './UnitCardExpanded.types';
 
 import { Badge } from '../ui/Badge';
 

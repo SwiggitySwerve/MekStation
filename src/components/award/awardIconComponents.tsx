@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { IconProps } from './awardIcons';
+import type { IconProps } from './awardIcons.types';
 
 type IconComponent = React.FC<IconProps>;
 

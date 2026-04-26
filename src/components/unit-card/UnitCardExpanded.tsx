@@ -9,6 +9,12 @@ import React from 'react';
 import { getHeatDisplay } from '@/utils/heatCalculation';
 import { getTechBaseDisplay } from '@/utils/techBase';
 
+import type {
+  EquipmentEntry,
+  CriticalSlotSummary,
+  UnitCardExpandedProps,
+} from './UnitCardExpanded.types';
+
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -17,38 +23,14 @@ import {
   EquipmentList,
   CriticalSlotsSummary,
 } from './UnitCardExpandedSections';
-import { UnitCardStandardProps } from './UnitCardStandard';
 
-export interface EquipmentEntry {
-  name: string;
-  category: string;
-  weight: number;
-  slots: number;
-  location?: string;
-  count: number;
-}
-
-export interface CriticalSlotSummary {
-  location: string;
-  totalSlots: number;
-  usedSlots: number;
-  freeSlots: number;
-}
-
-export interface UnitCardExpandedProps extends UnitCardStandardProps {
-  // Additional equipment (non-weapon)
-  equipment: EquipmentEntry[];
-
-  // Critical slots per location
-  criticalSlots: CriticalSlotSummary[];
-
-  // Quirks
-  quirks: string[];
-
-  // Fluff
-  notes?: string;
-  overview?: string;
-}
+// Re-export leaf types so existing consumers keep their
+// `from './UnitCardExpanded'` import paths working (e.g. unit-card/index.ts).
+export type {
+  EquipmentEntry,
+  CriticalSlotSummary,
+  UnitCardExpandedProps,
+} from './UnitCardExpanded.types';
 
 /**
  * Expanded unit card with full equipment and fluff details

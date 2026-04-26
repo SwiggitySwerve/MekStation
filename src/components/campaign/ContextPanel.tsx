@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ContextPanelMode, type ContextPanelProps } from './ContextPanel.types';
 import {
   EmptyPanel,
   SystemDetailsPanel,
@@ -8,53 +9,16 @@ import {
   PilotStatusPanel,
 } from './ContextPanelTabs';
 
-export enum ContextPanelMode {
-  Empty = 'empty',
-  SystemDetails = 'system',
-  ContractDetails = 'contract',
-  MechStatus = 'mech',
-  PilotStatus = 'pilot',
-}
-
-export interface SystemData {
-  name: string;
-  faction: string;
-  population?: number;
-  industrialRating?: string;
-}
-
-export interface ContractData {
-  name: string;
-  employer: string;
-  payment: number;
-  deadline: string;
-  type: string;
-}
-
-export interface MechData {
-  name: string;
-  variant: string;
-  tonnage: number;
-  armorPercent: number;
-  status: string;
-}
-
-export interface PilotData {
-  name: string;
-  callsign: string;
-  gunnery: number;
-  piloting: number;
-  wounds: number;
-}
-
-export interface ContextPanelProps {
-  mode: ContextPanelMode;
-  systemData?: SystemData;
-  contractData?: ContractData;
-  mechData?: MechData;
-  pilotData?: PilotData;
-  className?: string;
-}
+// Re-export leaf types so existing consumers (e.g. stories, tabs file)
+// keep their `from './ContextPanel'` import paths working.
+export { ContextPanelMode } from './ContextPanel.types';
+export type {
+  SystemData,
+  ContractData,
+  MechData,
+  PilotData,
+  ContextPanelProps,
+} from './ContextPanel.types';
 
 export function ContextPanel({
   mode,
