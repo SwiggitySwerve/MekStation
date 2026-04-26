@@ -8,15 +8,18 @@
  * The store body is intentionally a thin composition layer: the actual
  * REST/CRUD logic lives in `usePilotStore.api.ts`, the skill / wound /
  * ability mutations live in `usePilotStore.skills.ts`, and the shared
- * type contract lives in `usePilotStore.types.ts`. Selectors live in
- * `usePilotStore.selectors.ts`. The split keeps each file under the
- * per-file LOC budget while leaving the public hook surface
- * (`usePilotStore`, `useFilteredPilots`, `usePilotById`) unchanged.
+ * type contract lives in `usePilotStore.types.ts`. Selector hooks live
+ * inline at the bottom of this file (NOT in a sibling file) to avoid a
+ * store <-> selectors circular import — same pattern as
+ * useGameplayStore. Public hook surface is `usePilotStore`,
+ * `useFilteredPilots`, `usePilotById`.
  *
  * @spec openspec/changes/add-pilot-system/specs/pilot-system/spec.md
  */
 
 import { create } from 'zustand';
+
+import { IPilot, PilotStatus } from '@/types/pilot';
 
 import type { PilotStore } from './usePilotStore.types';
 
@@ -39,7 +42,6 @@ import {
   removeSPALogic,
 } from './usePilotStore.skills';
 
-export { useFilteredPilots, usePilotById } from './usePilotStore.selectors';
 export type {
   CreatePilotResponse,
   DeletePilotResponse,
@@ -119,3 +121,43 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
     set({ error: null });
   },
 }));
+
+// =============================================================================
+// Selector Hooks
+// =============================================================================
+// Live in this file (instead of usePilotStore.selectors.ts) to avoid a
+// store <-> selectors circular import. Same pattern as useGameplayStore.
+
+/**
+ * Get filtered pilots based on current filters (status + search query).
+ * Subscribes to the full store rather than a fine-grained selector
+ * because the three filter inputs change together in practice.
+ */
+export function useFilteredPilots(): IPilot[] {
+  const { pilots, showActiveOnly, searchQuery } = usePilotStore();
+
+  let filtered = pilots;
+  if (showActiveOnly) {
+    filtered = filtered.filter((p) => p.status === PilotStatus.Active);
+  }
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        p.callsign?.toLowerCase().includes(query) ||
+        p.affiliation?.toLowerCase().includes(query),
+    );
+  }
+  return filtered;
+}
+
+/**
+ * Get a pilot by ID. Returns `null` for null ids or unknown ids so
+ * callers can pass an optional id straight from URL params.
+ */
+export function usePilotById(id: string | null): IPilot | null {
+  const pilots = usePilotStore((state) => state.pilots);
+  if (!id) return null;
+  return pilots.find((p) => p.id === id) || null;
+}
