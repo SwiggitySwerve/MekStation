@@ -41,7 +41,7 @@ export interface MountResult {
 export function getLegalMountingLocations(
   motionType: GroundMotionType,
   turretType: TurretType,
-  isOmni: boolean,
+  _isOmni: boolean,
 ): Array<VehicleLocation | VTOLLocation> {
   const isVTOL = motionType === GroundMotionType.VTOL;
   const locations: Array<VehicleLocation | VTOLLocation> = [

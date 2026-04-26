@@ -68,6 +68,15 @@ export default function GameSessionPage(): React.ReactElement {
   const campaignIdStr = typeof campaignId === 'string' ? campaignId : undefined;
   const missionIdStr = typeof missionId === 'string' ? missionId : undefined;
 
+  // INTENTIONAL FULL-STORE DESTRUCTURE (useGameplaySelector POC opt-out):
+  // this page consumes 30+ fields from the gameplay store. Splitting
+  // each into its own per-field selector would add dozens of
+  // subscription objects and the page already re-renders on most
+  // gameplay mutations anyway (it owns the active session view), so
+  // the per-field overhead would outweigh the re-render savings.
+  // Smaller consumers (SpectatorView, pre-battle) DO use the
+  // `useGameplaySelector` helper — see `useGameplayStore.ts` selector
+  // helper docs for the heuristic.
   const {
     session,
     isLoading,

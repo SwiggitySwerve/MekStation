@@ -26,10 +26,7 @@ import {
 } from '@/types/unit/AerospaceInterfaces';
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import {
-  calculateFuelPoints,
-  FUEL_POINTS_PER_TON,
-} from '@/utils/construction/aerospace/fuelCalculations';
+import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================

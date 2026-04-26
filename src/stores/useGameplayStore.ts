@@ -395,6 +395,38 @@ export function useIsGameCompleted(): boolean {
 }
 
 // ---------------------------------------------------------------------------
+// Selector helper (perf pattern POC)
+// ---------------------------------------------------------------------------
+//
+// Components should pull individual fields via this helper (or call
+// `useGameplayStore(selector)` directly) instead of destructuring the
+// full store. Destructuring the full store causes the component to
+// re-render on ANY state mutation, even when the consumed fields
+// haven't changed. Per-field selectors with primitive returns get
+// Zustand's reference-equality short-circuit and skip re-renders for
+// unrelated mutations.
+//
+// Pattern:
+//   const session = useGameplaySelector((s) => s.session);
+//   const phase  = useGameplaySelector((s) => s.interactivePhase);
+//
+// Note: Zustand's `useStore(selector)` already implements this — the
+// helper exists purely to give a named, store-scoped convention so
+// follow-up rollouts to other stores can ship matching helpers
+// (`selectFromCustomizerStore`, etc.) and grep cleanly.
+//
+// CAUTION: prefer primitive-returning selectors. If the selector
+// returns an object (e.g. `(s) => s.user`) Zustand's default
+// reference-equality will re-render on every store mutation that
+// recreates the object — use `zustand/shallow` or split into multiple
+// primitive selectors to avoid the trap.
+export function useGameplaySelector<T>(
+  selector: (state: GameplayStore) => T,
+): T {
+  return useGameplayStore(selector);
+}
+
+// ---------------------------------------------------------------------------
 // Phase-change side effects (task 1.2)
 // ---------------------------------------------------------------------------
 

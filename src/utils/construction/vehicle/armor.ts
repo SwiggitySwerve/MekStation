@@ -17,10 +17,7 @@ import {
 } from '@/types/construction/ArmorType';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
-import {
-  computeVehicleMaxArmorByLocation,
-  computeVehicleStructurePoints,
-} from './structure';
+import { computeVehicleMaxArmorByLocation } from './structure';
 
 // =============================================================================
 // BAR Armor Table (TechManual support vehicle rules)

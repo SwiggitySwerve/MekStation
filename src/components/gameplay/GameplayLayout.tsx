@@ -19,7 +19,7 @@ import type { InteractivePhase } from '@/stores/useGameplayStore';
 import { pixelToHex } from '@/constants/hexMap';
 import { useCameraControls } from '@/hooks/useCameraControls';
 import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
-import { useGameplayStore } from '@/stores/useGameplayStore';
+import { useGameplaySelector } from '@/stores/useGameplayStore';
 import {
   GamePhase,
   GameSide,
@@ -242,7 +242,7 @@ export function GameplayLayout({
   // target id so the token for that specific unit can render a pulsing
   // red ring (distinct from the static validTarget ring painted on
   // every fireable enemy).
-  const activeTargetId = useGameplayStore((s) => s.attackPlan.targetUnitId);
+  const activeTargetId = useGameplaySelector((s) => s.attackPlan.targetUnitId);
   const [layout, setLayout] = useState<ILayoutConfig>(DEFAULT_LAYOUT_CONFIG);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

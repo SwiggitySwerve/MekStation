@@ -8,7 +8,10 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useGameplayStore } from '@/stores/useGameplayStore';
+import {
+  useGameplaySelector,
+  useGameplayStore,
+} from '@/stores/useGameplayStore';
 import { GamePhase, GameSide } from '@/types/gameplay';
 
 import { HexMapDisplay } from './HexMapDisplay';
@@ -21,7 +24,14 @@ import {
 } from './SpectatorViewPanels';
 
 export function SpectatorView(): React.ReactElement {
-  const { session, interactiveSession, spectatorMode } = useGameplayStore();
+  // Per-field selectors (useGameplaySelector POC): each subscription
+  // re-renders only when its own field reference changes, instead of
+  // on every gameplay-store mutation. `useGameplayStore.setState`
+  // remains the static-method imperative escape hatch for the
+  // spectator's manual session-sync below.
+  const session = useGameplaySelector((s) => s.session);
+  const interactiveSession = useGameplaySelector((s) => s.interactiveSession);
+  const spectatorMode = useGameplaySelector((s) => s.spectatorMode);
 
   const [playing, setPlaying] = useState(spectatorMode?.playing ?? true);
   const [speed, setSpeed] = useState<1 | 2 | 4>(spectatorMode?.speed ?? 1);

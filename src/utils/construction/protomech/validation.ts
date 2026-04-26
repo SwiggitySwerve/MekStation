@@ -15,11 +15,7 @@
  * @spec openspec/changes/add-protomech-construction/tasks.md §9
  */
 
-import {
-  ProtoChassis,
-  ProtoLocation,
-  ProtoWeightClass,
-} from '@/types/unit/ProtoMechInterfaces';
+import { ProtoChassis, ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 
 import { isArmPlacementIllegal, isMainGunWeaponApproved } from './mainGun';
 import { getProtoMPCaps, isMyomerBoosterLegal } from './movementCaps';

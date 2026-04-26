@@ -40,7 +40,10 @@ import type {
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
-import { useGameplayStore, useSelectedUnit } from '@/stores/useGameplayStore';
+import {
+  useGameplaySelector,
+  useSelectedUnit,
+} from '@/stores/useGameplayStore';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
 import {
   GamePhase,
@@ -172,9 +175,9 @@ export function PhysicalAttackPanel({
   onIntentChange,
   className = '',
 }: PhysicalAttackPanelProps): React.ReactElement | null {
-  const session = useGameplayStore((s) => s.session);
-  const interactiveSession = useGameplayStore((s) => s.interactiveSession);
-  const setSession = useGameplayStore((s) => s.setSession);
+  const session = useGameplaySelector((s) => s.session);
+  const interactiveSession = useGameplaySelector((s) => s.interactiveSession);
+  const setSession = useGameplaySelector((s) => s.setSession);
   const selected = useSelectedUnit();
 
   const physicalAttackPlan = usePhysicalAttackPlanStore(

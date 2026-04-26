@@ -233,6 +233,7 @@ function validateShape(
     throw new Error(message);
   }
   // Non-strict default: surface drift loudly without breaking dev runs.
+  // eslint-disable-next-line no-console
   console.warn(`[schema-bridge] ${message}`);
 }
 

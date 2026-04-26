@@ -1,11 +1,38 @@
-import React from 'react';
+import dynamic from 'next/dynamic';
+import React, { type ComponentType } from 'react';
+
+import type { ExportDialogProps } from '@/components/vault/ExportDialog';
+import type { ImportDialogProps } from '@/components/vault/ImportDialog';
+import type { IExportableUnit } from '@/types/vault';
 
 import { SaveUnitDialog } from '@/components/customizer/dialogs/SaveUnitDialog';
 import { UnitLoadDialog } from '@/components/customizer/dialogs/UnitLoadDialog';
 import { UnsavedChangesDialog } from '@/components/customizer/dialogs/UnsavedChangesDialog';
 import { useToast } from '@/components/shared/Toast';
-import { ExportDialog } from '@/components/vault/ExportDialog';
-import { ImportDialog } from '@/components/vault/ImportDialog';
+
+// Lazy-load the two heaviest vault dialogs (~360 + ~300 LOC pulling
+// CSV/JSON parsers, Zod, and Toast plumbing). They only mount when
+// the user opens the Export / Import flow, so deferring their bundle
+// until then trims the customizer's initial JS without changing
+// behavior. `ssr: false` because the dialogs are client-only React
+// surfaces that depend on the toast portal.
+//
+// `next/dynamic` erases generics, so the ImportDialog wrapper is cast
+// to the concrete `ImportDialogProps<IExportableUnit>` shape used at
+// the single call site below. If a future caller needs a different
+// `T`, lift the dynamic import to that caller's module.
+const ExportDialog: ComponentType<ExportDialogProps> = dynamic(
+  () => import('@/components/vault/ExportDialog').then((m) => m.ExportDialog),
+  { ssr: false },
+);
+const ImportDialog: ComponentType<ImportDialogProps<IExportableUnit>> = dynamic(
+  () =>
+    import('@/components/vault/ImportDialog').then(
+      (m) =>
+        m.ImportDialog as ComponentType<ImportDialogProps<IExportableUnit>>,
+    ),
+  { ssr: false },
+);
 
 import { MultiUnitTabsEmptyState } from './MultiUnitTabsEmptyState';
 import { NewTabModal } from './NewTabModal';

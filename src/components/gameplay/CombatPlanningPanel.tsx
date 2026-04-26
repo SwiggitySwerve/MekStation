@@ -29,7 +29,10 @@ import type {
 } from '@/types/gameplay';
 import type { IForecastInput } from '@/utils/gameplay/toHit/forecast';
 
-import { useGameplayStore, useSelectedUnit } from '@/stores/useGameplayStore';
+import {
+  useGameplaySelector,
+  useSelectedUnit,
+} from '@/stores/useGameplayStore';
 import {
   Facing,
   GameEventType,
@@ -106,22 +109,24 @@ export function CombatPlanningPanel({
 }: CombatPlanningPanelProps): React.ReactElement | null {
   // Reasoning: each of these reads is a primitive selector so Zustand
   // can short-circuit re-renders unless the specific slice changes.
-  const session = useGameplayStore((s) => s.session);
-  const plannedMovement = useGameplayStore((s) => s.plannedMovement);
-  const attackPlan = useGameplayStore((s) => s.attackPlan);
-  const setPlannedMovement = useGameplayStore((s) => s.setPlannedMovement);
-  const clearPlannedMovement = useGameplayStore((s) => s.clearPlannedMovement);
-  const commitPlannedMovement = useGameplayStore(
+  const session = useGameplaySelector((s) => s.session);
+  const plannedMovement = useGameplaySelector((s) => s.plannedMovement);
+  const attackPlan = useGameplaySelector((s) => s.attackPlan);
+  const setPlannedMovement = useGameplaySelector((s) => s.setPlannedMovement);
+  const clearPlannedMovement = useGameplaySelector(
+    (s) => s.clearPlannedMovement,
+  );
+  const commitPlannedMovement = useGameplaySelector(
     (s) => s.commitPlannedMovement,
   );
-  const togglePlannedWeapon = useGameplayStore((s) => s.togglePlannedWeapon);
-  const commitAttack = useGameplayStore((s) => s.commitAttack);
+  const togglePlannedWeapon = useGameplaySelector((s) => s.togglePlannedWeapon);
+  const commitAttack = useGameplaySelector((s) => s.commitAttack);
   // Per `add-what-if-to-hit-preview` § 8.2: toggle state lives on the
   // store so other surfaces (e.g. ToHitForecastModal) can subscribe to
   // the same flag without prop drilling. Selector is a primitive read
   // so re-renders only fire when the toggle actually flips.
-  const previewEnabled = useGameplayStore((s) => s.previewEnabled);
-  const setPreviewEnabled = useGameplayStore((s) => s.setPreviewEnabled);
+  const previewEnabled = useGameplaySelector((s) => s.previewEnabled);
+  const setPreviewEnabled = useGameplaySelector((s) => s.setPreviewEnabled);
 
   // The orphan we're now wiring in — projects { id, unit, state } in
   // one shot for the currently selected unit.

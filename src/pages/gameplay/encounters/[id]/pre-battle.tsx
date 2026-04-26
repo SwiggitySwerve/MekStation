@@ -38,7 +38,7 @@ import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { GameEngine } from '@/engine/GameEngine';
 import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useForceStore } from '@/stores/useForceStore';
-import { useGameplayStore } from '@/stores/useGameplayStore';
+import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import {
   EncounterStatus,
@@ -91,8 +91,16 @@ export default function PreBattlePage(): React.ReactElement {
   } = useEncounterStore();
   const { forces, loadForces } = useForceStore();
   const { pilots, loadPilots } = usePilotStore();
-  const { setSession, setInteractiveSession, setSpectatorMode } =
-    useGameplayStore();
+  // Per-field selectors (useGameplaySelector POC). All three are stable
+  // action references, so each subscription is effectively static —
+  // we still pull them individually to keep the convention uniform
+  // and to avoid re-rendering when unrelated gameplay-store fields
+  // mutate during the launch handshake.
+  const setSession = useGameplaySelector((s) => s.setSession);
+  const setInteractiveSession = useGameplaySelector(
+    (s) => s.setInteractiveSession,
+  );
+  const setSpectatorMode = useGameplaySelector((s) => s.setSpectatorMode);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
