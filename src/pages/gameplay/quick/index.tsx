@@ -16,7 +16,7 @@ import {
   QuickGameResults,
 } from '@/components/quickgame';
 import { Button, Card } from '@/components/ui';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { QuickGameStep } from '@/types/quickgame';
 
 // =============================================================================
@@ -232,7 +232,10 @@ function WelcomeScreen({ onStart }: WelcomeScreenProps): React.ReactElement {
 
 export default function QuickGamePage(): React.ReactElement {
   const router = useRouter();
-  const { game, startNewGame, error, clearError } = useQuickGameStore();
+  const game = useQuickGameSelector((state) => state.game);
+  const startNewGame = useQuickGameSelector((state) => state.startNewGame);
+  const error = useQuickGameSelector((state) => state.error);
+  const clearError = useQuickGameSelector((state) => state.clearError);
 
   // Restore from session storage on mount
   useEffect(() => {

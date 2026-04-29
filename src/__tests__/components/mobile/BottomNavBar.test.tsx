@@ -3,7 +3,11 @@ import React from 'react';
 
 import { BottomNavBar, Tab } from '@/components/mobile/BottomNavBar';
 import { useDeviceType } from '@/hooks/useDeviceType';
-import { useNavigationStore, PanelId } from '@/stores/useNavigationStore';
+import {
+  useNavigationStore,
+  useNavigationSelector,
+  PanelId,
+} from '@/stores/useNavigationStore';
 
 // Mock dependencies
 jest.mock('../../../stores/useNavigationStore');
@@ -14,6 +18,8 @@ describe('BottomNavBar', () => {
   const mockUseNavigationStore = useNavigationStore as jest.MockedFunction<
     typeof useNavigationStore
   >;
+  const mockUseNavigationSelector =
+    useNavigationSelector as jest.MockedFunction<typeof useNavigationSelector>;
   const mockUseDeviceType = useDeviceType as jest.MockedFunction<
     typeof useDeviceType
   >;
@@ -63,6 +69,10 @@ describe('BottomNavBar', () => {
       resetNavigation: jest.fn(),
       replacePanel: jest.fn(),
     });
+
+    mockUseNavigationSelector.mockImplementation((selector) =>
+      selector(mockUseNavigationStore()),
+    );
   });
 
   afterEach(() => {

@@ -12,7 +12,7 @@
 import React, { useState } from 'react';
 
 import { Badge, Button, Card } from '@/components/ui';
-import { usePilotStore } from '@/stores/usePilotStore';
+import { usePilotSelector } from '@/stores/usePilotStore';
 import {
   IPilot,
   MIN_SKILL_VALUE,
@@ -164,7 +164,9 @@ export function PilotProgressionPanel({
   pilot,
   onUpdate,
 }: PilotProgressionPanelProps): React.ReactElement {
-  const { improveGunnery, improvePiloting, error } = usePilotStore();
+  const improveGunnery = usePilotSelector((state) => state.improveGunnery);
+  const improvePiloting = usePilotSelector((state) => state.improvePiloting);
+  const error = usePilotSelector((state) => state.error);
   const [isUpgradingGunnery, setIsUpgradingGunnery] = useState(false);
   const [isUpgradingPiloting, setIsUpgradingPiloting] = useState(false);
 

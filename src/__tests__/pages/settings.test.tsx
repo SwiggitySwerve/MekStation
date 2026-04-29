@@ -97,6 +97,28 @@ jest.mock('@/lib/p2p/useSyncRoomStore', () => ({
     error: null,
     clearError: jest.fn(),
   }),
+  useSyncRoomSelector: (
+    selector: (state: {
+      localPeerName: string;
+      localPeerId: string;
+      setLocalPeerName: jest.Mock;
+      createRoom: jest.Mock;
+      joinRoom: jest.Mock;
+      leaveRoom: jest.Mock;
+      error: string | null;
+      clearError: jest.Mock;
+    }) => unknown,
+  ) =>
+    selector({
+      localPeerName: 'TestPeer',
+      localPeerId: 'test-peer-id',
+      setLocalPeerName: jest.fn(),
+      createRoom: jest.fn(),
+      joinRoom: jest.fn(),
+      leaveRoom: jest.fn(),
+      error: null,
+      clearError: jest.fn(),
+    }),
   useConnectionState: () => 'disconnected',
   usePeers: () => [],
   useRoomCode: () => null,

@@ -32,9 +32,9 @@ import { buildPreparedBattleData } from '@/components/gameplay/pages/preBattleSe
 import { QuickResolveLauncher } from '@/components/gameplay/quickResolve/QuickResolveLauncher';
 import { useToast } from '@/components/shared/Toast';
 import { Badge, Button, PageLayout } from '@/components/ui';
-import { useEncounterStore } from '@/stores/useEncounterStore';
-import { useForceStore } from '@/stores/useForceStore';
-import { usePilotStore } from '@/stores/usePilotStore';
+import { useEncounterSelector } from '@/stores/useEncounterStore';
+import { useForceSelector } from '@/stores/useForceStore';
+import { usePilotSelector } from '@/stores/usePilotStore';
 import { EncounterStatus, SCENARIO_TEMPLATES } from '@/types/encounter';
 import { getStatusColor, getStatusLabel } from '@/utils/encounterStatus';
 import { logger } from '@/utils/logger';
@@ -44,19 +44,23 @@ export default function EncounterDetailPage(): React.ReactElement {
   const { id } = router.query;
   const { showToast } = useToast();
 
-  const {
-    getEncounter,
-    loadEncounters,
-    deleteEncounter,
-    validateEncounter,
-    validations,
-    isLoading,
-    error,
-    clearError,
-  } = useEncounterStore();
+  const getEncounter = useEncounterSelector((state) => state.getEncounter);
+  const loadEncounters = useEncounterSelector((state) => state.loadEncounters);
+  const deleteEncounter = useEncounterSelector(
+    (state) => state.deleteEncounter,
+  );
+  const validateEncounter = useEncounterSelector(
+    (state) => state.validateEncounter,
+  );
+  const validations = useEncounterSelector((state) => state.validations);
+  const isLoading = useEncounterSelector((state) => state.isLoading);
+  const error = useEncounterSelector((state) => state.error);
+  const clearError = useEncounterSelector((state) => state.clearError);
 
-  const { forces, loadForces } = useForceStore();
-  const { pilots, loadPilots } = usePilotStore();
+  const forces = useForceSelector((state) => state.forces);
+  const loadForces = useForceSelector((state) => state.loadForces);
+  const pilots = usePilotSelector((state) => state.pilots);
+  const loadPilots = usePilotSelector((state) => state.loadPilots);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

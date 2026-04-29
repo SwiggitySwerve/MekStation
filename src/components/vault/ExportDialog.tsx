@@ -17,7 +17,7 @@ import type {
 
 import { DialogTemplate } from '@/components/ui/DialogTemplate';
 import { useVaultExport, type ExportOptions } from '@/hooks/useVaultExport';
-import { useIdentityStore } from '@/stores/useIdentityStore';
+import { useIdentitySelector } from '@/stores/useIdentityStore';
 
 // =============================================================================
 // Types
@@ -69,7 +69,8 @@ export function ExportDialog({
   const [password, setPassword] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const { publicIdentity, isUnlocked } = useIdentityStore();
+  const publicIdentity = useIdentitySelector((state) => state.publicIdentity);
+  const isUnlocked = useIdentitySelector((state) => state.isUnlocked);
   const {
     exporting,
     result,

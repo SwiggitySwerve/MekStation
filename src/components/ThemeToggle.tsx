@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { useThemeStore } from '@/stores/useThemeStore';
+import { useThemeSelector } from '@/stores/useThemeStore';
 
 const SunIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg
@@ -49,7 +49,9 @@ export interface IThemeToggleProps {
 export const ThemeToggle: React.FC<IThemeToggleProps> = ({
   className = '',
 }) => {
-  const { theme, toggleTheme, applyTheme } = useThemeStore();
+  const theme = useThemeSelector((state) => state.theme);
+  const toggleTheme = useThemeSelector((state) => state.toggleTheme);
+  const applyTheme = useThemeSelector((state) => state.applyTheme);
 
   useEffect(() => {
     applyTheme();

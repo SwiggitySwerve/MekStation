@@ -19,7 +19,7 @@ import type {
 } from '@/types/vault';
 
 import { serializeBundle } from '@/services/vault/BundleService';
-import { useIdentityStore } from '@/stores/useIdentityStore';
+import { useIdentitySelector } from '@/stores/useIdentityStore';
 
 // =============================================================================
 // API Response Types
@@ -96,7 +96,7 @@ export function useVaultExport(): UseVaultExportState & UseVaultExportActions {
   const [result, setResult] = useState<IExportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { isUnlocked } = useIdentityStore();
+  const isUnlocked = useIdentitySelector((state) => state.isUnlocked);
 
   /**
    * Export content via server-side signing

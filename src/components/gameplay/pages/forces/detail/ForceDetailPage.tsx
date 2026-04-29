@@ -10,8 +10,8 @@ import {
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout, PageError } from '@/components/ui';
 import { unitSearchService } from '@/services/units/UnitSearchService';
-import { useForceStore } from '@/stores/useForceStore';
-import { usePilotStore } from '@/stores/usePilotStore';
+import { useForceSelector } from '@/stores/useForceStore';
+import { usePilotSelector } from '@/stores/usePilotStore';
 import { IForce, IForceValidation, getForceTypeName } from '@/types/force';
 import { IPilot, PilotStatus } from '@/types/pilot';
 import { IUnitIndexEntry } from '@/types/unit/UnitIndex';
@@ -31,22 +31,21 @@ export default function ForceDetailPage(): React.ReactElement {
   const forceId = typeof id === 'string' ? id : null;
   const { showToast } = useToast();
 
-  const {
-    loadForces,
-    getForce,
-    updateForce,
-    deleteForce,
-    validateForce,
-    assignPilot,
-    assignUnit,
-    clearAssignment,
-    swapAssignments,
-    isLoading: forceLoading,
-    error: forceError,
-    clearError: clearForceError,
-  } = useForceStore();
+  const loadForces = useForceSelector((state) => state.loadForces);
+  const getForce = useForceSelector((state) => state.getForce);
+  const updateForce = useForceSelector((state) => state.updateForce);
+  const deleteForce = useForceSelector((state) => state.deleteForce);
+  const validateForce = useForceSelector((state) => state.validateForce);
+  const assignPilot = useForceSelector((state) => state.assignPilot);
+  const assignUnit = useForceSelector((state) => state.assignUnit);
+  const clearAssignment = useForceSelector((state) => state.clearAssignment);
+  const swapAssignments = useForceSelector((state) => state.swapAssignments);
+  const forceLoading = useForceSelector((state) => state.isLoading);
+  const forceError = useForceSelector((state) => state.error);
+  const clearForceError = useForceSelector((state) => state.clearError);
 
-  const { loadPilots, pilots } = usePilotStore();
+  const loadPilots = usePilotSelector((state) => state.loadPilots);
+  const pilots = usePilotSelector((state) => state.pilots);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [allUnits, setAllUnits] = useState<IUnitIndexEntry[]>([]);

@@ -102,6 +102,7 @@ export function VersionPreview({
               </div>
               <button
                 onClick={handleClose}
+                aria-label="Close version preview"
                 className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-700/50 hover:text-white"
               >
                 <XMarkIcon className="h-6 w-6" />

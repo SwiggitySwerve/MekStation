@@ -173,3 +173,9 @@ export const useCustomizerStore = create<CustomizerState>((set) => ({
       colorLegendExpanded: false,
     }),
 }));
+
+export function useCustomizerSelector<T>(
+  selector: (state: CustomizerState) => T,
+): T {
+  return useCustomizerStore(selector);
+}

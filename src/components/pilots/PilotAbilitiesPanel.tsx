@@ -36,7 +36,7 @@ import {
 import { SPAPickerModal } from '@/components/spa/SPAPickerModal';
 import { Badge, Button, Card, CardSection } from '@/components/ui';
 import { getSPADefinition } from '@/lib/spa';
-import { usePilotStore } from '@/stores/usePilotStore';
+import { usePilotSelector } from '@/stores/usePilotStore';
 
 // =============================================================================
 // Props
@@ -181,7 +181,9 @@ export function PilotAbilitiesPanel({
   isCreationFlow = false,
   onPilotChange,
 }: IPilotAbilitiesPanelProps): React.ReactElement {
-  const { purchaseSPA, removeSPA, error } = usePilotStore();
+  const purchaseSPA = usePilotSelector((state) => state.purchaseSPA);
+  const removeSPA = usePilotSelector((state) => state.removeSPA);
+  const error = usePilotSelector((state) => state.error);
   const { showToast } = useToast();
 
   const [isModalOpen, setModalOpen] = useState(false);

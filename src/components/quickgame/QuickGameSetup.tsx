@@ -5,14 +5,14 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { QuickGameStep } from '@/types/quickgame';
 
 import { ScenarioConfigStep } from './QuickGameSetupScenarioConfig';
 import { UnitSelectionStep } from './QuickGameSetupUnitSelection';
 
 export function QuickGameSetup(): React.ReactElement {
-  const { game } = useQuickGameStore();
+  const game = useQuickGameSelector((state) => state.game);
 
   if (!game) {
     return (

@@ -458,3 +458,9 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
     set({ error: null });
   },
 }));
+
+export function useEncounterSelector<T>(
+  selector: (state: EncounterStore) => T,
+): T {
+  return useEncounterStore(selector);
+}

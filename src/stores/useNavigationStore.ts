@@ -29,6 +29,12 @@ export const useMobileSidebarStore = create<MobileSidebarState>((set) => ({
   toggle: () => set((state) => ({ isOpen: !state.isOpen })),
 }));
 
+export function useMobileSidebarSelector<T>(
+  selector: (state: MobileSidebarState) => T,
+): T {
+  return useMobileSidebarStore(selector);
+}
+
 // =============================================================================
 // Panel Navigation Store
 // =============================================================================
@@ -191,3 +197,9 @@ export const useNavigationStore = create<NavigationStore>((set, get) => ({
     });
   },
 }));
+
+export function useNavigationSelector<T>(
+  selector: (state: NavigationStore) => T,
+): T {
+  return useNavigationStore(selector);
+}

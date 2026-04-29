@@ -11,7 +11,7 @@ import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
 import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
 
 import { Card } from '@/components/ui';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { GamePhase } from '@/types/gameplay';
 import { projectUnitPerformance } from '@/utils/gameplay/combatStatistics';
 
@@ -123,7 +123,7 @@ export function BattleSummary({
   combatStats,
   keyMoments,
 }: BattleSummaryProps): React.ReactElement {
-  const { game } = useQuickGameStore();
+  const game = useQuickGameSelector((state) => state.game);
   const [showLowerTiers, setShowLowerTiers] = useState(false);
 
   if (!game) return <></>;

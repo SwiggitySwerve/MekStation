@@ -15,7 +15,7 @@
 import { useEffect, useMemo, useCallback, useContext, useState } from 'react';
 
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
-import { useEquipmentStore, SortColumn } from '@/stores/useEquipmentStore';
+import { useEquipmentSelector, SortColumn } from '@/stores/useEquipmentStore';
 import { UnitStoreContext, type UnitStore } from '@/stores/useUnitStore';
 import {
   VehicleStoreContext,
@@ -168,33 +168,49 @@ function useUnitContextValues(): {
  * Hook for equipment browser functionality
  */
 export function useEquipmentBrowser(): EquipmentBrowserState {
-  const {
-    equipment,
-    isLoading,
-    error,
-    filters,
-    pagination,
-    sort,
-    setEquipment,
-    setLoading,
-    setError,
-    setUnitContext,
-    setSearch,
-    setTechBaseFilter,
-    setCategoryFilter,
-    selectCategory,
-    showAllCategories,
-    toggleHidePrototype,
-    toggleHideOneShot,
-    toggleHideUnavailable,
-    toggleHideAmmoWithoutWeapon,
-    clearFilters,
-    setPage,
-    setPageSize,
-    setSort,
-    getFilteredEquipment,
-    getPaginatedEquipment,
-  } = useEquipmentStore();
+  const equipment = useEquipmentSelector((state) => state.equipment);
+  const isLoading = useEquipmentSelector((state) => state.isLoading);
+  const error = useEquipmentSelector((state) => state.error);
+  const filters = useEquipmentSelector((state) => state.filters);
+  const pagination = useEquipmentSelector((state) => state.pagination);
+  const sort = useEquipmentSelector((state) => state.sort);
+  const setEquipment = useEquipmentSelector((state) => state.setEquipment);
+  const setLoading = useEquipmentSelector((state) => state.setLoading);
+  const setError = useEquipmentSelector((state) => state.setError);
+  const setUnitContext = useEquipmentSelector((state) => state.setUnitContext);
+  const setSearch = useEquipmentSelector((state) => state.setSearch);
+  const setTechBaseFilter = useEquipmentSelector(
+    (state) => state.setTechBaseFilter,
+  );
+  const setCategoryFilter = useEquipmentSelector(
+    (state) => state.setCategoryFilter,
+  );
+  const selectCategory = useEquipmentSelector((state) => state.selectCategory);
+  const showAllCategories = useEquipmentSelector(
+    (state) => state.showAllCategories,
+  );
+  const toggleHidePrototype = useEquipmentSelector(
+    (state) => state.toggleHidePrototype,
+  );
+  const toggleHideOneShot = useEquipmentSelector(
+    (state) => state.toggleHideOneShot,
+  );
+  const toggleHideUnavailable = useEquipmentSelector(
+    (state) => state.toggleHideUnavailable,
+  );
+  const toggleHideAmmoWithoutWeapon = useEquipmentSelector(
+    (state) => state.toggleHideAmmoWithoutWeapon,
+  );
+  const clearFilters = useEquipmentSelector((state) => state.clearFilters);
+  const setPage = useEquipmentSelector((state) => state.setPage);
+  const setPageSize = useEquipmentSelector((state) => state.setPageSize);
+  const setSort = useEquipmentSelector((state) => state.setSort);
+  const getFilteredEquipment = useEquipmentSelector(
+    (state) => state.getFilteredEquipment,
+  );
+  const getPaginatedEquipment = useEquipmentSelector(
+    (state) => state.getPaginatedEquipment,
+  );
 
   // Get unit year, tech base, and weapon IDs from unit store context (if available)
   const {

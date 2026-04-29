@@ -30,6 +30,18 @@ jest.mock('@/stores/usePilotStore', () => ({
     removeSPA: mockRemoveSPA,
     error: null,
   }),
+  usePilotSelector: (
+    selector: (state: {
+      purchaseSPA: typeof mockPurchaseSPA;
+      removeSPA: typeof mockRemoveSPA;
+      error: string | null;
+    }) => unknown,
+  ) =>
+    selector({
+      purchaseSPA: mockPurchaseSPA,
+      removeSPA: mockRemoveSPA,
+      error: null,
+    }),
 }));
 
 jest.mock('@/components/shared/Toast', () => ({

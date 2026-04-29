@@ -1,7 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import {
+  useAppSettingsStore,
+  useAppSettingsSelector,
+} from '@/stores/useAppSettingsStore';
 
 import { ArmorDiagramModeSwitch } from '../ArmorDiagramModeSwitch';
 
@@ -10,6 +13,8 @@ jest.mock('@/stores/useAppSettingsStore');
 const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<
   typeof useAppSettingsStore
 >;
+const mockUseAppSettingsSelector =
+  useAppSettingsSelector as jest.MockedFunction<typeof useAppSettingsSelector>;
 
 describe('ArmorDiagramModeSwitch', () => {
   const mockSetArmorDiagramMode = jest.fn();
@@ -20,6 +25,9 @@ describe('ArmorDiagramModeSwitch', () => {
       armorDiagramMode: 'silhouette',
       setArmorDiagramMode: mockSetArmorDiagramMode,
     } as ReturnType<typeof useAppSettingsStore>);
+    mockUseAppSettingsSelector.mockImplementation((selector) =>
+      selector(mockUseAppSettingsStore()),
+    );
   });
 
   it('should render mode options', () => {

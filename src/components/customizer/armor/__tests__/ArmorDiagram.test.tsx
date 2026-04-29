@@ -1,7 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import {
+  useAppSettingsStore,
+  useAppSettingsSelector,
+} from '@/stores/useAppSettingsStore';
 import { MechLocation } from '@/types/construction';
 
 import { ArmorDiagram } from '../ArmorDiagram';
@@ -11,6 +14,8 @@ jest.mock('@/stores/useAppSettingsStore');
 const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<
   typeof useAppSettingsStore
 >;
+const mockUseAppSettingsSelector =
+  useAppSettingsSelector as jest.MockedFunction<typeof useAppSettingsSelector>;
 
 describe('ArmorDiagram', () => {
   const mockArmorData = [
@@ -51,6 +56,9 @@ describe('ArmorDiagram', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseAppSettingsSelector.mockImplementation((selector) =>
+      selector(mockUseAppSettingsStore()),
+    );
   });
 
   describe('mode switching', () => {

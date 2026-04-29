@@ -18,7 +18,7 @@ import {
   Badge,
   EmptyState,
 } from '@/components/ui';
-import { usePilotStore, useFilteredPilots } from '@/stores/usePilotStore';
+import { usePilotSelector, useFilteredPilots } from '@/stores/usePilotStore';
 import { IPilot, PilotStatus, getPilotRating } from '@/types/pilot';
 
 // =============================================================================
@@ -176,15 +176,15 @@ function PilotCard({ pilot }: PilotCardProps): React.ReactElement {
 
 export default function PilotRosterPage(): React.ReactElement {
   const router = useRouter();
-  const {
-    isLoading,
-    error,
-    loadPilots,
-    showActiveOnly,
-    setShowActiveOnly,
-    searchQuery,
-    setSearchQuery,
-  } = usePilotStore();
+  const isLoading = usePilotSelector((state) => state.isLoading);
+  const error = usePilotSelector((state) => state.error);
+  const loadPilots = usePilotSelector((state) => state.loadPilots);
+  const showActiveOnly = usePilotSelector((state) => state.showActiveOnly);
+  const setShowActiveOnly = usePilotSelector(
+    (state) => state.setShowActiveOnly,
+  );
+  const searchQuery = usePilotSelector((state) => state.searchQuery);
+  const setSearchQuery = usePilotSelector((state) => state.setSearchQuery);
 
   const filteredPilots = useFilteredPilots();
   const [isInitialized, setIsInitialized] = useState(false);

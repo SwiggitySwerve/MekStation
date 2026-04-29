@@ -9,7 +9,10 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 
-import { useIdentityStore, selectFriendCode } from '@/stores/useIdentityStore';
+import {
+  useIdentitySelector,
+  selectFriendCode,
+} from '@/stores/useIdentityStore';
 
 // =============================================================================
 // Sub-components
@@ -28,7 +31,10 @@ function CreateIdentityForm({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
 
-  const { createIdentity, loading, error, clearError } = useIdentityStore();
+  const createIdentity = useIdentitySelector((state) => state.createIdentity);
+  const loading = useIdentitySelector((state) => state.loading);
+  const error = useIdentitySelector((state) => state.error);
+  const clearError = useIdentitySelector((state) => state.clearError);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -154,7 +160,10 @@ function UnlockIdentityForm({
   onSuccess: () => void;
 }): React.ReactElement {
   const [password, setPassword] = useState('');
-  const { unlockIdentity, loading, error, clearError } = useIdentityStore();
+  const unlockIdentity = useIdentitySelector((state) => state.unlockIdentity);
+  const loading = useIdentitySelector((state) => state.loading);
+  const error = useIdentitySelector((state) => state.error);
+  const clearError = useIdentitySelector((state) => state.clearError);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -215,8 +224,9 @@ function UnlockIdentityForm({
  * Unlocked identity display
  */
 function UnlockedIdentityDisplay(): React.ReactElement {
-  const { publicIdentity, lockIdentity } = useIdentityStore();
-  const friendCode = useIdentityStore(selectFriendCode);
+  const publicIdentity = useIdentitySelector((state) => state.publicIdentity);
+  const lockIdentity = useIdentitySelector((state) => state.lockIdentity);
+  const friendCode = useIdentitySelector(selectFriendCode);
   const [copied, setCopied] = useState(false);
 
   const handleCopyFriendCode = useCallback(async () => {
@@ -288,14 +298,12 @@ function UnlockedIdentityDisplay(): React.ReactElement {
 // =============================================================================
 
 export function VaultIdentitySection(): React.ReactElement {
-  const {
-    initialized,
-    hasIdentity,
-    publicIdentity,
-    isUnlocked,
-    checkIdentity,
-    loading,
-  } = useIdentityStore();
+  const initialized = useIdentitySelector((state) => state.initialized);
+  const hasIdentity = useIdentitySelector((state) => state.hasIdentity);
+  const publicIdentity = useIdentitySelector((state) => state.publicIdentity);
+  const isUnlocked = useIdentitySelector((state) => state.isUnlocked);
+  const checkIdentity = useIdentitySelector((state) => state.checkIdentity);
+  const loading = useIdentitySelector((state) => state.loading);
 
   // Check identity status on mount
   useEffect(() => {

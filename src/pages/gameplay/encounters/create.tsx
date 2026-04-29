@@ -9,7 +9,7 @@ import { useState, useCallback } from 'react';
 
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout, Card, Input, Textarea, Button } from '@/components/ui';
-import { useEncounterStore } from '@/stores/useEncounterStore';
+import { useEncounterSelector } from '@/stores/useEncounterStore';
 import { SCENARIO_TEMPLATES, ScenarioTemplateType } from '@/types/encounter';
 
 // =============================================================================
@@ -61,7 +61,12 @@ function TemplateCard({
 
 export default function CreateEncounterPage(): React.ReactElement {
   const router = useRouter();
-  const { createEncounter, isLoading, error, clearError } = useEncounterStore();
+  const createEncounter = useEncounterSelector(
+    (state) => state.createEncounter,
+  );
+  const isLoading = useEncounterSelector((state) => state.isLoading);
+  const error = useEncounterSelector((state) => state.error);
+  const clearError = useEncounterSelector((state) => state.clearError);
   const { showToast } = useToast();
 
   const [name, setName] = useState('');

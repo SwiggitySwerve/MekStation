@@ -15,7 +15,10 @@ import type {
 } from '@/types/vault';
 
 import { serializeBundle } from '@/services/vault/BundleService';
-import { useIdentityStore } from '@/stores/useIdentityStore';
+import {
+  useIdentityStore,
+  useIdentitySelector,
+} from '@/stores/useIdentityStore';
 
 import { useVaultExport, ExportOptions } from '../useVaultExport';
 
@@ -25,6 +28,9 @@ jest.mock('@/services/vault/BundleService');
 
 const mockUseIdentityStore = useIdentityStore as jest.MockedFunction<
   typeof useIdentityStore
+>;
+const mockUseIdentitySelector = useIdentitySelector as jest.MockedFunction<
+  typeof useIdentitySelector
 >;
 const mockSerializeBundle = serializeBundle as jest.MockedFunction<
   typeof serializeBundle
@@ -126,6 +132,9 @@ describe('useVaultExport', () => {
       updateDisplayName: jest.fn(),
       clearError: jest.fn(),
     });
+    mockUseIdentitySelector.mockImplementation((selector) =>
+      selector(mockUseIdentityStore()),
+    );
 
     // Default fetch mock - success
     mockFetch.mockResolvedValue({

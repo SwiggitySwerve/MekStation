@@ -6,7 +6,7 @@
  */
 
 import { Card } from '@/components/ui';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { GameEventType, GamePhase } from '@/types/gameplay';
 
 // =============================================================================
@@ -72,7 +72,7 @@ function formatTime(timestamp: string): string {
 // =============================================================================
 
 export function QuickGameTimeline(): React.ReactElement {
-  const { game } = useQuickGameStore();
+  const game = useQuickGameSelector((state) => state.game);
 
   if (!game) {
     return (

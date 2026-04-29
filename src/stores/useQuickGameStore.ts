@@ -327,3 +327,9 @@ export const useQuickGameStore = create<QuickGameStore>()(
     },
   ),
 );
+
+export function useQuickGameSelector<T>(
+  selector: (state: QuickGameStore) => T,
+): T {
+  return useQuickGameStore(selector);
+}

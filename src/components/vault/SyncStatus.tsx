@@ -130,6 +130,7 @@ export function SyncStatusPanel({
               </div>
               <button
                 onClick={onClose}
+                aria-label="Close sync status"
                 className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-700/50 hover:text-white"
               >
                 <XMarkIcon className="h-5 w-5" />

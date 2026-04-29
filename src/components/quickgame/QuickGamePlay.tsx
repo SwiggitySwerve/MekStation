@@ -9,7 +9,7 @@
 import { useEffect, useRef } from 'react';
 
 import { Card } from '@/components/ui';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { GameStatus } from '@/types/gameplay';
 
 // =============================================================================
@@ -91,7 +91,10 @@ function UnitCard({ unit, isPlayer }: UnitCardProps): React.ReactElement {
 // =============================================================================
 
 export function QuickGamePlay(): React.ReactElement {
-  const { game, isLoading, error, startBattle } = useQuickGameStore();
+  const game = useQuickGameSelector((state) => state.game);
+  const isLoading = useQuickGameSelector((state) => state.isLoading);
+  const error = useQuickGameSelector((state) => state.error);
+  const startBattle = useQuickGameSelector((state) => state.startBattle);
   const battleStarted = useRef(false);
 
   useEffect(() => {

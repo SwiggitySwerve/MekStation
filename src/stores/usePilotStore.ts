@@ -128,13 +128,17 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
 // Live in this file (instead of usePilotStore.selectors.ts) to avoid a
 // store <-> selectors circular import. Same pattern as useGameplayStore.
 
+export function usePilotSelector<T>(selector: (state: PilotStore) => T): T {
+  return usePilotStore(selector);
+}
+
 /**
  * Get filtered pilots based on current filters (status + search query).
- * Subscribes to the full store rather than a fine-grained selector
- * because the three filter inputs change together in practice.
  */
 export function useFilteredPilots(): IPilot[] {
-  const { pilots, showActiveOnly, searchQuery } = usePilotStore();
+  const pilots = usePilotSelector((state) => state.pilots);
+  const showActiveOnly = usePilotSelector((state) => state.showActiveOnly);
+  const searchQuery = usePilotSelector((state) => state.searchQuery);
 
   let filtered = pilots;
   if (showActiveOnly) {
@@ -157,7 +161,7 @@ export function useFilteredPilots(): IPilot[] {
  * callers can pass an optional id straight from URL params.
  */
 export function usePilotById(id: string | null): IPilot | null {
-  const pilots = usePilotStore((state) => state.pilots);
+  const pilots = usePilotSelector((state) => state.pilots);
   if (!id) return null;
   return pilots.find((p) => p.id === id) || null;
 }

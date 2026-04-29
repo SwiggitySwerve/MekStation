@@ -35,7 +35,8 @@ export function Input({
   id,
   ...props
 }: InputProps): React.ReactElement {
-  const inputId = id || props.name;
+  const generatedId = React.useId();
+  const inputId = id || props.name || (label ? generatedId : undefined);
   const baseClasses =
     'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors';
 
@@ -76,7 +77,8 @@ export function Select({
   id,
   ...props
 }: SelectProps): React.ReactElement {
-  const selectId = id || props.name;
+  const generatedId = React.useId();
+  const selectId = id || props.name || (label ? generatedId : undefined);
   const baseClasses =
     'w-full bg-surface-raised/50 border border-border-theme rounded-lg px-4 py-2 text-text-theme-primary focus:outline-none transition-colors min-h-[44px]';
 
@@ -121,7 +123,8 @@ export function Textarea({
   id,
   ...props
 }: TextareaProps): React.ReactElement {
-  const textareaId = id || props.name;
+  const generatedId = React.useId();
+  const textareaId = id || props.name || (label ? generatedId : undefined);
   const baseClasses =
     'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors rounded-lg px-4 py-2.5 resize-none min-h-[44px]';
 

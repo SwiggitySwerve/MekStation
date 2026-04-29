@@ -14,7 +14,7 @@ import {
 } from '@/components/common/SkeletonLoader';
 import { ForceCard } from '@/components/force';
 import { PageLayout, Card, Input, Button, EmptyState } from '@/components/ui';
-import { useForceStore } from '@/stores/useForceStore';
+import { useForceSelector } from '@/stores/useForceStore';
 import { IForce } from '@/types/force';
 
 // =============================================================================
@@ -23,15 +23,15 @@ import { IForce } from '@/types/force';
 
 export default function ForceRosterPage(): React.ReactElement {
   const router = useRouter();
-  const {
-    isLoading,
-    error,
-    loadForces,
-    searchQuery,
-    setSearchQuery,
-    getFilteredForces,
-    selectForce,
-  } = useForceStore();
+  const isLoading = useForceSelector((state) => state.isLoading);
+  const error = useForceSelector((state) => state.error);
+  const loadForces = useForceSelector((state) => state.loadForces);
+  const searchQuery = useForceSelector((state) => state.searchQuery);
+  const setSearchQuery = useForceSelector((state) => state.setSearchQuery);
+  const getFilteredForces = useForceSelector(
+    (state) => state.getFilteredForces,
+  );
+  const selectForce = useForceSelector((state) => state.selectForce);
 
   const filteredForces = getFilteredForces();
   const [isInitialized, setIsInitialized] = useState(false);

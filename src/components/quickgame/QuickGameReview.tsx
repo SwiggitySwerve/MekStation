@@ -10,7 +10,7 @@ import { useRouter } from 'next/router';
 import { Button, Card } from '@/components/ui';
 import { FACTION_NAMES, Faction } from '@/constants/scenario/rats';
 import { useGameplayStore } from '@/stores/useGameplayStore';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 
 // =============================================================================
 // Force Display Component
@@ -93,7 +93,7 @@ function ForceDisplay({
 // =============================================================================
 
 function ModifierDisplay(): React.ReactElement {
-  const { game } = useQuickGameStore();
+  const game = useQuickGameSelector((state) => state.game);
   const modifiers = game?.scenario?.modifiers ?? [];
 
   if (modifiers.length === 0) {
@@ -199,8 +199,13 @@ function ModifierDisplay(): React.ReactElement {
 
 export function QuickGameReview(): React.ReactElement {
   const router = useRouter();
-  const { game, previousStep, startGame, startSpectatorMode, isLoading } =
-    useQuickGameStore();
+  const game = useQuickGameSelector((state) => state.game);
+  const previousStep = useQuickGameSelector((state) => state.previousStep);
+  const startGame = useQuickGameSelector((state) => state.startGame);
+  const startSpectatorMode = useQuickGameSelector(
+    (state) => state.startSpectatorMode,
+  );
+  const isLoading = useQuickGameSelector((state) => state.isLoading);
 
   const handleWatchAIBattle = async () => {
     await startSpectatorMode();
