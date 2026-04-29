@@ -63,6 +63,49 @@ This matters because campaign, infantry, and record-sheet export already have
 partial or substantial implementation in source while OpenSpec still shows
 `0/N`.
 
+## Per-Change OpenSpec Lifecycle
+
+Use this lifecycle for every change in the roadmap. The implementation order
+below says what to start; this section says how each change moves from active
+to complete.
+
+1. Prepare
+   - Read that change's `proposal.md`, `design.md`, `tasks.md`, and delta
+     specs before editing source.
+   - Reconcile already-shipped code against `tasks.md`; mark only proven tasks
+     complete.
+   - Run `npx openspec validate <change-id> --strict` before source work if
+     task or spec files changed.
+
+2. Apply
+   - Implement from the change artifacts, not from memory of the roadmap.
+   - Keep each branch scoped to one OpenSpec change or one explicitly named
+     shared foundation PR.
+   - Update `tasks.md` as tasks become code-and-test complete.
+   - Run the targeted gates listed in that change plus any surface-specific
+     repo gates from this roadmap.
+
+3. Verify
+   - Verify the implementation against `proposal.md`, `design.md`, `tasks.md`,
+     and delta specs before opening or merging the final PR for the change.
+   - Rerun `npx openspec validate <change-id> --strict` and any relevant unit,
+     a11y, story, build, BV, or schema gates.
+   - Capture any intentional deferrals in `tasks.md` with a reason.
+
+4. Merge
+   - Merge implementation through PRs only; never push directly to `main`.
+   - Rebase or refresh sequential PRs when branch protection or strict checks
+     require it.
+   - Do not archive a change until the implementation PR has landed on `main`.
+
+5. Archive
+   - Archive completed changes after their implementation has merged and
+     `main` is current locally.
+   - Sync accepted delta specs into canonical specs as part of archive work.
+   - Run `npx openspec validate --all --strict` after archive edits.
+   - Archive branches can be grouped only when their spec areas do not conflict;
+     otherwise archive sequentially in the same dependency order as the lanes.
+
 ### Wave 1: Parallel Foundations
 
 These four branches can start at the same time with low cross-lane conflict:
@@ -246,6 +289,7 @@ Assign one owner per wave for these files or areas.
 
 - Each active change has tasks checked off or explicitly deferred with a reason.
 - Each active change passes `npx openspec validate <change-id> --strict`.
+- Each completed change has gone through apply, verify, merge, and archive.
 - Repo-wide `npx openspec validate --all --strict` remains green.
 - Relevant unit/a11y/story/build/BV gates are run per touched surface.
 - Changes are merged through PRs, not pushed directly to `main`.
