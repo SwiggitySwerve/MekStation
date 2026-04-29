@@ -12,7 +12,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { formatRoomCode } from './roomCodes';
 import { getConnectedPeerCount } from './SyncProvider';
 import { ConnectionState, IPeer } from './types';
-import { useSyncRoomStore } from './useSyncRoomStore';
+import { useSyncRoomSelector } from './useSyncRoomStore';
 
 // =============================================================================
 // Hook Return Type
@@ -88,12 +88,25 @@ export interface UseSyncRoomReturn {
  * ```
  */
 export function useSyncRoom(): UseSyncRoomReturn {
-  const store = useSyncRoomStore();
+  const activeRoom = useSyncRoomSelector((state) => state.activeRoom);
+  const connectionState = useSyncRoomSelector((state) => state.connectionState);
+  const peers = useSyncRoomSelector((state) => state.peers);
+  const error = useSyncRoomSelector((state) => state.error);
+  const localPeerNameValue = useSyncRoomSelector(
+    (state) => state.localPeerName,
+  );
+  const createSyncRoom = useSyncRoomSelector((state) => state.createRoom);
+  const joinSyncRoom = useSyncRoomSelector((state) => state.joinRoom);
+  const leaveSyncRoom = useSyncRoomSelector((state) => state.leaveRoom);
+  const setLocalPeerNameAction = useSyncRoomSelector(
+    (state) => state.setLocalPeerName,
+  );
+  const clearSyncError = useSyncRoomSelector((state) => state.clearError);
   const [peerCount, setPeerCount] = useState(0);
 
   // Poll peer count (awareness updates don't always trigger store updates)
   useEffect(() => {
-    if (!store.activeRoom) {
+    if (!activeRoom) {
       setPeerCount(0);
       return;
     }
@@ -109,50 +122,48 @@ export function useSyncRoom(): UseSyncRoomReturn {
     const interval = setInterval(updatePeerCount, 1000);
 
     return () => clearInterval(interval);
-  }, [store.activeRoom]);
+  }, [activeRoom]);
 
   const createRoom = useCallback(
     async (password?: string) => {
-      const code = await store.createRoom({ password });
+      const code = await createSyncRoom({ password });
       return formatRoomCode(code);
     },
-    [store],
+    [createSyncRoom],
   );
 
   const joinRoom = useCallback(
     async (roomCode: string, password?: string) => {
-      await store.joinRoom(roomCode, password);
+      await joinSyncRoom(roomCode, password);
     },
-    [store],
+    [joinSyncRoom],
   );
 
   const leaveRoom = useCallback(() => {
-    store.leaveRoom();
-  }, [store]);
+    leaveSyncRoom();
+  }, [leaveSyncRoom]);
 
   const setLocalPeerName = useCallback(
     (name: string) => {
-      store.setLocalPeerName(name);
+      setLocalPeerNameAction(name);
     },
-    [store],
+    [setLocalPeerNameAction],
   );
 
   const clearError = useCallback(() => {
-    store.clearError();
-  }, [store]);
+    clearSyncError();
+  }, [clearSyncError]);
 
   return {
-    roomCode: store.activeRoom
-      ? formatRoomCode(store.activeRoom.roomCode)
-      : null,
-    rawRoomCode: store.activeRoom?.roomCode ?? null,
-    connectionState: store.connectionState,
-    isConnected: store.connectionState === ConnectionState.Connected,
-    isConnecting: store.connectionState === ConnectionState.Connecting,
+    roomCode: activeRoom ? formatRoomCode(activeRoom.roomCode) : null,
+    rawRoomCode: activeRoom?.roomCode ?? null,
+    connectionState,
+    isConnected: connectionState === ConnectionState.Connected,
+    isConnecting: connectionState === ConnectionState.Connecting,
     peerCount,
-    peers: store.peers,
-    error: store.error,
-    localPeerName: store.localPeerName,
+    peers,
+    error,
+    localPeerName: localPeerNameValue,
     createRoom,
     joinRoom,
     leaveRoom,

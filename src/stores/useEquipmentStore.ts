@@ -581,3 +581,9 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
     return filtered.slice(startIndex, endIndex);
   },
 }));
+
+export function useEquipmentSelector<T>(
+  selector: (state: EquipmentStoreState) => T,
+): T {
+  return useEquipmentStore(selector);
+}

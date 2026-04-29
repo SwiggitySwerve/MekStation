@@ -10,11 +10,11 @@
 import { useMemo, useCallback } from 'react';
 
 import {
-  useCustomizerStore,
+  useCustomizerSelector,
   EquipmentSelection,
 } from '@/stores/useCustomizerStore';
 import {
-  useMultiUnitStore,
+  useMultiUnitSelector,
   UnitTab,
   UNIT_TEMPLATES,
 } from '@/stores/useMultiUnitStore';
@@ -66,20 +66,24 @@ export interface SelectionContext {
  * Hook to access the current unit context
  */
 export function useUnit(): UnitContext {
-  const {
-    tabs,
-    activeTabId,
-    isLoading,
-    selectTab,
-    createTab,
-    duplicateTab,
-    closeTab,
-    renameTab,
-    markModified,
-    isNewTabModalOpen,
-    openNewTabModal,
-    closeNewTabModal,
-  } = useMultiUnitStore();
+  const tabs = useMultiUnitSelector((state) => state.tabs);
+  const activeTabId = useMultiUnitSelector((state) => state.activeTabId);
+  const isLoading = useMultiUnitSelector((state) => state.isLoading);
+  const selectTab = useMultiUnitSelector((state) => state.selectTab);
+  const createTab = useMultiUnitSelector((state) => state.createTab);
+  const duplicateTab = useMultiUnitSelector((state) => state.duplicateTab);
+  const closeTab = useMultiUnitSelector((state) => state.closeTab);
+  const renameTab = useMultiUnitSelector((state) => state.renameTab);
+  const markModified = useMultiUnitSelector((state) => state.markModified);
+  const isNewTabModalOpen = useMultiUnitSelector(
+    (state) => state.isNewTabModalOpen,
+  );
+  const openNewTabModal = useMultiUnitSelector(
+    (state) => state.openNewTabModal,
+  );
+  const closeNewTabModal = useMultiUnitSelector(
+    (state) => state.closeNewTabModal,
+  );
 
   const activeTab = useMemo(
     () => tabs.find((t) => t.id === activeTabId) || null,
@@ -146,14 +150,18 @@ export function useUnit(): UnitContext {
  * Hook to access selection state (equipment and location selection)
  */
 export function useSelection(): SelectionContext {
-  const {
-    selectedEquipment,
-    selectedLocation,
-    selectionMode,
-    selectEquipment,
-    selectLocation,
-    clearSelection,
-  } = useCustomizerStore();
+  const selectedEquipment = useCustomizerSelector(
+    (state) => state.selectedEquipment,
+  );
+  const selectedLocation = useCustomizerSelector(
+    (state) => state.selectedLocation,
+  );
+  const selectionMode = useCustomizerSelector((state) => state.selectionMode);
+  const selectEquipment = useCustomizerSelector(
+    (state) => state.selectEquipment,
+  );
+  const selectLocation = useCustomizerSelector((state) => state.selectLocation);
+  const clearSelection = useCustomizerSelector((state) => state.clearSelection);
 
   return {
     selectedEquipment,

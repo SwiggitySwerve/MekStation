@@ -247,3 +247,9 @@ export const useAppSettingsStore = create<AppSettingsState>()(
     },
   ),
 );
+
+export function useAppSettingsSelector<T>(
+  selector: (state: AppSettingsState) => T,
+): T {
+  return useAppSettingsStore(selector);
+}

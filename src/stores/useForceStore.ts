@@ -398,3 +398,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
     set({ error: null });
   },
 }));
+
+export function useForceSelector<T>(selector: (state: ForceStore) => T): T {
+  return useForceStore(selector);
+}

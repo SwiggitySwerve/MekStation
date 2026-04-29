@@ -21,6 +21,14 @@ jest.mock('@/stores/usePilotStore', () => ({
     createStatblock: mockCreateStatblock,
     isLoading: false,
   }),
+  usePilotSelector: (selector: (state: unknown) => unknown) =>
+    selector({
+      createFromTemplate: mockCreateFromTemplate,
+      createRandom: mockCreateRandom,
+      createPilot: mockCreatePilot,
+      createStatblock: mockCreateStatblock,
+      isLoading: false,
+    }),
 }));
 
 jest.mock('@/components/shared/Toast', () => ({

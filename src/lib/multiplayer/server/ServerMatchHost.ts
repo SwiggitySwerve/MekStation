@@ -57,8 +57,6 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import {
-  HEARTBEAT_INTERVAL_MS,
-  HEARTBEAT_TIMEOUT_MS,
   intentHasForbiddenDiceField,
   type IIntent,
   type ILobbyUpdated,
@@ -86,6 +84,8 @@ import {
 } from './reconnection/PendingPeerTracker';
 import { streamReplay } from './reconnection/replayStream';
 import { RollCapture, SeededDiceRoller } from './RollCapture';
+import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
+import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
 // =============================================================================
 // Socket abstraction
@@ -94,18 +94,6 @@ import { RollCapture, SeededDiceRoller } from './RollCapture';
 // Re-exported for external consumers (e.g. websocket upgrade handler) so the
 // canonical home (`ServerMatchSocketTypes`) doesn't force a path change.
 export type { IMatchSocket } from './ServerMatchSocketTypes';
-
-/**
- * Per-socket bookkeeping kept in a side-Map. We don't subclass the
- * socket itself because the `ws` library's WebSocket type is not
- * trivially extendable across versions.
- */
-interface ISocketState {
-  socket: IMatchSocket;
-  playerId: string;
-  lastInboundAt: number;
-  heartbeatTimer: NodeJS.Timeout;
-}
 
 // =============================================================================
 // Engine bootstrap input — Wave 1 keeps it minimal
@@ -141,7 +129,8 @@ export interface IMatchHostBootstrap {
 // =============================================================================
 
 export class ServerMatchHost {
-  private readonly sockets = new Map<IMatchSocket, ISocketState>();
+  private readonly broadcaster = new ServerMatchBroadcaster();
+  private readonly lifecycle: ServerMatchSocketLifecycle;
   private readonly session: InteractiveSession;
   private lastBroadcastSeq: number;
   private closed = false;
@@ -222,6 +211,17 @@ export class ServerMatchHost {
     this.session = session;
     this.sourceRoller = sourceRoller ?? new CryptoDiceRoller();
     this.currentCapture = new RollCapture(this.sourceRoller);
+    this.lifecycle = new ServerMatchSocketLifecycle({
+      matchId: this.matchId,
+      broadcaster: this.broadcaster,
+      onLastSocketDropped: (playerId) => {
+        if (this.closed) return;
+        // Fire-and-forget — meta lookup is async but socket close is
+        // sync. Failures here just skip the pause path; the match keeps
+        // running in degraded mode rather than crashing.
+        void this.maybeMarkPlayerPending(playerId);
+      },
+    });
     // Stable callback identity — engine holds this reference for the
     // lifetime of the match. Routes every d6 through whatever
     // `currentCapture` points at right now.
@@ -338,36 +338,7 @@ export class ServerMatchHost {
     // so the order matches the proposal: replay → LobbyUpdated →
     // MatchResumed.
     this.pendingPeers.clearPending(playerId);
-    const heartbeatTimer = setInterval(() => {
-      const state = this.sockets.get(socket);
-      if (!state) return;
-      const idleFor = Date.now() - state.lastInboundAt;
-      if (idleFor > HEARTBEAT_TIMEOUT_MS) {
-        // Treat as dead — close + detach. Caller's `on('close')`
-        // listener is what actually removes from the set.
-        this.detachSocket(socket);
-        return;
-      }
-      this.safeSend(socket, {
-        kind: 'Heartbeat',
-        matchId: this.matchId,
-        ts: nowIso(),
-      });
-    }, HEARTBEAT_INTERVAL_MS);
-
-    // `unref` so a dangling timer doesn't keep Node alive in tests; it
-    // exists only on `NodeJS.Timeout`, never on the browser-style
-    // `Timer`. We're always in Node here, but the cast keeps TS happy.
-    if (typeof (heartbeatTimer as NodeJS.Timeout).unref === 'function') {
-      (heartbeatTimer as NodeJS.Timeout).unref();
-    }
-
-    this.sockets.set(socket, {
-      socket,
-      playerId,
-      lastInboundAt: Date.now(),
-      heartbeatTimer,
-    });
+    this.lifecycle.attach(socket, playerId);
   }
 
   /**
@@ -375,33 +346,7 @@ export class ServerMatchHost {
    * path (client bye, heartbeat timeout, host shutdown).
    */
   detachSocket(socket: IMatchSocket): void {
-    const state = this.sockets.get(socket);
-    if (!state) return;
-    clearInterval(state.heartbeatTimer);
-    this.sockets.delete(socket);
-    // Wave 4: if the dropping socket held a human seat in an active
-    // match, mark the seat pending and start the grace timer. Lobby
-    // status drops are NOT paused (no engine to pause yet) — pre-
-    // active reconnect just uses the seat ledger.
-    //
-    // Also guarded: the same player might still have ANOTHER socket
-    // attached (multi-tab same-account) — only mark pending when this
-    // was their last socket.
-    const playerId = state.playerId;
-    const stillHasSocket = Array.from(this.sockets.values()).some(
-      (s) => s.playerId === playerId,
-    );
-    if (!stillHasSocket && !this.closed) {
-      // Fire-and-forget — meta lookup is async but socket close is
-      // sync. Failures here just skip the pause path; the match keeps
-      // running in degraded mode rather than crashing.
-      void this.maybeMarkPlayerPending(playerId);
-    }
-    try {
-      socket.close();
-    } catch {
-      // already closed — ignore
-    }
+    this.lifecycle.detach(socket);
   }
 
   /**
@@ -487,9 +432,7 @@ export class ServerMatchHost {
    * comes in for this socket. Resets the dead-connection timer.
    */
   noteInbound(socket: IMatchSocket): void {
-    const state = this.sockets.get(socket);
-    if (!state) return;
-    state.lastInboundAt = Date.now();
+    this.lifecycle.noteInbound(socket);
   }
 
   // ---------------------------------------------------------------------------
@@ -728,7 +671,7 @@ export class ServerMatchHost {
     // If the match was force-closed mid-fight (host crash, admin kill)
     // and the win-condition predicate happens to trip, this catches it.
     this.tryPublishOutcome();
-    const socketList = Array.from(this.sockets.keys());
+    const socketList = this.lifecycle.snapshot();
     for (const socket of socketList) {
       this.safeSend(socket, {
         kind: 'Close',
@@ -798,7 +741,7 @@ export class ServerMatchHost {
 
   /** Test/observability: number of currently-connected sockets. */
   socketCount(): number {
-    return this.sockets.size;
+    return this.lifecycle.count();
   }
 
   /** Test/observability: most recent broadcast sequence (or -1). */
@@ -1028,14 +971,7 @@ export class ServerMatchHost {
    * swallowed — the heartbeat timer will reap dead sockets.
    */
   private broadcast(message: IServerMessage): void {
-    const payload = JSON.stringify(message);
-    this.sockets.forEach((_state, socket) => {
-      try {
-        socket.send(payload);
-      } catch {
-        // Socket is dead — let the heartbeat / close handler clean up.
-      }
-    });
+    this.broadcaster.broadcast(message);
   }
 
   /**
@@ -1044,11 +980,7 @@ export class ServerMatchHost {
    * of the upgrade handler.
    */
   private safeSend(socket: IMatchSocket, message: IServerMessage): void {
-    try {
-      socket.send(JSON.stringify(message));
-    } catch {
-      // ignore
-    }
+    this.broadcaster.safeSend(socket, message);
   }
 
   // ---------------------------------------------------------------------------

@@ -15,7 +15,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { ModalOverlay } from '@/components/customizer/dialogs/ModalOverlay';
 import { useToast } from '@/components/shared/Toast';
 import { Button } from '@/components/ui';
-import { usePilotStore } from '@/stores/usePilotStore';
+import { usePilotSelector } from '@/stores/usePilotStore';
 import {
   PilotExperienceLevel,
   IPilotIdentity,
@@ -45,13 +45,13 @@ export function PilotCreationWizard({
   onClose,
   onCreated,
 }: PilotCreationWizardProps): React.ReactElement | null {
-  const {
-    createFromTemplate,
-    createRandom,
-    createPilot,
-    createStatblock,
-    isLoading,
-  } = usePilotStore();
+  const createFromTemplate = usePilotSelector(
+    (state) => state.createFromTemplate,
+  );
+  const createRandom = usePilotSelector((state) => state.createRandom);
+  const createPilot = usePilotSelector((state) => state.createPilot);
+  const createStatblock = usePilotSelector((state) => state.createStatblock);
+  const isLoading = usePilotSelector((state) => state.isLoading);
   const { showToast } = useToast();
 
   const [state, setState] = useState<WizardState>(INITIAL_STATE);

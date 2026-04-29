@@ -3,7 +3,10 @@ import React from 'react';
 
 import { PanelStack, Panel } from '@/components/mobile/PanelStack';
 import { useDeviceType } from '@/hooks/useDeviceType';
-import { useNavigationStore } from '@/stores/useNavigationStore';
+import {
+  useNavigationStore,
+  useNavigationSelector,
+} from '@/stores/useNavigationStore';
 
 // Mock dependencies
 jest.mock('../../../stores/useNavigationStore');
@@ -13,6 +16,8 @@ describe('PanelStack', () => {
   const mockUseNavigationStore = useNavigationStore as jest.MockedFunction<
     typeof useNavigationStore
   >;
+  const mockUseNavigationSelector =
+    useNavigationSelector as jest.MockedFunction<typeof useNavigationSelector>;
   const mockUseDeviceType = useDeviceType as jest.MockedFunction<
     typeof useDeviceType
   >;
@@ -41,6 +46,10 @@ describe('PanelStack', () => {
       resetNavigation: jest.fn(),
       replacePanel: jest.fn(),
     });
+
+    mockUseNavigationSelector.mockImplementation((selector) =>
+      selector(mockUseNavigationStore()),
+    );
   });
 
   afterEach(() => {

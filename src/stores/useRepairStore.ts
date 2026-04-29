@@ -466,3 +466,7 @@ export const useRepairStore = create<RepairStore>()(
     },
   ),
 );
+
+export function useRepairSelector<T>(selector: (state: RepairStore) => T): T {
+  return useRepairStore(selector);
+}

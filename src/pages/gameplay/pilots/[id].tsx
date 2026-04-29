@@ -10,7 +10,7 @@ import {
 } from '@/components/pilots';
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout, PageError, Button } from '@/components/ui';
-import { usePilotStore, usePilotById } from '@/stores/usePilotStore';
+import { usePilotSelector, usePilotById } from '@/stores/usePilotStore';
 
 type PilotTab = 'overview' | 'career';
 
@@ -20,8 +20,11 @@ export default function PilotDetailPage(): React.ReactElement {
   const pilotId = typeof id === 'string' ? id : null;
   const { showToast } = useToast();
 
-  const { loadPilots, updatePilot, deletePilot, isLoading, error } =
-    usePilotStore();
+  const loadPilots = usePilotSelector((state) => state.loadPilots);
+  const updatePilot = usePilotSelector((state) => state.updatePilot);
+  const deletePilot = usePilotSelector((state) => state.deletePilot);
+  const isLoading = usePilotSelector((state) => state.isLoading);
+  const error = usePilotSelector((state) => state.error);
   const pilot = usePilotById(pilotId);
 
   const [isInitialized, setIsInitialized] = useState(false);

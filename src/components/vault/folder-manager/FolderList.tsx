@@ -76,6 +76,7 @@ function FolderTreeItem({
           e.stopPropagation();
           onToggleExpand();
         }}
+        aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${folder.name}`}
         className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-all duration-200 ${
           hasChildren
             ? 'text-gray-400 hover:bg-gray-600/50 hover:text-white'

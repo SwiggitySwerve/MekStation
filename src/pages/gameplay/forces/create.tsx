@@ -17,7 +17,7 @@ import {
   Textarea,
   Badge,
 } from '@/components/ui';
-import { useForceStore } from '@/stores/useForceStore';
+import { useForceSelector } from '@/stores/useForceStore';
 import { ForceType } from '@/types/force';
 
 // =============================================================================
@@ -123,7 +123,10 @@ function ForceTypeCard({
 
 export default function CreateForcePage(): React.ReactElement {
   const router = useRouter();
-  const { createForce, isLoading, error, clearError } = useForceStore();
+  const createForce = useForceSelector((state) => state.createForce);
+  const isLoading = useForceSelector((state) => state.isLoading);
+  const error = useForceSelector((state) => state.error);
+  const clearError = useForceSelector((state) => state.clearError);
   const { showToast } = useToast();
 
   // Form state

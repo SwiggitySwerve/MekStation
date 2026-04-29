@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
  */
 import React, { useState, useEffect } from 'react';
 
-import { useMobileSidebarStore } from '@/stores/useNavigationStore';
+import { useMobileSidebarSelector } from '@/stores/useNavigationStore';
 
 import {
   MekStationIcon,
@@ -34,11 +34,9 @@ type DropdownId = 'browse' | 'tools' | 'gameplay' | null;
 
 const TopBar: React.FC = () => {
   const router = useRouter();
-  const {
-    isOpen: isMobileOpen,
-    open: openMobile,
-    close: closeMobile,
-  } = useMobileSidebarStore();
+  const isMobileOpen = useMobileSidebarSelector((state) => state.isOpen);
+  const openMobile = useMobileSidebarSelector((state) => state.open);
+  const closeMobile = useMobileSidebarSelector((state) => state.close);
 
   // Single state to track which dropdown is open (only one at a time)
   const [openDropdown, setOpenDropdown] = useState<DropdownId>(null);

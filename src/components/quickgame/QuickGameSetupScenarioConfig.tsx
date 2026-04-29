@@ -2,18 +2,20 @@ import { useEffect, useRef } from 'react';
 
 import { Button, Card, Select } from '@/components/ui';
 import { Faction, FACTION_NAMES } from '@/constants/scenario/rats';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { BiomeType } from '@/types/scenario';
 
 export function ScenarioConfigStep(): React.ReactElement {
-  const {
-    game,
-    setScenarioConfig,
-    generateScenario,
-    previousStep,
-    nextStep,
-    isLoading,
-  } = useQuickGameStore();
+  const game = useQuickGameSelector((state) => state.game);
+  const setScenarioConfig = useQuickGameSelector(
+    (state) => state.setScenarioConfig,
+  );
+  const generateScenario = useQuickGameSelector(
+    (state) => state.generateScenario,
+  );
+  const previousStep = useQuickGameSelector((state) => state.previousStep);
+  const nextStep = useQuickGameSelector((state) => state.nextStep);
+  const isLoading = useQuickGameSelector((state) => state.isLoading);
   const wasLoadingRef = useRef(false);
 
   useEffect(() => {

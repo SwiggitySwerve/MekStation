@@ -36,10 +36,10 @@ import { useToast } from '@/components/shared/Toast';
 import { Card, PageLayout } from '@/components/ui';
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { GameEngine } from '@/engine/GameEngine';
-import { useEncounterStore } from '@/stores/useEncounterStore';
-import { useForceStore } from '@/stores/useForceStore';
+import { useEncounterSelector } from '@/stores/useEncounterStore';
+import { useForceSelector } from '@/stores/useForceStore';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
-import { usePilotStore } from '@/stores/usePilotStore';
+import { usePilotSelector } from '@/stores/usePilotStore';
 import {
   EncounterStatus,
   SCENARIO_TEMPLATES,
@@ -83,14 +83,16 @@ export default function PreBattlePage(): React.ReactElement {
   const { id } = router.query;
   const { showToast } = useToast();
 
-  const {
-    getEncounter,
-    loadEncounters,
-    updateEncounter,
-    isLoading: encountersLoading,
-  } = useEncounterStore();
-  const { forces, loadForces } = useForceStore();
-  const { pilots, loadPilots } = usePilotStore();
+  const getEncounter = useEncounterSelector((state) => state.getEncounter);
+  const loadEncounters = useEncounterSelector((state) => state.loadEncounters);
+  const updateEncounter = useEncounterSelector(
+    (state) => state.updateEncounter,
+  );
+  const encountersLoading = useEncounterSelector((state) => state.isLoading);
+  const forces = useForceSelector((state) => state.forces);
+  const loadForces = useForceSelector((state) => state.loadForces);
+  const pilots = usePilotSelector((state) => state.pilots);
+  const loadPilots = usePilotSelector((state) => state.loadPilots);
   // Per-field selectors (useGameplaySelector POC). All three are stable
   // action references, so each subscription is effectively static —
   // we still pull them individually to keep the convention uniform

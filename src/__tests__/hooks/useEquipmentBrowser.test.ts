@@ -7,13 +7,18 @@
 import { renderHook, act } from '@testing-library/react';
 
 import { useEquipmentBrowser } from '@/hooks/useEquipmentBrowser';
-import { useEquipmentStore, SortColumn } from '@/stores/useEquipmentStore';
+import {
+  useEquipmentStore,
+  useEquipmentSelector,
+  SortColumn,
+} from '@/stores/useEquipmentStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 
 // Mock the equipment store
 jest.mock('@/stores/useEquipmentStore', () => ({
   useEquipmentStore: jest.fn(),
+  useEquipmentSelector: jest.fn(),
   SortColumn: {
     NAME: 'name',
     DAMAGE: 'damage',
@@ -39,6 +44,9 @@ jest.mock('@/types/equipment', () => {
 describe('useEquipmentBrowser Hook', () => {
   const mockUseEquipmentStore = useEquipmentStore as jest.MockedFunction<
     typeof useEquipmentStore
+  >;
+  const mockUseEquipmentSelector = useEquipmentSelector as jest.MockedFunction<
+    typeof useEquipmentSelector
   >;
   const mockEquipment = [
     { id: 'eq-1', name: 'Medium Laser', category: 'Energy' },
@@ -94,6 +102,9 @@ describe('useEquipmentBrowser Hook', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseEquipmentStore.mockReturnValue(createMockStore());
+    mockUseEquipmentSelector.mockImplementation((selector) =>
+      selector(mockUseEquipmentStore()),
+    );
   });
 
   describe('Data Loading', () => {

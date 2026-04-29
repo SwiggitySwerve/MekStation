@@ -21,7 +21,10 @@ import {
   GameError,
   GameLoading,
 } from '@/components/gameplay/pages/GameSessionPage.states';
-import { useGameplayStore, InteractivePhase } from '@/stores/useGameplayStore';
+import {
+  useGameplaySelector,
+  InteractivePhase,
+} from '@/stores/useGameplayStore';
 import {
   Facing,
   GamePhase,
@@ -68,47 +71,52 @@ export default function GameSessionPage(): React.ReactElement {
   const campaignIdStr = typeof campaignId === 'string' ? campaignId : undefined;
   const missionIdStr = typeof missionId === 'string' ? missionId : undefined;
 
-  // INTENTIONAL FULL-STORE DESTRUCTURE (useGameplaySelector POC opt-out):
-  // this page consumes 30+ fields from the gameplay store. Splitting
-  // each into its own per-field selector would add dozens of
-  // subscription objects and the page already re-renders on most
-  // gameplay mutations anyway (it owns the active session view), so
-  // the per-field overhead would outweigh the re-render savings.
-  // Smaller consumers (SpectatorView, pre-battle) DO use the
-  // `useGameplaySelector` helper — see `useGameplayStore.ts` selector
-  // helper docs for the heuristic.
-  const {
-    session,
-    isLoading,
-    error,
-    loadSession,
-    createDemoSession,
-    ui,
-    selectUnit,
-    handleAction,
-    unitWeapons,
-    maxArmor,
-    maxStructure,
-    pilotNames,
-    heatSinks,
-    unitSpas,
-    clearError,
-    interactiveSession,
-    interactivePhase,
-    spectatorMode,
-    validTargetIds,
-    hitChance,
-    handleInteractiveHexClick,
-    handleInteractiveTokenClick,
-    advanceInteractivePhase,
-    fireWeapons,
-    runAITurn,
-    skipPhase,
-    checkGameOver,
-    plannedMovement,
-    setPlannedMovement,
-    clearPlannedMovement,
-  } = useGameplayStore();
+  const session = useGameplaySelector((state) => state.session);
+  const isLoading = useGameplaySelector((state) => state.isLoading);
+  const error = useGameplaySelector((state) => state.error);
+  const loadSession = useGameplaySelector((state) => state.loadSession);
+  const createDemoSession = useGameplaySelector(
+    (state) => state.createDemoSession,
+  );
+  const ui = useGameplaySelector((state) => state.ui);
+  const selectUnit = useGameplaySelector((state) => state.selectUnit);
+  const handleAction = useGameplaySelector((state) => state.handleAction);
+  const unitWeapons = useGameplaySelector((state) => state.unitWeapons);
+  const maxArmor = useGameplaySelector((state) => state.maxArmor);
+  const maxStructure = useGameplaySelector((state) => state.maxStructure);
+  const pilotNames = useGameplaySelector((state) => state.pilotNames);
+  const heatSinks = useGameplaySelector((state) => state.heatSinks);
+  const unitSpas = useGameplaySelector((state) => state.unitSpas);
+  const clearError = useGameplaySelector((state) => state.clearError);
+  const interactiveSession = useGameplaySelector(
+    (state) => state.interactiveSession,
+  );
+  const interactivePhase = useGameplaySelector(
+    (state) => state.interactivePhase,
+  );
+  const spectatorMode = useGameplaySelector((state) => state.spectatorMode);
+  const validTargetIds = useGameplaySelector((state) => state.validTargetIds);
+  const hitChance = useGameplaySelector((state) => state.hitChance);
+  const handleInteractiveHexClick = useGameplaySelector(
+    (state) => state.handleInteractiveHexClick,
+  );
+  const handleInteractiveTokenClick = useGameplaySelector(
+    (state) => state.handleInteractiveTokenClick,
+  );
+  const advanceInteractivePhase = useGameplaySelector(
+    (state) => state.advanceInteractivePhase,
+  );
+  const fireWeapons = useGameplaySelector((state) => state.fireWeapons);
+  const runAITurn = useGameplaySelector((state) => state.runAITurn);
+  const skipPhase = useGameplaySelector((state) => state.skipPhase);
+  const checkGameOver = useGameplaySelector((state) => state.checkGameOver);
+  const plannedMovement = useGameplaySelector((state) => state.plannedMovement);
+  const setPlannedMovement = useGameplaySelector(
+    (state) => state.setPlannedMovement,
+  );
+  const clearPlannedMovement = useGameplaySelector(
+    (state) => state.clearPlannedMovement,
+  );
 
   useEffect(() => {
     if (id === 'demo') {

@@ -110,6 +110,7 @@ export function FolderCreateDialog({
           </div>
           <button
             onClick={handleClose}
+            aria-label="Close folder create dialog"
             className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-700/50 hover:text-white"
           >
             <XMarkIcon className="h-5 w-5" />
@@ -300,6 +301,7 @@ export function FolderEditDialog({
           </div>
           <button
             onClick={handleClose}
+            aria-label="Close folder edit dialog"
             className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-700/50 hover:text-white"
           >
             <XMarkIcon className="h-5 w-5" />

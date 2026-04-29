@@ -27,9 +27,9 @@ import { QuickSimResultPanel } from '@/components/gameplay/QuickSimResultPanel';
 import { useToast } from '@/components/shared/Toast';
 import { Button, PageLayout } from '@/components/ui';
 import { useQuickResolve } from '@/hooks/useQuickResolve';
-import { useEncounterStore } from '@/stores/useEncounterStore';
-import { useForceStore } from '@/stores/useForceStore';
-import { usePilotStore } from '@/stores/usePilotStore';
+import { useEncounterSelector } from '@/stores/useEncounterStore';
+import { useForceSelector } from '@/stores/useForceStore';
+import { usePilotSelector } from '@/stores/usePilotStore';
 import { logger } from '@/utils/logger';
 
 const DEFAULT_RUN_COUNT = 100;
@@ -47,13 +47,13 @@ export default function QuickSimResultPage(): React.ReactElement {
   const encounterId = typeof id === 'string' ? id : '';
 
   // Encounter / force / pilot data (mirrors encounter detail page).
-  const {
-    getEncounter,
-    loadEncounters,
-    isLoading: encountersLoading,
-  } = useEncounterStore();
-  const { forces, loadForces } = useForceStore();
-  const { pilots, loadPilots } = usePilotStore();
+  const getEncounter = useEncounterSelector((state) => state.getEncounter);
+  const loadEncounters = useEncounterSelector((state) => state.loadEncounters);
+  const encountersLoading = useEncounterSelector((state) => state.isLoading);
+  const forces = useForceSelector((state) => state.forces);
+  const loadForces = useForceSelector((state) => state.loadForces);
+  const pilots = usePilotSelector((state) => state.pilots);
+  const loadPilots = usePilotSelector((state) => state.loadPilots);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [runCount, setRunCount] = useState<number>(DEFAULT_RUN_COUNT);

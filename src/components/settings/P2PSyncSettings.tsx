@@ -8,7 +8,7 @@ import {
 import { Input } from '@/components/ui';
 import { ConnectionState } from '@/lib/p2p';
 import {
-  useSyncRoomStore,
+  useSyncRoomSelector,
   useConnectionState,
   usePeers,
   useRoomCode,
@@ -24,16 +24,16 @@ export function P2PSyncSettings({
   const connectionState = useConnectionState();
   const peers = usePeers();
   const roomCode = useRoomCode();
-  const {
-    localPeerName,
-    localPeerId,
-    setLocalPeerName,
-    createRoom,
-    joinRoom,
-    leaveRoom,
-    error,
-    clearError,
-  } = useSyncRoomStore();
+  const localPeerName = useSyncRoomSelector((state) => state.localPeerName);
+  const localPeerId = useSyncRoomSelector((state) => state.localPeerId);
+  const setLocalPeerName = useSyncRoomSelector(
+    (state) => state.setLocalPeerName,
+  );
+  const createRoom = useSyncRoomSelector((state) => state.createRoom);
+  const joinRoom = useSyncRoomSelector((state) => state.joinRoom);
+  const leaveRoom = useSyncRoomSelector((state) => state.leaveRoom);
+  const error = useSyncRoomSelector((state) => state.error);
+  const clearError = useSyncRoomSelector((state) => state.clearError);
 
   const [showRoomDialog, setShowRoomDialog] = React.useState(false);
   const [peerNameInput, setPeerNameInput] = React.useState(localPeerName);

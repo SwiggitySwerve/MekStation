@@ -44,3 +44,7 @@ export const useThemeStore = create<IThemeState>()(
     },
   ),
 );
+
+export function useThemeSelector<T>(selector: (state: IThemeState) => T): T {
+  return useThemeStore(selector);
+}

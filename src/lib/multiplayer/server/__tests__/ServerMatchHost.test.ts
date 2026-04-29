@@ -176,6 +176,7 @@ describe('ServerMatchHost', () => {
     expect(host.isClosed()).toBe(true);
     const meta = await store.getMatchMeta(host.matchId);
     expect(meta.status).toBe('completed');
+    expect(host.socketCount()).toBe(0);
     // The socket should have received a Close envelope.
     const kinds = socket.sent.map((s) => s.parsed.kind);
     expect(kinds).toContain('Close');

@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useCallback, useMemo } from 'react';
 
 import { PageLayout, PageLoading } from '@/components/ui';
-import { useRepairStore } from '@/stores/useRepairStore';
+import { useRepairSelector } from '@/stores/useRepairStore';
 import { RepairJobStatus, type IRepairJob } from '@/types/repair';
 import { logger } from '@/utils/logger';
 
@@ -33,22 +33,22 @@ export default function RepairBayPage(): React.ReactElement {
 
   const activeCampaignId = (campaignId as string) || 'demo-campaign';
 
-  const {
-    isLoading,
-    error,
-    selectedJobId,
-    getJobs,
-    getJob,
-    selectJob,
-    startJob,
-    cancelJob,
-    toggleRepairItem,
-    selectAllItems,
-    deselectAllItems,
-    reorderJobs,
-    initializeCampaign,
-    clearError,
-  } = useRepairStore();
+  const isLoading = useRepairSelector((state) => state.isLoading);
+  const error = useRepairSelector((state) => state.error);
+  const selectedJobId = useRepairSelector((state) => state.selectedJobId);
+  const getJobs = useRepairSelector((state) => state.getJobs);
+  const getJob = useRepairSelector((state) => state.getJob);
+  const selectJob = useRepairSelector((state) => state.selectJob);
+  const startJob = useRepairSelector((state) => state.startJob);
+  const cancelJob = useRepairSelector((state) => state.cancelJob);
+  const toggleRepairItem = useRepairSelector((state) => state.toggleRepairItem);
+  const selectAllItems = useRepairSelector((state) => state.selectAllItems);
+  const deselectAllItems = useRepairSelector((state) => state.deselectAllItems);
+  const reorderJobs = useRepairSelector((state) => state.reorderJobs);
+  const initializeCampaign = useRepairSelector(
+    (state) => state.initializeCampaign,
+  );
+  const clearError = useRepairSelector((state) => state.clearError);
 
   const {
     searchQuery,

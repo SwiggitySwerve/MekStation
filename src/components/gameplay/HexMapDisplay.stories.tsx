@@ -389,3 +389,119 @@ export const WithOverlays: Story = {
     },
   },
 };
+
+const movementOverlayToken: IUnitToken = {
+  ...overlayToken,
+  unitId: 'griffin-move',
+  name: 'Griffin GRF-1N',
+  designation: 'G1',
+  position: { q: -1, r: 0 },
+  facing: Facing.Northeast,
+};
+
+const attackOverlayTokens: IUnitToken[] = [
+  {
+    ...overlayToken,
+    unitId: 'warhammer-attacker',
+    name: 'Warhammer WHM-6R',
+    designation: 'W6',
+    position: { q: 0, r: 0 },
+    facing: Facing.Northeast,
+    isSelected: true,
+  },
+  {
+    ...overlayToken,
+    unitId: 'hunchback-target',
+    name: 'Hunchback HBK-4G',
+    designation: 'H4',
+    position: { q: 3, r: -1 },
+    facing: Facing.Southwest,
+    side: GameSide.Opponent,
+    isSelected: false,
+    isValidTarget: true,
+    isActiveTarget: true,
+  },
+  {
+    ...overlayToken,
+    unitId: 'locust-target',
+    name: 'Locust LCT-1V',
+    designation: 'L1',
+    position: { q: 2, r: 1 },
+    facing: Facing.Northwest,
+    side: GameSide.Opponent,
+    isSelected: false,
+    isValidTarget: true,
+  },
+];
+
+export const MovementAndPathOverlay: Story = {
+  args: {
+    radius: 4,
+    tokens: [movementOverlayToken],
+    selectedHex: { q: -1, r: 0 },
+    hexTerrain: overlayTerrain,
+    showCoordinates: true,
+    movementRange: [
+      {
+        hex: { q: 0, r: 0 },
+        mpCost: 1,
+        reachable: true,
+        movementType: MovementType.Walk,
+      },
+      {
+        hex: { q: 1, r: 0 },
+        mpCost: 2,
+        reachable: true,
+        movementType: MovementType.Walk,
+      },
+      {
+        hex: { q: 2, r: 0 },
+        mpCost: 4,
+        reachable: true,
+        movementType: MovementType.Run,
+      },
+      {
+        hex: { q: 2, r: -1 },
+        mpCost: 5,
+        reachable: false,
+        movementType: MovementType.Run,
+      },
+      {
+        hex: { q: 0, r: 2 },
+        mpCost: 3,
+        reachable: true,
+        movementType: MovementType.Jump,
+      },
+    ],
+    highlightPath: [
+      { q: -1, r: 0 },
+      { q: 0, r: 0 },
+      { q: 1, r: 0 },
+      { q: 2, r: 0 },
+    ],
+    hoverMpCost: 4,
+    mpLegend: {
+      active: 'run',
+      jumpAvailable: true,
+    },
+  },
+};
+
+export const AttackTargetOverlay: Story = {
+  args: {
+    radius: 4,
+    tokens: attackOverlayTokens,
+    selectedHex: { q: 0, r: 0 },
+    hexTerrain: overlayTerrain,
+    showCoordinates: true,
+    attackRange: [
+      { q: 1, r: 0 },
+      { q: 2, r: 0 },
+      { q: 3, r: -1 },
+      { q: 2, r: 1 },
+      { q: 1, r: -1 },
+      { q: 0, r: 1 },
+      { q: -1, r: 1 },
+    ],
+  },
+};

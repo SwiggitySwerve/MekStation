@@ -182,39 +182,45 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
 // Selector Hooks
 // =============================================================================
 
+export function useSyncRoomSelector<T>(
+  selector: (state: SyncRoomStore) => T,
+): T {
+  return useSyncRoomStore(selector);
+}
+
 /**
  * Get the current room code.
  */
 export function useRoomCode(): string | null {
-  return useSyncRoomStore((state) => state.activeRoom?.roomCode ?? null);
+  return useSyncRoomSelector((state) => state.activeRoom?.roomCode ?? null);
 }
 
 /**
  * Get the connection state.
  */
 export function useConnectionState(): ConnectionState {
-  return useSyncRoomStore((state) => state.connectionState);
+  return useSyncRoomSelector((state) => state.connectionState);
 }
 
 /**
  * Get the connected peers.
  */
 export function usePeers(): readonly IPeer[] {
-  return useSyncRoomStore((state) => state.peers);
+  return useSyncRoomSelector((state) => state.peers);
 }
 
 /**
  * Get the peer count.
  */
 export function usePeerCount(): number {
-  return useSyncRoomStore((state) => state.peers.length);
+  return useSyncRoomSelector((state) => state.peers.length);
 }
 
 /**
  * Check if connected to a room.
  */
 export function useIsConnected(): boolean {
-  return useSyncRoomStore(
+  return useSyncRoomSelector(
     (state) => state.connectionState === ConnectionState.Connected,
   );
 }
@@ -223,5 +229,5 @@ export function useIsConnected(): boolean {
  * Get the local peer name.
  */
 export function useLocalPeerName(): string {
-  return useSyncRoomStore((state) => state.localPeerName);
+  return useSyncRoomSelector((state) => state.localPeerName);
 }

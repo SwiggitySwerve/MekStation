@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 
 import { useDeviceType } from '@/hooks/useDeviceType';
-import { PanelId, useNavigationStore } from '@/stores/useNavigationStore';
+import { PanelId, useNavigationSelector } from '@/stores/useNavigationStore';
 
 export interface Tab {
   id: string;
@@ -42,7 +42,8 @@ export function BottomNavBar({
   className = '',
 }: BottomNavBarProps): React.ReactElement | null {
   const { isMobile } = useDeviceType();
-  const { currentPanel, pushPanel } = useNavigationStore();
+  const currentPanel = useNavigationSelector((state) => state.currentPanel);
+  const pushPanel = useNavigationSelector((state) => state.pushPanel);
 
   // Don't render on desktop
   if (!isMobile) {

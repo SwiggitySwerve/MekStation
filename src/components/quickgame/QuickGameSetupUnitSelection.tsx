@@ -1,13 +1,18 @@
 import type { IQuickGameUnitRequest } from '@/types/quickgame';
 
 import { Button, Card } from '@/components/ui';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 
 import { DEMO_UNITS } from './quickGameSetup.helpers';
 
 export function UnitSelectionStep(): React.ReactElement {
-  const { game, addUnit, removeUnit, updateUnitSkills, nextStep } =
-    useQuickGameStore();
+  const game = useQuickGameSelector((state) => state.game);
+  const addUnit = useQuickGameSelector((state) => state.addUnit);
+  const removeUnit = useQuickGameSelector((state) => state.removeUnit);
+  const updateUnitSkills = useQuickGameSelector(
+    (state) => state.updateUnitSkills,
+  );
+  const nextStep = useQuickGameSelector((state) => state.nextStep);
 
   const handleAddUnit = (unit: IQuickGameUnitRequest) => {
     addUnit(unit);

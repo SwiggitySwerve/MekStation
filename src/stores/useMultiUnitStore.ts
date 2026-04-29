@@ -109,3 +109,9 @@ export const useMultiUnitStore = create<MultiUnitState>()(
     },
   ),
 );
+
+export function useMultiUnitSelector<T>(
+  selector: (state: MultiUnitState) => T,
+): T {
+  return useMultiUnitStore(selector);
+}

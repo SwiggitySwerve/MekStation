@@ -21,8 +21,8 @@ import {
   calculateCombatStats,
   assessUnitDamage,
 } from '@/services/game-resolution';
-import { useGameplayStore } from '@/stores/useGameplayStore';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { useGameplaySelector } from '@/stores/useGameplayStore';
+import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { GameSide } from '@/types/gameplay';
 
 import type { ResultsTab } from './quickGameResults.helpers';
@@ -38,8 +38,10 @@ import {
 
 export function QuickGameResults(): React.ReactElement {
   const router = useRouter();
-  const { game, playAgain, clearGame } = useQuickGameStore();
-  const session = useGameplayStore((s) => s.session);
+  const game = useQuickGameSelector((state) => state.game);
+  const playAgain = useQuickGameSelector((state) => state.playAgain);
+  const clearGame = useQuickGameSelector((state) => state.clearGame);
+  const session = useGameplaySelector((state) => state.session);
   const [activeTab, setActiveTab] = useState<ResultsTab>('summary');
   const tabListRef = useRef<HTMLDivElement>(null);
 

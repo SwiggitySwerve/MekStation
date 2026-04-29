@@ -16,7 +16,7 @@ import {
   EmptyState,
   Badge,
 } from '@/components/ui';
-import { useEncounterStore } from '@/stores/useEncounterStore';
+import { useEncounterSelector } from '@/stores/useEncounterStore';
 import {
   IEncounter,
   EncounterStatus,
@@ -113,17 +113,21 @@ function EncounterCard({
 
 export default function EncountersListPage(): React.ReactElement {
   const router = useRouter();
-  const {
-    isLoading,
-    error,
-    loadEncounters,
-    searchQuery,
-    setSearchQuery,
-    statusFilter,
-    setStatusFilter,
-    getFilteredEncounters,
-    selectEncounter,
-  } = useEncounterStore();
+  const isLoading = useEncounterSelector((state) => state.isLoading);
+  const error = useEncounterSelector((state) => state.error);
+  const loadEncounters = useEncounterSelector((state) => state.loadEncounters);
+  const searchQuery = useEncounterSelector((state) => state.searchQuery);
+  const setSearchQuery = useEncounterSelector((state) => state.setSearchQuery);
+  const statusFilter = useEncounterSelector((state) => state.statusFilter);
+  const setStatusFilter = useEncounterSelector(
+    (state) => state.setStatusFilter,
+  );
+  const getFilteredEncounters = useEncounterSelector(
+    (state) => state.getFilteredEncounters,
+  );
+  const selectEncounter = useEncounterSelector(
+    (state) => state.selectEncounter,
+  );
 
   const filteredEncounters = getFilteredEncounters();
   const [isInitialized, setIsInitialized] = useState(false);

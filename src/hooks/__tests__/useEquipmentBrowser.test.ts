@@ -9,7 +9,10 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import * as React from 'react';
 
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
-import { useEquipmentStore } from '@/stores/useEquipmentStore';
+import {
+  useEquipmentStore,
+  useEquipmentSelector,
+} from '@/stores/useEquipmentStore';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
@@ -31,6 +34,9 @@ jest.mock('react', () => {
 
 const mockUseEquipmentStore = useEquipmentStore as jest.MockedFunction<
   typeof useEquipmentStore
+>;
+const mockUseEquipmentSelector = useEquipmentSelector as jest.MockedFunction<
+  typeof useEquipmentSelector
 >;
 const mockEquipmentLookupService = equipmentLookupService as jest.Mocked<
   typeof equipmentLookupService
@@ -152,6 +158,9 @@ describe('useEquipmentBrowser', () => {
     jest.clearAllMocks();
     mockStoreState = createMockStoreState();
     mockUseEquipmentStore.mockReturnValue(mockStoreState);
+    mockUseEquipmentSelector.mockImplementation((selector) =>
+      selector(mockUseEquipmentStore()),
+    );
     mockEquipmentLookupService.initialize = jest
       .fn()
       .mockResolvedValue(undefined);

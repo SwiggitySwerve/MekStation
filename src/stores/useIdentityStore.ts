@@ -261,6 +261,12 @@ export const useIdentityStore = create<IdentityStore>((set, get) => ({
 // Selectors
 // =============================================================================
 
+export function useIdentitySelector<T>(
+  selector: (state: IdentityStore) => T,
+): T {
+  return useIdentityStore(selector);
+}
+
 /** Select if identity is ready for sharing operations */
 export const selectCanShare = (state: IdentityStore): boolean =>
   state.isUnlocked && state.publicIdentity !== null;
