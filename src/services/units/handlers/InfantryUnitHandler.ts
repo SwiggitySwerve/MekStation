@@ -21,7 +21,10 @@ import {
 } from '@/types/unit/PersonnelInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
-import { calculateInfantryBVFromUnit } from '@/utils/construction/infantry';
+import {
+  calculateInfantryBVFromUnit,
+  calculatePersonnelArmorKitMassTons,
+} from '@/utils/construction/infantry';
 
 import {
   AbstractUnitTypeHandler,
@@ -378,14 +381,12 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   protected calculateTypeSpecificWeight(unit: IInfantry): number {
     // Average soldier: 80kg with gear
     const soldierWeight = 0.08; // tons
-    let weight = unit.platoonStrength * soldierWeight;
+    const armorKitWeight = calculatePersonnelArmorKitMassTons(
+      unit.armorKit,
+      unit.platoonStrength,
+    );
 
-    // Add field gun weight
-    for (const _gun of unit.fieldGuns) {
-      weight += 0.5; // Assume 0.5 tons per field gun
-    }
-
-    return weight;
+    return unit.platoonStrength * soldierWeight + armorKitWeight;
   }
 
   /**

@@ -52,8 +52,36 @@ import {
  * id only" passes naturally.
  */
 export interface ILaunchEncounterOptions {
+  readonly campaignId?: string | null;
   readonly contractId?: string | null;
   readonly scenarioId?: string | null;
+}
+
+function hasLaunchId(value: string | null | undefined): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function normalizeLaunchId(value: string | null | undefined): string | null {
+  return hasLaunchId(value) ? value : null;
+}
+
+function validateContractLaunchLinkage(
+  options: ILaunchEncounterOptions,
+): string | null {
+  if (options.contractId === undefined || options.contractId === null) {
+    return null;
+  }
+
+  const missing: string[] = [];
+  if (!hasLaunchId(options.campaignId)) missing.push('campaignId');
+  if (!hasLaunchId(options.contractId)) missing.push('contractId');
+  if (!hasLaunchId(options.scenarioId)) missing.push('scenarioId');
+
+  if (missing.length === 0) {
+    return null;
+  }
+
+  return `Cannot launch contract encounter without ${missing.join(', ')}`;
 }
 
 // =============================================================================
@@ -295,6 +323,14 @@ export class EncounterService implements IEncounterService {
       };
     }
 
+    const linkageError = validateContractLaunchLinkage(options);
+    if (linkageError) {
+      return {
+        success: false,
+        error: linkageError,
+      };
+    }
+
     // Build the game config and units from the encounter. Force/pilot
     // resolvers are injected so this helper stays trivially testable.
     const forceRepo = getForceRepository();
@@ -317,14 +353,14 @@ export class EncounterService implements IEncounterService {
     // play state from the encounter + forces, using this id as the handle.
     //
     // Per `wire-encounter-to-campaign-round-trip` Wave 5: thread campaign
-    // linkage (contractId, scenarioId) into the config so the eventual
-    // `ICombatOutcome` is self-describing. The encounter id is always
-    // stamped — see `buildGameConfigFromEncounter`. When `contractId` is
-    // present we also assert "fail-fast" by surfacing it on the result so
-    // tests can confirm linkage propagated end-to-end.
+    // linkage (campaignId, contractId, scenarioId) into the config so the
+    // eventual `ICombatOutcome` is self-describing. The encounter id is always
+    // stamped by `buildGameConfigFromEncounter`. Contract-bound launches
+    // were validated above so incomplete linkage cannot produce a session.
     const config = buildGameConfigFromEncounter(encounter, {
-      contractId: options.contractId ?? null,
-      scenarioId: options.scenarioId ?? null,
+      campaignId: normalizeLaunchId(options.campaignId),
+      contractId: normalizeLaunchId(options.contractId),
+      scenarioId: normalizeLaunchId(options.scenarioId),
     });
     const session = createGameSession(config, units);
     return this.repository.linkGameSession(id, session.id);

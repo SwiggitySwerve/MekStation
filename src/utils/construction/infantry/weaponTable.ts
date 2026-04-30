@@ -33,6 +33,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 3,
     heat: 0,
     ammoType: '',
+    special: [],
     secondaryRatio: 4,
   },
   {
@@ -45,6 +46,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 3,
     heat: 0,
     ammoType: 'auto-rifle',
+    special: ['ballistic'],
     secondaryRatio: 3,
   },
   {
@@ -57,6 +59,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 3,
     heat: 0,
     ammoType: '',
+    special: ['energy'],
     secondaryRatio: 4,
   },
   {
@@ -69,6 +72,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 3,
     heat: 0,
     ammoType: 'needler',
+    special: ['anti-infantry'],
     secondaryRatio: 4,
   },
   {
@@ -81,6 +85,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 3,
     heat: 0,
     ammoType: 'gyrojet',
+    special: ['vacuum-capable'],
     secondaryRatio: 4,
   },
   {
@@ -93,6 +98,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 0,
     heat: 1,
     ammoType: 'flamer',
+    special: ['heat', 'incendiary'],
     secondaryRatio: 4,
   },
   // --- Missile launchers (secondary-typical) ---
@@ -106,6 +112,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 9,
     heat: 0,
     ammoType: 'srm',
+    special: ['missile'],
     secondaryRatio: 4,
   },
   {
@@ -118,6 +125,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 21,
     heat: 0,
     ammoType: 'lrm',
+    special: ['missile', 'indirect'],
     secondaryRatio: 4,
   },
   // --- Heavy support weapons (Mechanized / Motorized only) ---
@@ -131,6 +139,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 3,
     heat: 0,
     ammoType: 'mg',
+    special: ['ballistic'],
     secondaryRatio: 2,
   },
   {
@@ -143,6 +152,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 3,
     heat: 0,
     ammoType: 'mg-heavy',
+    special: ['ballistic', 'support'],
     secondaryRatio: 2,
   },
   {
@@ -155,6 +165,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 5,
     heat: 2,
     ammoType: '',
+    special: ['energy', 'support'],
     secondaryRatio: 3,
   },
   {
@@ -167,6 +178,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     rangeLong: 12,
     heat: 5,
     ammoType: '',
+    special: ['energy', 'support'],
     secondaryRatio: 3,
   },
 ] as const;

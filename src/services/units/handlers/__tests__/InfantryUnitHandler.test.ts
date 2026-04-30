@@ -906,14 +906,28 @@ describe('InfantryUnitHandler', () => {
         expect(weight).toBeCloseTo(2.24, 2);
       });
 
-      it('should add field gun weight', () => {
+      it('should not add field gun tonnage to construction weight', () => {
         const doc = createFieldGunInfantryDocument();
         const result = handler.parse(doc);
         expect(result.success).toBe(true);
+        const unit = result.data?.unit;
+        if (!unit) throw new Error('Expected parsed infantry unit');
 
-        const weight = handler.calculateWeight(result.data!.unit);
-        // 16 soldiers * 0.08 + 2 field guns * 0.5 = 1.28 + 1.0 = 2.28 tons
-        expect(weight).toBeCloseTo(2.28, 2);
+        const weight = handler.calculateWeight(unit);
+        // 16 soldiers * 0.08; field guns are deployed weapons.
+        expect(weight).toBeCloseTo(1.28, 2);
+      });
+
+      it('should add armor kit mass per trooper', () => {
+        const doc = createMockBlkDocument({ armorKit: 'Flak' });
+        const result = handler.parse(doc);
+        expect(result.success).toBe(true);
+        const unit = result.data?.unit;
+        if (!unit) throw new Error('Expected parsed infantry unit');
+
+        const weight = handler.calculateWeight(unit);
+        // 28 soldiers * 0.08 + 28 flak kits * 0.012
+        expect(weight).toBeCloseTo(2.576, 3);
       });
 
       it('should return positive weight', () => {

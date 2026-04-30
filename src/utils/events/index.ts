@@ -73,3 +73,11 @@ export {
   emitPilotInstanceMissionCompleted,
   emitPilotInstanceDeceased,
 } from './campaignInstanceEvents';
+
+// Campaign outcome events
+export {
+  CampaignOutcomeEventTypes,
+  emitPendingOutcomeAdded,
+  type CampaignOutcomeEventType,
+  type IPendingOutcomeAddedPayload,
+} from './campaignOutcomeEvents';

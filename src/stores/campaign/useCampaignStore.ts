@@ -43,6 +43,7 @@ import { IForce } from '@/types/campaign/Force';
 import { Money } from '@/types/campaign/Money';
 import { IPerson } from '@/types/campaign/Person';
 import { Transaction } from '@/types/campaign/Transaction';
+import { emitPendingOutcomeAdded } from '@/utils/events/campaignOutcomeEvents';
 
 import { createForcesStore, ForcesStore } from './useForcesStore';
 import { createMissionsStore, MissionsStore } from './useMissionsStore';
@@ -79,6 +80,9 @@ interface SerializedCampaignState {
   campaignStartDate?: string;
   description?: string;
   iconUrl?: string;
+  pendingBattleOutcomes?: ICombatOutcome[];
+  processedBattleIds?: string[];
+  reviewedBattleIds?: Record<string, number>;
   createdAt: string;
   updatedAt: string;
 }
@@ -252,7 +256,12 @@ function withBattleQueueAttached(
 /**
  * Serialize campaign state for persistence.
  */
-function serializeCampaign(campaign: ICampaign): SerializedCampaignState {
+function serializeCampaign(
+  campaign: ICampaign,
+  pendingBattleOutcomes: readonly ICombatOutcome[] = [],
+  processedBattleIds: readonly string[] = [],
+  reviewedBattleIds: Record<string, number> = {},
+): SerializedCampaignState {
   return {
     id: campaign.id,
     name: campaign.name,
@@ -275,6 +284,9 @@ function serializeCampaign(campaign: ICampaign): SerializedCampaignState {
     campaignStartDate: campaign.campaignStartDate?.toISOString(),
     description: campaign.description,
     iconUrl: campaign.iconUrl,
+    pendingBattleOutcomes: [...pendingBattleOutcomes],
+    processedBattleIds: [...processedBattleIds],
+    reviewedBattleIds: { ...reviewedBattleIds },
     createdAt: campaign.createdAt,
     updatedAt: campaign.updatedAt,
   };
@@ -323,6 +335,44 @@ function deserializeCampaign(
     createdAt: serialized.createdAt,
     updatedAt: serialized.updatedAt,
   };
+}
+
+function persistCampaignRecord(
+  campaign: ICampaign,
+  pendingBattleOutcomes: readonly ICombatOutcome[],
+  processedBattleIds: readonly string[],
+  reviewedBattleIds: Record<string, number>,
+): void {
+  const serialized = serializeCampaign(
+    campaign,
+    pendingBattleOutcomes,
+    processedBattleIds,
+    reviewedBattleIds,
+  );
+  clientSafeStorage.setItem(
+    `campaign-${campaign.id}`,
+    JSON.stringify({ state: serialized }),
+  );
+}
+
+function emitPendingOutcomeAddedEvent(
+  campaign: ICampaign | null,
+  outcome: ICombatOutcome,
+  queueLength: number,
+): void {
+  if (!campaign) return;
+
+  try {
+    emitPendingOutcomeAdded({
+      campaignId: campaign.id,
+      matchId: outcome.matchId,
+      contractId: outcome.contractId,
+      scenarioId: outcome.scenarioId,
+      queueLength,
+    });
+  } catch {
+    // Outcome queue persistence must not depend on the optional event sink.
+  }
 }
 
 // =============================================================================
@@ -454,6 +504,9 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
             set({
               campaign,
+              pendingBattleOutcomes: serialized.pendingBattleOutcomes ?? [],
+              processedBattleIds: serialized.processedBattleIds ?? [],
+              reviewedBattleIds: serialized.reviewedBattleIds ?? {},
               personnelStore,
               forcesStore,
               missionsStore,
@@ -466,8 +519,15 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         },
 
         saveCampaign: () => {
-          const { campaign, personnelStore, forcesStore, missionsStore } =
-            get();
+          const {
+            campaign,
+            pendingBattleOutcomes,
+            processedBattleIds,
+            reviewedBattleIds,
+            personnelStore,
+            forcesStore,
+            missionsStore,
+          } = get();
 
           if (!campaign) {
             return;
@@ -512,12 +572,11 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
           set({ campaign: updatedCampaign });
 
-          // Serialize and save to storage
-          const serialized = serializeCampaign(updatedCampaign);
-          const storageKey = `campaign-${campaign.id}`;
-          clientSafeStorage.setItem(
-            storageKey,
-            JSON.stringify({ state: serialized }),
+          persistCampaignRecord(
+            updatedCampaign,
+            pendingBattleOutcomes,
+            processedBattleIds,
+            reviewedBattleIds,
           );
         },
 
@@ -638,7 +697,12 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         getMissionsStore: () => get().missionsStore,
 
         enqueueOutcome: (outcome) => {
-          const { pendingBattleOutcomes, processedBattleIds } = get();
+          const {
+            campaign,
+            pendingBattleOutcomes,
+            processedBattleIds,
+            reviewedBattleIds,
+          } = get();
           // Per spec scenario "Duplicate outcome ignored": both the
           // pending queue AND the processed ledger gate enqueueing —
           // once a match has been applied to the campaign, replaying its
@@ -652,18 +716,41 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           if (processedBattleIds.includes(outcome.matchId)) {
             return;
           }
+          const nextPending = [...pendingBattleOutcomes, outcome];
           set({
-            pendingBattleOutcomes: [...pendingBattleOutcomes, outcome],
+            pendingBattleOutcomes: nextPending,
           });
+          if (campaign) {
+            persistCampaignRecord(
+              campaign,
+              nextPending,
+              processedBattleIds,
+              reviewedBattleIds,
+            );
+          }
+          emitPendingOutcomeAddedEvent(campaign, outcome, nextPending.length);
         },
 
         dequeueOutcome: (matchId) => {
-          const { pendingBattleOutcomes } = get();
+          const {
+            campaign,
+            pendingBattleOutcomes,
+            processedBattleIds,
+            reviewedBattleIds,
+          } = get();
           const next = pendingBattleOutcomes.filter(
             (o) => o.matchId !== matchId,
           );
           if (next.length === pendingBattleOutcomes.length) return false;
           set({ pendingBattleOutcomes: next });
+          if (campaign) {
+            persistCampaignRecord(
+              campaign,
+              next,
+              processedBattleIds,
+              reviewedBattleIds,
+            );
+          }
           return true;
         },
 
@@ -677,16 +764,26 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
         markBattleReviewed: (matchId) => {
           if (!matchId) return;
-          const { pendingBattleOutcomes, reviewedBattleIds } = get();
+          const { campaign, pendingBattleOutcomes, processedBattleIds } = get();
+          const reviewedBattleIds = {
+            ...get().reviewedBattleIds,
+            [matchId]: Date.now(),
+          };
+          const nextPending = pendingBattleOutcomes.filter(
+            (o) => o.matchId !== matchId,
+          );
           set({
-            reviewedBattleIds: {
-              ...reviewedBattleIds,
-              [matchId]: Date.now(),
-            },
-            pendingBattleOutcomes: pendingBattleOutcomes.filter(
-              (o) => o.matchId !== matchId,
-            ),
+            reviewedBattleIds,
+            pendingBattleOutcomes: nextPending,
           });
+          if (campaign) {
+            persistCampaignRecord(
+              campaign,
+              nextPending,
+              processedBattleIds,
+              reviewedBattleIds,
+            );
+          }
         },
 
         getReviewedAt: (matchId) => {
@@ -703,7 +800,12 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             return { campaign: null };
           }
           return {
-            campaign: serializeCampaign(state.campaign),
+            campaign: serializeCampaign(
+              state.campaign,
+              state.pendingBattleOutcomes,
+              state.processedBattleIds,
+              state.reviewedBattleIds,
+            ),
           };
         },
         // Merge persisted state
@@ -735,6 +837,9 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           return {
             ...current,
             campaign,
+            pendingBattleOutcomes: serialized.pendingBattleOutcomes ?? [],
+            processedBattleIds: serialized.processedBattleIds ?? [],
+            reviewedBattleIds: serialized.reviewedBattleIds ?? {},
             personnelStore: null,
             forcesStore: null,
             missionsStore: null,

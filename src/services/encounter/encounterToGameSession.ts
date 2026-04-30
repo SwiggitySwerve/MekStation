@@ -66,6 +66,7 @@ function deriveTurnLimit(conditions: readonly IVictoryCondition[]): number {
  * uses to route the post-battle pipeline.
  */
 export interface IEncounterLinkage {
+  readonly campaignId?: string | null;
   readonly contractId?: string | null;
   readonly scenarioId?: string | null;
 }
@@ -91,6 +92,7 @@ export function buildGameConfigFromEncounter(
     ),
     optionalRules: [...encounter.optionalRules],
     encounterId: encounter.id,
+    campaignId: linkage.campaignId ?? null,
     contractId: linkage.contractId ?? null,
     scenarioId: linkage.scenarioId ?? null,
   };

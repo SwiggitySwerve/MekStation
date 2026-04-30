@@ -7,10 +7,13 @@
  * @spec openspec/changes/add-infantry-construction/specs/infantry-unit-system/spec.md
  */
 
+import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
   InfantryMotive,
   IPlatoonComposition,
   IInfantryMP,
+  IInfantryMotiveProfile,
+  INFANTRY_MOTIVE_PROFILES,
   PLATOON_DEFAULTS,
   MOTIVE_MP,
 } from '@/types/unit/InfantryInterfaces';
@@ -43,6 +46,39 @@ export function totalTroopers(composition: IPlatoonComposition): number {
  */
 export function getMotiveMP(motive: InfantryMotive): IInfantryMP {
   return MOTIVE_MP[motive];
+}
+
+/**
+ * Return the full construction profile for a motive.
+ */
+export function getMotiveProfile(
+  motive: InfantryMotive,
+): IInfantryMotiveProfile {
+  return INFANTRY_MOTIVE_PROFILES[motive];
+}
+
+/**
+ * Map construction-layer motive to the legacy squad motion enum.
+ */
+export function squadMotionTypeForMotive(
+  motive: InfantryMotive,
+): SquadMotionType {
+  switch (motive) {
+    case InfantryMotive.FOOT:
+      return SquadMotionType.FOOT;
+    case InfantryMotive.JUMP:
+      return SquadMotionType.JUMP;
+    case InfantryMotive.MOTORIZED:
+      return SquadMotionType.MOTORIZED;
+    case InfantryMotive.MECHANIZED_TRACKED:
+      return SquadMotionType.TRACKED;
+    case InfantryMotive.MECHANIZED_WHEELED:
+      return SquadMotionType.WHEELED;
+    case InfantryMotive.MECHANIZED_HOVER:
+      return SquadMotionType.HOVER;
+    case InfantryMotive.MECHANIZED_VTOL:
+      return SquadMotionType.VTOL;
+  }
 }
 
 // ============================================================================

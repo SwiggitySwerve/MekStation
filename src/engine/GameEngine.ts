@@ -194,6 +194,7 @@ export class GameEngine {
     opponentUnits: readonly IAdaptedUnit[],
     gameUnits: readonly IGameUnit[],
     linkage?: {
+      readonly campaignId?: string | null;
       readonly contractId?: string | null;
       readonly scenarioId?: string | null;
       readonly encounterId?: string | null;

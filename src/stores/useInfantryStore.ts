@@ -19,6 +19,10 @@ import {
   PLATOON_DEFAULTS,
   MOTIVE_MP,
 } from '@/types/unit/InfantryInterfaces';
+import {
+  normalizeInfantryFieldGun,
+  squadMotionTypeForMotive,
+} from '@/utils/construction/infantry';
 
 import {
   InfantryState,
@@ -27,6 +31,7 @@ import {
   createDefaultInfantryState,
   getArmorKitDivisor,
   computeInfantryStateBV,
+  normalizeInfantryState,
 } from './infantryState';
 
 // Re-export types for convenience
@@ -45,10 +50,12 @@ export function createInfantryStore(
   // Seed the initial bvBreakdown so consumers have a value before the first
   // BV-affecting action fires. See @spec .../infantry-unit-system/spec.md —
   // "unit.bvBreakdown SHALL contain perTrooper, motiveMultiplier, ...".
+  const normalizedInitialState = normalizeInfantryState(initialState);
   const seededState: InfantryState = {
-    ...initialState,
+    ...normalizedInitialState,
     bvBreakdown:
-      initialState.bvBreakdown ?? computeInfantryStateBV(initialState),
+      normalizedInitialState.bvBreakdown ??
+      computeInfantryStateBV(normalizedInitialState),
   };
 
   return create<InfantryStore>()(
@@ -199,8 +206,11 @@ export function createInfantryStore(
           setInfantryMotive: (motive: InfantryMotive) =>
             setWithBV({
               infantryMotive: motive,
+              motionType: squadMotionTypeForMotive(motive),
               // Re-derive composition defaults from TechManual tables
               platoonComposition: PLATOON_DEFAULTS[motive],
+              squadSize: PLATOON_DEFAULTS[motive].troopersPerSquad,
+              numberOfSquads: PLATOON_DEFAULTS[motive].squads,
               // Re-derive MP from motive
               groundMP: MOTIVE_MP[motive].groundMP,
               jumpMP: MOTIVE_MP[motive].jumpMP,
@@ -211,6 +221,8 @@ export function createInfantryStore(
           setPlatoonComposition: (comp: IPlatoonComposition) =>
             setWithBV({
               platoonComposition: comp,
+              squadSize: comp.troopersPerSquad,
+              numberOfSquads: comp.squads,
               isModified: true,
               lastModifiedAt: Date.now(),
             }),
@@ -306,7 +318,10 @@ export function createInfantryStore(
 
           addFieldGun: (gun: IInfantryFieldGun) =>
             setWithBV((state) => ({
-              fieldGuns: [...state.fieldGuns, gun],
+              fieldGuns: [
+                ...state.fieldGuns.map(normalizeInfantryFieldGun),
+                normalizeInfantryFieldGun(gun),
+              ],
               isModified: true,
               lastModifiedAt: Date.now(),
             })),

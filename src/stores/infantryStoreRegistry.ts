@@ -167,6 +167,8 @@ export function duplicateInfantry(
     name: newName ?? `${sourceState.name} (Copy)`,
     techBase: sourceState.techBase,
     motionType: sourceState.motionType,
+    infantryMotive: sourceState.infantryMotive,
+    platoonComposition: sourceState.platoonComposition,
     squadSize: sourceState.squadSize,
     numberOfSquads: sourceState.numberOfSquads,
   });
@@ -183,6 +185,10 @@ export function duplicateInfantry(
     specialization: sourceState.specialization,
     hasAntiMechTraining: sourceState.hasAntiMechTraining,
     isAugmented: sourceState.isAugmented,
+    augmentationType: sourceState.augmentationType,
+    fieldGuns: sourceState.fieldGuns,
+    groundMP: sourceState.groundMP,
+    jumpMP: sourceState.jumpMP,
   };
 
   const store = createInfantryStore(mergedState);

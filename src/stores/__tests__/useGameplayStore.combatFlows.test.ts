@@ -35,6 +35,7 @@ interface FakeSessionCalls {
     to: { q: number; r: number };
     facing: Facing;
     type: MovementType;
+    path?: readonly { q: number; r: number }[];
   }>;
   attacks: Array<{
     attackerId: string;
@@ -84,8 +85,15 @@ function buildFakeSession(): {
       to: { q: number; r: number },
       facing: Facing,
       type: MovementType,
+      path?: readonly { q: number; r: number }[],
     ) => {
-      calls.movement.push({ unitId, to, facing, type });
+      calls.movement.push({
+        unitId,
+        to,
+        facing,
+        type,
+        ...(path !== undefined ? { path } : {}),
+      });
     },
     applyAttack: (
       attackerId: string,
@@ -179,6 +187,10 @@ describe('useGameplayStore — combat-phase planning actions', () => {
         to: { q: 3, r: -1 },
         facing: Facing.Southeast,
         type: MovementType.Run,
+        path: [
+          { q: 0, r: 0 },
+          { q: 3, r: -1 },
+        ],
       });
       expect(useGameplayStore.getState().plannedMovement).toBeNull();
       expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();

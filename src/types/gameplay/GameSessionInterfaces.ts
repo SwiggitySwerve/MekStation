@@ -268,6 +268,37 @@ export enum GameSide {
 }
 
 // =============================================================================
+// Networked Game Intents
+// =============================================================================
+
+/**
+ * Guest-to-host intent types for networked 1v1 game sessions.
+ */
+export const GAME_INTENT_TYPES = [
+  'declareMovement',
+  'declareAttack',
+  'declarePhysical',
+  'confirmHeat',
+  'endPhase',
+  'concede',
+] as const;
+
+export type GameIntentType = (typeof GAME_INTENT_TYPES)[number];
+
+/**
+ * Intent envelope used when a peer requests that the host validate and execute
+ * an action.
+ */
+export interface IGameIntent {
+  /** Requested action type */
+  readonly type: GameIntentType;
+  /** Action-specific request payload */
+  readonly payload: unknown;
+  /** Peer that authored the request */
+  readonly authorPeerId: string;
+}
+
+// =============================================================================
 // Event Interfaces
 // =============================================================================
 
@@ -372,6 +403,11 @@ export interface IInitiativeRolledPayload {
   readonly rolls?: readonly number[];
 }
 
+export type MovementAnimationMode =
+  | MovementType.Walk
+  | MovementType.Run
+  | MovementType.Jump;
+
 /**
  * Movement declared event payload.
  */
@@ -386,6 +422,16 @@ export interface IMovementDeclaredPayload {
   readonly facing: Facing;
   /** Movement type used */
   readonly movementType: MovementType;
+  /**
+   * Phase 7 animation mode. Optional so legacy event streams that only
+   * serialized `movementType` continue to replay.
+   */
+  readonly mode?: MovementAnimationMode;
+  /**
+   * Ordered axial coordinates visited by the committed move, including
+   * the origin and destination. Optional for legacy replay backfill.
+   */
+  readonly path?: readonly IHexCoordinate[];
   /** MP spent */
   readonly mpUsed: number;
   /** Heat generated */
@@ -1041,6 +1087,11 @@ export interface IGameConfig {
    */
   readonly encounterId?: string | null;
   /**
+   * Campaign this session belongs to. Populated for campaign-launched
+   * encounters; null for standalone quick-play / handcrafted encounters.
+   */
+  readonly campaignId?: string | null;
+  /**
    * Campaign contract this session resolves. Populated when the encounter
    * was generated from a contract. Null for standalone encounters.
    */
@@ -1320,6 +1371,12 @@ export interface IGameSession {
   readonly events: readonly IGameEvent[];
   /** Current derived state */
   readonly currentState: IGameState;
+  /** Network host peer id for P2P sessions; absent/null for local sessions */
+  readonly hostPeerId?: string | null;
+  /** Network guest peer id for P2P sessions; absent/null until joined */
+  readonly guestPeerId?: string | null;
+  /** Peer id that controls each side in networked sessions */
+  readonly sideOwners?: Readonly<Record<GameSide, string>> | null;
 }
 
 // =============================================================================

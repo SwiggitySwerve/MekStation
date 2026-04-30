@@ -62,8 +62,8 @@ import { VehicleTurretTab } from '@/components/customizer/vehicle/VehicleTurretT
 import { AerospaceState } from '@/stores/aerospaceState';
 import { InfantryState } from '@/stores/infantryState';
 import { ProtoMechState } from '@/stores/protoMechState';
-import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { InfantryMotive } from '@/types/unit/InfantryInterfaces';
 
 import { TabSpec } from './TabSpec';
 
@@ -350,7 +350,7 @@ export const BATTLE_ARMOR_TABS: TabSpec[] = [
 // =============================================================================
 
 /** Shape of the state snapshot passed to infantry visibleWhen predicates */
-type InfantryVisibilityState = Pick<InfantryState, 'motionType'>;
+type InfantryVisibilityState = Pick<InfantryState, 'infantryMotive'>;
 
 /**
  * Canonical Infantry tab set.
@@ -385,10 +385,10 @@ export const INFANTRY_TABS: TabSpec<InfantryVisibilityState>[] = [
     label: 'Field Guns',
     icon: iconSvg(ICONS.fieldguns),
     component: InfantryFieldGunsTab,
-    // Jump and Mechanized platoons cannot deploy field guns
+    // Only Foot and Motorized platoons can deploy field guns
     visibleWhen: (s) =>
-      s.motionType !== SquadMotionType.JUMP &&
-      s.motionType !== SquadMotionType.MECHANIZED,
+      s.infantryMotive === InfantryMotive.FOOT ||
+      s.infantryMotive === InfantryMotive.MOTORIZED,
   },
   {
     id: 'specialization',

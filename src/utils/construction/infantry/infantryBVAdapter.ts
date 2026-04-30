@@ -193,13 +193,13 @@ function adaptFieldGuns(
       gun.ammoRounds && gun.ammoRounds > 0
         ? [
             {
-              id: ammoIdForFieldGun(gun.equipmentId),
-              weaponTypeOverride: gun.equipmentId,
+              id: ammoIdForFieldGun(gun.weaponId),
+              weaponTypeOverride: gun.weaponId,
             },
           ]
         : [];
     return {
-      id: gun.equipmentId,
+      id: gun.weaponId,
       ammo: ammoBins,
     };
   });
@@ -331,6 +331,8 @@ export function calculateInfantryBVFromUnit(
   // bin each — the BV layer only needs equipmentId + a non-zero ammoRounds
   // flag to emit an ammo entry.
   const fieldGuns: readonly IInfantryFieldGun[] = unit.fieldGuns.map((gun) => ({
+    weaponId: gun.equipmentId,
+    crewCount: gun.crew,
     equipmentId: gun.equipmentId,
     name: gun.name,
     crew: gun.crew,

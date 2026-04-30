@@ -19,9 +19,24 @@ import {
   IAttackResolvedPayload,
   IDamageAppliedPayload,
   IHeatPayload,
+  IHexCoordinate,
   IPilotHitPayload,
+  MovementAnimationMode,
   IUnitDestroyedPayload,
 } from '@/types/gameplay';
+import {
+  movementAnimationModeForType,
+  normalizeMovementEventPath,
+} from '@/utils/gameplay/movement/eventPath';
+
+export interface IMovementDeclaredPlaybackPayload extends Omit<
+  IMovementDeclaredPayload,
+  'mode' | 'path'
+> {
+  readonly mode: MovementAnimationMode | null;
+  readonly path: readonly IHexCoordinate[];
+  readonly instantFallback: boolean;
+}
 
 // =============================================================================
 // Type Guards
@@ -99,6 +114,33 @@ export function getMovementDeclaredPayload(
 ): IMovementDeclaredPayload | null {
   if (event.type !== GameEventType.MovementDeclared) return null;
   return event.payload as IMovementDeclaredPayload;
+}
+
+/**
+ * Extract MovementDeclared payload for animation/replay consumers.
+ *
+ * Legacy events did not serialize the full path. Those events are
+ * normalized to a safe endpoint path and flagged so UI playback can snap
+ * instantly instead of trying to reconstruct historical traversal.
+ */
+export function getMovementDeclaredPlaybackPayload(
+  event: IGameEvent,
+): IMovementDeclaredPlaybackPayload | null {
+  const payload = getMovementDeclaredPayload(event);
+  if (!payload) return null;
+
+  const hasSerializedPath = Boolean(payload.path && payload.path.length > 0);
+  return {
+    ...payload,
+    mode: payload.mode ?? movementAnimationModeForType(payload.movementType),
+    path: hasSerializedPath
+      ? normalizeMovementEventPath(payload.from, payload.to, payload.path)
+      : normalizeMovementEventPath(payload.from, payload.to, [
+          payload.from,
+          payload.to,
+        ]),
+    instantFallback: !hasSerializedPath,
+  };
 }
 
 /**

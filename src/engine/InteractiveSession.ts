@@ -72,6 +72,10 @@ import {
   endGame,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import {
+  buildMovementEventPath,
+  maxMovementCostForCapability,
+} from '@/utils/gameplay/movement/eventPath';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
@@ -88,6 +92,7 @@ import { toAIUnitState, toMovementCapability } from './GameEngine.helpers';
  * outcome resolves.
  */
 export interface IInteractiveSessionLinkage {
+  readonly campaignId?: string | null;
   readonly contractId?: string | null;
   readonly scenarioId?: string | null;
   readonly encounterId?: string | null;
@@ -172,6 +177,7 @@ export class InteractiveSession {
       // any later consumer of `IGameSession` (review UI, persistence
       // layer) can read them without keeping a parallel map.
       encounterId: linkage.encounterId ?? null,
+      campaignId: linkage.campaignId ?? null,
       contractId: linkage.contractId ?? null,
       scenarioId: linkage.scenarioId ?? null,
     };
@@ -239,9 +245,20 @@ export class InteractiveSession {
     to: IHexCoordinate,
     facing: Facing,
     movementType: MovementType,
+    path?: readonly IHexCoordinate[],
   ): void {
     const unit = this.session.currentState.units[unitId];
     if (!unit) return;
+    const capability = this.movementByUnit.get(unitId);
+    const eventPath =
+      path ??
+      buildMovementEventPath({
+        grid: this.grid,
+        from: unit.position,
+        to,
+        movementType,
+        maxCost: maxMovementCostForCapability(capability, movementType),
+      });
 
     this.session = declareMovement(
       this.session,
@@ -252,6 +269,7 @@ export class InteractiveSession {
       movementType,
       0,
       movementType === MovementType.Jump ? 1 : 0,
+      eventPath,
     );
     this.session = lockMovement(this.session, unitId);
     this.tryFinalizeAndPublish();
@@ -408,6 +426,16 @@ export class InteractiveSession {
           cap,
         );
         if (moveEvt) {
+          const eventPath = buildMovementEventPath({
+            grid: this.grid,
+            from: refreshedUnit.position,
+            to: moveEvt.payload.to,
+            movementType: moveEvt.payload.movementType,
+            maxCost: maxMovementCostForCapability(
+              cap,
+              moveEvt.payload.movementType,
+            ),
+          });
           this.session = declareMovement(
             this.session,
             unitId,
@@ -417,6 +445,7 @@ export class InteractiveSession {
             moveEvt.payload.movementType,
             moveEvt.payload.mpUsed,
             moveEvt.payload.heatGenerated,
+            eventPath,
           );
         }
         this.session = lockMovement(this.session, unitId);

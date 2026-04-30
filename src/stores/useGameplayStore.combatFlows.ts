@@ -111,6 +111,7 @@ export function commitPlannedMovementLogic(get: GetFn, set: SetFn): void {
     plannedMovement.destination,
     plannedMovement.facing,
     plannedMovement.movementType,
+    plannedMovement.path,
   );
 
   set({
