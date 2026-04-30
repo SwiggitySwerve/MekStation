@@ -21,18 +21,28 @@ import type { MovementTweenFrame } from '@/components/gameplay/animation/useMove
 import type { DamageFloaterEntry } from '@/components/gameplay/DamageFloater';
 import type { TacticalAnimation } from '@/stores/useAnimationQueue';
 import type {
+  IAmmoExplosionPayload,
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
   IGameEvent,
+  IHeatPayload,
   IPilotHitPayload,
+  IShutdownCheckPayload,
+  IStartupAttemptPayload,
   IUnitDestroyedPayload,
   IUnitToken,
 } from '@/types/gameplay';
 
 import { useMovementTween } from '@/components/gameplay/animation/useMovementTween';
+import { AmmoExplosionAura } from '@/components/gameplay/effects/AmmoExplosionAura';
+import { HeatGlow } from '@/components/gameplay/effects/HeatGlow';
+import { HitLocationFlash } from '@/components/gameplay/effects/HitLocationFlash';
+import { ShutdownOverlay } from '@/components/gameplay/effects/ShutdownOverlay';
+import { StartupPulse } from '@/components/gameplay/effects/StartupPulse';
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { GameEventType, MovementType, TokenUnitType } from '@/types/gameplay';
+import { getHeatTransitionFromPayload } from '@/utils/effects/heatVisualMap';
 
 import type { IUnitEventState } from './tokenTypes';
 
@@ -144,6 +154,84 @@ function projectEvents(
   };
 }
 
+interface UnitThermalVisualState {
+  readonly heat: number;
+  readonly hasHeatEvent: boolean;
+  readonly isShutdown: boolean;
+  readonly startupAttemptId: number | string | null;
+  readonly startupSucceeded: boolean;
+  readonly ammoExplosionRisk: boolean;
+}
+
+const EMPTY_THERMAL_VISUAL_STATE: UnitThermalVisualState = {
+  heat: 0,
+  hasHeatEvent: false,
+  isShutdown: false,
+  startupAttemptId: null,
+  startupSucceeded: false,
+  ammoExplosionRisk: false,
+};
+
+function projectThermalVisualState(
+  unitId: string,
+  events: readonly IGameEvent[] | undefined,
+): UnitThermalVisualState {
+  if (!events || events.length === 0) return EMPTY_THERMAL_VISUAL_STATE;
+
+  let heat = 0;
+  let hasHeatEvent = false;
+  let isShutdown = false;
+  let startupAttemptId: number | string | null = null;
+  let startupSucceeded = false;
+  let ammoExplosionRisk = false;
+
+  for (const event of events) {
+    switch (event.type) {
+      case GameEventType.HeatGenerated:
+      case GameEventType.HeatDissipated: {
+        const payload = event.payload as IHeatPayload;
+        if (payload.unitId !== unitId) break;
+        const transition = getHeatTransitionFromPayload(payload);
+        heat = transition.currentHeat;
+        hasHeatEvent = true;
+        ammoExplosionRisk = transition.ammoExplosionRisk;
+        break;
+      }
+      case GameEventType.ShutdownCheck: {
+        const payload = event.payload as IShutdownCheckPayload;
+        if (payload.unitId !== unitId) break;
+        if (payload.shutdownOccurred) isShutdown = true;
+        break;
+      }
+      case GameEventType.StartupAttempt: {
+        const payload = event.payload as IStartupAttemptPayload;
+        if (payload.unitId !== unitId) break;
+        startupAttemptId = event.id || event.sequence;
+        startupSucceeded = payload.success;
+        if (payload.success) isShutdown = false;
+        break;
+      }
+      case GameEventType.AmmoExplosion: {
+        const payload = event.payload as IAmmoExplosionPayload;
+        if (payload.unitId !== unitId) break;
+        ammoExplosionRisk = true;
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  return {
+    heat,
+    hasHeatEvent,
+    isShutdown,
+    startupAttemptId,
+    startupSucceeded,
+    ammoExplosionRisk,
+  };
+}
+
 // =============================================================================
 // Dispatcher Component
 // =============================================================================
@@ -158,6 +246,10 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
 }: UnitTokenForTypeProps): React.ReactElement | null {
   const eventState = useMemo(
     () => projectEvents(token.unitId, events),
+    [token.unitId, events],
+  );
+  const thermalVisualState = useMemo(
+    () => projectThermalVisualState(token.unitId, events),
     [token.unitId, events],
   );
   const movementAnimationId = movementAnimation?.id;
@@ -251,7 +343,15 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   const wrap = (children: React.ReactElement): React.ReactElement => (
     <>
       {jumpArc}
-      <g {...wrapperProps}>{children}</g>
+      <g {...wrapperProps}>
+        <TokenVisualEffects
+          token={token}
+          events={events}
+          thermalVisualState={thermalVisualState}
+        >
+          {children}
+        </TokenVisualEffects>
+      </g>
     </>
   );
 
@@ -287,6 +387,48 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
       return wrap(<MechToken token={renderToken} eventState={eventState} />);
   }
 });
+
+function TokenVisualEffects({
+  token,
+  events,
+  thermalVisualState,
+  children,
+}: {
+  readonly token: IUnitToken;
+  readonly events?: readonly IGameEvent[];
+  readonly thermalVisualState: UnitThermalVisualState;
+  readonly children: React.ReactElement;
+}): React.ReactElement {
+  const idSuffix = token.unitId;
+
+  return (
+    <>
+      <AmmoExplosionAura
+        active={thermalVisualState.ammoExplosionRisk}
+        heat={thermalVisualState.heat}
+        idSuffix={idSuffix}
+      />
+      {thermalVisualState.hasHeatEvent && (
+        <HeatGlow
+          heat={thermalVisualState.heat}
+          idSuffix={idSuffix}
+          isShutdown={thermalVisualState.isShutdown}
+        />
+      )}
+      {children}
+      <ShutdownOverlay
+        active={thermalVisualState.isShutdown}
+        idSuffix={idSuffix}
+        unitName={token.name}
+      />
+      <StartupPulse
+        attemptId={thermalVisualState.startupAttemptId}
+        success={thermalVisualState.startupSucceeded}
+      />
+      <HitLocationFlash unitId={token.unitId} events={events} />
+    </>
+  );
+}
 
 function renderJumpArc(
   unitId: string,

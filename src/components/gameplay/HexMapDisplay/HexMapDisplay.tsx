@@ -10,18 +10,20 @@ import type {
   IGameEvent,
 } from '@/types/gameplay';
 
+import { AttackEffectsLayer } from '@/components/gameplay/effects/AttackEffectsLayer';
+import { PersistentEffectsLayer } from '@/components/gameplay/effects/PersistentEffectsLayer';
+import { FiringArcOverlay } from '@/components/gameplay/overlays/FiringArcOverlay';
+import { LineOfSightOverlay } from '@/components/gameplay/overlays/LineOfSightOverlay';
 import { TerrainSymbolDefs } from '@/components/gameplay/terrain/TerrainSymbolDefs';
 import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForType';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { TerrainType } from '@/types/gameplay';
-import { coordToKey } from '@/utils/gameplay/hexMath';
-import { calculateLOS } from '@/utils/gameplay/lineOfSight';
+import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 
 import { HexCell } from './HexCell';
 import {
   MovementCostOverlay,
   CoverOverlay,
-  LOSLine,
   TerrainPatternDefs,
 } from './Overlays';
 import { generateHexesInRadius, hexEquals, hexInList } from './renderHelpers';
@@ -163,23 +165,12 @@ export function HexMapDisplay({
     return { config: { radius }, hexes: hexMap };
   }, [hexTerrain, hexes, radius]);
 
-  const selectedUnitPosition = useMemo(() => {
-    const selectedToken = tokens.find((t) => t.isSelected);
-    return selectedToken?.position ?? null;
-  }, [tokens]);
+  const selectedToken = useMemo(
+    () => tokens.find((t) => t.isSelected) ?? null,
+    [tokens],
+  );
 
-  const losResults = useMemo(() => {
-    if (!interaction.showLOSOverlay || !selectedUnitPosition)
-      return new Map<string, boolean>();
-    const results = new Map<string, boolean>();
-    for (const hex of hexes) {
-      if (hex.q === selectedUnitPosition.q && hex.r === selectedUnitPosition.r)
-        continue;
-      const los = calculateLOS(selectedUnitPosition, hex, hexGrid);
-      results.set(coordToKey(hex), los.hasLOS);
-    }
-    return results;
-  }, [interaction.showLOSOverlay, selectedUnitPosition, hexes, hexGrid]);
+  const selectedUnitPosition = selectedToken?.position ?? null;
 
   const movementAnimationsByUnit = useMemo(() => {
     const lookup = new Map<string, (typeof activeAnimations)[number]>();
@@ -203,6 +194,23 @@ export function HexMapDisplay({
       return aAnimating ? 1 : -1;
     });
   }, [movementAnimationsByUnit, tokens]);
+
+  const hasActiveMovementAnimation = useMemo(
+    () =>
+      activeAnimations.some(
+        (animation) =>
+          animation.mapId === mapId && animation.kind === 'movement',
+      ),
+    [activeAnimations, mapId],
+  );
+
+  const selectedWeaponMaxRange = useMemo(() => {
+    if (!selectedUnitPosition || attackRange.length === 0) return radius;
+    return Math.max(
+      0,
+      ...attackRange.map((hex) => hexDistance(selectedUnitPosition, hex)),
+    );
+  }, [attackRange, radius, selectedUnitPosition]);
 
   const handleHexClick = useCallback(
     (hex: IHexCoordinate) => {
@@ -313,6 +321,34 @@ export function HexMapDisplay({
           })}
         </g>
 
+        {interaction.showLOSOverlay &&
+          selectedToken &&
+          !hasActiveMovementAnimation && (
+            <FiringArcOverlay
+              unit={{
+                coord: selectedToken.position,
+                facing: selectedToken.facing,
+                unitId: selectedToken.unitId,
+              }}
+              hexes={hexes}
+              maxRange={selectedWeaponMaxRange}
+              enabled
+              testId="firing-arc-overlay"
+            />
+          )}
+
+        {interaction.showLOSOverlay &&
+          selectedUnitPosition &&
+          hoveredHex &&
+          !hasActiveMovementAnimation && (
+            <LineOfSightOverlay
+              origin={selectedUnitPosition}
+              target={hoveredHex}
+              grid={hexGrid}
+              testId="los-overlay"
+            />
+          )}
+
         <g>
           {orderedTokens.map((token) => (
             <UnitTokenForType
@@ -327,27 +363,8 @@ export function HexMapDisplay({
           ))}
         </g>
 
-        {interaction.showLOSOverlay && selectedUnitPosition && (
-          <g data-testid="los-overlay">
-            {hexes.map((hex) => {
-              const key = coordToKey(hex);
-              if (
-                hex.q === selectedUnitPosition.q &&
-                hex.r === selectedUnitPosition.r
-              )
-                return null;
-              const hasLOS = losResults.get(key) ?? true;
-              return (
-                <LOSLine
-                  key={`los-${key}`}
-                  from={selectedUnitPosition}
-                  to={hex}
-                  hasLOS={hasLOS}
-                />
-              );
-            })}
-          </g>
-        )}
+        <PersistentEffectsLayer tokens={tokens} events={events} />
+        <AttackEffectsLayer events={events} tokens={tokens} mapId={mapId} />
 
         {interaction.showMovementOverlay && (
           <g data-testid="movement-overlay">
