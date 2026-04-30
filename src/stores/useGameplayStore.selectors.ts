@@ -42,6 +42,15 @@ export const selectIsGameCompleted = (state: {
   session: IGameSession | null;
 }): boolean => state.session?.currentState.status === GameStatus.Completed;
 
+export const selectLocalMatchStatus = (state: {
+  localMatchStatus: 'live' | 'guestPending' | 'hostPending' | 'aborted';
+}): 'live' | 'guestPending' | 'hostPending' | 'aborted' =>
+  state.localMatchStatus;
+
+export const selectLocalMatchGraceRemainingMs = (state: {
+  localMatchGraceRemainingMs: number | null;
+}): number | null => state.localMatchGraceRemainingMs;
+
 /**
  * Project the currently-selected unit (or `null`) from the relevant
  * store fields. Pure helper so the hook wrapper can compose the three
