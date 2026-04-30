@@ -2,24 +2,24 @@
 
 ## 1. Movement Event Schema
 
-- [ ] 1.1 Ensure `MovementCommitted` event carries full path (array of
+- [x] 1.1 Ensure `MovementCommitted` event carries full path (array of
       axial coordinates) plus MP mode (walk | run | jump)
-- [ ] 1.2 If event currently only stores destination, migrate: compute
+- [x] 1.2 If event currently only stores destination, migrate: compute
       path on commit and embed in payload
-- [ ] 1.3 Backfill logic for older event streams (replay uses instant
+- [x] 1.3 Backfill logic for older event streams (replay uses instant
       fallback)
-- [ ] 1.4 Unit tests for path serialization
+- [x] 1.4 Unit tests for path serialization
 
 ## 2. Animation Queue Store
 
-- [ ] 2.1 Create `src/stores/useAnimationQueue.ts`
-- [ ] 2.2 Methods: `enqueue(animation)`, `onComplete(callback)`,
+- [x] 2.1 Create `src/stores/useAnimationQueue.ts`
+- [x] 2.2 Methods: `enqueue(animation)`, `onComplete(callback)`,
       `isActive`
-- [ ] 2.3 Session phase advancement reads `isActive` and waits until
+- [x] 2.3 Session phase advancement reads `isActive` and waits until
       queue drains
-- [ ] 2.4 Queue is FIFO per map; concurrent per-unit animations allowed
+- [x] 2.4 Queue is FIFO per map; concurrent per-unit animations allowed
       only when animations do not overlap hexes
-- [ ] 2.5 Unit tests for queue ordering
+- [x] 2.5 Unit tests for queue ordering
 
 ## 3. Movement Tween Hook
 
@@ -53,11 +53,11 @@
 
 ## 6. Reduced Motion Fallback
 
-- [ ] 6.1 Detect `window.matchMedia('(prefers-reduced-motion: reduce)')`
-- [ ] 6.2 When reduced motion is enabled, `useMovementTween` returns
+- [x] 6.1 Detect `window.matchMedia('(prefers-reduced-motion: reduce)')`
+- [x] 6.2 When reduced motion is enabled, `useMovementTween` returns
       the final position immediately and calls `onDone` synchronously
-- [ ] 6.3 Jump arc flattens to a straight snap
-- [ ] 6.4 Unit test: reduced-motion mode fires `onDone` within one tick
+- [x] 6.3 Jump arc flattens to a straight snap
+- [x] 6.4 Unit test: reduced-motion mode fires `onDone` within one tick
 
 ## 7. Jump Arc Visual
 
