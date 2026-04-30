@@ -1,0 +1,223 @@
+import React, { useMemo } from 'react';
+
+import type {
+  IHexCoordinate,
+  IHexGrid,
+} from '@/types/gameplay/HexGridInterfaces';
+import type {
+  LOSBlockerMetadata,
+  LOSClassification,
+  LOSOverlayState,
+} from '@/utils/overlays/losClassifier';
+
+import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
+import { hexEquals } from '@/utils/gameplay/hexMath';
+import { classifyLOS } from '@/utils/overlays/losClassifier';
+
+export interface LineOfSightOverlayProps {
+  readonly origin: IHexCoordinate | null;
+  readonly target: IHexCoordinate | null;
+  readonly grid: IHexGrid | null;
+  readonly enabled?: boolean;
+  readonly fromElevation?: number;
+  readonly toElevation?: number;
+  readonly testId?: string;
+}
+
+interface LOSStyle {
+  readonly stroke: string;
+  readonly dash?: string;
+}
+
+const LOS_STYLES: Record<LOSOverlayState, LOSStyle> = {
+  clear: { stroke: '#16a34a' },
+  partial: { stroke: '#ca8a04', dash: '6,4' },
+  blocked: { stroke: '#dc2626' },
+};
+
+function coordsEqual(
+  left: IHexCoordinate | null | undefined,
+  right: IHexCoordinate | null | undefined,
+): boolean {
+  if (!left || !right) return left === right;
+  return hexEquals(left, right);
+}
+
+export function areLineOfSightOverlayPropsEqual(
+  previous: LineOfSightOverlayProps,
+  next: LineOfSightOverlayProps,
+): boolean {
+  return (
+    coordsEqual(previous.origin, next.origin) &&
+    coordsEqual(previous.target, next.target) &&
+    previous.grid === next.grid &&
+    previous.enabled === next.enabled &&
+    previous.fromElevation === next.fromElevation &&
+    previous.toElevation === next.toElevation &&
+    previous.testId === next.testId
+  );
+}
+
+function announcementFor(classification: LOSClassification): string {
+  if (classification.state === 'clear') {
+    return 'Line of sight clear';
+  }
+
+  const firstAnnotation = classification.blockerAnnotations[0];
+  if (classification.state === 'partial') {
+    return firstAnnotation
+      ? `Line of sight partial: ${firstAnnotation.title}`
+      : 'Line of sight partial';
+  }
+
+  return firstAnnotation
+    ? `Line of sight blocked: ${firstAnnotation.title}`
+    : 'Line of sight blocked';
+}
+
+function CoverIcon({
+  annotation,
+}: {
+  readonly annotation: LOSBlockerMetadata;
+}): React.ReactElement {
+  const { x, y } = hexToPixel(annotation.coord);
+  const key = `${annotation.coord.q},${annotation.coord.r}`;
+
+  return (
+    <g
+      data-testid={`los-annotation-cover-${key}`}
+      data-icon="cover"
+      aria-label={annotation.title}
+    >
+      <title>{annotation.title}</title>
+      <path
+        d={`M ${x} ${y - 12} L ${x - 10} ${y - 5} L ${x - 8} ${y + 8} Q ${x} ${y + 14} ${x + 8} ${y + 8} L ${x + 10} ${y - 5} Z`}
+        fill="#fef3c7"
+        stroke="#92400e"
+        strokeWidth={1.5}
+      />
+      <line
+        x1={x - 6}
+        y1={y}
+        x2={x + 6}
+        y2={y}
+        stroke="#92400e"
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+    </g>
+  );
+}
+
+function WallIcon({
+  annotation,
+}: {
+  readonly annotation: LOSBlockerMetadata;
+}): React.ReactElement {
+  const { x, y } = hexToPixel(annotation.coord);
+  const key = `${annotation.coord.q},${annotation.coord.r}`;
+
+  return (
+    <g
+      data-testid={`los-annotation-wall-${key}`}
+      data-icon="wall"
+      aria-label={annotation.title}
+    >
+      <title>{annotation.title}</title>
+      <rect
+        x={x - 11}
+        y={y - 10}
+        width={22}
+        height={20}
+        rx={2}
+        fill="#fee2e2"
+        stroke="#991b1b"
+        strokeWidth={1.5}
+      />
+      <line x1={x - 11} y1={y - 3} x2={x + 11} y2={y - 3} stroke="#991b1b" />
+      <line x1={x - 11} y1={y + 4} x2={x + 11} y2={y + 4} stroke="#991b1b" />
+      <line x1={x - 3} y1={y - 10} x2={x - 3} y2={y - 3} stroke="#991b1b" />
+      <line x1={x + 5} y1={y - 3} x2={x + 5} y2={y + 4} stroke="#991b1b" />
+      <line x1={x - 4} y1={y + 4} x2={x - 4} y2={y + 10} stroke="#991b1b" />
+    </g>
+  );
+}
+
+function BlockerAnnotation({
+  annotation,
+}: {
+  readonly annotation: LOSBlockerMetadata;
+}): React.ReactElement {
+  if (annotation.icon === 'wall') {
+    return <WallIcon annotation={annotation} />;
+  }
+
+  return <CoverIcon annotation={annotation} />;
+}
+
+function LineOfSightOverlayComponent({
+  origin,
+  target,
+  grid,
+  enabled = true,
+  fromElevation,
+  toElevation,
+  testId = 'line-of-sight-overlay',
+}: LineOfSightOverlayProps): React.ReactElement {
+  const classification = useMemo(() => {
+    if (!enabled || !origin || !target || !grid) return null;
+    return classifyLOS(origin, target, grid, { fromElevation, toElevation });
+  }, [enabled, fromElevation, grid, origin, target, toElevation]);
+
+  if (!classification || !origin || !target) {
+    return (
+      <g
+        pointerEvents="none"
+        data-testid={testId}
+        aria-label="Line of sight overlay"
+        aria-live="polite"
+      />
+    );
+  }
+
+  const style = LOS_STYLES[classification.state];
+  const start = hexToPixel(origin);
+  const end = hexToPixel(classification.lineEnd);
+  const announcement = announcementFor(classification);
+
+  return (
+    <g
+      pointerEvents="none"
+      data-testid={testId}
+      aria-label={announcement}
+      aria-live="polite"
+    >
+      <title>{announcement}</title>
+      <line
+        data-testid="los-line"
+        data-state={classification.state}
+        x1={start.x}
+        y1={start.y}
+        x2={end.x}
+        y2={end.y}
+        stroke={style.stroke}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeDasharray={style.dash}
+      />
+      {classification.blockerAnnotations.map((annotation) => (
+        <BlockerAnnotation
+          key={`${annotation.icon}-${annotation.coord.q},${annotation.coord.r}`}
+          annotation={annotation}
+        />
+      ))}
+    </g>
+  );
+}
+
+export const LineOfSightOverlay = React.memo(
+  LineOfSightOverlayComponent,
+  areLineOfSightOverlayPropsEqual,
+);
+
+export default LineOfSightOverlay;

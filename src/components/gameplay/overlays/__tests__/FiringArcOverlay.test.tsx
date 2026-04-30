@@ -1,0 +1,127 @@
+import '@testing-library/jest-dom';
+import { render, screen } from '@testing-library/react';
+
+import { Facing, type IHexCoordinate } from '@/types/gameplay';
+import { hexNeighbor } from '@/utils/gameplay/hexMath';
+
+import {
+  FiringArcOverlay,
+  areFiringArcOverlayPropsEqual,
+  type FiringArcOverlayProps,
+} from '../FiringArcOverlay';
+
+const origin: IHexCoordinate = { q: 0, r: 0 };
+const unit = {
+  unitId: 'atlas',
+  coord: origin,
+  facing: Facing.North,
+  prone: false,
+};
+
+const radiusOneHexes: readonly IHexCoordinate[] = [
+  origin,
+  hexNeighbor(origin, Facing.North),
+  hexNeighbor(origin, Facing.Northeast),
+  hexNeighbor(origin, Facing.Southeast),
+  hexNeighbor(origin, Facing.South),
+  hexNeighbor(origin, Facing.Southwest),
+  hexNeighbor(origin, Facing.Northwest),
+];
+
+function renderOverlay(props: Partial<FiringArcOverlayProps> = {}) {
+  return render(
+    <svg>
+      <FiringArcOverlay
+        unit={unit}
+        hexes={radiusOneHexes}
+        maxRange={1}
+        {...props}
+      />
+    </svg>,
+  );
+}
+
+describe('FiringArcOverlay', () => {
+  it('renders SVG-only arc shading with pointer events disabled and labels', () => {
+    const { container } = renderOverlay();
+
+    const overlay = screen.getByTestId('firing-arc-overlay');
+    expect(overlay).toHaveAttribute('pointer-events', 'none');
+    expect(overlay).toHaveAttribute('aria-label', 'Firing arc overlay');
+
+    const frontHex = screen.getByTestId('firing-arc-hex-0,-1');
+    expect(frontHex).toHaveAttribute('data-arc', 'front');
+    expect(frontHex).toHaveAttribute('aria-label', 'Front arc at (0, -1)');
+
+    const frontFill = screen.getByTestId('firing-arc-fill-0,-1');
+    expect(frontFill).toHaveAttribute('fill', '#22c55e');
+    expect(frontFill).toHaveAttribute('fill-opacity', '0.25');
+    expect(
+      screen.getByTestId('firing-arc-shape-front-0,-1'),
+    ).toBeInTheDocument();
+
+    expect(container.querySelectorAll('title').length).toBeGreaterThan(0);
+  });
+
+  it('renders side and rear style distinctions without shading the unit origin', () => {
+    renderOverlay();
+
+    expect(screen.queryByTestId('firing-arc-hex-0,0')).not.toBeInTheDocument();
+
+    const rightSideHex = screen.getByTestId('firing-arc-hex-1,0');
+    expect(rightSideHex).toHaveAttribute('data-arc', 'right-side');
+    expect(screen.getByTestId('firing-arc-fill-1,0')).toHaveAttribute(
+      'fill-opacity',
+      '0.2',
+    );
+    expect(
+      screen.getByTestId('firing-arc-shape-right-side-1,0'),
+    ).toBeInTheDocument();
+
+    const rearHex = screen.getByTestId('firing-arc-hex-0,1');
+    expect(rearHex).toHaveAttribute('data-arc', 'rear');
+    expect(screen.getByTestId('firing-arc-fill-0,1')).toHaveAttribute(
+      'fill',
+      '#f43f5e',
+    );
+    expect(screen.getByTestId('firing-arc-shape-rear-0,1')).toBeInTheDocument();
+  });
+
+  it('keeps out-of-range and hidden arcs unrendered', () => {
+    renderOverlay({
+      hexes: [...radiusOneHexes, { q: 0, r: -2 }],
+      maxRange: 1,
+      visibleArcs: ['rear'],
+    });
+
+    expect(screen.queryByTestId('firing-arc-hex-0,-2')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('firing-arc-hex-0,-1')).not.toBeInTheDocument();
+    expect(screen.getByTestId('firing-arc-hex-0,1')).toHaveAttribute(
+      'data-arc',
+      'rear',
+    );
+  });
+
+  it('exposes a memo comparator to avoid rerendering for semantically identical map props', () => {
+    const previous: FiringArcOverlayProps = {
+      unit,
+      hexes: radiusOneHexes,
+      maxRange: 1,
+      enabled: true,
+    };
+    const next: FiringArcOverlayProps = {
+      unit: { ...unit, coord: { ...unit.coord } },
+      hexes: radiusOneHexes.map((hex) => ({ ...hex })),
+      maxRange: 1,
+      enabled: true,
+    };
+
+    expect(areFiringArcOverlayPropsEqual(previous, next)).toBe(true);
+    expect(
+      areFiringArcOverlayPropsEqual(previous, {
+        ...next,
+        unit: { ...unit, facing: Facing.South },
+      }),
+    ).toBe(false);
+  });
+});
