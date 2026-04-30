@@ -2,13 +2,13 @@
 
 ## 1. Encounter → Session Linkage
 
-- [ ] 1.1 Extend `EncounterService.launchEncounter` signature: accept
+- [x] 1.1 Extend `EncounterService.launchEncounter` signature: accept
       `contractId?` and `scenarioId?` alongside the encounter
-- [ ] 1.2 Pass these into the `IGameSession` config as fields
+- [x] 1.2 Pass these into the `IGameSession` config as fields
       `encounterId`, `contractId`, `scenarioId`
-- [ ] 1.3 Assert that launched sessions have these fields populated when
+- [x] 1.3 Assert that launched sessions have these fields populated when
       the source is a contract (fail fast if they're null)
-- [ ] 1.4 Update `encounterToGameSession.ts` tests to assert linkage
+- [x] 1.4 Update `encounterToGameSession.ts` tests to assert linkage
 
 ## 2. Session Completion Emits Outcome Bus Event
 
@@ -26,8 +26,8 @@
 - [x] 3.2 On receipt, enqueue the outcome into
       `campaign.pendingBattleOutcomes` if `matchId` is not already present
       (idempotent push)
-- [ ] 3.3 Persist the queue alongside the campaign record
-- [ ] 3.4 Emit a campaign-level `PendingOutcomeAdded` event so the
+- [x] 3.3 Persist the queue alongside the campaign record
+- [x] 3.4 Emit a campaign-level `PendingOutcomeAdded` event so the
       dashboard can re-render
 
 ## 4. Review UI → Campaign Handoff
