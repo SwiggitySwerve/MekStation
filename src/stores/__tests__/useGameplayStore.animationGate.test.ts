@@ -85,11 +85,13 @@ describe('useGameplayStore animation gate', () => {
   beforeEach(() => {
     useGameplayStore.getState().reset();
     useAnimationQueue.getState().reset();
+    setReducedMotion(false);
   });
 
   afterEach(() => {
     useGameplayStore.getState().reset();
     useAnimationQueue.getState().reset();
+    setReducedMotion(false);
   });
 
   it('defers phase advancement until the animation queue drains', () => {
@@ -113,4 +115,82 @@ describe('useGameplayStore animation gate', () => {
 
     expect(calls.advancePhase).toBe(1);
   });
+
+  it('waits for sequential queued movement animations to fully drain', () => {
+    const { calls, interactiveSession, session } = buildInteractiveSession();
+    useGameplayStore.setState({ interactiveSession, session });
+    useAnimationQueue.getState().enqueue({
+      id: 'move-a',
+      mapId: 'map-1',
+      unitId: 'unit-a',
+      kind: 'movement',
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+    useAnimationQueue.getState().enqueue({
+      id: 'move-b',
+      mapId: 'map-1',
+      unitId: 'unit-b',
+      kind: 'movement',
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    useGameplayStore.getState().advanceInteractivePhase();
+
+    expect(calls.advancePhase).toBe(0);
+
+    useAnimationQueue.getState().complete('move-a');
+
+    expect(calls.advancePhase).toBe(0);
+    expect(useAnimationQueue.getState().active.map((item) => item.id)).toEqual([
+      'move-b',
+    ]);
+
+    useAnimationQueue.getState().complete('move-b');
+
+    expect(calls.advancePhase).toBe(1);
+  });
+
+  it('bypasses the gate when reduced motion is enabled', () => {
+    setReducedMotion(true);
+    const { calls, interactiveSession, session } = buildInteractiveSession();
+    useGameplayStore.setState({ interactiveSession, session });
+    useAnimationQueue.getState().enqueue({
+      id: 'move-a',
+      mapId: 'map-1',
+      unitId: 'unit-a',
+      kind: 'movement',
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    useGameplayStore.getState().advanceInteractivePhase();
+
+    expect(calls.advancePhase).toBe(1);
+  });
 });
+
+function setReducedMotion(matches: boolean): void {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn((query: string) => {
+      return {
+        matches: query === '(prefers-reduced-motion: reduce)' ? matches : false,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      } as MediaQueryList;
+    }),
+  });
+}

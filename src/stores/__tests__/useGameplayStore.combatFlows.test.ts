@@ -17,6 +17,7 @@
 
 import type { InteractiveSession } from '@/engine/GameEngine';
 
+import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
 import {
@@ -24,6 +25,8 @@ import {
   GameEventType,
   GamePhase,
   GameSide,
+  GameStatus,
+  LockState,
   MovementType,
   type IGameSession,
   type IPhysicalAttackDeclaredPayload,
@@ -121,6 +124,11 @@ function buildFakeSession(): {
 describe('useGameplayStore — combat-phase planning actions', () => {
   beforeEach(() => {
     useGameplayStore.getState().reset();
+    useAnimationQueue.getState().reset();
+  });
+
+  afterEach(() => {
+    useAnimationQueue.getState().reset();
   });
 
   describe('plannedMovement', () => {
@@ -194,6 +202,53 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       });
       expect(useGameplayStore.getState().plannedMovement).toBeNull();
       expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    });
+
+    it('commitPlannedMovement enqueues a 4-hex walk animation that holds phase advancement', () => {
+      const { session, calls } = buildMovementAnimationSession();
+      useGameplayStore.setState({
+        interactiveSession: session,
+        plannedMovement: {
+          destination: { q: 4, r: 0 },
+          facing: Facing.South,
+          movementType: MovementType.Walk,
+          path: [
+            { q: 0, r: 0 },
+            { q: 1, r: 0 },
+            { q: 2, r: 0 },
+            { q: 3, r: 0 },
+            { q: 4, r: 0 },
+          ],
+        },
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      useGameplayStore.getState().commitPlannedMovement();
+
+      expect(useAnimationQueue.getState().active).toHaveLength(1);
+      expect(useAnimationQueue.getState().active[0]).toMatchObject({
+        mapId: 'movement-session',
+        unitId: 'unit-a',
+        kind: 'movement',
+        mode: MovementType.Walk,
+        eventSequence: 0,
+        initialFacing: Facing.North,
+        finalFacing: Facing.South,
+      });
+      expect(useAnimationQueue.getState().active[0].path).toHaveLength(5);
+
+      useGameplayStore.getState().advanceInteractivePhase();
+
+      expect(calls.advancePhase).toBe(0);
+
+      useAnimationQueue
+        .getState()
+        .complete(useAnimationQueue.getState().active[0].id);
+
+      expect(calls.advancePhase).toBe(1);
     });
   });
 
@@ -281,6 +336,127 @@ describe('useGameplayStore — combat-phase planning actions', () => {
     });
   });
 });
+
+function buildMovementAnimationSession(): {
+  session: InteractiveSession;
+  calls: { advancePhase: number };
+} {
+  const calls = { advancePhase: 0 };
+  let sessionSnapshot: IGameSession = {
+    id: 'movement-session',
+    createdAt: '',
+    updatedAt: '',
+    config: {
+      mapRadius: 5,
+      turnLimit: 0,
+      victoryConditions: [],
+      optionalRules: [],
+    },
+    units: [
+      {
+        id: 'unit-a',
+        name: 'Unit A',
+        side: GameSide.Player,
+        unitRef: 'unit-a',
+        pilotRef: 'pilot-a',
+        gunnery: 4,
+        piloting: 5,
+      },
+    ],
+    events: [],
+    currentState: {
+      gameId: 'movement-session',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'unit-a': {
+          id: 'unit-a',
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+          facing: Facing.North,
+          heat: 0,
+          movementThisTurn: MovementType.Stationary,
+          hexesMovedThisTurn: 0,
+          armor: {},
+          structure: {},
+          destroyedLocations: [],
+          destroyedEquipment: [],
+          ammo: {},
+          pilotWounds: 0,
+          pilotConscious: true,
+          destroyed: false,
+          lockState: LockState.Planning,
+        },
+      },
+      turnEvents: [],
+    },
+  };
+
+  const fake = {
+    applyMovement: (
+      unitId: string,
+      to: { q: number; r: number },
+      facing: Facing,
+      movementType: MovementType,
+      path?: readonly { q: number; r: number }[],
+    ) => {
+      const event = {
+        id: 'movement-event-1',
+        gameId: sessionSnapshot.id,
+        sequence: sessionSnapshot.events.length,
+        timestamp: '2026-04-29T00:00:00.000Z',
+        type: GameEventType.MovementDeclared,
+        turn: 1,
+        phase: GamePhase.Movement,
+        actorId: unitId,
+        payload: {
+          unitId,
+          from: { q: 0, r: 0 },
+          to,
+          facing,
+          movementType,
+          ...(movementType !== MovementType.Stationary
+            ? { mode: movementType }
+            : {}),
+          path,
+          mpUsed: 4,
+          heatGenerated: 0,
+        },
+      };
+      sessionSnapshot = {
+        ...sessionSnapshot,
+        events: [...sessionSnapshot.events, event],
+        currentState: {
+          ...sessionSnapshot.currentState,
+          units: {
+            ...sessionSnapshot.currentState.units,
+            [unitId]: {
+              ...sessionSnapshot.currentState.units[unitId],
+              position: to,
+              facing,
+              movementThisTurn: movementType,
+              hexesMovedThisTurn: (path?.length ?? 1) - 1,
+              lockState: LockState.Locked,
+            },
+          },
+        },
+      };
+    },
+    getSession: () => sessionSnapshot,
+    getState: () => sessionSnapshot.currentState,
+    isGameOver: () => false,
+    advancePhase: () => {
+      calls.advancePhase += 1;
+    },
+  };
+
+  return {
+    session: fake as unknown as InteractiveSession,
+    calls,
+  };
+}
 
 // ---------------------------------------------------------------------------
 // usePhysicalAttackPlanStore — per add-physical-attack-phase-ui

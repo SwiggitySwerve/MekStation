@@ -15,9 +15,11 @@
  *        §Per-Type Token Rendering — dispatcher routes to correct renderer
  */
 
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
+import type { MovementTweenFrame } from '@/components/gameplay/animation/useMovementTween';
 import type { DamageFloaterEntry } from '@/components/gameplay/DamageFloater';
+import type { TacticalAnimation } from '@/stores/useAnimationQueue';
 import type {
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
@@ -27,8 +29,10 @@ import type {
   IUnitToken,
 } from '@/types/gameplay';
 
+import { useMovementTween } from '@/components/gameplay/animation/useMovementTween';
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
-import { GameEventType, TokenUnitType } from '@/types/gameplay';
+import { useAnimationQueue } from '@/stores/useAnimationQueue';
+import { GameEventType, MovementType, TokenUnitType } from '@/types/gameplay';
 
 import type { IUnitEventState } from './tokenTypes';
 
@@ -61,6 +65,8 @@ export interface UnitTokenForTypeProps {
    * and passes the result into the child renderer as `eventState`.
    */
   events?: readonly IGameEvent[];
+  /** Active movement animation for this unit, supplied by HexMapDisplay. */
+  movementAnimation?: TacticalAnimation;
   /**
    * All tokens on the map — used to locate the host mech when BA is mounted.
    * Only the token whose `unitId === baToken.mountedOn` is consulted.
@@ -147,12 +153,39 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   onClick,
   onDoubleClick,
   events,
+  movementAnimation,
   allTokens,
 }: UnitTokenForTypeProps): React.ReactElement | null {
   const eventState = useMemo(
     () => projectEvents(token.unitId, events),
     [token.unitId, events],
   );
+  const movementAnimationId = movementAnimation?.id;
+  const tweenPath = useMemo(
+    () =>
+      movementAnimation?.path && movementAnimation.path.length > 0
+        ? movementAnimation.path
+        : [token.position],
+    [movementAnimation?.path, token.position],
+  );
+  const tweenMode = movementAnimation?.mode ?? MovementType.Walk;
+  const handleAnimationDone = useCallback(() => {
+    if (!movementAnimationId) return;
+    useAnimationQueue.getState().complete(movementAnimationId);
+  }, [movementAnimationId]);
+  const tween = useMovementTween(tweenPath, tweenMode, handleAnimationDone, {
+    animationKey: movementAnimationId ?? `${token.unitId}:idle`,
+    initialFacing: movementAnimation?.initialFacing ?? token.facing,
+    finalFacing: movementAnimation?.finalFacing ?? token.facing,
+    projectHex: hexToPixel,
+  });
+
+  useEffect(() => {
+    if (!movementAnimationId) return undefined;
+    return () => {
+      useAnimationQueue.getState().complete(movementAnimationId);
+    };
+  }, [movementAnimationId]);
 
   // Double-click handler shared across mounted-badge and standalone
   // code paths. Per `add-minimap-and-camera-controls` task 2.3, we
@@ -192,7 +225,12 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     // Host not found yet (loading race) — fall through and render standalone.
   }
 
-  const { x, y } = hexToPixel(token.position);
+  const { x, y } = movementAnimation
+    ? { x: tween.x, y: tween.y }
+    : hexToPixel(token.position);
+  const renderToken = movementAnimation
+    ? { ...token, facing: tween.facing }
+    : token;
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -200,58 +238,87 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   };
 
   const wrapperProps = {
-    transform: `translate(${x}, ${y})`,
+    transform: `translate(${x}, ${y}) scale(${tween.scale})`,
     onClick: handleClick,
     onDoubleClick: handleDoubleClick,
     style: { cursor: 'pointer' as const },
     'data-testid': `unit-token-${token.unitId}`,
+    'data-animating': movementAnimation ? 'true' : undefined,
+    'data-animation-id': movementAnimationId,
   };
+
+  const jumpArc = renderJumpArc(token.unitId, movementAnimation, tween);
+  const wrap = (children: React.ReactElement): React.ReactElement => (
+    <>
+      {jumpArc}
+      <g {...wrapperProps}>{children}</g>
+    </>
+  );
 
   // Route to the correct renderer based on unitType.
   // `unitType` is optional for backward compat — absent means Mech (Phase 1).
   switch (token.unitType) {
     case TokenUnitType.Vehicle:
-      return (
-        <g {...wrapperProps}>
-          <VehicleToken token={token} eventState={eventState} />
-        </g>
-      );
+      return wrap(<VehicleToken token={renderToken} eventState={eventState} />);
 
     case TokenUnitType.Aerospace:
-      return (
-        <g {...wrapperProps}>
-          <AerospaceToken token={token} eventState={eventState} />
-        </g>
+      return wrap(
+        <AerospaceToken token={renderToken} eventState={eventState} />,
       );
 
     case TokenUnitType.BattleArmor:
-      return (
-        <g {...wrapperProps}>
-          <BattleArmorToken token={token} eventState={eventState} />
-        </g>
+      return wrap(
+        <BattleArmorToken token={renderToken} eventState={eventState} />,
       );
 
     case TokenUnitType.Infantry:
-      return (
-        <g {...wrapperProps}>
-          <InfantryToken token={token} eventState={eventState} />
-        </g>
+      return wrap(
+        <InfantryToken token={renderToken} eventState={eventState} />,
       );
 
     case TokenUnitType.ProtoMech:
-      return (
-        <g {...wrapperProps}>
-          <ProtoMechToken token={token} eventState={eventState} />
-        </g>
+      return wrap(
+        <ProtoMechToken token={renderToken} eventState={eventState} />,
       );
 
     case TokenUnitType.Mech:
     default:
       // Covers TokenUnitType.Mech AND undefined (legacy Phase-1 tokens).
-      return (
-        <g {...wrapperProps}>
-          <MechToken token={token} eventState={eventState} />
-        </g>
-      );
+      return wrap(<MechToken token={renderToken} eventState={eventState} />);
   }
 });
+
+function renderJumpArc(
+  unitId: string,
+  movementAnimation: TacticalAnimation | undefined,
+  tween: MovementTweenFrame,
+): React.ReactElement | null {
+  const path = movementAnimation?.path;
+  if (!path || path.length <= 1) return null;
+  if (movementAnimation.mode !== MovementType.Jump) return null;
+  if (tween.reducedMotion || tween.arcOpacity <= 0) return null;
+
+  const start = hexToPixel(path[0]);
+  const end = hexToPixel(path[path.length - 1]);
+  const distance = Math.hypot(end.x - start.x, end.y - start.y);
+  const lift = Math.max(24, distance * 0.2);
+  const control = {
+    x: start.x + (end.x - start.x) / 2,
+    y: start.y + (end.y - start.y) / 2 - lift,
+  };
+
+  return (
+    <path
+      data-testid={`jump-arc-${unitId}`}
+      d={`M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`}
+      fill="none"
+      stroke="#3b82f6"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeDasharray="5 5"
+      opacity={Math.min(0.45, tween.arcOpacity * 0.45)}
+      pointerEvents="none"
+      aria-hidden="true"
+    />
+  );
+}

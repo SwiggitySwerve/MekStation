@@ -19,6 +19,7 @@ import type { InteractivePhase } from '@/stores/useGameplayStore';
 import { pixelToHex } from '@/constants/hexMap';
 import { useCameraControls } from '@/hooks/useCameraControls';
 import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
+import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import {
   GamePhase,
@@ -34,6 +35,7 @@ import {
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
 } from '@/types/gameplay';
+import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
 
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
@@ -238,6 +240,8 @@ export function GameplayLayout({
   className = '',
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
+  const activeAnimations = useAnimationQueue((s) => s.active);
+  const queuedAnimations = useAnimationQueue((s) => s.queue);
   // Per `add-attack-phase-ui` § 2.2: subscribe to the locked-in attack
   // target id so the token for that specific unit can render a pulsing
   // red ring (distinct from the static validTarget ring painted on
@@ -363,6 +367,16 @@ export function GameplayLayout({
     }
     return lookup;
   }, [unitWeapons]);
+
+  const visibleEvents = useMemo(
+    () =>
+      filterEventsForMovementAnimations(
+        events,
+        [...activeAnimations, ...queuedAnimations],
+        session.id,
+      ),
+    [activeAnimations, events, queuedAnimations, session.id],
+  );
 
   const tokens = useMemo(() => {
     return Object.entries(currentState.units).map(([unitId, state]) => {
@@ -562,7 +576,7 @@ export function GameplayLayout({
         chassis={selectedUnitInfo.name}
         spas={selectedUnitId ? (unitSpas[selectedUnitId] ?? []) : []}
         unitId={selectedUnitId ?? undefined}
-        events={events}
+        events={visibleEvents}
         className="h-full"
       />
     ) : (
@@ -616,6 +630,8 @@ export function GameplayLayout({
           <HexMapDisplay
             radius={config.mapRadius}
             tokens={tokens}
+            mapId={session.id}
+            events={visibleEvents}
             selectedHex={selectedUnit?.position || null}
             movementRange={movementRange}
             highlightPath={highlightPath}
@@ -753,7 +769,7 @@ export function GameplayLayout({
 
       {/* Event Log */}
       <EventLogDisplay
-        events={events}
+        events={visibleEvents}
         collapsed={layout.eventLogCollapsed}
         onCollapsedChange={(collapsed) =>
           setLayout((prev) => ({ ...prev, eventLogCollapsed: collapsed }))

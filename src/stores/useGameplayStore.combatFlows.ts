@@ -16,16 +16,21 @@ import { create } from 'zustand';
 import type { InteractiveSession } from '@/engine/GameEngine';
 import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
 
+import { getPrefersReducedMotion } from '@/hooks/useReducedMotion';
 import {
   Facing,
   GamePhase,
+  GameEventType,
   IHexCoordinate,
   IGameSession,
   IGameplayUIState,
+  IMovementDeclaredPayload,
+  MovementAnimationMode,
   MovementType,
 } from '@/types/gameplay';
 import { declarePhysicalAttack } from '@/utils/gameplay/gameSession';
 
+import { useAnimationQueue } from './useAnimationQueue';
 import { InteractivePhase } from './useGameplayStore.helpers';
 
 /**
@@ -105,22 +110,94 @@ export function clearPlannedMovementLogic(set: SetFn): void {
 export function commitPlannedMovementLogic(get: GetFn, set: SetFn): void {
   const { interactiveSession, plannedMovement, ui } = get();
   if (!interactiveSession || !plannedMovement || !ui.selectedUnitId) return;
+  const unitId = ui.selectedUnitId;
+  const beforeSession = interactiveSession.getSession();
+  const initialFacing =
+    beforeSession.currentState.units[unitId]?.facing ?? plannedMovement.facing;
 
   interactiveSession.applyMovement(
-    ui.selectedUnitId,
+    unitId,
     plannedMovement.destination,
     plannedMovement.facing,
     plannedMovement.movementType,
     plannedMovement.path,
   );
+  const nextSession = interactiveSession.getSession();
+  enqueueCommittedMovementAnimation({
+    session: nextSession,
+    unitId,
+    initialFacing,
+    fallbackPath: plannedMovement.path,
+    fallbackMode: plannedMovement.movementType,
+  });
 
   set({
-    session: interactiveSession.getSession(),
+    session: nextSession,
     interactivePhase: InteractivePhase.SelectUnit,
     plannedMovement: null,
     validMovementHexes: [],
     ui: { ...get().ui, selectedUnitId: null },
   });
+}
+
+function enqueueCommittedMovementAnimation(args: {
+  readonly session: IGameSession;
+  readonly unitId: string;
+  readonly initialFacing: Facing;
+  readonly fallbackPath: readonly IHexCoordinate[];
+  readonly fallbackMode: MovementType;
+}): void {
+  if (getPrefersReducedMotion()) return;
+
+  const movementEvent = findLatestMovementDeclaredEvent(
+    args.session,
+    args.unitId,
+  );
+  if (!movementEvent) return;
+
+  const payload = movementEvent.payload as IMovementDeclaredPayload;
+  const path = payload.path ?? args.fallbackPath;
+  const mode = payload.mode ?? movementAnimationModeForType(args.fallbackMode);
+  if (!mode || path.length <= 1) return;
+
+  useAnimationQueue.getState().enqueue({
+    id: `movement-${movementEvent.id}`,
+    mapId: args.session.id,
+    unitId: args.unitId,
+    kind: 'movement',
+    path,
+    occupiedHexes: path,
+    mode,
+    initialFacing: args.initialFacing,
+    finalFacing: payload.facing,
+    eventSequence: movementEvent.sequence,
+  });
+}
+
+function findLatestMovementDeclaredEvent(
+  session: IGameSession,
+  unitId: string,
+) {
+  for (let index = session.events.length - 1; index >= 0; index -= 1) {
+    const event = session.events[index];
+    if (event.type !== GameEventType.MovementDeclared) continue;
+    const payload = event.payload as IMovementDeclaredPayload;
+    if (payload.unitId === unitId) return event;
+  }
+  return null;
+}
+
+function movementAnimationModeForType(
+  movementType: MovementType,
+): MovementAnimationMode | null {
+  switch (movementType) {
+    case MovementType.Walk:
+    case MovementType.Run:
+    case MovementType.Jump:
+      return movementType;
+    default:
+      return null;
+  }
 }
 
 // ---------------------------------------------------------------------------
