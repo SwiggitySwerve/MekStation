@@ -6,6 +6,7 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 
+import { toast } from '@/components/shared/Toast';
 import {
   publishCombatOutcome,
   type ICombatOutcomeReadyEvent,
@@ -18,7 +19,6 @@ import {
   matchLogStorage,
   type MatchLogStorage,
 } from '@/lib/p2p/matchLogStorage';
-import { toast } from '@/components/shared/Toast';
 import {
   calculateGameOutcome,
   isGameEnded,

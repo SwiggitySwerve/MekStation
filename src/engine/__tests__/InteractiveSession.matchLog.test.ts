@@ -30,8 +30,8 @@ if (typeof globalThis.structuredClone === 'undefined') {
 
 import type { IWeapon } from '@/simulation/ai/types';
 
-import { MatchLogStorage, matchLogStorage } from '@/lib/p2p/matchLogStorage';
 import { toast } from '@/components/shared/Toast';
+import { MatchLogStorage, matchLogStorage } from '@/lib/p2p/matchLogStorage';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GamePhase,
@@ -44,18 +44,19 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import {
+  createGameStartedEvent,
+  createPhaseChangedEvent,
+} from '@/utils/gameplay/gameEvents';
+import {
   advancePhase,
   createGameSession,
   startGame,
 } from '@/utils/gameplay/gameSession';
-import {
-  createGameStartedEvent,
-  createPhaseChangedEvent,
-} from '@/utils/gameplay/gameEvents';
+
+import type { IAdaptedUnit } from '../types';
 
 import { createMinimalGrid } from '../GameEngine.helpers';
 import { InteractiveSession } from '../InteractiveSession';
-import type { IAdaptedUnit } from '../types';
 
 const MATCH_ID = 'sess_rehydrate';
 const APPEND_MATCH_ID = 'sess_append';
@@ -180,7 +181,8 @@ function makeInteractiveSession(): InteractiveSession {
 }
 
 function makeAppendHarness(): IAppendAndPersistHarness {
-  const interactiveSession = makeInteractiveSession() as unknown as IAppendAndPersistHarness;
+  const interactiveSession =
+    makeInteractiveSession() as unknown as IAppendAndPersistHarness;
   interactiveSession.session = createGameSession(makeConfig(), makeUnits(), {
     id: APPEND_MATCH_ID,
     createdAt: '2026-04-30T00:00:00.000Z',

@@ -111,9 +111,7 @@ export interface IGameSessionChannel {
   readonly broadcastReconnectReject: (
     rejection: Omit<IReconnectRejectEnvelope, 'kind'>,
   ) => void;
-  readonly onReconnectReject: (
-    callback: ReconnectRejectCallback,
-  ) => () => void;
+  readonly onReconnectReject: (callback: ReconnectRejectCallback) => () => void;
 }
 
 export interface IGameSessionChannelOptions {

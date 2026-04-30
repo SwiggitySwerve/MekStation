@@ -22,13 +22,13 @@ import {
   GameLoading,
 } from '@/components/gameplay/pages/GameSessionPage.states';
 import {
-  useGameplaySelector,
-  InteractivePhase,
-} from '@/stores/useGameplayStore';
-import {
   deriveReconnectRoomCode,
   useP2PReconnectSession,
 } from '@/hooks/useP2PReconnectSession';
+import {
+  useGameplaySelector,
+  InteractivePhase,
+} from '@/stores/useGameplayStore';
 import {
   Facing,
   GamePhase,

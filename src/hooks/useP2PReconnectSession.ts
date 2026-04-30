@@ -78,7 +78,8 @@ export function useP2PReconnectSession(
     };
 
     const getLastSequence =
-      options.getLastSequence ?? matchLogStorage.getLastSequence.bind(matchLogStorage);
+      options.getLastSequence ??
+      matchLogStorage.getLastSequence.bind(matchLogStorage);
     const getMatchMetadata =
       options.getMatchMetadata ??
       matchLogStorage.getMatchMetadata.bind(matchLogStorage);
@@ -264,7 +265,8 @@ function defaultRedirectToLobby(matchId: string, reason: string): void {
 
 function defaultGetHostEventsFromSeq(seq: number): readonly IGameEvent[] {
   const interactiveSession = useGameplayStore.getState().interactiveSession;
-  const session = interactiveSession?.getSession() ?? useGameplayStore.getState().session;
+  const session =
+    interactiveSession?.getSession() ?? useGameplayStore.getState().session;
   return (session?.events ?? [])
     .filter((event) => event.sequence >= seq)
     .sort((left, right) => left.sequence - right.sequence);

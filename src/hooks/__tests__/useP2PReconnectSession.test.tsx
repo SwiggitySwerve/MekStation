@@ -44,8 +44,9 @@ function makeHydratedSession(): IGameSession {
 }
 
 function makeChannel() {
-  let replayCallback: Parameters<IGameSessionChannel['onReplayStream']>[0] =
-    () => undefined;
+  let replayCallback: Parameters<
+    IGameSessionChannel['onReplayStream']
+  >[0] = () => undefined;
 
   const channel = {
     broadcastEvent: jest.fn(),
@@ -126,9 +127,9 @@ describe('useP2PReconnectSession', () => {
     });
 
     await waitFor(() => expect(appendReplayEvent).toHaveBeenCalledTimes(2));
-    expect(appendReplayEvent.mock.calls.map(([, event]) => event.sequence)).toEqual([
-      6, 7,
-    ]);
+    expect(
+      appendReplayEvent.mock.calls.map(([, event]) => event.sequence),
+    ).toEqual([6, 7]);
     expect(setLive).toHaveBeenCalledTimes(1);
   });
 

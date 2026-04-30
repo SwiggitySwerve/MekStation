@@ -1,25 +1,34 @@
-import { describe, expect, it, jest, beforeEach, afterEach } from '@jest/globals';
+import {
+  describe,
+  expect,
+  it,
+  jest,
+  beforeEach,
+  afterEach,
+} from '@jest/globals';
 
-jest.mock('src/lib/p2p/matchLogStorage', () => {
-  const actual =
-    jest.requireActual<typeof import('@/lib/p2p/matchLogStorage')>(
-      '@/lib/p2p/matchLogStorage',
-    );
-  return {
-    ...actual,
-    matchLogStorage: {
-      appendEvent: jest.fn(),
-      getEventsForMatch: jest.fn(),
-      getLastSequence: jest.fn(),
-    },
-  };
-}, { virtual: true });
+jest.mock(
+  'src/lib/p2p/matchLogStorage',
+  () => {
+    const actual = jest.requireActual<
+      typeof import('@/lib/p2p/matchLogStorage')
+    >('@/lib/p2p/matchLogStorage');
+    return {
+      ...actual,
+      matchLogStorage: {
+        appendEvent: jest.fn(),
+        getEventsForMatch: jest.fn(),
+        getLastSequence: jest.fn(),
+      },
+    };
+  },
+  { virtual: true },
+);
 
 jest.mock('@/lib/p2p/matchLogStorage', () => {
-  const actual =
-    jest.requireActual<typeof import('@/lib/p2p/matchLogStorage')>(
-      '@/lib/p2p/matchLogStorage',
-    );
+  const actual = jest.requireActual<typeof import('@/lib/p2p/matchLogStorage')>(
+    '@/lib/p2p/matchLogStorage',
+  );
   return {
     ...actual,
     matchLogStorage: {
@@ -42,10 +51,11 @@ if (typeof globalThis.structuredClone === 'undefined') {
   });
 }
 
+import type { IWeapon } from '@/simulation/ai/types';
+
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { matchLogStorage } from '@/lib/p2p/matchLogStorage';
-import type { IWeapon } from '@/simulation/ai/types';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameSide,
@@ -356,8 +366,7 @@ describe('reconnect persistence integration', () => {
       async (matchId: string) => localLogs.get(matchId) ?? [],
     );
     mockedMatchLogStorage.getLastSequence.mockImplementation(
-      async (matchId: string) =>
-        localLogs.get(matchId)?.at(-1)?.sequence ?? -1,
+      async (matchId: string) => localLogs.get(matchId)?.at(-1)?.sequence ?? -1,
     );
     // No gameplay Zustand store is imported in the reference tests; keep the
     // local status stub in each test initialized to live.
@@ -442,14 +451,16 @@ describe('reconnect persistence integration', () => {
       replayEventsFrom(send.parsed),
     );
     await Promise.all(
-      replayedEvents.map((event) => matchLogStorage.appendEvent(matchId, event)),
+      replayedEvents.map((event) =>
+        matchLogStorage.appendEvent(matchId, event),
+      ),
     );
     const restoredEvents = await matchLogStorage.getEventsForMatch(matchId);
     expect(hostSock2.sent.map((send) => send.parsed.kind)).toEqual(
       expect.arrayContaining(['ReplayStart', 'ReplayEnd']),
     );
-    await expect(
-      hydrateCurrentState(matchId, restoredEvents),
-    ).resolves.toEqual(await hydrateCurrentState(matchId, hostEvents));
+    await expect(hydrateCurrentState(matchId, restoredEvents)).resolves.toEqual(
+      await hydrateCurrentState(matchId, hostEvents),
+    );
   });
 });

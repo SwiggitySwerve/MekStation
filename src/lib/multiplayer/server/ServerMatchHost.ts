@@ -554,7 +554,9 @@ export class ServerMatchHost {
     request: IReconnectRequestEnvelope,
     channel: Pick<
       IGameSessionChannel,
-      'broadcastRejection' | 'broadcastReconnectReject' | 'broadcastReplayStream'
+      | 'broadcastRejection'
+      | 'broadcastReconnectReject'
+      | 'broadcastReplayStream'
     >,
     metadataReader: ReconnectMetadataReader = matchLogStorage,
   ): Promise<void> {
