@@ -44,9 +44,9 @@ IGameEvent[]}` containing all events with `seq > lastLocalSeq`
 
 - [x] 5.1 Add `localMatchStatus: 'live' | 'guestPending' | 'hostPending'
 | 'aborted'` to `useGameplayStore`
-- [ ] 5.2 Host sets `guestPending` when the guest's Yjs awareness is
+- [x] 5.2 Host sets `guestPending` when the guest's Yjs awareness is
       lost and the match is mid-play
-- [ ] 5.3 Guest sets `hostPending` when the host's Yjs awareness is lost
+- [x] 5.3 Guest sets `hostPending` when the host's Yjs awareness is lost
       but the local log is preserved
 - [x] 5.4 `localMatchStatus` is a local UI concern; it is NOT written
       to the session event log
@@ -54,12 +54,12 @@ IGameEvent[]}` containing all events with `seq > lastLocalSeq`
 ## 6. Grace Window
 
 - [x] 6.1 Grace window defaults to 60 seconds (configurable per match)
-- [ ] 6.2 During the grace window, the host pauses phase advancement
+- [x] 6.2 During the grace window, the host pauses phase advancement
       and shows a banner: `"Waiting for opponent to reconnect
 (NN seconds remaining)..."`
-- [ ] 6.3 If grace expires: host appends `GameEnded` with `reason:
+- [x] 6.3 If grace expires: host appends `GameEnded` with `reason:
 'aborted'`; the session enters `Completed` normally
-- [ ] 6.4 If the guest reconnects within the grace window, `localMatch
+- [x] 6.4 If the guest reconnects within the grace window, `localMatch
 Status` returns to `'live'` and play resumes
 
 ## 7. Host-Side Replay API
@@ -68,7 +68,7 @@ Status` returns to `'live'` and play resumes
       from its in-memory log
 - [x] 7.2 Replay response is streamed in chunks of 64 events max per
       message to avoid large single messages
-- [ ] 7.3 Host rejects `reconnect-request` if `matchId` doesn't match
+- [x] 7.3 Host rejects `reconnect-request` if `matchId` doesn't match
       the host's current session
 
 ## 8. Guest-Side Late Join
@@ -81,18 +81,18 @@ Status` returns to `'live'` and play resumes
 
 ## 9. Persistence Cleanup
 
-- [ ] 9.1 On `GameEnded`, mark the match metadata as `status:
+- [x] 9.1 On `GameEnded`, mark the match metadata as `status:
 'completed'` but retain the event log for 7 days
-- [ ] 9.2 Add a `purgeOldMatches()` helper that deletes match logs
+- [x] 9.2 Add a `purgeOldMatches()` helper that deletes match logs
       older than 7 days on app startup
-- [ ] 9.3 Manual purge via debug console (`window.__mekstationDebug`)
+- [x] 9.3 Manual purge via debug console (`window.__mekstationDebug`)
 
 ## 10. Tests
 
 - [x] 10.1 Unit test: save 20 events, hydrate, verify `currentState`
 - [ ] 10.2 Integration test using mock sync: guest drops after turn 3
       event 5, reconnects, catches up to turn 4 event 9
-- [ ] 10.3 Integration test: guest drops, grace window expires, host
+- [x] 10.3 Integration test: guest drops, grace window expires, host
       match ends with `aborted`
 - [ ] 10.4 Integration test: host drops, guest holds its local log,
       host returns, guest catches up from host's log

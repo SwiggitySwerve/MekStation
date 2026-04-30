@@ -12,7 +12,7 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-The active queue currently has one complete change and eleven in-progress
+The active queue currently has two complete changes and ten in-progress
 changes. Wave 0 reconciliation marked already proven source, test, and
 spec-admin tasks complete; later wave work has advanced several changes, but
 the remaining unchecked tasks are implementation work or intentionally
@@ -25,8 +25,8 @@ unproven partials.
 | `add-multi-type-record-sheet-export` | 46/54 | Phase 6 export |
 | `add-p2p-game-session-sync` | 12/33 | Phase 4 multiplayer |
 | `add-game-session-invite-and-lobby-1v1` | 29/39 | Phase 4 multiplayer |
-| `add-game-session-persistence-for-reconnect` | 19/39 | Phase 4 multiplayer |
-| `add-fog-of-war-event-filtering` | 22/39 | Phase 4/4.5 multiplayer |
+| `add-game-session-persistence-for-reconnect` | 29/39 | Phase 4 multiplayer |
+| `add-fog-of-war-event-filtering` | 39/39 | Phase 4/4.5 multiplayer |
 | `add-movement-interpolation-animations` | 44/45 | Phase 7 tactical visuals |
 | `add-los-and-firing-arc-overlays` | 43/56 | Phase 7 tactical visuals |
 | `add-attack-visual-effects` | 41/48 | Phase 7 tactical visuals |
@@ -178,22 +178,24 @@ After Wave 1 contracts land:
 
 ### Wave 4: Multiplayer Hardening
 
-Current status after the 2026-04-30 Wave 4 foundation slice:
+Current status after the 2026-04-30 Wave 4 hardening slice:
 
-- `add-game-session-persistence-for-reconnect` is at 19/39. Completed
-  foundations include IndexedDB match logs, session hydration, 60s replay/grace
-  constants, host `getEventsFromSeq`, 64-event replay chunks, P2P replay helper
-  envelopes, local-only pending status fields, and focused unit tests. Remaining
-  work includes page-load reconnect wiring, Yjs awareness pending hooks,
-  grace-window pause/abort behavior, late-join rejection, cleanup/purge, and
-  integration tests.
-- `add-fog-of-war-event-filtering` is at 22/39. Completed foundations include
-  visibility helpers, standalone event classification/filtering, redaction
-  rules, fog match creation config, lobby checkbox, cache invalidation, and
-  focused unit tests. Remaining work includes literal event visibility tags or
-  an artifact decision to keep helper classification, server broadcast
-  integration, filtered replay, client rendering, integration tests, and
-  performance benchmarks.
+- `add-game-session-persistence-for-reconnect` is at 29/39. Completed
+  foundations now include IndexedDB match logs, session hydration, 60s
+  replay/grace constants, host `getEventsFromSeq`, 64-event replay chunks,
+  local-only pending status fields, Yjs awareness-derived pending states,
+  server-side grace pause/resume/abort handling, wrong-match rejection, match-log
+  completion/purge/debug cleanup, and focused unit tests. Remaining work is the
+  P2P page-load reconnect loop: `InteractiveSession` append persistence,
+  URL/late-join reconnect activation, host replay response wiring, guest replay
+  application, host-absent local-log fallback, running-match rejection, and two
+  mock-sync catch-up tests.
+- `add-fog-of-war-event-filtering` is complete at 39/39 and ready for verify /
+  archive after merge. Completed work includes visibility tags/classification,
+  standalone filtering/redaction, server per-recipient broadcast integration,
+  filtered reconnect replay, client fog token projection, hidden designation
+  redaction, last-known/sensor rendering, integration tests for LOS loss/re-entry
+  and ambush redaction, fog-disabled no-op coverage, and LOS performance guards.
 
 1. `add-game-session-persistence-for-reconnect`
    - Storage and `InteractiveSession.fromMatchLog` can start early.
