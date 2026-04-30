@@ -14,7 +14,10 @@ export {
   lockMovement,
   declareAttack,
   lockAttack,
+  type ICreateGameSessionOptions,
 } from './gameSessionCore';
+
+export { buildGameSessionFromLobbyState } from './lobbySessionBuilder';
 
 export {
   resolveAttack,

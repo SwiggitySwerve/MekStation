@@ -76,6 +76,7 @@ export {
   usePeerCount,
   useIsConnected,
   useLocalPeerName,
+  useSyncRoomSelector,
 } from './useSyncRoomStore';
 
 export {
@@ -125,6 +126,19 @@ export {
   type IGameSessionAwarenessState,
   type IGameSessionRoleOptions,
 } from './gameSessionRoles';
+
+export {
+  LOBBY_MAP_NAME,
+  LOBBY_STATE_KEY,
+  createLobbyChannel,
+  readLobbyState,
+  type ILobbyChannel,
+  type ILobbyChannelOptions,
+  type ILobbyChannelResult,
+  type LobbyRejectionCallback,
+  type LobbyRejectionReason,
+  type LobbyStateCallback,
+} from './lobbyChannel';
 
 // Hooks
 export { useSyncRoom, type UseSyncRoomReturn } from './useSyncRoom';

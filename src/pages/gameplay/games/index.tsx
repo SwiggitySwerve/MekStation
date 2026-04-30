@@ -7,9 +7,10 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import { PageLayout, Card, Button, EmptyState, Badge } from '@/components/ui';
+import { normalizeRoomCode, useSyncRoomSelector } from '@/lib/p2p';
 
 // =============================================================================
 // Types
@@ -100,6 +101,10 @@ function GameCard({ game, onClick }: GameCardProps): React.ReactElement {
 
 export default function GamesListPage(): React.ReactElement {
   const router = useRouter();
+  const [joinCode, setJoinCode] = useState('');
+  const [networkError, setNetworkError] = useState<string | null>(null);
+  const createRoom = useSyncRoomSelector((state) => state.createRoom);
+  const joinRoom = useSyncRoomSelector((state) => state.joinRoom);
 
   // Handle game click
   const handleGameClick = useCallback(
@@ -113,6 +118,32 @@ export default function GamesListPage(): React.ReactElement {
   const handleNewGame = useCallback(() => {
     router.push('/gameplay/games/demo');
   }, [router]);
+
+  const handleCreateNetworked = useCallback(async () => {
+    setNetworkError(null);
+    try {
+      const code = await createRoom();
+      await router.push(`/gameplay/lobby/${encodeURIComponent(code)}?host=1`);
+    } catch (error) {
+      setNetworkError(
+        error instanceof Error ? error.message : 'Failed to create lobby',
+      );
+    }
+  }, [createRoom, router]);
+
+  const handleJoinNetworked = useCallback(async () => {
+    const code = normalizeRoomCode(joinCode);
+    if (!code) return;
+    setNetworkError(null);
+    try {
+      await joinRoom(code);
+      await router.push(`/gameplay/lobby/${encodeURIComponent(code)}`);
+    } catch (error) {
+      setNetworkError(
+        error instanceof Error ? error.message : 'Failed to join lobby',
+      );
+    }
+  }, [joinCode, joinRoom, router]);
 
   return (
     <PageLayout
@@ -129,6 +160,45 @@ export default function GamesListPage(): React.ReactElement {
         </Button>
       }
     >
+      <section className="mb-6 rounded-lg border border-slate-800 bg-slate-950 p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-100">
+              Networked 1v1
+            </h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Create or join a peer-to-peer lobby.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button variant="success" onClick={handleCreateNetworked}>
+              Create Lobby
+            </Button>
+            <div className="flex gap-2">
+              <input
+                aria-label="Networked 1v1 room code"
+                value={joinCode}
+                onChange={(event) => setJoinCode(event.target.value)}
+                placeholder="Room code"
+                className="min-h-[44px] rounded-lg border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 uppercase"
+              />
+              <Button
+                variant="secondary"
+                onClick={handleJoinNetworked}
+                disabled={normalizeRoomCode(joinCode).length === 0}
+              >
+                Join
+              </Button>
+            </div>
+          </div>
+        </div>
+        {networkError && (
+          <p className="mt-3 text-sm text-rose-300" role="alert">
+            {networkError}
+          </p>
+        )}
+      </section>
+
       {/* Games Grid */}
       {DEMO_GAMES.length === 0 ? (
         <EmptyState
