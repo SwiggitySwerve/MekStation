@@ -3,9 +3,7 @@
 ## Purpose
 
 TBD - created by archiving change document-heat-overflow-effects. Update Purpose after archive.
-
 ## Requirements
-
 ### Requirement: Heat Scale Thresholds
 
 The system SHALL define heat scale effects at MegaMek canonical thresholds, sourced from a single authoritative constants module (`src/constants/heat.ts`).
@@ -213,3 +211,34 @@ Heat effects SHALL be evaluated every heat phase and at each relevant trigger po
 - **GIVEN** a unit at heat 25
 - **WHEN** the heat phase runs pilot-damage check
 - **THEN** the pilot SHALL take 2 damage
+
+### Requirement: Heat Threshold Events For UI
+
+The heat overflow system SHALL emit structured heat-threshold events
+so the UI layer can subscribe to transitions without polling state.
+
+#### Scenario: HeatChanged event carries old and new thresholds
+
+- **GIVEN** a unit's heat changes
+- **WHEN** `HeatChanged` is emitted
+- **THEN** the payload SHALL contain `previousHeat`, `currentHeat`,
+  `previousThreshold`, and `currentThreshold`
+- **AND** threshold values SHALL be one of `normal | warm | hot |
+overheat | critical`
+
+#### Scenario: AmmoExplosionRiskEntered fires on threshold cross
+
+- **GIVEN** a unit's heat enters the ammo-explosion-risk range
+- **WHEN** the crossing happens
+- **THEN** an `AmmoExplosionRiskEntered` event SHALL be emitted
+- **AND** when heat drops out of the range, an
+  `AmmoExplosionRiskExited` event SHALL be emitted
+
+#### Scenario: Startup event carries pass/fail outcome
+
+- **GIVEN** a shutdown unit attempts restart
+- **WHEN** the `Startup` event is emitted
+- **THEN** the payload SHALL contain `success: boolean`
+- **AND** failure SHALL be distinguishable from success so the UI can
+  pick the correct pulse variant
+
