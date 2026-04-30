@@ -15,17 +15,17 @@ IGameEvent, savedAt: ISO8601}`; primary key `[matchId, sequence]`
 
 - [ ] 2.1 `InteractiveSession.appendEvent` on both host and guest writes
       to IndexedDB after the in-memory append succeeds
-- [ ] 2.2 `IGameSession` carries a `matchId` (already present after
+- [x] 2.2 `IGameSession` carries a `matchId` (already present after
       `add-game-session-invite-and-lobby-1v1`)
 - [ ] 2.3 Persistence is fire-and-forget but errors are logged; state
       mismatch between disk and memory is surfaced as a toast
 
 ## 3. Hydration From Log
 
-- [ ] 3.1 `InteractiveSession.fromMatchLog(matchId)` reads all events
+- [x] 3.1 `InteractiveSession.fromMatchLog(matchId)` reads all events
       from IndexedDB and rebuilds the session
-- [ ] 3.2 Hydration replays events into `deriveState` in sequence
-- [ ] 3.3 Unit test: a session saved then hydrated produces an
+- [x] 3.2 Hydration replays events into `deriveState` in sequence
+- [x] 3.3 Unit test: a session saved then hydrated produces an
       identical `currentState`
 
 ## 4. Reconnect Protocol (Guest → Host)
@@ -89,7 +89,7 @@ Status` returns to `'live'` and play resumes
 
 ## 10. Tests
 
-- [ ] 10.1 Unit test: save 20 events, hydrate, verify `currentState`
+- [x] 10.1 Unit test: save 20 events, hydrate, verify `currentState`
 - [ ] 10.2 Integration test using mock sync: guest drops after turn 3
       event 5, reconnects, catches up to turn 4 event 9
 - [ ] 10.3 Integration test: guest drops, grace window expires, host
