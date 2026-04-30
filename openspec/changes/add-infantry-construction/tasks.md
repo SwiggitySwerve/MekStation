@@ -54,8 +54,8 @@
 ## 7. Anti-Mech Training
 
 - [x] 7.1 Boolean flag: `antiMechTraining = true/false`
-- [ ] 7.2 Enables leg / swarm attacks in combat (similar to BA but simpler)
-- [ ] 7.3 Adds to training cost (BV multiplier at BV calc step)
+- [x] 7.2 Enables leg / swarm attacks in combat (similar to BA but simpler)
+- [x] 7.3 Adds to training cost (BV multiplier at BV calc step)
 - [x] 7.4 Validation: only Foot / Jump / Mechanized may learn anti-mech
 
 ## 8. Construction Validation Rules
@@ -70,12 +70,12 @@
 ## 9. Store and UI Wiring
 
 - [x] 9.1 Wire `infantryStore` to persist new state
-- [ ] 9.2 Enhance `InfantryBuildTab` to expose all fields
-- [ ] 9.3 Status bar displays platoon strength, effective MP, kit modifiers
+- [x] 9.2 Enhance `InfantryBuildTab` to expose all fields
+- [x] 9.3 Status bar displays platoon strength, effective MP, kit modifiers
 - [x] 9.4 Field gun section adds/edits field gun
 
 ## 10. Validation
 
 - [x] 10.1 `openspec validate add-infantry-construction --strict`
 - [x] 10.2 Fixtures: Foot Rifle Platoon, Jump SRM Platoon, Mechanized MG Platoon, Field Gun (AC/5) Platoon
-- [ ] 10.3 Build + lint clean
+- [x] 10.3 Build + lint clean
