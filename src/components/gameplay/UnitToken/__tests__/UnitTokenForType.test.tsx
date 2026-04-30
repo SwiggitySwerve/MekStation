@@ -16,7 +16,7 @@
 import { act, render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IGameEvent, IUnitToken } from '@/types/gameplay';
 
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import {
@@ -24,6 +24,8 @@ import {
   TokenUnitType,
   Facing,
   MovementType,
+  GameEventType,
+  GamePhase,
 } from '@/types/gameplay';
 
 import { UnitTokenForType } from '../UnitTokenForType';
@@ -54,6 +56,23 @@ function makeToken(overrides: Partial<IUnitToken> = {}): IUnitToken {
   };
 }
 
+function makeEvent(
+  type: GameEventType,
+  payload: IGameEvent['payload'],
+  sequence = 1,
+): IGameEvent {
+  return {
+    id: `${type}-${sequence}`,
+    gameId: 'game',
+    sequence,
+    timestamp: `2026-04-29T00:00:0${sequence}.000Z`,
+    type,
+    turn: 1,
+    phase: GamePhase.Heat,
+    payload,
+  };
+}
+
 // =============================================================================
 // Dispatcher routing — each unitType → correct wrapper data-testid
 // =============================================================================
@@ -63,11 +82,15 @@ describe('UnitTokenForType dispatcher routing', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    useAnimationQueue.getState().reset();
+    act(() => {
+      useAnimationQueue.getState().reset();
+    });
   });
 
   afterEach(() => {
-    useAnimationQueue.getState().reset();
+    act(() => {
+      useAnimationQueue.getState().reset();
+    });
   });
 
   it('renders a <g> with data-testid="unit-token-unit-1" for any token', () => {
@@ -286,15 +309,126 @@ describe('UnitTokenForType event projection', () => {
     // MechToken renders data-testid="unit-destroyed-overlay" when destroyed.
     expect(screen.getByTestId('unit-destroyed-overlay')).toBeInTheDocument();
   });
+
+  it('projects heat events into token heat and ammo-risk visuals', () => {
+    const token = makeToken({ unitId: 'hot-mech' });
+    renderInSvg(
+      <UnitTokenForType
+        token={token}
+        onClick={jest.fn()}
+        events={[
+          makeEvent(GameEventType.HeatGenerated, {
+            unitId: 'hot-mech',
+            amount: 10,
+            source: 'firing',
+            previousTotal: 8,
+            newTotal: 19,
+            ammoExplosionRisk: true,
+          }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId('heat-glow')).toHaveAttribute(
+      'data-heat-threshold',
+      'overheat',
+    );
+    expect(screen.getByTestId('ammo-explosion-aura')).toHaveAttribute(
+      'data-risk-heat',
+      '19',
+    );
+  });
+
+  it('keeps shutdown visible after a failed startup attempt', () => {
+    const token = makeToken({ unitId: 'shutdown-mech' });
+    renderInSvg(
+      <UnitTokenForType
+        token={token}
+        onClick={jest.fn()}
+        events={[
+          makeEvent(
+            GameEventType.ShutdownCheck,
+            {
+              unitId: 'shutdown-mech',
+              heatLevel: 18,
+              targetNumber: 6,
+              roll: 4,
+              shutdownOccurred: true,
+            },
+            1,
+          ),
+          makeEvent(
+            GameEventType.StartupAttempt,
+            {
+              unitId: 'shutdown-mech',
+              targetNumber: 6,
+              roll: 5,
+              success: false,
+            },
+            2,
+          ),
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId('shutdown-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('startup-pulse')).toHaveAttribute(
+      'data-outcome',
+      'failure',
+    );
+  });
+
+  it('clears shutdown after a successful startup attempt', () => {
+    const token = makeToken({ unitId: 'restarted-mech' });
+    renderInSvg(
+      <UnitTokenForType
+        token={token}
+        onClick={jest.fn()}
+        events={[
+          makeEvent(
+            GameEventType.ShutdownCheck,
+            {
+              unitId: 'restarted-mech',
+              heatLevel: 18,
+              targetNumber: 6,
+              roll: 4,
+              shutdownOccurred: true,
+            },
+            1,
+          ),
+          makeEvent(
+            GameEventType.StartupAttempt,
+            {
+              unitId: 'restarted-mech',
+              targetNumber: 6,
+              roll: 8,
+              success: true,
+            },
+            2,
+          ),
+        ]}
+      />,
+    );
+
+    expect(screen.queryByTestId('shutdown-overlay')).toBeNull();
+    expect(screen.getByTestId('startup-pulse')).toHaveAttribute(
+      'data-outcome',
+      'success',
+    );
+  });
 });
 
 describe('UnitTokenForType movement animation integration', () => {
   beforeEach(() => {
-    useAnimationQueue.getState().reset();
+    act(() => {
+      useAnimationQueue.getState().reset();
+    });
   });
 
   afterEach(() => {
-    useAnimationQueue.getState().reset();
+    act(() => {
+      useAnimationQueue.getState().reset();
+    });
   });
 
   it('renders an active movement at the tween start and completes it on unmount', () => {

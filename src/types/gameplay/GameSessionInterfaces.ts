@@ -408,6 +408,20 @@ export type MovementAnimationMode =
   | MovementType.Run
   | MovementType.Jump;
 
+export type AttackVisualCategory =
+  | 'laser'
+  | 'missile'
+  | 'ballistic'
+  | 'physical'
+  | 'energy';
+
+export type HeatVisualThreshold =
+  | 'normal'
+  | 'warm'
+  | 'hot'
+  | 'overheat'
+  | 'critical';
+
 /**
  * Movement declared event payload.
  */
@@ -530,6 +544,22 @@ export interface IAttackResolvedPayload {
    */
   readonly ammoBinId?: string | null;
   /**
+   * Phase 7 tactical visual hint. Optional so existing event streams and
+   * combat resolvers remain replay-compatible; UI layers may derive a
+   * category from weapon metadata when this is absent.
+   */
+  readonly visualCategory?: AttackVisualCategory;
+  /**
+   * Stable subtype key for visual color/stagger maps, such as
+   * `medium-laser`, `lrm-20`, or `kick`. Optional for legacy streams.
+   */
+  readonly visualSubtype?: string;
+  /**
+   * Projectile/tracer count for cluster and multi-shot weapons. Optional
+   * because non-cluster weapons can render a single primitive by default.
+   */
+  readonly projectileCount?: number;
+  /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): every individual
    * d6 the server consumed for this event, in consumption order
    * (typically the to-hit 2d6 + the location 2d6 on hit). OPTIONAL so
@@ -607,6 +637,20 @@ export interface IHeatPayload {
     | 'external';
   /** New total heat */
   readonly newTotal: number;
+  /**
+   * Previous total heat when known. Optional because legacy event creators
+   * only carried the post-event total.
+   */
+  readonly previousTotal?: number;
+  /**
+   * UI threshold transition metadata for Phase 7 heat indicators. Optional
+   * so renderers can derive it from `previousTotal`/`newTotal` or fall back
+   * to `newTotal` alone for old replays.
+   */
+  readonly previousThreshold?: HeatVisualThreshold;
+  readonly currentThreshold?: HeatVisualThreshold;
+  /** Whether the new heat total is in the ammo-explosion warning band. */
+  readonly ammoExplosionRisk?: boolean;
   /**
    * Per `wire-heat-generation-and-effects` task 13.2: optional
    * dissipation breakdown. Populated only on `HeatDissipated` events
