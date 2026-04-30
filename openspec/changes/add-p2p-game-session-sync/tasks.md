@@ -2,22 +2,22 @@
 
 ## 1. Channel Primitives
 
-- [ ] 1.1 Add `gameSessionChannel.ts` in `src/lib/p2p/` that exposes
+- [x] 1.1 Add `gameSessionChannel.ts` in `src/lib/p2p/` that exposes
       `broadcastEvent(event: IGameEvent)` and `onPeerEvent(cb)`
-- [ ] 1.2 Channel rides on the existing Yjs room; events go through a
+- [x] 1.2 Channel rides on the existing Yjs room; events go through a
       dedicated `gameEvents` Y.Array so the customizer-tab sync is
       unaffected
-- [ ] 1.3 Channel serializes/deserializes `IGameEvent` with the same
+- [x] 1.3 Channel serializes/deserializes `IGameEvent` with the same
       schema used by `event-store` persistence
-- [ ] 1.4 Channel rejects events authored by the local peer on arrival
+- [x] 1.4 Channel rejects events authored by the local peer on arrival
       (don't re-apply own events)
 
 ## 2. Host Election
 
-- [ ] 2.1 Room creator is marked `role: 'host'` in Yjs awareness
-- [ ] 2.2 Room joiner is `role: 'guest'`; second joiner is rejected (1v1
+- [x] 2.1 Room creator is marked `role: 'host'` in Yjs awareness
+- [x] 2.2 Room joiner is `role: 'guest'`; second joiner is rejected (1v1
       only in this change)
-- [ ] 2.3 A `HostPromoted` / `GuestJoined` lifecycle event is logged
+- [x] 2.3 A `HostPromoted` / `GuestJoined` lifecycle event is logged
       locally (not part of session event stream)
 
 ## 3. Host-Authoritative RNG
@@ -43,7 +43,7 @@
 
 ## 5. Intent Events (Guest → Host)
 
-- [ ] 5.1 Define `IGameIntent` = `{type, payload, authorPeerId}` for
+- [x] 5.1 Define `IGameIntent` = `{type, payload, authorPeerId}` for
       actions the guest wants the host to execute
 - [ ] 5.2 Guest UI produces intents for `declareMovement`,
       `declareAttack`, `declarePhysical`, `confirmHeat`, `endPhase`,
@@ -55,7 +55,7 @@
 
 ## 6. Side Ownership
 
-- [ ] 6.1 `IGameSession` gains an optional `sideOwners: Record<GameSide,
+- [x] 6.1 `IGameSession` gains an optional `sideOwners: Record<GameSide,
 string>` field mapping side → peerId
 - [ ] 6.2 Skirmish setup screen with "Networked 1v1" lets host pick which
       side they control; the other side is auto-assigned to the guest
