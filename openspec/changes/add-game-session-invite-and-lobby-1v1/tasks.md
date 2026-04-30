@@ -2,52 +2,52 @@
 
 ## 1. Lobby State Contract
 
-- [ ] 1.1 Define `ILobbyState` with `{mode: '1v1', hostPeerId,
+- [x] 1.1 Define `ILobbyState` with `{mode: '1v1', hostPeerId,
 guestPeerId, hostLoadout, guestLoadout, mapConfig, hostReady,
 guestReady, matchId?}`
-- [ ] 1.2 Define `ILoadout` with `{units: ISelectedUnit[],
+- [x] 1.2 Define `ILoadout` with `{units: ISelectedUnit[],
 pilots: ISelectedPilot[]}` for a single side
-- [ ] 1.3 Define `IMapConfig` with `{radius: number, terrainPreset:
+- [x] 1.3 Define `IMapConfig` with `{radius: number, terrainPreset:
 string, turnLimit: number}`
-- [ ] 1.4 Schema validation (zod) for incoming lobby updates from
+- [x] 1.4 Schema validation (zod) for incoming lobby updates from
       remote peers
 
 ## 2. Lobby Channel
 
-- [ ] 2.1 Add `lobbyChannel.ts` that wraps a Y.Map named `lobby` in the
+- [x] 2.1 Add `lobbyChannel.ts` that wraps a Y.Map named `lobby` in the
       existing sync room
-- [ ] 2.2 Channel exposes `getState()`, `updateLoadout(side, loadout)`,
+- [x] 2.2 Channel exposes `getState()`, `updateLoadout(side, loadout)`,
       `updateMapConfig(config)`, `setReady(peerId, ready)`, `launch()`
-- [ ] 2.3 Channel rejects updates authored by a peer for a loadout slot
+- [x] 2.3 Channel rejects updates authored by a peer for a loadout slot
       they don't own
-- [ ] 2.4 Store mirrors lobby state in Zustand so UI can render
+- [x] 2.4 Store mirrors lobby state in Zustand so UI can render
       reactively
 
 ## 3. Lobby Page
 
-- [ ] 3.1 Add route `/gameplay/lobby/[roomCode]`
-- [ ] 3.2 Page renders two loadout cards (host / guest), the map config
+- [x] 3.1 Add route `/gameplay/lobby/[roomCode]`
+- [x] 3.2 Page renders two loadout cards (host / guest), the map config
       panel, and two ready toggles
-- [ ] 3.3 Cards for the local peer are editable; the remote peer's card
+- [x] 3.3 Cards for the local peer are editable; the remote peer's card
       is read-only (shows what they've picked so far)
-- [ ] 3.4 A shareable room code is prominently displayed with
+- [x] 3.4 A shareable room code is prominently displayed with
       copy-to-clipboard
 
 ## 4. Loadout Picker
 
-- [ ] 4.1 Each peer picks 1–4 mechs from their own vault
-- [ ] 4.2 Each peer picks 1 pilot per mech from their own vault
-- [ ] 4.3 Picks publish to the lobby channel on change
-- [ ] 4.4 Invalid loadouts (no mechs, pilot count mismatch) disable the
+- [x] 4.1 Each peer picks 1–4 mechs from their own vault
+- [x] 4.2 Each peer picks 1 pilot per mech from their own vault
+- [x] 4.3 Picks publish to the lobby channel on change
+- [x] 4.4 Invalid loadouts (no mechs, pilot count mismatch) disable the
       ready toggle
-- [ ] 4.5 For 4a scope, mech counts between the two sides must match
+- [x] 4.5 For 4a scope, mech counts between the two sides must match
       (1v1, 2v2, up to 4v4)
 
 ## 5. Map Config
 
-- [ ] 5.1 Host picks map radius, terrain preset, turn limit
-- [ ] 5.2 Guest can see but not change map config
-- [ ] 5.3 Changes propagate in real time via the lobby channel
+- [x] 5.1 Host picks map radius, terrain preset, turn limit
+- [x] 5.2 Guest can see but not change map config
+- [x] 5.3 Changes propagate in real time via the lobby channel
 
 ## 6. Readiness + Launch
 
@@ -56,7 +56,7 @@ string, turnLimit: number}`
 - [ ] 6.3 Clicking launch: host creates the session with both loadouts,
       writes `matchId` into lobby state, both peers navigate to
       `/gameplay/games/[matchId]`
-- [ ] 6.4 Guest cannot launch; button is host-only
+- [x] 6.4 Guest cannot launch; button is host-only
 
 ## 7. Invite Flow
 
@@ -71,9 +71,9 @@ string, turnLimit: number}`
 
 - [x] 8.1 On guest join, the first unassigned side slot is assigned
       (`hostPeerId` owns one side, `guestPeerId` owns the other)
-- [ ] 8.2 The host side is chosen at room creation; guest gets the
+- [x] 8.2 The host side is chosen at room creation; guest gets the
       remaining side
-- [ ] 8.3 Assignment writes `sideOwners` on the eventual session
+- [x] 8.3 Assignment writes `sideOwners` on the eventual session
 
 ## 9. Disconnect Mid-Lobby
 
