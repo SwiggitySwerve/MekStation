@@ -78,5 +78,5 @@
 
 ## 9. Spec Compliance
 
-- [ ] 9.1 Every `### Requirement:` in the `record-sheet-export` spec delta has a `#### Scenario:`
-- [ ] 9.2 `openspec validate add-multi-type-record-sheet-export --strict` passes
+- [x] 9.1 Every `### Requirement:` in the `record-sheet-export` spec delta has a `#### Scenario:`
+- [x] 9.2 `openspec validate add-multi-type-record-sheet-export --strict` passes

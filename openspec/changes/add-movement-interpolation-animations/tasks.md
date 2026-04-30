@@ -97,8 +97,8 @@
 
 ## 11. Spec Compliance
 
-- [ ] 11.1 Every requirement in `tactical-map-interface` delta has a
+- [x] 11.1 Every requirement in `tactical-map-interface` delta has a
       GIVEN/WHEN/THEN scenario
-- [ ] 11.2 Every requirement in `movement-system` delta has a scenario
-- [ ] 11.3 `openspec validate add-movement-interpolation-animations
+- [x] 11.2 Every requirement in `movement-system` delta has a scenario
+- [x] 11.3 `openspec validate add-movement-interpolation-animations
 --strict` passes clean

@@ -12,18 +12,18 @@
 
 ## 2. Session Completion Emits Outcome Bus Event
 
-- [ ] 2.1 Add `CombatOutcomeReady` to the session-level event bus (in
+- [x] 2.1 Add `CombatOutcomeReady` to the session-level event bus (in
       `src/engine/InteractiveSession.ts`)
-- [ ] 2.2 On `GameEnded`, derive `ICombatOutcome` (per
+- [x] 2.2 On `GameEnded`, derive `ICombatOutcome` (per
       `add-combat-outcome-model`) and publish `CombatOutcomeReady`
 - [ ] 2.3 POST outcome to `/api/matches` for persistence
-- [ ] 2.4 Include `matchId` in the bus payload
+- [x] 2.4 Include `matchId` in the bus payload
 
 ## 3. Campaign Store Subscribes To Outcomes
 
-- [ ] 3.1 In `src/stores/campaign/campaignStore.ts`, subscribe to the
+- [x] 3.1 In `src/stores/campaign/campaignStore.ts`, subscribe to the
       `CombatOutcomeReady` bus event
-- [ ] 3.2 On receipt, enqueue the outcome into
+- [x] 3.2 On receipt, enqueue the outcome into
       `campaign.pendingBattleOutcomes` if `matchId` is not already present
       (idempotent push)
 - [ ] 3.3 Persist the queue alongside the campaign record
@@ -51,13 +51,13 @@
 
 ## 6. Day Advancement Pipeline Order
 
-- [ ] 6.1 Register `postBattleProcessor` at the start of the "battle
+- [x] 6.1 Register `postBattleProcessor` at the start of the "battle
       effects" group
-- [ ] 6.2 Register `salvageProcessor` after `postBattleProcessor`
-- [ ] 6.3 Register `repairQueueBuilderProcessor` after `salvageProcessor`
+- [x] 6.2 Register `salvageProcessor` after `postBattleProcessor`
+- [x] 6.3 Register `repairQueueBuilderProcessor` after `salvageProcessor`
 - [ ] 6.4 These three run before the existing `contractProcessor`,
       `healingProcessor`, `maintenanceProcessor`
-- [ ] 6.5 Document the full order in `dayAdvancement.ts` header comment
+- [x] 6.5 Document the full order in `dayAdvancement.ts` header comment
 
 ## 7. Day Advancement Audit Card
 

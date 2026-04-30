@@ -99,11 +99,11 @@
 
 ## 11. Spec Compliance
 
-- [ ] 11.1 Every requirement in `attack-effects-system` spec has a
+- [x] 11.1 Every requirement in `attack-effects-system` spec has a
       GIVEN/WHEN/THEN scenario
-- [ ] 11.2 Every requirement in `tactical-map-interface` delta has a
+- [x] 11.2 Every requirement in `tactical-map-interface` delta has a
       scenario
-- [ ] 11.3 Every requirement in `weapon-resolution-system` delta has a
+- [x] 11.3 Every requirement in `weapon-resolution-system` delta has a
       scenario
-- [ ] 11.4 `openspec validate add-attack-visual-effects --strict` passes
+- [x] 11.4 `openspec validate add-attack-visual-effects --strict` passes
       clean
