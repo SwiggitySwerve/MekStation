@@ -15,6 +15,10 @@ import {
   type IDeriveCombatOutcomeOptions,
 } from '@/lib/combat/outcome/combatOutcome';
 import {
+  matchLogStorage,
+  type MatchLogStorage,
+} from '@/lib/p2p/matchLogStorage';
+import {
   calculateGameOutcome,
   isGameEnded,
   type IGameOutcome,
@@ -55,6 +59,7 @@ import {
 } from '@/utils/gameplay/gameEvents';
 import {
   createGameSession,
+  hydrateGameSessionFromEvents,
   startGame,
   advancePhase,
   appendEvent,
@@ -185,6 +190,14 @@ export class InteractiveSession {
 
     this.session = createGameSession(this.gameConfig, gameUnits);
     this.session = startGame(this.session, GameSide.Player);
+  }
+
+  static async fromMatchLog(
+    matchId: string,
+    storage: Pick<MatchLogStorage, 'getEventsForMatch'> = matchLogStorage,
+  ): Promise<IGameSession> {
+    const events = await storage.getEventsForMatch(matchId);
+    return hydrateGameSessionFromEvents(matchId, events);
   }
 
   getState(): IGameState {

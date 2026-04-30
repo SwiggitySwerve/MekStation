@@ -1403,6 +1403,8 @@ export interface IGameState {
 export interface IGameSession {
   /** Session ID */
   readonly id: string;
+  /** Stable match ID used by multiplayer persistence/reconnect. */
+  readonly matchId?: string;
   /** Creation timestamp */
   readonly createdAt: string;
   /** Last update timestamp */
