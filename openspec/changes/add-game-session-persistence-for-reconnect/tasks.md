@@ -2,14 +2,14 @@
 
 ## 1. IndexedDB Schema
 
-- [ ] 1.1 Add `matchLogStorage.ts` in `src/lib/p2p/` wrapping IndexedDB
+- [x] 1.1 Add `matchLogStorage.ts` in `src/lib/p2p/` wrapping IndexedDB
       with an object store `matchEvents`
-- [ ] 1.2 Record shape: `{matchId: string, sequence: number, event:
+- [x] 1.2 Record shape: `{matchId: string, sequence: number, event:
 IGameEvent, savedAt: ISO8601}`; primary key `[matchId, sequence]`
-- [ ] 1.3 Add a `matches` object store for metadata:
+- [x] 1.3 Add a `matches` object store for metadata:
       `{matchId, hostPeerId, guestPeerId, status, lastActivity}`
-- [ ] 1.4 Writes SHALL be batched (single txn per animation frame)
-- [ ] 1.5 Add migration path for existing IndexedDB schema
+- [x] 1.4 Writes SHALL be batched (single txn per animation frame)
+- [x] 1.5 Add migration path for existing IndexedDB schema
 
 ## 2. Persistence Wiring
 

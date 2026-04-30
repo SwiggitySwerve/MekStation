@@ -2,14 +2,14 @@
 
 ## 1. Visibility Model
 
-- [ ] 1.1 Define `canPlayerSeeUnit(playerId, unitId, state): boolean`
+- [x] 1.1 Define `canPlayerSeeUnit(playerId, unitId, state): boolean`
       in `spatial-combat-system` as a shared helper
-- [ ] 1.2 Implementation: true if any unit owned by `playerId` has LOS
+- [x] 1.2 Implementation: true if any unit owned by `playerId` has LOS
       to `unitId` within its sensor range, OR the target is itself
       owned by `playerId`
-- [ ] 1.3 Add convenience `visibleUnitsForPlayer(playerId, state):
+- [x] 1.3 Add convenience `visibleUnitsForPlayer(playerId, state):
 UnitId[]` that returns the set
-- [ ] 1.4 Unit tests covering: adjacent LOS, LOS blocked by terrain,
+- [x] 1.4 Unit tests covering: adjacent LOS, LOS blocked by terrain,
       sensor range boundary, own units always visible
 
 ## 2. Event Visibility Classification
