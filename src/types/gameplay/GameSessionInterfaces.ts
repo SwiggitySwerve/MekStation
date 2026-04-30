@@ -569,6 +569,20 @@ export interface IAttackResolvedPayload {
 }
 
 /**
+ * Fog-of-war redacted attack resolution. Sent to the target owner when the
+ * attacker is hidden; weapon and attacker identifiers are intentionally absent.
+ */
+export interface IRedactedAttackResolvedPayload {
+  readonly targetId: string;
+  readonly roll: number;
+  readonly toHitNumber: number;
+  readonly hit: boolean;
+  readonly location?: string;
+  readonly damage?: number;
+  readonly rolls?: readonly number[];
+}
+
+/**
  * Attack-invalid event payload — emitted when an attack attempt is
  * rejected BEFORE any damage, heat, or `AttackResolved` event fires.
  * Reasons are future-extensible; initial users are `wire-ammo-consumption`
@@ -733,6 +747,14 @@ export interface IUnitDestroyedPayload {
   readonly cause: 'damage' | 'ammo_explosion' | 'pilot_death' | 'shutdown';
   /** Unit that killed this unit (undefined for self-destruction: ammo explosions, pilot death, etc.) */
   readonly killerUnitId?: string;
+}
+
+/**
+ * Fog-of-war redacted destruction notice. Sent when a hidden enemy is destroyed
+ * without leaking cause, damage, crit, pilot, or killer detail.
+ */
+export interface IRedactedUnitDestroyedPayload {
+  readonly unitId: string;
 }
 
 /**
@@ -1061,11 +1083,13 @@ export type GameEventPayload =
   | IAttackDeclaredPayload
   | IAttackLockedPayload
   | IAttackResolvedPayload
+  | IRedactedAttackResolvedPayload
   | IDamageAppliedPayload
   | IHeatPayload
   | IPilotHitPayload
   | IAmmoExplosionPayload
   | IUnitDestroyedPayload
+  | IRedactedUnitDestroyedPayload
   | ICriticalHitResolvedPayload
   | IPSRTriggeredPayload
   | IPSRResolvedPayload
@@ -1403,6 +1427,8 @@ export interface IGameState {
 export interface IGameSession {
   /** Session ID */
   readonly id: string;
+  /** Stable match ID used by multiplayer persistence/reconnect. */
+  readonly matchId?: string;
   /** Creation timestamp */
   readonly createdAt: string;
   /** Last update timestamp */

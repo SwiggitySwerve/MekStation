@@ -6,6 +6,8 @@
  * the suite.
  */
 
+import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
+
 import {
   PendingPeerTracker,
   type IPendingPeerEntry,
@@ -55,6 +57,27 @@ function makeManualScheduler(graceMs: number) {
 // =============================================================================
 
 describe('PendingPeerTracker', () => {
+  it('uses a 60-second grace window by default', () => {
+    const sched = makeManualScheduler(RECONNECT_GRACE_MS);
+    const tracker = new PendingPeerTracker(
+      undefined,
+      sched.schedule,
+      sched.cancel,
+    );
+    let fired = false;
+
+    tracker.markPending('p1', 'alpha-1', () => {
+      fired = true;
+    });
+    sched.advance(59_999);
+
+    expect(RECONNECT_GRACE_MS).toBe(60_000);
+    expect(fired).toBe(false);
+
+    sched.advance(1);
+    expect(fired).toBe(true);
+  });
+
   it('markPending registers an entry visible via isPending', () => {
     const sched = makeManualScheduler(100);
     const tracker = new PendingPeerTracker(

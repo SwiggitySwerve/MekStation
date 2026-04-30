@@ -30,6 +30,7 @@ import {
   IPilotSpaSummary,
   IWeaponStatus,
 } from '@/types/gameplay';
+import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
 import { logger } from '@/utils/logger';
 
 import {
@@ -67,6 +68,8 @@ import {
 import {
   projectSelectedUnit,
   selectIsGameCompleted,
+  selectLocalMatchGraceRemainingMs,
+  selectLocalMatchStatus,
   type ISelectedUnitProjection,
 } from './useGameplayStore.selectors';
 import {
@@ -78,6 +81,7 @@ import {
 } from './useGameplayStore.session';
 
 export { InteractivePhase, selectIsGameCompleted };
+export { selectLocalMatchGraceRemainingMs, selectLocalMatchStatus };
 export type {
   IAttackPlan,
   IPlannedMovement,
@@ -89,9 +93,19 @@ export type {
 // Types
 // =============================================================================
 
+export type LocalMatchStatus =
+  | 'live'
+  | 'guestPending'
+  | 'hostPending'
+  | 'aborted';
+
 interface GameplayState {
   session: IGameSession | null;
   interactiveSession: InteractiveSession | null;
+  localMatchStatus: LocalMatchStatus;
+  localMatchGraceDeadlineMs: number | null;
+  localMatchGraceRemainingMs: number | null;
+  reconnectGraceMs: number;
   interactivePhase: InteractivePhase;
   spectatorMode: SpectatorMode | null;
   validMovementHexes: readonly { q: number; r: number }[];
@@ -146,6 +160,19 @@ interface GameplayActions {
   setSpectatorMode: (
     interactiveSession: InteractiveSession,
     spectatorMode: SpectatorMode,
+  ) => void;
+  setLocalMatchStatus: (
+    status: LocalMatchStatus,
+    options?: { graceMs?: number; nowMs?: number },
+  ) => void;
+  resetLocalMatchStatus: () => void;
+  setLocalMatchGraceDeadline: (
+    deadlineMs: number | null,
+    nowMs?: number,
+  ) => void;
+  setLocalMatchGraceRemaining: (
+    remainingMs: number | null,
+    nowMs?: number,
   ) => void;
   selectUnit: (unitId: string | null) => void;
   setTarget: (unitId: string | null) => void;
@@ -214,6 +241,10 @@ type GameplayStore = GameplayState & GameplayActions;
 const initialState: GameplayState = {
   session: null,
   interactiveSession: null,
+  localMatchStatus: 'live',
+  localMatchGraceDeadlineMs: null,
+  localMatchGraceRemainingMs: null,
+  reconnectGraceMs: RECONNECT_GRACE_MS,
   interactivePhase: InteractivePhase.None,
   spectatorMode: null,
   validMovementHexes: [],
@@ -253,6 +284,58 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
     setInteractiveSessionLogic(interactiveSession, set),
   setSpectatorMode: (interactiveSession, spectatorMode) =>
     setSpectatorModeLogic(interactiveSession, spectatorMode, set),
+  setLocalMatchStatus: (status, options) => {
+    if (status === 'live') {
+      set({
+        localMatchStatus: 'live',
+        localMatchGraceDeadlineMs: null,
+        localMatchGraceRemainingMs: null,
+      });
+      return;
+    }
+
+    const nowMs = options?.nowMs ?? Date.now();
+    if (status === 'aborted') {
+      set({
+        localMatchStatus: 'aborted',
+        localMatchGraceDeadlineMs: nowMs,
+        localMatchGraceRemainingMs: 0,
+      });
+      return;
+    }
+
+    const graceMs = options?.graceMs ?? get().reconnectGraceMs;
+    const deadlineMs = nowMs + graceMs;
+    set({
+      localMatchStatus: status,
+      reconnectGraceMs: graceMs,
+      localMatchGraceDeadlineMs: deadlineMs,
+      localMatchGraceRemainingMs: graceMs,
+    });
+  },
+  resetLocalMatchStatus: () => {
+    set({
+      localMatchStatus: 'live',
+      localMatchGraceDeadlineMs: null,
+      localMatchGraceRemainingMs: null,
+      reconnectGraceMs: RECONNECT_GRACE_MS,
+    });
+  },
+  setLocalMatchGraceDeadline: (deadlineMs, nowMs = Date.now()) => {
+    set({
+      localMatchGraceDeadlineMs: deadlineMs,
+      localMatchGraceRemainingMs:
+        deadlineMs === null ? null : Math.max(0, deadlineMs - nowMs),
+    });
+  },
+  setLocalMatchGraceRemaining: (remainingMs, nowMs = Date.now()) => {
+    set({
+      localMatchGraceDeadlineMs:
+        remainingMs === null ? null : nowMs + Math.max(0, remainingMs),
+      localMatchGraceRemainingMs:
+        remainingMs === null ? null : Math.max(0, remainingMs),
+    });
+  },
   clearError: () => {
     set({ error: null });
   },

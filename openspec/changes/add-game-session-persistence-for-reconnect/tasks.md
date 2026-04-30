@@ -2,30 +2,30 @@
 
 ## 1. IndexedDB Schema
 
-- [ ] 1.1 Add `matchLogStorage.ts` in `src/lib/p2p/` wrapping IndexedDB
+- [x] 1.1 Add `matchLogStorage.ts` in `src/lib/p2p/` wrapping IndexedDB
       with an object store `matchEvents`
-- [ ] 1.2 Record shape: `{matchId: string, sequence: number, event:
+- [x] 1.2 Record shape: `{matchId: string, sequence: number, event:
 IGameEvent, savedAt: ISO8601}`; primary key `[matchId, sequence]`
-- [ ] 1.3 Add a `matches` object store for metadata:
+- [x] 1.3 Add a `matches` object store for metadata:
       `{matchId, hostPeerId, guestPeerId, status, lastActivity}`
-- [ ] 1.4 Writes SHALL be batched (single txn per animation frame)
-- [ ] 1.5 Add migration path for existing IndexedDB schema
+- [x] 1.4 Writes SHALL be batched (single txn per animation frame)
+- [x] 1.5 Add migration path for existing IndexedDB schema
 
 ## 2. Persistence Wiring
 
 - [ ] 2.1 `InteractiveSession.appendEvent` on both host and guest writes
       to IndexedDB after the in-memory append succeeds
-- [ ] 2.2 `IGameSession` carries a `matchId` (already present after
+- [x] 2.2 `IGameSession` carries a `matchId` (already present after
       `add-game-session-invite-and-lobby-1v1`)
 - [ ] 2.3 Persistence is fire-and-forget but errors are logged; state
       mismatch between disk and memory is surfaced as a toast
 
 ## 3. Hydration From Log
 
-- [ ] 3.1 `InteractiveSession.fromMatchLog(matchId)` reads all events
+- [x] 3.1 `InteractiveSession.fromMatchLog(matchId)` reads all events
       from IndexedDB and rebuilds the session
-- [ ] 3.2 Hydration replays events into `deriveState` in sequence
-- [ ] 3.3 Unit test: a session saved then hydrated produces an
+- [x] 3.2 Hydration replays events into `deriveState` in sequence
+- [x] 3.3 Unit test: a session saved then hydrated produces an
       identical `currentState`
 
 ## 4. Reconnect Protocol (Guest → Host)
@@ -42,18 +42,18 @@ IGameEvent[]}` containing all events with `seq > lastLocalSeq`
 
 ## 5. Peer Pending Local Status
 
-- [ ] 5.1 Add `localMatchStatus: 'live' | 'guestPending' | 'hostPending'
+- [x] 5.1 Add `localMatchStatus: 'live' | 'guestPending' | 'hostPending'
 | 'aborted'` to `useGameplayStore`
 - [ ] 5.2 Host sets `guestPending` when the guest's Yjs awareness is
       lost and the match is mid-play
 - [ ] 5.3 Guest sets `hostPending` when the host's Yjs awareness is lost
       but the local log is preserved
-- [ ] 5.4 `localMatchStatus` is a local UI concern; it is NOT written
+- [x] 5.4 `localMatchStatus` is a local UI concern; it is NOT written
       to the session event log
 
 ## 6. Grace Window
 
-- [ ] 6.1 Grace window defaults to 60 seconds (configurable per match)
+- [x] 6.1 Grace window defaults to 60 seconds (configurable per match)
 - [ ] 6.2 During the grace window, the host pauses phase advancement
       and shows a banner: `"Waiting for opponent to reconnect
 (NN seconds remaining)..."`
@@ -64,9 +64,9 @@ Status` returns to `'live'` and play resumes
 
 ## 7. Host-Side Replay API
 
-- [ ] 7.1 Host exposes `getEventsFromSeq(seq: number): IGameEvent[]`
+- [x] 7.1 Host exposes `getEventsFromSeq(seq: number): IGameEvent[]`
       from its in-memory log
-- [ ] 7.2 Replay response is streamed in chunks of 64 events max per
+- [x] 7.2 Replay response is streamed in chunks of 64 events max per
       message to avoid large single messages
 - [ ] 7.3 Host rejects `reconnect-request` if `matchId` doesn't match
       the host's current session
@@ -89,7 +89,7 @@ Status` returns to `'live'` and play resumes
 
 ## 10. Tests
 
-- [ ] 10.1 Unit test: save 20 events, hydrate, verify `currentState`
+- [x] 10.1 Unit test: save 20 events, hydrate, verify `currentState`
 - [ ] 10.2 Integration test using mock sync: guest drops after turn 3
       event 5, reconnects, catches up to turn 4 event 9
 - [ ] 10.3 Integration test: guest drops, grace window expires, host

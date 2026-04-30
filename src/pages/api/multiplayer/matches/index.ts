@@ -112,6 +112,9 @@ function isValidBody(body: unknown): body is ICreateMatchBody {
   if (typeof cfg.mapRadius !== 'number' || typeof cfg.turnLimit !== 'number') {
     return false;
   }
+  if (cfg.fogOfWar !== undefined && typeof cfg.fogOfWar !== 'boolean') {
+    return false;
+  }
   if (
     b.displayName !== undefined &&
     (typeof b.displayName !== 'string' || b.displayName.length === 0)
@@ -219,6 +222,10 @@ export default async function handler(
 
   const matchId = randomUUID();
   const now = new Date().toISOString();
+  const config: IMatchConfig = {
+    ...body.config,
+    fogOfWar: body.config.fogOfWar ?? false,
+  };
   const meta: IMatchMeta = {
     matchId,
     hostPlayerId,
@@ -232,7 +239,7 @@ export default async function handler(
     status: 'lobby',
     createdAt: now,
     updatedAt: now,
-    config: body.config,
+    config,
     layout: body.layout,
     seats,
     roomCode,

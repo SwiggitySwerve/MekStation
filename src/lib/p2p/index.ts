@@ -92,11 +92,15 @@ export {
 
 export {
   GAME_SESSION_EVENTS_ARRAY,
+  applyReplayStreamEvents,
   broadcastEvent,
   broadcastIntent,
   broadcastRejection,
+  createReconnectRequestEnvelope,
   createGameSessionChannel,
+  createReplayStreamEnvelopes,
   deserializeGameSessionEnvelope,
+  getReplayEventsAfterSeq,
   isGameIntent,
   onPeerEvent,
   onPeerIntent,
@@ -104,14 +108,20 @@ export {
   serializeGameSessionEnvelope,
   tryDeserializeGameSessionEnvelope,
   type GameSessionChannelEnvelope,
+  type GameSessionChannelLogger,
   type IGameEventEnvelope,
   type IGameIntentEnvelope,
   type IGameSessionChannel,
   type IGameSessionChannelOptions,
   type IPeerRejectedEnvelope,
+  type IReconnectRequestEnvelope,
+  type IReplayStreamEnvelope,
+  type MatchLogPersistence,
   type PeerEventCallback,
   type PeerIntentCallback,
   type PeerRejectedCallback,
+  type ReconnectRequestCallback,
+  type ReplayStreamCallback,
 } from './gameSessionChannel';
 
 export {
@@ -139,6 +149,34 @@ export {
   type LobbyRejectionReason,
   type LobbyStateCallback,
 } from './lobbyChannel';
+
+export {
+  MATCH_LOG_DB_NAME,
+  MATCH_LOG_DB_VERSION,
+  MATCH_LOG_RETENTION_MS,
+  MATCH_LOG_STORES,
+  MatchLogStorage,
+  MatchLogStorageError,
+  MatchLogStorageUnavailableError,
+  appendMatchEvent,
+  flushMatchLogWrites,
+  getEventsForMatch,
+  getLastSequence,
+  getMatchMetadata,
+  markMatchCompleted,
+  matchLogStorage,
+  migrateMatchLogDatabase,
+  purgeOldMatches,
+  upsertMatchMetadata,
+  type IMatchEventRecord,
+  type IMatchLogFlushInfo,
+  type IMatchLogStorageOptions,
+  type IMatchMetadataRecord,
+  type IMatchMetadataUpsert,
+  type IPurgeOldMatchesResult,
+  type MatchLogStatus,
+  type MatchLogStoreName,
+} from './matchLogStorage';
 
 // Hooks
 export { useSyncRoom, type UseSyncRoomReturn } from './useSyncRoom';

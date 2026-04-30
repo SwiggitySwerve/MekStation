@@ -2,10 +2,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
   Facing,
+  GameEventType,
   GamePhase,
   GameSide,
   GameStatus,
   IGameConfig,
+  IGameCreatedPayload,
   IGameEvent,
   IGameSession,
   IGameUnit,
@@ -86,6 +88,7 @@ export function createGameSession(
 
   return {
     id,
+    matchId: id,
     createdAt: now,
     updatedAt: now,
     config,
@@ -95,6 +98,35 @@ export function createGameSession(
     hostPeerId: options.hostPeerId,
     guestPeerId: options.guestPeerId,
     sideOwners: options.sideOwners,
+  };
+}
+
+export function hydrateGameSessionFromEvents(
+  matchId: string,
+  events: readonly IGameEvent[],
+): IGameSession {
+  if (events.length === 0) {
+    throw new Error('Match log not found');
+  }
+
+  const orderedEvents = [...events].sort((a, b) => a.sequence - b.sequence);
+  const createdEvent = orderedEvents[0];
+  if (createdEvent.type !== GameEventType.GameCreated) {
+    throw new Error('Match log not found');
+  }
+
+  const payload = createdEvent.payload as IGameCreatedPayload;
+  const lastEvent = orderedEvents[orderedEvents.length - 1];
+
+  return {
+    id: matchId,
+    matchId,
+    createdAt: createdEvent.timestamp,
+    updatedAt: lastEvent.timestamp,
+    config: payload.config,
+    units: payload.units,
+    events: orderedEvents,
+    currentState: deriveState(matchId, orderedEvents),
   };
 }
 

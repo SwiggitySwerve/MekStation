@@ -12,24 +12,26 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-All active changes remain `in-progress`. Wave 0 reconciliation marked already
-proven source, test, and spec-admin tasks complete; the remaining unchecked
-tasks are implementation work or intentionally unproven partials.
+The active queue currently has one complete change and eleven in-progress
+changes. Wave 0 reconciliation marked already proven source, test, and
+spec-admin tasks complete; later wave work has advanced several changes, but
+the remaining unchecked tasks are implementation work or intentionally
+unproven partials.
 
 | Change | Tasks | Lane |
 | --- | ---: | --- |
-| `wire-encounter-to-campaign-round-trip` | 9/42 | Campaign closure |
-| `add-infantry-construction` | 25/50 | Phase 6 construction |
-| `add-multi-type-record-sheet-export` | 2/54 | Phase 6 export |
-| `add-p2p-game-session-sync` | 3/33 | Phase 4 multiplayer |
-| `add-game-session-invite-and-lobby-1v1` | 6/39 | Phase 4 multiplayer |
-| `add-game-session-persistence-for-reconnect` | 4/39 | Phase 4 multiplayer |
-| `add-fog-of-war-event-filtering` | 5/39 | Phase 4/4.5 multiplayer |
-| `add-movement-interpolation-animations` | 3/45 | Phase 7 tactical visuals |
-| `add-los-and-firing-arc-overlays` | 4/56 | Phase 7 tactical visuals |
-| `add-attack-visual-effects` | 4/48 | Phase 7 tactical visuals |
-| `add-damage-feedback-effects` | 3/56 | Phase 7 tactical visuals |
-| `add-heat-and-shutdown-visual-indicators` | 3/51 | Phase 7 tactical visuals |
+| `wire-encounter-to-campaign-round-trip` | 15/42 | Campaign closure |
+| `add-infantry-construction` | 45/50 | Phase 6 construction |
+| `add-multi-type-record-sheet-export` | 46/54 | Phase 6 export |
+| `add-p2p-game-session-sync` | 12/33 | Phase 4 multiplayer |
+| `add-game-session-invite-and-lobby-1v1` | 29/39 | Phase 4 multiplayer |
+| `add-game-session-persistence-for-reconnect` | 19/39 | Phase 4 multiplayer |
+| `add-fog-of-war-event-filtering` | 22/39 | Phase 4/4.5 multiplayer |
+| `add-movement-interpolation-animations` | 44/45 | Phase 7 tactical visuals |
+| `add-los-and-firing-arc-overlays` | 43/56 | Phase 7 tactical visuals |
+| `add-attack-visual-effects` | 41/48 | Phase 7 tactical visuals |
+| `add-damage-feedback-effects` | 52/56 | Phase 7 tactical visuals |
+| `add-heat-and-shutdown-visual-indicators` | 51/51 | Phase 7 tactical visuals |
 
 ## Lane Model
 
@@ -175,6 +177,23 @@ After Wave 1 contracts land:
      shutdown, heat glow, smoke, and fire.
 
 ### Wave 4: Multiplayer Hardening
+
+Current status after the 2026-04-30 Wave 4 foundation slice:
+
+- `add-game-session-persistence-for-reconnect` is at 19/39. Completed
+  foundations include IndexedDB match logs, session hydration, 60s replay/grace
+  constants, host `getEventsFromSeq`, 64-event replay chunks, P2P replay helper
+  envelopes, local-only pending status fields, and focused unit tests. Remaining
+  work includes page-load reconnect wiring, Yjs awareness pending hooks,
+  grace-window pause/abort behavior, late-join rejection, cleanup/purge, and
+  integration tests.
+- `add-fog-of-war-event-filtering` is at 22/39. Completed foundations include
+  visibility helpers, standalone event classification/filtering, redaction
+  rules, fog match creation config, lobby checkbox, cache invalidation, and
+  focused unit tests. Remaining work includes literal event visibility tags or
+  an artifact decision to keep helper classification, server broadcast
+  integration, filtered replay, client rendering, integration tests, and
+  performance benchmarks.
 
 1. `add-game-session-persistence-for-reconnect`
    - Storage and `InteractiveSession.fromMatchLog` can start early.

@@ -23,6 +23,7 @@ export interface ICreateMatchFormValue {
   readonly displayName: string;
   readonly mapRadius: number;
   readonly turnLimit: number;
+  readonly fogOfWar: boolean;
 }
 
 export interface ICreateMatchFormProps {
@@ -64,12 +65,19 @@ export function CreateMatchForm(
   const [displayName, setDisplayName] = useState<string>('MechWarrior');
   const [mapRadius, setMapRadius] = useState<number>(8);
   const [turnLimit, setTurnLimit] = useState<number>(20);
+  const [fogOfWar, setFogOfWar] = useState<boolean>(false);
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        void props.onSubmit({ layout, displayName, mapRadius, turnLimit });
+        void props.onSubmit({
+          layout,
+          displayName,
+          mapRadius,
+          turnLimit,
+          fogOfWar,
+        });
       }}
       className="space-y-4"
     >
@@ -146,6 +154,15 @@ export function CreateMatchForm(
           />
         </div>
       </div>
+      <label className="flex items-start gap-3 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100">
+        <input
+          type="checkbox"
+          checked={fogOfWar}
+          onChange={(e) => setFogOfWar(e.target.checked)}
+          className="mt-0.5 h-4 w-4 rounded border-slate-600 bg-slate-950 text-emerald-600 focus:ring-emerald-500"
+        />
+        <span>Double-blind (fog of war)</span>
+      </label>
       <button
         type="submit"
         disabled={props.busy}

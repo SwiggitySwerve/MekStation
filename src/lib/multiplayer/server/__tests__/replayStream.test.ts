@@ -9,6 +9,7 @@ import {
   GameEventType,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { REPLAY_CHUNK_SIZE } from '@/types/multiplayer/Protocol';
 
 import { streamReplay } from '../reconnection/replayStream';
 
@@ -73,6 +74,19 @@ describe('streamReplay', () => {
     if (frames.end.kind === 'ReplayEnd') {
       expect(frames.end.toSeq).toBe(14); // last event sequence
     }
+  });
+
+  it('uses the protocol default of 64 events per replay chunk', () => {
+    const events = Array.from({ length: REPLAY_CHUNK_SIZE + 1 }, (_, i) =>
+      fakeEvent(i + 1),
+    );
+    const frames = streamReplay('match-x', events, 0);
+    const sizes = frames.chunks.map((chunk) =>
+      chunk.kind === 'ReplayChunk' ? chunk.events.length : -1,
+    );
+
+    expect(REPLAY_CHUNK_SIZE).toBe(64);
+    expect(sizes).toEqual([64, 1]);
   });
 
   it('preserves event ordering across chunks', () => {

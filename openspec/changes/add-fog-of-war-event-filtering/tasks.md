@@ -2,21 +2,21 @@
 
 ## 1. Visibility Model
 
-- [ ] 1.1 Define `canPlayerSeeUnit(playerId, unitId, state): boolean`
+- [x] 1.1 Define `canPlayerSeeUnit(playerId, unitId, state): boolean`
       in `spatial-combat-system` as a shared helper
-- [ ] 1.2 Implementation: true if any unit owned by `playerId` has LOS
+- [x] 1.2 Implementation: true if any unit owned by `playerId` has LOS
       to `unitId` within its sensor range, OR the target is itself
       owned by `playerId`
-- [ ] 1.3 Add convenience `visibleUnitsForPlayer(playerId, state):
+- [x] 1.3 Add convenience `visibleUnitsForPlayer(playerId, state):
 UnitId[]` that returns the set
-- [ ] 1.4 Unit tests covering: adjacent LOS, LOS blocked by terrain,
+- [x] 1.4 Unit tests covering: adjacent LOS, LOS blocked by terrain,
       sensor range boundary, own units always visible
 
 ## 2. Event Visibility Classification
 
 - [ ] 2.1 Add `visibility` tag on every event type; values `'public' |
 'actor-only' | 'observer-visible' | 'target-visible'`
-- [ ] 2.2 Classify existing event types: - `GameCreated`, `PhaseChanged`, `TurnAdvanced`, `GameEnded`,
+- [x] 2.2 Classify existing event types: - `GameCreated`, `PhaseChanged`, `TurnAdvanced`, `GameEnded`,
       `match_paused`, `match_resumed` → `'public'` - `MovementDeclared` → `'actor-only'` (pre-commit) - `MovementLocked`, `FacingChanged` → `'observer-visible'` - `AttackDeclared` → `'actor-only'` - `AttackResolved`, `DamageApplied` → split:
       `'target-visible'` (target always knows they got hit) plus
       `'observer-visible'` for the full detail - `HeatGenerated`, `HeatDissipated` → `'observer-visible'` - `PilotHit`, `UnitDestroyed` → `'observer-visible'` - `InitiativeRolled` → `'public'` (initiative result itself);
@@ -24,13 +24,13 @@ UnitId[]` that returns the set
 
 ## 3. Server-Side Filter
 
-- [ ] 3.1 Add `fogOfWar.ts` with `filterEventForPlayer(event,
+- [x] 3.1 Add `fogOfWar.ts` with `filterEventForPlayer(event,
 playerId, state): IGameEvent | null`
-- [ ] 3.2 Returns `null` if the event must not be sent to this player
-- [ ] 3.3 Returns a potentially redacted copy if partial visibility
+- [x] 3.2 Returns `null` if the event must not be sent to this player
+- [x] 3.3 Returns a potentially redacted copy if partial visibility
       applies (e.g., target knows a hit was taken but not the shooter
       when the shooter is not in LOS)
-- [ ] 3.4 The filter is a no-op (returns original) when
+- [x] 3.4 The filter is a no-op (returns original) when
       `config.fogOfWar === false`
 
 ## 4. Broadcast Integration
@@ -44,22 +44,22 @@ playerId, state): IGameEvent | null`
 
 ## 5. Redaction Rules
 
-- [ ] 5.1 `AttackResolved` when shooter is not visible to target
+- [x] 5.1 `AttackResolved` when shooter is not visible to target
       owner: redact `attackerId`, keep `targetId`, `damage`,
       `hitLocation`, `rolls` for target's own damage display
-- [ ] 5.2 `MovementLocked` when the moving unit is not in the
+- [x] 5.2 `MovementLocked` when the moving unit is not in the
       observer's LOS: skip the event entirely
-- [ ] 5.3 `HeatGenerated` for an enemy unit outside LOS: skip entirely
-- [ ] 5.4 `UnitDestroyed` for an enemy unit outside LOS: send a
+- [x] 5.3 `HeatGenerated` for an enemy unit outside LOS: skip entirely
+- [x] 5.4 `UnitDestroyed` for an enemy unit outside LOS: send a
       reduced form `{type: 'unit_destroyed', payload: {unitId}}`
       without damage/crit detail
 
 ## 6. Fog-Enable Configuration
 
-- [ ] 6.1 `IMatchMeta.config.fogOfWar: boolean` defaults to `false`
-- [ ] 6.2 Host sets fog on at match creation; cannot be toggled mid-
+- [x] 6.1 `IMatchMeta.config.fogOfWar: boolean` defaults to `false`
+- [x] 6.2 Host sets fog on at match creation; cannot be toggled mid-
       match
-- [ ] 6.3 Lobby UI surfaces a `"Double-blind (fog of war)"` checkbox
+- [x] 6.3 Lobby UI surfaces a `"Double-blind (fog of war)"` checkbox
 
 ## 7. Client Rendering With Fog
 
@@ -94,7 +94,7 @@ playerId, state): IGameEvent | null`
 
 ## 10. Performance
 
-- [ ] 10.1 LOS checks are cached per-turn per-(observer, target)
+- [x] 10.1 LOS checks are cached per-turn per-(observer, target)
       pair; invalidated on movement events
 - [ ] 10.2 `canPlayerSeeUnit` target: sub-millisecond per check on
       8-player, 32-unit maps

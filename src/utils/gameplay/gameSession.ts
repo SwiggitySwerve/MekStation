@@ -1,5 +1,6 @@
 export {
   createGameSession,
+  hydrateGameSessionFromEvents,
   startGame,
   endGame,
   appendEvent,
