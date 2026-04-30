@@ -12,7 +12,7 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-The active queue currently has two complete changes and ten in-progress
+The active queue currently has three complete changes and nine in-progress
 changes. Wave 0 reconciliation marked already proven source, test, and
 spec-admin tasks complete; later wave work has advanced several changes, but
 the remaining unchecked tasks are implementation work or intentionally
@@ -25,7 +25,7 @@ unproven partials.
 | `add-multi-type-record-sheet-export` | 46/54 | Phase 6 export |
 | `add-p2p-game-session-sync` | 12/33 | Phase 4 multiplayer |
 | `add-game-session-invite-and-lobby-1v1` | 29/39 | Phase 4 multiplayer |
-| `add-game-session-persistence-for-reconnect` | 29/39 | Phase 4 multiplayer |
+| `add-game-session-persistence-for-reconnect` | 39/39 | Phase 4 multiplayer |
 | `add-fog-of-war-event-filtering` | 39/39 | Phase 4/4.5 multiplayer |
 | `add-movement-interpolation-animations` | 44/45 | Phase 7 tactical visuals |
 | `add-los-and-firing-arc-overlays` | 43/56 | Phase 7 tactical visuals |
@@ -180,16 +180,20 @@ After Wave 1 contracts land:
 
 Current status after the 2026-04-30 Wave 4 hardening slice:
 
-- `add-game-session-persistence-for-reconnect` is at 29/39. Completed
-  foundations now include IndexedDB match logs, session hydration, 60s
-  replay/grace constants, host `getEventsFromSeq`, 64-event replay chunks,
-  local-only pending status fields, Yjs awareness-derived pending states,
-  server-side grace pause/resume/abort handling, wrong-match rejection, match-log
-  completion/purge/debug cleanup, and focused unit tests. Remaining work is the
-  P2P page-load reconnect loop: `InteractiveSession` append persistence,
-  URL/late-join reconnect activation, host replay response wiring, guest replay
-  application, host-absent local-log fallback, running-match rejection, and two
-  mock-sync catch-up tests.
+- `add-game-session-persistence-for-reconnect` is complete at 39/39 and ready
+  for verify / archive after merge. The Wave 4 closeout slice closed the P2P
+  page-load reconnect loop: `InteractiveSession.appendEvent` persists every
+  event to IndexedDB with disk/memory mismatch toast, the new
+  `useP2PReconnectSession` hook drives URL/late-join reconnect activation +
+  10s host-absent fallback to `hostPending`, `ServerMatchHost` answers
+  reconnect-request from the original guest with chunked replay-stream and
+  rejects foreign peers with the new `reconnect-reject "Match in progress"`
+  envelope, and two mock-sync integration tests cover the guest-drop catch-up
+  and host-drop `hostPending` fallback flows. Earlier foundations remain
+  intact: IndexedDB match logs, session hydration, 60s replay/grace constants,
+  host `getEventsFromSeq`, 64-event replay chunks, local-only pending status,
+  Yjs awareness-derived pending states, server-side grace pause/resume/abort,
+  wrong-match rejection, and match-log completion/purge/debug cleanup.
 - `add-fog-of-war-event-filtering` is complete at 39/39 and ready for verify /
   archive after merge. Completed work includes visibility tags/classification,
   standalone filtering/redaction, server per-recipient broadcast integration,
@@ -247,8 +251,9 @@ parallelism without making shared files unmergeable.
   `add-infantry-construction` for the infantry record sheet.
 - `add-game-session-invite-and-lobby-1v1` is blocked by P2P channel, role, and
   side ownership contracts for launch integration.
-- `add-game-session-persistence-for-reconnect` is blocked by P2P and lobby
-  match identity semantics for reconnect behavior.
+- `add-game-session-persistence-for-reconnect` is unblocked at 39/39 — the
+  P2P + lobby match-identity contracts it depended on landed in the same
+  Wave 4 closeout slice.
 - Reconnect grace policy needs one decision: quick abort on host loss vs a
   pending/grace state. Also reconcile the desired 60s grace with the current
   multiplayer protocol constant if it remains 120s.

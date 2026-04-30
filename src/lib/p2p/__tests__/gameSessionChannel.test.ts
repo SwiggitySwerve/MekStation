@@ -13,6 +13,7 @@ import { REPLAY_CHUNK_SIZE } from '@/types/multiplayer/Protocol';
 
 import {
   GAME_SESSION_EVENTS_ARRAY,
+  answerReconnectRequest,
   createReconnectRequestEnvelope,
   createGameSessionChannel,
   createReplayStreamEnvelopes,
@@ -21,6 +22,7 @@ import {
   isGameIntent,
   serializeGameSessionEnvelope,
   type IGameEventEnvelope,
+  type IReconnectRejectEnvelope,
   type MatchLogPersistence,
 } from '../gameSessionChannel';
 import {
@@ -338,6 +340,18 @@ describe('gameSessionChannel', () => {
     ).toEqual(request);
   });
 
+  it('round-trips reconnect rejection envelopes', () => {
+    const rejection: IReconnectRejectEnvelope = {
+      kind: 'reconnect-reject',
+      matchId: 'match-1',
+      reason: 'Match in progress',
+    };
+
+    expect(
+      deserializeGameSessionEnvelope(serializeGameSessionEnvelope(rejection)),
+    ).toEqual(rejection);
+  });
+
   it('chunks replay streams at the protocol chunk size and marks only the final chunk done', () => {
     const events = Array.from({ length: REPLAY_CHUNK_SIZE + 1 }, (_, index) =>
       makeEvent(`event-${index}`, index),
@@ -456,6 +470,48 @@ describe('gameSessionChannel', () => {
     unsubscribeRejection();
     expect(requests).toEqual(['other-match']);
     expect(rejections).toEqual(['wrong-match']);
+  });
+
+  it('rejects reconnect-request from a foreign peer without replaying events', async () => {
+    const hostChannel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+    });
+    const foreignChannel = createGameSessionChannel({
+      localPeerId: 'foreign-peer',
+      eventArray,
+    });
+    const rejections: string[] = [];
+    const unsubscribeRejection = foreignChannel.onReconnectReject(
+      (rejection) => {
+        rejections.push(rejection.reason);
+      },
+    );
+    const getEventsFromSeq = jest.fn(() =>
+      Promise.resolve([] as readonly IGameEvent[]),
+    );
+
+    const result = await answerReconnectRequest(
+      createReconnectRequestEnvelope({
+        matchId: 'match-1',
+        lastLocalSeq: 5,
+        authorPeerId: 'foreign-peer',
+      }),
+      {
+        matchId: 'match-1',
+        metadata: {
+          hostPeerId: 'host-peer',
+          guestPeerId: 'guest-peer',
+        },
+        channel: hostChannel,
+        getEventsFromSeq,
+      },
+    );
+
+    unsubscribeRejection();
+    expect(result).toBe('rejected');
+    expect(rejections).toEqual(['Match in progress']);
+    expect(getEventsFromSeq).not.toHaveBeenCalled();
   });
 });
 

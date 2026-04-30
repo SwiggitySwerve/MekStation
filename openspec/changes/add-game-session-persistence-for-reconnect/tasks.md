@@ -13,11 +13,11 @@ IGameEvent, savedAt: ISO8601}`; primary key `[matchId, sequence]`
 
 ## 2. Persistence Wiring
 
-- [ ] 2.1 `InteractiveSession.appendEvent` on both host and guest writes
+- [x] 2.1 `InteractiveSession.appendEvent` on both host and guest writes
       to IndexedDB after the in-memory append succeeds
 - [x] 2.2 `IGameSession` carries a `matchId` (already present after
       `add-game-session-invite-and-lobby-1v1`)
-- [ ] 2.3 Persistence is fire-and-forget but errors are logged; state
+- [x] 2.3 Persistence is fire-and-forget but errors are logged; state
       mismatch between disk and memory is surfaced as a toast
 
 ## 3. Hydration From Log
@@ -30,13 +30,13 @@ IGameEvent, savedAt: ISO8601}`; primary key `[matchId, sequence]`
 
 ## 4. Reconnect Protocol (Guest → Host)
 
-- [ ] 4.1 On page load, if URL has a `matchId`, guest opens the sync
+- [x] 4.1 On page load, if URL has a `matchId`, guest opens the sync
       room and sends `{kind: 'reconnect-request', matchId,
 lastLocalSeq}`
-- [ ] 4.2 Host responds with `{kind: 'replay-stream', events:
+- [x] 4.2 Host responds with `{kind: 'replay-stream', events:
 IGameEvent[]}` containing all events with `seq > lastLocalSeq`
-- [ ] 4.3 Guest applies the replayed events in order via `appendEvent`
-- [ ] 4.4 If the host is not present within 10 seconds, the guest falls
+- [x] 4.3 Guest applies the replayed events in order via `appendEvent`
+- [x] 4.4 If the host is not present within 10 seconds, the guest falls
       back to hydrate-from-local-log and enters a `HostPending` local
       state
 
@@ -73,10 +73,10 @@ Status` returns to `'live'` and play resumes
 
 ## 8. Guest-Side Late Join
 
-- [ ] 8.1 If a guest loads a lobby URL after the match has launched and
+- [x] 8.1 If a guest loads a lobby URL after the match has launched and
       they were the original guest, the reconnect protocol activates
       automatically
-- [ ] 8.2 If a different peer tries to join a running 1v1 session, the
+- [x] 8.2 If a different peer tries to join a running 1v1 session, the
       host rejects them with `"Match in progress"`
 
 ## 9. Persistence Cleanup
@@ -90,11 +90,11 @@ Status` returns to `'live'` and play resumes
 ## 10. Tests
 
 - [x] 10.1 Unit test: save 20 events, hydrate, verify `currentState`
-- [ ] 10.2 Integration test using mock sync: guest drops after turn 3
+- [x] 10.2 Integration test using mock sync: guest drops after turn 3
       event 5, reconnects, catches up to turn 4 event 9
 - [x] 10.3 Integration test: guest drops, grace window expires, host
       match ends with `aborted`
-- [ ] 10.4 Integration test: host drops, guest holds its local log,
+- [x] 10.4 Integration test: host drops, guest holds its local log,
       host returns, guest catches up from host's log
 
 ## 11. Spec Compliance

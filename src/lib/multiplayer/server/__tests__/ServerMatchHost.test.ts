@@ -8,9 +8,11 @@
  */
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
+import { createReconnectRequestEnvelope } from '@/lib/p2p/gameSessionChannel';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameEventType,
+  type IGameEvent,
   type IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
@@ -88,6 +90,24 @@ async function makeHost(): Promise<{
   return { host, store };
 }
 
+function makeReconnectChannel() {
+  return {
+    broadcastRejection: jest.fn(),
+    broadcastReconnectReject: jest.fn(),
+    broadcastReplayStream: jest.fn(),
+  };
+}
+
+function makeMatchMetadata(matchId: string) {
+  return {
+    matchId,
+    hostPeerId: 'host-peer',
+    guestPeerId: 'guest-peer',
+    status: 'active' as const,
+    lastActivity: '2026-04-30T00:00:00.000Z',
+  };
+}
+
 // =============================================================================
 // Tests
 // =============================================================================
@@ -140,6 +160,63 @@ describe('ServerMatchHost', () => {
     expect(parsed.kind).toBe('Error');
     expect(parsed.code).toBe('UNKNOWN_MATCH');
     expect(parsed.reason).toBe('wrong-match');
+  });
+
+  it('answers original guest reconnect-request with replay-stream events newer than lastLocalSeq', async () => {
+    const { host } = await makeHost();
+    const channel = makeReconnectChannel();
+
+    await host.handleReconnectRequest(
+      createReconnectRequestEnvelope({
+        matchId: host.matchId,
+        lastLocalSeq: 0,
+        authorPeerId: 'guest-peer',
+      }),
+      channel,
+      {
+        getMatchMetadata: jest
+          .fn()
+          .mockResolvedValue(makeMatchMetadata(host.matchId)),
+      },
+    );
+
+    expect(channel.broadcastRejection).not.toHaveBeenCalled();
+    expect(channel.broadcastReconnectReject).not.toHaveBeenCalled();
+    expect(channel.broadcastReplayStream).toHaveBeenCalled();
+    const streamedSequences: number[] = [];
+    for (const [stream] of channel.broadcastReplayStream.mock.calls) {
+      for (const event of stream.events as readonly IGameEvent[]) {
+        streamedSequences.push(event.sequence);
+      }
+    }
+    expect(streamedSequences.length).toBeGreaterThan(0);
+    expect(streamedSequences.every((sequence) => sequence > 0)).toBe(true);
+  });
+
+  it('rejects a foreign reconnect-request with Match in progress', async () => {
+    const { host } = await makeHost();
+    const channel = makeReconnectChannel();
+
+    await host.handleReconnectRequest(
+      createReconnectRequestEnvelope({
+        matchId: host.matchId,
+        lastLocalSeq: 0,
+        authorPeerId: 'foreign-peer',
+      }),
+      channel,
+      {
+        getMatchMetadata: jest
+          .fn()
+          .mockResolvedValue(makeMatchMetadata(host.matchId)),
+      },
+    );
+
+    expect(channel.broadcastReplayStream).not.toHaveBeenCalled();
+    expect(channel.broadcastRejection).not.toHaveBeenCalled();
+    expect(channel.broadcastReconnectReject).toHaveBeenCalledWith({
+      matchId: host.matchId,
+      reason: 'Match in progress',
+    });
   });
 
   it('handleIntent broadcasts new events to all sockets', async () => {

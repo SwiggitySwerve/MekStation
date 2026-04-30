@@ -26,6 +26,10 @@ import {
   InteractivePhase,
 } from '@/stores/useGameplayStore';
 import {
+  deriveReconnectRoomCode,
+  useP2PReconnectSession,
+} from '@/hooks/useP2PReconnectSession';
+import {
   Facing,
   GamePhase,
   GameSide,
@@ -70,6 +74,7 @@ export default function GameSessionPage(): React.ReactElement {
   const { id, campaignId, missionId } = router.query;
   const campaignIdStr = typeof campaignId === 'string' ? campaignId : undefined;
   const missionIdStr = typeof missionId === 'string' ? missionId : undefined;
+  const matchIdStr = typeof id === 'string' && id !== 'demo' ? id : null;
 
   const session = useGameplaySelector((state) => state.session);
   const isLoading = useGameplaySelector((state) => state.isLoading);
@@ -117,6 +122,21 @@ export default function GameSessionPage(): React.ReactElement {
   const clearPlannedMovement = useGameplaySelector(
     (state) => state.clearPlannedMovement,
   );
+
+  const redirectReconnectToLobby = useCallback(
+    (reconnectMatchId: string, reason: string) => {
+      const roomCode = deriveReconnectRoomCode(reconnectMatchId);
+      const target = roomCode
+        ? `/gameplay/lobby/${encodeURIComponent(roomCode)}`
+        : '/gameplay/games';
+      void router.replace(`${target}?error=${encodeURIComponent(reason)}`);
+    },
+    [router],
+  );
+
+  useP2PReconnectSession(matchIdStr, {
+    redirectToLobby: redirectReconnectToLobby,
+  });
 
   useEffect(() => {
     if (id === 'demo') {

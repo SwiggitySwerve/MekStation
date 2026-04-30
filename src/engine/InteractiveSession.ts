@@ -18,6 +18,7 @@ import {
   matchLogStorage,
   type MatchLogStorage,
 } from '@/lib/p2p/matchLogStorage';
+import { toast } from '@/components/shared/Toast';
 import {
   calculateGameOutcome,
   isGameEnded,
@@ -38,6 +39,7 @@ import {
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
+  type IGameEvent,
   type IGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
@@ -87,6 +89,12 @@ import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 import type { IAdaptedUnit, IAvailableActions } from './types';
 
 import { toAIUnitState, toMovementCapability } from './GameEngine.helpers';
+
+const MATCH_LOG_DIVERGENCE_MESSAGE =
+  'Match log save failed — local state may diverge';
+
+type MatchLogHydrationStorage = Pick<MatchLogStorage, 'getEventsForMatch'> &
+  Partial<Pick<MatchLogStorage, 'getLastSequence'>>;
 
 /**
  * Per `wire-encounter-to-campaign-round-trip` Wave 5: campaign linkage
@@ -194,10 +202,23 @@ export class InteractiveSession {
 
   static async fromMatchLog(
     matchId: string,
-    storage: Pick<MatchLogStorage, 'getEventsForMatch'> = matchLogStorage,
+    storage: MatchLogHydrationStorage = matchLogStorage,
   ): Promise<IGameSession> {
     const events = await storage.getEventsForMatch(matchId);
-    return hydrateGameSessionFromEvents(matchId, events);
+    const session = hydrateGameSessionFromEvents(matchId, events);
+
+    if (storage.getLastSequence) {
+      const diskTailSequence = await storage.getLastSequence(matchId);
+      const memoryTailSequence =
+        session.events.length === 0
+          ? null
+          : session.events[session.events.length - 1].sequence;
+      if (diskTailSequence !== memoryTailSequence) {
+        showMatchLogDivergenceToast();
+      }
+    }
+
+    return session;
   }
 
   getState(): IGameState {
@@ -206,6 +227,10 @@ export class InteractiveSession {
 
   getSession(): IGameSession {
     return this.session;
+  }
+
+  appendEvent(event: IGameEvent): void {
+    this.appendAndPersistEvent(event);
   }
 
   /**
@@ -485,8 +510,7 @@ export class InteractiveSession {
         ) {
           const sequence = this.session.events.length;
           const { turn, phase: currentPhase } = this.session.currentState;
-          this.session = appendEvent(
-            this.session,
+          this.appendAndPersistEvent(
             createUnitRetreatedEvent(
               this.session.id,
               sequence,
@@ -601,8 +625,7 @@ export class InteractiveSession {
     if (!evt) return;
     const sequence = this.session.events.length;
     const { turn, phase } = this.session.currentState;
-    this.session = appendEvent(
-      this.session,
+    this.appendAndPersistEvent(
       createRetreatTriggeredEvent(
         this.session.id,
         sequence,
@@ -613,6 +636,16 @@ export class InteractiveSession {
         evt.payload.reason,
       ),
     );
+  }
+
+  private appendAndPersistEvent(event: IGameEvent): void {
+    this.session = appendEvent(this.session, event);
+    void matchLogStorage
+      .appendEvent(this.session.matchId ?? this.session.id, event)
+      .catch((error: unknown) => {
+        console.error(MATCH_LOG_DIVERGENCE_MESSAGE, error);
+        showMatchLogDivergenceToast();
+      });
   }
 
   /**
@@ -846,4 +879,11 @@ export class InteractiveSession {
     };
     return deriveCombatOutcome(this.session, merged);
   }
+}
+
+function showMatchLogDivergenceToast(): void {
+  toast({
+    message: MATCH_LOG_DIVERGENCE_MESSAGE,
+    variant: 'error',
+  });
 }

@@ -51,6 +51,15 @@ import {
   type ICombatOutcomeReadyEvent,
 } from '@/engine/combatOutcomeBus';
 import { InteractiveSession } from '@/engine/InteractiveSession';
+import {
+  answerReconnectRequest,
+  type IGameSessionChannel,
+  type IReconnectRequestEnvelope,
+} from '@/lib/p2p/gameSessionChannel';
+import {
+  matchLogStorage,
+  type MatchLogStorage,
+} from '@/lib/p2p/matchLogStorage';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameSide,
@@ -90,6 +99,8 @@ import { streamReplay } from './reconnection/replayStream';
 import { RollCapture, SeededDiceRoller } from './RollCapture';
 import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
+
+type ReconnectMetadataReader = Pick<MatchLogStorage, 'getMatchMetadata'>;
 
 // =============================================================================
 // Socket abstraction
@@ -532,6 +543,47 @@ export class ServerMatchHost {
    */
   async getEventsFromSeq(seq: number): Promise<readonly IGameEvent[]> {
     return this.store.getEvents(this.matchId, seq);
+  }
+
+  /**
+   * P2P reconnect-channel bridge for the local-host path. The caller
+   * owns channel creation; the host owns the authorization + replay
+   * decision so the same logic is testable without a live WebRTC room.
+   */
+  async handleReconnectRequest(
+    request: IReconnectRequestEnvelope,
+    channel: Pick<
+      IGameSessionChannel,
+      'broadcastRejection' | 'broadcastReconnectReject' | 'broadcastReplayStream'
+    >,
+    metadataReader: ReconnectMetadataReader = matchLogStorage,
+  ): Promise<void> {
+    const metadata =
+      request.matchId === this.matchId
+        ? await metadataReader.getMatchMetadata(this.matchId)
+        : null;
+
+    await answerReconnectRequest(request, {
+      matchId: this.matchId,
+      metadata,
+      channel,
+      getEventsFromSeq: (seq) => this.getEventsFromSeq(seq),
+    });
+  }
+
+  bindReconnectChannel(
+    channel: Pick<
+      IGameSessionChannel,
+      | 'broadcastRejection'
+      | 'broadcastReconnectReject'
+      | 'broadcastReplayStream'
+      | 'onReconnectRequest'
+    >,
+    metadataReader: ReconnectMetadataReader = matchLogStorage,
+  ): () => void {
+    return channel.onReconnectRequest((request) => {
+      void this.handleReconnectRequest(request, channel, metadataReader);
+    });
   }
 
   private async getReplayEventsForPlayer(
