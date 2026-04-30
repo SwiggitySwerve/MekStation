@@ -363,4 +363,45 @@ describe('fog-of-war event filtering', () => {
     ).toBeNull();
     expect(checks).toBe(2);
   });
+
+  it('keeps cached filtering for eight players and thirty-two units under the broadcast budget', () => {
+    const units: Record<string, IUnitGameState> = {};
+    const playerIds = Array.from({ length: 8 }, (_, i) => `pid_${i}`);
+    for (let i = 0; i < 32; i += 1) {
+      units[`unit-${i}`] = makeUnit(
+        `unit-${i}`,
+        i % 2 === 0 ? GameSide.Player : GameSide.Opponent,
+        { q: i, r: -i },
+      );
+    }
+    const state: TestState = {
+      ...makeState(),
+      units,
+      sideOwners: {
+        [GameSide.Player]: PLAYER_A,
+        [GameSide.Opponent]: PLAYER_B,
+      },
+    };
+    const cache = new FogOfWarVisibilityCache();
+    const events = Array.from({ length: 32 }, (_, i) =>
+      heatGeneratedEvent(`unit-${i}`),
+    );
+    const canSeeUnit: TestCanSeeUnit = (_playerId, unitId) => {
+      return Number(unitId.split('-')[1]) % 2 === 0;
+    };
+
+    const start = performance.now();
+    for (const playerId of playerIds) {
+      for (const event of events) {
+        filterEventForPlayer(event, playerId, state, {
+          fogOfWar: true,
+          cache,
+          canSeeUnit,
+        });
+      }
+    }
+    const elapsedMs = performance.now() - start;
+
+    expect(elapsedMs).toBeLessThan(5);
+  });
 });

@@ -305,6 +305,12 @@ export interface IGameIntent {
 /**
  * Base interface for all game events.
  */
+export type GameEventVisibility =
+  | 'public'
+  | 'actor-only'
+  | 'observer-visible'
+  | 'target-visible';
+
 export interface IGameEventBase {
   /** Unique event ID */
   readonly id: string;
@@ -322,6 +328,8 @@ export interface IGameEventBase {
   readonly phase: GamePhase;
   /** Unit that triggered the event (if applicable) */
   readonly actorId?: string;
+  /** Fog-of-war delivery class used by multiplayer event filtering. */
+  readonly visibility?: GameEventVisibility;
 }
 
 /**

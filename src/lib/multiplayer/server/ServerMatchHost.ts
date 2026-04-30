@@ -38,6 +38,7 @@ import type { WebSocket as WsWebSocket } from 'ws';
 import type { IAdaptedUnit } from '@/engine/types';
 import type {
   IGameEvent,
+  IGameState,
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexGrid } from '@/types/gameplay/HexGridInterfaces';
@@ -59,15 +60,18 @@ import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import {
   intentHasForbiddenDiceField,
   type IIntent,
+  type IEventMessage,
   type ILobbyUpdated,
   type IServerMessage,
   nowIso,
 } from '@/types/multiplayer/Protocol';
+import { deriveState } from '@/utils/gameplay/gameState';
 
-import type { IMatchStore } from './IMatchStore';
+import type { IMatchMeta, IMatchStore } from './IMatchStore';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { CryptoDiceRoller, type IServerDiceRoller } from './CryptoDiceRoller';
+import { filterEventForPlayer, FogOfWarVisibilityCache } from './fogOfWar';
 import {
   canLaunch,
   leaveSeat,
@@ -131,6 +135,7 @@ export interface IMatchHostBootstrap {
 export class ServerMatchHost {
   private readonly broadcaster = new ServerMatchBroadcaster();
   private readonly lifecycle: ServerMatchSocketLifecycle;
+  private readonly fogVisibilityCache = new FogOfWarVisibilityCache();
   private readonly session: InteractiveSession;
   private lastBroadcastSeq: number;
   private closed = false;
@@ -453,7 +458,7 @@ export class ServerMatchHost {
         await this.closeMatch();
         return;
       }
-      this.broadcast({
+      await this.broadcastEvent({
         kind: 'Event',
         matchId: this.matchId,
         ts: nowIso(),
@@ -502,8 +507,15 @@ export class ServerMatchHost {
    * broadcast. Live events still go to every attached socket via
    * `broadcast()`.
    */
-  async sendReplay(socket: IMatchSocket, fromSeq = 0): Promise<void> {
-    const events = await this.getEventsFromSeq(fromSeq);
+  async sendReplay(
+    socket: IMatchSocket,
+    fromSeq = 0,
+    playerId?: string,
+  ): Promise<void> {
+    const events =
+      playerId != null
+        ? await this.getReplayEventsForPlayer(playerId, fromSeq)
+        : await this.getEventsFromSeq(fromSeq);
     const frames = streamReplay(this.matchId, events, fromSeq);
     this.safeSend(socket, frames.start);
     for (const chunk of frames.chunks) {
@@ -520,6 +532,40 @@ export class ServerMatchHost {
    */
   async getEventsFromSeq(seq: number): Promise<readonly IGameEvent[]> {
     return this.store.getEvents(this.matchId, seq);
+  }
+
+  private async getReplayEventsForPlayer(
+    playerId: string,
+    fromSeq: number,
+  ): Promise<readonly IGameEvent[]> {
+    const meta = await this.store.getMatchMeta(this.matchId);
+    if (!meta.config.fogOfWar) {
+      return this.getEventsFromSeq(fromSeq);
+    }
+
+    const allEvents = await this.getEventsFromSeq(0);
+    const visible: IGameEvent[] = [];
+    const prefix: IGameEvent[] = [];
+    const replayCache = new FogOfWarVisibilityCache();
+    const gameId = this.session.getSession().id;
+
+    for (const event of allEvents) {
+      prefix.push(event);
+      if (event.sequence < fromSeq) continue;
+      const state = this.withVisibilityAssignments(
+        deriveState(gameId, prefix),
+        meta,
+      );
+      const filtered = filterEventForPlayer(event, playerId, state, {
+        config: meta.config,
+        cache: replayCache,
+      });
+      if (filtered) {
+        visible.push(filtered);
+      }
+    }
+
+    return visible;
   }
 
   /**
@@ -561,7 +607,7 @@ export class ServerMatchHost {
     // with the +1 yields the strictly-greater semantics the proposal
     // calls for.
     const requestFrom = lastSeq != null ? lastSeq + 1 : 0;
-    await this.sendReplay(socket, requestFrom);
+    await this.sendReplay(socket, requestFrom, playerId);
 
     // Send a current LobbyUpdated snapshot so a pre-active reconnect
     // (or any active client that wants to confirm seat state) doesn't
@@ -709,7 +755,7 @@ export class ServerMatchHost {
         ts: nowIso(),
         event,
       };
-      this.broadcast(envelopeOut);
+      await this.broadcastEvent(envelopeOut);
       broadcasts.push(envelopeOut);
     }
 
@@ -1051,6 +1097,57 @@ export class ServerMatchHost {
   }
 
   /**
+   * Broadcast one live game event. With fog disabled this is the same
+   * fan-out as `broadcast`; with fog enabled each recipient receives a
+   * per-player filtered/redacted envelope or no envelope at all.
+   */
+  private async broadcastEvent(message: IEventMessage): Promise<void> {
+    let meta: IMatchMeta;
+    try {
+      meta = await this.store.getMatchMeta(this.matchId);
+    } catch {
+      this.broadcast(message);
+      return;
+    }
+
+    if (!meta.config.fogOfWar) {
+      this.broadcast(message);
+      return;
+    }
+
+    const state = this.withVisibilityAssignments(
+      this.session.getSession().currentState,
+      meta,
+    );
+    for (const recipient of this.lifecycle.snapshotRecipients()) {
+      const filtered = filterEventForPlayer(
+        message.event as IGameEvent,
+        recipient.playerId,
+        state,
+        {
+          config: meta.config,
+          cache: this.fogVisibilityCache,
+        },
+      );
+      if (!filtered) continue;
+      this.safeSend(recipient.socket, {
+        ...message,
+        event: filtered,
+      });
+    }
+  }
+
+  private withVisibilityAssignments(
+    state: IGameState,
+    meta: IMatchMeta,
+  ): IGameState {
+    return {
+      ...state,
+      sideAssignments: meta.sideAssignments,
+    } as IGameState;
+  }
+
+  /**
    * Send to a single socket, swallowing send errors. Used for join +
    * replay paths where we don't want a single bad socket to throw out
    * of the upgrade handler.
@@ -1326,7 +1423,7 @@ export class ServerMatchHost {
         ts: nowIso(),
         event,
       };
-      this.broadcast(envelopeOut);
+      await this.broadcastEvent(envelopeOut);
       out.push(envelopeOut);
     }
     // Wave 5: ForfeitMatch ends the match cleanly, so the bus event

@@ -1,6 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { GameEventType, GamePhase, IGameEventBase } from '@/types/gameplay';
+import type { IGameEventBase } from '@/types/gameplay';
+
+import { GameEventType, GamePhase } from '@/types/gameplay';
+import { classifyGameEventVisibility } from '@/utils/gameplay/gameEventVisibility';
 
 export function generateEventId(): string {
   return uuidv4();
@@ -23,5 +26,6 @@ export function createEventBase(
     turn,
     phase,
     actorId,
+    visibility: classifyGameEventVisibility({ type }),
   };
 }

@@ -202,4 +202,18 @@ export class ServerMatchSocketLifecycle {
   snapshot(): readonly IMatchSocket[] {
     return Array.from(this.sockets.keys());
   }
+
+  /**
+   * Snapshot sockets with their authenticated player id. Used by
+   * per-recipient delivery paths such as fog-of-war filtering.
+   */
+  snapshotRecipients(): readonly {
+    readonly socket: IMatchSocket;
+    readonly playerId: string;
+  }[] {
+    return Array.from(this.sockets.values()).map((state) => ({
+      socket: state.socket,
+      playerId: state.playerId,
+    }));
+  }
 }
