@@ -1,5 +1,6 @@
 import type { InteractiveSession } from '@/engine/GameEngine';
 
+import { getPrefersReducedMotion } from '@/hooks/useReducedMotion';
 import {
   IGameSession,
   IGameplayUIState,
@@ -15,6 +16,8 @@ import {
   replayToSequence,
 } from '@/utils/gameplay/gameSession';
 import { logger } from '@/utils/logger';
+
+import { useAnimationQueue } from './useAnimationQueue';
 
 export enum InteractivePhase {
   None = 'none',
@@ -52,6 +55,8 @@ type SetFn = {
  * Zustand get function type for gameplay helpers.
  */
 type GetFn = () => GameplayHelperState;
+
+let pendingPhaseAdvance = false;
 
 export function handleActionLogic(
   actionId: string,
@@ -168,6 +173,13 @@ export function advanceInteractivePhaseLogic(
   const state = get();
   if (!interactiveSession || !state.session) return;
 
+  if (shouldWaitForAnimations()) {
+    waitForAnimationQueueDrain(() =>
+      advanceInteractivePhaseLogic(interactiveSession, get, set),
+    );
+    return;
+  }
+
   const { phase } = interactiveSession.getState();
 
   if (phase === GamePhase.Initiative) {
@@ -255,6 +267,13 @@ export function skipPhaseLogic(
 ): void {
   if (!interactiveSession) return;
 
+  if (shouldWaitForAnimations()) {
+    waitForAnimationQueueDrain(() =>
+      skipPhaseLogic(interactiveSession, get, set),
+    );
+    return;
+  }
+
   interactiveSession.advancePhase();
 
   const gameOver = interactiveSession.isGameOver();
@@ -274,5 +293,28 @@ export function skipPhaseLogic(
       targetUnitId: null,
       queuedWeaponIds: [],
     },
+  });
+}
+
+function shouldWaitForAnimations(): boolean {
+  const isActive = useAnimationQueue.getState().isActive;
+  if (!isActive || getPrefersReducedMotion()) {
+    pendingPhaseAdvance = false;
+    return false;
+  }
+  return true;
+}
+
+function waitForAnimationQueueDrain(callback: () => void): void {
+  if (pendingPhaseAdvance) return;
+  pendingPhaseAdvance = true;
+
+  let unsubscribe: (() => void) | null = null;
+  unsubscribe = useAnimationQueue.getState().onComplete(() => {
+    if (useAnimationQueue.getState().isActive) return;
+
+    pendingPhaseAdvance = false;
+    unsubscribe?.();
+    callback();
   });
 }

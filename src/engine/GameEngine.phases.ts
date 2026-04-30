@@ -39,6 +39,10 @@ import {
   resolvePendingPSRs,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import {
+  buildMovementEventPath,
+  maxMovementCostForCapability,
+} from '@/utils/gameplay/movement/eventPath';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
@@ -149,6 +153,16 @@ export function runMovementPhase(
     const moveEvt = botPlayer.playMovementPhase(aiUnit, grid, cap);
 
     if (moveEvt) {
+      const eventPath = buildMovementEventPath({
+        grid,
+        from: unit.position,
+        to: moveEvt.payload.to,
+        movementType: moveEvt.payload.movementType,
+        maxCost: maxMovementCostForCapability(
+          cap,
+          moveEvt.payload.movementType,
+        ),
+      });
       updatedSession = declareMovement(
         updatedSession,
         unitId,
@@ -158,6 +172,7 @@ export function runMovementPhase(
         moveEvt.payload.movementType,
         moveEvt.payload.mpUsed,
         moveEvt.payload.heatGenerated,
+        eventPath,
       );
     }
     updatedSession = lockMovement(updatedSession, unitId);

@@ -266,6 +266,7 @@ export function declareMovement(
   movementType: MovementType,
   mpUsed: number,
   heatGenerated: number,
+  path?: readonly IHexCoordinate[],
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {
     throw new Error('Not in movement phase');
@@ -289,6 +290,7 @@ export function declareMovement(
     movementType,
     mpUsed,
     heatGenerated,
+    path,
   );
 
   return appendEvent(session, event);

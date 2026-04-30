@@ -8,6 +8,10 @@ import {
   IMovementLockedPayload,
   MovementType,
 } from '@/types/gameplay';
+import {
+  movementAnimationModeForType,
+  normalizeMovementEventPath,
+} from '@/utils/gameplay/movement/eventPath';
 
 import { createEventBase } from './base';
 
@@ -22,13 +26,17 @@ export function createMovementDeclaredEvent(
   movementType: MovementType,
   mpUsed: number,
   heatGenerated: number,
+  path?: readonly IHexCoordinate[],
 ): IGameEvent {
+  const mode = movementAnimationModeForType(movementType);
   const payload: IMovementDeclaredPayload = {
     unitId,
     from,
     to,
     facing,
     movementType,
+    ...(mode ? { mode } : {}),
+    path: normalizeMovementEventPath(from, to, path),
     mpUsed,
     heatGenerated,
   };

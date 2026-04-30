@@ -403,6 +403,11 @@ export interface IInitiativeRolledPayload {
   readonly rolls?: readonly number[];
 }
 
+export type MovementAnimationMode =
+  | MovementType.Walk
+  | MovementType.Run
+  | MovementType.Jump;
+
 /**
  * Movement declared event payload.
  */
@@ -417,6 +422,16 @@ export interface IMovementDeclaredPayload {
   readonly facing: Facing;
   /** Movement type used */
   readonly movementType: MovementType;
+  /**
+   * Phase 7 animation mode. Optional so legacy event streams that only
+   * serialized `movementType` continue to replay.
+   */
+  readonly mode?: MovementAnimationMode;
+  /**
+   * Ordered axial coordinates visited by the committed move, including
+   * the origin and destination. Optional for legacy replay backfill.
+   */
+  readonly path?: readonly IHexCoordinate[];
   /** MP spent */
   readonly mpUsed: number;
   /** Heat generated */
