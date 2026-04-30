@@ -11,6 +11,9 @@ import {
   IVehicleCrewMember,
   IVehicleLocationArmor,
   IRecordSheetEquipment,
+  IRecordSheetSPAEntry,
+  RecordSheetVehicleMotionType,
+  RecordSheetVehicleTurretConfig,
 } from '@/types/printing';
 
 import { extractHeader } from './dataExtractors';
@@ -31,7 +34,9 @@ export interface IVehicleUnitConfig {
   battleValue?: number;
   cost?: number;
   /** Combat vehicle motion type — defaults to 'Tracked' when absent. */
-  motionType?: string;
+  motionType?: RecordSheetVehicleMotionType;
+  /** Turret layout — defaults to Single when turret armor/equipment exists. */
+  turretConfig?: RecordSheetVehicleTurretConfig;
   /** Cruise MP (walk equivalent). */
   cruiseMP?: number;
   /** Flank MP (run equivalent). */
@@ -44,8 +49,10 @@ export interface IVehicleUnitConfig {
   >;
   crew?: Array<{
     role: 'driver' | 'gunner' | 'commander';
+    name?: string;
     gunnery: number;
     piloting: number;
+    specialAbilities?: readonly IRecordSheetSPAEntry[];
   }>;
   equipment?: Array<{
     id: string;
@@ -73,6 +80,17 @@ const VEHICLE_LOCATION_ORDER: IVehicleLocationArmor['location'][] = [
   'Body',
 ];
 
+function inferTurretConfig(
+  unit: IVehicleUnitConfig,
+): RecordSheetVehicleTurretConfig {
+  if (unit.turretConfig) return unit.turretConfig;
+  const hasTurretArmor = unit.armorAllocation?.Turret !== undefined;
+  const hasTurretEquipment = (unit.equipment ?? []).some((eq) =>
+    eq.location.toLowerCase().includes('turret'),
+  );
+  return hasTurretArmor || hasTurretEquipment ? 'Single' : 'None';
+}
+
 /**
  * Extract vehicle record sheet data from a vehicle unit configuration.
  *
@@ -81,6 +99,7 @@ const VEHICLE_LOCATION_ORDER: IVehicleLocationArmor['location'][] = [
  */
 export function extractVehicleData(
   unit: IVehicleUnitConfig,
+  specialAbilities?: readonly IRecordSheetSPAEntry[],
 ): IVehicleRecordSheetData {
   // Build armor locations in canonical order, skipping absent locations
   const armorAlloc = unit.armorAllocation ?? {};
@@ -102,7 +121,13 @@ export function extractVehicleData(
   // Crew — default to a single driver when not specified
   const crew: IVehicleCrewMember[] = (
     unit.crew ?? [{ role: 'driver', gunnery: 4, piloting: 5 }]
-  ).map((c) => ({ role: c.role, gunnery: c.gunnery, piloting: c.piloting }));
+  ).map((c) => ({
+    role: c.role,
+    name: c.name,
+    gunnery: c.gunnery,
+    piloting: c.piloting,
+    specialAbilities: c.specialAbilities,
+  }));
 
   // Equipment — map to the shared IRecordSheetEquipment shape
   const equipment: IRecordSheetEquipment[] = (unit.equipment ?? []).map(
@@ -125,13 +150,11 @@ export function extractVehicleData(
     }),
   );
 
-  const motionType = (unit.motionType ??
-    'Tracked') as IVehicleRecordSheetData['motionType'];
-
   return {
     unitType: 'vehicle',
-    header: extractHeader(unit as Parameters<typeof extractHeader>[0]),
-    motionType,
+    header: extractHeader(unit),
+    motionType: unit.motionType ?? 'Tracked',
+    turretConfig: inferTurretConfig(unit),
     cruiseMP: unit.cruiseMP ?? 0,
     flankMP: unit.flankMP ?? 0,
     armorType: unit.armorType ?? 'Standard',
@@ -140,6 +163,6 @@ export function extractVehicleData(
     equipment,
     barRating: unit.barRating,
     pilot: undefined,
-    specialAbilities: undefined,
+    specialAbilities,
   };
 }

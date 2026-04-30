@@ -7,6 +7,7 @@
 import {
   IBattleArmorRecordSheetData,
   IBattleArmorTrooper,
+  IRecordSheetSPAEntry,
 } from '@/types/printing';
 
 import { extractHeader } from './dataExtractors';
@@ -34,6 +35,7 @@ export interface IBattleArmorUnitConfig {
     apWeapon?: string;
     gunnery?: number;
     antiMech?: number;
+    specialAbilities?: readonly IRecordSheetSPAEntry[];
   }>;
   manipulators?: { left: string; right: string };
   walkMP?: number;
@@ -50,6 +52,7 @@ export interface IBattleArmorUnitConfig {
  */
 export function extractBattleArmorData(
   unit: IBattleArmorUnitConfig,
+  specialAbilities?: readonly IRecordSheetSPAEntry[],
 ): IBattleArmorRecordSheetData {
   const squadSize = unit.squadSize ?? 4;
 
@@ -67,13 +70,14 @@ export function extractBattleArmorData(
         apWeapon: raw?.apWeapon,
         gunnery: raw?.gunnery ?? 4,
         antiMech: raw?.antiMech ?? 5,
+        specialAbilities: raw?.specialAbilities,
       };
     },
   );
 
   return {
     unitType: 'battlearmor',
-    header: extractHeader(unit as Parameters<typeof extractHeader>[0]),
+    header: extractHeader(unit),
     squadSize,
     troopers,
     manipulators: unit.manipulators ?? { left: 'None', right: 'None' },
@@ -81,5 +85,6 @@ export function extractBattleArmorData(
     jumpMP: unit.jumpMP ?? 0,
     umuMP: unit.umuMP ?? 0,
     vtolMP: unit.vtolMP ?? 0,
+    specialAbilities,
   };
 }

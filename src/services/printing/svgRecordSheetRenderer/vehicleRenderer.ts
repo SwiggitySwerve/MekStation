@@ -49,6 +49,7 @@ export function renderVehicleSVG(data: IVehicleRecordSheetData): string {
   const {
     header,
     motionType,
+    turretConfig,
     cruiseMP,
     flankMP,
     armorLocations,
@@ -70,7 +71,9 @@ export function renderVehicleSVG(data: IVehicleRecordSheetData): string {
   <rect x="${MARGIN}" y="${motionY}" width="120" height="22" fill="#2d4a6e" rx="2"/>
   <text x="${MARGIN + 60}" y="${motionY + 14}" font-family="${FONT}" font-size="9" font-weight="bold" fill="#fff" text-anchor="middle">${esc(motionType)}</text>
   <text x="${MARGIN + 130}" y="${motionY + 8}" font-family="${FONT}" font-size="7" fill="#000">Cruise MP: ${esc(cruiseMP)}</text>
-  <text x="${MARGIN + 130}" y="${motionY + 18}" font-family="${FONT}" font-size="7" fill="#000">Flank MP: ${esc(flankMP)}</text>`;
+  <text x="${MARGIN + 130}" y="${motionY + 18}" font-family="${FONT}" font-size="7" fill="#000">Flank MP: ${esc(flankMP)}</text>
+  <text x="${MARGIN + 220}" y="${motionY + 8}" font-family="${FONT}" font-size="7" fill="#000">Turret: ${esc(turretConfig)}</text>
+  <text x="${MARGIN + 220}" y="${motionY + 18}" font-family="${FONT}" font-size="7" fill="#000">${data.barRating !== undefined ? `BAR: ${esc(data.barRating)}` : ''}</text>`;
 
   // ── Crew block ───────────────────────────────────────────────────────────
   const crewY = motionY + 32;
@@ -106,10 +109,18 @@ export function renderVehicleSVG(data: IVehicleRecordSheetData): string {
 
   // ── Equipment list ───────────────────────────────────────────────────────
   const equipStartY = armorStartY + 14 + armorLocations.length * 20 + 14;
+  const turretWeapons = equipment.filter((eq) =>
+    eq.location.toLowerCase().includes('turret'),
+  );
+  const hullWeapons = equipment.filter(
+    (eq) => !eq.location.toLowerCase().includes('turret'),
+  );
   body += `
   <!-- Equipment -->
   <text x="${MARGIN}" y="${equipStartY}" font-family="${FONT}" font-size="8" font-weight="bold" fill="#000">WEAPONS &amp; EQUIPMENT</text>
-  <line x1="${MARGIN}" y1="${equipStartY + 2}" x2="${SVG_W - MARGIN}" y2="${equipStartY + 2}" stroke="#000" stroke-width="0.5"/>`;
+  <line x1="${MARGIN}" y1="${equipStartY + 2}" x2="${SVG_W - MARGIN}" y2="${equipStartY + 2}" stroke="#000" stroke-width="0.5"/>
+  <text x="${MARGIN + 4}" y="${equipStartY + 11}" font-family="${FONT}" font-size="6" fill="#000">Turret Weapons: ${esc(turretWeapons.map((eq) => eq.name).join(', ') || 'None')}</text>
+  <text x="${MARGIN + 4}" y="${equipStartY + 20}" font-family="${FONT}" font-size="6" fill="#000">Hull Weapons: ${esc(hullWeapons.map((eq) => eq.name).join(', ') || 'None')}</text>`;
 
   // Column headers
   const cols = {
@@ -121,7 +132,7 @@ export function renderVehicleSVG(data: IVehicleRecordSheetData): string {
     med: MARGIN + 260,
     lng: MARGIN + 290,
   };
-  const hdrY = equipStartY + 12;
+  const hdrY = equipStartY + 30;
   body += `
   <text x="${cols.qty}" y="${hdrY}" font-family="${FONT}" font-size="6" font-weight="bold" fill="#000">Qty</text>
   <text x="${cols.name}" y="${hdrY}" font-family="${FONT}" font-size="6" font-weight="bold" fill="#000">Type</text>

@@ -1,18 +1,12 @@
 /**
- * Discriminated dispatch types for `RecordSheetService.extractDataByType`.
+ * Discriminated dispatch helpers for RecordSheetService.extractData.
  *
- * Each unit-type extractor (mech, vehicle, aerospace, battlearmor,
- * infantry, protomech) accepts a different config shape. Instead of
- * dispatching with `as unknown as IFooUnitConfig` casts inside the
- * switch in `RecordSheetService`, callers now hand the service an
- * `IRecordSheetDispatchTarget` whose `kind` discriminator tells
- * TypeScript which extractor to invoke and exactly which `unit`
- * shape is required.
- *
- * Co-located with the per-type extractors that own each `unit` shape so
- * that this file stays inside `src/services/printing/` and does not pull
- * runtime extractor code into the type layer.
+ * The UI still has a few legacy call-sites that pass a single "fat" config
+ * object. This module converts those objects into a typed extractor target
+ * without scattering casts through the service switch.
  */
+
+import { UnsupportedUnitTypeError } from '@/types/printing';
 
 import type { IAerospaceUnitConfig } from './dataExtractors.aerospace';
 import type { IBattleArmorUnitConfig } from './dataExtractors.battleArmor';
@@ -21,81 +15,160 @@ import type { IProtoMechUnitConfig } from './dataExtractors.protoMech';
 import type { IVehicleUnitConfig } from './dataExtractors.vehicle';
 import type { IUnitConfig } from './types';
 
-/**
- * Discriminated dispatch target for `extractDataByType`.
- *
- * Each variant carries:
- *   - `kind`: the discriminator string (matches the legacy `unit.type`
- *     values that `extractDataByType` previously read at runtime).
- *   - `unit`: the unit config shape required by that path's extractor.
- */
 export type IRecordSheetDispatchTarget =
-  | { kind: 'mech'; unit: IUnitConfig }
-  | { kind: 'vehicle'; unit: IVehicleUnitConfig }
-  | { kind: 'aerospace'; unit: IAerospaceUnitConfig }
-  | { kind: 'battlearmor'; unit: IBattleArmorUnitConfig }
-  | { kind: 'infantry'; unit: IInfantryUnitConfig }
-  | { kind: 'protomech'; unit: IProtoMechUnitConfig };
+  | { readonly kind: 'mech'; readonly unit: IUnitConfig }
+  | { readonly kind: 'vehicle'; readonly unit: IVehicleUnitConfig }
+  | { readonly kind: 'aerospace'; readonly unit: IAerospaceUnitConfig }
+  | { readonly kind: 'battlearmor'; readonly unit: IBattleArmorUnitConfig }
+  | { readonly kind: 'infantry'; readonly unit: IInfantryUnitConfig }
+  | { readonly kind: 'protomech'; readonly unit: IProtoMechUnitConfig };
 
-/**
- * Discriminator values accepted by `extractDataByType`.
- */
 export type RecordSheetDispatchKind = IRecordSheetDispatchTarget['kind'];
 
-/**
- * Type-guard: is this argument already a discriminated dispatch target?
- *
- * Used by the back-compat overload in `RecordSheetService` to decide
- * whether the caller passed an already-typed dispatch target or the
- * legacy fat unit config. A genuine target has both a string `kind`
- * and a nested `unit` object.
- */
+type UnitTypeHint = {
+  readonly type?: string;
+  readonly unitType?: string;
+};
+
+type MechTypeHint = 'mech' | 'BattleMech' | 'OmniMech' | 'IndustrialMech';
+type VehicleTypeHint = 'vehicle' | 'Vehicle' | 'VTOL' | 'Support Vehicle';
+type AerospaceTypeHint = 'aerospace' | 'Aerospace' | 'Conventional Fighter';
+type BattleArmorTypeHint = 'battlearmor' | 'Battle Armor';
+type InfantryTypeHint = 'infantry' | 'Infantry';
+type ProtoMechTypeHint = 'protomech' | 'ProtoMech';
+
+export type IMechRecordSheetUnitInput = IUnitConfig &
+  UnitTypeHint & {
+    readonly type?: MechTypeHint;
+    readonly unitType?: MechTypeHint;
+  };
+
+export type IVehicleRecordSheetUnitInput = IVehicleUnitConfig &
+  UnitTypeHint & {
+    readonly type?: VehicleTypeHint;
+    readonly unitType?: VehicleTypeHint;
+  };
+
+export type IAerospaceRecordSheetUnitInput = IAerospaceUnitConfig &
+  UnitTypeHint & {
+    readonly type?: AerospaceTypeHint;
+    readonly unitType?: AerospaceTypeHint;
+  };
+
+export type IBattleArmorRecordSheetUnitInput = IBattleArmorUnitConfig &
+  UnitTypeHint & {
+    readonly type?: BattleArmorTypeHint;
+    readonly unitType?: BattleArmorTypeHint;
+  };
+
+export type IInfantryRecordSheetUnitInput = IInfantryUnitConfig &
+  UnitTypeHint & {
+    readonly type?: InfantryTypeHint;
+    readonly unitType?: InfantryTypeHint;
+  };
+
+export type IProtoMechRecordSheetUnitInput = IProtoMechUnitConfig &
+  UnitTypeHint & {
+    readonly type?: ProtoMechTypeHint;
+    readonly unitType?: ProtoMechTypeHint;
+  };
+
+export type IUnsupportedRecordSheetUnitInput = IUnitConfig & UnitTypeHint;
+
+export type IRecordSheetUnitInput =
+  | IMechRecordSheetUnitInput
+  | IVehicleRecordSheetUnitInput
+  | IAerospaceRecordSheetUnitInput
+  | IBattleArmorRecordSheetUnitInput
+  | IInfantryRecordSheetUnitInput
+  | IProtoMechRecordSheetUnitInput
+  | IUnsupportedRecordSheetUnitInput;
+
 export function isRecordSheetDispatchTarget(
   candidate: unknown,
 ): candidate is IRecordSheetDispatchTarget {
   if (candidate === null || typeof candidate !== 'object') {
     return false;
   }
-  const maybe = candidate as { kind?: unknown; unit?: unknown };
-  return typeof maybe.kind === 'string' && typeof maybe.unit === 'object';
+  return 'kind' in candidate && 'unit' in candidate;
 }
 
-/**
- * Build a dispatch target from the legacy fat-config shape.
- *
- * The legacy callers of `extractDataByType` pass a single object that
- * carries fields for every unit type, with a `type` property selecting
- * which set is meaningful. To keep those callers working without
- * scattering casts across the dispatch switch, this helper centralises
- * the (single) cast required to map the fat config into the
- * discriminated union.
- *
- * Throws if the `type` field carries an unsupported discriminant — the
- * same failure mode as the original switch's `default` case, but
- * surfaced before the dispatch runs so the error message is consistent.
- */
-export function dispatchTargetFromLegacyConfig(
-  unit: IUnitConfig & { type?: string },
-): IRecordSheetDispatchTarget {
-  const kind = (unit.type ?? 'mech') as RecordSheetDispatchKind;
-  switch (kind) {
+function normalizeTypeHint(rawType: string | undefined): string {
+  return (rawType ?? 'mech').trim().toLowerCase().replace(/\s+/g, '');
+}
+
+export function getRecordSheetDispatchKind(
+  unit: UnitTypeHint,
+): RecordSheetDispatchKind | undefined {
+  switch (normalizeTypeHint(unit.type ?? unit.unitType)) {
     case 'mech':
-      return { kind, unit };
+    case 'battlemech':
+    case 'omnimech':
+    case 'industrialmech':
+      return 'mech';
     case 'vehicle':
-      return { kind, unit: unit as unknown as IVehicleUnitConfig };
+    case 'vtol':
+    case 'supportvehicle':
+      return 'vehicle';
     case 'aerospace':
-      return { kind, unit: unit as unknown as IAerospaceUnitConfig };
+    case 'conventionalfighter':
+      return 'aerospace';
     case 'battlearmor':
-      return { kind, unit: unit as unknown as IBattleArmorUnitConfig };
+      return 'battlearmor';
     case 'infantry':
-      return { kind, unit: unit as unknown as IInfantryUnitConfig };
+      return 'infantry';
     case 'protomech':
-      return { kind, unit: unit as unknown as IProtoMechUnitConfig };
-    default: {
-      const exhaustive: never = kind;
-      throw new Error(
-        `Unsupported record-sheet dispatch kind: ${String(exhaustive)}`,
-      );
-    }
+      return 'protomech';
+    default:
+      return undefined;
   }
+}
+
+export function isMechUnitInput(
+  unit: IRecordSheetUnitInput,
+): unit is IMechRecordSheetUnitInput {
+  return getRecordSheetDispatchKind(unit) === 'mech';
+}
+
+export function isVehicleUnitInput(
+  unit: IRecordSheetUnitInput,
+): unit is IVehicleRecordSheetUnitInput {
+  return getRecordSheetDispatchKind(unit) === 'vehicle';
+}
+
+export function isAerospaceUnitInput(
+  unit: IRecordSheetUnitInput,
+): unit is IAerospaceRecordSheetUnitInput {
+  return getRecordSheetDispatchKind(unit) === 'aerospace';
+}
+
+export function isBattleArmorUnitInput(
+  unit: IRecordSheetUnitInput,
+): unit is IBattleArmorRecordSheetUnitInput {
+  return getRecordSheetDispatchKind(unit) === 'battlearmor';
+}
+
+export function isInfantryUnitInput(
+  unit: IRecordSheetUnitInput,
+): unit is IInfantryRecordSheetUnitInput {
+  return getRecordSheetDispatchKind(unit) === 'infantry';
+}
+
+export function isProtoMechUnitInput(
+  unit: IRecordSheetUnitInput,
+): unit is IProtoMechRecordSheetUnitInput {
+  return getRecordSheetDispatchKind(unit) === 'protomech';
+}
+
+export function dispatchTargetFromUnit(
+  unit: IRecordSheetUnitInput,
+): IRecordSheetDispatchTarget {
+  if (isMechUnitInput(unit)) return { kind: 'mech', unit };
+  if (isVehicleUnitInput(unit)) return { kind: 'vehicle', unit };
+  if (isAerospaceUnitInput(unit)) return { kind: 'aerospace', unit };
+  if (isBattleArmorUnitInput(unit)) return { kind: 'battlearmor', unit };
+  if (isInfantryUnitInput(unit)) return { kind: 'infantry', unit };
+  if (isProtoMechUnitInput(unit)) return { kind: 'protomech', unit };
+
+  throw new UnsupportedUnitTypeError(unit.type ?? unit.unitType ?? 'unknown');
 }

@@ -8,6 +8,7 @@ import {
   IProtoMechRecordSheetData,
   IProtoMechUnit,
   IRecordSheetEquipment,
+  IRecordSheetPilot,
 } from '@/types/printing';
 
 import { extractHeader } from './dataExtractors';
@@ -51,6 +52,7 @@ export interface IProtoMechUnitConfig {
   isGlider?: boolean;
   walkMP?: number;
   jumpMP?: number;
+  pilot?: IRecordSheetPilot;
   equipment?: Array<{
     id: string;
     name: string;
@@ -136,7 +138,7 @@ export function extractProtoMechData(
 
   return {
     unitType: 'protomech',
-    header: extractHeader(unit as Parameters<typeof extractHeader>[0]),
+    header: extractHeader(unit),
     pointSize,
     protos,
     mainGun: unit.mainGun,
@@ -146,6 +148,6 @@ export function extractProtoMechData(
     walkMP: unit.walkMP ?? 0,
     jumpMP: unit.jumpMP ?? 0,
     equipment,
-    pilot: undefined,
+    pilot: unit.pilot,
   };
 }
