@@ -119,6 +119,9 @@ export * from './indirectFire';
 // Line of Sight - LOS calculations and terrain blocking
 export * from './lineOfSight';
 
+// Visibility - Per-player LOS and sensor visibility helpers
+export * from './visibility';
+
 // Physical Attacks - Melee combat resolution
 export * from './physicalAttacks';
 
