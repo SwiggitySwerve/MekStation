@@ -483,17 +483,17 @@ export const RECONNECT_MULTIPLIER = 2;
  * the host gets the SeatTimedOut prompt. Configurable per-match in a
  * follow-up; for now this is the constant the server uses.
  *
- * 120s = 2x the heartbeat dead-connection window; long enough for a
- * mobile-data hop or a wifi roam, short enough that a hung match
- * doesn't waste the other players' evening.
+ * 60s = the reconnect-persistence OpenSpec default; long enough for a
+ * browser refresh or wifi roam, short enough that a hung match doesn't
+ * waste the other players' evening.
  */
-export const RECONNECT_GRACE_MS = 120_000;
+export const RECONNECT_GRACE_MS = 60_000;
 
 /**
  * Wave 4 — replay chunk size. Long matches can accrue thousands of
  * events; chunking the replay payload avoids one huge socket frame.
  */
-export const REPLAY_CHUNK_SIZE = 50;
+export const REPLAY_CHUNK_SIZE = 64;
 
 // =============================================================================
 // Helper builders

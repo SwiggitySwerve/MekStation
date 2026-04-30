@@ -2,7 +2,7 @@
  * PendingPeerTracker — owns the per-pending-player grace timers.
  *
  * Wave 4 of Phase 4. When a socket closes, the host marks the player's
- * seat as `pending` and asks this tracker to start a 120s grace timer.
+ * seat as `pending` and asks this tracker to start a 60s grace timer.
  * If the player reconnects before the timer fires, `clearPending`
  * cancels it. If the timer expires, the registered `onTimeout`
  * callback fires (the host then broadcasts `SeatTimedOut`).

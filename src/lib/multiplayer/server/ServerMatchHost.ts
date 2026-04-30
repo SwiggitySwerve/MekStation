@@ -442,7 +442,7 @@ export class ServerMatchHost {
   /**
    * Send the event history >= `fromSeq` to one socket as a
    * `ReplayStart` → 0+ `ReplayChunk` → `ReplayEnd` triple. Wave 4
-   * paginates via `streamReplay` (default 50 events per chunk).
+   * paginates via `streamReplay` (default 64 events per chunk).
    *
    * Replay envelopes go ONLY to the requesting socket — they are NOT
    * broadcast. Live events still go to every attached socket via

@@ -48,7 +48,7 @@ export interface IReplayStreamFrames {
  *
  * Behaviour:
  *   - Always emits exactly ONE `ReplayStart` and ONE `ReplayEnd`.
- *   - Chunks the events into `chunkSize` slices (default 50). An empty
+ *   - Chunks the events into `chunkSize` slices (default 64). An empty
  *     event list still emits one zero-length chunk so the client's
  *     `ReplayStart → ReplayChunk → ReplayEnd` invariant holds without a
  *     special-case.
@@ -64,7 +64,7 @@ export interface IReplayStreamFrames {
  * @param fromSeq  The client's high-water mark (`lastSeq + 1`). Echoed
  *                 in `ReplayStart.fromSeq` so the client can sanity-check.
  * @param chunkSize Override for the default chunk size; tests use this
- *                 to drive multi-chunk behaviour without 50+ events.
+ *                 to drive multi-chunk behaviour without 64+ events.
  */
 export function streamReplay(
   matchId: string,
