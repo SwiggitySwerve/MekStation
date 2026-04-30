@@ -89,5 +89,42 @@ export {
   useItemSyncState,
 } from './useSyncedVaultStore';
 
+export {
+  GAME_SESSION_EVENTS_ARRAY,
+  broadcastEvent,
+  broadcastIntent,
+  broadcastRejection,
+  createGameSessionChannel,
+  deserializeGameSessionEnvelope,
+  isGameIntent,
+  onPeerEvent,
+  onPeerIntent,
+  onPeerRejection,
+  serializeGameSessionEnvelope,
+  tryDeserializeGameSessionEnvelope,
+  type GameSessionChannelEnvelope,
+  type IGameEventEnvelope,
+  type IGameIntentEnvelope,
+  type IGameSessionChannel,
+  type IGameSessionChannelOptions,
+  type IPeerRejectedEnvelope,
+  type PeerEventCallback,
+  type PeerIntentCallback,
+  type PeerRejectedCallback,
+} from './gameSessionChannel';
+
+export {
+  GAME_SESSION_AWARENESS_FIELD,
+  getGameSessionAwarenessStates,
+  joinLocalPeerAsGuest,
+  onGameSessionLifecycleEvent,
+  promoteLocalPeerToHost,
+  type GameSessionLifecycleEvent,
+  type GameSessionPeerRole,
+  type IGameSessionAwarenessAdapter,
+  type IGameSessionAwarenessState,
+  type IGameSessionRoleOptions,
+} from './gameSessionRoles';
+
 // Hooks
 export { useSyncRoom, type UseSyncRoomReturn } from './useSyncRoom';
