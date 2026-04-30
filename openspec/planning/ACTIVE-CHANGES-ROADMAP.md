@@ -1,7 +1,7 @@
 # Active OpenSpec Roadmap
 
 **Status date:** 2026-04-30
-**Scope:** The 12 currently active OpenSpec changes under `openspec/changes/`.
+**Scope:** The 10 currently active OpenSpec changes under `openspec/changes/`.
 **Validation baseline:** `npx openspec validate --all --strict` passes with
 189 items, 0 failures.
 
@@ -12,11 +12,15 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-The active queue currently has three complete changes and nine in-progress
-changes. Wave 0 reconciliation marked already proven source, test, and
-spec-admin tasks complete; later wave work has advanced several changes, but
-the remaining unchecked tasks are implementation work or intentionally
-unproven partials.
+The active queue currently has one complete change and nine in-progress
+changes. Wave 4 archived both `add-fog-of-war-event-filtering` and
+`add-game-session-persistence-for-reconnect` on 2026-04-30; their delta
+specs are now part of source-of-truth and the change directories live
+under `openspec/changes/archive/2026-04-30-*`. Wave 0 reconciliation
+marked already proven source, test, and spec-admin tasks complete;
+later wave work has advanced several changes, but the remaining
+unchecked tasks are implementation work or intentionally unproven
+partials.
 
 | Change | Tasks | Lane |
 | --- | ---: | --- |
@@ -25,8 +29,6 @@ unproven partials.
 | `add-multi-type-record-sheet-export` | 46/54 | Phase 6 export |
 | `add-p2p-game-session-sync` | 12/33 | Phase 4 multiplayer |
 | `add-game-session-invite-and-lobby-1v1` | 29/39 | Phase 4 multiplayer |
-| `add-game-session-persistence-for-reconnect` | 39/39 | Phase 4 multiplayer |
-| `add-fog-of-war-event-filtering` | 39/39 | Phase 4/4.5 multiplayer |
 | `add-movement-interpolation-animations` | 44/45 | Phase 7 tactical visuals |
 | `add-los-and-firing-arc-overlays` | 43/56 | Phase 7 tactical visuals |
 | `add-attack-visual-effects` | 41/48 | Phase 7 tactical visuals |
@@ -46,7 +48,7 @@ Lane C: Phase 7 tactical visuals
   tactical foundation -> movement -> LOS/arcs -> attack FX -> damage FX / heat FX
 
 Lane D: Phase 4 multiplayer
-  P2P sync -> lobby -> reconnect persistence -> fog-of-war
+  P2P sync -> lobby (reconnect + fog archived 2026-04-30)
 ```
 
 ## Recommended Implementation Waves
@@ -176,42 +178,38 @@ After Wave 1 contracts land:
    - Coordinate token layer order for sprite, pip ring, selection ring, wreck,
      shutdown, heat glow, smoke, and fire.
 
-### Wave 4: Multiplayer Hardening
+### Wave 4: Multiplayer Hardening — ARCHIVED 2026-04-30
 
-Current status after the 2026-04-30 Wave 4 hardening slice:
+Both Wave 4 changes archived on 2026-04-30. Their delta specs synced into
+source-of-truth and the change directories now live under
+`openspec/changes/archive/2026-04-30-*`. Source-of-truth specs touched:
+`fog-of-war` (created), `multiplayer-server`, `multiplayer-sync`,
+`spatial-combat-system`, `auto-save-persistence`, and
+`game-session-management`.
 
-- `add-game-session-persistence-for-reconnect` is complete at 39/39 and ready
-  for verify / archive after merge. The Wave 4 closeout slice closed the P2P
-  page-load reconnect loop: `InteractiveSession.appendEvent` persists every
-  event to IndexedDB with disk/memory mismatch toast, the new
-  `useP2PReconnectSession` hook drives URL/late-join reconnect activation +
-  10s host-absent fallback to `hostPending`, `ServerMatchHost` answers
-  reconnect-request from the original guest with chunked replay-stream and
-  rejects foreign peers with the new `reconnect-reject "Match in progress"`
-  envelope, and two mock-sync integration tests cover the guest-drop catch-up
-  and host-drop `hostPending` fallback flows. Earlier foundations remain
-  intact: IndexedDB match logs, session hydration, 60s replay/grace constants,
-  host `getEventsFromSeq`, 64-event replay chunks, local-only pending status,
-  Yjs awareness-derived pending states, server-side grace pause/resume/abort,
-  wrong-match rejection, and match-log completion/purge/debug cleanup.
-- `add-fog-of-war-event-filtering` is complete at 39/39 and ready for verify /
-  archive after merge. Completed work includes visibility tags/classification,
-  standalone filtering/redaction, server per-recipient broadcast integration,
-  filtered reconnect replay, client fog token projection, hidden designation
-  redaction, last-known/sensor rendering, integration tests for LOS loss/re-entry
-  and ambush redaction, fog-disabled no-op coverage, and LOS performance guards.
+- `add-fog-of-war-event-filtering` shipped: visibility tags/classification,
+  standalone filtering/redaction, per-recipient broadcast integration,
+  filtered reconnect replay, fog token projection, hidden designation
+  redaction, last-known/sensor rendering, integration tests for LOS loss/
+  re-entry + ambush redaction, fog-disabled no-op coverage, and LOS
+  performance guards.
+- `add-game-session-persistence-for-reconnect` shipped: IndexedDB match
+  logs with append-side persistence and disk/memory mismatch toast,
+  session hydration, 60s replay/grace constants, server-side grace
+  pause/resume/abort, host `getEventsFromSeq` + 64-event replay chunks,
+  the `useP2PReconnectSession` hook driving URL/late-join activation and
+  10s host-absent fallback to `hostPending`, `reconnect-reject "Match
+  in progress"` for foreign peers, match-log completion/purge/debug
+  cleanup, and the two mock-sync catch-up integration tests.
 
-1. `add-game-session-persistence-for-reconnect`
-   - Storage and `InteractiveSession.fromMatchLog` can start early.
-   - Reconnect protocol waits for P2P + lobby `matchId` contracts.
-   - Resolve semantic conflict first: P2P currently describes quick host-loss
-     abort, while reconnect persistence wants a pending/grace state.
+Remaining Phase 4 multiplayer work in the active queue:
 
-2. `add-fog-of-war-event-filtering`
-   - Last in the current active queue.
-   - Requires stable event replay, LOS/spatial rules, and server broadcast
-     semantics.
-   - Filtered replay must use historical visibility, not current visibility.
+1. `add-p2p-game-session-sync` (12/33) — P2P session foundation that
+   the rest of the multiplayer stack already consumed; close out the
+   remaining contract / ownership / RNG tasks.
+2. `add-game-session-invite-and-lobby-1v1` (29/39) — lobby UI shell
+   exists; finish launch integration against the now-stable session
+   identity contract used by the archived reconnect work.
 
 ## Parallel Work Board
 
@@ -229,8 +227,7 @@ After first merges:
 
 Later:
   C3 attack primitives + damage primitives + heat primitives
-  D3 reconnect storage + rehydration
-  D4 fog visibility helpers, then server broadcast/replay integration
+  (D3 reconnect persistence + D4 fog filtering archived 2026-04-30)
 ```
 
 ## First Branches To Open
@@ -242,7 +239,7 @@ Use these branch names when starting implementation work:
 - `codex/openspec-tactical-foundation-movement`
 - `codex/openspec-p2p-game-session-sync`
 
-Avoid opening all 12 implementation branches at once. Four lanes gives useful
+Avoid opening all 10 implementation branches at once. Four lanes gives useful
 parallelism without making shared files unmergeable.
 
 ## Known Blockers And Decisions
@@ -251,14 +248,10 @@ parallelism without making shared files unmergeable.
   `add-infantry-construction` for the infantry record sheet.
 - `add-game-session-invite-and-lobby-1v1` is blocked by P2P channel, role, and
   side ownership contracts for launch integration.
-- `add-game-session-persistence-for-reconnect` is unblocked at 39/39 — the
-  P2P + lobby match-identity contracts it depended on landed in the same
-  Wave 4 closeout slice.
-- Reconnect grace policy needs one decision: quick abort on host loss vs a
-  pending/grace state. Also reconcile the desired 60s grace with the current
-  multiplayer protocol constant if it remains 120s.
-- `add-fog-of-war-event-filtering` should target stable server-side broadcast
-  and replay paths, not the transitional P2P-only path.
+- Reconnect grace policy decision: settled at 60s pending/grace per
+  the archived `add-game-session-persistence-for-reconnect` change.
+  `add-p2p-game-session-sync` should adopt the 60s constant rather
+  than the legacy 120s value when finishing its remaining tasks.
 - Tactical visual specs need one shared layer-order decision before individual
   effects are integrated.
 
