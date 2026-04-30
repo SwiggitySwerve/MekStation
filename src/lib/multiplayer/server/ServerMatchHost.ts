@@ -449,13 +449,23 @@ export class ServerMatchHost {
    * `broadcast()`.
    */
   async sendReplay(socket: IMatchSocket, fromSeq = 0): Promise<void> {
-    const events = await this.store.getEvents(this.matchId, fromSeq);
+    const events = await this.getEventsFromSeq(fromSeq);
     const frames = streamReplay(this.matchId, events, fromSeq);
     this.safeSend(socket, frames.start);
     for (const chunk of frames.chunks) {
       this.safeSend(socket, chunk);
     }
     this.safeSend(socket, frames.end);
+  }
+
+  /**
+   * Wave 4 reconnect API: expose this host's authoritative in-memory
+   * event log slice through the store abstraction. `seq` is inclusive,
+   * matching `IMatchStore.getEvents(matchId, fromSeq?)` so callers that
+   * track a high-water mark should pass `lastSeq + 1`.
+   */
+  async getEventsFromSeq(seq: number): Promise<readonly IGameEvent[]> {
+    return this.store.getEvents(this.matchId, seq);
   }
 
   /**
@@ -478,7 +488,19 @@ export class ServerMatchHost {
     socket: IMatchSocket,
     playerId: string,
     lastSeq?: number,
+    requestedMatchId = this.matchId,
   ): Promise<void> {
+    if (requestedMatchId !== this.matchId) {
+      this.safeSend(socket, {
+        kind: 'Error',
+        matchId: this.matchId,
+        ts: nowIso(),
+        code: 'UNKNOWN_MATCH',
+        reason: 'wrong-match',
+      });
+      return;
+    }
+
     // `lastSeq` is the highest seq the client has SEEN. We stream
     // strictly newer events, so request `lastSeq + 1`. The store's
     // `getEvents(fromSeq)` returns sequence >= fromSeq, which combined

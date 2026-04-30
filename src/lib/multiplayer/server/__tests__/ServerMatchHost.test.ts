@@ -114,6 +114,34 @@ describe('ServerMatchHost', () => {
     expect(kinds).toContain('ReplayChunk');
   });
 
+  it('getEventsFromSeq returns this host match history from an inclusive sequence', async () => {
+    const { host } = await makeHost();
+
+    const allEvents = await host.getEventsFromSeq(0);
+    const tailEvents = await host.getEventsFromSeq(1);
+
+    expect(allEvents.length).toBeGreaterThan(0);
+    expect(tailEvents.every((event) => event.sequence >= 1)).toBe(true);
+    expect(tailEvents.length).toBeLessThanOrEqual(allEvents.length);
+  });
+
+  it('handleSessionJoin rejects a reconnect request for a different match', async () => {
+    const { host } = await makeHost();
+    const socket = makeMockSocket();
+
+    await host.handleSessionJoin(socket, 'p1', undefined, 'other-match');
+
+    expect(socket.sent.length).toBe(1);
+    const parsed = JSON.parse(socket.sent[0].payload) as {
+      kind: string;
+      code?: string;
+      reason?: string;
+    };
+    expect(parsed.kind).toBe('Error');
+    expect(parsed.code).toBe('UNKNOWN_MATCH');
+    expect(parsed.reason).toBe('wrong-match');
+  });
+
   it('handleIntent broadcasts new events to all sockets', async () => {
     const { host, store } = await makeHost();
     const a = makeMockSocket();
