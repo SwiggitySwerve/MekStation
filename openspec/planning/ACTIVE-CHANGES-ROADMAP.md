@@ -1,6 +1,6 @@
 # Active OpenSpec Roadmap
 
-**Status date:** 2026-04-29
+**Status date:** 2026-04-30
 **Scope:** The 12 currently active OpenSpec changes under `openspec/changes/`.
 **Validation baseline:** `npx openspec validate --all --strict` passes with
 189 items, 0 failures.
@@ -12,25 +12,24 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-All active changes are currently `in-progress` with no task checkboxes marked
-complete in OpenSpec. Some source code already partially implements parts of
-several changes, so the first step for each lane is to audit and mark proven
-tasks rather than reimplement blindly.
+All active changes remain `in-progress`. Wave 0 reconciliation marked already
+proven source, test, and spec-admin tasks complete; the remaining unchecked
+tasks are implementation work or intentionally unproven partials.
 
 | Change | Tasks | Lane |
 | --- | ---: | --- |
-| `wire-encounter-to-campaign-round-trip` | 0/42 | Campaign closure |
-| `add-infantry-construction` | 0/50 | Phase 6 construction |
-| `add-multi-type-record-sheet-export` | 0/54 | Phase 6 export |
-| `add-p2p-game-session-sync` | 0/33 | Phase 4 multiplayer |
-| `add-game-session-invite-and-lobby-1v1` | 0/39 | Phase 4 multiplayer |
-| `add-game-session-persistence-for-reconnect` | 0/39 | Phase 4 multiplayer |
-| `add-fog-of-war-event-filtering` | 0/39 | Phase 4/4.5 multiplayer |
-| `add-movement-interpolation-animations` | 0/45 | Phase 7 tactical visuals |
-| `add-los-and-firing-arc-overlays` | 0/56 | Phase 7 tactical visuals |
-| `add-attack-visual-effects` | 0/48 | Phase 7 tactical visuals |
-| `add-damage-feedback-effects` | 0/56 | Phase 7 tactical visuals |
-| `add-heat-and-shutdown-visual-indicators` | 0/51 | Phase 7 tactical visuals |
+| `wire-encounter-to-campaign-round-trip` | 9/42 | Campaign closure |
+| `add-infantry-construction` | 25/50 | Phase 6 construction |
+| `add-multi-type-record-sheet-export` | 2/54 | Phase 6 export |
+| `add-p2p-game-session-sync` | 3/33 | Phase 4 multiplayer |
+| `add-game-session-invite-and-lobby-1v1` | 6/39 | Phase 4 multiplayer |
+| `add-game-session-persistence-for-reconnect` | 4/39 | Phase 4 multiplayer |
+| `add-fog-of-war-event-filtering` | 5/39 | Phase 4/4.5 multiplayer |
+| `add-movement-interpolation-animations` | 3/45 | Phase 7 tactical visuals |
+| `add-los-and-firing-arc-overlays` | 4/56 | Phase 7 tactical visuals |
+| `add-attack-visual-effects` | 4/48 | Phase 7 tactical visuals |
+| `add-damage-feedback-effects` | 3/56 | Phase 7 tactical visuals |
+| `add-heat-and-shutdown-visual-indicators` | 3/51 | Phase 7 tactical visuals |
 
 ## Lane Model
 

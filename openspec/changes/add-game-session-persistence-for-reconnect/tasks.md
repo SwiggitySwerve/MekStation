@@ -99,11 +99,11 @@ Status` returns to `'live'` and play resumes
 
 ## 11. Spec Compliance
 
-- [ ] 11.1 Every requirement in the `multiplayer-sync` delta has at
+- [x] 11.1 Every requirement in the `multiplayer-sync` delta has at
       least one GIVEN/WHEN/THEN scenario
-- [ ] 11.2 Every requirement in the `auto-save-persistence` delta has
+- [x] 11.2 Every requirement in the `auto-save-persistence` delta has
       at least one GIVEN/WHEN/THEN scenario
-- [ ] 11.3 Every requirement in the `game-session-management` delta has
+- [x] 11.3 Every requirement in the `game-session-management` delta has
       at least one GIVEN/WHEN/THEN scenario
-- [ ] 11.4 `openspec validate add-game-session-persistence-for-reconnect
+- [x] 11.4 `openspec validate add-game-session-persistence-for-reconnect
 --strict` passes clean

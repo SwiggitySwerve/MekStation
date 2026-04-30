@@ -101,11 +101,11 @@
 
 ## 11. Spec Compliance
 
-- [ ] 11.1 Every requirement in `line-of-sight-visualization` spec has a
+- [x] 11.1 Every requirement in `line-of-sight-visualization` spec has a
       GIVEN/WHEN/THEN scenario
-- [ ] 11.2 Every requirement in `firing-arc-calculation` delta has a
+- [x] 11.2 Every requirement in `firing-arc-calculation` delta has a
       scenario
-- [ ] 11.3 Every requirement in `tactical-map-interface` delta has a
+- [x] 11.3 Every requirement in `tactical-map-interface` delta has a
       scenario
-- [ ] 11.4 `openspec validate add-los-and-firing-arc-overlays --strict`
+- [x] 11.4 `openspec validate add-los-and-firing-arc-overlays --strict`
       passes clean

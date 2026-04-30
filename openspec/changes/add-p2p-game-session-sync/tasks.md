@@ -91,9 +91,9 @@ string>` field mapping side → peerId
 
 ## 10. Spec Compliance
 
-- [ ] 10.1 Every requirement in the `multiplayer-sync` ADDED delta has
+- [x] 10.1 Every requirement in the `multiplayer-sync` ADDED delta has
       at least one GIVEN/WHEN/THEN scenario
-- [ ] 10.2 Every requirement in the `game-session-management` MODIFIED
+- [x] 10.2 Every requirement in the `game-session-management` MODIFIED
       delta has at least one GIVEN/WHEN/THEN scenario
-- [ ] 10.3 `openspec validate add-p2p-game-session-sync --strict`
+- [x] 10.3 `openspec validate add-p2p-game-session-sync --strict`
       passes clean

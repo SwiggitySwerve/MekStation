@@ -103,13 +103,13 @@ playerId, state): IGameEvent | null`
 
 ## 11. Spec Compliance
 
-- [ ] 11.1 Every requirement in the `fog-of-war` ADDED delta has at
+- [x] 11.1 Every requirement in the `fog-of-war` ADDED delta has at
       least one GIVEN/WHEN/THEN scenario
-- [ ] 11.2 Every requirement in the `multiplayer-server` delta has at
+- [x] 11.2 Every requirement in the `multiplayer-server` delta has at
       least one GIVEN/WHEN/THEN scenario
-- [ ] 11.3 Every requirement in the `multiplayer-sync` delta has at
+- [x] 11.3 Every requirement in the `multiplayer-sync` delta has at
       least one GIVEN/WHEN/THEN scenario
-- [ ] 11.4 Every requirement in the `spatial-combat-system` delta has
+- [x] 11.4 Every requirement in the `spatial-combat-system` delta has
       at least one GIVEN/WHEN/THEN scenario
-- [ ] 11.5 `openspec validate add-fog-of-war-event-filtering --strict`
+- [x] 11.5 `openspec validate add-fog-of-war-event-filtering --strict`
       passes clean

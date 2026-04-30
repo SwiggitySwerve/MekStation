@@ -108,8 +108,8 @@
 
 ## 12. Spec Compliance
 
-- [ ] 12.1 Every requirement in `tactical-map-interface` delta has a
+- [x] 12.1 Every requirement in `tactical-map-interface` delta has a
       GIVEN/WHEN/THEN scenario
-- [ ] 12.2 Every requirement in `damage-system` delta has a scenario
-- [ ] 12.3 `openspec validate add-damage-feedback-effects --strict`
+- [x] 12.2 Every requirement in `damage-system` delta has a scenario
+- [x] 12.3 `openspec validate add-damage-feedback-effects --strict`
       passes clean

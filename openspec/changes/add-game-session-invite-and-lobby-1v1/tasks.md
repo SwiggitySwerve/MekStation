@@ -51,8 +51,8 @@ string, turnLimit: number}`
 
 ## 6. Readiness + Launch
 
-- [ ] 6.1 Each peer toggles their own ready flag
-- [ ] 6.2 When both peers are ready, host sees a "Launch Match" button
+- [x] 6.1 Each peer toggles their own ready flag
+- [x] 6.2 When both peers are ready, host sees a "Launch Match" button
 - [ ] 6.3 Clicking launch: host creates the session with both loadouts,
       writes `matchId` into lobby state, both peers navigate to
       `/gameplay/games/[matchId]`
@@ -69,7 +69,7 @@ string, turnLimit: number}`
 
 ## 8. Guest Assignment
 
-- [ ] 8.1 On guest join, the first unassigned side slot is assigned
+- [x] 8.1 On guest join, the first unassigned side slot is assigned
       (`hostPeerId` owns one side, `guestPeerId` owns the other)
 - [ ] 8.2 The host side is chosen at room creation; guest gets the
       remaining side
@@ -95,9 +95,9 @@ string, turnLimit: number}`
 
 ## 11. Spec Compliance
 
-- [ ] 11.1 Every requirement in the `multiplayer-sync` delta has at
+- [x] 11.1 Every requirement in the `multiplayer-sync` delta has at
       least one GIVEN/WHEN/THEN scenario
-- [ ] 11.2 Every requirement in the `game-session-management` delta has
+- [x] 11.2 Every requirement in the `game-session-management` delta has
       at least one GIVEN/WHEN/THEN scenario
-- [ ] 11.3 `openspec validate add-game-session-invite-and-lobby-1v1
+- [x] 11.3 `openspec validate add-game-session-invite-and-lobby-1v1
 --strict` passes clean
