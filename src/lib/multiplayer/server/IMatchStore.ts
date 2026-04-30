@@ -52,6 +52,7 @@ export interface ISideAssignment {
 export interface IMatchConfig {
   readonly mapRadius: number;
   readonly turnLimit: number;
+  readonly fogOfWar?: boolean;
   readonly optionalRules?: readonly string[];
   readonly contractId?: string | null;
   readonly scenarioId?: string | null;

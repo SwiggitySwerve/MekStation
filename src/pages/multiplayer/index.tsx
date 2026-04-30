@@ -134,11 +134,13 @@ export default function MultiplayerHubPage(): React.ReactElement {
     displayName: string;
     mapRadius: number;
     turnLimit: number;
+    fogOfWar: boolean;
   }): Promise<void> {
     await withAuth('create', async (auth) => {
       const config: IMatchConfig = {
         mapRadius: value.mapRadius,
         turnLimit: value.turnLimit,
+        fogOfWar: value.fogOfWar,
       };
       const res = await fetch('/api/multiplayer/matches', {
         method: 'POST',
