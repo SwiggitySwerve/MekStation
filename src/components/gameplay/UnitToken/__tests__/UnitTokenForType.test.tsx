@@ -111,7 +111,8 @@ describe('UnitTokenForType dispatcher routing', () => {
       'hidden',
     );
     expect(screen.getByTestId('fog-marker-unit-1')).toBeInTheDocument();
-    expect(screen.getByText('?')).toBeInTheDocument();
+    expect(screen.getAllByText('?')).toHaveLength(2);
+    expect(screen.queryByText('TST-1')).not.toBeInTheDocument();
   });
 
   it('renders last-known contacts at their last visible hex', () => {

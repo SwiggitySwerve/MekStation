@@ -143,6 +143,43 @@ describe('gameSessionChannel', () => {
     expect(persisted).toEqual([{ matchId: 'match-1', event }]);
   });
 
+  it('marks match metadata completed when a GameEnded event is persisted', async () => {
+    const matchLog: MatchLogPersistence & {
+      markMatchCompleted: jest.Mock;
+    } = {
+      appendEvent: jest.fn((matchId, event) =>
+        Promise.resolve({
+          matchId,
+          sequence: event.sequence,
+          event,
+          savedAt: '2026-04-30T00:00:00.000Z',
+        }),
+      ),
+      markMatchCompleted: jest.fn(() => Promise.resolve()),
+    };
+    const channel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+      matchId: 'match-1',
+      matchLog,
+    });
+    const event = makeEvent('event-ended', 9);
+    const ended: IGameEvent = {
+      ...event,
+      type: GameEventType.GameEnded,
+      payload: { winner: GameSide.Player, reason: 'destruction' },
+    };
+
+    channel.broadcastEvent(ended);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(matchLog.markMatchCompleted).toHaveBeenCalledWith(
+      'match-1',
+      ended.timestamp,
+    );
+  });
+
   it('delivers peer-authored events in arrival order', () => {
     const channel = createGameSessionChannel({
       localPeerId: 'guest-peer',

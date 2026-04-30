@@ -333,9 +333,13 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   const { x, y } = movementAnimation
     ? { x: tween.x, y: tween.y }
     : hexToPixel(displayPosition);
+  const fogDisplayFields =
+    token.fogStatus === 'hidden'
+      ? { designation: '?', name: 'Hidden contact' }
+      : {};
   const renderToken = movementAnimation
-    ? { ...token, facing: tween.facing }
-    : { ...token, position: displayPosition };
+    ? { ...token, ...fogDisplayFields, facing: tween.facing }
+    : { ...token, ...fogDisplayFields, position: displayPosition };
   const fogOpacity =
     token.fogStatus === 'hidden'
       ? 0.45

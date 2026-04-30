@@ -2,6 +2,7 @@ import type * as Y from 'yjs';
 
 import {
   GAME_INTENT_TYPES,
+  GameEventType,
   isGameEvent,
   type GameIntentType,
   type IGameEvent,
@@ -74,6 +75,7 @@ export type ReconnectRequestCallback = (
 export type ReplayStreamCallback = (envelope: IReplayStreamEnvelope) => void;
 
 export type MatchLogPersistence = Pick<MatchLogStorage, 'appendEvent'>;
+export type MatchLogCompletion = Pick<MatchLogStorage, 'markMatchCompleted'>;
 
 export type GameSessionChannelLogger = Pick<Console, 'error'>;
 
@@ -104,7 +106,7 @@ export interface IGameSessionChannelOptions {
   readonly getEventArray?: () => Y.Array<string> | null;
   readonly matchId?: string;
   readonly getMatchId?: () => string | null | undefined;
-  readonly matchLog?: MatchLogPersistence;
+  readonly matchLog?: MatchLogPersistence & Partial<MatchLogCompletion>;
   readonly logger?: GameSessionChannelLogger;
 }
 
@@ -253,14 +255,20 @@ export function createGameSessionChannel(
     if (!matchId) return;
 
     const storage = options.matchLog ?? matchLogStorage;
-    void storage.appendEvent(matchId, event).catch((error: unknown) => {
-      const logger = options.logger ?? console;
-      logger.error('Failed to persist P2P match event', {
-        matchId,
-        sequence: event.sequence,
-        error,
+    void storage
+      .appendEvent(matchId, event)
+      .then(() => {
+        if (event.type !== GameEventType.GameEnded) return;
+        return storage.markMatchCompleted?.(matchId, event.timestamp);
+      })
+      .catch((error: unknown) => {
+        const logger = options.logger ?? console;
+        logger.error('Failed to persist P2P match event', {
+          matchId,
+          sequence: event.sequence,
+          error,
+        });
       });
-    });
   };
 
   const observeEnvelopes = (
