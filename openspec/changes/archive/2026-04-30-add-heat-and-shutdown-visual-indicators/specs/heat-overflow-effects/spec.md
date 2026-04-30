@@ -1,6 +1,6 @@
 # heat-overflow-effects Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Heat Threshold Events For UI
 

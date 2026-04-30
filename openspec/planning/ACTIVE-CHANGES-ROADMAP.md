@@ -1,9 +1,9 @@
 # Active OpenSpec Roadmap
 
 **Status date:** 2026-04-30
-**Scope:** The 10 currently active OpenSpec changes under `openspec/changes/`.
+**Scope:** The 9 currently active OpenSpec changes under `openspec/changes/`.
 **Validation baseline:** `npx openspec validate --all --strict` passes with
-189 items, 0 failures.
+187 items, 0 failures.
 
 This document is an implementation-order reference for the active queue. It is
 not a replacement for each change's `proposal.md`, `design.md`, `tasks.md`, or
@@ -12,11 +12,16 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-The active queue currently has one complete change and nine in-progress
-changes. Wave 4 archived both `add-fog-of-war-event-filtering` and
-`add-game-session-persistence-for-reconnect` on 2026-04-30; their delta
-specs are now part of source-of-truth and the change directories live
-under `openspec/changes/archive/2026-04-30-*`. Wave 0 reconciliation
+The active queue currently has nine in-progress changes. Wave 4
+archived both `add-fog-of-war-event-filtering` and
+`add-game-session-persistence-for-reconnect` on 2026-04-30. The first
+post-Wave-4 archive followed the same day:
+`add-heat-and-shutdown-visual-indicators` archived as
+`archive/2026-04-30-add-heat-and-shutdown-visual-indicators`, syncing
+one new requirement into `heat-overflow-effects` (Heat Threshold Events
+For UI) and five new requirements into `tactical-map-interface`
+(shutdown overlay, heat glow tier, animation queue layer order,
+reduced-motion fallback, low-FPS auto-disable). Wave 0 reconciliation
 marked already proven source, test, and spec-admin tasks complete;
 later wave work has advanced several changes, but the remaining
 unchecked tasks are implementation work or intentionally unproven
@@ -33,7 +38,6 @@ partials.
 | `add-los-and-firing-arc-overlays` | 43/56 | Phase 7 tactical visuals |
 | `add-attack-visual-effects` | 41/48 | Phase 7 tactical visuals |
 | `add-damage-feedback-effects` | 52/56 | Phase 7 tactical visuals |
-| `add-heat-and-shutdown-visual-indicators` | 51/51 | Phase 7 tactical visuals |
 
 ## Lane Model
 
@@ -172,11 +176,14 @@ After Wave 1 contracts land:
    - Final timing should follow attack effects so damage feedback synchronizes
      to impact flash instead of firing immediately from `DamageApplied`.
 
-4. `add-heat-and-shutdown-visual-indicators`
-   - Mostly parallel with damage feedback after shared token layer conventions
-     exist.
-   - Coordinate token layer order for sprite, pip ring, selection ring, wreck,
-     shutdown, heat glow, smoke, and fire.
+4. `add-heat-and-shutdown-visual-indicators` — ARCHIVED 2026-04-30 as
+   `archive/2026-04-30-add-heat-and-shutdown-visual-indicators`. New
+   requirements landed in `heat-overflow-effects` (Heat Threshold Events
+   For UI) and `tactical-map-interface` (shutdown overlay, heat glow
+   tier, animation queue layer order, reduced-motion fallback, low-FPS
+   auto-disable). Coordinate token layer order in the remaining tactical
+   visual specs against the canonical
+   `tactical-map-interface` spec rather than this delta.
 
 ### Wave 4: Multiplayer Hardening — ARCHIVED 2026-04-30
 
