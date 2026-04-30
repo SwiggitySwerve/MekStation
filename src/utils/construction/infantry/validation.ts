@@ -20,6 +20,7 @@ import {
   InfantryArmorKitType,
   InfantryMotive,
   IInfantryFieldGun,
+  PLATOON_DEFAULTS,
   PLATOON_MAX_TROOPERS,
   PLATOON_MIN_TROOPERS,
   SNEAK_ARMOR_KITS,
@@ -27,10 +28,15 @@ import {
   VTOL_MAX_TROOPERS,
 } from '@/types/unit/InfantryInterfaces';
 
-import { totalFieldGunCrew } from './fieldGuns';
+import {
+  deriveFieldGunCrewCount,
+  findFieldGunById,
+  totalFieldGunCrew,
+} from './fieldGuns';
 import {
   FIELD_GUN_ALLOWED_MOTIVES,
   HEAVY_WEAPON_MOTIVES,
+  totalTroopers as calculateTotalTroopers,
 } from './platoonComposition';
 
 // ============================================================================
@@ -53,6 +59,31 @@ export function validatePlatoonSize(totalTroopers: number): string[] {
     );
   }
   return errors;
+}
+
+/**
+ * Warning companion for VAL-INF-PLATOON.
+ *
+ * Custom platoon sizes in the supported 1-30 construction range are allowed,
+ * but the UI/validators should flag when the size diverges from the motive's
+ * TechManual default.
+ */
+export function validatePlatoonDefaultWarning(
+  motive: InfantryMotive,
+  totalTrooperCount: number,
+): string[] {
+  if (totalTrooperCount < 1 || totalTrooperCount > PLATOON_MAX_TROOPERS) {
+    return [];
+  }
+
+  const defaultTotal = calculateTotalTroopers(PLATOON_DEFAULTS[motive]);
+  if (totalTrooperCount === defaultTotal) {
+    return [];
+  }
+
+  return [
+    `[VAL-INF-PLATOON] platoon size ${totalTrooperCount} differs from ${motive} default ${defaultTotal}`,
+  ];
 }
 
 /**
@@ -128,6 +159,24 @@ export function validateFieldGuns(
     );
   }
 
+  for (const gun of fieldGuns) {
+    const weaponId = gun.weaponId || gun.equipmentId;
+    const catalogEntry = findFieldGunById(weaponId);
+    if (!catalogEntry) {
+      errors.push(
+        `[VAL-INF-FIELD-GUN] field gun ${weaponId} is not in the approved list`,
+      );
+      continue;
+    }
+
+    const derivedCrew = deriveFieldGunCrewCount(weaponId);
+    if (derivedCrew !== undefined && gun.crewCount !== derivedCrew) {
+      errors.push(
+        `[VAL-INF-FIELD-GUN] field gun ${weaponId} crew must be ${derivedCrew}, got ${gun.crewCount}`,
+      );
+    }
+  }
+
   const crew = totalFieldGunCrew(fieldGuns);
   if (crew >= totalTroopers) {
     errors.push(
@@ -189,6 +238,7 @@ export interface InfantryValidationInput {
 export interface InfantryValidationResult {
   isValid: boolean;
   errors: string[];
+  warnings: string[];
 }
 
 /**
@@ -205,6 +255,10 @@ export function validateInfantryConstruction(
     ...validateFieldGuns(input.motive, input.totalTroopers, input.fieldGuns),
     ...validateAntiMechTraining(input.motive, input.hasAntiMechTraining),
   ];
+  const warnings = validatePlatoonDefaultWarning(
+    input.motive,
+    input.totalTroopers,
+  );
 
-  return { isValid: errors.length === 0, errors };
+  return { isValid: errors.length === 0, errors, warnings };
 }

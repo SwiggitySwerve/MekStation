@@ -8,9 +8,20 @@
  */
 
 import {
+  INFANTRY_CONSTRUCTION_FIXTURES,
+  FIELD_GUN_AC5_PLATOON,
+} from '@/__tests__/fixtures/infantry-construction-fixtures';
+import {
+  createDefaultInfantryState,
+  calculateInfantryTransportWeight,
+} from '@/stores/infantryState';
+import { createInfantryStore } from '@/stores/useInfantryStore';
+import {
   InfantryMotive,
   InfantryArmorKitType,
+  IFieldGun,
   IPlatoonComposition,
+  INFANTRY_MOTIVE_PROFILES,
   PLATOON_DEFAULTS,
   MOTIVE_MP,
   ANTI_MECH_ELIGIBLE_MOTIVES,
@@ -21,14 +32,30 @@ import {
   VTOL_MAX_TROOPERS,
 } from '@/types/unit/InfantryInterfaces';
 import { IInfantryFieldGun } from '@/types/unit/InfantryInterfaces';
+import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
+import {
+  canArmorKitDeployInVacuumOrUnderwater,
+  calculateArmorKitMassTons,
+  getInfantryArmorKitProfile,
+} from '@/utils/construction/infantry/armorKits';
+import {
+  FIELD_GUN_CATALOG,
+  buildFieldGun,
+  deriveFieldGunCrewCount,
+  findFieldGunById,
+  getDeployedFieldGunTonnage,
+  getFieldGunConstructionTonnage,
+} from '@/utils/construction/infantry/fieldGuns';
 import {
   totalTroopers,
   effectiveFiringTroopers,
   secondaryWeaponCount,
   HEAVY_WEAPON_MOTIVES,
+  getMotiveProfile,
 } from '@/utils/construction/infantry/platoonComposition';
 import {
   validatePlatoonSize,
+  validatePlatoonDefaultWarning,
   validateMotiveCompatibility,
   validateArmorKit,
   validatePrimaryWeapon,
@@ -37,6 +64,7 @@ import {
   validateInfantryConstruction,
   INF_VALIDATION_RULE_IDS,
 } from '@/utils/construction/infantry/validation';
+import { INFANTRY_WEAPON_TABLE } from '@/utils/construction/infantry/weaponTable';
 
 // =============================================================================
 // Scenario helpers
@@ -50,7 +78,22 @@ function makeFieldGun(
   name: string,
   crew: number,
 ): IInfantryFieldGun {
-  return { equipmentId, name, crew, ammoRounds: 10 };
+  return {
+    weaponId: equipmentId,
+    crewCount: crew,
+    equipmentId,
+    name,
+    crew,
+    ammoRounds: 10,
+  };
+}
+
+function requiredFieldGunEntry(id: string) {
+  const entry = findFieldGunById(id);
+  if (!entry) {
+    throw new Error(`Missing field gun catalog entry: ${id}`);
+  }
+  return entry;
 }
 
 // =============================================================================
@@ -76,6 +119,14 @@ describe('Platoon Composition Defaults', () => {
     const comp: IPlatoonComposition =
       PLATOON_DEFAULTS[InfantryMotive.MECHANIZED_TRACKED];
     expect(totalTroopers(comp)).toBe(20);
+  });
+
+  it('Motorized default: 7 squads x 4 troopers = 28 total', () => {
+    const comp: IPlatoonComposition =
+      PLATOON_DEFAULTS[InfantryMotive.MOTORIZED];
+    expect(comp.squads).toBe(7);
+    expect(comp.troopersPerSquad).toBe(4);
+    expect(totalTroopers(comp)).toBe(28);
   });
 });
 
@@ -188,6 +239,31 @@ describe('Environmental Sealing armor kit', () => {
       expect(errors).toHaveLength(0);
     }
   });
+
+  it('Environmental Sealing enables vacuum and underwater deployment', () => {
+    expect(
+      canArmorKitDeployInVacuumOrUnderwater(
+        InfantryArmorKitType.ENVIRONMENTAL_SEALING,
+      ),
+    ).toBe(true);
+  });
+});
+
+describe('Armor kit construction profiles', () => {
+  it('Flak has a per-trooper ballistic resistance modifier', () => {
+    const profile = getInfantryArmorKitProfile(InfantryArmorKitType.FLAK);
+    expect(profile.ballisticDamageDivisorModifier).toBe(1);
+  });
+
+  it('Camo applies a woods to-hit modifier', () => {
+    const profile = getInfantryArmorKitProfile(InfantryArmorKitType.CAMO);
+    expect(profile.woodsToHitModifier).toBe(-1);
+  });
+
+  it('armor kit mass is counted per trooper for transport weight', () => {
+    const mass = calculateArmorKitMassTons(InfantryArmorKitType.FLAK, 28);
+    expect(mass).toBeCloseTo(28 * 0.012, 5);
+  });
 });
 
 // =============================================================================
@@ -205,6 +281,30 @@ describe('Primary and Secondary Weapon Selection', () => {
   it('28-trooper platoon with SRM Launcher secondary at ratio 1-per-4 = 7 secondaries', () => {
     const count = secondaryWeaponCount(28, 4);
     expect(count).toBe(7);
+  });
+});
+
+describe('Infantry weapon table', () => {
+  it('loads the expected foundation weapon entries', () => {
+    const ids = new Set(INFANTRY_WEAPON_TABLE.map((weapon) => weapon.id));
+    expect(ids.has('inf-laser-rifle')).toBe(true);
+    expect(ids.has('inf-auto-rifle')).toBe(true);
+    expect(ids.has('inf-srm2')).toBe(true);
+    expect(ids.has('inf-lrm5')).toBe(true);
+    expect(ids.has('inf-mg')).toBe(true);
+    expect(ids.has('inf-flamer')).toBe(true);
+  });
+
+  it('each weapon entry exposes range, divisor, ammo, heat, and special tags', () => {
+    for (const weapon of INFANTRY_WEAPON_TABLE) {
+      expect(weapon.rangeShort).toBeGreaterThanOrEqual(0);
+      expect(weapon.rangeMedium).toBeGreaterThanOrEqual(0);
+      expect(weapon.rangeLong).toBeGreaterThanOrEqual(0);
+      expect(weapon.damageDivisor).toBeGreaterThan(0);
+      expect(typeof weapon.ammoType).toBe('string');
+      expect(weapon.heat).toBeGreaterThanOrEqual(0);
+      expect(Array.isArray(weapon.special)).toBe(true);
+    }
   });
 });
 
@@ -263,6 +363,48 @@ describe('VAL-INF-FIELD-GUN: Field gun crew accounting', () => {
     const ac5 = makeFieldGun('ac5', 'Autocannon/5', 3);
     const errors = validateFieldGuns(InfantryMotive.FOOT, 20, [ac5]);
     expect(errors).toHaveLength(0);
+  });
+
+  it('approved field-gun catalog includes AC/2, AC/5, LRM launchers, MG, and Flamer', () => {
+    const ids = new Set(FIELD_GUN_CATALOG.map((gun) => gun.id));
+    expect(ids.has('ac2')).toBe(true);
+    expect(ids.has('ac5')).toBe(true);
+    expect(ids.has('lrm5')).toBe(true);
+    expect(ids.has('lrm20')).toBe(true);
+    expect(ids.has('mg')).toBe(true);
+    expect(ids.has('flamer')).toBe(true);
+  });
+
+  it('derives crew size and default ammo from the selected field-gun type', () => {
+    const ac5 = buildFieldGun(requiredFieldGunEntry('ac5'));
+    const lrm5 = buildFieldGun(requiredFieldGunEntry('lrm5'));
+    const ac20 = buildFieldGun(requiredFieldGunEntry('ac20'));
+
+    expect(ac5.crewCount).toBe(3);
+    expect(ac5.ammoRounds).toBe(20);
+    expect(lrm5.crewCount).toBe(2);
+    expect(deriveFieldGunCrewCount('ac20')).toBe(5);
+    expect(ac20.crewCount).toBe(5);
+  });
+
+  it('stores ammo rounds separately from crew count', () => {
+    const ac5 = buildFieldGun(requiredFieldGunEntry('ac5'), 12);
+    expect(ac5.weaponId).toBe('ac5');
+    expect(ac5.crewCount).toBe(3);
+    expect(ac5.ammoRounds).toBe(12);
+  });
+
+  it('field-gun deployed tonnage is tracked but construction tonnage is zero', () => {
+    const ac5 = buildFieldGun(requiredFieldGunEntry('ac5'));
+    const specShape: IFieldGun = ac5;
+    expect(getDeployedFieldGunTonnage('ac5')).toBe(8);
+    expect(getFieldGunConstructionTonnage(specShape)).toBe(0);
+  });
+
+  it('rejects field guns outside the approved list', () => {
+    const customGun = makeFieldGun('gauss-rifle', 'Gauss Rifle', 4);
+    const errors = validateFieldGuns(InfantryMotive.FOOT, 20, [customGun]);
+    expect(errors.some((error) => error.includes('approved list'))).toBe(true);
   });
 });
 
@@ -332,6 +474,13 @@ describe('VAL-INF-PLATOON: Platoon size bounds', () => {
     expect(validatePlatoonSize(30)).toHaveLength(0);
     expect(validatePlatoonSize(15)).toHaveLength(0);
   });
+
+  it('custom 1-30 platoon sizes are supported with a default-size warning', () => {
+    expect(validatePlatoonSize(12)).toHaveLength(0);
+    const warnings = validatePlatoonDefaultWarning(InfantryMotive.FOOT, 12);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('differs from Foot default 28');
+  });
 });
 
 // =============================================================================
@@ -351,6 +500,29 @@ describe('Motive MP derivation', () => {
 
   it('Mechanized Hover: ground MP 5', () => {
     expect(MOTIVE_MP[InfantryMotive.MECHANIZED_HOVER].groundMP).toBe(5);
+  });
+
+  it('Motorized: ground MP 3', () => {
+    expect(MOTIVE_MP[InfantryMotive.MOTORIZED]).toEqual({
+      groundMP: 3,
+      jumpMP: 0,
+    });
+  });
+
+  it('Mechanized Tracked: ground MP 3 and adds mechanized armor', () => {
+    const profile = getMotiveProfile(InfantryMotive.MECHANIZED_TRACKED);
+    expect(profile.movement.groundMP).toBe(3);
+    expect(profile.hasMechanizedArmor).toBe(true);
+  });
+
+  it('Mechanized Wheeled: ground MP 4', () => {
+    expect(MOTIVE_MP[InfantryMotive.MECHANIZED_WHEELED].groundMP).toBe(4);
+  });
+
+  it('Mechanized VTOL: MP 6 vertical', () => {
+    const profile = INFANTRY_MOTIVE_PROFILES[InfantryMotive.MECHANIZED_VTOL];
+    expect(profile.movement.groundMP).toBe(6);
+    expect(profile.movementMode).toBe('vertical');
   });
 });
 
@@ -447,6 +619,121 @@ describe('validateInfantryConstruction (composite)', () => {
     expect(result.isValid).toBe(false);
     expect(result.errors.some((e) => e.includes('VAL-INF-ANTI-MECH'))).toBe(
       true,
+    );
+  });
+
+  it('returns warnings for non-default but otherwise legal platoon sizes', () => {
+    const result = validateInfantryConstruction({
+      motive: InfantryMotive.FOOT,
+      totalTroopers: 12,
+      armorKit: InfantryArmorKitType.STANDARD,
+      isPrimaryHeavy: false,
+      fieldGuns: [],
+      hasAntiMechTraining: false,
+    });
+    expect(result.isValid).toBe(true);
+    expect(result.warnings).toHaveLength(1);
+  });
+});
+
+describe('IInfantryUnit construction fixtures', () => {
+  it('defines the four named fixtures requested by task 10.2', () => {
+    expect(
+      INFANTRY_CONSTRUCTION_FIXTURES.map((fixture) => fixture.name),
+    ).toEqual([
+      'Foot Rifle Platoon',
+      'Jump SRM Platoon',
+      'Mechanized MG Platoon',
+      'Field Gun (AC/5) Platoon',
+    ]);
+  });
+
+  it('fixtures use the spec-name motiveType and antiMechTraining fields', () => {
+    for (const fixture of INFANTRY_CONSTRUCTION_FIXTURES) {
+      expect(Object.values(InfantryMotive)).toContain(fixture.motiveType);
+      expect(typeof fixture.antiMechTraining).toBe('boolean');
+      expect(totalTroopers(fixture.platoonComposition)).toBe(
+        fixture.expectedTroopers,
+      );
+    }
+  });
+
+  it('Field Gun (AC/5) fixture uses the IFieldGun shape', () => {
+    const fieldGun = FIELD_GUN_AC5_PLATOON.fieldGun;
+    expect(fieldGun).toBeDefined();
+    if (fieldGun) {
+      expect(fieldGun.weaponId).toBe('ac5');
+      expect(fieldGun.crewCount).toBe(3);
+      expect(fieldGun.ammoRounds).toBe(20);
+    }
+  });
+});
+
+describe('Infantry store construction state', () => {
+  const storeId = '00000000-0000-4000-8000-000000000101';
+
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('defaults legacy squad fields from construction composition', () => {
+    const state = createDefaultInfantryState({ id: storeId });
+    expect(state.platoonComposition).toEqual({
+      squads: 7,
+      troopersPerSquad: 4,
+    });
+    expect(state.numberOfSquads).toBe(7);
+    expect(state.squadSize).toBe(4);
+  });
+
+  it('persists motive, composition, field-gun aliases, and ammo rounds', () => {
+    const store = createInfantryStore(
+      createDefaultInfantryState({ id: storeId }),
+    );
+    const ac5 = buildFieldGun(requiredFieldGunEntry('ac5'));
+
+    store.getState().setInfantryMotive(InfantryMotive.MOTORIZED);
+    store.getState().setPlatoonComposition({
+      squads: 3,
+      troopersPerSquad: 4,
+    });
+    store.getState().addFieldGun(ac5);
+    store.getState().setFieldGunAmmo(0, 12);
+
+    const raw = localStorage.getItem(`megamek-infantry-${storeId}`);
+    expect(raw).not.toBeNull();
+    const persisted = JSON.parse(raw ?? '{}') as {
+      state?: {
+        infantryMotive?: InfantryMotive;
+        platoonComposition?: IPlatoonComposition;
+        fieldGuns?: IInfantryFieldGun[];
+      };
+    };
+
+    expect(persisted.state?.infantryMotive).toBe(InfantryMotive.MOTORIZED);
+    expect(persisted.state?.platoonComposition).toEqual({
+      squads: 3,
+      troopersPerSquad: 4,
+    });
+    expect(persisted.state?.fieldGuns?.[0]?.weaponId).toBe('ac5');
+    expect(persisted.state?.fieldGuns?.[0]?.crewCount).toBe(3);
+    expect(persisted.state?.fieldGuns?.[0]?.ammoRounds).toBe(12);
+  });
+
+  it('transport weight includes armor kit mass but excludes field-gun tonnage', () => {
+    const state = createDefaultInfantryState({
+      id: storeId,
+      platoonComposition: { squads: 7, troopersPerSquad: 4 },
+    });
+    const armoredState = {
+      ...state,
+      armorKit: InfantryArmorKit.FLAK,
+      fieldGuns: [buildFieldGun(requiredFieldGunEntry('ac5'))],
+    };
+
+    expect(calculateInfantryTransportWeight(armoredState)).toBeCloseTo(
+      28 * 0.08 + 28 * 0.012,
+      5,
     );
   });
 });

@@ -23,8 +23,11 @@ import {
   FIELD_GUN_CATALOG,
   buildFieldGun,
 } from '@/utils/construction/infantry/fieldGuns';
-import { HEAVY_WEAPON_MOTIVES } from '@/utils/construction/infantry/platoonComposition';
-import { totalTroopers } from '@/utils/construction/infantry/platoonComposition';
+import {
+  FIELD_GUN_ALLOWED_MOTIVES,
+  HEAVY_WEAPON_MOTIVES,
+  totalTroopers,
+} from '@/utils/construction/infantry/platoonComposition';
 import {
   INFANTRY_WEAPON_TABLE,
   getPrimaryWeaponOptions,
@@ -165,6 +168,7 @@ export function InfantryBuildTab({
     () => new Set(fieldGuns.map((g) => g.equipmentId)),
     [fieldGuns],
   );
+  const canUseFieldGuns = FIELD_GUN_ALLOWED_MOTIVES.has(infantryMotive);
 
   // --------------------------------------------------------------------------
   // Handlers — identity
@@ -271,12 +275,12 @@ export function InfantryBuildTab({
 
   const handleAddFieldGun = useCallback(
     (gunId: string) => {
-      if (readOnly) return;
+      if (readOnly || !canUseFieldGuns) return;
       const entry = FIELD_GUN_CATALOG.find((g) => g.id === gunId);
       if (!entry || addedFieldGunIds.has(gunId)) return;
       addFieldGun(buildFieldGun(entry));
     },
-    [addFieldGun, addedFieldGunIds, readOnly],
+    [addFieldGun, addedFieldGunIds, canUseFieldGuns, readOnly],
   );
 
   const handleRemoveFieldGun = useCallback(
@@ -527,6 +531,11 @@ export function InfantryBuildTab({
       {/* Field Guns — available only for Foot and Motorized platoons */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Field Guns</h3>
+        {!canUseFieldGuns && (
+          <p className="mb-4 text-xs text-amber-400">
+            Field guns require Foot or Motorized motive.
+          </p>
+        )}
         {/* Currently equipped field guns */}
         {fieldGuns.length > 0 ? (
           <div className="mb-4 space-y-2">
@@ -538,7 +547,7 @@ export function InfantryBuildTab({
                 <span className="flex-1 text-sm text-white">
                   {gun.name}
                   <span className="ml-2 text-xs text-gray-400">
-                    (crew: {gun.crew})
+                    (crew: {gun.crewCount})
                   </span>
                 </span>
                 <label className="flex items-center gap-1 text-xs text-gray-400">
@@ -575,6 +584,7 @@ export function InfantryBuildTab({
             <select
               className={cs.select.full}
               defaultValue=""
+              disabled={!canUseFieldGuns}
               onChange={(e) => {
                 if (e.target.value) {
                   handleAddFieldGun(e.target.value);
@@ -619,7 +629,7 @@ export function InfantryBuildTab({
             <span>
               Field gun crew:{' '}
               <span className="font-medium text-white">
-                {fieldGuns.reduce((s, g) => s + g.crew, 0)}
+                {fieldGuns.reduce((s, g) => s + g.crewCount, 0)}
               </span>{' '}
               / {platoonStrength} troopers
             </span>

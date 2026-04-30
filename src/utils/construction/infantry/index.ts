@@ -14,6 +14,8 @@ export {
   getDefaultComposition,
   totalTroopers,
   getMotiveMP,
+  getMotiveProfile,
+  squadMotionTypeForMotive,
   effectiveFiringTroopers,
   secondaryWeaponCount,
   FIELD_GUN_ALLOWED_MOTIVES,
@@ -24,11 +26,27 @@ export {
   FIELD_GUN_CATALOG,
   findFieldGunById,
   buildFieldGun,
+  deriveFieldGunCrewCount,
+  getDeployedFieldGunTonnage,
+  getFieldGunConstructionTonnage,
+  normalizeInfantryFieldGun,
   totalFieldGunCrew,
 } from './fieldGuns';
 
 export {
+  INFANTRY_ARMOR_KIT_PROFILES,
+  getInfantryArmorKitProfile,
+  mapPersonnelArmorKitToConstructionKit,
+  canArmorKitDeployInVacuumOrUnderwater,
+  calculateArmorKitMassTons,
+  calculatePersonnelArmorKitMassTons,
+} from './armorKits';
+
+export type { IInfantryArmorKitProfile } from './armorKits';
+
+export {
   validatePlatoonSize,
+  validatePlatoonDefaultWarning,
   validateMotiveCompatibility,
   validateArmorKit,
   validatePrimaryWeapon,

@@ -25,6 +25,11 @@ import {
   InfantryArmorKit,
   InfantrySpecialization,
 } from '@/types/unit/PersonnelInterfaces';
+import {
+  calculatePersonnelArmorKitMassTons,
+  normalizeInfantryFieldGun,
+  squadMotionTypeForMotive,
+} from '@/utils/construction/infantry';
 import { computeInfantryBVFromState } from '@/utils/construction/infantry/infantryBVAdapter';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
@@ -274,6 +279,8 @@ export interface CreateInfantryOptions {
   model?: string;
   techBase?: TechBase;
   motionType?: SquadMotionType;
+  infantryMotive?: InfantryMotive;
+  platoonComposition?: IPlatoonComposition;
   squadSize?: number;
   numberOfSquads?: number;
 }
@@ -288,6 +295,11 @@ export function createDefaultInfantryState(
   const id = options.id ?? generateUUID();
   const chassis = options.chassis ?? 'Rifle Platoon';
   const model = options.model ?? '';
+  const infantryMotive = options.infantryMotive ?? InfantryMotive.FOOT;
+  const platoonComposition =
+    options.platoonComposition ?? PLATOON_DEFAULTS[infantryMotive];
+  const squadSize = options.squadSize ?? platoonComposition.troopersPerSquad;
+  const numberOfSquads = options.numberOfSquads ?? platoonComposition.squads;
 
   return {
     // Identity
@@ -304,13 +316,13 @@ export function createDefaultInfantryState(
     unitType: UnitType.INFANTRY,
 
     // Platoon Configuration
-    squadSize: options.squadSize ?? 7,
-    numberOfSquads: options.numberOfSquads ?? 4,
-    motionType: options.motionType ?? SquadMotionType.FOOT,
-    infantryMotive: InfantryMotive.FOOT,
-    platoonComposition: PLATOON_DEFAULTS[InfantryMotive.FOOT],
-    groundMP: MOTIVE_MP[InfantryMotive.FOOT].groundMP,
-    jumpMP: MOTIVE_MP[InfantryMotive.FOOT].jumpMP,
+    squadSize,
+    numberOfSquads,
+    motionType: options.motionType ?? squadMotionTypeForMotive(infantryMotive),
+    infantryMotive,
+    platoonComposition,
+    groundMP: MOTIVE_MP[infantryMotive].groundMP,
+    jumpMP: MOTIVE_MP[infantryMotive].jumpMP,
 
     // Weapons
     primaryWeapon: 'Rifle',
@@ -340,10 +352,47 @@ export function createDefaultInfantryState(
 }
 
 /**
+ * Normalize newly hydrated or externally provided infantry state.
+ *
+ * Keeps legacy squad fields synchronized with the construction composition
+ * and fills field-gun spec aliases introduced by add-infantry-construction.
+ */
+export function normalizeInfantryState(state: InfantryState): InfantryState {
+  const platoonComposition = state.platoonComposition ?? {
+    squads: state.numberOfSquads,
+    troopersPerSquad: state.squadSize,
+  };
+
+  return {
+    ...state,
+    platoonComposition,
+    squadSize: platoonComposition.troopersPerSquad,
+    numberOfSquads: platoonComposition.squads,
+    groundMP: state.groundMP ?? MOTIVE_MP[state.infantryMotive].groundMP,
+    jumpMP: state.jumpMP ?? MOTIVE_MP[state.infantryMotive].jumpMP,
+    fieldGuns: state.fieldGuns.map(normalizeInfantryFieldGun),
+  };
+}
+
+/**
  * Calculate platoon strength (total soldiers)
  */
 export function calculatePlatoonStrength(state: InfantryState): number {
   return state.squadSize * state.numberOfSquads;
+}
+
+/**
+ * Transport weight for the platoon, including per-trooper armor kit mass.
+ * Field-gun tonnage is intentionally excluded; field guns are deployed
+ * equipment and do not consume unit construction tonnage.
+ */
+export function calculateInfantryTransportWeight(state: InfantryState): number {
+  const troopers = calculatePlatoonStrength(state);
+  const soldierWeightTons = 0.08;
+  return (
+    troopers * soldierWeightTons +
+    calculatePersonnelArmorKitMassTons(state.armorKit, troopers)
+  );
 }
 
 /**

@@ -4,7 +4,7 @@
  * Main component for customizing Infantry platoons.
  * Tab set is data-driven from INFANTRY_TABS registry. The Field Guns tab is
  * automatically hidden for Jump and Mechanized platoons via a visibleWhen
- * predicate that reads motionType from the store.
+ * predicate that reads infantryMotive from the store.
  *
  * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2
@@ -52,7 +52,7 @@ interface InfantryCustomizerProps {
 }
 
 // =============================================================================
-// Inner component (needs store context to read motionType for Field Guns visibility)
+// Inner component (needs store context to read infantryMotive for Field Guns visibility)
 // =============================================================================
 
 interface InfantryCustomizerInnerProps {
@@ -66,13 +66,13 @@ function InfantryCustomizerInner({
   onTabChange,
   readOnly,
 }: InfantryCustomizerInnerProps): React.ReactElement {
-  // Read motionType to drive the Field Guns tab visibility predicate
-  const motionType = useInfantryStore((s) => s.motionType);
+  // Read infantryMotive to drive the Field Guns tab visibility predicate
+  const infantryMotive = useInfantryStore((s) => s.infantryMotive);
 
   const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
     useCustomizerTabs({
       specs: INFANTRY_TABS,
-      state: { motionType },
+      state: { infantryMotive },
       initialTabId: initialTab,
     });
 
@@ -123,7 +123,7 @@ function InfantryCustomizerInner({
  * Main Infantry customizer with registry-driven tabbed interface.
  *
  * Wraps InfantryCustomizerInner inside the store context so the inner
- * component can read motionType for the Field Guns tab visibility predicate.
+ * component can read infantryMotive for the Field Guns tab visibility predicate.
  */
 export function InfantryCustomizer({
   store,
