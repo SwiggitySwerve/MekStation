@@ -17,7 +17,7 @@ import {
 import {
   IRecordSheetData,
   IMechRecordSheetData,
-  UnsupportedUnitTypeError,
+  INonMechRecordSheetData,
   PaperSize,
   PAPER_DIMENSIONS,
   PDF_DPI_MULTIPLIER,
@@ -40,20 +40,17 @@ import { extractInfantryData } from './recordsheet/dataExtractors.infantry';
 import { extractProtoMechData } from './recordsheet/dataExtractors.protoMech';
 import { extractVehicleData } from './recordsheet/dataExtractors.vehicle';
 import {
-  dispatchTargetFromLegacyConfig,
+  dispatchTargetFromUnit,
   isRecordSheetDispatchTarget,
   type IRecordSheetDispatchTarget,
+  type IRecordSheetUnitInput,
 } from './recordsheet/dispatchTarget';
 import { getMechType } from './recordsheet/mechTypeUtils';
 import { buildSPASection } from './recordsheet/spaSection';
 import { IUnitConfig } from './recordsheet/types';
 import { SVGRecordSheetRenderer } from './svgRecordSheetRenderer';
-import { renderAerospaceSVG } from './svgRecordSheetRenderer/aerospaceRenderer';
-import { renderBattleArmorSVG } from './svgRecordSheetRenderer/battleArmorRenderer';
 import { renderToCanvasHighDPI } from './svgRecordSheetRenderer/canvas';
-import { renderInfantrySVG } from './svgRecordSheetRenderer/infantryRenderer';
-import { renderProtoMechSVG } from './svgRecordSheetRenderer/protoMechRenderer';
-import { renderVehicleSVG } from './svgRecordSheetRenderer/vehicleRenderer';
+import { renderRecordSheetSVG } from './svgRecordSheetRenderer/renderer';
 
 export type { IUnitConfig };
 
@@ -93,78 +90,80 @@ export class RecordSheetService {
   // ── Data extraction ──────────────────────────────────────────────────────
 
   /**
-   * Extract mech record sheet data from a mech unit configuration.
+   * Extract record sheet data for any supported unit type.
    *
-   * Legacy entry-point — always returns `IMechRecordSheetData`. For multi-type
-   * dispatch use `extractDataByType`.
-   *
-   * Phase 5 Wave 3: supply `pilotAbilities` to include the SPA block.
+   * Legacy mech callers without a type hint continue to get the mech payload.
+   * New callers can pass either `{ type: 'vehicle' }` style unit configs or an
+   * explicit `IRecordSheetDispatchTarget`.
    */
   extractData(
     unit: IUnitConfig,
     pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IMechRecordSheetData {
-    return this.extractMechData(unit, pilotAbilities);
+  ): IMechRecordSheetData;
+  extractData(
+    target: IRecordSheetDispatchTarget,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+  extractData(
+    unit: IRecordSheetUnitInput,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+  extractData(
+    targetOrUnit: IRecordSheetDispatchTarget | IRecordSheetUnitInput,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData {
+    const target = isRecordSheetDispatchTarget(targetOrUnit)
+      ? targetOrUnit
+      : dispatchTargetFromUnit(targetOrUnit);
+
+    const spaBlock = pilotAbilities
+      ? buildSPASection(pilotAbilities)
+      : { entries: [], hasContent: false };
+    const specialAbilities = spaBlock.hasContent ? spaBlock.entries : undefined;
+
+    switch (target.kind) {
+      case 'mech':
+        return this.extractMechData(target.unit, pilotAbilities);
+      case 'vehicle':
+        return extractVehicleData(target.unit, specialAbilities);
+      case 'aerospace':
+        return extractAerospaceData(target.unit, specialAbilities);
+      case 'battlearmor':
+        return extractBattleArmorData(target.unit, specialAbilities);
+      case 'infantry':
+        return extractInfantryData(target.unit, specialAbilities);
+      case 'protomech':
+        return extractProtoMechData(target.unit);
+      default: {
+        return this.assertUnsupportedTarget(target);
+      }
+    }
   }
 
   /**
-   * Extract record sheet data dispatching on a discriminated union.
-   *
-   * Callers pass an `IRecordSheetDispatchTarget` whose `kind` selects
-   * which extractor runs and tells TypeScript exactly which config
-   * shape `unit` must have. This replaces the legacy
-   * `extractDataByType(unit & { type?: string })` signature, which
-   * required `as unknown as IFooUnitConfig` casts inside the switch.
-   *
-   * For backward compatibility there is an overload that accepts the
-   * legacy fat config with an optional `type` discriminant; that path
-   * forwards to `dispatchTargetFromLegacyConfig` to build a proper
-   * dispatch target, with the cast localized to one place.
-   *
-   * Throws `UnsupportedUnitTypeError` for unknown discriminants.
+   * Backward-compatible alias retained for callers introduced during early
+   * Wave 2 scaffolding. Prefer `extractData`.
    */
   extractDataByType(
     target: IRecordSheetDispatchTarget,
     pilotAbilities?: readonly IPilotAbilityRef[],
   ): IRecordSheetData;
   extractDataByType(
-    unit: IUnitConfig & { type?: string },
+    unit: IRecordSheetUnitInput,
     pilotAbilities?: readonly IPilotAbilityRef[],
   ): IRecordSheetData;
   extractDataByType(
-    targetOrUnit:
-      | IRecordSheetDispatchTarget
-      | (IUnitConfig & { type?: string }),
+    targetOrUnit: IRecordSheetDispatchTarget | IRecordSheetUnitInput,
     pilotAbilities?: readonly IPilotAbilityRef[],
   ): IRecordSheetData {
-    const target = isRecordSheetDispatchTarget(targetOrUnit)
-      ? targetOrUnit
-      : dispatchTargetFromLegacyConfig(targetOrUnit);
-
-    switch (target.kind) {
-      case 'mech':
-        return this.extractMechData(target.unit, pilotAbilities);
-      case 'vehicle':
-        return extractVehicleData(target.unit);
-      case 'aerospace':
-        return extractAerospaceData(target.unit);
-      case 'battlearmor':
-        return extractBattleArmorData(target.unit);
-      case 'infantry':
-        return extractInfantryData(target.unit);
-      case 'protomech':
-        return extractProtoMechData(target.unit);
-      default: {
-        // Exhaustiveness check — TypeScript narrows `target` to `never`
-        // here, so any new discriminant added to
-        // `IRecordSheetDispatchTarget` will fail compilation until it is
-        // wired into the switch above.
-        const exhaustive: never = target;
-        throw new UnsupportedUnitTypeError(
-          (exhaustive as { kind: string }).kind,
-        );
-      }
+    if (isRecordSheetDispatchTarget(targetOrUnit)) {
+      return this.extractData(targetOrUnit, pilotAbilities);
     }
+    return this.extractData(targetOrUnit, pilotAbilities);
+  }
+
+  private assertUnsupportedTarget(target: never): never {
+    throw new Error(`Unhandled record sheet target: ${String(target)}`);
   }
 
   /**
@@ -369,28 +368,8 @@ export class RecordSheetService {
    * per-type renderer. Throws `UnsupportedUnitTypeError` for the 'mech' case
    * (callers should use the mech pipeline) and unknown types.
    */
-  private buildNonMechSVG(data: IRecordSheetData): string {
-    switch (data.unitType) {
-      case 'vehicle':
-        return renderVehicleSVG(data);
-      case 'aerospace':
-        return renderAerospaceSVG(data);
-      case 'battlearmor':
-        return renderBattleArmorSVG(data);
-      case 'infantry':
-        return renderInfantrySVG(data);
-      case 'protomech':
-        return renderProtoMechSVG(data);
-      case 'mech':
-        throw new UnsupportedUnitTypeError('mech (use mech pipeline)');
-      default: {
-        // TypeScript exhaustiveness guard
-        const _exhaustive: never = data;
-        throw new UnsupportedUnitTypeError(
-          (_exhaustive as { unitType: string }).unitType,
-        );
-      }
-    }
+  private buildNonMechSVG(data: INonMechRecordSheetData): string {
+    return renderRecordSheetSVG(data);
   }
 
   // ── Print helper (unchanged) ─────────────────────────────────────────────

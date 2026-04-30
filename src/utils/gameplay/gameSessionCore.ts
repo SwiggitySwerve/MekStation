@@ -64,12 +64,21 @@ import {
 import { allUnitsLocked, deriveState } from './gameState';
 import { calculateToHit } from './toHit';
 
+export interface ICreateGameSessionOptions {
+  readonly id?: string;
+  readonly createdAt?: string;
+  readonly hostPeerId?: string | null;
+  readonly guestPeerId?: string | null;
+  readonly sideOwners?: Readonly<Record<GameSide, string>> | null;
+}
+
 export function createGameSession(
   config: IGameConfig,
   units: readonly IGameUnit[],
+  options: ICreateGameSessionOptions = {},
 ): IGameSession {
-  const id = uuidv4();
-  const now = new Date().toISOString();
+  const id = options.id ?? uuidv4();
+  const now = options.createdAt ?? new Date().toISOString();
 
   const createdEvent = createGameCreatedEvent(id, config, units);
   const events: IGameEvent[] = [createdEvent];
@@ -83,6 +92,9 @@ export function createGameSession(
     units,
     events,
     currentState,
+    hostPeerId: options.hostPeerId,
+    guestPeerId: options.guestPeerId,
+    sideOwners: options.sideOwners,
   };
 }
 

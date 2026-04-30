@@ -32,7 +32,21 @@ export { extractEquipment } from './dataExtractors.equipment';
 /**
  * Extract header data
  */
-export function extractHeader(unit: IUnitConfig): IRecordSheetHeader {
+export interface IRecordSheetHeaderSource {
+  readonly name: string;
+  readonly chassis: string;
+  readonly model: string;
+  readonly tonnage: number;
+  readonly techBase: string;
+  readonly rulesLevel: string;
+  readonly era: string;
+  readonly battleValue?: number;
+  readonly cost?: number;
+}
+
+export function extractHeader(
+  unit: IRecordSheetHeaderSource,
+): IRecordSheetHeader {
   return {
     unitName: unit.name || `${unit.chassis} ${unit.model}`,
     chassis: unit.chassis,

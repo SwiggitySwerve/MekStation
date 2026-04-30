@@ -7,10 +7,12 @@ import type {
   IHexTerrain,
   IHexGrid,
   IHex,
+  IGameEvent,
 } from '@/types/gameplay';
 
 import { TerrainSymbolDefs } from '@/components/gameplay/terrain/TerrainSymbolDefs';
 import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForType';
+import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { TerrainType } from '@/types/gameplay';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
@@ -29,8 +31,10 @@ import {
 } from './useMapInteraction';
 
 export interface HexMapDisplayProps {
+  mapId?: string;
   radius: number;
   tokens: readonly IUnitToken[];
+  events?: readonly IGameEvent[];
   selectedHex: IHexCoordinate | null;
   hexTerrain?: readonly IHexTerrain[];
   movementRange?: readonly IMovementRangeHex[];
@@ -89,8 +93,10 @@ export interface HexMapDisplayProps {
 }
 
 export function HexMapDisplay({
+  mapId = 'default-map',
   radius,
   tokens,
+  events = [],
   selectedHex,
   hexTerrain = [],
   movementRange = [],
@@ -109,6 +115,7 @@ export function HexMapDisplay({
   className = '',
 }: HexMapDisplayProps): React.ReactElement {
   const [hoveredHex, setHoveredHex] = useState<IHexCoordinate | null>(null);
+  const activeAnimations = useAnimationQueue((s) => s.active);
 
   const interaction = useMapInteraction(radius);
 
@@ -173,6 +180,29 @@ export function HexMapDisplay({
     }
     return results;
   }, [interaction.showLOSOverlay, selectedUnitPosition, hexes, hexGrid]);
+
+  const movementAnimationsByUnit = useMemo(() => {
+    const lookup = new Map<string, (typeof activeAnimations)[number]>();
+    for (const animation of activeAnimations) {
+      if (
+        animation.mapId === mapId &&
+        animation.kind === 'movement' &&
+        animation.unitId
+      ) {
+        lookup.set(animation.unitId, animation);
+      }
+    }
+    return lookup;
+  }, [activeAnimations, mapId]);
+
+  const orderedTokens = useMemo(() => {
+    return [...tokens].sort((a, b) => {
+      const aAnimating = movementAnimationsByUnit.has(a.unitId);
+      const bAnimating = movementAnimationsByUnit.has(b.unitId);
+      if (aAnimating === bAnimating) return 0;
+      return aAnimating ? 1 : -1;
+    });
+  }, [movementAnimationsByUnit, tokens]);
 
   const handleHexClick = useCallback(
     (hex: IHexCoordinate) => {
@@ -284,12 +314,14 @@ export function HexMapDisplay({
         </g>
 
         <g>
-          {tokens.map((token) => (
+          {orderedTokens.map((token) => (
             <UnitTokenForType
               key={token.unitId}
               token={token}
+              movementAnimation={movementAnimationsByUnit.get(token.unitId)}
               onClick={handleTokenClick}
               onDoubleClick={handleTokenDoubleClick}
+              events={events}
               allTokens={tokens}
             />
           ))}

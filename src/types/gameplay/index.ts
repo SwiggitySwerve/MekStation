@@ -18,6 +18,7 @@ export * from './EnvironmentalConditions';
 
 // Game Session Core
 export * from './GameSessionInterfaces';
+export * from './GameLobbyInterfaces';
 
 // Combat Resolution
 export * from './CombatInterfaces';

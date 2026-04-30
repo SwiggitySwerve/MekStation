@@ -13,12 +13,18 @@
  *        §Per-Type Token Rendering — dispatcher routes to correct renderer per unit type
  */
 
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
 import type { IUnitToken } from '@/types/gameplay';
 
-import { GameSide, TokenUnitType, Facing } from '@/types/gameplay';
+import { useAnimationQueue } from '@/stores/useAnimationQueue';
+import {
+  GameSide,
+  TokenUnitType,
+  Facing,
+  MovementType,
+} from '@/types/gameplay';
 
 import { UnitTokenForType } from '../UnitTokenForType';
 
@@ -55,7 +61,14 @@ function makeToken(overrides: Partial<IUnitToken> = {}): IUnitToken {
 describe('UnitTokenForType dispatcher routing', () => {
   const noop = jest.fn();
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useAnimationQueue.getState().reset();
+  });
+
+  afterEach(() => {
+    useAnimationQueue.getState().reset();
+  });
 
   it('renders a <g> with data-testid="unit-token-unit-1" for any token', () => {
     const token = makeToken({ unitType: TokenUnitType.Mech });
@@ -274,3 +287,134 @@ describe('UnitTokenForType event projection', () => {
     expect(screen.getByTestId('unit-destroyed-overlay')).toBeInTheDocument();
   });
 });
+
+describe('UnitTokenForType movement animation integration', () => {
+  beforeEach(() => {
+    useAnimationQueue.getState().reset();
+  });
+
+  afterEach(() => {
+    useAnimationQueue.getState().reset();
+  });
+
+  it('renders an active movement at the tween start and completes it on unmount', () => {
+    const token = makeToken({
+      unitId: 'animated-mech',
+      position: { q: 2, r: 0 },
+    });
+    useAnimationQueue.getState().enqueue({
+      id: 'move-animated-mech',
+      mapId: 'map-1',
+      unitId: token.unitId,
+      kind: 'movement',
+      path: [
+        { q: 0, r: 0 },
+        { q: 2, r: 0 },
+      ],
+      mode: MovementType.Walk,
+      initialFacing: Facing.North,
+      finalFacing: Facing.South,
+    });
+    const movementAnimation = useAnimationQueue.getState().active[0];
+
+    const { unmount } = renderInSvg(
+      <UnitTokenForType
+        token={token}
+        onClick={jest.fn()}
+        movementAnimation={movementAnimation}
+      />,
+    );
+
+    const wrapper = screen.getByTestId('unit-token-animated-mech');
+    expect(wrapper).toHaveAttribute('data-animating', 'true');
+    expect(wrapper.getAttribute('transform')).toContain('translate(0, 0)');
+    expect(useAnimationQueue.getState().isActive).toBe(true);
+
+    unmount();
+
+    expect(useAnimationQueue.getState().isActive).toBe(false);
+  });
+
+  it('renders the jump arc in the jump MP color after fade-in starts', () => {
+    const restoreRaf = installRafMock();
+    const token = makeToken({
+      unitId: 'jumping-mech',
+      position: { q: 2, r: 0 },
+    });
+    useAnimationQueue.getState().enqueue({
+      id: 'jumping-mech-animation',
+      mapId: 'map-1',
+      unitId: token.unitId,
+      kind: 'movement',
+      path: [
+        { q: 0, r: 0 },
+        { q: 2, r: 0 },
+      ],
+      mode: MovementType.Jump,
+    });
+    const movementAnimation = useAnimationQueue.getState().active[0];
+
+    renderInSvg(
+      <UnitTokenForType
+        token={token}
+        onClick={jest.fn()}
+        movementAnimation={movementAnimation}
+      />,
+    );
+
+    flushRafFrame(0);
+    flushRafFrame(50);
+
+    const arc = screen.getByTestId('jump-arc-jumping-mech');
+    expect(arc).toHaveAttribute('stroke', '#3b82f6');
+    expect(Number(arc.getAttribute('opacity'))).toBeGreaterThan(0);
+
+    restoreRaf();
+  });
+});
+
+let rafCallbacks = new Map<number, FrameRequestCallback>();
+
+function installRafMock(): () => void {
+  const originalRequestAnimationFrame = window.requestAnimationFrame;
+  const originalCancelAnimationFrame = window.cancelAnimationFrame;
+  let nextFrameId = 1;
+  rafCallbacks = new Map();
+
+  Object.defineProperty(window, 'requestAnimationFrame', {
+    writable: true,
+    value: jest.fn((callback: FrameRequestCallback) => {
+      const frameId = nextFrameId;
+      nextFrameId += 1;
+      rafCallbacks.set(frameId, callback);
+      return frameId;
+    }),
+  });
+  Object.defineProperty(window, 'cancelAnimationFrame', {
+    writable: true,
+    value: jest.fn((frameId: number) => {
+      rafCallbacks.delete(frameId);
+    }),
+  });
+
+  return () => {
+    Object.defineProperty(window, 'requestAnimationFrame', {
+      writable: true,
+      value: originalRequestAnimationFrame,
+    });
+    Object.defineProperty(window, 'cancelAnimationFrame', {
+      writable: true,
+      value: originalCancelAnimationFrame,
+    });
+  };
+}
+
+function flushRafFrame(timestamp: number): void {
+  const callbacks = Array.from(rafCallbacks.values());
+  rafCallbacks.clear();
+  act(() => {
+    for (const callback of callbacks) {
+      callback(timestamp);
+    }
+  });
+}

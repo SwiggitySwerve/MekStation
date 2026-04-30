@@ -7,13 +7,21 @@
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
-import { IMechRecordSheetData, PREVIEW_DPI_MULTIPLIER } from '@/types/printing';
+import {
+  IMechRecordSheetData,
+  INonMechRecordSheetData,
+  PREVIEW_DPI_MULTIPLIER,
+} from '@/types/printing';
 
+import { renderAerospaceSVG } from './aerospaceRenderer';
 import { fillArmorPips } from './armor';
+import { renderBattleArmorSVG } from './battleArmorRenderer';
 import { renderToCanvasHighDPI } from './canvas';
 import { ELEMENT_IDS } from './constants';
 import { renderCriticalSlots } from './criticals';
 import { renderEquipmentTable } from './equipment';
+import { renderInfantrySVG } from './infantryRenderer';
+import { renderProtoMechSVG } from './protoMechRenderer';
 import { renderSPASection } from './spaSection';
 import { fillStructurePips } from './structure';
 import {
@@ -23,6 +31,28 @@ import {
   fixCopyrightYear,
   setTextContent,
 } from './template';
+import { renderVehicleSVG } from './vehicleRenderer';
+
+export function renderRecordSheetSVG(data: INonMechRecordSheetData): string {
+  switch (data.unitType) {
+    case 'vehicle':
+      return renderVehicleSVG(data);
+    case 'aerospace':
+      return renderAerospaceSVG(data);
+    case 'battlearmor':
+      return renderBattleArmorSVG(data);
+    case 'infantry':
+      return renderInfantrySVG(data);
+    case 'protomech':
+      return renderProtoMechSVG(data);
+    default:
+      return assertNeverRecordSheetVariant(data);
+  }
+}
+
+function assertNeverRecordSheetVariant(data: never): never {
+  throw new Error(`Unhandled record sheet unit type: ${String(data)}`);
+}
 
 export class SVGRecordSheetRenderer {
   private svgDoc: Document | null = null;

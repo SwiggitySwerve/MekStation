@@ -102,22 +102,7 @@ export const NEUTRAL_TINT = '#9ca3af';
  * and trivial and we want `MechSprite` to have zero hex-math dependency.
  */
 function facingToDegrees(facing: Facing): number {
-  switch (facing) {
-    case Facing.North:
-      return 0;
-    case Facing.Northeast:
-      return 60;
-    case Facing.Southeast:
-      return 120;
-    case Facing.South:
-      return 180;
-    case Facing.Southwest:
-      return 240;
-    case Facing.Northwest:
-      return 300;
-    default:
-      return 0;
-  }
+  return ((Number(facing) % 6) * 60 + 360) % 360;
 }
 
 // =============================================================================

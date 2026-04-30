@@ -10,6 +10,8 @@ import {
   IAerospaceArcArmor,
   IRecordSheetEquipment,
   IRecordSheetHeatSinks,
+  IRecordSheetPilot,
+  IRecordSheetSPAEntry,
 } from '@/types/printing';
 
 import { extractHeader } from './dataExtractors';
@@ -53,6 +55,7 @@ export interface IAerospaceUnitConfig {
   }>;
   /** Number of bomb bay slots (0 or absent when none). */
   bombBaySlots?: number;
+  pilot?: IRecordSheetPilot;
 }
 
 /** Canonical arc order for the 4-arc armor diagram. */
@@ -68,6 +71,7 @@ const ARC_ORDER: IAerospaceArcArmor['arc'][] = [
  */
 export function extractAerospaceData(
   unit: IAerospaceUnitConfig,
+  specialAbilities?: readonly IRecordSheetSPAEntry[],
 ): IAerospaceRecordSheetData {
   const arcAlloc = unit.armorArcs ?? {};
   const armorArcs: IAerospaceArcArmor[] = ARC_ORDER.map((arc) => ({
@@ -108,7 +112,7 @@ export function extractAerospaceData(
 
   return {
     unitType: 'aerospace',
-    header: extractHeader(unit as Parameters<typeof extractHeader>[0]),
+    header: extractHeader(unit),
     structuralIntegrity: unit.structuralIntegrity ?? 0,
     fuelPoints: unit.fuelPoints ?? 400,
     safeThrust: unit.safeThrust ?? 0,
@@ -118,7 +122,7 @@ export function extractAerospaceData(
     armorArcs,
     equipment,
     bombBaySlots: unit.bombBaySlots ?? 0,
-    pilot: undefined,
-    specialAbilities: undefined,
+    pilot: unit.pilot,
+    specialAbilities,
   };
 }

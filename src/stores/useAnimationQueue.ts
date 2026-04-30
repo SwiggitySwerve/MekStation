@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 
-import type { IHexCoordinate } from '@/types/gameplay';
+import type {
+  Facing,
+  IHexCoordinate,
+  MovementAnimationMode,
+} from '@/types/gameplay';
 
 export type TacticalAnimationKind = 'movement' | 'effect';
 
@@ -11,6 +15,10 @@ export interface TacticalAnimation {
   readonly kind?: TacticalAnimationKind;
   readonly path?: readonly IHexCoordinate[];
   readonly occupiedHexes?: readonly IHexCoordinate[];
+  readonly mode?: MovementAnimationMode;
+  readonly initialFacing?: Facing;
+  readonly finalFacing?: Facing;
+  readonly eventSequence?: number;
   readonly onComplete?: () => void;
 }
 
@@ -166,6 +174,16 @@ function cloneAnimation(animation: TacticalAnimation): TacticalAnimation {
       : {}),
     ...(animation.occupiedHexes !== undefined
       ? { occupiedHexes: animation.occupiedHexes.map(copyHex) }
+      : {}),
+    ...(animation.mode !== undefined ? { mode: animation.mode } : {}),
+    ...(animation.initialFacing !== undefined
+      ? { initialFacing: animation.initialFacing }
+      : {}),
+    ...(animation.finalFacing !== undefined
+      ? { finalFacing: animation.finalFacing }
+      : {}),
+    ...(animation.eventSequence !== undefined
+      ? { eventSequence: animation.eventSequence }
       : {}),
     ...(animation.onComplete !== undefined
       ? { onComplete: animation.onComplete }
