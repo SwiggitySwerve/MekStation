@@ -1,9 +1,9 @@
 # Active OpenSpec Roadmap
 
 **Status date:** 2026-04-30
-**Scope:** The 9 currently active OpenSpec changes under `openspec/changes/`.
+**Scope:** The 8 currently active OpenSpec changes under `openspec/changes/`.
 **Validation baseline:** `npx openspec validate --all --strict` passes with
-187 items, 0 failures.
+186 items, 0 failures.
 
 This document is an implementation-order reference for the active queue. It is
 not a replacement for each change's `proposal.md`, `design.md`, `tasks.md`, or
@@ -12,25 +12,26 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-The active queue currently has nine in-progress changes. Wave 4
+The active queue currently has eight in-progress changes. Wave 4
 archived both `add-fog-of-war-event-filtering` and
-`add-game-session-persistence-for-reconnect` on 2026-04-30. The first
-post-Wave-4 archive followed the same day:
+`add-game-session-persistence-for-reconnect` on 2026-04-30. Two
+post-Wave-4 archives followed the same day:
 `add-heat-and-shutdown-visual-indicators` archived as
-`archive/2026-04-30-add-heat-and-shutdown-visual-indicators`, syncing
-one new requirement into `heat-overflow-effects` (Heat Threshold Events
-For UI) and five new requirements into `tactical-map-interface`
-(shutdown overlay, heat glow tier, animation queue layer order,
-reduced-motion fallback, low-FPS auto-disable). Wave 0 reconciliation
-marked already proven source, test, and spec-admin tasks complete;
-later wave work has advanced several changes, but the remaining
-unchecked tasks are implementation work or intentionally unproven
-partials.
+`archive/2026-04-30-add-heat-and-shutdown-visual-indicators` (one new
+requirement into `heat-overflow-effects`, five into
+`tactical-map-interface`); and `add-infantry-construction` archived
+as `archive/2026-04-30-add-infantry-construction` (3 ADDED + 5
+MODIFIED requirements into `infantry-unit-system`, with 7 spec-merge
+decisions converting overlapping ADDED headers to either MODIFIED
+with merged scenarios or rename-with-distinct-title). Wave 0
+reconciliation marked already proven source, test, and spec-admin
+tasks complete; later wave work has advanced several changes, but
+the remaining unchecked tasks are implementation work or
+intentionally unproven partials.
 
 | Change | Tasks | Lane |
 | --- | ---: | --- |
 | `wire-encounter-to-campaign-round-trip` | 15/42 | Campaign closure |
-| `add-infantry-construction` | 45/50 | Phase 6 construction |
 | `add-multi-type-record-sheet-export` | 46/54 | Phase 6 export |
 | `add-p2p-game-session-sync` | 12/33 | Phase 4 multiplayer |
 | `add-game-session-invite-and-lobby-1v1` | 29/39 | Phase 4 multiplayer |
