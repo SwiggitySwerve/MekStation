@@ -42,18 +42,18 @@ IGameEvent[]}` containing all events with `seq > lastLocalSeq`
 
 ## 5. Peer Pending Local Status
 
-- [ ] 5.1 Add `localMatchStatus: 'live' | 'guestPending' | 'hostPending'
+- [x] 5.1 Add `localMatchStatus: 'live' | 'guestPending' | 'hostPending'
 | 'aborted'` to `useGameplayStore`
 - [ ] 5.2 Host sets `guestPending` when the guest's Yjs awareness is
       lost and the match is mid-play
 - [ ] 5.3 Guest sets `hostPending` when the host's Yjs awareness is lost
       but the local log is preserved
-- [ ] 5.4 `localMatchStatus` is a local UI concern; it is NOT written
+- [x] 5.4 `localMatchStatus` is a local UI concern; it is NOT written
       to the session event log
 
 ## 6. Grace Window
 
-- [ ] 6.1 Grace window defaults to 60 seconds (configurable per match)
+- [x] 6.1 Grace window defaults to 60 seconds (configurable per match)
 - [ ] 6.2 During the grace window, the host pauses phase advancement
       and shows a banner: `"Waiting for opponent to reconnect
 (NN seconds remaining)..."`
@@ -64,9 +64,9 @@ Status` returns to `'live'` and play resumes
 
 ## 7. Host-Side Replay API
 
-- [ ] 7.1 Host exposes `getEventsFromSeq(seq: number): IGameEvent[]`
+- [x] 7.1 Host exposes `getEventsFromSeq(seq: number): IGameEvent[]`
       from its in-memory log
-- [ ] 7.2 Replay response is streamed in chunks of 64 events max per
+- [x] 7.2 Replay response is streamed in chunks of 64 events max per
       message to avoid large single messages
 - [ ] 7.3 Host rejects `reconnect-request` if `matchId` doesn't match
       the host's current session
