@@ -40,6 +40,12 @@ interface LaunchResponse {
   error?: string;
 }
 
+interface LaunchEncounterOptions {
+  readonly campaignId?: string | null;
+  readonly contractId?: string | null;
+  readonly scenarioId?: string | null;
+}
+
 interface ValidationResponse {
   validation: IEncounterValidationResult;
 }
@@ -97,7 +103,10 @@ interface EncounterStoreActions {
   /** Validate an encounter */
   validateEncounter: (id: string) => Promise<IEncounterValidationResult | null>;
   /** Launch an encounter — returns gameSessionId on success, null on failure */
-  launchEncounter: (id: string) => Promise<string | null>;
+  launchEncounter: (
+    id: string,
+    options?: LaunchEncounterOptions,
+  ) => Promise<string | null>;
   /** Clone an encounter */
   cloneEncounter: (id: string, newName: string) => Promise<string | null>;
   /** Set status filter */
@@ -369,11 +378,13 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
     }
   },
 
-  launchEncounter: async (id: string) => {
+  launchEncounter: async (id: string, options?: LaunchEncounterOptions) => {
     set({ isLoading: true, error: null });
     try {
       const response = await fetch(`/api/encounters/${id}/launch`, {
         method: 'POST',
+        headers: options ? { 'Content-Type': 'application/json' } : undefined,
+        body: options ? JSON.stringify(options) : undefined,
       });
       const data = (await response.json()) as LaunchResponse;
       if (!data.success) {

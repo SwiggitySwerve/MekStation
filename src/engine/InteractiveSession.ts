@@ -88,6 +88,7 @@ import { toAIUnitState, toMovementCapability } from './GameEngine.helpers';
  * outcome resolves.
  */
 export interface IInteractiveSessionLinkage {
+  readonly campaignId?: string | null;
   readonly contractId?: string | null;
   readonly scenarioId?: string | null;
   readonly encounterId?: string | null;
@@ -172,6 +173,7 @@ export class InteractiveSession {
       // any later consumer of `IGameSession` (review UI, persistence
       // layer) can read them without keeping a parallel map.
       encounterId: linkage.encounterId ?? null,
+      campaignId: linkage.campaignId ?? null,
       contractId: linkage.contractId ?? null,
       scenarioId: linkage.scenarioId ?? null,
     };

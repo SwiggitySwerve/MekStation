@@ -20,6 +20,7 @@ import {
   SCENARIO_TEMPLATES,
 } from '@/types/encounter';
 import { IForce, ForceType, ForcePosition, ForceStatus } from '@/types/force';
+import { createGameSession } from '@/utils/gameplay/gameSessionCore';
 
 import { IEncounterOperationResult } from '../EncounterRepository';
 
@@ -30,6 +31,7 @@ import { IEncounterOperationResult } from '../EncounterRepository';
 const mockEncounters = new Map<string, IEncounter>();
 const mockForces = new Map<string, IForce>();
 let mockIdCounter = 0;
+let mockSessionIdCounter = 0;
 
 // Default map configuration for testing
 const DEFAULT_MAP_CONFIG: IMapConfiguration = {
@@ -57,6 +59,25 @@ jest.mock('../../forces/ForceRepository', () => ({
 jest.mock('../../pilots/PilotService', () => ({
   getPilotService: () => ({
     getPilot: () => null,
+  }),
+}));
+
+// =============================================================================
+// Mock Game Session Factory
+// =============================================================================
+
+jest.mock('@/utils/gameplay/gameSessionCore', () => ({
+  createGameSession: jest.fn((config, units) => {
+    mockSessionIdCounter += 1;
+    return {
+      id: `game-session-${mockSessionIdCounter}`,
+      createdAt: '2026-04-17T00:00:00.000Z',
+      updatedAt: '2026-04-17T00:00:00.000Z',
+      config,
+      units,
+      events: [],
+      currentState: {},
+    };
   }),
 }));
 
@@ -264,6 +285,8 @@ function clearMocks(): void {
   mockEncounters.clear();
   mockForces.clear();
   mockIdCounter = 0;
+  mockSessionIdCounter = 0;
+  jest.mocked(createGameSession).mockClear();
 }
 
 // =============================================================================
@@ -705,6 +728,51 @@ describe('EncounterService', () => {
       const encounter = service.getEncounter(createResult.id!);
       expect(encounter?.status).toBe(EncounterStatus.Launched);
       expect(encounter?.gameSessionId).toBeDefined();
+    });
+
+    it('should thread campaign linkage into the launched session config', () => {
+      const playerForce = createMockForce('force-p', 'Player');
+      const opponentForce = createMockForce('force-o', 'Opponent');
+      const createResult = service.createEncounter({
+        name: 'Campaign Launch',
+        template: ScenarioTemplateType.Skirmish,
+      });
+      service.setPlayerForce(createResult.id!, playerForce.id);
+      service.setOpponentForce(createResult.id!, opponentForce.id);
+
+      const launchResult = service.launchEncounter(createResult.id!, {
+        campaignId: 'campaign-1',
+        contractId: 'contract-1',
+        scenarioId: 'scenario-1',
+      });
+
+      expect(launchResult.success).toBe(true);
+      expect(createGameSession).toHaveBeenCalledTimes(1);
+      const [config] = jest.mocked(createGameSession).mock.calls[0];
+      expect(config.encounterId).toBe(createResult.id);
+      expect(config.campaignId).toBe('campaign-1');
+      expect(config.contractId).toBe('contract-1');
+      expect(config.scenarioId).toBe('scenario-1');
+    });
+
+    it('should fail before session creation when contract linkage is incomplete', () => {
+      const playerForce = createMockForce('force-p', 'Player');
+      const opponentForce = createMockForce('force-o', 'Opponent');
+      const createResult = service.createEncounter({
+        name: 'Broken Campaign Launch',
+        template: ScenarioTemplateType.Skirmish,
+      });
+      service.setPlayerForce(createResult.id!, playerForce.id);
+      service.setOpponentForce(createResult.id!, opponentForce.id);
+
+      const result = service.launchEncounter(createResult.id!, {
+        contractId: 'contract-1',
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('campaignId');
+      expect(result.error).toContain('scenarioId');
+      expect(createGameSession).not.toHaveBeenCalled();
     });
 
     it('should reject launching non-existent encounter', () => {

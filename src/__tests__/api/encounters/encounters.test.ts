@@ -700,6 +700,46 @@ describe('POST /api/encounters/[id]/launch', () => {
 
     expect(mockEncounterService.launchEncounter).toHaveBeenCalledWith(
       'encounter-1',
+      {},
+    );
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      ...result,
+      encounter,
+      gameSessionId: 'session-123',
+    });
+  });
+
+  it('should forward campaign launch linkage from the request body', async () => {
+    const encounter = createMockEncounter({
+      status: EncounterStatus.Launched,
+      gameSessionId: 'session-123',
+    });
+    const result = createSuccessResult();
+
+    mockEncounterService.launchEncounter.mockReturnValue(result);
+    mockEncounterService.getEncounter.mockReturnValue(encounter);
+
+    const req = createMockRequest({
+      method: 'POST',
+      query: { id: 'encounter-1' },
+      body: {
+        campaignId: 'campaign-1',
+        contractId: 'contract-1',
+        scenarioId: 'scenario-1',
+      },
+    });
+    const res = createMockResponse();
+
+    await launchHandler(req, res);
+
+    expect(mockEncounterService.launchEncounter).toHaveBeenCalledWith(
+      'encounter-1',
+      {
+        campaignId: 'campaign-1',
+        contractId: 'contract-1',
+        scenarioId: 'scenario-1',
+      },
     );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({

@@ -147,6 +147,30 @@ describe('buildGameConfigFromEncounter', () => {
       'double_blind',
     ]);
   });
+
+  it('stamps standalone encounter linkage with null campaign fields', () => {
+    const encounter = makeEncounter({ id: 'enc-standalone' });
+    const config = buildGameConfigFromEncounter(encounter);
+
+    expect(config.encounterId).toBe('enc-standalone');
+    expect(config.campaignId).toBeNull();
+    expect(config.contractId).toBeNull();
+    expect(config.scenarioId).toBeNull();
+  });
+
+  it('threads campaign, contract, and scenario linkage into the config', () => {
+    const encounter = makeEncounter({ id: 'enc-contract' });
+    const config = buildGameConfigFromEncounter(encounter, {
+      campaignId: 'campaign-1',
+      contractId: 'contract-1',
+      scenarioId: 'scenario-1',
+    });
+
+    expect(config.encounterId).toBe('enc-contract');
+    expect(config.campaignId).toBe('campaign-1');
+    expect(config.contractId).toBe('contract-1');
+    expect(config.scenarioId).toBe('scenario-1');
+  });
 });
 
 describe('buildGameUnitsFromEncounter', () => {

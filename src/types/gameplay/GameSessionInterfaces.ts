@@ -1041,6 +1041,11 @@ export interface IGameConfig {
    */
   readonly encounterId?: string | null;
   /**
+   * Campaign this session belongs to. Populated for campaign-launched
+   * encounters; null for standalone quick-play / handcrafted encounters.
+   */
+  readonly campaignId?: string | null;
+  /**
    * Campaign contract this session resolves. Populated when the encounter
    * was generated from a contract. Null for standalone encounters.
    */

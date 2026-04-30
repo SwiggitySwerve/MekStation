@@ -9,7 +9,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
-import { getEncounterService } from '@/services/encounter/EncounterService';
+import {
+  getEncounterService,
+  type ILaunchEncounterOptions,
+} from '@/services/encounter/EncounterService';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IEncounter } from '@/types/encounter';
 
@@ -25,6 +28,30 @@ type LaunchResponse = IEncounterOperationResult & {
 type ErrorResponse = {
   error: string;
 };
+
+function readOptionalId(
+  body: Record<string, unknown>,
+  key: keyof ILaunchEncounterOptions,
+): string | null | undefined {
+  const value = body[key];
+  if (typeof value === 'string' || value === null) {
+    return value;
+  }
+  return undefined;
+}
+
+function parseLaunchOptions(body: unknown): ILaunchEncounterOptions {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return {};
+  }
+
+  const record = body as Record<string, unknown>;
+  return {
+    campaignId: readOptionalId(record, 'campaignId'),
+    contractId: readOptionalId(record, 'contractId'),
+    scenarioId: readOptionalId(record, 'scenarioId'),
+  };
+}
 
 // =============================================================================
 // Handler
@@ -56,7 +83,10 @@ export default async function handler(
   const encounterService = getEncounterService();
 
   try {
-    const result = encounterService.launchEncounter(id);
+    const result = encounterService.launchEncounter(
+      id,
+      parseLaunchOptions(req.body),
+    );
 
     if (result.success) {
       const encounter = encounterService.getEncounter(id);
