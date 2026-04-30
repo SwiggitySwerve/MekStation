@@ -16,6 +16,7 @@ import { FiringArcOverlay } from '@/components/gameplay/overlays/FiringArcOverla
 import { LineOfSightOverlay } from '@/components/gameplay/overlays/LineOfSightOverlay';
 import { TerrainSymbolDefs } from '@/components/gameplay/terrain/TerrainSymbolDefs';
 import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForType';
+import { HEX_SIZE } from '@/constants/hexMap';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { TerrainType } from '@/types/gameplay';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
@@ -26,7 +27,12 @@ import {
   CoverOverlay,
   TerrainPatternDefs,
 } from './Overlays';
-import { generateHexesInRadius, hexEquals, hexInList } from './renderHelpers';
+import {
+  generateHexesInRadius,
+  hexEquals,
+  hexInList,
+  hexToPixel,
+} from './renderHelpers';
 import {
   useMapInteraction,
   type MapInteractionState,
@@ -348,6 +354,39 @@ export function HexMapDisplay({
               testId="los-overlay"
             />
           )}
+
+        <g data-testid="sensor-rings-layer">
+          {orderedTokens
+            .filter(
+              (token) =>
+                token.sensorRange != null &&
+                token.sensorRange > 0 &&
+                token.fogStatus !== 'hidden',
+            )
+            .map((token) => {
+              const sensorRange = token.sensorRange ?? 0;
+              const center = hexToPixel(
+                token.fogStatus === 'lastKnown' && token.lastKnownPosition
+                  ? token.lastKnownPosition
+                  : token.position,
+              );
+              return (
+                <circle
+                  key={`sensor-${token.unitId}`}
+                  data-testid={`sensor-ring-${token.unitId}`}
+                  cx={center.x}
+                  cy={center.y}
+                  r={sensorRange * HEX_SIZE * 1.5}
+                  fill="none"
+                  stroke="#38bdf8"
+                  strokeWidth={2}
+                  strokeDasharray="8 6"
+                  opacity={0.45}
+                  pointerEvents="none"
+                />
+              );
+            })}
+        </g>
 
         <g>
           {orderedTokens.map((token) => (

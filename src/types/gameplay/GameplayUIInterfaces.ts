@@ -114,6 +114,8 @@ export enum InfantryTokenSpecialization {
   XCT = 'xct',
 }
 
+export type UnitFogStatus = 'visible' | 'hidden' | 'lastKnown';
+
 /**
  * Visual token representing a unit on the hex map.
  * Extended with per-type discriminated data so token renderers receive
@@ -128,8 +130,14 @@ export interface IUnitToken {
   readonly side: GameSide;
   /** Current position */
   readonly position: IHexCoordinate;
+  /** Last visible position for fog-of-war placeholder rendering. */
+  readonly lastKnownPosition?: IHexCoordinate;
   /** Current facing */
   readonly facing: Facing;
+  /** Fog display state for redacted or last-known enemy contacts. */
+  readonly fogStatus?: UnitFogStatus;
+  /** Sensor range in hexes; HexMapDisplay draws a ring when present. */
+  readonly sensorRange?: number;
   /** Is this unit selected? */
   readonly isSelected: boolean;
   /** Is this unit a valid target? */

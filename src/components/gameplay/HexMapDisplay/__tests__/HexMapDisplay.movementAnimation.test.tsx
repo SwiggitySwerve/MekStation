@@ -241,4 +241,34 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('persistent-effects-layer')).toBeInTheDocument();
     expect(screen.getByTestId('wreck-marker-target')).toBeInTheDocument();
   });
+
+  it('renders sensor rings and last-known fog contacts on the tactical map', () => {
+    const scout = makeToken({
+      unitId: 'scout',
+      sensorRange: 3,
+      position: { q: 0, r: 0 },
+    });
+    const contact = makeToken({
+      unitId: 'contact',
+      side: GameSide.Opponent,
+      fogStatus: 'lastKnown',
+      sensorRange: 2,
+      position: { q: 3, r: 0 },
+      lastKnownPosition: { q: 1, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={3}
+        tokens={[scout, contact]}
+        selectedHex={null}
+      />,
+    );
+
+    expect(screen.getByTestId('sensor-rings-layer')).toBeInTheDocument();
+    expect(screen.getByTestId('sensor-ring-scout')).toBeInTheDocument();
+    expect(screen.getByTestId('sensor-ring-contact')).toBeInTheDocument();
+    expect(screen.getByTestId('fog-marker-contact')).toBeInTheDocument();
+  });
 });
