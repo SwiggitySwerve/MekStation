@@ -36,6 +36,7 @@ import {
   getLayoutForPhase,
 } from '@/types/gameplay';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
+import { canPlayerSeeUnit } from '@/utils/gameplay/visibility';
 
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
@@ -182,6 +183,9 @@ function unitStateToToken(
   isSelected: boolean,
   isValidTarget: boolean,
   isActiveTarget: boolean,
+  fogProjection: Partial<
+    Pick<IUnitToken, 'fogStatus' | 'lastKnownPosition' | 'sensorRange'>
+  > = {},
 ): IUnitToken {
   // Generate a short designation from the unit name
   const designation = unitInfo.name
@@ -202,8 +206,11 @@ function unitStateToToken(
     isActiveTarget,
     isDestroyed: state.destroyed,
     designation,
+    ...fogProjection,
   };
 }
+
+const DEFAULT_FOG_SENSOR_RANGE = 10;
 
 // =============================================================================
 // Component
@@ -378,6 +385,13 @@ export function GameplayLayout({
     [activeAnimations, events, queuedAnimations, session.id],
   );
 
+  const visibilityState = useMemo(
+    () => ({ ...currentState, sideOwners: session.sideOwners ?? null }),
+    [currentState, session.sideOwners],
+  );
+  const localFogPlayerId =
+    session.sideOwners?.[playerSide] ?? playerSide.toString();
+
   const tokens = useMemo(() => {
     return Object.entries(currentState.units).map(([unitId, state]) => {
       const unitInfo = unitInfoLookup[unitId] || {
@@ -398,6 +412,17 @@ export function GameplayLayout({
         currentState.phase === GamePhase.WeaponAttack &&
         activeTargetId !== null &&
         unitId === activeTargetId;
+      const fogProjection =
+        config.fogOfWar === true
+          ? unitInfo.side === playerSide
+            ? { sensorRange: DEFAULT_FOG_SENSOR_RANGE }
+            : canPlayerSeeUnit(localFogPlayerId, unitId, visibilityState)
+              ? {}
+              : {
+                  fogStatus: 'lastKnown' as const,
+                  lastKnownPosition: state.position,
+                }
+          : {};
 
       return unitStateToToken(
         unitId,
@@ -406,14 +431,19 @@ export function GameplayLayout({
         isSelected,
         isValidTarget,
         isActiveTarget,
+        fogProjection,
       );
     });
   }, [
     currentState,
+    config.fogOfWar,
     unitInfoLookup,
     selectedUnitId,
     validTargetIds,
     activeTargetId,
+    playerSide,
+    localFogPlayerId,
+    visibilityState,
   ]);
 
   // Selected unit data

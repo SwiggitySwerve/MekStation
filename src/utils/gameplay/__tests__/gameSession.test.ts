@@ -334,8 +334,8 @@ describe('endGame', () => {
 
   it('should support all end reasons', () => {
     const reasons: Array<
-      'destruction' | 'concede' | 'turn_limit' | 'objective'
-    > = ['destruction', 'concede', 'turn_limit', 'objective'];
+      'destruction' | 'concede' | 'turn_limit' | 'objective' | 'aborted'
+    > = ['destruction', 'concede', 'turn_limit', 'objective', 'aborted'];
 
     for (const reason of reasons) {
       const session = createActiveSession();

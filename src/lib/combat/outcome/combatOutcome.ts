@@ -59,7 +59,7 @@ export interface IDeriveCombatOutcomeOptions {
  * code paths that resolve withdrawal explicitly.
  */
 function toCombatEndReason(
-  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective',
+  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective' | 'aborted',
 ): CombatEndReason {
   switch (reason) {
     case 'destruction':
@@ -70,6 +70,8 @@ function toCombatEndReason(
       return CombatEndReason.TurnLimit;
     case 'objective':
       return CombatEndReason.ObjectiveMet;
+    case 'aborted':
+      return CombatEndReason.Aborted;
     default: {
       // Exhaustiveness guard — remove if Phase 1 expands the union.
       const _exhaustive: never = reason;

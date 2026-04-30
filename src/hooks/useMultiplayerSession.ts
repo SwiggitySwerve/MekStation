@@ -44,6 +44,8 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { connect } from '@/lib/multiplayer/client';
+import { useGameplayStore } from '@/stores/useGameplayStore';
+import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
 
 // =============================================================================
 // Types
@@ -140,6 +142,7 @@ export function useMultiplayerSession(
   // Stable ref for the live client so `sendIntent` can be memoised
   // without depending on a state value that re-renders on every event.
   const clientRef = useRef<IMultiplayerClient | null>(null);
+  const lobbyStateRef = useRef<ILobbyUpdated | null>(null);
 
   useEffect(() => {
     // SSR + pre-config gate: nothing to do until the page has all four
@@ -170,23 +173,36 @@ export function useMultiplayerSession(
       if (typeof raw === 'object' && raw !== null && 'kind' in raw) {
         const kind = (raw as { kind: string }).kind;
         if (kind === 'LobbyUpdated') {
+          lobbyStateRef.current = raw as ILobbyUpdated;
           setLobbyState(raw as ILobbyUpdated);
           return;
         }
         if (kind === 'MatchPaused') {
           setStatus('paused');
-          // Stamp the pending slots into the most recent error so the
-          // UI banner can print "waiting for X to reconnect".
           const paused = raw as IMatchPaused;
+          const remainingMs = paused.graceRemainingMs ?? RECONNECT_GRACE_MS;
+          const remainingSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+          const isHost =
+            lobbyStateRef.current?.hostPlayerId != null &&
+            lobbyStateRef.current.hostPlayerId === auth.playerId;
+          const store = useGameplayStore.getState();
+          store.setLocalMatchStatus(isHost ? 'guestPending' : 'hostPending', {
+            graceMs: remainingMs,
+            nowMs: Date.now(),
+          });
+          if (paused.pendingExpiresAtMs != null) {
+            store.setLocalMatchGraceDeadline(paused.pendingExpiresAtMs);
+          }
           setError({
             code: 'MATCH_PAUSED',
-            reason: `Waiting for ${paused.pendingSlots.join(', ')} to reconnect`,
+            reason: `Waiting for opponent to reconnect (${remainingSeconds} seconds remaining)...`,
           });
           return;
         }
         if (kind === 'MatchResumed') {
           setStatus('ready');
           setError(null);
+          useGameplayStore.getState().resetLocalMatchStatus();
           void (raw as IMatchResumed);
           return;
         }
@@ -199,6 +215,7 @@ export function useMultiplayerSession(
             code: 'SEAT_TIMED_OUT',
             reason: `Seat ${timed.slotId} (player ${timed.playerId}) timed out`,
           });
+          useGameplayStore.getState().setLocalMatchStatus('aborted');
           return;
         }
       }

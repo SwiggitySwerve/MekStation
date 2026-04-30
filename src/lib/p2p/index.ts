@@ -92,6 +92,7 @@ export {
 
 export {
   GAME_SESSION_EVENTS_ARRAY,
+  answerReconnectRequest,
   applyReplayStreamEvents,
   broadcastEvent,
   broadcastIntent,
@@ -114,13 +115,18 @@ export {
   type IGameSessionChannel,
   type IGameSessionChannelOptions,
   type IPeerRejectedEnvelope,
+  type IReconnectPeerMetadata,
+  type IReconnectRejectEnvelope,
   type IReconnectRequestEnvelope,
   type IReplayStreamEnvelope,
   type MatchLogPersistence,
   type PeerEventCallback,
   type PeerIntentCallback,
   type PeerRejectedCallback,
+  type ReconnectRejectCallback,
   type ReconnectRequestCallback,
+  type ReconnectResponseChannel,
+  type ReconnectResponseResult,
   type ReplayStreamCallback,
 } from './gameSessionChannel';
 

@@ -41,6 +41,7 @@ export enum CombatEndReason {
   TurnLimit = 'turn_limit',
   ObjectiveMet = 'objective',
   Withdrawal = 'withdrawal',
+  Aborted = 'aborted',
 }
 
 /**

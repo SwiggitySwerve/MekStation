@@ -123,6 +123,36 @@ describe('12.1 Token selection swaps record sheet', () => {
       /Select a unit to view its status/i,
     );
   });
+
+  it('projects fog-of-war token state from the session config', () => {
+    const session = createDemoSession();
+    const foggedSession: IGameSession = {
+      ...session,
+      sideOwners: {
+        [GameSide.Player]: 'pid_player',
+        [GameSide.Opponent]: 'pid_opponent',
+      },
+      config: { ...session.config, fogOfWar: true },
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          'unit-opponent-1': {
+            ...session.currentState.units['unit-opponent-1'],
+            position: { q: 20, r: 0 },
+          },
+        },
+      },
+    };
+
+    renderLayout({ session: foggedSession });
+
+    expect(screen.getByTestId('unit-token-unit-opponent-1')).toHaveAttribute(
+      'data-fog-status',
+      'lastKnown',
+    );
+    expect(screen.getByTestId('sensor-ring-unit-player-1')).toBeInTheDocument();
+  });
 });
 
 // ---------------------------------------------------------------------------

@@ -146,7 +146,7 @@ export function startGame(
 export function endGame(
   session: IGameSession,
   winner: GameSide | 'draw',
-  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective',
+  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective' | 'aborted',
 ): IGameSession {
   if (session.currentState.status !== GameStatus.Active) {
     throw new Error('Game is not active');

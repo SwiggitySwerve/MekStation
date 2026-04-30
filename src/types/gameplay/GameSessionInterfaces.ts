@@ -305,6 +305,12 @@ export interface IGameIntent {
 /**
  * Base interface for all game events.
  */
+export type GameEventVisibility =
+  | 'public'
+  | 'actor-only'
+  | 'observer-visible'
+  | 'target-visible';
+
 export interface IGameEventBase {
   /** Unique event ID */
   readonly id: string;
@@ -322,6 +328,8 @@ export interface IGameEventBase {
   readonly phase: GamePhase;
   /** Unit that triggered the event (if applicable) */
   readonly actorId?: string;
+  /** Fog-of-war delivery class used by multiplayer event filtering. */
+  readonly visibility?: GameEventVisibility;
 }
 
 /**
@@ -349,7 +357,12 @@ export interface IGameEndedPayload {
   /** Winning side */
   readonly winner: GameSide | 'draw';
   /** Reason for game end */
-  readonly reason: 'destruction' | 'concede' | 'turn_limit' | 'objective';
+  readonly reason:
+    | 'destruction'
+    | 'concede'
+    | 'turn_limit'
+    | 'objective'
+    | 'aborted';
 }
 
 /**
@@ -1145,6 +1158,8 @@ export interface IGameConfig {
   readonly victoryConditions: readonly string[];
   /** Optional rules enabled */
   readonly optionalRules: readonly string[];
+  /** Double-blind tactical visibility mode for multiplayer/fog-aware UIs. */
+  readonly fogOfWar?: boolean;
   /** Environmental conditions (default: standard daylight, 1.0g, etc.) */
   readonly environmentalConditions?: IEnvironmentalConditions;
   /**

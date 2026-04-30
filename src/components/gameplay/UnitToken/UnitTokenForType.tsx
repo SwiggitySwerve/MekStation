@@ -257,8 +257,17 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     () =>
       movementAnimation?.path && movementAnimation.path.length > 0
         ? movementAnimation.path
-        : [token.position],
-    [movementAnimation?.path, token.position],
+        : [
+            token.fogStatus === 'lastKnown' && token.lastKnownPosition
+              ? token.lastKnownPosition
+              : token.position,
+          ],
+    [
+      movementAnimation?.path,
+      token.fogStatus,
+      token.lastKnownPosition,
+      token.position,
+    ],
   );
   const tweenMode = movementAnimation?.mode ?? MovementType.Walk;
   const handleAnimationDone = useCallback(() => {
@@ -317,12 +326,26 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     // Host not found yet (loading race) — fall through and render standalone.
   }
 
+  const displayPosition =
+    token.fogStatus === 'lastKnown' && token.lastKnownPosition
+      ? token.lastKnownPosition
+      : token.position;
   const { x, y } = movementAnimation
     ? { x: tween.x, y: tween.y }
-    : hexToPixel(token.position);
+    : hexToPixel(displayPosition);
+  const fogDisplayFields =
+    token.fogStatus === 'hidden'
+      ? { designation: '?', name: 'Hidden contact' }
+      : {};
   const renderToken = movementAnimation
-    ? { ...token, facing: tween.facing }
-    : token;
+    ? { ...token, ...fogDisplayFields, facing: tween.facing }
+    : { ...token, ...fogDisplayFields, position: displayPosition };
+  const fogOpacity =
+    token.fogStatus === 'hidden'
+      ? 0.45
+      : token.fogStatus === 'lastKnown'
+        ? 0.62
+        : 1;
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -333,10 +356,11 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     transform: `translate(${x}, ${y}) scale(${tween.scale})`,
     onClick: handleClick,
     onDoubleClick: handleDoubleClick,
-    style: { cursor: 'pointer' as const },
+    style: { cursor: 'pointer' as const, opacity: fogOpacity },
     'data-testid': `unit-token-${token.unitId}`,
     'data-animating': movementAnimation ? 'true' : undefined,
     'data-animation-id': movementAnimationId,
+    'data-fog-status': token.fogStatus,
   };
 
   const jumpArc = renderJumpArc(token.unitId, movementAnimation, tween);
@@ -349,7 +373,10 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
           events={events}
           thermalVisualState={thermalVisualState}
         >
-          {children}
+          <>
+            {children}
+            {renderFogMarker(token)}
+          </>
         </TokenVisualEffects>
       </g>
     </>
@@ -387,6 +414,38 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
       return wrap(<MechToken token={renderToken} eventState={eventState} />);
   }
 });
+
+function renderFogMarker(token: IUnitToken): React.ReactElement | null {
+  if (token.fogStatus !== 'hidden' && token.fogStatus !== 'lastKnown') {
+    return null;
+  }
+
+  const stroke = token.fogStatus === 'hidden' ? '#64748b' : '#f59e0b';
+  const fill = token.fogStatus === 'hidden' ? '#0f172a' : '#1f2937';
+  const title =
+    token.fogStatus === 'hidden' ? 'Hidden contact' : 'Last known contact';
+
+  return (
+    <g
+      data-testid={`fog-marker-${token.unitId}`}
+      pointerEvents="none"
+      aria-label={title}
+    >
+      <title>{title}</title>
+      <circle r={14} fill={fill} stroke={stroke} strokeWidth={2} />
+      <text
+        x={0}
+        y={5}
+        textAnchor="middle"
+        fontSize={18}
+        fontWeight={700}
+        fill="#f8fafc"
+      >
+        ?
+      </text>
+    </g>
+  );
+}
 
 function TokenVisualEffects({
   token,

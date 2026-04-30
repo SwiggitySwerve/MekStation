@@ -3,6 +3,7 @@ import {
   GamePhase,
   GameSide,
   type GameEventPayload,
+  type GameEventVisibility,
   type IAttackResolvedPayload,
   type IDamageAppliedPayload,
   type IGameEvent,
@@ -10,13 +11,10 @@ import {
   type IRedactedAttackResolvedPayload,
   type IUnitGameState,
 } from '@/types/gameplay';
+import { classifyGameEventVisibility } from '@/utils/gameplay/gameEventVisibility';
 import { canPlayerSeeUnit } from '@/utils/gameplay/visibility';
 
-export type FogEventVisibility =
-  | 'public'
-  | 'actor-only'
-  | 'observer-visible'
-  | 'target-visible';
+export type FogEventVisibility = GameEventVisibility;
 
 export interface IFogOfWarConfig {
   readonly fogOfWar?: boolean;
@@ -105,46 +103,10 @@ export class FogOfWarVisibilityCache {
 
 const stateCaches = new WeakMap<IGameState, FogOfWarVisibilityCache>();
 
-const PUBLIC_EVENTS = new Set<GameEventType>([
-  GameEventType.GameCreated,
-  GameEventType.GameStarted,
-  GameEventType.GameEnded,
-  GameEventType.TurnStarted,
-  GameEventType.TurnEnded,
-  GameEventType.PhaseChanged,
-  GameEventType.InitiativeRolled,
-  GameEventType.InitiativeOrderSet,
-]);
-
-const ACTOR_ONLY_EVENTS = new Set<GameEventType>([
-  GameEventType.MovementDeclared,
-  GameEventType.AttackDeclared,
-  GameEventType.AttackLocked,
-  GameEventType.PhysicalAttackDeclared,
-]);
-
-const TARGET_VISIBLE_EVENTS = new Set<GameEventType>([
-  GameEventType.AttackResolved,
-  GameEventType.DamageApplied,
-  GameEventType.PhysicalAttackResolved,
-]);
-
 export function classifyEventVisibility(
-  event: Pick<IGameEvent, 'type'>,
+  event: Pick<IGameEvent, 'type' | 'visibility'>,
 ): FogEventVisibility {
-  if (PUBLIC_EVENTS.has(event.type)) {
-    return 'public';
-  }
-
-  if (ACTOR_ONLY_EVENTS.has(event.type)) {
-    return 'actor-only';
-  }
-
-  if (TARGET_VISIBLE_EVENTS.has(event.type)) {
-    return 'target-visible';
-  }
-
-  return 'observer-visible';
+  return classifyGameEventVisibility(event);
 }
 
 export function filterEventForPlayer(

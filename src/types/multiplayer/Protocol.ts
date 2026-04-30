@@ -413,6 +413,8 @@ export const MatchPausedSchema = z.object({
   ts: tsSchema,
   reason: z.literal('peer-pending'),
   pendingSlots: z.array(z.string().min(1)),
+  graceRemainingMs: z.number().int().nonnegative().optional(),
+  pendingExpiresAtMs: z.number().int().nonnegative().optional(),
 });
 export type IMatchPaused = z.infer<typeof MatchPausedSchema>;
 

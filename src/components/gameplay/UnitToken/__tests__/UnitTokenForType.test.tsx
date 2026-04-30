@@ -99,6 +99,37 @@ describe('UnitTokenForType dispatcher routing', () => {
     expect(screen.getByTestId('unit-token-unit-1')).toBeInTheDocument();
   });
 
+  it('renders a hidden-contact marker for fogged tokens', () => {
+    const token = makeToken({
+      unitType: TokenUnitType.Mech,
+      fogStatus: 'hidden',
+    });
+    renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
+
+    expect(screen.getByTestId('unit-token-unit-1')).toHaveAttribute(
+      'data-fog-status',
+      'hidden',
+    );
+    expect(screen.getByTestId('fog-marker-unit-1')).toBeInTheDocument();
+    expect(screen.getAllByText('?')).toHaveLength(2);
+    expect(screen.queryByText('TST-1')).not.toBeInTheDocument();
+  });
+
+  it('renders last-known contacts at their last visible hex', () => {
+    const token = makeToken({
+      unitType: TokenUnitType.Mech,
+      fogStatus: 'lastKnown',
+      position: { q: 0, r: 0 },
+      lastKnownPosition: { q: 1, r: 0 },
+    });
+    renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
+
+    expect(
+      screen.getByTestId('unit-token-unit-1').getAttribute('transform'),
+    ).toContain('translate(60');
+    expect(screen.getByTestId('fog-marker-unit-1')).toBeInTheDocument();
+  });
+
   it('Mech → renders circular mech body (r attribute present)', () => {
     const token = makeToken({ unitType: TokenUnitType.Mech });
     renderInSvg(<UnitTokenForType token={token} onClick={noop} />);

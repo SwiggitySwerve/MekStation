@@ -2,6 +2,7 @@ import type * as Y from 'yjs';
 
 import {
   GAME_INTENT_TYPES,
+  GameEventType,
   isGameEvent,
   type GameIntentType,
   type IGameEvent,
@@ -50,12 +51,19 @@ export interface IReplayStreamEnvelope {
   readonly done: boolean;
 }
 
+export interface IReconnectRejectEnvelope {
+  readonly kind: 'reconnect-reject';
+  readonly matchId: string;
+  readonly reason: string;
+}
+
 export type GameSessionChannelEnvelope =
   | IGameEventEnvelope
   | IGameIntentEnvelope
   | IPeerRejectedEnvelope
   | IReconnectRequestEnvelope
-  | IReplayStreamEnvelope;
+  | IReplayStreamEnvelope
+  | IReconnectRejectEnvelope;
 
 export type PeerEventCallback = (
   event: IGameEvent,
@@ -72,8 +80,12 @@ export type ReconnectRequestCallback = (
   envelope: IReconnectRequestEnvelope,
 ) => void;
 export type ReplayStreamCallback = (envelope: IReplayStreamEnvelope) => void;
+export type ReconnectRejectCallback = (
+  envelope: IReconnectRejectEnvelope,
+) => void;
 
 export type MatchLogPersistence = Pick<MatchLogStorage, 'appendEvent'>;
+export type MatchLogCompletion = Pick<MatchLogStorage, 'markMatchCompleted'>;
 
 export type GameSessionChannelLogger = Pick<Console, 'error'>;
 
@@ -96,6 +108,10 @@ export interface IGameSessionChannel {
     stream: Omit<IReplayStreamEnvelope, 'kind'>,
   ) => void;
   readonly onReplayStream: (callback: ReplayStreamCallback) => () => void;
+  readonly broadcastReconnectReject: (
+    rejection: Omit<IReconnectRejectEnvelope, 'kind'>,
+  ) => void;
+  readonly onReconnectReject: (callback: ReconnectRejectCallback) => () => void;
 }
 
 export interface IGameSessionChannelOptions {
@@ -104,7 +120,7 @@ export interface IGameSessionChannelOptions {
   readonly getEventArray?: () => Y.Array<string> | null;
   readonly matchId?: string;
   readonly getMatchId?: () => string | null | undefined;
-  readonly matchLog?: MatchLogPersistence;
+  readonly matchLog?: MatchLogPersistence & Partial<MatchLogCompletion>;
   readonly logger?: GameSessionChannelLogger;
 }
 
@@ -227,6 +243,20 @@ export function deserializeGameSessionEnvelope(
     };
   }
 
+  if (parsed.kind === 'reconnect-reject') {
+    if (
+      typeof parsed.matchId !== 'string' ||
+      typeof parsed.reason !== 'string'
+    ) {
+      throw new Error('Invalid reconnect rejection envelope payload');
+    }
+    return {
+      kind: 'reconnect-reject',
+      matchId: parsed.matchId,
+      reason: parsed.reason,
+    };
+  }
+
   throw new Error('Unknown game session channel envelope kind');
 }
 
@@ -253,14 +283,20 @@ export function createGameSessionChannel(
     if (!matchId) return;
 
     const storage = options.matchLog ?? matchLogStorage;
-    void storage.appendEvent(matchId, event).catch((error: unknown) => {
-      const logger = options.logger ?? console;
-      logger.error('Failed to persist P2P match event', {
-        matchId,
-        sequence: event.sequence,
-        error,
+    void storage
+      .appendEvent(matchId, event)
+      .then(() => {
+        if (event.type !== GameEventType.GameEnded) return;
+        return storage.markMatchCompleted?.(matchId, event.timestamp);
+      })
+      .catch((error: unknown) => {
+        const logger = options.logger ?? console;
+        logger.error('Failed to persist P2P match event', {
+          matchId,
+          sequence: event.sequence,
+          error,
+        });
       });
-    });
   };
 
   const observeEnvelopes = (
@@ -365,6 +401,21 @@ export function createGameSessionChannel(
         callback(envelope);
       });
     },
+    broadcastReconnectReject: (
+      rejection: Omit<IReconnectRejectEnvelope, 'kind'>,
+    ): void => {
+      appendEnvelope({
+        kind: 'reconnect-reject',
+        matchId: rejection.matchId,
+        reason: rejection.reason,
+      });
+    },
+    onReconnectReject: (callback: ReconnectRejectCallback): (() => void) => {
+      return observeEnvelopes((envelope) => {
+        if (envelope.kind !== 'reconnect-reject') return;
+        callback(envelope);
+      });
+    },
   };
 }
 
@@ -459,6 +510,61 @@ export function applyReplayStreamEvents(
   )) {
     appendEvent(event);
   }
+}
+
+export interface IReconnectPeerMetadata {
+  readonly hostPeerId?: string | null;
+  readonly guestPeerId?: string | null;
+}
+
+export type ReconnectResponseChannel = Pick<
+  IGameSessionChannel,
+  'broadcastRejection' | 'broadcastReconnectReject' | 'broadcastReplayStream'
+>;
+
+export type ReconnectResponseResult =
+  | 'wrong-match'
+  | 'rejected'
+  | 'ignored-host'
+  | 'streamed';
+
+export async function answerReconnectRequest(
+  request: IReconnectRequestEnvelope,
+  options: {
+    readonly matchId: string;
+    readonly metadata: IReconnectPeerMetadata | null | undefined;
+    readonly channel: ReconnectResponseChannel;
+    readonly getEventsFromSeq: (
+      seq: number,
+    ) => readonly IGameEvent[] | Promise<readonly IGameEvent[]>;
+  },
+): Promise<ReconnectResponseResult> {
+  if (request.matchId !== options.matchId) {
+    options.channel.broadcastRejection({ reason: 'wrong-match' });
+    return 'wrong-match';
+  }
+
+  const hostPeerId = options.metadata?.hostPeerId ?? null;
+  const guestPeerId = options.metadata?.guestPeerId ?? null;
+  const peerId = request.authorPeerId;
+
+  if (peerId !== hostPeerId && peerId !== guestPeerId) {
+    options.channel.broadcastReconnectReject({
+      matchId: options.matchId,
+      reason: 'Match in progress',
+    });
+    return 'rejected';
+  }
+
+  if (peerId !== guestPeerId) {
+    return 'ignored-host';
+  }
+
+  const events = await options.getEventsFromSeq(request.lastLocalSeq + 1);
+  for (const stream of createReplayStreamEnvelopes(options.matchId, events)) {
+    options.channel.broadcastReplayStream(stream);
+  }
+  return 'streamed';
 }
 
 export function isGameIntent(value: unknown): value is IGameIntent {

@@ -23,6 +23,7 @@ import {
 import { defaultSeats } from '@/types/multiplayer/Lobby';
 import {
   nowIso,
+  RECONNECT_GRACE_MS,
   type IIntent,
   type IServerMessage,
 } from '@/types/multiplayer/Protocol';
@@ -151,6 +152,10 @@ describe('Reconnection Flow (Wave 4)', () => {
     if (pausedMsgs[0].parsed.kind === 'MatchPaused') {
       expect(pausedMsgs[0].parsed.pendingSlots).toEqual(['bravo-1']);
       expect(pausedMsgs[0].parsed.reason).toBe('peer-pending');
+      expect(pausedMsgs[0].parsed.graceRemainingMs).toBeGreaterThan(0);
+      expect(pausedMsgs[0].parsed.pendingExpiresAtMs).toBeGreaterThan(
+        Date.now(),
+      );
     }
   });
 
@@ -316,6 +321,47 @@ describe('Reconnection Flow (Wave 4)', () => {
     await host.closeMatch();
     expect(host.getPendingPeersForTests().length).toBe(0);
     expect(host.isClosed()).toBe(true);
+  });
+
+  it('grace timeout appends aborted GameEnded and completes the match', async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(1_000);
+    try {
+      const { host, store, matchId } = await makeActiveHost();
+      const hostSock = makeSocket();
+      const oppSock = makeSocket();
+      host.attachSocket(hostSock, 'pid_host');
+      host.attachSocket(oppSock, 'pid_opp');
+
+      host.detachSocket(oppSock);
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(host.isPausedForReconnect()).toBe(true);
+
+      jest.advanceTimersByTime(RECONNECT_GRACE_MS);
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      const events = await store.getEvents(matchId);
+      const ended = events.find((e) => e.type === GameEventType.GameEnded);
+      expect(ended).toBeDefined();
+      expect(ended?.payload).toMatchObject({
+        winner: 'draw',
+        reason: 'aborted',
+      });
+      const meta = await store.getMatchMeta(matchId);
+      expect(meta.status).toBe('completed');
+      expect(host.isClosed()).toBe(true);
+      expect(host.isPausedForReconnect()).toBe(false);
+      expect(host.getPendingPeersForTests()).toHaveLength(0);
+      expect(hostSock.sent.some((s) => s.parsed.kind === 'SeatTimedOut')).toBe(
+        true,
+      );
+      expect(hostSock.sent.some((s) => s.parsed.kind === 'Close')).toBe(true);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('does not pause on drop if match is still in lobby', async () => {

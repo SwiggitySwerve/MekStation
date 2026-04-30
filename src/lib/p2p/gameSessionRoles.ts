@@ -22,6 +22,11 @@ export interface IGameSessionRoleOptions {
   readonly now?: () => string;
 }
 
+export type GameSessionAwarenessMatchStatus =
+  | 'live'
+  | 'guestPending'
+  | 'hostPending';
+
 export type GameSessionLifecycleEvent =
   | {
       readonly type: 'HostPromoted';
@@ -105,6 +110,38 @@ export function getGameSessionAwarenessStates(
     }
   });
   return peers;
+}
+
+export function deriveLocalMatchStatusFromAwareness(
+  previous: readonly IGameSessionAwarenessState[],
+  current: readonly IGameSessionAwarenessState[],
+  localPeerId: string | null | undefined,
+): GameSessionAwarenessMatchStatus | null {
+  if (!localPeerId) return null;
+  const local = current.find((peer) => peer.peerId === localPeerId);
+  if (!local) return null;
+
+  if (local.role === 'host') {
+    const hadGuest = previous.some(
+      (peer) => peer.role === 'guest' && peer.peerId !== localPeerId,
+    );
+    const hasGuest = current.some(
+      (peer) => peer.role === 'guest' && peer.peerId !== localPeerId,
+    );
+    if (hadGuest && !hasGuest) return 'guestPending';
+    if (hasGuest) return 'live';
+    return null;
+  }
+
+  const hadHost = previous.some(
+    (peer) => peer.role === 'host' && peer.peerId !== localPeerId,
+  );
+  const hasHost = current.some(
+    (peer) => peer.role === 'host' && peer.peerId !== localPeerId,
+  );
+  if (hadHost && !hasHost) return 'hostPending';
+  if (hasHost) return 'live';
+  return null;
 }
 
 function setLocalGameSessionRole(

@@ -38,6 +38,7 @@ import type { WebSocket as WsWebSocket } from 'ws';
 import type { IAdaptedUnit } from '@/engine/types';
 import type {
   IGameEvent,
+  IGameState,
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexGrid } from '@/types/gameplay/HexGridInterfaces';
@@ -50,6 +51,15 @@ import {
   type ICombatOutcomeReadyEvent,
 } from '@/engine/combatOutcomeBus';
 import { InteractiveSession } from '@/engine/InteractiveSession';
+import {
+  answerReconnectRequest,
+  type IGameSessionChannel,
+  type IReconnectRequestEnvelope,
+} from '@/lib/p2p/gameSessionChannel';
+import {
+  matchLogStorage,
+  type MatchLogStorage,
+} from '@/lib/p2p/matchLogStorage';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameSide,
@@ -59,15 +69,18 @@ import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import {
   intentHasForbiddenDiceField,
   type IIntent,
+  type IEventMessage,
   type ILobbyUpdated,
   type IServerMessage,
   nowIso,
 } from '@/types/multiplayer/Protocol';
+import { deriveState } from '@/utils/gameplay/gameState';
 
-import type { IMatchStore } from './IMatchStore';
+import type { IMatchMeta, IMatchStore } from './IMatchStore';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { CryptoDiceRoller, type IServerDiceRoller } from './CryptoDiceRoller';
+import { filterEventForPlayer, FogOfWarVisibilityCache } from './fogOfWar';
 import {
   canLaunch,
   leaveSeat,
@@ -86,6 +99,8 @@ import { streamReplay } from './reconnection/replayStream';
 import { RollCapture, SeededDiceRoller } from './RollCapture';
 import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
+
+type ReconnectMetadataReader = Pick<MatchLogStorage, 'getMatchMetadata'>;
 
 // =============================================================================
 // Socket abstraction
@@ -131,6 +146,7 @@ export interface IMatchHostBootstrap {
 export class ServerMatchHost {
   private readonly broadcaster = new ServerMatchBroadcaster();
   private readonly lifecycle: ServerMatchSocketLifecycle;
+  private readonly fogVisibilityCache = new FogOfWarVisibilityCache();
   private readonly session: InteractiveSession;
   private lastBroadcastSeq: number;
   private closed = false;
@@ -376,8 +392,9 @@ export class ServerMatchHost {
 
   /**
    * Wave 4: timer handler. Broadcasts SeatTimedOut so the host's UI
-   * can prompt for `MarkSeatAi` / `ForfeitMatch`. Match stays paused
-   * until the host responds (or the player magically reconnects).
+   * can prompt for diagnostics, then aborts the match as a draw. The
+   * terminal `GameEnded(reason: "aborted")` event is persisted before
+   * clients see it so reload/reconnect cannot resurrect a stale match.
    */
   private handleGraceTimeout(entry: IPendingPeerEntry): void {
     const msg: IServerMessage = {
@@ -388,6 +405,7 @@ export class ServerMatchHost {
       playerId: entry.playerId,
     };
     this.broadcast(msg);
+    void this.abortExpiredPendingMatch();
   }
 
   /**
@@ -401,14 +419,66 @@ export class ServerMatchHost {
     if (!this.isPaused) {
       this.isPaused = true;
     }
+    const nextExpiry = Math.min(...pending.map((p) => p.expiresAt));
+    const remainingMs = Math.max(0, nextExpiry - Date.now());
     const msg: IServerMessage = {
       kind: 'MatchPaused',
       matchId: this.matchId,
       ts: nowIso(),
       reason: 'peer-pending',
       pendingSlots: pending.map((p) => p.slotId),
+      graceRemainingMs: remainingMs,
+      pendingExpiresAtMs: nextExpiry,
     };
     this.broadcast(msg);
+  }
+
+  private async abortExpiredPendingMatch(): Promise<void> {
+    if (this.closed) return;
+    this.pendingPeers.clearAll();
+    this.isPaused = false;
+    this.installFreshCapture();
+    try {
+      this.session.abortMatch();
+    } catch (e) {
+      const err: IServerMessage = {
+        kind: 'Error',
+        matchId: this.matchId,
+        ts: nowIso(),
+        code: 'INVALID_INTENT',
+        reason:
+          e instanceof Error ? e.message : 'Reconnect grace timeout rejected',
+      };
+      this.broadcast(err);
+      return;
+    }
+
+    const newEvents = this.stampRollsOnNewEvents(this.drainNewEvents());
+    for (const event of newEvents) {
+      try {
+        await this.store.appendEvent(this.matchId, event);
+      } catch (e) {
+        const err: IServerMessage = {
+          kind: 'Error',
+          matchId: this.matchId,
+          ts: nowIso(),
+          code: 'STORE_FAILURE',
+          reason: e instanceof Error ? e.message : 'Store append failed',
+        };
+        this.broadcast(err);
+        await this.closeMatch();
+        return;
+      }
+      await this.broadcastEvent({
+        kind: 'Event',
+        matchId: this.matchId,
+        ts: nowIso(),
+        event,
+      });
+    }
+
+    this.tryPublishOutcome();
+    await this.closeMatch();
   }
 
   /**
@@ -448,8 +518,15 @@ export class ServerMatchHost {
    * broadcast. Live events still go to every attached socket via
    * `broadcast()`.
    */
-  async sendReplay(socket: IMatchSocket, fromSeq = 0): Promise<void> {
-    const events = await this.getEventsFromSeq(fromSeq);
+  async sendReplay(
+    socket: IMatchSocket,
+    fromSeq = 0,
+    playerId?: string,
+  ): Promise<void> {
+    const events =
+      playerId != null
+        ? await this.getReplayEventsForPlayer(playerId, fromSeq)
+        : await this.getEventsFromSeq(fromSeq);
     const frames = streamReplay(this.matchId, events, fromSeq);
     this.safeSend(socket, frames.start);
     for (const chunk of frames.chunks) {
@@ -466,6 +543,83 @@ export class ServerMatchHost {
    */
   async getEventsFromSeq(seq: number): Promise<readonly IGameEvent[]> {
     return this.store.getEvents(this.matchId, seq);
+  }
+
+  /**
+   * P2P reconnect-channel bridge for the local-host path. The caller
+   * owns channel creation; the host owns the authorization + replay
+   * decision so the same logic is testable without a live WebRTC room.
+   */
+  async handleReconnectRequest(
+    request: IReconnectRequestEnvelope,
+    channel: Pick<
+      IGameSessionChannel,
+      | 'broadcastRejection'
+      | 'broadcastReconnectReject'
+      | 'broadcastReplayStream'
+    >,
+    metadataReader: ReconnectMetadataReader = matchLogStorage,
+  ): Promise<void> {
+    const metadata =
+      request.matchId === this.matchId
+        ? await metadataReader.getMatchMetadata(this.matchId)
+        : null;
+
+    await answerReconnectRequest(request, {
+      matchId: this.matchId,
+      metadata,
+      channel,
+      getEventsFromSeq: (seq) => this.getEventsFromSeq(seq),
+    });
+  }
+
+  bindReconnectChannel(
+    channel: Pick<
+      IGameSessionChannel,
+      | 'broadcastRejection'
+      | 'broadcastReconnectReject'
+      | 'broadcastReplayStream'
+      | 'onReconnectRequest'
+    >,
+    metadataReader: ReconnectMetadataReader = matchLogStorage,
+  ): () => void {
+    return channel.onReconnectRequest((request) => {
+      void this.handleReconnectRequest(request, channel, metadataReader);
+    });
+  }
+
+  private async getReplayEventsForPlayer(
+    playerId: string,
+    fromSeq: number,
+  ): Promise<readonly IGameEvent[]> {
+    const meta = await this.store.getMatchMeta(this.matchId);
+    if (!meta.config.fogOfWar) {
+      return this.getEventsFromSeq(fromSeq);
+    }
+
+    const allEvents = await this.getEventsFromSeq(0);
+    const visible: IGameEvent[] = [];
+    const prefix: IGameEvent[] = [];
+    const replayCache = new FogOfWarVisibilityCache();
+    const gameId = this.session.getSession().id;
+
+    for (const event of allEvents) {
+      prefix.push(event);
+      if (event.sequence < fromSeq) continue;
+      const state = this.withVisibilityAssignments(
+        deriveState(gameId, prefix),
+        meta,
+      );
+      const filtered = filterEventForPlayer(event, playerId, state, {
+        config: meta.config,
+        cache: replayCache,
+      });
+      if (filtered) {
+        visible.push(filtered);
+      }
+    }
+
+    return visible;
   }
 
   /**
@@ -507,7 +661,7 @@ export class ServerMatchHost {
     // with the +1 yields the strictly-greater semantics the proposal
     // calls for.
     const requestFrom = lastSeq != null ? lastSeq + 1 : 0;
-    await this.sendReplay(socket, requestFrom);
+    await this.sendReplay(socket, requestFrom, playerId);
 
     // Send a current LobbyUpdated snapshot so a pre-active reconnect
     // (or any active client that wants to confirm seat state) doesn't
@@ -655,7 +809,7 @@ export class ServerMatchHost {
         ts: nowIso(),
         event,
       };
-      this.broadcast(envelopeOut);
+      await this.broadcastEvent(envelopeOut);
       broadcasts.push(envelopeOut);
     }
 
@@ -997,6 +1151,57 @@ export class ServerMatchHost {
   }
 
   /**
+   * Broadcast one live game event. With fog disabled this is the same
+   * fan-out as `broadcast`; with fog enabled each recipient receives a
+   * per-player filtered/redacted envelope or no envelope at all.
+   */
+  private async broadcastEvent(message: IEventMessage): Promise<void> {
+    let meta: IMatchMeta;
+    try {
+      meta = await this.store.getMatchMeta(this.matchId);
+    } catch {
+      this.broadcast(message);
+      return;
+    }
+
+    if (!meta.config.fogOfWar) {
+      this.broadcast(message);
+      return;
+    }
+
+    const state = this.withVisibilityAssignments(
+      this.session.getSession().currentState,
+      meta,
+    );
+    for (const recipient of this.lifecycle.snapshotRecipients()) {
+      const filtered = filterEventForPlayer(
+        message.event as IGameEvent,
+        recipient.playerId,
+        state,
+        {
+          config: meta.config,
+          cache: this.fogVisibilityCache,
+        },
+      );
+      if (!filtered) continue;
+      this.safeSend(recipient.socket, {
+        ...message,
+        event: filtered,
+      });
+    }
+  }
+
+  private withVisibilityAssignments(
+    state: IGameState,
+    meta: IMatchMeta,
+  ): IGameState {
+    return {
+      ...state,
+      sideAssignments: meta.sideAssignments,
+    } as IGameState;
+  }
+
+  /**
    * Send to a single socket, swallowing send errors. Used for join +
    * replay paths where we don't want a single bad socket to throw out
    * of the upgrade handler.
@@ -1272,7 +1477,7 @@ export class ServerMatchHost {
         ts: nowIso(),
         event,
       };
-      this.broadcast(envelopeOut);
+      await this.broadcastEvent(envelopeOut);
       out.push(envelopeOut);
     }
     // Wave 5: ForfeitMatch ends the match cleanly, so the bus event

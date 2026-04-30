@@ -14,7 +14,7 @@ UnitId[]` that returns the set
 
 ## 2. Event Visibility Classification
 
-- [ ] 2.1 Add `visibility` tag on every event type; values `'public' |
+- [x] 2.1 Add `visibility` tag on every event type; values `'public' |
 'actor-only' | 'observer-visible' | 'target-visible'`
 - [x] 2.2 Classify existing event types: - `GameCreated`, `PhaseChanged`, `TurnAdvanced`, `GameEnded`,
       `match_paused`, `match_resumed` → `'public'` - `MovementDeclared` → `'actor-only'` (pre-commit) - `MovementLocked`, `FacingChanged` → `'observer-visible'` - `AttackDeclared` → `'actor-only'` - `AttackResolved`, `DamageApplied` → split:
@@ -35,11 +35,11 @@ playerId, state): IGameEvent | null`
 
 ## 4. Broadcast Integration
 
-- [ ] 4.1 `ServerMatchHost.broadcastEvent` in fog mode runs
+- [x] 4.1 `ServerMatchHost.broadcastEvent` in fog mode runs
       `filterEventForPlayer` per connected client
-- [ ] 4.2 Non-public events are sent only to clients the filter
+- [x] 4.2 Non-public events are sent only to clients the filter
       approves
-- [ ] 4.3 A player's own socket always receives events authored by
+- [x] 4.3 A player's own socket always receives events authored by
       their units (actor-visible events)
 
 ## 5. Redaction Rules
@@ -63,42 +63,42 @@ playerId, state): IGameEvent | null`
 
 ## 7. Client Rendering With Fog
 
-- [ ] 7.1 Client UI detects fog mode from `IMatchMeta` and gracefully
+- [x] 7.1 Client UI detects fog mode from `IMatchMeta` and gracefully
       handles missing events (enemy unit disappears from map when it
       leaves LOS)
-- [ ] 7.2 Enemy units render with `"?"` designations when hidden
-- [ ] 7.3 Known-but-not-visible units show last-known position grayed
+- [x] 7.2 Enemy units render with `"?"` designations when hidden
+- [x] 7.3 Known-but-not-visible units show last-known position grayed
       out
-- [ ] 7.4 Radar / sensor ring visual indicator for each owned unit
+- [x] 7.4 Radar / sensor ring visual indicator for each owned unit
 
 ## 8. Replay Handling
 
-- [ ] 8.1 On reconnect, the filter is applied to the replay stream so
+- [x] 8.1 On reconnect, the filter is applied to the replay stream so
       the replay matches what the client would have seen live
-- [ ] 8.2 Post-match spectator / admin mode MAY view the un-filtered
+- [x] 8.2 Post-match spectator / admin mode MAY view the un-filtered
       log (separate privileged endpoint, not in this change)
 
 ## 9. Sanity Tests
 
-- [ ] 9.1 Unit tests: three units on a map with terrain between enemy
+- [x] 9.1 Unit tests: three units on a map with terrain between enemy
       pairs, verify `canPlayerSeeUnit` returns correct values
-- [ ] 9.2 Integration test: Player A moves out of LOS; Player B stops
+- [x] 9.2 Integration test: Player A moves out of LOS; Player B stops
       receiving A's events until A re-enters LOS
-- [ ] 9.3 Integration test: A attacks B from ambush (outside B's LOS)
+- [x] 9.3 Integration test: A attacks B from ambush (outside B's LOS)
       — B receives a redacted `AttackResolved` without `attackerId`;
       A receives full event
-- [ ] 9.4 Integration test: fog disabled → filter is a no-op; both
+- [x] 9.4 Integration test: fog disabled → filter is a no-op; both
       clients see identical event streams
-- [ ] 9.5 Reconnect test: fog-on match, reconnect mid-game; replay is
+- [x] 9.5 Reconnect test: fog-on match, reconnect mid-game; replay is
       filtered
 
 ## 10. Performance
 
 - [x] 10.1 LOS checks are cached per-turn per-(observer, target)
       pair; invalidated on movement events
-- [ ] 10.2 `canPlayerSeeUnit` target: sub-millisecond per check on
+- [x] 10.2 `canPlayerSeeUnit` target: sub-millisecond per check on
       8-player, 32-unit maps
-- [ ] 10.3 A smoke benchmark in the test suite ensures performance
+- [x] 10.3 A smoke benchmark in the test suite ensures performance
       does not regress past a 5ms-per-event broadcast budget
 
 ## 11. Spec Compliance

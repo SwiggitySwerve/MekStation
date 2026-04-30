@@ -11,6 +11,7 @@ import { GameplayLobbyPanel } from '@/components/gameplay/lobby';
 import {
   createLobbyChannel,
   joinLocalPeerAsGuest,
+  matchLogStorage,
   normalizeRoomCode,
   promoteLocalPeerToHost,
   useSyncRoomSelector,
@@ -138,6 +139,14 @@ export default function GameplayLobbyPage(): React.ReactElement {
 
   useEffect(() => {
     if (!lobbyState?.matchId) return;
+    void matchLogStorage
+      .upsertMatchMetadata({
+        matchId: lobbyState.matchId,
+        hostPeerId: lobbyState.hostPeerId,
+        guestPeerId: lobbyState.guestPeerId,
+        status: 'active',
+      })
+      .catch(() => undefined);
     try {
       const session = buildGameSessionFromLobbyState(
         lobbyState,

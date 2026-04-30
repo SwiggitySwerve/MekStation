@@ -13,6 +13,7 @@ import { REPLAY_CHUNK_SIZE } from '@/types/multiplayer/Protocol';
 
 import {
   GAME_SESSION_EVENTS_ARRAY,
+  answerReconnectRequest,
   createReconnectRequestEnvelope,
   createGameSessionChannel,
   createReplayStreamEnvelopes,
@@ -21,10 +22,12 @@ import {
   isGameIntent,
   serializeGameSessionEnvelope,
   type IGameEventEnvelope,
+  type IReconnectRejectEnvelope,
   type MatchLogPersistence,
 } from '../gameSessionChannel';
 import {
   GAME_SESSION_AWARENESS_FIELD,
+  deriveLocalMatchStatusFromAwareness,
   getGameSessionAwarenessStates,
   joinLocalPeerAsGuest,
   onGameSessionLifecycleEvent,
@@ -140,6 +143,43 @@ describe('gameSessionChannel', () => {
 
     expect(eventArray).toHaveLength(1);
     expect(persisted).toEqual([{ matchId: 'match-1', event }]);
+  });
+
+  it('marks match metadata completed when a GameEnded event is persisted', async () => {
+    const matchLog: MatchLogPersistence & {
+      markMatchCompleted: jest.Mock;
+    } = {
+      appendEvent: jest.fn((matchId, event) =>
+        Promise.resolve({
+          matchId,
+          sequence: event.sequence,
+          event,
+          savedAt: '2026-04-30T00:00:00.000Z',
+        }),
+      ),
+      markMatchCompleted: jest.fn(() => Promise.resolve()),
+    };
+    const channel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+      matchId: 'match-1',
+      matchLog,
+    });
+    const event = makeEvent('event-ended', 9);
+    const ended: IGameEvent = {
+      ...event,
+      type: GameEventType.GameEnded,
+      payload: { winner: GameSide.Player, reason: 'destruction' },
+    };
+
+    channel.broadcastEvent(ended);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(matchLog.markMatchCompleted).toHaveBeenCalledWith(
+      'match-1',
+      ended.timestamp,
+    );
   });
 
   it('delivers peer-authored events in arrival order', () => {
@@ -300,6 +340,18 @@ describe('gameSessionChannel', () => {
     ).toEqual(request);
   });
 
+  it('round-trips reconnect rejection envelopes', () => {
+    const rejection: IReconnectRejectEnvelope = {
+      kind: 'reconnect-reject',
+      matchId: 'match-1',
+      reason: 'Match in progress',
+    };
+
+    expect(
+      deserializeGameSessionEnvelope(serializeGameSessionEnvelope(rejection)),
+    ).toEqual(rejection);
+  });
+
   it('chunks replay streams at the protocol chunk size and marks only the final chunk done', () => {
     const events = Array.from({ length: REPLAY_CHUNK_SIZE + 1 }, (_, index) =>
       makeEvent(`event-${index}`, index),
@@ -336,6 +388,130 @@ describe('gameSessionChannel', () => {
     expect(
       getReplayEventsAfterSeq(events, 1).map((event) => event.sequence),
     ).toEqual([2, 3]);
+  });
+
+  it('lets a host answer reconnect-request with replay-stream chunks', () => {
+    const hostChannel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+    });
+    const guestChannel = createGameSessionChannel({
+      localPeerId: 'guest-peer',
+      eventArray,
+    });
+    const events = [
+      makeEvent('event-0', 0),
+      makeEvent('event-1', 1),
+      makeEvent('event-2', 2),
+    ];
+    const received: number[] = [];
+    const unsubscribeReplay = guestChannel.onReplayStream((stream) => {
+      received.push(...stream.events.map((event) => event.sequence));
+    });
+    const requests: Array<{
+      matchId: string;
+      lastLocalSeq: number;
+    }> = [];
+    const unsubscribeRequest = hostChannel.onReconnectRequest((request) => {
+      requests.push({
+        matchId: request.matchId,
+        lastLocalSeq: request.lastLocalSeq,
+      });
+    });
+
+    guestChannel.broadcastReconnectRequest({
+      matchId: 'match-1',
+      lastLocalSeq: 0,
+    });
+    for (const request of requests) {
+      for (const stream of createReplayStreamEnvelopes(
+        request.matchId,
+        getReplayEventsAfterSeq(events, request.lastLocalSeq),
+      )) {
+        hostChannel.broadcastReplayStream(stream);
+      }
+    }
+
+    unsubscribeRequest();
+    unsubscribeReplay();
+    expect(requests).toEqual([{ matchId: 'match-1', lastLocalSeq: 0 }]);
+    expect(received).toEqual([1, 2]);
+  });
+
+  it('rejects reconnect-request for the wrong match id', () => {
+    const hostChannel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+    });
+    const guestChannel = createGameSessionChannel({
+      localPeerId: 'guest-peer',
+      eventArray,
+    });
+    const rejections: string[] = [];
+    const unsubscribeRejection = guestChannel.onPeerRejection((rejection) => {
+      rejections.push(rejection.reason);
+    });
+    const requests: string[] = [];
+    const unsubscribeRequest = hostChannel.onReconnectRequest((request) => {
+      requests.push(request.matchId);
+    });
+
+    guestChannel.broadcastReconnectRequest({
+      matchId: 'other-match',
+      lastLocalSeq: 0,
+    });
+    if (requests[0] !== 'match-1') {
+      hostChannel.broadcastRejection({
+        reason: 'wrong-match',
+      });
+    }
+
+    unsubscribeRequest();
+    unsubscribeRejection();
+    expect(requests).toEqual(['other-match']);
+    expect(rejections).toEqual(['wrong-match']);
+  });
+
+  it('rejects reconnect-request from a foreign peer without replaying events', async () => {
+    const hostChannel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+    });
+    const foreignChannel = createGameSessionChannel({
+      localPeerId: 'foreign-peer',
+      eventArray,
+    });
+    const rejections: string[] = [];
+    const unsubscribeRejection = foreignChannel.onReconnectReject(
+      (rejection) => {
+        rejections.push(rejection.reason);
+      },
+    );
+    const getEventsFromSeq = jest.fn(() =>
+      Promise.resolve([] as readonly IGameEvent[]),
+    );
+
+    const result = await answerReconnectRequest(
+      createReconnectRequestEnvelope({
+        matchId: 'match-1',
+        lastLocalSeq: 5,
+        authorPeerId: 'foreign-peer',
+      }),
+      {
+        matchId: 'match-1',
+        metadata: {
+          hostPeerId: 'host-peer',
+          guestPeerId: 'guest-peer',
+        },
+        channel: hostChannel,
+        getEventsFromSeq,
+      },
+    );
+
+    unsubscribeRejection();
+    expect(result).toBe('rejected');
+    expect(rejections).toEqual(['Match in progress']);
+    expect(getEventsFromSeq).not.toHaveBeenCalled();
   });
 });
 
@@ -405,6 +581,43 @@ describe('game session role and intent contracts', () => {
         localPeerId: 'third-peer',
       }),
     ).toThrow('Match is full');
+  });
+
+  it('derives pending local match status from awareness loss', () => {
+    const previous: IGameSessionAwarenessState[] = [
+      {
+        peerId: 'host-peer',
+        role: 'host',
+        assignedAt: '2026-04-30T00:00:00.000Z',
+      },
+      {
+        peerId: 'guest-peer',
+        role: 'guest',
+        assignedAt: '2026-04-30T00:00:01.000Z',
+      },
+    ];
+
+    expect(
+      deriveLocalMatchStatusFromAwareness(
+        previous,
+        previous.filter((peer) => peer.role !== 'guest'),
+        'host-peer',
+      ),
+    ).toBe('guestPending');
+    expect(
+      deriveLocalMatchStatusFromAwareness(
+        previous,
+        previous.filter((peer) => peer.role !== 'host'),
+        'guest-peer',
+      ),
+    ).toBe('hostPending');
+    expect(
+      deriveLocalMatchStatusFromAwareness(
+        previous.filter((peer) => peer.role !== 'host'),
+        previous,
+        'guest-peer',
+      ),
+    ).toBe('live');
   });
 
   it('defines the guest-to-host IGameIntent contract', () => {
