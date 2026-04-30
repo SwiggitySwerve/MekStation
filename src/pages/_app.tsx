@@ -12,6 +12,7 @@ import { ToastProvider } from '../components/shared/Toast';
 import { useOfflineIndicator } from '../hooks/useOfflineIndicator';
 import { useServiceWorker } from '../hooks/useServiceWorker';
 import { exposeStoresForE2E } from '../lib/e2e/storeExposure';
+import { installMatchLogMaintenance } from '../lib/p2p/matchLogMaintenance';
 // Import only browser-safe services directly to avoid Node.js-only SQLite
 import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry';
 import { indexedDBService } from '../services/persistence/IndexedDBService';
@@ -72,7 +73,10 @@ export default function App({
   // Initialize browser services on app mount
   useEffect(() => {
     initializeBrowserServices()
-      .then(() => setServicesReady(true))
+      .then(() => {
+        installMatchLogMaintenance();
+        setServicesReady(true);
+      })
       .catch((error) => {
         logger.error('Browser service initialization failed', error);
       });

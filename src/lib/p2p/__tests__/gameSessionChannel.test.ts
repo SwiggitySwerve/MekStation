@@ -25,6 +25,7 @@ import {
 } from '../gameSessionChannel';
 import {
   GAME_SESSION_AWARENESS_FIELD,
+  deriveLocalMatchStatusFromAwareness,
   getGameSessionAwarenessStates,
   joinLocalPeerAsGuest,
   onGameSessionLifecycleEvent,
@@ -337,6 +338,88 @@ describe('gameSessionChannel', () => {
       getReplayEventsAfterSeq(events, 1).map((event) => event.sequence),
     ).toEqual([2, 3]);
   });
+
+  it('lets a host answer reconnect-request with replay-stream chunks', () => {
+    const hostChannel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+    });
+    const guestChannel = createGameSessionChannel({
+      localPeerId: 'guest-peer',
+      eventArray,
+    });
+    const events = [
+      makeEvent('event-0', 0),
+      makeEvent('event-1', 1),
+      makeEvent('event-2', 2),
+    ];
+    const received: number[] = [];
+    const unsubscribeReplay = guestChannel.onReplayStream((stream) => {
+      received.push(...stream.events.map((event) => event.sequence));
+    });
+    const requests: Array<{
+      matchId: string;
+      lastLocalSeq: number;
+    }> = [];
+    const unsubscribeRequest = hostChannel.onReconnectRequest((request) => {
+      requests.push({
+        matchId: request.matchId,
+        lastLocalSeq: request.lastLocalSeq,
+      });
+    });
+
+    guestChannel.broadcastReconnectRequest({
+      matchId: 'match-1',
+      lastLocalSeq: 0,
+    });
+    for (const request of requests) {
+      for (const stream of createReplayStreamEnvelopes(
+        request.matchId,
+        getReplayEventsAfterSeq(events, request.lastLocalSeq),
+      )) {
+        hostChannel.broadcastReplayStream(stream);
+      }
+    }
+
+    unsubscribeRequest();
+    unsubscribeReplay();
+    expect(requests).toEqual([{ matchId: 'match-1', lastLocalSeq: 0 }]);
+    expect(received).toEqual([1, 2]);
+  });
+
+  it('rejects reconnect-request for the wrong match id', () => {
+    const hostChannel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+    });
+    const guestChannel = createGameSessionChannel({
+      localPeerId: 'guest-peer',
+      eventArray,
+    });
+    const rejections: string[] = [];
+    const unsubscribeRejection = guestChannel.onPeerRejection((rejection) => {
+      rejections.push(rejection.reason);
+    });
+    const requests: string[] = [];
+    const unsubscribeRequest = hostChannel.onReconnectRequest((request) => {
+      requests.push(request.matchId);
+    });
+
+    guestChannel.broadcastReconnectRequest({
+      matchId: 'other-match',
+      lastLocalSeq: 0,
+    });
+    if (requests[0] !== 'match-1') {
+      hostChannel.broadcastRejection({
+        reason: 'wrong-match',
+      });
+    }
+
+    unsubscribeRequest();
+    unsubscribeRejection();
+    expect(requests).toEqual(['other-match']);
+    expect(rejections).toEqual(['wrong-match']);
+  });
 });
 
 describe('game session role and intent contracts', () => {
@@ -405,6 +488,43 @@ describe('game session role and intent contracts', () => {
         localPeerId: 'third-peer',
       }),
     ).toThrow('Match is full');
+  });
+
+  it('derives pending local match status from awareness loss', () => {
+    const previous: IGameSessionAwarenessState[] = [
+      {
+        peerId: 'host-peer',
+        role: 'host',
+        assignedAt: '2026-04-30T00:00:00.000Z',
+      },
+      {
+        peerId: 'guest-peer',
+        role: 'guest',
+        assignedAt: '2026-04-30T00:00:01.000Z',
+      },
+    ];
+
+    expect(
+      deriveLocalMatchStatusFromAwareness(
+        previous,
+        previous.filter((peer) => peer.role !== 'guest'),
+        'host-peer',
+      ),
+    ).toBe('guestPending');
+    expect(
+      deriveLocalMatchStatusFromAwareness(
+        previous,
+        previous.filter((peer) => peer.role !== 'host'),
+        'guest-peer',
+      ),
+    ).toBe('hostPending');
+    expect(
+      deriveLocalMatchStatusFromAwareness(
+        previous.filter((peer) => peer.role !== 'host'),
+        previous,
+        'guest-peer',
+      ),
+    ).toBe('live');
   });
 
   it('defines the guest-to-host IGameIntent contract', () => {

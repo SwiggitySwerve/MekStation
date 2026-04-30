@@ -7,8 +7,14 @@
  * @spec openspec/changes/add-p2p-vault-sync/specs/vault-sync/spec.md
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useGameplayStore } from '@/stores/useGameplayStore';
+
+import {
+  deriveLocalMatchStatusFromAwareness,
+  getGameSessionAwarenessStates,
+} from './gameSessionRoles';
 import { formatRoomCode } from './roomCodes';
 import { getConnectedPeerCount } from './SyncProvider';
 import { ConnectionState, IPeer } from './types';
@@ -92,6 +98,7 @@ export function useSyncRoom(): UseSyncRoomReturn {
   const connectionState = useSyncRoomSelector((state) => state.connectionState);
   const peers = useSyncRoomSelector((state) => state.peers);
   const error = useSyncRoomSelector((state) => state.error);
+  const localPeerId = useSyncRoomSelector((state) => state.localPeerId);
   const localPeerNameValue = useSyncRoomSelector(
     (state) => state.localPeerName,
   );
@@ -103,16 +110,32 @@ export function useSyncRoom(): UseSyncRoomReturn {
   );
   const clearSyncError = useSyncRoomSelector((state) => state.clearError);
   const [peerCount, setPeerCount] = useState(0);
+  const previousGameSessionPeers = useRef(getGameSessionAwarenessStates());
 
   // Poll peer count (awareness updates don't always trigger store updates)
   useEffect(() => {
     if (!activeRoom) {
       setPeerCount(0);
+      previousGameSessionPeers.current = [];
       return;
     }
 
     const updatePeerCount = () => {
       setPeerCount(getConnectedPeerCount());
+      const currentGameSessionPeers = getGameSessionAwarenessStates(
+        activeRoom.webrtcProvider.awareness,
+      );
+      const status = deriveLocalMatchStatusFromAwareness(
+        previousGameSessionPeers.current,
+        currentGameSessionPeers,
+        localPeerId,
+      );
+      previousGameSessionPeers.current = currentGameSessionPeers;
+      if (status === 'guestPending' || status === 'hostPending') {
+        useGameplayStore.getState().setLocalMatchStatus(status);
+      } else if (status === 'live') {
+        useGameplayStore.getState().resetLocalMatchStatus();
+      }
     };
 
     // Initial count
@@ -122,7 +145,7 @@ export function useSyncRoom(): UseSyncRoomReturn {
     const interval = setInterval(updatePeerCount, 1000);
 
     return () => clearInterval(interval);
-  }, [activeRoom]);
+  }, [activeRoom, localPeerId]);
 
   const createRoom = useCallback(
     async (password?: string) => {
