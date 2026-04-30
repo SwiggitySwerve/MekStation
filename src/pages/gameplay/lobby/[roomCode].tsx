@@ -18,7 +18,7 @@ import {
 import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { useGameplayStore } from '@/stores/useGameplayStore';
-import { useLobbySelector, useLobbyStore } from '@/stores/useLobbyStore';
+import { useLobbySelector } from '@/stores/useLobbyStore';
 import { usePilotSelector } from '@/stores/usePilotStore';
 import { buildGameSessionFromLobbyState } from '@/utils/gameplay/gameSession';
 
@@ -40,7 +40,6 @@ export default function GameplayLobbyPage(): React.ReactElement {
   const lobbyError = useLobbySelector((state) => state.error);
   const bindChannel = useLobbySelector((state) => state.bindChannel);
   const unbindChannel = useLobbySelector((state) => state.unbindChannel);
-  const initializeHost = useLobbySelector((state) => state.initializeHost);
   const joinAsGuest = useLobbySelector((state) => state.joinAsGuest);
   const updateLocalLoadout = useLobbySelector(
     (state) => state.updateLocalLoadout,

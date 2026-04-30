@@ -52,6 +52,7 @@ export function useMovementTween(
   const initialFacing = options.initialFacing ?? FacingValue.North;
   const finalFacing = options.finalFacing ?? initialFacing;
   const pathKey = path.map((hex) => `${hex.q},${hex.r}`).join('|');
+  const tweenPath = useMemo(() => pathFromKey(pathKey), [pathKey]);
   const animationKey = options.animationKey ?? pathKey;
   const onDoneRef = useRef(onDone);
   const completedKeyRef = useRef<string | null>(null);
@@ -64,7 +65,7 @@ export function useMovementTween(
   const initialFrame = useMemo(
     () =>
       createFrameAtElapsed({
-        path,
+        path: tweenPath,
         mode,
         reducedMotion,
         elapsedMs: 0,
@@ -72,7 +73,7 @@ export function useMovementTween(
         initialFacing,
         finalFacing,
       }),
-    [finalFacing, initialFacing, mode, pathKey, projectHex, reducedMotion],
+    [finalFacing, initialFacing, mode, projectHex, reducedMotion, tweenPath],
   );
   const [frame, setFrame] = useState(initialFrame);
 
@@ -104,7 +105,7 @@ export function useMovementTween(
 
       const elapsedMs = Math.max(0, timestamp - startTime);
       const nextFrame = createFrameAtElapsed({
-        path,
+        path: tweenPath,
         mode,
         reducedMotion,
         elapsedMs,
@@ -134,9 +135,9 @@ export function useMovementTween(
     initialFacing,
     initialFrame,
     mode,
-    pathKey,
     projectHex,
     reducedMotion,
+    tweenPath,
   ]);
 
   return frame;
@@ -197,6 +198,14 @@ function createFrameAtElapsed(params: {
 
 function defaultProjectHex(coord: IHexCoordinate): TweenPoint {
   return { x: coord.q, y: coord.r };
+}
+
+function pathFromKey(pathKey: string): readonly IHexCoordinate[] {
+  if (!pathKey) return [];
+  return pathKey.split('|').map((part) => {
+    const [q, r] = part.split(',').map(Number);
+    return { q, r };
+  });
 }
 
 const WALK_SEGMENT_MS = 300;
