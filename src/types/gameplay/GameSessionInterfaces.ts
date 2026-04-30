@@ -349,7 +349,12 @@ export interface IGameEndedPayload {
   /** Winning side */
   readonly winner: GameSide | 'draw';
   /** Reason for game end */
-  readonly reason: 'destruction' | 'concede' | 'turn_limit' | 'objective';
+  readonly reason:
+    | 'destruction'
+    | 'concede'
+    | 'turn_limit'
+    | 'objective'
+    | 'aborted';
 }
 
 /**

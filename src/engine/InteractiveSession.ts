@@ -666,6 +666,19 @@ export class InteractiveSession {
   }
 
   /**
+   * Wave 4 reconnect timeout: an expired grace window is neither side's
+   * victory, but it must still append a terminal `GameEnded` event so
+   * persisted logs and reconnect replay converge on a completed match.
+   */
+  abortMatch(): void {
+    if (this.session.currentState.status !== GameStatus.Active) {
+      throw new Error('Game is not active');
+    }
+    this.session = endGame(this.session, 'draw', 'aborted');
+    this.tryFinalizeAndPublish();
+  }
+
+  /**
    * Auto-finalize the session when the win-condition predicate trips
    * (turn limit reached, side eliminated) but no explicit `endGame` has
    * fired yet, then publish `CombatOutcomeReady` exactly once. Idempotent

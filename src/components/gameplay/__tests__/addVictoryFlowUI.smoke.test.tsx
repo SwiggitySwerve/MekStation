@@ -93,7 +93,7 @@ function buildFakeInteractiveSession(): {
  */
 function buildCompletedSession(opts: {
   winner: GameSide | 'draw';
-  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective';
+  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective' | 'aborted';
 }): IGameSession {
   const baseEvent: Omit<IGameEvent, 'id' | 'sequence' | 'type' | 'payload'> = {
     gameId: 'test-session',

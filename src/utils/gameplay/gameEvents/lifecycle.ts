@@ -54,7 +54,7 @@ export function createGameEndedEvent(
   turn: number,
   phase: GamePhase,
   winner: GameSide | 'draw',
-  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective',
+  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective' | 'aborted',
 ): IGameEvent {
   const payload: IGameEndedPayload = { winner, reason };
   return {

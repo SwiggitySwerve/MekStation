@@ -61,7 +61,12 @@ export interface IPostBattleReport {
   readonly version: PostBattleReportVersion;
   readonly matchId: string;
   readonly winner: GameSide | 'draw';
-  readonly reason: 'destruction' | 'concede' | 'turn_limit' | 'objective';
+  readonly reason:
+    | 'destruction'
+    | 'concede'
+    | 'turn_limit'
+    | 'objective'
+    | 'aborted';
   readonly turnCount: number;
   readonly units: readonly IUnitReport[];
   /** MVP unit id; null when no damage was dealt by the winner. */

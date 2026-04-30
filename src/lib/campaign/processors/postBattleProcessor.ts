@@ -328,10 +328,12 @@ function applyContractDelta(
     nextStatus = playerWon(outcome)
       ? MissionStatus.SUCCESS
       : MissionStatus.FAILED;
-  } else if (outcome.endReason === CombatEndReason.TurnLimit) {
-    // Turn-limit ended matches are draws by construction — map to the
-    // mission-contracts spec's "PARTIAL" scenario regardless of which
-    // side nominally "won" via objective tally.
+  } else if (
+    outcome.endReason === CombatEndReason.TurnLimit ||
+    outcome.endReason === CombatEndReason.Aborted
+  ) {
+    // Turn-limit and reconnect-aborted matches are draws by construction — map
+    // to "PARTIAL" rather than leaving the mission Active.
     nextStatus = MissionStatus.PARTIAL;
   }
 

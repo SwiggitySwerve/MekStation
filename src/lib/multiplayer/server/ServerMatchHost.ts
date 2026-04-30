@@ -376,8 +376,9 @@ export class ServerMatchHost {
 
   /**
    * Wave 4: timer handler. Broadcasts SeatTimedOut so the host's UI
-   * can prompt for `MarkSeatAi` / `ForfeitMatch`. Match stays paused
-   * until the host responds (or the player magically reconnects).
+   * can prompt for diagnostics, then aborts the match as a draw. The
+   * terminal `GameEnded(reason: "aborted")` event is persisted before
+   * clients see it so reload/reconnect cannot resurrect a stale match.
    */
   private handleGraceTimeout(entry: IPendingPeerEntry): void {
     const msg: IServerMessage = {
@@ -388,6 +389,7 @@ export class ServerMatchHost {
       playerId: entry.playerId,
     };
     this.broadcast(msg);
+    void this.abortExpiredPendingMatch();
   }
 
   /**
@@ -401,14 +403,66 @@ export class ServerMatchHost {
     if (!this.isPaused) {
       this.isPaused = true;
     }
+    const nextExpiry = Math.min(...pending.map((p) => p.expiresAt));
+    const remainingMs = Math.max(0, nextExpiry - Date.now());
     const msg: IServerMessage = {
       kind: 'MatchPaused',
       matchId: this.matchId,
       ts: nowIso(),
       reason: 'peer-pending',
       pendingSlots: pending.map((p) => p.slotId),
+      graceRemainingMs: remainingMs,
+      pendingExpiresAtMs: nextExpiry,
     };
     this.broadcast(msg);
+  }
+
+  private async abortExpiredPendingMatch(): Promise<void> {
+    if (this.closed) return;
+    this.pendingPeers.clearAll();
+    this.isPaused = false;
+    this.installFreshCapture();
+    try {
+      this.session.abortMatch();
+    } catch (e) {
+      const err: IServerMessage = {
+        kind: 'Error',
+        matchId: this.matchId,
+        ts: nowIso(),
+        code: 'INVALID_INTENT',
+        reason:
+          e instanceof Error ? e.message : 'Reconnect grace timeout rejected',
+      };
+      this.broadcast(err);
+      return;
+    }
+
+    const newEvents = this.stampRollsOnNewEvents(this.drainNewEvents());
+    for (const event of newEvents) {
+      try {
+        await this.store.appendEvent(this.matchId, event);
+      } catch (e) {
+        const err: IServerMessage = {
+          kind: 'Error',
+          matchId: this.matchId,
+          ts: nowIso(),
+          code: 'STORE_FAILURE',
+          reason: e instanceof Error ? e.message : 'Store append failed',
+        };
+        this.broadcast(err);
+        await this.closeMatch();
+        return;
+      }
+      this.broadcast({
+        kind: 'Event',
+        matchId: this.matchId,
+        ts: nowIso(),
+        event,
+      });
+    }
+
+    this.tryPublishOutcome();
+    await this.closeMatch();
   }
 
   /**
