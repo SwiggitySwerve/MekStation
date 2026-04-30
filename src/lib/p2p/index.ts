@@ -140,5 +140,33 @@ export {
   type LobbyStateCallback,
 } from './lobbyChannel';
 
+export {
+  MATCH_LOG_DB_NAME,
+  MATCH_LOG_DB_VERSION,
+  MATCH_LOG_RETENTION_MS,
+  MATCH_LOG_STORES,
+  MatchLogStorage,
+  MatchLogStorageError,
+  MatchLogStorageUnavailableError,
+  appendMatchEvent,
+  flushMatchLogWrites,
+  getEventsForMatch,
+  getLastSequence,
+  getMatchMetadata,
+  markMatchCompleted,
+  matchLogStorage,
+  migrateMatchLogDatabase,
+  purgeOldMatches,
+  upsertMatchMetadata,
+  type IMatchEventRecord,
+  type IMatchLogFlushInfo,
+  type IMatchLogStorageOptions,
+  type IMatchMetadataRecord,
+  type IMatchMetadataUpsert,
+  type IPurgeOldMatchesResult,
+  type MatchLogStatus,
+  type MatchLogStoreName,
+} from './matchLogStorage';
+
 // Hooks
 export { useSyncRoom, type UseSyncRoomReturn } from './useSyncRoom';
