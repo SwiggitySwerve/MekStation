@@ -9,14 +9,19 @@ import {
   type IGameIntent,
   type IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { REPLAY_CHUNK_SIZE } from '@/types/multiplayer/Protocol';
 
 import {
   GAME_SESSION_EVENTS_ARRAY,
+  createReconnectRequestEnvelope,
   createGameSessionChannel,
+  createReplayStreamEnvelopes,
   deserializeGameSessionEnvelope,
+  getReplayEventsAfterSeq,
   isGameIntent,
   serializeGameSessionEnvelope,
   type IGameEventEnvelope,
+  type MatchLogPersistence,
 } from '../gameSessionChannel';
 import {
   GAME_SESSION_AWARENESS_FIELD,
@@ -109,6 +114,34 @@ describe('gameSessionChannel', () => {
     expect(customizerTabs.toArray()).toEqual(['tab-a']);
   });
 
+  it('persists locally broadcast events after the Yjs append succeeds', async () => {
+    const persisted: Array<{ matchId: string; event: IGameEvent }> = [];
+    const matchLog: MatchLogPersistence = {
+      appendEvent: jest.fn((matchId, event) => {
+        persisted.push({ matchId, event });
+        return Promise.resolve({
+          matchId,
+          sequence: event.sequence,
+          event,
+          savedAt: '2026-04-30T00:00:00.000Z',
+        });
+      }),
+    };
+    const channel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+      matchId: 'match-1',
+      matchLog,
+    });
+    const event = makeEvent('event-1', 1);
+
+    channel.broadcastEvent(event);
+    await Promise.resolve();
+
+    expect(eventArray).toHaveLength(1);
+    expect(persisted).toEqual([{ matchId: 'match-1', event }]);
+  });
+
   it('delivers peer-authored events in arrival order', () => {
     const channel = createGameSessionChannel({
       localPeerId: 'guest-peer',
@@ -134,6 +167,72 @@ describe('gameSessionChannel', () => {
 
     unsubscribe();
     expect(received).toEqual(['event-1', 'event-2']);
+  });
+
+  it('persists peer-received events without blocking peer delivery', async () => {
+    const matchLog: MatchLogPersistence = {
+      appendEvent: jest.fn((matchId, event) =>
+        Promise.resolve({
+          matchId,
+          sequence: event.sequence,
+          event,
+          savedAt: '2026-04-30T00:00:00.000Z',
+        }),
+      ),
+    };
+    const channel = createGameSessionChannel({
+      localPeerId: 'guest-peer',
+      eventArray,
+      matchId: 'match-1',
+      matchLog,
+    });
+    const received: string[] = [];
+    const unsubscribe = channel.onPeerEvent((event) => {
+      received.push(event.id);
+    });
+    const event = makeEvent('event-1', 1);
+
+    eventArray.push([
+      serializeGameSessionEnvelope({
+        kind: 'game-event',
+        event,
+        authorPeerId: 'host-peer',
+      }),
+    ]);
+    await Promise.resolve();
+
+    unsubscribe();
+    expect(received).toEqual(['event-1']);
+    expect(matchLog.appendEvent).toHaveBeenCalledWith('match-1', event);
+  });
+
+  it('logs persistence failures without breaking local broadcast sync', async () => {
+    const error = new Error('indexeddb write failed');
+    const logger = { error: jest.fn() };
+    const matchLog: MatchLogPersistence = {
+      appendEvent: jest.fn(() => Promise.reject(error)),
+    };
+    const channel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+      matchId: 'match-1',
+      matchLog,
+      logger,
+    });
+
+    channel.broadcastEvent(makeEvent('event-1', 1));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(eventArray).toHaveLength(1);
+    expect(logger.error).toHaveBeenCalledWith(
+      'Failed to persist P2P match event',
+      {
+        matchId: 'match-1',
+        sequence: 1,
+        error,
+      },
+    );
   });
 
   it('rejects local-authored event arrivals', () => {
@@ -181,6 +280,62 @@ describe('gameSessionChannel', () => {
         authorPeerId: 'guest-peer',
       },
     ]);
+  });
+
+  it('builds reconnect requests with the expected wire shape', () => {
+    const request = createReconnectRequestEnvelope({
+      matchId: 'match-1',
+      lastLocalSeq: 25,
+      authorPeerId: 'guest-peer',
+    });
+
+    expect(request).toEqual({
+      kind: 'reconnect-request',
+      matchId: 'match-1',
+      lastLocalSeq: 25,
+      authorPeerId: 'guest-peer',
+    });
+    expect(
+      deserializeGameSessionEnvelope(serializeGameSessionEnvelope(request)),
+    ).toEqual(request);
+  });
+
+  it('chunks replay streams at the protocol chunk size and marks only the final chunk done', () => {
+    const events = Array.from({ length: REPLAY_CHUNK_SIZE + 1 }, (_, index) =>
+      makeEvent(`event-${index}`, index),
+    );
+
+    const chunks = createReplayStreamEnvelopes('match-1', events);
+
+    expect(REPLAY_CHUNK_SIZE).toBe(64);
+    expect(chunks).toHaveLength(2);
+    expect(chunks[0]).toMatchObject({
+      kind: 'replay-stream',
+      matchId: 'match-1',
+      done: false,
+    });
+    expect(chunks[0].events).toHaveLength(REPLAY_CHUNK_SIZE);
+    expect(chunks[1]).toMatchObject({
+      kind: 'replay-stream',
+      matchId: 'match-1',
+      done: true,
+    });
+    expect(chunks[1].events).toHaveLength(1);
+    expect(
+      deserializeGameSessionEnvelope(serializeGameSessionEnvelope(chunks[0])),
+    ).toEqual(chunks[0]);
+  });
+
+  it('selects replay events newer than the reconnecting peer sequence in order', () => {
+    const events = [
+      makeEvent('event-3', 3),
+      makeEvent('event-1', 1),
+      makeEvent('event-2', 2),
+    ];
+
+    expect(
+      getReplayEventsAfterSeq(events, 1).map((event) => event.sequence),
+    ).toEqual([2, 3]);
   });
 });
 

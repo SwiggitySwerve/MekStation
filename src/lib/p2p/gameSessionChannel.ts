@@ -7,11 +7,13 @@ import {
   type IGameEvent,
   type IGameIntent,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { REPLAY_CHUNK_SIZE } from '@/types/multiplayer/Protocol';
 import {
   deserializeEvent,
   serializeEvent,
 } from '@/utils/gameplay/gameEvents/serialization';
 
+import { matchLogStorage, type MatchLogStorage } from './matchLogStorage';
 import { getLocalPeerId, getYArray } from './SyncProvider';
 
 export const GAME_SESSION_EVENTS_ARRAY = 'gameEvents';
@@ -30,14 +32,30 @@ export interface IGameIntentEnvelope {
 
 export interface IPeerRejectedEnvelope {
   readonly kind: 'peer-rejected';
-  readonly intentId: string;
+  readonly intentId?: string;
   readonly reason: string;
+}
+
+export interface IReconnectRequestEnvelope {
+  readonly kind: 'reconnect-request';
+  readonly matchId: string;
+  readonly lastLocalSeq: number;
+  readonly authorPeerId: string;
+}
+
+export interface IReplayStreamEnvelope {
+  readonly kind: 'replay-stream';
+  readonly matchId: string;
+  readonly events: readonly IGameEvent[];
+  readonly done: boolean;
 }
 
 export type GameSessionChannelEnvelope =
   | IGameEventEnvelope
   | IGameIntentEnvelope
-  | IPeerRejectedEnvelope;
+  | IPeerRejectedEnvelope
+  | IReconnectRequestEnvelope
+  | IReplayStreamEnvelope;
 
 export type PeerEventCallback = (
   event: IGameEvent,
@@ -50,6 +68,14 @@ export type PeerIntentCallback = (
 ) => void;
 
 export type PeerRejectedCallback = (envelope: IPeerRejectedEnvelope) => void;
+export type ReconnectRequestCallback = (
+  envelope: IReconnectRequestEnvelope,
+) => void;
+export type ReplayStreamCallback = (envelope: IReplayStreamEnvelope) => void;
+
+export type MatchLogPersistence = Pick<MatchLogStorage, 'appendEvent'>;
+
+export type GameSessionChannelLogger = Pick<Console, 'error'>;
 
 export interface IGameSessionChannel {
   readonly broadcastEvent: (event: IGameEvent) => void;
@@ -60,12 +86,26 @@ export interface IGameSessionChannel {
     rejection: Omit<IPeerRejectedEnvelope, 'kind'>,
   ) => void;
   readonly onPeerRejection: (callback: PeerRejectedCallback) => () => void;
+  readonly broadcastReconnectRequest: (
+    request: Omit<IReconnectRequestEnvelope, 'kind' | 'authorPeerId'>,
+  ) => void;
+  readonly onReconnectRequest: (
+    callback: ReconnectRequestCallback,
+  ) => () => void;
+  readonly broadcastReplayStream: (
+    stream: Omit<IReplayStreamEnvelope, 'kind'>,
+  ) => void;
+  readonly onReplayStream: (callback: ReplayStreamCallback) => () => void;
 }
 
 export interface IGameSessionChannelOptions {
   readonly localPeerId?: string;
   readonly eventArray?: Y.Array<string>;
   readonly getEventArray?: () => Y.Array<string> | null;
+  readonly matchId?: string;
+  readonly getMatchId?: () => string | null | undefined;
+  readonly matchLog?: MatchLogPersistence;
+  readonly logger?: GameSessionChannelLogger;
 }
 
 export function serializeGameSessionEnvelope(
@@ -77,6 +117,18 @@ export function serializeGameSessionEnvelope(
       kind: envelope.kind,
       event,
       authorPeerId: envelope.authorPeerId,
+    });
+  }
+
+  if (envelope.kind === 'replay-stream') {
+    const events = envelope.events.map((event) =>
+      JSON.parse(serializeEvent(event)),
+    );
+    return JSON.stringify({
+      kind: envelope.kind,
+      matchId: envelope.matchId,
+      events,
+      done: envelope.done,
     });
   }
 
@@ -121,16 +173,57 @@ export function deserializeGameSessionEnvelope(
   }
 
   if (parsed.kind === 'peer-rejected') {
+    const intentId = parsed.intentId;
     if (
-      typeof parsed.intentId !== 'string' ||
+      (intentId !== undefined && typeof intentId !== 'string') ||
       typeof parsed.reason !== 'string'
     ) {
       throw new Error('Invalid peer rejection envelope payload');
     }
     return {
       kind: 'peer-rejected',
-      intentId: parsed.intentId,
+      intentId,
       reason: parsed.reason,
+    };
+  }
+
+  if (parsed.kind === 'reconnect-request') {
+    if (
+      typeof parsed.matchId !== 'string' ||
+      typeof parsed.lastLocalSeq !== 'number' ||
+      !Number.isInteger(parsed.lastLocalSeq) ||
+      parsed.lastLocalSeq < 0 ||
+      typeof parsed.authorPeerId !== 'string'
+    ) {
+      throw new Error('Invalid reconnect request envelope payload');
+    }
+    return {
+      kind: 'reconnect-request',
+      matchId: parsed.matchId,
+      lastLocalSeq: parsed.lastLocalSeq,
+      authorPeerId: parsed.authorPeerId,
+    };
+  }
+
+  if (parsed.kind === 'replay-stream') {
+    if (
+      typeof parsed.matchId !== 'string' ||
+      !Array.isArray(parsed.events) ||
+      typeof parsed.done !== 'boolean'
+    ) {
+      throw new Error('Invalid replay stream envelope payload');
+    }
+    const events = parsed.events.map((event) =>
+      deserializeEvent(JSON.stringify(event)),
+    );
+    if (!events.every(isGameEvent)) {
+      throw new Error('Invalid replay stream event payload');
+    }
+    return {
+      kind: 'replay-stream',
+      matchId: parsed.matchId,
+      events,
+      done: parsed.done,
     };
   }
 
@@ -153,6 +246,21 @@ export function createGameSessionChannel(
   const appendEnvelope = (envelope: GameSessionChannelEnvelope): void => {
     const eventArray = requireGameEventsArray(options);
     eventArray.push([serializeGameSessionEnvelope(envelope)]);
+  };
+
+  const persistEvent = (event: IGameEvent): void => {
+    const matchId = getPersistenceMatchId(options);
+    if (!matchId) return;
+
+    const storage = options.matchLog ?? matchLogStorage;
+    void storage.appendEvent(matchId, event).catch((error: unknown) => {
+      const logger = options.logger ?? console;
+      logger.error('Failed to persist P2P match event', {
+        matchId,
+        sequence: event.sequence,
+        error,
+      });
+    });
   };
 
   const observeEnvelopes = (
@@ -184,11 +292,13 @@ export function createGameSessionChannel(
         event,
         authorPeerId: requireLocalPeerId(options),
       });
+      persistEvent(event);
     },
     onPeerEvent: (callback: PeerEventCallback): (() => void) => {
       return observeEnvelopes((envelope) => {
         if (envelope.kind !== 'game-event') return;
         if (isLocalAuthor(envelope.authorPeerId)) return;
+        persistEvent(envelope.event);
         callback(envelope.event, envelope);
       });
     },
@@ -222,6 +332,39 @@ export function createGameSessionChannel(
         callback(envelope);
       });
     },
+    broadcastReconnectRequest: (
+      request: Omit<IReconnectRequestEnvelope, 'kind' | 'authorPeerId'>,
+    ): void => {
+      appendEnvelope(
+        createReconnectRequestEnvelope({
+          ...request,
+          authorPeerId: requireLocalPeerId(options),
+        }),
+      );
+    },
+    onReconnectRequest: (callback: ReconnectRequestCallback): (() => void) => {
+      return observeEnvelopes((envelope) => {
+        if (envelope.kind !== 'reconnect-request') return;
+        if (isLocalAuthor(envelope.authorPeerId)) return;
+        callback(envelope);
+      });
+    },
+    broadcastReplayStream: (
+      stream: Omit<IReplayStreamEnvelope, 'kind'>,
+    ): void => {
+      appendEnvelope({
+        kind: 'replay-stream',
+        matchId: stream.matchId,
+        events: stream.events,
+        done: stream.done,
+      });
+    },
+    onReplayStream: (callback: ReplayStreamCallback): (() => void) => {
+      return observeEnvelopes((envelope) => {
+        if (envelope.kind !== 'replay-stream') return;
+        callback(envelope);
+      });
+    },
   };
 }
 
@@ -249,6 +392,73 @@ export function broadcastRejection(
 
 export function onPeerRejection(callback: PeerRejectedCallback): () => void {
   return createGameSessionChannel().onPeerRejection(callback);
+}
+
+export function createReconnectRequestEnvelope(input: {
+  readonly matchId: string;
+  readonly lastLocalSeq: number;
+  readonly authorPeerId: string;
+}): IReconnectRequestEnvelope {
+  return {
+    kind: 'reconnect-request',
+    matchId: input.matchId,
+    lastLocalSeq: input.lastLocalSeq,
+    authorPeerId: input.authorPeerId,
+  };
+}
+
+export function createReplayStreamEnvelopes(
+  matchId: string,
+  events: readonly IGameEvent[],
+  chunkSize: number = REPLAY_CHUNK_SIZE,
+): IReplayStreamEnvelope[] {
+  if (!Number.isInteger(chunkSize) || chunkSize < 1) {
+    throw new Error('Replay chunk size must be a positive integer');
+  }
+
+  if (events.length === 0) {
+    return [
+      {
+        kind: 'replay-stream',
+        matchId,
+        events: [],
+        done: true,
+      },
+    ];
+  }
+
+  const envelopes: IReplayStreamEnvelope[] = [];
+  for (let index = 0; index < events.length; index += chunkSize) {
+    const chunk = events.slice(index, index + chunkSize);
+    envelopes.push({
+      kind: 'replay-stream',
+      matchId,
+      events: chunk,
+      done: index + chunkSize >= events.length,
+    });
+  }
+  return envelopes;
+}
+
+export function getReplayEventsAfterSeq(
+  events: readonly IGameEvent[],
+  lastLocalSeq: number,
+): IGameEvent[] {
+  return events
+    .filter((event) => event.sequence > lastLocalSeq)
+    .sort((left, right) => left.sequence - right.sequence);
+}
+
+export function applyReplayStreamEvents(
+  streams: readonly IReplayStreamEnvelope[],
+  appendEvent: (event: IGameEvent) => void,
+): void {
+  const events = streams.flatMap((stream) => stream.events);
+  for (const event of events.sort(
+    (left, right) => left.sequence - right.sequence,
+  )) {
+    appendEvent(event);
+  }
 }
 
 export function isGameIntent(value: unknown): value is IGameIntent {
@@ -288,6 +498,12 @@ function requireLocalPeerId(options: IGameSessionChannelOptions): string {
     throw new Error('No local peer id available');
   }
   return peerId;
+}
+
+function getPersistenceMatchId(
+  options: IGameSessionChannelOptions,
+): string | null {
+  return options.matchId ?? options.getMatchId?.() ?? null;
 }
 
 function insertedValues(event: Y.YArrayEvent<string>): readonly string[] {

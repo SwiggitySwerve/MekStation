@@ -92,11 +92,15 @@ export {
 
 export {
   GAME_SESSION_EVENTS_ARRAY,
+  applyReplayStreamEvents,
   broadcastEvent,
   broadcastIntent,
   broadcastRejection,
+  createReconnectRequestEnvelope,
   createGameSessionChannel,
+  createReplayStreamEnvelopes,
   deserializeGameSessionEnvelope,
+  getReplayEventsAfterSeq,
   isGameIntent,
   onPeerEvent,
   onPeerIntent,
@@ -104,14 +108,20 @@ export {
   serializeGameSessionEnvelope,
   tryDeserializeGameSessionEnvelope,
   type GameSessionChannelEnvelope,
+  type GameSessionChannelLogger,
   type IGameEventEnvelope,
   type IGameIntentEnvelope,
   type IGameSessionChannel,
   type IGameSessionChannelOptions,
   type IPeerRejectedEnvelope,
+  type IReconnectRequestEnvelope,
+  type IReplayStreamEnvelope,
+  type MatchLogPersistence,
   type PeerEventCallback,
   type PeerIntentCallback,
   type PeerRejectedCallback,
+  type ReconnectRequestCallback,
+  type ReplayStreamCallback,
 } from './gameSessionChannel';
 
 export {
