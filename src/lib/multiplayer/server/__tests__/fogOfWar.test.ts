@@ -12,6 +12,7 @@ import {
   type IGameState,
   type IUnitGameState,
 } from '@/types/gameplay';
+import { canPlayerSeeUnit } from '@/utils/gameplay/visibility';
 
 import {
   filterEventForPlayer,
@@ -403,5 +404,18 @@ describe('fog-of-war event filtering', () => {
     const elapsedMs = performance.now() - start;
 
     expect(elapsedMs).toBeLessThan(5);
+  });
+
+  it('keeps direct visibility checks below the sub-millisecond target', () => {
+    const state = makeState();
+    const iterations = 256;
+
+    const start = performance.now();
+    for (let index = 0; index < iterations; index += 1) {
+      canPlayerSeeUnit(PLAYER_A, index % 2 === 0 ? 'target' : 'scout', state);
+    }
+    const elapsedMs = performance.now() - start;
+
+    expect(elapsedMs / iterations).toBeLessThan(1);
   });
 });

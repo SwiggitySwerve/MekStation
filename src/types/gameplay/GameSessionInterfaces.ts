@@ -1158,6 +1158,8 @@ export interface IGameConfig {
   readonly victoryConditions: readonly string[];
   /** Optional rules enabled */
   readonly optionalRules: readonly string[];
+  /** Double-blind tactical visibility mode for multiplayer/fog-aware UIs. */
+  readonly fogOfWar?: boolean;
   /** Environmental conditions (default: standard daylight, 1.0g, etc.) */
   readonly environmentalConditions?: IEnvironmentalConditions;
   /**
