@@ -1,6 +1,6 @@
 # tactical-map-interface Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Attack Effects Layer
 

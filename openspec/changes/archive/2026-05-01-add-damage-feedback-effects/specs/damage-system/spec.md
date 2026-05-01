@@ -1,6 +1,6 @@
 # damage-system Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Destruction Events Carry UI Metadata
 

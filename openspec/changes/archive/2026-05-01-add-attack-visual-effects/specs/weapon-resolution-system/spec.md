@@ -1,6 +1,6 @@
 # weapon-resolution-system Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Attack Events Declare Visual Category
 

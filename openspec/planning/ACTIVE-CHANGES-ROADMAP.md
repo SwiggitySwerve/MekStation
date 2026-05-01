@@ -1,9 +1,9 @@
 # Active OpenSpec Roadmap
 
-**Status date:** 2026-04-30
-**Scope:** The 8 currently active OpenSpec changes under `openspec/changes/`.
+**Status date:** 2026-05-01
+**Scope:** The 5 currently active OpenSpec changes under `openspec/changes/`.
 **Validation baseline:** `npx openspec validate --all --strict` passes with
-186 items, 0 failures.
+184 items, 0 failures.
 
 This document is an implementation-order reference for the active queue. It is
 not a replacement for each change's `proposal.md`, `design.md`, `tasks.md`, or
@@ -12,22 +12,35 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-The active queue currently has eight in-progress changes. Wave 4
-archived both `add-fog-of-war-event-filtering` and
-`add-game-session-persistence-for-reconnect` on 2026-04-30. Two
-post-Wave-4 archives followed the same day:
-`add-heat-and-shutdown-visual-indicators` archived as
-`archive/2026-04-30-add-heat-and-shutdown-visual-indicators` (one new
-requirement into `heat-overflow-effects`, five into
-`tactical-map-interface`); and `add-infantry-construction` archived
-as `archive/2026-04-30-add-infantry-construction` (3 ADDED + 5
-MODIFIED requirements into `infantry-unit-system`, with 7 spec-merge
-decisions converting overlapping ADDED headers to either MODIFIED
-with merged scenarios or rename-with-distinct-title). Wave 0
-reconciliation marked already proven source, test, and spec-admin
-tasks complete; later wave work has advanced several changes, but
-the remaining unchecked tasks are implementation work or
-intentionally unproven partials.
+The active queue currently has five in-progress changes. Three
+phase 7 tactical visual changes archived 2026-05-01 in two
+implementation slices + one archive slice:
+- `add-movement-interpolation-animations` (45/45) archived as
+  `archive/2026-05-01-add-movement-interpolation-animations`. New
+  requirements: 1 ADDED to `movement-system` (Movement Animation
+  Replay Backfill, with the legacy-event-snap fallback) and 4
+  ADDED to `tactical-map-interface` (Movement Path Interpolation,
+  Jump Arc Animation, Phase Advancement Gate On Active Animations,
+  Reduced Motion Accessibility).
+- `add-damage-feedback-effects` (56/56) archived as
+  `archive/2026-05-01-add-damage-feedback-effects`. New
+  requirements: 2 ADDED to `damage-system` (Destruction Events
+  Carry UI Metadata, Persistent Effect State Derivable From
+  Snapshot) and 7 ADDED to `tactical-map-interface` (Screen Shake,
+  Hit Location Flash, Smoke From Destroyed Locations, Engine Fire,
+  Debris Cloud And Wreck Sprite, Persistent Effects Survive
+  Replay, Persistent Effect Layer Ordering).
+- `add-attack-visual-effects` (48/48) archived as
+  `archive/2026-05-01-add-attack-visual-effects`. New
+  requirements: 6 ADDED to a brand-new `attack-effects-system`
+  spec, 1 ADDED to `tactical-map-interface` (Attack Effects
+  Layer), 1 ADDED to `weapon-resolution-system` (Attack Events
+  Declare Visual Category).
+
+The Phase 7 archive slice converted 4 mislabeled `MODIFIED`
+headers in the deltas to `ADDED` (3 cases) or to a renamed
+`ADDED` header (1 case — `Movement Animation Replay Backfill`,
+the only delta scenario that was genuinely additive).
 
 | Change | Tasks | Lane |
 | --- | ---: | --- |
@@ -35,10 +48,7 @@ intentionally unproven partials.
 | `add-multi-type-record-sheet-export` | 46/54 | Phase 6 export |
 | `add-p2p-game-session-sync` | 12/33 | Phase 4 multiplayer |
 | `add-game-session-invite-and-lobby-1v1` | 29/39 | Phase 4 multiplayer |
-| `add-movement-interpolation-animations` | 44/45 | Phase 7 tactical visuals |
 | `add-los-and-firing-arc-overlays` | 43/56 | Phase 7 tactical visuals |
-| `add-attack-visual-effects` | 41/48 | Phase 7 tactical visuals |
-| `add-damage-feedback-effects` | 52/56 | Phase 7 tactical visuals |
 
 ## Lane Model
 
