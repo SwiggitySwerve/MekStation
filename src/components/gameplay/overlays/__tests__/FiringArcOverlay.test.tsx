@@ -108,11 +108,7 @@ describe('FiringArcOverlay', () => {
     ['long', 9],
   ])('includes hexes exactly at the %s range edge', (_band, range) => {
     renderOverlay({
-      hexes: [
-        origin,
-        { q: 0, r: -range },
-        { q: 0, r: -(range + 1) },
-      ],
+      hexes: [origin, { q: 0, r: -range }, { q: 0, r: -(range + 1) }],
       maxRange: range,
     });
 

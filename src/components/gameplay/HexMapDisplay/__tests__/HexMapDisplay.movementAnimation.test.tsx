@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import type { IGameEvent, IUnitToken, IWeaponStatus } from '@/types/gameplay';
 
+import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import {
   Facing,
@@ -12,7 +13,6 @@ import {
   TerrainType,
   TokenUnitType,
 } from '@/types/gameplay';
-import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 
 import { HexMapDisplay } from '../HexMapDisplay';
 
