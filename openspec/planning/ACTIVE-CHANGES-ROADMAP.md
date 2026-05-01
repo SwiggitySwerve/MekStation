@@ -1,9 +1,9 @@
 # Active OpenSpec Roadmap
 
 **Status date:** 2026-05-01
-**Scope:** The 1 currently active OpenSpec change under `openspec/changes/`.
+**Scope:** ZERO currently active OpenSpec changes. Backlog cleared.
 **Validation baseline:** `npx openspec validate --all --strict` passes with
-181 items, 0 failures.
+180 items, 0 failures.
 
 This document is an implementation-order reference for the active queue. It is
 not a replacement for each change's `proposal.md`, `design.md`, `tasks.md`, or
@@ -12,7 +12,14 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-The active queue is down to one in-progress change.
+🎉 **The active queue is empty.** All 12 changes from the original backlog are now archived.
+
+Final archive 2026-05-01:
+- `wire-encounter-to-campaign-round-trip` (42/42) archived as
+  `archive/2026-05-01-wire-encounter-to-campaign-round-trip`. New
+  requirements: 2 ADDED to `contract-types`, 4 ADDED to
+  `game-session-management`, 2 ADDED to `scenario-generation`.
+  Zero delta header collisions.
 
 Two Phase 4 multiplayer changes archived 2026-05-01:
 - `add-p2p-game-session-sync` (33/33) archived as
@@ -65,7 +72,7 @@ the only delta scenario that was genuinely additive).
 
 | Change | Tasks | Lane |
 | --- | ---: | --- |
-| `wire-encounter-to-campaign-round-trip` | 25/42 | Campaign closure |
+| _(none — backlog cleared)_ | — | — |
 
 ## Lane Model
 
