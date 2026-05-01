@@ -27,6 +27,8 @@ import {
 import {
   useCampaignDayReports,
   useClientReady,
+  useDailyBattleAudit,
+  useOutcomeApplyErrors,
   usePendingOutcomes,
 } from './CampaignDashboardPage.hooks';
 import {
@@ -37,6 +39,7 @@ import {
   CampaignRosterCard,
   CampaignStatsGrid,
 } from './CampaignDashboardPage.sections';
+import { DailyBattleAuditFeed } from './DailyBattleAuditFeed';
 import { PendingOutcomesBanner } from './PendingOutcomesBanner';
 
 export default function CampaignDashboardPage(): React.ReactElement {
@@ -57,6 +60,8 @@ export default function CampaignDashboardPage(): React.ReactElement {
 
   const isClient = useClientReady();
   const pendingOutcomes = usePendingOutcomes();
+  const auditEntries = useDailyBattleAudit();
+  const applyErrors = useOutcomeApplyErrors();
   const [isGenerating, setIsGenerating] = useState(false);
 
   const {
@@ -169,7 +174,12 @@ export default function CampaignDashboardPage(): React.ReactElement {
     >
       <CampaignNavigation campaignId={campaign.id} currentPage="dashboard" />
 
-      <PendingOutcomesBanner outcomes={pendingOutcomes} />
+      <PendingOutcomesBanner
+        outcomes={pendingOutcomes}
+        applyErrors={applyErrors}
+      />
+
+      <DailyBattleAuditFeed entries={auditEntries} />
 
       {dayReports.length > 0 && (
         <DayReportPanel

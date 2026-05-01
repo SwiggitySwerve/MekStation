@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
+import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
@@ -106,4 +107,82 @@ export function usePendingOutcomes(): readonly ICombatOutcome[] {
   }, [store]);
 
   return outcomes;
+}
+
+/**
+ * Per `wire-encounter-to-campaign-round-trip` Wave 5 §7.3: live snapshot
+ * of the campaign's `dailyBattleAudit` ledger for the dashboard audit
+ * feed. Mirrors the same subscribe + cheap-equality pattern as
+ * `usePendingOutcomes` so the audit feed re-renders only when the
+ * ledger length changes.
+ */
+export function useDailyBattleAudit(): readonly IDailyBattleAuditEntry[] {
+  const store = useCampaignStore();
+  const readLedger = useCallback((): readonly IDailyBattleAuditEntry[] => {
+    const campaign = store.getState().campaign as
+      | (ReturnType<typeof store.getState>['campaign'] & {
+          dailyBattleAudit?: readonly IDailyBattleAuditEntry[];
+        })
+      | null;
+    return campaign?.dailyBattleAudit ?? [];
+  }, [store]);
+
+  const [entries, setEntries] = useState<readonly IDailyBattleAuditEntry[]>(
+    () => readLedger(),
+  );
+
+  useEffect(() => {
+    return store.subscribe(() => {
+      const next = readLedger();
+      setEntries((prev) => {
+        if (prev === next) return prev;
+        if (prev.length === next.length) {
+          // Cheap equality: same length AND same last-entry date avoids a
+          // re-render when an unrelated campaign field churns.
+          const lastA = prev[prev.length - 1]?.date;
+          const lastB = next[next.length - 1]?.date;
+          if (lastA === lastB) return prev;
+        }
+        return next;
+      });
+    });
+  }, [store, readLedger]);
+
+  return entries;
+}
+
+/**
+ * Per `wire-encounter-to-campaign-round-trip` Wave 5 §11.2: live
+ * snapshot of the campaign store's `outcomeApplyErrors` map. Drives the
+ * banner's "N outcome(s) failed to apply" sub-line.
+ */
+export function useOutcomeApplyErrors(): Readonly<Record<string, string>> {
+  const store = useCampaignStore();
+  const [errors, setErrors] = useState<Readonly<Record<string, string>>>(
+    () => store.getState().outcomeApplyErrors,
+  );
+  useEffect(() => {
+    return store.subscribe((next) => {
+      setErrors((prev) => {
+        const a = prev;
+        const b = next.outcomeApplyErrors;
+        // Reference equality first; fall back to keys-length + key match.
+        if (a === b) return prev;
+        const aKeys = Object.keys(a);
+        const bKeys = Object.keys(b);
+        if (aKeys.length === bKeys.length) {
+          let same = true;
+          for (const k of aKeys) {
+            if (a[k] !== b[k]) {
+              same = false;
+              break;
+            }
+          }
+          if (same) return prev;
+        }
+        return { ...b };
+      });
+    });
+  }, [store]);
+  return errors;
 }
