@@ -6,10 +6,11 @@
  */
 import React, { useState } from 'react';
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+
 import { Card, Button } from '@/components/ui';
 import {
   ICampaignUnitState,
-  ICampaignPilotState,
   CampaignUnitStatus,
   CampaignPilotStatus,
 } from '@/types/campaign';
@@ -22,9 +23,9 @@ import { RosterUnitCard, RosterPilotCard } from './RosterStateCards';
 
 interface RosterStateDisplayProps {
   units: readonly ICampaignUnitState[];
-  pilots: readonly ICampaignPilotState[];
+  pilots: readonly ICampaignRosterEntry[];
   onUnitClick?: (unit: ICampaignUnitState) => void;
-  onPilotClick?: (pilot: ICampaignPilotState) => void;
+  onPilotClick?: (pilot: ICampaignRosterEntry) => void;
 }
 
 type TabType = 'units' | 'pilots';

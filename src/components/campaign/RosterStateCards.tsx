@@ -1,9 +1,10 @@
 import React from 'react';
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+
 import { Badge } from '@/components/ui';
 import {
   ICampaignUnitState,
-  ICampaignPilotState,
   CampaignUnitStatus,
   CampaignPilotStatus,
 } from '@/types/campaign';
@@ -161,7 +162,7 @@ export function RosterUnitCard({
 // =============================================================================
 
 interface PilotCardProps {
-  pilot: ICampaignPilotState;
+  pilot: ICampaignRosterEntry;
   onClick?: () => void;
 }
 

@@ -58,10 +58,10 @@ After Phase 4 ships and the 12 features are repointed + tested, the following ha
 
 ## 6. Phase 6 — Substrate-rename commit (LANDS LAST)
 
-- [ ] 6.1 Remove the `ICampaignPilotState` `@deprecated` alias from `src/types/campaign/CampaignInterfaces.types.ts:141`. The single canonical name is `ICampaignRosterEntry`.
-- [ ] 6.2 Run `git grep -l "ICampaignPilotState"`. Replace remaining usages with `ICampaignRosterEntry`. Verify each diff (some may be in comments / docstrings — keep those if they describe historical context; replace runtime usages).
-- [ ] 6.3 Run `npx tsc --noEmit` and `npm run test`. Confirm green.
-- [ ] 6.4 This is the LAST commit in the PR. Per design.md Decision 6, abort-mid-PR keeps trunk valid.
+- [x] 6.1 Removed the `ICampaignPilotState` `@deprecated` alias from `src/types/campaign/CampaignInterfaces.types.ts`. The single canonical name is `ICampaignRosterEntry` (sourced from `./CampaignRosterEntry`). The `ICampaignRoster.pilots` and `ICampaignMissionRecord.pilotUpdates` fields now reference `ICampaignRosterEntry` directly via inline `import('./CampaignRosterEntry')` types.
+- [x] 6.2 Replaced all production-code references to `ICampaignPilotState`: `useCampaignRosterStore.ts`, `CampaignInterfaces.runtime.ts`, `RosterStateCards.tsx`, `RosterStateDisplay.tsx`, `CreateCampaignPage.tsx`, `personnel.tsx`, `rosterEmploymentDerive.test.ts`, `CampaignInterfaces.test.ts`. Two doc-string comments (in `PersonnelSidePanel.tsx` and `CrewAssignmentPanel.tsx`) referenced the old name and were updated to the new name. No commented-out historical references remain.
+- [x] 6.3 `npx tsc --noEmit --skipLibCheck` exits 0. Phase 7 runs the full `npm run test`.
+- [x] 6.4 This is the LAST functional commit in the PR per design.md Decision 6.
 
 ## 7. Phase 7 — Verification gate
 

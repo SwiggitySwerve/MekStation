@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router';
 import { useCallback, useMemo, useState } from 'react';
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout, Button } from '@/components/ui';
 import { UNIT_TEMPLATES } from '@/simulation/generator';
@@ -10,7 +12,6 @@ import {
   CampaignUnitStatus,
   CampaignPilotStatus,
   type ICampaignUnitState,
-  type ICampaignPilotState,
 } from '@/types/campaign/CampaignInterfaces';
 import { CampaignPreset, ALL_PRESETS } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
@@ -160,7 +161,7 @@ export default function CreateCampaignPage(): React.ReactElement {
         }
 
         for (const pilot of selectedPilots) {
-          const pilotState: ICampaignPilotState = {
+          const pilotState: ICampaignRosterEntry = {
             pilotId: pilot.id,
             pilotName: pilot.name,
             status: CampaignPilotStatus.Active,

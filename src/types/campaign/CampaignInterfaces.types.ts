@@ -136,26 +136,17 @@ export interface ICampaignUnitState {
 }
 
 /**
- * Pilot state snapshot for campaign tracking.
- *
- * @deprecated Use `ICampaignRosterEntry` from `./CampaignRosterEntry` instead.
- * This alias is preserved during the `migrate-personnel-to-roster-employment`
- * PR cycle so existing call sites continue to compile. Phase 6 of that change
- * removes the alias entirely.
- *
- * @see ./CampaignRosterEntry.ts
- */
-export type ICampaignPilotState =
-  import('./CampaignRosterEntry').ICampaignRosterEntry;
-
-/**
  * Campaign roster - all units and pilots in the campaign.
+ *
+ * Pilot state lives on the canonical `ICampaignRosterEntry` type
+ * (`./CampaignRosterEntry`); this interface is just the read-shape used
+ * by snapshot consumers.
  */
 export interface ICampaignRoster {
   /** Units in the campaign */
   readonly units: readonly ICampaignUnitState[];
   /** Pilots in the campaign */
-  readonly pilots: readonly ICampaignPilotState[];
+  readonly pilots: readonly import('./CampaignRosterEntry').ICampaignRosterEntry[];
 }
 
 // =============================================================================
@@ -343,7 +334,9 @@ export interface IRecordMissionOutcomeInput {
   /** Unit state updates after mission */
   readonly unitUpdates: readonly Partial<ICampaignUnitState>[];
   /** Pilot state updates after mission */
-  readonly pilotUpdates: readonly Partial<ICampaignPilotState>[];
+  readonly pilotUpdates: readonly Partial<
+    import('./CampaignRosterEntry').ICampaignRosterEntry
+  >[];
 }
 
 // =============================================================================
