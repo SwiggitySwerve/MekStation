@@ -246,7 +246,9 @@ describe('AttackEffectsLayer', () => {
   });
 
   it('queues attack effects and completes the queue entry after the effect finishes', () => {
-    renderLayer(makeAttackEvent('queued-ppc', { weaponName: 'PPC', hit: true }));
+    renderLayer(
+      makeAttackEvent('queued-ppc', { weaponName: 'PPC', hit: true }),
+    );
 
     expect(useAnimationQueue.getState().active).toEqual([
       expect.objectContaining({
@@ -324,7 +326,10 @@ describe('AttackEffectsLayer', () => {
     renderLayer(makeAttackEvent('ppc-hit', { weaponName: 'PPC', hit: true }));
 
     const beam = screen.getByTestId('attack-effect-laser-ppc-hit-hit-0');
-    expect(beam).toHaveAttribute('data-color', ATTACK_EFFECT_COLORS.energyGreen);
+    expect(beam).toHaveAttribute(
+      'data-color',
+      ATTACK_EFFECT_COLORS.energyGreen,
+    );
 
     const flash = screen.getByTestId('attack-effect-impact-flash-ppc-hit');
     expect(Number(flash.getAttribute('data-delay-ms'))).toBeLessThanOrEqual(

@@ -6,6 +6,7 @@
  */
 
 import type { IUnitToken } from '@/types/gameplay';
+
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 import {
   TerrainType,
@@ -235,8 +236,9 @@ function findBlockingWreck(
   tokens: readonly IUnitToken[],
 ): IUnitToken | null {
   return (
-    tokens.find((token) => token.isDestroyed && hexEquals(token.position, hex)) ??
-    null
+    tokens.find(
+      (token) => token.isDestroyed && hexEquals(token.position, hex),
+    ) ?? null
   );
 }
 

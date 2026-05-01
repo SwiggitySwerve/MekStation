@@ -24,8 +24,8 @@ import {
   DamageEffectDefinitions,
   PersistentEffectsLayer,
 } from '@/components/gameplay/effects/PersistentEffectsLayer';
-import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay';
 import { SmokePuff } from '@/components/gameplay/effects/SmokePuff';
+import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay';
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 import { Facing, GameEventType, GamePhase, GameSide } from '@/types/gameplay';
 

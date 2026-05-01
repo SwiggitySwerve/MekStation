@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 
+import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
 } from '@/types/gameplay/HexGridInterfaces';
-import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type {
   LOSBlockerMetadata,
   LOSClassification,

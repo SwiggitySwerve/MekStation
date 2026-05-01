@@ -1,22 +1,22 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from 'react';
 
-import type { IGameEvent, IHexCoordinate, IUnitToken } from "@/types/gameplay";
+import type { IGameEvent, IHexCoordinate, IUnitToken } from '@/types/gameplay';
 
-import { hexToPixel } from "@/components/gameplay/HexMapDisplay/renderHelpers";
-import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
-import { useAnimationQueue } from "@/stores/useAnimationQueue";
+import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
+import { usePrefersReducedMotion } from '@/hooks/useReducedMotion';
+import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import {
   GameEventType,
   type IAttackResolvedPayload,
   type IPhysicalAttackResolvedPayload,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 import {
   attackImpactDelayMs,
   resolveAttackEventEffect,
   type AttackEffectPayloadHints,
   type PhysicalAttackEffectPayload,
   type WeaponEffectDescriptor,
-} from "@/utils/effects/weaponEffectMap";
+} from '@/utils/effects/weaponEffectMap';
 
 import {
   AttackEffectDefs,
@@ -28,7 +28,7 @@ import {
   Shockwave,
   Tracer,
   type EffectPoint,
-} from "./primitives";
+} from './primitives';
 
 export interface AttackEffectsLayerProps {
   readonly events: readonly IGameEvent[];
@@ -107,7 +107,7 @@ export function AttackEffectsLayer({
   events,
   tokens,
   mapId,
-  testId = "attack-effects-layer",
+  testId = 'attack-effects-layer',
 }: AttackEffectsLayerProps): React.ReactElement {
   const reducedMotion = usePrefersReducedMotion();
   const enqueueAnimation = useAnimationQueue((state) => state.enqueue);
@@ -170,7 +170,7 @@ export function AttackEffectsLayer({
       enqueueAnimation({
         id: animationId,
         mapId,
-        kind: "effect",
+        kind: 'effect',
         eventSequence: entry.event.sequence,
       });
 
@@ -193,7 +193,7 @@ export function AttackEffectsLayer({
   return (
     <g
       pointerEvents="none"
-      style={{ pointerEvents: "none" }}
+      style={{ pointerEvents: 'none' }}
       data-testid={testId}
       data-map-id={mapId}
     >
@@ -296,7 +296,7 @@ function renderPrimaryEffects(params: {
   readonly missCount: number;
 }): readonly React.ReactElement[] {
   const elements: React.ReactElement[] = [];
-  if (params.effect.category === "physical") {
+  if (params.effect.category === 'physical') {
     elements.push(
       ...renderPhysicalEffects({
         eventId: params.eventId,
@@ -317,7 +317,7 @@ function renderPrimaryEffects(params: {
         geometry: params.geometry,
         end: params.geometry.target,
         opacity: 1,
-        outcome: "hit",
+        outcome: 'hit',
         projectileIndex: index,
       }),
     );
@@ -332,7 +332,7 @@ function renderPrimaryEffects(params: {
         geometry: params.geometry,
         end: params.geometry.overshoot,
         opacity: MISS_OPACITY,
-        outcome: "miss",
+        outcome: 'miss',
         projectileIndex,
       }),
     );
@@ -369,7 +369,7 @@ function renderPhysicalEffects(params: {
   const elements: React.ReactElement[] = [];
   const targetCenter =
     params.hitCount > 0 ? params.geometry.target : params.geometry.overshoot;
-  const outcome = params.hitCount > 0 ? "hit" : "miss";
+  const outcome = params.hitCount > 0 ? 'hit' : 'miss';
   const opacity = params.hitCount > 0 ? 1 : MISS_OPACITY;
 
   if (params.effect.originShockwave) {
@@ -421,7 +421,7 @@ function renderPrimitiveInstance(params: {
   readonly geometry: AttackGeometry;
   readonly end: EffectPoint;
   readonly opacity: number;
-  readonly outcome: "hit" | "miss";
+  readonly outcome: 'hit' | 'miss';
   readonly projectileIndex: number;
 }): React.ReactElement {
   const testId = `attack-effect-${params.effect.primitive}-${params.eventId}-${params.outcome}-${params.projectileIndex}`;
@@ -452,9 +452,9 @@ function renderPrimitiveInstance(params: {
       data-end-x={params.end.x}
       data-end-y={params.end.y}
     >
-      {params.effect.primitive === "missile" && <MissileTrail {...common} />}
-      {params.effect.primitive === "tracer" && <Tracer {...common} />}
-      {params.effect.primitive === "laser" && <LaserBeam {...common} />}
+      {params.effect.primitive === 'missile' && <MissileTrail {...common} />}
+      {params.effect.primitive === 'tracer' && <Tracer {...common} />}
+      {params.effect.primitive === 'laser' && <LaserBeam {...common} />}
     </g>
   );
 }

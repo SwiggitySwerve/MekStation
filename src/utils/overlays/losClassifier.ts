@@ -1,8 +1,8 @@
+import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
 } from '@/types/gameplay/HexGridInterfaces';
-import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type { ILOSResult } from '@/utils/gameplay/lineOfSight';
 
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
