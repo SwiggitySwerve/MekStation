@@ -194,15 +194,15 @@
   "lint-staged": {
     "*.{ts,tsx}": [
       "oxlint --fix",
-      "oxfmt --write",
+      "oxfmt --write --no-error-on-unmatched-pattern",
       "bash -c 'npx tsc --noEmit --skipLibCheck'"
     ],
     "*.{js,jsx}": [
       "oxlint --fix",
-      "oxfmt --write"
+      "oxfmt --write --no-error-on-unmatched-pattern"
     ],
     "*.{json,md,css}": [
-      "oxfmt --write"
+      "oxfmt --write --no-error-on-unmatched-pattern"
     ]
   }
 }
