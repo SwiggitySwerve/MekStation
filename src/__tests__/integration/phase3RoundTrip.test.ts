@@ -245,12 +245,10 @@ describe('Phase 3 capstone — encounter → outcome → campaign round trip', (
       pilotSkills: { gunnery: 3, piloting: 4 },
     });
 
-    // Seed BOTH the campaign-level personnel map AND the personnelStore
-    // sub-store. The store's `saveCampaign` re-syncs personnel from the
-    // sub-store after `advanceDay`, so without seeding the sub-store
-    // the pipeline's pilot updates get clobbered on save.
-    store.getState().getPersonnelStore()?.getState().addPerson(pilot);
-
+    // Seed personnel directly on the campaign object. Per
+    // `migrate-personnel-to-roster-employment`, the personnel sub-store
+    // is gone — `derivePersonnelFromRoster` merges with whatever is
+    // already on `campaign.personnel`, so this seed survives advanceDay.
     store.getState().updateCampaign({
       missions: new Map([[contract.id, contract]]),
       personnel: new Map([[pilot.id, pilot]]),

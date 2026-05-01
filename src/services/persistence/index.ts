@@ -39,15 +39,3 @@ export type {
   IMigrationResult,
   IMigrationError,
 } from './MigrationService';
-
-export {
-  CampaignInstanceService,
-  getCampaignInstanceService,
-  _resetCampaignInstanceService,
-} from './CampaignInstanceService';
-export type {
-  ICampaignInstanceService,
-  IInstanceQueryOptions,
-  IUpdateUnitInstanceInput,
-  IUpdatePilotInstanceInput,
-} from './CampaignInstanceService';

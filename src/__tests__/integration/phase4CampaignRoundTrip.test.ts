@@ -271,13 +271,10 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
         pilotSkills: { gunnery: 3, piloting: 4 },
       });
 
-      // Seed BOTH the campaign-level personnel map AND the
-      // personnelStore sub-store. The store's `saveCampaign` re-syncs
-      // personnel from the sub-store after `advanceDay`, so without
-      // seeding the sub-store the pipeline's pilot updates get
-      // clobbered on save.
-      store.getState().getPersonnelStore()?.getState().addPerson(pilot);
-
+      // Seed personnel directly on the campaign object. Per
+      // `migrate-personnel-to-roster-employment`, the personnel sub-store
+      // is gone — `derivePersonnelFromRoster` merges with whatever is
+      // already on `campaign.personnel`, so this seed survives advanceDay.
       store.getState().updateCampaign({
         missions: new Map([[contract.id, contract]]),
         personnel: new Map([[pilot.id, pilot]]),
@@ -533,8 +530,6 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
     const pilotA = makePerson({ id: 'unit-A', name: 'Pilot Alpha' });
     const pilotB = makePerson({ id: 'unit-B', name: 'Pilot Bravo' });
 
-    store.getState().getPersonnelStore()?.getState().addPerson(pilotA);
-    store.getState().getPersonnelStore()?.getState().addPerson(pilotB);
     store.getState().updateCampaign({
       missions: new Map([[contract.id, contract]]),
       personnel: new Map([

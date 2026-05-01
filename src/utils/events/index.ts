@@ -54,26 +54,6 @@ export {
   type ReducerMap,
 } from './stateDerivation';
 
-// Campaign instance events
-export {
-  emitUnitInstanceCreated,
-  emitUnitInstanceDamageApplied,
-  emitUnitInstanceStatusChanged,
-  emitUnitInstancePilotAssigned,
-  emitUnitInstancePilotUnassigned,
-  emitUnitInstanceDestroyed,
-  emitUnitInstanceRepairStarted,
-  emitUnitInstanceRepairCompleted,
-  emitPilotInstanceCreated,
-  emitPilotInstanceXPGained,
-  emitPilotInstanceSkillImproved,
-  emitPilotInstanceWounded,
-  emitPilotInstanceStatusChanged,
-  emitPilotInstanceKillRecorded,
-  emitPilotInstanceMissionCompleted,
-  emitPilotInstanceDeceased,
-} from './campaignInstanceEvents';
-
 // Campaign outcome events
 export {
   CampaignOutcomeEventTypes,

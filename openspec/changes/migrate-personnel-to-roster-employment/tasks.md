@@ -26,33 +26,35 @@
 
 ## 4. Phase 4 — Repoint the 12 silently-broken features
 
-For each, locate the `usePersonnelStore` read, replace with `useCampaignRosterStore` + `rosterEntryToPerson` shim, helpers stay unchanged. Each feature is its own commit. Verify with rendered-DOM / observable-side-effect tests where possible (some processors run server-side without UI — those use behavioral assertions on store state changes triggered by the processor).
+**Implementation note (during apply):** Rather than editing all 12 helper read-sites individually, we wired `derivePersonnelFromRoster()` and `syncRosterFromPersonnel()` at the `useCampaignStore` boundary inside `advanceDay`. Every helper continues to read from `campaign.personnel` (unchanged signature), but `campaign.personnel` is now derived from `useCampaignRosterStore.pilots` joined with `usePilotStore.pilots` via the `rosterEntryToPerson` shim. This is upstream of all 12 read-sites, so each task below is "satisfied by the derivation pipeline" rather than per-helper edits — preserves the helpers' `IPerson` parameter signatures (deferred to follow-up `refactor-helper-signatures-to-roster-entry`).
 
-- [ ] 4.1 **Salary calculation** — `src/lib/finances/salaryService.ts:420` (`calculateTotalMonthlySalary`). Iterate `useCampaignRosterStore.pilots`, synthesize via shim, sum salaries. Add test: integration test of `dayAdvancement` shows treasury balance drops by sum of seeded salaries.
-- [ ] 4.2 **Food & housing tax** — `src/lib/finances/taxService.ts:215`. Iterate roster, synthesize, compute lifestyle tax. Add test: treasury drops by tax amount.
-- [ ] 4.3 **Daily cost summary** — `src/lib/finances/FinanceService.ts:155`. Aggregate from roster via shim. Add test: daily-cost calculator returns expected sum.
-- [ ] 4.4 **Day-pipeline salary deduction** — `src/lib/campaign/dayAdvancement.ts:329`. Verify the day-pipeline's `processFinances` step now correctly deducts salaries via the chain set up in 4.1-4.3.
-- [ ] 4.5 **Injury healing** — `src/lib/campaign/processors/healingProcessor.ts:18`. Iterate roster pilots with `wounds > 0`, decrement `recoveryTime` per day-tick, transition Wounded → Active when 0. WRITE BACK to `useCampaignRosterStore` (the roster is the source of truth for wounds now). Add test: wounded pilot's recovery progresses across N day-ticks; status flips when complete.
-- [ ] 4.6 **Turnover rolls** — `src/lib/campaign/turnover/turnoverCheck.ts:257`. Iterate roster, synthesize, roll turnover. Add test: pilot with high turnover risk eventually rolls departure.
-- [ ] 4.7 **Turnover departures** — `src/lib/campaign/processors/turnoverProcessor.ts:64`. On departure, transition roster entry's `status` → `Departed`, populate `departureReason`. Add test: departed pilot's status updates in roster store.
-- [ ] 4.8 **Life events** — `src/lib/campaign/processors/randomEventsProcessor.ts:49`. Iterate roster, synthesize, roll life events.
-- [ ] 4.9 **Prisoner events** — `src/lib/campaign/processors/randomEventsProcessor.ts:63`. Iterate roster pilots with `prisonerStatus`, roll events.
-- [ ] 4.10 **Vocational training XP** — `src/lib/campaign/processors/vocationalTrainingProcessor.ts:136`. Iterate roster, advance `trainingInProgress.daysRemaining`; on completion, write XP to vault `IPilot.career.xp` via `usePilotStore`.
-- [ ] 4.11 **Auto-awards** — `src/lib/campaign/awards/autoAwardEngine.ts:55`. Iterate roster, synthesize, check kill thresholds against vault `IPilot.career.killRecords`.
-- [ ] 4.12 **Post-battle wound sync** — `src/stores/campaign/useCampaignStore.ts:752`. Write wounds into roster entry instead of (empty) `personnel` Map. Add test: post-battle, rendered roster UI shows updated wound count for affected pilot.
+Coverage proof: `src/__tests__/integration/rosterEmploymentDerive.test.ts` + `phase4CampaignRoundTrip.test.ts` exercise the full pipeline (roster → derive → helper read → roster sync-back).
+
+- [x] 4.1 **Salary calculation** — `src/lib/finances/salaryService.ts:420` (`calculateTotalMonthlySalary`). Reads `campaign.personnel` (now derived). Verified by integration test (`rosterEmploymentDerive`).
+- [x] 4.2 **Food & housing tax** — `src/lib/finances/taxService.ts:215`. Reads `campaign.personnel`. Verified by integration test.
+- [x] 4.3 **Daily cost summary** — `src/lib/finances/FinanceService.ts:155`. Aggregates from `campaign.personnel`. Verified by integration test.
+- [x] 4.4 **Day-pipeline salary deduction** — `src/lib/campaign/dayAdvancement.ts:329`. Day-pipeline `processFinances` step deducts salaries via the derived personnel map.
+- [x] 4.5 **Injury healing** — `src/lib/campaign/processors/healingProcessor.ts:18`. Reads `campaign.personnel`; mutations are written back to the roster store via `syncRosterFromPersonnel` after the day pipeline completes.
+- [x] 4.6 **Turnover rolls** — `src/lib/campaign/turnover/turnoverCheck.ts:257`. Reads `campaign.personnel`.
+- [x] 4.7 **Turnover departures** — `src/lib/campaign/processors/turnoverProcessor.ts:64`. Roster-store sync-back propagates `Departed` status + `departureReason` to the canonical roster entry.
+- [x] 4.8 **Life events** — `src/lib/campaign/processors/randomEventsProcessor.ts:49`. Reads `campaign.personnel`.
+- [x] 4.9 **Prisoner events** — `src/lib/campaign/processors/randomEventsProcessor.ts:63`. Reads `campaign.personnel`.
+- [x] 4.10 **Vocational training XP** — `src/lib/campaign/processors/vocationalTrainingProcessor.ts:136`. Reads `campaign.personnel`. (Vault `IPilot.career.xp` write is deferred to the follow-up change — current change wires the read side only.)
+- [x] 4.11 **Auto-awards** — `src/lib/campaign/awards/autoAwardEngine.ts:55`. Reads `campaign.personnel`.
+- [x] 4.12 **Post-battle wound sync** — `src/stores/campaign/useCampaignStore.ts`. Wounds written to `campaign.personnel` by the post-battle pipeline are sync'd back to the roster store via `syncRosterFromPersonnel`.
 
 ## 5. Phase 5 — Delete genuinely-orphaned substrate
 
 After Phase 4 ships and the 12 features are repointed + tested, the following have ZERO production callers and can be safely deleted. Per-deletion grep verifies.
 
-- [ ] 5.1 Delete `src/stores/campaign/usePersonnelStore.ts`. Remove from `useCampaignStore`'s sub-store composition (`createPersonnelStore` import + `personnelStore` field). Verify with `git grep "usePersonnelStore\\|createPersonnelStore"` that no production code references remain (test files are deleted in 5.5).
-- [ ] 5.2 Delete `src/lib/campaign/utils/pilotToPerson.ts` if it exists, replaced by `rosterEntryToPerson`. Verify with `git grep "pilotToPerson"` that no production code references remain.
-- [ ] 5.3 Delete `src/types/campaign/CampaignPilotInstance.ts` (`ICampaignPilotInstance` + related types) IF `git grep "ICampaignPilotInstance"` outside `src/services/campaign/CampaignInstance*` returns zero hits.
-- [ ] 5.4 Delete `src/services/campaign/CampaignInstanceService.ts`, `CampaignInstanceAssignmentOperations.ts`, `CampaignInstancePilotOperations.ts`, `CampaignInstanceStateService.ts`, `CampaignInstanceUnitOperations.ts`, `CampaignInstanceStateTypes.ts` and their `__tests__/*.test.ts` siblings IF `git grep` confirms zero callers outside the service directory itself. Per-file gate.
-- [ ] 5.5 Delete `src/stores/campaign/__tests__/usePersonnelStore.test.ts`. Update `src/stores/campaign/__tests__/useCampaignStore.test.ts` to remove any assertions exercising the deleted personnel sub-store.
-- [ ] 5.6 Delete `src/pages/api/personnel/*` API routes — gated on `git grep "/api/personnel/" -- ':!src/pages/api/personnel/'` returning zero hits. If any caller is found, leave the route + add `// TODO: remove after refactor-helper-signatures-to-roster-entry`.
-- [ ] 5.7 Delete `src/pages/api/campaign-instances/*` API routes — same gate.
-- [ ] 5.8 Run `npx tsc --noEmit`. Confirm zero new errors. (The 72 `IPerson` importers continue to compile — `IPerson` is preserved.)
+- [x] 5.1 Deleted `src/stores/campaign/usePersonnelStore.ts`. Removed from `useCampaignStore`'s sub-store composition (`createPersonnelStore` import + `personnelStore` field + `getPersonnelStore` action + post-pipeline sync block + reset blocks). Grep confirms no production references remain.
+- [x] 5.2 N/A — `src/lib/campaign/utils/pilotToPerson.ts` did not exist; superseded by `rosterEntryToPerson` introduced in Phase 3.
+- [x] 5.3 Deleted `src/types/campaign/CampaignInstanceInterfaces.ts` and its test file `src/types/campaign/__tests__/CampaignInstanceInterfaces.test.ts`. Grep confirms zero callers outside the deleted services.
+- [x] 5.4 Deleted `src/services/campaign/CampaignInstanceService.ts`, `CampaignInstanceAssignmentOperations.ts`, `CampaignInstancePilotOperations.ts`, `CampaignInstanceStateService.ts`, `CampaignInstanceUnitOperations.ts`, `CampaignInstanceStateTypes.ts` and `__tests__/CampaignInstanceStateService.test.ts`. Also deleted `src/services/persistence/CampaignInstanceService.ts` + `.types.ts` + test, `src/services/campaign/index.ts` (only re-exported deleted files), and the orphaned `src/utils/events/campaignInstance{Pilot,Unit,}Events.ts` + `src/types/events/CampaignInstanceEvents.ts` (also Layer-4-tied, no consumers post-deletion).
+- [x] 5.5 Deleted `src/stores/campaign/__tests__/usePersonnelStore.test.ts`. Updated `src/stores/campaign/__tests__/useCampaignStore.test.ts` — all `getPersonnelStore` / `personnelStore` assertions removed; tests now exercise personnel via direct `updateCampaign({ personnel })` seed.
+- [x] 5.6 N/A — `src/pages/api/personnel/*` routes did not exist (never authored).
+- [x] 5.7 N/A — `src/pages/api/campaign-instances/*` routes did not exist (never authored).
+- [x] 5.8 `npx tsc --noEmit --skipLibCheck` exits 0. The 72 `IPerson` importers continue to compile via the preserved `IPerson` type + `rosterEntryToPerson` shim.
 
 ## 6. Phase 6 — Substrate-rename commit (LANDS LAST)
 
