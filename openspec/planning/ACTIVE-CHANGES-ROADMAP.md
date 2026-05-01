@@ -1,7 +1,7 @@
 # Active OpenSpec Roadmap
 
 **Status date:** 2026-05-01
-**Scope:** The 5 currently active OpenSpec changes under `openspec/changes/`.
+**Scope:** The 4 currently active OpenSpec changes under `openspec/changes/`.
 **Validation baseline:** `npx openspec validate --all --strict` passes with
 184 items, 0 failures.
 
@@ -12,9 +12,18 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-The active queue currently has five in-progress changes. Three
-phase 7 tactical visual changes archived 2026-05-01 in two
-implementation slices + one archive slice:
+The active queue currently has four in-progress changes.
+`add-los-and-firing-arc-overlays` (56/56) archived 2026-05-01 as
+`archive/2026-05-01-add-los-and-firing-arc-overlays`. New
+requirements: 1 ADDED to `firing-arc-calculation` (Per-Hex Arc
+Classification For UI), 4 ADDED to a brand-new
+`line-of-sight-visualization` spec, and 2 ADDED to
+`tactical-map-interface` (Firing Arc Shading Overlay, Line-Of-Sight
+Overlay Coexists With Arc Shading). One delta header collision
+fixed inline (`Per-Hex Arc Classification For UI` MODIFIED → ADDED).
+
+Three earlier phase 7 tactical visual changes archived 2026-05-01
+in two implementation slices + one archive slice:
 - `add-movement-interpolation-animations` (45/45) archived as
   `archive/2026-05-01-add-movement-interpolation-animations`. New
   requirements: 1 ADDED to `movement-system` (Movement Animation
@@ -48,7 +57,6 @@ the only delta scenario that was genuinely additive).
 | `add-multi-type-record-sheet-export` | 46/54 | Phase 6 export |
 | `add-p2p-game-session-sync` | 12/33 | Phase 4 multiplayer |
 | `add-game-session-invite-and-lobby-1v1` | 29/39 | Phase 4 multiplayer |
-| `add-los-and-firing-arc-overlays` | 43/56 | Phase 7 tactical visuals |
 
 ## Lane Model
 

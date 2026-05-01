@@ -1,6 +1,6 @@
 # firing-arc-calculation Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Per-Hex Arc Classification For UI
 
