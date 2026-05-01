@@ -10,6 +10,8 @@
 
 import { IProtoMechRecordSheetData } from '@/types/printing';
 
+import { buildSPASectionString } from './spaSection';
+
 const SVG_W = 612;
 const SVG_H = 792;
 const MARGIN = 18;
@@ -182,6 +184,16 @@ export function renderProtoMechSVG(data: IProtoMechRecordSheetData): string {
   <rect x="${MARGIN}" y="${pilotY}" width="200" height="28" fill="#f5f5f5" stroke="#000" stroke-width="0.5" rx="2"/>
   <text x="${MARGIN + 4}" y="${pilotY + 10}" font-family="${FONT}" font-size="7" font-weight="bold" fill="#000">POINT PILOT: ${esc(data.pilot.name)}</text>
   <text x="${MARGIN + 4}" y="${pilotY + 22}" font-family="${FONT}" font-size="7" fill="#000">Gunnery: ${esc(data.pilot.gunnery)}   Piloting: ${esc(data.pilot.piloting)}</text>`;
+  }
+
+  // ── Special Abilities block ─────────────────────────────────────────────
+  // Phase 5 Wave 3 — placed in the right margin alongside the lower pilot
+  // block so it stays out of the per-proto armor columns.
+  if (data.specialAbilities && data.specialAbilities.length > 0) {
+    body += buildSPASectionString(
+      { entries: data.specialAbilities, hasContent: true },
+      { x: MARGIN + 220, y: SVG_H - 50, width: SVG_W - MARGIN - 230 },
+    );
   }
 
   body += `

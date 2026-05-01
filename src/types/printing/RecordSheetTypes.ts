@@ -470,6 +470,7 @@ export interface IProtoMechRecordSheetData {
   readonly jumpMP: number;
   readonly equipment: readonly IRecordSheetEquipment[];
   readonly pilot?: IRecordSheetPilot;
+  readonly specialAbilities?: readonly IRecordSheetSPAEntry[];
 }
 
 /**
@@ -796,6 +797,7 @@ export const ProtoMechRecordSheetDataSchema = z.object({
   jumpMP: z.number(),
   equipment: z.array(RecordSheetEquipmentSchema),
   pilot: RecordSheetPilotSchema.optional(),
+  specialAbilities: z.array(RecordSheetSPAEntrySchema).optional(),
 });
 
 export const RecordSheetDataSchema = z.discriminatedUnion('unitType', [

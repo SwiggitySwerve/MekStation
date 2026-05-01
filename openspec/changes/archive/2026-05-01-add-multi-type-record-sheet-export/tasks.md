@@ -25,7 +25,7 @@
 - [x] 3.4 Render crew block: driver, gunner, commander (as applicable)
 - [x] 3.5 Render turret weapons separately from hull weapons
 - [x] 3.6 Render BAR rating for support vehicles
-- [ ] 3.7 Snapshot test with a representative 50t tracked tank fixture
+- [x] 3.7 Snapshot test with a representative 50t tracked tank fixture
 
 ## 4. Aerospace Record Sheet
 
@@ -36,7 +36,7 @@
 - [x] 4.5 Render fuel track
 - [x] 4.6 Render bomb bay slots if present
 - [x] 4.7 Render pilot block (gunnery + piloting, edge)
-- [ ] 4.8 Snapshot test with a Shilone and a Stuka fixture
+- [x] 4.8 Snapshot test with a Shilone and a Stuka fixture
 
 ## 5. BattleArmor Record Sheet
 
@@ -47,7 +47,7 @@
 - [x] 5.5 Render manipulator type per arm
 - [x] 5.6 Render jump/UMU/VTOL jets
 - [x] 5.7 Render per-suit pilot block (gunnery + anti-mech skill)
-- [ ] 5.8 Snapshot test with an Elemental and a Kage fixture
+- [x] 5.8 Snapshot test with an Elemental and a Kage fixture
 
 ## 6. Infantry Record Sheet
 
@@ -58,7 +58,7 @@
 - [x] 6.5 Render field gun block (if present — 1 gun per 7 men rule)
 - [x] 6.6 Render motive type (Foot / Motorized / Jump / Mechanized / Beast)
 - [x] 6.7 Render specialization badge (anti-mech / marine / scuba / mountain / xct)
-- [ ] 6.8 Snapshot test with a foot rifle platoon and a marine jump platoon fixture
+- [x] 6.8 Snapshot test with a foot rifle platoon and a marine jump platoon fixture
 
 ## 7. ProtoMech Record Sheet
 
@@ -68,12 +68,12 @@
 - [x] 7.4 Render point composition (up to 5 protos in one sheet)
 - [x] 7.5 Render UMU/glider flags
 - [x] 7.6 Render point pilot block
-- [ ] 7.7 Snapshot test with a Roc and a Minotaur point fixture
+- [x] 7.7 Snapshot test with a Roc and a Minotaur point fixture
 
 ## 8. Integration
 
 - [x] 8.1 Existing `/print/[id]` page routes all unit types through the extended `RecordSheetService`
-- [ ] 8.2 Existing `recordsheet/spaSection.ts` (Phase 5) is called from every per-type renderer at the appropriate pilot-area coordinate
+- [x] 8.2 Existing `recordsheet/spaSection.ts` (Phase 5) is called from every per-type renderer at the appropriate pilot-area coordinate
 - [x] 8.3 `renderer.ts` top-level dispatch picks the per-type renderer by `data.unitType`
 
 ## 9. Spec Compliance

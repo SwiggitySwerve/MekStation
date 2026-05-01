@@ -1,9 +1,9 @@
 # Active OpenSpec Roadmap
 
 **Status date:** 2026-05-01
-**Scope:** The 4 currently active OpenSpec changes under `openspec/changes/`.
+**Scope:** The 3 currently active OpenSpec changes under `openspec/changes/`.
 **Validation baseline:** `npx openspec validate --all --strict` passes with
-184 items, 0 failures.
+183 items, 0 failures.
 
 This document is an implementation-order reference for the active queue. It is
 not a replacement for each change's `proposal.md`, `design.md`, `tasks.md`, or
@@ -53,8 +53,7 @@ the only delta scenario that was genuinely additive).
 
 | Change | Tasks | Lane |
 | --- | ---: | --- |
-| `wire-encounter-to-campaign-round-trip` | 15/42 | Campaign closure |
-| `add-multi-type-record-sheet-export` | 46/54 | Phase 6 export |
+| `wire-encounter-to-campaign-round-trip` | 24/42 | Campaign closure |
 | `add-p2p-game-session-sync` | 12/33 | Phase 4 multiplayer |
 | `add-game-session-invite-and-lobby-1v1` | 29/39 | Phase 4 multiplayer |
 

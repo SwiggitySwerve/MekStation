@@ -118,3 +118,89 @@ export function renderSPASection(
   root.appendChild(group);
   return printable.length + (overflow > 0 ? 2 : 1);
 }
+
+// =============================================================================
+// String-builder variant
+// =============================================================================
+
+/** Layout constants for the string-builder variant — non-mech renderers
+ *  build SVG as flat strings rather than via `Document` nodes. We anchor
+ *  the block to a configurable origin so each per-type renderer can drop
+ *  it into whatever empty real-estate the sheet has left. Defaults match
+ *  the MegaMek pilot-panel coordinates in `renderSPASection`. */
+const STRING_VARIANT_FONT_FAMILY =
+  'Eurostile, "Century Gothic", "Trebuchet MS", Arial, sans-serif';
+
+/**
+ * Escape minimal XML special characters for embedding inside an SVG
+ * `<text>` node. Matches the per-renderer `esc()` helpers; defined here
+ * so this module stays self-contained.
+ */
+function escapeForSvgText(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+export interface IBuildSPASectionStringOptions {
+  /** Top-left X coordinate of the block. Defaults to {@link BLOCK_X}. */
+  readonly x?: number;
+  /** Top-left Y coordinate of the block. Defaults to {@link BLOCK_Y}. */
+  readonly y?: number;
+  /** Block width — drives single-line truncation. Defaults to {@link BLOCK_WIDTH}. */
+  readonly width?: number;
+}
+
+/**
+ * Render the Special Abilities block as an SVG fragment string. Returns
+ * an empty string when the block has no entries — callers can splat the
+ * result into their `body` template without conditional wrapping.
+ *
+ * Mirrors {@link renderSPASection}'s layout (header + capped entries +
+ * "+N more" overflow) so per-type renderers stay visually consistent
+ * with the mech sheet's pilot panel.
+ */
+export function buildSPASectionString(
+  block: ISPASectionData,
+  options: IBuildSPASectionStringOptions = {},
+): string {
+  if (!block.hasContent) return '';
+
+  const x = options.x ?? BLOCK_X;
+  const y = options.y ?? BLOCK_Y;
+  const width = options.width ?? BLOCK_WIDTH;
+
+  const printable = block.entries.slice(0, MAX_PRINTABLE_SPA_ENTRIES);
+  const overflow = block.entries.length - printable.length;
+  const maxChars = Math.floor(width / APPROX_CHAR_WIDTH);
+
+  const parts: string[] = [];
+  parts.push(
+    `<g id="specialAbilitiesBlock" font-family='${STRING_VARIANT_FONT_FAMILY}'>`,
+  );
+  parts.push(
+    `<text x="${x}" y="${y}" font-size="${HEADER_FONT_SIZE}" font-weight="bold">SPECIAL ABILITIES</text>`,
+  );
+
+  printable.forEach((entry, i) => {
+    const composed = `${entry.headline} — ${entry.truncatedDescription}`;
+    const text =
+      composed.length > maxChars
+        ? composed.slice(0, maxChars - 1).trimEnd() + '…'
+        : composed;
+    parts.push(
+      `<text x="${x}" y="${y + LINE_HEIGHT * (i + 1)}" font-size="${ENTRY_FONT_SIZE}">${escapeForSvgText(text)}</text>`,
+    );
+  });
+
+  if (overflow > 0) {
+    parts.push(
+      `<text x="${x}" y="${y + LINE_HEIGHT * (printable.length + 1)}" font-size="${ENTRY_FONT_SIZE}" font-style="italic">+${overflow} more</text>`,
+    );
+  }
+
+  parts.push('</g>');
+  return parts.join('\n');
+}

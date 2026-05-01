@@ -10,6 +10,8 @@
 
 import { IBattleArmorRecordSheetData } from '@/types/printing';
 
+import { buildSPASectionString } from './spaSection';
+
 const SVG_W = 612;
 const SVG_H = 792;
 const MARGIN = 18;
@@ -135,12 +137,19 @@ export function renderBattleArmorSVG(
   const trooperColH = 18 + Math.ceil(maxPips / COLS_PER_ROW) * 11 + 20;
   const afterTroopers = trooperStartY + 14 + trooperColH + 10;
 
+  // ── Special Abilities block ─────────────────────────────────────────────
+  // Phase 5 Wave 3 — anchored just below the trooper armor columns so it
+  // flows with the squad readout instead of being orphaned at the footer.
+  if (data.specialAbilities && data.specialAbilities.length > 0) {
+    body += buildSPASectionString(
+      { entries: data.specialAbilities, hasContent: true },
+      { x: MARGIN, y: afterTroopers, width: SVG_W - MARGIN * 2 },
+    );
+  }
+
   // ── Footer ───────────────────────────────────────────────────────────────
   body += `
   <text x="${SVG_W / 2}" y="${SVG_H - 6}" font-family="${FONT}" font-size="5.5" fill="#888" text-anchor="middle">MekStation · BattleArmor Record Sheet</text>`;
-
-  // ── Suppress unused variable lint ────────────────────────────────────────
-  void afterTroopers;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_W}" height="${SVG_H}" viewBox="0 0 ${SVG_W} ${SVG_H}">
   <rect width="${SVG_W}" height="${SVG_H}" fill="#fff"/>
