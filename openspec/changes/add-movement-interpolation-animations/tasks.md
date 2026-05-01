@@ -82,7 +82,7 @@
 
 - [x] 9.1 Tween uses `requestAnimationFrame`, not `setInterval`
 - [x] 9.2 Tween cancellations on unmount are leak-free
-- [ ] 9.3 Profile: 4 simultaneous tweens should stay above 55 FPS on a
+- [x] 9.3 Profile: 4 simultaneous tweens should stay above 55 FPS on a
       30x30 map
 
 ## 10. Tests
