@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 
+import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
+
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
+  Facing,
   IHexGrid,
   IHex,
   IHexCoordinate,
@@ -35,6 +39,24 @@ function createGrid(hexes: IHex[]): IHexGrid {
   return {
     config: { radius: 10 },
     hexes: hexMap,
+  };
+}
+
+function createToken(
+  unitId: string,
+  position: IHexCoordinate,
+  isDestroyed: boolean,
+): IUnitToken {
+  return {
+    unitId,
+    name: unitId,
+    side: GameSide.Opponent,
+    position,
+    facing: Facing.North,
+    isSelected: false,
+    isValidTarget: false,
+    isDestroyed,
+    designation: unitId.toUpperCase(),
   };
 }
 
@@ -219,6 +241,59 @@ describe('lineOfSight', () => {
 
       expect(result.hasLOS).toBe(false);
       expect(result.blockingTerrain).toBe(TerrainType.Building);
+    });
+
+    it('should block LOS when a destroyed unit occupies an intervening hex', () => {
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 3, r: 0 };
+      const wreck = createToken('wreck-a', { q: 1, r: 0 }, true);
+
+      const result = calculateLOS(from, to, clearGrid, undefined, undefined, [
+        wreck,
+      ]);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 1, r: 0 });
+      expect(result.blockingUnit).toBe(wreck);
+      expect(result.blockingTerrain).toBeUndefined();
+    });
+
+    it('should report the first intervening wreck when multiple wrecks block LOS', () => {
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 4, r: 0 };
+      const firstWreck = createToken('wreck-a', { q: 1, r: 0 }, true);
+      const secondWreck = createToken('wreck-b', { q: 2, r: 0 }, true);
+
+      const result = calculateLOS(from, to, clearGrid, undefined, undefined, [
+        secondWreck,
+        firstWreck,
+      ]);
+
+      expect(result.hasLOS).toBe(false);
+      expect(result.blockedBy).toEqual({ q: 1, r: 0 });
+      expect(result.blockingUnit).toBe(firstWreck);
+    });
+
+    it('should not block LOS when a destroyed unit is on an endpoint', () => {
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 3, r: 0 };
+      const endpointWreck = createToken('wreck-target', to, true);
+
+      const result = calculateLOS(from, to, clearGrid, undefined, undefined, [
+        endpointWreck,
+      ]);
+
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockingUnit).toBeUndefined();
+    });
+
+    it('should preserve terrain-only behavior when no tokens are passed', () => {
+      const from: IHexCoordinate = { q: 0, r: 0 };
+      const to: IHexCoordinate = { q: 3, r: 0 };
+      const result = calculateLOS(from, to, clearGrid);
+
+      expect(result.hasLOS).toBe(true);
+      expect(result.blockingUnit).toBeUndefined();
     });
   });
 

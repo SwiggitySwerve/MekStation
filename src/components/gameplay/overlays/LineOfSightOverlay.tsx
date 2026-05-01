@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 
+import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
@@ -21,6 +22,7 @@ export interface LineOfSightOverlayProps {
   readonly enabled?: boolean;
   readonly fromElevation?: number;
   readonly toElevation?: number;
+  readonly tokens?: readonly IUnitToken[];
   readonly testId?: string;
 }
 
@@ -54,6 +56,7 @@ export function areLineOfSightOverlayPropsEqual(
     previous.enabled === next.enabled &&
     previous.fromElevation === next.fromElevation &&
     previous.toElevation === next.toElevation &&
+    previous.tokens === next.tokens &&
     previous.testId === next.testId
   );
 }
@@ -162,12 +165,17 @@ function LineOfSightOverlayComponent({
   enabled = true,
   fromElevation,
   toElevation,
+  tokens,
   testId = 'line-of-sight-overlay',
 }: LineOfSightOverlayProps): React.ReactElement {
   const classification = useMemo(() => {
     if (!enabled || !origin || !target || !grid) return null;
-    return classifyLOS(origin, target, grid, { fromElevation, toElevation });
-  }, [enabled, fromElevation, grid, origin, target, toElevation]);
+    return classifyLOS(origin, target, grid, {
+      fromElevation,
+      toElevation,
+      tokens,
+    });
+  }, [enabled, fromElevation, grid, origin, target, toElevation, tokens]);
 
   if (!classification || !origin || !target) {
     return (

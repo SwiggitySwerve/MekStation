@@ -146,3 +146,22 @@ scrub.
 - **THEN** engine fire SHALL render on that unit immediately
 - **AND** the effect SHALL not require replaying every intermediate
   event
+
+### Requirement: Persistent Effect Layer Ordering
+
+The tactical map interface SHALL render persistent damage effects after
+the token layer and before transient attack effects. Selection and target
+rings remain token-local in the current per-type token renderers, so the
+implementation exposes `data-layer-position="above-token-layer-below-attack-effects"`
+on the persistent effects layer to document the actual paint order.
+
+#### Scenario: Persistent effects render above tokens and below attack effects
+
+- **GIVEN** a unit has persistent smoke or fire and an attack animation
+  is playing
+- **WHEN** the tactical map renders
+- **THEN** token sprites, armor pips, selection rings, and target rings
+  SHALL render in the token layer
+- **AND** persistent smoke/fire/wreck effects SHALL render after that
+  token layer
+- **AND** attack effects SHALL render after persistent effects

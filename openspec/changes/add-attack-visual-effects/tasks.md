@@ -64,12 +64,12 @@
 
 ## 7. Event Timing
 
-- [ ] 7.1 Effects queue alongside damage animations in
+- [x] 7.1 Effects queue alongside damage animations in
       `useAnimationQueue`
 - [x] 7.2 Beam/tracer/trail plays 300-600ms, then impact flash fires
-- [ ] 7.3 Damage-pip decay fires on impact flash (coordinate with
+- [x] 7.3 Damage-pip decay fires on impact flash (coordinate with
       `add-damage-feedback-effects`)
-- [ ] 7.4 Phase advancement waits for all queued effects to drain
+- [x] 7.4 Phase advancement waits for all queued effects to drain
 
 ## 8. Reduced Motion Fallback
 
@@ -93,9 +93,9 @@
       each weapon type
 - [x] 10.2 Unit test: hit renders full-opacity primitive + flash
 - [x] 10.3 Unit test: miss renders faded primitive with no flash
-- [ ] 10.4 Integration test: resolving a PPC hit produces a green beam
+- [x] 10.4 Integration test: resolving a PPC hit produces a green beam
       and impact flash within 600ms
-- [ ] 10.5 Integration test: LRM-20 hit produces 20 staggered trails
+- [x] 10.5 Integration test: LRM-20 hit produces 20 staggered trails
 
 ## 11. Spec Compliance
 

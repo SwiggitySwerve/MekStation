@@ -54,7 +54,10 @@ export function PersistentEffectsLayer({
   return (
     <g
       data-testid="persistent-effects-layer"
-      data-layer-position="between-sprite-ring-and-selection-ring"
+      // add-damage-feedback-effects task 7.3 chose the delta-spec path:
+      // selected/target rings remain token-local, so this layer documents
+      // the actual map order instead of pretending it is split inside tokens.
+      data-layer-position="above-token-layer-below-attack-effects"
       pointerEvents="none"
     >
       <DamageEffectDefinitions prefersReducedMotion={reducedMotion} />

@@ -116,6 +116,27 @@ describe('useGameplayStore animation gate', () => {
     expect(calls.advancePhase).toBe(1);
   });
 
+  it('defers phase advancement until queued attack effects drain', () => {
+    const { calls, interactiveSession, session } = buildInteractiveSession();
+    useGameplayStore.setState({ interactiveSession, session });
+    useAnimationQueue.getState().enqueue({
+      id: 'effect-ppc',
+      mapId: 'map-1',
+      kind: 'effect',
+    });
+
+    expect(useAnimationQueue.getState().isActive).toBe(true);
+
+    useGameplayStore.getState().advanceInteractivePhase();
+
+    expect(calls.advancePhase).toBe(0);
+
+    useAnimationQueue.getState().complete('effect-ppc');
+
+    expect(useAnimationQueue.getState().isActive).toBe(false);
+    expect(calls.advancePhase).toBe(1);
+  });
+
   it('waits for sequential queued movement animations to fully drain', () => {
     const { calls, interactiveSession, session } = buildInteractiveSession();
     useGameplayStore.setState({ interactiveSession, session });

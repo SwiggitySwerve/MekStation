@@ -25,6 +25,7 @@ import {
   PersistentEffectsLayer,
 } from '@/components/gameplay/effects/PersistentEffectsLayer';
 import { SmokePuff } from '@/components/gameplay/effects/SmokePuff';
+import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay';
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 import { Facing, GameEventType, GamePhase, GameSide } from '@/types/gameplay';
 
@@ -495,5 +496,73 @@ describe('PersistentEffectsLayer', () => {
         'damage-effect-definitions',
       ),
     ).toBeInTheDocument();
+  });
+});
+
+describe('damage feedback battlefield integration', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.spyOn(Math, 'random').mockReturnValue(1);
+  });
+
+  afterEach(() => {
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+    jest.restoreAllMocks();
+    jest.useRealTimers();
+  });
+
+  it('triggers shake and CT flash for a non-lethal 25 damage center-torso hit', () => {
+    const damageEvent = buildEvent(
+      'ct-hit-25',
+      GameEventType.DamageApplied,
+      damagePayload({
+        location: 'CT',
+        damage: 25,
+        armorRemaining: 75,
+        structureRemaining: 16,
+        locationDestroyed: false,
+      }),
+    );
+    const mapToken = token({
+      armorPipState: {
+        archetype: 'humanoid',
+        locations: uniformBipedLocations('full'),
+      },
+    });
+    const events = [damageEvent] as const;
+
+    render(
+      <HexMapDisplay
+        radius={2}
+        tokens={[mapToken]}
+        events={events}
+        selectedHex={null}
+      />,
+    );
+
+    act(() => {
+      jest.advanceTimersByTime(0);
+    });
+
+    expect(screen.getByTestId('hex-map-container')).toHaveAttribute(
+      'data-screen-shake-transform',
+      'translate3d(8px, 8px, 0)',
+    );
+    expect(screen.getByTestId('hex-map-container')).toHaveAttribute(
+      'data-screen-shake-active',
+      'true',
+    );
+    expect(
+      screen.getByTestId('hit-location-flash-u1-centerTorso'),
+    ).toBeInTheDocument();
+    expect(
+      events.some(
+        (event) =>
+          event.type === GameEventType.UnitDestroyed ||
+          event.type === GameEventType.LocationDestroyed,
+      ),
+    ).toBe(false);
   });
 });

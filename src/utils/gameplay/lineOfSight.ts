@@ -5,6 +5,8 @@
  * @spec openspec/specs/terrain-system/spec.md
  */
 
+import type { IUnitToken } from '@/types/gameplay';
+
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 import {
   TerrainType,
@@ -28,6 +30,8 @@ export interface ILOSResult {
   readonly blockedBy?: IHexCoordinate;
   /** Terrain type that blocks (if blocked) */
   readonly blockingTerrain?: TerrainType;
+  /** Destroyed unit token that blocks LOS as a wreck (if blocked) */
+  readonly blockingUnit?: IUnitToken;
   /** All intervening hexes (excluding endpoints) */
   readonly interveningHexes: readonly IHexCoordinate[];
 }
@@ -136,6 +140,7 @@ export function calculateLOS(
   grid: IHexGrid,
   fromElevation?: number,
   toElevation?: number,
+  tokens: readonly IUnitToken[] = [],
 ): ILOSResult {
   // Get all hexes on the line (includes endpoints)
   const lineHexes = hexLine(from, to);
@@ -168,6 +173,16 @@ export function calculateLOS(
   // Check each intervening hex for blocking terrain
   for (let i = 0; i < interveningHexes.length; i++) {
     const hex = interveningHexes[i];
+    const blockingUnit = findBlockingWreck(hex, tokens);
+    if (blockingUnit) {
+      return {
+        hasLOS: false,
+        blockedBy: hex,
+        blockingUnit,
+        interveningHexes,
+      };
+    }
+
     const hexData = grid.hexes.get(coordToKey(hex));
 
     if (!hexData) {
@@ -214,6 +229,17 @@ export function calculateLOS(
     hasLOS: true,
     interveningHexes,
   };
+}
+
+function findBlockingWreck(
+  hex: IHexCoordinate,
+  tokens: readonly IUnitToken[],
+): IUnitToken | null {
+  return (
+    tokens.find(
+      (token) => token.isDestroyed && hexEquals(token.position, hex),
+    ) ?? null
+  );
 }
 
 /**
