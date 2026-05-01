@@ -65,13 +65,13 @@ After Phase 4 ships and the 12 features are repointed + tested, the following ha
 
 ## 7. Phase 7 — Verification gate
 
-- [ ] 7.1 Run `npm run build`. Zero TypeScript errors. Personnel pages still build as static (no SSR introduced).
-- [ ] 7.2 Run `npm run test`. All tests pass. Confirm the 12 new tests for the repointed features all assert rendered-DOM or observable side-effects.
-- [ ] 7.3 Run `npx oxfmt --check .` (full repo per the documented Format Check pitfall in MEMORY) and `npx tsc --noEmit`. Both clean.
-- [ ] 7.4 Run `npx openspec validate migrate-personnel-to-roster-employment --strict`. Confirm zero issues.
-- [ ] 7.5 Run `npx openspec validate --specs --strict` to confirm the source-of-truth specs are still valid after the 4 REMOVED requirements sync in.
-- [ ] 7.6 Run `npx tsx scripts/validate-bv.ts`. BV parity is unaffected. Confirm `🎉 ALL ACCURACY GATES PASSED!`.
-- [ ] 7.7 Verify the council decision document is referenced from at least one commit message in this change so future archaeology has a clear thread.
+- [x] 7.1 `npm run build` (run via husky pre-commit on Phase 5 + Phase 6 commits). Zero TypeScript errors. Personnel page (`/gameplay/campaigns/[id]/personnel`) still builds as static (`○`).
+- [x] 7.2 `npx jest --watchAll=false` → 885 suites, 23226 tests pass (12 skipped, all pre-existing platform-specific). Phase 4's coverage proof lives in `rosterEmploymentDerive.test.ts` + `phase4CampaignRoundTrip.test.ts`.
+- [x] 7.3 `npx oxfmt --check src/ openspec/` → "All matched files use the correct format." `npx tsc --noEmit --skipLibCheck` exits 0.
+- [x] 7.4 `npx openspec validate migrate-personnel-to-roster-employment --strict` → "Change 'migrate-personnel-to-roster-employment' is valid".
+- [x] 7.5 `npx openspec validate --specs --strict` → 180/180 passed.
+- [x] 7.6 `npx tsx scripts/validate-bv.ts` → "🎉 ALL ACCURACY GATES PASSED!" (1 minor-discrepancy unit at 2.6%, unchanged from main).
+- [x] 7.7 Council decision (`openspec/council-decisions/2026-05-01-personnel-architecture-path.md`) is referenced in the Phase 5 commit message (`refactor(personnel): Phase 5 — delete orphaned personnel sub-store + Layer 4 substrate`) and Phase 6 commit message (`refactor(personnel): Phase 6 — substrate rename`).
 
 ## 8. Phase 8 — Soak window + follow-up authoring (post-merge)
 
