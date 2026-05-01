@@ -1471,6 +1471,287 @@ All heat and shutdown indicators SHALL collapse to static forms under
 - **AND** startup pulses SHALL collapse to an instant color change
 - **AND** shutdown flicker SHALL stop
 
+### Requirement: Movement Path Interpolation
+
+The tactical map interface SHALL animate unit tokens along their
+committed movement path, interpolating position from the start hex
+through each hex in sequence.
+
+#### Scenario: Walk animation at 300ms per hex
+
+- **GIVEN** a unit commits a 3-hex walking move
+- **WHEN** the animation plays
+- **THEN** the token SHALL traverse each hex segment in 300ms with
+  linear easing
+- **AND** total animation time SHALL be approximately 900ms
+- **AND** the token SHALL end at the destination hex
+
+#### Scenario: Run animation at 180ms per hex
+
+- **GIVEN** a unit commits a 5-hex running move
+- **WHEN** the animation plays
+- **THEN** the token SHALL traverse each hex in 180ms
+- **AND** total animation time SHALL be approximately 900ms
+
+#### Scenario: Facing rotates during path
+
+- **GIVEN** a walking move that ends facing 3 hexes away from start
+  facing
+- **WHEN** the animation plays
+- **THEN** the facing SHALL ease from start facing to commit facing
+- **AND** the final facing SHALL match the committed move
+
+### Requirement: Jump Arc Animation
+
+Jumps SHALL animate as a single parabolic arc from start to destination,
+rather than interpolating hex-by-hex.
+
+#### Scenario: Jump plays as a single arc
+
+- **GIVEN** a unit commits a jump move of any distance
+- **WHEN** the animation plays
+- **THEN** the token SHALL follow a parabolic arc from start to
+  destination over 600ms
+- **AND** the arc peak SHALL rise above the token's baseline by at
+  least 24px (scaled to zoom)
+
+#### Scenario: Jump arc indicator
+
+- **GIVEN** a jump animation is active
+- **WHEN** the arc plays
+- **THEN** a faint blue arc SHALL render from start to destination
+- **AND** the arc SHALL fade out after the animation completes
+
+### Requirement: Phase Advancement Gate On Active Animations
+
+The tactical map interface SHALL prevent phase advancement while any
+movement animation is active, and SHALL resume advancement once the
+animation queue drains.
+
+#### Scenario: Next unit waits for animation
+
+- **GIVEN** unit A is mid-animation along its movement path
+- **WHEN** the game engine tries to advance to unit B's lock
+- **THEN** advancement SHALL wait until unit A's animation completes
+- **AND** unit B's lock SHALL begin immediately after
+
+#### Scenario: Heat and PSR events flush after animation
+
+- **GIVEN** a committed move that generates heat and triggers a PSR
+- **WHEN** the animation plays
+- **THEN** heat and PSR events SHALL be buffered until the animation
+  completes
+- **AND** the event log SHALL render them after the token settles
+
+### Requirement: Reduced Motion Accessibility
+
+The tactical map interface SHALL respect the user's
+`prefers-reduced-motion` setting and fall back to instant position
+updates when enabled.
+
+#### Scenario: Reduced motion snaps to destination
+
+- **GIVEN** the user has `prefers-reduced-motion: reduce` set
+- **WHEN** a movement animation would play
+- **THEN** the token SHALL snap to its destination instantly
+- **AND** the phase advancement gate SHALL release on the same tick
+- **AND** no arc or path tween SHALL render
+
+#### Scenario: Game logic unaffected by reduced motion
+
+- **GIVEN** reduced motion is enabled
+- **WHEN** a player commits a move
+- **THEN** all game events, heat, PSR, and pilot rolls SHALL still
+  fire identically
+- **AND** only the visual interpolation SHALL be suppressed
+
+### Requirement: Screen Shake On Heavy Hits
+
+The tactical map interface SHALL shake the map root when a single hit
+applies 10 or more damage, with intensity scaling with damage and
+dampened for reduced-motion users.
+
+#### Scenario: 10+ damage triggers shake
+
+- **GIVEN** a unit takes 12 damage from a single weapon hit
+- **WHEN** the shake fires
+- **THEN** the map root SHALL offset by small pseudo-random x/y within
+  the intensity radius
+- **AND** intensity SHALL scale linearly with damage, clamped at 8px
+- **AND** total duration SHALL be 300ms
+
+#### Scenario: Under 10 damage does not shake
+
+- **GIVEN** a unit takes 6 damage from a single hit
+- **WHEN** the event fires
+- **THEN** no shake SHALL occur
+
+#### Scenario: Reduced motion dampens shake
+
+- **GIVEN** `prefers-reduced-motion: reduce` is set
+- **WHEN** a 20-damage hit would trigger a large shake
+- **THEN** shake amplitude SHALL be halved
+- **AND** shakes with effective intensity below 2px SHALL be skipped
+
+### Requirement: Hit Location Flash
+
+The tactical map interface SHALL flash the specific armor-pip group of
+a hit location white for 250ms when damage applies there.
+
+#### Scenario: Flash targets hit location
+
+- **GIVEN** a unit's RA takes 5 damage
+- **WHEN** the flash renders
+- **THEN** the RA pip group SHALL flash white at 60% opacity for 250ms
+- **AND** other pip groups SHALL NOT flash
+
+#### Scenario: Transferred damage flashes destination
+
+- **GIVEN** damage overflows from LA into LT
+- **WHEN** the flashes render
+- **THEN** the LA pip group SHALL flash first
+- **AND** the LT pip group SHALL flash second (sequential)
+
+### Requirement: Smoke From Destroyed Locations
+
+The tactical map interface SHALL render a looping smoke animation near
+each destroyed location of a living unit, persisting until the unit
+becomes a wreck.
+
+#### Scenario: Destroyed arm vents smoke
+
+- **GIVEN** a unit's LA is destroyed
+- **WHEN** the effect layer renders
+- **THEN** a looping smoke sprite SHALL render near the LA pip group
+- **AND** the smoke SHALL persist across frames while the unit is alive
+
+#### Scenario: Multiple destroyed locations = multiple smoke streams
+
+- **GIVEN** a unit has both LA and RL destroyed
+- **WHEN** the effects render
+- **THEN** two concurrent smoke streams SHALL render
+- **AND** each SHALL anchor to its pip group
+
+#### Scenario: Wreck replaces live smoke streams
+
+- **GIVEN** a unit with two smoke streams is destroyed
+- **WHEN** the unit becomes a wreck
+- **THEN** both live smoke streams SHALL stop
+- **AND** a single quieter wreck-smoke stream SHALL replace them
+
+### Requirement: Engine Fire
+
+The tactical map interface SHALL render a flame animation on any unit
+with one or more engine critical hits, persisting until destruction.
+
+#### Scenario: First engine crit ignites a small flame
+
+- **GIVEN** a unit takes its first engine critical hit
+- **WHEN** the effect renders
+- **THEN** a small animated flame SHALL render at the unit's torso
+  anchor
+- **AND** the flame SHALL persist until the unit dies
+
+#### Scenario: Second engine crit intensifies flame
+
+- **GIVEN** a unit takes a second engine critical hit
+- **WHEN** the effect renders
+- **THEN** the flame SHALL scale larger and brighter
+- **AND** the flame SHALL remain a single effect (not two flames)
+
+### Requirement: Debris Cloud And Wreck Sprite
+
+On unit destruction, the tactical map interface SHALL play a debris
+cloud burst and transition the token to a wreck sprite variant.
+
+#### Scenario: Unit destroyed plays debris + wreck
+
+- **GIVEN** a unit's CT reaches 0 internal structure (unit destroyed)
+- **WHEN** the effect renders
+- **THEN** an 800ms debris cloud burst SHALL play over the token
+- **AND** the token SHALL transition to a homemade wreck sprite variant
+  for its archetype
+- **AND** the wreck SHALL render at ~50% opacity
+- **AND** the wreck SHALL remain on the hex blocking LOS per existing
+  rules
+
+#### Scenario: Pilot killed triggers destruction effect
+
+- **GIVEN** a pilot dies from consciousness failures
+- **WHEN** the UnitDestroyed event fires
+- **THEN** the same debris cloud + wreck transition SHALL play
+
+#### Scenario: Wreck badge for accessibility
+
+- **GIVEN** a unit is a wreck
+- **WHEN** the token renders
+- **THEN** a textual "WRECK" badge SHALL render on the token for
+  colorblind-safe legibility
+
+### Requirement: Persistent Effects Survive Replay
+
+Smoke and fire SHALL be derived from unit state (destroyed locations,
+engine crits) so they render correctly after a page reload or replay
+scrub.
+
+#### Scenario: Reload preserves smoke
+
+- **GIVEN** a unit has a destroyed LA emitting smoke
+- **WHEN** the page reloads and state rehydrates
+- **THEN** smoke SHALL render from LA without replaying the
+  LocationDestroyed event
+
+#### Scenario: Replay scrub derives effects from state
+
+- **GIVEN** a replay scrubs from turn 1 to turn 5 where a unit has
+  engine crits
+- **WHEN** the scrub settles
+- **THEN** engine fire SHALL render on that unit immediately
+- **AND** the effect SHALL not require replaying every intermediate
+  event
+
+### Requirement: Persistent Effect Layer Ordering
+
+The tactical map interface SHALL render persistent damage effects after
+the token layer and before transient attack effects. Selection and target
+rings remain token-local in the current per-type token renderers, so the
+implementation exposes `data-layer-position="above-token-layer-below-attack-effects"`
+on the persistent effects layer to document the actual paint order.
+
+#### Scenario: Persistent effects render above tokens and below attack effects
+
+- **GIVEN** a unit has persistent smoke or fire and an attack animation
+  is playing
+- **WHEN** the tactical map renders
+- **THEN** token sprites, armor pips, selection rings, and target rings
+  SHALL render in the token layer
+- **AND** persistent smoke/fire/wreck effects SHALL render after that
+  token layer
+- **AND** attack effects SHALL render after persistent effects
+
+### Requirement: Attack Effects Layer
+
+The tactical map interface SHALL include an attack effects layer that
+renders above the unit token layer and subscribes to
+`AttackResolved` events.
+
+#### Scenario: Effects layer renders above tokens
+
+- **GIVEN** an attack animation plays
+- **WHEN** the effect primitive renders
+- **THEN** it SHALL render above unit tokens so beams are not
+  occluded
+- **AND** it SHALL render beneath modal overlays (HUD, minimap,
+  action panel)
+
+#### Scenario: Effects coordinate with damage feedback
+
+- **GIVEN** an attack resolves as a hit causing 5 damage
+- **WHEN** the primary effect plays
+- **THEN** the impact flash SHALL fire at the tail of the effect
+- **AND** damage-pip decay animations SHALL begin synchronized with
+  the impact flash
+
 ## Data Model Requirements
 
 ### Required Interfaces
