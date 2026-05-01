@@ -6,6 +6,8 @@
 
 import { IInfantryRecordSheetData } from '@/types/printing';
 
+import { buildSPASectionString } from './spaSection';
+
 const SVG_W = 612;
 const SVG_H = 792;
 const MARGIN = 18;
@@ -108,6 +110,16 @@ export function renderInfantrySVG(data: IInfantryRecordSheetData): string {
   <rect x="${MARGIN}" y="${secY + 8}" width="${SVG_W - MARGIN * 2}" height="30" fill="#f0f0f0" stroke="#000" stroke-width="0.5" rx="2"/>
   <text x="${MARGIN + 4}" y="${secY + 20}" font-family="${FONT}" font-size="7" fill="#000">${esc(fieldGun.name)} x ${esc(fieldGun.count)}</text>
   <text x="${MARGIN + 4}" y="${secY + 32}" font-family="${FONT}" font-size="7" fill="#000">Dmg: ${esc(fieldGun.damage)}  Min: ${esc(fieldGun.minimumRange)}  Sht: ${esc(fieldGun.shortRange)}  Med: ${esc(fieldGun.mediumRange)}  Lng: ${esc(fieldGun.longRange)}${fieldGun.ammoRounds !== undefined ? `  Ammo: ${esc(fieldGun.ammoRounds)}` : ''}</text>`;
+  }
+
+  // ── Special Abilities block ─────────────────────────────────────────────
+  // Phase 5 Wave 3 — placed in the lower-left margin so it survives both the
+  // small "foot rifle" platoon and the taller "marine jump + field gun" cases.
+  if (data.specialAbilities && data.specialAbilities.length > 0) {
+    body += buildSPASectionString(
+      { entries: data.specialAbilities, hasContent: true },
+      { x: MARGIN, y: SVG_H - 110, width: SVG_W - MARGIN * 2 },
+    );
   }
 
   body += `

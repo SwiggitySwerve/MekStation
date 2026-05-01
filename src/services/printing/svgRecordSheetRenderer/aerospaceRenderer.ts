@@ -10,6 +10,8 @@
 
 import { IAerospaceRecordSheetData } from '@/types/printing';
 
+import { buildSPASectionString } from './spaSection';
+
 const SVG_W = 612;
 const SVG_H = 792;
 const MARGIN = 18;
@@ -173,6 +175,16 @@ export function renderAerospaceSVG(data: IAerospaceRecordSheetData): string {
   <rect x="${MARGIN}" y="${pilotY}" width="200" height="28" fill="#f5f5f5" stroke="#000" stroke-width="0.5" rx="2"/>
   <text x="${MARGIN + 4}" y="${pilotY + 10}" font-family="${FONT}" font-size="7" font-weight="bold" fill="#000">PILOT: ${esc(data.pilot.name)}</text>
   <text x="${MARGIN + 4}" y="${pilotY + 22}" font-family="${FONT}" font-size="7" fill="#000">Gunnery: ${esc(data.pilot.gunnery)}   Piloting: ${esc(data.pilot.piloting)}${data.pilot.edge !== undefined ? `   Edge: ${esc(data.pilot.edge)}` : ''}</text>`;
+  }
+
+  // ── Special Abilities block ─────────────────────────────────────────────
+  // Phase 5 Wave 3 — SPA block sits to the right of the pilot panel so it
+  // doesn't collide with the footer or pilot stat box.
+  if (data.specialAbilities && data.specialAbilities.length > 0) {
+    body += buildSPASectionString(
+      { entries: data.specialAbilities, hasContent: true },
+      { x: MARGIN + 220, y: SVG_H - 50, width: SVG_W - MARGIN - 230 },
+    );
   }
 
   body += `

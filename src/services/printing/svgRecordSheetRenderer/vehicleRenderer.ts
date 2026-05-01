@@ -10,6 +10,8 @@
 
 import { IVehicleRecordSheetData } from '@/types/printing';
 
+import { buildSPASectionString } from './spaSection';
+
 const SVG_W = 612;
 const SVG_H = 792;
 const MARGIN = 18;
@@ -161,6 +163,17 @@ export function renderVehicleSVG(data: IVehicleRecordSheetData): string {
       body += `<text x="${cols.dmg}" y="${ry}" font-family="${FONT}" font-size="6" fill="#555">(${esc(eq.ammoCount ?? 0)} shots)</text>`;
     }
   });
+
+  // ── Special Abilities block ─────────────────────────────────────────────
+  // Phase 5 Wave 3 — render the printable SPA block when the vehicle has
+  // any resolved abilities. Anchored to the lower-left so it sits below
+  // the equipment table without colliding with the footer.
+  if (data.specialAbilities && data.specialAbilities.length > 0) {
+    body += buildSPASectionString(
+      { entries: data.specialAbilities, hasContent: true },
+      { x: MARGIN, y: SVG_H - 110, width: SVG_W - MARGIN * 2 },
+    );
+  }
 
   // ── Footer ───────────────────────────────────────────────────────────────
   body += `
