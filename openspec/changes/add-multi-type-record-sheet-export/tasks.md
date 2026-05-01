@@ -20,7 +20,7 @@
 ## 3. Vehicle Record Sheet
 
 - [x] 3.1 Add `vehicleRenderer.ts` in `svgRecordSheetRenderer/`
-- [ ] 3.2 Render 6–8 armor locations (Front/LSide/RSide/Rear/Turret/(Rotor)/(Chin)/(Body)) with correct geometry
+- [x] 3.2 Render 6–8 armor locations (Front/LSide/RSide/Rear/Turret/(Rotor)/(Chin)/(Body)) with correct geometry
 - [x] 3.3 Render motive table (cruise/flank MP) + motion type badge
 - [x] 3.4 Render crew block: driver, gunner, commander (as applicable)
 - [x] 3.5 Render turret weapons separately from hull weapons
@@ -72,7 +72,7 @@
 
 ## 8. Integration
 
-- [ ] 8.1 Existing `/print/[id]` page routes all unit types through the extended `RecordSheetService`
+- [x] 8.1 Existing `/print/[id]` page routes all unit types through the extended `RecordSheetService`
 - [ ] 8.2 Existing `recordsheet/spaSection.ts` (Phase 5) is called from every per-type renderer at the appropriate pilot-area coordinate
 - [x] 8.3 `renderer.ts` top-level dispatch picks the per-type renderer by `data.unitType`
 
