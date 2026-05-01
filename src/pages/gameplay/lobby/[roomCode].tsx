@@ -47,6 +47,7 @@ export default function GameplayLobbyPage(): React.ReactElement {
   );
   const updateMapConfig = useLobbySelector((state) => state.updateMapConfig);
   const setLocalReady = useLobbySelector((state) => state.setLocalReady);
+  const setHostSide = useLobbySelector((state) => state.setHostSide);
   const launch = useLobbySelector((state) => state.launch);
   const setSession = useGameplayStore((state) => state.setSession);
 
@@ -204,6 +205,9 @@ export default function GameplayLobbyPage(): React.ReactElement {
         }}
         onReadyChange={(ready) => {
           setLocalReady(ready);
+        }}
+        onHostSideChange={(hostSide) => {
+          setHostSide(hostSide);
         }}
         onLaunch={() => {
           const matchId =

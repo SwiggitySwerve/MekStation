@@ -10,8 +10,16 @@ import { z } from 'zod';
 export const LOBBY_MODE_1V1 = '1v1' as const;
 export const LOBBY_SIDES = ['host', 'guest'] as const;
 
+/**
+ * Game-side identifier the host claims when launching a Networked 1v1.
+ * `'player'` (default) maps host → Player side, guest → Opponent side.
+ * `'opponent'` flips it. Per `add-p2p-game-session-sync` § 6.2.
+ */
+export const LOBBY_HOST_SIDE_OPTIONS = ['player', 'opponent'] as const;
+
 export type LobbyMode = typeof LOBBY_MODE_1V1;
 export type LobbySide = (typeof LOBBY_SIDES)[number];
+export type LobbyHostSide = (typeof LOBBY_HOST_SIDE_OPTIONS)[number];
 
 export const SelectedUnitSchema = z
   .object({
@@ -68,6 +76,14 @@ export const LobbyStateSchema = z
     guestReady: z.boolean(),
     matchId: z.string().min(1).optional(),
     closed: z.boolean().optional(),
+    /**
+     * Which game-side the HOST claims at launch. Defaults to `'player'`
+     * (host owns Player side, guest owns Opponent side). The host can
+     * flip to `'opponent'` from the lobby UI per
+     * `add-p2p-game-session-sync` § 6.2. Optional in the schema so
+     * older lobby states deserialise as if `hostSide === 'player'`.
+     */
+    hostSide: z.enum(LOBBY_HOST_SIDE_OPTIONS).optional(),
   })
   .strict();
 
@@ -94,7 +110,18 @@ export function createInitialLobbyState(hostPeerId: string): ILobbyState {
     mapConfig: DEFAULT_LOBBY_MAP_CONFIG,
     hostReady: false,
     guestReady: false,
+    hostSide: 'player',
   };
+}
+
+/**
+ * Resolve the effective host side. Lobbies that predate the field —
+ * either persisted before the schema gained `hostSide` or freshly
+ * created without setting it — default to `'player'` so the existing
+ * "host owns Player, guest owns Opponent" convention is preserved.
+ */
+export function getLobbyHostSide(state: ILobbyState): LobbyHostSide {
+  return state.hostSide ?? 'player';
 }
 
 export function parseLobbyState(value: unknown): ILobbyState | null {

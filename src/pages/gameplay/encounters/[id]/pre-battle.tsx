@@ -548,6 +548,24 @@ export default function PreBattlePage(): React.ReactElement {
     void launchBattle('spectator');
   }, [launchBattle]);
 
+  // Per `add-p2p-game-session-sync` § 8.1 / § 8.2: opens a networked
+  // 1v1 lobby. Delegates to the existing games-page lobby creator
+  // (which already handles room creation + routing). When the user is
+  // currently mid auto-resolve, the button is disabled with a tooltip
+  // explaining why; otherwise it routes to the games index where the
+  // "Create Lobby" button kicks off the host flow.
+  const startNetworked1v1 = useCallback(() => {
+    void router.push('/gameplay/games');
+  }, [router]);
+
+  // The disable reason surfaces in the ModeSelection tooltip per § 8.2.
+  // For this slice the button is gated only by `isResolving` (the
+  // ModeSelection component already disables on that flag); we don't
+  // require an active sync room because clicking the button CREATES
+  // one. A future slice can plumb a stricter precondition through
+  // `networked1v1DisabledReason` without touching the button shape.
+  const networked1v1DisabledReason: string | null = null;
+
   if (!isInitialized || encountersLoading) {
     return (
       <PageLayout
@@ -705,6 +723,8 @@ export default function PreBattlePage(): React.ReactElement {
               onAutoResolve={startAutoResolve}
               onInteractive={startInteractive}
               onSpectate={startSpectator}
+              onNetworked1v1={startNetworked1v1}
+              networked1v1DisabledReason={networked1v1DisabledReason}
               isResolving={isResolving}
             />
           </div>

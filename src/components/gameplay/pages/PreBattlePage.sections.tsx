@@ -306,6 +306,17 @@ interface ModeSelectionProps {
   onAutoResolve: () => void;
   onInteractive: () => void;
   onSpectate: () => void;
+  /**
+   * Per `add-p2p-game-session-sync` § 8.1: opens the Networked 1v1
+   * lobby flow. Optional — when omitted, the option button is hidden
+   * (e.g. on encounters that don't support multiplayer yet).
+   */
+  onNetworked1v1?: () => void;
+  /**
+   * Tooltip explaining why `onNetworked1v1` is disabled (e.g. no active
+   * sync room). Per § 8.2. Ignored when `onNetworked1v1` is omitted.
+   */
+  networked1v1DisabledReason?: string | null;
   isResolving: boolean;
 }
 
@@ -313,8 +324,21 @@ export function ModeSelection({
   onAutoResolve,
   onInteractive,
   onSpectate,
+  onNetworked1v1,
+  networked1v1DisabledReason,
   isResolving,
 }: ModeSelectionProps): React.ReactElement {
+  const networkedDisabled =
+    isResolving ||
+    !onNetworked1v1 ||
+    (networked1v1DisabledReason !== undefined &&
+      networked1v1DisabledReason !== null &&
+      networked1v1DisabledReason !== '');
+  // 4-up grid when the networked option is wired; 3-up otherwise so
+  // legacy callers keep their layout.
+  const gridCols = onNetworked1v1
+    ? 'grid-cols-1 gap-4 md:grid-cols-4'
+    : 'grid-cols-1 gap-4 md:grid-cols-3';
   return (
     <Card data-testid="mode-selection">
       <div className="p-6">
@@ -325,7 +349,7 @@ export function ModeSelection({
           Select how you want to resolve this encounter.
         </p>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className={`grid ${gridCols}`}>
           <button
             onClick={onAutoResolve}
             disabled={isResolving}
@@ -419,6 +443,44 @@ export function ModeSelection({
               step, and adjust speed.
             </p>
           </button>
+
+          {onNetworked1v1 && (
+            <button
+              onClick={onNetworked1v1}
+              disabled={networkedDisabled}
+              title={
+                networked1v1DisabledReason
+                  ? networked1v1DisabledReason
+                  : 'Open a peer-to-peer 1v1 lobby'
+              }
+              className="group border-border-theme-subtle rounded-lg border-2 p-6 text-left transition-all hover:border-fuchsia-500/50 hover:bg-fuchsia-500/5 disabled:cursor-not-allowed disabled:opacity-60"
+              data-testid="networked-1v1-btn"
+              aria-disabled={networkedDisabled}
+            >
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-fuchsia-500/20">
+                <svg
+                  className="h-5 w-5 text-fuchsia-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-text-theme-primary mb-1 font-medium">
+                Networked 1v1
+              </h3>
+              <p className="text-text-theme-muted text-sm">
+                {networked1v1DisabledReason ??
+                  'Open a peer-to-peer lobby and battle a friend over the network.'}
+              </p>
+            </button>
+          )}
         </div>
       </div>
     </Card>

@@ -157,6 +157,17 @@ export {
 } from './lobbyChannel';
 
 export {
+  ReplayDiceRoller,
+  createReplayDiceRoller,
+  type IReplayDiceRoller,
+} from './replayDiceRoller';
+
+export {
+  embedRollsIntoEvent,
+  extractRollsFromEvent,
+} from './hostRollEmbedding';
+
+export {
   MATCH_LOG_DB_NAME,
   MATCH_LOG_DB_VERSION,
   MATCH_LOG_RETENTION_MS,

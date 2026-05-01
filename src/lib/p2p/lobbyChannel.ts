@@ -10,6 +10,7 @@ import {
   type ILobbyState,
   type ILoadout,
   type IMapConfig,
+  type LobbyHostSide,
   type LobbySide,
 } from '@/types/gameplay/GameLobbyInterfaces';
 
@@ -49,6 +50,7 @@ export interface ILobbyChannel {
   ) => ILobbyChannelResult;
   readonly updateMapConfig: (config: IMapConfig) => ILobbyChannelResult;
   readonly setReady: (peerId: string, ready: boolean) => ILobbyChannelResult;
+  readonly setHostSide: (hostSide: LobbyHostSide) => ILobbyChannelResult;
   readonly launch: (matchId?: string) => ILobbyChannelResult;
   readonly onStateChange: (callback: LobbyStateCallback) => () => void;
   readonly onPeerRejection: (callback: LobbyRejectionCallback) => () => void;
@@ -181,6 +183,23 @@ export function createLobbyChannel(
         ...state,
         hostReady: side === 'host' ? ready : state.hostReady,
         guestReady: side === 'guest' ? ready : state.guestReady,
+      });
+    },
+
+    setHostSide: (hostSide: LobbyHostSide): ILobbyChannelResult => {
+      const state = readLobbyState(options);
+      if (!state) return reject('lobby:setHostSide', 'invalid-state');
+      if (state.matchId) return reject('lobby:setHostSide', 'match-started');
+      if (state.hostPeerId !== currentPeerId()) {
+        return reject('lobby:setHostSide', 'host-only');
+      }
+      // Picking a side resets ready flags so both peers re-acknowledge
+      // after the assignment changes.
+      return write({
+        ...state,
+        hostSide,
+        hostReady: false,
+        guestReady: false,
       });
     },
 
