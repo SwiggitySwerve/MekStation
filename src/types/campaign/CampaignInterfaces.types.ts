@@ -137,29 +137,16 @@ export interface ICampaignUnitState {
 
 /**
  * Pilot state snapshot for campaign tracking.
+ *
+ * @deprecated Use `ICampaignRosterEntry` from `./CampaignRosterEntry` instead.
+ * This alias is preserved during the `migrate-personnel-to-roster-employment`
+ * PR cycle so existing call sites continue to compile. Phase 6 of that change
+ * removes the alias entirely.
+ *
+ * @see ./CampaignRosterEntry.ts
  */
-export interface ICampaignPilotState {
-  /** Reference to vault pilot ID */
-  readonly pilotId: string;
-  /** Pilot name (cached for display) */
-  readonly pilotName: string;
-  /** Current operational status */
-  readonly status: CampaignPilotStatus;
-  /** Current wounds (0-6) */
-  readonly wounds: number;
-  /** Current XP pool */
-  readonly xp: number;
-  /** XP earned this campaign */
-  readonly campaignXpEarned: number;
-  /** Kills this campaign */
-  readonly campaignKills: number;
-  /** Missions completed this campaign */
-  readonly campaignMissions: number;
-  /** Assigned unit ID (if any) */
-  readonly assignedUnitId?: string;
-  /** Recovery time remaining (in mission cycles) */
-  readonly recoveryTime: number;
-}
+export type ICampaignPilotState =
+  import('./CampaignRosterEntry').ICampaignRosterEntry;
 
 /**
  * Campaign roster - all units and pilots in the campaign.

@@ -1,167 +1,70 @@
-import { useRouter } from 'next/router';
 /**
  * Campaign Personnel Page
- * Manage personnel roster for the campaign.
+ * Manage pilot roster for the campaign.
  *
- * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
+ * Reads from `useCampaignRosterStore.pilots` (the live `ICampaignPilotState`
+ * records written at campaign creation), NOT from `usePersonnelStore`'s
+ * `IPerson` map. The IPerson map starts empty in every campaign because
+ * nothing seeds it — see council decision below for the architectural reason.
+ *
+ * Pilot data (skills, abilities, XP) resolves via vault join through
+ * `usePilotById` inside the side panel. The XP-spend mechanic flows through
+ * the existing `usePilotStore` actions, which already POST to the correct
+ * routes.
+ *
+ * @spec openspec/changes/add-pilot-xp-spend-from-campaign/specs/campaign-ui/spec.md
+ * @spec openspec/council-decisions/2026-05-01-personnel-architecture-path.md
  */
-import { useState } from 'react';
+
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+
+import type { ICampaignPilotState } from '@/types/campaign/CampaignInterfaces';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
-import { PageLayout, Card, EmptyState } from '@/components/ui';
-import { getBaseSalary } from '@/lib/campaign/personnel/roleSalaries';
+import { PersonnelSidePanel } from '@/components/campaign/personnel/PersonnelSidePanel';
+import { Card, EmptyState, PageLayout } from '@/components/ui';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
-import { PersonnelStatus, STATUS_SEVERITY } from '@/types/campaign/enums';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { getRolesByCategory } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { IPerson } from '@/types/campaign/Person';
 
 // =============================================================================
-// Personnel Card Component
+// Pilot Roster Row
 // =============================================================================
 
-interface PersonnelCardProps {
-  person: IPerson;
-  onStatusChange?: (personId: string, newStatus: PersonnelStatus) => void;
-  onRoleChange?: (personId: string, newRole: CampaignPersonnelRole) => void;
+interface PilotRosterRowProps {
+  pilot: ICampaignPilotState;
+  isSelected: boolean;
+  onClick: () => void;
 }
 
-function PersonnelCard({
-  person,
-  onStatusChange,
-  onRoleChange,
-}: PersonnelCardProps): React.ReactElement {
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
-  const [showRoleMenu, setShowRoleMenu] = useState(false);
-  const getStatusColor = (status: PersonnelStatus): string => {
-    const severity = STATUS_SEVERITY[status];
-    switch (severity) {
-      case 'positive':
-        return 'bg-green-500/20 text-green-400';
-      case 'warning':
-        return 'bg-yellow-500/20 text-yellow-400';
-      case 'negative':
-        return 'bg-red-500/20 text-red-400';
-      case 'neutral':
-        return 'bg-blue-500/20 text-blue-400';
-      default:
-        return 'bg-gray-500/20 text-gray-400';
-    }
-  };
-
-  const getMonthlySalary = (role: CampaignPersonnelRole): number => {
-    return getBaseSalary(role);
-  };
-
+function PilotRosterRow({
+  pilot,
+  isSelected,
+  onClick,
+}: PilotRosterRowProps): React.ReactElement {
   return (
-    <Card className="p-4">
-      <div className="mb-3 flex items-start justify-between">
+    <Card
+      className={`cursor-pointer p-4 transition-colors ${
+        isSelected ? 'border-accent border-2' : 'hover:border-accent/50'
+      }`}
+      onClick={onClick}
+      data-testid={`pilot-row-${pilot.pilotId}`}
+    >
+      <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-text-theme-primary text-lg font-semibold">
-            {person.name}
+          <h3 className="text-text-theme-primary text-base font-semibold">
+            {pilot.pilotName}
           </h3>
-          <p className="text-text-theme-secondary text-sm">{person.rank}</p>
+          <p className="text-text-theme-secondary mt-1 text-xs">
+            {pilot.status} · XP {pilot.xp} · Wounds {pilot.wounds}/6
+          </p>
         </div>
-        <div className="relative">
-          <button
-            onClick={() => setShowStatusMenu(!showStatusMenu)}
-            className={`${getStatusColor(person.status)} cursor-pointer rounded-full px-3 py-1 text-sm font-medium transition-opacity hover:opacity-80`}
-          >
-            {person.status}
-          </button>
-          {showStatusMenu && (
-            <div className="bg-surface-raised border-border-theme absolute right-0 z-10 mt-2 max-h-64 w-48 overflow-y-auto rounded-lg border shadow-lg">
-              {Object.values(PersonnelStatus).map((status) => (
-                <button
-                  key={status}
-                  onClick={() => {
-                    onStatusChange?.(person.id, status);
-                    setShowStatusMenu(false);
-                  }}
-                  className={`hover:bg-surface-hover w-full px-4 py-2 text-left transition-colors ${
-                    person.status === status
-                      ? 'bg-surface-hover font-semibold'
-                      : ''
-                  }`}
-                >
-                  {status}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 text-sm">
-        <div className="relative">
-          <p className="text-text-theme-secondary">Primary Role</p>
-          <button
-            onClick={() => setShowRoleMenu(!showRoleMenu)}
-            className="text-text-theme-primary hover:text-text-theme-accent cursor-pointer transition-colors"
-          >
-            {person.primaryRole}
-          </button>
-          {showRoleMenu && (
-            <div className="bg-surface-raised border-border-theme absolute left-0 z-10 mt-2 max-h-96 w-56 overflow-y-auto rounded-lg border shadow-lg">
-              {(['combat', 'support', 'civilian'] as const).map((category) => (
-                <div key={category}>
-                  <div className="text-text-theme-secondary bg-surface-hover sticky top-0 px-4 py-2 text-xs font-semibold uppercase">
-                    {category}
-                  </div>
-                  {getRolesByCategory(category).map((role) => (
-                    <button
-                      key={role}
-                      onClick={() => {
-                        onRoleChange?.(person.id, role);
-                        setShowRoleMenu(false);
-                      }}
-                      className={`hover:bg-surface-hover w-full px-4 py-2 text-left transition-colors ${
-                        person.primaryRole === role
-                          ? 'bg-surface-hover font-semibold'
-                          : ''
-                      }`}
-                    >
-                      {role}
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        {person.secondaryRole && (
-          <div>
-            <p className="text-text-theme-secondary">Secondary Role</p>
-            <p className="text-text-theme-primary">{person.secondaryRole}</p>
-          </div>
+        {pilot.assignedUnitId && (
+          <span className="text-text-theme-muted font-mono text-xs">
+            {pilot.assignedUnitId}
+          </span>
         )}
-        <div>
-          <p className="text-text-theme-secondary">Hits</p>
-          <p className="text-text-theme-primary">{person.hits}/6</p>
-        </div>
-        <div>
-          <p className="text-text-theme-secondary">XP</p>
-          <p className="text-text-theme-primary">{person.xp}</p>
-        </div>
-        <div>
-          <p className="text-text-theme-secondary">Monthly Salary</p>
-          <p className="text-text-theme-primary font-mono">
-            {getMonthlySalary(
-              person.primaryRole as CampaignPersonnelRole,
-            ).toLocaleString()}{' '}
-            C-bills
-          </p>
-        </div>
       </div>
-
-      {person.unitId && (
-        <div className="border-border-theme mt-3 border-t pt-3">
-          <p className="text-text-theme-secondary text-xs">Assigned to Unit</p>
-          <p className="text-text-theme-primary font-mono text-sm">
-            {person.unitId}
-          </p>
-        </div>
-      )}
     </Card>
   );
 }
@@ -175,9 +78,14 @@ export default function PersonnelPage(): React.ReactElement {
   const { id } = router.query;
   const store = useCampaignStore();
   const campaign = store.getState().getCampaign();
+  const pilots = useCampaignRosterStore((state) => state.pilots);
+  const [selectedPilotId, setSelectedPilotId] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
 
-  // Breadcrumbs
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const breadcrumbs = [
     { label: 'Home', href: '/' },
     { label: 'Gameplay', href: '/gameplay' },
@@ -186,12 +94,7 @@ export default function PersonnelPage(): React.ReactElement {
     { label: 'Personnel' },
   ];
 
-  // Hydration fix
-  useState(() => {
-    setIsClient(true);
-  });
-
-  // Show loading state during SSR/hydration
+  // SSR loading state
   if (!isClient) {
     return (
       <PageLayout
@@ -202,7 +105,7 @@ export default function PersonnelPage(): React.ReactElement {
         <div className="animate-pulse">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Card key={i} className="h-48">
+              <Card key={i} className="h-32">
                 <div className="h-full" />
               </Card>
             ))}
@@ -212,32 +115,15 @@ export default function PersonnelPage(): React.ReactElement {
     );
   }
 
-  // Handle campaign not found
   if (!campaign) {
     return (
       <PageLayout
         title="Personnel"
         subtitle="Campaign not found"
         maxWidth="wide"
+        breadcrumbs={breadcrumbs}
       >
         <EmptyState
-          icon={
-            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
-              <svg
-                className="text-text-theme-muted h-8 w-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-            </div>
-          }
           title="Campaign not found"
           message="Return to campaigns list to select a campaign."
         />
@@ -245,46 +131,50 @@ export default function PersonnelPage(): React.ReactElement {
     );
   }
 
-  // Convert Map to array
-  const personnel = Array.from(campaign.personnel.values());
-
   return (
     <PageLayout
       title="Personnel"
-      subtitle={`${campaign.name} - ${personnel.length} personnel`}
+      subtitle={`${campaign.name} — ${pilots.length} pilots`}
       maxWidth="wide"
       breadcrumbs={breadcrumbs}
     >
-      {/* Navigation Tabs */}
       <CampaignNavigation campaignId={campaign.id} currentPage="personnel" />
 
-      {personnel.length === 0 ? (
+      {pilots.length === 0 ? (
         <EmptyState
-          icon={
-            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
-              <svg
-                className="text-text-theme-muted h-8 w-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                />
-              </svg>
-            </div>
-          }
-          title="No personnel"
-          message="This campaign has no personnel assigned yet."
+          title="No pilots in this campaign roster"
+          message="Add pilots during campaign creation to see them here."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {personnel.map((person) => (
-            <PersonnelCard key={person.id} person={person} />
-          ))}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_3fr]">
+          {/* Left: pilot roster grid */}
+          <div className="space-y-3">
+            {pilots.map((pilot) => (
+              <PilotRosterRow
+                key={pilot.pilotId}
+                pilot={pilot}
+                isSelected={selectedPilotId === pilot.pilotId}
+                onClick={() => setSelectedPilotId(pilot.pilotId)}
+              />
+            ))}
+          </div>
+
+          {/* Right: side panel column */}
+          <div className="lg:sticky lg:top-4 lg:self-start">
+            {selectedPilotId ? (
+              <PersonnelSidePanel
+                pilotId={selectedPilotId}
+                isOpen={selectedPilotId !== null}
+                onClose={() => setSelectedPilotId(null)}
+              />
+            ) : (
+              <Card className="border-border-theme-subtle border-2 border-dashed p-8 text-center">
+                <p className="text-text-theme-secondary text-sm">
+                  Select a pilot to view progression, abilities, and assignment.
+                </p>
+              </Card>
+            )}
+          </div>
         </div>
       )}
     </PageLayout>

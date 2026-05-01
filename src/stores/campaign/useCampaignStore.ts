@@ -38,6 +38,8 @@ import {
   applyPostBattle,
   type ICampaignWithBattleState,
 } from '@/lib/campaign/processors/postBattleProcessor';
+import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
+import { usePilotStore } from '@/stores/usePilotStore';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
   ICampaign,
@@ -54,6 +56,7 @@ import { IPerson } from '@/types/campaign/Person';
 import { Transaction } from '@/types/campaign/Transaction';
 import { emitPendingOutcomeAdded } from '@/utils/events/campaignOutcomeEvents';
 
+import { useCampaignRosterStore } from './useCampaignRosterStore';
 import { createForcesStore, ForcesStore } from './useForcesStore';
 import { createMissionsStore, MissionsStore } from './useMissionsStore';
 import { createPersonnelStore, PersonnelStore } from './usePersonnelStore';
@@ -293,6 +296,73 @@ function withBattleQueueAttached(
     readonly pendingBattleOutcomes: readonly ICombatOutcome[];
     readonly processedBattleIds: readonly string[];
   };
+}
+
+/**
+ * Derive `campaign.personnel` from the live roster + vault stores.
+ *
+ * The IPerson Map on a campaign is empty in production (the `usePersonnelStore`
+ * substrate was never seeded). The 12 silently-broken features all read from
+ * `campaign.personnel`, so we derive it here from `useCampaignRosterStore.pilots`
+ * (the actual source of truth) joined to `usePilotStore.pilots` (vault identity).
+ * Used in `advanceDay` to populate the campaign object the day pipeline reads.
+ *
+ * Per `migrate-personnel-to-roster-employment` design.md Decision 2.
+ */
+function derivePersonnelFromRoster(): Map<string, IPerson> {
+  const roster = useCampaignRosterStore.getState().pilots;
+  const vault = usePilotStore.getState().pilots;
+  const map = new Map<string, IPerson>();
+  for (const entry of roster) {
+    const vaultPilot = vault.find((p) => p.id === entry.pilotId) ?? null;
+    if (!vaultPilot && !entry.statblockData) continue;
+    map.set(entry.pilotId, rosterEntryToPerson(entry, vaultPilot));
+  }
+  return map;
+}
+
+/**
+ * Reconcile post-pipeline `campaign.personnel` updates back into the roster
+ * store. The day-pipeline processors mutate the derived Map (wounds advance,
+ * statuses transition, departures happen); without this sync-back those
+ * mutations are silently lost on the next derive.
+ *
+ * For each updated `IPerson` in the post-pipeline Map, we find the matching
+ * roster entry by id and write back the campaign-scoped fields the
+ * processors changed (`wounds`, `recoveryTime`, `status`, `xp`, kills,
+ * missions, `departureReason`).
+ */
+function syncRosterFromPersonnel(updated: Map<string, IPerson>): void {
+  const store = useCampaignRosterStore.getState();
+  const next = store.pilots.map((entry) => {
+    const person = updated.get(entry.pilotId);
+    if (!person) return entry;
+    return {
+      ...entry,
+      wounds: person.hits,
+      recoveryTime: person.daysToWaitForHealing,
+      // Reverse the 5-value status mapping. The shim collapsed Critical
+      // into Wounded, so on the way back we can't tell them apart — preserve
+      // the original entry status if it was Critical, otherwise map cleanly.
+      status:
+        person.status === 'KIA'
+          ? entry.status === 'critical'
+            ? entry.status
+            : ('kia' as typeof entry.status)
+          : entry.status,
+      campaignXpEarned: Math.max(
+        entry.campaignXpEarned,
+        person.totalXpEarned - (person.totalXpEarned - person.xp),
+      ),
+      campaignKills: person.totalKills,
+      campaignMissions: person.missionsCompleted,
+      departureReason: person.departureReason ?? entry.departureReason,
+    };
+  });
+  // Replace pilots array atomically. The store's setState supports this
+  // shape via Zustand's standard partial-state merge.
+  (store as unknown as { pilots: typeof next }).pilots = next;
+  useCampaignRosterStore.setState({ pilots: next });
 }
 
 /**
@@ -648,6 +718,27 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
           registerBuiltinProcessors();
 
+          // Per `migrate-personnel-to-roster-employment` design.md Decision 2:
+          // derive `campaign.personnel` from the live roster + vault stores
+          // so the day pipeline's helpers (salary, tax, healing, turnover,
+          // life events, vocational training, awards, post-battle wound
+          // sync) read populated data instead of the empty legacy substrate.
+          //
+          // Merge semantics: roster-derived entries WIN by id, but any
+          // entries already on `campaign.personnel` that don't appear in
+          // the roster are preserved. This keeps existing test fixtures
+          // (which seed `campaign.personnel` directly) working during the
+          // migration cycle.
+          const derivedPersonnel = derivePersonnelFromRoster();
+          const mergedPersonnel = new Map(campaign.personnel);
+          derivedPersonnel.forEach((person, id) => {
+            mergedPersonnel.set(id, person);
+          });
+          const campaignWithPersonnel: ICampaign = {
+            ...campaign,
+            personnel: mergedPersonnel,
+          };
+
           // Per `wire-encounter-to-campaign-round-trip` spec
           // ("Day Advancement Applies Pending Outcomes"): the day pipeline
           // is the canonical execution path so postBattle / salvage /
@@ -656,7 +747,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           // the pipeline reads — processors expect the queue to live on
           // the campaign, but our singleton truth is the store.
           const campaignWithOutcomes = withBattleQueueAttached(
-            campaign,
+            campaignWithPersonnel,
             pendingBattleOutcomes,
             processedBattleIds,
           );
@@ -741,11 +832,18 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
           // Per `wire-encounter-to-campaign-round-trip`: the postBattle
           // processor mutates `campaign.personnel` (pilot wounds + XP)
-          // and `campaign.missions` (contract status flips). The
-          // sub-stores are the source of truth that `saveCampaign`
-          // re-reads from, so sync the pipeline output back into them
-          // before persisting — otherwise saveCampaign would clobber
-          // the post-battle deltas with stale sub-store data.
+          // and `campaign.missions` (contract status flips).
+          //
+          // Per `migrate-personnel-to-roster-employment`: sync those
+          // mutations back into the canonical roster store. Without this
+          // sync-back, the next `derivePersonnelFromRoster()` call would
+          // overwrite the post-pipeline state with stale roster data.
+          syncRosterFromPersonnel(report.campaign.personnel);
+
+          // Legacy sub-store sync — preserved during the migration cycle so
+          // `saveCampaign` continues to round-trip personnel data through
+          // the legacy persistence path. Phase 5 deletes the personnel
+          // sub-store; this block goes with it.
           const { personnelStore, missionsStore } = get();
           if (personnelStore) {
             const ps = personnelStore.getState();
