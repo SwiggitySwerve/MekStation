@@ -87,13 +87,13 @@
 
 ## 10. End-to-End Test
 
-- [ ] 10.1 Integration test: mock contract → generated encounter →
+- [x] 10.1 Integration test: mock contract → generated encounter →
       launched session → simulated battle outcome → review → return to
       campaign → day advance → assert state
-- [ ] 10.2 Assertions: pilots have XP, wounded pilots in medical queue,
+- [x] 10.2 Assertions: pilots have XP, wounded pilots in medical queue,
       units have combat state reflecting damage, salvage inventory has
       awarded items, repair queue has expected tickets
-- [ ] 10.3 E2E test: full Playwright flow replicating a single-contract
+- [x] 10.3 E2E test: full Playwright flow replicating a single-contract
       play loop
 
 ## 11. Error & Recovery Paths
