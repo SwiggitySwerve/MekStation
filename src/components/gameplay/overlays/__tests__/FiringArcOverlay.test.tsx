@@ -102,6 +102,22 @@ describe('FiringArcOverlay', () => {
     );
   });
 
+  it.each([
+    ['short', 3],
+    ['medium', 6],
+    ['long', 9],
+  ])('includes hexes exactly at the %s range edge', (_band, range) => {
+    renderOverlay({
+      hexes: [origin, { q: 0, r: -range }, { q: 0, r: -(range + 1) }],
+      maxRange: range,
+    });
+
+    expect(
+      screen.getByTestId(`firing-arc-hex-0,-${range}`),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId(`firing-arc-hex-0,-${range + 1}`)).toBeNull();
+  });
+
   it('exposes a memo comparator to avoid rerendering for semantically identical map props', () => {
     const previous: FiringArcOverlayProps = {
       unit,

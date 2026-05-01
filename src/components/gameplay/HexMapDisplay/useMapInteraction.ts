@@ -119,6 +119,8 @@ export interface MapInteractionState {
   setShowMovementOverlay: React.Dispatch<React.SetStateAction<boolean>>;
   showCoverOverlay: boolean;
   setShowCoverOverlay: React.Dispatch<React.SetStateAction<boolean>>;
+  showFiringArcOverlay: boolean;
+  setShowFiringArcOverlay: React.Dispatch<React.SetStateAction<boolean>>;
   showLOSOverlay: boolean;
   setShowLOSOverlay: React.Dispatch<React.SetStateAction<boolean>>;
   /**
@@ -176,6 +178,7 @@ export function useMapInteraction(radius: number): MapInteractionState {
   const svgRef = useRef<SVGSVGElement>(null);
   const [showMovementOverlay, setShowMovementOverlay] = useState(false);
   const [showCoverOverlay, setShowCoverOverlay] = useState(false);
+  const [showFiringArcOverlay, setShowFiringArcOverlay] = useState(true);
   const [showLOSOverlay, setShowLOSOverlay] = useState(false);
 
   // Track mid-flight ease animations so a new centerOn call can
@@ -511,6 +514,8 @@ export function useMapInteraction(radius: number): MapInteractionState {
       setShowMovementOverlay,
       showCoverOverlay,
       setShowCoverOverlay,
+      showFiringArcOverlay,
+      setShowFiringArcOverlay,
       showLOSOverlay,
       setShowLOSOverlay,
       panBy,
@@ -531,6 +536,7 @@ export function useMapInteraction(radius: number): MapInteractionState {
       pan,
       showMovementOverlay,
       showCoverOverlay,
+      showFiringArcOverlay,
       showLOSOverlay,
       panBy,
       zoomTo,

@@ -239,7 +239,8 @@ export function HotkeyHintBadge(): React.ReactElement | null {
       role="status"
     >
       <span>
-        Press <KeyCap label="?" /> for shortcuts
+        Press <KeyCap label="?" /> for shortcuts. <KeyCap label="A" /> arcs,{' '}
+        <KeyCap label="L" /> LOS.
       </span>
       <button
         type="button"
