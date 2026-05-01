@@ -33,11 +33,11 @@
 
 ## 4. Mirror Session on Guest
 
-- [ ] 4.1 Guest creates a session object from the same config as the host
-- [ ] 4.2 Guest rejects any local event append; all state changes come
+- [x] 4.1 Guest creates a session object from the same config as the host
+- [x] 4.2 Guest rejects any local event append; all state changes come
       from the peer channel
-- [ ] 4.3 Guest's `InteractiveSession` exposes the same read API as host
-- [ ] 4.4 Guest's UI can still `selectedUnitId` / hover / inspect, but
+- [x] 4.3 Guest's `InteractiveSession` exposes the same read API as host
+- [x] 4.4 Guest's UI can still `selectedUnitId` / hover / inspect, but
       the "Commit" buttons submit an intent event through the peer
       channel instead of calling `appendEvent` directly
 
@@ -45,12 +45,12 @@
 
 - [x] 5.1 Define `IGameIntent` = `{type, payload, authorPeerId}` for
       actions the guest wants the host to execute
-- [ ] 5.2 Guest UI produces intents for `declareMovement`,
+- [x] 5.2 Guest UI produces intents for `declareMovement`,
       `declareAttack`, `declarePhysical`, `confirmHeat`, `endPhase`,
       `concede`
-- [ ] 5.3 Host consumes intents and translates them into appended events
+- [x] 5.3 Host consumes intents and translates them into appended events
       after running the normal validation / rule engine
-- [ ] 5.4 Host rejects intents that would modify units the guest does not
+- [x] 5.4 Host rejects intents that would modify units the guest does not
       control; rejection produces a `peer-rejected` local toast
 
 ## 6. Side Ownership
@@ -64,9 +64,9 @@ string>` field mapping side → peerId
 
 ## 7. Disconnect Handling
 
-- [ ] 7.1 Host disconnect detected via Yjs awareness loss; guest's
+- [x] 7.1 Host disconnect detected via Yjs awareness loss; guest's
       session fires `GameEnded` with `reason: 'aborted'`
-- [ ] 7.2 Guest disconnect puts the session in a `PeerPending` local
+- [x] 7.2 Guest disconnect puts the session in a `PeerPending` local
       status but does NOT end the game; host continues and buffers
       events for reconnect (handled in
       `add-game-session-persistence-for-reconnect`)
@@ -81,12 +81,12 @@ string>` field mapping side → peerId
 
 ## 9. Validation & Tests
 
-- [ ] 9.1 Integration test using the `MockSyncProvider` with two mirror
+- [x] 9.1 Integration test using the `MockSyncProvider` with two mirror
       sessions: host fires initiative, attack, damage; guest mirror
       produces identical state
-- [ ] 9.2 Integration test: guest intent to move produces a host-appended
+- [x] 9.2 Integration test: guest intent to move produces a host-appended
       MovementLocked event visible in both sessions
-- [ ] 9.3 Integration test: host disconnect ends the guest's session
+- [x] 9.3 Integration test: host disconnect ends the guest's session
       with `reason: 'aborted'`
 
 ## 10. Spec Compliance

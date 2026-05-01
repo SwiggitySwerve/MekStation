@@ -168,6 +168,39 @@ export {
 } from './hostRollEmbedding';
 
 export {
+  applyMirrorEvent,
+  assertMirrorAppendForbidden,
+  createMirrorSession,
+  describeMirrorAppendRejection,
+  isMirrorSession,
+  MirrorAppendForbiddenError,
+  type ICreateMirrorSessionOptions,
+  type MirrorAppendRejection,
+} from './mirrorSession';
+
+export {
+  buildDeclareAttackIntent,
+  buildDeclareMovementIntent,
+  buildEndPhaseIntent,
+  translateIntentToEvents,
+  type IDeclareAttackIntentPayload,
+  type IDeclareMovementIntentPayload,
+  type IEndPhaseIntentPayload,
+  type IIntentRejection,
+  type IIntentTranslation,
+  type IntentRejectionReason,
+  type IntentTranslationResult,
+} from './intentTranslation';
+
+export {
+  createHostIntentRouter,
+  type HostIntentRouterResult,
+  type IHostIntentBufferState,
+  type IHostIntentRouter,
+  type IHostIntentRouterAdapter,
+} from './hostIntentRouter';
+
+export {
   MATCH_LOG_DB_NAME,
   MATCH_LOG_DB_VERSION,
   MATCH_LOG_RETENTION_MS,
