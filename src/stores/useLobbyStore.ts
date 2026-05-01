@@ -46,6 +46,13 @@ interface LobbyStoreActions {
   readonly setLocalReady: (ready: boolean) => ILobbyChannelResult | null;
   readonly setHostSide: (hostSide: LobbyHostSide) => ILobbyChannelResult | null;
   readonly launch: (matchId?: string) => ILobbyChannelResult | null;
+  /**
+   * Per `add-game-session-invite-and-lobby-1v1` § 9.1-9.3: forward a
+   * peer disconnect event to the channel so it can reset readiness,
+   * vacate the guest slot, or close the lobby (host gone). Returns
+   * `null` if no channel is bound.
+   */
+  readonly handlePeerDisconnect: (peerId: string) => ILobbyChannelResult | null;
   readonly clearLobbyError: () => void;
   readonly resetLobby: () => void;
 }
@@ -151,6 +158,20 @@ export const useLobbyStore = create<LobbyStore>((set, get) => ({
     if (!channel) return null;
     const result = channel.launch(matchId);
     applyChannelResult(result, set);
+    return result;
+  },
+
+  handlePeerDisconnect: (peerId) => {
+    const { channel } = get();
+    if (!channel) return null;
+    const result = channel.handlePeerDisconnect(peerId);
+    // Don't surface "ok" rejections via applyChannelResult — a
+    // disconnect cleanup is housekeeping, not a user-actionable error.
+    if (!result.ok) {
+      applyChannelResult(result, set);
+    } else {
+      set({ lobbyState: result.state });
+    }
     return result;
   },
 
