@@ -5,9 +5,13 @@
  * Single campaign instance for MVP (extend to multiple later).
  *
  * Composes sub-stores:
- * - Personnel store (from usePersonnelStore)
  * - Forces store (from useForcesStore)
  * - Missions store (from useMissionsStore)
+ *
+ * Personnel state is no longer a sub-store — `campaign.personnel` is
+ * derived from `useCampaignRosterStore.entries[]` joined with
+ * `usePilotStore.pilots[]` every `advanceDay`. See
+ * `migrate-personnel-to-roster-employment`.
  *
  * Persists entire campaign state to IndexedDB via clientSafeStorage.
  */
@@ -59,7 +63,6 @@ import { emitPendingOutcomeAdded } from '@/utils/events/campaignOutcomeEvents';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 import { createForcesStore, ForcesStore } from './useForcesStore';
 import { createMissionsStore, MissionsStore } from './useMissionsStore';
-import { createPersonnelStore, PersonnelStore } from './usePersonnelStore';
 
 // =============================================================================
 // Serialized Campaign State (for persistence)
@@ -149,7 +152,6 @@ interface CampaignState {
   outcomeApplyErrors: Record<string, string>;
 
   /** Sub-store instances (created when campaign is loaded/created) */
-  personnelStore: StoreApi<PersonnelStore> | null;
   forcesStore: StoreApi<ForcesStore> | null;
   missionsStore: StoreApi<MissionsStore> | null;
 }
@@ -179,9 +181,6 @@ interface CampaignActions {
 
   /** Update campaign properties */
   updateCampaign: (updates: Partial<ICampaign>) => void;
-
-  /** Get personnel store */
-  getPersonnelStore: () => StoreApi<PersonnelStore> | null;
 
   /** Get forces store */
   getForcesStore: () => StoreApi<ForcesStore> | null;
@@ -301,8 +300,8 @@ function withBattleQueueAttached(
 /**
  * Derive `campaign.personnel` from the live roster + vault stores.
  *
- * The IPerson Map on a campaign is empty in production (the `usePersonnelStore`
- * substrate was never seeded). The 12 silently-broken features all read from
+ * The IPerson Map on a campaign was empty in production (the legacy personnel
+ * sub-store was never seeded). The 12 silently-broken features all read from
  * `campaign.personnel`, so we derive it here from `useCampaignRosterStore.pilots`
  * (the actual source of truth) joined to `usePilotStore.pilots` (vault identity).
  * Used in `advanceDay` to populate the campaign object the day pipeline reads.
@@ -530,7 +529,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         processedBattleIds: [],
         reviewedBattleIds: {},
         outcomeApplyErrors: {},
-        personnelStore: null,
         forcesStore: null,
         missionsStore: null,
 
@@ -556,7 +554,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           };
 
           // Create sub-stores
-          const personnelStore = createPersonnelStore(campaign.id);
           const forcesStore = createForcesStore(campaign.id);
           const missionsStore = createMissionsStore(campaign.id);
 
@@ -571,7 +568,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
           set({
             campaign: campaignWithForce,
-            personnelStore,
             forcesStore,
             missionsStore,
           });
@@ -599,17 +595,33 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             const serialized = parsed.state;
 
             // Create sub-stores and load their data
-            const personnelStore = createPersonnelStore(id);
             const forcesStore = createForcesStore(id);
             const missionsStore = createMissionsStore(id);
 
-            // Get data from sub-stores (they auto-hydrate from their own storage)
-            const personnel = new Map(
-              personnelStore
-                .getState()
-                .getAll()
-                .map((p) => [p.id, p]),
-            );
+            // Per `migrate-personnel-to-roster-employment`: personnel is now
+            // derived from `useCampaignRosterStore` + `usePilotStore` on each
+            // `advanceDay` call (via `derivePersonnelFromRoster`). Load with
+            // an empty Map; the next pipeline run populates it.
+            //
+            // One-shot warn-log: if the legacy persisted state still has a
+            // non-empty `personnel` field, log it so we hear about saves
+            // that contradict the spike's "IPerson is never seeded" finding.
+            if (
+              serialized &&
+              typeof serialized === 'object' &&
+              'personnel' in serialized &&
+              Array.isArray(
+                (serialized as { personnel?: unknown }).personnel,
+              ) &&
+              ((serialized as { personnel: unknown[] }).personnel.length ?? 0) >
+                0
+            ) {
+              // eslint-disable-next-line no-console
+              console.warn(
+                `[migrate-personnel-to-roster-employment] Legacy non-empty 'personnel' field found in serialized state for campaign ${id}; field is ignored on rehydrate. Investigate if this fires.`,
+              );
+            }
+            const personnel = new Map<string, IPerson>();
             const forces = new Map(
               forcesStore
                 .getState()
@@ -636,7 +648,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
               pendingBattleOutcomes: serialized.pendingBattleOutcomes ?? [],
               processedBattleIds: serialized.processedBattleIds ?? [],
               reviewedBattleIds: serialized.reviewedBattleIds ?? {},
-              personnelStore,
               forcesStore,
               missionsStore,
             });
@@ -653,7 +664,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             pendingBattleOutcomes,
             processedBattleIds,
             reviewedBattleIds,
-            personnelStore,
             forcesStore,
             missionsStore,
           } = get();
@@ -662,15 +672,11 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             return;
           }
 
-          // Sync sub-store data to campaign
-          const personnel = personnelStore
-            ? new Map(
-                personnelStore
-                  .getState()
-                  .getAll()
-                  .map((p) => [p.id, p]),
-              )
-            : campaign.personnel;
+          // Per `migrate-personnel-to-roster-employment`: personnel is no
+          // longer persisted via a sub-store. The roster store has its own
+          // persistence path; we save whatever is currently on the campaign
+          // object (which `advanceDay` derives from roster + vault).
+          const personnel = campaign.personnel;
 
           const forces = forcesStore
             ? new Map(
@@ -840,21 +846,11 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           // overwrite the post-pipeline state with stale roster data.
           syncRosterFromPersonnel(report.campaign.personnel);
 
-          // Legacy sub-store sync — preserved during the migration cycle so
-          // `saveCampaign` continues to round-trip personnel data through
-          // the legacy persistence path. Phase 5 deletes the personnel
-          // sub-store; this block goes with it.
-          const { personnelStore, missionsStore } = get();
-          if (personnelStore) {
-            const ps = personnelStore.getState();
-            Array.from(report.campaign.personnel.values()).forEach((person) => {
-              // Upsert: addPerson is set(...) under the hood, so it
-              // also updates if the ID already exists. Cleaner than
-              // updatePerson which silently no-ops when the ID is
-              // missing from the sub-store.
-              ps.addPerson(person);
-            });
-          }
+          // Per `migrate-personnel-to-roster-employment`: the personnel
+          // sub-store is gone. Personnel state lives on `campaign.personnel`
+          // (derived from roster + vault every `advanceDay`). Missions
+          // sub-store is still present and continues to receive an upsert.
+          const { missionsStore } = get();
           if (missionsStore) {
             const ms = missionsStore.getState();
             Array.from(report.campaign.missions.values()).forEach((mission) => {
@@ -908,7 +904,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           set({ campaign: updatedCampaign });
         },
 
-        getPersonnelStore: () => get().personnelStore,
         getForcesStore: () => get().forcesStore,
         getMissionsStore: () => get().missionsStore,
 
@@ -1083,7 +1078,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             return {
               ...current,
               campaign: null,
-              personnelStore: null,
               forcesStore: null,
               missionsStore: null,
             };
@@ -1105,7 +1099,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             pendingBattleOutcomes: serialized.pendingBattleOutcomes ?? [],
             processedBattleIds: serialized.processedBattleIds ?? [],
             reviewedBattleIds: serialized.reviewedBattleIds ?? {},
-            personnelStore: null,
             forcesStore: null,
             missionsStore: null,
           };

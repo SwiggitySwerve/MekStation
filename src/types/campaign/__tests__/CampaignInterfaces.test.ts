@@ -2,12 +2,13 @@
  * Campaign Interfaces Tests
  */
 
+import type { ICampaignRosterEntry } from '../CampaignRosterEntry';
+
 import {
   ICampaign,
   ICampaignMission,
   ICampaignRoster,
   ICampaignUnitState,
-  ICampaignPilotState,
   CampaignStatus,
   CampaignMissionStatus,
   CampaignUnitStatus,
@@ -50,8 +51,8 @@ function createTestUnit(
 }
 
 function createTestPilot(
-  overrides: Partial<ICampaignPilotState> = {},
-): ICampaignPilotState {
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
   return {
     pilotId: 'pilot-1',
     pilotName: 'John Doe',

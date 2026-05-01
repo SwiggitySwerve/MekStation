@@ -7,19 +7,18 @@
  *
  * Specifically tests the read-side wiring: salary calculation (and the
  * surrounding finance pipeline) sees populated personnel data instead of
- * the legacy empty `usePersonnelStore`.
+ * the deleted (Phase 5) empty personnel sub-store.
  *
  * @spec openspec/changes/migrate-personnel-to-roster-employment/specs/personnel-management/spec.md
  */
+
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
 import { calculateTotalMonthlySalary } from '@/lib/finances/salaryService';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { usePilotStore } from '@/stores/usePilotStore';
-import {
-  CampaignPilotStatus,
-  type ICampaignPilotState,
-} from '@/types/campaign/CampaignInterfaces.types';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import {
   PilotStatus,
   PilotType,
@@ -61,7 +60,7 @@ function makeVaultPilot(id: string, name: string): IPilot {
 function makeRosterEntry(
   pilotId: string,
   pilotName: string,
-): ICampaignPilotState {
+): ICampaignRosterEntry {
   return {
     pilotId,
     pilotName,

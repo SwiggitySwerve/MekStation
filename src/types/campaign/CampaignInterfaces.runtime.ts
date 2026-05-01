@@ -1,11 +1,11 @@
 import type {
   ICampaign,
   ICampaignMission,
-  ICampaignPilotState,
   ICampaignRoster,
   ICampaignUnitState,
   ICampaignValidationResult,
 } from './CampaignInterfaces.types';
+import type { ICampaignRosterEntry } from './CampaignRosterEntry';
 
 import {
   CampaignMissionStatus,
@@ -172,7 +172,7 @@ export function getOperationalUnits(
  */
 export function getAvailablePilots(
   roster: ICampaignRoster,
-): readonly ICampaignPilotState[] {
+): readonly ICampaignRosterEntry[] {
   return roster.pilots.filter((p) => p.status === CampaignPilotStatus.Active);
 }
 

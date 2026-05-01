@@ -31,7 +31,7 @@ import { CrewAssignmentPanel } from './CrewAssignmentPanel';
 type Tab = 'progression' | 'abilities' | 'assignment';
 
 interface PersonnelSidePanelProps {
-  /** Vault pilot id (from ICampaignPilotState.pilotId) */
+  /** Vault pilot id (from ICampaignRosterEntry.pilotId) */
   pilotId: string;
   /** Whether the panel is mounted/visible */
   isOpen: boolean;

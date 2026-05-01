@@ -154,7 +154,6 @@ describe('useCampaignStore', () => {
 
     it('should initialize with null sub-stores', () => {
       const state = store.getState();
-      expect(state.personnelStore).toBeNull();
       expect(state.forcesStore).toBeNull();
       expect(state.missionsStore).toBeNull();
     });
@@ -167,7 +166,6 @@ describe('useCampaignStore', () => {
       expect(typeof state.advanceDay).toBe('function');
       expect(typeof state.getCampaign).toBe('function');
       expect(typeof state.updateCampaign).toBe('function');
-      expect(typeof state.getPersonnelStore).toBe('function');
       expect(typeof state.getForcesStore).toBe('function');
       expect(typeof state.getMissionsStore).toBe('function');
     });
@@ -240,7 +238,6 @@ describe('useCampaignStore', () => {
     it('should initialize sub-stores', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
-      expect(store.getState().getPersonnelStore()).not.toBeNull();
       expect(store.getState().getForcesStore()).not.toBeNull();
       expect(store.getState().getMissionsStore()).not.toBeNull();
     });
@@ -306,14 +303,17 @@ describe('useCampaignStore', () => {
     });
 
     it('should restore sub-stores on load', () => {
-      // Create campaign and add data to sub-stores
+      // Create campaign and add data to sub-stores. Personnel is no longer
+      // a sub-store (`migrate-personnel-to-roster-employment`); we seed
+      // directly on the campaign object.
       const campaignId = store
         .getState()
         .createCampaign('Test Campaign', 'mercenary');
 
-      const personnelStore = store.getState().getPersonnelStore();
       const person = createTestPerson({ name: 'Test Pilot' });
-      personnelStore?.getState().addPerson(person);
+      store.getState().updateCampaign({
+        personnel: new Map([[person.id, person]]),
+      });
 
       store.getState().saveCampaign();
 
@@ -321,7 +321,6 @@ describe('useCampaignStore', () => {
       const newStore = createCampaignStore();
       newStore.getState().loadCampaign(campaignId);
 
-      expect(newStore.getState().getPersonnelStore()).not.toBeNull();
       expect(newStore.getState().getForcesStore()).not.toBeNull();
       expect(newStore.getState().getMissionsStore()).not.toBeNull();
     });
@@ -387,13 +386,16 @@ describe('useCampaignStore', () => {
       expect(newUpdatedAt).not.toBe(originalUpdatedAt);
     });
 
-    it('should sync sub-store data to campaign', () => {
+    it('should sync personnel data to campaign', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
-      // Add personnel via sub-store
-      const personnelStore = store.getState().getPersonnelStore();
+      // Per `migrate-personnel-to-roster-employment`, personnel lives on
+      // `campaign.personnel` directly. The sub-store is gone — we seed
+      // via `updateCampaign` and verify `saveCampaign` round-trips.
       const person = createTestPerson({ name: 'Synced Person' });
-      personnelStore?.getState().addPerson(person);
+      store.getState().updateCampaign({
+        personnel: new Map([[person.id, person]]),
+      });
 
       store.getState().saveCampaign();
 
@@ -598,14 +600,6 @@ describe('useCampaignStore', () => {
   // ===========================================================================
 
   describe('Sub-Store Composition', () => {
-    it('should provide personnel store after campaign creation', () => {
-      store.getState().createCampaign('Test Campaign', 'mercenary');
-
-      const personnelStore = store.getState().getPersonnelStore();
-      expect(personnelStore).not.toBeNull();
-      expect(personnelStore?.getState().personnel).toBeInstanceOf(Map);
-    });
-
     it('should provide forces store after campaign creation', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
@@ -622,16 +616,19 @@ describe('useCampaignStore', () => {
       expect(missionsStore?.getState().missions).toBeInstanceOf(Map);
     });
 
-    it('should allow adding personnel via sub-store', () => {
+    it('should allow adding personnel via campaign object', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
-      const personnelStore = store.getState().getPersonnelStore();
+      // Per `migrate-personnel-to-roster-employment`, personnel is no
+      // longer a sub-store — it lives directly on `campaign.personnel`.
       const person = createTestPerson({ name: 'New Pilot' });
-      personnelStore?.getState().addPerson(person);
+      store.getState().updateCampaign({
+        personnel: new Map([[person.id, person]]),
+      });
 
-      expect(personnelStore?.getState().getPerson(person.id)?.name).toBe(
-        'New Pilot',
-      );
+      expect(
+        store.getState().getCampaign()?.personnel.get(person.id)?.name,
+      ).toBe('New Pilot');
     });
 
     it('should allow adding forces via sub-store', () => {
@@ -661,8 +658,8 @@ describe('useCampaignStore', () => {
     it('should sync sub-store data on save', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
-      // Add data to all sub-stores
-      const personnelStore = store.getState().getPersonnelStore();
+      // Add data to remaining sub-stores plus seed personnel directly on
+      // the campaign object (personnel is no longer a sub-store).
       const forcesStore = store.getState().getForcesStore();
       const missionsStore = store.getState().getMissionsStore();
 
@@ -670,7 +667,9 @@ describe('useCampaignStore', () => {
       const force = createTestForce({ name: 'Test Lance' });
       const mission = createTestMission({ name: 'Test Mission' });
 
-      personnelStore?.getState().addPerson(person);
+      store.getState().updateCampaign({
+        personnel: new Map([[person.id, person]]),
+      });
       forcesStore?.getState().addForce(force);
       missionsStore?.getState().addMission(mission);
 
@@ -746,18 +745,24 @@ describe('useCampaignStore', () => {
       expect(campaign?.currentDate).toBeInstanceOf(Date);
     });
 
-    it('should persist sub-store data independently', () => {
+    it('should persist personnel via campaign object', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
-      const personnelStore = store.getState().getPersonnelStore();
+      // Per `migrate-personnel-to-roster-employment`, personnel no longer
+      // has its own persistence path — it's part of the serialized
+      // campaign blob saved by `saveCampaign`.
       const person = createTestPerson({ name: 'Persisted Person' });
-      personnelStore?.getState().addPerson(person);
+      store.getState().updateCampaign({
+        personnel: new Map([[person.id, person]]),
+      });
 
-      // Check personnel store has its own storage
-      const personnelStored = localStorageMock.getItem(
-        `personnel-${store.getState().getCampaign()?.id}`,
+      store.getState().saveCampaign();
+
+      const campaignId = store.getState().getCampaign()?.id;
+      const persistedCampaign = localStorageMock.getItem(
+        `campaign-${campaignId}`,
       );
-      expect(personnelStored).toBeTruthy();
+      expect(persistedCampaign).toBeTruthy();
     });
   });
 
@@ -812,13 +817,14 @@ describe('useCampaignStore', () => {
     it('should handle large personnel roster', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
-      const personnelStore = store.getState().getPersonnelStore();
-
-      // Add 100 personnel
+      // Build up a 100-person Map and seed via `updateCampaign`. The
+      // personnel sub-store is gone (`migrate-personnel-to-roster-employment`).
+      const personnel = new Map<string, ReturnType<typeof createTestPerson>>();
       for (let i = 0; i < 100; i++) {
         const person = createTestPerson({ name: `Person ${i}` });
-        personnelStore?.getState().addPerson(person);
+        personnel.set(person.id, person);
       }
+      store.getState().updateCampaign({ personnel });
 
       store.getState().saveCampaign();
 
@@ -839,10 +845,12 @@ describe('useCampaignStore', () => {
         .createCampaign("Wolf's Dragoons", 'mercenary');
       expect(campaignId).toBeDefined();
 
-      // Add personnel
-      const personnelStore = store.getState().getPersonnelStore();
+      // Add personnel (per `migrate-personnel-to-roster-employment`, this
+      // is now a direct campaign-object update — no sub-store).
       const pilot = createTestPerson({ name: 'Jaime Wolf', rank: 'Colonel' });
-      personnelStore?.getState().addPerson(pilot);
+      store.getState().updateCampaign({
+        personnel: new Map([[pilot.id, pilot]]),
+      });
 
       // Add force
       const forcesStore = store.getState().getForcesStore();
@@ -875,9 +883,10 @@ describe('useCampaignStore', () => {
         .getState()
         .createCampaign('Test Campaign', 'mercenary');
 
-      const personnelStore = store.getState().getPersonnelStore();
       const pilot = createTestPerson({ name: 'Test Pilot' });
-      personnelStore?.getState().addPerson(pilot);
+      store.getState().updateCampaign({
+        personnel: new Map([[pilot.id, pilot]]),
+      });
 
       store.getState().advanceDay();
       store.getState().saveCampaign();

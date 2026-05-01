@@ -2,10 +2,11 @@
  * Campaign Personnel Page
  * Manage pilot roster for the campaign.
  *
- * Reads from `useCampaignRosterStore.pilots` (the live `ICampaignPilotState`
- * records written at campaign creation), NOT from `usePersonnelStore`'s
- * `IPerson` map. The IPerson map starts empty in every campaign because
- * nothing seeds it — see council decision below for the architectural reason.
+ * Reads from `useCampaignRosterStore.pilots` (the live `ICampaignRosterEntry`
+ * records written at campaign creation), NOT from a campaign-level `IPerson`
+ * map. The legacy personnel sub-store was deleted in
+ * `migrate-personnel-to-roster-employment` Phase 5 — see council decision
+ * below for the architectural reason.
  *
  * Pilot data (skills, abilities, XP) resolves via vault join through
  * `usePilotById` inside the side panel. The XP-spend mechanic flows through
@@ -19,7 +20,7 @@
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
-import type { ICampaignPilotState } from '@/types/campaign/CampaignInterfaces';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { PersonnelSidePanel } from '@/components/campaign/personnel/PersonnelSidePanel';
@@ -32,7 +33,7 @@ import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 // =============================================================================
 
 interface PilotRosterRowProps {
-  pilot: ICampaignPilotState;
+  pilot: ICampaignRosterEntry;
   isSelected: boolean;
   onClick: () => void;
 }

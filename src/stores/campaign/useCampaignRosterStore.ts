@@ -14,11 +14,12 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
   CampaignUnitStatus,
   type ICampaignUnitState,
-  type ICampaignPilotState,
 } from '@/types/campaign/CampaignInterfaces';
 
 // =============================================================================
@@ -67,7 +68,7 @@ interface CampaignRosterState {
   units: ICampaignUnitState[];
 
   /** Pilot roster for the campaign */
-  pilots: ICampaignPilotState[];
+  pilots: ICampaignRosterEntry[];
 
   /** Mission history */
   missions: ICampaignMissionRecord[];
@@ -90,7 +91,7 @@ interface CampaignRosterActions {
   removeUnit: (unitId: string) => void;
 
   /** Add a pilot to the roster */
-  addPilot: (pilot: ICampaignPilotState) => void;
+  addPilot: (pilot: ICampaignRosterEntry) => void;
 
   /** Remove a pilot from the roster */
   removePilot: (pilotId: string) => void;
