@@ -36,6 +36,7 @@ import { useToast } from '@/components/shared/Toast';
 import { Card, PageLayout } from '@/components/ui';
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { GameEngine } from '@/engine/GameEngine';
+import { useSyncRoomSelector } from '@/lib/p2p';
 import { useEncounterSelector } from '@/stores/useEncounterStore';
 import { useForceSelector } from '@/stores/useForceStore';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
@@ -103,6 +104,12 @@ export default function PreBattlePage(): React.ReactElement {
     (s) => s.setInteractiveSession,
   );
   const setSpectatorMode = useGameplaySelector((s) => s.setSpectatorMode);
+  // Per `add-game-session-invite-and-lobby-1v1` § 7.1: clicking the
+  // pre-battle "Networked 1v1" button creates a fresh sync room and
+  // routes the host to the new lobby route directly. We pull
+  // `createRoom` from the sync-room store so the click handler can mint
+  // the room code without bouncing through the games index page.
+  const createSyncRoom = useSyncRoomSelector((state) => state.createRoom);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
@@ -548,23 +555,41 @@ export default function PreBattlePage(): React.ReactElement {
     void launchBattle('spectator');
   }, [launchBattle]);
 
-  // Per `add-p2p-game-session-sync` § 8.1 / § 8.2: opens a networked
-  // 1v1 lobby. Delegates to the existing games-page lobby creator
-  // (which already handles room creation + routing). When the user is
-  // currently mid auto-resolve, the button is disabled with a tooltip
-  // explaining why; otherwise it routes to the games index where the
-  // "Create Lobby" button kicks off the host flow.
+  // Per `add-game-session-invite-and-lobby-1v1` § 7.1: opens a
+  // networked 1v1 lobby. Creates a fresh sync room, then routes the
+  // host to `/gameplay/lobby/[roomCode]?host=1` so the lobby page can
+  // initialise the host-side Yjs lobby state. We let the lobby page
+  // own room hydration; this handler only mints the code and navigates.
+  // On creation failure we fall back to the games index (which has the
+  // legacy "Create Lobby" button) so the user is never stranded.
+  const [networked1v1Error, setNetworked1v1Error] = useState<string | null>(
+    null,
+  );
   const startNetworked1v1 = useCallback(() => {
-    void router.push('/gameplay/games');
-  }, [router]);
+    void (async () => {
+      setNetworked1v1Error(null);
+      try {
+        const code = await createSyncRoom();
+        await router.push(`/gameplay/lobby/${encodeURIComponent(code)}?host=1`);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Failed to create networked lobby';
+        setNetworked1v1Error(message);
+        logger.error('Networked 1v1 launch failed:', error);
+      }
+    })();
+  }, [createSyncRoom, router]);
 
   // The disable reason surfaces in the ModeSelection tooltip per § 8.2.
   // For this slice the button is gated only by `isResolving` (the
   // ModeSelection component already disables on that flag); we don't
   // require an active sync room because clicking the button CREATES
-  // one. A future slice can plumb a stricter precondition through
-  // `networked1v1DisabledReason` without touching the button shape.
-  const networked1v1DisabledReason: string | null = null;
+  // one. When `createRoom` fails (e.g., WebRTC unavailable) we surface
+  // the captured error here so the user sees a tooltip explaining why
+  // the next click would fail without having to inspect the dev console.
+  const networked1v1DisabledReason: string | null = networked1v1Error;
 
   if (!isInitialized || encountersLoading) {
     return (

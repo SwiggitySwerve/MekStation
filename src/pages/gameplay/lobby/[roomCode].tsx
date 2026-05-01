@@ -1,15 +1,17 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { IUnitIndexEntry } from '@/services/common/types';
 import type { ISelectedUnit } from '@/types/gameplay/GameLobbyInterfaces';
 import type { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
 
 import { GameplayLobbyPanel } from '@/components/gameplay/lobby';
+import { useToast } from '@/components/shared/Toast';
 import {
   createLobbyChannel,
+  getGameSessionAwarenessStates,
   joinLocalPeerAsGuest,
   matchLogStorage,
   normalizeRoomCode,
@@ -49,7 +51,14 @@ export default function GameplayLobbyPage(): React.ReactElement {
   const setLocalReady = useLobbySelector((state) => state.setLocalReady);
   const setHostSide = useLobbySelector((state) => state.setHostSide);
   const launch = useLobbySelector((state) => state.launch);
+  // Per `add-game-session-invite-and-lobby-1v1` § 9: forward awareness
+  // disconnects to the lobby channel so it can reset readiness, vacate
+  // the guest slot, or close the lobby (host gone).
+  const handlePeerDisconnect = useLobbySelector(
+    (state) => state.handlePeerDisconnect,
+  );
   const setSession = useGameplayStore((state) => state.setSession);
+  const { showToast } = useToast();
 
   const pilots = usePilotSelector((state) => state.pilots);
   const loadPilots = usePilotSelector((state) => state.loadPilots);
@@ -137,6 +146,73 @@ export default function GameplayLobbyPage(): React.ReactElement {
     }
     joinAsGuest();
   }, [isHostRoute, joinAsGuest, lobbyState, localPeerId]);
+
+  // Per `add-game-session-invite-and-lobby-1v1` § 9.1-9.3: poll the
+  // sync-room awareness 1×/s and forward any peer that disappears to
+  // the lobby channel. We compare the previous peer-id set against the
+  // current one — peers that were present last tick but missing this
+  // tick get a `handlePeerDisconnect` call. Polling matches the
+  // `useSyncRoom` hook's convention (awareness change events can be
+  // flaky on transient reconnects; polling smooths over the gap).
+  // Stops once `matchId` is set because the in-game reconnect grace
+  // window owns that lifecycle from there forward.
+  const previousAwarenessPeerIds = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!activeRoom || !routeRoomCode) {
+      previousAwarenessPeerIds.current = new Set();
+      return;
+    }
+    if (lobbyState?.matchId) {
+      // Match launched — defer to in-game reconnect handling.
+      previousAwarenessPeerIds.current = new Set();
+      return;
+    }
+
+    const sample = (): void => {
+      const states = getGameSessionAwarenessStates(
+        activeRoom.webrtcProvider.awareness,
+      );
+      const currentIds = new Set(states.map((peer) => peer.peerId));
+      const previous = previousAwarenessPeerIds.current;
+      previous.forEach((peerId) => {
+        if (!currentIds.has(peerId)) {
+          handlePeerDisconnect(peerId);
+        }
+      });
+      previousAwarenessPeerIds.current = currentIds;
+    };
+
+    sample();
+    const interval = setInterval(sample, 1000);
+    return () => clearInterval(interval);
+  }, [activeRoom, handlePeerDisconnect, lobbyState?.matchId, routeRoomCode]);
+
+  // § 9.2: when the host disappears, the lobby channel marks the state
+  // `closed`. The guest navigates back to the games index with a toast
+  // explaining the disconnect. The host itself never sees `closed`
+  // because it's the one writing the flag — guarding by `localPeerId
+  // !== hostPeerId` keeps the toast scoped to the guest.
+  const closedNavigated = useRef(false);
+  useEffect(() => {
+    if (!lobbyState?.closed) {
+      closedNavigated.current = false;
+      return;
+    }
+    if (closedNavigated.current) return;
+    if (lobbyState.hostPeerId === localPeerId) return;
+    closedNavigated.current = true;
+    showToast({
+      message: 'Host left the lobby',
+      variant: 'warning',
+    });
+    void router.push('/gameplay/games');
+  }, [
+    lobbyState?.closed,
+    lobbyState?.hostPeerId,
+    localPeerId,
+    router,
+    showToast,
+  ]);
 
   useEffect(() => {
     if (!lobbyState?.matchId) return;

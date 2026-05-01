@@ -52,6 +52,23 @@ export interface ILobbyChannel {
   readonly setReady: (peerId: string, ready: boolean) => ILobbyChannelResult;
   readonly setHostSide: (hostSide: LobbyHostSide) => ILobbyChannelResult;
   readonly launch: (matchId?: string) => ILobbyChannelResult;
+  /**
+   * Per `add-game-session-invite-and-lobby-1v1` § 9: react to a peer
+   * disappearing from the sync room before the match has launched.
+   *
+   * - If the disconnected peer was the host: marks the lobby `closed`
+   *   so the guest UI can route back to the landing page (§ 9.2).
+   * - If the disconnected peer was the guest: clears `guestPeerId` and
+   *   resets `guestReady` so the host falls back to "Waiting for
+   *   opponent..." until a new guest joins (§ 9.3).
+   * - In every case: resets the disconnected peer's `ready` flag to
+   *   `false` so a re-join doesn't inherit stale readiness (§ 9.1).
+   *
+   * No-op once `matchId` is set — at that point the match has already
+   * launched and the in-game reconnect grace window (Wave 4) takes
+   * over.
+   */
+  readonly handlePeerDisconnect: (peerId: string) => ILobbyChannelResult;
   readonly onStateChange: (callback: LobbyStateCallback) => () => void;
   readonly onPeerRejection: (callback: LobbyRejectionCallback) => () => void;
 }
@@ -216,6 +233,51 @@ export function createLobbyChannel(
       return write({
         ...state,
         matchId: matchId ?? options.matchIdFactory?.() ?? createMatchId(),
+      });
+    },
+
+    handlePeerDisconnect: (peerId: string): ILobbyChannelResult => {
+      const state = readLobbyState(options);
+      if (!state) return reject('lobby:handlePeerDisconnect', 'invalid-state');
+      // Once the match has launched, in-game reconnect grace owns the
+      // disconnect lifecycle. Pre-launch is the only window where this
+      // helper rewrites lobby state.
+      if (state.matchId) return { ok: true, state };
+
+      const isHost = state.hostPeerId === peerId;
+      const isGuest = state.guestPeerId === peerId;
+      if (!isHost && !isGuest) {
+        // Unknown peer (e.g., a third peer that joined the room but
+        // never claimed a side) — nothing to mutate. Returning ok keeps
+        // the upstream wiring idempotent so the awareness poller can
+        // call this every tick without surfacing a spurious rejection.
+        return { ok: true, state };
+      }
+
+      if (isHost) {
+        // § 9.2: host gone → mark `closed` so the guest's lobby page
+        // navigates back to the landing screen with a toast. We also
+        // reset both ready flags so a residual `closed` state doesn't
+        // appear "ready" if the guest sees it briefly before the route
+        // change fires.
+        return write({
+          ...state,
+          closed: true,
+          hostReady: false,
+          guestReady: false,
+        });
+      }
+
+      // § 9.3 + § 9.1 (guest path): clear the guest assignment and
+      // reset both ready flags. The host UI re-renders "Waiting for
+      // opponent..." because `guestPeerId` is null again, and a future
+      // joiner walks through `joinGuest()` cleanly.
+      return write({
+        ...state,
+        guestPeerId: null,
+        guestLoadout: state.guestLoadout,
+        hostReady: false,
+        guestReady: false,
       });
     },
 

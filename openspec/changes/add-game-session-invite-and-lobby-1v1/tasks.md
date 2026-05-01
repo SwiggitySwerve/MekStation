@@ -60,10 +60,10 @@ string, turnLimit: number}`
 
 ## 7. Invite Flow
 
-- [ ] 7.1 Adding "Networked 1v1" to the skirmish setup (from
+- [x] 7.1 Adding "Networked 1v1" to the skirmish setup (from
       `add-p2p-game-session-sync`) now routes to a newly created lobby
       instead of launching directly
-- [ ] 7.2 Joining a networked match: user enters a room code in the
+- [x] 7.2 Joining a networked match: user enters a room code in the
       existing sync-join UI; if the room has an active lobby, the UI
       routes to `/gameplay/lobby/[roomCode]`
 
@@ -77,20 +77,20 @@ string, turnLimit: number}`
 
 ## 9. Disconnect Mid-Lobby
 
-- [ ] 9.1 If either peer disconnects before launch, their ready flag
+- [x] 9.1 If either peer disconnects before launch, their ready flag
       auto-resets to false
-- [ ] 9.2 If the host disconnects, the lobby closes and the guest is
+- [x] 9.2 If the host disconnects, the lobby closes and the guest is
       kicked back to the landing page with a toast
-- [ ] 9.3 If the guest disconnects, the host sees "Waiting for
+- [x] 9.3 If the guest disconnects, the host sees "Waiting for
       opponent..." until a new guest joins
 
 ## 10. Tests
 
-- [ ] 10.1 Integration test: host creates lobby, guest joins, both pick
+- [x] 10.1 Integration test: host creates lobby, guest joins, both pick
       loadouts, both ready, host launches, both land on the combat page
-- [ ] 10.2 Integration test: host disconnect closes the lobby
-- [ ] 10.3 Integration test: guest cannot modify the host's loadout
-- [ ] 10.4 Integration test: third peer joining the room cannot join
+- [x] 10.2 Integration test: host disconnect closes the lobby
+- [x] 10.3 Integration test: guest cannot modify the host's loadout
+- [x] 10.4 Integration test: third peer joining the room cannot join
       the 1v1 lobby
 
 ## 11. Spec Compliance
