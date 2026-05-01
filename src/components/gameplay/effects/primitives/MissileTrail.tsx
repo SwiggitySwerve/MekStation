@@ -50,6 +50,7 @@ export function MissileTrail({
       data-duration-ms={durationMs}
       data-delay-ms={delay}
       data-projectile-index={projectileIndex}
+      data-stagger-index={projectileIndex}
       data-projectile-count={projectileCount}
       data-stagger-ms={staggerMs}
     >

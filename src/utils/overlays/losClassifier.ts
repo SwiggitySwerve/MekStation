@@ -2,6 +2,7 @@ import type {
   IHexCoordinate,
   IHexGrid,
 } from '@/types/gameplay/HexGridInterfaces';
+import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type { ILOSResult } from '@/utils/gameplay/lineOfSight';
 
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
@@ -16,7 +17,7 @@ export type LOSBlockerIcon = 'cover' | 'wall';
 
 export interface LOSBlockerMetadata {
   readonly coord: IHexCoordinate;
-  readonly terrain: TerrainType;
+  readonly terrain?: TerrainType;
   readonly icon: LOSBlockerIcon;
   readonly title: string;
 }
@@ -32,6 +33,7 @@ export interface LOSClassification {
 export interface LOSClassifierOptions {
   readonly fromElevation?: number;
   readonly toElevation?: number;
+  readonly tokens?: readonly IUnitToken[];
 }
 
 const PARTIAL_COVER_TERRAINS: readonly TerrainType[] = [
@@ -94,6 +96,17 @@ function blockedAnnotation(
   };
 }
 
+function wreckAnnotation(
+  coord: IHexCoordinate,
+  unitName: string,
+): LOSBlockerMetadata {
+  return {
+    coord,
+    icon: 'wall',
+    title: `Blocked by wreck ${unitName} at ${hexLabel(coord)}`,
+  };
+}
+
 export function classifyLOS(
   from: IHexCoordinate,
   to: IHexCoordinate,
@@ -106,16 +119,23 @@ export function classifyLOS(
     grid,
     options.fromElevation,
     options.toElevation,
+    options.tokens,
   );
 
   if (!engineResult.hasLOS) {
     const blockedBy = engineResult.blockedBy;
-    const terrain =
-      engineResult.blockingTerrain ??
-      (blockedBy ? terrainAt(grid, blockedBy) : undefined) ??
-      TerrainType.Building;
+    const blockingUnit = engineResult.blockingUnit;
     const blockerAnnotations = blockedBy
-      ? [blockedAnnotation(blockedBy, terrain)]
+      ? [
+          blockingUnit
+            ? wreckAnnotation(blockedBy, blockingUnit.name)
+            : blockedAnnotation(
+                blockedBy,
+                engineResult.blockingTerrain ??
+                  terrainAt(grid, blockedBy) ??
+                  TerrainType.Building,
+              ),
+        ]
       : [];
 
     return {

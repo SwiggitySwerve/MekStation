@@ -3,6 +3,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { IGameEvent } from '@/types/gameplay';
 
 import { usePrefersReducedMotion } from '@/hooks/useReducedMotion';
+import {
+  attackImpactDelayMs,
+  resolveAttackEventEffect,
+} from '@/utils/effects/weaponEffectMap';
 
 import {
   damageFlashLocations,
@@ -18,6 +22,7 @@ const REDUCED_MOTION_FLASH_MS = 80;
 interface ActiveFlash {
   readonly id: string;
   readonly location: EffectLocation;
+  readonly startDelayMs: number;
 }
 
 export interface HitLocationFlashProps {
@@ -52,12 +57,14 @@ export function HitLocationFlash({
       if (event.payload.unitId !== unitId) continue;
 
       const locations = damageFlashLocations(event.payload);
+      const impactDelayMs = damageFlashDelayMs(event, events, reducedMotion);
       locations.forEach((location, index) => {
         const flashId = `${event.id}-${location}-${index}`;
+        const startDelayMs = impactDelayMs + index * durationMs;
         const startTimer = setTimeout(() => {
           setActiveFlashes((current) => [
             ...current,
-            { id: flashId, location },
+            { id: flashId, location, startDelayMs },
           ]);
 
           const clearTimer = setTimeout(() => {
@@ -66,7 +73,7 @@ export function HitLocationFlash({
             );
           }, durationMs);
           timers.push(clearTimer);
-        }, index * durationMs);
+        }, startDelayMs);
         timers.push(startTimer);
       });
     }
@@ -92,6 +99,7 @@ export function HitLocationFlash({
             data-testid={`hit-location-flash-${toDomToken(unitId)}-${flash.location}`}
             data-location={flash.location}
             data-duration-ms={durationMs}
+            data-start-delay-ms={flash.startDelayMs}
             transform={`translate(${anchor.x}, ${anchor.y})`}
             pointerEvents="none"
           >
@@ -117,6 +125,22 @@ export function HitLocationFlash({
       })}
     </g>
   );
+}
+
+function damageFlashDelayMs(
+  event: IGameEvent,
+  events: readonly IGameEvent[],
+  reducedMotion: boolean,
+): number {
+  if (!isDamageAppliedEvent(event)) return 0;
+  const attackId = event.payload.attackId;
+  if (!attackId) return 0;
+
+  const attackEvent = events.find((candidate) => candidate.id === attackId);
+  if (!attackEvent) return 0;
+
+  const effect = resolveAttackEventEffect(attackEvent);
+  return effect ? attackImpactDelayMs(effect, reducedMotion) : 0;
 }
 
 export default HitLocationFlash;

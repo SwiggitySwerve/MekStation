@@ -1,20 +1,22 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from "react";
 
-import type { IGameEvent, IHexCoordinate, IUnitToken } from '@/types/gameplay';
+import type { IGameEvent, IHexCoordinate, IUnitToken } from "@/types/gameplay";
 
-import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
-import { usePrefersReducedMotion } from '@/hooks/useReducedMotion';
+import { hexToPixel } from "@/components/gameplay/HexMapDisplay/renderHelpers";
+import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
+import { useAnimationQueue } from "@/stores/useAnimationQueue";
 import {
   GameEventType,
   type IAttackResolvedPayload,
   type IPhysicalAttackResolvedPayload,
-} from '@/types/gameplay';
+} from "@/types/gameplay";
 import {
+  attackImpactDelayMs,
   resolveAttackEventEffect,
   type AttackEffectPayloadHints,
   type PhysicalAttackEffectPayload,
   type WeaponEffectDescriptor,
-} from '@/utils/effects/weaponEffectMap';
+} from "@/utils/effects/weaponEffectMap";
 
 import {
   AttackEffectDefs,
@@ -26,7 +28,7 @@ import {
   Shockwave,
   Tracer,
   type EffectPoint,
-} from './primitives';
+} from "./primitives";
 
 export interface AttackEffectsLayerProps {
   readonly events: readonly IGameEvent[];
@@ -89,6 +91,9 @@ interface ProjectileBreakdown {
 }
 
 const MISS_OPACITY = 0.4;
+const REDUCED_MOTION_LINE_DURATION_MS = 300;
+const IMPACT_FLASH_DURATION_MS = 150;
+const REDUCED_MOTION_IMPACT_FLASH_MS = 80;
 const HEX_DIRECTIONS: readonly IHexCoordinate[] = [
   { q: 1, r: 0 },
   { q: 1, r: -1 },
@@ -102,9 +107,16 @@ export function AttackEffectsLayer({
   events,
   tokens,
   mapId,
-  testId = 'attack-effects-layer',
+  testId = "attack-effects-layer",
 }: AttackEffectsLayerProps): React.ReactElement {
   const reducedMotion = usePrefersReducedMotion();
+  const enqueueAnimation = useAnimationQueue((state) => state.enqueue);
+  const completeAnimation = useAnimationQueue((state) => state.complete);
+  const queuedEventIdsRef = useRef<Set<string>>(new Set());
+  const queuedAnimationIdsRef = useRef<Set<string>>(new Set());
+  const completionTimersRef = useRef<
+    Map<string, ReturnType<typeof setTimeout>>
+  >(new Map());
   const tokenById = useMemo(() => {
     const byId = new Map<string, IUnitToken>();
     for (const token of tokens) byId.set(token.unitId, token);
@@ -119,10 +131,69 @@ export function AttackEffectsLayer({
     [events],
   );
 
+  useEffect(
+    () => () => {
+      completionTimersRef.current.forEach((timer) => clearTimeout(timer));
+      completionTimersRef.current.clear();
+
+      queuedAnimationIdsRef.current.forEach((animationId) =>
+        completeAnimation(animationId),
+      );
+      queuedAnimationIdsRef.current.clear();
+    },
+    [completeAnimation],
+  );
+
+  useEffect(() => {
+    for (const entry of effectEvents) {
+      if (queuedEventIdsRef.current.has(entry.event.id)) continue;
+
+      const effect = resolveAttackEventEffect(entry.event);
+      if (!effect) continue;
+
+      const geometry = resolveGeometry(entry.payload, tokenById);
+      if (!geometry) continue;
+
+      const breakdown = projectileBreakdown(
+        entry.payload,
+        effect.projectileCount,
+      );
+      const durationMs = queuedEffectDurationMs(
+        effect,
+        breakdown,
+        reducedMotion,
+      );
+      const animationId = `attack-effect:${mapId}:${entry.event.id}`;
+
+      queuedEventIdsRef.current.add(entry.event.id);
+      queuedAnimationIdsRef.current.add(animationId);
+      enqueueAnimation({
+        id: animationId,
+        mapId,
+        kind: "effect",
+        eventSequence: entry.event.sequence,
+      });
+
+      const timer = setTimeout(() => {
+        completionTimersRef.current.delete(animationId);
+        queuedAnimationIdsRef.current.delete(animationId);
+        completeAnimation(animationId);
+      }, durationMs);
+      completionTimersRef.current.set(animationId, timer);
+    }
+  }, [
+    completeAnimation,
+    effectEvents,
+    enqueueAnimation,
+    mapId,
+    reducedMotion,
+    tokenById,
+  ]);
+
   return (
     <g
       pointerEvents="none"
-      style={{ pointerEvents: 'none' }}
+      style={{ pointerEvents: "none" }}
       data-testid={testId}
       data-map-id={mapId}
     >
@@ -168,7 +239,7 @@ function renderAttackEvent(
 
   const breakdown = projectileBreakdown(entry.payload, effect.projectileCount);
   const eventId = entry.event.id;
-  const flashDelay = reducedMotion ? 0 : effect.durationMs;
+  const flashDelay = attackImpactDelayMs(effect, reducedMotion);
   const hasImpact = breakdown.hitCount > 0;
 
   return (
@@ -225,7 +296,7 @@ function renderPrimaryEffects(params: {
   readonly missCount: number;
 }): readonly React.ReactElement[] {
   const elements: React.ReactElement[] = [];
-  if (params.effect.category === 'physical') {
+  if (params.effect.category === "physical") {
     elements.push(
       ...renderPhysicalEffects({
         eventId: params.eventId,
@@ -246,7 +317,7 @@ function renderPrimaryEffects(params: {
         geometry: params.geometry,
         end: params.geometry.target,
         opacity: 1,
-        outcome: 'hit',
+        outcome: "hit",
         projectileIndex: index,
       }),
     );
@@ -261,13 +332,31 @@ function renderPrimaryEffects(params: {
         geometry: params.geometry,
         end: params.geometry.overshoot,
         opacity: MISS_OPACITY,
-        outcome: 'miss',
+        outcome: "miss",
         projectileIndex,
       }),
     );
   }
 
   return elements;
+}
+
+function queuedEffectDurationMs(
+  effect: WeaponEffectDescriptor,
+  breakdown: ProjectileBreakdown,
+  reducedMotion: boolean,
+): number {
+  if (reducedMotion) {
+    return Math.max(
+      REDUCED_MOTION_LINE_DURATION_MS,
+      breakdown.hitCount > 0 ? REDUCED_MOTION_IMPACT_FLASH_MS : 0,
+    );
+  }
+
+  return (
+    attackImpactDelayMs(effect, false) +
+    (breakdown.hitCount > 0 ? IMPACT_FLASH_DURATION_MS : 0)
+  );
 }
 
 function renderPhysicalEffects(params: {
@@ -280,7 +369,7 @@ function renderPhysicalEffects(params: {
   const elements: React.ReactElement[] = [];
   const targetCenter =
     params.hitCount > 0 ? params.geometry.target : params.geometry.overshoot;
-  const outcome = params.hitCount > 0 ? 'hit' : 'miss';
+  const outcome = params.hitCount > 0 ? "hit" : "miss";
   const opacity = params.hitCount > 0 ? 1 : MISS_OPACITY;
 
   if (params.effect.originShockwave) {
@@ -332,7 +421,7 @@ function renderPrimitiveInstance(params: {
   readonly geometry: AttackGeometry;
   readonly end: EffectPoint;
   readonly opacity: number;
-  readonly outcome: 'hit' | 'miss';
+  readonly outcome: "hit" | "miss";
   readonly projectileIndex: number;
 }): React.ReactElement {
   const testId = `attack-effect-${params.effect.primitive}-${params.eventId}-${params.outcome}-${params.projectileIndex}`;
@@ -363,9 +452,9 @@ function renderPrimitiveInstance(params: {
       data-end-x={params.end.x}
       data-end-y={params.end.y}
     >
-      {params.effect.primitive === 'missile' && <MissileTrail {...common} />}
-      {params.effect.primitive === 'tracer' && <Tracer {...common} />}
-      {params.effect.primitive === 'laser' && <LaserBeam {...common} />}
+      {params.effect.primitive === "missile" && <MissileTrail {...common} />}
+      {params.effect.primitive === "tracer" && <Tracer {...common} />}
+      {params.effect.primitive === "laser" && <LaserBeam {...common} />}
     </g>
   );
 }

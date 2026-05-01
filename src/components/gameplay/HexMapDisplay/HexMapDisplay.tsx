@@ -17,6 +17,7 @@ import { LineOfSightOverlay } from '@/components/gameplay/overlays/LineOfSightOv
 import { TerrainSymbolDefs } from '@/components/gameplay/terrain/TerrainSymbolDefs';
 import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForType';
 import { HEX_SIZE } from '@/constants/hexMap';
+import { useScreenShake } from '@/hooks/useScreenShake';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { TerrainType } from '@/types/gameplay';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
@@ -124,6 +125,7 @@ export function HexMapDisplay({
 }: HexMapDisplayProps): React.ReactElement {
   const [hoveredHex, setHoveredHex] = useState<IHexCoordinate | null>(null);
   const activeAnimations = useAnimationQueue((s) => s.active);
+  const screenShake = useScreenShake({ events });
 
   const interaction = useMapInteraction(radius);
 
@@ -258,6 +260,9 @@ export function HexMapDisplay({
     <div
       className={`relative overflow-hidden bg-slate-100 ${className}`}
       data-testid="hex-map-container"
+      data-screen-shake-active={screenShake.isShaking ? 'true' : undefined}
+      data-screen-shake-transform={screenShake.transform}
+      style={screenShake.style}
     >
       <svg
         ref={interaction.svgRef}
@@ -351,6 +356,7 @@ export function HexMapDisplay({
               origin={selectedUnitPosition}
               target={hoveredHex}
               grid={hexGrid}
+              tokens={tokens}
               testId="los-overlay"
             />
           )}
@@ -437,6 +443,9 @@ export function HexMapDisplay({
           </g>
         )}
       </svg>
+      <div className="sr-only" aria-live="polite">
+        {screenShake.liveMessage}
+      </div>
 
       {/*
         Per add-movement-phase-ui § 4.4 "Hover unreachable hex shows

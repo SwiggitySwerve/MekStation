@@ -47,7 +47,7 @@
 - [x] 5.3 Plays 800ms debris burst centered on the token
 - [x] 5.4 Token transitions to a wreck sprite variant (homemade, per
       archetype) with ~50% opacity
-- [ ] 5.5 Wreck remains on the hex blocking LOS per existing rules
+- [x] 5.5 Wreck remains on the hex blocking LOS per existing rules
 - [x] 5.6 Persistent smoke / fire from this unit clear when it becomes
       a wreck (replaced by a single quieter smoke stream)
 
@@ -67,7 +67,7 @@
       across every live unit with destroyed parts / engine damage
 - [x] 7.2 Layer reads derived state (not events) so persistent effects
       survive page reload / replay
-- [ ] 7.3 Layer sits between sprite-ring and selection ring
+- [x] 7.3 Layer sits between sprite-ring and selection ring
 
 ## 8. Reduced Motion
 
@@ -101,7 +101,7 @@
 - [x] 11.3 Unit test: smoke activates on LocationDestroyed
 - [x] 11.4 Unit test: engine fire activates on engine crit
 - [x] 11.5 Unit test: debris cloud + wreck transition on UnitDestroyed
-- [ ] 11.6 Integration test: unit takes 25-damage CT hit — shake
+- [x] 11.6 Integration test: unit takes 25-damage CT hit — shake
       triggers, pip flashes, no destruction events fire
 - [x] 11.7 Integration test: unit destroyed — cloud plays, wreck sprite
       appears, prior smoke streams collapse

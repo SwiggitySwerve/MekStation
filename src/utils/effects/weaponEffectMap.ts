@@ -79,6 +79,23 @@ export const ATTACK_EFFECT_DURATIONS_MS = {
   physical: 400,
 } as const satisfies Record<AttackVisualCategory, number>;
 
+export function attackMaxProjectileStaggerMs(
+  effect: Pick<WeaponEffectDescriptor, 'projectileCount' | 'staggerMs'>,
+): number {
+  return Math.max(0, effect.projectileCount - 1) * effect.staggerMs;
+}
+
+export function attackImpactDelayMs(
+  effect: Pick<
+    WeaponEffectDescriptor,
+    'durationMs' | 'projectileCount' | 'staggerMs'
+  >,
+  reducedMotion: boolean,
+): number {
+  if (reducedMotion) return 0;
+  return effect.durationMs + attackMaxProjectileStaggerMs(effect);
+}
+
 export const WEAPON_EFFECT_FALLBACK_CASES = [
   {
     weaponName: 'Small Laser',

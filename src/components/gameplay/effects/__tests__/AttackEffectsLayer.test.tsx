@@ -1,9 +1,15 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 
-import type { IGameEvent, IHexCoordinate, IUnitToken } from '@/types/gameplay';
+import type {
+  IDamageAppliedPayload,
+  IGameEvent,
+  IHexCoordinate,
+  IUnitToken,
+} from '@/types/gameplay';
 
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 import { REDUCED_MOTION_QUERY } from '@/hooks/useReducedMotion';
+import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import {
   Facing,
   GameEventType,
@@ -17,6 +23,7 @@ import {
 } from '@/utils/effects/weaponEffectMap';
 
 import { AttackEffectsLayer } from '../AttackEffectsLayer';
+import { HitLocationFlash } from '../HitLocationFlash';
 import {
   AttackEffectDefs,
   AttackEffectStyles,
@@ -95,6 +102,24 @@ function makeAttackEvent(
     turn: 1,
     phase: GamePhase.WeaponAttack,
     actorId: payload.attackerId,
+    payload,
+  };
+}
+
+function makeDamageEvent(
+  id: string,
+  payload: IDamageAppliedPayload,
+  sequence = 2,
+): IGameEvent {
+  return {
+    id,
+    gameId: 'game',
+    sequence,
+    timestamp: '2026-04-30T00:00:01.000Z',
+    type: GameEventType.DamageApplied,
+    turn: 1,
+    phase: GamePhase.WeaponAttack,
+    actorId: payload.sourceUnitId ?? payload.unitId,
     payload,
   };
 }
@@ -183,7 +208,19 @@ describe('attack effect primitives', () => {
 });
 
 describe('AttackEffectsLayer', () => {
-  beforeEach(() => setReducedMotion(false));
+  beforeEach(() => {
+    jest.useFakeTimers();
+    useAnimationQueue.getState().reset();
+    setReducedMotion(false);
+  });
+
+  afterEach(() => {
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+    useAnimationQueue.getState().reset();
+    jest.useRealTimers();
+  });
 
   it('renders a hit as a full-opacity beam ending at the target plus an impact flash', () => {
     renderLayer(makeAttackEvent('hit', { weaponName: 'PPC', hit: true }));
@@ -206,6 +243,111 @@ describe('AttackEffectsLayer', () => {
     expect(
       screen.getByTestId('attack-effect-impact-flash-hit'),
     ).toHaveAttribute('data-duration-ms', '150');
+  });
+
+  it('queues attack effects and completes the queue entry after the effect finishes', () => {
+    renderLayer(makeAttackEvent('queued-ppc', { weaponName: 'PPC', hit: true }));
+
+    expect(useAnimationQueue.getState().active).toEqual([
+      expect.objectContaining({
+        id: 'attack-effect:map-1:queued-ppc',
+        kind: 'effect',
+        mapId: 'map-1',
+      }),
+    ]);
+    expect(useAnimationQueue.getState().isActive).toBe(true);
+
+    act(() => {
+      jest.advanceTimersByTime(549);
+    });
+    expect(useAnimationQueue.getState().isActive).toBe(true);
+
+    act(() => {
+      jest.advanceTimersByTime(1);
+    });
+    expect(useAnimationQueue.getState().isActive).toBe(false);
+  });
+
+  it('coordinates damage pip flash with the queued impact flash timing', () => {
+    const attack = makeAttackEvent('ppc-sync', {
+      weaponName: 'PPC',
+      hit: true,
+    });
+    const damage = makeDamageEvent('damage-sync', {
+      unitId: 'target',
+      location: 'CT',
+      damage: 5,
+      armorRemaining: 15,
+      structureRemaining: 16,
+      locationDestroyed: false,
+      sourceUnitId: 'attacker',
+      attackId: attack.id,
+    });
+
+    render(
+      <svg>
+        <AttackEffectsLayer
+          mapId="map-1"
+          events={[attack, damage]}
+          tokens={[
+            makeToken('attacker', { q: 0, r: 0 }),
+            makeToken('target', { q: 1, r: 0 }, { side: GameSide.Opponent }),
+          ]}
+        />
+        <HitLocationFlash unitId="target" events={[attack, damage]} />
+      </svg>,
+    );
+
+    expect(
+      screen.getByTestId('attack-effect-impact-flash-ppc-sync'),
+    ).toHaveAttribute('data-delay-ms', '400');
+    expect(
+      screen.queryByTestId('hit-location-flash-target-centerTorso'),
+    ).not.toBeInTheDocument();
+
+    act(() => {
+      jest.advanceTimersByTime(399);
+    });
+    expect(
+      screen.queryByTestId('hit-location-flash-target-centerTorso'),
+    ).not.toBeInTheDocument();
+
+    act(() => {
+      jest.advanceTimersByTime(1);
+    });
+    expect(
+      screen.getByTestId('hit-location-flash-target-centerTorso'),
+    ).toHaveAttribute('data-start-delay-ms', '400');
+  });
+
+  it('renders a PPC hit as a green laser beam with impact flash within 600ms', () => {
+    renderLayer(makeAttackEvent('ppc-hit', { weaponName: 'PPC', hit: true }));
+
+    const beam = screen.getByTestId('attack-effect-laser-ppc-hit-hit-0');
+    expect(beam).toHaveAttribute('data-color', ATTACK_EFFECT_COLORS.energyGreen);
+
+    const flash = screen.getByTestId('attack-effect-impact-flash-ppc-hit');
+    expect(Number(flash.getAttribute('data-delay-ms'))).toBeLessThanOrEqual(
+      600,
+    );
+  });
+
+  it('renders an LRM-20 hit as 20 staggered missile trails', () => {
+    renderLayer(
+      makeAttackEvent('lrm20-hit', {
+        weaponName: 'LRM-20',
+        hit: true,
+      }),
+    );
+
+    const trails = screen.getAllByTestId(
+      /^attack-effect-missile-lrm20-hit-hit-/,
+    );
+    expect(trails).toHaveLength(20);
+    trails.forEach((trail, index) => {
+      expect(trail).toHaveAttribute('data-stagger-index', String(index));
+      expect(trail).toHaveAttribute('data-delay-ms', String(index * 30));
+    });
   });
 
   it('renders a miss faded past the target and suppresses the impact flash', () => {
