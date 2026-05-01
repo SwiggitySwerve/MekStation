@@ -106,6 +106,23 @@ function calculatePlayerBV(team: ICombatTeam): number {
 }
 
 /**
+ * Per `wire-encounter-to-campaign-round-trip` Wave 5 §8.1: every
+ * generated scenario carries a stable id that downstream consumers
+ * (encounter persistence, session launch, post-battle attribution) use
+ * to thread linkage all the way back to the contract. The id format is
+ * `scn-<contractId>-<dateIso>-<teamId>` — deterministic from inputs so
+ * tests don't need to mock random sources.
+ */
+function buildScenarioId(
+  contract: IContract,
+  team: ICombatTeam,
+  date: Date,
+): string {
+  const dateKey = date.toISOString().slice(0, 10);
+  return `scn-${contract.id}-${dateKey}-${team.forceId}`;
+}
+
+/**
  * Create scenario generation event data.
  *
  * @param scenarioType - The selected scenario type
@@ -114,6 +131,7 @@ function calculatePlayerBV(team: ICombatTeam): number {
  * @param conditions - Scenario conditions
  * @param contract - The contract this scenario is for
  * @param team - The combat team
+ * @param scenarioId - Generated scenario id (Wave 5 §8.1 linkage)
  * @returns Event data object with scenario details
  */
 function createScenarioEventData(
@@ -123,6 +141,7 @@ function createScenarioEventData(
   conditions: IScenarioConditions,
   contract: IContract,
   team: ICombatTeam,
+  scenarioId: string,
 ): Record<string, unknown> {
   return {
     scenarioType,
@@ -132,6 +151,9 @@ function createScenarioEventData(
     teamId: team.forceId,
     contractId: contract.id,
     contractName: contract.name,
+    // Wave 5 §8.1: scenario + contract ids travel with every generated
+    // event so the encounter created downstream can persist both.
+    scenarioId,
   };
 }
 
@@ -191,6 +213,11 @@ export const scenarioGenerationProcessor: IDayProcessor = {
         // Generate conditions
         const conditions = generateRandomConditions(random);
 
+        // Wave 5 §8.1: stamp the scenario with a stable id so the
+        // resulting encounter / session can record it for round-trip
+        // attribution back to the contract.
+        const scenarioId = buildScenarioId(contract, team, date);
+
         const eventData = createScenarioEventData(
           scenarioResult.scenarioType,
           scenarioResult.isAttacker,
@@ -198,6 +225,7 @@ export const scenarioGenerationProcessor: IDayProcessor = {
           conditions,
           contract,
           team,
+          scenarioId,
         );
 
         // Emit event
@@ -268,6 +296,9 @@ export function createScenarioGenerationProcessor(
           // Generate conditions
           const conditions = generateRandomConditions(random);
 
+          // Wave 5 §8.1: stamp scenario id deterministically.
+          const scenarioId = buildScenarioId(contract, team, date);
+
           const eventData = createScenarioEventData(
             scenarioResult.scenarioType,
             scenarioResult.isAttacker,
@@ -275,6 +306,7 @@ export function createScenarioGenerationProcessor(
             conditions,
             contract,
             team,
+            scenarioId,
           );
 
           // Emit event

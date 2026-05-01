@@ -17,6 +17,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 
 import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
 import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
+import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import {
@@ -24,11 +25,19 @@ import {
   type ICombatOutcomeReadyEvent,
 } from '@/engine/combatOutcomeBus';
 import {
-  advanceDayViaPipeline,
+  appendDailyBattleAuditEntry,
+  buildDailyBattleAuditEntry,
+} from '@/lib/campaign/dailyBattleAuditBuilder';
+import {
+  convertToLegacyDayReport,
   DayReport,
 } from '@/lib/campaign/dayAdvancement';
 import { getDayPipeline } from '@/lib/campaign/dayPipeline';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
+import {
+  applyPostBattle,
+  type ICampaignWithBattleState,
+} from '@/lib/campaign/processors/postBattleProcessor';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
   ICampaign,
@@ -83,6 +92,13 @@ interface SerializedCampaignState {
   pendingBattleOutcomes?: ICombatOutcome[];
   processedBattleIds?: string[];
   reviewedBattleIds?: Record<string, number>;
+  /**
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5 §7: persisted
+   * daily audit ledger so the dashboard can surface battle-effects
+   * rollups across page reloads. Optional because pre-Wave-5 saves
+   * don't carry it.
+   */
+  dailyBattleAudit?: IDailyBattleAuditEntry[];
   createdAt: string;
   updatedAt: string;
 }
@@ -119,6 +135,15 @@ interface CampaignState {
    * engine hand-off shape) with UI lifecycle state.
    */
   reviewedBattleIds: Record<string, number>;
+
+  /**
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5 §11.2: matchId →
+   * error message recorded when the post-battle processor fails to
+   * apply an outcome. Surfaced by the dashboard banner ("1 outcome
+   * failed to apply — see details") and cleared by a successful retry
+   * (manual or automatic) on the next day-advance.
+   */
+  outcomeApplyErrors: Record<string, string>;
 
   /** Sub-store instances (created when campaign is loaded/created) */
   personnelStore: StoreApi<PersonnelStore> | null;
@@ -218,6 +243,23 @@ interface CampaignActions {
    * reviewed. Powers audit views and idempotency checks.
    */
   getReviewedAt: (matchId: string) => number | null;
+
+  /**
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5 §11.2: snapshot
+   * of every outcome that failed to apply on its last day-advance. The
+   * dashboard banner uses the count to surface "N outcome(s) failed to
+   * apply — see details". Empty when no outcomes are stuck.
+   */
+  getOutcomeApplyErrors: () => Readonly<Record<string, string>>;
+
+  /**
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5 §11.3: try to
+   * re-apply a single outcome (used by the review page's "Retry
+   * application" button). On success, clears the matchId from
+   * `outcomeApplyErrors`; on failure, refreshes the recorded message.
+   * Returns true when the retry succeeded.
+   */
+  retryOutcomeApplication: (matchId: string) => boolean;
 }
 
 export type CampaignStore = CampaignState & CampaignActions;
@@ -262,6 +304,15 @@ function serializeCampaign(
   processedBattleIds: readonly string[] = [],
   reviewedBattleIds: Record<string, number> = {},
 ): SerializedCampaignState {
+  // Read the optional audit ledger off the extended campaign surface.
+  // The field is owned by the Wave-5 day pipeline; pre-Wave-5 campaigns
+  // simply don't carry it.
+  const audit =
+    (
+      campaign as ICampaign & {
+        dailyBattleAudit?: readonly IDailyBattleAuditEntry[];
+      }
+    ).dailyBattleAudit ?? [];
   return {
     id: campaign.id,
     name: campaign.name,
@@ -287,6 +338,7 @@ function serializeCampaign(
     pendingBattleOutcomes: [...pendingBattleOutcomes],
     processedBattleIds: [...processedBattleIds],
     reviewedBattleIds: { ...reviewedBattleIds },
+    dailyBattleAudit: [...audit],
     createdAt: campaign.createdAt,
     updatedAt: campaign.updatedAt,
   };
@@ -334,7 +386,13 @@ function deserializeCampaign(
     iconUrl: serialized.iconUrl,
     createdAt: serialized.createdAt,
     updatedAt: serialized.updatedAt,
-  };
+    // Restore the daily-battle audit ledger so the dashboard's audit
+    // feed survives reloads. Cast through `as ICampaign` because the
+    // field is on the optional extension type, not the core ICampaign.
+    ...(serialized.dailyBattleAudit
+      ? { dailyBattleAudit: serialized.dailyBattleAudit }
+      : {}),
+  } as ICampaign;
 }
 
 function persistCampaignRecord(
@@ -401,6 +459,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         pendingBattleOutcomes: [],
         processedBattleIds: [],
         reviewedBattleIds: {},
+        outcomeApplyErrors: {},
         personnelStore: null,
         forcesStore: null,
         missionsStore: null,
@@ -602,8 +661,19 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             processedBattleIds,
           );
 
+          // Capture the BEFORE snapshot for the audit-card builder.
+          // The builder diffs personnel.totalXpEarned and missions across
+          // before/after to derive XP awarded + contracts closed.
+          const beforeForAudit =
+            campaignWithOutcomes as ICampaignWithBattleState;
+
+          // Run the pipeline directly so we can access the events array
+          // for the audit-card builder. `advanceDayViaPipeline` collapses
+          // events into a `DayReport`, losing the per-event payloads we
+          // need for salvage/repair tallies.
           const pipeline = getDayPipeline();
-          const report = advanceDayViaPipeline(campaignWithOutcomes, pipeline);
+          const pipelineResult = pipeline.processDay(campaignWithOutcomes);
+          const report = convertToLegacyDayReport(pipelineResult);
 
           // Drain the in-store queue based on what the pipeline processed.
           // The pipeline-returned campaign carries the post-battle
@@ -611,16 +681,62 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           const postPipeline = report.campaign as ICampaign & {
             readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
             readonly processedBattleIds?: readonly string[];
+            readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
           };
 
+          // Per `wire-encounter-to-campaign-round-trip` Wave 5 §7: build
+          // a daily audit entry covering the three battle-effects
+          // processors and append it to the campaign's audit ledger.
+          // Returns null on days with no drained outcomes — the audit
+          // feed simply skips empty days.
+          const auditEntry = buildDailyBattleAuditEntry({
+            before: beforeForAudit,
+            after: report.campaign as ICampaignWithBattleState,
+            appliedOutcomes: postPipeline.recentlyAppliedOutcomes ?? [],
+            events: pipelineResult.events,
+            date: pipelineResult.date,
+          });
+          const campaignWithAudit = appendDailyBattleAuditEntry(
+            report.campaign,
+            auditEntry,
+          );
+
+          // Per Wave 5 §11.2: collect the matchIds of any
+          // `post_battle_apply_failed` events from this run so the
+          // dashboard banner can surface "N outcome failed to apply".
+          // Successful retries on subsequent advances clear the flag
+          // because the matchId leaves the queue when applied cleanly.
+          const previousErrors = get().outcomeApplyErrors;
+          const stillQueued = new Set(
+            (postPipeline.pendingBattleOutcomes ?? []).map((o) => o.matchId),
+          );
+          const nextErrors: Record<string, string> = {};
+          for (const e of pipelineResult.events) {
+            if (e.type !== 'post_battle_apply_failed') continue;
+            const data = e.data ?? {};
+            const matchId = data.matchId;
+            const errorMsg = data.error;
+            if (typeof matchId === 'string' && typeof errorMsg === 'string') {
+              nextErrors[matchId] = errorMsg;
+            }
+          }
+          // Carry over previously-recorded errors that are still in
+          // the pending queue (i.e., the retry didn't happen this run).
+          for (const [matchId, msg] of Object.entries(previousErrors)) {
+            if (stillQueued.has(matchId) && !(matchId in nextErrors)) {
+              nextErrors[matchId] = msg;
+            }
+          }
+
           set({
-            campaign: report.campaign,
+            campaign: campaignWithAudit,
             pendingBattleOutcomes: [
               ...(postPipeline.pendingBattleOutcomes ?? []),
             ],
             processedBattleIds: [
               ...(postPipeline.processedBattleIds ?? processedBattleIds),
             ],
+            outcomeApplyErrors: nextErrors,
           });
 
           // Per `wire-encounter-to-campaign-round-trip`: the postBattle
@@ -650,7 +766,9 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
           get().saveCampaign();
 
-          return report;
+          // Override the report.campaign with the audit-augmented copy so
+          // callers (DayReportPanel etc.) see the freshly-appended entry.
+          return { ...report, campaign: campaignWithAudit };
         },
 
         advanceDays: (count: number) => {
@@ -789,6 +907,55 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         getReviewedAt: (matchId) => {
           if (!matchId) return null;
           return get().reviewedBattleIds[matchId] ?? null;
+        },
+
+        getOutcomeApplyErrors: () => get().outcomeApplyErrors,
+
+        retryOutcomeApplication: (matchId) => {
+          // Per Wave 5 §11.3: re-apply a single failing outcome on
+          // demand. Looks the outcome up in the pending queue, runs the
+          // post-battle apply path against the live campaign, and
+          // either clears or refreshes the recorded error.
+          if (!matchId) return false;
+          const { campaign, pendingBattleOutcomes, outcomeApplyErrors } = get();
+          if (!campaign) return false;
+          const outcome = pendingBattleOutcomes.find(
+            (o) => o.matchId === matchId,
+          );
+          if (!outcome) return false;
+
+          try {
+            const result = applyPostBattle(
+              outcome,
+              campaign as ICampaignWithBattleState,
+            );
+            const remaining = pendingBattleOutcomes.filter(
+              (o) => o.matchId !== matchId,
+            );
+            // Strip the matchId from the error map by building a fresh
+            // record (avoids unused-binding lint on rest-destructuring).
+            const nextErrors: Record<string, string> = {};
+            for (const [k, v] of Object.entries(outcomeApplyErrors)) {
+              if (k !== matchId) nextErrors[k] = v;
+            }
+            set({
+              campaign: result.campaign,
+              pendingBattleOutcomes: remaining,
+              processedBattleIds: [...get().processedBattleIds, matchId],
+              outcomeApplyErrors: nextErrors,
+            });
+            get().saveCampaign();
+            return true;
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            set({
+              outcomeApplyErrors: {
+                ...outcomeApplyErrors,
+                [matchId]: message,
+              },
+            });
+            return false;
+          }
         },
       }),
       {

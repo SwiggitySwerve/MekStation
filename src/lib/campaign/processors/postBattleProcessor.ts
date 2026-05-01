@@ -44,6 +44,7 @@ import { logger } from '@/utils/logger';
 
 import type { IDayProcessor, IDayProcessorResult } from '../dayPipeline';
 
+import { publishContractFulfilled } from '../contractFulfillmentBus';
 import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
 import {
@@ -69,6 +70,12 @@ export interface IPostBattleCampaignExtensions {
   readonly processedBattleIds?: readonly string[];
   /** Persisted post-battle state per unit id. */
   readonly unitCombatStates?: Readonly<Record<string, IUnitCombatState>>;
+  /**
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5 §9: contract ids
+   * the post-battle processor flagged as fulfilled this day. The
+   * contractProcessor consumes these on its next pass and clears them.
+   */
+  readonly pendingFulfilledContractIds?: readonly string[];
 }
 
 export type ICampaignWithBattleState = ICampaign &
@@ -290,15 +297,20 @@ function playerWon(outcome: ICombatOutcome): boolean {
 }
 
 /**
- * Apply an outcome's contract effects. Returns the updated contract or
- * null when no contract was bound to the outcome / contract id was
- * unresolvable.
+ * Apply an outcome's contract effects. Returns the updated contract,
+ * the previous status, and whether the status flip is terminal (so the
+ * caller can publish a `ContractFulfilled` event). Returns null when
+ * no contract was bound to the outcome / id was unresolvable.
  */
 function applyContractDelta(
   campaign: ICampaign,
   missions: Map<string, IMission>,
   outcome: ICombatOutcome,
-): IContract | null {
+): {
+  contract: IContract;
+  previousStatus: MissionStatus;
+  flippedToTerminal: boolean;
+} | null {
   if (!outcome.contractId) return null;
 
   const mission = missions.get(outcome.contractId);
@@ -316,7 +328,8 @@ function applyContractDelta(
   // contract Active for now — the player can re-engage. TurnLimit is a
   // soft terminal: flip to PARTIAL so downstream payout logic treats
   // it as a draw outcome rather than leaving the mission Active.
-  let nextStatus = mission.status;
+  const previousStatus = mission.status;
+  let nextStatus = previousStatus;
   if (outcome.endReason === CombatEndReason.ObjectiveMet) {
     nextStatus = playerWon(outcome)
       ? MissionStatus.SUCCESS
@@ -343,7 +356,19 @@ function applyContractDelta(
     updatedAt: new Date().toISOString(),
   };
   missions.set(updated.id, updated);
-  return updated;
+
+  // Per `wire-encounter-to-campaign-round-trip` Wave 5 §9: a flip
+  // from a non-terminal status (Active / Pending) to any terminal one
+  // (Success / Partial / Failed) signals contract fulfillment.
+  // Status that didn't change at all does NOT publish — re-runs are
+  // a no-op for the bus.
+  const isTerminal =
+    nextStatus === MissionStatus.SUCCESS ||
+    nextStatus === MissionStatus.PARTIAL ||
+    nextStatus === MissionStatus.FAILED;
+  const flippedToTerminal = isTerminal && previousStatus !== nextStatus;
+
+  return { contract: updated, previousStatus, flippedToTerminal };
 }
 
 // =============================================================================
@@ -435,7 +460,8 @@ function applyOutcome(
     }
   }
 
-  const updatedContract = applyContractDelta(campaign, missions, outcome);
+  const contractDelta = applyContractDelta(campaign, missions, outcome);
+  const updatedContract = contractDelta?.contract ?? null;
 
   // Drain the queue: drop the applied outcome and stamp matchId into
   // the processed set so a re-run is a no-op.
@@ -456,8 +482,34 @@ function applyOutcome(
     outcome,
   ];
 
+  // Per Wave 5 §9.1: when post-battle flips a contract to terminal,
+  // queue the contract id onto `pendingFulfilledContractIds` so the
+  // contractProcessor can pick it up on the same day's pipeline run.
+  // We also publish a `ContractFulfilled` bus event for any listeners
+  // outside the pipeline (UI banners, multiplayer sync).
+  const previousFulfilled =
+    (
+      campaign as ICampaignWithBattleState & {
+        readonly pendingFulfilledContractIds?: readonly string[];
+      }
+    ).pendingFulfilledContractIds ?? [];
+  const nextFulfilled = contractDelta?.flippedToTerminal
+    ? [...previousFulfilled, contractDelta.contract.id]
+    : previousFulfilled;
+
+  if (contractDelta?.flippedToTerminal) {
+    publishContractFulfilled({
+      contractId: contractDelta.contract.id,
+      newStatus: contractDelta.contract.status,
+      matchId: outcome.matchId,
+      playerWon: playerWon(outcome),
+      publishedAt: nowIso,
+    });
+  }
+
   const updatedCampaign: ICampaignWithBattleState & {
     readonly recentlyAppliedOutcomes: readonly ICombatOutcome[];
+    readonly pendingFulfilledContractIds: readonly string[];
   } = {
     ...campaign,
     personnel,
@@ -466,6 +518,7 @@ function applyOutcome(
     processedBattleIds: [...processed, outcome.matchId],
     unitCombatStates: unitStates,
     recentlyAppliedOutcomes: recentlyApplied,
+    pendingFulfilledContractIds: nextFulfilled,
     updatedAt: nowIso,
   };
 
@@ -483,6 +536,22 @@ function applyOutcome(
       },
     },
   ];
+
+  if (contractDelta?.flippedToTerminal) {
+    // Surface the fulfillment as a day event too so the audit-feed
+    // builder can list it under "Contracts closed today".
+    events.push({
+      type: 'contract_fulfilled',
+      description: `Contract ${contractDelta.contract.id} fulfilled (${contractDelta.contract.status})`,
+      severity: 'info',
+      data: {
+        contractId: contractDelta.contract.id,
+        newStatus: contractDelta.contract.status,
+        previousStatus: contractDelta.previousStatus,
+        matchId: outcome.matchId,
+      },
+    });
+  }
 
   return {
     campaign: updatedCampaign,

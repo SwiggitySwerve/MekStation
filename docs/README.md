@@ -34,6 +34,8 @@ See [`openspec/specs/`](../openspec/specs/) for 38 comprehensive specifications 
 ### Architecture
 
 - [Project Structure](./architecture/project-structure.md) - Current file organization
+- [Campaign Combat Loop](./architecture/campaign-combat-loop.md) - End-to-end round trip from contract to campaign state (Wave 5 closure)
+- [Aerospace Combat 2D](./architecture/aerospace-combat-2d.md) - Aerospace-specific combat layer
 
 ### Contributing
 

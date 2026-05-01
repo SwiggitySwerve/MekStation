@@ -61,6 +61,17 @@ export interface PostBattleReviewScreenProps {
   readonly isApplying?: boolean;
   /** Disables the apply button (e.g., outcome already applied). */
   readonly applyDisabled?: boolean;
+  /**
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5 §11.2: error
+   * message recorded by the post-battle processor on its last try to
+   * apply this outcome. When set, the screen renders an inline error
+   * panel + a "Retry application" CTA.
+   */
+  readonly applyError?: string | null;
+  /** Click handler for the "Retry application" CTA (Wave 5 §11.3). */
+  readonly onRetry?: () => void;
+  /** True while the retry action is in flight. */
+  readonly isRetrying?: boolean;
 }
 
 /**
@@ -78,6 +89,9 @@ export function PostBattleReviewScreen({
   onApply,
   isApplying = false,
   applyDisabled = false,
+  applyError = null,
+  onRetry,
+  isRetrying = false,
 }: PostBattleReviewScreenProps): React.ReactElement {
   return (
     <div
@@ -109,6 +123,37 @@ export function PostBattleReviewScreen({
             <RepairPreviewPanel tickets={repairTickets} />
           </div>
         </div>
+
+        {applyError && (
+          <div
+            className="mt-8 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3"
+            data-testid="apply-error-panel"
+            role="alert"
+          >
+            <p className="text-sm font-medium text-red-200">
+              Outcome failed to apply on the last day-advance.
+            </p>
+            <p
+              className="mt-1 font-mono text-xs text-red-100/80"
+              data-testid="apply-error-message"
+            >
+              {applyError}
+            </p>
+            {onRetry && (
+              <div className="mt-3">
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={onRetry}
+                  disabled={isRetrying}
+                  data-testid="retry-application-cta"
+                >
+                  {isRetrying ? 'Retrying…' : 'Retry application'}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="mt-10 flex flex-col items-center gap-3">
           <Button
@@ -175,6 +220,10 @@ export default function PostBattleReviewPage(): React.ReactElement {
 
   const [isApplying, setIsApplying] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [retryFailureMessage, setRetryFailureMessage] = useState<string | null>(
+    null,
+  );
 
   if (!isClient) {
     return (
@@ -248,6 +297,44 @@ export default function PostBattleReviewPage(): React.ReactElement {
     }
   };
 
+  /**
+   * Per `wire-encounter-to-campaign-round-trip` Wave 5 §11.3: manual
+   * retry path for an outcome the day pipeline failed to apply. Calls
+   * the store's `retryOutcomeApplication` which mirrors the post-battle
+   * processor's apply logic and clears the recorded error on success.
+   */
+  const handleRetry = (): void => {
+    setIsRetrying(true);
+    setRetryFailureMessage(null);
+    try {
+      const ok = store.getState().retryOutcomeApplication(outcome.matchId);
+      if (ok) {
+        setApplied(true);
+        const campaign = store.getState().campaign;
+        if (campaign) {
+          const target = `/gameplay/campaigns/${campaign.id}?pendingBattle=${outcome.matchId}`;
+          void router.push(target);
+        }
+      } else {
+        // The store stamps the latest error onto outcomeApplyErrors;
+        // we surface a generic "still failing" hint here. The detailed
+        // message is available via the live store snapshot used in
+        // `applyError` below.
+        setRetryFailureMessage(
+          'Retry did not apply this outcome. See error details above.',
+        );
+      }
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
+  // Live error message for this specific match (if any).
+  const applyError =
+    store.getState().getOutcomeApplyErrors()[outcome.matchId] ??
+    retryFailureMessage ??
+    null;
+
   return (
     <>
       <Head>
@@ -259,6 +346,9 @@ export default function PostBattleReviewPage(): React.ReactElement {
         onApply={handleApply}
         isApplying={isApplying}
         applyDisabled={applied}
+        applyError={applyError}
+        onRetry={handleRetry}
+        isRetrying={isRetrying}
       />
     </>
   );

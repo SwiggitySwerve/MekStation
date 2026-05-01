@@ -35,8 +35,8 @@
 - [x] 4.1 On the review page's "Return to Campaign" CTA, ensure the
       outcome is in the pending queue (re-enqueue if not, matched by
       matchId — still idempotent)
-- [ ] 4.2 Close the tactical session in session store
-- [ ] 4.3 Navigate to `/campaign?pendingBattle=<matchId>`
+- [x] 4.2 Close the tactical session in session store
+- [x] 4.3 Navigate to `/campaign?pendingBattle=<matchId>`
 
 ## 5. Campaign Dashboard Pending-Outcomes Banner
 
@@ -61,16 +61,16 @@
 
 ## 7. Day Advancement Audit Card
 
-- [ ] 7.1 Aggregate the effects applied by the three battle-effects
+- [x] 7.1 Aggregate the effects applied by the three battle-effects
       processors into a per-day `IDailyBattleAuditEntry`
-- [ ] 7.2 Entry fields: matches processed, total XP awarded, pilots
+- [x] 7.2 Entry fields: matches processed, total XP awarded, pilots
       wounded/KIA/MIA, salvage value secured, repair tickets created
-- [ ] 7.3 Surface the entry in the campaign dashboard's audit feed
-- [ ] 7.4 Clicking the entry navigates to the relevant match review pages
+- [x] 7.3 Surface the entry in the campaign dashboard's audit feed
+- [x] 7.4 Clicking the entry navigates to the relevant match review pages
 
 ## 8. Scenario Generation Linkage
 
-- [ ] 8.1 Update `scenarioGenerationProcessor` so every generated scenario
+- [x] 8.1 Update `scenarioGenerationProcessor` so every generated scenario
       produced from a contract records the `contractId` on the resulting
       encounter record
 - [x] 8.2 When `EncounterService.launchEncounter` is called, the
@@ -78,12 +78,12 @@
 
 ## 9. Contract Lifecycle Events
 
-- [ ] 9.1 When `postBattleProcessor` flags a contract as fulfilled,
+- [x] 9.1 When `postBattleProcessor` flags a contract as fulfilled,
       publish `ContractFulfilled` event
-- [ ] 9.2 `contractProcessor` listens and closes the contract (final
+- [x] 9.2 `contractProcessor` listens and closes the contract (final
       payment, faction standing, contract removal from active list) on its
       next run
-- [ ] 9.3 Surface closure in the campaign dashboard as an audit entry
+- [x] 9.3 Surface closure in the campaign dashboard as an audit entry
 
 ## 10. End-to-End Test
 
@@ -98,17 +98,17 @@
 
 ## 11. Error & Recovery Paths
 
-- [ ] 11.1 If the player quits mid-battle, no outcome is produced — queue
+- [x] 11.1 If the player quits mid-battle, no outcome is produced — queue
       remains untouched; session marked abandoned
-- [ ] 11.2 If `postBattleProcessor` fails on an outcome, it stays in the
+- [x] 11.2 If `postBattleProcessor` fails on an outcome, it stays in the
       queue with an error flag; banner shows "1 outcome failed to apply —
       see details" link
-- [ ] 11.3 Retry on next day advance or via manual "retry application"
+- [x] 11.3 Retry on next day advance or via manual "retry application"
       button in the review page
 
 ## 12. Documentation
 
-- [ ] 12.1 Add `docs/architecture/campaign-combat-loop.md` with a sequence
+- [x] 12.1 Add `docs/architecture/campaign-combat-loop.md` with a sequence
       diagram covering: contract → encounter → session → outcome → queue →
       processors → campaign state
-- [ ] 12.2 Cross-link the doc from the main architecture index
+- [x] 12.2 Cross-link the doc from the main architecture index
