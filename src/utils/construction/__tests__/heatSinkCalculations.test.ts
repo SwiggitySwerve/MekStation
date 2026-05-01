@@ -15,7 +15,6 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import {
   calculateExternalHeatSinks,
   calculateExternalHeatSinkSlots,
-  calculateExternalHeatSinkWeight,
   calculateHeatDissipation,
   calculateHeatSinkWeight,
   getHeatSinkSummary,
@@ -71,13 +70,6 @@ describe('calculateHeatSinkWeight (canonical: first 10 free)', () => {
   it('charges 1 t per sink above 10 for Double HS (same weight as singles)', () => {
     expect(calculateHeatSinkWeight(15, HeatSinkType.DOUBLE_IS)).toBe(5);
     expect(calculateHeatSinkWeight(15, HeatSinkType.DOUBLE_CLAN)).toBe(5);
-  });
-});
-
-describe('calculateExternalHeatSinkWeight (legacy/incorrect path)', () => {
-  it('returns externalCount × per-sink weight (does NOT apply free-10 rule)', () => {
-    // This is the legacy path; documented as deprecated in source.
-    expect(calculateExternalHeatSinkWeight(5, HeatSinkType.SINGLE)).toBe(5);
   });
 });
 

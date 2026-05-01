@@ -11,7 +11,6 @@ import {
   calculateHeatDissipation,
   calculateExternalHeatSinks,
   calculateHeatSinkWeight,
-  calculateExternalHeatSinkWeight,
   calculateExternalHeatSinkSlots,
   validateHeatSinks,
   getHeatSinkSummary,
@@ -92,24 +91,6 @@ describe('Heat Sink Calculations', () => {
       // Double heat sinks also weigh 1 ton each
       const weight = calculateHeatSinkWeight(15, HeatSinkType.DOUBLE_IS);
       expect(weight).toBe(5);
-    });
-  });
-
-  describe('calculateExternalHeatSinkWeight (legacy/deprecated)', () => {
-    it('should calculate single heat sink weight', () => {
-      // Single heat sinks weigh 1 ton each
-      const weight = calculateExternalHeatSinkWeight(5, HeatSinkType.SINGLE);
-      expect(weight).toBe(5);
-    });
-
-    it('should calculate double heat sink weight', () => {
-      // Double heat sinks weigh 1 ton each
-      const weight = calculateExternalHeatSinkWeight(5, HeatSinkType.DOUBLE_IS);
-      expect(weight).toBe(5);
-    });
-
-    it('should handle 0 external heat sinks', () => {
-      expect(calculateExternalHeatSinkWeight(0, HeatSinkType.SINGLE)).toBe(0);
     });
   });
 

@@ -820,13 +820,6 @@ export class UnsupportedUnitTypeError extends Error {
 }
 
 /**
- * @deprecated Use `IMechRecordSheetData` directly. This alias exists for
- * call-sites that used the old flat `IRecordSheetData` interface which was
- * mech-only. Will be removed once all callers are narrowed.
- */
-export type ILegacyMechRecordSheetData = IMechRecordSheetData;
-
-/**
  * Render context for drawing record sheet elements
  */
 export interface IRenderContext {

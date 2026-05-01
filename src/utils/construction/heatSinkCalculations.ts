@@ -79,23 +79,6 @@ export function calculateHeatSinkWeight(
 }
 
 /**
- * @deprecated Use calculateHeatSinkWeight instead. This function incorrectly
- * calculates weight based on external count instead of total - 10.
- *
- * Calculate weight of external heat sinks (LEGACY - INCORRECT)
- */
-export function calculateExternalHeatSinkWeight(
-  externalCount: number,
-  heatSinkType: HeatSinkType,
-): number {
-  const definition = getHeatSinkDefinition(heatSinkType);
-  if (!definition) {
-    return externalCount;
-  }
-  return externalCount * definition.weight;
-}
-
-/**
  * Calculate critical slots needed for external heat sinks
  *
  * @param externalCount - Number of external heat sinks
