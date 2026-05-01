@@ -1,9 +1,9 @@
 # Active OpenSpec Roadmap
 
 **Status date:** 2026-05-01
-**Scope:** The 3 currently active OpenSpec changes under `openspec/changes/`.
+**Scope:** The 1 currently active OpenSpec change under `openspec/changes/`.
 **Validation baseline:** `npx openspec validate --all --strict` passes with
-183 items, 0 failures.
+181 items, 0 failures.
 
 This document is an implementation-order reference for the active queue. It is
 not a replacement for each change's `proposal.md`, `design.md`, `tasks.md`, or
@@ -12,7 +12,19 @@ where merge conflicts are likely.
 
 ## Current Active Queue
 
-The active queue currently has four in-progress changes.
+The active queue is down to one in-progress change.
+
+Two Phase 4 multiplayer changes archived 2026-05-01:
+- `add-p2p-game-session-sync` (33/33) archived as
+  `archive/2026-05-01-add-p2p-game-session-sync`. New requirements:
+  2 ADDED to `api-layer`, 3 ADDED to `game-session-management`,
+  6 ADDED to `multiplayer-sync`. Zero delta header collisions.
+- `add-game-session-invite-and-lobby-1v1` (39/39) archived as
+  `archive/2026-05-01-add-game-session-invite-and-lobby-1v1`. New
+  requirements: 2 ADDED to `game-session-management`, 4 ADDED to
+  `multiplayer-sync`. Zero delta header collisions.
+
+`add-multi-type-record-sheet-export` (54/54) archived 2026-05-01.
 `add-los-and-firing-arc-overlays` (56/56) archived 2026-05-01 as
 `archive/2026-05-01-add-los-and-firing-arc-overlays`. New
 requirements: 1 ADDED to `firing-arc-calculation` (Per-Hex Arc
@@ -53,9 +65,7 @@ the only delta scenario that was genuinely additive).
 
 | Change | Tasks | Lane |
 | --- | ---: | --- |
-| `wire-encounter-to-campaign-round-trip` | 24/42 | Campaign closure |
-| `add-p2p-game-session-sync` | 12/33 | Phase 4 multiplayer |
-| `add-game-session-invite-and-lobby-1v1` | 29/39 | Phase 4 multiplayer |
+| `wire-encounter-to-campaign-round-trip` | 25/42 | Campaign closure |
 
 ## Lane Model
 
