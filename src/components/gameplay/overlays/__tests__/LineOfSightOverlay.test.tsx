@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { useState, type ReactElement } from 'react';
 
 import type {
   IHex,
@@ -136,6 +137,42 @@ describe('LineOfSightOverlay', () => {
     );
   });
 
+  it('renders hovered LOS behind a wall as a red line ending at the wall', () => {
+    const grid = createGrid([
+      createHex(0, 0),
+      createHex(1, 0, TerrainType.Building),
+      createHex(2, 0),
+    ]);
+    const blockerPixel = hexToPixel({ q: 1, r: 0 });
+    const targetPixel = hexToPixel(target);
+
+    function HoverProbe(): ReactElement {
+      const [hovered, setHovered] = useState<IHexCoordinate | null>(null);
+      return (
+        <svg>
+          <g
+            data-testid="hover-target"
+            onMouseEnter={() => setHovered(target)}
+            onMouseLeave={() => setHovered(null)}
+          />
+          <LineOfSightOverlay origin={origin} target={hovered} grid={grid} />
+        </svg>
+      );
+    }
+
+    render(<HoverProbe />);
+
+    expect(screen.queryByTestId('los-line')).toBeNull();
+    fireEvent.mouseEnter(screen.getByTestId('hover-target'));
+
+    const line = screen.getByTestId('los-line');
+    expect(line).toHaveAttribute('data-state', 'blocked');
+    expect(line).toHaveAttribute('stroke', '#dc2626');
+    expect(line).toHaveAttribute('x2', String(blockerPixel.x));
+    expect(line).not.toHaveAttribute('x2', String(targetPixel.x));
+    expect(screen.getByTestId('los-annotation-wall-1,0')).toBeInTheDocument();
+  });
+
   it('renders an empty labelled group when origin, target, or grid is unavailable', () => {
     render(
       <svg>
@@ -147,6 +184,32 @@ describe('LineOfSightOverlay', () => {
     expect(overlay).toHaveAttribute('pointer-events', 'none');
     expect(overlay).toHaveAttribute('aria-label', 'Line of sight overlay');
     expect(screen.queryByTestId('los-line')).not.toBeInTheDocument();
+  });
+
+  it('fades the line and annotations in together via a single wrapper animation', () => {
+    // Task 7.4: annotations fade in/out with the LOS line. Implemented as
+    // a CSS keyframe on the wrapper <g> so the line + every blocker icon
+    // share the same opacity transition.
+    const grid = createGrid([
+      createHex(0, 0),
+      createHex(1, 0, TerrainType.Building),
+      createHex(2, 0),
+    ]);
+    renderOverlay(grid);
+
+    const overlay = screen.getByTestId('line-of-sight-overlay');
+    const fadeMs = overlay.getAttribute('data-fade-duration-ms');
+    expect(fadeMs).not.toBeNull();
+    expect(Number(fadeMs)).toBeGreaterThan(0);
+
+    // Sanity: the wrapper carries the animation; line + annotation are
+    // descendants of that wrapper so they inherit the fade.
+    expect(screen.getByTestId('los-line').closest('g')).toBe(overlay);
+    expect(
+      screen
+        .getByTestId(/los-annotation-(wall|cover)-/)
+        .closest('g[data-testid="line-of-sight-overlay"]'),
+    ).toBe(overlay);
   });
 
   it('exposes a memo comparator scoped to hover/origin/grid changes', () => {

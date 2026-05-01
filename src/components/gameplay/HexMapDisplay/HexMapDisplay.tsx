@@ -8,6 +8,7 @@ import type {
   IHexGrid,
   IHex,
   IGameEvent,
+  IWeaponStatus,
 } from '@/types/gameplay';
 
 import { AttackEffectsLayer } from '@/components/gameplay/effects/AttackEffectsLayer';
@@ -19,7 +20,7 @@ import { UnitTokenForType } from '@/components/gameplay/UnitToken/UnitTokenForTy
 import { HEX_SIZE } from '@/constants/hexMap';
 import { useScreenShake } from '@/hooks/useScreenShake';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
-import { TerrainType } from '@/types/gameplay';
+import { GameSide, TerrainType } from '@/types/gameplay';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 
 import { HexCell } from './HexCell';
@@ -48,6 +49,8 @@ export interface HexMapDisplayProps {
   hexTerrain?: readonly IHexTerrain[];
   movementRange?: readonly IMovementRangeHex[];
   attackRange?: readonly IHexCoordinate[];
+  unitWeapons?: Record<string, readonly IWeaponStatus[]>;
+  friendlySide?: GameSide;
   highlightPath?: readonly IHexCoordinate[];
   /**
    * Per `add-movement-phase-ui` task 4.3: cumulative MP cost of the
@@ -101,6 +104,14 @@ export interface HexMapDisplayProps {
   className?: string;
 }
 
+function isOperationalWeapon(weapon: IWeaponStatus): boolean {
+  if (weapon.destroyed || weapon.jammed) return false;
+  if (weapon.ammoRemaining !== undefined && weapon.ammoRemaining <= 0) {
+    return false;
+  }
+  return true;
+}
+
 export function HexMapDisplay({
   mapId = 'default-map',
   radius,
@@ -110,6 +121,8 @@ export function HexMapDisplay({
   hexTerrain = [],
   movementRange = [],
   attackRange = [],
+  unitWeapons = {},
+  friendlySide = GameSide.Player,
   highlightPath = [],
   hoverMpCost,
   hoverUnreachable = false,
@@ -212,19 +225,51 @@ export function HexMapDisplay({
     [activeAnimations, mapId],
   );
 
+  const selectedUnitWeapons = useMemo(() => {
+    if (!selectedToken) return [];
+    return unitWeapons[selectedToken.unitId] ?? [];
+  }, [selectedToken, unitWeapons]);
+
+  const hasConfiguredWeaponList =
+    selectedToken !== null &&
+    Object.prototype.hasOwnProperty.call(unitWeapons, selectedToken.unitId);
+
+  const operationalWeapons = useMemo(
+    () => selectedUnitWeapons.filter(isOperationalWeapon),
+    [selectedUnitWeapons],
+  );
+
   const selectedWeaponMaxRange = useMemo(() => {
+    if (hasConfiguredWeaponList) {
+      if (operationalWeapons.length === 0) return radius;
+      return Math.max(0, ...operationalWeapons.map((weapon) => weapon.ranges.long));
+    }
+
     if (!selectedUnitPosition || attackRange.length === 0) return radius;
     return Math.max(
       0,
       ...attackRange.map((hex) => hexDistance(selectedUnitPosition, hex)),
     );
-  }, [attackRange, radius, selectedUnitPosition]);
+  }, [
+    attackRange,
+    hasConfiguredWeaponList,
+    operationalWeapons,
+    radius,
+    selectedUnitPosition,
+  ]);
+
+  const visibleFiringArcs = useMemo(() => {
+    if (!hasConfiguredWeaponList || operationalWeapons.length > 0) return undefined;
+    return ['rear'] as const;
+  }, [hasConfiguredWeaponList, operationalWeapons.length]);
 
   const handleHexClick = useCallback(
     (hex: IHexCoordinate) => {
+      setHoveredHex(null);
+      onHexHover?.(null);
       onHexClick?.(hex);
     },
-    [onHexClick],
+    [onHexClick, onHexHover],
   );
 
   const handleHexHover = useCallback(
@@ -332,8 +377,9 @@ export function HexMapDisplay({
           })}
         </g>
 
-        {interaction.showLOSOverlay &&
+        {interaction.showFiringArcOverlay &&
           selectedToken &&
+          selectedToken.side === friendlySide &&
           !hasActiveMovementAnimation && (
             <FiringArcOverlay
               unit={{
@@ -343,6 +389,7 @@ export function HexMapDisplay({
               }}
               hexes={hexes}
               maxRange={selectedWeaponMaxRange}
+              visibleArcs={visibleFiringArcs}
               enabled
               testId="firing-arc-overlay"
             />
@@ -538,6 +585,19 @@ export function HexMapDisplay({
             data-testid="overlay-toggle-cover"
           >
             🛡
+          </button>
+          <button
+            type="button"
+            onClick={() => interaction.setShowFiringArcOverlay((v) => !v)}
+            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 text-xs font-medium shadow transition-colors ${
+              interaction.showFiringArcOverlay
+                ? 'bg-rose-600 text-white hover:bg-rose-700'
+                : 'bg-white text-slate-700 hover:bg-gray-100'
+            }`}
+            title="Toggle firing arc overlay"
+            data-testid="overlay-toggle-arcs"
+          >
+            ARC
           </button>
           <button
             type="button"

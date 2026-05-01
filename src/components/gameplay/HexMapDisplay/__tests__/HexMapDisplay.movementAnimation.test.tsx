@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
-import type { IGameEvent, IUnitToken } from '@/types/gameplay';
+import type { IGameEvent, IUnitToken, IWeaponStatus } from '@/types/gameplay';
 
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import {
@@ -9,8 +9,10 @@ import {
   GamePhase,
   GameSide,
   MovementType,
+  TerrainType,
   TokenUnitType,
 } from '@/types/gameplay';
+import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 
 import { HexMapDisplay } from '../HexMapDisplay';
 
@@ -44,6 +46,20 @@ function makeEvent(
     turn: 1,
     phase: GamePhase.WeaponAttack,
     payload,
+  };
+}
+
+function makeWeapon(overrides: Partial<IWeaponStatus> = {}): IWeaponStatus {
+  return {
+    id: 'medium-laser',
+    name: 'Medium Laser',
+    location: 'center_torso',
+    destroyed: false,
+    firedThisTurn: false,
+    heat: 3,
+    damage: 5,
+    ranges: { short: 3, medium: 6, long: 9 },
+    ...overrides,
   };
 }
 
@@ -138,6 +154,232 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('los-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('los-line')).toBeInTheDocument();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders firing arcs only for the selected friendly unit', () => {
+    const enemySelected = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[enemySelected]}
+        selectedHex={null}
+      />,
+    );
+
+    expect(screen.queryByTestId('firing-arc-overlay')).toBeNull();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('lets the user toggle firing arcs independently from LOS', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[selected]}
+        selectedHex={null}
+      />,
+    );
+
+    expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('overlay-toggle-arcs'));
+    expect(screen.queryByTestId('firing-arc-overlay')).toBeNull();
+
+    fireEvent.click(screen.getByTestId('overlay-toggle-arcs'));
+    expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('hides the LOS line on hex click while leaving the committed click path to the host', () => {
+    const onHexClick = jest.fn();
+    const onHexHover = jest.fn();
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[selected]}
+        selectedHex={null}
+        onHexClick={onHexClick}
+        onHexHover={onHexHover}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('overlay-toggle-los'));
+    fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+    expect(screen.getByTestId('los-line')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('hex-1-0'));
+
+    expect(onHexClick).toHaveBeenCalledWith({ q: 1, r: 0 });
+    expect(onHexHover).toHaveBeenLastCalledWith(null);
+    expect(screen.queryByTestId('los-line')).toBeNull();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('uses configured weapon ranges for firing arc shading', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={3}
+        tokens={[selected]}
+        selectedHex={null}
+        unitWeapons={{
+          selected: [makeWeapon({ ranges: { short: 1, medium: 1, long: 1 } })],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId('firing-arc-hex-0,-1')).toBeInTheDocument();
+    expect(screen.queryByTestId('firing-arc-hex-0,-2')).toBeNull();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders rear-arc information only when no configured weapons are operational', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[selected]}
+        selectedHex={null}
+        unitWeapons={{
+          selected: [
+            makeWeapon({ id: 'destroyed-laser', destroyed: true }),
+            makeWeapon({ id: 'dry-ac', ammoRemaining: 0 }),
+            makeWeapon({ id: 'jammed-uac', jammed: true }),
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.queryByTestId('firing-arc-hex-0,-1')).toBeNull();
+    expect(screen.queryByTestId('firing-arc-hex-1,0')).toBeNull();
+    expect(screen.getByTestId('firing-arc-hex-0,1')).toHaveAttribute(
+      'data-arc',
+      'rear',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('toggles the LOS overlay off independently from firing arcs', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[selected]}
+        selectedHex={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('overlay-toggle-los'));
+    fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+    expect(screen.getByTestId('los-line')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('overlay-toggle-los'));
+    expect(screen.queryByTestId('los-line')).toBeNull();
+    expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders blocked hover LOS as a red line ending at the wall hex', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    const blockerPixel = hexToPixel({ q: 1, r: 0 });
+    const targetPixel = hexToPixel({ q: 2, r: 0 });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={2}
+        tokens={[selected]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.Building, level: 1 }],
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('overlay-toggle-los'));
+    fireEvent.mouseEnter(screen.getByTestId('hex-2-0'));
+
+    const line = screen.getByTestId('los-line');
+    expect(line).toHaveAttribute('data-state', 'blocked');
+    expect(line).toHaveAttribute('stroke', '#dc2626');
+    expect(line).toHaveAttribute('x2', String(blockerPixel.x));
+    expect(line).not.toHaveAttribute('x2', String(targetPixel.x));
+    expect(screen.getByTestId('los-annotation-wall-1,0')).toBeInTheDocument();
 
     act(() => {
       unmount();

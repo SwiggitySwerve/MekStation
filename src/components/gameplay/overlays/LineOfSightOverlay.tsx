@@ -12,8 +12,11 @@ import type {
 } from '@/utils/overlays/losClassifier';
 
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
+import { usePrefersReducedMotion } from '@/hooks/useReducedMotion';
 import { hexEquals } from '@/utils/gameplay/hexMath';
 import { classifyLOS } from '@/utils/overlays/losClassifier';
+
+const LOS_FADE_DURATION_MS = 180;
 
 export interface LineOfSightOverlayProps {
   readonly origin: IHexCoordinate | null;
@@ -168,6 +171,7 @@ function LineOfSightOverlayComponent({
   tokens,
   testId = 'line-of-sight-overlay',
 }: LineOfSightOverlayProps): React.ReactElement {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const classification = useMemo(() => {
     if (!enabled || !origin || !target || !grid) return null;
     return classifyLOS(origin, target, grid, {
@@ -192,15 +196,26 @@ function LineOfSightOverlayComponent({
   const start = hexToPixel(origin);
   const end = hexToPixel(classification.lineEnd);
   const announcement = announcementFor(classification);
+  // Fade in line + annotations together on mount/target change. Reduced
+  // motion users get the overlay rendered fully opaque without animation.
+  // @spec openspec/changes/add-los-and-firing-arc-overlays/tasks.md §7.4
+  const fadeStyle: React.CSSProperties | undefined = prefersReducedMotion
+    ? undefined
+    : {
+        animation: `mks-los-fade-in ${LOS_FADE_DURATION_MS}ms ease-out`,
+      };
 
   return (
     <g
       pointerEvents="none"
       data-testid={testId}
+      data-fade-duration-ms={prefersReducedMotion ? 0 : LOS_FADE_DURATION_MS}
       aria-label={announcement}
       aria-live="polite"
+      style={fadeStyle}
     >
       <title>{announcement}</title>
+      <style>{`@keyframes mks-los-fade-in { from { opacity: 0; } to { opacity: 1; } }`}</style>
       <line
         data-testid="los-line"
         data-state={classification.state}

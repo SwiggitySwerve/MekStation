@@ -67,6 +67,8 @@ const noopInteraction: MapInteractionState = {
   setShowMovementOverlay: () => {},
   showCoverOverlay: false,
   setShowCoverOverlay: () => {},
+  showFiringArcOverlay: true,
+  setShowFiringArcOverlay: () => {},
   showLOSOverlay: false,
   setShowLOSOverlay: () => {},
   panBy: () => {},
@@ -270,12 +272,12 @@ export function GameplayLayout({
   // Minimap visibility (M hotkey toggles).
   const [minimapVisible, setMinimapVisible] = useState<boolean>(true);
 
-  // Firing-arc overlay toggle (A hotkey). The arc overlay itself is
-  // defined in a sibling change; we track the toggle state here so
-  // the hotkey works consistently across phases even when the arc
-  // renderer is absent — the state bleeds into a data-attribute so
-  // future overlays can subscribe without new plumbing.
-  const [_arcsVisible, setArcsVisible] = useState<boolean>(false);
+  // Firing-arc overlay toggle (A hotkey) — forwarded into the map's
+  // interaction state so arc and LOS visibility can be controlled
+  // independently.
+  const toggleArcs = useCallback(() => {
+    mapInteraction?.setShowFiringArcOverlay((v) => !v);
+  }, [mapInteraction]);
 
   // LOS overlay toggle (L hotkey) — forwarded into the map's
   // interaction state so the existing LOS overlay reacts.
@@ -535,7 +537,6 @@ export function GameplayLayout({
     () => setMinimapVisible((v) => !v),
     [],
   );
-  const handleToggleArcs = useCallback(() => setArcsVisible((v) => !v), []);
   const handleToggleHelp = useCallback(() => setHelpOpen((v) => !v), []);
   const handleEscape = useCallback(() => {
     setHelpOpen(false);
@@ -549,7 +550,7 @@ export function GameplayLayout({
     camera,
     selectedUnitHex,
     onToggleMinimap: handleToggleMinimap,
-    onToggleArcs: handleToggleArcs,
+    onToggleArcs: toggleArcs,
     onToggleLOS: toggleLOS,
     onToggleHelp: handleToggleHelp,
     onEscape: handleEscape,
@@ -664,6 +665,8 @@ export function GameplayLayout({
             events={visibleEvents}
             selectedHex={selectedUnit?.position || null}
             movementRange={movementRange}
+            unitWeapons={unitWeapons}
+            friendlySide={playerSide}
             highlightPath={highlightPath}
             hoverMpCost={hoverMpCost}
             hoverUnreachable={hoverUnreachable}

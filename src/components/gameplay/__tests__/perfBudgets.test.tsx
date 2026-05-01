@@ -11,6 +11,7 @@ import type { IGameEvent, IUnitToken } from '@/types/gameplay';
 import { AttackEffectsLayer } from '@/components/gameplay/effects/AttackEffectsLayer';
 import { PersistentEffectsLayer } from '@/components/gameplay/effects/PersistentEffectsLayer';
 import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay';
+import { FiringArcOverlay } from '@/components/gameplay/overlays/FiringArcOverlay';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import {
   Facing,
@@ -119,6 +120,29 @@ function attackLayer(events: readonly IGameEvent[]) {
   );
 }
 
+function rectangularHexes(size: number) {
+  return Array.from({ length: size * size }, (_, index) => ({
+    q: index % size,
+    r: Math.floor(index / size),
+  }));
+}
+
+function firingArcLayer(hexes: readonly { q: number; r: number }[]) {
+  return (
+    <svg>
+      <FiringArcOverlay
+        unit={{
+          unitId: 'arc-budget-unit',
+          coord: { q: 15, r: 15 },
+          facing: Facing.North,
+        }}
+        hexes={hexes}
+        maxRange={30}
+      />
+    </svg>
+  );
+}
+
 afterAll(() => {
   if (process.env.PRINT_PERF_BUDGETS !== '1') return;
   perfResults.forEach((avgFrameTime, name) => {
@@ -215,5 +239,18 @@ describe('Phase 7 gameplay perf budgets', () => {
 
     unmount();
     expectBudget('attack', avgFrameTime);
+  });
+
+  it('keeps firing arc overlay work on a 30x30 map under the jsdom frame budget', () => {
+    const hexes = rectangularHexes(30);
+    const { rerender, unmount } = render(firingArcLayer(hexes));
+    const avgFrameTime = measureFrameTime(() => {
+      act(() => {
+        rerender(firingArcLayer([...hexes]));
+      });
+    });
+
+    unmount();
+    expectBudget('firing-arc-30x30', avgFrameTime);
   });
 });
