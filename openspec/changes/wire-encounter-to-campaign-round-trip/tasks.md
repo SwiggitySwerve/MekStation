@@ -16,7 +16,7 @@
       `src/engine/InteractiveSession.ts`)
 - [x] 2.2 On `GameEnded`, derive `ICombatOutcome` (per
       `add-combat-outcome-model`) and publish `CombatOutcomeReady`
-- [ ] 2.3 POST outcome to `/api/matches` for persistence
+- [x] 2.3 POST outcome to `/api/matches` for persistence
 - [x] 2.4 Include `matchId` in the bus payload
 
 ## 3. Campaign Store Subscribes To Outcomes
@@ -32,7 +32,7 @@
 
 ## 4. Review UI → Campaign Handoff
 
-- [ ] 4.1 On the review page's "Return to Campaign" CTA, ensure the
+- [x] 4.1 On the review page's "Return to Campaign" CTA, ensure the
       outcome is in the pending queue (re-enqueue if not, matched by
       matchId — still idempotent)
 - [ ] 4.2 Close the tactical session in session store
@@ -40,13 +40,13 @@
 
 ## 5. Campaign Dashboard Pending-Outcomes Banner
 
-- [ ] 5.1 Add `PendingOutcomesBanner` component on the campaign dashboard
-- [ ] 5.2 Banner visible whenever `pendingBattleOutcomes.length > 0`
-- [ ] 5.3 Banner summary: "N pending battle outcomes — advance day to
+- [x] 5.1 Add `PendingOutcomesBanner` component on the campaign dashboard
+- [x] 5.2 Banner visible whenever `pendingBattleOutcomes.length > 0`
+- [x] 5.3 Banner summary: "N pending battle outcomes — advance day to
       apply"
-- [ ] 5.4 Banner lists match ids with links to each review page for
+- [x] 5.4 Banner lists match ids with links to each review page for
       re-inspection
-- [ ] 5.5 Banner dismisses itself once queue is drained by the
+- [x] 5.5 Banner dismisses itself once queue is drained by the
       post-battle processor
 
 ## 6. Day Advancement Pipeline Order
@@ -55,7 +55,7 @@
       effects" group
 - [x] 6.2 Register `salvageProcessor` after `postBattleProcessor`
 - [x] 6.3 Register `repairQueueBuilderProcessor` after `salvageProcessor`
-- [ ] 6.4 These three run before the existing `contractProcessor`,
+- [x] 6.4 These three run before the existing `contractProcessor`,
       `healingProcessor`, `maintenanceProcessor`
 - [x] 6.5 Document the full order in `dayAdvancement.ts` header comment
 
@@ -73,7 +73,7 @@
 - [ ] 8.1 Update `scenarioGenerationProcessor` so every generated scenario
       produced from a contract records the `contractId` on the resulting
       encounter record
-- [ ] 8.2 When `EncounterService.launchEncounter` is called, the
+- [x] 8.2 When `EncounterService.launchEncounter` is called, the
       `contractId` flows through per task group 1
 
 ## 9. Contract Lifecycle Events
