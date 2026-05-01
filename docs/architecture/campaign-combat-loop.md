@@ -126,12 +126,12 @@ The campaign store subscribes once on first construction (`subscribeToCombatOutc
 
 The `DayPipelineRegistry` sorts processors by `phase` value. The Wave-5 invariant for the battle-effects block is:
 
-| Processor                       | Phase value | Reads                                | Writes                                                      |
-| ------------------------------- | ----------- | ------------------------------------ | ----------------------------------------------------------- |
-| `postBattleProcessor`           | 350         | `pendingBattleOutcomes`              | `personnel`, `missions`, `unitCombatStates`, `recentlyApplied` |
-| `salvageProcessor`              | 375         | `recentlyAppliedOutcomes`            | `salvageAllocations`, `salvageReports`                       |
-| `repairQueueBuilderProcessor`   | 390         | `recentlyAppliedOutcomes` + `unitCombatStates` | `repairQueue`                                       |
-| `contractProcessor`             | 400         | `pendingFulfilledContractIds`        | `missions`, `finances`, `processedFulfilledContractIds`      |
+| Processor                     | Phase value | Reads                                          | Writes                                                         |
+| ----------------------------- | ----------- | ---------------------------------------------- | -------------------------------------------------------------- |
+| `postBattleProcessor`         | 350         | `pendingBattleOutcomes`                        | `personnel`, `missions`, `unitCombatStates`, `recentlyApplied` |
+| `salvageProcessor`            | 375         | `recentlyAppliedOutcomes`                      | `salvageAllocations`, `salvageReports`                         |
+| `repairQueueBuilderProcessor` | 390         | `recentlyAppliedOutcomes` + `unitCombatStates` | `repairQueue`                                                  |
+| `contractProcessor`           | 400         | `pendingFulfilledContractIds`                  | `missions`, `finances`, `processedFulfilledContractIds`        |
 
 Each processor's output campaign feeds the next.
 
