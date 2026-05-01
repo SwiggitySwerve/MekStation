@@ -53,7 +53,7 @@ string, turnLimit: number}`
 
 - [x] 6.1 Each peer toggles their own ready flag
 - [x] 6.2 When both peers are ready, host sees a "Launch Match" button
-- [ ] 6.3 Clicking launch: host creates the session with both loadouts,
+- [x] 6.3 Clicking launch: host creates the session with both loadouts,
       writes `matchId` into lobby state, both peers navigate to
       `/gameplay/games/[matchId]`
 - [x] 6.4 Guest cannot launch; button is host-only

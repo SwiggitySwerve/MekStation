@@ -22,13 +22,13 @@
 
 ## 3. Host-Authoritative RNG
 
-- [ ] 3.1 Host engine uses the existing default `DiceRoller`
-- [ ] 3.2 Guest engine uses a new `replayDiceRoller` that pops rolls off a
+- [x] 3.1 Host engine uses the existing default `DiceRoller`
+- [x] 3.2 Guest engine uses a new `replayDiceRoller` that pops rolls off a
       queue populated from incoming events' `payload.rolls`
-- [ ] 3.3 Every event the host generates that consumed dice includes the
+- [x] 3.3 Every event the host generates that consumed dice includes the
       rolled values in the event payload so the guest mirror can replay
       them deterministically
-- [ ] 3.4 Unit test: a seeded host session and a guest session consuming
+- [x] 3.4 Unit test: a seeded host session and a guest session consuming
       its events produce identical `currentState` at every step
 
 ## 4. Mirror Session on Guest
@@ -57,9 +57,9 @@
 
 - [x] 6.1 `IGameSession` gains an optional `sideOwners: Record<GameSide,
 string>` field mapping side → peerId
-- [ ] 6.2 Skirmish setup screen with "Networked 1v1" lets host pick which
+- [x] 6.2 Skirmish setup screen with "Networked 1v1" lets host pick which
       side they control; the other side is auto-assigned to the guest
-- [ ] 6.3 UI disables any control that would modify a unit whose side is
+- [x] 6.3 UI disables any control that would modify a unit whose side is
       not owned by the local peer
 
 ## 7. Disconnect Handling
@@ -73,10 +73,10 @@ string>` field mapping side → peerId
 
 ## 8. Skirmish Setup Integration
 
-- [ ] 8.1 Setup screen adds a side option `Networked 1v1`
-- [ ] 8.2 Selecting it requires an active sync room; otherwise the
+- [x] 8.1 Setup screen adds a side option `Networked 1v1`
+- [x] 8.2 Selecting it requires an active sync room; otherwise the
       "Launch" button is disabled
-- [ ] 8.3 After launch, both peers render the combat surface without
+- [x] 8.3 After launch, both peers render the combat surface without
       either of them hot-seating
 
 ## 9. Validation & Tests

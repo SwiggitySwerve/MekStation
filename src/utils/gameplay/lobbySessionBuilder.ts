@@ -12,6 +12,7 @@ import {
 } from '@/types/gameplay';
 import {
   canLaunchLobby,
+  getLobbyHostSide,
   getLoadoutForSide,
   type ILobbyState,
   type ILoadout,
@@ -33,15 +34,26 @@ export function buildGameSessionFromLobbyState(
     throw new Error('Guest peer is not assigned');
   }
 
+  // Per `add-p2p-game-session-sync` § 6.2: host picks which game-side
+  // they own. `'player'` (default) → host=Player, guest=Opponent;
+  // `'opponent'` flips the mapping. The lobby-side → game-side
+  // assignment must propagate into both `IGameUnit.side` AND the
+  // `sideOwners` lookup so UI gating reads them consistently.
+  const hostSide = getLobbyHostSide(lobby);
+  const hostGameSide =
+    hostSide === 'player' ? GameSide.Player : GameSide.Opponent;
+  const guestGameSide =
+    hostSide === 'player' ? GameSide.Opponent : GameSide.Player;
+
   const hostUnits = toGameUnits(
     getLoadoutForSide(lobby, 'host'),
     'host',
-    GameSide.Player,
+    hostGameSide,
   );
   const guestUnits = toGameUnits(
     getLoadoutForSide(lobby, 'guest'),
     'guest',
-    GameSide.Opponent,
+    guestGameSide,
   );
 
   const config: IGameConfig = {
@@ -51,14 +63,21 @@ export function buildGameSessionFromLobbyState(
     optionalRules: [`terrain:${lobby.mapConfig.terrainPreset}`],
   };
 
+  // TS can't infer "two computed enum-keyed assignments cover the full
+  // GameSide record" — list both keys explicitly so the resulting shape
+  // type-checks against Record<GameSide, string>.
+  const sideOwners: Readonly<Record<GameSide, string>> = {
+    [GameSide.Player]:
+      hostGameSide === GameSide.Player ? lobby.hostPeerId : lobby.guestPeerId,
+    [GameSide.Opponent]:
+      hostGameSide === GameSide.Opponent ? lobby.hostPeerId : lobby.guestPeerId,
+  };
+
   const session = createGameSession(config, [...hostUnits, ...guestUnits], {
     id: matchId,
     hostPeerId: lobby.hostPeerId,
     guestPeerId: lobby.guestPeerId,
-    sideOwners: {
-      [GameSide.Player]: lobby.hostPeerId,
-      [GameSide.Opponent]: lobby.guestPeerId,
-    },
+    sideOwners,
   });
 
   return startGame(session, GameSide.Player);

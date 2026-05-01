@@ -5,11 +5,13 @@ import type {
   ILoadout,
   IMapConfig,
   ISelectedUnit,
+  LobbyHostSide,
 } from '@/types/gameplay/GameLobbyInterfaces';
 import type { IPilot } from '@/types/pilot';
 
 import {
   canLaunchLobby,
+  getLobbyHostSide,
   getLobbyReadyBlockReason,
   getLobbySideForPeer,
   getReadyForSide,
@@ -28,6 +30,12 @@ export interface GameplayLobbyPanelProps {
   readonly onMapConfigChange: (config: IMapConfig) => void;
   readonly onReadyChange: (ready: boolean) => void;
   readonly onLaunch: () => void;
+  /**
+   * Per `add-p2p-game-session-sync` § 6.2: host-only callback that
+   * flips which game-side the host owns. Optional — when omitted, the
+   * picker is read-only.
+   */
+  readonly onHostSideChange?: (hostSide: LobbyHostSide) => void;
 }
 
 export function GameplayLobbyPanel({
@@ -41,6 +49,7 @@ export function GameplayLobbyPanel({
   onMapConfigChange,
   onReadyChange,
   onLaunch,
+  onHostSideChange,
 }: GameplayLobbyPanelProps): React.ReactElement {
   const [copied, setCopied] = useState(false);
   const localSide = getLobbySideForPeer(lobbyState, localPeerId);
@@ -50,6 +59,7 @@ export function GameplayLobbyPanel({
     ? getLobbyReadyBlockReason(lobbyState, localSide)
     : 'This peer is not assigned to the lobby';
   const launchReady = canLaunchLobby(lobbyState);
+  const hostSide = getLobbyHostSide(lobbyState);
 
   const assignedPilotIds = useMemo(() => {
     const ids = new Set<string>();
@@ -175,6 +185,27 @@ export function GameplayLobbyPanel({
                 }
                 className="mt-1 w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 disabled:opacity-60"
               />
+            </label>
+            <label className="block text-sm">
+              <span className="text-slate-300">Host plays as</span>
+              <select
+                aria-label="Host side"
+                value={hostSide}
+                disabled={!isHost || !onHostSideChange}
+                onChange={(event) =>
+                  onHostSideChange?.(
+                    event.target.value === 'opponent' ? 'opponent' : 'player',
+                  )
+                }
+                className="mt-1 w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 disabled:opacity-60"
+              >
+                <option value="player">Player (blue)</option>
+                <option value="opponent">Opponent (red)</option>
+              </select>
+              <p className="mt-1 text-xs text-slate-500">
+                Guest will play as{' '}
+                {hostSide === 'player' ? 'Opponent (red)' : 'Player (blue)'}.
+              </p>
             </label>
           </div>
 

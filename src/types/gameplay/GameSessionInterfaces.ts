@@ -1501,3 +1501,47 @@ export function isGameSession(obj: unknown): obj is IGameSession {
     typeof session.currentState === 'object'
   );
 }
+
+// =============================================================================
+// Side Ownership (Networked 1v1)
+// =============================================================================
+
+/**
+ * Per `add-p2p-game-session-sync` § 6.3: returns true when the local
+ * peer is allowed to issue commands (move, fire, lock) for the given
+ * game side. Used by the combat UI to gate control affordances:
+ * disable any control that would modify a unit whose side is owned by
+ * the remote peer.
+ *
+ * Behaviour:
+ *   - Local single-player / hot-seat session (`sideOwners` absent):
+ *     local peer controls every side — return `true`.
+ *   - Networked session: side is owned by `localPeerId` iff
+ *     `sideOwners[side] === localPeerId`. Unknown peer returns `false`
+ *     (e.g. spectator or stale awareness state).
+ */
+export function canLocalPeerControlSide(
+  session: Pick<IGameSession, 'sideOwners'>,
+  localPeerId: string | null | undefined,
+  side: GameSide,
+): boolean {
+  if (!session.sideOwners) return true;
+  if (!localPeerId) return false;
+  return session.sideOwners[side] === localPeerId;
+}
+
+/**
+ * Convenience wrapper for unit-level UI gating: looks up the unit's
+ * side and forwards to `canLocalPeerControlSide`. Returns `false` when
+ * the unit is unknown — fail-closed so the UI never lets a stale
+ * reference modify someone else's mech.
+ */
+export function canLocalPeerControlUnit(
+  session: Pick<IGameSession, 'units' | 'sideOwners'>,
+  localPeerId: string | null | undefined,
+  unitId: string,
+): boolean {
+  const unit = session.units.find((entry) => entry.id === unitId);
+  if (!unit) return false;
+  return canLocalPeerControlSide(session, localPeerId, unit.side);
+}

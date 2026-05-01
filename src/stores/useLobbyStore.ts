@@ -16,6 +16,7 @@ import type {
   ILobbyState,
   ILoadout,
   IMapConfig,
+  LobbyHostSide,
   LobbySide,
 } from '@/types/gameplay/GameLobbyInterfaces';
 
@@ -43,6 +44,7 @@ interface LobbyStoreActions {
   ) => ILobbyChannelResult | null;
   readonly updateMapConfig: (config: IMapConfig) => ILobbyChannelResult | null;
   readonly setLocalReady: (ready: boolean) => ILobbyChannelResult | null;
+  readonly setHostSide: (hostSide: LobbyHostSide) => ILobbyChannelResult | null;
   readonly launch: (matchId?: string) => ILobbyChannelResult | null;
   readonly clearLobbyError: () => void;
   readonly resetLobby: () => void;
@@ -132,6 +134,14 @@ export const useLobbyStore = create<LobbyStore>((set, get) => ({
     const { channel, localPeerId } = get();
     if (!channel || !localPeerId) return null;
     const result = channel.setReady(localPeerId, ready);
+    applyChannelResult(result, set);
+    return result;
+  },
+
+  setHostSide: (hostSide) => {
+    const { channel } = get();
+    if (!channel) return null;
+    const result = channel.setHostSide(hostSide);
     applyChannelResult(result, set);
     return result;
   },
