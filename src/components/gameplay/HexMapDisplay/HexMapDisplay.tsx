@@ -242,7 +242,10 @@ export function HexMapDisplay({
   const selectedWeaponMaxRange = useMemo(() => {
     if (hasConfiguredWeaponList) {
       if (operationalWeapons.length === 0) return radius;
-      return Math.max(0, ...operationalWeapons.map((weapon) => weapon.ranges.long));
+      return Math.max(
+        0,
+        ...operationalWeapons.map((weapon) => weapon.ranges.long),
+      );
     }
 
     if (!selectedUnitPosition || attackRange.length === 0) return radius;
@@ -259,7 +262,8 @@ export function HexMapDisplay({
   ]);
 
   const visibleFiringArcs = useMemo(() => {
-    if (!hasConfiguredWeaponList || operationalWeapons.length > 0) return undefined;
+    if (!hasConfiguredWeaponList || operationalWeapons.length > 0)
+      return undefined;
     return ['rear'] as const;
   }, [hasConfiguredWeaponList, operationalWeapons.length]);
 
