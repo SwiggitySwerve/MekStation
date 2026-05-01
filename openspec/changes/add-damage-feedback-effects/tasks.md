@@ -92,7 +92,7 @@
 - [x] 10.2 Screen shake uses CSS transform only on the map root
       (doesn't invalidate children)
 - [x] 10.3 Wreck sprite replaces live sprite — no double render
-- [ ] 10.4 Budget: 20 concurrent persistent effects at 60 FPS
+- [x] 10.4 Budget: 20 concurrent persistent effects at 60 FPS
 
 ## 11. Tests
 

@@ -84,8 +84,8 @@
 
 - [x] 9.1 Use CSS transforms + opacity animations (no layout thrash)
 - [x] 9.2 Reuse `<defs>` for glow filters across all beams
-- [ ] 9.3 Budget: 30 concurrent effects at 60 FPS on a 30x30 map
-- [ ] 9.4 Profile regression checked in CI
+- [x] 9.3 Budget: 30 concurrent effects at 60 FPS on a 30x30 map
+- [x] 9.4 Profile regression checked in CI
 
 ## 10. Tests
 
