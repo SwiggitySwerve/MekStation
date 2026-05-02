@@ -99,6 +99,13 @@ function mapRawToIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
 
 /**
  * Full unit data structure (placeholder - will be defined in types)
+ *
+ * Optional temporal fields (`currentVersion`, `createdAt`, `updatedAt`) carry
+ * version metadata for custom units that have been persisted via the
+ * `CustomUnitApiService` versioning endpoints. They are absent on canonical
+ * (bundled) units and on unsaved drafts. Collapsed in here from the former
+ * `IUnitWithVersion` extension — the wrapper added no architectural value
+ * and forced ad-hoc casts at the API boundary.
  */
 export interface IFullUnit {
   readonly id: string;
@@ -112,6 +119,10 @@ export interface IFullUnit {
   readonly equipment?: unknown[];
   readonly armor?: Record<string, number>;
   readonly structure?: Record<string, number>;
+  // Optional version metadata — present only on persisted custom units.
+  readonly currentVersion?: number;
+  readonly createdAt?: string;
+  readonly updatedAt?: string;
   [key: string]: unknown;
 }
 
