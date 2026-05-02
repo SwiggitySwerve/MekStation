@@ -166,7 +166,7 @@ export function duplicateProtoMech(
   const newState = createDefaultProtoMechState({
     name: newName ?? `${sourceState.name} (Copy)`,
     tonnage: sourceState.tonnage,
-    isQuad: sourceState.isQuad,
+    chassisType: sourceState.chassisType,
   });
 
   const mergedState: ProtoMechState = {

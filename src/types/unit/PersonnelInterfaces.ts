@@ -16,6 +16,7 @@ import {
 } from '../construction/UnitLocation';
 import { ISquadUnit, SquadMotionType } from './BaseUnitInterfaces';
 import { UnitType } from './BattleMechInterfaces';
+import { ProtoChassis } from './ProtoMechInterfaces';
 
 // ============================================================================
 // Battle Armor Types
@@ -368,11 +369,12 @@ export interface IProtoMech extends ISquadUnit {
 
   // ===== ProtoMech-Specific Options =====
 
-  /** Is this a glider (has extended jump) */
-  readonly isGlider: boolean;
-
-  /** Is this a quad ProtoMech */
-  readonly isQuad: boolean;
+  /**
+   * Chassis configuration. Single source of truth for biped vs quad vs
+   * glider vs ultraheavy variants — replaces the previous redundant
+   * `isQuad`/`isGlider` boolean pair so the discriminant cannot drift.
+   */
+  readonly chassisType: ProtoChassis;
 
   /** Has myomer booster */
   readonly hasMyomerBooster: boolean;

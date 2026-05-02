@@ -158,12 +158,6 @@ export interface ProtoMechState {
   /** Point size (typically 5 ProtoMechs per point) */
   pointSize: number;
 
-  /** @deprecated Use chassisType === ProtoChassis.QUAD. Kept for backward compat. */
-  isQuad: boolean;
-
-  /** @deprecated Use chassisType === ProtoChassis.GLIDER. Kept for backward compat. */
-  isGlider: boolean;
-
   // =========================================================================
   // Movement
   // =========================================================================
@@ -289,11 +283,13 @@ export interface ProtoMechStoreActions {
   // Classification Actions
   setTonnage: (tonnage: number) => void;
   setPointSize: (size: number) => void;
-  setQuad: (isQuad: boolean) => void;
-  setGlider: (isGlider: boolean) => void;
   /**
    * Set the chassis type. Re-derives weight class + MP caps; resets glidingWings
    * if the new chassis is not Glider, and clears jump MP for Ultraheavy.
+   *
+   * Replaces the legacy `setQuad` / `setGlider` setters which used to mutate a
+   * pair of redundant booleans alongside `chassisType`; the discriminant is
+   * now the only source of truth.
    */
   setChassisType: (chassis: ProtoChassis) => void;
 
@@ -384,7 +380,12 @@ export interface CreateProtoMechOptions {
   chassis?: string;
   model?: string;
   tonnage?: number;
-  isQuad?: boolean;
+  /**
+   * Initial chassis type. Replaces the legacy `isQuad?: boolean` option so
+   * callers can pick BIPED / QUAD / GLIDER / ULTRAHEAVY directly. Defaults
+   * to BIPED.
+   */
+  chassisType?: ProtoChassis;
 }
 
 /**
@@ -416,7 +417,7 @@ export function createDefaultProtoMechState(
   const chassis = options.chassis ?? 'New ProtoMech';
   const model = options.model ?? '';
   const tonnage = options.tonnage ?? 5;
-  const chassisType = options.isQuad ? ProtoChassis.QUAD : ProtoChassis.BIPED;
+  const chassisType = options.chassisType ?? ProtoChassis.BIPED;
   const weightClass = getProtoWeightClass(tonnage);
 
   // Default walk MP to the minimum 1 — the user sets it via setWalkMP
@@ -444,8 +445,6 @@ export function createDefaultProtoMechState(
     weightClass,
     chassisType,
     pointSize: 5,
-    isQuad: options.isQuad ?? false,
-    isGlider: false,
 
     // Movement
     engineRating: tonnage * walkMP,

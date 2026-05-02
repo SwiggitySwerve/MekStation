@@ -615,6 +615,9 @@ export class BlkParserService {
    * Glider protos have motionType "Glider".
    */
   private extractProtoMech(doc: IBlkDocument): IProtoMechBlkResult {
+    // motionType is the canonical chassis discriminant at the BLK boundary;
+    // downstream consumers derive `glider`/`quad` flags from it instead of
+    // carrying a redundant boolean field on the parsed result.
     const motionType = doc.motionType ?? 'Biped';
     return {
       name: doc.name,
@@ -626,7 +629,6 @@ export class BlkParserService {
       motionType,
       cruiseMP: doc.cruiseMP ?? 0,
       jumpMP: doc.jumpingMP ?? 0,
-      isGlider: motionType.toLowerCase() === 'glider',
       armor: doc.armor,
       equipmentByLocation: doc.equipmentByLocation,
       role: doc.role,

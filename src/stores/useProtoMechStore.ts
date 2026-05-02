@@ -198,20 +198,6 @@ export function createProtoMechStore(
               lastModifiedAt: Date.now(),
             }),
 
-          setQuad: (isQuad) =>
-            set({
-              isQuad,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
-
-          setGlider: (isGlider) =>
-            set({
-              isGlider,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
-
           setChassisType: (chassisType) =>
             set((state) => {
               const weightClass = getProtoWeightClass(state.tonnage);
@@ -229,8 +215,6 @@ export function createProtoMechStore(
                   : false;
               return {
                 chassisType,
-                isQuad: chassisType === ProtoChassis.QUAD,
-                isGlider: chassisType === ProtoChassis.GLIDER,
                 walkMP,
                 cruiseMP: walkMP,
                 flankMP: effWalk + 1,
@@ -515,8 +499,6 @@ export function createProtoMechStore(
           weightClass: state.weightClass,
           chassisType: state.chassisType,
           pointSize: state.pointSize,
-          isQuad: state.isQuad,
-          isGlider: state.isGlider,
           engineRating: state.engineRating,
           walkMP: state.walkMP,
           cruiseMP: state.cruiseMP,

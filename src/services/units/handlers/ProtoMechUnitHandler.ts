@@ -136,8 +136,20 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
 
     // Special features from raw tags
     const rawTags = document.rawTags || {};
-    const isGlider = this.getBooleanFromRaw(rawTags, 'glider');
-    const isQuad = this.getBooleanFromRaw(rawTags, 'quad');
+    // Resolve chassis configuration to the canonical `ProtoChassis` enum.
+    // Glider takes priority over Quad because Glider is a Light-class chassis
+    // that excludes arms (matching the previous `isGlider ? GLIDER : isQuad
+    // ? QUAD : BIPED` precedence). Ultraheavy is selected on tonnage when no
+    // explicit tag is present.
+    const isGliderTag = this.getBooleanFromRaw(rawTags, 'glider');
+    const isQuadTag = this.getBooleanFromRaw(rawTags, 'quad');
+    const chassisType: ProtoChassis = isGliderTag
+      ? ProtoChassis.GLIDER
+      : isQuadTag
+        ? ProtoChassis.QUAD
+        : weightPerUnit >= 10
+          ? ProtoChassis.ULTRAHEAVY
+          : ProtoChassis.BIPED;
     const hasMyomerBooster = this.getBooleanFromRaw(rawTags, 'myomerbooster');
     const hasMagneticClamps = this.getBooleanFromRaw(rawTags, 'magneticclamps');
     const hasExtendedTorsoTwist = this.getBooleanFromRaw(
@@ -160,8 +172,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       armorByLocation,
       structureByLocation,
       equipment,
-      isGlider,
-      isQuad,
+      chassisType,
       hasMyomerBooster,
       hasMagneticClamps,
       hasExtendedTorsoTwist,
@@ -343,8 +354,12 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   protected serializeTypeSpecificFields(
     unit: IProtoMech,
   ): Partial<ISerializedUnit> {
+    // Project the canonical chassisType discriminant onto the legacy
+    // serialized "configuration" string. Only QUAD vs everything-else is
+    // observable at this boundary; Glider and Ultraheavy are stored on the
+    // chassisType field itself.
     return {
-      configuration: unit.isQuad ? 'Quad' : 'Biped',
+      configuration: unit.chassisType === ProtoChassis.QUAD ? 'Quad' : 'Biped',
       rulesLevel: String(unit.rulesLevel),
     };
   }
@@ -389,12 +404,12 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     }
 
     // Main gun validation
-    if (unit.hasMainGun && unit.isQuad) {
+    if (unit.hasMainGun && unit.chassisType === ProtoChassis.QUAD) {
       errors.push('Quad ProtoMechs cannot have main guns');
     }
 
     // Glider validation
-    if (unit.isGlider && unit.jumpMP < 2) {
+    if (unit.chassisType === ProtoChassis.GLIDER && unit.jumpMP < 2) {
       errors.push('Glider ProtoMechs require at least 2 jump MP');
     }
 
@@ -445,13 +460,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
    * calculator does not inspect but TypeScript still requires.
    */
   private toProtoMechUnit(unit: IProtoMech): IProtoMechUnit {
-    const chassisType: ProtoChassis = unit.isGlider
-      ? ProtoChassis.GLIDER
-      : unit.isQuad
-        ? ProtoChassis.QUAD
-        : unit.weightPerUnit >= 10
-          ? ProtoChassis.ULTRAHEAVY
-          : ProtoChassis.BIPED;
+    // chassisType is the canonical discriminant on IProtoMech; the BV-shape
+    // unit reuses it directly so the two layers cannot drift.
+    const chassisType: ProtoChassis = unit.chassisType;
 
     const weightClass: ProtoWeightClass =
       unit.weightPerUnit <= 4
@@ -527,7 +538,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       engineRating: unit.engineRating,
       engineWeight: unit.engineRating * 0.025,
       myomerBooster: unit.hasMyomerBooster,
-      glidingWings: unit.isGlider,
+      // Glider Wings is a passive special equipment of the Glider chassis;
+      // derive from the discriminant so the projection always matches.
+      glidingWings: unit.chassisType === ProtoChassis.GLIDER,
       armorType: 'Standard',
       armorByLocation,
       structureByLocation,
@@ -576,7 +589,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     costPerUnit += unit.engineRating * 1000;
 
     // Special equipment
-    if (unit.isGlider) costPerUnit += 50000;
+    if (unit.chassisType === ProtoChassis.GLIDER) costPerUnit += 50000;
     if (unit.hasMyomerBooster) costPerUnit += 100000;
     if (unit.hasMagneticClamps) costPerUnit += 75000;
 
