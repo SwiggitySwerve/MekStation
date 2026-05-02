@@ -15,47 +15,47 @@
 
 ### 0. Tier 1 — required field additions (live bug fixes)
 
-- [ ] 0.1 Add `primaryRole: CampaignPersonnelRole` (required) to `src/types/campaign/CampaignRosterEntry.ts`. Existing rows defaulted to `PILOT` in `useCampaignStore.deserializeCampaign` migration path.
+- [x] 0.1 Add `primaryRole: CampaignPersonnelRole` (required) to `src/types/campaign/CampaignRosterEntry.ts`. Existing rows defaulted to `PILOT` in `useCampaignStore.deserializeCampaign` migration path.
   - Acceptance: typecheck clean; deserialize backward-compatible.
   - QA: `npx jest --testPathPattern='useCampaignStore'`.
 
-- [ ] 0.2 Add `traits?: IPersonTraits` (optional) to `ICampaignRosterEntry`. Import `IPersonTraits` from `src/types/campaign/Person.ts`.
+- [x] 0.2 Add `traits?: IPersonTraits` (optional) to `ICampaignRosterEntry`. Import `IPersonTraits` from `src/types/campaign/Person.ts`.
   - Acceptance: typecheck clean.
 
-- [ ] 0.3 Add `rankIndex: number` (required) to `ICampaignRosterEntry`. Existing rows defaulted to `0` in deserialize migration.
+- [x] 0.3 Add `rankIndex: number` (required) to `ICampaignRosterEntry`. Existing rows defaulted to `0` in deserialize migration.
   - Acceptance: typecheck clean; deserialize backward-compatible.
 
-- [ ] 0.4 Add `lastPromotionDate?: Date` (optional) to `ICampaignRosterEntry`.
+- [x] 0.4 Add `lastPromotionDate?: Date` (optional) to `ICampaignRosterEntry`.
   - Acceptance: typecheck clean.
 
 ### 0.5 Tier 2 — additive optional fields (no production write path today)
 
-- [ ] 0.5.1 Add `isFounder?: boolean` (optional) to `ICampaignRosterEntry`.
-- [ ] 0.5.2 Add `isCommander?: boolean` (optional) to `ICampaignRosterEntry`.
+- [x] 0.5.1 Add `isFounder?: boolean` (optional) to `ICampaignRosterEntry`.
+- [x] 0.5.2 Add `isCommander?: boolean` (optional) to `ICampaignRosterEntry`.
 
 ### 0.6 Bridge update — forward instead of synthesize
 
-- [ ] 0.6.1 Update `src/lib/campaign/utils/rosterEntryToPerson.ts:164` to forward `primaryRole: entry.primaryRole` (drop hardcoded `PILOT`).
-- [ ] 0.6.2 Update bridge to forward `traits: entry.traits ?? {}` (currently omitted).
-- [ ] 0.6.3 Update bridge line 168 to forward `rankIndex: entry.rankIndex` (drop hardcoded 0).
-- [ ] 0.6.4 Add `lastPromotionDate: entry.lastPromotionDate` to bridge return block (currently omitted).
-- [ ] 0.6.5 Add `isFounder: entry.isFounder` and `isCommander: entry.isCommander` to bridge return.
-- [ ] 0.6.6 Update bridge tests in `src/lib/campaign/utils/__tests__/rosterEntryToPerson.test.ts` to cover the new forward paths.
+- [x] 0.6.1 Update `src/lib/campaign/utils/rosterEntryToPerson.ts:164` to forward `primaryRole: entry.primaryRole` (drop hardcoded `PILOT`).
+- [x] 0.6.2 Update bridge to forward `traits: entry.traits ?? {}` (currently omitted).
+- [x] 0.6.3 Update bridge line 168 to forward `rankIndex: entry.rankIndex` (drop hardcoded 0).
+- [x] 0.6.4 Add `lastPromotionDate: entry.lastPromotionDate` to bridge return block (currently omitted).
+- [x] 0.6.5 Add `isFounder: entry.isFounder` and `isCommander: entry.isCommander` to bridge return.
+- [x] 0.6.6 Update bridge tests in `src/lib/campaign/utils/__tests__/rosterEntryToPerson.test.ts` to cover the new forward paths.
 
 ### 0.7 Regression verification (live bug fixes)
 
-- [ ] 0.7.1 Run `npx jest src/lib/finances/__tests__/salaryService.test.ts` — confirm non-PILOT fixtures (DOCTOR/TECH/MEK_TECH/SOLDIER/DEPENDENT at lines 340/349/358/367/454/657/666) now produce correct salary categorization.
-- [ ] 0.7.2 Run `npx jest src/lib/campaign/medical/__tests__/doctorCapacity.test.ts` — confirm `getBestAvailableDoctor` returns DOCTOR roster entries.
-- [ ] 0.7.3 Run `npx jest src/lib/campaign/ranks/__tests__/rankService.test.ts` — confirm promotion logic accepts non-zero rank inputs.
-- [ ] 0.7.4 Run `npx jest src/lib/campaign/__tests__/aging.test.ts` and `src/lib/campaign/processors/__tests__/vocationalTrainingProcessor.test.ts` — confirm trait accumulation persists across passes.
+- [x] 0.7.1 Run `npx jest src/lib/finances/__tests__/salaryService.test.ts` — confirm non-PILOT fixtures (DOCTOR/TECH/MEK_TECH/SOLDIER/DEPENDENT at lines 340/349/358/367/454/657/666) now produce correct salary categorization.
+- [x] 0.7.2 Run `npx jest src/lib/campaign/medical/__tests__/doctorCapacity.test.ts` — confirm `getBestAvailableDoctor` returns DOCTOR roster entries.
+- [x] 0.7.3 Run `npx jest src/lib/campaign/ranks/__tests__/rankService.test.ts` — confirm promotion logic accepts non-zero rank inputs.
+- [x] 0.7.4 Run `npx jest src/lib/campaign/__tests__/aging.test.ts` and `src/lib/campaign/processors/__tests__/vocationalTrainingProcessor.test.ts` — confirm trait accumulation persists across passes.
 
 ### 0.8 PR1.5 verification
 
-- [ ] 0.8.1 `npx tsc --noEmit --skipLibCheck` exit 0.
-- [ ] 0.8.2 Full test suite passes (~22.5k tests).
-- [ ] 0.8.3 `npx oxfmt --check` clean.
+- [x] 0.8.1 `npx tsc --noEmit --skipLibCheck` exit 0.
+- [x] 0.8.2 Full test suite passes (~22.5k tests).
+- [x] 0.8.3 `npx oxfmt --check` clean.
 - [ ] 0.8.4 PR opened, CI green, merged.
-- [ ] 0.8.5 Branch `chore/cluster-e-pr2-helper-signatures` (containing pre-flight commit `b323121b`: injuries field + buildPilotLookup) is folded into PR1.5 via cherry-pick or rebase.
+- [x] 0.8.5 Branch `chore/cluster-e-pr2-helper-signatures` (containing pre-flight commit `b323121b`: injuries field + buildPilotLookup) is folded into PR1.5 via cherry-pick or rebase.
 
 ---
 
