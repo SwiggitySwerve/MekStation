@@ -18,14 +18,14 @@
  * @spec openspec/changes/migrate-personnel-to-roster-employment/specs/personnel-management/spec.md
  */
 
-import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import type { IPerson } from '@/types/campaign/Person';
-import type { IAttributes } from '@/types/campaign/skills/IAttributes';
-import type { IPilot, IPilotStatblock } from '@/types/pilot/PilotInterfaces';
+import type { ICampaignRosterEntry } from "@/types/campaign/CampaignRosterEntry";
+import type { IPerson } from "@/types/campaign/Person";
+import type { IAttributes } from "@/types/campaign/skills/IAttributes";
+import type { IPilot, IPilotStatblock } from "@/types/pilot/PilotInterfaces";
 
-import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { CampaignPilotStatus } from "@/types/campaign/CampaignInterfaces.types";
+import { CampaignPersonnelRole } from "@/types/campaign/enums/CampaignPersonnelRole";
+import { PersonnelStatus } from "@/types/campaign/enums/PersonnelStatus";
 
 // =============================================================================
 // Defaults
@@ -77,9 +77,9 @@ function mapStatus(status: CampaignPilotStatus): PersonnelStatus {
  */
 function splitName(name: string): { first: string; last: string } {
   const parts = name.trim().split(/\s+/);
-  if (parts.length === 0) return { first: '', last: '' };
-  if (parts.length === 1) return { first: parts[0], last: '' };
-  return { first: parts[0], last: parts.slice(1).join(' ') };
+  if (parts.length === 0) return { first: "", last: "" };
+  if (parts.length === 1) return { first: parts[0], last: "" };
+  return { first: parts[0], last: parts.slice(1).join(" ") };
 }
 
 // =============================================================================
@@ -120,7 +120,7 @@ export function rosterEntryToPerson(
   // wins over vault if present (covers cases where vault was renamed
   // after the campaign was created).
   const displayName =
-    rosterEntry.pilotName || vaultPilot?.name || statblock?.name || 'Unknown';
+    rosterEntry.pilotName || vaultPilot?.name || statblock?.name || "Unknown";
   const { first: firstName, last: lastName } = splitName(displayName);
 
   const gunnery = vaultPilot?.skills.gunnery ?? statblock?.gunnery ?? 4;
@@ -130,15 +130,13 @@ export function rosterEntryToPerson(
   const career = vaultPilot?.career;
   const totalXpEarned = career?.totalXpEarned ?? rosterEntry.campaignXpEarned;
   const xpSpent = Math.max(0, totalXpEarned - rosterEntry.xp);
-  const rank = career?.rank ?? 'MechWarrior';
+  const rank = career?.rank ?? "MechWarrior";
 
-  // Recruitment date: roster entry's `hireDate` if populated, else fall
-  // back to vault's `createdAt` (best available proxy), else `new Date()`.
-  // Helpers like turnover modifiers read this — the fallback chain ensures
-  // a Date always exists.
-  const recruitmentDate =
-    rosterEntry.hireDate ??
-    (vaultPilot?.createdAt ? new Date(vaultPilot.createdAt) : new Date());
+  // Recruitment date: per hard-cutover policy (PR2 cluster J),
+  // `hireDate` is required on every roster entry, so we read it directly
+  // without a fallback chain. Helpers like turnover modifiers can rely
+  // on the field always being present.
+  const recruitmentDate = rosterEntry.hireDate;
 
   // Awards — vault pilots carry awards; NPCs do not. Map to award IDs only.
   const awardIds = (vaultPilot?.awards ?? []).map((a) => a.awardId);

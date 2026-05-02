@@ -11,29 +11,29 @@
  * @spec openspec/changes/migrate-personnel-to-roster-employment/specs/personnel-management/spec.md
  */
 
-import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { ICampaignRosterEntry } from "@/types/campaign/CampaignRosterEntry";
 
-import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { CampaignPilotStatus } from "@/types/campaign/CampaignInterfaces.types";
+import { CampaignPersonnelRole } from "@/types/campaign/enums/CampaignPersonnelRole";
+import { PersonnelStatus } from "@/types/campaign/enums/PersonnelStatus";
 import {
   PilotStatus,
   PilotType,
   type IPilot,
   type IPilotStatblock,
-} from '@/types/pilot/PilotInterfaces';
+} from "@/types/pilot/PilotInterfaces";
 
-import { rosterEntryToPerson } from '../rosterEntryToPerson';
+import { rosterEntryToPerson } from "../rosterEntryToPerson";
 
 // =============================================================================
 // Fixture builders
 // =============================================================================
 
 function makeVaultPilot(overrides?: Partial<IPilot>): IPilot {
-  const now = new Date('2025-01-01T00:00:00Z').toISOString();
+  const now = new Date("2025-01-01T00:00:00Z").toISOString();
   return {
-    id: 'pilot-vault-1',
-    name: 'Sarah Connor',
+    id: "pilot-vault-1",
+    name: "Sarah Connor",
     type: PilotType.Persistent,
     status: PilotStatus.Active,
     skills: { gunnery: 3, piloting: 4 },
@@ -50,7 +50,7 @@ function makeVaultPilot(overrides?: Partial<IPilot>): IPilot {
       missionHistory: [],
       xp: 100,
       totalXpEarned: 600,
-      rank: 'Captain',
+      rank: "Captain",
     },
     createdAt: now,
     updatedAt: now,
@@ -62,8 +62,8 @@ function makeRosterEntry(
   overrides?: Partial<ICampaignRosterEntry>,
 ): ICampaignRosterEntry {
   return {
-    pilotId: 'pilot-vault-1',
-    pilotName: 'Sarah Connor',
+    pilotId: "pilot-vault-1",
+    pilotName: "Sarah Connor",
     status: CampaignPilotStatus.Active,
     wounds: 0,
     recoveryTime: 0,
@@ -71,6 +71,9 @@ function makeRosterEntry(
     campaignXpEarned: 80,
     campaignKills: 3,
     campaignMissions: 4,
+    // Hard-cutover policy (PR2 cluster J): hireDate required on
+    // every roster entry — fixtures must provide a deterministic value.
+    hireDate: new Date("2025-06-15T00:00:00Z"),
     ...overrides,
   };
 }
@@ -79,22 +82,22 @@ function makeRosterEntry(
 // Tests
 // =============================================================================
 
-describe('rosterEntryToPerson', () => {
-  describe('PC case (vault pilot present)', () => {
-    it('maps identity from vault, employment from roster', () => {
+describe("rosterEntryToPerson", () => {
+  describe("PC case (vault pilot present)", () => {
+    it("maps identity from vault, employment from roster", () => {
       const vault = makeVaultPilot();
       const entry = makeRosterEntry();
       const person = rosterEntryToPerson(entry, vault);
 
       // Identity from roster.pilotName (cached) + vault skills
-      expect(person.id).toBe('pilot-vault-1');
-      expect(person.name).toBe('Sarah Connor');
-      expect(person.givenName).toBe('Sarah');
-      expect(person.surname).toBe('Connor');
+      expect(person.id).toBe("pilot-vault-1");
+      expect(person.name).toBe("Sarah Connor");
+      expect(person.givenName).toBe("Sarah");
+      expect(person.surname).toBe("Connor");
       expect(person.pilotSkills).toEqual({ gunnery: 3, piloting: 4 });
 
       // Career from vault
-      expect(person.rank).toBe('Captain');
+      expect(person.rank).toBe("Captain");
       expect(person.totalXpEarned).toBe(600);
       expect(person.xpSpent).toBe(550); // 600 total - 50 current
 
@@ -107,7 +110,7 @@ describe('rosterEntryToPerson', () => {
       expect(person.primaryRole).toBe(CampaignPersonnelRole.PILOT);
     });
 
-    it('maps Active CampaignPilotStatus to ACTIVE PersonnelStatus', () => {
+    it("maps Active CampaignPilotStatus to ACTIVE PersonnelStatus", () => {
       const person = rosterEntryToPerson(
         makeRosterEntry({ status: CampaignPilotStatus.Active }),
         makeVaultPilot(),
@@ -115,7 +118,7 @@ describe('rosterEntryToPerson', () => {
       expect(person.status).toBe(PersonnelStatus.ACTIVE);
     });
 
-    it('maps Wounded and Critical CampaignPilotStatus to WOUNDED', () => {
+    it("maps Wounded and Critical CampaignPilotStatus to WOUNDED", () => {
       const wounded = rosterEntryToPerson(
         makeRosterEntry({ status: CampaignPilotStatus.Wounded }),
         makeVaultPilot(),
@@ -129,7 +132,7 @@ describe('rosterEntryToPerson', () => {
       expect(critical.status).toBe(PersonnelStatus.WOUNDED);
     });
 
-    it('maps MIA / KIA CampaignPilotStatus to legacy equivalents', () => {
+    it("maps MIA / KIA CampaignPilotStatus to legacy equivalents", () => {
       expect(
         rosterEntryToPerson(
           makeRosterEntry({ status: CampaignPilotStatus.MIA }),
@@ -145,25 +148,28 @@ describe('rosterEntryToPerson', () => {
       ).toBe(PersonnelStatus.KIA);
     });
 
-    it('uses roster.hireDate when present, else falls back to vault createdAt', () => {
-      const hire = new Date('2025-06-15T00:00:00Z');
+    it("threads roster.hireDate through to recruitmentDate", () => {
+      // Hard-cutover policy (PR2 cluster J): hireDate is required on
+      // every roster entry — no fallback chain. The shim reads it
+      // directly and stamps it onto recruitmentDate.
+      const hire = new Date("2025-06-15T00:00:00Z");
       const withHire = rosterEntryToPerson(
         makeRosterEntry({ hireDate: hire }),
         makeVaultPilot(),
       );
       expect(withHire.recruitmentDate).toEqual(hire);
 
-      const withoutHire = rosterEntryToPerson(
+      // The fixture default also propagates correctly.
+      const defaulted = rosterEntryToPerson(
         makeRosterEntry(),
         makeVaultPilot(),
       );
-      // Falls back to vault createdAt → Date.
-      expect(withoutHire.recruitmentDate).toEqual(
-        new Date('2025-01-01T00:00:00Z'),
+      expect(defaulted.recruitmentDate).toEqual(
+        new Date("2025-06-15T00:00:00Z"),
       );
     });
 
-    it('passes campaign wounds + recoveryTime through to hits + daysToWaitForHealing', () => {
+    it("passes campaign wounds + recoveryTime through to hits + daysToWaitForHealing", () => {
       const person = rosterEntryToPerson(
         makeRosterEntry({ wounds: 3, recoveryTime: 14 }),
         makeVaultPilot(),
@@ -172,15 +178,15 @@ describe('rosterEntryToPerson', () => {
       expect(person.daysToWaitForHealing).toBe(14);
     });
 
-    it('passes departureReason through when populated', () => {
+    it("passes departureReason through when populated", () => {
       const person = rosterEntryToPerson(
-        makeRosterEntry({ departureReason: 'contract ended' }),
+        makeRosterEntry({ departureReason: "contract ended" }),
         makeVaultPilot(),
       );
-      expect(person.departureReason).toBe('contract ended');
+      expect(person.departureReason).toBe("contract ended");
     });
 
-    it('returns default IAttributes when neither vault nor statblock provides them', () => {
+    it("returns default IAttributes when neither vault nor statblock provides them", () => {
       const person = rosterEntryToPerson(makeRosterEntry(), makeVaultPilot());
       expect(person.attributes).toEqual({
         STR: 5,
@@ -195,30 +201,30 @@ describe('rosterEntryToPerson', () => {
     });
   });
 
-  describe('NPC case (statblock present, vault absent)', () => {
-    it('uses statblock for name + skills when vault is null', () => {
+  describe("NPC case (statblock present, vault absent)", () => {
+    it("uses statblock for name + skills when vault is null", () => {
       const statblock: IPilotStatblock = {
-        name: 'Anonymous Pirate',
+        name: "Anonymous Pirate",
         gunnery: 5,
         piloting: 6,
-        abilityIds: ['spa-marksman'],
+        abilityIds: ["spa-marksman"],
       };
       const entry = makeRosterEntry({
-        pilotId: 'roster-local-npc-1',
-        pilotName: 'Anonymous Pirate',
+        pilotId: "roster-local-npc-1",
+        pilotName: "Anonymous Pirate",
         statblockData: statblock,
       });
       const person = rosterEntryToPerson(entry, null);
 
-      expect(person.id).toBe('roster-local-npc-1');
-      expect(person.name).toBe('Anonymous Pirate');
+      expect(person.id).toBe("roster-local-npc-1");
+      expect(person.name).toBe("Anonymous Pirate");
       expect(person.pilotSkills).toEqual({ gunnery: 5, piloting: 6 });
-      expect(person.specialAbilities).toEqual(['spa-marksman']);
+      expect(person.specialAbilities).toEqual(["spa-marksman"]);
     });
 
-    it('NPCs get default rank and zero awards', () => {
+    it("NPCs get default rank and zero awards", () => {
       const statblock: IPilotStatblock = {
-        name: 'NPC',
+        name: "NPC",
         gunnery: 4,
         piloting: 5,
       };
@@ -226,13 +232,13 @@ describe('rosterEntryToPerson', () => {
         makeRosterEntry({ statblockData: statblock }),
         null,
       );
-      expect(person.rank).toBe('MechWarrior');
+      expect(person.rank).toBe("MechWarrior");
       expect(person.awards).toEqual([]);
     });
   });
 
-  describe('degenerate case', () => {
-    it('throws when both vault and statblock are absent', () => {
+  describe("degenerate case", () => {
+    it("throws when both vault and statblock are absent", () => {
       const entry = makeRosterEntry({ statblockData: undefined });
       expect(() => rosterEntryToPerson(entry, null)).toThrow(
         /neither vault pilot nor inline statblock/,
@@ -240,8 +246,8 @@ describe('rosterEntryToPerson', () => {
     });
   });
 
-  describe('campaign-scoped XP', () => {
-    it('person.xp uses roster.xp (current pool), not vault total', () => {
+  describe("campaign-scoped XP", () => {
+    it("person.xp uses roster.xp (current pool), not vault total", () => {
       const vault = makeVaultPilot({
         career: {
           ...makeVaultPilot().career!,

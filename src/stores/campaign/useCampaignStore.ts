@@ -16,53 +16,53 @@
  * Persists entire campaign state to IndexedDB via clientSafeStorage.
  */
 
-import { create, StoreApi } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create, StoreApi } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
-import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
-import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
-import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
+import type { IShoppingList } from "@/types/campaign/acquisition/acquisitionTypes";
+import type { IFactionStanding } from "@/types/campaign/factionStanding/IFactionStanding";
+import type { IDailyBattleAuditEntry } from "@/types/campaign/IDailyBattleAuditEntry";
+import type { ICombatOutcome } from "@/types/combat/CombatOutcome";
 
 import {
   subscribeToCombatOutcome,
   type ICombatOutcomeReadyEvent,
-} from '@/engine/combatOutcomeBus';
+} from "@/engine/combatOutcomeBus";
 import {
   appendDailyBattleAuditEntry,
   buildDailyBattleAuditEntry,
-} from '@/lib/campaign/dailyBattleAuditBuilder';
+} from "@/lib/campaign/dailyBattleAuditBuilder";
 import {
   convertToLegacyDayReport,
   DayReport,
-} from '@/lib/campaign/dayAdvancement';
-import { getDayPipeline } from '@/lib/campaign/dayPipeline';
-import { registerBuiltinProcessors } from '@/lib/campaign/processors';
+} from "@/lib/campaign/dayAdvancement";
+import { getDayPipeline } from "@/lib/campaign/dayPipeline";
+import { registerBuiltinProcessors } from "@/lib/campaign/processors";
 import {
   applyPostBattle,
   type ICampaignWithBattleState,
-} from '@/lib/campaign/processors/postBattleProcessor';
-import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
-import { usePilotStore } from '@/stores/usePilotStore';
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+} from "@/lib/campaign/processors/postBattleProcessor";
+import { rosterEntryToPerson } from "@/lib/campaign/utils/rosterEntryToPerson";
+import { usePilotStore } from "@/stores/usePilotStore";
+import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
 import {
   ICampaign,
   ICampaignOptions,
   IMission,
   createCampaign as createCampaignEntity,
-} from '@/types/campaign/Campaign';
-import { CampaignType } from '@/types/campaign/CampaignType';
-import { ForceRole, FormationLevel } from '@/types/campaign/enums';
-import { TransactionType } from '@/types/campaign/enums/TransactionType';
-import { IForce } from '@/types/campaign/Force';
-import { Money } from '@/types/campaign/Money';
-import { IPerson } from '@/types/campaign/Person';
-import { Transaction } from '@/types/campaign/Transaction';
-import { emitPendingOutcomeAdded } from '@/utils/events/campaignOutcomeEvents';
+} from "@/types/campaign/Campaign";
+import { CampaignType } from "@/types/campaign/CampaignType";
+import { ForceRole, FormationLevel } from "@/types/campaign/enums";
+import { TransactionType } from "@/types/campaign/enums/TransactionType";
+import { IForce } from "@/types/campaign/Force";
+import { Money } from "@/types/campaign/Money";
+import { IPerson } from "@/types/campaign/Person";
+import { Transaction } from "@/types/campaign/Transaction";
+import { emitPendingOutcomeAdded } from "@/utils/events/campaignOutcomeEvents";
 
-import { useCampaignRosterStore } from './useCampaignRosterStore';
-import { createForcesStore, ForcesStore } from './useForcesStore';
-import { createMissionsStore, MissionsStore } from './useMissionsStore';
+import { useCampaignRosterStore } from "./useCampaignRosterStore";
+import { createForcesStore, ForcesStore } from "./useForcesStore";
+import { createMissionsStore, MissionsStore } from "./useMissionsStore";
 
 // =============================================================================
 // Serialized Campaign State (for persistence)
@@ -88,23 +88,23 @@ interface SerializedCampaignState {
     }>;
     balance: number;
   };
-  factionStandings?: Record<string, IFactionStanding>;
+  factionStandings: Record<string, IFactionStanding>;
   shoppingList?: IShoppingList;
   options: ICampaignOptions;
-  campaignType?: string;
-  campaignStartDate?: string;
+  campaignType: string;
+  campaignStartDate: string;
   description?: string;
   iconUrl?: string;
-  pendingBattleOutcomes?: ICombatOutcome[];
-  processedBattleIds?: string[];
-  reviewedBattleIds?: Record<string, number>;
+  pendingBattleOutcomes: ICombatOutcome[];
+  processedBattleIds: string[];
+  reviewedBattleIds: Record<string, number>;
   /**
    * Per `wire-encounter-to-campaign-round-trip` Wave 5 §7: persisted
    * daily audit ledger so the dashboard can surface battle-effects
-   * rollups across page reloads. Optional because pre-Wave-5 saves
-   * don't carry it.
+   * rollups across page reloads. Hard-cutover policy: required (PR2,
+   * cluster C). Pre-release product, no legacy compat to preserve.
    */
-  dailyBattleAudit?: IDailyBattleAuditEntry[];
+  dailyBattleAudit: IDailyBattleAuditEntry[];
   createdAt: string;
   updatedAt: string;
 }
@@ -344,10 +344,10 @@ function syncRosterFromPersonnel(updated: Map<string, IPerson>): void {
       // into Wounded, so on the way back we can't tell them apart — preserve
       // the original entry status if it was Critical, otherwise map cleanly.
       status:
-        person.status === 'KIA'
-          ? entry.status === 'critical'
+        person.status === "KIA"
+          ? entry.status === "critical"
             ? entry.status
-            : ('kia' as typeof entry.status)
+            : ("kia" as typeof entry.status)
           : entry.status,
       campaignXpEarned: Math.max(
         entry.campaignXpEarned,
@@ -373,15 +373,21 @@ function serializeCampaign(
   processedBattleIds: readonly string[] = [],
   reviewedBattleIds: Record<string, number> = {},
 ): SerializedCampaignState {
-  // Read the optional audit ledger off the extended campaign surface.
-  // The field is owned by the Wave-5 day pipeline; pre-Wave-5 campaigns
-  // simply don't carry it.
+  // Read the audit ledger off the extended campaign surface. The field is
+  // owned by the Wave-5 day pipeline; per hard-cutover policy (PR2 cluster
+  // C) we always emit an array — the in-memory campaign may not yet carry
+  // an entry on day 1, in which case we serialize an empty list.
   const audit =
     (
       campaign as ICampaign & {
         dailyBattleAudit?: readonly IDailyBattleAuditEntry[];
       }
     ).dailyBattleAudit ?? [];
+  // Hard-cutover policy: SerializedCampaignState requires campaignStartDate
+  // (PR2 cluster C). `createCampaign` always populates it; if a caller
+  // produced an ICampaign without it, fall back to currentDate so we still
+  // emit a string and surface the bug in tests rather than persistence.
+  const startDate = campaign.campaignStartDate ?? campaign.currentDate;
   return {
     id: campaign.id,
     name: campaign.name,
@@ -398,10 +404,11 @@ function serializeCampaign(
       })),
       balance: campaign.finances.balance.amount,
     },
+    factionStandings: campaign.factionStandings,
     shoppingList: campaign.shoppingList,
     options: campaign.options,
     campaignType: campaign.campaignType,
-    campaignStartDate: campaign.campaignStartDate?.toISOString(),
+    campaignStartDate: startDate.toISOString(),
     description: campaign.description,
     iconUrl: campaign.iconUrl,
     pendingBattleOutcomes: [...pendingBattleOutcomes],
@@ -443,14 +450,11 @@ function deserializeCampaign(
       ),
       balance: new Money(serialized.finances.balance),
     },
-    factionStandings: serialized.factionStandings ?? {},
+    factionStandings: serialized.factionStandings,
     shoppingList: serialized.shoppingList,
     options: serialized.options,
-    campaignType:
-      (serialized.campaignType as CampaignType) ?? CampaignType.MERCENARY,
-    campaignStartDate: serialized.campaignStartDate
-      ? new Date(serialized.campaignStartDate)
-      : undefined,
+    campaignType: serialized.campaignType as CampaignType,
+    campaignStartDate: new Date(serialized.campaignStartDate),
     description: serialized.description,
     iconUrl: serialized.iconUrl,
     createdAt: serialized.createdAt,
@@ -458,9 +462,9 @@ function deserializeCampaign(
     // Restore the daily-battle audit ledger so the dashboard's audit
     // feed survives reloads. Cast through `as ICampaign` because the
     // field is on the optional extension type, not the core ICampaign.
-    ...(serialized.dailyBattleAudit
-      ? { dailyBattleAudit: serialized.dailyBattleAudit }
-      : {}),
+    // Per hard-cutover policy (PR2 cluster C), dailyBattleAudit is now
+    // required on SerializedCampaignState and always set here.
+    dailyBattleAudit: serialized.dailyBattleAudit,
   } as ICampaign;
 }
 
@@ -608,8 +612,8 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             // that contradict the spike's "IPerson is never seeded" finding.
             if (
               serialized &&
-              typeof serialized === 'object' &&
-              'personnel' in serialized &&
+              typeof serialized === "object" &&
+              "personnel" in serialized &&
               Array.isArray(
                 (serialized as { personnel?: unknown }).personnel,
               ) &&
@@ -645,9 +649,9 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
             set({
               campaign,
-              pendingBattleOutcomes: serialized.pendingBattleOutcomes ?? [],
-              processedBattleIds: serialized.processedBattleIds ?? [],
-              reviewedBattleIds: serialized.reviewedBattleIds ?? {},
+              pendingBattleOutcomes: serialized.pendingBattleOutcomes,
+              processedBattleIds: serialized.processedBattleIds,
+              reviewedBattleIds: serialized.reviewedBattleIds,
               forcesStore,
               missionsStore,
             });
@@ -809,11 +813,11 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           );
           const nextErrors: Record<string, string> = {};
           for (const e of pipelineResult.events) {
-            if (e.type !== 'post_battle_apply_failed') continue;
+            if (e.type !== "post_battle_apply_failed") continue;
             const data = e.data ?? {};
             const matchId = data.matchId;
             const errorMsg = data.error;
-            if (typeof matchId === 'string' && typeof errorMsg === 'string') {
+            if (typeof matchId === "string" && typeof errorMsg === "string") {
               nextErrors[matchId] = errorMsg;
             }
           }
@@ -1052,7 +1056,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         },
       }),
       {
-        name: 'campaign-store',
+        name: "campaign-store",
         storage: createJSONStorage(() => clientSafeStorage),
         // Only persist campaign metadata, not sub-stores
         partialize: (state) => {
@@ -1096,9 +1100,9 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           return {
             ...current,
             campaign,
-            pendingBattleOutcomes: serialized.pendingBattleOutcomes ?? [],
-            processedBattleIds: serialized.processedBattleIds ?? [],
-            reviewedBattleIds: serialized.reviewedBattleIds ?? {},
+            pendingBattleOutcomes: serialized.pendingBattleOutcomes,
+            processedBattleIds: serialized.processedBattleIds,
+            reviewedBattleIds: serialized.reviewedBattleIds,
             forcesStore: null,
             missionsStore: null,
           };

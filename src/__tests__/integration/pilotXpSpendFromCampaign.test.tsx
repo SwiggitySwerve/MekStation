@@ -13,27 +13,27 @@
  * @spec openspec/changes/add-pilot-xp-spend-from-campaign/specs/campaign-ui/spec.md
  */
 
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 import {
   fireEvent,
   render,
   screen,
   waitFor,
   act,
-} from '@testing-library/react';
-import React from 'react';
+} from "@testing-library/react";
+import React from "react";
 
-import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces';
-import { ForcePosition, ForceStatus, ForceType } from '@/types/force';
-import { PilotStatus, PilotType, type IPilot } from '@/types/pilot';
+import { CampaignPilotStatus } from "@/types/campaign/CampaignInterfaces";
+import { ForcePosition, ForceStatus, ForceType } from "@/types/force";
+import { PilotStatus, PilotType, type IPilot } from "@/types/pilot";
 
 // =============================================================================
 // next/router mock — page reads `id` from useRouter().query.id
 // =============================================================================
 
-jest.mock('next/router', () => ({
+jest.mock("next/router", () => ({
   useRouter: () => ({
-    query: { id: 'campaign-test-1' },
+    query: { id: "campaign-test-1" },
     push: jest.fn(),
     replace: jest.fn(),
   }),
@@ -41,7 +41,7 @@ jest.mock('next/router', () => ({
 
 // next/link — simple anchor passthrough.
 jest.mock(
-  'next/link',
+  "next/link",
   () =>
     function MockLink(props: { href: string; children: React.ReactNode }) {
       return <a href={props.href}>{props.children}</a>;
@@ -49,14 +49,14 @@ jest.mock(
 );
 
 // CampaignNavigation pulls in additional store wiring not relevant here.
-jest.mock('@/components/campaign/CampaignNavigation', () => ({
+jest.mock("@/components/campaign/CampaignNavigation", () => ({
   CampaignNavigation: () => <nav data-testid="campaign-nav-stub" />,
 }));
 
 // PilotProgressionPanel mounts PilotAbilitiesPanel inline, which calls
 // useToast — provide a no-op stub so we don't need a ToastProvider tree.
-jest.mock('@/components/shared/Toast', () => {
-  const actual = jest.requireActual('@/components/shared/Toast');
+jest.mock("@/components/shared/Toast", () => {
+  const actual = jest.requireActual("@/components/shared/Toast");
   return {
     ...actual,
     useToast: () => ({ showToast: jest.fn() }),
@@ -68,10 +68,10 @@ jest.mock('@/components/shared/Toast', () => {
 // ICampaign (Date objects, Money, nested Maps, etc.). The page only
 // reads `getState().getCampaign()` for breadcrumbs + the not-found
 // guard, so a minimal stub is sufficient for this integration test.
-jest.mock('@/stores/campaign/useCampaignStore', () => ({
+jest.mock("@/stores/campaign/useCampaignStore", () => ({
   useCampaignStore: () => ({
     getState: () => ({
-      getCampaign: () => ({ id: 'campaign-test-1', name: 'Test Campaign' }),
+      getCampaign: () => ({ id: "campaign-test-1", name: "Test Campaign" }),
     }),
   }),
 }));
@@ -80,10 +80,10 @@ jest.mock('@/stores/campaign/useCampaignStore', () => ({
 // Imports after mocks so the components bind the mocked surfaces.
 // =============================================================================
 
-import PersonnelPage from '@/pages/gameplay/campaigns/[id]/personnel';
-import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
-import { useForceStore } from '@/stores/useForceStore';
-import { usePilotStore } from '@/stores/usePilotStore';
+import PersonnelPage from "@/pages/gameplay/campaigns/[id]/personnel";
+import { useCampaignRosterStore } from "@/stores/campaign/useCampaignRosterStore";
+import { useForceStore } from "@/stores/useForceStore";
+import { usePilotStore } from "@/stores/usePilotStore";
 
 // =============================================================================
 // Fixture helpers
@@ -92,8 +92,8 @@ import { usePilotStore } from '@/stores/usePilotStore';
 function makeVaultPilot(overrides?: Partial<IPilot>): IPilot {
   const now = new Date().toISOString();
   return {
-    id: 'pilot-vault-1',
-    name: 'Phoenix Hawk Pilot',
+    id: "pilot-vault-1",
+    name: "Phoenix Hawk Pilot",
     type: PilotType.Persistent,
     status: PilotStatus.Active,
     skills: { gunnery: 4, piloting: 5 },
@@ -111,7 +111,7 @@ function makeVaultPilot(overrides?: Partial<IPilot>): IPilot {
       // GUNNERY_IMPROVEMENT_COSTS) and leaves 50 XP after.
       xp: 250,
       totalXpEarned: 250,
-      rank: 'MechWarrior',
+      rank: "MechWarrior",
     },
     createdAt: now,
     updatedAt: now,
@@ -133,14 +133,14 @@ let fetchHandler: (args: FetchHandlerArgs) => unknown = () => ({});
 
 beforeAll(() => {
   global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
-    const url = typeof input === 'string' ? input : input.toString();
-    const method = (init?.method ?? 'GET').toUpperCase();
-    const body = typeof init?.body === 'string' ? init.body : undefined;
+    const url = typeof input === "string" ? input : input.toString();
+    const method = (init?.method ?? "GET").toUpperCase();
+    const body = typeof init?.body === "string" ? init.body : undefined;
     const result = fetchHandler({ url, method, body });
     return Promise.resolve({
       ok: true,
       status: 200,
-      statusText: 'OK',
+      statusText: "OK",
       json: () => Promise.resolve(result),
     } as Response);
   }) as typeof fetch;
@@ -161,12 +161,12 @@ beforeEach(() => {
   });
 
   useCampaignRosterStore.setState({
-    campaignId: 'campaign-test-1',
+    campaignId: "campaign-test-1",
     units: [],
     pilots: [
       {
-        pilotId: 'pilot-vault-1',
-        pilotName: 'Phoenix Hawk Pilot',
+        pilotId: "pilot-vault-1",
+        pilotName: "Phoenix Hawk Pilot",
         status: CampaignPilotStatus.Active,
         wounds: 0,
         xp: 250,
@@ -174,6 +174,8 @@ beforeEach(() => {
         campaignKills: 0,
         campaignMissions: 0,
         recoveryTime: 0,
+        // Hard-cutover policy (PR2 cluster J): hireDate required.
+        hireDate: new Date("2025-01-01T00:00:00Z"),
       },
     ],
     missions: [],
@@ -186,15 +188,15 @@ beforeEach(() => {
     selectedForceId: null,
     isLoading: false,
     error: null,
-    searchQuery: '',
+    searchQuery: "",
     validations: new Map(),
   });
 
   // Default fetch handler — returns the seeded vault pilot. Tests that
   // need a different post-improve refresh override this.
   fetchHandler = ({ url }) => {
-    if (url === '/api/pilots') return { pilots: [makeVaultPilot()] };
-    if (url === '/api/forces') return { forces: [] };
+    if (url === "/api/pilots") return { pilots: [makeVaultPilot()] };
+    if (url === "/api/forces") return { forces: [] };
     return { success: true };
   };
 });
@@ -203,44 +205,44 @@ beforeEach(() => {
 // Tests
 // =============================================================================
 
-describe('Pilot XP spend from campaign — integration', () => {
-  it('renders the seeded campaign roster from useCampaignRosterStore', () => {
+describe("Pilot XP spend from campaign — integration", () => {
+  it("renders the seeded campaign roster from useCampaignRosterStore", () => {
     render(<PersonnelPage />);
 
-    expect(screen.getByTestId('pilot-row-pilot-vault-1')).toBeInTheDocument();
-    expect(screen.getByText('Phoenix Hawk Pilot')).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-row-pilot-vault-1")).toBeInTheDocument();
+    expect(screen.getByText("Phoenix Hawk Pilot")).toBeInTheDocument();
     // Side panel does not render until interaction.
     expect(
-      screen.queryByTestId('personnel-side-panel'),
+      screen.queryByTestId("personnel-side-panel"),
     ).not.toBeInTheDocument();
   });
 
-  it('opens the side panel on row click and mounts Progression for the vault-joined pilot', () => {
+  it("opens the side panel on row click and mounts Progression for the vault-joined pilot", () => {
     render(<PersonnelPage />);
 
-    fireEvent.click(screen.getByTestId('pilot-row-pilot-vault-1'));
+    fireEvent.click(screen.getByTestId("pilot-row-pilot-vault-1"));
 
-    expect(screen.getByTestId('personnel-side-panel')).toBeInTheDocument();
+    expect(screen.getByTestId("personnel-side-panel")).toBeInTheDocument();
     expect(
-      screen.getByRole('tab', { name: 'Progression' }),
+      screen.getByRole("tab", { name: "Progression" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Abilities' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Assignment' })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Abilities" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Assignment" })).toBeInTheDocument();
     // The Progression tab body shows the vault pilot's available XP.
-    expect(screen.getByText('250')).toBeInTheDocument();
+    expect(screen.getByText("250")).toBeInTheDocument();
   });
 
-  it('Improve Gunnery: rendered DOM updates after the API + refresh succeed', async () => {
+  it("Improve Gunnery: rendered DOM updates after the API + refresh succeed", async () => {
     // Sequence the fetch handler to return success on improve-gunnery, then
     // a refreshed pilots list with gunnery 3 + 50 XP.
     fetchHandler = ({ url, method }) => {
       if (
-        url === '/api/pilots/pilot-vault-1/improve-gunnery' &&
-        method === 'POST'
+        url === "/api/pilots/pilot-vault-1/improve-gunnery" &&
+        method === "POST"
       ) {
         return { success: true };
       }
-      if (url === '/api/pilots' && method === 'GET') {
+      if (url === "/api/pilots" && method === "GET") {
         return {
           pilots: [
             makeVaultPilot({
@@ -255,7 +257,7 @@ describe('Pilot XP spend from campaign — integration', () => {
                 missionHistory: [],
                 xp: 50,
                 totalXpEarned: 250,
-                rank: 'MechWarrior',
+                rank: "MechWarrior",
               },
             }),
           ],
@@ -267,16 +269,16 @@ describe('Pilot XP spend from campaign — integration', () => {
     render(<PersonnelPage />);
 
     // Open the side panel.
-    fireEvent.click(screen.getByTestId('pilot-row-pilot-vault-1'));
+    fireEvent.click(screen.getByTestId("pilot-row-pilot-vault-1"));
 
     // Pre-condition: gunnery 4 visible. The `4/5` badge is the most
     // surgical anchor since the bare "4" appears in multiple places.
-    expect(screen.getByText('4/5')).toBeInTheDocument();
-    expect(screen.getByText('250')).toBeInTheDocument();
+    expect(screen.getByText("4/5")).toBeInTheDocument();
+    expect(screen.getByText("250")).toBeInTheDocument();
 
     // Click the Gunnery row's Upgrade button. Multiple "Upgrade" buttons
     // exist (Gunnery + Piloting); the first is Gunnery.
-    const upgradeButtons = screen.getAllByRole('button', { name: /Upgrade/i });
+    const upgradeButtons = screen.getAllByRole("button", { name: /Upgrade/i });
     expect(upgradeButtons.length).toBeGreaterThanOrEqual(1);
     await act(async () => {
       fireEvent.click(upgradeButtons[0]);
@@ -285,44 +287,44 @@ describe('Pilot XP spend from campaign — integration', () => {
     // After the POST + loadPilots refresh, the Progression tab's badge
     // updates to the new gunnery (3) and the XP card shows 50.
     await waitFor(() => {
-      expect(screen.getByText('3/5')).toBeInTheDocument();
-      expect(screen.getByText('50')).toBeInTheDocument();
+      expect(screen.getByText("3/5")).toBeInTheDocument();
+      expect(screen.getByText("50")).toBeInTheDocument();
     });
   });
 
-  it('Assignment tab: opens the no-Force empty state when no forces exist', async () => {
+  it("Assignment tab: opens the no-Force empty state when no forces exist", async () => {
     // Default fetchHandler returns empty forces.
     render(<PersonnelPage />);
 
-    fireEvent.click(screen.getByTestId('pilot-row-pilot-vault-1'));
-    fireEvent.click(screen.getByRole('tab', { name: 'Assignment' }));
+    fireEvent.click(screen.getByTestId("pilot-row-pilot-vault-1"));
+    fireEvent.click(screen.getByRole("tab", { name: "Assignment" }));
 
     await waitFor(() => {
       expect(
-        screen.getByText('No active force in this campaign.'),
+        screen.getByText("No active force in this campaign."),
       ).toBeInTheDocument();
     });
-    const cta = screen.getByRole('link', { name: /Create one in Forces/i });
+    const cta = screen.getByRole("link", { name: /Create one in Forces/i });
     expect(cta).toHaveAttribute(
-      'href',
-      '/gameplay/campaigns/campaign-test-1/forces',
+      "href",
+      "/gameplay/campaigns/campaign-test-1/forces",
     );
   });
 
-  it('Assignment tab: rendered DOM shows new assignment after assignPilot succeeds', async () => {
+  it("Assignment tab: rendered DOM shows new assignment after assignPilot succeeds", async () => {
     // Seed forces with one empty slot already populated with a unit, so
     // the player can assign their pilot to it.
     const initialForce = {
-      id: 'force-1',
-      name: 'Alpha Lance',
+      id: "force-1",
+      name: "Alpha Lance",
       forceType: ForceType.Lance,
       status: ForceStatus.Active,
       childIds: [],
       assignments: [
         {
-          id: 'assign-1',
+          id: "assign-1",
           pilotId: null,
-          unitId: 'unit-atlas',
+          unitId: "unit-atlas",
           position: ForcePosition.Lead,
           slot: 1,
         },
@@ -341,7 +343,7 @@ describe('Pilot XP spend from campaign — integration', () => {
     const refreshedForce = {
       ...initialForce,
       assignments: [
-        { ...initialForce.assignments[0], pilotId: 'pilot-vault-1' },
+        { ...initialForce.assignments[0], pilotId: "pilot-vault-1" },
       ],
     };
     useForceStore.setState({
@@ -349,7 +351,7 @@ describe('Pilot XP spend from campaign — integration', () => {
       selectedForceId: null,
       isLoading: false,
       error: null,
-      searchQuery: '',
+      searchQuery: "",
       validations: new Map(),
     });
 
@@ -357,15 +359,15 @@ describe('Pilot XP spend from campaign — integration', () => {
     // then GET /api/forces returns the refreshed force.
     fetchHandler = ({ url, method }) => {
       if (
-        url === '/api/forces/assignments/assign-1/pilot' &&
-        method === 'PUT'
+        url === "/api/forces/assignments/assign-1/pilot" &&
+        method === "PUT"
       ) {
         return { success: true };
       }
-      if (url === '/api/forces' && method === 'GET') {
+      if (url === "/api/forces" && method === "GET") {
         return { forces: [refreshedForce] };
       }
-      if (url === '/api/pilots' && method === 'GET') {
+      if (url === "/api/pilots" && method === "GET") {
         return { pilots: [makeVaultPilot()] };
       }
       return { success: true };
@@ -373,21 +375,21 @@ describe('Pilot XP spend from campaign — integration', () => {
 
     render(<PersonnelPage />);
 
-    fireEvent.click(screen.getByTestId('pilot-row-pilot-vault-1'));
-    fireEvent.click(screen.getByRole('tab', { name: 'Assignment' }));
+    fireEvent.click(screen.getByTestId("pilot-row-pilot-vault-1"));
+    fireEvent.click(screen.getByRole("tab", { name: "Assignment" }));
 
     // Pre-condition: the empty slot is listed.
-    expect(screen.getByTestId('assign-button-assign-1')).toBeInTheDocument();
+    expect(screen.getByTestId("assign-button-assign-1")).toBeInTheDocument();
 
     await act(async () => {
-      fireEvent.click(screen.getByTestId('assign-button-assign-1'));
+      fireEvent.click(screen.getByTestId("assign-button-assign-1"));
     });
 
     // After the PUT + loadForces refresh, the panel re-renders with
     // "Currently assigned" + the unit label.
     await waitFor(() => {
-      expect(screen.getByTestId('current-assignment-unit')).toHaveTextContent(
-        'Alpha Lance · unit-atlas (lead #1)',
+      expect(screen.getByTestId("current-assignment-unit")).toHaveTextContent(
+        "Alpha Lance · unit-atlas (lead #1)",
       );
     });
   });

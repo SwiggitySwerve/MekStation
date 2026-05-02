@@ -10,24 +10,24 @@
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
 
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { EngineType } from '@/types/construction/EngineType';
-import { AerospaceLocation } from '@/types/construction/UnitLocation';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { TechBase } from '@/types/enums/TechBase';
-import { WeightClass } from '@/types/enums/WeightClass';
-import { IEquipmentItem } from '@/types/equipment';
+import { ArmorTypeEnum } from "@/types/construction/ArmorType";
+import { EngineType } from "@/types/construction/EngineType";
+import { AerospaceLocation } from "@/types/construction/UnitLocation";
+import { RulesLevel } from "@/types/enums/RulesLevel";
+import { TechBase } from "@/types/enums/TechBase";
+import { WeightClass } from "@/types/enums/WeightClass";
+import { IEquipmentItem } from "@/types/equipment";
 import {
   AerospaceCockpitType,
   AerospaceEngineType,
   AerospaceSubType,
   IAerospaceMountedEquipment,
   ISmallCraftCrew,
-} from '@/types/unit/AerospaceInterfaces';
-import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
-import { generateUnitId as generateUUID } from '@/utils/uuid';
+} from "@/types/unit/AerospaceInterfaces";
+import { AerospaceMotionType } from "@/types/unit/BaseUnitInterfaces";
+import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import { calculateFuelPoints } from "@/utils/construction/aerospace/fuelCalculations";
+import { generateUnitId as generateUUID } from "@/utils/uuid";
 
 // =============================================================================
 // Aerospace Armor Allocation
@@ -192,12 +192,6 @@ export interface AerospaceState {
    */
   readonly fuelPoints: number;
 
-  /**
-   * Legacy: fuel points carried forward for backward compatibility.
-   * @deprecated Use fuelTons + fuelPoints instead.
-   */
-  fuel: number;
-
   // =========================================================================
   // Structure & Cockpit
   // =========================================================================
@@ -307,7 +301,6 @@ export interface AerospaceActions {
   setAerospaceEngineType: (type: AerospaceEngineType) => void;
   setEngineRating: (rating: number) => void;
   setSafeThrust: (thrust: number) => void;
-  setFuel: (fuel: number) => void;
   /** Set fuel tonnage; recomputes fuelPoints automatically */
   setFuelTons: (tons: number) => void;
 
@@ -402,9 +395,9 @@ export function createDefaultAerospaceState(
   const engineRating = options.tonnage * safeThrust;
 
   // Parse name into chassis and model
-  const nameParts = options.name.split(' ');
-  const defaultChassis = nameParts[0] || 'New Fighter';
-  const defaultModel = nameParts.slice(1).join(' ') || '';
+  const nameParts = options.name.split(" ");
+  const defaultChassis = nameParts[0] || "New Fighter";
+  const defaultModel = nameParts.slice(1).join(" ") || "";
 
   return {
     // Identity
@@ -412,7 +405,7 @@ export function createDefaultAerospaceState(
     name: options.name,
     chassis: defaultChassis,
     model: defaultModel,
-    mulId: '-1',
+    mulId: "-1",
     year: 3025,
     rulesLevel: RulesLevel.STANDARD,
     tonnage: options.tonnage,
@@ -442,7 +435,6 @@ export function createDefaultAerospaceState(
       isConventional ? 2 : 5,
       isConventional ? AerospaceEngineType.ICE : AerospaceEngineType.FUSION,
     ),
-    fuel: options.tonnage * 5, // Legacy field
 
     // Structure & Cockpit
     structuralIntegrity: Math.ceil(options.tonnage / 10),

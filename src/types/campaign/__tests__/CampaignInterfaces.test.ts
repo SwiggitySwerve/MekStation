@@ -2,7 +2,7 @@
  * Campaign Interfaces Tests
  */
 
-import type { ICampaignRosterEntry } from '../CampaignRosterEntry';
+import type { ICampaignRosterEntry } from "../CampaignRosterEntry";
 
 import {
   ICampaign,
@@ -26,7 +26,7 @@ import {
   calculateCampaignValue,
   isCampaign,
   isCampaignMission,
-} from '../CampaignInterfaces';
+} from "../CampaignInterfaces";
 
 // =============================================================================
 // Test Data Factories
@@ -36,8 +36,8 @@ function createTestUnit(
   overrides: Partial<ICampaignUnitState> = {},
 ): ICampaignUnitState {
   return {
-    unitId: 'unit-1',
-    unitName: 'Atlas AS7-D',
+    unitId: "unit-1",
+    unitName: "Atlas AS7-D",
     status: CampaignUnitStatus.Operational,
     armorDamage: {},
     structureDamage: {},
@@ -54,8 +54,8 @@ function createTestPilot(
   overrides: Partial<ICampaignRosterEntry> = {},
 ): ICampaignRosterEntry {
   return {
-    pilotId: 'pilot-1',
-    pilotName: 'John Doe',
+    pilotId: "pilot-1",
+    pilotName: "John Doe",
     status: CampaignPilotStatus.Active,
     wounds: 0,
     xp: 0,
@@ -63,6 +63,8 @@ function createTestPilot(
     campaignKills: 0,
     campaignMissions: 0,
     recoveryTime: 0,
+    // Hard-cutover policy (PR2 cluster J): hireDate required.
+    hireDate: new Date("2025-01-01T00:00:00Z"),
     ...overrides,
   };
 }
@@ -71,9 +73,9 @@ function createTestMission(
   overrides: Partial<ICampaignMission> = {},
 ): ICampaignMission {
   return {
-    id: 'mission-1',
-    name: 'Test Mission',
-    description: 'A test mission',
+    id: "mission-1",
+    name: "Test Mission",
+    description: "A test mission",
     status: CampaignMissionStatus.Available,
     order: 1,
     prerequisites: [],
@@ -86,9 +88,9 @@ function createTestMission(
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
   const now = new Date().toISOString();
   return {
-    id: 'campaign-1',
-    name: 'Test Campaign',
-    description: 'A test campaign',
+    id: "campaign-1",
+    name: "Test Campaign",
+    description: "A test campaign",
     status: CampaignStatus.Active,
     missions: [createTestMission()],
     roster: {
@@ -116,45 +118,45 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
 // Enum Tests
 // =============================================================================
 
-describe('Campaign Enums', () => {
-  describe('CampaignStatus', () => {
-    it('should have all expected values', () => {
-      expect(CampaignStatus.Setup).toBe('setup');
-      expect(CampaignStatus.Active).toBe('active');
-      expect(CampaignStatus.Victory).toBe('victory');
-      expect(CampaignStatus.Defeat).toBe('defeat');
-      expect(CampaignStatus.Abandoned).toBe('abandoned');
+describe("Campaign Enums", () => {
+  describe("CampaignStatus", () => {
+    it("should have all expected values", () => {
+      expect(CampaignStatus.Setup).toBe("setup");
+      expect(CampaignStatus.Active).toBe("active");
+      expect(CampaignStatus.Victory).toBe("victory");
+      expect(CampaignStatus.Defeat).toBe("defeat");
+      expect(CampaignStatus.Abandoned).toBe("abandoned");
     });
   });
 
-  describe('CampaignMissionStatus', () => {
-    it('should have all expected values', () => {
-      expect(CampaignMissionStatus.Locked).toBe('locked');
-      expect(CampaignMissionStatus.Available).toBe('available');
-      expect(CampaignMissionStatus.InProgress).toBe('in_progress');
-      expect(CampaignMissionStatus.Victory).toBe('victory');
-      expect(CampaignMissionStatus.Defeat).toBe('defeat');
-      expect(CampaignMissionStatus.Skipped).toBe('skipped');
+  describe("CampaignMissionStatus", () => {
+    it("should have all expected values", () => {
+      expect(CampaignMissionStatus.Locked).toBe("locked");
+      expect(CampaignMissionStatus.Available).toBe("available");
+      expect(CampaignMissionStatus.InProgress).toBe("in_progress");
+      expect(CampaignMissionStatus.Victory).toBe("victory");
+      expect(CampaignMissionStatus.Defeat).toBe("defeat");
+      expect(CampaignMissionStatus.Skipped).toBe("skipped");
     });
   });
 
-  describe('CampaignUnitStatus', () => {
-    it('should have all expected values', () => {
-      expect(CampaignUnitStatus.Operational).toBe('operational');
-      expect(CampaignUnitStatus.Damaged).toBe('damaged');
-      expect(CampaignUnitStatus.Repairing).toBe('repairing');
-      expect(CampaignUnitStatus.Destroyed).toBe('destroyed');
-      expect(CampaignUnitStatus.Salvage).toBe('salvage');
+  describe("CampaignUnitStatus", () => {
+    it("should have all expected values", () => {
+      expect(CampaignUnitStatus.Operational).toBe("operational");
+      expect(CampaignUnitStatus.Damaged).toBe("damaged");
+      expect(CampaignUnitStatus.Repairing).toBe("repairing");
+      expect(CampaignUnitStatus.Destroyed).toBe("destroyed");
+      expect(CampaignUnitStatus.Salvage).toBe("salvage");
     });
   });
 
-  describe('CampaignPilotStatus', () => {
-    it('should have all expected values', () => {
-      expect(CampaignPilotStatus.Active).toBe('active');
-      expect(CampaignPilotStatus.Wounded).toBe('wounded');
-      expect(CampaignPilotStatus.Critical).toBe('critical');
-      expect(CampaignPilotStatus.MIA).toBe('mia');
-      expect(CampaignPilotStatus.KIA).toBe('kia');
+  describe("CampaignPilotStatus", () => {
+    it("should have all expected values", () => {
+      expect(CampaignPilotStatus.Active).toBe("active");
+      expect(CampaignPilotStatus.Wounded).toBe("wounded");
+      expect(CampaignPilotStatus.Critical).toBe("critical");
+      expect(CampaignPilotStatus.MIA).toBe("mia");
+      expect(CampaignPilotStatus.KIA).toBe("kia");
     });
   });
 });
@@ -163,9 +165,9 @@ describe('Campaign Enums', () => {
 // Constants Tests
 // =============================================================================
 
-describe('Campaign Constants', () => {
-  describe('DEFAULT_CAMPAIGN_RESOURCES', () => {
-    it('should have reasonable default values', () => {
+describe("Campaign Constants", () => {
+  describe("DEFAULT_CAMPAIGN_RESOURCES", () => {
+    it("should have reasonable default values", () => {
       expect(DEFAULT_CAMPAIGN_RESOURCES.cBills).toBeGreaterThan(0);
       expect(DEFAULT_CAMPAIGN_RESOURCES.supplies).toBeGreaterThan(0);
       expect(DEFAULT_CAMPAIGN_RESOURCES.morale).toBeGreaterThanOrEqual(0);
@@ -174,8 +176,8 @@ describe('Campaign Constants', () => {
     });
   });
 
-  describe('XP_REWARDS', () => {
-    it('should have positive XP values', () => {
+  describe("XP_REWARDS", () => {
+    it("should have positive XP values", () => {
       expect(XP_REWARDS.MISSION_PARTICIPATION).toBeGreaterThan(0);
       expect(XP_REWARDS.KILL).toBeGreaterThan(0);
       expect(XP_REWARDS.VICTORY_BONUS).toBeGreaterThan(0);
@@ -184,8 +186,8 @@ describe('Campaign Constants', () => {
     });
   });
 
-  describe('SKILL_IMPROVEMENT_COSTS', () => {
-    it('should have valid skill ranges', () => {
+  describe("SKILL_IMPROVEMENT_COSTS", () => {
+    it("should have valid skill ranges", () => {
       expect(SKILL_IMPROVEMENT_COSTS.MIN_SKILL).toBeLessThan(
         SKILL_IMPROVEMENT_COSTS.MAX_SKILL,
       );
@@ -194,12 +196,12 @@ describe('Campaign Constants', () => {
     });
   });
 
-  describe('CAMPAIGN_TEMPLATES', () => {
-    it('should have at least one template', () => {
+  describe("CAMPAIGN_TEMPLATES", () => {
+    it("should have at least one template", () => {
       expect(CAMPAIGN_TEMPLATES.length).toBeGreaterThan(0);
     });
 
-    it('should have valid templates with missions', () => {
+    it("should have valid templates with missions", () => {
       for (const template of CAMPAIGN_TEMPLATES) {
         expect(template.id).toBeTruthy();
         expect(template.name).toBeTruthy();
@@ -210,7 +212,7 @@ describe('Campaign Constants', () => {
       }
     });
 
-    it('should have at least one final mission in each template', () => {
+    it("should have at least one final mission in each template", () => {
       for (const template of CAMPAIGN_TEMPLATES) {
         const hasFinal = template.missions.some((m) => m.isFinal);
         expect(hasFinal).toBe(true);
@@ -223,33 +225,33 @@ describe('Campaign Constants', () => {
 // XP Calculation Tests
 // =============================================================================
 
-describe('calculateMissionXp', () => {
-  it('should return base XP for participation only', () => {
+describe("calculateMissionXp", () => {
+  it("should return base XP for participation only", () => {
     const xp = calculateMissionXp(0, false, false, 0);
     expect(xp).toBe(XP_REWARDS.MISSION_PARTICIPATION);
   });
 
-  it('should add kill XP', () => {
+  it("should add kill XP", () => {
     const kills = 3;
     const xp = calculateMissionXp(kills, false, false, 0);
     expect(xp).toBe(XP_REWARDS.MISSION_PARTICIPATION + kills * XP_REWARDS.KILL);
   });
 
-  it('should add victory bonus', () => {
+  it("should add victory bonus", () => {
     const xp = calculateMissionXp(0, true, false, 0);
     expect(xp).toBe(
       XP_REWARDS.MISSION_PARTICIPATION + XP_REWARDS.VICTORY_BONUS,
     );
   });
 
-  it('should add survival bonus', () => {
+  it("should add survival bonus", () => {
     const xp = calculateMissionXp(0, false, true, 0);
     expect(xp).toBe(
       XP_REWARDS.MISSION_PARTICIPATION + XP_REWARDS.SURVIVAL_BONUS,
     );
   });
 
-  it('should add optional objective XP', () => {
+  it("should add optional objective XP", () => {
     const objectives = 2;
     const xp = calculateMissionXp(0, false, false, objectives);
     expect(xp).toBe(
@@ -258,7 +260,7 @@ describe('calculateMissionXp', () => {
     );
   });
 
-  it('should accumulate all XP types', () => {
+  it("should accumulate all XP types", () => {
     const kills = 2;
     const objectives = 1;
     const xp = calculateMissionXp(kills, true, true, objectives);
@@ -276,8 +278,8 @@ describe('calculateMissionXp', () => {
 // Validation Tests
 // =============================================================================
 
-describe('validateCampaign', () => {
-  it('should pass for valid campaign', () => {
+describe("validateCampaign", () => {
+  it("should pass for valid campaign", () => {
     const campaign = createTestCampaign({
       missions: [createTestMission({ isFinal: true })],
     });
@@ -286,76 +288,76 @@ describe('validateCampaign', () => {
     expect(result.errors).toHaveLength(0);
   });
 
-  it('should fail if name is missing', () => {
-    const campaign = createTestCampaign({ name: '' });
+  it("should fail if name is missing", () => {
+    const campaign = createTestCampaign({ name: "" });
     const result = validateCampaign(campaign);
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain('Campaign name is required');
+    expect(result.errors).toContain("Campaign name is required");
   });
 
-  it('should fail if no missions', () => {
+  it("should fail if no missions", () => {
     const campaign = createTestCampaign({ missions: [] });
     const result = validateCampaign(campaign);
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain('Campaign must have at least one mission');
+    expect(result.errors).toContain("Campaign must have at least one mission");
   });
 
-  it('should fail if no units or pilots', () => {
+  it("should fail if no units or pilots", () => {
     const campaign = createTestCampaign({
       roster: { units: [], pilots: [] },
     });
     const result = validateCampaign(campaign);
     expect(result.valid).toBe(false);
     expect(result.errors).toContain(
-      'Campaign must have at least one unit or pilot',
+      "Campaign must have at least one unit or pilot",
     );
   });
 
-  it('should fail if prerequisites reference non-existent mission', () => {
+  it("should fail if prerequisites reference non-existent mission", () => {
     const campaign = createTestCampaign({
-      missions: [createTestMission({ id: 'm1', prerequisites: ['m99'] })],
+      missions: [createTestMission({ id: "m1", prerequisites: ["m99"] })],
     });
     const result = validateCampaign(campaign);
     expect(result.valid).toBe(false);
     expect(
-      result.errors.some((e) => e.includes('non-existent prerequisite')),
+      result.errors.some((e) => e.includes("non-existent prerequisite")),
     ).toBe(true);
   });
 
-  it('should fail if branch targets non-existent mission', () => {
+  it("should fail if branch targets non-existent mission", () => {
     const campaign = createTestCampaign({
       missions: [
         createTestMission({
-          id: 'm1',
-          branches: [{ condition: 'victory', targetMissionId: 'm99' }],
+          id: "m1",
+          branches: [{ condition: "victory", targetMissionId: "m99" }],
         }),
       ],
     });
     const result = validateCampaign(campaign);
     expect(result.valid).toBe(false);
     expect(
-      result.errors.some((e) => e.includes('branches to non-existent mission')),
+      result.errors.some((e) => e.includes("branches to non-existent mission")),
     ).toBe(true);
   });
 
-  it('should warn if no final mission', () => {
+  it("should warn if no final mission", () => {
     const campaign = createTestCampaign({
       missions: [createTestMission({ isFinal: false })],
     });
     const result = validateCampaign(campaign);
-    expect(result.warnings.some((w) => w.includes('no final mission'))).toBe(
+    expect(result.warnings.some((w) => w.includes("no final mission"))).toBe(
       true,
     );
   });
 
-  it('should warn about units without pilots', () => {
+  it("should warn about units without pilots", () => {
     const campaign = createTestCampaign({
       roster: {
         units: [
-          createTestUnit({ unitId: 'u1' }),
-          createTestUnit({ unitId: 'u2' }),
+          createTestUnit({ unitId: "u1" }),
+          createTestUnit({ unitId: "u2" }),
         ],
-        pilots: [createTestPilot({ pilotId: 'p1', assignedUnitId: 'u1' })],
+        pilots: [createTestPilot({ pilotId: "p1", assignedUnitId: "u1" })],
       },
     });
     // One unit (u2) has no pilot
@@ -369,33 +371,33 @@ describe('validateCampaign', () => {
 // Utility Function Tests
 // =============================================================================
 
-describe('getAvailableMissions', () => {
-  it('should return available and in-progress missions', () => {
+describe("getAvailableMissions", () => {
+  it("should return available and in-progress missions", () => {
     const campaign = createTestCampaign({
       missions: [
         createTestMission({
-          id: 'm1',
+          id: "m1",
           status: CampaignMissionStatus.Available,
         }),
         createTestMission({
-          id: 'm2',
+          id: "m2",
           status: CampaignMissionStatus.InProgress,
         }),
-        createTestMission({ id: 'm3', status: CampaignMissionStatus.Locked }),
-        createTestMission({ id: 'm4', status: CampaignMissionStatus.Victory }),
+        createTestMission({ id: "m3", status: CampaignMissionStatus.Locked }),
+        createTestMission({ id: "m4", status: CampaignMissionStatus.Victory }),
       ],
     });
     const available = getAvailableMissions(campaign);
     expect(available).toHaveLength(2);
-    expect(available.map((m) => m.id)).toContain('m1');
-    expect(available.map((m) => m.id)).toContain('m2');
+    expect(available.map((m) => m.id)).toContain("m1");
+    expect(available.map((m) => m.id)).toContain("m2");
   });
 
-  it('should return empty array if no available missions', () => {
+  it("should return empty array if no available missions", () => {
     const campaign = createTestCampaign({
       missions: [
-        createTestMission({ id: 'm1', status: CampaignMissionStatus.Locked }),
-        createTestMission({ id: 'm2', status: CampaignMissionStatus.Victory }),
+        createTestMission({ id: "m1", status: CampaignMissionStatus.Locked }),
+        createTestMission({ id: "m2", status: CampaignMissionStatus.Victory }),
       ],
     });
     const available = getAvailableMissions(campaign);
@@ -403,73 +405,73 @@ describe('getAvailableMissions', () => {
   });
 });
 
-describe('getOperationalUnits', () => {
-  it('should return operational and damaged units', () => {
+describe("getOperationalUnits", () => {
+  it("should return operational and damaged units", () => {
     const roster: ICampaignRoster = {
       units: [
         createTestUnit({
-          unitId: 'u1',
+          unitId: "u1",
           status: CampaignUnitStatus.Operational,
         }),
-        createTestUnit({ unitId: 'u2', status: CampaignUnitStatus.Damaged }),
-        createTestUnit({ unitId: 'u3', status: CampaignUnitStatus.Destroyed }),
-        createTestUnit({ unitId: 'u4', status: CampaignUnitStatus.Repairing }),
+        createTestUnit({ unitId: "u2", status: CampaignUnitStatus.Damaged }),
+        createTestUnit({ unitId: "u3", status: CampaignUnitStatus.Destroyed }),
+        createTestUnit({ unitId: "u4", status: CampaignUnitStatus.Repairing }),
       ],
       pilots: [],
     };
     const operational = getOperationalUnits(roster);
     expect(operational).toHaveLength(2);
-    expect(operational.map((u) => u.unitId)).toContain('u1');
-    expect(operational.map((u) => u.unitId)).toContain('u2');
+    expect(operational.map((u) => u.unitId)).toContain("u1");
+    expect(operational.map((u) => u.unitId)).toContain("u2");
   });
 });
 
-describe('getAvailablePilots', () => {
-  it('should return only active pilots', () => {
+describe("getAvailablePilots", () => {
+  it("should return only active pilots", () => {
     const roster: ICampaignRoster = {
       units: [],
       pilots: [
-        createTestPilot({ pilotId: 'p1', status: CampaignPilotStatus.Active }),
-        createTestPilot({ pilotId: 'p2', status: CampaignPilotStatus.Wounded }),
-        createTestPilot({ pilotId: 'p3', status: CampaignPilotStatus.KIA }),
-        createTestPilot({ pilotId: 'p4', status: CampaignPilotStatus.MIA }),
+        createTestPilot({ pilotId: "p1", status: CampaignPilotStatus.Active }),
+        createTestPilot({ pilotId: "p2", status: CampaignPilotStatus.Wounded }),
+        createTestPilot({ pilotId: "p3", status: CampaignPilotStatus.KIA }),
+        createTestPilot({ pilotId: "p4", status: CampaignPilotStatus.MIA }),
       ],
     };
     const available = getAvailablePilots(roster);
     expect(available).toHaveLength(1);
-    expect(available[0].pilotId).toBe('p1');
+    expect(available[0].pilotId).toBe("p1");
   });
 });
 
-describe('isCampaignComplete', () => {
-  it('should return true for victory', () => {
+describe("isCampaignComplete", () => {
+  it("should return true for victory", () => {
     const campaign = createTestCampaign({ status: CampaignStatus.Victory });
     expect(isCampaignComplete(campaign)).toBe(true);
   });
 
-  it('should return true for defeat', () => {
+  it("should return true for defeat", () => {
     const campaign = createTestCampaign({ status: CampaignStatus.Defeat });
     expect(isCampaignComplete(campaign)).toBe(true);
   });
 
-  it('should return true for abandoned', () => {
+  it("should return true for abandoned", () => {
     const campaign = createTestCampaign({ status: CampaignStatus.Abandoned });
     expect(isCampaignComplete(campaign)).toBe(true);
   });
 
-  it('should return false for active', () => {
+  it("should return false for active", () => {
     const campaign = createTestCampaign({ status: CampaignStatus.Active });
     expect(isCampaignComplete(campaign)).toBe(false);
   });
 
-  it('should return false for setup', () => {
+  it("should return false for setup", () => {
     const campaign = createTestCampaign({ status: CampaignStatus.Setup });
     expect(isCampaignComplete(campaign)).toBe(false);
   });
 });
 
-describe('calculateCampaignValue', () => {
-  it('should calculate total campaign value', () => {
+describe("calculateCampaignValue", () => {
+  it("should calculate total campaign value", () => {
     const campaign = createTestCampaign({
       resources: {
         cBills: 1000000,
@@ -488,42 +490,42 @@ describe('calculateCampaignValue', () => {
 // Type Guard Tests
 // =============================================================================
 
-describe('isCampaign', () => {
-  it('should return true for valid campaign', () => {
+describe("isCampaign", () => {
+  it("should return true for valid campaign", () => {
     const campaign = createTestCampaign();
     expect(isCampaign(campaign)).toBe(true);
   });
 
-  it('should return false for null', () => {
+  it("should return false for null", () => {
     expect(isCampaign(null)).toBe(false);
   });
 
-  it('should return false for non-object', () => {
-    expect(isCampaign('string')).toBe(false);
+  it("should return false for non-object", () => {
+    expect(isCampaign("string")).toBe(false);
     expect(isCampaign(123)).toBe(false);
   });
 
-  it('should return false for object missing required fields', () => {
-    expect(isCampaign({ id: 'test' })).toBe(false);
-    expect(isCampaign({ id: 'test', name: 'Test' })).toBe(false);
+  it("should return false for object missing required fields", () => {
+    expect(isCampaign({ id: "test" })).toBe(false);
+    expect(isCampaign({ id: "test", name: "Test" })).toBe(false);
   });
 });
 
-describe('isCampaignMission', () => {
-  it('should return true for valid mission', () => {
+describe("isCampaignMission", () => {
+  it("should return true for valid mission", () => {
     const mission = createTestMission();
     expect(isCampaignMission(mission)).toBe(true);
   });
 
-  it('should return false for null', () => {
+  it("should return false for null", () => {
     expect(isCampaignMission(null)).toBe(false);
   });
 
-  it('should return false for non-object', () => {
-    expect(isCampaignMission('string')).toBe(false);
+  it("should return false for non-object", () => {
+    expect(isCampaignMission("string")).toBe(false);
   });
 
-  it('should return false for object missing required fields', () => {
-    expect(isCampaignMission({ id: 'test' })).toBe(false);
+  it("should return false for object missing required fields", () => {
+    expect(isCampaignMission({ id: "test" })).toBe(false);
   });
 });
