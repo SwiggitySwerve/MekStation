@@ -1,18 +1,71 @@
 # Tasks: Wire IPerson Hard-Cutover
 
-> Council #2 ruling: ship as 5 sequential PRs. PR1 already shipped as [#486](https://github.com/SwiggitySwerve/MekStation/pull/486). PR2 is the largest (helper signatures, ~84 files). PR3 is atomic (processor pipeline cannot split). PR4 fixes the lossy Critical→Wounded bug by deleting bridge functions. PR5 is final IPerson cleanup.
+> Council #2 ruling (2026-05-02): ship as 5 sequential PRs.
+> Council #4 revision (2026-05-02): insert NEW **PR1.5** before PR2 because PR2 hephaestus surfaced 4 LIVE BUGS in `rosterEntryToPerson` bridge that block clean helper migration. See `openspec/council-decisions/2026-05-02-cluster-E-iperson-contract-revision.md`.
 >
-> **Sequencing**: PR2 → PR3 → PR4 → PR5. Each PR blocks the next. Each is independently shippable and CI-verifiable.
+> **Revised sequencing**: PR1 (shipped) → **PR1.5 (NEW, schema extension + bridge data integrity)** → PR2 → PR3 → PR4 → PR5. Each PR blocks the next.
 >
-> **PR1 (already shipped)**: Test fixture migration to `(entry, pilot) → rosterEntryToPerson()` bridge pattern. 33 sites across 6 files. Bridge functions stay alive (PR4 deletes them).
+> **PR1 (already shipped as #486)**: Test fixture migration to `(entry, pilot) → rosterEntryToPerson()` bridge pattern. 33 sites across 6 files. Bridge functions stay alive (PR4 deletes them).
+>
+> **PR1.5 (NEW per Council #4)**: Fix 4 live bugs in bridge by adding 4 missing fields to `ICampaignRosterEntry` (`primaryRole` required, `traits?` optional, `rankIndex` required, `lastPromotionDate?` optional) + 2 additive Tier 2 fields (`isFounder?`, `isCommander?`). Bridge `rosterEntryToPerson.ts` forwards these instead of synthesizing defaults. Pre-flight commit `b323121b` (injuries field + buildPilotLookup helper) folds in here. ~2 hours.
+
+---
+
+## PR1.5 — Schema extension + bridge data integrity (NEW per Council #4)
+
+### 0. Tier 1 — required field additions (live bug fixes)
+
+- [ ] 0.1 Add `primaryRole: CampaignPersonnelRole` (required) to `src/types/campaign/CampaignRosterEntry.ts`. Existing rows defaulted to `PILOT` in `useCampaignStore.deserializeCampaign` migration path.
+  - Acceptance: typecheck clean; deserialize backward-compatible.
+  - QA: `npx jest --testPathPattern='useCampaignStore'`.
+
+- [ ] 0.2 Add `traits?: IPersonTraits` (optional) to `ICampaignRosterEntry`. Import `IPersonTraits` from `src/types/campaign/Person.ts`.
+  - Acceptance: typecheck clean.
+
+- [ ] 0.3 Add `rankIndex: number` (required) to `ICampaignRosterEntry`. Existing rows defaulted to `0` in deserialize migration.
+  - Acceptance: typecheck clean; deserialize backward-compatible.
+
+- [ ] 0.4 Add `lastPromotionDate?: Date` (optional) to `ICampaignRosterEntry`.
+  - Acceptance: typecheck clean.
+
+### 0.5 Tier 2 — additive optional fields (no production write path today)
+
+- [ ] 0.5.1 Add `isFounder?: boolean` (optional) to `ICampaignRosterEntry`.
+- [ ] 0.5.2 Add `isCommander?: boolean` (optional) to `ICampaignRosterEntry`.
+
+### 0.6 Bridge update — forward instead of synthesize
+
+- [ ] 0.6.1 Update `src/lib/campaign/utils/rosterEntryToPerson.ts:164` to forward `primaryRole: entry.primaryRole` (drop hardcoded `PILOT`).
+- [ ] 0.6.2 Update bridge to forward `traits: entry.traits ?? {}` (currently omitted).
+- [ ] 0.6.3 Update bridge line 168 to forward `rankIndex: entry.rankIndex` (drop hardcoded 0).
+- [ ] 0.6.4 Add `lastPromotionDate: entry.lastPromotionDate` to bridge return block (currently omitted).
+- [ ] 0.6.5 Add `isFounder: entry.isFounder` and `isCommander: entry.isCommander` to bridge return.
+- [ ] 0.6.6 Update bridge tests in `src/lib/campaign/utils/__tests__/rosterEntryToPerson.test.ts` to cover the new forward paths.
+
+### 0.7 Regression verification (live bug fixes)
+
+- [ ] 0.7.1 Run `npx jest src/lib/finances/__tests__/salaryService.test.ts` — confirm non-PILOT fixtures (DOCTOR/TECH/MEK_TECH/SOLDIER/DEPENDENT at lines 340/349/358/367/454/657/666) now produce correct salary categorization.
+- [ ] 0.7.2 Run `npx jest src/lib/campaign/medical/__tests__/doctorCapacity.test.ts` — confirm `getBestAvailableDoctor` returns DOCTOR roster entries.
+- [ ] 0.7.3 Run `npx jest src/lib/campaign/ranks/__tests__/rankService.test.ts` — confirm promotion logic accepts non-zero rank inputs.
+- [ ] 0.7.4 Run `npx jest src/lib/campaign/__tests__/aging.test.ts` and `src/lib/campaign/processors/__tests__/vocationalTrainingProcessor.test.ts` — confirm trait accumulation persists across passes.
+
+### 0.8 PR1.5 verification
+
+- [ ] 0.8.1 `npx tsc --noEmit --skipLibCheck` exit 0.
+- [ ] 0.8.2 Full test suite passes (~22.5k tests).
+- [ ] 0.8.3 `npx oxfmt --check` clean.
+- [ ] 0.8.4 PR opened, CI green, merged.
+- [ ] 0.8.5 Branch `chore/cluster-e-pr2-helper-signatures` (containing pre-flight commit `b323121b`: injuries field + buildPilotLookup) is folded into PR1.5 via cherry-pick or rebase.
 
 ---
 
 ## PR2 — Helper signature migration
 
-### 1. Pre-flight: open question #1 verification
+> **REVISED PER COUNCIL #4**: PR1.5 ships first. Bridge now forwards correct values, so helpers can safely migrate without losing test scenario coverage. The 4 live bugs (primaryRole/traits/rankIndex/lastPromotionDate) are FIXED by PR1.5 — PR2 just continues the planned helper signature migration.
 
-- [ ] 1.1 Verify `ICampaignRosterEntry.injuries` field existence (open question from Council #2).
+### 1. Pre-flight: open question #1 verification (subsumed by PR1.5)
+
+- [x] 1.1 Verify `ICampaignRosterEntry.injuries` field existence (open question from Council #2).
   - If absent: add `readonly injuries?: readonly IInjury[]` to `ICampaignRosterEntry` in `src/types/campaign/CampaignRosterEntry.ts` BEFORE the medical commit.
   - Acceptance: typecheck clean; type imports resolve.
   - QA: `npx tsc --noEmit --skipLibCheck`.
