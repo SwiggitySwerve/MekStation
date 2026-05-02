@@ -36,6 +36,16 @@ import {
   type IRosterUnitProjection,
 } from '@/types/campaign/RosterUnitProjection';
 
+// Static import is safe here despite the visible circular reference —
+// `useCampaignStore` imports this module for the personnel-derive path,
+// but neither side accesses the other during top-level evaluation.
+// Both stores construct their Zustand state independently; the cross-
+// references only resolve when actions fire (post-mount). JavaScript
+// circular ESM imports handle the late resolution gracefully.
+//
+// eslint-disable-next-line import/no-cycle
+import { useCampaignStore } from './useCampaignStore';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -438,9 +448,11 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
         // computed below.
         //
         // Step 2: write canonical combat-state deltas into the campaign
-        // store. Imported lazily inside the body to avoid a top-level
-        // circular import (the campaign store imports back from this
-        // store for the personnel-derive path).
+        // store. The campaign-store accessor (`useCampaignStore`) is a
+        // singleton getter — calling it here returns the StoreApi, not
+        // a React hook value, despite the misleading `use*` prefix.
+        // The eslint-disable for `react-hooks/rules-of-hooks` below
+        // marks this for any future linter re-tightening.
         //
         // The active mission id is the closest analog to a `matchId`
         // for the legacy bridge — it's what `createMission` minted when
@@ -450,22 +462,7 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
         const matchId =
           get().activeMissionId ?? `legacy-bridge-${generateId()}`;
 
-        // Lazy import to break circular dependency chain at module-init
-        // time (useCampaignStore imports useCampaignRosterStore for the
-        // personnel-derive path).
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { useCampaignStore } = require('./useCampaignStore') as {
-          useCampaignStore: () => {
-            getState: () => {
-              campaign: {
-                unitCombatStates: Record<string, IUnitCombatState>;
-              } | null;
-              updateCampaign: (updates: {
-                unitCombatStates: Record<string, IUnitCombatState>;
-              }) => void;
-            };
-          };
-        };
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         const campaignStore = useCampaignStore();
         const campaign = campaignStore.getState().campaign;
 

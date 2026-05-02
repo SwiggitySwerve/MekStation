@@ -149,6 +149,10 @@ function computeDamageBarData(
  */
 function useDamageBarData(unitId: string): IDamageBarData {
   const storeApi = useCampaignStore();
+  // The selector closes over `unitId` only — `storeApi` is just a type
+  // anchor for `ReturnType<typeof storeApi.getState>` and doesn't drive
+  // recomputation. Singleton store reference is stable across renders, so
+  // omitting it from deps avoids a no-op rebuild on every render.
   const selector = useMemo(() => {
     let prev: IDamageBarData = EMPTY_DAMAGE_BAR;
     return (state: ReturnType<typeof storeApi.getState>): IDamageBarData => {
@@ -167,7 +171,8 @@ function useDamageBarData(unitId: string): IDamageBarData {
       prev = next;
       return next;
     };
-  }, [unitId, storeApi]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unitId]);
 
   return useStore(storeApi, selector);
 }
