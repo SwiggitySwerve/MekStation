@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+import { ArmorDiagramVariant } from '@/stores/useCustomizerSettingsStore';
 import { MechLocation } from '@/types/construction';
 
 import type { LocationArmorValues } from './LocationTypes';

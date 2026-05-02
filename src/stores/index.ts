@@ -40,8 +40,7 @@ export * from './useInfantryStore';
 export * from './protoMechState';
 export * from './useProtoMechStore';
 
-// App settings (main store + focused stores)
-export * from './useAppSettingsStore';
+// App settings (focused stores)
 export * from './useAppearanceStore';
 export * from './useCustomizerSettingsStore';
 export * from './useAccessibilityStore';

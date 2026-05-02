@@ -2,7 +2,7 @@ import React from 'react';
 
 import { ArmorDiagramModePreview } from '@/components/customizer/armor/ArmorDiagramPreview';
 import { ArmorDiagramSettings } from '@/components/customizer/armor/ArmorDiagramSettings';
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { useCustomizerSettingsStore } from '@/stores/useCustomizerSettingsStore';
 
 import {
   SettingsSection,
@@ -15,12 +15,16 @@ export function CustomizerSettings({
   onToggle,
   onRef,
 }: SettingsSectionProps): React.ReactElement {
-  const armorDiagramMode = useAppSettingsStore((s) => s.armorDiagramMode);
-  const setArmorDiagramMode = useAppSettingsStore((s) => s.setArmorDiagramMode);
-  const showArmorDiagramSelector = useAppSettingsStore(
+  const armorDiagramMode = useCustomizerSettingsStore(
+    (s) => s.armorDiagramMode,
+  );
+  const setArmorDiagramMode = useCustomizerSettingsStore(
+    (s) => s.setArmorDiagramMode,
+  );
+  const showArmorDiagramSelector = useCustomizerSettingsStore(
     (s) => s.showArmorDiagramSelector,
   );
-  const setShowArmorDiagramSelector = useAppSettingsStore(
+  const setShowArmorDiagramSelector = useCustomizerSettingsStore(
     (s) => s.setShowArmorDiagramSelector,
   );
 

@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 
 import { SchematicDiagram } from '@/components/armor/schematic';
-import { useAppSettingsSelector } from '@/stores/useAppSettingsStore';
+import { useCustomizerSettingsStore } from '@/stores/useCustomizerSettingsStore';
 import { MechLocation } from '@/types/construction';
 
 import { ArmorLegend } from './ArmorLegend';
@@ -44,7 +44,7 @@ export function ArmorDiagram({
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
     null,
   );
-  const armorDiagramMode = useAppSettingsSelector(
+  const armorDiagramMode = useCustomizerSettingsStore(
     (state) => state.armorDiagramMode,
   );
 

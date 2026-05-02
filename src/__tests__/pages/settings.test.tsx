@@ -6,7 +6,10 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import React from 'react';
 
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { useAccessibilityStore } from '@/stores/useAccessibilityStore';
+import { useAppearanceStore } from '@/stores/useAppearanceStore';
+import { useCustomizerSettingsStore } from '@/stores/useCustomizerSettingsStore';
+import { useUIBehaviorStore } from '@/stores/useUIBehaviorStore';
 
 jest.mock('next/head', () => ({
   __esModule: true,
@@ -142,8 +145,11 @@ function clickSectionHeader(sectionTitle: string) {
 
 beforeEach(() => {
   act(() => {
-    useAppSettingsStore.getState().resetToDefaults();
-    useAppSettingsStore.getState().initDraftAppearance();
+    useAppearanceStore.getState().resetToDefaults();
+    useCustomizerSettingsStore.getState().resetToDefaults();
+    useAccessibilityStore.getState().resetToDefaults();
+    useUIBehaviorStore.getState().resetToDefaults();
+    useAppearanceStore.getState().initDraftAppearance();
   });
   window.location.hash = '';
   jest.clearAllMocks();

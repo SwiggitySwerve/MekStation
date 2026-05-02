@@ -1,32 +1,26 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
-import {
-  useAppSettingsStore,
-  useAppSettingsSelector,
-} from '@/stores/useAppSettingsStore';
+import { useCustomizerSettingsStore } from '@/stores/useCustomizerSettingsStore';
 
 import { ArmorDiagramModeSwitch } from '../ArmorDiagramModeSwitch';
 
-// Mock the store
-jest.mock('@/stores/useAppSettingsStore');
-const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<
-  typeof useAppSettingsStore
->;
-const mockUseAppSettingsSelector =
-  useAppSettingsSelector as jest.MockedFunction<typeof useAppSettingsSelector>;
+jest.mock('@/stores/useCustomizerSettingsStore');
+const mockUseCustomizerSettingsStore =
+  useCustomizerSettingsStore as jest.MockedFunction<
+    typeof useCustomizerSettingsStore
+  >;
 
 describe('ArmorDiagramModeSwitch', () => {
   const mockSetArmorDiagramMode = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseAppSettingsStore.mockReturnValue({
-      armorDiagramMode: 'silhouette',
-      setArmorDiagramMode: mockSetArmorDiagramMode,
-    } as ReturnType<typeof useAppSettingsStore>);
-    mockUseAppSettingsSelector.mockImplementation((selector) =>
-      selector(mockUseAppSettingsStore()),
+    mockUseCustomizerSettingsStore.mockImplementation((selector) =>
+      selector({
+        armorDiagramMode: 'silhouette',
+        setArmorDiagramMode: mockSetArmorDiagramMode,
+      } as unknown as ReturnType<typeof useCustomizerSettingsStore.getState>),
     );
   });
 

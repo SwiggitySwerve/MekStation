@@ -27,7 +27,8 @@ import {
   type SectionId,
 } from '@/components/settings';
 import { PageLayout } from '@/components/ui';
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { useAppearanceStore } from '@/stores/useAppearanceStore';
+import { useCustomizerSettingsStore } from '@/stores/useCustomizerSettingsStore';
 
 export default function SettingsPage(): React.ReactElement {
   const router = useRouter();
@@ -103,8 +104,10 @@ export default function SettingsPage(): React.ReactElement {
     [activeSection, navigateToSection],
   );
 
-  const revertAppearance = useAppSettingsStore((s) => s.revertAppearance);
-  const revertCustomizer = useAppSettingsStore((s) => s.revertCustomizer);
+  const revertAppearance = useAppearanceStore((s) => s.revertAppearance);
+  const revertCustomizer = useCustomizerSettingsStore(
+    (s) => s.revertCustomizer,
+  );
 
   useEffect(() => {
     const handleRouteChange = () => {

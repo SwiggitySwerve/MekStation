@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { UITheme } from '@/stores/useAppSettingsStore';
+import type { UITheme } from '@/stores/useAppearanceStore';
 
 export type SectionId =
   | 'appearance'

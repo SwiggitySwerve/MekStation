@@ -7,7 +7,7 @@
 
 import React from 'react';
 
-import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+import { ArmorDiagramVariant } from '@/stores/useCustomizerSettingsStore';
 
 interface VariantThumbnailProps {
   variant: ArmorDiagramVariant;

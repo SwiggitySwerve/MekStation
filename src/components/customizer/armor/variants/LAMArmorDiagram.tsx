@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 
-import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+import { ArmorDiagramVariant } from '@/stores/useCustomizerSettingsStore';
 import { MechLocation } from '@/types/construction';
 import {
   LAMMode,

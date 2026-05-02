@@ -13,7 +13,7 @@ import React, { useEffect, useState } from 'react';
 
 import type { MechConfigType } from '@/types/construction/MechConfigType';
 
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { useCustomizerSettingsStore } from '@/stores/useCustomizerSettingsStore';
 import { MECH_CONFIG_DISPLAY_NAMES } from '@/types/construction/MechConfigType';
 
 import {
@@ -31,15 +31,17 @@ interface ArmorDiagramSettingsProps {
 export function ArmorDiagramSettings({
   className = '',
 }: ArmorDiagramSettingsProps): React.ReactElement {
-  const initDraftCustomizer = useAppSettingsStore((s) => s.initDraftCustomizer);
-  const saveCustomizer = useAppSettingsStore((s) => s.saveCustomizer);
-  const hasUnsavedCustomizer = useAppSettingsStore(
+  const initDraftCustomizer = useCustomizerSettingsStore(
+    (s) => s.initDraftCustomizer,
+  );
+  const saveCustomizer = useCustomizerSettingsStore((s) => s.saveCustomizer);
+  const hasUnsavedCustomizer = useCustomizerSettingsStore(
     (s) => s.hasUnsavedCustomizer,
   );
-  const setDraftArmorDiagramVariant = useAppSettingsStore(
+  const setDraftArmorDiagramVariant = useCustomizerSettingsStore(
     (s) => s.setDraftArmorDiagramVariant,
   );
-  const getEffectiveArmorDiagramVariant = useAppSettingsStore(
+  const getEffectiveArmorDiagramVariant = useCustomizerSettingsStore(
     (s) => s.getEffectiveArmorDiagramVariant,
   );
 

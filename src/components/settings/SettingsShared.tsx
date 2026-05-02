@@ -11,7 +11,7 @@ import {
   AccentColor,
   ACCENT_COLOR_CSS,
   UITheme,
-} from '@/stores/useAppSettingsStore';
+} from '@/stores/useAppearanceStore';
 
 export type { SectionId, SectionConfig } from './SettingsShared.constants';
 export {

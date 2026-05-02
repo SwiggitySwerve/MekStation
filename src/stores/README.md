@@ -93,7 +93,10 @@ The `isModified: true, lastModifiedAt: Date.now()` idiom appears 200+ times but 
 
 Single-file stores for UI/app state:
 
-- `useAppSettingsStore.ts` - Application preferences
+- `useAppearanceStore.ts` - Theme/accent/font/animation/compact mode
+- `useCustomizerSettingsStore.ts` - Armor diagram mode and variant
+- `useAccessibilityStore.ts` - High contrast, reduce motion
+- `useUIBehaviorStore.ts` - Sidebar, confirm-on-close, tooltips
 - `useCustomizerStore.ts` - Customizer UI state
 - `useNavigationStore.ts` - Navigation state
 - `usePilotStore.ts` - Pilot management

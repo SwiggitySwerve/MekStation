@@ -12,17 +12,19 @@ import { render, act } from '@testing-library/react';
 import React from 'react';
 
 import { GlobalStyleProvider } from '@/components/GlobalStyleProvider';
+import { useAccessibilityStore } from '@/stores/useAccessibilityStore';
 import {
-  useAppSettingsStore,
+  useAppearanceStore,
   ACCENT_COLOR_CSS,
   FONT_SIZE_CSS,
-} from '@/stores/useAppSettingsStore';
+} from '@/stores/useAppearanceStore';
 
-// Reset store before each test
+// Reset stores before each test (appearance + accessibility are the only
+// slices GlobalStyleProvider reads from after the PR3 store retirement).
 beforeEach(() => {
-  // Reset to defaults
   act(() => {
-    useAppSettingsStore.getState().resetToDefaults();
+    useAppearanceStore.getState().resetToDefaults();
+    useAccessibilityStore.getState().resetToDefaults();
   });
 
   // Clear body classes
@@ -46,7 +48,7 @@ describe('GlobalStyleProvider', () => {
 
     it('should apply neon theme class when uiTheme is neon', () => {
       act(() => {
-        useAppSettingsStore.getState().setUITheme('neon');
+        useAppearanceStore.getState().setUITheme('neon');
       });
 
       render(
@@ -61,7 +63,7 @@ describe('GlobalStyleProvider', () => {
 
     it('should apply tactical theme class when uiTheme is tactical', () => {
       act(() => {
-        useAppSettingsStore.getState().setUITheme('tactical');
+        useAppearanceStore.getState().setUITheme('tactical');
       });
 
       render(
@@ -75,7 +77,7 @@ describe('GlobalStyleProvider', () => {
 
     it('should apply minimal theme class when uiTheme is minimal', () => {
       act(() => {
-        useAppSettingsStore.getState().setUITheme('minimal');
+        useAppearanceStore.getState().setUITheme('minimal');
       });
 
       render(
@@ -89,7 +91,7 @@ describe('GlobalStyleProvider', () => {
 
     it('should remove old theme class when switching themes', () => {
       act(() => {
-        useAppSettingsStore.getState().setUITheme('neon');
+        useAppearanceStore.getState().setUITheme('neon');
       });
 
       const { rerender } = render(
@@ -101,7 +103,7 @@ describe('GlobalStyleProvider', () => {
       expect(document.body.classList.contains('theme-neon')).toBe(true);
 
       act(() => {
-        useAppSettingsStore.getState().setUITheme('tactical');
+        useAppearanceStore.getState().setUITheme('tactical');
       });
 
       rerender(
@@ -143,7 +145,7 @@ describe('GlobalStyleProvider', () => {
       );
 
       act(() => {
-        useAppSettingsStore.getState().setAccentColor('cyan');
+        useAppearanceStore.getState().setAccentColor('cyan');
       });
 
       rerender(
@@ -173,7 +175,7 @@ describe('GlobalStyleProvider', () => {
 
       accentColors.forEach((color) => {
         act(() => {
-          useAppSettingsStore.getState().setAccentColor(color);
+          useAppearanceStore.getState().setAccentColor(color);
         });
 
         render(
@@ -212,7 +214,7 @@ describe('GlobalStyleProvider', () => {
       );
 
       act(() => {
-        useAppSettingsStore.getState().setFontSize('large');
+        useAppearanceStore.getState().setFontSize('large');
       });
 
       rerender(
@@ -232,12 +234,12 @@ describe('GlobalStyleProvider', () => {
     it('should use draft theme for preview when draft exists', () => {
       // Initialize draft
       act(() => {
-        useAppSettingsStore.getState().initDraftAppearance();
+        useAppearanceStore.getState().initDraftAppearance();
       });
 
       // Set draft theme different from saved
       act(() => {
-        useAppSettingsStore.getState().setDraftUITheme('neon');
+        useAppearanceStore.getState().setDraftUITheme('neon');
       });
 
       render(
@@ -252,8 +254,8 @@ describe('GlobalStyleProvider', () => {
 
     it('should use draft accent color for preview when draft exists', () => {
       act(() => {
-        useAppSettingsStore.getState().initDraftAppearance();
-        useAppSettingsStore.getState().setDraftAccentColor('violet');
+        useAppearanceStore.getState().initDraftAppearance();
+        useAppearanceStore.getState().setDraftAccentColor('violet');
       });
 
       render(
@@ -271,13 +273,13 @@ describe('GlobalStyleProvider', () => {
     it('should revert to saved values when draft is cleared', () => {
       // Set saved theme to tactical
       act(() => {
-        useAppSettingsStore.getState().setUITheme('tactical');
+        useAppearanceStore.getState().setUITheme('tactical');
       });
 
       // Initialize and modify draft
       act(() => {
-        useAppSettingsStore.getState().initDraftAppearance();
-        useAppSettingsStore.getState().setDraftUITheme('neon');
+        useAppearanceStore.getState().initDraftAppearance();
+        useAppearanceStore.getState().setDraftUITheme('neon');
       });
 
       const { rerender } = render(
@@ -290,7 +292,7 @@ describe('GlobalStyleProvider', () => {
 
       // Revert draft
       act(() => {
-        useAppSettingsStore.getState().revertAppearance();
+        useAppearanceStore.getState().revertAppearance();
       });
 
       rerender(
@@ -318,7 +320,7 @@ describe('GlobalStyleProvider', () => {
 
     it('should add reduce-motion class when enabled', () => {
       act(() => {
-        useAppSettingsStore.getState().setReduceMotion(true);
+        useAccessibilityStore.getState().setReduceMotion(true);
       });
 
       render(
@@ -332,7 +334,7 @@ describe('GlobalStyleProvider', () => {
 
     it('should remove reduce-motion class when disabled', () => {
       act(() => {
-        useAppSettingsStore.getState().setReduceMotion(true);
+        useAccessibilityStore.getState().setReduceMotion(true);
       });
 
       const { rerender } = render(
@@ -344,7 +346,7 @@ describe('GlobalStyleProvider', () => {
       expect(document.body.classList.contains('reduce-motion')).toBe(true);
 
       act(() => {
-        useAppSettingsStore.getState().setReduceMotion(false);
+        useAccessibilityStore.getState().setReduceMotion(false);
       });
 
       rerender(
