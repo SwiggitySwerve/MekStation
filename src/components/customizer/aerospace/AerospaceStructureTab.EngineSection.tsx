@@ -9,17 +9,17 @@
  * Extracted from AerospaceStructureTab.tsx during section decomposition.
  */
 
-import React, { useCallback } from "react";
+import React, { useCallback } from 'react';
 
-import { useAerospaceStore } from "@/stores/useAerospaceStore";
-import { EngineType } from "@/types/construction/EngineType";
-import { AerospaceEngineType } from "@/types/unit/AerospaceInterfaces";
+import { useAerospaceStore } from '@/stores/useAerospaceStore';
+import { EngineType } from '@/types/construction/EngineType';
+import { AerospaceEngineType } from '@/types/unit/AerospaceInterfaces';
 
-import { customizerStyles as cs } from "../styles";
+import { customizerStyles as cs } from '../styles';
 import {
   AEROSPACE_ENGINE_TYPE_OPTIONS,
   LEGACY_ENGINE_TYPE_OPTIONS,
-} from "./AerospaceStructureTab.constants";
+} from './AerospaceStructureTab.constants';
 
 interface EngineSectionProps {
   readOnly: boolean;

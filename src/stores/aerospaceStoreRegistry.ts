@@ -7,23 +7,23 @@
  * @spec openspec/changes/add-aerospace-customizer/tasks.md
  */
 
-import { StoreApi } from "zustand";
+import { StoreApi } from 'zustand';
 
-import { safeGetItem, safeRemoveItem } from "@/stores/utils/clientSafeStorage";
-import { UnitType } from "@/types/unit/BattleMechInterfaces";
-import { logger } from "@/utils/logger";
-import { isValidUUID, generateUUID } from "@/utils/uuid";
+import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { logger } from '@/utils/logger';
+import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
   AerospaceStore,
   AerospaceState,
   createDefaultAerospaceState,
   CreateAerospaceOptions,
-} from "./aerospaceState";
+} from './aerospaceState';
 import {
   createAerospaceStore,
   createNewAerospaceStore,
-} from "./useAerospaceStore";
+} from './useAerospaceStore';
 
 const aerospaceStores = new Map<string, StoreApi<AerospaceStore>>();
 
@@ -55,7 +55,7 @@ function ensureValidAerospaceId(
 
   const newId = generateUUID();
   logger.warn(
-    `[AerospaceStoreRegistry] ${context}: Invalid aerospace ID "${aerospaceId || "(missing)"}" replaced with "${newId}"`,
+    `[AerospaceStoreRegistry] ${context}: Invalid aerospace ID "${aerospaceId || '(missing)'}" replaced with "${newId}"`,
   );
   return newId;
 }
@@ -80,7 +80,7 @@ export function hydrateOrCreateAerospace(
 ): StoreApi<AerospaceStore> {
   const validAerospaceId = ensureValidAerospaceId(
     aerospaceId,
-    "hydrateOrCreateAerospace",
+    'hydrateOrCreateAerospace',
   );
 
   const existing = aerospaceStores.get(validAerospaceId);
@@ -99,7 +99,7 @@ export function hydrateOrCreateAerospace(
       const state = parsed.state;
 
       if (state) {
-        ensureValidAerospaceId(state.id, "localStorage state");
+        ensureValidAerospaceId(state.id, 'localStorage state');
 
         const defaultState = createDefaultAerospaceState({
           ...fallbackOptions,
@@ -197,7 +197,7 @@ export function createAerospaceFromFullState(
 ): StoreApi<AerospaceStore> {
   const validId = ensureValidAerospaceId(
     state.id,
-    "createAerospaceFromFullState",
+    'createAerospaceFromFullState',
   );
 
   const existing = aerospaceStores.get(validId);

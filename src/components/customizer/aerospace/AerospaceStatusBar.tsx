@@ -7,16 +7,16 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.4
  */
 
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 
-import { getTotalAerospaceArmor } from "@/stores/aerospaceState";
-import { useAerospaceStore } from "@/stores/useAerospaceStore";
-import { getArmorDefinition } from "@/types/construction/ArmorType";
-import { getEngineDefinition } from "@/types/construction/EngineType";
+import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
+import { useAerospaceStore } from '@/stores/useAerospaceStore';
+import { getArmorDefinition } from '@/types/construction/ArmorType';
+import { getEngineDefinition } from '@/types/construction/EngineType';
 import {
   calculateAerospaceBV,
   type IAerospaceBVEquipment,
-} from "@/utils/construction/aerospace/aerospaceBV";
+} from '@/utils/construction/aerospace/aerospaceBV';
 
 // =============================================================================
 // Types
@@ -31,7 +31,7 @@ interface StatusItemProps {
   label: string;
   value: string | number;
   subValue?: string;
-  status?: "normal" | "warning" | "error" | "success";
+  status?: 'normal' | 'warning' | 'error' | 'success';
 }
 
 // =============================================================================
@@ -42,13 +42,13 @@ function StatusItem({
   label,
   value,
   subValue,
-  status = "normal",
+  status = 'normal',
 }: StatusItemProps): React.ReactElement {
   const statusColors: Record<string, string> = {
-    normal: "text-white",
-    warning: "text-amber-400",
-    error: "text-red-400",
-    success: "text-green-400",
+    normal: 'text-white',
+    warning: 'text-amber-400',
+    error: 'text-red-400',
+    success: 'text-green-400',
   };
 
   return (
@@ -75,7 +75,7 @@ function StatusItem({
 // =============================================================================
 
 export function AerospaceStatusBar({
-  className = "",
+  className = '',
   compact = false,
 }: AerospaceStatusBarProps): React.ReactElement {
   // Get state from store
@@ -175,14 +175,14 @@ export function AerospaceStatusBar({
 
   // Locate the highest-contribution arc for status-bar display
   const primaryArcLabel = useMemo(() => {
-    if (!bv.primaryArc) return "—";
+    if (!bv.primaryArc) return '—';
     const labels: Record<string, string> = {
-      Nose: "Nose",
-      LeftWing: "L Wing",
-      RightWing: "R Wing",
-      LeftSide: "L Side",
-      RightSide: "R Side",
-      Aft: "Aft",
+      Nose: 'Nose',
+      LeftWing: 'L Wing',
+      RightWing: 'R Wing',
+      LeftSide: 'L Side',
+      RightSide: 'R Side',
+      Aft: 'Aft',
     };
     return labels[bv.primaryArc] ?? bv.primaryArc;
   }, [bv.primaryArc]);
@@ -190,16 +190,16 @@ export function AerospaceStatusBar({
   // Status indicators
   const weightStatus =
     weightBreakdown.remaining < 0
-      ? "error"
+      ? 'error'
       : weightBreakdown.remaining === 0
-        ? "success"
-        : "normal";
+        ? 'success'
+        : 'normal';
   const armorStatus =
     armorStats.unallocated < 0
-      ? "error"
+      ? 'error'
       : armorStats.unallocated > 0
-        ? "warning"
-        : "success";
+        ? 'warning'
+        : 'success';
 
   if (compact) {
     return (
@@ -213,18 +213,18 @@ export function AerospaceStatusBar({
         <span className="text-text-theme-secondary">{fuel} Fuel</span>
         <span
           className={
-            armorStatus === "error"
-              ? "text-red-400"
-              : "text-text-theme-secondary"
+            armorStatus === 'error'
+              ? 'text-red-400'
+              : 'text-text-theme-secondary'
           }
         >
           {armorStats.allocated} armor
         </span>
         <span
           className={
-            weightStatus === "error"
-              ? "text-red-400"
-              : "text-text-theme-secondary"
+            weightStatus === 'error'
+              ? 'text-red-400'
+              : 'text-text-theme-secondary'
           }
         >
           {weightBreakdown.remaining.toFixed(1)}t free
@@ -268,8 +268,8 @@ export function AerospaceStatusBar({
         value={armorStats.allocated}
         subValue={
           armorStats.unallocated !== 0
-            ? `${armorStats.unallocated > 0 ? "+" : ""}${armorStats.unallocated}`
-            : "allocated"
+            ? `${armorStats.unallocated > 0 ? '+' : ''}${armorStats.unallocated}`
+            : 'allocated'
         }
         status={armorStatus}
       />
@@ -278,7 +278,7 @@ export function AerospaceStatusBar({
       <StatusItem
         label="Heat"
         value={heatDissipation}
-        subValue={doubleHeatSinks ? "DHS" : "SHS"}
+        subValue={doubleHeatSinks ? 'DHS' : 'SHS'}
       />
 
       {/* Equipment Count */}

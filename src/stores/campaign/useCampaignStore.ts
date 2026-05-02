@@ -16,53 +16,53 @@
  * Persists entire campaign state to IndexedDB via clientSafeStorage.
  */
 
-import { create, StoreApi } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { create, StoreApi } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-import type { IShoppingList } from "@/types/campaign/acquisition/acquisitionTypes";
-import type { IFactionStanding } from "@/types/campaign/factionStanding/IFactionStanding";
-import type { IDailyBattleAuditEntry } from "@/types/campaign/IDailyBattleAuditEntry";
-import type { ICombatOutcome } from "@/types/combat/CombatOutcome";
+import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
+import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
+import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
+import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import {
   subscribeToCombatOutcome,
   type ICombatOutcomeReadyEvent,
-} from "@/engine/combatOutcomeBus";
+} from '@/engine/combatOutcomeBus';
 import {
   appendDailyBattleAuditEntry,
   buildDailyBattleAuditEntry,
-} from "@/lib/campaign/dailyBattleAuditBuilder";
+} from '@/lib/campaign/dailyBattleAuditBuilder';
 import {
   convertToLegacyDayReport,
   DayReport,
-} from "@/lib/campaign/dayAdvancement";
-import { getDayPipeline } from "@/lib/campaign/dayPipeline";
-import { registerBuiltinProcessors } from "@/lib/campaign/processors";
+} from '@/lib/campaign/dayAdvancement';
+import { getDayPipeline } from '@/lib/campaign/dayPipeline';
+import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import {
   applyPostBattle,
   type ICampaignWithBattleState,
-} from "@/lib/campaign/processors/postBattleProcessor";
-import { rosterEntryToPerson } from "@/lib/campaign/utils/rosterEntryToPerson";
-import { usePilotStore } from "@/stores/usePilotStore";
-import { clientSafeStorage } from "@/stores/utils/clientSafeStorage";
+} from '@/lib/campaign/processors/postBattleProcessor';
+import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
+import { usePilotStore } from '@/stores/usePilotStore';
+import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
   ICampaign,
   ICampaignOptions,
   IMission,
   createCampaign as createCampaignEntity,
-} from "@/types/campaign/Campaign";
-import { CampaignType } from "@/types/campaign/CampaignType";
-import { ForceRole, FormationLevel } from "@/types/campaign/enums";
-import { TransactionType } from "@/types/campaign/enums/TransactionType";
-import { IForce } from "@/types/campaign/Force";
-import { Money } from "@/types/campaign/Money";
-import { IPerson } from "@/types/campaign/Person";
-import { Transaction } from "@/types/campaign/Transaction";
-import { emitPendingOutcomeAdded } from "@/utils/events/campaignOutcomeEvents";
+} from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
+import { IForce } from '@/types/campaign/Force';
+import { Money } from '@/types/campaign/Money';
+import { IPerson } from '@/types/campaign/Person';
+import { Transaction } from '@/types/campaign/Transaction';
+import { emitPendingOutcomeAdded } from '@/utils/events/campaignOutcomeEvents';
 
-import { useCampaignRosterStore } from "./useCampaignRosterStore";
-import { createForcesStore, ForcesStore } from "./useForcesStore";
-import { createMissionsStore, MissionsStore } from "./useMissionsStore";
+import { useCampaignRosterStore } from './useCampaignRosterStore';
+import { createForcesStore, ForcesStore } from './useForcesStore';
+import { createMissionsStore, MissionsStore } from './useMissionsStore';
 
 // =============================================================================
 // Serialized Campaign State (for persistence)
@@ -344,10 +344,10 @@ function syncRosterFromPersonnel(updated: Map<string, IPerson>): void {
       // into Wounded, so on the way back we can't tell them apart — preserve
       // the original entry status if it was Critical, otherwise map cleanly.
       status:
-        person.status === "KIA"
-          ? entry.status === "critical"
+        person.status === 'KIA'
+          ? entry.status === 'critical'
             ? entry.status
-            : ("kia" as typeof entry.status)
+            : ('kia' as typeof entry.status)
           : entry.status,
       campaignXpEarned: Math.max(
         entry.campaignXpEarned,
@@ -612,8 +612,8 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             // that contradict the spike's "IPerson is never seeded" finding.
             if (
               serialized &&
-              typeof serialized === "object" &&
-              "personnel" in serialized &&
+              typeof serialized === 'object' &&
+              'personnel' in serialized &&
               Array.isArray(
                 (serialized as { personnel?: unknown }).personnel,
               ) &&
@@ -813,11 +813,11 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           );
           const nextErrors: Record<string, string> = {};
           for (const e of pipelineResult.events) {
-            if (e.type !== "post_battle_apply_failed") continue;
+            if (e.type !== 'post_battle_apply_failed') continue;
             const data = e.data ?? {};
             const matchId = data.matchId;
             const errorMsg = data.error;
-            if (typeof matchId === "string" && typeof errorMsg === "string") {
+            if (typeof matchId === 'string' && typeof errorMsg === 'string') {
               nextErrors[matchId] = errorMsg;
             }
           }
@@ -1056,7 +1056,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         },
       }),
       {
-        name: "campaign-store",
+        name: 'campaign-store',
         storage: createJSONStorage(() => clientSafeStorage),
         // Only persist campaign metadata, not sub-stores
         partialize: (state) => {

@@ -12,25 +12,25 @@
  * @spec openspec/changes/migrate-personnel-to-roster-employment/specs/personnel-management/spec.md
  */
 
-import type { ICampaignRosterEntry } from "@/types/campaign/CampaignRosterEntry";
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
-import { calculateTotalMonthlySalary } from "@/lib/finances/salaryService";
-import { useCampaignRosterStore } from "@/stores/campaign/useCampaignRosterStore";
-import { useCampaignStore } from "@/stores/campaign/useCampaignStore";
-import { usePilotStore } from "@/stores/usePilotStore";
-import { CampaignPilotStatus } from "@/types/campaign/CampaignInterfaces.types";
+import { calculateTotalMonthlySalary } from '@/lib/finances/salaryService';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { usePilotStore } from '@/stores/usePilotStore';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import {
   PilotStatus,
   PilotType,
   type IPilot,
-} from "@/types/pilot/PilotInterfaces";
+} from '@/types/pilot/PilotInterfaces';
 
 // =============================================================================
 // Fixtures
 // =============================================================================
 
 function makeVaultPilot(id: string, name: string): IPilot {
-  const now = new Date("2025-01-01T00:00:00Z").toISOString();
+  const now = new Date('2025-01-01T00:00:00Z').toISOString();
   return {
     id,
     name,
@@ -50,7 +50,7 @@ function makeVaultPilot(id: string, name: string): IPilot {
       missionHistory: [],
       xp: 0,
       totalXpEarned: 0,
-      rank: "MechWarrior",
+      rank: 'MechWarrior',
     },
     createdAt: now,
     updatedAt: now,
@@ -72,7 +72,7 @@ function makeRosterEntry(
     campaignKills: 0,
     campaignMissions: 0,
     // Hard-cutover policy (PR2 cluster J): hireDate is required.
-    hireDate: new Date("2025-01-01T00:00:00Z"),
+    hireDate: new Date('2025-01-01T00:00:00Z'),
   };
 }
 
@@ -80,8 +80,8 @@ beforeEach(() => {
   // Reset both stores so each test runs in isolation.
   usePilotStore.setState({
     pilots: [
-      makeVaultPilot("pilot-1", "Sarah Connor"),
-      makeVaultPilot("pilot-2", "John Connor"),
+      makeVaultPilot('pilot-1', 'Sarah Connor'),
+      makeVaultPilot('pilot-2', 'John Connor'),
     ],
     selectedPilotId: null,
     isLoading: false,
@@ -89,11 +89,11 @@ beforeEach(() => {
   });
 
   useCampaignRosterStore.setState({
-    campaignId: "campaign-test",
+    campaignId: 'campaign-test',
     units: [],
     pilots: [
-      makeRosterEntry("pilot-1", "Sarah Connor"),
-      makeRosterEntry("pilot-2", "John Connor"),
+      makeRosterEntry('pilot-1', 'Sarah Connor'),
+      makeRosterEntry('pilot-2', 'John Connor'),
     ],
     missions: [],
     activeMissionId: null,
@@ -105,11 +105,11 @@ beforeEach(() => {
 // Tests
 // =============================================================================
 
-describe("Roster employment derivation — integration", () => {
-  describe("salary calculation (read-side)", () => {
-    it("returns zero salary when payForSalaries is disabled (control case)", () => {
+describe('Roster employment derivation — integration', () => {
+  describe('salary calculation (read-side)', () => {
+    it('returns zero salary when payForSalaries is disabled (control case)', () => {
       const campaign = {
-        id: "campaign-test",
+        id: 'campaign-test',
         personnel: new Map(), // legacy empty Map (the canonical bug — see council decision)
         options: { payForSalaries: false },
       } as unknown as Parameters<typeof calculateTotalMonthlySalary>[0];
@@ -119,7 +119,7 @@ describe("Roster employment derivation — integration", () => {
       expect(breakdown.personnelCount).toBe(0);
     });
 
-    it("reads from a derived personnel Map and computes a non-zero total", () => {
+    it('reads from a derived personnel Map and computes a non-zero total', () => {
       // Simulate what `advanceDay` does: derive personnel from roster + vault.
       // Use the same code path the production `advanceDay` uses.
       const roster = useCampaignRosterStore.getState().pilots;
@@ -127,8 +127,8 @@ describe("Roster employment derivation — integration", () => {
 
       // Inline-import the shim (doesn't pollute the test module).
       const { rosterEntryToPerson } = jest.requireActual(
-        "@/lib/campaign/utils/rosterEntryToPerson",
-      ) as typeof import("@/lib/campaign/utils/rosterEntryToPerson");
+        '@/lib/campaign/utils/rosterEntryToPerson',
+      ) as typeof import('@/lib/campaign/utils/rosterEntryToPerson');
 
       const derivedPersonnel = new Map(
         roster.map((entry) => {
@@ -139,7 +139,7 @@ describe("Roster employment derivation — integration", () => {
 
       // Build a minimal campaign with payForSalaries enabled + derived personnel.
       const campaign = {
-        id: "campaign-test",
+        id: 'campaign-test',
         personnel: derivedPersonnel,
         options: {
           payForSalaries: true,
@@ -158,12 +158,12 @@ describe("Roster employment derivation — integration", () => {
     });
   });
 
-  describe("useCampaignStore wiring", () => {
-    it("exposes the campaign store factory, vault store, and roster store as siblings", () => {
+  describe('useCampaignStore wiring', () => {
+    it('exposes the campaign store factory, vault store, and roster store as siblings', () => {
       // Smoke test: verify the imports compile and work together. This guards
       // against accidentally breaking the import graph (which would block the
       // derive helper in `advanceDay`).
-      expect(typeof useCampaignStore).toBe("function");
+      expect(typeof useCampaignStore).toBe('function');
       expect(useCampaignRosterStore.getState().pilots).toHaveLength(2);
       expect(usePilotStore.getState().pilots).toHaveLength(2);
     });

@@ -18,10 +18,10 @@
  * @spec openspec/changes/archive/2026-05-01-decide-campaign-personnel-architecture/design.md
  */
 
-import type { IPilotStatblock } from "@/types/pilot/PilotInterfaces";
+import type { IPilotStatblock } from '@/types/pilot/PilotInterfaces';
 
-import type { CampaignPilotStatus } from "./CampaignInterfaces.types";
-import type { Money } from "./Money";
+import type { CampaignPilotStatus } from './CampaignInterfaces.types';
+import type { Money } from './Money';
 
 // =============================================================================
 // Roster Entry Interface

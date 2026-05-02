@@ -1,28 +1,28 @@
-import { useRouter } from "next/router";
-import { useCallback, useMemo, useState } from "react";
+import { useRouter } from 'next/router';
+import { useCallback, useMemo, useState } from 'react';
 
-import type { ICampaignRosterEntry } from "@/types/campaign/CampaignRosterEntry";
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
-import { useToast } from "@/components/shared/Toast";
-import { PageLayout, Button } from "@/components/ui";
-import { UNIT_TEMPLATES } from "@/simulation/generator";
-import { useCampaignRosterStore } from "@/stores/campaign/useCampaignRosterStore";
-import { useCampaignStore } from "@/stores/campaign/useCampaignStore";
+import { useToast } from '@/components/shared/Toast';
+import { PageLayout, Button } from '@/components/ui';
+import { UNIT_TEMPLATES } from '@/simulation/generator';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import {
   CampaignUnitStatus,
   CampaignPilotStatus,
   type ICampaignUnitState,
-} from "@/types/campaign/CampaignInterfaces";
-import { CampaignPreset, ALL_PRESETS } from "@/types/campaign/CampaignPreset";
-import { CampaignType } from "@/types/campaign/CampaignType";
+} from '@/types/campaign/CampaignInterfaces';
+import { CampaignPreset, ALL_PRESETS } from '@/types/campaign/CampaignPreset';
+import { CampaignType } from '@/types/campaign/CampaignType';
 
 import type {
   PilotAssignments,
   SelectedPilot,
   SelectedUnit,
-} from "./CreateCampaignPage.types";
+} from './CreateCampaignPage.types';
 
-import { useCampaignWizardNavigation } from "./CreateCampaignPage.hooks";
+import { useCampaignWizardNavigation } from './CreateCampaignPage.hooks';
 import {
   BasicInfoStep,
   CampaignTypeStep,
@@ -30,24 +30,24 @@ import {
   ReviewStep,
   RosterStep,
   StepIndicator,
-} from "./CreateCampaignPage.sections";
+} from './CreateCampaignPage.sections';
 import {
   assignPilotToUnit,
   createEntityId,
   getAssignedUnitIdForPilot,
   removePilotAssignments,
   removeUnitAssignment,
-} from "./CreateCampaignPage.utils";
+} from './CreateCampaignPage.utils';
 
-const WIZARD_STEPS = ["Basic Info", "Type", "Preset", "Roster", "Review"];
+const WIZARD_STEPS = ['Basic Info', 'Type', 'Preset', 'Roster', 'Review'];
 
 export default function CreateCampaignPage(): React.ReactElement {
   const router = useRouter();
   const store = useCampaignStore();
   const { showToast } = useToast();
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [campaignType, setCampaignType] = useState<CampaignType>(
     CampaignType.MERCENARY,
   );
@@ -74,7 +74,7 @@ export default function CreateCampaignPage(): React.ReactElement {
 
   const handleAddTemplateUnit = useCallback(
     (templateName: string, tonnage: number) => {
-      const unitId = createEntityId("unit");
+      const unitId = createEntityId('unit');
       setSelectedUnits((previous) => {
         return [...previous, { id: unitId, name: templateName, tonnage }];
       });
@@ -90,7 +90,7 @@ export default function CreateCampaignPage(): React.ReactElement {
   }, []);
 
   const handleAddPilot = useCallback(() => {
-    const pilotId = createEntityId("pilot");
+    const pilotId = createEntityId('pilot');
     const pilotNumber = selectedPilots.length + 1;
     setSelectedPilots((previous) => {
       return [...previous, { id: pilotId, name: `MechWarrior ${pilotNumber}` }];
@@ -186,11 +186,11 @@ export default function CreateCampaignPage(): React.ReactElement {
 
         showToast({
           message: `Campaign "${name.trim()}" created successfully!`,
-          variant: "success",
+          variant: 'success',
         });
         router.push(`/gameplay/campaigns/${campaignId}`);
       } else {
-        showToast({ message: "Failed to create campaign", variant: "error" });
+        showToast({ message: 'Failed to create campaign', variant: 'error' });
       }
     } finally {
       setIsSubmitting(false);
@@ -209,7 +209,7 @@ export default function CreateCampaignPage(): React.ReactElement {
   ]);
 
   const handleCancel = useCallback(() => {
-    router.push("/gameplay/campaigns");
+    router.push('/gameplay/campaigns');
   }, [router]);
 
   let stepContent: React.ReactNode = null;
@@ -300,10 +300,10 @@ export default function CreateCampaignPage(): React.ReactElement {
           variant="secondary"
           onClick={currentStep === 0 ? handleCancel : handleBack}
           data-testid={
-            currentStep === 0 ? "wizard-cancel-btn" : "wizard-back-btn"
+            currentStep === 0 ? 'wizard-cancel-btn' : 'wizard-back-btn'
           }
         >
-          {currentStep === 0 ? "Cancel" : "Back"}
+          {currentStep === 0 ? 'Cancel' : 'Back'}
         </Button>
 
         {currentStep < WIZARD_STEPS.length - 1 ? (
@@ -323,7 +323,7 @@ export default function CreateCampaignPage(): React.ReactElement {
             disabled={isSubmitting}
             data-testid="wizard-submit-btn"
           >
-            {isSubmitting ? "Creating..." : "Create Campaign"}
+            {isSubmitting ? 'Creating...' : 'Create Campaign'}
           </Button>
         )}
       </div>
