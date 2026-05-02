@@ -52,39 +52,6 @@ export function calculateTMM(runMP: number, jumpMP: number = 0): number {
 }
 
 /**
- * @deprecated Use BV2_SPEED_FACTORS_BY_TMM with calculateTMM instead
- * Speed factor lookup table for BV2 - indexed by raw MP (legacy/incorrect)
- */
-export const BV2_SPEED_FACTORS: Record<number, number> = {
-  0: 0.44,
-  1: 0.54,
-  2: 0.64,
-  3: 0.74,
-  4: 0.84,
-  5: 0.94,
-  6: 1.0,
-  7: 1.0,
-  8: 1.08,
-  9: 1.17,
-  10: 1.28,
-  11: 1.28,
-  12: 1.37,
-  13: 1.37,
-  14: 1.46,
-  15: 1.46,
-  16: 1.55,
-  17: 1.55,
-  18: 1.64,
-  19: 1.64,
-  20: 1.73,
-  21: 1.73,
-  22: 1.82,
-  23: 1.82,
-  24: 1.91,
-  25: 2.0,
-};
-
-/**
  * Armor type BV multipliers
  * Per MegaMek BVCalculator.java:1477-1498
  */
@@ -301,17 +268,4 @@ export function getDefensiveSpeedFactor(runMP: number, jumpMP: number): number {
   const tmm = calculateTMM(runMP, jumpMP);
   const cappedTMM = Math.min(10, Math.max(0, tmm));
   return BV2_SPEED_FACTORS_BY_TMM[cappedTMM] ?? 1.0;
-}
-
-/**
- * @deprecated Use getDefensiveSpeedFactor instead
- * Get speed factor for BV2 calculation
- */
-export function getBV2SpeedFactor(runMP: number, jumpMP: number): number {
-  // Use higher of run or jump MP (jump weighted by 0.5)
-  const effectiveSpeed = Math.max(runMP, Math.ceil(jumpMP * 0.5));
-
-  if (effectiveSpeed <= 0) return BV2_SPEED_FACTORS[0];
-  if (effectiveSpeed >= 25) return BV2_SPEED_FACTORS[25];
-  return BV2_SPEED_FACTORS[effectiveSpeed] ?? 1.0;
 }

@@ -32,14 +32,10 @@ import weaponsMissileMrm from '../../../public/data/equipment/official/weapons/m
 import weaponsMissileOther from '../../../public/data/equipment/official/weapons/missile-other.json';
 import weaponsMissileSrm from '../../../public/data/equipment/official/weapons/missile-srm.json';
 import weaponsPhysical from '../../../public/data/equipment/official/weapons/physical.json';
+import { parseNameMappings } from './equipmentBV/nameMappingsContractAdapter';
 
 interface CatalogDataFile {
   items?: Array<Record<string, unknown>>;
-}
-
-interface NameMappingsData {
-  $schema?: string;
-  [key: string]: string | undefined;
 }
 
 export const WEAPON_CATALOG_FILES: readonly CatalogDataFile[] = [
@@ -87,13 +83,11 @@ export const AMMUNITION_CATALOG_FILES: readonly CatalogDataFile[] = [
   ammunitionSrm,
 ] as const;
 
-// FIXME(schema-bridge): name-mappings.json doesn't yet have a Zod
-// contract (no `_schema/name-mappings-schema.json` Zod generation).
-// Once authored, replace this double-cast with a `parseNameMappings`
-// adapter call in line with the `parseUnit` pattern from
-// `services/units/unitLoaderService/unitContractAdapter.ts`. The cast
-// is safe today because the JSON is committed verbatim and validated
-// statically — runtime drift would be caught at the next BV regression
-// run rather than at parse-time, which is the only thing the contract
-// adapter would buy us here.
-export const NAME_MAPPINGS_DATA = nameMappings as unknown as NameMappingsData;
+// Parsed once at module load through `parseNameMappings`, which is the
+// adapter for the `NameMappingsContract` Zod schema generated from
+// `public/data/equipment/_schema/name-mappings-schema.json`. This
+// closes the previous `FIXME(schema-bridge)` cast: instead of trusting
+// the imported JSON shape statically, we validate it at the boundary
+// so any future drift in `name-mappings.json` (e.g. a non-string value
+// sneaking in via an audit) fails loudly with a Zod issue path.
+export const NAME_MAPPINGS_DATA = parseNameMappings(nameMappings);

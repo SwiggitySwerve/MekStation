@@ -1378,7 +1378,12 @@ export class ServerMatchHost {
       await this.store.updateMatchMeta(this.matchId, {
         seats: nextSeats,
         status: nextStatus,
-        ...(clearRoomCode ? { roomCode: undefined as unknown as string } : {}),
+        // Pass `null` to explicitly clear the room code (the patch type
+        // models a clear as `roomCode: null`, distinct from an absent
+        // key meaning "leave it alone"). Previously this used
+        // `undefined as unknown as string`, which laundered the same
+        // intent through the type system.
+        ...(clearRoomCode ? { roomCode: null } : {}),
       });
     } catch (e) {
       const err: IServerMessage = {
