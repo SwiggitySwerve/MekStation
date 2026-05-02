@@ -9,17 +9,19 @@
 import { describe, it, expect } from '@jest/globals';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPerson } from '@/types/campaign/Person';
 import type {
   ICombatOutcome,
   IUnitCombatDelta,
 } from '@/types/combat/CombatOutcome';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { createContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import {
@@ -29,6 +31,7 @@ import {
   UnitFinalStatus,
 } from '@/types/combat/CombatOutcome';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
+import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import type { ICampaignWithBattleState } from '../processors/postBattleProcessor';
 
@@ -41,41 +44,47 @@ import {
 // Fixtures
 // ---------------------------------------------------------------------------
 
+/**
+ * Cluster E PR1 — IPerson fixtures are now synthesized via the
+ * `(rosterEntry, vaultPilot) → rosterEntryToPerson()` bridge so the
+ * test substrate exercises the same shim production code uses to
+ * adapt the new roster-employment substrate to legacy `IPerson`-shaped
+ * helpers. Test-specific overrides (xp, totalXpEarned, custom ids)
+ * still spread on top so individual cases drive their own scenarios.
+ */
 function makePerson(
   overrides: Partial<IPerson> & { totalXpEarned?: number } = {},
 ): IPerson {
-  return {
-    id: overrides.id ?? 'pilot-1',
-    name: overrides.name ?? 'Test Pilot',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date('3024-01-01'),
-    missionsCompleted: 0,
-    totalKills: 0,
-    xp: overrides.xp ?? 0,
-    totalXpEarned: overrides.totalXpEarned ?? 0,
-    xpSpent: 0,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
+  const id = overrides.id ?? 'pilot-1';
+  const name = overrides.name ?? 'Test Pilot';
+  const xp = overrides.xp ?? 0;
+  const totalXpEarned = overrides.totalXpEarned ?? 0;
+  const entry: ICampaignRosterEntry = {
+    pilotId: id,
+    pilotName: name,
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp,
+    campaignXpEarned: totalXpEarned,
+    campaignKills: 0,
+    campaignMissions: 0,
+    hireDate: new Date('3024-01-01'),
+  };
+  const vault: IPilot = {
+    id,
+    name,
+    type: PilotType.Persistent,
+    status: PilotStatus.Active,
+    skills: { gunnery: 4, piloting: 5 },
+    wounds: 0,
+    abilities: [],
+    awards: [],
     createdAt: '3024-01-01T00:00:00Z',
     updatedAt: '3025-01-01T00:00:00Z',
-    awards: [],
-    ...overrides,
   };
+  const base = rosterEntryToPerson(entry, vault);
+  return { ...base, ...overrides };
 }
 
 function makeCampaign(

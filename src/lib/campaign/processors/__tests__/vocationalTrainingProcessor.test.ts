@@ -1,13 +1,18 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPerson } from '@/types/campaign/Person';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
+import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import { DayPhase, _resetDayPipeline, getDayPipeline } from '../../dayPipeline';
 import {
@@ -18,38 +23,44 @@ import {
 
 type RandomFn = () => number;
 
+/**
+ * Cluster E PR1 — IPerson fixtures are now synthesized via the
+ * `(rosterEntry, vaultPilot) → rosterEntryToPerson()` bridge so the
+ * test substrate exercises the same shim production code uses. The
+ * bridge cannot directly express test-only states (RETIRED, POW,
+ * DEPENDENT role, birthDate, traits) — those still arrive via the
+ * `overrides` spread, which is exactly how production helpers receive
+ * non-bridge fields when seeded from saved campaigns.
+ */
 function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
-  return {
-    id: 'person-001',
-    name: 'Test Person',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date('3000-01-01'),
-    missionsCompleted: 5,
-    totalKills: 3,
+  const id = overrides.id ?? 'person-001';
+  const name = overrides.name ?? 'Test Person';
+  const entry: ICampaignRosterEntry = {
+    pilotId: id,
+    pilotName: name,
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
     xp: 100,
-    totalXpEarned: 200,
-    xpSpent: 100,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
+    campaignXpEarned: 200,
+    campaignKills: 3,
+    campaignMissions: 5,
+    hireDate: new Date('3000-01-01'),
+  };
+  const vault: IPilot = {
+    id,
+    name,
+    type: PilotType.Persistent,
+    status: PilotStatus.Active,
+    skills: { gunnery: 4, piloting: 5 },
+    wounds: 0,
+    abilities: [],
+    awards: [],
     createdAt: '3000-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
-    ...overrides,
   };
+  const base = rosterEntryToPerson(entry, vault);
+  return { ...base, ...overrides };
 }
 
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
