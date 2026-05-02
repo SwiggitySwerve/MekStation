@@ -5,9 +5,14 @@
  * @spec openspec/changes/add-game-session-core/specs/game-session-core/spec.md
  */
 
+import type { IAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
+import type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
+import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
+
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
 import type { IAmmoConstructionInit } from './AmmoTypes';
+import type { IBattleArmorCombatState } from './BattleArmorCombatInterfaces';
 import type {
   ILegAttackPayload,
   IMimeticBonusPayload,
@@ -1225,6 +1230,53 @@ export interface IGameUnit {
    * data per `wire-ammo-consumption`.
    */
   readonly ammoConstruction?: readonly IAmmoConstructionInit[];
+  /**
+   * Construction-side `UnitType` (BattleMech / Aerospace / Infantry / Battle
+   * Armor / ProtoMech / Vehicle / etc.). Per `wire-combat-behavior-dispatch`
+   * (Council #1 PR7), `createInitialUnitState` branches on this value to
+   * seed `IUnitGameState.combatState` via the matching per-type factory.
+   *
+   * Optional for backward compatibility: legacy callers (existing fixtures,
+   * tests, lobby builders that haven't been updated) leave it `undefined`,
+   * which behaves exactly like the prior mech-only path (no `combatState`
+   * envelope, mech tokens render). New callers wiring aerospace / proto /
+   * infantry / BA units MUST set both `unitType` AND the matching per-type
+   * construction inputs below — the init-time assertion will throw otherwise.
+   */
+  readonly unitType?: import('@/types/unit/BattleMechInterfaces').UnitType;
+  /**
+   * Per-type construction inputs consumed by `createInitialUnitState` to
+   * build `combatState` via `create{Type}CombatState` factories. Each block
+   * is OPTIONAL at the type level so the legacy mech-only call path stays
+   * compile-clean; the init-time assertion enforces presence at runtime
+   * when `unitType` is one of the four supported per-type discriminants.
+   */
+  readonly aerospaceInit?: {
+    readonly maxSI: number;
+    readonly armorByArc: import('@/utils/gameplay/aerospace/state').IAerospaceArcArmor;
+    readonly heatSinks: number;
+    readonly fuelPoints: number;
+    readonly safeThrust: number;
+    readonly maxThrust: number;
+    /** Initial altitude band; defaults to `1` (airborne) when omitted. */
+    readonly altitude?: number;
+  };
+  readonly infantryInit?: import('@/types/unit/PersonnelInterfaces').IInfantry;
+  readonly protoMechInit?: {
+    readonly chassisType: import('@/types/unit/ProtoMechInterfaces').ProtoChassis;
+    readonly hasMainGun: boolean;
+    readonly armorByLocation: import('@/utils/gameplay/protomech/state').ProtoLocationSlotMap;
+    readonly structureByLocation: import('@/utils/gameplay/protomech/state').ProtoLocationSlotMap;
+    readonly altitude?: number;
+  };
+  readonly battleArmorInit?: {
+    readonly squadSize: number;
+    readonly armorPointsPerTrooper: number;
+    readonly stealthKind?: import('./BattleArmorCombatInterfaces').BattleArmorStealthKind;
+    readonly hasMagneticClamp?: boolean;
+    readonly hasVibroClaws?: boolean;
+    readonly vibroClawCount?: number;
+  };
 }
 
 // `IAmmoConstructionInit` is imported at the top of this module (so
@@ -1394,6 +1446,26 @@ export interface IUnitGameState {
    * summaries can list withdrawn units separately from combat losses.
    */
   readonly hasRetreated?: boolean;
+  /**
+   * Per-type combat-behavior envelope.
+   *
+   * Per Council #1 (`openspec/council-decisions/2026-05-02-cluster-F-combat-
+   * behavior-wiring.md`) and openspec change `wire-combat-behavior-dispatch`,
+   * aerospace / protomech / infantry / BA units carry their per-type combat
+   * struct here so renderers and fog redaction read a single channel. Mech
+   * and vehicle units leave this `undefined` until the `kind: 'vehicle'`
+   * variant lands in PR9+.
+   *
+   * Producers: `createInitialUnitState` (initial seed); per-type reducers
+   * (combat events update the inner `state` and replace the envelope).
+   *
+   * Consumers: `unitStateToToken` (projection); fog-of-war redaction.
+   */
+  readonly combatState?:
+    | { readonly kind: 'aero'; readonly state: IAerospaceCombatState }
+    | { readonly kind: 'proto'; readonly state: IProtoMechCombatState }
+    | { readonly kind: 'platoon'; readonly state: IInfantryCombatState }
+    | { readonly kind: 'squad'; readonly state: IBattleArmorCombatState };
 }
 
 /**

@@ -97,12 +97,16 @@ describe('BattleArmorToken standalone cluster', () => {
     expect(countPipCircles(container)).toBe(6);
   });
 
-  it('defaults trooperCount to 4 when undefined', () => {
+  it('renders 1 trooper pip when trooperCount is undefined (fog-redacted hidden enemy)', () => {
+    // Per `wire-combat-behavior-dispatch` (Council #1 PR7): the prior
+    // `?? 4` default is GONE. Fog-redacted hidden enemies arrive with
+    // `trooperCount === undefined` — fall back to the minimum (1 visible
+    // dot) so the silhouette still renders without revealing squad size.
     const token = makeBAToken({ trooperCount: undefined });
     const { container } = renderInSvg(
       <BattleArmorToken token={token} eventState={EMPTY_EVENT_STATE} />,
     );
-    expect(countPipCircles(container)).toBe(4);
+    expect(countPipCircles(container)).toBe(1);
   });
 });
 

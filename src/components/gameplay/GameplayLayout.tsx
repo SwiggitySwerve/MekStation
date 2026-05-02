@@ -19,6 +19,7 @@ import type { InteractivePhase } from '@/stores/useGameplayStore';
 import { pixelToHex } from '@/constants/hexMap';
 import { useCameraControls } from '@/hooks/useCameraControls';
 import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
+import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import {
@@ -27,8 +28,6 @@ import {
   IGameSession,
   IHexCoordinate,
   IPilotSpaSummary,
-  IUnitGameState,
-  IUnitToken,
   ILayoutConfig,
   IWeaponStatus,
   IMovementRangeHex,
@@ -174,43 +173,6 @@ export interface GameplayLayoutProps {
 // =============================================================================
 // Helper Functions
 // =============================================================================
-
-/**
- * Convert unit state to display token.
- */
-function unitStateToToken(
-  unitId: string,
-  state: IUnitGameState,
-  unitInfo: { name: string; side: GameSide },
-  isSelected: boolean,
-  isValidTarget: boolean,
-  isActiveTarget: boolean,
-  fogProjection: Partial<
-    Pick<IUnitToken, 'fogStatus' | 'lastKnownPosition' | 'sensorRange'>
-  > = {},
-): IUnitToken {
-  // Generate a short designation from the unit name
-  const designation = unitInfo.name
-    .split(/[\s-]+/)
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 4);
-
-  return {
-    unitId,
-    name: unitInfo.name,
-    side: unitInfo.side,
-    position: state.position,
-    facing: state.facing,
-    isSelected,
-    isValidTarget,
-    isActiveTarget,
-    isDestroyed: state.destroyed,
-    designation,
-    ...fogProjection,
-  };
-}
 
 const DEFAULT_FOG_SENSOR_RANGE = 10;
 
@@ -414,26 +376,36 @@ export function GameplayLayout({
         currentState.phase === GamePhase.WeaponAttack &&
         activeTargetId !== null &&
         unitId === activeTargetId;
-      const fogProjection =
-        config.fogOfWar === true
-          ? unitInfo.side === playerSide
-            ? { sensorRange: DEFAULT_FOG_SENSOR_RANGE }
-            : canPlayerSeeUnit(localFogPlayerId, unitId, visibilityState)
-              ? {}
-              : {
-                  fogStatus: 'lastKnown' as const,
-                  lastKnownPosition: state.position,
-                }
-          : {};
+      // Per `wire-combat-behavior-dispatch` task §6.2: derive `isHidden`
+      // from the existing fog branch so the unified adapter strips
+      // `combatState`-derived per-type fields for unseen enemies (no
+      // trooper / altitude / chassis-flag leakage through `lastKnown`).
+      const isFogActive = config.fogOfWar === true;
+      const isOwnedSide = unitInfo.side === playerSide;
+      const isVisibleEnemy = canPlayerSeeUnit(
+        localFogPlayerId,
+        unitId,
+        visibilityState,
+      );
+      const isHidden = isFogActive && !isOwnedSide && !isVisibleEnemy;
+      const fogProjection = isFogActive
+        ? isOwnedSide
+          ? { sensorRange: DEFAULT_FOG_SENSOR_RANGE }
+          : isVisibleEnemy
+            ? {}
+            : {
+                fogStatus: 'lastKnown' as const,
+                lastKnownPosition: state.position,
+              }
+        : {};
 
       return unitStateToToken(
         unitId,
         state,
         unitInfo,
-        isSelected,
-        isValidTarget,
-        isActiveTarget,
+        { isSelected, isValidTarget, isActiveTarget },
         fogProjection,
+        isHidden,
       );
     });
   }, [

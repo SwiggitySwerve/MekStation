@@ -173,13 +173,21 @@ export interface IUnitToken {
   // Aerospace-specific fields (present when unitType === TokenUnitType.Aerospace)
   // -------------------------------------------------------------------------
   /**
-   * Current altitude level (0–10). 0 = landed.
-   * TODO: wire from aerospace combat-behavior proposal when landed.
+   * Current altitude level (0–10). 0 = landed. Wired from
+   * `IAerospaceCombatState.altitude` via the unified `unitStateToToken`
+   * adapter (`src/lib/gameplay/unitStateToToken.ts`). Per
+   * `wire-combat-behavior-dispatch` (Council #1 PR7). Optional at the
+   * type level so fog-redacted hidden enemies and legacy mech tokens
+   * can omit it.
    */
   readonly altitude?: number;
   /**
    * Current velocity in thrust points.
-   * TODO: wire from aerospace combat-behavior proposal.
+   * TODO(movement slice 2): velocity belongs to a future movement-tick
+   * slice and is intentionally NOT wired by `wire-combat-behavior-dispatch`
+   * (Council #1 PR7). When the aerospace movement slice lands, add a
+   * `velocity` field to `IAerospaceCombatState` and project it through
+   * the `unitStateToToken` adapter alongside `altitude`.
    */
   readonly velocity?: number;
 

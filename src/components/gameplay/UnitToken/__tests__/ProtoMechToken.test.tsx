@@ -108,12 +108,16 @@ describe('ProtoMechToken point cluster', () => {
     expect(countPipsByTestid(container)).toBe(5);
   });
 
-  it('defaults protoCount to 5 when undefined', () => {
+  it('renders 1 proto pip when protoCount is undefined (fog-redacted hidden enemy)', () => {
+    // Per `wire-combat-behavior-dispatch` (Council #1 PR7): the prior
+    // `?? 5` default is GONE. Fog-redacted hidden enemies arrive with
+    // `protoCount === undefined` — fall back to a single proto silhouette
+    // so the chassis shows but point size is not leaked.
     const token = makeProtoToken({ protoCount: undefined });
     const { container } = renderInSvg(
       <ProtoMechToken token={token} eventState={EMPTY_EVENT_STATE} />,
     );
-    expect(countPipsByTestid(container)).toBe(5);
+    expect(countPipsByTestid(container)).toBe(1);
   });
 });
 
