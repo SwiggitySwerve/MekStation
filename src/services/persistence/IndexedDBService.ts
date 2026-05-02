@@ -278,7 +278,3 @@ export function resetIndexedDBService(): void {
 export function _resetIndexedDBService(): void {
   indexedDBServiceFactory.reset();
 }
-
-// Legacy export for backward compatibility
-// @deprecated Use getIndexedDBService() instead
-export const indexedDBService = getIndexedDBService();

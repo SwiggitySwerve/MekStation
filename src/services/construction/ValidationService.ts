@@ -480,7 +480,3 @@ export function resetValidationService(): void {
 export function _resetValidationService(): void {
   validationServiceFactory.reset();
 }
-
-// Legacy export for backward compatibility
-// @deprecated Use getValidationService() instead
-export const validationService = getValidationService();

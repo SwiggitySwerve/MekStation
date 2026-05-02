@@ -14,7 +14,7 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 
 interface ApiResponse {
   success: boolean;
@@ -58,7 +58,7 @@ export default async function handler(
   try {
     // Initialize equipment loader (loads from JSON with fallback to hardcoded)
     // This is idempotent - subsequent calls return immediately
-    await equipmentLookupService.initialize();
+    await getEquipmentLookupService().initialize();
 
     const { type, search } = req.query;
 
@@ -66,11 +66,11 @@ export default async function handler(
 
     // Filter by type if specified
     if (type === 'weapons') {
-      data = equipmentLookupService.getAllWeapons();
+      data = getEquipmentLookupService().getAllWeapons();
     } else if (type === 'ammunition') {
-      data = equipmentLookupService.getAllAmmunition();
+      data = getEquipmentLookupService().getAllAmmunition();
     } else {
-      data = equipmentLookupService.getAllEquipment();
+      data = getEquipmentLookupService().getAllEquipment();
     }
 
     // Apply search filter if provided
@@ -88,7 +88,7 @@ export default async function handler(
       success: true,
       data,
       count: data.length,
-      dataSource: equipmentLookupService.getDataSource(),
+      dataSource: getEquipmentLookupService().getDataSource(),
     });
   } catch (error) {
     console.error('Equipment Catalog API error:', error);

@@ -7,7 +7,7 @@
  */
 
 import {
-  indexedDBService,
+  getIndexedDBService,
   STORES,
 } from '@/services/persistence/IndexedDBService';
 import { IFullUnit } from '@/services/units/CanonicalUnitService';
@@ -17,23 +17,27 @@ import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 
 // Mock the IndexedDB service
-jest.mock('@/services/persistence/IndexedDBService', () => ({
-  indexedDBService: {
+jest.mock('@/services/persistence/IndexedDBService', () => {
+  const _mock_indexedDBService = {
     initialize: jest.fn().mockResolvedValue(undefined),
     put: jest.fn().mockResolvedValue(undefined),
     get: jest.fn(),
     getAll: jest.fn(),
     delete: jest.fn().mockResolvedValue(undefined),
-  },
-  STORES: {
-    CUSTOM_UNITS: 'custom-units',
-  },
-}));
+  };
+  return {
+    getIndexedDBService: () => _mock_indexedDBService,
+
+    STORES: {
+      CUSTOM_UNITS: 'custom-units',
+    },
+  };
+});
 
 describe('CustomUnitService', () => {
   let service: CustomUnitService;
-  const mockIndexedDB = indexedDBService as jest.Mocked<
-    typeof indexedDBService
+  const mockIndexedDB = getIndexedDBService() as jest.Mocked<
+    ReturnType<typeof getIndexedDBService>
   >;
 
   beforeEach(() => {

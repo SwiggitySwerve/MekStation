@@ -18,7 +18,7 @@ import {
   promoteLocalPeerToHost,
   useSyncRoomSelector,
 } from '@/lib/p2p';
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { useLobbySelector } from '@/stores/useLobbyStore';
@@ -74,7 +74,7 @@ export default function GameplayLobbyPage(): React.ReactElement {
     void (async () => {
       try {
         const [canonical, custom] = await Promise.all([
-          canonicalUnitService.getIndex(),
+          getCanonicalUnitService().getIndex(),
           customUnitApiService.list().catch(() => []),
         ]);
         if (cancelled) return;

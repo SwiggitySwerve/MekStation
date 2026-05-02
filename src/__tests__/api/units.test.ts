@@ -6,7 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { createMocks } from 'node-mocks-http';
 
 import handler from '@/pages/api/units';
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -14,15 +14,18 @@ import { WeightClass } from '@/types/enums/WeightClass';
 import { parseSuccessResponse, parseErrorResponse } from '../helpers';
 
 // Mock the canonical unit service
-jest.mock('@/services/units/CanonicalUnitService', () => ({
-  canonicalUnitService: {
+jest.mock('@/services/units/CanonicalUnitService', () => {
+  const _mock_canonicalUnitService = {
     getById: jest.fn(),
     query: jest.fn(),
-  },
-}));
+  };
+  return {
+    getCanonicalUnitService: () => _mock_canonicalUnitService,
+  };
+});
 
-const mockGetById = canonicalUnitService.getById as jest.Mock;
-const mockQuery = canonicalUnitService.query as jest.Mock;
+const mockGetById = getCanonicalUnitService().getById as jest.Mock;
+const mockQuery = getCanonicalUnitService().query as jest.Mock;
 
 describe('/api/units', () => {
   beforeEach(() => {

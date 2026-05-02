@@ -1,4 +1,4 @@
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { UnitSearchService } from '@/services/units/UnitSearchService';
 import { TechBase } from '@/types/enums/TechBase';
@@ -21,11 +21,14 @@ jest.mock('minisearch', () => {
 });
 
 // Mock services
-jest.mock('@/services/units/CanonicalUnitService', () => ({
-  canonicalUnitService: {
+jest.mock('@/services/units/CanonicalUnitService', () => {
+  const _mock_canonicalUnitService = {
     getIndex: jest.fn(),
-  },
-}));
+  };
+  return {
+    getCanonicalUnitService: () => _mock_canonicalUnitService,
+  };
+});
 
 jest.mock('@/services/units/CustomUnitApiService', () => ({
   customUnitApiService: {
@@ -85,7 +88,7 @@ describe('UnitSearchService', () => {
 
     // @ts-expect-error - Mocking MiniSearch constructor for testing
     (MiniSearch as jest.Mock).mockReturnValue(mockSearchIndex);
-    (canonicalUnitService.getIndex as jest.Mock).mockResolvedValue([
+    (getCanonicalUnitService().getIndex as jest.Mock).mockResolvedValue([
       mockCanonicalUnit,
     ]);
     (customUnitApiService.list as jest.Mock).mockResolvedValue([
@@ -103,7 +106,7 @@ describe('UnitSearchService', () => {
     it('should load canonical units', async () => {
       await service.initialize();
 
-      expect(canonicalUnitService.getIndex).toHaveBeenCalled();
+      expect(getCanonicalUnitService().getIndex).toHaveBeenCalled();
     });
 
     it('should load custom units', async () => {
@@ -256,13 +259,13 @@ describe('UnitSearchService', () => {
       await service.initialize();
       await service.rebuildIndex();
 
-      expect(canonicalUnitService.getIndex).toHaveBeenCalledTimes(2);
+      expect(getCanonicalUnitService().getIndex).toHaveBeenCalledTimes(2);
       expect(customUnitApiService.list).toHaveBeenCalledTimes(2);
     });
 
     it('should refresh indexed data', async () => {
       await service.initialize();
-      (canonicalUnitService.getIndex as jest.Mock).mockResolvedValue([
+      (getCanonicalUnitService().getIndex as jest.Mock).mockResolvedValue([
         { ...mockCanonicalUnit, id: 'new-id', name: 'New Unit' },
       ]);
       (customUnitApiService.list as jest.Mock).mockResolvedValue([]);

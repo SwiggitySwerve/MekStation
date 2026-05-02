@@ -16,7 +16,7 @@ import { UnitStats } from '@/components/customizer/shared/UnitInfoBanner';
 import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
-import { calculationService } from '@/services/construction/CalculationService';
+import { getCalculationService } from '@/services/construction/CalculationService';
 import {
   IEditableMech,
   IArmorAllocation as IEditableArmorAllocation,
@@ -206,7 +206,7 @@ export function useUnitEditorRoutingStats(
         isDirty: false,
       };
 
-      return calculationService.calculateBattleValue(editableMech);
+      return getCalculationService().calculateBattleValue(editableMech);
     } catch (error) {
       logger.warn('Failed to calculate BV:', error);
       return 0;
@@ -252,7 +252,7 @@ export function useUnitEditorRoutingStats(
         isDirty: false,
       };
 
-      return calculationService.calculateHeatProfile(editableMech);
+      return getCalculationService().calculateHeatProfile(editableMech);
     } catch (error) {
       logger.warn('Failed to calculate heat profile:', error);
       return {

@@ -1,4 +1,4 @@
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import {
   getEquipmentRegistry,
   EquipmentRegistry,
@@ -14,11 +14,22 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { IEquipmentItem, EquipmentCategory } from '@/types/equipment';
 
-jest.mock('@/services/equipment/EquipmentLookupService');
+jest.mock('@/services/equipment/EquipmentLookupService', () => {
+  const _mock_equipmentLookupService = {
+    getById: jest.fn(),
+    getAllWeapons: jest.fn(),
+    getAllAmmunition: jest.fn(),
+    getAllEquipment: jest.fn(),
+    initialize: jest.fn(),
+    query: jest.fn(),
+    getDataSource: jest.fn(),
+  };
+  return { getEquipmentLookupService: () => _mock_equipmentLookupService };
+});
 jest.mock('@/services/equipment/EquipmentRegistry');
 
-const mockEquipmentLookupService = equipmentLookupService as jest.Mocked<
-  typeof equipmentLookupService
+const mockEquipmentLookupService = getEquipmentLookupService() as jest.Mocked<
+  ReturnType<typeof getEquipmentLookupService>
 >;
 const mockGetEquipmentRegistry = getEquipmentRegistry as jest.MockedFunction<
   typeof getEquipmentRegistry

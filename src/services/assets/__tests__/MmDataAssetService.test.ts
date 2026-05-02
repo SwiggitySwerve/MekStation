@@ -27,7 +27,7 @@ Object.assign(global, { DOMParser: MockDOMParser });
 
 // Import after mocks are set up
 import {
-  mmDataAssetService,
+  getMmDataAssetService,
   MechConfiguration,
   PaperSize,
 } from '../MmDataAssetService';
@@ -91,7 +91,7 @@ describe('MmDataAssetService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Clear the cache before each test
-    mmDataAssetService.clearCache();
+    getMmDataAssetService().clearCache();
 
     // Reset mock paths
     mockPaths.length = 0;
@@ -107,20 +107,23 @@ describe('MmDataAssetService', () => {
     it('should return the same instance (singleton)', () => {
       // The module exports a singleton instance
       // Just verify it exists and has expected methods
-      expect(mmDataAssetService).toBeDefined();
-      expect(mmDataAssetService.loadSVG).toBeInstanceOf(Function);
-      expect(mmDataAssetService.clearCache).toBeInstanceOf(Function);
+      expect(getMmDataAssetService()).toBeDefined();
+      expect(getMmDataAssetService().loadSVG).toBeInstanceOf(Function);
+      expect(getMmDataAssetService().clearCache).toBeInstanceOf(Function);
     });
   });
 
   describe('getArmorPipPath', () => {
     it('should generate correct path for HEAD location', () => {
-      const path = mmDataAssetService.getArmorPipPath(MechLocation.HEAD, 9);
+      const path = getMmDataAssetService().getArmorPipPath(
+        MechLocation.HEAD,
+        9,
+      );
       expect(path).toBe('/record-sheets/biped_pips/Armor_Head_9_Humanoid.svg');
     });
 
     it('should generate correct path for CENTER_TORSO location', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.CENTER_TORSO,
         35,
       );
@@ -128,7 +131,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should generate correct path for LEFT_TORSO location', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.LEFT_TORSO,
         24,
       );
@@ -136,7 +139,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should generate correct path for RIGHT_TORSO location', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.RIGHT_TORSO,
         24,
       );
@@ -144,7 +147,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should generate correct path for LEFT_ARM location', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.LEFT_ARM,
         16,
       );
@@ -152,7 +155,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should generate correct path for RIGHT_ARM location', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.RIGHT_ARM,
         16,
       );
@@ -160,7 +163,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should generate correct path for LEFT_LEG location', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.LEFT_LEG,
         20,
       );
@@ -168,7 +171,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should generate correct path for RIGHT_LEG location', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.RIGHT_LEG,
         20,
       );
@@ -176,7 +179,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should generate correct path with rear suffix when isRear is true', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.CENTER_TORSO,
         12,
         true,
@@ -185,32 +188,32 @@ describe('MmDataAssetService', () => {
     });
 
     it('should handle string abbreviation locations (HD)', () => {
-      const path = mmDataAssetService.getArmorPipPath('HD', 9);
+      const path = getMmDataAssetService().getArmorPipPath('HD', 9);
       expect(path).toBe('/record-sheets/biped_pips/Armor_Head_9_Humanoid.svg');
     });
 
     it('should handle string abbreviation locations (CT)', () => {
-      const path = mmDataAssetService.getArmorPipPath('CT', 35);
+      const path = getMmDataAssetService().getArmorPipPath('CT', 35);
       expect(path).toBe('/record-sheets/biped_pips/Armor_CT_35_Humanoid.svg');
     });
 
     it('should handle string abbreviation locations (LA)', () => {
-      const path = mmDataAssetService.getArmorPipPath('LA', 16);
+      const path = getMmDataAssetService().getArmorPipPath('LA', 16);
       expect(path).toBe('/record-sheets/biped_pips/Armor_LArm_16_Humanoid.svg');
     });
 
     it('should handle string abbreviation locations (RA)', () => {
-      const path = mmDataAssetService.getArmorPipPath('RA', 16);
+      const path = getMmDataAssetService().getArmorPipPath('RA', 16);
       expect(path).toBe('/record-sheets/biped_pips/Armor_RArm_16_Humanoid.svg');
     });
 
     it('should handle quad mech locations (FLL)', () => {
-      const path = mmDataAssetService.getArmorPipPath('FLL', 10);
+      const path = getMmDataAssetService().getArmorPipPath('FLL', 10);
       expect(path).toBe('/record-sheets/biped_pips/Armor_FLL_10_Humanoid.svg');
     });
 
     it('should handle quad mech locations (FRONT_LEFT_LEG)', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.FRONT_LEFT_LEG,
         10,
       );
@@ -218,14 +221,14 @@ describe('MmDataAssetService', () => {
     });
 
     it('should default to CT for unknown location strings', () => {
-      const path = mmDataAssetService.getArmorPipPath('UNKNOWN', 20);
+      const path = getMmDataAssetService().getArmorPipPath('UNKNOWN', 20);
       expect(path).toBe('/record-sheets/biped_pips/Armor_CT_20_Humanoid.svg');
     });
   });
 
   describe('getStructurePipPath', () => {
     it('should generate correct path for 50-ton mech HEAD', () => {
-      const path = mmDataAssetService.getStructurePipPath(
+      const path = getMmDataAssetService().getStructurePipPath(
         50,
         MechLocation.HEAD,
       );
@@ -233,7 +236,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should generate correct path for 75-ton mech CENTER_TORSO', () => {
-      const path = mmDataAssetService.getStructurePipPath(
+      const path = getMmDataAssetService().getStructurePipPath(
         75,
         MechLocation.CENTER_TORSO,
       );
@@ -241,7 +244,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should generate correct path for 100-ton mech LEFT_ARM', () => {
-      const path = mmDataAssetService.getStructurePipPath(
+      const path = getMmDataAssetService().getStructurePipPath(
         100,
         MechLocation.LEFT_ARM,
       );
@@ -249,17 +252,17 @@ describe('MmDataAssetService', () => {
     });
 
     it('should handle string abbreviation for location', () => {
-      const path = mmDataAssetService.getStructurePipPath(85, 'RT');
+      const path = getMmDataAssetService().getStructurePipPath(85, 'RT');
       expect(path).toBe('/record-sheets/biped_pips/BipedIS85_RT.svg');
     });
 
     it('should handle short string abbreviation directly', () => {
-      const path = mmDataAssetService.getStructurePipPath(60, 'LL');
+      const path = getMmDataAssetService().getStructurePipPath(60, 'LL');
       expect(path).toBe('/record-sheets/biped_pips/BipedIS60_LL.svg');
     });
 
     it('should default to CT abbreviation for unknown locations', () => {
-      const path = mmDataAssetService.getStructurePipPath(
+      const path = getMmDataAssetService().getStructurePipPath(
         45,
         'UNKNOWN_LOCATION',
       );
@@ -269,14 +272,14 @@ describe('MmDataAssetService', () => {
 
   describe('getRecordSheetTemplatePath', () => {
     it('should return biped letter template path by default', () => {
-      const path = mmDataAssetService.getRecordSheetTemplatePath(
+      const path = getMmDataAssetService().getRecordSheetTemplatePath(
         MechConfiguration.BIPED,
       );
       expect(path).toBe('/record-sheets/templates_us/mek_biped_default.svg');
     });
 
     it('should return biped A4 template path when specified', () => {
-      const path = mmDataAssetService.getRecordSheetTemplatePath(
+      const path = getMmDataAssetService().getRecordSheetTemplatePath(
         MechConfiguration.BIPED,
         PaperSize.A4,
       );
@@ -284,14 +287,14 @@ describe('MmDataAssetService', () => {
     });
 
     it('should return quad letter template path', () => {
-      const path = mmDataAssetService.getRecordSheetTemplatePath(
+      const path = getMmDataAssetService().getRecordSheetTemplatePath(
         MechConfiguration.QUAD,
       );
       expect(path).toBe('/record-sheets/templates_us/mek_quad_default.svg');
     });
 
     it('should return quad A4 template path', () => {
-      const path = mmDataAssetService.getRecordSheetTemplatePath(
+      const path = getMmDataAssetService().getRecordSheetTemplatePath(
         MechConfiguration.QUAD,
         PaperSize.A4,
       );
@@ -299,28 +302,28 @@ describe('MmDataAssetService', () => {
     });
 
     it('should return tripod letter template path', () => {
-      const path = mmDataAssetService.getRecordSheetTemplatePath(
+      const path = getMmDataAssetService().getRecordSheetTemplatePath(
         MechConfiguration.TRIPOD,
       );
       expect(path).toBe('/record-sheets/templates_us/mek_tripod_default.svg');
     });
 
     it('should return LAM letter template path', () => {
-      const path = mmDataAssetService.getRecordSheetTemplatePath(
+      const path = getMmDataAssetService().getRecordSheetTemplatePath(
         MechConfiguration.LAM,
       );
       expect(path).toBe('/record-sheets/templates_us/mek_lam_default.svg');
     });
 
     it('should return QuadVee letter template path', () => {
-      const path = mmDataAssetService.getRecordSheetTemplatePath(
+      const path = getMmDataAssetService().getRecordSheetTemplatePath(
         MechConfiguration.QUADVEE,
       );
       expect(path).toBe('/record-sheets/templates_us/mek_quadvee_default.svg');
     });
 
     it('should fallback to biped template for unknown configuration', () => {
-      const path = mmDataAssetService.getRecordSheetTemplatePath(
+      const path = getMmDataAssetService().getRecordSheetTemplatePath(
         'Unknown' as MechConfiguration,
       );
       expect(path).toBe('/record-sheets/templates_us/mek_biped_default.svg');
@@ -341,7 +344,7 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      const result = await mmDataAssetService.loadSVG('/test/path.svg');
+      const result = await getMmDataAssetService().loadSVG('/test/path.svg');
 
       // First call is for local path
       expect(mockFetch).toHaveBeenCalledWith('/test/path.svg');
@@ -361,7 +364,7 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      const result = await mmDataAssetService.loadSVG(
+      const result = await getMmDataAssetService().loadSVG(
         '/record-sheets/test.svg',
       );
       expect(result).toBe(mockSVGContent);
@@ -380,7 +383,7 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      const result = await mmDataAssetService.loadSVG(
+      const result = await getMmDataAssetService().loadSVG(
         '/record-sheets/test.svg',
       );
       expect(result).toBe(mockSVGContent);
@@ -391,7 +394,7 @@ describe('MmDataAssetService', () => {
       mockFetch.mockResolvedValue({ ok: false, status: 404 });
 
       await expect(
-        mmDataAssetService.loadSVG('/nonexistent.svg'),
+        getMmDataAssetService().loadSVG('/nonexistent.svg'),
       ).rejects.toThrow(AssetLoadError);
     });
 
@@ -399,7 +402,7 @@ describe('MmDataAssetService', () => {
       mockFetch.mockResolvedValue({ ok: false, status: 404 });
 
       await expect(
-        mmDataAssetService.loadSVG('/nonexistent.svg'),
+        getMmDataAssetService().loadSVG('/nonexistent.svg'),
       ).rejects.toThrow('npm run fetch:assets');
     });
 
@@ -416,11 +419,11 @@ describe('MmDataAssetService', () => {
       });
 
       // First call
-      await mmDataAssetService.loadSVG('/cached.svg');
+      await getMmDataAssetService().loadSVG('/cached.svg');
       const fetchCallCount = mockFetch.mock.calls.length;
 
       // Second call should use cache (no additional fetch calls)
-      const result = await mmDataAssetService.loadSVG('/cached.svg');
+      const result = await getMmDataAssetService().loadSVG('/cached.svg');
 
       expect(mockFetch.mock.calls.length).toBe(fetchCallCount); // No new calls
       expect(result).toBe(mockSVGContent);
@@ -438,11 +441,11 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      await mmDataAssetService.loadSVG('/ttl-test.svg');
+      await getMmDataAssetService().loadSVG('/ttl-test.svg');
       const fetchCallCount = mockFetch.mock.calls.length;
 
       // Immediately fetch again - should use cache
-      const result = await mmDataAssetService.loadSVG('/ttl-test.svg');
+      const result = await getMmDataAssetService().loadSVG('/ttl-test.svg');
 
       expect(mockFetch.mock.calls.length).toBe(fetchCallCount); // No new calls
       expect(result).toBe(mockSVGContent);
@@ -464,7 +467,7 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      const result = await mmDataAssetService.loadArmorPipSVG(
+      const result = await getMmDataAssetService().loadArmorPipSVG(
         MechLocation.HEAD,
         9,
       );
@@ -487,7 +490,7 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      await mmDataAssetService.loadArmorPipSVG(
+      await getMmDataAssetService().loadArmorPipSVG(
         MechLocation.CENTER_TORSO,
         12,
         true,
@@ -511,7 +514,7 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      const result = await mmDataAssetService.loadStructurePipSVG(
+      const result = await getMmDataAssetService().loadStructurePipSVG(
         75,
         MechLocation.CENTER_TORSO,
       );
@@ -535,7 +538,7 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      const result = await mmDataAssetService.loadRecordSheetTemplate(
+      const result = await getMmDataAssetService().loadRecordSheetTemplate(
         MechConfiguration.BIPED,
       );
 
@@ -556,7 +559,7 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      await mmDataAssetService.loadRecordSheetTemplate(
+      await getMmDataAssetService().loadRecordSheetTemplate(
         MechConfiguration.QUAD,
         PaperSize.A4,
       );
@@ -578,7 +581,7 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      await mmDataAssetService.preloadConfiguration(
+      await getMmDataAssetService().preloadConfiguration(
         MechConfiguration.BIPED,
         50,
       );
@@ -603,7 +606,7 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      await mmDataAssetService.preloadConfiguration(
+      await getMmDataAssetService().preloadConfiguration(
         MechConfiguration.BIPED,
         50,
         PaperSize.A4,
@@ -628,14 +631,17 @@ describe('MmDataAssetService', () => {
 
       // Should not throw because structure pip failures are caught
       await expect(
-        mmDataAssetService.preloadConfiguration(MechConfiguration.BIPED, 50),
+        getMmDataAssetService().preloadConfiguration(
+          MechConfiguration.BIPED,
+          50,
+        ),
       ).resolves.toBeUndefined();
     });
   });
 
   describe('getLocationsForConfiguration', () => {
     it('should return biped locations for BIPED configuration', () => {
-      const locations = mmDataAssetService.getLocationsForConfiguration(
+      const locations = getMmDataAssetService().getLocationsForConfiguration(
         MechConfiguration.BIPED,
       );
 
@@ -649,7 +655,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should return quad locations for QUAD configuration', () => {
-      const locations = mmDataAssetService.getLocationsForConfiguration(
+      const locations = getMmDataAssetService().getLocationsForConfiguration(
         MechConfiguration.QUAD,
       );
 
@@ -663,7 +669,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should return tripod locations for TRIPOD configuration', () => {
-      const locations = mmDataAssetService.getLocationsForConfiguration(
+      const locations = getMmDataAssetService().getLocationsForConfiguration(
         MechConfiguration.TRIPOD,
       );
 
@@ -672,7 +678,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should return LAM locations for LAM configuration', () => {
-      const locations = mmDataAssetService.getLocationsForConfiguration(
+      const locations = getMmDataAssetService().getLocationsForConfiguration(
         MechConfiguration.LAM,
       );
 
@@ -682,7 +688,7 @@ describe('MmDataAssetService', () => {
     });
 
     it('should return QuadVee locations for QUADVEE configuration', () => {
-      const locations = mmDataAssetService.getLocationsForConfiguration(
+      const locations = getMmDataAssetService().getLocationsForConfiguration(
         MechConfiguration.QUADVEE,
       );
 
@@ -704,7 +710,7 @@ describe('MmDataAssetService', () => {
       mockPaths.push(mockPath1 as HTMLElement);
       mockPaths.push(mockPath2 as HTMLElement);
 
-      const paths = mmDataAssetService.parseSVGToPaths(
+      const paths = getMmDataAssetService().parseSVGToPaths(
         '<svg><path/><path/></svg>',
       );
 
@@ -719,7 +725,7 @@ describe('MmDataAssetService', () => {
 
     it('should return empty array when no paths found', () => {
       // mockPaths is already empty
-      const paths = mmDataAssetService.parseSVGToPaths('<svg></svg>');
+      const paths = getMmDataAssetService().parseSVGToPaths('<svg></svg>');
 
       expect(paths).toHaveLength(0);
     });
@@ -739,14 +745,14 @@ describe('MmDataAssetService', () => {
       });
 
       // Load and cache
-      await mmDataAssetService.loadSVG('/to-clear.svg');
+      await getMmDataAssetService().loadSVG('/to-clear.svg');
       const firstCallCount = mockFetch.mock.calls.length;
 
       // Clear cache
-      mmDataAssetService.clearCache();
+      getMmDataAssetService().clearCache();
 
       // Load again - should fetch (including config reload)
-      await mmDataAssetService.loadSVG('/to-clear.svg');
+      await getMmDataAssetService().loadSVG('/to-clear.svg');
       expect(mockFetch.mock.calls.length).toBeGreaterThan(firstCallCount);
     });
 
@@ -770,13 +776,13 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      await mmDataAssetService.loadSVG('/test.svg');
+      await getMmDataAssetService().loadSVG('/test.svg');
 
       // Clear cache
-      mmDataAssetService.clearCache();
+      getMmDataAssetService().clearCache();
 
       // Version should reset to default until config is reloaded
-      expect(mmDataAssetService.getVersion()).toBe('v0.3.1');
+      expect(getMmDataAssetService().getVersion()).toBe('v0.3.1');
     });
   });
 
@@ -787,7 +793,7 @@ describe('MmDataAssetService', () => {
       // Reset env for each test
       process.env = { ...originalEnv };
       delete process.env.MM_DATA_VERSION;
-      mmDataAssetService.clearCache();
+      getMmDataAssetService().clearCache();
     });
 
     afterAll(() => {
@@ -795,12 +801,12 @@ describe('MmDataAssetService', () => {
     });
 
     it('should return default version when no config or env var', () => {
-      expect(mmDataAssetService.getVersion()).toBe('v0.3.1');
+      expect(getMmDataAssetService().getVersion()).toBe('v0.3.1');
     });
 
     it('should use MM_DATA_VERSION env var when set', () => {
       process.env.MM_DATA_VERSION = 'v1.0.0';
-      expect(mmDataAssetService.getVersion()).toBe('v1.0.0');
+      expect(getMmDataAssetService().getVersion()).toBe('v1.0.0');
     });
 
     it('should load version from config file', async () => {
@@ -830,10 +836,10 @@ describe('MmDataAssetService', () => {
       });
 
       // Loading an SVG triggers config load
-      await mmDataAssetService.loadSVG('/test.svg');
+      await getMmDataAssetService().loadSVG('/test.svg');
 
       // After config is loaded, version should come from config
-      expect(mmDataAssetService.getVersion()).toBe('v2.0.0');
+      expect(getMmDataAssetService().getVersion()).toBe('v2.0.0');
     });
 
     it('should prefer env var over config file', async () => {
@@ -859,10 +865,10 @@ describe('MmDataAssetService', () => {
         return Promise.resolve({ ok: false, status: 404 });
       });
 
-      await mmDataAssetService.loadSVG('/test.svg');
+      await getMmDataAssetService().loadSVG('/test.svg');
 
       // Env var should take precedence
-      expect(mmDataAssetService.getVersion()).toBe('env-version');
+      expect(getMmDataAssetService().getVersion()).toBe('env-version');
     });
   });
 
@@ -871,7 +877,7 @@ describe('MmDataAssetService', () => {
       mockFetch.mockResolvedValue({ ok: false, status: 404 });
 
       try {
-        await mmDataAssetService.loadSVG('/missing-asset.svg');
+        await getMmDataAssetService().loadSVG('/missing-asset.svg');
         fail('Expected AssetLoadError to be thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(AssetLoadError);
@@ -885,7 +891,7 @@ describe('MmDataAssetService', () => {
       mockFetch.mockResolvedValue({ ok: false, status: 404 });
 
       try {
-        await mmDataAssetService.loadSVG('/test.svg');
+        await getMmDataAssetService().loadSVG('/test.svg');
         fail('Expected AssetLoadError to be thrown');
       } catch (error) {
         const assetError = error as InstanceType<typeof AssetLoadError>;
@@ -906,7 +912,7 @@ describe('MmDataAssetService', () => {
       mockFetch.mockResolvedValue({ ok: false, status: 404 });
 
       try {
-        await mmDataAssetService.loadSVG('/test.svg');
+        await getMmDataAssetService().loadSVG('/test.svg');
         fail('Expected AssetLoadError to be thrown');
       } catch (error) {
         const assetError = error as InstanceType<typeof AssetLoadError>;
@@ -919,7 +925,7 @@ describe('MmDataAssetService', () => {
       mockFetch.mockResolvedValue({ ok: false, status: 500 });
 
       try {
-        await mmDataAssetService.loadSVG('/test.svg');
+        await getMmDataAssetService().loadSVG('/test.svg');
         fail('Expected AssetLoadError to be thrown');
       } catch (error) {
         const assetError = error as InstanceType<typeof AssetLoadError>;
@@ -932,7 +938,7 @@ describe('MmDataAssetService', () => {
 
   describe('edge cases', () => {
     it('should handle center leg location for tripod', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.CENTER_LEG,
         15,
       );
@@ -941,23 +947,32 @@ describe('MmDataAssetService', () => {
 
     it('should handle all quad leg locations', () => {
       expect(
-        mmDataAssetService.getArmorPipPath(MechLocation.FRONT_RIGHT_LEG, 10),
+        getMmDataAssetService().getArmorPipPath(
+          MechLocation.FRONT_RIGHT_LEG,
+          10,
+        ),
       ).toBe('/record-sheets/biped_pips/Armor_FRL_10_Humanoid.svg');
       expect(
-        mmDataAssetService.getArmorPipPath(MechLocation.REAR_LEFT_LEG, 10),
+        getMmDataAssetService().getArmorPipPath(MechLocation.REAR_LEFT_LEG, 10),
       ).toBe('/record-sheets/biped_pips/Armor_RLL_10_Humanoid.svg');
       expect(
-        mmDataAssetService.getArmorPipPath(MechLocation.REAR_RIGHT_LEG, 10),
+        getMmDataAssetService().getArmorPipPath(
+          MechLocation.REAR_RIGHT_LEG,
+          10,
+        ),
       ).toBe('/record-sheets/biped_pips/Armor_RRL_10_Humanoid.svg');
     });
 
     it('should handle zero armor count', () => {
-      const path = mmDataAssetService.getArmorPipPath(MechLocation.HEAD, 0);
+      const path = getMmDataAssetService().getArmorPipPath(
+        MechLocation.HEAD,
+        0,
+      );
       expect(path).toBe('/record-sheets/biped_pips/Armor_Head_0_Humanoid.svg');
     });
 
     it('should handle high armor counts', () => {
-      const path = mmDataAssetService.getArmorPipPath(
+      const path = getMmDataAssetService().getArmorPipPath(
         MechLocation.CENTER_TORSO,
         99,
       );

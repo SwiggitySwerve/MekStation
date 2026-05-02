@@ -8,7 +8,7 @@ import { createMocks } from 'node-mocks-http';
 import type { IUnitMetadata } from '@/types/unit/BattleMechInterfaces';
 
 import handler from '@/pages/api/catalog';
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 
 interface ApiResponse {
   success: boolean;
@@ -18,13 +18,16 @@ interface ApiResponse {
 }
 
 // Mock the canonical unit service
-jest.mock('@/services/units/CanonicalUnitService', () => ({
-  canonicalUnitService: {
+jest.mock('@/services/units/CanonicalUnitService', () => {
+  const _mock_canonicalUnitService = {
     getIndex: jest.fn(),
-  },
-}));
+  };
+  return {
+    getCanonicalUnitService: () => _mock_canonicalUnitService,
+  };
+});
 
-const mockGetIndex = canonicalUnitService.getIndex as jest.Mock;
+const mockGetIndex = getCanonicalUnitService().getIndex as jest.Mock;
 
 describe('/api/catalog', () => {
   beforeEach(() => {

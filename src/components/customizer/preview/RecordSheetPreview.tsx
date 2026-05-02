@@ -16,7 +16,7 @@ import React, {
 } from 'react';
 
 import { usePreviewValidation } from '@/hooks/useUnitValidation';
-import { recordSheetService } from '@/services/printing/RecordSheetService';
+import { getRecordSheetService } from '@/services/printing/RecordSheetService';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
 import { logger } from '@/utils/logger';
@@ -187,8 +187,8 @@ export function RecordSheetPreview({
     });
 
     try {
-      const data = recordSheetService.extractData(unitConfig);
-      await recordSheetService.renderPreview(canvas, data, paperSize);
+      const data = getRecordSheetService().extractData(unitConfig);
+      await getRecordSheetService().renderPreview(canvas, data, paperSize);
     } catch (error) {
       logger.error('Error rendering record sheet preview:', error);
 

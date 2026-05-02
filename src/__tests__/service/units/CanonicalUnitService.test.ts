@@ -1,6 +1,6 @@
 import {
   CanonicalUnitService,
-  canonicalUnitService,
+  getCanonicalUnitService,
 } from '@/services/units/CanonicalUnitService';
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
@@ -599,7 +599,7 @@ describe('CanonicalUnitService', () => {
 
   describe('singleton instance', () => {
     it('should export singleton instance', () => {
-      expect(canonicalUnitService).toBeInstanceOf(CanonicalUnitService);
+      expect(getCanonicalUnitService()).toBeInstanceOf(CanonicalUnitService);
     });
   });
 });

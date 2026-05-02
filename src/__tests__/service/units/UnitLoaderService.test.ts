@@ -1,10 +1,10 @@
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import {
   getEquipmentRegistry,
   EquipmentRegistry,
 } from '@/services/equipment/EquipmentRegistry';
 import {
-  canonicalUnitService,
+  getCanonicalUnitService,
   IFullUnit,
 } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
@@ -24,22 +24,40 @@ import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 
 // Mock dependencies
-jest.mock('@/services/units/CanonicalUnitService');
+jest.mock('@/services/units/CanonicalUnitService', () => {
+  const _mock_canonicalUnitService = {
+    getIndex: jest.fn(),
+    getById: jest.fn(),
+    query: jest.fn(),
+  };
+  return { getCanonicalUnitService: () => _mock_canonicalUnitService };
+});
 jest.mock('@/services/units/CustomUnitApiService');
-jest.mock('@/services/equipment/EquipmentLookupService');
+jest.mock('@/services/equipment/EquipmentLookupService', () => {
+  const _mock_equipmentLookupService = {
+    getById: jest.fn(),
+    getAllWeapons: jest.fn(),
+    getAllAmmunition: jest.fn(),
+    getAllEquipment: jest.fn(),
+    initialize: jest.fn(),
+    query: jest.fn(),
+    getDataSource: jest.fn(),
+  };
+  return { getEquipmentLookupService: () => _mock_equipmentLookupService };
+});
 jest.mock('@/services/equipment/EquipmentRegistry');
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mock-uuid-123'),
 }));
 
-const mockCanonicalUnitService = canonicalUnitService as jest.Mocked<
-  typeof canonicalUnitService
+const mockCanonicalUnitService = getCanonicalUnitService() as jest.Mocked<
+  ReturnType<typeof getCanonicalUnitService>
 >;
 const mockCustomUnitApiService = customUnitApiService as jest.Mocked<
   typeof customUnitApiService
 >;
-const mockEquipmentLookupService = equipmentLookupService as jest.Mocked<
-  typeof equipmentLookupService
+const mockEquipmentLookupService = getEquipmentLookupService() as jest.Mocked<
+  ReturnType<typeof getEquipmentLookupService>
 >;
 const mockGetEquipmentRegistry = getEquipmentRegistry as jest.MockedFunction<
   typeof getEquipmentRegistry

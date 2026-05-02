@@ -8,7 +8,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import * as React from 'react';
 
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import {
   useEquipmentStore,
   useEquipmentSelector,
@@ -21,7 +21,18 @@ import { useEquipmentBrowser } from '../useEquipmentBrowser';
 
 // Mock dependencies
 jest.mock('@/stores/useEquipmentStore');
-jest.mock('@/services/equipment/EquipmentLookupService');
+jest.mock('@/services/equipment/EquipmentLookupService', () => {
+  const _mock_equipmentLookupService = {
+    getAllEquipment: jest.fn(),
+    getAllWeapons: jest.fn(),
+    getAllAmmunition: jest.fn(),
+    initialize: jest.fn(),
+    getById: jest.fn(),
+    query: jest.fn(),
+    getDataSource: jest.fn(),
+  };
+  return { getEquipmentLookupService: () => _mock_equipmentLookupService };
+});
 
 // Mock React context hooks
 jest.mock('react', () => {
@@ -38,8 +49,8 @@ const mockUseEquipmentStore = useEquipmentStore as jest.MockedFunction<
 const mockUseEquipmentSelector = useEquipmentSelector as jest.MockedFunction<
   typeof useEquipmentSelector
 >;
-const mockEquipmentLookupService = equipmentLookupService as jest.Mocked<
-  typeof equipmentLookupService
+const mockEquipmentLookupService = getEquipmentLookupService() as jest.Mocked<
+  ReturnType<typeof getEquipmentLookupService>
 >;
 
 // Sample equipment data for testing

@@ -5,52 +5,52 @@
  */
 
 import {
-  mmDataAssetService,
+  getMmDataAssetService,
   MechConfiguration,
   PaperSize as AssetPaperSize,
 } from '@/services/assets/MmDataAssetService';
 
 export const SVG_TEMPLATES = {
-  biped: mmDataAssetService.getRecordSheetTemplatePath(
+  biped: getMmDataAssetService().getRecordSheetTemplatePath(
     MechConfiguration.BIPED,
     AssetPaperSize.LETTER,
   ),
-  quad: mmDataAssetService.getRecordSheetTemplatePath(
+  quad: getMmDataAssetService().getRecordSheetTemplatePath(
     MechConfiguration.QUAD,
     AssetPaperSize.LETTER,
   ),
-  tripod: mmDataAssetService.getRecordSheetTemplatePath(
+  tripod: getMmDataAssetService().getRecordSheetTemplatePath(
     MechConfiguration.TRIPOD,
     AssetPaperSize.LETTER,
   ),
-  lam: mmDataAssetService.getRecordSheetTemplatePath(
+  lam: getMmDataAssetService().getRecordSheetTemplatePath(
     MechConfiguration.LAM,
     AssetPaperSize.LETTER,
   ),
-  quadvee: mmDataAssetService.getRecordSheetTemplatePath(
+  quadvee: getMmDataAssetService().getRecordSheetTemplatePath(
     MechConfiguration.QUADVEE,
     AssetPaperSize.LETTER,
   ),
 } as const;
 
 export const SVG_TEMPLATES_A4 = {
-  biped: mmDataAssetService.getRecordSheetTemplatePath(
+  biped: getMmDataAssetService().getRecordSheetTemplatePath(
     MechConfiguration.BIPED,
     AssetPaperSize.A4,
   ),
-  quad: mmDataAssetService.getRecordSheetTemplatePath(
+  quad: getMmDataAssetService().getRecordSheetTemplatePath(
     MechConfiguration.QUAD,
     AssetPaperSize.A4,
   ),
-  tripod: mmDataAssetService.getRecordSheetTemplatePath(
+  tripod: getMmDataAssetService().getRecordSheetTemplatePath(
     MechConfiguration.TRIPOD,
     AssetPaperSize.A4,
   ),
-  lam: mmDataAssetService.getRecordSheetTemplatePath(
+  lam: getMmDataAssetService().getRecordSheetTemplatePath(
     MechConfiguration.LAM,
     AssetPaperSize.A4,
   ),
-  quadvee: mmDataAssetService.getRecordSheetTemplatePath(
+  quadvee: getMmDataAssetService().getRecordSheetTemplatePath(
     MechConfiguration.QUADVEE,
     AssetPaperSize.A4,
   ),

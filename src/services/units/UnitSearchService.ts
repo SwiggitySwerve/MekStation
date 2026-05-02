@@ -9,7 +9,7 @@
 import MiniSearch from 'minisearch';
 
 import { IUnitIndexEntry, ISearchOptions } from '../common/types';
-import { canonicalUnitService } from './CanonicalUnitService';
+import { getCanonicalUnitService } from './CanonicalUnitService';
 import { customUnitApiService } from './CustomUnitApiService';
 
 /**
@@ -62,7 +62,7 @@ export class UnitSearchService implements IUnitSearchService {
     });
 
     // Load canonical units
-    const canonicalUnits = await canonicalUnitService.getIndex();
+    const canonicalUnits = await getCanonicalUnitService().getIndex();
     for (const unit of canonicalUnits) {
       this.allUnits.set(unit.id, unit);
     }

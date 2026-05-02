@@ -16,7 +16,7 @@ import {
 } from '@/types/persistence/UnitPersistence';
 
 import { IFullUnit } from './CanonicalUnitService';
-import { canonicalUnitService } from './CanonicalUnitService';
+import { getCanonicalUnitService } from './CanonicalUnitService';
 
 /**
  * Unit with version info
@@ -279,7 +279,7 @@ export class CustomUnitApiService implements ICustomUnitApiService {
    * Check if a chassis/variant combination is a canonical unit
    */
   async isCanonical(chassis: string, variant: string): Promise<boolean> {
-    const index = await canonicalUnitService.getIndex();
+    const index = await getCanonicalUnitService().getIndex();
     const normalizedName = `${chassis} ${variant}`.toLowerCase();
 
     return index.some(

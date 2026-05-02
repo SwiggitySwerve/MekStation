@@ -274,7 +274,3 @@ export function resetFileService(): void {
 export function _resetFileService(): void {
   fileServiceFactory.reset();
 }
-
-// Legacy export for backward compatibility
-// @deprecated Use getFileService() instead
-export const fileService = getFileService();

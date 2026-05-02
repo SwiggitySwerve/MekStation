@@ -1,5 +1,4 @@
 export {
-  mmDataAssetService,
   MechConfiguration,
   PaperSize,
   AssetLoadError,

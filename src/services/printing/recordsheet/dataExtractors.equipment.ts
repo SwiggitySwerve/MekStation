@@ -1,4 +1,4 @@
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { WeaponCategory } from '@/types/equipment';
 import {
@@ -18,7 +18,7 @@ import {
 export function extractEquipment(
   unit: IUnitConfig,
 ): readonly IRecordSheetEquipment[] {
-  const allWeapons = equipmentLookupService.getAllWeapons();
+  const allWeapons = getEquipmentLookupService().getAllWeapons();
 
   const combatEquipment = unit.equipment.filter((eq) => {
     if (eq.isWeapon) return true;

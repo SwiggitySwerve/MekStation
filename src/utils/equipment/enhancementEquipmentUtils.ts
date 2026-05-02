@@ -6,7 +6,7 @@
  */
 
 import {
-  equipmentCalculatorService,
+  getEquipmentCalculatorService,
   VARIABLE_EQUIPMENT,
 } from '@/services/equipment/EquipmentCalculatorService';
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
@@ -128,14 +128,17 @@ export function calculateEnhancementWeight(
       techBase === TechBase.CLAN
         ? VARIABLE_EQUIPMENT.MASC_CLAN
         : VARIABLE_EQUIPMENT.MASC_IS;
-    const result = equipmentCalculatorService.calculateProperties(equipId, {
-      tonnage,
-    });
+    const result = getEquipmentCalculatorService().calculateProperties(
+      equipId,
+      {
+        tonnage,
+      },
+    );
     return result.weight;
   }
 
   if (enhancementType === MovementEnhancementType.SUPERCHARGER) {
-    const result = equipmentCalculatorService.calculateProperties(
+    const result = getEquipmentCalculatorService().calculateProperties(
       VARIABLE_EQUIPMENT.SUPERCHARGER,
       { engineWeight },
     );
@@ -143,7 +146,7 @@ export function calculateEnhancementWeight(
   }
 
   if (enhancementType === MovementEnhancementType.TSM) {
-    const result = equipmentCalculatorService.calculateProperties(
+    const result = getEquipmentCalculatorService().calculateProperties(
       VARIABLE_EQUIPMENT.TSM,
       { tonnage },
     );
@@ -151,7 +154,7 @@ export function calculateEnhancementWeight(
   }
 
   if (enhancementType === MovementEnhancementType.PARTIAL_WING) {
-    const result = equipmentCalculatorService.calculateProperties(
+    const result = getEquipmentCalculatorService().calculateProperties(
       VARIABLE_EQUIPMENT.PARTIAL_WING,
       { tonnage },
     );
@@ -180,9 +183,12 @@ export function calculateEnhancementSlots(
       techBase === TechBase.CLAN
         ? VARIABLE_EQUIPMENT.MASC_CLAN
         : VARIABLE_EQUIPMENT.MASC_IS;
-    const result = equipmentCalculatorService.calculateProperties(equipId, {
-      tonnage,
-    });
+    const result = getEquipmentCalculatorService().calculateProperties(
+      equipId,
+      {
+        tonnage,
+      },
+    );
     return Math.ceil(result.criticalSlots);
   }
 
@@ -191,7 +197,7 @@ export function calculateEnhancementSlots(
   }
 
   if (enhancementType === MovementEnhancementType.TSM) {
-    const result = equipmentCalculatorService.calculateProperties(
+    const result = getEquipmentCalculatorService().calculateProperties(
       VARIABLE_EQUIPMENT.TSM,
       { tonnage },
     );
@@ -199,7 +205,7 @@ export function calculateEnhancementSlots(
   }
 
   if (enhancementType === MovementEnhancementType.PARTIAL_WING) {
-    const result = equipmentCalculatorService.calculateProperties(
+    const result = getEquipmentCalculatorService().calculateProperties(
       VARIABLE_EQUIPMENT.PARTIAL_WING,
       { tonnage },
     );

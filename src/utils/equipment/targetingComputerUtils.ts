@@ -6,7 +6,7 @@
  */
 
 import {
-  equipmentCalculatorService,
+  getEquipmentCalculatorService,
   VARIABLE_EQUIPMENT,
 } from '@/services/equipment/EquipmentCalculatorService';
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
@@ -89,9 +89,12 @@ export function calculateTargetingComputerWeight(
   if (directFireWeaponTonnage <= 0) return 0;
 
   const formulaId = getTargetingComputerFormulaId(techBase);
-  const result = equipmentCalculatorService.calculateProperties(formulaId, {
-    directFireWeaponTonnage,
-  });
+  const result = getEquipmentCalculatorService().calculateProperties(
+    formulaId,
+    {
+      directFireWeaponTonnage,
+    },
+  );
   return Math.max(1, result.weight);
 }
 
@@ -106,9 +109,12 @@ export function calculateTargetingComputerSlots(
   if (directFireWeaponTonnage <= 0) return 0;
 
   const formulaId = getTargetingComputerFormulaId(techBase);
-  const result = equipmentCalculatorService.calculateProperties(formulaId, {
-    directFireWeaponTonnage,
-  });
+  const result = getEquipmentCalculatorService().calculateProperties(
+    formulaId,
+    {
+      directFireWeaponTonnage,
+    },
+  );
   return Math.max(1, result.criticalSlots);
 }
 
@@ -123,9 +129,12 @@ export function calculateTargetingComputerCost(
   if (directFireWeaponTonnage <= 0) return 0;
 
   const formulaId = getTargetingComputerFormulaId(techBase);
-  const result = equipmentCalculatorService.calculateProperties(formulaId, {
-    directFireWeaponTonnage,
-  });
+  const result = getEquipmentCalculatorService().calculateProperties(
+    formulaId,
+    {
+      directFireWeaponTonnage,
+    },
+  );
   return result.costCBills;
 }
 

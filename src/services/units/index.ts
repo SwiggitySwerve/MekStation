@@ -14,7 +14,6 @@ export {
 
 export {
   CanonicalUnitService,
-  canonicalUnitService,
   getCanonicalUnitService,
   _resetCanonicalUnitService,
   type ICanonicalUnitService,
@@ -23,7 +22,6 @@ export {
 
 export {
   CustomUnitService,
-  customUnitService,
   getCustomUnitService,
   _resetCustomUnitService,
   type ICustomUnitService,

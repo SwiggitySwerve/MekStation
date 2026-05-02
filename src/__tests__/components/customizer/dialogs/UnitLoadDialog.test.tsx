@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { UnitLoadDialog } from '@/components/customizer/dialogs/UnitLoadDialog';
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -20,11 +20,14 @@ jest.mock('@/components/customizer/dialogs/ModalOverlay', () => ({
 }));
 
 // Mock services
-jest.mock('@/services/units/CanonicalUnitService', () => ({
-  canonicalUnitService: {
+jest.mock('@/services/units/CanonicalUnitService', () => {
+  const _mock_canonicalUnitService = {
     getIndex: jest.fn(),
-  },
-}));
+  };
+  return {
+    getCanonicalUnitService: () => _mock_canonicalUnitService,
+  };
+});
 
 jest.mock('@/services/units/CustomUnitApiService', () => ({
   customUnitApiService: {
@@ -66,7 +69,7 @@ describe('UnitLoadDialog', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (canonicalUnitService.getIndex as jest.Mock).mockResolvedValue([
+    (getCanonicalUnitService().getIndex as jest.Mock).mockResolvedValue([
       mockCanonicalUnit,
     ]);
     (customUnitApiService.list as jest.Mock).mockResolvedValue([
@@ -92,13 +95,13 @@ describe('UnitLoadDialog', () => {
     render(<UnitLoadDialog {...defaultProps} />);
 
     await waitFor(() => {
-      expect(canonicalUnitService.getIndex).toHaveBeenCalled();
+      expect(getCanonicalUnitService().getIndex).toHaveBeenCalled();
       expect(customUnitApiService.list).toHaveBeenCalled();
     });
   });
 
   it('should display loading state', () => {
-    (canonicalUnitService.getIndex as jest.Mock).mockImplementation(
+    (getCanonicalUnitService().getIndex as jest.Mock).mockImplementation(
       () => new Promise(() => {}), // Never resolves
     );
 

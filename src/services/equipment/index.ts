@@ -32,7 +32,6 @@ export {
 
 export {
   EquipmentCalculatorService,
-  equipmentCalculatorService,
   getEquipmentCalculatorService,
   _resetEquipmentCalculatorService,
   type IEquipmentCalculatorService,
@@ -41,7 +40,6 @@ export {
 
 export {
   EquipmentLookupService,
-  equipmentLookupService,
   getEquipmentLookupService,
   _resetEquipmentLookupService,
   type IEquipmentLookupService,

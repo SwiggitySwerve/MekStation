@@ -11,7 +11,7 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 
 interface ApiResponse {
   success: boolean;
@@ -33,7 +33,7 @@ export default async function handler(
 
   try {
     // Get the full unit index
-    const index = await canonicalUnitService.getIndex();
+    const index = await getCanonicalUnitService().getIndex();
 
     const { search } = req.query;
 

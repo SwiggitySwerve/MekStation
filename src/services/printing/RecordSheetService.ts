@@ -426,7 +426,3 @@ export function getRecordSheetService(): RecordSheetService {
 export function resetRecordSheetService(): void {
   recordSheetServiceFactory.reset();
 }
-
-// Legacy export for backward compatibility
-// @deprecated Use getRecordSheetService() instead
-export const recordSheetService = getRecordSheetService();

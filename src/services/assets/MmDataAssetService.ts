@@ -422,6 +422,3 @@ export function getMmDataAssetService(): MmDataAssetService {
 export function resetMmDataAssetService(): void {
   mmDataAssetServiceFactory.reset();
 }
-
-// @deprecated Use getMmDataAssetService() instead
-export const mmDataAssetService = getMmDataAssetService();
