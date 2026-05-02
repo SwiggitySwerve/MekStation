@@ -2,18 +2,22 @@
  * RosterStateDisplay Component
  * Shows current unit and pilot status in a campaign.
  *
- * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
+ * Per `canonicalize-unit-combat-state` PR-B: consumes
+ * `IRosterUnitProjection` (display projection) instead of the deleted
+ * `ICampaignUnitState`. Damage data is read from canonical
+ * `useCampaignStore.campaign.unitCombatStates` by `RosterStateCards.tsx`
+ * via a `useShallow` selector — this list-level component only renders
+ * identity + readiness.
+ *
+ * @spec openspec/specs/campaign-unit-combat-state/spec.md
  */
 import React, { useState } from 'react';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 import { Card, Button } from '@/components/ui';
-import {
-  ICampaignUnitState,
-  CampaignUnitStatus,
-  CampaignPilotStatus,
-} from '@/types/campaign';
+import { CampaignPilotStatus } from '@/types/campaign';
 
 import { RosterUnitCard, RosterPilotCard } from './RosterStateCards';
 
@@ -22,9 +26,9 @@ import { RosterUnitCard, RosterPilotCard } from './RosterStateCards';
 // =============================================================================
 
 interface RosterStateDisplayProps {
-  units: readonly ICampaignUnitState[];
+  units: readonly IRosterUnitProjection[];
   pilots: readonly ICampaignRosterEntry[];
-  onUnitClick?: (unit: ICampaignUnitState) => void;
+  onUnitClick?: (unit: IRosterUnitProjection) => void;
   onPilotClick?: (pilot: ICampaignRosterEntry) => void;
 }
 
@@ -42,10 +46,10 @@ export function RosterStateDisplay({
 }: RosterStateDisplayProps): React.ReactElement {
   const [activeTab, setActiveTab] = useState<TabType>('units');
 
+  // "Operational" in the legacy shape mapped to Ready or Damaged here —
+  // both readiness states deploy. Destroyed is the only excluded state.
   const operationalUnits = units.filter(
-    (u) =>
-      u.status === CampaignUnitStatus.Operational ||
-      u.status === CampaignUnitStatus.Damaged,
+    (u) => u.readiness === 'Ready' || u.readiness === 'Damaged',
   );
   const activePilots = pilots.filter(
     (p) =>
@@ -145,7 +149,7 @@ export function RosterStateDisplay({
 
       {/* Repair bay link */}
       {activeTab === 'units' &&
-        units.some((u) => u.status === CampaignUnitStatus.Damaged) && (
+        units.some((u) => u.readiness === 'Damaged') && (
           <div className="border-border-theme-subtle mt-4 border-t pt-4">
             <Button variant="secondary" className="w-full">
               <svg

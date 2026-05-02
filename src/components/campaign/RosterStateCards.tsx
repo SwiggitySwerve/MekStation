@@ -1,35 +1,50 @@
-import React from 'react';
+/**
+ * RosterStateCards
+ *
+ * Per `canonicalize-unit-combat-state` PR-B: the unit card consumes the
+ * thin `IRosterUnitProjection` for identity + readiness, then reads
+ * canonical damage state via a `useShallow`-style memoized selector
+ * against `useCampaignStore.campaign.unitCombatStates[unitId]`. The
+ * selector returns a derived shape (totalDamage, destroyedCount, names)
+ * so unrelated campaign-store writes don't trigger re-renders.
+ *
+ * @spec openspec/specs/campaign-unit-combat-state/spec.md
+ */
+import React, { useMemo } from 'react';
+import { useStore } from 'zustand';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
+import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 
 import { Badge } from '@/components/ui';
-import {
-  ICampaignUnitState,
-  CampaignUnitStatus,
-  CampaignPilotStatus,
-} from '@/types/campaign';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { CampaignPilotStatus } from '@/types/campaign';
 
 // =============================================================================
 // Status Helpers
 // =============================================================================
 
-export function getUnitStatusStyles(status: CampaignUnitStatus): {
-  badge: 'success' | 'warning' | 'info' | 'red' | 'muted';
+/**
+ * Map projection readiness to badge styles. Replaces the legacy
+ * `getUnitStatusStyles(CampaignUnitStatus)` accessor — `Repairing` and
+ * `Salvage` are no longer surfaced here because the projection only
+ * carries the three derived readiness values. Repair-bay flow surfaces
+ * those states via its own component.
+ */
+export function getReadinessStyles(unit: IRosterUnitProjection): {
+  badge: 'success' | 'warning' | 'red' | 'muted';
   label: string;
 } {
-  switch (status) {
-    case CampaignUnitStatus.Operational:
-      return { badge: 'success', label: 'Operational' };
-    case CampaignUnitStatus.Damaged:
+  switch (unit.readiness) {
+    case 'Ready':
+      return { badge: 'success', label: 'Ready' };
+    case 'Damaged':
       return { badge: 'warning', label: 'Damaged' };
-    case CampaignUnitStatus.Repairing:
-      return { badge: 'info', label: 'Repairing' };
-    case CampaignUnitStatus.Destroyed:
+    case 'Destroyed':
       return { badge: 'red', label: 'Destroyed' };
-    case CampaignUnitStatus.Salvage:
-      return { badge: 'muted', label: 'Salvage' };
     default:
-      return { badge: 'muted', label: status };
+      return { badge: 'muted', label: unit.readiness };
   }
 }
 
@@ -54,11 +69,115 @@ export function getPilotStatusStyles(status: CampaignPilotStatus): {
 }
 
 // =============================================================================
+// Damage Bar Selector — memoized read of canonical combat state
+// =============================================================================
+
+/**
+ * Derived damage-bar shape returned by the canonical-state selector.
+ *
+ * Computed once per render against `IUnitCombatState` so the card can
+ * re-render only when these specific values change — not on every
+ * unrelated campaign-store write (e.g., personnel update, finance
+ * transaction). The shallow comparator on the returned object handles
+ * the cheap equality check.
+ */
+interface IDamageBarData {
+  /** True when the unit has any destroyed component (binary "took crits"). */
+  readonly hasDestroyedComponents: boolean;
+  /** Count of destroyed components for the "Destroyed: ..." sub-line. */
+  readonly destroyedCount: number;
+  /** First three destroyed component names for display. */
+  readonly destroyedNames: readonly string[];
+  /**
+   * Crude total-damage proxy used by the legacy display-bar width
+   * calculation. Without an `IUnitMaxState` companion we approximate
+   * "how damaged" with destroyed component + location counts. Repair
+   * tickets diff against the max-state for accurate values; this is a
+   * display heuristic only.
+   */
+  readonly totalDamage: number;
+}
+
+const EMPTY_DAMAGE_BAR: IDamageBarData = {
+  hasDestroyedComponents: false,
+  destroyedCount: 0,
+  destroyedNames: [],
+  totalDamage: 0,
+};
+
+/**
+ * Compute damage-bar inputs from canonical combat state.
+ *
+ * Pure function — extracted so the selector can call it with a stable
+ * input (the slice of state) and produce a stable output (cached via
+ * shallow equality on the four fields).
+ */
+function computeDamageBarData(
+  combatState: IUnitCombatState | undefined,
+): IDamageBarData {
+  if (!combatState) return EMPTY_DAMAGE_BAR;
+
+  const destroyedCount = combatState.destroyedComponents.length;
+  const destroyedLocationCount = combatState.destroyedLocations.length;
+  // Each destroyed component contributes ~10% damage to the bar so it
+  // visibly fills as crits accumulate. The legacy code multiplied
+  // damage points × 5 with a 100 cap; this is the canonical-state analog.
+  const totalDamage = destroyedCount * 2 + destroyedLocationCount * 4;
+
+  return {
+    hasDestroyedComponents: destroyedCount > 0,
+    destroyedCount,
+    destroyedNames: combatState.destroyedComponents
+      .slice(0, 3)
+      .map((c) => c.name),
+    totalDamage,
+  };
+}
+
+/**
+ * Read damage-bar data for a single unit from canonical combat state.
+ *
+ * Subscribes to the campaign store via `useStore` and re-computes the
+ * selector slice on every store change. The selector body retains its
+ * own previous value via closure and returns the previous reference
+ * when the four fields are shallow-equal — this is the manual analog of
+ * `useShallow` from `zustand/react/shallow`. Prevents the unit card from
+ * re-rendering when only unrelated campaign-store fields change (day
+ * advance, pending outcomes queue, finance transactions, etc.).
+ *
+ * Per design.md decision "Selector memoization for damage bar".
+ */
+function useDamageBarData(unitId: string): IDamageBarData {
+  const storeApi = useCampaignStore();
+  const selector = useMemo(() => {
+    let prev: IDamageBarData = EMPTY_DAMAGE_BAR;
+    return (state: ReturnType<typeof storeApi.getState>): IDamageBarData => {
+      const next = computeDamageBarData(
+        state.campaign?.unitCombatStates[unitId],
+      );
+      if (
+        prev.hasDestroyedComponents === next.hasDestroyedComponents &&
+        prev.destroyedCount === next.destroyedCount &&
+        prev.totalDamage === next.totalDamage &&
+        prev.destroyedNames.length === next.destroyedNames.length &&
+        prev.destroyedNames.every((n, i) => n === next.destroyedNames[i])
+      ) {
+        return prev;
+      }
+      prev = next;
+      return next;
+    };
+  }, [unitId, storeApi]);
+
+  return useStore(storeApi, selector);
+}
+
+// =============================================================================
 // Unit Card
 // =============================================================================
 
 interface UnitCardProps {
-  unit: ICampaignUnitState;
+  unit: IRosterUnitProjection;
   onClick?: () => void;
 }
 
@@ -66,12 +185,9 @@ export function RosterUnitCard({
   unit,
   onClick,
 }: UnitCardProps): React.ReactElement {
-  const statusStyles = getUnitStatusStyles(unit.status);
-  const needsRepair =
-    unit.status === CampaignUnitStatus.Damaged || unit.repairCost > 0;
-  const totalDamage =
-    Object.values(unit.armorDamage).reduce((a, b) => a + b, 0) +
-    Object.values(unit.structureDamage).reduce((a, b) => a + b, 0);
+  const statusStyles = getReadinessStyles(unit);
+  const isDestroyed = unit.readiness === 'Destroyed';
+  const damageBar = useDamageBarData(unit.unitId);
 
   return (
     <div
@@ -79,7 +195,7 @@ export function RosterUnitCard({
         onClick
           ? 'hover:border-accent/50 hover:bg-surface-raised/50 cursor-pointer'
           : ''
-      } ${unit.status === CampaignUnitStatus.Destroyed ? 'opacity-50' : ''}`}
+      } ${isDestroyed ? 'opacity-50' : ''}`}
       onClick={onClick}
     >
       <div className="mb-3 flex items-start justify-between">
@@ -96,32 +212,34 @@ export function RosterUnitCard({
         </Badge>
       </div>
 
-      {unit.status !== CampaignUnitStatus.Destroyed && (
+      {!isDestroyed && (
         <div className="space-y-2">
-          {totalDamage > 0 && (
+          {damageBar.totalDamage > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-text-theme-muted w-16 text-xs">Damage</span>
               <div className="bg-surface-raised h-1.5 flex-1 overflow-hidden rounded-full">
                 <div
                   className="h-full bg-gradient-to-r from-yellow-500 to-red-500 transition-all"
-                  style={{ width: `${Math.min(100, totalDamage * 5)}%` }}
+                  style={{
+                    width: `${Math.min(100, damageBar.totalDamage * 5)}%`,
+                  }}
                 />
               </div>
             </div>
           )}
 
-          {unit.destroyedComponents.length > 0 && (
+          {damageBar.hasDestroyedComponents && (
             <div className="text-xs text-red-400">
               <span className="font-medium">Destroyed:</span>{' '}
-              {unit.destroyedComponents.slice(0, 3).join(', ')}
-              {unit.destroyedComponents.length > 3 &&
-                ` +${unit.destroyedComponents.length - 3} more`}
+              {damageBar.destroyedNames.join(', ')}
+              {damageBar.destroyedCount > damageBar.destroyedNames.length &&
+                ` +${damageBar.destroyedCount - damageBar.destroyedNames.length} more`}
             </div>
           )}
         </div>
       )}
 
-      {needsRepair && unit.status !== CampaignUnitStatus.Destroyed && (
+      {unit.readiness === 'Damaged' && (
         <div className="border-border-theme-subtle mt-3 flex items-center justify-between border-t pt-3">
           <div className="flex items-center gap-1.5 text-amber-400">
             <svg
@@ -139,18 +257,6 @@ export function RosterUnitCard({
             </svg>
             <span className="text-xs font-medium">Needs Repair</span>
           </div>
-          {unit.repairCost > 0 && (
-            <span className="text-text-theme-muted text-xs">
-              {(unit.repairCost / 1000).toFixed(0)}K C-Bills
-            </span>
-          )}
-        </div>
-      )}
-
-      {unit.repairTime > 0 && unit.status === CampaignUnitStatus.Repairing && (
-        <div className="mt-2 text-xs text-cyan-400">
-          <span className="font-medium">Repair time:</span> {unit.repairTime}{' '}
-          mission(s)
         </div>
       )}
     </div>

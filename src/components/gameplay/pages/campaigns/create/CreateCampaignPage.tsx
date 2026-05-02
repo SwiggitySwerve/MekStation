@@ -2,17 +2,14 @@ import { useRouter } from 'next/router';
 import { useCallback, useMemo, useState } from 'react';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout, Button } from '@/components/ui';
 import { UNIT_TEMPLATES } from '@/simulation/generator';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
-import {
-  CampaignUnitStatus,
-  CampaignPilotStatus,
-  type ICampaignUnitState,
-} from '@/types/campaign/CampaignInterfaces';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces';
 import { CampaignPreset, ALL_PRESETS } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
 
@@ -132,20 +129,24 @@ export default function CreateCampaignPage(): React.ReactElement {
           const template = UNIT_TEMPLATES.find(
             (entry) => entry.name === unit.name,
           );
-          const unitState: ICampaignUnitState = {
+          // Per `canonicalize-unit-combat-state` PR-B: the roster store
+          // holds only the thin `IRosterUnitProjection` shape. Combat
+          // state (armor, structure, destroyed components, ammo, heat)
+          // is created on first deploy via `createInitialCombatState`
+          // and stored on `useCampaignStore.campaign.unitCombatStates`,
+          // not here.
+          const unitProjection: IRosterUnitProjection = {
             unitId: unit.id,
             unitName: unit.name,
-            status: CampaignUnitStatus.Operational,
-            armorDamage: {},
-            structureDamage: {},
-            destroyedComponents: [],
-            ammoExpended: {},
-            currentHeat: 0,
-            repairCost: 0,
-            repairTime: 0,
             pilotId: pilotAssignments[unit.id],
+            // No chassis variant on the wizard input shape; default to
+            // the template / display name so the dashboard's variant
+            // chip has something readable.
+            chassisVariant: unit.name,
+            // Fresh-from-vault unit has no combat history → 'Ready'.
+            readiness: 'Ready',
           };
-          useCampaignRosterStore.getState().addUnit(unitState);
+          useCampaignRosterStore.getState().addUnit(unitProjection);
 
           if (template) {
             const forcesStore = store.getState().getForcesStore();
