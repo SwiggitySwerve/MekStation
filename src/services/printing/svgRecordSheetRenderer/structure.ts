@@ -13,7 +13,6 @@ import {
   STRUCTURE_TEXT_IDS,
   PREMADE_PIP_TYPES,
   ELEMENT_IDS,
-  STRUCTURE_PIP_GROUP_IDS,
   BIPED_STRUCTURE_PIP_GROUP_IDS,
   QUAD_STRUCTURE_PIP_GROUP_IDS,
   TRIPOD_STRUCTURE_PIP_GROUP_IDS,
@@ -164,7 +163,7 @@ export function generateStructurePipsForLocationFallback(
   parentGroup: Element,
   location: ILocationStructure,
 ): void {
-  const pipGroupId = STRUCTURE_PIP_GROUP_IDS[location.abbreviation];
+  const pipGroupId = BIPED_STRUCTURE_PIP_GROUP_IDS[location.abbreviation];
   if (!pipGroupId) return;
 
   // Find the existing pip group to get positioning reference

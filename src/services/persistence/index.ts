@@ -32,10 +32,3 @@ export type {
   IDatabaseConfig,
   IMigration,
 } from './SQLiteService';
-
-export { MigrationService, migrationService } from './MigrationService';
-export type {
-  IMigrationService,
-  IMigrationResult,
-  IMigrationError,
-} from './MigrationService';
