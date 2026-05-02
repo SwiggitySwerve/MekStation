@@ -17,19 +17,23 @@ import {
 } from '@/types/equipment/VariableEquipment';
 
 // Mock the IndexedDB service
-jest.mock('@/services/persistence/IndexedDBService', () => ({
-  indexedDBService: {
+jest.mock('@/services/persistence/IndexedDBService', () => {
+  const _mock_indexedDBService = {
     initialize: jest.fn().mockResolvedValue(undefined),
     getAll: jest.fn().mockResolvedValue([]),
     put: jest.fn().mockResolvedValue(undefined),
     delete: jest.fn().mockResolvedValue(undefined),
-  },
-  STORES: {
-    CUSTOM_FORMULAS: 'custom-formulas',
-    CUSTOM_UNITS: 'custom-units',
-    UNIT_METADATA: 'unit-metadata',
-  },
-}));
+  };
+  return {
+    getIndexedDBService: () => _mock_indexedDBService,
+
+    STORES: {
+      CUSTOM_FORMULAS: 'custom-formulas',
+      CUSTOM_UNITS: 'custom-units',
+      UNIT_METADATA: 'unit-metadata',
+    },
+  };
+});
 
 describe('FormulaRegistry', () => {
   let registry: FormulaRegistry;

@@ -7,7 +7,7 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
@@ -206,8 +206,8 @@ export function resolveEquipmentId(
   const isId = baseId;
   const clanId = `clan-${baseId}`;
 
-  const isDef = equipmentLookupService.getById(isId);
-  const clanDef = equipmentLookupService.getById(clanId);
+  const isDef = getEquipmentLookupService().getById(isId);
+  const clanDef = getEquipmentLookupService().getById(clanId);
 
   // For mixed-tech units, use critical slot tokens as a per-item hint for Clan vs IS variants.
   if (unitTechBaseMode === TechBaseMode.MIXED && (isDef || clanDef)) {
@@ -255,7 +255,7 @@ export function resolveEquipmentId(
   if (registry.isReady()) {
     const lookupResult = registry.lookup(id);
     if (lookupResult.found && lookupResult.equipment) {
-      const resolvedEquipment = equipmentLookupService.getById(
+      const resolvedEquipment = getEquipmentLookupService().getById(
         lookupResult.equipment.id,
       );
       if (resolvedEquipment) {
@@ -269,7 +269,7 @@ export function resolveEquipmentId(
     if (normalizedId !== id) {
       const normalizedLookup = registry.lookup(normalizedId);
       if (normalizedLookup.found && normalizedLookup.equipment) {
-        const resolvedEquipment = equipmentLookupService.getById(
+        const resolvedEquipment = getEquipmentLookupService().getById(
           normalizedLookup.equipment.id,
         );
         if (resolvedEquipment) {

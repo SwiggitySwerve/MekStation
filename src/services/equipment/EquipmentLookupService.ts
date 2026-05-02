@@ -409,7 +409,3 @@ export function resetEquipmentLookupService(): void {
 export function _resetEquipmentLookupService(): void {
   equipmentLookupServiceFactory.reset();
 }
-
-// Legacy export for backward compatibility
-// @deprecated Use getEquipmentLookupService() instead
-export const equipmentLookupService = getEquipmentLookupService();

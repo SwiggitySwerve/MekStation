@@ -9,7 +9,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { UnitState, createEmptySelectionMemory } from '@/stores/unitState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
@@ -27,7 +27,7 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 
-import { canonicalUnitService } from '../CanonicalUnitService';
+import { getCanonicalUnitService } from '../CanonicalUnitService';
 import { customUnitApiService } from '../CustomUnitApiService';
 import { calculateArmorTonnage } from './armorCalculations';
 import {
@@ -56,7 +56,7 @@ export class UnitLoaderService {
    */
   private async ensureEquipmentInitialized(): Promise<void> {
     // Initialize equipment lookup service (loads JSON equipment data)
-    await equipmentLookupService.initialize();
+    await getEquipmentLookupService().initialize();
 
     // Initialize equipment registry (builds name-to-ID mappings)
     const registry = getEquipmentRegistry();
@@ -71,7 +71,7 @@ export class UnitLoaderService {
       // Ensure equipment is loaded before mapping
       await this.ensureEquipmentInitialized();
 
-      const fullUnit = await canonicalUnitService.getById(id);
+      const fullUnit = await getCanonicalUnitService().getById(id);
 
       if (!fullUnit) {
         return { success: false, error: `Canonical unit "${id}" not found` };

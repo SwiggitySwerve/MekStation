@@ -20,7 +20,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { IUnitQueryCriteria } from '@/services/common/types';
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -86,7 +86,7 @@ export default async function handler(
 
     // Get single unit by ID
     if (id && typeof id === 'string') {
-      const unit = await canonicalUnitService.getById(id);
+      const unit = await getCanonicalUnitService().getById(id);
 
       if (!unit) {
         return res.status(404).json({
@@ -119,7 +119,7 @@ export default async function handler(
     };
 
     // Query units
-    const units = await canonicalUnitService.query(criteria);
+    const units = await getCanonicalUnitService().query(criteria);
 
     return res.status(200).json({
       success: true,

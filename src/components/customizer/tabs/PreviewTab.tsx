@@ -16,12 +16,12 @@ import React, {
   useMemo,
 } from 'react';
 
-import { calculationService } from '@/services/construction/CalculationService';
+import { getCalculationService } from '@/services/construction/CalculationService';
 import {
   IEditableMech,
   IArmorAllocation as IEditableArmorAllocation,
 } from '@/services/construction/MechBuilderService';
-import { recordSheetService } from '@/services/printing/RecordSheetService';
+import { getRecordSheetService } from '@/services/printing/RecordSheetService';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
@@ -155,7 +155,7 @@ export function PreviewTab({
    */
   const battleValue = useMemo(() => {
     try {
-      return calculationService.calculateBattleValue(editableMech);
+      return getCalculationService().calculateBattleValue(editableMech);
     } catch (error) {
       logger.warn('Failed to calculate BV:', error);
       return 0;
@@ -167,7 +167,7 @@ export function PreviewTab({
    */
   const cost = useMemo(() => {
     try {
-      return calculationService.calculateCost(editableMech);
+      return getCalculationService().calculateCost(editableMech);
     } catch (error) {
       logger.warn('Failed to calculate cost:', error);
       return 0;
@@ -329,9 +329,9 @@ export function PreviewTab({
    */
   const handleExportPDF = useCallback(async () => {
     const unitConfig = buildUnitConfig();
-    const data = recordSheetService.extractData(unitConfig);
+    const data = getRecordSheetService().extractData(unitConfig);
 
-    await recordSheetService.exportPDF(data, {
+    await getRecordSheetService().exportPDF(data, {
       paperSize,
       includePilotData: false,
     });
@@ -350,11 +350,11 @@ export function PreviewTab({
       tempCanvas.height = height;
 
       const unitConfig = buildUnitConfig();
-      const data = recordSheetService.extractData(unitConfig);
-      await recordSheetService.renderPreview(tempCanvas, data, paperSize);
-      recordSheetService.print(tempCanvas);
+      const data = getRecordSheetService().extractData(unitConfig);
+      await getRecordSheetService().renderPreview(tempCanvas, data, paperSize);
+      getRecordSheetService().print(tempCanvas);
     } else {
-      recordSheetService.print(canvas);
+      getRecordSheetService().print(canvas);
     }
   }, [buildUnitConfig, paperSize]);
 

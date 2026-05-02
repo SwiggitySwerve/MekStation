@@ -13,8 +13,8 @@
 import { logger } from '@/utils/logger';
 
 import { IUnitIndexEntry } from '../common/types';
-import { canonicalUnitService } from './CanonicalUnitService';
-import { customUnitService } from './CustomUnitService';
+import { getCanonicalUnitService } from './CanonicalUnitService';
+import { getCustomUnitService } from './CustomUnitService';
 
 // =============================================================================
 // Types
@@ -206,7 +206,7 @@ class UnitNameValidatorService implements IUnitNameValidator {
     normalizedFullName: string,
   ): Promise<boolean> {
     try {
-      const canonicalIndex = await canonicalUnitService.getIndex();
+      const canonicalIndex = await getCanonicalUnitService().getIndex();
 
       // Check for exact name match (case-insensitive)
       const conflict = canonicalIndex.find((entry) => {
@@ -234,7 +234,7 @@ class UnitNameValidatorService implements IUnitNameValidator {
     excludeUnitId?: string,
   ): Promise<IUnitIndexEntry | null> {
     try {
-      const customUnits = await customUnitService.list();
+      const customUnits = await getCustomUnitService().list();
 
       const conflict = customUnits.find((entry) => {
         // Skip the unit we're updating

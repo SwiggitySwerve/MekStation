@@ -293,7 +293,3 @@ export function resetCanonicalUnitService(): void {
 export function _resetCanonicalUnitService(): void {
   canonicalUnitServiceFactory.reset();
 }
-
-// Legacy export for backward compatibility
-// @deprecated Use getCanonicalUnitService() instead
-export const canonicalUnitService = getCanonicalUnitService();

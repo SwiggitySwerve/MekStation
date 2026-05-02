@@ -205,10 +205,6 @@ export function _resetEquipmentCalculatorService(): void {
   equipmentCalculatorServiceFactory.reset();
 }
 
-// Legacy export for backward compatibility
-// @deprecated Use getEquipmentCalculatorService() instead
-export const equipmentCalculatorService = getEquipmentCalculatorService();
-
 /**
  * Variable equipment ID constants
  * Preserved for backwards compatibility

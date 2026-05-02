@@ -15,7 +15,7 @@ import type { IUnitIndexEntry } from '@/services/common/types';
 import type { ISkirmishUnitSelection } from '@/utils/gameplay/preBattleSessionBuilder';
 
 import { Badge, Card } from '@/components/ui';
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 
 // =============================================================================
 // Public Props
@@ -82,7 +82,7 @@ export function UnitPicker({
     let cancelled = false;
     setIsLoading(true);
 
-    canonicalUnitService
+    getCanonicalUnitService()
       .getIndex()
       .then((index) => {
         if (cancelled) {

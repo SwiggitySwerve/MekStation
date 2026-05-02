@@ -15,7 +15,7 @@ import { exposeStoresForE2E } from '../lib/e2e/storeExposure';
 import { installMatchLogMaintenance } from '../lib/p2p/matchLogMaintenance';
 // Import only browser-safe services directly to avoid Node.js-only SQLite
 import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry';
-import { indexedDBService } from '../services/persistence/IndexedDBService';
+import { getIndexedDBService } from '../services/persistence/IndexedDBService';
 import { logger } from '../utils/logger';
 
 /**
@@ -24,7 +24,7 @@ import { logger } from '../utils/logger';
  */
 async function initializeBrowserServices(): Promise<void> {
   // Initialize IndexedDB (browser-safe)
-  await indexedDBService.initialize();
+  await getIndexedDBService().initialize();
 
   // Initialize equipment registry (browser-safe)
   const registry = getEquipmentRegistry();

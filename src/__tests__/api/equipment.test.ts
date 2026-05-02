@@ -6,7 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { createMocks } from 'node-mocks-http';
 
 import handler from '@/pages/api/equipment';
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
@@ -14,15 +14,18 @@ import { EquipmentCategory } from '@/types/equipment';
 import { parseSuccessResponse, parseErrorResponse } from '../helpers';
 
 // Mock the equipment lookup service
-jest.mock('@/services/equipment/EquipmentLookupService', () => ({
-  equipmentLookupService: {
+jest.mock('@/services/equipment/EquipmentLookupService', () => {
+  const _mock_equipmentLookupService = {
     getById: jest.fn(),
     query: jest.fn(),
-  },
-}));
+  };
+  return {
+    getEquipmentLookupService: () => _mock_equipmentLookupService,
+  };
+});
 
-const mockGetById = equipmentLookupService.getById as jest.Mock;
-const mockQuery = equipmentLookupService.query as jest.Mock;
+const mockGetById = getEquipmentLookupService().getById as jest.Mock;
+const mockQuery = getEquipmentLookupService().query as jest.Mock;
 
 describe('/api/equipment', () => {
   beforeEach(() => {

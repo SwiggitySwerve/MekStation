@@ -8,7 +8,7 @@
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
 import {
-  equipmentCalculatorService,
+  getEquipmentCalculatorService,
   VARIABLE_EQUIPMENT,
 } from '@/services/equipment/EquipmentCalculatorService';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
@@ -142,7 +142,7 @@ export function createEquipmentSlice(
           };
         } else {
           try {
-            const result = equipmentCalculatorService.calculateProperties(
+            const result = getEquipmentCalculatorService().calculateProperties(
               item.variableEquipmentId,
               { tonnage: state.tonnage },
             );

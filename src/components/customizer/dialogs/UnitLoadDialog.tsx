@@ -10,7 +10,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { IUnitIndexEntry } from '@/services/common/types';
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -78,7 +78,10 @@ export function UnitLoadDialog({
     setSelectedUnit(null);
     setSearchQuery('');
 
-    Promise.all([canonicalUnitService.getIndex(), customUnitApiService.list()])
+    Promise.all([
+      getCanonicalUnitService().getIndex(),
+      customUnitApiService.list(),
+    ])
       .then(([canonical, custom]) => {
         setCanonicalUnits([...canonical]);
         setCustomUnits([...custom]);

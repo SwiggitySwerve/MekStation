@@ -416,7 +416,3 @@ export function resetMechBuilderService(): void {
 export function _resetMechBuilderService(): void {
   mechBuilderServiceFactory.reset();
 }
-
-// Legacy export for backward compatibility
-// @deprecated Use getMechBuilderService() instead
-export const mechBuilderService = getMechBuilderService();

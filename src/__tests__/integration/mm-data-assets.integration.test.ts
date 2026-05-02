@@ -16,7 +16,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import {
-  mmDataAssetService,
+  getMmDataAssetService,
   MechConfiguration,
   PaperSize,
 } from '@/services/assets/MmDataAssetService';
@@ -358,18 +358,21 @@ describeIfAssets('MmDataAssetService Path Generation', () => {
   // The paths should match the actual file structure
 
   it('should generate correct armor pip paths', () => {
-    const headPath = mmDataAssetService.getArmorPipPath(MechLocation.HEAD, 9);
+    const headPath = getMmDataAssetService().getArmorPipPath(
+      MechLocation.HEAD,
+      9,
+    );
     expect(headPath).toBe(
       '/record-sheets/biped_pips/Armor_Head_9_Humanoid.svg',
     );
 
-    const ctPath = mmDataAssetService.getArmorPipPath(
+    const ctPath = getMmDataAssetService().getArmorPipPath(
       MechLocation.CENTER_TORSO,
       35,
     );
     expect(ctPath).toBe('/record-sheets/biped_pips/Armor_CT_35_Humanoid.svg');
 
-    const ctRearPath = mmDataAssetService.getArmorPipPath(
+    const ctRearPath = getMmDataAssetService().getArmorPipPath(
       MechLocation.CENTER_TORSO,
       12,
       true,
@@ -380,13 +383,13 @@ describeIfAssets('MmDataAssetService Path Generation', () => {
   });
 
   it('should generate correct structure pip paths', () => {
-    const path50CT = mmDataAssetService.getStructurePipPath(
+    const path50CT = getMmDataAssetService().getStructurePipPath(
       50,
       MechLocation.CENTER_TORSO,
     );
     expect(path50CT).toBe('/record-sheets/biped_pips/BipedIS50_CT.svg');
 
-    const path100HD = mmDataAssetService.getStructurePipPath(
+    const path100HD = getMmDataAssetService().getStructurePipPath(
       100,
       MechLocation.HEAD,
     );
@@ -394,14 +397,14 @@ describeIfAssets('MmDataAssetService Path Generation', () => {
   });
 
   it('should generate correct template paths', () => {
-    const bipedLetter = mmDataAssetService.getRecordSheetTemplatePath(
+    const bipedLetter = getMmDataAssetService().getRecordSheetTemplatePath(
       MechConfiguration.BIPED,
     );
     expect(bipedLetter).toBe(
       '/record-sheets/templates_us/mek_biped_default.svg',
     );
 
-    const quadA4 = mmDataAssetService.getRecordSheetTemplatePath(
+    const quadA4 = getMmDataAssetService().getRecordSheetTemplatePath(
       MechConfiguration.QUAD,
       PaperSize.A4,
     );
@@ -410,14 +413,17 @@ describeIfAssets('MmDataAssetService Path Generation', () => {
 
   it('generated paths should correspond to existing files', () => {
     // Get a template path and verify the file exists
-    const templatePath = mmDataAssetService.getRecordSheetTemplatePath(
+    const templatePath = getMmDataAssetService().getRecordSheetTemplatePath(
       MechConfiguration.BIPED,
     );
     const fullPath = path.join(process.cwd(), 'public', templatePath);
     expect(fs.existsSync(fullPath)).toBe(true);
 
     // Get a pip path and verify the file exists
-    const pipPath = mmDataAssetService.getArmorPipPath(MechLocation.HEAD, 5);
+    const pipPath = getMmDataAssetService().getArmorPipPath(
+      MechLocation.HEAD,
+      5,
+    );
     const fullPipPath = path.join(process.cwd(), 'public', pipPath);
     expect(fs.existsSync(fullPipPath)).toBe(true);
   });

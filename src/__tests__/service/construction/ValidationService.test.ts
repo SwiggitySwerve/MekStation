@@ -12,7 +12,7 @@ import {
 } from '@/services/construction/MechBuilderService';
 import {
   ValidationService,
-  validationService,
+  getValidationService,
 } from '@/services/construction/ValidationService';
 import { TechBase } from '@/types/enums/TechBase';
 
@@ -68,7 +68,7 @@ describe('ValidationService', () => {
   // ============================================================================
   describe('Singleton', () => {
     it('should export a singleton instance', () => {
-      expect(validationService).toBeInstanceOf(ValidationService);
+      expect(getValidationService()).toBeInstanceOf(ValidationService);
     });
   });
 

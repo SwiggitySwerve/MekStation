@@ -14,7 +14,7 @@
 
 import { useEffect, useMemo, useCallback, useContext, useState } from 'react';
 
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { useEquipmentSelector, SortColumn } from '@/stores/useEquipmentStore';
 import { UnitStoreContext, type UnitStore } from '@/stores/useUnitStore';
 import {
@@ -238,8 +238,8 @@ export function useEquipmentBrowser(): EquipmentBrowserState {
 
     try {
       // Initialize the equipment service (loads from JSON with fallback)
-      await equipmentLookupService.initialize();
-      const items = equipmentLookupService.getAllEquipment();
+      await getEquipmentLookupService().initialize();
+      const items = getEquipmentLookupService().getAllEquipment();
       setEquipment(items);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load equipment');

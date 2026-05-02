@@ -8,7 +8,7 @@
 
 import React, { memo, useMemo } from 'react';
 
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { IEquipmentItem, EquipmentCategory, IWeapon } from '@/types/equipment';
 import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
 
@@ -37,7 +37,7 @@ function isWeaponCategory(category: EquipmentCategory): boolean {
 
 /**
  * Get weapon data from equipment item if it's a weapon
- * Uses equipmentLookupService which loads from JSON
+ * Uses getEquipmentLookupService() which loads from JSON
  */
 function getWeaponData(
   equipment: IEquipmentItem,
@@ -114,7 +114,7 @@ export const EquipmentRow = memo(function EquipmentRow({
 
   // Get all weapons from lookup service (memoized to avoid re-fetching)
   const allWeapons = useMemo(() => {
-    return equipmentLookupService.getAllWeapons();
+    return getEquipmentLookupService().getAllWeapons();
   }, []);
 
   // Look up weapon data for this equipment

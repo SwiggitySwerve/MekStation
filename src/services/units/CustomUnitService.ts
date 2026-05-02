@@ -18,7 +18,7 @@ import { getWeightClass } from '@/types/enums/WeightClass';
 
 import { NotFoundError } from '../common/errors';
 import { IUnitIndexEntry } from '../common/types';
-import { indexedDBService, STORES } from '../persistence/IndexedDBService';
+import { getIndexedDBService, STORES } from '../persistence/IndexedDBService';
 import { IFullUnit } from './CanonicalUnitService';
 
 /**
@@ -56,7 +56,7 @@ export class CustomUnitService implements ICustomUnitService {
    */
   private async ensureInitialized(): Promise<void> {
     if (!this.initialized) {
-      await indexedDBService.initialize();
+      await getIndexedDBService().initialize();
       this.initialized = true;
     }
   }
@@ -74,7 +74,7 @@ export class CustomUnitService implements ICustomUnitService {
     const id = overwriteId || `custom-${uuidv4()}`;
     const unitWithId = { ...unit, id };
 
-    await indexedDBService.put(STORES.CUSTOM_UNITS, id, unitWithId);
+    await getIndexedDBService().put(STORES.CUSTOM_UNITS, id, unitWithId);
 
     return id;
   }
@@ -91,7 +91,7 @@ export class CustomUnitService implements ICustomUnitService {
     }
 
     const unitWithId = { ...unit, id };
-    await indexedDBService.put(STORES.CUSTOM_UNITS, id, unitWithId);
+    await getIndexedDBService().put(STORES.CUSTOM_UNITS, id, unitWithId);
   }
 
   /**
@@ -99,7 +99,7 @@ export class CustomUnitService implements ICustomUnitService {
    */
   async delete(id: string): Promise<void> {
     await this.ensureInitialized();
-    await indexedDBService.delete(STORES.CUSTOM_UNITS, id);
+    await getIndexedDBService().delete(STORES.CUSTOM_UNITS, id);
   }
 
   /**
@@ -107,7 +107,10 @@ export class CustomUnitService implements ICustomUnitService {
    */
   async getById(id: string): Promise<IFullUnit | null> {
     await this.ensureInitialized();
-    const unit = await indexedDBService.get<IFullUnit>(STORES.CUSTOM_UNITS, id);
+    const unit = await getIndexedDBService().get<IFullUnit>(
+      STORES.CUSTOM_UNITS,
+      id,
+    );
     return unit || null;
   }
 
@@ -116,7 +119,9 @@ export class CustomUnitService implements ICustomUnitService {
    */
   async list(): Promise<readonly IUnitIndexEntry[]> {
     await this.ensureInitialized();
-    const units = await indexedDBService.getAll<IFullUnit>(STORES.CUSTOM_UNITS);
+    const units = await getIndexedDBService().getAll<IFullUnit>(
+      STORES.CUSTOM_UNITS,
+    );
 
     return units.map((unit) => this.toIndexEntry(unit));
   }
@@ -142,7 +147,9 @@ export class CustomUnitService implements ICustomUnitService {
     const normalizedChassis = chassis.trim().toLowerCase();
     const normalizedVariant = variant.trim().toLowerCase();
 
-    const units = await indexedDBService.getAll<IFullUnit>(STORES.CUSTOM_UNITS);
+    const units = await getIndexedDBService().getAll<IFullUnit>(
+      STORES.CUSTOM_UNITS,
+    );
 
     const match = units.find((unit) => {
       const unitChassis = (unit.chassis || '').trim().toLowerCase();
@@ -162,7 +169,9 @@ export class CustomUnitService implements ICustomUnitService {
   async listNames(): Promise<readonly IUnitNameEntry[]> {
     await this.ensureInitialized();
 
-    const units = await indexedDBService.getAll<IFullUnit>(STORES.CUSTOM_UNITS);
+    const units = await getIndexedDBService().getAll<IFullUnit>(
+      STORES.CUSTOM_UNITS,
+    );
 
     return units.map((unit) => ({
       id: unit.id,
@@ -209,7 +218,3 @@ export function resetCustomUnitService(): void {
 export function _resetCustomUnitService(): void {
   customUnitServiceFactory.reset();
 }
-
-// Legacy export for backward compatibility
-// @deprecated Use getCustomUnitService() instead
-export const customUnitService = getCustomUnitService();

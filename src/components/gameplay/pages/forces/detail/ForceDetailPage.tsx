@@ -65,9 +65,9 @@ export default function ForceDetailPage(): React.ReactElement {
     const initialize = async () => {
       await Promise.all([loadForces(), loadPilots()]);
       await unitSearchService.initialize();
-      const { canonicalUnitService } =
+      const { getCanonicalUnitService } =
         await import('@/services/units/CanonicalUnitService');
-      const index = await canonicalUnitService.getIndex();
+      const index = await getCanonicalUnitService().getIndex();
       setAllUnits([...index]);
       setIsInitialized(true);
     };

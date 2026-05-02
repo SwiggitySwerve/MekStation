@@ -382,7 +382,3 @@ export function resetCalculationService(): void {
 export function _resetCalculationService(): void {
   calculationServiceFactory.reset();
 }
-
-// Legacy export for backward compatibility
-// @deprecated Use getCalculationService() instead
-export const calculationService = getCalculationService();

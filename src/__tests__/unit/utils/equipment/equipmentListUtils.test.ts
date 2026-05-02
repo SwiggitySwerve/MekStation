@@ -54,8 +54,8 @@ interface MockEquipmentParams {
   directFireWeaponTonnage?: number;
 }
 
-jest.mock('@/services/equipment/EquipmentCalculatorService', () => ({
-  equipmentCalculatorService: {
+jest.mock('@/services/equipment/EquipmentCalculatorService', () => {
+  const _mock_equipmentCalculatorService = {
     calculateProperties: jest.fn((id: string, params: MockEquipmentParams) => {
       if (id === 'masc-is') {
         return {
@@ -95,17 +95,21 @@ jest.mock('@/services/equipment/EquipmentCalculatorService', () => ({
       }
       return { weight: 0, criticalSlots: 0, costCBills: 0 };
     }),
-  },
-  VARIABLE_EQUIPMENT: {
-    MASC_IS: 'masc-is',
-    MASC_CLAN: 'masc-clan',
-    SUPERCHARGER: 'supercharger',
-    TSM: 'tsm',
-    PARTIAL_WING: 'partial-wing',
-    TARGETING_COMPUTER_IS: 'targeting-computer-is',
-    TARGETING_COMPUTER_CLAN: 'targeting-computer-clan',
-  },
-}));
+  };
+  return {
+    getEquipmentCalculatorService: () => _mock_equipmentCalculatorService,
+
+    VARIABLE_EQUIPMENT: {
+      MASC_IS: 'masc-is',
+      MASC_CLAN: 'masc-clan',
+      SUPERCHARGER: 'supercharger',
+      TSM: 'tsm',
+      PARTIAL_WING: 'partial-wing',
+      TARGETING_COMPUTER_IS: 'targeting-computer-is',
+      TARGETING_COMPUTER_CLAN: 'targeting-computer-clan',
+    },
+  };
+});
 
 const equipmentLoaderMock = getEquipmentLoader as jest.MockedFunction<
   typeof getEquipmentLoader

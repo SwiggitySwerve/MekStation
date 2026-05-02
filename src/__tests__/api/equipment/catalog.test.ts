@@ -10,15 +10,18 @@ import handler from '@/pages/api/equipment/catalog';
 import { parseSuccessResponse, parseErrorResponse } from '../../helpers';
 
 // Mock the equipment lookup service
-jest.mock('@/services/equipment/EquipmentLookupService', () => ({
-  equipmentLookupService: {
+jest.mock('@/services/equipment/EquipmentLookupService', () => {
+  const _mock_equipmentLookupService = {
     initialize: jest.fn().mockResolvedValue(undefined),
     getAllEquipment: jest.fn(),
     getAllWeapons: jest.fn(),
     getAllAmmunition: jest.fn(),
     getDataSource: jest.fn().mockReturnValue('json'),
-  },
-}));
+  };
+  return {
+    getEquipmentLookupService: () => _mock_equipmentLookupService,
+  };
+});
 
 // Type for the mocked service
 interface MockEquipmentLookupService {
@@ -31,19 +34,20 @@ interface MockEquipmentLookupService {
 
 // Import after mocking to get mock references
 import * as EquipmentLookupServiceModule from '@/services/equipment/EquipmentLookupService';
-const { equipmentLookupService } = EquipmentLookupServiceModule as unknown as {
-  equipmentLookupService: MockEquipmentLookupService;
-};
+const { getEquipmentLookupService } =
+  EquipmentLookupServiceModule as unknown as {
+    getEquipmentLookupService: () => MockEquipmentLookupService;
+  };
 
-const mockGetAllEquipment = equipmentLookupService.getAllEquipment;
-const mockGetAllWeapons = equipmentLookupService.getAllWeapons;
-const mockGetAllAmmunition = equipmentLookupService.getAllAmmunition;
+const mockGetAllEquipment = getEquipmentLookupService().getAllEquipment;
+const mockGetAllWeapons = getEquipmentLookupService().getAllWeapons;
+const mockGetAllAmmunition = getEquipmentLookupService().getAllAmmunition;
 
 describe('/api/equipment/catalog', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Re-setup initialize mock after clearing
-    equipmentLookupService.initialize.mockResolvedValue(undefined);
+    getEquipmentLookupService().initialize.mockResolvedValue(undefined);
   });
 
   describe('GET method validation', () => {

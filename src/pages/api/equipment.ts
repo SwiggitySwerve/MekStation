@@ -21,7 +21,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { IEquipmentQueryCriteria } from '@/services/common/types';
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
@@ -95,7 +95,7 @@ export default async function handler(
 
     // Get single equipment by ID
     if (id && typeof id === 'string') {
-      const equipment = equipmentLookupService.getById(id);
+      const equipment = getEquipmentLookupService().getById(id);
 
       if (!equipment) {
         return res.status(404).json({
@@ -129,7 +129,7 @@ export default async function handler(
     };
 
     // Query equipment
-    const equipment = equipmentLookupService.query(criteria);
+    const equipment = getEquipmentLookupService().query(criteria);
 
     return res.status(200).json({
       success: true,

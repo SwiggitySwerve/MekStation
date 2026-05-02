@@ -16,7 +16,7 @@ import {
 import { logger } from '@/utils/logger';
 
 import { ValidationError, StorageError } from '../common/errors';
-import { indexedDBService, STORES } from '../persistence/IndexedDBService';
+import { getIndexedDBService, STORES } from '../persistence/IndexedDBService';
 import { VARIABLE_EQUIPMENT_FORMULAS } from './variableEquipmentFormulas';
 
 /**
@@ -54,7 +54,7 @@ export class FormulaRegistry implements IFormulaRegistry {
     }
 
     try {
-      await indexedDBService.initialize();
+      await getIndexedDBService().initialize();
       await this.loadCustomFormulas();
       this.initialized = true;
     } catch (error) {
@@ -183,7 +183,7 @@ export class FormulaRegistry implements IFormulaRegistry {
 
   private async getAllStoredFormulas(): Promise<IStoredFormula[]> {
     try {
-      return await indexedDBService.getAll<IStoredFormula>(
+      return await getIndexedDBService().getAll<IStoredFormula>(
         STORES.CUSTOM_FORMULAS,
       );
     } catch {
@@ -202,11 +202,15 @@ export class FormulaRegistry implements IFormulaRegistry {
       modifiedAt: Date.now(),
     };
 
-    await indexedDBService.put(STORES.CUSTOM_FORMULAS, equipmentId, record);
+    await getIndexedDBService().put(
+      STORES.CUSTOM_FORMULAS,
+      equipmentId,
+      record,
+    );
   }
 
   private async deleteCustomFormula(equipmentId: string): Promise<void> {
-    await indexedDBService.delete(STORES.CUSTOM_FORMULAS, equipmentId);
+    await getIndexedDBService().delete(STORES.CUSTOM_FORMULAS, equipmentId);
   }
 }
 

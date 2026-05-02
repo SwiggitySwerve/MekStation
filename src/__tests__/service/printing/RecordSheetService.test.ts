@@ -7,7 +7,6 @@
 import {
   RecordSheetService,
   getRecordSheetService,
-  recordSheetService,
 } from '@/services/printing/RecordSheetService';
 import { PaperSize } from '@/types/printing';
 
@@ -140,8 +139,8 @@ describe('RecordSheetService', () => {
       expect(instance1).toBe(instance2);
     });
 
-    it('should export singleton as recordSheetService', () => {
-      expect(recordSheetService).toBe(service);
+    it('should export singleton as getRecordSheetService()', () => {
+      expect(getRecordSheetService()).toBe(service);
     });
   });
 

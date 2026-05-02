@@ -1,12 +1,19 @@
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { IFullUnit } from '@/services/units/CanonicalUnitService';
 import { CustomUnitApiService } from '@/services/units/CustomUnitApiService';
 
 // Mock dependencies
-jest.mock('@/services/units/CanonicalUnitService');
+jest.mock('@/services/units/CanonicalUnitService', () => {
+  const _mock_canonicalUnitService = {
+    getIndex: jest.fn(),
+    getById: jest.fn(),
+    query: jest.fn(),
+  };
+  return { getCanonicalUnitService: () => _mock_canonicalUnitService };
+});
 
-const mockCanonicalUnitService = canonicalUnitService as jest.Mocked<
-  typeof canonicalUnitService
+const mockCanonicalUnitService = getCanonicalUnitService() as jest.Mocked<
+  ReturnType<typeof getCanonicalUnitService>
 >;
 
 // Mock fetch globally

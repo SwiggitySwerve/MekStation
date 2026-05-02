@@ -6,7 +6,7 @@ import type { IUnitConfig } from '@/services/printing/recordsheet/types';
 import type { IArmorAllocation } from '@/types/construction/ArmorAllocation';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
-import { calculationService } from '@/services/construction/CalculationService';
+import { getCalculationService } from '@/services/construction/CalculationService';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
@@ -185,8 +185,8 @@ export function calculatePreviewBattleValueAndCost({
     };
 
     return {
-      battleValue: calculationService.calculateBattleValue(editableMech),
-      cost: calculationService.calculateCost(editableMech),
+      battleValue: getCalculationService().calculateBattleValue(editableMech),
+      cost: getCalculationService().calculateCost(editableMech),
     };
   } catch (error) {
     logger.warn('Failed to calculate BV/cost:', error);

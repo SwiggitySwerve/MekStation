@@ -6,7 +6,6 @@
 
 export {
   MechBuilderService,
-  mechBuilderService,
   getMechBuilderService,
   _resetMechBuilderService,
 } from './MechBuilderService';
@@ -20,7 +19,6 @@ export type {
 
 export {
   ValidationService,
-  validationService,
   getValidationService,
   _resetValidationService,
 } from './ValidationService';
@@ -28,7 +26,6 @@ export type { IValidationService } from './ValidationService';
 
 export {
   CalculationService,
-  calculationService,
   getCalculationService,
   _resetCalculationService,
 } from './CalculationService';

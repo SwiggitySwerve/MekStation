@@ -6,19 +6,13 @@
 
 export {
   IndexedDBService,
-  indexedDBService,
   getIndexedDBService,
   _resetIndexedDBService,
   STORES,
 } from './IndexedDBService';
 export type { IIndexedDBService } from './IndexedDBService';
 
-export {
-  FileService,
-  fileService,
-  getFileService,
-  _resetFileService,
-} from './FileService';
+export { FileService, getFileService, _resetFileService } from './FileService';
 export type { IFileService } from './FileService';
 
 export {
