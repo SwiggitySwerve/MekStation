@@ -8,6 +8,9 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
+// Ammo construction shape (single source-of-truth, PR6 collapse)
+export * from './AmmoTypes';
+
 // Hex Grid System
 export * from './HexGridInterfaces';
 
