@@ -70,6 +70,35 @@ The system SHALL maintain personnel data across three stores with no overlapping
 - **THEN** `ICampaignRosterEntry.assignedUnitId` is set
 - **AND** the canonical force-slot record lives in the force store, not on the roster entry.
 
+### Requirement: ICampaignRosterEntry carries the campaign-scoped fields production needs
+
+`ICampaignRosterEntry` SHALL carry the per-campaign personnel fields that production helpers branch on. The bridge function `rosterEntryToPerson` SHALL forward these fields verbatim, NOT synthesize defaults. (Per Council #4 2026-05-02; replaces the prior implicit "bridge synthesizes everything" assumption that produced 4 live bugs in salaryService role-categorization, getBestAvailableDoctor filtering, rankService promotion gating, and aging/vocationalTrainingProcessor trait persistence.)
+
+#### Scenario: Required campaign-scoped fields
+
+- **WHEN** an `ICampaignRosterEntry` is constructed
+- **THEN** it carries `primaryRole: CampaignPersonnelRole` (required) AND `rankIndex: number` (required) AND pre-existing required fields (`pilotId`, `joinedAt`, `status`, etc.)
+- **AND** the deserialize migration defaults legacy stored entries to `primaryRole: PILOT` and `rankIndex: 0` for backward read compatibility.
+
+#### Scenario: Optional campaign-scoped fields
+
+- **WHEN** a campaign-specific behavior applies to a roster entry
+- **THEN** the corresponding optional field exists on the entry: `traits?: IPersonTraits`, `lastPromotionDate?: Date`, `isFounder?: boolean`, `isCommander?: boolean`, in addition to pre-existing optional fields (`salary?`, `departureReason?`, etc.).
+
+#### Scenario: Bridge forwards instead of synthesizing
+
+- **WHEN** `rosterEntryToPerson(entry, pilot)` runs
+- **THEN** it forwards `primaryRole`, `traits`, `rankIndex`, `lastPromotionDate`, `isFounder`, `isCommander` verbatim from the roster entry
+- **AND** it SHALL NOT hardcode `primaryRole: PILOT`, `rankIndex: 0`, omit `traits`, or omit `lastPromotionDate`.
+
+#### Scenario: Live bug regression coverage
+
+- **WHEN** a non-PILOT roster entry (DOCTOR, MEK_TECH, TECH, SOLDIER, DEPENDENT) is processed by `salaryService`
+- **THEN** the salary category SHALL match the role
+- **AND** `getBestAvailableDoctor` SHALL include DOCTOR/MEDIC entries (not filter them out as non-PILOT)
+- **AND** `rankService.processPromotion` SHALL succeed for entries with `rankIndex > 0` baseline
+- **AND** `aging.ts` and `vocationalTrainingProcessor.ts` SHALL preserve `traits.glassJaw`, `traits.slowLearner`, and `traits.vocationalXPTimer` across processing passes.
+
 ### Requirement: Cross-store helpers accept the two-arg signature
 
 Helper functions that operate on personnel data SHALL accept `(entry: ICampaignRosterEntry, pilot: IPilot | null)` as their primary signature. Helpers SHALL NOT accept `IPerson` (deleted) or `IPersonnelView` (REFUSED by Council #2).
@@ -170,6 +199,8 @@ After PR5 of `wire-iperson-hard-cutover` lands, `IPerson` SHALL have zero refere
 - **THEN** the file SHALL NOT exist (after PR5 lands).
 
 ### Requirement: Cross-spec consumption boundaries
+
+Other specs that reference personnel data SHALL consume the split contract defined here (vault + roster + force assignment) and SHALL NOT reference the deleted `IPerson` type after PR5 of `wire-iperson-hard-cutover` lands.
 
 #### Scenario: personnel-management spec consumes the architecture
 

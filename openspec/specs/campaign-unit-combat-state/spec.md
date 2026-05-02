@@ -202,6 +202,8 @@ This spec is the source-of-truth for `IUnitCombatState` and `ICampaign.unitComba
 
 ### Requirement: Cross-spec consumption boundaries
 
+Other specs that reference unit-state data SHALL consume `IUnitCombatState`, `IUnitMaxState`, or `IRosterUnitProjection` per their audience and SHALL NOT reference the deleted `ICampaignUnitState` interface or `CampaignUnitStatus` enum.
+
 #### Scenario: Repair spec consumption
 
 - **WHEN** `repair/spec.md` describes damage assessment input
