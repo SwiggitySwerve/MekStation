@@ -46,7 +46,13 @@ import {
 } from '@/components/gameplay/DamageFloater';
 import { UnitTokenComponent } from '@/components/gameplay/HexMapDisplay/UnitToken';
 import { PilotWoundFlash } from '@/components/gameplay/PilotWoundFlash';
-import { Facing, GameEventType, GamePhase, GameSide } from '@/types/gameplay';
+import {
+  Facing,
+  GameEventType,
+  GamePhase,
+  GameSide,
+  TokenUnitType,
+} from '@/types/gameplay';
 
 // Mock haptics so ArmorPip / token-internal hooks don't crash in jsdom.
 jest.mock('@/hooks/useHaptics', () => ({
@@ -297,6 +303,7 @@ describe('UnitTokenComponent — events prop wires overlays', () => {
     isValidTarget: false,
     isDestroyed: false,
     designation: 'ATL',
+    unitType: TokenUnitType.Mech,
   };
 
   it('renders a damage floater when a DamageApplied event for this unit is in the log', () => {

@@ -7,6 +7,7 @@ import {
   GameSide,
   IUnitToken,
   MovementType,
+  TokenUnitType,
 } from '@/types/gameplay';
 
 import { HexMapDisplay } from './HexMapDisplay';
@@ -133,6 +134,7 @@ const sampleToken: IUnitToken = {
   isDestroyed: false,
   isSelected: false,
   isValidTarget: false,
+  unitType: TokenUnitType.Mech,
 };
 
 export const Default: Story = {
@@ -370,6 +372,7 @@ const overlayToken: IUnitToken = {
   isDestroyed: false,
   isSelected: true,
   isValidTarget: false,
+  unitType: TokenUnitType.Mech,
 };
 
 export const WithOverlays: Story = {

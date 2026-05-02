@@ -19,7 +19,7 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IInfantryToken } from '@/types/gameplay';
 
 import {
   Facing,
@@ -40,7 +40,9 @@ function renderInSvg(ui: React.ReactElement) {
   return render(<svg>{ui}</svg>);
 }
 
-function makeInfantryToken(overrides: Partial<IUnitToken> = {}): IUnitToken {
+function makeInfantryToken(
+  overrides: Partial<IInfantryToken> = {},
+): IInfantryToken {
   return {
     unitId: 'inf-1',
     name: 'Test Infantry',

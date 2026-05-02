@@ -13,7 +13,7 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IVehicleToken } from '@/types/gameplay';
 
 import {
   Facing,
@@ -33,7 +33,9 @@ function renderInSvg(ui: React.ReactElement) {
   return render(<svg>{ui}</svg>);
 }
 
-function makeVehicleToken(overrides: Partial<IUnitToken> = {}): IUnitToken {
+function makeVehicleToken(
+  overrides: Partial<IVehicleToken> = {},
+): IVehicleToken {
   return {
     unitId: 'veh-1',
     name: 'Test Vehicle',

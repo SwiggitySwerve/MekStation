@@ -16,7 +16,7 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IAerospaceToken } from '@/types/gameplay';
 
 import { Facing, GameSide, TokenUnitType } from '@/types/gameplay';
 
@@ -31,7 +31,9 @@ function renderInSvg(ui: React.ReactElement) {
   return render(<svg>{ui}</svg>);
 }
 
-function makeAerospaceToken(overrides: Partial<IUnitToken> = {}): IUnitToken {
+function makeAerospaceToken(
+  overrides: Partial<IAerospaceToken> = {},
+): IAerospaceToken {
   return {
     unitId: 'aero-1',
     name: 'Test Aerospace',

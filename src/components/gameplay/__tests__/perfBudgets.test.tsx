@@ -19,6 +19,7 @@ import {
   GamePhase,
   GameSide,
   MovementType,
+  TokenUnitType,
 } from '@/types/gameplay';
 
 const FRAME_BUDGET_MS = 40;
@@ -46,6 +47,9 @@ function token(
   position: IUnitToken['position'],
   overrides: Partial<IUnitToken> = {},
 ): IUnitToken {
+  // Default to the Mech variant — discriminated union narrowing is preserved
+  // when overrides supply a different unitType (cast at the boundary because
+  // TS can't statically verify the merged literal matches a single variant).
   return {
     unitId,
     name: unitId,
@@ -56,8 +60,9 @@ function token(
     isValidTarget: false,
     isDestroyed: false,
     designation: unitId.toUpperCase(),
+    unitType: TokenUnitType.Mech,
     ...overrides,
-  };
+  } as IUnitToken;
 }
 
 function event(

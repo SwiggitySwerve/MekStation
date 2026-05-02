@@ -337,9 +337,17 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     token.fogStatus === 'hidden'
       ? { designation: '?', name: 'Hidden contact' }
       : {};
-  const renderToken = movementAnimation
-    ? { ...token, ...fogDisplayFields, facing: tween.facing }
-    : { ...token, ...fogDisplayFields, position: displayPosition };
+  // Build the render-time token. The spread preserves `unitType`, but TS
+  // can't infer that, so we re-narrow via a generic helper that re-tags the
+  // discriminant. The result is the same `IUnitToken` discriminated union;
+  // each switch branch below narrows it to its variant per `unitType`.
+  const renderToken: IUnitToken = movementAnimation
+    ? ({ ...token, ...fogDisplayFields, facing: tween.facing } as IUnitToken)
+    : ({
+        ...token,
+        ...fogDisplayFields,
+        position: displayPosition,
+      } as IUnitToken);
   const fogOpacity =
     token.fogStatus === 'hidden'
       ? 0.45
@@ -382,9 +390,13 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     </>
   );
 
-  // Route to the correct renderer based on unitType.
-  // `unitType` is optional for backward compat — absent means Mech (Phase 1).
-  switch (token.unitType) {
+  // Route to the correct renderer based on unitType. Switching on
+  // `renderToken.unitType` (not `token.unitType`) lets TS narrow
+  // `renderToken` to its variant in each arm — the per-type token
+  // components accept their narrowed variant directly. The default arm
+  // is unreachable because `IUnitToken` is a closed discriminated
+  // union, but we keep it as a Mech fallback for runtime safety.
+  switch (renderToken.unitType) {
     case TokenUnitType.Vehicle:
       return wrap(<VehicleToken token={renderToken} eventState={eventState} />);
 
@@ -409,8 +421,6 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
       );
 
     case TokenUnitType.Mech:
-    default:
-      // Covers TokenUnitType.Mech AND undefined (legacy Phase-1 tokens).
       return wrap(<MechToken token={renderToken} eventState={eventState} />);
   }
 });

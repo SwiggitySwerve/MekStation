@@ -19,7 +19,7 @@
  *        §Homemade Silhouette Sprite Catalog
  */
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IMechToken } from '@/types/gameplay';
 import type {
   ChassisArchetype,
   ISpriteBundle,
@@ -36,11 +36,13 @@ import {
 
 /**
  * Token-shape subset that feeds the selector. Accepting a wide `Pick`
- * (instead of the full `IUnitToken`) keeps tests lightweight — callers
- * only need to construct the four fields that matter here.
+ * over `IMechToken` (instead of the full token) keeps tests lightweight —
+ * callers only need to construct the four mech-sprite fields that matter
+ * here. The selector is mech-only by construction; non-mech tokens never
+ * reach the silhouette renderer.
  */
 export type SpriteSelectorInput = Pick<
-  IUnitToken,
+  IMechToken,
   'weightClass' | 'chassisArchetype' | 'isQuad' | 'isLAM'
 >;
 

@@ -17,19 +17,24 @@
  * @spec openspec/changes/wire-combat-behavior-dispatch/specs/fog-of-war/spec.md
  */
 
-import type { GameSide, IUnitGameState, IUnitToken } from '@/types/gameplay';
+import type {
+  GameSide,
+  IUnitGameState,
+  IUnitToken,
+  IUnitTokenBase,
+} from '@/types/gameplay';
 
 import { TokenUnitType } from '@/types/gameplay';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { getSurvivingTroopers as baSurvivingTroopers } from '@/utils/gameplay/battlearmor/state';
 
 /**
- * Subset of `IUnitToken` fog-projection fields that callers may layer onto a
- * token. These survive redaction (they ARE the redaction signal) — only the
+ * Subset of `IUnitTokenBase` fog-projection fields that callers may layer onto
+ * a token. These survive redaction (they ARE the redaction signal) — only the
  * per-type combat fields are stripped when `isHidden` is true.
  */
 export type IFogProjection = Partial<
-  Pick<IUnitToken, 'fogStatus' | 'lastKnownPosition' | 'sensorRange'>
+  Pick<IUnitTokenBase, 'fogStatus' | 'lastKnownPosition' | 'sensorRange'>
 >;
 
 /**
@@ -77,7 +82,9 @@ export function unitStateToToken(
     .toUpperCase()
     .slice(0, 4);
 
-  const base: IUnitToken = {
+  // The shared base used by every variant. Typed as `IUnitTokenBase` so it
+  // doesn't carry a `unitType` discriminator yet — each branch tags it below.
+  const base: IUnitTokenBase = {
     unitId,
     name: unitInfo.name,
     side: unitInfo.side,
@@ -94,14 +101,18 @@ export function unitStateToToken(
   // Fog redaction: hidden enemies expose ONLY the fog-projection fields
   // (lastKnown position / sensor ring). Per-type combat-derived fields are
   // never populated, so trooper counts / altitude / chassis flags can't leak.
+  // Returned as the Mech variant — the safe default that exposes no per-type
+  // fields, so a hidden contact's true chassis class can't leak.
   if (isHidden) {
-    return base;
+    return { ...base, unitType: TokenUnitType.Mech };
   }
 
   const cs = state.combatState;
   if (cs === undefined) {
-    // Mech / vehicle path — no per-type envelope, no per-type fields.
-    return base;
+    // Mech / vehicle path — no per-type envelope. Tag as Mech (the safe
+    // default; vehicle-state migration is tracked as a follow-up in PR9
+    // per the Council #1 ruling).
+    return { ...base, unitType: TokenUnitType.Mech };
   }
 
   switch (cs.kind) {

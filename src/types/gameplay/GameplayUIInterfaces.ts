@@ -117,11 +117,15 @@ export enum InfantryTokenSpecialization {
 export type UnitFogStatus = 'visible' | 'hidden' | 'lastKnown';
 
 /**
- * Visual token representing a unit on the hex map.
- * Extended with per-type discriminated data so token renderers receive
- * everything they need without querying outside the token prop.
+ * Visual token shared base — fields common to every per-type variant.
+ *
+ * Per Council #1 PR8 (Momus god-type concern), `IUnitToken` is now a
+ * discriminated union over `unitType`. Each variant extends this base
+ * with only its legal per-type fields. Per-type fields stay OPTIONAL —
+ * fog-of-war redaction can strip them, and PR8 deliberately does not
+ * promote them to required (out of scope per Oracle Phase 3 ruling).
  */
-export interface IUnitToken {
+export interface IUnitTokenBase {
   /** Unit ID */
   readonly unitId: string;
   /** Unit name for display */
@@ -155,85 +159,17 @@ export interface IUnitToken {
   readonly isDestroyed: boolean;
   /** Short designation (e.g., "ATL-1") */
   readonly designation: string;
-  /**
-   * Unit type discriminator. Defaults to `TokenUnitType.Mech` when absent
-   * so Phase-1 callers remain unmodified.
-   */
-  readonly unitType?: TokenUnitType;
+}
 
-  // -------------------------------------------------------------------------
-  // Vehicle-specific fields (present when unitType === TokenUnitType.Vehicle)
-  // -------------------------------------------------------------------------
-  /** Vehicle motion type — used for icon overlay. */
-  readonly vehicleMotionType?: VehicleMotionType;
-  /** Turret facing in 8-directions (0=N, 1=NE, …, 7=NW). Absent if no turret. */
-  readonly turretFacing?: number;
-
-  // -------------------------------------------------------------------------
-  // Aerospace-specific fields (present when unitType === TokenUnitType.Aerospace)
-  // -------------------------------------------------------------------------
-  /**
-   * Current altitude level (0–10). 0 = landed. Wired from
-   * `IAerospaceCombatState.altitude` via the unified `unitStateToToken`
-   * adapter (`src/lib/gameplay/unitStateToToken.ts`). Per
-   * `wire-combat-behavior-dispatch` (Council #1 PR7). Optional at the
-   * type level so fog-redacted hidden enemies and legacy mech tokens
-   * can omit it.
-   */
-  readonly altitude?: number;
-  /**
-   * Current velocity in thrust points.
-   * TODO(movement slice 2): velocity belongs to a future movement-tick
-   * slice and is intentionally NOT wired by `wire-combat-behavior-dispatch`
-   * (Council #1 PR7). When the aerospace movement slice lands, add a
-   * `velocity` field to `IAerospaceCombatState` and project it through
-   * the `unitStateToToken` adapter alongside `altitude`.
-   */
-  readonly velocity?: number;
-
-  // -------------------------------------------------------------------------
-  // BattleArmor-specific fields (present when unitType === TokenUnitType.BattleArmor)
-  // -------------------------------------------------------------------------
-  /**
-   * ID of the unit this BA is mounted on. When set, the BA token renders
-   * as a passenger badge on the host mech rather than a standalone token.
-   * TODO: wire from battlearmor combat-behavior proposal.
-   */
-  readonly mountedOn?: string;
-  /** Number of surviving troopers (1–6). */
-  readonly trooperCount?: number;
-  /** Is jump / UMU movement active this turn? */
-  readonly jumpActive?: boolean;
-
-  // -------------------------------------------------------------------------
-  // Infantry-specific fields (present when unitType === TokenUnitType.Infantry)
-  // -------------------------------------------------------------------------
-  /** Number of surviving troopers (1–30 for a platoon). */
-  readonly infantryCount?: number;
-  /** How many platoons share this hex (for stack indicator). */
-  readonly platoonCount?: number;
-  /** Motive type badge. */
-  readonly infantryMotiveType?: InfantryMotiveType;
-  /** Specialization icon. */
-  readonly infantrySpecialization?: InfantryTokenSpecialization;
-
-  // -------------------------------------------------------------------------
-  // ProtoMech-specific fields (present when unitType === TokenUnitType.ProtoMech)
-  // -------------------------------------------------------------------------
-  /** Number of surviving protos in this point (1–5). */
-  readonly protoCount?: number;
-  /** Glider variant — renders extended wings. */
-  readonly isGlider?: boolean;
-  /** Has main gun equipped. */
-  readonly hasMainGun?: boolean;
-
-  // -------------------------------------------------------------------------
-  // Mech-sprite-system fields (optional — consumed by `MechSprite` +
-  // `ArmorPipRing`; see add-mech-silhouette-sprite-set/specs/unit-sprite-system).
-  // When any of these is absent, the renderer falls back to the
-  // "medium humanoid, undamaged" silhouette so Phase-1 callers keep
-  // rendering cleanly.
-  // -------------------------------------------------------------------------
+/**
+ * Mech variant — adds the sprite-system flags consumed by `MechSprite` +
+ * `ArmorPipRing` (see add-mech-silhouette-sprite-set/specs/unit-sprite-system).
+ * When any sprite field is absent, the renderer falls back to the
+ * "medium humanoid, undamaged" silhouette so Phase-1 callers keep
+ * rendering cleanly.
+ */
+export interface IMechToken extends IUnitTokenBase {
+  readonly unitType: TokenUnitType.Mech;
   /** Tonnage-class bucket used to pick the sprite's weight silhouette. */
   readonly weightClass?: WeightClass;
   /**
@@ -251,6 +187,104 @@ export interface IUnitToken {
    */
   readonly armorPipState?: ArmorPipState;
 }
+
+/**
+ * Vehicle variant — ground / VTOL / naval / WiGE.
+ */
+export interface IVehicleToken extends IUnitTokenBase {
+  readonly unitType: TokenUnitType.Vehicle;
+  /** Vehicle motion type — used for icon overlay. */
+  readonly vehicleMotionType?: VehicleMotionType;
+  /** Turret facing in 8-directions (0=N, 1=NE, …, 7=NW). Absent if no turret. */
+  readonly turretFacing?: number;
+}
+
+/**
+ * Aerospace variant — fighters / drop / etc.
+ */
+export interface IAerospaceToken extends IUnitTokenBase {
+  readonly unitType: TokenUnitType.Aerospace;
+  /**
+   * Current altitude level (0–10). 0 = landed. Wired from
+   * `IAerospaceCombatState.altitude` via the unified `unitStateToToken`
+   * adapter (`src/lib/gameplay/unitStateToToken.ts`). Per
+   * `wire-combat-behavior-dispatch` (Council #1 PR7). Optional at the
+   * type level so fog-redacted hidden enemies omit it.
+   */
+  readonly altitude?: number;
+  /**
+   * Current velocity in thrust points.
+   * TODO(movement slice 2): velocity belongs to a future movement-tick
+   * slice and is intentionally NOT wired by `wire-combat-behavior-dispatch`
+   * (Council #1 PR7). When the aerospace movement slice lands, add a
+   * `velocity` field to `IAerospaceCombatState` and project it through
+   * the `unitStateToToken` adapter alongside `altitude`.
+   */
+  readonly velocity?: number;
+}
+
+/**
+ * BattleArmor variant — squad / point / passenger badge.
+ */
+export interface IBattleArmorToken extends IUnitTokenBase {
+  readonly unitType: TokenUnitType.BattleArmor;
+  /**
+   * ID of the unit this BA is mounted on. When set, the BA token renders
+   * as a passenger badge on the host mech rather than a standalone token.
+   * TODO: wire from battlearmor combat-behavior proposal.
+   */
+  readonly mountedOn?: string;
+  /** Number of surviving troopers (1–6). */
+  readonly trooperCount?: number;
+  /** Is jump / UMU movement active this turn? */
+  readonly jumpActive?: boolean;
+}
+
+/**
+ * Infantry variant — platoons of foot / motorized / jump / mechanized / beast.
+ */
+export interface IInfantryToken extends IUnitTokenBase {
+  readonly unitType: TokenUnitType.Infantry;
+  /** Number of surviving troopers (1–30 for a platoon). */
+  readonly infantryCount?: number;
+  /** How many platoons share this hex (for stack indicator). */
+  readonly platoonCount?: number;
+  /** Motive type badge. */
+  readonly infantryMotiveType?: InfantryMotiveType;
+  /** Specialization icon. */
+  readonly infantrySpecialization?: InfantryTokenSpecialization;
+}
+
+/**
+ * ProtoMech variant — point of 1–5 protos sharing a hex.
+ */
+export interface IProtoMechToken extends IUnitTokenBase {
+  readonly unitType: TokenUnitType.ProtoMech;
+  /** Number of surviving protos in this point (1–5). */
+  readonly protoCount?: number;
+  /** Glider variant — renders extended wings. */
+  readonly isGlider?: boolean;
+  /** Has main gun equipped. */
+  readonly hasMainGun?: boolean;
+}
+
+/**
+ * Visual token representing a unit on the hex map. Discriminated union over
+ * `unitType`; each variant carries only the legal per-type fields. Token
+ * components accept their narrowed variant directly. Per-type fields stay
+ * optional — fog-redacted hidden enemies arrive without them, and PR8
+ * deliberately does not introduce required per-type fields.
+ *
+ * Per Council #1 PR8 (Momus god-type concern). Replaces the prior flat
+ * interface with 19 optional cross-type fields.
+ */
+export type IUnitToken =
+  | IMechToken
+  | IVehicleToken
+  | IAerospaceToken
+  | IBattleArmorToken
+  | IInfantryToken
+  | IProtoMechToken;
 
 // =============================================================================
 // Movement Preview Types

@@ -29,7 +29,7 @@
 
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IMechToken } from '@/types/gameplay';
 
 import { CritHitOverlay } from '@/components/gameplay/CritHitOverlay';
 import { DamageFloater } from '@/components/gameplay/DamageFloater';
@@ -61,7 +61,7 @@ export const MECH_TOKEN_RADIUS = HEX_SIZE * 0.5;
 export const MECH_RING_RADIUS = HEX_SIZE * 0.7;
 
 export interface MechTokenProps extends ITokenSharedProps {
-  token: IUnitToken;
+  token: IMechToken;
   /**
    * Current map zoom factor (1.0 = 100%). Forwarded to the sprite + pip
    * ring so they can collapse at low zoom. Defaults to 1 so callers that

@@ -19,7 +19,7 @@
 
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IInfantryToken } from '@/types/gameplay';
 
 import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
 import {
@@ -70,7 +70,7 @@ function specLabel(s: InfantryTokenSpecialization | undefined): string | null {
 }
 
 export interface InfantryTokenProps extends ITokenSharedProps {
-  token: IUnitToken;
+  token: IInfantryToken;
 }
 
 export const InfantryToken = React.memo(function InfantryToken({
