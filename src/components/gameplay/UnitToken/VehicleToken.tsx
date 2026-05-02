@@ -15,7 +15,7 @@
 
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IVehicleToken } from '@/types/gameplay';
 
 import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
 import { cardinal8ToRotationDeg } from '@/lib/gameplay/facingRules';
@@ -30,7 +30,7 @@ const RING_R = HEX_SIZE * 0.65;
 const TURRET_R = HEX_SIZE * 0.18;
 
 export interface VehicleTokenProps extends ITokenSharedProps {
-  token: IUnitToken;
+  token: IVehicleToken;
 }
 
 /** Short text abbreviation for each motion type — shown inside the token body. */

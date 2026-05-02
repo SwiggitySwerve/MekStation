@@ -27,6 +27,7 @@ import {
 import { SmokePuff } from '@/components/gameplay/effects/SmokePuff';
 import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay';
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
+import { TokenUnitType } from '@/types/gameplay';
 import { Facing, GameEventType, GamePhase, GameSide } from '@/types/gameplay';
 
 interface DamageAppliedPayloadWithTransfer extends IDamageAppliedPayload {
@@ -106,6 +107,9 @@ function unitDestroyedPayload(
 }
 
 function token(overrides: Partial<IUnitToken> = {}): IUnitToken {
+  // Default to the Mech variant — discriminated union narrowing is preserved
+  // when overrides supply a different unitType (cast at the boundary because
+  // TS can't statically verify the merged literal matches a single variant).
   return {
     unitId: 'u1',
     name: 'Atlas',
@@ -116,8 +120,9 @@ function token(overrides: Partial<IUnitToken> = {}): IUnitToken {
     isValidTarget: false,
     isDestroyed: false,
     designation: 'ATL',
+    unitType: TokenUnitType.Mech,
     ...overrides,
-  };
+  } as IUnitToken;
 }
 
 function uniformBipedLocations(

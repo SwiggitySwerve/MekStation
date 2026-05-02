@@ -4,6 +4,7 @@ import type { IGameEvent, IUnitToken } from '@/types/gameplay';
 
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 import { usePrefersReducedMotion } from '@/hooks/useReducedMotion';
+import { TokenUnitType } from '@/types/gameplay';
 
 import {
   DAMAGE_EFFECT_FIRE_SYMBOL_ID,
@@ -142,10 +143,15 @@ export function projectPersistentEffects(
     .map((token) => {
       const { x, y } = hexToPixel(token.position);
       const destroyed = token.isDestroyed || destroyedUnitIds.has(token.unitId);
+      // armorPipState lives on the Mech variant only — narrow before
+      // accessing so the discriminated union stays sound. Non-mech tokens
+      // contribute no per-location smoke from prior structure damage.
+      const armorPipState =
+        token.unitType === TokenUnitType.Mech ? token.armorPipState : undefined;
       const smokeLocations = destroyed
         ? []
         : uniqueEffectLocations([
-            ...destroyedLocationsFromArmorState(token.armorPipState),
+            ...destroyedLocationsFromArmorState(armorPipState),
             ...(smokeLocationsByUnit.get(token.unitId) ?? []),
           ]);
       const engineCritCount = destroyed
@@ -293,6 +299,11 @@ function WreckMarker({
 type WreckArchetype = 'humanoid' | 'quad' | 'lam';
 
 function resolveWreckArchetype(token: IUnitToken): WreckArchetype {
+  // chassisArchetype / isQuad / isLAM live on the Mech variant only.
+  // Non-mech wrecks fall back to the humanoid silhouette — the wreck
+  // marker is only ever wired for mechs today; if a vehicle/aero wreck
+  // surface ships later, route to a per-type wreck silhouette here.
+  if (token.unitType !== TokenUnitType.Mech) return 'humanoid';
   if (token.chassisArchetype) return token.chassisArchetype;
   if (token.isQuad) return 'quad';
   if (token.isLAM) return 'lam';

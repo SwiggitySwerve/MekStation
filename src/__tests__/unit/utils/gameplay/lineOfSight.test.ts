@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from '@jest/globals';
 
 import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 
+import { TokenUnitType } from '@/types/gameplay/GameplayUIInterfaces';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -57,6 +58,7 @@ function createToken(
     isValidTarget: false,
     isDestroyed,
     designation: unitId.toUpperCase(),
+    unitType: TokenUnitType.Mech,
   };
 }
 

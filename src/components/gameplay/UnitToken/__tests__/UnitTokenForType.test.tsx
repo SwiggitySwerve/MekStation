@@ -197,13 +197,10 @@ describe('UnitTokenForType dispatcher routing', () => {
     expect(wrapper.querySelectorAll('circle').length).toBeGreaterThan(0);
   });
 
-  it('undefined unitType defaults to Mech renderer', () => {
-    const token = makeToken({ unitType: undefined });
-    renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
-    const wrapper = screen.getByTestId('unit-token-unit-1');
-    // Mech renderer: circles present.
-    expect(wrapper.querySelectorAll('circle').length).toBeGreaterThan(0);
-  });
+  // Removed test "undefined unitType defaults to Mech renderer" — under PR8's
+  // discriminated-union flip, IUnitToken requires unitType. The dispatcher
+  // exhaustively narrows on unitType with no default fallback. Callers must
+  // pass a TokenUnitType variant; undefined is no longer a valid input.
 });
 
 // =============================================================================

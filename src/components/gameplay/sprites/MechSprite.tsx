@@ -28,7 +28,7 @@
 
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IMechToken } from '@/types/gameplay';
 
 import { HEX_SIZE } from '@/constants/hexMap';
 import { useAccessibilityStore } from '@/stores/useAccessibilityStore';
@@ -202,7 +202,7 @@ export interface MechSpriteProps {
    * humanoid-medium.
    */
   readonly token: Pick<
-    IUnitToken,
+    IMechToken,
     | 'weightClass'
     | 'chassisArchetype'
     | 'isQuad'

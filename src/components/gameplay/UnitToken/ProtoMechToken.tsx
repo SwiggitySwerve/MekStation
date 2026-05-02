@@ -16,7 +16,7 @@
 
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IProtoMechToken } from '@/types/gameplay';
 
 import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
 import { hex6ToRotationDeg } from '@/lib/gameplay/facingRules';
@@ -47,7 +47,7 @@ const POINT_POSITIONS: ReadonlyArray<{ x: number; y: number }> = [
 ];
 
 export interface ProtoMechTokenProps extends ITokenSharedProps {
-  token: IUnitToken;
+  token: IProtoMechToken;
 }
 
 export const ProtoMechToken = React.memo(function ProtoMechToken({

@@ -20,7 +20,7 @@
 
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IBattleArmorToken } from '@/types/gameplay';
 
 import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
 import { GameSide } from '@/types/gameplay';
@@ -59,7 +59,7 @@ function trooperPositions(count: number): Array<{ x: number; y: number }> {
 }
 
 export interface BattleArmorTokenProps extends ITokenSharedProps {
-  token: IUnitToken;
+  token: IBattleArmorToken;
   /** When true the component renders the compact mounted-badge variant. */
   mountedBadge?: boolean;
 }

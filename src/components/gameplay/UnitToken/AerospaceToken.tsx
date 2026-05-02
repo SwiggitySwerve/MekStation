@@ -15,7 +15,7 @@
 
 import React from 'react';
 
-import type { IUnitToken } from '@/types/gameplay';
+import type { IAerospaceToken } from '@/types/gameplay';
 
 import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
 import {
@@ -31,7 +31,7 @@ const RING_R = HEX_SIZE * 0.7;
 const PX_PER_VELOCITY = 4;
 
 export interface AerospaceTokenProps extends ITokenSharedProps {
-  token: IUnitToken;
+  token: IAerospaceToken;
 }
 
 export const AerospaceToken = React.memo(function AerospaceToken({

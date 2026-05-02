@@ -29,6 +29,20 @@ import { createProtoMechCombatState } from '@/utils/gameplay/protomech/state';
 
 import { unitStateToToken, type IFogProjection } from '../unitStateToToken';
 
+/**
+ * Widen a token to a record so per-variant fields can be asserted regardless
+ * of which discriminated-union arm the adapter returned. Per Council #1 PR8
+ * (discriminated-union flip), accessing per-type fields on the union requires
+ * narrowing on `unitType` first — but these tests verify the *runtime* shape
+ * of the projection (does altitude/infantryCount land on the correct arm?),
+ * so widening at the assertion site is the most readable pattern.
+ */
+function widen(
+  token: ReturnType<typeof unitStateToToken>,
+): Record<string, unknown> {
+  return token as unknown as Record<string, unknown>;
+}
+
 // =============================================================================
 // Fixtures
 // =============================================================================
@@ -63,15 +77,20 @@ function baseState(overrides: Partial<IUnitGameState> = {}): IUnitGameState {
 // =============================================================================
 
 describe('unitStateToToken — mech / no-envelope path', () => {
-  it('returns base token with no per-type fields when combatState is undefined', () => {
+  it('returns the Mech variant with no per-type fields when combatState is undefined', () => {
+    // Per Council #1 PR8 (discriminated-union flip), the no-envelope path
+    // emits the Mech variant (the safe default that exposes no per-type
+    // combat fields). The runtime shape must NOT carry altitude /
+    // infantryCount / trooperCount / protoCount.
     const token = unitStateToToken('u1', baseState(), UNIT_INFO);
     expect(token.unitId).toBe('u1');
     expect(token.position).toEqual(POSITION);
-    expect(token.altitude).toBeUndefined();
-    expect(token.infantryCount).toBeUndefined();
-    expect(token.trooperCount).toBeUndefined();
-    expect(token.protoCount).toBeUndefined();
-    expect(token.unitType).toBeUndefined();
+    expect(token.unitType).toBe(TokenUnitType.Mech);
+    const widened = token as unknown as Record<string, unknown>;
+    expect(widened.altitude).toBeUndefined();
+    expect(widened.infantryCount).toBeUndefined();
+    expect(widened.trooperCount).toBeUndefined();
+    expect(widened.protoCount).toBeUndefined();
   });
 
   it('derives a designation from the unit name (split on space + hyphen, max 4, uppercase)', () => {
@@ -121,17 +140,17 @@ describe('unitStateToToken — aerospace projection', () => {
   it("populates altitude and unitType=Aerospace when kind === 'aero'", () => {
     const token = unitStateToToken('u1', aeroState(3), UNIT_INFO);
     expect(token.unitType).toBe(TokenUnitType.Aerospace);
-    expect(token.altitude).toBe(3);
+    expect((token as { altitude?: number }).altitude).toBe(3);
   });
 
   it('honours altitude=0 (landed)', () => {
     const token = unitStateToToken('u1', aeroState(0), UNIT_INFO);
-    expect(token.altitude).toBe(0);
+    expect((token as { altitude?: number }).altitude).toBe(0);
   });
 
   it('leaves velocity undefined (movement slice 2 future work)', () => {
     const token = unitStateToToken('u1', aeroState(1), UNIT_INFO);
-    expect(token.velocity).toBeUndefined();
+    expect((token as { velocity?: number }).velocity).toBeUndefined();
   });
 });
 
@@ -157,8 +176,8 @@ describe('unitStateToToken — infantry projection', () => {
   it("populates infantryCount + platoonCount + unitType=Infantry when kind === 'platoon'", () => {
     const token = unitStateToToken('u1', platoonState(22), UNIT_INFO);
     expect(token.unitType).toBe(TokenUnitType.Infantry);
-    expect(token.infantryCount).toBe(22);
-    expect(token.platoonCount).toBe(1);
+    expect((token as { infantryCount?: number }).infantryCount).toBe(22);
+    expect((token as { platoonCount?: number }).platoonCount).toBe(1);
   });
 });
 
@@ -186,7 +205,7 @@ describe('unitStateToToken — battle armor projection', () => {
   it("populates trooperCount + unitType=BattleArmor when kind === 'squad'", () => {
     const token = unitStateToToken('u1', squadState(3), UNIT_INFO);
     expect(token.unitType).toBe(TokenUnitType.BattleArmor);
-    expect(token.trooperCount).toBe(3);
+    expect((token as { trooperCount?: number }).trooperCount).toBe(3);
   });
 });
 
@@ -226,9 +245,9 @@ describe('unitStateToToken — protomech projection', () => {
       UNIT_INFO,
     );
     expect(token.unitType).toBe(TokenUnitType.ProtoMech);
-    expect(token.protoCount).toBe(1);
-    expect(token.isGlider).toBe(true);
-    expect(token.hasMainGun).toBe(true);
+    expect((token as { protoCount?: number }).protoCount).toBe(1);
+    expect((token as { isGlider?: boolean }).isGlider).toBe(true);
+    expect((token as { hasMainGun?: boolean }).hasMainGun).toBe(true);
   });
 
   it('isGlider=false for BIPED chassis', () => {
@@ -237,8 +256,8 @@ describe('unitStateToToken — protomech projection', () => {
       protoState(ProtoChassis.BIPED, false),
       UNIT_INFO,
     );
-    expect(token.isGlider).toBe(false);
-    expect(token.hasMainGun).toBe(false);
+    expect((token as { isGlider?: boolean }).isGlider).toBe(false);
+    expect((token as { hasMainGun?: boolean }).hasMainGun).toBe(false);
   });
 });
 
@@ -298,9 +317,10 @@ describe('unitStateToToken — fog redaction (isHidden=true)', () => {
       FOG_PROJECTION,
       true,
     );
-    expect(token.infantryCount).toBeUndefined();
-    expect(token.platoonCount).toBeUndefined();
-    expect(token.unitType).toBeUndefined();
+    expect((token as { infantryCount?: number }).infantryCount).toBeUndefined();
+    expect((token as { platoonCount?: number }).platoonCount).toBeUndefined();
+    // Discriminated union: redacted tokens default to Mech variant.
+    expect(token.unitType).toBe(TokenUnitType.Mech);
     // Fog-projection fields survive redaction.
     expect(token.fogStatus).toBe('lastKnown');
     expect(token.lastKnownPosition).toEqual({ q: 4, r: 4 });
@@ -329,8 +349,8 @@ describe('unitStateToToken — fog redaction (isHidden=true)', () => {
       FOG_PROJECTION,
       true,
     );
-    expect(token.altitude).toBeUndefined();
-    expect(token.velocity).toBeUndefined();
+    expect((token as { altitude?: number }).altitude).toBeUndefined();
+    expect((token as { velocity?: number }).velocity).toBeUndefined();
   });
 
   it('redacts trooperCount for hidden enemy battle armor', () => {
@@ -352,7 +372,7 @@ describe('unitStateToToken — fog redaction (isHidden=true)', () => {
       FOG_PROJECTION,
       true,
     );
-    expect(token.trooperCount).toBeUndefined();
+    expect((token as { trooperCount?: number }).trooperCount).toBeUndefined();
   });
 
   it('redacts protoCount / isGlider / hasMainGun for hidden enemy proto', () => {
@@ -376,9 +396,9 @@ describe('unitStateToToken — fog redaction (isHidden=true)', () => {
       FOG_PROJECTION,
       true,
     );
-    expect(token.protoCount).toBeUndefined();
-    expect(token.isGlider).toBeUndefined();
-    expect(token.hasMainGun).toBeUndefined();
+    expect((token as { protoCount?: number }).protoCount).toBeUndefined();
+    expect((token as { isGlider?: boolean }).isGlider).toBeUndefined();
+    expect((token as { hasMainGun?: boolean }).hasMainGun).toBeUndefined();
   });
 
   it('does NOT redact when isHidden=false (visible enemies render normally)', () => {
@@ -403,7 +423,7 @@ describe('unitStateToToken — fog redaction (isHidden=true)', () => {
       FOG_PROJECTION,
       false,
     );
-    expect(token.infantryCount).toBe(22);
+    expect((token as { infantryCount?: number }).infantryCount).toBe(22);
   });
 
   it('does NOT redact when caller omits isHidden (defaults to false)', () => {
@@ -421,6 +441,6 @@ describe('unitStateToToken — fog redaction (isHidden=true)', () => {
       },
     });
     const token = unitStateToToken('u1', state, UNIT_INFO);
-    expect(token.infantryCount).toBe(22);
+    expect((token as { infantryCount?: number }).infantryCount).toBe(22);
   });
 });
