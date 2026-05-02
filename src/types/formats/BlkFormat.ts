@@ -342,14 +342,17 @@ export interface IProtoMechBlkResult {
   readonly year: number;
   readonly tonnage: number;
   readonly techBase: string;
-  /** Motion type (Biped | Quad | Glider | UMU) */
+  /**
+   * Motion type (Biped | Quad | Glider | UMU). Single source of truth for
+   * chassis configuration at the BLK boundary — consumers derive `glider`,
+   * `quad`, etc. from `motionType.toLowerCase()` rather than carrying a
+   * second redundant flag that could drift.
+   */
   readonly motionType: string;
   /** Cruise MP */
   readonly cruiseMP: number;
   /** Jump MP */
   readonly jumpMP: number;
-  /** Is glider proto */
-  readonly isGlider: boolean;
   /** Armor values: [Head, Torso, L Arm, R Arm, Legs, Main Gun?] — order matches BLK armor tag */
   readonly armor: readonly number[];
   /** Equipment by location */

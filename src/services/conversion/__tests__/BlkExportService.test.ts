@@ -295,8 +295,6 @@ describe('BlkExportService', () => {
     weightClass: ProtoWeightClass.MEDIUM,
     chassisType: ProtoChassis.BIPED,
     pointSize: 5,
-    isQuad: false,
-    isGlider: false,
     engineRating: 25,
     walkMP: 5,
     cruiseMP: 5,

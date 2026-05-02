@@ -550,7 +550,9 @@ describe('BlkParserService.parseByUnitType', () => {
     expect(proto.tonnage).toBe(7);
     expect(proto.cruiseMP).toBe(5);
     expect(proto.jumpMP).toBe(5);
-    expect(proto.isGlider).toBe(false);
+    // motionType is the SoT for chassis configuration at the BLK boundary;
+    // a non-Glider Roc parses with motionType "Biped".
+    expect(proto.motionType.toLowerCase()).not.toBe('glider');
     expect(proto.techBase).toBe('CLAN');
     // armor array: Head, Torso, L Arm, R Arm, Legs
     expect(proto.armor).toHaveLength(5);

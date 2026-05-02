@@ -7,6 +7,7 @@
 import { TechBase } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 
 import {
   ProtoMechUnitHandler,
@@ -177,7 +178,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.isGlider).toBe(true);
+      expect(result.data?.unit?.chassisType).toBe(ProtoChassis.GLIDER);
       expect(result.data?.unit?.jumpMP).toBe(4);
     });
 
@@ -186,7 +187,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.isQuad).toBe(true);
+      expect(result.data?.unit?.chassisType).toBe(ProtoChassis.QUAD);
     });
 
     it('should always be Clan tech base', () => {
