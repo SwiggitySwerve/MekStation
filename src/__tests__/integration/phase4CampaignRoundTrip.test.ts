@@ -69,6 +69,7 @@ import {
   useCampaignStore,
 } from '@/stores/campaign/useCampaignStore';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { createContract } from '@/types/campaign/Mission';
@@ -111,6 +112,8 @@ function makePerson(overrides: Partial<IPerson> = {}): IPerson {
     campaignKills: 0,
     campaignMissions: 0,
     hireDate: new Date('3024-01-01'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
   };
   const vault: IPilot = {
     id,

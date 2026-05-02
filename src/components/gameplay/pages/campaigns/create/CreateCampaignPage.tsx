@@ -12,6 +12,7 @@ import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces';
 import { CampaignPreset, ALL_PRESETS } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 
 import type {
   PilotAssignments,
@@ -177,6 +178,8 @@ export default function CreateCampaignPage(): React.ReactElement {
             campaignMissions: 0,
             recoveryTime: 0,
             hireDate,
+            primaryRole: CampaignPersonnelRole.PILOT,
+            rankIndex: 0,
             assignedUnitId: getAssignedUnitIdForPilot(
               pilotAssignments,
               pilot.id,

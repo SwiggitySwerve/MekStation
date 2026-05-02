@@ -24,7 +24,6 @@ import type { IAttributes } from '@/types/campaign/skills/IAttributes';
 import type { IPilot, IPilotStatblock } from '@/types/pilot/PilotInterfaces';
 
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 
 // =============================================================================
@@ -159,18 +158,24 @@ export function rosterEntryToPerson(
     givenName: firstName,
     surname: lastName,
 
-    // Status / role
+    // Status / role — forwarded from roster entry (PR1.5 live bug fix: was
+    // hardcoded CampaignPersonnelRole.PILOT, breaking DOCTOR/TECH categorization)
     status: mapStatus(rosterEntry.status),
-    primaryRole: CampaignPersonnelRole.PILOT,
+    primaryRole: rosterEntry.primaryRole,
 
     // Career
     rank,
-    rankIndex: 0,
+    // Forwarded from roster entry (PR1.5 live bug fix: was hardcoded 0,
+    // blocking all promotions in rankService.ts:208)
+    rankIndex: rosterEntry.rankIndex,
     recruitmentDate,
     missionsCompleted: rosterEntry.campaignMissions,
     totalKills: rosterEntry.campaignKills,
     awards: awardIds,
     departureReason: rosterEntry.departureReason,
+    // Forwarded from roster entry (PR1.5 live bug fix: was omitted, so
+    // rankService.isRecentlyPromoted always returned false)
+    lastPromotionDate: rosterEntry.lastPromotionDate,
 
     // Experience
     xp: rosterEntry.xp,
@@ -179,7 +184,7 @@ export function rosterEntryToPerson(
 
     // Combat state
     hits: rosterEntry.wounds,
-    injuries: [],
+    injuries: rosterEntry.injuries ?? [],
     daysToWaitForHealing: rosterEntry.recoveryTime,
 
     // Skills + attributes (vault pilots don't carry IAttributes; default)
@@ -190,7 +195,14 @@ export function rosterEntryToPerson(
     // Assignment
     unitId: rosterEntry.assignedUnitId,
 
-    // Traits + abilities
+    // Traits — forwarded from roster entry (PR1.5 live bug fix: was omitted,
+    // causing aging.ts + vocationalTrainingProcessor.ts to silently discard
+    // glassJaw / slowLearner / vocationalXPTimer flags on every pass)
+    traits: rosterEntry.traits ?? {},
+
+    // Abilities + unit flags
     specialAbilities,
+    isFounder: rosterEntry.isFounder,
+    isCommander: rosterEntry.isCommander,
   };
 }

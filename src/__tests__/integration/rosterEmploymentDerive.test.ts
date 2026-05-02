@@ -19,6 +19,7 @@ import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import {
   PilotStatus,
   PilotType,
@@ -73,6 +74,8 @@ function makeRosterEntry(
     campaignMissions: 0,
     // Hard-cutover policy (PR2 cluster J): hireDate is required.
     hireDate: new Date('2025-01-01T00:00:00Z'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
   };
 }
 

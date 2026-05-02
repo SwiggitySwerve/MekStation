@@ -21,7 +21,10 @@
 import type { IPilotStatblock } from '@/types/pilot/PilotInterfaces';
 
 import type { CampaignPilotStatus } from './CampaignInterfaces.types';
+import type { CampaignPersonnelRole } from './enums/CampaignPersonnelRole';
 import type { Money } from './Money';
+import type { IInjury } from './Person';
+import type { IPersonTraits } from './progression/progressionTypes';
 
 // =============================================================================
 // Roster Entry Interface
@@ -135,4 +138,93 @@ export interface ICampaignRosterEntry {
    * Used by the turnover processor for narrative + ledger entries.
    */
   readonly departureReason?: string;
+
+  /**
+   * Active injuries for advanced medical tracking.
+   *
+   * Optional + readonly. Defaults to `[]` (no injuries) when unset, matching
+   * the legacy `IPerson.injuries` semantics so the bridge synthesis and the
+   * direct two-arg helpers behave identically. Wired in PR2 of
+   * `wire-iperson-hard-cutover` (Council #2 open question #1) so medical
+   * helpers can read injuries from the roster entry without going through
+   * the `rosterEntryToPerson` shim once PR4 deletes the bridge.
+   *
+   * @spec openspec/specs/campaign-personnel-architecture/spec.md
+   */
+  readonly injuries?: readonly IInjury[];
+
+  // ===========================================================================
+  // Personnel role + rank (PR1.5 — Tier 1 live bug fixes, Council #4)
+  // ===========================================================================
+
+  /**
+   * Primary role in the unit. Required — every entry must declare its role
+   * so downstream helpers (doctorCapacity, salaryService) can filter and
+   * categorize without synthesizing defaults.
+   *
+   * Live bug: bridge previously hardcoded `PILOT`, making DOCTOR/TECH entries
+   * invisible to `getBestAvailableDoctor` and salary-role categorization.
+   *
+   * Backward compat: `useCampaignRosterStore` persist migration defaults
+   * existing entries without this field to `CampaignPersonnelRole.PILOT`.
+   *
+   * @spec openspec/specs/campaign-personnel-architecture/spec.md
+   */
+  readonly primaryRole: CampaignPersonnelRole;
+
+  /**
+   * Numeric rank index (0-based position in the rank table).
+   * Required — every entry must declare a rank index so the promotion gate
+   * in `rankService` can compare `newRankIndex <= currentRankIndex` correctly.
+   *
+   * Live bug: bridge previously hardcoded 0, blocking all promotions because
+   * `rankService.ts:208` compares `newRankIndex <= currentRankIndex` and 0
+   * is always the floor.
+   *
+   * Backward compat: `useCampaignRosterStore` persist migration defaults
+   * existing entries without this field to `0`.
+   *
+   * @spec openspec/specs/campaign-personnel-architecture/spec.md
+   */
+  readonly rankIndex: number;
+
+  /**
+   * Trait flags that modify skill costs and aging/progression mechanics.
+   *
+   * Optional. `aging.ts` and `vocationalTrainingProcessor.ts` read AND write
+   * `traits.glassJaw`, `traits.slowLearner`, `traits.vocationalXPTimer`.
+   * Without this field on the roster entry the bridge omitted traits entirely,
+   * causing every write to discard prior flags — a silent per-pass data loss.
+   *
+   * Bridge forwards as `traits: entry.traits ?? {}`.
+   *
+   * @spec openspec/specs/campaign-personnel-architecture/spec.md
+   */
+  readonly traits?: IPersonTraits;
+
+  /**
+   * Date of last promotion. Optional.
+   *
+   * Live bug: bridge omitted this field, so `rankService.isRecentlyPromoted`
+   * always returned `false` and the promotion-recency turnover modifier never
+   * fired.
+   */
+  readonly lastPromotionDate?: Date;
+
+  // ===========================================================================
+  // Unit flags (PR1.5 — Tier 2 additive, no production write path today)
+  // ===========================================================================
+
+  /**
+   * Whether this person is a founder of the unit (entitles +1 share).
+   * Additive optional — no migration risk; existing entries without it
+   * are treated as non-founders.
+   */
+  readonly isFounder?: boolean;
+
+  /**
+   * Whether this person is the unit commander.
+   * Additive optional — existing entries without it treated as non-commander.
+   */
+  readonly isCommander?: boolean;
 }

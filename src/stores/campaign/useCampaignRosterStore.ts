@@ -22,7 +22,11 @@
  */
 
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import {
+  persist,
+  createJSONStorage,
+  type StorageValue,
+} from 'zustand/middleware';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type {
@@ -31,6 +35,7 @@ import type {
 } from '@/types/campaign/UnitCombatState';
 
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import {
   deriveRosterReadiness,
   type IRosterUnitProjection,
@@ -575,6 +580,25 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
     {
       name: 'campaign-roster-store',
       storage: createJSONStorage(() => clientSafeStorage),
+      // Version 2 — Council #4 PR1.5 added required `primaryRole` and
+      // `rankIndex` fields. Existing v0/v1 entries get defaulted on load:
+      // primaryRole=PILOT (the historical implicit default) and rankIndex=0
+      // (matches the old hardcoded bridge value, so behavior is preserved
+      // until the user sets a real rank).
+      version: 2,
+      migrate: (persistedState, version) => {
+        if (version >= 2 || !persistedState) return persistedState;
+        const state = persistedState as Partial<CampaignRosterState>;
+        const upgradedPilots = (state.pilots ?? []).map((entry) => ({
+          ...entry,
+          primaryRole: entry.primaryRole ?? CampaignPersonnelRole.PILOT,
+          rankIndex: entry.rankIndex ?? 0,
+        })) as ICampaignRosterEntry[];
+        return {
+          ...state,
+          pilots: upgradedPilots,
+        } as StorageValue<CampaignRosterStore>['state'];
+      },
     },
   ),
 );

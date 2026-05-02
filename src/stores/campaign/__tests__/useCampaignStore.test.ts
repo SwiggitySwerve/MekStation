@@ -15,6 +15,7 @@ import {
   FormationLevel,
   MissionStatus,
 } from '@/types/campaign/enums';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { IForce } from '@/types/campaign/Force';
 import { IPerson } from '@/types/campaign/Person';
 import { IPilot, PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
@@ -56,6 +57,8 @@ const createTestPerson = (overrides?: Partial<IPerson>): IPerson => {
     campaignKills: 0,
     campaignMissions: 0,
     hireDate: new Date(),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
   };
   const vault: IPilot = {
     id,

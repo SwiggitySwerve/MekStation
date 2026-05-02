@@ -46,6 +46,8 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
     campaignKills: 3,
     campaignMissions: 5,
     hireDate: new Date('3000-01-01'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
   };
   const vault: IPilot = {
     id,
