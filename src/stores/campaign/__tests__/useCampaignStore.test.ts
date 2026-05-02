@@ -5,17 +5,19 @@
  * sub-store composition, persistence, and day advancement coverage.
  */
 
+import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
 import { ICampaignOptions } from '@/types/campaign/Campaign';
 import { IMission } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import {
-  PersonnelStatus,
-  CampaignPersonnelRole,
   ForceRole,
   FormationLevel,
   MissionStatus,
 } from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
-import { IPerson, createDefaultAttributes } from '@/types/campaign/Person';
+import { IPerson } from '@/types/campaign/Person';
+import { IPilot, PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import {
   createCampaignStore,
@@ -31,32 +33,44 @@ let personIdCounter = 0;
 let forceIdCounter = 0;
 let missionIdCounter = 0;
 
+/**
+ * Cluster E PR1 — IPerson fixtures are now synthesized via the
+ * `(rosterEntry, vaultPilot) → rosterEntryToPerson()` bridge so the
+ * test substrate exercises the same shim production code uses to
+ * adapt the new roster-employment substrate to legacy `IPerson`-shaped
+ * helpers. Test-specific overrides (custom names, ids) still spread on
+ * top so individual cases drive their own scenarios.
+ */
 const createTestPerson = (overrides?: Partial<IPerson>): IPerson => {
-  const id = `person-${Date.now()}-${personIdCounter++}`;
+  const id = overrides?.id ?? `person-${Date.now()}-${personIdCounter++}`;
+  const name = overrides?.name ?? 'Test Person';
   const now = new Date().toISOString();
-
-  return {
+  const entry: ICampaignRosterEntry = {
+    pilotId: id,
+    pilotName: name,
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    hireDate: new Date(),
+  };
+  const vault: IPilot = {
     id,
-    name: 'Test Person',
+    name,
+    type: PilotType.Persistent,
+    status: PilotStatus.Active,
+    skills: { gunnery: 4, piloting: 5 },
+    wounds: 0,
+    abilities: [],
+    awards: [],
     createdAt: now,
     updatedAt: now,
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date(),
-    missionsCompleted: 0,
-    totalKills: 0,
-    xp: 0,
-    totalXpEarned: 0,
-    xpSpent: 0,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: createDefaultAttributes(),
-    pilotSkills: { gunnery: 4, piloting: 5 },
-    ...overrides,
   };
+  const base = rosterEntryToPerson(entry, vault);
+  return { ...base, ...overrides };
 };
 
 const createTestForce = (overrides?: Partial<IForce>): IForce => {
