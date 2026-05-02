@@ -72,6 +72,8 @@ function createMockCampaign(overrides?: Partial<ICampaign>): ICampaign {
     createdAt: '2025-01-01T00:00:00Z',
     updatedAt: '2025-01-01T00:00:00Z',
     ...overrides,
+    // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
+    unitCombatStates: overrides?.unitCombatStates ?? {},
   };
 }
 

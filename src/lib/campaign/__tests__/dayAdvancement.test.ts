@@ -132,6 +132,10 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
     ...overrides,
+    // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
+    // Placed after the spread so Partial<ICampaign>'s optional widening
+    // cannot leave the field as `undefined`.
+    unitCombatStates: overrides?.unitCombatStates ?? {},
   };
 }
 

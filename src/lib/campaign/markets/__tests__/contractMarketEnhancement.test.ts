@@ -78,6 +78,8 @@ function createMockCampaign(unitCount: number = 4): ICampaign {
     campaignType: CampaignType.MERCENARY,
     createdAt: '2025-01-01',
     updatedAt: '2025-01-01',
+    // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
+    unitCombatStates: {},
   };
 }
 
