@@ -45,6 +45,7 @@ const SHAPES = [
   { file: 'electronics-schema.json', stem: 'electronics', exportName: 'ElectronicsContract' },
   { file: 'misc-equipment-schema.json', stem: 'misc-equipment', exportName: 'MiscEquipmentContract' },
   { file: 'physical-weapon-schema.json', stem: 'physical-weapon', exportName: 'PhysicalWeaponContract' },
+  { file: 'name-mappings-schema.json', stem: 'name-mappings', exportName: 'NameMappingsContract' },
 ];
 
 const HEADER = (sourceRel) => `// @generated — do not edit; run \`npm run schema:gen\` to regenerate.

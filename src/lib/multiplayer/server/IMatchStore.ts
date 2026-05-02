@@ -87,6 +87,13 @@ export interface IMatchMeta {
 /**
  * Patch shape for `updateMatchMeta`. Only mutable fields are exposed —
  * `matchId` and `createdAt` are immutable post-create.
+ *
+ * `roomCode` is widened to `string | null | undefined` so callers can
+ * explicitly clear a previously-set invite code by passing `null`.
+ * Implementations MUST treat `null` as "remove the field"; `undefined`
+ * (the absence of the key in the patch) means "leave it alone". This
+ * removes the previous `undefined as unknown as string` smuggling at
+ * the `ServerMatchHost` lobby-launch path.
  */
 export type IMatchMetaPatch = Partial<
   Pick<
@@ -98,9 +105,10 @@ export type IMatchMetaPatch = Partial<
     | 'config'
     | 'seats'
     | 'layout'
-    | 'roomCode'
   >
->;
+> & {
+  readonly roomCode?: string | null;
+};
 
 // =============================================================================
 // Errors
