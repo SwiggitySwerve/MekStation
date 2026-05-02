@@ -176,7 +176,6 @@ export function duplicateAerospace(
     engineType: sourceState.engineType,
     engineRating: sourceState.engineRating,
     safeThrust: sourceState.safeThrust,
-    fuel: sourceState.fuel,
     armorType: sourceState.armorType,
     armorTonnage: sourceState.armorTonnage,
     armorAllocation: { ...sourceState.armorAllocation },

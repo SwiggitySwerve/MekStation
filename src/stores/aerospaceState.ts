@@ -192,12 +192,6 @@ export interface AerospaceState {
    */
   readonly fuelPoints: number;
 
-  /**
-   * Legacy: fuel points carried forward for backward compatibility.
-   * @deprecated Use fuelTons + fuelPoints instead.
-   */
-  fuel: number;
-
   // =========================================================================
   // Structure & Cockpit
   // =========================================================================
@@ -307,7 +301,6 @@ export interface AerospaceActions {
   setAerospaceEngineType: (type: AerospaceEngineType) => void;
   setEngineRating: (rating: number) => void;
   setSafeThrust: (thrust: number) => void;
-  setFuel: (fuel: number) => void;
   /** Set fuel tonnage; recomputes fuelPoints automatically */
   setFuelTons: (tons: number) => void;
 
@@ -442,7 +435,6 @@ export function createDefaultAerospaceState(
       isConventional ? 2 : 5,
       isConventional ? AerospaceEngineType.ICE : AerospaceEngineType.FUSION,
     ),
-    fuel: options.tonnage * 5, // Legacy field
 
     // Structure & Cockpit
     structuralIntegrity: Math.ceil(options.tonnage / 10),

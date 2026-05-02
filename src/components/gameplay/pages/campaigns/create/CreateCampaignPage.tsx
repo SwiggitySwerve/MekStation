@@ -160,6 +160,10 @@ export default function CreateCampaignPage(): React.ReactElement {
           }
         }
 
+        // Hard-cutover policy (PR2 cluster J): hireDate is required on
+        // every ICampaignRosterEntry. Stamp the campaign creation moment
+        // so turnover/salary tenure modifiers have a concrete anchor.
+        const hireDate = new Date();
         for (const pilot of selectedPilots) {
           const pilotState: ICampaignRosterEntry = {
             pilotId: pilot.id,
@@ -171,6 +175,7 @@ export default function CreateCampaignPage(): React.ReactElement {
             campaignKills: 0,
             campaignMissions: 0,
             recoveryTime: 0,
+            hireDate,
             assignedUnitId: getAssignedUnitIdForPilot(
               pilotAssignments,
               pilot.id,

@@ -194,13 +194,6 @@ export function createAerospaceStore(
             lastModifiedAt: Date.now(),
           })),
 
-        setFuel: (fuel) =>
-          set({
-            fuel: Math.max(0, fuel),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
-
         setFuelTons: (tons: number) =>
           set((state) => ({
             fuelTons: Math.max(0, tons),
@@ -444,7 +437,6 @@ export function createAerospaceStore(
           aerospaceEngineType: state.aerospaceEngineType,
           engineRating: state.engineRating,
           safeThrust: state.safeThrust,
-          fuel: state.fuel,
           fuelTons: state.fuelTons,
           structuralIntegrity: state.structuralIntegrity,
           cockpitType: state.cockpitType,

@@ -71,6 +71,9 @@ function makeRosterEntry(
     campaignXpEarned: 80,
     campaignKills: 3,
     campaignMissions: 4,
+    // Hard-cutover policy (PR2 cluster J): hireDate required on
+    // every roster entry — fixtures must provide a deterministic value.
+    hireDate: new Date('2025-06-15T00:00:00Z'),
     ...overrides,
   };
 }
@@ -145,7 +148,10 @@ describe('rosterEntryToPerson', () => {
       ).toBe(PersonnelStatus.KIA);
     });
 
-    it('uses roster.hireDate when present, else falls back to vault createdAt', () => {
+    it('threads roster.hireDate through to recruitmentDate', () => {
+      // Hard-cutover policy (PR2 cluster J): hireDate is required on
+      // every roster entry — no fallback chain. The shim reads it
+      // directly and stamps it onto recruitmentDate.
       const hire = new Date('2025-06-15T00:00:00Z');
       const withHire = rosterEntryToPerson(
         makeRosterEntry({ hireDate: hire }),
@@ -153,13 +159,13 @@ describe('rosterEntryToPerson', () => {
       );
       expect(withHire.recruitmentDate).toEqual(hire);
 
-      const withoutHire = rosterEntryToPerson(
+      // The fixture default also propagates correctly.
+      const defaulted = rosterEntryToPerson(
         makeRosterEntry(),
         makeVaultPilot(),
       );
-      // Falls back to vault createdAt → Date.
-      expect(withoutHire.recruitmentDate).toEqual(
-        new Date('2025-01-01T00:00:00Z'),
+      expect(defaulted.recruitmentDate).toEqual(
+        new Date('2025-06-15T00:00:00Z'),
       );
     });
 

@@ -71,6 +71,8 @@ function makeRosterEntry(
     campaignXpEarned: 0,
     campaignKills: 0,
     campaignMissions: 0,
+    // Hard-cutover policy (PR2 cluster J): hireDate is required.
+    hireDate: new Date('2025-01-01T00:00:00Z'),
   };
 }
 

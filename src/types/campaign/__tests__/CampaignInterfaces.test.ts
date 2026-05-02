@@ -63,6 +63,8 @@ function createTestPilot(
     campaignKills: 0,
     campaignMissions: 0,
     recoveryTime: 0,
+    // Hard-cutover policy (PR2 cluster J): hireDate required.
+    hireDate: new Date('2025-01-01T00:00:00Z'),
     ...overrides,
   };
 }

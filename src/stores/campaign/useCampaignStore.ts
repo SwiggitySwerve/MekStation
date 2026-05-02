@@ -88,23 +88,23 @@ interface SerializedCampaignState {
     }>;
     balance: number;
   };
-  factionStandings?: Record<string, IFactionStanding>;
+  factionStandings: Record<string, IFactionStanding>;
   shoppingList?: IShoppingList;
   options: ICampaignOptions;
-  campaignType?: string;
-  campaignStartDate?: string;
+  campaignType: string;
+  campaignStartDate: string;
   description?: string;
   iconUrl?: string;
-  pendingBattleOutcomes?: ICombatOutcome[];
-  processedBattleIds?: string[];
-  reviewedBattleIds?: Record<string, number>;
+  pendingBattleOutcomes: ICombatOutcome[];
+  processedBattleIds: string[];
+  reviewedBattleIds: Record<string, number>;
   /**
    * Per `wire-encounter-to-campaign-round-trip` Wave 5 §7: persisted
    * daily audit ledger so the dashboard can surface battle-effects
-   * rollups across page reloads. Optional because pre-Wave-5 saves
-   * don't carry it.
+   * rollups across page reloads. Hard-cutover policy: required (PR2,
+   * cluster C). Pre-release product, no legacy compat to preserve.
    */
-  dailyBattleAudit?: IDailyBattleAuditEntry[];
+  dailyBattleAudit: IDailyBattleAuditEntry[];
   createdAt: string;
   updatedAt: string;
 }
@@ -373,15 +373,21 @@ function serializeCampaign(
   processedBattleIds: readonly string[] = [],
   reviewedBattleIds: Record<string, number> = {},
 ): SerializedCampaignState {
-  // Read the optional audit ledger off the extended campaign surface.
-  // The field is owned by the Wave-5 day pipeline; pre-Wave-5 campaigns
-  // simply don't carry it.
+  // Read the audit ledger off the extended campaign surface. The field is
+  // owned by the Wave-5 day pipeline; per hard-cutover policy (PR2 cluster
+  // C) we always emit an array — the in-memory campaign may not yet carry
+  // an entry on day 1, in which case we serialize an empty list.
   const audit =
     (
       campaign as ICampaign & {
         dailyBattleAudit?: readonly IDailyBattleAuditEntry[];
       }
     ).dailyBattleAudit ?? [];
+  // Hard-cutover policy: SerializedCampaignState requires campaignStartDate
+  // (PR2 cluster C). `createCampaign` always populates it; if a caller
+  // produced an ICampaign without it, fall back to currentDate so we still
+  // emit a string and surface the bug in tests rather than persistence.
+  const startDate = campaign.campaignStartDate ?? campaign.currentDate;
   return {
     id: campaign.id,
     name: campaign.name,
@@ -398,10 +404,11 @@ function serializeCampaign(
       })),
       balance: campaign.finances.balance.amount,
     },
+    factionStandings: campaign.factionStandings,
     shoppingList: campaign.shoppingList,
     options: campaign.options,
     campaignType: campaign.campaignType,
-    campaignStartDate: campaign.campaignStartDate?.toISOString(),
+    campaignStartDate: startDate.toISOString(),
     description: campaign.description,
     iconUrl: campaign.iconUrl,
     pendingBattleOutcomes: [...pendingBattleOutcomes],
@@ -443,14 +450,11 @@ function deserializeCampaign(
       ),
       balance: new Money(serialized.finances.balance),
     },
-    factionStandings: serialized.factionStandings ?? {},
+    factionStandings: serialized.factionStandings,
     shoppingList: serialized.shoppingList,
     options: serialized.options,
-    campaignType:
-      (serialized.campaignType as CampaignType) ?? CampaignType.MERCENARY,
-    campaignStartDate: serialized.campaignStartDate
-      ? new Date(serialized.campaignStartDate)
-      : undefined,
+    campaignType: serialized.campaignType as CampaignType,
+    campaignStartDate: new Date(serialized.campaignStartDate),
     description: serialized.description,
     iconUrl: serialized.iconUrl,
     createdAt: serialized.createdAt,
@@ -458,9 +462,9 @@ function deserializeCampaign(
     // Restore the daily-battle audit ledger so the dashboard's audit
     // feed survives reloads. Cast through `as ICampaign` because the
     // field is on the optional extension type, not the core ICampaign.
-    ...(serialized.dailyBattleAudit
-      ? { dailyBattleAudit: serialized.dailyBattleAudit }
-      : {}),
+    // Per hard-cutover policy (PR2 cluster C), dailyBattleAudit is now
+    // required on SerializedCampaignState and always set here.
+    dailyBattleAudit: serialized.dailyBattleAudit,
   } as ICampaign;
 }
 
@@ -645,9 +649,9 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
             set({
               campaign,
-              pendingBattleOutcomes: serialized.pendingBattleOutcomes ?? [],
-              processedBattleIds: serialized.processedBattleIds ?? [],
-              reviewedBattleIds: serialized.reviewedBattleIds ?? {},
+              pendingBattleOutcomes: serialized.pendingBattleOutcomes,
+              processedBattleIds: serialized.processedBattleIds,
+              reviewedBattleIds: serialized.reviewedBattleIds,
               forcesStore,
               missionsStore,
             });
@@ -1096,9 +1100,9 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           return {
             ...current,
             campaign,
-            pendingBattleOutcomes: serialized.pendingBattleOutcomes ?? [],
-            processedBattleIds: serialized.processedBattleIds ?? [],
-            reviewedBattleIds: serialized.reviewedBattleIds ?? {},
+            pendingBattleOutcomes: serialized.pendingBattleOutcomes,
+            processedBattleIds: serialized.processedBattleIds,
+            reviewedBattleIds: serialized.reviewedBattleIds,
             forcesStore: null,
             missionsStore: null,
           };

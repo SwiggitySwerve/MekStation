@@ -131,7 +131,10 @@ export function exportAerospace(unit: AerospaceState): IBlkExportResult {
     lines.push(tag('sink_type', unit.doubleHeatSinks ? '1' : '0'));
     lines.push('');
 
-    lines.push(tag('fuel', unit.fuel.toString()));
+    // Hard-cutover policy (PR2 cluster K): the legacy `fuel` field was
+    // removed from AerospaceState. The BLK `<fuel>` tag is now sourced
+    // from the computed `fuelPoints` value (fuelTons × points/ton).
+    lines.push(tag('fuel', unit.fuelPoints.toString()));
     lines.push(
       tag('structural_integrity', unit.structuralIntegrity.toString()),
     );
