@@ -177,7 +177,6 @@ describe('BlkExportService', () => {
     maxThrust: 8,
     fuelTons: 5,
     fuelPoints: 400,
-    fuel: 400,
     structuralIntegrity: 5,
     cockpitType: AerospaceCockpitType.STANDARD,
     heatSinks: 10,
@@ -731,7 +730,10 @@ describe('BlkExportService', () => {
     });
 
     it('should include fuel', () => {
-      const aero = createMockAerospaceState({ fuel: 480 });
+      // Hard-cutover policy (PR2 cluster K): the legacy `fuel` field was
+      // removed from AerospaceState. The BLK exporter now emits the
+      // computed `fuelPoints` value (fuelTons × points/ton).
+      const aero = createMockAerospaceState({ fuelPoints: 480 });
       const result = service.export(aero);
 
       expect(result.content).toContain('<fuel>');

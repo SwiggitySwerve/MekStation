@@ -2,7 +2,9 @@
  * Aerospace Structure Tab — Engine & Movement Section
  *
  * Engine type (canonical + legacy), safe thrust, max thrust, engine rating,
- * fuel tonnage, and legacy fuel points.
+ * and fuel tonnage. The legacy `fuel` points field was removed in PR2
+ * cluster K (hard-cutover): `fuelPoints` is computed from `fuelTons` and
+ * the engine type's points-per-ton rate.
  *
  * Extracted from AerospaceStructureTab.tsx during section decomposition.
  */
@@ -32,7 +34,6 @@ export function EngineSection({
   const engineRating = useAerospaceStore((s) => s.engineRating);
   const safeThrust = useAerospaceStore((s) => s.safeThrust);
   const maxThrust = useAerospaceStore((s) => s.maxThrust);
-  const fuel = useAerospaceStore((s) => s.fuel);
   const fuelTons = useAerospaceStore((s) => s.fuelTons);
   const fuelPoints = useAerospaceStore((s) => s.fuelPoints);
 
@@ -41,7 +42,6 @@ export function EngineSection({
     (s) => s.setAerospaceEngineType,
   );
   const setSafeThrust = useAerospaceStore((s) => s.setSafeThrust);
-  const setFuel = useAerospaceStore((s) => s.setFuel);
   const setFuelTons = useAerospaceStore((s) => s.setFuelTons);
 
   const handleAerospaceEngineTypeChange = useCallback(
@@ -70,10 +70,8 @@ export function EngineSection({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = Number(e.target.value);
       setFuelTons(val);
-      // Keep legacy fuel field in sync for backward compatibility
-      setFuel(val);
     },
-    [setFuelTons, setFuel],
+    [setFuelTons],
   );
 
   return (
@@ -182,21 +180,6 @@ export function EngineSection({
         <p className="text-text-theme-secondary mt-1 text-xs">
           {fuelPoints} fuel points ({aerospaceEngineType})
         </p>
-      </div>
-
-      {/* Legacy Fuel Points field */}
-      <div className="mb-4">
-        <label className={cs.text.label}>Fuel Points (Legacy)</label>
-        <input
-          type="number"
-          value={fuel}
-          onChange={(e) => setFuel(Number(e.target.value))}
-          min={0}
-          max={tonnage * 10}
-          disabled={readOnly}
-          className={`${cs.input.full} mt-1`}
-          data-testid="aerospace-fuel-input"
-        />
       </div>
     </section>
   );

@@ -82,7 +82,9 @@ export function AerospaceStatusBar({
   const tonnage = useAerospaceStore((s) => s.tonnage);
   const safeThrust = useAerospaceStore((s) => s.safeThrust);
   const maxThrust = useAerospaceStore((s) => s.maxThrust);
-  const fuel = useAerospaceStore((s) => s.fuel);
+  // Hard-cutover policy (PR2 cluster K): the legacy `fuel` field was
+  // removed in favor of computed `fuelPoints` (fuelTons × points/ton).
+  const fuel = useAerospaceStore((s) => s.fuelPoints);
   const structuralIntegrity = useAerospaceStore((s) => s.structuralIntegrity);
   const armorType = useAerospaceStore((s) => s.armorType);
   const armorTonnage = useAerospaceStore((s) => s.armorTonnage);

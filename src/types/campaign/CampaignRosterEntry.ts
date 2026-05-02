@@ -117,11 +117,12 @@ export interface ICampaignRosterEntry {
 
   /**
    * Date this character was hired into THIS campaign.
-   * Optional during the migration — populated by `seedFromVaultPilot` at
-   * campaign creation; legacy entries without `hireDate` default to the
-   * campaign's start date when needed by helpers (e.g., turnover modifiers).
+   * Required per hard-cutover policy (PR2 cluster J). Every roster entry
+   * must declare a hire date at construction time so downstream helpers
+   * (turnover modifiers, salary tenure bonuses, audit feeds) can rely on
+   * its presence without fallback chains.
    */
-  readonly hireDate?: Date;
+  readonly hireDate: Date;
 
   /**
    * Campaign-specific salary override. `null`/undefined = use the

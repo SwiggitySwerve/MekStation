@@ -120,9 +120,19 @@ export class InMemoryMatchStore implements IMatchStore {
     const rec = this.records.get(matchId);
     if (!rec) throw new MatchNotFoundError(matchId);
     const before = rec.meta;
+    // Build the next meta. The patch shape allows `roomCode: null` to
+    // explicitly clear the field (the previous wire was `undefined as
+    // unknown as string`, which type-laundered the same intent). When
+    // we see an explicit `null` we translate to `undefined` so the
+    // stored `IMatchMeta.roomCode` remains `string | undefined` (the
+    // optional-property shape the rest of the system expects).
+    const { roomCode: patchRoomCode, ...restPatch } = patch;
+    const nextRoomCode =
+      patchRoomCode === null ? undefined : (patchRoomCode ?? rec.meta.roomCode);
     rec.meta = {
       ...rec.meta,
-      ...patch,
+      ...restPatch,
+      roomCode: nextRoomCode,
       updatedAt: new Date().toISOString(),
     };
     // Wave 3b: keep the roomCode index in sync. Invite codes are valid
