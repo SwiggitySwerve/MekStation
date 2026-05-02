@@ -22,6 +22,7 @@ import type { IPilotStatblock } from '@/types/pilot/PilotInterfaces';
 
 import type { CampaignPilotStatus } from './CampaignInterfaces.types';
 import type { Money } from './Money';
+import type { IInjury } from './Person';
 
 // =============================================================================
 // Roster Entry Interface
@@ -135,4 +136,18 @@ export interface ICampaignRosterEntry {
    * Used by the turnover processor for narrative + ledger entries.
    */
   readonly departureReason?: string;
+
+  /**
+   * Active injuries for advanced medical tracking.
+   *
+   * Optional + readonly. Defaults to `[]` (no injuries) when unset, matching
+   * the legacy `IPerson.injuries` semantics so the bridge synthesis and the
+   * direct two-arg helpers behave identically. Wired in PR2 of
+   * `wire-iperson-hard-cutover` (Council #2 open question #1) so medical
+   * helpers can read injuries from the roster entry without going through
+   * the `rosterEntryToPerson` shim once PR4 deletes the bridge.
+   *
+   * @spec openspec/specs/campaign-personnel-architecture/spec.md
+   */
+  readonly injuries?: readonly IInjury[];
 }

@@ -70,7 +70,7 @@
   - Acceptance: typecheck clean; type imports resolve.
   - QA: `npx tsc --noEmit --skipLibCheck`.
 
-- [ ] 1.2 Verify pre-join template helpers exist or author them.
+- [x] 1.2 Verify pre-join template helpers exist or author them.
   - Helper: `buildPilotLookup(vault: IPilot[]): Map<string, IPilot>` in `src/lib/campaign/utils/pilotLookup.ts` (new file).
   - Acceptance: helper covered by unit test; importable from `@/lib/campaign/utils/pilotLookup`.
 

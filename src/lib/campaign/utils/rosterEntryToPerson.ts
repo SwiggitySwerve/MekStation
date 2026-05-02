@@ -179,7 +179,7 @@ export function rosterEntryToPerson(
 
     // Combat state
     hits: rosterEntry.wounds,
-    injuries: [],
+    injuries: rosterEntry.injuries ?? [],
     daysToWaitForHealing: rosterEntry.recoveryTime,
 
     // Skills + attributes (vault pilots don't carry IAttributes; default)
