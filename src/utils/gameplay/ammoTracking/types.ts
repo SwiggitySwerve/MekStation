@@ -20,21 +20,13 @@ export type UnitCASEConfig = Partial<Record<string, CASEProtectionLevel>>;
 
 /**
  * Construction data for initializing ammo bins at game start.
+ *
+ * Re-exported from the single source-of-truth definition in
+ * `@/types/gameplay/AmmoTypes` (PR6 collapse). The duplicate that lived
+ * here was kept for "circular import avoidance," but no real cycle ever
+ * existed — types/gameplay never imports from utils/gameplay.
  */
-export interface IAmmoConstructionData {
-  /** Unique bin identifier */
-  readonly binId: string;
-  /** Weapon type this ammo feeds (e.g., 'AC/10', 'SRM 6', 'LRM 20') */
-  readonly weaponType: string;
-  /** Location of the ammo bin */
-  readonly location: string;
-  /** Maximum rounds per bin */
-  readonly maxRounds: number;
-  /** Damage per round for explosion calculation */
-  readonly damagePerRound: number;
-  /** Whether this ammo is explosive */
-  readonly isExplosive: boolean;
-}
+export type { IAmmoConstructionData } from '@/types/gameplay/AmmoTypes';
 
 /**
  * Result of consuming ammo.

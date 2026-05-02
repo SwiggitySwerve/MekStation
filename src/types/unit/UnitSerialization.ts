@@ -16,14 +16,21 @@ import { IBattleMech } from './BattleMechInterfaces';
 export const CURRENT_FORMAT_VERSION = '1.0.0';
 
 /**
- * Serialized unit envelope (wrapper for saved units)
+ * Serialized unit envelope (wrapper for saved units).
+ *
+ * Generic over the inner `unit` payload so the same envelope shape can carry
+ * either the typed `ISerializedUnit` (the in-app save/load path) or a loose
+ * `Record<string, unknown>` (the import boundary, where the unit shape can
+ * vary by source format and is validated at the service layer instead of the
+ * file format layer). Defaults to the typed shape; the persistence module
+ * re-exports a loose-shape alias for the import path.
  */
-export interface ISerializedUnitEnvelope {
+export interface ISerializedUnitEnvelope<T = ISerializedUnit> {
   readonly formatVersion: string;
   readonly savedAt: string;
   readonly application: string;
   readonly applicationVersion: string;
-  readonly unit: ISerializedUnit;
+  readonly unit: T;
 }
 
 /**

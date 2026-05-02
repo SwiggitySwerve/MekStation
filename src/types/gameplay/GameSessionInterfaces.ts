@@ -7,6 +7,7 @@
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
+import type { IAmmoConstructionInit } from './AmmoTypes';
 import type {
   ILegAttackPayload,
   IMimeticBonusPayload,
@@ -1226,20 +1227,12 @@ export interface IGameUnit {
   readonly ammoConstruction?: readonly IAmmoConstructionInit[];
 }
 
-/**
- * Minimal ammo construction shape carried on `IGameUnit` for session-start
- * bin initialization. Mirrors `IAmmoConstructionData` in
- * `ammoTracking/types.ts` but is declared here to avoid a circular
- * import from the types package into the gameplay utils.
- */
-export interface IAmmoConstructionInit {
-  readonly binId: string;
-  readonly weaponType: string;
-  readonly location: string;
-  readonly maxRounds: number;
-  readonly damagePerRound: number;
-  readonly isExplosive: boolean;
-}
+// `IAmmoConstructionInit` is imported at the top of this module (so
+// `IGameUnit.ammoConstruction` can reference it) AND re-exported here so
+// existing `import { IAmmoConstructionInit } from '@/types/gameplay/...'`
+// call-sites keep working after the PR6 collapse. Source-of-truth lives in
+// `./AmmoTypes` (also exposed via `@/types/gameplay/AmmoTypes`).
+export type { IAmmoConstructionInit };
 
 // =============================================================================
 // Component Damage & Combat State Types

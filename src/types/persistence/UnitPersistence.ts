@@ -7,6 +7,7 @@
  */
 
 import type { ResultType } from '@/types/common/result';
+import type { ISerializedUnitEnvelope as ISerializedUnitEnvelopeGeneric } from '@/types/unit/UnitSerialization';
 
 import { Era } from '../enums/Era';
 import { RulesLevel } from '../enums/RulesLevel';
@@ -163,25 +164,24 @@ export interface ICloneNameSuggestion {
 }
 
 /**
- * Serialized unit envelope for export/import
+ * Serialized unit envelope for export/import.
  *
- * This is the top-level structure for unit export files (.mek, .json).
- * The `unit` field contains the actual unit data, which varies by unit type.
- *
- * Note: `unit` is intentionally typed as Record<string, unknown> because:
+ * Specialised alias of the generic `ISerializedUnitEnvelope` from
+ * `@/types/unit/UnitSerialization` (the single source-of-truth definition,
+ * PR6 collapse). The persistence layer pins the inner `unit` payload to a
+ * loose `Record<string, unknown>` because:
  * - Import files come from external sources (user uploads, other apps, etc.)
  * - Format must remain flexible for backward/forward compatibility
  * - Strict validation happens during the import process
  * - Type safety is enforced at the service layer, not the file format layer
+ *
+ * Persistence keeps a dedicated alias because `src/types/index.ts`
+ * namespaces the persistence barrel (`export * as persistence`) to avoid
+ * collision with the typed `unit` re-exports at the top-level barrel.
  */
-export interface ISerializedUnitEnvelope {
-  readonly formatVersion: string;
-  readonly savedAt: string;
-  readonly application: string;
-  readonly applicationVersion: string;
-  /** Serialized unit data (ISerializedUnit) - structure varies by unit type */
-  readonly unit: Record<string, unknown>;
-}
+export type ISerializedUnitEnvelope = ISerializedUnitEnvelopeGeneric<
+  Record<string, unknown>
+>;
 
 export interface IImportData {
   readonly unitId: string;
