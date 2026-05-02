@@ -459,6 +459,13 @@ function deserializeCampaign(
     iconUrl: serialized.iconUrl,
     createdAt: serialized.createdAt,
     updatedAt: serialized.updatedAt,
+    // Per canonicalize-unit-combat-state PR-A: ICampaign owns the
+    // canonical post-deploy combat-state map. Hydrated empty here;
+    // SerializedCampaignState does not (yet) persist combat states —
+    // first deploy after rehydrate seeds entries via
+    // createInitialCombatState. Future SerializedCampaignState extension
+    // can pipe persisted combat states through this slot.
+    unitCombatStates: {},
     // Restore the daily-battle audit ledger so the dashboard's audit
     // feed survives reloads. Cast through `as ICampaign` because the
     // field is on the optional extension type, not the core ICampaign.

@@ -36,10 +36,7 @@ import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPerson } from '@/types/campaign/Person';
-import type {
-  IUnitCombatState,
-  IUnitMaxState,
-} from '@/types/campaign/UnitCombatState';
+import type { IUnitMaxState } from '@/types/campaign/UnitCombatState';
 import type {
   ICombatOutcome,
   IUnitCombatDelta,
@@ -322,12 +319,15 @@ describe('Phase 3 capstone — encounter → outcome → campaign round trip', (
     expect(updatedPilot?.totalXpEarned ?? 0).toBeGreaterThan(0);
 
     // 5b. postBattle effects: per-unit damage state persisted.
+    // Per canonicalize-unit-combat-state PR-A: unitCombatStates is a
+    // first-class ICampaign field and is read directly. The remaining
+    // cast covers fields (salvageReports, repairQueue) that are still
+    // pending promotion via separate openspec changes.
     const extended = updatedCampaign as typeof updatedCampaign & {
-      readonly unitCombatStates?: Record<string, IUnitCombatState>;
       readonly salvageReports?: Record<string, unknown>;
       readonly repairQueue?: readonly { matchId: string; ticketId: string }[];
     };
-    const unitState = extended?.unitCombatStates?.['unit-A'];
+    const unitState = updatedCampaign?.unitCombatStates?.['unit-A'];
     expect(unitState).toBeDefined();
     expect(unitState?.currentArmorPerLocation['CT']).toBe(5);
     expect(unitState?.currentStructurePerLocation['CT']).toBe(6);

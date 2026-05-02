@@ -43,10 +43,7 @@ import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
 import type { IPerson } from '@/types/campaign/Person';
-import type {
-  IUnitCombatState,
-  IUnitMaxState,
-} from '@/types/campaign/UnitCombatState';
+import type { IUnitMaxState } from '@/types/campaign/UnitCombatState';
 import type {
   ICombatOutcome,
   IUnitCombatDelta,
@@ -388,15 +385,19 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
       expect(updatedPilot?.status).toBe(PersonnelStatus.WOUNDED);
 
       // 10.2(c) Units have combat state reflecting damage.
+      // Per canonicalize-unit-combat-state PR-A: unitCombatStates is a
+      // first-class ICampaign field and is read directly. The remaining
+      // cast covers fields (salvageReports, repairQueue, dailyBattleAudit,
+      // pendingFulfilledContractIds, processedFulfilledContractIds) that
+      // are still pending promotion via separate openspec changes.
       const extended = updatedCampaign as typeof updatedCampaign & {
-        readonly unitCombatStates?: Record<string, IUnitCombatState>;
         readonly salvageReports?: Record<string, unknown>;
         readonly repairQueue?: readonly { matchId: string; ticketId: string }[];
         readonly dailyBattleAudit?: readonly IDailyBattleAuditEntry[];
         readonly pendingFulfilledContractIds?: readonly string[];
         readonly processedFulfilledContractIds?: readonly string[];
       };
-      const unitState = extended?.unitCombatStates?.['unit-A'];
+      const unitState = updatedCampaign?.unitCombatStates?.['unit-A'];
       expect(unitState).toBeDefined();
       expect(unitState?.currentArmorPerLocation['CT']).toBe(5);
       expect(unitState?.currentStructurePerLocation['CT']).toBe(6);

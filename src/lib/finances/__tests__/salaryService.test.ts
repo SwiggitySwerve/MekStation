@@ -86,6 +86,8 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     updatedAt: '2026-01-01T00:00:00Z',
     ...overrides,
     campaignType: CampaignType.MERCENARY,
+    // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
+    unitCombatStates: overrides?.unitCombatStates ?? {},
   };
 }
 

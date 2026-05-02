@@ -98,6 +98,8 @@ function makeCampaign(
     shoppingList: { items: [] },
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
+    // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
+    unitCombatStates: {},
   };
   return { ...base, ...overrides };
 }

@@ -62,14 +62,16 @@ import {
  * campaign. They are added here as an intersection so we don't have to
  * widen `ICampaign` itself in this Wave — Wave 4/5 may promote them to
  * the core interface.
+ *
+ * Per canonicalize-unit-combat-state PR-A: `unitCombatStates` has been
+ * promoted to ICampaign and is no longer declared on this extension.
+ * Consumers read it via the canonical `campaign.unitCombatStates` slot.
  */
 export interface IPostBattleCampaignExtensions {
   /** Queue of outcomes pending application. */
   readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
   /** Set of match ids already applied (idempotency guard). */
   readonly processedBattleIds?: readonly string[];
-  /** Persisted post-battle state per unit id. */
-  readonly unitCombatStates?: Readonly<Record<string, IUnitCombatState>>;
   /**
    * Per `wire-encounter-to-campaign-round-trip` Wave 5 §9: contract ids
    * the post-battle processor flagged as fulfilled this day. The

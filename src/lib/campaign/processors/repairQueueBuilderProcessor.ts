@@ -20,10 +20,7 @@
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IRepairTicket } from '@/types/campaign/RepairTicket';
-import type {
-  IUnitCombatState,
-  IUnitMaxState,
-} from '@/types/campaign/UnitCombatState';
+import type { IUnitMaxState } from '@/types/campaign/UnitCombatState';
 
 import {
   DayPhase,
@@ -57,11 +54,14 @@ interface IPendingBattleOutcome {
  *
  * All fields are optional so existing ICampaign consumers are
  * unaffected. The processor narrows when it reads.
+ *
+ * Per canonicalize-unit-combat-state PR-A: `unitCombatStates` has been
+ * promoted to ICampaign and is no longer declared on this extension.
+ * Consumers read it via the canonical `campaign.unitCombatStates` slot.
  */
 export interface ICampaignWithBattleState extends ICampaign {
   readonly pendingBattleOutcomes?: readonly IPendingBattleOutcome[];
   readonly processedBattleIds?: readonly string[];
-  readonly unitCombatStates?: Record<string, IUnitCombatState>;
   readonly unitMaxStates?: Record<string, IUnitMaxState>;
   readonly salvagePool?: ISalvagePool;
   readonly repairQueue?: readonly IRepairTicket[];
