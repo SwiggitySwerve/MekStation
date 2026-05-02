@@ -13,7 +13,7 @@ import { SchematicDiagram } from '@/components/armor/schematic';
 import {
   ArmorDiagramVariant,
   ArmorDiagramMode,
-} from '@/stores/useAppSettingsStore';
+} from '@/stores/useCustomizerSettingsStore';
 import { MechLocation } from '@/types/construction';
 import {
   getSampleArmorData,

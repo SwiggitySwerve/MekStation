@@ -4,24 +4,29 @@ import React from 'react';
 
 import { ArmorDiagramQuickSettings } from '@/components/customizer/armor/ArmorDiagramQuickSettings';
 import {
-  useAppSettingsStore,
-  AppSettingsState,
-  ArmorDiagramVariant,
-} from '@/stores/useAppSettingsStore';
+  useCustomizerSettingsStore,
+  type CustomizerSettingsState,
+  type ArmorDiagramVariant,
+} from '@/stores/useCustomizerSettingsStore';
 
-jest.mock('@/stores/useAppSettingsStore', () => ({
-  useAppSettingsStore: jest.fn(),
-}));
+jest.mock('@/stores/useCustomizerSettingsStore', () => {
+  const actual = jest.requireActual('@/stores/useCustomizerSettingsStore');
+  return {
+    ...actual,
+    useCustomizerSettingsStore: jest.fn(),
+  };
+});
 
-const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<
-  typeof useAppSettingsStore
->;
+const mockUseCustomizerSettingsStore =
+  useCustomizerSettingsStore as jest.MockedFunction<
+    typeof useCustomizerSettingsStore
+  >;
 
 function createMockState(
   variant: ArmorDiagramVariant,
   setFn: jest.Mock,
   revertFn: jest.Mock,
-): Partial<AppSettingsState> {
+): Partial<CustomizerSettingsState> {
   return {
     armorDiagramVariant: variant,
     setArmorDiagramVariant: setFn,
@@ -36,14 +41,14 @@ describe('ArmorDiagramQuickSettings', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseAppSettingsStore.mockImplementation(
-      <T,>(selector: (state: AppSettingsState) => T): T => {
+    mockUseCustomizerSettingsStore.mockImplementation(
+      <T,>(selector: (state: CustomizerSettingsState) => T): T => {
         const state = createMockState(
           'clean-tech',
           mockSetArmorDiagramVariant,
           mockRevertCustomizer,
         );
-        return selector(state as AppSettingsState);
+        return selector(state as CustomizerSettingsState);
       },
     );
   });
@@ -143,14 +148,14 @@ describe('ArmorDiagramQuickSettings', () => {
   });
 
   it('reflects different initial variant', () => {
-    mockUseAppSettingsStore.mockImplementation(
-      <T,>(selector: (state: AppSettingsState) => T): T => {
+    mockUseCustomizerSettingsStore.mockImplementation(
+      <T,>(selector: (state: CustomizerSettingsState) => T): T => {
         const state = createMockState(
           'tactical-hud',
           mockSetArmorDiagramVariant,
           mockRevertCustomizer,
         );
-        return selector(state as AppSettingsState);
+        return selector(state as CustomizerSettingsState);
       },
     );
 

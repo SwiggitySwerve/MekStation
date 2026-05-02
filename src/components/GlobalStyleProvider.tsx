@@ -12,11 +12,12 @@
 
 import { useEffect } from 'react';
 
+import { useAccessibilityStore } from '@/stores/useAccessibilityStore';
 import {
-  useAppSettingsStore,
+  useAppearanceStore,
   ACCENT_COLOR_CSS,
   FONT_SIZE_CSS,
-} from '@/stores/useAppSettingsStore';
+} from '@/stores/useAppearanceStore';
 
 /**
  * Applies user settings as CSS custom properties on document root
@@ -28,13 +29,13 @@ export function GlobalStyleProvider({
   children: React.ReactNode;
 }): React.ReactElement {
   // Use saved values as base
-  const savedAccentColor = useAppSettingsStore((s) => s.accentColor);
-  const savedFontSize = useAppSettingsStore((s) => s.fontSize);
-  const savedUITheme = useAppSettingsStore((s) => s.uiTheme);
-  const reduceMotion = useAppSettingsStore((s) => s.reduceMotion);
+  const savedAccentColor = useAppearanceStore((s) => s.accentColor);
+  const savedFontSize = useAppearanceStore((s) => s.fontSize);
+  const savedUITheme = useAppearanceStore((s) => s.uiTheme);
+  const reduceMotion = useAccessibilityStore((s) => s.reduceMotion);
 
   // Use draft values for live preview if they exist
-  const draftAppearance = useAppSettingsStore((s) => s.draftAppearance);
+  const draftAppearance = useAppearanceStore((s) => s.draftAppearance);
 
   // Effective values: draft if exists, otherwise saved
   const accentColor = draftAppearance?.accentColor ?? savedAccentColor;

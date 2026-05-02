@@ -1,21 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import {
-  useAppSettingsStore,
-  useAppSettingsSelector,
-} from '@/stores/useAppSettingsStore';
+import { useCustomizerSettingsStore } from '@/stores/useCustomizerSettingsStore';
 import { MechLocation } from '@/types/construction';
 
 import { ArmorDiagram } from '../ArmorDiagram';
 
-// Mock the store
-jest.mock('@/stores/useAppSettingsStore');
-const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<
-  typeof useAppSettingsStore
->;
-const mockUseAppSettingsSelector =
-  useAppSettingsSelector as jest.MockedFunction<typeof useAppSettingsSelector>;
+jest.mock('@/stores/useCustomizerSettingsStore');
+const mockUseCustomizerSettingsStore =
+  useCustomizerSettingsStore as jest.MockedFunction<
+    typeof useCustomizerSettingsStore
+  >;
 
 describe('ArmorDiagram', () => {
   const mockArmorData = [
@@ -56,16 +51,15 @@ describe('ArmorDiagram', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseAppSettingsSelector.mockImplementation((selector) =>
-      selector(mockUseAppSettingsStore()),
-    );
   });
 
   describe('mode switching', () => {
     it('should render silhouette diagram when mode is silhouette', () => {
-      mockUseAppSettingsStore.mockReturnValue({
-        armorDiagramMode: 'silhouette',
-      } as ReturnType<typeof useAppSettingsStore>);
+      mockUseCustomizerSettingsStore.mockImplementation((selector) =>
+        selector({
+          armorDiagramMode: 'silhouette',
+        } as unknown as ReturnType<typeof useCustomizerSettingsStore.getState>),
+      );
 
       const { container } = render(<ArmorDiagram {...defaultProps} />);
 
@@ -74,9 +68,11 @@ describe('ArmorDiagram', () => {
     });
 
     it('should render schematic diagram when mode is schematic', () => {
-      mockUseAppSettingsStore.mockReturnValue({
-        armorDiagramMode: 'schematic',
-      } as ReturnType<typeof useAppSettingsStore>);
+      mockUseCustomizerSettingsStore.mockImplementation((selector) =>
+        selector({
+          armorDiagramMode: 'schematic',
+        } as unknown as ReturnType<typeof useCustomizerSettingsStore.getState>),
+      );
 
       render(<ArmorDiagram {...defaultProps} />);
 
@@ -86,9 +82,11 @@ describe('ArmorDiagram', () => {
     });
 
     it('should pass props to schematic diagram correctly', () => {
-      mockUseAppSettingsStore.mockReturnValue({
-        armorDiagramMode: 'schematic',
-      } as ReturnType<typeof useAppSettingsStore>);
+      mockUseCustomizerSettingsStore.mockImplementation((selector) =>
+        selector({
+          armorDiagramMode: 'schematic',
+        } as unknown as ReturnType<typeof useCustomizerSettingsStore.getState>),
+      );
 
       // Check that the selected location has the selected styling
       const { container } = render(

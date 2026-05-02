@@ -1,10 +1,10 @@
 import React from 'react';
 
 import {
-  useAppSettingsStore,
+  useAppearanceStore,
   FontSize,
   AnimationLevel,
-} from '@/stores/useAppSettingsStore';
+} from '@/stores/useAppearanceStore';
 
 import {
   SettingsSection,
@@ -20,20 +20,20 @@ export function AppearanceSettings({
   onToggle,
   onRef,
 }: SettingsSectionProps): React.ReactElement {
-  const initDraftAppearance = useAppSettingsStore((s) => s.initDraftAppearance);
-  const saveUITheme = useAppSettingsStore((s) => s.saveUITheme);
-  const saveOtherAppearance = useAppSettingsStore((s) => s.saveOtherAppearance);
-  const hasUnsavedUITheme = useAppSettingsStore((s) => s.hasUnsavedUITheme);
-  const hasUnsavedOtherAppearance = useAppSettingsStore(
+  const initDraftAppearance = useAppearanceStore((s) => s.initDraftAppearance);
+  const saveUITheme = useAppearanceStore((s) => s.saveUITheme);
+  const saveOtherAppearance = useAppearanceStore((s) => s.saveOtherAppearance);
+  const hasUnsavedUITheme = useAppearanceStore((s) => s.hasUnsavedUITheme);
+  const hasUnsavedOtherAppearance = useAppearanceStore(
     (s) => s.hasUnsavedOtherAppearance,
   );
 
-  const draftAppearance = useAppSettingsStore((s) => s.draftAppearance);
-  const savedAccentColor = useAppSettingsStore((s) => s.accentColor);
-  const savedUITheme = useAppSettingsStore((s) => s.uiTheme);
-  const savedFontSize = useAppSettingsStore((s) => s.fontSize);
-  const savedAnimationLevel = useAppSettingsStore((s) => s.animationLevel);
-  const savedCompactMode = useAppSettingsStore((s) => s.compactMode);
+  const draftAppearance = useAppearanceStore((s) => s.draftAppearance);
+  const savedAccentColor = useAppearanceStore((s) => s.accentColor);
+  const savedUITheme = useAppearanceStore((s) => s.uiTheme);
+  const savedFontSize = useAppearanceStore((s) => s.fontSize);
+  const savedAnimationLevel = useAppearanceStore((s) => s.animationLevel);
+  const savedCompactMode = useAppearanceStore((s) => s.compactMode);
 
   const effectiveAccentColor = draftAppearance?.accentColor ?? savedAccentColor;
   const effectiveUITheme = draftAppearance?.uiTheme ?? savedUITheme;
@@ -42,13 +42,13 @@ export function AppearanceSettings({
     draftAppearance?.animationLevel ?? savedAnimationLevel;
   const effectiveCompactMode = draftAppearance?.compactMode ?? savedCompactMode;
 
-  const setDraftAccentColor = useAppSettingsStore((s) => s.setDraftAccentColor);
-  const setDraftUITheme = useAppSettingsStore((s) => s.setDraftUITheme);
-  const setDraftFontSize = useAppSettingsStore((s) => s.setDraftFontSize);
-  const setDraftAnimationLevel = useAppSettingsStore(
+  const setDraftAccentColor = useAppearanceStore((s) => s.setDraftAccentColor);
+  const setDraftUITheme = useAppearanceStore((s) => s.setDraftUITheme);
+  const setDraftFontSize = useAppearanceStore((s) => s.setDraftFontSize);
+  const setDraftAnimationLevel = useAppearanceStore(
     (s) => s.setDraftAnimationLevel,
   );
-  const setDraftCompactMode = useAppSettingsStore((s) => s.setDraftCompactMode);
+  const setDraftCompactMode = useAppearanceStore((s) => s.setDraftCompactMode);
 
   React.useEffect(() => {
     initDraftAppearance();

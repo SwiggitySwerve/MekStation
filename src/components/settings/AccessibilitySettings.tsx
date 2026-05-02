@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { useAccessibilityStore } from '@/stores/useAccessibilityStore';
 
 import {
   SettingsSection,
@@ -13,10 +13,10 @@ export function AccessibilitySettings({
   onToggle,
   onRef,
 }: SettingsSectionProps): React.ReactElement {
-  const highContrast = useAppSettingsStore((s) => s.highContrast);
-  const setHighContrast = useAppSettingsStore((s) => s.setHighContrast);
-  const reduceMotion = useAppSettingsStore((s) => s.reduceMotion);
-  const setReduceMotion = useAppSettingsStore((s) => s.setReduceMotion);
+  const highContrast = useAccessibilityStore((s) => s.highContrast);
+  const setHighContrast = useAccessibilityStore((s) => s.setHighContrast);
+  const reduceMotion = useAccessibilityStore((s) => s.reduceMotion);
+  const setReduceMotion = useAccessibilityStore((s) => s.setReduceMotion);
 
   return (
     <SettingsSection

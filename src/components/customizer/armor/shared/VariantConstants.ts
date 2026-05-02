@@ -5,7 +5,7 @@
  * Using constants prevents typos and ensures consistency across the codebase.
  */
 
-import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+import { ArmorDiagramVariant } from '@/stores/useCustomizerSettingsStore';
 
 /**
  * Variant IDs - internal identifiers used in code and storage

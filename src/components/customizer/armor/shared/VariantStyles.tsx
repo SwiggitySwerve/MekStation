@@ -8,7 +8,7 @@
 import React from 'react';
 
 import { ARMOR_STATUS } from '@/constants/armorStatus';
-import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+import { ArmorDiagramVariant } from '@/stores/useCustomizerSettingsStore';
 
 /**
  * Variant-specific styling configuration

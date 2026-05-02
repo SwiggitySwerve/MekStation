@@ -1,18 +1,18 @@
 import React from 'react';
 
 import {
-  useAppSettingsSelector,
+  useCustomizerSettingsStore,
   ArmorDiagramMode,
-} from '@/stores/useAppSettingsStore';
+} from '@/stores/useCustomizerSettingsStore';
 
 /**
  * Toggle switch for armor diagram mode (Schematic vs Silhouette)
  */
 export function ArmorDiagramModeSwitch(): React.ReactElement {
-  const armorDiagramMode = useAppSettingsSelector(
+  const armorDiagramMode = useCustomizerSettingsStore(
     (state) => state.armorDiagramMode,
   );
-  const setArmorDiagramMode = useAppSettingsSelector(
+  const setArmorDiagramMode = useCustomizerSettingsStore(
     (state) => state.setArmorDiagramMode,
   );
 

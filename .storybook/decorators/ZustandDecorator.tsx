@@ -1,12 +1,12 @@
-import type { Decorator } from '@storybook/react';
+import type { Decorator } from "@storybook/react";
 
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect } from "react";
 
-import { useAppSettingsStore } from '../../src/stores/useAppSettingsStore';
+import { useCustomizerSettingsStore } from "../../src/stores/useCustomizerSettingsStore";
 import {
   useNavigationStore,
   PanelId,
-} from '../../src/stores/useNavigationStore';
+} from "../../src/stores/useNavigationStore";
 
 interface ZustandProviderProps {
   children: ReactNode;
@@ -16,7 +16,7 @@ interface ZustandProviderProps {
     canGoForward?: boolean;
   };
   appSettings?: {
-    armorDiagramMode?: 'schematic' | 'silhouette';
+    armorDiagramMode?: "schematic" | "silhouette";
   };
 }
 
@@ -37,7 +37,7 @@ export function ZustandProvider({
 
   useEffect(() => {
     if (appSettings?.armorDiagramMode) {
-      useAppSettingsStore.setState({
+      useCustomizerSettingsStore.setState({
         armorDiagramMode: appSettings.armorDiagramMode,
       });
     }

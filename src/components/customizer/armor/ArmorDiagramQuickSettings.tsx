@@ -8,9 +8,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 import {
-  useAppSettingsStore,
+  useCustomizerSettingsStore,
   ArmorDiagramVariant,
-} from '@/stores/useAppSettingsStore';
+} from '@/stores/useCustomizerSettingsStore';
 
 import {
   ALL_VARIANTS,
@@ -36,13 +36,15 @@ export function ArmorDiagramQuickSettings({
   }, []);
 
   // Use effective variant (respects draft if exists) for display
-  const getEffectiveArmorDiagramVariant = useAppSettingsStore(
+  const getEffectiveArmorDiagramVariant = useCustomizerSettingsStore(
     (s) => s.getEffectiveArmorDiagramVariant,
   );
-  const setArmorDiagramVariant = useAppSettingsStore(
+  const setArmorDiagramVariant = useCustomizerSettingsStore(
     (s) => s.setArmorDiagramVariant,
   );
-  const revertCustomizer = useAppSettingsStore((s) => s.revertCustomizer);
+  const revertCustomizer = useCustomizerSettingsStore(
+    (s) => s.revertCustomizer,
+  );
 
   // Use default on server, actual value after mount to avoid hydration mismatch
   const effectiveVariant = hasMounted

@@ -15,7 +15,7 @@ import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 
 import { useTechBaseSync } from '@/hooks/useTechBaseSync';
 import { getTotalAllocatedArmor } from '@/stores/unitState';
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { useCustomizerSettingsStore } from '@/stores/useCustomizerSettingsStore';
 import { useUnitStore } from '@/stores/useUnitStore';
 import {
   ArmorTypeEnum,
@@ -59,10 +59,10 @@ export function ArmorTab({
   className = '',
 }: ArmorTabProps): React.ReactElement {
   // Get app settings - subscribe to computed values for reactivity
-  const armorDiagramMode = useAppSettingsStore((s) =>
+  const armorDiagramMode = useCustomizerSettingsStore((s) =>
     s.getEffectiveArmorDiagramMode(),
   );
-  const armorDiagramVariant = useAppSettingsStore((s) =>
+  const armorDiagramVariant = useCustomizerSettingsStore((s) =>
     s.getEffectiveArmorDiagramVariant(),
   );
 

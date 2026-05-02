@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { useUIBehaviorStore } from '@/stores/useUIBehaviorStore';
 
 import {
   SettingsSection,
@@ -13,16 +13,16 @@ export function UIBehaviorSettings({
   onToggle,
   onRef,
 }: SettingsSectionProps): React.ReactElement {
-  const sidebarDefaultCollapsed = useAppSettingsStore(
+  const sidebarDefaultCollapsed = useUIBehaviorStore(
     (s) => s.sidebarDefaultCollapsed,
   );
-  const setSidebarDefaultCollapsed = useAppSettingsStore(
+  const setSidebarDefaultCollapsed = useUIBehaviorStore(
     (s) => s.setSidebarDefaultCollapsed,
   );
-  const confirmOnClose = useAppSettingsStore((s) => s.confirmOnClose);
-  const setConfirmOnClose = useAppSettingsStore((s) => s.setConfirmOnClose);
-  const showTooltips = useAppSettingsStore((s) => s.showTooltips);
-  const setShowTooltips = useAppSettingsStore((s) => s.setShowTooltips);
+  const confirmOnClose = useUIBehaviorStore((s) => s.confirmOnClose);
+  const setConfirmOnClose = useUIBehaviorStore((s) => s.setConfirmOnClose);
+  const showTooltips = useUIBehaviorStore((s) => s.showTooltips);
+  const setShowTooltips = useUIBehaviorStore((s) => s.setShowTooltips);
 
   return (
     <SettingsSection
