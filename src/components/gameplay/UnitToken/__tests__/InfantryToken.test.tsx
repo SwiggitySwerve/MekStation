@@ -75,10 +75,14 @@ describe('InfantryToken trooper count', () => {
     expect(screen.getByTestId('infantry-count').textContent).toBe('3');
   });
 
-  it('defaults to 28 when infantryCount is undefined', () => {
+  it('renders "?" when infantryCount is undefined (fog-redacted hidden enemy)', () => {
+    // Per `wire-combat-behavior-dispatch` (Council #1 PR7): the prior
+    // `?? 28` default is GONE. Fog-redacted hidden enemies arrive with
+    // `infantryCount === undefined` and the badge shows "?" so the
+    // platoon silhouette still renders without leaking trooper count.
     const token = makeInfantryToken({ infantryCount: undefined });
     renderInSvg(<InfantryToken token={token} eventState={EMPTY_EVENT_STATE} />);
-    expect(screen.getByTestId('infantry-count').textContent).toBe('28');
+    expect(screen.getByTestId('infantry-count').textContent).toBe('?');
   });
 });
 

@@ -40,9 +40,16 @@ export const AerospaceToken = React.memo(function AerospaceToken({
 }: AerospaceTokenProps): React.ReactElement {
   const isDestroyed = token.isDestroyed || eventState.destroyed;
 
-  // altitude defaults to 1 (airborne) when not yet wired from combat behavior.
-  // TODO: remove default when add-aerospace-combat-behavior wires altitude field.
-  const altitude = token.altitude ?? 1;
+  // altitude is wired from IAerospaceCombatState.altitude via the
+  // unitStateToToken adapter (per `wire-combat-behavior-dispatch`,
+  // Council #1 PR7). Fog-redacted hidden enemies arrive with
+  // `altitude === undefined` — treat as airborne (the safe non-leaking
+  // default) for the visual branch.
+  const altitude = token.altitude;
+  // velocity is intentionally NOT wired in PR7 — it belongs to the
+  // future "movement slice 2". Keep the `?? 0` fallback until then.
+  // TODO(movement slice 2): remove `?? 0` once IAerospaceCombatState
+  //   carries velocity and the unitStateToToken adapter projects it.
   const velocity = token.velocity ?? 0;
   const isLanded = altitude === 0;
 
@@ -121,7 +128,7 @@ export const AerospaceToken = React.memo(function AerospaceToken({
           dy={2}
           data-testid="altitude-badge"
         >
-          {isLanded ? 'GND' : String(altitude)}
+          {isLanded ? 'GND' : altitude === undefined ? '?' : String(altitude)}
         </text>
       </g>
 

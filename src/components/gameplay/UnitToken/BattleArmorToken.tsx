@@ -70,9 +70,12 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
   mountedBadge = false,
 }: BattleArmorTokenProps): React.ReactElement {
   const isDestroyed = token.isDestroyed || eventState.destroyed;
-  // Default to 4 troopers (minimum BA squad) when field not yet wired.
-  // TODO: remove default when add-battlearmor-combat-behavior wires trooperCount.
-  const count = Math.max(1, Math.min(6, token.trooperCount ?? 4));
+  // trooperCount is wired from IBattleArmorCombatState surviving troopers
+  // via the unitStateToToken adapter (per `wire-combat-behavior-dispatch`,
+  // Council #1 PR7). Fog-redacted hidden enemies arrive with
+  // `trooperCount === undefined` — fall back to the minimum (1 visible
+  // dot) so the silhouette still renders without revealing squad size.
+  const count = Math.max(1, Math.min(6, token.trooperCount ?? 1));
   const positions = trooperPositions(count);
 
   const dotColor =

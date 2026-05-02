@@ -4,42 +4,24 @@ import React from 'react';
 import type { InteractiveSession } from '@/engine/GameEngine';
 
 import { Button } from '@/components/ui';
-import {
-  GamePhase,
-  GameSide,
-  IGameSession,
-  IUnitGameState,
-  IUnitToken,
-} from '@/types/gameplay';
+import { GamePhase, GameSide, IGameSession } from '@/types/gameplay';
 
 // =============================================================================
 // Helpers
 // =============================================================================
 
-export function unitStateToToken(
-  unitId: string,
-  state: IUnitGameState,
-  unitInfo: { name: string; side: GameSide },
-): IUnitToken {
-  const designation = unitInfo.name
-    .split(/[\s-]+/)
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 4);
-
-  return {
-    unitId,
-    name: unitInfo.name,
-    side: unitInfo.side,
-    position: state.position,
-    facing: state.facing,
-    isSelected: false,
-    isValidTarget: false,
-    isDestroyed: state.destroyed,
-    designation,
-  };
-}
+/**
+ * Re-export of the unified `unitStateToToken` adapter (lives in
+ * `src/lib/gameplay/unitStateToToken.ts`). Kept as a re-export so existing
+ * callers (`SpectatorView`) keep their `import { unitStateToToken } from
+ * './SpectatorViewPanels'` line working without churn.
+ *
+ * Per `wire-combat-behavior-dispatch` (Council #1 PR7), there's only one
+ * adapter implementation now — the prior local copy diverged from the
+ * GameplayLayout copy and was the immediate cause of per-type token fields
+ * never reaching the renderer in spectator view.
+ */
+export { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 
 export function speedToInterval(speed: 1 | 2 | 4): number {
   return 1200 / speed;

@@ -55,11 +55,19 @@ export const ProtoMechToken = React.memo(function ProtoMechToken({
   eventState,
 }: ProtoMechTokenProps): React.ReactElement {
   const isDestroyed = token.isDestroyed || eventState.destroyed;
-  // Default to 5 (full point) when field not yet wired.
-  // TODO: remove default when add-protomech-combat-behavior wires protoCount.
-  const protoCount = Math.max(1, Math.min(5, token.protoCount ?? 5));
-  const isGlider = token.isGlider ?? false;
-  const hasMainGun = token.hasMainGun ?? false;
+  // protoCount / isGlider / hasMainGun are wired from
+  // IProtoMechCombatState via the unitStateToToken adapter (per
+  // `wire-combat-behavior-dispatch`, Council #1 PR7). Fog-redacted hidden
+  // enemies arrive with all three `undefined` — fall back to a single
+  // proto silhouette with no glider wings or main-gun barrel so the
+  // chassis variant doesn't leak through `lastKnown` projections.
+  const rawProtoCount = token.protoCount;
+  const protoCount = Math.max(
+    1,
+    Math.min(5, rawProtoCount === undefined ? 1 : rawProtoCount),
+  );
+  const isGlider = token.isGlider === true;
+  const hasMainGun = token.hasMainGun === true;
 
   let bodyColor =
     token.side === GameSide.Player

@@ -98,6 +98,16 @@ export interface IAerospaceCombatState {
   readonly baseSafeThrust: number;
   /** Construction-time max thrust. */
   readonly baseMaxThrust: number;
+  /**
+   * Current altitude band (0 = landed; positive integers = airborne in
+   * standard altitude bands per BattleTech aerospace rules). Per
+   * `wire-combat-behavior-dispatch` (Council #1), this field is the canonical
+   * altitude source consumed by `unitStateToToken`. The factory defaults to
+   * `1` (airborne) — matching the prior render-time fallback in
+   * `AerospaceToken`. `velocity` is intentionally absent in PR7 and will be
+   * wired when "movement slice 2" lands.
+   */
+  altitude: number;
 }
 
 // ============================================================================
@@ -175,6 +185,11 @@ export function createAerospaceCombatState(params: {
   readonly fuelPoints: number;
   readonly safeThrust: number;
   readonly maxThrust: number;
+  /**
+   * Initial altitude band. Defaults to `1` (airborne) — matches the prior
+   * `AerospaceToken` render fallback. Pass `0` to spawn the unit landed.
+   */
+  readonly altitude?: number;
 }): IAerospaceCombatState {
   return {
     maxSI: params.maxSI,
@@ -192,6 +207,7 @@ export function createAerospaceCombatState(params: {
     avionicsDamaged: false,
     crewStunned: false,
     destroyed: false,
+    altitude: params.altitude ?? 1,
     baseSafeThrust: params.safeThrust,
     baseMaxThrust: params.maxThrust,
   };
