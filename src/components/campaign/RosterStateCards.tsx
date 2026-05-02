@@ -27,10 +27,10 @@ import { CampaignPilotStatus } from '@/types/campaign';
 
 /**
  * Map projection readiness to badge styles. Replaces the legacy
- * `getUnitStatusStyles(CampaignUnitStatus)` accessor — `Repairing` and
- * `Salvage` are no longer surfaced here because the projection only
- * carries the three derived readiness values. Repair-bay flow surfaces
- * those states via its own component.
+ * `getUnitStatusStyles` accessor that took the deleted unit-status enum
+ * — `Repairing` and `Salvage` are no longer surfaced here because the
+ * projection only carries the three derived readiness values. Repair-bay
+ * flow surfaces those states via its own component.
  */
 export function getReadinessStyles(unit: IRosterUnitProjection): {
   badge: 'success' | 'warning' | 'red' | 'muted';

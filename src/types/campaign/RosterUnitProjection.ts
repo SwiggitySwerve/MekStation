@@ -22,9 +22,9 @@
  *
  * ## Why a separate type?
  *
- * The legacy `ICampaignUnitState` (`./CampaignInterfaces.types.ts:113`)
- * conflated all three concerns into one shape carried by the roster
- * store. PR-B (`canonicalize-unit-combat-state`) splits them so:
+ * The legacy roster-unit shape (deleted in PR-C of
+ * `canonicalize-unit-combat-state`) conflated all three concerns into one
+ * shape carried by the roster store. PR-B split them so:
  *
  * - The roster store holds only this projection (`IRosterUnitProjection`),
  *   which is cheap to subscribe to and selector-stable across battles.

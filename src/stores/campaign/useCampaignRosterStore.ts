@@ -176,7 +176,7 @@ interface CampaignRosterActions {
    * `useCampaignStore.campaign.unitCombatStates` and refreshes the
    * roster projection's `readiness` field. Does NOT store armor /
    * structure / destroyed-component lists on the projection itself
-   * (that conflated shape was deleted with `ICampaignUnitState`).
+   * (that conflated legacy roster-unit shape was deleted in PR-C).
    */
   applyDamageCarryForward: (damageStates: IUnitDamageState[]) => void;
 
