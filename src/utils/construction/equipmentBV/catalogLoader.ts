@@ -5,11 +5,7 @@
  * Provides initialization and reset functions for testing and browser contexts.
  */
 
-import type {
-  EquipmentCatalogEntry,
-  NameMappingsSource,
-  RawCatalogFile,
-} from './types';
+import type { EquipmentCatalogEntry, RawCatalogFile } from './types';
 
 import {
   AMMUNITION_CATALOG_FILES,
@@ -75,9 +71,10 @@ function appendCatalogFile(
 export function loadNameMappings(): Record<string, string> {
   if (nameMappingsCache) return nameMappingsCache;
 
-  const source = NAME_MAPPINGS_DATA as NameMappingsSource;
+  // NAME_MAPPINGS_DATA is already validated as NameMappingsSource via
+  // parseNameMappings at module load (see equipmentBVCatalogData.ts).
   const mappings: Record<string, string> = {};
-  for (const [key, value] of Object.entries(source)) {
+  for (const [key, value] of Object.entries(NAME_MAPPINGS_DATA)) {
     if (key === '$schema') {
       continue;
     }
