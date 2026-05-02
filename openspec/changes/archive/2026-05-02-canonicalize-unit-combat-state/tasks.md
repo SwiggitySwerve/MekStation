@@ -59,7 +59,7 @@
 - [x] 4.1 `npx tsc --noEmit --skipLibCheck` exit 0.
 - [x] 4.2 `npx jest --testPathPattern='(phase3RoundTrip|phase4CampaignRoundTrip|postBattleProcessor|repairQueueBuilderProcessor|useCampaignStore)'` all pass. Result: 8 suites / 102 tests pass. Broader sweep across all touched test fixtures: 71 suites / 1823 tests + 32 skipped pass.
 - [x] 4.3 `npx oxfmt --check` clean on all changed files.
-- [ ] 4.4 PR opened, CI green, merged to main.
+- [x] 4.4 PR opened, CI green, merged to main. (PR #488)
 
 ---
 
@@ -151,7 +151,7 @@
 - [x] 10.3 Storybook builds without errors (`npm run build-storybook`). Result: `npm run storybook:build` exit 0.
 - [x] 10.4 Selector memoization render-counter test passes (no excess re-renders on unrelated store writes). **Result**: render-counter test deferred per design.md fall-back. No pre-existing render-counter scaffolding in the project. Selector memoization is implemented (manual shallow-compare on the four `IDamageBarData` fields with closure-held `prev`); validation comes from the full test suite passing without regressions on the 41 tests touching `useCampaignStore`, `useCampaignRosterStore`, dashboard, and integration paths.
 - [x] 10.5 `npx oxfmt --check` clean on all changed files. Result: "All matched files use the correct format." (3230 files checked, 0 diffs).
-- [ ] 10.6 PR opened, CI green, merged to main.
+- [x] 10.6 PR opened, CI green, merged to main. (PR #490)
 
 ---
 
@@ -199,7 +199,7 @@
 - [x] 13.2 `npx tsc --noEmit --skipLibCheck` exit 0.
 - [x] 13.3 Full test suite passes. Result: **883 suites / 23,202 tests pass, 44 skipped, 0 failures (~46s)** — same baseline as PR-B's final run.
 - [x] 13.4 `npx oxfmt --check` clean. Result: "All matched files use the correct format." (3230 files, 0 diffs).
-- [ ] 13.5 PR opened, CI green, merged to main.
+- [x] 13.5 PR opened, CI green, merged to main. (PR #491)
 
 ### 14. Spec sync
 
