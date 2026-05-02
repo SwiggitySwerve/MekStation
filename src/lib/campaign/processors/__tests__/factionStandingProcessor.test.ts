@@ -34,6 +34,8 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     missions: new Map(),
     ...overrides,
     campaignType: CampaignType.MERCENARY,
+    // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
+    unitCombatStates: overrides?.unitCombatStates ?? {},
   };
 }
 

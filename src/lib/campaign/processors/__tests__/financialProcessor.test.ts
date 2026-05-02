@@ -90,6 +90,8 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
     createdAt: '3020-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
     ...overrides,
+    // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
+    unitCombatStates: overrides.unitCombatStates ?? {},
   };
 }
 

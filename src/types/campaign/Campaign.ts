@@ -13,6 +13,7 @@ import type { ICampaignOptions } from './CampaignOptions';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { SalvageRights, CommandRights } from './Mission';
 import type { ICombatTeam } from './scenario/scenarioTypes';
+import type { IUnitCombatState } from './UnitCombatState';
 
 import { CampaignType } from './CampaignType';
 import { createDefaultCampaignOptions } from './createDefaultCampaignOptions';
@@ -128,6 +129,18 @@ export interface ICampaign {
 
   /** Last update timestamp (ISO 8601) */
   readonly updatedAt: string;
+
+  /**
+   * Canonical post-deploy combat state per unit, keyed by unitId.
+   * Populated by createInitialCombatState at first deploy, updated by
+   * postBattleProcessor, reset by repair completion. Absent entry means
+   * the unit has not yet been deployed (or its combat state was reset
+   * post-repair).
+   *
+   * See openspec/specs/campaign-unit-combat-state/spec.md for the
+   * canonical shape contract and idempotency rules.
+   */
+  readonly unitCombatStates: Readonly<Record<string, IUnitCombatState>>;
 }
 
 // =============================================================================
@@ -543,6 +556,10 @@ export function createCampaign(
     campaignStartDate: new Date(),
     createdAt: now,
     updatedAt: now,
+    // Per canonicalize-unit-combat-state PR-A: ICampaign owns the
+    // canonical post-deploy combat-state map. Fresh campaigns start
+    // empty; createInitialCombatState writes entries on first deploy.
+    unitCombatStates: {},
   };
 }
 
@@ -608,5 +625,11 @@ export function createCampaignWithData(params: {
     iconUrl: params.iconUrl,
     createdAt: now,
     updatedAt: now,
+    // Per canonicalize-unit-combat-state PR-A: ICampaign owns the
+    // canonical combat-state map. Loaded campaigns start empty here;
+    // callers that hold combat state pass it via the merge layer in
+    // useCampaignStore (deserializeCampaign) or as a post-construction
+    // spread.
+    unitCombatStates: {},
   };
 }

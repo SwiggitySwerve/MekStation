@@ -38,6 +38,8 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     ...overrides,
+    // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
+    unitCombatStates: overrides?.unitCombatStates ?? {},
   };
 }
 

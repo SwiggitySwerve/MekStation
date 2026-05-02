@@ -8,50 +8,57 @@
 
 ### 1. Type promotion + open question verification
 
-- [ ] 1.1 Grep `src/types/campaign/Campaign.ts` for any field named `unitCombatStates` (open question #1 from design.md).
+- [x] 1.1 Grep `src/types/campaign/Campaign.ts` for any field named `unitCombatStates` (open question #1 from design.md).
   - Acceptance: zero pre-existing references.
   - QA: `npx tsc --noEmit --skipLibCheck` clean before any change.
+  - Result: zero hits — clean slate.
 
-- [ ] 1.2 Add `unitCombatStates: Readonly<Record<string, IUnitCombatState>>` field to `ICampaign` interface in `src/types/campaign/Campaign.ts`.
+- [x] 1.2 Add `unitCombatStates: Readonly<Record<string, IUnitCombatState>>` field to `ICampaign` interface in `src/types/campaign/Campaign.ts`.
   - Required field (not optional). Initialize empty `{}` in fresh-campaign factories.
   - Add `import type { IUnitCombatState } from './UnitCombatState';` at top of file.
   - Acceptance: type-only addition, integration tests still type-check.
   - QA: `npx tsc --noEmit --skipLibCheck` clean.
+  - Result: field added; both `createCampaign` and `createCampaignWithData` factories seed `unitCombatStates: {}`.
 
-- [ ] 1.3 Update fresh-campaign factories to initialize `unitCombatStates: {}`.
+- [x] 1.3 Update fresh-campaign factories to initialize `unitCombatStates: {}`.
   - Locations: `src/stores/campaign/useCampaignStore.ts` (deserialize / loadCampaign / merge paths), any `createCampaign(...)` helpers.
   - Acceptance: typecheck clean; existing campaign-creation tests pass.
   - QA: `npx jest --testPathPattern='useCampaignStore'`.
+  - Result: `deserializeCampaign` (used by `loadCampaign` + `merge`) seeds `unitCombatStates: {}`. Other in-store ICampaign literals (`createCampaign`, `updateCampaign`, `saveCampaign`, `advanceDay`) all use `{ ...campaign }` spread and inherit the field.
 
 ### 2. Cast-through removal
 
-- [ ] 2.1 Remove cast-through pattern in `src/__tests__/integration/phase3RoundTrip.test.ts:320`.
+- [x] 2.1 Remove cast-through pattern in `src/__tests__/integration/phase3RoundTrip.test.ts:320`.
   - Replace `(campaign as typeof campaign & { readonly unitCombatStates?: ... })` with direct `campaign.unitCombatStates?.['unit-A']`.
   - Acceptance: test passes; no `as` cast remains in this file targeting `unitCombatStates`.
   - QA: `npx jest src/__tests__/integration/phase3RoundTrip.test.ts`.
+  - Result: `unitCombatStates` line dropped from the cast surface; remaining cast preserves `salvageReports` + `repairQueue` (both still pending promotion). `IUnitCombatState` import removed (unused after refactor).
 
-- [ ] 2.2 Remove cast-through patterns in `src/__tests__/integration/phase4CampaignRoundTrip.test.ts:385` and `:392`.
+- [x] 2.2 Remove cast-through patterns in `src/__tests__/integration/phase4CampaignRoundTrip.test.ts:385` and `:392`.
   - Same pattern as 2.1.
   - Acceptance: test passes; no `as` cast remains targeting `unitCombatStates`.
   - QA: `npx jest src/__tests__/integration/phase4CampaignRoundTrip.test.ts`.
+  - Result: same surgical pattern — only the `unitCombatStates` line removed from the cast (it covered 6 fields total). `IUnitCombatState` import removed.
 
 ### 3. Local interface removal in processors
 
-- [ ] 3.1 Delete local `ICampaignInput` interface in `src/lib/campaign/processors/postBattleProcessor.ts` (~lines 68-80).
+- [x] 3.1 Delete local `ICampaignInput` interface in `src/lib/campaign/processors/postBattleProcessor.ts` (~lines 68-80).
   - Update function signature to accept `ICampaign` directly.
   - Acceptance: typecheck clean; postBattleProcessor unit tests pass.
   - QA: `npx jest src/lib/campaign/processors/__tests__/postBattleProcessor.test.ts`.
+  - Result: actual local extension is `IPostBattleCampaignExtensions`; only the `unitCombatStates` field was removed from it (kept the wrapper for `pendingBattleOutcomes`, `processedBattleIds`, `pendingFulfilledContractIds` — still pending promotion). Consumers now read via `campaign.unitCombatStates`.
 
-- [ ] 3.2 Delete local `ICampaignInput` interface in `src/lib/campaign/processors/repairQueueBuilderProcessor.ts` (~lines 60-70).
+- [x] 3.2 Delete local `ICampaignInput` interface in `src/lib/campaign/processors/repairQueueBuilderProcessor.ts` (~lines 60-70).
   - Update function signature to accept `ICampaign` directly.
   - Acceptance: typecheck clean; processor unit tests pass.
   - QA: `npx jest src/lib/campaign/processors/__tests__/repairQueueBuilderProcessor.test.ts`.
+  - Result: actual local interface is `ICampaignWithBattleState extends ICampaign`; the `unitCombatStates?: Record<...>` field removed (had a mutable-vs-Readonly mismatch with the canonical type, so removal was mandatory for typecheck). `IUnitCombatState` import dropped (no longer referenced).
 
 ### 4. PR-A verification
 
-- [ ] 4.1 `npx tsc --noEmit --skipLibCheck` exit 0.
-- [ ] 4.2 `npx jest --testPathPattern='(phase3RoundTrip|phase4CampaignRoundTrip|postBattleProcessor|repairQueueBuilderProcessor|useCampaignStore)'` all pass.
-- [ ] 4.3 `npx oxfmt --check` clean on all changed files.
+- [x] 4.1 `npx tsc --noEmit --skipLibCheck` exit 0.
+- [x] 4.2 `npx jest --testPathPattern='(phase3RoundTrip|phase4CampaignRoundTrip|postBattleProcessor|repairQueueBuilderProcessor|useCampaignStore)'` all pass. Result: 8 suites / 102 tests pass. Broader sweep across all touched test fixtures: 71 suites / 1823 tests + 32 skipped pass.
+- [x] 4.3 `npx oxfmt --check` clean on all changed files.
 - [ ] 4.4 PR opened, CI green, merged to main.
 
 ---

@@ -38,6 +38,8 @@ function makeBaseCampaign(): ICampaign {
     campaignType: CampaignType.MERCENARY,
     createdAt: TEST_DATE.toISOString(),
     updatedAt: TEST_DATE.toISOString(),
+    // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
+    unitCombatStates: {},
   };
 }
 
