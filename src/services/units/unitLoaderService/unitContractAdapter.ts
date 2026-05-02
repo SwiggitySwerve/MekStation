@@ -137,10 +137,10 @@ export function safeParseUnit(
  * `(parseResult.success ? parseResult.unit : fullUnit) as IRawSerializedUnit`
  * pattern from each loader call site. The single coercion is justified
  * because:
- *   - upstream services type their cached JSON as `IFullUnit` /
- *     `IUnitWithVersion`, both of which carry `[key: string]: unknown`
- *     index signatures wide enough to accept the structurally-richer
- *     `IRawSerializedUnit`,
+ *   - upstream services type their cached JSON as `IFullUnit`, which
+ *     carries optional version metadata (currentVersion/createdAt/
+ *     updatedAt) plus a `[key: string]: unknown` index signature wide
+ *     enough to accept the structurally-richer `IRawSerializedUnit`,
  *   - `hasSerializedUnitStructure` already runs ahead of this in the
  *     custom-unit branch to confirm the shape is the serialized variant
  *     (chassis/tonnage/techBase present),

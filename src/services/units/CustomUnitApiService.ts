@@ -19,15 +19,6 @@ import { IFullUnit } from './CanonicalUnitService';
 import { getCanonicalUnitService } from './CanonicalUnitService';
 
 /**
- * Unit with version info
- */
-export interface IUnitWithVersion extends IFullUnit {
-  readonly currentVersion: number;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-}
-
-/**
  * API Response types
  */
 interface IUnitListResponse {
@@ -36,7 +27,7 @@ interface IUnitListResponse {
 
 interface IUnitDetailsResponse {
   readonly success: boolean;
-  readonly data?: IUnitWithVersion;
+  readonly data?: IFullUnit;
   readonly error?: string;
 }
 
@@ -74,7 +65,7 @@ export interface IVersionWithData {
 export interface ICustomUnitApiService {
   // CRUD
   list(): Promise<readonly ICustomUnitIndexEntry[]>;
-  getById(id: string): Promise<IUnitWithVersion | null>;
+  getById(id: string): Promise<IFullUnit | null>;
   create(
     unit: IFullUnit,
     chassis: string,
@@ -134,7 +125,7 @@ export class CustomUnitApiService implements ICustomUnitApiService {
   /**
    * Get a custom unit by ID
    */
-  async getById(id: string): Promise<IUnitWithVersion | null> {
+  async getById(id: string): Promise<IFullUnit | null> {
     const response = await fetch(
       `${API_BASE}/custom/${encodeURIComponent(id)}`,
     );
@@ -162,7 +153,7 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       currentVersion: data.data.currentVersion,
       createdAt: data.data.createdAt,
       updatedAt: data.data.updatedAt,
-    } as IUnitWithVersion;
+    } as IFullUnit;
   }
 
   /**

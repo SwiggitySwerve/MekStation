@@ -59,7 +59,6 @@ export {
   CustomUnitApiService,
   customUnitApiService,
   type ICustomUnitApiService,
-  type IUnitWithVersion,
   type ISaveResult,
   type IVersionWithData,
 } from './CustomUnitApiService';
