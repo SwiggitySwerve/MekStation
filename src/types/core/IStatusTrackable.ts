@@ -10,9 +10,9 @@
  * }
  *
  * @example
- * interface ICampaignUnit extends IStatusTrackable<CampaignUnitStatus> {
- *   unitId: string;
- *   armorPoints: number;
+ * interface ICampaignMission extends IStatusTrackable<CampaignMissionStatus> {
+ *   id: string;
+ *   description: string;
  * }
  */
 export interface IStatusTrackable<TStatus extends string = string> {

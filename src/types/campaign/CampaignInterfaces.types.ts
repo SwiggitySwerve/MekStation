@@ -44,23 +44,13 @@ export enum CampaignMissionStatus {
 }
 
 /**
- * Unit operational status in campaign.
- */
-export enum CampaignUnitStatus {
-  /** Fully operational */
-  Operational = 'operational',
-  /** Damaged but functional */
-  Damaged = 'damaged',
-  /** In repair bay, not available */
-  Repairing = 'repairing',
-  /** Destroyed, cannot be used */
-  Destroyed = 'destroyed',
-  /** Salvaged from enemy */
-  Salvage = 'salvage',
-}
-
-/**
  * Pilot operational status in campaign.
+ *
+ * Note: the legacy unit-status enum was removed alongside the legacy
+ * roster-unit shape in PR-C of `canonicalize-unit-combat-state`. Unit
+ * readiness is now derived on the projection at
+ * `src/types/campaign/RosterUnitProjection.ts` as `'Ready' | 'Damaged' |
+ * 'Destroyed'` from canonical `IUnitCombatState`.
  */
 export enum CampaignPilotStatus {
   /** Ready for duty */
@@ -104,47 +94,24 @@ export const DEFAULT_CAMPAIGN_RESOURCES: ICampaignResources = {
 };
 
 // =============================================================================
-// Unit/Pilot State Tracking
+// Pilot Roster
 // =============================================================================
 
 /**
- * Unit state snapshot for campaign tracking.
- */
-export interface ICampaignUnitState {
-  /** Reference to vault unit ID */
-  readonly unitId: string;
-  /** Unit name (cached for display) */
-  readonly unitName: string;
-  /** Current operational status */
-  readonly status: CampaignUnitStatus;
-  /** Armor damage per location (keyed by location name) */
-  readonly armorDamage: Record<string, number>;
-  /** Structure damage per location */
-  readonly structureDamage: Record<string, number>;
-  /** Destroyed/damaged components (by location) */
-  readonly destroyedComponents: string[];
-  /** Ammunition expended (keyed by ammo type) */
-  readonly ammoExpended: Record<string, number>;
-  /** Heat accumulated (for shutdown tracking) */
-  readonly currentHeat: number;
-  /** Estimated repair cost */
-  readonly repairCost: number;
-  /** Estimated repair time (in mission cycles) */
-  readonly repairTime: number;
-  /** Assigned pilot ID (if any) */
-  readonly pilotId?: string;
-}
-
-/**
- * Campaign roster - all units and pilots in the campaign.
+ * Campaign roster - pilots in the campaign.
+ *
+ * Per `canonicalize-unit-combat-state` PR-C: the legacy `units` field
+ * (the deleted roster-unit-state array) is gone. The unit roster now
+ * lives on `useCampaignRosterStore` as `IRosterUnitProjection[]`, and
+ * canonical post-deploy combat state lives on
+ * `ICampaign.unitCombatStates` (see `./Campaign.ts` and
+ * `openspec/specs/campaign-unit-combat-state/spec.md`).
  *
  * Pilot state lives on the canonical `ICampaignRosterEntry` type
  * (`./CampaignRosterEntry`); this interface is just the read-shape used
  * by snapshot consumers.
  */
 export interface ICampaignRoster {
-  /** Units in the campaign */
-  readonly units: readonly ICampaignUnitState[];
   /** Pilots in the campaign */
   readonly pilots: readonly import('./CampaignRosterEntry').ICampaignRosterEntry[];
 }
@@ -325,14 +292,23 @@ export interface IAddMissionInput {
 
 /**
  * Input for recording mission outcome.
+ *
+ * Per `canonicalize-unit-combat-state` PR-C: the legacy `unitUpdates`
+ * field (a per-unit `Partial<>` of the deleted roster-unit shape) was
+ * removed; it had zero non-test consumers (verified in PR-B Section
+ * 5.1). Unit combat state is updated by the canonical post-battle
+ * processor pipeline,
+ * which writes `IUnitCombatState` deltas into
+ * `ICampaign.unitCombatStates` keyed by `unitId` and idempotency-gated
+ * via `lastCombatOutcomeId === matchId`. See
+ * `openspec/specs/campaign-unit-combat-state/spec.md` for the canonical
+ * shape and merge semantics.
  */
 export interface IRecordMissionOutcomeInput {
   /** Mission ID */
   readonly missionId: string;
   /** Outcome details */
   readonly outcome: Omit<IMissionOutcome, 'xpAwarded'>;
-  /** Unit state updates after mission */
-  readonly unitUpdates: readonly Partial<ICampaignUnitState>[];
   /** Pilot state updates after mission */
   readonly pilotUpdates: readonly Partial<
     import('./CampaignRosterEntry').ICampaignRosterEntry

@@ -3,8 +3,8 @@
  * Shows current unit and pilot status in a campaign.
  *
  * Per `canonicalize-unit-combat-state` PR-B: consumes
- * `IRosterUnitProjection` (display projection) instead of the deleted
- * `ICampaignUnitState`. Damage data is read from canonical
+ * `IRosterUnitProjection` (display projection) instead of the legacy
+ * roster-unit shape (deleted in PR-C). Damage data is read from canonical
  * `useCampaignStore.campaign.unitCombatStates` by `RosterStateCards.tsx`
  * via a `useShallow` selector — this list-level component only renders
  * identity + readiness.

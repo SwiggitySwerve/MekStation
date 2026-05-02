@@ -37,8 +37,9 @@ export function getMissionResultBadge(
  *
  * Per `canonicalize-unit-combat-state` PR-B: replaces the legacy
  * `getDamagePercent(armorDamage)` accessor that read deltas from the
- * deleted `ICampaignUnitState.armorDamage` field. The canonical state
- * doesn't carry damage deltas — only "remaining" values — so we
+ * legacy roster-unit shape's `armorDamage` field (deleted in PR-C). The
+ * canonical state doesn't carry damage deltas — only "remaining" values
+ * — so we
  * approximate "how damaged" with destroyed component + location counts
  * (the same heuristic used by `RosterStateCards.useDamageBarData`).
  *

@@ -1,13 +1,11 @@
-import { useMemo, useState, useCallback } from 'react';
-
-import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
+import { useState, useCallback } from 'react';
 
 import { MissionTreeView } from '@/components/campaign/MissionTreeView';
 import { RosterStateDisplay } from '@/components/campaign/RosterStateDisplay';
 import { Card, Button, Badge } from '@/components/ui';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
   CampaignMissionStatus,
-  CampaignUnitStatus,
   ICampaign,
   ICampaignMission,
 } from '@/types/campaign';
@@ -47,27 +45,14 @@ export function CampaignOverviewTab({
     onDelete();
   }, [onDelete]);
 
-  // Per `canonicalize-unit-combat-state` PR-B: `RosterStateDisplay` now
-  // consumes the thin `IRosterUnitProjection` shape. The legacy
-  // `ICampaign.roster.units` carries `ICampaignUnitState`; project to
-  // the new shape inline so this overview tab keeps working until the
-  // legacy `ICampaign` (`CampaignInterfaces.types.ts`) is sunset.
-  const rosterProjections = useMemo<IRosterUnitProjection[]>(() => {
-    return campaign.roster.units.map((unit) => ({
-      unitId: unit.unitId,
-      unitName: unit.unitName,
-      pilotId: unit.pilotId,
-      // The legacy unit shape carries no chassis variant; default to the
-      // unit name so the dashboard's variant tag has something readable.
-      chassisVariant: unit.unitName,
-      readiness:
-        unit.status === CampaignUnitStatus.Destroyed
-          ? 'Destroyed'
-          : unit.status === CampaignUnitStatus.Damaged
-            ? 'Damaged'
-            : 'Ready',
-    }));
-  }, [campaign.roster.units]);
+  // Per `canonicalize-unit-combat-state` PR-C: `ICampaignRoster.units`
+  // (the legacy roster-unit array) was deleted. The roster projection
+  // is now sourced from `useCampaignRosterStore`, which already holds
+  // the canonical `IRosterUnitProjection[]` and stays in sync with
+  // `useCampaignStore.campaign.unitCombatStates` via the post-battle
+  // processor + `applyDamageCarryForward` write-through.
+  const rosterProjections = useCampaignRosterStore((s) => s.units);
+  const rosterPilots = useCampaignRosterStore((s) => s.pilots);
 
   return (
     <>
@@ -254,10 +239,7 @@ export function CampaignOverviewTab({
       </div>
 
       <div className="mb-6">
-        <RosterStateDisplay
-          units={rosterProjections}
-          pilots={campaign.roster.pilots}
-        />
+        <RosterStateDisplay units={rosterProjections} pilots={rosterPilots} />
       </div>
 
       <MissionHistory missions={campaign.missions} />

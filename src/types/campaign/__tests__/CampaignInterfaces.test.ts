@@ -8,10 +8,8 @@ import {
   ICampaign,
   ICampaignMission,
   ICampaignRoster,
-  ICampaignUnitState,
   CampaignStatus,
   CampaignMissionStatus,
-  CampaignUnitStatus,
   CampaignPilotStatus,
   DEFAULT_CAMPAIGN_RESOURCES,
   CAMPAIGN_TEMPLATES,
@@ -20,7 +18,6 @@ import {
   validateCampaign,
   calculateMissionXp,
   getAvailableMissions,
-  getOperationalUnits,
   getAvailablePilots,
   isCampaignComplete,
   calculateCampaignValue,
@@ -32,23 +29,9 @@ import {
 // Test Data Factories
 // =============================================================================
 
-function createTestUnit(
-  overrides: Partial<ICampaignUnitState> = {},
-): ICampaignUnitState {
-  return {
-    unitId: 'unit-1',
-    unitName: 'Atlas AS7-D',
-    status: CampaignUnitStatus.Operational,
-    armorDamage: {},
-    structureDamage: {},
-    destroyedComponents: [],
-    ammoExpended: {},
-    currentHeat: 0,
-    repairCost: 0,
-    repairTime: 0,
-    ...overrides,
-  };
-}
+// Per `canonicalize-unit-combat-state` PR-C: the legacy roster-unit
+// shape and its `createTestUnit` factory were deleted. Roster units now
+// live on `useCampaignRosterStore` as `IRosterUnitProjection[]`.
 
 function createTestPilot(
   overrides: Partial<ICampaignRosterEntry> = {},
@@ -94,7 +77,6 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
     status: CampaignStatus.Active,
     missions: [createTestMission()],
     roster: {
-      units: [createTestUnit()],
       pilots: [createTestPilot()],
     },
     resources: { ...DEFAULT_CAMPAIGN_RESOURCES },
@@ -137,16 +119,6 @@ describe('Campaign Enums', () => {
       expect(CampaignMissionStatus.Victory).toBe('victory');
       expect(CampaignMissionStatus.Defeat).toBe('defeat');
       expect(CampaignMissionStatus.Skipped).toBe('skipped');
-    });
-  });
-
-  describe('CampaignUnitStatus', () => {
-    it('should have all expected values', () => {
-      expect(CampaignUnitStatus.Operational).toBe('operational');
-      expect(CampaignUnitStatus.Damaged).toBe('damaged');
-      expect(CampaignUnitStatus.Repairing).toBe('repairing');
-      expect(CampaignUnitStatus.Destroyed).toBe('destroyed');
-      expect(CampaignUnitStatus.Salvage).toBe('salvage');
     });
   });
 
@@ -302,15 +274,16 @@ describe('validateCampaign', () => {
     expect(result.errors).toContain('Campaign must have at least one mission');
   });
 
-  it('should fail if no units or pilots', () => {
+  it('should fail if no pilots', () => {
+    // Per `canonicalize-unit-combat-state` PR-C: campaign-level validation
+    // is pilot-only; unit roster validation moved to the
+    // `useCampaignRosterStore` layer alongside `IRosterUnitProjection[]`.
     const campaign = createTestCampaign({
-      roster: { units: [], pilots: [] },
+      roster: { pilots: [] },
     });
     const result = validateCampaign(campaign);
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain(
-      'Campaign must have at least one unit or pilot',
-    );
+    expect(result.errors).toContain('Campaign must have at least one pilot');
   });
 
   it('should fail if prerequisites reference non-existent mission', () => {
@@ -348,22 +321,6 @@ describe('validateCampaign', () => {
     expect(result.warnings.some((w) => w.includes('no final mission'))).toBe(
       true,
     );
-  });
-
-  it('should warn about units without pilots', () => {
-    const campaign = createTestCampaign({
-      roster: {
-        units: [
-          createTestUnit({ unitId: 'u1' }),
-          createTestUnit({ unitId: 'u2' }),
-        ],
-        pilots: [createTestPilot({ pilotId: 'p1', assignedUnitId: 'u1' })],
-      },
-    });
-    // One unit (u2) has no pilot
-    const result = validateCampaign(campaign);
-    // Warning depends on assignment tracking - this may need adjustment based on implementation
-    expect(result.valid).toBe(true); // Still valid, just a warning
   });
 });
 
@@ -405,31 +362,9 @@ describe('getAvailableMissions', () => {
   });
 });
 
-describe('getOperationalUnits', () => {
-  it('should return operational and damaged units', () => {
-    const roster: ICampaignRoster = {
-      units: [
-        createTestUnit({
-          unitId: 'u1',
-          status: CampaignUnitStatus.Operational,
-        }),
-        createTestUnit({ unitId: 'u2', status: CampaignUnitStatus.Damaged }),
-        createTestUnit({ unitId: 'u3', status: CampaignUnitStatus.Destroyed }),
-        createTestUnit({ unitId: 'u4', status: CampaignUnitStatus.Repairing }),
-      ],
-      pilots: [],
-    };
-    const operational = getOperationalUnits(roster);
-    expect(operational).toHaveLength(2);
-    expect(operational.map((u) => u.unitId)).toContain('u1');
-    expect(operational.map((u) => u.unitId)).toContain('u2');
-  });
-});
-
 describe('getAvailablePilots', () => {
   it('should return only active pilots', () => {
     const roster: ICampaignRoster = {
-      units: [],
       pilots: [
         createTestPilot({ pilotId: 'p1', status: CampaignPilotStatus.Active }),
         createTestPilot({ pilotId: 'p2', status: CampaignPilotStatus.Wounded }),

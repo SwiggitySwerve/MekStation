@@ -2,7 +2,6 @@ import type {
   ICampaign,
   ICampaignMission,
   ICampaignRoster,
-  ICampaignUnitState,
   ICampaignValidationResult,
 } from './CampaignInterfaces.types';
 import type { ICampaignRosterEntry } from './CampaignRosterEntry';
@@ -11,7 +10,6 @@ import {
   CampaignMissionStatus,
   CampaignPilotStatus,
   CampaignStatus,
-  CampaignUnitStatus,
   XP_REWARDS,
 } from './CampaignInterfaces.types';
 
@@ -51,12 +49,14 @@ export function validateCampaign(
     errors.push('Campaign must have at least one mission');
   }
 
-  // Required: roster has units or pilots
-  if (
-    (!campaign.roster.units || campaign.roster.units.length === 0) &&
-    (!campaign.roster.pilots || campaign.roster.pilots.length === 0)
-  ) {
-    errors.push('Campaign must have at least one unit or pilot');
+  // Required: roster has at least one pilot.
+  // Per `canonicalize-unit-combat-state` PR-C: `ICampaignRoster.units`
+  // (the legacy roster-unit array) was deleted. The unit roster lives on
+  // `useCampaignRosterStore` as `IRosterUnitProjection[]` and is
+  // validated independently by the store; campaign-level validation is
+  // now pilot-only.
+  if (!campaign.roster.pilots || campaign.roster.pilots.length === 0) {
+    errors.push('Campaign must have at least one pilot');
   }
 
   // Validate mission graph
@@ -84,22 +84,6 @@ export function validateCampaign(
   const hasFinalMission = campaign.missions.some((m) => m.isFinal);
   if (!hasFinalMission) {
     warnings.push('Campaign has no final mission - it may never end');
-  }
-
-  // Warning: units without pilots
-  const assignedPilots = new Set(
-    campaign.roster.units.map((u) => u.pilotId).filter(Boolean),
-  );
-  const totalPilots = campaign.roster.pilots.length;
-  const operationalUnits = campaign.roster.units.filter(
-    (u) =>
-      u.status === CampaignUnitStatus.Operational ||
-      u.status === CampaignUnitStatus.Damaged,
-  ).length;
-  if (operationalUnits > assignedPilots.size && totalPilots > 0) {
-    warnings.push(
-      `${operationalUnits - assignedPilots.size} operational units have no assigned pilot`,
-    );
   }
 
   return {
@@ -151,19 +135,6 @@ export function getAvailableMissions(
     (m) =>
       m.status === CampaignMissionStatus.Available ||
       m.status === CampaignMissionStatus.InProgress,
-  );
-}
-
-/**
- * Get operational units from roster.
- */
-export function getOperationalUnits(
-  roster: ICampaignRoster,
-): readonly ICampaignUnitState[] {
-  return roster.units.filter(
-    (u) =>
-      u.status === CampaignUnitStatus.Operational ||
-      u.status === CampaignUnitStatus.Damaged,
   );
 }
 
