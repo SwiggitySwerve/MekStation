@@ -74,6 +74,9 @@ function makeRosterEntry(
     // Hard-cutover policy (PR2 cluster J): hireDate required on
     // every roster entry — fixtures must provide a deterministic value.
     hireDate: new Date('2025-06-15T00:00:00Z'),
+    // PR1.5 Tier 1 required fields (live bug fixes)
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
     ...overrides,
   };
 }
@@ -106,7 +109,7 @@ describe('rosterEntryToPerson', () => {
       expect(person.totalKills).toBe(3);
       expect(person.missionsCompleted).toBe(4);
 
-      // Always defaults to PILOT role until follow-up role-expansion change
+      // PR1.5: primaryRole forwarded from roster entry (was hardcoded PILOT)
       expect(person.primaryRole).toBe(CampaignPersonnelRole.PILOT);
     });
 
@@ -262,6 +265,87 @@ describe('rosterEntryToPerson', () => {
       expect(person.xp).toBe(25);
       // person.totalXpEarned tracks vault lifetime (cross-campaign aggregate).
       expect(person.totalXpEarned).toBe(999);
+    });
+  });
+
+  // ===========================================================================
+  // PR1.5 forward paths — verifies all 6 new fields forwarded from roster entry
+  // (Council #4 Tier 1 live bug fixes + Tier 2 additive fields)
+  // ===========================================================================
+
+  describe('PR1.5 forward paths', () => {
+    it('forwards non-PILOT primaryRole (Tier 1 live bug fix)', () => {
+      // Live bug: bridge hardcoded PILOT, making DOCTOR entries invisible
+      // to getBestAvailableDoctor and salary-role categorization.
+      const entry = makeRosterEntry({
+        primaryRole: CampaignPersonnelRole.DOCTOR,
+      });
+      const person = rosterEntryToPerson(entry, makeVaultPilot());
+      expect(person.primaryRole).toBe(CampaignPersonnelRole.DOCTOR);
+    });
+
+    it('forwards non-zero rankIndex (Tier 1 live bug fix)', () => {
+      // Live bug: bridge hardcoded 0, blocking all promotions because
+      // rankService.ts:208 compares newRankIndex <= currentRankIndex.
+      const entry = makeRosterEntry({ rankIndex: 3 });
+      const person = rosterEntryToPerson(entry, makeVaultPilot());
+      expect(person.rankIndex).toBe(3);
+    });
+
+    it('forwards traits with glassJaw / slowLearner flags (Tier 1 live bug fix)', () => {
+      // Live bug: bridge omitted traits entirely, so aging.ts and
+      // vocationalTrainingProcessor.ts silently discarded all trait flags
+      // on every processing pass.
+      const entry = makeRosterEntry({
+        traits: { glassJaw: true, slowLearner: true },
+      });
+      const person = rosterEntryToPerson(entry, makeVaultPilot());
+      expect(person.traits).toEqual({ glassJaw: true, slowLearner: true });
+    });
+
+    it('defaults traits to empty object when roster entry has no traits', () => {
+      // No traits set → bridge yields {} so helpers don't crash on
+      // undefined?.glassJaw access.
+      const entry = makeRosterEntry({ traits: undefined });
+      const person = rosterEntryToPerson(entry, makeVaultPilot());
+      expect(person.traits).toEqual({});
+    });
+
+    it('forwards lastPromotionDate (Tier 1 live bug fix)', () => {
+      // Live bug: bridge omitted this field, so isRecentlyPromoted always
+      // returned false and the promotion-recency turnover modifier never fired.
+      const promoDate = new Date('2025-03-10T00:00:00Z');
+      const entry = makeRosterEntry({ lastPromotionDate: promoDate });
+      const person = rosterEntryToPerson(entry, makeVaultPilot());
+      expect(person.lastPromotionDate).toEqual(promoDate);
+    });
+
+    it('lastPromotionDate is undefined when not set on roster entry', () => {
+      const entry = makeRosterEntry({ lastPromotionDate: undefined });
+      const person = rosterEntryToPerson(entry, makeVaultPilot());
+      expect(person.lastPromotionDate).toBeUndefined();
+    });
+
+    it('forwards isFounder flag (Tier 2 additive)', () => {
+      const entry = makeRosterEntry({ isFounder: true });
+      const person = rosterEntryToPerson(entry, makeVaultPilot());
+      expect(person.isFounder).toBe(true);
+    });
+
+    it('forwards isCommander flag (Tier 2 additive)', () => {
+      const entry = makeRosterEntry({ isCommander: true });
+      const person = rosterEntryToPerson(entry, makeVaultPilot());
+      expect(person.isCommander).toBe(true);
+    });
+
+    it('isFounder and isCommander are undefined when not set', () => {
+      const entry = makeRosterEntry({
+        isFounder: undefined,
+        isCommander: undefined,
+      });
+      const person = rosterEntryToPerson(entry, makeVaultPilot());
+      expect(person.isFounder).toBeUndefined();
+      expect(person.isCommander).toBeUndefined();
     });
   });
 });

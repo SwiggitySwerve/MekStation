@@ -24,6 +24,7 @@ import {
 import React from 'react';
 
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { ForcePosition, ForceStatus, ForceType } from '@/types/force';
 import { PilotStatus, PilotType, type IPilot } from '@/types/pilot';
 
@@ -176,6 +177,8 @@ beforeEach(() => {
         recoveryTime: 0,
         // Hard-cutover policy (PR2 cluster J): hireDate required.
         hireDate: new Date('2025-01-01T00:00:00Z'),
+        primaryRole: CampaignPersonnelRole.PILOT,
+        rankIndex: 0,
       },
     ],
     missions: [],

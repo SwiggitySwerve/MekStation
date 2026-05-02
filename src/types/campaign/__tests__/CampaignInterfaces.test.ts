@@ -24,6 +24,7 @@ import {
   isCampaign,
   isCampaignMission,
 } from '../CampaignInterfaces';
+import { CampaignPersonnelRole } from '../enums/CampaignPersonnelRole';
 
 // =============================================================================
 // Test Data Factories
@@ -48,6 +49,8 @@ function createTestPilot(
     recoveryTime: 0,
     // Hard-cutover policy (PR2 cluster J): hireDate required.
     hireDate: new Date('2025-01-01T00:00:00Z'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
     ...overrides,
   };
 }

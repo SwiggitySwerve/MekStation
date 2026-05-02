@@ -21,6 +21,7 @@ import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { createContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
@@ -70,6 +71,8 @@ function makePerson(
     campaignKills: 0,
     campaignMissions: 0,
     hireDate: new Date('3024-01-01'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
   };
   const vault: IPilot = {
     id,
