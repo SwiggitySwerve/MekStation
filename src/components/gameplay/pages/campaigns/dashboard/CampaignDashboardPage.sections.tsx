@@ -1,4 +1,8 @@
+import React from 'react';
+import { useStore } from 'zustand';
+
 import { Badge, Button, Card, EmptyState, PageLayout } from '@/components/ui';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
 import type {
   CampaignDashboardCampaign,
@@ -6,7 +10,7 @@ import type {
 } from './CampaignDashboardPage.types';
 
 import {
-  getDamagePercent,
+  computeDashboardDamagePercent,
   getReadinessBadge,
 } from './CampaignDashboardPage.utils';
 
@@ -273,6 +277,38 @@ interface CampaignRosterCardProps {
   units: CampaignRosterUnit[];
 }
 
+/**
+ * Per `canonicalize-unit-combat-state` PR-B: damage-bar width is read
+ * from canonical `useCampaignStore.campaign.unitCombatStates[unitId]`
+ * via a memoized selector (`computeDashboardDamagePercent`). Replaces
+ * the legacy `getDamagePercent(unit.armorDamage)` read against the
+ * deleted projection field.
+ */
+function DashboardRosterUnitDamageBar({
+  unitId,
+}: {
+  unitId: string;
+}): React.ReactElement | null {
+  const storeApi = useCampaignStore();
+  // The selector returns a single number — re-renders fire only when
+  // the percent value changes, not on every unrelated campaign-store
+  // write.
+  const percent = useStore(storeApi, (state) =>
+    computeDashboardDamagePercent(state.campaign?.unitCombatStates[unitId]),
+  );
+  if (percent === 0) return null;
+  return (
+    <div className="mt-2">
+      <div className="bg-surface-raised h-1.5 overflow-hidden rounded-full">
+        <div
+          className="h-full bg-gradient-to-r from-yellow-500 to-red-500"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function CampaignRosterCard({
   units,
 }: CampaignRosterCardProps): React.ReactElement {
@@ -304,16 +340,7 @@ export function CampaignRosterCard({
                 </Badge>
               </div>
               {unit.readiness === 'Damaged' && (
-                <div className="mt-2">
-                  <div className="bg-surface-raised h-1.5 overflow-hidden rounded-full">
-                    <div
-                      className="h-full bg-gradient-to-r from-yellow-500 to-red-500"
-                      style={{
-                        width: `${getDamagePercent(unit.armorDamage)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
+                <DashboardRosterUnitDamageBar unitId={unit.unitId} />
               )}
             </div>
           ))}

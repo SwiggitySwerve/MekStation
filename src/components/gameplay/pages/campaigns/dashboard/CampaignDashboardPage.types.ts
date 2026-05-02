@@ -1,4 +1,4 @@
-import type { UnitReadiness } from '@/stores/campaign/useCampaignRosterStore';
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 export interface CampaignDashboardCampaign {
   id: string;
@@ -21,12 +21,14 @@ export interface CampaignDashboardCampaign {
   };
 }
 
-export interface CampaignRosterUnit {
-  unitId: string;
-  unitName: string;
-  readiness: UnitReadiness;
-  armorDamage: Record<string, number>;
-}
+/**
+ * Per `canonicalize-unit-combat-state` PR-B: the dashboard's roster row
+ * is the thin `IRosterUnitProjection` (display identity + readiness).
+ * Damage data is read from canonical
+ * `useCampaignStore.campaign.unitCombatStates` by the unit card
+ * directly — see `CampaignDashboardPage.sections.tsx`.
+ */
+export type CampaignRosterUnit = IRosterUnitProjection;
 
 export type MissionResult = 'victory' | 'defeat' | 'draw' | 'pending' | string;
 

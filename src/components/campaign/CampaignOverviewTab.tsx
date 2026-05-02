@@ -1,10 +1,13 @@
-import { useState, useCallback } from 'react';
+import { useMemo, useState, useCallback } from 'react';
+
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 import { MissionTreeView } from '@/components/campaign/MissionTreeView';
 import { RosterStateDisplay } from '@/components/campaign/RosterStateDisplay';
 import { Card, Button, Badge } from '@/components/ui';
 import {
   CampaignMissionStatus,
+  CampaignUnitStatus,
   ICampaign,
   ICampaignMission,
 } from '@/types/campaign';
@@ -43,6 +46,28 @@ export function CampaignOverviewTab({
   const handleConfirmDelete = useCallback(() => {
     onDelete();
   }, [onDelete]);
+
+  // Per `canonicalize-unit-combat-state` PR-B: `RosterStateDisplay` now
+  // consumes the thin `IRosterUnitProjection` shape. The legacy
+  // `ICampaign.roster.units` carries `ICampaignUnitState`; project to
+  // the new shape inline so this overview tab keeps working until the
+  // legacy `ICampaign` (`CampaignInterfaces.types.ts`) is sunset.
+  const rosterProjections = useMemo<IRosterUnitProjection[]>(() => {
+    return campaign.roster.units.map((unit) => ({
+      unitId: unit.unitId,
+      unitName: unit.unitName,
+      pilotId: unit.pilotId,
+      // The legacy unit shape carries no chassis variant; default to the
+      // unit name so the dashboard's variant tag has something readable.
+      chassisVariant: unit.unitName,
+      readiness:
+        unit.status === CampaignUnitStatus.Destroyed
+          ? 'Destroyed'
+          : unit.status === CampaignUnitStatus.Damaged
+            ? 'Damaged'
+            : 'Ready',
+    }));
+  }, [campaign.roster.units]);
 
   return (
     <>
@@ -230,7 +255,7 @@ export function CampaignOverviewTab({
 
       <div className="mb-6">
         <RosterStateDisplay
-          units={campaign.roster.units}
+          units={rosterProjections}
           pilots={campaign.roster.pilots}
         />
       </div>
