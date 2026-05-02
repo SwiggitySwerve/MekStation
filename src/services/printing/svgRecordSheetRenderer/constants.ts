@@ -127,9 +127,6 @@ export const TRIPOD_STRUCTURE_PIP_GROUP_IDS: Record<string, string> = {
   CL: 'isPipsCL', // Center Leg (tripod-specific)
 };
 
-// Legacy alias for backward compatibility
-export const STRUCTURE_PIP_GROUP_IDS = BIPED_STRUCTURE_PIP_GROUP_IDS;
-
 // Map from our location abbreviations to MegaMek pip file location names (for biped)
 export const LOCATION_TO_PIP_NAME: Record<string, string> = {
   HD: 'Head',

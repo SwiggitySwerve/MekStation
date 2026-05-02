@@ -9,7 +9,6 @@
 
 import {
   STRUCTURE_TEXT_IDS,
-  STRUCTURE_PIP_GROUP_IDS,
   BIPED_STRUCTURE_PIP_GROUP_IDS,
   QUAD_STRUCTURE_PIP_GROUP_IDS,
   TRIPOD_STRUCTURE_PIP_GROUP_IDS,
@@ -936,10 +935,6 @@ describe('structure.ts', () => {
 
     it('should have tripod center leg location', () => {
       expect(TRIPOD_STRUCTURE_PIP_GROUP_IDS.CL).toBe('isPipsCL');
-    });
-
-    it('should have STRUCTURE_PIP_GROUP_IDS alias biped IDs', () => {
-      expect(STRUCTURE_PIP_GROUP_IDS).toEqual(BIPED_STRUCTURE_PIP_GROUP_IDS);
     });
   });
 });

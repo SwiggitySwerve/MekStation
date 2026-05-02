@@ -3,7 +3,6 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import {
   calculateHeatDissipation,
   calculateExternalHeatSinks,
-  calculateExternalHeatSinkWeight,
   calculateExternalHeatSinkSlots,
   validateHeatSinks,
   calculateHeatSinkWeight,
@@ -55,18 +54,6 @@ describe('heatSinkCalculations', () => {
 
     it('should calculate weight for double heat sinks beyond 10', () => {
       expect(calculateHeatSinkWeight(15, HeatSinkType.DOUBLE_IS)).toBe(5);
-    });
-  });
-
-  describe('calculateExternalHeatSinkWeight()', () => {
-    it('should calculate weight for single heat sinks', () => {
-      const weight = calculateExternalHeatSinkWeight(5, HeatSinkType.SINGLE);
-      expect(weight).toBe(5); // 5 * 1 = 5
-    });
-
-    it('should handle unknown heat sink type', () => {
-      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
-      expect(calculateExternalHeatSinkWeight(5, 'INVALID' as any)).toBe(5);
     });
   });
 
