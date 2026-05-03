@@ -29,7 +29,7 @@ function makeToken(overrides: Partial<IUnitToken>): IUnitToken {
     designation: 'UNT',
     unitType: TokenUnitType.Mech,
     ...overrides,
-  };
+  } as IUnitToken;
 }
 
 function makeEvent(

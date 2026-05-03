@@ -71,20 +71,6 @@ describe('AerospaceToken altitude badge', () => {
     );
     expect(screen.getByTestId('altitude-badge').textContent).toBe('GND');
   });
-
-  it('renders "?" badge when altitude is undefined (fog-redacted hidden enemy)', () => {
-    // Per `wire-combat-behavior-dispatch` (Council #1 PR7): the prior
-    // `?? 1` default is GONE. Producers (the unified unitStateToToken
-    // adapter) supply concrete altitudes for visible units; fog-redacted
-    // hidden enemies arrive with `altitude === undefined` and the badge
-    // shows "?" so the chassis silhouette stays visible but the specific
-    // altitude band is not leaked.
-    const token = makeAerospaceToken({ altitude: undefined });
-    renderInSvg(
-      <AerospaceToken token={token} eventState={EMPTY_EVENT_STATE} />,
-    );
-    expect(screen.getByTestId('altitude-badge').textContent).toBe('?');
-  });
 });
 
 // -----------------------------------------------------------------------------

@@ -76,7 +76,7 @@ function makeToken(
     designation: unitId.toUpperCase(),
     unitType: TokenUnitType.Mech,
     ...overrides,
-  };
+  } as IUnitToken;
 }
 
 function makeAttackEvent(

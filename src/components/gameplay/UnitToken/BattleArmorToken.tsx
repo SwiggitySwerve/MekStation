@@ -72,10 +72,8 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
   const isDestroyed = token.isDestroyed || eventState.destroyed;
   // trooperCount is wired from IBattleArmorCombatState surviving troopers
   // via the unitStateToToken adapter (per `wire-combat-behavior-dispatch`,
-  // Council #1 PR7). Fog-redacted hidden enemies arrive with
-  // `trooperCount === undefined` — fall back to the minimum (1 visible
-  // dot) so the silhouette still renders without revealing squad size.
-  const count = Math.max(1, Math.min(6, token.trooperCount ?? 1));
+  // Council #1 PR7).
+  const count = Math.max(1, Math.min(6, token.trooperCount));
   const positions = trooperPositions(count);
 
   const dotColor =

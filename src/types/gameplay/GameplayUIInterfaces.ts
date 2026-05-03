@@ -208,10 +208,9 @@ export interface IAerospaceToken extends IUnitTokenBase {
    * Current altitude level (0–10). 0 = landed. Wired from
    * `IAerospaceCombatState.altitude` via the unified `unitStateToToken`
    * adapter (`src/lib/gameplay/unitStateToToken.ts`). Per
-   * `wire-combat-behavior-dispatch` (Council #1 PR7). Optional at the
-   * type level so fog-redacted hidden enemies omit it.
+   * `wire-combat-behavior-dispatch` (Council #1 PR7).
    */
-  readonly altitude?: number;
+  readonly altitude: number;
   /**
    * Current velocity in thrust points.
    * TODO(movement slice 2): velocity belongs to a future movement-tick
@@ -234,8 +233,8 @@ export interface IBattleArmorToken extends IUnitTokenBase {
    * TODO: wire from battlearmor combat-behavior proposal.
    */
   readonly mountedOn?: string;
-  /** Number of surviving troopers (1–6). */
-  readonly trooperCount?: number;
+  /** Number of surviving troopers (1–6), projected from combatState. */
+  readonly trooperCount: number;
   /** Is jump / UMU movement active this turn? */
   readonly jumpActive?: boolean;
 }
@@ -245,10 +244,10 @@ export interface IBattleArmorToken extends IUnitTokenBase {
  */
 export interface IInfantryToken extends IUnitTokenBase {
   readonly unitType: TokenUnitType.Infantry;
-  /** Number of surviving troopers (1–30 for a platoon). */
-  readonly infantryCount?: number;
-  /** How many platoons share this hex (for stack indicator). */
-  readonly platoonCount?: number;
+  /** Number of surviving troopers (1–30 for a platoon), projected from combatState. */
+  readonly infantryCount: number;
+  /** How many platoons share this hex (for stack indicator), projected from combatState. */
+  readonly platoonCount: number;
   /** Motive type badge. */
   readonly infantryMotiveType?: InfantryMotiveType;
   /** Specialization icon. */
@@ -260,20 +259,20 @@ export interface IInfantryToken extends IUnitTokenBase {
  */
 export interface IProtoMechToken extends IUnitTokenBase {
   readonly unitType: TokenUnitType.ProtoMech;
-  /** Number of surviving protos in this point (1–5). */
-  readonly protoCount?: number;
-  /** Glider variant — renders extended wings. */
-  readonly isGlider?: boolean;
-  /** Has main gun equipped. */
-  readonly hasMainGun?: boolean;
+  /** Number of surviving protos in this point (1–5), projected from combatState. */
+  readonly protoCount: number;
+  /** Glider variant — renders extended wings. Projected from combatState. */
+  readonly isGlider: boolean;
+  /** Has main gun equipped. Projected from combatState. */
+  readonly hasMainGun: boolean;
 }
 
 /**
  * Visual token representing a unit on the hex map. Discriminated union over
  * `unitType`; each variant carries only the legal per-type fields. Token
- * components accept their narrowed variant directly. Per-type fields stay
- * optional — fog-redacted hidden enemies arrive without them, and PR8
- * deliberately does not introduce required per-type fields.
+ * components accept their narrowed variant directly. Per-type fields are
+ * required on their variants; fog-redacted hidden enemies are projected as
+ * the safe Mech variant so these fields never leak through last-known tokens.
  *
  * Per Council #1 PR8 (Momus god-type concern). Replaces the prior flat
  * interface with 19 optional cross-type fields.

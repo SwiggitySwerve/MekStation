@@ -53,7 +53,7 @@ function makeToken(overrides: Partial<IUnitToken> = {}): IUnitToken {
     designation: 'TST-1',
     unitType: TokenUnitType.Mech,
     ...overrides,
-  };
+  } as IUnitToken;
 }
 
 function makeEvent(
@@ -165,6 +165,7 @@ describe('UnitTokenForType dispatcher routing', () => {
     const token = makeToken({
       unitType: TokenUnitType.Infantry,
       infantryCount: 28,
+      platoonCount: 1,
     });
     renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
     const wrapper = screen.getByTestId('unit-token-unit-1');
@@ -178,6 +179,8 @@ describe('UnitTokenForType dispatcher routing', () => {
     const token = makeToken({
       unitType: TokenUnitType.ProtoMech,
       protoCount: 5,
+      isGlider: false,
+      hasMainGun: false,
     });
     renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
     const wrapper = screen.getByTestId('unit-token-unit-1');
