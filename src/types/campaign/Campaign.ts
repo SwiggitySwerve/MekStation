@@ -12,7 +12,6 @@ import type { IShoppingList } from './acquisition/acquisitionTypes';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { SalvageRights, CommandRights } from './Mission';
-import type { IPerson } from './Person';
 import type { ICombatTeam } from './scenario/scenarioTypes';
 import type { IUnitCombatState } from './UnitCombatState';
 
@@ -45,10 +44,14 @@ export { createDefaultCampaignOptions } from './createDefaultCampaignOptions';
  * Root campaign aggregate entity.
  *
  * The campaign is the top-level entity that owns all other campaign entities:
- * - Personnel (Map<string, IPerson>)
  * - Forces (Map<string, IForce>)
  * - Missions (Map<string, IMission>)
  * - Finances (IFinances)
+ *
+ * Personnel state is owned by `useCampaignRosterStore` (the canonical
+ * source of truth as of `wire-iperson-hard-cutover` PR4). The legacy
+ * `personnel: Map<string, IPerson>` field was removed in PR4 — every
+ * read/write path now goes through the roster store.
  *
  * Units are referenced by ID (string[]) in forces, not duplicated here.
  * Unit data lives in MekStation's unit stores.
@@ -59,7 +62,6 @@ export { createDefaultCampaignOptions } from './createDefaultCampaignOptions';
  *   name: "Wolf's Dragoons",
  *   currentDate: new Date('3025-01-01'),
  *   factionId: 'mercenary',
- *   personnel: new Map(),
  *   forces: new Map(),
  *   rootForceId: 'force-root',
  *   missions: new Map(),
@@ -81,9 +83,6 @@ export interface ICampaign {
 
   /** Player's faction ID (e.g., 'davion', 'steiner', 'mercenary') */
   readonly factionId: string;
-
-  /** All personnel in the campaign */
-  readonly personnel: Map<string, IPerson>;
 
   /** All forces in the campaign (hierarchical tree) */
   readonly forces: Map<string, IForce>;
@@ -150,14 +149,26 @@ export interface ICampaign {
 /**
  * Gets the total number of personnel in the campaign.
  *
- * @param campaign - The campaign to query
+ * Personnel state is owned by `useCampaignRosterStore`; callers must pass
+ * the live pilot count (typically via
+ * `useCampaignRosterStore.getState().pilots.length`). Decoupled from the
+ * store here to keep `Campaign.ts` free of the runtime store import.
+ *
+ * @param _campaign - The campaign (unused; kept for call-site signature continuity)
+ * @param pilotsCount - Live pilot count from `useCampaignRosterStore`
  * @returns Total personnel count
  *
  * @example
- * const total = getTotalPersonnel(campaign); // 42
+ * const total = getTotalPersonnel(
+ *   campaign,
+ *   useCampaignRosterStore.getState().pilots.length,
+ * ); // 42
  */
-export function getTotalPersonnel(campaign: ICampaign): number {
-  return campaign.personnel.size;
+export function getTotalPersonnel(
+  _campaign: ICampaign,
+  pilotsCount: number,
+): number {
+  return pilotsCount;
 }
 
 /**
@@ -375,7 +386,6 @@ export function isCampaign(value: unknown): value is ICampaign {
     typeof campaign.name === 'string' &&
     campaign.currentDate instanceof Date &&
     typeof campaign.factionId === 'string' &&
-    campaign.personnel instanceof Map &&
     campaign.forces instanceof Map &&
     typeof campaign.rootForceId === 'string' &&
     campaign.missions instanceof Map &&
@@ -489,7 +499,6 @@ export function createCampaign(
     name,
     currentDate: new Date(),
     factionId,
-    personnel: new Map(),
     forces: new Map(),
     rootForceId,
     missions: new Map(),
@@ -514,7 +523,10 @@ export function createCampaign(
 /**
  * Creates a campaign with pre-populated data.
  *
- * Useful for testing or loading saved campaigns.
+ * Useful for testing or loading saved campaigns. Personnel state lives on
+ * `useCampaignRosterStore` (see `wire-iperson-hard-cutover` PR4) — seed
+ * roster entries on the store directly rather than passing a personnel
+ * map here.
  *
  * @param params - Full campaign parameters
  * @returns A new ICampaign instance
@@ -525,7 +537,6 @@ export function createCampaign(
  *   name: "Wolf's Dragoons",
  *   currentDate: new Date('3025-01-01'),
  *   factionId: 'mercenary',
- *   personnel: personnelMap,
  *   forces: forcesMap,
  *   rootForceId: 'force-root',
  *   missions: missionsMap,
@@ -538,7 +549,6 @@ export function createCampaignWithData(params: {
   name: string;
   currentDate: Date;
   factionId: string;
-  personnel: Map<string, IPerson>;
   forces: Map<string, IForce>;
   rootForceId: string;
   missions: Map<string, IMission>;
@@ -558,7 +568,6 @@ export function createCampaignWithData(params: {
     name: params.name,
     currentDate: params.currentDate,
     factionId: params.factionId,
-    personnel: params.personnel,
     forces: params.forces,
     rootForceId: params.rootForceId,
     missions: params.missions,

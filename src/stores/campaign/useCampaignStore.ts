@@ -8,10 +8,11 @@
  * - Forces store (from useForcesStore)
  * - Missions store (from useMissionsStore)
  *
- * Personnel state is no longer a sub-store — `campaign.personnel` is
- * derived from `useCampaignRosterStore.entries[]` joined with
- * `usePilotStore.pilots[]` every `advanceDay`. See
- * `migrate-personnel-to-roster-employment`.
+ * Personnel state lives on `useCampaignRosterStore` as the canonical
+ * source of truth (per `wire-iperson-hard-cutover` PR4 — the legacy
+ * `campaign.personnel: Map<string, IPerson>` field was removed). The
+ * day pipeline reads roster entries directly from the store; processors
+ * commit per-pilot mutations via `useCampaignRosterStore.applyPilotPatches`.
  *
  * Persists entire campaign state to IndexedDB via clientSafeStorage.
  */
@@ -20,6 +21,7 @@ import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
 import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
@@ -42,8 +44,6 @@ import {
   applyPostBattle,
   type ICampaignWithBattleState,
 } from '@/lib/campaign/processors/postBattleProcessor';
-import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
-import { usePilotStore } from '@/stores/usePilotStore';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
   ICampaign,
@@ -56,7 +56,6 @@ import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { IForce } from '@/types/campaign/Force';
 import { Money } from '@/types/campaign/Money';
-import { IPerson } from '@/types/campaign/Person';
 import { Transaction } from '@/types/campaign/Transaction';
 import { emitPendingOutcomeAdded } from '@/utils/events/campaignOutcomeEvents';
 
@@ -298,70 +297,16 @@ function withBattleQueueAttached(
 }
 
 /**
- * Derive `campaign.personnel` from the live roster + vault stores.
- *
- * The IPerson Map on a campaign was empty in production (the legacy personnel
- * sub-store was never seeded). The 12 silently-broken features all read from
- * `campaign.personnel`, so we derive it here from `useCampaignRosterStore.pilots`
- * (the actual source of truth) joined to `usePilotStore.pilots` (vault identity).
- * Used in `advanceDay` to populate the campaign object the day pipeline reads.
- *
- * Per `migrate-personnel-to-roster-employment` design.md Decision 2.
+ * Snapshot the current roster pilot list. Captured around the day pipeline
+ * call so the audit-card builder can diff before/after roster state for XP
+ * + missions deltas (the previous personnel-Map diff is gone with PR4).
  */
-function derivePersonnelFromRoster(): Map<string, IPerson> {
-  const roster = useCampaignRosterStore.getState().pilots;
-  const vault = usePilotStore.getState().pilots;
-  const map = new Map<string, IPerson>();
-  for (const entry of roster) {
-    const vaultPilot = vault.find((p) => p.id === entry.pilotId) ?? null;
-    if (!vaultPilot && !entry.statblockData) continue;
-    map.set(entry.pilotId, rosterEntryToPerson(entry, vaultPilot));
-  }
-  return map;
-}
-
-/**
- * Reconcile post-pipeline `campaign.personnel` updates back into the roster
- * store. The day-pipeline processors mutate the derived Map (wounds advance,
- * statuses transition, departures happen); without this sync-back those
- * mutations are silently lost on the next derive.
- *
- * For each updated `IPerson` in the post-pipeline Map, we find the matching
- * roster entry by id and write back the campaign-scoped fields the
- * processors changed (`wounds`, `recoveryTime`, `status`, `xp`, kills,
- * missions, `departureReason`).
- */
-function syncRosterFromPersonnel(updated: Map<string, IPerson>): void {
-  const store = useCampaignRosterStore.getState();
-  const next = store.pilots.map((entry) => {
-    const person = updated.get(entry.pilotId);
-    if (!person) return entry;
-    return {
-      ...entry,
-      wounds: person.hits,
-      recoveryTime: person.daysToWaitForHealing,
-      // Reverse the 5-value status mapping. The shim collapsed Critical
-      // into Wounded, so on the way back we can't tell them apart — preserve
-      // the original entry status if it was Critical, otherwise map cleanly.
-      status:
-        person.status === 'KIA'
-          ? entry.status === 'critical'
-            ? entry.status
-            : ('kia' as typeof entry.status)
-          : entry.status,
-      campaignXpEarned: Math.max(
-        entry.campaignXpEarned,
-        person.totalXpEarned - (person.totalXpEarned - person.xp),
-      ),
-      campaignKills: person.totalKills,
-      campaignMissions: person.missionsCompleted,
-      departureReason: person.departureReason ?? entry.departureReason,
-    };
-  });
-  // Replace pilots array atomically. The store's setState supports this
-  // shape via Zustand's standard partial-state merge.
-  (store as unknown as { pilots: typeof next }).pilots = next;
-  useCampaignRosterStore.setState({ pilots: next });
+function snapshotRosterPilots(): readonly ICampaignRosterEntry[] {
+  // Shallow clone is enough: roster entries are themselves immutable from
+  // the store's perspective (every mutation goes through `applyPilotPatches`
+  // which produces fresh objects), so retaining the reference array is
+  // safe across the pipeline call.
+  return [...useCampaignRosterStore.getState().pilots];
 }
 
 /**
@@ -422,10 +367,13 @@ function serializeCampaign(
 
 /**
  * Deserialize campaign state from persistence.
+ *
+ * Per PR4 of `wire-iperson-hard-cutover`: no `personnel` parameter — the
+ * roster store owns personnel state and rehydrates from its own persist
+ * layer.
  */
 function deserializeCampaign(
   serialized: SerializedCampaignState,
-  personnel: Map<string, IPerson>,
   forces: Map<string, IForce>,
   missions: Map<string, IMission>,
 ): ICampaign {
@@ -434,7 +382,6 @@ function deserializeCampaign(
     name: serialized.name,
     currentDate: new Date(serialized.currentDate),
     factionId: serialized.factionId,
-    personnel,
     forces,
     rootForceId: serialized.rootForceId,
     missions,
@@ -609,30 +556,11 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             const forcesStore = createForcesStore(id);
             const missionsStore = createMissionsStore(id);
 
-            // Per `migrate-personnel-to-roster-employment`: personnel is now
-            // derived from `useCampaignRosterStore` + `usePilotStore` on each
-            // `advanceDay` call (via `derivePersonnelFromRoster`). Load with
-            // an empty Map; the next pipeline run populates it.
-            //
-            // One-shot warn-log: if the legacy persisted state still has a
-            // non-empty `personnel` field, log it so we hear about saves
-            // that contradict the spike's "IPerson is never seeded" finding.
-            if (
-              serialized &&
-              typeof serialized === 'object' &&
-              'personnel' in serialized &&
-              Array.isArray(
-                (serialized as { personnel?: unknown }).personnel,
-              ) &&
-              ((serialized as { personnel: unknown[] }).personnel.length ?? 0) >
-                0
-            ) {
-              // eslint-disable-next-line no-console
-              console.warn(
-                `[migrate-personnel-to-roster-employment] Legacy non-empty 'personnel' field found in serialized state for campaign ${id}; field is ignored on rehydrate. Investigate if this fires.`,
-              );
-            }
-            const personnel = new Map<string, IPerson>();
+            // Per PR4 of `wire-iperson-hard-cutover`: personnel state lives
+            // on `useCampaignRosterStore` (its own persist layer hydrates
+            // independently). The legacy `personnel` field is no longer read
+            // off the serialized blob — pre-PR4 saves with a stale field
+            // are ignored harmlessly.
             const forces = new Map(
               forcesStore
                 .getState()
@@ -647,12 +575,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             );
 
             // Deserialize campaign
-            const campaign = deserializeCampaign(
-              serialized,
-              personnel,
-              forces,
-              missions,
-            );
+            const campaign = deserializeCampaign(serialized, forces, missions);
 
             set({
               campaign,
@@ -683,12 +606,10 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             return;
           }
 
-          // Per `migrate-personnel-to-roster-employment`: personnel is no
-          // longer persisted via a sub-store. The roster store has its own
-          // persistence path; we save whatever is currently on the campaign
-          // object (which `advanceDay` derives from roster + vault).
-          const personnel = campaign.personnel;
-
+          // Per PR4 of `wire-iperson-hard-cutover`: personnel state lives on
+          // `useCampaignRosterStore` (its own persist layer). Forces and
+          // missions are still owned by their respective sub-stores; sync
+          // them onto the campaign object before persisting.
           const forces = forcesStore
             ? new Map(
                 forcesStore
@@ -710,7 +631,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           // Update campaign with synced data
           const updatedCampaign: ICampaign = {
             ...campaign,
-            personnel,
             forces,
             missions,
             updatedAt: new Date().toISOString(),
@@ -735,27 +655,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
           registerBuiltinProcessors();
 
-          // Per `migrate-personnel-to-roster-employment` design.md Decision 2:
-          // derive `campaign.personnel` from the live roster + vault stores
-          // so the day pipeline's helpers (salary, tax, healing, turnover,
-          // life events, vocational training, awards, post-battle wound
-          // sync) read populated data instead of the empty legacy substrate.
-          //
-          // Merge semantics: roster-derived entries WIN by id, but any
-          // entries already on `campaign.personnel` that don't appear in
-          // the roster are preserved. This keeps existing test fixtures
-          // (which seed `campaign.personnel` directly) working during the
-          // migration cycle.
-          const derivedPersonnel = derivePersonnelFromRoster();
-          const mergedPersonnel = new Map(campaign.personnel);
-          derivedPersonnel.forEach((person, id) => {
-            mergedPersonnel.set(id, person);
-          });
-          const campaignWithPersonnel: ICampaign = {
-            ...campaign,
-            personnel: mergedPersonnel,
-          };
-
           // Per `wire-encounter-to-campaign-round-trip` spec
           // ("Day Advancement Applies Pending Outcomes"): the day pipeline
           // is the canonical execution path so postBattle / salvage /
@@ -763,17 +662,23 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           // side `pendingBattleOutcomes` queue into the campaign object
           // the pipeline reads — processors expect the queue to live on
           // the campaign, but our singleton truth is the store.
+          //
+          // Per PR4 of `wire-iperson-hard-cutover`: personnel is no longer
+          // derived onto the campaign. Processors read entries directly
+          // from `useCampaignRosterStore.getState().pilots` and commit
+          // mutations via `applyPilotPatches`.
           const campaignWithOutcomes = withBattleQueueAttached(
-            campaignWithPersonnel,
+            campaign,
             pendingBattleOutcomes,
             processedBattleIds,
           );
 
           // Capture the BEFORE snapshot for the audit-card builder.
-          // The builder diffs personnel.totalXpEarned and missions across
-          // before/after to derive XP awarded + contracts closed.
+          // The builder diffs roster XP across before/after to derive
+          // XP awarded; contracts closed comes from the missions diff.
           const beforeForAudit =
             campaignWithOutcomes as ICampaignWithBattleState;
+          const beforeRosterPilots = snapshotRosterPilots();
 
           // Run the pipeline directly so we can access the events array
           // for the audit-card builder. `advanceDayViaPipeline` collapses
@@ -797,9 +702,16 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           // processors and append it to the campaign's audit ledger.
           // Returns null on days with no drained outcomes — the audit
           // feed simply skips empty days.
+          //
+          // Per PR4 of `wire-iperson-hard-cutover`: pass before/after
+          // roster snapshots so the builder can diff XP without the
+          // (now-deleted) personnel Map.
+          const afterRosterPilots = snapshotRosterPilots();
           const auditEntry = buildDailyBattleAuditEntry({
             before: beforeForAudit,
             after: report.campaign as ICampaignWithBattleState,
+            beforeRoster: beforeRosterPilots,
+            afterRoster: afterRosterPilots,
             appliedOutcomes: postPipeline.recentlyAppliedOutcomes ?? [],
             events: pipelineResult.events,
             date: pipelineResult.date,
@@ -847,20 +759,11 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             outcomeApplyErrors: nextErrors,
           });
 
-          // Per `wire-encounter-to-campaign-round-trip`: the postBattle
-          // processor mutates `campaign.personnel` (pilot wounds + XP)
-          // and `campaign.missions` (contract status flips).
-          //
-          // Per `migrate-personnel-to-roster-employment`: sync those
-          // mutations back into the canonical roster store. Without this
-          // sync-back, the next `derivePersonnelFromRoster()` call would
-          // overwrite the post-pipeline state with stale roster data.
-          syncRosterFromPersonnel(report.campaign.personnel);
-
-          // Per `migrate-personnel-to-roster-employment`: the personnel
-          // sub-store is gone. Personnel state lives on `campaign.personnel`
-          // (derived from roster + vault every `advanceDay`). Missions
-          // sub-store is still present and continues to receive an upsert.
+          // Per PR4 of `wire-iperson-hard-cutover`: processors commit
+          // pilot mutations directly to `useCampaignRosterStore` via
+          // `applyPilotPatches`, so there is no longer a personnel Map
+          // to reconcile here. Missions are still owned by their
+          // sub-store and continue to receive an upsert below.
           const { missionsStore } = get();
           if (missionsStore) {
             const ms = missionsStore.getState();
@@ -1099,7 +1002,6 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           const serialized = persistedData.campaign;
           const campaign = deserializeCampaign(
             serialized,
-            new Map(),
             new Map(),
             new Map(),
           );

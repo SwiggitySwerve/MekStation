@@ -155,11 +155,9 @@ interface CampaignStatsGridProps {
 export function CampaignStatsGrid({
   campaign,
 }: CampaignStatsGridProps): React.ReactElement {
-  // PR3 task 5.4: read personnel count from roster store, fall back to legacy
-  // map for tests/dev paths that haven't seeded the store yet.
-  const rosterCount = useCampaignRosterStore((s) => s.pilots.length);
-  const personnelCount =
-    rosterCount > 0 ? rosterCount : campaign.personnel.size;
+  // Per PR4 of `wire-iperson-hard-cutover`: roster store is the canonical
+  // personnel source — no legacy `campaign.personnel.size` fallback.
+  const personnelCount = useCampaignRosterStore((s) => s.pilots.length);
   return (
     <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
