@@ -6,16 +6,16 @@
  *
  * ## The bug (pre-PR4)
  *
- * Pilots used to be persisted via `ICampaign.personnel: Map<string, IPerson>`.
- * The `IPerson` shape had no representation for `Critical`, so the
- * legacy `personToRosterEntry` bridge collapsed any wounded pilot to
+ * Pilots used to be persisted via the legacy `ICampaign.personnel` map,
+ * whose shape had no representation for `Critical`. The legacy
+ * `personToRosterEntry` bridge collapsed any wounded pilot to
  * `CampaignPilotStatus.Wounded` on load — a Critical pilot saved by
  * the post-battle pipeline reappeared as Wounded after a reload, with
  * no surfaced warning.
  *
  * ## The fix (PR4)
  *
- * `personnel: Map<string, IPerson>` is gone. The roster store
+ * The legacy `personnel` map is gone. The roster store
  * (`useCampaignRosterStore`) now persists pilots directly via its own
  * Zustand `persist` middleware, so the on-disk shape preserves
  * `CampaignPilotStatus` values verbatim — Critical stays Critical
@@ -139,7 +139,7 @@ describe('PR4 — Critical→Wounded round-trip regression', () => {
     await useCampaignRosterStore.persist.rehydrate();
 
     // 4. Critical MUST round-trip back as Critical. Pre-PR4 this asserted
-    //    Wounded due to the IPerson Map bridge collapsing the enum.
+    //    Wounded due to the legacy personnel-Map bridge collapsing the enum.
     const reloaded = useCampaignRosterStore
       .getState()
       .pilots.find((p) => p.pilotId === 'pilot-critical-001');

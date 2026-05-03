@@ -3,7 +3,7 @@
  * Manage pilot roster for the campaign.
  *
  * Reads from `useCampaignRosterStore.pilots` (the live `ICampaignRosterEntry`
- * records written at campaign creation), NOT from a campaign-level `IPerson`
+ * records written at campaign creation), NOT from a campaign-level personnel
  * map. The legacy personnel sub-store was deleted in
  * `migrate-personnel-to-roster-employment` Phase 5 — see council decision
  * below for the architectural reason.

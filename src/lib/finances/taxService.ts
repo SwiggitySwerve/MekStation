@@ -80,9 +80,9 @@ function isOfficer(entry: ICampaignRosterEntry): boolean {
 
 /**
  * Checks if a roster entry is alive (eligible for food/housing costs).
- * Only excludes KIA — CampaignPilotStatus has 5 values and lacks the
- * extended dead/retired/deserted variants that IPerson.status had.
- * All other statuses (Active, Wounded, Critical, MIA) incur food/housing costs.
+ * Only excludes KIA — CampaignPilotStatus has 5 values, with no
+ * dedicated retired/deserted variants. All other statuses (Active,
+ * Wounded, Critical, MIA) incur food/housing costs.
  *
  * @param entry - The roster entry to check
  * @returns True if entry is alive

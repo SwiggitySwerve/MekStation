@@ -50,7 +50,7 @@ function getMedicineSkillValue(
  * Gets total injury severity for a patient.
  *
  * Uses entry.injuries (added in PR1.5 for medical migration). Defaults to []
- * when unset, matching legacy IPerson.injuries semantics.
+ * when unset.
  *
  * @param patientEntry - The patient roster entry
  * @returns Sum of all injury severity values

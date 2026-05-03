@@ -7,7 +7,6 @@ import { IForce } from '@/types/campaign/Force';
 import { PersonnelMarketStyle } from '@/types/campaign/markets/marketTypes';
 import { IMission } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
-import { IPerson } from '@/types/campaign/Person';
 
 import { DayPhase } from '../../dayPipeline';
 import {

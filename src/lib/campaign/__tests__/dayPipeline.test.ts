@@ -4,11 +4,10 @@ import {
 } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { CampaignPersonnelRole } from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
 import { IMission } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
-import { IPerson, createInjury } from '@/types/campaign/Person';
 import { logger } from '@/utils/logger';
 
 import { advanceDays } from '../dayAdvancement';
@@ -534,10 +533,7 @@ describe('advanceDays', () => {
     expect(finalEntry!.recoveryTime).toBe(0);
     expect(finalEntry!.injuries).toEqual([]);
     expect(finalEntry!.status).toBe(CampaignPilotStatus.Active);
-    // Sanity: createInjury import remains in scope for other tests.
-    void createInjury;
     void reports;
-    void PersonnelStatus;
   });
 
   it('should not stop on negative balance', () => {

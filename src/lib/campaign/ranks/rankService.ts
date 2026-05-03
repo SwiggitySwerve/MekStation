@@ -379,7 +379,7 @@ export interface TimeInRankResult {
  * Calculates how long a roster entry has held their current rank.
  *
  * Uses entry.lastPromotionDate if available, otherwise falls back to
- * entry.hireDate (mirrors the old IPerson.recruitmentDate fallback).
+ * entry.hireDate.
  *
  * NPC behavior: PROCESS — hireDate is always present on roster entries so
  * time-in-rank can be derived for both NPCs and PCs.

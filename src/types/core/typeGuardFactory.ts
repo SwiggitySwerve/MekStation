@@ -39,14 +39,14 @@ type PropertySchema<T> = {
  *
  * @example
  * // Define an interface
- * interface IPerson {
+ * interface IUser {
  *   name: string;
  *   age: number;
  *   active: boolean;
  * }
  *
  * // Create a type guard using the factory
- * const isPerson = createTypeGuard<IPerson>({
+ * const isUser = createTypeGuard<IUser>({
  *   name: 'string',
  *   age: 'number',
  *   active: 'boolean'
@@ -54,8 +54,8 @@ type PropertySchema<T> = {
  *
  * // Use the type guard
  * const data: unknown = { name: 'Alice', age: 30, active: true };
- * if (isPerson(data)) {
- *   logger.debug(data.name); // TypeScript knows data is IPerson
+ * if (isUser(data)) {
+ *   logger.debug(data.name); // TypeScript knows data is IUser
  * }
  *
  * @example

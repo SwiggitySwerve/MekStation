@@ -281,7 +281,7 @@ export function processHealing(
       }
     }
 
-    // Reduce recoveryTime (was IPerson.daysToWaitForHealing)
+    // Reduce recoveryTime (the roster-entry recovery counter)
     const oldRecoveryTime = entry.recoveryTime ?? 0;
     const newRecoveryTime = Math.max(0, oldRecoveryTime - 1);
 

@@ -172,7 +172,7 @@
 - [x] 6.3 `dayAdvancement.test.ts` and `dayPipeline.test.ts` produce identical outputs vs pre-PR3 baseline.
 - [x] 6.4 Bridge functions still alive (deletion is PR4's job).
 - [x] 6.5 Production code grep: zero hits for `campaign.personnel` in `src/` outside `useCampaignStore.ts`, `rosterEntryToPerson.ts`, and the 6 processor + dayAdvancement transitional fallbacks (each tagged `PR3 transitional` / deletable in PR4).
-- [ ] 6.6 PR opened, CI green, merged.
+- [x] 6.6 PR opened, CI green, merged. PR #497, merged at `ed067640` on 2026-05-03.
 
 ---
 
@@ -219,7 +219,7 @@
 - [x] 10.4 Grep `derivePersonnelFromRoster|syncRosterFromPersonnel` in `src/` returns ZERO hits.
 - [x] 10.5 Grep `\.personnel\b` in `src/types/campaign/Campaign.ts` returns ZERO hits.
 - [x] 10.6 `npx oxfmt --check` clean.
-- [ ] 10.7 PR opened, CI green, merged.
+- [x] 10.7 PR opened, CI green, merged. PR #498, merged at `53b0df1e` on 2026-05-03.
 
 ---
 
@@ -227,42 +227,38 @@
 
 ### 11. Pre-deletion grep + audit
 
-- [ ] 11.1 `grep -rn "IPerson\b" src/` — record count.
-  - Expected: only `src/types/campaign/Person.ts` (definition) + `src/lib/campaign/utils/rosterEntryToPerson.ts` (shim) + their tests.
-  - Acceptance: count matches expectation.
+- [x] 11.1 `grep -rn "IPerson\b" src/` — record count.
+  - Pre-PR5 audit: 123 hits across 38 files. Of those, ~100 were dead `createTestPerson` / `makePerson` orphans left behind by PR4 cleanup (helpers defined and `person`/`personnel` variables assigned but never read by any subsequent test code). The remaining live consumers were 2 dead-code production files (`skillProgression.ts`, `techSkill.ts`) plus comment-only mentions in 14 production files.
+  - Acceptance: post-PR5 count is 0.
 
-- [ ] 11.2 `grep -rn "rosterEntryToPerson" src/` — confirm only the shim file + its tests reference it.
+- [x] 11.2 `grep -rn "rosterEntryToPerson" src/` — confirm only the shim file + its tests reference it.
+  - Pre-PR5 audit: only `src/lib/campaign/utils/rosterEntryToPerson.ts` (definition), its test file, and a 2-line historical comment in `turnover/modifiers/personalModifiers.ts` referenced the shim. Both files deleted, comment neutralized.
 
 ### 12. Delete IPerson + shim
 
-- [ ] 12.1 Delete `IPerson` interface and related types from `src/types/campaign/Person.ts`.
-  - May need to keep `IInjury` if referenced elsewhere — verify with grep.
-  - Acceptance: typecheck clean.
+- [x] 12.1 Delete `IPerson` interface and related types from `src/types/campaign/Person.ts`.
+  - Person.ts collapsed from 804 lines to 102 lines. Preserved exports: `IInjury` (consumed by 6 medical files + ICampaignRosterEntry) and `createInjury` (consumed by 4 test files). Deleted: `IPerson` interface + sub-interfaces (IPersonIdentity/Background/Career/Experience/CombatState/Assignment), `isAlive`/`isActive`/`isAvailable`/`isWounded`/`getTotalXP`/`getAvailableXP`/`hasPermanentInjuries`/`getTotalHealingDays`/`isCombatRole`/`isSupportRole`/`pilotToPerson`/`isPerson`/`createDefaultAttributes`/`isInjury` (all confirmed unused outside Person.ts and its own test file). Also deleted dead-code production files `skillProgression.ts` + `techSkill.ts` (and tests) — both took `IPerson` parameters but were superseded by `(entry, pilot)`-based helpers in `skillCostTraits.ts` / `skillHelpers.ts` / `XPCalculator.ts` and had zero production consumers. Also deleted the 1024-line `Person.test.ts` (71 tests against the deleted IPerson interface). Removed `export * from './techSkill';` from `src/types/campaign/skills/index.ts`.
 
-- [ ] 12.2 Delete `src/lib/campaign/utils/rosterEntryToPerson.ts` shim file.
-  - Acceptance: typecheck clean.
+- [x] 12.2 Delete `src/lib/campaign/utils/rosterEntryToPerson.ts` shim file.
 
-- [ ] 12.3 Delete `src/lib/campaign/utils/__tests__/rosterEntryToPerson.test.ts` (or wherever the shim tests live).
-  - Acceptance: jest still discovers other tests.
+- [x] 12.3 Delete `src/lib/campaign/utils/__tests__/rosterEntryToPerson.test.ts` (or wherever the shim tests live).
 
 ### 13. Final verification
 
-- [ ] 13.1 `grep -rn "IPerson\b" src/` returns ZERO hits.
-- [ ] 13.2 `grep -rn "rosterEntryToPerson" src/` returns ZERO hits.
-- [ ] 13.3 `npx tsc --noEmit --skipLibCheck` exit 0.
-- [ ] 13.4 Full test suite passes.
-- [ ] 13.5 `npx oxfmt --check` clean.
+- [x] 13.1 `grep -rn "IPerson\b" src/` returns ZERO hits. Verified post-Phase-D.
+- [x] 13.2 `grep -rn "rosterEntryToPerson" src/` returns ZERO hits. Verified post-Phase-C.
+- [x] 13.3 `npx tsc --noEmit --skipLibCheck` exit 0. Verified after every commit (husky pre-commit hook).
+- [x] 13.4 Full test suite passes. 878 suites / 22946 tests pass (1 suite skipped, 44 individual tests skipped — same skip count as pre-PR5 baseline).
+- [x] 13.5 `npx oxfmt --check` clean. Verified.
 - [ ] 13.6 PR opened, CI green, merged.
 
 ### 14. Spec sync + archive
 
-- [ ] 14.1 On change archive (post-merge of PR5), the delta spec syncs into `openspec/specs/campaign-personnel-architecture/spec.md`.
-  - The source-of-truth spec already exists.
-  - Sync should be a no-op or near-no-op.
-  - Acceptance: `openspec sync` reports no diff or expected diff only.
+- [x] 14.1 On change archive (post-merge of PR5), the delta spec syncs into `openspec/specs/campaign-personnel-architecture/spec.md`.
+  - Pre-archive audit: source-of-truth spec already contains supersetting requirements covering the architecture (the `Personnel are stored across three orthogonal stores` / `Cross-store helpers accept the two-arg signature` / `Pre-join template avoids N² find() calls` / `NPC handling is documented per helper` / `Cross-store mutations return delta objects` / `Bridge functions are transitional infrastructure` / `ICampaign.personnel field is removed entirely` / `IPerson type is deleted from src/` / `Other specs reference the split` requirement set), so archive sync is a delta-vs-existing pass that should land cleanly. The IPerson-deletion requirement (line 187 of source-of-truth) is now satisfied by PR5 code.
 
-- [ ] 14.2 Update `openspec/specs/personnel-management/spec.md` to reference `IPilot` + `ICampaignRosterEntry` instead of legacy `IPerson` (if any references remain).
-  - Acceptance: personnel-management spec is internally consistent post-cutover.
+- [x] 14.2 Update `openspec/specs/personnel-management/spec.md` to reference `IPilot` + `ICampaignRosterEntry` instead of legacy `IPerson` (if any references remain).
+  - Found 3 lingering `IPerson` references in `personnel-management/spec.md`. Updated `Requirement: Immutable Person Fields` → `Requirement: Immutable Roster Entry Fields` (renamed + scenarios rewritten to enumerate `ICampaignRosterEntry` fields and reference `useCampaignRosterStore.applyPilotPatches` for store-resident updates). Updated the legacy-substrate paragraph in `Personnel Substrate Architecture (Identity vs Employment Split)` to record that the IPerson interface itself was deleted in PR5. Both surviving mentions are intentional (they reference IPerson as the historical/deleted thing).
 
 - [ ] 14.3 Archive change to `openspec/changes/archive/YYYY-MM-DD-wire-iperson-hard-cutover/`.
   - Acceptance: `openspec list` no longer shows this change as active.

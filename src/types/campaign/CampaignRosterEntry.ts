@@ -4,15 +4,9 @@
  * The single per-campaign roster entry type that holds the employment
  * relationship between a vault `IPilot` (or inline NPC statblock) and a
  * specific campaign. Replaces the legacy `ICampaignPilotState` (renamed,
- * extended) and supersedes the never-seeded `IPerson` substrate for
- * runtime storage. The `IPerson` TYPE remains in tree as a parameter
- * signature for the 72 helper files that still expect it; the
- * `rosterEntryToPerson(rosterEntry, vaultPilot)` shim bridges the two
- * during the narrow-scope migration.
- *
- * The full type-side migration of helper signatures to consume
- * `ICampaignRosterEntry` directly lives in the follow-up change
- * `refactor-helper-signatures-to-roster-entry`.
+ * extended) and is now the sole runtime storage for personnel. As of
+ * `wire-iperson-hard-cutover` PR5, every helper takes `(entry, pilot)`
+ * directly — the legacy god-type and its bridge are gone.
  *
  * @spec openspec/changes/migrate-personnel-to-roster-employment/specs/personnel-management/spec.md
  * @spec openspec/changes/archive/2026-05-01-decide-campaign-personnel-architecture/design.md
@@ -82,7 +76,7 @@ export interface ICampaignRosterEntry {
   /** Current wounds (0-6 for MechWarriors) */
   readonly wounds: number;
 
-  /** Recovery time remaining in mission cycles (was `healingTime` on IPerson) */
+  /** Recovery time remaining in mission cycles (formerly `healingTime`) */
   readonly recoveryTime: number;
 
   // ===========================================================================
@@ -142,12 +136,10 @@ export interface ICampaignRosterEntry {
   /**
    * Active injuries for advanced medical tracking.
    *
-   * Optional + readonly. Defaults to `[]` (no injuries) when unset, matching
-   * the legacy `IPerson.injuries` semantics so the bridge synthesis and the
-   * direct two-arg helpers behave identically. Wired in PR2 of
-   * `wire-iperson-hard-cutover` (Council #2 open question #1) so medical
-   * helpers can read injuries from the roster entry without going through
-   * the `rosterEntryToPerson` shim once PR4 deletes the bridge.
+   * Optional + readonly. Defaults to `[]` (no injuries) when unset.
+   * Wired in PR2 of `wire-iperson-hard-cutover` (Council #2 open
+   * question #1) so medical helpers can read injuries from the roster
+   * entry directly via the two-arg `(entry, pilot)` signature.
    *
    * @spec openspec/specs/campaign-personnel-architecture/spec.md
    */

@@ -16,9 +16,7 @@ import {
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
-import { IPerson } from '@/types/campaign/Person';
 import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import { processAutoAwards, getEligiblePersonnel } from '../autoAwardEngine';
@@ -105,41 +103,6 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     ...overrides,
     // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
     unitCombatStates: overrides?.unitCombatStates ?? {},
-  };
-}
-
-// Legacy IPerson fixture for tests that still exercise campaign.personnel write-side.
-function createTestPerson(overrides?: Partial<IPerson>): IPerson {
-  return {
-    id: 'person-test',
-    name: 'Test Pilot',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date('3020-01-01'),
-    missionsCompleted: 0,
-    totalKills: 0,
-    xp: 0,
-    totalXpEarned: 0,
-    xpSpent: 0,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    ...overrides,
   };
 }
 
@@ -656,7 +619,7 @@ describe('autoAwardEngine', () => {
       expect(eligible).toEqual([]);
     });
 
-    it('synthesizes entry from IPerson with correct field mapping', () => {
+    it('maps roster entry fields correctly into eligibility result', () => {
       const config = createDefaultAutoAwardConfig();
 
       // Build entry directly with the same field values the legacy person had.

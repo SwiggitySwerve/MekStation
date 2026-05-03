@@ -5,20 +5,14 @@
  * sub-store composition, persistence, and day advancement coverage.
  */
 
-import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
 import { ICampaignOptions } from '@/types/campaign/Campaign';
 import { IMission } from '@/types/campaign/Campaign';
-import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
-import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import {
   ForceRole,
   FormationLevel,
   MissionStatus,
 } from '@/types/campaign/enums';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { IForce } from '@/types/campaign/Force';
-import { IPerson } from '@/types/campaign/Person';
-import { IPilot, PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import {
   createCampaignStore,
@@ -30,51 +24,8 @@ import {
 // Test Data Helpers
 // =============================================================================
 
-let personIdCounter = 0;
 let forceIdCounter = 0;
 let missionIdCounter = 0;
-
-/**
- * Cluster E PR1 — IPerson fixtures are now synthesized via the
- * `(rosterEntry, vaultPilot) → rosterEntryToPerson()` bridge so the
- * test substrate exercises the same shim production code uses to
- * adapt the new roster-employment substrate to legacy `IPerson`-shaped
- * helpers. Test-specific overrides (custom names, ids) still spread on
- * top so individual cases drive their own scenarios.
- */
-const createTestPerson = (overrides?: Partial<IPerson>): IPerson => {
-  const id = overrides?.id ?? `person-${Date.now()}-${personIdCounter++}`;
-  const name = overrides?.name ?? 'Test Person';
-  const now = new Date().toISOString();
-  const entry: ICampaignRosterEntry = {
-    pilotId: id,
-    pilotName: name,
-    status: CampaignPilotStatus.Active,
-    wounds: 0,
-    recoveryTime: 0,
-    xp: 0,
-    campaignXpEarned: 0,
-    campaignKills: 0,
-    campaignMissions: 0,
-    hireDate: new Date(),
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rankIndex: 0,
-  };
-  const vault: IPilot = {
-    id,
-    name,
-    type: PilotType.Persistent,
-    status: PilotStatus.Active,
-    skills: { gunnery: 4, piloting: 5 },
-    wounds: 0,
-    abilities: [],
-    awards: [],
-    createdAt: now,
-    updatedAt: now,
-  };
-  const base = rosterEntryToPerson(entry, vault);
-  return { ...base, ...overrides };
-};
 
 const createTestForce = (overrides?: Partial<IForce>): IForce => {
   const id = `force-${Date.now()}-${forceIdCounter++}`;
@@ -145,7 +96,6 @@ describe('useCampaignStore', () => {
   let store: ReturnType<typeof createCampaignStore>;
 
   beforeEach(() => {
-    personIdCounter = 0;
     forceIdCounter = 0;
     missionIdCounter = 0;
     localStorageMock.clear();
@@ -327,7 +277,6 @@ describe('useCampaignStore', () => {
         .getState()
         .createCampaign('Test Campaign', 'mercenary');
 
-      const person = createTestPerson({ name: 'Test Pilot' });
       store.getState().updateCampaign({});
 
       store.getState().saveCampaign();
@@ -404,20 +353,14 @@ describe('useCampaignStore', () => {
     it('should sync personnel data to campaign', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
-      // Per `migrate-personnel-to-roster-employment`, personnel lives on
-      // `campaign.personnel` directly. The sub-store is gone — we seed
-      // via `updateCampaign` and verify `saveCampaign` round-trips.
-      const person = createTestPerson({ name: 'Synced Person' });
+      // Per PR4 of `wire-iperson-hard-cutover`: personnel state lives on
+      // useCampaignRosterStore. The save round-trip is a no-op for the
+      // (now-deleted) personnel field; we just confirm no throw.
       store.getState().updateCampaign({});
-
       store.getState().saveCampaign();
 
       const campaign = store.getState().getCampaign();
-      // Per PR4 of `wire-iperson-hard-cutover`: personnel state lives on
-      // useCampaignRosterStore. The save round-trip is a no-op for the
-      // (now-deleted) personnel field.
       expect(campaign).not.toBeNull();
-      void person;
     });
   });
 
@@ -637,9 +580,7 @@ describe('useCampaignStore', () => {
 
       // Per PR4 of `wire-iperson-hard-cutover`: personnel state lives on
       // useCampaignRosterStore — no sub-store, no `campaign.personnel`.
-      const person = createTestPerson({ name: 'New Pilot' });
       store.getState().updateCampaign({});
-      void person;
       expect(store.getState().getCampaign()).not.toBeNull();
     });
 
@@ -675,7 +616,6 @@ describe('useCampaignStore', () => {
       const forcesStore = store.getState().getForcesStore();
       const missionsStore = store.getState().getMissionsStore();
 
-      const person = createTestPerson({ name: 'Test Pilot' });
       const force = createTestForce({ name: 'Test Lance' });
       const mission = createTestMission({ name: 'Test Mission' });
 
@@ -686,7 +626,6 @@ describe('useCampaignStore', () => {
       store.getState().saveCampaign();
 
       const campaign = store.getState().getCampaign();
-      void person;
       // Per PR4: personnel field deleted; only forces+missions are still
       // sub-stores synced via saveCampaign.
       // Forces includes root force + added force
@@ -757,15 +696,13 @@ describe('useCampaignStore', () => {
       expect(campaign?.currentDate).toBeInstanceOf(Date);
     });
 
-    it('should persist personnel via campaign object', () => {
+    it('should persist campaign blob via saveCampaign', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
-      // Per `migrate-personnel-to-roster-employment`, personnel no longer
-      // has its own persistence path — it's part of the serialized
-      // campaign blob saved by `saveCampaign`.
-      const person = createTestPerson({ name: 'Persisted Person' });
+      // Per PR4 of `wire-iperson-hard-cutover`: personnel state now lives on
+      // useCampaignRosterStore, so the campaign blob no longer carries a
+      // `personnel` field. We just confirm the campaign blob persists.
       store.getState().updateCampaign({});
-
       store.getState().saveCampaign();
 
       const campaignId = store.getState().getCampaign()?.id;
@@ -847,9 +784,9 @@ describe('useCampaignStore', () => {
         .createCampaign("Wolf's Dragoons", 'mercenary');
       expect(campaignId).toBeDefined();
 
-      // Add personnel (per `migrate-personnel-to-roster-employment`, this
-      // is now a direct campaign-object update — no sub-store).
-      const pilot = createTestPerson({ name: 'Jaime Wolf', rank: 'Colonel' });
+      // Per PR4 of `wire-iperson-hard-cutover`: personnel state now lives on
+      // useCampaignRosterStore — the campaign blob carries forces + missions,
+      // but no personnel. We exercise the remaining sub-stores below.
       store.getState().updateCampaign({});
 
       // Add force
@@ -872,8 +809,6 @@ describe('useCampaignStore', () => {
       // Verify state
       const campaign = store.getState().getCampaign();
       expect(campaign?.name).toBe("Wolf's Dragoons");
-      // Per PR4: personnel field deleted; personnel count lives on roster store.
-      void pilot;
       expect(campaign?.forces.size).toBe(2); // Root + Command Lance
       expect(campaign?.missions.size).toBe(1);
     });
@@ -884,7 +819,6 @@ describe('useCampaignStore', () => {
         .getState()
         .createCampaign('Test Campaign', 'mercenary');
 
-      const pilot = createTestPerson({ name: 'Test Pilot' });
       store.getState().updateCampaign({});
 
       store.getState().advanceDay();

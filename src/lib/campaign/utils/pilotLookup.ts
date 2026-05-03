@@ -5,9 +5,9 @@
  * iteration's vault `IPilot` resolved by `pilotId`. Built ONCE per pipeline
  * run and passed to per-entry helpers via `pilotLookup.get(entry.pilotId) ?? null`,
  * avoiding the N² `vault.find(p => p.id === entry.pilotId)` that the previous
- * `IPerson` god-type pattern paid per call.
+ * god-type pattern paid per call.
  *
- * Mandated by Council #2 (Cluster E IPerson hard-cutover, decision
+ * Mandated by Council #2 (Cluster E roster-employment hard-cutover, decision
  * 2026-05-02). The two-arg helper signature `(entry, pilot | null)` SHALL NOT
  * internally call `vault.find(...)` — helpers receive pre-resolved pilots.
  *

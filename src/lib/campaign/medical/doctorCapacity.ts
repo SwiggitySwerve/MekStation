@@ -59,8 +59,8 @@ export function getDoctorCapacity(
 /**
  * Count patients assigned to a doctor (those with active injuries).
  *
- * @stub Plan 7 - ICampaignRosterEntry has no `doctorId` field (that was an
- * IPerson concept). Per-doctor assignment filtering is deferred to the
+ * @stub Plan 7 - ICampaignRosterEntry has no `doctorId` field (that was a
+ * legacy concept). Per-doctor assignment filtering is deferred to the
  * follow-up change that adds `assignedDoctorId` to ICampaignRosterEntry.
  * Until then, this counts ALL entries with injuries, giving each doctor the
  * same view of total roster injury load.

@@ -62,10 +62,9 @@ export function getRecentPromotionModifier(
 /**
  * Derives approximate age using `entry.hireDate` as a birth-date proxy.
  *
- * This is the same approximation used by the `rosterEntryToPerson` bridge
- * (`recruitmentDate = entry.hireDate`). A proper `dateOfBirth` field on
- * `ICampaignRosterEntry` or the vault pilot is the long-term fix; deferred
- * until pilot identity data is fuller.
+ * A proper `dateOfBirth` field on `ICampaignRosterEntry` or the vault
+ * pilot is the long-term fix; deferred until pilot identity data is
+ * fuller.
  */
 function getPersonAge(
   entry: ICampaignRosterEntry,
@@ -73,8 +72,7 @@ function getPersonAge(
   campaign: ICampaign,
 ): number {
   const now = campaign.currentDate;
-  // Use hireDate as birth-date proxy — mirrors what rosterEntryToPerson does
-  // (person.recruitmentDate = entry.hireDate).
+  // Use hireDate as birth-date proxy.
   const birth = entry.hireDate;
   let age = now.getFullYear() - birth.getFullYear();
   const monthDiff = now.getMonth() - birth.getMonth();
