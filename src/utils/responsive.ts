@@ -1,11 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 
+import { BREAKPOINTS as LAYOUT_BREAKPOINTS, TOUCH } from '@/constants/layout';
+
+/**
+ * Tailwind-keyed breakpoints derived from the canonical layout constants.
+ * @see src/constants/layout.ts
+ */
 export const BREAKPOINTS = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-  '2xl': 1536,
+  sm: LAYOUT_BREAKPOINTS.SM,
+  md: LAYOUT_BREAKPOINTS.MD,
+  lg: LAYOUT_BREAKPOINTS.LG,
+  xl: LAYOUT_BREAKPOINTS.XL,
+  '2xl': LAYOUT_BREAKPOINTS.XXL,
 } as const;
 
 export function useMediaQuery(query: string): boolean {
@@ -45,8 +51,11 @@ export function useIsDesktop(): boolean {
   return useMediaQuery(`(min-width: ${BREAKPOINTS.lg}px)`);
 }
 
-/** WCAG 2.5.5 minimum touch target size in px */
-export const MIN_TOUCH_TARGET = 44;
+/**
+ * WCAG 2.5.5 minimum touch target size in px.
+ * @see src/constants/layout.ts
+ */
+export const MIN_TOUCH_TARGET = TOUCH.MIN_TARGET_SIZE;
 
 export const TOUCH_TARGET_CLASSES = 'min-h-[44px] min-w-[44px]';
 

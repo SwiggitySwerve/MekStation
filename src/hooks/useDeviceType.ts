@@ -1,13 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 
+import { BREAKPOINTS as LAYOUT_BREAKPOINTS } from '@/constants/layout';
+
 /**
  * Screen size breakpoints (in pixels)
+ * @see src/constants/layout.ts
  */
 const BREAKPOINTS = {
   /** Mobile: < 768px */
-  mobile: 768,
+  mobile: LAYOUT_BREAKPOINTS.MD,
   /** Tablet: >= 768px and < 1024px */
-  tablet: 1024,
+  tablet: LAYOUT_BREAKPOINTS.LG,
 } as const;
 
 /**
