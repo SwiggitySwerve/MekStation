@@ -18,7 +18,6 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { personToMinimalEntry } from '@/lib/campaign/utils/personToRosterEntry';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -94,14 +93,16 @@ function isEligibleForVocational(
 }
 
 /**
- * Applies vocational training results to campaign.
- * Writes XP and timer updates to campaign.personnel (write-side stays
- * on IPerson until PR4 deletes the personnel field).
+ * Apply vocational training results to the roster store.
+ *
+ * Per PR4 of `wire-iperson-hard-cutover`: writes XP + timer updates as
+ * roster patches via `applyPilotPatches`. The personnel Map is gone.
  */
 function applyVocationalResults(
   campaign: ICampaign,
   events: IDayEvent[],
   timerUpdates: ReadonlyMap<string, number>,
+  rosterEntries: readonly ICampaignRosterEntry[],
 ): ICampaign {
   if (events.length === 0 && timerUpdates.size === 0) {
     return campaign;
@@ -117,27 +118,28 @@ function applyVocationalResults(
     }
   }
 
-  // Apply XP awards and timer updates to personnel (write-side: campaign.personnel)
-  const updatedPersonnel = new Map(campaign.personnel);
+  // Index roster entries for O(1) lookup so we can compute new xp/traits.
+  const entryById = new Map(rosterEntries.map((e) => [e.pilotId, e]));
+  const patches = new Map<string, Partial<ICampaignRosterEntry>>();
   for (const [personId, timerValue] of Array.from(timerUpdates)) {
-    const person = updatedPersonnel.get(personId);
-    if (!person) continue;
+    const entry = entryById.get(personId);
+    if (!entry) continue;
     const xpAmount = xpAwards.get(personId) ?? 0;
-    updatedPersonnel.set(personId, {
-      ...person,
-      xp: person.xp + xpAmount,
-      totalXpEarned: person.totalXpEarned + xpAmount,
+    patches.set(personId, {
+      xp: entry.xp + xpAmount,
+      campaignXpEarned: entry.campaignXpEarned + xpAmount,
       traits: {
-        ...person.traits,
+        ...(entry.traits ?? {}),
         vocationalXPTimer: timerValue,
       },
     });
   }
 
-  return {
-    ...campaign,
-    personnel: updatedPersonnel,
-  };
+  if (patches.size > 0) {
+    useCampaignRosterStore.getState().applyPilotPatches(patches);
+  }
+
+  return campaign;
 }
 
 // =============================================================================
@@ -146,8 +148,9 @@ function applyVocationalResults(
 
 /**
  * Processes vocational training for all eligible personnel.
- * Reads entries from useCampaignRosterStore (PR3 task 5.2).
- * Writes XP + timer updates to campaign.personnel (write-side stays until PR4).
+ * Per PR4 of `wire-iperson-hard-cutover`: reads entries from
+ * `useCampaignRosterStore` (canonical source) and commits XP + timer
+ * updates as roster patches via `applyPilotPatches`.
  */
 export function processVocationalTraining(
   campaign: ICampaign,
@@ -160,18 +163,11 @@ export function processVocationalTraining(
   const checkFrequency = options.vocationalXPCheckFrequency ?? 30;
 
   // Pre-join vault once so isEligibleForVocational gets O(1) pilot lookups.
-  // PR3 transitional: prefer store reads (production); fall back to
-  // `campaign.personnel` when stores are empty (test fixtures). PR4 deletes
-  // the personnel field entirely, forcing all callers to populate stores.
-  const storeEntries = useCampaignRosterStore.getState().pilots;
-  const rosterEntries: readonly ICampaignRosterEntry[] =
-    storeEntries.length > 0
-      ? storeEntries
-      : Array.from(campaign.personnel.values()).map(personToMinimalEntry);
+  const rosterEntries = useCampaignRosterStore.getState().pilots;
   const vault = usePilotStore.getState().pilots;
   const pilotsByPilotId = buildPilotLookup(vault);
 
-  // timerUpdates maps pilotId -> new timer value; written back to personnel.
+  // timerUpdates maps pilotId -> new timer value; committed via applyPilotPatches.
   const timerUpdates = new Map<string, number>();
 
   for (const entry of rosterEntries) {
@@ -214,6 +210,7 @@ export function processVocationalTraining(
     campaign,
     events,
     timerUpdates,
+    rosterEntries,
   );
 
   return { updatedCampaign, events };

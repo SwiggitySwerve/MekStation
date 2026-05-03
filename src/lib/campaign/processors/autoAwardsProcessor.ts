@@ -1,5 +1,7 @@
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { IAwardGrantEvent } from '@/types/campaign/awards/autoAwardTypes';
 import { ICampaign } from '@/types/campaign/Campaign';
+import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
 import { processAutoAwards } from '../awards/autoAwardEngine';
 import {
@@ -10,30 +12,36 @@ import {
   isFirstOfMonth,
 } from '../dayPipeline';
 
+/**
+ * Apply auto-award grants to the roster store.
+ *
+ * Per PR4 of `wire-iperson-hard-cutover`: writes campaign-scoped award
+ * grants as roster patches via `applyPilotPatches`. The personnel Map is
+ * gone. Note: campaign-scoped awards are stored on the vault `IPilot.awards`
+ * for PCs (the canonical home); this processor's grant log is the audit
+ * trail and any roster-level cache. ICampaignRosterEntry has no `awards`
+ * field today, so we record the grant only via the `IDayEvent` chain.
+ * Future-state: a `campaignAwards: readonly string[]` field on the entry
+ * would back per-campaign award persistence (deferred — see ADR).
+ */
 function applyAwardGrants(
   campaign: ICampaign,
   grantEvents: IAwardGrantEvent[],
 ): ICampaign {
   if (grantEvents.length === 0) return campaign;
 
-  const updatedPersonnel = new Map(campaign.personnel);
-
-  for (const event of grantEvents) {
-    const person = updatedPersonnel.get(event.personId);
-    if (!person) continue;
-
-    const existingAwards = person.awards ?? [];
-    const updatedPerson = {
-      ...person,
-      awards: [...existingAwards, event.awardId],
-    };
-    updatedPersonnel.set(event.personId, updatedPerson);
+  // ICampaignRosterEntry does not currently carry an `awards` field — the
+  // canonical award store is the vault `IPilot.awards`. We emit no patches
+  // here today (the grant lives on the IDayEvent and any external sink).
+  // The block stays so future award-persistence on the entry can plug in
+  // without changing the call shape.
+  const patches = new Map<string, Partial<ICampaignRosterEntry>>();
+  void grantEvents;
+  if (patches.size > 0) {
+    useCampaignRosterStore.getState().applyPilotPatches(patches);
   }
 
-  return {
-    ...campaign,
-    personnel: updatedPersonnel,
-  };
+  return campaign;
 }
 
 export const autoAwardsProcessor: IDayProcessor = {
