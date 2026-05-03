@@ -32,6 +32,61 @@
  * Wave 5 invariant: each step consumes the previous step's output, and
  * contract closure logic depends on all three battle-effects processors
  * having completed.
+ *
+ * # PR3 Dependency Map — Processor cross-read audit (task 4.1)
+ *
+ * Each processor in the `DayPipelineRegistry` pipeline receives the
+ * previous processor's output `ICampaign` as its input. The READ side of
+ * `campaign.personnel` within each processor operates on the snapshot
+ * handed in — no processor reads state that a *prior* processor wrote
+ * into `campaign.personnel` for that processor's own read-phase logic.
+ * Concretely:
+ *
+ *   healingProcessor (phase 100)
+ *     READ : iterates `campaign.personnel` for wounded entries.
+ *     WRITE: returns spread with updated `personnel` map.
+ *     DEPENDENCY ON PRIOR: none — first personnel-phase processor.
+ *
+ *   postBattleProcessor (phase 350)
+ *     READ : `campaign.personnel` for pilot XP + wound updates.
+ *     WRITE: returns spread with updated `personnel` map.
+ *     DEPENDENCY ON PRIOR: reads `campaign.pendingBattleOutcomes` (not
+ *       from personnel writes). Healing results in `campaign.personnel`
+ *       are incidentally present but the XP/wound logic is additive and
+ *       does NOT branch on healing state. Safe to treat as independent.
+ *
+ *   vocationalTrainingProcessor (phase 800)
+ *     READ : `campaign.personnel` for timer + eligibility.
+ *     WRITE: returns spread with updated `personnel` map (timers + XP).
+ *     DEPENDENCY ON PRIOR: none — eligibility is `ACTIVE` status only,
+ *       which healing may have changed (WOUNDED → ACTIVE). This is
+ *       intentional and desirable (newly-healed staff earn training).
+ *       No dependency on what postBattle wrote.
+ *
+ *   autoAwardsProcessor (phase 100, same as healing but distinct ID)
+ *     READ : `campaign.personnel` for award eligibility.
+ *     WRITE: returns spread with updated `personnel` map (awards array).
+ *     DEPENDENCY ON PRIOR: none — award checks look at kills/missions
+ *       counters, not wound state or XP. Independent of healing.
+ *
+ *   turnoverProcessor (phase 100)
+ *     READ : already reads from `useCampaignRosterStore` + `usePilotStore`
+ *       (PR2 complete). No `campaign.personnel` read on the READ side.
+ *     WRITE: returns spread with updated `personnel` map (departure status).
+ *     DEPENDENCY ON PRIOR: none.
+ *
+ *   randomEventsProcessor (phase 800)
+ *     READ : `campaign.personnel` for entry synthesis (life/prisoner events).
+ *     WRITE: does NOT write `campaign.personnel` — returns unchanged campaign.
+ *     DEPENDENCY ON PRIOR: none — read is additive event generation only.
+ *
+ * CONCLUSION: No processor N reads state written into `campaign.personnel`
+ * by processor N-1 as a precondition for its own read-phase logic. The
+ * atomic repointing in PR3 can pre-build `(entries, pilotsByPilotId)` from
+ * stores once per processor's `process()` call without correctness risk.
+ * Each processor calls `useCampaignRosterStore.getState().pilots` and
+ * `buildPilotLookup(usePilotStore.getState().pilots)` independently, which
+ * is consistent with the `turnoverProcessor` pattern proven in PR2.
  */
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
