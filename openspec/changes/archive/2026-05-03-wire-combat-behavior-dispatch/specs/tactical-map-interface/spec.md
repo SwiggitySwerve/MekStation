@@ -45,8 +45,6 @@ The adapter SHALL be the only call-site in the codebase that reads `IUnitGameSta
 - **THEN** the returned `IUnitToken` SHALL omit per-type fields
 - **AND** `unitType` SHALL default per current `TokenUnitType.Mech` rules
 
-## MODIFIED Requirements
-
 ### Requirement: Per-Type Token Renders SHALL Read Envelope Values
 
 The four per-type token components (`AerospaceToken`, `InfantryToken`, `BattleArmorToken`, `ProtoMechToken`) SHALL read per-type fields (`altitude`, `infantryCount`, `platoonCount`, `trooperCount`, `protoCount`, `isGlider`, `hasMainGun`) directly from the `IUnitToken` props with NO inline `?? <default>` fall-back expression.
