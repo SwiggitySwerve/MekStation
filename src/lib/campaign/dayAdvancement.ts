@@ -92,6 +92,10 @@
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { personToMinimalEntry as personToMinimalEntryShared } from '@/lib/campaign/utils/personToRosterEntry';
+import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { usePilotStore } from '@/stores/usePilotStore';
 import { ICampaign } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
@@ -429,14 +433,22 @@ export function processDailyCosts(campaign: ICampaign): {
   const newTransactions: Transaction[] = [...campaign.finances.transactions];
   let currentBalance = campaign.finances.balance;
 
-  // Count active personnel for salary
-  const activePersonnel = Array.from(campaign.personnel.values()).filter(
-    (p) =>
-      p.status !== PersonnelStatus.KIA &&
-      p.status !== PersonnelStatus.RETIRED &&
-      p.status !== PersonnelStatus.DESERTED,
-  );
-  const personnelCount = activePersonnel.length;
+  // Count billable personnel for salary — read from roster store (PR3 task 5.1).
+  // CampaignPilotStatus.KIA is the only non-billable terminal status; Active,
+  // Wounded, Critical, and MIA all still draw salary (mirrors the legacy
+  // IPerson filter that excluded KIA/RETIRED/DESERTED — RETIRED and DESERTED
+  // have no CampaignPilotStatus equivalent and are not present in the roster).
+  // PR3 transitional: fall back to `campaign.personnel` synthesis when stores
+  // are empty (test fixtures). PR4 deletes the personnel field, forcing all
+  // callers to populate stores.
+  const __storeEntries = useCampaignRosterStore.getState().pilots;
+  const rosterEntries: readonly ICampaignRosterEntry[] =
+    __storeEntries.length > 0
+      ? __storeEntries
+      : Array.from(campaign.personnel.values()).map(personToMinimalEntryShared);
+  const personnelCount = rosterEntries.filter(
+    (e) => e.status !== CampaignPilotStatus.KIA,
+  ).length;
 
   // Calculate salary costs
   let salaries = Money.ZERO;

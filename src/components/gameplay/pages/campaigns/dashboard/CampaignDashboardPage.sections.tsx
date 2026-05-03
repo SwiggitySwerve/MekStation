@@ -2,6 +2,7 @@ import React from 'react';
 import { useStore } from 'zustand';
 
 import { Badge, Button, Card, EmptyState, PageLayout } from '@/components/ui';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
 import type {
@@ -154,11 +155,16 @@ interface CampaignStatsGridProps {
 export function CampaignStatsGrid({
   campaign,
 }: CampaignStatsGridProps): React.ReactElement {
+  // PR3 task 5.4: read personnel count from roster store, fall back to legacy
+  // map for tests/dev paths that haven't seeded the store yet.
+  const rosterCount = useCampaignRosterStore((s) => s.pilots.length);
+  const personnelCount =
+    rosterCount > 0 ? rosterCount : campaign.personnel.size;
   return (
     <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
         label="Personnel"
-        value={campaign.personnel.size}
+        value={personnelCount}
         icon={
           <svg
             className="h-8 w-8"

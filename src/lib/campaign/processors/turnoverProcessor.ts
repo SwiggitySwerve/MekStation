@@ -1,7 +1,9 @@
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPerson } from '@/types/campaign/Person';
 import type { Transaction } from '@/types/campaign/Transaction';
 
+import { personToMinimalEntry } from '@/lib/campaign/utils/personToRosterEntry';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -144,7 +146,11 @@ export const turnoverProcessor: IDayProcessor = {
 
     // Pre-join vault once so each checkTurnover call is O(1) instead of O(N).
     // NPC entries whose pilotId has no vault counterpart resolve to null.
-    const entries = useCampaignRosterStore.getState().pilots;
+    const __storeEntries = useCampaignRosterStore.getState().pilots;
+    const entries: readonly ICampaignRosterEntry[] =
+      __storeEntries.length > 0
+        ? __storeEntries
+        : Array.from(campaign.personnel.values()).map(personToMinimalEntry);
     const vault = usePilotStore.getState().pilots;
     const pilotsByPilotId = buildPilotLookup(vault);
 

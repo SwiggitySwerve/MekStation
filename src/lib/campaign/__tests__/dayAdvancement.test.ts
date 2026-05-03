@@ -12,11 +12,15 @@
  *   combined processing, multiple days
  */
 
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { usePilotStore } from '@/stores/usePilotStore';
 import {
   ICampaign,
   createDefaultCampaignOptions,
   ICampaignOptions,
 } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import {
   PersonnelStatus,
@@ -137,6 +141,47 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     // cannot leave the field as `undefined`.
     unitCombatStates: overrides?.unitCombatStates ?? {},
   };
+}
+
+// =============================================================================
+// Store helpers for processDailyCosts / advanceDay tests
+// (processDailyCosts reads useCampaignRosterStore, not campaign.personnel)
+// =============================================================================
+
+/** Builds a minimal ICampaignRosterEntry for store population in tests. */
+function makeRosterEntry(
+  id: string,
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: id,
+    pilotName: `Pilot ${id}`,
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    hireDate: new Date('3025-01-01'),
+    injuries: [],
+    ...overrides,
+  };
+}
+
+/** Resets both Zustand stores to empty state between tests. */
+function clearStores(): void {
+  useCampaignRosterStore.setState({
+    campaignId: null,
+    units: [],
+    pilots: [],
+    missions: [],
+    activeMissionId: null,
+    missionCount: 0,
+  });
+  usePilotStore.setState({ pilots: [] });
 }
 
 // =============================================================================
@@ -664,6 +709,11 @@ describe('processContracts', () => {
 // =============================================================================
 
 describe('processDailyCosts', () => {
+  // processDailyCosts reads personnel count from useCampaignRosterStore (PR3).
+  // Tests that assert on personnelCount must seed the store — campaign.personnel
+  // is the legacy write-side only and is ignored by the salary counter.
+  afterEach(() => clearStores());
+
   it('should calculate salary for active personnel', () => {
     const personnel = new Map<string, IPerson>();
     personnel.set(
@@ -674,6 +724,15 @@ describe('processDailyCosts', () => {
       'p2',
       createTestPerson({ id: 'p2', status: PersonnelStatus.ACTIVE }),
     );
+
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-001',
+      units: [],
+      pilots: [makeRosterEntry('p1'), makeRosterEntry('p2')],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
 
     const campaign = createTestCampaign({ personnel });
     const result = processDailyCosts(campaign);
@@ -706,10 +765,25 @@ describe('processDailyCosts', () => {
       createTestPerson({ id: 'p5', status: PersonnelStatus.WOUNDED }),
     );
 
+    // p1 = Active, p2 = KIA (excluded), p3/p4 = RETIRED/DESERTED (not in roster),
+    // p5 = Wounded (billable — all non-KIA statuses draw salary in the store model).
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-001',
+      units: [],
+      pilots: [
+        makeRosterEntry('p1', { status: CampaignPilotStatus.Active }),
+        makeRosterEntry('p2', { status: CampaignPilotStatus.KIA }),
+        makeRosterEntry('p5', { status: CampaignPilotStatus.Wounded }),
+      ],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
+
     const campaign = createTestCampaign({ personnel });
     const result = processDailyCosts(campaign);
 
-    // Only p1 (ACTIVE) and p5 (WOUNDED) should be paid
+    // Only p1 (ACTIVE) and p5 (WOUNDED) should be paid; p2 KIA excluded
     expect(result.costs.personnelCount).toBe(2);
     expect(result.costs.salaries.amount).toBe(DEFAULT_DAILY_SALARY * 2);
   });
@@ -720,6 +794,15 @@ describe('processDailyCosts', () => {
       'p1',
       createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
     );
+
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-001',
+      units: [],
+      pilots: [makeRosterEntry('p1')],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
 
     const options: ICampaignOptions = {
       ...createDefaultCampaignOptions(),
@@ -747,6 +830,7 @@ describe('processDailyCosts', () => {
     const campaign = createTestCampaign({ personnel, options });
     const result = processDailyCosts(campaign);
 
+    // payForSalaries=false skips the salary block entirely regardless of count
     expect(result.costs.salaries.amount).toBe(0);
   });
 
@@ -804,6 +888,15 @@ describe('processDailyCosts', () => {
       createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
     );
 
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-001',
+      units: [],
+      pilots: [makeRosterEntry('p1')],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
+
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
 
@@ -826,6 +919,15 @@ describe('processDailyCosts', () => {
       createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
     );
 
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-001',
+      units: [],
+      pilots: [makeRosterEntry('p1')],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
+
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
 
@@ -837,6 +939,7 @@ describe('processDailyCosts', () => {
   });
 
   it('should handle empty campaign (no personnel, no units)', () => {
+    // Store is empty (cleared by afterEach) — personnelCount must be 0
     const campaign = createTestCampaign();
     const result = processDailyCosts(campaign);
 
@@ -853,6 +956,15 @@ describe('processDailyCosts', () => {
       'p1',
       createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
     );
+
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-001',
+      units: [],
+      pilots: [makeRosterEntry('p1')],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
 
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
@@ -875,6 +987,15 @@ describe('processDailyCosts', () => {
       createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
     );
 
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-001',
+      units: [],
+      pilots: [makeRosterEntry('p1')],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
+
     const campaign = createTestCampaign({
       personnel,
       finances: { transactions: [], balance: new Money(0) },
@@ -891,6 +1012,10 @@ describe('processDailyCosts', () => {
 // =============================================================================
 
 describe('advanceDay', () => {
+  // advanceDay calls processDailyCosts which reads useCampaignRosterStore (PR3).
+  // Tests that assert on personnelCount or salary deductions must seed the store.
+  afterEach(() => clearStores());
+
   it('should advance the date by one day', () => {
     const campaign = createTestCampaign({
       currentDate: new Date('3025-06-15T00:00:00Z'),

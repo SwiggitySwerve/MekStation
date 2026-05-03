@@ -1,7 +1,11 @@
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { usePilotStore } from '@/stores/usePilotStore';
 import {
   ICampaign,
   createDefaultCampaignOptions,
 } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import {
   PersonnelStatus,
@@ -71,6 +75,42 @@ function createTestForce(id: string, unitIds: string[] = []): IForce {
   };
 }
 
+/** Builds a minimal ICampaignRosterEntry for store population in tests. */
+function makeRosterEntry(
+  id: string,
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: id,
+    pilotName: `Pilot ${id}`,
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    hireDate: new Date('3025-01-01'),
+    injuries: [],
+    ...overrides,
+  };
+}
+
+/** Resets both Zustand stores to empty state between tests. */
+function clearStores(): void {
+  useCampaignRosterStore.setState({
+    campaignId: null,
+    units: [],
+    pilots: [],
+    missions: [],
+    activeMissionId: null,
+    missionCount: 0,
+  });
+  usePilotStore.setState({ pilots: [] });
+}
+
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
   return {
     id: 'campaign-001',
@@ -95,6 +135,8 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
 }
 
 describe('healingProcessor', () => {
+  afterEach(() => clearStores());
+
   it('should have correct id, phase, and displayName', () => {
     expect(healingProcessor.id).toBe('healing');
     expect(healingProcessor.phase).toBe(DayPhase.PERSONNEL);
@@ -102,6 +144,9 @@ describe('healingProcessor', () => {
   });
 
   it('should return healing events for wounded personnel', () => {
+    // Guarantee the 2d6 medicine roll always succeeds (TN = 7, roll = 12).
+    const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.99);
+
     const injury = createInjury({
       id: 'inj-1',
       type: 'Broken Arm',
@@ -110,6 +155,29 @@ describe('healingProcessor', () => {
       daysToHeal: 1,
       permanent: false,
       acquired: new Date('3025-01-01'),
+    });
+
+    // Populate roster store so healingProcessor sees the Wounded entry.
+    // A DOCTOR entry must also be present — without one, getBestAvailableDoctor
+    // returns null, naturalHealing fires, and daysToHeal never reaches 0.
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-001',
+      units: [],
+      pilots: [
+        makeRosterEntry('p1', {
+          pilotName: 'Jane',
+          status: CampaignPilotStatus.Wounded,
+          injuries: [injury],
+          recoveryTime: 0,
+        }),
+        makeRosterEntry('doc-1', {
+          pilotName: 'Doc',
+          primaryRole: CampaignPersonnelRole.DOCTOR,
+        }),
+      ],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
     });
 
     const personnel = new Map<string, IPerson>();
@@ -126,6 +194,8 @@ describe('healingProcessor', () => {
 
     const campaign = createTestCampaign({ personnel });
     const result = healingProcessor.process(campaign, campaign.currentDate);
+
+    randomSpy.mockRestore();
 
     expect(result.events).toHaveLength(1);
     expect(result.events[0].type).toBe('healing');
@@ -175,6 +245,8 @@ describe('contractProcessor', () => {
 });
 
 describe('dailyCostsProcessor', () => {
+  afterEach(() => clearStores());
+
   it('should have correct id, phase, and displayName', () => {
     expect(dailyCostsProcessor.id).toBe('dailyCosts');
     expect(dailyCostsProcessor.phase).toBe(DayPhase.FINANCES);
@@ -182,6 +254,9 @@ describe('dailyCostsProcessor', () => {
   });
 
   it('should return cost events when there are costs', () => {
+    // "cost events" test relies on unit maintenance from forces (not personnel
+    // salary), so store setup is not required here — unit cost path reads
+    // campaign.forces, not the roster store.
     const personnel = new Map<string, IPerson>();
     personnel.set(
       'p1',
@@ -200,6 +275,17 @@ describe('dailyCostsProcessor', () => {
   });
 
   it('should return warning severity when balance goes negative', () => {
+    // Populate roster store so personnel salary is counted and drives
+    // balance negative (store is the read-side since PR3 migration).
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-001',
+      units: [],
+      pilots: [makeRosterEntry('p1')],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
+
     const personnel = new Map<string, IPerson>();
     personnel.set(
       'p1',

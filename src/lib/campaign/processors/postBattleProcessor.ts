@@ -24,13 +24,19 @@
  */
 
 import type { ICampaign, IContract, IMission } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPerson } from '@/types/campaign/Person';
 import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 import type {
   ICombatOutcome,
   IUnitCombatDelta,
 } from '@/types/combat/CombatOutcome';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { personToMinimalEntry } from '@/lib/campaign/utils/personToRosterEntry';
+import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { usePilotStore } from '@/stores/usePilotStore';
 import { MissionStatus, PersonnelStatus } from '@/types/campaign/enums';
 import { isContract } from '@/types/campaign/Mission';
 import { createInitialCombatState } from '@/types/campaign/UnitCombatState';
@@ -47,12 +53,7 @@ import type { IDayProcessor, IDayProcessorResult } from '../dayPipeline';
 import { publishContractFulfilled } from '../contractFulfillmentBus';
 import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
-// TODO(PR3-5.2): replace legacy shims with two-arg (entry, pilot | null) + delta-return pattern
-import {
-  applyXPAward,
-  awardKillXPLegacy as awardKillXP,
-  awardScenarioXPLegacy as awardScenarioXP,
-} from '../progression/xpAwards';
+import { awardKillXP, awardScenarioXP } from '../progression/xpAwards';
 
 // =============================================================================
 // Extended Campaign Surface
@@ -134,6 +135,11 @@ function pilotFinalToPersonnelStatus(
 /**
  * Apply a single unit delta's pilot effects to the personnel map.
  *
+ * PR3 migration: XP now uses the two-arg (entry, pilot | null) canonical
+ * functions. entry is the roster entry from useCampaignRosterStore; pilot
+ * is the vault pilot (null for NPCs — XP is skipped per Council #2).
+ * Write-side stays on campaign.personnel until PR4.
+ *
  * Returns `null` and logs a warning if the pilot id can't be resolved
  * — this is non-fatal so the rest of the outcome continues processing.
  */
@@ -143,6 +149,8 @@ function applyPilotDelta(
   pilotId: string,
   delta: IUnitCombatDelta,
   outcomeWonByPlayer: boolean,
+  entry: ICampaignRosterEntry | null,
+  pilot: IPilot | null,
 ): { person: IPerson; xpAwarded: number } | null {
   const person = personnel.get(pilotId);
   if (!person) {
@@ -153,20 +161,34 @@ function applyPilotDelta(
   }
 
   // 1. XP — scenario participation always, kill bonus when present.
+  // NPC rule: awardScenarioXP / awardKillXP return null when pilot===null.
   let updated = person;
   let xpTotal = 0;
 
-  const scenarioEvent = awardScenarioXP(updated, campaign.options);
-  updated = applyXPAward(updated, scenarioEvent);
-  xpTotal += scenarioEvent.amount;
+  if (entry !== null) {
+    const scenarioEvent = awardScenarioXP(entry, pilot, campaign.options);
+    if (scenarioEvent) {
+      // Write XP directly to IPerson (write-side stays on campaign.personnel until PR4)
+      updated = {
+        ...updated,
+        xp: updated.xp + scenarioEvent.amount,
+        totalXpEarned: updated.totalXpEarned + scenarioEvent.amount,
+      };
+      xpTotal += scenarioEvent.amount;
+    }
 
-  // Kill XP only awarded to player-side survivors who fought (basic
-  // heuristic; richer kill attribution will land in Wave 5 wiring).
-  if (delta.side === GameSide.Player && outcomeWonByPlayer) {
-    const killEvent = awardKillXP(updated, 1, campaign.options);
-    if (killEvent) {
-      updated = applyXPAward(updated, killEvent);
-      xpTotal += killEvent.amount;
+    // Kill XP only awarded to player-side survivors who fought (basic
+    // heuristic; richer kill attribution will land in Wave 5 wiring).
+    if (delta.side === GameSide.Player && outcomeWonByPlayer) {
+      const killEvent = awardKillXP(entry, pilot, 1, campaign.options);
+      if (killEvent) {
+        updated = {
+          ...updated,
+          xp: updated.xp + killEvent.amount,
+          totalXpEarned: updated.totalXpEarned + killEvent.amount,
+        };
+        xpTotal += killEvent.amount;
+      }
     }
   }
 
@@ -426,18 +448,34 @@ function applyOutcome(
   const wonByPlayer = playerWon(outcome);
   const nowIso = new Date().toISOString();
 
+  // Pre-join vault once per outcome (O(N) build, O(1) lookups).
+  // Roster entries and pilots are read for XP award calls; write-side
+  // stays on campaign.personnel until PR4.
+  const __storeEntries = useCampaignRosterStore.getState().pilots;
+  const rosterEntries: readonly ICampaignRosterEntry[] =
+    __storeEntries.length > 0
+      ? __storeEntries
+      : Array.from(campaign.personnel.values()).map(personToMinimalEntry);
+  const vault = usePilotStore.getState().pilots;
+  const pilotsByPilotId = buildPilotLookup(vault);
+  const entriesByPilotId = new Map(rosterEntries.map((e) => [e.pilotId, e]));
+
   for (const delta of outcome.unitDeltas) {
     // Pilot side — derive pilot id from unit id for now (Wave 5 will
     // enrich with explicit pilot binding). Personnel keys are pilot ids
     // and our current production wiring matches `unit:pilot` 1:1, so we
     // attempt direct lookup first and fall through cleanly when the
     // unit has no associated person record.
+    const entry = entriesByPilotId.get(delta.unitId) ?? null;
+    const pilot = pilotsByPilotId.get(delta.unitId) ?? null;
     const pilotResult = applyPilotDelta(
       campaign,
       personnel,
       delta.unitId,
       delta,
       wonByPlayer,
+      entry,
+      pilot,
     );
     if (pilotResult) {
       pilotsUpdated.push(pilotResult.person.id);

@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { useState, useCallback } from 'react';
 
 import { PageLayout, Card, Button, EmptyState } from '@/components/ui';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { ICampaign } from '@/types/campaign/Campaign';
 
@@ -24,6 +25,11 @@ function CampaignCard({
   campaign,
   onClick,
 }: CampaignCardProps): React.ReactElement {
+  // PR3 task 5.4: read personnel count from roster store, fall back to legacy
+  // map for tests/dev paths that haven't seeded the store yet.
+  const rosterCount = useCampaignRosterStore((s) => s.pilots.length);
+  const personnelCount =
+    rosterCount > 0 ? rosterCount : campaign.personnel.size;
   return (
     <Card
       className="hover:border-accent/50 group cursor-pointer transition-all"
@@ -43,7 +49,7 @@ function CampaignCard({
       </p>
 
       <div className="text-text-theme-secondary flex gap-4 text-sm">
-        <span>{campaign.personnel.size} Personnel</span>
+        <span>{personnelCount} Personnel</span>
         <span>{campaign.forces.size} Forces</span>
         <span>{campaign.missions.size} Missions</span>
       </div>

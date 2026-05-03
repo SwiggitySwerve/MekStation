@@ -3,8 +3,9 @@
  *
  * @spec openspec/changes/add-post-battle-processor/specs/post-battle-processor/spec.md
  */
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, afterEach } from '@jest/globals';
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPerson } from '@/types/campaign/Person';
 import type {
   ICombatOutcome,
@@ -12,7 +13,10 @@ import type {
 } from '@/types/combat/CombatOutcome';
 import type { IPostBattleReport } from '@/utils/gameplay/postBattleReport';
 
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { usePilotStore } from '@/stores/usePilotStore';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
@@ -30,6 +34,7 @@ import {
   UnitFinalStatus,
 } from '@/types/combat/CombatOutcome';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
+import { PilotType, PilotStatus } from '@/types/pilot/PilotInterfaces';
 
 import {
   applyPostBattle,
@@ -160,10 +165,83 @@ function createOutcome(
 }
 
 // ----------------------------------------------------------------------------
+// Store Helpers
+// ----------------------------------------------------------------------------
+
+/** Builds a minimal ICampaignRosterEntry for roster store population. */
+function makeRosterEntry(
+  id: string,
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: id,
+    pilotName: `Pilot ${id}`,
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    hireDate: new Date('3025-01-01'),
+    injuries: [],
+    ...overrides,
+  };
+}
+
+/**
+ * Populates both the roster store and pilot vault for the given pilot id.
+ * Both are required: roster provides ICampaignRosterEntry for XP path guard
+ * (entry !== null), vault provides IPilot for NPC rule (pilot !== null).
+ */
+function seedRosterEntry(pilotId: string): void {
+  useCampaignRosterStore.setState({
+    campaignId: 'camp-1',
+    units: [],
+    pilots: [makeRosterEntry(pilotId)],
+    missions: [],
+    activeMissionId: null,
+    missionCount: 0,
+  });
+  usePilotStore.setState({
+    pilots: [
+      {
+        id: pilotId,
+        name: `Pilot ${pilotId}`,
+        type: PilotType.Persistent,
+        status: PilotStatus.Active,
+        skills: { gunnery: 4, piloting: 5 },
+        wounds: 0,
+        abilities: [],
+        createdAt: '3025-01-01T00:00:00Z',
+        updatedAt: '3025-01-01T00:00:00Z',
+      },
+    ],
+  });
+}
+
+/** Resets both Zustand stores to empty state. */
+function clearStores(): void {
+  useCampaignRosterStore.setState({
+    campaignId: null,
+    units: [],
+    pilots: [],
+    missions: [],
+    activeMissionId: null,
+    missionCount: 0,
+  });
+  usePilotStore.setState({ pilots: [] });
+}
+
+// ----------------------------------------------------------------------------
 // Tests
 // ----------------------------------------------------------------------------
 
 describe('postBattleProcessor', () => {
+  afterEach(() => clearStores());
+
   describe('metadata', () => {
     it('has correct id and displayName', () => {
       expect(postBattleProcessor.id).toBe('post-battle');
@@ -306,6 +384,7 @@ describe('postBattleProcessor', () => {
 
   describe('XP application', () => {
     it('awards scenario XP per pilot', () => {
+      seedRosterEntry('pilot-1');
       const pilot = createTestPerson({
         id: 'pilot-1',
         xp: 0,
@@ -325,6 +404,7 @@ describe('postBattleProcessor', () => {
     });
 
     it('awards bonus kill XP to player-side survivors when they win', () => {
+      seedRosterEntry('pilot-1');
       const pilot = createTestPerson({
         id: 'pilot-1',
         xp: 0,
@@ -406,6 +486,7 @@ describe('postBattleProcessor', () => {
 
   describe('idempotency', () => {
     it('skips outcomes already applied (matchId in processedBattleIds)', () => {
+      seedRosterEntry('pilot-1');
       const pilot = createTestPerson({
         id: 'pilot-1',
         xp: 0,
@@ -459,6 +540,7 @@ describe('postBattleProcessor', () => {
 
   describe('day pipeline integration', () => {
     it('processes the entire pendingBattleOutcomes queue in one call', () => {
+      seedRosterEntry('pilot-1');
       const pilot = createTestPerson({
         id: 'pilot-1',
         xp: 0,
