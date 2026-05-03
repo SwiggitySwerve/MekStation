@@ -102,10 +102,11 @@
   - **2.4a (skills only, SHIPPED)**: `skillHelpers.ts`, `skillCheck.ts`, `skillProgression.ts` + their 3 test files migrated and pushed to `chore/cluster-e-pr2-helper-migration`. 247/247 tests pass. Progression files (`src/lib/campaign/progression/`) remain for 2.4b.
   - **2.4b (progression, SHIPPED)**: `xpAwards.ts`, `aging.ts`, `skillCostTraits.ts`, `spaAcquisition.ts` + their 4 test files migrated to two-arg `(entry, pilot | null)` + delta-return pattern. `IAgingEvent` moved to `progressionTypes.ts`. 136/136 progression tests pass.
 
-- [ ] 2.5 **Awards commit** (2 files, ~18 checker functions in `src/lib/campaign/awards/`).
+- [x] 2.5 **Awards commit** (2 files, ~18 checker functions in `src/lib/campaign/awards/`).
   - NPC behavior: SKIP all checker functions on `pilot === null`.
   - Acceptance: awards tests pass.
   - QA: `npx jest --testPathPattern='awards'`.
+  - SHIPPED as `4551e3ad` on `chore/cluster-e-pr2-helper-migration`. 203 awards tests + 23,190 full suite pass. `getEligiblePersonnel` now returns `ReadonlyArray<{entry, pilot}>` instead of `IPerson[]`.
 
 - [ ] 2.6 **Ranks + maintenance + events commit** (mixed files in `src/lib/campaign/`).
   - NPC behavior per design.md NPC matrix.
