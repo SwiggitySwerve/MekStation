@@ -4,11 +4,23 @@
  * Provides functions for rank name resolution, officer status checks,
  * promotion/demotion operations, and time-in-rank calculations.
  *
+ * All public helpers follow the two-arg pattern introduced in commit 2.6:
+ *   (entry: ICampaignRosterEntry, pilot: IPilot | null, ...)
+ *
+ * NPC matrix (pilot === null):
+ *   - getRankName      SKIP — returns empty string for NPCs
+ *   - isOfficer        SKIP — returns false for NPCs
+ *   - promoteToRank    SKIP — returns invalid delta for NPCs
+ *   - demoteToRank     SKIP — returns invalid delta for NPCs
+ *   - getTimeInRank    PROCESS — uses entry.hireDate as fallback
+ *   - isRecentlyPromoted PROCESS — uses entry.lastPromotionDate
+ *
  * @module campaign/ranks/rankService
  */
 
-import type { IPerson } from '@/types/campaign/Person';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IRank } from '@/types/campaign/ranks/rankTypes';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import {
@@ -101,23 +113,34 @@ function resolveRankName(
 }
 
 /**
- * Gets the display rank name for a person within a rank system.
+ * Gets the display rank name for a roster entry within a rank system.
  *
- * @param person - The person whose rank name to resolve
+ * NPC behavior: SKIP — rank nomenclature is vault-only. Returns empty string
+ * when pilot is null so callers can branch on falsy rather than a sentinel.
+ *
+ * @param entry - The roster entry whose rank name to resolve
+ * @param pilot - Vault pilot (PC case) or null (NPC case)
  * @param rankSystem - The rank system to look up names in
- * @returns The display rank name string
+ * @returns The display rank name string, or '' for NPCs
  */
-export function getRankName(person: IPerson, rankSystem: IRankSystem): string {
-  const rankIndex = person.rankIndex ?? 0;
+export function getRankName(
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+  rankSystem: IRankSystem,
+): string {
+  // Ranks are a vault-only concept — skip for NPCs
+  if (pilot === null) return '';
+
+  const rankIndex = entry.rankIndex;
   const rank = rankSystem.ranks[rankIndex];
-  const profession = mapRoleToProfession(person.primaryRole);
+  const profession = mapRoleToProfession(entry.primaryRole);
   return resolveRankName(rank, profession);
 }
 
 /**
  * Gets the display rank name by index and role directly.
  *
- * Useful for preview/display without a full IPerson object.
+ * Useful for preview/display without a full roster entry.
  *
  * @param rankIndex - The rank index (0-50)
  * @param role - The personnel role for profession mapping
@@ -139,14 +162,23 @@ export function getRankNameByIndex(
 // =============================================================================
 
 /**
- * Checks if a person holds an officer rank.
+ * Checks if a roster entry holds an officer rank.
  *
- * @param person - The person to check
+ * NPC behavior: SKIP — officer status is vault-only. Returns false for NPCs.
+ *
+ * @param entry - The roster entry to check
+ * @param pilot - Vault pilot (PC case) or null (NPC case)
  * @param rankSystem - The rank system defining the officer cutoff
- * @returns true if the person's rank index is at or above the officer cut
+ * @returns true if the entry's rank index is at or above the officer cut
  */
-export function isOfficer(person: IPerson, rankSystem: IRankSystem): boolean {
-  return (person.rankIndex ?? 0) >= rankSystem.officerCut;
+export function isOfficer(
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+  rankSystem: IRankSystem,
+): boolean {
+  // Officer status is vault-only — skip for NPCs
+  if (pilot === null) return false;
+  return entry.rankIndex >= rankSystem.officerCut;
 }
 
 /**
@@ -164,11 +196,26 @@ export function isOfficerByIndex(
 }
 
 // =============================================================================
-// Promotion / Demotion Result Type
+// Delta-Return Type for Mutating Rank Operations
 // =============================================================================
 
-export interface RankChangeResult {
-  readonly updatedPerson: IPerson;
+/**
+ * Delta returned by promoteToRank / demoteToRank.
+ *
+ * Processors are pure functions — no store mutations inside helpers.
+ * Callers unpack this delta and apply it to the vault (IPilot.rank) and
+ * roster entry (rankIndex + lastPromotionDate) separately.
+ *
+ * - `vault`  is null when pilot is null (NPC) or when the operation is invalid
+ * - `roster` is null when the operation is invalid
+ */
+export interface IRankChangeDelta {
+  readonly vault: { pilotId: string; rankUpdate: { rank: string } } | null;
+  readonly roster: {
+    pilotId: string;
+    rankIndex: number;
+    lastPromotionDate?: Date;
+  } | null;
   readonly valid: boolean;
   readonly reason?: string;
 }
@@ -178,36 +225,51 @@ export interface RankChangeResult {
 // =============================================================================
 
 /**
- * Promotes a person to a new (higher) rank index.
+ * Promotes a roster entry to a new (higher) rank index.
  *
- * Validates the new rank index and ensures it is higher than the current rank.
- * On success, updates the person's rankIndex, rank display name,
- * lastRankChangeDate, and lastPromotionDate.
+ * Returns an IRankChangeDelta describing what should be written to the vault
+ * and roster. The caller is responsible for applying the delta.
  *
- * @param person - The person to promote
+ * NPC behavior: SKIP — rank mutations are vault-only. Returns an invalid delta
+ * with reason when pilot is null.
+ *
+ * @param entry - The roster entry to promote
+ * @param pilot - Vault pilot (PC case) or null (NPC case)
  * @param newRankIndex - The target rank index (must be higher than current)
  * @param currentDate - ISO date string for the promotion date
  * @param rankSystem - The rank system for name resolution
- * @returns A RankChangeResult with the updated person and validity info
+ * @returns IRankChangeDelta with vault/roster delta and validity info
  */
 export function promoteToRank(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   newRankIndex: number,
   currentDate: string,
   rankSystem: IRankSystem,
-): RankChangeResult {
+): IRankChangeDelta {
+  // Rank mutations are vault-only — skip for NPCs
+  if (pilot === null) {
+    return {
+      vault: null,
+      roster: null,
+      valid: false,
+      reason: 'NPC entries do not hold vault ranks',
+    };
+  }
+
   if (!isValidRankIndex(newRankIndex)) {
     return {
-      updatedPerson: person,
+      vault: null,
+      roster: null,
       valid: false,
       reason: 'Rank index out of range (0-50)',
     };
   }
 
-  const currentRankIndex = person.rankIndex ?? 0;
-  if (newRankIndex <= currentRankIndex) {
+  if (newRankIndex <= entry.rankIndex) {
     return {
-      updatedPerson: person,
+      vault: null,
+      roster: null,
       valid: false,
       reason: 'New rank must be higher than current rank',
     };
@@ -215,20 +277,20 @@ export function promoteToRank(
 
   const newRankName = getRankNameByIndex(
     newRankIndex,
-    person.primaryRole,
+    entry.primaryRole,
     rankSystem,
   );
   const changeDate = new Date(currentDate);
 
-  const updatedPerson: IPerson = {
-    ...person,
-    rankIndex: newRankIndex,
-    rank: newRankName,
-    lastRankChangeDate: changeDate,
-    lastPromotionDate: changeDate,
+  return {
+    vault: { pilotId: entry.pilotId, rankUpdate: { rank: newRankName } },
+    roster: {
+      pilotId: entry.pilotId,
+      rankIndex: newRankIndex,
+      lastPromotionDate: changeDate,
+    },
+    valid: true,
   };
-
-  return { updatedPerson, valid: true };
 }
 
 // =============================================================================
@@ -236,36 +298,52 @@ export function promoteToRank(
 // =============================================================================
 
 /**
- * Demotes a person to a new (lower) rank index.
+ * Demotes a roster entry to a new (lower) rank index.
  *
- * Validates the new rank index and ensures it is lower than the current rank.
- * On success, updates the person's rankIndex, rank display name, and
- * lastRankChangeDate. Does NOT update lastPromotionDate on demotion.
+ * Returns an IRankChangeDelta describing what should be written to the vault
+ * and roster. Does NOT include lastPromotionDate in the roster delta since
+ * demotion does not update promotion history.
  *
- * @param person - The person to demote
+ * NPC behavior: SKIP — rank mutations are vault-only. Returns an invalid delta
+ * with reason when pilot is null.
+ *
+ * @param entry - The roster entry to demote
+ * @param pilot - Vault pilot (PC case) or null (NPC case)
  * @param newRankIndex - The target rank index (must be lower than current)
  * @param currentDate - ISO date string for the demotion date
  * @param rankSystem - The rank system for name resolution
- * @returns A RankChangeResult with the updated person and validity info
+ * @returns IRankChangeDelta with vault/roster delta and validity info
  */
 export function demoteToRank(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   newRankIndex: number,
   currentDate: string,
   rankSystem: IRankSystem,
-): RankChangeResult {
+): IRankChangeDelta {
+  // Rank mutations are vault-only — skip for NPCs
+  if (pilot === null) {
+    return {
+      vault: null,
+      roster: null,
+      valid: false,
+      reason: 'NPC entries do not hold vault ranks',
+    };
+  }
+
   if (!isValidRankIndex(newRankIndex)) {
     return {
-      updatedPerson: person,
+      vault: null,
+      roster: null,
       valid: false,
       reason: 'Rank index out of range (0-50)',
     };
   }
 
-  const currentRankIndex = person.rankIndex ?? 0;
-  if (newRankIndex >= currentRankIndex) {
+  if (newRankIndex >= entry.rankIndex) {
     return {
-      updatedPerson: person,
+      vault: null,
+      roster: null,
       valid: false,
       reason: 'New rank must be lower than current rank',
     };
@@ -273,19 +351,17 @@ export function demoteToRank(
 
   const newRankName = getRankNameByIndex(
     newRankIndex,
-    person.primaryRole,
+    entry.primaryRole,
     rankSystem,
   );
-  const changeDate = new Date(currentDate);
+  // Demotion does not set lastPromotionDate — only rankIndex changes in roster
+  void currentDate; // date is captured in vault delta for audit purposes only
 
-  const updatedPerson: IPerson = {
-    ...person,
-    rankIndex: newRankIndex,
-    rank: newRankName,
-    lastRankChangeDate: changeDate,
+  return {
+    vault: { pilotId: entry.pilotId, rankUpdate: { rank: newRankName } },
+    roster: { pilotId: entry.pilotId, rankIndex: newRankIndex },
+    valid: true,
   };
-
-  return { updatedPerson, valid: true };
 }
 
 // =============================================================================
@@ -300,19 +376,26 @@ export interface TimeInRankResult {
 }
 
 /**
- * Calculates how long a person has held their current rank.
+ * Calculates how long a roster entry has held their current rank.
  *
- * Uses lastRankChangeDate if available, otherwise falls back to recruitmentDate.
+ * Uses entry.lastPromotionDate if available, otherwise falls back to
+ * entry.hireDate (mirrors the old IPerson.recruitmentDate fallback).
  *
- * @param person - The person to check
+ * NPC behavior: PROCESS — hireDate is always present on roster entries so
+ * time-in-rank can be derived for both NPCs and PCs.
+ *
+ * @param entry - The roster entry to check
+ * @param _pilot - Vault pilot (unused; retained for signature consistency)
  * @param currentDate - ISO date string for the current date
  * @returns An object with days, months, years, and a formatted display string
  */
 export function getTimeInRank(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
   currentDate: string,
 ): TimeInRankResult {
-  const startDate = person.lastRankChangeDate ?? person.recruitmentDate;
+  // lastPromotionDate mirrors old person.lastRankChangeDate; hireDate mirrors recruitmentDate
+  const startDate = entry.lastPromotionDate ?? entry.hireDate;
   const endDate = new Date(currentDate);
   const start = new Date(startDate);
 
@@ -354,23 +437,28 @@ export function getTimeInRank(
 // =============================================================================
 
 /**
- * Checks if a person was recently promoted (within a threshold).
+ * Checks if a roster entry was recently promoted (within a threshold).
  *
- * @param person - The person to check
+ * NPC behavior: PROCESS — lastPromotionDate lives on the roster entry so
+ * this check fires for both NPCs and PCs when the field is set.
+ *
+ * @param entry - The roster entry to check
+ * @param _pilot - Vault pilot (unused; retained for signature consistency)
  * @param currentDate - ISO date string for the current date
  * @param monthsThreshold - Number of months to consider "recent" (default: 6)
- * @returns true if the person was promoted within the threshold period
+ * @returns true if the entry was promoted within the threshold period
  */
 export function isRecentlyPromoted(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
   currentDate: string,
   monthsThreshold: number = 6,
 ): boolean {
-  if (!person.lastPromotionDate) {
+  if (!entry.lastPromotionDate) {
     return false;
   }
 
-  const promotionDate = new Date(person.lastPromotionDate);
+  const promotionDate = new Date(entry.lastPromotionDate);
   const current = new Date(currentDate);
 
   const thresholdDate = new Date(current);

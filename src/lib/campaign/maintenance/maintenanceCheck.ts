@@ -1,5 +1,5 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IPerson } from '@/types/campaign/Person';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
 import { MAINTENANCE_THRESHOLDS } from '@/types/campaign/quality/IUnitQuality';
 import {
@@ -122,6 +122,8 @@ export function getPlanetaryModifier(_campaign: ICampaign): number {
 }
 
 /** @stub Returns 0. Needs tech specialization system. */
-export function getTechSpecialtiesModifier(_tech: IPerson): number {
+export function getTechSpecialtiesModifier(
+  _tech: ICampaignRosterEntry,
+): number {
   return 0;
 }

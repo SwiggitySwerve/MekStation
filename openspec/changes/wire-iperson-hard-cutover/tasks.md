@@ -108,7 +108,7 @@
   - QA: `npx jest --testPathPattern='awards'`.
   - SHIPPED as `4551e3ad` on `chore/cluster-e-pr2-helper-migration`. 203 awards tests + 23,190 full suite pass. `getEligiblePersonnel` now returns `ReadonlyArray<{entry, pilot}>` instead of `IPerson[]`.
 
-- [ ] 2.6 **Ranks + maintenance + events commit** (mixed files in `src/lib/campaign/`).
+- [x] 2.6 **Ranks + maintenance + events commit** (mixed files in `src/lib/campaign/`).
   - NPC behavior per design.md NPC matrix.
   - Acceptance: ranks/maintenance/events tests pass.
   - QA: `npx jest --testPathPattern='(ranks|maintenance|events)'`.

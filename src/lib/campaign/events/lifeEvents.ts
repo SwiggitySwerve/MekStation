@@ -1,14 +1,11 @@
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type {
   IRandomEvent,
   RandomFn,
 } from '@/types/campaign/events/randomEventTypes';
-import type { IPerson } from '@/types/campaign/Person';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import {
-  isSpecificDate,
-  isBirthday,
-  calculateAge,
-} from '@/lib/campaign/events/eventProbability';
+import { isSpecificDate } from '@/lib/campaign/events/eventProbability';
 import {
   RandomEventCategory,
   RandomEventSeverity,
@@ -66,13 +63,38 @@ export function _resetLifeEventCounter(): void {
   lifeEventCounter = 0;
 }
 
+/** Joined entry+pilot pair fed into processLifeEvents. */
+export interface ILifeEventPersonPair {
+  readonly entry: ICampaignRosterEntry;
+  readonly pilot: IPilot | null;
+}
+
+/**
+ * Processes life events for a campaign turn.
+ *
+ * Calendar celebrations (New Year's, Commander's Day, Freedom Day, Winter Holiday)
+ * are checked against the current date. They do not require per-person data.
+ *
+ * Birthday / Coming of Age events are deferred: `ICampaignRosterEntry` and `IPilot`
+ * do not carry a `dateOfBirth` field yet. The loop is intentionally stubbed out
+ * with a TODO until `ICampaignRosterEntry.dateOfBirth` lands (tracked under
+ * FIXME(person-dob-field) in the roster entry spec).
+ *
+ * NPC behavior: PROCESS — calendar events fire regardless of personnel contents.
+ * Per-person events will apply to NPCs and PCs alike once dateOfBirth is available.
+ *
+ * @param entries - Array of joined entry+pilot pairs for the active roster
+ * @param currentDate - ISO date string for the current campaign turn
+ * @param _random - RNG (reserved for future random life events)
+ */
 export function processLifeEvents(
-  personnel: ReadonlyMap<string, IPerson>,
+  entries: ReadonlyArray<ILifeEventPersonPair>,
   currentDate: string,
   _random: RandomFn,
 ): IRandomEvent[] {
   const events: IRandomEvent[] = [];
 
+  // Calendar celebrations — no per-person data required
   for (const celebration of CALENDAR_CELEBRATIONS) {
     if (isSpecificDate(celebration.month, celebration.day, currentDate)) {
       events.push({
@@ -93,35 +115,20 @@ export function processLifeEvents(
     }
   }
 
-  const personArray = Array.from(personnel.values());
-  for (const person of personArray) {
-    if (!person.birthDate) continue;
-    const birthDateStr =
-      person.birthDate instanceof Date
-        ? person.birthDate.toISOString()
-        : person.birthDate;
-    if (
-      isBirthday(birthDateStr, currentDate) &&
-      calculateAge(birthDateStr, currentDate) === 16
-    ) {
-      events.push({
-        id: generateLifeEventId(),
-        category: RandomEventCategory.LIFE,
-        severity: RandomEventSeverity.MINOR,
-        title: 'Coming of Age',
-        description: `${person.name} has come of age at 16.`,
-        effects: [
-          {
-            type: 'notification',
-            message: `${person.name} has come of age`,
-            severity: 'positive',
-          },
-          { type: 'xp_award', personId: person.id, amount: 5 },
-        ],
-        timestamp: currentDate,
-      });
-    }
-  }
+  // TODO(person-dob-field): Coming of Age / birthday events require `dateOfBirth`
+  // on ICampaignRosterEntry or IPilot. Neither type carries the field yet.
+  // Re-enable this loop once the field lands:
+  //
+  //   for (const { entry } of entries) {
+  //     if (!entry.dateOfBirth) continue;
+  //     const dobStr = entry.dateOfBirth instanceof Date
+  //       ? entry.dateOfBirth.toISOString()
+  //       : entry.dateOfBirth;
+  //     if (isBirthday(dobStr, currentDate) && calculateAge(dobStr, currentDate) === 16) {
+  //       events.push({ ... Coming of Age event using entry.pilotName / entry.pilotId ... });
+  //     }
+  //   }
+  void entries; // suppress unused-variable lint until the loop above is re-enabled
 
   return events;
 }

@@ -132,8 +132,10 @@ export function getInjuryModifier(
  * entry schema. For now NPCs with `pilot === null` return 0, and the
  * commander flag on the entry is the sole officer discriminator.
  *
- * `rankService.isOfficer` migrates in commit 2.6; at that point this helper
- * will be refactored to call `isOfficerByIndex(entry.rankIndex, rankSystem)`.
+ * `rankService.isOfficer` migrated in commit 2.6 and now accepts the two-arg
+ * `(entry, pilot, rankSystem)` signature. A follow-up can replace
+ * `entry.isCommander` here with `isOfficerByIndex(entry.rankIndex, rankSystem)`
+ * once `rankSystem` is threaded into the turnover modifier pipeline.
  */
 export function getOfficerModifier(
   entry: ICampaignRosterEntry,
