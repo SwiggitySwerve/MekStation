@@ -5,8 +5,10 @@ import {
   CriteriaType,
 } from '@/types/award/AwardInterfaces';
 import { AutoAwardCategory } from '@/types/campaign/awards/autoAwardTypes';
-import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
-import { IPerson } from '@/types/campaign/Person';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import { CampaignPersonnelRole } from '@/types/campaign/enums';
+import { IPilot, PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import {
   checkKillAwards,
@@ -30,40 +32,41 @@ import {
   ICheckerContext,
 } from '../categoryCheckers';
 
-function createMockPerson(overrides?: Partial<IPerson>): IPerson {
+// ---------------------------------------------------------------------------
+// Factories
+// ---------------------------------------------------------------------------
+
+function makeEntry(
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
   return {
-    id: 'person-001',
-    name: 'Test Pilot',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    rankLevel: 0,
-    recruitmentDate: new Date('3020-01-01'),
-    missionsCompleted: 0,
-    totalKills: 0,
+    pilotId: 'pilot-001',
+    pilotName: 'Test Pilot',
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
     xp: 0,
-    totalXpEarned: 0,
-    xpSpent: 0,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: {
-      gunnery: 4,
-      piloting: 5,
-    },
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z',
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    hireDate: new Date('3020-01-01'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    ...overrides,
+  };
+}
+
+function makePilot(overrides: Partial<IPilot> = {}): IPilot {
+  return {
+    id: 'pilot-001',
+    name: 'Test Pilot',
+    type: PilotType.Persistent,
+    status: PilotStatus.Active,
+    skills: { gunnery: 4, piloting: 5 },
+    wounds: 0,
+    abilities: [],
+    createdAt: '3000-01-01T00:00:00Z',
+    updatedAt: '3025-01-01T00:00:00Z',
     ...overrides,
   };
 }
@@ -101,145 +104,173 @@ function createMockAward(
 describe('categoryCheckers', () => {
   describe('checkKillAwards', () => {
     it('grants award when kills >= threshold', () => {
-      const person = createMockPerson({ totalKills: 10 });
+      const entry = makeEntry({ campaignKills: 10 });
+      const pilot = makePilot();
       const awards = [createMockAward(AutoAwardCategory.KILL, 5, 'kills')];
 
-      const result = checkKillAwards(person, awards);
+      const result = checkKillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('award-kill-5');
     });
 
     it('does not grant award when kills < threshold', () => {
-      const person = createMockPerson({ totalKills: 3 });
+      const entry = makeEntry({ campaignKills: 3 });
+      const pilot = makePilot();
       const awards = [createMockAward(AutoAwardCategory.KILL, 5, 'kills')];
 
-      const result = checkKillAwards(person, awards);
+      const result = checkKillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
     });
 
     it('grants multiple awards at different thresholds', () => {
-      const person = createMockPerson({ totalKills: 15 });
+      const entry = makeEntry({ campaignKills: 15 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.KILL, 5, 'kills'),
         createMockAward(AutoAwardCategory.KILL, 10, 'kills'),
         createMockAward(AutoAwardCategory.KILL, 20, 'kills'),
       ];
 
-      const result = checkKillAwards(person, awards);
+      const result = checkKillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(2);
     });
 
     it('ignores awards from other categories', () => {
-      const person = createMockPerson({ totalKills: 10 });
+      const entry = makeEntry({ campaignKills: 10 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.KILL, 5, 'kills'),
         createMockAward(AutoAwardCategory.SCENARIO, 5, 'missions'),
       ];
 
-      const result = checkKillAwards(person, awards);
+      const result = checkKillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
+    });
+
+    it('returns empty when pilot is null (NPC SKIP)', () => {
+      const entry = makeEntry({ campaignKills: 100 });
+      const awards = [createMockAward(AutoAwardCategory.KILL, 5, 'kills')];
+
+      const result = checkKillAwards(entry, null, awards);
+
+      expect(result).toHaveLength(0);
     });
   });
 
   describe('checkScenarioAwards', () => {
     it('grants award when missions >= threshold', () => {
-      const person = createMockPerson({ missionsCompleted: 20 });
+      const entry = makeEntry({ campaignMissions: 20 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.SCENARIO, 10, 'missions'),
       ];
 
-      const result = checkScenarioAwards(person, awards);
+      const result = checkScenarioAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
     });
 
     it('does not grant award when missions < threshold', () => {
-      const person = createMockPerson({ missionsCompleted: 5 });
+      const entry = makeEntry({ campaignMissions: 5 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.SCENARIO, 10, 'missions'),
       ];
 
-      const result = checkScenarioAwards(person, awards);
+      const result = checkScenarioAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
     });
 
     it('grants multiple scenario awards', () => {
-      const person = createMockPerson({ missionsCompleted: 30 });
+      const entry = makeEntry({ campaignMissions: 30 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.SCENARIO, 10, 'missions'),
         createMockAward(AutoAwardCategory.SCENARIO, 20, 'missions'),
         createMockAward(AutoAwardCategory.SCENARIO, 40, 'missions'),
       ];
 
-      const result = checkScenarioAwards(person, awards);
+      const result = checkScenarioAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(2);
+    });
+
+    it('returns empty when pilot is null (NPC SKIP)', () => {
+      const entry = makeEntry({ campaignMissions: 100 });
+      const awards = [
+        createMockAward(AutoAwardCategory.SCENARIO, 1, 'missions'),
+      ];
+
+      expect(checkScenarioAwards(entry, null, awards)).toHaveLength(0);
     });
   });
 
   describe('checkTimeAwards', () => {
     it('grants award when years of service >= threshold', () => {
-      const person = createMockPerson({
-        recruitmentDate: new Date('3020-01-01'),
-      });
+      const entry = makeEntry({ hireDate: new Date('3020-01-01') });
+      const pilot = makePilot();
       const context: ICheckerContext = { currentDate: '3025-06-15' };
       const awards = [createMockAward(AutoAwardCategory.TIME, 5, 'years')];
 
-      const result = checkTimeAwards(person, awards, context);
+      const result = checkTimeAwards(entry, pilot, awards, context);
 
       expect(result).toHaveLength(1);
     });
 
     it('does not grant award when service < threshold', () => {
-      const person = createMockPerson({
-        recruitmentDate: new Date('3024-01-01'),
-      });
+      const entry = makeEntry({ hireDate: new Date('3024-01-01') });
+      const pilot = makePilot();
       const context: ICheckerContext = { currentDate: '3025-06-15' };
       const awards = [createMockAward(AutoAwardCategory.TIME, 5, 'years')];
 
-      const result = checkTimeAwards(person, awards, context);
+      const result = checkTimeAwards(entry, pilot, awards, context);
 
       expect(result).toHaveLength(0);
     });
 
     it('calculates years correctly with fractional years', () => {
-      const person = createMockPerson({
-        recruitmentDate: new Date('3020-01-01'),
-      });
+      const entry = makeEntry({ hireDate: new Date('3020-01-01') });
+      const pilot = makePilot();
       const context: ICheckerContext = { currentDate: '3025-06-15' };
       const awards = [
         createMockAward(AutoAwardCategory.TIME, 5, 'years'),
         createMockAward(AutoAwardCategory.TIME, 6, 'years'),
       ];
 
-      const result = checkTimeAwards(person, awards, context);
+      const result = checkTimeAwards(entry, pilot, awards, context);
 
       expect(result).toHaveLength(1);
     });
 
-    it('handles recruitment date as string', () => {
-      const person = createMockPerson({
-        recruitmentDate: new Date('3020-01-01'),
-      });
+    it('handles hire date as Date object', () => {
+      const entry = makeEntry({ hireDate: new Date('3020-01-01') });
+      const pilot = makePilot();
       const context: ICheckerContext = { currentDate: '3025-06-15' };
       const awards = [createMockAward(AutoAwardCategory.TIME, 5, 'years')];
 
-      const result = checkTimeAwards(person, awards, context);
+      const result = checkTimeAwards(entry, pilot, awards, context);
 
       expect(result).toHaveLength(1);
+    });
+
+    it('returns empty when pilot is null (NPC SKIP)', () => {
+      const entry = makeEntry({ hireDate: new Date('3000-01-01') });
+      const context: ICheckerContext = { currentDate: '3025-06-15' };
+      const awards = [createMockAward(AutoAwardCategory.TIME, 1, 'years')];
+
+      expect(checkTimeAwards(entry, null, awards, context)).toHaveLength(0);
     });
   });
 
   describe('checkSkillAwards', () => {
     it('grants gunnery award when gunnery <= threshold', () => {
-      const person = createMockPerson({
-        pilotSkills: { gunnery: 3, piloting: 5 },
-      });
+      const entry = makeEntry();
+      const pilot = makePilot({ skills: { gunnery: 3, piloting: 5 } });
       const awards = [
         createMockAward(AutoAwardCategory.SKILL, 4, 'skill_level', {
           autoGrantCriteria: {
@@ -252,15 +283,14 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkSkillAwards(person, awards);
+      const result = checkSkillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
     });
 
     it('does not grant gunnery award when gunnery > threshold', () => {
-      const person = createMockPerson({
-        pilotSkills: { gunnery: 5, piloting: 5 },
-      });
+      const entry = makeEntry();
+      const pilot = makePilot({ skills: { gunnery: 5, piloting: 5 } });
       const awards = [
         createMockAward(AutoAwardCategory.SKILL, 4, 'skill_level', {
           autoGrantCriteria: {
@@ -273,15 +303,14 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkSkillAwards(person, awards);
+      const result = checkSkillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
     });
 
     it('grants piloting award when piloting <= threshold', () => {
-      const person = createMockPerson({
-        pilotSkills: { gunnery: 4, piloting: 3 },
-      });
+      const entry = makeEntry();
+      const pilot = makePilot({ skills: { gunnery: 4, piloting: 3 } });
       const awards = [
         createMockAward(AutoAwardCategory.SKILL, 4, 'skill_level', {
           autoGrantCriteria: {
@@ -294,41 +323,49 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkSkillAwards(person, awards);
+      const result = checkSkillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
     });
 
     it('grants generic skill award when best skill <= threshold', () => {
-      const person = createMockPerson({
-        pilotSkills: { gunnery: 3, piloting: 5 },
-      });
+      const entry = makeEntry();
+      const pilot = makePilot({ skills: { gunnery: 3, piloting: 5 } });
       const awards = [
         createMockAward(AutoAwardCategory.SKILL, 4, 'skill_level'),
       ];
 
-      const result = checkSkillAwards(person, awards);
+      const result = checkSkillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
     });
 
     it('does not grant generic skill award when best skill > threshold', () => {
-      const person = createMockPerson({
-        pilotSkills: { gunnery: 5, piloting: 6 },
-      });
+      const entry = makeEntry();
+      const pilot = makePilot({ skills: { gunnery: 5, piloting: 6 } });
       const awards = [
         createMockAward(AutoAwardCategory.SKILL, 4, 'skill_level'),
       ];
 
-      const result = checkSkillAwards(person, awards);
+      const result = checkSkillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
+    });
+
+    it('returns empty when pilot is null (NPC SKIP)', () => {
+      const entry = makeEntry();
+      const awards = [
+        createMockAward(AutoAwardCategory.SKILL, 8, 'skill_level'),
+      ];
+
+      expect(checkSkillAwards(entry, null, awards)).toHaveLength(0);
     });
   });
 
   describe('checkRankAwards', () => {
-    it('grants award in inclusive mode when rankLevel >= threshold', () => {
-      const person = createMockPerson({ rankLevel: 5 });
+    it('grants award in inclusive mode when rankIndex >= threshold', () => {
+      const entry = makeEntry({ rankIndex: 5 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.RANK, 3, 'rank_level', {
           autoGrantCriteria: {
@@ -341,13 +378,14 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkRankAwards(person, awards);
+      const result = checkRankAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
     });
 
-    it('does not grant award in inclusive mode when rankLevel < threshold', () => {
-      const person = createMockPerson({ rankLevel: 2 });
+    it('does not grant award in inclusive mode when rankIndex < threshold', () => {
+      const entry = makeEntry({ rankIndex: 2 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.RANK, 3, 'rank_level', {
           autoGrantCriteria: {
@@ -360,13 +398,14 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkRankAwards(person, awards);
+      const result = checkRankAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
     });
 
-    it('grants award in exclusive mode only when rankLevel > threshold', () => {
-      const person = createMockPerson({ rankLevel: 4 });
+    it('grants award in exclusive mode only when rankIndex > threshold', () => {
+      const entry = makeEntry({ rankIndex: 4 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.RANK, 3, 'rank_level', {
           autoGrantCriteria: {
@@ -379,13 +418,14 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkRankAwards(person, awards);
+      const result = checkRankAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
     });
 
-    it('does not grant award in exclusive mode when rankLevel <= threshold', () => {
-      const person = createMockPerson({ rankLevel: 3 });
+    it('does not grant award in exclusive mode when rankIndex <= threshold', () => {
+      const entry = makeEntry({ rankIndex: 3 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.RANK, 3, 'rank_level', {
           autoGrantCriteria: {
@@ -398,13 +438,14 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkRankAwards(person, awards);
+      const result = checkRankAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
     });
 
     it('grants award in promotion mode only on exact match', () => {
-      const person = createMockPerson({ rankLevel: 3 });
+      const entry = makeEntry({ rankIndex: 3 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.RANK, 3, 'rank_level', {
           autoGrantCriteria: {
@@ -417,13 +458,14 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkRankAwards(person, awards);
+      const result = checkRankAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
     });
 
-    it('does not grant award in promotion mode when rankLevel != threshold', () => {
-      const person = createMockPerson({ rankLevel: 4 });
+    it('does not grant award in promotion mode when rankIndex != threshold', () => {
+      const entry = makeEntry({ rankIndex: 4 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.RANK, 3, 'rank_level', {
           autoGrantCriteria: {
@@ -436,13 +478,14 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkRankAwards(person, awards);
+      const result = checkRankAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
     });
 
     it('defaults to inclusive mode when rankMode not specified', () => {
-      const person = createMockPerson({ rankLevel: 3 });
+      const entry = makeEntry({ rankIndex: 3 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.RANK, 3, 'rank_level', {
           autoGrantCriteria: {
@@ -454,13 +497,14 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkRankAwards(person, awards);
+      const result = checkRankAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
     });
 
-    it('handles undefined rankLevel as 0', () => {
-      const person = createMockPerson({ rankLevel: undefined });
+    it('handles rankIndex 0 as below threshold 1', () => {
+      const entry = makeEntry({ rankIndex: 0 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.RANK, 1, 'rank_level', {
           autoGrantCriteria: {
@@ -473,15 +517,22 @@ describe('categoryCheckers', () => {
         }),
       ];
 
-      const result = checkRankAwards(person, awards);
+      const result = checkRankAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
+    });
+
+    it('returns empty when pilot is null (NPC SKIP)', () => {
+      const entry = makeEntry({ rankIndex: 99 });
+      const awards = [createMockAward(AutoAwardCategory.RANK, 1, 'rank_level')];
+
+      expect(checkRankAwards(entry, null, awards)).toHaveLength(0);
     });
   });
 
   describe('checkInjuryAwards', () => {
     it('grants award when injuries.length >= threshold', () => {
-      const person = createMockPerson({
+      const entry = makeEntry({
         injuries: [
           {
             id: 'inj-1',
@@ -503,15 +554,16 @@ describe('categoryCheckers', () => {
           },
         ],
       });
+      const pilot = makePilot();
       const awards = [createMockAward(AutoAwardCategory.INJURY, 2, 'injuries')];
 
-      const result = checkInjuryAwards(person, awards);
+      const result = checkInjuryAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(1);
     });
 
     it('does not grant award when injuries.length < threshold', () => {
-      const person = createMockPerson({
+      const entry = makeEntry({
         injuries: [
           {
             id: 'inj-1',
@@ -524,15 +576,16 @@ describe('categoryCheckers', () => {
           },
         ],
       });
+      const pilot = makePilot();
       const awards = [createMockAward(AutoAwardCategory.INJURY, 2, 'injuries')];
 
-      const result = checkInjuryAwards(person, awards);
+      const result = checkInjuryAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
     });
 
     it('grants multiple injury awards at different thresholds', () => {
-      const person = createMockPerson({
+      const entry = makeEntry({
         injuries: [
           {
             id: 'inj-1',
@@ -563,76 +616,123 @@ describe('categoryCheckers', () => {
           },
         ],
       });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.INJURY, 1, 'injuries'),
         createMockAward(AutoAwardCategory.INJURY, 2, 'injuries'),
         createMockAward(AutoAwardCategory.INJURY, 4, 'injuries'),
       ];
 
-      const result = checkInjuryAwards(person, awards);
+      const result = checkInjuryAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(2);
+    });
+
+    it('treats undefined injuries as empty array', () => {
+      const entry = makeEntry({ injuries: undefined });
+      const pilot = makePilot();
+      const awards = [createMockAward(AutoAwardCategory.INJURY, 1, 'injuries')];
+
+      const result = checkInjuryAwards(entry, pilot, awards);
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('returns empty when pilot is null (NPC SKIP)', () => {
+      const entry = makeEntry({
+        injuries: [
+          {
+            id: 'inj-1',
+            type: 'Burn',
+            location: 'Torso',
+            severity: 1,
+            daysToHeal: 7,
+            permanent: false,
+            acquired: new Date(),
+          },
+        ],
+      });
+      const awards = [createMockAward(AutoAwardCategory.INJURY, 1, 'injuries')];
+
+      expect(checkInjuryAwards(entry, null, awards)).toHaveLength(0);
     });
   });
 
   describe('stubbed categories', () => {
-    const person = createMockPerson();
+    const entry = makeEntry();
+    const pilot = makePilot();
     const awards = [createMockAward(AutoAwardCategory.CONTRACT, 1, 'test')];
 
     it('checkContractAwards returns empty array', () => {
-      expect(checkContractAwards(person, awards)).toEqual([]);
+      expect(checkContractAwards(entry, pilot, awards)).toEqual([]);
     });
 
     it('checkFactionHunterAwards returns empty array', () => {
-      expect(checkFactionHunterAwards(person, awards)).toEqual([]);
+      expect(checkFactionHunterAwards(entry, pilot, awards)).toEqual([]);
     });
 
     it('checkTheatreOfWarAwards returns empty array', () => {
-      expect(checkTheatreOfWarAwards(person, awards)).toEqual([]);
+      expect(checkTheatreOfWarAwards(entry, pilot, awards)).toEqual([]);
     });
 
     it('checkTrainingAwards returns empty array', () => {
-      expect(checkTrainingAwards(person, awards)).toEqual([]);
+      expect(checkTrainingAwards(entry, pilot, awards)).toEqual([]);
     });
 
     it('checkScenarioKillAwards returns empty array', () => {
-      expect(checkScenarioKillAwards(person, awards)).toEqual([]);
+      expect(checkScenarioKillAwards(entry, pilot, awards)).toEqual([]);
     });
 
     it('checkMiscAwards returns empty array', () => {
-      expect(checkMiscAwards(person, awards)).toEqual([]);
+      expect(checkMiscAwards(entry, pilot, awards)).toEqual([]);
     });
 
     it('checkCombatAwards returns empty array', () => {
-      expect(checkCombatAwards(person, awards)).toEqual([]);
+      expect(checkCombatAwards(entry, pilot, awards)).toEqual([]);
     });
 
     it('checkSurvivalAwards returns empty array', () => {
-      expect(checkSurvivalAwards(person, awards)).toEqual([]);
+      expect(checkSurvivalAwards(entry, pilot, awards)).toEqual([]);
     });
 
     it('checkServiceAwards returns empty array', () => {
-      expect(checkServiceAwards(person, awards)).toEqual([]);
+      expect(checkServiceAwards(entry, pilot, awards)).toEqual([]);
     });
 
     it('checkCampaignAwards returns empty array', () => {
-      expect(checkCampaignAwards(person, awards)).toEqual([]);
+      expect(checkCampaignAwards(entry, pilot, awards)).toEqual([]);
     });
 
     it('checkSpecialAwards returns empty array', () => {
-      expect(checkSpecialAwards(person, awards)).toEqual([]);
+      expect(checkSpecialAwards(entry, pilot, awards)).toEqual([]);
+    });
+
+    it('all stubs return empty when pilot is null (NPC SKIP)', () => {
+      expect(checkContractAwards(entry, null, awards)).toEqual([]);
+      expect(checkFactionHunterAwards(entry, null, awards)).toEqual([]);
+      expect(checkTheatreOfWarAwards(entry, null, awards)).toEqual([]);
+      expect(checkTrainingAwards(entry, null, awards)).toEqual([]);
+      expect(checkScenarioKillAwards(entry, null, awards)).toEqual([]);
+      expect(checkMiscAwards(entry, null, awards)).toEqual([]);
+      expect(checkCombatAwards(entry, null, awards)).toEqual([]);
+      expect(checkSurvivalAwards(entry, null, awards)).toEqual([]);
+      expect(checkServiceAwards(entry, null, awards)).toEqual([]);
+      expect(checkCampaignAwards(entry, null, awards)).toEqual([]);
+      expect(checkSpecialAwards(entry, null, awards)).toEqual([]);
     });
   });
 
   describe('checkAwardsForCategory dispatcher', () => {
     it('routes KILL category to checkKillAwards', () => {
-      const person = createMockPerson({ totalKills: 10 });
+      const entry = makeEntry({ campaignKills: 10 });
+      const pilot = makePilot();
       const awards = [createMockAward(AutoAwardCategory.KILL, 5, 'kills')];
       const context: ICheckerContext = { currentDate: '3025-01-01' };
 
       const result = checkAwardsForCategory(
         AutoAwardCategory.KILL,
-        person,
+        entry,
+        pilot,
         awards,
         context,
       );
@@ -641,7 +741,8 @@ describe('categoryCheckers', () => {
     });
 
     it('routes SCENARIO category to checkScenarioAwards', () => {
-      const person = createMockPerson({ missionsCompleted: 20 });
+      const entry = makeEntry({ campaignMissions: 20 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.SCENARIO, 10, 'missions'),
       ];
@@ -649,7 +750,8 @@ describe('categoryCheckers', () => {
 
       const result = checkAwardsForCategory(
         AutoAwardCategory.SCENARIO,
-        person,
+        entry,
+        pilot,
         awards,
         context,
       );
@@ -658,15 +760,15 @@ describe('categoryCheckers', () => {
     });
 
     it('routes TIME category to checkTimeAwards', () => {
-      const person = createMockPerson({
-        recruitmentDate: new Date('3020-01-01'),
-      });
+      const entry = makeEntry({ hireDate: new Date('3020-01-01') });
+      const pilot = makePilot();
       const awards = [createMockAward(AutoAwardCategory.TIME, 5, 'years')];
       const context: ICheckerContext = { currentDate: '3025-06-15' };
 
       const result = checkAwardsForCategory(
         AutoAwardCategory.TIME,
-        person,
+        entry,
+        pilot,
         awards,
         context,
       );
@@ -675,9 +777,8 @@ describe('categoryCheckers', () => {
     });
 
     it('routes SKILL category to checkSkillAwards', () => {
-      const person = createMockPerson({
-        pilotSkills: { gunnery: 3, piloting: 5 },
-      });
+      const entry = makeEntry();
+      const pilot = makePilot({ skills: { gunnery: 3, piloting: 5 } });
       const awards = [
         createMockAward(AutoAwardCategory.SKILL, 4, 'skill_level'),
       ];
@@ -685,7 +786,8 @@ describe('categoryCheckers', () => {
 
       const result = checkAwardsForCategory(
         AutoAwardCategory.SKILL,
-        person,
+        entry,
+        pilot,
         awards,
         context,
       );
@@ -694,7 +796,8 @@ describe('categoryCheckers', () => {
     });
 
     it('routes RANK category to checkRankAwards', () => {
-      const person = createMockPerson({ rankLevel: 5 });
+      const entry = makeEntry({ rankIndex: 5 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.RANK, 3, 'rank_level', {
           autoGrantCriteria: {
@@ -710,7 +813,8 @@ describe('categoryCheckers', () => {
 
       const result = checkAwardsForCategory(
         AutoAwardCategory.RANK,
-        person,
+        entry,
+        pilot,
         awards,
         context,
       );
@@ -719,7 +823,7 @@ describe('categoryCheckers', () => {
     });
 
     it('routes INJURY category to checkInjuryAwards', () => {
-      const person = createMockPerson({
+      const entry = makeEntry({
         injuries: [
           {
             id: 'inj-1',
@@ -732,12 +836,14 @@ describe('categoryCheckers', () => {
           },
         ],
       });
+      const pilot = makePilot();
       const awards = [createMockAward(AutoAwardCategory.INJURY, 1, 'injuries')];
       const context: ICheckerContext = { currentDate: '3025-01-01' };
 
       const result = checkAwardsForCategory(
         AutoAwardCategory.INJURY,
-        person,
+        entry,
+        pilot,
         awards,
         context,
       );
@@ -746,14 +852,16 @@ describe('categoryCheckers', () => {
     });
 
     it('routes stubbed categories to their respective functions', () => {
-      const person = createMockPerson();
+      const entry = makeEntry();
+      const pilot = makePilot();
       const awards = [createMockAward(AutoAwardCategory.CONTRACT, 1, 'test')];
       const context: ICheckerContext = { currentDate: '3025-01-01' };
 
       expect(
         checkAwardsForCategory(
           AutoAwardCategory.CONTRACT,
-          person,
+          entry,
+          pilot,
           awards,
           context,
         ),
@@ -761,7 +869,8 @@ describe('categoryCheckers', () => {
       expect(
         checkAwardsForCategory(
           AutoAwardCategory.FACTION_HUNTER,
-          person,
+          entry,
+          pilot,
           awards,
           context,
         ),
@@ -769,7 +878,8 @@ describe('categoryCheckers', () => {
       expect(
         checkAwardsForCategory(
           AutoAwardCategory.THEATRE_OF_WAR,
-          person,
+          entry,
+          pilot,
           awards,
           context,
         ),
@@ -777,7 +887,8 @@ describe('categoryCheckers', () => {
       expect(
         checkAwardsForCategory(
           AutoAwardCategory.TRAINING,
-          person,
+          entry,
+          pilot,
           awards,
           context,
         ),
@@ -785,18 +896,26 @@ describe('categoryCheckers', () => {
       expect(
         checkAwardsForCategory(
           AutoAwardCategory.SCENARIO_KILL,
-          person,
+          entry,
+          pilot,
           awards,
           context,
         ),
       ).toEqual([]);
       expect(
-        checkAwardsForCategory(AutoAwardCategory.MISC, person, awards, context),
+        checkAwardsForCategory(
+          AutoAwardCategory.MISC,
+          entry,
+          pilot,
+          awards,
+          context,
+        ),
       ).toEqual([]);
       expect(
         checkAwardsForCategory(
           AutoAwardCategory.COMBAT,
-          person,
+          entry,
+          pilot,
           awards,
           context,
         ),
@@ -804,7 +923,8 @@ describe('categoryCheckers', () => {
       expect(
         checkAwardsForCategory(
           AutoAwardCategory.SURVIVAL,
-          person,
+          entry,
+          pilot,
           awards,
           context,
         ),
@@ -812,7 +932,8 @@ describe('categoryCheckers', () => {
       expect(
         checkAwardsForCategory(
           AutoAwardCategory.SERVICE,
-          person,
+          entry,
+          pilot,
           awards,
           context,
         ),
@@ -820,7 +941,8 @@ describe('categoryCheckers', () => {
       expect(
         checkAwardsForCategory(
           AutoAwardCategory.CAMPAIGN,
-          person,
+          entry,
+          pilot,
           awards,
           context,
         ),
@@ -828,17 +950,35 @@ describe('categoryCheckers', () => {
       expect(
         checkAwardsForCategory(
           AutoAwardCategory.SPECIAL,
-          person,
+          entry,
+          pilot,
           awards,
           context,
         ),
       ).toEqual([]);
     });
+
+    it('all categories return empty when pilot is null (NPC SKIP)', () => {
+      const entry = makeEntry({
+        campaignKills: 100,
+        campaignMissions: 100,
+        rankIndex: 10,
+      });
+      const awards = [createMockAward(AutoAwardCategory.KILL, 1, 'kills')];
+      const context: ICheckerContext = { currentDate: '3025-01-01' };
+
+      for (const category of Object.values(AutoAwardCategory)) {
+        expect(
+          checkAwardsForCategory(category, entry, null, awards, context),
+        ).toEqual([]);
+      }
+    });
   });
 
   describe('award filtering', () => {
     it('ignores awards without autoGrantCriteria', () => {
-      const person = createMockPerson({ totalKills: 10 });
+      const entry = makeEntry({ campaignKills: 10 });
+      const pilot = makePilot();
       const awards = [
         {
           id: 'award-no-criteria',
@@ -857,18 +997,19 @@ describe('categoryCheckers', () => {
         } as IAward,
       ];
 
-      const result = checkKillAwards(person, awards);
+      const result = checkKillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
     });
 
     it('ignores awards with wrong category', () => {
-      const person = createMockPerson({ totalKills: 10 });
+      const entry = makeEntry({ campaignKills: 10 });
+      const pilot = makePilot();
       const awards = [
         createMockAward(AutoAwardCategory.SCENARIO, 5, 'missions'),
       ];
 
-      const result = checkKillAwards(person, awards);
+      const result = checkKillAwards(entry, pilot, awards);
 
       expect(result).toHaveLength(0);
     });
