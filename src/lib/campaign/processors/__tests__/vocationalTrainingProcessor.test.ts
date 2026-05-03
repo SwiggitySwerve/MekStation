@@ -125,7 +125,6 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
     name: 'Test Campaign',
     currentDate: new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map<string, IPerson>(),
     forces: new Map(),
     rootForceId: 'force-root',
     missions: new Map(),
@@ -187,9 +186,7 @@ describe('processVocationalTraining', () => {
     const person = createTestPerson({
       traits: { vocationalXPTimer: 28 },
     });
-    const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
-    });
+    const campaign = createTestCampaign({});
 
     // Populate stores: entry matches the person, vault pilot is present so
     // the NPC-null guard passes.
@@ -206,7 +203,9 @@ describe('processVocationalTraining', () => {
     usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
 
     const { updatedCampaign } = processVocationalTraining(campaign, () => 0);
-    const updated = updatedCampaign.personnel.get('person-001');
+    const updated = useCampaignRosterStore
+      .getState()
+      .pilots.find((__p) => __p.pilotId === 'person-001');
 
     expect(updated?.traits?.vocationalXPTimer).toBe(29);
   });
@@ -216,7 +215,6 @@ describe('processVocationalTraining', () => {
       traits: { vocationalXPTimer: 29 },
     });
     const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
       options: {
         ...createDefaultCampaignOptions(),
         vocationalXP: 1,
@@ -249,7 +247,9 @@ describe('processVocationalTraining', () => {
     expect(events[0].description).toContain('rolled 7');
     expect(events[0].description).toContain('TN 7');
 
-    const updated = updatedCampaign.personnel.get('person-001');
+    const updated = useCampaignRosterStore
+      .getState()
+      .pilots.find((__p) => __p.pilotId === 'person-001');
     expect(updated?.traits?.vocationalXPTimer).toBe(0);
   });
 
@@ -258,7 +258,6 @@ describe('processVocationalTraining', () => {
       traits: { vocationalXPTimer: 29 },
     });
     const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
       options: {
         ...createDefaultCampaignOptions(),
         vocationalXP: 1,
@@ -288,7 +287,9 @@ describe('processVocationalTraining', () => {
 
     expect(events).toHaveLength(0);
 
-    const updated = updatedCampaign.personnel.get('person-001');
+    const updated = useCampaignRosterStore
+      .getState()
+      .pilots.find((__p) => __p.pilotId === 'person-001');
     expect(updated?.traits?.vocationalXPTimer).toBe(0);
   });
 
@@ -297,9 +298,7 @@ describe('processVocationalTraining', () => {
       status: PersonnelStatus.RETIRED,
       traits: { vocationalXPTimer: 29 },
     });
-    const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
-    });
+    const campaign = createTestCampaign({});
 
     // Roster entry status is KIA (non-Active) so processor skips this entry.
     useCampaignRosterStore.setState({
@@ -323,7 +322,9 @@ describe('processVocationalTraining', () => {
     );
 
     expect(events).toHaveLength(0);
-    const updated = updatedCampaign.personnel.get('person-001');
+    const updated = useCampaignRosterStore
+      .getState()
+      .pilots.find((__p) => __p.pilotId === 'person-001');
     expect(updated?.traits?.vocationalXPTimer).toBe(29);
   });
 
@@ -334,7 +335,6 @@ describe('processVocationalTraining', () => {
       traits: { vocationalXPTimer: 29 },
     });
     const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
       currentDate: new Date('3025-06-15'),
     });
 
@@ -360,7 +360,9 @@ describe('processVocationalTraining', () => {
     );
 
     expect(events).toHaveLength(0);
-    const updated = updatedCampaign.personnel.get('person-001');
+    const updated = useCampaignRosterStore
+      .getState()
+      .pilots.find((__p) => __p.pilotId === 'person-001');
     expect(updated?.traits?.vocationalXPTimer).toBe(29);
   });
 
@@ -369,9 +371,7 @@ describe('processVocationalTraining', () => {
       primaryRole: CampaignPersonnelRole.DEPENDENT,
       traits: { vocationalXPTimer: 29 },
     });
-    const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
-    });
+    const campaign = createTestCampaign({});
 
     // Roster entry role is DEPENDENT so processor skips.
     useCampaignRosterStore.setState({
@@ -395,7 +395,9 @@ describe('processVocationalTraining', () => {
     );
 
     expect(events).toHaveLength(0);
-    const updated = updatedCampaign.personnel.get('person-001');
+    const updated = useCampaignRosterStore
+      .getState()
+      .pilots.find((__p) => __p.pilotId === 'person-001');
     expect(updated?.traits?.vocationalXPTimer).toBe(29);
   });
 
@@ -404,9 +406,7 @@ describe('processVocationalTraining', () => {
       status: PersonnelStatus.POW,
       traits: { vocationalXPTimer: 29 },
     });
-    const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
-    });
+    const campaign = createTestCampaign({});
 
     // Roster entry status is MIA (non-Active) — closest CampaignPilotStatus
     // to POW; the processor only checks for Active, so any non-Active skips.
@@ -431,7 +431,9 @@ describe('processVocationalTraining', () => {
     );
 
     expect(events).toHaveLength(0);
-    const updated = updatedCampaign.personnel.get('person-001');
+    const updated = useCampaignRosterStore
+      .getState()
+      .pilots.find((__p) => __p.pilotId === 'person-001');
     expect(updated?.traits?.vocationalXPTimer).toBe(29);
   });
 
@@ -440,7 +442,6 @@ describe('processVocationalTraining', () => {
       traits: { vocationalXPTimer: 29 },
     });
     const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
       options: {
         ...createDefaultCampaignOptions(),
         vocationalXPTargetNumber: 12, // Impossible to roll
@@ -463,7 +464,9 @@ describe('processVocationalTraining', () => {
     const random = randomFor2d6(1, 1);
     const { updatedCampaign } = processVocationalTraining(campaign, random);
 
-    const updated = updatedCampaign.personnel.get('person-001');
+    const updated = useCampaignRosterStore
+      .getState()
+      .pilots.find((__p) => __p.pilotId === 'person-001');
     expect(updated?.traits?.vocationalXPTimer).toBe(0);
   });
 
@@ -472,7 +475,6 @@ describe('processVocationalTraining', () => {
       traits: { vocationalXPTimer: 29 },
     });
     const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
       options: createDefaultCampaignOptions(),
     });
 
@@ -506,10 +508,6 @@ describe('processVocationalTraining', () => {
       traits: { vocationalXPTimer: 15 },
     });
     const campaign = createTestCampaign({
-      personnel: new Map([
-        ['person-001', person1],
-        ['person-002', person2],
-      ]),
       options: {
         ...createDefaultCampaignOptions(),
         vocationalXPTargetNumber: 7,
@@ -542,8 +540,12 @@ describe('processVocationalTraining', () => {
     expect(events).toHaveLength(1);
     expect(events[0].data?.personId).toBe('person-001');
 
-    const updated1 = updatedCampaign.personnel.get('person-001');
-    const updated2 = updatedCampaign.personnel.get('person-002');
+    const updated1 = useCampaignRosterStore
+      .getState()
+      .pilots.find((__p) => __p.pilotId === 'person-001');
+    const updated2 = useCampaignRosterStore
+      .getState()
+      .pilots.find((__p) => __p.pilotId === 'person-002');
     expect(updated1?.traits?.vocationalXPTimer).toBe(0);
     expect(updated2?.traits?.vocationalXPTimer).toBe(16);
   });
@@ -553,27 +555,37 @@ describe('processVocationalTraining', () => {
       traits: { vocationalXPTimer: 29 },
     });
     const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
       options: {
         ...createDefaultCampaignOptions(),
         vocationalXPTargetNumber: 7,
       },
     });
 
-    useCampaignRosterStore.setState({
-      pilots: [
-        createRosterEntry('person-001', { traits: { vocationalXPTimer: 29 } }),
-      ],
-      units: [],
-      missions: [],
-      activeMissionId: null,
-      missionCount: 0,
-      campaignId: 'campaign-001',
-    });
+    function seed(): void {
+      useCampaignRosterStore.setState({
+        pilots: [
+          createRosterEntry('person-001', {
+            traits: { vocationalXPTimer: 29 },
+          }),
+        ],
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        campaignId: 'campaign-001',
+      });
+    }
+    seed();
     usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
 
     const random1 = randomFor2d6(3, 4);
     const { events: events1 } = processVocationalTraining(campaign, random1);
+
+    // Per PR4: roster store is mutated by processVocationalTraining
+    // (timer reset + xp grant). Re-seed so the second call has the same
+    // pre-state as the first; otherwise the determinism check compares
+    // the first call's output against an empty second-call output.
+    seed();
 
     const random2 = randomFor2d6(3, 4);
     const { events: events2 } = processVocationalTraining(campaign, random2);
@@ -591,9 +603,7 @@ describe('vocationalTrainingProcessor.process', () => {
     const person = createTestPerson({
       traits: { vocationalXPTimer: 28 },
     });
-    const campaign = createTestCampaign({
-      personnel: new Map([['person-001', person]]),
-    });
+    const campaign = createTestCampaign({});
 
     useCampaignRosterStore.setState({
       pilots: [
@@ -613,7 +623,10 @@ describe('vocationalTrainingProcessor.process', () => {
     );
 
     expect(
-      result.campaign.personnel.get('person-001')?.traits?.vocationalXPTimer,
+      useCampaignRosterStore
+        .getState()
+        .pilots.find((__p) => __p.pilotId === 'person-001')?.traits
+        ?.vocationalXPTimer,
     ).toBe(29);
   });
 });

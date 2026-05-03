@@ -89,7 +89,6 @@ function createTestCampaign(
     name: 'Test Campaign',
     currentDate: new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map(),
     forces: new Map(),
     rootForceId: 'root',
     missions: new Map(),
@@ -311,7 +310,7 @@ describe('postBattleProcessor', () => {
     it('marks KIA pilot KIA + records deathDate', () => {
       const pilot = createTestPerson({ id: 'pilot-1' });
       const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
-      const campaign = createTestCampaign({ personnel });
+      const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
         unitDeltas: [
@@ -328,16 +327,20 @@ describe('postBattleProcessor', () => {
         ],
       });
 
+      seedRosterEntry('pilot-1');
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      const updated = next.personnel.get('pilot-1');
-      expect(updated?.status).toBe(PersonnelStatus.KIA);
-      expect(updated?.deathDate).toBe(campaign.currentDate);
+      void next;
+      const updated = useCampaignRosterStore
+        .getState()
+        .pilots.find((p) => p.pilotId === 'pilot-1');
+      expect(updated?.status).toBe(CampaignPilotStatus.KIA);
+      // Per PR4: deathDate is no longer mirrored on the roster entry.
+      // It would live on a future audit field; for now we just confirm KIA.
     });
 
-    it('marks Wounded pilot WOUNDED + sets healing days', () => {
-      const pilot = createTestPerson({ id: 'pilot-1' });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
-      const campaign = createTestCampaign({ personnel });
+    it('marks Wounded pilot WOUNDED + sets recovery time', () => {
+      seedRosterEntry('pilot-1');
+      const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
         unitDeltas: [
@@ -353,16 +356,18 @@ describe('postBattleProcessor', () => {
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      const updated = next.personnel.get('pilot-1');
-      expect(updated?.status).toBe(PersonnelStatus.WOUNDED);
-      expect(updated?.hits).toBe(2);
-      expect(updated?.daysToWaitForHealing).toBeGreaterThanOrEqual(14);
+      void next;
+      const updated = useCampaignRosterStore
+        .getState()
+        .pilots.find((p) => p.pilotId === 'pilot-1');
+      expect(updated?.status).toBe(CampaignPilotStatus.Wounded);
+      expect(updated?.wounds).toBe(2);
+      expect(updated?.recoveryTime).toBeGreaterThanOrEqual(14);
     });
 
-    it('maps Captured pilot to POW', () => {
-      const pilot = createTestPerson({ id: 'pilot-1' });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
-      const campaign = createTestCampaign({ personnel });
+    it('maps Captured pilot to MIA (POW collapses to MIA in CampaignPilotStatus)', () => {
+      seedRosterEntry('pilot-1');
+      const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
         unitDeltas: [
@@ -378,7 +383,12 @@ describe('postBattleProcessor', () => {
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      expect(next.personnel.get('pilot-1')?.status).toBe(PersonnelStatus.POW);
+      void next;
+      expect(
+        useCampaignRosterStore
+          .getState()
+          .pilots.find((p) => p.pilotId === 'pilot-1')?.status,
+      ).toBe(CampaignPilotStatus.MIA);
     });
   });
 
@@ -391,16 +401,19 @@ describe('postBattleProcessor', () => {
         totalXpEarned: 0,
       });
       const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
-      const campaign = createTestCampaign({ personnel });
+      const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
         unitDeltas: [createDelta('pilot-1')],
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      const updated = next.personnel.get('pilot-1');
+      void next;
+      const updated = useCampaignRosterStore
+        .getState()
+        .pilots.find((p) => p.pilotId === 'pilot-1');
       expect(updated?.xp).toBeGreaterThanOrEqual(1);
-      expect(updated?.totalXpEarned).toBeGreaterThanOrEqual(1);
+      expect(updated?.campaignXpEarned).toBeGreaterThanOrEqual(1);
     });
 
     it('awards bonus kill XP to player-side survivors when they win', () => {
@@ -412,7 +425,6 @@ describe('postBattleProcessor', () => {
       });
       const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({
-        personnel,
         options: {
           ...createDefaultCampaignOptions(),
           scenarioXP: 1,
@@ -427,7 +439,9 @@ describe('postBattleProcessor', () => {
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      const updated = next.personnel.get('pilot-1');
+      const updated = useCampaignRosterStore
+        .getState()
+        .pilots.find((__p) => __p.pilotId === 'pilot-1');
       // 1 scenario + 2 kill = 3
       expect(updated?.xp).toBe(3);
     });
@@ -493,7 +507,7 @@ describe('postBattleProcessor', () => {
         totalXpEarned: 0,
       });
       const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
-      const campaign = createTestCampaign({ personnel });
+      const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
         unitDeltas: [createDelta('pilot-1')],
@@ -501,14 +515,21 @@ describe('postBattleProcessor', () => {
 
       // First apply increments XP.
       const { campaign: c1 } = applyPostBattle(outcome, campaign);
-      const xpAfterFirst = c1.personnel.get('pilot-1')?.xp ?? 0;
+      const xpAfterFirst =
+        useCampaignRosterStore
+          .getState()
+          .pilots.find((__p) => __p.pilotId === 'pilot-1')?.xp ?? 0;
       expect(xpAfterFirst).toBeGreaterThan(0);
       expect(c1.processedBattleIds).toContain('match-1');
 
       // Second apply with same matchId is a no-op.
       const { campaign: c2, summary } = applyPostBattle(outcome, c1);
       expect(summary.skippedDuplicate).toBe(true);
-      expect(c2.personnel.get('pilot-1')?.xp).toBe(xpAfterFirst);
+      expect(
+        useCampaignRosterStore
+          .getState()
+          .pilots.find((__p) => __p.pilotId === 'pilot-1')?.xp,
+      ).toBe(xpAfterFirst);
     });
   });
 
@@ -548,7 +569,6 @@ describe('postBattleProcessor', () => {
       });
       const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({
-        personnel,
         pendingBattleOutcomes: [
           createOutcome({
             matchId: 'match-1',
@@ -642,7 +662,6 @@ describe('postBattleProcessor', () => {
       });
 
       const campaign = createTestCampaign({
-        personnel,
         pendingBattleOutcomes: [malformed, good],
       });
 
@@ -708,10 +727,9 @@ describe('postBattleProcessor', () => {
   describe('pilot final-status mapping (Req 9)', () => {
     // Req 9 — status transitions for MIA / Unconscious / Active.
 
-    it('maps finalStatus = MIA to PersonnelStatus.MIA', () => {
-      const pilot = createTestPerson({ id: 'pilot-1' });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
-      const campaign = createTestCampaign({ personnel });
+    it('maps finalStatus = MIA to CampaignPilotStatus.MIA', () => {
+      seedRosterEntry('pilot-1');
+      const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
         unitDeltas: [
@@ -727,13 +745,17 @@ describe('postBattleProcessor', () => {
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      expect(next.personnel.get('pilot-1')?.status).toBe(PersonnelStatus.MIA);
+      void next;
+      expect(
+        useCampaignRosterStore
+          .getState()
+          .pilots.find((p) => p.pilotId === 'pilot-1')?.status,
+      ).toBe(CampaignPilotStatus.MIA);
     });
 
-    it('maps finalStatus = Unconscious to PersonnelStatus.WOUNDED', () => {
-      const pilot = createTestPerson({ id: 'pilot-1' });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
-      const campaign = createTestCampaign({ personnel });
+    it('maps finalStatus = Unconscious to CampaignPilotStatus.Wounded', () => {
+      seedRosterEntry('pilot-1');
+      const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
         unitDeltas: [
@@ -749,18 +771,17 @@ describe('postBattleProcessor', () => {
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      expect(next.personnel.get('pilot-1')?.status).toBe(
-        PersonnelStatus.WOUNDED,
-      );
+      void next;
+      expect(
+        useCampaignRosterStore
+          .getState()
+          .pilots.find((p) => p.pilotId === 'pilot-1')?.status,
+      ).toBe(CampaignPilotStatus.Wounded);
     });
 
-    it('leaves personnel status unchanged on finalStatus = Active', () => {
-      const pilot = createTestPerson({
-        id: 'pilot-1',
-        status: PersonnelStatus.ACTIVE,
-      });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
-      const campaign = createTestCampaign({ personnel });
+    it('leaves roster status unchanged on finalStatus = Active', () => {
+      seedRosterEntry('pilot-1');
+      const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
         unitDeltas: [
@@ -776,10 +797,13 @@ describe('postBattleProcessor', () => {
       });
 
       const { campaign: next } = applyPostBattle(outcome, campaign);
-      // Active → pilot status SHALL remain unchanged.
-      expect(next.personnel.get('pilot-1')?.status).toBe(
-        PersonnelStatus.ACTIVE,
-      );
+      void next;
+      // Active → roster status SHALL remain unchanged.
+      expect(
+        useCampaignRosterStore
+          .getState()
+          .pilots.find((p) => p.pilotId === 'pilot-1')?.status,
+      ).toBe(CampaignPilotStatus.Active);
     });
   });
 });

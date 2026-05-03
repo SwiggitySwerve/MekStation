@@ -124,7 +124,6 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     name: 'Test Campaign',
     currentDate: new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map<string, IPerson>(),
     forces: new Map<string, IForce>(),
     rootForceId: 'force-root',
     missions: new Map<string, IMission>(),
@@ -186,302 +185,6 @@ function clearStores(): void {
 
 // =============================================================================
 // processHealing Tests
-// =============================================================================
-
-describe('processHealing', () => {
-  it('should not modify non-wounded personnel', () => {
-    const personnel = new Map<string, IPerson>();
-    const activePerson = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.ACTIVE,
-    });
-    personnel.set('p1', activePerson);
-
-    const result = processHealing(personnel);
-
-    expect(result.events).toHaveLength(0);
-    expect(result.personnel.get('p1')!.status).toBe(PersonnelStatus.ACTIVE);
-  });
-
-  it('should reduce injury daysToHeal by 1', () => {
-    const personnel = new Map<string, IPerson>();
-    const injury = createTestInjury({ id: 'inj-1', daysToHeal: 5 });
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [injury],
-      daysToWaitForHealing: 10,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    expect(updatedPerson.injuries[0].daysToHeal).toBe(4);
-  });
-
-  it('should remove injury when daysToHeal reaches 0', () => {
-    const personnel = new Map<string, IPerson>();
-    const injury = createTestInjury({ id: 'inj-1', daysToHeal: 1 });
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [injury],
-      daysToWaitForHealing: 0,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    expect(updatedPerson.injuries).toHaveLength(0);
-  });
-
-  it('should not heal permanent injuries', () => {
-    const personnel = new Map<string, IPerson>();
-    const permanentInjury = createTestInjury({
-      id: 'inj-perm',
-      daysToHeal: 999,
-      permanent: true,
-    });
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [permanentInjury],
-      daysToWaitForHealing: 0,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    expect(updatedPerson.injuries).toHaveLength(1);
-    expect(updatedPerson.injuries[0].daysToHeal).toBe(999);
-    expect(updatedPerson.injuries[0].permanent).toBe(true);
-  });
-
-  it('should reduce daysToWaitForHealing by 1', () => {
-    const personnel = new Map<string, IPerson>();
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [],
-      daysToWaitForHealing: 3,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    expect(updatedPerson.daysToWaitForHealing).toBe(2);
-  });
-
-  it('should not reduce daysToWaitForHealing below 0', () => {
-    const personnel = new Map<string, IPerson>();
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [],
-      daysToWaitForHealing: 0,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    expect(updatedPerson.daysToWaitForHealing).toBe(0);
-  });
-
-  it('should transition WOUNDED to ACTIVE when fully healed', () => {
-    const personnel = new Map<string, IPerson>();
-    const injury = createTestInjury({ id: 'inj-1', daysToHeal: 1 });
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [injury],
-      daysToWaitForHealing: 0,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    expect(updatedPerson.status).toBe(PersonnelStatus.ACTIVE);
-    expect(updatedPerson.injuries).toHaveLength(0);
-  });
-
-  it('should NOT transition to ACTIVE if daysToWaitForHealing remains', () => {
-    const personnel = new Map<string, IPerson>();
-    const injury = createTestInjury({ id: 'inj-1', daysToHeal: 1 });
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [injury],
-      daysToWaitForHealing: 5,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    expect(updatedPerson.status).toBe(PersonnelStatus.WOUNDED);
-    expect(updatedPerson.daysToWaitForHealing).toBe(4);
-  });
-
-  it('should NOT transition to ACTIVE if healable injuries remain', () => {
-    const personnel = new Map<string, IPerson>();
-    const injury1 = createTestInjury({ id: 'inj-1', daysToHeal: 1 });
-    const injury2 = createTestInjury({ id: 'inj-2', daysToHeal: 5 });
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [injury1, injury2],
-      daysToWaitForHealing: 0,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    expect(updatedPerson.status).toBe(PersonnelStatus.WOUNDED);
-    expect(updatedPerson.injuries).toHaveLength(1);
-    expect(updatedPerson.injuries[0].id).toBe('inj-2');
-  });
-
-  it('should NOT transition to ACTIVE if only permanent injuries remain', () => {
-    const personnel = new Map<string, IPerson>();
-    const permanentInjury = createTestInjury({
-      id: 'inj-perm',
-      daysToHeal: 999,
-      permanent: true,
-    });
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [permanentInjury],
-      daysToWaitForHealing: 0,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    // Person has only permanent injuries and no wait time - should return to active
-    // (permanent injuries don't prevent active duty, they just persist)
-    expect(updatedPerson.status).toBe(PersonnelStatus.ACTIVE);
-  });
-
-  it('should emit HealedPersonEvent when injury heals', () => {
-    const personnel = new Map<string, IPerson>();
-    const injury = createTestInjury({ id: 'inj-1', daysToHeal: 1 });
-    const person = createTestPerson({
-      id: 'p1',
-      name: 'Jane Doe',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [injury],
-      daysToWaitForHealing: 0,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-
-    expect(result.events).toHaveLength(1);
-    expect(result.events[0].personId).toBe('p1');
-    expect(result.events[0].personName).toBe('Jane Doe');
-    expect(result.events[0].healedInjuries).toContain('inj-1');
-    expect(result.events[0].returnedToActive).toBe(true);
-  });
-
-  it('should handle multiple personnel with mixed states', () => {
-    const personnel = new Map<string, IPerson>();
-
-    // Active person - should not be modified
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-
-    // Wounded person with healing injury
-    const injury = createTestInjury({ id: 'inj-1', daysToHeal: 1 });
-    personnel.set(
-      'p2',
-      createTestPerson({
-        id: 'p2',
-        status: PersonnelStatus.WOUNDED,
-        injuries: [injury],
-        daysToWaitForHealing: 0,
-      }),
-    );
-
-    // KIA person - should not be modified
-    personnel.set(
-      'p3',
-      createTestPerson({ id: 'p3', status: PersonnelStatus.KIA }),
-    );
-
-    const result = processHealing(personnel);
-
-    expect(result.personnel.size).toBe(3);
-    expect(result.personnel.get('p1')!.status).toBe(PersonnelStatus.ACTIVE);
-    expect(result.personnel.get('p2')!.status).toBe(PersonnelStatus.ACTIVE);
-    expect(result.personnel.get('p3')!.status).toBe(PersonnelStatus.KIA);
-    expect(result.events).toHaveLength(1);
-  });
-
-  it('should handle empty personnel map', () => {
-    const personnel = new Map<string, IPerson>();
-    const result = processHealing(personnel);
-
-    expect(result.personnel.size).toBe(0);
-    expect(result.events).toHaveLength(0);
-  });
-
-  it('should handle wounded person with no injuries but daysToWaitForHealing', () => {
-    const personnel = new Map<string, IPerson>();
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [],
-      daysToWaitForHealing: 1,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    expect(updatedPerson.daysToWaitForHealing).toBe(0);
-    expect(updatedPerson.status).toBe(PersonnelStatus.ACTIVE);
-  });
-
-  it('should handle multiple injuries healing at different rates', () => {
-    const personnel = new Map<string, IPerson>();
-    const injury1 = createTestInjury({ id: 'inj-1', daysToHeal: 1 });
-    const injury2 = createTestInjury({ id: 'inj-2', daysToHeal: 3 });
-    const injury3 = createTestInjury({ id: 'inj-3', daysToHeal: 1 });
-    const person = createTestPerson({
-      id: 'p1',
-      status: PersonnelStatus.WOUNDED,
-      injuries: [injury1, injury2, injury3],
-      daysToWaitForHealing: 0,
-    });
-    personnel.set('p1', person);
-
-    const result = processHealing(personnel);
-    const updatedPerson = result.personnel.get('p1')!;
-
-    // inj-1 and inj-3 healed, inj-2 remains with 2 days
-    expect(updatedPerson.injuries).toHaveLength(1);
-    expect(updatedPerson.injuries[0].id).toBe('inj-2');
-    expect(updatedPerson.injuries[0].daysToHeal).toBe(2);
-    expect(updatedPerson.status).toBe(PersonnelStatus.WOUNDED);
-
-    // Event should list both healed injuries
-    expect(result.events).toHaveLength(1);
-    expect(result.events[0].healedInjuries).toContain('inj-1');
-    expect(result.events[0].healedInjuries).toContain('inj-3');
-    expect(result.events[0].returnedToActive).toBe(false);
-  });
-});
 
 // =============================================================================
 // processContracts Tests
@@ -715,16 +418,6 @@ describe('processDailyCosts', () => {
   afterEach(() => clearStores());
 
   it('should calculate salary for active personnel', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-    personnel.set(
-      'p2',
-      createTestPerson({ id: 'p2', status: PersonnelStatus.ACTIVE }),
-    );
-
     useCampaignRosterStore.setState({
       campaignId: 'campaign-001',
       units: [],
@@ -734,7 +427,7 @@ describe('processDailyCosts', () => {
       missionCount: 0,
     });
 
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign({});
     const result = processDailyCosts(campaign);
 
     const expectedSalary = DEFAULT_DAILY_SALARY * 2;
@@ -743,28 +436,6 @@ describe('processDailyCosts', () => {
   });
 
   it('should exclude KIA, RETIRED, and DESERTED from salary', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-    personnel.set(
-      'p2',
-      createTestPerson({ id: 'p2', status: PersonnelStatus.KIA }),
-    );
-    personnel.set(
-      'p3',
-      createTestPerson({ id: 'p3', status: PersonnelStatus.RETIRED }),
-    );
-    personnel.set(
-      'p4',
-      createTestPerson({ id: 'p4', status: PersonnelStatus.DESERTED }),
-    );
-    personnel.set(
-      'p5',
-      createTestPerson({ id: 'p5', status: PersonnelStatus.WOUNDED }),
-    );
-
     // p1 = Active, p2 = KIA (excluded), p3/p4 = RETIRED/DESERTED (not in roster),
     // p5 = Wounded (billable — all non-KIA statuses draw salary in the store model).
     useCampaignRosterStore.setState({
@@ -780,7 +451,7 @@ describe('processDailyCosts', () => {
       missionCount: 0,
     });
 
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign({});
     const result = processDailyCosts(campaign);
 
     // Only p1 (ACTIVE) and p5 (WOUNDED) should be paid; p2 KIA excluded
@@ -789,12 +460,6 @@ describe('processDailyCosts', () => {
   });
 
   it('should apply salary multiplier from options', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-
     useCampaignRosterStore.setState({
       campaignId: 'campaign-001',
       units: [],
@@ -809,25 +474,19 @@ describe('processDailyCosts', () => {
       salaryMultiplier: 2.0,
     };
 
-    const campaign = createTestCampaign({ personnel, options });
+    const campaign = createTestCampaign({ options });
     const result = processDailyCosts(campaign);
 
     expect(result.costs.salaries.amount).toBe(DEFAULT_DAILY_SALARY * 2.0);
   });
 
   it('should skip salaries when payForSalaries is false', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-
     const options: ICampaignOptions = {
       ...createDefaultCampaignOptions(),
       payForSalaries: false,
     };
 
-    const campaign = createTestCampaign({ personnel, options });
+    const campaign = createTestCampaign({ options });
     const result = processDailyCosts(campaign);
 
     // payForSalaries=false skips the salary block entirely regardless of count
@@ -882,12 +541,6 @@ describe('processDailyCosts', () => {
   });
 
   it('should deduct costs from balance', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-
     useCampaignRosterStore.setState({
       campaignId: 'campaign-001',
       units: [],
@@ -901,7 +554,6 @@ describe('processDailyCosts', () => {
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
 
     const campaign = createTestCampaign({
-      personnel,
       forces,
       finances: { transactions: [], balance: new Money(10000) },
     });
@@ -913,12 +565,6 @@ describe('processDailyCosts', () => {
   });
 
   it('should calculate total as sum of salaries and maintenance', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-
     useCampaignRosterStore.setState({
       campaignId: 'campaign-001',
       units: [],
@@ -931,7 +577,7 @@ describe('processDailyCosts', () => {
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
 
-    const campaign = createTestCampaign({ personnel, forces });
+    const campaign = createTestCampaign({ forces });
     const result = processDailyCosts(campaign);
 
     const expectedTotal = DEFAULT_DAILY_SALARY + DEFAULT_DAILY_MAINTENANCE;
@@ -951,12 +597,6 @@ describe('processDailyCosts', () => {
   });
 
   it('should add transactions to existing list', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-
     useCampaignRosterStore.setState({
       campaignId: 'campaign-001',
       units: [],
@@ -969,7 +609,7 @@ describe('processDailyCosts', () => {
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
 
-    const campaign = createTestCampaign({ personnel, forces });
+    const campaign = createTestCampaign({ forces });
     const result = processDailyCosts(campaign);
 
     // Should have 2 transactions: salary + maintenance
@@ -981,12 +621,6 @@ describe('processDailyCosts', () => {
   });
 
   it('should allow balance to go negative', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-
     useCampaignRosterStore.setState({
       campaignId: 'campaign-001',
       units: [],
@@ -997,245 +631,11 @@ describe('processDailyCosts', () => {
     });
 
     const campaign = createTestCampaign({
-      personnel,
       finances: { transactions: [], balance: new Money(0) },
     });
 
     const result = processDailyCosts(campaign);
 
     expect(result.finances.balance.isNegative()).toBe(true);
-  });
-});
-
-// =============================================================================
-// advanceDay Tests (Integration)
-// =============================================================================
-
-describe('advanceDay', () => {
-  // advanceDay calls processDailyCosts which reads useCampaignRosterStore (PR3).
-  // Tests that assert on personnelCount or salary deductions must seed the store.
-  afterEach(() => clearStores());
-
-  it('should advance the date by one day', () => {
-    const campaign = createTestCampaign({
-      currentDate: new Date('3025-06-15T00:00:00Z'),
-    });
-
-    const report = advanceDay(campaign);
-
-    expect(report.campaign.currentDate.getUTCDate()).toBe(16);
-    expect(report.date.getUTCDate()).toBe(15); // Report date is the processed date
-  });
-
-  it('should return a complete DayReport', () => {
-    const campaign = createTestCampaign();
-    const report = advanceDay(campaign);
-
-    expect(report).toHaveProperty('date');
-    expect(report).toHaveProperty('healedPersonnel');
-    expect(report).toHaveProperty('expiredContracts');
-    expect(report).toHaveProperty('costs');
-    expect(report).toHaveProperty('campaign');
-    expect(Array.isArray(report.healedPersonnel)).toBe(true);
-    expect(Array.isArray(report.expiredContracts)).toBe(true);
-  });
-
-  it('should process healing, contracts, and costs together', () => {
-    // Setup: wounded person, expired contract, active personnel + units
-    const personnel = new Map<string, IPerson>();
-    const injury = createTestInjury({ id: 'inj-1', daysToHeal: 1 });
-    personnel.set(
-      'p1',
-      createTestPerson({
-        id: 'p1',
-        name: 'Wounded Warrior',
-        status: PersonnelStatus.WOUNDED,
-        injuries: [injury],
-        daysToWaitForHealing: 0,
-      }),
-    );
-    personnel.set(
-      'p2',
-      createTestPerson({
-        id: 'p2',
-        name: 'Active Pilot',
-        status: PersonnelStatus.ACTIVE,
-      }),
-    );
-
-    const missions = new Map<string, IMission>();
-    missions.set(
-      'c1',
-      createContract({
-        id: 'c1',
-        name: 'Expired Contract',
-        employerId: 'davion',
-        targetId: 'liao',
-        status: MissionStatus.ACTIVE,
-        endDate: '3025-01-01',
-      }),
-    );
-
-    const forces = new Map<string, IForce>();
-    forces.set('force-root', createTestForce('force-root', ['unit-1']));
-
-    const campaign = createTestCampaign({
-      personnel,
-      missions,
-      forces,
-      finances: { transactions: [], balance: new Money(100000) },
-    });
-
-    const report = advanceDay(campaign);
-
-    // Healing: p1 should be healed
-    expect(report.healedPersonnel).toHaveLength(1);
-    expect(report.healedPersonnel[0].personId).toBe('p1');
-    expect(report.healedPersonnel[0].returnedToActive).toBe(true);
-
-    // Contracts: c1 should be expired
-    expect(report.expiredContracts).toHaveLength(1);
-    expect(report.expiredContracts[0].contractId).toBe('c1');
-
-    // Costs: 2 personnel (p1 now active + p2) + 1 unit
-    // Note: p1 was WOUNDED at start, so salary count depends on implementation
-    // Both p1 and p2 are not KIA/RETIRED/DESERTED, so both count
-    expect(report.costs.personnelCount).toBe(2);
-    expect(report.costs.unitCount).toBe(1);
-
-    // Campaign should be updated
-    expect(report.campaign.personnel.get('p1')!.status).toBe(
-      PersonnelStatus.ACTIVE,
-    );
-    expect(report.campaign.missions.get('c1')!.status).toBe(
-      MissionStatus.SUCCESS,
-    );
-  });
-
-  it('should handle advancing multiple days sequentially', () => {
-    const personnel = new Map<string, IPerson>();
-    const injury = createTestInjury({ id: 'inj-1', daysToHeal: 3 });
-    personnel.set(
-      'p1',
-      createTestPerson({
-        id: 'p1',
-        status: PersonnelStatus.WOUNDED,
-        injuries: [injury],
-        daysToWaitForHealing: 0,
-      }),
-    );
-
-    let campaign = createTestCampaign({
-      currentDate: new Date('3025-06-15T00:00:00Z'),
-      personnel,
-    });
-
-    // Day 1: injury goes from 3 -> 2
-    let report = advanceDay(campaign);
-    expect(report.campaign.personnel.get('p1')!.injuries[0].daysToHeal).toBe(2);
-    expect(report.campaign.personnel.get('p1')!.status).toBe(
-      PersonnelStatus.WOUNDED,
-    );
-    campaign = report.campaign;
-
-    // Day 2: injury goes from 2 -> 1
-    report = advanceDay(campaign);
-    expect(report.campaign.personnel.get('p1')!.injuries[0].daysToHeal).toBe(1);
-    expect(report.campaign.personnel.get('p1')!.status).toBe(
-      PersonnelStatus.WOUNDED,
-    );
-    campaign = report.campaign;
-
-    // Day 3: injury heals (1 -> 0), person returns to active
-    report = advanceDay(campaign);
-    expect(report.campaign.personnel.get('p1')!.injuries).toHaveLength(0);
-    expect(report.campaign.personnel.get('p1')!.status).toBe(
-      PersonnelStatus.ACTIVE,
-    );
-    expect(report.healedPersonnel).toHaveLength(1);
-    expect(report.healedPersonnel[0].returnedToActive).toBe(true);
-  });
-
-  it('should advance date across month boundary', () => {
-    const campaign = createTestCampaign({
-      currentDate: new Date('3025-01-31T00:00:00Z'),
-    });
-
-    const report = advanceDay(campaign);
-
-    expect(report.campaign.currentDate.getUTCMonth()).toBe(1); // February (0-indexed)
-    expect(report.campaign.currentDate.getUTCDate()).toBe(1);
-  });
-
-  it('should advance date across year boundary', () => {
-    const campaign = createTestCampaign({
-      currentDate: new Date('3025-12-31T00:00:00Z'),
-    });
-
-    const report = advanceDay(campaign);
-
-    expect(report.campaign.currentDate.getUTCFullYear()).toBe(3026);
-    expect(report.campaign.currentDate.getUTCMonth()).toBe(0); // January
-    expect(report.campaign.currentDate.getUTCDate()).toBe(1);
-  });
-
-  it('should update campaign updatedAt timestamp', () => {
-    const campaign = createTestCampaign({
-      updatedAt: '2020-01-01T00:00:00Z',
-    });
-
-    const report = advanceDay(campaign);
-
-    expect(report.campaign.updatedAt).not.toBe('2020-01-01T00:00:00Z');
-  });
-
-  it('should preserve campaign fields not affected by day advancement', () => {
-    const campaign = createTestCampaign({
-      id: 'my-campaign',
-      name: 'My Campaign',
-      factionId: 'davion',
-    });
-
-    const report = advanceDay(campaign);
-
-    expect(report.campaign.id).toBe('my-campaign');
-    expect(report.campaign.name).toBe('My Campaign');
-    expect(report.campaign.factionId).toBe('davion');
-    expect(report.campaign.options).toEqual(campaign.options);
-  });
-
-  it('should handle campaign with no personnel, missions, or forces', () => {
-    const campaign = createTestCampaign();
-    const report = advanceDay(campaign);
-
-    expect(report.healedPersonnel).toHaveLength(0);
-    expect(report.expiredContracts).toHaveLength(0);
-    expect(report.costs.total.amount).toBe(0);
-    expect(report.campaign.currentDate.getUTCDate()).toBe(16);
-  });
-
-  it('should accumulate transactions over multiple days', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-
-    let campaign = createTestCampaign({
-      personnel,
-      finances: { transactions: [], balance: new Money(100000) },
-    });
-
-    // Advance 3 days
-    for (let i = 0; i < 3; i++) {
-      const report = advanceDay(campaign);
-      campaign = report.campaign;
-    }
-
-    // Should have 3 salary transactions
-    expect(campaign.finances.transactions).toHaveLength(3);
-    expect(campaign.finances.balance.amount).toBe(
-      100000 - DEFAULT_DAILY_SALARY * 3,
-    );
   });
 });

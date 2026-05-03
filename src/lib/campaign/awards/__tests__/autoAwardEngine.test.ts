@@ -93,7 +93,6 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     name: 'Test Campaign',
     currentDate: new Date('3025-06-15'),
     factionId: 'mercenary',
-    personnel: new Map(),
     forces: new Map(),
     rootForceId: 'root',
     missions: new Map(),

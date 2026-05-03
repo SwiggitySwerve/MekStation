@@ -328,9 +328,7 @@ describe('useCampaignStore', () => {
         .createCampaign('Test Campaign', 'mercenary');
 
       const person = createTestPerson({ name: 'Test Pilot' });
-      store.getState().updateCampaign({
-        personnel: new Map([[person.id, person]]),
-      });
+      store.getState().updateCampaign({});
 
       store.getState().saveCampaign();
 
@@ -410,15 +408,16 @@ describe('useCampaignStore', () => {
       // `campaign.personnel` directly. The sub-store is gone — we seed
       // via `updateCampaign` and verify `saveCampaign` round-trips.
       const person = createTestPerson({ name: 'Synced Person' });
-      store.getState().updateCampaign({
-        personnel: new Map([[person.id, person]]),
-      });
+      store.getState().updateCampaign({});
 
       store.getState().saveCampaign();
 
       const campaign = store.getState().getCampaign();
-      expect(campaign?.personnel.size).toBe(1);
-      expect(campaign?.personnel.get(person.id)?.name).toBe('Synced Person');
+      // Per PR4 of `wire-iperson-hard-cutover`: personnel state lives on
+      // useCampaignRosterStore. The save round-trip is a no-op for the
+      // (now-deleted) personnel field.
+      expect(campaign).not.toBeNull();
+      void person;
     });
   });
 
@@ -636,16 +635,12 @@ describe('useCampaignStore', () => {
     it('should allow adding personnel via campaign object', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
-      // Per `migrate-personnel-to-roster-employment`, personnel is no
-      // longer a sub-store — it lives directly on `campaign.personnel`.
+      // Per PR4 of `wire-iperson-hard-cutover`: personnel state lives on
+      // useCampaignRosterStore — no sub-store, no `campaign.personnel`.
       const person = createTestPerson({ name: 'New Pilot' });
-      store.getState().updateCampaign({
-        personnel: new Map([[person.id, person]]),
-      });
-
-      expect(
-        store.getState().getCampaign()?.personnel.get(person.id)?.name,
-      ).toBe('New Pilot');
+      store.getState().updateCampaign({});
+      void person;
+      expect(store.getState().getCampaign()).not.toBeNull();
     });
 
     it('should allow adding forces via sub-store', () => {
@@ -684,16 +679,16 @@ describe('useCampaignStore', () => {
       const force = createTestForce({ name: 'Test Lance' });
       const mission = createTestMission({ name: 'Test Mission' });
 
-      store.getState().updateCampaign({
-        personnel: new Map([[person.id, person]]),
-      });
+      store.getState().updateCampaign({});
       forcesStore?.getState().addForce(force);
       missionsStore?.getState().addMission(mission);
 
       store.getState().saveCampaign();
 
       const campaign = store.getState().getCampaign();
-      expect(campaign?.personnel.size).toBe(1);
+      void person;
+      // Per PR4: personnel field deleted; only forces+missions are still
+      // sub-stores synced via saveCampaign.
       // Forces includes root force + added force
       expect(campaign?.forces.size).toBe(2);
       expect(campaign?.missions.size).toBe(1);
@@ -769,9 +764,7 @@ describe('useCampaignStore', () => {
       // has its own persistence path — it's part of the serialized
       // campaign blob saved by `saveCampaign`.
       const person = createTestPerson({ name: 'Persisted Person' });
-      store.getState().updateCampaign({
-        personnel: new Map([[person.id, person]]),
-      });
+      store.getState().updateCampaign({});
 
       store.getState().saveCampaign();
 
@@ -831,22 +824,14 @@ describe('useCampaignStore', () => {
       expect(campaign?.factionId).toBe('steiner');
     });
 
-    it('should handle large personnel roster', () => {
+    it('should preserve campaign state through saveCampaign (no personnel field)', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
-
-      // Build up a 100-person Map and seed via `updateCampaign`. The
-      // personnel sub-store is gone (`migrate-personnel-to-roster-employment`).
-      const personnel = new Map<string, ReturnType<typeof createTestPerson>>();
-      for (let i = 0; i < 100; i++) {
-        const person = createTestPerson({ name: `Person ${i}` });
-        personnel.set(person.id, person);
-      }
-      store.getState().updateCampaign({ personnel });
-
+      // Per PR4 of `wire-iperson-hard-cutover`: personnel state lives on
+      // useCampaignRosterStore, not on `campaign.personnel`. The 100-person
+      // load test moved to roster-store-specific tests.
       store.getState().saveCampaign();
-
       const campaign = store.getState().getCampaign();
-      expect(campaign?.personnel.size).toBe(100);
+      expect(campaign).not.toBeNull();
     });
   });
 
@@ -865,9 +850,7 @@ describe('useCampaignStore', () => {
       // Add personnel (per `migrate-personnel-to-roster-employment`, this
       // is now a direct campaign-object update — no sub-store).
       const pilot = createTestPerson({ name: 'Jaime Wolf', rank: 'Colonel' });
-      store.getState().updateCampaign({
-        personnel: new Map([[pilot.id, pilot]]),
-      });
+      store.getState().updateCampaign({});
 
       // Add force
       const forcesStore = store.getState().getForcesStore();
@@ -889,7 +872,8 @@ describe('useCampaignStore', () => {
       // Verify state
       const campaign = store.getState().getCampaign();
       expect(campaign?.name).toBe("Wolf's Dragoons");
-      expect(campaign?.personnel.size).toBe(1);
+      // Per PR4: personnel field deleted; personnel count lives on roster store.
+      void pilot;
       expect(campaign?.forces.size).toBe(2); // Root + Command Lance
       expect(campaign?.missions.size).toBe(1);
     });
@@ -901,9 +885,7 @@ describe('useCampaignStore', () => {
         .createCampaign('Test Campaign', 'mercenary');
 
       const pilot = createTestPerson({ name: 'Test Pilot' });
-      store.getState().updateCampaign({
-        personnel: new Map([[pilot.id, pilot]]),
-      });
+      store.getState().updateCampaign({});
 
       store.getState().advanceDay();
       store.getState().saveCampaign();

@@ -53,7 +53,6 @@ function createTestCampaign(
     name: 'Test Campaign',
     currentDate: new Date(dateStr),
     factionId: 'mercenary',
-    personnel: new Map(),
     forces: new Map(),
     rootForceId: 'force-root',
     missions: new Map(),

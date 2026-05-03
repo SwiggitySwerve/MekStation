@@ -25,7 +25,6 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     options,
     factionStandings: {},
     shoppingList: { items: [] },
-    personnel: new Map(),
     finances: {
       balance: new Money(100000),
       transactions: [],

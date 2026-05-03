@@ -91,7 +91,6 @@ function createTestCampaign(overrides?: {
     name: 'Test Campaign',
     currentDate: new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map(),
     forces,
     rootForceId,
     missions: overrides?.missions ?? new Map<string, IMission>(),
@@ -572,7 +571,7 @@ describe('Contract Market', () => {
       expect(updated.name).toBe(campaign.name);
       expect(updated.currentDate).toBe(campaign.currentDate);
       expect(updated.factionId).toBe(campaign.factionId);
-      expect(updated.personnel).toBe(campaign.personnel);
+      // Per PR4: personnel field deleted; only verify forces preservation.
       expect(updated.forces).toBe(campaign.forces);
     });
   });

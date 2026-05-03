@@ -22,7 +22,6 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     name: 'Test Campaign',
     currentDate: new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map<string, IPerson>(),
     forces: new Map<string, IForce>(),
     rootForceId: 'force-root',
     missions: new Map<string, IMission>(),

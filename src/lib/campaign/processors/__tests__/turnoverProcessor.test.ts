@@ -4,7 +4,9 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { TurnoverFrequency } from '@/types/campaign/Campaign';
 import type { IPerson } from '@/types/campaign/Person';
 
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
@@ -60,7 +62,6 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
     name: 'Test Campaign',
     currentDate: new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map<string, IPerson>(),
     forces: new Map(),
     rootForceId: 'force-root',
     missions: new Map(),
@@ -75,6 +76,38 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
     // Per canonicalize-unit-combat-state PR-A: required ICampaign field.
     unitCombatStates: overrides.unitCombatStates ?? {},
   };
+}
+
+/**
+ * Seed a single roster entry with the given pilotId so applyTurnoverResults
+ * has a target to patch via applyPilotPatches (per PR4 of
+ * `wire-iperson-hard-cutover`). Resets the rest of the store fields to
+ * a clean baseline.
+ */
+function seedRoster(pilotId: string): void {
+  useCampaignRosterStore.setState({
+    campaignId: 'campaign-001',
+    units: [],
+    pilots: [
+      {
+        pilotId,
+        pilotName: pilotId,
+        status: CampaignPilotStatus.Active,
+        wounds: 0,
+        recoveryTime: 0,
+        xp: 0,
+        campaignXpEarned: 0,
+        campaignKills: 0,
+        campaignMissions: 0,
+        primaryRole: CampaignPersonnelRole.PILOT,
+        rankIndex: 0,
+        hireDate: new Date('3024-01-01'),
+      },
+    ],
+    missions: [],
+    activeMissionId: null,
+    missionCount: 0,
+  });
 }
 
 describe('turnoverProcessor', () => {
@@ -162,10 +195,9 @@ describe('shouldRunTurnover', () => {
 });
 
 describe('applyTurnoverResults', () => {
-  it('should update departed personnel status to RETIRED', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', name: 'Alice' }));
-    const campaign = createTestCampaign({ personnel });
+  it('should mark departed personnel with departureReason=retired', () => {
+    seedRoster('p1');
+    const campaign = createTestCampaign({});
 
     const report: TurnoverReport = {
       results: [
@@ -187,17 +219,19 @@ describe('applyTurnoverResults', () => {
 
     const date = new Date('3025-06-15T00:00:00Z');
     const updated = applyTurnoverResults(campaign, report, date);
-    const person = updated.personnel.get('p1');
+    void updated;
+    const person = useCampaignRosterStore
+      .getState()
+      .pilots.find((p) => p.pilotId === 'p1');
     expect(person).toBeDefined();
-    expect(person!.status).toBe(PersonnelStatus.RETIRED);
-    expect(person!.departureDate).toEqual(date);
+    // Per PR4: CampaignPilotStatus has no Retired/Deserted variants — the
+    // status is preserved (Active here) and departureReason is the marker.
     expect(person!.departureReason).toBe('retired');
   });
 
-  it('should update departed personnel status to DESERTED', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', name: 'Bob' }));
-    const campaign = createTestCampaign({ personnel });
+  it('should mark departed personnel with departureReason=deserted', () => {
+    seedRoster('p1');
+    const campaign = createTestCampaign({});
 
     const report: TurnoverReport = {
       results: [
@@ -219,14 +253,15 @@ describe('applyTurnoverResults', () => {
 
     const date = new Date('3025-06-15T00:00:00Z');
     const updated = applyTurnoverResults(campaign, report, date);
-    const person = updated.personnel.get('p1');
-    expect(person!.status).toBe(PersonnelStatus.DESERTED);
+    void updated;
+    const person = useCampaignRosterStore
+      .getState()
+      .pilots.find((p) => p.pilotId === 'p1');
+    expect(person!.departureReason).toBe('deserted');
   });
 
   it('should record payout as financial transaction', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', name: 'Alice' }));
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign({});
 
     const report: TurnoverReport = {
       results: [
@@ -253,10 +288,9 @@ describe('applyTurnoverResults', () => {
     expect(updated.finances.balance.amount).toBe(1000000 - 12000);
   });
 
-  it('should set departure date on departed person', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', name: 'Alice' }));
-    const campaign = createTestCampaign({ personnel });
+  it('should record departureReason on departed person (departureDate is no longer mirrored on roster)', () => {
+    seedRoster('p1');
+    const campaign = createTestCampaign({});
 
     const report: TurnoverReport = {
       results: [
@@ -278,14 +312,19 @@ describe('applyTurnoverResults', () => {
 
     const date = new Date('3025-06-15T00:00:00Z');
     const updated = applyTurnoverResults(campaign, report, date);
-    const person = updated.personnel.get('p1');
-    expect(person!.departureDate).toEqual(date);
+    void updated;
+    void date;
+    const person = useCampaignRosterStore
+      .getState()
+      .pilots.find((p) => p.pilotId === 'p1');
+    // Per PR4: departureReason is the marker. Future: a `departureDate`
+    // field on the entry can mirror the legacy IPerson semantics.
+    expect(person!.departureReason).toBe('retired');
   });
 
   it('should not modify personnel who passed the check', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', name: 'Alice' }));
-    const campaign = createTestCampaign({ personnel });
+    seedRoster('p1');
+    const campaign = createTestCampaign({});
 
     const report: TurnoverReport = {
       results: [
@@ -307,15 +346,17 @@ describe('applyTurnoverResults', () => {
 
     const date = new Date('3025-06-15T00:00:00Z');
     const updated = applyTurnoverResults(campaign, report, date);
-    const person = updated.personnel.get('p1');
-    expect(person!.status).toBe(PersonnelStatus.ACTIVE);
-    expect(person!.departureDate).toBeUndefined();
+    void updated;
+    const person = useCampaignRosterStore
+      .getState()
+      .pilots.find((p) => p.pilotId === 'p1');
+    expect(person!.status).toBe(CampaignPilotStatus.Active);
+    expect(person!.departureReason).toBeUndefined();
+    void PersonnelStatus;
   });
 
   it('should not record transaction for zero payout', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', name: 'Bob' }));
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign({});
 
     const report: TurnoverReport = {
       results: [

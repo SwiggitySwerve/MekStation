@@ -90,6 +90,31 @@ function makePerson(
   return { ...base, ...overrides };
 }
 
+/**
+ * Build a minimal roster entry for the buildDailyBattleAuditEntry tests
+ * (XP delta is now read from before/after roster snapshots per PR4 of
+ * `wire-iperson-hard-cutover`).
+ */
+function makeRosterEntry(
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: overrides.pilotId ?? 'pilot-1',
+    pilotName: overrides.pilotName ?? 'Test Pilot',
+    status: overrides.status ?? CampaignPilotStatus.Active,
+    wounds: overrides.wounds ?? 0,
+    recoveryTime: overrides.recoveryTime ?? 0,
+    xp: overrides.xp ?? 0,
+    campaignXpEarned: overrides.campaignXpEarned ?? 0,
+    campaignKills: overrides.campaignKills ?? 0,
+    campaignMissions: overrides.campaignMissions ?? 0,
+    hireDate: overrides.hireDate ?? new Date('3024-01-01'),
+    primaryRole: overrides.primaryRole ?? CampaignPersonnelRole.PILOT,
+    rankIndex: overrides.rankIndex ?? 0,
+    ...overrides,
+  };
+}
+
 function makeCampaign(
   overrides: Partial<ICampaignWithBattleState> = {},
 ): ICampaignWithBattleState {
@@ -98,7 +123,6 @@ function makeCampaign(
     name: 'Test Campaign',
     currentDate: new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map(),
     forces: new Map(),
     rootForceId: 'root',
     missions: new Map(),
@@ -174,6 +198,8 @@ describe('buildDailyBattleAuditEntry', () => {
     const entry = buildDailyBattleAuditEntry({
       before,
       after,
+      beforeRoster: [],
+      afterRoster: [],
       appliedOutcomes: [],
       events: [],
       date: new Date('3025-06-15'),
@@ -218,6 +244,8 @@ describe('buildDailyBattleAuditEntry', () => {
     const entry = buildDailyBattleAuditEntry({
       before,
       after,
+      beforeRoster: [],
+      afterRoster: [],
       appliedOutcomes: [outcome],
       events: [],
       date: new Date('3025-06-15'),
@@ -228,25 +256,28 @@ describe('buildDailyBattleAuditEntry', () => {
     expect(entry?.pilotsMia).toBe(1);
   });
 
-  it('sums totalXpEarned delta across before/after', () => {
-    const before = makeCampaign({
-      personnel: new Map([
-        ['pilot-A', makePerson({ id: 'pilot-A', totalXpEarned: 5 })],
-        ['pilot-B', makePerson({ id: 'pilot-B', totalXpEarned: 0 })],
-      ]),
-    });
-    const after = makeCampaign({
-      personnel: new Map([
-        ['pilot-A', makePerson({ id: 'pilot-A', totalXpEarned: 10 })],
-        ['pilot-B', makePerson({ id: 'pilot-B', totalXpEarned: 7 })],
-      ]),
-    });
+  it('sums campaignXpEarned delta across before/after roster snapshots', () => {
+    // Per PR4 of `wire-iperson-hard-cutover`: XP delta now diffs the
+    // beforeRoster/afterRoster snapshots (the legacy personnel Map is
+    // gone). Schema is `campaignXpEarned` rather than `totalXpEarned`.
+    const before = makeCampaign();
+    const after = makeCampaign();
+    const beforeRoster = [
+      makeRosterEntry({ pilotId: 'pilot-A', campaignXpEarned: 5 }),
+      makeRosterEntry({ pilotId: 'pilot-B', campaignXpEarned: 0 }),
+    ];
+    const afterRoster = [
+      makeRosterEntry({ pilotId: 'pilot-A', campaignXpEarned: 10 }),
+      makeRosterEntry({ pilotId: 'pilot-B', campaignXpEarned: 7 }),
+    ];
     const outcome = makeOutcome({
       unitDeltas: [makeDelta({ unitId: 'pilot-A' })],
     });
     const entry = buildDailyBattleAuditEntry({
       before,
       after,
+      beforeRoster,
+      afterRoster,
       appliedOutcomes: [outcome],
       events: [],
       date: new Date('3025-06-15'),
@@ -263,6 +294,8 @@ describe('buildDailyBattleAuditEntry', () => {
     const entry = buildDailyBattleAuditEntry({
       before,
       after,
+      beforeRoster: [],
+      afterRoster: [],
       appliedOutcomes: [outcome],
       events: [
         {
@@ -298,6 +331,8 @@ describe('buildDailyBattleAuditEntry', () => {
     const entry = buildDailyBattleAuditEntry({
       before,
       after,
+      beforeRoster: [],
+      afterRoster: [],
       appliedOutcomes: [outcome],
       events: [
         {
@@ -346,6 +381,8 @@ describe('buildDailyBattleAuditEntry', () => {
     const entry = buildDailyBattleAuditEntry({
       before,
       after,
+      beforeRoster: [],
+      afterRoster: [],
       appliedOutcomes: [outcome],
       events: [],
       date: new Date('3025-06-15'),
@@ -365,6 +402,8 @@ describe('buildDailyBattleAuditEntry', () => {
     const entry = buildDailyBattleAuditEntry({
       before,
       after,
+      beforeRoster: [],
+      afterRoster: [],
       appliedOutcomes: [outcome],
       events: [
         {
@@ -393,6 +432,8 @@ describe('buildDailyBattleAuditEntry', () => {
     const entry = buildDailyBattleAuditEntry({
       before,
       after,
+      beforeRoster: [],
+      afterRoster: [],
       appliedOutcomes: [outcome],
       events: [],
       date: new Date('3025-06-15T12:34:56Z'),

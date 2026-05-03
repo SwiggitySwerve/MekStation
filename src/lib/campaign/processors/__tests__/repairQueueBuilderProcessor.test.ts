@@ -28,7 +28,6 @@ function makeBaseCampaign(): ICampaign {
     name: 'Test Campaign',
     currentDate: TEST_DATE,
     factionId: 'mercenary',
-    personnel: new Map(),
     forces: new Map(),
     rootForceId: 'force-root',
     missions: new Map(),
