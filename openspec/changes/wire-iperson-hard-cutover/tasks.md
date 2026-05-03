@@ -113,7 +113,7 @@
   - Acceptance: ranks/maintenance/events tests pass.
   - QA: `npx jest --testPathPattern='(ranks|maintenance|events)'`.
 
-- [ ] 2.7 **Type-layer helpers commit** (4 helpers in `src/types/campaign/Campaign.ts:147,163,180,300`).
+- [x] 2.7 **Type-layer helpers commit** (4 helpers in `src/types/campaign/Campaign.ts:147,163,180,300`).
   - These are the cross-cutting type-guards / accessor helpers.
   - Acceptance: typecheck clean.
   - QA: `npx tsc --noEmit --skipLibCheck`.

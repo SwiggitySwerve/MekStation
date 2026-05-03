@@ -12,12 +12,13 @@ import type { IShoppingList } from './acquisition/acquisitionTypes';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { SalvageRights, CommandRights } from './Mission';
+import type { IPerson } from './Person';
 import type { ICombatTeam } from './scenario/scenarioTypes';
 import type { IUnitCombatState } from './UnitCombatState';
 
 import { CampaignType } from './CampaignType';
 import { createDefaultCampaignOptions } from './createDefaultCampaignOptions';
-import { MissionStatus, PersonnelStatus } from './enums';
+import { MissionStatus } from './enums';
 import { IForce, getAllUnits as getForceUnits } from './Force';
 import { IFinances } from './IFinances';
 import {
@@ -29,7 +30,6 @@ import {
   createContract,
 } from './Mission';
 import { Money } from './Money';
-import { IPerson, isActive } from './Person';
 
 // Re-export Mission types for backwards compatibility
 export type { IMission, IContract, SalvageRights, CommandRights };
@@ -161,41 +161,6 @@ export function getTotalPersonnel(campaign: ICampaign): number {
 }
 
 /**
- * Gets all active personnel in the campaign.
- *
- * Active means PersonnelStatus.ACTIVE (available for duty).
- *
- * @param campaign - The campaign to query
- * @returns Array of active personnel
- *
- * @example
- * const active = getActivePersonnel(campaign);
- * logger.debug(`${active.length} personnel ready for duty`);
- */
-export function getActivePersonnel(campaign: ICampaign): IPerson[] {
-  return Array.from(campaign.personnel.values()).filter(isActive);
-}
-
-/**
- * Gets personnel by status.
- *
- * @param campaign - The campaign to query
- * @param status - The status to filter by
- * @returns Array of personnel with the given status
- *
- * @example
- * const wounded = getPersonnelByStatus(campaign, PersonnelStatus.WOUNDED);
- */
-export function getPersonnelByStatus(
-  campaign: ICampaign,
-  status: PersonnelStatus,
-): IPerson[] {
-  return Array.from(campaign.personnel.values()).filter(
-    (person) => person.status === status,
-  );
-}
-
-/**
  * Gets the total number of forces in the campaign.
  *
  * @param campaign - The campaign to query
@@ -294,23 +259,6 @@ export function getMissionsByStatus(
  */
 export function getActiveMissions(campaign: ICampaign): IMission[] {
   return getMissionsByStatus(campaign, MissionStatus.ACTIVE);
-}
-
-/**
- * Gets a person by ID.
- *
- * @param campaign - The campaign to query
- * @param personId - The person ID to find
- * @returns The person or undefined if not found
- *
- * @example
- * const person = getPersonById(campaign, 'person-001');
- */
-export function getPersonById(
-  campaign: ICampaign,
-  personId: string,
-): IPerson | undefined {
-  return campaign.personnel.get(personId);
 }
 
 /**

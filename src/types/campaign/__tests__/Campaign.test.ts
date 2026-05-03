@@ -17,15 +17,12 @@ import {
   ICampaign,
   IMission,
   getTotalPersonnel,
-  getActivePersonnel,
-  getPersonnelByStatus,
   getTotalForces,
   getAllUnits,
   getBalance,
   getTotalMissions,
   getMissionsByStatus,
   getActiveMissions,
-  getPersonById,
   getForceById,
   getMissionById,
   getRootForce,
@@ -428,61 +425,6 @@ describe('Helper Functions', () => {
     });
   });
 
-  describe('getActivePersonnel', () => {
-    it('should return only active personnel', () => {
-      const campaign = createTestCampaign();
-      const active = getActivePersonnel(campaign);
-
-      expect(active).toHaveLength(2);
-      expect(active.every((p) => p.status === PersonnelStatus.ACTIVE)).toBe(
-        true,
-      );
-    });
-
-    it('should return empty array when no active personnel', () => {
-      const personnel = new Map<string, IPerson>();
-      personnel.set(
-        'person-1',
-        createTestPerson('person-1', 'John', PersonnelStatus.WOUNDED),
-      );
-
-      const campaign = createCampaignWithData({
-        id: 'campaign-1',
-        name: 'Test',
-        currentDate: new Date(),
-        factionId: 'mercenary',
-        personnel,
-        forces: new Map(),
-        rootForceId: 'force-root',
-        missions: new Map(),
-        finances: { transactions: [], balance: Money.ZERO },
-        options: createDefaultCampaignOptions(),
-      });
-
-      expect(getActivePersonnel(campaign)).toHaveLength(0);
-    });
-  });
-
-  describe('getPersonnelByStatus', () => {
-    it('should filter by status', () => {
-      const campaign = createTestCampaign();
-
-      const wounded = getPersonnelByStatus(campaign, PersonnelStatus.WOUNDED);
-      expect(wounded).toHaveLength(1);
-      expect(wounded[0].name).toBe('Bob Wilson');
-
-      const mia = getPersonnelByStatus(campaign, PersonnelStatus.MIA);
-      expect(mia).toHaveLength(1);
-      expect(mia[0].name).toBe('Alice Brown');
-    });
-
-    it('should return empty array for non-existent status', () => {
-      const campaign = createTestCampaign();
-      const kia = getPersonnelByStatus(campaign, PersonnelStatus.KIA);
-      expect(kia).toHaveLength(0);
-    });
-  });
-
   describe('getTotalForces', () => {
     it('should return total force count', () => {
       const campaign = createTestCampaign();
@@ -614,23 +556,6 @@ describe('Helper Functions', () => {
 
       expect(active).toHaveLength(1);
       expect(active[0].status).toBe(MissionStatus.ACTIVE);
-    });
-  });
-
-  describe('getPersonById', () => {
-    it('should return person by ID', () => {
-      const campaign = createTestCampaign();
-      const person = getPersonById(campaign, 'person-1');
-
-      expect(person).toBeDefined();
-      expect(person?.name).toBe('John Smith');
-    });
-
-    it('should return undefined for non-existent ID', () => {
-      const campaign = createTestCampaign();
-      const person = getPersonById(campaign, 'non-existent');
-
-      expect(person).toBeUndefined();
     });
   });
 
@@ -970,9 +895,9 @@ describe('Integration Tests', () => {
     it('should correctly aggregate all entities', () => {
       const campaign = createTestCampaign();
 
-      // Personnel
+      // Personnel — getActivePersonnel/getPersonnelByStatus deleted (PR2 hard-cutover);
+      // use campaign.personnel.size for aggregate count assertions
       expect(getTotalPersonnel(campaign)).toBe(4);
-      expect(getActivePersonnel(campaign)).toHaveLength(2);
 
       // Forces
       expect(getTotalForces(campaign)).toBe(3);
@@ -1064,7 +989,6 @@ describe('Integration Tests', () => {
       const campaign = createCampaign('Empty', 'mercenary');
 
       expect(getTotalPersonnel(campaign)).toBe(0);
-      expect(getActivePersonnel(campaign)).toHaveLength(0);
       expect(getTotalForces(campaign)).toBe(0);
       expect(getAllUnits(campaign)).toHaveLength(0);
       expect(getTotalMissions(campaign)).toBe(0);
@@ -1095,11 +1019,9 @@ describe('Integration Tests', () => {
         options: createDefaultCampaignOptions(),
       });
 
+      // getActivePersonnel/getPersonnelByStatus deleted (PR2 hard-cutover);
+      // aggregate count via getTotalPersonnel is sufficient for this fixture
       expect(getTotalPersonnel(campaign)).toBe(100);
-      expect(getActivePersonnel(campaign)).toHaveLength(75); // 75% active
-      expect(
-        getPersonnelByStatus(campaign, PersonnelStatus.WOUNDED),
-      ).toHaveLength(25);
     });
 
     it('should correctly calculate balance with starting funds', () => {
