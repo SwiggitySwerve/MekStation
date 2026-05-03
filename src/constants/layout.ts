@@ -53,6 +53,13 @@ export const Z_INDEX = {
 // Breakpoints (matches Tailwind defaults)
 // =============================================================================
 
+/**
+ * Canonical responsive breakpoint values.
+ *
+ * Other breakpoint shapes, including `src/utils/responsive.ts` lowercase
+ * Tailwind keys and `src/hooks/useDeviceType.ts` mobile/tablet keys, derive
+ * from this export.
+ */
 export const BREAKPOINTS = {
   /** Small devices (phones) */
   SM: 640,

@@ -1,5 +1,7 @@
 import { CSSProperties, useMemo } from 'react';
 
+import { TOUCH } from '@/constants/layout';
+
 /**
  * Touch target configuration
  */
@@ -25,7 +27,7 @@ interface TouchTargetStyles {
 /**
  * Minimum touch target size per iOS and Android accessibility guidelines
  */
-const DEFAULT_MIN_SIZE = 44;
+const DEFAULT_MIN_SIZE = TOUCH.MIN_TARGET_SIZE;
 
 /**
  * Hook to ensure interactive elements meet minimum touch target size.
