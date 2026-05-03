@@ -1,13 +1,15 @@
 import { describe, it, expect } from '@jest/globals';
 
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
-import type { IPerson } from '@/types/campaign/Person';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
+import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import type { RandomFn } from '../turnoverCheck';
 
@@ -18,34 +20,36 @@ import {
   getPersonMonthlySalary,
 } from '../turnoverCheck';
 
-function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
+function createTestEntry(
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: 'person-001',
+    pilotName: 'Test Person',
+    status: CampaignPilotStatus.Active,
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 100,
+    campaignXpEarned: 200,
+    campaignKills: 3,
+    campaignMissions: 5,
+    hireDate: new Date('3000-01-01'),
+    injuries: [],
+    ...overrides,
+  };
+}
+
+function createTestPilot(overrides: Partial<IPilot> = {}): IPilot {
   return {
     id: 'person-001',
     name: 'Test Person',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date('3000-01-01'),
-    missionsCompleted: 5,
-    totalKills: 3,
-    xp: 100,
-    totalXpEarned: 200,
-    xpSpent: 100,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
+    type: PilotType.Persistent,
+    status: PilotStatus.Active,
+    skills: { gunnery: 4, piloting: 5 },
+    wounds: 0,
+    abilities: [],
     createdAt: '3000-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
     ...overrides,
@@ -183,91 +187,99 @@ describe('roll2d6', () => {
 
 describe('getPersonMonthlySalary', () => {
   it('should return default 1000 C-bills', () => {
-    const person = createTestPerson();
+    const entry = createTestEntry();
     const options = createTestOptions();
-    const salary = getPersonMonthlySalary(person, options);
+    const salary = getPersonMonthlySalary(entry, options);
     expect(salary.amount).toBe(1000);
   });
 });
 
 describe('checkTurnover', () => {
   it('should return passed=true when roll >= targetNumber (person stays)', () => {
-    const person = createTestPerson();
+    const entry = createTestEntry();
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     // Base target = 3, regular pilot modifiers sum to ~3
     // Roll high (12) to guarantee staying
     const random = randomFor2d6(6, 6);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.passed).toBe(true);
     expect(result.departureType).toBeNull();
   });
 
   it('should return passed=false when roll < targetNumber (person leaves)', () => {
-    const person = createTestPerson();
+    const entry = createTestEntry();
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     // Roll minimum (2) — with base target 3, 2 < 3 → leaves
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.passed).toBe(false);
     expect(result.departureType).not.toBeNull();
   });
 
-  it('should skip non-ACTIVE personnel (return passed=true)', () => {
-    const person = createTestPerson({ status: PersonnelStatus.RETIRED });
+  it('should skip non-Active roster entries (return passed=true)', () => {
+    const entry = createTestEntry({ status: CampaignPilotStatus.MIA });
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.passed).toBe(true);
     expect(result.departureType).toBeNull();
   });
 
-  it('should skip POW personnel', () => {
-    const person = createTestPerson({ status: PersonnelStatus.POW });
+  it('should skip Wounded roster entries', () => {
+    const entry = createTestEntry({ status: CampaignPilotStatus.Wounded });
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.passed).toBe(true);
   });
 
-  it('should skip MIA personnel', () => {
-    const person = createTestPerson({ status: PersonnelStatus.MIA });
+  it('should skip Critical roster entries', () => {
+    const entry = createTestEntry({ status: CampaignPilotStatus.Critical });
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.passed).toBe(true);
   });
 
-  it('should skip STUDENT personnel', () => {
-    const person = createTestPerson({ status: PersonnelStatus.STUDENT });
+  it('should skip KIA roster entries', () => {
+    const entry = createTestEntry({ status: CampaignPilotStatus.KIA });
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.passed).toBe(true);
   });
 
   it('should skip commander when commanderImmune option is true', () => {
-    const person = createTestPerson({ isCommander: true });
+    const entry = createTestEntry({ isCommander: true });
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const options = { ...campaign.options, turnoverCommanderImmune: true };
     const campaignWithImmunity = { ...campaign, options };
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaignWithImmunity, random);
+    const result = checkTurnover(entry, pilot, campaignWithImmunity, random);
     expect(result.passed).toBe(true);
     expect(result.departureType).toBeNull();
   });
 
   it('should NOT skip commander when commanderImmune option is false', () => {
-    const person = createTestPerson({ isCommander: true });
+    const entry = createTestEntry({ isCommander: true });
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const options = { ...campaign.options, turnoverCommanderImmune: false };
     const campaignNoImmunity = { ...campaign, options };
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaignNoImmunity, random);
+    const result = checkTurnover(entry, pilot, campaignNoImmunity, random);
     expect(result.personId).toBe('person-001');
   });
 
   it('should set departureType to deserted when roll < targetNumber - 4', () => {
-    const person = createTestPerson({
+    const entry = createTestEntry({
       injuries: [
         {
           id: 'i1',
@@ -316,17 +328,18 @@ describe('checkTurnover', () => {
         },
       ],
     });
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     // 5 permanent injuries = +5, base target 3, skill mod +1 (avg 4.5) = 9
     // Roll 2 (1+1), 2 < 9-4=5 → deserted
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.passed).toBe(false);
     expect(result.departureType).toBe('deserted');
   });
 
   it('should set departureType to retired when roll < targetNumber but >= targetNumber - 4', () => {
-    const person = createTestPerson({
+    const entry = createTestEntry({
       injuries: [
         {
           id: 'i1',
@@ -339,20 +352,22 @@ describe('checkTurnover', () => {
         },
       ],
     });
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     // 1 permanent injury = +1, base target 3, skill mod +1 (avg 4.5) = 5
     // Roll 3 (1+2), 3 < 5 → leaves, 3 >= 5-4=1 → retired
     const random = randomFor2d6(1, 2);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.passed).toBe(false);
     expect(result.departureType).toBe('retired');
   });
 
   it('should include modifier breakdown in result', () => {
-    const person = createTestPerson({ isFounder: true });
+    const entry = createTestEntry({ isFounder: true });
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const random = randomFor2d6(6, 6);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.modifiers).toBeDefined();
     expect(result.modifiers.length).toBeGreaterThan(0);
 
@@ -362,10 +377,11 @@ describe('checkTurnover', () => {
   });
 
   it('should calculate payout based on salary × multiplier', () => {
-    const person = createTestPerson();
+    const entry = createTestEntry();
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     if (!result.passed) {
       // Default salary 1000, default payout multiplier 12
       expect(result.payout.amount).toBe(12000);
@@ -373,37 +389,40 @@ describe('checkTurnover', () => {
   });
 
   it('should produce deterministic results with seeded random', () => {
-    const person = createTestPerson();
+    const entry = createTestEntry();
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const random1 = randomFor2d6(3, 4);
     const random2 = randomFor2d6(3, 4);
-    const result1 = checkTurnover(person, campaign, random1);
-    const result2 = checkTurnover(person, campaign, random2);
+    const result1 = checkTurnover(entry, pilot, campaign, random1);
+    const result2 = checkTurnover(entry, pilot, campaign, random2);
     expect(result1.roll).toBe(result2.roll);
     expect(result1.targetNumber).toBe(result2.targetNumber);
     expect(result1.passed).toBe(result2.passed);
   });
 
   it('should include personId and personName in result', () => {
-    const person = createTestPerson({ id: 'p-42', name: 'Jane Doe' });
+    const entry = createTestEntry({ pilotId: 'p-42', pilotName: 'Jane Doe' });
+    const pilot = createTestPilot({ id: 'p-42', name: 'Jane Doe' });
     const campaign = createTestCampaign();
     const random = randomFor2d6(6, 6);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.personId).toBe('p-42');
     expect(result.personName).toBe('Jane Doe');
   });
 
   it('should return zero payout when person stays', () => {
-    const person = createTestPerson();
+    const entry = createTestEntry();
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const random = randomFor2d6(6, 6);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     expect(result.passed).toBe(true);
     expect(result.payout.amount).toBe(0);
   });
 
   it('should return zero payout for deserters', () => {
-    const person = createTestPerson({
+    const entry = createTestEntry({
       injuries: [
         {
           id: 'i1',
@@ -452,31 +471,49 @@ describe('checkTurnover', () => {
         },
       ],
     });
+    const pilot = createTestPilot();
     const campaign = createTestCampaign();
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaign, random);
+    const result = checkTurnover(entry, pilot, campaign, random);
     if (result.departureType === 'deserted') {
       expect(result.payout.amount).toBe(0);
     }
   });
+
+  it('should apply NPC behavior: null pilot still processes turnover roll', () => {
+    const entry = createTestEntry();
+    const campaign = createTestCampaign();
+    const random = randomFor2d6(6, 6);
+    // NPCs (pilot === null) receive turnover rolls — PROCESS domain
+    const result = checkTurnover(entry, null, campaign, random);
+    expect(result.passed).toBe(true);
+    expect(result.modifiers.length).toBeGreaterThan(0);
+  });
 });
 
 describe('runTurnoverChecks', () => {
-  it('should process all ACTIVE personnel', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', name: 'Alice' }));
-    personnel.set('p2', createTestPerson({ id: 'p2', name: 'Bob' }));
-    personnel.set(
-      'p3',
-      createTestPerson({
-        id: 'p3',
-        name: 'Charlie',
-        status: PersonnelStatus.RETIRED,
+  it('should process all Active entries', () => {
+    const entries: ICampaignRosterEntry[] = [
+      createTestEntry({ pilotId: 'p1', pilotName: 'Alice' }),
+      createTestEntry({ pilotId: 'p2', pilotName: 'Bob' }),
+      createTestEntry({
+        pilotId: 'p3',
+        pilotName: 'Charlie',
+        status: CampaignPilotStatus.MIA,
       }),
-    );
-    const campaign = createTestCampaign({ personnel });
+    ];
+    const pilotsByPilotId = new Map<string, IPilot>([
+      ['p1', createTestPilot({ id: 'p1', name: 'Alice' })],
+      ['p2', createTestPilot({ id: 'p2', name: 'Bob' })],
+    ]);
+    const campaign = createTestCampaign();
     const random = randomFor2d6(6, 6);
-    const report = runTurnoverChecks(campaign, random);
+    const report = runTurnoverChecks(
+      entries,
+      pilotsByPilotId,
+      campaign,
+      random,
+    );
     expect(report.results.length).toBe(3);
     const activeResults = report.results.filter(
       (r) => r.personId === 'p1' || r.personId === 'p2',
@@ -485,22 +522,57 @@ describe('runTurnoverChecks', () => {
   });
 
   it('should include summary counts in report', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', name: 'Alice' }));
-    const campaign = createTestCampaign({ personnel });
+    const entries: ICampaignRosterEntry[] = [
+      createTestEntry({ pilotId: 'p1', pilotName: 'Alice' }),
+    ];
+    const pilotsByPilotId = new Map<string, IPilot>([
+      ['p1', createTestPilot({ id: 'p1', name: 'Alice' })],
+    ]);
+    const campaign = createTestCampaign();
     const random = randomFor2d6(6, 6);
-    const report = runTurnoverChecks(campaign, random);
+    const report = runTurnoverChecks(
+      entries,
+      pilotsByPilotId,
+      campaign,
+      random,
+    );
     expect(report.totalChecked).toBeDefined();
     expect(report.totalDepartures).toBeDefined();
     expect(report.totalPayout).toBeDefined();
   });
 
-  it('should return empty results for campaign with no personnel', () => {
+  it('should return empty results for empty entries array', () => {
+    const entries: ICampaignRosterEntry[] = [];
+    const pilotsByPilotId = new Map<string, IPilot>();
     const campaign = createTestCampaign();
     const random = randomFor2d6(6, 6);
-    const report = runTurnoverChecks(campaign, random);
+    const report = runTurnoverChecks(
+      entries,
+      pilotsByPilotId,
+      campaign,
+      random,
+    );
     expect(report.results).toHaveLength(0);
     expect(report.totalChecked).toBe(0);
     expect(report.totalDepartures).toBe(0);
+  });
+
+  it('should resolve NPC entries (no vault counterpart) to null pilot', () => {
+    // NPC entry: pilotId not in vault map → pilot resolves to null → still rolls
+    const entries: ICampaignRosterEntry[] = [
+      createTestEntry({ pilotId: 'npc-001', pilotName: 'NPC Grunt' }),
+    ];
+    const pilotsByPilotId = new Map<string, IPilot>(); // empty vault
+    const campaign = createTestCampaign();
+    const random = randomFor2d6(6, 6);
+    const report = runTurnoverChecks(
+      entries,
+      pilotsByPilotId,
+      campaign,
+      random,
+    );
+    expect(report.results).toHaveLength(1);
+    expect(report.results[0].personId).toBe('npc-001');
+    expect(report.results[0].passed).toBe(true);
   });
 });

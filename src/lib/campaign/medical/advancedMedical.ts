@@ -11,8 +11,11 @@
  * @module campaign/medical/advancedMedical
  */
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
+
 import { ICampaignOptions } from '@/types/campaign/Campaign';
-import { IPerson, IInjury } from '@/types/campaign/Person';
+import { IInjury } from '@/types/campaign/Person';
 
 import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
 import { RandomFn } from './standardMedical';
@@ -65,23 +68,37 @@ export function rollD100(random: RandomFn): number {
 }
 
 /**
- * Gets medicine skill value for a doctor
- * @stub Plan 7 - Replace with actual skill lookup when available
- * @param _doctor - The doctor person
+ * Gets medicine skill value for a doctor.
+ *
+ * @stub Plan 7 - IPilot.skills only carries gunnery/piloting; medicine skill
+ * will be added in a future change. Returns hardcoded 70 until then.
+ *
+ * @param _doctorEntry - The doctor roster entry
+ * @param _pilot - The doctor's vault pilot (null for NPC doctors)
  * @returns Medicine skill value (default 70)
  */
-function getMedicineSkillValue(_doctor: IPerson): number {
+function getMedicineSkillValue(
+  _doctorEntry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
+): number {
   // @stub Plan 7 - Replace with actual skill lookup
   return 70;
 }
 
 /**
- * Gets experience level for a doctor
- * @stub Plan 7 - Replace with actual experience lookup when available
- * @param _doctor - The doctor person
+ * Gets experience level for a doctor.
+ *
+ * @stub Plan 7 - IPilot.skills only carries gunnery/piloting; experience
+ * level lookup will be added in a future change. Returns 'regular' until then.
+ *
+ * @param _doctorEntry - The doctor roster entry
+ * @param _pilot - The doctor's vault pilot (null for NPC doctors)
  * @returns Experience level (default 'regular')
  */
-function getExperienceLevel(_doctor: IPerson): ExperienceLevel {
+function getExperienceLevel(
+  _doctorEntry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
+): ExperienceLevel {
   // @stub Plan 7 - Replace with actual experience lookup
   return 'regular';
 }
@@ -91,15 +108,18 @@ function getExperienceLevel(_doctor: IPerson): ExperienceLevel {
 // =============================================================================
 
 /**
- * Handles untreated injury with 30% chance of worsening per day
+ * Handles untreated injury with 30% chance of worsening per day.
  *
- * @param patient - The injured person
+ * NPC behavior: NPCs heal too (medical domain = PROCESS). Entry is the sole
+ * source of truth for identity; no vault pilot is needed for untreated checks.
+ *
+ * @param patientEntry - The injured person's roster entry
  * @param injury - The injury being treated
  * @param random - Injectable random function (0-1)
  * @returns Medical check result (worsened or no_change)
  */
 export function untreatedAdvanced(
-  patient: IPerson,
+  patientEntry: ICampaignRosterEntry,
   injury: IInjury,
   random: RandomFn,
 ): IMedicalCheckResult {
@@ -109,7 +129,7 @@ export function untreatedAdvanced(
   const modifiers = [{ name: 'Untreated', value: 0 }];
 
   return {
-    patientId: patient.id,
+    patientId: patientEntry.pilotId,
     system: MedicalSystem.ADVANCED,
     roll: 0,
     targetNumber: 0,
@@ -126,7 +146,7 @@ export function untreatedAdvanced(
 // =============================================================================
 
 /**
- * Advanced medical check with d100 roll system
+ * Advanced medical check with d100 roll system.
  *
  * Doctor performs Medicine skill check using d100:
  * - Roll d100 (1-100)
@@ -141,28 +161,35 @@ export function untreatedAdvanced(
  * - Veteran: fumble 10, crit 85
  * - Elite: fumble 5, crit 80
  *
- * @param patient - The injured person
+ * NPC behavior: NPCs heal too (medical domain = PROCESS). Pass
+ * `doctorEntry = null` when no doctor is available (untreated path).
+ * NPC patients resolve identity from `patientEntry.pilotId`; NPC doctors
+ * from `doctorEntry.pilotId` when `doctorPilot` is null.
+ *
+ * @param patientEntry - The injured person's roster entry
  * @param injury - The injury being treated
- * @param doctor - The doctor (null = untreated)
+ * @param doctorEntry - The doctor's roster entry (null = untreated)
+ * @param doctorPilot - The doctor's vault pilot (null for NPCs or no doctor)
  * @param options - Campaign options
  * @param random - Injectable random function (0-1)
  * @returns Medical check result
  */
 export function advancedMedicalCheck(
-  patient: IPerson,
+  patientEntry: ICampaignRosterEntry,
   injury: IInjury,
-  doctor: IPerson | null,
+  doctorEntry: ICampaignRosterEntry | null,
+  doctorPilot: IPilot | null,
   options: ICampaignOptions,
   random: RandomFn,
 ): IMedicalCheckResult {
   // No doctor: use untreated advanced
-  if (!doctor) {
-    return untreatedAdvanced(patient, injury, random);
+  if (!doctorEntry) {
+    return untreatedAdvanced(patientEntry, injury, random);
   }
 
   // Get medicine skill and experience level
-  const medicineSkill = getMedicineSkillValue(doctor);
-  const experienceLevel = getExperienceLevel(doctor);
+  const medicineSkill = getMedicineSkillValue(doctorEntry, doctorPilot);
+  const experienceLevel = getExperienceLevel(doctorEntry, doctorPilot);
 
   // Get fumble and crit thresholds
   const fumbleThreshold = FUMBLE_THRESHOLDS[experienceLevel];
@@ -202,8 +229,8 @@ export function advancedMedicalCheck(
   }
 
   return {
-    patientId: patient.id,
-    doctorId: doctor.id,
+    patientId: patientEntry.pilotId,
+    doctorId: doctorEntry.pilotId,
     system: MedicalSystem.ADVANCED,
     roll,
     targetNumber: medicineSkill,

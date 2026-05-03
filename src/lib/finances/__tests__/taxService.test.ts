@@ -2,14 +2,12 @@ import { describe, it, expect } from '@jest/globals';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import type { IPerson } from '@/types/campaign/Person';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
-import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { Money } from '@/types/campaign/Money';
 import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
@@ -21,51 +19,65 @@ import {
   FOOD_AND_HOUSING_COSTS,
 } from '../taxService';
 
+// =============================================================================
+// Test Fixtures
+// =============================================================================
+
 /**
- * Cluster E PR1 — IPerson fixtures are now synthesized via the
- * `(rosterEntry, vaultPilot) → rosterEntryToPerson()` bridge so the
- * test substrate exercises the same shim production code uses to
- * adapt the new roster-employment substrate to legacy `IPerson`-shaped
- * helpers. Tax-service tests need test-only states (POW, KIA) and
- * roles (ADMIN_COMMAND) — those still arrive via the `overrides` spread
- * because the bridge cannot synthesize them from the 5-value
- * `CampaignPilotStatus` enum or the bridge's hardcoded PILOT role.
+ * Builds a minimal valid ICampaignRosterEntry for tax/overhead/food tests.
  */
-function makePerson(overrides: Partial<IPerson> = {}): IPerson {
-  const id = overrides.id ?? 'person-1';
-  const name = overrides.name ?? 'Test Person';
-  const entry: ICampaignRosterEntry = {
-    pilotId: id,
-    pilotName: name,
+function makeRosterEntry(
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: 'pilot-1',
+    pilotName: 'Test Pilot',
     status: CampaignPilotStatus.Active,
     wounds: 0,
     recoveryTime: 0,
     xp: 0,
-    campaignXpEarned: overrides.totalXpEarned ?? 0,
+    campaignXpEarned: 0,
     campaignKills: 0,
     campaignMissions: 0,
     hireDate: new Date('3025-01-01'),
     primaryRole: CampaignPersonnelRole.PILOT,
     rankIndex: 0,
+    ...overrides,
   };
-  const vault: IPilot = {
+}
+
+/**
+ * Builds a minimal IPilot for overhead (salary) calculations.
+ */
+function makeVaultPilot(id: string, totalXpEarned = 500): IPilot {
+  return {
     id,
-    name,
+    name: 'Test Pilot',
     type: PilotType.Persistent,
     status: PilotStatus.Active,
     skills: { gunnery: 4, piloting: 5 },
     wounds: 0,
     abilities: [],
-    awards: [],
+    career: {
+      missionsCompleted: 0,
+      victories: 0,
+      defeats: 0,
+      draws: 0,
+      totalKills: 0,
+      killRecords: [],
+      missionHistory: [],
+      xp: totalXpEarned,
+      totalXpEarned,
+      rank: 'MechWarrior',
+    },
     createdAt: '3025-01-01T00:00:00Z',
     updatedAt: '3025-01-01T00:00:00Z',
   };
-  const base = rosterEntryToPerson(entry, vault);
-  return { ...base, ...overrides };
 }
 
 describe('taxService', () => {
-  // Helper to create a minimal campaign
+  // Helper to create a minimal campaign — used for calculateTaxes / calculateProfits
+  // which still take ICampaign directly (finances + options only).
   function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
     return {
       id: 'test-campaign',
@@ -285,201 +297,138 @@ describe('taxService', () => {
 
   describe('calculateMonthlyOverhead', () => {
     it('should calculate overhead as 5% of salary total', () => {
-      const campaign = createTestCampaign({
-        personnel: new Map([
-          [
-            'pilot-1',
-            makePerson({
-              id: 'pilot-1',
-              name: 'Test Pilot',
-              primaryRole: CampaignPersonnelRole.PILOT,
-              status: PersonnelStatus.ACTIVE,
-              totalXpEarned: 500,
-            }),
-          ],
-        ]),
-        options: {
-          ...createTestCampaign().options,
-          payForSalaries: true,
-          salaryMultiplier: 1.0,
-          overheadPercent: 5,
-        },
-      });
+      // One PILOT at regular XP (500) = 1500 salary; 5% overhead = 75
+      const entries = [
+        makeRosterEntry({
+          pilotId: 'pilot-1',
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
+      ];
+      const pilotsMap = new Map([['pilot-1', makeVaultPilot('pilot-1', 500)]]);
+      const options = {
+        ...createTestCampaign().options,
+        payForSalaries: true,
+        salaryMultiplier: 1.0,
+        overheadPercent: 5,
+      };
 
-      const overhead = calculateMonthlyOverhead(campaign);
+      const overhead = calculateMonthlyOverhead(entries, pilotsMap, options);
       const expectedSalary = 1500;
       const expectedOverhead = expectedSalary * 0.05;
       expect(overhead.amount).toBeCloseTo(expectedOverhead, 2);
     });
 
     it('should return zero overhead when salaries are disabled', () => {
-      const campaign = createTestCampaign({
-        personnel: new Map([
-          [
-            'pilot-1',
-            makePerson({
-              id: 'pilot-1',
-              name: 'Test Pilot',
-              primaryRole: CampaignPersonnelRole.PILOT,
-              status: PersonnelStatus.ACTIVE,
-              totalXpEarned: 500,
-            }),
-          ],
-        ]),
-        options: {
-          ...createTestCampaign().options,
-          payForSalaries: false,
-          overheadPercent: 5,
-        },
-      });
+      const entries = [
+        makeRosterEntry({
+          pilotId: 'pilot-1',
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
+      ];
+      const pilotsMap = new Map([['pilot-1', makeVaultPilot('pilot-1', 500)]]);
+      const options = {
+        ...createTestCampaign().options,
+        payForSalaries: false,
+        overheadPercent: 5,
+      };
 
-      const overhead = calculateMonthlyOverhead(campaign);
+      const overhead = calculateMonthlyOverhead(entries, pilotsMap, options);
       expect(overhead.isZero()).toBe(true);
     });
   });
 
   describe('calculateFoodAndHousing', () => {
-    it('should calculate food/housing for officer', () => {
-      const campaign = createTestCampaign({
-        personnel: new Map([
-          [
-            'officer-1',
-            makePerson({
-              id: 'officer-1',
-              name: 'Commander',
-              primaryRole: CampaignPersonnelRole.ADMIN_COMMAND,
-              status: PersonnelStatus.ACTIVE,
-              totalXpEarned: 500,
-            }),
-          ],
-        ]),
-      });
+    it('should calculate food/housing for officer (ADMIN_COMMAND role)', () => {
+      const entries = [
+        makeRosterEntry({
+          pilotId: 'officer-1',
+          primaryRole: CampaignPersonnelRole.ADMIN_COMMAND,
+          status: CampaignPilotStatus.Active,
+        }),
+      ];
 
-      const cost = calculateFoodAndHousing(campaign);
+      const cost = calculateFoodAndHousing(entries);
       expect(cost.amount).toBe(FOOD_AND_HOUSING_COSTS.officer);
     });
 
-    it('should calculate food/housing for enlisted', () => {
-      const campaign = createTestCampaign({
-        personnel: new Map([
-          [
-            'pilot-1',
-            makePerson({
-              id: 'pilot-1',
-              name: 'Pilot',
-              primaryRole: CampaignPersonnelRole.PILOT,
-              status: PersonnelStatus.ACTIVE,
-              totalXpEarned: 500,
-            }),
-          ],
-        ]),
-      });
+    it('should calculate food/housing for enlisted (non-officer role)', () => {
+      const entries = [
+        makeRosterEntry({
+          pilotId: 'pilot-1',
+          primaryRole: CampaignPersonnelRole.PILOT,
+          status: CampaignPilotStatus.Active,
+        }),
+      ];
 
-      const cost = calculateFoodAndHousing(campaign);
+      const cost = calculateFoodAndHousing(entries);
       expect(cost.amount).toBe(FOOD_AND_HOUSING_COSTS.enlisted);
     });
 
-    it('should calculate food/housing for prisoner', () => {
-      const campaign = createTestCampaign({
-        personnel: new Map([
-          [
-            'pow-1',
-            makePerson({
-              id: 'pow-1',
-              name: 'Prisoner',
-              primaryRole: CampaignPersonnelRole.PILOT,
-              status: PersonnelStatus.POW,
-              totalXpEarned: 500,
-            }),
-          ],
-        ]),
-      });
+    it('should skip KIA personnel', () => {
+      // One alive pilot (enlisted) + one KIA pilot — KIA does not incur food/housing costs
+      const entries = [
+        makeRosterEntry({
+          pilotId: 'pilot-1',
+          primaryRole: CampaignPersonnelRole.PILOT,
+          status: CampaignPilotStatus.Active,
+        }),
+        makeRosterEntry({
+          pilotId: 'kia-1',
+          primaryRole: CampaignPersonnelRole.PILOT,
+          status: CampaignPilotStatus.KIA,
+        }),
+      ];
 
-      const cost = calculateFoodAndHousing(campaign);
-      expect(cost.amount).toBe(FOOD_AND_HOUSING_COSTS.prisoner);
-    });
-
-    it('should skip non-alive personnel', () => {
-      const campaign = createTestCampaign({
-        personnel: new Map([
-          [
-            'pilot-1',
-            makePerson({
-              id: 'pilot-1',
-              name: 'Alive Pilot',
-              primaryRole: CampaignPersonnelRole.PILOT,
-              status: PersonnelStatus.ACTIVE,
-              totalXpEarned: 500,
-            }),
-          ],
-          [
-            'kia-1',
-            makePerson({
-              id: 'kia-1',
-              name: 'Dead Pilot',
-              primaryRole: CampaignPersonnelRole.PILOT,
-              status: PersonnelStatus.KIA,
-              totalXpEarned: 500,
-            }),
-          ],
-        ]),
-      });
-
-      const cost = calculateFoodAndHousing(campaign);
+      const cost = calculateFoodAndHousing(entries);
       expect(cost.amount).toBe(FOOD_AND_HOUSING_COSTS.enlisted);
     });
 
-    it('should calculate total for multiple personnel', () => {
-      const campaign = createTestCampaign({
-        personnel: new Map([
-          [
-            'officer-1',
-            makePerson({
-              id: 'officer-1',
-              name: 'Commander',
-              primaryRole: CampaignPersonnelRole.ADMIN_COMMAND,
-              status: PersonnelStatus.ACTIVE,
-              totalXpEarned: 500,
-            }),
-          ],
-          [
-            'pilot-1',
-            makePerson({
-              id: 'pilot-1',
-              name: 'Pilot 1',
-              primaryRole: CampaignPersonnelRole.PILOT,
-              status: PersonnelStatus.ACTIVE,
-              totalXpEarned: 500,
-            }),
-          ],
-          [
-            'pilot-2',
-            makePerson({
-              id: 'pilot-2',
-              name: 'Pilot 2',
-              primaryRole: CampaignPersonnelRole.PILOT,
-              status: PersonnelStatus.ACTIVE,
-              totalXpEarned: 500,
-            }),
-          ],
-          [
-            'pow-1',
-            makePerson({
-              id: 'pow-1',
-              name: 'Prisoner',
-              primaryRole: CampaignPersonnelRole.PILOT,
-              status: PersonnelStatus.POW,
-              totalXpEarned: 500,
-            }),
-          ],
-        ]),
-      });
+    it('should include Wounded, Critical, and MIA personnel (all alive statuses)', () => {
+      // CampaignPilotStatus has no POW/RETIRED/DESERTED. All non-KIA incur costs.
+      const entries = [
+        makeRosterEntry({
+          pilotId: 'p1',
+          primaryRole: CampaignPersonnelRole.PILOT,
+          status: CampaignPilotStatus.Wounded,
+        }),
+        makeRosterEntry({
+          pilotId: 'p2',
+          primaryRole: CampaignPersonnelRole.PILOT,
+          status: CampaignPilotStatus.Critical,
+        }),
+        makeRosterEntry({
+          pilotId: 'p3',
+          primaryRole: CampaignPersonnelRole.PILOT,
+          status: CampaignPilotStatus.MIA,
+        }),
+      ];
 
-      const cost = calculateFoodAndHousing(campaign);
+      const cost = calculateFoodAndHousing(entries);
+      expect(cost.amount).toBe(FOOD_AND_HOUSING_COSTS.enlisted * 3);
+    });
+
+    it('should calculate total for multiple personnel (1 officer + 2 enlisted)', () => {
+      const entries = [
+        makeRosterEntry({
+          pilotId: 'officer-1',
+          primaryRole: CampaignPersonnelRole.ADMIN_COMMAND,
+          status: CampaignPilotStatus.Active,
+        }),
+        makeRosterEntry({
+          pilotId: 'pilot-1',
+          primaryRole: CampaignPersonnelRole.PILOT,
+          status: CampaignPilotStatus.Active,
+        }),
+        makeRosterEntry({
+          pilotId: 'pilot-2',
+          primaryRole: CampaignPersonnelRole.PILOT,
+          status: CampaignPilotStatus.Active,
+        }),
+      ];
+
+      const cost = calculateFoodAndHousing(entries);
       const expected =
-        FOOD_AND_HOUSING_COSTS.officer +
-        FOOD_AND_HOUSING_COSTS.enlisted * 2 +
-        FOOD_AND_HOUSING_COSTS.prisoner;
+        FOOD_AND_HOUSING_COSTS.officer + FOOD_AND_HOUSING_COSTS.enlisted * 2;
       expect(cost.amount).toBe(expected);
     });
   });

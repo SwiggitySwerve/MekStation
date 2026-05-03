@@ -8,281 +8,318 @@
  * @module campaign/skills/skillHelpers
  */
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
+
 import { SKILL_CATALOG } from '@/constants/campaign/skillCatalog';
-import { IPerson } from '@/types/campaign/Person';
-import { getSkillValue } from '@/types/campaign/skills';
 
 /**
- * Gets the skill desirability modifier for a person.
+ * Gets the skill desirability modifier for a roster entry.
  *
  * Used by Plan 2 (Turnover) to determine how desirable a person is
  * for retention. Higher skill levels increase desirability.
  *
- * Calculation: Sum of all skill levels (max 10 per skill)
+ * Calculation: Sum of all pilot combat skill values (gunnery + piloting).
  *
- * @param person - The character to evaluate
- * @returns The total desirability modifier (0 if no skills)
+ * NPC behavior: SKIP — returns 0 when pilot is null. Skill desirability is
+ * vault-only since NPC skill identity lives on statblockData, not a vault IPilot.
+ *
+ * @stub Plan 7 — IPilot.skills only carries gunnery/piloting today. When the
+ * vault gains a full skill catalog the sum will cover all skill levels.
+ *
+ * @param _entry - The roster entry (reserved for future role-weighted desirability)
+ * @param pilot - The vault pilot (null for NPCs)
+ * @returns The total desirability modifier (0 if no pilot or no skills)
  *
  * @example
- * // Person with gunnery 4 and piloting 5
- * const modifier = getSkillDesirabilityModifier(person);
+ * // Pilot with gunnery 4 and piloting 5
+ * const modifier = getSkillDesirabilityModifier(entry, pilot);
  * // modifier = 4 + 5 = 9
  */
-export function getSkillDesirabilityModifier(person: IPerson): number {
-  let total = 0;
+export function getSkillDesirabilityModifier(
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+): number {
+  // NPC SKIP: vault-only operation
+  if (pilot === null) return 0;
 
-  for (const skill of Object.values(person.skills)) {
-    total += skill.level;
-  }
-
-  return total;
+  // Sum the available combat skill values. IPilot.skills only has gunnery +
+  // piloting today; this will expand in Plan 7 when the full skill catalog lands.
+  return pilot.skills.gunnery + pilot.skills.piloting;
 }
 
 /**
- * Gets the effective tech skill value for a person.
+ * Gets the effective tech skill value for a roster entry.
  *
  * Used by Plan 3 (Repair) to determine repair capability.
  * Returns the highest tech-related skill value, or 10 (unskilled) if none.
  *
  * Tech skills checked: tech-mech, tech-vehicle, tech-aerospace, astech
  *
- * @param person - The character to evaluate
+ * NPC behavior: SKIP — returns 10 (unskilled) when pilot is null.
+ *
+ * @stub Plan 7 — IPilot.skills only carries gunnery/piloting today. Tech skills
+ * are not yet stored on the vault IPilot; returns 10 (unskilled) until then.
+ *
+ * @param _entry - The roster entry (reserved for future use)
+ * @param pilot - The vault pilot (null for NPCs)
  * @returns The tech skill value (0-10), or 10 if unskilled
  *
  * @example
- * // Person with tech-mech 5
- * const value = getTechSkillValue(person);
- * // value = 5
- *
- * // Person with no tech skills
- * const value = getTechSkillValue(person);
+ * // Pilot with no tech skills (current stub behavior)
+ * const value = getTechSkillValue(entry, pilot);
  * // value = 10 (unskilled penalty)
  */
-export function getTechSkillValue(person: IPerson): number {
-  const techSkillIds = [
-    'tech-mech',
-    'tech-vehicle',
-    'tech-aerospace',
-    'astech',
-  ];
-  let bestValue = 10;
+export function getTechSkillValue(
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+): number {
+  // NPC SKIP: vault-only operation
+  if (pilot === null) return 10;
 
-  for (const skillId of techSkillIds) {
-    const skill = person.skills[skillId];
-    if (skill) {
-      const skillType = SKILL_CATALOG[skillId];
-      if (skillType) {
-        const value = getSkillValue(skill, skillType, person.attributes);
-        bestValue = Math.min(bestValue, value);
-      }
-    }
-  }
-
-  return bestValue;
+  // @stub Plan 7 — IPilot.skills has no tech skill fields yet.
+  // When Plan 7 lands, iterate tech skill IDs and return min value via SKILL_CATALOG.
+  // Until then, all pilots are treated as unskilled for tech purposes.
+  void SKILL_CATALOG; // keep import alive for Plan 7 implementation
+  return 10;
 }
 
 /**
- * Gets the effective admin skill value for a person.
+ * Gets the effective admin skill value for a roster entry.
  *
  * Used by Plan 4 (Financial) for HR and administrative tasks.
  * Returns the administration skill value, or 10 (unskilled) if missing.
  *
- * @param person - The character to evaluate
+ * NPC behavior: SKIP — returns 10 (unskilled) when pilot is null.
+ *
+ * @stub Plan 7 — IPilot.skills only carries gunnery/piloting today. The
+ * administration skill is not yet stored on the vault IPilot; returns 10 until then.
+ *
+ * @param _entry - The roster entry (reserved for future use)
+ * @param pilot - The vault pilot (null for NPCs)
  * @returns The admin skill value (0-10), or 10 if unskilled
  *
  * @example
- * // Person with administration 5
- * const value = getAdminSkillValue(person);
- * // value = 5
+ * // Pilot with no admin skill (current stub behavior)
+ * const value = getAdminSkillValue(entry, pilot);
+ * // value = 10 (unskilled)
  */
-export function getAdminSkillValue(person: IPerson): number {
-  const skill = person.skills.administration;
+export function getAdminSkillValue(
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+): number {
+  // NPC SKIP: vault-only operation
+  if (pilot === null) return 10;
 
-  if (!skill) {
-    return 10;
-  }
-
-  const skillType = SKILL_CATALOG.administration;
-  if (!skillType) {
-    return 10;
-  }
-
-  return getSkillValue(skill, skillType, person.attributes);
+  // @stub Plan 7 — IPilot.skills has no administration field yet.
+  // When Plan 7 lands: read pilot.skills.administration and compute via SKILL_CATALOG.
+  return 10;
 }
 
 /**
- * Gets the effective medicine skill value for a person.
+ * Gets the effective medicine skill value for a roster entry.
  *
  * Used by Plan 8 (Medical) for medical treatment and healing.
  * Returns the medicine skill value, or 10 (unskilled) if missing.
  *
- * @param person - The character to evaluate
+ * NPC behavior: SKIP — returns 10 (unskilled) when pilot is null.
+ *
+ * @stub Plan 7 — IPilot.skills only carries gunnery/piloting today. The
+ * medicine skill is not yet stored on the vault IPilot; returns 10 until then.
+ *
+ * @param _entry - The roster entry (reserved for future use)
+ * @param pilot - The vault pilot (null for NPCs)
  * @returns The medicine skill value (0-10), or 10 if unskilled
  *
  * @example
- * // Person with medicine 5
- * const value = getMedicineSkillValue(person);
- * // value = 5
+ * // Pilot with no medicine skill (current stub behavior)
+ * const value = getMedicineSkillValue(entry, pilot);
+ * // value = 10 (unskilled)
  */
-export function getMedicineSkillValue(person: IPerson): number {
-  const skill = person.skills.medicine;
+export function getMedicineSkillValue(
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+): number {
+  // NPC SKIP: vault-only operation
+  if (pilot === null) return 10;
 
-  if (!skill) {
-    return 10;
-  }
-
-  const skillType = SKILL_CATALOG.medicine;
-  if (!skillType) {
-    return 10;
-  }
-
-  return getSkillValue(skill, skillType, person.attributes);
+  // @stub Plan 7 — IPilot.skills has no medicine field yet.
+  // When Plan 7 lands: read pilot.skills.medicine and compute via SKILL_CATALOG.
+  return 10;
 }
 
 /**
- * Gets the negotiation modifier for a person.
+ * Gets the negotiation modifier for a roster entry.
  *
  * Used by Plan 9 (Acquisition) for equipment negotiation and trading.
  * Returns the negotiation skill value, or 10 (unskilled) if missing.
  *
- * @param person - The character to evaluate
+ * NPC behavior: SKIP — returns 10 (unskilled) when pilot is null.
+ *
+ * @stub Plan 7 — IPilot.skills only carries gunnery/piloting today. The
+ * negotiation skill is not yet stored on the vault IPilot; returns 10 until then.
+ *
+ * @param _entry - The roster entry (reserved for future use)
+ * @param pilot - The vault pilot (null for NPCs)
  * @returns The negotiation modifier (0-10), or 10 if unskilled
  *
  * @example
- * // Person with negotiation 4
- * const modifier = getNegotiationModifier(person);
- * // modifier = 4
+ * // Pilot with no negotiation skill (current stub behavior)
+ * const modifier = getNegotiationModifier(entry, pilot);
+ * // modifier = 10 (unskilled)
  */
-export function getNegotiationModifier(person: IPerson): number {
-  const skill = person.skills.negotiation;
+export function getNegotiationModifier(
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+): number {
+  // NPC SKIP: vault-only operation
+  if (pilot === null) return 10;
 
-  if (!skill) {
-    return 10;
-  }
-
-  const skillType = SKILL_CATALOG.negotiation;
-  if (!skillType) {
-    return 10;
-  }
-
-  return getSkillValue(skill, skillType, person.attributes);
+  // @stub Plan 7 — IPilot.skills has no negotiation field yet.
+  // When Plan 7 lands: read pilot.skills.negotiation and compute via SKILL_CATALOG.
+  return 10;
 }
 
 /**
- * Gets the leadership skill value for a person.
+ * Gets the leadership skill value for a roster entry.
  *
  * Used by Plan 15 (Ranks) for command and leadership effectiveness.
  * Returns the leadership skill value, or 10 (unskilled) if missing.
  *
- * @param person - The character to evaluate
+ * NPC behavior: SKIP — returns 10 (unskilled) when pilot is null.
+ *
+ * @stub Plan 7 — IPilot.skills only carries gunnery/piloting today. The
+ * leadership skill is not yet stored on the vault IPilot; returns 10 until then.
+ *
+ * @param _entry - The roster entry (reserved for future use)
+ * @param pilot - The vault pilot (null for NPCs)
  * @returns The leadership skill value (0-10), or 10 if unskilled
  *
  * @example
- * // Person with leadership 6
- * const value = getLeadershipSkillValue(person);
- * // value = 6
+ * // Pilot with no leadership skill (current stub behavior)
+ * const value = getLeadershipSkillValue(entry, pilot);
+ * // value = 10 (unskilled)
  */
-export function getLeadershipSkillValue(person: IPerson): number {
-  const skill = person.skills.leadership;
+export function getLeadershipSkillValue(
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+): number {
+  // NPC SKIP: vault-only operation
+  if (pilot === null) return 10;
 
-  if (!skill) {
-    return 10;
-  }
-
-  const skillType = SKILL_CATALOG.leadership;
-  if (!skillType) {
-    return 10;
-  }
-
-  return getSkillValue(skill, skillType, person.attributes);
+  // @stub Plan 7 — IPilot.skills has no leadership field yet.
+  // When Plan 7 lands: read pilot.skills.leadership and compute via SKILL_CATALOG.
+  return 10;
 }
 
 /**
- * Checks if a person has a specific skill.
+ * Checks if a pilot has a specific combat skill by ID.
  *
- * Generic helper for checking skill existence.
+ * Generic helper for checking skill existence. Only combat skills present on
+ * IPilotSkills (gunnery, piloting) return true until Plan 7 expands the vault.
  *
- * @param person - The character to check
+ * NPC behavior: SKIP — returns false when pilot is null.
+ *
+ * @stub Plan 7 — IPilot.skills only carries gunnery/piloting today. When the
+ * vault gains a full skill catalog, this will check any skill ID.
+ *
+ * @param _entry - The roster entry (reserved for future use)
+ * @param pilot - The vault pilot (null for NPCs)
  * @param skillId - The skill ID to look for
- *
- * @returns true if the person has the skill, false otherwise
+ * @returns true if the pilot has the skill, false otherwise
  *
  * @example
- * if (hasSkill(person, 'gunnery')) {
- *   logger.debug('Person is a gunner');
+ * if (hasSkill(entry, pilot, 'gunnery')) {
+ *   logger.debug('Pilot is a gunner');
  * }
  */
-export function hasSkill(person: IPerson, skillId: string): boolean {
-  return skillId in person.skills;
+export function hasSkill(
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+  skillId: string,
+): boolean {
+  // NPC SKIP: vault-only operation
+  if (pilot === null) return false;
+
+  // Only gunnery and piloting exist on IPilot.skills today.
+  // Plan 7 will expand this to check the full skill catalog.
+  return skillId in pilot.skills;
 }
 
 /**
- * Gets the skill level for a person.
+ * Gets the skill level for a pilot by skill ID.
  *
- * Generic helper for retrieving skill level.
+ * Generic helper for retrieving skill level. Only combat skills present on
+ * IPilotSkills (gunnery, piloting) return a real value today.
  *
- * @param person - The character to check
+ * NPC behavior: SKIP — returns -1 when pilot is null.
+ *
+ * @stub Plan 7 — IPilot.skills only carries gunnery/piloting today. When the
+ * vault gains a full skill catalog, this will look up any skill ID.
+ *
+ * @param _entry - The roster entry (reserved for future use)
+ * @param pilot - The vault pilot (null for NPCs)
  * @param skillId - The skill ID to look up
- *
  * @returns The skill level (0-10), or -1 if the skill is not found
  *
  * @example
- * const level = getPersonSkillLevel(person, 'gunnery');
+ * const level = getPersonSkillLevel(entry, pilot, 'gunnery');
  * if (level === -1) {
- *   logger.debug('Person does not have gunnery skill');
+ *   logger.debug('Pilot does not have gunnery skill');
  * } else {
  *   logger.debug(`Gunnery level: ${level}`);
  * }
  */
-export function getPersonSkillLevel(person: IPerson, skillId: string): number {
-  const skill = person.skills[skillId];
-  return skill ? skill.level : -1;
+export function getPersonSkillLevel(
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+  skillId: string,
+): number {
+  // NPC SKIP: vault-only operation
+  if (pilot === null) return -1;
+
+  // Read from IPilotSkills: only gunnery and piloting are available today.
+  const skillValue = (
+    pilot.skills as unknown as Record<string, number | undefined>
+  )[skillId];
+  return skillValue !== undefined ? skillValue : -1;
 }
 
 /**
- * Gets the best combat skill for a person.
+ * Gets the best combat skill for a pilot.
  *
- * Finds the highest-level combat skill (gunnery, piloting, etc.).
- * Returns null if the person has no combat skills.
+ * Finds the highest-value combat skill (gunnery, piloting).
+ * Returns null if the pilot has no combat skills.
  *
- * Combat skills checked: gunnery, piloting, gunnery-aerospace,
- * piloting-aerospace, gunnery-vehicle, driving, gunnery-ba, anti-mek, small-arms
+ * NPC behavior: SKIP — returns null when pilot is null.
  *
- * @param person - The character to evaluate
+ * @stub Plan 7 — IPilot.skills only carries gunnery/piloting today. When the
+ * vault gains a full skill catalog, all combat skill types will be checked.
  *
- * @returns Object with skillId and level, or null if no combat skills
+ * @param _entry - The roster entry (reserved for future use)
+ * @param pilot - The vault pilot (null for NPCs)
+ * @returns Object with skillId and level, or null if no pilot
  *
  * @example
- * const best = getPersonBestCombatSkill(person);
+ * const best = getPersonBestCombatSkill(entry, pilot);
  * if (best) {
  *   logger.debug(`Best combat skill: ${best.skillId} at level ${best.level}`);
  * } else {
- *   logger.debug('No combat skills');
+ *   logger.debug('No combat skills (NPC or no pilot)');
  * }
  */
 export function getPersonBestCombatSkill(
-  person: IPerson,
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
 ): { skillId: string; level: number } | null {
-  const combatSkillIds = [
-    'gunnery',
-    'piloting',
-    'gunnery-aerospace',
-    'piloting-aerospace',
-    'gunnery-vehicle',
-    'driving',
-    'gunnery-ba',
-    'anti-mek',
-    'small-arms',
-  ];
+  // NPC SKIP: vault-only operation
+  if (pilot === null) return null;
 
-  let bestSkill: { skillId: string; level: number } | null = null;
-
-  for (const skillId of combatSkillIds) {
-    const skill = person.skills[skillId];
-    if (skill && (!bestSkill || skill.level > bestSkill.level)) {
-      bestSkill = { skillId, level: skill.level };
-    }
+  // Compare gunnery vs piloting from IPilotSkills. Plan 7 will expand this to
+  // iterate the full combat skill catalog (gunnery-aerospace, driving, etc.).
+  const { gunnery, piloting } = pilot.skills;
+  if (gunnery >= piloting) {
+    return { skillId: 'gunnery', level: gunnery };
   }
-
-  return bestSkill;
+  return { skillId: 'piloting', level: piloting };
 }

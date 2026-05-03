@@ -1,8 +1,8 @@
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type {
   IRandomEvent,
   RandomFn,
 } from '@/types/campaign/events/randomEventTypes';
-import type { IPerson } from '@/types/campaign/Person';
 
 import {
   rollForEvent,
@@ -10,7 +10,6 @@ import {
   isMonday,
   isFirstOfMonth,
 } from '@/lib/campaign/events/eventProbability';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import {
   RandomEventCategory,
   RandomEventSeverity,
@@ -29,14 +28,23 @@ export interface IPrisonerCapacity {
   readonly overflowPercentage: number;
 }
 
+/**
+ * Counts prisoners of war in the active roster.
+ *
+ * NPC behavior: PROCESS — status lives on the roster entry so NPCs and PCs
+ * are treated identically.
+ *
+ * NOTE: `CampaignPilotStatus` does not yet have a POW variant. This function
+ * always returns 0 until `CampaignPilotStatus.POW` is added to the enum.
+ * Tracked under FIXME(campaign-pilot-status-pow).
+ */
 export function countPrisoners(
-  personnel: ReadonlyMap<string, IPerson>,
+  entries: ReadonlyArray<ICampaignRosterEntry>,
 ): number {
-  let count = 0;
-  personnel.forEach((person) => {
-    if (person.status === PersonnelStatus.POW) count++;
-  });
-  return count;
+  // TODO(campaign-pilot-status-pow): replace with POW status check once
+  // CampaignPilotStatus.POW is added. For now returns 0 for all entries.
+  void entries;
+  return 0;
 }
 
 export function calculatePrisonerCapacity(

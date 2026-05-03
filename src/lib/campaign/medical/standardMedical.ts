@@ -10,8 +10,11 @@
  * @module campaign/medical/standardMedical
  */
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
+
 import { ICampaignOptions } from '@/types/campaign/Campaign';
-import { IPerson, IInjury } from '@/types/campaign/Person';
+import { IInjury } from '@/types/campaign/Person';
 
 import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
 
@@ -32,25 +35,36 @@ export function roll2d6(random: RandomFn): number {
 }
 
 /**
- * Gets medicine skill value for a doctor
- * @stub Plan 7 - Replace with actual skill lookup when available
- * @param _doctor - The doctor person
+ * Gets medicine skill value for a doctor.
+ *
+ * @stub Plan 7 - IPilot.skills only carries gunnery/piloting; medicine skill
+ * will be added in a future change. Returns hardcoded 7 until then.
+ *
+ * @param _doctorEntry - The doctor roster entry
+ * @param _pilot - The doctor's vault pilot (null for NPC doctors)
  * @returns Medicine skill value (default 7)
  */
-function getMedicineSkillValue(_doctor: IPerson): number {
+function getMedicineSkillValue(
+  _doctorEntry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
+): number {
   // @stub Plan 7 - Replace with actual skill lookup
   return 7;
 }
 
 /**
- * Gets shorthanded modifier based on doctor's patient load
+ * Gets shorthanded modifier based on doctor's patient load.
+ *
  * @stub Plan 7 - Replace with actual patient count lookup
- * @param _doctor - The doctor person
+ *
+ * @param _doctorEntry - The doctor roster entry
+ * @param _pilot - The doctor's vault pilot (null for NPC doctors)
  * @param _options - Campaign options
  * @returns Shorthanded modifier (0 if not overloaded)
  */
 function getShorthandedModifier(
-  _doctor: IPerson,
+  _doctorEntry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
   _options: ICampaignOptions,
 ): number {
   // @stub Plan 7 - Replace with actual patient count lookup
@@ -58,16 +72,19 @@ function getShorthandedModifier(
 }
 
 /**
- * Natural healing without a doctor
- * Much slower than with medical care
+ * Natural healing without a doctor.
+ * Much slower than with medical care.
  *
- * @param patient - The injured person
+ * NPC behavior: NPCs heal too (medical domain = PROCESS). Entry is the sole
+ * source of truth for identity; no vault pilot is needed for natural healing.
+ *
+ * @param patientEntry - The injured person's roster entry
  * @param injury - The injury being treated
  * @param options - Campaign options
  * @returns Medical check result (always no_change, waits for next period)
  */
 export function naturalHealing(
-  patient: IPerson,
+  patientEntry: ICampaignRosterEntry,
   injury: IInjury,
   options: ICampaignOptions,
 ): IMedicalCheckResult {
@@ -77,7 +94,7 @@ export function naturalHealing(
   ];
 
   return {
-    patientId: patient.id,
+    patientId: patientEntry.pilotId,
     system: MedicalSystem.STANDARD,
     roll: 0,
     targetNumber: 0,
@@ -90,7 +107,7 @@ export function naturalHealing(
 }
 
 /**
- * Standard medical check with doctor
+ * Standard medical check with doctor.
  *
  * Doctor performs Medicine skill check:
  * - Target Number = Medicine Skill + Modifiers
@@ -102,27 +119,34 @@ export function naturalHealing(
  * - Tougher Healing: +1 per injury beyond 2 (if enabled)
  * - Shorthanded: +X if doctor overloaded (Plan 7)
  *
- * @param patient - The injured person
+ * NPC behavior: NPCs heal too (medical domain = PROCESS). Pass
+ * `doctorEntry = null` when no doctor is available (natural healing path).
+ * NPC patients resolve injuries from `patientEntry.injuries ?? []`.
+ * NPC doctors from `doctorEntry.pilotId` when `doctorPilot` is null.
+ *
+ * @param patientEntry - The injured person's roster entry
  * @param injury - The injury being treated
- * @param doctor - The doctor (null = natural healing)
+ * @param doctorEntry - The doctor's roster entry (null = natural healing)
+ * @param doctorPilot - The doctor's vault pilot (null for NPCs or no doctor)
  * @param options - Campaign options
  * @param random - Injectable random function (0-1)
  * @returns Medical check result
  */
 export function standardMedicalCheck(
-  patient: IPerson,
+  patientEntry: ICampaignRosterEntry,
   injury: IInjury,
-  doctor: IPerson | null,
+  doctorEntry: ICampaignRosterEntry | null,
+  doctorPilot: IPilot | null,
   options: ICampaignOptions,
   random: RandomFn,
 ): IMedicalCheckResult {
   // No doctor: use natural healing
-  if (!doctor) {
-    return naturalHealing(patient, injury, options);
+  if (!doctorEntry) {
+    return naturalHealing(patientEntry, injury, options);
   }
 
   // Get medicine skill
-  const medicineSkill = getMedicineSkillValue(doctor);
+  const medicineSkill = getMedicineSkillValue(doctorEntry, doctorPilot);
 
   // Calculate modifiers
   const modifiers: { name: string; value: number }[] = [
@@ -130,13 +154,19 @@ export function standardMedicalCheck(
   ];
 
   // Tougher healing: +1 per injury beyond 2
-  const tougherHealingModifier = Math.max(0, patient.injuries.length - 2);
+  // Entry.injuries defaults to [] when unset (matches legacy IPerson.injuries semantics)
+  const patientInjuries = patientEntry.injuries ?? [];
+  const tougherHealingModifier = Math.max(0, patientInjuries.length - 2);
   if (tougherHealingModifier > 0) {
     modifiers.push({ name: 'Tougher Healing', value: tougherHealingModifier });
   }
 
   // Shorthanded modifier (Plan 7)
-  const shorthandedModifier = getShorthandedModifier(doctor, options);
+  const shorthandedModifier = getShorthandedModifier(
+    doctorEntry,
+    doctorPilot,
+    options,
+  );
   if (shorthandedModifier > 0) {
     modifiers.push({ name: 'Shorthanded', value: shorthandedModifier });
   }
@@ -155,8 +185,8 @@ export function standardMedicalCheck(
   const healingDaysReduced = margin >= 0 ? injury.daysToHeal : 0;
 
   return {
-    patientId: patient.id,
-    doctorId: doctor.id,
+    patientId: patientEntry.pilotId,
+    doctorId: doctorEntry.pilotId,
     system: MedicalSystem.STANDARD,
     roll,
     targetNumber,

@@ -1,7 +1,8 @@
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
-import type { IPerson } from '@/types/campaign/Person';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { Money } from '@/types/campaign/Money';
 
 import type { TurnoverModifierResult } from './modifiers/types';
@@ -34,17 +35,6 @@ const DEFAULT_PAYOUT_MULTIPLIER = 12;
 const DEFAULT_MONTHLY_SALARY = 1000;
 const DESERTION_THRESHOLD = 4;
 
-const SKIPPED_STATUSES = new Set<PersonnelStatus>([
-  PersonnelStatus.POW,
-  PersonnelStatus.MIA,
-  PersonnelStatus.STUDENT,
-  PersonnelStatus.KIA,
-  PersonnelStatus.RETIRED,
-  PersonnelStatus.DESERTED,
-  PersonnelStatus.MISSING,
-  PersonnelStatus.AWOL,
-]);
-
 export interface TurnoverCheckResult {
   readonly personId: string;
   readonly personName: string;
@@ -67,19 +57,41 @@ export function roll2d6(random: RandomFn): number {
   return Math.floor(random() * 6) + 1 + Math.floor(random() * 6) + 1;
 }
 
-/** @stub Returns flat monthly salary. Replace with Plan 4's salaryService when built. */
+/**
+ * Returns the flat monthly salary for a roster entry.
+ *
+ * @stub Replace with Plan 4's salaryService when built.
+ *
+ * NPC behavior: PROCESS — salary is roster-entry-scoped; NPCs and PCs follow
+ * the same default when no override is set.
+ */
 export function getPersonMonthlySalary(
-  _person: IPerson,
+  _entry: ICampaignRosterEntry,
   _options: ICampaignOptions,
 ): Money {
   return new Money(DEFAULT_MONTHLY_SALARY);
 }
 
-function isEligibleForCheck(person: IPerson, campaign: ICampaign): boolean {
-  if (person.status !== PersonnelStatus.ACTIVE) return false;
-  if (SKIPPED_STATUSES.has(person.status)) return false;
+/**
+ * Determines whether a roster entry is eligible for a turnover check.
+ *
+ * Only `Active` entries are checked. Wounded/Critical/MIA/KIA entries are
+ * skipped. The commander-immunity option bypasses the check for unit
+ * commanders.
+ *
+ * NPC behavior: PROCESS — departure rolls apply to NPCs and PCs alike.
+ */
+function isEligibleForCheck(
+  entry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
+  campaign: ICampaign,
+): boolean {
+  // Only active entries receive a turnover check
+  if (entry.status !== CampaignPilotStatus.Active) return false;
 
-  if (person.isCommander && campaign.options.turnoverCommanderImmune)
+  // Commander immunity: skip the check for the unit commander when the option
+  // is enabled; `isCommander` lives on the roster entry.
+  if (entry.isCommander && campaign.options.turnoverCommanderImmune)
     return false;
 
   return true;
@@ -94,8 +106,16 @@ function buildModifier(
   return { modifierId, displayName, value, isStub };
 }
 
+/**
+ * Assembles all turnover modifier contributions for a single roster entry.
+ *
+ * NPC behavior: individual modifiers define their own NPC handling (see each
+ * modifier's JSDoc). Aggregate behaviour: all modifiers whose domain is
+ * PROCESS fire; officer-status modifier early-returns 0 for NPCs.
+ */
 function calculateModifiers(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   campaign: ICampaign,
 ): TurnoverModifierResult[] {
   return [
@@ -105,26 +125,31 @@ function calculateModifiers(
       getBaseTargetModifier(campaign),
       false,
     ),
-    buildModifier('founder', 'Founder', getFounderModifier(person), false),
+    buildModifier(
+      'founder',
+      'Founder',
+      getFounderModifier(entry, pilot),
+      false,
+    ),
     buildModifier(
       'serviceContract',
       'Service Contract',
-      getServiceContractModifier(person),
+      getServiceContractModifier(entry, pilot),
       false,
     ),
     buildModifier(
       'skillDesirability',
       'Skill Desirability',
-      getSkillDesirabilityModifier(person, campaign),
+      getSkillDesirabilityModifier(entry, pilot, campaign),
       false,
     ),
     buildModifier(
       'recentPromotion',
       'Recent Promotion',
-      getRecentPromotionModifier(person, campaign),
+      getRecentPromotionModifier(entry, pilot, campaign),
       false,
     ),
-    buildModifier('fatigue', 'Fatigue', getFatigueModifier(person), true),
+    buildModifier('fatigue', 'Fatigue', getFatigueModifier(entry, pilot), true),
     buildModifier('hrStrain', 'HR Strain', getHRStrainModifier(campaign), true),
     buildModifier(
       'managementSkill',
@@ -135,7 +160,7 @@ function calculateModifiers(
     buildModifier(
       'shares',
       'Shares',
-      getSharesModifier(person, campaign),
+      getSharesModifier(entry, pilot, campaign),
       true,
     ),
     buildModifier(
@@ -156,7 +181,7 @@ function calculateModifiers(
       getMissionStatusModifier(campaign),
       false,
     ),
-    buildModifier('loyalty', 'Loyalty', getLoyaltyModifier(person), true),
+    buildModifier('loyalty', 'Loyalty', getLoyaltyModifier(entry, pilot), true),
     buildModifier(
       'factionCampaign',
       'Faction (Campaign)',
@@ -166,30 +191,43 @@ function calculateModifiers(
     buildModifier(
       'factionOrigin',
       'Faction (Origin)',
-      getFactionOriginModifier(person),
+      getFactionOriginModifier(entry, pilot),
       true,
     ),
-    buildModifier('age', 'Age', getAgeModifier(person, campaign), false),
+    buildModifier('age', 'Age', getAgeModifier(entry, pilot, campaign), false),
     buildModifier(
       'family',
       'Family',
-      getFamilyModifier(person, campaign),
+      getFamilyModifier(entry, pilot, campaign),
       true,
     ),
-    buildModifier('injuries', 'Injuries', getInjuryModifier(person), false),
+    buildModifier(
+      'injuries',
+      'Injuries',
+      getInjuryModifier(entry, pilot),
+      false,
+    ),
     buildModifier(
       'officer',
       'Officer Status',
-      getOfficerModifier(person),
+      getOfficerModifier(entry, pilot),
       false,
     ),
   ];
 }
 
-function createSkippedResult(person: IPerson): TurnoverCheckResult {
+/**
+ * Builds a skipped (passed) result for an ineligible entry.
+ *
+ * Uses `entry.pilotId` and `entry.pilotName` rather than synthesizing IPerson.
+ */
+function createSkippedResult(
+  entry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
+): TurnoverCheckResult {
   return {
-    personId: person.id,
-    personName: person.name,
+    personId: entry.pilotId,
+    personName: entry.pilotName,
     roll: 0,
     targetNumber: 0,
     modifiers: [],
@@ -199,24 +237,41 @@ function createSkippedResult(person: IPerson): TurnoverCheckResult {
   };
 }
 
+/**
+ * Runs a single turnover check for a roster entry.
+ *
+ * Skipped entries (ineligible status, commander immunity) return a passed
+ * result with empty modifiers. Eligible entries roll 2d6 against the sum of
+ * all applicable modifiers; failing entries receive a departure type (retired
+ * or deserted) and — for retirements — a severance payout.
+ *
+ * NPC behavior: PROCESS — departure rolls apply to NPCs and PCs alike. The
+ * individual modifiers handle domain-level NPC skipping (e.g., officer status).
+ *
+ * @param entry - The roster entry to check.
+ * @param pilot - Resolved vault pilot for the entry, or null for NPCs.
+ * @param campaign - Current campaign state (for options + modifiers).
+ * @param random - PRNG function (injectable for deterministic testing).
+ */
 export function checkTurnover(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   campaign: ICampaign,
   random: RandomFn,
 ): TurnoverCheckResult {
-  if (!isEligibleForCheck(person, campaign)) {
-    return createSkippedResult(person);
+  if (!isEligibleForCheck(entry, pilot, campaign)) {
+    return createSkippedResult(entry, pilot);
   }
 
-  const modifiers = calculateModifiers(person, campaign);
+  const modifiers = calculateModifiers(entry, pilot, campaign);
   const targetNumber = modifiers.reduce((sum, m) => sum + m.value, 0);
   const diceRoll = roll2d6(random);
   const passed = diceRoll >= targetNumber;
 
   if (passed) {
     return {
-      personId: person.id,
-      personName: person.name,
+      personId: entry.pilotId,
+      personName: entry.pilotName,
       roll: diceRoll,
       targetNumber,
       modifiers,
@@ -233,12 +288,12 @@ export function checkTurnover(
 
   const payoutMultiplier =
     campaign.options.turnoverPayoutMultiplier ?? DEFAULT_PAYOUT_MULTIPLIER;
-  const salary = getPersonMonthlySalary(person, campaign.options);
+  const salary = getPersonMonthlySalary(entry, campaign.options);
   const payout = isDesertion ? Money.ZERO : salary.multiply(payoutMultiplier);
 
   return {
-    personId: person.id,
-    personName: person.name,
+    personId: entry.pilotId,
+    personName: entry.pilotName,
     roll: diceRoll,
     targetNumber,
     modifiers,
@@ -248,15 +303,31 @@ export function checkTurnover(
   };
 }
 
+/**
+ * Runs turnover checks for all roster entries in a campaign.
+ *
+ * Accepts pre-joined pilot data (`pilotsByPilotId`) built once by the
+ * caller via `buildPilotLookup(vault)` — avoids O(N²) vault scans per entry.
+ * NPC entries (whose `pilotId` has no vault counterpart) resolve to null.
+ *
+ * NPC behavior: PROCESS — departure rolls apply to NPCs and PCs alike.
+ *
+ * @param entries - Roster entries to process (typically `rosterStore.pilots`).
+ * @param pilotsByPilotId - Pre-built vault lookup (pilot.id → IPilot).
+ * @param campaign - Current campaign state.
+ * @param random - PRNG function (injectable for deterministic testing).
+ */
 export function runTurnoverChecks(
+  entries: readonly ICampaignRosterEntry[],
+  pilotsByPilotId: ReadonlyMap<string, IPilot>,
   campaign: ICampaign,
   random: RandomFn,
 ): TurnoverReport {
   const results: TurnoverCheckResult[] = [];
 
-  const personnel = Array.from(campaign.personnel.values());
-  for (const person of personnel) {
-    results.push(checkTurnover(person, campaign, random));
+  for (const entry of entries) {
+    const pilot = pilotsByPilotId.get(entry.pilotId) ?? null;
+    results.push(checkTurnover(entry, pilot, campaign, random));
   }
 
   const departures = results.filter((r) => !r.passed);

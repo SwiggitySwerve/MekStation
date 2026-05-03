@@ -25,6 +25,8 @@ import {
   ICampaign,
   createDefaultCampaignOptions,
 } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import {
   PersonnelStatus,
@@ -87,6 +89,26 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
     ...overrides,
+  };
+}
+
+function makeRosterEntry(
+  id: string,
+  status: CampaignPilotStatus = CampaignPilotStatus.Active,
+): ICampaignRosterEntry {
+  return {
+    pilotId: id,
+    pilotName: 'Test Pilot',
+    status,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    hireDate: new Date('3025-01-01'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
   };
 }
 
@@ -736,7 +758,12 @@ describe('Campaign System Integration', () => {
       );
 
       const campaign = createTestCampaign({ personnel, forces });
-      const costs = calculateDailyCosts(campaign);
+      const rosterEntries: ICampaignRosterEntry[] = [
+        makeRosterEntry('p1', CampaignPilotStatus.Active),
+        makeRosterEntry('p2', CampaignPilotStatus.Wounded),
+        makeRosterEntry('p3', CampaignPilotStatus.KIA),
+      ];
+      const costs = calculateDailyCosts(campaign, rosterEntries);
 
       // p1 (ACTIVE) and p2 (WOUNDED) count for salary; p3 (KIA) excluded
       expect(costs.personnelCount).toBe(2);

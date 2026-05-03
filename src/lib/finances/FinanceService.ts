@@ -14,8 +14,9 @@
  */
 
 import { ICampaign } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { getAllUnits } from '@/types/campaign/Force';
 import { IFinances } from '@/types/campaign/IFinances';
@@ -132,33 +133,37 @@ export interface DailyCosts {
  *
  * Computes:
  * - Salary: DEFAULT_DAILY_SALARY * salaryMultiplier per eligible person
- *   (excludes KIA, RETIRED, DESERTED personnel)
+ *   (excludes KIA; Active/Wounded/Critical/MIA all incur daily salary)
  * - Maintenance: DEFAULT_DAILY_MAINTENANCE * maintenanceCostMultiplier per unit
  *
  * Respects campaign options:
  * - payForSalaries: if false, salary is zero
  * - payForMaintenance: if false, maintenance is zero
  *
- * @param campaign - The campaign to calculate costs for
+ * Pre-join pattern: callers build the roster entry array once via
+ * `useCampaignRosterStore.getState().pilots` and pass it here alongside
+ * the campaign (used only for forces/options).
+ *
+ * @param campaign - The campaign (used for forces/options only)
+ * @param rosterEntries - Pre-joined roster entries (replaces campaign.personnel)
  * @returns DailyCosts breakdown
  *
  * @example
- * const costs = calculateDailyCosts(campaign);
+ * const costs = calculateDailyCosts(campaign, entries);
  * logger.debug(`Salaries: ${costs.salaries.format()}`);
  * logger.debug(`Maintenance: ${costs.maintenance.format()}`);
  * logger.debug(`Total: ${costs.total.format()}`);
  */
-export function calculateDailyCosts(campaign: ICampaign): DailyCosts {
+export function calculateDailyCosts(
+  campaign: ICampaign,
+  rosterEntries: readonly ICampaignRosterEntry[],
+): DailyCosts {
   const { options } = campaign;
 
-  // Count eligible personnel (not KIA, RETIRED, or DESERTED)
-  const eligiblePersonnel = Array.from(campaign.personnel.values()).filter(
-    (p) =>
-      p.status !== PersonnelStatus.KIA &&
-      p.status !== PersonnelStatus.RETIRED &&
-      p.status !== PersonnelStatus.DESERTED,
-  );
-  const personnelCount = eligiblePersonnel.length;
+  // Count eligible personnel (only exclude KIA — Active/Wounded/Critical/MIA all pay)
+  const personnelCount = rosterEntries.filter(
+    (e) => e.status !== CampaignPilotStatus.KIA,
+  ).length;
 
   // Calculate salary costs
   let salaries = Money.ZERO;

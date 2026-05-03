@@ -214,3 +214,91 @@ export interface IPersonTraits {
   /** Days since last vocational training check (used for monthly vocational XP rolls) */
   readonly vocationalXPTimer?: number;
 }
+
+// =============================================================================
+// Progression Delta Types
+// =============================================================================
+
+/**
+ * Delta returned by XP award functions.
+ *
+ * - vault: increment pilot's lifetime XP tracking (null for NPCs)
+ * - roster: increment entry.xp and entry.campaignXpEarned (null for NPCs)
+ *
+ * The caller (PR3) commits these deltas atomically.
+ */
+export interface IXpAwardDelta {
+  readonly vault: null;
+  readonly roster: {
+    readonly pilotId: string;
+    /** Amount to add to entry.xp */
+    readonly xpDelta: number;
+    /** Amount to add to entry.campaignXpEarned */
+    readonly campaignXpDelta: number;
+  } | null;
+}
+
+/**
+ * Event emitted when aging effects are applied to a person.
+ */
+export interface IAgingEvent {
+  /** Event type identifier */
+  readonly type: 'aging';
+
+  /** ID of the pilot affected */
+  readonly personId: string;
+
+  /** Milestone that was entered */
+  readonly milestone: IAgingMilestone;
+
+  /** Age when milestone was entered */
+  readonly age: number;
+}
+
+/**
+ * Delta returned by aging functions.
+ *
+ * - vault: attribute changes to apply to pilot (null if no attributes changed)
+ * - roster: trait flags to merge into entry.traits (null if no trait changes)
+ * - events: aging events emitted during processing
+ */
+export interface IAgingDelta {
+  readonly vault: {
+    readonly pilotId: string;
+    /** Attribute changes to add (attribute name → delta value, e.g. { STR: -1.0 }) */
+    readonly attributeChanges: Record<string, number>;
+  } | null;
+  readonly roster: {
+    readonly pilotId: string;
+    /** Trait flags to merge into entry.traits */
+    readonly traitsDelta: Partial<IPersonTraits>;
+  } | null;
+  readonly events: readonly IAgingEvent[];
+}
+
+/**
+ * Delta returned by SPA purchase.
+ *
+ * - vault: new ability ref to append to pilot.abilities (null for NPCs or failure)
+ * - roster: XP delta to apply to entry (null for NPCs or failure)
+ * - success: whether the purchase succeeded
+ * - reason: failure reason if success is false
+ */
+export interface ISpaPurchaseDelta {
+  readonly vault: {
+    readonly pilotId: string;
+    /** New ability reference to append to pilot.abilities */
+    readonly newAbility: {
+      readonly abilityId: string;
+      readonly acquiredDate: string;
+      readonly xpSpent: number;
+    };
+  } | null;
+  readonly roster: {
+    readonly pilotId: string;
+    /** Amount to subtract from entry.xp (negative delta) */
+    readonly xpDelta: number;
+  } | null;
+  readonly success: boolean;
+  readonly reason?: string;
+}

@@ -1,14 +1,17 @@
 import { describe, it, expect } from '@jest/globals';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IPerson, IInjury } from '@/types/campaign/Person';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IInjury } from '@/types/campaign/Person';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
+import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import {
   getFounderModifier,
@@ -32,34 +35,36 @@ import {
   getFamilyModifier,
 } from '../index';
 
-function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
+function createTestEntry(
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: 'person-001',
+    pilotName: 'Test Person',
+    status: CampaignPilotStatus.Active,
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 100,
+    campaignXpEarned: 200,
+    campaignKills: 3,
+    campaignMissions: 5,
+    hireDate: new Date('3020-01-01'),
+    injuries: [],
+    ...overrides,
+  };
+}
+
+function createTestPilot(overrides: Partial<IPilot> = {}): IPilot {
   return {
     id: 'person-001',
     name: 'Test Person',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date('3020-01-01'),
-    missionsCompleted: 5,
-    totalKills: 3,
-    xp: 100,
-    totalXpEarned: 200,
-    xpSpent: 100,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
+    type: PilotType.Persistent,
+    status: PilotStatus.Active,
+    skills: { gunnery: 4, piloting: 5 },
+    wounds: 0,
+    abilities: [],
     createdAt: '3020-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
     ...overrides,
@@ -187,18 +192,18 @@ function createNonPermanentInjury(id: string): IInjury {
 describe('Turnover Personal Modifiers', () => {
   describe('getFounderModifier', () => {
     it('should return -2 for a founder', () => {
-      const person = createTestPerson({ isFounder: true });
-      expect(getFounderModifier(person)).toBe(-2);
+      const entry = createTestEntry({ isFounder: true });
+      expect(getFounderModifier(entry, null)).toBe(-2);
     });
 
     it('should return 0 for a non-founder', () => {
-      const person = createTestPerson({ isFounder: false });
-      expect(getFounderModifier(person)).toBe(0);
+      const entry = createTestEntry({ isFounder: false });
+      expect(getFounderModifier(entry, null)).toBe(0);
     });
 
     it('should return 0 when isFounder is undefined', () => {
-      const person = createTestPerson();
-      expect(getFounderModifier(person)).toBe(0);
+      const entry = createTestEntry();
+      expect(getFounderModifier(entry, null)).toBe(0);
     });
   });
 
@@ -207,36 +212,36 @@ describe('Turnover Personal Modifiers', () => {
       const campaign = createTestCampaign({
         currentDate: new Date('3025-06-15'),
       });
-      const person = createTestPerson({
-        lastRankChangeDate: new Date('3025-03-01'),
+      const entry = createTestEntry({
+        lastPromotionDate: new Date('3025-03-01'),
       });
-      expect(getRecentPromotionModifier(person, campaign)).toBe(-1);
+      expect(getRecentPromotionModifier(entry, null, campaign)).toBe(-1);
     });
 
     it('should return 0 when promoted more than 6 months ago', () => {
       const campaign = createTestCampaign({
         currentDate: new Date('3025-06-15'),
       });
-      const person = createTestPerson({
-        lastRankChangeDate: new Date('3024-01-01'),
+      const entry = createTestEntry({
+        lastPromotionDate: new Date('3024-01-01'),
       });
-      expect(getRecentPromotionModifier(person, campaign)).toBe(0);
+      expect(getRecentPromotionModifier(entry, null, campaign)).toBe(0);
     });
 
     it('should return 0 when no promotion date exists', () => {
       const campaign = createTestCampaign();
-      const person = createTestPerson();
-      expect(getRecentPromotionModifier(person, campaign)).toBe(0);
+      const entry = createTestEntry();
+      expect(getRecentPromotionModifier(entry, null, campaign)).toBe(0);
     });
 
     it('should return -1 when promoted exactly 5 months ago', () => {
       const campaign = createTestCampaign({
         currentDate: new Date('3025-06-15'),
       });
-      const person = createTestPerson({
-        lastRankChangeDate: new Date('3025-01-15'),
+      const entry = createTestEntry({
+        lastPromotionDate: new Date('3025-01-15'),
       });
-      expect(getRecentPromotionModifier(person, campaign)).toBe(-1);
+      expect(getRecentPromotionModifier(entry, null, campaign)).toBe(-1);
     });
   });
 
@@ -245,188 +250,185 @@ describe('Turnover Personal Modifiers', () => {
       const campaign = createTestCampaign({
         currentDate: new Date('3025-06-15'),
       });
-      const person = createTestPerson({
-        recruitmentDate: new Date('3010-01-01'),
-      });
-      expect(getAgeModifier(person, campaign)).toBe(-1);
+      // hireDate used as birth-date proxy: 3025 - 3010 = 15 → young
+      const entry = createTestEntry({ hireDate: new Date('3010-01-01') });
+      expect(getAgeModifier(entry, null, campaign)).toBe(-1);
     });
 
     it('should return 0 for age 25 (normal)', () => {
       const campaign = createTestCampaign({
         currentDate: new Date('3025-06-15'),
       });
-      const person = createTestPerson({
-        recruitmentDate: new Date('3000-01-01'),
-      });
-      expect(getAgeModifier(person, campaign)).toBe(0);
+      const entry = createTestEntry({ hireDate: new Date('3000-01-01') });
+      expect(getAgeModifier(entry, null, campaign)).toBe(0);
     });
 
     it('should return +3 for age 50-54', () => {
       const campaign = createTestCampaign({
         currentDate: new Date('3025-06-15'),
       });
-      const person = createTestPerson({
-        recruitmentDate: new Date('2975-01-01'),
-      });
-      expect(getAgeModifier(person, campaign)).toBe(3);
+      const entry = createTestEntry({ hireDate: new Date('2975-01-01') });
+      expect(getAgeModifier(entry, null, campaign)).toBe(3);
     });
 
     it('should return +5 for age 55-59', () => {
       const campaign = createTestCampaign({
         currentDate: new Date('3025-06-15'),
       });
-      const person = createTestPerson({
-        recruitmentDate: new Date('2970-01-01'),
-      });
-      expect(getAgeModifier(person, campaign)).toBe(5);
+      const entry = createTestEntry({ hireDate: new Date('2970-01-01') });
+      expect(getAgeModifier(entry, null, campaign)).toBe(5);
     });
 
     it('should return +6 for age 60-64', () => {
       const campaign = createTestCampaign({
         currentDate: new Date('3025-06-15'),
       });
-      const person = createTestPerson({
-        recruitmentDate: new Date('2965-01-01'),
-      });
-      expect(getAgeModifier(person, campaign)).toBe(6);
+      const entry = createTestEntry({ hireDate: new Date('2965-01-01') });
+      expect(getAgeModifier(entry, null, campaign)).toBe(6);
     });
 
     it('should return +8 for age 65+', () => {
       const campaign = createTestCampaign({
         currentDate: new Date('3025-06-15'),
       });
-      const person = createTestPerson({
-        recruitmentDate: new Date('2960-01-01'),
-      });
-      expect(getAgeModifier(person, campaign)).toBe(8);
+      const entry = createTestEntry({ hireDate: new Date('2960-01-01') });
+      expect(getAgeModifier(entry, null, campaign)).toBe(8);
     });
   });
 
   describe('getInjuryModifier', () => {
     it('should return 0 for no injuries', () => {
-      const person = createTestPerson({ injuries: [] });
-      expect(getInjuryModifier(person)).toBe(0);
+      const entry = createTestEntry({ injuries: [] });
+      expect(getInjuryModifier(entry, null)).toBe(0);
     });
 
     it('should return +1 for 1 permanent injury', () => {
-      const person = createTestPerson({
+      const entry = createTestEntry({
         injuries: [createPermanentInjury('inj-1')],
       });
-      expect(getInjuryModifier(person)).toBe(1);
+      expect(getInjuryModifier(entry, null)).toBe(1);
     });
 
     it('should return +3 for 3 permanent injuries', () => {
-      const person = createTestPerson({
+      const entry = createTestEntry({
         injuries: [
           createPermanentInjury('inj-1'),
           createPermanentInjury('inj-2'),
           createPermanentInjury('inj-3'),
         ],
       });
-      expect(getInjuryModifier(person)).toBe(3);
+      expect(getInjuryModifier(entry, null)).toBe(3);
     });
 
     it('should not count non-permanent injuries', () => {
-      const person = createTestPerson({
+      const entry = createTestEntry({
         injuries: [
           createPermanentInjury('inj-1'),
           createNonPermanentInjury('inj-2'),
           createNonPermanentInjury('inj-3'),
         ],
       });
-      expect(getInjuryModifier(person)).toBe(1);
+      expect(getInjuryModifier(entry, null)).toBe(1);
     });
 
     it('should return 0 for only non-permanent injuries', () => {
-      const person = createTestPerson({
+      const entry = createTestEntry({
         injuries: [
           createNonPermanentInjury('inj-1'),
           createNonPermanentInjury('inj-2'),
         ],
       });
-      expect(getInjuryModifier(person)).toBe(0);
+      expect(getInjuryModifier(entry, null)).toBe(0);
     });
   });
 
   describe('getOfficerModifier', () => {
-    it('should return -1 for commander', () => {
-      const person = createTestPerson({ isCommander: true });
-      expect(getOfficerModifier(person)).toBe(-1);
+    it('should return -1 for PC commander (pilot present + isCommander)', () => {
+      const entry = createTestEntry({ isCommander: true });
+      const pilot = createTestPilot();
+      expect(getOfficerModifier(entry, pilot)).toBe(-1);
     });
 
-    it('should return -1 for second in command', () => {
-      const person = createTestPerson({ isSecondInCommand: true });
-      expect(getOfficerModifier(person)).toBe(-1);
+    it('should return 0 for NPC (pilot === null) — SKIP domain', () => {
+      // NPCs do not hold officer rank; modifier is SKIP for pilot===null
+      const entry = createTestEntry({ isCommander: true });
+      expect(getOfficerModifier(entry, null)).toBe(0);
     });
 
-    it('should return 0 for regular personnel', () => {
-      const person = createTestPerson();
-      expect(getOfficerModifier(person)).toBe(0);
+    it('should return 0 for regular PC (not commander)', () => {
+      const entry = createTestEntry();
+      const pilot = createTestPilot();
+      expect(getOfficerModifier(entry, pilot)).toBe(0);
     });
 
-    it('should return -1 when both commander and second in command', () => {
-      const person = createTestPerson({
-        isCommander: true,
-        isSecondInCommand: true,
-      });
-      expect(getOfficerModifier(person)).toBe(-1);
+    it('should return -1 when isCommander is true on entry with PC pilot', () => {
+      const entry = createTestEntry({ isCommander: true });
+      const pilot = createTestPilot();
+      expect(getOfficerModifier(entry, pilot)).toBe(-1);
     });
   });
 
   describe('getServiceContractModifier', () => {
     it('should return 0 (not yet implemented)', () => {
-      const person = createTestPerson();
-      expect(getServiceContractModifier(person)).toBe(0);
+      const entry = createTestEntry();
+      expect(getServiceContractModifier(entry, null)).toBe(0);
     });
   });
 
   describe('getSkillDesirabilityModifier', () => {
     it('should return -2 for elite pilot (avg skill <= 2)', () => {
-      const person = createTestPerson({
-        pilotSkills: { gunnery: 2, piloting: 2 },
-      });
+      const entry = createTestEntry();
+      const pilot = createTestPilot({ skills: { gunnery: 2, piloting: 2 } });
       const campaign = createTestCampaign();
-      expect(getSkillDesirabilityModifier(person, campaign)).toBe(-2);
+      expect(getSkillDesirabilityModifier(entry, pilot, campaign)).toBe(-2);
     });
 
     it('should return -1 for veteran pilot (avg skill <= 3)', () => {
-      const person = createTestPerson({
-        pilotSkills: { gunnery: 3, piloting: 3 },
-      });
+      const entry = createTestEntry();
+      const pilot = createTestPilot({ skills: { gunnery: 3, piloting: 3 } });
       const campaign = createTestCampaign();
-      expect(getSkillDesirabilityModifier(person, campaign)).toBe(-1);
+      expect(getSkillDesirabilityModifier(entry, pilot, campaign)).toBe(-1);
     });
 
     it('should return 0 for regular pilot (avg skill <= 4)', () => {
-      const person = createTestPerson({
-        pilotSkills: { gunnery: 4, piloting: 4 },
-      });
+      const entry = createTestEntry();
+      const pilot = createTestPilot({ skills: { gunnery: 4, piloting: 4 } });
       const campaign = createTestCampaign();
-      expect(getSkillDesirabilityModifier(person, campaign)).toBe(0);
+      expect(getSkillDesirabilityModifier(entry, pilot, campaign)).toBe(0);
     });
 
     it('should return +1 for green pilot (avg skill 5-6)', () => {
-      const person = createTestPerson({
-        pilotSkills: { gunnery: 5, piloting: 5 },
-      });
+      const entry = createTestEntry();
+      const pilot = createTestPilot({ skills: { gunnery: 5, piloting: 5 } });
       const campaign = createTestCampaign();
-      expect(getSkillDesirabilityModifier(person, campaign)).toBe(1);
+      expect(getSkillDesirabilityModifier(entry, pilot, campaign)).toBe(1);
     });
 
     it('should return +2 for ultra-green pilot (avg skill >= 7)', () => {
-      const person = createTestPerson({
-        pilotSkills: { gunnery: 7, piloting: 8 },
-      });
+      const entry = createTestEntry();
+      const pilot = createTestPilot({ skills: { gunnery: 7, piloting: 8 } });
       const campaign = createTestCampaign();
-      expect(getSkillDesirabilityModifier(person, campaign)).toBe(2);
+      expect(getSkillDesirabilityModifier(entry, pilot, campaign)).toBe(2);
     });
 
     it('should handle mixed skill levels', () => {
-      const person = createTestPerson({
-        pilotSkills: { gunnery: 2, piloting: 4 },
+      const entry = createTestEntry();
+      const pilot = createTestPilot({ skills: { gunnery: 2, piloting: 4 } });
+      const campaign = createTestCampaign();
+      expect(getSkillDesirabilityModifier(entry, pilot, campaign)).toBe(-1);
+    });
+
+    it('should fall back to statblockData skills for NPC (pilot === null)', () => {
+      const entry = createTestEntry({
+        statblockData: {
+          name: 'NPC',
+          gunnery: 2,
+          piloting: 2,
+        },
       });
       const campaign = createTestCampaign();
-      expect(getSkillDesirabilityModifier(person, campaign)).toBe(-1);
+      // NPC with elite statblock skills → -2
+      expect(getSkillDesirabilityModifier(entry, null, campaign)).toBe(-2);
     });
   });
 });
@@ -569,11 +571,12 @@ describe('Turnover Campaign Modifiers', () => {
 // =============================================================================
 
 describe('Turnover Stub Modifiers', () => {
-  const person = createTestPerson();
+  const entry = createTestEntry();
+  const pilot = createTestPilot();
   const campaign = createTestCampaign();
 
   it('getFatigueModifier should return 0', () => {
-    expect(getFatigueModifier(person)).toBe(0);
+    expect(getFatigueModifier(entry, pilot)).toBe(0);
   });
 
   it('getHRStrainModifier should return 0', () => {
@@ -585,7 +588,7 @@ describe('Turnover Stub Modifiers', () => {
   });
 
   it('getSharesModifier should return 0', () => {
-    expect(getSharesModifier(person, campaign)).toBe(0);
+    expect(getSharesModifier(entry, pilot, campaign)).toBe(0);
   });
 
   it('getUnitRatingModifier should return 0', () => {
@@ -597,7 +600,7 @@ describe('Turnover Stub Modifiers', () => {
   });
 
   it('getLoyaltyModifier should return 0', () => {
-    expect(getLoyaltyModifier(person)).toBe(0);
+    expect(getLoyaltyModifier(entry, pilot)).toBe(0);
   });
 
   it('getFactionCampaignModifier should return 0', () => {
@@ -605,10 +608,10 @@ describe('Turnover Stub Modifiers', () => {
   });
 
   it('getFactionOriginModifier should return 0', () => {
-    expect(getFactionOriginModifier(person)).toBe(0);
+    expect(getFactionOriginModifier(entry, pilot)).toBe(0);
   });
 
   it('getFamilyModifier should return 0', () => {
-    expect(getFamilyModifier(person, campaign)).toBe(0);
+    expect(getFamilyModifier(entry, pilot, campaign)).toBe(0);
   });
 });

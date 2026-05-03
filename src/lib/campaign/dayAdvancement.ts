@@ -34,7 +34,12 @@
  * having completed.
  */
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
+
 import { ICampaign } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
@@ -169,12 +174,50 @@ export function processHealing(
     campaign?.options.medicalSystem ?? MedicalSystem.STANDARD;
   const personnelArray = Array.from(personnel.values());
 
+  // PR2 bridge: adapt IPerson → ICampaignRosterEntry for the new two-arg helper
+  // signatures. This function is a legacy fallback (production uses healingProcessor
+  // via the DayPipelineRegistry). The full migration of processHealing to operate
+  // directly on roster entries happens in PR3 (task 5.1/5.2). Until then, each
+  // person is synthesized into a minimal ICampaignRosterEntry so the medical
+  // helpers compile against the new signatures without a vault join.
+  function personToMinimalEntry(person: IPerson): ICampaignRosterEntry {
+    return {
+      pilotId: person.id,
+      pilotName: person.name,
+      status:
+        person.status === PersonnelStatus.WOUNDED
+          ? CampaignPilotStatus.Wounded
+          : CampaignPilotStatus.Active,
+      wounds: person.hits ?? 0,
+      recoveryTime: person.daysToWaitForHealing ?? 0,
+      xp: 0,
+      campaignXpEarned: 0,
+      campaignKills: 0,
+      campaignMissions: 0,
+      hireDate: new Date(0),
+      primaryRole:
+        (person.primaryRole as CampaignPersonnelRole) ??
+        CampaignPersonnelRole.PILOT,
+      rankIndex: 0,
+      injuries: person.injuries,
+    };
+  }
+
+  // Build roster entries for all personnel so getBestAvailableDoctor can filter
+  // by primaryRole (DOCTOR/MEDIC) using the new signature.
+  const allEntries: ICampaignRosterEntry[] =
+    personnelArray.map(personToMinimalEntry);
+  // No vault pilots available in this legacy path — pass empty map (NPCs only).
+  const emptyPilots: ReadonlyMap<string, IPilot> = new Map<string, IPilot>();
+
   Array.from(personnel.entries()).forEach(([id, person]) => {
     // Only process healing for wounded personnel
     if (person.status !== PersonnelStatus.WOUNDED) {
       updatedPersonnel.set(id, person);
       return;
     }
+
+    const patientEntry = personToMinimalEntry(person);
 
     // Process injuries: apply medical checks, track healed ones
     const healedInjuryIds: string[] = [];
@@ -187,18 +230,24 @@ export function processHealing(
         return;
       }
 
-      // Get assigned doctor for this patient
-      const doctor = campaign
-        ? getBestAvailableDoctor(person, personnelArray, campaign.options)
+      // Get assigned doctor for this patient using new two-arg signature
+      const doctorEntry = campaign
+        ? getBestAvailableDoctor(
+            patientEntry,
+            allEntries,
+            emptyPilots,
+            campaign.options,
+          )
         : null;
 
-      // Perform medical check using selected system
+      // Perform medical check using selected system with new two-arg signature
       const medicalResult = campaign
         ? performMedicalCheck(
             medicalSystem,
-            person,
+            patientEntry,
             injury,
-            doctor,
+            doctorEntry,
+            null, // doctorPilot: no vault join in this legacy path
             campaign.options,
             Math.random,
           )

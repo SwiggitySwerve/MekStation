@@ -5,8 +5,12 @@
  * and injury worsening mechanics.
  */
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+
 import { ICampaignOptions } from '@/types/campaign/Campaign';
-import { IPerson, IInjury } from '@/types/campaign/Person';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { IInjury } from '@/types/campaign/Person';
 
 import {
   advancedMedicalCheck,
@@ -15,14 +19,27 @@ import {
 } from '../advancedMedical';
 import { MedicalSystem } from '../medicalTypes';
 
-// Mock person factory
-function createMockPerson(id: string, overrides?: Partial<IPerson>): IPerson {
+// Roster entry factory — minimal required fields, null pilot (NPC path)
+function createMockRosterEntry(
+  id: string,
+  overrides?: Partial<ICampaignRosterEntry>,
+): ICampaignRosterEntry {
   return {
-    id,
-    name: `Person ${id}`,
+    pilotId: id,
+    pilotName: `Person ${id}`,
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    hireDate: new Date(0),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
     injuries: [],
     ...overrides,
-  } as IPerson;
+  };
 }
 
 // Mock injury factory
@@ -70,7 +87,7 @@ describe('advancedMedical', () => {
 
   describe('untreatedAdvanced', () => {
     it('should return worsened outcome with 30% chance', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1');
       const _options = createMockOptions();
 
@@ -83,7 +100,7 @@ describe('advancedMedical', () => {
     });
 
     it('should return no_change outcome with 70% chance', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1');
 
       // Test with random value that does not trigger worsening (0.3+)
@@ -93,7 +110,7 @@ describe('advancedMedical', () => {
     });
 
     it('should include modifiers in result', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1');
 
       const result = untreatedAdvanced(patient, injury, () => 0.5);
@@ -104,13 +121,14 @@ describe('advancedMedical', () => {
 
   describe('advancedMedicalCheck', () => {
     it('should use untreatedAdvanced when no doctor provided', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1');
       const options = createMockOptions();
 
       const result = advancedMedicalCheck(
         patient,
         injury,
+        null,
         null,
         options,
         () => 0.15,
@@ -121,9 +139,9 @@ describe('advancedMedical', () => {
     });
 
     it('should return fumble outcome when roll <= fumble threshold for Regular doctor', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1', 10);
-      const doctor = createMockPerson('doctor-1');
+      const doctor = createMockRosterEntry('doctor-1');
       const options = createMockOptions();
 
       // Regular doctor fumble threshold is 20, so roll 15 should fumble
@@ -132,6 +150,7 @@ describe('advancedMedical', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.15,
       );
@@ -141,15 +160,16 @@ describe('advancedMedical', () => {
     });
 
     it('should increase healing days by 20% on fumble', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1', 10);
-      const doctor = createMockPerson('doctor-1');
+      const doctor = createMockRosterEntry('doctor-1');
       const options = createMockOptions();
 
       const result = advancedMedicalCheck(
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.15, // Fumble for Regular doctor
       );
@@ -160,9 +180,9 @@ describe('advancedMedical', () => {
     });
 
     it('should return critical_success outcome when roll >= crit threshold for Green doctor', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1', 10);
-      const doctor = createMockPerson('doctor-1');
+      const doctor = createMockRosterEntry('doctor-1');
       const options = createMockOptions();
 
       // Green doctor crit threshold is 95, so roll 96 should crit
@@ -171,6 +191,7 @@ describe('advancedMedical', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.96,
       );
@@ -179,15 +200,16 @@ describe('advancedMedical', () => {
     });
 
     it('should reduce healing days by 10% on critical success', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1', 10);
-      const doctor = createMockPerson('doctor-1');
+      const doctor = createMockRosterEntry('doctor-1');
       const options = createMockOptions();
 
       const result = advancedMedicalCheck(
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.96, // Crit for Green doctor
       );
@@ -198,9 +220,9 @@ describe('advancedMedical', () => {
     });
 
     it('should return healed outcome when roll <= skill and not fumble/crit', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1', 10);
-      const doctor = createMockPerson('doctor-1');
+      const doctor = createMockRosterEntry('doctor-1');
       const options = createMockOptions();
 
       // Roll 50 (above fumble 20, below crit 90, and skill is 70)
@@ -208,6 +230,7 @@ describe('advancedMedical', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.5,
       );
@@ -216,9 +239,9 @@ describe('advancedMedical', () => {
     });
 
     it('should return no_change outcome when roll > skill and not crit', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1', 10);
-      const doctor = createMockPerson('doctor-1');
+      const doctor = createMockRosterEntry('doctor-1');
       const options = createMockOptions();
 
       // Roll 85 (above skill ~70, below crit 95)
@@ -226,6 +249,7 @@ describe('advancedMedical', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.85,
       );
@@ -234,9 +258,9 @@ describe('advancedMedical', () => {
     });
 
     it('should apply fumble threshold based on experience level', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1', 10);
-      const doctor = createMockPerson('doctor-1');
+      const doctor = createMockRosterEntry('doctor-1');
       const options = createMockOptions();
 
       // Regular doctor: fumble threshold is 20
@@ -245,6 +269,7 @@ describe('advancedMedical', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.15,
       );
@@ -255,6 +280,7 @@ describe('advancedMedical', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.25,
       );
@@ -262,9 +288,9 @@ describe('advancedMedical', () => {
     });
 
     it('should apply crit threshold based on experience level', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1', 10);
-      const doctor = createMockPerson('doctor-1');
+      const doctor = createMockRosterEntry('doctor-1');
       const options = createMockOptions();
 
       // Regular doctor: crit threshold is 90
@@ -273,6 +299,7 @@ describe('advancedMedical', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.92,
       );
@@ -283,6 +310,7 @@ describe('advancedMedical', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.85,
       );
@@ -290,15 +318,16 @@ describe('advancedMedical', () => {
     });
 
     it('should include system as ADVANCED in result', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1');
-      const doctor = createMockPerson('doctor-1');
+      const doctor = createMockRosterEntry('doctor-1');
       const options = createMockOptions();
 
       const result = advancedMedicalCheck(
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.5,
       );
@@ -307,15 +336,16 @@ describe('advancedMedical', () => {
     });
 
     it('should include roll and targetNumber in result', () => {
-      const patient = createMockPerson('patient-1');
+      const patient = createMockRosterEntry('patient-1');
       const injury = createMockInjury('inj-1');
-      const doctor = createMockPerson('doctor-1');
+      const doctor = createMockRosterEntry('doctor-1');
       const options = createMockOptions();
 
       const result = advancedMedicalCheck(
         patient,
         injury,
         doctor,
+        null,
         options,
         () => 0.5,
       );

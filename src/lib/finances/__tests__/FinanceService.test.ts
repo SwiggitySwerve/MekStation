@@ -18,9 +18,10 @@ import {
   createDefaultCampaignOptions,
   ICampaignOptions,
 } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import {
-  PersonnelStatus,
   MissionStatus,
   CampaignPersonnelRole,
   ForceRole,
@@ -33,7 +34,6 @@ import { IContract, createContract } from '@/types/campaign/Mission';
 import { IMission } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
-import { IPerson } from '@/types/campaign/Person';
 import { Transaction } from '@/types/campaign/Transaction';
 
 import {
@@ -68,37 +68,22 @@ function createTestTransaction(overrides?: Partial<Transaction>): Transaction {
   };
 }
 
-function createTestPerson(overrides?: Partial<IPerson>): IPerson {
+function makeRosterEntry(
+  overrides?: Partial<ICampaignRosterEntry>,
+): ICampaignRosterEntry {
   return {
-    id: 'person-001',
-    name: 'John Smith',
-    callsign: 'Hammer',
-    status: PersonnelStatus.ACTIVE,
+    pilotId: 'pilot-001',
+    pilotName: 'John Smith',
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    hireDate: new Date('3025-01-01'),
     primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date('3025-01-01'),
-    missionsCompleted: 5,
-    totalKills: 3,
-    xp: 100,
-    totalXpEarned: 200,
-    xpSpent: 100,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
+    rankIndex: 0,
     ...overrides,
   };
 }
@@ -128,7 +113,7 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     name: 'Test Campaign',
     currentDate: new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map<string, IPerson>(),
+    personnel: new Map(),
     forces: new Map<string, IForce>(),
     rootForceId: 'force-root',
     missions: new Map<string, IMission>(),
@@ -476,10 +461,10 @@ describe('getBalance', () => {
 // =============================================================================
 
 describe('calculateDailyCosts', () => {
-  it('should return zero costs for empty campaign', () => {
+  it('should return zero costs for empty campaign with no entries', () => {
     const campaign = createTestCampaign();
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, []);
 
     expect(costs.salaries.isZero()).toBe(true);
     expect(costs.maintenance.isZero()).toBe(true);
@@ -489,116 +474,100 @@ describe('calculateDailyCosts', () => {
   });
 
   it('should calculate salary for active personnel', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-    personnel.set(
-      'p2',
-      createTestPerson({ id: 'p2', status: PersonnelStatus.ACTIVE }),
-    );
+    const entries = [
+      makeRosterEntry({ pilotId: 'p1', status: CampaignPilotStatus.Active }),
+      makeRosterEntry({ pilotId: 'p2', status: CampaignPilotStatus.Active }),
+    ];
 
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign();
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, entries);
 
     expect(costs.personnelCount).toBe(2);
     expect(costs.salaries.amount).toBe(DEFAULT_DAILY_SALARY * 2);
   });
 
   it('should exclude KIA personnel from salary', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-    personnel.set(
-      'p2',
-      createTestPerson({ id: 'p2', status: PersonnelStatus.KIA }),
-    );
+    const entries = [
+      makeRosterEntry({ pilotId: 'p1', status: CampaignPilotStatus.Active }),
+      makeRosterEntry({ pilotId: 'p2', status: CampaignPilotStatus.KIA }),
+    ];
 
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign();
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, entries);
 
     expect(costs.personnelCount).toBe(1);
     expect(costs.salaries.amount).toBe(DEFAULT_DAILY_SALARY);
   });
 
-  it('should exclude RETIRED personnel from salary', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.RETIRED }),
-    );
+  it('should include Wounded personnel in salary (only KIA is excluded)', () => {
+    // CampaignPilotStatus has 5 values: Active/Wounded/Critical/MIA/KIA.
+    // Only KIA is excluded — Wounded is a living status and still incurs salary.
+    const entries = [
+      makeRosterEntry({ pilotId: 'p1', status: CampaignPilotStatus.Wounded }),
+    ];
 
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign();
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, entries);
 
-    expect(costs.personnelCount).toBe(0);
-    expect(costs.salaries.isZero()).toBe(true);
+    expect(costs.personnelCount).toBe(1);
+    expect(costs.salaries.amount).toBe(DEFAULT_DAILY_SALARY);
   });
 
-  it('should exclude DESERTED personnel from salary', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.DESERTED }),
-    );
+  it('should include Critical personnel in salary (only KIA is excluded)', () => {
+    const entries = [
+      makeRosterEntry({ pilotId: 'p1', status: CampaignPilotStatus.Critical }),
+    ];
 
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign();
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, entries);
 
-    expect(costs.personnelCount).toBe(0);
-    expect(costs.salaries.isZero()).toBe(true);
+    expect(costs.personnelCount).toBe(1);
+    expect(costs.salaries.amount).toBe(DEFAULT_DAILY_SALARY);
   });
 
-  it('should include WOUNDED personnel in salary', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.WOUNDED }),
-    );
+  it('should include MIA personnel in salary (only KIA is excluded)', () => {
+    const entries = [
+      makeRosterEntry({ pilotId: 'p1', status: CampaignPilotStatus.MIA }),
+    ];
 
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign();
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, entries);
 
     expect(costs.personnelCount).toBe(1);
     expect(costs.salaries.amount).toBe(DEFAULT_DAILY_SALARY);
   });
 
   it('should apply salary multiplier from options', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1' }));
+    const entries = [makeRosterEntry({ pilotId: 'p1' })];
 
     const options: ICampaignOptions = {
       ...createDefaultCampaignOptions(),
       salaryMultiplier: 2.0,
     };
 
-    const campaign = createTestCampaign({ personnel, options });
+    const campaign = createTestCampaign({ options });
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, entries);
 
     expect(costs.salaries.amount).toBe(DEFAULT_DAILY_SALARY * 2.0);
   });
 
   it('should return zero salary when payForSalaries is false', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1' }));
+    const entries = [makeRosterEntry({ pilotId: 'p1' })];
 
     const options: ICampaignOptions = {
       ...createDefaultCampaignOptions(),
       payForSalaries: false,
     };
 
-    const campaign = createTestCampaign({ personnel, options });
+    const campaign = createTestCampaign({ options });
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, entries);
 
     expect(costs.salaries.isZero()).toBe(true);
     expect(costs.personnelCount).toBe(1); // Still counted, just not paid
@@ -615,7 +584,7 @@ describe('calculateDailyCosts', () => {
 
     const campaign = createTestCampaign({ forces });
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, []);
 
     expect(costs.unitCount).toBe(3);
     expect(costs.maintenance.amount).toBe(DEFAULT_DAILY_MAINTENANCE * 3);
@@ -633,7 +602,7 @@ describe('calculateDailyCosts', () => {
 
     const campaign = createTestCampaign({ forces, options });
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, []);
 
     expect(costs.maintenance.amount).toBe(DEFAULT_DAILY_MAINTENANCE * 1.5);
   });
@@ -650,23 +619,22 @@ describe('calculateDailyCosts', () => {
 
     const campaign = createTestCampaign({ forces, options });
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, []);
 
     expect(costs.maintenance.isZero()).toBe(true);
     expect(costs.unitCount).toBe(1); // Units still counted, just not charged
   });
 
   it('should combine salary and maintenance in total', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1' }));
+    const entries = [makeRosterEntry({ pilotId: 'p1' })];
 
     const forces = new Map<string, IForce>();
     const rootForce = createTestForce('force-root', ['unit-1']);
     forces.set('force-root', rootForce);
 
-    const campaign = createTestCampaign({ personnel, forces });
+    const campaign = createTestCampaign({ forces });
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, entries);
 
     const expectedTotal = DEFAULT_DAILY_SALARY + DEFAULT_DAILY_MAINTENANCE;
     expect(costs.total.amount).toBe(expectedTotal);
@@ -677,7 +645,7 @@ describe('calculateDailyCosts', () => {
       rootForceId: 'nonexistent-force',
     });
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, []);
 
     expect(costs.unitCount).toBe(0);
     expect(costs.maintenance.isZero()).toBe(true);
@@ -701,7 +669,7 @@ describe('calculateDailyCosts', () => {
 
     const campaign = createTestCampaign({ forces });
 
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, []);
 
     expect(costs.unitCount).toBe(4);
     expect(costs.maintenance.amount).toBe(DEFAULT_DAILY_MAINTENANCE * 4);
@@ -904,20 +872,18 @@ describe('FinanceService integration', () => {
   });
 
   it('should handle full workflow: costs + payment', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1' }));
+    const entries = [makeRosterEntry({ pilotId: 'p1' })];
 
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
 
     const campaign = createTestCampaign({
-      personnel,
       forces,
       finances: { transactions: [], balance: new Money(1000000) },
     });
 
     // Calculate daily costs
-    const costs = calculateDailyCosts(campaign);
+    const costs = calculateDailyCosts(campaign, entries);
     expect(costs.total.isPositive()).toBe(true);
 
     // Process a contract payment

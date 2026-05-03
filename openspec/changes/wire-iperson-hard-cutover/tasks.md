@@ -76,41 +76,44 @@
 
 ### 2. Per-domain commits (each commit independently buildable + tested)
 
-- [ ] 2.1 **Medical commit** (7 files in `src/lib/campaign/medical/`).
+- [x] 2.1 **Medical commit** (7 files in `src/lib/campaign/medical/`).
   - Migrate every helper signature from `(person: IPerson)` to `(entry: ICampaignRosterEntry, pilot: IPilot | null)`.
   - NPC behavior: PROCESS (NPCs heal too).
   - Update all callers in same commit.
   - Acceptance: all medical tests pass; NPC handling JSDoc added.
   - QA: `npx jest --testPathPattern='medical'`.
 
-- [ ] 2.2 **Turnover commit** (5 files in `src/lib/campaign/turnover/` + `ranks/rankService.isOfficer` cross-call).
+- [x] 2.2 **Turnover commit** (5 files in `src/lib/campaign/turnover/` + `ranks/rankService.isOfficer` cross-call).
   - Same signature migration.
   - NPC behavior: PROCESS for departure rolls; SKIP for officer status.
   - Acceptance: turnover tests pass.
   - QA: `npx jest --testPathPattern='turnover'`.
 
-- [ ] 2.3 **Finances commit** (`statusRules` + 3 finance services in `src/lib/finances/`: `salaryService`, `taxService`, `FinanceService`).
+- [x] 2.3 **Finances commit** (`statusRules` + 3 finance services in `src/lib/finances/`: `salaryService`, `taxService`, `FinanceService`).
   - NPC behavior: PROCESS (salary/tax apply to all roster entries).
   - Acceptance: finances tests pass.
   - QA: `npx jest --testPathPattern='(finances|statusRules)'`.
 
-- [ ] 2.4 **Progression + skills commit** (4 progression files + 3 skills files in `src/lib/campaign/`).
+- [x] 2.4 **Progression + skills commit** (4 progression files + 3 skills files in `src/lib/campaign/`).
   - NPC behavior: SKIP (`pilot === null` early-return).
   - Use delta-return pattern per design.md decision.
   - Acceptance: progression + skills tests pass.
   - QA: `npx jest --testPathPattern='(progression|skills)'`.
+  - **2.4a (skills only, SHIPPED)**: `skillHelpers.ts`, `skillCheck.ts`, `skillProgression.ts` + their 3 test files migrated and pushed to `chore/cluster-e-pr2-helper-migration`. 247/247 tests pass. Progression files (`src/lib/campaign/progression/`) remain for 2.4b.
+  - **2.4b (progression, SHIPPED)**: `xpAwards.ts`, `aging.ts`, `skillCostTraits.ts`, `spaAcquisition.ts` + their 4 test files migrated to two-arg `(entry, pilot | null)` + delta-return pattern. `IAgingEvent` moved to `progressionTypes.ts`. 136/136 progression tests pass.
 
-- [ ] 2.5 **Awards commit** (2 files, ~18 checker functions in `src/lib/campaign/awards/`).
+- [x] 2.5 **Awards commit** (2 files, ~18 checker functions in `src/lib/campaign/awards/`).
   - NPC behavior: SKIP all checker functions on `pilot === null`.
   - Acceptance: awards tests pass.
   - QA: `npx jest --testPathPattern='awards'`.
+  - SHIPPED as `4551e3ad` on `chore/cluster-e-pr2-helper-migration`. 203 awards tests + 23,190 full suite pass. `getEligiblePersonnel` now returns `ReadonlyArray<{entry, pilot}>` instead of `IPerson[]`.
 
-- [ ] 2.6 **Ranks + maintenance + events commit** (mixed files in `src/lib/campaign/`).
+- [x] 2.6 **Ranks + maintenance + events commit** (mixed files in `src/lib/campaign/`).
   - NPC behavior per design.md NPC matrix.
   - Acceptance: ranks/maintenance/events tests pass.
   - QA: `npx jest --testPathPattern='(ranks|maintenance|events)'`.
 
-- [ ] 2.7 **Type-layer helpers commit** (4 helpers in `src/types/campaign/Campaign.ts:147,163,180,300`).
+- [x] 2.7 **Type-layer helpers commit** (4 helpers in `src/types/campaign/Campaign.ts:147,163,180,300`).
   - These are the cross-cutting type-guards / accessor helpers.
   - Acceptance: typecheck clean.
   - QA: `npx tsc --noEmit --skipLibCheck`.

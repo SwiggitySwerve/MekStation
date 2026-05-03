@@ -347,6 +347,8 @@ export interface IPilotIdentity {
   readonly portrait?: string;
   /** Background notes/biography (optional) */
   readonly background?: string;
+  /** Date of birth, used by aging mechanics. Optional — NPCs without DOB skip aging. */
+  readonly birthDate?: string | Date;
 }
 
 /**
