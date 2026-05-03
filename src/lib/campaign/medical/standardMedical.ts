@@ -154,7 +154,7 @@ export function standardMedicalCheck(
   ];
 
   // Tougher healing: +1 per injury beyond 2
-  // Entry.injuries defaults to [] when unset (matches legacy IPerson.injuries semantics)
+  // Entry.injuries defaults to [] when unset
   const patientInjuries = patientEntry.injuries ?? [];
   const tougherHealingModifier = Math.max(0, patientInjuries.length - 2);
   if (tougherHealingModifier > 0) {

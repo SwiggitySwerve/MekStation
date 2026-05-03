@@ -2,7 +2,7 @@
  * pilotLookup helper — unit tests.
  *
  * Asserts the pre-join template helper used by every two-arg
- * `(entry, pilot | null)` processor in the IPerson hard-cutover migration
+ * `(entry, pilot | null)` processor in the roster-employment migration
  * (Council #2, Cluster E). Builds Map<pilotId, IPilot> in linear time so
  * helpers can resolve vault pilots by `entry.pilotId` without N² find().
  *

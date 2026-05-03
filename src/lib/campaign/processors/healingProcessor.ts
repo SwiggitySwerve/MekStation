@@ -119,7 +119,7 @@ function processEntryHealing(
     }
   }
 
-  // Decrement recovery time (maps to IPerson.daysToWaitForHealing)
+  // Decrement recovery time (the per-entry recovery counter)
   const newRecoveryTime = Math.max(0, (entry.recoveryTime ?? 0) - 1);
 
   // Return to active if all healable injuries cleared and recovery complete

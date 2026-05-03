@@ -10,9 +10,9 @@
  *
  * Personnel state lives on `useCampaignRosterStore` as the canonical
  * source of truth (per `wire-iperson-hard-cutover` PR4 — the legacy
- * `campaign.personnel: Map<string, IPerson>` field was removed). The
- * day pipeline reads roster entries directly from the store; processors
- * commit per-pilot mutations via `useCampaignRosterStore.applyPilotPatches`.
+ * `campaign.personnel` field was removed). The day pipeline reads roster
+ * entries directly from the store; processors commit per-pilot mutations
+ * via `useCampaignRosterStore.applyPilotPatches`.
  *
  * Persists entire campaign state to IndexedDB via clientSafeStorage.
  */

@@ -219,7 +219,7 @@ function calculateModifiers(
 /**
  * Builds a skipped (passed) result for an ineligible entry.
  *
- * Uses `entry.pilotId` and `entry.pilotName` rather than synthesizing IPerson.
+ * Uses `entry.pilotId` and `entry.pilotName` directly.
  */
 function createSkippedResult(
   entry: ICampaignRosterEntry,

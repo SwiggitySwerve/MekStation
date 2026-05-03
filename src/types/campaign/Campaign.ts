@@ -50,8 +50,8 @@ export { createDefaultCampaignOptions } from './createDefaultCampaignOptions';
  *
  * Personnel state is owned by `useCampaignRosterStore` (the canonical
  * source of truth as of `wire-iperson-hard-cutover` PR4). The legacy
- * `personnel: Map<string, IPerson>` field was removed in PR4 — every
- * read/write path now goes through the roster store.
+ * `personnel` map was removed in PR4 — every read/write path now goes
+ * through the roster store.
  *
  * Units are referenced by ID (string[]) in forces, not duplicated here.
  * Unit data lives in MekStation's unit stores.
