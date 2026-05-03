@@ -99,6 +99,7 @@
   - Use delta-return pattern per design.md decision.
   - Acceptance: progression + skills tests pass.
   - QA: `npx jest --testPathPattern='(progression|skills)'`.
+  - **2.4a (skills only, SHIPPED)**: `skillHelpers.ts`, `skillCheck.ts`, `skillProgression.ts` + their 3 test files migrated and pushed to `chore/cluster-e-pr2-helper-migration`. 247/247 tests pass. Progression files (`src/lib/campaign/progression/`) remain for 2.4b.
 
 - [ ] 2.5 **Awards commit** (2 files, ~18 checker functions in `src/lib/campaign/awards/`).
   - NPC behavior: SKIP all checker functions on `pilot === null`.

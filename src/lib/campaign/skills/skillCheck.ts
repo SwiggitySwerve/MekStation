@@ -8,8 +8,9 @@
  * @module campaign/skills/skillCheck
  */
 
-import { IPerson } from '@/types/campaign/Person';
-import { ISkillType, getSkillValue } from '@/types/campaign/skills';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { ISkillType } from '@/types/campaign/skills';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 /**
  * Function type for random number generation.
@@ -68,14 +69,20 @@ export interface SkillCheckResult {
  * Calculates the effective target number for a skill check.
  *
  * The effective TN is the base TN adjusted by the skill value and modifiers.
- * Lower TN is better (skilled people have lower TN).
+ * Lower TN is better (skilled pilots have lower TN).
  *
- * Formula: `skillType.targetNumber - getSkillValue(skill, skillType, person.attributes) + sum(modifiers)`
+ * NPC behavior: SKIP — when pilot is null, treats as unskilled (baseTN + 4).
  *
- * If the skill is not found on the person, uses unskilled TN:
- * `skillType.targetNumber + 4`
+ * @stub Plan 7 — IPilot.skills only carries gunnery/piloting today. For those
+ * two skills the numeric value is used as the level (bonus=0, attrMod=0).
+ * All other skill IDs are treated as unskilled (+4 penalty) until Plan 7 lands.
  *
- * @param person - The character making the check
+ * Formula (pilot present, known skill): `skillType.targetNumber - skillLevel`
+ * Formula (unskilled): `skillType.targetNumber + 4`
+ * Then modifiers are added on top.
+ *
+ * @param _entry - The roster entry (reserved for future role-weighted TN adjustments)
+ * @param pilot - The vault pilot (null for NPCs)
  * @param skillId - The skill ID to check
  * @param skillType - The skill type definition
  * @param modifiers - Optional modifiers to apply
@@ -83,36 +90,43 @@ export interface SkillCheckResult {
  * @returns The effective target number
  *
  * @example
- * // Skilled person (gunnery 4, DEX 7)
- * const tn = getEffectiveSkillTN(person, 'gunnery', gunneryType);
- * // tn = 4 - (4 + 0 + 2) = -2 (very easy)
+ * // Pilot with gunnery 4 — TN = 4 - 4 = 0
+ * const tn = getEffectiveSkillTN(entry, pilot, 'gunnery', gunneryType);
  *
- * // Unskilled person
- * const tn = getEffectiveSkillTN(person, 'unknown-skill', unknownType);
- * // tn = 4 + 4 = 8 (harder)
+ * // NPC or unknown skill — TN = 4 + 4 = 8
+ * const tn = getEffectiveSkillTN(entry, null, 'gunnery', gunneryType);
  */
 export function getEffectiveSkillTN(
-  person: IPerson,
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   skillId: string,
   skillType: ISkillType,
   modifiers: readonly { name: string; value: number }[] = [],
 ): number {
-  // Look up skill on person
-  const skill = person.skills[skillId];
-
-  // Calculate base TN
+  // Start from the base target number defined on the skill type
   let baseTN = skillType.targetNumber;
 
-  // If skill is missing, apply unskilled penalty (+4)
-  if (!skill) {
+  if (pilot === null) {
+    // NPC SKIP: no pilot data — treat as unskilled
     baseTN += 4;
   } else {
-    // Skill exists: subtract skill value
-    const skillValue = getSkillValue(skill, skillType, person.attributes);
-    baseTN -= skillValue;
+    // @stub Plan 7 — IPilot.skills only has gunnery and piloting as plain numbers.
+    // Use the numeric value as the skill level (bonus=0, attrMod=0 until attributes land).
+    // All other skill IDs fall through to the unskilled branch.
+    const pilotSkillValue = (
+      pilot.skills as unknown as Record<string, number | undefined>
+    )[skillId];
+
+    if (pilotSkillValue !== undefined) {
+      // Known skill: subtract the numeric level from the base TN
+      baseTN -= pilotSkillValue;
+    } else {
+      // Unknown skill for this pilot — unskilled penalty
+      baseTN += 4;
+    }
   }
 
-  // Apply modifiers
+  // Apply all modifiers
   const modifierSum = modifiers.reduce((sum, mod) => sum + mod.value, 0);
   baseTN += modifierSum;
 
@@ -125,7 +139,10 @@ export function getEffectiveSkillTN(
  * Rolls 2d6 and compares against the effective target number.
  * Success occurs when roll >= TN.
  *
- * @param person - The character making the check
+ * NPC behavior: SKIP — when pilot is null, uses unskilled TN.
+ *
+ * @param _entry - The roster entry (reserved for future use)
+ * @param pilot - The vault pilot (null for NPCs)
  * @param skillId - The skill ID to check
  * @param skillType - The skill type definition
  * @param modifiers - Optional modifiers to apply
@@ -135,7 +152,8 @@ export function getEffectiveSkillTN(
  *
  * @example
  * const result = performSkillCheck(
- *   person,
+ *   entry,
+ *   pilot,
  *   'gunnery',
  *   gunneryType,
  *   [{ name: 'Called Shot', value: 2 }],
@@ -147,7 +165,8 @@ export function getEffectiveSkillTN(
  * }
  */
 export function performSkillCheck(
-  person: IPerson,
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   skillId: string,
   skillType: ISkillType,
   modifiers: readonly { name: string; value: number }[] = [],
@@ -156,9 +175,10 @@ export function performSkillCheck(
   // Roll 2d6
   const roll = random() + random();
 
-  // Get effective TN
+  // Get effective TN using the two-arg helper
   const targetNumber = getEffectiveSkillTN(
-    person,
+    _entry,
+    pilot,
     skillId,
     skillType,
     modifiers,

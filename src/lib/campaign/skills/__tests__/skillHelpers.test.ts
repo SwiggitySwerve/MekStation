@@ -1,8 +1,11 @@
 import { describe, it, expect } from '@jest/globals';
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
+
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { IPerson } from '@/types/campaign/Person';
+import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import {
   getSkillDesirabilityModifier,
@@ -16,381 +19,215 @@ import {
   getPersonBestCombatSkill,
 } from '../skillHelpers';
 
-describe('Skill Helper Functions', () => {
-  const basePerson: IPerson = {
-    id: 'person-001',
-    name: 'John Smith',
-    callsign: 'Hammer',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'Lieutenant',
-    recruitmentDate: new Date('2024-01-01'),
-    missionsCompleted: 12,
-    totalKills: 8,
+// ---------------------------------------------------------------------------
+// Factories
+// ---------------------------------------------------------------------------
+
+function makeEntry(
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: 'pilot-001',
+    pilotName: 'John Smith',
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
     xp: 500,
-    totalXpEarned: 1500,
-    xpSpent: 1000,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2025-01-25T00:00:00Z',
-    skills: {
-      gunnery: {
-        level: 4,
-        bonus: 0,
-        xpProgress: 0,
-        typeId: 'gunnery',
-      },
-      piloting: {
-        level: 5,
-        bonus: 0,
-        xpProgress: 0,
-        typeId: 'piloting',
-      },
-    },
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
+    campaignXpEarned: 1500,
+    campaignKills: 8,
+    campaignMissions: 12,
+    hireDate: new Date('3000-01-01'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    ...overrides,
   };
+}
+
+function makePilot(overrides: Partial<IPilot> = {}): IPilot {
+  return {
+    id: 'pilot-001',
+    name: 'John Smith',
+    type: PilotType.Persistent,
+    status: PilotStatus.Active,
+    skills: { gunnery: 4, piloting: 5 },
+    wounds: 0,
+    abilities: [],
+    createdAt: '3000-01-01T00:00:00Z',
+    updatedAt: '3025-01-25T00:00:00Z',
+    ...overrides,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+describe('Skill Helper Functions', () => {
+  const baseEntry = makeEntry();
+  const basePilot = makePilot();
 
   describe('getSkillDesirabilityModifier', () => {
-    it('RED: returns sum of all skill levels', () => {
-      const modifier = getSkillDesirabilityModifier(basePerson);
+    it('RED: returns sum of gunnery + piloting', () => {
+      // gunnery 4 + piloting 5 = 9
+      const modifier = getSkillDesirabilityModifier(baseEntry, basePilot);
       expect(modifier).toBe(9);
     });
 
-    it('GREEN: returns 0 for person with no skills', () => {
-      const noSkillsPerson: IPerson = {
-        ...basePerson,
-        skills: {},
-      };
-
-      const modifier = getSkillDesirabilityModifier(noSkillsPerson);
+    it('GREEN: returns 0 for NPC (null pilot)', () => {
+      const modifier = getSkillDesirabilityModifier(baseEntry, null);
       expect(modifier).toBe(0);
     });
 
-    it('GREEN: handles multiple skills correctly', () => {
-      const multiSkillPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          gunnery: { level: 4, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
-          piloting: { level: 5, bonus: 0, xpProgress: 0, typeId: 'piloting' },
-          'tech-mech': {
-            level: 3,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'tech-mech',
-          },
-        },
-      };
-
-      const modifier = getSkillDesirabilityModifier(multiSkillPerson);
-      expect(modifier).toBe(12);
+    it('GREEN: reflects different gunnery/piloting values', () => {
+      const elite = makePilot({ skills: { gunnery: 2, piloting: 2 } });
+      const modifier = getSkillDesirabilityModifier(baseEntry, elite);
+      // 2 + 2 = 4
+      expect(modifier).toBe(4);
     });
   });
 
   describe('getTechSkillValue', () => {
-    it('RED: returns skill value for person with tech skill', () => {
-      const techPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          'tech-mech': {
-            level: 5,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'tech-mech',
-          },
-        },
-      };
-
-      const value = getTechSkillValue(techPerson);
-      expect(value).toBeLessThanOrEqual(10);
-    });
-
-    it('RED: returns 10 (unskilled) for person without tech skill', () => {
-      const noTechPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          gunnery: { level: 4, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
-        },
-      };
-
-      const value = getTechSkillValue(noTechPerson);
+    it('RED: returns 10 (unskilled) — stub Plan 7', () => {
+      // @stub Plan 7: IPilot has no tech skill fields yet
+      const value = getTechSkillValue(baseEntry, basePilot);
       expect(value).toBe(10);
     });
 
-    it('GREEN: checks multiple tech skill types', () => {
-      const astechPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          astech: {
-            level: 4,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'astech',
-          },
-        },
-      };
-
-      const value = getTechSkillValue(astechPerson);
-      expect(value).toBeLessThanOrEqual(10);
+    it('GREEN: returns 10 for NPC (null pilot)', () => {
+      const value = getTechSkillValue(baseEntry, null);
+      expect(value).toBe(10);
     });
   });
 
   describe('getAdminSkillValue', () => {
-    it('GREEN: returns skill value for person with admin skill', () => {
-      const adminPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          administration: {
-            level: 5,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'administration',
-          },
-        },
-      };
-
-      const value = getAdminSkillValue(adminPerson);
-      expect(value).toBeLessThanOrEqual(10);
+    it('GREEN: returns 10 (unskilled) — stub Plan 7', () => {
+      const value = getAdminSkillValue(baseEntry, basePilot);
+      expect(value).toBe(10);
     });
 
-    it('GREEN: returns 10 (unskilled) for person without admin skill', () => {
-      const noAdminPerson: IPerson = {
-        ...basePerson,
-        skills: {},
-      };
-
-      const value = getAdminSkillValue(noAdminPerson);
+    it('GREEN: returns 10 for NPC (null pilot)', () => {
+      const value = getAdminSkillValue(baseEntry, null);
       expect(value).toBe(10);
     });
   });
 
   describe('getMedicineSkillValue', () => {
-    it('GREEN: returns skill value for person with medicine skill', () => {
-      const doctorPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          medicine: {
-            level: 5,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'medicine',
-          },
-        },
-      };
-
-      const value = getMedicineSkillValue(doctorPerson);
-      expect(value).toBeLessThanOrEqual(10);
+    it('GREEN: returns 10 (unskilled) — stub Plan 7', () => {
+      const value = getMedicineSkillValue(baseEntry, basePilot);
+      expect(value).toBe(10);
     });
 
-    it('GREEN: returns 10 (unskilled) for person without medicine skill', () => {
-      const noMedicinePerson: IPerson = {
-        ...basePerson,
-        skills: {},
-      };
-
-      const value = getMedicineSkillValue(noMedicinePerson);
+    it('GREEN: returns 10 for NPC (null pilot)', () => {
+      const value = getMedicineSkillValue(baseEntry, null);
       expect(value).toBe(10);
     });
   });
 
   describe('getNegotiationModifier', () => {
-    it('GREEN: returns skill value for person with negotiation skill', () => {
-      const negotiatorPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          negotiation: {
-            level: 4,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'negotiation',
-          },
-        },
-      };
-
-      const modifier = getNegotiationModifier(negotiatorPerson);
-      expect(modifier).toBeLessThanOrEqual(10);
+    it('GREEN: returns 10 (unskilled) — stub Plan 7', () => {
+      const modifier = getNegotiationModifier(baseEntry, basePilot);
+      expect(modifier).toBe(10);
     });
 
-    it('GREEN: returns 10 (unskilled) for person without negotiation skill', () => {
-      const noNegotiationPerson: IPerson = {
-        ...basePerson,
-        skills: {},
-      };
-
-      const modifier = getNegotiationModifier(noNegotiationPerson);
+    it('GREEN: returns 10 for NPC (null pilot)', () => {
+      const modifier = getNegotiationModifier(baseEntry, null);
       expect(modifier).toBe(10);
     });
   });
 
   describe('getLeadershipSkillValue', () => {
-    it('GREEN: returns skill value for person with leadership skill', () => {
-      const leaderPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          leadership: {
-            level: 6,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'leadership',
-          },
-        },
-      };
-
-      const value = getLeadershipSkillValue(leaderPerson);
-      expect(value).toBeLessThanOrEqual(10);
+    it('GREEN: returns 10 (unskilled) — stub Plan 7', () => {
+      const value = getLeadershipSkillValue(baseEntry, basePilot);
+      expect(value).toBe(10);
     });
 
-    it('GREEN: returns 10 (unskilled) for person without leadership skill', () => {
-      const noLeadershipPerson: IPerson = {
-        ...basePerson,
-        skills: {},
-      };
-
-      const value = getLeadershipSkillValue(noLeadershipPerson);
+    it('GREEN: returns 10 for NPC (null pilot)', () => {
+      const value = getLeadershipSkillValue(baseEntry, null);
       expect(value).toBe(10);
     });
   });
 
   describe('hasSkill', () => {
-    it('RED: returns true for existing skill', () => {
-      const result = hasSkill(basePerson, 'gunnery');
+    it('RED: returns true for gunnery (exists on IPilotSkills)', () => {
+      const result = hasSkill(baseEntry, basePilot, 'gunnery');
       expect(result).toBe(true);
     });
 
-    it('RED: returns false for missing skill', () => {
-      const result = hasSkill(basePerson, 'medicine');
-      expect(result).toBe(false);
+    it('RED: returns true for piloting (exists on IPilotSkills)', () => {
+      const result = hasSkill(baseEntry, basePilot, 'piloting');
+      expect(result).toBe(true);
     });
 
-    it('GREEN: works with multiple skills', () => {
-      expect(hasSkill(basePerson, 'gunnery')).toBe(true);
-      expect(hasSkill(basePerson, 'piloting')).toBe(true);
-      expect(hasSkill(basePerson, 'tech-mech')).toBe(false);
+    it('RED: returns false for skills not on IPilotSkills (stub Plan 7)', () => {
+      // medicine, tech-mech, administration are not on IPilotSkills today
+      expect(hasSkill(baseEntry, basePilot, 'medicine')).toBe(false);
+      expect(hasSkill(baseEntry, basePilot, 'tech-mech')).toBe(false);
+    });
+
+    it('GREEN: returns false for NPC (null pilot)', () => {
+      expect(hasSkill(baseEntry, null, 'gunnery')).toBe(false);
     });
   });
 
   describe('getPersonSkillLevel', () => {
-    it('RED: returns skill level for existing skill', () => {
-      const level = getPersonSkillLevel(basePerson, 'gunnery');
+    it('RED: returns gunnery level from IPilotSkills', () => {
+      const level = getPersonSkillLevel(baseEntry, basePilot, 'gunnery');
       expect(level).toBe(4);
     });
 
-    it('RED: returns -1 for missing skill', () => {
-      const level = getPersonSkillLevel(basePerson, 'medicine');
+    it('RED: returns piloting level from IPilotSkills', () => {
+      const level = getPersonSkillLevel(baseEntry, basePilot, 'piloting');
+      expect(level).toBe(5);
+    });
+
+    it('RED: returns -1 for skills not on IPilotSkills (stub Plan 7)', () => {
+      const level = getPersonSkillLevel(baseEntry, basePilot, 'medicine');
       expect(level).toBe(-1);
     });
 
-    it('GREEN: returns correct levels for multiple skills', () => {
-      expect(getPersonSkillLevel(basePerson, 'gunnery')).toBe(4);
-      expect(getPersonSkillLevel(basePerson, 'piloting')).toBe(5);
-      expect(getPersonSkillLevel(basePerson, 'unknown')).toBe(-1);
+    it('GREEN: returns -1 for NPC (null pilot)', () => {
+      const level = getPersonSkillLevel(baseEntry, null, 'gunnery');
+      expect(level).toBe(-1);
     });
   });
 
   describe('getPersonBestCombatSkill', () => {
-    it('RED: finds highest combat skill', () => {
-      const best = getPersonBestCombatSkill(basePerson);
-
+    it('RED: returns piloting when piloting > gunnery', () => {
+      // basePilot has gunnery 4, piloting 5
+      const best = getPersonBestCombatSkill(baseEntry, basePilot);
       expect(best).toBeDefined();
       expect(best?.skillId).toBe('piloting');
       expect(best?.level).toBe(5);
     });
 
-    it('RED: returns null for person with no combat skills', () => {
-      const noCombatPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          medicine: {
-            level: 5,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'medicine',
-          },
-        },
-      };
+    it('RED: returns gunnery when gunnery > piloting', () => {
+      const sharpshooter = makePilot({ skills: { gunnery: 5, piloting: 2 } });
+      const best = getPersonBestCombatSkill(baseEntry, sharpshooter);
+      expect(best?.skillId).toBe('gunnery');
+      expect(best?.level).toBe(5);
+    });
 
-      const best = getPersonBestCombatSkill(noCombatPerson);
+    it('GREEN: returns gunnery on tie (gunnery >= piloting branch)', () => {
+      const tied = makePilot({ skills: { gunnery: 4, piloting: 4 } });
+      const best = getPersonBestCombatSkill(baseEntry, tied);
+      expect(best?.skillId).toBe('gunnery');
+      expect(best?.level).toBe(4);
+    });
+
+    it('GREEN: returns null for NPC (null pilot)', () => {
+      const best = getPersonBestCombatSkill(baseEntry, null);
       expect(best).toBeNull();
-    });
-
-    it('GREEN: handles multiple combat skills', () => {
-      const multiCombatPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          gunnery: { level: 4, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
-          piloting: { level: 5, bonus: 0, xpProgress: 0, typeId: 'piloting' },
-          'small-arms': {
-            level: 3,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'small-arms',
-          },
-        },
-      };
-
-      const best = getPersonBestCombatSkill(multiCombatPerson);
-      expect(best?.skillId).toBe('piloting');
-      expect(best?.level).toBe(5);
-    });
-
-    it('GREEN: finds best among different combat skill types', () => {
-      const aerospaceGunnerPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          'gunnery-aerospace': {
-            level: 6,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'gunnery-aerospace',
-          },
-          'piloting-aerospace': {
-            level: 4,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'piloting-aerospace',
-          },
-        },
-      };
-
-      const best = getPersonBestCombatSkill(aerospaceGunnerPerson);
-      expect(best?.skillId).toBe('gunnery-aerospace');
-      expect(best?.level).toBe(6);
-    });
-
-    it('GREEN: returns first skill if tied', () => {
-      const tiedSkillsPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          gunnery: { level: 5, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
-          piloting: { level: 5, bonus: 0, xpProgress: 0, typeId: 'piloting' },
-        },
-      };
-
-      const best = getPersonBestCombatSkill(tiedSkillsPerson);
-      expect(best?.level).toBe(5);
-      expect(['gunnery', 'piloting']).toContain(best?.skillId);
     });
   });
 
   describe('Integration Tests', () => {
-    it('GREEN: all helpers work together', () => {
-      const desirability = getSkillDesirabilityModifier(basePerson);
-      const techValue = getTechSkillValue(basePerson);
-      const adminValue = getAdminSkillValue(basePerson);
-      const medicineValue = getMedicineSkillValue(basePerson);
-      const negotiationValue = getNegotiationModifier(basePerson);
-      const leadershipValue = getLeadershipSkillValue(basePerson);
+    it('GREEN: all helpers work together for a vault pilot', () => {
+      const desirability = getSkillDesirabilityModifier(baseEntry, basePilot);
+      const techValue = getTechSkillValue(baseEntry, basePilot);
+      const adminValue = getAdminSkillValue(baseEntry, basePilot);
+      const medicineValue = getMedicineSkillValue(baseEntry, basePilot);
+      const negotiationValue = getNegotiationModifier(baseEntry, basePilot);
+      const leadershipValue = getLeadershipSkillValue(baseEntry, basePilot);
 
       expect(desirability).toBeGreaterThan(0);
       expect(techValue).toBe(10);
@@ -400,34 +237,16 @@ describe('Skill Helper Functions', () => {
       expect(leadershipValue).toBe(10);
     });
 
-    it('GREEN: helpers work with person with many skills', () => {
-      const multiSkillPerson: IPerson = {
-        ...basePerson,
-        skills: {
-          gunnery: { level: 4, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
-          piloting: { level: 5, bonus: 0, xpProgress: 0, typeId: 'piloting' },
-          'tech-mech': {
-            level: 3,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'tech-mech',
-          },
-          administration: {
-            level: 2,
-            bonus: 0,
-            xpProgress: 0,
-            typeId: 'administration',
-          },
-          medicine: { level: 1, bonus: 0, xpProgress: 0, typeId: 'medicine' },
-        },
-      };
-
-      expect(getSkillDesirabilityModifier(multiSkillPerson)).toBe(15);
-      expect(hasSkill(multiSkillPerson, 'gunnery')).toBe(true);
-      expect(getPersonSkillLevel(multiSkillPerson, 'piloting')).toBe(5);
-      expect(getPersonBestCombatSkill(multiSkillPerson)?.skillId).toBe(
-        'piloting',
-      );
+    it('GREEN: all helpers return NPC defaults for null pilot', () => {
+      expect(getSkillDesirabilityModifier(baseEntry, null)).toBe(0);
+      expect(getTechSkillValue(baseEntry, null)).toBe(10);
+      expect(getAdminSkillValue(baseEntry, null)).toBe(10);
+      expect(getMedicineSkillValue(baseEntry, null)).toBe(10);
+      expect(getNegotiationModifier(baseEntry, null)).toBe(10);
+      expect(getLeadershipSkillValue(baseEntry, null)).toBe(10);
+      expect(hasSkill(baseEntry, null, 'gunnery')).toBe(false);
+      expect(getPersonSkillLevel(baseEntry, null, 'gunnery')).toBe(-1);
+      expect(getPersonBestCombatSkill(baseEntry, null)).toBeNull();
     });
   });
 });
