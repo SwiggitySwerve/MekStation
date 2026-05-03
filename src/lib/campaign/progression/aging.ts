@@ -5,12 +5,22 @@
  * for personnel aging through defined milestones. Modifiers are cumulative
  * across milestones and only applied on birthdays when crossing milestone boundaries.
  *
+ * All mutating functions use (entry: ICampaignRosterEntry, pilot: IPilot | null)
+ * and return delta objects rather than mutated entities.
+ * NPC rule: if pilot === null or pilot has no birthDate, return empty delta.
+ *
  * @module campaign/progression/aging
  */
 
-import { ICampaignOptions } from '@/types/campaign/Campaign';
-import { IPerson } from '@/types/campaign/Person';
-import { IAgingMilestone } from '@/types/campaign/progression/progressionTypes';
+import type { ICampaignOptions } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type {
+  IAgingDelta,
+  IAgingEvent,
+  IAgingMilestone,
+  IPersonTraits,
+} from '@/types/campaign/progression/progressionTypes';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 // =============================================================================
 // Aging Milestones
@@ -194,23 +204,6 @@ export const AGING_MILESTONES: IAgingMilestone[] = [
 // Aging Event Type
 // =============================================================================
 
-/**
- * Event emitted when aging effects are applied to a person.
- */
-export interface IAgingEvent {
-  /** Event type identifier */
-  readonly type: 'aging';
-
-  /** ID of the person affected */
-  readonly personId: string;
-
-  /** Milestone that was entered */
-  readonly milestone: IAgingMilestone;
-
-  /** Age when milestone was entered */
-  readonly age: number;
-}
-
 // =============================================================================
 // Helper Functions
 // =============================================================================
@@ -338,32 +331,16 @@ export function isBirthday(
 }
 
 /**
- * Applies aging attribute modifiers to a person.
+ * Calculates the attribute changes for a given aging milestone.
  *
- * Calculates cumulative modifiers from all milestones up to the current age
- * and applies them to the person's attributes.
+ * Returns a map of attribute name → cumulative modifier value for all attributes
+ * that have a non-zero modifier at the given age. Excludes zero-value entries
+ * to keep the delta compact.
  *
- * @param person - The person to apply modifiers to
- * @param milestone - The milestone being entered
- * @returns A new person with updated attributes
- *
- * @example
- * const aged = applyAgingModifiers(person, milestone);
- * // person.attributes.STR = 5, aged.attributes.STR = 4 (if modifier is -1.0)
+ * @param age - The age at the milestone boundary
+ * @returns Map of attribute changes (empty if no non-zero modifiers)
  */
-export function applyAgingModifiers(
-  person: IPerson,
-  milestone: IAgingMilestone,
-): IPerson {
-  // Calculate age from milestone
-  const age = milestone.minAge;
-
-  // Calculate cumulative modifiers for all attributes
-  const modifiedAttributes = {
-    ...person.attributes,
-  };
-
-  // Apply cumulative modifiers for each attribute
+function computeAttributeChanges(age: number): Record<string, number> {
   const attributeNames = [
     'STR',
     'BOD',
@@ -374,103 +351,120 @@ export function applyAgingModifiers(
     'CHA',
     'Edge',
   ];
+  const changes: Record<string, number> = {};
 
   for (const attr of attributeNames) {
     const modifier = getAgingAttributeModifier(age, attr);
     if (modifier !== 0) {
-      modifiedAttributes[attr as keyof typeof modifiedAttributes] =
-        (modifiedAttributes[attr as keyof typeof modifiedAttributes] ?? 0) +
-        modifier;
+      changes[attr] = modifier;
     }
   }
 
-  return {
-    ...person,
-    attributes: modifiedAttributes,
-  };
+  return changes;
 }
 
 /**
- * Processes aging for a person on their birthday.
+ * Processes aging for a pilot on their birthday.
  *
- * Applies attribute modifiers and traits when crossing into a new milestone.
+ * Returns an IAgingDelta describing the changes to apply — does NOT mutate any entity.
+ * The caller (PR3) applies vault.attributeChanges and roster.traitsDelta atomically.
+ *
+ * NPC rule: if pilot === null or pilot has no birthDate, return empty delta.
+ *
  * Only applies effects if:
  * - useAgingEffects is true in campaign options
- * - It's the person's birthday
+ * - pilot has a birthDate
+ * - It's the pilot's birthday
  * - They're crossing into a new milestone (label changed from previous year)
  *
- * Glass Jaw is not applied if person has Toughness trait.
- * Slow Learner is not applied if person has Fast Learner trait.
+ * Glass Jaw is not applied if entry has Toughness trait.
+ * Slow Learner is not applied if entry has Fast Learner trait.
  *
- * @param person - The person to age
+ * @param entry - The roster entry (source for trait checks)
+ * @param pilot - The vault pilot (null for NPCs — returns empty delta)
  * @param currentDate - Current date (ISO 8601 string or Date)
  * @param options - Campaign options
- * @returns Object with updated person and aging events
+ * @returns IAgingDelta describing vault and roster changes
  *
  * @example
- * const result = processAging(person, '2025-01-15', options);
- * // result.updatedPerson has new attributes and traits
- * // result.events contains aging event if milestone was crossed
+ * const delta = processAging(entry, pilot, '3025-01-15', options);
+ * if (delta.vault || delta.roster) {
+ *   // commit delta to store
+ * }
  */
 export function processAging(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   currentDate: string | Date,
   options: ICampaignOptions,
-): { updatedPerson: IPerson; events: IAgingEvent[] } {
-  // Skip if aging effects are disabled
-  if (!options.useAgingEffects) {
-    return { updatedPerson: person, events: [] };
+): IAgingDelta {
+  const empty: IAgingDelta = { vault: null, roster: null, events: [] };
+
+  // NPC rule: skip
+  if (pilot === null) {
+    return empty;
   }
 
-  // Skip if no birth date
-  if (!person.birthDate) {
-    return { updatedPerson: person, events: [] };
+  // Skip if aging effects are disabled
+  if (!options.useAgingEffects) {
+    return empty;
+  }
+
+  // Skip if no birth date on the vault pilot
+  if (!pilot.birthDate) {
+    return empty;
   }
 
   // Skip if not birthday
-  if (!isBirthday(person.birthDate, currentDate)) {
-    return { updatedPerson: person, events: [] };
+  if (!isBirthday(pilot.birthDate, currentDate)) {
+    return empty;
   }
 
   // Calculate current and previous age
-  const age = calculateAge(person.birthDate, currentDate);
+  const age = calculateAge(pilot.birthDate, currentDate);
   const milestone = getMilestoneForAge(age);
   const previousMilestone = getMilestoneForAge(age - 1);
 
   // Only apply if crossing into new milestone
   if (milestone.label === previousMilestone.label) {
-    return { updatedPerson: person, events: [] };
+    return empty;
   }
 
-  // Apply attribute modifiers
-  let updated = applyAgingModifiers(person, milestone);
+  // Build attribute changes delta (vault)
+  const attributeChanges = computeAttributeChanges(age);
+  const hasAttributeChanges = Object.keys(attributeChanges).length > 0;
 
-  // Apply Glass Jaw at age 61+ (unless has Toughness)
+  // Build traits delta (roster) — only include new trait flags.
+  // Declared as a plain mutable object to allow property assignment;
+  // structurally compatible with Partial<IPersonTraits> (readonly on the type
+  // is an interface contract, not an object seal).
+  const traitsDelta: { glassJaw?: boolean; slowLearner?: boolean } = {};
+
+  // Apply Glass Jaw at age 61+ (unless has Toughness or already has Glass Jaw)
   if (
     milestone.appliesGlassJaw &&
-    !person.traits?.toughness &&
-    !person.traits?.glassJaw
+    !entry.traits?.toughness &&
+    !entry.traits?.glassJaw
   ) {
-    updated = {
-      ...updated,
-      traits: { ...updated.traits, glassJaw: true },
-    };
+    traitsDelta.glassJaw = true;
   }
 
-  // Apply Slow Learner at age 61+ (unless has Fast Learner)
+  // Apply Slow Learner at age 61+ (unless has Fast Learner or already has Slow Learner)
   if (
     milestone.appliesSlowLearner &&
-    !person.traits?.fastLearner &&
-    !person.traits?.slowLearner
+    !entry.traits?.fastLearner &&
+    !entry.traits?.slowLearner
   ) {
-    updated = {
-      ...updated,
-      traits: { ...updated.traits, slowLearner: true },
-    };
+    traitsDelta.slowLearner = true;
   }
 
+  const hasTraitChanges = Object.keys(traitsDelta).length > 0;
+
   return {
-    updatedPerson: updated,
-    events: [{ type: 'aging', personId: person.id, milestone, age }],
+    vault: hasAttributeChanges
+      ? { pilotId: entry.pilotId, attributeChanges }
+      : null,
+    roster: hasTraitChanges ? { pilotId: entry.pilotId, traitsDelta } : null,
+    events: [{ type: 'aging', personId: entry.pilotId, milestone, age }],
   };
 }

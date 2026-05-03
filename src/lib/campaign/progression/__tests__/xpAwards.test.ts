@@ -1,18 +1,23 @@
 /**
- * XP Award Service Tests
+ * XP Awards Tests
  *
- * Tests for all 8 XP award sources and the applyXPAward function.
- * Covers threshold logic, outcome-based amounts, and immutable updates.
- *
- * @module campaign/progression/__tests__/xpAwards
+ * Covers all 8 XP award functions plus buildXPAwardDelta:
+ * - NPC rule: null pilot → null return
+ * - Scenario, kill, task, mission, vocational, admin, education, manual XP
+ * - Kill threshold logic (Math.floor(kills/threshold)*award)
+ * - Task threshold logic (flat award when count >= threshold)
+ * - Mission outcome amounts (fail/success/outstanding)
+ * - buildXPAwardDelta: delta shape with xpDelta and campaignXpDelta
  */
 
 import type { ICampaignOptions } from '@/types/campaign/Campaign';
-import type { IPerson } from '@/types/campaign/Person';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { CampaignPersonnelRole } from '@/types/campaign/enums';
+import { PilotType, PilotStatus } from '@/types/pilot/PilotInterfaces';
 
-import { MedicalSystem } from '../../medical/medicalTypes';
 import {
   awardScenarioXP,
   awardKillXP,
@@ -22,613 +27,506 @@ import {
   awardAdminXP,
   awardEducationXP,
   awardManualXP,
-  applyXPAward,
+  buildXPAwardDelta,
 } from '../xpAwards';
 
 // =============================================================================
-// Test Fixtures
+// Test Factories
 // =============================================================================
 
-const createTestPerson = (overrides?: Partial<IPerson>): IPerson => ({
-  id: 'person-001',
-  name: 'Test Person',
-  status: PersonnelStatus.ACTIVE,
-  primaryRole: CampaignPersonnelRole.PILOT,
-  rank: 'MechWarrior',
-  recruitmentDate: new Date('2025-01-01'),
-  missionsCompleted: 0,
-  totalKills: 0,
-  xp: 100,
-  totalXpEarned: 500,
-  xpSpent: 400,
-  hits: 0,
-  injuries: [],
-  daysToWaitForHealing: 0,
-  skills: {},
-  attributes: {
-    STR: 5,
-    BOD: 5,
-    REF: 5,
-    DEX: 5,
-    INT: 5,
-    WIL: 5,
-    CHA: 5,
-    Edge: 0,
-  },
-  pilotSkills: { gunnery: 4, piloting: 5 },
-  createdAt: '2025-01-01T00:00:00Z',
-  updatedAt: '2025-01-01T00:00:00Z',
-  ...overrides,
-});
+function makeEntry(
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: 'pilot-001',
+    pilotName: 'John Smith',
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 500,
+    campaignXpEarned: 1500,
+    campaignKills: 8,
+    campaignMissions: 12,
+    hireDate: new Date('3000-01-01'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    ...overrides,
+  };
+}
 
-const createTestOptions = (
-  overrides?: Partial<ICampaignOptions>,
-): ICampaignOptions => ({
-  healingRateMultiplier: 1.0,
-  salaryMultiplier: 1.0,
-  retirementAge: 65,
-  healingWaitingPeriod: 7,
-  medicalSystem: MedicalSystem.STANDARD,
-  maxPatientsPerDoctor: 5,
-  doctorsUseAdministration: false,
-  xpPerMission: 1,
-  xpPerKill: 1,
-  xpCostMultiplier: 1.0,
-  trackTimeInService: true,
-  useEdge: true,
-  startingFunds: 100000,
-  maintenanceCostMultiplier: 1.0,
-  repairCostMultiplier: 1.0,
-  acquisitionCostMultiplier: 1.0,
-  payForMaintenance: true,
-  payForRepairs: true,
-  payForSalaries: true,
-  payForAmmunition: true,
-  maintenanceCycleDays: 7,
-  useLoanSystem: false,
-  useTaxes: false,
-  taxRate: 0,
-  overheadPercent: 0,
-  useRoleBasedSalaries: false,
-  payForSecondaryRole: false,
-  maxLoanPercent: 50,
-  defaultLoanRate: 5,
-  taxFrequency: 'monthly',
-  useFoodAndHousing: false,
-  clanPriceMultiplier: 2.0,
-  mixedTechPriceMultiplier: 1.5,
-  usedEquipmentMultiplier: 0.5,
-  damagedEquipmentMultiplier: 0.33,
-  useAutoResolve: false,
-  autoResolveCasualtyRate: 1.0,
-  allowPilotCapture: true,
-  useRandomInjuries: true,
-  pilotDeathChance: 0.1,
-  autoEject: true,
-  trackAmmunition: true,
-  useQuirks: true,
-  maxUnitsPerLance: 4,
-  maxLancesPerCompany: 4,
-  enforceFormationRules: false,
-  allowMixedFormations: true,
-  requireForceCommanders: false,
-  useCombatTeams: false,
-  dateFormat: 'yyyy-MM-dd',
-  useFactionRules: false,
-  techLevel: 1,
-  limitByYear: true,
-  allowClanEquipment: true,
-  useRandomEvents: false,
-  enableDayReportNotifications: true,
-  useTurnover: false,
-  turnoverFixedTargetNumber: 8,
-  turnoverCheckFrequency: 'monthly',
-  turnoverCommanderImmune: true,
-  turnoverPayoutMultiplier: 1.0,
-  turnoverUseSkillModifiers: false,
-  turnoverUseAgeModifiers: false,
-  turnoverUseMissionStatusModifiers: false,
-  trackFactionStanding: false,
-  regardChangeMultiplier: 1.0,
-  ...overrides,
-});
+function makePilot(overrides: Partial<IPilot> = {}): IPilot {
+  return {
+    id: 'pilot-001',
+    name: 'John Smith',
+    type: PilotType.Persistent,
+    status: PilotStatus.Active,
+    skills: { gunnery: 4, piloting: 5 },
+    wounds: 0,
+    abilities: [],
+    createdAt: '3000-01-01T00:00:00Z',
+    updatedAt: '3025-01-25T00:00:00Z',
+    ...overrides,
+  };
+}
+
+function makeOptions(
+  overrides: Partial<ICampaignOptions> = {},
+): ICampaignOptions {
+  return {
+    scenarioXP: 1,
+    killsForXP: 1,
+    killXPAward: 1,
+    nTasksXP: 1,
+    taskXP: 1,
+    missionFailXP: 1,
+    missionSuccessXP: 3,
+    missionOutstandingXP: 5,
+    vocationalXP: 1,
+    adminXP: 0,
+    useAgingEffects: true,
+    healingRateMultiplier: 1.0,
+    salaryMultiplier: 1.0,
+    retirementAge: 65,
+    healingWaitingPeriod: 7,
+    maxPatientsPerDoctor: 4,
+    doctorsUseAdministration: false,
+    trackTimeInService: true,
+    useEdge: true,
+    startingFunds: 100000,
+    maintenanceCostMultiplier: 1.0,
+    repairCostMultiplier: 1.0,
+    acquisitionCostMultiplier: 1.0,
+    payForMaintenance: true,
+    payForRepairs: true,
+    payForSalaries: true,
+    payForAmmunition: true,
+    maintenanceCycleDays: 30,
+    useLoanSystem: false,
+    useTaxes: false,
+    taxRate: 0,
+    overheadPercent: 5,
+    useRoleBasedSalaries: false,
+    payForSecondaryRole: false,
+    maxLoanPercent: 50,
+    defaultLoanRate: 5,
+    taxFrequency: 'monthly' as const,
+    useFoodAndHousing: false,
+    clanPriceMultiplier: 2.0,
+    mixedTechPriceMultiplier: 1.5,
+    usedEquipmentMultiplier: 0.5,
+    damagedEquipmentMultiplier: 0.33,
+    useAutoResolve: false,
+    autoResolveCasualtyRate: 1.0,
+    allowPilotCapture: true,
+    useRandomInjuries: true,
+    pilotDeathChance: 0.1,
+    autoEject: true,
+    trackAmmunition: true,
+    useQuirks: true,
+    maxUnitsPerLance: 4,
+    maxLancesPerCompany: 4,
+    enforceFormationRules: false,
+    allowMixedFormations: true,
+    requireForceCommanders: false,
+    useCombatTeams: false,
+    dateFormat: 'yyyy-MM-dd',
+    useFactionRules: false,
+    techLevel: 1,
+    limitByYear: false,
+    allowClanEquipment: true,
+    useRandomEvents: false,
+    enableDayReportNotifications: true,
+    useTurnover: false,
+    turnoverFixedTargetNumber: 7,
+    turnoverCheckFrequency: 'monthly',
+    turnoverCommanderImmune: true,
+    turnoverPayoutMultiplier: 1.0,
+    turnoverUseSkillModifiers: false,
+    turnoverUseAgeModifiers: false,
+    turnoverUseMissionStatusModifiers: false,
+    trackFactionStanding: false,
+    regardChangeMultiplier: 1.0,
+    ...overrides,
+  } as ICampaignOptions;
+}
 
 // =============================================================================
-// Scenario XP Tests
+// awardScenarioXP
 // =============================================================================
 
 describe('awardScenarioXP', () => {
-  it('should award default scenario XP (1)', () => {
-    const person = createTestPerson();
-    const options = createTestOptions();
-
-    const event = awardScenarioXP(person, options);
-
-    expect(event).toEqual({
-      personId: 'person-001',
-      source: 'scenario',
-      amount: 1,
-      description: 'Scenario participation',
-    });
+  it('should return null for NPC (pilot === null)', () => {
+    const entry = makeEntry();
+    const options = makeOptions();
+    expect(awardScenarioXP(entry, null, options)).toBeNull();
   });
 
-  it('should award configurable scenario XP', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ scenarioXP: 3 });
-
-    const event = awardScenarioXP(person, options);
-
-    expect(event.amount).toBe(3);
+  it('should return event with scenarioXP amount from options', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ scenarioXP: 2 });
+    const event = awardScenarioXP(entry, pilot, options);
+    expect(event).not.toBeNull();
+    expect(event?.personId).toBe('pilot-001');
+    expect(event?.source).toBe('scenario');
+    expect(event?.amount).toBe(2);
+    expect(event?.description).toBe('Scenario participation');
   });
 
-  it('should use ?? operator for default', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ scenarioXP: undefined });
-
-    const event = awardScenarioXP(person, options);
-
-    expect(event.amount).toBe(1);
+  it('should default to 1 if scenarioXP not set', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ scenarioXP: undefined });
+    const event = awardScenarioXP(entry, pilot, options);
+    expect(event?.amount).toBe(1);
   });
 });
 
 // =============================================================================
-// Kill XP Tests
+// awardKillXP
 // =============================================================================
 
 describe('awardKillXP', () => {
-  it('should return null if kill count below threshold', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ killsForXP: 2, killXPAward: 1 });
-
-    const event = awardKillXP(person, 1, options);
-
-    expect(event).toBeNull();
+  it('should return null for NPC (pilot === null)', () => {
+    const entry = makeEntry();
+    const options = makeOptions({ killsForXP: 2, killXPAward: 1 });
+    expect(awardKillXP(entry, null, 5, options)).toBeNull();
   });
 
-  it('should award XP when kill count meets threshold', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ killsForXP: 2, killXPAward: 1 });
+  it('should return null if killCount < threshold', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ killsForXP: 2, killXPAward: 1 });
+    expect(awardKillXP(entry, pilot, 1, options)).toBeNull();
+  });
 
-    const event = awardKillXP(person, 2, options);
+  it('should return null if killCount exactly below threshold', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ killsForXP: 3, killXPAward: 1 });
+    expect(awardKillXP(entry, pilot, 2, options)).toBeNull();
+  });
 
-    expect(event).not.toBeNull();
+  it('should award floor(kills/threshold)*award at threshold', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    // threshold=2, award=1, kills=2 → floor(2/2)*1 = 1
+    const options = makeOptions({ killsForXP: 2, killXPAward: 1 });
+    const event = awardKillXP(entry, pilot, 2, options);
     expect(event?.amount).toBe(1);
+    expect(event?.source).toBe('kill');
+    expect(event?.description).toBe('2 kills');
   });
 
-  it('should calculate amount as Math.floor(killCount / threshold) * award', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ killsForXP: 2, killXPAward: 1 });
-
-    // 5 kills / 2 threshold = 2.5, floor = 2, * 1 award = 2
-    const event = awardKillXP(person, 5, options);
-
-    expect(event?.amount).toBe(2);
+  it('should calculate floor correctly: kills=5, threshold=2, award=1 → 2', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ killsForXP: 2, killXPAward: 1 });
+    const event = awardKillXP(entry, pilot, 5, options);
+    expect(event?.amount).toBe(2); // floor(5/2)*1 = 2
   });
 
-  it('should handle multiple awards per kill count', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ killsForXP: 1, killXPAward: 2 });
-
-    // 3 kills / 1 threshold = 3, * 2 award = 6
-    const event = awardKillXP(person, 3, options);
-
-    expect(event?.amount).toBe(6);
+  it('should scale with killXPAward: kills=4, threshold=2, award=3 → 6', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ killsForXP: 2, killXPAward: 3 });
+    const event = awardKillXP(entry, pilot, 4, options);
+    expect(event?.amount).toBe(6); // floor(4/2)*3 = 6
   });
 
-  it('should use default threshold and award', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({
+  it('should default threshold=1 and award=1 if not set', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({
       killsForXP: undefined,
       killXPAward: undefined,
     });
-
-    const event = awardKillXP(person, 1, options);
-
-    expect(event?.amount).toBe(1);
-  });
-
-  it('should include kill count in description', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ killsForXP: 1, killXPAward: 1 });
-
-    const event = awardKillXP(person, 5, options);
-
-    expect(event?.description).toBe('5 kills');
+    const event = awardKillXP(entry, pilot, 3, options);
+    expect(event?.amount).toBe(3); // floor(3/1)*1 = 3
   });
 });
 
 // =============================================================================
-// Task XP Tests
+// awardTaskXP
 // =============================================================================
 
 describe('awardTaskXP', () => {
-  it('should return null if task count below threshold', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ nTasksXP: 3, taskXP: 2 });
-
-    const event = awardTaskXP(person, 2, options);
-
-    expect(event).toBeNull();
+  it('should return null for NPC (pilot === null)', () => {
+    const entry = makeEntry();
+    const options = makeOptions({ nTasksXP: 1, taskXP: 1 });
+    expect(awardTaskXP(entry, null, 3, options)).toBeNull();
   });
 
-  it('should award flat XP when task count meets threshold', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ nTasksXP: 3, taskXP: 2 });
+  it('should return null if taskCount < threshold', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ nTasksXP: 3, taskXP: 2 });
+    expect(awardTaskXP(entry, pilot, 2, options)).toBeNull();
+  });
 
-    const event = awardTaskXP(person, 3, options);
+  it('should return flat award amount when count >= threshold', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ nTasksXP: 3, taskXP: 2 });
+    const event = awardTaskXP(entry, pilot, 5, options);
+    expect(event?.amount).toBe(2);
+    expect(event?.source).toBe('task');
+    expect(event?.description).toBe('5 tasks completed');
+  });
 
-    expect(event).not.toBeNull();
+  it('should award at exactly threshold count', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ nTasksXP: 3, taskXP: 2 });
+    const event = awardTaskXP(entry, pilot, 3, options);
     expect(event?.amount).toBe(2);
   });
 
-  it('should award same amount regardless of task count above threshold', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ nTasksXP: 3, taskXP: 2 });
-
-    const event1 = awardTaskXP(person, 3, options);
-    const event2 = awardTaskXP(person, 10, options);
-
-    expect(event1?.amount).toBe(2);
-    expect(event2?.amount).toBe(2);
-  });
-
-  it('should use default threshold and award', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({
-      nTasksXP: undefined,
-      taskXP: undefined,
-    });
-
-    const event = awardTaskXP(person, 1, options);
-
+  it('should default threshold=1 and award=1 if not set', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ nTasksXP: undefined, taskXP: undefined });
+    const event = awardTaskXP(entry, pilot, 1, options);
     expect(event?.amount).toBe(1);
-  });
-
-  it('should include task count in description', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ nTasksXP: 1, taskXP: 1 });
-
-    const event = awardTaskXP(person, 5, options);
-
-    expect(event?.description).toBe('5 tasks completed');
   });
 });
 
 // =============================================================================
-// Mission XP Tests
+// awardMissionXP
 // =============================================================================
 
 describe('awardMissionXP', () => {
-  it('should award fail XP (default 1)', () => {
-    const person = createTestPerson();
-    const options = createTestOptions();
-
-    const event = awardMissionXP(person, 'fail', options);
-
-    expect(event.amount).toBe(1);
-    expect(event.description).toBe('Mission fail');
+  it('should return null for NPC (pilot === null)', () => {
+    const entry = makeEntry();
+    const options = makeOptions();
+    expect(awardMissionXP(entry, null, 'success', options)).toBeNull();
   });
 
-  it('should award success XP (default 3)', () => {
-    const person = createTestPerson();
-    const options = createTestOptions();
-
-    const event = awardMissionXP(person, 'success', options);
-
-    expect(event.amount).toBe(3);
-    expect(event.description).toBe('Mission success');
+  it('should award missionFailXP for fail outcome', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({
+      missionFailXP: 1,
+      missionSuccessXP: 3,
+      missionOutstandingXP: 5,
+    });
+    const event = awardMissionXP(entry, pilot, 'fail', options);
+    expect(event?.amount).toBe(1);
+    expect(event?.source).toBe('mission');
+    expect(event?.description).toBe('Mission fail');
   });
 
-  it('should award outstanding XP (default 5)', () => {
-    const person = createTestPerson();
-    const options = createTestOptions();
-
-    const event = awardMissionXP(person, 'outstanding', options);
-
-    expect(event.amount).toBe(5);
-    expect(event.description).toBe('Mission outstanding');
+  it('should award missionSuccessXP for success outcome', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({
+      missionFailXP: 1,
+      missionSuccessXP: 3,
+      missionOutstandingXP: 5,
+    });
+    const event = awardMissionXP(entry, pilot, 'success', options);
+    expect(event?.amount).toBe(3);
+    expect(event?.description).toBe('Mission success');
   });
 
-  it('should use configurable fail XP', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ missionFailXP: 2 });
-
-    const event = awardMissionXP(person, 'fail', options);
-
-    expect(event.amount).toBe(2);
+  it('should award missionOutstandingXP for outstanding outcome', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({
+      missionFailXP: 1,
+      missionSuccessXP: 3,
+      missionOutstandingXP: 5,
+    });
+    const event = awardMissionXP(entry, pilot, 'outstanding', options);
+    expect(event?.amount).toBe(5);
+    expect(event?.description).toBe('Mission outstanding');
   });
 
-  it('should use configurable success XP', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ missionSuccessXP: 4 });
-
-    const event = awardMissionXP(person, 'success', options);
-
-    expect(event.amount).toBe(4);
-  });
-
-  it('should use configurable outstanding XP', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ missionOutstandingXP: 10 });
-
-    const event = awardMissionXP(person, 'outstanding', options);
-
-    expect(event.amount).toBe(10);
+  it('should use defaults (fail=1, success=3, outstanding=5) if not set', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({
+      missionFailXP: undefined,
+      missionSuccessXP: undefined,
+      missionOutstandingXP: undefined,
+    });
+    expect(awardMissionXP(entry, pilot, 'fail', options)?.amount).toBe(1);
+    expect(awardMissionXP(entry, pilot, 'success', options)?.amount).toBe(3);
+    expect(awardMissionXP(entry, pilot, 'outstanding', options)?.amount).toBe(
+      5,
+    );
   });
 });
 
 // =============================================================================
-// Vocational XP Tests
+// awardVocationalXP
 // =============================================================================
 
 describe('awardVocationalXP', () => {
-  it('should award default vocational XP (1)', () => {
-    const person = createTestPerson();
-    const options = createTestOptions();
-
-    const event = awardVocationalXP(person, options);
-
-    expect(event).toEqual({
-      personId: 'person-001',
-      source: 'vocational',
-      amount: 1,
-      description: 'Vocational training',
-    });
+  it('should return null for NPC (pilot === null)', () => {
+    const entry = makeEntry();
+    const options = makeOptions();
+    expect(awardVocationalXP(entry, null, options)).toBeNull();
   });
 
-  it('should award configurable vocational XP', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ vocationalXP: 2 });
+  it('should return event with vocationalXP amount', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ vocationalXP: 2 });
+    const event = awardVocationalXP(entry, pilot, options);
+    expect(event?.amount).toBe(2);
+    expect(event?.source).toBe('vocational');
+    expect(event?.description).toBe('Vocational training');
+  });
 
-    const event = awardVocationalXP(person, options);
-
-    expect(event.amount).toBe(2);
+  it('should default to 1 if vocationalXP not set', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ vocationalXP: undefined });
+    const event = awardVocationalXP(entry, pilot, options);
+    expect(event?.amount).toBe(1);
   });
 });
 
 // =============================================================================
-// Admin XP Tests
+// awardAdminXP
 // =============================================================================
 
 describe('awardAdminXP', () => {
-  it('should award default admin XP (0)', () => {
-    const person = createTestPerson();
-    const options = createTestOptions();
-
-    const event = awardAdminXP(person, options);
-
-    expect(event).toEqual({
-      personId: 'person-001',
-      source: 'admin',
-      amount: 0,
-      description: 'Administrative duties',
-    });
+  it('should return null for NPC (pilot === null)', () => {
+    const entry = makeEntry();
+    const options = makeOptions();
+    expect(awardAdminXP(entry, null, options)).toBeNull();
   });
 
-  it('should award configurable admin XP', () => {
-    const person = createTestPerson();
-    const options = createTestOptions({ adminXP: 1 });
+  it('should return event with adminXP amount', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ adminXP: 1 });
+    const event = awardAdminXP(entry, pilot, options);
+    expect(event?.amount).toBe(1);
+    expect(event?.source).toBe('admin');
+    expect(event?.description).toBe('Administrative duties');
+  });
 
-    const event = awardAdminXP(person, options);
-
-    expect(event.amount).toBe(1);
+  it('should default to 0 if adminXP not set', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ adminXP: undefined });
+    const event = awardAdminXP(entry, pilot, options);
+    expect(event?.amount).toBe(0);
   });
 });
 
 // =============================================================================
-// Education XP Tests
+// awardEducationXP
 // =============================================================================
 
 describe('awardEducationXP', () => {
-  it('should return null (not implemented)', () => {
-    const person = createTestPerson();
-    const options = createTestOptions();
+  it('should return null (stub)', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions();
+    expect(awardEducationXP(entry, pilot, options)).toBeNull();
+  });
 
-    const event = awardEducationXP(person, options);
-
-    expect(event).toBeNull();
+  it('should return null for NPC too (stub)', () => {
+    const entry = makeEntry();
+    const options = makeOptions();
+    expect(awardEducationXP(entry, null, options)).toBeNull();
   });
 });
 
 // =============================================================================
-// Manual XP Tests
+// awardManualXP
 // =============================================================================
 
 describe('awardManualXP', () => {
-  it('should award manual XP with custom description', () => {
-    const person = createTestPerson();
-
-    const event = awardManualXP(person, 5, 'Special commendation');
-
-    expect(event).toEqual({
-      personId: 'person-001',
-      source: 'award',
-      amount: 5,
-      description: 'Special commendation',
-    });
+  it('should return null for NPC (pilot === null)', () => {
+    const entry = makeEntry();
+    expect(awardManualXP(entry, null, 5, 'Special commendation')).toBeNull();
   });
 
-  it('should support zero amount', () => {
-    const person = createTestPerson();
-
-    const event = awardManualXP(person, 0, 'No award');
-
-    expect(event.amount).toBe(0);
+  it('should return event with given amount and description', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const event = awardManualXP(entry, pilot, 5, 'Special commendation');
+    expect(event?.amount).toBe(5);
+    expect(event?.source).toBe('award');
+    expect(event?.description).toBe('Special commendation');
+    expect(event?.personId).toBe('pilot-001');
   });
 
-  it('should support negative amount (penalty)', () => {
-    const person = createTestPerson();
-
-    const event = awardManualXP(person, -10, 'Disciplinary action');
-
-    expect(event.amount).toBe(-10);
+  it('should handle zero amount', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const event = awardManualXP(entry, pilot, 0, 'Participation');
+    expect(event?.amount).toBe(0);
   });
 });
 
 // =============================================================================
-// Apply XP Award Tests
+// buildXPAwardDelta
 // =============================================================================
 
-describe('applyXPAward', () => {
-  it('should increment xp field', () => {
-    const person = createTestPerson({ xp: 100 });
-    const event = awardScenarioXP(person, createTestOptions());
-
-    const updated = applyXPAward(person, event);
-
-    expect(updated.xp).toBe(101);
+describe('buildXPAwardDelta', () => {
+  it('should build delta with correct pilotId from event', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ scenarioXP: 3 });
+    const event = awardScenarioXP(entry, pilot, options);
+    expect(event).not.toBeNull();
+    const delta = buildXPAwardDelta(event!);
+    expect(delta.vault).toBeNull();
+    expect(delta.roster?.pilotId).toBe('pilot-001');
   });
 
-  it('should increment totalXpEarned field', () => {
-    const person = createTestPerson({ totalXpEarned: 500 });
-    const event = awardScenarioXP(person, createTestOptions());
-
-    const updated = applyXPAward(person, event);
-
-    expect(updated.totalXpEarned).toBe(501);
+  it('should set xpDelta equal to event amount', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ scenarioXP: 3 });
+    const event = awardScenarioXP(entry, pilot, options);
+    const delta = buildXPAwardDelta(event!);
+    expect(delta.roster?.xpDelta).toBe(3);
   });
 
-  it('should increment both xp and totalXpEarned by event amount', () => {
-    const person = createTestPerson({ xp: 100, totalXpEarned: 500 });
-    const event = awardManualXP(person, 25, 'Test');
-
-    const updated = applyXPAward(person, event);
-
-    expect(updated.xp).toBe(125);
-    expect(updated.totalXpEarned).toBe(525);
+  it('should set campaignXpDelta equal to event amount', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ scenarioXP: 3 });
+    const event = awardScenarioXP(entry, pilot, options);
+    const delta = buildXPAwardDelta(event!);
+    expect(delta.roster?.campaignXpDelta).toBe(3);
   });
 
-  it('should preserve all other person fields', () => {
-    const person = createTestPerson({
-      name: 'John Doe',
-      rank: 'Captain',
-      missionsCompleted: 10,
-    });
-    const event = awardScenarioXP(person, createTestOptions());
-
-    const updated = applyXPAward(person, event);
-
-    expect(updated.name).toBe('John Doe');
-    expect(updated.rank).toBe('Captain');
-    expect(updated.missionsCompleted).toBe(10);
+  it('should produce null vault for all award types', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const options = makeOptions({ missionSuccessXP: 4 });
+    const event = awardMissionXP(entry, pilot, 'success', options);
+    const delta = buildXPAwardDelta(event!);
+    expect(delta.vault).toBeNull();
   });
 
-  it('should return new object (immutable)', () => {
-    const person = createTestPerson();
-    const event = awardScenarioXP(person, createTestOptions());
-
-    const updated = applyXPAward(person, event);
-
-    expect(updated).not.toBe(person);
+  it('should correctly reflect kill XP amount in delta', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    // kills=6, threshold=2, award=2 → floor(6/2)*2 = 6
+    const options = makeOptions({ killsForXP: 2, killXPAward: 2 });
+    const event = awardKillXP(entry, pilot, 6, options);
+    expect(event).not.toBeNull();
+    const delta = buildXPAwardDelta(event!);
+    expect(delta.roster?.xpDelta).toBe(6);
+    expect(delta.roster?.campaignXpDelta).toBe(6);
   });
 
-  it('should handle multiple awards sequentially', () => {
-    let person = createTestPerson({ xp: 0, totalXpEarned: 0 });
-
-    const event1 = awardScenarioXP(
-      person,
-      createTestOptions({ scenarioXP: 1 }),
-    );
-    person = applyXPAward(person, event1);
-
-    const event2 = awardManualXP(person, 5, 'Bonus');
-    person = applyXPAward(person, event2);
-
-    expect(person.xp).toBe(6);
-    expect(person.totalXpEarned).toBe(6);
-  });
-
-  it('should handle negative amounts (penalties)', () => {
-    const person = createTestPerson({ xp: 100, totalXpEarned: 500 });
-    const event = awardManualXP(person, -10, 'Penalty');
-
-    const updated = applyXPAward(person, event);
-
-    expect(updated.xp).toBe(90);
-    expect(updated.totalXpEarned).toBe(490);
-  });
-});
-
-// =============================================================================
-// Integration Tests
-// =============================================================================
-
-describe('XP Award Integration', () => {
-  it('should chain multiple award types', () => {
-    let person = createTestPerson({ xp: 0, totalXpEarned: 0 });
-    const options = createTestOptions({
-      scenarioXP: 1,
-      killsForXP: 2,
-      killXPAward: 1,
-      nTasksXP: 3,
-      taskXP: 2,
-      missionSuccessXP: 3,
-    });
-
-    // Scenario
-    let event = awardScenarioXP(person, options);
-    person = applyXPAward(person, event);
-    expect(person.xp).toBe(1);
-
-    // Kill (below threshold)
-    event =
-      awardKillXP(person, 1, options) || awardManualXP(person, 0, 'No kill XP');
-    person = applyXPAward(person, event);
-    expect(person.xp).toBe(1);
-
-    // Kill (meets threshold)
-    event = awardKillXP(person, 2, options)!;
-    person = applyXPAward(person, event);
-    expect(person.xp).toBe(2);
-
-    // Task (below threshold)
-    event =
-      awardTaskXP(person, 2, options) || awardManualXP(person, 0, 'No task XP');
-    person = applyXPAward(person, event);
-    expect(person.xp).toBe(2);
-
-    // Task (meets threshold)
-    event = awardTaskXP(person, 3, options)!;
-    person = applyXPAward(person, event);
-    expect(person.xp).toBe(4);
-
-    // Mission
-    event = awardMissionXP(person, 'success', options);
-    person = applyXPAward(person, event);
-    expect(person.xp).toBe(7);
-
-    expect(person.totalXpEarned).toBe(7);
-  });
-
-  it('should handle all award sources in one scenario', () => {
-    let person = createTestPerson({ xp: 0, totalXpEarned: 0 });
-    const options = createTestOptions({
-      scenarioXP: 1,
-      killXPAward: 1,
-      killsForXP: 1,
-      taskXP: 1,
-      nTasksXP: 1,
-      vocationalXP: 1,
-      adminXP: 1,
-      missionSuccessXP: 3,
-    });
-
-    const awards = [
-      awardScenarioXP(person, options),
-      awardKillXP(person, 1, options)!,
-      awardTaskXP(person, 1, options)!,
-      awardVocationalXP(person, options),
-      awardAdminXP(person, options),
-      awardMissionXP(person, 'success', options),
-      awardManualXP(person, 2, 'Bonus'),
-    ];
-
-    for (const award of awards) {
-      person = applyXPAward(person, award);
-    }
-
-    // 1 + 1 + 1 + 1 + 1 + 3 + 2 = 10
-    expect(person.xp).toBe(10);
-    expect(person.totalXpEarned).toBe(10);
+  it('should reflect manual award in delta', () => {
+    const entry = makeEntry();
+    const pilot = makePilot();
+    const event = awardManualXP(entry, pilot, 10, 'Heroic action');
+    const delta = buildXPAwardDelta(event!);
+    expect(delta.roster?.xpDelta).toBe(10);
+    expect(delta.roster?.campaignXpDelta).toBe(10);
+    expect(delta.roster?.pilotId).toBe('pilot-001');
   });
 });

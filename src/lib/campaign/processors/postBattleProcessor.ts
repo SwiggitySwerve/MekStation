@@ -47,10 +47,11 @@ import type { IDayProcessor, IDayProcessorResult } from '../dayPipeline';
 import { publishContractFulfilled } from '../contractFulfillmentBus';
 import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
+// TODO(PR3-5.2): replace legacy shims with two-arg (entry, pilot | null) + delta-return pattern
 import {
   applyXPAward,
-  awardKillXP,
-  awardScenarioXP,
+  awardKillXPLegacy as awardKillXP,
+  awardScenarioXPLegacy as awardScenarioXP,
 } from '../progression/xpAwards';
 
 // =============================================================================

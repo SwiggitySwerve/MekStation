@@ -4,12 +4,18 @@
  * Implements special ability (SPA) acquisition through:
  * - Veterancy rolls (once per person, 1/40 chance of flaw)
  * - Coming-of-age rolls (stub)
- * - Purchase system (XP deduction)
+ * - Purchase system (XP deduction via delta-return)
+ *
+ * All mutating functions use (entry: ICampaignRosterEntry, pilot: IPilot | null)
+ * and return delta objects rather than mutated entities.
+ * NPC rule: if pilot === null, return null / failure delta.
  *
  * @module campaign/progression/spaAcquisition
  */
 
-import type { IPerson } from '@/types/campaign/Person';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { ISpaPurchaseDelta } from '@/types/campaign/progression/progressionTypes';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 // =============================================================================
 // Types
@@ -36,20 +42,6 @@ export interface ISpecialAbility {
 
   /** Whether this SPA can only be acquired at character origin */
   readonly isOriginOnly: boolean;
-}
-
-/**
- * Result of attempting to purchase an SPA.
- */
-export interface IPurchaseSPAResult {
-  /** Updated person with SPA added (if successful) */
-  readonly updatedPerson: IPerson;
-
-  /** Whether the purchase succeeded */
-  readonly success: boolean;
-
-  /** Reason for failure (if unsuccessful) */
-  readonly reason?: string;
 }
 
 /**
@@ -161,36 +153,44 @@ export const SPA_CATALOG: Record<string, ISpecialAbility> = {
 /**
  * Rolls for a veterancy SPA (once per person).
  *
+ * NPC rule: if pilot === null, return null.
+ *
  * Logic:
- * - Returns null if person already has veterancy SPA (hasGainedVeterancySPA flag)
+ * - Returns null if entry already has veterancy SPA (hasGainedVeterancySPA flag)
  * - Filters eligible SPAs: not origin-only, not flaw, not already held
  * - 1/40 chance of flaw instead: Math.floor(random() * 40) === 0
  * - If flaw, selects from flaw pool; else from eligible pool
  * - Random selection: Math.floor(random() * pool.length)
  *
- * @param person - The person rolling for veterancy SPA
+ * @param entry - The roster entry rolling for veterancy SPA
+ * @param pilot - The vault pilot (null for NPCs — returns null)
  * @param random - Injectable random function (0-1)
- * @returns Selected SPA or null if not eligible
+ * @returns Selected SPA or null if not eligible / NPC
  *
  * @example
- * const spa = rollVeterancySPA(person, Math.random);
+ * const spa = rollVeterancySPA(entry, pilot, Math.random);
  * if (spa) {
- *   person.traits.hasGainedVeterancySPA = true;
- *   person.specialAbilities.push(spa.id);
+ *   // apply SPA via purchaseSPA or equivalent
  * }
  */
 export function rollVeterancySPA(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   random: RandomFn,
 ): ISpecialAbility | null {
+  // NPC rule: skip
+  if (pilot === null) {
+    return null;
+  }
+
   // Check if already rolled
-  if (person.traits?.hasGainedVeterancySPA) {
+  if (entry.traits?.hasGainedVeterancySPA) {
     return null;
   }
 
   // Filter eligible SPAs: not origin-only, not flaw, not already held
   const eligible = Object.values(SPA_CATALOG).filter(
-    (spa) => !spa.isOriginOnly && !spa.isFlaw && !personHasSPA(person, spa.id),
+    (spa) => !spa.isOriginOnly && !spa.isFlaw && !pilotHasSPA(pilot, spa.id),
   );
 
   if (eligible.length === 0) {
@@ -203,7 +203,7 @@ export function rollVeterancySPA(
   // Select pool based on flaw roll
   const pool = isFlaw
     ? Object.values(SPA_CATALOG).filter(
-        (spa) => spa.isFlaw && !personHasSPA(person, spa.id),
+        (spa) => spa.isFlaw && !pilotHasSPA(pilot, spa.id),
       )
     : eligible;
 
@@ -225,12 +225,14 @@ export function rollVeterancySPA(
  *
  * @stub - Not implemented
  *
- * @param person - The person rolling for coming-of-age SPA
+ * @param entry - The roster entry rolling for coming-of-age SPA
+ * @param pilot - The vault pilot (null for NPCs)
  * @param random - Injectable random function (0-1)
  * @returns null (stub)
  */
 export function rollComingOfAgeSPA(
-  _person: IPerson,
+  _entry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
   _random: RandomFn,
 ): ISpecialAbility | null {
   // @stub - Coming-of-age SPA system not implemented
@@ -242,70 +244,91 @@ export function rollComingOfAgeSPA(
 // =============================================================================
 
 /**
- * Purchases an SPA for a person, deducting XP.
+ * Purchases an SPA for a pilot, returning a delta for the caller to commit.
+ *
+ * NPC rule: if pilot === null, returns failure delta.
  *
  * Logic:
- * - Check if person has sufficient XP
  * - Check if SPA exists in catalog
- * - Check if person already has SPA
- * - Deduct XP: person.xp - spa.xpCost
- * - Add to specialAbilities array
- * - Return { updatedPerson, success, reason? }
+ * - Check if pilot already has SPA (by abilityId)
+ * - Check if entry has sufficient XP
+ * - Return ISpaPurchaseDelta with vault (new ability ref) + roster (xp deduction)
  *
- * @param person - The person purchasing the SPA
+ * @param entry - The roster entry purchasing the SPA
+ * @param pilot - The vault pilot (null for NPCs — returns failure)
  * @param spaId - ID of the SPA to purchase
- * @returns Result with updated person or failure reason
+ * @param acquiredDate - ISO date string for when the SPA was acquired
+ * @returns Delta with vault/roster changes or failure reason
  *
  * @example
- * const result = purchaseSPA(person, 'fast_learner');
- * if (result.success) {
- *   person = result.updatedPerson;
+ * const delta = purchaseSPA(entry, pilot, 'fast_learner', '3025-01-15');
+ * if (delta.success) {
+ *   // apply delta.vault and delta.roster to store
  * } else {
- *   logger.error(result.reason);
+ *   logger.error(delta.reason);
  * }
  */
 export function purchaseSPA(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   spaId: string,
-): IPurchaseSPAResult {
+  acquiredDate: string,
+): ISpaPurchaseDelta {
+  // NPC rule: skip
+  if (pilot === null) {
+    return {
+      vault: null,
+      roster: null,
+      success: false,
+      reason: 'NPC — SPA purchase skipped',
+    };
+  }
+
   // Check if SPA exists
   const spa = SPA_CATALOG[spaId];
   if (!spa) {
     return {
-      updatedPerson: person,
+      vault: null,
+      roster: null,
       success: false,
       reason: `SPA '${spaId}' not found in catalog`,
     };
   }
 
-  // Check if person already has SPA
-  if (personHasSPA(person, spaId)) {
+  // Check if pilot already has SPA
+  if (pilotHasSPA(pilot, spaId)) {
     return {
-      updatedPerson: person,
+      vault: null,
+      roster: null,
       success: false,
-      reason: `Person already has SPA '${spaId}'`,
+      reason: `Pilot already has SPA '${spaId}'`,
     };
   }
 
   // Check if sufficient XP
-  const newXp = person.xp - spa.xpCost;
+  const newXp = entry.xp - spa.xpCost;
   if (newXp < 0) {
     return {
-      updatedPerson: person,
+      vault: null,
+      roster: null,
       success: false,
-      reason: `Insufficient XP: need ${spa.xpCost}, have ${person.xp}`,
+      reason: `Insufficient XP: need ${spa.xpCost}, have ${entry.xp}`,
     };
   }
 
-  // Update person immutably
-  const updatedPerson: IPerson = {
-    ...person,
-    xp: newXp,
-    specialAbilities: [...(person.specialAbilities ?? []), spaId],
-  };
-
   return {
-    updatedPerson,
+    vault: {
+      pilotId: entry.pilotId,
+      newAbility: {
+        abilityId: spaId,
+        acquiredDate,
+        xpSpent: spa.xpCost,
+      },
+    },
+    roster: {
+      pilotId: entry.pilotId,
+      xpDelta: -spa.xpCost,
+    },
     success: true,
   };
 }
@@ -315,17 +338,38 @@ export function purchaseSPA(
 // =============================================================================
 
 /**
- * Checks if a person has a specific SPA.
+ * Checks if a vault pilot has a specific SPA by abilityId.
  *
- * @param person - The person to check
+ * @param pilot - The vault pilot to check
  * @param spaId - ID of the SPA to check for
- * @returns true if person has the SPA
+ * @returns true if pilot has the SPA
  *
  * @example
- * if (personHasSPA(person, 'fast_learner')) {
+ * if (pilotHasSPA(pilot, 'fast_learner')) {
  *   // Apply Fast Learner XP cost reduction
  * }
  */
-export function personHasSPA(person: IPerson, spaId: string): boolean {
-  return person.specialAbilities?.includes(spaId) ?? false;
+export function pilotHasSPA(pilot: IPilot, spaId: string): boolean {
+  return pilot.abilities.some((a) => a.abilityId === spaId);
+}
+
+/**
+ * Checks if an entry/pilot pair has a specific SPA.
+ *
+ * NPC rule: if pilot === null, returns false.
+ *
+ * @param entry - The roster entry (unused — SPA ownership lives in vault)
+ * @param pilot - The vault pilot (null for NPCs — returns false)
+ * @param spaId - ID of the SPA to check for
+ * @returns true if pilot has the SPA
+ */
+export function personHasSPA(
+  _entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+  spaId: string,
+): boolean {
+  if (pilot === null) {
+    return false;
+  }
+  return pilotHasSPA(pilot, spaId);
 }

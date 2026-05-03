@@ -94,12 +94,13 @@
   - Acceptance: finances tests pass.
   - QA: `npx jest --testPathPattern='(finances|statusRules)'`.
 
-- [ ] 2.4 **Progression + skills commit** (4 progression files + 3 skills files in `src/lib/campaign/`).
+- [x] 2.4 **Progression + skills commit** (4 progression files + 3 skills files in `src/lib/campaign/`).
   - NPC behavior: SKIP (`pilot === null` early-return).
   - Use delta-return pattern per design.md decision.
   - Acceptance: progression + skills tests pass.
   - QA: `npx jest --testPathPattern='(progression|skills)'`.
   - **2.4a (skills only, SHIPPED)**: `skillHelpers.ts`, `skillCheck.ts`, `skillProgression.ts` + their 3 test files migrated and pushed to `chore/cluster-e-pr2-helper-migration`. 247/247 tests pass. Progression files (`src/lib/campaign/progression/`) remain for 2.4b.
+  - **2.4b (progression, SHIPPED)**: `xpAwards.ts`, `aging.ts`, `skillCostTraits.ts`, `spaAcquisition.ts` + their 4 test files migrated to two-arg `(entry, pilot | null)` + delta-return pattern. `IAgingEvent` moved to `progressionTypes.ts`. 136/136 progression tests pass.
 
 - [ ] 2.5 **Awards commit** (2 files, ~18 checker functions in `src/lib/campaign/awards/`).
   - NPC behavior: SKIP all checker functions on `pilot === null`.
