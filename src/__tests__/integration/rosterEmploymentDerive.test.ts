@@ -1,19 +1,21 @@
 /**
  * Roster Employment Derivation — integration tests.
  *
- * Verifies that the day pipeline reads correctly-derived `campaign.personnel`
- * from `useCampaignRosterStore.pilots` + `usePilotStore.pilots` via the
- * `rosterEntryToPerson` shim.
+ * Verifies that the salary calculation reads correctly from the two-arg
+ * `calculateTotalMonthlySalary(entries, pilotsMap, options)` signature using
+ * the pre-join template: roster entries from `useCampaignRosterStore` + vault
+ * pilots from `usePilotStore` resolved via `buildPilotLookup`.
  *
- * Specifically tests the read-side wiring: salary calculation (and the
- * surrounding finance pipeline) sees populated personnel data instead of
- * the deleted (Phase 5) empty personnel sub-store.
+ * This replaces the old shim-based test that passed a derived `personnel` Map
+ * through a campaign-shaped first argument. After the wire-iperson-hard-cutover
+ * PR2 migration, helpers no longer accept `ICampaign` as the entry source.
  *
- * @spec openspec/changes/migrate-personnel-to-roster-employment/specs/personnel-management/spec.md
+ * @spec openspec/changes/wire-iperson-hard-cutover/specs/personnel-management/spec.md
  */
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
+import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { calculateTotalMonthlySalary } from '@/lib/finances/salaryService';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
@@ -111,49 +113,50 @@ beforeEach(() => {
 describe('Roster employment derivation — integration', () => {
   describe('salary calculation (read-side)', () => {
     it('returns zero salary when payForSalaries is disabled (control case)', () => {
-      const campaign = {
-        id: 'campaign-test',
-        personnel: new Map(), // legacy empty Map (the canonical bug — see council decision)
-        options: { payForSalaries: false },
-      } as unknown as Parameters<typeof calculateTotalMonthlySalary>[0];
+      // Pre-join pattern: pass empty entries + empty pilotsMap with disabled option.
+      // Confirms the guard short-circuits before iterating entries.
+      const breakdown = calculateTotalMonthlySalary([], new Map(), {
+        payForSalaries: false,
+        salaryMultiplier: 1.0,
+        overheadPercent: 5,
+        useTaxes: false,
+        taxRate: 0,
+        startingFunds: 0,
+        useLoanSystem: false,
+        payForMaintenance: false,
+        maintenanceCostMultiplier: 1.0,
+      } as Parameters<typeof calculateTotalMonthlySalary>[2]);
 
-      const breakdown = calculateTotalMonthlySalary(campaign);
       expect(breakdown.total.amount).toBe(0);
       expect(breakdown.personnelCount).toBe(0);
     });
 
-    it('reads from a derived personnel Map and computes a non-zero total', () => {
-      // Simulate what `advanceDay` does: derive personnel from roster + vault.
-      // Use the same code path the production `advanceDay` uses.
-      const roster = useCampaignRosterStore.getState().pilots;
+    it('reads from roster store + vault store and computes a non-zero total', () => {
+      // Simulate what financialProcessor.process() does: build the lookup once,
+      // then pass entries + pilotsMap to the salary helper.
+      const entries = useCampaignRosterStore.getState().pilots;
       const vault = usePilotStore.getState().pilots;
+      const pilotsMap = buildPilotLookup(vault);
 
-      // Inline-import the shim (doesn't pollute the test module).
-      const { rosterEntryToPerson } = jest.requireActual(
-        '@/lib/campaign/utils/rosterEntryToPerson',
-      ) as typeof import('@/lib/campaign/utils/rosterEntryToPerson');
+      const options = {
+        payForSalaries: true,
+        salaryMultiplier: 1.0,
+        overheadPercent: 5,
+        useTaxes: false,
+        taxRate: 0,
+        startingFunds: 0,
+        useLoanSystem: false,
+        payForMaintenance: false,
+        maintenanceCostMultiplier: 1.0,
+      } as Parameters<typeof calculateTotalMonthlySalary>[2];
 
-      const derivedPersonnel = new Map(
-        roster.map((entry) => {
-          const vaultPilot = vault.find((p) => p.id === entry.pilotId) ?? null;
-          return [entry.pilotId, rosterEntryToPerson(entry, vaultPilot)];
-        }),
+      const breakdown = calculateTotalMonthlySalary(
+        entries,
+        pilotsMap,
+        options,
       );
 
-      // Build a minimal campaign with payForSalaries enabled + derived personnel.
-      const campaign = {
-        id: 'campaign-test',
-        personnel: derivedPersonnel,
-        options: {
-          payForSalaries: true,
-          payForSecondaryRole: false,
-          salaryMultiplier: 1.0,
-        },
-      } as unknown as Parameters<typeof calculateTotalMonthlySalary>[0];
-
-      const breakdown = calculateTotalMonthlySalary(campaign);
-
-      // Both seeded pilots should be eligible (Active status maps to ACTIVE).
+      // Both seeded pilots should be eligible (Active status, non-KIA).
       expect(breakdown.personnelCount).toBe(2);
       // Combat salaries should be non-zero (PILOT primary role lands in combat bucket).
       expect(breakdown.combatSalaries.amount).toBeGreaterThan(0);

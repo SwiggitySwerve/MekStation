@@ -5,7 +5,7 @@
  * - calculateTaxes: Calculate taxes on profits (0 if negative/zero profit or useTaxes=false)
  * - calculateProfits: Calculate profits = currentBalance - startingCapital
  * - calculateMonthlyOverhead: Calculate overhead = 5% of total salary
- * - calculateFoodAndHousing: Calculate food/housing costs per person (3 tiers: officer, enlisted, prisoner/dependent)
+ * - calculateFoodAndHousing: Calculate food/housing costs per roster entry (2 tiers: officer, enlisted)
  *
  * Tax formula:
  *   taxes = profits × (taxRate / 100) if profits > 0 and useTaxes=true, else 0
@@ -14,17 +14,25 @@
  *   overhead = totalSalary × (overheadPercent / 100)
  *
  * Food/Housing tiers:
- *   - Officer (commander or second-in-command): 1,260 C-bills/month
+ *   - Officer (ADMIN_COMMAND role): 1,260 C-bills/month
  *   - Enlisted: 552 C-bills/month
- *   - Prisoner/Dependent (POW status): 348 C-bills/month
+ *
+ * Note: The prisoner tier (348 C-bills/month) is not active because
+ * CampaignPilotStatus has no POW value (only Active/Wounded/Critical/MIA/KIA).
+ * The constant is retained for when the status enum is extended.
+ *
+ * NPC domain matrix (finance = PROCESS): NPC roster entries (statblockData present)
+ * still incur food/housing costs — all living entries consume resources.
  *
  * @module lib/finances/taxService
  */
 
-import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IPerson } from '@/types/campaign/Person';
+import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { Money } from '@/types/campaign/Money';
 
 import { calculateTotalMonthlySalary } from './salaryService';
@@ -37,11 +45,14 @@ import { calculateTotalMonthlySalary } from './salaryService';
  * Food and housing cost tiers per person per month
  */
 export const FOOD_AND_HOUSING_COSTS = {
-  /** Officer (commander or second-in-command): 1,260 C-bills/month */
+  /** Officer (ADMIN_COMMAND role): 1,260 C-bills/month */
   officer: 1260,
   /** Enlisted personnel: 552 C-bills/month */
   enlisted: 552,
-  /** Prisoner/Dependent (POW status): 348 C-bills/month */
+  /**
+   * Prisoner/Dependent (POW status): 348 C-bills/month.
+   * Reserved for when CampaignPilotStatus gains a POW value.
+   */
   prisoner: 348,
 } as const;
 
@@ -57,55 +68,27 @@ const OFFICER_ROLES = new Set<CampaignPersonnelRole>([
 ]);
 
 /**
- * Checks if a person is an officer for food/housing cost purposes.
+ * Checks if a roster entry is an officer for food/housing cost purposes.
  * Officers are those with ADMIN_COMMAND role (commander/second-in-command).
  *
- * @param person - The person to check
- * @returns True if person is an officer
+ * @param entry - The roster entry to check
+ * @returns True if entry is an officer
  */
-function isOfficer(person: IPerson): boolean {
-  return OFFICER_ROLES.has(person.primaryRole);
+function isOfficer(entry: ICampaignRosterEntry): boolean {
+  return OFFICER_ROLES.has(entry.primaryRole);
 }
 
 /**
- * Checks if a person is a prisoner/dependent for food/housing cost purposes.
- * Prisoners are those with POW status.
+ * Checks if a roster entry is alive (eligible for food/housing costs).
+ * Only excludes KIA — CampaignPilotStatus has 5 values and lacks the
+ * extended dead/retired/deserted variants that IPerson.status had.
+ * All other statuses (Active, Wounded, Critical, MIA) incur food/housing costs.
  *
- * @param person - The person to check
- * @returns True if person is a prisoner/dependent
+ * @param entry - The roster entry to check
+ * @returns True if entry is alive
  */
-function isPrisoner(person: IPerson): boolean {
-  return person.status === PersonnelStatus.POW;
-}
-
-/**
- * Checks if a person is alive (eligible for food/housing costs).
- * Excludes dead, retired, deserted, and other non-alive statuses.
- *
- * @param person - The person to check
- * @returns True if person is alive
- */
-function isAlive(person: IPerson): boolean {
-  const deadStatuses = new Set<PersonnelStatus>([
-    PersonnelStatus.KIA,
-    PersonnelStatus.RETIRED,
-    PersonnelStatus.DESERTED,
-    PersonnelStatus.ACCIDENTAL_DEATH,
-    PersonnelStatus.DISEASE,
-    PersonnelStatus.NATURAL_CAUSES,
-    PersonnelStatus.MURDER,
-    PersonnelStatus.WOUNDS,
-    PersonnelStatus.MIA_PRESUMED_DEAD,
-    PersonnelStatus.OLD_AGE,
-    PersonnelStatus.PREGNANCY_COMPLICATIONS,
-    PersonnelStatus.UNDETERMINED,
-    PersonnelStatus.MEDICAL_COMPLICATIONS,
-    PersonnelStatus.SUICIDE,
-    PersonnelStatus.EXECUTION,
-    PersonnelStatus.MISSING_PRESUMED_DEAD,
-  ]);
-
-  return !deadStatuses.has(person.status);
+function isAlive(entry: ICampaignRosterEntry): boolean {
+  return entry.status !== CampaignPilotStatus.KIA;
 }
 
 // =============================================================================
@@ -175,54 +158,67 @@ export function calculateProfits(campaign: ICampaign): Money {
 /**
  * Calculates the monthly overhead costs for a campaign.
  *
- * Overhead is 5% of total monthly salary.
+ * Overhead is a percentage of total monthly salary. Pre-join pattern:
+ * callers build the pilot lookup once via `buildPilotLookup(vault)` and
+ * pass it here alongside roster entries.
  *
  * Formula: totalSalary × (overheadPercent / 100)
  *
- * @param campaign - The campaign to calculate overhead for
+ * @param rosterEntries - The campaign roster entries
+ * @param pilots - Pre-joined vault pilot map (pilotId → IPilot)
+ * @param options - Campaign options
  * @returns Overhead amount as Money
  *
  * @example
  * // Campaign with 100,000 total salary at 5% overhead
- * calculateMonthlyOverhead(campaign) // => Money(5000)
+ * calculateMonthlyOverhead(entries, pilotsMap, options) // => Money(5000)
  */
-export function calculateMonthlyOverhead(campaign: ICampaign): Money {
-  const salaryBreakdown = calculateTotalMonthlySalary(campaign);
-  return salaryBreakdown.total.multiply(campaign.options.overheadPercent / 100);
+export function calculateMonthlyOverhead(
+  rosterEntries: readonly ICampaignRosterEntry[],
+  pilots: ReadonlyMap<string, IPilot>,
+  options: ICampaignOptions,
+): Money {
+  const salaryBreakdown = calculateTotalMonthlySalary(
+    rosterEntries,
+    pilots,
+    options,
+  );
+  return salaryBreakdown.total.multiply(options.overheadPercent / 100);
 }
 
 /**
- * Calculates the monthly food and housing costs for all campaign personnel.
+ * Calculates the monthly food and housing costs for all campaign roster entries.
  *
  * Costs are tiered by role/status:
  * - Officer (ADMIN_COMMAND role): 1,260 C-bills/month
- * - Enlisted: 552 C-bills/month
- * - Prisoner/Dependent (POW status): 348 C-bills/month
+ * - Enlisted (all other roles): 552 C-bills/month
  *
- * Only counts alive personnel (skips KIA, RETIRED, DESERTED, etc.).
+ * Only counts alive entries (skips KIA). All other CampaignPilotStatus values
+ * (Active, Wounded, Critical, MIA) incur food/housing costs.
  *
- * @param campaign - The campaign to calculate food/housing for
+ * NPC domain matrix (finance = PROCESS): NPC entries (pilot === null) still
+ * incur food/housing costs at the enlisted tier unless they hold ADMIN_COMMAND.
+ *
+ * @param rosterEntries - The campaign roster entries
  * @returns Total food and housing cost as Money
  *
  * @example
- * // Campaign with 1 officer, 5 enlisted, 1 prisoner
- * calculateFoodAndHousing(campaign)
- * // => Money(1260 + 5*552 + 1*348) = Money(4128)
+ * // 1 officer + 5 enlisted
+ * calculateFoodAndHousing(entries) // => Money(1260 + 5*552) = Money(4020)
  */
-export function calculateFoodAndHousing(campaign: ICampaign): Money {
+export function calculateFoodAndHousing(
+  rosterEntries: readonly ICampaignRosterEntry[],
+): Money {
   let total = 0;
 
-  const personArray = Array.from(campaign.personnel.values());
-  for (const person of personArray) {
-    // Skip non-alive personnel
-    if (!isAlive(person)) {
+  for (const entry of rosterEntries) {
+    // Skip KIA entries
+    if (!isAlive(entry)) {
       continue;
     }
 
-    // Determine cost tier
-    if (isPrisoner(person)) {
-      total += FOOD_AND_HOUSING_COSTS.prisoner;
-    } else if (isOfficer(person)) {
+    // Determine cost tier: officer or enlisted (no prisoner tier — no POW status)
+    if (isOfficer(entry)) {
       total += FOOD_AND_HOUSING_COSTS.officer;
     } else {
       total += FOOD_AND_HOUSING_COSTS.enlisted;

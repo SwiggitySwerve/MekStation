@@ -1,6 +1,9 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { ILoan } from '@/types/campaign/Loan';
+import type { IPerson } from '@/types/campaign/Person';
 import type { Transaction } from '@/types/campaign/Transaction';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { makePayment, isLoanPaidOff } from '@/lib/finances/loanService';
 import { calculateTotalMonthlySalary } from '@/lib/finances/salaryService';
@@ -9,9 +12,45 @@ import {
   calculateMonthlyOverhead,
   calculateFoodAndHousing,
 } from '@/lib/finances/taxService';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { getAllUnits } from '@/types/campaign/Force';
 import { Money } from '@/types/campaign/Money';
+
+// Transitional bridge for PR2: synthesize a minimal ICampaignRosterEntry from
+// an IPerson so the migrated finance helpers can be called against the legacy
+// `campaign.personnel: Map<string, IPerson>` data source. PR3 repoints
+// dayAdvancement to read entries directly from useCampaignRosterStore; PR4
+// deletes the IPerson map entirely.
+function personToMinimalEntry(person: IPerson): ICampaignRosterEntry {
+  return {
+    pilotId: person.id,
+    pilotName: person.name,
+    status:
+      person.status === PersonnelStatus.KIA
+        ? CampaignPilotStatus.KIA
+        : person.status === PersonnelStatus.WOUNDED
+          ? CampaignPilotStatus.Wounded
+          : person.status === PersonnelStatus.MIA
+            ? CampaignPilotStatus.MIA
+            : CampaignPilotStatus.Active,
+    wounds: person.hits ?? 0,
+    recoveryTime: person.daysToWaitForHealing ?? 0,
+    xp: person.xp ?? 0,
+    campaignXpEarned: person.totalXpEarned ?? 0,
+    campaignKills: person.totalKills ?? 0,
+    campaignMissions: person.missionsCompleted ?? 0,
+    hireDate: person.recruitmentDate ?? new Date(0),
+    primaryRole:
+      (person.primaryRole as CampaignPersonnelRole) ??
+      CampaignPersonnelRole.PILOT,
+    rankIndex: person.rankIndex ?? 0,
+    isFounder: person.isFounder,
+    isCommander: person.isCommander,
+  };
+}
 
 import { DEFAULT_DAILY_MAINTENANCE } from '../dayAdvancement';
 import {
@@ -50,8 +89,14 @@ function createTransactionEvent(
 function processMonthlySalaries(
   campaign: ICampaign,
   date: Date,
+  entries: readonly ICampaignRosterEntry[],
+  pilots: ReadonlyMap<string, IPilot>,
 ): FinancialStepResult {
-  const salaryBreakdown = calculateTotalMonthlySalary(campaign);
+  const salaryBreakdown = calculateTotalMonthlySalary(
+    entries,
+    pilots,
+    campaign.options,
+  );
 
   if (salaryBreakdown.total.isZero()) {
     return { events: [], campaign };
@@ -88,8 +133,13 @@ function processMonthlySalaries(
   };
 }
 
-function processOverhead(campaign: ICampaign, date: Date): FinancialStepResult {
-  const overhead = calculateMonthlyOverhead(campaign);
+function processOverhead(
+  campaign: ICampaign,
+  date: Date,
+  entries: readonly ICampaignRosterEntry[],
+  pilots: ReadonlyMap<string, IPilot>,
+): FinancialStepResult {
+  const overhead = calculateMonthlyOverhead(entries, pilots, campaign.options);
 
   if (overhead.isZero()) {
     return { events: [], campaign };
@@ -129,8 +179,9 @@ function processOverhead(campaign: ICampaign, date: Date): FinancialStepResult {
 function processFoodAndHousing(
   campaign: ICampaign,
   date: Date,
+  entries: readonly ICampaignRosterEntry[],
 ): FinancialStepResult {
-  const foodCost = calculateFoodAndHousing(campaign);
+  const foodCost = calculateFoodAndHousing(entries);
 
   if (foodCost.isZero()) {
     return { events: [], campaign };
@@ -323,16 +374,35 @@ export const financialProcessor: IDayProcessor = {
     const events: IDayEvent[] = [];
     let updatedCampaign = campaign;
 
+    // PR2 transitional: derive entries from the legacy `campaign.personnel`
+    // map so test contracts that populate `campaign.personnel` directly stay
+    // green. PR3 repoints this to `useCampaignRosterStore`/`usePilotStore`.
+    // Pilots resolved as empty here — finance helpers don't read vault skills.
+    const entries: ICampaignRosterEntry[] = Array.from(
+      campaign.personnel.values(),
+    ).map(personToMinimalEntry);
+    const pilots: ReadonlyMap<string, IPilot> = new Map<string, IPilot>();
+
     if (isFirstOfMonth(date)) {
-      const salaryResult = processMonthlySalaries(updatedCampaign, date);
+      const salaryResult = processMonthlySalaries(
+        updatedCampaign,
+        date,
+        entries,
+        pilots,
+      );
       updatedCampaign = salaryResult.campaign;
       events.push(...salaryResult.events);
 
-      const overheadResult = processOverhead(updatedCampaign, date);
+      const overheadResult = processOverhead(
+        updatedCampaign,
+        date,
+        entries,
+        pilots,
+      );
       updatedCampaign = overheadResult.campaign;
       events.push(...overheadResult.events);
 
-      const foodResult = processFoodAndHousing(updatedCampaign, date);
+      const foodResult = processFoodAndHousing(updatedCampaign, date, entries);
       updatedCampaign = foodResult.campaign;
       events.push(...foodResult.events);
 

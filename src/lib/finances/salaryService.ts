@@ -5,7 +5,7 @@
  * - BASE_MONTHLY_SALARY: Monthly base salary by role (10 canonical roles)
  * - XP_SALARY_MULTIPLIER: Salary multiplier by experience level
  * - SPECIAL_MULTIPLIERS: Special case multipliers
- * - calculatePersonSalary: Calculate individual person's monthly salary
+ * - calculatePersonSalary: Calculate individual salary from roster entry + vault pilot
  * - calculateTotalMonthlySalary: Calculate total monthly salary for all campaign personnel
  *
  * Salary formula:
@@ -13,14 +13,19 @@
  *   if (secondaryRole && payForSecondaryRole):
  *     salary += secondaryRoleBaseSalary × 0.5
  *
+ * NPC domain matrix (finance = PROCESS): NPC roster entries (pilot === null) still
+ * incur salary costs — NPCs cost money regardless of vault pilot presence. XP level
+ * defaults to 0 for NPCs (no vault XP record available).
+ *
  * @module lib/finances/salaryService
  */
 
-import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
-import type { IPerson } from '@/types/campaign/Person';
+import type { ICampaignOptions } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
 
 // =============================================================================
@@ -186,17 +191,26 @@ export const XP_LEVEL_THRESHOLDS: readonly {
 ];
 
 /**
- * Determines the experience level of a person based on their total XP earned.
+ * Determines the experience level based on total XP earned.
  *
- * @param person - The person to evaluate
+ * PC case: prefers `pilot.career.totalXpEarned` (vault identity owns XP history).
+ * NPC case (`pilot === null`): falls back to `entry.campaignXpEarned` so NPCs
+ * with accumulated campaign XP are tiered correctly. If neither source has
+ * XP, defaults to ultra_green tier (NPC domain matrix: salary/finance = PROCESS).
+ *
+ * @param entry - The roster entry (campaign-scoped XP source for NPCs).
+ * @param pilot - The vault pilot, or null for NPC roster entries.
  * @returns The experience level string
  *
  * @example
- * getExperienceLevel(personWith500XP) // 'regular'
- * getExperienceLevel(personWith4000XP) // 'elite'
+ * getExperienceLevel(entry, pilotWith500TotalXp) // 'regular'
+ * getExperienceLevel(entryWith500CampaignXp, null) // 'regular' (NPC fallback)
  */
-export function getExperienceLevel(person: IPerson): ExperienceLevel {
-  const totalXp = person.totalXpEarned;
+export function getExperienceLevel(
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+): ExperienceLevel {
+  const totalXp = pilot?.career?.totalXpEarned ?? entry.campaignXpEarned ?? 0;
 
   for (const threshold of XP_LEVEL_THRESHOLDS) {
     if (totalXp >= threshold.minXp) {
@@ -256,41 +270,42 @@ export function getBaseSalaryForRole(role: CampaignPersonnelRole): number {
 }
 
 /**
- * Calculates the monthly salary for a single person.
+ * Calculates the monthly salary for a single roster entry.
  *
  * Formula:
  *   salary = baseSalary × xpMultiplier × salaryMultiplier
- *   if (secondaryRole && payForSecondaryRole):
- *     salary += secondaryRoleBaseSalary × secondaryRoleRatio
+ *   (no secondary role: ICampaignRosterEntry has no secondaryRole field)
  *
- * @param person - The person to calculate salary for
+ * NPC domain matrix (finance = PROCESS): NPC entries (pilot === null) still
+ * incur salary costs. XP defaults to 0 when no vault pilot is present.
+ *
+ * @param entry - The roster entry (provides primaryRole and employment context)
+ * @param pilot - The vault pilot for XP lookup, or null for NPC entries
  * @param options - Salary calculation options
  * @returns Monthly salary as Money
  *
  * @example
  * // Pilot at regular experience, 1.0 multiplier
- * calculatePersonSalary(regularPilot, { salaryMultiplier: 1.0, payForSecondaryRole: true })
+ * calculatePersonSalary(entry, pilot, { salaryMultiplier: 1.0, payForSecondaryRole: true })
  * // => Money(1500)
  *
- * // Pilot at elite experience, 1.0 multiplier
- * calculatePersonSalary(elitePilot, { salaryMultiplier: 1.0, payForSecondaryRole: true })
- * // => Money(2250)
+ * // NPC entry (pilot === null), ultra_green (0 XP), 1.0 multiplier
+ * calculatePersonSalary(npcEntry, null, { salaryMultiplier: 1.0, payForSecondaryRole: true })
+ * // => Money(900) for PILOT role (1500 × 0.6)
  */
 export function calculatePersonSalary(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   options: SalaryOptions,
 ): Money {
-  const baseSalary = getBaseSalaryForRole(person.primaryRole);
-  const xpLevel = getExperienceLevel(person);
+  const baseSalary = getBaseSalaryForRole(entry.primaryRole);
+  const xpLevel = getExperienceLevel(entry, pilot);
   const xpMult = XP_SALARY_MULTIPLIER[xpLevel] ?? 1.0;
 
-  let salary = baseSalary * xpMult * options.salaryMultiplier;
-
-  // Add secondary role at 50% if applicable
-  if (person.secondaryRole && options.payForSecondaryRole) {
-    const secondaryBase = getBaseSalaryForRole(person.secondaryRole);
-    salary += secondaryBase * SPECIAL_MULTIPLIERS.secondaryRoleRatio;
-  }
+  // ICampaignRosterEntry has no secondaryRole field — secondary role bonus is
+  // not applicable at this layer. If secondaryRole support is added to the
+  // roster entry in a future change, wire it here.
+  const salary = baseSalary * xpMult * options.salaryMultiplier;
 
   return new Money(salary);
 }
@@ -313,36 +328,30 @@ export interface SalaryBreakdown {
   readonly civilianSalaries: Money;
   /** Number of personnel included in calculation */
   readonly personnelCount: number;
-  /** Individual salary entries (person ID → salary) */
+  /** Individual salary entries (pilotId → salary) */
   readonly entries: ReadonlyMap<string, Money>;
 }
 
-/** Personnel statuses excluded from salary calculation */
-const EXCLUDED_STATUSES = new Set<PersonnelStatus>([
-  PersonnelStatus.KIA,
-  PersonnelStatus.RETIRED,
-  PersonnelStatus.DESERTED,
-  PersonnelStatus.ACCIDENTAL_DEATH,
-  PersonnelStatus.DISEASE,
-  PersonnelStatus.NATURAL_CAUSES,
-  PersonnelStatus.MURDER,
-  PersonnelStatus.WOUNDS,
-  PersonnelStatus.MIA_PRESUMED_DEAD,
-  PersonnelStatus.OLD_AGE,
-  PersonnelStatus.PREGNANCY_COMPLICATIONS,
-  PersonnelStatus.UNDETERMINED,
-  PersonnelStatus.MEDICAL_COMPLICATIONS,
-  PersonnelStatus.SUICIDE,
-  PersonnelStatus.EXECUTION,
-  PersonnelStatus.MISSING_PRESUMED_DEAD,
+/**
+ * Roster entry statuses excluded from salary calculation.
+ *
+ * Only KIA is excluded — the CampaignPilotStatus enum has 5 values and lacks
+ * the PersonnelStatus dead/retired/deserted variants. All other active statuses
+ * (Active, Wounded, Critical, MIA) incur salary costs.
+ */
+const EXCLUDED_STATUSES = new Set<CampaignPilotStatus>([
+  CampaignPilotStatus.KIA,
 ]);
 
 /**
- * Checks if a person is eligible for salary payment.
- * Excludes dead, retired, and deserted personnel.
+ * Checks if a roster entry is eligible for salary payment.
+ * Excludes KIA entries; all other CampaignPilotStatus values are eligible.
+ *
+ * @param entry - The roster entry to check
+ * @returns True if eligible for salary
  */
-export function isEligibleForSalary(person: IPerson): boolean {
-  return !EXCLUDED_STATUSES.has(person.status);
+export function isEligibleForSalary(entry: ICampaignRosterEntry): boolean {
+  return !EXCLUDED_STATUSES.has(entry.status);
 }
 
 /** Combat role set for categorization */
@@ -383,21 +392,29 @@ const SUPPORT_ROLES = new Set<CampaignPersonnelRole>([
  * Calculates the total monthly salary for all eligible campaign personnel.
  *
  * Sums individual salaries and provides a breakdown by role category
- * (combat, support, civilian).
+ * (combat, support, civilian). Pre-join pattern: callers build the pilot
+ * lookup once per pipeline run via `buildPilotLookup(vault)` and pass here.
  *
- * @param campaign - The campaign to calculate salaries for
- * @returns SalaryBreakdown with totals and per-person entries
+ * NPC domain matrix (finance = PROCESS): NPC entries (pilotId absent from
+ * pilots map) still contribute to the salary total at ultra_green rate.
+ *
+ * @param rosterEntries - The campaign roster entries to calculate salaries for
+ * @param pilots - Pre-joined vault pilot map (pilotId → IPilot)
+ * @param options - Campaign options controlling salary behaviour
+ * @returns SalaryBreakdown with totals and per-entry salary amounts
  *
  * @example
- * const breakdown = calculateTotalMonthlySalary(campaign);
+ * const pilotMap = buildPilotLookup(usePilotStore.getState().pilots);
+ * const breakdown = calculateTotalMonthlySalary(rosterEntries, pilotMap, campaign.options);
  * logger.debug(`Total: ${breakdown.total.format()}`);
- * logger.debug(`Combat: ${breakdown.combatSalaries.format()}`);
  */
 export function calculateTotalMonthlySalary(
-  campaign: ICampaign,
+  rosterEntries: readonly ICampaignRosterEntry[],
+  pilots: ReadonlyMap<string, IPilot>,
+  options: ICampaignOptions,
 ): SalaryBreakdown {
-  const salaryOptions = createSalaryOptions(campaign.options);
-  const entries = new Map<string, Money>();
+  const salaryOptions = createSalaryOptions(options);
+  const salaryEntries = new Map<string, Money>();
 
   let total = Money.ZERO;
   let combatSalaries = Money.ZERO;
@@ -406,31 +423,33 @@ export function calculateTotalMonthlySalary(
   let personnelCount = 0;
 
   // Skip salary calculation entirely if salaries are disabled
-  if (!campaign.options.payForSalaries) {
+  if (!options.payForSalaries) {
     return {
       total: Money.ZERO,
       combatSalaries: Money.ZERO,
       supportSalaries: Money.ZERO,
       civilianSalaries: Money.ZERO,
       personnelCount: 0,
-      entries,
+      entries: salaryEntries,
     };
   }
 
-  for (const [id, person] of Array.from(campaign.personnel.entries())) {
-    if (!isEligibleForSalary(person)) {
+  for (const entry of rosterEntries) {
+    if (!isEligibleForSalary(entry)) {
       continue;
     }
 
-    const salary = calculatePersonSalary(person, salaryOptions);
-    entries.set(id, salary);
+    // NPC entries resolve to null (no vault counterpart); salary still applies.
+    const pilot = pilots.get(entry.pilotId) ?? null;
+    const salary = calculatePersonSalary(entry, pilot, salaryOptions);
+    salaryEntries.set(entry.pilotId, salary);
     total = total.add(salary);
     personnelCount++;
 
     // Categorize by role
-    if (COMBAT_ROLES.has(person.primaryRole)) {
+    if (COMBAT_ROLES.has(entry.primaryRole)) {
       combatSalaries = combatSalaries.add(salary);
-    } else if (SUPPORT_ROLES.has(person.primaryRole)) {
+    } else if (SUPPORT_ROLES.has(entry.primaryRole)) {
       supportSalaries = supportSalaries.add(salary);
     } else {
       civilianSalaries = civilianSalaries.add(salary);
@@ -443,6 +462,6 @@ export function calculateTotalMonthlySalary(
     supportSalaries,
     civilianSalaries,
     personnelCount,
-    entries,
+    entries: salaryEntries,
   };
 }

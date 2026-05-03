@@ -89,7 +89,7 @@
   - Acceptance: turnover tests pass.
   - QA: `npx jest --testPathPattern='turnover'`.
 
-- [ ] 2.3 **Finances commit** (`statusRules` + 3 finance services in `src/lib/finances/`: `salaryService`, `taxService`, `FinanceService`).
+- [x] 2.3 **Finances commit** (`statusRules` + 3 finance services in `src/lib/finances/`: `salaryService`, `taxService`, `FinanceService`).
   - NPC behavior: PROCESS (salary/tax apply to all roster entries).
   - Acceptance: finances tests pass.
   - QA: `npx jest --testPathPattern='(finances|statusRules)'`.
