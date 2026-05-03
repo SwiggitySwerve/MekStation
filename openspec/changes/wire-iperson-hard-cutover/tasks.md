@@ -54,7 +54,7 @@
 - [x] 0.8.1 `npx tsc --noEmit --skipLibCheck` exit 0.
 - [x] 0.8.2 Full test suite passes (~22.5k tests).
 - [x] 0.8.3 `npx oxfmt --check` clean.
-- [ ] 0.8.4 PR opened, CI green, merged.
+- [x] 0.8.4 PR opened, CI green, merged.
 - [x] 0.8.5 Branch `chore/cluster-e-pr2-helper-signatures` (containing pre-flight commit `b323121b`: injuries field + buildPilotLookup) is folded into PR1.5 via cherry-pick or rebase.
 
 ---
