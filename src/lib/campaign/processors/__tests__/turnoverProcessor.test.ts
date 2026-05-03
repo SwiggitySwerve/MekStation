@@ -2,14 +2,12 @@ import { describe, it, expect, beforeEach } from '@jest/globals';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { TurnoverFrequency } from '@/types/campaign/Campaign';
-import type { IPerson } from '@/types/campaign/Person';
 
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
 
 import type { TurnoverReport } from '../../turnover/turnoverCheck';
@@ -21,40 +19,6 @@ import {
   applyTurnoverResults,
   registerTurnoverProcessor,
 } from '../turnoverProcessor';
-
-function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
-  return {
-    id: 'person-001',
-    name: 'Test Person',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date('3000-01-01'),
-    missionsCompleted: 5,
-    totalKills: 3,
-    xp: 100,
-    totalXpEarned: 200,
-    xpSpent: 100,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
-    createdAt: '3000-01-01T00:00:00Z',
-    updatedAt: '3025-06-15T00:00:00Z',
-    ...overrides,
-  };
-}
 
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
   return {
@@ -318,7 +282,7 @@ describe('applyTurnoverResults', () => {
       .getState()
       .pilots.find((p) => p.pilotId === 'p1');
     // Per PR4: departureReason is the marker. Future: a `departureDate`
-    // field on the entry can mirror the legacy IPerson semantics.
+    // field on the entry can capture the moment of departure too.
     expect(person!.departureReason).toBe('retired');
   });
 
@@ -352,7 +316,6 @@ describe('applyTurnoverResults', () => {
       .pilots.find((p) => p.pilotId === 'p1');
     expect(person!.status).toBe(CampaignPilotStatus.Active);
     expect(person!.departureReason).toBeUndefined();
-    void PersonnelStatus;
   });
 
   it('should not record transaction for zero payout', () => {

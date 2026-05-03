@@ -10,14 +10,11 @@ import { describe, it, expect } from '@jest/globals';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import type { IPerson } from '@/types/campaign/Person';
 import type {
   ICombatOutcome,
   IUnitCombatDelta,
 } from '@/types/combat/CombatOutcome';
-import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
@@ -32,7 +29,6 @@ import {
   UnitFinalStatus,
 } from '@/types/combat/CombatOutcome';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
-import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import type { ICampaignWithBattleState } from '../processors/postBattleProcessor';
 
@@ -44,51 +40,6 @@ import {
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
-
-/**
- * Cluster E PR1 — IPerson fixtures are now synthesized via the
- * `(rosterEntry, vaultPilot) → rosterEntryToPerson()` bridge so the
- * test substrate exercises the same shim production code uses to
- * adapt the new roster-employment substrate to legacy `IPerson`-shaped
- * helpers. Test-specific overrides (xp, totalXpEarned, custom ids)
- * still spread on top so individual cases drive their own scenarios.
- */
-function makePerson(
-  overrides: Partial<IPerson> & { totalXpEarned?: number } = {},
-): IPerson {
-  const id = overrides.id ?? 'pilot-1';
-  const name = overrides.name ?? 'Test Pilot';
-  const xp = overrides.xp ?? 0;
-  const totalXpEarned = overrides.totalXpEarned ?? 0;
-  const entry: ICampaignRosterEntry = {
-    pilotId: id,
-    pilotName: name,
-    status: CampaignPilotStatus.Active,
-    wounds: 0,
-    recoveryTime: 0,
-    xp,
-    campaignXpEarned: totalXpEarned,
-    campaignKills: 0,
-    campaignMissions: 0,
-    hireDate: new Date('3024-01-01'),
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rankIndex: 0,
-  };
-  const vault: IPilot = {
-    id,
-    name,
-    type: PilotType.Persistent,
-    status: PilotStatus.Active,
-    skills: { gunnery: 4, piloting: 5 },
-    wounds: 0,
-    abilities: [],
-    awards: [],
-    createdAt: '3024-01-01T00:00:00Z',
-    updatedAt: '3025-01-01T00:00:00Z',
-  };
-  const base = rosterEntryToPerson(entry, vault);
-  return { ...base, ...overrides };
-}
 
 /**
  * Build a minimal roster entry for the buildDailyBattleAuditEntry tests

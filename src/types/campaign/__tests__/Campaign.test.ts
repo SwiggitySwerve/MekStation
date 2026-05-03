@@ -36,58 +36,14 @@ import {
   createCampaignWithData,
 } from '../Campaign';
 import { CampaignType } from '../CampaignType';
-import {
-  PersonnelStatus,
-  CampaignPersonnelRole,
-  MissionStatus,
-  ForceRole,
-  FormationLevel,
-} from '../enums';
+import { MissionStatus, ForceRole, FormationLevel } from '../enums';
 import { IForce } from '../Force';
 import { IFinances } from '../IFinances';
 import { Money } from '../Money';
-import { IPerson } from '../Person';
 
 // =============================================================================
 // Test Fixtures
 // =============================================================================
-
-function createTestPerson(
-  id: string,
-  name: string,
-  status: PersonnelStatus = PersonnelStatus.ACTIVE,
-): IPerson {
-  return {
-    id,
-    name,
-    status,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    xp: 100,
-    totalXpEarned: 100,
-    xpSpent: 0,
-    hits: 0,
-    injuries: [],
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
-    recruitmentDate: new Date('2025-01-01'),
-    missionsCompleted: 0,
-    totalKills: 0,
-    daysToWaitForHealing: 0,
-    createdAt: '2026-01-26T10:00:00Z',
-    updatedAt: '2026-01-26T10:00:00Z',
-  };
-}
 
 function createTestForce(
   id: string,
@@ -972,11 +928,6 @@ describe('Integration Tests', () => {
     });
 
     it('should support large personnel counts', () => {
-      for (let i = 0; i < 100; i++) {
-        const status =
-          i % 4 === 0 ? PersonnelStatus.WOUNDED : PersonnelStatus.ACTIVE;
-      }
-
       const campaign = createCampaignWithData({
         id: 'campaign-1',
         name: 'Large Campaign',

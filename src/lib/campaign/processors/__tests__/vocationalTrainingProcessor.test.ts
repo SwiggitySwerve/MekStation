@@ -2,17 +2,14 @@ import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import type { IPerson } from '@/types/campaign/Person';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
 import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
@@ -26,14 +23,10 @@ import {
 type RandomFn = () => number;
 
 /**
- * Cluster E PR3 — processors now read from useCampaignRosterStore /
- * usePilotStore. Tests populate both stores alongside campaign.personnel
- * so assertions on the write-side (campaign.personnel timer/XP) still
- * work unchanged.
- *
- * createRosterEntry: synthesises an ICampaignRosterEntry that mirrors
- * the IPerson fields relevant to the vocational check (status, role,
- * traits, pilotId). buildVaultPilot: synthesises the minimal IPilot the
+ * Cluster E PR3 — processors read from useCampaignRosterStore /
+ * usePilotStore. createRosterEntry synthesises an ICampaignRosterEntry
+ * that carries the fields relevant to the vocational check (status, role,
+ * traits, pilotId). buildVaultPilot synthesises the minimal IPilot the
  * processor needs for the NPC-null guard + birthDate child check.
  */
 function createRosterEntry(
@@ -75,48 +68,6 @@ function buildVaultPilot(
     updatedAt: '3025-06-15T00:00:00Z',
     ...(birthDate ? { birthDate } : {}),
   };
-}
-
-/**
- * Cluster E PR1 — IPerson fixtures are now synthesized via the
- * `(rosterEntry, vaultPilot) → rosterEntryToPerson()` bridge so the
- * test substrate exercises the same shim production code uses. The
- * bridge cannot directly express test-only states (RETIRED, POW,
- * DEPENDENT role, birthDate, traits) — those still arrive via the
- * `overrides` spread, which is exactly how production helpers receive
- * non-bridge fields when seeded from saved campaigns.
- */
-function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
-  const id = overrides.id ?? 'person-001';
-  const name = overrides.name ?? 'Test Person';
-  const entry: ICampaignRosterEntry = {
-    pilotId: id,
-    pilotName: name,
-    status: CampaignPilotStatus.Active,
-    wounds: 0,
-    recoveryTime: 0,
-    xp: 100,
-    campaignXpEarned: 200,
-    campaignKills: 3,
-    campaignMissions: 5,
-    hireDate: new Date('3000-01-01'),
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rankIndex: 0,
-  };
-  const vault: IPilot = {
-    id,
-    name,
-    type: PilotType.Persistent,
-    status: PilotStatus.Active,
-    skills: { gunnery: 4, piloting: 5 },
-    wounds: 0,
-    abilities: [],
-    awards: [],
-    createdAt: '3000-01-01T00:00:00Z',
-    updatedAt: '3025-06-15T00:00:00Z',
-  };
-  const base = rosterEntryToPerson(entry, vault);
-  return { ...base, ...overrides };
 }
 
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
@@ -183,9 +134,6 @@ describe('processVocationalTraining', () => {
   });
 
   it('should increment timer for eligible person', () => {
-    const person = createTestPerson({
-      traits: { vocationalXPTimer: 28 },
-    });
     const campaign = createTestCampaign({});
 
     // Populate stores: entry matches the person, vault pilot is present so
@@ -211,9 +159,6 @@ describe('processVocationalTraining', () => {
   });
 
   it('should award vocational XP when roll >= TN', () => {
-    const person = createTestPerson({
-      traits: { vocationalXPTimer: 29 },
-    });
     const campaign = createTestCampaign({
       options: {
         ...createDefaultCampaignOptions(),
@@ -254,9 +199,6 @@ describe('processVocationalTraining', () => {
   });
 
   it('should not award XP when roll < TN', () => {
-    const person = createTestPerson({
-      traits: { vocationalXPTimer: 29 },
-    });
     const campaign = createTestCampaign({
       options: {
         ...createDefaultCampaignOptions(),
@@ -294,10 +236,6 @@ describe('processVocationalTraining', () => {
   });
 
   it('should skip inactive personnel', () => {
-    const person = createTestPerson({
-      status: PersonnelStatus.RETIRED,
-      traits: { vocationalXPTimer: 29 },
-    });
     const campaign = createTestCampaign({});
 
     // Roster entry status is KIA (non-Active) so processor skips this entry.
@@ -330,10 +268,6 @@ describe('processVocationalTraining', () => {
 
   it('should skip child personnel', () => {
     const birthDate = new Date('3020-01-01'); // 5 years old
-    const person = createTestPerson({
-      birthDate,
-      traits: { vocationalXPTimer: 29 },
-    });
     const campaign = createTestCampaign({
       currentDate: new Date('3025-06-15'),
     });
@@ -367,10 +301,6 @@ describe('processVocationalTraining', () => {
   });
 
   it('should skip dependent personnel', () => {
-    const person = createTestPerson({
-      primaryRole: CampaignPersonnelRole.DEPENDENT,
-      traits: { vocationalXPTimer: 29 },
-    });
     const campaign = createTestCampaign({});
 
     // Roster entry role is DEPENDENT so processor skips.
@@ -402,10 +332,6 @@ describe('processVocationalTraining', () => {
   });
 
   it('should skip prisoner personnel', () => {
-    const person = createTestPerson({
-      status: PersonnelStatus.POW,
-      traits: { vocationalXPTimer: 29 },
-    });
     const campaign = createTestCampaign({});
 
     // Roster entry status is MIA (non-Active) — closest CampaignPilotStatus
@@ -438,9 +364,6 @@ describe('processVocationalTraining', () => {
   });
 
   it('should reset timer after check regardless of success', () => {
-    const person = createTestPerson({
-      traits: { vocationalXPTimer: 29 },
-    });
     const campaign = createTestCampaign({
       options: {
         ...createDefaultCampaignOptions(),
@@ -471,9 +394,6 @@ describe('processVocationalTraining', () => {
   });
 
   it('should use default values when options not set', () => {
-    const person = createTestPerson({
-      traits: { vocationalXPTimer: 29 },
-    });
     const campaign = createTestCampaign({
       options: createDefaultCampaignOptions(),
     });
@@ -499,14 +419,6 @@ describe('processVocationalTraining', () => {
   });
 
   it('should handle multiple personnel', () => {
-    const person1 = createTestPerson({
-      id: 'person-001',
-      traits: { vocationalXPTimer: 29 },
-    });
-    const person2 = createTestPerson({
-      id: 'person-002',
-      traits: { vocationalXPTimer: 15 },
-    });
     const campaign = createTestCampaign({
       options: {
         ...createDefaultCampaignOptions(),
@@ -551,9 +463,6 @@ describe('processVocationalTraining', () => {
   });
 
   it('should be deterministic with seeded random', () => {
-    const person = createTestPerson({
-      traits: { vocationalXPTimer: 29 },
-    });
     const campaign = createTestCampaign({
       options: {
         ...createDefaultCampaignOptions(),
@@ -600,9 +509,6 @@ describe('vocationalTrainingProcessor.process', () => {
   });
 
   it('should process vocational training on each day', () => {
-    const person = createTestPerson({
-      traits: { vocationalXPTimer: 28 },
-    });
     const campaign = createTestCampaign({});
 
     useCampaignRosterStore.setState({

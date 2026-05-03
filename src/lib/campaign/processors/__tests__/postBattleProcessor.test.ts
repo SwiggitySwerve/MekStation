@@ -6,7 +6,6 @@
 import { describe, it, expect, afterEach } from '@jest/globals';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import type { IPerson } from '@/types/campaign/Person';
 import type {
   ICombatOutcome,
   IUnitCombatDelta,
@@ -20,7 +19,6 @@ import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { createContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import {
@@ -45,41 +43,6 @@ import {
 // ----------------------------------------------------------------------------
 // Test Fixtures
 // ----------------------------------------------------------------------------
-
-function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
-  return {
-    id: 'pilot-1',
-    name: 'Test Pilot',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date('3024-01-01'),
-    missionsCompleted: 0,
-    totalKills: 0,
-    xp: 0,
-    totalXpEarned: 0,
-    xpSpent: 0,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
-    createdAt: '3024-01-01T00:00:00Z',
-    updatedAt: '3025-01-01T00:00:00Z',
-    awards: [],
-    ...overrides,
-  };
-}
 
 function createTestCampaign(
   overrides: Partial<ICampaignWithBattleState> = {},
@@ -308,8 +271,6 @@ describe('postBattleProcessor', () => {
 
   describe('pilot status mapping', () => {
     it('marks KIA pilot KIA + records deathDate', () => {
-      const pilot = createTestPerson({ id: 'pilot-1' });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
@@ -395,12 +356,6 @@ describe('postBattleProcessor', () => {
   describe('XP application', () => {
     it('awards scenario XP per pilot', () => {
       seedRosterEntry('pilot-1');
-      const pilot = createTestPerson({
-        id: 'pilot-1',
-        xp: 0,
-        totalXpEarned: 0,
-      });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
@@ -418,12 +373,6 @@ describe('postBattleProcessor', () => {
 
     it('awards bonus kill XP to player-side survivors when they win', () => {
       seedRosterEntry('pilot-1');
-      const pilot = createTestPerson({
-        id: 'pilot-1',
-        xp: 0,
-        totalXpEarned: 0,
-      });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({
         options: {
           ...createDefaultCampaignOptions(),
@@ -501,12 +450,6 @@ describe('postBattleProcessor', () => {
   describe('idempotency', () => {
     it('skips outcomes already applied (matchId in processedBattleIds)', () => {
       seedRosterEntry('pilot-1');
-      const pilot = createTestPerson({
-        id: 'pilot-1',
-        xp: 0,
-        totalXpEarned: 0,
-      });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({});
 
       const outcome = createOutcome({
@@ -562,12 +505,6 @@ describe('postBattleProcessor', () => {
   describe('day pipeline integration', () => {
     it('processes the entire pendingBattleOutcomes queue in one call', () => {
       seedRosterEntry('pilot-1');
-      const pilot = createTestPerson({
-        id: 'pilot-1',
-        xp: 0,
-        totalXpEarned: 0,
-      });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
       const campaign = createTestCampaign({
         pendingBattleOutcomes: [
           createOutcome({
@@ -634,13 +571,6 @@ describe('postBattleProcessor', () => {
     // of the queue.
 
     it('keeps a failing outcome in pendingBattleOutcomes and still processes the next valid one', () => {
-      const pilot = createTestPerson({
-        id: 'pilot-1',
-        xp: 0,
-        totalXpEarned: 0,
-      });
-      const personnel = new Map<string, IPerson>([['pilot-1', pilot]]);
-
       // A malformed outcome: report is missing (triggers a throw inside
       // `playerWon` / contract handling when winner is accessed on a
       // deliberately-broken report object). We force the break by

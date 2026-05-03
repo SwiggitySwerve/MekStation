@@ -40,15 +40,12 @@
 
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 
-import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
-import type { IPerson } from '@/types/campaign/Person';
 import type { IUnitMaxState } from '@/types/campaign/UnitCombatState';
 import type {
   ICombatOutcome,
   IUnitCombatDelta,
 } from '@/types/combat/CombatOutcome';
-import type { IPilot } from '@/types/pilot/PilotInterfaces';
 import type { IPostBattleReport } from '@/utils/gameplay/postBattleReport';
 
 import {
@@ -63,7 +60,6 @@ import {
 } from '@/lib/campaign/contractFulfillmentBus';
 import { _resetDayPipeline } from '@/lib/campaign/dayPipeline';
 import { _resetBuiltinRegistration } from '@/lib/campaign/processors';
-import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
   resetCampaignStore,
@@ -72,7 +68,6 @@ import {
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { createContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import {
@@ -82,55 +77,10 @@ import {
   UnitFinalStatus,
 } from '@/types/combat/CombatOutcome';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
-import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 // ---------------------------------------------------------------------------
 // Test fixtures (kept local so this file is self-contained)
 // ---------------------------------------------------------------------------
-
-/**
- * Build a campaign-side `IPerson` with sane defaults.
- *
- * Cluster E PR1 — IPerson fixtures now route through the
- * `(rosterEntry, vaultPilot) → rosterEntryToPerson()` bridge so the
- * test substrate exercises the same shim production code uses to
- * adapt the new roster-employment substrate to legacy `IPerson`-shaped
- * helpers. Test-specific overrides (id, name, pilotSkills) still
- * spread on top so individual cases drive their own scenarios.
- */
-function makePerson(overrides: Partial<IPerson> = {}): IPerson {
-  const id = overrides.id ?? 'pilot-1';
-  const name = overrides.name ?? 'Test Pilot';
-  const skills = overrides.pilotSkills ?? { gunnery: 4, piloting: 5 };
-  const entry: ICampaignRosterEntry = {
-    pilotId: id,
-    pilotName: name,
-    status: CampaignPilotStatus.Active,
-    wounds: 0,
-    recoveryTime: 0,
-    xp: 0,
-    campaignXpEarned: 0,
-    campaignKills: 0,
-    campaignMissions: 0,
-    hireDate: new Date('3024-01-01'),
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rankIndex: 0,
-  };
-  const vault: IPilot = {
-    id,
-    name,
-    type: PilotType.Persistent,
-    status: PilotStatus.Active,
-    skills,
-    wounds: 0,
-    abilities: [],
-    awards: [],
-    createdAt: '3024-01-01T00:00:00Z',
-    updatedAt: '3025-01-01T00:00:00Z',
-  };
-  const base = rosterEntryToPerson(entry, vault);
-  return { ...base, ...overrides };
-}
 
 /**
  * Build an `IUnitCombatDelta` with reasonable damage. Reused by both
@@ -273,11 +223,7 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
         status: MissionStatus.ACTIVE,
       });
 
-      const pilot = makePerson({
-        id: 'unit-A',
-        name: 'Lina "Strix" Volkov',
-        pilotSkills: { gunnery: 3, piloting: 4 },
-      });
+      const pilotName = 'Lina "Strix" Volkov';
 
       // Per PR4 of `wire-iperson-hard-cutover`: seed the roster store.
       // The post-battle processor reads from useCampaignRosterStore — the
@@ -288,7 +234,7 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
         pilots: [
           {
             pilotId: 'unit-A',
-            pilotName: pilot.name,
+            pilotName,
             status: CampaignPilotStatus.Active,
             wounds: 0,
             recoveryTime: 0,
@@ -411,7 +357,6 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
       //         advance recoveryTime.
       expect(updatedPilot?.wounds).toBe(1);
       expect(updatedPilot?.status).toBe(CampaignPilotStatus.Wounded);
-      void PersonnelStatus;
 
       // 10.2(c) Units have combat state reflecting damage.
       // Per canonicalize-unit-combat-state PR-A: unitCombatStates is a
@@ -566,9 +511,6 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
       targetId: 'capellan-confederation',
       status: MissionStatus.ACTIVE,
     });
-
-    const pilotA = makePerson({ id: 'unit-A', name: 'Pilot Alpha' });
-    const pilotB = makePerson({ id: 'unit-B', name: 'Pilot Bravo' });
 
     store.getState().updateCampaign({
       missions: new Map([[contract.id, contract]]),

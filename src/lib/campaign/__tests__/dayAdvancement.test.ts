@@ -23,7 +23,6 @@ import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import {
-  PersonnelStatus,
   MissionStatus,
   CampaignPersonnelRole,
   ForceRole,
@@ -36,7 +35,6 @@ import {
   createMission,
 } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
-import { IPerson, IInjury, createInjury } from '@/types/campaign/Person';
 
 import {
   advanceDay,
@@ -50,54 +48,6 @@ import {
 // =============================================================================
 // Test Fixtures
 // =============================================================================
-
-function createTestPerson(overrides?: Partial<IPerson>): IPerson {
-  return {
-    id: 'person-001',
-    name: 'John Smith',
-    callsign: 'Hammer',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date('3025-01-01'),
-    missionsCompleted: 5,
-    totalKills: 3,
-    xp: 100,
-    totalXpEarned: 200,
-    xpSpent: 100,
-    hits: 0,
-    injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
-    ...overrides,
-  };
-}
-
-function createTestInjury(overrides?: Partial<IInjury>): IInjury {
-  return createInjury({
-    id: 'inj-001',
-    type: 'Broken Arm',
-    location: 'Left Arm',
-    severity: 2,
-    daysToHeal: 5,
-    permanent: false,
-    acquired: new Date('3025-01-01'),
-    ...overrides,
-  });
-}
 
 function createTestForce(
   id: string,
