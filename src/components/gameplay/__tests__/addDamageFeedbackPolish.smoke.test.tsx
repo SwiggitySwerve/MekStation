@@ -28,6 +28,7 @@ import '@testing-library/jest-dom';
 import type {
   IDamageAppliedPayload,
   IGameEvent,
+  IUnitToken,
   IPilotHitPayload,
 } from '@/types/gameplay';
 
@@ -293,7 +294,7 @@ describe('UnitTokenComponent — events prop wires overlays', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
 
-  const baseToken = {
+  const baseToken: IUnitToken = {
     unitId: 'u1',
     name: 'Atlas',
     side: GameSide.Player,

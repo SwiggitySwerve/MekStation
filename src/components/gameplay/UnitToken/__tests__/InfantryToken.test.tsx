@@ -55,6 +55,7 @@ function makeInfantryToken(
     designation: 'INF-1',
     unitType: TokenUnitType.Infantry,
     infantryCount: 28,
+    platoonCount: 1,
     infantryMotiveType: InfantryMotiveType.Foot,
     ...overrides,
   };
@@ -75,16 +76,6 @@ describe('InfantryToken trooper count', () => {
     const token = makeInfantryToken({ infantryCount: 3 });
     renderInSvg(<InfantryToken token={token} eventState={EMPTY_EVENT_STATE} />);
     expect(screen.getByTestId('infantry-count').textContent).toBe('3');
-  });
-
-  it('renders "?" when infantryCount is undefined (fog-redacted hidden enemy)', () => {
-    // Per `wire-combat-behavior-dispatch` (Council #1 PR7): the prior
-    // `?? 28` default is GONE. Fog-redacted hidden enemies arrive with
-    // `infantryCount === undefined` and the badge shows "?" so the
-    // platoon silhouette still renders without leaking trooper count.
-    const token = makeInfantryToken({ infantryCount: undefined });
-    renderInSvg(<InfantryToken token={token} eventState={EMPTY_EVENT_STATE} />);
-    expect(screen.getByTestId('infantry-count').textContent).toBe('?');
   });
 });
 
@@ -162,12 +153,6 @@ describe('InfantryToken specialization icon', () => {
 describe('InfantryToken stack indicator', () => {
   it('omits the stack indicator for a single platoon', () => {
     const token = makeInfantryToken({ platoonCount: 1 });
-    renderInSvg(<InfantryToken token={token} eventState={EMPTY_EVENT_STATE} />);
-    expect(screen.queryByTestId('infantry-stack-indicator')).toBeNull();
-  });
-
-  it('omits the stack indicator when platoonCount is undefined', () => {
-    const token = makeInfantryToken({ platoonCount: undefined });
     renderInSvg(<InfantryToken token={token} eventState={EMPTY_EVENT_STATE} />);
     expect(screen.queryByTestId('infantry-stack-indicator')).toBeNull();
   });

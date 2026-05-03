@@ -80,10 +80,7 @@ export const InfantryToken = React.memo(function InfantryToken({
   const isDestroyed = token.isDestroyed || eventState.destroyed;
   // infantryCount + platoonCount are wired from
   // IInfantryCombatState.survivingTroopers via the unitStateToToken adapter
-  // (per `wire-combat-behavior-dispatch`, Council #1 PR7). Fog-redacted
-  // hidden enemies arrive with both `undefined` — the trooper-count
-  // badge falls back to a hyphen and the stack indicator is hidden
-  // (the `platoonCount > 1` guard already handles `undefined`).
+  // (per `wire-combat-behavior-dispatch`, Council #1 PR7).
   const trooperCount = token.infantryCount;
   const platoonCount = token.platoonCount;
 
@@ -149,7 +146,7 @@ export const InfantryToken = React.memo(function InfantryToken({
           dy={2}
           data-testid="infantry-count"
         >
-          {trooperCount ?? '?'}
+          {trooperCount}
         </text>
       </g>
 
@@ -215,10 +212,8 @@ export const InfantryToken = React.memo(function InfantryToken({
         {token.designation}
       </text>
 
-      {/* Stack indicator badge "×N" when multiple platoons share the hex.
-          `platoonCount` is undefined for fog-redacted enemies; guard so the
-          stack indicator stays hidden in that case. */}
-      {platoonCount !== undefined && platoonCount > 1 && (
+      {/* Stack indicator badge "×N" when multiple platoons share the hex. */}
+      {platoonCount > 1 && (
         <g
           transform={`translate(${INF_TOKEN_RADIUS + 2}, 0)`}
           data-testid="infantry-stack-indicator"

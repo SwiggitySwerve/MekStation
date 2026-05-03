@@ -97,8 +97,7 @@ const tokens: readonly IUnitToken[] = [
     isValidTarget: false,
     isDestroyed: false,
     unitType: TokenUnitType.Aerospace,
-    altitude: 5,
-    velocity: 8,
+    altitude: 1,
   },
   {
     unitId: 'token-ba',
@@ -126,8 +125,8 @@ const tokens: readonly IUnitToken[] = [
     isValidTarget: true,
     isDestroyed: false,
     unitType: TokenUnitType.Infantry,
-    infantryCount: 21,
-    platoonCount: 2,
+    infantryCount: 28,
+    platoonCount: 1,
     infantryMotiveType: InfantryMotiveType.Jump,
     infantrySpecialization: InfantryTokenSpecialization.AntiMech,
   },
@@ -142,9 +141,9 @@ const tokens: readonly IUnitToken[] = [
     isValidTarget: false,
     isDestroyed: false,
     unitType: TokenUnitType.ProtoMech,
-    protoCount: 3,
-    isGlider: true,
-    hasMainGun: true,
+    protoCount: 5,
+    isGlider: false,
+    hasMainGun: false,
   },
 ];
 

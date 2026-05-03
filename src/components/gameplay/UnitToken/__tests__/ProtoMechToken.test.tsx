@@ -47,6 +47,8 @@ function makeProtoToken(
     designation: 'PROTO-1',
     unitType: TokenUnitType.ProtoMech,
     protoCount: 5,
+    isGlider: false,
+    hasMainGun: false,
     ...overrides,
   };
 }
@@ -109,18 +111,6 @@ describe('ProtoMechToken point cluster', () => {
     );
     expect(countPipsByTestid(container)).toBe(5);
   });
-
-  it('renders 1 proto pip when protoCount is undefined (fog-redacted hidden enemy)', () => {
-    // Per `wire-combat-behavior-dispatch` (Council #1 PR7): the prior
-    // `?? 5` default is GONE. Fog-redacted hidden enemies arrive with
-    // `protoCount === undefined` — fall back to a single proto silhouette
-    // so the chassis shows but point size is not leaked.
-    const token = makeProtoToken({ protoCount: undefined });
-    const { container } = renderInSvg(
-      <ProtoMechToken token={token} eventState={EMPTY_EVENT_STATE} />,
-    );
-    expect(countPipsByTestid(container)).toBe(1);
-  });
 });
 
 // -----------------------------------------------------------------------------
@@ -136,8 +126,8 @@ describe('ProtoMechToken glider-mode wings', () => {
     expect(screen.getByTestId('proto-glider-wings')).toBeInTheDocument();
   });
 
-  it('omits glider wings overlay by default', () => {
-    const token = makeProtoToken({});
+  it('omits glider wings overlay when isGlider is false', () => {
+    const token = makeProtoToken({ isGlider: false });
     renderInSvg(
       <ProtoMechToken token={token} eventState={EMPTY_EVENT_STATE} />,
     );
@@ -158,8 +148,8 @@ describe('ProtoMechToken main-gun indicator', () => {
     expect(screen.getByTestId('proto-main-gun')).toBeInTheDocument();
   });
 
-  it('omits the main-gun overlay by default', () => {
-    const token = makeProtoToken({});
+  it('omits the main-gun overlay when hasMainGun is false', () => {
+    const token = makeProtoToken({ hasMainGun: false });
     renderInSvg(
       <ProtoMechToken token={token} eventState={EMPTY_EVENT_STATE} />,
     );
