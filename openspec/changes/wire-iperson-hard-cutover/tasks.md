@@ -83,7 +83,7 @@
   - Acceptance: all medical tests pass; NPC handling JSDoc added.
   - QA: `npx jest --testPathPattern='medical'`.
 
-- [ ] 2.2 **Turnover commit** (5 files in `src/lib/campaign/turnover/` + `ranks/rankService.isOfficer` cross-call).
+- [x] 2.2 **Turnover commit** (5 files in `src/lib/campaign/turnover/` + `ranks/rankService.isOfficer` cross-call).
   - Same signature migration.
   - NPC behavior: PROCESS for departure rolls; SKIP for officer status.
   - Acceptance: turnover tests pass.

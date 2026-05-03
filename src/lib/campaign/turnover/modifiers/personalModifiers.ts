@@ -1,5 +1,6 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IPerson } from '@/types/campaign/Person';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 const MONTHS_FOR_RECENT_PROMOTION = 6;
 
@@ -19,18 +20,35 @@ const FOUNDER_MODIFIER = -2;
 const OFFICER_MODIFIER = -1;
 const RECENT_PROMOTION_MODIFIER = -1;
 
-export function getFounderModifier(person: IPerson): number {
-  return person.isFounder ? FOUNDER_MODIFIER : 0;
+/**
+ * Returns -2 if the roster entry is a founder, 0 otherwise.
+ *
+ * NPC behavior: PROCESS — departure rolls apply to everyone; founder flag
+ * lives on the roster entry so NPCs with `isFounder` set are treated
+ * identically to PCs.
+ */
+export function getFounderModifier(
+  entry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
+): number {
+  return entry.isFounder ? FOUNDER_MODIFIER : 0;
 }
 
+/**
+ * Returns -1 if the entry was promoted within the last 6 months, 0 otherwise.
+ *
+ * NPC behavior: PROCESS — `lastPromotionDate` lives on the roster entry so
+ * this modifier fires for NPCs and PCs alike.
+ */
 export function getRecentPromotionModifier(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
   campaign: ICampaign,
 ): number {
-  if (!person.lastRankChangeDate) return 0;
+  if (!entry.lastPromotionDate) return 0;
 
   const now = campaign.currentDate;
-  const promotionDate = person.lastRankChangeDate;
+  const promotionDate = entry.lastPromotionDate;
 
   const monthsDiff =
     (now.getFullYear() - promotionDate.getFullYear()) * 12 +
@@ -41,10 +59,23 @@ export function getRecentPromotionModifier(
     : 0;
 }
 
-// Uses recruitmentDate as birth date proxy until IPerson gains a birthDate field
-function getPersonAge(person: IPerson, campaign: ICampaign): number {
+/**
+ * Derives approximate age using `entry.hireDate` as a birth-date proxy.
+ *
+ * This is the same approximation used by the `rosterEntryToPerson` bridge
+ * (`recruitmentDate = entry.hireDate`). A proper `dateOfBirth` field on
+ * `ICampaignRosterEntry` or the vault pilot is the long-term fix; deferred
+ * until pilot identity data is fuller.
+ */
+function getPersonAge(
+  entry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
+  campaign: ICampaign,
+): number {
   const now = campaign.currentDate;
-  const birth = person.recruitmentDate;
+  // Use hireDate as birth-date proxy — mirrors what rosterEntryToPerson does
+  // (person.recruitmentDate = entry.hireDate).
+  const birth = entry.hireDate;
   let age = now.getFullYear() - birth.getFullYear();
   const monthDiff = now.getMonth() - birth.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birth.getDate())) {
@@ -53,8 +84,19 @@ function getPersonAge(person: IPerson, campaign: ICampaign): number {
   return age;
 }
 
-export function getAgeModifier(person: IPerson, campaign: ICampaign): number {
-  const age = getPersonAge(person, campaign);
+/**
+ * Returns an age-based modifier per MekHQ bracket thresholds.
+ *
+ * NPC behavior: PROCESS — `hireDate` is always present on roster entries
+ * (required field per PR2 cluster J) so age can be derived for both
+ * NPCs and PCs.
+ */
+export function getAgeModifier(
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+  campaign: ICampaign,
+): number {
+  const age = getPersonAge(entry, pilot, campaign);
 
   if (age < AGE_THRESHOLD_YOUNG) return AGE_MOD_YOUNG;
   if (age >= AGE_THRESHOLD_65) return AGE_MOD_65;
@@ -65,12 +107,45 @@ export function getAgeModifier(person: IPerson, campaign: ICampaign): number {
   return 0;
 }
 
-export function getInjuryModifier(person: IPerson): number {
-  return person.injuries.filter((injury) => injury.permanent).length;
+/**
+ * Returns the number of permanent injuries the entry carries.
+ *
+ * NPC behavior: PROCESS — injuries live on the roster entry so NPCs and PCs
+ * are treated identically.
+ */
+export function getInjuryModifier(
+  entry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
+): number {
+  return (entry.injuries ?? []).filter((injury) => injury.permanent).length;
 }
 
-export function getOfficerModifier(person: IPerson): number {
-  return person.isCommander || person.isSecondInCommand ? OFFICER_MODIFIER : 0;
+/**
+ * Returns -1 if the entry is an officer (commander flag set), 0 otherwise.
+ *
+ * NPC behavior: SKIP — NPCs do not hold officer rank; early-returns 0 when
+ * `pilot` is null. PC officer status is read from `entry.isCommander`.
+ *
+ * Note: `isSecondInCommand` is not yet on `ICampaignRosterEntry`; the
+ * transitional bridge effectively only propagates `isCommander`. Full
+ * two-flag support lands when `isSecondInCommand` is added to the roster
+ * entry schema. For now NPCs with `pilot === null` return 0, and the
+ * commander flag on the entry is the sole officer discriminator.
+ *
+ * `rankService.isOfficer` migrates in commit 2.6; at that point this helper
+ * will be refactored to call `isOfficerByIndex(entry.rankIndex, rankSystem)`.
+ */
+export function getOfficerModifier(
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+): number {
+  // Officer status is vault-only — skip for NPCs
+  if (pilot === null) return 0;
+
+  // Use commander flag on entry as officer discriminator (transitional).
+  // `isSecondInCommand` is not yet on ICampaignRosterEntry; entry.isCommander
+  // is the only available officer flag until commit 2.6.
+  return entry.isCommander ? OFFICER_MODIFIER : 0;
 }
 
 /**
@@ -78,22 +153,37 @@ export function getOfficerModifier(person: IPerson): number {
  *
  * FIXME(person-contract-tracking): MekHQ applies a turnover modifier when a
  * personnel contract is approaching expiry (typically `-1` if < 6 months
- * left, `+2` once expired). Implementing this requires `IPerson` to grow
- * `serviceContractStart: Date` + `serviceContractEnd: Date` (or a single
- * `serviceContract: IPersonContract` shape). When those fields land, switch
- * this body to compare `campaign.currentDate` against `person.serviceContract.endDate`
- * and return the corresponding modifier per MekHQ's `Personnel#getServiceContractModifier`.
+ * left, `+2` once expired). Implementing this requires `ICampaignRosterEntry`
+ * to grow `serviceContractEnd: Date`. When that field lands, switch this
+ * body to compare `campaign.currentDate` against `entry.serviceContractEnd`
+ * and return the corresponding modifier per MekHQ's
+ * `Personnel#getServiceContractModifier`.
+ *
+ * NPC behavior: PROCESS — once contract tracking lands, NPCs and PCs follow
+ * the same modifier logic (both carry roster-entry-level service contracts).
  */
-export function getServiceContractModifier(_person: IPerson): number {
+export function getServiceContractModifier(
+  _entry: ICampaignRosterEntry,
+  _pilot: IPilot | null,
+): number {
   return 0;
 }
 
+/**
+ * Returns a skill-desirability modifier based on the pilot's average gunnery/piloting.
+ *
+ * NPC behavior: PROCESS — statblock gunnery/piloting values are used for NPCs
+ * (`pilot === null`); defaults to 4/5 (regular baseline) when neither vault
+ * pilot nor statblock carries skill data.
+ */
 export function getSkillDesirabilityModifier(
-  person: IPerson,
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
   _campaign: ICampaign,
 ): number {
-  const gunnery = person.pilotSkills.gunnery;
-  const piloting = person.pilotSkills.piloting;
+  // Prefer vault skills for PCs; fall back to statblock for NPCs; then default
+  const gunnery = pilot?.skills.gunnery ?? entry.statblockData?.gunnery ?? 4;
+  const piloting = pilot?.skills.piloting ?? entry.statblockData?.piloting ?? 5;
   const avgSkill = (gunnery + piloting) / 2;
 
   // Lower skill values = better pilot = harder to lose (negative modifier)

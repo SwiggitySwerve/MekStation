@@ -2,6 +2,9 @@ import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { IPerson } from '@/types/campaign/Person';
 import type { Transaction } from '@/types/campaign/Transaction';
 
+import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { usePilotStore } from '@/stores/usePilotStore';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 
@@ -139,7 +142,18 @@ export const turnoverProcessor: IDayProcessor = {
       return { events: [], campaign };
     }
 
-    const report = runTurnoverChecks(campaign, Math.random);
+    // Pre-join vault once so each checkTurnover call is O(1) instead of O(N).
+    // NPC entries whose pilotId has no vault counterpart resolve to null.
+    const entries = useCampaignRosterStore.getState().pilots;
+    const vault = usePilotStore.getState().pilots;
+    const pilotsByPilotId = buildPilotLookup(vault);
+
+    const report = runTurnoverChecks(
+      entries,
+      pilotsByPilotId,
+      campaign,
+      Math.random,
+    );
     const updatedCampaign = applyTurnoverResults(campaign, report, date);
     const events = departuresToEvents(report);
 
