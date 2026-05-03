@@ -23,11 +23,11 @@
 
 ## 4. Spec Sync (Done at Archive Time)
 
-- [ ] 4.1 At archive time, OpenSpec sync will merge the ADDED Requirement "Single Source of Truth for Responsive Constants" from this change's delta spec into `openspec/specs/mobile-interaction-patterns/spec.md`. No manual sync needed during apply phase.
+- [x] 4.1 At archive time, OpenSpec sync will merge the ADDED Requirement "Single Source of Truth for Responsive Constants" from this change's delta spec into `openspec/specs/mobile-interaction-patterns/spec.md`. No manual sync needed during apply phase.
 
 ## 5. PR
 
 - [x] 5.1 Branch: `chore/consolidate-responsive-constants`. Commit messages follow conventional-commits style. Single PR targeting `main`.
 - [x] 5.2 PR description references the OMO Council session findings and links to the new global skill `~/.claude/skills/adaptive-ui-capabilities/SKILL.md`.
-- [ ] 5.3 Wait for CI green: `Lint and Test`, `Build Test / win/mac/linux` (3 platforms), and the new `responsive-constants-sot` test must all pass.
-- [ ] 5.4 Merge via squash. After merge, run `/opsx:archive consolidate-responsive-constants`.
+- [x] 5.3 Wait for CI green: `Lint and Test`, `Build Test / win/mac/linux` (3 platforms), and the new `responsive-constants-sot` test must all pass.
+- [x] 5.4 Merge via squash. After merge, run `/opsx:archive consolidate-responsive-constants`.
