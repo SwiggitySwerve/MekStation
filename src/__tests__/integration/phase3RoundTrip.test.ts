@@ -51,6 +51,7 @@ import {
 import { _resetDayPipeline } from '@/lib/campaign/dayPipeline';
 import { _resetBuiltinRegistration } from '@/lib/campaign/processors';
 import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
   resetCampaignStore,
   useCampaignStore,
@@ -250,13 +251,34 @@ describe('Phase 3 capstone — encounter → outcome → campaign round trip', (
       pilotSkills: { gunnery: 3, piloting: 4 },
     });
 
-    // Seed personnel directly on the campaign object. Per
-    // `migrate-personnel-to-roster-employment`, the personnel sub-store
-    // is gone — `derivePersonnelFromRoster` merges with whatever is
-    // already on `campaign.personnel`, so this seed survives advanceDay.
+    // Per PR4 of `wire-iperson-hard-cutover`: seed the roster store
+    // directly. The personnel field on ICampaign is gone; the post-battle
+    // processor reads from useCampaignRosterStore.
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-001',
+      units: [],
+      pilots: [
+        {
+          pilotId: 'unit-A',
+          pilotName: pilot.name,
+          status: CampaignPilotStatus.Active,
+          wounds: 0,
+          recoveryTime: 0,
+          xp: 0,
+          campaignXpEarned: 0,
+          campaignKills: 0,
+          campaignMissions: 0,
+          primaryRole: CampaignPersonnelRole.PILOT,
+          rankIndex: 0,
+          hireDate: new Date('3024-01-01'),
+        },
+      ],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
     store.getState().updateCampaign({
       missions: new Map([[contract.id, contract]]),
-      personnel: new Map([[pilot.id, pilot]]),
       finances: {
         transactions: [],
         balance: new Money(1_000_000),
@@ -313,13 +335,18 @@ describe('Phase 3 capstone — encounter → outcome → campaign round trip', (
     expect(report).not.toBeNull();
 
     // 5a. postBattle effects: pilot took the wound, gained scenario XP.
+    // Per PR4 of `wire-iperson-hard-cutover`: pilot reads come from the
+    // canonical roster store, not the deleted `campaign.personnel` Map.
     const updatedCampaign = store.getState().getCampaign();
     expect(updatedCampaign).not.toBeNull();
-    const updatedPilot = updatedCampaign?.personnel.get('unit-A');
+    const updatedPilot = useCampaignRosterStore
+      .getState()
+      .pilots.find((p) => p.pilotId === 'unit-A');
     expect(updatedPilot).toBeDefined();
-    expect(updatedPilot?.hits).toBe(1);
-    expect(updatedPilot?.status).toBe(PersonnelStatus.WOUNDED);
-    expect(updatedPilot?.totalXpEarned ?? 0).toBeGreaterThan(0);
+    expect(updatedPilot?.wounds).toBe(1);
+    expect(updatedPilot?.status).toBe(CampaignPilotStatus.Wounded);
+    expect(updatedPilot?.campaignXpEarned ?? 0).toBeGreaterThan(0);
+    void PersonnelStatus;
 
     // 5b. postBattle effects: per-unit damage state persisted.
     // Per canonicalize-unit-combat-state PR-A: unitCombatStates is a
@@ -362,12 +389,14 @@ describe('Phase 3 capstone — encounter → outcome → campaign round trip', (
     // 7. A second `advanceDay` is a no-op for the battle-effects
     //    processors — the queue is empty and the processed ledger
     //    suppresses re-application even if the bus republishes.
-    const xpAfterFirst = updatedPilot?.totalXpEarned ?? 0;
+    const xpAfterFirst = updatedPilot?.campaignXpEarned ?? 0;
     publishCombatOutcome({ matchId: outcome.matchId, outcome });
     expect(store.getState().getPendingOutcomeCount()).toBe(0);
     store.getState().advanceDay();
-    const finalPilot = store.getState().getCampaign()?.personnel.get('unit-A');
-    expect(finalPilot?.totalXpEarned).toBe(xpAfterFirst);
+    const finalPilot = useCampaignRosterStore
+      .getState()
+      .pilots.find((p) => p.pilotId === 'unit-A');
+    expect(finalPilot?.campaignXpEarned).toBe(xpAfterFirst);
   });
 
   it('outcomes for matches with no contractId still flow through the queue and post-battle processor', () => {
@@ -377,9 +406,7 @@ describe('Phase 3 capstone — encounter → outcome → campaign round trip', (
     // the pipeline still runs.
     const store = useCampaignStore();
     store.getState().createCampaign('Standalone Test', 'mercenary');
-    store.getState().updateCampaign({
-      personnel: new Map([['unit-X', makePerson({ id: 'unit-X' })]]),
-    });
+    store.getState().updateCampaign({});
 
     const outcome = makeOutcome({
       matchId: 'standalone-1',

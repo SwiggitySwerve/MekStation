@@ -1,13 +1,10 @@
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import type { IPerson } from '@/types/campaign/Person';
 import type { Transaction } from '@/types/campaign/Transaction';
 
-import { personToMinimalEntry } from '@/lib/campaign/utils/personToRosterEntry';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 
 import type { TurnoverReport } from '../turnover/turnoverCheck';
@@ -50,11 +47,16 @@ export function shouldRunTurnover(
   }
 }
 
-const DEPARTURE_STATUS: Record<string, PersonnelStatus> = {
-  retired: PersonnelStatus.RETIRED,
-  deserted: PersonnelStatus.DESERTED,
-};
-
+/**
+ * Apply turnover results to the roster store + campaign finances.
+ *
+ * Per PR4 of `wire-iperson-hard-cutover`: writes departure markers as
+ * roster patches via `applyPilotPatches` (no personnel Map). Departure
+ * is signalled via `departureReason` since `CampaignPilotStatus` has no
+ * Retired/Deserted variants — downstream filters on `departureReason !=
+ * null` to identify departed personnel. Finance side (transactions +
+ * balance) stays on the campaign object as before.
+ */
 export function applyTurnoverResults(
   campaign: ICampaign,
   report: TurnoverReport,
@@ -66,23 +68,13 @@ export function applyTurnoverResults(
 
   if (departures.length === 0) return campaign;
 
-  const updatedPersonnel = new Map(campaign.personnel);
   const newTransactions: Transaction[] = [];
+  const patches = new Map<string, Partial<ICampaignRosterEntry>>();
 
   for (const departure of departures) {
-    const person = updatedPersonnel.get(departure.personId);
-    if (!person) continue;
-
-    const newStatus =
-      DEPARTURE_STATUS[departure.departureType!] ?? PersonnelStatus.RETIRED;
-
-    const updatedPerson: IPerson = {
-      ...person,
-      status: newStatus,
-      departureDate: date,
+    patches.set(departure.personId, {
       departureReason: departure.departureType!,
-    };
-    updatedPersonnel.set(departure.personId, updatedPerson);
+    });
 
     if (departure.payout.isPositive()) {
       newTransactions.push({
@@ -95,6 +87,10 @@ export function applyTurnoverResults(
     }
   }
 
+  if (patches.size > 0) {
+    useCampaignRosterStore.getState().applyPilotPatches(patches);
+  }
+
   let updatedBalance = campaign.finances.balance;
   for (const tx of newTransactions) {
     updatedBalance = updatedBalance.subtract(tx.amount);
@@ -102,7 +98,6 @@ export function applyTurnoverResults(
 
   return {
     ...campaign,
-    personnel: updatedPersonnel,
     finances: {
       transactions: [...campaign.finances.transactions, ...newTransactions],
       balance: updatedBalance,
@@ -146,11 +141,9 @@ export const turnoverProcessor: IDayProcessor = {
 
     // Pre-join vault once so each checkTurnover call is O(1) instead of O(N).
     // NPC entries whose pilotId has no vault counterpart resolve to null.
-    const __storeEntries = useCampaignRosterStore.getState().pilots;
+    // Per PR4: roster store is the canonical entry source.
     const entries: readonly ICampaignRosterEntry[] =
-      __storeEntries.length > 0
-        ? __storeEntries
-        : Array.from(campaign.personnel.values()).map(personToMinimalEntry);
+      useCampaignRosterStore.getState().pilots;
     const vault = usePilotStore.getState().pilots;
     const pilotsByPilotId = buildPilotLookup(vault);
 

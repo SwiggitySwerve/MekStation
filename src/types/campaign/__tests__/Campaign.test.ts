@@ -12,6 +12,7 @@
  */
 
 import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 
 import {
   ICampaign,
@@ -126,24 +127,6 @@ function createTestMission(
 }
 
 function createTestCampaign(): ICampaign {
-  const personnel = new Map<string, IPerson>();
-  personnel.set(
-    'person-1',
-    createTestPerson('person-1', 'John Smith', PersonnelStatus.ACTIVE),
-  );
-  personnel.set(
-    'person-2',
-    createTestPerson('person-2', 'Jane Doe', PersonnelStatus.ACTIVE),
-  );
-  personnel.set(
-    'person-3',
-    createTestPerson('person-3', 'Bob Wilson', PersonnelStatus.WOUNDED),
-  );
-  personnel.set(
-    'person-4',
-    createTestPerson('person-4', 'Alice Brown', PersonnelStatus.MIA),
-  );
-
   const forces = new Map<string, IForce>();
   forces.set(
     'force-root',
@@ -200,7 +183,6 @@ function createTestCampaign(): ICampaign {
     name: "Wolf's Dragoons",
     currentDate: new Date('3025-01-01'),
     factionId: 'mercenary',
-    personnel,
     forces,
     rootForceId: 'force-root',
     missions,
@@ -230,7 +212,8 @@ describe('ICampaign Interface', () => {
       expect(campaign.name).toBe("Wolf's Dragoons");
       expect(campaign.currentDate).toBeInstanceOf(Date);
       expect(campaign.factionId).toBe('mercenary');
-      expect(campaign.personnel).toBeInstanceOf(Map);
+      // Per PR4 of `wire-iperson-hard-cutover`: personnel is no longer a
+      // field on ICampaign — the roster store owns it.
       expect(campaign.forces).toBeInstanceOf(Map);
       expect(campaign.rootForceId).toBe('force-root');
       expect(campaign.missions).toBeInstanceOf(Map);
@@ -248,11 +231,11 @@ describe('ICampaign Interface', () => {
       expect(campaign.iconUrl).toBeUndefined();
     });
 
-    it('should have personnel as Map<string, IPerson>', () => {
-      const campaign = createTestCampaign();
-
-      expect(campaign.personnel.size).toBe(4);
-      expect(campaign.personnel.get('person-1')?.name).toBe('John Smith');
+    it('personnel is sourced from useCampaignRosterStore (PR4 hard-cutover)', () => {
+      // Per PR4 of `wire-iperson-hard-cutover`: ICampaign no longer has
+      // a `personnel` field. The roster store is canonical.
+      const pilots = useCampaignRosterStore.getState().pilots;
+      expect(Array.isArray(pilots)).toBe(true);
     });
 
     it('should have forces as Map<string, IForce>', () => {
@@ -414,14 +397,16 @@ describe('IMission Interface', () => {
 
 describe('Helper Functions', () => {
   describe('getTotalPersonnel', () => {
-    it('should return total personnel count', () => {
+    it('should return the pilots count passed in (per PR4 of wire-iperson-hard-cutover)', () => {
       const campaign = createTestCampaign();
-      expect(getTotalPersonnel(campaign)).toBe(4);
+      // Per PR4: getTotalPersonnel takes the live roster pilot count as
+      // its second argument (decoupled from the deleted personnel Map).
+      expect(getTotalPersonnel(campaign, 4)).toBe(4);
     });
 
-    it('should return 0 for empty campaign', () => {
+    it('should return 0 when pilots count is 0', () => {
       const campaign = createCampaign('Empty', 'mercenary');
-      expect(getTotalPersonnel(campaign)).toBe(0);
+      expect(getTotalPersonnel(campaign, 0)).toBe(0);
     });
   });
 
@@ -455,7 +440,6 @@ describe('Helper Functions', () => {
         name: 'Test',
         currentDate: new Date(),
         factionId: 'mercenary',
-        personnel: new Map(),
         forces: new Map(),
         rootForceId: 'non-existent',
         missions: new Map(),
@@ -494,7 +478,6 @@ describe('Helper Functions', () => {
         name: 'Test',
         currentDate: new Date(),
         factionId: 'mercenary',
-        personnel: new Map(),
         forces,
         rootForceId: 'force-root',
         missions: new Map(),
@@ -608,7 +591,6 @@ describe('Helper Functions', () => {
         name: 'Test',
         currentDate: new Date(),
         factionId: 'mercenary',
-        personnel: new Map(),
         forces: new Map(),
         rootForceId: 'non-existent',
         missions: new Map(),
@@ -713,7 +695,6 @@ describe('Type Guards', () => {
         name: 'Test',
         currentDate: 'not a date', // Should be Date
         factionId: 'mercenary',
-        personnel: new Map(),
         forces: new Map(),
         rootForceId: 'force-root',
         missions: new Map(),
@@ -801,7 +782,7 @@ describe('Factory Functions', () => {
       expect(campaign.name).toBe("Wolf's Dragoons");
       expect(campaign.factionId).toBe('mercenary');
       expect(campaign.currentDate).toBeInstanceOf(Date);
-      expect(campaign.personnel).toBeInstanceOf(Map);
+      // Per PR4: personnel is no longer on ICampaign — roster store owns it.
       expect(campaign.forces).toBeInstanceOf(Map);
       expect(campaign.missions).toBeInstanceOf(Map);
       expect(campaign.finances).toBeDefined();
@@ -851,9 +832,6 @@ describe('Factory Functions', () => {
 
   describe('createCampaignWithData', () => {
     it('should create campaign with provided data', () => {
-      const personnel = new Map<string, IPerson>();
-      personnel.set('person-1', createTestPerson('person-1', 'John'));
-
       const forces = new Map<string, IForce>();
       forces.set('force-1', createTestForce('force-1', 'Alpha'));
 
@@ -865,7 +843,6 @@ describe('Factory Functions', () => {
         name: 'Custom Campaign',
         currentDate: new Date('3025-06-15'),
         factionId: 'davion',
-        personnel,
         forces,
         rootForceId: 'force-1',
         missions,
@@ -877,7 +854,7 @@ describe('Factory Functions', () => {
       expect(campaign.id).toBe('campaign-custom');
       expect(campaign.name).toBe('Custom Campaign');
       expect(campaign.factionId).toBe('davion');
-      expect(campaign.personnel.size).toBe(1);
+      // Per PR4: personnel is no longer a Map field; pilot count lives on roster store.
       expect(campaign.forces.size).toBe(1);
       expect(campaign.missions.size).toBe(1);
       expect(campaign.finances.balance.amount).toBe(5000000);
@@ -895,9 +872,9 @@ describe('Integration Tests', () => {
     it('should correctly aggregate all entities', () => {
       const campaign = createTestCampaign();
 
-      // Personnel — getActivePersonnel/getPersonnelByStatus deleted (PR2 hard-cutover);
-      // use campaign.personnel.size for aggregate count assertions
-      expect(getTotalPersonnel(campaign)).toBe(4);
+      // Personnel — getTotalPersonnel(campaign, count) takes a roster pilot count
+      // explicitly per PR4 of `wire-iperson-hard-cutover` (campaign.personnel deleted).
+      expect(getTotalPersonnel(campaign, 4)).toBe(4);
 
       // Forces
       expect(getTotalForces(campaign)).toBe(3);
@@ -973,7 +950,6 @@ describe('Integration Tests', () => {
         name: 'Test',
         currentDate: new Date(),
         factionId: 'mercenary',
-        personnel: new Map(),
         forces,
         rootForceId: 'battalion',
         missions: new Map(),
@@ -988,7 +964,7 @@ describe('Integration Tests', () => {
     it('should handle empty campaign', () => {
       const campaign = createCampaign('Empty', 'mercenary');
 
-      expect(getTotalPersonnel(campaign)).toBe(0);
+      expect(getTotalPersonnel(campaign, 0)).toBe(0);
       expect(getTotalForces(campaign)).toBe(0);
       expect(getAllUnits(campaign)).toHaveLength(0);
       expect(getTotalMissions(campaign)).toBe(0);
@@ -996,14 +972,9 @@ describe('Integration Tests', () => {
     });
 
     it('should support large personnel counts', () => {
-      const personnel = new Map<string, IPerson>();
       for (let i = 0; i < 100; i++) {
         const status =
           i % 4 === 0 ? PersonnelStatus.WOUNDED : PersonnelStatus.ACTIVE;
-        personnel.set(
-          `person-${i}`,
-          createTestPerson(`person-${i}`, `Person ${i}`, status),
-        );
       }
 
       const campaign = createCampaignWithData({
@@ -1011,7 +982,6 @@ describe('Integration Tests', () => {
         name: 'Large Campaign',
         currentDate: new Date(),
         factionId: 'mercenary',
-        personnel,
         forces: new Map(),
         rootForceId: 'force-root',
         missions: new Map(),
@@ -1019,9 +989,8 @@ describe('Integration Tests', () => {
         options: createDefaultCampaignOptions(),
       });
 
-      // getActivePersonnel/getPersonnelByStatus deleted (PR2 hard-cutover);
-      // aggregate count via getTotalPersonnel is sufficient for this fixture
-      expect(getTotalPersonnel(campaign)).toBe(100);
+      // Per PR4: getTotalPersonnel takes the live pilot count explicitly.
+      expect(getTotalPersonnel(campaign, 100)).toBe(100);
     });
 
     it('should correctly calculate balance with starting funds', () => {

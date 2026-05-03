@@ -25,7 +25,6 @@
 
 import type { ICampaign, IContract, IMission } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import type { IPerson } from '@/types/campaign/Person';
 import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 import type {
   ICombatOutcome,
@@ -33,11 +32,11 @@ import type {
 } from '@/types/combat/CombatOutcome';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { personToMinimalEntry } from '@/lib/campaign/utils/personToRosterEntry';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
-import { MissionStatus, PersonnelStatus } from '@/types/campaign/enums';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { MissionStatus } from '@/types/campaign/enums';
 import { isContract } from '@/types/campaign/Mission';
 import { createInitialCombatState } from '@/types/campaign/UnitCombatState';
 import {
@@ -108,52 +107,65 @@ export interface IPostBattleApplied {
 
 /**
  * Map a pilot's tactical-side `PilotFinalStatus` onto the campaign-side
- * `PersonnelStatus`. ACTIVE returns null because we want to *preserve*
- * the existing personnel status (the pilot may have been ON_LEAVE or
- * STUDENT before the battle).
+ * `CampaignPilotStatus`.
+ *
+ * Wounded with `wounds >= 5` escalates to `Critical` so the lossy
+ * Critical→Wounded round-trip the legacy bridge introduced is fixed
+ * (see PR4 of `wire-iperson-hard-cutover` regression test). Active
+ * returns null because we want to *preserve* the existing roster entry
+ * status (the pilot may have been on extended recovery before the
+ * battle and a clean Active flip would lose that context).
+ *
+ * `Captured` (POW) has no `CampaignPilotStatus` representation today —
+ * MIA is the closest analog; future-state wants a dedicated POW status.
  */
-function pilotFinalToPersonnelStatus(
+function pilotFinalToRosterStatus(
   finalStatus: PilotFinalStatus,
-): PersonnelStatus | null {
+  newWounds: number,
+): CampaignPilotStatus | null {
   switch (finalStatus) {
     case PilotFinalStatus.Active:
       return null;
     case PilotFinalStatus.Wounded:
     case PilotFinalStatus.Unconscious:
-      return PersonnelStatus.WOUNDED;
+      return newWounds >= 5
+        ? CampaignPilotStatus.Critical
+        : CampaignPilotStatus.Wounded;
     case PilotFinalStatus.KIA:
-      return PersonnelStatus.KIA;
+      return CampaignPilotStatus.KIA;
     case PilotFinalStatus.MIA:
-      return PersonnelStatus.MIA;
+      return CampaignPilotStatus.MIA;
     case PilotFinalStatus.Captured:
-      return PersonnelStatus.POW;
+      // No POW variant on CampaignPilotStatus — collapse to MIA so the
+      // pilot is at least excluded from the active roster. Tracked for
+      // future-state expansion.
+      return CampaignPilotStatus.MIA;
     default:
       return null;
   }
 }
 
 /**
- * Apply a single unit delta's pilot effects to the personnel map.
+ * Apply a single unit delta's pilot effects.
  *
- * PR3 migration: XP now uses the two-arg (entry, pilot | null) canonical
- * functions. entry is the roster entry from useCampaignRosterStore; pilot
- * is the vault pilot (null for NPCs — XP is skipped per Council #2).
- * Write-side stays on campaign.personnel until PR4.
+ * Per PR4 of `wire-iperson-hard-cutover`: returns a per-pilot patch the
+ * caller commits via `applyPilotPatches`. The personnel Map is gone.
  *
- * Returns `null` and logs a warning if the pilot id can't be resolved
- * — this is non-fatal so the rest of the outcome continues processing.
+ * NPC rule: XP helpers (awardScenarioXP / awardKillXP) return null when
+ * `pilot === null` — NPCs don't earn XP.
+ *
+ * Returns `null` when the pilot id can't be resolved to a roster entry —
+ * non-fatal; the rest of the outcome continues processing.
  */
 function applyPilotDelta(
   campaign: ICampaign,
-  personnel: Map<string, IPerson>,
   pilotId: string,
   delta: IUnitCombatDelta,
   outcomeWonByPlayer: boolean,
   entry: ICampaignRosterEntry | null,
   pilot: IPilot | null,
-): { person: IPerson; xpAwarded: number } | null {
-  const person = personnel.get(pilotId);
-  if (!person) {
+): { patch: Partial<ICampaignRosterEntry>; xpAwarded: number } | null {
+  if (!entry) {
     logger.warn(
       `[postBattleProcessor] Unknown pilot id "${pilotId}" — skipping pilot updates.`,
     );
@@ -162,63 +174,51 @@ function applyPilotDelta(
 
   // 1. XP — scenario participation always, kill bonus when present.
   // NPC rule: awardScenarioXP / awardKillXP return null when pilot===null.
-  let updated = person;
-  let xpTotal = 0;
+  let xpDelta = 0;
+  let campaignXpDelta = 0;
 
-  if (entry !== null) {
-    const scenarioEvent = awardScenarioXP(entry, pilot, campaign.options);
-    if (scenarioEvent) {
-      // Write XP directly to IPerson (write-side stays on campaign.personnel until PR4)
-      updated = {
-        ...updated,
-        xp: updated.xp + scenarioEvent.amount,
-        totalXpEarned: updated.totalXpEarned + scenarioEvent.amount,
-      };
-      xpTotal += scenarioEvent.amount;
-    }
+  const scenarioEvent = awardScenarioXP(entry, pilot, campaign.options);
+  if (scenarioEvent) {
+    xpDelta += scenarioEvent.amount;
+    campaignXpDelta += scenarioEvent.amount;
+  }
 
-    // Kill XP only awarded to player-side survivors who fought (basic
-    // heuristic; richer kill attribution will land in Wave 5 wiring).
-    if (delta.side === GameSide.Player && outcomeWonByPlayer) {
-      const killEvent = awardKillXP(entry, pilot, 1, campaign.options);
-      if (killEvent) {
-        updated = {
-          ...updated,
-          xp: updated.xp + killEvent.amount,
-          totalXpEarned: updated.totalXpEarned + killEvent.amount,
-        };
-        xpTotal += killEvent.amount;
-      }
+  // Kill XP only awarded to player-side survivors who fought (basic
+  // heuristic; richer kill attribution will land in Wave 5 wiring).
+  if (delta.side === GameSide.Player && outcomeWonByPlayer) {
+    const killEvent = awardKillXP(entry, pilot, 1, campaign.options);
+    if (killEvent) {
+      xpDelta += killEvent.amount;
+      campaignXpDelta += killEvent.amount;
     }
   }
 
-  // 2. Wound counter — accumulates on top of any pre-battle hits.
-  const newHits = Math.min(6, updated.hits + delta.pilotState.wounds);
+  // 2. Wound counter — accumulates on top of any pre-battle wounds.
+  const newWounds = Math.min(6, entry.wounds + delta.pilotState.wounds);
 
-  // 3. Status mapping.
-  const mappedStatus = pilotFinalToPersonnelStatus(
+  // 3. Status mapping (escalates to Critical when wounds >= 5).
+  const mappedStatus = pilotFinalToRosterStatus(
     delta.pilotState.finalStatus,
+    newWounds,
   );
-  const newStatus = mappedStatus ?? updated.status;
+  const newStatus = mappedStatus ?? entry.status;
 
-  // 4. KIA → record death date; WOUNDED → seed healing days.
-  const isKia = delta.pilotState.finalStatus === PilotFinalStatus.KIA;
+  // 4. WOUNDED → seed recovery time = wounds * 7 (matches legacy formula).
   const isWounded =
     delta.pilotState.finalStatus === PilotFinalStatus.Wounded ||
     delta.pilotState.finalStatus === PilotFinalStatus.Unconscious;
 
-  updated = {
-    ...updated,
-    hits: newHits,
+  const patch: Partial<ICampaignRosterEntry> = {
+    wounds: newWounds,
     status: newStatus,
-    deathDate: isKia ? campaign.currentDate : updated.deathDate,
-    daysToWaitForHealing: isWounded
-      ? Math.max(updated.daysToWaitForHealing, newHits * 7)
-      : updated.daysToWaitForHealing,
+    xp: entry.xp + xpDelta,
+    campaignXpEarned: entry.campaignXpEarned + campaignXpDelta,
+    recoveryTime: isWounded
+      ? Math.max(entry.recoveryTime, newWounds * 7)
+      : entry.recoveryTime,
   };
 
-  personnel.set(pilotId, updated);
-  return { person: updated, xpAwarded: xpTotal };
+  return { patch, xpAwarded: xpDelta };
 }
 
 // =============================================================================
@@ -436,7 +436,6 @@ function applyOutcome(
   // Clone mutable working copies. We can't mutate the immutable Maps
   // returned by ICampaign directly — we need new ones so React-style
   // shallow comparisons fire downstream.
-  const personnel = new Map(campaign.personnel);
   const missions = new Map(campaign.missions);
   const unitStates: Record<string, IUnitCombatState> = {
     ...(campaign.unitCombatStates ?? {}),
@@ -449,28 +448,25 @@ function applyOutcome(
   const nowIso = new Date().toISOString();
 
   // Pre-join vault once per outcome (O(N) build, O(1) lookups).
-  // Roster entries and pilots are read for XP award calls; write-side
-  // stays on campaign.personnel until PR4.
-  const __storeEntries = useCampaignRosterStore.getState().pilots;
-  const rosterEntries: readonly ICampaignRosterEntry[] =
-    __storeEntries.length > 0
-      ? __storeEntries
-      : Array.from(campaign.personnel.values()).map(personToMinimalEntry);
+  // Per PR4 of `wire-iperson-hard-cutover`: roster store is the canonical
+  // entry source. Per-pilot patches accumulate into `pilotPatches` and are
+  // committed once via `applyPilotPatches` after the loop.
+  const rosterEntries = useCampaignRosterStore.getState().pilots;
   const vault = usePilotStore.getState().pilots;
   const pilotsByPilotId = buildPilotLookup(vault);
   const entriesByPilotId = new Map(rosterEntries.map((e) => [e.pilotId, e]));
+  const pilotPatches = new Map<string, Partial<ICampaignRosterEntry>>();
 
   for (const delta of outcome.unitDeltas) {
     // Pilot side — derive pilot id from unit id for now (Wave 5 will
-    // enrich with explicit pilot binding). Personnel keys are pilot ids
-    // and our current production wiring matches `unit:pilot` 1:1, so we
+    // enrich with explicit pilot binding). Roster keys are pilot ids and
+    // our current production wiring matches `unit:pilot` 1:1, so we
     // attempt direct lookup first and fall through cleanly when the
-    // unit has no associated person record.
+    // unit has no associated roster entry.
     const entry = entriesByPilotId.get(delta.unitId) ?? null;
     const pilot = pilotsByPilotId.get(delta.unitId) ?? null;
     const pilotResult = applyPilotDelta(
       campaign,
-      personnel,
       delta.unitId,
       delta,
       wonByPlayer,
@@ -478,7 +474,8 @@ function applyOutcome(
       pilot,
     );
     if (pilotResult) {
-      pilotsUpdated.push(pilotResult.person.id);
+      pilotPatches.set(delta.unitId, pilotResult.patch);
+      pilotsUpdated.push(delta.unitId);
     }
 
     // Unit damage state — always updated even if pilot lookup failed.
@@ -499,6 +496,11 @@ function applyOutcome(
         err,
       );
     }
+  }
+
+  // Commit accumulated pilot patches to the canonical roster store.
+  if (pilotPatches.size > 0) {
+    useCampaignRosterStore.getState().applyPilotPatches(pilotPatches);
   }
 
   const contractDelta = applyContractDelta(campaign, missions, outcome);
@@ -553,7 +555,6 @@ function applyOutcome(
     readonly pendingFulfilledContractIds: readonly string[];
   } = {
     ...campaign,
-    personnel,
     missions,
     pendingBattleOutcomes: remainingQueue,
     processedBattleIds: [...processed, outcome.matchId],

@@ -84,7 +84,6 @@ describe('taxService', () => {
       name: 'Test Campaign',
       currentDate: new Date('3025-01-01'),
       factionId: 'mercenary',
-      personnel: new Map(),
       forces: new Map(),
       rootForceId: 'root-force',
       missions: new Map(),

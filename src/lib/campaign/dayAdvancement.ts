@@ -92,20 +92,17 @@
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { personToMinimalEntry as personToMinimalEntryShared } from '@/lib/campaign/utils/personToRosterEntry';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import { ICampaign } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { getAllUnits } from '@/types/campaign/Force';
 import { IContract, isContract, IMission } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
-import { IPerson, IInjury } from '@/types/campaign/Person';
+import { IInjury } from '@/types/campaign/Person';
 import { Transaction } from '@/types/campaign/Transaction';
 
 import { IDayPipelineResult, IDayEvent } from './dayPipeline';
@@ -204,106 +201,68 @@ export interface DayReport {
 // =============================================================================
 
 /**
- * Process healing for all personnel in the campaign.
+ * Process healing for all wounded roster entries.
  *
- * For each wounded person:
- * - Use selected medical system (standard/advanced/alternate) to process injuries
+ * Per PR4 of `wire-iperson-hard-cutover`: this legacy function reads roster
+ * entries directly (no personnel Map) and returns per-pilot patches that
+ * the caller commits via `useCampaignRosterStore.applyPilotPatches`.
+ * Production uses `healingProcessor` via the DayPipelineRegistry; this
+ * standalone function is a thin wrapper kept for the `advanceDay` legacy
+ * path and direct unit tests.
+ *
+ * For each wounded entry:
+ * - Use selected medical system to process injuries
  * - Apply medical check results to reduce healing time
  * - Remove injuries where daysToHeal reaches 0
- * - Reduce daysToWaitForHealing by 1 (min 0)
- * - If person is WOUNDED and all injuries healed + daysToWaitForHealing is 0,
- *   transition to ACTIVE
+ * - Reduce recoveryTime by 1 (min 0)
+ * - If entry is Wounded and all injuries healed + recoveryTime is 0,
+ *   transition to Active
  *
- * @param personnel - Map of all personnel
- * @param campaign - Campaign with options and personnel for doctor assignment
- * @returns Updated personnel map and healing events
+ * @param entries - All roster entries (typically `useCampaignRosterStore.getState().pilots`)
+ * @param campaign - Campaign with options for doctor assignment
+ * @returns Per-pilot patches plus healing events
  */
 export function processHealing(
-  personnel: Map<string, IPerson>,
+  entries: readonly ICampaignRosterEntry[],
   campaign?: ICampaign,
 ): {
-  personnel: Map<string, IPerson>;
+  patches: Map<string, Partial<ICampaignRosterEntry>>;
   events: HealedPersonEvent[];
 } {
-  const updatedPersonnel = new Map<string, IPerson>();
+  const patches = new Map<string, Partial<ICampaignRosterEntry>>();
   const events: HealedPersonEvent[] = [];
 
-  // Get medical system from campaign options, default to STANDARD
   const medicalSystem =
     campaign?.options.medicalSystem ?? MedicalSystem.STANDARD;
-  const personnelArray = Array.from(personnel.values());
-
-  // PR2 bridge: adapt IPerson → ICampaignRosterEntry for the new two-arg helper
-  // signatures. This function is a legacy fallback (production uses healingProcessor
-  // via the DayPipelineRegistry). The full migration of processHealing to operate
-  // directly on roster entries happens in PR3 (task 5.1/5.2). Until then, each
-  // person is synthesized into a minimal ICampaignRosterEntry so the medical
-  // helpers compile against the new signatures without a vault join.
-  function personToMinimalEntry(person: IPerson): ICampaignRosterEntry {
-    return {
-      pilotId: person.id,
-      pilotName: person.name,
-      status:
-        person.status === PersonnelStatus.WOUNDED
-          ? CampaignPilotStatus.Wounded
-          : CampaignPilotStatus.Active,
-      wounds: person.hits ?? 0,
-      recoveryTime: person.daysToWaitForHealing ?? 0,
-      xp: 0,
-      campaignXpEarned: 0,
-      campaignKills: 0,
-      campaignMissions: 0,
-      hireDate: new Date(0),
-      primaryRole:
-        (person.primaryRole as CampaignPersonnelRole) ??
-        CampaignPersonnelRole.PILOT,
-      rankIndex: 0,
-      injuries: person.injuries,
-    };
-  }
-
-  // Build roster entries for all personnel so getBestAvailableDoctor can filter
-  // by primaryRole (DOCTOR/MEDIC) using the new signature.
-  const allEntries: ICampaignRosterEntry[] =
-    personnelArray.map(personToMinimalEntry);
-  // No vault pilots available in this legacy path — pass empty map (NPCs only).
+  // Doctor lookup uses ALL entries (for primaryRole=DOCTOR filtering).
+  // No vault join in this legacy path — pass empty pilot map (NPCs only).
   const emptyPilots: ReadonlyMap<string, IPilot> = new Map<string, IPilot>();
 
-  Array.from(personnel.entries()).forEach(([id, person]) => {
-    // Only process healing for wounded personnel
-    if (person.status !== PersonnelStatus.WOUNDED) {
-      updatedPersonnel.set(id, person);
-      return;
-    }
-
-    const patientEntry = personToMinimalEntry(person);
+  for (const entry of entries) {
+    if (entry.status !== CampaignPilotStatus.Wounded) continue;
 
     // Process injuries: apply medical checks, track healed ones
     const healedInjuryIds: string[] = [];
     const updatedInjuries: IInjury[] = [];
+    const injuries: readonly IInjury[] = entry.injuries ?? [];
 
-    person.injuries.forEach((injury) => {
+    for (const injury of injuries) {
       if (injury.permanent) {
         // Permanent injuries don't heal
         updatedInjuries.push(injury);
-        return;
+        continue;
       }
 
       // Get assigned doctor for this patient using new two-arg signature
       const doctorEntry = campaign
-        ? getBestAvailableDoctor(
-            patientEntry,
-            allEntries,
-            emptyPilots,
-            campaign.options,
-          )
+        ? getBestAvailableDoctor(entry, entries, emptyPilots, campaign.options)
         : null;
 
       // Perform medical check using selected system with new two-arg signature
       const medicalResult = campaign
         ? performMedicalCheck(
             medicalSystem,
-            patientEntry,
+            entry,
             injury,
             doctorEntry,
             null, // doctorPilot: no vault join in this legacy path
@@ -312,52 +271,54 @@ export function processHealing(
           )
         : null;
 
-      // Calculate healing days reduced
       const daysReduced = medicalResult?.healingDaysReduced ?? 1;
       const newDaysToHeal = Math.max(0, injury.daysToHeal - daysReduced);
 
       if (newDaysToHeal === 0) {
-        // Injury fully healed - don't include in updated list
         healedInjuryIds.push(injury.id);
       } else {
-        updatedInjuries.push({
-          ...injury,
-          daysToHeal: newDaysToHeal,
-        });
+        updatedInjuries.push({ ...injury, daysToHeal: newDaysToHeal });
       }
+    }
+
+    // Reduce recoveryTime (was IPerson.daysToWaitForHealing)
+    const oldRecoveryTime = entry.recoveryTime ?? 0;
+    const newRecoveryTime = Math.max(0, oldRecoveryTime - 1);
+
+    // Check if entry should return to active duty
+    const hasHealableInjuries = updatedInjuries.some((i) => !i.permanent);
+    const returnedToActive = !hasHealableInjuries && newRecoveryTime === 0;
+
+    // Commit a patch when ANY field changes — recoveryTime decrements
+    // even when no injury cleared, so the early-return must consider
+    // the recoveryTime delta too. Otherwise wounded pilots would never
+    // tick down their recovery clock.
+    const recoveryChanged = newRecoveryTime !== oldRecoveryTime;
+    const injuriesChanged = healedInjuryIds.length > 0;
+    if (!injuriesChanged && !returnedToActive && !recoveryChanged) {
+      continue;
+    }
+
+    patches.set(entry.pilotId, {
+      injuries: updatedInjuries,
+      recoveryTime: newRecoveryTime,
+      status: returnedToActive ? CampaignPilotStatus.Active : entry.status,
     });
 
-    // Reduce daysToWaitForHealing
-    const newDaysToWait = Math.max(0, person.daysToWaitForHealing - 1);
-
-    // Check if person should return to active duty
-    const hasHealableInjuries = updatedInjuries.some((i) => !i.permanent);
-    const fullyHealed = !hasHealableInjuries && newDaysToWait === 0;
-    const returnedToActive =
-      fullyHealed && person.status === PersonnelStatus.WOUNDED;
-
-    const updatedPerson: IPerson = {
-      ...person,
-      injuries: updatedInjuries,
-      daysToWaitForHealing: newDaysToWait,
-      status: returnedToActive ? PersonnelStatus.ACTIVE : person.status,
-      updatedAt: new Date().toISOString(),
-    };
-
-    updatedPersonnel.set(id, updatedPerson);
-
-    // Record event if anything notable happened
-    if (healedInjuryIds.length > 0 || returnedToActive) {
+    // Only emit a healing event when something user-visible happened
+    // (injury cleared OR returned to active). A silent recovery-time
+    // tick stays internal to keep the event log noise-free.
+    if (injuriesChanged || returnedToActive) {
       events.push({
-        personId: id,
-        personName: person.name,
+        personId: entry.pilotId,
+        personName: entry.pilotName,
         healedInjuries: healedInjuryIds,
         returnedToActive,
       });
     }
-  });
+  }
 
-  return { personnel: updatedPersonnel, events };
+  return { patches, events };
 }
 
 // =============================================================================
@@ -433,19 +394,11 @@ export function processDailyCosts(campaign: ICampaign): {
   const newTransactions: Transaction[] = [...campaign.finances.transactions];
   let currentBalance = campaign.finances.balance;
 
-  // Count billable personnel for salary — read from roster store (PR3 task 5.1).
+  // Count billable personnel for salary — read from roster store
+  // (canonical source per PR4 of `wire-iperson-hard-cutover`).
   // CampaignPilotStatus.KIA is the only non-billable terminal status; Active,
-  // Wounded, Critical, and MIA all still draw salary (mirrors the legacy
-  // IPerson filter that excluded KIA/RETIRED/DESERTED — RETIRED and DESERTED
-  // have no CampaignPilotStatus equivalent and are not present in the roster).
-  // PR3 transitional: fall back to `campaign.personnel` synthesis when stores
-  // are empty (test fixtures). PR4 deletes the personnel field, forcing all
-  // callers to populate stores.
-  const __storeEntries = useCampaignRosterStore.getState().pilots;
-  const rosterEntries: readonly ICampaignRosterEntry[] =
-    __storeEntries.length > 0
-      ? __storeEntries
-      : Array.from(campaign.personnel.values()).map(personToMinimalEntryShared);
+  // Wounded, Critical, and MIA all still draw salary.
+  const rosterEntries = useCampaignRosterStore.getState().pilots;
   const personnelCount = rosterEntries.filter(
     (e) => e.status !== CampaignPilotStatus.KIA,
   ).length;
@@ -521,39 +474,34 @@ export function processDailyCosts(campaign: ICampaign): {
  * Advance the campaign by one day.
  *
  * Processes in order:
- * 1. Personnel healing
+ * 1. Personnel healing (commits patches to roster store)
  * 2. Contract expiration
  * 3. Daily costs (salaries + maintenance)
  * 4. Advance the date by one day
  *
- * Returns a DayReport with all events and the updated campaign.
+ * Per PR4 of `wire-iperson-hard-cutover`: roster mutations go through
+ * `useCampaignRosterStore.applyPilotPatches`. The returned `DayReport`
+ * carries the events; callers read updated roster state from the store.
  *
  * @param campaign - The campaign to advance
  * @returns DayReport with events and updated campaign
- *
- * @example
- * const report = advanceDay(campaign);
- * logger.debug(`${report.healedPersonnel.length} personnel healed`);
- * logger.debug(`${report.expiredContracts.length} contracts expired`);
- * logger.debug(`Daily costs: ${report.costs.total.format()}`);
- * // Use report.campaign for the updated state
  */
 export function advanceDay(campaign: ICampaign): DayReport {
   const processedDate = campaign.currentDate;
 
-  // 1. Process healing
-  const healingResult = processHealing(campaign.personnel);
+  // 1. Process healing — read entries from store, commit patches back.
+  const rosterEntries = useCampaignRosterStore.getState().pilots;
+  const healingResult = processHealing(rosterEntries, campaign);
+  if (healingResult.patches.size > 0) {
+    useCampaignRosterStore.getState().applyPilotPatches(healingResult.patches);
+  }
 
-  // 2. Process contracts (use campaign with updated personnel)
-  const campaignWithHealing: ICampaign = {
-    ...campaign,
-    personnel: healingResult.personnel,
-  };
-  const contractResult = processContracts(campaignWithHealing);
+  // 2. Process contracts
+  const contractResult = processContracts(campaign);
 
-  // 3. Process daily costs (use campaign with updated personnel + contracts)
+  // 3. Process daily costs — reads roster store directly for personnel count.
   const campaignWithContracts: ICampaign = {
-    ...campaignWithHealing,
+    ...campaign,
     missions: contractResult.missions,
   };
   const costResult = processDailyCosts(campaignWithContracts);
@@ -561,11 +509,9 @@ export function advanceDay(campaign: ICampaign): DayReport {
   // 4. Advance the date by one day
   const nextDate = new Date(processedDate.getTime() + 24 * 60 * 60 * 1000);
 
-  // Build the final updated campaign
   const updatedCampaign: ICampaign = {
     ...campaign,
     currentDate: nextDate,
-    personnel: healingResult.personnel,
     missions: contractResult.missions,
     finances: costResult.finances,
     updatedAt: new Date().toISOString(),

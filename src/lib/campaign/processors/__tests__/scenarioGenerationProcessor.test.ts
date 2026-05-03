@@ -56,7 +56,6 @@ function createMockCampaign(overrides?: Partial<ICampaign>): ICampaign {
     name: 'Test Campaign',
     currentDate: baseDate,
     factionId: 'mercenary',
-    personnel: new Map(),
     forces: new Map(),
     rootForceId: 'force-root',
     missions: new Map(),

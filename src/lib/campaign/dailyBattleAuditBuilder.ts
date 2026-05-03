@@ -16,6 +16,7 @@
  * @module lib/campaign/dailyBattleAuditBuilder
  */
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type {
   IDailyBattleAuditEntry,
   IDailyBattleMatchRef,
@@ -40,6 +41,10 @@ import type { ICampaignWithBattleState } from './processors/postBattleProcessor'
  *
  * @param params.before - Campaign snapshot BEFORE the day pipeline ran.
  * @param params.after - Campaign snapshot AFTER all processors ran.
+ * @param params.beforeRoster - Roster pilot snapshot BEFORE the pipeline
+ *   ran (per PR4 of `wire-iperson-hard-cutover`: replaces the personnel
+ *   Map for XP-delta diffing).
+ * @param params.afterRoster - Roster pilot snapshot AFTER the pipeline ran.
  * @param params.appliedOutcomes - Outcomes the post-battle processor
  *   actually drained from the queue (i.e., `recentlyAppliedOutcomes`).
  * @param params.events - The events the pipeline emitted on this day.
@@ -52,11 +57,21 @@ import type { ICampaignWithBattleState } from './processors/postBattleProcessor'
 export function buildDailyBattleAuditEntry(params: {
   readonly before: ICampaignWithBattleState;
   readonly after: ICampaignWithBattleState;
+  readonly beforeRoster: readonly ICampaignRosterEntry[];
+  readonly afterRoster: readonly ICampaignRosterEntry[];
   readonly appliedOutcomes: readonly ICombatOutcome[];
   readonly events: readonly IDayEvent[];
   readonly date: Date;
 }): IDailyBattleAuditEntry | null {
-  const { before, after, appliedOutcomes, events, date } = params;
+  const {
+    before,
+    after,
+    beforeRoster,
+    afterRoster,
+    appliedOutcomes,
+    events,
+    date,
+  } = params;
 
   if (appliedOutcomes.length === 0) {
     // Nothing was drained — even if salvage/repair fired on a stale
@@ -96,11 +111,18 @@ export function buildDailyBattleAuditEntry(params: {
   }
 
   // ---------------------------------------------------------------------
-  // XP — diff personnel.totalXpEarned across before/after. Defensive: if
+  // XP — diff roster `campaignXpEarned` across before/after. Defensive: if
   // a pilot exists only in `after` (newly recruited mid-pipeline, etc.),
-  // we treat its delta as zero so we don't surface phantom XP.
+  // we treat its delta as zero so we don't surface phantom XP. Per PR4
+  // of `wire-iperson-hard-cutover`: roster snapshots replace the legacy
+  // personnel-Map diff.
   // ---------------------------------------------------------------------
-  const totalXpAwarded = computeXpDelta(before, after);
+  const totalXpAwarded = computeXpDelta(beforeRoster, afterRoster);
+  // The campaign before/after parameters remain in the signature because
+  // future audit fields may diff campaign-level state; suppress the
+  // unused-binding lint until those fields land.
+  void before;
+  void after;
 
   // ---------------------------------------------------------------------
   // Salvage value — sum across `salvage_allocated` events emitted today.
@@ -205,20 +227,24 @@ function collapsePilotStatuses(
 }
 
 /**
- * Diff personnel.totalXpEarned across before/after. Negative deltas
+ * Diff roster `campaignXpEarned` across before/after. Negative deltas
  * (XP being spent) are clamped to zero — this entry summarizes XP
  * AWARDED, not net XP.
+ *
+ * Per PR4 of `wire-iperson-hard-cutover`: roster snapshots are the
+ * source of truth for XP attribution since the personnel Map is gone.
  */
 function computeXpDelta(
-  before: ICampaignWithBattleState,
-  after: ICampaignWithBattleState,
+  beforeRoster: readonly ICampaignRosterEntry[],
+  afterRoster: readonly ICampaignRosterEntry[],
 ): number {
+  const beforeById = new Map(beforeRoster.map((e) => [e.pilotId, e]));
   let delta = 0;
-  for (const [id, afterPerson] of Array.from(after.personnel.entries())) {
-    const beforePerson = before.personnel.get(id);
-    if (!beforePerson) continue;
+  for (const after of afterRoster) {
+    const before = beforeById.get(after.pilotId);
+    if (!before) continue;
     const earnedDelta =
-      (afterPerson.totalXpEarned ?? 0) - (beforePerson.totalXpEarned ?? 0);
+      (after.campaignXpEarned ?? 0) - (before.campaignXpEarned ?? 0);
     if (earnedDelta > 0) {
       delta += earnedDelta;
     }

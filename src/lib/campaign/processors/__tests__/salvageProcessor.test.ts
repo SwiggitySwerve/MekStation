@@ -86,7 +86,6 @@ function makeCampaign(
     name: 'Test',
     currentDate: new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map(),
     forces: new Map(),
     rootForceId: 'root',
     // oxlint-disable-next-line @typescript-eslint/no-explicit-any

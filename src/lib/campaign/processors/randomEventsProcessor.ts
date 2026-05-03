@@ -1,5 +1,4 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IRandomEvent } from '@/types/campaign/events/randomEventTypes';
 
 import { processGrayMonday } from '@/lib/campaign/events/grayMonday';
@@ -8,7 +7,6 @@ import {
   processPrisonerEvents,
   countPrisoners,
 } from '@/lib/campaign/events/prisonerEvents';
-import { personToMinimalEntry } from '@/lib/campaign/utils/personToRosterEntry';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -48,13 +46,10 @@ export const randomEventsProcessor: IDayProcessor = {
     const random: () => number = Math.random;
     const allRandomEvents: IRandomEvent[] = [];
 
-    // Read entries directly from roster store (PR3 task 5.2).
-    // NPC entries whose pilotId has no vault counterpart resolve to null.
-    const __storeEntries = useCampaignRosterStore.getState().pilots;
-    const rosterEntries: readonly ICampaignRosterEntry[] =
-      __storeEntries.length > 0
-        ? __storeEntries
-        : Array.from(campaign.personnel.values()).map(personToMinimalEntry);
+    // Read entries directly from roster store (canonical source per PR4
+    // of `wire-iperson-hard-cutover`). NPC entries whose pilotId has no
+    // vault counterpart resolve to null.
+    const rosterEntries = useCampaignRosterStore.getState().pilots;
     const vault = usePilotStore.getState().pilots;
     const pilotsByPilotId = buildPilotLookup(vault);
     const entries = rosterEntries.map((entry) => ({

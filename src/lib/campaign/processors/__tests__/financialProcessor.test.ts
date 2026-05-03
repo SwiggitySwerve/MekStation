@@ -1,10 +1,12 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ILoan } from '@/types/campaign/Loan';
 import type { IPerson } from '@/types/campaign/Person';
 
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
@@ -14,6 +16,50 @@ import { Money } from '@/types/campaign/Money';
 import { DayPhase, IDayEvent } from '../../dayPipeline';
 import { dailyCostsProcessor } from '../dailyCostsProcessor';
 import { financialProcessor } from '../financialProcessor';
+
+/**
+ * Seed the roster store with a single test pilot so the financial
+ * processor (per PR4 of `wire-iperson-hard-cutover`) has a billable
+ * entry to draw salary/overhead/food-housing on.
+ */
+function seedRoster(): void {
+  useCampaignRosterStore.setState({
+    campaignId: 'campaign-001',
+    units: [],
+    pilots: [
+      {
+        pilotId: 'person-001',
+        pilotName: 'Test Pilot',
+        status: CampaignPilotStatus.Active,
+        wounds: 0,
+        recoveryTime: 0,
+        xp: 100,
+        campaignXpEarned: 500,
+        campaignKills: 3,
+        campaignMissions: 5,
+        primaryRole: CampaignPersonnelRole.PILOT,
+        rankIndex: 0,
+        hireDate: new Date('3000-01-01'),
+      },
+    ],
+    missions: [],
+    activeMissionId: null,
+    missionCount: 0,
+  });
+}
+
+beforeEach(() => {
+  // Per PR4: clear roster store between tests so pilots from previous
+  // tests don't leak into this test's billable-personnel count.
+  useCampaignRosterStore.setState({
+    campaignId: null,
+    units: [],
+    pilots: [],
+    missions: [],
+    activeMissionId: null,
+    missionCount: 0,
+  });
+});
 
 function filterByTransactionType(
   events: readonly IDayEvent[],
@@ -70,7 +116,6 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
     name: 'Test Campaign',
     currentDate: new Date('3025-01-01T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map<string, IPerson>(),
     forces: new Map(),
     rootForceId: 'force-root',
     missions: new Map(),
@@ -129,21 +174,9 @@ describe('financialProcessor', () => {
 
 describe('financialProcessor - monthly salary', () => {
   it('should process salaries on 1st of month', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', totalXpEarned: 500 }));
-    personnel.set(
-      'p2',
-      createTestPerson({
-        id: 'p2',
-        name: 'Test Tech',
-        primaryRole: CampaignPersonnelRole.TECH,
-        totalXpEarned: 500,
-      }),
-    );
-
+    seedRoster();
     const campaign = createTestCampaign({
       currentDate: new Date('3025-01-01T00:00:00Z'),
-      personnel,
     });
 
     const firstOfMonth = new Date('3025-01-01T00:00:00Z');
@@ -160,10 +193,7 @@ describe('financialProcessor - monthly salary', () => {
   });
 
   it('should NOT process salaries on non-1st days', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1' }));
-
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign({});
 
     const secondOfMonth = new Date('3025-01-02T00:00:00Z');
     const result = financialProcessor.process(campaign, secondOfMonth);
@@ -176,10 +206,7 @@ describe('financialProcessor - monthly salary', () => {
   });
 
   it('should NOT process salaries on 15th of month', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1' }));
-
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign({});
 
     const fifteenth = new Date('3025-01-15T00:00:00Z');
     const result = financialProcessor.process(campaign, fifteenth);
@@ -192,10 +219,7 @@ describe('financialProcessor - monthly salary', () => {
   });
 
   it('should NOT process salaries on 31st of month', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1' }));
-
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign({});
 
     const thirtyFirst = new Date('3025-01-31T00:00:00Z');
     const result = financialProcessor.process(campaign, thirtyFirst);
@@ -214,12 +238,10 @@ describe('financialProcessor - monthly salary', () => {
 
 describe('financialProcessor - monthly overhead', () => {
   it('should calculate overhead as 5% of total salary', () => {
-    const personnel = new Map<string, IPerson>();
     // Regular pilot: base 1500 * xp 1.0 * mult 1.0 = 1500
-    personnel.set('p1', createTestPerson({ id: 'p1', totalXpEarned: 500 }));
+    seedRoster();
 
     const campaign = createTestCampaign({
-      personnel,
       options: {
         ...createDefaultCampaignOptions(),
         useRoleBasedSalaries: true,
@@ -250,10 +272,9 @@ describe('financialProcessor - monthly overhead', () => {
 
 describe('financialProcessor - food and housing', () => {
   it('should process food and housing costs on 1st of month', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1' }));
+    seedRoster();
 
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign({});
 
     const firstOfMonth = new Date('3025-01-01T00:00:00Z');
     const result = financialProcessor.process(campaign, firstOfMonth);
@@ -488,11 +509,8 @@ describe('financialProcessor - daily maintenance', () => {
 
 describe('financialProcessor - negative balance', () => {
   it('should continue processing even with negative balance (no abort)', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', totalXpEarned: 500 }));
-
+    seedRoster();
     const campaign = createTestCampaign({
-      personnel,
       finances: { transactions: [], balance: new Money(100) },
       options: {
         ...createDefaultCampaignOptions(),
@@ -519,9 +537,6 @@ describe('financialProcessor - negative balance', () => {
 
 describe('dailyCostsProcessor gate - double-deduction prevention', () => {
   it('should return early (no-op) when useRoleBasedSalaries is true', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1' }));
-
     const forces = new Map();
     forces.set('force-root', {
       id: 'force-root',
@@ -536,7 +551,6 @@ describe('dailyCostsProcessor gate - double-deduction prevention', () => {
     });
 
     const campaign = createTestCampaign({
-      personnel,
       forces,
       options: {
         ...createDefaultCampaignOptions(),
@@ -554,9 +568,6 @@ describe('dailyCostsProcessor gate - double-deduction prevention', () => {
   });
 
   it('should still work normally when useRoleBasedSalaries is false', () => {
-    const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1' }));
-
     const forces = new Map();
     forces.set('force-root', {
       id: 'force-root',
@@ -571,7 +582,6 @@ describe('dailyCostsProcessor gate - double-deduction prevention', () => {
     });
 
     const campaign = createTestCampaign({
-      personnel,
       forces,
       options: {
         ...createDefaultCampaignOptions(),

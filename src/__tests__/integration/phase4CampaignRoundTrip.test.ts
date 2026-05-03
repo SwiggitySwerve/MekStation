@@ -64,6 +64,7 @@ import {
 import { _resetDayPipeline } from '@/lib/campaign/dayPipeline';
 import { _resetBuiltinRegistration } from '@/lib/campaign/processors';
 import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
   resetCampaignStore,
   useCampaignStore,
@@ -278,13 +279,34 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
         pilotSkills: { gunnery: 3, piloting: 4 },
       });
 
-      // Seed personnel directly on the campaign object. Per
-      // `migrate-personnel-to-roster-employment`, the personnel sub-store
-      // is gone — `derivePersonnelFromRoster` merges with whatever is
-      // already on `campaign.personnel`, so this seed survives advanceDay.
+      // Per PR4 of `wire-iperson-hard-cutover`: seed the roster store.
+      // The post-battle processor reads from useCampaignRosterStore — the
+      // legacy personnel field on ICampaign was deleted.
+      useCampaignRosterStore.setState({
+        campaignId: 'campaign-001',
+        units: [],
+        pilots: [
+          {
+            pilotId: 'unit-A',
+            pilotName: pilot.name,
+            status: CampaignPilotStatus.Active,
+            wounds: 0,
+            recoveryTime: 0,
+            xp: 0,
+            campaignXpEarned: 0,
+            campaignKills: 0,
+            campaignMissions: 0,
+            primaryRole: CampaignPersonnelRole.PILOT,
+            rankIndex: 0,
+            hireDate: new Date('3024-01-01'),
+          },
+        ],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+      });
       store.getState().updateCampaign({
         missions: new Map([[contract.id, contract]]),
-        personnel: new Map([[pilot.id, pilot]]),
         finances: {
           transactions: [],
           balance: new Money(1_000_000),
@@ -375,17 +397,21 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
       expect(updatedCampaign).not.toBeNull();
 
       // 10.2(a) Pilots have XP awarded.
-      const updatedPilot = updatedCampaign?.personnel.get('unit-A');
+      // Per PR4 of `wire-iperson-hard-cutover`: pilot reads come from the
+      // canonical roster store, not the deleted `campaign.personnel` Map.
+      const updatedPilot = useCampaignRosterStore
+        .getState()
+        .pilots.find((p) => p.pilotId === 'unit-A');
       expect(updatedPilot).toBeDefined();
-      expect(updatedPilot?.totalXpEarned ?? 0).toBeGreaterThan(0);
+      expect(updatedPilot?.campaignXpEarned ?? 0).toBeGreaterThan(0);
 
-      // 10.2(b) Wounded pilot reflected in personnel status. The
-      //         medical-queue behavior is encoded as
-      //         `PersonnelStatus.WOUNDED` + a non-zero `hits` count;
-      //         the healing processor consumes this on subsequent days
-      //         to advance daysToWaitForHealing.
-      expect(updatedPilot?.hits).toBe(1);
-      expect(updatedPilot?.status).toBe(PersonnelStatus.WOUNDED);
+      // 10.2(b) Wounded pilot reflected in roster status: status flips to
+      //         `CampaignPilotStatus.Wounded` and `wounds` increments. The
+      //         healing processor consumes this on subsequent days to
+      //         advance recoveryTime.
+      expect(updatedPilot?.wounds).toBe(1);
+      expect(updatedPilot?.status).toBe(CampaignPilotStatus.Wounded);
+      void PersonnelStatus;
 
       // 10.2(c) Units have combat state reflecting damage.
       // Per canonicalize-unit-combat-state PR-A: unitCombatStates is a
@@ -493,14 +519,17 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
       //       `recentlyAppliedOutcomes` is intentionally sticky on the
       //       campaign object across pipeline runs — that's a separate
       //       cleanup tracked outside this slice.
-      const xpAfterFirst = updatedPilot?.totalXpEarned ?? 0;
+      const xpAfterFirst = updatedPilot?.campaignXpEarned ?? 0;
       const ticketsAfterFirst = ticketsForThisMatch.length;
       publishCombatOutcome({ matchId: outcome.matchId, outcome });
       expect(store.getState().getPendingOutcomeCount()).toBe(0);
       store.getState().advanceDay();
       const finalCampaign = store.getState().getCampaign();
-      const finalPilot = finalCampaign?.personnel.get('unit-A');
-      expect(finalPilot?.totalXpEarned).toBe(xpAfterFirst);
+      void finalCampaign;
+      const finalPilot = useCampaignRosterStore
+        .getState()
+        .pilots.find((p) => p.pilotId === 'unit-A');
+      expect(finalPilot?.campaignXpEarned).toBe(xpAfterFirst);
       // Repair ticket count for this match must not double — the
       // processor short-circuits when the matchId is already in the
       // processed-battle ledger.
@@ -543,10 +572,6 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
 
     store.getState().updateCampaign({
       missions: new Map([[contract.id, contract]]),
-      personnel: new Map([
-        [pilotA.id, pilotA],
-        [pilotB.id, pilotB],
-      ]),
       finances: {
         transactions: [],
         balance: new Money(500_000),
@@ -632,9 +657,7 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
     // a no-op day must not pollute the ledger with empty rows.
     const store = useCampaignStore();
     store.getState().createCampaign('Quiet Day Co.', 'mercenary');
-    store.getState().updateCampaign({
-      personnel: new Map([['unit-X', makePerson({ id: 'unit-X' })]]),
-    });
+    store.getState().updateCampaign({});
 
     expect(store.getState().getPendingOutcomeCount()).toBe(0);
     store.getState().advanceDay();

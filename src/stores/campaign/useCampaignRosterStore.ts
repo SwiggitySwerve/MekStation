@@ -141,6 +141,19 @@ interface CampaignRosterActions {
   /** Remove a pilot from the roster */
   removePilot: (pilotId: string) => void;
 
+  /**
+   * Apply per-pilot patches in a single setState. Each entry in `patches`
+   * maps `pilotId` to a partial `ICampaignRosterEntry` that gets shallow-
+   * merged into the existing entry. Unknown ids are ignored.
+   *
+   * Day-pipeline processors call this once per phase to commit their
+   * accumulated mutations (wound progression, status transitions, XP
+   * awards, departure flags) without requiring direct setState access.
+   */
+  applyPilotPatches: (
+    patches: ReadonlyMap<string, Partial<ICampaignRosterEntry>>,
+  ) => void;
+
   /** Assign a pilot to a unit */
   assignPilot: (unitId: string, pilotId: string) => void;
 
@@ -355,6 +368,16 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
       removePilot: (pilotId) => {
         set((state) => ({
           pilots: state.pilots.filter((p) => p.pilotId !== pilotId),
+        }));
+      },
+
+      applyPilotPatches: (patches) => {
+        if (patches.size === 0) return;
+        set((state) => ({
+          pilots: state.pilots.map((p) => {
+            const patch = patches.get(p.pilotId);
+            return patch ? { ...p, ...patch } : p;
+          }),
         }));
       },
 

@@ -117,7 +117,6 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     name: 'Test Campaign',
     currentDate: new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map<string, IPerson>(),
     forces: new Map<string, IForce>(),
     rootForceId: 'force-root',
     missions: new Map<string, IMission>(),
@@ -180,28 +179,17 @@ describe('healingProcessor', () => {
       missionCount: 0,
     });
 
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({
-        id: 'p1',
-        name: 'Jane',
-        status: PersonnelStatus.WOUNDED,
-        injuries: [injury],
-        daysToWaitForHealing: 0,
-      }),
-    );
-
-    const campaign = createTestCampaign({ personnel });
+    const campaign = createTestCampaign({});
     const result = healingProcessor.process(campaign, campaign.currentDate);
 
     randomSpy.mockRestore();
 
     expect(result.events).toHaveLength(1);
     expect(result.events[0].type).toBe('healing');
-    expect(result.campaign.personnel.get('p1')!.status).toBe(
-      PersonnelStatus.ACTIVE,
-    );
+    expect(
+      useCampaignRosterStore.getState().pilots.find((p) => p.pilotId === 'p1')!
+        .status,
+    ).toBe(CampaignPilotStatus.Active);
   });
 
   it('should return empty events when no healing occurs', () => {
@@ -257,16 +245,11 @@ describe('dailyCostsProcessor', () => {
     // "cost events" test relies on unit maintenance from forces (not personnel
     // salary), so store setup is not required here — unit cost path reads
     // campaign.forces, not the roster store.
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
 
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
 
-    const campaign = createTestCampaign({ personnel, forces });
+    const campaign = createTestCampaign({ forces });
     const result = dailyCostsProcessor.process(campaign, campaign.currentDate);
 
     expect(result.events).toHaveLength(1);
@@ -286,14 +269,7 @@ describe('dailyCostsProcessor', () => {
       missionCount: 0,
     });
 
-    const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
-    );
-
     const campaign = createTestCampaign({
-      personnel,
       finances: { transactions: [], balance: new Money(0) },
     });
     const result = dailyCostsProcessor.process(campaign, campaign.currentDate);

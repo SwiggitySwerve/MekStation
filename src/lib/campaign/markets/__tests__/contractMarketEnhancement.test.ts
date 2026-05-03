@@ -67,7 +67,6 @@ function createMockCampaign(unitCount: number = 4): ICampaign {
     name: 'Test',
     currentDate: new Date('3025-01-01'),
     factionId: 'mercenary',
-    personnel: new Map(),
     forces,
     rootForceId: 'force-root',
     missions: new Map(),

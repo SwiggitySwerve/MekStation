@@ -34,7 +34,6 @@ function createTestCampaign(
     name: 'Test Campaign',
     currentDate: baseDate,
     factionId: 'davion',
-    personnel: new Map(),
     forces: new Map(),
     rootForceId: 'root',
     missions: new Map(),

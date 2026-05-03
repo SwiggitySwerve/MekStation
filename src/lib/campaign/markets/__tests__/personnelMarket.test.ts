@@ -55,7 +55,6 @@ function createTestCampaign(overrides?: {
     name: 'Test Campaign',
     currentDate: overrides?.currentDate ?? new Date('3025-06-15T00:00:00Z'),
     factionId: 'mercenary',
-    personnel: new Map(),
     forces: new Map(),
     rootForceId: 'force-root',
     missions: new Map(),

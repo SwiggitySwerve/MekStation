@@ -180,45 +180,45 @@
 
 ### 7. Bridge function deletion
 
-- [ ] 7.1 Delete `derivePersonnelFromRoster` function from `src/stores/campaign/useCampaignStore.ts:311`.
+- [x] 7.1 Delete `derivePersonnelFromRoster` function from `src/stores/campaign/useCampaignStore.ts:311`.
   - Acceptance: typecheck surfaces any remaining callers.
 
-- [ ] 7.2 Delete `syncRosterFromPersonnel` function from `src/stores/campaign/useCampaignStore.ts:343-351`.
+- [x] 7.2 Delete `syncRosterFromPersonnel` function from `src/stores/campaign/useCampaignStore.ts:343-351`.
   - This is the lossy Critical→Wounded round-trip bug location.
   - Acceptance: typecheck clean.
 
-- [ ] 7.3 Delete legacy preservation merge at `src/stores/campaign/useCampaignStore.ts:743-750`.
+- [x] 7.3 Delete legacy preservation merge at `src/stores/campaign/useCampaignStore.ts:743-750`.
   - Acceptance: typecheck clean.
 
 ### 8. ICampaign.personnel field removal
 
-- [ ] 8.1 Delete `personnel: Map<string, IPerson>` field from `ICampaign` interface.
+- [x] 8.1 Delete `personnel: Map<string, IPerson>` field from `ICampaign` interface.
   - Location: search `src/types/campaign/Campaign.ts` for the field.
   - Acceptance: typecheck surfaces all factories that initialize the field.
 
-- [ ] 8.2 Update all factories to drop `personnel: new Map()` initialization:
+- [x] 8.2 Update all factories to drop `personnel: new Map()` initialization:
   - `src/stores/campaign/useCampaignStore.ts` (deserialize / loadCampaign / merge / createCampaign).
   - Any helper that constructs an `ICampaign` literal.
   - Acceptance: typecheck clean.
 
-- [ ] 8.3 Delete `personnel` check from `isCampaign()` type guard at `src/types/campaign/Campaign.ts:163`.
+- [x] 8.3 Delete `personnel` check from `isCampaign()` type guard at `src/types/campaign/Campaign.ts:163`.
   - Acceptance: type guard still discriminates correctly via remaining fields.
 
 ### 9. Lossy bug regression test
 
-- [ ] 9.1 Add a regression test that confirms the Critical→Wounded round-trip is fixed.
+- [x] 9.1 Add a regression test that confirms the Critical→Wounded round-trip is fixed.
   - Test: create a roster pilot with `CampaignPilotStatus.Critical`, save campaign, reload, confirm status is still `Critical`.
   - Acceptance: test passes (would have failed pre-PR4 with the bug).
   - QA: `npx jest --testPathPattern='criticalRoundTrip'` (new test file).
 
 ### 10. PR4 verification
 
-- [ ] 10.1 `npx tsc --noEmit --skipLibCheck` exit 0.
-- [ ] 10.2 Full test suite passes (~22.5k tests).
-- [ ] 10.3 Critical→Wounded regression test passes.
-- [ ] 10.4 Grep `derivePersonnelFromRoster|syncRosterFromPersonnel` in `src/` returns ZERO hits.
-- [ ] 10.5 Grep `\.personnel\b` in `src/types/campaign/Campaign.ts` returns ZERO hits.
-- [ ] 10.6 `npx oxfmt --check` clean.
+- [x] 10.1 `npx tsc --noEmit --skipLibCheck` exit 0.
+- [x] 10.2 Full test suite passes (~22.5k tests).
+- [x] 10.3 Critical→Wounded regression test passes.
+- [x] 10.4 Grep `derivePersonnelFromRoster|syncRosterFromPersonnel` in `src/` returns ZERO hits.
+- [x] 10.5 Grep `\.personnel\b` in `src/types/campaign/Campaign.ts` returns ZERO hits.
+- [x] 10.6 `npx oxfmt --check` clean.
 - [ ] 10.7 PR opened, CI green, merged.
 
 ---

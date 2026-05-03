@@ -1,4 +1,3 @@
-import { personToMinimalEntry } from '@/lib/campaign/utils/personToRosterEntry';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -109,11 +108,10 @@ export function processAutoAwards(
   if (!config?.enableAutoAwards) return [];
 
   // Pre-join vault once per processor run (O(N) map build, O(1) lookups).
-  const __storeEntries = useCampaignRosterStore.getState().pilots;
+  // Per PR4 of `wire-iperson-hard-cutover`: roster store is the canonical
+  // entry source — no personnel-Map fallback.
   const rosterEntries: readonly ICampaignRosterEntry[] =
-    __storeEntries.length > 0
-      ? __storeEntries
-      : Array.from(campaign.personnel.values()).map(personToMinimalEntry);
+    useCampaignRosterStore.getState().pilots;
   const vault = usePilotStore.getState().pilots;
   const pilotsByPilotId = buildPilotLookup(vault);
 

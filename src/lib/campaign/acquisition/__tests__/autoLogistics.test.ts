@@ -20,7 +20,6 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     name: 'Test Campaign',
     currentDate: baseDate,
     factionId: 'davion',
-    personnel: new Map(),
     forces: new Map(),
     rootForceId: 'root',
     missions: new Map(),

@@ -2,15 +2,16 @@
  * Healing Day Processor
  *
  * Processes daily healing for all wounded personnel using the configured
- * medical system. Reads entries from useCampaignRosterStore + usePilotStore
- * (PR3 task 5.2); write-side stays on campaign.personnel until PR4.
+ * medical system. Per PR4 of `wire-iperson-hard-cutover`: reads entries
+ * from `useCampaignRosterStore` (canonical source) and commits per-pilot
+ * patches via `applyPilotPatches`. The personnel Map is gone.
  *
  * For each entry with Wounded status:
  * - Find best available doctor via getBestAvailableDoctor
  * - Run performMedicalCheck for each non-permanent injury
  * - Decrement daysToHeal by healingDaysReduced
  * - Remove injuries where daysToHeal reaches 0
- * - Reduce recoveryTime (daysToWaitForHealing) by 1
+ * - Reduce recoveryTime by 1
  * - Return to Active if all healable injuries cleared + recoveryTime == 0
  *
  * NPC behavior: NPCs heal too (medical domain = PROCESS per Council #2 NPC
@@ -24,12 +25,10 @@ import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry'
 import type { IInjury } from '@/types/campaign/Person';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { personToMinimalEntry } from '@/lib/campaign/utils/personToRosterEntry';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 
 import {
   IDayProcessor,
@@ -146,19 +145,16 @@ export const healingProcessor: IDayProcessor = {
 
   process(campaign: ICampaign): IDayProcessorResult {
     // Pre-join vault once per run (O(N) build, O(1) lookups).
-    const __storeEntries = useCampaignRosterStore.getState().pilots;
-    const rosterEntries: readonly ICampaignRosterEntry[] =
-      __storeEntries.length > 0
-        ? __storeEntries
-        : Array.from(campaign.personnel.values()).map(personToMinimalEntry);
+    // Per PR4: roster store is the canonical entry source.
+    const rosterEntries = useCampaignRosterStore.getState().pilots;
     const vault = usePilotStore.getState().pilots;
     const pilotsByPilotId = buildPilotLookup(vault);
 
     const system = campaign.options.medicalSystem ?? MedicalSystem.STANDARD;
 
     const events: IDayEvent[] = [];
-    // Write-side stays on campaign.personnel until PR4.
-    const updatedPersonnel = new Map(campaign.personnel);
+    // Per PR4: collect roster patches and commit once via applyPilotPatches.
+    const patches = new Map<string, Partial<ICampaignRosterEntry>>();
 
     for (const entry of rosterEntries) {
       if (entry.status !== CampaignPilotStatus.Wounded) continue;
@@ -179,40 +175,45 @@ export const healingProcessor: IDayProcessor = {
         campaign,
       );
 
-      if (healedInjuryIds.length === 0 && !returnedToActive) continue;
+      // Commit when ANY field changes — recoveryTime decrements even
+      // when no injury cleared, so silent recovery-clock ticks must
+      // also produce a patch. Without this gate, wounded pilots would
+      // never see their recovery clock advance.
+      const recoveryChanged = newRecoveryTime !== (entry.recoveryTime ?? 0);
+      const injuriesChanged = healedInjuryIds.length > 0;
+      if (!injuriesChanged && !returnedToActive && !recoveryChanged) continue;
 
-      // Write results back to campaign.personnel (write-side: stays until PR4)
-      const person = updatedPersonnel.get(entry.pilotId);
-      if (person) {
-        updatedPersonnel.set(entry.pilotId, {
-          ...person,
-          injuries: updatedInjuries,
-          daysToWaitForHealing: newRecoveryTime,
-          status: returnedToActive ? PersonnelStatus.ACTIVE : person.status,
-          updatedAt: new Date().toISOString(),
+      patches.set(entry.pilotId, {
+        injuries: updatedInjuries,
+        recoveryTime: newRecoveryTime,
+        status: returnedToActive ? CampaignPilotStatus.Active : entry.status,
+      });
+
+      // Only emit a user-facing event when injuries cleared or status
+      // flipped — silent recovery ticks stay out of the event log.
+      if (injuriesChanged || returnedToActive) {
+        const evt: HealedPersonEvent = {
+          personId: entry.pilotId,
+          personName: entry.pilotName,
+          healedInjuries: healedInjuryIds,
+          returnedToActive,
+        };
+
+        events.push({
+          type: 'healing',
+          description: returnedToActive
+            ? `${entry.pilotName} returned to active duty`
+            : `${entry.pilotName} healed ${healedInjuryIds.length} injury(s)`,
+          severity: 'info' as const,
+          data: asEventDataRecord(evt),
         });
       }
-
-      const evt: HealedPersonEvent = {
-        personId: entry.pilotId,
-        personName: entry.pilotName,
-        healedInjuries: healedInjuryIds,
-        returnedToActive,
-      };
-
-      events.push({
-        type: 'healing',
-        description: returnedToActive
-          ? `${entry.pilotName} returned to active duty`
-          : `${entry.pilotName} healed ${healedInjuryIds.length} injury(s)`,
-        severity: 'info' as const,
-        data: asEventDataRecord(evt),
-      });
     }
 
-    return {
-      events,
-      campaign: { ...campaign, personnel: updatedPersonnel },
-    };
+    if (patches.size > 0) {
+      useCampaignRosterStore.getState().applyPilotPatches(patches);
+    }
+
+    return { events, campaign };
   },
 };
