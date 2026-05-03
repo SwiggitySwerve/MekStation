@@ -1,42 +1,30 @@
-import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
-import { IPerson, IInjury } from '@/types/campaign/Person';
-import { IAttributes } from '@/types/campaign/skills/IAttributes';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { IInjury } from '@/types/campaign/Person';
 
 import { MedicalSystem } from '../medicalTypes';
 /* oxlint-disable @typescript-eslint/no-unsafe-assignment */
 import { performSurgery, installProsthetic } from '../surgery';
 
-const createMockPerson = (id: string, name: string): IPerson =>
-  ({
-    id,
-    name,
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    injuries: [],
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    } as IAttributes,
-    pilotSkills: { gunnery: 4, piloting: 4 },
-    recruitmentDate: new Date('2025-01-01'),
-    rank: 'Private',
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z',
-    missionsCompleted: 0,
-    totalKills: 0,
+function createMockRosterEntry(id: string, name: string): ICampaignRosterEntry {
+  return {
+    pilotId: id,
+    pilotName: name,
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
     xp: 0,
-    totalXpEarned: 0,
-    xpSpent: 0,
-    hits: 0,
-    daysToWaitForHealing: 0,
-  }) as IPerson;
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    hireDate: new Date(0),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    injuries: [],
+  };
+}
 
 const createMockInjury = (id: string, permanent: boolean = true): IInjury => ({
   id,
@@ -142,26 +130,33 @@ function createMockOptions(): any {
 
 describe('performSurgery', () => {
   it('should reject surgery on non-permanent injuries', () => {
-    const patient = createMockPerson('patient-1', 'John Doe');
+    const patient = createMockRosterEntry('patient-1', 'John Doe');
     const injury = createMockInjury('inj-1', false);
-    const surgeon = createMockPerson('surgeon-1', 'Dr. Smith');
+    const surgeon = createMockRosterEntry('surgeon-1', 'Dr. Smith');
     const options = createMockOptions();
     const random = () => 0.5;
 
     expect(() => {
-      performSurgery(patient, injury, surgeon, options, random);
+      performSurgery(patient, injury, surgeon, null, options, random);
     }).toThrow('Injury must be permanent to perform surgery');
   });
 
   it('should remove permanent flag on success (margin >= 3)', () => {
-    const patient = createMockPerson('patient-1', 'John Doe');
+    const patient = createMockRosterEntry('patient-1', 'John Doe');
     const injury = createMockInjury('inj-1', true);
-    const surgeon = createMockPerson('surgeon-1', 'Dr. Smith');
+    const surgeon = createMockRosterEntry('surgeon-1', 'Dr. Smith');
     const options = createMockOptions();
 
     const random = () => 0.99;
 
-    const result = performSurgery(patient, injury, surgeon, options, random);
+    const result = performSurgery(
+      patient,
+      injury,
+      surgeon,
+      null,
+      options,
+      random,
+    );
 
     expect(result.permanentRemoved).toBe(true);
     expect(result.outcome).toBe('permanent_healed');
@@ -169,9 +164,9 @@ describe('performSurgery', () => {
   });
 
   it('should install prosthetic on partial success (margin 0-2)', () => {
-    const patient = createMockPerson('patient-1', 'John Doe');
+    const patient = createMockRosterEntry('patient-1', 'John Doe');
     const injury = createMockInjury('inj-1', true);
-    const surgeon = createMockPerson('surgeon-1', 'Dr. Smith');
+    const surgeon = createMockRosterEntry('surgeon-1', 'Dr. Smith');
     const options = createMockOptions();
 
     let callCount = 0;
@@ -181,7 +176,14 @@ describe('performSurgery', () => {
       return 0.83;
     };
 
-    const result = performSurgery(patient, injury, surgeon, options, random);
+    const result = performSurgery(
+      patient,
+      injury,
+      surgeon,
+      null,
+      options,
+      random,
+    );
 
     expect(result.permanentRemoved).toBe(false);
     expect(result.prostheticInstalled).toBe(true);
@@ -191,9 +193,9 @@ describe('performSurgery', () => {
   });
 
   it('should leave injury unchanged on failure (margin < 0)', () => {
-    const patient = createMockPerson('patient-1', 'John Doe');
+    const patient = createMockRosterEntry('patient-1', 'John Doe');
     const injury = createMockInjury('inj-1', true);
-    const surgeon = createMockPerson('surgeon-1', 'Dr. Smith');
+    const surgeon = createMockRosterEntry('surgeon-1', 'Dr. Smith');
     const options = createMockOptions();
 
     let callCount = 0;
@@ -203,7 +205,14 @@ describe('performSurgery', () => {
       return 0.66;
     };
 
-    const result = performSurgery(patient, injury, surgeon, options, random);
+    const result = performSurgery(
+      patient,
+      injury,
+      surgeon,
+      null,
+      options,
+      random,
+    );
 
     expect(result.permanentRemoved).toBe(false);
     expect(result.prostheticInstalled).toBe(false);
@@ -212,13 +221,20 @@ describe('performSurgery', () => {
   });
 
   it('should return ISurgeryResult with all required fields', () => {
-    const patient = createMockPerson('patient-1', 'John Doe');
+    const patient = createMockRosterEntry('patient-1', 'John Doe');
     const injury = createMockInjury('inj-1', true);
-    const surgeon = createMockPerson('surgeon-1', 'Dr. Smith');
+    const surgeon = createMockRosterEntry('surgeon-1', 'Dr. Smith');
     const options = createMockOptions();
     const random = () => 0.5;
 
-    const result = performSurgery(patient, injury, surgeon, options, random);
+    const result = performSurgery(
+      patient,
+      injury,
+      surgeon,
+      null,
+      options,
+      random,
+    );
 
     expect(result).toHaveProperty('patientId');
     expect(result).toHaveProperty('doctorId');
@@ -234,14 +250,41 @@ describe('performSurgery', () => {
     expect(result).toHaveProperty('prostheticInstalled');
   });
 
-  it('should include surgery modifier in modifiers list', () => {
-    const patient = createMockPerson('patient-1', 'John Doe');
+  it('should use pilotId for patientId and doctorId in result', () => {
+    const patient = createMockRosterEntry('patient-1', 'John Doe');
     const injury = createMockInjury('inj-1', true);
-    const surgeon = createMockPerson('surgeon-1', 'Dr. Smith');
+    const surgeon = createMockRosterEntry('surgeon-1', 'Dr. Smith');
     const options = createMockOptions();
     const random = () => 0.5;
 
-    const result = performSurgery(patient, injury, surgeon, options, random);
+    const result = performSurgery(
+      patient,
+      injury,
+      surgeon,
+      null,
+      options,
+      random,
+    );
+
+    expect(result.patientId).toBe(patient.pilotId);
+    expect(result.doctorId).toBe(surgeon.pilotId);
+  });
+
+  it('should include surgery modifier in modifiers list', () => {
+    const patient = createMockRosterEntry('patient-1', 'John Doe');
+    const injury = createMockInjury('inj-1', true);
+    const surgeon = createMockRosterEntry('surgeon-1', 'Dr. Smith');
+    const options = createMockOptions();
+    const random = () => 0.5;
+
+    const result = performSurgery(
+      patient,
+      injury,
+      surgeon,
+      null,
+      options,
+      random,
+    );
 
     const surgeryModifier = result.modifiers.find(
       (m: { name: string; value: number }) => m.name === 'Surgery Difficulty',

@@ -76,7 +76,7 @@
 
 ### 2. Per-domain commits (each commit independently buildable + tested)
 
-- [ ] 2.1 **Medical commit** (7 files in `src/lib/campaign/medical/`).
+- [x] 2.1 **Medical commit** (7 files in `src/lib/campaign/medical/`).
   - Migrate every helper signature from `(person: IPerson)` to `(entry: ICampaignRosterEntry, pilot: IPilot | null)`.
   - NPC behavior: PROCESS (NPCs heal too).
   - Update all callers in same commit.

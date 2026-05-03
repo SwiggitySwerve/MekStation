@@ -1,9 +1,10 @@
 import type { ICampaignOptions } from '@/types/campaign/Campaign';
-import type { IPerson, IInjury } from '@/types/campaign/Person';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IInjury } from '@/types/campaign/Person';
 
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { createInjury } from '@/types/campaign/Person';
 
 import { MedicalSystem } from '../medicalTypes';
@@ -27,38 +28,26 @@ function createMockRandom(values: number[]) {
 }
 
 /**
- * Helper to create a test person (doctor or patient)
+ * Helper to create a test roster entry (doctor or patient).
+ * Uses null pilot (NPC path) — sufficient for all medical helper stubs.
  */
-function createTestPerson(overrides?: Partial<IPerson>): IPerson {
+function createTestEntry(
+  overrides?: Partial<ICampaignRosterEntry>,
+): ICampaignRosterEntry {
   return {
-    id: 'person-' + Math.random().toString(36).substring(7),
-    name: 'Test Person',
-    status: PersonnelStatus.ACTIVE,
-    primaryRole: CampaignPersonnelRole.PILOT,
-    rank: 'MechWarrior',
-    recruitmentDate: new Date(),
-    missionsCompleted: 0,
-    totalKills: 0,
+    pilotId: 'entry-' + Math.random().toString(36).substring(7),
+    pilotName: 'Test Person',
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
     xp: 0,
-    totalXpEarned: 0,
-    xpSpent: 0,
-    hits: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    hireDate: new Date(0),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
     injuries: [],
-    daysToWaitForHealing: 0,
-    skills: {},
-    attributes: {
-      STR: 5,
-      BOD: 5,
-      REF: 5,
-      DEX: 5,
-      INT: 5,
-      WIL: 5,
-      CHA: 5,
-      Edge: 0,
-    },
-    pilotSkills: { gunnery: 4, piloting: 5 },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
     ...overrides,
   };
 }
@@ -108,21 +97,21 @@ describe('roll2d6', () => {
 });
 
 describe('standardMedicalCheck', () => {
-  let patient: IPerson;
-  let doctor: IPerson;
+  let patient: ICampaignRosterEntry;
+  let doctor: ICampaignRosterEntry;
   let injury: IInjury;
   let options: ICampaignOptions;
 
   beforeEach(() => {
-    patient = createTestPerson({ injuries: [] });
-    doctor = createTestPerson({ primaryRole: CampaignPersonnelRole.DOCTOR });
+    patient = createTestEntry({ injuries: [] });
+    doctor = createTestEntry({ primaryRole: CampaignPersonnelRole.DOCTOR });
     injury = createTestInjury({ daysToHeal: 14 });
     options = createDefaultCampaignOptions();
   });
 
   describe('with doctor present', () => {
     it('should return healed outcome on successful roll', () => {
-      // Medicine skill = 7, need roll >= 7
+      // Medicine skill = 7 (stub), need roll >= 7
       // Mock random to produce roll of 7 (0.5 = 3, 0.5 = 4, sum = 7)
       const random = createMockRandom([0.5, 0.5]);
 
@@ -130,6 +119,7 @@ describe('standardMedicalCheck', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         random,
       );
@@ -138,13 +128,13 @@ describe('standardMedicalCheck', () => {
       expect(result.healingDaysReduced).toBe(injury.daysToHeal);
       expect(result.margin).toBeGreaterThanOrEqual(0);
       expect(result.system).toBe(MedicalSystem.STANDARD);
-      expect(result.patientId).toBe(patient.id);
-      expect(result.doctorId).toBe(doctor.id);
+      expect(result.patientId).toBe(patient.pilotId);
+      expect(result.doctorId).toBe(doctor.pilotId);
       expect(result.injuryId).toBe(injury.id);
     });
 
     it('should return no_change outcome on failed roll', () => {
-      // Medicine skill = 7, need roll >= 7
+      // Medicine skill = 7 (stub), need roll >= 7
       // Mock random to produce roll of 6 (0.25 = 2, 0.25 = 4, sum = 6)
       const random = createMockRandom([0.25, 0.25]);
 
@@ -152,6 +142,7 @@ describe('standardMedicalCheck', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         random,
       );
@@ -169,6 +160,7 @@ describe('standardMedicalCheck', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         random,
       );
@@ -185,6 +177,7 @@ describe('standardMedicalCheck', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         random,
       );
@@ -197,7 +190,7 @@ describe('standardMedicalCheck', () => {
     it('should apply tougher healing modifier when multiple injuries', () => {
       const injury2 = createTestInjury({ id: 'inj-2' });
       const injury3 = createTestInjury({ id: 'inj-3' });
-      const patientWithMultipleInjuries = createTestPerson({
+      const patientWithMultipleInjuries = createTestEntry({
         injuries: [injury, injury2, injury3],
       });
 
@@ -207,13 +200,14 @@ describe('standardMedicalCheck', () => {
         patientWithMultipleInjuries,
         injury,
         doctor,
+        null,
         options,
         random,
       );
 
       // With 3 injuries, tougher healing modifier = 3 - 2 = 1
-      // Should increase target number
-      expect(result.targetNumber).toBeGreaterThan(7); // Base medicine skill is 7
+      // Should increase target number above base medicine skill of 7
+      expect(result.targetNumber).toBeGreaterThan(7);
     });
 
     it('should be deterministic with seeded random', () => {
@@ -224,6 +218,7 @@ describe('standardMedicalCheck', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         random1,
       );
@@ -231,6 +226,7 @@ describe('standardMedicalCheck', () => {
         patient,
         injury,
         doctor,
+        null,
         options,
         random2,
       );
@@ -248,6 +244,7 @@ describe('standardMedicalCheck', () => {
       const result = standardMedicalCheck(
         patient,
         injury,
+        null,
         null,
         options,
         random,
@@ -269,6 +266,7 @@ describe('standardMedicalCheck', () => {
         patient,
         injury,
         null,
+        null,
         customOptions,
         random,
       );
@@ -280,12 +278,12 @@ describe('standardMedicalCheck', () => {
 });
 
 describe('naturalHealing', () => {
-  let patient: IPerson;
+  let patient: ICampaignRosterEntry;
   let injury: IInjury;
   let options: ICampaignOptions;
 
   beforeEach(() => {
-    patient = createTestPerson();
+    patient = createTestEntry();
     injury = createTestInjury({ daysToHeal: 14 });
     options = createDefaultCampaignOptions();
   });
@@ -337,8 +335,8 @@ describe('naturalHealing', () => {
 
 describe('integration tests', () => {
   it('should handle multiple sequential checks with same random seed', () => {
-    const patient = createTestPerson();
-    const doctor = createTestPerson({
+    const patient = createTestEntry();
+    const doctor = createTestEntry({
       primaryRole: CampaignPersonnelRole.DOCTOR,
     });
     const injury1 = createTestInjury({ id: 'inj-1', daysToHeal: 10 });
@@ -351,6 +349,7 @@ describe('integration tests', () => {
       patient,
       injury1,
       doctor,
+      null,
       options,
       random,
     );
@@ -358,6 +357,7 @@ describe('integration tests', () => {
       patient,
       injury2,
       doctor,
+      null,
       options,
       random,
     );
@@ -367,8 +367,8 @@ describe('integration tests', () => {
   });
 
   it('should handle patient with no injuries', () => {
-    const patient = createTestPerson({ injuries: [] });
-    const doctor = createTestPerson({
+    const patient = createTestEntry({ injuries: [] });
+    const doctor = createTestEntry({
       primaryRole: CampaignPersonnelRole.DOCTOR,
     });
     const injury = createTestInjury();
@@ -380,16 +380,17 @@ describe('integration tests', () => {
       patient,
       injury,
       doctor,
+      null,
       options,
       random,
     );
 
     expect(result).toBeDefined();
-    expect(result.patientId).toBe(patient.id);
+    expect(result.patientId).toBe(patient.pilotId);
   });
 
   it('should handle healing waiting period option', () => {
-    const patient = createTestPerson();
+    const patient = createTestEntry();
     const injury = createTestInjury();
     const options = {
       ...createDefaultCampaignOptions(),
