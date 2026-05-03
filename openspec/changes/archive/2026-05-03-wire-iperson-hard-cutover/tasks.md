@@ -120,11 +120,11 @@
 
 ### 3. PR2 verification
 
-- [ ] 3.1 `npx tsc --noEmit --skipLibCheck` exit 0.
-- [ ] 3.2 Full test suite (~22.5k tests) passes.
-- [ ] 3.3 Lint gate: grep `vault\.find\b` in `src/lib/campaign/` and `src/lib/finances/` → ZERO hits in non-test files (helpers must use pre-join template).
-- [ ] 3.4 `npx oxfmt --check` clean.
-- [ ] 3.5 PR opened, CI green, merged.
+- [x] 3.1 `npx tsc --noEmit --skipLibCheck` exit 0. Verified at PR2 CI.
+- [x] 3.2 Full test suite (~22.5k tests) passes. Verified at PR2 CI.
+- [x] 3.3 Lint gate: grep `vault\.find\b` in `src/lib/campaign/` and `src/lib/finances/` → ZERO hits in non-test files (helpers must use pre-join template). Verified.
+- [x] 3.4 `npx oxfmt --check` clean. Verified at PR2 CI.
+- [x] 3.5 PR opened, CI green, merged. PR #496, merged at `4bfb6778` on 2026-05-02.
 
 ---
 
@@ -250,7 +250,7 @@
 - [x] 13.3 `npx tsc --noEmit --skipLibCheck` exit 0. Verified after every commit (husky pre-commit hook).
 - [x] 13.4 Full test suite passes. 878 suites / 22946 tests pass (1 suite skipped, 44 individual tests skipped — same skip count as pre-PR5 baseline).
 - [x] 13.5 `npx oxfmt --check` clean. Verified.
-- [ ] 13.6 PR opened, CI green, merged.
+- [x] 13.6 PR opened, CI green, merged. PR #499, merged at `0cd05d1d` on 2026-05-03.
 
 ### 14. Spec sync + archive
 
