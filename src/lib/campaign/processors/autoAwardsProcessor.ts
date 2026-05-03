@@ -1,7 +1,7 @@
-import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { usePilotStore } from '@/stores/usePilotStore';
+import { IPilotAward } from '@/types/award/AwardInterfaces';
 import { IAwardGrantEvent } from '@/types/campaign/awards/autoAwardTypes';
 import { ICampaign } from '@/types/campaign/Campaign';
-import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
 import { processAutoAwards } from '../awards/autoAwardEngine';
 import {
@@ -13,16 +13,30 @@ import {
 } from '../dayPipeline';
 
 /**
- * Apply auto-award grants to the roster store.
+ * Apply auto-award grants to the canonical vault `IPilot.awards`.
  *
- * Per PR4 of `wire-iperson-hard-cutover`: writes campaign-scoped award
- * grants as roster patches via `applyPilotPatches`. The personnel Map is
- * gone. Note: campaign-scoped awards are stored on the vault `IPilot.awards`
- * for PCs (the canonical home); this processor's grant log is the audit
- * trail and any roster-level cache. ICampaignRosterEntry has no `awards`
- * field today, so we record the grant only via the `IDayEvent` chain.
- * Future-state: a `campaignAwards: readonly string[]` field on the entry
- * would back per-campaign award persistence (deferred — see ADR).
+ * Council #2 ruling: vault is the single source of truth for awards. We
+ * write directly to `usePilotStore` via `setState` (mirrors the pattern
+ * used by `useCampaignRosterStore.applyPilotPatches`) so the change is
+ * observable synchronously by selectors and tests; we then fire the REST
+ * `updatePilot` action to persist the new awards to SQLite. The REST call
+ * is fire-and-forget — the in-memory state is already correct, so a
+ * transient network failure will not regress the day-tick UI banner.
+ *
+ * Idempotency: `processAutoAwards` already filters out non-stackable
+ * awards a pilot already owns via `pilotHasAward(pilot, awardId)`, so a
+ * second tick on the same date produces zero events for grants persisted
+ * here.
+ *
+ * NPC behavior: vault-only persistence means roster-only NPCs (no vault
+ * IPilot) silently skip — `processAutoAwards` already filters them out
+ * (pilot===null path returns no qualifying awards), so `grantEvents` only
+ * carries personIds that resolve to a vault entry. The `if (!pilot)
+ * continue` guard below is defence-in-depth.
+ *
+ * Roster awards cache (per spec follow-up): NOT in scope. The vault is
+ * canonical; ICampaignRosterEntry has no `awards` field today and adding
+ * one would duplicate state.
  */
 function applyAwardGrants(
   campaign: ICampaign,
@@ -30,16 +44,51 @@ function applyAwardGrants(
 ): ICampaign {
   if (grantEvents.length === 0) return campaign;
 
-  // ICampaignRosterEntry does not currently carry an `awards` field — the
-  // canonical award store is the vault `IPilot.awards`. We emit no patches
-  // here today (the grant lives on the IDayEvent and any external sink).
-  // The block stays so future award-persistence on the entry can plug in
-  // without changing the call shape.
-  const patches = new Map<string, Partial<ICampaignRosterEntry>>();
-  void grantEvents;
-  if (patches.size > 0) {
-    useCampaignRosterStore.getState().applyPilotPatches(patches);
+  // Group new awards by personId so a pilot earning multiple awards in
+  // one tick gets a single concatenated update (rather than N PUTs).
+  const grantsByPilotId = new Map<string, IPilotAward[]>();
+  for (const event of grantEvents) {
+    const award: IPilotAward = {
+      awardId: event.awardId,
+      earnedAt: event.timestamp,
+      context: { campaignId: campaign.id },
+      timesEarned: 1,
+    };
+    const existing = grantsByPilotId.get(event.personId);
+    if (existing) {
+      existing.push(award);
+    } else {
+      grantsByPilotId.set(event.personId, [award]);
+    }
   }
+
+  // Synchronous in-memory write — observable immediately by selectors and
+  // by the test suite. Pilots not present in the vault (NPC roster-only
+  // entries) are skipped silently; the engine should have filtered these
+  // out already.
+  const now = new Date().toISOString();
+  usePilotStore.setState((state) => ({
+    pilots: state.pilots.map((p) => {
+      const newAwards = grantsByPilotId.get(p.id);
+      if (!newAwards) return p;
+      return {
+        ...p,
+        awards: [...(p.awards ?? []), ...newAwards],
+        updatedAt: now,
+      };
+    }),
+  }));
+
+  // Async fire-and-forget REST persistence. Snapshots the post-setState
+  // state so the PUT body carries the merged awards array. We deliberately
+  // do not await — the day pipeline is sync, and a SQLite hiccup must not
+  // block the day tick.
+  const pilotStore = usePilotStore.getState();
+  grantsByPilotId.forEach((_newAwards, pilotId) => {
+    const pilot = pilotStore.pilots.find((p) => p.id === pilotId);
+    if (!pilot) return;
+    void pilotStore.updatePilot(pilotId, { awards: pilot.awards });
+  });
 
   return campaign;
 }
