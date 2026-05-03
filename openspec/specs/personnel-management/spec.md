@@ -205,27 +205,27 @@ The system SHALL track personnel assignment to units, forces, doctors, and tech 
 - **WHEN** techUnitIds is set to ["unit-001", "unit-002", "unit-003"]
 - **THEN** the tech is responsible for maintaining 3 units
 
-### Requirement: Immutable Person Fields
+### Requirement: Immutable Roster Entry Fields
 
-The system SHALL use readonly fields on IPerson interface to prevent accidental mutations.
+The system SHALL use readonly fields on the `ICampaignRosterEntry` interface (and the `IPilot` it is joined with) to prevent accidental mutations. Per `wire-iperson-hard-cutover` PR5, the legacy `IPerson` interface that previously satisfied this requirement is deleted; the contract is now enforced on the `(ICampaignRosterEntry, IPilot)` pair.
 
-#### Scenario: Person fields are readonly
+#### Scenario: Roster entry fields are readonly
 
-- **GIVEN** an IPerson interface
+- **GIVEN** an `ICampaignRosterEntry` interface
 - **WHEN** the interface is inspected
-- **THEN** all fields (id, name, status, skills, attributes, injuries) are marked readonly
+- **THEN** all fields (pilotId, pilotName, status, wounds, recoveryTime, xp, campaignXpEarned, campaignKills, campaignMissions, primaryRole, rankIndex, hireDate, injuries, traits, ...) are marked readonly
 
 #### Scenario: Nested objects are readonly
 
-- **GIVEN** a person with injuries array
+- **GIVEN** a roster entry with an injuries array
 - **WHEN** the injuries field is inspected
-- **THEN** it is marked as readonly IInjury[]
+- **THEN** it is marked as `readonly IInjury[]`
 
 #### Scenario: Updates require new objects
 
-- **GIVEN** a person object
+- **GIVEN** a roster entry
 - **WHEN** a field needs to be updated
-- **THEN** a new person object must be created with the updated field (TypeScript prevents direct mutation)
+- **THEN** a new roster-entry object must be created with the updated field (TypeScript prevents direct mutation); for store-resident entries, mutations flow through `useCampaignRosterStore.applyPilotPatches`
 
 ### Requirement: Person Helper Functions
 
@@ -1221,7 +1221,7 @@ This specification does NOT cover:
 
 The system SHALL store personnel using a two-substrate split: vault `IPilot` records carry **identity** (combat skills, career XP, abilities, traits, persistent biographical data) and persist across campaigns, while a single per-campaign roster entry type carries **employment** (campaign-scoped contract terms, current state, assignment, statistics, status) and references identity by `pilotId`.
 
-This requirement supersedes the existing `IPerson` / `usePersonnelStore` substrate, which is a half-wired vestigial layer that never gets seeded by production paths. The migration from the legacy substrate to the new one is implemented in the `migrate-personnel-to-roster-employment` change; this requirement formally locks the destination shape so subsequent design discussions, code reviews, and follow-up changes target the agreed substrate.
+This requirement supersedes the legacy `IPerson` / `usePersonnelStore` substrate, which was a half-wired vestigial layer that never got seeded by production paths. The migration from the legacy substrate to the new one was implemented in the `migrate-personnel-to-roster-employment` change, and the legacy `IPerson` interface itself was deleted in `wire-iperson-hard-cutover` PR5. This requirement formally locks the destination shape so subsequent design discussions, code reviews, and follow-up changes target the agreed substrate.
 
 #### Scenario: Identity is owned by the vault
 
