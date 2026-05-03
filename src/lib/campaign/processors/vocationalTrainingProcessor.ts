@@ -8,14 +8,22 @@
  *
  * Based on MekHQ CampaignNewDayManager.java:1882-1915
  *
+ * NPC behavior: SKIP — pilot===null means NPC with no vault identity;
+ * vault-only per Council #2 NPC domain matrix (progression domain).
+ *
  * @module campaign/processors/vocationalTrainingProcessor
  */
 
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IPerson } from '@/types/campaign/Person';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { personToMinimalEntry } from '@/lib/campaign/utils/personToRosterEntry';
+import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { usePilotStore } from '@/stores/usePilotStore';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 
 import {
   IDayProcessor,
@@ -42,26 +50,40 @@ function roll2d6(random: RandomFn): number {
 }
 
 /**
- * Checks if a person is eligible for vocational training.
- * Must be: ACTIVE, not a child, not a dependent, not a prisoner.
+ * Checks if a roster entry is eligible for vocational training.
+ *
+ * NPC behavior: SKIP if pilot===null (progression domain, vault-only per
+ * Council #2 NPC domain matrix).
+ *
+ * Must be: ACTIVE, not a DEPENDENT, pilot must be resolved (non-null).
+ * Birth-date child check is deferred — ICampaignRosterEntry does not carry
+ * birthDate; the vault pilot does. With pilot===null for NPCs, children
+ * are implicitly excluded via the null guard.
  */
-function isEligibleForVocational(person: IPerson, campaignDate: Date): boolean {
+function isEligibleForVocational(
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+  campaignDate: Date,
+): boolean {
+  // NPC rule: skip (progression domain)
+  if (pilot === null) return false;
+
   // Must be ACTIVE
-  if (person.status !== PersonnelStatus.ACTIVE) {
+  if (entry.status !== CampaignPilotStatus.Active) {
     return false;
   }
 
   // Not a dependent
-  if (person.primaryRole === CampaignPersonnelRole.DEPENDENT) {
+  if (entry.primaryRole === CampaignPersonnelRole.DEPENDENT) {
     return false;
   }
 
-  // Not a child (under 13 years old)
-  if (person.birthDate) {
+  // Child check via vault pilot birth date
+  if (pilot.birthDate) {
     const birthDate =
-      person.birthDate instanceof Date
-        ? person.birthDate
-        : new Date(person.birthDate);
+      pilot.birthDate instanceof Date
+        ? pilot.birthDate
+        : new Date(pilot.birthDate as string);
     const age = campaignDate.getFullYear() - birthDate.getFullYear();
     if (age < 13) {
       return false;
@@ -73,17 +95,19 @@ function isEligibleForVocational(person: IPerson, campaignDate: Date): boolean {
 
 /**
  * Applies vocational training results to campaign.
- * Updates personnel timers and applies XP awards.
+ * Writes XP and timer updates to campaign.personnel (write-side stays
+ * on IPerson until PR4 deletes the personnel field).
  */
 function applyVocationalResults(
   campaign: ICampaign,
   events: IDayEvent[],
+  timerUpdates: ReadonlyMap<string, number>,
 ): ICampaign {
-  if (events.length === 0) {
+  if (events.length === 0 && timerUpdates.size === 0) {
     return campaign;
   }
 
-  // Build map of personId -> XP amount to award
+  // Build map of personId -> XP amount to award from events
   const xpAwards = new Map<string, number>();
   for (const event of events) {
     const personId = event.data?.personId as string | undefined;
@@ -93,18 +117,22 @@ function applyVocationalResults(
     }
   }
 
-  // Apply XP awards to personnel
+  // Apply XP awards and timer updates to personnel (write-side: campaign.personnel)
   const updatedPersonnel = new Map(campaign.personnel);
-  Array.from(xpAwards.entries()).forEach(([personId, xpAmount]) => {
+  for (const [personId, timerValue] of Array.from(timerUpdates)) {
     const person = updatedPersonnel.get(personId);
-    if (person) {
-      updatedPersonnel.set(personId, {
-        ...person,
-        xp: person.xp + xpAmount,
-        totalXpEarned: person.totalXpEarned + xpAmount,
-      });
-    }
-  });
+    if (!person) continue;
+    const xpAmount = xpAwards.get(personId) ?? 0;
+    updatedPersonnel.set(personId, {
+      ...person,
+      xp: person.xp + xpAmount,
+      totalXpEarned: person.totalXpEarned + xpAmount,
+      traits: {
+        ...person.traits,
+        vocationalXPTimer: timerValue,
+      },
+    });
+  }
 
   return {
     ...campaign,
@@ -118,7 +146,8 @@ function applyVocationalResults(
 
 /**
  * Processes vocational training for all eligible personnel.
- * Returns updated campaign and events describing what happened.
+ * Reads entries from useCampaignRosterStore (PR3 task 5.2).
+ * Writes XP + timer updates to campaign.personnel (write-side stays until PR4).
  */
 export function processVocationalTraining(
   campaign: ICampaign,
@@ -130,15 +159,30 @@ export function processVocationalTraining(
   const targetNumber = options.vocationalXPTargetNumber ?? 7;
   const checkFrequency = options.vocationalXPCheckFrequency ?? 30;
 
-  // Update timers and process checks
-  const updatedPersonnel = new Map(campaign.personnel);
+  // Pre-join vault once so isEligibleForVocational gets O(1) pilot lookups.
+  // PR3 transitional: prefer store reads (production); fall back to
+  // `campaign.personnel` when stores are empty (test fixtures). PR4 deletes
+  // the personnel field entirely, forcing all callers to populate stores.
+  const storeEntries = useCampaignRosterStore.getState().pilots;
+  const rosterEntries: readonly ICampaignRosterEntry[] =
+    storeEntries.length > 0
+      ? storeEntries
+      : Array.from(campaign.personnel.values()).map(personToMinimalEntry);
+  const vault = usePilotStore.getState().pilots;
+  const pilotsByPilotId = buildPilotLookup(vault);
 
-  Array.from(campaign.personnel.values()).forEach((person) => {
-    if (!isEligibleForVocational(person, campaign.currentDate)) {
-      return;
+  // timerUpdates maps pilotId -> new timer value; written back to personnel.
+  const timerUpdates = new Map<string, number>();
+
+  for (const entry of rosterEntries) {
+    const pilot = pilotsByPilotId.get(entry.pilotId) ?? null;
+
+    if (!isEligibleForVocational(entry, pilot, campaign.currentDate)) {
+      continue;
     }
 
-    const timer = (person.traits?.vocationalXPTimer ?? 0) + 1;
+    // Read timer from roster entry (PR1.5 added traits to ICampaignRosterEntry).
+    const timer = (entry.traits?.vocationalXPTimer ?? 0) + 1;
 
     if (timer >= checkFrequency) {
       // Roll 2d6 vs TN
@@ -150,7 +194,7 @@ export function processVocationalTraining(
           description: `Vocational training (rolled ${roll} vs TN ${targetNumber})`,
           severity: 'info',
           data: {
-            personId: person.id,
+            personId: entry.pilotId,
             amount: vocationalXP,
             roll,
             targetNumber,
@@ -159,31 +203,18 @@ export function processVocationalTraining(
       }
 
       // Reset timer regardless of success
-      updatedPersonnel.set(person.id, {
-        ...person,
-        traits: {
-          ...person.traits,
-          vocationalXPTimer: 0,
-        },
-      });
+      timerUpdates.set(entry.pilotId, 0);
     } else {
       // Increment timer
-      updatedPersonnel.set(person.id, {
-        ...person,
-        traits: {
-          ...person.traits,
-          vocationalXPTimer: timer,
-        },
-      });
+      timerUpdates.set(entry.pilotId, timer);
     }
-  });
+  }
 
-  const campaignWithTimers = {
-    ...campaign,
-    personnel: updatedPersonnel,
-  };
-
-  const updatedCampaign = applyVocationalResults(campaignWithTimers, events);
+  const updatedCampaign = applyVocationalResults(
+    campaign,
+    events,
+    timerUpdates,
+  );
 
   return { updatedCampaign, events };
 }

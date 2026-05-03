@@ -1,5 +1,10 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IPilot } from '@/types/pilot/PilotInterfaces';
+
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { usePilotStore } from '@/stores/usePilotStore';
 import {
   AutoAwardCategory,
   createDefaultAutoAwardConfig,
@@ -8,13 +13,74 @@ import {
   ICampaign,
   createDefaultCampaignOptions,
 } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
 import { IPerson } from '@/types/campaign/Person';
+import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
 import { processAutoAwards, getEligiblePersonnel } from '../autoAwardEngine';
+
+// =============================================================================
+// Fixture helpers
+// =============================================================================
+
+/**
+ * Builds a minimal ICampaignRosterEntry for store population.
+ * status defaults to Active; override for KIA/MIA/Wounded tests.
+ */
+function makeEntry(
+  id: string,
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: id,
+    pilotName: overrides.pilotName ?? 'Test Pilot',
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    hireDate: new Date('3020-01-01'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    ...overrides,
+  };
+}
+
+/**
+ * Builds a minimal IPilot vault entry for the store.
+ */
+function makeVaultPilot(id: string): IPilot {
+  return {
+    id,
+    name: 'Test Pilot',
+    type: PilotType.Persistent,
+    status: PilotStatus.Active,
+    skills: { gunnery: 4, piloting: 5 },
+    wounds: 0,
+    abilities: [],
+    awards: [],
+    createdAt: '3000-01-01T00:00:00Z',
+    updatedAt: '3025-06-15T00:00:00Z',
+  };
+}
+
+function clearStores(): void {
+  useCampaignRosterStore.setState({
+    pilots: [],
+    units: [],
+    missions: [],
+    activeMissionId: null,
+    missionCount: 0,
+    campaignId: null,
+  });
+  usePilotStore.setState({ pilots: [] });
+}
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
   const options = {
@@ -43,6 +109,7 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
   };
 }
 
+// Legacy IPerson fixture for tests that still exercise campaign.personnel write-side.
 function createTestPerson(overrides?: Partial<IPerson>): IPerson {
   return {
     id: 'person-test',
@@ -77,6 +144,10 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
   };
 }
 
+// =============================================================================
+// Tests
+// =============================================================================
+
 describe('autoAwardEngine', () => {
   let campaign: ICampaign;
 
@@ -84,16 +155,17 @@ describe('autoAwardEngine', () => {
     campaign = createTestCampaign();
   });
 
+  afterEach(() => {
+    clearStores();
+  });
+
   describe('processAutoAwards', () => {
     it('returns empty array when autoAwardConfig is undefined', () => {
       const campaignNoConfig = createTestCampaign({
         options: { ...campaign.options, autoAwardConfig: undefined },
       });
-      const person = createTestPerson({ totalKills: 10 });
-      campaignNoConfig.personnel.set(person.id, person);
-
+      // Store empty — no entries needed; config guard fires first.
       const events = processAutoAwards(campaignNoConfig, 'manual');
-
       expect(events).toEqual([]);
     });
 
@@ -105,18 +177,14 @@ describe('autoAwardEngine', () => {
       const campaignWithConfig = createTestCampaign({
         options: { ...campaign.options, autoAwardConfig: config },
       });
-
-      const person = createTestPerson({ totalKills: 10 });
-      campaignWithConfig.personnel.set(person.id, person);
-
+      // Store empty — enableAutoAwards guard fires before store read.
       const events = processAutoAwards(campaignWithConfig, 'manual');
-
       expect(events).toEqual([]);
     });
 
-    it('returns empty array when personnel map is empty', () => {
+    it('returns empty array when roster store is empty', () => {
+      // Stores cleared by afterEach; no setState needed here.
       const events = processAutoAwards(campaign, 'manual');
-
       expect(events).toEqual([]);
     });
 
@@ -125,21 +193,33 @@ describe('autoAwardEngine', () => {
     // Kill/scenario/time/injury awards fire via entry fields not pilot fields.
     // Skill/rank/contract etc. require non-null pilot and return [] in PR2.
     it('returns empty array for all categories in PR2 (pilot===null NPC skip)', () => {
-      const person = createTestPerson({ totalKills: 10 });
-      campaign.personnel.set(person.id, person);
+      // Populate store; vault store stays empty so pilot resolves to null.
+      useCampaignRosterStore.setState({
+        pilots: [makeEntry('person-test', { campaignKills: 10 })],
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        campaignId: 'campaign-test',
+      });
+      // usePilotStore stays empty → pilot===null → NPC skip.
 
       const events = processAutoAwards(campaign, 'manual');
-
       // In PR2 all pilots are null → all category checkers return [] → no events
       expect(events).toEqual([]);
     });
 
     it('returns empty array even when kills are high (pilot===null)', () => {
-      const person = createTestPerson({ totalKills: 25 });
-      campaign.personnel.set(person.id, person);
+      useCampaignRosterStore.setState({
+        pilots: [makeEntry('person-test', { campaignKills: 25 })],
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        campaignId: 'campaign-test',
+      });
 
       const events = processAutoAwards(campaign, 'manual');
-
       expect(events).toEqual([]);
     });
 
@@ -156,8 +236,14 @@ describe('autoAwardEngine', () => {
         options: { ...campaign.options, autoAwardConfig: config },
       });
 
-      const person = createTestPerson({ totalKills: 10 });
-      campaignWithConfig.personnel.set(person.id, person);
+      useCampaignRosterStore.setState({
+        pilots: [makeEntry('person-test', { campaignKills: 10 })],
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        campaignId: 'campaign-test',
+      });
 
       const events = processAutoAwards(campaignWithConfig, 'manual');
 
@@ -176,14 +262,21 @@ describe('autoAwardEngine', () => {
         options: { ...campaign.options, autoAwardConfig: config },
       });
 
-      const person = createTestPerson({
-        status: PersonnelStatus.KIA,
-        totalKills: 10,
+      useCampaignRosterStore.setState({
+        pilots: [
+          makeEntry('person-test', {
+            status: CampaignPilotStatus.KIA,
+            campaignKills: 10,
+          }),
+        ],
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        campaignId: 'campaign-test',
       });
-      campaignWithConfig.personnel.set(person.id, person);
 
       const events = processAutoAwards(campaignWithConfig, 'manual');
-
       expect(events).toEqual([]);
     });
 
@@ -196,11 +289,20 @@ describe('autoAwardEngine', () => {
         options: { ...campaign.options, autoAwardConfig: config },
       });
 
-      const person = createTestPerson({
-        status: PersonnelStatus.KIA,
-        totalKills: 10,
+      useCampaignRosterStore.setState({
+        pilots: [
+          makeEntry('person-test', {
+            status: CampaignPilotStatus.KIA,
+            campaignKills: 10,
+          }),
+        ],
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        campaignId: 'campaign-test',
       });
-      campaignWithConfig.personnel.set(person.id, person);
+      // vault stays empty → pilot===null → checkers skip.
 
       // PR2: pilot===null → all checkers return [] → no events even for posthumous
       const events = processAutoAwards(campaignWithConfig, 'manual');
@@ -208,28 +310,36 @@ describe('autoAwardEngine', () => {
     });
 
     it('civilians excluded', () => {
-      const person = createTestPerson({
-        primaryRole: CampaignPersonnelRole.DEPENDENT,
-        totalKills: 10,
+      useCampaignRosterStore.setState({
+        pilots: [
+          makeEntry('person-test', {
+            primaryRole: CampaignPersonnelRole.DEPENDENT,
+            campaignKills: 10,
+          }),
+        ],
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        campaignId: 'campaign-test',
       });
-      campaign.personnel.set(person.id, person);
 
       const events = processAutoAwards(campaign, 'manual');
-
       expect(events).toEqual([]);
     });
 
     it('multiple personnel processed — no events in PR2 (pilot===null)', () => {
-      const person1 = createTestPerson({
-        id: 'person-1',
-        totalKills: 10,
+      useCampaignRosterStore.setState({
+        pilots: [
+          makeEntry('person-1', { campaignKills: 10 }),
+          makeEntry('person-2', { campaignKills: 5 }),
+        ],
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        campaignId: 'campaign-test',
       });
-      const person2 = createTestPerson({
-        id: 'person-2',
-        totalKills: 5,
-      });
-      campaign.personnel.set(person1.id, person1);
-      campaign.personnel.set(person2.id, person2);
 
       // PR2: pilot===null → no events; but both persons are eligible (entry pairs produced)
       const events = processAutoAwards(campaign, 'manual');
@@ -237,8 +347,14 @@ describe('autoAwardEngine', () => {
     });
 
     it('handles multiple triggers correctly — trigger field set even with empty results', () => {
-      const person = createTestPerson({ totalKills: 10 });
-      campaign.personnel.set(person.id, person);
+      useCampaignRosterStore.setState({
+        pilots: [makeEntry('person-test', { campaignKills: 10 })],
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        campaignId: 'campaign-test',
+      });
 
       const manualEvents = processAutoAwards(campaign, 'manual');
       const monthlyEvents = processAutoAwards(campaign, 'monthly');
@@ -254,107 +370,104 @@ describe('autoAwardEngine', () => {
       const campaignWithDate = createTestCampaign({
         currentDate: new Date('3025-06-15'),
       });
-      const person = createTestPerson({ totalKills: 10 });
-      campaignWithDate.personnel.set(person.id, person);
+
+      useCampaignRosterStore.setState({
+        pilots: [makeEntry('person-test', { campaignKills: 10 })],
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        campaignId: 'campaign-test',
+      });
 
       expect(() => processAutoAwards(campaignWithDate, 'manual')).not.toThrow();
     });
 
     it('grants awards to support roles (they are not civilians)', () => {
-      const testCampaign = createTestCampaign();
-      const person = createTestPerson({
+      // Directly call getEligiblePersonnel with an explicit entry — no stores needed.
+      const config = createDefaultAutoAwardConfig();
+      const entry = makeEntry('person-tech', {
         primaryRole: CampaignPersonnelRole.TECH,
-        totalKills: 10,
+        campaignKills: 10,
       });
-      testCampaign.personnel.set(person.id, person);
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(
-        testCampaign,
-        testCampaign.options.autoAwardConfig!,
+      const eligible = getEligiblePersonnel([entry], pilotsByPilotId, config);
+
+      expect(eligible.map(({ entry: e }) => e.pilotId)).toContain(
+        'person-tech',
       );
-
-      // PR2: return type is { entry, pilot }[]; extract pilotId to identify person
-      expect(eligible.map(({ entry }) => entry.pilotId)).toContain(person.id);
     });
 
     it('grants awards to combat roles', () => {
-      const testCampaign = createTestCampaign();
-      const person = createTestPerson({
+      const config = createDefaultAutoAwardConfig();
+      const entry = makeEntry('person-pilot', {
         primaryRole: CampaignPersonnelRole.PILOT,
-        totalKills: 10,
+        campaignKills: 10,
       });
-      testCampaign.personnel.set(person.id, person);
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(
-        testCampaign,
-        testCampaign.options.autoAwardConfig!,
+      const eligible = getEligiblePersonnel([entry], pilotsByPilotId, config);
+
+      expect(eligible.map(({ entry: e }) => e.pilotId)).toContain(
+        'person-pilot',
       );
-
-      expect(eligible.map(({ entry }) => entry.pilotId)).toContain(person.id);
     });
 
     it('grants awards to aerospace pilots', () => {
-      const testCampaign = createTestCampaign();
-      const person = createTestPerson({
+      const config = createDefaultAutoAwardConfig();
+      const entry = makeEntry('person-aero', {
         primaryRole: CampaignPersonnelRole.AEROSPACE_PILOT,
-        totalKills: 10,
+        campaignKills: 10,
       });
-      testCampaign.personnel.set(person.id, person);
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(
-        testCampaign,
-        testCampaign.options.autoAwardConfig!,
+      const eligible = getEligiblePersonnel([entry], pilotsByPilotId, config);
+
+      expect(eligible.map(({ entry: e }) => e.pilotId)).toContain(
+        'person-aero',
       );
-
-      expect(eligible.map(({ entry }) => entry.pilotId)).toContain(person.id);
     });
 
     it('grants awards to vehicle drivers', () => {
-      const testCampaign = createTestCampaign();
-      const person = createTestPerson({
+      const config = createDefaultAutoAwardConfig();
+      const entry = makeEntry('person-veh', {
         primaryRole: CampaignPersonnelRole.VEHICLE_DRIVER,
-        totalKills: 10,
+        campaignKills: 10,
       });
-      testCampaign.personnel.set(person.id, person);
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(
-        testCampaign,
-        testCampaign.options.autoAwardConfig!,
-      );
+      const eligible = getEligiblePersonnel([entry], pilotsByPilotId, config);
 
-      expect(eligible.map(({ entry }) => entry.pilotId)).toContain(person.id);
+      expect(eligible.map(({ entry: e }) => e.pilotId)).toContain('person-veh');
     });
 
     it('grants awards to doctors (they are not civilians)', () => {
-      const testCampaign = createTestCampaign();
-      const person = createTestPerson({
+      const config = createDefaultAutoAwardConfig();
+      const entry = makeEntry('person-doc', {
         primaryRole: CampaignPersonnelRole.DOCTOR,
-        totalKills: 10,
+        campaignKills: 10,
       });
-      testCampaign.personnel.set(person.id, person);
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(
-        testCampaign,
-        testCampaign.options.autoAwardConfig!,
-      );
+      const eligible = getEligiblePersonnel([entry], pilotsByPilotId, config);
 
-      expect(eligible.map(({ entry }) => entry.pilotId)).toContain(person.id);
+      expect(eligible.map(({ entry: e }) => e.pilotId)).toContain('person-doc');
     });
 
     it('grants awards to admin staff (they are not civilians)', () => {
-      const testCampaign = createTestCampaign();
-      const person = createTestPerson({
+      const config = createDefaultAutoAwardConfig();
+      const entry = makeEntry('person-admin', {
         primaryRole: CampaignPersonnelRole.ADMIN_COMMAND,
-        totalKills: 10,
+        campaignKills: 10,
       });
-      testCampaign.personnel.set(person.id, person);
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(
-        testCampaign,
-        testCampaign.options.autoAwardConfig!,
+      const eligible = getEligiblePersonnel([entry], pilotsByPilotId, config);
+
+      expect(eligible.map(({ entry: e }) => e.pilotId)).toContain(
+        'person-admin',
       );
-
-      expect(eligible.map(({ entry }) => entry.pilotId)).toContain(person.id);
     });
   });
 
@@ -365,27 +478,23 @@ describe('autoAwardEngine', () => {
         enablePosthumous: false,
       };
 
-      const activePilot = createTestPerson({
-        id: 'active-pilot',
-        status: PersonnelStatus.ACTIVE,
-        primaryRole: CampaignPersonnelRole.PILOT,
-      });
-      const kiaPilot = createTestPerson({
-        id: 'kia-pilot',
-        status: PersonnelStatus.KIA,
-        primaryRole: CampaignPersonnelRole.PILOT,
-      });
-      const civilian = createTestPerson({
-        id: 'civilian',
-        status: PersonnelStatus.ACTIVE,
-        primaryRole: CampaignPersonnelRole.DEPENDENT,
-      });
+      const entries: ICampaignRosterEntry[] = [
+        makeEntry('active-pilot', {
+          status: CampaignPilotStatus.Active,
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
+        makeEntry('kia-pilot', {
+          status: CampaignPilotStatus.KIA,
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
+        makeEntry('civilian', {
+          status: CampaignPilotStatus.Active,
+          primaryRole: CampaignPersonnelRole.DEPENDENT,
+        }),
+      ];
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      campaign.personnel.set(activePilot.id, activePilot);
-      campaign.personnel.set(kiaPilot.id, kiaPilot);
-      campaign.personnel.set(civilian.id, civilian);
-
-      const eligible = getEligiblePersonnel(campaign, config);
+      const eligible = getEligiblePersonnel(entries, pilotsByPilotId, config);
 
       // Return type is { entry, pilot }[] — extract pilotId to identify
       const eligibleIds = eligible.map(({ entry }) => entry.pilotId);
@@ -397,14 +506,16 @@ describe('autoAwardEngine', () => {
     it('pilot field is null for all entries in PR2 (no vault join yet)', () => {
       const config = createDefaultAutoAwardConfig();
 
-      const person = createTestPerson({
-        id: 'some-pilot',
-        status: PersonnelStatus.ACTIVE,
-        primaryRole: CampaignPersonnelRole.PILOT,
-      });
-      campaign.personnel.set(person.id, person);
+      const entries: ICampaignRosterEntry[] = [
+        makeEntry('some-pilot', {
+          status: CampaignPilotStatus.Active,
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
+      ];
+      // Empty map → pilot resolves to null for all entries.
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(campaign, config);
+      const eligible = getEligiblePersonnel(entries, pilotsByPilotId, config);
 
       expect(eligible.length).toBe(1);
       // PR2 transitional: vault join not yet wired — pilot always null
@@ -417,15 +528,15 @@ describe('autoAwardEngine', () => {
         enablePosthumous: true,
       };
 
-      const kiaPilot = createTestPerson({
-        id: 'kia-pilot',
-        status: PersonnelStatus.KIA,
-        primaryRole: CampaignPersonnelRole.PILOT,
-      });
+      const entries: ICampaignRosterEntry[] = [
+        makeEntry('kia-pilot', {
+          status: CampaignPilotStatus.KIA,
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
+      ];
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      campaign.personnel.set(kiaPilot.id, kiaPilot);
-
-      const eligible = getEligiblePersonnel(campaign, config);
+      const eligible = getEligiblePersonnel(entries, pilotsByPilotId, config);
 
       expect(eligible.map(({ entry }) => entry.pilotId)).toContain('kia-pilot');
     });
@@ -436,15 +547,15 @@ describe('autoAwardEngine', () => {
         enablePosthumous: false,
       };
 
-      const kiaPilot = createTestPerson({
-        id: 'kia-pilot',
-        status: PersonnelStatus.KIA,
-        primaryRole: CampaignPersonnelRole.PILOT,
-      });
+      const entries: ICampaignRosterEntry[] = [
+        makeEntry('kia-pilot', {
+          status: CampaignPilotStatus.KIA,
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
+      ];
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      campaign.personnel.set(kiaPilot.id, kiaPilot);
-
-      const eligible = getEligiblePersonnel(campaign, config);
+      const eligible = getEligiblePersonnel(entries, pilotsByPilotId, config);
 
       expect(eligible.map(({ entry }) => entry.pilotId)).not.toContain(
         'kia-pilot',
@@ -461,15 +572,15 @@ describe('autoAwardEngine', () => {
         CampaignPersonnelRole.TEACHER,
       ];
 
-      civilianRoles.forEach((role, index) => {
-        const person = createTestPerson({
-          id: `civilian-${index}`,
+      const entries: ICampaignRosterEntry[] = civilianRoles.map((role, index) =>
+        makeEntry(`civilian-${index}`, {
+          status: CampaignPilotStatus.Active,
           primaryRole: role,
-        });
-        campaign.personnel.set(person.id, person);
-      });
+        }),
+      );
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(campaign, config);
+      const eligible = getEligiblePersonnel(entries, pilotsByPilotId, config);
 
       expect(eligible).toEqual([]);
     });
@@ -484,21 +595,20 @@ describe('autoAwardEngine', () => {
         CampaignPersonnelRole.SOLDIER,
       ];
 
-      combatRoles.forEach((role, index) => {
-        const person = createTestPerson({
-          id: `combat-${index}`,
+      const entries: ICampaignRosterEntry[] = combatRoles.map((role, index) =>
+        makeEntry(`combat-${index}`, {
+          status: CampaignPilotStatus.Active,
           primaryRole: role,
-        });
-        campaign.personnel.set(person.id, person);
-      });
+        }),
+      );
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(campaign, config);
+      const eligible = getEligiblePersonnel(entries, pilotsByPilotId, config);
 
       expect(eligible.length).toBe(combatRoles.length);
     });
 
     it('includes all support roles (they are not civilians)', () => {
-      const testCampaign = createTestCampaign();
       const config = createDefaultAutoAwardConfig();
 
       const supportRoles = [
@@ -508,15 +618,15 @@ describe('autoAwardEngine', () => {
         CampaignPersonnelRole.ADMIN_COMMAND,
       ];
 
-      supportRoles.forEach((role, index) => {
-        const person = createTestPerson({
-          id: `support-${index}`,
+      const entries: ICampaignRosterEntry[] = supportRoles.map((role, index) =>
+        makeEntry(`support-${index}`, {
+          status: CampaignPilotStatus.Active,
           primaryRole: role,
-        });
-        testCampaign.personnel.set(person.id, person);
-      });
+        }),
+      );
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(testCampaign, config);
+      const eligible = getEligiblePersonnel(entries, pilotsByPilotId, config);
 
       expect(eligible.length).toBe(supportRoles.length);
     });
@@ -524,22 +634,25 @@ describe('autoAwardEngine', () => {
     it('excludes non-active personnel', () => {
       const config = createDefaultAutoAwardConfig();
 
-      const statuses = [
-        PersonnelStatus.WOUNDED,
-        PersonnelStatus.ON_LEAVE,
-        PersonnelStatus.RETIRED,
-      ];
-
-      statuses.forEach((status, index) => {
-        const person = createTestPerson({
-          id: `person-${index}`,
-          status,
+      // Use non-Active CampaignPilotStatus values (Wounded, MIA — no ON_LEAVE/RETIRED
+      // in CampaignPilotStatus; both map to non-Active for this check).
+      const entries: ICampaignRosterEntry[] = [
+        makeEntry('person-0', {
+          status: CampaignPilotStatus.Wounded,
           primaryRole: CampaignPersonnelRole.PILOT,
-        });
-        campaign.personnel.set(person.id, person);
-      });
+        }),
+        makeEntry('person-1', {
+          status: CampaignPilotStatus.MIA,
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
+        makeEntry('person-2', {
+          status: CampaignPilotStatus.Critical,
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
+      ];
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(campaign, config);
+      const eligible = getEligiblePersonnel(entries, pilotsByPilotId, config);
 
       expect(eligible).toEqual([]);
     });
@@ -547,23 +660,23 @@ describe('autoAwardEngine', () => {
     it('synthesizes entry from IPerson with correct field mapping', () => {
       const config = createDefaultAutoAwardConfig();
 
-      const person = createTestPerson({
-        id: 'map-test',
-        totalKills: 7,
-        missionsCompleted: 12,
-        recruitmentDate: new Date('3018-03-01'),
+      // Build entry directly with the same field values the legacy person had.
+      const entry = makeEntry('map-test', {
+        campaignKills: 7,
+        campaignMissions: 12,
+        hireDate: new Date('3018-03-01'),
         rankIndex: 2,
       });
-      campaign.personnel.set(person.id, person);
+      const pilotsByPilotId = new Map<string, IPilot>();
 
-      const eligible = getEligiblePersonnel(campaign, config);
+      const eligible = getEligiblePersonnel([entry], pilotsByPilotId, config);
 
       expect(eligible.length).toBe(1);
-      const { entry } = eligible[0];
-      expect(entry.pilotId).toBe('map-test');
-      expect(entry.campaignKills).toBe(7);
-      expect(entry.campaignMissions).toBe(12);
-      expect(entry.rankIndex).toBe(2);
+      const { entry: resultEntry } = eligible[0];
+      expect(resultEntry.pilotId).toBe('map-test');
+      expect(resultEntry.campaignKills).toBe(7);
+      expect(resultEntry.campaignMissions).toBe(12);
+      expect(resultEntry.rankIndex).toBe(2);
     });
   });
 });

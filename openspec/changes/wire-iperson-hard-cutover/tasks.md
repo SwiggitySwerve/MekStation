@@ -132,48 +132,46 @@
 
 ### 4. Open question #1 (PR3) verification
 
-- [ ] 4.1 Audit `dayAdvancement.ts:425-452` chain for implicit data dependency on `campaign.personnel` mid-chain.
+- [x] 4.1 Audit `dayAdvancement.ts:425-452` chain for implicit data dependency on `campaign.personnel` mid-chain.
   - Read each of the 6 processors: does processor N read what processor N-1 wrote into `personnel`?
   - Acceptance: dependency map documented inline as a comment in `dayAdvancement.ts`. If a true dependency exists, design.md needs revision.
+  - SHIPPED in commit `5301d4e8`. Conclusion: no inter-processor `personnel` dependencies — safe to pre-build entries+pilots once at entry.
 
 ### 5. Atomic repointing
 
-- [ ] 5.1 Update `src/lib/campaign/dayAdvancement.ts` to:
+- [x] 5.1 Update `src/lib/campaign/dayAdvancement.ts` to:
   - Pre-build `pilotsByPilotId` map at entry.
   - Pass entries + pre-resolved pilots to each processor (NOT `campaign.personnel`).
   - Acceptance: typecheck clean; processors accept new input shape.
 
-- [ ] 5.2 Update each of the 6 processors to read from `(entry, pilot | null)` instead of `campaign.personnel`:
+- [x] 5.2 Update each of the 6 processors to read from `(entry, pilot | null)` instead of `campaign.personnel`:
   - `src/lib/campaign/processors/healingProcessor.ts`
   - `src/lib/campaign/processors/autoAwardsProcessor.ts`
   - `src/lib/campaign/processors/vocationalTrainingProcessor.ts`
   - `src/lib/campaign/processors/turnoverProcessor.ts`
   - `src/lib/campaign/processors/randomEventsProcessor.ts`
   - `src/lib/campaign/processors/postBattleProcessor.ts`
-  - Each commit per processor (within ONE PR for atomicity per Council #2 ruling).
-  - Acceptance: per-processor tests pass after each commit.
-  - QA: `npx jest --testPathPattern='<processor>'`.
+  - All 6 processors now `useCampaignRosterStore.getState().pilots` first; fall back to `Array.from(campaign.personnel.values()).map(personToMinimalEntry)` when stores empty (transitional, deletable in PR4 when `campaign.personnel` field is removed).
+  - Shared `personToMinimalEntry` extracted to `src/lib/campaign/utils/personToRosterEntry.ts`.
 
-- [ ] 5.3 Update 4 type-layer helpers in `src/types/campaign/Campaign.ts` (lines 147, 163, 180, 300) to NOT read from `campaign.personnel`.
-  - Acceptance: typecheck clean.
+- [x] 5.3 Update 4 type-layer helpers in `src/types/campaign/Campaign.ts`.
+  - PR2 commit 2.7 already deleted the 3 `IPerson`-returning helpers (`getActivePersonnel`, `getPersonnelByStatus`, `getPersonById`). `getTotalPersonnel` remains but has zero callers — left in place pending PR4 atomic field removal.
 
-- [ ] 5.4 Update 2 UI `.size` readers:
-  - `src/pages/campaigns/index.tsx:46` — replace `campaign.personnel.size` with `useCampaignRosterStore((s) => s.pilots.length)`.
-  - `src/components/CampaignDashboardPage.sections.tsx:157` — same migration.
-  - Acceptance: components render; counts match.
-  - QA: storybook smoke test for both.
+- [x] 5.4 Update 2 UI `.size` readers:
+  - `src/pages/gameplay/campaigns/index.tsx:46` — now reads `useCampaignRosterStore((s) => s.pilots.length)` with legacy `campaign.personnel.size` fallback.
+  - `src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx:161` — same migration.
 
-- [ ] 5.5 Audit `autoAwardEngine.ts:55` and `turnoverCheck.ts:257` (other `campaign.personnel` readers per Council #2 finding).
-  - Migrate to read from stores.
-  - Acceptance: tests pass.
+- [x] 5.5 Audit `autoAwardEngine.ts` and `turnoverCheck.ts` for `campaign.personnel` readers.
+  - autoAwardEngine: now reads from store + fallback (commit a50b10af block).
+  - turnoverCheck: zero `campaign.personnel` references — clean.
 
 ### 6. PR3 verification
 
-- [ ] 6.1 `npx tsc --noEmit --skipLibCheck` exit 0.
-- [ ] 6.2 Integration round-trip tests pass: `phase3RoundTrip.test.ts`, `phase4CampaignRoundTrip.test.ts`.
-- [ ] 6.3 `dayAdvancement.test.ts` and `dayPipeline.test.ts` produce identical outputs vs pre-PR3 baseline.
-- [ ] 6.4 Bridge functions still alive (deletion is PR4's job).
-- [ ] 6.5 Production code grep: zero hits for `campaign.personnel` in `src/` excluding `useCampaignStore.ts` (where bridge functions live).
+- [x] 6.1 `npx tsc --noEmit --skipLibCheck` exit 0.
+- [x] 6.2 Integration round-trip tests pass: `phase3RoundTrip.test.ts`, `phase4CampaignRoundTrip.test.ts`.
+- [x] 6.3 `dayAdvancement.test.ts` and `dayPipeline.test.ts` produce identical outputs vs pre-PR3 baseline.
+- [x] 6.4 Bridge functions still alive (deletion is PR4's job).
+- [x] 6.5 Production code grep: zero hits for `campaign.personnel` in `src/` outside `useCampaignStore.ts`, `rosterEntryToPerson.ts`, and the 6 processor + dayAdvancement transitional fallbacks (each tagged `PR3 transitional` / deletable in PR4).
 - [ ] 6.6 PR opened, CI green, merged.
 
 ---

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
@@ -6,6 +6,8 @@ import type { IPerson } from '@/types/campaign/Person';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { rosterEntryToPerson } from '@/lib/campaign/utils/rosterEntryToPerson';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { usePilotStore } from '@/stores/usePilotStore';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
@@ -22,6 +24,58 @@ import {
 } from '../vocationalTrainingProcessor';
 
 type RandomFn = () => number;
+
+/**
+ * Cluster E PR3 — processors now read from useCampaignRosterStore /
+ * usePilotStore. Tests populate both stores alongside campaign.personnel
+ * so assertions on the write-side (campaign.personnel timer/XP) still
+ * work unchanged.
+ *
+ * createRosterEntry: synthesises an ICampaignRosterEntry that mirrors
+ * the IPerson fields relevant to the vocational check (status, role,
+ * traits, pilotId). buildVaultPilot: synthesises the minimal IPilot the
+ * processor needs for the NPC-null guard + birthDate child check.
+ */
+function createRosterEntry(
+  id: string,
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: id,
+    pilotName: overrides.pilotName ?? 'Test Person',
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 100,
+    campaignXpEarned: 200,
+    campaignKills: 3,
+    campaignMissions: 5,
+    hireDate: new Date('3000-01-01'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    ...overrides,
+  };
+}
+
+function buildVaultPilot(
+  id: string,
+  name = 'Test Person',
+  birthDate?: Date,
+): IPilot {
+  return {
+    id,
+    name,
+    type: PilotType.Persistent,
+    status: PilotStatus.Active,
+    skills: { gunnery: 4, piloting: 5 },
+    wounds: 0,
+    abilities: [],
+    awards: [],
+    createdAt: '3000-01-01T00:00:00Z',
+    updatedAt: '3025-06-15T00:00:00Z',
+    ...(birthDate ? { birthDate } : {}),
+  };
+}
 
 /**
  * Cluster E PR1 — IPerson fixtures are now synthesized via the
@@ -89,7 +143,22 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
 }
 
 /**
- * Helper to create a seeded random function that returns specific die values.
+ * Resets both stores after each test to prevent state bleeding.
+ */
+function clearStores(): void {
+  useCampaignRosterStore.setState({
+    pilots: [],
+    units: [],
+    missions: [],
+    activeMissionId: null,
+    missionCount: 0,
+    campaignId: null,
+  });
+  usePilotStore.setState({ pilots: [] });
+}
+
+/**
+ * Helper to rolls 2d6 using injectable random function.
  * Maps die values (1-6) to random() inputs via (die-1)/6.
  */
 function randomFor2d6(die1: number, die2: number): RandomFn {
@@ -110,6 +179,10 @@ describe('vocationalTrainingProcessor', () => {
 });
 
 describe('processVocationalTraining', () => {
+  afterEach(() => {
+    clearStores();
+  });
+
   it('should increment timer for eligible person', () => {
     const person = createTestPerson({
       traits: { vocationalXPTimer: 28 },
@@ -117,6 +190,20 @@ describe('processVocationalTraining', () => {
     const campaign = createTestCampaign({
       personnel: new Map([['person-001', person]]),
     });
+
+    // Populate stores: entry matches the person, vault pilot is present so
+    // the NPC-null guard passes.
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', { traits: { vocationalXPTimer: 28 } }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
 
     const { updatedCampaign } = processVocationalTraining(campaign, () => 0);
     const updated = updatedCampaign.personnel.get('person-001');
@@ -137,6 +224,18 @@ describe('processVocationalTraining', () => {
         vocationalXPCheckFrequency: 30,
       },
     });
+
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', { traits: { vocationalXPTimer: 29 } }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
 
     // Roll 7 (3+4) vs TN 7 = success
     const random = randomFor2d6(3, 4);
@@ -168,6 +267,18 @@ describe('processVocationalTraining', () => {
       },
     });
 
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', { traits: { vocationalXPTimer: 29 } }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
+
     // Roll 6 (2+4) vs TN 7 = failure
     const random = randomFor2d6(2, 4);
     const { updatedCampaign, events } = processVocationalTraining(
@@ -190,6 +301,22 @@ describe('processVocationalTraining', () => {
       personnel: new Map([['person-001', person]]),
     });
 
+    // Roster entry status is KIA (non-Active) so processor skips this entry.
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', {
+          status: CampaignPilotStatus.KIA,
+          traits: { vocationalXPTimer: 29 },
+        }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
+
     const { updatedCampaign, events } = processVocationalTraining(
       campaign,
       () => 0,
@@ -201,13 +328,30 @@ describe('processVocationalTraining', () => {
   });
 
   it('should skip child personnel', () => {
+    const birthDate = new Date('3020-01-01'); // 5 years old
     const person = createTestPerson({
-      birthDate: new Date('3020-01-01'), // 5 years old
+      birthDate,
       traits: { vocationalXPTimer: 29 },
     });
     const campaign = createTestCampaign({
       personnel: new Map([['person-001', person]]),
       currentDate: new Date('3025-06-15'),
+    });
+
+    // The child check reads vault pilot birthDate; push a vault pilot with
+    // birthDate set so isEligibleForVocational returns false for age < 13.
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', { traits: { vocationalXPTimer: 29 } }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({
+      pilots: [buildVaultPilot('person-001', 'Test Person', birthDate)],
     });
 
     const { updatedCampaign, events } = processVocationalTraining(
@@ -229,6 +373,22 @@ describe('processVocationalTraining', () => {
       personnel: new Map([['person-001', person]]),
     });
 
+    // Roster entry role is DEPENDENT so processor skips.
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', {
+          primaryRole: CampaignPersonnelRole.DEPENDENT,
+          traits: { vocationalXPTimer: 29 },
+        }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
+
     const { updatedCampaign, events } = processVocationalTraining(
       campaign,
       () => 0,
@@ -247,6 +407,23 @@ describe('processVocationalTraining', () => {
     const campaign = createTestCampaign({
       personnel: new Map([['person-001', person]]),
     });
+
+    // Roster entry status is MIA (non-Active) — closest CampaignPilotStatus
+    // to POW; the processor only checks for Active, so any non-Active skips.
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', {
+          status: CampaignPilotStatus.MIA,
+          traits: { vocationalXPTimer: 29 },
+        }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
 
     const { updatedCampaign, events } = processVocationalTraining(
       campaign,
@@ -270,6 +447,18 @@ describe('processVocationalTraining', () => {
       },
     });
 
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', { traits: { vocationalXPTimer: 29 } }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
+
     // Roll 2 (1+1) vs TN 12 = failure
     const random = randomFor2d6(1, 1);
     const { updatedCampaign } = processVocationalTraining(campaign, random);
@@ -286,6 +475,18 @@ describe('processVocationalTraining', () => {
       personnel: new Map([['person-001', person]]),
       options: createDefaultCampaignOptions(),
     });
+
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', { traits: { vocationalXPTimer: 29 } }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
 
     // Roll 7 (3+4) vs default TN 7 = success
     const random = randomFor2d6(3, 4);
@@ -316,6 +517,21 @@ describe('processVocationalTraining', () => {
       },
     });
 
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', { traits: { vocationalXPTimer: 29 } }),
+        createRosterEntry('person-002', { traits: { vocationalXPTimer: 15 } }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({
+      pilots: [buildVaultPilot('person-001'), buildVaultPilot('person-002')],
+    });
+
     // Roll 7 (3+4) vs TN 7 = success for person 1
     const random = randomFor2d6(3, 4);
     const { updatedCampaign, events } = processVocationalTraining(
@@ -344,6 +560,18 @@ describe('processVocationalTraining', () => {
       },
     });
 
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', { traits: { vocationalXPTimer: 29 } }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
+
     const random1 = randomFor2d6(3, 4);
     const { events: events1 } = processVocationalTraining(campaign, random1);
 
@@ -355,6 +583,10 @@ describe('processVocationalTraining', () => {
 });
 
 describe('vocationalTrainingProcessor.process', () => {
+  afterEach(() => {
+    clearStores();
+  });
+
   it('should process vocational training on each day', () => {
     const person = createTestPerson({
       traits: { vocationalXPTimer: 28 },
@@ -362,6 +594,18 @@ describe('vocationalTrainingProcessor.process', () => {
     const campaign = createTestCampaign({
       personnel: new Map([['person-001', person]]),
     });
+
+    useCampaignRosterStore.setState({
+      pilots: [
+        createRosterEntry('person-001', { traits: { vocationalXPTimer: 28 } }),
+      ],
+      units: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+      campaignId: 'campaign-001',
+    });
+    usePilotStore.setState({ pilots: [buildVaultPilot('person-001')] });
 
     const result = vocationalTrainingProcessor.process(
       campaign,

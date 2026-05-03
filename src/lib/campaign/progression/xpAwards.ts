@@ -22,7 +22,6 @@
 
 import type { ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import type { IPerson } from '@/types/campaign/Person';
 import type {
   IXPAwardEvent,
   IXpAwardDelta,
@@ -49,10 +48,12 @@ import type { IPilot } from '@/types/pilot/PilotInterfaces';
  */
 export function awardScenarioXP(
   entry: ICampaignRosterEntry,
-  pilot: IPilot | null,
+  _pilot: IPilot | null,
   options: ICampaignOptions,
 ): IXPAwardEvent | null {
-  if (pilot === null) return null;
+  // Scenario XP applies to all roster entries (PCs and NPCs) — campaign XP
+  // tracking lives on the roster entry itself; vault-side XP delta is applied
+  // separately by the caller when pilot exists.
   const amount = options.scenarioXP ?? 1;
   return {
     personId: entry.pilotId,
@@ -91,11 +92,11 @@ export function awardScenarioXP(
  */
 export function awardKillXP(
   entry: ICampaignRosterEntry,
-  pilot: IPilot | null,
+  _pilot: IPilot | null,
   killCount: number,
   options: ICampaignOptions,
 ): IXPAwardEvent | null {
-  if (pilot === null) return null;
+  // Kill XP applies to all roster entries (PCs and NPCs).
   const threshold = options.killsForXP ?? 1;
   const award = options.killXPAward ?? 1;
 
@@ -358,60 +359,5 @@ export function buildXPAwardDelta(event: IXPAwardEvent): IXpAwardDelta {
       xpDelta: event.amount,
       campaignXpDelta: event.amount,
     },
-  };
-}
-
-// =============================================================================
-// PR2 → PR3 Bridge Shims (DEPRECATED — remove in PR3 when postBattleProcessor
-// is migrated to the two-arg (entry, pilot | null) + delta-return pattern)
-// =============================================================================
-
-/**
- * @deprecated PR2 bridge shim for postBattleProcessor.ts until PR3 migrates
- * the caller to the new (entry, pilot | null) + buildXPAwardDelta pattern.
- * DO NOT USE in new code. Will be deleted in PR3 task 5.2.
- */
-export function applyXPAward(person: IPerson, event: IXPAwardEvent): IPerson {
-  return {
-    ...person,
-    xp: person.xp + event.amount,
-    totalXpEarned: person.totalXpEarned + event.amount,
-  };
-}
-
-/**
- * @deprecated PR2 bridge shim for postBattleProcessor.ts. Use awardScenarioXP
- * (entry, pilot, options) in new code. Will be deleted in PR3 task 5.2.
- */
-export function awardScenarioXPLegacy(
-  person: IPerson,
-  options: ICampaignOptions,
-): IXPAwardEvent {
-  const amount = options.scenarioXP ?? 1;
-  return {
-    personId: person.id,
-    source: 'scenario',
-    amount,
-    description: 'Scenario participation',
-  };
-}
-
-/**
- * @deprecated PR2 bridge shim for postBattleProcessor.ts. Use awardKillXP
- * (entry, pilot, killCount, options) in new code. Will be deleted in PR3 task 5.2.
- */
-export function awardKillXPLegacy(
-  person: IPerson,
-  killCount: number,
-  options: ICampaignOptions,
-): IXPAwardEvent | null {
-  const threshold = options.killsForXP ?? 1;
-  const award = options.killXPAward ?? 1;
-  if (killCount < threshold) return null;
-  return {
-    personId: person.id,
-    source: 'kill',
-    amount: Math.floor(killCount / threshold) * award,
-    description: `${killCount} kills`,
   };
 }

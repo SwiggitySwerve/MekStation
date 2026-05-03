@@ -155,10 +155,12 @@ function makeOptions(
 // =============================================================================
 
 describe('awardScenarioXP', () => {
-  it('should return null for NPC (pilot === null)', () => {
+  it('should award scenario XP to NPC entries (pilot === null) — campaign XP is roster-side', () => {
     const entry = makeEntry();
-    const options = makeOptions();
-    expect(awardScenarioXP(entry, null, options)).toBeNull();
+    const options = makeOptions({ scenarioXP: 2 });
+    const event = awardScenarioXP(entry, null, options);
+    expect(event).not.toBeNull();
+    expect(event?.amount).toBe(2);
   });
 
   it('should return event with scenarioXP amount from options', () => {
@@ -187,10 +189,12 @@ describe('awardScenarioXP', () => {
 // =============================================================================
 
 describe('awardKillXP', () => {
-  it('should return null for NPC (pilot === null)', () => {
+  it('should award kill XP to NPC entries (pilot === null) — campaign kills are roster-side', () => {
     const entry = makeEntry();
     const options = makeOptions({ killsForXP: 2, killXPAward: 1 });
-    expect(awardKillXP(entry, null, 5, options)).toBeNull();
+    const event = awardKillXP(entry, null, 5, options);
+    expect(event).not.toBeNull();
+    expect(event?.amount).toBe(2);
   });
 
   it('should return null if killCount < threshold', () => {
