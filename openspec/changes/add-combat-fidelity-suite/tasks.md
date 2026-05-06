@@ -20,6 +20,19 @@
 - [ ] 1.5 Integration test: run a 5-turn 1v1 Atlas-vs-Atlas seeded fight, assert AI emits attack actions for each Atlas weapon (not just one synthetic ML).
 - [ ] 1.6 Open PR #2, CI green, merge.
 
+## Phase 0.5 — Closed-set hygiene (~3h, PR #2.5 — folded after Phase 1)
+
+**Background**: The OMO Council's second-review identified a three-way naming split between `damage-system` source-of-truth spec (kebab-case), live code (snake_case across 15+ files), and PR #515's deltas (snake_case). Phase 0.5 reconciles spec → code, closes pilot- and match-terminal-state enums, and asserts conservation invariants.
+
+- [ ] 0.5.1 Update `src/types/gameplay/GameSessionInterfaces.ts:766` `IUnitDestroyedPayload.cause` union to the unified 7-value snake_case set: `'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed' | 'shutdown' | 'ct_destroyed' | 'head_destroyed'`.
+- [ ] 0.5.2 Update `src/types/gameplay/CombatInterfaces.ts:350` `destructionCause` union to match exactly (currently has `'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed'` — add `shutdown`, `ct_destroyed`, `head_destroyed`).
+- [ ] 0.5.3 Update `src/utils/gameplay/damage/types.ts:45` `cause` union to match the symmetric set.
+- [ ] 0.5.4 Search for remaining inline string literals using the old kebab-case values (`'pilot-killed'`, `'crew-kia'`, `'engine-destroyed'`, `'ct-destroyed'`, `'ammo-explosion'`) anywhere in `src/`. Update or remove. Confirm zero hits via grep before commit.
+- [ ] 0.5.5 Add `IPilotMatchSummary.matchTerminalState: 'unhurt' | 'wounded' | 'unconscious' | 'kia' | 'ejected'` field to whichever pilot summary type the engine outputs (likely `src/types/gameplay/CombatInterfaces.ts` `IPilotCasualty` or successor).
+- [ ] 0.5.6 Add `IMatchResult.matchTerminalState: 'player_victory' | 'opfor_victory' | 'draw' | 'mutual_destruction' | 'timeout' | 'forfeit' | 'withdrawal'` field to the runner's match-result type. Compute it at run-end from per-unit fates (per the conservation rules in `after-combat-report`).
+- [ ] 0.5.7 Unit tests: closed-set enforcement. Try assigning a string outside the union — TypeScript MUST reject. Try the conservation invariants (sum of fates == roster size) — assertion MUST hold for every test scenario.
+- [ ] 0.5.8 Open PR `feat(combat-fidelity): closed-set hygiene for unit/pilot/match terminal states`, CI green, merge.
+
 ## Phase 2 — Weapon attack events (~1d, PR #3)
 
 - [ ] 2.1 Modify `weaponAttack.ts` (`src/simulation/runner/phases/weaponAttack.ts`) to emit `AttackDeclared` (with `attackerId`, `targetId`, `weaponId`, `range`, `arc`, `modifiers[]`) BEFORE the to-hit roll.

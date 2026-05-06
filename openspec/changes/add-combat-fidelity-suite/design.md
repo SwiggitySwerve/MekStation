@@ -113,6 +113,32 @@ These are pure lookup tables with no Java-isms — they become deterministic pur
 
 ---
 
+### D8 — Spec follows code, not the other way around (snake_case wins)
+
+**Choice**: The unified `UnitDestroyed.cause` closed set is snake_case, matching the live codebase across 15+ files (`src/types/gameplay/GameSessionInterfaces.ts:766`, `src/types/gameplay/CombatInterfaces.ts:350`, `src/utils/gameplay/damage/types.ts:45`, `criticalHitResolution/resolver.ts`, etc.). The prior kebab-case spec values at `damage-system/spec.md:397-398` are RENAMED to snake to align.
+
+**Rationale**: A second OMO Council review (Lean++ thin) Phase 2 surfaced a three-way split: spec kebab vs code snake vs PR #515 snake. 5 sampled enums in `src/types/gameplay/` were ALL snake_case (`AttackResult`, `CriticalEffectType`, `GameEventType`, `MovementType`, terrain enums). The codebase convention is unambiguous; the spec is the anomaly. Renaming 15+ code files would have far higher blast radius than renaming spec values.
+
+The `damage-system` delta in this change is the spec-side rename. The new `Phase 0.5` task list is the code-side reconciliation that ensures all three type files (`GameSessionInterfaces.ts`, `CombatInterfaces.ts`, `damage/types.ts`) carry the SAME 7 values: `'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed' | 'shutdown' | 'ct_destroyed' | 'head_destroyed'`.
+
+**Trade-off accepted**: The kebab-case `'pilot-killed'` and `'crew-kia'` spec-only values are dropped (no live code consumers existed). The kebab-case `'ct-destroyed'`, `'engine-destroyed'`, `'ammo-explosion'` are renamed to snake. `'head_destroyed'` is added as new. `'shutdown'` is added (was code-only, missing from spec).
+
+**Discovered during**: Phase 2 of the second council review. Hephaestus initially proposed extending the kebab set; Explore-Deep's grep proved the codebase is overwhelmingly snake_case; the synthesis reversed direction.
+
+---
+
+### D9 — Closed enums for pilot- and match-terminal states folded into this change
+
+**Choice**: The pilot and match terminal state taxonomies (`'unhurt' | 'wounded' | 'unconscious' | 'kia' | 'ejected'` and `'player_victory' | 'opfor_victory' | 'draw' | 'mutual_destruction' | 'timeout' | 'forfeit' | 'withdrawal'`) are introduced as new ADDED requirements in the `pilot-system` and `after-combat-report` source-of-truth specs.
+
+**Rationale**: These taxonomies don't exist in the codebase yet. The existing `PilotStatus` at `src/types/pilot/PilotInterfaces.ts:30` is a campaign-tracking enum (`Active | Injured | MIA | KIA | Retired`), not a per-match terminal state. The match-terminal taxonomy is needed for the audit framework's conservation checks (sum of fates == roster size) and for downstream consumers (replay UI, MetricsCollector). The spec authors the constraint; P0.5 wires it into code.
+
+**Conservation invariants**: The `after-combat-report` delta also asserts cross-side rules (sum of fates == roster size; mutual_destruction requires 0 survivors on both sides; KIA pilot count == cause:'pilot_death' + cause:'head_destroyed' UnitDestroyed events). These invariants give downstream consumers a contract to verify against.
+
+**Trade-off accepted**: The terminal-state implementation work is part of P0.5 rather than a follow-on `add-match-outcome-taxonomy` change. This grows P0.5 by ~3h but eliminates a parallel OpenSpec change folder.
+
+---
+
 ## Decisions discovered during execution
 
 (Will be populated by Atlas / Hephaestus during implementation per the OMO Notepad Protocol's Decision Graduation Rule.)
