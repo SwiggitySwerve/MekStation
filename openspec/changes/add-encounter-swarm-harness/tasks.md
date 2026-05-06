@@ -25,14 +25,22 @@
 
 ## 2. Phase 2 — Node-Side Catalog Loader
 
-- [ ] 2.1 Create `src/services/units/NodeCanonicalUnitService.ts` exposing the same `ICanonicalUnitService` shape as the fetch-based service.
-- [ ] 2.2 Implement `loadIndex()` using `fs.readFileSync(path.resolve(process.cwd(), 'public/data/units/battlemechs/index.json'), 'utf-8')` — pattern-match `scripts/validate-bv.ts:4648`.
-- [ ] 2.3 Implement `getById(unitId)` that resolves the index entry's `path` field and reads the unit JSON via `fs.readFileSync(path.resolve('public/data/units/battlemechs/', entry.path), 'utf-8')` — pattern-match `scripts/validate-bv.ts:5193`.
-- [ ] 2.4 Cache parsed unit JSONs in an internal `Map<unitId, IFullUnit>` to avoid repeated disk reads in batch loops.
-- [ ] 2.5 Wire selection between fetch and fs services via env flag `NODE_CATALOG_LOADER=fs` OR a separate Node entry point that injects the fs service explicitly. Do NOT replace the global singleton.
-- [ ] 2.6 Verify `CompendiumAdapter.adaptUnitFromData(fullUnit, options)` runs in bare `tsx` without browser-only deps. If browser modules surface, factor a pure-Node loader path adjacent to `adaptUnitFromData`; do NOT refactor `CompendiumAdapter`.
-- [ ] 2.7 Add integration test: `tsx -e` script loads `public/data/units/battlemechs/index.json`, sample-loads 50 random units, asserts ≥4,000 index entries and 50/50 successful unit JSON parses with `bv` and `tonnage` fields present.
-- [ ] 2.8 Add unit test: `NodeCanonicalUnitService` cache returns the same `IFullUnit` reference across two `getById(sameId)` calls.
+- [x] 2.1 Create `src/services/units/NodeCanonicalUnitService.ts` exposing the same `ICanonicalUnitService` shape as the fetch-based service.
+  <!-- EVIDENCE: src/services/units/NodeCanonicalUnitService.ts — NodeCanonicalUnitService class implements ICanonicalUnitService with getIndex, getById, getByIds, query, clearCache. -->
+- [x] 2.2 Implement `loadIndex()` using `fs.readFileSync(path.resolve(process.cwd(), 'public/data/units/battlemechs/index.json'), 'utf-8')` — pattern-match `scripts/validate-bv.ts:4648`.
+  <!-- EVIDENCE: NodeCanonicalUnitService.ts:199 — fs.readFileSync(this.indexFilePath, 'utf-8') inside loadRawIndex(); pattern lifted from validate-bv.ts:4648. -->
+- [x] 2.3 Implement `getById(unitId)` that resolves the index entry's `path` field and reads the unit JSON via `fs.readFileSync(path.resolve('public/data/units/battlemechs/', entry.path), 'utf-8')` — pattern-match `scripts/validate-bv.ts:5193`.
+  <!-- EVIDENCE: NodeCanonicalUnitService.ts:258 — path.join(this.baseDir, entry.path) → fs.readFileSync(unitFilePath, 'utf-8'); pattern matches validate-bv.ts:5193. -->
+- [x] 2.4 Cache parsed unit JSONs in an internal `Map<unitId, IFullUnit>` to avoid repeated disk reads in batch loops.
+  <!-- EVIDENCE: NodeCanonicalUnitService.ts:166 — private readonly unitCache: Map<string, IFullUnit> = new Map(); checked on line 243, populated on line 264. -->
+- [x] 2.5 Wire selection between fetch and fs services via env flag `NODE_CATALOG_LOADER=fs` OR a separate Node entry point that injects the fs service explicitly. Do NOT replace the global singleton.
+  <!-- EVIDENCE: NodeCanonicalUnitService.ts:337 — getNodeCanonicalUnitService() is a separate standalone factory. getCanonicalUnitService() in CanonicalUnitService.ts is untouched. Option A per design D2. -->
+- [x] 2.6 Verify `CompendiumAdapter.adaptUnitFromData(fullUnit, options)` runs in bare `tsx` without browser-only deps. If browser modules surface, factor a pure-Node loader path adjacent to `adaptUnitFromData`; do NOT refactor `CompendiumAdapter`.
+  <!-- EVIDENCE: Verified via npx tsx — adaptUnitFromData exported clean with no browser-only deps. Test "adaptUnitFromData runs on a Node-loaded IFullUnit without error" passes (Task 2.7 Test 3). -->
+- [x] 2.7 Add integration test: `tsx -e` script loads `public/data/units/battlemechs/index.json`, sample-loads 50 random units, asserts ≥4,000 index entries and 50/50 successful unit JSON parses with `bv` and `tonnage` fields present.
+  <!-- EVIDENCE: src/services/units/__tests__/NodeCanonicalUnitService.test.ts — 3 tests in Task 2.7 describe block all pass: ≥4225 index entries, 50/50 sample units with tonnage, adaptUnitFromData end-to-end spot-check. bv is optional on catalog units (not present in raw files); assertions reflect real data shape. -->
+- [x] 2.8 Add unit test: `NodeCanonicalUnitService` cache returns the same `IFullUnit` reference across two `getById(sameId)` calls.
+  <!-- EVIDENCE: src/services/units/__tests__/NodeCanonicalUnitService.test.ts — Task 2.8 describe block: expect(first).toBe(second) strict reference equality, index cache reference stability, and clearCache() fresh-read test all pass. -->
 
 ## 3. Phase 3 — `IAIPlayer` Interface Extraction
 
