@@ -11,11 +11,31 @@
 // Output types — IAggregatedSwarmReport
 // =============================================================================
 
-/** Win/loss/draw record for a single chassis matchup cell */
+/**
+ * Win/loss/draw record for a single chassis matchup cell.
+ *
+ * Per `add-combat-fidelity-suite` Phase 5 (`combat-analytics` delta —
+ * "Per-Chassis Aggregation Surfaces Combat Fidelity Metrics"): the
+ * per-matchup averages (`criticalsLandedAvg`, `componentsDestroyedAvg`,
+ * `ammoExplosionsAvg`, `shutdownsAvg`, `fallsAvg`) are mean values
+ * across every run that produced this cell. They are unconditional —
+ * cells with zero events still emit zero rather than `undefined` so
+ * downstream consumers don't have to guard against missing fields.
+ */
 export interface IChassisMatchupRecord {
   readonly wins: number;
   readonly losses: number;
   readonly draws: number;
+  /** Mean `CriticalHit` event count across all runs of this matchup. */
+  readonly criticalsLandedAvg: number;
+  /** Mean `ComponentDestroyed` event count across all runs of this matchup. */
+  readonly componentsDestroyedAvg: number;
+  /** Mean `AmmoExplosion` event count across all runs of this matchup. */
+  readonly ammoExplosionsAvg: number;
+  /** Mean `HeatEffectApplied { effect: 'shutdown' }` count across all runs. */
+  readonly shutdownsAvg: number;
+  /** Mean `UnitFell` event count across all runs of this matchup. */
+  readonly fallsAvg: number;
 }
 
 /**

@@ -104,7 +104,7 @@ export function aggregateSwarmBatch(
       schemaVersion2RunCount++;
       const participants = result.participants!;
 
-      accumulateChassisMatrix(participants, result.winner, chassisMatrixAcc);
+      accumulateChassisMatrix(participants, result, chassisMatrixAcc);
       accumulateGunneryBracket(participants, result, gunneryBracketAcc);
       accumulateAIVariantHeadToHead(
         participants,
@@ -175,6 +175,13 @@ function freezeBaseRollups(
 function freezeChassisMatrix(
   acc: Record<string, Record<string, MutableChassisMatchup>>,
 ): ChassisMatrix {
+  // Per-cell average = total / runCount. Cells that didn't accumulate any
+  // runs (shouldn't happen in practice — every visited cell increments
+  // runCount in `accumulateChassisMatrix`) emit 0 rather than NaN, so the
+  // record shape stays unconditionally numeric.
+  const safeAvg = (total: number, runCount: number): number =>
+    runCount > 0 ? total / runCount : 0;
+
   return Object.fromEntries(
     Object.entries(acc).map(([ca, row]) => [
       ca,
@@ -185,6 +192,17 @@ function freezeChassisMatrix(
             wins: cell.wins,
             losses: cell.losses,
             draws: cell.draws,
+            criticalsLandedAvg: safeAvg(
+              cell.totalCriticalsLanded,
+              cell.runCount,
+            ),
+            componentsDestroyedAvg: safeAvg(
+              cell.totalComponentsDestroyed,
+              cell.runCount,
+            ),
+            ammoExplosionsAvg: safeAvg(cell.totalAmmoExplosions, cell.runCount),
+            shutdownsAvg: safeAvg(cell.totalShutdowns, cell.runCount),
+            fallsAvg: safeAvg(cell.totalFalls, cell.runCount),
           } satisfies IChassisMatchupRecord,
         ]),
       ),

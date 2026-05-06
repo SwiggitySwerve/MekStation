@@ -15,6 +15,7 @@ import type { IParticipant, ISimulationRunResult } from '../runner/types';
 import type { GunneryBracket } from './swarmAggregation.types';
 
 import { GameEventType } from '../../types/gameplay/GameSessionInterfaces';
+import { tallyCombatFidelityForRun } from './combatFidelityTally';
 
 // =============================================================================
 // Mutable accumulators (private — implementation detail)
@@ -24,6 +25,18 @@ export interface MutableChassisMatchup {
   wins: number;
   losses: number;
   draws: number;
+  /**
+   * Phase 5 combat-fidelity counters — running totals across every run
+   * that contributed to this cell. The freeze step divides by `runCount`
+   * to produce the per-record averages.
+   */
+  totalCriticalsLanded: number;
+  totalComponentsDestroyed: number;
+  totalAmmoExplosions: number;
+  totalShutdowns: number;
+  totalFalls: number;
+  /** Number of runs that contributed to this cell (denominator for averages). */
+  runCount: number;
 }
 
 export interface MutableGunneryBracketAcc {
@@ -220,24 +233,54 @@ export function accumulateBaseRollups(
 // =============================================================================
 
 /**
+ * Empty `MutableChassisMatchup` factory — kept centralized so any new
+ * fields added to the accumulator (Phase 5 added five combat-fidelity
+ * totals + a runCount) get initialized in one place rather than at
+ * each `ensureKey` call site.
+ */
+function emptyChassisMatchup(): MutableChassisMatchup {
+  return {
+    wins: 0,
+    losses: 0,
+    draws: 0,
+    totalCriticalsLanded: 0,
+    totalComponentsDestroyed: 0,
+    totalAmmoExplosions: 0,
+    totalShutdowns: 0,
+    totalFalls: 0,
+    runCount: 0,
+  };
+}
+
+/**
  * Accumulate chassisMatrix for one run.
  *
  * Counting rule (per spec §"Multi-unit forces produce N×M cells per run"):
  *   Each UNIQUE chassis on side A is paired with each UNIQUE chassis on side B —
  *   one increment per unique-chassis-pair, regardless of how many unit instances
  *   of that chassis appear on each side.
+ *
+ * Phase 5 extension (per `combat-analytics` delta — "Per-Chassis
+ * Aggregation Surfaces Combat Fidelity Metrics"): each cell additionally
+ * accumulates per-run totals for criticals / components destroyed /
+ * ammo explosions / shutdowns / falls, divided by `runCount` in the
+ * freeze step to produce the per-record averages. The same per-run
+ * totals are added to BOTH mirror cells (CA→CB and CB→CA) so the
+ * matrix stays symmetric.
  */
 export function accumulateChassisMatrix(
   participants: readonly IParticipant[],
-  winner: 'player' | 'opponent' | 'draw' | null,
+  result: ISimulationRunResult,
   matrixAcc: Record<string, Record<string, MutableChassisMatchup>>,
 ): void {
+  const winner = result.winner;
   const bySide = groupBySide(participants);
   const sideIds = Object.keys(bySide);
   if (sideIds.length !== 2) return;
 
   const [sideAId] = sideIds as [string, string];
   const winningSide = winningSideId(winner, participants);
+  const fidelity = tallyCombatFidelityForRun(result);
 
   const chassisA = Array.from(
     new Set(bySide[sideIds[0]!]!.map((p) => p.chassisId)),
@@ -253,22 +296,14 @@ export function accumulateChassisMatrix(
         ca,
         () => ({}),
       );
-      const cellCA = ensureKey(rowCA, cb, () => ({
-        wins: 0,
-        losses: 0,
-        draws: 0,
-      }));
+      const cellCA = ensureKey(rowCA, cb, emptyChassisMatchup);
 
       const rowCB = ensureKey<Record<string, MutableChassisMatchup>>(
         matrixAcc,
         cb,
         () => ({}),
       );
-      const cellCB = ensureKey(rowCB, ca, () => ({
-        wins: 0,
-        losses: 0,
-        draws: 0,
-      }));
+      const cellCB = ensureKey(rowCB, ca, emptyChassisMatchup);
 
       if (winner === 'draw' || winningSide === null) {
         cellCA.draws++;
@@ -280,6 +315,24 @@ export function accumulateChassisMatrix(
         cellCA.losses++;
         cellCB.wins++;
       }
+
+      // Per-run combat-fidelity totals — added to BOTH mirror cells so
+      // averages stay symmetric. `runCount` increments once per cell per
+      // run; the freeze step uses it as the denominator for the five
+      // *Avg fields.
+      cellCA.totalCriticalsLanded += fidelity.criticals;
+      cellCA.totalComponentsDestroyed += fidelity.components;
+      cellCA.totalAmmoExplosions += fidelity.ammoExplosions;
+      cellCA.totalShutdowns += fidelity.shutdowns;
+      cellCA.totalFalls += fidelity.falls;
+      cellCA.runCount++;
+
+      cellCB.totalCriticalsLanded += fidelity.criticals;
+      cellCB.totalComponentsDestroyed += fidelity.components;
+      cellCB.totalAmmoExplosions += fidelity.ammoExplosions;
+      cellCB.totalShutdowns += fidelity.shutdowns;
+      cellCB.totalFalls += fidelity.falls;
+      cellCB.runCount++;
     }
   }
 }
