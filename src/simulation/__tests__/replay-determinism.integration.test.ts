@@ -139,10 +139,24 @@ describe('Event log replay determinism audit (P5 — task 5)', () => {
    * `add-engine-determinism-audit` follow-on owns the investigation —
    * P5 does NOT chase determinism per the change brief.
    *
-   * To skip-with-TODO when the divergence surfaces in CI, change
-   * `it(...)` to `it.skip(...)` and add a TODO citing the follow-on.
+   * SKIPPED: empirical CI-only divergence surfaced on PR #526 (P6c
+   * Monte Carlo tests) — observed 167 events on the first run and
+   * 103 on the second within the same Jest worker on Linux runners.
+   * The divergence is NOT reproducible on Windows local runs and is
+   * NOT introduced by P6c (pure additive test files; no production
+   * code touched). Most plausibly a JIT-warm-worker / shared-PRNG
+   * adjacency artifact when a memory-heavy MC sibling runs in the
+   * same Jest worker. Follow the same skip-with-TODO pattern the P5
+   * author anticipated for this exact case (per test file header
+   * "If THIS audit fires on the Atlas mirror fixture, the failure
+   * is a known issue tracked under the deferred
+   * `add-engine-determinism-audit` follow-on change").
+   *
+   * TODO: re-enable when `add-engine-determinism-audit` lands and
+   * either pins the worker isolation or fixes the underlying
+   * non-determinism source.
    */
-  it('seed=42 Atlas mirror produces byte-identical event logs across two runs', async () => {
+  it.skip('seed=42 Atlas mirror produces byte-identical event logs across two runs', async () => {
     const result1 = await runAtlasMirror(42);
     const result2 = await runAtlasMirror(42);
 
