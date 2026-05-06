@@ -345,12 +345,24 @@ export interface IDamageResult {
   readonly pilotDamage?: IPilotDamageResult;
   /** Was unit destroyed? */
   readonly unitDestroyed: boolean;
-  /** Destruction cause */
+  /**
+   * Destruction cause.
+   *
+   * Closed snake_case enum kept symmetric with `IUnitDestroyedPayload.cause`
+   * (in `GameSessionInterfaces.ts`) and the `cause` field on
+   * `IDestructionCheckResult` / `destructionCause` field on
+   * `IUnitDamageState` (in `utils/gameplay/damage/types.ts`). All three
+   * MUST contain exactly the same 7 values per the
+   * `add-combat-fidelity-suite` Phase 0.5 reconciliation.
+   */
   readonly destructionCause?:
     | 'damage'
     | 'ammo_explosion'
     | 'pilot_death'
-    | 'engine_destroyed';
+    | 'engine_destroyed'
+    | 'shutdown'
+    | 'ct_destroyed'
+    | 'head_destroyed';
 }
 
 // =============================================================================
@@ -493,6 +505,57 @@ export interface IPilotDamageResult {
   readonly conscious?: boolean;
   /** Is pilot dead? (6+ wounds) */
   readonly dead: boolean;
+}
+
+// =============================================================================
+// Pilot Match Terminal State (per-match outcome)
+// =============================================================================
+
+/**
+ * Per-match pilot terminal state. Distinct from the campaign-level
+ * `PilotStatus` enum at `src/types/pilot/PilotInterfaces.ts:30`
+ * (which derives from this plus campaign rules) and from the
+ * `PilotFinalStatus` enum at `src/types/combat/CombatOutcome.ts:63`
+ * (which is the campaign-consumable hand-off label).
+ *
+ * Closed snake_case set — exactly one value per pilot per match. See
+ * `openspec/changes/add-combat-fidelity-suite/specs/pilot-system/spec.md`
+ * for the canonical taxonomy and conservation invariants.
+ *
+ *  - `unhurt`       — zero wounds during the match
+ *  - `wounded`      — 1-5 wounds, no failed consciousness, no ejection
+ *  - `unconscious`  — failed consciousness AND no recovery before end
+ *  - `kia`          — wounds reached 6 OR head-destruction event
+ *  - `ejected`      — voluntarily ejected and survived ejection
+ */
+export type PilotMatchTerminalState =
+  | 'unhurt'
+  | 'wounded'
+  | 'unconscious'
+  | 'kia'
+  | 'ejected';
+
+/**
+ * Per-match per-pilot summary record. One entry per pilot active in
+ * the match, regardless of side. Conservation invariant from
+ * `after-combat-report/spec.md`: the count of summaries grouped by
+ * `matchTerminalState` MUST sum to the total pilot roster size, and
+ * `count('kia')` MUST equal the count of `UnitDestroyed` events with
+ * `cause: 'pilot_death'` OR `cause: 'head_destroyed'` (per side).
+ */
+export interface IPilotMatchSummary {
+  /** Stable pilot identifier (synthetic or vault). */
+  readonly pilotId: string;
+  /** Unit the pilot was assigned to during the match. */
+  readonly unitId: string;
+  /** Side label — `'player'`, `'opfor'`, or any custom side identifier. */
+  readonly sideId: string;
+  /** Closed enum — see `PilotMatchTerminalState`. */
+  readonly matchTerminalState: PilotMatchTerminalState;
+  /** Cumulative wound count at match end (0-6, capped). */
+  readonly finalWoundCount: number;
+  /** True if the pilot was conscious at match end. */
+  readonly wasConscious: boolean;
 }
 
 // =============================================================================

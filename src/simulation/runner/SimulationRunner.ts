@@ -1,4 +1,5 @@
 import { GameEventType, GamePhase, IGameEvent } from '@/types/gameplay';
+import { GameSide } from '@/types/gameplay';
 
 import type { IAIPlayer, AIPlayerFactory } from '../ai/IAIPlayer';
 
@@ -9,6 +10,7 @@ import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
 import { InvariantRunner } from '../invariants/InvariantRunner';
 import { IViolation } from '../invariants/types';
+import { determineMatchTerminalState } from './matchTerminalState';
 import {
   runAttackPhase,
   runHeatPhase,
@@ -31,6 +33,7 @@ import {
   createInitialState,
   determineWinner,
   isGameOver,
+  isUnitOperable,
   resetTurnState,
 } from './SimulationRunnerState';
 import { createMinimalGrid } from './SimulationRunnerSupport';
@@ -215,6 +218,30 @@ export class SimulationRunner {
     const durationMs = Date.now() - startTime;
     const winner = determineWinner(currentState);
 
+    // Phase 0.5 — engine-layer match terminal state. Survivor counts are
+    // derived from the same `isUnitOperable` predicate used by
+    // `determineWinner` to keep the two classifications consistent.
+    // Forfeit / withdrawal flags are not yet tracked by the runner —
+    // P1 catalog hydration may surface them; until then we always pass
+    // `false` and rely on survivor counts + turn ceiling.
+    const allUnits = Object.values(currentState.units);
+    const playerUnits = allUnits.filter(
+      (unit) => unit.side === GameSide.Player,
+    );
+    const opforUnits = allUnits.filter(
+      (unit) => unit.side === GameSide.Opponent,
+    );
+    const matchTerminalState = determineMatchTerminalState({
+      playerSurvivors: playerUnits.filter(isUnitOperable).length,
+      opforSurvivors: opforUnits.filter(isUnitOperable).length,
+      playerRosterSize: playerUnits.length,
+      opforRosterSize: opforUnits.length,
+      turnsElapsed: currentState.turn,
+      maxTurns: MAX_TURNS,
+      hadWithdrawal: false,
+      hadForfeit: false,
+    });
+
     const keyMomentBattleState = buildKeyMomentBattleState(currentState);
     const anomalyBattleState = buildAnomalyBattleState(currentState);
 
@@ -245,6 +272,7 @@ export class SimulationRunner {
       keyMoments,
       anomalies,
       haltedByCriticalAnomaly,
+      matchTerminalState,
     };
   }
 }

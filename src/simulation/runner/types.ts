@@ -6,6 +6,8 @@
 import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
 import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
 
+import type { MatchTerminalState } from './matchTerminalState';
+
 import { ISimulationResult } from '../core/types';
 import { IViolation } from '../invariants/types';
 
@@ -81,6 +83,21 @@ export interface ISimulationRunResult extends ISimulationResult {
    * Each entry describes one unit+pilot combination active during the battle.
    */
   readonly participants?: readonly IParticipant[];
+  /**
+   * Engine-layer match terminal state (closed snake_case enum). Authored
+   * under `add-combat-fidelity-suite` Phase 0.5 ("Closed-set hygiene").
+   * Distinct from the existing `winner: 'player' | 'opponent' | 'draw' | null`
+   * field on `ISimulationResult` and from the ACAR statistical layer's
+   * `'victory' | 'defeat' | 'draw'` taxonomy used in
+   * `Scenario Resolution`. All three coexist; see `matchTerminalState.ts`
+   * for the full taxonomy and conservation invariants.
+   *
+   * Optional during P0.5 to keep backward compat with existing
+   * consumers; runner populations land alongside this type addition.
+   * Follow-on PRs (P1+) MAY tighten this to required after the catalog
+   * hydration wave.
+   */
+  readonly matchTerminalState?: MatchTerminalState;
 }
 
 /**
