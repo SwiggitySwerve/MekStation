@@ -20,6 +20,7 @@ import {
   MEDIUM_LASER_MEDIUM_RANGE,
   MEDIUM_LASER_SHORT_RANGE,
   DEFAULT_GUNNERY,
+  DEFAULT_PILOTING,
   DEFAULT_COMPONENT_DAMAGE,
 } from './SimulationRunnerConstants';
 
@@ -131,7 +132,12 @@ export function toAIUnitState(unit: IUnitGameState): IAIUnitState {
     weapons: [createMinimalWeapon(`${unit.id}-weapon-1`)],
     ammo: {},
     destroyed: unit.destroyed,
-    gunnery: DEFAULT_GUNNERY,
+    // Phase 1 of `add-encounter-swarm-harness`: read real pilot skills from
+    // IUnitGameState so randomized pilot generation is meaningful. Defaults
+    // remain as fallback for synthetic-unit construction paths that do not
+    // populate skills (e.g. fixture builders in older tests).
+    gunnery: unit.gunnery ?? DEFAULT_GUNNERY,
+    piloting: unit.piloting ?? DEFAULT_PILOTING,
     movementType: unit.movementThisTurn,
     hexesMoved: unit.hexesMovedThisTurn,
   };

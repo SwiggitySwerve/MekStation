@@ -27,12 +27,13 @@ Cross-delegation wisdom curated by the orchestrator. Subagents READ this before 
 - Spec deltas: `## ADDED Requirements` / `## MODIFIED Requirements`, `### Requirement: Name`, `#### Scenario: ...`, GIVEN/WHEN/THEN bullets.
 - Commit messages: conventional commits (`feat(scope):`, `fix(scope):`, `chore(scope):`, `refactor(scope):`).
 
-**Codebase conventions** (from MEMORY + project CLAUDE.md):
+**Codebase conventions** (verified at plan time — corrected MEMORY drift):
 - TypeScript strict mode always.
 - Zod validation at boundaries; infer types from schemas.
 - Discriminated unions over class hierarchies.
 - File naming: kebab-case for files, PascalCase for classes/types/interfaces (`IFoo` prefix).
-- Prettier 140 char, single quotes, `trailingComma: "all"` (backend) / `"es5"` (frontend).
+- **Formatter is `oxfmt`, NOT Prettier.** lint-staged runs `oxlint --fix && oxfmt --write && tsc --noEmit --skipLibCheck` on `*.{ts,tsx}`. CI runs `oxfmt --check`.
+- **`oxfmt` uses double-quotes by default.** Files in the repo are in mid-transition between single and double; oxfmt flips them on touch. Expect a small quote-flip diff near every edit. **MEMORY's "Prettier 140 char, single quotes" note is STALE — do not enforce single quotes.**
 - Logger: `private readonly logger = new Logger(ClassName.name)` — never `console.*` in source code.
 - Avoid `any`; never `as any` / `@ts-ignore` / `@ts-expect-error` (HARD BLOCK per omo-orchestration).
 

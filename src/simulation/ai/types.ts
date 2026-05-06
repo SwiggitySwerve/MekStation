@@ -174,6 +174,16 @@ export interface IAIUnitState {
   /** Gunnery skill (for to-hit calculation reference) */
   readonly gunnery: number;
 
+  /**
+   * Pilot piloting skill (for PSR / fall-mechanics reference).
+   *
+   * Optional for backward compat: legacy callers that do not supply it
+   * fall back to `DEFAULT_PILOTING` at the consumer site. Production
+   * `toAIUnitState` reads this from `IUnitGameState.piloting` so real
+   * pilot skills drive AI decisions.
+   */
+  readonly piloting?: number;
+
   /** Movement this turn */
   readonly movementType: MovementType;
 
