@@ -1,0 +1,21 @@
+{
+  "runs": 10,
+  "seed": 42,
+  "mapRadius": 12,
+  "terrainBiome": "none",
+  "output": "./swarm-output.json",
+  "sideA": {
+    "bvBudget": 3000,
+    "unitCount": 2,
+    "aiVariant": "default",
+    "pilotStrategy": "template",
+    "pilotSkillBand": "regular"
+  },
+  "sideB": {
+    "bvBudget": 3000,
+    "unitCount": 2,
+    "aiVariant": "default",
+    "pilotStrategy": "template",
+    "pilotSkillBand": "regular"
+  }
+}
