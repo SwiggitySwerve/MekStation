@@ -156,7 +156,7 @@ function synthesizePilot(
   const skills: IPilotSkills = { gunnery, piloting };
 
   return {
-    id: `synth-pilot-${Date.now()}-${index}-${Math.floor(random.next() * 1_000_000)}`,
+    id: `synth-pilot-${Math.floor(random.next() * 1_000_000_000)}-${index}-${Math.floor(random.next() * 1_000_000)}`,
     name: `${namePrefix} ${index + 1}`,
     type: PilotType.Statblock,
     status: PilotStatus.Active,
