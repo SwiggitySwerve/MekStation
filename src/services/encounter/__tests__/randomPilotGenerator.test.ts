@@ -307,6 +307,11 @@ describe('generateRandomPilots — determinism', () => {
       const skills1 = r1.pilots.map((p) => p.skills);
       const skills2 = r2.pilots.map((p) => p.skills);
       expect(skills1).toEqual(skills2);
+
+      // Spec Fix 1: pilot IDs must also be deterministic (no Date.now()).
+      for (let i = 0; i < r1.pilots.length; i++) {
+        expect(r1.pilots[i].id).toBe(r2.pilots[i].id);
+      }
     }
   });
 
