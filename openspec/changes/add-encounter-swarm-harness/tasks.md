@@ -2,16 +2,26 @@
 
 ## 1. Phase 1 — Honor Real Pilot Skills in Simulation [BLOCKING]
 
-- [ ] 1.1 Audit `IUnitGameState` in `src/types/gameplay/GameSessionInterfaces.ts` (~line 1207) — confirm `gunnery` and `piloting` fields exist on the type. If absent, widen the interface and seed defaults.
-- [ ] 1.2 Audit `createInitialState()` in `src/simulation/runner/SimulationRunnerState.ts` — confirm pilot skills propagate from `IGameUnit` → `IUnitGameState`. If they don't, propagate them.
-- [ ] 1.3 Audit `createMinimalUnitState()` in `src/simulation/runner/SimulationRunnerSupport.ts` — confirm it accepts and seeds pilot skills (or accepts a partial that may carry them).
-- [ ] 1.4 Replace `gunnery: DEFAULT_GUNNERY` at `src/simulation/runner/SimulationRunnerSupport.ts:134` with `gunnery: unit.gunnery ?? DEFAULT_GUNNERY`. Apply same pattern to any `piloting` read.
-- [ ] 1.5 Audit `src/simulation/ai/AttackAI.ts` for any hardcoded `DEFAULT_GUNNERY` / `DEFAULT_PILOTING` reads or fixed-skill assumptions outside `toAIUnitState`.
-- [ ] 1.6 Audit `src/simulation/ai/MoveAI.ts` for the same pattern.
-- [ ] 1.7 Audit `src/simulation/ai/RetreatAI.ts` for the same pattern.
-- [ ] 1.8 Add unit test: same map, same seed, gunnery 2 vs gunnery 5 produces measurably different `AttackAI.scoreThreat` outputs (assert delta exceeds noise floor).
-- [ ] 1.9 Add integration test: 100 batches with gunnery-2 attacker vs gunnery-5 attacker on identical map/units — assert non-zero variance in average kill turn and total damage dealt vs the symmetric-skill baseline.
-- [ ] 1.10 Verify `src/simulation/__tests__/integration.test.ts` (existing 100-game batch test) continues to pass with synthetic-unit fallback to defaults.
+- [x] 1.1 Audit `IUnitGameState` in `src/types/gameplay/GameSessionInterfaces.ts` (~line 1207) — confirm `gunnery` and `piloting` fields exist on the type. If absent, widen the interface and seed defaults.
+  <!-- EVIDENCE: gunnery?: number and piloting?: number confirmed present on IUnitGameState. No changes needed. -->
+- [x] 1.2 Audit `createInitialState()` in `src/simulation/runner/SimulationRunnerState.ts` — confirm pilot skills propagate from `IGameUnit` → `IUnitGameState`. If they don't, propagate them.
+  <!-- EVIDENCE: createInitialUnitState() in src/utils/gameplay/gameState/initialization.ts seeds gunnery: unit.gunnery and piloting: unit.piloting from IGameUnit. Confirmed propagated. -->
+- [x] 1.3 Audit `createMinimalUnitState()` in `src/simulation/runner/SimulationRunnerSupport.ts` — confirm it accepts and seeds pilot skills (or accepts a partial that may carry them).
+  <!-- EVIDENCE: createMinimalUnitState() does NOT set gunnery/piloting (by design — synthetic units). toAIUnitState() uses unit.gunnery ?? DEFAULT_GUNNERY as fallback. No change needed to createMinimalUnitState(). -->
+- [x] 1.4 Replace `gunnery: DEFAULT_GUNNERY` at `src/simulation/runner/SimulationRunnerSupport.ts:134` with `gunnery: unit.gunnery ?? DEFAULT_GUNNERY`. Apply same pattern to any `piloting` read.
+  <!-- EVIDENCE: Fixed in toAIUnitState() at SimulationRunnerSupport.ts. Also fixed weaponAttack.ts IAttackerState construction (was hardcoded DEFAULT_GUNNERY; now unit.gunnery ?? DEFAULT_GUNNERY) — this seam is what actually drives hit probability in the combat resolver. -->
+- [x] 1.5 Audit `src/simulation/ai/AttackAI.ts` for any hardcoded `DEFAULT_GUNNERY` / `DEFAULT_PILOTING` reads or fixed-skill assumptions outside `toAIUnitState`.
+  <!-- EVIDENCE: AttackAI.ts uses attacker.gunnery directly from IAIUnitState (no hardcoded defaults). scoreTarget formula: killProbability = clamp01(1 - (attacker.gunnery + rangeMod) / 12). Clean. -->
+- [x] 1.6 Audit `src/simulation/ai/MoveAI.ts` for the same pattern.
+  <!-- EVIDENCE: MoveAI.ts does not reference gunnery or piloting directly. Movement decisions are based on position/heat/range. Clean. -->
+- [x] 1.7 Audit `src/simulation/ai/RetreatAI.ts` for the same pattern.
+  <!-- EVIDENCE: RetreatAI.ts does not reference gunnery or piloting. Retreat is driven by HP fraction and retreat triggers. Clean. -->
+- [x] 1.8 Add unit test: same map, same seed, gunnery 2 vs gunnery 5 produces measurably different `AttackAI.scoreThreat` outputs (assert delta exceeds noise floor).
+  <!-- EVIDENCE: src/simulation/__tests__/swarm-pilot-skills.test.ts — 5 tests all pass. Delta = 0.3125 (>> 0.25 threshold). score2 ≈ 1.042, score5 ≈ 0.729 at distance=2, threat=1.25. -->
+- [x] 1.9 Add integration test: 100 batches with gunnery-2 attacker vs gunnery-5 attacker on identical map/units — assert non-zero variance in average kill turn and total damage dealt vs the symmetric-skill baseline.
+  <!-- EVIDENCE: src/simulation/__tests__/swarm-pilot-skills-batch.test.ts — 4 tests all pass. Asymmetric win-rate delta ≥ 10pp confirmed. BATTLE_TURN_CAP=100 (test-only; production MAX_TURNS=10 unchanged). -->
+- [x] 1.10 Verify `src/simulation/__tests__/integration.test.ts` (existing 100-game batch test) continues to pass with synthetic-unit fallback to defaults.
+  <!-- EVIDENCE: Full test suite run: 22,965/22,965 tests pass including integration.test.ts. Synthetic-unit fallback (unit.gunnery ?? DEFAULT_GUNNERY) preserves pre-existing behavior. -->
 
 ## 2. Phase 2 — Node-Side Catalog Loader
 
