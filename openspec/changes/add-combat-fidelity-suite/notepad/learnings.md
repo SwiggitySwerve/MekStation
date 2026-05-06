@@ -403,3 +403,57 @@ The leaf-module pattern lets future P6 / P7 metric tallies stack into the same f
 
 **Reference**: `src/simulation/metrics/combatFidelityTally.ts` (the new leaf module), `src/simulation/metrics/swarmAggregation.internals.ts:18` (the import).
 
+## [2026-05-06] Task: P6a — Unit-test pyramid lessons (5 files, ~78 tests)
+
+**Convention discovered — golden-oracle fixtures pin the table, not the algorithm**: The hit-location and crit-threshold tables come straight out of MegaMek (`Mek.innerRollHitLocation` lines 2013-2160 for hit location; `TWGameManager.criticalEntity` lines 21564-21586 for crit threshold). Per design D5 the unit tests pin the literal values into a typed `ICase[]` golden table at the top of the test file, then iterate via `it.each`. The test never imports MegaMek code — only the values. Result: any drift in `getHitLocationTable()` or `getCriticalHitCount()` fires 11 tests at a time per arc and cites the MegaMek line range in the describe block name for instant reviewer triage.
+
+**Why it matters**: A future PR that touches `FRONT_HIT_LOCATION_TABLE` to (say) "fix" roll 5 from `right_leg` to `right_torso` will fail the golden table immediately. The 44-test fan-out makes each individual case obvious in the failure output. Same pattern applies to any future "pin a canonical table" test — the cost is one type + one `.each` per arc, the benefit is byte-level table pinning.
+
+**Reference**: `src/simulation/__tests__/combat-fidelity-hit-location.test.ts` (44 tests, FRONT/LEFT/RIGHT/REAR golden tables), `src/simulation/__tests__/combat-fidelity-critical-trigger.test.ts` (6 tests, threshold ladder).
+
+## [2026-05-06] Task: P6a — Heat-math unit tier locks SoT constants, not phase behavior
+
+**Convention discovered**: `runHeatPhase` is integration-tier (P4 `heatEvents.test.ts`) and scenario-tier (`scenario-alpha-strike-shutdown.integration.test.ts`); the unit tier doesn't try to reproduce phase behavior. Instead, P6a `combat-fidelity-heat-math.test.ts` tests the SoT pure functions directly — `getHeatMovementPenalty`, `getHeatToHitModifier`, `getShutdownTN`, `getAmmoExplosionTN`, `getActiveHeatEffects`, `getWaterCoolingBonus`, `calculateHeatDissipation`. These are the constants the runner consumes, so locking THEM at the unit tier means a runner refactor that re-derives heat math from the same constants automatically stays compliant.
+
+**Brief mismatch handled by SoT-pinning**: The brief listed thresholds at "5/10/15/20/25/30" — a coarse mnemonic. The canonical Total Warfare ladder (per `src/constants/heat.ts:22-47` and `runHeatPhase`'s `HEAT_THRESHOLD_LADDER` at `postCombat.ts:166-188`) carries 12 thresholds: 5/8/13/14/15/17/19/23/24/25/28/30. The test pins ALL 12 — when the spec narrative drifts vs the canonical scale, lock the canonical scale because it's the executable contract; the narrative is documentation. Comment in the test header explains the deviation so a reviewer doesn't try to "fix" the test to match the brief.
+
+**Reference**: `src/simulation/__tests__/combat-fidelity-heat-math.test.ts:14-20` (deviation note); `src/constants/heat.ts` (canonical ladder).
+
+## [2026-05-06] Task: P6a — Damage-state fixture: include EVERY CombatLocation key
+
+**Convention discovered (gotcha)**: `IUnitDamageState.armor` and `.structure` are `Readonly<Record<CombatLocation, number>>` — TypeScript requires the full 11-key map (head + 4 torso fronts + 3 torso rears + 2 arms + 2 legs). My first draft of `makeBaselineState()` omitted the `_rear` keys from `structure` and TS rejected it. Fix: include `center_torso_rear: 0` / `left_torso_rear: 0` / `right_torso_rear: 0` even though `structure` is keyed off the front (per `applyDamageToLocation`'s `armorKey = isRear ? getFrontCombatLocation(location) : location`). The values for those rear-keyed structure entries are ignored at runtime but TS won't accept the partial Record without them.
+
+**Why it matters**: Any future damage-pipeline unit-test fixture builder MUST enumerate all 11 `CombatLocation` keys. The compact alternative (`as Record<CombatLocation, number>` cast) would lose the type-safety the strict mapping was meant to provide. Inline the zeros explicitly. Same applies to `RearArmorLocation`-keyed `rearArmor` (3 keys: `center_torso`, `left_torso`, `right_torso`).
+
+**Reference**: `src/simulation/__tests__/combat-fidelity-damage-transfer.test.ts:44-85` (the `makeBaselineState` builder).
+
+## [2026-05-06] Task: P6a — TMM is hex-bracketed, not flat-by-MovementType
+
+**Convention discovered (correction to brief mental model)**: The brief listed target-movement modifiers as "stationary +0 / walk +1 / run +2 / jump +3" — but the live `calculateTMM(movementType, hexesMoved)` returns a value from a HEX-BRACKET table (0-2 hexes → +0, 3-4 → +1, 5-6 → +2, 7-9 → +3, 10-17 → +4, 18-24 → +5, 25+ → +6) plus +1 for jump movement on top. So a target that "walked" but only moved 2 hexes gets +0; a target that "ran" 7 hexes gets +3; same target jumping 7 hexes gets +4. The flat-by-MovementType model only applies to the ATTACKER side (`calculateAttackerMovementModifier`).
+
+**Test pattern**: To test the bracket-bonused contract clearly, drive `calculateTMM` with explicit `hexesMoved` counts that span bracket boundaries (3, 5, 7) and pin both the bracket value and the +1 jump-bonus delta.
+
+**Why it matters**: When the brief and the live API disagree, the live API wins — but document the disagreement in the test header so the next reviewer doesn't get confused. The `combat-fidelity-to-hit.test.ts` header carries an explicit "Movement modifier model note" paragraph explaining the asymmetry.
+
+**Reference**: `src/utils/gameplay/toHit/movementModifiers.ts:18-46` (bracket logic + jump bonus); `src/simulation/__tests__/combat-fidelity-to-hit.test.ts:28-37` (header note).
+
+## [2026-05-06] Task: P6a — `D6Roller` instrumentation pattern for "no-roll-consumed" assertions
+
+**Convention discovered**: `checkCriticalHitTrigger(0, roller)` short-circuits on `structureDamage <= 0` and never calls the roller. To assert this contract crisply, wrap the roller in a closure that increments a call-count and verify zero calls after the function returns. Pattern:
+
+```ts
+let calls = 0;
+const roller = (() => {
+  calls++;
+  return 6;
+}) as D6Roller;
+checkCriticalHitTrigger(0, roller);
+expect(calls).toBe(0);
+```
+
+This is more robust than asserting roll-output values (which proves _consumed_ rolls match a sequence but doesn't directly prove _zero_ rolls were consumed). For monte-carlo / scripted-roll tests use `scriptedRoller(rolls: number[])`; for "should-not-call" tests use the call-count closure.
+
+**Why it matters**: Future P6c / P6d tests that gate on "no roll consumed when X" (e.g. shutdown check skipped under heat 14, ammo explosion skipped under heat 19) can reuse the closure pattern. The roller's `D6Roller = () => number` shape makes it trivially wrappable with any side-effect.
+
+**Reference**: `src/simulation/__tests__/combat-fidelity-critical-trigger.test.ts:97-108` (zero-call assertion via closure).
+
