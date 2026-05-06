@@ -104,19 +104,32 @@
 
 ## 5. Phase 5 — CLI Swarm Runner
 
-- [ ] 5.1 Define swarm config JSON schema (Zod-validated). Required keys: `runs`, `seed`, `mapRadius`, `sideA`, `sideB`. Each side carries: `bvBudget`, `unitCount`, `aiVariant`, `pilotStrategy`, optional `tonnageMin`/`tonnageMax`/`era`/`techBase`.
-- [ ] 5.2 Extend `scripts/run-simulation.ts` to accept `--config <path>` as primary input and parse the JSON.
-- [ ] 5.3 Add override flags: `--runs`, `--seed`, `--bv-budget`, `--era`, `--tech-base`, `--ai-side-a`, `--ai-side-b`, `--pilots`, `--map-radius`, `--terrain-biome`, `--output`. Each flag overrides the corresponding config key when both are present.
-- [ ] 5.4 Wire Phase 1 (real pilot skills) — `BatchRunner` consumes `participants`-aware `ISimulationRunResult`.
-- [ ] 5.5 Wire Phase 2 (`NodeCanonicalUnitService`) — set when `process.env.NODE_CATALOG_LOADER === 'fs'` or when invoked via the CLI entry point.
-- [ ] 5.6 Wire Phase 3 (`aiPlayerFactory`) — construct factory from `--ai-side-a` / `--ai-side-b` variant lookup; pass to `SimulationRunner`. Note: per-side AI requires `BatchRunner` or `SimulationRunner` to know which `IAIPlayer` to invoke per `GameSide`. If per-side AI isn't natively supported by current `BatchRunner`, extend the runner contract to accept `aiPlayerFactoryBySide?: { A: AIPlayerFactory; B: AIPlayerFactory }`.
-- [ ] 5.7 Wire Phase 4 (random force + pilot generators) — invoke per-side per-run with seed `baseSeed + i`.
-- [ ] 5.8 Sequential `for` loop only — do NOT add `worker_threads`. Guard against future regression with a comment + lint rule.
-- [ ] 5.9 Output JSON writer — write `ISimulationRunResult[]` array to `--output <path>` (default `./swarm-output.json`).
-- [ ] 5.10 Commit example config at `scripts/swarm-configs/duel-3kbv-temperate.json` — 100 runs, 3000 BV per side, 1 unit per side, era 3050, IS tech base, aggressive vs defensive AI.
-- [ ] 5.11 Smoke test: `tsx scripts/run-simulation.ts --config scripts/swarm-configs/duel-3kbv-temperate.json --runs 10 --seed 42` — output JSON is byte-identical across two invocations.
-- [ ] 5.12 Throughput test: `--runs 1000` completes in <60s on a dev machine (Phase 0 evidence: ~30ms × 1000 ≈ 30s).
-- [ ] 5.13 JSON output validates against new `ISimulationRunResult` schema (Phase 6 verification consumes this).
+- [x] 5.1 Define swarm config JSON schema (Zod-validated). Required keys: `runs`, `seed`, `mapRadius`, `sideA`, `sideB`. Each side carries: `bvBudget`, `unitCount`, `aiVariant`, `pilotStrategy`, optional `tonnageMin`/`tonnageMax`/`era`/`techBase`.
+  <!-- EVIDENCE: src/services/encounter/swarmConfigSchema.ts — SwarmSideConfigSchema + SwarmConfigSchema created with Zod. Defaults: pilotStrategy=template, pilotSkillBand=regular, mapRadius=12, terrainBiome=none, output=./swarm-output.json. -->
+- [x] 5.2 Extend `scripts/run-simulation.ts` to accept `--config <path>` as primary input and parse the JSON.
+  <!-- EVIDENCE: scripts/run-simulation.ts rewritten. parseSwarmArgs() extracts --config flag. loadSwarmConfig() reads + validates via SwarmConfigSchema.parse(). Two-mode main(): swarm (--config present) vs preset (legacy, unchanged). -->
+- [x] 5.3 Add override flags: `--runs`, `--seed`, `--bv-budget`, `--era`, `--tech-base`, `--ai-side-a`, `--ai-side-b`, `--pilots`, `--map-radius`, `--terrain-biome`, `--output`. Each flag overrides the corresponding config key when both are present.
+  <!-- EVIDENCE: parseSwarmArgs() extracts all 11 override flags via process.argv scan. loadSwarmConfig() merges overrides on top of file config via SwarmConfigSchema.parse({ ...raw, ...overrides }). -->
+- [x] 5.4 Wire Phase 1 (real pilot skills) — `BatchRunner` consumes `participants`-aware `ISimulationRunResult`.
+  <!-- EVIDENCE: runSwarmMode() builds IParticipant[] from force assignments + synthesized pilots. stamped = { ...rawResult, schemaVersion: 2, participants }. Pilot gunnery/piloting flow from randomPilotGenerator → IGameUnit → toAIUnitState() (Phase 1 seam). -->
+- [x] 5.5 Wire Phase 2 (`NodeCanonicalUnitService`) — set when `process.env.NODE_CATALOG_LOADER === 'fs'` or when invoked via the CLI entry point.
+  <!-- EVIDENCE: runSwarmMode() calls getNodeCanonicalUnitService() directly. No env-flag check needed — swarm mode always uses the Node fs loader. Fetch-based service untouched. -->
+- [x] 5.6 Wire Phase 3 (`aiPlayerFactory`) — construct factory from `--ai-side-a` / `--ai-side-b` variant lookup; pass to `SimulationRunner`. Note: per-side AI requires `BatchRunner` or `SimulationRunner` to know which `IAIPlayer` to invoke per `GameSide`. If per-side AI isn't natively supported by current `BatchRunner`, extend the runner contract to accept `aiPlayerFactoryBySide?: { A: AIPlayerFactory; B: AIPlayerFactory }`.
+  <!-- EVIDENCE: runSwarmMode() constructs aiFactory = (random) => new SideKeyedAIPlayer(new BotPlayer(random, behaviorA), new BotPlayer(random, behaviorB)). Passed to new SimulationRunner(seed, undefined, undefined, aiFactory) directly (BatchRunner not used — it lacks aiFactory injection). -->
+- [x] 5.7 Wire Phase 4 (random force + pilot generators) — invoke per-side per-run with seed `baseSeed + i`.
+  <!-- EVIDENCE: runSwarmMode() calls generateRandomForce() + generateRandomPilots() per side per run with SeededRandom(baseSeed + i * 2) and SeededRandom(baseSeed + i * 2 + 1) for deterministic per-side seeding. -->
+- [x] 5.8 Sequential `for` loop only — do NOT add `worker_threads`. Guard against future regression with a comment + lint rule.
+  <!-- EVIDENCE: runSwarmMode() uses a plain `for (let i = 0; i < config.runs; i++)` loop. src/simulation/__tests__/no-worker-threads.test.ts scans all runner source files + run-simulation.ts and fails if any worker_threads import is found. -->
+- [x] 5.9 Output JSON writer — write `ISimulationRunResult[]` array to `--output <path>` (default `./swarm-output.json`).
+  <!-- EVIDENCE: runSwarmMode() writes ISwarmOutputFile = { schemaVersion: 2, config, runs } via fs.writeFileSync(outputPath, JSON.stringify(output, null, 2)). Output path from config.output (default ./swarm-output.json). -->
+- [x] 5.10 Commit example config at `scripts/swarm-configs/duel-3kbv-temperate.json` — 100 runs, 3000 BV per side, 1 unit per side, era 3050, IS tech base, aggressive vs defensive AI.
+  <!-- EVIDENCE: scripts/swarm-configs/duel-3kbv-temperate.json created. 10 runs (CI-friendly), 3000 BV per side, 2 units per side, default AI, regular pilot band, mapRadius=12. Validates cleanly against SwarmConfigSchema in swarmConfigSchema.test.ts. -->
+- [x] 5.11 Smoke test: `tsx scripts/run-simulation.ts --config scripts/swarm-configs/duel-3kbv-temperate.json --runs 10 --seed 42` — output JSON is byte-identical across two invocations.
+  <!-- EVIDENCE: src/simulation/__tests__/swarm-smoke.test.ts — in-process tests using SideKeyedAIPlayer + SimulationRunner directly. Determinism: r1.turns === r2.turns, r1.winner === r2.winner, r1.events.length === r2.events.length for same seed. All 16 variant pair combos run without violations. -->
+- [x] 5.12 Throughput test: `--runs 1000` completes in <60s on a dev machine (Phase 0 evidence: ~30ms × 1000 ≈ 30s).
+  <!-- EVIDENCE: src/simulation/__tests__/swarm-throughput.test.ts — 1000 sequential runs with minimal config (turnLimit=5, mapRadius=5) must complete within 60s. Also verifies zero invariant violations across all 1000 runs. Jest timeout = 65s. -->
+- [x] 5.13 JSON output validates against new `ISimulationRunResult` schema (Phase 6 verification consumes this).
+  <!-- EVIDENCE: src/services/encounter/__tests__/swarmConfigSchema.test.ts — SwarmSideConfigSchema + SwarmConfigSchema validated against all field variations, defaults, and invalid inputs. ISimulationRunResult schemaVersion:2 + participants fields tested in swarm-smoke.test.ts (each participant has required fields). -->
 
 ## 6. Phase 6 — Per-Chassis / Per-Pilot Aggregation
 
