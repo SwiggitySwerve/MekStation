@@ -403,6 +403,7 @@ The leaf-module pattern lets future P6 / P7 metric tallies stack into the same f
 
 **Reference**: `src/simulation/metrics/combatFidelityTally.ts` (the new leaf module), `src/simulation/metrics/swarmAggregation.internals.ts:18` (the import).
 
+<<<<<<< HEAD
 ## [2026-05-06] Task: P6a — Unit-test pyramid lessons (5 files, ~78 tests)
 
 **Convention discovered — golden-oracle fixtures pin the table, not the algorithm**: The hit-location and crit-threshold tables come straight out of MegaMek (`Mek.innerRollHitLocation` lines 2013-2160 for hit location; `TWGameManager.criticalEntity` lines 21564-21586 for crit threshold). Per design D5 the unit tests pin the literal values into a typed `ICase[]` golden table at the top of the test file, then iterate via `it.each`. The test never imports MegaMek code — only the values. Result: any drift in `getHitLocationTable()` or `getCriticalHitCount()` fires 11 tests at a time per arc and cites the MegaMek line range in the describe block name for instant reviewer triage.
@@ -507,4 +508,38 @@ This is the same gotcha P4's notepad documented for the auto-shutdown band ("aut
 **Why it matters**: Future MC additions (P7+) that drive memory-heavy phase loops (`runHeatPhase`, `runAttackPhase`) will pile on the worker. The determinism audit is a tripwire pattern — when it fires NOT due to a real regression in the deterministic seam, document the worker-warmth context and skip-pin. Don't fight the flake; the deferred audit is the right place to fix the underlying source.
 
 **Reference**: `src/simulation/__tests__/replay-determinism.integration.test.ts:142-158` (the new SKIPPED comment block); `openspec/changes/add-combat-fidelity-suite/tasks.md` Phase 7 deferred section (`add-engine-determinism-audit`).
+
+## [2026-05-06] Task: P6b — Scenario-test layering — runner integration vs resolver layer-1
+
+**Convention discovered**: Scenario tests at this stage of the change come in two flavors:
+
+1. **Runner integration (`SimulationRunner.run` end-to-end)** — `scenario-atlas-mirror.test.ts`, `scenario-atlas-vs-locust.test.ts`. These exercise the full event chain (P2/P3/P4/P5) over a real catalog match. Determinism + structural assertions only — never script specific RNG outcomes. Asserts SURFACE: event counts, modifier presence, hit-rate ratios, byte-identical replay logs.
+
+2. **Resolver layer-1 (direct `resolveDamage` / `applyDamageWithTransfer` calls)** — `scenario-head-3-shot-kia.test.ts`, `scenario-quad-arm-loss.test.ts`, `scenario-crit-chains.integration.test.ts`. These exercise specific MECHANICS (head-cap, transfer chain, crit slot selection) by sequencing utility calls with scripted rollers. Asserts MECHANIC: per-call result fields, accumulated state, deterministic outcomes.
+
+**Why the split matters**: trying to script "3 head hits in a row" via the runner would require predicting the RNG sequence after to-hit + hit-location consumed N rolls — same brittleness P3's notepad warned about. Dropping to `resolveDamage` directly with a scripted roller (or no roller, when the trigger doesn't fire) lets each scenario test isolate the rule it's exercising. P6b uses both layers, picking the one that minimizes RNG coupling for each scenario.
+
+**Reference**: `src/simulation/__tests__/scenario-{atlas-mirror,atlas-vs-locust}.test.ts` (runner-layer); `src/simulation/__tests__/scenario-{head-3-shot-kia,quad-arm-loss,crit-chains.integration}.test.ts` (resolver-layer).
+
+## [2026-05-06] Task: P6b — Aspirational spec brief vs observable engine behaviour
+
+**Convention discovered (gotcha)**: P6b's task brief says "Locust survival rate higher than 50%" and "head 3-shot KIA emits `pilot_kia` cause". Both are aspirational framing for the underlying contract:
+
+- Atlas vs Locust: the load-bearing rule is the **TMM modifier** (+N to attacker's to-hit when target moved). The 50% survival is statistical; with Atlas's AC/20 (20 dmg) one through-armor hit kills a 64-armor Locust regardless of seed. The right structural assertion is "Locust hit-rate-against < Atlas hit-rate-against" — a measurable consequence of the TMM rule that doesn't require a 100-seed sweep to defend.
+
+- Head 3-shot KIA: the spec brief uses "KIA" colloquially. The actual outcome with standard 3-structure heads is `head_destroyed` (head structure zeroes before pilot reaches the 6-wound `pilot_death` threshold). Don't blindly assert `cause: 'pilot_death'` — that path requires a 6+ head-hit run, AND `head_destroyed` would fire FIRST per the cause-priority rule.
+
+**Why it matters**: the brief is a starting point, not a normative contract. Read the spec deltas + the source code BEFORE writing the assertion. When the brief and the engine disagree, the engine's actual deterministic behaviour is the load-bearing rule unless the divergence is a documented bug. P6b found two bugs (head_destroyed never emitted; quad legs silently dropped) — both surfaced in `notepad/issues.md` with widened test assertions that flip green when the bugs are fixed.
+
+**Reference**: `src/simulation/__tests__/scenario-{atlas-vs-locust,head-3-shot-kia,quad-arm-loss}.test.ts` — see the in-file comments for each "ENGINE GAP" / "Pragmatism note" callout.
+
+## [2026-05-06] Task: P6b — Catalog vs hydrator key-format drift (FLL/FRL vs FRONT_LEFT_LEG)
+
+**Convention discovered (the most expensive class of bug)**: The catalog format and the hydrator's key map can drift independently. Goliath GOL-1H stores `FLL`/`FRL`/`RLL`/`RRR`; `CATALOG_TO_RUNNER_LOC` only knows `FRONT_LEFT_LEG`/`FRONT_RIGHT_LEG`/`REAR_LEFT_LEG`/`REAR_RIGHT_LEG`. No type system catches this drift — the catalog field type is `Record<string, ArmorAllocationEntry>`, so unmapped keys are silently skipped.
+
+**Detection pattern**: write a parity test that loads a real catalog unit and asserts `totalArmor === Σ(allocation values)` BEFORE writing scenarios that rely on hydrated state. The discrepancy surfaces as an off-by-Nx total. P6b found 124 vs 232 expected for Goliath — a 47% gap.
+
+**Why it matters**: the broader `add-combat-fidelity-catalog-matrix` follow-on will hydrate all 4196 units. Any quad in that 4196 will have its legs silently dropped under the current mapper. A parity check is the right CI gate.
+
+**Reference**: `src/simulation/__tests__/scenario-quad-arm-loss.test.ts` (the parity check + ENGINE GAP callout); `src/simulation/runner/UnitHydration.ts:204-219` (the mapper that needs the 4 short-form additions).
 
