@@ -225,3 +225,121 @@ All three are LEGITIMATE test updates, not regressions: P3 added new emergent co
 
 **Reference**: `src/simulation/__tests__/atlasMirrorMultiWeapon.integration.test.ts:182-203`, `src/simulation/__tests__/simulation-combat-integration.test.ts:494-507`, `src/simulation/__tests__/swarm-pilot-skills-batch.test.ts:281-301`.
 
+## [2026-05-06] Task: P4 — `runHeatPhase` options-bag signature with backward-compat fallback
+
+**Convention discovered**: Phases that previously accepted a single `state` argument and need to grow event-emission inputs (events / gameId / random / weaponsByUnit) should adopt an **options-bag signature with all event-emission fields optional**. The pre-P4 `runHeatPhase(state)` became `runHeatPhase({ state, events?, gameId?, random?, weaponsByUnit? })`. When all four event-emission fields are present, the phase emits events; when any are absent, it falls back to silent state mutation (the legacy behavior).
+
+```ts
+const canEmit = events !== undefined && gameId !== undefined && random !== undefined;
+```
+
+This matches P2/P3's `optional last named field` pattern but extends it: where P2 made one field optional, P4 made an entire group optional. Three callsites flowed through:
+1. `SimulationRunner.run` → wires all four fields through (events log, gameId from config, this.random, this.weaponsByUnit).
+2. `swarm-pilot-skills-batch.test.ts` → wires events / gameId / random (no weaponsByUnit — the test predates P1 hydration).
+3. The unit tests in `heatEvents.test.ts` → exercise both branches (with-emit and silent-state-only via `runHeatPhase({ state })`).
+
+**Why it matters**: P5 (MetricsCollector hydration) and P6 (test pyramid) will need to call `runHeatPhase` from new contexts. The options-bag convention keeps the signature extensible (additional optional fields like `weaponsByUnit?` slide in without breaking existing callers) and the legacy fallback keeps the unit-test surface compact (a state-only fixture stays a one-liner). Future phases that grow new dependencies should follow the same pattern: bundle into options bag, mark all-or-nothing fields optional, gate the new behaviour on a `canX` boolean.
+
+**Reference**: `src/simulation/runner/phases/postCombat.ts:226-239` (the `runHeatPhase` signature + `canEmit` gate), `src/simulation/runner/SimulationRunner.ts:212-219` (the runner-side wiring).
+
+## [2026-05-06] Task: P4 — Heat phase fires events even at heat=0 (audit invariant)
+
+**Convention discovered — the spec scenario "Heat phase events fire even when heat is zero" is an audit invariant, not a UX nicety**: `HeatGenerated` and `HeatDissipated` MUST emit unconditionally for every non-destroyed unit per turn — even when generated heat is 0 and the unit's heat is at 0. This isn't about UI rendering; it's about the per-turn audit trail. P5 (MetricsCollector) will scan the event log to derive per-unit `heatGeneratedTotal` / `heatDissipatedTotal`; without per-turn emission even at zero, the metric loses the "this unit fired no weapons this turn" signal.
+
+The `HeatEffectApplied` event is the conditional one — it only fires when crossing canonical thresholds (5/8/13/14/15/17/19/23/24/25/28/30). Heat 0 produces zero `HeatEffectApplied` events, which is correct.
+
+**Why it matters**: The unit test `emits HeatGenerated + HeatDissipated even when unit heat is zero (no movement, no fire)` enforces this contract. If a future PR adds an "if generated > 0 short-circuit" guard, that test will fail and surface the regression immediately. Don't add that guard.
+
+**Reference**: `src/simulation/runner/phases/postCombat.ts:286-340` (unconditional emit block); spec scenario in `combat-resolution/spec.md` "Heat phase events fire even when heat is zero".
+
+## [2026-05-06] Task: P4 — Heat decay subtracts dissipation BEFORE shutdown / ammo-explosion checks fire
+
+**Convention discovered (gotcha)**: The phase-internal heat math is `newHeat = max(0, previousHeat + generated - dissipation)`. The shutdown check (`getShutdownTN(newHeat)`) and ammo-explosion check (`getAmmoExplosionTN(newHeat)`) both run against `newHeat`, NOT `previousHeat`. So a unit at `heat: 30` with no fire and no movement and no engine damage decays to `newHeat = 20` after dissipation, lands in the avoidable shutdown band, NOT auto-shutdown.
+
+To deterministically test auto-shutdown in unit tests, set `previousHeat = 40` (so `newHeat = 30` after dissipation), or set `previousHeat = 30 + dissipation - generated` for the desired band.
+
+**Why it matters**: My first test draft used `heat: 30` for auto-shutdown and `heat: 20` for avoidable, both of which fired the WRONG branch. The fix was to use `heat: 40` (auto) and `heat: 30` (avoidable). The same gotcha applies to scenario tests that drive `runHeatPhase` directly.
+
+**Reference**: `src/simulation/runner/phases/postCombat.ts:344-388` (shutdown check + ammo check both use `newHeat`); `src/simulation/runner/__tests__/heatEvents.test.ts:319-360` (corrected fixture heats).
+
+## [2026-05-06] Task: P4 — `weaponTypeFromMountId` strips the catalog `-{N}` suffix to match ammo bins
+
+**Convention discovered**: `UnitHydration.toAIWeapon` ids each catalog weapon mount as `{base}-{index}` (e.g. `lrm-20-2`, `medium-laser-3`). Ammo bins are typed by the BASE weapon family (`lrm-20`, `srm-6`, `ac-20`) — not the per-mount id. To match a fired weapon mount against the unit's ammo bins, the runner has to strip the trailing `-{number}` suffix:
+
+```ts
+function weaponTypeFromMountId(weaponId: string): string {
+  const match = weaponId.match(/^(.+)-(\d+)$/);
+  return match ? match[1] : weaponId;
+}
+```
+
+The regex is anchored at the END (`(\d+)$`) so it correctly strips `lrm-20-2` → `lrm-20` (NOT `lrm-2-0`) and `medium-laser-3` → `medium-laser`. Test fixtures that hand-build minimal weapons without the suffix (`createMinimalWeapon('weapon-1')`) round-trip through unchanged because the trailing-digit regex doesn't match.
+
+**Why it matters**: P4's `AmmoConsumed` emission depends on `consumeAmmo(state, attackerId, baseType)` finding a bin with `bin.weaponType === baseType`. If we passed `lrm-20-2` directly, `consumeAmmo` would return null and the AmmoConsumed event would never fire. P5 (MetricsCollector) and P6 (Monte Carlo) will face the same issue when computing per-weapon-family ammo metrics from event payloads. Always normalize at the emission boundary.
+
+**Reference**: `src/simulation/runner/phases/weaponAttack.ts:118-122` (`weaponTypeFromMountId`), `src/simulation/runner/UnitHydration.ts:141-157` (`toAIWeapon` id construction).
+
+## [2026-05-06] Task: P4 — AmmoExplosion cascades via a SECOND `resolveDamage` call
+
+**Convention discovered**: When the crit emission seam reports `ComponentDestroyed { component: 'ammo' }`, the runner emits `AmmoExplosion` and then applies the explosion damage as a fresh damage event by calling `resolveDamage` AGAIN with the bin's location and the bin's total damage (`roundsRemaining × damagePerRound`). The cascade walks the canonical transfer chain (RT → CT, etc.) via the existing P2 `LocationDestroyed`/`TransferDamage` machinery — no new pipeline.
+
+This is conceptually the same pattern as the original AC/20 hit's damage: same emit shape, same cascade, just sourced from the explosion instead of the weapon's listed damage. The runner emits the cascade chain inline (NOT through `applyDamageResultToState`'s default emission, which would couple the helper to event emission).
+
+The `IUnitGameState.ammoState` is mutated in-place to set the bin's `remainingRounds = 0` BEFORE the cascade fires, so a subsequent volley mount in the same turn cannot re-trigger the explosion.
+
+**Why it matters**: P5 (MetricsCollector.totalDamageDealt) needs to count the explosion's damage as `targetUnit.damageTaken` — which it does naturally because the cascade emits standard `DamageApplied` events. If the cascade had its own bespoke damage-application path, P5 would have to special-case it. The reuse-existing-pipeline pattern is the cleanest extension point.
+
+**Reference**: `src/simulation/runner/phases/weaponAttack.ts:1003-1112` (the AmmoExplosion + cascade block); spec scenario in `ammo-explosion-system/spec.md` "Side-torso ammo explosion without CASE destroys CT".
+
+## [2026-05-06] Task: P4 — Custom manifest with single ammo slot makes ammo-cookoff tests deterministic
+
+**Convention discovered (test pattern)**: Forcing a critical hit to land on an ammo slot via the runner's shared `SeededRandom` is impractical — the slot-selection roll happens after to-hit + hit-location rolls and the joint probability of landing on an arbitrary slot is low. The fix: pre-build a `CriticalSlotManifest` where the target location has EXACTLY ONE slot (the ammo). Any slot-selection roll into that location lands on the ammo:
+
+```ts
+function buildAmmoOnlyRTManifest(): CriticalSlotManifest {
+  return {
+    right_torso: [{
+      slotIndex: 0,
+      componentType: 'ammo',
+      componentName: 'AC/20 Ammo',
+      destroyed: false,
+    }],
+    // …other locations carry default single-slot entries so non-RT crits don't crash
+  };
+}
+```
+
+Pass this manifest to `runAttackPhase` via the `manifestsByUnit` parameter (per the P3 manifest-persistence pattern). Then a seed sweep finds a hit landing on RT, and from there the ammo crit fires deterministically.
+
+**Why it matters**: P6 (test pyramid) will write more crit-on-ammo / crit-on-engine / crit-on-gyro scenarios. The custom-manifest pattern scales: one manifest per "force this component to be the only choice" scenario. Don't try to script the runner's RNG sequence to land on a specific slot — the layered roll dependencies make that brittle. Force the slot via the manifest instead.
+
+**Reference**: `src/simulation/__tests__/scenario-ammo-cookoff.integration.test.ts:86-152` (`buildAmmoOnlyRTManifest`); `src/simulation/runner/phases/weaponAttack.ts:380-393` (`getOrSeedManifest` lookup that consumes the test fixture).
+
+## [2026-05-06] Task: P4 — Cause translation extends from P3 — `'ammo_explosion'` overrides `'engine_destroyed'`
+
+**Convention discovered (extension of P3's translation pattern)**: The cause-translation seam at `weaponAttack.ts:emitCritEvents` (P3) translated engine 3-hit destruction from the resolver's internal `cause: 'damage'` to the spec-correct `'engine_destroyed'`. P4 extends the same boundary: when an ammo cookoff cascade destroys the unit, the cause is rewritten from whatever the resolver emitted (typically `'engine_destroyed'` or `'ct_destroyed'`) to `'ammo_explosion'` — the proximate cause.
+
+```ts
+if (cascadeResult.result.unitDestroyed && critDestructionCause !== 'pilot_death') {
+  critDestructionCause = 'ammo_explosion';
+}
+```
+
+The `pilot_death` precedence guard exists because a head crit on the ammo location (extremely rare but possible) would otherwise overwrite the more specific pilot-death cause. P5 (MetricsCollector) will key off the `cause` field for swarm-aggregate kill-cause matrices; the precedence rules are the contract.
+
+**Why it matters**: The `notepad/learnings.md` entry on P3's "Cause translation at the event-emission boundary" already documented the pattern. P4 demonstrates that translation seams accumulate — multiple boundaries can rewrite the cause as the cascade resolves more specific information. Future phases (heat-shutdown destruction, fall-from-PSR destruction) will add more translations. Keep them all at the runner emission boundary, never push them deeper into the resolver.
+
+**Reference**: `src/simulation/runner/phases/weaponAttack.ts:1090-1110` (the ammo-explosion cause override); `src/simulation/runner/phases/weaponAttack.ts:269-299` (the P3 engine_destroyed translation).
+
+## [2026-05-06] Task: P4 — `CritInduced` / `HeatInduced` semantic mapping vs spec's `'critical_hit'` / `'heat_overflow'`
+
+**Convention discovered (semantic compatibility, not snake_case rename)**: The pre-existing `IAmmoExplosionPayload.source` union is `'CritInduced' | 'HeatInduced'` (PascalCase). The P4 spec scenarios cite snake_case (`'critical_hit'` / `'heat_overflow'`). Both convey the same semantic — "crit on loaded bin caused this" vs "heat ≥ 19 caused this" — but the casing differs.
+
+P4 keeps the existing PascalCase union for backward compat with the `KeyMomentDetector` and `gameSessionHeat.ts` legacy emitter that already produce these values. The spec scenarios' snake_case is treated as narrative-language framing, not a normative casing constraint. P0.5's snake_case sweep targeted the `UnitDestroyed.cause` enum specifically; the `AmmoExplosion.source` enum was not in scope.
+
+A future `add-event-source-taxonomy` change can do a focused snake_case sweep of `AmmoExplosion.source` if desired without touching P4's behaviour. Tests assert on the actual payload value (`'CritInduced'` / `'HeatInduced'`) so the contract is locked.
+
+**Why it matters**: When a spec author writes a scenario like "AmmoExplosion { source: 'critical_hit' }" but the live code uses 'CritInduced', don't blindly chase the spec's casing — check whether the casing has a separate normative source (the type union itself) or whether it's just narrative framing. If the type union is older + has consumers, the spec is the anomaly, not the code.
+
+**Reference**: `src/types/gameplay/GameSessionInterfaces.ts:759-774` (`IAmmoExplosionPayload`), `notepad/issues.md` (the deferred-rename callout).
+

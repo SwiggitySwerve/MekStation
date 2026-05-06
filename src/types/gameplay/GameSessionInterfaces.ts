@@ -958,10 +958,68 @@ export interface IShutdownCheckPayload {
   readonly roll: number;
   readonly shutdownOccurred: boolean;
   /**
+   * Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution` delta —
+   * Heat Lifecycle Events): `true` when `heatLevel >= 30` so consumers
+   * can distinguish auto-shutdown (no roll possible) from a 14-29 heat
+   * shutdown check that the pilot was given a chance to avoid. Optional
+   * for backward compat with pre-P4 emitters.
+   */
+  readonly automatic?: boolean;
+  /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): the two d6 that
    * compose `roll`. OPTIONAL.
    */
   readonly rolls?: readonly number[];
+}
+
+/**
+ * Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution` delta —
+ * Heat Lifecycle Events): emitted when a unit's heat crosses one of
+ * the canonical Total Warfare thresholds (5 / 8 / 13 / 14 / 15 / 17 /
+ * 19 / 23 / 24 / 25 / 28 / 30). The runner emits one event per
+ * threshold the unit's NEW heat meets, in ascending threshold order,
+ * so consumers can render every effect that just became active.
+ *
+ * `effect` is a coarse classification (movement penalty, attack
+ * penalty, shutdown gates, pilot heat damage, ammo-explosion warning)
+ * that maps to several thresholds — UI / replay layers can show the
+ * exact threshold via the `threshold` field.
+ *
+ * Heat 0 emits NOTHING — the runner skips this event when no
+ * threshold was met. `HeatGenerated` and `HeatDissipated` still fire
+ * unconditionally (per spec scenario "Heat phase events fire even
+ * when heat is zero").
+ *
+ * Spec contract:
+ *   `combat-resolution/spec.md` — Heat Lifecycle Events
+ *     "`HeatEffectApplied { unitId, threshold, effect }` MUST fire
+ *      when crossing thresholds at 5 / 10 / 15 / 20 / 25 / 30".
+ */
+export interface IHeatEffectAppliedPayload {
+  readonly unitId: string;
+  /** Heat threshold met by the unit's new total. */
+  readonly threshold: number;
+  /**
+   * Coarse effect classification.
+   *
+   *   - `'movement_penalty'` — heat ≥ 5 (MP reduction starts).
+   *   - `'attack_penalty'` — heat ≥ 8 / 13 / 17 / 24 (to-hit modifier).
+   *   - `'shutdown_check'` — heat ≥ 14 (avoidable shutdown).
+   *   - `'shutdown'` — heat ≥ 30 (auto-shutdown).
+   *   - `'pilot_damage'` — heat ≥ 15 (pilot heat damage with life
+   *     support hit).
+   *   - `'ammo_explosion_risk'` — heat ≥ 19 / 23 / 28 (ammo cookoff
+   *     check).
+   */
+  readonly effect:
+    | 'movement_penalty'
+    | 'attack_penalty'
+    | 'shutdown_check'
+    | 'shutdown'
+    | 'pilot_damage'
+    | 'ammo_explosion_risk';
+  /** Unit's current heat level when the effect applied. */
+  readonly heatLevel: number;
 }
 
 export interface IStartupAttemptPayload {
@@ -1207,6 +1265,7 @@ export type GameEventPayload =
   | IPhysicalAttackDeclaredPayload
   | IPhysicalAttackResolvedPayload
   | IShutdownCheckPayload
+  | IHeatEffectAppliedPayload
   | IStartupAttemptPayload
   | IAmmoConsumedPayload
   | IAttackInvalidPayload
