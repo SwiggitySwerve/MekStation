@@ -2,6 +2,7 @@ import { GameEventType, GamePhase, IGameEvent } from '@/types/gameplay';
 import { GameSide } from '@/types/gameplay';
 
 import type { IAIPlayer, AIPlayerFactory } from '../ai/IAIPlayer';
+import type { IWeapon } from '../ai/types';
 
 import { BotPlayer } from '../ai/BotPlayer';
 import { SideKeyedAIPlayer } from '../ai/SideKeyedAIPlayer';
@@ -35,6 +36,7 @@ import {
   isGameOver,
   isUnitOperable,
   resetTurnState,
+  type UnitHydrationMap,
 } from './SimulationRunnerState';
 import { createMinimalGrid } from './SimulationRunnerSupport';
 import { IDetectorConfig, ISimulationRunResult } from './types';
@@ -52,6 +54,8 @@ export class SimulationRunner {
   private readonly invariantRunner: InvariantRunner;
   private readonly detectorConfig: IDetectorConfig;
   private readonly aiPlayerFactory: AIPlayerFactory;
+  private readonly hydration: UnitHydrationMap | undefined;
+  private readonly weaponsByUnit: ReadonlyMap<string, readonly IWeapon[]>;
   private readonly keyMomentDetector = createKeyMomentDetector();
   private readonly anomalyDetectors: IAnomalyDetectors =
     createAnomalyDetectors();
@@ -74,6 +78,14 @@ export class SimulationRunner {
    *                             side-B ("opponent-*") units to factory B. When both
    *                             `aiPlayerFactory` and `aiPlayerFactoryBySide` are
    *                             supplied, `aiPlayerFactoryBySide` takes precedence.
+   * @param hydration             Optional per-unit hydration map keyed by runner unit
+   *                             id (`player-1`, `opponent-2`, …). When present
+   *                             (Phase 1 of `add-combat-fidelity-suite`), the runner
+   *                             builds initial state from real catalog `IFullUnit`
+   *                             data — per-location armor, internal structure, and
+   *                             a per-mount `IWeapon[]` snapshot for the AI. When
+   *                             absent, the legacy synthetic single-medium-laser
+   *                             path is used so existing callsites stay green.
    */
   constructor(
     seed: number,
@@ -81,6 +93,7 @@ export class SimulationRunner {
     detectorConfig?: IDetectorConfig,
     aiPlayerFactory?: AIPlayerFactory,
     aiPlayerFactoryBySide?: { A: AIPlayerFactory; B: AIPlayerFactory },
+    hydration?: UnitHydrationMap,
   ) {
     this.random = new SeededRandom(seed);
     this.invariantRunner = invariantRunner ?? new InvariantRunner();
@@ -99,6 +112,20 @@ export class SimulationRunner {
     } else {
       this.aiPlayerFactory = aiPlayerFactory ?? DEFAULT_AI_FACTORY;
     }
+    // Pre-derive the unitId → IWeapon[] side table once at construction time
+    // so each phase invocation just does a Map.get rather than re-iterating
+    // hydration data per turn.
+    this.hydration = hydration;
+    const weaponsMap = new Map<string, readonly IWeapon[]>();
+    if (hydration) {
+      // forEach avoids relying on Map iterator protocol — tsconfig target
+      // is ES5 and downlevelIteration is off, so `for..of` over a Map
+      // would force a transpile flag flip across the whole project.
+      hydration.forEach((data, unitId) => {
+        weaponsMap.set(unitId, data.aiWeapons);
+      });
+    }
+    this.weaponsByUnit = weaponsMap;
   }
 
   run(config: ISimulationConfig): ISimulationRunResult {
@@ -108,7 +135,7 @@ export class SimulationRunner {
     const gameId = `sim-${config.seed}`;
 
     const grid = createMinimalGrid(config.mapRadius);
-    const state = createInitialState(config);
+    const state = createInitialState(config, this.hydration);
     // Per Phase 3: construct the AI player through the injected factory so
     // tests and the swarm harness can swap implementations without changing
     // BotPlayer's runtime behavior. DEFAULT_BEHAVIOR is passed so the
@@ -137,6 +164,7 @@ export class SimulationRunner {
         violations,
         events,
         gameId,
+        weaponsByUnit: this.weaponsByUnit,
       });
 
       currentState = runAttackPhase({
@@ -147,6 +175,7 @@ export class SimulationRunner {
         events,
         gameId,
         random: this.random,
+        weaponsByUnit: this.weaponsByUnit,
       });
 
       currentState = runPSRPhase({

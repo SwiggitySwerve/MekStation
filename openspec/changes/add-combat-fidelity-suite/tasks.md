@@ -13,12 +13,12 @@
 
 ## Phase 1 — Atlas AS7-D hydration (~3h, PR #2)
 
-- [ ] 1.1 Modify `toAIUnitState()` (`src/simulation/runner/SimulationRunnerSupport.ts:132`) to accept `unitId` from the participant payload; look up real `IFullUnit` via the catalog service; map `IFullUnit.equipment` (filtered to weapons) to the `IAIWeapon[]` shape.
-- [ ] 1.2 Modify `createInitialUnitState` (`src/simulation/runner/SimulationRunnerState.ts` and/or `src/utils/gameplay/gameState/initialization.ts`) to propagate per-location armor + structure from the catalog `IFullUnit.armor.allocation` into `IUnitGameState` armor / structure maps.
-- [ ] 1.3 For Atlas AS7-D specifically: confirm hydrated state has 4 medium lasers + AC/20 + LRM-20 + SRM-6, total armor 304 across 11 locations, total internal structure per Atlas profile.
-- [ ] 1.4 Unit test: hydrate Atlas AS7-D from catalog, assert weapon count + per-location armor + per-location structure match canonical values.
-- [ ] 1.5 Integration test: run a 5-turn 1v1 Atlas-vs-Atlas seeded fight, assert AI emits attack actions for each Atlas weapon (not just one synthetic ML).
-- [ ] 1.6 Open PR #2, CI green, merge.
+- [x] 1.1 Modify `toAIUnitState()` (`src/simulation/runner/SimulationRunnerSupport.ts:132`) to accept `unitId` from the participant payload; look up real `IFullUnit` via the catalog service; map `IFullUnit.equipment` (filtered to weapons) to the `IAIWeapon[]` shape.
+- [x] 1.2 Modify `createInitialUnitState` (`src/simulation/runner/SimulationRunnerState.ts` and/or `src/utils/gameplay/gameState/initialization.ts`) to propagate per-location armor + structure from the catalog `IFullUnit.armor.allocation` into `IUnitGameState` armor / structure maps.
+- [x] 1.3 For Atlas AS7-D specifically: confirm hydrated state has 4 medium lasers + AC/20 + LRM-20 + SRM-6, total armor 304 across 11 locations, total internal structure per Atlas profile.
+- [x] 1.4 Unit test: hydrate Atlas AS7-D from catalog, assert weapon count + per-location armor + per-location structure match canonical values.
+- [x] 1.5 Integration test: run a 5-turn 1v1 Atlas-vs-Atlas seeded fight, assert AI emits attack actions for each Atlas weapon (not just one synthetic ML).
+- [x] 1.6 Open PR #2 ([#520](https://github.com/SwiggitySwerve/MekStation/pull/520)), CI green, merge.
 
 ## Phase 0.5 — Closed-set hygiene (~3h, PR #2.5 — folded after Phase 1)
 

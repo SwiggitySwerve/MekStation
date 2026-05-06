@@ -6,12 +6,26 @@ import { CombatLocation, IGameState, IUnitGameState } from '@/types/gameplay';
 import type { ISimulationConfig } from '../core/types';
 
 import { createMinimalUnitState } from './SimulationRunnerSupport';
+import {
+  createHydratedUnitState,
+  type IHydratedUnitData,
+} from './UnitHydration';
+
+/**
+ * Hydration map keyed by runner unit id (`player-1`, `opponent-2`, …).
+ * Per `add-combat-fidelity-suite` Phase 1: when present, `createInitialState`
+ * routes per-slot construction through `createHydratedUnitState` so units
+ * carry real catalog armor + structure (and pilot skills); when absent,
+ * the legacy synthetic `createMinimalUnitState` path is used.
+ */
+export type UnitHydrationMap = ReadonlyMap<string, IHydratedUnitData>;
 
 function createSideUnits(
   units: Record<string, IUnitGameState>,
   config: ISimulationConfig,
   side: GameSide,
   rowPosition: number,
+  hydration: UnitHydrationMap | undefined,
 ): void {
   const count =
     side === GameSide.Player
@@ -22,15 +36,45 @@ function createSideUnits(
   for (let i = 0; i < count; i++) {
     const id = `${prefix}-${i + 1}`;
     const position = { q: i - 1, r: rowPosition };
-    units[id] = createMinimalUnitState(id, side, position);
+    const hydrated = hydration?.get(id);
+    if (hydrated) {
+      // Hydrated path: copy the spawn position from the runner's grid layout
+      // (the runner controls placement; the hydration data carries armor /
+      // weapons / pilot skills, not position). This keeps map-radius-driven
+      // formation logic in one place — the runner — instead of forking it
+      // into the hydration-data builder.
+      units[id] = createHydratedUnitState({
+        ...hydrated,
+        runnerUnitId: id,
+        side,
+        position,
+      });
+    } else {
+      units[id] = createMinimalUnitState(id, side, position);
+    }
   }
 }
 
-export function createInitialState(config: ISimulationConfig): IGameState {
+export function createInitialState(
+  config: ISimulationConfig,
+  hydration?: UnitHydrationMap,
+): IGameState {
   const units: Record<string, IUnitGameState> = {};
 
-  createSideUnits(units, config, GameSide.Player, -config.mapRadius + 1);
-  createSideUnits(units, config, GameSide.Opponent, config.mapRadius - 1);
+  createSideUnits(
+    units,
+    config,
+    GameSide.Player,
+    -config.mapRadius + 1,
+    hydration,
+  );
+  createSideUnits(
+    units,
+    config,
+    GameSide.Opponent,
+    config.mapRadius - 1,
+    hydration,
+  );
 
   return {
     gameId: `sim-${config.seed}`,

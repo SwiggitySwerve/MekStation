@@ -8,6 +8,7 @@ import {
 } from '@/types/gameplay';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
+import type { IWeapon } from '../../ai/types';
 
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
@@ -26,6 +27,13 @@ export function runMovementPhase(options: {
   violations: IViolation[];
   events: IGameEvent[];
   gameId: string;
+  /**
+   * Per `add-combat-fidelity-suite` Phase 1: per-unit hydrated weapon list,
+   * keyed by runner unit id. When the lookup misses, `toAIUnitState` falls
+   * back to the synthetic single-medium-laser path. Optional so existing
+   * non-swarm callers keep their current behavior.
+   */
+  weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
 }): IGameState {
   const {
     botPlayer,
@@ -35,6 +43,7 @@ export function runMovementPhase(options: {
     invariantRunner,
     state,
     violations,
+    weaponsByUnit,
   } = options;
   let currentState = { ...state, phase: GamePhase.Movement };
   violations.push(...invariantRunner.runAll(currentState));
@@ -45,7 +54,7 @@ export function runMovementPhase(options: {
       continue;
     }
 
-    const aiUnit = toAIUnitState(unit);
+    const aiUnit = toAIUnitState(unit, weaponsByUnit?.get(unitId));
     const capability = createMovementCapability();
     const moveEvent = botPlayer.playMovementPhase(aiUnit, grid, capability);
 
