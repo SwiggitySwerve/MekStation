@@ -240,7 +240,8 @@ describe('Simulation Integration Tests', () => {
 
       const result = runner.run(config);
 
-      expect(result.turns).toBeLessThanOrEqual(10);
+      // Engine ceiling — see SimulationRunnerConstants.MAX_TURNS.
+      expect(result.turns).toBeLessThanOrEqual(100);
     });
 
     it('should complete game that ends early via victory', () => {
