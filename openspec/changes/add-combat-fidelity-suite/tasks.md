@@ -35,13 +35,13 @@
 
 ## Phase 2 — Weapon attack events (~1d, PR #3)
 
-- [ ] 2.1 Modify `weaponAttack.ts` (`src/simulation/runner/phases/weaponAttack.ts`) to emit `AttackDeclared` (with `attackerId`, `targetId`, `weaponId`, `range`, `arc`, `modifiers[]`) BEFORE the to-hit roll.
-- [ ] 2.2 Emit `AttackResolved` (with `attackerId`, `targetId`, `weaponId`, `rolledTN`, `rolled2d6`, `hit: bool`, `hitLocation`, `damage`) AFTER the to-hit roll resolves.
-- [ ] 2.3 Emit `LocationDestroyed` when a location's armor + structure both reach zero.
-- [ ] 2.4 Emit `TransferDamage` when damage flows from a destroyed location to the next location in the transfer chain.
-- [ ] 2.5 Update `IGameEvent` payload types in `src/types/gameplay/GameSessionInterfaces.ts` (or matching events file) to include the new fields. Discriminated union per `GameEventType`.
-- [ ] 2.6 Unit tests: per-event-type payload shape assertions. Each event has a corresponding minimal-fixture test.
-- [ ] 2.7 Scenario test: 5-turn Atlas-vs-Atlas asserts `AttackDeclared` count = expected attack count, `AttackResolved` count = `AttackDeclared` count, `LocationDestroyed` events fire when armor + structure reach zero.
+- [x] 2.1 Modify `weaponAttack.ts` (`src/simulation/runner/phases/weaponAttack.ts`) to emit `AttackDeclared` (with `attackerId`, `targetId`, `weaponId`, `range`, `arc`, `modifiers[]`) BEFORE the to-hit roll.
+- [x] 2.2 Emit `AttackResolved` (with `attackerId`, `targetId`, `weaponId`, `rolledTN`, `rolled2d6`, `hit: bool`, `hitLocation`, `damage`) AFTER the to-hit roll resolves.
+- [x] 2.3 Emit `LocationDestroyed` when a location's armor + structure both reach zero.
+- [x] 2.4 Emit `TransferDamage` when damage flows from a destroyed location to the next location in the transfer chain.
+- [x] 2.5 Update `IGameEvent` payload types in `src/types/gameplay/GameSessionInterfaces.ts` (or matching events file) to include the new fields. Discriminated union per `GameEventType`. (Resolved: added `viaTransfer?: boolean` to `ILocationDestroyedPayload` + `range?` and `firingArc?` to `IAttackDeclaredPayload`. Existing `IAttackResolvedPayload` / `ITransferDamagePayload` / `IAttackInvalidPayload` already carried the required fields. `createLocationDestroyedEvent` helper threaded `viaTransfer` parameter additively.)
+- [x] 2.6 Unit tests: per-event-type payload shape assertions. Each event has a corresponding minimal-fixture test. (Resolved: `src/simulation/runner/__tests__/weaponAttackEvents.test.ts` — 11 tests covering AttackDeclared / AttackResolved / AttackInvalid / LocationDestroyed / TransferDamage SHAPE + count invariants + causal ordering.)
+- [x] 2.7 Scenario test: 5-turn Atlas-vs-Atlas asserts `AttackDeclared` count = expected attack count, `AttackResolved` count = `AttackDeclared` count, `LocationDestroyed` events fire when armor + structure reach zero. (Resolved: `src/simulation/__tests__/atlasMirrorEventChain.integration.test.ts` — 7 tests reusing the P1 hydration plumbing for a real Atlas mirror match.)
 - [ ] 2.8 Open PR #3, CI green, merge.
 
 ## Phase 3 — Critical hit wiring (~1d, PR #4)

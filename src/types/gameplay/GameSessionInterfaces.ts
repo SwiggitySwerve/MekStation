@@ -503,6 +503,23 @@ export interface IAttackDeclaredPayload {
   readonly toHitNumber: number;
   /** All to-hit modifiers */
   readonly modifiers: readonly IToHitModifier[];
+  /**
+   * Per `add-combat-fidelity-suite` Phase 2 (`combat-resolution` delta):
+   * range bracket the to-hit calculation used. Values match the
+   * `RangeBracket` enum string values (`'short' | 'medium' | 'long' |
+   * 'extreme'`); `'out_of_range'` is filtered upstream and emits
+   * `AttackInvalid` instead. Optional for backward compatibility with
+   * pre-P2 callers (legacy InteractiveSession multi-weapon emission
+   * path doesn't yet populate it).
+   */
+  readonly range?: 'short' | 'medium' | 'long' | 'extreme';
+  /**
+   * Per `add-combat-fidelity-suite` Phase 2: firing arc relative to the
+   * target's facing the to-hit calculation used. Symmetric with
+   * `IAttackResolvedPayload.attackerArc`. Optional for backward
+   * compatibility.
+   */
+  readonly firingArc?: 'front' | 'left' | 'right' | 'rear';
 }
 
 /**
@@ -971,11 +988,20 @@ export interface IAmmoConsumedPayload {
  * Per `integrate-damage-pipeline`: a location's internal structure has
  * reached zero. `cascadedTo` is set when the destruction triggered a
  * linked-location destruction (e.g., LT destroyed → LA also destroyed).
+ *
+ * Per `add-combat-fidelity-suite` Phase 2 (`combat-resolution` /
+ * `damage-system` deltas): `viaTransfer` distinguishes direct
+ * destruction (`false` — the shot landed on this location and zeroed
+ * armor + structure) from cascade destruction (`true` — residual damage
+ * flowed in from a previous destroyed location in the transfer chain).
+ * Optional for backward compatibility with pre-P2 emitters; new
+ * `weaponAttack.ts` emissions always populate it.
  */
 export interface ILocationDestroyedPayload {
   readonly unitId: string;
   readonly location: string;
   readonly cascadedTo?: string;
+  readonly viaTransfer?: boolean;
 }
 
 /**

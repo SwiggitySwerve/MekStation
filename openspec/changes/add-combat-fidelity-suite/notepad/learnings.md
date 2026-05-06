@@ -103,3 +103,57 @@ The Atlas AS7-D carries 11 distinct armor slots when split this way: HD + (CT+CT
 
 **Reference**: `src/utils/gameplay/damage/constants.ts`, `src/simulation/runner/UnitHydration.ts:hydrateStructureFromFullUnit`.
 
+## [2026-05-06] Task: P2 — Event-emission seam in `weaponAttack.ts` (reusable for P3 / P4)
+
+**Convention discovered — the per-mount fire loop is the seam for all post-attack events**:
+
+P2 reshaped `weaponAttack.ts` to drive a per-mount fire loop off `aiUnit.weapons` (the AI's selected weapon-id list from `IAttackEvent.payload.weapons`). For each weapon mount, the loop emits in causal order: `AttackDeclared` → roll → `AttackResolved` → (on hit) `DamageApplied` × N → `LocationDestroyed` (when destroyed) → `TransferDamage` (when residual flows). P3 (crit events) and P4 (heat / ammo events) plug into the same loop:
+
+- **P3** wires `CriticalHit` / `CriticalHitResolved` / `ComponentDestroyed` AFTER each `LocationDestroyed` event but BEFORE the next `DamageApplied` in the chain. The crit-trigger return capture happens inside `resolveDamage` (so the `criticalHits[]` array on `IDamageResult` populates), and the runner emits the events from the populated array in the same per-`locationDamage[i]` step where `LocationDestroyed` already fires.
+- **P4** wires `AmmoConsumed` (one per ammo-bin draw) immediately after `AttackResolved` on the AC/20 / LRM-20 / SRM-6 mounts, and `AmmoExplosion` cascades through the same `LocationDestroyed` step when a crit lands on a loaded bin.
+
+**Why it matters**: P3/P4 should NOT introduce a parallel emission path. The existing per-`locationDamage[i]` loop already linearizes the entire damage chain in causal order; piggy-backing crit + ammo events on that loop preserves the global event-ordering invariant tested in `atlasMirrorEventChain.integration.test.ts` (causal-ordering test). A second emission path would require a parallel ordering invariant — duplicate test surface for no benefit.
+
+**Reference**: `src/simulation/runner/phases/weaponAttack.ts:285-450` (the `for (let i = 0; i < locationDamages.length; i++)` block).
+
+## [2026-05-06] Task: P2 — `IAttackDeclaredPayload` extended additively (range + firingArc)
+
+**Convention discovered**: When a spec delta requires new fields on an existing event payload, ALWAYS add them as `readonly fooField?: ...` (optional) rather than required. The existing `IAttackDeclaredPayload` had `weapons: readonly string[]` (singular weapon-id with array of one is the runner-emission shape) but no `range` / `firingArc` fields. P2 added both as optional so the legacy `InteractiveSession` multi-weapon emission path (which doesn't carry per-shot range / arc) keeps compiling.
+
+The same additive pattern applies to `ILocationDestroyedPayload.viaTransfer?: boolean` — the existing `cascadedTo?: string` field is for arm-cascade (different concept), and adding `viaTransfer` as optional preserves compatibility with pre-P2 emitters at `gameSessionAttackResolution.ts:278` (the session-layer twin of the runner phase).
+
+**Why it matters**: Required fields would have forced a sweep across every emit-site (15+ files emit AttackDeclared / LocationDestroyed across InteractiveSession, gameSessionAttackResolution, the new runner phase, and 5+ test fixture files). Optional + populated-by-default means the new fields propagate through code that needs them and stay `undefined` everywhere else. Tests assert SHAPE compatibility regardless: `range` is `'short' | 'medium' | 'long' | 'extreme' | undefined`, all four enum-mapped values appear in passing scenarios.
+
+**Reference**: `src/types/gameplay/GameSessionInterfaces.ts:493-525` (IAttackDeclaredPayload.range / firingArc), `src/types/gameplay/GameSessionInterfaces.ts:983-988` (ILocationDestroyedPayload.viaTransfer).
+
+## [2026-05-06] Task: P2 — Misses MUST emit AttackResolved (count invariant)
+
+**Convention discovered**: The pre-P2 `weaponAttack.ts` did `if (!hit) continue;` — silently dropping the miss without any event. P2 inverts that: every `AttackDeclared` MUST be paired with an `AttackResolved`, regardless of hit/miss. The contract is `AttackDeclared.length === AttackResolved.length` over any time window, asserted in the unit test (`AttackDeclared count equals AttackResolved count (per-mount invariant)`) and in the integration test (`AttackDeclared count equals AttackResolved count (every shot resolves)`).
+
+On miss, the resolved-payload `location` and `damage` are intentionally `undefined` — the discriminated-union contract distinguishes hit-shape (location + damage populated) from miss-shape (both undefined). Tests assert both branches.
+
+**Why it matters**: Downstream consumers (replay UI, P5 MetricsCollector, swarm aggregation, anomaly detectors) treat the count delta as a corruption signal. A silent miss-drop breaks that signal and would make hit-rate metrics garbage.
+
+**Reference**: `src/simulation/runner/phases/weaponAttack.ts:267-294` (miss branch emission), unit test `runAttackPhase events ... AttackDeclared count equals AttackResolved count`.
+
+## [2026-05-06] Task: P2 — `viaTransfer` semantics: chain-position, not arm-cascade
+
+**Convention discovered**: Two different "is this a cascade" concepts coexist in the damage pipeline:
+
+1. **Transfer-chain cascade** (`viaTransfer: true`): residual damage flowed FROM a previously-destroyed location IN this same shot's transfer chain. Set when `i > 0` in the `result.locationDamages` array iteration.
+2. **Arm-cascade** (`cascadedTo: 'left_arm' | 'right_arm'`): a side-torso destruction structurally takes the corresponding arm with it. Set off the post-state `destroyedLocations` diff. Independent of `viaTransfer`.
+
+The runner emits BOTH fields on the same `LocationDestroyed` event: `cascadedTo` carries the arm-id when applicable; `viaTransfer` indicates whether THIS event is the i==0 entry (direct hit) or i>0 (downstream). The cascade-arm gets its OWN `LocationDestroyed` event with `viaTransfer: false` (the arm wasn't reached by transfer; it was structurally taken with the parent torso).
+
+**Why it matters**: A naive reading would conflate the two — "the arm was destroyed cascading from the torso, so viaTransfer:true". That's wrong. The transfer chain and the structural cascade are separate phenomena and downstream consumers (UI debris animation, P5 metrics) need both signals to render and aggregate correctly. The unit-test `emits viaTransfer:true on cascade destruction from transfer chain` explicitly asserts the i>0 case; the `cascadedTo` field assertion lives in `gameSessionAttackResolution.ts`-side tests inherited from the prior `integrate-damage-pipeline` change.
+
+**Reference**: `src/simulation/runner/phases/weaponAttack.ts:362-405` (the LocationDestroyed emission block), `src/types/gameplay/GameSessionInterfaces.ts:970-988` (payload doc-comment).
+
+## [2026-05-06] Task: P2 — TypeScript narrow→wide modifier projection
+
+**Convention discovered**: `IToHitModifierDetail.source: ToHitModifierSource` (a narrow string-literal union) is structurally assignable to `IToHitModifier.source: string` (the wider event-payload type). TypeScript accepts the projection at the position level, but `modifiersToPayload()` deliberately constructs a fresh object with only the three contracted fields (`name`, `value`, `source`). This drops the `description?: string` field carried on the detail type without changing the modifier list shape on the wire.
+
+**Why it matters**: Future evolution of `IToHitModifierDetail` (e.g., adding a `category` enum) won't leak into the event payload's wire format. The projection function is the contract surface — change it deliberately when expanding the event payload.
+
+**Reference**: `src/simulation/runner/phases/weaponAttack.ts:66-88` (`modifiersToPayload`).
+
