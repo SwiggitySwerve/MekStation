@@ -95,7 +95,11 @@ export function runAttackPhase(options: {
     }
 
     const attackerState: IAttackerState = {
-      gunnery: DEFAULT_GUNNERY,
+      // Per `add-encounter-swarm-harness` Phase 1: use the unit's real gunnery
+      // so pilot skills drive hit probability, not just target selection.
+      // Falls back to DEFAULT_GUNNERY for synthetic units constructed via
+      // createMinimalUnitState() which does not populate pilot skills.
+      gunnery: unit.gunnery ?? DEFAULT_GUNNERY,
       movementType: unit.movementThisTurn,
       heat: unit.heat,
       damageModifiers: [],

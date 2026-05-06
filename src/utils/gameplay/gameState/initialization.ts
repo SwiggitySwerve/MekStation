@@ -233,6 +233,12 @@ export function createInitialUnitState(
     heat: 0,
     movementThisTurn: MovementType.Stationary,
     hexesMovedThisTurn: 0,
+    // Per `add-encounter-swarm-harness` Phase 1: copy pilot skills from
+    // the binding IGameUnit so the AI snapshot (toAIUnitState) reads the
+    // real gunnery/piloting instead of DEFAULT_GUNNERY/DEFAULT_PILOTING.
+    // These fields never mutate mid-match.
+    gunnery: unit.gunnery,
+    piloting: unit.piloting,
     armor: {},
     structure: {},
     // Per `add-bot-retreat-behavior` § 2 (Trigger A): the retreat trigger

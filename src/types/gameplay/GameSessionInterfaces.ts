@@ -1371,6 +1371,22 @@ export interface IUnitGameState {
   readonly movementThisTurn: MovementType;
   /** Hexes moved this turn */
   readonly hexesMovedThisTurn: number;
+  /**
+   * Per `add-encounter-swarm-harness` Phase 1: pilot gunnery skill copied
+   * from the binding `IGameUnit` at session-creation time. Optional for
+   * backward compat with synthetic unit fixtures (`createMinimalUnitState`)
+   * that do not seed pilot data — `toAIUnitState` falls back to
+   * `DEFAULT_GUNNERY` when absent. Pilot skills do not change mid-match,
+   * so this lives on the immutable per-unit state rather than being
+   * looked up against the pilot vault every AI tick.
+   */
+  readonly gunnery?: number;
+  /**
+   * Per `add-encounter-swarm-harness` Phase 1: pilot piloting skill copied
+   * from the binding `IGameUnit` at session-creation time. Same fallback
+   * semantics as `gunnery` — `DEFAULT_PILOTING` applies when absent.
+   */
+  readonly piloting?: number;
   /** Armor remaining per location */
   readonly armor: Record<string, number>;
   /** Structure remaining per location */
