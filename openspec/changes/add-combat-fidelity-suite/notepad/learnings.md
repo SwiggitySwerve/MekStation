@@ -403,7 +403,6 @@ The leaf-module pattern lets future P6 / P7 metric tallies stack into the same f
 
 **Reference**: `src/simulation/metrics/combatFidelityTally.ts` (the new leaf module), `src/simulation/metrics/swarmAggregation.internals.ts:18` (the import).
 
-<<<<<<< HEAD
 ## [2026-05-06] Task: P6a — Unit-test pyramid lessons (5 files, ~78 tests)
 
 **Convention discovered — golden-oracle fixtures pin the table, not the algorithm**: The hit-location and crit-threshold tables come straight out of MegaMek (`Mek.innerRollHitLocation` lines 2013-2160 for hit location; `TWGameManager.criticalEntity` lines 21564-21586 for crit threshold). Per design D5 the unit tests pin the literal values into a typed `ICase[]` golden table at the top of the test file, then iterate via `it.each`. The test never imports MegaMek code — only the values. Result: any drift in `getHitLocationTable()` or `getCriticalHitCount()` fires 11 tests at a time per arc and cites the MegaMek line range in the describe block name for instant reviewer triage.
