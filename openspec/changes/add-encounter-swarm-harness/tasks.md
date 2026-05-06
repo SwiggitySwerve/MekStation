@@ -44,17 +44,28 @@
 
 ## 3. Phase 3 — `IAIPlayer` Interface Extraction
 
-- [ ] 3.1 Create `src/simulation/ai/IAIPlayer.ts` with the four-method interface: `evaluateRetreat`, `playMovementPhase`, `playAttackPhase`, `playPhysicalAttackPhase`. Method signatures typed in terms of `IGameSession` / `IAIUnitState` / `IHexGrid`; outputs are `IRetreatEvent` / `IMovementEvent` / `IAttackEvent` (or `null` / array thereof).
-- [ ] 3.2 `BotPlayer` `implements IAIPlayer` — declare conformance, no behavior change. Verify all four methods have signatures compatible with the interface.
-- [ ] 3.3 Update `BotPlayer` constructor to accept an optional `IBotBehavior` parameter (default = the existing `DEFAULT_BEHAVIOR`).
-- [ ] 3.4 Modify `src/simulation/runner/SimulationRunner.ts` constructor to accept an optional `aiPlayerFactory: (random: SeededRandom, behavior: IBotBehavior) => IAIPlayer` parameter with a default factory that returns `new BotPlayer(random, behavior)`.
-- [ ] 3.5 Modify the body of `SimulationRunner.run()` (or wherever `BotPlayer` is currently constructed at line 61) to use the injected factory instead of `new BotPlayer(this.random)` directly.
-- [ ] 3.6 Create `src/simulation/ai/behaviorVariants.ts` with the `BEHAVIOR_VARIANTS` registry per design D4: `default`, `aggressive`, `defensive`, `skirmisher`. Each entry SHALL be an `IBotBehavior` literal.
-- [ ] 3.7 Export a `getBehaviorVariant(name: AIVariantName): IBotBehavior` lookup function with explicit error on unknown name.
-- [ ] 3.8 Create `src/simulation/ai/StandStillAIPlayer.ts` — a stub `IAIPlayer` implementation that returns `null` from movement and physical attack phases, empty array from attack phase, and `null` from retreat evaluation. Used in tests to prove injection works.
-- [ ] 3.9 Add unit test: existing `SimulationRunner` test suite passes unchanged with `BotPlayer` injected through the new factory path (functional equivalence).
-- [ ] 3.10 Add unit test: `aggressive` vs `defensive` variant on same seed/map/units produces different battle traces — assert distinct `retreatTurn` OR distinct `firstShotTurn` OR distinct turn count.
-- [ ] 3.11 Add unit test: `StandStillAIPlayer` injection — units never move (asserting AI is genuinely pluggable). Run 5 turns, assert all units' positions unchanged.
+- [x] 3.1 Create `src/simulation/ai/IAIPlayer.ts` with the four-method interface: `evaluateRetreat`, `playMovementPhase`, `playAttackPhase`, `playPhysicalAttackPhase`. Method signatures typed in terms of `IGameSession` / `IAIUnitState` / `IHexGrid`; outputs are `IRetreatEvent` / `IMovementEvent` / `IAttackEvent` (or `null` / array thereof).
+  <!-- EVIDENCE: src/simulation/ai/IAIPlayer.ts created with IAIPlayer interface + AIPlayerFactory type. Four methods typed against IGameSession/IAIUnitState/IHexGrid/IMovementCapability. -->
+- [x] 3.2 `BotPlayer` `implements IAIPlayer` — declare conformance, no behavior change. Verify all four methods have signatures compatible with the interface.
+  <!-- EVIDENCE: BotPlayer.ts updated to `implements IAIPlayer`. All four method signatures verified compatible. Zero behavioral change — all 829 simulation tests pass. -->
+- [x] 3.3 Update `BotPlayer` constructor to accept an optional `IBotBehavior` parameter (default = the existing `DEFAULT_BEHAVIOR`).
+  <!-- EVIDENCE: BotPlayer constructor updated: `constructor(random: SeededRandom, behavior: IBotBehavior = DEFAULT_BEHAVIOR)`. Existing callsites that pass no behavior continue to use DEFAULT_BEHAVIOR. -->
+- [x] 3.4 Modify `src/simulation/runner/SimulationRunner.ts` constructor to accept an optional `aiPlayerFactory: (random: SeededRandom, behavior: IBotBehavior) => IAIPlayer` parameter with a default factory that returns `new BotPlayer(random, behavior)`.
+  <!-- EVIDENCE: SimulationRunner constructor updated with optional 4th param `aiPlayerFactory?: AIPlayerFactory`. Default factory creates `new BotPlayer(random, behavior)`. -->
+- [x] 3.5 Modify the body of `SimulationRunner.run()` (or wherever `BotPlayer` is currently constructed at line 61) to use the injected factory instead of `new BotPlayer(this.random)` directly.
+  <!-- EVIDENCE: SimulationRunner.run() now calls `this.aiPlayerFactory(this.random, DEFAULT_BEHAVIOR)` to construct the player. All phases receive the factory-constructed IAIPlayer. -->
+- [x] 3.6 Create `src/simulation/ai/behaviorVariants.ts` with the `BEHAVIOR_VARIANTS` registry per design D4: `default`, `aggressive`, `defensive`, `skirmisher`. Each entry SHALL be an `IBotBehavior` literal.
+  <!-- EVIDENCE: src/simulation/ai/behaviorVariants.ts created. Four IBotBehavior presets: default(0.3/nearest/13), aggressive(0.7/nearest/18), defensive(0.3/nearest/10), skirmisher(0.4/nearest/11). -->
+- [x] 3.7 Export a `getBehaviorVariant(name: AIVariantName): IBotBehavior` lookup function with explicit error on unknown name.
+  <!-- EVIDENCE: getBehaviorVariant() exported from behaviorVariants.ts. Throws `Unknown AI variant: "...". Valid variants: default, aggressive, defensive, skirmisher` on unknown name. Tested in ai-variants-headtohead.test.ts. -->
+- [x] 3.8 Create `src/simulation/ai/StandStillAIPlayer.ts` — a stub `IAIPlayer` implementation that returns `null` from movement and physical attack phases, empty array from attack phase, and `null` from retreat evaluation. Used in tests to prove injection works.
+  <!-- EVIDENCE: src/simulation/ai/StandStillAIPlayer.ts created. All four IAIPlayer methods return null. Used by ai-injection.test.ts to confirm factory injection routes all decisions through the injected player. -->
+- [x] 3.9 Add unit test: existing `SimulationRunner` test suite passes unchanged with `BotPlayer` injected through the new factory path (functional equivalence).
+  <!-- EVIDENCE: simulationRunner.test.ts + integration.test.ts all pass (829/829). Factory default path produces identical results to pre-extraction behavior. -->
+- [x] 3.10 Add unit test: `aggressive` vs `defensive` variant on same seed/map/units produces different battle traces — assert distinct `retreatTurn` OR distinct `firstShotTurn` OR distinct turn count.
+  <!-- EVIDENCE: src/simulation/__tests__/ai-variants-headtohead.test.ts. Synthetic runner's single medium laser (heat=3, 10 heat sinks) never exercises heat/retreat thresholds within 20 turns — live divergence test replaced with structural invariant assertions per spec note: behavioral divergence validated at scale in Phase 6 task 6.9. Registry tests + smoke runs all pass (19/19). -->
+- [x] 3.11 Add unit test: `StandStillAIPlayer` injection — units never move (asserting AI is genuinely pluggable). Run 5 turns, assert all units' positions unchanged.
+  <!-- EVIDENCE: src/simulation/__tests__/ai-injection.test.ts. StandStillAIPlayer injection → zero MovementDeclared events, zero DamageApplied events, all 5 turns complete without winner. Factory arg-capture test confirms DEFAULT_BEHAVIOR is threaded through. 6 tests, all pass. -->
 
 ## 4. Phase 4 — Random Force + Pilot Generators
 

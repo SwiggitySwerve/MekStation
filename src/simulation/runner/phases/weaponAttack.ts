@@ -14,7 +14,8 @@ import { determineHitLocation, isHeadHit } from '@/utils/gameplay/hitLocation';
 import { createDamagePSR } from '@/utils/gameplay/pilotingSkillRolls';
 import { calculateToHit } from '@/utils/gameplay/toHit';
 
-import { BotPlayer } from '../../ai/BotPlayer';
+import type { IAIPlayer } from '../../ai/IAIPlayer';
+
 import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
@@ -36,7 +37,7 @@ import { createD6Roller, createGameEvent } from './utils';
 
 export function runAttackPhase(options: {
   state: IGameState;
-  botPlayer: BotPlayer;
+  botPlayer: IAIPlayer;
   invariantRunner: InvariantRunner;
   violations: IViolation[];
   events: IGameEvent[];
