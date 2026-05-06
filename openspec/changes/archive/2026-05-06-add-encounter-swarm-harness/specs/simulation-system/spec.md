@@ -28,6 +28,8 @@ All combat randomness in the simulation SHALL flow through `SeededRandom` to ens
 - **THEN** the per-run seed SHALL be `baseSeed + runIndex` (i.e., 100, 101, 102, 103, 104)
 - **AND** the same seed/index pair SHALL always produce the same force / pilot / map / battle outcome
 
+## ADDED Requirements
+
 ### Requirement: Pilot Skills Drive AI Decisions
 
 `toAIUnitState()` and any companion AI-input helpers SHALL read `gunnery` and `piloting` from `IUnitGameState` rather than substituting hardcoded `DEFAULT_GUNNERY` or `DEFAULT_PILOTING` constants. The default constants SHALL be used only as fallbacks when the unit-game-state field is absent (synthetic-unit paths).

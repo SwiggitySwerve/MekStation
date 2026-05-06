@@ -1,6 +1,6 @@
 # combat-resolution Spec Delta — Add Encounter Swarm Harness
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Bot Behavior Variant Registry
 
