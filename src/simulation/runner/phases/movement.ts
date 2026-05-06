@@ -7,7 +7,8 @@ import {
   IHexGrid,
 } from '@/types/gameplay';
 
-import { BotPlayer } from '../../ai/BotPlayer';
+import type { IAIPlayer } from '../../ai/IAIPlayer';
+
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { applyMovementEvent } from '../SimulationRunnerState';
@@ -19,7 +20,7 @@ import { createGameEvent } from './utils';
 
 export function runMovementPhase(options: {
   state: IGameState;
-  botPlayer: BotPlayer;
+  botPlayer: IAIPlayer;
   grid: IHexGrid;
   invariantRunner: InvariantRunner;
   violations: IViolation[];

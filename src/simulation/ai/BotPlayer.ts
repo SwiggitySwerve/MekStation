@@ -13,6 +13,7 @@ import {
 } from '@/utils/gameplay/physicalAttacks';
 
 import type { SeededRandom } from '../core/SeededRandom';
+import type { IAIPlayer } from './IAIPlayer';
 import type { IBotBehavior, IAIUnitState, IMove, IWeapon } from './types';
 
 import { AttackAI, applyHeatBudget, scoreTarget } from './AttackAI';
@@ -93,7 +94,7 @@ const DEFAULT_PILOTING_SKILL = 5;
 /** Melee range in hexes — punches/kicks/charges all need adjacency. */
 const MELEE_RANGE_HEXES = 1;
 
-export class BotPlayer {
+export class BotPlayer implements IAIPlayer {
   private readonly moveAI: MoveAI;
   private readonly attackAI: AttackAI;
   private readonly random: SeededRandom;

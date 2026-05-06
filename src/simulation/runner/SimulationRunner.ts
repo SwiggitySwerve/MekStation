@@ -1,6 +1,9 @@
 import { GameEventType, GamePhase, IGameEvent } from '@/types/gameplay';
 
+import type { IAIPlayer, AIPlayerFactory } from '../ai/IAIPlayer';
+
 import { BotPlayer } from '../ai/BotPlayer';
+import { DEFAULT_BEHAVIOR } from '../ai/types';
 import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
 import { InvariantRunner } from '../invariants/InvariantRunner';
@@ -32,22 +35,48 @@ import {
 import { createMinimalGrid } from './SimulationRunnerSupport';
 import { IDetectorConfig, ISimulationRunResult } from './types';
 
+/**
+ * Default AI player factory — constructs a `BotPlayer` with the supplied
+ * behavior. Used when no factory is injected so existing callsites are
+ * unaffected and produce identical battle traces to the pre-Phase-3 code.
+ */
+const DEFAULT_AI_FACTORY: AIPlayerFactory = (random: SeededRandom, behavior) =>
+  new BotPlayer(random, behavior);
+
 export class SimulationRunner {
   private readonly random: SeededRandom;
   private readonly invariantRunner: InvariantRunner;
   private readonly detectorConfig: IDetectorConfig;
+  private readonly aiPlayerFactory: AIPlayerFactory;
   private readonly keyMomentDetector = createKeyMomentDetector();
   private readonly anomalyDetectors: IAnomalyDetectors =
     createAnomalyDetectors();
 
+  /**
+   * @param seed            RNG seed for this runner instance.
+   * @param invariantRunner Optional invariant checker; defaults to a new instance.
+   * @param detectorConfig  Optional anomaly-detector config.
+   * @param aiPlayerFactory Optional factory for the AI player. When omitted the
+   *                        runner uses `BotPlayer` with `DEFAULT_BEHAVIOR` —
+   *                        preserving exact pre-Phase-3 battle traces. When
+   *                        provided, the factory is called once per `run()` with
+   *                        the per-run `SeededRandom` and the `DEFAULT_BEHAVIOR`
+   *                        so callers can inject alternative implementations
+   *                        (e.g. `StandStillAIPlayer` in tests, or a variant
+   *                        preset in the swarm harness).
+   */
   constructor(
     seed: number,
     invariantRunner?: InvariantRunner,
     detectorConfig?: IDetectorConfig,
+    aiPlayerFactory?: AIPlayerFactory,
   ) {
     this.random = new SeededRandom(seed);
     this.invariantRunner = invariantRunner ?? new InvariantRunner();
     this.detectorConfig = detectorConfig ?? {};
+    // Per design D3: factory defaults to BotPlayer so every existing
+    // SimulationRunner callsite continues to produce identical behavior.
+    this.aiPlayerFactory = aiPlayerFactory ?? DEFAULT_AI_FACTORY;
   }
 
   run(config: ISimulationConfig): ISimulationRunResult {
@@ -58,7 +87,15 @@ export class SimulationRunner {
 
     const grid = createMinimalGrid(config.mapRadius);
     const state = createInitialState(config);
-    const botPlayer = new BotPlayer(this.random);
+    // Per Phase 3: construct the AI player through the injected factory so
+    // tests and the swarm harness can swap implementations without changing
+    // BotPlayer's runtime behavior. DEFAULT_BEHAVIOR is passed so the
+    // factory can thread the correct preset into BotPlayer (or any other
+    // IAIPlayer implementation).
+    const botPlayer: IAIPlayer = this.aiPlayerFactory(
+      this.random,
+      DEFAULT_BEHAVIOR,
+    );
 
     let currentState = state;
     let turn = 1;
