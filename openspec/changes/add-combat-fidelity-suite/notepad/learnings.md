@@ -157,3 +157,71 @@ The runner emits BOTH fields on the same `LocationDestroyed` event: `cascadedTo`
 
 **Reference**: `src/simulation/runner/phases/weaponAttack.ts:66-88` (`modifiersToPayload`).
 
+## [2026-05-06] Task: P3 — `criticalContext` bundle on `IUnitDamageState`
+
+**Convention discovered**: The `resolveCriticalHits` API takes seven positional arguments (`unitId, location, manifest, componentDamage, diceRoller, forceCrits?, armorType?`). Threading those through the damage-layer call chain naively would have required four new positional parameters on `resolveDamage()` plus every transitive caller. The cleanest extension was a single optional `criticalContext?: ICriticalContext` field on `IUnitDamageState` bundling the four resolver inputs (`unitId / manifest / componentDamage / armorType?`) with the roller already threaded via the existing P0 `roller?: D6Roller` parameter.
+
+When `criticalContext` is present AND a 2d6 trigger fires AND the roller is provided, `resolveDamage` dispatches `resolveCriticalHits` per location, accumulates results in running aggregates (manifest + componentDamage compound across cluster-weapon multi-location chains), and surfaces the post-resolution data on `IResolveDamageResult`'s new fields (`componentDamage / criticalEvents / criticalTriggers / manifest`). When the context is absent, behavior is identical to pre-P3 — `criticalHits[]` stays empty and `criticalEvents` is undefined. Existing damage tests (264 in damage.test.ts + criticalHitResolution.test.ts) keep passing without edits.
+
+**Why it matters**: P4 (heat / ammo) and P5 (metrics) will need similar bundle-based extensions. The pattern is: when an existing utility needs N additional inputs that are conceptually one "resolution context", wrap them in an optional bundle field on the input state rather than adding N positional parameters. The legacy callers don't construct the bundle and behavior is unchanged; the new caller (the runner) builds it once per shot and feeds it through.
+
+**Reference**: `src/utils/gameplay/damage/types.ts:34-39` (`ICriticalContext`), `src/utils/gameplay/damage/resolve.ts:96-165` (per-location dispatch loop), `src/simulation/runner/phases/weaponAttack.ts:614-640` (runner-side context build).
+
+## [2026-05-06] Task: P3 — Manifest persistence via per-target side table
+
+**Convention discovered**: The `CriticalSlotManifest` records which crit slots are destroyed; when a slot is destroyed in shot 1, slot-selection in shot 2 against the same target MUST skip it. Persisting the manifest on `IUnitGameState` would require a new optional field + plumbing through `createInitialUnitState` / `createHydratedUnitState` / state reducers / fixture builders. The lower-blast-radius path is a per-target side table on the runner, mirroring P1's `weaponsByUnit` pattern: an optional `manifestsByUnit?: Map<string, CriticalSlotManifest>` parameter on `runAttackPhase`.
+
+A `getOrSeedManifest(targetId)` helper inside the phase reads the running map, lazy-builds a default biped manifest on first crit, and writes the post-resolution manifest from `damageResult.manifest` after each shot. The manifest survives across mounts within a single phase call AND across phase calls when the caller persists the same `Map` instance. Tests that don't care about persistence omit the parameter — the helper builds a fresh default per shot, identical to the pre-P3 stateless path.
+
+**Why it matters**: This is the same per-unit side-table pattern used for `weaponsByUnit`. The side table is a runner-internal concern; `IGameEvent` + `IUnitGameState` stay untouched. P4's ammo-state side table (`ammoState`) already lives ON `IUnitGameState` because it's consumed by event reducers; the manifest doesn't need that — only the runner reads + writes it during the per-mount fire loop.
+
+**Reference**: `src/simulation/runner/phases/weaponAttack.ts:387-404` (`getOrSeedManifest`), `src/simulation/runner/phases/weaponAttack.ts:642-647` (post-shot persist).
+
+## [2026-05-06] Task: P3 — Cause translation at the event-emission boundary
+
+**Convention discovered**: The crit-resolution layer encodes engine 3-hit destruction as `unit_destroyed { cause: 'damage' }` (per `engineEffects.applyEngineHit`). That's an internal-resolver convention from before the P0.5 closed-set hygiene pass — the resolver predates the unified 7-value snake_case enum. Renaming inside the resolver would touch 5+ files of resolver / effects / tests. Per the spec scenario "Engine-3-hit destruction triggers UnitDestroyed", the runner-emitted `UnitDestroyed` event MUST carry `cause: 'engine_destroyed'`.
+
+The fix: translate at the runner's emission boundary. The resolver keeps its internal convention; `weaponAttack.ts:emitCritEvents` maps `'damage' → 'engine_destroyed'` when the source is a crit-induced destruction. Same translation happens in `resolveDamage` for the `IResolveDamageResult.destructionCause` field so the runner's existing `UnitDestroyed` emit (which sources `damageResult.result.destructionCause` as a fallback) sees the translated cause too. The translation is one-way + lossless — every other cause value (`pilot_death`, `ammo_explosion`, etc.) passes through unchanged.
+
+**Why it matters**: Boundary translation isolates resolver-internal naming from spec-mandated event-payload naming. P4 may face the same pattern with ammo-explosion cascades (the resolver emits `cause: 'ammo_explosion'` already, but heat-induced explosions in `runHeatPhase` may need a different translation). Keep translations at the emission-boundary helper, not deep in the resolver.
+
+**Reference**: `src/utils/gameplay/damage/resolve.ts:174-196` (resolver-side translation for `IResolveDamageResult`), `src/simulation/runner/phases/weaponAttack.ts:271-299` (runner-side translation in `emitCritEvents`).
+
+## [2026-05-06] Task: P3 — Permissive `ICriticalHitPayload` for two producers
+
+**Convention discovered**: `KeyMomentDetector` consumes `CriticalHit` events for component-specific moment detection (`payload.component === 'engine'` for `critical-engine` moments). The pre-P3 detector defined a local `ICriticalHitPayload` with REQUIRED `component: string`. The P3 spec scenario specifies `CriticalHit { unitId, location, count: 1 }` — count, not component.
+
+The pragmatic resolution: define the canonical `ICriticalHitPayload` in `GameSessionInterfaces.ts` as the WIDE union with BOTH `component?` AND `count?` optional. The runner emits both fields populated (one event per resolved slot, count=1, component=slot.componentType). The detector's local-NARROW type with required `component` stays as the consumer-side contract — TypeScript's structural-typing accepts the wider runner-side shape at the narrower detector position because all required fields are present.
+
+**Why it matters**: Migrating the detector + 30+ test fixtures away from per-component `CriticalHit` events would have ballooned PR scope. Keeping two compatible shapes (canonical wide producer / local narrow consumer) lets the spec contract land without sweeping detector behavior. Both `count` and `component` carry meaningful information; the canonical type is permissive precisely so producers and consumers can each pick their preferred subset.
+
+**Reference**: `src/types/gameplay/GameSessionInterfaces.ts:1054-1078` (canonical `ICriticalHitPayload` with optional component + count), `src/simulation/detectors/KeyMomentDetector/types.ts:43-48` (local-narrow consumer-side type, unchanged).
+
+## [2026-05-06] Task: P3 — Runner-side seed sweep for crit emission tests
+
+**Convention discovered — the runner's RNG is shared, not factored**: `runAttackPhase` uses a single `SeededRandom` for to-hit + hit-location + crit-trigger + slot-selection rolls. To deterministically test "a crit fires", you'd have to predict the entire RNG sequence after to-hit + hit-location consumed N rolls. That's brittle.
+
+Practical pattern that emerged: write the runner-level tests as a SEED SWEEP across known-good crit seeds, with structural assertions (causal ordering, payload shape, count parity) rather than slot-specific assertions. The probe used to find seeds: build a stripped-armor scenario, run 20 candidate seeds, log per-seed event-type counts, pick the seeds that produced `critical_hit` events. For this PR, seeds 22, 77, and 200 were known-good for an AC/20 vs stripped-armor target.
+
+For deterministic SLOT-LEVEL assertions (which component destroyed, post-manifest state), drop down to `resolveDamage` directly with a scripted `D6Roller` — the closure-based roller bypasses the runner's shared `SeededRandom` and lets you script the entire 2d6 + slot-selection sequence. The two-layer split (runner seed sweep for event-shape + scripted-roller for slot mechanics) is the canonical pattern for combat-fidelity tests.
+
+**Why it matters**: Future P4/P5/P6 tests will face the same tension. Don't fight the shared RNG — use seed sweeps where the assertion is structural, drop to the underlying utility with a custom roller where the assertion is mechanical.
+
+**Reference**: `src/simulation/runner/__tests__/criticalHitEvents.test.ts:407-433` (seed-sweep pattern), `src/simulation/runner/__tests__/criticalHitEvents.test.ts:71-78` (scriptedRoller helper), `src/simulation/__tests__/scenario-crit-chains.integration.test.ts` (scripted-roller scenarios at the resolveDamage layer).
+
+## [2026-05-06] Task: P3 — Crits accelerate destruction (test budget widening)
+
+**Convention discovered**: Three pre-P3 tests had implicit assumptions that crits never fired:
+1. `atlasMirrorMultiWeapon.integration.test.ts` asserted `result.turns >= 5` and `winner === null` — Atlas mirror would never finish in 5 turns. With P3 crits enabled, engine 3-hit destruction can end the match by turn 3.
+2. `simulation-combat-integration.test.ts` asserted `cause IN ['damage', 'pilot_death']` — P3's `'engine_destroyed'` enum value broke the assertion.
+3. `swarm-pilot-skills-batch.test.ts` 95% dominance threshold — skilled pilots (gunnery 2) now land more crits AND more hits, pushing observed win rate from 0.94 to 0.97.
+
+All three are LEGITIMATE test updates, not regressions: P3 added new emergent combat dynamics. The fixes preserved test INTENT while widening assertions:
+- (1) crash-guard intent preserved as `turns >= 1` + winner ∈ valid set.
+- (2) cause whitelist expanded to the full P0.5 7-value enum.
+- (3) threshold widened 0.95 → 0.99 with rationale comment citing the crit-induced lift.
+
+**Why it matters**: Pre-existing tests written under "crits don't fire" assumptions surface as failures the moment the rule turns on. Look for tests with literal `cause IN [...]` lists or hard-coded turn counts BEFORE the rule lands; widen them in-place rather than disabling. P4 (heat/ammo) and P5 (metrics) will hit the same kind of fallout — heat shutdown can now end matches faster, ammo cookoff can destroy units mid-volley, etc. Per project MEMORY: budget widening is a 3x rule of thumb with explanatory comments, never silent.
+
+**Reference**: `src/simulation/__tests__/atlasMirrorMultiWeapon.integration.test.ts:182-203`, `src/simulation/__tests__/simulation-combat-integration.test.ts:494-507`, `src/simulation/__tests__/swarm-pilot-skills-batch.test.ts:281-301`.
+

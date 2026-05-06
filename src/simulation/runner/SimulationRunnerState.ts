@@ -1,3 +1,4 @@
+import type { IComponentDamageState } from '@/types/gameplay/GameSessionInterfaces';
 import type { IUnitDamageState } from '@/utils/gameplay/damage';
 
 import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
@@ -166,6 +167,16 @@ export function applyDamageResultToState(
     }[];
     readonly unitDestroyed: boolean;
   },
+  /**
+   * Per `add-combat-fidelity-suite` Phase 3: when the runner threaded a
+   * `criticalContext` into `resolveDamage`, the resulting
+   * `IComponentDamageState` propagates back here so the post-crit
+   * engine/gyro/sensor/cockpit/actuator/weapon/heat-sink/jump-jet/ammo
+   * mutations land on `IUnitGameState.componentDamage`. Optional + last
+   * so existing callsites (legacy session twin, P0/P1/P2 fixtures,
+   * physical-attack phase) compile unchanged.
+   */
+  componentDamage?: IComponentDamageState,
 ): IGameState {
   const target = state.units[targetId];
   if (!target) return state;
@@ -209,6 +220,12 @@ export function applyDamageResultToState(
     pilotWounds: damageState.pilotWounds,
     pilotConscious: damageState.pilotConscious,
     destroyed: damageResult.unitDestroyed,
+    // When the runner supplied post-crit component damage, persist it.
+    // Engine/gyro hits drive PSR + heat thresholds + walk-MP penalties
+    // downstream; without persistence the runner re-rolls a fresh
+    // component-damage block every shot and crit-cascade scenarios
+    // (3 engine hits → destruction) can never accumulate.
+    ...(componentDamage !== undefined ? { componentDamage } : {}),
   };
 
   return {

@@ -179,11 +179,22 @@ describe('Atlas-vs-Atlas mirror — multi-weapon AttackDeclared (P1, task 1.5)',
     );
     const result = runner.run(config);
 
-    // turns advances each completed loop iteration; with hydration
-    // working, both Atlases trade fire and turn 5 is reached. With
-    // 304 armor + 152 structure each, neither falls in 5 turns.
-    expect(result.turns).toBeGreaterThanOrEqual(5);
-    expect(result.winner).toBeNull();
+    // Test intent: catalog data with rear armor / per-location internal
+    // structure must NOT crash the turn loop. The original assertion
+    // (turns ≥ 5, no winner) assumed neither Atlas would fall by turn
+    // 5 with 304 armor + 152 structure. Phase 3 (`add-combat-fidelity-
+    // suite`) wired critical hits into the runner — through-armor
+    // crits + engine 3-hit destruction can now end a match before
+    // turn 5 even with full Atlas armor. The crash-guard intent is
+    // unchanged: assert at least one full turn completed (proving
+    // hydration didn't TypeError) and that the runner produced a
+    // legal terminal state.
+    expect(result.turns).toBeGreaterThanOrEqual(1);
+    // `winner` is `null` when the run hit the turn limit with both
+    // sides alive; otherwise it's `'player' | 'opponent' | 'draw'`.
+    // Either is fine — we just don't want an undefined or thrown
+    // result.
+    expect(['player', 'opponent', 'draw', null]).toContain(result.winner);
   });
 
   it('falls back to synthetic single-ML when no hydration is supplied (legacy preset mode)', () => {

@@ -1,3 +1,6 @@
+import type { IComponentDamageState } from '@/types/gameplay/GameSessionInterfaces';
+
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import {
   CombatLocation,
   IDamageResult,
@@ -5,9 +8,35 @@ import {
   IPilotDamageResult,
 } from '@/types/gameplay';
 
+import type {
+  CriticalHitEvent,
+  CriticalSlotManifest,
+} from '../criticalHitResolution/types';
+
 import { roll2d6 } from '../hitLocation';
 
 export type RearArmorLocation = 'center_torso' | 'left_torso' | 'right_torso';
+
+/**
+ * Optional crit-resolution context attached to `IUnitDamageState`.
+ *
+ * Per `add-combat-fidelity-suite` Phase 3: when present, `resolveDamage`
+ * dispatches `resolveCriticalHits()` on every triggered crit roll and
+ * populates `IDamageResult.criticalHits[]` with the resolved slots. When
+ * absent (legacy callers, low-level damage tests), the trigger fires
+ * but slot resolution is deferred to the runner — `criticalHits[]`
+ * stays empty in that case.
+ *
+ * The four fields mirror the `resolveCriticalHits` parameter list. Held
+ * here as a single bundle so callers don't have to thread four
+ * positional arguments through every helper.
+ */
+export interface ICriticalContext {
+  readonly unitId: string;
+  readonly manifest: CriticalSlotManifest;
+  readonly componentDamage: IComponentDamageState;
+  readonly armorType?: ArmorTypeEnum;
+}
 
 export interface IUnitDamageState {
   readonly armor: Readonly<Record<CombatLocation, number>>;
@@ -25,6 +54,12 @@ export interface IUnitDamageState {
     | 'shutdown'
     | 'ct_destroyed'
     | 'head_destroyed';
+  /**
+   * Per `add-combat-fidelity-suite` Phase 3: when supplied, `resolveDamage`
+   * dispatches `resolveCriticalHits` per location where the trigger
+   * fires. Optional + last so existing callers compile unchanged.
+   */
+  readonly criticalContext?: ICriticalContext;
 }
 
 export interface ILocationDamageResult {
@@ -58,6 +93,42 @@ export interface IDestructionCheckResult {
 export interface IResolveDamageResult {
   state: IUnitDamageState;
   result: IDamageResult;
+  /**
+   * Per `add-combat-fidelity-suite` Phase 3: when `state.criticalContext`
+   * was populated and at least one crit triggered, this carries the
+   * post-resolution `IComponentDamageState` for the runner to apply to
+   * `IUnitGameState.componentDamage`. Undefined when no crits fired or
+   * no context was supplied.
+   */
+  componentDamage?: IComponentDamageState;
+  /**
+   * Per `add-combat-fidelity-suite` Phase 3: events produced by the
+   * crit-resolver (`critical_hit_resolved` / `unit_destroyed` /
+   * `pilot_hit` / `psr_triggered`) in causal order. The runner
+   * translates these into game events and emits them after the
+   * `LocationDestroyed` events for the same location. Undefined when
+   * no context was supplied.
+   */
+  criticalEvents?: readonly CriticalHitEvent[];
+  /**
+   * Per `add-combat-fidelity-suite` Phase 3: per-location crit-trigger
+   * count. Maps a `CombatLocation` (the location that took structure
+   * damage) to the number of crits that triggered there in this single
+   * `resolveDamage` call. The runner emits one `CriticalHit` event per
+   * unit (location, count) entry. Undefined when no context was
+   * supplied.
+   */
+  criticalTriggers?: ReadonlyArray<{
+    readonly location: CombatLocation;
+    readonly count: number;
+  }>;
+  /**
+   * Per `add-combat-fidelity-suite` Phase 3: post-resolution slot
+   * manifest with destroyed flags applied. The runner threads this
+   * into the unit's persistent `criticalSlotManifest` so subsequent
+   * shots see the already-destroyed slots and don't re-roll them.
+   */
+  manifest?: CriticalSlotManifest;
 }
 
 export interface ITerrainDamageResult extends IResolveDamageResult {

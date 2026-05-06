@@ -1,3 +1,9 @@
+import type { IComponentDamageState } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  CriticalHitEvent,
+  CriticalSlotManifest,
+} from '@/utils/gameplay/criticalHitResolution/types';
+
 import {
   GameEventType,
   GamePhase,
@@ -8,6 +14,7 @@ import {
   IToHitModifier,
   RangeBracket,
 } from '@/types/gameplay';
+import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import { resolveDamage } from '@/utils/gameplay/damage';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import { hexDistance } from '@/utils/gameplay/hexMath';
@@ -87,6 +94,239 @@ function modifiersToPayload(
   }));
 }
 
+/**
+ * Per `add-combat-fidelity-suite` Phase 3 (`combat-resolution` delta):
+ * translate the resolver's `CriticalHitEvent[]` stream into runner-side
+ * `IGameEvent`s and append them to the events log.
+ *
+ * Causal ordering (per design D4):
+ *   `CriticalHit` (per resolved slot, count=1 per BattleTech rule)
+ *   → `CriticalHitResolved` (per slot resolved)
+ *   → `ComponentDestroyed` (per component fully destroyed)
+ *   → `PSRTriggered` (gyro hit cascades into pilot skill roll)
+ *   → `PilotHit` (cockpit hit + head hit)
+ *   → `UnitDestroyed` (engine 3-hit / cockpit / head destroyed)
+ *
+ * The first emit is `CriticalHit` itself — it is NOT in the resolver's
+ * event stream (the resolver only emits `critical_hit_resolved` /
+ * `psr_triggered` / `pilot_hit` / `unit_destroyed`). The runner adds
+ * the `CriticalHit` event from the slot info directly so consumers
+ * (KeyMomentDetector, replay UI, EventLogDisplay) can switch on the
+ * `component` field carried in the payload.
+ *
+ * Engine destruction (cause: 'damage' from the resolver) is translated
+ * to `'engine_destroyed'` per the snake_case taxonomy fixed by P0.5.
+ *
+ * Returns the number of game events appended.
+ */
+function emitCritEvents(options: {
+  events: IGameEvent[];
+  gameId: string;
+  turn: number;
+  attackerId: string;
+  targetId: string;
+  critEvents: readonly CriticalHitEvent[];
+  targetAlreadyDestroyed: boolean;
+}): {
+  unitDestroyed: boolean;
+  destructionCause:
+    | 'damage'
+    | 'ammo_explosion'
+    | 'pilot_death'
+    | 'engine_destroyed'
+    | 'shutdown'
+    | 'ct_destroyed'
+    | 'head_destroyed'
+    | undefined;
+} {
+  const {
+    events,
+    gameId,
+    turn,
+    attackerId,
+    targetId,
+    critEvents,
+    targetAlreadyDestroyed,
+  } = options;
+
+  let unitDestroyed = false;
+  let destructionCause:
+    | 'damage'
+    | 'ammo_explosion'
+    | 'pilot_death'
+    | 'engine_destroyed'
+    | 'shutdown'
+    | 'ct_destroyed'
+    | 'head_destroyed'
+    | undefined = undefined;
+
+  for (const evt of critEvents) {
+    if (evt.type === 'critical_hit_resolved') {
+      const p = evt.payload;
+      // `CriticalHit` first (per slot, count=1) so KeyMomentDetector
+      // and legacy `processCriticalHit` consumers fire on the right
+      // event type. `location` is sourced from the resolver payload
+      // (`p.location`) — that's the location the crit actually
+      // landed on, which may differ from the attack's original hit
+      // location when transfer-chain damage triggered the crit (e.g.
+      // hit LA → LA destroyed → 3 damage to LT → crit on LT engine).
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.CriticalHit,
+          turn,
+          GamePhase.WeaponAttack,
+          {
+            unitId: targetId,
+            location: p.location,
+            sourceUnitId: attackerId,
+            component: p.componentType,
+            count: 1,
+          },
+          attackerId,
+        ),
+      );
+
+      // Then `CriticalHitResolved` carrying the slot index + effect
+      // text. Per spec scenario "Gyro destruction event chain": this
+      // payload carries the `slot` index and `component` enum value.
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.CriticalHitResolved,
+          turn,
+          GamePhase.WeaponAttack,
+          {
+            unitId: p.unitId,
+            location: p.location,
+            slotIndex: p.slotIndex,
+            componentType: p.componentType,
+            componentName: p.componentName,
+            effect: p.effect,
+            destroyed: p.destroyed,
+          },
+          attackerId,
+        ),
+      );
+
+      // `ComponentDestroyed` when the slot is fully destroyed (always
+      // true today — the resolver only emits `critical_hit_resolved`
+      // when a slot was actually struck). Carries the `componentType`
+      // enum + `slotIndex` for UI dedupe.
+      if (p.destroyed) {
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.ComponentDestroyed,
+            turn,
+            GamePhase.WeaponAttack,
+            {
+              unitId: p.unitId,
+              location: p.location,
+              componentType: p.componentType,
+              slotIndex: p.slotIndex,
+              componentName: p.componentName,
+            },
+            attackerId,
+          ),
+        );
+      }
+      continue;
+    }
+
+    if (evt.type === 'psr_triggered') {
+      const p = evt.payload;
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.PSRTriggered,
+          turn,
+          GamePhase.WeaponAttack,
+          {
+            unitId: p.unitId,
+            reason: p.reason,
+            additionalModifier: p.additionalModifier,
+            triggerSource: p.triggerSource,
+          },
+          attackerId,
+        ),
+      );
+      continue;
+    }
+
+    if (evt.type === 'pilot_hit') {
+      const p = evt.payload;
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.PilotHit,
+          turn,
+          GamePhase.WeaponAttack,
+          {
+            unitId: p.unitId,
+            wounds: p.wounds,
+            totalWounds: p.totalWounds,
+            source: p.source,
+            consciousnessCheckRequired: p.consciousnessCheckRequired,
+            consciousnessCheckPassed: p.consciousnessCheckPassed,
+          },
+          attackerId,
+        ),
+      );
+      continue;
+    }
+
+    if (evt.type === 'unit_destroyed') {
+      // The crit-resolution layer encodes engine 3-hit destruction as
+      // `cause: 'damage'`. Per P0.5's reconciled taxonomy + the spec
+      // scenario "Engine-3-hit destruction triggers UnitDestroyed", the
+      // runner translates that to `'engine_destroyed'` so downstream
+      // consumers see the spec-correct enum without re-deriving it
+      // from componentDamage.engineHits.
+      const rawCause = evt.payload.cause;
+      const mappedCause:
+        | 'damage'
+        | 'ammo_explosion'
+        | 'pilot_death'
+        | 'engine_destroyed'
+        | 'shutdown'
+        | 'ct_destroyed'
+        | 'head_destroyed' =
+        rawCause === 'damage'
+          ? 'engine_destroyed'
+          : rawCause === 'pilot_death'
+            ? 'pilot_death'
+            : (rawCause as
+                | 'ammo_explosion'
+                | 'shutdown'
+                | 'ct_destroyed'
+                | 'head_destroyed');
+
+      // Capture for the caller; the actual `UnitDestroyed` game event
+      // is emitted exactly once per shot by the caller (after damage
+      // chain) so we don't double-emit when raw armor destruction +
+      // crit destruction both fire on the same shot.
+      unitDestroyed = true;
+      destructionCause = mappedCause;
+      continue;
+    }
+  }
+
+  // The caller suppresses double `UnitDestroyed` if the target was
+  // already destroyed by armor depletion before crits resolved.
+  if (targetAlreadyDestroyed) {
+    unitDestroyed = false;
+    destructionCause = undefined;
+  }
+
+  return { unitDestroyed, destructionCause };
+}
+
 export function runAttackPhase(options: {
   state: IGameState;
   botPlayer: IAIPlayer;
@@ -108,6 +348,19 @@ export function runAttackPhase(options: {
    * on hit) per turn.
    */
   weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
+  /**
+   * Per `add-combat-fidelity-suite` Phase 3: per-unit critical-slot
+   * manifest, keyed by runner unit id. The runner persists post-crit
+   * manifests across phase calls so subsequent shots see destroyed
+   * slots and the slot-selection roll never re-rolls a
+   * already-destroyed slot. When omitted (legacy callers) the runner
+   * builds a default manifest per target on first crit.
+   *
+   * Mutated in place — the caller's `Map` instance is updated with the
+   * post-resolution manifest after every shot. Callers that need
+   * read-only invariants should pass a copy.
+   */
+  manifestsByUnit?: Map<string, CriticalSlotManifest>;
 }): IGameState {
   const {
     botPlayer,
@@ -118,9 +371,26 @@ export function runAttackPhase(options: {
     state,
     violations,
     weaponsByUnit,
+    manifestsByUnit,
   } = options;
   let currentState = { ...state, phase: GamePhase.WeaponAttack };
   violations.push(...invariantRunner.runAll(currentState));
+
+  // Per `add-combat-fidelity-suite` Phase 3: lazy default-manifest
+  // helper. The first time a target takes structure damage we either
+  // pull its already-persisted manifest from the side table, OR build
+  // a default biped manifest and seed it. Subsequent shots reuse the
+  // updated manifest from prior crit resolutions in the same phase.
+  const getOrSeedManifest = (id: string): CriticalSlotManifest => {
+    if (manifestsByUnit) {
+      const existing = manifestsByUnit.get(id);
+      if (existing) return existing;
+      const seeded = buildDefaultCriticalSlotManifest();
+      manifestsByUnit.set(id, seeded);
+      return seeded;
+    }
+    return buildDefaultCriticalSlotManifest();
+  };
 
   const d6Roller = createD6Roller(random);
   // The all-units snapshot is consumed as enemy candidates; threading
@@ -324,13 +594,58 @@ export function runAttackPhase(options: {
 
       const targetBefore = currentState.units[targetId];
       const damageState = buildDamageState(targetBefore);
-      const damageResult = resolveDamage(damageState, location, damage);
+
+      // Per `add-combat-fidelity-suite` Phase 3: thread a
+      // `criticalContext` into the damage state so `resolveDamage`
+      // dispatches `resolveCriticalHits` per location where the
+      // 2d6 trigger crosses 8+. The context bundles the resolver's
+      // four required parameters (`unitId` / `manifest` /
+      // `componentDamage` / `armorType`) so callers don't have to
+      // thread four positional arguments. `armorType` is left
+      // undefined for the runner today — the synthetic units don't
+      // carry construction armor data; the resolver falls back to
+      // the standard armor crit ladder.
+      const targetManifest = getOrSeedManifest(targetId);
+      const targetComponentDamage: IComponentDamageState =
+        targetBefore.componentDamage ?? {
+          engineHits: 0,
+          gyroHits: 0,
+          sensorHits: 0,
+          lifeSupport: 0,
+          cockpitHit: false,
+          actuators: {},
+          weaponsDestroyed: [],
+          heatSinksDestroyed: 0,
+          jumpJetsDestroyed: 0,
+        };
+      const damageStateWithCtx = {
+        ...damageState,
+        criticalContext: {
+          unitId: targetId,
+          manifest: targetManifest,
+          componentDamage: targetComponentDamage,
+        },
+      };
+      const damageResult = resolveDamage(
+        damageStateWithCtx,
+        location,
+        damage,
+        d6Roller,
+      );
+
+      // Persist the post-resolution manifest in the side table so the
+      // next shot at this target sees already-destroyed slots and the
+      // selection roll never re-rolls a destroyed slot.
+      if (manifestsByUnit && damageResult.manifest) {
+        manifestsByUnit.set(targetId, damageResult.manifest);
+      }
 
       currentState = applyDamageResultToState(
         currentState,
         targetId,
         damageResult.state,
         damageResult.result,
+        damageResult.componentDamage,
       );
       const targetAfter = currentState.units[targetId];
 
@@ -509,7 +824,65 @@ export function runAttackPhase(options: {
         }
       }
 
+      // Per `add-combat-fidelity-suite` Phase 3: emit the crit chain
+      // produced by `resolveCriticalHits` (via `resolveDamage`). Each
+      // resolved slot fans out into:
+      //   `CriticalHit { component, count: 1 }` (per slot)
+      //   → `CriticalHitResolved { slotIndex, componentType, ... }`
+      //   → `ComponentDestroyed { componentType, slotIndex }` (when
+      //     the slot is fully destroyed — always today)
+      //   → `PSRTriggered` (gyro hit cascades)
+      //   → `PilotHit` (cockpit / head hit)
+      // Causal ordering: AFTER the full damage chain
+      // (DamageApplied → LocationDestroyed → TransferDamage) and
+      // BEFORE the `UnitDestroyed` event the runner emits below.
+      let critUnitDestroyed = false;
+      let critDestructionCause:
+        | 'damage'
+        | 'ammo_explosion'
+        | 'pilot_death'
+        | 'engine_destroyed'
+        | 'shutdown'
+        | 'ct_destroyed'
+        | 'head_destroyed'
+        | undefined = undefined;
+      if (damageResult.criticalEvents) {
+        const emitted = emitCritEvents({
+          events,
+          gameId,
+          turn: currentState.turn,
+          attackerId: unitId,
+          targetId,
+          critEvents: damageResult.criticalEvents,
+          targetAlreadyDestroyed: targetBefore.destroyed,
+        });
+        critUnitDestroyed = emitted.unitDestroyed;
+        critDestructionCause = emitted.destructionCause;
+      }
+
+      // Emit `UnitDestroyed` once if the shot killed the target. The
+      // cause is sourced (in priority order):
+      //   1. crit-induced destruction (engine 3-hit → engine_destroyed,
+      //      cockpit hit → pilot_death) — captured by the helper above.
+      //   2. raw damage destruction (CT zeroed, head zeroed by armor
+      //      depletion) — falls through with cause 'damage' and the
+      //      `damageResult.result.destructionCause` enum.
+      // Never emit a second `UnitDestroyed` if the target was already
+      // destroyed before this shot (multi-mount fire after the kill
+      // shot in the same volley).
       if (currentState.units[targetId].destroyed && !targetBefore.destroyed) {
+        const fallbackCause = damageResult.result.destructionCause ?? 'damage';
+        const cause:
+          | 'damage'
+          | 'ammo_explosion'
+          | 'pilot_death'
+          | 'engine_destroyed'
+          | 'shutdown'
+          | 'ct_destroyed'
+          | 'head_destroyed' =
+          critUnitDestroyed && critDestructionCause
+            ? critDestructionCause
+            : fallbackCause;
         events.push(
           createGameEvent(
             gameId,
@@ -519,7 +892,7 @@ export function runAttackPhase(options: {
             GamePhase.WeaponAttack,
             {
               unitId: targetId,
-              cause: 'damage' as const,
+              cause,
               killerUnitId: unitId,
             },
           ),
