@@ -147,7 +147,12 @@ function runWithSkills(
 
     if (isGameOver(currentState)) break;
 
-    currentState = runHeatPhase(currentState);
+    currentState = runHeatPhase({
+      state: currentState,
+      events,
+      gameId,
+      random,
+    });
     currentState = { ...currentState, phase: GamePhase.End };
     violations.push(...invariantRunner.runAll(currentState));
 

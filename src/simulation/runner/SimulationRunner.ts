@@ -209,7 +209,13 @@ export class SimulationRunner {
         break;
       }
 
-      currentState = runHeatPhase(currentState);
+      currentState = runHeatPhase({
+        state: currentState,
+        events,
+        gameId,
+        random: this.random,
+        weaponsByUnit: this.weaponsByUnit,
+      });
 
       currentState = { ...currentState, phase: GamePhase.End };
       violations.push(...this.invariantRunner.runAll(currentState));

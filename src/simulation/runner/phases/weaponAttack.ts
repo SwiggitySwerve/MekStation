@@ -1,10 +1,14 @@
-import type { IComponentDamageState } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IAmmoSlotState,
+  IComponentDamageState,
+} from '@/types/gameplay/GameSessionInterfaces';
 import type {
   CriticalHitEvent,
   CriticalSlotManifest,
 } from '@/utils/gameplay/criticalHitResolution/types';
 
 import {
+  CombatLocation,
   GameEventType,
   GamePhase,
   IAttackerState,
@@ -14,6 +18,8 @@ import {
   IToHitModifier,
   RangeBracket,
 } from '@/types/gameplay';
+import { isEnergyWeapon } from '@/utils/gameplay/ammoTracking';
+import { consumeAmmo } from '@/utils/gameplay/ammoTracking/state';
 import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import { resolveDamage } from '@/utils/gameplay/damage';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
@@ -92,6 +98,87 @@ function modifiersToPayload(
     value: m.value,
     source: m.source,
   }));
+}
+
+/**
+ * Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution` delta —
+ * Ammo Consumption and Explosion Events): map a runner-side `IWeapon`
+ * to a `weaponType` string consumable by `consumeAmmo`. The catalog
+ * weapon ids carry an `-{index}` suffix (e.g. `lrm-20-2`) per
+ * `UnitHydration.toAIWeapon`; ammo bins are typed by the base weapon
+ * family (`lrm-20`, `srm-6`, `ac-20`). We strip the trailing
+ * `-{number}` suffix to derive the base type. Energy weapons return
+ * the unmodified id but the caller filters them out via
+ * `isEnergyWeapon` first.
+ *
+ * Defensive: when the id has no trailing index suffix (test fixtures
+ * that hand-build minimal weapons), the original id is returned
+ * unchanged.
+ */
+function weaponTypeFromMountId(weaponId: string): string {
+  const match = weaponId.match(/^(.+)-(\d+)$/);
+  return match ? match[1] : weaponId;
+}
+
+/**
+ * Per `add-combat-fidelity-suite` Phase 4 (`ammo-explosion-system`
+ * delta — Ammo Explosion Triggered by Critical Hit on Loaded Bin):
+ * locate a loaded ammo bin in `ammoState` matching the destroyed
+ * component slot's location. We don't yet have a slot-to-bin direct
+ * mapping in the runner state (that's a follow-on hookup once the
+ * resolver carries `ammoBinId` on `ICriticalHitResolvedPayload`); for
+ * now we pick the first non-empty explosive bin AT the same location
+ * as the crit. When no loaded bin is found at the location, returns
+ * `null` and the runner skips the AmmoExplosion event (matching the
+ * spec scenario "Empty ammo bin crit produces no explosion").
+ *
+ * `damagePerRound` is sourced from the bin's `weaponType` looked up
+ * against the unit's catalog weapon list; we fallback to 1 when the
+ * weapon isn't found in the lookup so the explosion event still
+ * fires with a non-zero damage signal.
+ */
+function findExplodingAmmoBin(
+  ammoState: Record<string, IAmmoSlotState>,
+  location: string,
+): IAmmoSlotState | null {
+  for (const bin of Object.values(ammoState)) {
+    if (
+      bin.location === location &&
+      bin.remainingRounds > 0 &&
+      bin.isExplosive
+    ) {
+      return bin;
+    }
+  }
+  return null;
+}
+
+/**
+ * Per `add-combat-fidelity-suite` Phase 4: resolve the per-round
+ * damage of an ammo bin from the attacker's catalog weapon list. The
+ * bin's `weaponType` (e.g. `ac-20`, `lrm-20`, `srm-6`) is matched
+ * against weapon ids in the lookup; the matching weapon's `damage`
+ * field (already resolved per `resolveCatalogDamage`) is the
+ * per-round damage. AC/20 bin = 20 damage/round, LRM-20 bin = 20
+ * damage/missile (resolved as a per-volley sum upstream), etc.
+ *
+ * When the bin's weapon isn't found in the lookup (test fixtures
+ * with hand-rolled bins), we fall back to 1 so the explosion still
+ * fires with a non-zero damage signal — tests can override by
+ * supplying a matching weapon entry.
+ */
+function damagePerRoundForBin(
+  bin: IAmmoSlotState,
+  unitWeapons: readonly IWeapon[] | undefined,
+): number {
+  if (!unitWeapons) return 1;
+  for (const weapon of unitWeapons) {
+    const baseType = weaponTypeFromMountId(weapon.id);
+    if (baseType === bin.weaponType) {
+      return weapon.damage > 0 ? weapon.damage : 1;
+    }
+  }
+  return 1;
 }
 
 /**
@@ -702,6 +789,54 @@ export function runAttackPhase(options: {
         ),
       );
 
+      // Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution`
+      // delta — Ammo Consumption and Explosion Events): when a
+      // non-energy weapon fires, decrement its ammo bin and emit
+      // `AmmoConsumed`. Energy weapons (laser / PPC / flamer / plasma)
+      // skip this branch via `isEnergyWeapon`. When the unit has no
+      // `ammoState` populated (synthetic test fixtures, legacy
+      // session) the consumption is silently skipped — pre-P4
+      // behaviour preserved.
+      const attackerForAmmo = currentState.units[unitId];
+      const ammoStateBefore = attackerForAmmo.ammoState;
+      if (
+        ammoStateBefore !== undefined &&
+        Object.keys(ammoStateBefore).length > 0 &&
+        !isEnergyWeapon(weapon.name)
+      ) {
+        const baseWeaponType = weaponTypeFromMountId(weapon.id);
+        const ammoResult = consumeAmmo(ammoStateBefore, unitId, baseWeaponType);
+        if (ammoResult) {
+          currentState = {
+            ...currentState,
+            units: {
+              ...currentState.units,
+              [unitId]: {
+                ...currentState.units[unitId],
+                ammoState: ammoResult.updatedAmmoState,
+              },
+            },
+          };
+          events.push(
+            createGameEvent(
+              gameId,
+              events.length,
+              GameEventType.AmmoConsumed,
+              currentState.turn,
+              GamePhase.WeaponAttack,
+              {
+                unitId,
+                binId: ammoResult.event.binId,
+                weaponType: ammoResult.event.weaponType,
+                roundsConsumed: ammoResult.event.roundsConsumed,
+                roundsRemaining: ammoResult.event.roundsRemaining,
+              },
+              unitId,
+            ),
+          );
+        }
+      }
+
       // Per `combat-resolution` delta + `damage-system` delta: walk the
       // ordered `locationDamages` chain and emit `DamageApplied` →
       // `LocationDestroyed` (when zeroed) → `TransferDamage` (when
@@ -858,6 +993,229 @@ export function runAttackPhase(options: {
         });
         critUnitDestroyed = emitted.unitDestroyed;
         critDestructionCause = emitted.destructionCause;
+      }
+
+      // Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution`
+      // delta — Heat Lifecycle / `ammo-explosion-system` delta —
+      // Critical Hit on Loaded Bin): when the resolver flagged an
+      // ammo slot as destroyed, emit `AmmoExplosion` and apply the
+      // explosion damage to the bin's location. CASE / CASE-II flags
+      // are not yet wired into `IUnitGameState` (deferred follow-up
+      // documented in `notepad/issues.md`); without CASE, the
+      // explosion damage cascades through the canonical transfer
+      // chain via a second `resolveDamage` call. Causal order:
+      //   `ComponentDestroyed { component: 'ammo' }` (already emitted
+      //   by emitCritEvents)
+      //   → `AmmoExplosion`
+      //   → `DamageApplied` to bin location (cascade)
+      //   → `LocationDestroyed` (if survives)
+      //   → `TransferDamage` (if no CASE)
+      //   → `UnitDestroyed` (if cascade reaches CT).
+      if (damageResult.criticalEvents) {
+        const attackerWeapons = weaponsByUnit?.get(targetId);
+        for (const evt of damageResult.criticalEvents) {
+          if (
+            evt.type !== 'critical_hit_resolved' ||
+            evt.payload.componentType !== 'ammo' ||
+            !evt.payload.destroyed
+          ) {
+            continue;
+          }
+          const targetNow = currentState.units[targetId];
+          if (targetNow.destroyed) break;
+          const ammoStateOnTarget = targetNow.ammoState ?? {};
+          const bin = findExplodingAmmoBin(
+            ammoStateOnTarget,
+            evt.payload.location,
+          );
+          if (!bin) {
+            // Empty ammo bin (or no bin tracked at this location) —
+            // per spec scenario "Empty ammo bin crit produces no
+            // explosion": ComponentDestroyed already emitted; no
+            // AmmoExplosion follows.
+            continue;
+          }
+          const damagePerRound = damagePerRoundForBin(bin, attackerWeapons);
+          const explosionDamage = bin.remainingRounds * damagePerRound;
+          events.push(
+            createGameEvent(
+              gameId,
+              events.length,
+              GameEventType.AmmoExplosion,
+              currentState.turn,
+              GamePhase.WeaponAttack,
+              {
+                unitId: targetId,
+                location: bin.location,
+                binId: bin.binId,
+                weaponType: bin.weaponType,
+                roundsDestroyed: bin.remainingRounds,
+                damage: explosionDamage,
+                source: 'CritInduced' as const,
+              },
+              unitId,
+            ),
+          );
+          // Empty the bin (ammoState mutation) so a subsequent volley
+          // mount in the same turn can't re-trigger the explosion.
+          const emptiedAmmoState = {
+            ...ammoStateOnTarget,
+            [bin.binId]: { ...bin, remainingRounds: 0 },
+          };
+          // Apply the explosion damage through the canonical damage
+          // pipeline so LocationDestroyed + TransferDamage emit per
+          // the spec scenario "Side-torso ammo explosion without
+          // CASE destroys CT". When CASE/CASE-II flags eventually
+          // land on IUnitGameState, gate this cascade on the
+          // location's CASE flag. The bin location string ('right_torso',
+          // 'left_torso', etc.) matches CombatLocation.
+          const targetForCascade = currentState.units[targetId];
+          const cascadeState = buildDamageState({
+            ...targetForCascade,
+            ammoState: emptiedAmmoState,
+          });
+          const cascadeResult = resolveDamage(
+            cascadeState,
+            bin.location as CombatLocation,
+            explosionDamage,
+            d6Roller,
+          );
+          // Apply the cascade state back to the target unit and
+          // emit the resulting damage chain inline.
+          currentState = applyDamageResultToState(
+            currentState,
+            targetId,
+            cascadeResult.state,
+            cascadeResult.result,
+          );
+          // Ensure the emptied ammoState persists on the unit too —
+          // applyDamageResultToState doesn't touch ammoState.
+          currentState = {
+            ...currentState,
+            units: {
+              ...currentState.units,
+              [targetId]: {
+                ...currentState.units[targetId],
+                ammoState: emptiedAmmoState,
+              },
+            },
+          };
+
+          const cascadeChain = cascadeResult.result.locationDamages;
+          for (let j = 0; j < cascadeChain.length; j++) {
+            const locDmg = cascadeChain[j];
+            const isCascadeTransfer = j > 0;
+            events.push(
+              createGameEvent(
+                gameId,
+                events.length,
+                GameEventType.DamageApplied,
+                currentState.turn,
+                GamePhase.WeaponAttack,
+                {
+                  unitId: targetId,
+                  location: locDmg.location,
+                  damage: locDmg.damage,
+                  armorRemaining: locDmg.armorRemaining,
+                  structureRemaining: locDmg.structureRemaining,
+                  locationDestroyed: locDmg.destroyed,
+                  sourceUnitId: unitId,
+                },
+                unitId,
+              ),
+            );
+            if (locDmg.destroyed) {
+              events.push(
+                createGameEvent(
+                  gameId,
+                  events.length,
+                  GameEventType.LocationDestroyed,
+                  currentState.turn,
+                  GamePhase.WeaponAttack,
+                  {
+                    unitId: targetId,
+                    location: locDmg.location,
+                    viaTransfer: isCascadeTransfer,
+                  },
+                  unitId,
+                ),
+              );
+            }
+            if (locDmg.transferredDamage > 0 && locDmg.transferLocation) {
+              events.push(
+                createGameEvent(
+                  gameId,
+                  events.length,
+                  GameEventType.TransferDamage,
+                  currentState.turn,
+                  GamePhase.WeaponAttack,
+                  {
+                    unitId: targetId,
+                    fromLocation: locDmg.location,
+                    toLocation: locDmg.transferLocation,
+                    damage: locDmg.transferredDamage,
+                  },
+                  unitId,
+                ),
+              );
+            }
+          }
+
+          // If the cascade destroyed the unit, surface the
+          // ammo_explosion cause for the consolidated UnitDestroyed
+          // emission below. Override prior crit-cause if present —
+          // ammo cookoff is a more specific cause than engine_destroyed.
+          if (cascadeResult.result.unitDestroyed && !critUnitDestroyed) {
+            critUnitDestroyed = true;
+            critDestructionCause = 'ammo_explosion';
+          } else if (
+            cascadeResult.result.unitDestroyed &&
+            critDestructionCause !== 'pilot_death'
+          ) {
+            // Honour pilot_death precedence; otherwise prefer
+            // ammo_explosion since the cookoff is the proximate cause.
+            critDestructionCause = 'ammo_explosion';
+          }
+        }
+      }
+
+      // Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution`
+      // delta — Heat Lifecycle): emit `PilotHit` when the head hit
+      // damaged the pilot. The crit-resolver's pilot_hit event
+      // covers cockpit-crit cases; this branch handles the head-hit
+      // 1-wound case from `resolveDamage`'s `applyPilotDamage` call.
+      // Idempotency: skip if `emitCritEvents` already emitted a
+      // `PilotHit` for this shot (cockpit crit + head hit on same
+      // shot would double-count). We test by scanning events
+      // emitted since the AttackResolved sequence boundary — when
+      // the resolver's pilot_hit fires it's part of the crit stream
+      // we just emitted.
+      const pilotDamageResult = damageResult.result.pilotDamage;
+      if (pilotDamageResult && pilotDamageResult.woundsInflicted > 0) {
+        const alreadyEmittedFromCrit =
+          damageResult.criticalEvents?.some((e) => e.type === 'pilot_hit') ??
+          false;
+        if (!alreadyEmittedFromCrit) {
+          events.push(
+            createGameEvent(
+              gameId,
+              events.length,
+              GameEventType.PilotHit,
+              currentState.turn,
+              GamePhase.WeaponAttack,
+              {
+                unitId: targetId,
+                wounds: pilotDamageResult.woundsInflicted,
+                totalWounds: pilotDamageResult.totalWounds,
+                source: 'head_hit' as const,
+                consciousnessCheckRequired:
+                  pilotDamageResult.consciousnessCheckRequired,
+                consciousnessCheckPassed: pilotDamageResult.conscious,
+              },
+              unitId,
+            ),
+          );
+        }
       }
 
       // Emit `UnitDestroyed` once if the shot killed the target. The
