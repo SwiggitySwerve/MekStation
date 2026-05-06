@@ -3,6 +3,7 @@ import { GameEventType, GamePhase, IGameEvent } from '@/types/gameplay';
 import type { IAIPlayer, AIPlayerFactory } from '../ai/IAIPlayer';
 
 import { BotPlayer } from '../ai/BotPlayer';
+import { SideKeyedAIPlayer } from '../ai/SideKeyedAIPlayer';
 import { DEFAULT_BEHAVIOR } from '../ai/types';
 import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
@@ -53,30 +54,48 @@ export class SimulationRunner {
     createAnomalyDetectors();
 
   /**
-   * @param seed            RNG seed for this runner instance.
-   * @param invariantRunner Optional invariant checker; defaults to a new instance.
-   * @param detectorConfig  Optional anomaly-detector config.
-   * @param aiPlayerFactory Optional factory for the AI player. When omitted the
-   *                        runner uses `BotPlayer` with `DEFAULT_BEHAVIOR` —
-   *                        preserving exact pre-Phase-3 battle traces. When
-   *                        provided, the factory is called once per `run()` with
-   *                        the per-run `SeededRandom` and the `DEFAULT_BEHAVIOR`
-   *                        so callers can inject alternative implementations
-   *                        (e.g. `StandStillAIPlayer` in tests, or a variant
-   *                        preset in the swarm harness).
+   * @param seed                 RNG seed for this runner instance.
+   * @param invariantRunner      Optional invariant checker; defaults to a new instance.
+   * @param detectorConfig       Optional anomaly-detector config.
+   * @param aiPlayerFactory      Optional factory for the AI player. When omitted the
+   *                             runner uses `BotPlayer` with `DEFAULT_BEHAVIOR` —
+   *                             preserving exact pre-Phase-3 battle traces. When
+   *                             provided, the factory is called once per `run()` with
+   *                             the per-run `SeededRandom` and the `DEFAULT_BEHAVIOR`
+   *                             so callers can inject alternative implementations
+   *                             (e.g. `StandStillAIPlayer` in tests, or a variant
+   *                             preset in the swarm harness).
+   * @param aiPlayerFactoryBySide Optional side-keyed factory map. When provided,
+   *                             a `SideKeyedAIPlayer` is constructed internally that
+   *                             routes side-A ("player-*") units to factory A and
+   *                             side-B ("opponent-*") units to factory B. When both
+   *                             `aiPlayerFactory` and `aiPlayerFactoryBySide` are
+   *                             supplied, `aiPlayerFactoryBySide` takes precedence.
    */
   constructor(
     seed: number,
     invariantRunner?: InvariantRunner,
     detectorConfig?: IDetectorConfig,
     aiPlayerFactory?: AIPlayerFactory,
+    aiPlayerFactoryBySide?: { A: AIPlayerFactory; B: AIPlayerFactory },
   ) {
     this.random = new SeededRandom(seed);
     this.invariantRunner = invariantRunner ?? new InvariantRunner();
     this.detectorConfig = detectorConfig ?? {};
-    // Per design D3: factory defaults to BotPlayer so every existing
-    // SimulationRunner callsite continues to produce identical behavior.
-    this.aiPlayerFactory = aiPlayerFactory ?? DEFAULT_AI_FACTORY;
+    // Per design D3: factory defaults to BotPlayer so every existing callsite
+    // continues to produce identical behavior. When aiPlayerFactoryBySide is
+    // provided it takes precedence: wrap side A + B factories via SideKeyedAIPlayer
+    // so each unit receives the correct variant without changing runner internals.
+    if (aiPlayerFactoryBySide) {
+      const { A: factoryA, B: factoryB } = aiPlayerFactoryBySide;
+      this.aiPlayerFactory = (random, behavior) =>
+        new SideKeyedAIPlayer(
+          factoryA(random, behavior),
+          factoryB(random, behavior),
+        );
+    } else {
+      this.aiPlayerFactory = aiPlayerFactory ?? DEFAULT_AI_FACTORY;
+    }
   }
 
   run(config: ISimulationConfig): ISimulationRunResult {
@@ -212,7 +231,11 @@ export class SimulationRunner {
 
     violations.push(...convertAnomaliesToViolations(anomalies));
 
+    // Per design D7: stamp schemaVersion: 1 on the default (non-swarm) path so
+    // downstream consumers can branch on the schema explicitly. BatchRunner.runBatch
+    // overrides this to schemaVersion: 2 when a participants[] payload is supplied.
     return {
+      schemaVersion: 1 as const,
       seed: config.seed,
       winner,
       turns: currentState.turn,

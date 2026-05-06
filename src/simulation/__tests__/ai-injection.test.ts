@@ -14,6 +14,8 @@
 
 import { GameEventType } from '@/types/gameplay';
 
+import type { IAIPlayer, IAIUnitState } from '../ai/IAIPlayer';
+
 import { StandStillAIPlayer } from '../ai/StandStillAIPlayer';
 import { ISimulationConfig } from '../core/types';
 import { SimulationRunner } from '../runner/SimulationRunner';
@@ -131,6 +133,109 @@ describe('AI factory injection', () => {
         retreatThreshold: 0.3,
         safeHeatThreshold: 13,
       });
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Spec Fix 2 — aiPlayerFactoryBySide constructor option
+  //
+  // Spec scenario "Side-keyed factory yields different AI per side": when the
+  // runner is constructed with `aiPlayerFactoryBySide: { A, B }`, side A units
+  // (`player-*`) MUST be driven by the A factory and side B units
+  // (`opponent-*`) MUST be driven by the B factory. Implementation wraps the
+  // two factories via `SideKeyedAIPlayer`.
+  // ---------------------------------------------------------------------------
+  describe('aiPlayerFactoryBySide constructor option', () => {
+    /**
+     * No-op IAIPlayer that records the unitId passed to playMovementPhase so
+     * tests can assert which side-specific factory produced the player driving
+     * each unit. All decision methods return null so the run is otherwise inert.
+     */
+    class RecordingAIPlayer implements IAIPlayer {
+      constructor(private readonly recordTo: string[]) {}
+      evaluateRetreat() {
+        return null;
+      }
+      playMovementPhase(unit: IAIUnitState) {
+        this.recordTo.push(unit.unitId);
+        return null;
+      }
+      playAttackPhase() {
+        return null;
+      }
+      playPhysicalAttackPhase() {
+        return null;
+      }
+    }
+
+    it('routes side A and side B units to their respective factories', () => {
+      const sideACalls: string[] = [];
+      const sideBCalls: string[] = [];
+
+      const runner = new SimulationRunner(
+        BASE_CONFIG.seed,
+        undefined,
+        undefined,
+        undefined,
+        {
+          A: () => new RecordingAIPlayer(sideACalls),
+          B: () => new RecordingAIPlayer(sideBCalls),
+        },
+      );
+
+      runner.run(BASE_CONFIG);
+
+      // Side A factory must have only seen "player-*" unit ids.
+      expect(sideACalls.length).toBeGreaterThan(0);
+      for (const id of sideACalls) {
+        expect(id.startsWith('player-')).toBe(true);
+      }
+      // Side B factory must have only seen "opponent-*" unit ids.
+      expect(sideBCalls.length).toBeGreaterThan(0);
+      for (const id of sideBCalls) {
+        expect(id.startsWith('opponent-')).toBe(true);
+      }
+    });
+
+    it('aiPlayerFactoryBySide takes precedence over aiPlayerFactory when both supplied', () => {
+      const sideACalls: string[] = [];
+      const sideBCalls: string[] = [];
+      const fallbackCalls: string[] = [];
+
+      const runner = new SimulationRunner(
+        BASE_CONFIG.seed,
+        undefined,
+        undefined,
+        // Single-factory path — should be ignored when aiPlayerFactoryBySide is set.
+        () => new RecordingAIPlayer(fallbackCalls),
+        {
+          A: () => new RecordingAIPlayer(sideACalls),
+          B: () => new RecordingAIPlayer(sideBCalls),
+        },
+      );
+
+      runner.run(BASE_CONFIG);
+
+      // Single factory should never see calls — bySide wins.
+      expect(fallbackCalls).toHaveLength(0);
+      expect(sideACalls.length + sideBCalls.length).toBeGreaterThan(0);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Spec Fix 3 — schemaVersion: 1 stamped on the default (non-swarm) run path
+  //
+  // Spec scenario "Schema version preserved on existing path": SimulationRunner
+  // SHALL stamp `schemaVersion: 1` on every result returned by `run()` when
+  // no participants payload is present. BatchRunner.runBatch overrides this to
+  // `schemaVersion: 2` when participants are supplied (Phase 4); that override
+  // path is unchanged.
+  // ---------------------------------------------------------------------------
+  describe('schemaVersion stamp', () => {
+    it('SimulationRunner.run() stamps schemaVersion: 1 on the result', () => {
+      const runner = new SimulationRunner(BASE_CONFIG.seed);
+      const result = runner.run(BASE_CONFIG);
+      expect(result.schemaVersion).toBe(1);
     });
   });
 });
