@@ -174,3 +174,8 @@ nul
 # Simulation reports (keep directory, not generated reports)
 simulation-reports/*.json
 simulation-reports/*/*.json
+
+# Local-only caches (BV prewarm cache for swarm runner, etc.)
+.cache/
+swarm-runs/
+swarm-output.json

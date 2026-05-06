@@ -1,6 +1,11 @@
 import type { IComponentDamageState } from '@/types/gameplay';
 
-export const MAX_TURNS = 10;
+// Engine ceiling for any single battle. Earlier this was 10, which capped
+// `swarm` runner output at 10 turns regardless of `simConfig.turnLimit` and
+// produced "always Incomplete" results for real catalog 2v2+ encounters.
+// 100 leaves comfortable headroom for resolved fights while keeping the
+// default-AI state-cycle anomaly detector firing for stuck battles.
+export const MAX_TURNS = 100;
 export const DEFAULT_TONNAGE = 65;
 export const DEFAULT_PILOTING = 5;
 export const DEFAULT_GUNNERY = 4;

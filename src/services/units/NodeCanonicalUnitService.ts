@@ -162,6 +162,9 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   /** Map from raw RawIndexUnit entries keyed by unit id (for path lookups). */
   private rawIndexCache: Map<string, RawIndexUnit> | null = null;
 
+  /** Cached version stamp from the index file (populated when index loads). */
+  private indexVersionCache: string | null = null;
+
   /** Per-unit IFullUnit cache — avoids re-reading disk on repeated getById calls. */
   private readonly unitCache: Map<string, IFullUnit> = new Map();
 
@@ -214,6 +217,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
 
     this.indexCache = rawFile.units.map(mapRawToIndexEntry);
     this.rawIndexCache = rawMap;
+    this.indexVersionCache = rawFile.version ?? 'unknown';
     return { entries: this.indexCache, raw: this.rawIndexCache };
   }
 
@@ -226,6 +230,18 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    */
   async getIndex(): Promise<readonly IUnitIndexEntry[]> {
     return this.loadRawIndex().entries;
+  }
+
+  /**
+   * Return the version stamp from the catalog index file.
+   * Used as a cache key by `bvCatalogPrewarmer` so the BV cache invalidates
+   * automatically when the catalog regenerates with a new version.
+   */
+  getCatalogVersion(): string {
+    if (this.indexVersionCache === null) {
+      this.loadRawIndex();
+    }
+    return this.indexVersionCache ?? 'unknown';
   }
 
   /**
@@ -316,6 +332,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   clearCache(): void {
     this.indexCache = null;
     this.rawIndexCache = null;
+    this.indexVersionCache = null;
     this.unitCache.clear();
   }
 }
