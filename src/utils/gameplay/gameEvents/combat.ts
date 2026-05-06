@@ -182,6 +182,11 @@ export function createDamageAppliedEvent(
  * Per `integrate-damage-pipeline`: location's internal structure reached
  * zero. Optionally carries `cascadedTo` when destruction triggered a
  * linked-location destruction (side torso → arm cascade).
+ *
+ * Per `add-combat-fidelity-suite` Phase 2: `viaTransfer` distinguishes
+ * direct destruction (`false`) from cascade destruction (`true` —
+ * residual damage flowed in from a previous destroyed location).
+ * Optional for backward compatibility with pre-P2 callers.
  */
 export function createLocationDestroyedEvent(
   gameId: string,
@@ -190,11 +195,13 @@ export function createLocationDestroyedEvent(
   unitId: string,
   location: string,
   cascadedTo?: string,
+  viaTransfer?: boolean,
 ): IGameEvent {
   const payload: ILocationDestroyedPayload = {
     unitId,
     location,
     cascadedTo,
+    viaTransfer,
   };
 
   return {
