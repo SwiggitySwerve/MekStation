@@ -33,6 +33,7 @@ import * as path from 'path';
 
 import type { IUnitIndexEntry } from '../src/types/unit/UnitIndex';
 
+import { prewarmCatalogBV } from '../src/services/encounter/bvCatalogPrewarmer';
 import { generateRandomForce } from '../src/services/encounter/randomForceGenerator';
 import { generateRandomPilots } from '../src/services/encounter/randomPilotGenerator';
 import {
@@ -388,8 +389,35 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
   // Load catalog index once — NodeCanonicalUnitService caches after first read.
   console.log('\nLoading unit catalog...');
   const catalogService = getNodeCanonicalUnitService();
-  const catalog: readonly IUnitIndexEntry[] = await catalogService.getIndex();
-  console.log(`  Loaded ${catalog.length} units.`);
+  const rawCatalog: readonly IUnitIndexEntry[] =
+    await catalogService.getIndex();
+  console.log(`  Loaded ${rawCatalog.length} units.`);
+
+  // The on-disk catalog does NOT store precomputed BV — bvAdapter computes
+  // it at runtime. randomForceGenerator filters on `entry.bv`, so we must
+  // prewarm BV before the run loop or every entry looks like 0 BV and the
+  // budget sanity check rejects everything (BudgetUnsatisfiableError).
+  // First run is slow (~5–15s); subsequent runs hit the disk cache.
+  console.log('Prewarming Battle Value cache...');
+  const prewarmStart = Date.now();
+  const prewarmResult = await prewarmCatalogBV(
+    rawCatalog,
+    catalogService,
+    catalogService.getCatalogVersion(),
+    {
+      onProgress: (processed, total) => {
+        // Inline carriage-return progress so we don't spam the log.
+        process.stdout.write(`  ${processed}/${total} units processed\r`);
+      },
+    },
+  );
+  const prewarmMs = Date.now() - prewarmStart;
+  process.stdout.write('\n');
+  console.log(
+    `  ${prewarmResult.populated} units have BV, ${prewarmResult.skipped} skipped ` +
+      `(${prewarmResult.fromCache ? 'cache hit' : `cold rebuild in ${prewarmMs}ms`}).`,
+  );
+  const catalog = prewarmResult.catalog;
 
   // Validate AI variant names upfront so we fail fast before the loop.
   getBehaviorVariant(config.sideA.aiVariant as AIVariantName);
