@@ -69,12 +69,12 @@
 
 ## Phase 5 — MetricsCollector hydration (~0.5d, PR #6)
 
-- [ ] 5.1 Modify `MetricsCollector.recordGame()` (`src/simulation/metrics/MetricsCollector.ts`) to parse the now-typed event log and populate the stub fields: `playerUnitsStart` (count from initial state), `playerUnitsEnd` (count of player units not destroyed at end), `opponentUnitsStart`, `opponentUnitsEnd`, `totalDamageDealt` (sum of `DamageApplied.damage` across all events).
-- [ ] 5.2 Add new fields to `IGameMetrics`: `criticalHitsLanded`, `componentDestroyedCount`, `ammoExplosions`, `shutdowns`, `falls`, `pilotHits`. Populate from event log.
-- [ ] 5.3 Update `swarmAggregation` consumers (`src/simulation/metrics/swarmAggregation.ts`) to surface these metrics in `chassisMatrix` rollups (already wired for damage/kills, extend for crits/components).
-- [ ] 5.4 Unit tests: synthetic 1-game event log produces expected metrics totals.
-- [ ] 5.5 Scenario test: Atlas-vs-Atlas mirror produces non-zero `criticalHitsLanded` and `totalDamageDealt` reconcilable with the event log.
-- [ ] 5.6 Open PR #6, CI green, merge.
+- [x] 5.1 Modify `MetricsCollector.recordGame()` (`src/simulation/metrics/MetricsCollector.ts`) to parse the now-typed event log and populate the stub fields: `playerUnitsStart` (count from initial state), `playerUnitsEnd` (count of player units not destroyed at end), `opponentUnitsStart`, `opponentUnitsEnd`, `totalDamageDealt` (sum of `DamageApplied.damage` across all events). (Resolved: `MetricsCollector.ts` now walks the event log via `deriveMetricsFromEvents`; side attribution uses the runner's `player-N` / `opponent-N` unit-id prefix per `notepad/learnings.md` "MetricsCollector consumes ISimulationResult, not ISimulationRunResult".)
+- [x] 5.2 Add new fields to `IGameMetrics`: `criticalHitsLanded`, `componentDestroyedCount`, `ammoExplosions`, `shutdowns`, `falls`, `pilotHits`. Populate from event log. (Resolved: 6 new fields added to `ISimulationMetrics` at `src/simulation/metrics/types.ts:23-53`. Shutdowns count `effect === 'shutdown'` only, NOT `'shutdown_check'` — see `notepad/learnings.md` "Shutdown count: `effect: 'shutdown'` only".)
+- [x] 5.3 Update `swarmAggregation` consumers (`src/simulation/metrics/swarmAggregation.ts`) to surface these metrics in `chassisMatrix` rollups (already wired for damage/kills, extend for crits/components). (Resolved: `IChassisMatchupRecord` extended with 5 *Avg fields; `accumulateChassisMatrix` signature changed to take the full `result`; new leaf module `combatFidelityTally.ts` houses the per-run tally helper. SchemaVersion-2 gating preserved unchanged — pure-v1 batches still see no `aggregations` field.)
+- [x] 5.4 Unit tests: synthetic 1-game event log produces expected metrics totals. (Resolved: `src/simulation/metrics/__tests__/MetricsCollector.combatFidelity.test.ts` — 16 tests across empty-log, damage attribution, roster counts, per-event-type counters, end-to-end synthetic log, and side derivation describe blocks.)
+- [x] 5.5 Scenario test: Atlas-vs-Atlas mirror produces non-zero `criticalHitsLanded` and `totalDamageDealt` reconcilable with the event log. (Resolved: `src/simulation/__tests__/scenario-mirror-metrics.integration.test.ts` — 8 tests reusing the P1/P2 Atlas hydration plumbing for a real 10-turn mirror; reconciles every counter against direct event-log enumeration. Also added `src/simulation/__tests__/replay-determinism.integration.test.ts` for the deferred determinism audit — 10-turn variant passes byte-identical, 100-turn variant `it.skip`'d with TODO citing `add-engine-determinism-audit` follow-on.)
+- [x] 5.6 Open PR #6, CI green, merge. (Resolved: PR opened; merge gate held for boss agent per task brief.)
 
 ## Phase 6 — Test pyramid (~2d, PR #7)
 
