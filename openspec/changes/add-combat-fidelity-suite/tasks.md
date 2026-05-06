@@ -99,10 +99,10 @@
 
 ### Monte Carlo distribution tests (~4)
 
-- [ ] 6.14 `mc-medium-laser-hit-rate.test.ts` — 10K seeded ML attacks at S/M/L range vs gunnery-4 stationary target. Assert hit% within ±2σ of analytic 2d6 CDF for target numbers 4 / 7 / 10.
-- [ ] 6.15 `mc-hit-location-histogram.test.ts` — 10K hit-location rolls per arc. Assert histogram matches the canonical 1/36-per-outcome distribution within 5%.
-- [ ] 6.16 `mc-crit-trigger-rate.test.ts` — 10K critical trigger rolls at 10 structure damage. Assert trigger rate matches CDF (P(2d6 ≥ 8) ≈ 41.67%) within ±2σ.
-- [ ] 6.17 `mc-ammo-explosion-frequency.test.ts` — 10K Atlas turns at heat 19 with AC/20 ammo. Assert ammo-explosion frequency matches analytic ammo-explosion-roll CDF.
+- [x] 6.14 `mc-medium-laser-hit-rate.test.ts` — 10K seeded ML attacks at S/M/L range vs gunnery-4 stationary target. Assert hit% within ±2σ of analytic 2d6 CDF for target numbers 4 / 7 / 10.
+- [x] 6.15 `mc-hit-location-histogram.test.ts` — 10K hit-location rolls per arc. Assert histogram matches the canonical 1/36-per-outcome distribution within 5%.
+- [x] 6.16 `mc-crit-trigger-rate.test.ts` — 10K critical trigger rolls at 10 structure damage. Assert trigger rate matches CDF (P(2d6 ≥ 8) ≈ 41.67%) within ±2σ.
+- [x] 6.17 `mc-ammo-explosion-frequency.test.ts` — 10K Atlas turns at heat 19 with AC/20 ammo. Assert ammo-explosion frequency matches analytic ammo-explosion-roll CDF.
 
 - [ ] 6.18 Open PR #7, CI green, merge.
 
