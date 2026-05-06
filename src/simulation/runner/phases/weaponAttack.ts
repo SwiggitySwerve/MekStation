@@ -15,6 +15,7 @@ import { createDamagePSR } from '@/utils/gameplay/pilotingSkillRolls';
 import { calculateToHit } from '@/utils/gameplay/toHit';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
+import type { IWeapon } from '../../ai/types';
 
 import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
@@ -43,6 +44,16 @@ export function runAttackPhase(options: {
   events: IGameEvent[];
   gameId: string;
   random: SeededRandom;
+  /**
+   * Per `add-combat-fidelity-suite` Phase 1: per-unit hydrated weapon
+   * list, keyed by runner unit id. Threaded into `toAIUnitState` so the
+   * AI sees real catalog loadouts (Atlas → 4× ML + AC/20 + LRM-20 +
+   * SRM-6) rather than the synthetic single-medium-laser fallback.
+   * Damage resolution still uses `createMinimalWeapon` because P2
+   * (weapon attack events) owns the per-mount fire-loop wiring;
+   * Phase 1 only proves multi-weapon AttackDeclared payloads emit.
+   */
+  weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
 }): IGameState {
   const {
     botPlayer,
@@ -52,12 +63,18 @@ export function runAttackPhase(options: {
     random,
     state,
     violations,
+    weaponsByUnit,
   } = options;
   let currentState = { ...state, phase: GamePhase.WeaponAttack };
   violations.push(...invariantRunner.runAll(currentState));
 
   const d6Roller = createD6Roller(random);
-  const allAIUnits = Object.values(currentState.units).map(toAIUnitState);
+  // The all-units snapshot is consumed as enemy candidates; threading
+  // weaponsByUnit here keeps the threat-scoring code seeing real
+  // weapon BV / range bands when the AI evaluates targets.
+  const allAIUnits = Object.values(currentState.units).map((u) =>
+    toAIUnitState(u, weaponsByUnit?.get(u.id)),
+  );
 
   for (const unitId of Object.keys(currentState.units)) {
     const unit = currentState.units[unitId];
@@ -65,7 +82,7 @@ export function runAttackPhase(options: {
       continue;
     }
 
-    const aiUnit = toAIUnitState(unit);
+    const aiUnit = toAIUnitState(unit, weaponsByUnit?.get(unitId));
     const enemyUnits = allAIUnits.filter(
       (aiEnemy) =>
         !aiEnemy.destroyed &&

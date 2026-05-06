@@ -123,13 +123,31 @@ export function createMinimalUnitState(
   };
 }
 
-export function toAIUnitState(unit: IUnitGameState): IAIUnitState {
+/**
+ * Convert an `IUnitGameState` into the AI snapshot. When `hydratedWeapons`
+ * is provided (Phase 1 of `add-combat-fidelity-suite` — catalog hydration),
+ * the AI sees the real per-mount weapon list resolved from `IFullUnit`. When
+ * omitted, the legacy synthetic single-medium-laser is used so preset / non-
+ * swarm callers (and existing tests) stay green without a sweep.
+ *
+ * The `hydratedWeapons` decision lever is intentionally explicit at every
+ * callsite — phases (`weaponAttack`, `movement`) thread a per-unit weapons
+ * map and pass `weaponsByUnit.get(unit.id)` per call. Tests that don't care
+ * about hydration omit the argument and get the synthetic fallback.
+ */
+export function toAIUnitState(
+  unit: IUnitGameState,
+  hydratedWeapons?: readonly IWeapon[],
+): IAIUnitState {
   return {
     unitId: unit.id,
     position: unit.position,
     facing: unit.facing,
     heat: unit.heat,
-    weapons: [createMinimalWeapon(`${unit.id}-weapon-1`)],
+    weapons:
+      hydratedWeapons && hydratedWeapons.length > 0
+        ? hydratedWeapons
+        : [createMinimalWeapon(`${unit.id}-weapon-1`)],
     ammo: {},
     destroyed: unit.destroyed,
     // Phase 1 of `add-encounter-swarm-harness`: read real pilot skills from
