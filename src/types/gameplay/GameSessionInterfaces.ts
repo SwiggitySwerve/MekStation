@@ -1033,6 +1033,50 @@ export interface IComponentDestroyedPayload {
 }
 
 /**
+ * `CriticalHit` event payload.
+ *
+ * Per `add-combat-fidelity-suite` Phase 3 (`combat-resolution` delta):
+ * the runner emits one `CriticalHit` per resolved critical-hit slot
+ * (carrying `component`, `count: 1`, `location`, plus the attacker
+ * id as `sourceUnitId`). Legacy session-side emitters that surface
+ * crits per component may continue to emit the same shape — the
+ * payload's `component` and `count` fields are both optional so
+ * either producer's omission stays compatible.
+ *
+ * Discriminated-union members tolerate either field combination per
+ * P2's additive pattern; tests assert on the field they care about.
+ *
+ * Spec contract:
+ *   `combat-resolution/spec.md` — Critical Hit Events Emitted by Runner
+ *     "the event log MUST contain `CriticalHit { unitId, location: 'CT',
+ *     count: 1 }`"
+ */
+export interface ICriticalHitPayload {
+  readonly unitId: string;
+  readonly location: string;
+  /** Attacker unit id. Optional for synthesized / replay-only events. */
+  readonly sourceUnitId?: string;
+  /**
+   * Component class destroyed by the crit (`engine` / `gyro` / `weapon`
+   * / `actuator` / `heat_sink` / `ammo` / `cockpit` / `sensor` /
+   * `life_support` / `jump_jet`). Required for legacy
+   * `KeyMomentDetector.processCriticalHit` consumers; the runner P3
+   * emitter populates it as well so the detector keeps working without
+   * a switch to `CriticalHitResolved`.
+   */
+  readonly component?: string;
+  /**
+   * Number of crit-roll outcomes assigned to this location. The runner
+   * emits one event per resolved slot with `count: 1` per spec
+   * scenario "Gyro destruction event chain"; multi-slot crits (rolls
+   * 10+) produce multiple events with the same `count: 1` rather than
+   * a single `count: N` event so the per-slot causal chain stays
+   * one-event-per-component.
+   */
+  readonly count?: number;
+}
+
+/**
  * Per `wire-bot-ai-helpers-and-capstone`: bot-controlled unit has crossed
  * its retreat threshold and committed to disengage. Carries the resolved
  * concrete edge so subsequent move scoring (via `scoreRetreatMove`) can
@@ -1169,6 +1213,7 @@ export type GameEventPayload =
   | ILocationDestroyedPayload
   | ITransferDamagePayload
   | IComponentDestroyedPayload
+  | ICriticalHitPayload
   | IRetreatTriggeredPayload
   | IUnitRetreatedPayload
   | IMotiveDamagedPayload

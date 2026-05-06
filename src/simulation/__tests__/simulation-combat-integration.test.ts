@@ -491,7 +491,20 @@ describe('Simulation Combat Integration (Phase 17)', () => {
         for (const evt of destroyEvents) {
           const payload = evt.payload as { unitId: string; cause: string };
           expect(payload.unitId).toBeDefined();
-          expect(['damage', 'pilot_death']).toContain(payload.cause);
+          // Per `add-combat-fidelity-suite` Phase 3: crits now drive
+          // engine 3-hit destruction → cause `'engine_destroyed'`, plus
+          // the existing armor/structure path → cause `'damage'`,
+          // head/cockpit destruction → `'pilot_death'` /
+          // `'head_destroyed'`. Closed snake_case enum per P0.5.
+          expect([
+            'damage',
+            'pilot_death',
+            'engine_destroyed',
+            'head_destroyed',
+            'ct_destroyed',
+            'shutdown',
+            'ammo_explosion',
+          ]).toContain(payload.cause);
         }
       }
     });
