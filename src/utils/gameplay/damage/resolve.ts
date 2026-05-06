@@ -4,6 +4,8 @@ import {
   IPilotDamageResult,
 } from '@/types/gameplay';
 
+import type { D6Roller } from '../diceTypes';
+
 import { isHeadHit } from '../hitLocation';
 import { checkCriticalHitTrigger } from './critical';
 import { checkUnitDestruction } from './destruction';
@@ -23,10 +25,24 @@ import { IResolveDamageResult, IUnitDamageState } from './types';
  */
 export const HEAD_DAMAGE_CAP_PER_HIT = 3;
 
+/**
+ * Resolve a damage application.
+ *
+ * The optional `roller` parameter threads a deterministic `D6Roller`
+ * (typically a `SeededD6Roller` adapter via `.asD6Roller()`) through
+ * the dice path so unit / scenario / Monte Carlo tests can reproduce
+ * exact crit sequences. When omitted, the function falls back to
+ * `defaultD6Roller` (= `Math.random`) so existing production callsites
+ * keep their current behaviour.
+ *
+ * @spec openspec/changes/add-combat-fidelity-suite/specs/simulation-system/spec.md
+ *       (Requirement: Deterministic D6 Roller Adapter for Test Pyramid)
+ */
 export function resolveDamage(
   state: IUnitDamageState,
   location: CombatLocation,
   damage: number,
+  roller?: D6Roller,
 ): IResolveDamageResult {
   let currentState = state;
 
@@ -58,7 +74,7 @@ export function resolveDamage(
 
   for (const locDamage of locationDamages) {
     if (locDamage.structureDamage > 0 && !locDamage.destroyed) {
-      checkCriticalHitTrigger(locDamage.structureDamage);
+      checkCriticalHitTrigger(locDamage.structureDamage, roller);
     }
   }
 

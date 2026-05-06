@@ -240,6 +240,61 @@ jobs:
           path: validation-output/schema-bridge-report.json
           retention-days: 7
 
+  # ---------------------------------------------------------------
+  # determinism-audit gates non-determinism in the combat pipeline.
+  # Per add-combat-fidelity-suite (Phase 0, Requirement: Audit of
+  # Unseeded Dice in Combat Pipeline), `Math.random()` is forbidden
+  # inside `src/utils/gameplay/` and `src/simulation/` outside the
+  # `defaultD6Roller` definition site (`src/utils/gameplay/diceTypes.ts`).
+  #
+  # Allowlist (legitimate non-dice entropy paths):
+  #   - src/utils/gameplay/diceTypes.ts        — defaultD6Roller (the seam)
+  #   - src/utils/gameplay/aerospace/criticalHits.ts — unused dead path
+  #   - src/utils/gameplay/terrainGenerator.ts — seed fallback for procgen
+  #   - src/simulation/QuickResolveService.ts  — crypto.getRandomValues fallback
+  #
+  # Failures print the offending file and line so CI logs identify the
+  # regression site directly.
+  # ---------------------------------------------------------------
+  determinism-audit:
+    name: Determinism Audit
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Audit Math.random() in combat pipeline
+        shell: bash
+        run: |
+          set -euo pipefail
+          ALLOWLIST=(
+            'src/utils/gameplay/diceTypes.ts'
+            'src/utils/gameplay/aerospace/criticalHits.ts'
+            'src/utils/gameplay/terrainGenerator.ts'
+            'src/simulation/QuickResolveService.ts'
+          )
+          GLOBS=(-g 'src/utils/gameplay/**' -g 'src/simulation/**')
+          for path in "${ALLOWLIST[@]}"; do
+            GLOBS+=(-g "!${path}")
+          done
+          # Strip block-comment lines ('* Math.random()') and line-comment
+          # lines ('// Math.random()') so doc-comments referencing the API
+          # by name don't trip the audit.
+          matches="$(rg -n --no-heading "${GLOBS[@]}" 'Math\.random\(\)' . \
+            | grep -Ev ':[[:space:]]*\*|//.*Math\.random|\* .*Math\.random' \
+            || true)"
+          if [ -n "$matches" ]; then
+            echo "$matches"
+            echo ""
+            echo "ERROR: Math.random() found in src/utils/gameplay/ or src/simulation/ outside the defaultD6Roller seam."
+            echo "Inject a D6Roller (use SeededD6Roller in tests) or add an explicit allowlist entry to .github/workflows/pr-checks.yml if this is non-dice entropy."
+            exit 1
+          fi
+          echo "Determinism audit passed: no unseeded dice in combat pipeline."
+
   # Aggregator that preserves the "Lint and Test" required-check name
   # from before the fan-out. Passes only if every fan-out job passed.
   lint-and-test:
@@ -253,6 +308,7 @@ jobs:
         validate-bv,
         storybook-build,
         schema-bridge,
+        determinism-audit,
       ]
     runs-on: ubuntu-latest
     timeout-minutes: 1
