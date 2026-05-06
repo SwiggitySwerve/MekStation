@@ -2,14 +2,14 @@
 
 ## Phase 0 — Determinism infrastructure (~6h, PR #1)
 
-- [ ] 0.1 Author `src/simulation/core/SeededD6Roller.ts` adapting `SeededRandom` (Mulberry32 floats) to `D6Roller` interface from `src/utils/gameplay/diceTypes.ts`. Both `rollD6()` and `roll2d6()` methods.
-- [ ] 0.2 Unit test: 1000 sequential `roll2d6()` calls against seed 42 → exact match between two fresh rollers (determinism). Distribution check: roll counts within 5% of analytic 1/36 per (1,1) through (6,6).
-- [ ] 0.3 Audit `src/utils/gameplay/` for unseeded dice. Grep for `Math.random`, `roll2d6()` without parameters, `Math.floor(Math.random() * `. Tag every callsite with one of: `[OK — defaultD6Roller fallback acceptable]`, `[FIX — needs roller injection]`.
-- [ ] 0.4 Add optional `roller?: D6Roller` parameter to `checkCriticalHitTrigger` (`src/utils/gameplay/damage/critical.ts:14`). Default to `defaultD6Roller`. Update internal `roll2d6()` call to use the parameter.
-- [ ] 0.5 Thread `roller?: D6Roller` through `resolveDamage` (`src/utils/gameplay/damage/resolve.ts`) and pass to `checkCriticalHitTrigger`.
-- [ ] 0.6 Verify no production callsite breaks: `npm run build`, `npm run typecheck`, full Jest suite.
-- [ ] 0.7 Add CI grep guard: fail if `Math.random()` appears in `src/utils/gameplay/` or `src/simulation/` outside `defaultD6Roller` definition site.
-- [ ] 0.8 Open PR #1, wait for CI green, merge.
+- [x] 0.1 Author `src/simulation/core/SeededD6Roller.ts` adapting `SeededRandom` (Mulberry32 floats) to `D6Roller` interface from `src/utils/gameplay/diceTypes.ts`. Both `rollD6()` and `roll2d6()` methods.
+- [x] 0.2 Unit test: 1000 sequential `roll2d6()` calls against seed 42 → exact match between two fresh rollers (determinism). Distribution check: roll counts within 5% of analytic 1/36 per (1,1) through (6,6).
+- [x] 0.3 Audit `src/utils/gameplay/` for unseeded dice. Grep for `Math.random`, `roll2d6()` without parameters, `Math.floor(Math.random() * `. Tag every callsite with one of: `[OK — defaultD6Roller fallback acceptable]`, `[FIX — needs roller injection]`.
+- [x] 0.4 Add optional `roller?: D6Roller` parameter to `checkCriticalHitTrigger` (`src/utils/gameplay/damage/critical.ts:14`). Default to `defaultD6Roller`. Update internal `roll2d6()` call to use the parameter.
+- [x] 0.5 Thread `roller?: D6Roller` through `resolveDamage` (`src/utils/gameplay/damage/resolve.ts`) and pass to `checkCriticalHitTrigger`.
+- [x] 0.6 Verify no production callsite breaks: `npm run build`, `npm run typecheck`, full Jest suite.
+- [x] 0.7 Add CI grep guard: fail if `Math.random()` appears in `src/utils/gameplay/` or `src/simulation/` outside `defaultD6Roller` definition site.
+- [x] 0.8 Open PR #1, wait for CI green, merge.
 
 ## Phase 1 — Atlas AS7-D hydration (~3h, PR #2)
 
