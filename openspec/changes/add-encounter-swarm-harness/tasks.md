@@ -133,16 +133,27 @@
 
 ## 6. Phase 6 — Per-Chassis / Per-Pilot Aggregation
 
-- [ ] 6.1 Extend `MetricsCollector` (in `src/simulation/`) to consume `participants` payload from `ISimulationRunResult` when `schemaVersion >= 2`.
-- [ ] 6.2 Add `chassisMatrix` rollup — `{ [chassisA]: { [chassisB]: { wins: number; losses: number; draws: number } } }`. Populated from per-run participants + outcome.
-- [ ] 6.3 Add `gunneryBracket` rollup — `{ '1-2': { wins, losses, avgDamageDealt }, '3-4': {...}, '5-6': {...}, '7+': {...} }`. Bucket each participant's gunnery into a bracket and accumulate.
-- [ ] 6.4 Add `aiVariantHeadToHead` rollup — `{ [variantA_vs_variantB]: { wins, losses, draws, avgTurns } }`. Indexed by canonical-ordered variant pair.
-- [ ] 6.5 Add `pilotPerformance` rollup — `{ [pilotId]: { runs, wins, kills, takenWounds } }`. Populated only when `--pilots vault` (real pilot IDs); empty when synthesized pilots are used.
-- [ ] 6.6 Output JSON with all four rollups under `aggregations` key on the result envelope.
-- [ ] 6.7 Optional CSV export of `chassisMatrix` (flattened) — gated behind `--output-format csv` flag; default JSON only.
-- [ ] 6.8 Snapshot test: 100-run swarm — assert chassis-matrix row sums equal total runs, gunnery-bracket totals reconcile with `participants` count, ai-variant-h2h sum equals total runs.
-- [ ] 6.9 AI-variant test: `aggressive` vs `defensive` 200-run head-to-head produces non-degenerate win-rate (assert win-rate is in [10%, 90%] range, not 0% or 100%).
-- [ ] 6.10 Schema-version migration test: a pre-existing `schemaVersion: 1` result fed into `MetricsCollector.aggregateBatchOutcomes` produces side-aggregate output (existing behavior) without errors.
+- [x] 6.1 Extend `MetricsCollector` (in `src/simulation/`) to consume `participants` payload from `ISimulationRunResult` when `schemaVersion >= 2`.
+  <!-- EVIDENCE: src/simulation/metrics/swarmAggregation.ts exports aggregateSwarmBatch(results) gating new rollups on result.schemaVersion>=2 && participants present. Re-exported via src/simulation/metrics/index.ts. schemaVersion2RunCount field on output envelope. -->
+- [x] 6.2 Add `chassisMatrix` rollup — `{ [chassisA]: { [chassisB]: { wins: number; losses: number; draws: number } } }`. Populated from per-run participants + outcome.
+  <!-- EVIDENCE: accumulateChassisMatrix() in swarmAggregation.internals.ts. Counting rule: per-unique-chassis-pair (not per-unit-pair), documented in JSDoc. Mirror entries always emitted (chassisA→chassisB AND chassisB→chassisA). Snapshot test: ATL-D-A row sums to 100 / mirror row sums to 100. -->
+- [x] 6.3 Add `gunneryBracket` rollup — `{ '1-2': { wins, losses, avgDamageDealt }, '3-4': {...}, '5-6': {...}, '7+': {...} }`. Bucket each participant's gunnery into a bracket and accumulate.
+  <!-- EVIDENCE: accumulateGunneryBracket() + initGunneryBrackets() — all four brackets always present (zeroed for empty). avgDamageDealt = totalDamage / participantRunCount, sourced from DamageApplied events with sourceUnitId match. Verified: gunnery 3 → '3-4' bucket, gunnery 5 → '5-6' bucket. -->
+- [x] 6.4 Add `aiVariantHeadToHead` rollup — `{ [variantA_vs_variantB]: { wins, losses, draws, avgTurns } }`. Indexed by canonical-ordered variant pair.
+  <!-- EVIDENCE: accumulateAIVariantHeadToHead() — canonicalVariantPairKey() sorts alphabetically; wins are from perspective of alphabetically-first variant. Mixed-variant runs (a side has >1 distinct variant) are excluded and counted in mixedVariantRuns instead. Snapshot test verifies 'aggressive_vs_defensive' key with aggressive wins=65 / losses=30 / draws=5. -->
+- [x] 6.5 Add `pilotPerformance` rollup — `{ [pilotId]: { runs, wins, kills, takenWounds } }`. Populated only when `--pilots vault` (real pilot IDs); empty when synthesized pilots are used.
+  <!-- EVIDENCE: accumulatePilotPerformance() skips pilotIds that start with 'synth-pilot-' (matches randomPilotGenerator.ts pattern). kills sourced from UnitDestroyed.killerUnitId; takenWounds sourced from PilotHit.wounds summed by unitId. Scenario D test verifies vault pilot A: runs=10, wins=6, kills=10, takenWounds=10. -->
+- [x] 6.6 Output JSON with all four rollups under `aggregations` key on the result envelope.
+  <!-- EVIDENCE: IAggregatedSwarmReport.aggregations: ISchemaV2Rollups in swarmAggregation.types.ts. aggregations key is OMITTED entirely when schemaVersion2RunCount === 0 (pure v1 batch); always present when at least one v2 input exists. Verified by Scenario A (v1 only → undefined) vs B/C (v2 present → defined). -->
+- [x] 6.7 Optional CSV export of `chassisMatrix` (flattened) — gated behind `--output-format csv` flag; default JSON only.
+  <!-- EVIDENCE: exportChassisMatrixCsv(matrix) exported from swarmAggregation.ts. Returns "chassisA,chassisB,wins,losses,draws"-headed CSV with sorted-key rows. NOT wired to a CLI flag here — per design D8, Phase 5 owns CLI orchestration. Decoupled function exposed for downstream consumer. -->
+- [x] 6.8 Snapshot test: 100-run swarm — assert chassis-matrix row sums equal total runs, gunnery-bracket totals reconcile with `participants` count, ai-variant-h2h sum equals total runs.
+  <!-- EVIDENCE: src/simulation/__tests__/swarmAggregation.snapshot.test.ts — 100 fake v2 results, 65 A-wins / 30 B-wins / 5 draws. 13 assertions: chassisMatrix row+mirror sums = 100, gunneryBracket total = 200 (100 runs × 2 participants), empty brackets zeroed (not NaN), aiVariantHeadToHead sum = 100, pilotPerformance empty for synth pilots. All pass. -->
+- [x] 6.9 AI-variant test: `aggressive` vs `defensive` 200-run head-to-head produces non-degenerate win-rate (assert win-rate is in [10%, 90%] range, not 0% or 100%).
+  <!-- EVIDENCE: src/simulation/__tests__/swarmAggregation.h2h.test.ts — runs 200 SimulationRunner instances with hard-wired aggressive variant (cap 50 turns, 1v1, mapRadius 6), stamps participants with side A=aggressive / side B=defensive, feeds into aggregateSwarmBatch(). Asserts schemaVersion2RunCount=200, h2h sum=200, aggressive win-rate ∈ [0.10, 0.90], avgTurns > 0, mixedVariantRuns=0. All pass. -->
+- [x] 6.10 Schema-version migration test: a pre-existing `schemaVersion: 1` result fed into `MetricsCollector.aggregateBatchOutcomes` produces side-aggregate output (existing behavior) without errors.
+  <!-- EVIDENCE: src/simulation/__tests__/swarmAggregation.schemaVersion.test.ts — 4 scenarios: A (60 v1 → no aggregations), B (60 v1 + 40 v2 → schemaVersion2RunCount=40, chassisMatrix sum=40, gunneryBracket sum=80, h2h sum=40), C (40 v2 → all rollups present), D (vault pilot IDs populate pilotPerformance with correct kills/wounds/runs/wins). All pass. -->
+
 
 ## 7. Phase 7 — Deferred (Out of Scope, Tracked Here)
 
