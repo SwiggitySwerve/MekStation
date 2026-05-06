@@ -343,3 +343,63 @@ A future `add-event-source-taxonomy` change can do a focused snake_case sweep of
 
 **Reference**: `src/types/gameplay/GameSessionInterfaces.ts:759-774` (`IAmmoExplosionPayload`), `notepad/issues.md` (the deferred-rename callout).
 
+## [2026-05-06] Task: P5 — MetricsCollector consumes `ISimulationResult`, not `ISimulationRunResult`
+
+**Convention discovered**: `MetricsCollector.recordGame(result: ISimulationResult)` accepts the BASE `ISimulationResult` type — which has `events` but NO `participants` field. Every existing call-site (the swarm runner, the BatchRunner, every test) passes the more specific `ISimulationRunResult` (which extends `ISimulationResult`), but the collector itself can't depend on `participants` to derive sides. Per-game side attribution falls back to the runner's canonical `player-N` / `opponent-N` unit-id prefix.
+
+The split makes sense once you see how it's used: the per-game `ISimulationMetrics` is consumed by single-run UI flows that don't want to round-trip through participants payloads, while the swarm-aggregation path (`swarmAggregation.ts`) reads `ISimulationRunResult.participants` directly when it's available (`schemaVersion >= 2` gate). Two layers, two derivation strategies, zero coupling.
+
+**Why it matters**: P5's totalDamageDealt / playerUnitsStart / etc. derive from event payloads alone. The `sideFromUnitId(unitId)` helper accepts any string and returns `'player' | 'opponent' | null` — `null` for non-canonical ids (legacy fixtures with `unit-A-1` etc. don't contribute to either side, the test pins this behavior explicitly). Future per-game metrics that need OTHER side metadata (force composition, AI variant, gunnery skill) will need the same dual-strategy pattern: derive from events when available, leave undefined otherwise; let the swarm path pull from participants for richer rollups.
+
+**Reference**: `src/simulation/metrics/MetricsCollector.ts:41-45` (`sideFromUnitId`), `src/simulation/runner/SimulationRunnerState.ts:35-38` (the canonical id prefix construction).
+
+## [2026-05-06] Task: P5 — Damage attribution: SOURCE side, not target side
+
+**Convention discovered (gotcha)**: `totalDamageDealt.player` is the damage the PLAYER side dealt to the opponent — sourced from `IDamageAppliedPayload.sourceUnitId`, not the unit that took damage (`payload.unitId`). My first draft had the attribution flipped; the spec scenario "Atlas-vs-Atlas mirror records non-zero damage" only mandated reconciliation against the event sum, not direction, but the field name `dealt` is the contract.
+
+Self-damage (ammo cookoff, falls, heat) carries an `undefined` sourceUnitId per the `IDamageAppliedPayload` doc-comment. P5 explicitly excludes self-damage from `totalDamageDealt` — it's NOT offensive damage by either side. The scenario test pins this with a fixture: 200 damage to RT with no source → both player.dealt and opponent.dealt stay 0.
+
+**Why it matters**: P6 / dashboards will key metrics off the same field. Conflating "damage dealt" with "damage taken" doubles the apparent damage if both are summed across runs. Future P-side metrics (kills, accuracy, hit rate) follow the same source-attribution rule.
+
+**Reference**: `src/simulation/metrics/MetricsCollector.ts:91-110` (the DamageApplied case), `src/simulation/metrics/__tests__/MetricsCollector.combatFidelity.test.ts` "self-damage (undefined sourceUnitId) is NOT counted offensively".
+
+## [2026-05-06] Task: P5 — Shutdown count: `effect: 'shutdown'` only, NOT `'shutdown_check'`
+
+**Convention discovered (gotcha)**: `IHeatEffectAppliedPayload.effect` has both `'shutdown_check'` (heat ≥ 14, avoidable) and `'shutdown'` (heat ≥ 30, auto). The spec scenario "Game with shutdowns records the count" specifies SHUTDOWNS — units that actually shut down — so `metrics.shutdowns` counts ONLY `effect === 'shutdown'`. Failed avoidance rolls during a `shutdown_check` produce a separate `ShutdownCheck` event we deliberately don't double-count here.
+
+A test fixture mixes one `shutdown_check` event with two `shutdown` events to lock the contract: `metrics.shutdowns === 2`, not 3.
+
+**Why it matters**: A naive "count any HeatEffectApplied where the unit shut down" reading would misclassify the avoidable band. The closed-set `effect` enum is the disambiguator — when the spec says "shutdowns", it means the auto-shutdown band specifically. Future heat-related metrics (e.g., `pilotDamageFromHeat` from `effect: 'pilot_damage'`) will face the same per-classifier discipline.
+
+**Reference**: `src/simulation/metrics/MetricsCollector.ts:146-162` (the HeatEffectApplied case), `src/types/gameplay/GameSessionInterfaces.ts:1014-1020` (the `effect` union).
+
+## [2026-05-06] Task: P5 — Schema-version gating extends additively to the per-cell record
+
+**Convention discovered**: The chassisMatrix already had a schemaVersion-2 gate at the BATCH level (`accumulateChassisMatrix` only runs when `result.schemaVersion === 2`). P5's combat-fidelity averages live INSIDE each cell record (`IChassisMatchupRecord`). I considered adding a parallel `schemaVersion: 1 | 2` field on the record itself, but there's no v1 chassisMatrix consumer to break — the entire `aggregations.chassisMatrix` field is OMITTED from the output for pure-v1 batches (`if (schemaVersion2RunCount === 0) return without aggregations`). So extending the record additively (5 new fields, all unconditionally numeric) is safe — anyone who sees the field at all sees it because they're already on the v2 path.
+
+The new fields default to `0` rather than `undefined` for cells that never had any combat-fidelity events fire (a 100-run mirror with never-a-crit produces `criticalsLandedAvg: 0`). This avoids the "is this `undefined` because the metric is missing or because the value is genuinely zero?" ambiguity that bit prior generations of metric APIs.
+
+**Why it matters**: P6 monte-carlo tests will assert on these averages; an `undefined` would force `??= 0` boilerplate at every consumer. The `safeAvg(total, runCount)` helper enforces the unconditional-zero contract centrally.
+
+**Reference**: `src/simulation/metrics/swarmAggregation.ts:freezeChassisMatrix` (`safeAvg`), `src/simulation/metrics/swarmAggregation.types.ts` (`IChassisMatchupRecord` doc-comment).
+
+## [2026-05-06] Task: P5 — Determinism audit: 10-turn passes, 100-turn diverges (deferred to add-engine-determinism-audit)
+
+**Convention discovered (the spec called this exactly)**: Per the `combat-analytics/spec.md` "Event Log Replay Determinism Audit" requirement, the test runs the same seeded scenario twice and asserts byte-identical event logs. The 10-turn Atlas mirror at seed=42 produces identical 28-event logs across two reseeded runs — the audit passes. The 100-turn variant (turnLimit=200, clamped to MAX_TURNS=100) produces 103 events on one run and 516 events on the other — clear divergence, exactly the regression channel PR #514's `MAX_TURNS=10 → 100` bump exposed.
+
+Per the brief: P5 does NOT chase determinism. The 100-turn test is `it.skip` with an explicit TODO citing `add-engine-determinism-audit` (the deferred follow-on). The 10-turn variant stays active as a tripwire for shorter-horizon regressions.
+
+**Why it matters**: The skip pattern preserves the intent — when `add-engine-determinism-audit` ships, flip `it.skip` back to `it`, the spec scenario lights up. Don't delete the skipped test; it's the contract anchor for the follow-on. Same pattern applies to P6's monte-carlo tests if any of them surface emergent non-determinism: skip-with-TODO, don't fight it.
+
+**Reference**: `src/simulation/__tests__/replay-determinism.integration.test.ts`, `openspec/changes/add-combat-fidelity-suite/tasks.md` Phase 7 deferred section.
+
+## [2026-05-06] Task: P5 — File-extraction pattern when adding to a 400-line-cap module
+
+**Convention discovered**: `swarmAggregation.internals.ts` was at 481 effective lines BEFORE P5; my P5 additions pushed it past the 400-line oxlint `max-lines` warning. The fix is the same factoring P5 already used elsewhere: extract a single-purpose helper into a leaf module. P5 created `src/simulation/metrics/combatFidelityTally.ts` with one exported function (`tallyCombatFidelityForRun`) plus the small `ICombatFidelityRunTally` interface, dropping `swarmAggregation.internals.ts` back to baseline-clean.
+
+The leaf-module pattern lets future P6 / P7 metric tallies stack into the same file without the parent ballooning further. `internals.ts` stays focused on the rollup accumulators (chassisMatrix / gunneryBracket / aiVariantHeadToHead / pilotPerformance), not the per-event categorization.
+
+**Why it matters**: Watch the 400-line cap on every PR that touches a `metrics/` file. Adding 3-5 lines inside an existing accumulator is fine; adding a new helper function should default to a new file. The lint config is the canary — `npm run lint` warning count must stay flat across PRs.
+
+**Reference**: `src/simulation/metrics/combatFidelityTally.ts` (the new leaf module), `src/simulation/metrics/swarmAggregation.internals.ts:18` (the import).
+
