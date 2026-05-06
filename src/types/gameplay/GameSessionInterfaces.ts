@@ -762,8 +762,28 @@ export interface IAmmoExplosionPayload {
 export interface IUnitDestroyedPayload {
   /** Unit that was destroyed */
   readonly unitId: string;
-  /** Cause of destruction */
-  readonly cause: 'damage' | 'ammo_explosion' | 'pilot_death' | 'shutdown';
+  /**
+   * Cause of destruction.
+   *
+   * Closed snake_case enum unified across the three type files
+   * (`GameSessionInterfaces.ts`, `CombatInterfaces.ts`, and
+   * `utils/gameplay/damage/types.ts`) per the
+   * `add-combat-fidelity-suite` Phase 0.5 reconciliation.
+   *
+   * Mutually exclusive — exactly one value per `UnitDestroyed`
+   * event. Priority order when multiple conditions apply in the same
+   * turn (per `damage-system` spec):
+   *   `pilot_death` > `head_destroyed` > `ct_destroyed` >
+   *   `engine_destroyed` > `ammo_explosion` > `shutdown` > `damage`.
+   */
+  readonly cause:
+    | 'damage'
+    | 'ammo_explosion'
+    | 'pilot_death'
+    | 'engine_destroyed'
+    | 'shutdown'
+    | 'ct_destroyed'
+    | 'head_destroyed';
   /** Unit that killed this unit (undefined for self-destruction: ammo explosions, pilot death, etc.) */
   readonly killerUnitId?: string;
 }

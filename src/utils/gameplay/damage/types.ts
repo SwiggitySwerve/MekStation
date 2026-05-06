@@ -21,7 +21,10 @@ export interface IUnitDamageState {
     | 'damage'
     | 'ammo_explosion'
     | 'pilot_death'
-    | 'engine_destroyed';
+    | 'engine_destroyed'
+    | 'shutdown'
+    | 'ct_destroyed'
+    | 'head_destroyed';
 }
 
 export interface ILocationDamageResult {
@@ -42,7 +45,14 @@ export interface IPilotDamageResultWithState {
 export interface IDestructionCheckResult {
   state: IUnitDamageState;
   destroyed: boolean;
-  cause?: 'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed';
+  cause?:
+    | 'damage'
+    | 'ammo_explosion'
+    | 'pilot_death'
+    | 'engine_destroyed'
+    | 'shutdown'
+    | 'ct_destroyed'
+    | 'head_destroyed';
 }
 
 export interface IResolveDamageResult {
