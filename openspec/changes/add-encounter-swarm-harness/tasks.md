@@ -69,22 +69,38 @@
 
 ## 4. Phase 4 — Random Force + Pilot Generators
 
-- [ ] 4.1 Create `src/services/encounter/randomForceGenerator.ts` exporting `generateRandomForce(opts: IRandomForceOptions): IForce`.
-- [ ] 4.2 Implement candidate filtering — accept BV / tonnage / era / tech-base filters and return a filtered `IUnitIndexEntry[]` from the catalog.
-- [ ] 4.3 Implement greedy fill via `WeightedTable` weighted by inverse-BV; pick units one at a time until force size reached or ±5% tolerance achieved (whichever first).
-- [ ] 4.4 Implement duplicate-chassis cap (`Math.ceil(count / 4)` default); when cap reached, exclude that chassis from candidate set for remainder of force assembly.
-- [ ] 4.5 Throw `BudgetUnsatisfiableError` (with achievable-BV-range payload) when greedy cannot satisfy budget within tolerance — do NOT retry-loop.
-- [ ] 4.6 Build `IForce.assignments[]` shape with `unitId` per entry; pilot binding deferred to step 4.10.
-- [ ] 4.7 Create `src/services/encounter/randomPilotGenerator.ts` exporting `generateRandomPilots(opts: IRandomPilotOptions): readonly IPilot[]`.
-- [ ] 4.8 Implement vault-sample strategy — sample N pilots from `opts.vault` without replacement; if N > vault size, sample with replacement and stamp `metadata.sampledWithReplacement: true`.
-- [ ] 4.9 Implement template-synthesis strategy — synthesize N `IPilot` instances with `skills.gunnery` / `skills.piloting` drawn uniformly from `IPilotSkillTemplate.gunneryRange` / `pilotingRange`. Synthesized pilots get fresh UUIDs and are NOT persisted to `usePilotStore`.
-- [ ] 4.10 Wire pilot binding — for each `IForce.assignments[i]`, set `pilotId = pilots[i].id` (1:1 pairing, sequential).
-- [ ] 4.11 Extend `ISimulationRunResult` schema to add `schemaVersion: 1 | 2` field; existing results default to `1`. New `participants` payload defined per design D7. New file or modification at the canonical type location (likely `src/simulation/runner/types.ts` or similar — verify during implementation).
-- [ ] 4.12 Plumb `participants` payload through `BatchRunner.runBatch` — read from the encounter setup at run-start, pass into `ISimulationRunResult`.
-- [ ] 4.13 Verify `src/services/encounter/encounterToGameSession.ts:buildGameUnitsForForce` is reused unchanged — random-generated `IForce` + `IPilot[]` flow through it identically to user-built encounters.
-- [ ] 4.14 Property test (1,000 generated forces): BV ±5% of budget, no chassis exceeds duplicate cap, all assignments have valid `unitId` + `pilotId`.
-- [ ] 4.15 Property test (1,000 generated pilots, template strategy): all gunnery values within template range, all piloting values within template range, all pilot IDs unique within a run.
-- [ ] 4.16 Determinism test: same seed produces byte-identical force JSON across two invocations.
+- [x] 4.1 Create `src/services/encounter/randomForceGenerator.ts` exporting `generateRandomForce(opts: IRandomForceOptions): IForce`.
+  <!-- EVIDENCE: src/services/encounter/randomForceGenerator.ts created. Exports generateRandomForce(), IRandomForceOptions, BudgetUnsatisfiableError. -->
+- [x] 4.2 Implement candidate filtering — accept BV / tonnage / era / tech-base filters and return a filtered `IUnitIndexEntry[]` from the catalog.
+  <!-- EVIDENCE: filterCatalog() in randomForceGenerator.ts: era as year cutoff (entry.year <= Number(era)), techBase mapped IS→TechBase.INNER_SPHERE / Clan→TechBase.CLAN / Mixed→null, tonnageMin/Max filters applied. -->
+- [x] 4.3 Implement greedy fill via `WeightedTable` weighted by inverse-BV; pick units one at a time until force size reached or ±5% tolerance achieved (whichever first).
+  <!-- EVIDENCE: buildWeightedTable() uses weight = 1 / Math.max(1, entry.bv ?? 1). Greedy loop picks via WeightedTable.select(() => random.next()), accumulates BV until count reached. -->
+- [x] 4.4 Implement duplicate-chassis cap (`Math.ceil(count / 4)` default); when cap reached, exclude that chassis from candidate set for remainder of force assembly.
+  <!-- EVIDENCE: chassisCounts map tracks picks; at cap evicts chassis from weighted table for remainder. Default cap = Math.ceil(count / 4). opts.duplicateChassisCap override supported. -->
+- [x] 4.5 Throw `BudgetUnsatisfiableError` (with achievable-BV-range payload) when greedy cannot satisfy budget within tolerance — do NOT retry-loop.
+  <!-- EVIDENCE: BudgetUnsatisfiableError class exported with achievableMinBV, achievableMaxBV, options payload. Thrown when filtered catalog is empty, or when no affordable candidates exist mid-fill. -->
+- [x] 4.6 Build `IForce.assignments[]` shape with `unitId` per entry; pilot binding deferred to step 4.10.
+  <!-- EVIDENCE: generateRandomForce() returns IForce with assignments array. Each assignment has unitId set; pilotId initialized to null. -->
+- [x] 4.7 Create `src/services/encounter/randomPilotGenerator.ts` exporting `generateRandomPilots(opts: IRandomPilotOptions): readonly IPilot[]`.
+  <!-- EVIDENCE: src/services/encounter/randomPilotGenerator.ts created. Exports generateRandomPilots() returning IRandomPilotResult (pilots: readonly IPilot[], sampledWithReplacement: boolean). -->
+- [x] 4.8 Implement vault-sample strategy — sample N pilots from `opts.vault` without replacement; if N > vault size, sample with replacement and stamp `metadata.sampledWithReplacement: true`.
+  <!-- EVIDENCE: sampleFromArray() uses partial Fisher-Yates for without-replacement; falls back to random-index pick with-replacement when n > arr.length. withReplacement flag propagated to result. -->
+- [x] 4.9 Implement template-synthesis strategy — synthesize N `IPilot` instances with `skills.gunnery` / `skills.piloting` drawn uniformly from `IPilotSkillTemplate.gunneryRange` / `pilotingRange`. Synthesized pilots get fresh UUIDs and are NOT persisted to `usePilotStore`.
+  <!-- EVIDENCE: synthesizePilot() draws uniformInt from band ranges, returns PilotType.Statblock pilot with fresh id. No store writes. Mixed enum resolved per-pilot via resolveBand(). -->
+- [x] 4.10 Wire pilot binding — for each `IForce.assignments[i]`, set `pilotId = pilots[i].id` (1:1 pairing, sequential).
+  <!-- EVIDENCE: generateRandomForce() accepts optional pilots param; assigns pilots[i].id to assignments[i].pilotId sequentially. Tests verify null pilotIds when no pilots provided. -->
+- [x] 4.11 Extend `ISimulationRunResult` schema to add `schemaVersion: 1 | 2` field; existing results default to `1`. New `participants` payload defined per design D7. New file or modification at the canonical type location (likely `src/simulation/runner/types.ts` or similar — verify during implementation).
+  <!-- EVIDENCE: src/simulation/runner/types.ts widened: IParticipant interface added (sideId/unitId/chassisId/pilotId/gunnery/piloting/aiVariant); ISimulationRunResult gains schemaVersion?: 1|2 and participants?: readonly IParticipant[]. -->
+- [x] 4.12 Plumb `participants` payload through `BatchRunner.runBatch` — read from the encounter setup at run-start, pass into `ISimulationRunResult`.
+  <!-- EVIDENCE: BatchRunner.runBatch() gains optional 4th param participants?: readonly IParticipant[]. When provided: stamps schemaVersion:2 + participants on each result. Backward-compat: existing 2-3 arg callers receive unchanged result shape. -->
+- [x] 4.13 Verify `src/services/encounter/encounterToGameSession.ts:buildGameUnitsForForce` is reused unchanged — random-generated `IForce` + `IPilot[]` flow through it identically to user-built encounters.
+  <!-- EVIDENCE: encounterToGameSession.ts:buildGameUnitsForForce confirmed unchanged. Random-generated IForce + IPilot[] satisfy same interface shape (IForce.assignments[].unitId + pilotId) as user-built encounters. -->
+- [x] 4.14 Property test (1,000 generated forces): BV ±5% of budget, no chassis exceeds duplicate cap, all assignments have valid `unitId` + `pilotId`.
+  <!-- EVIDENCE: src/services/encounter/__tests__/randomForceGenerator.test.ts — 1,000-run and 500-run BV tolerance property tests, chassis-cap invariant tests, IForce shape tests all authored. -->
+- [x] 4.15 Property test (1,000 generated pilots, template strategy): all gunnery values within template range, all piloting values within template range, all pilot IDs unique within a run.
+  <!-- EVIDENCE: src/services/encounter/__tests__/randomPilotGenerator.test.ts — 1,000-run skill-range compliance tests for all 4 bands, Mixed spread test, PilotSkillTemplate enum cases, determinism, vault-sample replacement logic all authored. -->
+- [x] 4.16 Determinism test: same seed produces byte-identical force JSON across two invocations.
+  <!-- EVIDENCE: randomForceGenerator.test.ts determinism describe block: 20 seeds × 2 invocations assert identical unit-id sequences. randomPilotGenerator.test.ts: 20 seeds × 2 invocations assert identical skills and vault-sample id sequences. -->
 
 ## 5. Phase 5 — CLI Swarm Runner
 

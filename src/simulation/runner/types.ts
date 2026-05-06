@@ -30,7 +30,36 @@ export interface IDetectorConfig {
 }
 
 /**
+ * Single participant record capturing the unit and pilot identifiers plus
+ * the resolved skill values used for a given simulation run. Stored on
+ * ISimulationRunResult so downstream analysis can reconstruct which pilot/mech
+ * combination produced a given outcome.
+ *
+ * @design D7 — participants payload; Phase 4 captures at force-construction time
+ */
+export interface IParticipant {
+  /** Logical side ("player" | "opfor" | any custom label) */
+  readonly sideId: string;
+  /** Unit identifier from the catalog (IUnitIndexEntry.id) */
+  readonly unitId: string;
+  /** Chassis name for grouping (IUnitIndexEntry.chassis) */
+  readonly chassisId: string;
+  /** Pilot identifier — synthesized or vault pilot id */
+  readonly pilotId: string;
+  /** Resolved gunnery skill used for this run */
+  readonly gunnery: number;
+  /** Resolved piloting skill used for this run */
+  readonly piloting: number;
+  /** AI behavior variant key (e.g. "default", "aggressive") */
+  readonly aiVariant: string;
+}
+
+/**
  * Extended simulation result with violations, key moments, and anomalies.
+ *
+ * Schema versioning (D7):
+ *   schemaVersion 1 — legacy result, no participants field
+ *   schemaVersion 2 — includes participants[] (Phase 4+ swarm harness)
  */
 export interface ISimulationRunResult extends ISimulationResult {
   /** Invariant violations detected during simulation */
@@ -41,6 +70,17 @@ export interface ISimulationRunResult extends ISimulationResult {
   readonly anomalies: readonly IAnomaly[];
   /** Whether simulation was halted due to a critical anomaly */
   readonly haltedByCriticalAnomaly: boolean;
+  /**
+   * Schema version for downstream consumers.
+   * 1 = legacy (no participants); 2 = includes participants.
+   * Omitted / undefined is treated as version 1 by consumers.
+   */
+  readonly schemaVersion?: 1 | 2;
+  /**
+   * Participant records for this run. Present when schemaVersion === 2.
+   * Each entry describes one unit+pilot combination active during the battle.
+   */
+  readonly participants?: readonly IParticipant[];
 }
 
 /**
