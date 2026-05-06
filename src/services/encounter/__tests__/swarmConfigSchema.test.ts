@@ -73,6 +73,53 @@ describe('SwarmSideConfigSchema', () => {
       }
     });
 
+    // Spec Fix 5 — `--pilots` (strategy) and `--pilot-skill-band` (band) are
+    // distinct CLI inputs that map to two different schema fields. The CLI
+    // parser writes one or the other into the per-side config; the schema
+    // must accept the full value set for both axes independently.
+    it('accepts all pilotStrategy values (--pilots flag axis)', () => {
+      for (const strategy of ['vault', 'template']) {
+        const result = SwarmSideConfigSchema.safeParse({
+          ...VALID_SIDE,
+          pilotStrategy: strategy,
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.pilotStrategy).toBe(strategy);
+        }
+      }
+    });
+
+    it('rejects invalid pilotStrategy values (--pilots flag axis)', () => {
+      const result = SwarmSideConfigSchema.safeParse({
+        ...VALID_SIDE,
+        pilotStrategy: 'random',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects invalid pilotSkillBand values (--pilot-skill-band flag axis)', () => {
+      const result = SwarmSideConfigSchema.safeParse({
+        ...VALID_SIDE,
+        pilotSkillBand: 'godlike',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('pilotStrategy and pilotSkillBand are independent fields', () => {
+      // Setting one should not constrain the other; both can be set together.
+      const result = SwarmSideConfigSchema.safeParse({
+        ...VALID_SIDE,
+        pilotStrategy: 'vault',
+        pilotSkillBand: 'elite',
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.pilotStrategy).toBe('vault');
+        expect(result.data.pilotSkillBand).toBe('elite');
+      }
+    });
+
     it('accepts optional tonnageMin and tonnageMax', () => {
       const result = SwarmSideConfigSchema.safeParse({
         ...VALID_SIDE,

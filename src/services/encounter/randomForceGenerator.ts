@@ -39,7 +39,8 @@ export interface IRandomForceOptions {
    * Fractional tolerance around bvBudget.
    * A force with total BV in [bvBudget * (1 - tolerance), bvBudget * (1 + tolerance)]
    * is considered acceptable.
-   * Default: 0.15 (±15%).
+   * Default: 0.05 (±5%) per spec
+   * (openspec/changes/add-encounter-swarm-harness/specs/random-force-generator/spec.md).
    */
   readonly bvTolerance?: number;
   /** Minimum unit tonnage (inclusive). Omit to skip filter. */
@@ -206,7 +207,9 @@ function computeStats(entries: IUnitIndexEntry[]): IForceStats {
  *   satisfy the budget.
  */
 export function generateRandomForce(opts: IRandomForceOptions): IForce {
-  const { bvBudget, bvTolerance = 0.15, count, random, sideId } = opts;
+  // Default ±5% per spec scenario in
+  // openspec/changes/add-encounter-swarm-harness/specs/random-force-generator/spec.md.
+  const { bvBudget, bvTolerance = 0.05, count, random, sideId } = opts;
 
   const duplicateChassisCap =
     opts.duplicateChassisCap ?? Math.max(1, Math.ceil(count / 4));

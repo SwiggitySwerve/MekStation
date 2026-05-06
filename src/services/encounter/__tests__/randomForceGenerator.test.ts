@@ -486,3 +486,47 @@ describe('generateRandomForce — IForce shape', () => {
     expect(force.stats.assignedUnits).toBe(force.assignments.length);
   });
 });
+
+// =============================================================================
+// Spec Fix 4 — default bvTolerance is ±5%
+//
+// Spec scenario from
+// openspec/changes/add-encounter-swarm-harness/specs/random-force-generator/spec.md:
+// generating a force with bvBudget=5000, count=3, no explicit tolerance MUST land
+// inside [4750, 5250].
+// =============================================================================
+
+describe('generateRandomForce — default bvTolerance is ±5%', () => {
+  it('omitting bvTolerance enforces ±5% (5000 BV budget, count 3)', () => {
+    // Build a finely-graded catalog so any reasonable greedy fill can hit ±5%.
+    const catalog: IUnitIndexEntry[] = [];
+    for (let i = 0; i < 80; i++) {
+      catalog.push(makeUnit(`unit-${i}`, `Chassis${i % 12}`, 1000 + i * 50));
+    }
+
+    let outOfRange = 0;
+    let attempted = 0;
+    for (let seed = 0; seed < 50; seed++) {
+      try {
+        const force = generateRandomForce({
+          bvBudget: 5000,
+          count: 3,
+          sideId: 'A',
+          random: new SeededRandom(seed + 11_000),
+          catalog,
+          // bvTolerance intentionally omitted → must default to 0.05.
+        });
+        attempted++;
+        const totalBV = force.stats.totalBV;
+        if (totalBV < 4750 || totalBV > 5250) outOfRange++;
+      } catch {
+        // BudgetUnsatisfiableError is acceptable for some seeds; not an out-of-range.
+      }
+    }
+
+    // Most attempts must succeed (catalog is rich enough).
+    expect(attempted).toBeGreaterThan(0);
+    // Any successful attempt MUST land in the ±5% window — no silent ±15% drift.
+    expect(outOfRange).toBe(0);
+  });
+});

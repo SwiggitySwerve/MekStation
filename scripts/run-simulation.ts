@@ -18,7 +18,8 @@
  *   --tech-base=STR    "IS" | "Clan" | "Mixed"
  *   --ai-side-a=STR    AI variant for side A
  *   --ai-side-b=STR    AI variant for side B
- *   --pilots=STR       Pilot skill band: green | regular | veteran | elite
+ *   --pilots=STR             Pilot strategy: vault | template
+ *   --pilot-skill-band=STR   Pilot skill band: green | regular | veteran | elite
  *   --map-radius=N     Hex grid radius
  *   --terrain-biome=S  Biome key (default "none")
  *   --output=PATH      Output file path for swarm-output JSON
@@ -122,7 +123,8 @@ Swarm mode (Phase 5):
   --tech-base=STR      Override: tech base filter (IS | Clan | Mixed)
   --ai-side-a=STR      Override: AI variant for side A
   --ai-side-b=STR      Override: AI variant for side B
-  --pilots=STR         Override: pilot skill band (green|regular|veteran|elite)
+  --pilots=STR             Override: pilot strategy (vault|template)
+  --pilot-skill-band=STR   Override: pilot skill band (green|regular|veteran|elite)
   --map-radius=N       Override: hex grid radius
   --terrain-biome=STR  Override: terrain biome key
   --output=PATH        Override: output JSON file path
@@ -196,7 +198,13 @@ interface SwarmOverrides {
   techBase?: string;
   aiSideA?: string;
   aiSideB?: string;
-  pilots?: string;
+  /**
+   * Pilot strategy override (`--pilots=<vault|template>`). Per spec, this flag
+   * controls how pilots are generated; the skill band lives on a separate flag.
+   */
+  pilotStrategy?: string;
+  /** Pilot skill band override (`--pilot-skill-band=<green|regular|veteran|elite>`). */
+  pilotSkillBand?: string;
   mapRadius?: number;
   terrainBiome?: string;
   output?: string;
@@ -234,8 +242,10 @@ function parseSwarmArgs(): {
       overrides.aiSideA = arg.split('=').slice(1).join('=');
     } else if (arg.startsWith('--ai-side-b=')) {
       overrides.aiSideB = arg.split('=').slice(1).join('=');
+    } else if (arg.startsWith('--pilot-skill-band=')) {
+      overrides.pilotSkillBand = arg.split('=').slice(1).join('=');
     } else if (arg.startsWith('--pilots=')) {
-      overrides.pilots = arg.split('=').slice(1).join('=');
+      overrides.pilotStrategy = arg.split('=').slice(1).join('=');
     } else if (arg.startsWith('--map-radius=')) {
       const n = parseInt(arg.split('=')[1], 10);
       if (!isNaN(n)) overrides.mapRadius = n;
@@ -285,8 +295,11 @@ function loadSwarmConfig(
       aiVariant:
         (overrides.aiSideA as SwarmConfig['sideA']['aiVariant']) ??
         parsed.sideA.aiVariant,
+      pilotStrategy:
+        (overrides.pilotStrategy as SwarmConfig['sideA']['pilotStrategy']) ??
+        parsed.sideA.pilotStrategy,
       pilotSkillBand:
-        (overrides.pilots as SwarmConfig['sideA']['pilotSkillBand']) ??
+        (overrides.pilotSkillBand as SwarmConfig['sideA']['pilotSkillBand']) ??
         parsed.sideA.pilotSkillBand,
     },
     sideB: {
@@ -299,8 +312,11 @@ function loadSwarmConfig(
       aiVariant:
         (overrides.aiSideB as SwarmConfig['sideB']['aiVariant']) ??
         parsed.sideB.aiVariant,
+      pilotStrategy:
+        (overrides.pilotStrategy as SwarmConfig['sideB']['pilotStrategy']) ??
+        parsed.sideB.pilotStrategy,
       pilotSkillBand:
-        (overrides.pilots as SwarmConfig['sideB']['pilotSkillBand']) ??
+        (overrides.pilotSkillBand as SwarmConfig['sideB']['pilotSkillBand']) ??
         parsed.sideB.pilotSkillBand,
     },
   };
