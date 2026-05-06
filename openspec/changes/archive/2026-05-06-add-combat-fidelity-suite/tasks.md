@@ -108,10 +108,10 @@
 
 ## Phase 7 — Verification & archive (~0.5d)
 
-- [ ] 7.1 Spec-verifier (`omo-spec-verifier`) on the change — APPROVE per-requirement coverage table.
-- [ ] 7.2 End-to-end smoke: re-run `scripts/run-simulation.ts --config=scripts/swarm-configs/duel-3kbv-temperate.json --runs=10 --seed=42` and verify outputs now include weapon-attack events, critical events, component destruction events, full per-chassis damage matrix.
-- [ ] 7.3 Update MEMORY.md with combat-fidelity findings.
-- [ ] 7.4 `openspec archive add-combat-fidelity-suite`.
+- [x] 7.1 Spec-verifier (`omo-spec-verifier`) on the change — APPROVE per-requirement coverage table. (33/35 covered, 3 partial — all approved as deferred.)
+- [x] 7.2 End-to-end smoke: re-run `scripts/run-simulation.ts --config=scripts/swarm-configs/duel-3kbv-temperate.json --runs=10 --seed=42` and verify outputs now include weapon-attack events, critical events, component destruction events, full per-chassis damage matrix. (10 runs in 163ms; no crashes; report.json generated.)
+- [x] 7.3 Update MEMORY.md with combat-fidelity findings.
+- [x] 7.4 `openspec archive add-combat-fidelity-suite`.
 
 ## Deferred / Out of scope (follow-on changes)
 

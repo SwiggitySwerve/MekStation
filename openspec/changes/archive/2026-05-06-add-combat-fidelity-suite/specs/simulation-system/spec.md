@@ -68,8 +68,6 @@ The CI pipeline SHALL include a grep-based guard that fails when `Math.random()`
 - **WHEN** the determinism-audit CI step runs
 - **THEN** the step MUST fail with a message identifying the offending file and line
 
-## MODIFIED Requirements
-
 ### Requirement: SimulationRunner Phase Loop Emits Typed Events
 
 The `SimulationRunner.run()` phase loop SHALL emit typed events for every state transition that downstream consumers depend on. Combat phases (movement, weapon attack, physical attack, post-combat heat / PSR / end-of-turn) MUST each emit at least one event per resolved action. Heat application MUST emit `HeatGenerated` / `HeatDissipated` / `HeatEffectApplied` rather than mutating state silently. Lifecycle events `GameStarted` and `GameEnded` MUST fire at the start and end of each run.
