@@ -350,8 +350,115 @@ describe('deriveHexMapStateFromEvents', () => {
     });
   });
 
-  describe('spec scenario: Empty-prefix log without GameCreated returns empty defaults', () => {
-    it('returns { tokens: [], hexTerrain: [], mapRadius: 0 } and does not throw', () => {
+  describe('spec scenario: Truly empty event log returns empty defaults', () => {
+    it('returns { tokens: [], hexTerrain: [], mapRadius: 0 } for an empty events array', () => {
+      const events: IGameEvent[] = [];
+
+      const state = deriveHexMapStateFromEvents(events, 100);
+
+      expect(state.tokens).toEqual([]);
+      expect(state.hexTerrain).toEqual([]);
+      expect(state.mapRadius).toBe(0);
+    });
+  });
+
+  describe('spec scenario: Lossy fallback synthesizes tokens for legacy NDJSON without GameCreated', () => {
+    let warnSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      warnSpy.mockRestore();
+    });
+
+    it('synthesizes Mech-default tokens from actorIds when no GameCreated is present', () => {
+      const movementPayload1: IMovementDeclaredPayload = {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 2, r: 2 },
+        facing: Facing.Southeast,
+        movementType: MovementType.Walk,
+        mpUsed: 2,
+        heatGenerated: 0,
+      };
+      const movementPayload2: IMovementDeclaredPayload = {
+        unitId: 'opponent-2',
+        from: { q: 5, r: 5 },
+        to: { q: 6, r: 6 },
+        facing: Facing.North,
+        movementType: MovementType.Walk,
+        mpUsed: 1,
+        heatGenerated: 0,
+      };
+      const events: IGameEvent[] = [
+        makeEvent({
+          sequence: 0,
+          type: GameEventType.MovementDeclared,
+          payload: movementPayload1,
+          actorId: 'player-1',
+        }),
+        makeEvent({
+          sequence: 1,
+          type: GameEventType.MovementDeclared,
+          payload: movementPayload2,
+          actorId: 'opponent-2',
+        }),
+      ];
+
+      const state = deriveHexMapStateFromEvents(events, 100);
+
+      const ids = state.tokens.map((t) => t.unitId).sort();
+      expect(ids).toEqual(['opponent-2', 'player-1']);
+      expect(state.mapRadius).toBe(17);
+    });
+
+    it('derives side from id prefix on synthesized tokens', () => {
+      const movementPlayer: IMovementDeclaredPayload = {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 2, r: 2 },
+        facing: Facing.North,
+        movementType: MovementType.Walk,
+        mpUsed: 2,
+        heatGenerated: 0,
+      };
+      const movementOpponent: IMovementDeclaredPayload = {
+        unitId: 'opponent-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        facing: Facing.South,
+        movementType: MovementType.Walk,
+        mpUsed: 1,
+        heatGenerated: 0,
+      };
+      const events: IGameEvent[] = [
+        makeEvent({
+          sequence: 0,
+          type: GameEventType.MovementDeclared,
+          payload: movementPlayer,
+          actorId: 'player-1',
+        }),
+        makeEvent({
+          sequence: 1,
+          type: GameEventType.MovementDeclared,
+          payload: movementOpponent,
+          actorId: 'opponent-1',
+        }),
+      ];
+
+      const state = deriveHexMapStateFromEvents(events, 100);
+
+      const playerToken = state.tokens.find((t) => t.unitId === 'player-1');
+      const opponentToken = state.tokens.find((t) => t.unitId === 'opponent-1');
+      expect(playerToken?.side).toBe(GameSide.Player);
+      expect(opponentToken?.side).toBe(GameSide.Opponent);
+      // Per spec: synthesized tokens default to Mech variant.
+      expect(playerToken?.unitType).toBe(TokenUnitType.Mech);
+    });
+
+    it('emits a single console.warn signaling the fallback path activated', () => {
       const movementPayload: IMovementDeclaredPayload = {
         unitId: 'player-1',
         from: { q: 0, r: 0 },
@@ -362,20 +469,44 @@ describe('deriveHexMapStateFromEvents', () => {
         heatGenerated: 0,
       };
       const events: IGameEvent[] = [
-        // No GameCreated event — only orphaned movement.
         makeEvent({
-          sequence: 1,
+          sequence: 0,
           type: GameEventType.MovementDeclared,
           payload: movementPayload,
           actorId: 'player-1',
         }),
       ];
 
+      deriveHexMapStateFromEvents(events, 100);
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0][0]).toContain('No GameCreated event found');
+    });
+
+    it('subsequent MovementDeclared still updates the synthesized token', () => {
+      const movement: IMovementDeclaredPayload = {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 5, r: 5 },
+        facing: Facing.Southeast,
+        movementType: MovementType.Walk,
+        mpUsed: 5,
+        heatGenerated: 0,
+      };
+      const events: IGameEvent[] = [
+        makeEvent({
+          sequence: 0,
+          type: GameEventType.MovementDeclared,
+          payload: movement,
+          actorId: 'player-1',
+        }),
+      ];
+
       const state = deriveHexMapStateFromEvents(events, 100);
 
-      expect(state.tokens).toEqual([]);
-      expect(state.hexTerrain).toEqual([]);
-      expect(state.mapRadius).toBe(0);
+      const token = state.tokens.find((t) => t.unitId === 'player-1');
+      expect(token?.position).toEqual({ q: 5, r: 5 });
+      expect(token?.facing).toBe(Facing.Southeast);
     });
   });
 

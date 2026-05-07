@@ -51,7 +51,12 @@ import type {
   IVehicleToken,
 } from '@/types/gameplay';
 
-import { Facing, GameEventType, TokenUnitType } from '@/types/gameplay';
+import {
+  Facing,
+  GameEventType,
+  GameSide,
+  TokenUnitType,
+} from '@/types/gameplay';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 
@@ -313,6 +318,78 @@ export function deriveHexMapStateFromEvents(
   // ordering from `GameCreated.payload.units`.
   const accumulators = new Map<string, UnitAccumulator>();
   let mapRadius = 0;
+
+  // ---------------------------------------------------------------------------
+  // Lossy fallback for legacy NDJSON files predating
+  // `emit-game-created-from-runner` (PR #542). Per the OMO Council
+  // synthesis: the headless `SimulationRunner` did not historically emit
+  // `GameCreated`, so existing `simulation-reports/games/<ts>/*.jsonl`
+  // archives have no seed event for the reducer to consume. Without
+  // this fallback, the reducer's `tokens` array stays empty and the
+  // hex map renders nothing for those legacy files.
+  //
+  // Strategy: if no `GameCreated` event is present in the input, walk
+  // the visible-up-to-cursor slice and synthesize Mech-default
+  // accumulators for every unique `actorId` / `payload.unitId` we
+  // encounter. Names default to the id; side is derived from the id
+  // prefix (`player-` / `opponent-`); position defaults to origin and
+  // gets corrected by the first `MovementDeclared` for that unit. This
+  // is intentionally lossy — full visual fidelity comes from re-running
+  // the swarm post-#542. The fallback exists so the smoke-test fixture
+  // and any pre-fix archive remain usable.
+  // ---------------------------------------------------------------------------
+  const hasGameCreated = events.some(
+    (e) => e.type === GameEventType.GameCreated,
+  );
+  if (!hasGameCreated && events.length > 0) {
+    const discoveredUnits = new Map<string, IGameUnit>();
+    // Walk only the events at or before the cursor so backward seek
+    // doesn't manufacture units that haven't appeared yet.
+    for (const event of events) {
+      if (event.sequence > currentSequence) break;
+      const ids: string[] = [];
+      if (event.actorId !== undefined) ids.push(event.actorId);
+      const payloadUnitId = (event.payload as { unitId?: string }).unitId;
+      if (payloadUnitId !== undefined) ids.push(payloadUnitId);
+      for (const id of ids) {
+        if (discoveredUnits.has(id)) continue;
+        // Derive side from the runner's slot-id convention. Unknown
+        // prefixes (test fixtures with synthetic ids) default to
+        // Player to keep rendering deterministic.
+        const side = id.startsWith('opponent-')
+          ? GameSide.Opponent
+          : GameSide.Player;
+        discoveredUnits.set(id, {
+          id,
+          name: id,
+          side,
+          unitRef: id,
+          pilotRef: `synthetic-${id}`,
+          gunnery: 4,
+          piloting: 5,
+        });
+      }
+    }
+    // Iterate via forEach to dodge `MapIterator` downlevelIteration
+    // requirement on the project's ES5 target.
+    discoveredUnits.forEach((unit) => {
+      accumulators.set(unit.id, seedAccumulator(unit));
+    });
+    // Map radius is unrecoverable from events alone — fall back to a
+    // generous default so the map still renders. The page can override
+    // via prop if it knows the radius from another source.
+    mapRadius = 17;
+    if (typeof console !== 'undefined' && discoveredUnits.size > 0) {
+      // Single console.warn signals that this code path activated, so
+      // future regressions where #542 stops emitting GameCreated don't
+      // get masked by the fallback.
+      console.warn(
+        `[useHexMapStateFromEvents] No GameCreated event found; ` +
+          `synthesized ${discoveredUnits.size} Mech-default tokens from ` +
+          `actorIds. Re-run the swarm post-#542 for full token fidelity.`,
+      );
+    }
+  }
 
   for (const event of events) {
     if (event.sequence > currentSequence) {

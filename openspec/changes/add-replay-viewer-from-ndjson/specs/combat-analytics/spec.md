@@ -40,7 +40,17 @@ The reducer SHALL NOT assume monotonic forward progression of `currentSequence` 
 
 The reducer SHALL be `useMemo`-d on `[events, currentSequence]` so re-renders that do not change the cursor reuse the prior projection.
 
-For NDJSON streams that omit `GameCreated` (e.g., a partial log starting mid-encounter), the reducer SHALL return `{ tokens: [], hexTerrain: [], mapRadius: 0 }` and SHALL NOT throw — the page can detect the empty `tokens` array and render an "incomplete event log" placeholder.
+For NDJSON streams that omit `GameCreated` BUT contain at least one event with an `actorId` or `payload.unitId`, the reducer SHALL synthesize Mech-default tokens from the discovered unit ids — the lossy-fallback path. This covers legacy NDJSON archives written by `SimulationRunner` versions predating the `emit-game-created-from-runner` change. Synthesized tokens have:
+
+- `unitId`, `name`, `unitRef` defaulting to the discovered id
+- `side` derived from the id prefix (`player-` → Player; `opponent-` → Opponent; otherwise Player)
+- `unitType` defaulted to `Mech` (the safe variant)
+- `position` defaulting to `{ q: 0, r: 0 }`; corrected by the first `MovementDeclared` for that unit
+- `mapRadius` defaulting to `17` (a generous swarm-runner default; recoverable from the persisted reports if known)
+
+When the lossy fallback activates, the reducer SHALL emit a single `console.warn` so future regressions where `GameCreated` stops being emitted do not get silently masked.
+
+For NDJSON streams that contain NEITHER `GameCreated` NOR any actor / payload-unit ids (truly empty / opaque streams), the reducer SHALL return `{ tokens: [], hexTerrain: [], mapRadius: 0 }` and SHALL NOT throw — the page can detect the empty `tokens` array and render an "incomplete event log" placeholder.
 
 #### Scenario: GameCreated seeds tokens and mapRadius
 
@@ -85,12 +95,22 @@ For NDJSON streams that omit `GameCreated` (e.g., a partial log starting mid-enc
 - **THEN** the result SHALL equal the state that would have been produced by walking events 0..2 from scratch
 - **AND** SHALL NOT carry any mutations from events 3..5
 
-#### Scenario: Empty-prefix log without GameCreated returns empty defaults
+#### Scenario: Truly empty event log returns empty defaults
 
-- **GIVEN** an event log that does not contain a `GameCreated` event (e.g., a partial NDJSON stream)
+- **GIVEN** an event log with zero events (`events.length === 0`)
 - **WHEN** `useHexMapStateFromEvents(events, currentSequence: 100)` is called
 - **THEN** the result SHALL equal `{ tokens: [], hexTerrain: [], mapRadius: 0 }`
 - **AND** SHALL NOT throw
+
+#### Scenario: Lossy fallback synthesizes tokens for legacy NDJSON without GameCreated
+
+- **GIVEN** an event log without `GameCreated`, containing a `MovementDeclared` event with `actorId: 'player-1'` and a `MovementDeclared` event with `actorId: 'opponent-2'`
+- **WHEN** `useHexMapStateFromEvents(events, currentSequence: 100)` is called
+- **THEN** the result `tokens` SHALL contain entries for `player-1` and `opponent-2`
+- **AND** the `player-1` token SHALL have `side: GameSide.Player` and `unitType: TokenUnitType.Mech`
+- **AND** the `opponent-2` token SHALL have `side: GameSide.Opponent`
+- **AND** the result `mapRadius` SHALL be `17`
+- **AND** a single `console.warn` SHALL fire indicating the fallback path activated
 
 #### Scenario: Idempotent on repeated invocation
 
