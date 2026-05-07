@@ -778,7 +778,7 @@ export function useHexMapStateFromEvents(
 ): ReplayHexMapState;
 ```
 
-The reducer SHALL walk events in monotonic `sequence` order from the start of the array up to and including the highest event whose `event.sequence <= currentSequence`. It SHALL apply per-event mutations only for the eight on-map event families enumerated below. All other event types SHALL pass through silently — they may flow through the timeline scrubber but they SHALL NOT change `tokens`, `hexTerrain`, or `mapRadius`.
+The reducer SHALL walk events in monotonic `sequence` order from the start of the array up to and including the highest event whose `event.sequence <= currentSequence`. It SHALL apply per-event mutations only for the on-map event families enumerated below. All other event types SHALL pass through silently — they may flow through the timeline scrubber but they SHALL NOT change `tokens`, `hexTerrain`, or `mapRadius`.
 
 The covered event families and their mutations:
 
@@ -794,6 +794,8 @@ The covered event families and their mutations:
 | `UnitStood` | Clears the unit's prone tag. |
 | `HeatGenerated` / `HeatDissipated` | Tracks `currentHeat` per unit (consumed by the token's existing heat-band rendering). |
 | `PilotHit` | Increments per-unit `pilotWounds`. |
+| `ComponentDestroyed` | When the actor unit projects to an `IMechToken` (Mech archetype): translates the runner's 2-letter MegaMek location code (`'HD'`, `'CT'`, `'LT'`, `'RT'`, `'LA'`, `'RA'`, `'LL'`, `'RL'`, plus the quad-specific `'FLL'`, `'FRL'`, `'RLL'`, `'RRL'`) into the corresponding `BipedPipLocation` / `QuadPipLocation` key, then updates the unit's `armorPipState.locations[mappedKey]`. The reducer SHALL initialize `armorPipState` lazily — first damage event allocates the `archetype`-appropriate `locations` map (humanoid / quad / lam) with every location set to `'full'`, then mutates the affected location. Transitions: `'full'` → `'partial'` on the first damage event for that location, and from any state → `'structure'` when `payload.componentType` is an internal component (`engine`, `gyro`, `weapon`, `actuator`, `heat_sink`, `cockpit`, `sensor`, `life_support`, `jump_jet`, `ammo`). When `LocationDestroyed` has already fired on the same location, transitions to `'destroyed'`. Non-Mech tokens SHALL pass `ComponentDestroyed` through silently — `armorPipState` is Mech-only per `IMechToken`. Unrecognized location codes SHALL pass through silently (no throw, no mutation). |
+| `CriticalHitResolved` | Same projection logic as `ComponentDestroyed` (covers the post-PR-`add-combat-fidelity-suite` Phase-4 emitter path while `ComponentDestroyed` covers the legacy Phase-3 path). |
 
 The reducer SHALL be idempotent: for any input `(events, currentSequence)`, repeated invocation SHALL produce structurally equivalent output (deep-equal `tokens` and `hexTerrain` arrays).
 
@@ -801,83 +803,113 @@ The reducer SHALL NOT assume monotonic forward progression of `currentSequence` 
 
 The reducer SHALL be `useMemo`-d on `[events, currentSequence]` so re-renders that do not change the cursor reuse the prior projection.
 
-For NDJSON streams that omit `GameCreated` BUT contain at least one event with an `actorId` or `payload.unitId`, the reducer SHALL synthesize Mech-default tokens from the discovered unit ids — the lossy-fallback path. This covers legacy NDJSON archives written by `SimulationRunner` versions predating the `emit-game-created-from-runner` change. Synthesized tokens have:
+#### Scenario: ComponentDestroyed populates Mech armorPipState
 
-- `unitId`, `name`, `unitRef` defaulting to the discovered id
-- `side` derived from the id prefix (`player-` → Player; `opponent-` → Opponent; otherwise Player)
-- `unitType` defaulted to `Mech` (the safe variant)
-- `position` defaulting to `{ q: 0, r: 0 }`; corrected by the first `MovementDeclared` for that unit
-- `mapRadius` defaulting to `17` (a generous swarm-runner default; recoverable from the persisted reports if known)
+- **GIVEN** an event log containing `GameCreated` (seeding a humanoid Mech `player-1`) followed by `ComponentDestroyed { unitId: 'player-1', location: 'LA', componentType: 'actuator' }`
+- **WHEN** the reducer walks to `currentSequence ≥ 2`
+- **THEN** the `player-1` token's `armorPipState.archetype === 'humanoid'`
+- **AND** `armorPipState.locations.leftArm === 'structure'` (actuator is an internal component)
+- **AND** all other `BipedPipLocation` values default to `'full'`
 
-When the lossy fallback activates, the reducer SHALL emit a single `console.warn` so future regressions where `GameCreated` stops being emitted do not get silently masked.
+#### Scenario: First non-internal damage transitions full → partial
 
-For NDJSON streams that contain NEITHER `GameCreated` NOR any actor / payload-unit ids (truly empty / opaque streams), the reducer SHALL return `{ tokens: [], hexTerrain: [], mapRadius: 0 }` and SHALL NOT throw — the page can detect the empty `tokens` array and render an "incomplete event log" placeholder.
+- **GIVEN** a humanoid Mech with no prior `armorPipState`
+- **WHEN** a `ComponentDestroyed { location: 'RT', componentType: 'armor' }` event applies
+- **THEN** `armorPipState.locations.rightTorso === 'partial'`
 
-#### Scenario: GameCreated seeds tokens and mapRadius
+#### Scenario: LocationDestroyed plus ComponentDestroyed transitions to destroyed
 
-- **GIVEN** a 1-event log containing only `GameCreated` with `payload.units = [unitA, unitB]` and `payload.config.mapRadius = 17`
-- **WHEN** `useHexMapStateFromEvents(events, currentSequence: 0)` is called
-- **THEN** the result `tokens` SHALL contain exactly two entries (one per unit)
-- **AND** `tokens[0].unitId` SHALL equal `unitA.id`
-- **AND** `tokens[1].unitId` SHALL equal `unitB.id`
-- **AND** `mapRadius` SHALL equal `17`
+- **GIVEN** a humanoid Mech that received `LocationDestroyed { location: 'LL' }` at sequence 5
+- **WHEN** `ComponentDestroyed { location: 'LL', componentType: 'actuator' }` applies at sequence 10 with cursor at 10
+- **THEN** `armorPipState.locations.leftLeg === 'destroyed'`
 
-#### Scenario: MovementDeclared updates position and facing for the actor
+#### Scenario: ComponentDestroyed on a vehicle is a no-op
 
-- **GIVEN** a log with `GameCreated` (unitA at default origin) followed by `MovementDeclared { unitId: unitA.id, to: { q: 3, r: 5 }, facing: Facing.SouthEast }`
-- **WHEN** `useHexMapStateFromEvents(events, currentSequence: 1)` is called
-- **THEN** the token for `unitA` SHALL have `position.q === 3 && position.r === 5`
-- **AND** the token's `facing` SHALL equal `Facing.SouthEast`
+- **GIVEN** an event log seeding an `IVehicleToken` for `tank-1` followed by `ComponentDestroyed { unitId: 'tank-1', location: 'turret', componentType: 'weapon' }`
+- **WHEN** the reducer walks past the destroyed event
+- **THEN** the `tank-1` token has NO `armorPipState` field (vehicles do not project `armorPipState`)
+- **AND** the reducer does NOT throw
 
-#### Scenario: UnitDestroyed flips isDestroyed
+#### Scenario: CriticalHitResolved follows the same projection rules
 
-- **GIVEN** a log with `GameCreated` (unitA, unitB) followed by `UnitDestroyed { unitId: unitA.id, cause: 'damage' }`
-- **WHEN** `useHexMapStateFromEvents(events, currentSequence: 1)` is called
-- **THEN** the token for `unitA` SHALL have `isDestroyed === true`
-- **AND** the token for `unitB` SHALL have `isDestroyed === false`
+- **GIVEN** the Phase-4 emitter shipping `CriticalHitResolved` instead of `ComponentDestroyed`
+- **WHEN** the reducer applies a `CriticalHitResolved { unitId: 'player-1', location: 'CT', componentType: 'engine', destroyed: true }` event to a humanoid Mech
+- **THEN** `armorPipState.locations.centerTorso === 'structure'` (or `'destroyed'` if `LocationDestroyed` already fired on CT)
 
-#### Scenario: LocationDestroyed on CT flips isDestroyed
+### Requirement: Replay Timeline Key-Moment Markers Contract
 
-- **GIVEN** a log with `GameCreated` (unitA) followed by `LocationDestroyed { unitId: unitA.id, location: 'CT' }`
-- **WHEN** `useHexMapStateFromEvents(events, currentSequence: 1)` is called
-- **THEN** the token for `unitA` SHALL have `isDestroyed === true`
+The application SHALL ship two timeline overlay components — `KeyMomentMarkers` and `PhaseChangeMarkers` — that render on top of the existing `<ReplayTimeline>` track to surface high-value events at a glance and let the user click-to-seek to those events.
 
-#### Scenario: Cursor truncation excludes events beyond currentSequence
+`KeyMomentMarkers` (`src/components/audit/replay/KeyMomentMarkers.tsx`) SHALL:
 
-- **GIVEN** a log with `GameCreated` (unitA at origin) at sequence 0, `MovementDeclared` (unitA → `(2,2)`) at sequence 1, and `UnitDestroyed` (unitA) at sequence 2
-- **WHEN** `useHexMapStateFromEvents(events, currentSequence: 1)` is called
-- **THEN** the token for `unitA` SHALL have `position.q === 2 && position.r === 2`
-- **AND** `isDestroyed === false` (the destroy event is past the cursor)
+- Accept props `{ events: readonly IGameEvent[]; minSequence: number; maxSequence: number; onSeek: (progress: number) => void }`.
+- Filter the event log via `EventLogQuery.from(events)` for the five key-moment types and render one colored badge per match at the timeline-relative position `(event.sequence - minSequence) / (maxSequence - minSequence)`:
+  - `UnitDestroyed` → red badge
+  - `CriticalHit` and `CriticalHitResolved` → orange badge
+  - `AmmoExplosion` → purple badge
+  - `PilotHit` → yellow badge
+  - `UnitFell` → gray badge
+- On badge click, invoke `onSeek(position)` with the badge's relative position so the parent scrubber jumps to that event's `sequence`.
+- Render NOTHING when `events.length === 0` or no event matches the five key-moment types.
 
-#### Scenario: Backward cursor seek returns correct earlier state
+`PhaseChangeMarkers` (`src/components/audit/replay/PhaseChangeMarkers.tsx`) SHALL:
 
-- **GIVEN** a log where `useHexMapStateFromEvents(events, 5)` was called and produced state S5
-- **WHEN** `useHexMapStateFromEvents(events, 2)` is called
-- **THEN** the result SHALL equal the state that would have been produced by walking events 0..2 from scratch
-- **AND** SHALL NOT carry any mutations from events 3..5
+- Accept the same prop shape as `KeyMomentMarkers`.
+- Render dotted vertical lines at every `TurnStarted` and `PhaseChanged` event's relative position.
+- On hover, render a tooltip displaying `Turn ${event.turn} — ${formattedPhase}` (e.g. "Turn 7 — Weapon Attack"), using a human-readable phase label derived from the `GamePhase` enum.
+- Render NOTHING when no events match.
 
-#### Scenario: Truly empty event log returns empty defaults
+`<ReplayTimeline>` (`src/components/audit/replay/ReplayTimeline.tsx`) SHALL accept two optional new props:
 
-- **GIVEN** an event log with zero events (`events.length === 0`)
-- **WHEN** `useHexMapStateFromEvents(events, currentSequence: 100)` is called
-- **THEN** the result SHALL equal `{ tokens: [], hexTerrain: [], mapRadius: 0 }`
-- **AND** SHALL NOT throw
+```ts
+interface ReplayTimelineProps {
+  // ... existing props ...
+  /**
+   * Gameplay event log used to derive key-moment + phase-change overlays.
+   * When omitted, no overlays render (existing audit-store consumers are unaffected).
+   */
+  keyMoments?: readonly IGameEvent[];
+  phaseChanges?: readonly IGameEvent[];
+}
+```
 
-#### Scenario: Lossy fallback synthesizes tokens for legacy NDJSON without GameCreated
+When `keyMoments` is provided, `<ReplayTimeline>` SHALL render `<KeyMomentMarkers>` as an overlay above the track. When `phaseChanges` is provided, it SHALL render `<PhaseChangeMarkers>` as an overlay above the track. Both overlays SHALL forward `onSeek` from the timeline's existing seek callback so badge clicks scrub the player.
 
-- **GIVEN** an event log without `GameCreated`, containing a `MovementDeclared` event with `actorId: 'player-1'` and a `MovementDeclared` event with `actorId: 'opponent-2'`
-- **WHEN** `useHexMapStateFromEvents(events, currentSequence: 100)` is called
-- **THEN** the result `tokens` SHALL contain entries for `player-1` and `opponent-2`
-- **AND** the `player-1` token SHALL have `side: GameSide.Player` and `unitType: TokenUnitType.Mech`
-- **AND** the `opponent-2` token SHALL have `side: GameSide.Opponent`
-- **AND** the result `mapRadius` SHALL be `17`
-- **AND** a single `console.warn` SHALL fire indicating the fallback path activated
+#### Scenario: Key-moment markers render at the correct positions
 
-#### Scenario: Idempotent on repeated invocation
+- **GIVEN** an event log with one `UnitDestroyed` at sequence 50, one `CriticalHit` at sequence 100, and `minSequence: 0, maxSequence: 200`
+- **WHEN** `<KeyMomentMarkers events={log} minSequence={0} maxSequence={200} onSeek={seek}>` mounts
+- **THEN** two badges render
+- **AND** the `UnitDestroyed` badge sits at left: 25% (50/200)
+- **AND** the `CriticalHit` badge sits at left: 50% (100/200)
+- **AND** the `UnitDestroyed` badge has the red color class
+- **AND** the `CriticalHit` badge has the orange color class
 
-- **GIVEN** any event log and any `currentSequence`
-- **WHEN** the reducer is invoked twice with the same `(events, currentSequence)`
-- **THEN** both invocations SHALL produce structurally equivalent `{ tokens, hexTerrain, mapRadius }` results
+#### Scenario: Clicking a key-moment badge seeks the timeline
+
+- **GIVEN** a `<KeyMomentMarkers>` rendered with one `UnitDestroyed` at sequence 50 in a [0, 200] range
+- **WHEN** the user clicks the badge
+- **THEN** `onSeek(0.25)` is called exactly once
+
+#### Scenario: Phase-change markers render at every TurnStarted and PhaseChanged
+
+- **GIVEN** an event log containing `TurnStarted` at sequences 10, 30, 50 and `PhaseChanged` at sequences 15, 35, 55
+- **WHEN** `<PhaseChangeMarkers>` mounts
+- **THEN** six dotted vertical lines render
+- **AND** hovering each line reveals a tooltip with `Turn N — <phase>`
+
+#### Scenario: ReplayTimeline composes overlays only when the optional props are set
+
+- **GIVEN** a `<ReplayTimeline>` rendered without the `keyMoments` or `phaseChanges` props
+- **WHEN** the timeline mounts
+- **THEN** neither `<KeyMomentMarkers>` nor `<PhaseChangeMarkers>` renders
+- **AND** the existing audit-style markers prop continues to render unchanged
+
+#### Scenario: Empty event log renders no marker overlays
+
+- **GIVEN** `<KeyMomentMarkers events={[]} ...>` and `<PhaseChangeMarkers events={[]} ...>`
+- **WHEN** the components mount
+- **THEN** both render an empty fragment (no badges, no lines)
 
 ## Data Model Requirements
 
