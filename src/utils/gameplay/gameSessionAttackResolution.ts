@@ -6,6 +6,7 @@ import {
   IGameEvent,
   IGameSession,
   IWeaponAttackData,
+  PSRTrigger,
 } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
@@ -403,6 +404,7 @@ export function resolveAttack(
               0,
               'leg_damage',
               targetUnit?.piloting,
+              PSRTrigger.LegDamage,
             ),
           );
           break;
@@ -432,6 +434,7 @@ export function resolveAttack(
             0,
             'phase_damage_20_plus',
             targetUnit?.piloting,
+            PSRTrigger.PhaseDamage20Plus,
           ),
         );
       }

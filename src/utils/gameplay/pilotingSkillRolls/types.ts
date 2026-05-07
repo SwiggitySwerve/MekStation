@@ -5,6 +5,17 @@
 
 import type { IPendingPSR } from '@/types/gameplay/GameSessionInterfaces';
 
+// PR E (`structure-psr-reason-as-discriminated-code`): the `PSRTrigger`
+// enum was moved to `src/types/gameplay/PSRTriggerCodes.ts` so
+// `GameSessionInterfaces.ts` can reference it for the new
+// `IPSRTriggeredPayload.reasonCode` / `IPSRResolvedPayload.reasonCode` /
+// `IUnitFellPayload.reasonCode` fields without forming a cycle. Re-exported
+// here for backward-compat with existing callers (factories,
+// `resolution.ts`, tests) that import from `./types`.
+import { PSRTrigger } from '@/types/gameplay/PSRTriggerCodes';
+
+export { PSRTrigger };
+
 /**
  * Result of a single PSR resolution.
  */
@@ -45,52 +56,76 @@ export interface IPSRBatchResult {
 }
 
 /**
- * PSR trigger types — all 27 canonical trigger sources, including the
- * `EngineHit` entry required by the piloting-skill-rolls spec
- * ("PSR Trigger Catalog") and consistent with MegaMek's engine-crit PSR.
+ * Per `structure-psr-reason-as-discriminated-code` (PR E): the four
+ * coarse buckets that partition the 27-code `PSRTrigger` taxonomy.
+ * Consumers (the readable formatter, metrics aggregators) bucket PSRs
+ * by category instead of enumerating all 27 codes.
+ *
+ * @spec openspec/specs/piloting-skill-rolls/spec.md
+ *   Requirement: PSR Reason Category Bucket Helper
  */
-export enum PSRTrigger {
-  // Damage triggers
-  PhaseDamage20Plus = '20+_damage',
-  LegDamage = 'leg_damage',
+export type PSRReasonCategory = 'movement' | 'damage' | 'heat' | 'recovery';
 
-  // Component damage triggers
-  HipActuatorDestroyed = 'hip_actuator_destroyed',
-  GyroHit = 'gyro_hit',
-  EngineHit = 'engine_hit',
-  UpperLegActuatorHit = 'upper_leg_actuator_hit',
-  LowerLegActuatorHit = 'lower_leg_actuator_hit',
-  FootActuatorHit = 'foot_actuator_hit',
+/**
+ * Map a `PSRTrigger` value to its `PSRReasonCategory` bucket.
+ *
+ * The mapping is deterministic and total — every code maps to exactly
+ * one of `'movement' | 'damage' | 'heat' | 'recovery'`. Implemented as
+ * an exhaustive switch so adding a new `PSRTrigger` member fails the
+ * typechecker until it's categorised.
+ *
+ * @spec openspec/specs/piloting-skill-rolls/spec.md
+ *   Requirement: PSR Reason Category Bucket Helper
+ */
+export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory {
+  switch (code) {
+    // Damage bucket
+    case PSRTrigger.PhaseDamage20Plus:
+    case PSRTrigger.LegDamage:
+    case PSRTrigger.HipActuatorDestroyed:
+    case PSRTrigger.GyroHit:
+    case PSRTrigger.EngineHit:
+    case PSRTrigger.UpperLegActuatorHit:
+    case PSRTrigger.LowerLegActuatorHit:
+    case PSRTrigger.FootActuatorHit:
+      return 'damage';
 
-  // Physical attack triggers (target)
-  Kicked = 'kicked',
-  Charged = 'charged',
-  DFATarget = 'dfa_target',
-  Pushed = 'pushed',
+    // Movement bucket — physical attack target/miss + terrain + system
+    case PSRTrigger.Kicked:
+    case PSRTrigger.Charged:
+    case PSRTrigger.DFATarget:
+    case PSRTrigger.Pushed:
+    case PSRTrigger.KickMiss:
+    case PSRTrigger.ChargeMiss:
+    case PSRTrigger.DFAMiss:
+    case PSRTrigger.EnteringRubble:
+    case PSRTrigger.RunningRoughTerrain:
+    case PSRTrigger.MovingOnIce:
+    case PSRTrigger.EnteringWater:
+    case PSRTrigger.ExitingWater:
+    case PSRTrigger.Skidding:
+    case PSRTrigger.RunningDamagedHip:
+    case PSRTrigger.RunningDamagedGyro:
+    case PSRTrigger.BuildingCollapse:
+    case PSRTrigger.MASCFailure:
+    case PSRTrigger.SuperchargerFailure:
+      return 'movement';
 
-  // Physical attack miss triggers (attacker)
-  KickMiss = 'kick_miss',
-  ChargeMiss = 'charge_miss',
-  DFAMiss = 'dfa_miss',
+    // Heat bucket
+    case PSRTrigger.Shutdown:
+      return 'heat';
 
-  // Shutdown/startup triggers
-  Shutdown = 'heat_shutdown',
-  StandingUp = 'standing_up',
+    // Recovery bucket
+    case PSRTrigger.StandingUp:
+      return 'recovery';
 
-  // Terrain triggers
-  EnteringRubble = 'entering_rubble',
-  RunningRoughTerrain = 'running_rough_terrain',
-  MovingOnIce = 'moving_on_ice',
-  EnteringWater = 'entering_water',
-  ExitingWater = 'exiting_water',
-  Skidding = 'skidding',
-
-  // Movement with damage triggers
-  RunningDamagedHip = 'running_damaged_hip',
-  RunningDamagedGyro = 'running_damaged_gyro',
-
-  // Collapse/failure triggers
-  BuildingCollapse = 'building_collapse',
-  MASCFailure = 'masc_failure',
-  SuperchargerFailure = 'supercharger_failure',
+    default: {
+      // Exhaustiveness check — a new PSRTrigger member that lacks a
+      // category mapping fails the typechecker on this line.
+      const exhaustive: never = code;
+      throw new Error(
+        `getPSRReasonCategory: unhandled PSRTrigger value ${String(exhaustive)}`,
+      );
+    }
+  }
 }

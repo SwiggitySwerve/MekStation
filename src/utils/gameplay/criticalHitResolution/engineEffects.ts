@@ -1,4 +1,8 @@
-import { CriticalEffectType, ICriticalEffect } from '@/types/gameplay';
+import {
+  CriticalEffectType,
+  ICriticalEffect,
+  PSRTrigger,
+} from '@/types/gameplay';
 
 import {
   ENGINE_DESTRUCTION_THRESHOLD,
@@ -47,6 +51,9 @@ export function applyGyroHit(
   const newHits = componentDamage.gyroHits + 1;
   const updatedDamage = { ...componentDamage, gyroHits: newHits };
 
+  // Per `structure-psr-reason-as-discriminated-code` (PR E): canonical
+  // damage-bucket reasonCode for crit-driven gyro PSRs. Mirrors the
+  // `createGyroPSR` factory.
   events.push({
     type: 'psr_triggered',
     payload: {
@@ -54,6 +61,7 @@ export function applyGyroHit(
       reason: 'Gyro hit',
       additionalModifier: GYRO_PSR_MODIFIER_PER_HIT * newHits,
       triggerSource: 'gyro_critical',
+      reasonCode: PSRTrigger.GyroHit,
     },
   });
 

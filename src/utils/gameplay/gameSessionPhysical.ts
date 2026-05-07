@@ -18,6 +18,7 @@ import {
   IGameEvent,
   IGameSession,
   IPhysicalAttackDeclaredPayload,
+  PSRTrigger,
 } from '@/types/gameplay';
 
 import { resolveDamage as resolveDamagePipeline } from './damage';
@@ -467,6 +468,20 @@ export function resolveAllPhysicalAttacks(
       (u) => u.id === payload.targetId,
     );
     if (result.hit && result.targetPSR) {
+      // Per `structure-psr-reason-as-discriminated-code` (PR E): map the
+      // generic `physical_attack_target` trigger source to the canonical
+      // `PSRTrigger` matching the originating attack type so consumers
+      // can filter target PSRs by attack family.
+      const targetReasonCode =
+        payload.attackType === 'kick'
+          ? PSRTrigger.Kicked
+          : payload.attackType === 'charge'
+            ? PSRTrigger.Charged
+            : payload.attackType === 'dfa'
+              ? PSRTrigger.DFATarget
+              : payload.attackType === 'push'
+                ? PSRTrigger.Pushed
+                : undefined;
       const psrSeq = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -480,6 +495,7 @@ export function resolveAllPhysicalAttacks(
           0,
           'physical_attack_target',
           targetUnit?.piloting,
+          targetReasonCode,
         ),
       );
     }
@@ -493,6 +509,16 @@ export function resolveAllPhysicalAttacks(
           : payload.attackType === 'dfa'
             ? 'dfa_attacker_hit'
             : 'physical_attacker_hit';
+      // Attacker-on-hit PSRs share the canonical movement codes for the
+      // attack family — Charged / DFATarget mirror the target codes per
+      // the PSR Trigger Catalog. Kept undefined when no canonical code
+      // applies (e.g. generic `physical_attacker_hit`).
+      const attackerHitReasonCode =
+        payload.attackType === 'charge'
+          ? PSRTrigger.Charged
+          : payload.attackType === 'dfa'
+            ? PSRTrigger.DFATarget
+            : undefined;
       const psrSeq = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -506,6 +532,7 @@ export function resolveAllPhysicalAttacks(
           result.attackerPSRModifier,
           attackerHitTrigger,
           context.pilotingSkill,
+          attackerHitReasonCode,
         ),
       );
     }
@@ -518,6 +545,14 @@ export function resolveAllPhysicalAttacks(
             : payload.attackType === 'dfa'
               ? 'dfa_miss'
               : 'physical_miss';
+      const missReasonCode =
+        payload.attackType === 'kick'
+          ? PSRTrigger.KickMiss
+          : payload.attackType === 'charge'
+            ? PSRTrigger.ChargeMiss
+            : payload.attackType === 'dfa'
+              ? PSRTrigger.DFAMiss
+              : undefined;
       const psrSeq = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -531,6 +566,7 @@ export function resolveAllPhysicalAttacks(
           result.attackerPSRModifier,
           triggerSource,
           context.pilotingSkill,
+          missReasonCode,
         ),
       );
     }

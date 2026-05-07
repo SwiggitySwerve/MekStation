@@ -23,6 +23,10 @@ export * from './EnvironmentalConditions';
 export * from './GameSessionInterfaces';
 export * from './GameLobbyInterfaces';
 
+// PSR trigger codes (PR E: lifted to its own module to avoid cycle
+// between GameSessionInterfaces and pilotingSkillRolls/types).
+export * from './PSRTriggerCodes';
+
 // Combat Resolution
 export * from './CombatInterfaces';
 

@@ -26,6 +26,7 @@ import type {
 import type { IEnvironmentalConditions } from './EnvironmentalConditions';
 
 import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
+import { PSRTrigger } from './PSRTriggerCodes';
 
 // =============================================================================
 // Enums
@@ -1024,6 +1025,16 @@ export interface IPSRTriggeredPayload {
    * landed.
    */
   readonly basePilotingSkill?: number;
+  /**
+   * Per `structure-psr-reason-as-discriminated-code` (PR E): canonical
+   * `PSRTrigger` enum value paired with the human-readable `reason`
+   * string. Display consumers (`EventLogDisplay`, `format-event-log.py`)
+   * keep reading `reason`; filter / aggregate consumers
+   * (`EventLogQuery`, `MetricsCollector`) read `reasonCode` for
+   * machine-readable filtering. OPTIONAL for back-compat with NDJSON
+   * streams written before this field landed.
+   */
+  readonly reasonCode?: PSRTrigger;
 }
 
 export interface IPSRResolvedPayload {
@@ -1038,6 +1049,13 @@ export interface IPSRResolvedPayload {
    * compose `roll`. OPTIONAL — see `IInitiativeRolledPayload.rolls`.
    */
   readonly rolls?: readonly number[];
+  /**
+   * Per `structure-psr-reason-as-discriminated-code` (PR E): canonical
+   * `PSRTrigger` enum value paired with the human-readable `reason`
+   * string. Same back-compat semantics as `IPSRTriggeredPayload.reasonCode`.
+   * OPTIONAL.
+   */
+  readonly reasonCode?: PSRTrigger;
 }
 
 export interface IUnitFellPayload {
@@ -1061,12 +1079,18 @@ export interface IUnitFellPayload {
   /**
    * Free-string reason describing the fall cause (e.g. `'gyro-hit'`,
    * `'took-20-damage'`). PR E (`structure-psr-reason-as-discriminated-code`)
-   * tightens this to a `PSRReasonCode` discriminated union; for now it is
-   * deliberately string-typed to remain compatible with the existing
-   * free-form PSR reason strings emitted by the runner. Optional for
+   * keeps this string-typed for display continuity and adds the sibling
+   * `reasonCode` below for machine-readable filtering. Optional for
    * back-compat.
    */
   readonly reason?: string;
+  /**
+   * Per `structure-psr-reason-as-discriminated-code` (PR E): canonical
+   * `PSRTrigger` enum value paired with the human-readable `reason`
+   * string. Same back-compat semantics as `IPSRTriggeredPayload.reasonCode`.
+   * OPTIONAL.
+   */
+  readonly reasonCode?: PSRTrigger;
 }
 
 /**
@@ -1687,6 +1711,17 @@ export interface IPendingPSR {
   readonly additionalModifier: number;
   /** What triggered this PSR */
   readonly triggerSource: string;
+  /**
+   * Per `structure-psr-reason-as-discriminated-code` (PR E): canonical
+   * `PSRTrigger` enum value carried alongside the human-readable
+   * `reason` string. Populated by every PSR factory in
+   * `src/utils/gameplay/pilotingSkillRolls/`. The downstream event
+   * builder (`createPSRTriggeredEvent`) threads this through to
+   * `IPSRTriggeredPayload.reasonCode` so consumers can filter / bucket
+   * PSRs by canonical code. OPTIONAL for back-compat with synthetic
+   * `IPendingPSR` fixtures predating PR E.
+   */
+  readonly reasonCode?: PSRTrigger;
 }
 
 // =============================================================================

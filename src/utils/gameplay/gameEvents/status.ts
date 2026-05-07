@@ -20,6 +20,7 @@ import {
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
   PhysicalAttackEventType,
+  PSRTrigger,
 } from '@/types/gameplay';
 
 import { createEventBase } from './base';
@@ -235,6 +236,7 @@ export function createPSRTriggeredEvent(
   additionalModifier: number,
   triggerSource: string,
   basePilotingSkill?: number,
+  reasonCode?: PSRTrigger,
 ): IGameEvent {
   const payload: IPSRTriggeredPayload = {
     unitId,
@@ -242,6 +244,7 @@ export function createPSRTriggeredEvent(
     additionalModifier,
     triggerSource,
     ...(basePilotingSkill !== undefined ? { basePilotingSkill } : {}),
+    ...(reasonCode !== undefined ? { reasonCode } : {}),
   };
 
   return {
@@ -268,6 +271,7 @@ export function createPSRResolvedEvent(
   modifiers: number,
   passed: boolean,
   reason: string,
+  reasonCode?: PSRTrigger,
 ): IGameEvent {
   const payload: IPSRResolvedPayload = {
     unitId,
@@ -276,6 +280,7 @@ export function createPSRResolvedEvent(
     modifiers,
     passed,
     reason,
+    ...(reasonCode !== undefined ? { reasonCode } : {}),
   };
 
   return {
@@ -302,6 +307,7 @@ export function createUnitFellEvent(
   pilotDamage: number,
   location?: string,
   reason?: string,
+  reasonCode?: PSRTrigger,
 ): IGameEvent {
   const payload: IUnitFellPayload = {
     unitId,
@@ -310,6 +316,7 @@ export function createUnitFellEvent(
     pilotDamage,
     ...(location !== undefined ? { location } : {}),
     ...(reason !== undefined ? { reason } : {}),
+    ...(reasonCode !== undefined ? { reasonCode } : {}),
   };
 
   return {

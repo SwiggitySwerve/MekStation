@@ -11,6 +11,7 @@ import {
   IGameSession,
   IHexCoordinate,
   IMovementDeclaredPayload,
+  PSRTrigger,
 } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
@@ -294,6 +295,7 @@ export function resolveHeatPhase(
           0,
           'heat_shutdown',
           unit?.piloting,
+          PSRTrigger.Shutdown,
         ),
       );
     } else {
