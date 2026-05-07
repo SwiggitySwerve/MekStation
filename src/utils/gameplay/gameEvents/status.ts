@@ -234,12 +234,14 @@ export function createPSRTriggeredEvent(
   reason: string,
   additionalModifier: number,
   triggerSource: string,
+  basePilotingSkill?: number,
 ): IGameEvent {
   const payload: IPSRTriggeredPayload = {
     unitId,
     reason,
     additionalModifier,
     triggerSource,
+    ...(basePilotingSkill !== undefined ? { basePilotingSkill } : {}),
   };
 
   return {
@@ -298,12 +300,16 @@ export function createUnitFellEvent(
   fallDamage: number,
   newFacing: Facing,
   pilotDamage: number,
+  location?: string,
+  reason?: string,
 ): IGameEvent {
   const payload: IUnitFellPayload = {
     unitId,
     fallDamage,
     newFacing,
     pilotDamage,
+    ...(location !== undefined ? { location } : {}),
+    ...(reason !== undefined ? { reason } : {}),
   };
 
   return {

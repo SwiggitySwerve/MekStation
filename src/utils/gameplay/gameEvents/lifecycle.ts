@@ -56,7 +56,11 @@ export function createGameEndedEvent(
   winner: GameSide | 'draw',
   reason: 'destruction' | 'concede' | 'turn_limit' | 'objective' | 'aborted',
 ): IGameEvent {
-  const payload: IGameEndedPayload = { winner, reason };
+  // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+  // (game-event-system / piloting-skill-rolls deltas): backfill the final
+  // turn count onto `IGameEndedPayload.turns` so summary consumers don't
+  // have to re-derive it from the last `turn_started` event.
+  const payload: IGameEndedPayload = { winner, reason, turns: turn };
   return {
     ...createEventBase(gameId, sequence, GameEventType.GameEnded, turn, phase),
     payload,

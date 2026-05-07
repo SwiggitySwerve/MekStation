@@ -22,6 +22,7 @@ import {
   IGameUnit,
   IPSRResolvedPayload,
   IPSRTriggeredPayload,
+  IUnitFellPayload,
   IUnitStoodPayload,
   MovementType,
 } from '@/types/gameplay';
@@ -166,6 +167,13 @@ describe('wire-piloting-skill-rolls — smoke test', () => {
     expect(triggered.length).toBe(1);
     expect(session.currentState.units['attacker'].pendingPSRs?.length).toBe(1);
 
+    // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+    // (piloting-skill-rolls delta — PSRTriggered Carries Base Skill):
+    // the trigger payload SHALL carry the unit's base piloting skill
+    // (here `units[0].piloting === 5`).
+    const triggerPayload = triggered[0].payload as IPSRTriggeredPayload;
+    expect(triggerPayload.basePilotingSkill).toBe(5);
+
     // Roll 9 — passes TN 5 (piloting). resolveAllPSRs internally calls
     // d6Roller twice (taking dice[0] each time), so the mock must
     // return two rolls whose dice[0] values sum to the desired total.
@@ -218,6 +226,16 @@ describe('wire-piloting-skill-rolls — smoke test', () => {
       (e: IGameEvent) => e.type === GameEventType.UnitFell,
     );
     expect(fellEvents).toHaveLength(1);
+
+    // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+    // (piloting-skill-rolls delta — UnitFell Carries Location and Reason):
+    // the failed-PSR-induced fall MUST carry both `location` and `reason`
+    // on the payload. Location defaults to `'center_torso'`; reason
+    // mirrors the failed PSR's reason string.
+    const fellPayload = fellEvents[0].payload as IUnitFellPayload;
+    expect(fellPayload.location).toBe('center_torso');
+    expect(typeof fellPayload.reason).toBe('string');
+    expect(fellPayload.reason!.length).toBeGreaterThan(0);
 
     const pilotHits = session.events.filter(
       (e: IGameEvent) => e.type === GameEventType.PilotHit,

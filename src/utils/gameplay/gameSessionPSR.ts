@@ -30,6 +30,12 @@ export function checkAndQueueDamagePSRs(session: IGameSession): IGameSession {
     const damagePSR = checkPhaseDamagePSR(unitState);
     if (damagePSR) {
       const sequence = currentSession.events.length;
+      // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+      // (piloting-skill-rolls delta): carry the unit's base piloting
+      // skill onto the trigger event so consumers can render the full
+      // PSR target-number arithmetic without joining to the unit
+      // record. `IGameUnit.piloting` is the unmodified skill value.
+      const unit = currentSession.units.find((entry) => entry.id === unitId);
       currentSession = appendEvent(
         currentSession,
         createPSRTriggeredEvent(
@@ -41,6 +47,7 @@ export function checkAndQueueDamagePSRs(session: IGameSession): IGameSession {
           damagePSR.reason,
           damagePSR.additionalModifier,
           damagePSR.triggerSource,
+          unit?.piloting,
         ),
       );
     }
@@ -105,6 +112,12 @@ export function resolvePendingPSRs(
         );
       }
 
+      // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+      // (piloting-skill-rolls delta — UnitFell Carries Location and Reason):
+      // a destroyed gyro forces an automatic fall; canonical location is
+      // `'center_torso'` (where the gyro lives on standard mechs) and the
+      // reason is the gyro-hit trigger. Fallback to the first pending
+      // PSR's reason if for some reason the queue is empty.
       const fellSequence = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -117,6 +130,8 @@ export function resolvePendingPSRs(
           fallResult.totalDamage,
           fallResult.newFacing,
           fallResult.pilotDamage,
+          'center_torso',
+          pendingPSRs[0]?.reason ?? 'gyro_destroyed',
         ),
       );
 
@@ -196,6 +211,13 @@ export function resolvePendingPSRs(
     if (batchResult.unitFell) {
       const fallResult = resolveFall(50, unitState.facing, 0, d6Roller);
 
+      // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+      // (piloting-skill-rolls delta — UnitFell Carries Location and Reason):
+      // pick the first FAILED PSR's reason as the canonical fall reason;
+      // location defaults to `'center_torso'` (the failed-PSR pathway
+      // doesn't carry a per-trigger location today — PR E tightens this
+      // when reasons become a discriminated `PSRReasonCode`).
+      const failedPsr = batchResult.results.find((r) => !r.passed);
       const fellSequence = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -208,6 +230,8 @@ export function resolvePendingPSRs(
           fallResult.totalDamage,
           fallResult.newFacing,
           fallResult.pilotDamage,
+          'center_torso',
+          failedPsr?.psr.reason ?? pendingPSRs[0]?.reason,
         ),
       );
 
@@ -275,6 +299,7 @@ export function attemptStandUp(
       psr.reason,
       psr.additionalModifier,
       psr.triggerSource,
+      unit.piloting,
     ),
   );
 

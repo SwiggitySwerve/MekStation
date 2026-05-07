@@ -1,10 +1,37 @@
-import { GameEventType, GamePhase, IGameEvent } from '@/types/gameplay';
+import {
+  GameEventType,
+  GamePhase,
+  GameSide,
+  IGameEvent,
+} from '@/types/gameplay';
 import { D6Roller } from '@/utils/gameplay/hitLocation';
 
 import { SeededRandom } from '../../core/SeededRandom';
 
 export function createD6Roller(random: SeededRandom): D6Roller {
   return () => Math.floor(random.next() * 6) + 1;
+}
+
+/**
+ * Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+ * (game-event-system delta — Event Envelope Side Denormalization): derive
+ * the `side` field from the `actorId` prefix using the same lookup the
+ * runner already uses for its `player-N` / `opponent-N` unit ids. This is
+ * the canonical chokepoint — `createGameEvent` is the single emission
+ * builder used by every runner phase, so populating `side` here means
+ * every event lands on the wire with side already denormalized.
+ *
+ * Returns `undefined` for ids that don't match either prefix (system
+ * events with no actor, or test fixtures with synthetic ids); the
+ * envelope omits the field in that case so consumers can fall back to
+ * `MetricsCollector.sideFromUnitId` if they need to derive it from
+ * `payload.unitId` instead.
+ */
+function deriveSide(actorId: string | undefined): GameSide | undefined {
+  if (!actorId) return undefined;
+  if (actorId.startsWith('player-')) return GameSide.Player;
+  if (actorId.startsWith('opponent-')) return GameSide.Opponent;
+  return undefined;
 }
 
 export function createGameEvent(
@@ -16,6 +43,7 @@ export function createGameEvent(
   payload: IGameEvent['payload'],
   actorId?: string,
 ): IGameEvent {
+  const side = deriveSide(actorId);
   return {
     id: `${gameId}-evt-${sequence}`,
     gameId,
@@ -26,5 +54,6 @@ export function createGameEvent(
     phase,
     payload,
     ...(actorId !== undefined ? { actorId } : {}),
+    ...(side !== undefined ? { side } : {}),
   };
 }

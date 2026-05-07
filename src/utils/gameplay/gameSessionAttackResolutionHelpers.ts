@@ -89,6 +89,11 @@ export function emitCriticalEvents(
 
     if (event.type === 'psr_triggered') {
       const payload = event.payload;
+      // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+      // (piloting-skill-rolls delta — PSRTriggered Carries Base Skill):
+      // pass the unit's base piloting skill so consumers can render the
+      // full PSR target-number arithmetic.
+      const psrUnit = currentSession.units.find((u) => u.id === payload.unitId);
       currentSession = appendEvent(
         currentSession,
         createPSRTriggeredEvent(
@@ -100,6 +105,7 @@ export function emitCriticalEvents(
           payload.reason,
           payload.additionalModifier,
           payload.triggerSource,
+          psrUnit?.piloting,
         ),
       );
       continue;

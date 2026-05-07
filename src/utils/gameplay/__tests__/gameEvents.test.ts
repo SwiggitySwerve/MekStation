@@ -192,10 +192,17 @@ describe('Lifecycle Event Factories', () => {
       const payload = event.payload as {
         winner: GameSide | 'draw';
         reason: string;
+        turns?: number;
       };
 
       expect(payload.winner).toBe(GameSide.Opponent);
       expect(payload.reason).toBe('concede');
+      // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+      // (game-event-system delta — backfill `IGameEndedPayload.turns`):
+      // the final turn count threads through from the `turn` parameter
+      // so summary consumers can read it directly without scanning the
+      // turn-lifecycle events.
+      expect(payload.turns).toBe(5);
     });
 
     it('should handle draw result', () => {

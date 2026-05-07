@@ -37,6 +37,15 @@ import { IAggregateMetrics, ISimulationMetrics } from './types';
  * don't follow the canonical `player-` / `opponent-` prefix (e.g.,
  * test fixtures with synthetic ids); those units don't contribute to
  * either side's roster count.
+ *
+ * Per `denormalize-event-envelope-and-close-emission-contract-gaps`: the
+ * canonical source for an event's side is now `IGameEventBase.side`,
+ * populated by `createGameEvent` (and `createEventBase`) at emission
+ * time. This function is retained as a fallback for replaying legacy
+ * NDJSON event streams written before the envelope-denormalization
+ * landed — `MetricsCollector` still uses it against `payload.unitId`
+ * because some payloads describe a target side rather than the actor's
+ * side, and unit-id is the unambiguous source there.
  */
 function sideFromUnitId(unitId: string): 'player' | 'opponent' | null {
   if (unitId.startsWith('player-')) return 'player';

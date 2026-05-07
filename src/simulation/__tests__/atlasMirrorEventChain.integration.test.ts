@@ -394,4 +394,48 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
     // End-of-run: every declared shot has a matching resolved.
     expect(pendingResolved).toBe(false);
   });
+
+  it('envelope side is denormalized from actorId on every player-actored event', async () => {
+    // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+    // (game-event-system delta — Event Envelope Side Denormalization):
+    // events authored by `player-1` MUST land with `side === Player`,
+    // events authored by `opponent-1` MUST land with `side === Opponent`,
+    // and system-authored events (no actorId) MUST omit `side`.
+    const hydration = await buildAtlasMirrorHydration();
+    const config: ISimulationConfig = {
+      seed: 12345,
+      turnLimit: 5,
+      unitCount: { player: 1, opponent: 1 },
+      mapRadius: 4,
+    };
+    const runner = new SimulationRunner(
+      config.seed,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      hydration,
+    );
+    const result = runner.run(config);
+
+    const playerEvents = result.events.filter((e) => e.actorId === 'player-1');
+    const opponentEvents = result.events.filter(
+      (e) => e.actorId === 'opponent-1',
+    );
+    const systemEvents = result.events.filter((e) => e.actorId === undefined);
+
+    expect(playerEvents.length).toBeGreaterThan(0);
+    expect(opponentEvents.length).toBeGreaterThan(0);
+    expect(systemEvents.length).toBeGreaterThan(0);
+
+    for (const e of playerEvents) {
+      expect(e.side).toBe(GameSide.Player);
+    }
+    for (const e of opponentEvents) {
+      expect(e.side).toBe(GameSide.Opponent);
+    }
+    for (const e of systemEvents) {
+      expect(e.side).toBeUndefined();
+    }
+  });
 });

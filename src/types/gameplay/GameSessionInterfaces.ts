@@ -336,6 +336,13 @@ export interface IGameEventBase {
   readonly actorId?: string;
   /** Fog-of-war delivery class used by multiplayer event filtering. */
   readonly visibility?: GameEventVisibility;
+  /**
+   * Side denormalization. Derived from `actorId` at emission time by
+   * `createGameEvent` so consumers can filter/display side without joining
+   * unitId to IGameUnit.side. Optional for back-compat with NDJSON event
+   * streams written before this denormalization landed.
+   */
+  readonly side?: GameSide;
 }
 
 /**
@@ -369,6 +376,11 @@ export interface IGameEndedPayload {
     | 'turn_limit'
     | 'objective'
     | 'aborted';
+  /**
+   * Final turn count when the game ended. Optional for back-compat with
+   * NDJSON event streams written before this field was populated.
+   */
+  readonly turns?: number;
 }
 
 /**
@@ -851,6 +863,16 @@ export interface IPSRTriggeredPayload {
   readonly reason: string;
   readonly additionalModifier: number;
   readonly triggerSource: string;
+  /**
+   * The unit's pilot piloting skill BEFORE per-trigger and cumulative
+   * modifiers (i.e. the raw value from `IGameUnit.piloting`). Consumers
+   * use this to render the full PSR target-number arithmetic
+   * (`basePilotingSkill + additionalModifier + cumulative-mods = TN`)
+   * without separately joining to the unit record. Optional for
+   * back-compat with NDJSON event streams written before this field
+   * landed.
+   */
+  readonly basePilotingSkill?: number;
 }
 
 export interface IPSRResolvedPayload {
@@ -877,6 +899,23 @@ export interface IUnitFellPayload {
    * the fall direction + per-cluster hit-location rolls. OPTIONAL.
    */
   readonly rolls?: readonly number[];
+  /**
+   * Location at which the fall happened (e.g. `'left_leg'`, `'center_torso'`,
+   * or a hex-coordinate string when the trigger was terrain). Sourced from
+   * the PSR resolution context that caused the fall. Optional for
+   * back-compat with NDJSON event streams written before this field
+   * landed.
+   */
+  readonly location?: string;
+  /**
+   * Free-string reason describing the fall cause (e.g. `'gyro-hit'`,
+   * `'took-20-damage'`). PR E (`structure-psr-reason-as-discriminated-code`)
+   * tightens this to a `PSRReasonCode` discriminated union; for now it is
+   * deliberately string-typed to remain compatible with the existing
+   * free-form PSR reason strings emitted by the runner. Optional for
+   * back-compat.
+   */
+  readonly reason?: string;
 }
 
 /**

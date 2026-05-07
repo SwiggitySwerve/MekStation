@@ -457,6 +457,15 @@ export function resolveAllPhysicalAttacks(
     // PSR queueing: target gets PhysicalAttackTarget on hit; attacker
     // gets the per-attack-type miss PSR on miss. Per task 6.6 / 7.5,
     // charge + DFA hits queue PSRs for BOTH attacker and target.
+    //
+    // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+    // (piloting-skill-rolls delta — PSRTriggered Carries Base Skill):
+    // pass the unit's base piloting skill (looked up from `IGameUnit`).
+    // For the attacker the runner already has `context.pilotingSkill`;
+    // for the target we look it up from `currentSession.units`.
+    const targetUnit = currentSession.units.find(
+      (u) => u.id === payload.targetId,
+    );
     if (result.hit && result.targetPSR) {
       const psrSeq = currentSession.events.length;
       currentSession = appendEvent(
@@ -470,6 +479,7 @@ export function resolveAllPhysicalAttacks(
           'Hit by physical attack',
           0,
           'physical_attack_target',
+          targetUnit?.piloting,
         ),
       );
     }
@@ -495,6 +505,7 @@ export function resolveAllPhysicalAttacks(
           `Hit ${payload.attackType}`,
           result.attackerPSRModifier,
           attackerHitTrigger,
+          context.pilotingSkill,
         ),
       );
     }
@@ -519,6 +530,7 @@ export function resolveAllPhysicalAttacks(
           `Missed ${payload.attackType}`,
           result.attackerPSRModifier,
           triggerSource,
+          context.pilotingSkill,
         ),
       );
     }
