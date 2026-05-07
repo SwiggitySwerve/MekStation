@@ -12,15 +12,15 @@
 
 ## 2. Index reader and writer (PR 2)
 
-- [ ] 2.1 Add `src/replay-library/index-reader.ts` with `readReplayIndex(): Promise<readonly IReplayManifestEntry[]>` that loads `simulation-reports/replay-index.json`, skips entries with unrecognized `replaySource`, logs skipped entries via the engine logger at debug level, and falls back to backfill scan when missing
-- [ ] 2.2 Add `src/replay-library/index-writer.ts` with `appendManifestEntry(entry: IReplayManifestEntry): Promise<void>` that atomically appends to `replay-index.json` (write to temp file, rename into place); creates the file if absent
-- [ ] 2.3 Unit tests: append preserves existing entries (1 → 2; 100 → 101)
-- [ ] 2.4 Unit tests: atomic write — simulate crash mid-write and verify original file is intact
-- [ ] 2.5 Unit tests: writer creates index when absent
-- [ ] 2.6 Unit tests: reader returns typed entries with correct discriminant narrowing
-- [ ] 2.7 Unit tests: reader skips unrecognized variants and logs at debug
-- [ ] 2.8 Run `npm run typecheck` clean
-- [ ] 2.9 Run `npm test` for new files clean
+- [x] 2.1 Add `src/replay-library/index-reader.ts` with `readReplayIndex(): Promise<readonly IReplayManifestEntry[]>` that loads `simulation-reports/replay-index.json`, skips entries with unrecognized `replaySource`, logs skipped entries via the engine logger at debug level, and falls back to backfill scan when missing
+- [x] 2.2 Add `src/replay-library/index-writer.ts` with `appendManifestEntry(entry: IReplayManifestEntry): Promise<void>` that atomically appends to `replay-index.json` (write to temp file, rename into place); creates the file if absent
+- [x] 2.3 Unit tests: append preserves existing entries (1 → 2; 100 → 101)
+- [x] 2.4 Unit tests: atomic write — simulate crash mid-write and verify original file is intact
+- [x] 2.5 Unit tests: writer creates index when absent
+- [x] 2.6 Unit tests: reader returns typed entries with correct discriminant narrowing
+- [x] 2.7 Unit tests: reader skips unrecognized variants and logs at debug
+- [x] 2.8 Run `npm run typecheck` clean
+- [x] 2.9 Run `npm test` for new files clean
 - [ ] 2.10 PR opened, CI green, merged
 
 ## 3. Backfill scan (PR 3)
