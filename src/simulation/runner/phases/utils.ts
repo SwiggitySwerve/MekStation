@@ -3,6 +3,7 @@ import {
   GamePhase,
   GameSide,
   IGameEvent,
+  ReplaySource,
 } from '@/types/gameplay';
 import { D6Roller } from '@/utils/gameplay/hitLocation';
 
@@ -34,6 +35,17 @@ function deriveSide(actorId: string | undefined): GameSide | undefined {
   return undefined;
 }
 
+/**
+ * Single chokepoint for emitting `IGameEvent` records. Per add-replay-library
+ * (game-event-system delta — Event Envelope Replay Source Discriminator):
+ * accepts an optional `replaySource` that flows onto the envelope so
+ * consumers (replay viewer, library page, backfill scan) can route events
+ * by origin without filename archaeology.
+ *
+ * `replaySource` is optional for back-compat: callers from legacy code
+ * paths that haven't been threaded yet pass nothing, the field is omitted,
+ * and consumers fall back to inferring from filesystem location.
+ */
 export function createGameEvent(
   gameId: string,
   sequence: number,
@@ -42,6 +54,7 @@ export function createGameEvent(
   phase: GamePhase,
   payload: IGameEvent['payload'],
   actorId?: string,
+  replaySource?: ReplaySource,
 ): IGameEvent {
   const side = deriveSide(actorId);
   return {
@@ -55,5 +68,6 @@ export function createGameEvent(
     payload,
     ...(actorId !== undefined ? { actorId } : {}),
     ...(side !== undefined ? { side } : {}),
+    ...(replaySource !== undefined ? { replaySource } : {}),
   };
 }

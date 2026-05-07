@@ -274,6 +274,27 @@ export enum GameSide {
   Opponent = 'opponent',
 }
 
+/**
+ * Origin domain of a replay event log. Discriminates the four replay sources
+ * the engine produces so the central replay index, filesystem partition, and
+ * Library UI can route entries without filename archaeology.
+ *
+ * Per add-replay-library (Council #4 — Option C hybrid): the enum values are
+ * the literal strings written to NDJSON and used as filesystem partition
+ * directory names (e.g. ReplaySource.Swarm → simulation-reports/swarm/).
+ *
+ * Why an enum instead of a string union: sc2reader's 7-year deprecation pain
+ * came from a string discriminator that drifted as new replay sources were
+ * added with no exhaustiveness check. An enum forces every consumer to
+ * handle every variant or fail compilation.
+ */
+export enum ReplaySource {
+  Swarm = 'swarm',
+  Quick = 'quick',
+  PvP = 'pvp',
+  Campaign = 'campaign',
+}
+
 // =============================================================================
 // Networked Game Intents
 // =============================================================================
@@ -344,6 +365,21 @@ export interface IGameEventBase {
    * streams written before this denormalization landed.
    */
   readonly side?: GameSide;
+  /**
+   * Replay source discriminator. Set at emission time by whichever subsystem
+   * authored the event (swarm runner → Swarm; quick-game store → Quick;
+   * future PvP → PvP; future campaign emitter → Campaign).
+   *
+   * Field name is `replaySource` (not `source`) to avoid collision with
+   * payload-level `source` strings on heat events ("movement"|"weapons"|
+   * "dissipation") and pilot-hit events ("head_hit"|"ammo_explosion"|...).
+   *
+   * Optional so legacy NDJSON streams written before this field landed
+   * replay unchanged. Per add-replay-library: consumers may infer
+   * `ReplaySource.Swarm` for files discovered under the legacy
+   * `simulation-reports/games/<ts>/` flat layout.
+   */
+  readonly replaySource?: ReplaySource;
 }
 
 /**

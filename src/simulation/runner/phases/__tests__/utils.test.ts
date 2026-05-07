@@ -22,6 +22,7 @@ import {
   GameSide,
   IDamageAppliedPayload,
   ITurnStartedPayload,
+  ReplaySource,
 } from '@/types/gameplay';
 
 import { createGameEvent } from '../utils';
@@ -123,5 +124,87 @@ describe('createGameEvent — side denormalization', () => {
     expect(event.side).toBe(GameSide.Player);
     // ISO-8601 timestamp parses as a valid date.
     expect(Number.isFinite(Date.parse(event.timestamp))).toBe(true);
+  });
+});
+
+describe('createGameEvent — replaySource discriminator', () => {
+  // Per add-replay-library (game-event-system delta — Event Envelope Replay
+  // Source Discriminator): the optional `replaySource` argument flows
+  // through to the envelope. Field is omitted from the serialized line
+  // when not provided so legacy NDJSON streams round-trip unchanged.
+  const turnStarted: ITurnStartedPayload = {};
+
+  it('attaches replaySource=Swarm when caller passes it', () => {
+    const event = createGameEvent(
+      'swarm-1',
+      0,
+      GameEventType.TurnStarted,
+      1,
+      GamePhase.Initiative,
+      turnStarted,
+      undefined,
+      ReplaySource.Swarm,
+    );
+
+    expect(event.replaySource).toBe(ReplaySource.Swarm);
+    expect(JSON.stringify(event)).toContain('"replaySource":"swarm"');
+  });
+
+  it('attaches replaySource=Quick for in-app quick games', () => {
+    const event = createGameEvent(
+      'quick-9',
+      3,
+      GameEventType.TurnStarted,
+      2,
+      GamePhase.Initiative,
+      turnStarted,
+      undefined,
+      ReplaySource.Quick,
+    );
+
+    expect(event.replaySource).toBe(ReplaySource.Quick);
+  });
+
+  it('omits replaySource when not provided (legacy callers / back-compat)', () => {
+    const event = createGameEvent(
+      'legacy-1',
+      0,
+      GameEventType.TurnStarted,
+      1,
+      GamePhase.Initiative,
+      turnStarted,
+      // no actorId, no replaySource
+    );
+
+    expect(event.replaySource).toBeUndefined();
+    // Contract: JSON.stringify omits undefined properties so the field
+    // does not appear in serialized event-log lines.
+    expect(JSON.stringify(event)).not.toContain('"replaySource"');
+  });
+
+  it('preserves both side and replaySource when both are derivable', () => {
+    const damagePayload: IDamageAppliedPayload = {
+      unitId: 'player-1',
+      location: 'center_torso',
+      damage: 5,
+      armorRemaining: 15,
+      structureRemaining: 10,
+      locationDestroyed: false,
+      sourceUnitId: 'opponent-2',
+    };
+
+    const event = createGameEvent(
+      'swarm-2',
+      7,
+      GameEventType.DamageApplied,
+      3,
+      GamePhase.WeaponAttack,
+      damagePayload,
+      'player-1',
+      ReplaySource.Swarm,
+    );
+
+    expect(event.side).toBe(GameSide.Player);
+    expect(event.replaySource).toBe(ReplaySource.Swarm);
   });
 });
