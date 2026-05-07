@@ -4,6 +4,10 @@
  * backfill scan; subsequent PRs wire writers + UI).
  */
 
+export { defaultBackfillScan, readReplayIndex } from './index-reader';
+export type { BackfillScan, IReadReplayIndexOptions } from './index-reader';
+export { appendManifestEntry } from './index-writer';
+export type { IAppendManifestEntryOptions } from './index-writer';
 export type {
   ICampaignReplayManifestEntry,
   IPvPReplayManifestEntry,
