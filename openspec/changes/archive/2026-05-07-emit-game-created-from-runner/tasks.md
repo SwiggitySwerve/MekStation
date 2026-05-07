@@ -34,12 +34,12 @@
 
 ## 6. PR
 
-- [ ] 6.1 Commit on branch `sim-runner/emit-game-created`
-- [ ] 6.2 Open PR against `main` titled `feat(sim-runner): emit GameCreated as seed event so persisted NDJSON includes the unit roster`
-- [ ] 6.3 Wait for CI green
-- [ ] 6.4 Merge with `--squash --delete-branch`
+- [x] 6.1 Commit on branch `sim-runner/emit-game-created`
+- [x] 6.2 Open PR against `main` titled `feat(sim-runner): emit GameCreated as seed event so persisted NDJSON includes the unit roster`
+- [x] 6.3 Wait for CI green
+- [x] 6.4 Merge with `--squash --delete-branch`
 
 ## 7. Archive
 
-- [ ] 7.1 After merge, run `npx openspec archive emit-game-created-from-runner --yes`
-- [ ] 7.2 Open archive PR; merge
+- [x] 7.1 After merge, run `npx openspec archive emit-game-created-from-runner --yes`
+- [x] 7.2 Open archive PR; merge
