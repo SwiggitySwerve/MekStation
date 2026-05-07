@@ -1,3 +1,5 @@
+import { GameEventType } from '@/types/gameplay';
+
 import type { IDetectorConfig } from '../runner/types';
 
 import { ISimulationConfig } from '../core/types';
@@ -886,6 +888,13 @@ describe('SimulationRunner', () => {
       const result = runner.run(createTestConfig());
 
       for (const event of result.events) {
+        // Per `emit-game-created-from-runner`: the seed `GameCreated`
+        // event lives at `turn: 0` (pre-turn-loop); every subsequent
+        // event must land in the per-turn range [1, result.turns].
+        if (event.type === GameEventType.GameCreated) {
+          expect(event.turn).toBe(0);
+          continue;
+        }
         expect(event.turn).toBeGreaterThanOrEqual(1);
         expect(event.turn).toBeLessThanOrEqual(result.turns);
       }

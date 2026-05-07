@@ -36,6 +36,7 @@ import {
   isGameOver,
   isUnitOperable,
   resetTurnState,
+  synthesizeGameUnits,
   type UnitHydrationMap,
 } from './SimulationRunnerState';
 import { createMinimalGrid } from './SimulationRunnerSupport';
@@ -136,6 +137,40 @@ export class SimulationRunner {
 
     const grid = createMinimalGrid(config.mapRadius);
     const state = createInitialState(config, this.hydration);
+
+    // Per `emit-game-created-from-runner` (`simulation-system` delta —
+    // "Runner Emits GameCreated as Seed Event"): emit `GameCreated` as
+    // event 0 so consumers of the persisted NDJSON event log (notably
+    // the replay-viewer reducer) can seed their unit roster from
+    // `payload.units`. Before this change, the runner produced event
+    // logs that started with `movement_declared`, leaving downstream
+    // consumers without the unit list; the replay viewer's hex map
+    // could not render any tokens.
+    const gameUnits = synthesizeGameUnits(config, this.hydration);
+    events.push(
+      createGameEvent(
+        gameId,
+        events.length, // 0 for the seed event; subsequent emissions
+        // continue from `events.length` so sequence numbering stays
+        // monotonic and dense.
+        GameEventType.GameCreated,
+        0, // turn 0 — pre-turn-loop setup
+        GamePhase.Initiative,
+        {
+          config: {
+            mapRadius: config.mapRadius,
+            turnLimit: config.turnLimit,
+            // Synthetic — the runner is single-mode today (destruction-
+            // win, no optional rules). When victory conditions become
+            // configurable, this MUST move to the real source.
+            victoryConditions: ['destruction'],
+            optionalRules: [],
+          },
+          units: gameUnits,
+        },
+      ),
+    );
+
     // Per Phase 3: construct the AI player through the injected factory so
     // tests and the swarm harness can swap implementations without changing
     // BotPlayer's runtime behavior. DEFAULT_BEHAVIOR is passed so the
