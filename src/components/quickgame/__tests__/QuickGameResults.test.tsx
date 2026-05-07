@@ -112,6 +112,11 @@ function createMockGame() {
         phase: GamePhase.Initiative,
         sequence: 1,
         timestamp: '2025-01-01T00:00:00Z',
+        // Replay tab mounts useSharedReplayPlayer which calls
+        // `applyGameStarted(payload.firstSide)` — supply a minimal
+        // payload so the reducer walk doesn't throw when the user
+        // navigates to the Replay tab.
+        payload: { firstSide: 'player' },
       },
       {
         id: 'event-2',
@@ -123,6 +128,7 @@ function createMockGame() {
         sequence: 2,
         timestamp: '2025-01-01T00:05:00Z',
         actorId: 'unit-1',
+        payload: { unitId: 'unit-1', reason: 'destroyed' },
       },
       {
         id: 'event-3',
@@ -133,6 +139,7 @@ function createMockGame() {
         phase: GamePhase.End,
         sequence: 3,
         timestamp: '2025-01-01T00:10:00Z',
+        payload: { winner: 'player', reason: 'all_enemies_destroyed' },
       },
     ],
     winner: 'player' as const,
@@ -163,13 +170,14 @@ describe('QuickGameResults', () => {
   });
 
   describe('Tab Navigation', () => {
-    it('renders all four tabs', () => {
+    it('renders all five tabs', () => {
       render(<QuickGameResults />);
 
       expect(screen.getByRole('tab', { name: 'Summary' })).toBeInTheDocument();
       expect(screen.getByRole('tab', { name: 'Units' })).toBeInTheDocument();
       expect(screen.getByRole('tab', { name: 'Damage' })).toBeInTheDocument();
       expect(screen.getByRole('tab', { name: 'Timeline' })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: 'Replay' })).toBeInTheDocument();
     });
 
     it('starts with Summary tab selected', () => {
@@ -238,8 +246,8 @@ describe('QuickGameResults', () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
 
-      const timelineTab = screen.getByRole('tab', { name: 'Timeline' });
-      await user.click(timelineTab);
+      const replayTab = screen.getByRole('tab', { name: 'Replay' });
+      await user.click(replayTab);
 
       await user.keyboard('{ArrowRight}');
 

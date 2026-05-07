@@ -5,13 +5,14 @@
 
 import { GameEventType, GamePhase } from '@/types/gameplay';
 
-export type ResultsTab = 'summary' | 'units' | 'damage' | 'timeline';
+export type ResultsTab = 'summary' | 'units' | 'damage' | 'timeline' | 'replay';
 
 export const RESULTS_TABS: readonly { id: ResultsTab; label: string }[] = [
   { id: 'summary', label: 'Summary' },
   { id: 'units', label: 'Units' },
   { id: 'damage', label: 'Damage' },
   { id: 'timeline', label: 'Timeline' },
+  { id: 'replay', label: 'Replay' },
 ];
 
 export const EVENT_LABELS: Partial<Record<GameEventType, string>> = {

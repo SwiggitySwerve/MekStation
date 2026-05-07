@@ -8,3 +8,5 @@ export { QuickGameReview } from './QuickGameReview';
 export { QuickGamePlay } from './QuickGamePlay';
 export { QuickGameResults } from './QuickGameResults';
 export { QuickGameTimeline } from './QuickGameTimeline';
+export { QuickGameReplayPanel } from './QuickGameReplayPanel';
+export type { IQuickGameReplayPanelProps } from './QuickGameReplayPanel';
