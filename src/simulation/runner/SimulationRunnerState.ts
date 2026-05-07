@@ -1,4 +1,7 @@
-import type { IComponentDamageState } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IComponentDamageState,
+  IGameUnit,
+} from '@/types/gameplay/GameSessionInterfaces';
 import type { IUnitDamageState } from '@/utils/gameplay/damage';
 
 import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
@@ -6,6 +9,7 @@ import { CombatLocation, IGameState, IUnitGameState } from '@/types/gameplay';
 
 import type { ISimulationConfig } from '../core/types';
 
+import { DEFAULT_GUNNERY, DEFAULT_PILOTING } from './SimulationRunnerConstants';
 import { createMinimalUnitState } from './SimulationRunnerSupport';
 import {
   createHydratedUnitState,
@@ -86,6 +90,78 @@ export function createInitialState(
     units,
     turnEvents: [],
   };
+}
+
+/**
+ * Per `emit-game-created-from-runner` (`simulation-system` delta — "Runner
+ * Emits GameCreated as Seed Event"): synthesize the `IGameUnit[]` roster
+ * from the runner's allocation walk so `SimulationRunner.run()` can emit
+ * `GameCreated` as `events[0]`. The walk is intentionally identical to
+ * `createSideUnits` so the per-slot ids stay in lock-step (`player-N`,
+ * `opponent-N`).
+ *
+ * Hydrated path: pulls `name`, `unitRef`, `pilotRef`, `gunnery`, `piloting`
+ * from `IHydratedUnitData` (chassis + model joined for the display name).
+ *
+ * Synthetic path (no hydration map): name = id, unitRef / pilotRef
+ * synthetic placeholders, skills fall back to `DEFAULT_GUNNERY` /
+ * `DEFAULT_PILOTING`. The replay viewer's reducer renders these as
+ * Mech-default tokens; cosmetic placeholder data, full functional render.
+ */
+export function synthesizeGameUnits(
+  config: ISimulationConfig,
+  hydration: UnitHydrationMap | undefined,
+): readonly IGameUnit[] {
+  const result: IGameUnit[] = [];
+
+  for (const side of [GameSide.Player, GameSide.Opponent]) {
+    const count =
+      side === GameSide.Player
+        ? config.unitCount.player
+        : config.unitCount.opponent;
+    const prefix = side === GameSide.Player ? 'player' : 'opponent';
+
+    for (let i = 0; i < count; i++) {
+      const id = `${prefix}-${i + 1}`;
+      const hydrated = hydration?.get(id);
+      if (hydrated !== undefined) {
+        // Hydrated path: real catalog data on the unit.
+        const fullUnit = hydrated.fullUnit as {
+          chassis?: string;
+          model?: string;
+          unitRef?: string;
+        };
+        const chassis = fullUnit.chassis ?? id;
+        const model = fullUnit.model ?? '';
+        const name = model.length > 0 ? `${chassis} ${model}` : chassis;
+        result.push({
+          id,
+          name,
+          side,
+          unitRef: fullUnit.unitRef ?? id,
+          pilotRef: `pilot-${id}`,
+          gunnery: hydrated.gunnery ?? DEFAULT_GUNNERY,
+          piloting: hydrated.piloting ?? DEFAULT_PILOTING,
+        });
+      } else {
+        // Synthetic minimal-unit fallback path: no catalog data
+        // available. Use the slot id as both the display name and the
+        // unitRef so the replay viewer still produces a stable token
+        // identity even without hydration.
+        result.push({
+          id,
+          name: id,
+          side,
+          unitRef: id,
+          pilotRef: `synthetic-pilot-${id}`,
+          gunnery: DEFAULT_GUNNERY,
+          piloting: DEFAULT_PILOTING,
+        });
+      }
+    }
+  }
+
+  return result;
 }
 
 export function resetTurnState(state: IGameState): IGameState {
