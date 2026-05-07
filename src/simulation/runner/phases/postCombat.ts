@@ -99,6 +99,13 @@ export function runPSRPhase(options: {
         },
       };
 
+      // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+      // (piloting-skill-rolls delta — UnitFell Carries Location and Reason):
+      // pull the failing-PSR reason from batchResult; default location is
+      // `'center_torso'` (canonical fall-damage location for damage-induced
+      // PSR failures — PR E tightens this to a per-trigger discriminated
+      // location once `PSRReasonCode` lands).
+      const failedPsr = batchResult.results.find((r) => !r.passed);
       events.push(
         createGameEvent(
           gameId,
@@ -109,6 +116,8 @@ export function runPSRPhase(options: {
           {
             unitId,
             pilotDamage: 1,
+            location: 'center_torso',
+            ...(failedPsr ? { reason: failedPsr.psr.reason } : {}),
           },
           unitId,
         ),

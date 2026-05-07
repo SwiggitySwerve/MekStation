@@ -379,6 +379,12 @@ export function resolveAttack(
         }
       }
 
+      // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+      // (piloting-skill-rolls delta — PSRTriggered Carries Base Skill):
+      // look up the target's base piloting skill once for both the
+      // leg-damage and 20+damage PSR triggers below.
+      const targetUnit = currentSession.units.find((u) => u.id === targetId);
+
       for (const locationDamage of damageResult.result.locationDamages) {
         if (
           isLegLocation(locationDamage.location) &&
@@ -396,6 +402,7 @@ export function resolveAttack(
               'Leg damage (internal structure exposed)',
               0,
               'leg_damage',
+              targetUnit?.piloting,
             ),
           );
           break;
@@ -424,6 +431,7 @@ export function resolveAttack(
             '20+ damage this phase',
             0,
             'phase_damage_20_plus',
+            targetUnit?.piloting,
           ),
         );
       }

@@ -293,6 +293,7 @@ export function resolveHeatPhase(
           'Reactor shutdown',
           0,
           'heat_shutdown',
+          unit?.piloting,
         ),
       );
     } else {
@@ -330,6 +331,7 @@ export function resolveHeatPhase(
               'Reactor shutdown',
               0,
               'heat_shutdown',
+              unit?.piloting,
             ),
           );
         }

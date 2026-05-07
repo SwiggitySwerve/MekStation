@@ -214,6 +214,15 @@ function emitCritEvents(options: {
   targetId: string;
   critEvents: readonly CriticalHitEvent[];
   targetAlreadyDestroyed: boolean;
+  /**
+   * Per `denormalize-event-envelope-and-close-emission-contract-gaps`
+   * (piloting-skill-rolls delta — PSRTriggered Carries Base Skill): the
+   * target's base piloting skill, threaded onto each emitted
+   * `psr_triggered` event so consumers don't have to join back to the
+   * unit record. Optional for back-compat with synthetic-unit fixtures
+   * that don't seed `IUnitGameState.piloting`.
+   */
+  targetPilotingSkill?: number;
 }): {
   unitDestroyed: boolean;
   destructionCause:
@@ -234,6 +243,7 @@ function emitCritEvents(options: {
     targetId,
     critEvents,
     targetAlreadyDestroyed,
+    targetPilotingSkill,
   } = options;
 
   let unitDestroyed = false;
@@ -338,6 +348,9 @@ function emitCritEvents(options: {
             reason: p.reason,
             additionalModifier: p.additionalModifier,
             triggerSource: p.triggerSource,
+            ...(targetPilotingSkill !== undefined
+              ? { basePilotingSkill: targetPilotingSkill }
+              : {}),
           },
           attackerId,
         ),
@@ -990,6 +1003,7 @@ export function runAttackPhase(options: {
           targetId,
           critEvents: damageResult.criticalEvents,
           targetAlreadyDestroyed: targetBefore.destroyed,
+          targetPilotingSkill: targetBefore.piloting,
         });
         critUnitDestroyed = emitted.unitDestroyed;
         critDestructionCause = emitted.destructionCause;
