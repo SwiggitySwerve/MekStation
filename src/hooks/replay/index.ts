@@ -21,3 +21,14 @@ export {
   type UseSharedReplayPlayerReturn,
   type IUseSharedReplayPlayerOptions,
 } from './useSharedReplayPlayer';
+
+/**
+ * Per `add-replay-viewer-from-ndjson` (combat-analytics delta): pure
+ * projection from a typed `IGameEvent` log to `<HexMapDisplay>`-ready
+ * state.
+ */
+export {
+  useHexMapStateFromEvents,
+  deriveHexMapStateFromEvents,
+  type ReplayHexMapState,
+} from './useHexMapStateFromEvents';
