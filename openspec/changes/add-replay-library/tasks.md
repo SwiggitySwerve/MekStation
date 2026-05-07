@@ -1,0 +1,91 @@
+## 1. Types and enum (PR 1)
+
+- [x] 1.1 Add `ReplaySource` enum to `src/types/gameplay/GameSessionInterfaces.ts` (or sibling file `ReplaySource.ts`) with exactly the values `Swarm = 'swarm' | Quick = 'quick' | PvP = 'pvp' | Campaign = 'campaign'`
+- [x] 1.2 Add optional `replaySource?: ReplaySource` field to `IGameEventBase` (or `IBaseEvent` — match the existing interface name in the file)
+- [x] 1.3 Thread `replaySource` argument through `createGameEvent` in `src/simulation/runner/phases/utils.ts`; default to `undefined` if caller does not pass it
+- [x] 1.4 Add `IReplayManifestEntry` discriminated union types in `src/replay-library/types.ts` covering `ISwarmReplayManifestEntry`, `IQuickReplayManifestEntry`, `IPvPReplayManifestEntry`, `ICampaignReplayManifestEntry` (extend a shared `IReplayManifestEntryBase`)
+- [x] 1.5 Add unit tests asserting `Object.values(ReplaySource)` equals exactly four expected values
+- [x] 1.6 Add unit tests asserting the discriminated union narrows correctly on `replaySource` (compile-time test via type assertion)
+- [x] 1.7 Run `npm run typecheck` clean
+- [x] 1.8 Run `npm test` for new files clean
+- [ ] 1.9 PR opened, CI green, merged
+
+## 2. Index reader and writer (PR 2)
+
+- [ ] 2.1 Add `src/replay-library/index-reader.ts` with `readReplayIndex(): Promise<readonly IReplayManifestEntry[]>` that loads `simulation-reports/replay-index.json`, skips entries with unrecognized `replaySource`, logs skipped entries via the engine logger at debug level, and falls back to backfill scan when missing
+- [ ] 2.2 Add `src/replay-library/index-writer.ts` with `appendManifestEntry(entry: IReplayManifestEntry): Promise<void>` that atomically appends to `replay-index.json` (write to temp file, rename into place); creates the file if absent
+- [ ] 2.3 Unit tests: append preserves existing entries (1 → 2; 100 → 101)
+- [ ] 2.4 Unit tests: atomic write — simulate crash mid-write and verify original file is intact
+- [ ] 2.5 Unit tests: writer creates index when absent
+- [ ] 2.6 Unit tests: reader returns typed entries with correct discriminant narrowing
+- [ ] 2.7 Unit tests: reader skips unrecognized variants and logs at debug
+- [ ] 2.8 Run `npm run typecheck` clean
+- [ ] 2.9 Run `npm test` for new files clean
+- [ ] 2.10 PR opened, CI green, merged
+
+## 3. Backfill scan (PR 3)
+
+- [ ] 3.1 Add `src/replay-library/backfill-scan.ts` with `scanReplayDirectory(): Promise<readonly IReplayManifestEntry[]>` covering both partition layout (`simulation-reports/<source>/*.jsonl`) and legacy flat layout (`simulation-reports/games/<ts>/*.jsonl`)
+- [ ] 3.2 Stream-read each file's first event (`GameCreated`) and last event; compute `bvTotal` from `payload.units`, `winner`/`turns` from `GameEnded` (with `turn_started`-count fallback for missing `turns`)
+- [ ] 3.3 Infer `replaySource = ReplaySource.Swarm` for legacy flat-layout files; set `batchTimestamp` from the parent directory name
+- [ ] 3.4 Unit tests: scan covers new partition layout (one swarm fixture + one quick fixture)
+- [ ] 3.5 Unit tests: scan covers legacy flat layout (`games/<ts>/<id>.jsonl` fixture)
+- [ ] 3.6 Unit tests: `GameEnded.turns` optionality fallback (count `turn_started`, then `0`)
+- [ ] 3.7 Unit tests: scan is idempotent — two runs produce deep-equal arrays
+- [ ] 3.8 Run `npm run typecheck` clean
+- [ ] 3.9 Run `npm test` for new files clean
+- [ ] 3.10 PR opened, CI green, merged
+
+## 4. Swarm runner partition + manifest emit (PR 4)
+
+- [ ] 4.1 Update `src/simulation/runner/eventLogPersistence.ts` to write to `simulation-reports/swarm/<gameId>.jsonl` (replace flat `simulation-reports/games/<run-timestamp>/<gameId>.jsonl` write path)
+- [ ] 4.2 Update swarm output JSON `eventLogDir` to point at `simulation-reports/swarm/`
+- [ ] 4.3 After each successful swarm run, build an `ISwarmReplayManifestEntry` and call `appendManifestEntry`; preserve `batchTimestamp` as a metadata field on the entry
+- [ ] 4.4 Update `SimulationRunner` to thread `replaySource: ReplaySource.Swarm` through `createGameEvent` calls (or set it once at the runner boundary if there's a single chokepoint)
+- [ ] 4.5 Unit tests: 5-run swarm produces 5 files under `simulation-reports/swarm/` (no files under `simulation-reports/games/`)
+- [ ] 4.6 Unit tests: each swarm run appends one manifest entry with correct `configName`/`seed`/`batchTimestamp`
+- [ ] 4.7 Unit tests: persisted events round-trip via JSON.parse and carry `replaySource: ReplaySource.Swarm`
+- [ ] 4.8 Run `npm run typecheck` clean
+- [ ] 4.9 Run `npm test` clean
+- [ ] 4.10 PR opened, CI green, merged
+
+## 5. Quick game persistence (PR 5)
+
+- [ ] 5.1 Add a persistence effect to `src/components/quickgame/QuickGameResults.tsx` that fires on mount/finalize when the game has `GameEnded`
+- [ ] 5.2 Effect writes events to `simulation-reports/quick/<gameId>.jsonl` via the env-aware persistence module (Node implementation in v1; browser-only get no-op or IndexedDB stub flagged for follow-on)
+- [ ] 5.3 After the file is written, build an `IQuickReplayManifestEntry` and call `appendManifestEntry`
+- [ ] 5.4 Thread `replaySource: ReplaySource.Quick` through the in-process event store / `createGameEvent` for quick games
+- [ ] 5.5 Unit tests: quick game completion writes the file and the manifest entry
+- [ ] 5.6 Unit tests: persistence does not block render — results page renders synchronously while the effect is in-flight
+- [ ] 5.7 Unit tests: persisted quick events carry `replaySource: ReplaySource.Quick`
+- [ ] 5.8 Run `npm run typecheck` clean
+- [ ] 5.9 Run `npm test` clean
+- [ ] 5.10 PR opened, CI green, merged
+
+## 6. Replay Library page (PR 6)
+
+- [ ] 6.1 Add a new page route `src/pages/replay-library/index.tsx` (or equivalent per the existing routing convention)
+- [ ] 6.2 On mount, call `readReplayIndex()` and render the resulting entries as list rows with source-appropriate metadata visible (swarm: `configName`/`seed`; quick: `aiVariant`; PvP/campaign: placeholder until write paths exist)
+- [ ] 6.3 Add a source filter (radio group or tab strip) that limits the displayed list to the chosen `ReplaySource`
+- [ ] 6.4 Clicking a row opens the existing replay viewer with the chosen entry's events loaded — re-use the existing `useHexMapStateFromEvents` + replay viewer plumbing; load events by reading the file at `entry.path`
+- [ ] 6.5 Add link from primary navigation to the Replay Library page
+- [ ] 6.6 Unit tests: page lists 5 entries when index has 3 swarm + 2 quick
+- [ ] 6.7 Unit tests: source filter restricts list correctly
+- [ ] 6.8 Unit tests: clicking a row mounts the replay viewer with events loaded (no file drag)
+- [ ] 6.9 Storybook story for the Replay Library page (default state, filtered state, empty state)
+- [ ] 6.10 Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run storybook:build` clean
+- [ ] 6.11 PR opened, CI green, merged
+
+## 7. End-to-end verification
+
+- [ ] 7.1 Run a fresh swarm: `tsx scripts/run-simulation.ts --config scripts/swarm-configs/duel-3kbv-temperate.json --runs 3 --seed 42`; verify 3 files appear under `simulation-reports/swarm/` and 3 entries in `replay-index.json`
+- [ ] 7.2 Run a quick game in the app and click through to results; verify `simulation-reports/quick/<gameId>.jsonl` is created and a manifest entry is appended
+- [ ] 7.3 Open the Replay Library page; verify both the swarm and quick entries appear with correct metadata; filter by Quick and verify only the quick entry shows; click the entry and verify the replay viewer opens and plays through
+- [ ] 7.4 Delete `replay-index.json` manually; reload the Replay Library page; verify the backfill scan reconstructs the index from on-disk files (including any pre-existing legacy `simulation-reports/games/<ts>/*.jsonl` files)
+- [ ] 7.5 `openspec validate add-replay-library --strict` clean
+
+## 8. Archive
+
+- [ ] 8.1 All PRs (1–6) merged to main
+- [ ] 8.2 Memory anchor written under `~/.claude/projects/E--Projects-MekStation/memory/project_replay_library.md` summarizing capability shipped, key files, deltas, lessons
+- [ ] 8.3 `openspec archive add-replay-library` runs cleanly; deltas merge into source-of-truth specs
