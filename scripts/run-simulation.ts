@@ -31,6 +31,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import type { UnitHydrationMap } from '../src/simulation/runner/SimulationRunnerState';
 import type { IUnitIndexEntry } from '../src/types/unit/UnitIndex';
 
 import { prewarmCatalogBV } from '../src/services/encounter/bvCatalogPrewarmer';
@@ -59,13 +60,21 @@ import { InvariantRunner } from '../src/simulation/invariants/InvariantRunner';
 import { MetricsCollector } from '../src/simulation/metrics/MetricsCollector';
 import { ReportGenerator } from '../src/simulation/reporting/ReportGenerator';
 import { BatchRunner } from '../src/simulation/runner/BatchRunner';
+import { writeEventLog } from '../src/simulation/runner/eventLogPersistence';
 import { SimulationRunner } from '../src/simulation/runner/SimulationRunner';
 import {
   IParticipant,
   ISimulationRunResult,
 } from '../src/simulation/runner/types';
+import {
+  buildWeaponLookupFromCatalogFiles,
+  hydrateAIWeaponsFromFullUnit,
+  type IHydratedUnitData,
+} from '../src/simulation/runner/UnitHydration';
 import { SnapshotManager } from '../src/simulation/snapshot/SnapshotManager';
 import { PilotSkillTemplate } from '../src/types/encounter/EncounterInterfaces';
+import { GameSide } from '../src/types/gameplay';
+import { WEAPON_CATALOG_FILES } from '../src/utils/construction/equipmentBVCatalogData';
 
 // =============================================================================
 // Preset mode (legacy path)
@@ -354,6 +363,85 @@ interface ISwarmOutputFile {
   readonly config: SwarmConfig;
   /** All run results in order (schemaVersion:2, each carries participants[]). */
   readonly runs: readonly ISimulationRunResult[];
+  /**
+   * Per `add-always-on-event-log` Phase 2: directory containing one
+   * `<gameId>.jsonl` per encounter. All games of one CLI invocation
+   * share this directory; the slug is the invocation-start ISO
+   * timestamp.
+   */
+  readonly eventLogDir: string;
+}
+
+/**
+ * Build the runner's `UnitHydrationMap` from the swarm's per-side
+ * participants. Keys are the runner-internal IDs the runner generates
+ * inside `createSideUnits` — `player-${1..N}` for side A,
+ * `opponent-${1..N}` for side B. The participants array MUST be
+ * 1-indexed in side order (which it is — the swarm builds side A
+ * first, then side B).
+ *
+ * Each `IFullUnit` is fetched via the cached
+ * `NodeCanonicalUnitService.getById`. A null result (catalog miss) is
+ * treated as a fatal error — the random force generator only selects
+ * unitIds that exist in the catalog index, so a miss here is a bug.
+ */
+async function buildSwarmHydration(
+  participantsA: readonly IParticipant[],
+  participantsB: readonly IParticipant[],
+  catalogService: ReturnType<typeof getNodeCanonicalUnitService>,
+  weaponLookup: ReturnType<typeof buildWeaponLookupFromCatalogFiles>,
+): Promise<UnitHydrationMap> {
+  const map = new Map<string, IHydratedUnitData>();
+
+  // Side A → `player-1`, `player-2`, ...
+  for (let idx = 0; idx < participantsA.length; idx++) {
+    const participant = participantsA[idx];
+    const fullUnit = await catalogService.getById(participant.unitId);
+    if (!fullUnit) {
+      throw new Error(
+        `Catalog miss for participant unitId="${participant.unitId}" — ` +
+          `random force generator selected an id not present in NodeCanonicalUnitService`,
+      );
+    }
+    const runnerUnitId = `player-${idx + 1}`;
+    const aiWeapons = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
+    map.set(runnerUnitId, {
+      runnerUnitId,
+      side: GameSide.Player,
+      // Position is overridden by `createSideUnits` per the runner's spawn
+      // formation; placeholder here keeps the IHydratedUnitData type happy.
+      position: { q: 0, r: 0 },
+      fullUnit,
+      aiWeapons,
+      gunnery: participant.gunnery,
+      piloting: participant.piloting,
+    });
+  }
+
+  // Side B → `opponent-1`, `opponent-2`, ...
+  for (let idx = 0; idx < participantsB.length; idx++) {
+    const participant = participantsB[idx];
+    const fullUnit = await catalogService.getById(participant.unitId);
+    if (!fullUnit) {
+      throw new Error(
+        `Catalog miss for participant unitId="${participant.unitId}" — ` +
+          `random force generator selected an id not present in NodeCanonicalUnitService`,
+      );
+    }
+    const runnerUnitId = `opponent-${idx + 1}`;
+    const aiWeapons = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
+    map.set(runnerUnitId, {
+      runnerUnitId,
+      side: GameSide.Opponent,
+      position: { q: 0, r: 0 },
+      fullUnit,
+      aiWeapons,
+      gunnery: participant.gunnery,
+      piloting: participant.piloting,
+    });
+  }
+
+  return map;
 }
 
 /**
@@ -422,6 +510,27 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
   // Validate AI variant names upfront so we fail fast before the loop.
   getBehaviorVariant(config.sideA.aiVariant as AIVariantName);
   getBehaviorVariant(config.sideB.aiVariant as AIVariantName);
+
+  // Per `add-always-on-event-log` Phase 1: build the synchronous weapon
+  // lookup once per CLI invocation. The catalog files are static JSON
+  // imports so this is a pure data transform — re-running it inside the
+  // loop is wasted allocation. The same `WeaponLookup` reference is
+  // reused across every per-participant `hydrateAIWeaponsFromFullUnit`
+  // call below.
+  const weaponLookup = buildWeaponLookupFromCatalogFiles(
+    WEAPON_CATALOG_FILES as readonly { items?: readonly unknown[] }[],
+  );
+
+  // Per `add-always-on-event-log` Phase 2: every encounter's NDJSON
+  // event log lives under one timestamped directory shared across all
+  // games of this CLI invocation. The slug uses the same ISO timestamp
+  // shape that `runPresetMode` already uses for report files (colon /
+  // dot replaced with hyphen so the path is portable across filesystems).
+  const eventLogRunDir = path.resolve(
+    'simulation-reports',
+    'games',
+    new Date().toISOString().replace(/[:.]/g, '-'),
+  );
 
   const batchRunner = new BatchRunner();
   const allResults: ISimulationRunResult[] = [];
@@ -522,6 +631,21 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
       ...participantsB,
     ];
 
+    // --- Build hydration map keyed by runner-internal IDs ---
+    // Per `add-always-on-event-log` Phase 1: the runner generates IDs as
+    // `player-${1..N}` for side A and `opponent-${1..N}` for side B (see
+    // `SimulationRunnerState.createSideUnits`). The participants array
+    // order must match — side A first, then side B, both 1-indexed. We
+    // resolve each `IFullUnit` synchronously via the same
+    // `getNodeCanonicalUnitService()` instance the swarm already uses
+    // (catalog reads are cached after the first run).
+    const hydration: UnitHydrationMap = await buildSwarmHydration(
+      participantsA,
+      participantsB,
+      catalogService,
+      weaponLookup,
+    );
+
     // --- Build per-side AI player via SideKeyedAIPlayer ---
     const behaviorA = getBehaviorVariant(
       config.sideA.aiVariant as AIVariantName,
@@ -556,11 +680,18 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
     // BatchRunner does not support per-run aiFactory injection, so we use
     // SimulationRunner directly here. The aiFactory is injected via the
     // constructor so the SideKeyedAIPlayer routes by unitId prefix.
+    // The 6th positional `hydration` arg routes the runner away from the
+    // synthetic single-medium-laser fallback at `createMinimalUnitState`
+    // and into real catalog armor / structure / multi-mount AI weapons
+    // (per `add-always-on-event-log` Phase 1, building on the P1 contract
+    // in archived `add-combat-fidelity-suite`).
     const runner = new SimulationRunner(
       runSeed,
       undefined,
       undefined,
       aiFactory,
+      undefined,
+      hydration,
     );
     const rawResult = runner.run(simConfig);
     const stamped: ISimulationRunResult = {
@@ -568,6 +699,17 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
       schemaVersion: 2,
       participants,
     };
+
+    // Per `add-always-on-event-log` Phase 2: persist this game's full
+    // event log to disk as NDJSON. Sequential (no `Promise.all`) so file
+    // writes land in run order — easier to reason about when debugging
+    // a swarm by ls'ing the directory. The runner doesn't surface
+    // `gameId` on the result envelope (only on each event), but the
+    // value is canonically `sim-${seed}` per
+    // `SimulationRunner.run` — match that here so the file basename
+    // equals every event's `gameId` field (Phase 2 spec scenario).
+    const eventGameId = rawResult.events[0]?.gameId ?? `sim-${runSeed}`;
+    await writeEventLog(eventGameId, rawResult.events, eventLogRunDir);
 
     allResults.push(stamped);
 
@@ -592,6 +734,7 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
     schemaVersion: 2,
     config,
     runs: allResults,
+    eventLogDir: eventLogRunDir,
   };
 
   const outputPath = config.output;
@@ -638,6 +781,7 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
   console.log(`Total Violations: ${totalViolations}`);
   console.log('-'.repeat(60));
   console.log(`Output written:   ${outputPath}`);
+  console.log(`Event logs:       ${eventLogRunDir}`);
   console.log('-'.repeat(60));
 
   process.exit(totalViolations > 0 ? 1 : 0);
