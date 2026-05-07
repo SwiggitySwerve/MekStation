@@ -22,18 +22,27 @@ import { logger } from '@/utils/logger';
 
 import type { IReplayManifestEntry } from './types';
 
-/**
- * Stub backfill scan used when `replay-index.json` is missing. PR 3 replaces
- * this with the real on-disk scan; for PR 2 the empty-array stub keeps the
- * reader exhaustively testable without coupling to the scan implementation.
- */
-export type BackfillScan = () => Promise<readonly IReplayManifestEntry[]>;
+import { scanReplayDirectory } from './backfill-scan';
 
 /**
- * Default backfill stub — returns an empty manifest. Exported so the test can
- * spy on it and PR 3 can flip the default in one diff.
+ * Backfill scan invoked when `replay-index.json` is missing. PR 3 wires the
+ * real on-disk scan as the default; tests may still inject a stub through
+ * the `backfillScan` option to assert the fallback path is hit without
+ * touching the filesystem. The signature accepts the reader's resolved
+ * `cwd` so an injected scan can honour the same isolation tests rely on.
  */
-export const defaultBackfillScan: BackfillScan = () => Promise.resolve([]);
+export type BackfillScan = (
+  cwd: string,
+) => Promise<readonly IReplayManifestEntry[]>;
+
+/**
+ * Default backfill — delegates to `scanReplayDirectory` so a fresh checkout
+ * (or a developer that deleted `replay-index.json`) reconstructs the manifest
+ * from the on-disk `simulation-reports/` tree. Exported so callers can wrap
+ * or compose it without depending on `backfill-scan` directly.
+ */
+export const defaultBackfillScan: BackfillScan = (cwd) =>
+  scanReplayDirectory({ cwd });
 
 /**
  * Options for the reader. `cwd` lets tests inject a tmpdir without polluting
@@ -99,7 +108,8 @@ function hasRecognizedReplaySource(
 export async function readReplayIndex(
   options: IReadReplayIndexOptions = {},
 ): Promise<readonly IReplayManifestEntry[]> {
-  const indexPath = resolveIndexPath(options.cwd);
+  const cwd = options.cwd ?? process.cwd();
+  const indexPath = resolveIndexPath(cwd);
   const backfillScan = options.backfillScan ?? defaultBackfillScan;
 
   let raw: string;
@@ -112,7 +122,7 @@ export async function readReplayIndex(
         '[replay-library] replay-index.json missing — falling back to backfill scan',
         { indexPath },
       );
-      return backfillScan();
+      return backfillScan(cwd);
     }
     throw err;
   }

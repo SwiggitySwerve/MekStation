@@ -4,6 +4,8 @@
  * backfill scan; subsequent PRs wire writers + UI).
  */
 
+export { scanReplayDirectory } from './backfill-scan';
+export type { IScanReplayDirectoryOptions } from './backfill-scan';
 export { defaultBackfillScan, readReplayIndex } from './index-reader';
 export type { BackfillScan, IReadReplayIndexOptions } from './index-reader';
 export { appendManifestEntry } from './index-writer';
