@@ -25,15 +25,15 @@
 
 ## 3. Backfill scan (PR 3)
 
-- [ ] 3.1 Add `src/replay-library/backfill-scan.ts` with `scanReplayDirectory(): Promise<readonly IReplayManifestEntry[]>` covering both partition layout (`simulation-reports/<source>/*.jsonl`) and legacy flat layout (`simulation-reports/games/<ts>/*.jsonl`)
-- [ ] 3.2 Stream-read each file's first event (`GameCreated`) and last event; compute `bvTotal` from `payload.units`, `winner`/`turns` from `GameEnded` (with `turn_started`-count fallback for missing `turns`)
-- [ ] 3.3 Infer `replaySource = ReplaySource.Swarm` for legacy flat-layout files; set `batchTimestamp` from the parent directory name
-- [ ] 3.4 Unit tests: scan covers new partition layout (one swarm fixture + one quick fixture)
-- [ ] 3.5 Unit tests: scan covers legacy flat layout (`games/<ts>/<id>.jsonl` fixture)
-- [ ] 3.6 Unit tests: `GameEnded.turns` optionality fallback (count `turn_started`, then `0`)
-- [ ] 3.7 Unit tests: scan is idempotent — two runs produce deep-equal arrays
-- [ ] 3.8 Run `npm run typecheck` clean
-- [ ] 3.9 Run `npm test` for new files clean
+- [x] 3.1 Add `src/replay-library/backfill-scan.ts` with `scanReplayDirectory(): Promise<readonly IReplayManifestEntry[]>` covering both partition layout (`simulation-reports/<source>/*.jsonl`) and legacy flat layout (`simulation-reports/games/<ts>/*.jsonl`)
+- [x] 3.2 Stream-read each file's first event (`GameCreated`) and last event; compute `bvTotal` from `payload.units`, `winner`/`turns` from `GameEnded` (with `turn_started`-count fallback for missing `turns`)
+- [x] 3.3 Infer `replaySource = ReplaySource.Swarm` for legacy flat-layout files; set `batchTimestamp` from the parent directory name
+- [x] 3.4 Unit tests: scan covers new partition layout (one swarm fixture + one quick fixture)
+- [x] 3.5 Unit tests: scan covers legacy flat layout (`games/<ts>/<id>.jsonl` fixture)
+- [x] 3.6 Unit tests: `GameEnded.turns` optionality fallback (count `turn_started`, then `0`)
+- [x] 3.7 Unit tests: scan is idempotent — two runs produce deep-equal arrays
+- [x] 3.8 Run `npm run typecheck` clean
+- [x] 3.9 Run `npm test` for new files clean
 - [ ] 3.10 PR opened, CI green, merged
 
 ## 4. Swarm runner partition + manifest emit (PR 4)
