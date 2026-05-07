@@ -28,6 +28,7 @@ import { GameSide } from '@/types/gameplay';
 import type { ResultsTab } from './quickGameResults.helpers';
 
 import { DamageMatrix } from './DamageMatrix';
+import { QuickGameReplayPanel } from './QuickGameReplayPanel';
 import { RESULTS_TABS } from './quickGameResults.helpers';
 import {
   ResultBanner,
@@ -289,6 +290,25 @@ export function QuickGameResults(): React.ReactElement {
                 <TimelineEventRow key={event.id} event={event} index={index} />
               ))}
             </div>
+          )}
+        </div>
+
+        <div
+          role="tabpanel"
+          id="tabpanel-replay"
+          aria-labelledby="tab-replay"
+          hidden={activeTab !== 'replay'}
+        >
+          {/*
+           * Per `add-quickgame-replay-panel/specs/quick-session/spec.md`
+           * scenario 3: the panel is unmounted/remounted between tab
+           * toggles (preserving scrubber position across tab switches
+           * is explicitly out of scope). Conditional render also keeps
+           * the heavy `useSharedReplayPlayer` state-derivation walk off
+           * the critical path for users who never open the Replay tab.
+           */}
+          {activeTab === 'replay' && (
+            <QuickGameReplayPanel events={game.events} gameId={game.id} />
           )}
         </div>
       </Card>
