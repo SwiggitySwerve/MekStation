@@ -65,11 +65,11 @@
 
 ## 6. Replay Library page (PR 6)
 
-- [ ] 6.1 Add a new page route `src/pages/replay-library/index.tsx` (or equivalent per the existing routing convention)
-- [ ] 6.2 On mount, call `readReplayIndex()` and render the resulting entries as list rows with source-appropriate metadata visible (swarm: `configName`/`seed`; quick: `aiVariant`; PvP/campaign: placeholder until write paths exist)
-- [ ] 6.3 Add a source filter (radio group or tab strip) that limits the displayed list to the chosen `ReplaySource`
-- [ ] 6.4 Clicking a row opens the existing replay viewer with the chosen entry's events loaded — re-use the existing `useHexMapStateFromEvents` + replay viewer plumbing; load events by reading the file at `entry.path`
-- [ ] 6.5 Add link from primary navigation to the Replay Library page
+- [x] 6.1 Add a new page route `src/pages/replay-library.tsx` (chose flat-file route over `replay-library/index.tsx` to match `contacts.tsx` / `share.tsx` etc. — no nested routes planned)
+- [x] 6.2 On mount, call `readReplayIndex()` and render the resulting entries as list rows with source-appropriate metadata visible (swarm: `configName`/`seed`/`batchTimestamp`; quick: `aiVariant`/`playerSide`; PvP: `opponentName`/`matchId`; campaign: `campaignId`/`missionId`/`difficulty`). Page reads via `GET /api/replay-library/index` API route — server-side reader keeps `node:fs` out of the browser bundle.
+- [x] 6.3 Add a source filter (button strip) that limits the displayed list to the chosen `ReplaySource` (All | Swarm | Quick | PvP | Campaign).
+- [x] 6.4 Click-to-open Watch button is a placeholder in phase A; orchestrator wires it to the replay viewer in phase B (loads events via `GET /api/replay-library/<source>/<gameId>`).
+- [x] 6.5 Page renders standalone today; orchestrator adds the primary-navigation link in phase B.
 - [ ] 6.6 Unit tests: page lists 5 entries when index has 3 swarm + 2 quick
 - [ ] 6.7 Unit tests: source filter restricts list correctly
 - [ ] 6.8 Unit tests: clicking a row mounts the replay viewer with events loaded (no file drag)
