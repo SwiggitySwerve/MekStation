@@ -46,6 +46,15 @@ export function QuickGameResults(): React.ReactElement {
   const [activeTab, setActiveTab] = useState<ResultsTab>('summary');
   const tabListRef = useRef<HTMLDivElement>(null);
 
+  // Per add-replay-library PR 5 v1 scope: the persistence pipeline lives
+  // in `./persistQuickGame.ts` and is unit-tested under Node, but the
+  // browser-side wire-up (calling persist on `endedAt` transitions)
+  // requires a Next.js API route since browser code can't write to the
+  // local filesystem. That route is a follow-on PR — quick-game replays
+  // are still discoverable via the backfill scan (PR 3) once written
+  // through any path. The helper is exported and ready for the API
+  // route to import.
+
   const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId as ResultsTab);
   }, []);

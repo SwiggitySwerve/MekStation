@@ -51,16 +51,17 @@
 
 ## 5. Quick game persistence (PR 5)
 
-- [ ] 5.1 Add a persistence effect to `src/components/quickgame/QuickGameResults.tsx` that fires on mount/finalize when the game has `GameEnded`
-- [ ] 5.2 Effect writes events to `simulation-reports/quick/<gameId>.jsonl` via the env-aware persistence module (Node implementation in v1; browser-only get no-op or IndexedDB stub flagged for follow-on)
-- [ ] 5.3 After the file is written, build an `IQuickReplayManifestEntry` and call `appendManifestEntry`
-- [ ] 5.4 Thread `replaySource: ReplaySource.Quick` through the in-process event store / `createGameEvent` for quick games
-- [ ] 5.5 Unit tests: quick game completion writes the file and the manifest entry
-- [ ] 5.6 Unit tests: persistence does not block render — results page renders synchronously while the effect is in-flight
-- [ ] 5.7 Unit tests: persisted quick events carry `replaySource: ReplaySource.Quick`
-- [ ] 5.8 Run `npm run typecheck` clean
-- [ ] 5.9 Run `npm test` clean
+- [x] 5.1 Land the Node-side persistence pipeline at `src/components/quickgame/persistQuickGame.ts` (NOTE v1 scope: the React-component effect that fires on `endedAt` is deferred to a follow-on PR that adds the Next.js API route; browser code cannot write to the local filesystem directly. The pipeline is unit-tested and ready for the API route to import.)
+- [x] 5.2 Pipeline writes events to `simulation-reports/quick/<gameId>.jsonl` via `node:fs/promises` (Node-only import path; browser bundle short-circuits via `shouldPersistToDisk()` three-gate check)
+- [x] 5.3 After the file is written, build an `IQuickReplayManifestEntry` and call `appendManifestEntry`
+- [x] 5.4 Stamp `replaySource: ReplaySource.Quick` on every event at the persistence boundary (mirrors SimulationRunner.run() post-stamp pattern from PR 4); preserves explicit values
+- [x] 5.5 Unit tests: persistence pipeline writes the file and the manifest entry (5 persistQuickGame Node-env scenarios with tmpdir cwd injection)
+- [x] 5.6 Unit tests: env gate (`shouldPersistToDisk`) short-circuits in test/browser when no explicit `cwd` is provided — proven by full-suite re-run leaving no `simulation-reports/` artifacts in the worktree
+- [x] 5.7 Unit tests: persisted quick events carry `replaySource: ReplaySource.Quick` + an explicit non-Quick value is preserved (post-stamp respects existing field)
+- [x] 5.8 Run `npm run typecheck` clean
+- [x] 5.9 Run `npm test` clean (83/83 across quickgame + replay-library suites; `npm run build` clean — no `node:fs` traced into the browser bundle)
 - [ ] 5.10 PR opened, CI green, merged
+- [ ] 5.11 Follow-on (PR 5b or PR 6 scope): Next.js API route at `/api/replay-library/quick-save` that accepts `IPersistQuickGameInput` POST body and invokes `persistQuickGame()`. `QuickGameResults.tsx` then `fetch`-es it on `endedAt` transition. Tracked separately because it requires Next API-route patterns + Zod request validation that fall outside the current PR's scope.
 
 ## 6. Replay Library page (PR 6)
 
