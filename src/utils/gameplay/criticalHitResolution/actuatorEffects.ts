@@ -1,5 +1,9 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import { CriticalEffectType, ICriticalEffect } from '@/types/gameplay';
+import {
+  CriticalEffectType,
+  ICriticalEffect,
+  PSRTrigger,
+} from '@/types/gameplay';
 
 import {
   SHOULDER_TO_HIT_MODIFIER,
@@ -48,6 +52,19 @@ export function applyActuatorHit(
           ? FOOT_PSR_MODIFIER
           : LEG_ACTUATOR_PSR_MODIFIER;
 
+    // Per `structure-psr-reason-as-discriminated-code` (PR E): the
+    // crit-driven leg-actuator PSRs map onto the canonical damage-bucket
+    // codes so consumers can filter / aggregate by reasonCode the same
+    // way they do for runner-initiated PSRs.
+    const reasonCode =
+      actuatorType === ActuatorType.HIP
+        ? PSRTrigger.HipActuatorDestroyed
+        : actuatorType === ActuatorType.UPPER_LEG
+          ? PSRTrigger.UpperLegActuatorHit
+          : actuatorType === ActuatorType.LOWER_LEG
+            ? PSRTrigger.LowerLegActuatorHit
+            : PSRTrigger.FootActuatorHit;
+
     events.push({
       type: 'psr_triggered',
       payload: {
@@ -55,6 +72,7 @@ export function applyActuatorHit(
         reason: `${slot.componentName} destroyed`,
         additionalModifier: modifier,
         triggerSource: 'actuator_critical',
+        reasonCode,
       },
     });
   }

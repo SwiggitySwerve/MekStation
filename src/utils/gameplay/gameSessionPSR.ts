@@ -48,6 +48,7 @@ export function checkAndQueueDamagePSRs(session: IGameSession): IGameSession {
           damagePSR.additionalModifier,
           damagePSR.triggerSource,
           unit?.piloting,
+          damagePSR.reasonCode,
         ),
       );
     }
@@ -108,6 +109,7 @@ export function resolvePendingPSRs(
             0,
             false,
             pending.reason,
+            pending.reasonCode,
           ),
         );
       }
@@ -132,6 +134,7 @@ export function resolvePendingPSRs(
           fallResult.pilotDamage,
           'center_torso',
           pendingPSRs[0]?.reason ?? 'gyro_destroyed',
+          pendingPSRs[0]?.reasonCode,
         ),
       );
 
@@ -185,6 +188,7 @@ export function resolvePendingPSRs(
           result.modifiers.reduce((sum, modifier) => sum + modifier.value, 0),
           result.passed,
           result.psr.reason,
+          result.psr.reasonCode,
         ),
       );
     }
@@ -204,6 +208,7 @@ export function resolvePendingPSRs(
           0,
           false,
           cleared.reason,
+          cleared.reasonCode,
         ),
       );
     }
@@ -232,6 +237,7 @@ export function resolvePendingPSRs(
           fallResult.pilotDamage,
           'center_torso',
           failedPsr?.psr.reason ?? pendingPSRs[0]?.reason,
+          failedPsr?.psr.reasonCode ?? pendingPSRs[0]?.reasonCode,
         ),
       );
 
@@ -300,6 +306,7 @@ export function attemptStandUp(
       psr.additionalModifier,
       psr.triggerSource,
       unit.piloting,
+      psr.reasonCode,
     ),
   );
 
@@ -328,6 +335,7 @@ export function attemptStandUp(
       gyroModifier + woundModifier,
       passed,
       psr.reason,
+      psr.reasonCode,
     ),
   );
 

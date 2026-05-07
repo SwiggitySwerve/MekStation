@@ -351,6 +351,13 @@ function emitCritEvents(options: {
             ...(targetPilotingSkill !== undefined
               ? { basePilotingSkill: targetPilotingSkill }
               : {}),
+            // Per `structure-psr-reason-as-discriminated-code` (PR E):
+            // forward the canonical `reasonCode` if the upstream
+            // critical-hit pipeline produced one. The catalog of
+            // crit-driven PSR reasons (gyro hit, engine hit, hip /
+            // upper-leg / lower-leg / foot actuator destroyed) is
+            // covered by the damage-family factory migration.
+            ...(p.reasonCode !== undefined ? { reasonCode: p.reasonCode } : {}),
           },
           attackerId,
         ),

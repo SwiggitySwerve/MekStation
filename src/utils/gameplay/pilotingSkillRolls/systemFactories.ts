@@ -14,6 +14,7 @@ export function createRunningDamagedHipPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Running with damaged hip',
+    reasonCode: PSRTrigger.RunningDamagedHip,
     additionalModifier: 0,
     triggerSource: PSRTrigger.RunningDamagedHip,
   };
@@ -26,6 +27,7 @@ export function createRunningDamagedGyroPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Running with damaged gyro',
+    reasonCode: PSRTrigger.RunningDamagedGyro,
     additionalModifier: 0,
     triggerSource: PSRTrigger.RunningDamagedGyro,
   };
@@ -38,6 +40,7 @@ export function createMASCFailurePSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'MASC failure',
+    reasonCode: PSRTrigger.MASCFailure,
     additionalModifier: 0,
     triggerSource: PSRTrigger.MASCFailure,
   };
@@ -50,6 +53,7 @@ export function createSuperchargerFailurePSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Supercharger failure',
+    reasonCode: PSRTrigger.SuperchargerFailure,
     additionalModifier: 0,
     triggerSource: PSRTrigger.SuperchargerFailure,
   };

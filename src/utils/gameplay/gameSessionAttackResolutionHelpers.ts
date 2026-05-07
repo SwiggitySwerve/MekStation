@@ -106,6 +106,7 @@ export function emitCriticalEvents(
           payload.additionalModifier,
           payload.triggerSource,
           psrUnit?.piloting,
+          payload.reasonCode,
         ),
       );
       continue;

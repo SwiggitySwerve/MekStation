@@ -72,6 +72,12 @@ export function runPSRPhase(options: {
             targetNumber: psrResult.targetNumber,
             roll: psrResult.roll,
             passed: psrResult.passed,
+            // Per `structure-psr-reason-as-discriminated-code` (PR E):
+            // forward the canonical reasonCode the factory stamped onto
+            // the source IPendingPSR.
+            ...(psrResult.psr.reasonCode !== undefined
+              ? { reasonCode: psrResult.psr.reasonCode }
+              : {}),
           },
           unitId,
         ),
@@ -118,6 +124,12 @@ export function runPSRPhase(options: {
             pilotDamage: 1,
             location: 'center_torso',
             ...(failedPsr ? { reason: failedPsr.psr.reason } : {}),
+            // Per `structure-psr-reason-as-discriminated-code` (PR E):
+            // canonical reasonCode of the failed PSR that caused the
+            // fall.
+            ...(failedPsr?.psr.reasonCode !== undefined
+              ? { reasonCode: failedPsr.psr.reasonCode }
+              : {}),
           },
           unitId,
         ),

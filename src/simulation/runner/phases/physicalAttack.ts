@@ -3,6 +3,7 @@ import {
   GamePhase,
   IGameEvent,
   IGameState,
+  PSRTrigger,
 } from '@/types/gameplay';
 import { resolveDamage } from '@/utils/gameplay/damage';
 import { hexDistance } from '@/utils/gameplay/hexMath';
@@ -187,6 +188,13 @@ export function runPhysicalAttackPhase(options: {
     if (!result.hit && result.attackerPSR) {
       const attackerUnit = currentState.units[unitId];
       const existingPSRs = attackerUnit.pendingPSRs ?? [];
+      // Per `structure-psr-reason-as-discriminated-code` (PR E):
+      // canonical reasonCode for the kick / punch miss attacker PSR.
+      // Punch-miss has no canonical enum code today (the spec catalog
+      // is kick / charge / DFA), so only kick maps cleanly. Punch
+      // remains coded by triggerSource only.
+      const missReasonCode =
+        bestAttack === 'kick' ? PSRTrigger.KickMiss : undefined;
       currentState = {
         ...currentState,
         units: {
@@ -200,6 +208,9 @@ export function runPhysicalAttackPhase(options: {
                 reason: `${bestAttack} missed`,
                 additionalModifier: result.attackerPSRModifier,
                 triggerSource: `${bestAttack}_miss`,
+                ...(missReasonCode !== undefined
+                  ? { reasonCode: missReasonCode }
+                  : {}),
               },
             ],
           },

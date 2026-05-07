@@ -32,6 +32,7 @@ export function createShutdownPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Reactor shutdown',
+    reasonCode: PSRTrigger.Shutdown,
     additionalModifier: 0,
     triggerSource: PSRTrigger.Shutdown,
   };
@@ -57,6 +58,7 @@ export function createStandingUpPSR(
   return {
     entityId,
     reason: 'Standing up',
+    reasonCode: PSRTrigger.StandingUp,
     additionalModifier: 0,
     triggerSource: movementStepSource ?? PSRTrigger.StandingUp,
   };
@@ -78,6 +80,7 @@ export function createRubblePSR(
   return {
     entityId,
     reason: 'Entering rubble',
+    reasonCode: PSRTrigger.EnteringRubble,
     additionalModifier: 0,
     triggerSource: movementStepSource ?? PSRTrigger.EnteringRubble,
   };
@@ -94,6 +97,7 @@ export function createRunningRoughTerrainPSR(
   return {
     entityId,
     reason: 'Running through rough terrain',
+    reasonCode: PSRTrigger.RunningRoughTerrain,
     additionalModifier: 0,
     triggerSource: movementStepSource ?? PSRTrigger.RunningRoughTerrain,
   };
@@ -110,6 +114,7 @@ export function createIcePSR(
   return {
     entityId,
     reason: 'Moving on ice',
+    reasonCode: PSRTrigger.MovingOnIce,
     additionalModifier: 0,
     triggerSource: movementStepSource ?? PSRTrigger.MovingOnIce,
   };
@@ -126,6 +131,7 @@ export function createEnteringWaterPSR(
   return {
     entityId,
     reason: 'Entering water',
+    reasonCode: PSRTrigger.EnteringWater,
     additionalModifier: 0,
     triggerSource: movementStepSource ?? PSRTrigger.EnteringWater,
   };
@@ -142,6 +148,7 @@ export function createExitingWaterPSR(
   return {
     entityId,
     reason: 'Exiting water',
+    reasonCode: PSRTrigger.ExitingWater,
     additionalModifier: 0,
     triggerSource: movementStepSource ?? PSRTrigger.ExitingWater,
   };
@@ -164,6 +171,7 @@ export function createSkiddingPSR(
   return {
     entityId,
     reason: 'Skidding',
+    reasonCode: PSRTrigger.Skidding,
     additionalModifier: 0,
     triggerSource: movementStepSource ?? PSRTrigger.Skidding,
   };
@@ -176,6 +184,7 @@ export function createBuildingCollapsePSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Building collapse',
+    reasonCode: PSRTrigger.BuildingCollapse,
     additionalModifier: 0,
     triggerSource: PSRTrigger.BuildingCollapse,
   };

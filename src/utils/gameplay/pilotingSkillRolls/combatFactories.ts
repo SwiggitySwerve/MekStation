@@ -14,6 +14,7 @@ export function createKickedPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Kicked',
+    reasonCode: PSRTrigger.Kicked,
     additionalModifier: 0,
     triggerSource: PSRTrigger.Kicked,
   };
@@ -26,6 +27,7 @@ export function createChargedPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Charged',
+    reasonCode: PSRTrigger.Charged,
     additionalModifier: 0,
     triggerSource: PSRTrigger.Charged,
   };
@@ -38,6 +40,7 @@ export function createDFATargetPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Hit by DFA',
+    reasonCode: PSRTrigger.DFATarget,
     additionalModifier: 0,
     triggerSource: PSRTrigger.DFATarget,
   };
@@ -50,6 +53,7 @@ export function createPushedPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Pushed',
+    reasonCode: PSRTrigger.Pushed,
     additionalModifier: 0,
     triggerSource: PSRTrigger.Pushed,
   };
@@ -62,6 +66,7 @@ export function createKickMissPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Kick missed',
+    reasonCode: PSRTrigger.KickMiss,
     additionalModifier: 0,
     triggerSource: PSRTrigger.KickMiss,
   };
@@ -74,6 +79,7 @@ export function createChargeMissPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Charge missed',
+    reasonCode: PSRTrigger.ChargeMiss,
     additionalModifier: 0,
     triggerSource: PSRTrigger.ChargeMiss,
   };
@@ -86,6 +92,7 @@ export function createDFAMissPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'DFA missed',
+    reasonCode: PSRTrigger.DFAMiss,
     additionalModifier: 4,
     triggerSource: PSRTrigger.DFAMiss,
   };

@@ -14,6 +14,7 @@ export function createDamagePSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: '20+ damage this phase',
+    reasonCode: PSRTrigger.PhaseDamage20Plus,
     additionalModifier: 0,
     triggerSource: PSRTrigger.PhaseDamage20Plus,
   };
@@ -26,6 +27,7 @@ export function createLegDamagePSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Leg damage (internal structure exposed)',
+    reasonCode: PSRTrigger.LegDamage,
     additionalModifier: 0,
     triggerSource: PSRTrigger.LegDamage,
   };
@@ -38,6 +40,7 @@ export function createHipActuatorPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Hip actuator destroyed',
+    reasonCode: PSRTrigger.HipActuatorDestroyed,
     additionalModifier: 0,
     triggerSource: PSRTrigger.HipActuatorDestroyed,
   };
@@ -50,6 +53,7 @@ export function createGyroPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Gyro hit',
+    reasonCode: PSRTrigger.GyroHit,
     additionalModifier: 0,
     triggerSource: PSRTrigger.GyroHit,
   };
@@ -73,6 +77,7 @@ export function createEngineHitPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Engine hit',
+    reasonCode: PSRTrigger.EngineHit,
     additionalModifier: 0,
     triggerSource: PSRTrigger.EngineHit,
   };
@@ -85,6 +90,7 @@ export function createUpperLegActuatorPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Upper leg actuator hit',
+    reasonCode: PSRTrigger.UpperLegActuatorHit,
     additionalModifier: 0,
     triggerSource: PSRTrigger.UpperLegActuatorHit,
   };
@@ -97,6 +103,7 @@ export function createLowerLegActuatorPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Lower leg actuator hit',
+    reasonCode: PSRTrigger.LowerLegActuatorHit,
     additionalModifier: 0,
     triggerSource: PSRTrigger.LowerLegActuatorHit,
   };
@@ -109,6 +116,7 @@ export function createFootActuatorPSR(entityId: string): IPendingPSR {
   return {
     entityId,
     reason: 'Foot actuator hit',
+    reasonCode: PSRTrigger.FootActuatorHit,
     additionalModifier: 0,
     triggerSource: PSRTrigger.FootActuatorHit,
   };

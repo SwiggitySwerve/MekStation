@@ -438,4 +438,49 @@ describe('Atlas-vs-Atlas event chain — P2 (task 2.7)', () => {
       expect(e.side).toBeUndefined();
     }
   });
+
+  it('PSR / fall events emitted by the runner carry reasonCode (PR E)', async () => {
+    // Per `structure-psr-reason-as-discriminated-code` (PR E): every
+    // PSR factory now stamps `reasonCode: PSRTrigger.X` on the
+    // `IPendingPSR`, and the event builders thread that value onto
+    // `IPSRTriggeredPayload` / `IPSRResolvedPayload` / `IUnitFellPayload`.
+    // The atlas-mirror runner doesn't deterministically produce PSR
+    // events on every seed, so this test asserts conditional on
+    // presence: when PSR / fall events are emitted, every one of them
+    // SHALL carry a defined `reasonCode`.
+    const hydration = await buildAtlasMirrorHydration();
+    const config: ISimulationConfig = {
+      seed: 12345,
+      turnLimit: 5,
+      unitCount: { player: 1, opponent: 1 },
+      mapRadius: 4,
+    };
+    const runner = new SimulationRunner(
+      config.seed,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      hydration,
+    );
+    const result = runner.run(config);
+
+    const psrEvents = result.events.filter(
+      (e) =>
+        e.type === GameEventType.PSRTriggered ||
+        e.type === GameEventType.PSRResolved ||
+        e.type === GameEventType.UnitFell,
+    );
+
+    // Every emitted PSR / fall event carries the reasonCode sibling
+    // alongside the existing `reason` string. The runner-side factories
+    // stamp it unconditionally — only direct event-builder callers
+    // (`gameSessionAttackResolution.ts` leg-damage / 20+damage,
+    // `gameSessionHeat.ts` shutdown, `gameSessionPhysical.ts` target /
+    // miss / hit) thread an explicit value.
+    for (const event of psrEvents) {
+      const payload = event.payload as { readonly reasonCode?: unknown };
+      expect(payload.reasonCode).toBeDefined();
+    }
+  });
 });
