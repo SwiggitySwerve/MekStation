@@ -6,6 +6,11 @@ import {
   IGameState,
   IHexGrid,
 } from '@/types/gameplay';
+import {
+  decomposeMovementSteps,
+  movementAnimationModeForType,
+  normalizeMovementEventPath,
+} from '@/utils/gameplay/movement/eventPath';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
 import type { IWeapon } from '../../ai/types';
@@ -65,6 +70,45 @@ export function runMovementPhase(options: {
         moveEvent.payload,
       );
 
+      // Per `enrich-movement-declared-with-chain-and-displacement`
+      // (movement-system delta): synthesize the per-step chain plus the
+      // four decomposition fields (`hexesMoved` / `straightHexes` /
+      // `turningMpCost` / `netDisplacement`) and the visited path so
+      // every `MovementDeclared` event carries a complete picture of
+      // the move's commit history. The bot today does not surface a
+      // pre-computed path, so we let the helper fall back to a
+      // straight-line `hexLine` projection — adequate for the runner's
+      // simulation needs and for the readable-companion formatter.
+      //
+      // TODO PR-C follow-on (`enrich-movement-declared-with-chain-and-displacement`
+      // piloting-skill-rolls delta — Movement-Step PSR Trigger-Source Stamping):
+      // when the runner gains true mid-move PSR resolution (skid on
+      // ice, jump-landing leg damage, AttemptStand, swarm-dislodge),
+      // pass `decomposition.steps[i].index` into the corresponding
+      // `createSkiddingPSR` / `createIcePSR` / `createStandingUpPSR`
+      // factory call so the emitted `psr_triggered` event carries
+      // `triggerSource: 'movement-step:<index>'`. The factories
+      // already accept the optional `stepIndex` parameter; the only
+      // missing piece is the runner-side wiring once the mid-move
+      // PSR phase exists. PSRs that fire OUTSIDE movement-step
+      // resolution (damage, heat, gyro destroyed) MUST RETAIN their
+      // existing free-string `triggerSource` values.
+      const path = normalizeMovementEventPath(
+        unit.position,
+        moveEvent.payload.to,
+      );
+      const decomposition = decomposeMovementSteps({
+        from: unit.position,
+        to: moveEvent.payload.to,
+        fromFacing: unit.facing as Facing,
+        toFacing: moveEvent.payload.facing as Facing,
+        movementType: moveEvent.payload.movementType,
+        mpUsed: moveEvent.payload.mpUsed,
+        path,
+        grid,
+      });
+      const mode = movementAnimationModeForType(moveEvent.payload.movementType);
+
       events.push(
         createGameEvent(
           gameId,
@@ -78,8 +122,15 @@ export function runMovementPhase(options: {
             to: moveEvent.payload.to,
             facing: moveEvent.payload.facing as Facing,
             movementType: moveEvent.payload.movementType,
+            ...(mode ? { mode } : {}),
+            path,
             mpUsed: moveEvent.payload.mpUsed,
             heatGenerated: 0,
+            hexesMoved: decomposition.hexesMoved,
+            straightHexes: decomposition.straightHexes,
+            turningMpCost: decomposition.turningMpCost,
+            netDisplacement: decomposition.netDisplacement,
+            steps: decomposition.steps,
           },
           unitId,
         ),

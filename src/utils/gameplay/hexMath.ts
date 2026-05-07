@@ -329,3 +329,44 @@ export function angleToFacing(angle: number): Facing {
 export function facingToAngle(facing: Facing): number {
   return facing * 60;
 }
+
+// =============================================================================
+// MegaMek Board Label Conversion
+// =============================================================================
+
+/**
+ * Per `enrich-movement-declared-with-chain-and-displacement` (movement-system
+ * delta — Hex Coordinate Board Label Utility): convert an axial `(q, r)`
+ * coordinate to a MegaMek-standard 4-digit `NNNN` board-label string
+ * where the first two digits are the 1-indexed column and the last
+ * two digits are the 1-indexed row, both zero-padded with
+ * `String.prototype.padStart(2, '0')`.
+ *
+ * This is the inverse of the offset-axial conversion in
+ * `src/lib/parsers/megaMekBoard.ts:30` (`convertOffsetToAxial`):
+ *
+ *   forward: `q = col - 1`, `r = row - 1 - Math.floor((col - 1) / 2)`
+ *   inverse: `col = q + 1`, `row = r + 1 + Math.floor(q / 2)`
+ *
+ * Round-trip identity holds for any in-range board coordinate:
+ *   `coordToBoardLabel(convertOffsetToAxial(col, row)) === \`${col}${row}\``
+ * when `col` and `row` are 1-indexed and within the standard 1..99
+ * MegaMek board range. Out-of-range columns wrap modulo 100 to keep
+ * the output exactly 4 chars (matching what the inverse parser would
+ * accept on read-back from `.board` files).
+ *
+ * Mirrors the Python `coord_to_board_label` helper added in PR A so
+ * the readable-companion formatter (PR D) renders identical labels
+ * for the same axial coordinate regardless of language.
+ */
+export function coordToBoardLabel(coord: IHexCoordinate): string {
+  const col = coord.q + 1;
+  const row = coord.r + 1 + Math.floor(coord.q / 2);
+  // Wrap modulo 100 so the output is always exactly 4 chars even when
+  // a stray fixture / out-of-range coordinate sneaks through; this
+  // matches the 4-digit `NNNN` constraint the inverse parser enforces
+  // via `if (!/^\d{4}$/.test(coordStr)) throw` in megaMekBoard.ts.
+  const colStr = String(((col % 100) + 100) % 100).padStart(2, '0');
+  const rowStr = String(((row % 100) + 100) % 100).padStart(2, '0');
+  return `${colStr}${rowStr}`;
+}

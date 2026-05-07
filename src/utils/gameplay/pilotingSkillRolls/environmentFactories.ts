@@ -8,6 +8,23 @@ import type { IPendingPSR } from '@/types/gameplay';
 import { PSRTrigger } from './types';
 
 /**
+ * Per `enrich-movement-declared-with-chain-and-displacement` (piloting-skill-rolls
+ * delta — Movement-Step PSR Trigger-Source Stamping): when a PSR fires
+ * during the resolution of a specific movement step, callers pass the
+ * step's 0-based ordinal so the resulting `triggerSource` is the
+ * canonical `'movement-step:<index>'` form. When omitted, the factory
+ * falls back to the legacy `PSRTrigger.*` enum value — preserving the
+ * existing free-string semantics for non-movement-step PSR callers
+ * (recovery, post-phase damage, heat, gyro destroyed, etc.).
+ */
+function movementStepTriggerSource(
+  stepIndex: number | undefined,
+): string | null {
+  if (stepIndex === undefined) return null;
+  return `movement-step:${stepIndex}`;
+}
+
+/**
  * Create a pending PSR for reactor shutdown.
  * Note: This PSR uses a fixed TN of 3, not piloting skill.
  */
@@ -22,85 +39,133 @@ export function createShutdownPSR(entityId: string): IPendingPSR {
 
 /**
  * Create a pending PSR for standing up.
+ *
+ * @param entityId - The unit attempting to stand
+ * @param stepIndex - Optional movement-step ordinal (per the PR-C
+ *   piloting-skill-rolls delta). When provided, overrides
+ *   `triggerSource` to `'movement-step:<index>'` so consumers can
+ *   correlate the AttemptStand PSR back to the originating step in
+ *   `movement_declared.payload.steps`. Existing callers that don't
+ *   yet thread step context through pass `undefined` and keep the
+ *   legacy `PSRTrigger.StandingUp` source.
  */
-export function createStandingUpPSR(entityId: string): IPendingPSR {
+export function createStandingUpPSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Standing up',
     additionalModifier: 0,
-    triggerSource: PSRTrigger.StandingUp,
+    triggerSource: movementStepSource ?? PSRTrigger.StandingUp,
   };
 }
 
 /**
  * Create a pending PSR for entering rubble terrain.
+ *
+ * @param stepIndex - Optional movement-step ordinal (per the PR-C
+ *   piloting-skill-rolls delta). Same semantics as
+ *   `createStandingUpPSR` — when provided, overrides `triggerSource`
+ *   to `'movement-step:<index>'`.
  */
-export function createRubblePSR(entityId: string): IPendingPSR {
+export function createRubblePSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Entering rubble',
     additionalModifier: 0,
-    triggerSource: PSRTrigger.EnteringRubble,
+    triggerSource: movementStepSource ?? PSRTrigger.EnteringRubble,
   };
 }
 
 /**
  * Create a pending PSR for running through rough terrain.
  */
-export function createRunningRoughTerrainPSR(entityId: string): IPendingPSR {
+export function createRunningRoughTerrainPSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Running through rough terrain',
     additionalModifier: 0,
-    triggerSource: PSRTrigger.RunningRoughTerrain,
+    triggerSource: movementStepSource ?? PSRTrigger.RunningRoughTerrain,
   };
 }
 
 /**
  * Create a pending PSR for moving on ice.
  */
-export function createIcePSR(entityId: string): IPendingPSR {
+export function createIcePSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Moving on ice',
     additionalModifier: 0,
-    triggerSource: PSRTrigger.MovingOnIce,
+    triggerSource: movementStepSource ?? PSRTrigger.MovingOnIce,
   };
 }
 
 /**
  * Create a pending PSR for entering water.
  */
-export function createEnteringWaterPSR(entityId: string): IPendingPSR {
+export function createEnteringWaterPSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Entering water',
     additionalModifier: 0,
-    triggerSource: PSRTrigger.EnteringWater,
+    triggerSource: movementStepSource ?? PSRTrigger.EnteringWater,
   };
 }
 
 /**
  * Create a pending PSR for exiting water.
  */
-export function createExitingWaterPSR(entityId: string): IPendingPSR {
+export function createExitingWaterPSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Exiting water',
     additionalModifier: 0,
-    triggerSource: PSRTrigger.ExitingWater,
+    triggerSource: movementStepSource ?? PSRTrigger.ExitingWater,
   };
 }
 
 /**
  * Create a pending PSR for skidding on pavement/ice.
+ *
+ * @param stepIndex - Optional movement-step ordinal (per the PR-C
+ *   piloting-skill-rolls delta). Skid PSRs canonically fire DURING
+ *   step resolution, so future runner wiring SHOULD pass the step
+ *   index. Existing callers that pass `undefined` keep the legacy
+ *   `PSRTrigger.Skidding` source.
  */
-export function createSkiddingPSR(entityId: string): IPendingPSR {
+export function createSkiddingPSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Skidding',
     additionalModifier: 0,
-    triggerSource: PSRTrigger.Skidding,
+    triggerSource: movementStepSource ?? PSRTrigger.Skidding,
   };
 }
 

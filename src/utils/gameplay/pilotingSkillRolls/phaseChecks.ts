@@ -32,18 +32,27 @@ export function checkPhaseDamagePSR(
  *
  * @param unitState - Current unit state (must be prone)
  * @param walkingMP - Unit's base walking MP
+ * @param stepIndex - Optional 0-based ordinal of the `'standUp'` step in
+ *   the unit's `movement_declared.payload.steps` array. Per the PR-C
+ *   piloting-skill-rolls delta, when this is provided the resulting
+ *   PSR's `triggerSource` becomes `'movement-step:<index>'` so
+ *   consumers can correlate the AttemptStand PSR back to the
+ *   originating step. Legacy callers that don't yet thread step
+ *   context through pass `undefined` and keep the legacy
+ *   `PSRTrigger.StandingUp` source.
  * @returns Object describing the stand-up attempt, or null if not prone
  */
 export function createStandUpAttempt(
   unitState: IUnitGameState,
   walkingMP: number,
+  stepIndex?: number,
 ): { psr: IPendingPSR; mpCost: number } | null {
   if (!unitState.prone) {
     return null;
   }
 
   return {
-    psr: createStandingUpPSR(unitState.id),
+    psr: createStandingUpPSR(unitState.id, stepIndex),
     mpCost: walkingMP,
   };
 }
