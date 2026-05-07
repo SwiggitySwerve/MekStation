@@ -29,29 +29,20 @@ import {
   IUnitFellPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import { sideFromUnitId } from '../core/sideFromActor';
 import { ISimulationResult } from '../core/types';
 import { IAggregateMetrics, ISimulationMetrics } from './types';
 
 /**
- * Side derivation from a runner unit id. Returns `null` for ids that
- * don't follow the canonical `player-` / `opponent-` prefix (e.g.,
- * test fixtures with synthetic ids); those units don't contribute to
- * either side's roster count.
- *
- * Per `denormalize-event-envelope-and-close-emission-contract-gaps`: the
- * canonical source for an event's side is now `IGameEventBase.side`,
- * populated by `createGameEvent` (and `createEventBase`) at emission
- * time. This function is retained as a fallback for replaying legacy
- * NDJSON event streams written before the envelope-denormalization
- * landed — `MetricsCollector` still uses it against `payload.unitId`
- * because some payloads describe a target side rather than the actor's
- * side, and unit-id is the unambiguous source there.
+ * Per `add-event-log-query-and-unified-readable-format` (combat-analytics
+ * delta): the canonical `sideFromUnitId` lookup lives at
+ * `src/simulation/core/sideFromActor.ts` so consumers in
+ * `src/simulation/core/` (e.g. `EventLogQuery`) can reuse it without
+ * pulling the metrics module. Re-exported here so the documented
+ * `MetricsCollector.sideFromUnitId` surface stays stable for downstream
+ * consumers (specs, scenario tests, future UI replays).
  */
-function sideFromUnitId(unitId: string): 'player' | 'opponent' | null {
-  if (unitId.startsWith('player-')) return 'player';
-  if (unitId.startsWith('opponent-')) return 'opponent';
-  return null;
-}
+export { sideFromUnitId };
 
 /**
  * Walk the event log once and produce all derived counters in a single
