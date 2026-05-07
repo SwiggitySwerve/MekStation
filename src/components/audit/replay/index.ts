@@ -42,3 +42,14 @@ export {
   type JsonlFileLoaderProps,
   type JsonlLineError,
 } from './JsonlFileLoader';
+
+// Per `add-replay-timeline-markers` (combat-analytics delta): timeline
+// overlays for key-moment events + phase / turn boundaries.
+export {
+  KeyMomentMarkers,
+  type KeyMomentMarkersProps,
+} from './KeyMomentMarkers';
+export {
+  PhaseChangeMarkers,
+  type PhaseChangeMarkersProps,
+} from './PhaseChangeMarkers';

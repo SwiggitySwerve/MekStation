@@ -7,8 +7,13 @@
 
 import React, { useCallback, useRef, useState } from 'react';
 
+import type { IGameEvent } from '@/types/gameplay';
+
 import { type IEventMarker } from '@/hooks/audit';
 import { EventCategory } from '@/types/events';
+
+import { KeyMomentMarkers } from './KeyMomentMarkers';
+import { PhaseChangeMarkers } from './PhaseChangeMarkers';
 
 // =============================================================================
 // Types
@@ -25,6 +30,16 @@ export interface ReplayTimelineProps {
   currentSequence: number;
   /** Optional additional class names */
   className?: string;
+  /**
+   * Per `add-replay-timeline-markers` (combat-analytics delta):
+   * gameplay event log used to derive key-moment + phase-change marker
+   * overlays. When provided, the timeline composes
+   * `<KeyMomentMarkers>` and `<PhaseChangeMarkers>` above the existing
+   * track. When omitted (e.g. existing audit-store consumers), no
+   * overlay renders.
+   */
+  keyMoments?: readonly IGameEvent[];
+  phaseChanges?: readonly IGameEvent[];
 }
 
 // =============================================================================
@@ -50,6 +65,43 @@ const CATEGORY_HOVER_COLORS: Record<EventCategory, string> = {
 };
 
 // =============================================================================
+// Sequence-range helpers
+// =============================================================================
+
+/**
+ * Compute the lowest sequence across the union of `primary` and
+ * `secondary` event arrays. Used to align the key-moment + phase-change
+ * overlays to a common timeline range so badges and dotted lines line
+ * up with each other (and with the underlying audit-style markers).
+ */
+function resolveMinSequence(
+  primary: readonly IGameEvent[],
+  secondary: readonly IGameEvent[] | undefined,
+): number {
+  let min = Infinity;
+  for (const e of primary) if (e.sequence < min) min = e.sequence;
+  if (secondary !== undefined) {
+    for (const e of secondary) if (e.sequence < min) min = e.sequence;
+  }
+  return min === Infinity ? 0 : min;
+}
+
+/**
+ * Mirror of `resolveMinSequence` for the upper bound.
+ */
+function resolveMaxSequence(
+  primary: readonly IGameEvent[],
+  secondary: readonly IGameEvent[] | undefined,
+): number {
+  let max = -Infinity;
+  for (const e of primary) if (e.sequence > max) max = e.sequence;
+  if (secondary !== undefined) {
+    for (const e of secondary) if (e.sequence > max) max = e.sequence;
+  }
+  return max === -Infinity ? 0 : max;
+}
+
+// =============================================================================
 // Component
 // =============================================================================
 
@@ -59,6 +111,8 @@ export function ReplayTimeline({
   onSeek,
   currentSequence,
   className = '',
+  keyMoments,
+  phaseChanges,
 }: ReplayTimelineProps): React.ReactElement {
   const trackRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -145,6 +199,28 @@ export function ReplayTimeline({
           className="from-accent/40 to-accent/60 absolute inset-y-0 left-0 bg-gradient-to-r transition-all duration-75"
           style={{ width: `${progress * 100}%` }}
         />
+
+        {/* Phase / turn boundary overlay (renders behind key-moment
+            badges; subtle dotted lines). Only present when the
+            consumer passed gameplay events. */}
+        {phaseChanges !== undefined && phaseChanges.length > 0 && (
+          <PhaseChangeMarkers
+            events={phaseChanges}
+            minSequence={resolveMinSequence(phaseChanges, keyMoments)}
+            maxSequence={resolveMaxSequence(phaseChanges, keyMoments)}
+          />
+        )}
+
+        {/* Key-moment overlay (kills / crits / ammo / pilot hits /
+            falls). Click a badge to seek to that event. */}
+        {keyMoments !== undefined && keyMoments.length > 0 && (
+          <KeyMomentMarkers
+            events={keyMoments}
+            minSequence={resolveMinSequence(keyMoments, phaseChanges)}
+            maxSequence={resolveMaxSequence(keyMoments, phaseChanges)}
+            onSeek={onSeek}
+          />
+        )}
 
         {/* Event Markers */}
         <div className="absolute inset-0 flex items-center">
