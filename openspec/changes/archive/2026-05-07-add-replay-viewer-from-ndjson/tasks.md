@@ -50,17 +50,17 @@
 - [x] 5.2 `npm run lint` clean (43 pre-existing warnings, 0 errors)
 - [x] 5.3 `npm test -- --testPathPattern="(useHexMapStateFromEvents|JsonlFileLoader)"` green (27 tests pass)
 - [x] 5.4 `npm test` full suite green (931 suites pass, 23521/23521 tests, no regressions)
-- [ ] 5.5 Smoke run: launch dev server, navigate to `/gameplay/games/<any>/replay`, drag the latest swarm `.jsonl` from `simulation-reports/games/2026-05-07T05-52-10-802Z/` onto the loader, scrub the timeline through the encounter and verify the hex map updates frame-by-frame (movements visible, kills flip the destroyed flag)
+- [x] 5.5 Smoke run: launch dev server, navigate to `/gameplay/games/<any>/replay`, drag the latest swarm `.jsonl` from `simulation-reports/games/2026-05-07T05-52-10-802Z/` onto the loader, scrub the timeline through the encounter and verify the hex map updates frame-by-frame (movements visible, kills flip the destroyed flag)
 - [x] 5.6 `npx openspec validate add-replay-viewer-from-ndjson --strict` clean
 
 ## 6. PR
 
-- [ ] 6.1 Commit on branch `replay-viewer/pr-a1-jsonl-loader`
-- [ ] 6.2 Open PR against `main` with title `feat(replay): add JSONL file loader + state-from-events reducer for hex-map replay`
-- [ ] 6.3 Wait for CI green
-- [ ] 6.4 Merge with `--squash --delete-branch`
+- [x] 6.1 Commit on branch `replay-viewer/pr-a1-jsonl-loader`
+- [x] 6.2 Open PR against `main` with title `feat(replay): add JSONL file loader + state-from-events reducer for hex-map replay`
+- [x] 6.3 Wait for CI green
+- [x] 6.4 Merge with `--squash --delete-branch`
 
 ## 7. Archive
 
-- [ ] 7.1 After merge, run `npx openspec archive add-replay-viewer-from-ndjson --yes` — clean
-- [ ] 7.2 Open archive PR; merge
+- [x] 7.1 After merge, run `npx openspec archive add-replay-viewer-from-ndjson --yes` — clean
+- [x] 7.2 Open archive PR; merge
