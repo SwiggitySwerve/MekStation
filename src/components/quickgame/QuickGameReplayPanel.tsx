@@ -142,6 +142,11 @@ export function QuickGameReplayPanel({
             markers={adaptedMarkers}
             onSeek={replay.seek}
             currentSequence={replay.currentSequence}
+            // Per `add-replay-timeline-markers`: pass the in-memory
+            // gameplay event log so the timeline composes
+            // <KeyMomentMarkers> + <PhaseChangeMarkers> overlays.
+            keyMoments={events}
+            phaseChanges={events}
           />
         </div>
 

@@ -25,6 +25,7 @@ import {
   MovementType,
   TokenUnitType,
 } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { deriveHexMapStateFromEvents } from '../useHexMapStateFromEvents';
 
@@ -644,6 +645,199 @@ describe('deriveHexMapStateFromEvents', () => {
       expect(
         state.tokens.find((t) => t.unitId === 'opponent-2')?.isDestroyed,
       ).toBe(true);
+    });
+  });
+
+  // ===========================================================================
+  // add-replay-timeline-markers — ComponentDestroyed + CriticalHitResolved
+  // populate IMechToken.armorPipState
+  // ===========================================================================
+
+  describe('spec scenario: ComponentDestroyed populates Mech armorPipState', () => {
+    it('humanoid Mech: actuator on LA → leftArm transitions to structure', () => {
+      const events: IGameEvent[] = [
+        makeStandardGameCreatedEvent(),
+        makeEvent({
+          sequence: 1,
+          type: GameEventType.ComponentDestroyed,
+          actorId: 'opponent-2',
+          payload: {
+            unitId: 'player-1',
+            location: 'LA',
+            componentType: 'actuator',
+            slotIndex: 0,
+          },
+        }),
+      ];
+      const state = deriveHexMapStateFromEvents(events, 1);
+      const mech = state.tokens.find((t) => t.unitId === 'player-1');
+      expect(mech?.unitType).toBe(TokenUnitType.Mech);
+      // armorPipState should be populated.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pipState = (mech as any)?.armorPipState;
+      expect(pipState).toBeDefined();
+      expect(pipState.archetype).toBe('humanoid');
+      expect(pipState.locations.leftArm).toBe('structure');
+      // All other locations remain 'full'.
+      expect(pipState.locations.head).toBe('full');
+      expect(pipState.locations.rightArm).toBe('full');
+      expect(pipState.locations.centerTorso).toBe('full');
+    });
+  });
+
+  describe('spec scenario: First non-internal damage transitions full → partial', () => {
+    it('armor componentType on RT → rightTorso becomes partial', () => {
+      const events: IGameEvent[] = [
+        makeStandardGameCreatedEvent(),
+        makeEvent({
+          sequence: 1,
+          type: GameEventType.ComponentDestroyed,
+          payload: {
+            unitId: 'player-1',
+            location: 'RT',
+            componentType: 'armor',
+            slotIndex: 0,
+          },
+        }),
+      ];
+      const state = deriveHexMapStateFromEvents(events, 1);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pipState = (
+        state.tokens.find((t) => t.unitId === 'player-1') as any
+      )?.armorPipState;
+      expect(pipState.locations.rightTorso).toBe('partial');
+    });
+  });
+
+  describe('spec scenario: LocationDestroyed plus ComponentDestroyed transitions to destroyed', () => {
+    it('LL: LocationDestroyed at seq 5 + ComponentDestroyed at seq 10 → leftLeg destroyed', () => {
+      const locDestroyedPayload: ILocationDestroyedPayload = {
+        unitId: 'player-1',
+        location: 'LL',
+      };
+      const events: IGameEvent[] = [
+        makeStandardGameCreatedEvent(),
+        makeEvent({
+          sequence: 5,
+          type: GameEventType.LocationDestroyed,
+          payload: locDestroyedPayload,
+        }),
+        makeEvent({
+          sequence: 10,
+          type: GameEventType.ComponentDestroyed,
+          payload: {
+            unitId: 'player-1',
+            location: 'LL',
+            componentType: 'actuator',
+            slotIndex: 0,
+          },
+        }),
+      ];
+      const state = deriveHexMapStateFromEvents(events, 10);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pipState = (
+        state.tokens.find((t) => t.unitId === 'player-1') as any
+      )?.armorPipState;
+      expect(pipState.locations.leftLeg).toBe('destroyed');
+    });
+  });
+
+  describe('spec scenario: ComponentDestroyed on a vehicle is a no-op', () => {
+    it('vehicle token has no armorPipState and reducer does not throw', () => {
+      const vehiclePayload: IGameCreatedPayload = {
+        config: {
+          mapRadius: 17,
+          turnLimit: 0,
+          victoryConditions: ['destruction'],
+          optionalRules: [],
+        },
+        units: [
+          {
+            id: 'tank-1',
+            name: 'Test Tank',
+            side: GameSide.Player,
+            unitRef: 'tank-ref',
+            pilotRef: 'pilot-tank',
+            gunnery: 4,
+            piloting: 5,
+            // Force Vehicle path explicitly. UnitType.VEHICLE === 'Vehicle'.
+            unitType: UnitType.VEHICLE,
+          },
+        ],
+      };
+      const events: IGameEvent[] = [
+        makeEvent({
+          sequence: 0,
+          type: GameEventType.GameCreated,
+          payload: vehiclePayload,
+        }),
+        makeEvent({
+          sequence: 1,
+          type: GameEventType.ComponentDestroyed,
+          payload: {
+            unitId: 'tank-1',
+            location: 'turret',
+            componentType: 'weapon',
+            slotIndex: 0,
+          },
+        }),
+      ];
+      // Must not throw.
+      const state = deriveHexMapStateFromEvents(events, 1);
+      const tank = state.tokens.find((t) => t.unitId === 'tank-1');
+      expect(tank).toBeDefined();
+      expect(tank?.unitType).toBe(TokenUnitType.Vehicle);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((tank as any).armorPipState).toBeUndefined();
+    });
+  });
+
+  describe('spec scenario: CriticalHitResolved follows the same projection rules', () => {
+    it('engine on CT (internal) → centerTorso transitions to structure', () => {
+      const events: IGameEvent[] = [
+        makeStandardGameCreatedEvent(),
+        makeEvent({
+          sequence: 1,
+          type: GameEventType.CriticalHitResolved,
+          payload: {
+            unitId: 'player-1',
+            location: 'CT',
+            slotIndex: 0,
+            componentType: 'engine',
+            componentName: 'Engine',
+            effect: 'destroyed',
+            destroyed: true,
+          },
+        }),
+      ];
+      const state = deriveHexMapStateFromEvents(events, 1);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pipState = (
+        state.tokens.find((t) => t.unitId === 'player-1') as any
+      )?.armorPipState;
+      expect(pipState.locations.centerTorso).toBe('structure');
+    });
+  });
+
+  describe('edge case: unrecognized location code is silently ignored', () => {
+    it('does not throw and does not allocate armorPipState', () => {
+      const events: IGameEvent[] = [
+        makeStandardGameCreatedEvent(),
+        makeEvent({
+          sequence: 1,
+          type: GameEventType.ComponentDestroyed,
+          payload: {
+            unitId: 'player-1',
+            location: 'UNKNOWN_LOC',
+            componentType: 'actuator',
+            slotIndex: 0,
+          },
+        }),
+      ];
+      const state = deriveHexMapStateFromEvents(events, 1);
+      const mech = state.tokens.find((t) => t.unitId === 'player-1');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((mech as any).armorPipState).toBeUndefined();
     });
   });
 });

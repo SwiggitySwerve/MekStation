@@ -528,6 +528,20 @@ export default function GameReplayPage(): React.ReactElement {
                   markers={replay.markers}
                   onSeek={replay.seek}
                   currentSequence={replay.currentSequence}
+                  // Per `add-replay-timeline-markers`: when an upload
+                  // is active we have the raw gameplay event log,
+                  // which lets the timeline derive key-moment +
+                  // phase-change overlays. DB-loaded replays go
+                  // through the audit envelope path and don't expose
+                  // the gameplay log here, so the overlays stay off
+                  // for those (existing audit markers continue to
+                  // render unchanged).
+                  keyMoments={
+                    isUploadActive ? (uploadedEvents ?? undefined) : undefined
+                  }
+                  phaseChanges={
+                    isUploadActive ? (uploadedEvents ?? undefined) : undefined
+                  }
                 />
               </div>
 
