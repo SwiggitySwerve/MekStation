@@ -69,12 +69,12 @@
 - [x] 6.2 On mount, call `readReplayIndex()` and render the resulting entries as list rows with source-appropriate metadata visible (swarm: `configName`/`seed`/`batchTimestamp`; quick: `aiVariant`/`playerSide`; PvP: `opponentName`/`matchId`; campaign: `campaignId`/`missionId`/`difficulty`). Page reads via `GET /api/replay-library/index` API route — server-side reader keeps `node:fs` out of the browser bundle.
 - [x] 6.3 Add a source filter (button strip) that limits the displayed list to the chosen `ReplaySource` (All | Swarm | Quick | PvP | Campaign).
 - [x] 6.4 Click-to-open Watch button is a placeholder in phase A; orchestrator wires it to the replay viewer in phase B (loads events via `GET /api/replay-library/<source>/<gameId>`).
-- [x] 6.5 Page renders standalone today; orchestrator adds the primary-navigation link in phase B.
-- [ ] 6.6 Unit tests: page lists 5 entries when index has 3 swarm + 2 quick
-- [ ] 6.7 Unit tests: source filter restricts list correctly
-- [ ] 6.8 Unit tests: clicking a row mounts the replay viewer with events loaded (no file drag)
-- [ ] 6.9 Storybook story for the Replay Library page (default state, filtered state, empty state)
-- [ ] 6.10 Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run storybook:build` clean
+- [x] 6.5 TopBar history group now includes a Replay Library nav link (mobile menu inherits via `historyItems` in the existing nav config).
+- [x] 6.6 Unit tests: page lists 5 entries when index has 3 swarm + 2 quick (covered by `lists entries from a mocked /api/replay-library/index fetch` in `src/__tests__/pages/replay-library.test.tsx`)
+- [x] 6.7 Unit tests: source filter restricts list correctly (covered by `source filter restricts the visible rows` test)
+- [x] 6.8 Unit tests: clicking Watch fetches events via `/api/replay-library/<source>/<gameId>` and mounts `<QuickGameReplayPanel>`; Back button returns to the list (covered by `clicking Watch fetches events and mounts the replay viewer` test)
+- [x] 6.9 Storybook stories for the Replay Library page (Populated / Empty / SwarmOnly / Loading / Error) at `src/components/replay-library/ReplayLibraryPage.stories.tsx`. Page component lifted to `src/components/replay-library/ReplayLibraryPage.tsx` because Next.js's route validator rejects colocated `.stories.tsx` files under `src/pages/`; the route file is now a thin re-export.
+- [x] 6.10 Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run storybook:build` clean (typecheck clean; oxlint 0/0 errors; 311 jest suites / 7664 tests pass; `next build` + `npm run storybook:build` both exit 0; `/replay-library` route prerendered as static — no `node:fs` traced into the client bundle)
 - [ ] 6.11 PR opened, CI green, merged
 
 ## 7. End-to-end verification

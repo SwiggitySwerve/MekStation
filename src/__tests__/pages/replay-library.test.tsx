@@ -43,6 +43,29 @@ jest.mock('next/link', () => ({
   ),
 }));
 
+// Mock QuickGameReplayPanel — the page wires Watch → mounts the panel,
+// but the panel itself owns the hex-map + scrubber lifecycle which is
+// covered by its own tests. Stubbing it here keeps this suite focused on
+// the click-to-open wiring (props passed in, viewer mode rendered).
+jest.mock('@/components/quickgame/QuickGameReplayPanel', () => ({
+  __esModule: true,
+  QuickGameReplayPanel: ({
+    gameId,
+    events,
+  }: {
+    gameId: string;
+    events: ReadonlyArray<unknown>;
+  }) => (
+    <div
+      data-testid="quickgame-replay-panel-mock"
+      data-gameid={gameId}
+      data-events-count={events.length}
+    >
+      Mock replay panel for {gameId}
+    </div>
+  ),
+}));
+
 // =============================================================================
 // Test Data
 // =============================================================================
@@ -134,7 +157,7 @@ function setupFetchError(): void {
 // Imports (after mocks)
 // =============================================================================
 
-import ReplayLibraryPage from '@/pages/replay-library';
+import ReplayLibraryPage from '@/components/replay-library/ReplayLibraryPage';
 
 // =============================================================================
 // Render helper — flushes the mount-effect before returning.
@@ -304,5 +327,74 @@ describe('ReplayLibraryPage', () => {
     expect(screen.getByTestId('replay-watch-sim-1')).toBeInTheDocument();
     expect(screen.getByTestId('replay-watch-sim-1')).toHaveTextContent('Watch');
     expect(screen.getByTestId('replay-watch-quick-9')).toBeInTheDocument();
+  });
+
+  it('clicking Watch fetches events and mounts the replay viewer', async () => {
+    const entries = [makeQuickEntry({ id: 'quick-9' })];
+    const fixtureEvents = [
+      { type: 'GameCreated', sequence: 1 },
+      { type: 'TurnStarted', sequence: 2 },
+      { type: 'GameEnded', sequence: 3 },
+    ];
+
+    fetchMock = jest.fn().mockImplementation((url: string) => {
+      if (url === '/api/replay-library/index') {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ entries, total: entries.length }),
+        });
+      }
+      if (url === '/api/replay-library/quick/quick-9') {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ events: fixtureEvents }),
+        });
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    await renderLibrary();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('replay-row-quick-9')).toBeInTheDocument();
+    });
+
+    // Click Watch — this should set viewer state and trigger the events fetch.
+    await act(async () => {
+      screen.getByTestId('replay-watch-quick-9').click();
+    });
+
+    // The mocked panel renders once events arrive.
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('quickgame-replay-panel-mock'),
+      ).toBeInTheDocument();
+    });
+
+    const panel = screen.getByTestId('quickgame-replay-panel-mock');
+    expect(panel.getAttribute('data-gameid')).toBe('quick-9');
+    expect(panel.getAttribute('data-events-count')).toBe(
+      String(fixtureEvents.length),
+    );
+
+    // Both URLs were called — index on mount, events on Watch.
+    const calledUrls = fetchMock.mock.calls.map(
+      (call: ReadonlyArray<unknown>) => call[0],
+    );
+    expect(calledUrls).toContain('/api/replay-library/index');
+    expect(calledUrls).toContain('/api/replay-library/quick/quick-9');
+
+    // Back button returns to the list.
+    expect(screen.getByTestId('back-to-library')).toBeInTheDocument();
+    await act(async () => {
+      screen.getByTestId('back-to-library').click();
+    });
+    expect(
+      screen.queryByTestId('quickgame-replay-panel-mock'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('replay-row-quick-9')).toBeInTheDocument();
   });
 });
