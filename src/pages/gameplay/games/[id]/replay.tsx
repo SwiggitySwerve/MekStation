@@ -2,17 +2,30 @@
  * Game Replay Page
  * Replay completed games with VCR-style controls.
  *
+ * Per `add-replay-viewer-from-ndjson` (quick-session + combat-analytics
+ * deltas): in addition to the DB-event flow that loads via
+ * `useGameTimeline(gameId)`, the page now mounts a `JsonlFileLoader`
+ * drag-drop affordance that lets users open a swarm-produced
+ * `<gameId>.jsonl` event-log file from disk. When uploaded events are
+ * active, the center pane swaps the placeholder card for an actual
+ * `<HexMapDisplay>` populated by `useHexMapStateFromEvents`, and the
+ * scrubber + controls drive the upload through `useSharedReplayPlayer`.
+ *
  * @spec openspec/changes/add-audit-timeline/specs/audit-timeline/spec.md
+ * @spec openspec/changes/add-replay-viewer-from-ndjson/specs/quick-session/spec.md
+ * @spec openspec/changes/add-replay-viewer-from-ndjson/specs/combat-analytics/spec.md
  */
 
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 
+import type { IGameEvent } from '@/types/gameplay';
 import type { ReducerMap } from '@/utils/events/stateDerivation';
 
 import {
+  JsonlFileLoader,
   ReplayControls,
   ReplayTimeline,
   ReplaySpeedSelector,
@@ -25,6 +38,7 @@ import {
   ReplayLoading,
 } from '@/components/audit/replay/GameReplayPage.states';
 import { EventTimeline } from '@/components/audit/timeline';
+import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay/HexMapDisplay';
 import { Card } from '@/components/ui';
 import {
   useReplayPlayer,
@@ -32,9 +46,36 @@ import {
   PLAYBACK_SPEEDS,
   formatSpeed,
 } from '@/hooks/audit';
-import { IBaseEvent } from '@/types/events';
+import {
+  useHexMapStateFromEvents,
+  useSharedReplayPlayer,
+} from '@/hooks/replay';
+import { IBaseEvent, EventCategory } from '@/types/events';
 
 type ReplayViewTab = 'timeline' | 'events';
+
+/**
+ * Adapt an `IGameEvent` (gameplay) into the `IBaseEvent` (audit) shape
+ * the existing `<ReplayEventOverlay>` and `<EventTimeline>` consume.
+ *
+ * Per the quick-session delta scope: uploaded events drive the existing
+ * UI surfaces, but those surfaces only need the audit envelope's `id`,
+ * `sequence`, `timestamp`, `type`, `payload`, and `category` fields.
+ * Synthesizing `category: EventCategory.Game` plus a thin `context: {
+ * gameId }` keeps the renderers happy without requiring schema work on
+ * either side.
+ */
+function adaptGameEventToBase(event: IGameEvent): IBaseEvent {
+  return {
+    id: event.id,
+    sequence: event.sequence,
+    timestamp: event.timestamp,
+    category: EventCategory.Game,
+    type: event.type,
+    payload: event.payload,
+    context: { gameId: event.gameId },
+  };
+}
 
 export default function GameReplayPage(): React.ReactElement {
   const router = useRouter();
@@ -45,6 +86,17 @@ export default function GameReplayPage(): React.ReactElement {
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [activeTab, setActiveTab] = useState<ReplayViewTab>('timeline');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
+  // -------------------------------------------------------------------------
+  // Upload state — when set, the page is in "upload mode": hex map drives,
+  // scrubber binds to the uploaded events via `useSharedReplayPlayer`.
+  // Per `add-replay-viewer-from-ndjson` (quick-session delta).
+  // -------------------------------------------------------------------------
+  const [uploadedEvents, setUploadedEvents] = useState<
+    readonly IGameEvent[] | null
+  >(null);
+  const [uploadedFilename, setUploadedFilename] = useState<string | null>(null);
+  const isUploadActive = uploadedEvents !== null;
 
   // Hydration fix
   useEffect(() => {
@@ -67,13 +119,88 @@ export default function GameReplayPage(): React.ReactElement {
   // Initialize replay player
   // Note: Empty reducers map - visualization only, no state derivation
   const emptyReducers: ReducerMap<Record<string, unknown>> = {};
-  const replay = useReplayPlayer<Record<string, unknown>>({
+  const dbReplay = useReplayPlayer<Record<string, unknown>>({
     gameId,
     reducers: emptyReducers,
     initialState: {},
     autoPlay: false,
     baseInterval: 1000,
   });
+
+  // Upload-mode replay player. Mounted unconditionally so the React
+  // hooks order stays stable across upload toggles. When upload is not
+  // active, it sees an empty event list and stays idle.
+  const uploadReplay = useSharedReplayPlayer({
+    gameId,
+    events: uploadedEvents ?? [],
+    autoPlay: false,
+    baseInterval: 1000,
+  });
+
+  // Active replay surface. The upload path returns `IGameEvent`-shaped
+  // currentEvent; the audit path returns `IBaseEvent`. Both expose
+  // identical scrubber / control surfaces (progress, markers,
+  // currentSequence, etc.), so a thin union projection drives the
+  // page's visual surfaces.
+  const replay = useMemo(() => {
+    if (isUploadActive) {
+      const currentBaseEvent = uploadReplay.currentEvent
+        ? adaptGameEventToBase(uploadReplay.currentEvent)
+        : null;
+      return {
+        playbackState: uploadReplay.playbackState,
+        speed: uploadReplay.speed,
+        currentSequence: uploadReplay.currentSequence,
+        currentEvent: currentBaseEvent,
+        currentIndex: uploadReplay.currentIndex,
+        totalEvents: uploadReplay.totalEvents,
+        progress: uploadReplay.progress,
+        markers: uploadReplay.markers.map((m) => ({
+          id: m.id,
+          sequence: m.sequence,
+          position: m.position,
+          type: m.type,
+          // Synthesize the audit-marker `category` field for marker-
+          // based renderers; `EventCategory.Game` is the safe default
+          // for every gameplay event.
+          category: EventCategory.Game,
+          label: m.label,
+        })),
+        play: uploadReplay.play,
+        pause: uploadReplay.pause,
+        stop: uploadReplay.stop,
+        stepForward: uploadReplay.stepForward,
+        stepBackward: uploadReplay.stepBackward,
+        jumpToIndex: uploadReplay.jumpToIndex,
+        jumpToEvent: uploadReplay.jumpToEvent,
+        setSpeed: uploadReplay.setSpeed,
+        seek: uploadReplay.seek,
+      };
+    }
+    return dbReplay;
+  }, [isUploadActive, uploadReplay, dbReplay]);
+
+  // Hex-map projection from the uploaded event log. Only meaningful in
+  // upload mode — when the upload is cleared, this returns the
+  // empty-defaults shape and the placeholder card renders instead.
+  const hexMapState = useHexMapStateFromEvents(
+    uploadedEvents ?? [],
+    replay.currentSequence,
+  );
+
+  // Status-pill summary for the JsonlFileLoader.
+  const uploadSummary = useMemo(() => {
+    if (uploadedEvents === null || uploadedEvents.length === 0) {
+      return { count: 0, minTurn: undefined, maxTurn: undefined };
+    }
+    let minTurn = uploadedEvents[0].turn;
+    let maxTurn = uploadedEvents[0].turn;
+    for (const e of uploadedEvents) {
+      if (e.turn < minTurn) minTurn = e.turn;
+      if (e.turn > maxTurn) maxTurn = e.turn;
+    }
+    return { count: uploadedEvents.length, minTurn, maxTurn };
+  }, [uploadedEvents]);
 
   // Keyboard shortcuts
   useReplayKeyboardShortcuts({
@@ -112,27 +239,53 @@ export default function GameReplayPage(): React.ReactElement {
     [replay],
   );
 
+  // JsonlFileLoader callbacks. Promote on success; clear on revert.
+  // Per `add-replay-viewer-from-ndjson` (quick-session delta).
+  const handleEventsLoaded = useCallback(
+    (events: readonly IGameEvent[], filename: string) => {
+      setUploadedEvents(events);
+      setUploadedFilename(filename);
+      setSelectedEventId(null);
+    },
+    [],
+  );
+  const handleClearUpload = useCallback(() => {
+    setUploadedEvents(null);
+    setUploadedFilename(null);
+    setSelectedEventId(null);
+  }, []);
+
   // Loading states
   if (!isClient || eventsLoading) {
     return <ReplayLoading />;
   }
 
-  // Error state
-  if (eventsError) {
+  // Error state — only when the audit-store side errors out AND no
+  // upload is active. An upload always rescues the page.
+  if (eventsError && !isUploadActive) {
     return (
       <ReplayError message={eventsError.message} gameId={gameId || undefined} />
     );
   }
 
-  // No events
-  if (allEvents.length === 0) {
+  // No events available from the audit store AND no upload — show the
+  // standard empty-state error. With an upload, fall through to the
+  // normal layout.
+  if (allEvents.length === 0 && !isUploadActive) {
     return (
       <ReplayError
-        message="No events found for this game."
+        message="No events found for this game. You can drop a swarm-produced .jsonl event-log file to load one from disk."
         gameId={gameId || undefined}
       />
     );
   }
+
+  // Active event list for the audit-side renderers (`EventTimeline`,
+  // `ReplayEventOverlay`). Uses uploaded events when active, falls back
+  // to DB events otherwise.
+  const activeEvents: readonly IBaseEvent[] = isUploadActive
+    ? (uploadedEvents ?? []).map(adaptGameEventToBase)
+    : (allEvents as IBaseEvent[]);
 
   return (
     <>
@@ -176,6 +329,14 @@ export default function GameReplayPage(): React.ReactElement {
             >
               Game Replay
             </h1>
+            {isUploadActive && (
+              <span
+                className="bg-accent/20 text-accent rounded-full px-2 py-0.5 text-xs font-medium"
+                data-testid="replay-loaded-from-file"
+              >
+                loaded from file
+              </span>
+            )}
             <span
               className="text-text-theme-muted text-sm"
               data-testid="replay-event-count"
@@ -223,8 +384,20 @@ export default function GameReplayPage(): React.ReactElement {
 
         {/* Main Content */}
         <div className="flex flex-1 overflow-hidden">
-          {/* Left Panel - Event Info */}
+          {/* Left Panel - Event Info + JSONL Loader */}
           <div className="border-border-theme-subtle bg-surface-deep w-80 flex-shrink-0 overflow-y-auto border-r">
+            {/* JSONL file loader — drag-and-drop or file picker. */}
+            <div className="border-border-theme-subtle border-b p-3">
+              <JsonlFileLoader
+                onEventsLoaded={handleEventsLoaded}
+                onClearUpload={handleClearUpload}
+                uploadedFilename={uploadedFilename}
+                eventCount={uploadSummary.count}
+                minTurn={uploadSummary.minTurn}
+                maxTurn={uploadSummary.maxTurn}
+              />
+            </div>
+
             {/* Tabs */}
             <div className="border-border-theme-subtle flex border-b">
               <button
@@ -269,10 +442,10 @@ export default function GameReplayPage(): React.ReactElement {
               ) : (
                 /* All Events List */
                 <EventTimeline
-                  events={allEvents as IBaseEvent[]}
+                  events={activeEvents}
                   onEventClick={handleEventClick}
-                  onLoadMore={loadMore}
-                  hasMore={pagination.hasMore}
+                  onLoadMore={isUploadActive ? () => {} : loadMore}
+                  hasMore={isUploadActive ? false : pagination.hasMore}
                   isLoading={eventsLoading}
                   selectedEventId={selectedEventId || replay.currentEvent?.id}
                   maxHeight="calc(100vh - 200px)"
@@ -281,61 +454,69 @@ export default function GameReplayPage(): React.ReactElement {
             </div>
           </div>
 
-          {/* Center - Game Visualization Placeholder */}
+          {/* Center - Game Visualization (HexMap when upload active, else placeholder) */}
           <div className="flex flex-1 flex-col">
-            {/* Game State Visualization Area */}
-            <div className="bg-surface-base/30 flex flex-1 items-center justify-center">
-              <Card className="max-w-lg p-8 text-center">
-                <div className="bg-surface-raised mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl">
-                  <svg
-                    className="text-accent h-10 w-10"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <h2 className="text-text-theme-primary mb-3 text-xl font-bold">
-                  Event {replay.currentIndex + 1} of {replay.totalEvents}
-                </h2>
-                {replay.currentEvent && (
-                  <div className="space-y-2 text-sm">
-                    <p className="text-text-theme-secondary">
-                      <span className="text-text-theme-muted">Type:</span>{' '}
-                      <span className="text-accent font-medium">
-                        {replay.currentEvent.type}
-                      </span>
-                    </p>
-                    <p className="text-text-theme-secondary">
-                      <span className="text-text-theme-muted">Category:</span>{' '}
-                      {replay.currentEvent.category}
-                    </p>
-                    <p className="text-text-theme-secondary">
-                      <span className="text-text-theme-muted">Sequence:</span> #
-                      {replay.currentSequence}
+            <div className="bg-surface-base/30 flex flex-1 items-center justify-center overflow-hidden">
+              {isUploadActive && hexMapState.tokens.length > 0 ? (
+                <HexMapDisplay
+                  radius={hexMapState.mapRadius > 0 ? hexMapState.mapRadius : 9}
+                  tokens={hexMapState.tokens}
+                  hexTerrain={hexMapState.hexTerrain}
+                  selectedHex={null}
+                  events={uploadedEvents ?? []}
+                />
+              ) : (
+                <Card className="max-w-lg p-8 text-center">
+                  <div className="bg-surface-raised mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl">
+                    <svg
+                      className="text-accent h-10 w-10"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <h2 className="text-text-theme-primary mb-3 text-xl font-bold">
+                    Event {replay.currentIndex + 1} of {replay.totalEvents}
+                  </h2>
+                  {replay.currentEvent && (
+                    <div className="space-y-2 text-sm">
+                      <p className="text-text-theme-secondary">
+                        <span className="text-text-theme-muted">Type:</span>{' '}
+                        <span className="text-accent font-medium">
+                          {replay.currentEvent.type}
+                        </span>
+                      </p>
+                      <p className="text-text-theme-secondary">
+                        <span className="text-text-theme-muted">Category:</span>{' '}
+                        {replay.currentEvent.category}
+                      </p>
+                      <p className="text-text-theme-secondary">
+                        <span className="text-text-theme-muted">Sequence:</span>{' '}
+                        #{replay.currentSequence}
+                      </p>
+                    </div>
+                  )}
+                  <div className="border-border-theme-subtle mt-6 border-t pt-4">
+                    <p className="text-text-theme-muted text-xs">
+                      Drop a <code>.jsonl</code> swarm event log on the left to
+                      see the battle play out on a hex map.
                     </p>
                   </div>
-                )}
-                <div className="border-border-theme-subtle mt-6 border-t pt-4">
-                  <p className="text-text-theme-muted text-xs">
-                    Full game state visualization coming soon.
-                    <br />
-                    Use the controls below to step through events.
-                  </p>
-                </div>
-              </Card>
+                </Card>
+              )}
             </div>
 
             {/* Bottom Controls */}

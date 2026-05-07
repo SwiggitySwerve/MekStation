@@ -33,3 +33,12 @@ export {
   type ReplayKeyboardHandlerProps,
   type KeyboardShortcut,
 } from './ReplayKeyboardHandler';
+
+// Per `add-replay-viewer-from-ndjson` (quick-session delta): drag-and-drop
+// loader for swarm-produced `<gameId>.jsonl` event-log files.
+export {
+  JsonlFileLoader,
+  parseNdjsonEvents,
+  type JsonlFileLoaderProps,
+  type JsonlLineError,
+} from './JsonlFileLoader';
