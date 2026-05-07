@@ -38,15 +38,15 @@
 
 ## 4. Swarm runner partition + manifest emit (PR 4)
 
-- [ ] 4.1 Update `src/simulation/runner/eventLogPersistence.ts` to write to `simulation-reports/swarm/<gameId>.jsonl` (replace flat `simulation-reports/games/<run-timestamp>/<gameId>.jsonl` write path)
-- [ ] 4.2 Update swarm output JSON `eventLogDir` to point at `simulation-reports/swarm/`
-- [ ] 4.3 After each successful swarm run, build an `ISwarmReplayManifestEntry` and call `appendManifestEntry`; preserve `batchTimestamp` as a metadata field on the entry
-- [ ] 4.4 Update `SimulationRunner` to thread `replaySource: ReplaySource.Swarm` through `createGameEvent` calls (or set it once at the runner boundary if there's a single chokepoint)
-- [ ] 4.5 Unit tests: 5-run swarm produces 5 files under `simulation-reports/swarm/` (no files under `simulation-reports/games/`)
-- [ ] 4.6 Unit tests: each swarm run appends one manifest entry with correct `configName`/`seed`/`batchTimestamp`
-- [ ] 4.7 Unit tests: persisted events round-trip via JSON.parse and carry `replaySource: ReplaySource.Swarm`
-- [ ] 4.8 Run `npm run typecheck` clean
-- [ ] 4.9 Run `npm test` clean
+- [x] 4.1 Update `src/simulation/runner/eventLogPersistence.ts` to write to `simulation-reports/swarm/<gameId>.jsonl` (added `writeSwarmEventLog` partition writer; legacy `writeEventLog` retained for back-compat)
+- [x] 4.2 Update swarm output JSON `eventLogDir` to point at `simulation-reports/swarm/`
+- [x] 4.3 After each successful swarm run, build an `ISwarmReplayManifestEntry` and call `appendManifestEntry`; preserve `batchTimestamp` as a metadata field on the entry
+- [x] 4.4 Stamp `replaySource: ReplaySource.Swarm` on every event emitted by `SimulationRunner.run()` via post-stamp at the runner boundary (avoids threading through 30+ `createGameEvent` callsites)
+- [x] 4.5 Unit tests: SimulationRunner post-stamp + `writeSwarmEventLog` integration coverage (eventLogPersistence.integration.test.ts updated)
+- [x] 4.6 Unit tests: `buildSwarmManifestEntry` derivation (9 scenarios — winner / turns fallback ladder / discriminant / metadata threading)
+- [x] 4.7 Unit tests: persisted events round-trip via JSON.parse and carry `replaySource: ReplaySource.Swarm` (covered by SimulationRunner.replaySource.test.ts + integration tests)
+- [x] 4.8 Run `npm run typecheck` clean
+- [x] 4.9 Run `npm test` clean (1239/1243 green, 4 skipped)
 - [ ] 4.10 PR opened, CI green, merged
 
 ## 5. Quick game persistence (PR 5)

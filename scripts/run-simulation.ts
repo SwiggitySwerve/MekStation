@@ -34,6 +34,7 @@ import * as path from 'path';
 import type { UnitHydrationMap } from '../src/simulation/runner/SimulationRunnerState';
 import type { IUnitIndexEntry } from '../src/types/unit/UnitIndex';
 
+import { appendManifestEntry } from '../src/replay-library';
 import { prewarmCatalogBV } from '../src/services/encounter/bvCatalogPrewarmer';
 import { generateRandomForce } from '../src/services/encounter/randomForceGenerator';
 import { generateRandomPilots } from '../src/services/encounter/randomPilotGenerator';
@@ -60,8 +61,9 @@ import { InvariantRunner } from '../src/simulation/invariants/InvariantRunner';
 import { MetricsCollector } from '../src/simulation/metrics/MetricsCollector';
 import { ReportGenerator } from '../src/simulation/reporting/ReportGenerator';
 import { BatchRunner } from '../src/simulation/runner/BatchRunner';
-import { writeEventLog } from '../src/simulation/runner/eventLogPersistence';
+import { writeSwarmEventLog } from '../src/simulation/runner/eventLogPersistence';
 import { SimulationRunner } from '../src/simulation/runner/SimulationRunner';
+import { buildSwarmManifestEntry } from '../src/simulation/runner/swarmManifestEntry';
 import {
   IParticipant,
   ISimulationRunResult,
@@ -457,7 +459,10 @@ async function buildSwarmHydration(
  *   7. Call BatchRunner.runBatch(1, simConfig, undefined, participants).
  *   8. Collect result.
  */
-async function runSwarmMode(config: SwarmConfig): Promise<void> {
+async function runSwarmMode(
+  config: SwarmConfig,
+  configPath: string,
+): Promise<void> {
   console.log('='.repeat(60));
   console.log('MekStation Swarm Runner (Phase 5)');
   console.log('='.repeat(60));
@@ -521,16 +526,20 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
     WEAPON_CATALOG_FILES as readonly { items?: readonly unknown[] }[],
   );
 
-  // Per `add-always-on-event-log` Phase 2: every encounter's NDJSON
-  // event log lives under one timestamped directory shared across all
-  // games of this CLI invocation. The slug uses the same ISO timestamp
-  // shape that `runPresetMode` already uses for report files (colon /
-  // dot replaced with hyphen so the path is portable across filesystems).
-  const eventLogRunDir = path.resolve(
-    'simulation-reports',
-    'games',
-    new Date().toISOString().replace(/[:.]/g, '-'),
-  );
+  // Per `add-replay-library` PR 4 (replay-library spec — Filesystem Partition
+  // Layout; quick-session spec — Per-Game Event Log Persistence MODIFIED):
+  // event logs now live under `simulation-reports/swarm/<gameId>.jsonl`
+  // (replaces the legacy flat `simulation-reports/games/<run-timestamp>/`
+  // layout). The per-invocation timestamp is preserved as `batchTimestamp`
+  // metadata on each manifest entry so consumers can still group runs by
+  // CLI invocation. Pre-existing files at the legacy path remain readable
+  // by the backfill scan from PR 3 — no destructive migration.
+  const batchTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const swarmEventLogDir = path.resolve('simulation-reports', 'swarm');
+  // Derive the canonical config name once so every manifest entry built in
+  // the per-run loop uses the same value. `path.basename(p, ext)` strips
+  // the `.json` suffix from `scripts/swarm-configs/duel-3kbv-temperate.json`.
+  const configName = path.basename(configPath, path.extname(configPath));
 
   const batchRunner = new BatchRunner();
   const allResults: ISimulationRunResult[] = [];
@@ -700,16 +709,33 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
       participants,
     };
 
-    // Per `add-always-on-event-log` Phase 2: persist this game's full
-    // event log to disk as NDJSON. Sequential (no `Promise.all`) so file
-    // writes land in run order — easier to reason about when debugging
-    // a swarm by ls'ing the directory. The runner doesn't surface
-    // `gameId` on the result envelope (only on each event), but the
-    // value is canonically `sim-${seed}` per
-    // `SimulationRunner.run` — match that here so the file basename
+    // Per `add-replay-library` PR 4: persist this game's full event log to
+    // `simulation-reports/swarm/<gameId>.jsonl` (partitioned layout) and
+    // append an `ISwarmReplayManifestEntry` to the central
+    // `simulation-reports/replay-index.json` so the in-app Replay Library
+    // can list it without filename archaeology. Sequential (no `Promise.all`)
+    // so file writes land in run order. `gameId` is canonically `sim-${seed}`
+    // per `SimulationRunner.run` — match that here so the file basename
     // equals every event's `gameId` field (Phase 2 spec scenario).
     const eventGameId = rawResult.events[0]?.gameId ?? `sim-${runSeed}`;
-    await writeEventLog(eventGameId, rawResult.events, eventLogRunDir);
+    await writeSwarmEventLog(eventGameId, rawResult.events);
+
+    // Manifest entry — derived from the event log + the per-run metadata
+    // the events themselves don't carry (configName, runSeed, batch timestamp).
+    // BV total comes from the generated forces' `stats.totalBV` (Momus MUST
+    // RESOLVE #1: `IGameUnit` has no `bv` field for cheap access; the swarm
+    // runner already has the actual fielded BV from force generation, so we
+    // thread it in instead of re-summing on read).
+    const manifestEntry = buildSwarmManifestEntry({
+      gameId: eventGameId,
+      runSeed,
+      configName,
+      batchTimestamp,
+      events: rawResult.events,
+      bvTotal: forceA.stats.totalBV + forceB.stats.totalBV,
+      createdAt: new Date().toISOString(),
+    });
+    await appendManifestEntry(manifestEntry);
 
     allResults.push(stamped);
 
@@ -734,7 +760,7 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
     schemaVersion: 2,
     config,
     runs: allResults,
-    eventLogDir: eventLogRunDir,
+    eventLogDir: swarmEventLogDir,
   };
 
   const outputPath = config.output;
@@ -781,7 +807,9 @@ async function runSwarmMode(config: SwarmConfig): Promise<void> {
   console.log(`Total Violations: ${totalViolations}`);
   console.log('-'.repeat(60));
   console.log(`Output written:   ${outputPath}`);
-  console.log(`Event logs:       ${eventLogRunDir}`);
+  console.log(
+    `Event logs:       ${swarmEventLogDir} (batch ${batchTimestamp})`,
+  );
   console.log('-'.repeat(60));
 
   process.exit(totalViolations > 0 ? 1 : 0);
@@ -903,7 +931,7 @@ async function main(): Promise<void> {
   if (configPath !== undefined) {
     // Swarm mode: --config was supplied
     const config = loadSwarmConfig(configPath, overrides);
-    await runSwarmMode(config);
+    await runSwarmMode(config, configPath);
   } else {
     // Preset mode: legacy behavior unchanged
     await runPresetMode();

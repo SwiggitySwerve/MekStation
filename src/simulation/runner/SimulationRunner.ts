@@ -1,4 +1,9 @@
-import { GameEventType, GamePhase, IGameEvent } from '@/types/gameplay';
+import {
+  GameEventType,
+  GamePhase,
+  IGameEvent,
+  ReplaySource,
+} from '@/types/gameplay';
 import { GameSide } from '@/types/gameplay';
 
 import type { IAIPlayer, AIPlayerFactory } from '../ai/IAIPlayer';
@@ -328,6 +333,29 @@ export class SimulationRunner {
 
     violations.push(...convertAnomaliesToViolations(anomalies));
 
+    // Per `add-replay-library` PR 4 design (game-event-system delta —
+    // "Event Envelope Replay Source Discriminator"): every IGameEvent
+    // emitted by the swarm runner SHALL carry `replaySource: Swarm` on
+    // the envelope. Threading the discriminator through every one of the
+    // 30+ `createGameEvent` callsites in `SimulationRunner.run()` and
+    // `phases/{movement,physicalAttack,postCombat}.ts` would be a
+    // mechanical churn of comparable size to the rest of this PR; the
+    // post-stamp pattern below applies the discriminator at the runner
+    // boundary right before the events leave `run()` so consumers
+    // (NDJSON writers, manifest builders, scenario tests) see the field
+    // populated everywhere it matters.
+    //
+    // Existing `replaySource` values are preserved — a future emitter
+    // that explicitly sets a non-Swarm source (e.g. a hypothetical
+    // future code path that calls into the runner from a non-swarm
+    // context) keeps its value. Only events with an undefined field are
+    // back-filled.
+    const stampedEvents: readonly IGameEvent[] = events.map((event) =>
+      event.replaySource !== undefined
+        ? event
+        : { ...event, replaySource: ReplaySource.Swarm },
+    );
+
     // Per design D7: stamp schemaVersion: 1 on the default (non-swarm) path so
     // downstream consumers can branch on the schema explicitly. BatchRunner.runBatch
     // overrides this to schemaVersion: 2 when a participants[] payload is supplied.
@@ -337,7 +365,7 @@ export class SimulationRunner {
       winner,
       turns: currentState.turn,
       durationMs,
-      events,
+      events: stampedEvents,
       violations,
       keyMoments,
       anomalies,
