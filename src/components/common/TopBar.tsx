@@ -82,6 +82,7 @@ const TopBar: React.FC = () => {
 
   const historyItems: NavItemConfig[] = [
     { href: '/audit/timeline', icon: <TimelineIcon />, label: 'Timeline' },
+    { href: '/replay-library', icon: <GameIcon />, label: 'Replay Library' },
   ];
 
   // Check if any items in a section are active
