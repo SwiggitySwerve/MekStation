@@ -33,7 +33,7 @@ describe('useTabNavigationStore', () => {
 
     // Mock window.location (simple assignment works better than defineProperty in Jest)
     (window as any).location = {
-      href: 'http://localhost:3000/simulation-viewer',
+      href: 'http://localhost:3600/simulation-viewer',
       search: '',
     };
   });
@@ -377,7 +377,7 @@ describe('useTabNavigationStore', () => {
 
     it('should preserve existing query parameters', () => {
       (window as any).location = {
-        href: 'http://localhost:3000/simulation-viewer?foo=bar',
+        href: 'http://localhost:3600/simulation-viewer?foo=bar',
         search: '?foo=bar',
       };
 
@@ -397,7 +397,7 @@ describe('useTabNavigationStore', () => {
 
     it('should replace existing tab parameter', () => {
       (window as any).location = {
-        href: 'http://localhost:3000/simulation-viewer?tab=old-tab',
+        href: 'http://localhost:3600/simulation-viewer?tab=old-tab',
         search: '?tab=old-tab',
       };
 
@@ -433,7 +433,7 @@ describe('useTabNavigationStore', () => {
 
     it('should use correct URL format', () => {
       (window as any).location = {
-        href: 'http://localhost:3000/simulation-viewer',
+        href: 'http://localhost:3600/simulation-viewer',
         search: '',
       };
 
@@ -716,7 +716,7 @@ describe('useTabNavigationStore', () => {
 
     it('should handle hook initialization with valid location', () => {
       (window as any).location = {
-        href: 'http://localhost:3000/simulation-viewer?tab=encounter-history',
+        href: 'http://localhost:3600/simulation-viewer?tab=encounter-history',
         search: '?tab=encounter-history',
       };
 

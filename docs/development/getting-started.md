@@ -25,7 +25,7 @@ npm run fetch:assets
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+Open [http://localhost:3600](http://localhost:3600) to view the application.
 
 ## Asset Management
 

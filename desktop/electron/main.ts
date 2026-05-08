@@ -714,7 +714,7 @@ X-GNOME-Autostart-enabled=true
 
     // Load the application
     if (this.config.developmentMode) {
-      await this.mainWindow.loadURL('http://localhost:3000');
+      await this.mainWindow.loadURL('http://localhost:3600');
       this.mainWindow.webContents.openDevTools();
     } else {
       // In production, start the Next.js standalone server and load it

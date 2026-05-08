@@ -9,8 +9,8 @@
     "email": "swervelabs@proton.me"
   },
   "scripts": {
-    "dev": "npx kill-port 3000 --silent && node server.js",
-    "dev:e2e": "npx kill-port 3000 --silent && next dev --webpack",
+    "dev": "npx kill-port 3600 --silent && node server.js",
+    "dev:e2e": "npx kill-port 3600 --silent && next dev --webpack --port 3600",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
@@ -70,7 +70,7 @@
     "terminology:fix:dry-run": "npx ts-node openspec/scripts/terminology-tool.ts fix --dry-run",
     "terminology:check": "node openspec/scripts/validate-terminology.js",
     "docker:build": "docker build -t mekstation .",
-    "docker:run": "docker run -p 3000:3000 -v mekstation-data:/app/data mekstation",
+    "docker:run": "docker run -p 3600:3600 -v mekstation-data:/app/data mekstation",
     "docker:dev": "docker-compose up dev",
     "docker:prod": "docker-compose up app -d",
     "docker:stop": "docker-compose down",

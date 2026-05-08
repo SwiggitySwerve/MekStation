@@ -169,7 +169,7 @@ async function verifyWireToken(wire, nowMs = Date.now()) {
 // =============================================================================
 
 const dev = process.env.NODE_ENV !== 'production';
-const port = parseInt(process.env.PORT ?? '3000', 10);
+const port = parseInt(process.env.PORT ?? '3600', 10);
 const hostname = process.env.HOSTNAME ?? 'localhost';
 
 const app = next({ dev, hostname, port });

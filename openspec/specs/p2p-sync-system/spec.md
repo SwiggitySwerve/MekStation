@@ -842,7 +842,7 @@ function setupSyncEventLogger() {
 
 ```typescript
 // In E2E test setup
-const testUrl = 'http://localhost:3000?mockSync=true';
+const testUrl = 'http://localhost:3600?mockSync=true';
 
 // In application code
 import { shouldUseMockSync } from '@/lib/p2p/MockSyncProvider';
