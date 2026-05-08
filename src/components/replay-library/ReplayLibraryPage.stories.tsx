@@ -1,7 +1,7 @@
 /**
  * Storybook stories for the Replay Library page.
  *
- * The page fetches `/api/replay-library/index` on mount via `globalThis.fetch`.
+ * The page fetches `/api/replay-library` on mount via `globalThis.fetch`.
  * Each story overrides `globalThis.fetch` in a decorator so the loading,
  * populated, empty, and error states render deterministically without
  * any backend.
@@ -117,7 +117,7 @@ function makeFetchDecorator(scenario: FetchScenario): Decorator {
             /* never resolves — story pinned to loading state */
           });
         }
-        if (url === '/api/replay-library/index') {
+        if (url === '/api/replay-library') {
           if (scenario.listError) {
             return Promise.resolve({
               ok: false,

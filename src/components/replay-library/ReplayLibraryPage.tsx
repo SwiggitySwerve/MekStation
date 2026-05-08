@@ -1,7 +1,7 @@
 /**
  * Replay Library page component.
  *
- * On mount, fetches `/api/replay-library/index` and renders the manifest
+ * On mount, fetches `/api/replay-library` and renders the manifest
  * entries as a card grid. Each row shows shared fields (id, createdAt,
  * turns, winner, bvTotal) plus source-specific metadata (configName/seed/
  * batchTimestamp for swarm; aiVariant/playerSide for quick; etc.).
@@ -254,7 +254,7 @@ export function ReplayLibraryPage(): React.ReactElement {
     let cancelled = false;
     async function load(): Promise<void> {
       try {
-        const res = await fetch('/api/replay-library/index');
+        const res = await fetch('/api/replay-library');
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
