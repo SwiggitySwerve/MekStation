@@ -24,6 +24,7 @@
  * @spec openspec/changes/add-replay-library/specs/replay-library/spec.md
  */
 
+import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { IReplayManifestEntry } from '@/replay-library/types';
@@ -242,6 +243,7 @@ interface IViewerState {
 }
 
 export function ReplayLibraryPage(): React.ReactElement {
+  const router = useRouter();
   const [entries, setEntries] = useState<readonly IReplayManifestEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -429,8 +431,28 @@ export function ReplayLibraryPage(): React.ReactElement {
           }
           message={
             entries.length === 0
-              ? 'No replays yet — run a swarm or finish a quick game to populate the library.'
+              ? 'Finish a quick game or set up an encounter, and the resulting replay will show up here. Swarm CLI runs land here too.'
               : 'Try a different source filter.'
+          }
+          action={
+            entries.length === 0 ? (
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button
+                  variant="primary"
+                  onClick={() => router.push('/gameplay/quick')}
+                  data-testid="empty-state-quick-game"
+                >
+                  Start Quick Game
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => router.push('/gameplay/encounters')}
+                  data-testid="empty-state-encounters"
+                >
+                  Browse Encounters
+                </Button>
+              </div>
+            ) : undefined
           }
         />
       ) : (

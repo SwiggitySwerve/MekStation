@@ -7,7 +7,7 @@
  */
 
 import { useRouter } from 'next/router';
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 
 import type { IGameOutcome, ICombatStats } from '@/services/game-resolution';
 import type { IDamageAssessment } from '@/services/game-resolution/DamageCalculator';
@@ -24,6 +24,7 @@ import {
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { GameSide } from '@/types/gameplay';
+import { logger } from '@/utils/logger';
 
 import type { ResultsTab } from './quickGameResults.helpers';
 
@@ -46,14 +47,72 @@ export function QuickGameResults(): React.ReactElement {
   const [activeTab, setActiveTab] = useState<ResultsTab>('summary');
   const tabListRef = useRef<HTMLDivElement>(null);
 
-  // Per add-replay-library PR 5 v1 scope: the persistence pipeline lives
-  // in `./persistQuickGame.ts` and is unit-tested under Node, but the
-  // browser-side wire-up (calling persist on `endedAt` transitions)
-  // requires a Next.js API route since browser code can't write to the
-  // local filesystem. That route is a follow-on PR — quick-game replays
-  // are still discoverable via the backfill scan (PR 3) once written
-  // through any path. The helper is exported and ready for the API
-  // route to import.
+  // Persist-to-Replay-Library status. Drives the footer copy at the
+  // bottom of the results page. `idle` until the POST resolves; flips
+  // to `saved` on success (first persist or already-persisted) or
+  // `failed` on network/server error. Errors do NOT block the rest of
+  // the results UI — replay-library writes are best-effort.
+  const [persistStatus, setPersistStatus] = useState<
+    'idle' | 'saving' | 'saved' | 'failed'
+  >('idle');
+
+  // StrictMode-safe one-shot guard. The effect below runs on every
+  // render where `game.endedAt` flips truthy; without this ref, React
+  // 18 StrictMode would fire it twice in dev and the API would see two
+  // POSTs. The server-side dedup check in `/api/replay-library/quick`
+  // is the durable backstop (handles hard refresh + tab restore from
+  // sessionStorage), but cheap in-memory deduping here saves a round
+  // trip in the common case.
+  const persistFiredRef = useRef(false);
+
+  // Wire-up (Council-approved, replaces the prior deferred follow-on).
+  // POSTs once when `game.endedAt` becomes set. The API route handles:
+  //   - the actual `node:fs` write (browsers cannot write directly)
+  //   - dedup via `replay-index.json` (so a hard refresh of an
+  //     already-persisted game returns 200 alreadyPersisted=true).
+  //
+  // `aiVariant` source is `game.scenarioConfig.enemyFaction` per
+  // Phase 2 Explore-Deep verification — NOT `game.scenario?.template?.…`.
+  useEffect(() => {
+    if (!game || !game.endedAt) return;
+    if (persistFiredRef.current) return;
+    persistFiredRef.current = true;
+    setPersistStatus('saving');
+
+    const body = JSON.stringify({
+      gameId: game.id,
+      events: game.events,
+      winner: game.winner,
+      aiVariant: game.scenarioConfig.enemyFaction ?? '',
+    });
+
+    let cancelled = false;
+    void fetch('/api/replay-library/quick', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+    })
+      .then((res) => {
+        if (cancelled) return;
+        if (!res.ok) {
+          logger.error('[quick-game] replay-library persist failed', {
+            status: res.status,
+          });
+          setPersistStatus('failed');
+          return;
+        }
+        setPersistStatus('saved');
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        logger.error('[quick-game] replay-library persist threw', { err });
+        setPersistStatus('failed');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [game]);
 
   const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId as ResultsTab);
@@ -351,8 +410,27 @@ export function QuickGameResults(): React.ReactElement {
         </Button>
       </div>
 
-      <p className="mt-6 text-center text-xs text-gray-500">
-        This was a quick game session. No data is persisted.
+      <p
+        className="mt-6 text-center text-xs text-gray-500"
+        data-testid="quick-game-persist-status"
+      >
+        {persistStatus === 'saved' && (
+          <>
+            Saved to{' '}
+            <button
+              type="button"
+              onClick={() => router.push('/replay-library')}
+              className="text-cyan-400 underline-offset-2 hover:underline"
+            >
+              Replay Library
+            </button>
+            .
+          </>
+        )}
+        {persistStatus === 'saving' && 'Saving replay…'}
+        {persistStatus === 'failed' &&
+          'Replay save failed (game state intact).'}
+        {persistStatus === 'idle' && 'This was a quick game session.'}
       </p>
     </div>
   );

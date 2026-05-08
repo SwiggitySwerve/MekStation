@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import '@testing-library/jest-dom';
@@ -13,6 +13,13 @@ jest.mock('next/router', () => ({
     push: jest.fn(),
   }),
 }));
+
+// Save the original (jest.setup.js) fetch polyfill so per-suite overrides
+// can be restored cleanly. The default polyfill returns empty arrays for
+// `.json` URLs and throws for everything else, which is fine for the
+// existing tab/keyboard/summary tests but inadequate for asserting the
+// persist effect's POST shape — those tests install a typed jest.fn().
+const originalFetch = global.fetch;
 
 function createMockGame() {
   return {
@@ -376,6 +383,97 @@ describe('QuickGameResults', () => {
       expect(
         screen.getByText('No game results to display.'),
       ).toBeInTheDocument();
+    });
+  });
+
+  // ===========================================================================
+  // Replay Library persist effect (Council-approved wire-up).
+  //
+  // The effect POSTs to `/api/replay-library/quick` once per `endedAt`
+  // transition. The route + persist pipeline are exercised by their own
+  // suites — these tests assert ONLY the component contract: fired once
+  // with the right body, footer status reflects the POST result.
+  // ===========================================================================
+  describe('Replay Library persist effect', () => {
+    let fetchMock: jest.MockedFunction<typeof fetch>;
+
+    beforeEach(() => {
+      fetchMock = jest
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200 } as Response);
+      global.fetch = fetchMock as typeof fetch;
+    });
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+    });
+
+    it('POSTs to /api/replay-library/quick exactly once with the correct body', async () => {
+      render(<QuickGameResults />);
+
+      await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+      });
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/replay-library/quick',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      );
+
+      // Body is a JSON string — parse and assert shape (gameId, events
+      // array length, winner, aiVariant). The aiVariant source is
+      // `game.scenarioConfig.enemyFaction` per Phase 2 Explore-Deep
+      // verification — the mock game above doesn't define it, so we
+      // expect the empty-string fallback.
+      const callArgs = fetchMock.mock.calls[0];
+      const init = callArgs[1] as RequestInit;
+      const parsed = JSON.parse(init.body as string) as {
+        gameId: string;
+        events: unknown[];
+        winner: string;
+        aiVariant: string;
+      };
+      expect(parsed.gameId).toBe('test-game-1');
+      expect(Array.isArray(parsed.events)).toBe(true);
+      expect(parsed.events).toHaveLength(3);
+      expect(parsed.winner).toBe('player');
+      expect(parsed.aiVariant).toBe('');
+    });
+
+    it('does NOT fire when the game is null (no game terminal state)', async () => {
+      useQuickGameStore.setState({ game: null });
+
+      render(<QuickGameResults />);
+
+      // Wait one render-tick worth of microtasks so a stray fetch would
+      // surface — then assert the mock was never called.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('renders the saved status copy after a successful persist', async () => {
+      render(<QuickGameResults />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('quick-game-persist-status'),
+        ).toHaveTextContent(/saved to/i);
+      });
+    });
+
+    it('renders the failed status copy when the API returns non-OK', async () => {
+      fetchMock.mockResolvedValueOnce({ ok: false, status: 500 } as Response);
+
+      render(<QuickGameResults />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('quick-game-persist-status'),
+        ).toHaveTextContent(/replay save failed/i);
+      });
     });
   });
 });
