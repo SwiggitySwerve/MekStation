@@ -2,7 +2,7 @@
  * Replay Library page tests.
  *
  * Phase A coverage:
- *   1. Lists entries from a mocked /api/replay-library/index fetch
+ *   1. Lists entries from a mocked /api/replay-library fetch
  *   2. Renders source-appropriate metadata per row (swarm + quick)
  *   3. Source filter restricts the visible rows
  *   4. Empty state when fetch returns { entries: [], total: 0 }
@@ -180,7 +180,7 @@ beforeEach(() => {
 });
 
 describe('ReplayLibraryPage', () => {
-  it('lists entries from a mocked /api/replay-library/index fetch', async () => {
+  it('lists entries from a mocked /api/replay-library fetch', async () => {
     const entries = [
       makeSwarmEntry({ id: 'sim-1' }),
       makeSwarmEntry({ id: 'sim-2', path: 'swarm/sim-2.jsonl' }),
@@ -193,7 +193,7 @@ describe('ReplayLibraryPage', () => {
     await renderLibrary();
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith('/api/replay-library/index');
+      expect(fetchMock).toHaveBeenCalledWith('/api/replay-library');
     });
 
     expect(screen.getByTestId('replay-row-sim-1')).toBeInTheDocument();
@@ -338,7 +338,7 @@ describe('ReplayLibraryPage', () => {
     ];
 
     fetchMock = jest.fn().mockImplementation((url: string) => {
-      if (url === '/api/replay-library/index') {
+      if (url === '/api/replay-library') {
         return Promise.resolve({
           ok: true,
           status: 200,
@@ -384,7 +384,7 @@ describe('ReplayLibraryPage', () => {
     const calledUrls = fetchMock.mock.calls.map(
       (call: ReadonlyArray<unknown>) => call[0],
     );
-    expect(calledUrls).toContain('/api/replay-library/index');
+    expect(calledUrls).toContain('/api/replay-library');
     expect(calledUrls).toContain('/api/replay-library/quick/quick-9');
 
     // Back button returns to the list.
