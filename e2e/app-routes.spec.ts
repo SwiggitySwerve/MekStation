@@ -14,7 +14,7 @@ test.describe('Application Routes', () => {
     await page.waitForLoadState('networkidle');
 
     // Page should load
-    await expect(page).toHaveURL(/localhost:3000/);
+    await expect(page).toHaveURL(/localhost:3600/);
 
     // Filter out expected/benign errors
     const criticalErrors = errors.filter(

@@ -21,7 +21,7 @@ services:
     container_name: mekstation
     restart: unless-stopped
     ports:
-      - '${PORT:-3000}:3000'
+      - '${PORT:-3600}:3600'
     environment:
       - NODE_ENV=production
       - DATABASE_PATH=/app/data/mekstation.db
@@ -38,7 +38,7 @@ services:
           '--no-verbose',
           '--tries=1',
           '--spider',
-          'http://localhost:3000/api/health',
+          'http://localhost:3600/api/health',
         ]
       interval: 30s
       timeout: 10s
@@ -47,7 +47,7 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.mekstation.rule=Host(`mekstation.localhost`)'
-      - 'traefik.http.services.mekstation.loadbalancer.server.port=3000'
+      - 'traefik.http.services.mekstation.loadbalancer.server.port=3600'
 
   # ==========================================================================
   # Development Server with Hot Reload
@@ -58,7 +58,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: mekstation-dev
     ports:
-      - '${DEV_PORT:-3000}:3000'
+      - '${DEV_PORT:-3600}:3600'
     environment:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true

@@ -68,7 +68,7 @@ Run MekStation anywhere.
 ```bash
 npm install
 npm run fetch:assets   # Download record sheet assets
-npm run dev            # Start at http://localhost:3000
+npm run dev            # Start at http://localhost:3600
 ```
 
 > **Note**: The `fetch:assets` command downloads record sheet templates and armor pips from the MegaMek mm-data repository via jsDelivr CDN. These assets are required for PDF export and record sheet rendering. See [Asset Management](#asset-management) below for details.

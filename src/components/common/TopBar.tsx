@@ -30,7 +30,7 @@ import {
 import { DropdownMenu, NavLink, type NavItemConfig } from './TopBarMenu';
 import { MobileMenu } from './TopBarMobileMenu';
 
-type DropdownId = 'browse' | 'tools' | 'gameplay' | null;
+type DropdownId = 'browse' | 'tools' | 'gameplay' | 'history' | null;
 
 const TopBar: React.FC = () => {
   const router = useRouter();
@@ -91,6 +91,9 @@ const TopBar: React.FC = () => {
   const isAnyGameplayActive = gameplayItems.some((item) =>
     isPathActive(item.href),
   );
+  const isAnyHistoryActive = historyItems.some((item) =>
+    isPathActive(item.href),
+  );
 
   return (
     <>
@@ -148,11 +151,15 @@ const TopBar: React.FC = () => {
               onOpen={() => setOpenDropdown('gameplay')}
               onClose={() => setOpenDropdown(null)}
             />
-            <NavLink
-              href="/audit/timeline"
+            <DropdownMenu
+              label="History"
               icon={<TimelineIcon />}
-              label="Timeline"
-              isActive={isPathActive('/audit/timeline')}
+              items={historyItems}
+              isAnyActive={isAnyHistoryActive}
+              isPathActive={isPathActive}
+              isOpen={openDropdown === 'history'}
+              onOpen={() => setOpenDropdown('history')}
+              onClose={() => setOpenDropdown(null)}
             />
           </nav>
 
@@ -198,11 +205,15 @@ const TopBar: React.FC = () => {
               onClose={() => setOpenDropdown(null)}
               iconOnly
             />
-            <NavLink
-              href="/audit/timeline"
+            <DropdownMenu
+              label="History"
               icon={<TimelineIcon />}
-              label="Timeline"
-              isActive={isPathActive('/audit/timeline')}
+              items={historyItems}
+              isAnyActive={isAnyHistoryActive}
+              isPathActive={isPathActive}
+              isOpen={openDropdown === 'history'}
+              onOpen={() => setOpenDropdown('history')}
+              onClose={() => setOpenDropdown(null)}
               iconOnly
             />
           </nav>
@@ -224,7 +235,7 @@ const TopBar: React.FC = () => {
                 </a>
               </Link>
               <a
-                href="https://github.com"
+                href="https://github.com/SwiggitySwerve/MekStation"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 rounded-lg p-2 transition-colors"

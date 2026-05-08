@@ -27,7 +27,7 @@
     "build:watch": "tsc --watch",
     "start": "electron dist/electron/main.js",
     "dev": "concurrently \"npm run build:watch\" \"wait-on dist/electron/main.js && cross-env NODE_ENV=development electron dist/electron/main.js\"",
-    "dev:full": "concurrently \"npm --prefix .. run dev\" \"wait-on http://localhost:3000 && npm run dev\"",
+    "dev:full": "concurrently \"npm --prefix .. run dev\" \"wait-on http://localhost:3600 && npm run dev\"",
     "rebuild:next-standalone": "node scripts/rebuild-next-standalone.js",
     "release:prepare-update-metadata": "node scripts/release/prepare-update-metadata.js",
     "release:publish-update-metadata": "node scripts/release/publish-update-metadata-gh-pages.js",

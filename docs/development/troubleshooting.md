@@ -44,10 +44,10 @@ if ('property' in config) {
 
 ```bash
 # Find and kill the process
-npx kill-port 3000
+npx kill-port 3600
 
-# Or use a different port
-npm run dev -- -p 3001
+# Or use a different port (the dev script defaults to 3600)
+PORT=3700 npm run dev
 ```
 
 ### Hot Reload Not Working

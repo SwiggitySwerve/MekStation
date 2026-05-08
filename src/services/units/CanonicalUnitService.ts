@@ -150,7 +150,7 @@ function getBaseUrl(): string {
   // Use NEXT_PUBLIC_BASE_URL if set, otherwise default to localhost
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL ||
-    `http://localhost:${process.env.PORT || 3000}`;
+    `http://localhost:${process.env.PORT || 3600}`;
   return baseUrl;
 }
 

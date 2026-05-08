@@ -128,7 +128,7 @@ function buildWsUrl(req: NextApiRequest, matchId: string): string {
   // Use the same host the request came in on; the WS upgrade handler in
   // server.js binds to the same port as the HTTP server. Default to
   // `ws://` because production proxies typically rewrite to wss.
-  const host = req.headers.host ?? 'localhost:3000';
+  const host = req.headers.host ?? 'localhost:3600';
   const proto =
     (req.headers['x-forwarded-proto'] as string | undefined) === 'https'
       ? 'wss'
