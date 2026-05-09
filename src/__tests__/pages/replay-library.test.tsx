@@ -21,6 +21,7 @@ import React from 'react';
 
 import type { IReplayManifestEntry } from '@/replay-library/types';
 
+import { ScenarioTemplateType } from '@/types/encounter';
 import { GameSide, ReplaySource } from '@/types/gameplay';
 
 // =============================================================================
@@ -101,6 +102,31 @@ function makeQuickEntry(
     bvTotal: 3200,
     playerSide: GameSide.Player,
     aiVariant: 'aggressive-v2',
+    ...overrides,
+  } as IReplayManifestEntry;
+}
+
+// Per `link-encounters-to-replays` PR 3: encounter manifest entries
+// expose `encounterName`, `templateType` (or null for free-form
+// encounters), and rendered `playerForceSummary` / `opponentSummary`
+// strings. Mirrors what `EncounterService.launchEncounter` stamps onto
+// the GameCreated event at session creation.
+function makeEncounterEntry(
+  overrides: Partial<IReplayManifestEntry> = {},
+): IReplayManifestEntry {
+  return {
+    id: 'enc-session-7',
+    replaySource: ReplaySource.Encounter,
+    path: 'encounter/enc-session-7.jsonl',
+    createdAt: '2026-05-08T09:30:00.000Z',
+    turns: 7,
+    winner: GameSide.Player,
+    bvTotal: 5400,
+    encounterId: 'enc-1',
+    encounterName: 'Defense of New Avalon',
+    templateType: ScenarioTemplateType.Duel,
+    playerForceSummary: 'Lance Alpha (4500 BV, 4 units)',
+    opponentSummary: 'Generated OpFor (~3000 BV)',
     ...overrides,
   } as IReplayManifestEntry;
 }
@@ -396,5 +422,191 @@ describe('ReplayLibraryPage', () => {
       screen.queryByTestId('quickgame-replay-panel-mock'),
     ).not.toBeInTheDocument();
     expect(screen.getByTestId('replay-row-quick-9')).toBeInTheDocument();
+  });
+
+  // ===========================================================================
+  // Per `link-encounters-to-replays` PR 3: Encounter source variant tests.
+  // The page gains a 6th source-filter button (All / Swarm / Quick / PvP /
+  // Campaign / Encounter), the row renders the encounter snapshot
+  // (encounterName, templateType, summary strings), the source filter
+  // restricts to encounter-only rows, and Watch fetches via the
+  // `/api/replay-library/encounter/<gameId>` route.
+  // ===========================================================================
+
+  it('renders 6 source-filter buttons (All / Swarm / Quick / PvP / Campaign / Encounter)', async () => {
+    setupFetchMock({ entries: [], total: 0 });
+
+    await renderLibrary();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('replay-library-empty')).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId('source-filter-all')).toBeInTheDocument();
+    expect(screen.getByTestId('source-filter-swarm')).toBeInTheDocument();
+    expect(screen.getByTestId('source-filter-quick')).toBeInTheDocument();
+    expect(screen.getByTestId('source-filter-pvp')).toBeInTheDocument();
+    expect(screen.getByTestId('source-filter-campaign')).toBeInTheDocument();
+    expect(screen.getByTestId('source-filter-encounter')).toBeInTheDocument();
+
+    // Strict count assertion — adding a 7th filter without updating
+    // SOURCE_FILTERS would fail this.
+    const filterStrip = screen.getByTestId('source-filter');
+    expect(filterStrip.querySelectorAll('button').length).toBe(6);
+  });
+
+  it('renders Encounter row metadata strip (name + template + force summaries)', async () => {
+    const entries = [
+      makeEncounterEntry({
+        id: 'enc-session-7',
+        encounterName: 'Defense of New Avalon',
+        templateType: ScenarioTemplateType.Duel,
+        playerForceSummary: 'Lance Alpha (4500 BV, 4 units)',
+        opponentSummary: 'Generated OpFor (~3000 BV)',
+      }),
+    ];
+    setupFetchMock({ entries, total: entries.length });
+
+    await renderLibrary();
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('replay-row-enc-session-7'),
+      ).toBeInTheDocument();
+    });
+
+    const row = screen.getByTestId('replay-row-enc-session-7');
+    expect(row).toHaveTextContent('Defense of New Avalon');
+    expect(row).toHaveTextContent('duel');
+    expect(row).toHaveTextContent('Lance Alpha (4500 BV, 4 units)');
+    expect(row).toHaveTextContent('Generated OpFor (~3000 BV)');
+
+    // The dedicated metadata strip exists with the right testids.
+    expect(
+      row.querySelector('[data-testid="replay-meta-encounter"]'),
+    ).toBeTruthy();
+    expect(screen.getByTestId('replay-encounter-name')).toHaveTextContent(
+      'Defense of New Avalon',
+    );
+    expect(screen.getByTestId('replay-template-type')).toHaveTextContent(
+      'duel',
+    );
+    expect(screen.getByTestId('replay-player-force-summary')).toHaveTextContent(
+      'Lance Alpha (4500 BV, 4 units)',
+    );
+    expect(screen.getByTestId('replay-opponent-summary')).toHaveTextContent(
+      'Generated OpFor (~3000 BV)',
+    );
+  });
+
+  it('falls back to "Custom" when templateType is null', async () => {
+    const entries = [
+      makeEncounterEntry({
+        id: 'enc-custom-1',
+        encounterName: 'Free-form Brawl',
+        templateType: null,
+      }),
+    ];
+    setupFetchMock({ entries, total: entries.length });
+
+    await renderLibrary();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('replay-row-enc-custom-1')).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId('replay-template-type')).toHaveTextContent(
+      'Custom',
+    );
+  });
+
+  it('source filter "Encounter" restricts to encounter-only rows', async () => {
+    const entries = [
+      makeSwarmEntry({ id: 'sim-mixed-1' }),
+      makeQuickEntry({ id: 'quick-mixed-1' }),
+      makeEncounterEntry({ id: 'enc-mixed-1' }),
+      makeEncounterEntry({
+        id: 'enc-mixed-2',
+        path: 'encounter/enc-mixed-2.jsonl',
+        encounterName: 'Second Battle',
+      }),
+    ];
+    setupFetchMock({ entries, total: entries.length });
+
+    await renderLibrary();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('replay-row-sim-mixed-1')).toBeInTheDocument();
+    });
+
+    // All four visible at first.
+    expect(screen.getByTestId('replay-row-sim-mixed-1')).toBeInTheDocument();
+    expect(screen.getByTestId('replay-row-quick-mixed-1')).toBeInTheDocument();
+    expect(screen.getByTestId('replay-row-enc-mixed-1')).toBeInTheDocument();
+    expect(screen.getByTestId('replay-row-enc-mixed-2')).toBeInTheDocument();
+
+    // Click Encounter filter — only the encounter rows remain.
+    await act(async () => {
+      screen.getByTestId('source-filter-encounter').click();
+    });
+
+    expect(
+      screen.queryByTestId('replay-row-sim-mixed-1'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('replay-row-quick-mixed-1'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('replay-row-enc-mixed-1')).toBeInTheDocument();
+    expect(screen.getByTestId('replay-row-enc-mixed-2')).toBeInTheDocument();
+  });
+
+  it('clicking Watch on an encounter row fetches via /api/replay-library/encounter/<id>', async () => {
+    const entries = [makeEncounterEntry({ id: 'enc-watch-1' })];
+    const fixtureEvents = [
+      { type: 'GameCreated', sequence: 1 },
+      { type: 'TurnStarted', sequence: 2 },
+      { type: 'GameEnded', sequence: 3 },
+    ];
+
+    fetchMock = jest.fn().mockImplementation((url: string) => {
+      if (url === '/api/replay-library') {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ entries, total: entries.length }),
+        });
+      }
+      if (url === '/api/replay-library/encounter/enc-watch-1') {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ events: fixtureEvents }),
+        });
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    await renderLibrary();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('replay-row-enc-watch-1')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      screen.getByTestId('replay-watch-enc-watch-1').click();
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('quickgame-replay-panel-mock'),
+      ).toBeInTheDocument();
+    });
+
+    const calledUrls = fetchMock.mock.calls.map(
+      (call: ReadonlyArray<unknown>) => call[0],
+    );
+    expect(calledUrls).toContain('/api/replay-library');
+    expect(calledUrls).toContain('/api/replay-library/encounter/enc-watch-1');
   });
 });

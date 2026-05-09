@@ -67,30 +67,30 @@
 
 ## 3. Wire EncounterService + Replay Library UI (PR 3)
 
-- [ ] 3.1 Modify `EncounterService.launchEncounter` (`src/services/encounter/EncounterService.ts:290-367`) to stamp the encounter metadata onto the `GameCreated` event payload at session creation: `encounterId`, `encounterName`, `templateType`, `playerForceSummary`, `opponentSummary`. The metadata SHALL be derived from the encounter row at launch time (snapshot — does not rebuild from forces if forces change later).
+- [x] 3.1 Modify `EncounterService.launchEncounter` (`src/services/encounter/EncounterService.ts:290-367`) to stamp the encounter metadata onto the `GameCreated` event payload at session creation: `encounterId`, `encounterName`, `templateType`, `playerForceSummary`, `opponentSummary`. The metadata SHALL be derived from the encounter row at launch time (snapshot — does not rebuild from forces if forces change later).
   - `playerForceSummary` derivation: when `encounter.playerForce` is non-null, use `"<forceName> (<totalBV> BV, <unitCount> units)"`. When `null` (broken — Change A territory), use `"<forceId> (missing force)"` as the snapshot text.
   - `opponentSummary` derivation: same shape for explicit opponent force; for opForConfig-driven, use `"Generated <type> (~<targetBV> BV)"` or whatever fields the opForConfig has.
   - Done when: launching an encounter produces a session whose first emitted event includes the metadata.
-- [ ] 3.2 Add the persist hook to the encounter session terminal-state handler. The exact attachment point is wherever the existing campaign outcome publish hook lives (added by `wire-encounter-to-campaign-round-trip` Wave 5). Sibling call: build the `IPersistEncounterGameInput` from the session's accumulated event log + the encounter metadata stored on the GameCreated event, then `fetch('/api/replay-library/encounter', { method: 'POST', body: JSON.stringify(input) })`.
+- [x] 3.2 Add the persist hook to the encounter session terminal-state handler. The exact attachment point is wherever the existing campaign outcome publish hook lives (added by `wire-encounter-to-campaign-round-trip` Wave 5). Sibling call: build the `IPersistEncounterGameInput` from the session's accumulated event log + the encounter metadata stored on the GameCreated event, then `fetch('/api/replay-library/encounter', { method: 'POST', body: JSON.stringify(input) })`.
   - Browser-side (component) concerns: use the same useRef+effect pattern as `QuickGameResults` to guard against double-fire on remount.
   - Done when: a smoke run of an encounter from the UI ends with a manifest entry for the encounter and a `simulation-reports/encounter/<gameId>.jsonl` file.
-- [ ] 3.3 Add an integration test at `src/services/encounter/__tests__/EncounterService.persist.test.ts` that mocks the live session and asserts the persist POST fires with the correct body shape on terminal state. Use a spy on `global.fetch` (or the existing test pattern for `/api/replay-library/quick` if one is established).
+- [x] 3.3 Add an integration test at `src/services/encounter/__tests__/EncounterService.persist.test.ts` that mocks the live session and asserts the persist POST fires with the correct body shape on terminal state. Use a spy on `global.fetch` (or the existing test pattern for `/api/replay-library/quick` if one is established).
   - Done when: test asserts `fetch` was called with `/api/replay-library/encounter` and the body has `encounterId`, `encounterName`, `templateType`, `playerForceSummary`, `opponentSummary`, `gameId`, `events`, `winner`.
-- [ ] 3.4 Modify `src/components/replay-library/ReplayLibraryPage.tsx`:
+- [x] 3.4 Modify `src/components/replay-library/ReplayLibraryPage.tsx`:
   - Append `{ key: ReplaySource.Encounter, label: 'Encounter' }` to the `SOURCE_FILTERS` array.
   - Add the `case ReplaySource.Encounter` branch to the `renderSourceMetadata` switch — render `encounterName`, `templateType ?? 'Custom'`, `playerForceSummary` vs `opponentSummary`. Match the visual treatment of the existing 4 cases.
   - The `assertNever(entry)` exhaustiveness guard now compiles cleanly with the new variant. Verify by manually omitting the case and confirming the typecheck breaks.
   - Done when: rendering a fixture with an Encounter manifest entry shows the expected metadata; filter button strip has 6 buttons (All / Swarm / Quick / PvP / Campaign / Encounter).
-- [ ] 3.5 Extend `src/__tests__/pages/replay-library.test.tsx` (NOT `src/components/replay-library/__tests__/...` — the existing Replay Library page tests live at the centralized `src/__tests__/pages/replay-library.test.tsx`; extend that file):
+- [x] 3.5 Extend `src/__tests__/pages/replay-library.test.tsx` (NOT `src/components/replay-library/__tests__/...` — the existing Replay Library page tests live at the centralized `src/__tests__/pages/replay-library.test.tsx`; extend that file):
   - Filter button strip count assertion: 6 buttons.
   - Encounter row renders `encounterName`, `templateType`, summary text.
   - Source filter "Encounter" restricts to encounter-only rows.
   - Click-to-watch fetches via `/api/replay-library/encounter/<gameId>` (the existing `[source]/[gameId].ts` route — confirms it accepts `encounter` source).
   - Done when: 4 new test cases pass; existing tests still green.
-- [ ] 3.6 Add Storybook story for the Encounter row at `src/components/replay-library/ReplayLibraryPage.stories.tsx` (extend existing): `EncounterOnly` showing only encounter entries with template + summary metadata visible.
+- [x] 3.6 Add Storybook story for the Encounter row at `src/components/replay-library/ReplayLibraryPage.stories.tsx` (extend existing): `EncounterOnly` showing only encounter entries with template + summary metadata visible.
   - Done when: storybook builds clean.
-- [ ] 3.7 Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run storybook:build` clean.
-- [ ] 3.8 Open PR 3, CI green, merge.
+- [x] 3.7 Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run storybook:build` clean.
+- [x] 3.8 Open PR 3, CI green, merge.
 
 ## 4. End-to-end verification
 
