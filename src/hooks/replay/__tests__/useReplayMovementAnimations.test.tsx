@@ -196,6 +196,17 @@ function snapshotAllAnimations(): ReadonlyArray<{
 // Tests
 // =============================================================================
 
+/**
+ * Brute-force queue clear. `reset()` works, but bypassing it via
+ * `setState` directly avoids any race with React 18's effect-flush
+ * scheduling: this is an out-of-band synchronous mutation that does
+ * not need to land in `act()` to be observed by the next render's
+ * effect callback.
+ */
+function hardResetQueue(): void {
+  useAnimationQueue.setState({ queue: [], active: [], isActive: false });
+}
+
 describe('useReplayMovementAnimations', () => {
   beforeEach(() => {
     // Unmount any harness left around by a prior test BEFORE resetting
@@ -203,19 +214,13 @@ describe('useReplayMovementAnimations', () => {
     // microtask flush) can re-enqueue animations after our reset and
     // bleed state into the next test.
     cleanup();
-    // Reset the queue. Wrapped in `act` so any pending state set
-    // resolves synchronously inside the React test scheduler.
-    act(() => {
-      useAnimationQueue.getState().reset();
-    });
+    hardResetQueue();
     mockedUsePrefersReducedMotion.mockReturnValue(false);
   });
 
   afterEach(() => {
     cleanup();
-    act(() => {
-      useAnimationQueue.getState().reset();
-    });
+    hardResetQueue();
   });
 
   describe('spec scenario: Forward step chain enqueues one animation per step', () => {
