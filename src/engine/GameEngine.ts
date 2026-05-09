@@ -39,7 +39,10 @@ import {
   runAttackPhase,
   runPhysicalAttackPhase,
 } from './GameEngine.phases';
-import { InteractiveSession } from './InteractiveSession';
+import {
+  InteractiveSession,
+  type IInteractiveSessionLinkage,
+} from './InteractiveSession';
 
 export { InteractiveSession };
 
@@ -193,12 +196,7 @@ export class GameEngine {
     playerUnits: readonly IAdaptedUnit[],
     opponentUnits: readonly IAdaptedUnit[],
     gameUnits: readonly IGameUnit[],
-    linkage?: {
-      readonly campaignId?: string | null;
-      readonly contractId?: string | null;
-      readonly scenarioId?: string | null;
-      readonly encounterId?: string | null;
-    },
+    linkage?: IInteractiveSessionLinkage,
   ): InteractiveSession {
     return new InteractiveSession(
       this.mapRadius,

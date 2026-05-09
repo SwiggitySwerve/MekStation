@@ -36,6 +36,7 @@ import {
   GamePhase,
   GameStatus,
   LockState,
+  type IEncounterMeta,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
@@ -109,6 +110,15 @@ export interface IInteractiveSessionLinkage {
   readonly contractId?: string | null;
   readonly scenarioId?: string | null;
   readonly encounterId?: string | null;
+  /**
+   * Per `link-encounters-to-replays` PR 3: optional encounter snapshot
+   * the orchestrator threads in at session creation. Stamped onto the
+   * `GameCreated` event payload (via `createGameSession`) so the
+   * replay-library backfill scan can recover the per-encounter fields
+   * when rebuilding the manifest from disk. Null/omitted for
+   * non-encounter sessions (skirmish, raw quick-game).
+   */
+  readonly encounterMeta?: IEncounterMeta;
 }
 
 export class InteractiveSession {
@@ -196,7 +206,9 @@ export class InteractiveSession {
     };
     this.linkage = linkage;
 
-    this.session = createGameSession(this.gameConfig, gameUnits);
+    this.session = createGameSession(this.gameConfig, gameUnits, {
+      encounterMeta: linkage.encounterMeta,
+    });
     this.session = startGame(this.session, GameSide.Player);
   }
 

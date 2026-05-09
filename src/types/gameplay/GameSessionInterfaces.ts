@@ -391,6 +391,44 @@ export interface IGameEventBase {
 }
 
 /**
+ * Encounter snapshot stamped onto `IGameCreatedPayload.encounterMeta` at
+ * session creation by `EncounterService.launchEncounter` (and the
+ * pre-battle launch handlers). Snapshot semantics — once written, this
+ * shape reflects what the encounter looked like AT LAUNCH; subsequent
+ * encounter-row mutations (rename, force re-assignment, deletion) do
+ * NOT alter historical replay rows.
+ *
+ * Read by `src/replay-library/backfill-scan.ts` when rebuilding the
+ * manifest from disk so an Encounter row can render its encounter
+ * name + template + force summaries without resolving any external
+ * references (per design.md decision: "the manifest entry is a
+ * snapshot — the source forces may have been deleted by the time the
+ * user opens the replay").
+ *
+ * `templateType` is `null` for free-form / custom encounters where the
+ * user did not apply one of the four `ScenarioTemplateType` presets;
+ * the Library row falls back to the literal "Custom" label.
+ *
+ * `playerForceSummary` / `opponentSummary` are pre-rendered strings
+ * (e.g. `"Lance Alpha (4500 BV, 4 units)"` or `"Generated Lance (~3000
+ * BV)"`) — keeping them as strings means the Library row never needs a
+ * formatter and stale force ids cannot break rendering.
+ *
+ * The field type uses `string | null` for `templateType` rather than
+ * the typed `ScenarioTemplateType` enum so this interface stays
+ * importable from contexts that don't pull in the encounter package
+ * (e.g. the lifecycle event-builder). The actual runtime value is
+ * always either a `ScenarioTemplateType` literal or `null`.
+ */
+export interface IEncounterMeta {
+  readonly encounterId: string;
+  readonly encounterName: string;
+  readonly templateType: string | null;
+  readonly playerForceSummary: string;
+  readonly opponentSummary: string;
+}
+
+/**
  * Game created event payload.
  */
 export interface IGameCreatedPayload {
@@ -398,6 +436,17 @@ export interface IGameCreatedPayload {
   readonly config: IGameConfig;
   /** Participating units */
   readonly units: readonly IGameUnit[];
+  /**
+   * Per `link-encounters-to-replays` PR 3: encounter snapshot stamped at
+   * session creation when the session originated from
+   * `EncounterService.launchEncounter` (or a pre-battle launch handler
+   * carrying an encounter context). Optional so non-encounter sessions
+   * (swarm CLI runs, hot-seat quick games, raw `createGameSession`
+   * callers) write nothing here. Read by the replay-library backfill
+   * scan to recover the per-encounter fields when rebuilding the
+   * manifest from disk.
+   */
+  readonly encounterMeta?: IEncounterMeta;
 }
 
 /**

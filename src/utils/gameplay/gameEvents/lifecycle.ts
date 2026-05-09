@@ -2,6 +2,7 @@ import {
   GameEventType,
   GamePhase,
   GameSide,
+  IEncounterMeta,
   IGameConfig,
   IGameCreatedPayload,
   IGameEndedPayload,
@@ -12,12 +13,25 @@ import {
 
 import { createEventBase } from './base';
 
+/**
+ * Per `link-encounters-to-replays` PR 3: optional `encounterMeta` is
+ * stamped onto the GameCreated event payload when the session
+ * originates from an encounter launch. Snapshot semantics — see
+ * `IEncounterMeta` doc comment. Null/omitted for non-encounter
+ * sessions (swarm runner, raw quick-game). Carried verbatim onto the
+ * payload so the replay-library backfill scan can recover the
+ * per-encounter fields without resolving any external references.
+ */
 export function createGameCreatedEvent(
   gameId: string,
   config: IGameConfig,
   units: readonly IGameUnit[],
+  encounterMeta?: IEncounterMeta,
 ): IGameEvent {
-  const payload: IGameCreatedPayload = { config, units };
+  const payload: IGameCreatedPayload =
+    encounterMeta === undefined
+      ? { config, units }
+      : { config, units, encounterMeta };
   return {
     ...createEventBase(
       gameId,

@@ -2,6 +2,28 @@
 
 Accumulated wisdom across PRs. New entries appended at top.
 
+## [2026-05-08] PR3 outcome — wire EncounterService + Replay Library UI
+
+**Shipped**:
+- `IEncounterMeta` interface (`src/types/gameplay/GameSessionInterfaces.ts`) + optional `encounterMeta` slot on `IGameCreatedPayload`. Snapshot semantics — once written, mutations to the encounter row do NOT alter historical replay rows.
+- `createGameCreatedEvent` (`src/utils/gameplay/gameEvents/lifecycle.ts`) gains optional `encounterMeta` arg; `createGameSession` (`src/utils/gameplay/gameSessionCore.ts`) threads it through `ICreateGameSessionOptions`.
+- `buildEncounterMeta(encounter, rawForceIds?)` helper (`src/services/encounter/encounterToGameSession.ts`) — pure derivation: `<forceName> (<totalBV> BV, <unitCount> units)` for explicit forces; `<forceId> (missing force)` for broken refs (Change A territory); `Generated <faction|era|OpFor> (~<targetBV> BV)` for opForConfig-driven opponents. Falls back to `(missing force)` / `(no opponent)` literals when raw IDs aren't available.
+- `EncounterService.launchEncounter` derives meta + passes to `createGameSession`. The `getEncounterWithRawIds` lookup is **resilience-guarded** via a `typeof === 'function'` check so legacy mock repositories (jest fixtures predating the cascade-broken-refs PR) keep working — older tests don't implement that method on their stubs.
+- `IInteractiveSessionLinkage.encounterMeta` (`src/engine/InteractiveSession.ts`) — pre-battle launch handlers can now thread the meta into the engine session at construction time. `GameEngine.createInteractiveSession` reuses the typed linkage interface.
+- Browser-side persist hook on `src/pages/gameplay/games/[id].tsx`: ref-guarded effect fires once when an encounter session reaches `Completed`, POSTs to `/api/replay-library/encounter`. Uses dynamic `import('@/components/encounter/persistEncounterFromSession')` to keep the persist code off the gameplay-page initial chunk.
+- `persistEncounterFromSession` helper (`src/components/encounter/persistEncounterFromSession.ts`) — pure body-derivation + fetch wrapper. Extracted to its own module so unit tests can pin the contract without mounting the full gameplay page. Returns `{ ok, status?, error? }` and **never throws** — network errors surface as `ok: false`.
+- ReplayLibraryPage (`src/components/replay-library/ReplayLibraryPage.tsx`): 6th `Encounter` filter button + real metadata strip rendering `encounterName` / `templateType ?? 'Custom'` / `playerForceSummary` vs `opponentSummary`. The PR1 stub case is replaced; `_exhaustive: never` guard still passes.
+- Tests: 14 new EncounterService.persist tests + 5 new ReplayLibraryPage tests = 19 new tests across 2 files. Coverage includes body shape, winner derivation (player / opponent / draw / null), missing meta fallback, network-error path, 6-button filter strip count, encounter row metadata strip, "Custom" templateType fallback, source-filter Encounter restriction, click-to-watch routing through `/api/replay-library/encounter/<gameId>`.
+- Storybook story: `EncounterOnly` story added showing `encounterEntry` (templateType='duel') + `encounterEntryCustom` (templateType=null). `PopulatedLibrary` extended to include both encounter entries (7 total now).
+
+**Lessons**:
+- **`templateType: string | null` on the wire, but typed-enum on fixtures.** `IEncounterMeta.templateType` is `string | null` in the interface (so the lifecycle event-builder doesn't pull in `@/types/encounter`), but the manifest entry's `IEncounterReplayManifestEntry.templateType` is the typed `ScenarioTemplateType | null`. Test fixtures that build manifest entries MUST use `ScenarioTemplateType.Duel` not the string `'duel'` — typecheck catches this immediately. The wire-format intentionally accepts strings so future template types don't break replay round-trips.
+- **Mock-repository resilience > test-fixture sweep.** Adding `getEncounterWithRawIds` to `EncounterService` would have broken 3 legacy `EncounterService.test.ts` cases that build mock repositories without that method. Two options: update every fixture (touchy, brittle) or guard the call in the service. Chose the guard — `typeof this.repository.getEncounterWithRawIds === "function"` falls back to `null` and the meta builder uses the hydrated force slots. Guards beat fixtures when the contract is "fail soft."
+- **Helper extraction drove test simplicity.** Inlining the persist body-derivation in the gameplay page would have meant either a full-page integration test or skipping the assert entirely. Extracting `persistEncounterFromSession.ts` (with `buildEncounterPersistBody` as its pure-derivation surface) let the test mock just `fetch`, build a minimal `IGameSession` fixture, and assert the body shape directly. The page just `import()`s the helper — no behavior change, all the testability win.
+- **Auto-format hook still flags us — `npm run format` between Edit batches.** Same gotcha from PR1 / PR2 notepad: oxfmt's `--write` reformatted single-quote/double-quote alternations between Edit calls. Final `npm run format` after the batch flipped 13 files to canonical; `format:check` then went green.
+
+**Outcome**: 251/251 focused tests pass. Format clean, lint 0 errors (49 warnings, all pre-existing). Storybook builds clean (16.67s). End-to-end loop closed: encounter completion → POST to `/api/replay-library/encounter` → manifest entry → Library page row with `encounterName` + template + summary strings, click-to-watch routes through `/api/replay-library/encounter/<gameId>`.
+
 ## [2026-05-08] PR2 outcome — persist pipeline + API route
 
 **Shipped**:

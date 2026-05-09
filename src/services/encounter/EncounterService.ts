@@ -32,6 +32,7 @@ import {
   IEncounterOperationResult,
 } from './EncounterRepository';
 import {
+  buildEncounterMeta,
   buildGameConfigFromEncounter,
   buildGameUnitsFromEncounter,
 } from './encounterToGameSession';
@@ -363,7 +364,27 @@ export class EncounterService implements IEncounterService {
       contractId: normalizeLaunchId(options.contractId),
       scenarioId: normalizeLaunchId(options.scenarioId),
     });
-    const session = createGameSession(config, units);
+
+    // Per `link-encounters-to-replays` PR 3: stamp the encounter snapshot
+    // onto the GameCreated event payload. This is what the replay-library
+    // backfill scan reads when rebuilding the manifest from disk. The raw
+    // force ids come from the repository so a broken-force encounter
+    // (Change A territory) still pins which force used to be assigned.
+    // The `getEncounterWithRawIds` lookup is optional — older repository
+    // mocks (jest fixtures predating the cascade-broken-refs PR) do not
+    // implement it; in that case the meta builder falls back to the
+    // hydrated `playerForce` / `opponentForce` slots which is the
+    // common-case path anyway.
+    const withRawIds =
+      typeof this.repository.getEncounterWithRawIds === 'function'
+        ? this.repository.getEncounterWithRawIds(id)
+        : null;
+    const encounterMeta = buildEncounterMeta(
+      encounter,
+      withRawIds?.rawForceIds,
+    );
+
+    const session = createGameSession(config, units, { encounterMeta });
     return this.repository.linkGameSession(id, session.id);
   }
 

@@ -9,7 +9,7 @@
 
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   CombatPlanningPanel,
@@ -192,6 +192,53 @@ export default function GameSessionPage(): React.ReactElement {
       cancelled = true;
     };
   }, [session, isCompletedForRedirect, hasPersisted, id]);
+
+  // Per `link-encounters-to-replays` PR 3: when an encounter-driven
+  // session reaches a terminal state, POST the event log + encounter
+  // metadata to `/api/replay-library/encounter` so the row shows up in
+  // the Replay Library. Mirrors the `QuickGameResults.tsx` pattern: a
+  // ref-guarded effect that fires exactly once per `Completed` flip
+  // (StrictMode + hard-refresh-safe via the server-side dedup check
+  // inside the route handler).
+  //
+  // The persist is fire-and-forget: a failed POST surfaces as a logger
+  // warn but does NOT block the victory screen redirect. Encounter rows
+  // that never persist are functionally equivalent to today's behavior
+  // (no row in the Library), so the failure mode is non-regressive.
+  //
+  // Gate: only fires when `session.config.encounterId` is set AND the
+  // session originated from an encounter launch. Skirmish / direct
+  // quick-game / demo sessions skip the persist (they have their own
+  // pipelines or are intentionally non-persistent). The body-shape
+  // derivation lives in `persistEncounterFromSession.ts` so unit tests
+  // can pin the contract without mounting the full gameplay page.
+  const encounterPersistFiredRef = useRef(false);
+  useEffect(() => {
+    if (!session || !isCompletedForRedirect) return;
+    if (typeof id !== 'string' || id === 'demo') return;
+    if (!session.config.encounterId) return;
+    if (encounterPersistFiredRef.current) return;
+    encounterPersistFiredRef.current = true;
+
+    let cancelled = false;
+    void import('@/components/encounter/persistEncounterFromSession').then(
+      ({ persistEncounterFromSession }) =>
+        persistEncounterFromSession(session).then((result) => {
+          if (cancelled) return;
+          if (!result.ok) {
+            logger.warn('[encounter] replay-library persist failed', {
+              status: result.status,
+              error: result.error,
+              gameId: session.id,
+            });
+          }
+        }),
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session, isCompletedForRedirect, id]);
 
   useEffect(() => {
     if (

@@ -15,7 +15,12 @@ import type { IForce } from '@/types/force';
 import type { IPilot } from '@/types/pilot';
 
 import { VictoryConditionType } from '@/types/encounter';
-import { GameSide, type IGameConfig, type IGameUnit } from '@/types/gameplay';
+import {
+  GameSide,
+  type IEncounterMeta,
+  type IGameConfig,
+  type IGameUnit,
+} from '@/types/gameplay';
 
 /** Default pilot skills when no pilot is assigned (standard regular pilot). */
 const DEFAULT_GUNNERY = 4;
@@ -199,4 +204,113 @@ function assignmentsToGameUnits(
   }
 
   return units;
+}
+
+/**
+ * Per `link-encounters-to-replays` PR 3: build the snapshot stamped onto
+ * the `GameCreated` event payload at session creation. Pure / sync — no
+ * resolver lookups (the encounter is already hydrated by
+ * `EncounterService.hydrateEncounter` before this function runs, so
+ * `playerForce` / `opponentForce` carry their `totalBV` + `unitCount`
+ * already).
+ *
+ * Snapshot semantics:
+ *   - When `playerForce` is non-null: `"<forceName> (<totalBV> BV, <unitCount> units)"`.
+ *   - When `playerForce` is `null` (broken — Change A territory):
+ *     `"<forceId> (missing force)"` — the raw stored id is recovered
+ *     from the encounter row's `playerForceId` field via the resolver
+ *     argument because the hydrated `playerForce` slot drops the id.
+ *   - Opponent: same shape for explicit force; when `opForConfig` is
+ *     set instead, `"Generated <type> (~<targetBV> BV)"` — the targetBV
+ *     prefers the absolute value, falls back to the percent-of-player
+ *     when only the percent is set, and finally to a literal `"?"`
+ *     when neither is filled out.
+ *
+ * `templateType` is the encounter's stored template (`Duel` / `Skirmish`
+ * / `Battle` / `Custom`) or `null` for free-form encounters that never
+ * had a template applied.
+ *
+ * Why a string-shape contract instead of structured fields: per
+ * design.md decision "playerForceSummary / opponentSummary as strings,
+ * not structured objects" — the Library row renders text directly, the
+ * source forces may have been deleted by the time the user opens the
+ * replay, and keeping the snapshot self-contained means the row never
+ * fails to render.
+ *
+ * The `rawForceIds` argument is optional and only used to recover the
+ * stored force id when the hydrated slot is `null`. Callers that don't
+ * have access to the raw ids (e.g. tests) can omit it; the broken-force
+ * branch then falls back to the literal `"(missing force)"`.
+ */
+export function buildEncounterMeta(
+  encounter: IEncounter,
+  rawForceIds?: {
+    readonly playerForceId?: string | null;
+    readonly opponentForceId?: string | null;
+  },
+): IEncounterMeta {
+  return {
+    encounterId: encounter.id,
+    encounterName: encounter.name,
+    templateType: encounter.template ?? null,
+    playerForceSummary: derivePlayerSummary(
+      encounter,
+      rawForceIds?.playerForceId ?? null,
+    ),
+    opponentSummary: deriveOpponentSummary(
+      encounter,
+      rawForceIds?.opponentForceId ?? null,
+    ),
+  };
+}
+
+function derivePlayerSummary(
+  encounter: IEncounter,
+  rawPlayerForceId: string | null,
+): string {
+  const force = encounter.playerForce;
+  if (force) {
+    return `${force.forceName} (${force.totalBV} BV, ${force.unitCount} units)`;
+  }
+  // Hydrated to null — the encounter has a stored playerForceId whose
+  // resolver came back empty (force was deleted). Fall back to the
+  // raw id so the manifest row at least pins which force used to be
+  // there. Without a raw id (legacy callers), fall back to a literal.
+  if (rawPlayerForceId) {
+    return `${rawPlayerForceId} (missing force)`;
+  }
+  return '(missing force)';
+}
+
+function deriveOpponentSummary(
+  encounter: IEncounter,
+  rawOpponentForceId: string | null,
+): string {
+  const force = encounter.opponentForce;
+  if (force) {
+    return `${force.forceName} (${force.totalBV} BV, ${force.unitCount} units)`;
+  }
+  // OpForConfig path — opponent force is generated at launch time, not
+  // assigned. Render the config snapshot so the Library row tells the
+  // user "this was a Generated Lance vs your Alpha Lance" without
+  // resolving anything.
+  if (encounter.opForConfig) {
+    const cfg = encounter.opForConfig;
+    const bv =
+      cfg.targetBV !== undefined && cfg.targetBV !== null
+        ? `~${cfg.targetBV}`
+        : cfg.targetBVPercent !== undefined && cfg.targetBVPercent !== null
+          ? `~${cfg.targetBVPercent}%`
+          : '?';
+    // The opForConfig has no explicit "type" today; describe by faction
+    // or unit-types when available, otherwise generic "OpFor".
+    const label = cfg.faction ?? cfg.era ?? 'OpFor';
+    return `Generated ${label} (${bv} BV)`;
+  }
+  // Hydrated to null with no opForConfig — same broken-force pattern as
+  // playerForce. Fall back to the raw id so the row pins history.
+  if (rawOpponentForceId) {
+    return `${rawOpponentForceId} (missing force)`;
+  }
+  return '(no opponent)';
 }
