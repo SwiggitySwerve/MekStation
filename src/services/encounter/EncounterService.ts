@@ -18,6 +18,7 @@ import {
   ScenarioTemplateType,
 } from '@/types/encounter';
 import { createGameSession } from '@/utils/gameplay/gameSessionCore';
+import { logger } from '@/utils/logger';
 
 import {
   createSingleton,
@@ -411,12 +412,26 @@ export class EncounterService implements IEncounterService {
 
   /**
    * Hydrate encounter with current force data.
+   *
+   * Hydration-Boundary Orphaned Reference Replacement (PR 2 of
+   * repair-broken-encounter-drafts):
+   *
+   *   - Stored `playerForceId` resolves via `forceRepo.getForceById` →
+   *     return a fully hydrated IForceReference (BV + unitCount + name).
+   *   - Stored `playerForceId` resolves to `null` (force was deleted but
+   *     the cascade did not run, e.g. legacy data, raw SQL inserts) →
+   *     return `null` for the slot AND emit `logger.warn` once per
+   *     `${encounterId}:${forceId}:${side}` key per process lifetime.
+   *   - No stored id (slot was always undefined) → leave undefined.
+   *
+   * The dedup Set is reset by `resetEncounterService()` so test isolation is
+   * preserved (each test boundary clears the seen-keys cache).
    */
   private hydrateEncounter(encounter: IEncounter): IEncounter {
     const forceRepo = getForceRepository();
 
-    let playerForce = encounter.playerForce;
-    let opponentForce = encounter.opponentForce;
+    let playerForce: IEncounter['playerForce'] = encounter.playerForce;
+    let opponentForce: IEncounter['opponentForce'] = encounter.opponentForce;
 
     // Hydrate player force
     if (playerForce?.forceId) {
@@ -428,6 +443,10 @@ export class EncounterService implements IEncounterService {
           totalBV: force.stats.totalBV,
           unitCount: force.stats.assignedUnits,
         };
+      } else {
+        // Resolver returned null — force was deleted but a stored ref remains.
+        warnOrphanedForceRef(encounter.id, playerForce.forceId, 'player');
+        playerForce = null;
       }
     }
 
@@ -441,6 +460,9 @@ export class EncounterService implements IEncounterService {
           totalBV: force.stats.totalBV,
           unitCount: force.stats.assignedUnits,
         };
+      } else {
+        warnOrphanedForceRef(encounter.id, opponentForce.forceId, 'opponent');
+        opponentForce = null;
       }
     }
 
@@ -450,6 +472,43 @@ export class EncounterService implements IEncounterService {
       opponentForce,
     };
   }
+}
+
+// =============================================================================
+// Orphaned-Force-Reference warn dedup
+// =============================================================================
+
+/**
+ * Module-level dedup Set: each `${encounterId}:${forceId}:${side}` key is
+ * stored on the first orphan-warn call so subsequent reads of the same
+ * orphaned encounter stay quiet. The Set is reset by `resetEncounterService`
+ * so each test boundary starts with a clean slate (cf. spec scenario "Reset
+ * clears dedup Set").
+ *
+ * Module-scoped (rather than instance-scoped) because the singleton factory
+ * may construct a new EncounterService instance after a reset and we still
+ * want the warn cache to clear deterministically — the factory reset
+ * triggers `resetOrphanWarnDedup()` from `resetEncounterService`.
+ */
+const orphanWarnSeen = new Set<string>();
+
+function warnOrphanedForceRef(
+  encounterId: string,
+  forceId: string,
+  side: 'player' | 'opponent',
+): void {
+  const key = `${encounterId}:${forceId}:${side}`;
+  if (orphanWarnSeen.has(key)) return;
+  orphanWarnSeen.add(key);
+  logger.warn('[encounter] orphaned force reference', {
+    encounterId,
+    forceId,
+    side,
+  });
+}
+
+function resetOrphanWarnDedup(): void {
+  orphanWarnSeen.clear();
 }
 
 // =============================================================================
@@ -465,4 +524,5 @@ export function getEncounterService(): EncounterService {
 
 export function resetEncounterService(): void {
   encounterServiceFactory.reset();
+  resetOrphanWarnDedup();
 }

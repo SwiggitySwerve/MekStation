@@ -19,6 +19,7 @@ import {
   type SingletonFactory,
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
+import { invokeEncounterCascadeHook } from './ForceRepository.cascade';
 import { hydrateForce, type ForceRow } from './ForceRepository.helpers';
 import {
   createForceOperation,
@@ -191,6 +192,20 @@ export class ForceRepository implements IForceRepository {
 
   /**
    * Delete a force and its assignments.
+   *
+   * Cascade contract (PR 2 of repair-broken-encounter-drafts):
+   *   The whole sequence — encounter cascade + parent-id un-link + assignments
+   *   delete + force delete — runs inside ONE SQLite transaction so a thrown
+   *   UPDATE in the encounter cascade rolls every step back atomically. The
+   *   force row remains present after a rollback, so callers see the force
+   *   delete as having "not happened" rather than a half-applied state.
+   *
+   *   The cascade hook is invoked BEFORE the force-row DELETE so the
+   *   referential pattern is "clear references first, then drop the target" —
+   *   if we deleted the force first, the json_extract WHERE clauses in the
+   *   cascade would still match (the IDs are stored in JSON columns, not
+   *   FK-linked), but ordering matters for crash-mid-transaction recovery
+   *   semantics.
    */
   deleteForce(id: string): IForceOperationResult {
     this.initialize();
@@ -198,16 +213,30 @@ export class ForceRepository implements IForceRepository {
     const db = getSQLiteService().getDatabase();
 
     try {
-      // Set children's parent to null
-      db.prepare('UPDATE forces SET parent_id = NULL WHERE parent_id = ?').run(
-        id,
-      );
+      const txn = db.transaction((forceId: string) => {
+        // Step 1: Cascade-clear any encounters that reference this force.
+        // Hook is registered by EncounterRepository's singleton factory at
+        // module-init time; if it throws, the whole transaction rolls back.
+        // No-op when the encounter module is not yet loaded (e.g. cold-start
+        // standalone Force-only flow).
+        invokeEncounterCascadeHook(forceId);
 
-      // Delete assignments (cascade should handle this, but be explicit)
-      db.prepare('DELETE FROM force_assignments WHERE force_id = ?').run(id);
+        // Step 2: Un-link any child forces (FK ON DELETE SET NULL would do
+        // this for us, but explicit is clearer + survives schema changes).
+        db.prepare(
+          'UPDATE forces SET parent_id = NULL WHERE parent_id = ?',
+        ).run(forceId);
 
-      // Delete force
-      db.prepare('DELETE FROM forces WHERE id = ?').run(id);
+        // Step 3: Delete assignments (cascade should handle this, but be explicit).
+        db.prepare('DELETE FROM force_assignments WHERE force_id = ?').run(
+          forceId,
+        );
+
+        // Step 4: Delete the force row itself.
+        db.prepare('DELETE FROM forces WHERE id = ?').run(forceId);
+      });
+
+      txn(id);
 
       return { success: true };
     } catch (error) {
