@@ -4,9 +4,13 @@ import { useRouter } from 'next/router';
  * Browse, search, and manage encounter configurations.
  *
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
+ * @spec openspec/changes/repair-broken-encounter-drafts/specs/game-session-management/spec.md
+ *       (Requirement: Encounter List Surfaces Broken-Reference State,
+ *        Requirement: Empty-State Seed Samples)
  */
 import { useEffect, useState, useCallback } from 'react';
 
+import { EncounterCard } from '@/components/gameplay/encounters/EncounterCard';
 import {
   PageLayout,
   PageLoading,
@@ -14,98 +18,10 @@ import {
   Input,
   Button,
   EmptyState,
-  Badge,
 } from '@/components/ui';
 import { useEncounterSelector } from '@/stores/useEncounterStore';
-import {
-  IEncounter,
-  EncounterStatus,
-  SCENARIO_TEMPLATES,
-} from '@/types/encounter';
-import { getStatusColor, getStatusLabel } from '@/utils/encounterStatus';
-
-// =============================================================================
-// Encounter Card Component
-// =============================================================================
-
-interface EncounterCardProps {
-  encounter: IEncounter;
-  onClick: () => void;
-}
-
-function EncounterCard({
-  encounter,
-  onClick,
-}: EncounterCardProps): React.ReactElement {
-  const template = encounter.template
-    ? SCENARIO_TEMPLATES.find((t) => t.type === encounter.template)
-    : null;
-
-  return (
-    <Card
-      className="hover:border-accent/50 cursor-pointer transition-all"
-      onClick={onClick}
-      data-testid={`encounter-card-${encounter.id}`}
-    >
-      <div className="mb-3 flex items-start justify-between">
-        <h3
-          className="text-text-theme-primary truncate font-medium"
-          data-testid="encounter-name"
-        >
-          {encounter.name}
-        </h3>
-        <Badge
-          variant={getStatusColor(encounter.status)}
-          data-testid="encounter-status"
-        >
-          {getStatusLabel(encounter.status)}
-        </Badge>
-      </div>
-
-      {encounter.description && (
-        <p className="text-text-theme-secondary mb-3 line-clamp-2 text-sm">
-          {encounter.description}
-        </p>
-      )}
-
-      {template && (
-        <div className="text-text-theme-muted mb-3 text-xs">
-          Template: {template.name}
-        </div>
-      )}
-
-      <div className="flex flex-wrap gap-2 text-xs">
-        {encounter.playerForce ? (
-          <span className="bg-surface-raised text-text-theme-secondary rounded px-2 py-1">
-            Player: {encounter.playerForce.forceName || 'Set'}
-          </span>
-        ) : (
-          <span className="rounded bg-yellow-900/20 px-2 py-1 text-yellow-400">
-            No Player Force
-          </span>
-        )}
-
-        {encounter.opponentForce ? (
-          <span className="bg-surface-raised text-text-theme-secondary rounded px-2 py-1">
-            Opponent: {encounter.opponentForce.forceName || 'Set'}
-          </span>
-        ) : encounter.opForConfig ? (
-          <span className="bg-surface-raised text-text-theme-secondary rounded px-2 py-1">
-            OpFor: Generated
-          </span>
-        ) : (
-          <span className="rounded bg-yellow-900/20 px-2 py-1 text-yellow-400">
-            No Opponent
-          </span>
-        )}
-      </div>
-
-      <div className="border-border-theme-subtle text-text-theme-muted mt-3 border-t pt-3 text-xs">
-        Updated: {new Date(encounter.updatedAt).toLocaleDateString()}
-      </div>
-    </Card>
-  );
-}
+import { IEncounter, EncounterStatus } from '@/types/encounter';
+import { getStatusLabel } from '@/utils/encounterStatus';
 
 // =============================================================================
 // Main Page Component
@@ -116,6 +32,9 @@ export default function EncountersListPage(): React.ReactElement {
   const isLoading = useEncounterSelector((state) => state.isLoading);
   const error = useEncounterSelector((state) => state.error);
   const loadEncounters = useEncounterSelector((state) => state.loadEncounters);
+  const seedSampleEncounters = useEncounterSelector(
+    (state) => state.seedSampleEncounters,
+  );
   const searchQuery = useEncounterSelector((state) => state.searchQuery);
   const setSearchQuery = useEncounterSelector((state) => state.setSearchQuery);
   const statusFilter = useEncounterSelector((state) => state.statusFilter);
@@ -125,12 +44,20 @@ export default function EncountersListPage(): React.ReactElement {
   const getFilteredEncounters = useEncounterSelector(
     (state) => state.getFilteredEncounters,
   );
+  const getEncounterRawForceIds = useEncounterSelector(
+    (state) => state.getEncounterRawForceIds,
+  );
   const selectEncounter = useEncounterSelector(
     (state) => state.selectEncounter,
   );
 
   const filteredEncounters = getFilteredEncounters();
   const [isInitialized, setIsInitialized] = useState(false);
+  // Local "seeding in progress" so we can disable the button while the
+  // POST round-trip resolves. Tracked here rather than the store because
+  // the loadEncounters() refresh inside the action already toggles
+  // `isLoading` and we don't want both spinners stacking.
+  const [isSeeding, setIsSeeding] = useState(false);
 
   // Load encounters on mount
   useEffect(() => {
@@ -154,6 +81,18 @@ export default function EncountersListPage(): React.ReactElement {
     router.push('/gameplay/encounters/create');
   }, [router]);
 
+  // Seed 4 sample encounters via the new POST /api/encounters/seed-samples
+  // route. The store action takes care of the refresh, so the click handler
+  // only manages the local "in flight" flag for the button disabled state.
+  const handleSeedSamples = useCallback(async () => {
+    setIsSeeding(true);
+    try {
+      await seedSampleEncounters();
+    } finally {
+      setIsSeeding(false);
+    }
+  }, [seedSampleEncounters]);
+
   // Navigate to encounter detail
   const handleEncounterClick = useCallback(
     (encounter: IEncounter) => {
@@ -166,6 +105,13 @@ export default function EncountersListPage(): React.ReactElement {
   if (!isInitialized || isLoading) {
     return <PageLoading message="Loading encounters..." />;
   }
+
+  // Truly-empty (no filter, no search) is the only state where seeding
+  // makes sense. A filtered empty state still has encounters in the DB
+  // and the user is just narrowing — adding 4 starter encounters there
+  // would be confusing.
+  const isTrulyEmpty =
+    filteredEncounters.length === 0 && !searchQuery && statusFilter === 'all';
 
   return (
     <PageLayout
@@ -286,11 +232,21 @@ export default function EncountersListPage(): React.ReactElement {
               : 'Create an encounter to set up a battle scenario'
           }
           action={
-            !(searchQuery || statusFilter !== 'all') && (
-              <Button variant="primary" onClick={handleCreateEncounter}>
-                Create First Encounter
-              </Button>
-            )
+            isTrulyEmpty ? (
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <Button variant="primary" onClick={handleCreateEncounter}>
+                  Create First Encounter
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={handleSeedSamples}
+                  disabled={isSeeding}
+                  data-testid="seed-samples-btn"
+                >
+                  {isSeeding ? 'Seeding...' : 'Seed sample encounters'}
+                </Button>
+              </div>
+            ) : null
           }
         />
       ) : (
@@ -299,6 +255,7 @@ export default function EncountersListPage(): React.ReactElement {
             <EncounterCard
               key={encounter.id}
               encounter={encounter}
+              rawForceIds={getEncounterRawForceIds(encounter.id)}
               onClick={() => handleEncounterClick(encounter)}
             />
           ))}
