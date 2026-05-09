@@ -202,4 +202,37 @@ describe('GET /api/replay-library/[source]/[gameId]', () => {
     expect(res.setHeader).toHaveBeenCalledWith('Allow', ['GET']);
     expect(res.status).toHaveBeenCalledWith(405);
   });
+
+  it('accepts source=encounter (5th ReplaySource auto-extends RECOGNIZED_REPLAY_SOURCES)', async () => {
+    // Per `link-encounters-to-replays` PR 1 task 1.4: the route's
+    // `RECOGNIZED_REPLAY_SOURCES = new Set(Object.values(ReplaySource))`
+    // SHALL pick up the new variant automatically. This test pins the
+    // behavior so a future regression that hardcodes the source list
+    // (e.g. `new Set(['swarm', 'quick', 'pvp', 'campaign'])`) trips here.
+    const encounterDir = path.join(tmpDir, 'simulation-reports', 'encounter');
+    await fs.mkdir(encounterDir, { recursive: true });
+    const events = [
+      {
+        type: 'game_created',
+        payload: { units: [] },
+        timestamp: '2026-05-08T10:00:00Z',
+      },
+    ];
+    const ndjson = events.map((e) => JSON.stringify(e)).join('\n');
+    await fs.writeFile(path.join(encounterDir, 'enc-1.jsonl'), ndjson, 'utf8');
+
+    const req = createMockRequest({
+      method: 'GET',
+      query: { source: 'encounter', gameId: 'enc-1' },
+    });
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      events,
+      gameId: 'enc-1',
+    });
+  });
 });

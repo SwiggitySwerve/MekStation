@@ -1,17 +1,22 @@
 /**
  * Compile-time + runtime assertions for the replay-library type primitives.
- * Per add-replay-library PR 1 — proves the enum has exactly the four expected
+ * Per add-replay-library PR 1 — proves the enum has exactly the five expected
  * variants and the discriminated union narrows correctly on `replaySource`.
  *
- * The narrowing tests double as a regression guard: if a future PR adds a
- * fifth variant to `ReplaySource` without updating `IReplayManifestEntry`,
+ * `link-encounters-to-replays` PR 1 grew the enum from 4 → 5 by adding
+ * `ReplaySource.Encounter` so encounter sessions can persist into the
+ * Replay Library alongside swarm / quick / pvp / campaign rows. The
+ * narrowing tests double as a regression guard: if a future PR adds a
+ * sixth variant to `ReplaySource` without updating `IReplayManifestEntry`,
  * the exhaustiveness check below fails compilation immediately.
  */
 
+import { ScenarioTemplateType } from '@/types/encounter/EncounterInterfaces';
 import { GameSide, ReplaySource } from '@/types/gameplay';
 
 import type {
   ICampaignReplayManifestEntry,
+  IEncounterReplayManifestEntry,
   IPvPReplayManifestEntry,
   IQuickReplayManifestEntry,
   IReplayManifestEntry,
@@ -19,10 +24,10 @@ import type {
 } from '../types';
 
 describe('ReplaySource enum', () => {
-  it('has exactly four variants', () => {
+  it('has exactly five variants', () => {
     // Object.values on a string-valued enum returns the value strings.
     const values = Object.values(ReplaySource).sort();
-    expect(values).toEqual(['campaign', 'pvp', 'quick', 'swarm']);
+    expect(values).toEqual(['campaign', 'encounter', 'pvp', 'quick', 'swarm']);
   });
 
   it('variant string values match filesystem partition directory names', () => {
@@ -33,6 +38,7 @@ describe('ReplaySource enum', () => {
     expect(ReplaySource.Quick).toBe('quick');
     expect(ReplaySource.PvP).toBe('pvp');
     expect(ReplaySource.Campaign).toBe('campaign');
+    expect(ReplaySource.Encounter).toBe('encounter');
   });
 });
 
@@ -88,6 +94,21 @@ describe('IReplayManifestEntry discriminated union', () => {
     difficulty: 'veteran',
   };
 
+  const encounterFixture: IEncounterReplayManifestEntry = {
+    id: 'enc-1',
+    replaySource: ReplaySource.Encounter,
+    path: 'encounter/enc-1.jsonl',
+    createdAt: '2026-05-07T12:04:00.000Z',
+    turns: 8,
+    winner: GameSide.Opponent,
+    bvTotal: 6400,
+    encounterId: 'encounter-alpha',
+    encounterName: "Wolf's Dragoons vs Clan Jade Falcon",
+    templateType: ScenarioTemplateType.Skirmish,
+    playerForceSummary: "Wolf's Dragoons (3200 BV, 4 units)",
+    opponentSummary: 'Clan Jade Falcon (3200 BV, 4 units)',
+  };
+
   it('narrows to swarm fields when replaySource === Swarm', () => {
     const entry: IReplayManifestEntry = swarmFixture;
     if (entry.replaySource === ReplaySource.Swarm) {
@@ -132,6 +153,24 @@ describe('IReplayManifestEntry discriminated union', () => {
     }
   });
 
+  it('narrows to encounter fields when replaySource === Encounter', () => {
+    // Mirrors the per-source narrowing checks above. If `link-encounters-to-
+    // replays` PR 1 misnamed any field on `IEncounterReplayManifestEntry`,
+    // the narrowed branch below will not compile.
+    const entry: IReplayManifestEntry = encounterFixture;
+    if (entry.replaySource === ReplaySource.Encounter) {
+      expect(entry.encounterId).toBe('encounter-alpha');
+      expect(entry.encounterName).toBe("Wolf's Dragoons vs Clan Jade Falcon");
+      expect(entry.templateType).toBe(ScenarioTemplateType.Skirmish);
+      expect(entry.playerForceSummary).toBe(
+        "Wolf's Dragoons (3200 BV, 4 units)",
+      );
+      expect(entry.opponentSummary).toBe('Clan Jade Falcon (3200 BV, 4 units)');
+    } else {
+      throw new Error('expected encounter narrowing');
+    }
+  });
+
   it('exhaustive switch covers every variant (compile-time guard)', () => {
     // The `assertNever` helper makes a missing variant a compile error.
     // If a future PR adds `ReplaySource.LANCoop` to the enum without
@@ -146,6 +185,8 @@ describe('IReplayManifestEntry discriminated union', () => {
           return `pvp:${entry.opponentName}`;
         case ReplaySource.Campaign:
           return `campaign:${entry.missionId}`;
+        case ReplaySource.Encounter:
+          return `encounter:${entry.encounterId}`;
         default: {
           const _exhaustive: never = entry;
           return _exhaustive;
@@ -157,6 +198,7 @@ describe('IReplayManifestEntry discriminated union', () => {
     expect(describeEntry(quickFixture)).toBe('quick:aggressive-v2');
     expect(describeEntry(pvpFixture)).toBe('pvp:Strazz');
     expect(describeEntry(campaignFixture)).toBe('campaign:mission-3');
+    expect(describeEntry(encounterFixture)).toBe('encounter:encounter-alpha');
   });
 
   it('bvTotal is always a number on every variant (write-time computed)', () => {
@@ -168,6 +210,7 @@ describe('IReplayManifestEntry discriminated union', () => {
       quickFixture,
       pvpFixture,
       campaignFixture,
+      encounterFixture,
     ];
     for (const entry of entries) {
       expect(typeof entry.bvTotal).toBe('number');
@@ -179,5 +222,27 @@ describe('IReplayManifestEntry discriminated union', () => {
     expect(pvpFixture.winner).toBeNull();
     expect(swarmFixture.winner).toBe(GameSide.Player);
     expect(quickFixture.winner).toBe(GameSide.Opponent);
+    expect(encounterFixture.winner).toBe(GameSide.Opponent);
+  });
+
+  it('encounter templateType accepts every ScenarioTemplateType + null', () => {
+    // The encounter manifest uses `ScenarioTemplateType | null` so a
+    // free-form / custom encounter can omit the template entirely. This test
+    // pins the typed field to every valid value so a future enum addition
+    // forces the manifest type to be reconsidered.
+    const validTemplates: ReadonlyArray<ScenarioTemplateType | null> = [
+      ScenarioTemplateType.Duel,
+      ScenarioTemplateType.Skirmish,
+      ScenarioTemplateType.Battle,
+      ScenarioTemplateType.Custom,
+      null,
+    ];
+    for (const template of validTemplates) {
+      const entry: IEncounterReplayManifestEntry = {
+        ...encounterFixture,
+        templateType: template,
+      };
+      expect(entry.templateType).toBe(template);
+    }
   });
 });

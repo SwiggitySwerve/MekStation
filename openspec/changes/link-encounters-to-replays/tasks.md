@@ -2,9 +2,9 @@
 
 ## 1. Types + enum + manifest interface (PR 1)
 
-- [ ] 1.1 Add `Encounter = 'encounter'` as the fifth value in `ReplaySource` at `src/types/gameplay/GameSessionInterfaces.ts:291-296`. Document the addition in the comment block above the enum.
+- [x] 1.1 Add `Encounter = 'encounter'` as the fifth value in `ReplaySource` at `src/types/gameplay/GameSessionInterfaces.ts:291-296`. Document the addition in the comment block above the enum.
   - Done when: `Object.values(ReplaySource)` returns five strings.
-- [ ] 1.2 Add `IEncounterReplayManifestEntry` interface to `src/replay-library/types.ts`:
+- [x] 1.2 Add `IEncounterReplayManifestEntry` interface to `src/replay-library/types.ts`:
   ```ts
   export interface IEncounterReplayManifestEntry extends IReplayManifestEntryBase {
     readonly replaySource: ReplaySource.Encounter;
@@ -17,16 +17,16 @@
   ```
   Append it to the `IReplayManifestEntry` discriminated union.
   - Done when: typecheck clean; the union has 5 members.
-- [ ] 1.3 Update enum-length tests to expect 5 (search for `Object.values(ReplaySource).length` and `Object.values(ReplaySource)` deep-equal-array assertions). Add a "narrows to Encounter" type-level test mirroring the existing per-source narrowing tests.
+- [x] 1.3 Update enum-length tests to expect 5 (search for `Object.values(ReplaySource).length` and `Object.values(ReplaySource)` deep-equal-array assertions). Add a "narrows to Encounter" type-level test mirroring the existing per-source narrowing tests.
   - Done when: all enum-length assertions updated; new narrowing test passes.
-- [ ] 1.4 Update `RECOGNIZED_REPLAY_SOURCES` consumer at `src/pages/api/replay-library/[source]/[gameId].ts:51-53` — confirm it dynamically uses `Object.values(ReplaySource)` and therefore picks up the variant automatically (no code change expected; verify in the test).
+- [x] 1.4 Update `RECOGNIZED_REPLAY_SOURCES` consumer at `src/pages/api/replay-library/[source]/[gameId].ts:51-53` — confirm it dynamically uses `Object.values(ReplaySource)` and therefore picks up the variant automatically (no code change expected; verify in the test).
   - Done when: API route unit test asserts `encounter` is a recognized source.
-- [ ] 1.5 Update `src/replay-library/backfill-scan.ts` — extend the partition switch with `case 'encounter': return ReplaySource.Encounter`. Update the per-source manifest entry builder to handle the Encounter case by reading `encounterId`, `encounterName`, `templateType`, `playerForceSummary`, `opponentSummary` from the first `GameCreated` event's payload.
+- [x] 1.5 Update `src/replay-library/backfill-scan.ts` — extend the partition switch with `case 'encounter': return ReplaySource.Encounter`. Update the per-source manifest entry builder to handle the Encounter case by reading `encounterId`, `encounterName`, `templateType`, `playerForceSummary`, `opponentSummary` from the first `GameCreated` event's payload.
   - Done when: a fixture jsonl at `simulation-reports/encounter/<gameId>.jsonl` is correctly read by `scanReplayDirectory` and produces an `IEncounterReplayManifestEntry`.
-- [ ] 1.6 Add backfill-scan unit test at `src/replay-library/__tests__/backfill-scan.test.ts` (extend existing) — Encounter fixture round-trip + idempotent re-scan.
+- [x] 1.6 Add backfill-scan unit test at `src/replay-library/__tests__/backfill-scan.test.ts` (extend existing) — Encounter fixture round-trip + idempotent re-scan.
   - Done when: test passes; existing scan tests still green.
-- [ ] 1.7 Run `npm run typecheck`, `npm run lint`, `npm test` clean.
-- [ ] 1.8 Open PR 1, CI green, merge.
+- [x] 1.7 Run `npm run typecheck`, `npm run lint`, `npm test` clean.
+- [x] 1.8 Open PR 1, CI green, merge.
 
 ## 2. Persist pipeline + API route (PR 2)
 
