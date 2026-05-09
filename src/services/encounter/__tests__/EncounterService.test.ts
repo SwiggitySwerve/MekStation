@@ -995,20 +995,23 @@ describe('EncounterService', () => {
       expect(encounter?.opponentForce?.unitCount).toBe(4);
     });
 
-    it('should handle deleted force gracefully', () => {
+    it('should null out playerForce when the referenced force was deleted', () => {
+      // Phase B of repair-broken-encounter-drafts widened the hydration
+      // boundary: a stored forceId that no longer resolves now becomes
+      // `null` (rather than passing the dangling ref through). Detection
+      // of "force deleted out from under the encounter" is downstream's
+      // job via `encounterBrokenRefs(encounter, rawForceIds)`.
       const force = createMockForce('force-deleted', 'Deleted Force');
       const createResult = service.createEncounter({
         name: 'Deleted Force Test',
       });
       service.setPlayerForce(createResult.id!, force.id);
 
-      // Delete the force
+      // Delete the force out from under the encounter.
       mockForces.delete(force.id);
 
       const encounter = service.getEncounter(createResult.id!);
-
-      // Should still have the reference but not hydrated with current data
-      expect(encounter?.playerForce?.forceId).toBe(force.id);
+      expect(encounter?.playerForce).toBeNull();
     });
   });
 

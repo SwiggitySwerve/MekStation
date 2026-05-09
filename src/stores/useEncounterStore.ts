@@ -22,9 +22,26 @@ import {
 // API Response Types
 // =============================================================================
 
+/**
+ * Raw stored force-id strings keyed by encounter id, returned alongside the
+ * hydrated encounter array so the list page can detect broken-pill state
+ * without an extra round-trip.
+ *
+ * @spec openspec/changes/repair-broken-encounter-drafts/specs/game-session-management/spec.md
+ *       (Requirement: Encounter List Surfaces Broken-Reference State)
+ */
+export type RawForceIdsByEncounterId = Record<
+  string,
+  {
+    readonly playerForceId: string | null;
+    readonly opponentForceId: string | null;
+  }
+>;
+
 interface ListEncountersResponse {
   encounters: IEncounter[];
   count: number;
+  rawForceIds?: RawForceIdsByEncounterId;
 }
 
 interface EncounterResponse {
@@ -57,6 +74,13 @@ interface ValidationResponse {
 interface EncounterStoreState {
   /** All loaded encounters */
   encounters: IEncounter[];
+  /**
+   * Raw stored force-id strings keyed by encounter id, populated from the
+   * `/api/encounters` GET response. Consumed by `getEncounterRawForceIds`
+   * + the `encounterBrokenRefs` helper for broken-pill detection on the
+   * list page.
+   */
+  rawForceIds: RawForceIdsByEncounterId;
   /** Currently selected encounter ID */
   selectedEncounterId: string | null;
   /** Loading state */
@@ -76,6 +100,15 @@ interface EncounterStoreActions {
   loadEncounters: () => Promise<void>;
   /** Get a single encounter by ID */
   getEncounter: (id: string) => IEncounter | undefined;
+  /**
+   * Get the raw stored force-id strings for an encounter. Returns null if
+   * the encounter id is unknown to the store (no entry in `rawForceIds`).
+   * Pair with `encounterBrokenRefs` to render broken-pill state.
+   */
+  getEncounterRawForceIds: (id: string) => {
+    playerForceId: string | null;
+    opponentForceId: string | null;
+  } | null;
   /** Create a new encounter */
   createEncounter: (input: ICreateEncounterInput) => Promise<string | null>;
   /** Update an encounter */
@@ -128,6 +161,7 @@ type EncounterStore = EncounterStoreState & EncounterStoreActions;
 export const useEncounterStore = create<EncounterStore>((set, get) => ({
   // State
   encounters: [],
+  rawForceIds: {},
   selectedEncounterId: null,
   isLoading: false,
   error: null,
@@ -144,7 +178,14 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
         throw new Error('Failed to load encounters');
       }
       const data = (await response.json()) as ListEncountersResponse;
-      set({ encounters: data.encounters, isLoading: false });
+      // `rawForceIds` may be absent on older server builds; default to {}
+      // so list-page broken-pill detection cleanly falls back to "no
+      // missing refs" instead of crashing on undefined access.
+      set({
+        encounters: data.encounters,
+        rawForceIds: data.rawForceIds ?? {},
+        isLoading: false,
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       set({ error: message, isLoading: false });
@@ -154,6 +195,12 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
   // Get an encounter by ID
   getEncounter: (id: string) => {
     return get().encounters.find((e) => e.id === id);
+  },
+
+  // Get raw stored force-id strings for the encounter. Used by the list
+  // page to feed `encounterBrokenRefs` for broken-pill rendering.
+  getEncounterRawForceIds: (id: string) => {
+    return get().rawForceIds[id] ?? null;
   },
 
   // Create a new encounter

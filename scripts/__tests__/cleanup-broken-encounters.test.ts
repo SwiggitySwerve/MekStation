@@ -379,7 +379,11 @@ describe('runCleanup', () => {
     expect(result.deletedIds).toEqual(
       expect.arrayContaining(['enc-abandoned-1', 'enc-abandoned-2']),
     );
-    expect(result.repairedIds).toHaveLength(0); // PR 1: orphans not yet repaired
+    // PR 2: orphans ARE repaired now via clearForceReference cascade.
+    expect(result.repairedIds).toHaveLength(2);
+    expect(result.repairedIds).toEqual(
+      expect.arrayContaining(['enc-orphaned-player', 'enc-orphaned-opp']),
+    );
     expect(result.retainedIds).toHaveLength(3);
 
     // DB state confirms the deletions actually happened
@@ -388,6 +392,14 @@ describe('runCleanup', () => {
     const remainingIds = remaining.map((e) => e.id);
     expect(remainingIds).not.toContain('enc-abandoned-1');
     expect(remainingIds).not.toContain('enc-abandoned-2');
+
+    // Repaired rows had their dangling force refs NULL'd in place.
+    const repairedPlayer = encounterRepo.getEncounterById(
+      'enc-orphaned-player',
+    );
+    const repairedOpp = encounterRepo.getEncounterById('enc-orphaned-opp');
+    expect(repairedPlayer?.playerForce).toBeUndefined();
+    expect(repairedOpp?.opponentForce).toBeUndefined();
   });
 
   it('is idempotent — re-running on cleaned DB writes manifest with empty deletedIds', async () => {
