@@ -25,6 +25,7 @@ import {
 } from '@/hooks/audit';
 import {
   useHexMapStateFromEvents,
+  useReplayMovementAnimations,
   useSharedReplayPlayer,
 } from '@/hooks/replay';
 import { EventCategory } from '@/types/events';
@@ -74,6 +75,16 @@ export function QuickGameReplayPanel({
   // event log when `currentSequence` actually changes.
   const hexMapState = useHexMapStateFromEvents(events, replay.currentSequence);
 
+  // Per `add-replay-step-and-effect-animations` (tactical-map-interface
+  // delta — "Replay Movement Step Animation Playback"): drive the
+  // shared `useAnimationQueue` from the same event log + cursor so
+  // tokens visually walk through their step chains during scrub. The
+  // `mapId` is scoped to this surface so it never collides with a co-
+  // mounted live-play queue.
+  useReplayMovementAnimations(events, replay.currentSequence, {
+    mapId: 'quickgame-replay',
+  });
+
   // Adapt the shared player's `IEventMarker` (from `@/hooks/replay`)
   // into the audit `IEventMarker` shape that `<ReplayTimeline>` consumes.
   // The two shapes only differ by the `category` field, which the
@@ -116,6 +127,13 @@ export function QuickGameReplayPanel({
       <div className="bg-surface-base/30 flex min-h-[480px] flex-1 items-center justify-center overflow-hidden">
         {hexMapState.tokens.length > 0 ? (
           <HexMapDisplay
+            // Per `add-replay-step-and-effect-animations` D6: scope the
+            // animation queue's `mapId` to this surface so a co-mounted
+            // live-play queue can never block on (or be blocked by)
+            // replay animations. `<HexMapDisplay>` already mounts
+            // `<AttackEffectsLayer>` internally with this `mapId`, so
+            // weapon impact visuals fire in replay alongside movement.
+            mapId="quickgame-replay"
             radius={hexMapState.mapRadius > 0 ? hexMapState.mapRadius : 9}
             tokens={hexMapState.tokens}
             hexTerrain={hexMapState.hexTerrain}

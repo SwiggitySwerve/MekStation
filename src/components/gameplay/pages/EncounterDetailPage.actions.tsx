@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useCallback } from 'react';
 
 import { Button, Card } from '@/components/ui';
 
@@ -59,6 +61,50 @@ export function EncounterActionsFooter({
         </Button>
       </Link>
     </div>
+  );
+}
+
+interface EncounterWatchReplayButtonProps {
+  /**
+   * The launched session id stamped onto the encounter row by
+   * `EncounterRepository.linkSession`. The button is rendered only
+   * when this is a non-empty string.
+   */
+  gameSessionId: string | undefined;
+}
+
+/**
+ * Per `add-replay-step-and-effect-animations` (encounter-system delta —
+ * "Encounter Detail Watch Replay Link"). Renders a Watch Replay action
+ * that routes the user to `/gameplay/games/<gameSessionId>/replay` when
+ * the loaded encounter has been launched. Hidden when `gameSessionId`
+ * is `undefined` so unlaunched / draft / completed-but-unstamped
+ * encounters never expose the link.
+ *
+ * Uses `next/router`'s `push` (D7) to keep the encounter store warm
+ * across the navigation — the watcher who hits the back button lands
+ * on the same encounter detail page without a re-fetch.
+ */
+export function EncounterWatchReplayButton({
+  gameSessionId,
+}: EncounterWatchReplayButtonProps): React.ReactElement | null {
+  const router = useRouter();
+
+  const handleClick = useCallback(() => {
+    if (gameSessionId === undefined) return;
+    void router.push('/gameplay/games/' + gameSessionId + '/replay');
+  }, [router, gameSessionId]);
+
+  if (gameSessionId === undefined) return null;
+
+  return (
+    <Button
+      variant="primary"
+      onClick={handleClick}
+      data-testid="encounter-watch-replay-link"
+    >
+      Watch Replay
+    </Button>
   );
 }
 

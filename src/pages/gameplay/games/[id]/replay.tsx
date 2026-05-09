@@ -48,6 +48,7 @@ import {
 } from '@/hooks/audit';
 import {
   useHexMapStateFromEvents,
+  useReplayMovementAnimations,
   useSharedReplayPlayer,
 } from '@/hooks/replay';
 import { IBaseEvent, EventCategory } from '@/types/events';
@@ -187,6 +188,16 @@ export default function GameReplayPage(): React.ReactElement {
     uploadedEvents ?? [],
     replay.currentSequence,
   );
+
+  // Per `add-replay-step-and-effect-animations` (tactical-map-interface
+  // delta — "Replay Movement Step Animation Playback"): drive the
+  // shared `useAnimationQueue` from the uploaded event log + cursor so
+  // tokens visually walk through their step chains during scrub. The
+  // `mapId` is scoped to this surface so it never collides with a co-
+  // mounted live-play queue.
+  useReplayMovementAnimations(uploadedEvents ?? [], replay.currentSequence, {
+    mapId: 'replay',
+  });
 
   // Status-pill summary for the JsonlFileLoader.
   const uploadSummary = useMemo(() => {
@@ -459,6 +470,14 @@ export default function GameReplayPage(): React.ReactElement {
             <div className="bg-surface-base/30 flex flex-1 items-center justify-center overflow-hidden">
               {isUploadActive && hexMapState.tokens.length > 0 ? (
                 <HexMapDisplay
+                  // Per `add-replay-step-and-effect-animations` D6: scope
+                  // the animation queue's `mapId` to this surface so a
+                  // co-mounted live-play queue can never block on (or
+                  // be blocked by) replay animations. `<HexMapDisplay>`
+                  // already mounts `<AttackEffectsLayer>` internally
+                  // with this `mapId`, so weapon impact visuals fire in
+                  // replay alongside movement.
+                  mapId="replay"
                   radius={hexMapState.mapRadius > 0 ? hexMapState.mapRadius : 9}
                   tokens={hexMapState.tokens}
                   hexTerrain={hexMapState.hexTerrain}
