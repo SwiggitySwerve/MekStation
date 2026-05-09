@@ -30,7 +30,7 @@
 
 ## 2. Persist pipeline + API route (PR 2)
 
-- [ ] 2.1 Author `src/components/encounter/persistEncounterGame.ts` mirroring `src/components/quickgame/persistQuickGame.ts`:
+- [x] 2.1 Author `src/components/encounter/persistEncounterGame.ts` mirroring `src/components/quickgame/persistQuickGame.ts`:
   - Export `IPersistEncounterGameInput` containing `gameId`, `events`, `winner` (`'player' | 'opponent' | 'draw' | null`), `encounterId`, `encounterName`, `templateType`, `playerForceSummary`, `opponentSummary`, optional `cwd`.
   - Export `IPersistEncounterGameResult` with `persisted`, `path`, `manifestEntry` (typed as `IEncounterReplayManifestEntry | null`).
   - Implement `shouldPersistToDisk` three-gate (Node runtime + cwd-or-NODE_ENV) — duplicate from `persistQuickGame.ts` per the change brief; do NOT extract a shared helper.
@@ -38,7 +38,7 @@
   - Implement `buildEncounterManifestEntry(input)`: derives `turns` from `countTurnStartedEvents(events)` (duplicate the helper), `winner` from the input, `bvTotal` from the first `GameCreated.payload.units` summed `.bv` fields, `createdAt` from `new Date().toISOString()`. Returns the typed manifest entry.
   - Implement `persistEncounterGame(input)`: writes `simulation-reports/encounter/<gameId>.jsonl` then calls `appendManifestEntry(manifestEntry, { cwd })`.
   - Done when: file compiles; matches the shape of `persistQuickGame.ts` line-for-line where applicable.
-- [ ] 2.2 Add unit tests at `src/components/encounter/__tests__/persistEncounterGame.test.ts` mirroring the 5 quick-game scenarios + 1 Encounter-specific scenario:
+- [x] 2.2 Add unit tests at `src/components/encounter/__tests__/persistEncounterGame.test.ts` mirroring the 5 quick-game scenarios + 1 Encounter-specific scenario:
   - Happy path with explicit cwd: writes file under tmpdir, manifest entry appended, returns `persisted: true`, manifestEntry has the right discriminator.
   - Browser env (no Node runtime): no-op, returns `persisted: false, manifestEntry: null`.
   - Test env without cwd: no-op (jest-jsdom guard).
@@ -46,14 +46,14 @@
   - Manifest entry shape: `replaySource: 'encounter'`, all source-specific fields populated correctly.
   - Round-trip: written file parses back into an event array with the post-stamped source.
   - Done when: 6 tests pass.
-- [ ] 2.3 Author `src/pages/api/replay-library/encounter.ts` POST handler mirroring `quick.ts`:
+- [x] 2.3 Author `src/pages/api/replay-library/encounter.ts` POST handler mirroring `quick.ts`:
   - Same `GAME_ID_PATTERN` regex (`^[A-Za-z0-9_-]+$`) — duplicate not import.
   - Same `parseBody` shape returning `{ ok: true, input } | { ok: false, error }` with explicit field-by-field validation: `gameId` (regex), `events` (array), `winner` (null OR one of 'player'/'opponent'/'draw'), `encounterId` (non-empty string), `encounterName` (string), `templateType` (string-of-ScenarioTemplateType OR null), `playerForceSummary` (string), `opponentSummary` (string).
   - Same dedup guard via `readReplayIndex` + id check; on duplicate return `{ persisted: false, alreadyPersisted: true, manifestEntry: <built fresh>, path: 'encounter/<gameId>.jsonl' }`.
   - On non-duplicate, call `persistEncounterGame(input)`, return `{ persisted, alreadyPersisted: false, manifestEntry, path }`.
   - 405 on non-POST; 400 on parse failure; 500 on persistEncounterGame throw.
   - Done when: handler compiles; returns shape matches the quick handler.
-- [ ] 2.4 Add API route tests at `src/__tests__/api/replay-library/encounter.test.ts` (NOT `src/pages/api/replay-library/__tests__/...` — existing convention: API route tests live under `src/__tests__/api/`; mirror the sibling at `src/__tests__/api/replay-library/quick.test.ts` from PR #557) mirroring the quick route tests:
+- [x] 2.4 Add API route tests at `src/__tests__/api/replay-library/encounter.test.ts` (NOT `src/pages/api/replay-library/__tests__/...` — existing convention: API route tests live under `src/__tests__/api/`; mirror the sibling at `src/__tests__/api/replay-library/quick.test.ts` from PR #557) mirroring the quick route tests:
   - 200 happy path: POST returns `persisted: true, alreadyPersisted: false`.
   - 200 dedup: POST same gameId twice; second returns `persisted: false, alreadyPersisted: true`.
   - 400 bad gameId: POST with `gameId: 'foo/../bar'` → BAD_GAME_ID.
@@ -62,8 +62,8 @@
   - 405 on GET.
   - 500 on persist failure: mock `persistEncounterGame` to throw → 500 PERSIST_FAILED.
   - Done when: 7 tests pass.
-- [ ] 2.5 Run `npm run typecheck`, `npm run lint`, `npm test` clean.
-- [ ] 2.6 Open PR 2, CI green, merge.
+- [x] 2.5 Run `npm run typecheck`, `npm run lint`, `npm test` clean.
+- [x] 2.6 Open PR 2, CI green, merge.
 
 ## 3. Wire EncounterService + Replay Library UI (PR 3)
 
