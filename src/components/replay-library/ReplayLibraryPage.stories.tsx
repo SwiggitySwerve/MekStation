@@ -21,6 +21,7 @@ import { useEffect } from 'react';
 
 import type { IReplayManifestEntry } from '@/replay-library/types';
 
+import { ScenarioTemplateType } from '@/types/encounter';
 import { GameSide, ReplaySource } from '@/types/gameplay';
 
 import ReplayLibraryPage from './ReplayLibraryPage';
@@ -91,6 +92,40 @@ const campaignEntry: IReplayManifestEntry = {
   campaignId: 'rim-collection-2026',
   missionId: 'mission-7',
   difficulty: 'veteran',
+};
+
+// Per `link-encounters-to-replays` PR 3: encounter rows expose
+// `encounterName`, `templateType` (or null → "Custom"), and rendered
+// `playerForceSummary` / `opponentSummary` strings.
+const encounterEntry: IReplayManifestEntry = {
+  id: 'enc-session-101',
+  replaySource: ReplaySource.Encounter,
+  path: 'encounter/enc-session-101.jsonl',
+  createdAt: '2026-05-08T09:00:00.000Z',
+  turns: 9,
+  winner: GameSide.Player,
+  bvTotal: 5400,
+  encounterId: 'enc-defense-1',
+  encounterName: 'Defense of New Avalon',
+  templateType: ScenarioTemplateType.Duel,
+  playerForceSummary: 'Lance Alpha (4500 BV, 4 units)',
+  opponentSummary: 'Generated OpFor (~3000 BV)',
+};
+
+const encounterEntryCustom: IReplayManifestEntry = {
+  id: 'enc-session-102',
+  replaySource: ReplaySource.Encounter,
+  path: 'encounter/enc-session-102.jsonl',
+  createdAt: '2026-05-08T11:45:00.000Z',
+  turns: 6,
+  winner: GameSide.Opponent,
+  bvTotal: 6200,
+  encounterId: 'enc-freeform-1',
+  encounterName: 'Free-form Brawl',
+  // null templateType — the row falls back to the literal "Custom" label.
+  templateType: null,
+  playerForceSummary: 'Bravo Lance (5100 BV, 4 units)',
+  opponentSummary: 'Hostile Star (5800 BV, 5 units)',
 };
 
 // =============================================================================
@@ -178,8 +213,16 @@ export const PopulatedLibrary: Story = {
   decorators: [
     makeFetchDecorator({
       listResponse: {
-        entries: [swarmEntry, swarmEntry2, quickEntry, pvpEntry, campaignEntry],
-        total: 5,
+        entries: [
+          swarmEntry,
+          swarmEntry2,
+          quickEntry,
+          pvpEntry,
+          campaignEntry,
+          encounterEntry,
+          encounterEntryCustom,
+        ],
+        total: 7,
       },
     }),
   ],
@@ -198,6 +241,20 @@ export const SwarmOnly: Story = {
     makeFetchDecorator({
       listResponse: {
         entries: [swarmEntry, swarmEntry2],
+        total: 2,
+      },
+    }),
+  ],
+};
+
+// Per `link-encounters-to-replays` PR 3 task 3.6: encounter-only fixture
+// so the metadata strip's templateType + force-summary rendering can be
+// reviewed visually without mixing in other source variants.
+export const EncounterOnly: Story = {
+  decorators: [
+    makeFetchDecorator({
+      listResponse: {
+        entries: [encounterEntry, encounterEntryCustom],
         total: 2,
       },
     }),

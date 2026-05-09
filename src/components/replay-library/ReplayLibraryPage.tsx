@@ -61,6 +61,7 @@ const SOURCE_FILTERS: ReadonlyArray<{
   { key: ReplaySource.Quick, label: 'Quick' },
   { key: ReplaySource.PvP, label: 'PvP' },
   { key: ReplaySource.Campaign, label: 'Campaign' },
+  { key: ReplaySource.Encounter, label: 'Encounter' },
 ];
 
 // =============================================================================
@@ -220,14 +221,14 @@ function SourceMetadata({
         </div>
       );
     case ReplaySource.Encounter:
-      // PR 1 of `link-encounters-to-replays` introduces the Encounter variant
-      // so the type system grows from 4 → 5. PR 3 fills in the proper metadata
-      // strip (encounterName, templateType, playerForceSummary vs
-      // opponentSummary) and adds the matching SOURCE_FILTERS button. Until
-      // then this stub keeps the exhaustiveness `_exhaustive: never` guard
-      // happy and the typecheck green — a developer running PR 1 alone never
-      // sees an Encounter row anyway because no emitter writes them yet.
-      // TODO(PR3 link-encounters-to-replays): replace with real metadata strip.
+      // PR 3 of `link-encounters-to-replays` fills in the metadata strip
+      // for encounter rows. The fields are snapshot-at-launch values
+      // (see `IEncounterMeta` doc) — re-renaming the encounter or
+      // deleting one of its forces does NOT mutate this row, so the
+      // strip can render without resolving any external state.
+      //
+      // `templateType` falls back to the literal `"Custom"` label for
+      // free-form encounters that never had a template applied.
       return (
         <div
           className="text-text-theme-secondary text-xs"
@@ -235,7 +236,27 @@ function SourceMetadata({
         >
           <div>
             Encounter:{' '}
-            <span data-testid="replay-encounter-id">{entry.encounterId}</span>
+            <span data-testid="replay-encounter-name">
+              {entry.encounterName || '(unnamed)'}
+            </span>
+          </div>
+          <div>
+            Template:{' '}
+            <span data-testid="replay-template-type">
+              {entry.templateType ?? 'Custom'}
+            </span>
+          </div>
+          <div>
+            Player:{' '}
+            <span data-testid="replay-player-force-summary">
+              {entry.playerForceSummary || '(unknown)'}
+            </span>
+          </div>
+          <div>
+            Opponent:{' '}
+            <span data-testid="replay-opponent-summary">
+              {entry.opponentSummary || '(unknown)'}
+            </span>
           </div>
         </div>
       );
