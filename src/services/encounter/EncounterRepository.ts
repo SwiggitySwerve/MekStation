@@ -26,7 +26,10 @@ import {
   type SingletonFactory,
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
-import { rowToEncounter } from './EncounterRepository.helpers';
+import {
+  extractRawForceIds,
+  rowToEncounter,
+} from './EncounterRepository.helpers';
 
 // =============================================================================
 // Database Row Types
@@ -68,6 +71,23 @@ export interface IEncounterOperationResult {
   readonly errorCode?: EncounterErrorCode;
 }
 
+/**
+ * Encounter paired with the raw force-id strings stored in the row.
+ *
+ * The raw ids are needed by callers that distinguish between "no force ever
+ * stored" (rawForceId is null) and "force was stored but the referenced row
+ * is gone" (rawForceId is non-null but the hydrated `playerForce` resolves
+ * to undefined / null). The cleanup-broken-encounters script and the
+ * encounter list page broken-pill UI both consume this shape.
+ */
+export interface IEncounterWithRawForceIds {
+  readonly encounter: IEncounter;
+  readonly rawForceIds: {
+    readonly playerForceId: string | null;
+    readonly opponentForceId: string | null;
+  };
+}
+
 // =============================================================================
 // Repository Interface
 // =============================================================================
@@ -77,6 +97,7 @@ export interface IEncounterRepository {
   createEncounter(input: ICreateEncounterInput): IEncounterOperationResult;
   getEncounterById(id: string): IEncounter | null;
   getAllEncounters(): readonly IEncounter[];
+  getAllEncountersWithRawIds(): readonly IEncounterWithRawForceIds[];
   getEncountersByStatus(status: EncounterStatus): readonly IEncounter[];
   updateEncounter(
     id: string,
@@ -247,6 +268,30 @@ export class EncounterRepository implements IEncounterRepository {
       .all() as EncounterRow[];
 
     return rows.map((row) => rowToEncounter(row));
+  }
+
+  /**
+   * Get every encounter alongside its raw stored force-id strings.
+   *
+   * The hydrated `IEncounter.playerForce` only contains a forceId when the
+   * referenced force exists; if it was deleted the hydrated value is empty
+   * (today: zero-name ref; after hydration repair: null/undefined). To detect
+   * "the row stores a forceId but the force is gone" the caller needs the
+   * raw stored ids — that's what this method exposes.
+   *
+   * Used by:
+   *   - scripts/cleanup-broken-encounters.ts (classify orphaned-force-reference)
+   *   - the encounter list page (broken-pill rendering)
+   */
+  getAllEncountersWithRawIds(): readonly IEncounterWithRawForceIds[] {
+    this.initialize();
+
+    const db = getSQLiteService().getDatabase();
+    const rows = db
+      .prepare('SELECT * FROM encounters ORDER BY updated_at DESC')
+      .all() as EncounterRow[];
+
+    return rows.map((row) => extractRawForceIds(row));
   }
 
   getEncountersByStatus(status: EncounterStatus): readonly IEncounter[] {

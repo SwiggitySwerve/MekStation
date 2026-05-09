@@ -58,3 +58,45 @@ export function rowToEncounter(row: EncounterRow): IEncounter {
     gameSessionId: row.game_session_id ?? undefined,
   };
 }
+
+/**
+ * Encounter paired with raw stored force ids.
+ *
+ * Defined inline (rather than imported from EncounterRepository.ts) to avoid
+ * a helpers→repository circular import while still keeping the row-shaped
+ * extractor co-located with `rowToEncounter`.
+ */
+export interface IEncounterWithRawForceIdsHelper {
+  readonly encounter: IEncounter;
+  readonly rawForceIds: {
+    readonly playerForceId: string | null;
+    readonly opponentForceId: string | null;
+  };
+}
+
+/**
+ * Pull the raw `forceId` strings out of the JSON columns BEFORE hydration.
+ * Returns null when the column is null OR the JSON does not contain a
+ * `forceId` key (defensive — a malformed row should not crash the read).
+ */
+export function extractRawForceIds(
+  row: EncounterRow,
+): IEncounterWithRawForceIdsHelper {
+  const encounter = rowToEncounter(row);
+  const playerForceId = readForceIdFromJson(row.player_force_json);
+  const opponentForceId = readForceIdFromJson(row.opponent_force_json);
+  return {
+    encounter,
+    rawForceIds: { playerForceId, opponentForceId },
+  };
+}
+
+function readForceIdFromJson(json: string | null): string | null {
+  if (!json) return null;
+  try {
+    const parsed = JSON.parse(json) as { forceId?: unknown };
+    return typeof parsed.forceId === 'string' ? parsed.forceId : null;
+  } catch {
+    return null;
+  }
+}
