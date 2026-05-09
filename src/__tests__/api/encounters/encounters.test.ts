@@ -68,6 +68,25 @@ jest.mock('@/services/encounter/EncounterService', () => ({
   getEncounterService: () => mockEncounterService,
 }));
 
+// Mock Encounter repository (the GET /api/encounters handler reads
+// `getAllEncountersWithRawIds` to build the rawForceIds response field).
+const mockEncounterRepository = {
+  getAllEncountersWithRawIds: jest.fn(),
+};
+
+jest.mock('@/services/encounter/EncounterRepository', () => {
+  // Re-use the actual error code enum so tests can still reference
+  // EncounterErrorCode.* without rebuilding it.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const actual = jest.requireActual<
+    typeof import('@/services/encounter/EncounterRepository')
+  >('@/services/encounter/EncounterRepository');
+  return {
+    ...actual,
+    getEncounterRepository: () => mockEncounterRepository,
+  };
+});
+
 // =============================================================================
 // Test Helpers
 // =============================================================================
@@ -153,14 +172,27 @@ function createErrorResult(
 describe('GET /api/encounters', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default: repository returns nothing — individual tests override to
+    // seed rawForceIds entries when they care about the broken-pill payload.
+    mockEncounterRepository.getAllEncountersWithRawIds.mockReturnValue([]);
   });
 
-  it('should list all encounters', async () => {
+  it('should list all encounters with rawForceIds map', async () => {
     const encounters = [
       createMockEncounter({ id: 'enc-1', name: 'Encounter 1' }),
       createMockEncounter({ id: 'enc-2', name: 'Encounter 2' }),
     ];
     mockEncounterService.getAllEncounters.mockReturnValue(encounters);
+    mockEncounterRepository.getAllEncountersWithRawIds.mockReturnValue([
+      {
+        encounter: encounters[0],
+        rawForceIds: { playerForceId: 'f-1', opponentForceId: null },
+      },
+      {
+        encounter: encounters[1],
+        rawForceIds: { playerForceId: null, opponentForceId: 'f-2' },
+      },
+    ]);
 
     const req = createMockRequest({ method: 'GET' });
     const res = createMockResponse();
@@ -171,10 +203,14 @@ describe('GET /api/encounters', () => {
     expect(res.json).toHaveBeenCalledWith({
       encounters,
       count: 2,
+      rawForceIds: {
+        'enc-1': { playerForceId: 'f-1', opponentForceId: null },
+        'enc-2': { playerForceId: null, opponentForceId: 'f-2' },
+      },
     });
   });
 
-  it('should return empty list when no encounters exist', async () => {
+  it('should return empty list with empty rawForceIds when no encounters exist', async () => {
     mockEncounterService.getAllEncounters.mockReturnValue([]);
 
     const req = createMockRequest({ method: 'GET' });
@@ -186,6 +222,35 @@ describe('GET /api/encounters', () => {
     expect(res.json).toHaveBeenCalledWith({
       encounters: [],
       count: 0,
+      rawForceIds: {},
+    });
+  });
+
+  it('returns null rawForceIds for an encounter with no forces stored', async () => {
+    const encounter = createMockEncounter({ id: 'enc-empty' });
+    mockEncounterService.getAllEncounters.mockReturnValue([encounter]);
+    mockEncounterRepository.getAllEncountersWithRawIds.mockReturnValue([
+      {
+        encounter,
+        rawForceIds: { playerForceId: null, opponentForceId: null },
+      },
+    ]);
+
+    const req = createMockRequest({ method: 'GET' });
+    const res = createMockResponse();
+
+    await encountersHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    const responseJson = res.json.mock.calls[0]?.[0] as {
+      rawForceIds: Record<
+        string,
+        { playerForceId: string | null; opponentForceId: string | null }
+      >;
+    };
+    expect(responseJson.rawForceIds['enc-empty']).toEqual({
+      playerForceId: null,
+      opponentForceId: null,
     });
   });
 

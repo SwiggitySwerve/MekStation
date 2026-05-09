@@ -773,6 +773,232 @@ describe('ForceRepository', () => {
   });
 
   // ===========================================================================
+  // deleteForce — Cascade to Encounter References (PR 2 of repair-broken-encounter-drafts)
+  // ===========================================================================
+
+  describe('deleteForce — encounter cascade hook', () => {
+    /**
+     * Insert a raw encounter row referencing the given forceId on the chosen
+     * slot. Skips the EncounterRepository's createEncounter API because that
+     * doesn't seed playerForce on insert (it's update-only). For the cascade
+     * tests we want a row that looks like the "force was just deleted out
+     * from under it" scenario.
+     */
+    function ensureEncountersTable(): void {
+      const db = getSQLiteService().getDatabase();
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS encounters (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          description TEXT,
+          status TEXT NOT NULL DEFAULT 'draft',
+          template TEXT,
+          player_force_json TEXT,
+          opponent_force_json TEXT,
+          opfor_config_json TEXT,
+          map_config_json TEXT NOT NULL,
+          victory_conditions_json TEXT NOT NULL,
+          optional_rules_json TEXT NOT NULL DEFAULT '[]',
+          game_session_id TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        )
+      `);
+    }
+
+    function insertEncounterWithForce(input: {
+      id: string;
+      forceId: string;
+      slot: 'player' | 'opponent';
+    }): void {
+      const db = getSQLiteService().getDatabase();
+      const ref = JSON.stringify({
+        forceId: input.forceId,
+        forceName: '',
+        totalBV: 0,
+        unitCount: 0,
+      });
+      const map = JSON.stringify({
+        radius: 6,
+        terrain: 'clear',
+        playerDeploymentZone: 'south',
+        opponentDeploymentZone: 'north',
+      });
+      const now = new Date().toISOString();
+      db.prepare(
+        `INSERT INTO encounters (
+          id, name, description, status, template,
+          player_force_json, opponent_force_json, opfor_config_json,
+          map_config_json, victory_conditions_json, optional_rules_json,
+          game_session_id, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).run(
+        input.id,
+        `Encounter ${input.id}`,
+        null,
+        'draft',
+        null,
+        input.slot === 'player' ? ref : null,
+        input.slot === 'opponent' ? ref : null,
+        null,
+        map,
+        JSON.stringify([]),
+        JSON.stringify([]),
+        null,
+        now,
+        now,
+      );
+    }
+
+    function readEncounterPlayerForceJson(id: string): string | null {
+      const db = getSQLiteService().getDatabase();
+      const row = db
+        .prepare('SELECT player_force_json FROM encounters WHERE id = ?')
+        .get(id) as { player_force_json: string | null } | undefined;
+      return row?.player_force_json ?? null;
+    }
+
+    function readEncounterOpponentForceJson(id: string): string | null {
+      const db = getSQLiteService().getDatabase();
+      const row = db
+        .prepare('SELECT opponent_force_json FROM encounters WHERE id = ?')
+        .get(id) as { opponent_force_json: string | null } | undefined;
+      return row?.opponent_force_json ?? null;
+    }
+
+    function forceRowExists(id: string): boolean {
+      const db = getSQLiteService().getDatabase();
+      const row = db.prepare('SELECT id FROM forces WHERE id = ?').get(id);
+      return !!row;
+    }
+
+    beforeEach(() => {
+      ensureEncountersTable();
+      // Reset cascade hook between tests so a thrown-hook test from earlier
+      // can't leak into a later "no encounter ref" test.
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const cascade =
+        require('../ForceRepository.cascade') as typeof import('../ForceRepository.cascade');
+      cascade.clearEncounterCascadeHook();
+    });
+
+    it('deletes a force not referenced by any encounter — encounters unchanged', () => {
+      // Encounter referencing a DIFFERENT force should be untouched.
+      const keepResult = repository.createForce({
+        name: 'Keep',
+        forceType: ForceType.Lance,
+      });
+      const dropResult = repository.createForce({
+        name: 'Drop',
+        forceType: ForceType.Lance,
+      });
+      insertEncounterWithForce({
+        id: 'enc-untouched',
+        forceId: keepResult.id!,
+        slot: 'player',
+      });
+
+      const deleteResult = repository.deleteForce(dropResult.id!);
+
+      expect(deleteResult.success).toBe(true);
+      expect(forceRowExists(dropResult.id!)).toBe(false);
+      // Untouched encounter still references the OTHER force
+      const ref = readEncounterPlayerForceJson('enc-untouched');
+      expect(ref).not.toBeNull();
+      expect(JSON.parse(ref!)).toMatchObject({ forceId: keepResult.id });
+    });
+
+    it('cascade-NULLs every encounter slot (player + opponent) when the force is deleted', () => {
+      // Create a force, then plant 3 encounter references at it (mix of
+      // player/opponent slots), then register the cascade hook + delete.
+      const target = repository.createForce({
+        name: 'Target',
+        forceType: ForceType.Lance,
+      });
+
+      insertEncounterWithForce({
+        id: 'enc-p1',
+        forceId: target.id!,
+        slot: 'player',
+      });
+      insertEncounterWithForce({
+        id: 'enc-p2',
+        forceId: target.id!,
+        slot: 'player',
+      });
+      insertEncounterWithForce({
+        id: 'enc-o1',
+        forceId: target.id!,
+        slot: 'opponent',
+      });
+
+      // Wire a real-shaped cascade hook: NULL the json columns by forceId.
+      // Mirrors the production EncounterRepository.clearForceReference.
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const cascade =
+        require('../ForceRepository.cascade') as typeof import('../ForceRepository.cascade');
+      cascade.setEncounterCascadeHook((forceId: string) => {
+        const db = getSQLiteService().getDatabase();
+        const now = new Date().toISOString();
+        db.prepare(
+          `UPDATE encounters
+           SET player_force_json = NULL, updated_at = ?
+           WHERE json_extract(player_force_json, '$.forceId') = ?`,
+        ).run(now, forceId);
+        db.prepare(
+          `UPDATE encounters
+           SET opponent_force_json = NULL, updated_at = ?
+           WHERE json_extract(opponent_force_json, '$.forceId') = ?`,
+        ).run(now, forceId);
+      });
+
+      const deleteResult = repository.deleteForce(target.id!);
+
+      expect(deleteResult.success).toBe(true);
+      expect(forceRowExists(target.id!)).toBe(false);
+      // All 3 encounter slots NULL
+      expect(readEncounterPlayerForceJson('enc-p1')).toBeNull();
+      expect(readEncounterPlayerForceJson('enc-p2')).toBeNull();
+      expect(readEncounterOpponentForceJson('enc-o1')).toBeNull();
+    });
+
+    it('rolls back the force-row delete when the cascade hook throws', () => {
+      // Thrown hook → outer transaction rolls back, force row stays.
+      const target = repository.createForce({
+        name: 'Rollback Target',
+        forceType: ForceType.Lance,
+      });
+
+      insertEncounterWithForce({
+        id: 'enc-rollback',
+        forceId: target.id!,
+        slot: 'player',
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const cascade =
+        require('../ForceRepository.cascade') as typeof import('../ForceRepository.cascade');
+      cascade.setEncounterCascadeHook(() => {
+        throw new Error('Simulated cascade failure');
+      });
+
+      const deleteResult = repository.deleteForce(target.id!);
+
+      // Outer transaction caught the throw; result reports the error.
+      expect(deleteResult.success).toBe(false);
+      expect(deleteResult.error).toContain('Simulated cascade failure');
+
+      // Force row STILL present — atomic rollback held.
+      expect(forceRowExists(target.id!)).toBe(true);
+
+      // Encounter row also untouched — the hook threw before any UPDATE landed.
+      const ref = readEncounterPlayerForceJson('enc-rollback');
+      expect(ref).not.toBeNull();
+      expect(JSON.parse(ref!)).toMatchObject({ forceId: target.id });
+    });
+  });
+
+  // ===========================================================================
   // updateAssignment Tests
   // ===========================================================================
 
@@ -780,10 +1006,12 @@ describe('ForceRepository', () => {
     // Helper to create a test pilot in the database
     function createTestPilot(id: string): void {
       const db = getSQLiteService().getDatabase();
-      db.prepare(`
+      db.prepare(
+        `
         INSERT INTO pilots (id, name, gunnery, piloting, type, status, created_at, updated_at)
         VALUES (?, ?, 4, 5, 'persistent', 'active', datetime('now'), datetime('now'))
-      `).run(id, `Test Pilot ${id}`);
+      `,
+      ).run(id, `Test Pilot ${id}`);
     }
 
     it('should update pilot ID', () => {
@@ -972,10 +1200,12 @@ describe('ForceRepository', () => {
     // Helper to create a test pilot in the database
     function createSwapTestPilot(id: string): void {
       const db = getSQLiteService().getDatabase();
-      db.prepare(`
+      db.prepare(
+        `
         INSERT INTO pilots (id, name, gunnery, piloting, type, status, created_at, updated_at)
         VALUES (?, ?, 4, 5, 'persistent', 'active', datetime('now'), datetime('now'))
-      `).run(id, `Test Pilot ${id}`);
+      `,
+      ).run(id, `Test Pilot ${id}`);
     }
 
     it('should swap pilot and unit between two assignments', () => {
@@ -1092,10 +1322,12 @@ describe('ForceRepository', () => {
     // Helper to create a test pilot in the database
     function createClearTestPilot(id: string): void {
       const db = getSQLiteService().getDatabase();
-      db.prepare(`
+      db.prepare(
+        `
         INSERT INTO pilots (id, name, gunnery, piloting, type, status, created_at, updated_at)
         VALUES (?, ?, 4, 5, 'persistent', 'active', datetime('now'), datetime('now'))
-      `).run(id, `Test Pilot ${id}`);
+      `,
+      ).run(id, `Test Pilot ${id}`);
     }
 
     it('should clear pilot and unit from assignment', () => {

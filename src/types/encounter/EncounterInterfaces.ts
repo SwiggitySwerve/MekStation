@@ -163,10 +163,24 @@ export interface IEncounter {
   readonly status: EncounterStatus;
   /** Scenario template used (if any) */
   readonly template?: ScenarioTemplateType;
-  /** Player force reference */
-  readonly playerForce?: IForceReference;
-  /** Opponent force (explicit) */
-  readonly opponentForce?: IForceReference;
+  /**
+   * Player force reference.
+   *
+   * `undefined` — no force was ever stored for this encounter.
+   * `null`      — a force was stored but the referenced row is gone.
+   *               The hydration boundary (`EncounterService.hydrateEncounter`)
+   *               sets this slot to `null` when the resolver returns null,
+   *               so downstream UI / helpers can distinguish "never set" from
+   *               "set but broken". See repair-broken-encounter-drafts.
+   */
+  readonly playerForce?: IForceReference | null;
+  /**
+   * Opponent force reference (explicit).
+   *
+   * Same null-vs-undefined distinction as `playerForce` — null means a stored
+   * ref no longer resolves, undefined means none was ever stored.
+   */
+  readonly opponentForce?: IForceReference | null;
   /** Opponent force config (for generation) */
   readonly opForConfig?: IOpForConfig;
   /** Map configuration */

@@ -25,6 +25,7 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '../core/createSingleton';
+import { setEncounterCascadeHook } from '../forces/ForceRepository.cascade';
 import { getSQLiteService } from '../persistence/SQLiteService';
 import {
   extractRawForceIds,
@@ -96,6 +97,7 @@ export interface IEncounterRepository {
   initialize(): void;
   createEncounter(input: ICreateEncounterInput): IEncounterOperationResult;
   getEncounterById(id: string): IEncounter | null;
+  getEncounterWithRawIds(id: string): IEncounterWithRawForceIds | null;
   getAllEncounters(): readonly IEncounter[];
   getAllEncountersWithRawIds(): readonly IEncounterWithRawForceIds[];
   getEncountersByStatus(status: EncounterStatus): readonly IEncounter[];
@@ -112,6 +114,9 @@ export interface IEncounterRepository {
     encounterId: string,
     gameSessionId: string,
   ): IEncounterOperationResult;
+  clearForceReference(forceId: string): {
+    affectedEncounterIds: readonly string[];
+  };
 }
 
 // =============================================================================
@@ -254,6 +259,30 @@ export class EncounterRepository implements IEncounterRepository {
     }
 
     return rowToEncounter(row);
+  }
+
+  /**
+   * Get an encounter by ID paired with its raw stored force-id strings.
+   *
+   * Singular sibling of `getAllEncountersWithRawIds`. Used by the detail-page
+   * API route (and the encounter detail UI) to detect "the row stores a
+   * forceId but the force is gone" without a second round-trip to the DB.
+   *
+   * Returns null when no row matches `id`.
+   */
+  getEncounterWithRawIds(id: string): IEncounterWithRawForceIds | null {
+    this.initialize();
+
+    const db = getSQLiteService().getDatabase();
+    const row = db.prepare('SELECT * FROM encounters WHERE id = ?').get(id) as
+      | EncounterRow
+      | undefined;
+
+    if (!row) {
+      return null;
+    }
+
+    return extractRawForceIds(row);
   }
 
   /**
@@ -515,21 +544,134 @@ export class EncounterRepository implements IEncounterRepository {
   }
 
   // ===========================================================================
+  // Force-Deletion Cascade
+  // ===========================================================================
+
+  /**
+   * NULL the dangling force reference on every encounter that points to
+   * `forceId`, then recompute each affected encounter's status. Wraps both
+   * UPDATE statements (player + opponent slot) AND the per-row recompute in
+   * one SQLite transaction so partial failures roll back atomically.
+   *
+   * Called by ForceRepository.deleteForce via the cascade hook BEFORE the
+   * `DELETE FROM forces` statement. The whole sequence — cascade + force
+   * delete — runs inside the outer transaction the cascade hook wraps so
+   * a thrown UPDATE rolls the force-row delete back too.
+   *
+   * @param forceId — the force being deleted
+   * @returns the encounter ids that had at least one slot cleared
+   *
+   * @spec openspec/changes/repair-broken-encounter-drafts/specs/game-session-management/spec.md
+   *       (Requirement: Force-Deletion Cascade to Encounter References)
+   */
+  clearForceReference(forceId: string): {
+    affectedEncounterIds: readonly string[];
+  } {
+    this.initialize();
+
+    const db = getSQLiteService().getDatabase();
+    const now = new Date().toISOString();
+
+    // Collect affected encounter ids BEFORE the UPDATE so we know which rows
+    // to recompute status on. The two queries are cheap (indexed on id, scan
+    // on json_extract is fine for the encounter table size).
+    const playerSlotMatches = db
+      .prepare(
+        `SELECT id FROM encounters
+         WHERE json_extract(player_force_json, '$.forceId') = ?`,
+      )
+      .all(forceId) as { id: string }[];
+    const opponentSlotMatches = db
+      .prepare(
+        `SELECT id FROM encounters
+         WHERE json_extract(opponent_force_json, '$.forceId') = ?`,
+      )
+      .all(forceId) as { id: string }[];
+
+    const affectedSet = new Set<string>();
+    for (const row of playerSlotMatches) affectedSet.add(row.id);
+    for (const row of opponentSlotMatches) affectedSet.add(row.id);
+
+    if (affectedSet.size === 0) {
+      // No-op cascade — still return cleanly so the outer transaction commits.
+      return { affectedEncounterIds: [] };
+    }
+
+    // Convert to a stable array — Set iteration order is insertion-order in
+    // V8 but explicit array avoids the downlevelIteration TS flag dance.
+    const affectedIds: readonly string[] = Array.from(affectedSet);
+
+    // Both UPDATEs + the recompute pass run in one transaction. The caller
+    // (ForceRepository.deleteForce) wraps THIS call PLUS the force-row delete
+    // in its own outer transaction; better-sqlite3 treats nested
+    // `db.transaction(...)` as savepoints so the inner failure rolls the
+    // outer back via re-throw.
+    const txn = db.transaction((fid: string) => {
+      db.prepare(
+        `UPDATE encounters
+         SET player_force_json = NULL, updated_at = ?
+         WHERE json_extract(player_force_json, '$.forceId') = ?`,
+      ).run(now, fid);
+      db.prepare(
+        `UPDATE encounters
+         SET opponent_force_json = NULL, updated_at = ?
+         WHERE json_extract(opponent_force_json, '$.forceId') = ?`,
+      ).run(now, fid);
+
+      for (const id of affectedIds) {
+        this.recalculateStatus(id);
+      }
+    });
+
+    txn(forceId);
+
+    return { affectedEncounterIds: affectedIds };
+  }
+
+  // ===========================================================================
   // Helper Methods
   // ===========================================================================
 
   /**
    * Recalculate encounter status based on configuration completeness.
+   *
+   * NOTE — Launched/Completed widening: prior to PR 2 (repair-broken-encounter-
+   * drafts) this method short-circuited unconditionally for Launched and
+   * Completed encounters. The cascade now needs to drop a Launched encounter
+   * back to Draft when a force-delete just cleared its only player force —
+   * otherwise a Launched encounter would point at a NULL playerForce and
+   * launch attempts (or detail-page loads) would render an inconsistent
+   * state. The widening is narrow:
+   *
+   *   - Launched + playerForce === null + opponentForce === null  →  Draft
+   *   - Completed                                                 →  unchanged (history)
+   *   - All other Launched cases                                  →  unchanged
+   *
+   * Completed never gets demoted: the encounter ran, history matters more
+   * than current force state.
    */
   private recalculateStatus(id: string): void {
     const encounter = this.getEncounterById(id);
     if (!encounter) return;
 
-    // If already launched or completed, don't change
-    if (
-      encounter.status === EncounterStatus.Launched ||
-      encounter.status === EncounterStatus.Completed
-    ) {
+    // Completed encounters NEVER get their status modified — history is fixed.
+    if (encounter.status === EncounterStatus.Completed) {
+      return;
+    }
+
+    // Launched encounter whose only player force was cleared by a cascade
+    // drops back to Draft. Spec scenario: "Single encounter affected" — the
+    // Launched encounter pointing at the deleted force ends up Draft.
+    if (encounter.status === EncounterStatus.Launched) {
+      const bothForcesCleared =
+        !encounter.playerForce && !encounter.opponentForce;
+      if (bothForcesCleared) {
+        const db = getSQLiteService().getDatabase();
+        const now = new Date().toISOString();
+        db.prepare(
+          'UPDATE encounters SET status = ?, updated_at = ? WHERE id = ?',
+        ).run(EncounterStatus.Draft, now, id);
+      }
       return;
     }
 
@@ -558,7 +700,18 @@ export class EncounterRepository implements IEncounterRepository {
 // =============================================================================
 
 const encounterRepositoryFactory: SingletonFactory<EncounterRepository> =
-  createSingleton((): EncounterRepository => new EncounterRepository());
+  createSingleton((): EncounterRepository => {
+    const repo = new EncounterRepository();
+    // Wire the force-delete cascade hook so ForceRepository.deleteForce
+    // NULLs every encounter slot pointing at the deleted force BEFORE the
+    // force row is deleted. The hook registration is idempotent — if a
+    // previous repo instance was disposed, this overwrites the dangling
+    // reference cleanly.
+    setEncounterCascadeHook((forceId: string) => {
+      repo.clearForceReference(forceId);
+    });
+    return repo;
+  });
 
 export function getEncounterRepository(): EncounterRepository {
   return encounterRepositoryFactory.get();

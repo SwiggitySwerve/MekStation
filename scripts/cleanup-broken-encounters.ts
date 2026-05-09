@@ -277,9 +277,37 @@ export async function runCleanup(
     }
   }
 
-  // PR 1: orphaned rows are NOT repaired here (no clearForceReference yet).
-  // TODO(PR 2): wire orphaned-branch repair via repo.clearForceReference.
-  const repairedIds: string[] = [];
+  // PR 2 back-patch: orphaned rows are repaired in place by NULLing the
+  // dangling force reference. `clearForceReference` keys on forceId (not
+  // encounterId), so we collect the unique orphaned forceIds across the
+  // manifest first and call once per id. The cascade hits every encounter
+  // pointing at that forceId; we track the affected encounter ids for
+  // the result manifest.
+  const orphanedForceIds = new Set<string>();
+  for (const row of rows) {
+    const entry = entries.find((e) => e.id === row.encounter.id);
+    if (entry?.classification !== 'orphaned-force-reference') continue;
+    if (
+      row.rawForceIds.playerForceId !== null &&
+      forceRepo.getForceById(row.rawForceIds.playerForceId) === null
+    ) {
+      orphanedForceIds.add(row.rawForceIds.playerForceId);
+    }
+    if (
+      row.rawForceIds.opponentForceId !== null &&
+      forceRepo.getForceById(row.rawForceIds.opponentForceId) === null
+    ) {
+      orphanedForceIds.add(row.rawForceIds.opponentForceId);
+    }
+  }
+  const repairedIdSet = new Set<string>();
+  for (const forceId of orphanedForceIds) {
+    const cascade = repo.clearForceReference(forceId);
+    for (const id of cascade.affectedEncounterIds) {
+      repairedIdSet.add(id);
+    }
+  }
+  const repairedIds: string[] = Array.from(repairedIdSet);
 
   const retainedIds = entries
     .filter((e) => !deletedIds.includes(e.id))
