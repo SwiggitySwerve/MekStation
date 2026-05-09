@@ -33,6 +33,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
 
+import type { ScenarioTemplateType } from '@/types/encounter/EncounterInterfaces';
 import type {
   GameEventType,
   IGameCreatedPayload,
@@ -45,6 +46,7 @@ import { GameSide, ReplaySource } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
 import type {
+  IEncounterReplayManifestEntry,
   IQuickReplayManifestEntry,
   IReplayManifestEntry,
   ISwarmReplayManifestEntry,
@@ -180,6 +182,8 @@ async function buildPartitionEntry(
       return buildSwarmEntry(gameId, baseFields, summary);
     case ReplaySource.Quick:
       return buildQuickEntry(gameId, baseFields, summary);
+    case ReplaySource.Encounter:
+      return buildEncounterEntry(gameId, baseFields, summary);
     case ReplaySource.PvP:
     case ReplaySource.Campaign:
       // PR 1 reserved these shapes for future emitters. Until those write
@@ -191,7 +195,7 @@ async function buildPartitionEntry(
       // and the writer path will overwrite this manifest entry on next run.
       return buildPlaceholderEntry(gameId, source, baseFields);
     default: {
-      // Exhaustiveness check — adding a fifth `ReplaySource` value triggers
+      // Exhaustiveness check — adding a sixth `ReplaySource` value triggers
       // a compile error here so the author cannot forget to handle it.
       const _exhaustive: never = source;
       throw new Error(
@@ -564,6 +568,57 @@ function buildQuickEntry(
     bvTotal: baseFields.bvTotal,
     playerSide: meta?.playerSide ?? GameSide.Player,
     aiVariant: meta?.aiVariant ?? 'unknown',
+  };
+}
+
+/**
+ * Materializes an encounter entry from partition-layout context. The encounter
+ * metadata (`encounterId`, `encounterName`, `templateType`, `playerForceSummary`,
+ * `opponentSummary`) is written into `GameCreated.payload.encounterMeta` by the
+ * `link-encounters-to-replays` PR 2 persist hook. PR 1 builds the read path so
+ * a fixture dropped under `simulation-reports/encounter/` already round-trips.
+ *
+ * Missing or partial `encounterMeta` falls back to empty strings and `null`
+ * `templateType` with a debug log — same pattern as `buildQuickEntry` so a
+ * developer staring at a Library row can see "(unknown)" and trace back.
+ */
+function buildEncounterEntry(
+  gameId: string,
+  baseFields: IDerivedBaseFields,
+  summary: IFileSummary,
+): IEncounterReplayManifestEntry {
+  const created = summary.gameCreated;
+  const meta = (created?.payload as { encounterMeta?: unknown } | undefined)
+    ?.encounterMeta as
+    | {
+        encounterId?: string;
+        encounterName?: string;
+        templateType?: ScenarioTemplateType | null;
+        playerForceSummary?: string;
+        opponentSummary?: string;
+      }
+    | undefined;
+  if (!meta) {
+    logger.debug(
+      '[replay-library] backfill encounter entry missing encounterMeta — using fallbacks',
+      { gameId },
+    );
+  }
+  return {
+    id: gameId,
+    replaySource: ReplaySource.Encounter,
+    path: baseFields.path,
+    createdAt: baseFields.createdAt,
+    turns: baseFields.turns,
+    winner: baseFields.winner,
+    bvTotal: baseFields.bvTotal,
+    encounterId: meta?.encounterId ?? '',
+    encounterName: meta?.encounterName ?? '',
+    // `null` is first-class for free-form / custom encounters — only fall back
+    // to it when the field is undefined, never coerce a real `Custom` to null.
+    templateType: meta?.templateType === undefined ? null : meta.templateType,
+    playerForceSummary: meta?.playerForceSummary ?? '',
+    opponentSummary: meta?.opponentSummary ?? '',
   };
 }
 

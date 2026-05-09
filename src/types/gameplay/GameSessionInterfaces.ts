@@ -275,7 +275,7 @@ export enum GameSide {
 }
 
 /**
- * Origin domain of a replay event log. Discriminates the four replay sources
+ * Origin domain of a replay event log. Discriminates the five replay sources
  * the engine produces so the central replay index, filesystem partition, and
  * Library UI can route entries without filename archaeology.
  *
@@ -287,12 +287,20 @@ export enum GameSide {
  * came from a string discriminator that drifted as new replay sources were
  * added with no exhaustiveness check. An enum forces every consumer to
  * handle every variant or fail compilation.
+ *
+ * `Encounter` (added by `link-encounters-to-replays` PR 1) is the fifth
+ * variant — encounter sessions launched from `/gameplay/encounters/[id]`
+ * persist their event log under `simulation-reports/encounter/<gameId>.jsonl`
+ * so they appear alongside swarm / quick / pvp / campaign rows in the
+ * Replay Library. The corresponding manifest shape is
+ * `IEncounterReplayManifestEntry` in `src/replay-library/types.ts`.
  */
 export enum ReplaySource {
   Swarm = 'swarm',
   Quick = 'quick',
   PvP = 'pvp',
   Campaign = 'campaign',
+  Encounter = 'encounter',
 }
 
 // =============================================================================
