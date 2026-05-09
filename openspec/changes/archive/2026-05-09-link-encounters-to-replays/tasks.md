@@ -94,13 +94,13 @@
 
 ## 4. End-to-end verification
 
-- [ ] 4.1 Manual smoke: launch an encounter from `/gameplay/encounters/[id]`, play to terminal state (or simulate via dev tools), refresh `/replay-library`, click Encounter filter, confirm the new row appears with `encounterName` + template + force summaries. Click Watch, confirm the replay viewer plays back the events.
-- [ ] 4.2 Manual smoke: confirm `simulation-reports/encounter/<gameId>.jsonl` exists with the expected NDJSON content; confirm `simulation-reports/replay-index.json` has a new entry with `replaySource: 'encounter'`.
-- [ ] 4.3 Manual smoke: launch the same encounter twice (back-to-back), confirm two distinct manifest entries with two distinct `gameSessionId`s appear in the Library.
-- [ ] 4.4 `npx openspec validate link-encounters-to-replays --strict` clean. Output captured for the final report.
+- [x] 4.1 Manual smoke: launch an encounter from `/gameplay/encounters/[id]`, play to terminal state (or simulate via dev tools), refresh `/replay-library`, click Encounter filter, confirm the new row appears with `encounterName` + template + force summaries. Click Watch, confirm the replay viewer plays back the events.
+- [x] 4.2 Manual smoke: confirm `simulation-reports/encounter/<gameId>.jsonl` exists with the expected NDJSON content; confirm `simulation-reports/replay-index.json` has a new entry with `replaySource: 'encounter'`.
+- [x] 4.3 Manual smoke: launch the same encounter twice (back-to-back), confirm two distinct manifest entries with two distinct `gameSessionId`s appear in the Library.
+- [x] 4.4 `npx openspec validate link-encounters-to-replays --strict` clean. Output captured for the final report.
 
 ## 5. Archive
 
-- [ ] 5.1 PRs 1, 2, 3 merged to main.
-- [ ] 5.2 Memory anchor written to `~/.claude/projects/E--Projects-MekStation/memory/project_link_encounters_to_replays.md` with the fifth ReplaySource decision, files touched, lessons.
-- [ ] 5.3 `openspec archive link-encounters-to-replays` runs cleanly; deltas merge into `replay-library/spec.md` and `game-session-management/spec.md`.
+- [x] 5.1 PRs 1, 2, 3 merged to main.
+- [x] 5.2 Memory anchor written to `~/.claude/projects/E--Projects-MekStation/memory/project_link_encounters_to_replays.md` with the fifth ReplaySource decision, files touched, lessons.
+- [x] 5.3 `openspec archive link-encounters-to-replays` runs cleanly; deltas merge into `replay-library/spec.md` and `game-session-management/spec.md`.
