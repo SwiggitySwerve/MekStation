@@ -20,6 +20,7 @@ import {
   DeleteEncounterConfirmDialog,
   EncounterActionsFooter,
   EncounterScenarioGeneratorSection,
+  EncounterWatchReplayButton,
 } from '@/components/gameplay/pages/EncounterDetailPage.actions';
 import { EncounterRepairBanner } from '@/components/gameplay/pages/EncounterDetailPage.repairBanner';
 import {
@@ -270,6 +271,14 @@ export default function EncounterDetailPage(): React.ReactElement {
           >
             {getStatusLabel(encounter.status, true)}
           </Badge>
+
+          {/* Per `add-replay-step-and-effect-animations` (encounter-system
+              delta — "Encounter Detail Watch Replay Link"): Watch Replay
+              button is visible whenever the encounter row has a
+              persisted `gameSessionId`. The button itself returns null
+              when `gameSessionId === undefined`, so this conditional
+              region always renders safely regardless of status. */}
+          <EncounterWatchReplayButton gameSessionId={encounter.gameSessionId} />
 
           {!isLaunched && !isCompleted && (
             <>

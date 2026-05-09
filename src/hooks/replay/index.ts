@@ -32,3 +32,14 @@ export {
   deriveHexMapStateFromEvents,
   type ReplayHexMapState,
 } from './useHexMapStateFromEvents';
+
+/**
+ * Per `add-replay-step-and-effect-animations` (tactical-map-interface
+ * delta — "Replay Movement Step Animation Playback"): side-effect
+ * adapter that drives `useAnimationQueue` from the replay event log
+ * + scrubber cursor.
+ */
+export {
+  useReplayMovementAnimations,
+  type IUseReplayMovementAnimationsOptions,
+} from './useReplayMovementAnimations';
