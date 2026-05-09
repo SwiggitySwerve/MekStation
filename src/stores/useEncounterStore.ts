@@ -57,6 +57,12 @@ interface LaunchResponse {
   error?: string;
 }
 
+interface SeedSamplesResponse {
+  success: boolean;
+  ids?: readonly string[];
+  error?: string;
+}
+
 interface LaunchEncounterOptions {
   readonly campaignId?: string | null;
   readonly contractId?: string | null;
@@ -124,10 +130,32 @@ interface EncounterStoreActions {
   getSelectedEncounter: () => IEncounter | null;
   /** Set player force */
   setPlayerForce: (encounterId: string, forceId: string) => Promise<boolean>;
+  /**
+   * Clear the player force on an encounter. Routes through the existing
+   * `DELETE /api/encounters/[id]/player-force` endpoint — used by the
+   * detail-page repair banner when the operator confirms the broken
+   * reference should be cleared.
+   *
+   * @spec openspec/changes/repair-broken-encounter-drafts/specs/game-session-management/spec.md
+   *       (Requirement: Encounter Detail Page Repair Banner)
+   */
+  clearPlayerForce: (encounterId: string) => Promise<boolean>;
   /** Set opponent force */
   setOpponentForce: (encounterId: string, forceId: string) => Promise<boolean>;
   /** Clear opponent force */
   clearOpponentForce: (encounterId: string) => Promise<boolean>;
+  /**
+   * POST `/api/encounters/seed-samples` — creates 4 starter encounters,
+   * one per `ScenarioTemplateType` value (Duel/Skirmish/Battle/Custom),
+   * then refreshes the local list. Used by the empty-state seed button.
+   *
+   * Returns the array of newly-created ids on success, `null` on failure
+   * (with `error` populated on the store).
+   *
+   * @spec openspec/changes/repair-broken-encounter-drafts/specs/game-session-management/spec.md
+   *       (Requirement: Empty-State Seed Samples)
+   */
+  seedSampleEncounters: () => Promise<readonly string[] | null>;
   /** Apply a template */
   applyTemplate: (
     encounterId: string,
@@ -323,6 +351,37 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
     }
   },
 
+  // Clear player force — DELETE /api/encounters/[id]/player-force.
+  // The server-side handler updates the encounter with
+  // `playerForceId: undefined`, which collapses to NULL in storage and
+  // re-runs `recalculateStatus` so a previously-Ready encounter drops
+  // back to Draft. Used by the detail-page repair banner.
+  clearPlayerForce: async (encounterId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await fetch(
+        `/api/encounters/${encounterId}/player-force`,
+        {
+          method: 'DELETE',
+        },
+      );
+      const data = (await response.json()) as EncounterResponse;
+      if (!data.success) {
+        set({
+          error: data.error ?? 'Failed to clear player force',
+          isLoading: false,
+        });
+        return false;
+      }
+      await get().loadEncounters();
+      return true;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      set({ error: message, isLoading: false });
+      return false;
+    }
+  },
+
   // Set opponent force
   setOpponentForce: async (encounterId: string, forceId: string) => {
     set({ isLoading: true, error: null });
@@ -376,6 +435,34 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
       const message = err instanceof Error ? err.message : 'Unknown error';
       set({ error: message, isLoading: false });
       return false;
+    }
+  },
+
+  // Seed 4 sample encounters via POST /api/encounters/seed-samples.
+  // The route creates one encounter per ScenarioTemplateType value
+  // (Duel/Skirmish/Battle/Custom), then we refresh the local list so
+  // the empty state flips to a populated grid.
+  seedSampleEncounters: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await fetch('/api/encounters/seed-samples', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = (await response.json()) as SeedSamplesResponse;
+      if (!data.success || !data.ids) {
+        set({
+          error: data.error ?? 'Failed to seed sample encounters',
+          isLoading: false,
+        });
+        return null;
+      }
+      await get().loadEncounters();
+      return data.ids;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      set({ error: message, isLoading: false });
+      return null;
     }
   },
 

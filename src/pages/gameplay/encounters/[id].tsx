@@ -21,6 +21,7 @@ import {
   EncounterActionsFooter,
   EncounterScenarioGeneratorSection,
 } from '@/components/gameplay/pages/EncounterDetailPage.actions';
+import { EncounterRepairBanner } from '@/components/gameplay/pages/EncounterDetailPage.repairBanner';
 import {
   EncounterBattleSettingsCard,
   EncounterDetailLoadingState,
@@ -32,6 +33,7 @@ import { buildPreparedBattleData } from '@/components/gameplay/pages/preBattleSe
 import { QuickResolveLauncher } from '@/components/gameplay/quickResolve/QuickResolveLauncher';
 import { useToast } from '@/components/shared/Toast';
 import { Badge, Button, PageLayout } from '@/components/ui';
+import { encounterBrokenRefs } from '@/services/encounter/encounterBrokenRefs';
 import { useEncounterSelector } from '@/stores/useEncounterStore';
 import { useForceSelector } from '@/stores/useForceStore';
 import { usePilotSelector } from '@/stores/usePilotStore';
@@ -45,6 +47,9 @@ export default function EncounterDetailPage(): React.ReactElement {
   const { showToast } = useToast();
 
   const getEncounter = useEncounterSelector((state) => state.getEncounter);
+  const getEncounterRawForceIds = useEncounterSelector(
+    (state) => state.getEncounterRawForceIds,
+  );
   const loadEncounters = useEncounterSelector((state) => state.loadEncounters);
   const deleteEncounter = useEncounterSelector(
     (state) => state.deleteEncounter,
@@ -231,6 +236,17 @@ export default function EncounterDetailPage(): React.ReactElement {
   const isLaunched = encounter.status === EncounterStatus.Launched;
   const isCompleted = encounter.status === EncounterStatus.Completed;
 
+  // Broken-reference detection — fed by the rawForceIds map populated
+  // alongside the hydrated encounter list on `loadEncounters()`. When the
+  // map has no entry for this id (older API build, race window before the
+  // first list load resolves) the helper falls back to "no broken refs"
+  // and the repair banner stays hidden.
+  const rawForceIds = getEncounterRawForceIds(encounterId);
+  const brokenRefs = encounterBrokenRefs(
+    encounter,
+    rawForceIds ?? { playerForceId: null, opponentForceId: null },
+  );
+
   const breadcrumbs = [
     { label: 'Home', href: '/' },
     { label: 'Gameplay', href: '/gameplay' },
@@ -293,6 +309,25 @@ export default function EncounterDetailPage(): React.ReactElement {
           <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
+
+      {/* Repair banner — only renders when the encounter has at least
+          one broken force reference (a forceId stored on the row whose
+          hydrated lookup came back null). The shared
+          `encounterBrokenRefs` helper drives both this banner and the
+          list-page broken pill so the predicate stays consistent. */}
+      <EncounterRepairBanner
+        encounterId={encounterId}
+        missingPlayerForceId={
+          brokenRefs.playerForceMissing
+            ? (rawForceIds?.playerForceId ?? null)
+            : null
+        }
+        missingOpponentForceId={
+          brokenRefs.opponentForceMissing
+            ? (rawForceIds?.opponentForceId ?? null)
+            : null
+        }
+      />
 
       <EncounterValidationCard validation={validation} />
 
