@@ -6,6 +6,7 @@ import {
   GamePhase,
   GameSide,
   GameStatus,
+  IEncounterMeta,
   IGameConfig,
   IGameCreatedPayload,
   IGameEvent,
@@ -72,6 +73,14 @@ export interface ICreateGameSessionOptions {
   readonly hostPeerId?: string | null;
   readonly guestPeerId?: string | null;
   readonly sideOwners?: Readonly<Record<GameSide, string>> | null;
+  /**
+   * Per `link-encounters-to-replays` PR 3: optional encounter snapshot
+   * stamped onto the GameCreated event payload when the session
+   * originated from an encounter launch. Read by the replay-library
+   * backfill scan to recover encounter metadata when rebuilding the
+   * manifest from disk. Null/omitted for non-encounter callers.
+   */
+  readonly encounterMeta?: IEncounterMeta;
 }
 
 export function createGameSession(
@@ -82,7 +91,12 @@ export function createGameSession(
   const id = options.id ?? uuidv4();
   const now = options.createdAt ?? new Date().toISOString();
 
-  const createdEvent = createGameCreatedEvent(id, config, units);
+  const createdEvent = createGameCreatedEvent(
+    id,
+    config,
+    units,
+    options.encounterMeta,
+  );
   const events: IGameEvent[] = [createdEvent];
   const currentState = deriveState(id, events);
 
