@@ -10,6 +10,8 @@
  * "swarm entries always have configName" while a flat shape cannot.
  */
 
+import type { ScenarioTemplateType } from '@/types/encounter/EncounterInterfaces';
+
 import { GameSide, ReplaySource } from '@/types/gameplay';
 
 /**
@@ -96,6 +98,36 @@ export interface ICampaignReplayManifestEntry extends IReplayManifestEntryBase {
 }
 
 /**
+ * Encounter session record. Stored under `simulation-reports/encounter/`.
+ * Persisted by the encounter session terminal-state hook on completion
+ * (added by `link-encounters-to-replays` PR 2). The summary fields are
+ * baked at write-time so a force renamed/deleted post-write does not
+ * change the historical row — see proposal §"Why summary strings, not
+ * force IDs" for the immutability rationale.
+ */
+export interface IEncounterReplayManifestEntry extends IReplayManifestEntryBase {
+  readonly replaySource: ReplaySource.Encounter;
+  /** Encounter row identifier — links back to `EncounterRow.id`. */
+  readonly encounterId: string;
+  /** Snapshot of the encounter's display name at launch time. */
+  readonly encounterName: string;
+  /** Scenario template, or `null` for free-form / custom encounters. */
+  readonly templateType: ScenarioTemplateType | null;
+  /**
+   * Snapshot string describing the player force at launch
+   * (e.g. `"Wolf's Dragoons (4500 BV, 4 units)"` or
+   * `"<forceId> (missing force)"` for broken-encounter Change A territory).
+   */
+  readonly playerForceSummary: string;
+  /**
+   * Snapshot string describing the opponent at launch — explicit force
+   * (`"Clan Jade Falcon (5200 BV, 5 units)"`) or opForConfig-driven
+   * (`"Generated lance (~5000 BV)"`).
+   */
+  readonly opponentSummary: string;
+}
+
+/**
  * Discriminated union of every manifest entry shape. Narrows on
  * `entry.replaySource`. Consumers iterating `IReplayManifestEntry[]`
  * must handle every variant or fail compilation.
@@ -104,4 +136,5 @@ export type IReplayManifestEntry =
   | ISwarmReplayManifestEntry
   | IQuickReplayManifestEntry
   | IPvPReplayManifestEntry
-  | ICampaignReplayManifestEntry;
+  | ICampaignReplayManifestEntry
+  | IEncounterReplayManifestEntry;

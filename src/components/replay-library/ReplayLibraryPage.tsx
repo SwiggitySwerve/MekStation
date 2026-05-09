@@ -219,8 +219,28 @@ function SourceMetadata({
           </div>
         </div>
       );
+    case ReplaySource.Encounter:
+      // PR 1 of `link-encounters-to-replays` introduces the Encounter variant
+      // so the type system grows from 4 → 5. PR 3 fills in the proper metadata
+      // strip (encounterName, templateType, playerForceSummary vs
+      // opponentSummary) and adds the matching SOURCE_FILTERS button. Until
+      // then this stub keeps the exhaustiveness `_exhaustive: never` guard
+      // happy and the typecheck green — a developer running PR 1 alone never
+      // sees an Encounter row anyway because no emitter writes them yet.
+      // TODO(PR3 link-encounters-to-replays): replace with real metadata strip.
+      return (
+        <div
+          className="text-text-theme-secondary text-xs"
+          data-testid="replay-meta-encounter"
+        >
+          <div>
+            Encounter:{' '}
+            <span data-testid="replay-encounter-id">{entry.encounterId}</span>
+          </div>
+        </div>
+      );
     default: {
-      // Exhaustiveness guard — adding a fifth ReplaySource fails compile here
+      // Exhaustiveness guard — adding a sixth ReplaySource fails compile here
       // so the author cannot forget to add a metadata strip for it.
       const _exhaustive: never = entry;
       return <></>;
