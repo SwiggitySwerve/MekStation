@@ -53,12 +53,76 @@ async function waitForStoreReady(page: Page): Promise<void> {
   await page.waitForFunction(
     () => {
       const win = window as unknown as {
-        __ZUSTAND_STORES__?: { gameplayStore?: unknown };
+        __ZUSTAND_STORES__?: { gameplay?: unknown };
       };
-      return win.__ZUSTAND_STORES__?.gameplayStore !== undefined;
+      return win.__ZUSTAND_STORES__?.gameplay !== undefined;
     },
     { timeout: 15000 },
   );
+}
+
+async function gotoQuickGame(page: Page): Promise<void> {
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      await page.goto('/gameplay/quick', { waitUntil: 'domcontentloaded' });
+      await expect(page).toHaveURL(/\/gameplay\/quick/);
+      return;
+    } catch (error) {
+      if (attempt === 3) {
+        throw error;
+      }
+      await page.waitForTimeout(500 * attempt);
+    }
+  }
+}
+
+async function startQuickGameSetup(page: Page): Promise<void> {
+  await gotoQuickGame(page);
+
+  await expect(
+    page.getByRole('heading', { name: /quick game|select your units/i }),
+  ).toBeVisible();
+
+  const startQuickGame = page.getByRole('button', {
+    name: /start quick game/i,
+  });
+  if (await startQuickGame.isVisible().catch(() => false)) {
+    await startQuickGame.click();
+  }
+
+  await expect(
+    page.getByRole('heading', { name: /select your units/i }),
+  ).toBeVisible();
+}
+
+async function addDemoUnits(page: Page): Promise<void> {
+  await page.getByRole('button', { name: /Atlas AS7-D/i }).click();
+  await page.getByRole('button', { name: /Marauder MAD-3R/i }).click();
+  await expect(page.getByTestId('next-step-btn')).toBeEnabled();
+}
+
+async function prepareQuickGameReview(page: Page): Promise<void> {
+  await startQuickGameSetup(page);
+  await addDemoUnits(page);
+  await page.getByTestId('next-step-btn').click();
+
+  await expect(
+    page.getByRole('heading', { name: /configure scenario/i }),
+  ).toBeVisible();
+  await page.getByTestId('generate-scenario-btn').click();
+
+  await expect(page.getByTestId('start-game-btn')).toBeVisible({
+    timeout: 15000,
+  });
+}
+
+async function autoResolveQuickGame(page: Page): Promise<void> {
+  await prepareQuickGameReview(page);
+  await page.getByTestId('start-game-btn').click();
+
+  await expect(page.getByRole('tab', { name: /summary/i })).toBeVisible({
+    timeout: 30000,
+  });
 }
 
 // =============================================================================
@@ -70,17 +134,13 @@ test.describe('Quick Play Page', () => {
     'should load the quick play page',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/quick');
+      await gotoQuickGame(page);
       await expect(page).toHaveURL(/\/gameplay\/quick/);
 
-      // Page should have a heading or title indicating Quick Play
-      const heading = page.getByRole('heading', {
-        name: /quick play|quick battle/i,
-      });
-      const pageTitle = page.getByTestId('page-title');
-      const hasHeading = await heading.isVisible().catch(() => false);
-      const hasTitle = await pageTitle.isVisible().catch(() => false);
-      expect(hasHeading || hasTitle).toBe(true);
+      await expect(
+        page.getByRole('heading', { name: /quick game|quick play/i }),
+      ).toBeVisible();
+      await expect(page.getByTestId('start-quick-game-btn')).toBeVisible();
     },
   );
 
@@ -88,26 +148,17 @@ test.describe('Quick Play Page', () => {
     'should display unit selection area',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/quick');
+      await startQuickGameSetup(page);
 
-      // Should have unit selection areas for both sides
-      const playerSection = page.getByTestId('player-unit-selection');
-      const opponentSection = page.getByTestId('opponent-unit-selection');
-
-      const hasPlayerSection = await playerSection
-        .isVisible()
-        .catch(() => false);
-      const hasOpponentSection = await opponentSection
-        .isVisible()
-        .catch(() => false);
-
-      // At minimum, unit cards should be available for selection
-      const unitCards = page.locator('[data-testid^="unit-card-"]');
-      const unitCardCount = await unitCards.count();
-
-      expect(hasPlayerSection || hasOpponentSection || unitCardCount > 0).toBe(
-        true,
-      );
+      await expect(
+        page.getByRole('heading', { name: 'Your Force' }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: 'Available Units' }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: /Atlas AS7-D/i }),
+      ).toBeVisible();
     },
   );
 });
@@ -121,29 +172,11 @@ test.describe('Quick Play Unit Selection', () => {
     'should select player units',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/quick');
+      await startQuickGameSetup(page);
+      await addDemoUnits(page);
 
-      // Click on unit cards to select player units
-      const unitCard0 = page.getByTestId('unit-card-0');
-      const unitCard1 = page.getByTestId('unit-card-1');
-
-      if (await unitCard0.isVisible().catch(() => false)) {
-        await unitCard0.click();
-      }
-      if (await unitCard1.isVisible().catch(() => false)) {
-        await unitCard1.click();
-      }
-
-      // Verify at least one unit is selected (via visual indicator or store)
-      await page.waitForTimeout(300);
-
-      // Selected units should have visual feedback
-      const selectedUnits = page.locator(
-        '[data-testid^="unit-card-"].selected, [data-testid^="unit-card-"][aria-selected="true"], [data-testid^="selected-unit-"]',
-      );
-      const selectedCount = await selectedUnits.count();
-      // Some selection should have happened (or unit cards were interactive)
-      expect(selectedCount).toBeGreaterThanOrEqual(0);
+      await expect(page.getByText('Atlas AS7-D')).toHaveCount(2);
+      await expect(page.getByText('Marauder MAD-3R')).toHaveCount(2);
     },
   );
 
@@ -151,20 +184,12 @@ test.describe('Quick Play Unit Selection', () => {
     'should show start battle button',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/quick');
+      await prepareQuickGameReview(page);
 
-      // Start battle button should exist
-      const startBtn = page.getByTestId('start-battle-btn');
-      const quickStartBtn = page.getByTestId('quick-start-btn');
-      const autoResolveBtn = page.getByTestId('auto-resolve-btn');
-
-      const hasStart = await startBtn.isVisible().catch(() => false);
-      const hasQuickStart = await quickStartBtn.isVisible().catch(() => false);
-      const hasAutoResolve = await autoResolveBtn
-        .isVisible()
-        .catch(() => false);
-
-      expect(hasStart || hasQuickStart || hasAutoResolve).toBe(true);
+      await expect(page.getByTestId('start-game-btn')).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: /start battle/i }),
+      ).toBeVisible();
     },
   );
 });
@@ -178,53 +203,12 @@ test.describe('Quick Play Auto-Resolve', () => {
     'should auto-resolve a battle',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/quick');
+      await autoResolveQuickGame(page);
 
-      // Select player units
-      await page
-        .getByTestId('unit-card-0')
-        .click()
-        .catch(() => {});
-      await page
-        .getByTestId('unit-card-1')
-        .click()
-        .catch(() => {});
-
-      // Select opponent units (may be separate section or auto-assigned)
-      await page
-        .getByTestId('opponent-unit-card-0')
-        .click()
-        .catch(() => {});
-      await page
-        .getByTestId('opponent-unit-card-1')
-        .click()
-        .catch(() => {});
-
-      // Click start/auto-resolve button
-      const startBtn = page.getByTestId('start-battle-btn');
-      const autoResolveBtn = page.getByTestId('auto-resolve-btn');
-
-      if (await startBtn.isVisible().catch(() => false)) {
-        await startBtn.click();
-      } else if (await autoResolveBtn.isVisible().catch(() => false)) {
-        await autoResolveBtn.click();
-      }
-
-      // Wait for results page or completion indicator
-      const resultsPage = page.getByTestId('results-page');
-      const resultsSection = page.getByTestId('battle-results');
-      const completedBanner = page.getByText(
-        /battle complete|game over|victory|defeat/i,
-      );
-
-      await expect(async () => {
-        const hasResults = await resultsPage.isVisible().catch(() => false);
-        const hasResultsSection = await resultsSection
-          .isVisible()
-          .catch(() => false);
-        const hasBanner = await completedBanner.isVisible().catch(() => false);
-        expect(hasResults || hasResultsSection || hasBanner).toBe(true);
-      }).toPass({ timeout: 30000 });
+      await expect(
+        page.getByRole('heading', { name: /victory|defeat|draw/i }),
+      ).toBeVisible();
+      await expect(page.getByText(/battle statistics/i)).toBeVisible();
     },
   );
 
@@ -232,38 +216,11 @@ test.describe('Quick Play Auto-Resolve', () => {
     'should display winner after auto-resolve',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/quick');
+      await autoResolveQuickGame(page);
 
-      // Select units and start battle
-      await page
-        .getByTestId('unit-card-0')
-        .click()
-        .catch(() => {});
-      await page
-        .getByTestId('unit-card-1')
-        .click()
-        .catch(() => {});
-
-      const startBtn = page.getByTestId('start-battle-btn');
-      const autoResolveBtn = page.getByTestId('auto-resolve-btn');
-
-      if (await startBtn.isVisible().catch(() => false)) {
-        await startBtn.click();
-      } else if (await autoResolveBtn.isVisible().catch(() => false)) {
-        await autoResolveBtn.click();
-      }
-
-      // Wait for results
-      await page.waitForTimeout(5000);
-
-      // Winner text should be visible
-      const winnerText = page.getByTestId('winner-text');
-      const winnerBanner = page.getByText(/winner|victory|defeat|draw/i);
-
-      const hasWinnerText = await winnerText.isVisible().catch(() => false);
-      const hasWinnerBanner = await winnerBanner.isVisible().catch(() => false);
-
-      expect(hasWinnerText || hasWinnerBanner).toBe(true);
+      await expect(
+        page.getByRole('heading', { name: /victory|defeat|draw/i }),
+      ).toBeVisible();
     },
   );
 
@@ -271,39 +228,10 @@ test.describe('Quick Play Auto-Resolve', () => {
     'should show battle statistics after auto-resolve',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/quick');
+      await autoResolveQuickGame(page);
 
-      // Select units and start battle
-      await page
-        .getByTestId('unit-card-0')
-        .click()
-        .catch(() => {});
-      await page
-        .getByTestId('unit-card-1')
-        .click()
-        .catch(() => {});
-
-      const startBtn = page.getByTestId('start-battle-btn');
-      if (await startBtn.isVisible().catch(() => false)) {
-        await startBtn.click();
-      }
-
-      // Wait for results
-      await page.waitForTimeout(5000);
-
-      // Stats section should show unit status, turns played, etc.
-      const statsSection = page.getByTestId('battle-stats');
-      const unitStatusSection = page.getByTestId('unit-status');
-      const turnCount = page.getByTestId('turn-count');
-
-      const hasStats = await statsSection.isVisible().catch(() => false);
-      const hasUnitStatus = await unitStatusSection
-        .isVisible()
-        .catch(() => false);
-      const hasTurnCount = await turnCount.isVisible().catch(() => false);
-
-      // At least one stats indicator should be visible
-      expect(hasStats || hasUnitStatus || hasTurnCount).toBe(true);
+      await expect(page.getByText(/battle statistics/i)).toBeVisible();
+      await expect(page.getByText(/turns played/i)).toBeVisible();
     },
   );
 
@@ -311,36 +239,10 @@ test.describe('Quick Play Auto-Resolve', () => {
     'should have replay button after battle',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/quick');
+      await autoResolveQuickGame(page);
 
-      // Select units and start battle
-      await page
-        .getByTestId('unit-card-0')
-        .click()
-        .catch(() => {});
-      await page
-        .getByTestId('unit-card-1')
-        .click()
-        .catch(() => {});
-
-      const startBtn = page.getByTestId('start-battle-btn');
-      if (await startBtn.isVisible().catch(() => false)) {
-        await startBtn.click();
-      }
-
-      // Wait for results
-      await page.waitForTimeout(5000);
-
-      // Replay button should be available
-      const replayBtn = page.getByTestId('replay-btn');
-      const playAgainBtn = page.getByTestId('play-again-btn');
-      const newGameBtn = page.getByTestId('new-game-btn');
-
-      const hasReplay = await replayBtn.isVisible().catch(() => false);
-      const hasPlayAgain = await playAgainBtn.isVisible().catch(() => false);
-      const hasNewGame = await newGameBtn.isVisible().catch(() => false);
-
-      expect(hasReplay || hasPlayAgain || hasNewGame).toBe(true);
+      await expect(page.getByRole('tab', { name: /replay/i })).toBeVisible();
+      await expect(page.getByTestId('play-again-same-btn')).toBeVisible();
     },
   );
 });
@@ -354,33 +256,12 @@ test.describe('Quick Play Store State', () => {
     'should create game session in store after battle start',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/quick');
-
-      // Select units and start battle
-      await page
-        .getByTestId('unit-card-0')
-        .click()
-        .catch(() => {});
-      await page
-        .getByTestId('unit-card-1')
-        .click()
-        .catch(() => {});
-
-      const startBtn = page.getByTestId('start-battle-btn');
-      if (await startBtn.isVisible().catch(() => false)) {
-        await startBtn.click();
-      }
-
-      // Wait for game to initialize
-      await page.waitForTimeout(3000);
+      await autoResolveQuickGame(page);
 
       // Check store state
       try {
         await waitForStoreReady(page);
-        const state = await getStoreState<QuickPlayState>(
-          page,
-          'gameplayStore',
-        );
+        const state = await getStoreState<QuickPlayState>(page, 'gameplay');
 
         if (state.session) {
           // Session should exist with valid game state
@@ -398,33 +279,12 @@ test.describe('Quick Play Store State', () => {
     'should have completed status after auto-resolve',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/quick');
-
-      // Select units and start battle
-      await page
-        .getByTestId('unit-card-0')
-        .click()
-        .catch(() => {});
-      await page
-        .getByTestId('unit-card-1')
-        .click()
-        .catch(() => {});
-
-      const startBtn = page.getByTestId('start-battle-btn');
-      if (await startBtn.isVisible().catch(() => false)) {
-        await startBtn.click();
-      }
-
-      // Wait for auto-resolve to complete
-      await page.waitForTimeout(10000);
+      await autoResolveQuickGame(page);
 
       // Verify game completed via store or UI
       try {
         await waitForStoreReady(page);
-        const state = await getStoreState<QuickPlayState>(
-          page,
-          'gameplayStore',
-        );
+        const state = await getStoreState<QuickPlayState>(page, 'gameplay');
 
         if (state.session) {
           expect(state.session.currentState.status).toBe('completed');

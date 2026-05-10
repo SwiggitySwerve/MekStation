@@ -66,7 +66,7 @@ _WEAPON_EXCLUSIONS = {"physical.json"}
 
 # Files inside the units tree that are NOT individual units (e.g.
 # index.json catalogues per era directory). Skipped in the unit walk.
-_UNIT_FILE_EXCLUSIONS = {"index.json"}
+_UNIT_FILE_EXCLUSIONS = {"index.json", "units-manifest.json"}
 
 
 def parse_args() -> argparse.Namespace:

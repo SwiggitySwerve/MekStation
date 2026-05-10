@@ -19,7 +19,7 @@ export class CampaignListPage extends BasePage {
    * Get the count of campaign cards displayed.
    */
   async getCardCount(): Promise<number> {
-    const cards = this.getByTestId('campaign-card');
+    const cards = this.page.locator('[data-testid^="campaign-card-"]');
     return cards.count();
   }
 
@@ -56,7 +56,7 @@ export class CampaignListPage extends BasePage {
    * Get all campaign names displayed.
    */
   async getCampaignNames(): Promise<string[]> {
-    const names = this.getByTestId('campaign-name');
+    const names = this.page.locator('[data-testid^="campaign-card-"] h3');
     return names.allTextContents();
   }
 

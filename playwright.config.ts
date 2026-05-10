@@ -1,5 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const e2ePort = 3600;
+const e2eBaseURL = `http://localhost:${e2ePort}`;
+const e2eRunId = `pw-${process.pid}-${Date.now()}`;
+const e2eReadyURL = `${e2eBaseURL}/__playwright_e2e_ready__?runId=${encodeURIComponent(
+  e2eRunId,
+)}`;
+
 /**
  * Playwright configuration for MekStation E2E tests
  *
@@ -55,7 +62,7 @@ export default defineConfig({
   /* Shared settings for all the projects below */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
-    baseURL: 'http://localhost:3600',
+    baseURL: e2eBaseURL,
 
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
@@ -123,15 +130,18 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev:e2e',
-    url: 'http://localhost:3600',
-    reuseExistingServer: !process.env.CI,
+    command: 'npm run dev',
+    url: e2eReadyURL,
+    // The readiness URL includes a per-run token. A stale server on 3600 will
+    // not satisfy it, so Playwright runs the dev script and lets it clear 3600.
+    reuseExistingServer: true,
     timeout: 120 * 1000,
     // Pipe stdout to help with process cleanup on Windows
     stdout: 'pipe',
     stderr: 'pipe',
     env: {
       NEXT_PUBLIC_E2E_MODE: 'true',
+      PLAYWRIGHT_E2E_RUN_ID: e2eRunId,
     },
   },
 });

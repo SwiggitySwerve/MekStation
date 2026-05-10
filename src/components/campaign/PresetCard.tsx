@@ -47,6 +47,7 @@ export function PresetCard({
           : 'hover:border-accent/50 hover:bg-surface-raised/50'
       }`}
       onClick={onSelect}
+      data-testid={`template-${preset.id}`}
     >
       <div className="mb-3 flex items-start gap-3">
         <span className="text-2xl" role="img" aria-label={preset.name}>

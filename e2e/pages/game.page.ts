@@ -137,7 +137,17 @@ export class GameSessionPage extends BasePage {
    * Check if hex map is visible.
    */
   async isHexMapVisible(): Promise<boolean> {
-    return this.isVisibleByTestId('hex-map');
+    const map = this.page.locator(
+      [
+        '[data-testid="hex-map"]',
+        '[data-testid="hex-map-container"]',
+        '[data-testid="hex-grid"]',
+      ].join(', '),
+    );
+    return map
+      .first()
+      .isVisible()
+      .catch(() => false);
   }
 
   /**

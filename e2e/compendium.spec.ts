@@ -94,10 +94,9 @@ test.describe('Compendium Hub @smoke @compendium', () => {
     // Search for "armor"
     await compendiumPage.search('armor');
 
-    // Armor section should be visible
-    await expect(
-      page.getByText('Armor types and maximum allocations'),
-    ).toBeVisible();
+    // Armor section should be visible and filtered to the matching rule card
+    await expect(page.getByTestId('rule-category-armor')).toBeVisible();
+    await expect(compendiumPage.ruleCategoryCards).toHaveCount(1);
 
     // Clear search
     await compendiumPage.search('');

@@ -154,4 +154,16 @@ describe('UnitContract round-trip', () => {
     const result = UnitContract.safeParse(bogus);
     expect(result.success).toBe(false);
   });
+
+  it('rejects armor without a concrete layout', () => {
+    const bogus = {
+      id: 'fake-unit',
+      unitType: 'Vehicle',
+      armor: {
+        type: 'STANDARD',
+      },
+    };
+    const result = UnitContract.safeParse(bogus);
+    expect(result.success).toBe(false);
+  });
 });
