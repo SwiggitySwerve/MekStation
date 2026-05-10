@@ -14,7 +14,7 @@
 
 import type { IPilotStatblock } from '@/types/pilot/PilotInterfaces';
 
-import type { CampaignPilotStatus } from './CampaignInterfaces.types';
+import type { CampaignPilotStatus } from './CampaignPilotStatus';
 import type { CampaignPersonnelRole } from './enums/CampaignPersonnelRole';
 import type { Money } from './Money';
 import type { IInjury } from './Person';

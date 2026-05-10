@@ -17,60 +17,16 @@ import { computeMinimumCrew } from '@/utils/construction/vehicle/crew';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 
 import { customizerStyles as cs } from '../styles';
+import { VehicleSpecialFeaturesSection } from './VehicleSpecialFeaturesSection';
+import {
+  ENGINE_TYPE_OPTIONS,
+  MOTION_TYPE_OPTIONS,
+  STRUCTURE_TYPE_OPTIONS,
+  TURRET_TYPE_OPTIONS,
+  VEHICLE_TONNAGE,
+} from './vehicleStructureOptions';
 
 // =============================================================================
-// Constants
-// =============================================================================
-
-const VEHICLE_TONNAGE = {
-  min: 1,
-  max: 200,
-  step: 1,
-  heavyMin: 60,
-  superheavyMin: 101,
-};
-
-const MOTION_TYPE_OPTIONS: {
-  value: GroundMotionType;
-  label: string;
-  maxTonnage: number;
-}[] = [
-  { value: GroundMotionType.TRACKED, label: 'Tracked', maxTonnage: 200 },
-  { value: GroundMotionType.WHEELED, label: 'Wheeled', maxTonnage: 80 },
-  { value: GroundMotionType.HOVER, label: 'Hover', maxTonnage: 50 },
-  { value: GroundMotionType.VTOL, label: 'VTOL', maxTonnage: 30 },
-  { value: GroundMotionType.NAVAL, label: 'Naval', maxTonnage: 300 },
-  { value: GroundMotionType.HYDROFOIL, label: 'Hydrofoil', maxTonnage: 100 },
-  { value: GroundMotionType.SUBMARINE, label: 'Submarine', maxTonnage: 300 },
-  { value: GroundMotionType.WIGE, label: 'WiGE', maxTonnage: 80 },
-];
-
-const ENGINE_TYPE_OPTIONS: { value: EngineType; label: string }[] = [
-  { value: EngineType.STANDARD, label: 'Standard Fusion' },
-  { value: EngineType.XL_IS, label: 'XL Engine (IS)' },
-  { value: EngineType.XL_CLAN, label: 'XL Engine (Clan)' },
-  { value: EngineType.LIGHT, label: 'Light Engine' },
-  { value: EngineType.XXL, label: 'XXL Engine' },
-  { value: EngineType.COMPACT, label: 'Compact Engine' },
-  { value: EngineType.ICE, label: 'ICE (Internal Combustion)' },
-  { value: EngineType.FUEL_CELL, label: 'Fuel Cell' },
-  { value: EngineType.FISSION, label: 'Fission' },
-];
-
-const TURRET_TYPE_OPTIONS: { value: TurretType; label: string }[] = [
-  { value: TurretType.NONE, label: 'No Turret' },
-  { value: TurretType.SINGLE, label: 'Single Turret' },
-  { value: TurretType.DUAL, label: 'Dual Turret' },
-  { value: TurretType.CHIN, label: 'Chin Turret (VTOL)' },
-];
-
-const STRUCTURE_TYPE_OPTIONS: { value: VehicleStructureType; label: string }[] =
-  [
-    { value: VehicleStructureType.STANDARD, label: 'Standard' },
-    { value: VehicleStructureType.ENDO_STEEL, label: 'Endo-Steel (0.5×)' },
-    { value: VehicleStructureType.COMPOSITE, label: 'Composite (0.5×)' },
-  ];
-
 // =============================================================================
 // Types
 // =============================================================================
@@ -420,67 +376,19 @@ export function VehicleStructureTab({
           </div>
         </section>
 
-        {/* Special Features Section */}
-        <section>
-          <h3 className={cs.text.sectionTitle}>Special Features</h3>
-
-          <div className="space-y-3">
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={hasEnvironmentalSealing}
-                onChange={(e) => setEnvironmentalSealing(e.target.checked)}
-                disabled={readOnly}
-                className="border-border-theme bg-surface-raised rounded"
-              />
-              <span className={cs.text.label}>Environmental Sealing</span>
-            </label>
-
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={hasFlotationHull}
-                onChange={(e) => setFlotationHull(e.target.checked)}
-                disabled={readOnly}
-                className="border-border-theme bg-surface-raised rounded"
-              />
-              <span className={cs.text.label}>Flotation Hull</span>
-            </label>
-
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={isAmphibious}
-                onChange={(e) => setAmphibious(e.target.checked)}
-                disabled={readOnly}
-                className="border-border-theme bg-surface-raised rounded"
-              />
-              <span className={cs.text.label}>Amphibious</span>
-            </label>
-
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={hasTrailerHitch}
-                onChange={(e) => setTrailerHitch(e.target.checked)}
-                disabled={readOnly}
-                className="border-border-theme bg-surface-raised rounded"
-              />
-              <span className={cs.text.label}>Trailer Hitch</span>
-            </label>
-
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={isTrailer}
-                onChange={(e) => setIsTrailer(e.target.checked)}
-                disabled={readOnly}
-                className="border-border-theme bg-surface-raised rounded"
-              />
-              <span className={cs.text.label}>Is Trailer (no engine)</span>
-            </label>
-          </div>
-        </section>
+        <VehicleSpecialFeaturesSection
+          readOnly={readOnly}
+          hasEnvironmentalSealing={hasEnvironmentalSealing}
+          hasFlotationHull={hasFlotationHull}
+          isAmphibious={isAmphibious}
+          hasTrailerHitch={hasTrailerHitch}
+          isTrailer={isTrailer}
+          setEnvironmentalSealing={setEnvironmentalSealing}
+          setFlotationHull={setFlotationHull}
+          setAmphibious={setAmphibious}
+          setTrailerHitch={setTrailerHitch}
+          setIsTrailer={setIsTrailer}
+        />
       </div>
     </div>
   );

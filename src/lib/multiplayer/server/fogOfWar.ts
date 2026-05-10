@@ -321,31 +321,23 @@ function getPrimaryUnitId(event: IGameEvent): string | null {
 }
 
 function getUnitIdFromPayload(payload: GameEventPayload): string | null {
-  if (isPayloadWithStringField(payload, 'unitId')) {
-    return payload.unitId;
-  }
-
-  return null;
+  return getPayloadStringField(payload, 'unitId');
 }
 
 function getCombatUnitIdFromPayload(payload: GameEventPayload): string | null {
-  if (isPayloadWithStringField(payload, 'attackerId')) {
-    return payload.attackerId;
-  }
-
-  if (isPayloadWithStringField(payload, 'unitId')) {
-    return payload.unitId;
-  }
-
-  return null;
+  return (
+    getPayloadStringField(payload, 'attackerId') ??
+    getPayloadStringField(payload, 'unitId')
+  );
 }
 
-function isPayloadWithStringField<TField extends string>(
+function getPayloadStringField(
   payload: GameEventPayload,
-  field: TField,
-): payload is GameEventPayload & Record<TField, string> {
+  field: string,
+): string | null {
   const record = payload as Readonly<Record<string, unknown>>;
-  return field in record && typeof record[field] === 'string';
+  const value = record[field];
+  return typeof value === 'string' ? value : null;
 }
 
 function isUnitOwnedByPlayer(

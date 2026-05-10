@@ -6,26 +6,17 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 
-import { toast } from '@/components/shared/Toast';
-import {
-  publishCombatOutcome,
-  type ICombatOutcomeReadyEvent,
-} from '@/engine/combatOutcomeBus';
 import {
   deriveCombatOutcome,
   type IDeriveCombatOutcomeOptions,
 } from '@/lib/combat/outcome/combatOutcome';
-import {
-  matchLogStorage,
-  type MatchLogStorage,
-} from '@/lib/p2p/matchLogStorage';
+import { matchLogStorage } from '@/lib/p2p/matchLogStorage';
 import {
   calculateGameOutcome,
   isGameEnded,
   type IGameOutcome,
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
-import { hasReachedEdge } from '@/simulation/ai/RetreatAI';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   CombatNotCompleteError,
@@ -36,7 +27,6 @@ import {
   GamePhase,
   GameStatus,
   LockState,
-  type IEncounterMeta,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
@@ -57,12 +47,7 @@ import {
   roll2d6 as roll2d6FromD6,
 } from '@/utils/gameplay/diceTypes';
 import {
-  createRetreatTriggeredEvent,
-  createUnitRetreatedEvent,
-} from '@/utils/gameplay/gameEvents';
-import {
   createGameSession,
-  hydrateGameSessionFromEvents,
   startGame,
   advancePhase,
   appendEvent,
@@ -73,7 +58,6 @@ import {
   lockAttack,
   resolveAllAttacks,
   resolveHeatPhase,
-  declarePhysicalAttack,
   resolveAllPhysicalAttacks,
   checkAndQueueDamagePSRs,
   resolvePendingPSRs,
@@ -87,15 +71,18 @@ import {
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
+import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
 
-import { toAIUnitState, toMovementCapability } from './GameEngine.helpers';
-
-const MATCH_LOG_DIVERGENCE_MESSAGE =
-  'Match log save failed — local state may diverge';
-
-type MatchLogHydrationStorage = Pick<MatchLogStorage, 'getEventsForMatch'> &
-  Partial<Pick<MatchLogStorage, 'getLastSequence'>>;
+import { toMovementCapability } from './GameEngine.helpers';
+import { runInteractiveSessionAITurn } from './InteractiveSession.ai';
+import { finalizeSessionOutcome } from './InteractiveSession.outcome';
+import {
+  hydrateSessionFromMatchLog,
+  reportMatchLogDivergence,
+  type MatchLogHydrationStorage,
+} from './InteractiveSession.persistence';
+import { getAvailableActionsForState } from './InteractiveSession.queries';
 
 /**
  * Per `wire-encounter-to-campaign-round-trip` Wave 5: campaign linkage
@@ -105,21 +92,7 @@ type MatchLogHydrationStorage = Pick<MatchLogStorage, 'getEventsForMatch'> &
  * the campaign store knows which contract / scenario / encounter the
  * outcome resolves.
  */
-export interface IInteractiveSessionLinkage {
-  readonly campaignId?: string | null;
-  readonly contractId?: string | null;
-  readonly scenarioId?: string | null;
-  readonly encounterId?: string | null;
-  /**
-   * Per `link-encounters-to-replays` PR 3: optional encounter snapshot
-   * the orchestrator threads in at session creation. Stamped onto the
-   * `GameCreated` event payload (via `createGameSession`) so the
-   * replay-library backfill scan can recover the per-encounter fields
-   * when rebuilding the manifest from disk. Null/omitted for
-   * non-encounter sessions (skirmish, raw quick-game).
-   */
-  readonly encounterMeta?: IEncounterMeta;
-}
+export type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 
 export class InteractiveSession {
   private session: IGameSession;
@@ -216,21 +189,7 @@ export class InteractiveSession {
     matchId: string,
     storage: MatchLogHydrationStorage = matchLogStorage,
   ): Promise<IGameSession> {
-    const events = await storage.getEventsForMatch(matchId);
-    const session = hydrateGameSessionFromEvents(matchId, events);
-
-    if (storage.getLastSequence) {
-      const diskTailSequence = await storage.getLastSequence(matchId);
-      const memoryTailSequence =
-        session.events.length === 0
-          ? null
-          : session.events[session.events.length - 1].sequence;
-      if (diskTailSequence !== memoryTailSequence) {
-        showMatchLogDivergenceToast();
-      }
-    }
-
-    return session;
+    return hydrateSessionFromMatchLog(matchId, storage);
   }
 
   getState(): IGameState {
@@ -268,26 +227,11 @@ export class InteractiveSession {
   }
 
   getAvailableActions(unitId: string): IAvailableActions {
-    const unit = this.session.currentState.units[unitId];
-    if (!unit || unit.destroyed) {
-      return { validMoves: [], validTargets: [] };
-    }
-
-    const weapons = this.weaponsByUnit.get(unitId) ?? [];
-    const validMoves: IHexCoordinate[] = [];
-    const validTargets: { unitId: string; weapons: string[] }[] = [];
-
-    // Gather enemies as potential targets
-    for (const [uid, u] of Object.entries(this.session.currentState.units)) {
-      if (u.side !== unit.side && !u.destroyed) {
-        validTargets.push({
-          unitId: uid,
-          weapons: weapons.filter((w) => !w.destroyed).map((w) => w.id),
-        });
-      }
-    }
-
-    return { validMoves, validTargets };
+    return getAvailableActionsForState(
+      this.session.currentState,
+      unitId,
+      this.weaponsByUnit,
+    );
   }
 
   applyMovement(
@@ -442,212 +386,22 @@ export class InteractiveSession {
   }
 
   runAITurn(side: GameSide): void {
-    const { phase } = this.session.currentState;
-
-    // Per `implement-physical-attack-phase` design Resolved 4: iterate
-    // bot units in deterministic `unitId`-ascending order. JS object
-    // iteration order is implementation-defined for keys derived from
-    // serialized state — sorting here makes downstream event streams
-    // identical across runs sharing a seed.
-    const sortedEntries = Object.entries(this.session.currentState.units).sort(
-      ([a], [b]) => a.localeCompare(b),
-    );
-    for (const [unitId, unit] of sortedEntries) {
-      if (unit.side !== side || unit.destroyed) continue;
-
-      const weapons = this.weaponsByUnit.get(unitId) ?? [];
-      const gunnery = this.gunneryByUnit.get(unitId) ?? 4;
-      const cap = this.movementByUnit.get(unitId) ?? {
-        walkMP: 4,
-        runMP: 6,
-        jumpMP: 0,
-      };
-
-      if (phase === GamePhase.Movement) {
-        // Per `wire-bot-ai-helpers-and-capstone`: evaluate retreat
-        // BEFORE movement so the move scorer sees `isRetreating: true`
-        // when picking the destination.
-        this.maybeEmitRetreat(unitId, weapons, gunnery);
-        const refreshedUnit = this.session.currentState.units[unitId];
-        const aiUnit = toAIUnitState(refreshedUnit, weapons, gunnery);
-        const moveEvt = this.botPlayer.playMovementPhase(
-          aiUnit,
-          this.grid,
-          cap,
-        );
-        if (moveEvt) {
-          const eventPath = buildMovementEventPath({
-            grid: this.grid,
-            from: refreshedUnit.position,
-            to: moveEvt.payload.to,
-            movementType: moveEvt.payload.movementType,
-            maxCost: maxMovementCostForCapability(
-              cap,
-              moveEvt.payload.movementType,
-            ),
-          });
-          this.session = declareMovement(
-            this.session,
-            unitId,
-            refreshedUnit.position,
-            moveEvt.payload.to,
-            moveEvt.payload.facing as Facing,
-            moveEvt.payload.movementType,
-            moveEvt.payload.mpUsed,
-            moveEvt.payload.heatGenerated,
-            eventPath,
-          );
-        }
-        this.session = lockMovement(this.session, unitId);
-
-        // Per `add-bot-retreat-behavior` § 7.2–7.3: after the unit
-        // commits its movement, check whether the new position touches
-        // the locked retreat edge. If so, emit `UnitRetreated` — the
-        // reducer latches `hasRetreated: true` (distinct from `destroyed`)
-        // so the post-battle summary can distinguish withdrawal from a
-        // combat loss. Idempotent — guarded by `!postMoveUnit.hasRetreated`
-        // and the reducer's own short-circuit.
-        const postMoveUnit = this.session.currentState.units[unitId];
-        if (
-          postMoveUnit &&
-          !postMoveUnit.destroyed &&
-          postMoveUnit.isRetreating &&
-          !postMoveUnit.hasRetreated &&
-          postMoveUnit.retreatTargetEdge &&
-          hasReachedEdge(
-            postMoveUnit.position,
-            postMoveUnit.retreatTargetEdge,
-            this.session.config.mapRadius,
-          )
-        ) {
-          const sequence = this.session.events.length;
-          const { turn, phase: currentPhase } = this.session.currentState;
-          this.appendAndPersistEvent(
-            createUnitRetreatedEvent(
-              this.session.id,
-              sequence,
-              turn,
-              currentPhase,
-              unitId,
-              postMoveUnit.retreatTargetEdge,
-            ),
-          );
-        }
-      } else if (phase === GamePhase.WeaponAttack) {
-        // Per `wire-bot-ai-helpers-and-capstone`: re-evaluate retreat
-        // here too — a unit might trigger retreat from damage taken
-        // during weapon resolution this turn.
-        this.maybeEmitRetreat(unitId, weapons, gunnery);
-        const refreshedUnit = this.session.currentState.units[unitId];
-        const aiUnit = toAIUnitState(refreshedUnit, weapons, gunnery);
-        const allAI = Object.keys(this.session.currentState.units).map(
-          (uid) => {
-            const u = this.session.currentState.units[uid];
-            return toAIUnitState(
-              u,
-              this.weaponsByUnit.get(uid) ?? [],
-              this.gunneryByUnit.get(uid) ?? 4,
-            );
-          },
-        );
-        const enemies = allAI.filter(
-          (a) =>
-            !a.destroyed &&
-            this.session.currentState.units[a.unitId].side !== side,
-        );
-        const atkEvt = this.botPlayer.playAttackPhase(aiUnit, enemies);
-        if (atkEvt) {
-          const weaponAttacks: IWeaponAttack[] = buildWeaponAttacks(
-            atkEvt.payload.weapons,
-            weapons,
-            unitId,
-          );
-
-          // Arc is computed inside resolveAttack at resolve time.
-          this.session = declareAttack(
-            this.session,
-            unitId,
-            atkEvt.payload.targetId,
-            weaponAttacks,
-            3,
-            RangeBracket.Short,
-          );
-        }
-        this.session = lockAttack(this.session, unitId);
-      } else if (phase === GamePhase.PhysicalAttack) {
-        // Per `wire-bot-ai-helpers-and-capstone`: declare physical
-        // attacks during the PhysicalAttack phase. The phase resolver
-        // (advancePhase) calls `resolveAllPhysicalAttacks` to actually
-        // apply damage / PSRs / `PhysicalAttackResolved` events.
-        const aiUnit = toAIUnitState(unit, weapons, gunnery);
-        const allAI = Object.keys(this.session.currentState.units).map(
-          (uid) => {
-            const u = this.session.currentState.units[uid];
-            return toAIUnitState(
-              u,
-              this.weaponsByUnit.get(uid) ?? [],
-              this.gunneryByUnit.get(uid) ?? 4,
-            );
-          },
-        );
-        const enemies = allAI.filter(
-          (a) =>
-            !a.destroyed &&
-            this.session.currentState.units[a.unitId].side !== side,
-        );
-        const physEvt = this.botPlayer.playPhysicalAttackPhase(aiUnit, enemies);
-        if (physEvt) {
-          const piloting = this.pilotingByUnit.get(unitId) ?? 5;
-          this.session = declarePhysicalAttack(
-            this.session,
-            physEvt.payload.attackerId,
-            physEvt.payload.targetId,
-            physEvt.payload.attackType,
-            {
-              attackerTonnage: this.tonnageByUnit.get(unitId) ?? 65,
-              pilotingSkill: piloting,
-              hexesMoved: unit.hexesMovedThisTurn,
-            },
-          );
-        }
-      }
-    }
-    // Wave 5: AI turn might have eliminated the player force; check
-    // game-over here so the bus fires before control returns to the
-    // caller.
+    runInteractiveSessionAITurn({
+      side,
+      getSession: () => this.session,
+      setSession: (session) => {
+        this.session = session;
+      },
+      appendAndPersistEvent: (event) => this.appendAndPersistEvent(event),
+      weaponsByUnit: this.weaponsByUnit,
+      movementByUnit: this.movementByUnit,
+      gunneryByUnit: this.gunneryByUnit,
+      pilotingByUnit: this.pilotingByUnit,
+      tonnageByUnit: this.tonnageByUnit,
+      grid: this.grid,
+      botPlayer: this.botPlayer,
+    });
     this.tryFinalizeAndPublish();
-  }
-
-  /**
-   * Per `wire-bot-ai-helpers-and-capstone`: helper that runs the bot's
-   * retreat evaluation against the live session and appends the
-   * resulting RetreatTriggered event when the trigger fires. Idempotent
-   * — once `isRetreating` is true, `evaluateRetreat` returns null on
-   * subsequent calls.
-   */
-  private maybeEmitRetreat(
-    unitId: string,
-    weapons: readonly IWeapon[],
-    gunnery: number,
-  ): void {
-    const unit = this.session.currentState.units[unitId];
-    if (!unit) return;
-    const aiUnit = toAIUnitState(unit, weapons, gunnery);
-    const evt = this.botPlayer.evaluateRetreat(aiUnit, this.session);
-    if (!evt) return;
-    const sequence = this.session.events.length;
-    const { turn, phase } = this.session.currentState;
-    this.appendAndPersistEvent(
-      createRetreatTriggeredEvent(
-        this.session.id,
-        sequence,
-        turn,
-        phase,
-        evt.payload.unitId,
-        evt.payload.edge,
-        evt.payload.reason,
-      ),
-    );
   }
 
   private appendAndPersistEvent(event: IGameEvent): void {
@@ -655,17 +409,10 @@ export class InteractiveSession {
     void matchLogStorage
       .appendEvent(this.session.matchId ?? this.session.id, event)
       .catch((error: unknown) => {
-        console.error(MATCH_LOG_DIVERGENCE_MESSAGE, error);
-        showMatchLogDivergenceToast();
+        reportMatchLogDivergence(error);
       });
   }
 
-  /**
-   * Per `wire-bot-ai-helpers-and-capstone`: build the per-attacker
-   * physical-attack context map needed by `resolveAllPhysicalAttacks`.
-   * Defaults match the SimulationRunner stand-ins (65t / piloting 5)
-   * when caller-supplied data is absent.
-   */
   private physicalContextByUnit(): Map<string, IPhysicalAttackContext> {
     const map = new Map<string, IPhysicalAttackContext>();
     for (const [unitId, unit] of Object.entries(
@@ -740,57 +487,14 @@ export class InteractiveSession {
     if (this.outcomePublished) return;
     if (!this.isGameOver()) return;
 
-    // Auto-end via the win-condition predicate when status is still
-    // Active. Without this, naturally-ended games (turn limit, side
-    // elimination) never reach `Completed`, and `getOutcome()` would
-    // throw `CombatNotCompleteError`.
-    if (this.session.currentState.status === GameStatus.Active) {
-      const result = calculateGameOutcome({
-        state: this.session.currentState,
-        events: this.session.events,
-        config: this.gameConfig,
-        startedAt: this.startedAt,
-        endedAt: new Date().toISOString(),
-      });
-      const reason: 'destruction' | 'concede' | 'turn_limit' | 'objective' =
-        result.reason === 'concede'
-          ? 'concede'
-          : result.reason === 'turn_limit'
-            ? 'turn_limit'
-            : result.reason === 'objective'
-              ? 'objective'
-              : 'destruction';
-      // `IGameOutcome.winner` uses the string-literal form ("player" /
-      // "opponent" / "draw") while `endGame` expects `GameSide | "draw"`.
-      // The string values are identical to GameSide enum values, so the
-      // cast is sound — we re-narrow to the engine's enum form here.
-      const winner: GameSide | 'draw' =
-        result.winner === 'draw' ? 'draw' : (result.winner as GameSide);
-      this.session = endGame(this.session, winner, reason);
-    }
-
-    if (this.session.currentState.status !== GameStatus.Completed) {
-      return;
-    }
-
-    let outcome: ICombatOutcome;
-    try {
-      outcome = deriveCombatOutcome(this.session, {
-        contractId: this.linkage.contractId ?? undefined,
-        scenarioId: this.linkage.scenarioId ?? undefined,
-      });
-    } catch {
-      // Defensive: outcome derivation should never throw post-Completed,
-      // but we don't want a derivation bug to make the engine unusable.
-      return;
-    }
-
-    this.outcomePublished = true;
-    const event: ICombatOutcomeReadyEvent = {
-      matchId: outcome.matchId,
-      outcome,
-    };
-    publishCombatOutcome(event);
+    const result = finalizeSessionOutcome({
+      session: this.session,
+      gameConfig: this.gameConfig,
+      startedAt: this.startedAt,
+      linkage: this.linkage,
+    });
+    this.session = result.session;
+    this.outcomePublished = result.published;
   }
 
   /**
@@ -891,11 +595,4 @@ export class InteractiveSession {
     };
     return deriveCombatOutcome(this.session, merged);
   }
-}
-
-function showMatchLogDivergenceToast(): void {
-  toast({
-    message: MATCH_LOG_DIVERGENCE_MESSAGE,
-    variant: 'error',
-  });
 }

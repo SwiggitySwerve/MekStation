@@ -16,61 +16,50 @@
  * - Recent files tracking
  */
 
-import { spawn } from 'child_process';
-import {
-  app,
-  BrowserWindow,
-  Menu,
-  Tray,
-  dialog,
-  shell,
-  ipcMain,
-  protocol,
-  session,
-  screen,
-} from 'electron';
+import { app, BrowserWindow, Tray, protocol } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import * as fs from 'fs/promises';
-import * as os from 'os';
-import * as path from 'path';
 
 import { BackupService } from '../services/local/BackupService';
 // Import our service layer
 import { LocalStorageService } from '../services/local/LocalStorageService';
-import {
-  RecentFilesService,
-  IAddRecentFileParams,
-} from '../services/local/RecentFilesService';
+import { RecentFilesService } from '../services/local/RecentFilesService';
 import { SettingsService } from '../services/local/SettingsService';
 import {
   IDesktopSettings,
-  IRecentFile,
   MenuCommand,
-  SETTINGS_IPC_CHANNELS,
   RECENT_FILES_IPC_CHANNELS,
-  MENU_IPC_CHANNELS,
-  APP_IPC_CHANNELS,
 } from '../types/BaseTypes';
+import {
+  createBackup as createBackupAction,
+  importUnitFile as importUnitFileAction,
+  notifyUpdateAvailable as notifyUpdateAvailableAction,
+  notifyUpdateError as notifyUpdateErrorAction,
+  notifyUpdateReady as notifyUpdateReadyAction,
+  resetProgressBar as resetProgressBarAction,
+  restoreBackup as restoreBackupAction,
+  updateDownloadProgress as updateDownloadProgressAction,
+} from './main.actions';
+import {
+  applyStartupSettings,
+  handleMenuCommand,
+  handleSettingsChange,
+  showAboutDialog,
+} from './main.behavior';
+import { cleanupServices } from './main.cleanup';
+import {
+  createDesktopAppConfig,
+  getAppIcon,
+  getTrayIcon,
+  IDesktopAppConfig,
+  IUpdateAvailableInfo,
+} from './main.config';
+import { setupIpcHandlers } from './main.ipc';
+import { registerAppEvents } from './main.lifecycle';
+import { initializeDesktopServices } from './main.services';
+import { buildTrayMenu } from './main.tray';
+import { initializeAutoUpdater as initializeAutoUpdaterEvents } from './main.updater';
+import { createMainWindow } from './main.window';
 import { MenuManager } from './MenuManager';
-
-/**
- * Application configuration
- */
-interface IDesktopAppConfig {
-  readonly enableAutoUpdater: boolean;
-  readonly enableSystemTray: boolean;
-  readonly enableBackups: boolean;
-  readonly autoSaveInterval: number;
-  readonly backupInterval: number;
-  readonly updateCheckIntervalMs: number;
-  readonly windowBounds: {
-    width: number;
-    height: number;
-    minWidth: number;
-    minHeight: number;
-  };
-  readonly developmentMode: boolean;
-}
 
 /**
  * Main application class
@@ -84,29 +73,7 @@ class MekStationApp {
   private recentFilesService: RecentFilesService | null = null;
   private menuManager: MenuManager | null = null;
 
-  private readonly config: IDesktopAppConfig = {
-    enableAutoUpdater: !process.env.NODE_ENV?.includes('dev'),
-    enableSystemTray: true,
-    enableBackups: true,
-    autoSaveInterval: 30000, // 30 seconds
-    backupInterval: 300000, // 5 minutes
-    updateCheckIntervalMs: (() => {
-      const envIntervalMinutes = Number.parseInt(
-        process.env.MEKSTATION_UPDATE_INTERVAL_MINUTES ?? '',
-        10,
-      );
-      const isValidInterval =
-        Number.isFinite(envIntervalMinutes) && envIntervalMinutes > 0;
-      return (isValidInterval ? envIntervalMinutes : 60) * 60 * 1000;
-    })(),
-    windowBounds: {
-      width: 1400,
-      height: 900,
-      minWidth: 1024,
-      minHeight: 768,
-    },
-    developmentMode: process.env.NODE_ENV === 'development',
-  };
+  private readonly config: IDesktopAppConfig = createDesktopAppConfig();
 
   private readonly userDataPath: string;
   private readonly appPath: string;
@@ -168,46 +135,11 @@ class MekStationApp {
    * Register application event handlers
    */
   private registerAppEvents(): void {
-    // Prevent multiple instances
-    if (!app.requestSingleInstanceLock()) {
-      app.quit();
-      return;
-    }
-
-    app.on('second-instance', () => {
-      // Someone tried to run a second instance, focus our window instead
-      if (this.mainWindow) {
-        if (this.mainWindow.isMinimized()) {
-          this.mainWindow.restore();
-        }
-        this.mainWindow.focus();
-      }
-    });
-
-    app.on('window-all-closed', () => {
-      // On macOS, keep the app running even when all windows are closed
-      if (process.platform !== 'darwin') {
-        app.quit();
-      }
-    });
-
-    app.on('activate', async () => {
-      // On macOS, recreate window when dock icon is clicked
-      if (BrowserWindow.getAllWindows().length === 0) {
-        await this.createMainWindow();
-      }
-    });
-
-    app.on('before-quit', async () => {
-      // Cleanup before quitting
-      await this.cleanup();
-    });
-
-    app.on('will-quit', (event) => {
-      // Prevent quit if cleanup is in progress
-      if (this.isCleaningUp) {
-        event.preventDefault();
-      }
+    registerAppEvents({
+      cleanup: () => this.cleanup(),
+      createMainWindow: () => this.createMainWindow(),
+      getMainWindow: () => this.mainWindow,
+      isCleaningUp: () => this.isCleaningUp,
     });
   }
 
@@ -242,90 +174,15 @@ class MekStationApp {
    * Initialize auto-updater
    */
   private initializeAutoUpdater(): void {
-    const updateChannel = process.env.MEKSTATION_UPDATE_CHANNEL || 'latest';
-    const updateFeedBaseUrl =
-      process.env.MEKSTATION_UPDATE_FEED_BASE_URL ||
-      'https://swiggityswerve.github.io/MekStation/updates';
-
-    // Clean-release best practice:
-    // - Keep GitHub Releases "installer/package only" (no latest*.yml or *.blockmap clutter)
-    // - Host update metadata (latest*.yml) on a static update feed (e.g., GitHub Pages)
-    // - Disable differential downloads so blockmaps are not required.
-    autoUpdater.disableDifferentialDownload = true;
-
-    // IMPORTANT: Do NOT include platform suffixes in the channel name.
-    // electron-updater automatically appends:
-    // - "-mac" on macOS
-    // - "-linux" (+ arch suffix for non-x64) on Linux
-    // - "" on Windows (historical)
-    autoUpdater.channel = updateChannel;
-    autoUpdater.allowDowngrade = false;
-    autoUpdater.autoDownload = false;
-
-    const normalizedBaseUrl = updateFeedBaseUrl.replace(/\/+$/, '');
-    const platformFeedUrl =
-      process.platform === 'win32'
-        ? `${normalizedBaseUrl}/win`
-        : process.platform === 'linux'
-          ? `${normalizedBaseUrl}/linux`
-          : process.platform === 'darwin'
-            ? `${normalizedBaseUrl}/mac/${process.arch === 'arm64' ? 'arm64' : 'x64'}`
-            : normalizedBaseUrl;
-
-    // Use generic provider pointing at static update metadata hosting (e.g. GitHub Pages).
-    // The hosted channel files MUST exist:
-    // - Windows: <channel>.yml (e.g., latest.yml)
-    // - Linux:   <channel>-linux.yml (e.g., latest-linux.yml)
-    // - macOS:   <channel>-mac.yml (e.g., latest-mac.yml) in arch-specific directory
-    autoUpdater.setFeedURL({
-      provider: 'generic',
-      url: platformFeedUrl,
-      channel: updateChannel,
+    initializeAutoUpdaterEvents({
+      checkForUpdates: () => this.checkForUpdates(),
+      notifyUpdateAvailable: (info) => this.notifyUpdateAvailable(info),
+      notifyUpdateError: (error) => this.notifyUpdateError(error),
+      notifyUpdateReady: () => this.notifyUpdateReady(),
+      resetProgressBar: () => this.resetProgressBar(),
+      updateCheckIntervalMs: this.config.updateCheckIntervalMs,
+      updateDownloadProgress: (percent) => this.updateDownloadProgress(percent),
     });
-
-    console.log(
-      `ℹ️ Auto-updater initialized | version=${app.getVersion()} | channel=${updateChannel} | platform=${process.platform} | arch=${process.arch} | feed=${platformFeedUrl}`,
-    );
-
-    // Initial check
-    void this.checkForUpdates();
-
-    autoUpdater.on('checking-for-update', () => {
-      console.log('🔍 Checking for updates...');
-    });
-
-    autoUpdater.on('update-available', (info) => {
-      console.log('📥 Update available:', info.version);
-      void this.notifyUpdateAvailable(info);
-    });
-
-    autoUpdater.on('update-not-available', () => {
-      console.log('✅ App is up to date');
-      this.resetProgressBar();
-    });
-
-    autoUpdater.on('error', (err) => {
-      console.error('❌ Auto-updater error:', err);
-      this.resetProgressBar();
-      this.notifyUpdateError(err);
-    });
-
-    autoUpdater.on('download-progress', (progressObj) => {
-      const message = `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred}/${progressObj.total})`;
-      console.log(message);
-      this.updateDownloadProgress(progressObj.percent);
-    });
-
-    autoUpdater.on('update-downloaded', () => {
-      console.log('✅ Update downloaded');
-      this.resetProgressBar();
-      void this.notifyUpdateReady();
-    });
-
-    // Check for updates every hour
-    setInterval(() => {
-      void this.checkForUpdates();
-    }, this.config.updateCheckIntervalMs);
   }
 
   /**
@@ -345,57 +202,19 @@ class MekStationApp {
    */
   private async initializeServices(): Promise<void> {
     try {
-      console.log('🔧 Initializing services...');
-
-      // Initialize local storage service
-      this.localStorage = new LocalStorageService({
-        dataPath: path.join(this.userDataPath, 'data'),
-        enableCompression: true,
-        enableEncryption: false, // Optional for local-only data
-        maxFileSize: 10 * 1024 * 1024, // 10MB
-      });
-      await this.localStorage.initialize();
-
-      // Initialize settings service
-      this.settingsService = new SettingsService({
-        localStorage: this.localStorage,
-      });
-      await this.settingsService.initialize();
-
-      // Listen for settings changes
-      this.settingsService.on('change', (event) => {
-        this.handleSettingsChange(event);
+      const services = await initializeDesktopServices({
+        config: this.config,
+        onRecentFilesUpdate: () => this.updateRecentFilesMenu(),
+        onSettingsChange: (event) => this.handleSettingsChange(event),
+        userDataPath: this.userDataPath,
       });
 
-      // Initialize recent files service
-      const maxRecentFiles = this.settingsService.get('maxRecentFiles');
-      this.recentFilesService = new RecentFilesService({
-        localStorage: this.localStorage,
-        maxRecentFiles,
-      });
-      await this.recentFilesService.initialize();
-
-      // Listen for recent files updates
-      this.recentFilesService.on('update', () => {
-        this.updateRecentFilesMenu();
-      });
-
-      // Initialize backup service
-      if (this.config.enableBackups) {
-        const settings = this.settingsService.getAll();
-        this.backupService = new BackupService({
-          dataPath: path.join(this.userDataPath, 'data'),
-          backupPath:
-            settings.backupDirectory || path.join(this.userDataPath, 'backups'),
-          maxBackups: settings.maxBackupCount,
-          compressionLevel: 6,
-        });
-        await this.backupService.initialize();
-      }
-
-      console.log('✅ Services initialized successfully');
+      this.localStorage = services.localStorage;
+      this.settingsService = services.settingsService;
+      this.recentFilesService = services.recentFilesService;
+      this.backupService = services.backupService;
     } catch (error) {
-      console.error('❌ Failed to initialize services:', error);
+      console.error('Failed to initialize services:', error);
       throw error;
     }
   }
@@ -423,53 +242,18 @@ class MekStationApp {
    * Handle menu commands
    */
   private handleMenuCommand(command: MenuCommand, ...args: unknown[]): void {
-    console.log(`📋 Menu command: ${command}`);
-
-    // Send command to renderer
-    this.sendToRenderer(MENU_IPC_CHANNELS.COMMAND, command, ...args);
-
-    // Handle commands that need main process action
-    switch (command) {
-      case 'file:quit':
-        app.quit();
-        break;
-      case 'file:preferences':
-        this.sendToRenderer(APP_IPC_CHANNELS.OPEN_SETTINGS);
-        break;
-      case 'file:clear-recent':
-        if (this.recentFilesService) {
-          this.recentFilesService.clear();
-          // Update menu to reflect cleared list
-          if (this.menuManager) {
-            this.menuManager.updateRecentFiles([]);
-          }
-        }
-        break;
-      case 'view:fullscreen':
-        if (this.mainWindow) {
-          this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-        }
-        break;
-      case 'view:dev-tools':
-        if (this.mainWindow) {
-          this.mainWindow.webContents.toggleDevTools();
-        }
-        break;
-      case 'help:documentation':
-        shell.openExternal('https://github.com/SwiggitySwerve/MekStation/wiki');
-        break;
-      case 'help:report-issue':
-        shell.openExternal(
-          'https://github.com/SwiggitySwerve/MekStation/issues/new',
-        );
-        break;
-      case 'help:check-updates':
-        void this.checkForUpdates();
-        break;
-      case 'help:about':
-        this.showAboutDialog();
-        break;
-    }
+    handleMenuCommand({
+      args,
+      checkForUpdates: () => this.checkForUpdates(),
+      command,
+      mainWindow: this.mainWindow,
+      menuManager: this.menuManager,
+      recentFilesService: this.recentFilesService,
+      sendToRenderer: (channel, ...rendererArgs) => {
+        void this.sendToRenderer(channel, ...rendererArgs);
+      },
+      showAboutDialog: () => this.showAboutDialog(),
+    });
   }
 
   /**
@@ -488,25 +272,14 @@ class MekStationApp {
     oldValue: unknown;
     newValue: unknown;
   }): void {
-    console.log(`⚙️ Setting changed: ${event.key}`);
-
-    switch (event.key) {
-      case 'launchAtLogin':
-        this.updateLaunchAtLogin(event.newValue as boolean);
-        break;
-      case 'maxRecentFiles':
-        if (this.recentFilesService) {
-          this.recentFilesService.setMaxRecentFiles(event.newValue as number);
-        }
-        break;
-      case 'enableAutoBackup':
-      case 'backupIntervalMinutes':
-        // Backup interval changes are handled in periodic tasks
-        break;
-    }
-
-    // Notify renderer of settings change
-    this.sendToRenderer(SETTINGS_IPC_CHANNELS.ON_CHANGE, event);
+    handleSettingsChange({
+      event,
+      recentFilesService: this.recentFilesService,
+      sendToRenderer: (channel, ...args) => {
+        void this.sendToRenderer(channel, ...args);
+      },
+      settingsService: this.settingsService,
+    });
   }
 
   /**
@@ -532,293 +305,39 @@ class MekStationApp {
   }
 
   /**
-   * Update launch at login setting
-   */
-  private updateLaunchAtLogin(enabled: boolean): void {
-    if (process.platform === 'linux') {
-      // Linux uses .desktop file in autostart
-      this.updateLinuxAutostart(enabled);
-    } else {
-      // Windows and macOS use native API
-      app.setLoginItemSettings({
-        openAtLogin: enabled,
-        openAsHidden: this.settingsService?.get('startMinimized') ?? false,
-      });
-    }
-  }
-
-  /**
-   * Update Linux autostart .desktop file
-   */
-  private async updateLinuxAutostart(enabled: boolean): Promise<void> {
-    const autostartDir = path.join(os.homedir(), '.config', 'autostart');
-    const desktopFile = path.join(autostartDir, 'mekstation.desktop');
-
-    if (enabled) {
-      const desktopContent = `[Desktop Entry]
-Type=Application
-Name=MekStation
-Exec=${process.execPath}
-Terminal=false
-StartupNotify=false
-X-GNOME-Autostart-enabled=true
-`;
-      try {
-        await fs.mkdir(autostartDir, { recursive: true });
-        await fs.writeFile(desktopFile, desktopContent);
-      } catch (error) {
-        console.error('Failed to create autostart file:', error);
-      }
-    } else {
-      try {
-        await fs.unlink(desktopFile);
-      } catch (error) {
-        // File may not exist, ignore error
-      }
-    }
-  }
-
-  /**
    * Apply startup settings
    */
   private async applyStartupSettings(): Promise<void> {
-    if (!this.settingsService) return;
-
-    const settings = this.settingsService.getAll();
-
-    // Handle start minimized
-    if (settings.startMinimized && this.mainWindow) {
-      this.mainWindow.hide();
-    }
-
-    // Note: reopen last unit is handled in createMainWindow() before URL load
-    // to ensure the did-finish-load listener is registered in time
+    applyStartupSettings(this.mainWindow, this.settingsService);
   }
 
   /**
    * Show about dialog
    */
   private showAboutDialog(): void {
-    if (!this.mainWindow) return;
-
-    dialog.showMessageBox(this.mainWindow, {
-      type: 'info',
-      title: 'About MekStation',
-      message: 'MekStation',
-      detail: `Version: ${app.getVersion()}\nElectron: ${process.versions.electron}\nChrome: ${process.versions.chrome}\nNode.js: ${process.versions.node}\n\nA comprehensive BattleMech editor for the MegaMek ecosystem.`,
-      buttons: ['OK'],
-    });
+    showAboutDialog(this.mainWindow);
   }
 
   /**
    * Create the main application window
    */
   private async createMainWindow(): Promise<void> {
-    console.log('🪟 Creating main window...');
-
-    // Get window bounds from settings service or defaults
-    const settings = this.settingsService?.getAll();
-    const savedBounds = settings?.rememberWindowState
-      ? settings.windowBounds
-      : null;
-
-    // Validate saved bounds are on a visible display
-    let windowBounds = {
-      ...this.config.windowBounds,
-      x: savedBounds?.x,
-      y: savedBounds?.y,
-      width: savedBounds?.width || this.config.windowBounds.width,
-      height: savedBounds?.height || this.config.windowBounds.height,
-    };
-
-    // Validate window is within visible display bounds
-    if (savedBounds?.x !== undefined && savedBounds?.y !== undefined) {
-      const displays = screen.getAllDisplays();
-      const isVisible = displays.some((display) => {
-        const { x, y, width, height } = display.bounds;
-        return (
-          savedBounds.x >= x &&
-          savedBounds.x < x + width &&
-          savedBounds.y >= y &&
-          savedBounds.y < y + height
-        );
-      });
-
-      if (!isVisible) {
-        // Reset to primary display center if not visible
-        const primaryDisplay = screen.getPrimaryDisplay();
-        windowBounds.x = Math.round(
-          (primaryDisplay.bounds.width - windowBounds.width) / 2,
-        );
-        windowBounds.y = Math.round(
-          (primaryDisplay.bounds.height - windowBounds.height) / 2,
-        );
-      }
-    }
-
-    this.mainWindow = new BrowserWindow({
-      width: windowBounds.width,
-      height: windowBounds.height,
-      x: windowBounds.x,
-      y: windowBounds.y,
-      minWidth: this.config.windowBounds.minWidth,
-      minHeight: this.config.windowBounds.minHeight,
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: true,
-        preload: path.join(__dirname, 'preload.js'),
-        webSecurity: !this.config.developmentMode,
+    this.mainWindow = await createMainWindow({
+      appPath: this.appPath,
+      config: this.config,
+      getAppIcon: () => this.getAppIcon(),
+      onClosed: () => {
+        this.mainWindow = null;
       },
-      icon: this.getAppIcon(),
-      titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-      show: false, // Don't show until ready
+      recentFilesService: this.recentFilesService,
+      sendToRenderer: (channel, ...args) => {
+        void this.sendToRenderer(channel, ...args);
+      },
+      settingsService: this.settingsService,
+      shouldHideToTray: () =>
+        this.config.enableSystemTray && process.platform !== 'darwin',
+      userDataPath: this.userDataPath,
     });
-
-    // Restore maximized state
-    if (savedBounds?.isMaximized && this.mainWindow) {
-      this.mainWindow.maximize();
-    }
-
-    // Register did-finish-load listener for reopen last unit BEFORE loading URL
-    // This must be done before loadURL() to catch the initial page load event
-    if (this.settingsService && this.recentFilesService) {
-      const settings = this.settingsService.getAll();
-      if (settings.reopenLastUnit) {
-        const lastUnit = this.recentFilesService.getMostRecent();
-        if (lastUnit) {
-          this.mainWindow.webContents.once('did-finish-load', () => {
-            setTimeout(() => {
-              this.sendToRenderer('open-unit', lastUnit.id);
-            }, 1000); // Small delay to ensure app is fully initialized
-          });
-        }
-      }
-    }
-
-    // Show window when ready (unless start minimized is enabled)
-    this.mainWindow.once('ready-to-show', () => {
-      const startMinimized =
-        this.settingsService?.get('startMinimized') ?? false;
-      if (this.mainWindow) {
-        if (!startMinimized) {
-          this.mainWindow.show();
-
-          // Focus window
-          if (process.platform === 'darwin') {
-            app.dock.show();
-          }
-          this.mainWindow.focus();
-        }
-      }
-    });
-
-    // Load the application
-    if (this.config.developmentMode) {
-      await this.mainWindow.loadURL('http://localhost:3600');
-      this.mainWindow.webContents.openDevTools();
-    } else {
-      // In production, start the Next.js standalone server and load it
-      const serverCwd = app.isPackaged
-        ? path.join(process.resourcesPath, 'next-standalone')
-        : path.join(this.appPath, '..', '.next', 'standalone');
-      const serverPath = path.join(serverCwd, 'server.js');
-
-      // Ensure a per-user writable SQLite path for packaged desktop builds
-      // (never write to the packaged resources directory).
-      const dataDir = path.join(this.userDataPath, 'data');
-      const databasePath = path.join(dataDir, 'mekstation.db');
-      await fs.mkdir(dataDir, { recursive: true });
-
-      // Start the Next.js server
-      const server = spawn(process.execPath, [serverPath], {
-        env: {
-          ...process.env,
-          ELECTRON_RUN_AS_NODE: '1',
-          PORT: '3001', // Use different port to avoid conflicts
-          HOSTNAME: '127.0.0.1',
-          DATABASE_PATH: databasePath,
-        },
-        cwd: serverCwd,
-      });
-
-      server.on('error', (error: Error) => {
-        console.error('❌ Failed to start Next.js server:', error);
-        if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-          void dialog.showMessageBox(this.mainWindow, {
-            type: 'error',
-            title: 'Startup Error',
-            message:
-              'Failed to start the local web server required to run MekStation.',
-            detail: error.message,
-            buttons: ['OK'],
-          });
-        }
-      });
-
-      server.stdout?.on('data', (data: Buffer) => {
-        console.log(`Server: ${data.toString()}`);
-      });
-
-      server.stderr?.on('data', (data: Buffer) => {
-        console.error(`Server Error: ${data.toString()}`);
-      });
-
-      // Wait for server to start and then load
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      try {
-        await this.mainWindow.loadURL('http://127.0.0.1:3001');
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.error('❌ Failed to load MekStation UI:', message);
-        if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-          await dialog.showMessageBox(this.mainWindow, {
-            type: 'error',
-            title: 'Startup Error',
-            message: 'MekStation failed to load its UI.',
-            detail: message,
-            buttons: ['OK'],
-          });
-        }
-        throw error;
-      }
-    }
-
-    // Handle window events
-    this.mainWindow.on('closed', () => {
-      this.mainWindow = null;
-    });
-
-    this.mainWindow.on('close', async (event) => {
-      // Save window bounds to settings
-      if (this.mainWindow && this.settingsService) {
-        const bounds = this.mainWindow.getBounds();
-        const isMaximized = this.mainWindow.isMaximized();
-
-        await this.settingsService.updateWindowBounds({
-          x: bounds.x,
-          y: bounds.y,
-          width: bounds.width,
-          height: bounds.height,
-          isMaximized,
-        });
-      }
-
-      // Hide to tray instead of closing (except on macOS)
-      if (this.config.enableSystemTray && process.platform !== 'darwin') {
-        event.preventDefault();
-        if (this.mainWindow) {
-          this.mainWindow.hide();
-        }
-      }
-    });
-
-    // Handle navigation
-    this.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-      shell.openExternal(url);
-      return { action: 'deny' };
-    });
-
-    console.log('✅ Main window created successfully');
   }
 
   /**
@@ -827,27 +346,23 @@ X-GNOME-Autostart-enabled=true
   private createSystemTray(): void {
     if (!this.config.enableSystemTray) return;
 
-    console.log('🔔 Creating system tray...');
+    console.log('Creating system tray...');
 
-    const trayIcon = this.getTrayIcon();
-    this.tray = new Tray(trayIcon);
-
+    this.tray = new Tray(this.getTrayIcon());
     this.updateTrayMenu();
-
     this.tray.setToolTip('MekStation');
 
     this.tray.on('click', () => {
-      if (this.mainWindow) {
-        if (this.mainWindow.isVisible()) {
-          this.mainWindow.hide();
-        } else {
-          this.mainWindow.show();
-          this.mainWindow.focus();
-        }
+      if (!this.mainWindow) return;
+      if (this.mainWindow.isVisible()) {
+        this.mainWindow.hide();
+      } else {
+        this.mainWindow.show();
+        this.mainWindow.focus();
       }
     });
 
-    console.log('✅ System tray created successfully');
+    console.log('System tray created successfully');
   }
 
   /**
@@ -856,89 +371,21 @@ X-GNOME-Autostart-enabled=true
   private updateTrayMenu(): void {
     if (!this.tray) return;
 
-    const recentFiles = this.recentFilesService?.list() ?? [];
-
-    // Build recent files submenu
-    const recentFilesSubmenu: Electron.MenuItemConstructorOptions[] =
-      recentFiles.length > 0
-        ? [
-            ...recentFiles.slice(0, 5).map((file) => ({
-              label: `${file.name}${file.variant ? ` ${file.variant}` : ''}`,
-              click: () => this.handleOpenRecent(file.id),
-            })),
-            { type: 'separator' as const },
-            {
-              label: 'More...',
-              click: () => {
-                if (this.mainWindow) {
-                  this.mainWindow.show();
-                  this.mainWindow.focus();
-                }
-              },
-            },
-          ]
-        : [{ label: 'No Recent Files', enabled: false }];
-
-    const contextMenu = Menu.buildFromTemplate([
-      {
-        label: 'Show MekStation',
-        click: () => {
-          if (this.mainWindow) {
-            this.mainWindow.show();
-            this.mainWindow.focus();
-          }
-        },
+    const contextMenu = buildTrayMenu({
+      checkForUpdates: () => this.checkForUpdates(),
+      createBackup: () => this.createBackup(),
+      handleOpenRecent: (fileId) => this.handleOpenRecent(fileId),
+      importUnitFile: () => this.importUnitFile(),
+      recentFiles: this.recentFilesService?.list() ?? [],
+      sendToRenderer: (channel, ...args) => {
+        void this.sendToRenderer(channel, ...args);
       },
-      { type: 'separator' },
-      {
-        label: 'Recent Files',
-        submenu: recentFilesSubmenu,
+      showMainWindow: () => {
+        if (!this.mainWindow) return;
+        this.mainWindow.show();
+        this.mainWindow.focus();
       },
-      { type: 'separator' },
-      {
-        label: 'New Unit',
-        click: () => {
-          this.sendToRenderer('create-new-unit');
-        },
-      },
-      {
-        label: 'Import Unit',
-        click: () => {
-          this.importUnitFile();
-        },
-      },
-      { type: 'separator' },
-      {
-        label: 'Preferences',
-        click: () => {
-          if (this.mainWindow) {
-            this.mainWindow.show();
-            this.mainWindow.focus();
-          }
-          this.sendToRenderer(APP_IPC_CHANNELS.OPEN_SETTINGS);
-        },
-      },
-      { type: 'separator' },
-      {
-        label: 'Backup Data',
-        click: () => {
-          this.createBackup();
-        },
-      },
-      {
-        label: 'Check for Updates',
-        click: () => {
-          void this.checkForUpdates();
-        },
-      },
-      { type: 'separator' },
-      {
-        label: 'Quit',
-        click: () => {
-          app.quit();
-        },
-      },
-    ]);
+    });
 
     this.tray.setContextMenu(contextMenu);
   }
@@ -947,241 +394,18 @@ X-GNOME-Autostart-enabled=true
    * Setup IPC handlers for communication with renderer
    */
   private setupIpcHandlers(): void {
-    console.log('📡 Setting up IPC handlers...');
-
-    // =========================================================================
-    // SETTINGS IPC HANDLERS
-    // =========================================================================
-
-    ipcMain.handle(SETTINGS_IPC_CHANNELS.GET, () => {
-      return this.settingsService?.getAll() ?? null;
-    });
-
-    ipcMain.handle(
-      SETTINGS_IPC_CHANNELS.SET,
-      async (event, updates: Partial<IDesktopSettings>) => {
-        if (!this.settingsService)
-          return { success: false, error: 'Settings service not initialized' };
-        return await this.settingsService.setMultiple(updates);
-      },
-    );
-
-    ipcMain.handle(SETTINGS_IPC_CHANNELS.RESET, async () => {
-      if (!this.settingsService)
-        return { success: false, error: 'Settings service not initialized' };
-      return await this.settingsService.reset();
-    });
-
-    ipcMain.handle(
-      SETTINGS_IPC_CHANNELS.GET_VALUE,
-      (event, key: keyof IDesktopSettings) => {
-        return this.settingsService?.get(key) ?? null;
-      },
-    );
-
-    // =========================================================================
-    // RECENT FILES IPC HANDLERS
-    // =========================================================================
-
-    ipcMain.handle(RECENT_FILES_IPC_CHANNELS.LIST, () => {
-      return this.recentFilesService?.list() ?? [];
-    });
-
-    ipcMain.handle(
-      RECENT_FILES_IPC_CHANNELS.ADD,
-      async (event, params: IAddRecentFileParams) => {
-        if (!this.recentFilesService)
-          return {
-            success: false,
-            error: 'Recent files service not initialized',
-          };
-        return await this.recentFilesService.add(params);
-      },
-    );
-
-    ipcMain.handle(
-      RECENT_FILES_IPC_CHANNELS.REMOVE,
-      async (event, id: string) => {
-        if (!this.recentFilesService)
-          return {
-            success: false,
-            error: 'Recent files service not initialized',
-          };
-        return await this.recentFilesService.remove(id);
-      },
-    );
-
-    ipcMain.handle(RECENT_FILES_IPC_CHANNELS.CLEAR, async () => {
-      if (!this.recentFilesService)
-        return {
-          success: false,
-          error: 'Recent files service not initialized',
-        };
-      return await this.recentFilesService.clear();
-    });
-
-    // =========================================================================
-    // MENU IPC HANDLERS
-    // =========================================================================
-
-    ipcMain.handle(
-      MENU_IPC_CHANNELS.UPDATE_STATE,
-      (
-        event,
-        state: {
-          canUndo?: boolean;
-          canRedo?: boolean;
-          hasUnit?: boolean;
-          hasSelection?: boolean;
-        },
-      ) => {
-        if (this.menuManager) {
-          this.menuManager.updateMenuState(state);
-        }
-      },
-    );
-
-    // =========================================================================
-    // FILE OPERATIONS
-    // =========================================================================
-
-    ipcMain.handle(
-      'save-file',
-      async (event, defaultPath: string, filters: Electron.FileFilter[]) => {
-        if (!this.mainWindow) return { canceled: true };
-        const result = await dialog.showSaveDialog(this.mainWindow, {
-          defaultPath,
-          filters,
-        });
-        return result;
-      },
-    );
-
-    ipcMain.handle(
-      'open-file',
-      async (event, filters: Electron.FileFilter[]) => {
-        if (!this.mainWindow) return { canceled: true, filePaths: [] };
-        const result = await dialog.showOpenDialog(this.mainWindow, {
-          filters,
-          properties: ['openFile'],
-        });
-        return result;
-      },
-    );
-
-    ipcMain.handle('read-file', async (event, filePath: string) => {
-      try {
-        const data = await fs.readFile(filePath, 'utf-8');
-        return { success: true, data };
-      } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to read file',
-        };
-      }
-    });
-
-    ipcMain.handle(
-      'write-file',
-      async (event, filePath: string, data: string) => {
-        try {
-          await fs.writeFile(filePath, data, 'utf-8');
-          return { success: true };
-        } catch (error) {
-          return {
-            success: false,
-            error:
-              error instanceof Error ? error.message : 'Failed to write file',
-          };
-        }
-      },
-    );
-
-    ipcMain.handle('select-directory', async () => {
-      if (!this.mainWindow) return { canceled: true, filePaths: [] };
-      const result = await dialog.showOpenDialog(this.mainWindow, {
-        properties: ['openDirectory', 'createDirectory'],
-      });
-      return result;
-    });
-
-    // =========================================================================
-    // APPLICATION INFO
-    // =========================================================================
-
-    ipcMain.handle('get-app-info', () => ({
-      version: app.getVersion(),
-      platform: process.platform,
-      userDataPath: this.userDataPath,
+    setupIpcHandlers({
+      checkForUpdates: () => this.checkForUpdates(),
+      createBackup: () => this.createBackup(),
       developmentMode: this.config.developmentMode,
-    }));
-
-    // =========================================================================
-    // WINDOW OPERATIONS
-    // =========================================================================
-
-    ipcMain.handle('minimize-window', () => {
-      if (this.mainWindow) {
-        this.mainWindow.minimize();
-      }
+      getLocalStorage: () => this.localStorage,
+      getMainWindow: () => this.mainWindow,
+      getMenuManager: () => this.menuManager,
+      getRecentFilesService: () => this.recentFilesService,
+      getSettingsService: () => this.settingsService,
+      restoreBackup: (backupPath) => this.restoreBackup(backupPath),
+      userDataPath: this.userDataPath,
     });
-
-    ipcMain.handle('maximize-window', () => {
-      if (this.mainWindow) {
-        if (this.mainWindow.isMaximized()) {
-          this.mainWindow.unmaximize();
-        } else {
-          this.mainWindow.maximize();
-        }
-      }
-    });
-
-    ipcMain.handle('close-window', () => {
-      if (this.mainWindow) {
-        this.mainWindow.close();
-      }
-    });
-
-    // =========================================================================
-    // SERVICE OPERATIONS
-    // =========================================================================
-
-    ipcMain.handle('service-call', async (event, method: string) => {
-      try {
-        switch (method) {
-          case 'checkForUpdates':
-            await this.checkForUpdates();
-            return { success: true };
-          case 'clearCache':
-            // Clear any cached data
-            if (this.localStorage) {
-              // Clear only the cache, not the actual storage
-              await this.localStorage.clear();
-            }
-            return { success: true };
-          default:
-            return { success: false, error: `Unknown method: ${method}` };
-        }
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Unknown error';
-        return { success: false, error: message };
-      }
-    });
-
-    // =========================================================================
-    // BACKUP OPERATIONS
-    // =========================================================================
-
-    ipcMain.handle('create-backup', async () => {
-      return await this.createBackup();
-    });
-
-    ipcMain.handle('restore-backup', async (event, backupPath: string) => {
-      return await this.restoreBackup(backupPath);
-    });
-
-    console.log('✅ IPC handlers setup complete');
   }
 
   /**
@@ -1253,7 +477,10 @@ X-GNOME-Autostart-enabled=true
   /**
    * Send message to renderer process
    */
-  private async sendToRenderer(channel: string, ...args: any[]): Promise<void> {
+  private async sendToRenderer(
+    channel: string,
+    ...args: unknown[]
+  ): Promise<void> {
     if (this.mainWindow && !this.mainWindow.isDestroyed()) {
       this.mainWindow.webContents.send(channel, ...args);
     }
@@ -1263,49 +490,23 @@ X-GNOME-Autostart-enabled=true
    * Get application icon path
    */
   private getAppIcon(): string {
-    const iconName =
-      process.platform === 'win32'
-        ? 'icon.ico'
-        : process.platform === 'darwin'
-          ? 'icon.icns'
-          : 'icon.png';
-    return path.join(__dirname, '../assets/icons', iconName);
+    return getAppIcon(__dirname);
   }
 
   /**
    * Get tray icon path
    */
   private getTrayIcon(): string {
-    const iconName =
-      process.platform === 'win32'
-        ? 'tray.ico'
-        : process.platform === 'darwin'
-          ? 'tray.png'
-          : 'tray.png';
-    return path.join(__dirname, '../assets/icons', iconName);
+    return getTrayIcon(__dirname);
   }
 
   /**
    * Import unit from file
    */
   private async importUnitFile(): Promise<void> {
-    try {
-      if (!this.mainWindow) return;
-      const result = await dialog.showOpenDialog(this.mainWindow, {
-        filters: [
-          { name: 'MegaMek Files', extensions: ['mtf'] },
-          { name: 'MekStation Files', extensions: ['bte', 'json'] },
-          { name: 'All Files', extensions: ['*'] },
-        ],
-        properties: ['openFile'],
-      });
-
-      if (!result.canceled && result.filePaths && result.filePaths.length > 0) {
-        await this.sendToRenderer('import-unit-file', result.filePaths[0]);
-      }
-    } catch (error) {
-      console.error('Unit import failed:', error);
-    }
+    await importUnitFileAction(this.mainWindow, (channel, ...args) =>
+      this.sendToRenderer(channel, ...args),
+    );
   }
 
   /**
@@ -1334,112 +535,53 @@ X-GNOME-Autostart-enabled=true
    * Create backup
    */
   private async createBackup(): Promise<boolean> {
-    try {
-      if (this.backupService) {
-        const backupPath = await this.backupService.createBackup();
-        console.log('✅ Backup created:', backupPath);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('❌ Backup creation failed:', error);
-      return false;
-    }
+    return await createBackupAction(this.backupService);
   }
 
   /**
    * Restore backup
    */
   private async restoreBackup(backupPath: string): Promise<boolean> {
-    try {
-      if (this.backupService) {
-        await this.backupService.restoreBackup(backupPath);
-        console.log('✅ Backup restored:', backupPath);
-
-        // Restart services to pick up restored data
-        // Service orchestrator not implemented yet
-
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('❌ Backup restoration failed:', error);
-      return false;
-    }
+    return await restoreBackupAction(this.backupService, backupPath);
   }
 
   /**
    * Notify about available update
    */
-  private async notifyUpdateAvailable(info: any): Promise<void> {
-    if (!this.mainWindow) return;
-    const choice = await dialog.showMessageBox(this.mainWindow, {
-      type: 'info',
-      title: 'Update Available',
-      message: `A new version (${info.version}) is available. Would you like to download it now?`,
-      buttons: ['Download', 'Later'],
-      defaultId: 0,
-    });
-
-    if (choice.response === 0) {
-      this.updateDownloadProgress(0);
-      autoUpdater.downloadUpdate();
-    }
+  private async notifyUpdateAvailable(
+    info: IUpdateAvailableInfo,
+  ): Promise<void> {
+    await notifyUpdateAvailableAction(this.mainWindow, info, (percent) =>
+      this.updateDownloadProgress(percent),
+    );
   }
 
   /**
    * Update download progress
    */
   private updateDownloadProgress(percent: number): void {
-    if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-      this.mainWindow.setProgressBar(percent / 100);
-    }
+    updateDownloadProgressAction(this.mainWindow, percent);
   }
 
   /**
    * Clear any download progress indicator
    */
   private resetProgressBar(): void {
-    if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-      this.mainWindow.setProgressBar(-1);
-    }
+    resetProgressBarAction(this.mainWindow);
   }
 
   /**
    * Notify about update errors
    */
   private notifyUpdateError(error: unknown): void {
-    if (!this.mainWindow) return;
-    const message =
-      error instanceof Error
-        ? error.message
-        : 'Unknown error occurred while checking for updates.';
-    dialog.showMessageBox(this.mainWindow, {
-      type: 'error',
-      title: 'Update Failed',
-      message: 'Failed to check for or download updates.',
-      detail: message,
-      buttons: ['OK'],
-    });
+    notifyUpdateErrorAction(this.mainWindow, error);
   }
 
   /**
    * Notify about ready update
    */
   private async notifyUpdateReady(): Promise<void> {
-    if (!this.mainWindow) return;
-    const choice = await dialog.showMessageBox(this.mainWindow, {
-      type: 'info',
-      title: 'Update Ready',
-      message:
-        'Update downloaded. The application will restart to apply the update.',
-      buttons: ['Restart Now', 'Later'],
-      defaultId: 0,
-    });
-
-    if (choice.response === 0) {
-      autoUpdater.quitAndInstall();
-    }
+    await notifyUpdateReadyAction(this.mainWindow);
   }
 
   private isCleaningUp = false;
@@ -1451,33 +593,14 @@ X-GNOME-Autostart-enabled=true
     if (this.isCleaningUp) return;
     this.isCleaningUp = true;
 
-    console.log('🧹 Cleaning up application...');
-
-    try {
-      // Save current state
-      await this.sendToRenderer('save-all-data');
-
-      // Cleanup services in reverse initialization order
-      if (this.recentFilesService) {
-        await this.recentFilesService.cleanup();
-      }
-
-      if (this.settingsService) {
-        await this.settingsService.cleanup();
-      }
-
-      if (this.backupService) {
-        await this.backupService.cleanup();
-      }
-
-      if (this.localStorage) {
-        await this.localStorage.cleanup();
-      }
-
-      console.log('✅ Cleanup completed');
-    } catch (error) {
-      console.error('❌ Cleanup failed:', error);
-    }
+    await cleanupServices({
+      backupService: this.backupService,
+      localStorage: this.localStorage,
+      recentFilesService: this.recentFilesService,
+      sendToRenderer: (channel, ...args) =>
+        this.sendToRenderer(channel, ...args),
+      settingsService: this.settingsService,
+    });
 
     this.isCleaningUp = false;
   }

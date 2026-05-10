@@ -92,9 +92,7 @@
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
-import { usePilotStore } from '@/stores/usePilotStore';
 import { ICampaign } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';

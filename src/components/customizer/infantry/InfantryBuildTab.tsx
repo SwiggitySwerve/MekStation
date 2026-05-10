@@ -34,7 +34,10 @@ import {
 } from '@/utils/construction/infantry/weaponTable';
 
 import { customizerStyles as cs } from '../styles';
+import { InfantryFieldGunsSection } from './InfantryFieldGunsSection';
 import { InfantryPlatoonCounter } from './InfantryPlatoonCounter';
+import { InfantryProtectionSection } from './InfantryProtectionSection';
+import { InfantryStatusBar } from './InfantryStatusBar';
 
 // =============================================================================
 // Constants
@@ -465,182 +468,40 @@ export function InfantryBuildTab({
         </div>
       </div>
 
-      {/* Protection & Specialization */}
-      <div className={cs.panel.main}>
-        <h3 className={cs.text.sectionTitle}>Protection & Specialization</h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div>
-            <label className={cs.text.label}>Armor Kit</label>
-            {/* Sneak suit options are hidden when motive is not Foot */}
-            <select
-              value={armorKit}
-              onChange={(e) =>
-                !readOnly && setArmorKit(e.target.value as InfantryArmorKit)
-              }
-              disabled={readOnly}
-              className={cs.select.full}
-            >
-              {armorKitOptions.map((kit) => (
-                <option key={kit} value={kit}>
-                  {kit}
-                </option>
-              ))}
-            </select>
-            {SNEAK_KIT_VALUES.has(armorKit) &&
-              !SNEAK_ELIGIBLE_MOTIVES.has(infantryMotive) && (
-                <p className="mt-1 text-xs text-red-400">
-                  Sneak suits require Foot motive (VAL-INF-ARMOR-KIT)
-                </p>
-              )}
-          </div>
-          <div>
-            <label className={cs.text.label}>Specialization</label>
-            <select
-              value={specialization}
-              onChange={(e) =>
-                !readOnly &&
-                setSpecialization(e.target.value as InfantrySpecialization)
-              }
-              disabled={readOnly}
-              className={cs.select.full}
-            >
-              {SPECIALIZATION_OPTIONS.map((spec) => (
-                <option key={spec} value={spec}>
-                  {spec}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-end">
-            <label className="flex cursor-pointer items-center gap-2 pb-2">
-              <input
-                type="checkbox"
-                checked={hasAntiMechTraining}
-                onChange={(e) =>
-                  !readOnly && setAntiMechTraining(e.target.checked)
-                }
-                disabled={readOnly}
-                className="border-border-theme bg-surface-raised rounded"
-              />
-              <span className="text-sm text-white">Anti-Mech Training</span>
-            </label>
-          </div>
-        </div>
-      </div>
+      <InfantryProtectionSection
+        readOnly={readOnly}
+        armorKit={armorKit}
+        armorKitOptions={armorKitOptions}
+        specialization={specialization}
+        specializationOptions={SPECIALIZATION_OPTIONS}
+        hasAntiMechTraining={hasAntiMechTraining}
+        showSneakSuitError={
+          SNEAK_KIT_VALUES.has(armorKit) &&
+          !SNEAK_ELIGIBLE_MOTIVES.has(infantryMotive)
+        }
+        setArmorKit={setArmorKit}
+        setSpecialization={setSpecialization}
+        setAntiMechTraining={setAntiMechTraining}
+      />
 
-      {/* Field Guns — available only for Foot and Motorized platoons */}
-      <div className={cs.panel.main}>
-        <h3 className={cs.text.sectionTitle}>Field Guns</h3>
-        {!canUseFieldGuns && (
-          <p className="mb-4 text-xs text-amber-400">
-            Field guns require Foot or Motorized motive.
-          </p>
-        )}
-        {/* Currently equipped field guns */}
-        {fieldGuns.length > 0 ? (
-          <div className="mb-4 space-y-2">
-            {fieldGuns.map((gun, idx) => (
-              <div
-                key={gun.equipmentId}
-                className="bg-surface-raised border-border-theme flex items-center gap-3 rounded border px-3 py-2"
-              >
-                <span className="flex-1 text-sm text-white">
-                  {gun.name}
-                  <span className="ml-2 text-xs text-gray-400">
-                    (crew: {gun.crewCount})
-                  </span>
-                </span>
-                <label className="flex items-center gap-1 text-xs text-gray-400">
-                  Ammo:
-                  <input
-                    type="number"
-                    value={gun.ammoRounds}
-                    onChange={(e) => handleFieldGunAmmo(idx, e)}
-                    disabled={readOnly}
-                    min={0}
-                    className="bg-surface-base border-border-theme ml-1 w-16 rounded border px-1 py-0.5 text-sm text-white"
-                  />
-                </label>
-                {!readOnly && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFieldGun(gun.equipmentId)}
-                    className="text-xs text-red-400 hover:text-red-300"
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="mb-4 text-xs text-gray-400">No field guns assigned.</p>
-        )}
+      <InfantryFieldGunsSection
+        readOnly={readOnly}
+        canUseFieldGuns={canUseFieldGuns}
+        fieldGuns={fieldGuns}
+        addedFieldGunIds={addedFieldGunIds}
+        catalog={FIELD_GUN_CATALOG}
+        onAddFieldGun={handleAddFieldGun}
+        onRemoveFieldGun={handleRemoveFieldGun}
+        onFieldGunAmmo={handleFieldGunAmmo}
+      />
 
-        {/* Add a field gun from the approved catalog */}
-        {!readOnly && (
-          <div className="flex items-center gap-3">
-            <label className={cs.text.label}>Add Field Gun</label>
-            <select
-              className={cs.select.full}
-              defaultValue=""
-              disabled={!canUseFieldGuns}
-              onChange={(e) => {
-                if (e.target.value) {
-                  handleAddFieldGun(e.target.value);
-                  // Reset after adding so the select returns to placeholder
-                  e.target.value = '';
-                }
-              }}
-            >
-              <option value="">Select field gun to add...</option>
-              {FIELD_GUN_CATALOG.map((g) => (
-                <option
-                  key={g.id}
-                  value={g.id}
-                  disabled={addedFieldGunIds.has(g.id)}
-                >
-                  {g.name} (crew {g.crewRequired})
-                  {addedFieldGunIds.has(g.id) ? ' — added' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
-
-      {/* Status Bar — platoon strength summary */}
-      <div className="border-border-theme bg-surface-base rounded border px-4 py-2">
-        <div className="flex flex-wrap gap-4 text-xs text-gray-400">
-          <span>
-            <span className="font-medium text-white">{platoonStrength}</span>{' '}
-            troopers
-          </span>
-          <span>
-            Ground MP:{' '}
-            <span className="font-medium text-white">{groundMP}</span>
-          </span>
-          {jumpMP > 0 && (
-            <span>
-              Jump MP: <span className="font-medium text-white">{jumpMP}</span>
-            </span>
-          )}
-          {fieldGuns.length > 0 && (
-            <span>
-              Field gun crew:{' '}
-              <span className="font-medium text-white">
-                {fieldGuns.reduce((s, g) => s + g.crewCount, 0)}
-              </span>{' '}
-              / {platoonStrength} troopers
-            </span>
-          )}
-          <span>
-            Armor: <span className="font-medium text-white">{armorKit}</span>
-          </span>
-        </div>
-      </div>
-
-      {/* Platoon strength counter — replaces armor diagram for infantry */}
+      <InfantryStatusBar
+        platoonStrength={platoonStrength}
+        groundMP={groundMP}
+        jumpMP={jumpMP}
+        fieldGuns={fieldGuns}
+        armorKit={armorKit}
+      />
       <InfantryPlatoonCounter />
     </div>
   );

@@ -26,6 +26,7 @@ import {
   TokenUnitType,
 } from '@/types/gameplay';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { logger } from '@/utils/logger';
 
 import { deriveHexMapStateFromEvents } from '../useHexMapStateFromEvents';
 
@@ -367,7 +368,7 @@ describe('deriveHexMapStateFromEvents', () => {
     let warnSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      warnSpy = jest.spyOn(logger, 'warn').mockImplementation(() => {});
     });
 
     afterEach(() => {
@@ -459,7 +460,7 @@ describe('deriveHexMapStateFromEvents', () => {
       expect(playerToken?.unitType).toBe(TokenUnitType.Mech);
     });
 
-    it('emits a single console.warn signaling the fallback path activated', () => {
+    it('emits a single warning signaling the fallback path activated', () => {
       const movementPayload: IMovementDeclaredPayload = {
         unitId: 'player-1',
         from: { q: 0, r: 0 },

@@ -5,6 +5,8 @@
  * @spec openspec/changes/add-combat-resolution/specs/combat-resolution/spec.md
  */
 
+import type { CombatLocation } from './CombatLocationTypes';
+
 // Re-export from construction for backwards compatibility
 import { MechLocation } from '../construction/CriticalSlotAllocation';
 import { VehicleLocation, VTOLLocation } from '../construction/UnitLocation';
@@ -16,29 +18,11 @@ import { FiringArc, RangeBracket, MovementType } from './HexGridInterfaces';
 
 // Re-export for convenience
 export { MechLocation, WeaponCategory };
+export type { CombatLocation } from './CombatLocationTypes';
 
 // =============================================================================
 // Combat Location Aliases
 // =============================================================================
-
-/**
- * Combat-specific location strings that map to MechLocation enum values.
- * Used for hit location tables and damage tracking.
- * The existing MechLocation enum uses 'Center Torso' etc, but combat
- * often needs rear-specific locations.
- */
-export type CombatLocation =
-  | 'head'
-  | 'center_torso'
-  | 'center_torso_rear'
-  | 'left_torso'
-  | 'left_torso_rear'
-  | 'right_torso'
-  | 'right_torso_rear'
-  | 'left_arm'
-  | 'right_arm'
-  | 'left_leg'
-  | 'right_leg';
 
 /**
  * Map combat location strings to MechLocation enum values.
@@ -715,108 +699,11 @@ export interface ICombatContext {
 // Re-export IToHitModifier for convenience
 export type { IToHitModifier };
 
-// =============================================================================
-// Type Guards and Location Helpers
-// =============================================================================
-
-/**
- * Check if a combat location is a rear location.
- */
-export function isRearCombatLocation(location: CombatLocation): boolean {
-  return (
-    location === 'center_torso_rear' ||
-    location === 'left_torso_rear' ||
-    location === 'right_torso_rear'
-  );
-}
-
-/**
- * Check if a location is a limb.
- */
-export function isLimbLocation(location: MechLocation): boolean {
-  return (
-    location === MechLocation.LEFT_ARM ||
-    location === MechLocation.RIGHT_ARM ||
-    location === MechLocation.LEFT_LEG ||
-    location === MechLocation.RIGHT_LEG
-  );
-}
-
-/**
- * Check if a location is a torso.
- */
-export function isTorsoLocation(location: MechLocation): boolean {
-  return (
-    location === MechLocation.CENTER_TORSO ||
-    location === MechLocation.LEFT_TORSO ||
-    location === MechLocation.RIGHT_TORSO
-  );
-}
-
-/**
- * Get the front version of a rear combat location.
- */
-export function getFrontCombatLocation(
-  location: CombatLocation,
-): CombatLocation {
-  switch (location) {
-    case 'center_torso_rear':
-      return 'center_torso';
-    case 'left_torso_rear':
-      return 'left_torso';
-    case 'right_torso_rear':
-      return 'right_torso';
-    default:
-      return location;
-  }
-}
-
-/**
- * Get the damage transfer location for a destroyed limb.
- */
-export function getTransferLocation(
-  location: MechLocation,
-): MechLocation | null {
-  switch (location) {
-    case MechLocation.LEFT_ARM:
-      return MechLocation.LEFT_TORSO;
-    case MechLocation.RIGHT_ARM:
-      return MechLocation.RIGHT_TORSO;
-    case MechLocation.LEFT_LEG:
-      return MechLocation.LEFT_TORSO;
-    case MechLocation.RIGHT_LEG:
-      return MechLocation.RIGHT_TORSO;
-    case MechLocation.LEFT_TORSO:
-      return MechLocation.CENTER_TORSO;
-    case MechLocation.RIGHT_TORSO:
-      return MechLocation.CENTER_TORSO;
-    default:
-      return null; // Head and CT don't transfer
-  }
-}
-
-/**
- * Get the transfer combat location for a destroyed limb.
- */
-export function getTransferCombatLocation(
-  location: CombatLocation,
-): CombatLocation | null {
-  switch (location) {
-    case 'left_arm':
-      return 'left_torso';
-    case 'right_arm':
-      return 'right_torso';
-    case 'left_leg':
-      return 'left_torso';
-    case 'right_leg':
-      return 'right_torso';
-    case 'left_torso':
-    case 'left_torso_rear':
-      return 'center_torso';
-    case 'right_torso':
-    case 'right_torso_rear':
-      return 'center_torso';
-    default:
-      return null; // Head and CT don't transfer
-  }
-}
+export {
+  getFrontCombatLocation,
+  getTransferCombatLocation,
+  getTransferLocation,
+  isLimbLocation,
+  isRearCombatLocation,
+  isTorsoLocation,
+} from './CombatLocationHelpers';

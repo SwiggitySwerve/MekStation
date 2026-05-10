@@ -41,15 +41,7 @@ import {
   type IRosterUnitProjection,
 } from '@/types/campaign/RosterUnitProjection';
 
-// Static import is safe here despite the visible circular reference —
-// `useCampaignStore` imports this module for the personnel-derive path,
-// but neither side accesses the other during top-level evaluation.
-// Both stores construct their Zustand state independently; the cross-
-// references only resolve when actions fire (post-mount). JavaScript
-// circular ESM imports handle the late resolution gracefully.
-//
-// eslint-disable-next-line import/no-cycle
-import { useCampaignStore } from './useCampaignStore';
+import { getCampaignStoreForRoster } from './campaignStoreAccessor';
 
 // =============================================================================
 // Types
@@ -490,9 +482,8 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
         const matchId =
           get().activeMissionId ?? `legacy-bridge-${generateId()}`;
 
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const campaignStore = useCampaignStore();
-        const campaign = campaignStore.getState().campaign;
+        const campaignStore = getCampaignStoreForRoster();
+        const campaign = campaignStore?.getState().campaign ?? null;
 
         // Compute next canonical map from prior map + per-unit deltas.
         // Skip the canonical write entirely when no campaign is loaded —
@@ -507,7 +498,7 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
               matchId,
             );
           }
-          campaignStore.getState().updateCampaign({
+          campaignStore?.getState().updateCampaign({
             unitCombatStates: nextMap,
           });
         }

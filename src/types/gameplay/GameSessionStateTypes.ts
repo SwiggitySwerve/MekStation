@@ -1,0 +1,292 @@
+/**
+ * Derived game session state types
+ * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
+ */
+
+import type { IAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
+import type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
+import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
+
+import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+
+import type { IBattleArmorCombatState } from './BattleArmorCombatInterfaces';
+import type { IGameEvent } from './GameSessionStatusEvents';
+import type { IGameConfig, IGameUnit } from './GameSessionUnitTypes';
+
+import {
+  GamePhase,
+  GameSide,
+  GameStatus,
+  LockState,
+} from './GameSessionCoreTypes';
+import { Facing, IHexCoordinate, MovementType } from './HexGridInterfaces';
+import { PSRTrigger } from './PSRTriggerCodes';
+
+// Component Damage & Combat State Types
+// =============================================================================
+
+/**
+ * Tracks component damage for a unit.
+ * Each field directly maps to combat mechanics (to-hit modifiers, PSR triggers, heat effects).
+ *
+ * @see design.md D4: Component Damage as Typed State, Not Strings
+ */
+export interface IComponentDamageState {
+  /** Engine critical hits: 0-3 (3 = destroyed). Each hit adds +5 heat/turn. */
+  readonly engineHits: number;
+  /** Gyro critical hits: 0-2 (2 = destroyed for standard gyro). Each hit adds +3 PSR modifier. */
+  readonly gyroHits: number;
+  /** Sensor critical hits: 0-2. Each hit adds +1/+2 to-hit penalty. */
+  readonly sensorHits: number;
+  /** Life support hits: 0-2. Enables pilot heat damage when damaged. */
+  readonly lifeSupport: number;
+  /** Cockpit destroyed = pilot killed. */
+  readonly cockpitHit: boolean;
+  /** Actuator destruction state per actuator type. */
+  readonly actuators: Partial<Record<ActuatorType, boolean>>;
+  /** IDs of destroyed weapons. */
+  readonly weaponsDestroyed: readonly string[];
+  /** Number of heat sinks destroyed (reduces dissipation by 1 single / 2 double each). */
+  readonly heatSinksDestroyed: number;
+  /** Number of jump jets destroyed (reduces max jump MP by 1 each). */
+  readonly jumpJetsDestroyed: number;
+}
+
+/**
+ * State of a single ammo bin during gameplay.
+ */
+export interface IAmmoSlotState {
+  /** Unique bin identifier */
+  readonly binId: string;
+  /** Weapon type this ammo feeds */
+  readonly weaponType: string;
+  /** Location of the ammo bin */
+  readonly location: string;
+  /** Rounds remaining */
+  readonly remainingRounds: number;
+  /** Maximum rounds capacity */
+  readonly maxRounds: number;
+  /** Whether this ammo is explosive (for CASE interactions) */
+  readonly isExplosive: boolean;
+}
+
+/**
+ * A pending Piloting Skill Roll that must be resolved.
+ */
+export interface IPendingPSR {
+  /** Entity/unit that must make the roll */
+  readonly entityId: string;
+  /** Human-readable reason for the PSR */
+  readonly reason: string;
+  /** Additional modifier to the piloting skill roll */
+  readonly additionalModifier: number;
+  /** What triggered this PSR */
+  readonly triggerSource: string;
+  /**
+   * Per `structure-psr-reason-as-discriminated-code` (PR E): canonical
+   * `PSRTrigger` enum value carried alongside the human-readable
+   * `reason` string. Populated by every PSR factory in
+   * `src/utils/gameplay/pilotingSkillRolls/`. The downstream event
+   * builder (`createPSRTriggeredEvent`) threads this through to
+   * `IPSRTriggeredPayload.reasonCode` so consumers can filter / bucket
+   * PSRs by canonical code. OPTIONAL for back-compat with synthetic
+   * `IPendingPSR` fixtures predating PR E.
+   */
+  readonly reasonCode?: PSRTrigger;
+}
+
+// =============================================================================
+// Game State
+// =============================================================================
+
+/**
+ * Current state of a unit in the game.
+ */
+export interface IUnitGameState {
+  /** Unit ID */
+  readonly id: string;
+  /** Which side this unit belongs to */
+  readonly side: GameSide;
+  /** Current position */
+  readonly position: IHexCoordinate;
+  /** Current facing */
+  readonly facing: Facing;
+  /** Current heat */
+  readonly heat: number;
+  /** Movement this turn */
+  readonly movementThisTurn: MovementType;
+  /** Hexes moved this turn */
+  readonly hexesMovedThisTurn: number;
+  /**
+   * Per `add-encounter-swarm-harness` Phase 1: pilot gunnery skill copied
+   * from the binding `IGameUnit` at session-creation time. Optional for
+   * backward compat with synthetic unit fixtures (`createMinimalUnitState`)
+   * that do not seed pilot data — `toAIUnitState` falls back to
+   * `DEFAULT_GUNNERY` when absent. Pilot skills do not change mid-match,
+   * so this lives on the immutable per-unit state rather than being
+   * looked up against the pilot vault every AI tick.
+   */
+  readonly gunnery?: number;
+  /**
+   * Per `add-encounter-swarm-harness` Phase 1: pilot piloting skill copied
+   * from the binding `IGameUnit` at session-creation time. Same fallback
+   * semantics as `gunnery` — `DEFAULT_PILOTING` applies when absent.
+   */
+  readonly piloting?: number;
+  /** Armor remaining per location */
+  readonly armor: Record<string, number>;
+  /** Structure remaining per location */
+  readonly structure: Record<string, number>;
+  /**
+   * Per `add-bot-retreat-behavior` § 2 (Trigger A): starting internal-structure
+   * points per location, captured at session creation. Used by the retreat
+   * trigger to compute `sum(starting - current) / sum(starting)` — the
+   * spec-mandated points-of-internal-structure ratio (NOT the legacy
+   * count-of-destroyed-locations ratio).
+   *
+   * Optional for backward compat: when missing or empty, callers fall back
+   * to the legacy ratio. Producers (CompendiumAdapter, session builders)
+   * SHALL seed this with the unit's full starting internal structure so
+   * the trigger fires at the correct damage threshold.
+   */
+  readonly startingInternalStructure?: Record<string, number>;
+  /** Destroyed locations */
+  readonly destroyedLocations: readonly string[];
+  /** Destroyed equipment */
+  readonly destroyedEquipment: readonly string[];
+  /** Ammo remaining per weapon */
+  readonly ammo: Record<string, number>;
+  /** Pilot wounds */
+  readonly pilotWounds: number;
+  /** Is pilot conscious? */
+  readonly pilotConscious: boolean;
+  /** Is unit destroyed? */
+  readonly destroyed: boolean;
+  /** Lock state for current phase */
+  readonly lockState: LockState;
+  /** Pending action (if planning) */
+  readonly pendingAction?: unknown;
+  /** Cumulative damage taken this phase (for 20+ damage PSR trigger) */
+  readonly damageThisPhase?: number;
+  /** Component damage tracking (engine, gyro, sensors, actuators, etc.) */
+  readonly componentDamage?: IComponentDamageState;
+  /** Unit is prone (fallen) */
+  readonly prone?: boolean;
+  /** Unit is shut down (reactor offline) */
+  readonly shutdown?: boolean;
+  /** Ammo bin state tracking */
+  readonly ammoState?: Record<string, IAmmoSlotState>;
+  /** Pending piloting skill rolls to resolve */
+  readonly pendingPSRs?: readonly IPendingPSR[];
+  readonly weaponsFiredThisTurn?: readonly string[];
+  readonly edgePointsRemaining?: number;
+  readonly isDodging?: boolean;
+  /** Weapons that are jammed (UAC/RAC jam mechanic) */
+  readonly jammedWeapons?: readonly string[];
+  /** Target has Narc beacon attached */
+  readonly narcedBy?: readonly string[];
+  /** Target is TAG-designated this turn */
+  readonly tagDesignated?: boolean;
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: bot-controlled unit has
+   * committed to retreat. Set true by `RetreatTriggered` reducer; never
+   * cleared back to false in the same match (one-way latch).
+   */
+  readonly isRetreating?: boolean;
+  /**
+   * Per `wire-bot-ai-helpers-and-capstone`: the concrete edge the unit
+   * is heading toward once retreating. Set once on `RetreatTriggered`
+   * and locked. `undefined` until retreat begins.
+   */
+  readonly retreatTargetEdge?: 'north' | 'south' | 'east' | 'west';
+  /**
+   * Per `add-bot-retreat-behavior` § 7.4: set `true` by the
+   * `UnitRetreated` reducer once a retreating unit reaches its target
+   * map edge. Victory-check treats `hasRetreated` as "no longer
+   * participating" (equivalent to destroyed for side-elimination
+   * purposes) but keeps it distinct from `destroyed` so post-battle
+   * summaries can list withdrawn units separately from combat losses.
+   */
+  readonly hasRetreated?: boolean;
+  /**
+   * Per-type combat-behavior envelope.
+   *
+   * Per Council #1 (`openspec/council-decisions/2026-05-02-cluster-F-combat-
+   * behavior-wiring.md`) and openspec change `wire-combat-behavior-dispatch`,
+   * aerospace / protomech / infantry / BA units carry their per-type combat
+   * struct here so renderers and fog redaction read a single channel. Mech
+   * and vehicle units leave this `undefined` until the `kind: 'vehicle'`
+   * variant lands in PR9+.
+   *
+   * Producers: `createInitialUnitState` (initial seed); per-type reducers
+   * (combat events update the inner `state` and replace the envelope).
+   *
+   * Consumers: `unitStateToToken` (projection); fog-of-war redaction.
+   */
+  readonly combatState?:
+    | { readonly kind: 'aero'; readonly state: IAerospaceCombatState }
+    | { readonly kind: 'proto'; readonly state: IProtoMechCombatState }
+    | { readonly kind: 'platoon'; readonly state: IInfantryCombatState }
+    | { readonly kind: 'squad'; readonly state: IBattleArmorCombatState };
+}
+
+/**
+ * Overall game state derived from events.
+ */
+export interface IGameState {
+  /** Game ID */
+  readonly gameId: string;
+  /** Current status */
+  readonly status: GameStatus;
+  /** Current turn number */
+  readonly turn: number;
+  /** Current phase */
+  readonly phase: GamePhase;
+  /** Initiative winner this turn */
+  readonly initiativeWinner?: GameSide;
+  /** Side that moves first this turn */
+  readonly firstMover?: GameSide;
+  /** Index of next unit to act (for alternating phases) */
+  readonly activationIndex: number;
+  /** Per-unit states */
+  readonly units: Record<string, IUnitGameState>;
+  /** Events this turn for display */
+  readonly turnEvents: readonly IGameEvent[];
+  /** Game result (if completed) */
+  readonly result?: {
+    readonly winner: GameSide | 'draw';
+    readonly reason: string;
+  };
+}
+
+// =============================================================================
+// Game Session
+// =============================================================================
+
+/**
+ * Game session with events and derived state.
+ */
+export interface IGameSession {
+  /** Session ID */
+  readonly id: string;
+  /** Stable match ID used by multiplayer persistence/reconnect. */
+  readonly matchId?: string;
+  /** Creation timestamp */
+  readonly createdAt: string;
+  /** Last update timestamp */
+  readonly updatedAt: string;
+  /** Game configuration */
+  readonly config: IGameConfig;
+  /** Participating units */
+  readonly units: readonly IGameUnit[];
+  /** All events in sequence order */
+  readonly events: readonly IGameEvent[];
+  /** Current derived state */
+  readonly currentState: IGameState;
+  /** Network host peer id for P2P sessions; absent/null for local sessions */
+  readonly hostPeerId?: string | null;
+  /** Network guest peer id for P2P sessions; absent/null until joined */
+  readonly guestPeerId?: string | null;
+  /** Peer id that controls each side in networked sessions */
+  readonly sideOwners?: Readonly<Record<GameSide, string>> | null;
+}

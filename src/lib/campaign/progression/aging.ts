@@ -16,9 +16,7 @@ import type { ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type {
   IAgingDelta,
-  IAgingEvent,
   IAgingMilestone,
-  IPersonTraits,
 } from '@/types/campaign/progression/progressionTypes';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
@@ -436,8 +434,8 @@ export function processAging(
 
   // Build traits delta (roster) — only include new trait flags.
   // Declared as a plain mutable object to allow property assignment;
-  // structurally compatible with Partial<IPersonTraits> (readonly on the type
-  // is an interface contract, not an object seal).
+  // structurally compatible with the persisted traits shape (readonly on the
+  // type is an interface contract, not an object seal).
   const traitsDelta: { glassJaw?: boolean; slowLearner?: boolean } = {};
 
   // Apply Glass Jaw at age 61+ (unless has Toughness or already has Glass Jaw)

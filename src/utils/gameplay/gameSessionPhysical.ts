@@ -21,6 +21,8 @@ import {
   PSRTrigger,
 } from '@/types/gameplay';
 
+import type { IPhysicalAttackContext } from './gameSessionPhysicalHelpers';
+
 import { resolveDamage as resolveDamagePipeline } from './damage';
 import { type DiceRoller } from './diceTypes';
 import {
@@ -29,8 +31,12 @@ import {
   createPhysicalAttackResolvedEvent,
   createPSRTriggeredEvent,
 } from './gameEvents';
-import { buildDamageStateFromUnit } from './gameSessionAttackResolutionHelpers';
+import {
+  buildDefaultComponentDamageState,
+  buildDamageStateFromUnit,
+} from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
+import { buildRestrictionEventReason } from './gameSessionPhysicalHelpers';
 import { roll2d6 as rollDice } from './hitLocation';
 import {
   canCharge,
@@ -41,77 +47,10 @@ import {
   determinePhysicalHitLocation,
   IPhysicalAttackInput,
   IPhysicalAttackRestriction,
-  PhysicalAttackLimb,
   PhysicalAttackType,
   resolvePhysicalAttack,
   splitPhysicalDamageIntoClusters,
 } from './physicalAttacks';
-
-/**
- * Attacker / target bag passed by callers that supply per-unit static
- * data not stored on `IGameUnit` (tonnage, etc.).
- */
-export interface IPhysicalAttackContext {
-  readonly attackerTonnage: number;
-  readonly targetTonnage?: number;
-  readonly pilotingSkill: number;
-  readonly arm?: 'left' | 'right';
-  readonly hexesMoved?: number;
-  readonly weaponsFiredFromArm?: readonly string[];
-  /**
-   * Per `implement-physical-attack-phase` task 4.3 / 5.3: target movement
-   * modifier (TMM). Threaded into punch / kick / melee / DFA to-hit.
-   */
-  readonly targetMovementModifier?: number;
-  /**
-   * Per task 6.1: attacker-movement modifier for charge to-hit.
-   */
-  readonly attackerMovementModifier?: number;
-  /**
-   * Per task 3.5: limbs already used for physical attacks this turn
-   * (same limb cannot punch AND kick in one turn).
-   */
-  readonly limbsUsedThisTurn?: readonly PhysicalAttackLimb[];
-  /**
-   * Per task 2.3: the limb this declaration targets (required for punch
-   * and kick; optional for club attacks).
-   */
-  readonly limb?: PhysicalAttackLimb;
-  /**
-   * Per tasks 3.3 / 3.4: actuator-presence booleans feed the restriction
-   * validator — destruction lives in `componentDamage`, but "mech was
-   * built without this actuator" is a separate concern.
-   */
-  readonly lowerArmActuatorPresent?: boolean;
-  readonly handActuatorPresent?: boolean;
-  readonly upperLegActuatorPresent?: boolean;
-  readonly footActuatorPresent?: boolean;
-  /**
-   * Per tasks 3.6 / 3.7: DFA requires a jump; charge requires a run.
-   */
-  readonly attackerJumpedThisTurn?: boolean;
-  readonly attackerRanThisTurn?: boolean;
-  /**
-   * Per task 8.5: the destination hex for a push. If `false` the caller
-   * has already determined the push target hex is blocked / off-map.
-   */
-  readonly pushDestinationValid?: boolean;
-}
-
-/**
- * Per `implement-physical-attack-phase` task 3.8: project a
- * restriction result's reason code to the canonical trigger source
- * consumed by the PSR queue. Used only for `AttackerProne` and
- * `LimbMissing` today; unknown codes fall through to a generic
- * descriptor.
- */
-function buildRestrictionEventReason(
-  restriction: IPhysicalAttackRestriction,
-): string {
-  return (
-    restriction.reasonCode ?? restriction.reason ?? 'PhysicalAttackInvalid'
-  );
-}
 
 /**
  * Per `implement-physical-attack-phase` task 2: declare a physical
@@ -119,6 +58,8 @@ function buildRestrictionEventReason(
  * with the restriction reason. On accept emits
  * `PhysicalAttackDeclared`.
  */
+export { type IPhysicalAttackContext } from './gameSessionPhysicalHelpers';
+
 export function declarePhysicalAttack(
   session: IGameSession,
   attackerId: string,
@@ -131,17 +72,8 @@ export function declarePhysicalAttack(
     return session;
   }
 
-  const componentDamage = attackerState.componentDamage ?? {
-    engineHits: 0,
-    gyroHits: 0,
-    sensorHits: 0,
-    lifeSupport: 0,
-    cockpitHit: false,
-    actuators: {},
-    weaponsDestroyed: [],
-    heatSinksDestroyed: 0,
-    jumpJetsDestroyed: 0,
-  };
+  const componentDamage =
+    attackerState.componentDamage ?? buildDefaultComponentDamageState();
 
   const input: IPhysicalAttackInput = {
     attackerTonnage: context.attackerTonnage,
@@ -273,17 +205,8 @@ export function resolveAllPhysicalAttacks(
       continue;
     }
 
-    const componentDamage = attackerState.componentDamage ?? {
-      engineHits: 0,
-      gyroHits: 0,
-      sensorHits: 0,
-      lifeSupport: 0,
-      cockpitHit: false,
-      actuators: {},
-      weaponsDestroyed: [],
-      heatSinksDestroyed: 0,
-      jumpJetsDestroyed: 0,
-    };
+    const componentDamage =
+      attackerState.componentDamage ?? buildDefaultComponentDamageState();
 
     const input: IPhysicalAttackInput = {
       attackerTonnage: context.attackerTonnage,

@@ -5,3 +5,4 @@
  */
 
 export * from './RecordSheetTypes';
+export * from './RecordSheetVariantTypes';

@@ -81,7 +81,7 @@ export function HitLocationFlash({
     return () => {
       timers.forEach((timer) => clearTimeout(timer));
     };
-  }, [durationMs, events, unitId]);
+  }, [durationMs, events, reducedMotion, unitId]);
 
   if (activeFlashes.length === 0) return null;
 

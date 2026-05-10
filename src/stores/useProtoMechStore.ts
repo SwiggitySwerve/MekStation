@@ -1,12 +1,3 @@
-/**
- * ProtoMech Store Factory
- *
- * Creates isolated Zustand stores for individual ProtoMech units.
- * Each ProtoMech has its own store instance with independent persistence.
- *
- * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.3
- */
-
 import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
@@ -22,6 +13,7 @@ import {
 } from '@/utils/construction/protomech';
 import { generateUnitId } from '@/utils/uuid';
 
+import { BV_AFFECTING_KEYS } from './protoMechBvKeys';
 import {
   ProtoMechState,
   ProtoMechStore,
@@ -32,38 +24,7 @@ import {
   createEmptyProtoMechArmorAllocation,
 } from './protoMechState';
 
-// Re-export types for convenience
 export type { ProtoMechStore } from './protoMechState';
-
-// =============================================================================
-// Store Factory
-// =============================================================================
-
-/**
- * Fields whose mutation invalidates a ProtoMech's BV breakdown. Any setter
- * that changes one of these will trigger a recomputeBV refresh after the
- * base `set` completes. Listed explicitly so that non-BV changes (e.g.
- * `setName`) do not pay the BV recalculation cost.
- */
-const BV_AFFECTING_KEYS: ReadonlyArray<keyof ProtoMechState> = [
-  'tonnage',
-  'weightClass',
-  'chassisType',
-  'pointSize',
-  'walkMP',
-  'cruiseMP',
-  'flankMP',
-  'jumpMP',
-  'engineRating',
-  'armorByLocation',
-  'structureByLocation',
-  'armorType',
-  'hasMainGun',
-  'mainGunWeaponId',
-  'hasMyomerBooster',
-  'glidingWings',
-  'equipment',
-];
 
 /**
  * Create an isolated Zustand store for a single ProtoMech unit.
@@ -556,10 +517,7 @@ export function useProtoMechStore<T>(
   const store = useContext(ProtoMechStoreContext);
 
   if (!store) {
-    throw new Error(
-      'useProtoMechStore must be used within a ProtoMechStoreProvider. ' +
-        'Wrap your component tree with <ProtoMechStoreContext.Provider>.',
-    );
+    throw new Error('Missing ProtoMechStoreContext provider.');
   }
 
   return useStore(store, selector);
@@ -572,9 +530,7 @@ export function useProtoMechStoreApi(): StoreApi<ProtoMechStore> {
   const store = useContext(ProtoMechStoreContext);
 
   if (!store) {
-    throw new Error(
-      'useProtoMechStoreApi must be used within a ProtoMechStoreProvider.',
-    );
+    throw new Error('Missing ProtoMechStoreContext provider.');
   }
 
   return store;

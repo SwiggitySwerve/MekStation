@@ -28,8 +28,6 @@
 import { useMemo } from 'react';
 
 import type {
-  IAerospaceToken,
-  IBattleArmorToken,
   IComponentDestroyedPayload,
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
@@ -37,36 +35,27 @@ import type {
   IGameEvent,
   IGameUnit,
   IHeatPayload,
-  IHexCoordinate,
   IHexTerrain,
-  IInfantryToken,
   ILocationDestroyedPayload,
-  IMechToken,
   IMovementDeclaredPayload,
   IPilotHitPayload,
-  IProtoMechToken,
   ITransferDamagePayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
   IUnitStoodPayload,
   IUnitToken,
-  IVehicleToken,
 } from '@/types/gameplay';
-import type {
-  ArmorPipState,
-  BipedPipLocation,
-  PipLocationState,
-  QuadPipLocation,
-} from '@/types/gameplay/UnitSpriteTypes';
+
+import { GameEventType, GameSide, TokenUnitType } from '@/types/gameplay';
+import { logger } from '@/utils/logger';
+
+import type { UnitAccumulator } from './useHexMapStateFromEvents.tokens';
 
 import {
-  Facing,
-  GameEventType,
-  GameSide,
-  TokenUnitType,
-} from '@/types/gameplay';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+  accumulatorToToken,
+  applyComponentDestroyedToPips,
+  seedAccumulator,
+} from './useHexMapStateFromEvents.tokens';
 
 // =============================================================================
 // Public types
@@ -81,420 +70,6 @@ export interface ReplayHexMapState {
   readonly tokens: readonly IUnitToken[];
   readonly hexTerrain: readonly IHexTerrain[];
   readonly mapRadius: number;
-}
-
-// =============================================================================
-// Internal accumulator shape
-// =============================================================================
-
-/**
- * Internal per-unit accumulator carried during the walk. Stays purely
- * local — only the public `IUnitToken` projection escapes the reducer.
- *
- * `damagedLocations` is informational bookkeeping for follow-on
- * record-sheet rendering (out of scope for this PR — only `isDestroyed`
- * flips in this PR per the spec scope).
- */
-interface UnitAccumulator {
-  readonly unitId: string;
-  readonly name: string;
-  readonly side: IGameUnit['side'];
-  readonly unitType: TokenUnitType;
-  position: IHexCoordinate;
-  facing: Facing;
-  isDestroyed: boolean;
-  prone: boolean;
-  currentHeat: number;
-  pilotWounds: number;
-  damagedLocations: ReadonlySet<string>;
-  /**
-   * Per-location armor-pip state. Populated lazily on the first
-   * `ComponentDestroyed` / `CriticalHitResolved` event for the unit, and
-   * only on Mech archetype tokens. Other unit types ignore the field.
-   *
-   * Per `add-replay-timeline-markers` (combat-analytics delta — Replay
-   * State-From-Events Reducer Contract).
-   */
-  armorPipState?: ArmorPipState;
-  // Optional per-type passthrough fields — populated only for variants
-  // that need them. Stored as a loosely-typed bag because the reducer
-  // doesn't mutate them after seeding from `GameCreated`.
-  perType?: {
-    altitude?: number;
-    trooperCount?: number;
-    infantryCount?: number;
-    platoonCount?: number;
-    protoCount?: number;
-    isGlider?: boolean;
-    hasMainGun?: boolean;
-  };
-}
-
-// =============================================================================
-// Token construction from IGameUnit
-// =============================================================================
-
-/**
- * Pick the matching `TokenUnitType` for a construction-side `UnitType`.
- * Mirrors the `unitStateToToken` switch but reads from the construction
- * `unitType` rather than from a `combatState` envelope (which the
- * NDJSON-replay flow does not carry).
- */
-function tokenTypeFor(unitType: UnitType | undefined): TokenUnitType {
-  switch (unitType) {
-    case UnitType.AEROSPACE:
-    case UnitType.CONVENTIONAL_FIGHTER:
-    case UnitType.SMALL_CRAFT:
-    case UnitType.DROPSHIP:
-    case UnitType.JUMPSHIP:
-    case UnitType.WARSHIP:
-    case UnitType.SPACE_STATION:
-      return TokenUnitType.Aerospace;
-    case UnitType.PROTOMECH:
-      return TokenUnitType.ProtoMech;
-    case UnitType.BATTLE_ARMOR:
-      return TokenUnitType.BattleArmor;
-    case UnitType.INFANTRY:
-      return TokenUnitType.Infantry;
-    case UnitType.VEHICLE:
-    case UnitType.VTOL:
-      return TokenUnitType.Vehicle;
-    case UnitType.BATTLEMECH:
-    case UnitType.OMNIMECH:
-    case UnitType.INDUSTRIALMECH:
-    default:
-      // Default to Mech for legacy callers that omit `unitType`. Matches
-      // `unitStateToToken`'s safe-default branch.
-      return TokenUnitType.Mech;
-  }
-}
-
-/**
- * Generate a short token designation from the unit name. Mirrors
- * `unitStateToToken.designation` so token captions stay visually
- * identical across the live tactical map and the replay view.
- */
-function designationFor(name: string): string {
-  return name
-    .split(/[\s-]+/)
-    .map((word) => (word.length > 0 ? word[0] : ''))
-    .join('')
-    .toUpperCase()
-    .slice(0, 4);
-}
-
-/**
- * Seed the per-unit accumulator from a `GameCreated` payload entry.
- * Position defaults to origin; the first `MovementDeclared` corrects
- * it. Facing defaults to North; same correction path.
- */
-function seedAccumulator(unit: IGameUnit): UnitAccumulator {
-  const tokenType = tokenTypeFor(unit.unitType);
-  const acc: UnitAccumulator = {
-    unitId: unit.id,
-    name: unit.name,
-    side: unit.side,
-    unitType: tokenType,
-    position: { q: 0, r: 0 },
-    facing: Facing.North,
-    isDestroyed: false,
-    prone: false,
-    currentHeat: 0,
-    pilotWounds: 0,
-    damagedLocations: new Set<string>(),
-  };
-
-  // Per-type passthroughs seeded from construction blocks when present.
-  // Defaults below match `unitStateToToken` — destroyed === 0 alive on
-  // protomechs, infantry / BA fall back to 1, aerospace altitude 0.
-  switch (tokenType) {
-    case TokenUnitType.Aerospace:
-      acc.perType = {
-        altitude: unit.aerospaceInit?.altitude ?? 0,
-      };
-      break;
-    case TokenUnitType.BattleArmor:
-      acc.perType = {
-        trooperCount: unit.battleArmorInit?.squadSize ?? 1,
-      };
-      break;
-    case TokenUnitType.Infantry:
-      acc.perType = {
-        infantryCount: unit.infantryInit?.platoonStrength ?? 1,
-        platoonCount: 1,
-      };
-      break;
-    case TokenUnitType.ProtoMech:
-      acc.perType = {
-        protoCount: 1,
-        isGlider: unit.protoMechInit?.chassisType === ProtoChassis.GLIDER,
-        hasMainGun: unit.protoMechInit?.hasMainGun ?? false,
-      };
-      break;
-    default:
-      break;
-  }
-
-  return acc;
-}
-
-/**
- * Project the accumulator into the appropriate `IUnitToken` variant.
- * Mirrors the variant switch in `unitStateToToken` so the live
- * tactical-map renderer and the replay viewer paint the same token
- * shape.
- */
-function accumulatorToToken(acc: UnitAccumulator): IUnitToken {
-  const designation = designationFor(acc.name);
-  const base = {
-    unitId: acc.unitId,
-    name: acc.name,
-    side: acc.side,
-    position: acc.position,
-    facing: acc.facing,
-    isSelected: false,
-    isValidTarget: false,
-    isActiveTarget: false,
-    isDestroyed: acc.isDestroyed,
-    designation,
-  } as const;
-
-  switch (acc.unitType) {
-    case TokenUnitType.Aerospace: {
-      const token: IAerospaceToken = {
-        ...base,
-        unitType: TokenUnitType.Aerospace,
-        altitude: acc.perType?.altitude ?? 0,
-      };
-      return token;
-    }
-    case TokenUnitType.Vehicle: {
-      const token: IVehicleToken = {
-        ...base,
-        unitType: TokenUnitType.Vehicle,
-      };
-      return token;
-    }
-    case TokenUnitType.BattleArmor: {
-      const token: IBattleArmorToken = {
-        ...base,
-        unitType: TokenUnitType.BattleArmor,
-        trooperCount: acc.perType?.trooperCount ?? 1,
-      };
-      return token;
-    }
-    case TokenUnitType.Infantry: {
-      const token: IInfantryToken = {
-        ...base,
-        unitType: TokenUnitType.Infantry,
-        infantryCount: acc.perType?.infantryCount ?? 1,
-        platoonCount: acc.perType?.platoonCount ?? 1,
-      };
-      return token;
-    }
-    case TokenUnitType.ProtoMech: {
-      const token: IProtoMechToken = {
-        ...base,
-        unitType: TokenUnitType.ProtoMech,
-        protoCount: acc.isDestroyed ? 0 : (acc.perType?.protoCount ?? 1),
-        isGlider: acc.perType?.isGlider ?? false,
-        hasMainGun: acc.perType?.hasMainGun ?? false,
-      };
-      return token;
-    }
-    case TokenUnitType.Mech:
-    default: {
-      // `armorPipState` is the only optional field forwarded from the
-      // accumulator; populated by the `ComponentDestroyed` /
-      // `CriticalHitResolved` reducer arms. Absent → `<HexMapDisplay>`
-      // renders the fresh-off-the-lot pip ring.
-      const token: IMechToken = {
-        ...base,
-        unitType: TokenUnitType.Mech,
-        ...(acc.armorPipState !== undefined && {
-          armorPipState: acc.armorPipState,
-        }),
-      };
-      return token;
-    }
-  }
-}
-
-// =============================================================================
-// Armor-pip state projection (per add-replay-timeline-markers)
-// =============================================================================
-
-/**
- * Components considered "internal" for armor-pip transitions. When a
- * `ComponentDestroyed` / `CriticalHitResolved` carries one of these
- * `componentType` values, the affected location's pip state advances
- * past `'partial'` straight into `'structure'` (or `'destroyed'` if
- * `LocationDestroyed` already fired). Mirrors MegaMek's hit-location
- * crit table.
- */
-const INTERNAL_COMPONENT_TYPES: ReadonlySet<string> = new Set([
-  'engine',
-  'gyro',
-  'weapon',
-  'actuator',
-  'heat_sink',
-  'cockpit',
-  'sensor',
-  'life_support',
-  'jump_jet',
-  'ammo',
-]);
-
-/**
- * Map the runner's 2-letter MegaMek location codes to the camelCase
- * `BipedPipLocation` keys used by `ArmorPipState`. Returns `null` for
- * unrecognized codes so the caller can no-op without throwing.
- */
-function bipedLocationFromCode(code: string): BipedPipLocation | null {
-  switch (code) {
-    case 'HD':
-      return 'head';
-    case 'CT':
-      return 'centerTorso';
-    case 'LT':
-      return 'leftTorso';
-    case 'RT':
-      return 'rightTorso';
-    case 'LA':
-      return 'leftArm';
-    case 'RA':
-      return 'rightArm';
-    case 'LL':
-      return 'leftLeg';
-    case 'RL':
-      return 'rightLeg';
-    default:
-      return null;
-  }
-}
-
-/**
- * Same translation for quad mechs. Quad legs split front/rear so the
- * runner emits `FLL` / `FRL` / `RLL` / `RRL` plus the shared `HD` and
- * `CT` codes. Returns `null` for unrecognized codes.
- */
-function quadLocationFromCode(code: string): QuadPipLocation | null {
-  switch (code) {
-    case 'HD':
-      return 'head';
-    case 'CT':
-      return 'centerTorso';
-    case 'FLL':
-      return 'frontLeftLeg';
-    case 'FRL':
-      return 'frontRightLeg';
-    case 'RLL':
-      return 'rearLeftLeg';
-    case 'RRL':
-      return 'rearRightLeg';
-    default:
-      return null;
-  }
-}
-
-/**
- * Build a fresh `ArmorPipState` for the given Mech accumulator with
- * every location set to `'full'`. Picks the archetype based on the
- * unit's chassis flags — quads use the 6-key quad layout, LAMs use the
- * humanoid 8-key layout under the `'lam'` archetype, and everything
- * else defaults to `'humanoid'`.
- *
- * Note: the reducer doesn't have unit-record-level access to `isQuad`
- * or `isLAM` from the construction layer (the `IGameUnit` shape is
- * intentionally light), so we default to `'humanoid'` here. Quad and
- * LAM archetypes can be unlocked later if `IGameUnit` gains the flag.
- * For now, the runner emits 2-letter biped codes for all Mech types
- * including quads — `quadLocationFromCode` is wired but unreachable
- * via the runner today.
- */
-function emptyArmorPipState(): ArmorPipState {
-  const fullLocations: Record<BipedPipLocation, PipLocationState> = {
-    head: 'full',
-    centerTorso: 'full',
-    leftTorso: 'full',
-    rightTorso: 'full',
-    leftArm: 'full',
-    rightArm: 'full',
-    leftLeg: 'full',
-    rightLeg: 'full',
-  };
-  return {
-    archetype: 'humanoid',
-    locations: fullLocations,
-  };
-}
-
-/**
- * Apply a `ComponentDestroyed` or `CriticalHitResolved` event to the
- * accumulator's `armorPipState`. Pure — returns the next state without
- * mutating the input. The caller assigns the result back to the
- * accumulator.
- *
- * Transition rules (per `add-replay-timeline-markers` spec delta):
- *   1. If `LocationDestroyed` already fired on this location (via
- *      `damagedLocations`), the pip transitions to `'destroyed'`.
- *   2. Else if `componentType` is internal, the pip transitions to
- *      `'structure'`.
- *   3. Else (external component, e.g. armor), the pip transitions to
- *      `'partial'` only if it was `'full'` (downgrades stick — never
- *      regress from `'structure'` to `'partial'`).
- */
-function applyComponentDestroyedToPips(
-  prev: ArmorPipState | undefined,
-  locationCode: string,
-  componentType: string,
-  locationAlreadyDestroyed: boolean,
-): ArmorPipState | undefined {
-  // Lazily allocate the pip state on first damage. If we can't resolve
-  // the location code, return `prev` unchanged — unrecognized codes
-  // pass through silently per the spec contract.
-  const base = prev ?? emptyArmorPipState();
-  if (base.archetype === 'quad') {
-    const key = quadLocationFromCode(locationCode);
-    if (key === null) return prev;
-    const current = base.locations[key];
-    const next = nextPipState(current, componentType, locationAlreadyDestroyed);
-    if (next === current) return prev;
-    return {
-      archetype: 'quad',
-      locations: { ...base.locations, [key]: next },
-    };
-  }
-  // Humanoid + LAM share the 8-key biped layout.
-  const key = bipedLocationFromCode(locationCode);
-  if (key === null) return prev;
-  const current = base.locations[key];
-  const next = nextPipState(current, componentType, locationAlreadyDestroyed);
-  if (next === current) return prev;
-  return {
-    archetype: base.archetype,
-    locations: { ...base.locations, [key]: next },
-  };
-}
-
-/**
- * Compute the next pip state for one location given the current state,
- * the component type, and whether `LocationDestroyed` already fired.
- * Returns the unchanged input if no transition applies (e.g. already
- * destroyed and a follow-on event arrives).
- */
-function nextPipState(
-  current: PipLocationState,
-  componentType: string,
-  locationAlreadyDestroyed: boolean,
-): PipLocationState {
-  if (current === 'destroyed' || current === 'missing') return current;
-  if (locationAlreadyDestroyed) return 'destroyed';
-  if (INTERNAL_COMPONENT_TYPES.has(componentType)) return 'structure';
-  // External component damage — only downgrade `'full' → 'partial'`.
-  // Do not regress from `'structure'` to `'partial'`.
-  if (current === 'full') return 'partial';
-  return current;
 }
 
 // =============================================================================
@@ -580,11 +155,11 @@ export function deriveHexMapStateFromEvents(
     // generous default so the map still renders. The page can override
     // via prop if it knows the radius from another source.
     mapRadius = 17;
-    if (typeof console !== 'undefined' && discoveredUnits.size > 0) {
-      // Single console.warn signals that this code path activated, so
+    if (discoveredUnits.size > 0) {
+      // Single warning signals that this code path activated, so
       // future regressions where #542 stops emitting GameCreated don't
       // get masked by the fallback.
-      console.warn(
+      logger.warn(
         `[useHexMapStateFromEvents] No GameCreated event found; ` +
           `synthesized ${discoveredUnits.size} Mech-default tokens from ` +
           `actorIds. Re-run the swarm post-#542 for full token fidelity.`,

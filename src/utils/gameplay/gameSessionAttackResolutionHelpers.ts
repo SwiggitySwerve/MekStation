@@ -1,3 +1,5 @@
+import type { IComponentDamageState } from '@/types/gameplay/GameSessionInterfaces';
+
 import {
   CombatLocation,
   FiringArc,
@@ -185,4 +187,30 @@ export function buildDamageStateFromUnit(
     pilotConscious: unit.pilotConscious,
     destroyed: unit.destroyed,
   };
+}
+
+export function buildDefaultComponentDamageState(): IComponentDamageState {
+  return {
+    engineHits: 0,
+    gyroHits: 0,
+    sensorHits: 0,
+    lifeSupport: 0,
+    cockpitHit: false,
+    actuators: {},
+    weaponsDestroyed: [],
+    heatSinksDestroyed: 0,
+    jumpJetsDestroyed: 0,
+  } as const;
+}
+
+export function buildWeaponAttackDataMap<
+  T extends { readonly weaponId: string },
+>(weaponAttacks: readonly T[] | undefined): Map<string, T> {
+  const weaponDataMap = new Map<string, T>();
+  if (weaponAttacks) {
+    for (const weaponAttack of weaponAttacks) {
+      weaponDataMap.set(weaponAttack.weaponId, weaponAttack);
+    }
+  }
+  return weaponDataMap;
 }

@@ -202,7 +202,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       rawFile = JSON.parse(
         fs.readFileSync(this.indexFilePath, 'utf-8'),
       ) as RawIndexFile;
-    } catch (err) {
+    } catch (_err) {
       // Return empty gracefully so callers can propagate null / empty rather
       // than crashing the whole batch runner on a missing index.
       this.indexCache = [];
