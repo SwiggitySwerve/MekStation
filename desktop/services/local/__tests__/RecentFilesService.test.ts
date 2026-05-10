@@ -5,9 +5,7 @@
  * LRU eviction, persistence, and event notifications.
  */
 
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-
-import { Result, IRecentFile } from '../../../types/BaseTypes';
+import { Result, IRecentFile, UnitType } from '../../../types/BaseTypes';
 import { LocalStorageService } from '../LocalStorageService';
 import { RecentFilesService } from '../RecentFilesService';
 

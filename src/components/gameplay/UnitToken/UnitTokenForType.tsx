@@ -17,41 +17,28 @@
 
 import React, { useCallback, useEffect, useMemo } from 'react';
 
-import type { MovementTweenFrame } from '@/components/gameplay/animation/useMovementTween';
-import type { DamageFloaterEntry } from '@/components/gameplay/DamageFloater';
 import type { TacticalAnimation } from '@/stores/useAnimationQueue';
-import type {
-  IAmmoExplosionPayload,
-  ICriticalHitResolvedPayload,
-  IDamageAppliedPayload,
-  IGameEvent,
-  IHeatPayload,
-  IPilotHitPayload,
-  IShutdownCheckPayload,
-  IStartupAttemptPayload,
-  IUnitDestroyedPayload,
-  IUnitToken,
-} from '@/types/gameplay';
+import type { IGameEvent, IUnitToken } from '@/types/gameplay';
 
 import { useMovementTween } from '@/components/gameplay/animation/useMovementTween';
-import { AmmoExplosionAura } from '@/components/gameplay/effects/AmmoExplosionAura';
-import { HeatGlow } from '@/components/gameplay/effects/HeatGlow';
-import { HitLocationFlash } from '@/components/gameplay/effects/HitLocationFlash';
-import { ShutdownOverlay } from '@/components/gameplay/effects/ShutdownOverlay';
-import { StartupPulse } from '@/components/gameplay/effects/StartupPulse';
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
-import { GameEventType, MovementType, TokenUnitType } from '@/types/gameplay';
-import { getHeatTransitionFromPayload } from '@/utils/effects/heatVisualMap';
-
-import type { IUnitEventState } from './tokenTypes';
+import { MovementType, TokenUnitType } from '@/types/gameplay';
 
 import { AerospaceToken } from './AerospaceToken';
 import { BattleArmorToken } from './BattleArmorToken';
 import { InfantryToken } from './InfantryToken';
 import { MechToken } from './MechToken';
 import { ProtoMechToken } from './ProtoMechToken';
-import { EMPTY_EVENT_STATE } from './tokenTypes';
+import {
+  renderFogMarker,
+  renderJumpArc,
+  TokenVisualEffects,
+} from './UnitTokenForType.effects';
+import {
+  projectEvents,
+  projectThermalVisualState,
+} from './UnitTokenForType.projectors';
 import { VehicleToken } from './VehicleToken';
 
 // =============================================================================
@@ -82,154 +69,6 @@ export interface UnitTokenForTypeProps {
    * Only the token whose `unitId === baToken.mountedOn` is consulted.
    */
   allTokens?: readonly IUnitToken[];
-}
-
-// =============================================================================
-// Event Projection (shared for all unit types)
-// =============================================================================
-
-/**
- * Project the full event log down to the per-unit visual state needed by all
- * token renderers. Extracted as a pure function so `useMemo` can dedupe it
- * without capturing the full closure.
- */
-function projectEvents(
-  unitId: string,
-  events: readonly IGameEvent[] | undefined,
-): IUnitEventState {
-  if (!events || events.length === 0) return EMPTY_EVENT_STATE;
-
-  let critCount = 0;
-  let pilotHitCount = 0;
-  let unconscious = false;
-  let killed = false;
-  let destroyed = false;
-  const damageEntries: DamageFloaterEntry[] = [];
-
-  for (const event of events) {
-    switch (event.type) {
-      case GameEventType.DamageApplied: {
-        const p = event.payload as IDamageAppliedPayload;
-        if (p.unitId !== unitId) break;
-        const variant: DamageFloaterEntry['variant'] =
-          p.armorRemaining === 0 ? 'structure' : 'armor';
-        damageEntries.push({ id: event.id, amount: p.damage, variant });
-        break;
-      }
-      case GameEventType.CriticalHitResolved: {
-        const p = event.payload as ICriticalHitResolvedPayload;
-        if (p.unitId !== unitId) break;
-        critCount += 1;
-        break;
-      }
-      case GameEventType.PilotHit: {
-        const p = event.payload as IPilotHitPayload;
-        if (p.unitId !== unitId) break;
-        pilotHitCount += 1;
-        if (p.totalWounds >= 6) {
-          killed = true;
-        } else if (p.consciousnessCheckPassed === false) {
-          unconscious = true;
-        }
-        break;
-      }
-      case GameEventType.UnitDestroyed: {
-        const p = event.payload as IUnitDestroyedPayload;
-        if (p.unitId !== unitId) break;
-        destroyed = true;
-        break;
-      }
-      default:
-        break;
-    }
-  }
-
-  return {
-    critCount,
-    pilotHitCount,
-    unconscious,
-    killed,
-    destroyed,
-    damageEntries,
-  };
-}
-
-interface UnitThermalVisualState {
-  readonly heat: number;
-  readonly hasHeatEvent: boolean;
-  readonly isShutdown: boolean;
-  readonly startupAttemptId: number | string | null;
-  readonly startupSucceeded: boolean;
-  readonly ammoExplosionRisk: boolean;
-}
-
-const EMPTY_THERMAL_VISUAL_STATE: UnitThermalVisualState = {
-  heat: 0,
-  hasHeatEvent: false,
-  isShutdown: false,
-  startupAttemptId: null,
-  startupSucceeded: false,
-  ammoExplosionRisk: false,
-};
-
-function projectThermalVisualState(
-  unitId: string,
-  events: readonly IGameEvent[] | undefined,
-): UnitThermalVisualState {
-  if (!events || events.length === 0) return EMPTY_THERMAL_VISUAL_STATE;
-
-  let heat = 0;
-  let hasHeatEvent = false;
-  let isShutdown = false;
-  let startupAttemptId: number | string | null = null;
-  let startupSucceeded = false;
-  let ammoExplosionRisk = false;
-
-  for (const event of events) {
-    switch (event.type) {
-      case GameEventType.HeatGenerated:
-      case GameEventType.HeatDissipated: {
-        const payload = event.payload as IHeatPayload;
-        if (payload.unitId !== unitId) break;
-        const transition = getHeatTransitionFromPayload(payload);
-        heat = transition.currentHeat;
-        hasHeatEvent = true;
-        ammoExplosionRisk = transition.ammoExplosionRisk;
-        break;
-      }
-      case GameEventType.ShutdownCheck: {
-        const payload = event.payload as IShutdownCheckPayload;
-        if (payload.unitId !== unitId) break;
-        if (payload.shutdownOccurred) isShutdown = true;
-        break;
-      }
-      case GameEventType.StartupAttempt: {
-        const payload = event.payload as IStartupAttemptPayload;
-        if (payload.unitId !== unitId) break;
-        startupAttemptId = event.id || event.sequence;
-        startupSucceeded = payload.success;
-        if (payload.success) isShutdown = false;
-        break;
-      }
-      case GameEventType.AmmoExplosion: {
-        const payload = event.payload as IAmmoExplosionPayload;
-        if (payload.unitId !== unitId) break;
-        ammoExplosionRisk = true;
-        break;
-      }
-      default:
-        break;
-    }
-  }
-
-  return {
-    heat,
-    hasHeatEvent,
-    isShutdown,
-    startupAttemptId,
-    startupSucceeded,
-    ammoExplosionRisk,
-  };
 }
 
 // =============================================================================
@@ -424,112 +263,3 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
       return wrap(<MechToken token={renderToken} eventState={eventState} />);
   }
 });
-
-function renderFogMarker(token: IUnitToken): React.ReactElement | null {
-  if (token.fogStatus !== 'hidden' && token.fogStatus !== 'lastKnown') {
-    return null;
-  }
-
-  const stroke = token.fogStatus === 'hidden' ? '#64748b' : '#f59e0b';
-  const fill = token.fogStatus === 'hidden' ? '#0f172a' : '#1f2937';
-  const title =
-    token.fogStatus === 'hidden' ? 'Hidden contact' : 'Last known contact';
-
-  return (
-    <g
-      data-testid={`fog-marker-${token.unitId}`}
-      pointerEvents="none"
-      aria-label={title}
-    >
-      <title>{title}</title>
-      <circle r={14} fill={fill} stroke={stroke} strokeWidth={2} />
-      <text
-        x={0}
-        y={5}
-        textAnchor="middle"
-        fontSize={18}
-        fontWeight={700}
-        fill="#f8fafc"
-      >
-        ?
-      </text>
-    </g>
-  );
-}
-
-function TokenVisualEffects({
-  token,
-  events,
-  thermalVisualState,
-  children,
-}: {
-  readonly token: IUnitToken;
-  readonly events?: readonly IGameEvent[];
-  readonly thermalVisualState: UnitThermalVisualState;
-  readonly children: React.ReactElement;
-}): React.ReactElement {
-  const idSuffix = token.unitId;
-
-  return (
-    <>
-      <AmmoExplosionAura
-        active={thermalVisualState.ammoExplosionRisk}
-        heat={thermalVisualState.heat}
-        idSuffix={idSuffix}
-      />
-      {thermalVisualState.hasHeatEvent && (
-        <HeatGlow
-          heat={thermalVisualState.heat}
-          idSuffix={idSuffix}
-          isShutdown={thermalVisualState.isShutdown}
-        />
-      )}
-      {children}
-      <ShutdownOverlay
-        active={thermalVisualState.isShutdown}
-        idSuffix={idSuffix}
-        unitName={token.name}
-      />
-      <StartupPulse
-        attemptId={thermalVisualState.startupAttemptId}
-        success={thermalVisualState.startupSucceeded}
-      />
-      <HitLocationFlash unitId={token.unitId} events={events} />
-    </>
-  );
-}
-
-function renderJumpArc(
-  unitId: string,
-  movementAnimation: TacticalAnimation | undefined,
-  tween: MovementTweenFrame,
-): React.ReactElement | null {
-  const path = movementAnimation?.path;
-  if (!path || path.length <= 1) return null;
-  if (movementAnimation.mode !== MovementType.Jump) return null;
-  if (tween.reducedMotion || tween.arcOpacity <= 0) return null;
-
-  const start = hexToPixel(path[0]);
-  const end = hexToPixel(path[path.length - 1]);
-  const distance = Math.hypot(end.x - start.x, end.y - start.y);
-  const lift = Math.max(24, distance * 0.2);
-  const control = {
-    x: start.x + (end.x - start.x) / 2,
-    y: start.y + (end.y - start.y) / 2 - lift,
-  };
-
-  return (
-    <path
-      data-testid={`jump-arc-${unitId}`}
-      d={`M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`}
-      fill="none"
-      stroke="#3b82f6"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeDasharray="5 5"
-      opacity={Math.min(0.45, tween.arcOpacity * 0.45)}
-      pointerEvents="none"
-      aria-hidden="true"
-    />
-  );
-}

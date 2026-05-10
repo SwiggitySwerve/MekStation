@@ -35,8 +35,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import type {
   IPhysicalAttackInput,
   IPhysicalAttackOption,
-  PhysicalAttackInvalidReason,
-  PhysicalAttackLimb,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
@@ -45,17 +43,19 @@ import {
   useSelectedUnit,
 } from '@/stores/useGameplayStore';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
-import {
-  GamePhase,
-  type IComponentDamageState,
-  type IHexCoordinate,
-} from '@/types/gameplay';
+import { GamePhase, type IHexCoordinate } from '@/types/gameplay';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
 
 import type { PhysicalAttackIntentVariant } from './overlays/PhysicalAttackIntentArrow';
 
 import { PhysicalAttackForecastModal } from './PhysicalAttackForecastModal';
+import {
+  attackTypeLabel,
+  EMPTY_DAMAGE,
+  intentVariantFor,
+  REASON_COPY,
+} from './PhysicalAttackPanel.helpers';
 
 /**
  * Per task 7.5 + `tactical-map-interface` delta "Physical Attack Intent
@@ -84,89 +84,10 @@ export interface PhysicalAttackPanelProps {
   className?: string;
 }
 
-const EMPTY_DAMAGE: IComponentDamageState = {
-  engineHits: 0,
-  gyroHits: 0,
-  sensorHits: 0,
-  lifeSupport: 0,
-  cockpitHit: false,
-  actuators: {},
-  weaponsDestroyed: [],
-  heatSinksDestroyed: 0,
-  jumpJetsDestroyed: 0,
-};
-
 interface MeleeTarget {
   id: string;
   name: string;
   position: IHexCoordinate;
-}
-
-/**
- * Per task 9.4: friendly copy for every `PhysicalAttackInvalidReason`
- * so the disabled-row tooltip stays human-readable.
- */
-const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
-  WeaponFiredThisTurn: 'Arm fired a weapon this turn',
-  MissingActuator: 'Required actuator is missing',
-  HipDestroyed: 'Hip actuator destroyed',
-  ShoulderDestroyed: 'Shoulder actuator destroyed',
-  SameLimbUsedThisTurn: 'Limb already used for a physical attack',
-  NoJumpThisTurn: 'DFA requires jumping this turn',
-  NoRunThisTurn: 'Charge requires running this turn',
-  LimbMissing: 'Limb is missing',
-  AttackerProne: 'Attacker is prone',
-  UnsupportedAttackType: 'Attack type is unsupported',
-  DestinationBlocked: 'Push destination is blocked',
-};
-
-/**
- * Per task 4.2: row-level display helpers. Keeps JSX readable.
- */
-function attackTypeLabel(
-  attackType: PhysicalAttackType,
-  limb?: PhysicalAttackLimb,
-): string {
-  const base: Record<PhysicalAttackType, string> = {
-    punch: 'Punch',
-    kick: 'Kick',
-    charge: 'Charge',
-    dfa: 'Death-from-Above',
-    push: 'Push',
-    hatchet: 'Hatchet',
-    sword: 'Sword',
-    mace: 'Mace',
-    lance: 'Lance',
-  };
-  const label = base[attackType];
-  if (!limb) return label;
-  const limbLabel: Record<PhysicalAttackLimb, string> = {
-    leftArm: 'L Arm',
-    rightArm: 'R Arm',
-    leftLeg: 'L Leg',
-    rightLeg: 'R Leg',
-  };
-  return `${label} (${limbLabel[limb]})`;
-}
-
-/**
- * Per task 7.5: the intent-arrow variant for a given row. Rows that
- * don't map to an arrow (punch / kick / melee weapon) return `null` —
- * the parent then keeps the overlay unmounted.
- */
-function intentVariantFor(
-  attackType: PhysicalAttackType,
-): PhysicalAttackIntentVariant | null {
-  switch (attackType) {
-    case 'charge':
-      return 'charge';
-    case 'dfa':
-      return 'dfa';
-    case 'push':
-      return 'push';
-    default:
-      return null;
-  }
 }
 
 export function PhysicalAttackPanel({

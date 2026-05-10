@@ -7,12 +7,15 @@ import type {
 } from '@/types/gameplay';
 
 import { GameEventType, GamePhase, MovementType } from '@/types/gameplay';
-import {
-  chooseBestPhysicalAttack,
-  type PhysicalAttackType,
-} from '@/utils/gameplay/physicalAttacks';
+import { chooseBestPhysicalAttack } from '@/utils/gameplay/physicalAttacks';
 
 import type { SeededRandom } from '../core/SeededRandom';
+import type {
+  IAttackEvent,
+  IMovementEvent,
+  IPhysicalAttackEvent,
+  IRetreatEvent,
+} from './AIPlayerEvents';
 import type { IAIPlayer } from './IAIPlayer';
 import type { IBotBehavior, IAIUnitState, IMove, IWeapon } from './types';
 
@@ -26,63 +29,13 @@ import {
 } from './RetreatAI';
 import { DEFAULT_BEHAVIOR } from './types';
 
-export interface IMovementEvent {
-  type: GameEventType.MovementDeclared;
-  payload: {
-    unitId: string;
-    from: { q: number; r: number };
-    to: { q: number; r: number };
-    facing: number;
-    movementType: MovementType;
-    mpUsed: number;
-    heatGenerated: number;
-  };
-}
-
-export interface IAttackEvent {
-  type: GameEventType.AttackDeclared;
-  payload: {
-    attackerId: string;
-    targetId: string;
-    weapons: readonly string[];
-  };
-}
-
-/**
- * Per `wire-bot-ai-helpers-and-capstone`: bot's emitted retreat trigger.
- * Returned from `evaluateRetreat`; callers (InteractiveSession,
- * GameEngine.phases) append it to the session before calling the
- * movement / attack phases so subsequent move scoring sees `isRetreating`.
- */
-export interface IRetreatEvent {
-  type: GameEventType.RetreatTriggered;
-  payload: {
-    unitId: string;
-    edge: 'north' | 'south' | 'east' | 'west';
-    reason: 'structural_threshold' | 'vital_crit';
-  };
-}
-
-/**
- * Per `wire-bot-ai-helpers-and-capstone`: physical attack declaration
- * the bot emits during the PhysicalAttack phase. Caller routes this
- * through `declarePhysicalAttack` to produce the canonical session
- * event (which includes the to-hit number computed inside the resolver).
- */
-export interface IPhysicalAttackEvent {
-  type: GameEventType.PhysicalAttackDeclared;
-  payload: {
-    attackerId: string;
-    targetId: string;
-    attackType: PhysicalAttackType;
-  };
-}
-
-export type BotGameEvent =
-  | IMovementEvent
-  | IAttackEvent
-  | IRetreatEvent
-  | IPhysicalAttackEvent;
+export type {
+  BotGameEvent,
+  IAttackEvent,
+  IMovementEvent,
+  IPhysicalAttackEvent,
+  IRetreatEvent,
+} from './AIPlayerEvents';
 
 /** Vital component types whose destruction triggers a retreat per spec § 2. */
 const VITAL_COMPONENT_TYPES = new Set(['cockpit', 'engine', 'gyro']);

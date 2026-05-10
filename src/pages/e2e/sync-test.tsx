@@ -12,6 +12,14 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 
 import {
+  ConnectionSection,
+  EventLogSection,
+  NotAvailable,
+  RoomControlsSection,
+  SyncedItemsSection,
+  type TestItem,
+} from '@/components/pages/e2e/SyncTestPage.components';
+import {
   createMockSyncRoom,
   joinMockSyncRoom,
   leaveMockCurrentRoom,
@@ -25,7 +33,6 @@ import {
   getMockRetryState,
   shouldUseMockSync,
 } from '@/lib/p2p/MockSyncProvider';
-import { formatRoomCode } from '@/lib/p2p/roomCodes';
 import {
   createSyncRoom,
   joinSyncRoom,
@@ -41,29 +48,18 @@ import {
 } from '@/lib/p2p/SyncProvider';
 import { ConnectionState, type SyncEvent } from '@/lib/p2p/types';
 
-// Block in production
 const isTestEnv =
   process.env.NODE_ENV === 'development' ||
   process.env.NODE_ENV === 'test' ||
   process.env.NEXT_PUBLIC_E2E_TEST === 'true';
 
-interface TestItem {
-  id: string;
-  name: string;
-  value: number;
-  updatedAt: number;
-}
-
 export default function SyncTestPage() {
-  // Determine if we should use mock sync (for E2E tests)
-  // Use state + effect to handle SSR properly
   const [useMock, setUseMock] = useState(false);
 
   useEffect(() => {
     setUseMock(shouldUseMockSync());
   }, []);
 
-  // Provider functions based on mock mode
   const providers = useMemo(
     () => ({
       createRoom: useMock ? createMockSyncRoom : createSyncRoom,
@@ -81,7 +77,6 @@ export default function SyncTestPage() {
     [useMock],
   );
 
-  // Connection state
   const [connectionState, setConnectionState] = useState<ConnectionState>(
     ConnectionState.Disconnected,
   );
@@ -96,12 +91,9 @@ export default function SyncTestPage() {
     attempts: 0,
     maxAttempts: 5,
   });
-
-  // Synced data
   const [items, setItems] = useState<Record<string, TestItem>>({});
   const [newItemName, setNewItemName] = useState<string>('');
 
-  // Update state periodically
   useEffect(() => {
     const interval = setInterval(() => {
       setConnectionState(providers.getState());
@@ -109,7 +101,6 @@ export default function SyncTestPage() {
       setLocalPeerId(providers.getPeerId());
       setRetryState(providers.getRetry());
 
-      // Read items from Yjs
       const yMap = providers.getMap<TestItem>('test-items');
       if (yMap) {
         const newItems: Record<string, TestItem> = {};
@@ -123,7 +114,6 @@ export default function SyncTestPage() {
     return () => clearInterval(interval);
   }, [providers]);
 
-  // Subscribe to sync events
   useEffect(() => {
     const unsubscribe = providers.onEvent((event: SyncEvent) => {
       const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
@@ -144,7 +134,6 @@ export default function SyncTestPage() {
     return unsubscribe;
   }, [providers]);
 
-  // Observe Yjs changes
   useEffect(() => {
     const room = providers.getRoom();
     if (!room) return;
@@ -236,12 +225,7 @@ export default function SyncTestPage() {
   );
 
   if (!isTestEnv) {
-    return (
-      <div style={{ padding: 40, textAlign: 'center' }}>
-        <h1>Not Available</h1>
-        <p>This page is only available in development/test environments.</p>
-      </div>
-    );
+    return <NotAvailable />;
   }
 
   return (
@@ -270,215 +254,32 @@ export default function SyncTestPage() {
         </div>
       )}
 
-      {/* Connection Status Section */}
-      <section
-        style={{
-          marginBottom: 20,
-          padding: 15,
-          border: '1px solid #ccc',
-          borderRadius: 8,
-        }}
-      >
-        <h2>Connection</h2>
-        <div
-          style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: 8 }}
-        >
-          <span>State:</span>
-          <span data-testid="connection-state">{connectionState}</span>
-
-          <span>Room Code:</span>
-          <span data-testid="room-code">
-            {roomCode ? formatRoomCode(roomCode) : 'N/A'}
-          </span>
-
-          <span>Peer Count:</span>
-          <span data-testid="peer-count">{peerCount}</span>
-
-          <span>Local Peer ID:</span>
-          <span data-testid="local-peer-id">{localPeerId ?? 'N/A'}</span>
-
-          <span>Retrying:</span>
-          <span data-testid="retry-state">
-            {retryState.isRetrying
-              ? `Yes (${retryState.attempts}/${retryState.maxAttempts})`
-              : 'No'}
-          </span>
-        </div>
-
-        {error && (
-          <div
-            data-testid="error-message"
-            style={{
-              marginTop: 10,
-              padding: 10,
-              background: '#fee',
-              color: '#c00',
-              borderRadius: 4,
-            }}
-          >
-            {error}
-          </div>
-        )}
-      </section>
-
-      {/* Room Controls */}
-      <section
-        style={{
-          marginBottom: 20,
-          padding: 15,
-          border: '1px solid #ccc',
-          borderRadius: 8,
-        }}
-      >
-        <h2>Room Controls</h2>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button
-            data-testid="create-room-btn"
-            onClick={handleCreateRoom}
-            disabled={connectionState !== ConnectionState.Disconnected}
-            style={{ padding: '8px 16px' }}
-          >
-            Create Room
-          </button>
-
-          <input
-            data-testid="room-code-input"
-            type="text"
-            placeholder="Enter room code"
-            value={inputRoomCode}
-            onChange={(e) => setInputRoomCode(e.target.value)}
-            style={{ padding: 8, width: 150 }}
-          />
-          <button
-            data-testid="join-room-btn"
-            onClick={handleJoinRoom}
-            disabled={
-              connectionState !== ConnectionState.Disconnected ||
-              !inputRoomCode.trim()
-            }
-            style={{ padding: '8px 16px' }}
-          >
-            Join Room
-          </button>
-
-          <button
-            data-testid="leave-room-btn"
-            onClick={handleLeaveRoom}
-            disabled={connectionState === ConnectionState.Disconnected}
-            style={{ padding: '8px 16px' }}
-          >
-            Leave Room
-          </button>
-        </div>
-      </section>
-
-      {/* Synced Items */}
-      <section
-        style={{
-          marginBottom: 20,
-          padding: 15,
-          border: '1px solid #ccc',
-          borderRadius: 8,
-        }}
-      >
-        <h2>Synced Items</h2>
-        <div style={{ display: 'flex', gap: 10, marginBottom: 15 }}>
-          <input
-            data-testid="new-item-input"
-            type="text"
-            placeholder="Item name"
-            value={newItemName}
-            onChange={(e) => setNewItemName(e.target.value)}
-            style={{ padding: 8, flex: 1 }}
-          />
-          <button
-            data-testid="add-item-btn"
-            onClick={handleAddItem}
-            disabled={
-              connectionState !== ConnectionState.Connected ||
-              !newItemName.trim()
-            }
-            style={{ padding: '8px 16px' }}
-          >
-            Add Item
-          </button>
-        </div>
-
-        <div data-testid="items-list">
-          {Object.keys(items).length === 0 ? (
-            <p style={{ color: '#666' }}>No items yet</p>
-          ) : (
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {Object.values(items).map((item) => (
-                <li
-                  key={item.id}
-                  data-testid={`item-${item.id}`}
-                  data-item-id={item.id}
-                  data-item-name={item.name}
-                  data-item-value={item.value}
-                  style={{
-                    padding: 10,
-                    marginBottom: 8,
-                    background: '#f5f5f5',
-                    borderRadius: 4,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <span>
-                    <strong>{item.name}</strong> = {item.value}
-                  </span>
-                  <span style={{ display: 'flex', gap: 8 }}>
-                    <button
-                      data-testid={`update-${item.id}`}
-                      onClick={() => handleUpdateItem(item.id)}
-                      style={{ padding: '4px 8px' }}
-                    >
-                      +1
-                    </button>
-                    <button
-                      data-testid={`delete-${item.id}`}
-                      onClick={() => handleDeleteItem(item.id)}
-                      style={{ padding: '4px 8px' }}
-                    >
-                      Delete
-                    </button>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div data-testid="item-count" style={{ marginTop: 10, color: '#666' }}>
-          Total items: {Object.keys(items).length}
-        </div>
-      </section>
-
-      {/* Event Log */}
-      <section
-        style={{ padding: 15, border: '1px solid #ccc', borderRadius: 8 }}
-      >
-        <h2>Event Log</h2>
-        <div
-          data-testid="event-log"
-          style={{
-            height: 150,
-            overflow: 'auto',
-            background: '#1a1a1a',
-            color: '#0f0',
-            padding: 10,
-            borderRadius: 4,
-            fontSize: 12,
-          }}
-        >
-          {events.length === 0 ? (
-            <span style={{ color: '#666' }}>No events yet</span>
-          ) : (
-            events.map((event, i) => <div key={i}>{event}</div>)
-          )}
-        </div>
-      </section>
+      <ConnectionSection
+        connectionState={connectionState}
+        error={error}
+        localPeerId={localPeerId}
+        peerCount={peerCount}
+        retryState={retryState}
+        roomCode={roomCode}
+      />
+      <RoomControlsSection
+        connectionState={connectionState}
+        inputRoomCode={inputRoomCode}
+        onCreateRoom={handleCreateRoom}
+        onInputRoomCodeChange={setInputRoomCode}
+        onJoinRoom={handleJoinRoom}
+        onLeaveRoom={handleLeaveRoom}
+      />
+      <SyncedItemsSection
+        connectionState={connectionState}
+        items={items}
+        newItemName={newItemName}
+        onAddItem={handleAddItem}
+        onDeleteItem={handleDeleteItem}
+        onNewItemNameChange={setNewItemName}
+        onUpdateItem={handleUpdateItem}
+      />
+      <EventLogSection events={events} />
     </div>
   );
 }

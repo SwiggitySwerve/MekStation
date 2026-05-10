@@ -24,7 +24,7 @@ import type {
   IMovementEvent,
   IPhysicalAttackEvent,
   IRetreatEvent,
-} from './BotPlayer';
+} from './AIPlayerEvents';
 import type { IAIUnitState, IBotBehavior } from './types';
 
 export type { IAIUnitState, IBotBehavior };
@@ -33,7 +33,7 @@ export type {
   IMovementEvent,
   IPhysicalAttackEvent,
   IRetreatEvent,
-};
+} from './AIPlayerEvents';
 
 /**
  * The four-method decision surface every AI player must implement.

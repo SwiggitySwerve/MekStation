@@ -48,6 +48,7 @@
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "src/pages/api/**",
+    "src/types/contracts/generated/**",
     "src/utils/logger.ts",
     "e2e/**",
     "src/services/conversion/ParityReportWriter.ts",

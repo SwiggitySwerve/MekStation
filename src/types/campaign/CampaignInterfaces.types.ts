@@ -43,27 +43,7 @@ export enum CampaignMissionStatus {
   Skipped = 'skipped',
 }
 
-/**
- * Pilot operational status in campaign.
- *
- * Note: the legacy unit-status enum was removed alongside the legacy
- * roster-unit shape in PR-C of `canonicalize-unit-combat-state`. Unit
- * readiness is now derived on the projection at
- * `src/types/campaign/RosterUnitProjection.ts` as `'Ready' | 'Damaged' |
- * 'Destroyed'` from canonical `IUnitCombatState`.
- */
-export enum CampaignPilotStatus {
-  /** Ready for duty */
-  Active = 'active',
-  /** Wounded, penalties apply */
-  Wounded = 'wounded',
-  /** Critically wounded, unavailable */
-  Critical = 'critical',
-  /** Missing in action */
-  MIA = 'mia',
-  /** Killed in action */
-  KIA = 'kia',
-}
+export { CampaignPilotStatus } from './CampaignPilotStatus';
 
 // =============================================================================
 // Resource Types

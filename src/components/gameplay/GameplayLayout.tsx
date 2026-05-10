@@ -13,172 +13,43 @@ import React, {
   useEffect,
 } from 'react';
 
-import type { InteractiveSession } from '@/engine/InteractiveSession';
-import type { InteractivePhase } from '@/stores/useGameplayStore';
-
 import { pixelToHex } from '@/constants/hexMap';
 import { useCameraControls } from '@/hooks/useCameraControls';
 import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
-import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import {
-  GamePhase,
   GameSide,
-  IGameSession,
-  IHexCoordinate,
-  IPilotSpaSummary,
   ILayoutConfig,
-  IWeaponStatus,
-  IMovementRangeHex,
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
 } from '@/types/gameplay';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
-import { canPlayerSeeUnit } from '@/utils/gameplay/visibility';
 
+import type { GameplayLayoutProps } from './GameplayLayout.types';
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
 import { ActionBar } from './ActionBar';
 import { ConcedeButton } from './ConcedeButton';
 import { EventLogDisplay } from './EventLogDisplay';
-import { HotkeyHelpOverlay, HotkeyHintBadge } from './help/HotkeyHelpOverlay';
+import {
+  HitChancePanel,
+  MapOverlayChildren,
+  noopInteraction,
+  RecordSheetBody,
+  RecordSheetDrawer,
+  useResponsiveRecordSheet,
+} from './GameplayLayout.sections';
+import {
+  buildEventActorLookup,
+  buildEventWeaponLookup,
+  buildGameplayTokens,
+  buildUnitInfoLookup,
+} from './GameplayLayout.viewModel';
 import { HexMapDisplay } from './HexMapDisplay';
-import { Minimap } from './minimap/Minimap';
 import { PhaseBanner } from './PhaseBanner';
-import { RecordSheetDisplay } from './RecordSheetDisplay';
 
-// No-op stub passed to `useCameraControls` before HexMapDisplay has
-// published its live interaction state. Keeps the hook contract
-// stable (no conditional hook call) and ensures camera actions that
-// arrive during the initial render are harmless no-ops. The shape
-// mirrors MapInteractionState so TypeScript is satisfied; consumers
-// should treat the `enabled` flag as authoritative.
-const noopInteraction: MapInteractionState = {
-  svgRef: { current: null },
-  transformedViewBox: '0 0 0 0',
-  viewBox: { x: 0, y: 0, width: 0, height: 0 },
-  zoom: 1,
-  pan: { x: 0, y: 0 },
-  setZoom: () => {},
-  setPan: () => {},
-  showMovementOverlay: false,
-  setShowMovementOverlay: () => {},
-  showCoverOverlay: false,
-  setShowCoverOverlay: () => {},
-  showFiringArcOverlay: true,
-  setShowFiringArcOverlay: () => {},
-  showLOSOverlay: false,
-  setShowLOSOverlay: () => {},
-  panBy: () => {},
-  zoomTo: () => {},
-  centerOn: () => {},
-  handleWheel: () => {},
-  handleMouseDown: () => {},
-  handleMouseMove: () => {},
-  handleMouseUp: () => {},
-  handleTouchStart: () => {},
-  handleTouchMove: () => {},
-  handleTouchEnd: () => {},
-};
-
-// =============================================================================
-// Types
-// =============================================================================
-
-export interface GameplayLayoutProps {
-  /** Game session data */
-  session: IGameSession;
-  /** Currently selected unit ID */
-  selectedUnitId: string | null;
-  /** Callback when unit is selected */
-  onUnitSelect: (unitId: string | null) => void;
-  /** Callback when action is triggered */
-  onAction: (actionId: string) => void;
-  /** Callback when hex is clicked */
-  onHexClick?: (hex: { q: number; r: number }) => void;
-  /** Can the player undo? */
-  canUndo?: boolean;
-  /** Is it the player's turn? */
-  isPlayerTurn?: boolean;
-  /** Unit weapon data for record sheet */
-  unitWeapons?: Record<string, readonly IWeaponStatus[]>;
-  /** Max armor values per unit */
-  maxArmor?: Record<string, Record<string, number>>;
-  /** Max structure values per unit */
-  maxStructure?: Record<string, Record<string, number>>;
-  /** Pilot names per unit */
-  pilotNames?: Record<string, string>;
-  /** Heat sinks per unit */
-  heatSinks?: Record<string, number>;
-  /**
-   * Per `add-interactive-combat-core-ui` § 8: SPA projection per
-   * unit. Keyed by unit id → list of SPA summaries. Missing key is
-   * treated as an empty list (renders "No SPAs" placeholder).
-   */
-  unitSpas?: Record<string, readonly IPilotSpaSummary[]>;
-  /** Interactive mode phase (if in interactive mode) */
-  interactivePhase?: InteractivePhase;
-  /** Hit chance for current attack setup */
-  hitChance?: number | null;
-  /** Valid target unit IDs */
-  validTargetIds?: readonly string[];
-  /** Movement range hexes for map display */
-  movementRange?: readonly IMovementRangeHex[];
-  /**
-   * Per `add-movement-phase-ui` § 4.1: hovered-path preview — the
-   * in-progress A* path from the selected unit to the currently
-   * hovered reachable hex. Rendered by the HexMapDisplay as a
-   * highlighted path overlay.
-   */
-  highlightPath?: readonly IHexCoordinate[];
-  /**
-   * Per `add-movement-phase-ui` § 4.3: cumulative MP cost of the
-   * previewed path. Surfaced as a badge at the hovered destination.
-   */
-  hoverMpCost?: number;
-  /**
-   * Per `add-movement-phase-ui` § 4.4: `true` when the user hovers a
-   * hex outside the reachable set — drives the shared "Unreachable"
-   * tooltip on the map.
-   */
-  hoverUnreachable?: boolean;
-  /**
-   * Per `add-movement-phase-ui` task 10.1: per-MP-type legend shown in
-   * the map's bottom-left corner during the Movement phase.
-   */
-  mpLegend?: {
-    readonly active: 'walk' | 'run' | 'jump';
-    readonly jumpAvailable: boolean;
-  };
-  /**
-   * Hover callback — parent uses this to drive path preview + MP
-   * badge + unreachable tooltip computations.
-   */
-  onHexHover?: (hex: IHexCoordinate | null) => void;
-  /**
-   * Live interactive session — when present, the layout mounts the
-   * always-visible Concede button in the action bar's trailing slot
-   * and routes to `/gameplay/games/[id]/victory` on `GameEnded`.
-   *
-   * @spec openspec/changes/add-victory-and-post-battle-summary/tasks.md § 1.3
-   */
-  interactiveSession?: InteractiveSession;
-  /** Player side controlling this UI (defaults to GameSide.Player). */
-  playerSide?: GameSide;
-  /** Optional className for styling */
-  className?: string;
-}
-
-// =============================================================================
-// Helper Functions
-// =============================================================================
-
-const DEFAULT_FOG_SENSOR_RANGE = 10;
-
-// =============================================================================
-// Component
-// =============================================================================
+export type { GameplayLayoutProps } from './GameplayLayout.types';
 
 /**
  * Main gameplay layout with split view.
@@ -249,51 +120,8 @@ export function GameplayLayout({
 
   // Hotkey help overlay (? hotkey).
   const [helpOpen, setHelpOpen] = useState<boolean>(false);
-
-  // Per `add-interactive-combat-core-ui` § 1.3: on viewports narrower
-  // than `lg:` (1024px) the record-sheet pane collapses into a
-  // drawer. We track the current breakpoint in state so React can
-  // swap the layout idiom (split view ↔ drawer overlay) and so the
-  // PhaseBanner knows whether to mount its toggle button. The
-  // `matchMedia` listener is the canonical reactive way to do this
-  // without polling.
-  const [isNarrow, setIsNarrow] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth < 1024;
-  });
-  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia('(max-width: 1023.98px)');
-    const update = () => setIsNarrow(mq.matches);
-    update();
-    // Older Safari uses addListener; prefer addEventListener where
-    // available (Chromium/Firefox/modern Safari). Type-guard so we
-    // don't crash in jsdom test envs where only one shape exists.
-    if (typeof mq.addEventListener === 'function') {
-      mq.addEventListener('change', update);
-      return () => mq.removeEventListener('change', update);
-    }
-    const legacy = mq as MediaQueryList & {
-      addListener?: (cb: () => void) => void;
-      removeListener?: (cb: () => void) => void;
-    };
-    legacy.addListener?.(update);
-    return () => legacy.removeListener?.(update);
-  }, []);
-
-  // Close the drawer automatically when we grow back to desktop so
-  // the split view isn't rendered behind a lingering overlay. Also
-  // close when the selection is cleared so the drawer empty-state
-  // doesn't block the map for no reason.
-  useEffect(() => {
-    if (!isNarrow) setDrawerOpen(false);
-  }, [isNarrow]);
-
-  const handleToggleDrawer = useCallback(() => {
-    setDrawerOpen((open) => !open);
-  }, []);
+  const { isNarrow, drawerOpen, handleToggleDrawer } =
+    useResponsiveRecordSheet();
 
   // Update layout based on phase
   useEffect(() => {
@@ -301,14 +129,7 @@ export function GameplayLayout({
     setLayout((prev) => ({ ...prev, ...phaseLayout }));
   }, [currentState.phase]);
 
-  // Build unit info lookup
-  const unitInfoLookup = useMemo(() => {
-    const lookup: Record<string, { name: string; side: GameSide }> = {};
-    for (const unit of units) {
-      lookup[unit.id] = { name: unit.name, side: unit.side };
-    }
-    return lookup;
-  }, [units]);
+  const unitInfoLookup = useMemo(() => buildUnitInfoLookup(units), [units]);
 
   // Per `add-interactive-combat-core-ui` § 11.3: the event log needs
   // unit id → short designation (e.g., "ATL-7K") so each row can
@@ -316,28 +137,17 @@ export function GameplayLayout({
   // canonical source — the same string RecordSheetDisplay uses as
   // the designation line. Fall back to the unit's name if unitRef
   // is missing (older sessions in storage).
-  const eventActorLookup = useMemo(() => {
-    const lookup: Record<string, string> = {};
-    for (const unit of units) {
-      lookup[unit.id] = unit.unitRef || unit.name;
-    }
-    return lookup;
-  }, [units]);
+  const eventActorLookup = useMemo(() => buildEventActorLookup(units), [units]);
 
   // Per `add-attack-phase-ui` § 8.1: AttackResolved events now carry a
   // `weaponId`; the event log turns that id into a human label (e.g.,
   // "Medium Laser HIT / MISSED") using this flat map. Built from the
   // already-available `unitWeapons` so each weapon's display name is
   // reachable in O(1).
-  const eventWeaponLookup = useMemo(() => {
-    const lookup: Record<string, string> = {};
-    for (const weapons of Object.values(unitWeapons)) {
-      for (const weapon of weapons) {
-        lookup[weapon.id] = weapon.name;
-      }
-    }
-    return lookup;
-  }, [unitWeapons]);
+  const eventWeaponLookup = useMemo(
+    () => buildEventWeaponLookup(unitWeapons),
+    [unitWeapons],
+  );
 
   const visibleEvents = useMemo(
     () =>
@@ -356,69 +166,33 @@ export function GameplayLayout({
   const localFogPlayerId =
     session.sideOwners?.[playerSide] ?? playerSide.toString();
 
-  const tokens = useMemo(() => {
-    return Object.entries(currentState.units).map(([unitId, state]) => {
-      const unitInfo = unitInfoLookup[unitId] || {
-        name: 'Unknown',
-        side: GameSide.Player,
-      };
-      const isSelected = unitId === selectedUnitId;
-      const isValidTarget =
-        validTargetIds.includes(unitId) ||
-        (currentState.phase === GamePhase.WeaponAttack &&
-          unitInfo.side === GameSide.Opponent &&
-          !state.destroyed);
-      // Per `add-attack-phase-ui` § 2.2 + spec scenario "Target ring only
-      // in Weapon Attack phase": only the token whose id matches the
-      // locked-in target AND only while the WeaponAttack phase is
-      // actually active gets the pulsing red ring.
-      const isActiveTarget =
-        currentState.phase === GamePhase.WeaponAttack &&
-        activeTargetId !== null &&
-        unitId === activeTargetId;
-      // Per `wire-combat-behavior-dispatch` task §6.2: derive `isHidden`
-      // from the existing fog branch so the unified adapter strips
-      // `combatState`-derived per-type fields for unseen enemies (no
-      // trooper / altitude / chassis-flag leakage through `lastKnown`).
-      const isFogActive = config.fogOfWar === true;
-      const isOwnedSide = unitInfo.side === playerSide;
-      const isVisibleEnemy = canPlayerSeeUnit(
+  const tokens = useMemo(
+    () =>
+      buildGameplayTokens({
+        currentState,
+        config,
+        session,
+        unitInfoLookup,
+        selectedUnitId,
+        validTargetIds,
+        activeTargetId,
+        playerSide,
         localFogPlayerId,
-        unitId,
         visibilityState,
-      );
-      const isHidden = isFogActive && !isOwnedSide && !isVisibleEnemy;
-      const fogProjection = isFogActive
-        ? isOwnedSide
-          ? { sensorRange: DEFAULT_FOG_SENSOR_RANGE }
-          : isVisibleEnemy
-            ? {}
-            : {
-                fogStatus: 'lastKnown' as const,
-                lastKnownPosition: state.position,
-              }
-        : {};
-
-      return unitStateToToken(
-        unitId,
-        state,
-        unitInfo,
-        { isSelected, isValidTarget, isActiveTarget },
-        fogProjection,
-        isHidden,
-      );
-    });
-  }, [
-    currentState,
-    config.fogOfWar,
-    unitInfoLookup,
-    selectedUnitId,
-    validTargetIds,
-    activeTargetId,
-    playerSide,
-    localFogPlayerId,
-    visibilityState,
-  ]);
+      }),
+    [
+      activeTargetId,
+      config,
+      currentState,
+      localFogPlayerId,
+      playerSide,
+      selectedUnitId,
+      session,
+      unitInfoLookup,
+      validTargetIds,
+      visibilityState,
+    ],
+  );
 
   // Selected unit data
   const selectedUnit = selectedUnitId
@@ -428,7 +202,7 @@ export function GameplayLayout({
     ? unitInfoLookup[selectedUnitId]
     : null;
   const selectedUnitFromSession = selectedUnitId
-    ? units.find((u) => u.id === selectedUnitId)
+    ? (units.find((u) => u.id === selectedUnitId) ?? null)
     : null;
 
   // Handle panel resize
@@ -562,34 +336,21 @@ export function GameplayLayout({
   // when no explicit chassis is available; tonnage is omitted when
   // not present on the unit record (IGameUnit currently has no
   // tonnage field — see task 4.2 note in design.md).
-  const recordSheetBody =
-    selectedUnit && selectedUnitInfo && selectedUnitFromSession ? (
-      <RecordSheetDisplay
-        unitName={selectedUnitInfo.name}
-        designation={selectedUnitFromSession.unitRef}
-        state={selectedUnit}
-        maxArmor={maxArmor[selectedUnitId!] || {}}
-        maxStructure={maxStructure[selectedUnitId!] || {}}
-        weapons={unitWeapons[selectedUnitId!] || []}
-        pilotName={pilotNames[selectedUnitId!] || 'Unknown Pilot'}
-        gunnery={selectedUnitFromSession.gunnery}
-        piloting={selectedUnitFromSession.piloting}
-        heatSinks={heatSinks[selectedUnitId!] || 10}
-        side={selectedUnitInfo.side}
-        chassis={selectedUnitInfo.name}
-        spas={selectedUnitId ? (unitSpas[selectedUnitId] ?? []) : []}
-        unitId={selectedUnitId ?? undefined}
-        events={visibleEvents}
-        className="h-full"
-      />
-    ) : (
-      <div
-        className="flex h-full items-center justify-center text-gray-500"
-        data-testid="no-unit-selected"
-      >
-        <p>Select a unit to view its status</p>
-      </div>
-    );
+  const recordSheetBody = (
+    <RecordSheetBody
+      selectedUnitId={selectedUnitId}
+      selectedUnit={selectedUnit}
+      selectedUnitInfo={selectedUnitInfo}
+      selectedUnitFromSession={selectedUnitFromSession}
+      maxArmor={maxArmor}
+      maxStructure={maxStructure}
+      unitWeapons={unitWeapons}
+      pilotNames={pilotNames}
+      heatSinks={heatSinks}
+      unitSpas={unitSpas}
+      visibleEvents={visibleEvents}
+    />
+  );
 
   return (
     <div
@@ -649,48 +410,20 @@ export function GameplayLayout({
             onTokenDoubleClick={handleTokenDoubleClick}
             onInteractionReady={setMapInteraction}
             overlayChildren={
-              <>
-                {/* Minimap — top-right panel driven by the main
-                    camera's live pan/zoom. Receives callbacks that
-                    route clicks and drags back through the same
-                    camera facade the keyboard uses. */}
-                <Minimap
-                  radius={config.mapRadius}
-                  tokens={tokens}
-                  camera={{ zoom: camera.zoom, pan: camera.pan }}
-                  onCenterAt={handleMinimapCenterAt}
-                  onDragPan={handleMinimapDragPan}
-                  visible={minimapVisible}
-                />
-
-                {/* Hotkey help overlay — `?` opens, Esc/`?` closes.
-                    Rendered here so it stacks above the map but below
-                    global modals (if any). */}
-                <HotkeyHelpOverlay open={helpOpen} onClose={handleCloseHelp} />
-
-                {/* First-session prompt — fades out after 8s or on
-                    first help open. HotkeyHintBadge self-reads the
-                    localStorage flag set by HotkeyHelpOverlay. */}
-                <HotkeyHintBadge />
-              </>
+              <MapOverlayChildren
+                mapRadius={config.mapRadius}
+                tokens={tokens}
+                camera={{ zoom: camera.zoom, pan: camera.pan }}
+                onCenterAt={handleMinimapCenterAt}
+                onDragPan={handleMinimapDragPan}
+                minimapVisible={minimapVisible}
+                helpOpen={helpOpen}
+                onCloseHelp={handleCloseHelp}
+              />
             }
             className="h-full"
           />
-          {interactivePhase &&
-            hitChance !== undefined &&
-            hitChance !== null && (
-              <div
-                className="absolute bottom-4 left-4 rounded-lg bg-gray-900/90 px-4 py-3 text-white shadow-lg"
-                data-testid="hit-chance-panel"
-              >
-                <div className="text-xs tracking-wider text-gray-400 uppercase">
-                  Hit Chance
-                </div>
-                <div className="text-2xl font-bold text-amber-400">
-                  {hitChance}%
-                </div>
-              </div>
-            )}
+          {interactivePhase && <HitChancePanel hitChance={hitChance} />}
         </div>
 
         {/* Desktop split-view: resize handle + record sheet panel.
@@ -718,38 +451,10 @@ export function GameplayLayout({
           The backdrop captures outside-clicks to close the drawer,
           matching native mobile-app conventions. `id` wires up to
           PhaseBanner's `aria-controls` for screen readers. */}
-      {isNarrow && drawerOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-30 bg-black/40"
-            onClick={handleToggleDrawer}
-            data-testid="record-sheet-drawer-backdrop"
-            aria-hidden="true"
-          />
-          <aside
-            id="record-sheet-drawer"
-            className="fixed inset-y-0 right-0 z-40 flex w-full max-w-md flex-col bg-white shadow-xl"
-            role="dialog"
-            aria-label="Unit record sheet"
-            data-testid="record-sheet-drawer"
-          >
-            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
-              <h2 className="text-sm font-semibold tracking-wide text-gray-600 uppercase">
-                Record Sheet
-              </h2>
-              <button
-                type="button"
-                onClick={handleToggleDrawer}
-                className="rounded px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
-                data-testid="record-sheet-drawer-close"
-                aria-label="Close record sheet"
-              >
-                Close
-              </button>
-            </div>
-            <div className="flex-1 overflow-hidden">{recordSheetBody}</div>
-          </aside>
-        </>
+      {isNarrow && (
+        <RecordSheetDrawer open={drawerOpen} onToggle={handleToggleDrawer}>
+          {recordSheetBody}
+        </RecordSheetDrawer>
       )}
 
       {/* Action Bar */}

@@ -130,9 +130,9 @@ interface IFileResult {
   error?: string;
 }
 
-interface IServiceResult {
+interface IServiceResult<T = unknown> {
   success: boolean;
-  data?: any;
+  data?: T;
   error?: string;
 }
 

@@ -1,7 +1,6 @@
 /**
  * Game Session Page
  * Main gameplay interface for an active game session.
- * Includes replay functionality for completed games.
  *
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  * @spec openspec/changes/add-movement-phase-ui/specs/tactical-map-interface/spec.md
@@ -9,65 +8,25 @@
 
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback } from 'react';
 
 import {
   CombatPlanningPanel,
   GameplayLayout,
   SpectatorView,
 } from '@/components/gameplay';
+import { useGameSessionLifecycle } from '@/components/gameplay/pages/gameSession/GameSessionPage.lifecycle';
+import { useGameMovementPlanning } from '@/components/gameplay/pages/gameSession/GameSessionPage.movement';
 import {
   CompletedGame,
   GameError,
   GameLoading,
 } from '@/components/gameplay/pages/GameSessionPage.states';
 import {
-  deriveReconnectRoomCode,
-  useP2PReconnectSession,
-} from '@/hooks/useP2PReconnectSession';
-import {
-  useGameplaySelector,
   InteractivePhase,
+  useGameplaySelector,
 } from '@/stores/useGameplayStore';
-import {
-  Facing,
-  GamePhase,
-  GameSide,
-  GameStatus,
-  IHexCoordinate,
-  IMovementRangeHex,
-  MovementType,
-} from '@/types/gameplay';
-import { AXIAL_DIRECTION_DELTAS } from '@/types/gameplay/HexGridInterfaces';
-import { findPath } from '@/utils/gameplay/movement/pathfinding';
-import { deriveReachableHexes } from '@/utils/gameplay/movement/reachable';
-import { logger } from '@/utils/logger';
-
-/**
- * Per `add-movement-phase-ui` § 5: derive the default facing from the
- * last step of the player-previewed path. The last direction the unit
- * walked becomes its facing unless the player overrides it via the
- * FacingPicker. When the path is empty (same-hex) or the last step
- * doesn't match a canonical direction we fall back to the current
- * facing.
- */
-function facingFromPath(
-  path: readonly IHexCoordinate[],
-  fallback: Facing,
-): Facing {
-  if (path.length < 2) return fallback;
-  const prev = path[path.length - 2];
-  const last = path[path.length - 1];
-  const dq = last.q - prev.q;
-  const dr = last.r - prev.r;
-  for (let i = 0; i < AXIAL_DIRECTION_DELTAS.length; i++) {
-    const delta = AXIAL_DIRECTION_DELTAS[i];
-    if (delta.q === dq && delta.r === dr) {
-      return i as Facing;
-    }
-  }
-  return fallback;
-}
+import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
 
 export default function GameSessionPage(): React.ReactElement {
   const router = useRouter();
@@ -115,379 +74,30 @@ export default function GameSessionPage(): React.ReactElement {
   const runAITurn = useGameplaySelector((state) => state.runAITurn);
   const skipPhase = useGameplaySelector((state) => state.skipPhase);
   const checkGameOver = useGameplaySelector((state) => state.checkGameOver);
-  const plannedMovement = useGameplaySelector((state) => state.plannedMovement);
-  const setPlannedMovement = useGameplaySelector(
-    (state) => state.setPlannedMovement,
-  );
-  const clearPlannedMovement = useGameplaySelector(
-    (state) => state.clearPlannedMovement,
-  );
 
-  const redirectReconnectToLobby = useCallback(
-    (reconnectMatchId: string, reason: string) => {
-      const roomCode = deriveReconnectRoomCode(reconnectMatchId);
-      const target = roomCode
-        ? `/gameplay/lobby/${encodeURIComponent(roomCode)}`
-        : '/gameplay/games';
-      void router.replace(`${target}?error=${encodeURIComponent(reason)}`);
-    },
-    [router],
-  );
-
-  useP2PReconnectSession(matchIdStr, {
-    redirectToLobby: redirectReconnectToLobby,
-  });
-
-  useEffect(() => {
-    if (id === 'demo') {
-      createDemoSession();
-    } else if (typeof id === 'string') {
-      void loadSession(id);
-    }
-  }, [id, loadSession, createDemoSession]);
-
-  // Per `add-victory-and-post-battle-summary` design D7 + spec
-  // `game-session-management` "Game Completed Store Projection":
-  // when the session flips to `Completed` AND this is a standalone
-  // (non-campaign) match, redirect to the new victory screen at
-  // `/gameplay/games/[id]/victory`. Campaign-bound matches keep
-  // their existing `CompletedGame` flow (Wave 5 review path) so we
-  // don't double-redirect.
   const isCompletedForRedirect =
     session?.currentState.status === GameStatus.Completed;
   const isCampaignBound = !!session?.config.contractId;
-
-  // Per `add-victory-and-post-battle-summary` design D4 + spec
-  // `game-session-management` "Match Log Persistence Handshake":
-  // when `GameEnded` lands, derive an `IPostBattleReport` and POST
-  // it to `/api/matches` so the report survives a page reload.
-  // Persistence is fire-and-forget — a failed POST surfaces a
-  // console warning but does NOT block the victory-screen redirect
-  // (per the design risks section: in-memory report is still
-  // viewable immediately).
-  //
-  // The `persistedRef` guard makes the hook idempotent across
-  // re-renders so we never POST the same report twice. Demo
-  // sessions skip persistence — there's no stable id to read
-  // back.
-  const [hasPersisted, setHasPersisted] = useState(false);
-  useEffect(() => {
-    if (!session || !isCompletedForRedirect || hasPersisted) return;
-    if (typeof id !== 'string' || id === 'demo') return;
-    let cancelled = false;
-    void import('@/lib/combat/combatResolution').then(({ finalize }) =>
-      finalize(session)
-        .then(() => {
-          if (!cancelled) setHasPersisted(true);
-        })
-        .catch((err: unknown) => {
-          if (cancelled) return;
-          // Logged but not surfaced as a hard error — the victory
-          // screen still renders from the in-memory report.
-          logger.warn('match log persistence failed:', err);
-          setHasPersisted(true); // mark to avoid retry storms
-        }),
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [session, isCompletedForRedirect, hasPersisted, id]);
-
-  // Per `link-encounters-to-replays` PR 3: when an encounter-driven
-  // session reaches a terminal state, POST the event log + encounter
-  // metadata to `/api/replay-library/encounter` so the row shows up in
-  // the Replay Library. Mirrors the `QuickGameResults.tsx` pattern: a
-  // ref-guarded effect that fires exactly once per `Completed` flip
-  // (StrictMode + hard-refresh-safe via the server-side dedup check
-  // inside the route handler).
-  //
-  // The persist is fire-and-forget: a failed POST surfaces as a logger
-  // warn but does NOT block the victory screen redirect. Encounter rows
-  // that never persist are functionally equivalent to today's behavior
-  // (no row in the Library), so the failure mode is non-regressive.
-  //
-  // Gate: only fires when `session.config.encounterId` is set AND the
-  // session originated from an encounter launch. Skirmish / direct
-  // quick-game / demo sessions skip the persist (they have their own
-  // pipelines or are intentionally non-persistent). The body-shape
-  // derivation lives in `persistEncounterFromSession.ts` so unit tests
-  // can pin the contract without mounting the full gameplay page.
-  const encounterPersistFiredRef = useRef(false);
-  useEffect(() => {
-    if (!session || !isCompletedForRedirect) return;
-    if (typeof id !== 'string' || id === 'demo') return;
-    if (!session.config.encounterId) return;
-    if (encounterPersistFiredRef.current) return;
-    encounterPersistFiredRef.current = true;
-
-    let cancelled = false;
-    void import('@/components/encounter/persistEncounterFromSession').then(
-      ({ persistEncounterFromSession }) =>
-        persistEncounterFromSession(session).then((result) => {
-          if (cancelled) return;
-          if (!result.ok) {
-            logger.warn('[encounter] replay-library persist failed', {
-              status: result.status,
-              error: result.error,
-              gameId: session.id,
-            });
-          }
-        }),
-    );
-
-    return () => {
-      cancelled = true;
-    };
-  }, [session, isCompletedForRedirect, id]);
-
-  useEffect(() => {
-    if (
-      isCompletedForRedirect &&
-      !isCampaignBound &&
-      typeof id === 'string' &&
-      id !== 'demo'
-    ) {
-      void router.replace(`/gameplay/games/${id}/victory`);
-    }
-  }, [isCompletedForRedirect, isCampaignBound, id, router]);
+  useGameSessionLifecycle({
+    router,
+    routeId: id,
+    matchId: matchIdStr,
+    session,
+    isCompletedForRedirect,
+    isCampaignBound,
+    loadSession,
+    createDemoSession,
+  });
 
   const isInteractive = !!interactiveSession;
-
-  // Per add-movement-phase-ui § 4: track the hex the user is currently
-  // hovering over the SVG. Drives both the path preview and the
-  // "Unreachable" tooltip. Lives at the page level so the render of
-  // the overlay props and the click handler share the same state.
-  const [hoveredHex, setHoveredHex] = useState<IHexCoordinate | null>(null);
-
   const phase = session?.currentState.phase;
-
-  // Derive walk/run/jump MP for the selected unit — used to gate the
-  // CombatPlanningPanel's MovementTypeSwitcher and seed
-  // `deriveReachableHexes`. Missing capability (e.g., spectator) is
-  // treated as zero MP which disables the entire overlay.
-  const capability = useMemo(() => {
-    if (!interactiveSession || !ui.selectedUnitId) return null;
-    return interactiveSession.getMovementCapability(ui.selectedUnitId);
-  }, [interactiveSession, ui.selectedUnitId]);
-
-  // Per spec delta "Reachable Hex Derivation by MP Type": derive the
-  // overlay hexes from the chosen MovementType. Walk/Jump always
-  // render their own set; Run folds Walk + Run so walk-reachable
-  // tiles keep their green tint under the run envelope (per the
-  // "Run overlay" scenario).
-  const selectedUnitState = useMemo(() => {
-    if (!session || !ui.selectedUnitId) return null;
-    return session.currentState.units[ui.selectedUnitId] ?? null;
-  }, [session, ui.selectedUnitId]);
-
-  const selectedUnitInfo = useMemo(() => {
-    if (!session || !ui.selectedUnitId) return null;
-    return session.units.find((u) => u.id === ui.selectedUnitId) ?? null;
-  }, [session, ui.selectedUnitId]);
-
-  // Opponent-controlled units: never show the movement overlay (task
-  // 10.2). `isPlayerControlled` also gates the CombatPlanningPanel —
-  // the player shouldn't be able to plan for an enemy mech.
-  const isPlayerControlled = selectedUnitInfo?.side === GameSide.Player;
-
-  const movementType: MovementType =
-    plannedMovement?.movementType ?? MovementType.Walk;
-
-  const movementRangeHexes = useMemo((): readonly IMovementRangeHex[] => {
-    if (
-      !interactiveSession ||
-      !selectedUnitState ||
-      !capability ||
-      !isPlayerControlled ||
-      phase !== GamePhase.Movement ||
-      movementType === MovementType.Stationary
-    ) {
-      return [];
-    }
-
-    const grid = interactiveSession.getGrid();
-    const primary = deriveReachableHexes(
-      selectedUnitState,
-      movementType,
-      grid,
-      capability,
-    );
-    // Run envelope folds walk reach underneath so callers retain the
-    // green walk-tint inside the yellow run set (spec scenario: "Run
-    // overlay includes Walk hexes keyed as Walk").
-    if (movementType === MovementType.Run) {
-      const walk = deriveReachableHexes(
-        selectedUnitState,
-        MovementType.Walk,
-        grid,
-        capability,
-      );
-      const keyed = new Map<string, IMovementRangeHex>();
-      for (const h of primary) keyed.set(`${h.hex.q},${h.hex.r}`, h);
-      for (const h of walk) keyed.set(`${h.hex.q},${h.hex.r}`, h);
-      return Array.from(keyed.values());
-    }
-    return primary;
-  }, [
+  const movement = useGameMovementPlanning({
+    session,
     interactiveSession,
-    selectedUnitState,
-    capability,
-    isPlayerControlled,
+    selectedUnitId: ui.selectedUnitId,
     phase,
-    movementType,
-  ]);
-
-  const reachableKeySet = useMemo(() => {
-    const keys = new Set<string>();
-    for (const r of movementRangeHexes) keys.add(`${r.hex.q},${r.hex.r}`);
-    return keys;
-  }, [movementRangeHexes]);
-
-  // Per § 4.1 "Path preview on hover": when the hovered hex is
-  // reachable we run the A* pathfinder from the unit's current
-  // position to the hovered hex and feed the result into the map's
-  // `highlightPath`. Jump previews show a straight start→landing line
-  // (no intermediate path) since the unit skips the terrain.
-  const hoveredPath = useMemo((): readonly IHexCoordinate[] => {
-    if (
-      !hoveredHex ||
-      !interactiveSession ||
-      !selectedUnitState ||
-      phase !== GamePhase.Movement ||
-      !reachableKeySet.has(`${hoveredHex.q},${hoveredHex.r}`)
-    ) {
-      return [];
-    }
-    if (movementType === MovementType.Jump) {
-      return [selectedUnitState.position, hoveredHex];
-    }
-    const grid = interactiveSession.getGrid();
-    const path = findPath(
-      grid,
-      selectedUnitState.position,
-      hoveredHex,
-      capability
-        ? movementType === MovementType.Walk
-          ? capability.walkMP
-          : capability.runMP
-        : Infinity,
-    );
-    return path ?? [];
-  }, [
-    hoveredHex,
-    interactiveSession,
-    selectedUnitState,
-    phase,
-    reachableKeySet,
-    movementType,
-    capability,
-  ]);
-
-  // Cumulative MP cost of the currently previewed path — surfaced as
-  // an MP badge at the hovered destination (spec § 4.3). Looked up
-  // from the reachable table rather than recomputed so the number the
-  // player sees matches the overlay they're hovering over.
-  const hoverMpCost = useMemo(() => {
-    if (!hoveredHex || !reachableKeySet.has(`${hoveredHex.q},${hoveredHex.r}`))
-      return undefined;
-    const entry = movementRangeHexes.find(
-      (r) => r.hex.q === hoveredHex.q && r.hex.r === hoveredHex.r,
-    );
-    return entry?.mpCost;
-  }, [hoveredHex, reachableKeySet, movementRangeHexes]);
-
-  // Per spec § 4.4: the map surfaces an "Unreachable" tooltip when
-  // the player hovers a hex outside the reachable set during the
-  // Movement phase. This never triggers outside the Movement phase
-  // (we skip the Run/Walk overlay entirely otherwise).
-  const hoverUnreachable =
-    phase === GamePhase.Movement &&
-    isPlayerControlled &&
-    hoveredHex !== null &&
-    movementRangeHexes.length > 0 &&
-    !reachableKeySet.has(`${hoveredHex.q},${hoveredHex.r}`);
-
-  const mpLegend = useMemo(() => {
-    if (phase !== GamePhase.Movement || !isPlayerControlled || !capability) {
-      return undefined;
-    }
-    const active =
-      movementType === MovementType.Jump
-        ? ('jump' as const)
-        : movementType === MovementType.Run
-          ? ('run' as const)
-          : ('walk' as const);
-    return {
-      active,
-      jumpAvailable: capability.jumpMP > 0,
-    };
-  }, [phase, isPlayerControlled, capability, movementType]);
-
-  // Per spec delta "Planned Movement UI Projection": clicking a
-  // reachable hex during the Movement phase stores the plan on the
-  // store. Clicking an unreachable hex falls through to the default
-  // interactive-click handler (no plan side effect). Clicking the
-  // unit's own hex clears the plan.
-  const handleHexClick = useCallback(
-    (hex: IHexCoordinate) => {
-      if (
-        phase === GamePhase.Movement &&
-        isPlayerControlled &&
-        selectedUnitState
-      ) {
-        const key = `${hex.q},${hex.r}`;
-        if (reachableKeySet.has(key)) {
-          const path =
-            movementType === MovementType.Jump
-              ? [selectedUnitState.position, hex]
-              : ((findPath(
-                  interactiveSession!.getGrid(),
-                  selectedUnitState.position,
-                  hex,
-                  capability
-                    ? movementType === MovementType.Walk
-                      ? capability.walkMP
-                      : capability.runMP
-                    : Infinity,
-                ) ?? []) as IHexCoordinate[]);
-          const facing = facingFromPath(path, selectedUnitState.facing);
-          setPlannedMovement({
-            destination: hex,
-            facing,
-            movementType,
-            path,
-          });
-          return;
-        }
-        // Unreachable — fall through; no plan mutation.
-      }
-
-      if (interactiveSession) {
-        handleInteractiveHexClick(hex);
-      } else {
-        logger.debug('Hex clicked:', hex);
-      }
-    },
-    [
-      phase,
-      isPlayerControlled,
-      selectedUnitState,
-      reachableKeySet,
-      movementType,
-      interactiveSession,
-      capability,
-      setPlannedMovement,
-      handleInteractiveHexClick,
-    ],
-  );
-
-  // Per spec delta: clear the plan when we leave the Movement phase
-  // so the overlay + plan don't bleed into WeaponAttack / EndTurn.
-  useEffect(() => {
-    if (phase !== GamePhase.Movement && plannedMovement) {
-      clearPlannedMovement();
-    }
-  }, [phase, plannedMovement, clearPlannedMovement]);
+    handleInteractiveHexClick,
+  });
 
   const handleRetry = useCallback(() => {
     clearError();
@@ -553,17 +163,9 @@ export default function GameSessionPage(): React.ReactElement {
     ],
   );
 
-  if (isLoading) {
-    return <GameLoading />;
-  }
-
-  if (error) {
-    return <GameError message={error} onRetry={handleRetry} />;
-  }
-
-  if (!session) {
-    return <GameLoading />;
-  }
+  if (isLoading) return <GameLoading />;
+  if (error) return <GameError message={error} onRetry={handleRetry} />;
+  if (!session) return <GameLoading />;
 
   if (
     session.currentState.status === GameStatus.Completed &&
@@ -594,13 +196,12 @@ export default function GameSessionPage(): React.ReactElement {
         : rawWinner === 'opponent'
           ? GameSide.Opponent
           : 'draw';
-    const reason = result?.reason ?? 'unknown';
 
     return (
       <CompletedGame
         gameId={session.id}
         winner={winner}
-        reason={reason}
+        reason={result?.reason ?? 'unknown'}
         campaignId={campaignIdStr}
         missionId={missionIdStr}
         unitStates={interactiveSession.getState().units}
@@ -612,15 +213,9 @@ export default function GameSessionPage(): React.ReactElement {
     return <SpectatorView />;
   }
 
-  const isPlayerTurn = session.currentState.firstMover === GameSide.Player;
-
-  // Per `add-physical-attack-phase-ui` task 1.2: extend the planning
-  // panel to mount during the Physical Attack phase so the
-  // `PhysicalAttackPanel` sub-panel replaces the weapons list while
-  // keeping the locked weapons visible below it.
   const showPlanningPanel =
     isInteractive &&
-    isPlayerControlled &&
+    movement.isPlayerControlled &&
     (phase === GamePhase.Movement ||
       phase === GamePhase.WeaponAttack ||
       phase === GamePhase.PhysicalAttack);
@@ -640,10 +235,10 @@ export default function GameSessionPage(): React.ReactElement {
             selectedUnitId={ui.selectedUnitId}
             onUnitSelect={handleTokenClick}
             onAction={handleInteractiveAction}
-            onHexClick={handleHexClick}
-            onHexHover={setHoveredHex}
+            onHexClick={movement.handleHexClick}
+            onHexHover={movement.setHoveredHex}
             canUndo={false}
-            isPlayerTurn={isPlayerTurn}
+            isPlayerTurn={session.currentState.firstMover === GameSide.Player}
             unitWeapons={unitWeapons}
             maxArmor={maxArmor}
             maxStructure={maxStructure}
@@ -653,19 +248,19 @@ export default function GameSessionPage(): React.ReactElement {
             interactivePhase={isInteractive ? interactivePhase : undefined}
             hitChance={hitChance}
             validTargetIds={validTargetIds}
-            movementRange={movementRangeHexes}
-            highlightPath={hoveredPath}
-            hoverMpCost={hoverMpCost}
-            hoverUnreachable={hoverUnreachable}
-            mpLegend={mpLegend}
+            movementRange={movement.movementRangeHexes}
+            highlightPath={movement.hoveredPath}
+            hoverMpCost={movement.hoverMpCost}
+            hoverUnreachable={movement.hoverUnreachable}
+            mpLegend={movement.mpLegend}
             interactiveSession={interactiveSession ?? undefined}
             playerSide={GameSide.Player}
           />
         </div>
         {showPlanningPanel && ui.selectedUnitId && (
           <CombatPlanningPanel
-            walkMP={capability?.walkMP ?? 0}
-            jumpMP={capability?.jumpMP ?? 0}
+            walkMP={movement.capability?.walkMP ?? 0}
+            jumpMP={movement.capability?.jumpMP ?? 0}
             weapons={[]}
           />
         )}

@@ -5,7 +5,6 @@ import {
   IAttackDeclaredPayload,
   IGameEvent,
   IGameSession,
-  IWeaponAttackData,
   PSRTrigger,
 } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
@@ -32,10 +31,13 @@ import {
   createUnitDestroyedEvent,
 } from './gameEvents';
 import {
+  buildDefaultComponentDamageState,
   buildDamageStateFromUnit,
+  buildWeaponAttackDataMap,
   emitCriticalEvents,
   firingArcToString,
 } from './gameSessionAttackResolutionHelpers';
+import { invalidateSameHexAttack } from './gameSessionAttackResolutionValidation';
 import { appendEvent } from './gameSessionCore';
 import {
   determineHitLocationFromRoll,
@@ -52,55 +54,22 @@ export function resolveAttack(
   const payload = attackEvent.payload as IAttackDeclaredPayload;
   const { attackerId, targetId, weapons, weaponAttacks, toHitNumber } = payload;
 
-  const weaponDataMap = new Map<string, IWeaponAttackData>();
-  if (weaponAttacks) {
-    for (const weaponAttack of weaponAttacks) {
-      weaponDataMap.set(weaponAttack.weaponId, weaponAttack);
-    }
-  }
+  const weaponDataMap = buildWeaponAttackDataMap(weaponAttacks);
 
   let currentSession = session;
 
-  // Edge case: attacker and target share a hex. `firingArcs.determineArc`
-  // returns Front for same-hex by convention, but per
-  // `wire-firing-arc-resolution` task 5.1 this attack should be invalidated
-  // — a mech cannot fire at another mech occupying its own hex. Emit
-  // `AttackInvalid { SameHex }` (per `wire-ammo-consumption` event contract)
-  // and return without resolving any weapon.
-  const attackerPos = session.currentState.units[attackerId]?.position;
-  const targetPos = session.currentState.units[targetId]?.position;
-  if (
-    attackerPos &&
-    targetPos &&
-    attackerPos.q === targetPos.q &&
-    attackerPos.r === targetPos.r
-  ) {
-    const invalidSequence = currentSession.events.length;
-    const { turn: invalidTurn } = currentSession.currentState;
-    currentSession = appendEvent(
-      currentSession,
-      createAttackInvalidEvent(
-        currentSession.id,
-        invalidSequence,
-        invalidTurn,
-        attackerId,
-        targetId,
-        'SameHex',
-        undefined,
-        'Attacker and target occupy the same hex',
-      ),
-    );
-    return currentSession;
+  const invalidSameHexSession = invalidateSameHexAttack(
+    currentSession,
+    attackerId,
+    targetId,
+  );
+  if (invalidSameHexSession) {
+    return invalidSameHexSession;
   }
 
   for (const weaponId of weapons) {
     const weaponData = weaponDataMap.get(weaponId);
     if (!weaponData) {
-      // Producers (InteractiveSession / GameEngine.phases) now route through
-      // buildWeaponAttacks, which guarantees weaponAttacks is populated for
-      // every declared weapon. If this branch fires, the attack declaration
-      // is malformed (legacy test fixture, hand-crafted event, etc.). Skip
-      // the weapon rather than silently defaulting to 5 damage / 3 heat.
       logger.warn(
         `[resolveAttack] weaponAttacks payload missing entry for weapon "${weaponId}" on attacker "${attackerId}" — skipping. This indicates a malformed AttackDeclared event.`,
       );
@@ -108,12 +77,6 @@ export function resolveAttack(
     }
     const weaponName = weaponData.weaponName;
 
-    // Ammo consumption (per `wire-ammo-consumption`). For ammo-consuming
-    // weapons the resolver SHALL draw from the first non-empty matching
-    // bin, emit `AmmoConsumed`, and carry the consumed `ammoBinId` onto
-    // `AttackResolved` below. If no matching non-empty bin exists, emit
-    // `AttackInvalid { OutOfAmmo }` and skip the weapon — no heat, no
-    // damage, no `AttackResolved`.
     let ammoBinIdForResolved: string | null = null;
     const attackerStateForAmmo = currentSession.currentState.units[attackerId];
     const ammoState = attackerStateForAmmo?.ammoState ?? {};
@@ -162,9 +125,6 @@ export function resolveAttack(
     const sequence = currentSession.events.length;
     const { turn } = currentSession.currentState;
 
-    // Compute firing arc once per weapon — used for hit-location table on
-    // hit, and surfaced on `AttackResolved.attackerArc` on both hit and
-    // miss so UI / replay consumers can show the geometry of the attempt.
     const attackerState = currentSession.currentState.units[attackerId];
     const targetState = currentSession.currentState.units[targetId];
     const firingArc = calculateFiringArc(
@@ -330,18 +290,7 @@ export function resolveAttack(
       };
       const manifest = buildDefaultCriticalSlotManifest();
       const targetComponentDamage =
-        targetState.componentDamage ??
-        ({
-          engineHits: 0,
-          gyroHits: 0,
-          sensorHits: 0,
-          lifeSupport: 0,
-          cockpitHit: false,
-          actuators: {},
-          weaponsDestroyed: [],
-          heatSinksDestroyed: 0,
-          jumpJetsDestroyed: 0,
-        } as const);
+        targetState.componentDamage ?? buildDefaultComponentDamageState();
 
       for (const locationDamage of damageResult.result.locationDamages) {
         if (locationDamage.structureDamage > 0 && !locationDamage.destroyed) {
@@ -510,17 +459,11 @@ export function resolveAllAttacks(
   session: IGameSession,
   diceRoller: DiceRoller = rollDice,
 ): IGameSession {
-  const { turn } = session.currentState;
-
-  const attackEvents = session.events.filter(
-    (event) =>
-      event.type === GameEventType.AttackDeclared && event.turn === turn,
-  );
-
   let currentSession = session;
-  for (const attackEvent of attackEvents) {
-    currentSession = resolveAttack(currentSession, attackEvent, diceRoller);
+  for (const event of session.events) {
+    if (event.type !== GameEventType.AttackDeclared) continue;
+    if (event.turn !== session.currentState.turn) continue;
+    currentSession = resolveAttack(currentSession, event, diceRoller);
   }
-
   return currentSession;
 }

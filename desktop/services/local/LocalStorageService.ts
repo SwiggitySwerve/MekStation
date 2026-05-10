@@ -55,7 +55,7 @@ interface IStorageMetadata {
 /**
  * Cached storage entry
  */
-interface ICachedEntry<T = any> {
+interface ICachedEntry<T = unknown> {
   readonly data: T;
   readonly metadata: IStorageMetadata;
   readonly cachedAt: Date;
@@ -67,7 +67,7 @@ interface ICachedEntry<T = any> {
  */
 export class LocalStorageService implements IService {
   private readonly config: ILocalStorageConfig;
-  private readonly cache = new Map<string, ICachedEntry>();
+  private readonly cache = new Map<string, ICachedEntry<unknown>>();
   private readonly metadataCache = new Map<string, IStorageMetadata>();
   private initialized = false;
   private cleanupTimer: NodeJS.Timeout | null = null;
@@ -215,7 +215,7 @@ export class LocalStorageService implements IService {
             accessedAt: new Date(),
           });
         }
-        return Result.success(cached.data);
+        return Result.success(cached.data as T);
       }
 
       // Load from file
@@ -227,7 +227,7 @@ export class LocalStorageService implements IService {
 
         // Deserialize data
         const serialized = buffer.toString('utf8');
-        const data = JSON.parse(serialized);
+        const data = JSON.parse(serialized) as unknown;
 
         // Update metadata access time
         const metadata = this.metadataCache.get(key);
@@ -248,7 +248,7 @@ export class LocalStorageService implements IService {
           });
         }
 
-        return Result.success(data);
+        return Result.success(data as T);
       } catch (fileError) {
         // Type-safe error handling
         if (this.isFileNotFoundError(fileError)) {

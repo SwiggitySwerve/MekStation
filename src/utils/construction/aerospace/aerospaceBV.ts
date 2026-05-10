@@ -30,99 +30,25 @@ import {
   getPilotSkillModifier,
 } from '../../../types/validation/BattleValue';
 import { resolveEquipmentBV } from '../equipmentBVResolver';
+import {
+  calculateAerospaceAmmoBV,
+  sumWeaponBV,
+} from './aerospaceBVCalculations';
 
-// ============================================================================
-// Input / Output Types
-// ============================================================================
-
-/**
- * Single piece of aerospace-mounted equipment for BV purposes.
- * Uses raw location strings so both ASF/CF (NOSE/LEFT_WING/RIGHT_WING/AFT/FUSELAGE)
- * and Small Craft (NOSE/LEFT_SIDE/RIGHT_SIDE/AFT/HULL) inputs can be normalized.
- */
-export interface IAerospaceBVEquipment {
-  /** Canonical equipment ID used to look up catalog BV/heat */
-  readonly id: string;
-  /** Firing arc / internal location */
-  readonly location: AerospaceArc | string;
-}
-
-/**
- * Ammo entry used when computing ammo BV capped against matching weapon BV.
- */
-export interface IAerospaceBVAmmo {
-  readonly id: string;
-  /** BV value from catalog */
-  readonly bv: number;
-  /** Normalized weapon type this ammo serves (e.g. 'lrm-20') */
-  readonly weaponType: string;
-}
-
-/**
- * Minimal shape the aerospace BV calculator needs. This is intentionally
- * decoupled from the full Aerospace store/unit interface so it can be called
- * from construction code, the status bar, or parity harnesses with equal ease.
- */
-export interface IAerospaceBVInput {
-  readonly subType: AerospaceSubType;
-  readonly tonnage: number;
-  readonly structuralIntegrity: number;
-  readonly safeThrust: number;
-  readonly maxThrust: number;
-  readonly armorType: string;
-  readonly totalArmorPoints: number;
-  readonly equipment: readonly IAerospaceBVEquipment[];
-  readonly ammo?: readonly IAerospaceBVAmmo[];
-  /** BV of defensive-only equipment (ECM, active probe, chaff pod, etc.) */
-  readonly defensiveEquipmentBV?: number;
-  /** BV of offensive-only non-weapon equipment (TAG, Targeting Computer, C3, etc.) */
-  readonly offensiveEquipmentBV?: number;
-  /** Explosive location penalty total (stacking gauss/ammo penalties) */
-  readonly explosivePenalties?: number;
-  /** Pilot gunnery skill (0-8, default 4 baseline) */
-  readonly pilotGunnery?: number;
-  /** Pilot piloting skill (0-8, default 5 baseline) */
-  readonly pilotPiloting?: number;
-}
-
-/**
- * Per-arc weighted BV contribution breakdown.
- * `weight` is the fire-pool multiplier (1.0 / 0.5 / 0.25 / 1.0 for fuselage).
- */
-export interface IAerospaceArcContribution {
-  readonly arc: AerospaceArc;
-  readonly rawBV: number;
-  readonly weight: number;
-  readonly weightedBV: number;
-  readonly isPrimary: boolean;
-}
-
-/**
- * Complete aerospace BV breakdown, surfaced on the unit and displayed in the
- * status bar / breakdown dialog.
- */
-export interface IAerospaceBVBreakdown {
-  readonly armorBV: number;
-  readonly siBV: number;
-  readonly defensiveEquipmentBV: number;
-  readonly explosivePenalties: number;
-  readonly defensiveFactor: number;
-  readonly defensive: number;
-
-  readonly arcContributions: readonly IAerospaceArcContribution[];
-  readonly primaryArc: AerospaceArc | null;
-  readonly weaponFirePoolBV: number;
-  readonly fuselageWeaponBV: number;
-  readonly ammoBV: number;
-  readonly offensiveEquipmentBV: number;
-  readonly avgThrust: number;
-  readonly speedFactor: number;
-  readonly offensive: number;
-
-  readonly subTypeMultiplier: number;
-  readonly pilotMultiplier: number;
-  readonly final: number;
-}
+export type {
+  IAerospaceArcContribution,
+  IAerospaceBVAmmo,
+  IAerospaceBVBreakdown,
+  IAerospaceBVEquipment,
+  IAerospaceBVInput,
+} from './aerospaceBVTypes';
+import type {
+  IAerospaceArcContribution,
+  IAerospaceBVAmmo,
+  IAerospaceBVBreakdown,
+  IAerospaceBVEquipment,
+  IAerospaceBVInput,
+} from './aerospaceBVTypes';
 
 // ============================================================================
 // Arc-Pool Fire Weighting
@@ -234,72 +160,6 @@ function getOppositeArc(
  * Non-weapon equipment (heat sinks, crew gear) resolves to 0 and is silently
  * skipped — callers pass separate defensive/offensive equipment BV totals
  * through the dedicated input fields.
- */
-function sumWeaponBV(items: readonly IAerospaceBVEquipment[]): number {
-  let total = 0;
-  for (const item of items) {
-    const resolved = resolveEquipmentBV(item.id);
-    if (resolved.resolved) {
-      total += resolved.battleValue;
-    }
-  }
-  return total;
-}
-
-/**
- * Cap ammo BV against matching weapon BV, per TechManual.
- * The aerospace calculator reuses the same bucket-by-weapon-type approach
- * as the mech offensive calculator — weapons in ALL arcs count toward the
- * cap, since ammo serves any launcher regardless of firing arc.
- */
-function calculateAerospaceAmmoBV(
-  equipment: readonly IAerospaceBVEquipment[],
-  ammo: readonly IAerospaceBVAmmo[],
-): number {
-  if (ammo.length === 0) return 0;
-
-  // Bucket weapon BV by normalized equipment id so ammo entries can match.
-  const weaponBVByType: Record<string, number> = {};
-  for (const item of equipment) {
-    const resolved = resolveEquipmentBV(item.id);
-    if (!resolved.resolved) continue;
-    const key = item.id.toLowerCase();
-    weaponBVByType[key] = (weaponBVByType[key] ?? 0) + resolved.battleValue;
-  }
-
-  // Bucket ammo BV by weapon type.
-  const ammoBVByType: Record<string, number> = {};
-  for (const entry of ammo) {
-    const key = entry.weaponType.toLowerCase();
-    ammoBVByType[key] = (ammoBVByType[key] ?? 0) + entry.bv;
-  }
-
-  // Cap each bucket at the matching weapon BV total.
-  let total = 0;
-  for (const key of Object.keys(ammoBVByType)) {
-    const weaponBV = weaponBVByType[key] ?? 0;
-    if (weaponBV === 0) continue;
-    total += Math.min(ammoBVByType[key], weaponBV);
-  }
-  return total;
-}
-
-// ============================================================================
-// Defensive BV
-// ============================================================================
-
-/**
- * Compute the aerospace defensive BV components.
- *
- * armorBV = totalArmor × 2.5 × armorMultiplier
- * siBV = SI × 0.5 × tonnage
- * defensiveFactor = 1 + maxThrust / 10
- * defensive = (armorBV × smallCraftBonus + siBV + defEquipBV − explosive) × defensiveFactor
- *
- * Small Craft apply a 1.2× armor bonus inside the defensive block to reflect
- * their heavy armor tonnage allotment.
- *
- * @spec battle-value-system spec: Aerospace Defensive BV
  */
 export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
   armorBV: number;

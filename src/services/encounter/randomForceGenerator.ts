@@ -12,7 +12,6 @@
 
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { WeightedTable } from '@/simulation/core/WeightedTable';
-import { IEntity } from '@/types/core/IEntity';
 import { TechBase } from '@/types/enums/TechBase';
 import {
   ForcePosition,

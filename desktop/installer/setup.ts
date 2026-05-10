@@ -3,20 +3,34 @@
  *
  * This script provides automated installation and configuration
  * for the MekStation desktop application.
- *
- * Features:
- * - One-click installation
- * - Cross-platform compatibility
- * - Dependency management
- * - Configuration setup
- * - Data migration
- * - Auto-updater configuration
  */
 
 import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
 import * as os from 'os';
-import * as path from 'path';
+
+import {
+  checkSystemRequirements,
+  configureAutoStart,
+  configureAutoUpdates,
+  copyApplicationFiles,
+  createDesktopShortcut,
+  createInstallDirectory,
+  createStartMenuShortcut,
+  createUninstaller,
+  getDefaultConfig,
+  importExistingData,
+  readInstallationMetadata,
+  registerFileAssociations,
+  removeApplicationFiles,
+  removeAutoStart,
+  removeDesktopShortcut,
+  removeFileAssociations,
+  removeStartMenuShortcut,
+  removeUserData,
+  setupDataDirectory,
+  stopApplication,
+  writeInstallationMetadata,
+} from './setup.helpers';
 
 /**
  * Installation configuration
@@ -63,15 +77,21 @@ export class DesktopInstaller {
    * Install the MekStation desktop application
    */
   async install(config: Partial<IInstallConfig> = {}): Promise<IInstallResult> {
-    const installConfig = this.getDefaultConfig(config);
+    const installConfig = getDefaultConfig<IInstallConfig>(config, {
+      platform: this.platform,
+      userHome: this.userHome,
+    });
     const errors: string[] = [];
     const warnings: string[] = [];
 
     try {
-      console.log('🚀 Starting MekStation installation...');
+      console.log('Starting MekStation installation...');
 
-      // Check system requirements
-      const requirements = await this.checkSystemRequirements();
+      const requirements = await checkSystemRequirements({
+        architecture: this.architecture,
+        platform: this.platform,
+        userHome: this.userHome,
+      });
       if (!requirements.met) {
         return {
           success: false,
@@ -81,19 +101,13 @@ export class DesktopInstaller {
         };
       }
 
-      // Create installation directory
-      await this.createInstallDirectory(installConfig.installPath);
+      await createInstallDirectory(installConfig.installPath);
+      await copyApplicationFiles(installConfig.installPath);
+      await setupDataDirectory(installConfig.dataPath);
 
-      // Copy application files
-      await this.copyApplicationFiles(installConfig.installPath);
-
-      // Setup data directory
-      await this.setupDataDirectory(installConfig.dataPath);
-
-      // Import existing data if specified
       if (installConfig.importExistingData && installConfig.existingDataPath) {
         try {
-          await this.importExistingData(
+          await importExistingData(
             installConfig.existingDataPath,
             installConfig.dataPath,
           );
@@ -102,10 +116,12 @@ export class DesktopInstaller {
         }
       }
 
-      // Create shortcuts
       if (installConfig.createDesktopShortcut) {
         try {
-          await this.createDesktopShortcut(installConfig.installPath);
+          await createDesktopShortcut(installConfig.installPath, {
+            platform: this.platform,
+            userHome: this.userHome,
+          });
         } catch (error) {
           warnings.push(`Failed to create desktop shortcut: ${error}`);
         }
@@ -113,44 +129,42 @@ export class DesktopInstaller {
 
       if (installConfig.createStartMenuShortcut) {
         try {
-          await this.createStartMenuShortcut(installConfig.installPath);
+          await createStartMenuShortcut(installConfig.installPath);
         } catch (error) {
           warnings.push(`Failed to create start menu shortcut: ${error}`);
         }
       }
 
-      // Configure auto-start
       if (installConfig.enableAutoStart) {
         try {
-          await this.configureAutoStart(installConfig.installPath);
+          await configureAutoStart(installConfig.installPath);
         } catch (error) {
           warnings.push(`Failed to configure auto-start: ${error}`);
         }
       }
 
-      // Configure auto-updates
       if (installConfig.enableAutoUpdates) {
         try {
-          await this.configureAutoUpdates(installConfig.installPath);
+          await configureAutoUpdates(installConfig.installPath);
         } catch (error) {
           warnings.push(`Failed to configure auto-updates: ${error}`);
         }
       }
 
-      // Register file associations
       try {
-        await this.registerFileAssociations(installConfig.installPath);
+        await registerFileAssociations(installConfig.installPath);
       } catch (error) {
         warnings.push(`Failed to register file associations: ${error}`);
       }
 
-      // Create uninstaller
-      await this.createUninstaller(installConfig.installPath);
+      await createUninstaller(installConfig.installPath);
+      await writeInstallationMetadata(installConfig, {
+        architecture: this.architecture,
+        platform: this.platform,
+        userHome: this.userHome,
+      });
 
-      // Write installation metadata
-      await this.writeInstallationMetadata(installConfig);
-
-      console.log('✅ MekStation installation completed successfully!');
+      console.log('MekStation installation completed successfully!');
 
       return {
         success: true,
@@ -160,7 +174,7 @@ export class DesktopInstaller {
         installPath: installConfig.installPath,
       };
     } catch (error) {
-      console.error('❌ Installation failed:', error);
+      console.error('Installation failed:', error);
 
       return {
         success: false,
@@ -176,55 +190,50 @@ export class DesktopInstaller {
    */
   async uninstall(
     installPath: string,
-    removeUserData: boolean = false,
+    removeUserDataFlag: boolean = false,
   ): Promise<IInstallResult> {
     const errors: string[] = [];
     const warnings: string[] = [];
 
     try {
-      console.log('🗑️ Starting MekStation uninstallation...');
+      console.log('Starting MekStation uninstallation...');
 
-      // Read installation metadata
-      const metadata = await this.readInstallationMetadata(installPath);
+      const metadata =
+        await readInstallationMetadata<IInstallConfig>(installPath);
 
-      // Stop application if running
-      await this.stopApplication();
+      await stopApplication();
 
-      // Remove auto-start configuration
       try {
-        await this.removeAutoStart();
+        await removeAutoStart();
       } catch (error) {
         warnings.push(`Failed to remove auto-start: ${error}`);
       }
 
-      // Remove file associations
       try {
-        await this.removeFileAssociations();
+        await removeFileAssociations();
       } catch (error) {
         warnings.push(`Failed to remove file associations: ${error}`);
       }
 
-      // Remove shortcuts
       try {
-        await this.removeDesktopShortcut();
-        await this.removeStartMenuShortcut();
+        await removeDesktopShortcut();
+        await removeStartMenuShortcut();
       } catch (error) {
         warnings.push(`Failed to remove shortcuts: ${error}`);
       }
 
-      // Remove application files
-      await this.removeApplicationFiles(installPath);
+      await removeApplicationFiles(installPath);
 
-      // Remove user data if requested
-      if (removeUserData && metadata?.dataPath) {
+      const userDataPath = metadata?.dataPath ?? metadata?.config?.dataPath;
+      if (removeUserDataFlag && userDataPath) {
         try {
-          await this.removeUserData(metadata.dataPath);
+          await removeUserData(userDataPath);
         } catch (error) {
           warnings.push(`Failed to remove user data: ${error}`);
         }
       }
 
-      console.log('✅ MekStation uninstallation completed successfully!');
+      console.log('MekStation uninstallation completed successfully!');
 
       return {
         success: true,
@@ -233,7 +242,7 @@ export class DesktopInstaller {
         warnings,
       };
     } catch (error) {
-      console.error('❌ Uninstallation failed:', error);
+      console.error('Uninstallation failed:', error);
 
       return {
         success: false,
@@ -242,355 +251,6 @@ export class DesktopInstaller {
         warnings,
       };
     }
-  }
-
-  /**
-   * Check system requirements
-   */
-  private async checkSystemRequirements(): Promise<{
-    met: boolean;
-    errors: string[];
-  }> {
-    const errors: string[] = [];
-
-    // Check operating system
-    if (!['win32', 'darwin', 'linux'].includes(this.platform)) {
-      errors.push(`Unsupported operating system: ${this.platform}`);
-    }
-
-    // Check architecture
-    if (!['x64', 'arm64', 'ia32'].includes(this.architecture)) {
-      errors.push(`Unsupported architecture: ${this.architecture}`);
-    }
-
-    // Check Node.js version (for development)
-    try {
-      const nodeVersion = process.version;
-      const majorVersion = parseInt(nodeVersion.substring(1).split('.')[0]);
-      if (majorVersion < 16) {
-        errors.push(
-          `Node.js version ${nodeVersion} is too old. Minimum required: 16.0.0`,
-        );
-      }
-    } catch (error) {
-      // Node.js not available (normal for production)
-    }
-
-    // Check available disk space
-    try {
-      const stats = await fs.stat(this.userHome);
-      // This is a simplified check - in a real implementation,
-      // you would check actual available disk space
-      if (!stats.isDirectory()) {
-        errors.push('User home directory is not accessible');
-      }
-    } catch (error) {
-      errors.push('Cannot access user home directory');
-    }
-
-    return { met: errors.length === 0, errors };
-  }
-
-  /**
-   * Get default installation configuration
-   */
-  private getDefaultConfig(config: Partial<IInstallConfig>): IInstallConfig {
-    const defaultInstallPath = this.getDefaultInstallPath();
-    const defaultDataPath = this.getDefaultDataPath();
-
-    return {
-      installPath: config.installPath || defaultInstallPath,
-      dataPath: config.dataPath || defaultDataPath,
-      createDesktopShortcut: config.createDesktopShortcut ?? true,
-      createStartMenuShortcut: config.createStartMenuShortcut ?? true,
-      enableAutoStart: config.enableAutoStart ?? false,
-      enableAutoUpdates: config.enableAutoUpdates ?? true,
-      importExistingData: config.importExistingData ?? false,
-      existingDataPath: config.existingDataPath,
-    };
-  }
-
-  /**
-   * Get default installation path
-   */
-  private getDefaultInstallPath(): string {
-    switch (this.platform) {
-      case 'win32':
-        return path.join(
-          process.env.PROGRAMFILES || 'C:\\Program Files',
-          'MekStation',
-        );
-      case 'darwin':
-        return path.join('/Applications', 'MekStation.app');
-      case 'linux':
-        return path.join('/opt', 'mekstation');
-      default:
-        return path.join(this.userHome, 'MekStation');
-    }
-  }
-
-  /**
-   * Get default data path
-   */
-  private getDefaultDataPath(): string {
-    switch (this.platform) {
-      case 'win32':
-        return path.join(
-          process.env.APPDATA || path.join(this.userHome, 'AppData', 'Roaming'),
-          'MekStation',
-        );
-      case 'darwin':
-        return path.join(
-          this.userHome,
-          'Library',
-          'Application Support',
-          'MekStation',
-        );
-      case 'linux':
-        return path.join(this.userHome, '.mekstation');
-      default:
-        return path.join(this.userHome, '.mekstation');
-    }
-  }
-
-  /**
-   * Create installation directory
-   */
-  private async createInstallDirectory(installPath: string): Promise<void> {
-    await fs.mkdir(installPath, { recursive: true });
-    console.log(`📁 Created installation directory: ${installPath}`);
-  }
-
-  /**
-   * Copy application files
-   */
-  private async copyApplicationFiles(installPath: string): Promise<void> {
-    // In a real implementation, this would copy the actual application files
-    // For now, we'll create a placeholder structure
-    const appFiles = [
-      'main.js',
-      'preload.js',
-      'package.json',
-      'assets/icons/icon.png',
-      'assets/icons/icon.ico',
-      'assets/icons/icon.icns',
-    ];
-
-    for (const file of appFiles) {
-      const targetPath = path.join(installPath, file);
-      await fs.mkdir(path.dirname(targetPath), { recursive: true });
-
-      // Create placeholder file
-      await fs.writeFile(targetPath, `// MekStation - ${file}\n`);
-    }
-
-    console.log('📦 Application files copied successfully');
-  }
-
-  /**
-   * Setup data directory
-   */
-  private async setupDataDirectory(dataPath: string): Promise<void> {
-    await fs.mkdir(dataPath, { recursive: true });
-    await fs.mkdir(path.join(dataPath, 'units'), { recursive: true });
-    await fs.mkdir(path.join(dataPath, 'backups'), { recursive: true });
-    await fs.mkdir(path.join(dataPath, 'logs'), { recursive: true });
-
-    console.log(`📊 Data directory setup complete: ${dataPath}`);
-  }
-
-  /**
-   * Import existing data
-   */
-  private async importExistingData(
-    sourcePath: string,
-    targetPath: string,
-  ): Promise<void> {
-    // This would implement data migration logic
-    console.log(
-      `📥 Importing existing data from ${sourcePath} to ${targetPath}`,
-    );
-    // Implementation would copy and migrate data files
-  }
-
-  /**
-   * Create desktop shortcut
-   */
-  private async createDesktopShortcut(installPath: string): Promise<void> {
-    const desktopPath = path.join(this.userHome, 'Desktop');
-
-    switch (this.platform) {
-      case 'win32':
-        // Create .lnk file on Windows
-        const shortcutPath = path.join(desktopPath, 'MekStation.lnk');
-        // Implementation would create actual Windows shortcut
-        break;
-      case 'darwin':
-        // Create symlink on macOS
-        const symlinkPath = path.join(desktopPath, 'MekStation.app');
-        await fs.symlink(installPath, symlinkPath);
-        break;
-      case 'linux':
-        // Create .desktop file on Linux
-        const desktopFilePath = path.join(desktopPath, 'mekstation.desktop');
-        const desktopFileContent = `[Desktop Entry]
-Name=MekStation
-Comment=BattleTech Unit Editor
-Exec=${path.join(installPath, 'mekstation')}
-Icon=${path.join(installPath, 'assets/icons/icon.png')}
-Terminal=false
-Type=Application
-Categories=Game;
-`;
-        await fs.writeFile(desktopFilePath, desktopFileContent);
-        break;
-    }
-
-    console.log('🖥️ Desktop shortcut created');
-  }
-
-  /**
-   * Create start menu shortcut
-   */
-  private async createStartMenuShortcut(installPath: string): Promise<void> {
-    // Platform-specific start menu shortcut creation
-    console.log('📋 Start menu shortcut created');
-  }
-
-  /**
-   * Configure auto-start
-   */
-  private async configureAutoStart(installPath: string): Promise<void> {
-    // Platform-specific auto-start configuration
-    console.log('🔄 Auto-start configured');
-  }
-
-  /**
-   * Configure auto-updates
-   */
-  private async configureAutoUpdates(installPath: string): Promise<void> {
-    const configPath = path.join(installPath, 'config.json');
-    const config = {
-      autoUpdates: {
-        enabled: true,
-        checkInterval: 3600000, // 1 hour
-        channel: 'stable',
-      },
-    };
-
-    await fs.writeFile(configPath, JSON.stringify(config, null, 2));
-    console.log('🔄 Auto-updates configured');
-  }
-
-  /**
-   * Register file associations
-   */
-  private async registerFileAssociations(installPath: string): Promise<void> {
-    // Register .mtf, .bte file associations
-    console.log('📄 File associations registered');
-  }
-
-  /**
-   * Create uninstaller
-   */
-  private async createUninstaller(installPath: string): Promise<void> {
-    const uninstallerPath = path.join(installPath, 'uninstall.js');
-    const uninstallerContent = `// MekStation Uninstaller
-const { DesktopInstaller } = require('./installer/setup');
-const installer = new DesktopInstaller();
-installer.uninstall('${installPath}');
-`;
-
-    await fs.writeFile(uninstallerPath, uninstallerContent);
-    console.log('🗑️ Uninstaller created');
-  }
-
-  /**
-   * Write installation metadata
-   */
-  private async writeInstallationMetadata(
-    config: IInstallConfig,
-  ): Promise<void> {
-    const metadataPath = path.join(config.installPath, 'install.json');
-    const metadata = {
-      version: '1.0.0',
-      installedAt: new Date().toISOString(),
-      platform: this.platform,
-      architecture: this.architecture,
-      config,
-    };
-
-    await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
-    console.log('📝 Installation metadata written');
-  }
-
-  /**
-   * Read installation metadata
-   */
-  private async readInstallationMetadata(installPath: string): Promise<any> {
-    try {
-      const metadataPath = path.join(installPath, 'install.json');
-      const data = await fs.readFile(metadataPath, 'utf8');
-      return JSON.parse(data);
-    } catch (error) {
-      return null;
-    }
-  }
-
-  /**
-   * Stop application if running
-   */
-  private async stopApplication(): Promise<void> {
-    // Implementation would stop the running application
-    console.log('⏹️ Application stopped');
-  }
-
-  /**
-   * Remove auto-start configuration
-   */
-  private async removeAutoStart(): Promise<void> {
-    // Platform-specific auto-start removal
-    console.log('🔄 Auto-start removed');
-  }
-
-  /**
-   * Remove file associations
-   */
-  private async removeFileAssociations(): Promise<void> {
-    // Remove file associations
-    console.log('📄 File associations removed');
-  }
-
-  /**
-   * Remove desktop shortcut
-   */
-  private async removeDesktopShortcut(): Promise<void> {
-    // Remove desktop shortcut
-    console.log('🖥️ Desktop shortcut removed');
-  }
-
-  /**
-   * Remove start menu shortcut
-   */
-  private async removeStartMenuShortcut(): Promise<void> {
-    // Remove start menu shortcut
-    console.log('📋 Start menu shortcut removed');
-  }
-
-  /**
-   * Remove application files
-   */
-  private async removeApplicationFiles(installPath: string): Promise<void> {
-    await fs.rm(installPath, { recursive: true, force: true });
-    console.log('📦 Application files removed');
-  }
-
-  /**
-   * Remove user data
-   */
-  private async removeUserData(dataPath: string): Promise<void> {
-    await fs.rm(dataPath, { recursive: true, force: true });
-    console.log('📊 User data removed');
   }
 }
 
@@ -608,7 +268,7 @@ if (require.main === module) {
         process.exit(result.success ? 0 : 1);
       });
       break;
-    case 'uninstall':
+    case 'uninstall': {
       const installPath = process.argv[3];
       if (!installPath) {
         console.error('Install path required for uninstall');
@@ -619,6 +279,7 @@ if (require.main === module) {
         process.exit(result.success ? 0 : 1);
       });
       break;
+    }
     default:
       console.log('Usage: node setup.js [install|uninstall] [install-path]');
       process.exit(1);

@@ -35,16 +35,9 @@
 
 import type { WebSocket as WsWebSocket } from 'ws';
 
-import type { IAdaptedUnit } from '@/engine/types';
-import type {
-  IGameEvent,
-  IGameState,
-  IGameUnit,
-} from '@/types/gameplay/GameSessionInterfaces';
-import type { IHexGrid } from '@/types/gameplay/HexGridInterfaces';
-import type { IMatchSeat } from '@/types/multiplayer/Lobby';
+import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
-import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
 import {
   publishCombatOutcome,
@@ -52,7 +45,6 @@ import {
 } from '@/engine/combatOutcomeBus';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import {
-  answerReconnectRequest,
   type IGameSessionChannel,
   type IReconnectRequestEnvelope,
 } from '@/lib/p2p/gameSessionChannel';
@@ -60,44 +52,46 @@ import {
   matchLogStorage,
   type MatchLogStorage,
 } from '@/lib/p2p/matchLogStorage';
-import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
-  GameSide,
-  type IGameSession,
-} from '@/types/gameplay/GameSessionInterfaces';
-import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
-import {
-  intentHasForbiddenDiceField,
   type IIntent,
   type IEventMessage,
-  type ILobbyUpdated,
   type IServerMessage,
   nowIso,
 } from '@/types/multiplayer/Protocol';
-import { deriveState } from '@/utils/gameplay/gameState';
 
-import type { IMatchMeta, IMatchStore } from './IMatchStore';
+import type { IMatchStore } from './IMatchStore';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { CryptoDiceRoller, type IServerDiceRoller } from './CryptoDiceRoller';
-import { filterEventForPlayer, FogOfWarVisibilityCache } from './fogOfWar';
-import {
-  canLaunch,
-  leaveSeat,
-  LobbyStateError,
-  occupySeat,
-  reassignSeat,
-  setAiSlot,
-  setHumanSlot,
-  setReady,
-} from './lobby/lobbyStateMachine';
-import {
-  PendingPeerTracker,
-  type IPendingPeerEntry,
-} from './reconnection/PendingPeerTracker';
-import { streamReplay } from './reconnection/replayStream';
-import { RollCapture, SeededDiceRoller } from './RollCapture';
+import { FogOfWarVisibilityCache } from './fogOfWar';
+import { PendingPeerTracker } from './reconnection/PendingPeerTracker';
+import { RollCapture } from './RollCapture';
 import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
+import {
+  buildHostSession,
+  type IMatchHostBootstrap,
+} from './ServerMatchHostBootstrap';
+import { drainNewEvents } from './ServerMatchHostEngineDispatch';
+import {
+  broadcastEvent as broadcastEventWithContext,
+  persistInitialEvents,
+  stampRollsOnNewEvents,
+} from './ServerMatchHostEvents';
+import { handleIntent as handleIntentWithContext } from './ServerMatchHostIntent';
+import { handleLobbyIntent as handleLobbyIntentWithContext } from './ServerMatchHostLobbyIntents';
+import {
+  maybeMarkPlayerPending,
+  maybeResume,
+  type IServerMatchHostReconnectContext,
+} from './ServerMatchHostReconnectLifecycle';
+import {
+  bindReconnectChannel,
+  getEventsFromSeq,
+  handleReconnectRequest,
+  handleSessionJoin,
+  type IServerMatchHostReplayContext,
+  sendReplay,
+} from './ServerMatchHostReplay';
 import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
 type ReconnectMetadataReader = Pick<MatchLogStorage, 'getMatchMetadata'>;
@@ -121,23 +115,7 @@ export type { IMatchSocket } from './ServerMatchSocketTypes';
  * session, the production REST `POST /matches` route would pass the
  * factory blob.
  */
-export interface IMatchHostBootstrap {
-  readonly mapRadius: number;
-  readonly turnLimit: number;
-  readonly random: SeededRandom;
-  readonly grid: IHexGrid;
-  readonly playerUnits: readonly IAdaptedUnit[];
-  readonly opponentUnits: readonly IAdaptedUnit[];
-  readonly gameUnits: readonly IGameUnit[];
-  /**
-   * Per `add-authoritative-roll-arbitration` (Wave 3a): optional debug
-   * seed for reproducing bug reports. When set, the server replaces the
-   * crypto-backed dice roller with a `SeededRandom`-backed one so two
-   * runs with the same seed produce identical events. Off by default —
-   * production never reads this field.
-   */
-  readonly diceSeed?: number;
-}
+export type { IMatchHostBootstrap } from './ServerMatchHostBootstrap';
 
 // =============================================================================
 // Host
@@ -200,14 +178,6 @@ export class ServerMatchHost {
   private currentCapture: RollCapture;
 
   /**
-   * Per Wave 3a: stable `D6Roller` callback handed to
-   * `InteractiveSession` at construction. Each invocation routes through
-   * `currentCapture` (which the host swaps per-intent), so the engine
-   * doesn't need to know rolls are being recorded.
-   */
-  private readonly dispatchD6Roller: D6Roller;
-
-  /**
    * Construct directly from an existing `InteractiveSession`. Used by
    * tests + by the registry once it has a session ready.
    *
@@ -241,7 +211,6 @@ export class ServerMatchHost {
     // Stable callback identity — engine holds this reference for the
     // lifetime of the match. Routes every d6 through whatever
     // `currentCapture` points at right now.
-    this.dispatchD6Roller = () => this.currentCapture.d6();
     // The engine appends `GameCreated` + `GameStarted` events during
     // construction. Persist them BEFORE accepting any intents so the
     // store + the in-memory session never drift.
@@ -265,33 +234,8 @@ export class ServerMatchHost {
     store: IMatchStore,
     bootstrap: IMatchHostBootstrap,
   ): ServerMatchHost {
-    // Build the source roller first so the indirection callback can
-    // close over a known instance even before the host exists.
-    const sourceRoller: IServerDiceRoller =
-      bootstrap.diceSeed != null
-        ? new SeededDiceRoller(new SeededRandom(bootstrap.diceSeed))
-        : new CryptoDiceRoller();
-
-    // Mutable capture pointer shared between the engine callback and the
-    // host instance. The host re-assigns this between intents; the
-    // callback always reads the current value.
-    const captureRef = { current: new RollCapture(sourceRoller) };
-    const engineCallback: D6Roller = () => captureRef.current.d6();
-
-    const session = new InteractiveSession(
-      bootstrap.mapRadius,
-      bootstrap.turnLimit,
-      bootstrap.random,
-      bootstrap.grid,
-      bootstrap.playerUnits,
-      bootstrap.opponentUnits,
-      bootstrap.gameUnits,
-      {},
-      engineCallback,
-    );
-
+    const { session, sourceRoller, captureRef } = buildHostSession(bootstrap);
     const host = new ServerMatchHost(matchId, store, session, sourceRoller);
-    // Hand the host the same captureRef so it can swap between intents.
     host.adoptExternalCaptureRef(captureRef);
     return host;
   }
@@ -371,130 +315,40 @@ export class ServerMatchHost {
    * `MatchPaused` (idempotent — broadcast only on first pending peer).
    */
   private async maybeMarkPlayerPending(playerId: string): Promise<void> {
-    let meta;
-    try {
-      meta = await this.store.getMatchMeta(this.matchId);
-    } catch {
-      return;
-    }
-    if (meta.status !== 'active') return;
-    const seats = meta.seats ?? [];
-    const seat = seats.find(
-      (s) => s.kind === 'human' && s.occupant?.playerId === playerId,
-    );
-    if (!seat) return;
-    // Tracker idempotency means this is safe to call repeatedly.
-    this.pendingPeers.markPending(playerId, seat.slotId, (entry) =>
-      this.handleGraceTimeout(entry),
-    );
-    this.broadcastPauseSnapshot();
+    await maybeMarkPlayerPending(this.reconnectContext(), playerId);
   }
 
-  /**
-   * Wave 4: timer handler. Broadcasts SeatTimedOut so the host's UI
-   * can prompt for diagnostics, then aborts the match as a draw. The
-   * terminal `GameEnded(reason: "aborted")` event is persisted before
-   * clients see it so reload/reconnect cannot resurrect a stale match.
-   */
-  private handleGraceTimeout(entry: IPendingPeerEntry): void {
-    const msg: IServerMessage = {
-      kind: 'SeatTimedOut',
-      matchId: this.matchId,
-      ts: nowIso(),
-      slotId: entry.slotId,
-      playerId: entry.playerId,
-    };
-    this.broadcast(msg);
-    void this.abortExpiredPendingMatch();
-  }
-
-  /**
-   * Wave 4: broadcast the current `MatchPaused` snapshot iff at least
-   * one peer is pending. Sets `isPaused=true` so the engine guard
-   * starts rejecting mutating intents.
-   */
-  private broadcastPauseSnapshot(): void {
-    const pending = this.pendingPeers.getAllPending();
-    if (pending.length === 0) return;
-    if (!this.isPaused) {
-      this.isPaused = true;
-    }
-    const nextExpiry = Math.min(...pending.map((p) => p.expiresAt));
-    const remainingMs = Math.max(0, nextExpiry - Date.now());
-    const msg: IServerMessage = {
-      kind: 'MatchPaused',
-      matchId: this.matchId,
-      ts: nowIso(),
-      reason: 'peer-pending',
-      pendingSlots: pending.map((p) => p.slotId),
-      graceRemainingMs: remainingMs,
-      pendingExpiresAtMs: nextExpiry,
-    };
-    this.broadcast(msg);
-  }
-
-  private async abortExpiredPendingMatch(): Promise<void> {
-    if (this.closed) return;
-    this.pendingPeers.clearAll();
-    this.isPaused = false;
-    this.installFreshCapture();
-    try {
-      this.session.abortMatch();
-    } catch (e) {
-      const err: IServerMessage = {
-        kind: 'Error',
-        matchId: this.matchId,
-        ts: nowIso(),
-        code: 'INVALID_INTENT',
-        reason:
-          e instanceof Error ? e.message : 'Reconnect grace timeout rejected',
-      };
-      this.broadcast(err);
-      return;
-    }
-
-    const newEvents = this.stampRollsOnNewEvents(this.drainNewEvents());
-    for (const event of newEvents) {
-      try {
-        await this.store.appendEvent(this.matchId, event);
-      } catch (e) {
-        const err: IServerMessage = {
-          kind: 'Error',
-          matchId: this.matchId,
-          ts: nowIso(),
-          code: 'STORE_FAILURE',
-          reason: e instanceof Error ? e.message : 'Store append failed',
-        };
-        this.broadcast(err);
-        await this.closeMatch();
-        return;
-      }
-      await this.broadcastEvent({
-        kind: 'Event',
-        matchId: this.matchId,
-        ts: nowIso(),
-        event,
-      });
-    }
-
-    this.tryPublishOutcome();
-    await this.closeMatch();
-  }
-
-  /**
-   * Wave 4: clear the pause if no peers remain pending. Broadcasts
-   * `MatchResumed` once on the transition. Idempotent.
-   */
   private maybeResume(): void {
-    if (!this.isPaused) return;
-    if (this.pendingPeers.size() > 0) return;
-    this.isPaused = false;
-    const msg: IServerMessage = {
-      kind: 'MatchResumed',
+    maybeResume({
       matchId: this.matchId,
-      ts: nowIso(),
+      isPaused: this.isPaused,
+      pendingPeers: this.pendingPeers,
+      setPaused: (paused) => {
+        this.isPaused = paused;
+      },
+      broadcast: (message) => this.broadcast(message),
+    });
+  }
+
+  private reconnectContext(): IServerMatchHostReconnectContext {
+    return {
+      matchId: this.matchId,
+      store: this.store,
+      session: this.session,
+      pendingPeers: this.pendingPeers,
+      closed: this.closed,
+      isPaused: this.isPaused,
+      setPaused: (paused) => {
+        this.isPaused = paused;
+      },
+      broadcast: (message) => this.broadcast(message),
+      broadcastEvent: (message) => this.broadcastEvent(message),
+      closeMatch: () => this.closeMatch(),
+      installFreshCapture: () => this.installFreshCapture(),
+      drainNewEvents: () => this.drainNewEvents(),
+      stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
+      tryPublishOutcome: () => this.tryPublishOutcome(),
     };
-    this.broadcast(msg);
   }
 
   /**
@@ -523,33 +377,13 @@ export class ServerMatchHost {
     fromSeq = 0,
     playerId?: string,
   ): Promise<void> {
-    const events =
-      playerId != null
-        ? await this.getReplayEventsForPlayer(playerId, fromSeq)
-        : await this.getEventsFromSeq(fromSeq);
-    const frames = streamReplay(this.matchId, events, fromSeq);
-    this.safeSend(socket, frames.start);
-    for (const chunk of frames.chunks) {
-      this.safeSend(socket, chunk);
-    }
-    this.safeSend(socket, frames.end);
+    await sendReplay(this.replayContext(), socket, fromSeq, playerId);
   }
 
-  /**
-   * Wave 4 reconnect API: expose this host's authoritative in-memory
-   * event log slice through the store abstraction. `seq` is inclusive,
-   * matching `IMatchStore.getEvents(matchId, fromSeq?)` so callers that
-   * track a high-water mark should pass `lastSeq + 1`.
-   */
   async getEventsFromSeq(seq: number): Promise<readonly IGameEvent[]> {
-    return this.store.getEvents(this.matchId, seq);
+    return getEventsFromSeq(this.replayContext(), seq);
   }
 
-  /**
-   * P2P reconnect-channel bridge for the local-host path. The caller
-   * owns channel creation; the host owns the authorization + replay
-   * decision so the same logic is testable without a live WebRTC room.
-   */
   async handleReconnectRequest(
     request: IReconnectRequestEnvelope,
     channel: Pick<
@@ -560,17 +394,12 @@ export class ServerMatchHost {
     >,
     metadataReader: ReconnectMetadataReader = matchLogStorage,
   ): Promise<void> {
-    const metadata =
-      request.matchId === this.matchId
-        ? await metadataReader.getMatchMetadata(this.matchId)
-        : null;
-
-    await answerReconnectRequest(request, {
-      matchId: this.matchId,
-      metadata,
+    await handleReconnectRequest(
+      this.replayContext(),
+      request,
       channel,
-      getEventsFromSeq: (seq) => this.getEventsFromSeq(seq),
-    });
+      metadataReader,
+    );
   }
 
   bindReconnectChannel(
@@ -583,113 +412,32 @@ export class ServerMatchHost {
     >,
     metadataReader: ReconnectMetadataReader = matchLogStorage,
   ): () => void {
-    return channel.onReconnectRequest((request) => {
-      void this.handleReconnectRequest(request, channel, metadataReader);
-    });
+    return bindReconnectChannel(this.replayContext(), channel, metadataReader);
   }
 
-  private async getReplayEventsForPlayer(
-    playerId: string,
-    fromSeq: number,
-  ): Promise<readonly IGameEvent[]> {
-    const meta = await this.store.getMatchMeta(this.matchId);
-    if (!meta.config.fogOfWar) {
-      return this.getEventsFromSeq(fromSeq);
-    }
-
-    const allEvents = await this.getEventsFromSeq(0);
-    const visible: IGameEvent[] = [];
-    const prefix: IGameEvent[] = [];
-    const replayCache = new FogOfWarVisibilityCache();
-    const gameId = this.session.getSession().id;
-
-    for (const event of allEvents) {
-      prefix.push(event);
-      if (event.sequence < fromSeq) continue;
-      const state = this.withVisibilityAssignments(
-        deriveState(gameId, prefix),
-        meta,
-      );
-      const filtered = filterEventForPlayer(event, playerId, state, {
-        config: meta.config,
-        cache: replayCache,
-      });
-      if (filtered) {
-        visible.push(filtered);
-      }
-    }
-
-    return visible;
-  }
-
-  /**
-   * Wave 4: full reconnect handshake. Called by the upgrade handler
-   * after `attachSocket` for a SessionJoin envelope. Streams missed
-   * events (via `sendReplay`), then sends a fresh `LobbyUpdated`
-   * snapshot if the match is still in lobby/active so the client can
-   * paint without waiting for the next state change. Finally, if the
-   * incoming socket cleared the last pending peer, we broadcast
-   * `MatchResumed`.
-   *
-   * @param socket   The attached socket (already passed through
-   *                 `attachSocket`).
-   * @param playerId Verified player identity (from upgrade-time auth).
-   * @param lastSeq  Optional client high-water mark. Server streams
-   *                 events with sequence > lastSeq. Omitted ⇒ full
-   *                 history (sequence >= 0).
-   */
   async handleSessionJoin(
     socket: IMatchSocket,
     playerId: string,
     lastSeq?: number,
     requestedMatchId = this.matchId,
   ): Promise<void> {
-    if (requestedMatchId !== this.matchId) {
-      this.safeSend(socket, {
-        kind: 'Error',
-        matchId: this.matchId,
-        ts: nowIso(),
-        code: 'UNKNOWN_MATCH',
-        reason: 'wrong-match',
-      });
-      return;
-    }
+    await handleSessionJoin(
+      this.replayContext(),
+      socket,
+      playerId,
+      lastSeq,
+      requestedMatchId,
+    );
+  }
 
-    // `lastSeq` is the highest seq the client has SEEN. We stream
-    // strictly newer events, so request `lastSeq + 1`. The store's
-    // `getEvents(fromSeq)` returns sequence >= fromSeq, which combined
-    // with the +1 yields the strictly-greater semantics the proposal
-    // calls for.
-    const requestFrom = lastSeq != null ? lastSeq + 1 : 0;
-    await this.sendReplay(socket, requestFrom, playerId);
-
-    // Send a current LobbyUpdated snapshot so a pre-active reconnect
-    // (or any active client that wants to confirm seat state) doesn't
-    // have to wait for the next mutation. We always send it when meta
-    // exposes seats — costs one envelope and keeps clients honest.
-    let meta;
-    try {
-      meta = await this.store.getMatchMeta(this.matchId);
-    } catch {
-      return;
-    }
-    const seats = meta.seats ?? [];
-    if (seats.length > 0) {
-      const update: ILobbyUpdated = {
-        kind: 'LobbyUpdated',
-        matchId: this.matchId,
-        ts: nowIso(),
-        seats: seats as IMatchSeat[],
-        status: meta.status,
-        hostPlayerId: meta.hostPlayerId,
-      };
-      this.safeSend(socket, update);
-    }
-
-    // If the reconnecting socket cleared our last pending peer
-    // (already cleared on attachSocket above), broadcast resume.
-    this.maybeResume();
-    void playerId;
+  private replayContext(): IServerMatchHostReplayContext {
+    return {
+      matchId: this.matchId,
+      store: this.store,
+      session: this.session,
+      safeSend: (socket, message) => this.safeSend(socket, message),
+      maybeResume: () => this.maybeResume(),
+    };
   }
 
   // ---------------------------------------------------------------------------
@@ -702,127 +450,25 @@ export class ServerMatchHost {
    * them lets tests assert without reaching into the socket mock.
    */
   async handleIntent(envelope: IIntent): Promise<readonly IServerMessage[]> {
-    const broadcasts: IServerMessage[] = [];
-
-    if (this.closed) {
-      const err: IServerMessage = {
-        kind: 'Error',
+    return handleIntentWithContext(
+      {
         matchId: this.matchId,
-        ts: nowIso(),
-        code: 'UNKNOWN_MATCH',
-        reason: 'Match is closed',
-      };
-      this.broadcast(err);
-      broadcasts.push(err);
-      return broadcasts;
-    }
-
-    // Wave 3b: split lobby intents off the engine path. Lobby intents
-    // mutate `meta.seats` and emit `LobbyUpdated` envelopes; they never
-    // touch the `InteractiveSession`. Routing here keeps the engine
-    // dispatcher's switch statement (Wave 1 + 3a territory) unchanged.
-    if (isLobbyIntentKind(envelope.intent.kind)) {
-      const lobbyMessages = await this.handleLobbyIntent(envelope);
-      for (const m of lobbyMessages) broadcasts.push(m);
-      return broadcasts;
-    }
-
-    // Wave 4: while paused, engine-mutating intents are rejected with
-    // MATCH_PAUSED. Lobby intents bypass this gate above (they're
-    // routed before we land here), so the host can still call
-    // MarkSeatAi/ForfeitMatch to break out of the paused state.
-    if (this.isPaused) {
-      const err: IServerMessage = {
-        kind: 'Error',
-        matchId: this.matchId,
-        ts: nowIso(),
-        code: 'MATCH_PAUSED',
-        reason: 'Match is paused waiting for a peer to reconnect',
-      };
-      this.broadcast(err);
-      broadcasts.push(err);
-      return broadcasts;
-    }
-
-    // Per `add-authoritative-roll-arbitration` (Wave 3a): defense in
-    // depth. The Protocol's IntentSchema already rejects payloads with
-    // dice fields at the parse step, but a hand-crafted `IIntent`
-    // bypassing the schema (e.g., another server module synthesizing an
-    // intent) MUST still be refused here. We log + reply with
-    // INVALID_INTENT and do NOT touch the engine.
-    if (intentHasForbiddenDiceField(envelope.intent)) {
-      const err: IServerMessage = {
-        kind: 'Error',
-        matchId: this.matchId,
-        ts: nowIso(),
-        code: 'INVALID_INTENT',
-        reason: 'client-rolls-forbidden',
-      };
-      this.broadcast(err);
-      broadcasts.push(err);
-      return broadcasts;
-    }
-
-    // Per Wave 3a: install a fresh `RollCapture` so every d6 the engine
-    // consumes during `dispatchToEngine` lands in a buffer scoped to
-    // this intent. Stamped onto the resulting events below.
-    this.installFreshCapture();
-
-    try {
-      this.dispatchToEngine(envelope.intent);
-    } catch (e) {
-      const err: IServerMessage = {
-        kind: 'Error',
-        matchId: this.matchId,
-        ts: nowIso(),
-        code: 'INVALID_INTENT',
-        reason: e instanceof Error ? e.message : 'Engine rejected intent',
-      };
-      this.broadcast(err);
-      broadcasts.push(err);
-      return broadcasts;
-    }
-
-    // Drain any new events the engine produced this tick and persist +
-    // broadcast each one IN ORDER. Persisting first means a store
-    // failure shuts down the match before clients see a phantom event.
-    const newEvents = this.stampRollsOnNewEvents(this.drainNewEvents());
-    for (const event of newEvents) {
-      try {
-        await this.store.appendEvent(this.matchId, event);
-      } catch (e) {
-        const err: IServerMessage = {
-          kind: 'Error',
-          matchId: this.matchId,
-          ts: nowIso(),
-          code: 'STORE_FAILURE',
-          reason: e instanceof Error ? e.message : 'Store append failed',
-        };
-        this.broadcast(err);
-        broadcasts.push(err);
-        await this.closeMatch();
-        return broadcasts;
-      }
-      const envelopeOut: IServerMessage = {
-        kind: 'Event',
-        matchId: this.matchId,
-        ts: nowIso(),
-        event,
-      };
-      await this.broadcastEvent(envelopeOut);
-      broadcasts.push(envelopeOut);
-    }
-
-    // Wave 5: belt-and-suspenders publish. The engine's
-    // `tryFinalizeAndPublish` already fires the bus event from inside
-    // the relevant `InteractiveSession` methods, so this is normally a
-    // no-op (the engine guard short-circuits and our host-side guard
-    // also short-circuits). The host-side path matters when the engine
-    // path is bypassed — e.g., a direct external mutation that ends the
-    // game without traversing `concede`/`advancePhase`. Idempotent.
-    this.tryPublishOutcome();
-
-    return broadcasts;
+        store: this.store,
+        session: this.session,
+        closed: this.closed,
+        isPaused: this.isPaused,
+        broadcast: (message) => this.broadcast(message),
+        broadcastEvent: (message) => this.broadcastEvent(message),
+        closeMatch: () => this.closeMatch(),
+        handleLobbyIntent: (lobbyEnvelope) =>
+          this.handleLobbyIntent(lobbyEnvelope),
+        installFreshCapture: () => this.installFreshCapture(),
+        drainNewEvents: () => this.drainNewEvents(),
+        stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
+        tryPublishOutcome: () => this.tryPublishOutcome(),
+      },
+      envelope,
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -955,111 +601,16 @@ export class ServerMatchHost {
   // ---------------------------------------------------------------------------
 
   /**
-   * Translate a `Protocol.IIntentPayload` into the matching
-   * `InteractiveSession` method call. Throws on unknown / malformed
-   * intent so the outer try/catch turns it into an `Error` envelope.
-   */
-  private dispatchToEngine(intent: IIntent['intent']): void {
-    switch (intent.kind) {
-      case 'Move': {
-        const movementType = this.parseMovementType(intent.movementType);
-        const facing = intent.facing as Facing;
-        // The engine reads the unit's current position; we only need to
-        // hand it the destination + facing + movement type.
-        this.session.applyMovement(
-          intent.unitId,
-          { q: intent.to.q, r: intent.to.r },
-          facing,
-          movementType,
-        );
-        return;
-      }
-      case 'Attack': {
-        this.session.applyAttack(
-          intent.attackerId,
-          intent.targetId,
-          intent.weaponIds,
-        );
-        return;
-      }
-      case 'AdvancePhase': {
-        this.session.advancePhase();
-        return;
-      }
-      case 'Concede': {
-        const side =
-          intent.side === 'player' ? GameSide.Player : GameSide.Opponent;
-        this.session.concede(side);
-        return;
-      }
-      // Wave 3b lobby intents are handled in `handleLobbyIntent` BEFORE
-      // we reach the engine dispatcher (see `handleIntent` above). They
-      // appear here only to keep the discriminated-union exhaustive
-      // check honest — if any of them ever falls through to the engine
-      // we want a typed error instead of `never` blowing up.
-      case 'OccupySeat':
-      case 'LeaveSeat':
-      case 'ReassignSeat':
-      case 'SetAiSlot':
-      case 'SetHumanSlot':
-      case 'SetReady':
-      case 'LaunchMatch':
-      case 'MarkSeatAi':
-      case 'ForfeitMatch': {
-        throw new Error(
-          `Lobby intent ${intent.kind} routed to engine dispatcher (bug)`,
-        );
-      }
-      default: {
-        // Exhaustive — any future intent variant added without a handler
-        // here will fail typecheck.
-        const _exhaustive: never = intent;
-        throw new Error(
-          `Unknown intent kind: ${(intent as { kind: string }).kind} (${String(_exhaustive)})`,
-        );
-      }
-    }
-  }
-
-  /**
-   * Map Protocol's string `movementType` onto the engine's enum.
-   * Throws on unknown so a malformed intent surfaces as INVALID_INTENT.
-   */
-  private parseMovementType(kind: string): MovementType {
-    switch (kind) {
-      case 'walk':
-      case 'Walk':
-        return MovementType.Walk;
-      case 'run':
-      case 'Run':
-        return MovementType.Run;
-      case 'jump':
-      case 'Jump':
-        return MovementType.Jump;
-      case 'stationary':
-      case 'Stationary':
-        return MovementType.Stationary;
-      default:
-        throw new Error(`Unknown movement type: ${kind}`);
-    }
-  }
-
-  /**
    * Snapshot any events the engine appended since our last broadcast
    * cursor and advance the cursor. Pure read against the live session.
    */
   private drainNewEvents(): readonly IGameEvent[] {
-    const all = this.session.getSession().events;
-    const fresh: IGameEvent[] = [];
-    for (const evt of all) {
-      if (evt.sequence > this.lastBroadcastSeq) {
-        fresh.push(evt);
-      }
-    }
-    if (fresh.length > 0) {
-      this.lastBroadcastSeq = fresh[fresh.length - 1].sequence;
-    }
-    return fresh;
+    const drained = drainNewEvents(
+      this.session.getSession().events,
+      this.lastBroadcastSeq,
+    );
+    this.lastBroadcastSeq = drained.lastBroadcastSeq;
+    return drained.events;
   }
 
   /**
@@ -1091,31 +642,7 @@ export class ServerMatchHost {
   private stampRollsOnNewEvents(
     events: readonly IGameEvent[],
   ): readonly IGameEvent[] {
-    const captured = this.currentCapture.drain();
-    if (captured.length === 0 || events.length === 0) {
-      return events;
-    }
-    const stamped: IGameEvent[] = [];
-    let attached = false;
-    for (const evt of events) {
-      if (!attached) {
-        // Clone the payload with `rolls` stamped on. We use a shallow
-        // spread because the payload types we touch are flat objects
-        // (no nested readonly arrays we'd need to deep-clone).
-        const newPayload = {
-          ...(evt.payload as Record<string, unknown>),
-          rolls: captured,
-        };
-        stamped.push({
-          ...evt,
-          payload: newPayload as IGameEvent['payload'],
-        });
-        attached = true;
-      } else {
-        stamped.push(evt);
-      }
-    }
-    return stamped;
+    return stampRollsOnNewEvents(this.currentCapture, events);
   }
 
   /**
@@ -1128,18 +655,14 @@ export class ServerMatchHost {
   private async persistInitialEvents(
     events: readonly IGameEvent[],
   ): Promise<void> {
-    for (const evt of events) {
-      try {
-        await this.store.appendEvent(this.matchId, evt);
-        this.lastBroadcastSeq = evt.sequence;
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `[ServerMatchHost ${this.matchId}] failed to persist initial event seq=${evt.sequence}`,
-          e,
-        );
-      }
-    }
+    await persistInitialEvents({
+      matchId: this.matchId,
+      store: this.store,
+      events,
+      setLastBroadcastSeq: (sequence) => {
+        this.lastBroadcastSeq = sequence;
+      },
+    });
   }
 
   /**
@@ -1156,49 +679,16 @@ export class ServerMatchHost {
    * per-player filtered/redacted envelope or no envelope at all.
    */
   private async broadcastEvent(message: IEventMessage): Promise<void> {
-    let meta: IMatchMeta;
-    try {
-      meta = await this.store.getMatchMeta(this.matchId);
-    } catch {
-      this.broadcast(message);
-      return;
-    }
-
-    if (!meta.config.fogOfWar) {
-      this.broadcast(message);
-      return;
-    }
-
-    const state = this.withVisibilityAssignments(
-      this.session.getSession().currentState,
-      meta,
-    );
-    for (const recipient of this.lifecycle.snapshotRecipients()) {
-      const filtered = filterEventForPlayer(
-        message.event as IGameEvent,
-        recipient.playerId,
-        state,
-        {
-          config: meta.config,
-          cache: this.fogVisibilityCache,
-        },
-      );
-      if (!filtered) continue;
-      this.safeSend(recipient.socket, {
-        ...message,
-        event: filtered,
-      });
-    }
-  }
-
-  private withVisibilityAssignments(
-    state: IGameState,
-    meta: IMatchMeta,
-  ): IGameState {
-    return {
-      ...state,
-      sideAssignments: meta.sideAssignments,
-    } as IGameState;
+    await broadcastEventWithContext({
+      matchId: this.matchId,
+      store: this.store,
+      session: this.session,
+      lifecycle: this.lifecycle,
+      broadcaster: this.broadcaster,
+      fogVisibilityCache: this.fogVisibilityCache,
+      message,
+      broadcast: (serverMessage) => this.broadcast(serverMessage),
+    });
   }
 
   /**
@@ -1234,361 +724,31 @@ export class ServerMatchHost {
   private async handleLobbyIntent(
     envelope: IIntent,
   ): Promise<readonly IServerMessage[]> {
-    const out: IServerMessage[] = [];
-    const meta = await this.store.getMatchMeta(this.matchId);
-    const seats = meta.seats ?? [];
-    const intent = envelope.intent;
-
-    // Authorization gate: host-only intents.
-    const hostOnly =
-      intent.kind === 'ReassignSeat' ||
-      intent.kind === 'SetAiSlot' ||
-      intent.kind === 'SetHumanSlot' ||
-      intent.kind === 'LaunchMatch' ||
-      // Wave 4: reconnection overrides are host-only — only the host
-      // can decide to hand off a pending seat to AI or forfeit on
-      // behalf of the dropped player's side.
-      intent.kind === 'MarkSeatAi' ||
-      intent.kind === 'ForfeitMatch';
-    if (hostOnly && envelope.playerId !== meta.hostPlayerId) {
-      const err: IServerMessage = {
-        kind: 'Error',
+    const wasPaused = this.isPaused;
+    const messages = await handleLobbyIntentWithContext(
+      {
         matchId: this.matchId,
-        ts: nowIso(),
-        code: 'AUTH_REJECTED',
-        reason: `Intent ${intent.kind} requires host privileges`,
-      };
-      this.broadcast(err);
-      out.push(err);
-      return out;
-    }
-
-    // Wave 4: ForfeitMatch is a special case — it triggers a Concede
-    // on the engine side rather than mutating seats. Route it through
-    // the dedicated handler and return its broadcasts directly.
-    if (intent.kind === 'ForfeitMatch') {
-      return this.handleForfeitMatch(meta);
-    }
-
-    let nextSeats: IMatchSeat[];
-    let nextStatus = meta.status;
-    let clearRoomCode = false;
-
-    try {
-      switch (intent.kind) {
-        case 'OccupySeat': {
-          nextSeats = this.handleOccupySeat(seats, intent.slotId, envelope);
-          break;
-        }
-        case 'LeaveSeat': {
-          nextSeats = this.handleLeaveSeat(
-            seats,
-            intent.slotId,
-            envelope.playerId,
-          );
-          break;
-        }
-        case 'ReassignSeat': {
-          nextSeats = this.handleReassignSeat(
-            seats,
-            intent.slotId,
-            intent.toSide,
-            intent.toSeat,
-          );
-          break;
-        }
-        case 'SetAiSlot': {
-          nextSeats = this.handleSetAiSlot(
-            seats,
-            intent.slotId,
-            intent.aiProfile,
-          );
-          break;
-        }
-        case 'SetHumanSlot': {
-          nextSeats = this.handleSetHumanSlot(seats, intent.slotId);
-          break;
-        }
-        case 'SetReady': {
-          nextSeats = this.handleSetReady(
-            seats,
-            intent.slotId,
-            envelope.playerId,
-            intent.ready,
-          );
-          break;
-        }
-        case 'LaunchMatch': {
-          nextSeats = seats.slice();
-          if (!canLaunch(nextSeats)) {
-            throw new LobbyStateError(
-              'Cannot launch: not all seats are filled and ready',
-            );
-          }
-          nextStatus = 'active';
-          clearRoomCode = true;
-          // Wave 5 wires the `BotPlayer` driver per AI seat. For Wave 3b
-          // we just log so integration tests can grep for the marker.
-          for (const seat of nextSeats) {
-            if (seat.kind === 'ai') {
-              // eslint-disable-next-line no-console
-              console.info(
-                `[ServerMatchHost ${this.matchId}] AI seat would run BotPlayer here (slotId=${seat.slotId}, profile=${seat.aiProfile ?? 'basic'})`,
-              );
-            }
-          }
-          break;
-        }
-        case 'MarkSeatAi': {
-          // Wave 4: hand off a pending human seat to the AI driver so
-          // the rest of the match can continue. The slot's previous
-          // occupant playerId is read here so we can clear its grace
-          // timer below; setAiSlot() drops the occupant ref.
-          const target = seats.find((s) => s.slotId === intent.slotId);
-          if (!target) {
-            throw new LobbyStateError(`Unknown slotId: ${intent.slotId}`);
-          }
-          const droppedPlayerId = target.occupant?.playerId ?? null;
-          nextSeats = setAiSlot(seats, intent.slotId, intent.aiProfile);
-          if (droppedPlayerId) {
-            this.pendingPeers.clearPending(droppedPlayerId);
-          }
-          break;
-        }
-        default: {
-          throw new LobbyStateError(
-            `Unhandled lobby intent: ${(intent as { kind: string }).kind}`,
-          );
-        }
-      }
-    } catch (e) {
-      const err: IServerMessage = {
-        kind: 'Error',
-        matchId: this.matchId,
-        ts: nowIso(),
-        code: 'INVALID_INTENT',
-        reason: e instanceof Error ? e.message : 'Lobby state machine rejected',
-      };
-      this.broadcast(err);
-      out.push(err);
-      return out;
-    }
-
-    try {
-      await this.store.updateMatchMeta(this.matchId, {
-        seats: nextSeats,
-        status: nextStatus,
-        // Pass `null` to explicitly clear the room code (the patch type
-        // models a clear as `roomCode: null`, distinct from an absent
-        // key meaning "leave it alone"). Previously this used
-        // `undefined as unknown as string`, which laundered the same
-        // intent through the type system.
-        ...(clearRoomCode ? { roomCode: null } : {}),
-      });
-    } catch (e) {
-      const err: IServerMessage = {
-        kind: 'Error',
-        matchId: this.matchId,
-        ts: nowIso(),
-        code: 'STORE_FAILURE',
-        reason: e instanceof Error ? e.message : 'Lobby persist failed',
-      };
-      this.broadcast(err);
-      out.push(err);
-      return out;
-    }
-
-    const update: ILobbyUpdated = {
-      kind: 'LobbyUpdated',
-      matchId: this.matchId,
-      ts: nowIso(),
-      seats: nextSeats,
-      status: nextStatus,
-      hostPlayerId: meta.hostPlayerId,
-    };
-    this.broadcast(update);
-    out.push(update);
-    // Wave 4: if the lobby mutation cleared the last pending peer
-    // (e.g., MarkSeatAi handing the seat off to AI), unpause and
-    // broadcast MatchResumed.
-    this.maybeResume();
-    return out;
-  }
-
-  /**
-   * Wave 4: ForfeitMatch handler. Concedes the side opposite the
-   * host's side assignment so the remaining humans (the host's side)
-   * win cleanly. Emits the standard engine events (GameEnded etc.) and
-   * persists+broadcasts them through the same path as a normal Concede
-   * intent. Clears all pending timers as part of match shutdown.
-   */
-  private async handleForfeitMatch(meta: {
-    readonly hostPlayerId: string;
-    readonly sideAssignments: readonly {
-      readonly playerId: string;
-      readonly side: 'player' | 'opponent';
-    }[];
-  }): Promise<readonly IServerMessage[]> {
-    const out: IServerMessage[] = [];
-    // Resolve the conceding side: the side OPPOSITE the host. If the
-    // host has no recorded assignment we default to conceding the
-    // opponent so a forfeit still produces a deterministic outcome.
-    const hostAssignment = meta.sideAssignments.find(
-      (a) => a.playerId === meta.hostPlayerId,
+        store: this.store,
+        session: this.session,
+        playerRefs: this.playerRefs,
+        pendingPeers: this.pendingPeers,
+        broadcast: (message) => this.broadcast(message),
+        broadcastEvent: (message) => this.broadcastEvent(message),
+        maybeResume: () => this.maybeResume(),
+        installFreshCapture: () => this.installFreshCapture(),
+        drainNewEvents: () => this.drainNewEvents(),
+        stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
+      },
+      envelope,
     );
-    const concededSide: GameSide =
-      hostAssignment?.side === 'opponent' ? GameSide.Player : GameSide.Opponent;
-
-    // Wave 4: forfeit must clear pending timers and the pause flag
-    // BEFORE we run the engine so the Concede event can broadcast
-    // without being mistaken for an attempted mutation under pause.
-    this.pendingPeers.clearAll();
-    this.isPaused = false;
-
-    this.installFreshCapture();
-    try {
-      this.session.concede(concededSide);
-    } catch (e) {
-      const err: IServerMessage = {
-        kind: 'Error',
-        matchId: this.matchId,
-        ts: nowIso(),
-        code: 'INVALID_INTENT',
-        reason: e instanceof Error ? e.message : 'Forfeit rejected by engine',
-      };
-      this.broadcast(err);
-      out.push(err);
-      return out;
-    }
-    const newEvents = this.stampRollsOnNewEvents(this.drainNewEvents());
-    for (const event of newEvents) {
-      try {
-        await this.store.appendEvent(this.matchId, event);
-      } catch (e) {
-        const err: IServerMessage = {
-          kind: 'Error',
-          matchId: this.matchId,
-          ts: nowIso(),
-          code: 'STORE_FAILURE',
-          reason: e instanceof Error ? e.message : 'Store append failed',
-        };
-        this.broadcast(err);
-        out.push(err);
-        return out;
+    if (envelope.intent.kind === 'ForfeitMatch') {
+      if (wasPaused) {
+        this.isPaused = false;
       }
-      const envelopeOut: IServerMessage = {
-        kind: 'Event',
-        matchId: this.matchId,
-        ts: nowIso(),
-        event,
-      };
-      await this.broadcastEvent(envelopeOut);
-      out.push(envelopeOut);
+      this.tryPublishOutcome();
     }
-    // Wave 5: ForfeitMatch ends the match cleanly, so the bus event
-    // should fire here too (engine's `concede` already runs the engine
-    // guard; this mirrors it on the host side for symmetry with
-    // `handleIntent`).
-    this.tryPublishOutcome();
-    return out;
+    return messages;
   }
-
-  /**
-   * Resolve the player ref for an occupy intent. We trust auth: the
-   * envelope's `playerId` is the verified socket identity. Display
-   * name comes from the most recent `SessionJoin`/`registerPlayerRef`
-   * call; if we have no ref yet we synthesise a minimal one from the
-   * playerId so the lobby still has *something* to render.
-   */
-  private handleOccupySeat(
-    seats: readonly IMatchSeat[],
-    slotId: string,
-    envelope: IIntent,
-  ): IMatchSeat[] {
-    const ref =
-      this.playerRefs.get(envelope.playerId) ??
-      ({
-        playerId: envelope.playerId,
-        displayName: envelope.playerId,
-      } as IPlayerRef);
-    return occupySeat(seats, slotId, ref);
-  }
-
-  private handleLeaveSeat(
-    seats: readonly IMatchSeat[],
-    slotId: string,
-    playerId: string,
-  ): IMatchSeat[] {
-    return leaveSeat(seats, slotId, playerId);
-  }
-
-  private handleReassignSeat(
-    seats: readonly IMatchSeat[],
-    slotId: string,
-    toSide: string,
-    toSeat: number,
-  ): IMatchSeat[] {
-    return reassignSeat(seats, slotId, toSide, toSeat);
-  }
-
-  private handleSetAiSlot(
-    seats: readonly IMatchSeat[],
-    slotId: string,
-    aiProfile?: string,
-  ): IMatchSeat[] {
-    return setAiSlot(seats, slotId, aiProfile);
-  }
-
-  private handleSetHumanSlot(
-    seats: readonly IMatchSeat[],
-    slotId: string,
-  ): IMatchSeat[] {
-    return setHumanSlot(seats, slotId);
-  }
-
-  /**
-   * Self-readiness check + setReady delegation. The slot owner is the
-   * only player allowed to flip their own ready flag — host doesn't
-   * get a shortcut here (per spec 6.1).
-   */
-  private handleSetReady(
-    seats: readonly IMatchSeat[],
-    slotId: string,
-    playerId: string,
-    ready: boolean,
-  ): IMatchSeat[] {
-    const seat = seats.find((s) => s.slotId === slotId);
-    if (!seat) {
-      throw new LobbyStateError(`Unknown slotId: ${slotId}`);
-    }
-    if (!seat.occupant || seat.occupant.playerId !== playerId) {
-      throw new LobbyStateError(
-        `Player ${playerId} cannot toggle ready on slot ${slotId} they don't occupy`,
-      );
-    }
-    return setReady(seats, slotId, ready);
-  }
-}
-
-/**
- * Type guard that returns true for any of the Wave 3b lobby intent
- * kinds. Centralised here so `handleIntent` can route without
- * pattern-matching on the union literal in two places.
- */
-function isLobbyIntentKind(kind: IIntent['intent']['kind']): boolean {
-  return (
-    kind === 'OccupySeat' ||
-    kind === 'LeaveSeat' ||
-    kind === 'ReassignSeat' ||
-    kind === 'SetAiSlot' ||
-    kind === 'SetHumanSlot' ||
-    kind === 'SetReady' ||
-    kind === 'LaunchMatch' ||
-    // Wave 4: host-only reconnection overrides ride the lobby
-    // dispatch path so they bypass the engine pause guard.
-    kind === 'MarkSeatAi' ||
-    kind === 'ForfeitMatch'
-  );
 }
 
 // Re-export the WebSocket type for the upgrade handler so it doesn't

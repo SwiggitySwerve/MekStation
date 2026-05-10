@@ -13,15 +13,20 @@
  * - Restoration with rollback support
  */
 
-import * as crypto from 'crypto';
 import { promises as fs } from 'fs';
-import { createReadStream, createWriteStream } from 'fs';
 import * as path from 'path';
-import { pipeline } from 'stream/promises';
-import { createGzip, createGunzip } from 'zlib';
 
 // Service interfaces
 import { IService, ResultType, Result } from '../../types/BaseTypes';
+import {
+  calculateFileChecksum,
+  createBackupArchive,
+  extractBackupArchive,
+  formatFileSize,
+  generateBackupId,
+  getAllFiles,
+  shouldExcludeFile,
+} from './BackupService.archive';
 
 /**
  * Configuration for backup service
@@ -138,7 +143,7 @@ export class BackupService implements IService {
       console.log(`🔄 Creating ${type} backup...`);
 
       const startTime = Date.now();
-      const backupId = this.generateBackupId();
+      const backupId = generateBackupId();
       const backupFileName = `${backupId}.tar.gz`;
       const backupFilePath = path.join(this.config.backupPath, backupFileName);
 
@@ -150,11 +155,16 @@ export class BackupService implements IService {
       }
 
       // Create backup archive
-      await this.createBackupArchive(backupFilePath, filesToBackup);
+      await createBackupArchive({
+        backupPath: backupFilePath,
+        compressionLevel: this.config.compressionLevel,
+        dataPath: this.config.dataPath,
+        files: filesToBackup,
+      });
 
       // Calculate size and checksum
       const stats = await fs.stat(backupFilePath);
-      const checksum = await this.calculateFileChecksum(backupFilePath);
+      const checksum = await calculateFileChecksum(backupFilePath);
 
       // Create metadata
       const metadata: IBackupMetadata = {
@@ -178,7 +188,7 @@ export class BackupService implements IService {
 
       const duration = Date.now() - startTime;
       console.log(
-        `✅ Backup created successfully: ${backupFileName} (${this.formatFileSize(stats.size)}, ${duration}ms)`,
+        `✅ Backup created successfully: ${backupFileName} (${formatFileSize(stats.size)}, ${duration}ms)`,
       );
 
       return Result.success(backupFilePath);
@@ -234,7 +244,7 @@ export class BackupService implements IService {
       );
       await fs.mkdir(extractPath, { recursive: true });
 
-      const result = await this.extractBackupArchive(backupPath, extractPath);
+      const result = await extractBackupArchive(backupPath, extractPath);
       if (!result.success) {
         return Result.error(result.error || 'Failed to extract backup');
       }
@@ -379,23 +389,14 @@ export class BackupService implements IService {
   }
 
   /**
-   * Generate unique backup ID
-   */
-  private generateBackupId(): string {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const random = crypto.randomBytes(4).toString('hex');
-    return `backup-${timestamp}-${random}`;
-  }
-
-  /**
    * Get files to backup based on type
    */
   private async getFilesToBackup(
     type: 'full' | 'incremental',
   ): Promise<string[]> {
-    const allFiles = await this.getAllFiles(this.config.dataPath);
+    const allFiles = await getAllFiles(this.config.dataPath);
     const filteredFiles = allFiles.filter(
-      (file) => !this.shouldExcludeFile(file),
+      (file) => !shouldExcludeFile(file, this.config.excludePatterns),
     );
 
     if (type === 'full') {
@@ -433,122 +434,6 @@ export class BackupService implements IService {
   }
 
   /**
-   * Get all files recursively
-   */
-  private async getAllFiles(dir: string): Promise<string[]> {
-    const files: string[] = [];
-    const entries = await fs.readdir(dir);
-
-    for (const entry of entries) {
-      const entryPath = path.join(dir, entry);
-      const stats = await fs.stat(entryPath);
-
-      if (stats.isDirectory()) {
-        const subFiles = await this.getAllFiles(entryPath);
-        files.push(...subFiles);
-      } else {
-        files.push(entryPath);
-      }
-    }
-
-    return files;
-  }
-
-  /**
-   * Check if file should be excluded
-   */
-  private shouldExcludeFile(filePath: string): boolean {
-    const fileName = path.basename(filePath);
-    return this.config.excludePatterns.some((pattern) => {
-      const regex = new RegExp(pattern.replace(/\*/g, '.*'));
-      return regex.test(fileName);
-    });
-  }
-
-  /**
-   * Create backup archive
-   */
-  private async createBackupArchive(
-    backupPath: string,
-    files: string[],
-  ): Promise<void> {
-    const writeStream = createWriteStream(backupPath);
-    const gzipStream = createGzip({ level: this.config.compressionLevel });
-
-    // Simple tar-like archive format for cross-platform compatibility
-    const archiveData = JSON.stringify({
-      version: '1.0',
-      files: await Promise.all(
-        files.map(async (file) => {
-          const relativePath = path.relative(this.config.dataPath, file);
-          const content = await fs.readFile(file);
-          return {
-            path: relativePath,
-            content: content.toString('base64'),
-            size: content.length,
-          };
-        }),
-      ),
-    });
-
-    await pipeline(
-      async function* () {
-        yield Buffer.from(archiveData);
-      },
-      gzipStream,
-      writeStream,
-    );
-  }
-
-  /**
-   * Extract backup archive
-   */
-  private async extractBackupArchive(
-    backupPath: string,
-    extractPath: string,
-  ): Promise<ResultType<void, string>> {
-    try {
-      const readStream = createReadStream(backupPath);
-      const gunzipStream = createGunzip();
-
-      let data = '';
-      gunzipStream.on('data', (chunk) => {
-        data += chunk.toString();
-      });
-
-      await pipeline(readStream, gunzipStream);
-
-      const archive = JSON.parse(data);
-
-      for (const file of archive.files) {
-        const filePath = path.join(extractPath, file.path);
-        await fs.mkdir(path.dirname(filePath), { recursive: true });
-        const content = Buffer.from(file.content, 'base64');
-        await fs.writeFile(filePath, content);
-      }
-
-      return Result.success(undefined);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return Result.error(`Failed to extract archive: ${message}`);
-    }
-  }
-
-  /**
-   * Calculate file checksum
-   */
-  private async calculateFileChecksum(filePath: string): Promise<string> {
-    const hash = crypto.createHash('sha256');
-    const stream = createReadStream(filePath);
-
-    return new Promise((resolve, reject) => {
-      stream.on('data', (data) => hash.update(data));
-      stream.on('end', () => resolve(hash.digest('hex')));
-      stream.on('error', reject);
-    });
-  }
-
-  /**
    * Verify backup integrity
    */
   private async verifyBackupIntegrity(
@@ -556,7 +441,7 @@ export class BackupService implements IService {
     metadata: IBackupMetadata,
   ): Promise<boolean> {
     try {
-      const checksum = await this.calculateFileChecksum(backupPath);
+      const checksum = await calculateFileChecksum(backupPath);
       return checksum === metadata.checksum;
     } catch (error) {
       console.error('Backup integrity verification failed:', error);
@@ -665,22 +550,6 @@ export class BackupService implements IService {
     } catch (error) {
       console.error('Failed to validate existing backups:', error);
     }
-  }
-
-  /**
-   * Format file size for display
-   */
-  private formatFileSize(bytes: number): string {
-    const units = ['B', 'KB', 'MB', 'GB'];
-    let size = bytes;
-    let unitIndex = 0;
-
-    while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024;
-      unitIndex++;
-    }
-
-    return `${size.toFixed(1)} ${units[unitIndex]}`;
   }
 }
 

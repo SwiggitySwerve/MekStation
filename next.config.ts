@@ -187,8 +187,16 @@ const nextConfig: NextConfig = {
 
     // Optimize module resolution for faster builds
     if (config.resolve) {
+      const browserNodeAliases: Record<string, string> = !isServer
+        ? {
+            fs: join(process.cwd(), 'src/utils/construction/emptyModule.ts'),
+            path: join(process.cwd(), 'src/utils/construction/emptyModule.ts'),
+          }
+        : {};
+
       config.resolve.alias = {
-        ...(config.resolve.alias as Record<string, string>),
+        ...(config.resolve.alias as Record<string, string | false | string[]>),
+        ...browserNodeAliases,
         '@/services': './src/services',
         '@/utils': './src/utils',
         '@/components': './src/components',

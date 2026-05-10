@@ -12,10 +12,7 @@ import {
 import { ICampaign } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import {
-  CampaignPersonnelRole,
-  isCivilianRole,
-} from '@/types/campaign/enums/CampaignPersonnelRole';
+import { isCivilianRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { checkAwardsForCategory, ICheckerContext } from './categoryCheckers';
