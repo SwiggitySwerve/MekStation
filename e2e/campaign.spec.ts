@@ -92,27 +92,28 @@ test.describe('Campaign List Page @smoke @campaign', () => {
     await deleteCampaign(page, campaignId);
   });
 
-  test('search filters campaigns', async ({ page }) => {
-    // Create multiple campaigns
-    const id1 = await createTestCampaign(page, { name: 'Alpha Strike Force' });
-    const id2 = await createTestCampaign(page, { name: 'Beta Recon Unit' });
-    const id3 = await createTestCampaign(page, { name: 'Alpha Command' });
+  test('updates displayed campaign when current campaign changes', async ({
+    page,
+  }) => {
+    // The current campaign store is a singleton, so creating a new campaign
+    // replaces the visible campaign on the list.
+    await createTestCampaign(page, { name: 'Alpha Strike Force' });
 
     await listPage.navigate();
 
-    // Search for "Alpha"
-    await listPage.searchCampaigns('Alpha');
-
-    // Should only show Alpha campaigns
-    const names = await listPage.getCampaignNames();
+    let names = await listPage.getCampaignNames();
     expect(names).toContain('Alpha Strike Force');
-    expect(names).toContain('Alpha Command');
-    expect(names).not.toContain('Beta Recon Unit');
+
+    const id = await createTestCampaign(page, { name: 'Beta Recon Unit' });
+
+    await listPage.navigate();
+
+    names = await listPage.getCampaignNames();
+    expect(names).toContain('Beta Recon Unit');
+    expect(names).not.toContain('Alpha Strike Force');
 
     // Cleanup
-    await deleteCampaign(page, id1);
-    await deleteCampaign(page, id2);
-    await deleteCampaign(page, id3);
+    await deleteCampaign(page, id);
   });
 });
 
@@ -144,14 +145,17 @@ test.describe('Campaign Creation @smoke @campaign', () => {
     await createPage.fillDescription('Created via E2E test');
     await page.getByTestId('wizard-next-btn').click();
 
-    // Step 2: Template - select custom
+    // Step 2: Type - keep the default Mercenary Company type
+    await page.getByTestId('wizard-next-btn').click();
+
+    // Step 3: Template - select custom
     await page.getByTestId('template-custom').click();
     await page.getByTestId('wizard-next-btn').click();
 
-    // Step 3: Roster (skip for now)
+    // Step 4: Roster (skip for now)
     await page.getByTestId('wizard-next-btn').click();
 
-    // Step 4: Review and submit
+    // Step 5: Review and submit
     await page.getByTestId('wizard-submit-btn').click();
 
     // Should redirect to campaign detail

@@ -44,6 +44,12 @@ interface GameplayStoreState {
   } | null;
 }
 
+interface CreateEncounterResponse {
+  readonly success: boolean;
+  readonly id?: string;
+  readonly error?: string;
+}
+
 // =============================================================================
 // Test Configuration
 // =============================================================================
@@ -60,6 +66,37 @@ async function waitForStoreReady(page: Page): Promise<void> {
     },
     { timeout: 15000 },
   );
+}
+
+async function waitForPageReady(page: Page): Promise<void> {
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(300);
+}
+
+async function submitEncounterCreateForm(page: Page): Promise<string> {
+  const responsePromise = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return (
+        url.pathname === '/api/encounters' &&
+        response.request().method() === 'POST'
+      );
+    },
+    { timeout: 15000 },
+  );
+
+  const submitBtn = page.getByTestId('submit-encounter-btn');
+  await expect(submitBtn).toBeEnabled();
+  await submitBtn.click();
+
+  const response = await responsePromise;
+  expect(response.status()).toBe(201);
+
+  const body = (await response.json()) as CreateEncounterResponse;
+  expect(body.success).toBe(true);
+  expect(body.id).toBeTruthy();
+
+  return body.id!;
 }
 
 // =============================================================================
@@ -127,28 +164,26 @@ test.describe('Encounter Flow - Encounter Creation', () => {
     { tag: ['@encounter', '@smoke'] },
     async ({ page }) => {
       await page.goto('/gameplay/encounters/create');
+      await waitForPageReady(page);
 
       // Fill encounter name
       const nameInput = page.getByTestId('encounter-name-input');
-      if (await nameInput.isVisible().catch(() => false)) {
-        await nameInput.fill('E2E Flow Test Encounter');
-      }
+      await expect(nameInput).toBeVisible();
+      await nameInput.fill('E2E Flow Test Encounter');
+      await expect(nameInput).toHaveValue('E2E Flow Test Encounter');
 
       // Select template (skirmish)
       const skirmishTemplate = page.getByTestId('template-skirmish');
-      if (await skirmishTemplate.isVisible().catch(() => false)) {
-        await skirmishTemplate.click();
-      }
+      await expect(skirmishTemplate).toBeVisible();
+      await skirmishTemplate.click();
 
       // Submit encounter
-      const submitBtn = page.getByTestId('submit-encounter-btn');
-      if (await submitBtn.isVisible().catch(() => false)) {
-        await submitBtn.click();
-      }
+      const encounterId = await submitEncounterCreateForm(page);
 
-      // Should redirect to encounter detail page
-      await expect(page).toHaveURL(/\/gameplay\/encounters\/[^/]+$/, {
-        timeout: 10000,
+      // Should open the encounter detail page
+      await page.goto(`/gameplay/encounters/${encounterId}`);
+      await expect(page.getByTestId('forces-card')).toBeVisible({
+        timeout: 15000,
       });
     },
   );
@@ -158,26 +193,26 @@ test.describe('Encounter Flow - Encounter Creation', () => {
     { tag: ['@encounter', '@smoke'] },
     async ({ page }) => {
       await page.goto('/gameplay/encounters/create');
+      await waitForPageReady(page);
 
       // Fill encounter details
       const nameInput = page.getByTestId('encounter-name-input');
-      if (await nameInput.isVisible().catch(() => false)) {
-        await nameInput.fill('Configured Encounter');
-      }
+      await expect(nameInput).toBeVisible();
+      await nameInput.fill('Configured Encounter');
+      await expect(nameInput).toHaveValue('Configured Encounter');
 
       // Select template
       const template = page.getByTestId('template-skirmish');
-      if (await template.isVisible().catch(() => false)) {
-        await template.click();
-      }
+      await expect(template).toBeVisible();
+      await template.click();
 
       // Submit to create encounter
-      const submitBtn = page.getByTestId('submit-encounter-btn');
-      if (await submitBtn.isVisible().catch(() => false)) {
-        await submitBtn.click();
-      }
+      const encounterId = await submitEncounterCreateForm(page);
 
-      await page.waitForTimeout(1000);
+      await page.goto(`/gameplay/encounters/${encounterId}`);
+      await expect(page.getByTestId('forces-card')).toBeVisible({
+        timeout: 15000,
+      });
 
       // On detail page, look for force selection options
       const selectPlayerForce = page.getByTestId('select-player-force-link');

@@ -8,8 +8,9 @@
   "properties": {
     "id": {
       "type": "string",
-      "pattern": "^[a-z0-9-]+$",
-      "description": "Unique identifier for the unit (kebab-case)"
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Unique identifier for the unit. The converter preserves source punctuation and Unicode, so IDs must be non-empty and whitespace-free."
     },
     "chassis": {
       "type": "string",
@@ -18,7 +19,6 @@
     },
     "model": {
       "type": "string",
-      "minLength": 1,
       "description": "Model designation (e.g., 'AS7-D')"
     },
     "variant": {
@@ -43,7 +43,11 @@
         "Space Station",
         "Infantry",
         "Battle Armor",
+        "BattleArmor",
         "Support Vehicle",
+        "SupportVehicle",
+        "ConventionalFighter",
+        "SmallCraft",
         "BATTLEARMOR"
       ],
       "description": "Type of unit"
@@ -82,12 +86,12 @@
     "tonnage": {
       "type": "number",
       "minimum": 0,
-      "maximum": 200,
+      "maximum": 250,
       "description": "Unit tonnage"
     },
     "engine": {
       "type": "object",
-      "required": ["type", "rating"],
+      "required": ["type"],
       "properties": {
         "type": {
           "type": "string",
@@ -100,14 +104,16 @@
             "XXL",
             "ICE",
             "FUEL_CELL",
-            "FISSION"
+            "FISSION",
+            "FLYWHEEL",
+            "BATTERY"
           ],
           "description": "Engine type"
         },
         "rating": {
           "type": "integer",
-          "minimum": 10,
-          "maximum": 500,
+          "minimum": 0,
+          "maximum": 1000,
           "description": "Engine rating"
         }
       },
@@ -165,7 +171,7 @@
     },
     "armor": {
       "type": "object",
-      "required": ["type", "allocation"],
+      "required": ["type"],
       "properties": {
         "type": {
           "type": "string",
@@ -184,7 +190,19 @@
             "HEAVY_INDUSTRIAL",
             "COMMERCIAL",
             "IMPACT_RESISTANT",
-            "FERRO_LAMELLOR"
+            "FERRO_LAMELLOR",
+            "FIRE_RESISTANT",
+            "MIMETIC",
+            "STEALTH_IMPROVED",
+            "STEALTH_PROTOTYPE",
+            "REACTIVE_CLAN",
+            "REFLECTIVE_CLAN",
+            "BAR_2",
+            "BAR_4",
+            "BAR_5",
+            "BAR_6",
+            "BAR_7",
+            "BAR_9"
           ],
           "description": "Armor type"
         },
@@ -214,8 +232,99 @@
               }
             ]
           }
+        },
+        "byLocation": {
+          "type": "object",
+          "description": "Armor points per vehicle location",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "byArc": {
+          "type": "object",
+          "description": "Armor points per aerospace arc",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "perTrooper": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Battle armor points per trooper"
         }
       },
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["allocation"],
+          "properties": {
+            "allocation": {
+              "type": "object",
+              "additionalProperties": {
+                "oneOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "required": ["front", "rear"],
+                    "properties": {
+                      "front": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "rear": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["byLocation"],
+          "properties": {
+            "byLocation": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["byArc"],
+          "properties": {
+            "byArc": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["perTrooper"],
+          "properties": {
+            "perTrooper": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      ],
       "additionalProperties": false
     },
     "heatSinks": {
@@ -273,6 +382,10 @@
           "id": {
             "type": "string",
             "description": "Equipment ID reference"
+          },
+          "name": {
+            "type": "string",
+            "description": "Source display name for the mounted equipment"
           },
           "location": {
             "type": "string",
@@ -377,20 +490,10 @@
   "allOf": [
     {
       "if": {
+        "required": ["unitType"],
         "properties": {
           "unitType": {
-            "enum": [
-              "BattleMech",
-              "OmniMech",
-              "IndustrialMech",
-              "ProtoMech",
-              "Vehicle",
-              "VTOL",
-              "Support Vehicle",
-              "Aerospace",
-              "Conventional Fighter",
-              "Small Craft"
-            ]
+            "enum": ["BattleMech", "OmniMech", "IndustrialMech"]
           }
         }
       },
@@ -420,20 +523,10 @@
     },
     {
       "if": {
+        "required": ["unitType"],
         "properties": {
           "unitType": {
-            "enum": [
-              "BattleMech",
-              "OmniMech",
-              "IndustrialMech",
-              "ProtoMech",
-              "Vehicle",
-              "VTOL",
-              "Support Vehicle",
-              "Aerospace",
-              "Conventional Fighter",
-              "Small Craft"
-            ]
+            "enum": ["BattleMech", "OmniMech", "IndustrialMech"]
           }
         }
       },

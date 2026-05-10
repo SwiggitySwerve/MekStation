@@ -25,6 +25,7 @@ yarn-error.log*
 # AI/Assistant files
 .claude/
 .cursor/
+.agents/
 
 # OS files
 .DS_Store
@@ -125,6 +126,7 @@ validation-output/
 *-validation-report.json
 *-equipment-report.json
 eslint-output.json
+dependency-analysis.json
 
 # Pip distribution comparison output (development research)
 pip-comparison-output/
@@ -172,10 +174,9 @@ public/config/
 nul
 
 # Simulation reports (keep directory, not generated reports)
-simulation-reports/*.json
-simulation-reports/*/*.json
-# Always-on event-log NDJSON output — written by every swarm CLI run.
-simulation-reports/games/
+simulation-reports/**
+!simulation-reports/
+!simulation-reports/.gitkeep
 
 # Local-only caches (BV prewarm cache for swarm runner, etc.)
 .cache/

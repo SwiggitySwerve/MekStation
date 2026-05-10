@@ -44,26 +44,22 @@ export async function createTestCampaign(
   options: TestCampaignOptions = {},
 ): Promise<string> {
   const campaignId = await page.evaluate((opts) => {
+    type CampaignStoreApi = {
+      getState: () => {
+        createCampaign: (
+          name: string,
+          factionId: string,
+          options?: { startingFunds?: number },
+        ) => string;
+        updateCampaign: (updates: Record<string, unknown>) => void;
+      };
+    };
+    type ExposedCampaignStore = CampaignStoreApi | (() => CampaignStoreApi);
+
     const stores = (
       window as unknown as {
         __ZUSTAND_STORES__?: {
-          campaign?: {
-            getState: () => {
-              createCampaign: (input: {
-                name: string;
-                description?: string;
-                unitIds: string[];
-                pilotIds: string[];
-                resources?: {
-                  cBills?: number;
-                  supplies?: number;
-                  morale?: number;
-                  salvageParts?: number;
-                };
-                difficultyModifier?: number;
-              }) => string;
-            };
-          };
+          campaign?: ExposedCampaignStore;
         };
       }
     ).__ZUSTAND_STORES__;
@@ -74,20 +70,27 @@ export async function createTestCampaign(
       );
     }
 
-    const store = stores.campaign.getState();
-    return store.createCampaign({
-      name: opts.name || `Test Campaign ${Date.now()}`,
-      description: opts.description || 'E2E test campaign',
-      unitIds: opts.unitIds || [],
-      pilotIds: opts.pilotIds || [],
+    const exposed = stores.campaign;
+    const store = 'getState' in exposed ? exposed : exposed();
+
+    const state = store.getState();
+    const name = opts.name || `Test Campaign ${Date.now()}`;
+    const campaignId = state.createCampaign(name, 'mercenary', {
+      startingFunds: opts.cBills ?? 1000000,
+    });
+
+    const description = opts.description || 'E2E test campaign';
+    state.updateCampaign({
+      description,
       resources: {
         cBills: opts.cBills ?? 1000000,
         supplies: opts.supplies ?? 100,
         morale: opts.morale ?? 75,
         salvageParts: 0,
       },
-      difficultyModifier: opts.difficultyModifier ?? 0,
     });
+
+    return campaignId;
   }, options);
 
   return campaignId;
@@ -146,19 +149,23 @@ export async function getCampaign(
   description?: string;
 } | null> {
   return page.evaluate((id) => {
+    type CampaignStoreApi = {
+      getState: () => {
+        getCampaign: () => {
+          id: string;
+          name: string;
+          status?: string;
+          campaignType?: string;
+          description?: string;
+        } | null;
+      };
+    };
+    type ExposedCampaignStore = CampaignStoreApi | (() => CampaignStoreApi);
+
     const stores = (
       window as unknown as {
         __ZUSTAND_STORES__?: {
-          campaign?: {
-            getState: () => {
-              campaigns: Array<{
-                id: string;
-                name: string;
-                status: string;
-                description?: string;
-              }>;
-            };
-          };
+          campaign?: ExposedCampaignStore;
         };
       }
     ).__ZUSTAND_STORES__;
@@ -167,8 +174,20 @@ export async function getCampaign(
       throw new Error('Campaign store not exposed');
     }
 
-    const state = stores.campaign.getState();
-    return state.campaigns.find((c) => c.id === id) || null;
+    const exposed = stores.campaign;
+    const store = 'getState' in exposed ? exposed : exposed();
+    const campaign = store.getState().getCampaign();
+
+    if (!campaign || campaign.id !== id) {
+      return null;
+    }
+
+    return {
+      id: campaign.id,
+      name: campaign.name,
+      status: campaign.status ?? campaign.campaignType ?? 'active',
+      description: campaign.description,
+    };
   }, campaignId);
 }
 
@@ -183,12 +202,18 @@ export async function deleteCampaign(
   campaignId: string,
 ): Promise<void> {
   await page.evaluate((id) => {
+    type CampaignStoreApi = {
+      getState: () => {
+        getCampaign: () => { id: string } | null;
+      };
+      setState: (state: Record<string, unknown>) => void;
+    };
+    type ExposedCampaignStore = CampaignStoreApi | (() => CampaignStoreApi);
+
     const stores = (
       window as unknown as {
         __ZUSTAND_STORES__?: {
-          campaign?: {
-            getState: () => { deleteCampaign: (id: string) => void };
-          };
+          campaign?: ExposedCampaignStore;
         };
       }
     ).__ZUSTAND_STORES__;
@@ -197,6 +222,22 @@ export async function deleteCampaign(
       throw new Error('Campaign store not exposed');
     }
 
-    stores.campaign.getState().deleteCampaign(id);
+    const exposed = stores.campaign;
+    const store = 'getState' in exposed ? exposed : exposed();
+    const campaign = store.getState().getCampaign();
+
+    if (!campaign || campaign.id !== id) {
+      return;
+    }
+
+    store.setState({
+      campaign: null,
+      forcesStore: null,
+      missionsStore: null,
+      pendingBattleOutcomes: [],
+      processedBattleIds: [],
+      reviewedBattleIds: {},
+      outcomeApplyErrors: {},
+    });
   }, campaignId);
 }

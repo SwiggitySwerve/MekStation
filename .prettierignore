@@ -2,6 +2,10 @@
 # Keep project-specific format excludes here so they actually take effect.
 next-env.d.ts
 
+# Local runtime state and agent mirrors
+.omx/
+.agents/
+
 # Spec-driven artifacts — machine-authored delta specs, tasks.md checkboxes,
 # proposal templates. Formatter opinions create pointless churn and break
 # openspec validation-sensitive whitespace.

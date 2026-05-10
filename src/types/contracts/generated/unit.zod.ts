@@ -12,18 +12,17 @@ export const UnitContract = z
   .object({
     id: z
       .string()
-      .regex(new RegExp('^[a-z0-9-]+$'))
-      .describe('Unique identifier for the unit (kebab-case)'),
+      .regex(new RegExp('^\\S+$'))
+      .min(1)
+      .describe(
+        'Unique identifier for the unit. The converter preserves source punctuation and Unicode, so IDs must be non-empty and whitespace-free.',
+      ),
     chassis: z
       .string()
       .min(1)
       .describe("Chassis name (e.g., 'Atlas')")
       .optional(),
-    model: z
-      .string()
-      .min(1)
-      .describe("Model designation (e.g., 'AS7-D')")
-      .optional(),
+    model: z.string().describe("Model designation (e.g., 'AS7-D')").optional(),
     variant: z.string().describe('Optional variant name').optional(),
     unitType: z
       .enum([
@@ -42,7 +41,11 @@ export const UnitContract = z
         'Space Station',
         'Infantry',
         'Battle Armor',
+        'BattleArmor',
         'Support Vehicle',
+        'SupportVehicle',
+        'ConventionalFighter',
+        'SmallCraft',
         'BATTLEARMOR',
       ])
       .describe('Type of unit'),
@@ -72,7 +75,7 @@ export const UnitContract = z
       .lte(9999)
       .describe('Introduction year')
       .optional(),
-    tonnage: z.number().gte(0).lte(200).describe('Unit tonnage').optional(),
+    tonnage: z.number().gte(0).lte(250).describe('Unit tonnage').optional(),
     engine: z
       .object({
         type: z
@@ -86,9 +89,17 @@ export const UnitContract = z
             'ICE',
             'FUEL_CELL',
             'FISSION',
+            'FLYWHEEL',
+            'BATTERY',
           ])
           .describe('Engine type'),
-        rating: z.number().int().gte(10).lte(500).describe('Engine rating'),
+        rating: z
+          .number()
+          .int()
+          .gte(0)
+          .lte(1000)
+          .describe('Engine rating')
+          .optional(),
       })
       .strict()
       .optional(),
@@ -152,6 +163,18 @@ export const UnitContract = z
             'COMMERCIAL',
             'IMPACT_RESISTANT',
             'FERRO_LAMELLOR',
+            'FIRE_RESISTANT',
+            'MIMETIC',
+            'STEALTH_IMPROVED',
+            'STEALTH_PROTOTYPE',
+            'REACTIVE_CLAN',
+            'REFLECTIVE_CLAN',
+            'BAR_2',
+            'BAR_4',
+            'BAR_5',
+            'BAR_6',
+            'BAR_7',
+            'BAR_9',
           ])
           .describe('Armor type'),
         allocation: z
@@ -205,9 +228,85 @@ export const UnitContract = z
               }
             }),
           )
-          .describe('Armor points per location'),
+          .describe('Armor points per location')
+          .optional(),
+        byLocation: z
+          .record(z.string(), z.number().int().gte(0))
+          .describe('Armor points per vehicle location')
+          .optional(),
+        byArc: z
+          .record(z.string(), z.number().int().gte(0))
+          .describe('Armor points per aerospace arc')
+          .optional(),
+        perTrooper: z
+          .number()
+          .int()
+          .gte(0)
+          .describe('Battle armor points per trooper')
+          .optional(),
       })
       .strict()
+      .and(
+        z.union([
+          z.object({
+            allocation: z.record(
+              z.string(),
+              z.any().superRefine((x, ctx) => {
+                const schemas = [
+                  z.number().int().gte(0),
+                  z
+                    .object({
+                      front: z.number().int().gte(0),
+                      rear: z.number().int().gte(0),
+                    })
+                    .strict(),
+                ];
+                const { errors, failed } = schemas.reduce<{
+                  errors: z.core.$ZodIssue[];
+                  failed: number;
+                }>(
+                  ({ errors, failed }, schema) =>
+                    ((result) =>
+                      result.error
+                        ? {
+                            errors: [...errors, ...result.error.issues],
+                            failed: failed + 1,
+                          }
+                        : { errors, failed })(schema.safeParse(x)),
+                  { errors: [], failed: 0 },
+                );
+                const passed = schemas.length - failed;
+                if (passed !== 1) {
+                  ctx.addIssue(
+                    errors.length
+                      ? {
+                          path: [],
+                          code: 'invalid_union',
+                          errors: [errors],
+                          message:
+                            'Invalid input: Should pass single schema. Passed ' +
+                            passed,
+                        }
+                      : {
+                          path: [],
+                          code: 'custom',
+                          errors: [errors],
+                          message:
+                            'Invalid input: Should pass single schema. Passed ' +
+                            passed,
+                        },
+                  );
+                }
+              }),
+            ),
+          }),
+          z.object({
+            byLocation: z.record(z.string(), z.number().int().gte(0)),
+          }),
+          z.object({ byArc: z.record(z.string(), z.number().int().gte(0)) }),
+          z.object({ perTrooper: z.number().int().gte(0) }),
+        ]),
+      )
       .optional(),
     heatSinks: z
       .object({
@@ -238,6 +337,10 @@ export const UnitContract = z
         z
           .object({
             id: z.string().describe('Equipment ID reference'),
+            name: z
+              .string()
+              .describe('Source display name for the mounted equipment')
+              .optional(),
             location: z.string().describe('Mounting location'),
             slots: z
               .array(z.number().int())

@@ -181,6 +181,20 @@ const handle = app.getRequestHandler();
 // =============================================================================
 
 const WS_UPGRADE_PATH = '/api/multiplayer/socket';
+const E2E_READY_PATH = '/__playwright_e2e_ready__';
+
+function isE2EReadyRequest(parsedUrl) {
+  if (parsedUrl.pathname !== E2E_READY_PATH) return false;
+  const requestRunId = Array.isArray(parsedUrl.query.runId)
+    ? parsedUrl.query.runId[0]
+    : parsedUrl.query.runId;
+  return (
+    process.env.NEXT_PUBLIC_E2E_MODE === 'true' &&
+    typeof process.env.PLAYWRIGHT_E2E_RUN_ID === 'string' &&
+    process.env.PLAYWRIGHT_E2E_RUN_ID.length > 0 &&
+    requestRunId === process.env.PLAYWRIGHT_E2E_RUN_ID
+  );
+}
 
 /**
  * Lazily resolve the multiplayer registry. We use a dynamic import so
@@ -205,6 +219,15 @@ app
     const server = createServer(async (req, res) => {
       try {
         const parsedUrl = parse(req.url ?? '/', true);
+        if (parsedUrl.pathname === E2E_READY_PATH) {
+          if (isE2EReadyRequest(parsedUrl)) {
+            res.statusCode = 204;
+          } else {
+            res.statusCode = 404;
+          }
+          res.end();
+          return;
+        }
         await handle(req, res, parsedUrl);
       } catch (err) {
         // eslint-disable-next-line no-console
