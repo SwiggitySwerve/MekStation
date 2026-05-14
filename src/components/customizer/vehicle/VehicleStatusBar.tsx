@@ -134,6 +134,7 @@ export function VehicleStatusBar({
   // Derived state
   const isVTOL = motionType === GroundMotionType.VTOL;
   const hasTurret = turret !== null;
+  const hasSecondaryTurret = secondaryTurret !== null;
   const flankMP = Math.floor(cruiseMP * 1.5);
 
   // BV breakdown dialog open state
@@ -181,7 +182,11 @@ export function VehicleStatusBar({
 
   // Calculate armor stats
   const armorStats = useMemo(() => {
-    const allocated = getTotalVehicleArmor(armorAllocation, hasTurret);
+    const allocated = getTotalVehicleArmor(
+      armorAllocation,
+      hasTurret,
+      hasSecondaryTurret,
+    );
     const armorDef = getArmorDefinition(armorType);
     const pointsPerTon = armorDef?.pointsPerTon ?? 16;
     const available = Math.floor(armorTonnage * pointsPerTon);
@@ -191,7 +196,7 @@ export function VehicleStatusBar({
       available,
       unallocated: available - allocated,
     };
-  }, [armorAllocation, hasTurret, armorType, armorTonnage]);
+  }, [armorAllocation, hasTurret, hasSecondaryTurret, armorType, armorTonnage]);
 
   // Compute live Battle Value (defensive/offensive split + pilot-adjusted final)
   // @spec openspec/changes/add-vehicle-battle-value/specs/vehicle-unit-system/spec.md

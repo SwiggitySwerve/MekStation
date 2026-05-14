@@ -34,8 +34,10 @@ import {
   derivePowerAmpWeightLogic,
   setCruiseMPLogic,
   setEngineRatingLogic,
+  setHasSecondaryTurretLogic,
   setLocationArmorLogic,
   setMotionTypeLogic,
+  setSecondaryTurretTypeLogic,
   setTonnageLogic,
   setTurretTypeLogic,
   setTurretWeightLogic,
@@ -149,6 +151,12 @@ export function createVehicleStore(
 
         setTurretWeight: (weight) =>
           set((state) => setTurretWeightLogic(state, weight)),
+
+        setHasSecondaryTurret: (enabled) =>
+          set((state) => setHasSecondaryTurretLogic(state, enabled)),
+
+        setSecondaryTurretType: (type) =>
+          set((state) => setSecondaryTurretTypeLogic(state, type)),
 
         // =================================================================
         // Armor Actions

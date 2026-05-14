@@ -24,8 +24,10 @@ export enum VehicleLocation {
   RIGHT = 'Right',
   /** Rear facing armor and equipment */
   REAR = 'Rear',
-  /** Turret (if equipped) - can rotate 360 degrees */
+  /** Primary turret (if equipped) - can rotate 360 degrees */
   TURRET = 'Turret',
+  /** Secondary turret for dual-turret vehicles (independent rotation) */
+  TURRET_2 = 'Turret 2',
   /** Body/chassis - internal components */
   BODY = 'Body',
 }

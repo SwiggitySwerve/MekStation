@@ -46,8 +46,10 @@ export interface IVehicleArmorAllocation {
   [VehicleLocation.RIGHT]: number;
   /** Rear armor points */
   [VehicleLocation.REAR]: number;
-  /** Turret armor points (if turret exists) */
+  /** Primary turret armor points (if turret exists) */
   [VehicleLocation.TURRET]: number;
+  /** Secondary turret armor points (if dual turret exists) */
+  [VehicleLocation.TURRET_2]: number;
   /** Body/internal armor points (for some vehicle types) */
   [VehicleLocation.BODY]: number;
 }
@@ -70,6 +72,7 @@ export function createEmptyVehicleArmorAllocation(): IVehicleArmorAllocation {
     [VehicleLocation.RIGHT]: 0,
     [VehicleLocation.REAR]: 0,
     [VehicleLocation.TURRET]: 0,
+    [VehicleLocation.TURRET_2]: 0,
     [VehicleLocation.BODY]: 0,
   };
 }
@@ -85,11 +88,16 @@ export function createEmptyVTOLArmorAllocation(): IVTOLArmorAllocation {
 }
 
 /**
- * Calculate total allocated vehicle armor
+ * Calculate total allocated vehicle armor.
+ *
+ * Secondary turret armor (TURRET_2) is included only when `hasSecondaryTurret`
+ * is true; callers using the legacy 1-arg or 2-arg form are unaffected because
+ * the new parameter defaults to false.
  */
 export function getTotalVehicleArmor(
   allocation: IVehicleArmorAllocation,
   hasTurret: boolean = false,
+  hasSecondaryTurret: boolean = false,
 ): number {
   let total =
     (allocation[VehicleLocation.FRONT] || 0) +
@@ -99,6 +107,10 @@ export function getTotalVehicleArmor(
 
   if (hasTurret) {
     total += allocation[VehicleLocation.TURRET] || 0;
+  }
+
+  if (hasSecondaryTurret) {
+    total += allocation[VehicleLocation.TURRET_2] || 0;
   }
 
   // Add rotor for VTOLs
@@ -322,6 +334,10 @@ export interface VehicleActions {
   // Turret
   setTurretType: (type: TurretType) => void;
   setTurretWeight: (weight: number) => void;
+  /** Toggle the secondary turret on/off; off zeros TURRET_2 armor. */
+  setHasSecondaryTurret: (enabled: boolean) => void;
+  /** Set secondary turret type (no-op when secondary turret is off). */
+  setSecondaryTurretType: (type: TurretType) => void;
 
   // Armor
   setArmorType: (type: ArmorTypeEnum) => void;
