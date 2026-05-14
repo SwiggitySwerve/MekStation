@@ -9,6 +9,7 @@
  * Requirement: Armor Allocation per Firing Arc
  */
 
+import { AerospaceLocation } from '../../../types/construction/UnitLocation';
 import {
   AerospaceArc,
   AerospaceSubType,
@@ -121,4 +122,47 @@ export function arcMaxMap(
     result[arc] = maxArcArmorPoints(arc, tonnage, subType);
   }
   return result;
+}
+
+// ============================================================================
+// Enum Bridge
+// ============================================================================
+
+/**
+ * Bridge AerospaceLocation (used by the customizer UI) to AerospaceArc
+ * (used by construction-spec calc functions). The two enums carry the
+ * same semantic arcs but different string values; the UI's enum is the
+ * subset that omits the small-craft-only LEFT_SIDE / RIGHT_SIDE arcs.
+ *
+ * Returns null for arcs that have no AerospaceArc counterpart (none today;
+ * the function is total over AerospaceLocation members but kept as `| null`
+ * for future-proofing if non-arc locations are added).
+ */
+export function mapAerospaceLocationToArc(
+  loc: AerospaceLocation,
+): AerospaceArc {
+  switch (loc) {
+    case AerospaceLocation.NOSE:
+      return AerospaceArc.NOSE;
+    case AerospaceLocation.LEFT_WING:
+      return AerospaceArc.LEFT_WING;
+    case AerospaceLocation.RIGHT_WING:
+      return AerospaceArc.RIGHT_WING;
+    case AerospaceLocation.AFT:
+      return AerospaceArc.AFT;
+    case AerospaceLocation.FUSELAGE:
+      return AerospaceArc.FUSELAGE;
+  }
+}
+
+/**
+ * Convenience: max armor for a UI AerospaceLocation, dispatched to the
+ * construction-spec utility via the enum bridge.
+ */
+export function maxArcArmorPointsForLocation(
+  loc: AerospaceLocation,
+  tonnage: number,
+  subType: AerospaceSubType,
+): number {
+  return maxArcArmorPoints(mapAerospaceLocationToArc(loc), tonnage, subType);
 }

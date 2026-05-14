@@ -7,6 +7,7 @@
  * maxArcArmorPoints = floor(tonnage × factor).
  */
 
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import {
   AerospaceArc,
   AerospaceSubType,
@@ -16,7 +17,9 @@ import {
   arcMaxMap,
   ASF_CF_ARCS,
   getArcsForSubType,
+  mapAerospaceLocationToArc,
   maxArcArmorPoints,
+  maxArcArmorPointsForLocation,
   maxTotalArmorPoints,
   SMALL_CRAFT_ARCS,
 } from '../armorArcCalculations';
@@ -106,5 +109,124 @@ describe('arcMaxMap', () => {
     expect(map[AerospaceArc.LEFT_WING]).toBe(10);
     expect(map[AerospaceArc.RIGHT_WING]).toBe(10);
     expect(map[AerospaceArc.AFT]).toBe(6);
+  });
+});
+
+// =============================================================================
+// Enum bridge — AerospaceLocation (UI) → AerospaceArc (construction)
+// =============================================================================
+
+describe('mapAerospaceLocationToArc', () => {
+  it('maps every AerospaceLocation member to the corresponding AerospaceArc', () => {
+    expect(mapAerospaceLocationToArc(AerospaceLocation.NOSE)).toBe(
+      AerospaceArc.NOSE,
+    );
+    expect(mapAerospaceLocationToArc(AerospaceLocation.LEFT_WING)).toBe(
+      AerospaceArc.LEFT_WING,
+    );
+    expect(mapAerospaceLocationToArc(AerospaceLocation.RIGHT_WING)).toBe(
+      AerospaceArc.RIGHT_WING,
+    );
+    expect(mapAerospaceLocationToArc(AerospaceLocation.AFT)).toBe(
+      AerospaceArc.AFT,
+    );
+    expect(mapAerospaceLocationToArc(AerospaceLocation.FUSELAGE)).toBe(
+      AerospaceArc.FUSELAGE,
+    );
+  });
+});
+
+describe('maxArcArmorPointsForLocation — caps drop from 10× misleading display', () => {
+  // Audit findings (docs/audits/2026-05-13-customizer-armor-megameklab-parity.md):
+  // The diagram previously displayed `tonnage * 8 * arcShare` caps — 10× the
+  // construction-spec values. Post-PR2 the diagram uses these utility values.
+  it('50t ASF nose max = 14 (was 140 in old diagram)', () => {
+    expect(
+      maxArcArmorPointsForLocation(
+        AerospaceLocation.NOSE,
+        50,
+        AerospaceSubType.AEROSPACE_FIGHTER,
+      ),
+    ).toBe(14);
+  });
+
+  it('50t ASF wing maxes = 10 each (was 100 in old diagram)', () => {
+    expect(
+      maxArcArmorPointsForLocation(
+        AerospaceLocation.LEFT_WING,
+        50,
+        AerospaceSubType.AEROSPACE_FIGHTER,
+      ),
+    ).toBe(10);
+    expect(
+      maxArcArmorPointsForLocation(
+        AerospaceLocation.RIGHT_WING,
+        50,
+        AerospaceSubType.AEROSPACE_FIGHTER,
+      ),
+    ).toBe(10);
+  });
+
+  it('50t ASF aft max = 6 (was 60 in old diagram)', () => {
+    expect(
+      maxArcArmorPointsForLocation(
+        AerospaceLocation.AFT,
+        50,
+        AerospaceSubType.AEROSPACE_FIGHTER,
+      ),
+    ).toBe(6);
+  });
+
+  it('100t ASF totals match maxTotalArmorPoints (28+20+20+12=80)', () => {
+    const nose = maxArcArmorPointsForLocation(
+      AerospaceLocation.NOSE,
+      100,
+      AerospaceSubType.AEROSPACE_FIGHTER,
+    );
+    const lw = maxArcArmorPointsForLocation(
+      AerospaceLocation.LEFT_WING,
+      100,
+      AerospaceSubType.AEROSPACE_FIGHTER,
+    );
+    const rw = maxArcArmorPointsForLocation(
+      AerospaceLocation.RIGHT_WING,
+      100,
+      AerospaceSubType.AEROSPACE_FIGHTER,
+    );
+    const aft = maxArcArmorPointsForLocation(
+      AerospaceLocation.AFT,
+      100,
+      AerospaceSubType.AEROSPACE_FIGHTER,
+    );
+    expect(nose + lw + rw + aft).toBe(
+      maxTotalArmorPoints(100, AerospaceSubType.AEROSPACE_FIGHTER),
+    );
+  });
+
+  it('small craft via the wing-location bridge: wings yield 0 (sides are AerospaceArc-only)', () => {
+    // AerospaceLocation has no LEFT_SIDE / RIGHT_SIDE today — small-craft
+    // side-arc UI routing is the deferred audit P1 work. Wing locations on a
+    // small craft therefore yield 0 via the bridge, matching that scope guard.
+    expect(
+      maxArcArmorPointsForLocation(
+        AerospaceLocation.LEFT_WING,
+        200,
+        AerospaceSubType.SMALL_CRAFT,
+      ),
+    ).toBe(0);
+    expect(
+      maxArcArmorPointsForLocation(
+        AerospaceLocation.NOSE,
+        200,
+        AerospaceSubType.SMALL_CRAFT,
+      ),
+    ).toBe(56);
+    expect(
+      maxArcArmorPointsForLocation(
+        AerospaceLocation.AFT,
+        200,
+        AerospaceSubType.SMALL_CRAFT,
+      ),
+    ).toBe(24);
   });
 });
