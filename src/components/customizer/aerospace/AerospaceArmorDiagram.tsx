@@ -32,6 +32,7 @@ import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { maxArcArmorPointsForLocation } from '@/utils/construction/aerospace/armorArcCalculations';
 
 import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
 import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
@@ -41,55 +42,22 @@ import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 // =============================================================================
 
 /**
- * Per-arc share of total armor points (matches store's autoAllocateArmor splits).
- *   Nose 35% / Wings 25% each / Aft 15%  → totals 100%
- */
-const ARC_SHARE: Record<AerospaceLocation, number> = {
-  [AerospaceLocation.NOSE]: 0.35,
-  [AerospaceLocation.LEFT_WING]: 0.25,
-  [AerospaceLocation.RIGHT_WING]: 0.25,
-  [AerospaceLocation.AFT]: 0.15,
-  [AerospaceLocation.FUSELAGE]: 0,
-};
-
-/**
- * Hard tonnage cap on armor per the rules:
- *   - Aerospace fighters: max 8 × tonnage points (per TM Aerospace).
- *   - Small craft: max 16 × tonnage points (per StratOps).
- *
- * Used as an upper-bound sanity cap when computing per-arc maxima so the
- * diagram never displays a max greater than the rules permit even if the
- * raw armor tonnage is over-allocated by the user.
- */
-function maxTotalArmorPoints(
-  tonnage: number,
-  subType: AerospaceSubType,
-): number {
-  if (subType === AerospaceSubType.SMALL_CRAFT) {
-    return tonnage * 16;
-  }
-  return tonnage * 8;
-}
-
-/**
  * Per-arc maximum armor points.
  *
- * = min(armorTonnage * pointsPerTon, maxTotalArmorPoints) * arcShare
+ * Delegates to the canonical construction-spec utility (TechManual / StratOps
+ * arc-factor tables: Nose 0.28, Wings/Sides 0.20 each, Aft 0.12 of tonnage).
  *
- * Honours the configured armor type's points-per-ton (Standard 16, Ferro 17.92, …)
- * and applies the chassis cap so arcs can never exceed legal limits.
+ * The previous local cap math derived arc maxima from `armorTonnage * pointsPerTon`
+ * and a 35/25/25/15 share, then clamped against `tonnage * 8` / `tonnage * 16`.
+ * That produced a cap ~10× larger than the construction-spec values and
+ * disagreed with the tab's clamp-on-write (which already used 0.28-of-tonnage).
  */
 function getArcMax(
   tonnage: number,
-  armorTonnage: number,
-  pointsPerTon: number,
   subType: AerospaceSubType,
   arc: AerospaceLocation,
 ): number {
-  const requested = Math.floor(armorTonnage * pointsPerTon);
-  const cap = maxTotalArmorPoints(tonnage, subType);
-  const total = Math.max(0, Math.min(requested, cap));
-  return Math.floor(total * (ARC_SHARE[arc] ?? 0));
+  return maxArcArmorPointsForLocation(arc, tonnage, subType);
 }
 
 // =============================================================================
@@ -135,6 +103,9 @@ export function AerospaceArmorDiagram({
   const siMax = Math.ceil(tonnage / 10); // structural integrity equals SI rating
 
   // Resolve points-per-ton for the configured armor type (defaults to 16).
+  // Retained for availablePoints display below; per-arc cap math no longer
+  // depends on armorTonnage or pointsPerTon (caps come from chassis tonnage
+  // and arc-factor table, per construction spec).
   const pointsPerTon = useMemo(() => {
     const def = getArmorDefinition(armorType);
     return def?.pointsPerTon ?? 16;
@@ -142,10 +113,10 @@ export function AerospaceArmorDiagram({
 
   const handleChange = useCallback(
     (arc: AerospaceLocation, raw: number) => {
-      const max = getArcMax(tonnage, armorTonnage, pointsPerTon, subType, arc);
+      const max = getArcMax(tonnage, subType, arc);
       setArcArmor(arc, Math.max(0, Math.min(max, raw)));
     },
-    [setArcArmor, tonnage, armorTonnage, pointsPerTon, subType],
+    [setArcArmor, tonnage, subType],
   );
 
   // Detect any non-default arc allocation for the confirm gate
@@ -276,13 +247,7 @@ export function AerospaceArmorDiagram({
       <div className="grid grid-cols-2 gap-3">
         {ARCS.map(({ arc, label }) => {
           const current = (armorAllocation as Record<string, number>)[arc] ?? 0;
-          const max = getArcMax(
-            tonnage,
-            armorTonnage,
-            pointsPerTon,
-            subType,
-            arc,
-          );
+          const max = getArcMax(tonnage, subType, arc);
           return (
             <div key={arc} className="flex flex-col gap-1">
               <ArmorLocationBlock

@@ -16,6 +16,10 @@ import {
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import {
+  maxArcArmorPointsForLocation,
+  maxTotalArmorPoints,
+} from '@/utils/construction/aerospace/armorArcCalculations';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { customizerStyles as cs } from '../styles';
@@ -63,30 +67,6 @@ function calculateArmorPoints(
   return Math.floor(tonnage * pointsPerTon);
 }
 
-function getMaxAerospaceArmorForArc(
-  tonnage: number,
-  arc: AerospaceLocation,
-): number {
-  // Aerospace armor maximums are based on tonnage and arc
-  const baseArmor = Math.floor(tonnage * 0.8); // Max ~80% of tonnage in armor points
-
-  switch (arc) {
-    case AerospaceLocation.NOSE:
-      return Math.floor(baseArmor * 0.35); // Nose gets most
-    case AerospaceLocation.LEFT_WING:
-    case AerospaceLocation.RIGHT_WING:
-      return Math.floor(baseArmor * 0.25); // Wings get equal
-    case AerospaceLocation.AFT:
-      return Math.floor(baseArmor * 0.15); // Aft gets least
-    default:
-      return 0;
-  }
-}
-
-function getMaxTotalAerospaceArmor(tonnage: number): number {
-  return Math.floor(tonnage * 0.8); // Simplified max armor
-}
-
 // =============================================================================
 // Component
 // =============================================================================
@@ -100,6 +80,7 @@ export function AerospaceArmorTab({
   const armorType = useAerospaceStore((s) => s.armorType);
   const armorTonnage = useAerospaceStore((s) => s.armorTonnage);
   const armorAllocation = useAerospaceStore((s) => s.armorAllocation);
+  const subType = useAerospaceStore((s) => s.aerospaceSubType);
 
   // Get actions
   const setArmorType = useAerospaceStore((s) => s.setArmorType);
@@ -120,8 +101,8 @@ export function AerospaceArmorTab({
     [armorAllocation],
   );
   const maxTotalArmor = useMemo(
-    () => getMaxTotalAerospaceArmor(tonnage),
-    [tonnage],
+    () => maxTotalArmorPoints(tonnage, subType),
+    [tonnage, subType],
   );
   const maxUsefulTonnage = useMemo(
     () => ceilToHalfTon(maxTotalArmor / pointsPerTon),
@@ -148,11 +129,11 @@ export function AerospaceArmorTab({
 
   const handleArcArmorChange = useCallback(
     (arc: AerospaceLocation, points: number) => {
-      const max = getMaxAerospaceArmorForArc(tonnage, arc);
+      const max = maxArcArmorPointsForLocation(arc, tonnage, subType);
       const clamped = Math.max(0, Math.min(max, points));
       setArcArmor(arc, clamped);
     },
-    [setArcArmor, tonnage],
+    [setArcArmor, tonnage, subType],
   );
 
   const handleMaximizeArmor = useCallback(() => {
@@ -304,7 +285,11 @@ export function AerospaceArmorTab({
           <div className="space-y-3">
             {AEROSPACE_ARCS.map(({ arc, label }) => {
               const currentValue = armorAllocation[arc] ?? 0;
-              const maxValue = getMaxAerospaceArmorForArc(tonnage, arc);
+              const maxValue = maxArcArmorPointsForLocation(
+                arc,
+                tonnage,
+                subType,
+              );
 
               return (
                 <div
