@@ -75,8 +75,14 @@ export function BattleArmorPipGrid({
   const weightClass = useBattleArmorStore((s) => s.weightClass);
   const chassisType = useBattleArmorStore((s) => s.chassisType);
 
-  // Derive pip max from weight class; fall back to armorPerTrooper if class unknown
-  const maxPips = MAX_PIPS_BY_WEIGHT_CLASS[weightClass] ?? armorPerTrooper;
+  // armorPerTrooper is authoritative — it reflects the player's current allocation.
+  // MAX_PIPS_BY_WEIGHT_CLASS is the weight-class cap, used only when armorPerTrooper
+  // is not yet set (legacy/undefined). Prior order showed full weight-class max even
+  // when the player had explicitly allocated less.
+  const maxPips =
+    armorPerTrooper != null
+      ? armorPerTrooper
+      : MAX_PIPS_BY_WEIGHT_CLASS[weightClass];
 
   const troopers = Array.from({ length: squadSize }, (_, i) => i);
 

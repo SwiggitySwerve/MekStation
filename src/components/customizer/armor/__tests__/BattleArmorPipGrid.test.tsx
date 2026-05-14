@@ -80,16 +80,64 @@ describe('BattleArmorPipGrid', () => {
     expect(screen.getByLabelText('Trooper 1: 7 of 7')).toBeInTheDocument();
   });
 
-  it('renders correct pip count for Assault weight class (15 pips)', () => {
+  it('renders correct pip count for Assault weight class fully allocated (15 pips)', () => {
     mockUseBattleArmorStore.mockImplementation((selector) =>
       selector(
         makeState({
           weightClass: BattleArmorWeightClass.ASSAULT,
+          armorPerTrooper: 15,
         }) as unknown as BattleArmorStore,
       ),
     );
     render(<BattleArmorPipGrid />);
     expect(screen.getByLabelText('Trooper 1: 15 of 15')).toBeInTheDocument();
+  });
+
+  // Regression coverage for the armorPerTrooper-authoritative fix
+  // (audit: docs/audits/2026-05-13-customizer-armor-megameklab-parity.md lines 238-255).
+  it('renders armorPerTrooper count even when above weight-class max (8 on LIGHT)', () => {
+    mockUseBattleArmorStore.mockImplementation((selector) =>
+      selector(
+        makeState({
+          weightClass: BattleArmorWeightClass.LIGHT,
+          armorPerTrooper: 8,
+          squadSize: 1,
+        }) as unknown as BattleArmorStore,
+      ),
+    );
+    render(<BattleArmorPipGrid />);
+    // Prior bug clamped to LIGHT max (5). After fix, armorPerTrooper wins.
+    expect(screen.getByLabelText('Trooper 1: 8 of 8')).toBeInTheDocument();
+  });
+
+  it('renders armorPerTrooper count even when below weight-class max (4 on HEAVY)', () => {
+    mockUseBattleArmorStore.mockImplementation((selector) =>
+      selector(
+        makeState({
+          weightClass: BattleArmorWeightClass.HEAVY,
+          armorPerTrooper: 4,
+          squadSize: 1,
+        }) as unknown as BattleArmorStore,
+      ),
+    );
+    render(<BattleArmorPipGrid />);
+    // Prior bug showed HEAVY max (11). After fix, armorPerTrooper wins.
+    expect(screen.getByLabelText('Trooper 1: 4 of 4')).toBeInTheDocument();
+  });
+
+  it('falls back to weight-class max when armorPerTrooper is undefined', () => {
+    mockUseBattleArmorStore.mockImplementation((selector) =>
+      selector(
+        makeState({
+          weightClass: BattleArmorWeightClass.HEAVY,
+          armorPerTrooper: undefined,
+          squadSize: 1,
+        }) as unknown as BattleArmorStore,
+      ),
+    );
+    render(<BattleArmorPipGrid />);
+    // Legacy fallback path — guard against regression.
+    expect(screen.getByLabelText('Trooper 1: 11 of 11')).toBeInTheDocument();
   });
 
   it('reduces remaining pips for a damaged trooper', () => {
