@@ -53,6 +53,7 @@ export function VehicleArmorTab({
   const tonnage = useVehicleStore((s) => s.tonnage);
   const motionType = useVehicleStore((s) => s.motionType);
   const turret = useVehicleStore((s) => s.turret);
+  const secondaryTurret = useVehicleStore((s) => s.secondaryTurret);
   const armorType = useVehicleStore((s) => s.armorType);
   const armorTonnage = useVehicleStore((s) => s.armorTonnage);
   const armorAllocation = useVehicleStore((s) => s.armorAllocation);
@@ -67,6 +68,7 @@ export function VehicleArmorTab({
   // Derived state
   const isVTOL = motionType === GroundMotionType.VTOL;
   const hasTurret = turret !== null;
+  const hasSecondaryTurret = secondaryTurret !== null;
 
   // Calculate derived values
   const armorDef = useMemo(() => getArmorDefinition(armorType), [armorType]);
@@ -76,12 +78,12 @@ export function VehicleArmorTab({
     [armorTonnage, armorType],
   );
   const allocatedPoints = useMemo(
-    () => getTotalVehicleArmor(armorAllocation, hasTurret),
-    [armorAllocation, hasTurret],
+    () => getTotalVehicleArmor(armorAllocation, hasTurret, hasSecondaryTurret),
+    [armorAllocation, hasTurret, hasSecondaryTurret],
   );
   const maxTotalArmor = useMemo(
-    () => getMaxVehicleArmor(tonnage, hasTurret, isVTOL),
-    [tonnage, hasTurret, isVTOL],
+    () => getMaxVehicleArmor(tonnage, hasTurret, isVTOL, hasSecondaryTurret),
+    [tonnage, hasTurret, isVTOL, hasSecondaryTurret],
   );
 
   // Calculate max useful tonnage

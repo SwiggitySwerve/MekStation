@@ -175,6 +175,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       [VehicleLocation.RIGHT]: 0,
       [VehicleLocation.REAR]: 0,
       [VehicleLocation.TURRET]: 0,
+      [VehicleLocation.TURRET_2]: 0,
       [VehicleLocation.BODY]: 0,
     };
 

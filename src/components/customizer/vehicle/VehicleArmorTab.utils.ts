@@ -23,6 +23,7 @@ export function getMaxVehicleArmorForLocation(
   location: VehicleArmorLocation,
   hasTurret: boolean,
   isVTOL: boolean,
+  hasSecondaryTurret: boolean = false,
 ): number {
   const baseStructure = Math.floor(tonnage / 10) + 1;
 
@@ -36,6 +37,9 @@ export function getMaxVehicleArmorForLocation(
       return baseStructure * 2;
     case VehicleLocation.TURRET:
       return hasTurret ? baseStructure * 2 : 0;
+    case VehicleLocation.TURRET_2:
+      // Secondary turret mirrors primary turret armor budget.
+      return hasSecondaryTurret ? baseStructure * 2 : 0;
     case VTOLLocation.ROTOR:
       return isVTOL ? 2 : 0;
     default:
@@ -47,6 +51,7 @@ export function getMaxVehicleArmor(
   tonnage: number,
   hasTurret: boolean,
   isVTOL: boolean,
+  hasSecondaryTurret: boolean = false,
 ): number {
   let total = 0;
   total += getMaxVehicleArmorForLocation(
@@ -54,24 +59,28 @@ export function getMaxVehicleArmor(
     VehicleLocation.FRONT,
     hasTurret,
     isVTOL,
+    hasSecondaryTurret,
   );
   total += getMaxVehicleArmorForLocation(
     tonnage,
     VehicleLocation.LEFT,
     hasTurret,
     isVTOL,
+    hasSecondaryTurret,
   );
   total += getMaxVehicleArmorForLocation(
     tonnage,
     VehicleLocation.RIGHT,
     hasTurret,
     isVTOL,
+    hasSecondaryTurret,
   );
   total += getMaxVehicleArmorForLocation(
     tonnage,
     VehicleLocation.REAR,
     hasTurret,
     isVTOL,
+    hasSecondaryTurret,
   );
   if (hasTurret) {
     total += getMaxVehicleArmorForLocation(
@@ -79,6 +88,16 @@ export function getMaxVehicleArmor(
       VehicleLocation.TURRET,
       hasTurret,
       isVTOL,
+      hasSecondaryTurret,
+    );
+  }
+  if (hasSecondaryTurret) {
+    total += getMaxVehicleArmorForLocation(
+      tonnage,
+      VehicleLocation.TURRET_2,
+      hasTurret,
+      isVTOL,
+      hasSecondaryTurret,
     );
   }
   if (isVTOL) {
@@ -87,6 +106,7 @@ export function getMaxVehicleArmor(
       VTOLLocation.ROTOR,
       hasTurret,
       isVTOL,
+      hasSecondaryTurret,
     );
   }
   return total;

@@ -77,10 +77,15 @@ export function VehicleTurretTab({
   const tonnage = useVehicleStore((s) => s.tonnage);
   const motionType = useVehicleStore((s) => s.motionType);
   const turret = useVehicleStore((s) => s.turret);
+  const secondaryTurret = useVehicleStore((s) => s.secondaryTurret);
   const equipment = useVehicleStore((s) => s.equipment);
 
   // Get actions from store
   const setTurretType = useVehicleStore((s) => s.setTurretType);
+  const setHasSecondaryTurret = useVehicleStore((s) => s.setHasSecondaryTurret);
+  const setSecondaryTurretType = useVehicleStore(
+    (s) => s.setSecondaryTurretType,
+  );
   const updateEquipmentLocation = useVehicleStore(
     (s) => s.updateEquipmentLocation,
   );
@@ -88,6 +93,10 @@ export function VehicleTurretTab({
   // Derived state
   const isVTOL = motionType === GroundMotionType.VTOL;
   const hasTurret = turret !== null;
+  const hasSecondaryTurret = secondaryTurret !== null;
+  // Secondary turret is only meaningful for ground vehicles with a primary
+  // turret. VTOLs use chin turrets exclusively.
+  const canHaveSecondaryTurret = !isVTOL && hasTurret;
 
   // Filter turret options based on vehicle type
   const turretOptions = useMemo(() => {
@@ -117,6 +126,15 @@ export function VehicleTurretTab({
   const turretWeightPercent =
     turretMaxWeight > 0 ? (turretWeightUsed / turretMaxWeight) * 100 : 0;
 
+  // Filter secondary turret options — never offer CHIN (ground-vehicle only).
+  const secondaryTurretTypeOptions = useMemo(
+    () =>
+      TURRET_TYPE_OPTIONS.filter(
+        (opt) => opt.value !== TurretType.CHIN && opt.value !== TurretType.NONE,
+      ),
+    [],
+  );
+
   // Handlers
   const handleTurretTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -124,6 +142,22 @@ export function VehicleTurretTab({
       setTurretType(e.target.value as TurretType);
     },
     [setTurretType, readOnly],
+  );
+
+  const handleSecondaryTurretToggle = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (readOnly) return;
+      setHasSecondaryTurret(e.target.checked);
+    },
+    [setHasSecondaryTurret, readOnly],
+  );
+
+  const handleSecondaryTurretTypeChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      if (readOnly) return;
+      setSecondaryTurretType(e.target.value as TurretType);
+    },
+    [setSecondaryTurretType, readOnly],
   );
 
   const handleMoveToTurret = useCallback(
@@ -174,6 +208,42 @@ export function VehicleTurretTab({
               </p>
             )}
           </div>
+
+          {/* Secondary Turret Toggle — ground vehicles only, primary required. */}
+          {canHaveSecondaryTurret && (
+            <div className="mb-4">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-white">
+                <input
+                  type="checkbox"
+                  checked={hasSecondaryTurret}
+                  onChange={handleSecondaryTurretToggle}
+                  disabled={readOnly}
+                  data-testid="vehicle-secondary-turret-toggle"
+                  aria-label="Enable secondary turret"
+                  className="h-4 w-4 rounded border-slate-500"
+                />
+                Secondary Turret
+              </label>
+              {hasSecondaryTurret && (
+                <div className="mt-2">
+                  <label className={cs.text.label}>Secondary Turret Type</label>
+                  <select
+                    value={secondaryTurret?.type ?? TurretType.SINGLE}
+                    onChange={handleSecondaryTurretTypeChange}
+                    disabled={readOnly}
+                    data-testid="vehicle-secondary-turret-type"
+                    className={`${cs.select.full} mt-1`}
+                  >
+                    {secondaryTurretTypeOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Turret Stats (when turret is configured) */}
           {hasTurret && (

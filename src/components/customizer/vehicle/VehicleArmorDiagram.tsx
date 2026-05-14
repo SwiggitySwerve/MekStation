@@ -72,6 +72,7 @@ export function VehicleArmorDiagram({
   const motionType = useVehicleStore((s) => s.motionType);
   const unitType = useVehicleStore((s) => s.unitType);
   const turret = useVehicleStore((s) => s.turret);
+  const secondaryTurret = useVehicleStore((s) => s.secondaryTurret);
   const armorAllocation = useVehicleStore((s) => s.armorAllocation);
   const tonnage = useVehicleStore((s) => s.tonnage);
   const armorTonnage = useVehicleStore((s) => s.armorTonnage);
@@ -82,6 +83,7 @@ export function VehicleArmorDiagram({
   // Support vehicles carry a Body location per spec
   const isSupport = unitType === UnitType.SUPPORT_VEHICLE;
   const hasTurret = turret !== null;
+  const hasSecondaryTurret = secondaryTurret !== null;
   const isChinTurret = turret?.type === TurretType.CHIN;
 
   // Build ordered list of active locations for this vehicle configuration.
@@ -100,10 +102,13 @@ export function VehicleArmorDiagram({
         label: isChinTurret ? 'Chin Turret' : 'Turret',
       });
     }
+    if (hasSecondaryTurret) {
+      base.push({ key: VehicleLocation.TURRET_2, label: 'Turret 2' });
+    }
     if (isVTOL) base.push({ key: VTOLLocation.ROTOR, label: 'Rotor' });
     if (isSupport) base.push({ key: VehicleLocation.BODY, label: 'Body' });
     return base;
-  }, [hasTurret, isChinTurret, isVTOL, isSupport]);
+  }, [hasTurret, hasSecondaryTurret, isChinTurret, isVTOL, isSupport]);
 
   const handleChange = useCallback(
     (location: VehicleArmorLocation, raw: number) => {
@@ -112,10 +117,11 @@ export function VehicleArmorDiagram({
         location,
         hasTurret,
         isVTOL,
+        hasSecondaryTurret,
       );
       setLocationArmor(location, Math.max(0, Math.min(max, raw)));
     },
-    [setLocationArmor, tonnage, hasTurret, isVTOL],
+    [setLocationArmor, tonnage, hasTurret, isVTOL, hasSecondaryTurret],
   );
 
   // Available points derived from armor tonnage (standard 16 pts/ton for display)
@@ -245,13 +251,16 @@ export function VehicleArmorDiagram({
             key as VehicleArmorLocation,
             hasTurret,
             isVTOL,
+            hasSecondaryTurret,
           );
           const accentClass =
             key === VehicleLocation.TURRET
               ? 'text-amber-400'
-              : key === VTOLLocation.ROTOR
-                ? 'text-sky-400'
-                : 'text-cyan-400';
+              : key === VehicleLocation.TURRET_2
+                ? 'text-orange-400'
+                : key === VTOLLocation.ROTOR
+                  ? 'text-sky-400'
+                  : 'text-cyan-400';
 
           return (
             <div key={key} className="flex flex-col gap-1">

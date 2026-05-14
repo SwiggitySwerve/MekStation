@@ -187,6 +187,67 @@ export function setTurretTypeLogic(
   };
 }
 
+/**
+ * Toggle the secondary turret on/off.
+ *
+ * Enabling initializes a default secondary turret configuration if none exists.
+ * Disabling nulls the configuration AND zeros TURRET_2 armor so the next enable
+ * starts from a clean state.
+ */
+export function setHasSecondaryTurretLogic(
+  state: VehicleStore,
+  enabled: boolean,
+): Partial<VehicleStore> {
+  if (!enabled) {
+    // Zero TURRET_2 armor while preserving the rest of the allocation.
+    const nextAllocation = {
+      ...state.armorAllocation,
+      [VehicleLocation.TURRET_2]: 0,
+    };
+    return {
+      secondaryTurret: null,
+      armorAllocation: nextAllocation,
+      isModified: true,
+      lastModifiedAt: Date.now(),
+    };
+  }
+
+  // Already enabled — no-op (idempotent).
+  if (state.secondaryTurret) return {};
+
+  const secondaryTurret: ITurretConfiguration = {
+    type: TurretType.SINGLE,
+    maxWeight: state.tonnage * 0.1,
+    currentWeight: 0,
+    rotationArc: 360,
+  };
+  return {
+    secondaryTurret,
+    isModified: true,
+    lastModifiedAt: Date.now(),
+  };
+}
+
+/**
+ * Set the secondary turret type. No-op when the secondary turret is off
+ * (callers must call setHasSecondaryTurret(true) first).
+ */
+export function setSecondaryTurretTypeLogic(
+  state: VehicleStore,
+  type: TurretType,
+): Partial<VehicleStore> {
+  if (!state.secondaryTurret) return {};
+  if (type === TurretType.NONE) {
+    // Treat NONE as "disable secondary turret" for parity with primary path.
+    return setHasSecondaryTurretLogic(state, false);
+  }
+  return {
+    secondaryTurret: { ...state.secondaryTurret, type },
+    isModified: true,
+    lastModifiedAt: Date.now(),
+  };
+}
+
 export function autoAllocateArmorLogic(
   state: VehicleStore,
 ): Partial<VehicleStore> {
@@ -220,6 +281,10 @@ export function autoAllocateArmorLogic(
     [VehicleLocation.TURRET]: hasTurret
       ? Math.floor((totalPoints * turretPercent) / normalizer)
       : 0,
+    // Auto-allocate does not distribute to TURRET_2 today — secondary turret
+    // armor is set explicitly by the user. Preserve existing allocation if any.
+    [VehicleLocation.TURRET_2]:
+      state.armorAllocation[VehicleLocation.TURRET_2] || 0,
     [VehicleLocation.BODY]: 0,
     ...(isVTOL && {
       [VTOLLocation.ROTOR]: Math.floor(
