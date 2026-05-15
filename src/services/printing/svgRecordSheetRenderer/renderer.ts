@@ -16,7 +16,6 @@ import {
 import { renderAerospaceSVG } from './aerospaceRenderer';
 import { fillArmorPips } from './armor';
 import { renderBattleArmorSVG } from './battleArmorRenderer';
-import { renderToCanvasHighDPI } from './canvas';
 import { ELEMENT_IDS } from './constants';
 import { renderCriticalSlots } from './criticals';
 import { renderEquipmentTable } from './equipment';
@@ -25,12 +24,11 @@ import { renderProtoMechSVG } from './protoMechRenderer';
 import { renderSPASection } from './spaSection';
 import { fillStructurePips } from './structure';
 import {
-  loadSVGTemplate,
   addDocumentMargins,
   hideSecondCrewPanel,
   fixCopyrightYear,
-  setTextContent,
 } from './template';
+import { TemplateRecordSheetRenderer } from './templateRecordSheetRenderer';
 import { renderVehicleSVG } from './vehicleRenderer';
 
 export function renderRecordSheetSVG(data: INonMechRecordSheetData): string {
@@ -54,97 +52,61 @@ function assertNeverRecordSheetVariant(data: never): never {
   throw new Error(`Unhandled record sheet unit type: ${String(data)}`);
 }
 
+/**
+ * Mech record-sheet renderer.
+ *
+ * A thin consumer of the shared `TemplateRecordSheetRenderer`: the
+ * canonical-template handling (asset load, DOM parse, text injection,
+ * serialization, canvas rasterization) lives in the shared core, and
+ * this class owns only the mech-specific binding logic (header field
+ * mapping, equipment / critical-slot tables, mech armor / structure
+ * pips). The refactor is behaviour-preserving — the existing mech
+ * `SVGRecordSheetRenderer` tests pin the public surface.
+ */
 export class SVGRecordSheetRenderer {
-  private svgDoc: Document | null = null;
-  private svgRoot: SVGSVGElement | null = null;
+  private readonly core = new TemplateRecordSheetRenderer();
 
   async loadTemplate(templatePath: string): Promise<void> {
-    const result = await loadSVGTemplate(templatePath);
-    this.svgDoc = result.svgDoc;
-    this.svgRoot = result.svgRoot;
-    addDocumentMargins(this.svgRoot);
+    await this.core.loadTemplate(templatePath);
+    // Mech-specific: expand the template viewBox to US-Letter margins.
+    addDocumentMargins(this.core.root);
   }
 
   fillTemplate(data: IMechRecordSheetData): void {
-    if (!this.svgDoc || !this.svgRoot) {
-      throw new Error('Template not loaded. Call loadTemplate first.');
-    }
+    // `core.document` throws 'Template not loaded' when no template is
+    // loaded — preserves the prior guard behaviour.
+    const svgDoc = this.core.document;
 
-    setTextContent(
-      this.svgDoc,
-      ELEMENT_IDS.TYPE,
-      `${data.header.chassis} ${data.header.model}`,
-    );
-    setTextContent(
-      this.svgDoc,
-      ELEMENT_IDS.TONNAGE,
-      String(data.header.tonnage),
-    );
-    setTextContent(this.svgDoc, ELEMENT_IDS.TECH_BASE, data.header.techBase);
-    setTextContent(
-      this.svgDoc,
-      ELEMENT_IDS.RULES_LEVEL,
-      data.header.rulesLevel,
-    );
-    setTextContent(this.svgDoc, ELEMENT_IDS.ROLE, 'Juggernaut');
+    this.core.applyBindings({
+      [ELEMENT_IDS.TYPE]: `${data.header.chassis} ${data.header.model}`,
+      [ELEMENT_IDS.TONNAGE]: String(data.header.tonnage),
+      [ELEMENT_IDS.TECH_BASE]: data.header.techBase,
+      [ELEMENT_IDS.RULES_LEVEL]: data.header.rulesLevel,
+      [ELEMENT_IDS.ROLE]: 'Juggernaut',
+      [ELEMENT_IDS.ENGINE_TYPE]: `${data.header.tonnage * data.movement.walkMP} XL`,
+      [ELEMENT_IDS.WALK_MP]: String(data.movement.walkMP),
+      [ELEMENT_IDS.RUN_MP]: String(data.movement.runMP),
+      [ELEMENT_IDS.JUMP_MP]: String(data.movement.jumpMP),
+      [ELEMENT_IDS.BV]: data.header.battleValue.toLocaleString(),
+      [ELEMENT_IDS.ARMOR_TYPE]: data.armor.type,
+      [ELEMENT_IDS.STRUCTURE_TYPE]: data.structure.type,
+      [ELEMENT_IDS.HEAT_SINK_TYPE]: data.heatSinks.type,
+      [ELEMENT_IDS.HEAT_SINK_COUNT]: `${data.heatSinks.count}`,
+      [ELEMENT_IDS.PILOT_NAME]: '',
+      [ELEMENT_IDS.GUNNERY_SKILL]: '',
+      [ELEMENT_IDS.PILOTING_SKILL]: '',
+    });
 
-    const engineRating = data.header.tonnage * data.movement.walkMP;
-    setTextContent(this.svgDoc, ELEMENT_IDS.ENGINE_TYPE, `${engineRating} XL`);
+    fixCopyrightYear(svgDoc);
+    hideSecondCrewPanel(svgDoc);
 
-    setTextContent(
-      this.svgDoc,
-      ELEMENT_IDS.WALK_MP,
-      String(data.movement.walkMP),
-    );
-    setTextContent(
-      this.svgDoc,
-      ELEMENT_IDS.RUN_MP,
-      String(data.movement.runMP),
-    );
-    setTextContent(
-      this.svgDoc,
-      ELEMENT_IDS.JUMP_MP,
-      String(data.movement.jumpMP),
-    );
-
-    setTextContent(
-      this.svgDoc,
-      ELEMENT_IDS.BV,
-      data.header.battleValue.toLocaleString(),
-    );
-
-    setTextContent(this.svgDoc, ELEMENT_IDS.ARMOR_TYPE, data.armor.type);
-    setTextContent(
-      this.svgDoc,
-      ELEMENT_IDS.STRUCTURE_TYPE,
-      data.structure.type,
-    );
-
-    setTextContent(
-      this.svgDoc,
-      ELEMENT_IDS.HEAT_SINK_TYPE,
-      data.heatSinks.type,
-    );
-    setTextContent(
-      this.svgDoc,
-      ELEMENT_IDS.HEAT_SINK_COUNT,
-      `${data.heatSinks.count}`,
-    );
-
-    setTextContent(this.svgDoc, ELEMENT_IDS.PILOT_NAME, '');
-    setTextContent(this.svgDoc, ELEMENT_IDS.GUNNERY_SKILL, '');
-    setTextContent(this.svgDoc, ELEMENT_IDS.PILOTING_SKILL, '');
-
-    fixCopyrightYear(this.svgDoc);
-    hideSecondCrewPanel(this.svgDoc);
-
-    renderEquipmentTable(this.svgDoc, data.equipment);
-    renderCriticalSlots(this.svgDoc, data.criticals);
+    renderEquipmentTable(svgDoc, data.equipment);
+    renderCriticalSlots(svgDoc, data.criticals);
 
     // Phase 5 Wave 3 — render the Special Abilities block when present.
     // Helper skips when there are no resolvable entries.
     if (data.specialAbilities && data.specialAbilities.length > 0) {
-      renderSPASection(this.svgDoc, {
+      renderSPASection(svgDoc, {
         entries: data.specialAbilities,
         hasContent: true,
       });
@@ -155,10 +117,7 @@ export class SVGRecordSheetRenderer {
     armor: IMechRecordSheetData['armor'],
     mechType?: string,
   ): Promise<void> {
-    if (!this.svgDoc || !this.svgRoot) {
-      throw new Error('Template not loaded');
-    }
-    await fillArmorPips(this.svgDoc, this.svgRoot, armor, mechType);
+    await fillArmorPips(this.core.document, this.core.root, armor, mechType);
   }
 
   async fillStructurePips(
@@ -166,12 +125,9 @@ export class SVGRecordSheetRenderer {
     tonnage: number,
     mechType?: string,
   ): Promise<void> {
-    if (!this.svgDoc || !this.svgRoot) {
-      throw new Error('Template not loaded');
-    }
     await fillStructurePips(
-      this.svgDoc,
-      this.svgRoot,
+      this.core.document,
+      this.core.root,
       structure,
       tonnage,
       mechType,
@@ -179,11 +135,7 @@ export class SVGRecordSheetRenderer {
   }
 
   getSVGString(): string {
-    if (!this.svgDoc) {
-      throw new Error('Template not loaded');
-    }
-    const serializer = new XMLSerializer();
-    return serializer.serializeToString(this.svgDoc);
+    return this.core.getSVGString();
   }
 
   async renderToCanvas(canvas: HTMLCanvasElement): Promise<void> {
@@ -194,8 +146,7 @@ export class SVGRecordSheetRenderer {
     canvas: HTMLCanvasElement,
     dpiMultiplier: number,
   ): Promise<void> {
-    const svgString = this.getSVGString();
-    await renderToCanvasHighDPI(svgString, canvas, dpiMultiplier);
+    await this.core.renderToCanvas(canvas, dpiMultiplier);
   }
 }
 
