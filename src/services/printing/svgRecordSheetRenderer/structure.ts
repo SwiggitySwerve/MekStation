@@ -6,7 +6,6 @@
 import { IMechRecordSheetData, ILocationStructure } from '@/types/printing';
 import { logger } from '@/utils/logger';
 
-import { ArmorPipLayout } from '../ArmorPipLayout';
 import {
   SVG_NS,
   PIPS_BASE_PATH,
@@ -17,6 +16,7 @@ import {
   QUAD_STRUCTURE_PIP_GROUP_IDS,
   TRIPOD_STRUCTURE_PIP_GROUP_IDS,
 } from './constants';
+import { layoutPipsInGroup } from './pipEngine';
 import { setTextContent } from './template';
 
 /**
@@ -350,9 +350,10 @@ function generateDynamicStructurePips(
       return;
     }
 
-    // Use ArmorPipLayout to generate pips within the bounding rects
+    // Lay out pips within the bounding rects via the shared pip engine
+    // (which delegates to ArmorPipLayout). Behaviour-preserving wrapper.
     if (loc.points > 0) {
-      ArmorPipLayout.addPips(svgDoc, pipArea, loc.points, {
+      layoutPipsInGroup(svgDoc, pipArea, loc.points, {
         fill: '#FFFFFF',
         strokeWidth: 0.5,
         className: 'pip structure',

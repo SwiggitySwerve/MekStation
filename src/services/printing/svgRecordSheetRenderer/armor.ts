@@ -6,7 +6,6 @@
 import { IMechRecordSheetData } from '@/types/printing';
 import { logger } from '@/utils/logger';
 
-import { ArmorPipLayout } from '../ArmorPipLayout';
 import {
   SVG_NS,
   PIPS_BASE_PATH,
@@ -19,6 +18,7 @@ import {
   QUAD_PIP_GROUP_IDS,
   TRIPOD_PIP_GROUP_IDS,
 } from './constants';
+import { layoutPipsInGroup } from './pipEngine';
 import { setTextContent } from './template';
 
 /**
@@ -199,9 +199,11 @@ async function generateDynamicArmorPips(
       return;
     }
 
-    // Use ArmorPipLayout to generate pips within the bounding rects
+    // Lay out pips within the bounding rects via the shared pip engine
+    // (which delegates to ArmorPipLayout). The mech path is unchanged —
+    // the engine is a transparent wrapper over the proven layout.
     if (loc.current > 0) {
-      ArmorPipLayout.addPips(svgDoc, pipArea, loc.current, {
+      layoutPipsInGroup(svgDoc, pipArea, loc.current, {
         fill: '#FFFFFF',
         strokeWidth: 0.5,
         className: 'pip armor',
@@ -220,7 +222,7 @@ async function generateDynamicArmorPips(
       if (rearGroupId) {
         const pipArea = svgDoc.getElementById(rearGroupId);
         if (pipArea && loc.rear > 0) {
-          ArmorPipLayout.addPips(svgDoc, pipArea, loc.rear, {
+          layoutPipsInGroup(svgDoc, pipArea, loc.rear, {
             fill: '#FFFFFF',
             strokeWidth: 0.5,
             className: 'pip armor rear',
