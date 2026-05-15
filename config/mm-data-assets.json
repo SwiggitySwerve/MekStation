@@ -31,7 +31,17 @@
       "mek_lam_default.svg",
       "mek_lam_toheat.svg",
       "mek_quadvee_default.svg",
-      "mek_quadvee_toheat.svg"
+      "mek_quadvee_toheat.svg",
+      "vehicle_noturret_standard.svg",
+      "vehicle_turret_standard.svg",
+      "vehicle_dualturret_standard.svg",
+      "vtol_noturret_standard.svg",
+      "vtol_turret_standard.svg",
+      "fighter_aerospace_default.svg",
+      "fighter_conventional_default.svg",
+      "protomek_biped.svg",
+      "protomek_quad.svg",
+      "protomek_glider.svg"
     ],
     "templates_iso": [
       "mek_biped_default.svg",
@@ -43,7 +53,17 @@
       "mek_lam_default.svg",
       "mek_lam_toheat.svg",
       "mek_quadvee_default.svg",
-      "mek_quadvee_toheat.svg"
+      "mek_quadvee_toheat.svg",
+      "vehicle_noturret_standard.svg",
+      "vehicle_turret_standard.svg",
+      "vehicle_dualturret_standard.svg",
+      "vtol_noturret_standard.svg",
+      "vtol_turret_standard.svg",
+      "fighter_aerospace_default.svg",
+      "fighter_conventional_default.svg",
+      "protomek_biped.svg",
+      "protomek_quad.svg",
+      "protomek_glider.svg"
     ]
   }
 }
