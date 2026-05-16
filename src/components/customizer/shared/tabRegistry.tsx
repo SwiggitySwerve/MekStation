@@ -12,10 +12,19 @@
  *   - Infantry Field Guns tab: hidden for Jump / Mechanized motive types
  *   - ProtoMech Glider tab: hidden for Ultraheavy (tonnage >= 10)
  *
- * Shared tabs (Overview, Preview, Fluff) reuse the mech implementations across
- * all unit types.  Per-type customizers import them directly from tabs/.
+ * Tab sharing:
+ *   - Fluff IS genuinely shared — `FluffTab` is store-decoupled, so one
+ *     implementation works for every unit type.
+ *   - Overview and Preview are NOT a single shared mech implementation. The
+ *     mech `OverviewTab` / `PreviewTab` hard-call `useUnitStore` and would
+ *     crash inside a non-mech customizer. Each tab set therefore registers a
+ *     per-type DISPATCHER (`OverviewTabForType` / `PreviewTabForType`) bound to
+ *     that set's unit type; the dispatcher switches on `UnitType` and renders
+ *     the mech component for mechs and the per-type component for everything
+ *     else.
  *
  * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * @spec openspec/changes/wire-non-mech-customizer-preview/specs/multi-unit-tabs/spec.md
  */
 
 import React from 'react';
@@ -49,10 +58,10 @@ import { ProtoMechStructureTab } from '@/components/customizer/protomech/ProtoMe
 import { ArmorTab } from '@/components/customizer/tabs/ArmorTab';
 import { CriticalSlotsTab } from '@/components/customizer/tabs/CriticalSlotsTab';
 import { EquipmentTab } from '@/components/customizer/tabs/EquipmentTab';
-// Shared tabs
+// Shared Fluff tab + per-type Overview / Preview dispatchers
 import { FluffTab } from '@/components/customizer/tabs/FluffTab';
-import { OverviewTab } from '@/components/customizer/tabs/OverviewTab';
-import { PreviewTab } from '@/components/customizer/tabs/PreviewTab';
+import { OverviewTabForType } from '@/components/customizer/tabs/OverviewTabForType';
+import { PreviewTabForType } from '@/components/customizer/tabs/PreviewTabForType';
 import { StructureTab } from '@/components/customizer/tabs/StructureTab';
 // Vehicle tabs
 import { VehicleArmorTab } from '@/components/customizer/vehicle/VehicleArmorTab';
@@ -131,26 +140,59 @@ const ICONS = {
 };
 
 // =============================================================================
-// Shared tab specs (reused across all registries)
+// Per-type Overview / Preview specs and the genuinely-shared Fluff spec
 // =============================================================================
+//
+// Fluff is the ONLY genuinely shared tab — `FluffTab` is store-decoupled.
+//
+// Overview and Preview are dispatched per unit type. The registry renders a
+// tab component with only a `readOnly` prop, so each tab set binds its unit
+// type at registry-build time via the factory helpers below: the produced
+// `TabSpec.component` is a thin wrapper that forwards `readOnly` to the
+// dispatcher with the bound `unitType`. The dispatcher then renders the mech
+// component for mech types and the per-type component for everything else.
 
-/** Overview tab — shared, always visible */
-const SHARED_OVERVIEW: TabSpec = {
-  id: 'overview',
-  label: 'Overview',
-  icon: iconSvg(ICONS.overview),
-  component: OverviewTab,
-};
+/**
+ * Build an Overview `TabSpec` bound to a unit type. The component wrapper
+ * renders `OverviewTabForType` so the mech branch keeps the mech Overview
+ * editor and non-mech branches render the graceful placeholder.
+ */
+function overviewSpecFor(unitType: UnitType): TabSpec {
+  return {
+    id: 'overview',
+    label: 'Overview',
+    icon: iconSvg(ICONS.overview),
+    component: ({ readOnly, className }) => (
+      <OverviewTabForType
+        unitType={unitType}
+        readOnly={readOnly}
+        className={className}
+      />
+    ),
+  };
+}
 
-/** Preview tab — shared, always visible */
-const SHARED_PREVIEW: TabSpec = {
-  id: 'preview',
-  label: 'Preview',
-  icon: iconSvg(ICONS.preview),
-  component: PreviewTab,
-};
+/**
+ * Build a Preview `TabSpec` bound to a unit type. The component wrapper
+ * renders `PreviewTabForType` so the mech branch keeps the mech Preview tab
+ * and non-mech branches render their per-type preview component.
+ */
+function previewSpecFor(unitType: UnitType): TabSpec {
+  return {
+    id: 'preview',
+    label: 'Preview',
+    icon: iconSvg(ICONS.preview),
+    component: ({ readOnly, className }) => (
+      <PreviewTabForType
+        unitType={unitType}
+        _readOnly={readOnly}
+        className={className}
+      />
+    ),
+  };
+}
 
-/** Fluff tab — shared, always visible */
+/** Fluff tab — genuinely shared (store-decoupled), always visible. */
 const SHARED_FLUFF: TabSpec = {
   id: 'fluff',
   label: 'Fluff',
@@ -172,7 +214,7 @@ const SHARED_FLUFF: TabSpec = {
  * for backward compatibility; this registry lets future tooling enumerate tabs.
  */
 export const MECH_TABS: TabSpec[] = [
-  SHARED_OVERVIEW,
+  overviewSpecFor(UnitType.BATTLEMECH),
   {
     id: 'structure',
     label: 'Structure',
@@ -198,7 +240,7 @@ export const MECH_TABS: TabSpec[] = [
     icon: iconSvg(ICONS.criticals),
     component: CriticalSlotsTab,
   },
-  SHARED_PREVIEW,
+  previewSpecFor(UnitType.BATTLEMECH),
   SHARED_FLUFF,
 ];
 
@@ -212,7 +254,7 @@ export const MECH_TABS: TabSpec[] = [
  * Overview / Structure / Armor / Turret / Equipment / Preview / Fluff
  */
 export const VEHICLE_TABS: TabSpec[] = [
-  SHARED_OVERVIEW,
+  overviewSpecFor(UnitType.VEHICLE),
   {
     id: 'structure',
     label: 'Structure',
@@ -237,7 +279,7 @@ export const VEHICLE_TABS: TabSpec[] = [
     icon: iconSvg(ICONS.equipment),
     component: VehicleEquipmentTab,
   },
-  SHARED_PREVIEW,
+  previewSpecFor(UnitType.VEHICLE),
   SHARED_FLUFF,
 ];
 
@@ -256,7 +298,7 @@ type AerospaceVisibilityState = Pick<AerospaceState, 'unitType'>;
  * Bombs tab is hidden for conventional fighters (visibleWhen predicate).
  */
 export const AEROSPACE_TABS: TabSpec<AerospaceVisibilityState>[] = [
-  SHARED_OVERVIEW,
+  overviewSpecFor(UnitType.AEROSPACE),
   {
     id: 'structure',
     label: 'Structure',
@@ -289,7 +331,7 @@ export const AEROSPACE_TABS: TabSpec<AerospaceVisibilityState>[] = [
     // Conventional fighters cannot carry external ordnance
     visibleWhen: (s) => s.unitType !== UnitType.CONVENTIONAL_FIGHTER,
   },
-  SHARED_PREVIEW,
+  previewSpecFor(UnitType.AEROSPACE),
   SHARED_FLUFF,
 ];
 
@@ -304,7 +346,7 @@ export const AEROSPACE_TABS: TabSpec<AerospaceVisibilityState>[] = [
  * Jump/UMU / Preview / Fluff
  */
 export const BATTLE_ARMOR_TABS: TabSpec[] = [
-  SHARED_OVERVIEW,
+  overviewSpecFor(UnitType.BATTLE_ARMOR),
   {
     id: 'chassis',
     label: 'Chassis',
@@ -341,7 +383,7 @@ export const BATTLE_ARMOR_TABS: TabSpec[] = [
     icon: iconSvg(ICONS.jump),
     component: BattleArmorJumpUMUTab,
   },
-  SHARED_PREVIEW,
+  previewSpecFor(UnitType.BATTLE_ARMOR),
   SHARED_FLUFF,
 ];
 
@@ -361,7 +403,7 @@ type InfantryVisibilityState = Pick<InfantryState, 'infantryMotive'>;
  * Field Guns tab hidden for Jump and Mechanized motive types.
  */
 export const INFANTRY_TABS: TabSpec<InfantryVisibilityState>[] = [
-  SHARED_OVERVIEW,
+  overviewSpecFor(UnitType.INFANTRY),
   {
     id: 'platoon',
     label: 'Platoon',
@@ -396,7 +438,7 @@ export const INFANTRY_TABS: TabSpec<InfantryVisibilityState>[] = [
     icon: iconSvg(ICONS.specialization),
     component: InfantrySpecializationTab,
   },
-  SHARED_PREVIEW,
+  previewSpecFor(UnitType.INFANTRY),
   SHARED_FLUFF,
 ];
 
@@ -418,7 +460,7 @@ const PROTOMECH_ULTRAHEAVY_THRESHOLD = 10;
  * Glider tab hidden for Ultraheavy ProtoMechs (tonnage >= 10).
  */
 export const PROTOMECH_TABS: TabSpec<ProtoMechVisibilityState>[] = [
-  SHARED_OVERVIEW,
+  overviewSpecFor(UnitType.PROTOMECH),
   {
     id: 'structure',
     label: 'Structure',
@@ -450,7 +492,7 @@ export const PROTOMECH_TABS: TabSpec<ProtoMechVisibilityState>[] = [
     component: ProtoMechGliderTab,
     visibleWhen: (s) => s.tonnage < PROTOMECH_ULTRAHEAVY_THRESHOLD,
   },
-  SHARED_PREVIEW,
+  previewSpecFor(UnitType.PROTOMECH),
   SHARED_FLUFF,
 ];
 
