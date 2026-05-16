@@ -24,7 +24,8 @@ export interface IRawWeaponData {
   rulesLevel: string;
   damage: number | string;
   heat: number;
-  ranges: {
+  // Optional: physical / melee weapons (physical.json) carry no ranges block.
+  ranges?: {
     minimum: number;
     short: number;
     medium: number;
@@ -123,7 +124,9 @@ export function convertWeapon(raw: IRawWeaponData): IWeapon {
     rulesLevel: parseRulesLevel(raw.rulesLevel),
     damage: raw.damage,
     heat: raw.heat,
-    ranges: raw.ranges,
+    // Omit ranges entirely for rangeless (physical/melee) weapons rather than
+    // setting `ranges: undefined`, keeping the object shape honest.
+    ...(raw.ranges && { ranges: raw.ranges }),
     weight: raw.weight,
     criticalSlots: raw.criticalSlots,
     ...(raw.ammoPerTon && { ammoPerTon: raw.ammoPerTon }),

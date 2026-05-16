@@ -55,7 +55,8 @@ function getWeaponData(
  * Format range display (short/medium/long)
  */
 function formatRange(weapon: IWeapon | null): string {
-  if (!weapon) {
+  // Physical / melee weapons (hatchet, sword, claws, …) carry no ranges block.
+  if (!weapon || !weapon.ranges) {
     return '-';
   }
 
