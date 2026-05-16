@@ -161,6 +161,10 @@ function buildWeaponSheet(
   return {
     name,
     damage: objectRaw?.damage ?? (catalog ? `1/${catalog.damageDivisor}` : '-'),
+    // Canonical per-trooper damage, threaded from the construction-domain
+    // weapon entry. Falls back to an explicit payload value, then 0 when
+    // the weapon is absent from the catalog.
+    infantryDamage: objectRaw?.infantryDamage ?? catalog?.infantryDamage ?? 0,
     minimumRange: objectRaw?.minimumRange ?? 0,
     shortRange: objectRaw?.shortRange ?? catalog?.rangeShort ?? 0,
     mediumRange: objectRaw?.mediumRange ?? catalog?.rangeMedium ?? 0,

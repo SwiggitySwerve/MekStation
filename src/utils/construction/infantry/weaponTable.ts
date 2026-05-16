@@ -8,7 +8,18 @@
  * Heavy weapons may only be the primary weapon for Mechanized or Motorized
  * motive platoons (VAL-INF-WEAPON).
  *
+ * Each entry carries `infantryDamage` — the canonical damage-per-trooper
+ * value consumed by MegaMek's `Infantry.getDamagePerTrooper()` formula
+ * (`InfantryWeapon.getInfantryDamage()`). Values are sourced from the
+ * representative MegaMek infantry-weapon classes for each generic
+ * category (e.g. Auto-Rifle = `InfantryRifleAutoRifleWeapon` 0.52,
+ * Support Laser = `InfantrySupportLaserWeapon` 0.84). This is the
+ * OUTGOING per-trooper damage figure — distinct from `damageDivisor`,
+ * which governs INCOMING-damage division.
+ *
  * @spec openspec/changes/add-infantry-construction/specs/infantry-unit-system/spec.md
+ * @spec openspec/changes/add-templated-infantry-battlearmor-record-sheets/specs/infantry-unit-system/spec.md
+ *   (Requirement: Primary Weapon Types — infantryDamage field)
  */
 
 import { IInfantryWeaponEntry } from '@/types/unit/InfantryInterfaces';
@@ -28,6 +39,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'Rifle',
     isHeavy: false,
     damageDivisor: 10,
+    infantryDamage: 0.28,
     rangeShort: 1,
     rangeMedium: 2,
     rangeLong: 3,
@@ -41,6 +53,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'Auto-Rifle',
     isHeavy: false,
     damageDivisor: 10,
+    infantryDamage: 0.52,
     rangeShort: 1,
     rangeMedium: 2,
     rangeLong: 3,
@@ -54,6 +67,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'Laser Rifle',
     isHeavy: false,
     damageDivisor: 10,
+    infantryDamage: 0.28,
     rangeShort: 1,
     rangeMedium: 2,
     rangeLong: 3,
@@ -67,6 +81,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'Needler',
     isHeavy: false,
     damageDivisor: 10,
+    infantryDamage: 0.11,
     rangeShort: 1,
     rangeMedium: 2,
     rangeLong: 3,
@@ -80,6 +95,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'Gyrojet Rifle',
     isHeavy: false,
     damageDivisor: 10,
+    infantryDamage: 0.14,
     rangeShort: 1,
     rangeMedium: 2,
     rangeLong: 3,
@@ -93,6 +109,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'Flamer',
     isHeavy: false,
     damageDivisor: 10,
+    infantryDamage: 0.35,
     rangeShort: 1,
     rangeMedium: 2,
     rangeLong: 0,
@@ -107,6 +124,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'SRM Launcher',
     isHeavy: false,
     damageDivisor: 6,
+    infantryDamage: 0.57,
     rangeShort: 3,
     rangeMedium: 6,
     rangeLong: 9,
@@ -120,6 +138,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'LRM Launcher',
     isHeavy: false,
     damageDivisor: 6,
+    infantryDamage: 0.19,
     rangeShort: 6,
     rangeMedium: 12,
     rangeLong: 21,
@@ -134,6 +153,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'Machine Gun',
     isHeavy: false,
     damageDivisor: 10,
+    infantryDamage: 0.49,
     rangeShort: 1,
     rangeMedium: 2,
     rangeLong: 3,
@@ -147,6 +167,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'Support Heavy MG',
     isHeavy: true,
     damageDivisor: 5,
+    infantryDamage: 0.65,
     rangeShort: 1,
     rangeMedium: 2,
     rangeLong: 3,
@@ -160,6 +181,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'Support Laser',
     isHeavy: true,
     damageDivisor: 5,
+    infantryDamage: 0.84,
     rangeShort: 1,
     rangeMedium: 3,
     rangeLong: 5,
@@ -173,6 +195,7 @@ export const INFANTRY_WEAPON_TABLE: readonly IInfantryWeaponEntry[] = [
     name: 'Support PPC',
     isHeavy: true,
     damageDivisor: 3,
+    infantryDamage: 1.58,
     rangeShort: 3,
     rangeMedium: 6,
     rangeLong: 12,

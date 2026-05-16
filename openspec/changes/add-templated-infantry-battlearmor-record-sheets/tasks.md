@@ -53,26 +53,26 @@ tasks and the Phase-5 silent-fallback guard are the hard gates.
 
 ## 1. Infantry Damage Model and Weapon Data
 
-- [ ] 1.1 Add `infantryDamage` (damage per trooper, non-negative
+- [x] 1.1 Add `infantryDamage` (damage per trooper, non-negative
   number) to `IInfantryWeaponEntry` in
   `src/types/unit/InfantryInterfaces.ts`, distinct from
   `damageDivisor`.
   - Acceptance: the field is typed and documented in a code comment.
   - QA: `npx tsc --noEmit` clean.
-- [ ] 1.2 Add the per-trooper damage value to `IInfantryWeaponSheet`
+- [x] 1.2 Add the per-trooper damage value to `IInfantryWeaponSheet`
   in `src/types/printing/RecordSheetVariantTypes.ts`, threaded from
   `IInfantryWeaponEntry`.
   - Acceptance: the print type carries the canonical per-trooper
     damage value.
   - QA: `npx tsc --noEmit` clean.
-- [ ] 1.3 If task 0.6 found `infantryDamage` absent, populate it for
+- [x] 1.3 If task 0.6 found `infantryDamage` absent, populate it for
   every weapon in the infantry-weapon catalog
   (`weaponTable.ts` and / or the catalog data).
   - Acceptance: every infantry weapon entry has a non-negative
     `infantryDamage`; conditional on the 0.6 finding.
   - QA: a unit test asserts no weapon entry has an undefined
     `infantryDamage`.
-- [ ] 1.4 Create the infantry damage-per-trooper formula module — a
+- [x] 1.4 Create the infantry damage-per-trooper formula module — a
   verbatim reproduction of MegaMek `Infantry.getDamagePerTrooper()`
   (`E:\Projects\megamek\megamek\src\megamek\common\units\Infantry.java`),
   including the `0.6` primary-weapon damage cap
@@ -80,12 +80,12 @@ tasks and the Phase-5 silent-fallback guard are the hard gates.
   - Acceptance: a pure function returning damage per trooper; the cap
     is applied to the primary weapon's contribution.
   - QA: `npx tsc --noEmit` clean.
-- [ ] 1.5 Add the `DAMAGE+j` row generator: for `j` in `1..30`,
+- [x] 1.5 Add the `DAMAGE+j` row generator: for `j` in `1..30`,
   `DAMAGE+j = round(perTrooper × j)`.
   - Acceptance: the generator emits 30 values for a given
     per-trooper damage.
   - QA: unit test asserts `j=1` and `j=30` values.
-- [ ] 1.6 Unit-test the formula module — known inputs against the
+- [x] 1.6 Unit-test the formula module — known inputs against the
   MegaMek reference, including a case where the primary weapon's
   per-trooper damage exceeds `0.6` and is capped.
   - Acceptance: computed values match the MegaMek reference; the cap

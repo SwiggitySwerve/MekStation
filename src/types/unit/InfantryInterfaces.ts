@@ -102,6 +102,16 @@ export interface IInfantryWeaponEntry {
   readonly isHeavy: boolean;
   /** Damage divisor applied to trooper count per TW rules */
   readonly damageDivisor: number;
+  /**
+   * Canonical damage per trooper for this weapon, as consumed by
+   * MegaMek's `Infantry.getDamagePerTrooper()` formula
+   * (`InfantryWeapon.getInfantryDamage()`). A non-negative number.
+   *
+   * This is the OUTGOING per-trooper damage figure — distinct from
+   * `damageDivisor`, which governs INCOMING-damage division. The
+   * infantry record sheet's damage row is computed from this value.
+   */
+  readonly infantryDamage: number;
   /** Short-range bracket (hexes) */
   readonly rangeShort: number;
   /** Medium-range bracket (hexes) */

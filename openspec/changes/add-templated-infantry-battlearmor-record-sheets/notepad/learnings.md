@@ -39,3 +39,20 @@
 - Verify: `npm run lint` (oxlint), `npx oxfmt --check`, `npx tsc --noEmit`, `npm test`, `npm run storybook:build`.
 - `*.test.tsx` and story files are oxlint-ignored by config.
 - Test runner is Jest + @swc/jest. tasks.md says `bun test` — use `npm test` (jest) per repo reality.
+
+## Phase 1 facts (infantry damage model — DONE)
+- `getDamagePerTrooper()` MegaMek source: Infantry.java:1687 (13 lines). Reproduced verbatim in
+  `infantry/infantryDamage.ts`. Cap = 0.6 (MMConstants.java:119). Formula:
+  adjusted=min(0.6, primaryDmg); damage=adjusted*(squadSize-secPerSquad)
+  + (secDmg ? secDmg*secPerSquad : 0); return damage/squadSize.
+- `generateDamageRow(perTrooper)` -> 30 ints, DAMAGE+j = round(perTrooper*j). j in 1..30.
+  Math.round (JS) == Java Math.round for non-negative values (both round-half-up).
+- `IInfantryWeaponSheet.infantryDamage` is now a REQUIRED field. Any fixture building this type
+  literal needs it — recordSheetSnapshots.test.ts already fixed. The infantry adapter (Phase 4)
+  bindings consume `data.primaryWeapon.infantryDamage` + secondary weapons.
+- `dataExtractors.infantry.ts` `buildWeaponSheet` threads `catalog?.infantryDamage ?? 0`.
+- INFANTRY_WEAPON_TABLE has 12 entries (not 13). All 12 now carry infantryDamage.
+
+## Phase 1 verification baseline
+- Full printing suite: 13 suites / 257 tests / 5 snapshots — ALL GREEN. This is the regression
+  guard for Phase 2-5. Re-run `npx jest src/services/printing` after each later wave.
