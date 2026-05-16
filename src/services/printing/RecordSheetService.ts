@@ -51,6 +51,10 @@ import { IUnitConfig } from './recordsheet/types';
 import { SVGRecordSheetRenderer } from './svgRecordSheetRenderer';
 import { renderToCanvasHighDPI } from './svgRecordSheetRenderer/canvas';
 import { renderRecordSheetSVG } from './svgRecordSheetRenderer/renderer';
+import {
+  isTemplatedUnit,
+  renderTemplated,
+} from './svgRecordSheetRenderer/renderTemplated';
 
 export type { IUnitConfig };
 
@@ -209,7 +213,7 @@ export class RecordSheetService {
       await this.renderMechPreview(canvas, data, paperSize);
       return;
     }
-    const svgString = this.buildNonMechSVG(data);
+    const svgString = await this.buildNonMechSVG(data, paperSize);
     await renderSVGStringToCanvas(svgString, canvas, 1);
   }
 
@@ -226,7 +230,7 @@ export class RecordSheetService {
     if (data.unitType === 'mech') {
       return this.getMechSVGString(data, paperSize);
     }
-    return this.buildNonMechSVG(data);
+    return this.buildNonMechSVG(data, paperSize);
   }
 
   /**
@@ -257,7 +261,7 @@ export class RecordSheetService {
     canvas.width = scaledWidth;
     canvas.height = scaledHeight;
 
-    const svgString = this.buildNonMechSVG(data);
+    const svgString = await this.buildNonMechSVG(data, paperSize);
     await renderSVGStringToCanvas(svgString, canvas, PDF_DPI_MULTIPLIER);
 
     const PDF = await getJsPDFConstructor();
@@ -364,11 +368,21 @@ export class RecordSheetService {
   }
 
   /**
-   * Build an SVG string for any non-mech unit type by calling the matching
-   * per-type renderer. Throws `UnsupportedUnitTypeError` for the 'mech' case
-   * (callers should use the mech pipeline) and unknown types.
+   * Build an SVG string for any non-mech unit type.
+   *
+   * Wave-1 families (vehicle / aerospace / protomech) render through
+   * the canonical mm-data template path (`renderTemplated`), which
+   * falls back to the family skeleton renderer on any failure.
+   * Battle-armor and infantry use the skeleton renderer directly via
+   * `renderRecordSheetSVG`.
    */
-  private buildNonMechSVG(data: INonMechRecordSheetData): string {
+  private async buildNonMechSVG(
+    data: INonMechRecordSheetData,
+    paperSize: PaperSize,
+  ): Promise<string> {
+    if (isTemplatedUnit(data)) {
+      return renderTemplated(data, paperSize);
+    }
     return renderRecordSheetSVG(data);
   }
 
