@@ -8,6 +8,8 @@
  *   (Requirement: Shared Template Record Sheet Renderer)
  */
 
+import { resetMmDataAssetService } from '@/services/assets/MmDataAssetService';
+
 import {
   TemplateRecordSheetRenderer,
   type PipFill,
@@ -37,6 +39,9 @@ describe('TemplateRecordSheetRenderer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockFetch.mockReset();
+    // Reset the shared MmDataAssetService singleton so its template
+    // cache does not leak between tests / suites.
+    resetMmDataAssetService();
     document.body.innerHTML = '';
   });
 

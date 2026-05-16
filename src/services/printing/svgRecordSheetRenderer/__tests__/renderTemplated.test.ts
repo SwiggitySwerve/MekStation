@@ -16,6 +16,7 @@ import type {
   IVehicleRecordSheetData,
 } from '@/types/printing';
 
+import { resetMmDataAssetService } from '@/services/assets/MmDataAssetService';
 import { PaperSize } from '@/types/printing';
 
 import { isTemplatedUnit, renderTemplated } from '../renderTemplated';
@@ -149,6 +150,9 @@ describe('renderTemplated — template path', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockFetch.mockReset();
+    // Reset the shared MmDataAssetService singleton so its template
+    // cache does not leak between tests / suites.
+    resetMmDataAssetService();
     document.body.innerHTML = '';
   });
 
@@ -211,6 +215,9 @@ describe('renderTemplated — skeleton fallback', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockFetch.mockReset();
+    // Reset the shared MmDataAssetService singleton so its template
+    // cache does not leak between tests / suites.
+    resetMmDataAssetService();
     document.body.innerHTML = '';
   });
 
