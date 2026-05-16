@@ -110,6 +110,17 @@ describe('arcMaxMap', () => {
     expect(map[AerospaceArc.RIGHT_WING]).toBe(10);
     expect(map[AerospaceArc.AFT]).toBe(6);
   });
+
+  it('returns non-zero side arcs for small craft (regression: side factors must not collapse to 0)', () => {
+    // Guards the SMALL_CRAFT_ARC_FACTORS table: if a side factor is ever
+    // zeroed, a small craft silently loses its side-arc armor cap and a
+    // player can "build" one with no side armor and no validation error.
+    const map = arcMaxMap(200, AerospaceSubType.SMALL_CRAFT);
+    expect(map[AerospaceArc.NOSE]).toBe(56);
+    expect(map[AerospaceArc.LEFT_SIDE]).toBe(40);
+    expect(map[AerospaceArc.RIGHT_SIDE]).toBe(40);
+    expect(map[AerospaceArc.AFT]).toBe(24);
+  });
 });
 
 // =============================================================================
