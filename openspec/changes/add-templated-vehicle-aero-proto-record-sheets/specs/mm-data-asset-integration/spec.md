@@ -1,0 +1,170 @@
+# mm-data-asset-integration Delta — add-templated-vehicle-aero-proto-record-sheets
+
+## ADDED Requirements
+
+### Requirement: Non-Mech Wave-1 Template Registration
+
+The system SHALL register the Wave-1 non-mech canonical record-sheet
+templates in `config/mm-data-assets.json` so that `MmDataAssetService`
+can resolve them through its existing three-source fallback chain
+(local `/record-sheets/<path>` → jsDelivr CDN → GitHub raw).
+
+The registered Wave-1 templates SHALL be:
+`vehicle_noturret_standard.svg`, `vehicle_turret_standard.svg`,
+`vehicle_dualturret_standard.svg`, `vtol_noturret_standard.svg`,
+`vtol_turret_standard.svg`, `fighter_aerospace_default.svg`,
+`fighter_conventional_default.svg`, `protomek_biped.svg`,
+`protomek_quad.svg`, and `protomek_glider.svg`.
+
+Each template SHALL be registered under **both** the `templates_us`
+(US Letter) and `templates_iso` (A4) directories, matching the existing
+`mek_*` registration pattern.
+
+The asset-sync script SHALL copy the registered Wave-1 non-mech
+templates into `public/record-sheets/templates_us` and
+`public/record-sheets/templates_iso` alongside the existing mech
+templates.
+
+**Priority**: Critical
+
+#### Scenario: Wave-1 vehicle template resolves locally
+
+- **GIVEN** the Wave-1 templates registered in `config/mm-data-assets.json`
+  and synced to `public/record-sheets/templates_us`
+- **WHEN** `MmDataAssetService.loadSVG('templates_us/vehicle_turret_standard.svg')`
+  is called
+- **THEN** it SHALL return the canonical template SVG content from the
+  local path
+
+#### Scenario: Wave-1 template falls back to CDN
+
+- **GIVEN** a registered Wave-1 template absent from the local
+  `public/record-sheets` directory
+- **WHEN** `MmDataAssetService.loadSVG` resolves that template
+- **THEN** it SHALL fall back to the jsDelivr CDN source, then the
+  GitHub raw source, before failing
+
+#### Scenario: Both paper sizes are registered
+
+- **GIVEN** the Wave-1 template registration
+- **WHEN** `config/mm-data-assets.json` is read
+- **THEN** every Wave-1 non-mech template SHALL appear in both the
+  `templates_us` and `templates_iso` pattern lists
+
+#### Scenario: Asset sync copies non-mech templates
+
+- **GIVEN** the mm-data repository present at the expected relative path
+- **WHEN** the asset-sync script runs
+- **THEN** it SHALL copy each registered Wave-1 non-mech template into
+  both `public/record-sheets/templates_us` and
+  `public/record-sheets/templates_iso`, and report them in the synced
+  file count
+
+---
+
+### Requirement: Canonical Template Element ID Catalog
+
+The system SHALL maintain a frozen typed constant capturing the
+injectable `id=` element set of each Wave-1 canonical template.
+
+The catalog SHALL be derived by extracting `id=` attributes from each
+registered canonical template SVG, and SHALL be reviewed against the
+corresponding MegaMekLab `Print*` Java class field names
+(`PrintTank`, `PrintAero`, `PrintProtoMek`) to confirm the binding
+targets are correct.
+
+The per-family `bindings.ts` adapters SHALL bind only against element
+IDs present in this catalog.
+
+**Priority**: High
+
+#### Scenario: Element ID catalog is frozen and typed
+
+- **GIVEN** the extracted element-ID catalog
+- **WHEN** it is consumed by a `bindings.ts` adapter
+- **THEN** the catalog SHALL be a frozen typed constant whose keys are
+  the canonical template element IDs
+
+#### Scenario: Catalog reviewed against MegaMekLab field names
+
+- **GIVEN** the `vehicle` family element-ID catalog
+- **WHEN** it is reviewed against `PrintTank.java`
+- **THEN** every binding target used by the vehicle `bindings.ts`
+  adapter SHALL correspond to a documented `PrintTank` element ID
+
+#### Scenario: Bindings reject unknown element IDs
+
+- **GIVEN** a `bindings.ts` adapter and the element-ID catalog
+- **WHEN** the adapter is authored or modified
+- **THEN** it SHALL only reference IDs present in the catalog, so a
+  typo against a non-existent template ID is caught at type-check time
+
+## MODIFIED Requirements
+
+### Requirement: MmData Asset Service
+
+The system SHALL provide a service for loading and caching assets from
+the mm-data distribution, covering mech templates, the Wave-1 non-mech
+templates (vehicle / VTOL / aerospace / conventional-fighter /
+ProtoMech), the biped armor and structure pips, and any non-mech pip
+directories required by the Wave-1 templates.
+
+**Rationale**: Centralized asset loading enables consistent access to
+MegaMek visual assets across components, and the same three-source
+fallback chain that serves mech templates serves the non-mech families.
+
+**Priority**: Critical
+
+#### Scenario: Armor pip loading
+
+- **GIVEN** a MechLocation and armor count
+- **WHEN** `MmDataAssetService.getArmorPipSvg(location, count)` is called
+- **THEN** return the SVG content for that armor pip configuration
+- **AND** file is loaded from `/record-sheets/biped_pips/Armor_{Location}_{Count}_Humanoid.svg`
+- **AND** result is cached for subsequent calls
+
+#### Scenario: Rear armor pip loading
+
+- **GIVEN** a torso location (CT, LT, RT) with rear armor
+- **WHEN** `MmDataAssetService.getArmorPipSvg(location, count, true)` is called
+- **THEN** return the SVG content for rear armor pips
+- **AND** file is loaded from `/record-sheets/biped_pips/Armor_{Location}_R_{Count}_Humanoid.svg`
+
+#### Scenario: Internal structure pip loading
+
+- **GIVEN** a tonnage and MechLocation
+- **WHEN** `MmDataAssetService.getStructurePipSvg(tonnage, location)` is called
+- **THEN** return the SVG content for that structure pip configuration
+- **AND** file is loaded from `/record-sheets/biped_pips/BipedIS{Tonnage}_{Location}.svg`
+- **AND** tonnage is rounded to nearest standard (20, 25, 30, ..., 100)
+
+#### Scenario: Record sheet template loading
+
+- **GIVEN** a unit configuration and paper size
+- **WHEN** the record-sheet template for that unit is requested
+- **THEN** return the SVG template document
+- **AND** the file is loaded from the appropriate `templates_us` or
+  `templates_iso` directory, covering both mech and Wave-1 non-mech
+  template keys
+
+#### Scenario: Non-mech template loading via shared renderer
+
+- **GIVEN** a Wave-1 non-mech template key resolved by a per-family
+  `selectTemplate` adapter
+- **WHEN** `TemplateRecordSheetRenderer.loadTemplate(path)` requests
+  that template
+- **THEN** `MmDataAssetService.loadSVG` SHALL resolve it through the
+  three-source fallback chain and the result SHALL be cached
+
+#### Scenario: Location code mapping
+
+- **WHEN** loading mm-data assets
+- **THEN** MechLocation enum values SHALL be mapped to mm-data codes:
+  - HEAD → "HD"
+  - CENTER_TORSO → "CT"
+  - LEFT_TORSO → "LT"
+  - RIGHT_TORSO → "RT"
+  - LEFT_ARM → "LArm"
+  - RIGHT_ARM → "RArm"
+  - LEFT_LEG → "LLeg"
+  - RIGHT_LEG → "RLeg"
