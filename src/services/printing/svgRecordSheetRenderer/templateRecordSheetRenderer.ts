@@ -10,16 +10,20 @@
  * families (vehicle / aerospace / protomech) both consume this core, so
  * the proven mech rendering substrate is shared rather than forked.
  *
- * It deliberately reuses `loadSVGTemplate` from `template.ts` and
- * `renderToCanvasHighDPI` from `canvas.ts` verbatim — no fork of the
- * proven mech logic.
+ * It reuses `parseSVGTemplate` from `template.ts` (the proven mech
+ * parse + validation) and `renderToCanvasHighDPI` from `canvas.ts`
+ * verbatim, and resolves templates through `MmDataAssetService.loadSVG`
+ * so the three-source fallback chain applies — no fork of the proven
+ * mech logic.
  *
  * @spec openspec/changes/add-templated-vehicle-aero-proto-record-sheets/specs/record-sheet-export/spec.md
  *   (Requirement: Shared Template Record Sheet Renderer)
  */
 
+import { getMmDataAssetService } from '@/services/assets/MmDataAssetService';
+
 import { renderToCanvasHighDPI } from './canvas';
-import { loadSVGTemplate } from './template';
+import { parseSVGTemplate } from './template';
 
 /**
  * A map of template element ID → text value to inject.
@@ -71,14 +75,16 @@ export class TemplateRecordSheetRenderer {
   /**
    * Load and parse a canonical template SVG.
    *
-   * Delegates to the proven `loadSVGTemplate` path used by the mech
-   * renderer — which fetches via the dev-server / asset path,
-   * validates the content type, and parses with `DOMParser`. Asset
-   * resolution through `MmDataAssetService`'s three-source fallback
-   * chain happens upstream of the path handed in here.
+   * Resolves the template through `MmDataAssetService.loadSVG`, so the
+   * three-source fallback chain (local bundled → jsDelivr CDN → GitHub
+   * raw) and the asset cache both apply — a missing local asset
+   * degrades to CDN / raw rather than failing. The fetched markup is
+   * then validated and parsed by `parseSVGTemplate`, the same parse +
+   * validation the mech `loadSVGTemplate` path uses.
    */
   async loadTemplate(templatePath: string): Promise<void> {
-    const { svgDoc, svgRoot } = await loadSVGTemplate(templatePath);
+    const svgText = await getMmDataAssetService().loadSVG(templatePath);
+    const { svgDoc, svgRoot } = parseSVGTemplate(svgText, templatePath);
     this.svgDoc = svgDoc;
     this.svgRoot = svgRoot;
   }

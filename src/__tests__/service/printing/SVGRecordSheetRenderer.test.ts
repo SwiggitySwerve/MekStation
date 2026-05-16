@@ -10,6 +10,7 @@
  * - Pip group ID resolution for all configurations
  */
 
+import { resetMmDataAssetService } from '@/services/assets/MmDataAssetService';
 import { SVGRecordSheetRenderer } from '@/services/printing/svgRecordSheetRenderer';
 import { IMechRecordSheetData } from '@/types/printing';
 
@@ -214,6 +215,9 @@ describe('SVGRecordSheetRenderer', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset the shared MmDataAssetService singleton so its template
+    // cache does not leak between tests / suites.
+    resetMmDataAssetService();
     renderer = new SVGRecordSheetRenderer();
   });
 
