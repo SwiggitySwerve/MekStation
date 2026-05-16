@@ -41,7 +41,12 @@
       "fighter_conventional_default.svg",
       "protomek_biped.svg",
       "protomek_quad.svg",
-      "protomek_glider.svg"
+      "protomek_glider.svg",
+      "conventional_infantry_default.svg",
+      "conventional_infantry_platoon.svg",
+      "conventional_infantry_tables.svg",
+      "battle_armor_default.svg",
+      "battle_armor_squad.svg"
     ],
     "templates_iso": [
       "mek_biped_default.svg",
@@ -63,7 +68,12 @@
       "fighter_conventional_default.svg",
       "protomek_biped.svg",
       "protomek_quad.svg",
-      "protomek_glider.svg"
+      "protomek_glider.svg",
+      "conventional_infantry_default.svg",
+      "conventional_infantry_platoon.svg",
+      "conventional_infantry_tables.svg",
+      "battle_armor_default.svg",
+      "battle_armor_squad.svg"
     ]
   }
 }
