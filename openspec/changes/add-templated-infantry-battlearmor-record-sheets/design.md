@@ -310,3 +310,59 @@ pass.
 - **Not modified, not deleted**: `infantryRenderer.ts`,
   `battleArmorRenderer.ts` (kept as the runtime fallback); the mech
   and Wave-1 family renderers and adapters.
+
+## Decisions discovered during execution
+
+### Decision: `infantryDamage` is absent and must be populated in-scope
+
+**Choice**: The Phase-0 task 0.6 check confirmed `IInfantryWeaponEntry`
+has no `infantryDamage` field — it carries only `damageDivisor` (a
+distinct incoming-damage quantity) — and `INFANTRY_WEAPON_TABLE`
+populates no per-trooper damage. Task 1.3 (populate `infantryDamage`
+for every weapon) is therefore in scope and was executed: all 12
+catalogued infantry weapons gained an `infantryDamage` value sourced
+from the representative MegaMek infantry-weapon classes.
+
+**Rationale**: The damage-per-trooper formula needs a per-weapon damage
+input; without a populated value the formula has nothing to consume.
+The proposal anticipated this conditional ("if Phase 0 finds the value
+absent, populating it is an explicit task") — the finding resolves the
+conditional to "absent".
+
+**Discovered during**: Tasks 0.6, 1.1, 1.2, 1.3, 1.4.
+
+### Decision: canonical-template marker is a `data-template-source` attribute
+
+**Choice**: The small-unit render path
+(`renderViaSmallUnitTemplate`) stamps a `data-template-source=
+"mm-data-canonical"` attribute on the output SVG root, exported as
+`CANONICAL_TEMPLATE_MARKER` / `CANONICAL_TEMPLATE_MARKER_VALUE` from
+`renderTemplated.ts`.
+
+**Rationale**: The silent-fallback guard needs a signal that only the
+canonical-template path produces. An attribute on the SVG root is the
+cheapest assertable marker; the skeleton renderers never set it, so its
+presence proves the template path — not the fallback — produced a given
+SVG. The guard test asserts presence on template output and absence on
+skeleton output.
+
+**Discovered during**: Tasks 5.2, 5.5, F5.
+
+### Decision: small-unit pip layout runs before mount
+
+**Choice**: `renderViaSmallUnitTemplate` lays out the platoon /
+per-trooper pip grids on the parsed document *before* calling
+`mount()`; the mount + `awaitFontsReady` step follows only for
+web-font-aware text measurement.
+
+**Rationale**: `TemplateRecordSheetRenderer.mount()` detaches the SVG
+root from the parsed document, after which `document.getElementById`
+returns `null`. The Wave-2 pip-grid helpers resolve their `soldier_N` /
+`pips_N` regions via `getElementById` and read geometry from `<rect>`
+attributes (`Bounds.fromRect`) — they do not call `getBBox()` and so
+need no live DOM. Running the layout before mount avoids the
+detached-document hazard. This is the inverse of the Wave-1
+`renderViaTemplate` order, which mounts first because the Wave-1
+per-location pips measure via `getBBox()`.
+
+**Discovered during**: Tasks 5.2, 5.3, 3.3, 4.3.

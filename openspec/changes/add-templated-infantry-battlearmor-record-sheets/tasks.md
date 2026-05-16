@@ -207,21 +207,21 @@ tasks and the Phase-5 silent-fallback guard are the hard gates.
 
 ## 6. Final Verification Wave
 
-- [ ] F1 Typecheck + lint clean across all touched files
+- [x] F1 Typecheck + lint clean across all touched files
   (`bun run typecheck`, `bun run lint`).
-- [ ] F2 All unit + integration tests pass — the two per-family
+- [x] F2 All unit + integration tests pass — the two per-family
   pip-count fidelity tests, the Battle Armor per-trooper pip-grid
   test, the infantry damage-per-trooper formula test, the
   silent-fallback guard test, and the unchanged mech / Wave-1
   snapshot and fidelity tests (`bun test`).
-- [ ] F3 Manual QA — Save PDF from the customizer for an infantry
+- [x] F3 Manual QA — Save PDF from the customizer for an infantry
   platoon and a Battle Armor squad in both `templates_us` and
   `templates_iso`; confirm canonical per-unit block layout, correct
   pip counts, and the infantry damage row.
-- [ ] F4 Forced-failure QA — block asset loading and confirm each
+- [x] F4 Forced-failure QA — block asset loading and confirm each
   family degrades to its skeleton renderer rather than producing a
   blank PDF.
-- [ ] F5 `omo-spec-verifier` confirms every SHALL/MUST in the three
+- [x] F5 `omo-spec-verifier` confirms every SHALL/MUST in the three
   delta specs has implementation and test coverage.
-- [ ] F6 `npx openspec validate add-templated-infantry-battlearmor-record-sheets --strict`
+- [x] F6 `npx openspec validate add-templated-infantry-battlearmor-record-sheets --strict`
   passes.
