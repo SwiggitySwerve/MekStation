@@ -10,16 +10,16 @@
  * families (vehicle / aerospace / protomech) both consume this core, so
  * the proven mech rendering substrate is shared rather than forked.
  *
- * It deliberately reuses `loadSVGTemplate` / `setTextContent` from
- * `template.ts` and `renderToCanvasHighDPI` from `canvas.ts` verbatim —
- * no fork of the proven mech logic.
+ * It deliberately reuses `loadSVGTemplate` from `template.ts` and
+ * `renderToCanvasHighDPI` from `canvas.ts` verbatim — no fork of the
+ * proven mech logic.
  *
  * @spec openspec/changes/add-templated-vehicle-aero-proto-record-sheets/specs/record-sheet-export/spec.md
  *   (Requirement: Shared Template Record Sheet Renderer)
  */
 
 import { renderToCanvasHighDPI } from './canvas';
-import { loadSVGTemplate, setTextContent } from './template';
+import { loadSVGTemplate } from './template';
 
 /**
  * A map of template element ID → text value to inject.
@@ -188,16 +188,42 @@ export class TemplateRecordSheetRenderer {
   }
 
   /**
+   * Resolve an element by ID within the template SVG.
+   *
+   * Searches the SVG ROOT subtree rather than the parsed document:
+   * `mount()` detaches the root from the parsed document and re-parents
+   * it under the off-screen container, after which
+   * `document.getElementById` would return `null`. Searching the root
+   * subtree works whether or not the renderer is currently mounted.
+   *
+   * `CSS.escape` guards IDs containing characters that are not bare
+   * CSS-selector-safe (defensive — canonical template IDs are simple).
+   */
+  private elementById(id: string): Element | null {
+    if (this.svgRoot && this.svgRoot.getAttribute('id') === id) {
+      return this.svgRoot;
+    }
+    const escaped =
+      typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+        ? CSS.escape(id)
+        : id.replace(/(["\\#.;:>~+*[\]()])/g, '\\$1');
+    return this.root.querySelector(`#${escaped}`);
+  }
+
+  /**
    * Inject text bindings into the template by element ID.
    *
-   * For each entry, the element is located via `getElementById` and its
-   * `textContent` is set. Elements absent from the template are silently
-   * skipped — a binding for a missing ID is a no-op, never an error.
+   * For each entry, the element is located within the SVG root subtree
+   * and its `textContent` is set. Elements absent from the template are
+   * silently skipped — a binding for a missing ID is a no-op, never an
+   * error.
    */
   applyBindings(texts: TextBindings): void {
-    const doc = this.document;
     for (const [id, value] of Object.entries(texts)) {
-      setTextContent(doc, id, value);
+      const element = this.elementById(id);
+      if (element) {
+        element.textContent = value;
+      }
     }
   }
 
@@ -214,24 +240,25 @@ export class TemplateRecordSheetRenderer {
    * applicator measures geometry via `getBBox()`.
    */
   applyPips(fills: readonly PipFill[], applicator: PipApplicator): void {
+    // `doc` is used only to create new pip elements (createElementNS),
+    // which works whether or not the root is currently mounted. Group
+    // resolution goes through `elementById`, which searches the root
+    // subtree and is therefore mount-safe.
     const doc = this.document;
     for (const fill of fills) {
       if (fill.count <= 0) {
         continue;
       }
-      const group = doc.getElementById(fill.groupId);
-      if (!group) {
-        // Unresolved group IDs are tolerated — the applicator's own
-        // grouped fallback may still resolve it; pass through so the
-        // applicator can decide. Here we only short-circuit when the
-        // primary element is genuinely absent AND has no grouped twin.
-        const grouped = doc.getElementById(`${fill.groupId}grouped`);
-        if (grouped) {
-          applicator(doc, grouped, fill);
-        }
+      const group = this.elementById(fill.groupId);
+      if (group) {
+        applicator(doc, group, fill);
         continue;
       }
-      applicator(doc, group, fill);
+      // Grouped-layout fallback — retry the `<id>grouped` element.
+      const grouped = this.elementById(`${fill.groupId}grouped`);
+      if (grouped) {
+        applicator(doc, grouped, fill);
+      }
     }
   }
 

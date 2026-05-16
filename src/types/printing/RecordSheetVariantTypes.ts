@@ -81,6 +81,13 @@ export interface IAerospaceArcArmor {
 export interface IAerospaceRecordSheetData {
   readonly unitType: 'aerospace';
   readonly header: IRecordSheetHeader;
+  /**
+   * True for conventional fighters, false (or omitted) for aerospace
+   * fighters. Mirrors MegaMekLab `PrintAero` branching on
+   * `aero instanceof ConvFighter` — drives canonical-template
+   * selection (`fighter_conventional` vs `fighter_aerospace`).
+   */
+  readonly isConventional?: boolean;
   /** Structural Integrity — the aerospace equivalent of internal structure. */
   readonly structuralIntegrity: number;
   readonly fuelPoints: number;
@@ -229,6 +236,12 @@ export interface IProtoMechRecordSheetData {
   readonly mainGunAmmo?: number;
   readonly hasUMU: boolean;
   readonly isGlider: boolean;
+  /**
+   * True for quad ProtoMechs (no arm locations). Mirrors MegaMekLab
+   * `PrintProtoMek` branching on `proto.isQuad()` — drives
+   * canonical-template selection (`protomek_quad`). Defaults false.
+   */
+  readonly isQuad?: boolean;
   readonly walkMP: number;
   readonly jumpMP: number;
   readonly equipment: readonly IRecordSheetEquipment[];
