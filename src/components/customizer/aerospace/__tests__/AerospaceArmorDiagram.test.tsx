@@ -15,6 +15,7 @@ import React from 'react';
 
 import { useAerospaceStore, AerospaceStore } from '@/stores/useAerospaceStore';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 
 import { AerospaceArmorDiagram } from '../AerospaceArmorDiagram';
 
@@ -79,5 +80,44 @@ describe('AerospaceArmorDiagram', () => {
   it('renders SI label containing Structural Integrity text', () => {
     render(<AerospaceArmorDiagram />);
     expect(screen.getByText('Structural Integrity')).toBeInTheDocument();
+  });
+});
+
+describe('AerospaceArmorDiagram — subType propagation', () => {
+  // Regression guard (council audit 2026-05-15): the diagram's per-arc caps
+  // must be driven by the store's aerospaceSubType. If the subType wire is
+  // lost or hardcoded, arc caps silently diverge from the unit's actual type.
+  function lwInput() {
+    return screen.getByTestId(
+      `aerospace-arc-diagram-input-${AerospaceLocation.LEFT_WING}`,
+    );
+  }
+
+  it('applies the ASF wing factor when the store subType is AEROSPACE_FIGHTER', () => {
+    mockUseAerospaceStore.mockImplementation((selector) =>
+      selector(
+        makeState({
+          aerospaceSubType: AerospaceSubType.AEROSPACE_FIGHTER,
+        }) as unknown as AerospaceStore,
+      ),
+    );
+    render(<AerospaceArmorDiagram />);
+    // 50t × 0.20 wing factor = 10
+    expect(lwInput()).toHaveAttribute('max', '10');
+  });
+
+  it('drops the wing cap to 0 when the store subType is SMALL_CRAFT', () => {
+    // Small craft carry side arcs, not wings — the wing location yields 0
+    // through the enum bridge. A non-zero here would mean the diagram ignored
+    // the store subType.
+    mockUseAerospaceStore.mockImplementation((selector) =>
+      selector(
+        makeState({
+          aerospaceSubType: AerospaceSubType.SMALL_CRAFT,
+        }) as unknown as AerospaceStore,
+      ),
+    );
+    render(<AerospaceArmorDiagram />);
+    expect(lwInput()).toHaveAttribute('max', '0');
   });
 });
