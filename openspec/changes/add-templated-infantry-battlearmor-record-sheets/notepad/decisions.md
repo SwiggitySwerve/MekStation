@@ -28,3 +28,23 @@
   field; field name noted inline per entry. No divergence except the documented BA +1 pip rule.
 - Numbered ID families (soldier_N, damage_N, pips_N, suit_N, range_N, etc.) are catalogued as
   `*Prefix` string constants — adapters iterate `prefix + N`, the numbered IDs are layout targets.
+
+## Decision: canonical-template marker is a `data-template-source` attribute (task 5.5)
+- Referenced by tasks: 5.2, 5.5, F5. (>=2 tasks => graduates to design.md.)
+- The silent-fallback guard needs a marker only the canonical-template path produces.
+- CHOICE: `renderViaSmallUnitTemplate` stamps `data-template-source="mm-data-canonical"` on the
+  SVG root via `renderer.root.setAttribute`. Exported as `CANONICAL_TEMPLATE_MARKER` /
+  `CANONICAL_TEMPLATE_MARKER_VALUE` from renderTemplated.ts.
+- RATIONALE: an attribute on the root is the cheapest assertable signal; the skeleton renderers
+  (infantryRenderer / battleArmorRenderer) never set it, so its presence proves the template
+  path — not the fallback — produced the SVG. The guard test asserts presence on template
+  output and absence on skeleton output.
+
+## Decision: small-unit pip layout runs BEFORE mount (task 5.2)
+- Referenced by tasks: 5.2, 5.3, 3.3, 4.3. (>=2 tasks => graduates to design.md.)
+- `TemplateRecordSheetRenderer.mount()` detaches the SVG root from `svgDoc`; after mount,
+  `svgDoc.getElementById` returns null. The Wave-2 pip-grid helpers use `getElementById` +
+  attribute geometry (Bounds.fromRect) — NOT getBBox() — so they need no live DOM.
+- CHOICE: `renderViaSmallUnitTemplate` lays out pips on the parsed document BEFORE calling
+  mount(); mount + awaitFontsReady follow only for text measurement. This differs from the
+  Wave-1 `renderViaTemplate` order (which mounts first because Wave-1 pips need getBBox()).

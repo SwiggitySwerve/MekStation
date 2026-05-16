@@ -115,13 +115,13 @@ tasks and the Phase-5 silent-fallback guard are the hard gates.
 
 ## 3. Battle Armor Family Adapter
 
-- [ ] 3.1 Create `battlearmor/selectTemplate.ts` — pure
+- [x] 3.1 Create `battlearmor/selectTemplate.ts` — pure
   `IBattleArmorRecordSheetData → templateKey` returning
   `battle_armor_squad` (the per-unit block, NOT
   `battle_armor_default`).
   - Acceptance: pure function, no I/O; returns the per-unit block key.
   - QA: unit test asserts the returned key.
-- [ ] 3.2 Create `battlearmor/bindings.ts` — pure
+- [x] 3.2 Create `battlearmor/bindings.ts` — pure
   `IBattleArmorRecordSheetData → { texts, pips }` against the Phase-0
   ID catalog, with a typed per-trooper `PipCounts` computed from each
   trooper's armor pip count.
@@ -129,7 +129,7 @@ tasks and the Phase-5 silent-fallback guard are the hard gates.
     counts equal each trooper's `armorPips`.
   - QA: unit test asserts `PipCounts` for a 4-, 5-, and 6-trooper
     squad fixture.
-- [ ] 3.3 Pip-count fidelity test — render a Battle Armor squad
+- [x] 3.3 Pip-count fidelity test — render a Battle Armor squad
   through the templated path, parse the output SVG, assert the
   pip-element count per trooper column equals the fixture's
   per-trooper armor values.
@@ -139,13 +139,13 @@ tasks and the Phase-5 silent-fallback guard are the hard gates.
 
 ## 4. Infantry Family Adapter
 
-- [ ] 4.1 Create `infantry/selectTemplate.ts` — pure
+- [x] 4.1 Create `infantry/selectTemplate.ts` — pure
   `IInfantryRecordSheetData → templateKey` returning
   `conventional_infantry_platoon` (the per-unit block, NOT
   `conventional_infantry_default`).
   - Acceptance: pure function, no I/O; returns the per-unit block key.
   - QA: unit test asserts the returned key.
-- [ ] 4.2 Create `infantry/bindings.ts` — pure
+- [x] 4.2 Create `infantry/bindings.ts` — pure
   `IInfantryRecordSheetData → { texts, pips }` against the Phase-0 ID
   catalog, with a platoon `PipCounts` and the damage row produced via
   the Phase-1 formula module.
@@ -153,7 +153,7 @@ tasks and the Phase-5 silent-fallback guard are the hard gates.
     equals `platoonSize`; the damage row has 30 `DAMAGE+j` values.
   - QA: unit test asserts `PipCounts` and the damage row for a
     28-trooper foot rifle platoon fixture.
-- [ ] 4.3 Pip-count fidelity test — render an infantry platoon
+- [x] 4.3 Pip-count fidelity test — render an infantry platoon
   through the templated path, parse the output SVG, assert the
   platoon pip-grid element count equals the fixture's trooper count.
   - Acceptance: fidelity gate green for a 28-trooper platoon; a
@@ -162,32 +162,32 @@ tasks and the Phase-5 silent-fallback guard are the hard gates.
 
 ## 5. Dispatch — Flip Infantry / Battle Armor to Templated
 
-- [ ] 5.1 Widen `isTemplatedUnit()` in `renderTemplated.ts` to return
+- [x] 5.1 Widen `isTemplatedUnit()` in `renderTemplated.ts` to return
   `true` for `infantry` and `battlearmor`; widen the `TemplatedUnitData`
   union to include `IInfantryRecordSheetData` and
   `IBattleArmorRecordSheetData`.
   - Acceptance: `isTemplatedUnit()` narrows both new variants.
   - QA: `npx tsc --noEmit` clean.
-- [ ] 5.2 Add `renderInfantryTemplated` and `renderBattleArmorTemplated`
+- [x] 5.2 Add `renderInfantryTemplated` and `renderBattleArmorTemplated`
   wrappers and the two `renderTemplated` switch cases — select
   template → load via `MmDataAssetService` → mount → bind → lay out
   pips → serialize.
   - Acceptance: infantry / battlearmor route through the template path.
   - QA: integration test renders one unit per family via the template
     path.
-- [ ] 5.3 Wrap each new template path in `try/catch`; on asset-load or
+- [x] 5.3 Wrap each new template path in `try/catch`; on asset-load or
   parse failure, invoke the existing `infantryRenderer` /
   `battleArmorRenderer` skeleton renderer and return its SVG.
   - Acceptance: a forced asset failure yields skeleton output, not a
     blank/error sheet.
   - QA: unit test stubs `loadSVG` to throw and asserts skeleton output
     is returned.
-- [ ] 5.4 Confirm the `renderRecordSheetSVG` dispatch routes infantry
+- [x] 5.4 Confirm the `renderRecordSheetSVG` dispatch routes infantry
   and battlearmor through the templated path with skeleton fallback,
   and that the mech and Wave-1 families are unchanged.
   - Acceptance: dispatch correct for all 7 families.
   - QA: dispatch unit test per `unitType`.
-- [ ] 5.5 Silent-fallback guard test — assert `isTemplatedUnit()`
+- [x] 5.5 Silent-fallback guard test — assert `isTemplatedUnit()`
   returns `true` for both Wave-2 payloads AND that the SVG produced
   via `renderTemplated` carries a canonical-template marker absent
   from the skeleton renderer's output.
@@ -195,7 +195,7 @@ tasks and the Phase-5 silent-fallback guard are the hard gates.
     bypassed in favour of the skeleton fallback.
   - QA: `bun test` for the guard green; manually break the template
     path and confirm the guard fails.
-- [ ] 5.6 Verify the customizer Save PDF path
+- [x] 5.6 Verify the customizer Save PDF path
   (`PreviewTab.handleExportPDF` → `RecordSheetService.exportPDF`)
   renders infantry and battle-armor units through the templated path.
   - Acceptance: Save PDF for a platoon and a Battle Armor squad

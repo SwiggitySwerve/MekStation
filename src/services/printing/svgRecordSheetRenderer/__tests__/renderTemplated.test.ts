@@ -133,15 +133,20 @@ const PROTOMECH_FIXTURE: IProtoMechRecordSheetData = {
 };
 
 describe('isTemplatedUnit', () => {
-  it('identifies the three Wave-1 families', () => {
+  it('identifies the Wave-1 families', () => {
     expect(isTemplatedUnit({ unitType: 'vehicle' })).toBe(true);
     expect(isTemplatedUnit({ unitType: 'aerospace' })).toBe(true);
     expect(isTemplatedUnit({ unitType: 'protomech' })).toBe(true);
   });
 
-  it('rejects the non-Wave-1 families', () => {
-    expect(isTemplatedUnit({ unitType: 'battlearmor' })).toBe(false);
-    expect(isTemplatedUnit({ unitType: 'infantry' })).toBe(false);
+  it('identifies the Wave-2 small-unit families', () => {
+    // Wave 2 flips infantry / battle armor to the templated path — the
+    // inverse of the prior Wave-1 exclusion behaviour.
+    expect(isTemplatedUnit({ unitType: 'battlearmor' })).toBe(true);
+    expect(isTemplatedUnit({ unitType: 'infantry' })).toBe(true);
+  });
+
+  it('rejects the mech family (its own dedicated path)', () => {
     expect(isTemplatedUnit({ unitType: 'mech' })).toBe(false);
   });
 });
