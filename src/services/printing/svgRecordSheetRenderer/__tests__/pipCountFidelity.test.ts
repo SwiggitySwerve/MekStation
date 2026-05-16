@@ -31,6 +31,8 @@ import type {
   IVehicleRecordSheetData,
 } from '@/types/printing';
 
+import { resetMmDataAssetService } from '@/services/assets/MmDataAssetService';
+
 import { bindAerospace } from '../aerospace/bindings';
 import { layoutPipsInGroup } from '../pipEngine';
 import { bindProtoMech } from '../protomech/bindings';
@@ -115,6 +117,9 @@ describe('pip-count fidelity gate', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockFetch.mockReset();
+    // Reset the shared MmDataAssetService singleton so its template
+    // cache does not leak between tests / suites.
+    resetMmDataAssetService();
     document.body.innerHTML = '';
   });
 

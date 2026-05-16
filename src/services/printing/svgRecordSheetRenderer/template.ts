@@ -5,7 +5,61 @@
 import { SVG_NS } from './constants';
 
 /**
- * Load an SVG template from a URL
+ * Parse an SVG template string into a validated document + root.
+ *
+ * Validates that the content is real SVG (not an HTML 404 page),
+ * parses it with `DOMParser`, and confirms the root is a genuine
+ * `SVGSVGElement`. Shared by `loadSVGTemplate` (raw-fetch path) and the
+ * `MmDataAssetService.loadSVG`-backed shared renderer path.
+ *
+ * @param svgText the raw SVG markup
+ * @param sourceLabel a path/identifier for diagnostics in thrown errors
+ * @throws Error when the content is HTML, malformed, or not SVG-rooted
+ */
+export function parseSVGTemplate(
+  svgText: string,
+  sourceLabel: string,
+): { svgDoc: Document; svgRoot: SVGSVGElement } {
+  // If content starts with an HTML doctype or <html, it's a 404 page.
+  const trimmedText = svgText.trim().toLowerCase();
+  if (
+    trimmedText.startsWith('<!doctype html') ||
+    trimmedText.startsWith('<html')
+  ) {
+    throw new Error(
+      `SVG template "${sourceLabel}" returned HTML content instead of SVG. ` +
+        `The asset file is missing. Run 'npm run fetch:assets' to download required assets.`,
+    );
+  }
+
+  const parser = new DOMParser();
+  const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+
+  // Check for parse errors first.
+  const parseError = svgDoc.querySelector('parsererror');
+  if (parseError) {
+    throw new Error(`Failed to parse SVG template: ${parseError.textContent}`);
+  }
+
+  // Verify documentElement is an SVG element.
+  const docElement = svgDoc.documentElement;
+  if (
+    docElement.tagName === 'svg' &&
+    docElement.namespaceURI === SVG_NS &&
+    docElement instanceof SVGSVGElement
+  ) {
+    return { svgDoc, svgRoot: docElement };
+  }
+  throw new Error('SVG template root element is not a valid SVGSVGElement');
+}
+
+/**
+ * Load an SVG template from a URL via a raw `fetch`.
+ *
+ * The mech record-sheet path uses this directly. The shared
+ * `TemplateRecordSheetRenderer` instead loads through
+ * `MmDataAssetService.loadSVG` (three-source fallback) and hands the
+ * result to `parseSVGTemplate`.
  *
  * @throws Error if the template cannot be fetched or is not valid SVG
  */
@@ -38,39 +92,7 @@ export async function loadSVGTemplate(templatePath: string): Promise<{
   }
 
   const svgText = await response.text();
-
-  // Additional check: if content starts with HTML doctype or <html, it's not SVG
-  const trimmedText = svgText.trim().toLowerCase();
-  if (
-    trimmedText.startsWith('<!doctype html') ||
-    trimmedText.startsWith('<html')
-  ) {
-    throw new Error(
-      `SVG template "${templatePath}" returned HTML content instead of SVG. ` +
-        `The asset file is missing. Run 'npm run fetch:assets' to download required assets.`,
-    );
-  }
-
-  const parser = new DOMParser();
-  const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
-
-  // Check for parse errors first
-  const parseError = svgDoc.querySelector('parsererror');
-  if (parseError) {
-    throw new Error(`Failed to parse SVG template: ${parseError.textContent}`);
-  }
-
-  // Verify documentElement is an SVG element
-  const docElement = svgDoc.documentElement;
-  if (
-    docElement.tagName === 'svg' &&
-    docElement.namespaceURI === SVG_NS &&
-    docElement instanceof SVGSVGElement
-  ) {
-    return { svgDoc, svgRoot: docElement };
-  } else {
-    throw new Error('SVG template root element is not a valid SVGSVGElement');
-  }
+  return parseSVGTemplate(svgText, templatePath);
 }
 
 /**
