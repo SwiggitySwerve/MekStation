@@ -281,6 +281,206 @@ export const PROTOMECH_TEMPLATE_IDS = {
   structurePipsMG: 'structurePipsMG',
 } as const;
 
+/**
+ * Conventional Infantry family template element IDs.
+ *
+ * Covers the Wave-2 per-unit block template `conventional_infantry_platoon`
+ * (the single-unit MVP target — NOT the multi-slot
+ * `conventional_infantry_default` outer sheet). Reviewed against
+ * MegaMekLab `PrintInfantry.java` and `IdConstants.java` (task 0.5).
+ *
+ * MegaMekLab review (task 0.5): `PrintInfantry.getSVGFileName()` returns
+ * `conventional_infantry_platoon.svg`; every binding target below was
+ * cross-referenced against the `IdConstants` field consumed by
+ * `PrintInfantry`. The `IdConstants` field name is noted per entry. No
+ * catalogued ID diverges from `IdConstants`.
+ *
+ * The `soldier_1..30` IDs are the platoon pip elements (one per trooper
+ * slot, `IdConstants.SOLDIER`); `no_soldier_1..30` are the empty-slot
+ * twins (`IdConstants.NO_SOLDIER`). The platoon pip-grid helper lays out
+ * exactly `platoonSize` pips against the `soldier_N` slots. The
+ * `damage_1..30` IDs are the per-trooper-count damage row
+ * (`IdConstants.DAMAGE` — `PrintInfantry` fills `damage_j` with
+ * `round(getDamagePerTrooper() * j)`).
+ *
+ * Per-pip / per-row numeric ID families (`soldier_N`, `no_soldier_N`,
+ * `damage_N`, `range_N`, `range_mod_N`, `uw_range_mod_N`) are exposed as
+ * a single `as const` prefix string plus a count, mirroring the way the
+ * adapters iterate them — the individual numbered IDs are layout
+ * targets, not distinct catalog keys.
+ */
+export const INFANTRY_TEMPLATE_IDS = {
+  /** IdConstants.TYPE — chassis + model line. */
+  type: 'type',
+  /** IdConstants.ROLE — unit battlefield role. */
+  role: 'role',
+  /** IdConstants.LBL_ROLE — the "Role:" label element. */
+  labelRole: 'labelRole',
+  /** IdConstants.BV — Battle Value. */
+  bv: 'bv',
+  /** IdConstants.ARMOR_KIT — infantry armor kit name. */
+  armorKit: 'armor_kit',
+  /** IdConstants.ARMOR_DIVISOR — armor damage divisor value. */
+  armorDivisor: 'armor_divisor',
+  /** IdConstants.TRANSPORT_WT — platoon transport weight. */
+  transportWt: 'transport_wt',
+  /** IdConstants.MP_1 — primary movement-mode MP value. */
+  mp1: 'mp_1',
+  /** IdConstants.MODE_1 — primary movement-mode label. */
+  movementMode1: 'movement_mode_1',
+  /** IdConstants.MP_2 — secondary movement-mode MP value. */
+  mp2: 'mp_2',
+  /** IdConstants.MODE_2 — secondary movement-mode label. */
+  movementMode2: 'movement_mode_2',
+  /** IdConstants.MP_2_LABEL — secondary MP label slot. */
+  mp2Label: 'mp_2_label',
+  /** IdConstants.MODE_2_LABEL — secondary movement-mode label slot. */
+  movementMode2Label: 'movement_mode_2_label',
+  /** IdConstants.RANGE_IN_HEXES — "range in hexes" header text. */
+  rangeInHexes: 'rangeInHexes',
+  /** IdConstants.DEST_MODS — destruction modifiers block. */
+  destMods: 'dest_mods',
+  /** IdConstants.SNEAK_CAMO_MODS — sneak/camo modifiers block. */
+  sneakCamoMods: 'sneak_camo_mods',
+  /** IdConstants.UW_RANGE_MODIFIER — underwater range modifier header. */
+  uwRangeModifier: 'uw_range_modifier',
+  /** IdConstants.NOTES — notes block. */
+  notes: 'notes',
+  /** IdConstants.RS_TEMPLATE — root template marker group. */
+  rs_template: 'rs_template',
+  /** IdConstants.GUNNERY_SKILL + "0" — crew 0 gunnery skill. */
+  gunnerySkill0: 'gunnerySkill0',
+  /** IdConstants.PILOTING_SKILL + "0" — crew 0 anti-mech / piloting skill. */
+  pilotingSkill0: 'pilotingSkill0',
+  /** IdConstants.PILOT_NAME + "0" — crew 0 name. */
+  pilotName0: 'pilotName0',
+
+  // --- Field gun block (IdConstants.FIELD_GUN_* — present when crewed) ---
+  /** IdConstants.FIELD_GUN_COLUMNS — field-gun table container. */
+  fieldGunColumns: 'field_gun_columns',
+  /** IdConstants.FIELD_GUN_QTY — field-gun quantity. */
+  fieldGunQty: 'field_gun_qty',
+  /** IdConstants.FIELD_GUN_TYPE — field-gun type / name. */
+  fieldGunType: 'field_gun_type',
+  /** IdConstants.FIELD_GUN_DMG — field-gun damage. */
+  fieldGunDmg: 'field_gun_dmg',
+  /** IdConstants.FIELD_GUN_DMG_2 — field-gun secondary damage. */
+  fieldGunDmg2: 'field_gun_dmg_2',
+  /** IdConstants.FIELD_GUN_MIN_RANGE — field-gun minimum range. */
+  fieldGunMinRange: 'field_gun_min_range',
+  /** IdConstants.FIELD_GUN_SHORT — field-gun short range. */
+  fieldGunShort: 'field_gun_short',
+  /** IdConstants.FIELD_GUN_MED — field-gun medium range. */
+  fieldGunMed: 'field_gun_med',
+  /** IdConstants.FIELD_GUN_LONG — field-gun long range. */
+  fieldGunLong: 'field_gun_long',
+  /** IdConstants.FIELD_GUN_AMMO — field-gun ammo rounds. */
+  fieldGunAmmo: 'field_gun_ammo',
+  /** IdConstants.FIELD_GUN_CREW — field-gun crew count. */
+  fieldGunCrew: 'field_gun_crew',
+
+  // --- Numbered ID-family prefixes (IdConstants suffix-prefix fields) ---
+  /** IdConstants.SOLDIER — platoon pip slot prefix (`soldier_1`..`soldier_30`). */
+  soldierPrefix: 'soldier_',
+  /** IdConstants.NO_SOLDIER — empty platoon-slot prefix (`no_soldier_1`..). */
+  noSoldierPrefix: 'no_soldier_',
+  /** IdConstants.DAMAGE — per-trooper-count damage row prefix (`damage_1`..`damage_30`). */
+  damagePrefix: 'damage_',
+  /** IdConstants.RANGE — range-bracket text prefix (`range_0`..). */
+  rangePrefix: 'range_',
+  /** IdConstants.RANGE_MOD — range-modifier prefix (`range_mod_0`..). */
+  rangeModPrefix: 'range_mod_',
+  /** IdConstants.UW_RANGE_MOD — underwater range-modifier prefix (`uw_range_mod_0`..). */
+  uwRangeModPrefix: 'uw_range_mod_',
+} as const;
+
+/**
+ * Maximum trooper count for a conventional infantry platoon — the
+ * `soldier_N` / `no_soldier_N` / `damage_N` numbered ID families run
+ * `1..30` on the `conventional_infantry_platoon` template.
+ */
+export const INFANTRY_MAX_TROOPERS = 30;
+
+/**
+ * Battle Armor family template element IDs.
+ *
+ * Covers the Wave-2 per-unit block template `battle_armor_squad` (the
+ * single-unit MVP target — NOT the multi-slot `battle_armor_default`
+ * outer sheet). Reviewed against MegaMekLab `PrintBattleArmor.java` and
+ * `IdConstants.java` (task 0.5).
+ *
+ * MegaMekLab review (task 0.5): `PrintBattleArmor.getSVGFileName()`
+ * returns `battle_armor_squad.svg`; every binding target below was
+ * cross-referenced against the `IdConstants` field consumed by
+ * `PrintBattleArmor`. The `IdConstants` field name is noted per entry.
+ *
+ * The `pips_0..pips_5` IDs are the per-trooper armor pip-group regions
+ * (`IdConstants.PIPS` — `PrintBattleArmor` iterates `getElementById(PIPS
+ * + i)` for `i` in `0..5`). The `suit0..suit5` IDs are the per-trooper
+ * suit-label slots (`IdConstants.SUIT`). A Battle Armor squad has 4–6
+ * troopers; trooper columns beyond the squad size are left empty.
+ *
+ * DIVERGENCE: `PrintBattleArmor` draws `getOArmor(trooper) + 1` pips per
+ * column — the canonical per-suit armor value PLUS one extra "trooper"
+ * pip. The Wave-2 per-trooper pip grid reproduces this `+1` so the
+ * rendered count matches MegaMekLab.
+ */
+export const BATTLEARMOR_TEMPLATE_IDS = {
+  /** IdConstants.TYPE — chassis + model line. */
+  type: 'type',
+  /** IdConstants.ROLE — unit battlefield role. */
+  role: 'role',
+  /** IdConstants.LBL_ROLE — the "Role:" label element. */
+  labelRole: 'labelRole',
+  /** IdConstants.BV — Battle Value. */
+  bv: 'bv',
+  /** IdConstants.SQUAD — squad designation header ("BATTLE ARMOR: ..."). */
+  squad: 'squad',
+  /** IdConstants.ARMOR_TYPE — BA armor type label. */
+  armorType: 'armorType',
+  /** IdConstants.MP_WALK — ground MP value. */
+  mpWalk: 'mpWalk',
+  /** IdConstants.MP_2 — secondary movement-mode MP value (jump/VTOL/UW). */
+  mp2: 'mp_2',
+  /** IdConstants.MODE_2 — secondary movement-mode label. */
+  movementMode2: 'movement_mode_2',
+  /** IdConstants.INVENTORY — equipment / weapon inventory block. */
+  inventory: 'inventory',
+  /** IdConstants.ERA_ICON — era icon image slot. */
+  eraIcon: 'eraIcon',
+  /** IdConstants.RS_TEMPLATE — root template marker group. */
+  rs_template: 'rs_template',
+  /** IdConstants.GUNNERY_SKILL + "0" — crew 0 gunnery skill. */
+  gunnerySkill0: 'gunnerySkill0',
+  /** IdConstants.PILOTING_SKILL + "0" — crew 0 anti-mech / piloting skill. */
+  pilotingSkill0: 'pilotingSkill0',
+
+  // --- BA capability check markers (PrintBattleArmor capability panel) ---
+  /** Anti-personnel capability check marker. */
+  checkAP: 'checkAP',
+  /** Leg-attack capability check marker. */
+  checkLeg: 'checkLeg',
+  /** Mechanized capability check marker. */
+  checkMechanized: 'checkMechanized',
+  /** Swarm-attack capability check marker. */
+  checkSwarm: 'checkSwarm',
+
+  // --- Numbered ID-family prefixes ---
+  /** IdConstants.PIPS — per-trooper armor pip-group prefix (`pips_0`..`pips_5`). */
+  pipsPrefix: 'pips_',
+  /** IdConstants.SUIT — per-trooper suit-label prefix (`suit0`..`suit5`). */
+  suitPrefix: 'suit',
+  /** Per-trooper fluff-image slot prefix (`fluffImage_0`..`fluffImage_5`). */
+  fluffImagePrefix: 'fluffImage_',
+} as const;
+
+/**
+ * Maximum trooper count for a Battle Armor squad — the `pips_N` /
+ * `suit_N` numbered ID families run `0..5` (6 columns) on the
+ * `battle_armor_squad` template; a squad fields 4–6 troopers.
+ */
+export const BATTLEARMOR_MAX_TROOPERS = 6;
+
 /** Vehicle / VTOL template element ID type. */
 export type VehicleTemplateId =
   (typeof VEHICLE_TEMPLATE_IDS)[keyof typeof VEHICLE_TEMPLATE_IDS];
@@ -290,3 +490,9 @@ export type AerospaceTemplateId =
 /** ProtoMech template element ID type. */
 export type ProtoMechTemplateId =
   (typeof PROTOMECH_TEMPLATE_IDS)[keyof typeof PROTOMECH_TEMPLATE_IDS];
+/** Conventional Infantry template element ID type. */
+export type InfantryTemplateId =
+  (typeof INFANTRY_TEMPLATE_IDS)[keyof typeof INFANTRY_TEMPLATE_IDS];
+/** Battle Armor template element ID type. */
+export type BattleArmorTemplateId =
+  (typeof BATTLEARMOR_TEMPLATE_IDS)[keyof typeof BATTLEARMOR_TEMPLATE_IDS];

@@ -173,6 +173,15 @@ export interface IInfantryPlatoonCompositionSheet {
 export interface IInfantryWeaponSheet {
   readonly name: string;
   readonly damage: number | string;
+  /**
+   * Canonical damage per trooper for this weapon, threaded from the
+   * construction-domain `IInfantryWeaponEntry.infantryDamage`. A
+   * non-negative number consumed by the infantry record sheet's
+   * damage-per-trooper formula (MegaMek `Infantry.getDamagePerTrooper()`).
+   * Distinct from the display `damage` field, which is a `1/divisor`
+   * string. Defaults to `0` when the weapon is not in the catalog.
+   */
+  readonly infantryDamage: number;
   readonly minimumRange: number;
   readonly shortRange: number;
   readonly mediumRange: number;

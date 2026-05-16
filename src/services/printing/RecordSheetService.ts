@@ -370,11 +370,12 @@ export class RecordSheetService {
   /**
    * Build an SVG string for any non-mech unit type.
    *
-   * Wave-1 families (vehicle / aerospace / protomech) render through
-   * the canonical mm-data template path (`renderTemplated`), which
-   * falls back to the family skeleton renderer on any failure.
-   * Battle-armor and infantry use the skeleton renderer directly via
-   * `renderRecordSheetSVG`.
+   * Every customizer-editable non-mech family — vehicle / aerospace /
+   * protomech (Wave 1) and infantry / battle armor (Wave 2) — renders
+   * through the canonical mm-data template path (`renderTemplated`),
+   * which falls back to the family skeleton renderer on any failure.
+   * `renderRecordSheetSVG` remains the skeleton-only path used by the
+   * fallback and by any unit type not yet templated.
    */
   private async buildNonMechSVG(
     data: INonMechRecordSheetData,

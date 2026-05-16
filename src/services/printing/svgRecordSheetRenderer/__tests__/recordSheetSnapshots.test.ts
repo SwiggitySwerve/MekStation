@@ -222,6 +222,7 @@ describe('Record sheet SVG snapshots — per unit type', () => {
       primaryWeapon: {
         name: 'Auto-Rifle',
         damage: '0.18 / trooper',
+        infantryDamage: 0.52,
         minimumRange: 0,
         shortRange: 1,
         mediumRange: 2,
