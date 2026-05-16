@@ -94,19 +94,19 @@ tasks and the Phase-5 silent-fallback guard are the hard gates.
 
 ## 2. Battle Armor Per-Trooper Pip Grid
 
-- [ ] 2.1 Add the Battle Armor per-trooper pip-grid helper to
+- [x] 2.1 Add the Battle Armor per-trooper pip-grid helper to
   `pipEngine.ts`: places one armor pip cluster per trooper column
   (4–6 columns), each cluster sized to that trooper's per-suit armor
   pip count, measured from template column regions.
   - Acceptance: the helper emits one cluster per trooper column;
     unused columns left empty.
   - QA: unit test on a synthetic 5-column template.
-- [ ] 2.2 Add the infantry platoon pip-grid helper to `pipEngine.ts`:
+- [x] 2.2 Add the infantry platoon pip-grid helper to `pipEngine.ts`:
   lays out a single platoon pip grid sized to the trooper count.
   - Acceptance: the helper emits a platoon grid of `platoonSize`
     pip elements.
   - QA: unit test on a synthetic platoon-grid region.
-- [ ] 2.3 Confirm the existing per-location pip layout (mech, Wave-1
+- [x] 2.3 Confirm the existing per-location pip layout (mech, Wave-1
   families) is unchanged by the pip-engine additions.
   - Acceptance: the new helpers are additive; no edit to the existing
     layout path.

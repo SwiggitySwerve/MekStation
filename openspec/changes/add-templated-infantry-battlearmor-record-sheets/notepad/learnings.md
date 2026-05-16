@@ -56,3 +56,21 @@
 ## Phase 1 verification baseline
 - Full printing suite: 13 suites / 257 tests / 5 snapshots — ALL GREEN. This is the regression
   guard for Phase 2-5. Re-run `npx jest src/services/printing` after each later wave.
+
+## Phase 2 facts (pip-engine helpers — DONE)
+- Two new helpers in pipEngine.ts (additive, Wave-1 layout untouched):
+  * `layoutBattleArmorPipGrid(svgDoc, troopers[], options)` -> {renderedByColumn: Map<col,count>}.
+    troopers: {column, armorPips}[]. Resolves `pips_<column>` RECT, lays armorPips+1 circles
+    in a horizontal row across the rect bounds (width/19 spacing, MegaMek PrintBattleArmor).
+    Circles appended as SIBLINGS of the rect (rect can't have children).
+  * `layoutInfantryPlatoonPipGrid(svgDoc, platoonSize, options)` -> {renderedCount}.
+    Marks first `platoonSize` `soldier_N` slots with a marker circle (class 'pip platoon-trooper').
+    Clamped to INFANTRY_MAX_TROOPERS=30.
+- KEY GOTCHA: BA `pips_N` is a `<rect>` element (the region itself), NOT a `<g>` containing
+  sub-region rects. `ArmorPipLayout.addPips` expects a `<g>` of `<rect>` children -> returns 0
+  pips on a bare rect. The BA helper therefore measures the rect directly via Bounds.fromRect
+  and draws its own circle row — does NOT delegate to ArmorPipLayout.
+- Fidelity-gate contract: BA per-column rendered count == armorPips + 1; infantry rendered
+  count == platoonSize. Adapters (Phase 3/4) feed these helpers and the fidelity tests parse
+  the output SVG circle counts.
+- 266/266 printing tests green after Phase 2.
