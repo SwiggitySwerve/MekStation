@@ -91,7 +91,13 @@ export interface IWeapon {
   readonly rulesLevel: RulesLevel;
   readonly damage: number | string;
   readonly heat: number;
-  readonly ranges: WeaponRanges;
+  /**
+   * Range bracket. Optional because physical / melee weapons (hatchet, sword,
+   * claws, etc.) have no ranges by design — they are loaded into the same
+   * `IWeapon` pool. Every consumer MUST guard this field; the compiler now
+   * enforces that.
+   */
+  readonly ranges?: WeaponRanges;
   readonly weight: number;
   readonly criticalSlots: number;
   readonly ammoPerTon?: number;

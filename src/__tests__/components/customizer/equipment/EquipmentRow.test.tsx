@@ -229,6 +229,68 @@ describe('EquipmentRow', () => {
     expect(dashes.length).toBeGreaterThan(0);
   });
 
+  // Regression: physical / melee weapons (hatchet, sword, claws, …) have no
+  // `ranges` block. `formatRange` used to do `weapon.ranges.short` unguarded
+  // and crashed the whole Equipment tab with
+  // "Cannot read properties of undefined (reading 'short')".
+  it('renders a rangeless physical weapon without crashing', () => {
+    const { ranges: _omitRanges, ...rangeless } = createMockWeapon({
+      id: 'hatchet',
+      name: 'Hatchet',
+      category: WeaponCategory.PHYSICAL,
+    });
+    mockGetAllWeapons.mockReturnValue([rangeless as IWeapon]);
+
+    const equipment = createEquipment({
+      id: 'hatchet',
+      name: 'Hatchet',
+      category: EquipmentCategory.PHYSICAL_WEAPON,
+    });
+    const onAdd = jest.fn();
+
+    expect(() =>
+      render(
+        <table>
+          <tbody>
+            <EquipmentRow equipment={equipment} onAdd={onAdd} />
+          </tbody>
+        </table>,
+      ),
+    ).not.toThrow();
+
+    expect(screen.getByText('Hatchet')).toBeInTheDocument();
+    // Range column falls back to a dash for rangeless weapons.
+    expect(screen.getAllByText('-').length).toBeGreaterThan(0);
+  });
+
+  it('renders a rangeless physical weapon without crashing in compact mode', () => {
+    const { ranges: _omitRanges, ...rangeless } = createMockWeapon({
+      id: 'sword',
+      name: 'Sword',
+      category: WeaponCategory.PHYSICAL,
+    });
+    mockGetAllWeapons.mockReturnValue([rangeless as IWeapon]);
+
+    const equipment = createEquipment({
+      id: 'sword',
+      name: 'Sword',
+      category: EquipmentCategory.PHYSICAL_WEAPON,
+    });
+    const onAdd = jest.fn();
+
+    expect(() =>
+      render(
+        <table>
+          <tbody>
+            <EquipmentRow equipment={equipment} onAdd={onAdd} compact={true} />
+          </tbody>
+        </table>,
+      ),
+    ).not.toThrow();
+
+    expect(screen.getByText('Sword')).toBeInTheDocument();
+  });
+
   it('should call onAdd when Add button is clicked', async () => {
     const user = userEvent.setup();
     const equipment = createEquipment();

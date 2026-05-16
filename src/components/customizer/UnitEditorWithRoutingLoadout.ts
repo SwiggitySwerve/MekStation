@@ -219,14 +219,15 @@ function toLoadoutEquipmentItem(
     criticalSlots: item.criticalSlots,
     heat: weapon?.heat ?? item.heat,
     damage: weapon?.damage,
-    ranges: weapon
-      ? {
-          minimum: weapon.ranges.minimum,
-          short: weapon.ranges.short,
-          medium: weapon.ranges.medium,
-          long: weapon.ranges.long,
-        }
-      : undefined,
+    ranges:
+      weapon && weapon.ranges
+        ? {
+            minimum: weapon.ranges.minimum,
+            short: weapon.ranges.short,
+            medium: weapon.ranges.medium,
+            long: weapon.ranges.long,
+          }
+        : undefined,
     isAllocated: !!item.location,
     location: item.location,
     isRemovable: item.isRemovable,
