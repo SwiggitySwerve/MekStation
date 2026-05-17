@@ -13,7 +13,7 @@
  * renders, and a non-mech tab set must never reference a raw mech tab.
  *
  * This suite closes the bug class permanently. For EVERY non-mech unit type it
- * walks the canonical registry tab set (`getTabSpecsForUnitType`) and mounts
+ * walks the canonical registry tab set (`getCustomizerDescriptor().tabs`) and mounts
  * each tab's component inside ONLY that type's own store context — exactly the
  * provider stack the real customizer gives it. If any tab reaches for the mech
  * `useUnitStore`, the missing-provider error throws during render and the
@@ -47,7 +47,7 @@ import { AerospaceCustomizer } from '@/components/customizer/aerospace/Aerospace
 import { BattleArmorCustomizer } from '@/components/customizer/battlearmor/BattleArmorCustomizer';
 import { InfantryCustomizer } from '@/components/customizer/infantry/InfantryCustomizer';
 import { ProtoMechCustomizer } from '@/components/customizer/protomech/ProtoMechCustomizer';
-import { getTabSpecsForUnitType } from '@/components/customizer/shared/tabRegistry';
+import { getCustomizerDescriptor } from '@/components/customizer/shared/customizerTypeRegistry';
 import { VehicleCustomizer } from '@/components/customizer/vehicle/VehicleCustomizer';
 import {
   AerospaceStoreContext,
@@ -183,7 +183,7 @@ const FIXTURES: TypeFixture[] = [
 describe('non-mech customizer registry tabs — store-safe mount guard', () => {
   for (const fx of FIXTURES) {
     describe(`${fx.label} (${fx.unitType})`, () => {
-      const specs = getTabSpecsForUnitType(fx.unitType);
+      const specs = getCustomizerDescriptor(fx.unitType).tabs;
 
       it('registry returns a non-empty tab set', () => {
         expect(specs.length).toBeGreaterThan(0);
@@ -213,7 +213,7 @@ describe('non-mech customizer registry tabs — store-safe mount guard', () => {
 
 describe('shipped-crash reproductions', () => {
   it('Aerospace Overview tab does NOT throw the UnitStoreProvider error', () => {
-    const overview = getTabSpecsForUnitType(UnitType.AEROSPACE).find(
+    const overview = getCustomizerDescriptor(UnitType.AEROSPACE).tabs.find(
       (s) => s.id === 'overview',
     );
     expect(overview).toBeDefined();
@@ -228,7 +228,7 @@ describe('shipped-crash reproductions', () => {
   });
 
   it('Vehicle Preview tab does NOT throw the UnitStoreProvider error', () => {
-    const preview = getTabSpecsForUnitType(UnitType.VEHICLE).find(
+    const preview = getCustomizerDescriptor(UnitType.VEHICLE).tabs.find(
       (s) => s.id === 'preview',
     );
     expect(preview).toBeDefined();
@@ -244,7 +244,7 @@ describe('shipped-crash reproductions', () => {
 
   it('every non-mech Overview tab renders the store-free placeholder', () => {
     for (const fx of FIXTURES) {
-      const overview = getTabSpecsForUnitType(fx.unitType).find(
+      const overview = getCustomizerDescriptor(fx.unitType).tabs.find(
         (s) => s.id === 'overview',
       );
       expect(overview).toBeDefined();

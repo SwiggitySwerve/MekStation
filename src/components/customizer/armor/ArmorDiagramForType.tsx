@@ -1,34 +1,30 @@
 /**
- * ArmorDiagramForType — Diagram Selector
+ * ArmorDiagramForType — armor diagram dispatcher
  *
- * Picks the correct per-type armor diagram component based on unit.type.
- * Drop this into any per-type Armor tab in place of a hand-rolled switch.
+ * Resolves the armor-diagram component for the active `UnitType` through the
+ * customizer type descriptor registry. Each non-mech type resolves its per-type
+ * diagram; mech types resolve a placeholder that directs the caller to use
+ * `<ArmorDiagram>` directly (the mech diagram needs props this dispatcher
+ * cannot supply).
  *
- * @spec openspec/changes/add-per-type-armor-diagrams/specs/armor-diagram/spec.md
- *        Requirement: Per-Type Diagram Selection
+ * @spec openspec/changes/refactor-customizer-type-descriptors/specs/customizer-routing/spec.md
+ *        Requirement: Unit-Type Customizer Resolution
  */
 
 import React from 'react';
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-import { AerospaceArmorDiagram } from '../aerospace/AerospaceArmorDiagram';
-import { BattleArmorPipGrid } from '../battlearmor/BattleArmorPipGrid';
-import { InfantryPlatoonCounter } from '../infantry/InfantryPlatoonCounter';
-import { ProtoMechArmorDiagram } from '../protomech/ProtoMechArmorDiagram';
-import { VehicleArmorDiagram } from '../vehicle/VehicleArmorDiagram';
+import { getCustomizerDescriptor } from '../shared/customizerTypeRegistry';
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface ArmorDiagramForTypeProps {
-  /**
-   * The unit type that controls which diagram is rendered.
-   * Accepts any UnitType enum value.
-   */
+  /** The unit type that controls which diagram is rendered. */
   unitType: UnitType;
-  /** Optional extra CSS classes forwarded to the rendered diagram */
+  /** Optional extra CSS classes forwarded to the rendered diagram. */
   className?: string;
 }
 
@@ -37,7 +33,7 @@ export interface ArmorDiagramForTypeProps {
 // =============================================================================
 
 /**
- * Renders the correct armor diagram for the supplied unit type.
+ * Renders the armor diagram the descriptor registry maps to `unitType`.
  *
  * Routing:
  *   VEHICLE / VTOL / SUPPORT_VEHICLE  → VehicleArmorDiagram
@@ -45,45 +41,12 @@ export interface ArmorDiagramForTypeProps {
  *   BATTLE_ARMOR                      → BattleArmorPipGrid
  *   INFANTRY                          → InfantryPlatoonCounter
  *   PROTOMECH                         → ProtoMechArmorDiagram
- *   Everything else (mechs, etc.)     → ArmorDiagram (existing mech diagram)
+ *   Mech types                        → placeholder (use <ArmorDiagram> directly)
  */
 export function ArmorDiagramForType({
   unitType,
   className = '',
 }: ArmorDiagramForTypeProps): React.ReactElement {
-  switch (unitType) {
-    case UnitType.VEHICLE:
-    case UnitType.VTOL:
-    case UnitType.SUPPORT_VEHICLE:
-      return <VehicleArmorDiagram className={className} />;
-
-    case UnitType.AEROSPACE:
-    case UnitType.CONVENTIONAL_FIGHTER:
-      return <AerospaceArmorDiagram className={className} />;
-
-    case UnitType.BATTLE_ARMOR:
-      return <BattleArmorPipGrid className={className} />;
-
-    case UnitType.INFANTRY:
-      return <InfantryPlatoonCounter className={className} />;
-
-    case UnitType.PROTOMECH:
-      return <ProtoMechArmorDiagram className={className} />;
-
-    // BattleMech / OmniMech / IndustrialMech and capital ships fall through to
-    // the existing mech armor diagram — those types are handled by the pre-existing
-    // Armor tab and do not need this selector.
-    default:
-      // The mech ArmorDiagram requires its own props (armorData, callbacks, etc.)
-      // which are not available here. Return a placeholder directing the caller to
-      // use ArmorDiagram directly for mech types.
-      return (
-        <div
-          className={`text-text-theme-secondary p-4 text-center text-sm ${className}`}
-        >
-          Use <code className="font-mono text-xs">&lt;ArmorDiagram&gt;</code>{' '}
-          for mech-type units.
-        </div>
-      );
-  }
+  const { ArmorDiagramComponent } = getCustomizerDescriptor(unitType);
+  return <ArmorDiagramComponent className={className} />;
 }
