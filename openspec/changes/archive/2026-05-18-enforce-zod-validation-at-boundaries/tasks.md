@@ -90,6 +90,6 @@
 
 ## 6. Final Verification Wave
 
-- [ ] 6.1 Merge the `validation-patterns` ADDED delta into the source-of-truth
+- [x] 6.1 Merge the `validation-patterns` ADDED delta into the source-of-truth
   spec.
-- [ ] 6.2 Archive this change.
+- [x] 6.2 Archive this change.
