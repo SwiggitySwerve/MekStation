@@ -64,6 +64,12 @@ export const CALENDAR_CELEBRATIONS: readonly ICalendarCelebration[] = [
  */
 const COMING_OF_AGE_YEARS = 16;
 
+/**
+ * XP awarded to a pilot on their Coming-of-Age event. Per the `random-events`
+ * spec ("Life Events" → "Coming-of-age at 16"), the event carries a 5 XP award.
+ */
+const COMING_OF_AGE_XP_AWARD = 5;
+
 let lifeEventCounter = 0;
 function generateLifeEventId(): string {
   return `life-evt-${Date.now()}-${++lifeEventCounter}`;
@@ -143,6 +149,11 @@ export function processLifeEvents(
         title: 'Coming of Age',
         description: `${entry.pilotName} has come of age, reaching adulthood at ${COMING_OF_AGE_YEARS}.`,
         effects: [
+          {
+            type: 'xp_award',
+            personId: entry.pilotId,
+            amount: COMING_OF_AGE_XP_AWARD,
+          },
           {
             type: 'notification',
             message: `${entry.pilotName} has come of age`,

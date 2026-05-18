@@ -186,7 +186,7 @@ describe('lifeEvents', () => {
       // Born 3009-06-15 → turns 16 on 3025-06-15.
       const entries: ILifeEventPersonPair[] = [
         makePair(
-          { pilotName: 'Cadet Vega' },
+          { pilotId: 'pilot-vega', pilotName: 'Cadet Vega' },
           makePilot({ birthDate: '3009-06-15' }),
         ),
       ];
@@ -201,6 +201,31 @@ describe('lifeEvents', () => {
       expect(coa?.category).toBe(RandomEventCategory.LIFE);
       expect(coa?.severity).toBe(RandomEventSeverity.MINOR);
       expect(coa?.description).toContain('Cadet Vega');
+    });
+
+    it('awards 5 XP to the coming-of-age pilot (random-events spec)', () => {
+      // Per `random-events` spec: the Coming-of-Age event carries a 5 XP award
+      // targeting the pilot's roster id.
+      const entries: ILifeEventPersonPair[] = [
+        makePair(
+          { pilotId: 'pilot-vega', pilotName: 'Cadet Vega' },
+          makePilot({ birthDate: '3009-06-15' }),
+        ),
+      ];
+      const events = processLifeEvents(
+        entries,
+        '3025-06-15',
+        createSeededRandom(42),
+      );
+
+      const coa = findCoA(events);
+      expect(coa).toBeDefined();
+      const xpEffect = coa?.effects.find((e) => e.type === 'xp_award');
+      expect(xpEffect).toEqual({
+        type: 'xp_award',
+        personId: 'pilot-vega',
+        amount: 5,
+      });
     });
 
     it('does not fire on a date that is not the pilot’s birthday', () => {
