@@ -177,19 +177,90 @@ describe('lifeEvents', () => {
     });
   });
 
-  describe('processLifeEvents - coming of age (deferred)', () => {
-    // TODO(person-dob-field): Coming of Age / birthday events require `dateOfBirth`
-    // on ICampaignRosterEntry or IPilot. Neither type carries the field yet.
-    // Re-enable these tests once `ICampaignRosterEntry.dateOfBirth` lands.
-    it('does not fire coming-of-age events (dateOfBirth field not yet available)', () => {
-      // Even with personnel on a potential "birthday", no CoA event fires
-      // because the loop is stubbed with `void entries` in the production code.
-      const entries: ILifeEventPersonPair[] = [makePair()];
-      const random = createSeededRandom(42);
-      const events = processLifeEvents(entries, '3025-01-01', random);
+  describe('processLifeEvents - coming of age', () => {
+    /** Find the Coming-of-Age event in a result set, if any. */
+    const findCoA = (events: ReturnType<typeof processLifeEvents>) =>
+      events.find((e) => e.title === 'Coming of Age');
 
-      const comingOfAgeEvent = events.find((e) => e.title === 'Coming of Age');
-      expect(comingOfAgeEvent).toBeUndefined();
+    it('fires a Coming-of-Age event on the pilot’s 16th birthday', () => {
+      // Born 3009-06-15 → turns 16 on 3025-06-15.
+      const entries: ILifeEventPersonPair[] = [
+        makePair(
+          { pilotName: 'Cadet Vega' },
+          makePilot({ birthDate: '3009-06-15' }),
+        ),
+      ];
+      const events = processLifeEvents(
+        entries,
+        '3025-06-15',
+        createSeededRandom(42),
+      );
+
+      const coa = findCoA(events);
+      expect(coa).toBeDefined();
+      expect(coa?.category).toBe(RandomEventCategory.LIFE);
+      expect(coa?.severity).toBe(RandomEventSeverity.MINOR);
+      expect(coa?.description).toContain('Cadet Vega');
+    });
+
+    it('does not fire on a date that is not the pilot’s birthday', () => {
+      const entries: ILifeEventPersonPair[] = [
+        makePair({}, makePilot({ birthDate: '3009-06-15' })),
+      ];
+      const events = processLifeEvents(
+        entries,
+        '3025-06-16',
+        createSeededRandom(42),
+      );
+      expect(findCoA(events)).toBeUndefined();
+    });
+
+    it('does not fire when the pilot turns an age other than 16', () => {
+      // Born 3008-06-15 → turns 17 on 3025-06-15, not a coming-of-age year.
+      const entries: ILifeEventPersonPair[] = [
+        makePair({}, makePilot({ birthDate: '3008-06-15' })),
+      ];
+      const events = processLifeEvents(
+        entries,
+        '3025-06-15',
+        createSeededRandom(42),
+      );
+      expect(findCoA(events)).toBeUndefined();
+    });
+
+    it('does not fire for an entry with no joined pilot (NPC)', () => {
+      const entries: ILifeEventPersonPair[] = [makePair({}, null)];
+      const events = processLifeEvents(
+        entries,
+        '3025-06-15',
+        createSeededRandom(42),
+      );
+      expect(findCoA(events)).toBeUndefined();
+    });
+
+    it('does not fire when the joined pilot has no recorded birth date', () => {
+      const entries: ILifeEventPersonPair[] = [makePair()]; // default pilot, no birthDate
+      const events = processLifeEvents(
+        entries,
+        '3025-06-15',
+        createSeededRandom(42),
+      );
+      expect(findCoA(events)).toBeUndefined();
+    });
+
+    it('fires alongside a calendar celebration that lands the same day', () => {
+      // Born 3009-01-01 → 16th birthday coincides with New Year’s Day.
+      const entries: ILifeEventPersonPair[] = [
+        makePair({}, makePilot({ birthDate: '3009-01-01' })),
+      ];
+      const events = processLifeEvents(
+        entries,
+        '3025-01-01',
+        createSeededRandom(42),
+      );
+      expect(events.map((e) => e.title)).toEqual(
+        expect.arrayContaining(["New Year's Day", 'Coming of Age']),
+      );
     });
   });
 

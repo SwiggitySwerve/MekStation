@@ -5,7 +5,11 @@ import type {
 } from '@/types/campaign/events/randomEventTypes';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { isSpecificDate } from '@/lib/campaign/events/eventProbability';
+import {
+  calculateAge,
+  isBirthday,
+  isSpecificDate,
+} from '@/lib/campaign/events/eventProbability';
 import {
   RandomEventCategory,
   RandomEventSeverity,
@@ -54,6 +58,12 @@ export const CALENDAR_CELEBRATIONS: readonly ICalendarCelebration[] = [
   },
 ];
 
+/**
+ * Age (in years) at which a pilot "comes of age" — reaches adulthood. Matches
+ * the MekHQ convention used elsewhere in the progression rules.
+ */
+const COMING_OF_AGE_YEARS = 16;
+
 let lifeEventCounter = 0;
 function generateLifeEventId(): string {
   return `life-evt-${Date.now()}-${++lifeEventCounter}`;
@@ -75,13 +85,14 @@ export interface ILifeEventPersonPair {
  * Calendar celebrations (New Year's, Commander's Day, Freedom Day, Winter Holiday)
  * are checked against the current date. They do not require per-person data.
  *
- * Birthday / Coming of Age events are deferred: `ICampaignRosterEntry` and `IPilot`
- * do not carry a `dateOfBirth` field yet. The loop is intentionally stubbed out
- * with a TODO until `ICampaignRosterEntry.dateOfBirth` lands (tracked under
- * FIXME(person-dob-field) in the roster entry spec).
+ * Coming-of-Age events fire for a PC roster entry on the calendar day the
+ * joined vault `IPilot` turns 16. They are driven by `IPilot.birthDate`
+ * (resolved via the entry→pilot join); NPC entries carry a frozen statblock
+ * with no birth date, so they do not generate Coming-of-Age events.
  *
- * NPC behavior: PROCESS — calendar events fire regardless of personnel contents.
- * Per-person events will apply to NPCs and PCs alike once dateOfBirth is available.
+ * NPC behavior: PROCESS — calendar events fire regardless of personnel
+ * contents; Coming-of-Age is PC-only because only vault pilots carry a
+ * birth date.
  *
  * @param entries - Array of joined entry+pilot pairs for the active roster
  * @param currentDate - ISO date string for the current campaign turn
@@ -115,20 +126,33 @@ export function processLifeEvents(
     }
   }
 
-  // TODO(person-dob-field): Coming of Age / birthday events require `dateOfBirth`
-  // on ICampaignRosterEntry or IPilot. Neither type carries the field yet.
-  // Re-enable this loop once the field lands:
-  //
-  //   for (const { entry } of entries) {
-  //     if (!entry.dateOfBirth) continue;
-  //     const dobStr = entry.dateOfBirth instanceof Date
-  //       ? entry.dateOfBirth.toISOString()
-  //       : entry.dateOfBirth;
-  //     if (isBirthday(dobStr, currentDate) && calculateAge(dobStr, currentDate) === 16) {
-  //       events.push({ ... Coming of Age event using entry.pilotName / entry.pilotId ... });
-  //     }
-  //   }
-  void entries; // suppress unused-variable lint until the loop above is re-enabled
+  // Coming-of-Age events — fire on the day a PC pilot turns 16. Driven by the
+  // joined vault `IPilot.birthDate`; entries with no joined pilot (NPCs) or no
+  // recorded birth date are skipped.
+  for (const { entry, pilot } of entries) {
+    const birthDate = pilot?.birthDate;
+    if (!birthDate) continue;
+    if (
+      isBirthday(birthDate, currentDate) &&
+      calculateAge(birthDate, currentDate) === COMING_OF_AGE_YEARS
+    ) {
+      events.push({
+        id: generateLifeEventId(),
+        category: RandomEventCategory.LIFE,
+        severity: RandomEventSeverity.MINOR,
+        title: 'Coming of Age',
+        description: `${entry.pilotName} has come of age, reaching adulthood at ${COMING_OF_AGE_YEARS}.`,
+        effects: [
+          {
+            type: 'notification',
+            message: `${entry.pilotName} has come of age`,
+            severity: 'positive',
+          },
+        ],
+        timestamp: currentDate,
+      });
+    }
+  }
 
   return events;
 }
