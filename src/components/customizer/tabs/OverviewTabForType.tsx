@@ -4,14 +4,14 @@
  * Resolves the Overview component for the active `UnitType` through the
  * customizer type descriptor registry — the single source of truth shared with
  * the router and the other `*ForType` dispatchers. Mech types resolve the mech
- * `OverviewTab`; every non-mech type resolves `NonMechOverviewPlaceholder`.
+ * `OverviewTab`; every non-mech type resolves its per-type Overview editor from
+ * `NonMechOverviewTabs`.
  *
- * Because the mech `OverviewTab` hard-calls `useUnitStore`, the registry only
- * ever wires it into the mech descriptor — so it is rendered only inside the
- * mech `UnitStoreProvider`.
+ * Each resolved component reads its own per-type store, so it is rendered only
+ * inside that type's store provider — the registry wires the mech `OverviewTab`
+ * (which hard-calls `useUnitStore`) into the mech descriptor only.
  *
- * @spec openspec/changes/refactor-customizer-type-descriptors/specs/customizer-routing/spec.md
- *        Requirement: Unit-Type Customizer Resolution
+ * @spec openspec/specs/customizer-tabs/spec.md
  */
 
 import React from 'react';
