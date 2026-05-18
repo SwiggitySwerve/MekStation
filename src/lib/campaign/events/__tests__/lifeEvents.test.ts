@@ -228,6 +228,31 @@ describe('lifeEvents', () => {
       });
     });
 
+    it('emits a positive notification effect naming the pilot', () => {
+      // The Coming-of-Age event carries a player-facing notification effect
+      // alongside the xp_award — both must be present.
+      const entries: ILifeEventPersonPair[] = [
+        makePair(
+          { pilotName: 'Cadet Vega' },
+          makePilot({ birthDate: '3009-06-15' }),
+        ),
+      ];
+      const events = processLifeEvents(
+        entries,
+        '3025-06-15',
+        createSeededRandom(42),
+      );
+
+      const coa = findCoA(events);
+      expect(coa).toBeDefined();
+      const notification = coa?.effects.find((e) => e.type === 'notification');
+      expect(notification).toEqual({
+        type: 'notification',
+        message: 'Cadet Vega has come of age',
+        severity: 'positive',
+      });
+    });
+
     it('does not fire on a date that is not the pilot’s birthday', () => {
       const entries: ILifeEventPersonPair[] = [
         makePair({}, makePilot({ birthDate: '3009-06-15' })),
