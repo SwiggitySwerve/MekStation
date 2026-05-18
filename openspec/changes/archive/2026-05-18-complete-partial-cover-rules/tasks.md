@@ -39,6 +39,6 @@
 
 ## 4. Final Verification Wave
 
-- [ ] 4.1 Merge the `to-hit-resolution` MODIFIED + ADDED deltas into the
+- [x] 4.1 Merge the `to-hit-resolution` MODIFIED + ADDED deltas into the
   source-of-truth spec.
-- [ ] 4.2 Archive this change.
+- [x] 4.2 Archive this change.
