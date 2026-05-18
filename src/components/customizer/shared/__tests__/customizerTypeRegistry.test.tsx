@@ -28,7 +28,13 @@ import { AerospacePreviewTab } from '../../aerospace/AerospacePreviewTab';
 import { BattleArmorPreviewTab } from '../../battlearmor/BattleArmorPreviewTab';
 import { InfantryPreviewTab } from '../../infantry/InfantryPreviewTab';
 import { ProtoMechPreviewTab } from '../../protomech/ProtoMechPreviewTab';
-import { NonMechOverviewPlaceholder } from '../../tabs/NonMechOverviewPlaceholder';
+import {
+  AerospaceOverviewTab,
+  BattleArmorOverviewTab,
+  InfantryOverviewTab,
+  ProtoMechOverviewTab,
+  VehicleOverviewTab,
+} from '../../tabs/NonMechOverviewTabs';
 import { OverviewTab } from '../../tabs/OverviewTab';
 import { PreviewTab } from '../../tabs/PreviewTab';
 import { VehiclePreviewTab } from '../../vehicle/VehiclePreviewTab';
@@ -119,21 +125,30 @@ describe('customizerTypeRegistry — component identity (no-behaviour-change gua
     expect(d.PreviewComponent).toBe(PreviewTab);
   });
 
-  it('every non-mech Overview resolves the store-free placeholder', () => {
+  it('each non-mech Overview resolves its per-type Overview editor', () => {
     for (const t of [
       UnitType.VEHICLE,
       UnitType.VTOL,
       UnitType.SUPPORT_VEHICLE,
-      UnitType.AEROSPACE,
-      UnitType.CONVENTIONAL_FIGHTER,
-      UnitType.BATTLE_ARMOR,
-      UnitType.INFANTRY,
-      UnitType.PROTOMECH,
     ]) {
       expect(getCustomizerDescriptor(t).OverviewComponent).toBe(
-        NonMechOverviewPlaceholder,
+        VehicleOverviewTab,
       );
     }
+    for (const t of [UnitType.AEROSPACE, UnitType.CONVENTIONAL_FIGHTER]) {
+      expect(getCustomizerDescriptor(t).OverviewComponent).toBe(
+        AerospaceOverviewTab,
+      );
+    }
+    expect(
+      getCustomizerDescriptor(UnitType.BATTLE_ARMOR).OverviewComponent,
+    ).toBe(BattleArmorOverviewTab);
+    expect(getCustomizerDescriptor(UnitType.INFANTRY).OverviewComponent).toBe(
+      InfantryOverviewTab,
+    );
+    expect(getCustomizerDescriptor(UnitType.PROTOMECH).OverviewComponent).toBe(
+      ProtoMechOverviewTab,
+    );
   });
 
   it('each non-mech Preview resolves its per-type preview component', () => {

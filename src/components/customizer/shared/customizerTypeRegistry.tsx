@@ -86,7 +86,13 @@ import { ProtoMechArmorDiagram } from '../protomech/ProtoMechArmorDiagram';
 import { ProtoMechCustomizer } from '../protomech/ProtoMechCustomizer';
 import { ProtoMechPreviewTab } from '../protomech/ProtoMechPreviewTab';
 import { ProtoMechRecordSheetPreview } from '../protomech/ProtoMechRecordSheetPreview';
-import { NonMechOverviewPlaceholder } from '../tabs/NonMechOverviewPlaceholder';
+import {
+  AerospaceOverviewTab,
+  BattleArmorOverviewTab,
+  InfantryOverviewTab,
+  ProtoMechOverviewTab,
+  VehicleOverviewTab,
+} from '../tabs/NonMechOverviewTabs';
 import { OverviewTab } from '../tabs/OverviewTab';
 import { PreviewTab } from '../tabs/PreviewTab';
 import { UnitEditorWithRouting } from '../UnitEditorWithRouting';
@@ -305,7 +311,7 @@ function buildDescriptors(): CustomizerTypeDescriptor[] {
       StoreContext: VehicleStoreContext,
       Customizer: VehicleCustomizer,
     }),
-    OverviewComponent: NonMechOverviewPlaceholder,
+    OverviewComponent: VehicleOverviewTab,
     PreviewComponent: VehiclePreviewTab,
     ArmorDiagramComponent: VehicleArmorDiagram,
     RecordSheetPreviewComponent: VehicleRecordSheetPreview,
@@ -328,7 +334,7 @@ function buildDescriptors(): CustomizerTypeDescriptor[] {
       StoreContext: AerospaceStoreContext,
       Customizer: AerospaceCustomizer,
     }),
-    OverviewComponent: NonMechOverviewPlaceholder,
+    OverviewComponent: AerospaceOverviewTab,
     PreviewComponent: AerospacePreviewTab,
     ArmorDiagramComponent: AerospaceArmorDiagram,
     RecordSheetPreviewComponent: AerospaceRecordSheetPreview,
@@ -349,7 +355,7 @@ function buildDescriptors(): CustomizerTypeDescriptor[] {
       StoreContext: BattleArmorStoreContext,
       Customizer: BattleArmorCustomizer,
     }),
-    OverviewComponent: NonMechOverviewPlaceholder,
+    OverviewComponent: BattleArmorOverviewTab,
     PreviewComponent: BattleArmorPreviewTab,
     ArmorDiagramComponent: BattleArmorPipGrid,
     RecordSheetPreviewComponent: BattleArmorRecordSheetPreview,
@@ -370,7 +376,7 @@ function buildDescriptors(): CustomizerTypeDescriptor[] {
       StoreContext: InfantryStoreContext,
       Customizer: InfantryCustomizer,
     }),
-    OverviewComponent: NonMechOverviewPlaceholder,
+    OverviewComponent: InfantryOverviewTab,
     PreviewComponent: InfantryPreviewTab,
     ArmorDiagramComponent: InfantryPlatoonCounter,
     RecordSheetPreviewComponent: InfantryRecordSheetPreview,
@@ -391,7 +397,7 @@ function buildDescriptors(): CustomizerTypeDescriptor[] {
       StoreContext: ProtoMechStoreContext,
       Customizer: ProtoMechCustomizer,
     }),
-    OverviewComponent: NonMechOverviewPlaceholder,
+    OverviewComponent: ProtoMechOverviewTab,
     PreviewComponent: ProtoMechPreviewTab,
     ArmorDiagramComponent: ProtoMechArmorDiagram,
     RecordSheetPreviewComponent: ProtoMechRecordSheetPreview,

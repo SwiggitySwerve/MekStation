@@ -1,45 +1,57 @@
 /**
- * OverviewTabForType — Overview crash-guard test (Task 4.3).
+ * OverviewTabForType — Overview dispatch test.
  *
- * The shipped bug: the mech `OverviewTab` hard-calls `useUnitStore` and crashes
- * inside a non-mech customizer. These tests assert the dispatcher renders the
- * graceful `NonMechOverviewPlaceholder` for every non-mech type with NO
- * `UnitStoreProvider` present — and that the mech branch still routes to the
- * mech `OverviewTab`.
+ * `OverviewTabForType` resolves the Overview component for a `UnitType` through
+ * the descriptor registry. These tests assert the dispatch wiring: mech types
+ * route to the mech `OverviewTab`; every non-mech type routes to that family's
+ * per-type Overview editor.
  *
- * @spec openspec/changes/wire-non-mech-customizer-preview/specs/customizer-tabs/spec.md
- *        Requirement: Overview Tab Non-Mech Crash Guard
+ * The crash-guard / render coverage — every Overview tab mounting store-safe
+ * inside its own per-type store context — lives in
+ * `nonMechCustomizerTabMount.test.tsx`, which renders each tab with the real
+ * provider stack. This file stays at the dispatch layer and asserts by element
+ * type so it needs no store providers.
+ *
+ * @spec openspec/specs/customizer-tabs/spec.md
  */
 
-import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+import {
+  AerospaceOverviewTab,
+  BattleArmorOverviewTab,
+  InfantryOverviewTab,
+  ProtoMechOverviewTab,
+  VehicleOverviewTab,
+} from '../NonMechOverviewTabs';
 import { OverviewTab } from '../OverviewTab';
 import { OverviewTabForType } from '../OverviewTabForType';
 
-const NON_MECH_TYPES: ReadonlyArray<[string, UnitType]> = [
-  ['Vehicle', UnitType.VEHICLE],
-  ['VTOL', UnitType.VTOL],
-  ['Support Vehicle', UnitType.SUPPORT_VEHICLE],
-  ['Aerospace', UnitType.AEROSPACE],
-  ['Conventional Fighter', UnitType.CONVENTIONAL_FIGHTER],
-  ['Battle Armor', UnitType.BATTLE_ARMOR],
-  ['Infantry', UnitType.INFANTRY],
-  ['ProtoMech', UnitType.PROTOMECH],
+const NON_MECH_DISPATCH: ReadonlyArray<
+  [
+    string,
+    UnitType,
+    React.ComponentType<{ readOnly?: boolean; className?: string }>,
+  ]
+> = [
+  ['Vehicle', UnitType.VEHICLE, VehicleOverviewTab],
+  ['VTOL', UnitType.VTOL, VehicleOverviewTab],
+  ['Support Vehicle', UnitType.SUPPORT_VEHICLE, VehicleOverviewTab],
+  ['Aerospace', UnitType.AEROSPACE, AerospaceOverviewTab],
+  ['Conventional Fighter', UnitType.CONVENTIONAL_FIGHTER, AerospaceOverviewTab],
+  ['Battle Armor', UnitType.BATTLE_ARMOR, BattleArmorOverviewTab],
+  ['Infantry', UnitType.INFANTRY, InfantryOverviewTab],
+  ['ProtoMech', UnitType.PROTOMECH, ProtoMechOverviewTab],
 ];
 
-describe('OverviewTabForType — non-mech crash guard', () => {
-  it.each(NON_MECH_TYPES)(
-    'renders the placeholder for %s with NO UnitStoreProvider and does not throw',
-    (_label, unitType) => {
-      expect(() =>
-        render(<OverviewTabForType unitType={unitType} />),
-      ).not.toThrow();
-      expect(
-        screen.getByTestId('non-mech-overview-placeholder'),
-      ).toBeInTheDocument();
+describe('OverviewTabForType — dispatch wiring', () => {
+  it.each(NON_MECH_DISPATCH)(
+    'routes %s to its per-type Overview editor',
+    (_label, unitType, expected) => {
+      const element = OverviewTabForType({ unitType });
+      expect(element.type).toBe(expected);
     },
   );
 

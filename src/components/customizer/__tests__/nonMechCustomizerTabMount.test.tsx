@@ -242,7 +242,7 @@ describe('shipped-crash reproductions', () => {
     expect(String(caught ?? '')).not.toMatch(/UnitStoreProvider/);
   });
 
-  it('every non-mech Overview tab renders the store-free placeholder', () => {
+  it('every non-mech Overview tab renders the shared identity editor', () => {
     for (const fx of FIXTURES) {
       const overview = getCustomizerDescriptor(fx.unitType).tabs.find(
         (s) => s.id === 'overview',
@@ -250,7 +250,9 @@ describe('shipped-crash reproductions', () => {
       expect(overview).toBeDefined();
       const Overview = overview!.component as React.ComponentType;
       const { getByTestId, unmount } = render(fx.wrap(<Overview />));
-      expect(getByTestId('non-mech-overview-placeholder')).toBeInTheDocument();
+      // The Overview tab now renders the real per-type editor — its shared
+      // `NonMechIdentityPanel` exposes the `non-mech-identity-panel` testid.
+      expect(getByTestId('non-mech-identity-panel')).toBeInTheDocument();
       unmount();
     }
   });
