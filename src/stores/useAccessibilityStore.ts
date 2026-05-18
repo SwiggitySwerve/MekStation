@@ -7,6 +7,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { AccessibilityPersistedSchema } from '@/stores/utils/persistedStoreSchemas';
+import { createZodPersistMerge } from '@/stores/utils/zodPersistMerge';
+
 /**
  * Accessibility store state
  */
@@ -49,6 +52,12 @@ export const useAccessibilityStore = create<AccessibilityState>()(
     }),
     {
       name: 'mekstation-accessibility',
+      // Validate the rehydrated `localStorage` payload against a Zod schema;
+      // a corrupt payload is discarded and the store keeps its default state.
+      merge: createZodPersistMerge<AccessibilityState>(
+        AccessibilityPersistedSchema,
+        'mekstation-accessibility',
+      ),
     },
   ),
 );
