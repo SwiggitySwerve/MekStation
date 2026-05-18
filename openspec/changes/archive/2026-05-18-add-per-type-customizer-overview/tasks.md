@@ -40,6 +40,6 @@
 
 ## 5. Final Verification Wave
 
-- [ ] 5.1 Merge the `customizer-tabs` MODIFIED delta into the source-of-truth
+- [x] 5.1 Merge the `customizer-tabs` MODIFIED delta into the source-of-truth
   spec so "Overview Tab Non-Mech Crash Guard" describes the shipped editor.
-- [ ] 5.2 Archive this change.
+- [x] 5.2 Archive this change.
