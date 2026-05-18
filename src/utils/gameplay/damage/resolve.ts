@@ -75,6 +75,7 @@ export function resolveDamage(
       currentState,
       1,
       'head_hit',
+      roller,
     );
     currentState = stateAfterPilot;
     pilotDamage = result;
