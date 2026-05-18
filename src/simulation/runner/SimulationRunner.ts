@@ -210,6 +210,7 @@ export class SimulationRunner {
       currentState = runAttackPhase({
         state: currentState,
         botPlayer,
+        grid,
         invariantRunner: this.invariantRunner,
         violations,
         events,

@@ -9,7 +9,11 @@ import {
 import { consumeAmmo, isEnergyWeapon } from '@/utils/gameplay/ammoTracking';
 import { resolveDamage } from '@/utils/gameplay/damage';
 import { buildDefaultComponentDamageState } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
-import { determineHitLocation, isHeadHit } from '@/utils/gameplay/hitLocation';
+import {
+  determineHitLocation,
+  isHeadHit,
+  isLegLocation,
+} from '@/utils/gameplay/hitLocation';
 import { createDamagePSR } from '@/utils/gameplay/pilotingSkillRolls';
 
 import type { IWeapon } from '../../ai/types';
@@ -41,6 +45,12 @@ export function resolveWeaponHit(options: {
   attackRoll: number;
   toHitNumber: number;
   firingArc: 'front' | 'left' | 'right' | 'rear';
+  /**
+   * Whether the target is in partial cover. When true, a hit whose
+   * hit-location roll lands on a leg is converted to a miss (Total Warfare
+   * p. 53) — the cover absorbs the shot.
+   */
+  partialCover: boolean;
   d6Roller: () => number;
   getOrSeedManifest: (id: string) => CriticalSlotManifest;
   manifestsByUnit?: Map<string, CriticalSlotManifest>;
@@ -55,6 +65,7 @@ export function resolveWeaponHit(options: {
     gameId,
     getOrSeedManifest,
     manifestsByUnit,
+    partialCover,
     targetId,
     toHitNumber,
     unitId,
@@ -68,6 +79,37 @@ export function resolveWeaponHit(options: {
     d6Roller,
   );
   const location = hitLocationResult.location;
+
+  // Partial Cover Leg-Hit Conversion (Total Warfare p. 53): when the target
+  // is in partial cover, a hit that rolls a leg location is absorbed by the
+  // cover and resolves as a miss — no damage applies. The hit-location roll
+  // is still consumed (above) so the dice stream stays deterministic. An
+  // `AttackResolved` event is emitted with `hit: false` and no `location`,
+  // matching the shape of a normal miss so the
+  // `AttackDeclared`/`AttackResolved` count invariant holds.
+  if (partialCover && isLegLocation(location)) {
+    events.push(
+      createGameEvent(
+        gameId,
+        events.length,
+        GameEventType.AttackResolved,
+        currentState.turn,
+        GamePhase.WeaponAttack,
+        {
+          attackerId: unitId,
+          targetId,
+          weaponId,
+          roll: attackRoll,
+          toHitNumber,
+          hit: false,
+          heat: weapon.heat,
+          attackerArc: firingArc,
+        },
+        unitId,
+      ),
+    );
+    return currentState;
+  }
 
   let damage = weapon.damage;
   if (isHeadHit(location) && damage > HEAD_HIT_DAMAGE_CAP) {

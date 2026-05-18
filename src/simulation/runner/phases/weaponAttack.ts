@@ -6,12 +6,14 @@ import {
   IAttackerState,
   IGameEvent,
   IGameState,
+  IHexGrid,
   ITargetState,
   RangeBracket,
 } from '@/types/gameplay';
 import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import { hexProvidesPartialCover } from '@/utils/gameplay/terrainCover';
 import { calculateToHit } from '@/utils/gameplay/toHit';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
@@ -36,6 +38,13 @@ import { resolveWeaponHit } from './weaponAttackHitResolution';
 export function runAttackPhase(options: {
   state: IGameState;
   botPlayer: IAIPlayer;
+  /**
+   * The encounter hex grid. The weapon-attack phase reads the target hex's
+   * terrain to derive partial cover. Optional: when absent (no board loaded)
+   * no target is treated as in partial cover. The runner currently builds an
+   * all-clear grid, so partial cover stays inert until varied terrain lands.
+   */
+  grid?: IHexGrid;
   invariantRunner: InvariantRunner;
   violations: IViolation[];
   events: IGameEvent[];
@@ -72,6 +81,7 @@ export function runAttackPhase(options: {
     botPlayer,
     events,
     gameId,
+    grid,
     invariantRunner,
     random,
     state,
@@ -211,12 +221,20 @@ export function runAttackPhase(options: {
         heat: attackerNow.heat,
         damageModifiers: [],
       };
+      // Partial cover is derived from the terrain of the target's own hex
+      // (Total Warfare p. 53). The runner's all-clear grid yields `false`
+      // today; the moment varied terrain lands this lights up automatically.
+      const targetHex = grid?.hexes.get(
+        `${targetNow.position.q},${targetNow.position.r}`,
+      );
+      const targetPartialCover = hexProvidesPartialCover(targetHex);
+
       const targetState: ITargetState = {
         movementType: targetNow.movementThisTurn,
         hexesMoved: targetNow.hexesMovedThisTurn,
         prone: targetNow.prone ?? false,
         immobile: targetNow.shutdown ?? false,
-        partialCover: false,
+        partialCover: targetPartialCover,
       };
 
       const toHitCalc = calculateToHit(
@@ -301,6 +319,7 @@ export function runAttackPhase(options: {
         attackRoll,
         toHitNumber: toHitCalc.finalToHit,
         firingArc,
+        partialCover: targetPartialCover,
         d6Roller,
         getOrSeedManifest,
         manifestsByUnit,

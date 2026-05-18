@@ -13,18 +13,16 @@
  *   plumbed through `calculateGATORToHit` when `target.partialCover`
  *   is true.
  *
- *   The "leg-location hits convert to misses" rule is NOT yet wired
- *   — `weaponAttack.ts:600` always passes `partialCover: false` to
- *   the to-hit context, AND there is no code path that maps a
- *   hit-location roll on a leg into a miss when partial cover is
- *   active. That follow-on work is OUT OF SCOPE for this change per
- *   the task brief; we surface it via a `it.skip` test with a TODO
- *   citing the deferred follow-up.
+ *   The "leg-location hits convert to misses" rule and the runner's
+ *   `partialCover` wiring shipped in the `complete-partial-cover-rules`
+ *   change — `weaponAttack.ts` now derives `partialCover` from the
+ *   target hex's terrain and `resolveWeaponHit` converts a covered leg
+ *   hit into a miss. See the "SHIPPED" block at the foot of this file
+ *   for the coverage pointers.
  *
- *   What IS in scope: assert that the to-hit modifier function works
- *   correctly for the partial-cover input (+1 when on, +0 when off)
- *   so a future PR that wires partialCover through the runner will
- *   immediately benefit from the existing utility.
+ *   This file retains the to-hit modifier-function assertions (+1 when
+ *   partial cover is on, null when off) — the load-bearing utility the
+ *   runner wiring builds on.
  */
 
 import {
@@ -74,32 +72,21 @@ describe('Scenario: partial cover LOS (P6b — task 6.13)', () => {
   });
 
   // =============================================================================
-  // DEFERRED — leg-location hits convert to misses (rule not yet wired)
+  // SHIPPED — leg-location hits convert to misses
   // =============================================================================
-
-  /**
-   * TODO(deferred): wire the partial-cover branch in `weaponAttack.ts`
-   * so the runner (a) passes `partialCover: true` to the to-hit
-   * calculator when terrain provides cover, and (b) the post-hit-
-   * location-roll branch converts leg hits (`left_leg` / `right_leg`)
-   * into misses per the Total Warfare partial-cover rule.
-   *
-   * Tracked under `notepad/issues.md` — "Partial cover leg-miss rule
-   * not yet wired" (deferred follow-on, see the change-folder issue
-   * log).
-   *
-   * When the rule lands, flip `it.skip` to `it`. The assertion below
-   * is the spec's load-bearing contract: a leg hit on a partially-
-   * covered target MUST become a miss before damage applies.
-   */
-  it.skip('leg-location hits on partially-covered target convert to misses (DEFERRED — see notepad/issues.md)', () => {
-    // Placeholder assertion shape for the future-on PR:
-    //   1. Build a primed scenario where a target is in partial cover.
-    //   2. Run runAttackPhase with a roller pre-scripted to roll a leg
-    //      hit-location.
-    //   3. Assert the AttackResolved event reports `hit: false` (the
-    //      leg hit was converted to a miss).
-    //   4. Assert no DamageApplied event for the leg location.
-    expect(true).toBe(true);
-  });
+  //
+  // The leg-hit → miss rule and the runner's `partialCover` wiring landed in
+  // the `complete-partial-cover-rules` change:
+  //   - `weaponAttack.ts` derives `partialCover` from the target hex's
+  //     terrain via `hexProvidesPartialCover` and threads it into both the
+  //     to-hit calculation and `resolveWeaponHit`.
+  //   - `resolveWeaponHit` converts a leg hit-location roll on a covered
+  //     target into a miss before any damage applies.
+  //
+  // Deterministic coverage of the conversion (scripted hit-location roll)
+  // lives in `src/simulation/runner/phases/__tests__/weaponAttackPartialCover.test.ts`,
+  // and the terrain → cover derivation in
+  // `src/utils/gameplay/__tests__/terrainCover.test.ts`. A full runner-level
+  // scenario is not asserted here because the simulation runner currently
+  // builds an all-clear grid (`createMinimalGrid`) with no varied terrain.
 });
