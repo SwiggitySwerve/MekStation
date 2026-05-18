@@ -8,6 +8,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { CustomizerSettingsPersistedSchema } from '@/stores/utils/persistedStoreSchemas';
+import { createZodPersistMerge } from '@/stores/utils/zodPersistMerge';
+
 /**
  * Armor diagram display mode
  */
@@ -174,6 +177,12 @@ export const useCustomizerSettingsStore = create<CustomizerSettingsState>()(
     }),
     {
       name: 'mekstation-customizer-settings',
+      // Validate the rehydrated `localStorage` payload against a Zod schema;
+      // a corrupt payload is discarded and the store keeps its default state.
+      merge: createZodPersistMerge<CustomizerSettingsState>(
+        CustomizerSettingsPersistedSchema,
+        'mekstation-customizer-settings',
+      ),
       // Don't persist draft state
       partialize: (state) => ({
         armorDiagramMode: state.armorDiagramMode,

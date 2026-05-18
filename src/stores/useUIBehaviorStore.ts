@@ -7,6 +7,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { UIBehaviorPersistedSchema } from '@/stores/utils/persistedStoreSchemas';
+import { createZodPersistMerge } from '@/stores/utils/zodPersistMerge';
+
 /**
  * UI behavior store state
  */
@@ -58,6 +61,12 @@ export const useUIBehaviorStore = create<UIBehaviorState>()(
     }),
     {
       name: 'mekstation-ui-behavior',
+      // Validate the rehydrated `localStorage` payload against a Zod schema;
+      // a corrupt payload is discarded and the store keeps its default state.
+      merge: createZodPersistMerge<UIBehaviorState>(
+        UIBehaviorPersistedSchema,
+        'mekstation-ui-behavior',
+      ),
     },
   ),
 );

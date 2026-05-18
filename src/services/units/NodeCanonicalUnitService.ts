@@ -33,6 +33,7 @@ import {
   type ICanonicalUnitService,
   type IFullUnit,
 } from './CanonicalUnitService';
+import { parseUnit } from './unitLoaderService/unitContractAdapter';
 
 // =============================================================================
 // Raw index shapes (matches the on-disk index.json format)
@@ -250,7 +251,16 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    * and caches the result in `unitCache` for subsequent calls.
    *
    * Returns null when the unit id is not found in the index or the file
-   * cannot be read, rather than throwing, so batch loops can skip gracefully.
+   * cannot be read (missing / unreadable file, malformed JSON), so batch
+   * loops can skip gracefully on a true "not found" condition.
+   *
+   * Boundary validation (`validation-patterns` — Zod Schema Validation at I/O
+   * Boundaries): unit JSON is a bundled data file, so a *schema* violation is
+   * a build/data bug, not a user condition. Once the file is read and JSON-
+   * parsed successfully, it is validated through the generated `UnitContract`
+   * via `parseUnit`; a schema mismatch throws a `UnitContractParseError`
+   * naming the offending field path, failing loud at the loader boundary
+   * instead of corrupting downstream domain code with a malformed unit.
    */
   async getById(id: string): Promise<IFullUnit | null> {
     // Return cached reference immediately — this also satisfies Task 2.8's
@@ -269,12 +279,26 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     // pattern: scripts/validate-bv.ts:5173 `path.join(basePath, iu.path)`
     const unitFilePath = path.join(this.baseDir, entry.path);
 
-    let unit: IFullUnit;
+    // A missing / unreadable file or malformed JSON is a "not found" — return
+    // null so batch loops skip it. A *schema* violation is handled separately
+    // below and deliberately throws loud.
+    let parsedJson: unknown;
     try {
-      unit = JSON.parse(fs.readFileSync(unitFilePath, 'utf-8')) as IFullUnit;
+      parsedJson = JSON.parse(fs.readFileSync(unitFilePath, 'utf-8'));
     } catch {
       return null;
     }
+
+    // Validate the on-disk shape against `UnitContract`. `parseUnit` throws a
+    // `UnitContractParseError` naming the offending field path on a schema
+    // mismatch — the bundled-data "fail loud" boundary behaviour.
+    parseUnit(parsedJson, entry.path);
+
+    // The validated value is structurally an `IFullUnit` (the contract is a
+    // permissive superset of the index shape, and `IFullUnit` carries a
+    // `[key: string]: unknown` catchall). Keep the original parsed object as
+    // the cached value so no schema-side field coercion changes the data.
+    const unit = parsedJson as IFullUnit;
 
     // Cache and return the parsed unit.
     this.unitCache.set(id, unit);

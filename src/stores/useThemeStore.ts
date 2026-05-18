@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { ThemePersistedSchema } from '@/stores/utils/persistedStoreSchemas';
+import { createZodPersistMerge } from '@/stores/utils/zodPersistMerge';
+
 export type ThemeMode = 'light' | 'dark';
 
 export interface IThemeState {
@@ -38,6 +41,12 @@ export const useThemeStore = create<IThemeState>()(
     }),
     {
       name: 'theme-preference',
+      // Validate the rehydrated `localStorage` payload against a Zod schema;
+      // a corrupt payload is discarded and the store keeps its default state.
+      merge: createZodPersistMerge<IThemeState>(
+        ThemePersistedSchema,
+        'theme-preference',
+      ),
       onRehydrateStorage: () => (state) => {
         state?.applyTheme();
       },

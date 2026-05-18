@@ -8,6 +8,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { AppearancePersistedSchema } from '@/stores/utils/persistedStoreSchemas';
+import { createZodPersistMerge } from '@/stores/utils/zodPersistMerge';
+
 /**
  * Global UI theme variants
  */
@@ -280,6 +283,12 @@ export const useAppearanceStore = create<AppearanceState>()(
     }),
     {
       name: 'mekstation-appearance',
+      // Validate the rehydrated `localStorage` payload against a Zod schema;
+      // a corrupt payload is discarded and the store keeps its default state.
+      merge: createZodPersistMerge<AppearanceState>(
+        AppearancePersistedSchema,
+        'mekstation-appearance',
+      ),
       // Don't persist draft state
       partialize: (state) => ({
         accentColor: state.accentColor,
