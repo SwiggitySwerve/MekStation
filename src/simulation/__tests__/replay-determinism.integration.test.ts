@@ -10,15 +10,18 @@
  *     - THEN result1.events.length MUST equal result2.events.length
  *     - AND JSON.stringify(result1.events) MUST equal JSON.stringify(result2.events)
  *
- * Design note:
- *   The spec acknowledges (per the `MAX_TURNS=10 → 100` regression channel
- *   that PR #514 documented) that a ~1-event-over-300 divergence may
- *   surface on `STANDARD_LANCE` seeded runs. If THIS audit fires on the
- *   Atlas mirror fixture, the failure is a known issue tracked under
- *   the deferred `add-engine-determinism-audit` follow-on change — NOT
- *   a P5 regression. In that case the test is marked `skip` with a
- *   pointer to the follow-on. P5 itself does NOT chase determinism;
- *   the audit is value-as-tripwire only.
+ * History:
+ *   These tests were `it.skip`'d after CI observed a divergence (103 vs
+ *   516 events on the seed=42 Atlas mirror at the full turn ceiling) and
+ *   the investigation was deferred to an `add-engine-determinism-audit`
+ *   follow-on. That follow-on is now done: the divergence was three
+ *   un-seeded `Math.random` consumers in the engine's damage path — the
+ *   physical-attack `resolveDamage` call and the pilot-consciousness roll
+ *   it reaches were not threaded with the runner's seeded `D6Roller`. A
+ *   failed consciousness roll ends the battle early, producing exactly
+ *   the observed event-count divergence. The fix threads the seeded
+ *   roller end-to-end; the third test below is a permanent tripwire that
+ *   throws if any code on the engine path consumes `Math.random`.
  */
 
 import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
@@ -132,31 +135,12 @@ function normalizeEventsForComparison(events: ISimulationResult['events']): {
 // Test suite
 // =============================================================================
 
-describe('Event log replay determinism audit (P5 — task 5)', () => {
+describe('Event log replay determinism audit', () => {
   /**
-   * Per spec scenario "Atlas-vs-Atlas mirror with same seed produces
-   * identical event logs". If this fails the deferred
-   * `add-engine-determinism-audit` follow-on owns the investigation —
-   * P5 does NOT chase determinism per the change brief.
-   *
-   * SKIPPED: empirical CI-only divergence surfaced on PR #526 (P6c
-   * Monte Carlo tests) — observed 167 events on the first run and
-   * 103 on the second within the same Jest worker on Linux runners.
-   * The divergence is NOT reproducible on Windows local runs and is
-   * NOT introduced by P6c (pure additive test files; no production
-   * code touched). Most plausibly a JIT-warm-worker / shared-PRNG
-   * adjacency artifact when a memory-heavy MC sibling runs in the
-   * same Jest worker. Follow the same skip-with-TODO pattern the P5
-   * author anticipated for this exact case (per test file header
-   * "If THIS audit fires on the Atlas mirror fixture, the failure
-   * is a known issue tracked under the deferred
-   * `add-engine-determinism-audit` follow-on change").
-   *
-   * TODO: re-enable when `add-engine-determinism-audit` lands and
-   * either pins the worker isolation or fixes the underlying
-   * non-determinism source.
+   * Spec scenario "Atlas-vs-Atlas mirror with same seed produces
+   * identical event logs" — the 10-turn window.
    */
-  it.skip('seed=42 Atlas mirror produces byte-identical event logs across two runs', async () => {
+  it('seed=42 Atlas mirror produces byte-identical event logs across two runs', async () => {
     const result1 = await runAtlasMirror(42);
     const result2 = await runAtlasMirror(42);
 
@@ -174,22 +158,13 @@ describe('Event log replay determinism audit (P5 — task 5)', () => {
   });
 
   /**
-   * Per spec "Cross-engine determinism on 200-turn battle" scenario —
-   * extends the audit beyond the masked `MAX_TURNS=10` ceiling. Note
-   * `MAX_TURNS` defaults to 100 (per PR #514); a 200-turn config is
-   * clamped, so this assertion holds for the full 100-turn window.
-   *
-   * SKIPPED: empirical divergence observed (103 vs 516 events at the
-   * full turnLimit on Atlas mirror seed=42 — exactly the regression
-   * channel PR #514's `MAX_TURNS=10 → 100` bump exposed). The 10-turn
-   * audit above passes cleanly; the divergence emerges only at the
-   * extended ceiling.
-   *
-   * TODO: deferred to the `add-engine-determinism-audit` follow-on
-   * change. P5 does NOT chase determinism per the brief — once that
-   * change ships, flip `it.skip` back to `it` and re-run.
+   * Spec "Cross-engine determinism on 200-turn battle" scenario —
+   * extends the audit to the full turn ceiling (`MAX_TURNS=100`; a
+   * 200-turn config is clamped internally). This is the window where
+   * the original 103-vs-516 divergence surfaced before the un-seeded
+   * `Math.random` consumers in the damage path were threaded.
    */
-  it.skip('seed=42 Atlas mirror produces identical event logs at full turnLimit', async () => {
+  it('seed=42 Atlas mirror produces identical event logs at full turnLimit', async () => {
     const seed = 42;
     const hydration = await buildAtlasMirrorHydration();
     const config: ISimulationConfig = {
@@ -221,5 +196,47 @@ describe('Event log replay determinism audit (P5 — task 5)', () => {
 
     expect(normA.length).toBe(normB.length);
     expect(JSON.stringify(normA.events)).toEqual(JSON.stringify(normB.events));
+  });
+
+  /**
+   * Determinism proof (not just a same-seed comparison): patch
+   * `Math.random` to throw, then run the full battle. The engine MUST
+   * draw every random value from its injected `SeededRandom`; any
+   * `Math.random` call is an entropy leak that makes two same-seed runs
+   * diverge. This is the permanent tripwire for the bug class — it
+   * fails loudly the moment a new un-seeded dice consumer is added to
+   * the engine path, instead of surfacing as a flaky CI heisenbug.
+   *
+   * `Math.random` is patched only around `runner.run()` — unit-catalog
+   * hydration runs first and is outside the determinism contract.
+   */
+  it('seed=42 Atlas mirror consumes zero Math.random entropy on the engine path', async () => {
+    const hydration = await buildAtlasMirrorHydration();
+    const config: ISimulationConfig = {
+      seed: 42,
+      turnLimit: 200, // clamped to MAX_TURNS internally
+      unitCount: { player: 1, opponent: 1 },
+      mapRadius: 4,
+    };
+    const runner = new SimulationRunner(
+      42,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      hydration,
+    );
+
+    const realRandom = Math.random;
+    Math.random = () => {
+      throw new Error(
+        'engine path consumed Math.random — non-deterministic entropy leak',
+      );
+    };
+    try {
+      expect(() => runner.run(config)).not.toThrow();
+    } finally {
+      Math.random = realRandom;
+    }
   });
 });

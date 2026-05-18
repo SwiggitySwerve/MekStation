@@ -122,7 +122,16 @@ export function runPhysicalAttackPhase(options: {
         damage = HEAD_HIT_DAMAGE_CAP;
       }
 
-      const dmgResult = resolveDamage(damageState, result.hitLocation, damage);
+      // Thread the seeded d6 roller so physical-attack damage resolution
+      // (crit triggers, crit-slot selection, and the head-hit pilot
+      // consciousness roll) is deterministic. Omitting it falls back to
+      // `Math.random`, which makes two same-seed runs diverge.
+      const dmgResult = resolveDamage(
+        damageState,
+        result.hitLocation,
+        damage,
+        d6Roller,
+      );
       currentState = applyDamageResultToState(
         currentState,
         target.id,
