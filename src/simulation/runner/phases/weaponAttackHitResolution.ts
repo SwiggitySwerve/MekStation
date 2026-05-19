@@ -6,7 +6,6 @@ import {
   IGameEvent,
   IGameState,
 } from '@/types/gameplay';
-import { consumeAmmo, isEnergyWeapon } from '@/utils/gameplay/ammoTracking';
 import { resolveDamage } from '@/utils/gameplay/damage';
 import { buildDefaultComponentDamageState } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
 import {
@@ -14,26 +13,37 @@ import {
   isHeadHit,
   isLegLocation,
 } from '@/utils/gameplay/hitLocation';
-import { createDamagePSR } from '@/utils/gameplay/pilotingSkillRolls';
 
 import type { IWeapon } from '../../ai/types';
 
-import {
-  DAMAGE_PSR_THRESHOLD,
-  HEAD_HIT_DAMAGE_CAP,
-} from '../SimulationRunnerConstants';
+import { HEAD_HIT_DAMAGE_CAP } from '../SimulationRunnerConstants';
 import {
   applyDamageResultToState,
   buildDamageState,
 } from '../SimulationRunnerState';
 import { createGameEvent } from './utils';
 import { applyCritAmmoExplosions } from './weaponAttackAmmoExplosions';
+import { emitCritEvents, toFiringArc } from './weaponAttackHelpers';
 import {
-  emitCritEvents,
-  toFiringArc,
-  weaponTypeFromMountId,
-} from './weaponAttackHelpers';
+  DestructionCause,
+  applyDamageThresholdPSR,
+  consumeWeaponAmmo,
+  emitCoveredLegMiss,
+  emitDamageChainEvents,
+  emitHeadHitPilotEvent,
+  emitUnitDestroyedEvent,
+} from './weaponAttackHitResolution.helpers';
 
+/**
+ * Resolve a single confirmed weapon hit against a target unit: roll the
+ * hit location, apply damage (with crit dispatch), emit the full event
+ * chain (`AttackResolved` → `AmmoConsumed` → `DamageApplied` /
+ * `LocationDestroyed` / `TransferDamage` → crit events → `AmmoExplosion`
+ * → `PilotHit` → `UnitDestroyed`), and queue any 20+-damage piloting
+ * skill roll. The cohesive sub-steps (ammo consumption, damage-chain
+ * emission, pilot-hit, kill detection, PSR queueing) are delegated to
+ * `weaponAttackHitResolution.helpers.ts`. Returns the updated game state.
+ */
 export function resolveWeaponHit(options: {
   currentState: IGameState;
   events: IGameEvent[];
@@ -83,31 +93,20 @@ export function resolveWeaponHit(options: {
   // Partial Cover Leg-Hit Conversion (Total Warfare p. 53): when the target
   // is in partial cover, a hit that rolls a leg location is absorbed by the
   // cover and resolves as a miss — no damage applies. The hit-location roll
-  // is still consumed (above) so the dice stream stays deterministic. An
-  // `AttackResolved` event is emitted with `hit: false` and no `location`,
-  // matching the shape of a normal miss so the
-  // `AttackDeclared`/`AttackResolved` count invariant holds.
+  // is still consumed (above) so the dice stream stays deterministic.
   if (partialCover && isLegLocation(location)) {
-    events.push(
-      createGameEvent(
-        gameId,
-        events.length,
-        GameEventType.AttackResolved,
-        currentState.turn,
-        GamePhase.WeaponAttack,
-        {
-          attackerId: unitId,
-          targetId,
-          weaponId,
-          roll: attackRoll,
-          toHitNumber,
-          hit: false,
-          heat: weapon.heat,
-          attackerArc: firingArc,
-        },
-        unitId,
-      ),
-    );
+    emitCoveredLegMiss({
+      events,
+      gameId,
+      turn: currentState.turn,
+      attackerId: unitId,
+      targetId,
+      weaponId,
+      weapon,
+      attackRoll,
+      toHitNumber,
+      firingArc,
+    });
     return currentState;
   }
 
@@ -216,198 +215,40 @@ export function resolveWeaponHit(options: {
     ),
   );
 
-  // Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution`
-  // delta — Ammo Consumption and Explosion Events): when a
-  // non-energy weapon fires, decrement its ammo bin and emit
-  // `AmmoConsumed`. Energy weapons (laser / PPC / flamer / plasma)
-  // skip this branch via `isEnergyWeapon`. When the unit has no
-  // `ammoState` populated (synthetic test fixtures, legacy
-  // session) the consumption is silently skipped — pre-P4
-  // behaviour preserved.
-  const attackerForAmmo = currentState.units[unitId];
-  const ammoStateBefore = attackerForAmmo.ammoState;
-  if (
-    ammoStateBefore !== undefined &&
-    Object.keys(ammoStateBefore).length > 0 &&
-    !isEnergyWeapon(weapon.name)
-  ) {
-    const baseWeaponType = weaponTypeFromMountId(weapon.id);
-    const ammoResult = consumeAmmo(ammoStateBefore, unitId, baseWeaponType);
-    if (ammoResult) {
-      currentState = {
-        ...currentState,
-        units: {
-          ...currentState.units,
-          [unitId]: {
-            ...currentState.units[unitId],
-            ammoState: ammoResult.updatedAmmoState,
-          },
-        },
-      };
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.AmmoConsumed,
-          currentState.turn,
-          GamePhase.WeaponAttack,
-          {
-            unitId,
-            binId: ammoResult.event.binId,
-            weaponType: ammoResult.event.weaponType,
-            roundsConsumed: ammoResult.event.roundsConsumed,
-            roundsRemaining: ammoResult.event.roundsRemaining,
-          },
-          unitId,
-        ),
-      );
-    }
-  }
+  // Decrement the firing weapon's ammo bin and emit `AmmoConsumed`
+  // (non-energy weapons only). See `consumeWeaponAmmo`.
+  currentState = consumeWeaponAmmo({
+    currentState,
+    events,
+    gameId,
+    attackerId: unitId,
+    weapon,
+  });
 
-  // Per `combat-resolution` delta + `damage-system` delta: walk the
-  // ordered `locationDamages` chain and emit `DamageApplied` →
-  // `LocationDestroyed` (when zeroed) → `TransferDamage` (when
-  // residual flows). Mirrors the existing
-  // `gameSessionAttackResolution.ts` emission pattern (the
-  // session-layer twin of this runner phase) so replay consumers
-  // see the same event sequence regardless of which engine
-  // produced the trace.
-  //
-  // Side-torso → arm cascade: `applyDamageToLocation` zeroes the
-  // corresponding arm's armor/structure and pushes it onto
-  // `destroyedLocations`. We diff the pre/post-state sets so the
-  // cascade-arm `LocationDestroyed` event carries the right
-  // `cascadedTo` linkage AND its own follow-up event.
+  // Walk the ordered `locationDamages` chain and emit `DamageApplied` →
+  // `LocationDestroyed` → `TransferDamage`. The side-torso → arm cascade
+  // is detected off the pre/post-state `destroyedLocations` diff.
   const preDestroyedSet = new Set<string>(damageState.destroyedLocations);
   const newlyDestroyed = damageResult.state.destroyedLocations.filter(
     (loc) => !preDestroyedSet.has(loc),
   );
-
-  const locationDamages = damageResult.result.locationDamages;
-  for (let i = 0; i < locationDamages.length; i++) {
-    const locDmg = locationDamages[i];
-    const isTransferStep = i > 0;
-
-    events.push(
-      createGameEvent(
-        gameId,
-        events.length,
-        GameEventType.DamageApplied,
-        currentState.turn,
-        GamePhase.WeaponAttack,
-        {
-          unitId: targetId,
-          location: locDmg.location,
-          damage: locDmg.damage,
-          armorRemaining: locDmg.armorRemaining,
-          structureRemaining: locDmg.structureRemaining,
-          locationDestroyed: locDmg.destroyed,
-          sourceUnitId: unitId,
-        },
-        unitId,
-      ),
-    );
-
-    if (locDmg.destroyed) {
-      // Detect the side-torso → arm cascade off the post-damage
-      // state diff. Only side torsos can cascade an arm.
-      let cascadedArm: string | undefined;
-      if (
-        locDmg.location === 'left_torso' &&
-        newlyDestroyed.includes('left_arm')
-      ) {
-        cascadedArm = 'left_arm';
-      } else if (
-        locDmg.location === 'right_torso' &&
-        newlyDestroyed.includes('right_arm')
-      ) {
-        cascadedArm = 'right_arm';
-      }
-
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.LocationDestroyed,
-          currentState.turn,
-          GamePhase.WeaponAttack,
-          {
-            unitId: targetId,
-            location: locDmg.location,
-            cascadedTo: cascadedArm,
-            viaTransfer: isTransferStep,
-          },
-          unitId,
-        ),
-      );
-
-      // Cascade arm gets its own LocationDestroyed event so
-      // downstream consumers (UI, replay, metrics) don't have to
-      // dedupe off the parent. `viaTransfer` is `false` because
-      // this is a structural cascade — the arm wasn't reached by
-      // residual damage flowing through the transfer chain, it
-      // was carried off by its parent torso.
-      if (cascadedArm) {
-        events.push(
-          createGameEvent(
-            gameId,
-            events.length,
-            GameEventType.LocationDestroyed,
-            currentState.turn,
-            GamePhase.WeaponAttack,
-            {
-              unitId: targetId,
-              location: cascadedArm,
-              viaTransfer: false,
-            },
-            unitId,
-          ),
-        );
-      }
-    }
-
-    if (locDmg.transferredDamage > 0 && locDmg.transferLocation) {
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.TransferDamage,
-          currentState.turn,
-          GamePhase.WeaponAttack,
-          {
-            unitId: targetId,
-            fromLocation: locDmg.location,
-            toLocation: locDmg.transferLocation,
-            damage: locDmg.transferredDamage,
-          },
-          unitId,
-        ),
-      );
-    }
-  }
+  emitDamageChainEvents({
+    events,
+    gameId,
+    turn: currentState.turn,
+    attackerId: unitId,
+    targetId,
+    damageResult,
+    newlyDestroyed,
+  });
 
   // Per `add-combat-fidelity-suite` Phase 3: emit the crit chain
-  // produced by `resolveCriticalHits` (via `resolveDamage`). Each
-  // resolved slot fans out into:
-  //   `CriticalHit { component, count: 1 }` (per slot)
-  //   → `CriticalHitResolved { slotIndex, componentType, ... }`
-  //   → `ComponentDestroyed { componentType, slotIndex }` (when
-  //     the slot is fully destroyed — always today)
-  //   → `PSRTriggered` (gyro hit cascades)
-  //   → `PilotHit` (cockpit / head hit)
-  // Causal ordering: AFTER the full damage chain
-  // (DamageApplied → LocationDestroyed → TransferDamage) and
-  // BEFORE the `UnitDestroyed` event the runner emits below.
+  // produced by `resolveCriticalHits` (via `resolveDamage`). Causal
+  // ordering: AFTER the full damage chain (DamageApplied →
+  // LocationDestroyed → TransferDamage) and BEFORE the `UnitDestroyed`
+  // event emitted below.
   let critUnitDestroyed = false;
-  let critDestructionCause:
-    | 'damage'
-    | 'ammo_explosion'
-    | 'pilot_death'
-    | 'engine_destroyed'
-    | 'shutdown'
-    | 'ct_destroyed'
-    | 'head_destroyed'
-    | undefined = undefined;
+  let critDestructionCause: DestructionCause | undefined = undefined;
   if (damageResult.criticalEvents) {
     const emitted = emitCritEvents({
       events,
@@ -423,22 +264,10 @@ export function resolveWeaponHit(options: {
     critDestructionCause = emitted.destructionCause;
   }
 
-  // Per `add-combat-fidelity-suite` Phase 4 (`combat-resolution`
-  // delta — Heat Lifecycle / `ammo-explosion-system` delta —
-  // Critical Hit on Loaded Bin): when the resolver flagged an
-  // ammo slot as destroyed, emit `AmmoExplosion` and apply the
-  // explosion damage to the bin's location. CASE / CASE-II flags
-  // are not yet wired into `IUnitGameState` (deferred follow-up
-  // documented in `notepad/issues.md`); without CASE, the
-  // explosion damage cascades through the canonical transfer
-  // chain via a second `resolveDamage` call. Causal order:
-  //   `ComponentDestroyed { component: 'ammo' }` (already emitted
-  //   by emitCritEvents)
-  //   → `AmmoExplosion`
-  //   → `DamageApplied` to bin location (cascade)
-  //   → `LocationDestroyed` (if survives)
-  //   → `TransferDamage` (if no CASE)
-  //   → `UnitDestroyed` (if cascade reaches CT).
+  // Per `add-combat-fidelity-suite` Phase 4 (`ammo-explosion-system`
+  // delta): when the resolver flagged an ammo slot as destroyed, emit
+  // `AmmoExplosion` and cascade the explosion damage through the
+  // canonical transfer chain. May itself destroy the unit.
   const ammoExplosionResult = applyCritAmmoExplosions({
     currentState,
     events,
@@ -455,94 +284,34 @@ export function resolveWeaponHit(options: {
   critUnitDestroyed = ammoExplosionResult.critUnitDestroyed;
   critDestructionCause = ammoExplosionResult.critDestructionCause;
 
-  const pilotDamageResult = damageResult.result.pilotDamage;
-  if (pilotDamageResult && pilotDamageResult.woundsInflicted > 0) {
-    const alreadyEmittedFromCrit =
-      damageResult.criticalEvents?.some((e) => e.type === 'pilot_hit') ?? false;
-    if (!alreadyEmittedFromCrit) {
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.PilotHit,
-          currentState.turn,
-          GamePhase.WeaponAttack,
-          {
-            unitId: targetId,
-            wounds: pilotDamageResult.woundsInflicted,
-            totalWounds: pilotDamageResult.totalWounds,
-            source: 'head_hit' as const,
-            consciousnessCheckRequired:
-              pilotDamageResult.consciousnessCheckRequired,
-            consciousnessCheckPassed: pilotDamageResult.conscious,
-          },
-          unitId,
-        ),
-      );
-    }
-  }
+  // Emit `PilotHit` for raw head-hit wounds (suppressed when a
+  // cockpit-crit already emitted one).
+  emitHeadHitPilotEvent({
+    events,
+    gameId,
+    turn: currentState.turn,
+    attackerId: unitId,
+    targetId,
+    damageResult,
+  });
 
-  // Emit `UnitDestroyed` once if the shot killed the target. The
-  // cause is sourced (in priority order):
-  //   1. crit-induced destruction (engine 3-hit → engine_destroyed,
-  //      cockpit hit → pilot_death) — captured by the helper above.
-  //   2. raw damage destruction (CT zeroed, head zeroed by armor
-  //      depletion) — falls through with cause 'damage' and the
-  //      `damageResult.result.destructionCause` enum.
-  // Never emit a second `UnitDestroyed` if the target was already
-  // destroyed before this shot (multi-mount fire after the kill
-  // shot in the same volley).
-  if (currentState.units[targetId].destroyed && !targetBefore.destroyed) {
-    const fallbackCause = damageResult.result.destructionCause ?? 'damage';
-    const cause:
-      | 'damage'
-      | 'ammo_explosion'
-      | 'pilot_death'
-      | 'engine_destroyed'
-      | 'shutdown'
-      | 'ct_destroyed'
-      | 'head_destroyed' =
-      critUnitDestroyed && critDestructionCause
-        ? critDestructionCause
-        : fallbackCause;
-    events.push(
-      createGameEvent(
-        gameId,
-        events.length,
-        GameEventType.UnitDestroyed,
-        currentState.turn,
-        GamePhase.WeaponAttack,
-        {
-          unitId: targetId,
-          cause,
-          killerUnitId: unitId,
-        },
-      ),
-    );
-  }
+  // Emit `UnitDestroyed` once if the shot killed the target, sourcing
+  // the cause from crit destruction first, then raw damage.
+  emitUnitDestroyedEvent({
+    events,
+    gameId,
+    turn: currentState.turn,
+    attackerId: unitId,
+    targetId,
+    targetWasDestroyed: targetBefore.destroyed,
+    targetIsDestroyed: currentState.units[targetId].destroyed,
+    damageResult,
+    critUnitDestroyed,
+    critDestructionCause,
+  });
 
-  const targetPostDamage = currentState.units[targetId];
-  if (
-    !targetPostDamage.destroyed &&
-    (targetPostDamage.damageThisPhase ?? 0) >= DAMAGE_PSR_THRESHOLD
-  ) {
-    const existingPSRs = targetPostDamage.pendingPSRs ?? [];
-    const hasDamagePSR = existingPSRs.some(
-      (pendingPSR) => pendingPSR.triggerSource === '20+_damage',
-    );
-    if (!hasDamagePSR) {
-      currentState = {
-        ...currentState,
-        units: {
-          ...currentState.units,
-          [targetId]: {
-            ...targetPostDamage,
-            pendingPSRs: [...existingPSRs, createDamagePSR(targetId)],
-          },
-        },
-      };
-    }
-  }
+  // Queue a 20+-damage piloting skill roll on the surviving target.
+  currentState = applyDamageThresholdPSR(currentState, targetId);
 
   return currentState;
 }

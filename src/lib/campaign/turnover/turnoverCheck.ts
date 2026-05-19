@@ -7,27 +7,7 @@ import { Money } from '@/types/campaign/Money';
 
 import type { TurnoverModifierResult } from './modifiers/types';
 
-import {
-  getBaseTargetModifier,
-  getFounderModifier,
-  getRecentPromotionModifier,
-  getAgeModifier,
-  getInjuryModifier,
-  getOfficerModifier,
-  getServiceContractModifier,
-  getSkillDesirabilityModifier,
-  getMissionStatusModifier,
-  getFatigueModifier,
-  getHRStrainModifier,
-  getManagementSkillModifier,
-  getSharesModifier,
-  getUnitRatingModifier,
-  getHostileTerritoryModifier,
-  getLoyaltyModifier,
-  getFactionCampaignModifier,
-  getFactionOriginModifier,
-  getFamilyModifier,
-} from './modifiers';
+import { TURNOVER_MODIFIER_REGISTRY } from './modifierRegistry';
 
 export type RandomFn = () => number;
 
@@ -97,123 +77,26 @@ function isEligibleForCheck(
   return true;
 }
 
-function buildModifier(
-  modifierId: string,
-  displayName: string,
-  value: number,
-  isStub: boolean,
-): TurnoverModifierResult {
-  return { modifierId, displayName, value, isStub };
-}
-
 /**
  * Assembles all turnover modifier contributions for a single roster entry.
  *
- * NPC behavior: individual modifiers define their own NPC handling (see each
- * modifier's JSDoc). Aggregate behaviour: all modifiers whose domain is
- * PROCESS fire; officer-status modifier early-returns 0 for NPCs.
+ * Iterates the `TURNOVER_MODIFIER_REGISTRY` table (the single source of truth
+ * for which modifiers apply and in what order) and evaluates each against the
+ * entry. NPC behaviour: individual modifiers define their own NPC handling
+ * (see each modifier's JSDoc) — e.g. the officer-status modifier early-returns
+ * 0 for NPCs.
  */
 function calculateModifiers(
   entry: ICampaignRosterEntry,
   pilot: IPilot | null,
   campaign: ICampaign,
 ): TurnoverModifierResult[] {
-  return [
-    buildModifier(
-      'baseTarget',
-      'Base Target',
-      getBaseTargetModifier(campaign),
-      false,
-    ),
-    buildModifier(
-      'founder',
-      'Founder',
-      getFounderModifier(entry, pilot),
-      false,
-    ),
-    buildModifier(
-      'serviceContract',
-      'Service Contract',
-      getServiceContractModifier(entry, pilot),
-      false,
-    ),
-    buildModifier(
-      'skillDesirability',
-      'Skill Desirability',
-      getSkillDesirabilityModifier(entry, pilot, campaign),
-      false,
-    ),
-    buildModifier(
-      'recentPromotion',
-      'Recent Promotion',
-      getRecentPromotionModifier(entry, pilot, campaign),
-      false,
-    ),
-    buildModifier('fatigue', 'Fatigue', getFatigueModifier(entry, pilot), true),
-    buildModifier('hrStrain', 'HR Strain', getHRStrainModifier(campaign), true),
-    buildModifier(
-      'managementSkill',
-      'Management Skill',
-      getManagementSkillModifier(campaign),
-      true,
-    ),
-    buildModifier(
-      'shares',
-      'Shares',
-      getSharesModifier(entry, pilot, campaign),
-      true,
-    ),
-    buildModifier(
-      'unitRating',
-      'Unit Rating',
-      getUnitRatingModifier(campaign),
-      true,
-    ),
-    buildModifier(
-      'hostileTerritory',
-      'Hostile Territory',
-      getHostileTerritoryModifier(campaign),
-      true,
-    ),
-    buildModifier(
-      'missionStatus',
-      'Mission Status',
-      getMissionStatusModifier(campaign),
-      false,
-    ),
-    buildModifier('loyalty', 'Loyalty', getLoyaltyModifier(entry, pilot), true),
-    buildModifier(
-      'factionCampaign',
-      'Faction (Campaign)',
-      getFactionCampaignModifier(campaign),
-      true,
-    ),
-    buildModifier(
-      'factionOrigin',
-      'Faction (Origin)',
-      getFactionOriginModifier(entry, pilot),
-      true,
-    ),
-    buildModifier('age', 'Age', getAgeModifier(entry, pilot, campaign), false),
-    buildModifier(
-      'family',
-      'Family',
-      getFamilyModifier(entry, pilot, campaign),
-      true,
-    ),
-    buildModifier(
-      'injuries',
-      'Injuries',
-      getInjuryModifier(entry, pilot),
-      false,
-    ),
-    buildModifier(
-      'officer',
-      'Officer Status',
-      getOfficerModifier(entry, pilot),
-      false,
-    ),
-  ];
+  return TURNOVER_MODIFIER_REGISTRY.map((definition) => ({
+    modifierId: definition.id,
+    displayName: definition.displayName,
+    value: definition.evaluate(entry, pilot, campaign),
+    isStub: definition.isStub,
+  }));
 }
 
 /**
