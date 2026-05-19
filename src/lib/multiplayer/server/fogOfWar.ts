@@ -387,3 +387,49 @@ function getStateCache(state: IGameState): FogOfWarVisibilityCache {
 function cacheKey(playerId: string, unitId: string): string {
   return `${playerId}\u0000${unitId}`;
 }
+
+// =============================================================================
+// Spectator audience (M3 - add-matchmaking-and-spectator, design D6)
+// =============================================================================
+
+/**
+ * Sentinel `playerId` used to filter events for a spectator audience.
+ * It can never equal a real `pid_*` identity, a `sideAssignments`
+ * entry, or a `unit.side` fallback, so `isUnitOwnedByPlayer` is always
+ * false for a spectator - a spectator owns no game units.
+ */
+export const SPECTATOR_FOG_AUDIENCE = '__spectator__';
+
+/**
+ * Filter an event for a spectator audience - design D6.
+ *
+ * A spectator owns no game side, so it has no natural side-based
+ * visibility. The defined scope is the most-redacted view: a spectator
+ * of a fog-on match never sees more than the least-informed
+ * participant - only `public`-classified events survive. A spectator of
+ * a fog-off match receives the identical unredacted event.
+ *
+ * Implemented by routing through `filterEventForPlayer` with two
+ * guarantees that pin the spectator to the most-redacted view
+ * regardless of side metadata: the sentinel `SPECTATOR_FOG_AUDIENCE`
+ * playerId (so `isUnitOwnedByPlayer` is always false) and a
+ * `canSeeUnit` override that always returns false (so no
+ * observer-visible / target-visible event is revealed by a
+ * line-of-sight check a participant would have).
+ *
+ * Net effect: only `public` events pass when fog is on; when fog is
+ * off, `filterEventForPlayer` short-circuits and returns the event
+ * verbatim - the spectator sees everything, like any participant.
+ */
+export function filterEventForSpectator(
+  event: IGameEvent,
+  state: IGameState,
+  options: Pick<IFogOfWarFilterOptions, 'fogOfWar' | 'config' | 'cache'> = {},
+): IGameEvent | null {
+  return filterEventForPlayer(event, SPECTATOR_FOG_AUDIENCE, state, {
+    fogOfWar: options.fogOfWar,
+    config: options.config,
+    cache: options.cache,
+    canSeeUnit: () => false,
+  });
+}

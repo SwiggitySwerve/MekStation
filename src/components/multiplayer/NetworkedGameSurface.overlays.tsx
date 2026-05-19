@@ -78,6 +78,28 @@ export function WaitingForOpponentIndicator(): React.ReactElement {
 }
 
 // =============================================================================
+// Spectator indicator
+// =============================================================================
+
+/**
+ * Persistent badge shown on the spectator surface (M3 task 7.2) so the
+ * observer always knows they are watching, not playing. Replaces the
+ * action bar entirely — a spectator has no intent controls.
+ */
+export function SpectatorIndicator(): React.ReactElement {
+  return (
+    <div
+      data-testid="spectator-indicator"
+      role="status"
+      className="flex items-center gap-2 rounded border border-sky-700/60 bg-sky-900/20 px-3 py-2 text-sm text-sky-200"
+    >
+      <span className="h-2 w-2 rounded-full bg-sky-400" aria-hidden="true" />
+      Spectating — you are watching this match
+    </div>
+  );
+}
+
+// =============================================================================
 // Pause overlay
 // =============================================================================
 

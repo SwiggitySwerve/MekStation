@@ -271,13 +271,19 @@ export function setReady(
 // =============================================================================
 
 /**
- * Readiness gate: every seat must be either AI (always ready) or a
- * human seat with an occupant who has set `ready: true`. Empty human
- * seats block launch.
+ * Readiness gate: every *playing* seat must be either AI (always ready)
+ * or a human seat with an occupant who has set `ready: true`. Empty
+ * human seats block launch.
+ *
+ * `kind: 'spectator'` seats (M3 — `add-matchmaking-and-spectator`) are
+ * excluded from the gate entirely: a spectator never blocks or enables
+ * launch. A match must still have at least one playing seat — a roster
+ * of spectators alone cannot launch.
  */
 export function canLaunch(seats: readonly IMatchSeat[]): boolean {
-  if (seats.length === 0) return false;
-  return seats.every((s) => {
+  const playing = seats.filter((s) => s.kind !== 'spectator');
+  if (playing.length === 0) return false;
+  return playing.every((s) => {
     if (s.kind === 'ai') return true;
     return s.occupant !== null && s.ready;
   });

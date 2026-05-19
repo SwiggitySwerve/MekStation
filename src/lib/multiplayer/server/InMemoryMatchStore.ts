@@ -175,6 +175,31 @@ export class InMemoryMatchStore implements IMatchStore {
     };
   }
 
+  /**
+   * Enumerate every tracked match, optionally filtered by `status`.
+   * `add-matchmaking-and-spectator` (M3, design D2): the joinable-lobby
+   * and spectatable-match queries read through this method. A `closed`
+   * record reports its `completed` meta — consistent with `getMatchMeta`.
+   */
+  async listMatches(
+    filter: { readonly status?: IMatchMeta['status'] } = {},
+  ): Promise<readonly IMatchMeta[]> {
+    const all = Array.from(this.records.values()).map((rec) => rec.meta);
+    return filter.status
+      ? all.filter((meta) => meta.status === filter.status)
+      : all;
+  }
+
+  /**
+   * `add-matchmaking-and-spectator` (M3): expose the same recovery hook
+   * `DurableMatchStore` has so `isRecoverableMatchStore` is consistent
+   * across stores. The in-memory store has nothing to recover after a
+   * process restart, but a test-time store CAN hold `active` matches.
+   */
+  async listActiveMatches(): Promise<readonly IMatchMeta[]> {
+    return this.listMatches({ status: 'active' });
+  }
+
   // Test/observability helpers — not part of the IMatchStore contract.
 
   /** Number of matches currently tracked. */

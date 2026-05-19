@@ -356,6 +356,27 @@ export class DurableMatchStore implements IMatchStore {
   }
 
   /**
+   * Enumerate every tracked match, optionally filtered by `status`.
+   * `add-matchmaking-and-spectator` (M3, design D2): the joinable-lobby
+   * and spectatable-match queries both read through this method. The
+   * `status` filter hits the `idx_mp_matches_status` index so a scan is
+   * never needed for a single-status query.
+   */
+  async listMatches(
+    filter: { readonly status?: IMatchMeta['status'] } = {},
+  ): Promise<readonly IMatchMeta[]> {
+    const rows = filter.status
+      ? (this.db
+          .prepare('SELECT meta_json FROM mp_matches WHERE status = ?')
+          .all(filter.status) as Pick<IMatchRow, 'meta_json'>[])
+      : (this.db.prepare('SELECT meta_json FROM mp_matches').all() as Pick<
+          IMatchRow,
+          'meta_json'
+        >[]);
+    return rows.map((r) => JSON.parse(r.meta_json) as IMatchMeta);
+  }
+
+  /**
    * Reap `completed` matches whose `updatedAt` is older than the
    * 7-day retention window. Returns the number of matches pruned. The
    * `ON DELETE CASCADE` foreign key drops their event rows too.

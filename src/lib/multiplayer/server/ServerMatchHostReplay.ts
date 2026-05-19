@@ -23,7 +23,12 @@ import { deriveState } from '@/utils/gameplay/gameState';
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
-import { filterEventForPlayer, FogOfWarVisibilityCache } from './fogOfWar';
+import {
+  filterEventForPlayer,
+  filterEventForSpectator,
+  FogOfWarVisibilityCache,
+} from './fogOfWar';
+import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { streamReplay } from './reconnection/replayStream';
 
 type ReconnectMetadataReader = Pick<MatchLogStorage, 'getMatchMetadata'>;
@@ -157,15 +162,25 @@ async function getReplayEventsForPlayer(
   const prefix: IGameEvent[] = [];
   const replayCache = new FogOfWarVisibilityCache();
   const gameId = ctx.session.getSession().id;
+  // M3 design D6 — a spectator's replay is filtered through the
+  // spectator audience (most-redacted view), exactly like the live
+  // broadcast path, so a spectator joining mid-match never replays a
+  // hidden-unit event.
+  const spectator = isSpectatorPlayer(meta.seats ?? [], playerId);
 
   for (const event of allEvents) {
     prefix.push(event);
     if (event.sequence < fromSeq) continue;
     const state = withVisibilityAssignments(deriveState(gameId, prefix), meta);
-    const filtered = filterEventForPlayer(event, playerId, state, {
-      config: meta.config,
-      cache: replayCache,
-    });
+    const filtered = spectator
+      ? filterEventForSpectator(event, state, {
+          config: meta.config,
+          cache: replayCache,
+        })
+      : filterEventForPlayer(event, playerId, state, {
+          config: meta.config,
+          cache: replayCache,
+        });
     if (filtered) {
       visible.push(filtered);
     }
