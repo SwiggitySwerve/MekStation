@@ -8,10 +8,14 @@
  * @module campaign/Campaign
  */
 
+import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
+
 import type { IShoppingList } from './acquisition/acquisitionTypes';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { SalvageRights, CommandRights } from './Mission';
+import type { IMoraleTransition, IUnitPrestige, MoraleState } from './Prestige';
+import type { IRefitOrder } from './Refit';
 import type { ICombatTeam } from './scenario/scenarioTypes';
 import type { IUnitCombatState } from './UnitCombatState';
 
@@ -140,6 +144,42 @@ export interface ICampaign {
    * canonical shape contract and idempotency rules.
    */
   readonly unitCombatStates: Readonly<Record<string, IUnitCombatState>>;
+
+  /**
+   * Refit orders for owned campaign units (`add-campaign-refit-and-prestige`,
+   * design D2). Optional — absent on campaigns created before the change;
+   * defaults to an empty list. Refit processors narrow when they read.
+   */
+  readonly refitOrders?: readonly IRefitOrder[];
+
+  /**
+   * Per-unit campaign configuration, keyed by unitId
+   * (`add-campaign-refit-and-prestige`, design D5). The refit day
+   * processor writes a unit's completed `targetConfiguration` here when a
+   * refit finishes — this is the unit's current campaign loadout. Optional
+   * and absent on pre-change campaigns.
+   */
+  readonly unitConfigurations?: Readonly<Record<string, MechBuildConfig>>;
+
+  /**
+   * Per-unit prestige scores (`add-campaign-refit-and-prestige`, design D7).
+   * Optional — absent on pre-change campaigns; defaults to an empty list.
+   */
+  readonly unitPrestige?: readonly IUnitPrestige[];
+
+  /**
+   * Company morale state (`add-campaign-refit-and-prestige`, design D8).
+   * Optional — absent on pre-change campaigns; defaults to
+   * `MoraleState.Steady`.
+   */
+  readonly moraleState?: MoraleState;
+
+  /**
+   * Ordered company-morale transition history, oldest first
+   * (`add-campaign-refit-and-prestige`, design D9). Optional — defaults to
+   * an empty list.
+   */
+  readonly moraleTransitions?: readonly IMoraleTransition[];
 }
 
 // =============================================================================

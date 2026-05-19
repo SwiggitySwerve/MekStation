@@ -81,6 +81,33 @@ describe('MechBay', () => {
     );
   });
 
+  it('renders a per-unit Refit affordance and fires onLaunchRefit (CP3)', () => {
+    const onLaunchRefit = jest.fn();
+    render(
+      <MechBay
+        units={SAMPLE_ROSTER_UNITS}
+        repairBay={SAMPLE_REPAIR_BAY}
+        campaignId="campaign-1"
+        onLaunchRefit={onLaunchRefit}
+      />,
+    );
+    screen.getByTestId('mech-bay-refit-unit-atlas').click();
+    expect(onLaunchRefit).toHaveBeenCalledWith('unit-atlas');
+  });
+
+  it('hides the Refit affordance when no onLaunchRefit handler is wired', () => {
+    render(
+      <MechBay
+        units={SAMPLE_ROSTER_UNITS}
+        repairBay={SAMPLE_REPAIR_BAY}
+        campaignId="campaign-1"
+      />,
+    );
+    expect(
+      screen.queryByTestId('mech-bay-refit-unit-atlas'),
+    ).not.toBeInTheDocument();
+  });
+
   it('shows an empty state — not an error — when there are no units', () => {
     render(<MechBay units={[]} repairBay={[]} campaignId="campaign-1" />);
     expect(screen.getByTestId('bay-empty')).toBeInTheDocument();

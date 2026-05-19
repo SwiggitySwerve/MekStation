@@ -13,9 +13,12 @@ import React, { useEffect, useState } from 'react';
 
 import { BayError, BayLoading } from '@/components/campaign/bays/BayStates';
 import { MechBay } from '@/components/campaign/bays/MechBay';
+import { RefitLaunchPanel } from '@/components/campaign/bays/RefitLaunchPanel';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { EmptyState, PageLayout } from '@/components/ui';
+import { resolveUnitConfiguration } from '@/lib/campaign/refit/unitConfiguration';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
+import { commitRefitOrder } from '@/stores/campaign/campaignRefitActions';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
@@ -34,6 +37,8 @@ export default function MechBayPage(): React.ReactElement {
     (state) => state.loadCampaign,
   );
   const [isClient, setIsClient] = useState(false);
+  // The unit currently selected for the refit launch flow (CP3, design D6).
+  const [refitUnitId, setRefitUnitId] = useState<string | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -74,6 +79,14 @@ export default function MechBayPage(): React.ReactElement {
 
   const repairBay = selectRepairBay(campaign);
 
+  // The unit selected for refit, and its current configuration.
+  const refitUnit = refitUnitId
+    ? (units.find((u) => u.unitId === refitUnitId) ?? null)
+    : null;
+  const refitCurrentConfig = refitUnit
+    ? resolveUnitConfiguration(campaign, refitUnit.unitId)
+    : null;
+
   return (
     <PageLayout
       title="Mech Bay"
@@ -91,7 +104,34 @@ export default function MechBayPage(): React.ReactElement {
           }}
         />
       ) : (
-        <MechBay units={units} repairBay={repairBay} campaignId={campaign.id} />
+        <>
+          {/* Refit launch flow (CP3, design D6) — opens above the grid
+              when the player picks a unit's Refit affordance. */}
+          {refitUnit && refitCurrentConfig ? (
+            <div className="mb-6">
+              <RefitLaunchPanel
+                unitId={refitUnit.unitId}
+                unitName={refitUnit.unitName}
+                currentConfiguration={refitCurrentConfig}
+                onCommit={(target) =>
+                  commitRefitOrder({
+                    unitId: refitUnit.unitId,
+                    currentConfiguration: refitCurrentConfig,
+                    targetConfiguration: target,
+                  })
+                }
+                onCancel={() => setRefitUnitId(null)}
+              />
+            </div>
+          ) : null}
+
+          <MechBay
+            units={units}
+            repairBay={repairBay}
+            campaignId={campaign.id}
+            onLaunchRefit={(unitId) => setRefitUnitId(unitId)}
+          />
+        </>
       )}
     </PageLayout>
   );

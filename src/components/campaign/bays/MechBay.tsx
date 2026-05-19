@@ -57,16 +57,24 @@ interface MechBayRowProps {
   readonly ticketCount: number;
   /** Campaign id — used to build the Repair Bay drill-down link. */
   readonly campaignId: string;
+  /**
+   * Open the refit launch flow for this unit (CP3 — design D6). When
+   * omitted, the Refit affordance is hidden (e.g. in a Storybook fixture
+   * without a refit handler wired).
+   */
+  readonly onLaunchRefit?: (unitId: string) => void;
 }
 
 /**
  * One Mech Bay grid row. Shows the unit's damage state and repair-ticket
- * count, and drills into the unit's Repair Bay detail.
+ * count, drills into the unit's Repair Bay detail, and (CP3) opens the
+ * refit launch flow.
  */
 export function MechBayRow({
   unit,
   ticketCount,
   campaignId,
+  onLaunchRefit,
 }: MechBayRowProps): React.ReactElement {
   return (
     <Card className="p-4" data-testid={`mech-bay-row-${unit.unitId}`}>
@@ -92,6 +100,17 @@ export function MechBayRow({
             {ticketCount} {ticketCount === 1 ? 'ticket' : 'tickets'}
           </span>
 
+          {onLaunchRefit ? (
+            <button
+              type="button"
+              onClick={() => onLaunchRefit(unit.unitId)}
+              className="text-accent hover:text-accent/80 text-sm font-medium transition-colors"
+              data-testid={`mech-bay-refit-${unit.unitId}`}
+            >
+              Refit
+            </button>
+          ) : null}
+
           <Link
             href={`/gameplay/campaigns/${campaignId}/repair-bay?unit=${encodeURIComponent(unit.unitId)}`}
             className="text-accent hover:text-accent/80 text-sm font-medium transition-colors"
@@ -116,6 +135,11 @@ export interface MechBayProps {
   readonly repairBay: readonly IRepairBayItem[];
   /** Campaign id — used for drill-down links. */
   readonly campaignId: string;
+  /**
+   * Open the refit launch flow for a unit (CP3 — design D6). When
+   * omitted, the per-row Refit affordance is hidden.
+   */
+  readonly onLaunchRefit?: (unitId: string) => void;
 }
 
 /**
@@ -126,6 +150,7 @@ export function MechBay({
   units,
   repairBay,
   campaignId,
+  onLaunchRefit,
 }: MechBayProps): React.ReactElement {
   if (units.length === 0) {
     return (
@@ -153,6 +178,7 @@ export function MechBay({
           unit={unit}
           ticketCount={ticketCountByUnit.get(unit.unitId) ?? 0}
           campaignId={campaignId}
+          onLaunchRefit={onLaunchRefit}
         />
       ))}
     </div>
