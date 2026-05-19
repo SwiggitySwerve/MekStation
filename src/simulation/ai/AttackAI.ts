@@ -7,7 +7,18 @@ import { determineArc } from '@/utils/gameplay/firingArcs';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 
 import type { SeededRandom } from '../core/SeededRandom';
-import type { IAIUnitState, IWeapon } from './types';
+import type { IAIStructureState, IAIUnitState, IWeapon } from './types';
+
+import { computeAmmoRunway } from './AIAmmoRunway';
+import {
+  type IAITierResourceParameters,
+  INERT_RESOURCE_PARAMETERS,
+} from './AITierRegistry';
+import {
+  type IWeaponModeContext,
+  type IWeaponModeSelection,
+  selectWeaponMode,
+} from './AIWeaponModeSelector';
 
 /**
  * Per `improve-bot-basic-combat-competence` task 2: score a target
@@ -18,7 +29,7 @@ import type { IAIUnitState, IWeapon } from './types';
  *
  *   threat = totalWeaponDamagePerTurn * remainingHpFraction / max(gunnery, 1)
  *   killProbability = clamp(1 - (toHitTN / 12), 0, 1)
- *   score = threat * killProbability
+ *   score = threat * killProbability + critSeekingTerm
  *
  * `toHitTN` is estimated from the attacker's gunnery + a range modifier.
  * Firing-arc TN contribution is deferred to the weapon-selection step
@@ -28,11 +39,20 @@ import type { IAIUnitState, IWeapon } from './types';
  * yet supply per-unit HP totals — that preserves the legacy scoring
  * for test fixtures while letting real wiring opt in.
  *
- * Pure function — no state mutation.
+ * Per `add-ai-resource-planning` (A2) design D3: when `resource` carries a
+ * non-zero `critSeekingWeight`, an ADDITIVE crit-seeking term is added —
+ * proportional to the target's structural exposure (stripped armour, prior
+ * internal damage). When `resource` is omitted or its `critSeekingWeight`
+ * is `0` (the `Green`/`Regular` inert path, and every legacy caller),
+ * the crit-seeking term is exactly `0` and `scoreTarget` returns the
+ * pre-change `threat * killProbability` value byte-for-byte.
+ *
+ * Pure function — no state mutation, no `SeededRandom` consumption.
  */
 export function scoreTarget(
   attacker: IAIUnitState,
   target: IAIUnitState,
+  resource?: IAITierResourceParameters,
 ): number {
   if (target.destroyed || target.unitId === attacker.unitId) return 0;
 
@@ -57,7 +77,74 @@ export function scoreTarget(
   const tn = attacker.gunnery + rangeMod;
   const killProbability = clamp01(1 - tn / 12);
 
-  return threat * killProbability;
+  const baseScore = threat * killProbability;
+
+  // A2 crit-seeking term — additive, gated on `critSeekingWeight`. The
+  // exposure fraction is `0` for a fully-armoured target (or a target with
+  // no structure-state data), so a zero weight OR no exposure yields a zero
+  // term and the legacy score is reproduced exactly.
+  const critWeight = resource?.critSeekingWeight ?? 0;
+  if (critWeight <= 0) return baseScore;
+  const exposure = structuralExposure(target.structureState);
+  return baseScore + critWeight * exposure;
+}
+
+/**
+ * Per `add-ai-resource-planning` (A2) design D3: a target's structural
+ * exposure in `[0, 1]` — a measure of how reachable a crippling critical
+ * hit is.
+ *
+ * Two signals contribute:
+ *
+ *   - **Stripped armour** — the fraction of locations whose armour is at
+ *     zero. A stripped location takes every hit straight to internal
+ *     structure / the critical table.
+ *   - **Prior internal damage** — `1 - (internalRemaining / internalMax)`
+ *     summed across locations. An already-damaged internal structure is
+ *     close to a destroyed location.
+ *
+ * The two are averaged and clamped to `[0, 1]`. A fresh, fully-armoured
+ * target scores `0`; a target with an opened side torso scores high. A
+ * target with no `structureState` scores `0` — the crit-seeking term then
+ * contributes nothing, preserving legacy behavior.
+ *
+ * Pure function.
+ */
+export function structuralExposure(
+  structure: IAIStructureState | undefined,
+): number {
+  if (!structure) return 0;
+
+  const armorLocations = Object.entries(structure.armorMaxByLocation);
+  const internalLocations = Object.entries(structure.internalMaxByLocation);
+
+  // Stripped-armour signal — fraction of armoured locations now at zero.
+  let strippedCount = 0;
+  let armorLocationCount = 0;
+  for (const [loc, armorMax] of armorLocations) {
+    if (armorMax <= 0) continue;
+    armorLocationCount++;
+    const remaining = structure.armorByLocation[loc] ?? armorMax;
+    if (remaining <= 0) strippedCount++;
+  }
+  const strippedFraction =
+    armorLocationCount > 0 ? strippedCount / armorLocationCount : 0;
+
+  // Internal-damage signal — average fraction of internal structure lost.
+  let internalDamageSum = 0;
+  let internalLocationCount = 0;
+  for (const [loc, internalMax] of internalLocations) {
+    if (internalMax <= 0) continue;
+    internalLocationCount++;
+    const remaining = structure.internalByLocation[loc] ?? internalMax;
+    internalDamageSum += clamp01(1 - remaining / internalMax);
+  }
+  const internalDamageFraction =
+    internalLocationCount > 0 ? internalDamageSum / internalLocationCount : 0;
+
+  // Average the two signals — a target that is both stripped and internally
+  // damaged is maximally exposed.
+  return clamp01((strippedFraction + internalDamageFraction) / 2);
 }
 
 function clamp01(n: number): number {
@@ -245,11 +332,17 @@ export class AttackAI {
    * `attacker` is now required to compute the score; existing callers
    * with only `targets + random` still get the deterministic-tiebreak
    * behavior via the optional-attacker overload.
+   *
+   * Per `add-ai-resource-planning` (A2): `resource` threads the tier's
+   * resource block into `scoreTarget` so the crit-seeking term is applied.
+   * Omitted (or with a zero `critSeekingWeight`) the score is the legacy
+   * threat-only value — every existing caller is unaffected.
    */
   selectTarget(
     targets: readonly IAIUnitState[],
     random: SeededRandom,
     attacker?: IAIUnitState,
+    resource?: IAITierResourceParameters,
   ): IAIUnitState | null {
     if (targets.length === 0) {
       return null;
@@ -269,7 +362,7 @@ export class AttackAI {
     // consumption depended on whether a tie existed).
     const scored = targets.map((t) => ({
       target: t,
-      score: scoreTarget(attacker, t),
+      score: scoreTarget(attacker, t, resource),
     }));
     scored.sort((a, b) => b.score - a.score);
     const topScore = scored[0].score;
@@ -337,6 +430,138 @@ export class AttackAI {
     // sorted list and drops from the tail.
     return orderWeaponsByEfficiency(afterMinRange, distance);
   }
+
+  /**
+   * Per `add-ai-resource-planning` (A2): the resource-aware fire-list
+   * planner. Wraps `selectWeapons` with the three A2 priority modulators —
+   * ammo-runway conservation, weapon-mode selection — and reports the
+   * per-weapon mode so the caller can record it on the declared attack.
+   *
+   * The pipeline:
+   *
+   *   1. Run the legacy `selectWeapons` filter pipeline (destroyed / range /
+   *      ammo / arc / minRange / efficiency sort).
+   *   2. For each surviving weapon, project its ammo runway (`AIAmmoRunway`)
+   *      and select its firing mode (`AIWeaponModeSelector`).
+   *   3. Re-order the list by an effective priority that folds the ammo
+   *      `conservationWeight` into the legacy damage-per-heat efficiency —
+   *      a scarce-ammo weapon sinks toward the tail so the downstream
+   *      heat-budget trim drops it first; an abundant / energy weapon is
+   *      unchanged. The binary 0-ammo cull from `selectWeapons` is
+   *      untouched — conservation modulates ORDER, never eligibility.
+   *
+   * When `resource` is the inert block (`Green`/`Regular`, or omitted),
+   * `ammoConservationWeight` is `0` so the re-order is a no-op and
+   * `weaponModeSelection` is `false` so every weapon reports its default
+   * mode — the result is the legacy `selectWeapons` order, byte-for-byte.
+   *
+   * Pure function — no `SeededRandom` consumption.
+   */
+  planFireList(
+    attacker: IAIUnitState,
+    target: IAIUnitState,
+    options: {
+      readonly resource?: IAITierResourceParameters;
+      /** Heat headroom for mode selection (safe threshold minus committed). */
+      readonly heatHeadroom?: number;
+    } = {},
+  ): readonly IFireListEntry[] {
+    const resource = options.resource ?? INERT_RESOURCE_PARAMETERS;
+    const ordered = this.selectWeapons(attacker, target);
+    const distance = hexDistance(attacker.position, target.position);
+
+    const modeContextBase: Omit<IWeaponModeContext, 'ammoTurnsRemaining'> = {
+      distance,
+      targetStructure: target.structureState,
+      targetEvading: target.isEvading,
+      // A generous default headroom when the caller does not supply one —
+      // mode selection still works, it just does not see heat pressure.
+      heatHeadroom: options.heatHeadroom ?? Number.POSITIVE_INFINITY,
+    };
+
+    // Build a fire-list entry per weapon: runway + selected mode.
+    const entries: IFireListEntry[] = ordered.map((weapon) => {
+      const ammoRemaining = attacker.ammo[weapon.id];
+      // The mode-selection step needs an estimate of shots-per-turn; use
+      // the weapon's default mode shot count when metadata is present.
+      const defaultShots = defaultShotsPerTurn(weapon);
+      const runway = computeAmmoRunway(weapon, ammoRemaining, defaultShots);
+      const mode = selectWeaponMode(
+        weapon,
+        { ...modeContextBase, ammoTurnsRemaining: runway.turnsRemaining },
+        resource.weaponModeSelection,
+      );
+      // Re-project the runway against the SELECTED mode's shot count so a
+      // higher-rate-of-fire mode shows its true (shorter) runway.
+      const modeRunway = computeAmmoRunway(
+        weapon,
+        ammoRemaining,
+        Math.max(1, mode.effectiveShots),
+      );
+      return { weapon, mode, runway: modeRunway };
+    });
+
+    // When ammo conservation is inert, keep the legacy efficiency order.
+    if (resource.ammoConservationWeight <= 0) {
+      return entries;
+    }
+
+    // Re-order by effective priority: legacy damage-per-heat efficiency
+    // scaled by a conservation factor. A neutral runway (`weight === 1`)
+    // leaves priority at full efficiency; a scarce runway pulls it toward
+    // zero in proportion to `ammoConservationWeight`. A stable sort keeps
+    // equal-priority weapons in their legacy relative order.
+    const withPriority = entries.map((entry, index) => {
+      const efficiency =
+        entry.mode.effectiveDamage / Math.max(1, entry.mode.effectiveHeat);
+      // conservationFactor in [1 - w, 1]: weight 1 -> factor 1 (neutral);
+      // weight MIN -> factor (1 - w * (1 - MIN)).
+      const conservationFactor =
+        1 -
+        resource.ammoConservationWeight * (1 - entry.runway.conservationWeight);
+      return {
+        entry,
+        index,
+        priority: efficiency * conservationFactor,
+      };
+    });
+    withPriority.sort((a, b) => {
+      if (b.priority !== a.priority) return b.priority - a.priority;
+      // Stable tie-break — preserve the legacy efficiency order.
+      return a.index - b.index;
+    });
+    return withPriority.map((p) => p.entry);
+  }
+}
+
+/**
+ * Per `add-ai-resource-planning` (A2): one entry in a resource-planned fire
+ * list — the weapon, its selected firing mode, and its ammo runway. Returned
+ * by `AttackAI.planFireList`.
+ */
+export interface IFireListEntry {
+  /** The weapon to fire. */
+  readonly weapon: IWeapon;
+  /** The firing mode selected for this weapon this turn. */
+  readonly mode: IWeaponModeSelection;
+  /** The weapon's projected ammo runway against the selected mode. */
+  readonly runway: ReturnType<typeof computeAmmoRunway>;
+}
+
+/**
+ * The expected shots-per-turn for a weapon's DEFAULT firing mode — used to
+ * seed the ammo-runway estimate before a mode is chosen. A weapon with
+ * `firingModes` metadata uses its default mode's `shotsPerTurn`; a
+ * single-mode ammo weapon fires one shot; an energy weapon fires zero.
+ */
+function defaultShotsPerTurn(weapon: IWeapon): number {
+  const modes = weapon.firingModes;
+  if (modes && modes.modes.length > 0) {
+    const def =
+      modes.modes.find((m) => m.id === modes.defaultModeId) ?? modes.modes[0];
+    return Math.max(1, def.shotsPerTurn);
+  }
+  return weapon.ammoPerTon > 0 ? 1 : 0;
 }
 
 /**

@@ -19,6 +19,13 @@ import type {
 import type { IAIPlayer } from './IAIPlayer';
 import type { IBotBehavior, IAIUnitState, IMove, IWeapon } from './types';
 
+import { planEffectiveThreshold } from './AIHeatPlanner';
+import {
+  type IAITierResourceParameters,
+  resolveResourceParameters,
+  resolveTierParameters,
+} from './AITierRegistry';
+import { collectWeaponModes } from './AIWeaponModeSelector';
 import { AttackAI, applyHeatBudget, scoreTarget } from './AttackAI';
 import { MoveAI, type IScoreMoveContext } from './MoveAI';
 import {
@@ -47,17 +54,35 @@ const DEFAULT_PILOTING_SKILL = 5;
 /** Melee range in hexes — punches/kicks/charges all need adjacency. */
 const MELEE_RANGE_HEXES = 1;
 
+/**
+ * Per `add-ai-resource-planning` (A2): the canonical 10-heat-sink baseline
+ * dissipation used by the multi-turn heat planner when an `IAIUnitState`
+ * does not carry an explicit `heatDissipation`. Matches the standard 'Mech
+ * loadout (10 single heat sinks dissipating 1 each per turn).
+ */
+const DEFAULT_HEAT_DISSIPATION = 10;
+
 export class BotPlayer implements IAIPlayer {
   private readonly moveAI: MoveAI;
   private readonly attackAI: AttackAI;
   private readonly random: SeededRandom;
   private readonly behavior: IBotBehavior;
+  /**
+   * Per `add-ai-resource-planning` (A2): the resource-planning block resolved
+   * from the bot's difficulty tier. `Green`/`Regular` (and an absent tier)
+   * carry the fully-inert block so pre-A2 behavior is byte-identical;
+   * `Veteran`/`Elite` carry the active block.
+   */
+  private readonly resource: IAITierResourceParameters;
 
   constructor(random: SeededRandom, behavior: IBotBehavior = DEFAULT_BEHAVIOR) {
     this.random = random;
     this.behavior = behavior;
     this.moveAI = new MoveAI(behavior);
     this.attackAI = new AttackAI();
+    this.resource = resolveResourceParameters(
+      resolveTierParameters(behavior.tier),
+    );
   }
 
   /**
@@ -232,11 +257,14 @@ export class BotPlayer implements IAIPlayer {
 
     // Per `improve-bot-basic-combat-competence` task 2.5: pass attacker
     // so the threat-scored selector picks the most threatening target
-    // instead of a uniform-random pick.
+    // instead of a uniform-random pick. Per `add-ai-resource-planning`
+    // (A2): the tier's resource block is threaded so the crit-seeking term
+    // applies — inert for `Green`/`Regular`, active for `Veteran`/`Elite`.
     const target = this.attackAI.selectTarget(
       validTargets,
       this.random,
       attacker,
+      this.resource,
     );
     if (!target) {
       return null;
@@ -253,36 +281,102 @@ export class BotPlayer implements IAIPlayer {
     const arcAttacker: IAIUnitState = attacker.isRetreating
       ? { ...attacker, torsoTwist: undefined }
       : attacker;
-    const candidateWeapons = this.attackAI.selectWeapons(arcAttacker, target);
-    if (candidateWeapons.length === 0) {
-      return null;
-    }
 
-    // Per `improve-bot-basic-combat-competence` task 5: trim the fire
-    // list against the heat budget. `effectiveSafeHeatThreshold` lowers
-    // the ceiling by 2 when the bot is retreating so it stops firing
-    // sooner and runs faster.
+    // Per `improve-bot-basic-combat-competence` task 5: the heat budget.
+    // `effectiveSafeHeatThreshold` lowers the ceiling by 2 when the bot is
+    // retreating so it stops firing sooner and runs faster.
     const movementHeat = computeMovementHeat(
       attacker.movementType,
       attacker.hexesMoved,
     );
-    const threshold = effectiveSafeHeatThreshold(attacker, this.behavior);
-    const weapons: readonly IWeapon[] = applyHeatBudget(
-      candidateWeapons,
-      attacker.heat,
-      movementHeat,
-      threshold,
+    const baseThreshold = effectiveSafeHeatThreshold(attacker, this.behavior);
+
+    // Per `add-ai-resource-planning` (A2) design D2: plan the fire list with
+    // ammo-runway conservation and weapon-mode selection. For the inert
+    // `Green`/`Regular` block this is the legacy `selectWeapons` order with
+    // every weapon in its default mode — byte-identical to pre-A2.
+    const heatHeadroom = Math.max(
+      0,
+      baseThreshold - attacker.heat - movementHeat,
     );
-    if (weapons.length === 0) {
+    const planned = this.attackAI.planFireList(arcAttacker, target, {
+      resource: this.resource,
+      heatHeadroom,
+    });
+    if (planned.length === 0) {
       return null;
     }
+
+    // Per `add-ai-resource-planning` (A2) design D1: multi-turn heat
+    // projection. `planEffectiveThreshold` projects the heat curve assuming
+    // the planned fire list repeats each turn and lowers the budget if a
+    // shutdown is predicted. `heatLookaheadTurns: 0` (Green/Regular) returns
+    // `baseThreshold` unchanged — the legacy single-turn ceiling.
+    const perTurnHeatGenerated =
+      movementHeat +
+      planned.reduce((sum, entry) => sum + entry.mode.effectiveHeat, 0);
+    const effectiveThreshold = planEffectiveThreshold(
+      baseThreshold,
+      attacker.heat,
+      attacker.heatDissipation ?? DEFAULT_HEAT_DISSIPATION,
+      perTurnHeatGenerated,
+      movementHeat,
+      this.resource.heatLookaheadTurns,
+    );
+
+    // Per `improve-bot-basic-combat-competence` task 5: the single-turn
+    // trim still runs each turn (design D1) — now against the possibly
+    // lowered `effectiveThreshold`. `applyHeatBudget` operates on the
+    // efficiency-sorted weapon list; the planned modes' heat is folded in
+    // via a synthetic weapon list so the trim sees mode-adjusted heat.
+    const modeWeapons: readonly IWeapon[] = planned.map((entry) => ({
+      ...entry.weapon,
+      damage: entry.mode.effectiveDamage,
+      heat: entry.mode.effectiveHeat,
+    }));
+    let trimmed = applyHeatBudget(
+      modeWeapons,
+      attacker.heat,
+      movementHeat,
+      effectiveThreshold,
+    );
+    // Per `add-ai-resource-planning` (A2) scenario "Veteran bot throttles
+    // before shutdown": the heat planner culls lower-efficiency weapons, it
+    // does not silence the unit — if the planner's lowered budget empties
+    // the list but the legacy `baseThreshold` would have kept a weapon, the
+    // bot still fires its single best one. Scoped to the planner-over-trim
+    // case (`effectiveThreshold < baseThreshold`) so the legacy "trim to
+    // nothing returns null" contract is byte-identical when no planner runs.
+    if (trimmed.length === 0 && effectiveThreshold < baseThreshold) {
+      const legacyTrim = applyHeatBudget(
+        modeWeapons,
+        attacker.heat,
+        movementHeat,
+        baseThreshold,
+      );
+      if (legacyTrim.length > 0) {
+        trimmed = [modeWeapons[0]];
+      }
+    }
+    if (trimmed.length === 0) {
+      return null;
+    }
+
+    // Record the selected firing mode for every multi-mode weapon that
+    // survived the trim. Single-mode fire lists carry no `weaponModes` map
+    // (pre-A2 shape) — see `collectWeaponModes`.
+    const weaponModes = collectWeaponModes(
+      planned,
+      trimmed.map((w) => w.id),
+    );
 
     return {
       type: GameEventType.AttackDeclared,
       payload: {
         attackerId: attacker.unitId,
         targetId: target.unitId,
-        weapons: weapons.map((w) => w.id),
+        weapons: trimmed.map((w) => w.id),
+        ...(weaponModes ? { weaponModes } : {}),
       },
     };
   }
