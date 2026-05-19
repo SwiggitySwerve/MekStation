@@ -24,7 +24,12 @@ import { logger } from '@/utils/logger';
 declare global {
   interface Window {
     __ZUSTAND_STORES__?: {
-      campaign: typeof useCampaignStore;
+      // `useCampaignStore` is a lazy-init wrapper that returns a `StoreApi`,
+      // not a raw Zustand hook with `.getState`/`.setState` attached as
+      // statics (the other stores below all are). We expose the called
+      // `StoreApi` here so E2E specs can do `stores.campaign.getState()` the
+      // same way they do for every other store. PT-004.
+      campaign: ReturnType<typeof useCampaignStore>;
       force: typeof useForceStore;
       pilot: typeof usePilotStore;
       encounter: typeof useEncounterStore;
@@ -47,7 +52,13 @@ export function exposeStoresForE2E(): void {
 
   window.__E2E_MODE__ = true;
   window.__ZUSTAND_STORES__ = {
-    campaign: useCampaignStore,
+    // Call the lazy wrapper so the StoreApi (with `.getState`/`.setState`/
+    // `.subscribe`) is exposed directly — see the Window-interface comment
+    // above. PT-004 fix. `useCampaignStore` follows Zustand's `use*` naming
+    // convention but is a plain function (not a React hook) — it's safe to
+    // call outside a component body.
+    // oxlint-disable-next-line react-hooks/rules-of-hooks
+    campaign: useCampaignStore(),
     force: useForceStore,
     pilot: usePilotStore,
     encounter: useEncounterStore,
