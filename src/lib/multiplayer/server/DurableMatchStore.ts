@@ -207,7 +207,13 @@ export class DurableMatchStore implements IMatchStore {
           )
           .run(mId, evt.sequence, JSON.stringify(evt));
       } catch (e) {
-        if (e instanceof Error && /UNIQUE constraint failed/i.test(e.message)) {
+        // A sequence collision trips the `(match_id, sequence)` PRIMARY
+        // KEY constraint. better-sqlite3 surfaces this as a
+        // `SqliteError` whose `.code` is `SQLITE_CONSTRAINT_PRIMARYKEY`
+        // (or the broader `SQLITE_CONSTRAINT`); match on the code AND
+        // the message text so the detection is robust across
+        // better-sqlite3 versions / phrasings.
+        if (isUniqueConstraintError(e)) {
           throw new MatchStoreSequenceCollisionError(mId, evt.sequence);
         }
         throw e;
@@ -378,4 +384,23 @@ export class DurableMatchStore implements IMatchStore {
       .prepare('SELECT * FROM mp_matches WHERE match_id = ?')
       .get(matchId) as IMatchRow | undefined;
   }
+}
+
+/**
+ * True iff the error is a SQLite UNIQUE/PRIMARY-KEY constraint
+ * violation. better-sqlite3 throws a `SqliteError` carrying a `.code`
+ * (e.g. `SQLITE_CONSTRAINT_PRIMARYKEY`, `SQLITE_CONSTRAINT_UNIQUE`, or
+ * the broader `SQLITE_CONSTRAINT`); the human message is
+ * "UNIQUE constraint failed: ...". We match on EITHER so the detection
+ * is robust across better-sqlite3 versions and platform builds — a CI
+ * runner's prebuilt binary can phrase the message differently from a
+ * locally-compiled one.
+ */
+function isUniqueConstraintError(e: unknown): boolean {
+  if (!(e instanceof Error)) return false;
+  const code = (e as { code?: unknown }).code;
+  if (typeof code === 'string' && code.startsWith('SQLITE_CONSTRAINT')) {
+    return true;
+  }
+  return /UNIQUE constraint failed|PRIMARY KEY/i.test(e.message);
 }

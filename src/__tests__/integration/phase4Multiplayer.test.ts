@@ -274,8 +274,12 @@ describe('Phase 4 capstone — multiplayer end-to-end', () => {
     // -- Stage 3: Drop opponent + reconnect with lastSeq ---------------------
     const seqBeforeDrop = host.highestSeq();
     host.detachSocket(oppSock);
-    await Promise.resolve();
-    await Promise.resolve();
+    // harden-multiplayer-transport (M2): a socket drop now runs host
+    // migration ahead of the grace-pause path — two sequential async
+    // store reads. Drain enough microtask ticks for the full chain.
+    for (let i = 0; i < 8; i++) {
+      await Promise.resolve();
+    }
     expect(host.isPausedForReconnect()).toBe(true);
     // MatchPaused broadcast went to the surviving socket (host).
     const paused = hostSock.sent.find((s) => s.kind === 'MatchPaused');
