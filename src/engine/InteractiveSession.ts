@@ -4,7 +4,7 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
+import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import {
   deriveCombatOutcome,
@@ -24,9 +24,7 @@ import {
 } from '@/types/combat/CombatOutcome';
 import {
   GameSide,
-  GamePhase,
   GameStatus,
-  LockState,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
@@ -36,45 +34,25 @@ import {
 import {
   Facing,
   MovementType,
-  RangeBracket,
   type IHexCoordinate,
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
 import {
-  type D6Roller,
-  type DiceRoller,
-  roll2d6 as roll2d6FromD6,
-} from '@/utils/gameplay/diceTypes';
-import {
   createGameSession,
   startGame,
-  advancePhase,
   appendEvent,
-  rollInitiative,
-  declareMovement,
-  lockMovement,
-  declareAttack,
-  lockAttack,
-  resolveAllAttacks,
-  resolveHeatPhase,
-  resolveAllPhysicalAttacks,
-  checkAndQueueDamagePSRs,
-  resolvePendingPSRs,
   endGame,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
-import {
-  buildMovementEventPath,
-  maxMovementCostForCapability,
-} from '@/utils/gameplay/movement/eventPath';
-import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
-import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
 
-import { toMovementCapability } from './GameEngine.helpers';
+import {
+  applyInteractiveSessionAttack,
+  applyInteractiveSessionMovement,
+} from './InteractiveSession.actions';
 import { runInteractiveSessionAITurn } from './InteractiveSession.ai';
 import { finalizeSessionOutcome } from './InteractiveSession.outcome';
 import {
@@ -82,7 +60,18 @@ import {
   reportMatchLogDivergence,
   type MatchLogHydrationStorage,
 } from './InteractiveSession.persistence';
+import { advanceInteractiveSessionPhase } from './InteractiveSession.phases';
 import { getAvailableActionsForState } from './InteractiveSession.queries';
+import {
+  d6RollerForResolvers,
+  diceRollerForResolvers,
+  physicalContextByUnit,
+  waterDepthAt,
+} from './InteractiveSession.resolvers';
+import {
+  buildInteractiveSessionGameConfig,
+  buildInteractiveSessionUnitMaps,
+} from './InteractiveSession.setup';
 
 /**
  * Per `wire-encounter-to-campaign-round-trip` Wave 5: campaign linkage
@@ -146,37 +135,24 @@ export class InteractiveSession {
     this.startedAt = new Date().toISOString();
     this.d6Roller = d6Roller;
 
-    this.weaponsByUnit = new Map();
-    this.movementByUnit = new Map();
-    this.gunneryByUnit = new Map();
-    this.pilotingByUnit = new Map();
-    this.tonnageByUnit = new Map();
+    // Per-unit lookup maps + game-config assembly live in
+    // `InteractiveSession.setup` so the constructor stays thin wiring.
+    const maps = buildInteractiveSessionUnitMaps(
+      playerUnits,
+      opponentUnits,
+      gameUnits,
+    );
+    this.weaponsByUnit = maps.weaponsByUnit;
+    this.movementByUnit = maps.movementByUnit;
+    this.gunneryByUnit = maps.gunneryByUnit;
+    this.pilotingByUnit = maps.pilotingByUnit;
+    this.tonnageByUnit = maps.tonnageByUnit;
 
-    for (const u of [...playerUnits, ...opponentUnits]) {
-      this.weaponsByUnit.set(u.id, u.weapons);
-      this.movementByUnit.set(u.id, toMovementCapability(u));
-      // Phase 1 stand-in: catalog tonnage isn't on `IAdaptedUnit` yet,
-      // so we default to 65t (matches `SimulationRunnerConstants`).
-      this.tonnageByUnit.set(u.id, 65);
-    }
-    for (const gu of gameUnits) {
-      this.gunneryByUnit.set(gu.id, gu.gunnery);
-      this.pilotingByUnit.set(gu.id, gu.piloting);
-    }
-
-    this.gameConfig = {
+    this.gameConfig = buildInteractiveSessionGameConfig(
       mapRadius,
       turnLimit,
-      victoryConditions: ['elimination'],
-      optionalRules: [],
-      // Wave 5 linkage: round-trip identifiers stamped on the config so
-      // any later consumer of `IGameSession` (review UI, persistence
-      // layer) can read them without keeping a parallel map.
-      encounterId: linkage.encounterId ?? null,
-      campaignId: linkage.campaignId ?? null,
-      contractId: linkage.contractId ?? null,
-      scenarioId: linkage.scenarioId ?? null,
-    };
+      linkage,
+    );
     this.linkage = linkage;
 
     this.session = createGameSession(this.gameConfig, gameUnits, {
@@ -241,31 +217,17 @@ export class InteractiveSession {
     movementType: MovementType,
     path?: readonly IHexCoordinate[],
   ): void {
-    const unit = this.session.currentState.units[unitId];
-    if (!unit) return;
-    const capability = this.movementByUnit.get(unitId);
-    const eventPath =
-      path ??
-      buildMovementEventPath({
-        grid: this.grid,
-        from: unit.position,
-        to,
-        movementType,
-        maxCost: maxMovementCostForCapability(capability, movementType),
-      });
-
-    this.session = declareMovement(
-      this.session,
+    // Declare-then-lock logic lives in `InteractiveSession.actions`.
+    this.session = applyInteractiveSessionMovement({
+      session: this.session,
+      grid: this.grid,
+      movementByUnit: this.movementByUnit,
       unitId,
-      unit.position,
       to,
       facing,
       movementType,
-      0,
-      movementType === MovementType.Jump ? 1 : 0,
-      eventPath,
-    );
-    this.session = lockMovement(this.session, unitId);
+      path,
+    });
     this.tryFinalizeAndPublish();
   }
 
@@ -274,110 +236,34 @@ export class InteractiveSession {
     targetId: string,
     weaponIds: readonly string[],
   ): void {
-    const unitWeapons = this.weaponsByUnit.get(attackerId) ?? [];
-    const weaponAttacks: IWeaponAttack[] = buildWeaponAttacks(
-      weaponIds,
-      unitWeapons,
-      attackerId,
-    );
-
-    // Firing arc is computed inside resolveAttack from current positions +
-    // target facing at resolve time. No need to pre-compute here.
-    this.session = declareAttack(
-      this.session,
+    // Declare-then-lock logic lives in `InteractiveSession.actions`.
+    this.session = applyInteractiveSessionAttack({
+      session: this.session,
+      weaponsByUnit: this.weaponsByUnit,
       attackerId,
       targetId,
-      weaponAttacks,
-      3,
-      RangeBracket.Short,
-    );
-    this.session = lockAttack(this.session, attackerId);
+      weaponIds,
+    });
     this.tryFinalizeAndPublish();
   }
 
   advancePhase(): void {
-    const { phase } = this.session.currentState;
-
-    if (phase === GamePhase.Initiative) {
-      this.session = rollInitiative(
-        this.session,
-        undefined,
-        this.d6RollerForResolvers(),
-      );
-      this.session = advancePhase(this.session);
-    } else if (phase === GamePhase.Movement) {
-      // Lock any units that haven't been locked yet
-      for (const unitId of Object.keys(this.session.currentState.units)) {
-        const u = this.session.currentState.units[unitId];
-        if (
-          u.lockState !== LockState.Locked &&
-          u.lockState !== LockState.Resolved
-        ) {
-          this.session = lockMovement(this.session, unitId);
-        }
-      }
-      this.session = advancePhase(this.session);
-    } else if (phase === GamePhase.WeaponAttack) {
-      // Lock any units that haven't been locked yet
-      for (const unitId of Object.keys(this.session.currentState.units)) {
-        const u = this.session.currentState.units[unitId];
-        if (
-          u.lockState !== LockState.Locked &&
-          u.lockState !== LockState.Resolved
-        ) {
-          this.session = lockAttack(this.session, unitId);
-        }
-      }
-      this.session = resolveAllAttacks(
-        this.session,
-        this.diceRollerForResolvers(),
-      );
-      // Per `wire-piloting-skill-rolls` § 2: after weapon damage has
-      // accumulated via the reducer, scan every unit and enqueue a
-      // `TwentyPlusPhaseDamage` PSR on any that crossed 20 damage.
-      // Resolution deliberately waits for the End phase.
-      this.session = checkAndQueueDamagePSRs(this.session);
-      this.session = advancePhase(this.session);
-    } else if (phase === GamePhase.PhysicalAttack) {
-      // Per `wire-bot-ai-helpers-and-capstone`: resolve any
-      // PhysicalAttackDeclared events for the current turn before
-      // advancing — without this, declarations made by `runAITurn`
-      // would silently expire when the phase rolls over.
-      this.session = resolveAllPhysicalAttacks(
-        this.session,
-        this.physicalContextByUnit(),
-        this.diceRollerForResolvers(),
-      );
-      // Per `wire-piloting-skill-rolls` § 5: physical-attack damage can
-      // also breach the 20+ threshold. Queue any new damage PSRs before
-      // the phase flips so they resolve in the End phase.
-      this.session = checkAndQueueDamagePSRs(this.session);
-      this.session = advancePhase(this.session);
-    } else if (phase === GamePhase.Heat) {
-      // Per `wire-heat-generation-and-effects` task 5 (water cooling):
-      // `resolveHeatPhase` accepts an optional `getWaterDepth`
-      // provider. `IHex.terrain` is a plain `string` here (no
-      // structured depth), so we parse the `water:N` convention (used
-      // by future water-tagged hexes) and return 0 for any terrain
-      // that doesn't match. Existing grids use `'clear'` → bonus 0.
-      this.session = resolveHeatPhase(
-        this.session,
-        this.diceRollerForResolvers(),
-        { getWaterDepth: (_unitId, position) => this.waterDepthAt(position) },
-      );
-      this.session = advancePhase(this.session);
-    } else if (phase === GamePhase.End) {
-      // Per `wire-piloting-skill-rolls` § 7: drain the PSR queue for
-      // every unit. Failures invoke `applyFall` (→ `UnitFell` +
-      // `PilotHit`) and clear the remaining queue on that unit.
-      this.session = resolvePendingPSRs(
-        this.session,
-        this.diceRollerForResolvers(),
-      );
-      if (!this.isGameOver()) {
-        this.session = advancePhase(this.session);
-      }
-    }
+    // Per-phase transition logic lives in `InteractiveSession.phases`.
+    // The class stays a thin coordinator: it threads its private state
+    // through the phase-context callbacks and keeps ownership of the
+    // trailing finalize/publish step so the once-per-session outcome
+    // guard is not split across modules.
+    advanceInteractiveSessionPhase({
+      getSession: () => this.session,
+      setSession: (session) => {
+        this.session = session;
+      },
+      d6RollerForResolvers: () => this.d6RollerForResolvers(),
+      diceRollerForResolvers: () => this.diceRollerForResolvers(),
+      physicalContextByUnit: () => this.physicalContextByUnit(),
+      waterDepthAt: (position) => this.waterDepthAt(position),
+      isGameOver: () => this.isGameOver(),
+    });
     // Wave 5: any phase transition can land us in a victory condition
     // (e.g., the final attack resolution destroys the last opponent
     // unit). Try to finalize+publish here so the campaign store is
@@ -413,18 +299,13 @@ export class InteractiveSession {
       });
   }
 
+  // Resolver-input shaping lives in `InteractiveSession.resolvers`.
   private physicalContextByUnit(): Map<string, IPhysicalAttackContext> {
-    const map = new Map<string, IPhysicalAttackContext>();
-    for (const [unitId, unit] of Object.entries(
-      this.session.currentState.units,
-    )) {
-      map.set(unitId, {
-        attackerTonnage: this.tonnageByUnit.get(unitId) ?? 65,
-        pilotingSkill: this.pilotingByUnit.get(unitId) ?? 5,
-        hexesMoved: unit.hexesMovedThisTurn,
-      });
-    }
-    return map;
+    return physicalContextByUnit(
+      this.session,
+      this.tonnageByUnit,
+      this.pilotingByUnit,
+    );
   }
 
   /**
@@ -506,48 +387,18 @@ export class InteractiveSession {
     return this.outcomePublished;
   }
 
-  /**
-   * Resolver-shaped `D6Roller`. Returns `undefined` when no roller was
-   * injected so the resolver's own `defaultD6Roller` (`Math.random`)
-   * remains in effect for single-player / hot-seat callers.
-   *
-   * Per `add-authoritative-roll-arbitration` (Wave 3a): `ServerMatchHost`
-   * always injects a server-authoritative `D6Roller` (crypto-backed in
-   * prod, seeded in `?seed=N` debug mode), so this returns the live
-   * roller in multiplayer. Wrapping it via `RollCapture` further
-   * upstream is what lets the host stamp captured rolls onto event
-   * payloads.
-   */
+  // Resolver-roller adapters live in `InteractiveSession.resolvers`.
   private d6RollerForResolvers(): D6Roller | undefined {
-    return this.d6Roller;
+    return d6RollerForResolvers(this.d6Roller);
   }
 
-  /**
-   * Adapter that lifts the injected `D6Roller` into a `DiceRoller` (a
-   * full 2d6 result). Resolvers like `resolveAllAttacks` /
-   * `resolveHeatPhase` / `resolveAllPhysicalAttacks` consume `DiceRoller`
-   * — this keeps the injection point uniform without refactoring those
-   * resolvers' parameter type. Returns `undefined` to fall back to the
-   * resolver's default when no roller was injected.
-   */
   private diceRollerForResolvers(): DiceRoller | undefined {
-    const d6 = this.d6Roller;
-    if (!d6) return undefined;
-    return () => roll2d6FromD6(d6);
+    return diceRollerForResolvers(this.d6Roller);
   }
 
-  /**
-   * Per `wire-heat-generation-and-effects` task 5 + decisions.md
-   * "Water cooling integration point": `IHex.terrain` is a plain
-   * `string` today. We parse the `water:N` convention so a future
-   * map author can tag a hex as `'water:1'` / `'water:2'` and get
-   * the dissipation bonus immediately; all other terrain strings
-   * (including `'clear'`, `'woods'`, etc.) return depth 0 → no
-   * water cooling contribution. Calling `getWaterCoolingBonus(0)`
-   * yields 0, preserving behaviour for every existing grid.
-   */
+  // Heat-phase water-depth lookup lives in `InteractiveSession.resolvers`.
   private waterDepthAt(position: IHexCoordinate): number {
-    return waterDepthAtPosition(this.grid, position);
+    return waterDepthAt(this.grid, position);
   }
 
   isGameOver(): boolean {
