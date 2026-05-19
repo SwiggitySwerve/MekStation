@@ -7,175 +7,81 @@
  *
  * Based on MekHQ AbstractContractMarket.java, simplified for MVP.
  *
+ * The static lookup tables and tuning constants live in
+ * ./contracts/contractMarketConstants, the seeded-randomness primitives in
+ * ./contracts/contractRandomHelpers, and the per-attribute random selectors in
+ * ./contracts/contractSelection. They are re-exported here so the public API
+ * of this module remains unchanged for all existing importers and tests.
+ *
  * @module lib/campaign/contractMarket
  */
 
 import { ICampaign } from '@/types/campaign/Campaign';
-import {
-  AtBContractType,
-  CONTRACT_TYPE_DEFINITIONS,
-  ContractGroup,
-  getContractTypesByGroup,
-  getAvailableContractTypes,
-} from '@/types/campaign/contracts/contractTypes';
+import { CONTRACT_TYPE_DEFINITIONS } from '@/types/campaign/contracts/contractTypes';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { getAllUnits } from '@/types/campaign/Force';
-import { IContract, createContract } from '@/types/campaign/Mission';
+import { IContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
-import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
 
 import {
   calculateContractLength,
   contractLengthToDays,
 } from './contracts/contractLength';
+import {
+  CBILLS_PER_BV,
+  PLACEHOLDER_BV_PER_UNIT,
+} from './contracts/contractMarketConstants';
 import { negotiateAllClauses } from './contracts/contractNegotiation';
 import {
-  getContractPayMultiplier,
+  buildContractRecord,
+  buildOutcomePaymentTerms,
+} from './contracts/contractPayment';
+import { defaultRandom, RandomFn } from './contracts/contractRandomHelpers';
+import {
+  generateContractId,
+  generateContractName,
+  generateRandomDuration,
+  generateRandomSalvagePercent,
+  randomContractType,
+  randomEmployer,
+  randomSystem,
+  randomTarget,
+  selectAtBContractType,
+  selectFollowupContractType,
+} from './contracts/contractSelection';
+import {
   getContractNegotiationModifier,
+  getContractPayMultiplier,
 } from './markets/marketStandingIntegration';
 
 // =============================================================================
-// Constants
+// Re-exports - preserve the historical public API of this module
 // =============================================================================
 
-/**
- * Available contract types for random selection.
- */
-export const CONTRACT_TYPES: readonly string[] = Object.freeze([
-  'Garrison Duty',
-  'Recon',
-  'Raid',
-  'Extraction',
-  'Escort',
-]);
-
-/**
- * Available employer factions for random selection.
- */
-export const EMPLOYER_FACTIONS: readonly string[] = Object.freeze([
-  // Inner Sphere Great Houses
-  'Davion',
-  'Steiner',
-  'Liao',
-  'Marik',
-  'Kurita',
-  // Clans
-  'Wolf',
-  'Jade Falcon',
-  'Ghost Bear',
-  // Mercenary
-  'Kell Hounds',
-  "Wolf's Dragoons",
-]);
-
-/**
- * Available star systems for random selection.
- */
-export const SYSTEMS: readonly string[] = Object.freeze([
-  'Hesperus II',
-  'Solaris VII',
-  'Tukayyid',
-  'New Avalon',
-  'Tharkad',
-  'Sian',
-  'Atreus',
-  'Luthien',
-  'Terra',
-  'Outreach',
-  'Galatea',
-  'Arc-Royal',
-  'Coventry',
-  'Tikonov',
-  'Strana Mechty',
-]);
-
-/**
- * Placeholder BV per unit (until real BV calculator is integrated).
- */
-export const PLACEHOLDER_BV_PER_UNIT = 1000;
-
-/**
- * Payment rate: C-bills per BV point.
- */
-export const CBILLS_PER_BV = 1000;
-
-/**
- * Payment multipliers for contract outcomes.
- */
-export const PAYMENT_MULTIPLIERS = Object.freeze({
-  success: 2.0,
-  partial: 1.5,
-  failure: 0.5,
-});
-
-/**
- * Duration range in days.
- */
-export const DURATION_MIN_DAYS = 30;
-export const DURATION_MAX_DAYS = 90;
-
-/**
- * Salvage percentage range.
- */
-export const SALVAGE_MIN_PERCENT = 40;
-export const SALVAGE_MAX_PERCENT = 60;
-
-/**
- * Weights for contract group selection.
- * Garrison is most common, guerrilla is rarest.
- */
-export const CONTRACT_GROUP_WEIGHTS: Record<ContractGroup, number> = {
-  garrison: 40,
-  raid: 30,
-  guerrilla: 10,
-  special: 20,
-};
-
-// =============================================================================
-// Random Helpers (seeded for testability)
-// =============================================================================
-
-/**
- * Random number generator function type.
- * Returns a number in [0, 1) like Math.random().
- */
-export type RandomFn = () => number;
-
-/**
- * Default random function using Math.random().
- */
-const defaultRandom: RandomFn = () => Math.random();
-
-/**
- * Pick a random element from an array.
- *
- * @param array - Array to pick from
- * @param random - Random function (default: Math.random)
- * @returns Random element from the array
- */
-function pickRandom<T>(
-  array: readonly T[],
-  random: RandomFn = defaultRandom,
-): T {
-  const index = Math.floor(random() * array.length);
-  return array[index];
-}
-
-/**
- * Generate a random integer in [min, max] inclusive.
- *
- * @param min - Minimum value (inclusive)
- * @param max - Maximum value (inclusive)
- * @param random - Random function (default: Math.random)
- * @returns Random integer in range
- */
-function randomInt(
-  min: number,
-  max: number,
-  random: RandomFn = defaultRandom,
-): number {
-  return Math.floor(random() * (max - min + 1)) + min;
-}
+export {
+  CBILLS_PER_BV,
+  CONTRACT_GROUP_WEIGHTS,
+  CONTRACT_TYPES,
+  DURATION_MAX_DAYS,
+  DURATION_MIN_DAYS,
+  EMPLOYER_FACTIONS,
+  PAYMENT_MULTIPLIERS,
+  PLACEHOLDER_BV_PER_UNIT,
+  SALVAGE_MAX_PERCENT,
+  SALVAGE_MIN_PERCENT,
+  SYSTEMS,
+} from './contracts/contractMarketConstants';
+export type { RandomFn } from './contracts/contractRandomHelpers';
+export {
+  generateContractName,
+  generateRandomDuration,
+  generateRandomSalvagePercent,
+  randomContractType,
+  randomEmployer,
+  randomSystem,
+  randomTarget,
+  selectAtBContractType,
+} from './contracts/contractSelection';
 
 // =============================================================================
 // Core Functions
@@ -200,138 +106,6 @@ export function calculateForceBV(campaign: ICampaign): number {
 
   const allUnitIds = getAllUnits(rootForce, campaign.forces);
   return allUnitIds.length * PLACEHOLDER_BV_PER_UNIT;
-}
-
-/**
- * Generate a contract name from type and employer.
- *
- * @param type - Contract type (e.g., "Garrison Duty")
- * @param employer - Employer faction name (e.g., "Davion")
- * @returns Contract name (e.g., "Garrison Duty for House Davion")
- */
-export function generateContractName(type: string, employer: string): string {
-  // Clans and mercenary units don't use "House" prefix
-  const clanFactions = ['Wolf', 'Jade Falcon', 'Ghost Bear'];
-  const mercFactions = ['Kell Hounds', "Wolf's Dragoons"];
-
-  if (clanFactions.includes(employer)) {
-    return `${type} for Clan ${employer}`;
-  }
-  if (mercFactions.includes(employer)) {
-    return `${type} for ${employer}`;
-  }
-  return `${type} for House ${employer}`;
-}
-
-/**
- * Generate a random contract duration in days.
- *
- * @param random - Random function (default: Math.random)
- * @returns Duration in days (30-90)
- */
-export function generateRandomDuration(
-  random: RandomFn = defaultRandom,
-): number {
-  return randomInt(DURATION_MIN_DAYS, DURATION_MAX_DAYS, random);
-}
-
-/**
- * Generate a random salvage percentage.
- *
- * @param random - Random function (default: Math.random)
- * @returns Salvage percentage (40-60)
- */
-export function generateRandomSalvagePercent(
-  random: RandomFn = defaultRandom,
-): number {
-  return randomInt(SALVAGE_MIN_PERCENT, SALVAGE_MAX_PERCENT, random);
-}
-
-/**
- * Select a random contract type.
- *
- * @param random - Random function (default: Math.random)
- * @returns Random contract type string
- */
-export function randomContractType(random: RandomFn = defaultRandom): string {
-  return pickRandom(CONTRACT_TYPES, random);
-}
-
-/**
- * Select a random employer faction.
- *
- * @param random - Random function (default: Math.random)
- * @returns Random employer faction name
- */
-export function randomEmployer(random: RandomFn = defaultRandom): string {
-  return pickRandom(EMPLOYER_FACTIONS, random);
-}
-
-/**
- * Select a random target faction different from the employer.
- *
- * @param employer - Employer faction to exclude
- * @param random - Random function (default: Math.random)
- * @returns Random target faction name (different from employer)
- */
-export function randomTarget(
-  employer: string,
-  random: RandomFn = defaultRandom,
-): string {
-  const targets = EMPLOYER_FACTIONS.filter((f) => f !== employer);
-  return pickRandom(targets, random);
-}
-
-/**
- * Select a random star system.
- *
- * @param random - Random function (default: Math.random)
- * @returns Random system name
- */
-export function randomSystem(random: RandomFn = defaultRandom): string {
-  return pickRandom(SYSTEMS, random);
-}
-
-/**
- * Select a random AtB contract type using group weights.
- * First selects a group weighted by CONTRACT_GROUP_WEIGHTS,
- * then uniformly selects a type within that group.
- *
- * @param random - Random function (default: Math.random)
- * @returns Random AtB contract type
- */
-export function selectAtBContractType(
-  random: RandomFn = defaultRandom,
-): AtBContractType {
-  const groups = Object.keys(CONTRACT_GROUP_WEIGHTS) as ContractGroup[];
-  const totalWeight = Object.values(CONTRACT_GROUP_WEIGHTS).reduce(
-    (a, b) => a + b,
-    0,
-  );
-
-  let roll = random() * totalWeight;
-  let selectedGroup: ContractGroup = 'garrison';
-  for (const group of groups) {
-    roll -= CONTRACT_GROUP_WEIGHTS[group];
-    if (roll <= 0) {
-      selectedGroup = group;
-      break;
-    }
-  }
-
-  const typesInGroup = getContractTypesByGroup(selectedGroup);
-  return pickRandom(typesInGroup, random);
-}
-
-/**
- * Generate a unique contract ID.
- *
- * @returns Unique contract ID string
- */
-function generateContractId(): string {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 9);
-  return `contract-${timestamp}-${random}`;
 }
 
 /**
@@ -370,29 +144,17 @@ export function generateContracts(
     const salvagePercent = generateRandomSalvagePercent(random);
 
     const basePayment = new Money(forceBV * CBILLS_PER_BV);
-    const paymentTerms = createPaymentTerms({
-      basePayment,
-      successPayment: basePayment.multiply(PAYMENT_MULTIPLIERS.success),
-      partialPayment: basePayment.multiply(PAYMENT_MULTIPLIERS.partial),
-      failurePayment: basePayment.multiply(PAYMENT_MULTIPLIERS.failure),
-      salvagePercent,
-    });
+    const paymentTerms = buildOutcomePaymentTerms(basePayment, salvagePercent);
 
-    const startDate = campaign.currentDate;
-    const endDate = new Date(
-      startDate.getTime() + duration * 24 * 60 * 60 * 1000,
-    );
-
-    const contract = createContract({
+    const contract = buildContractRecord({
       id: generateContractId(),
       name: generateContractName(type, employer),
-      status: MissionStatus.PENDING,
-      systemId: system,
-      employerId: employer,
-      targetId: target,
+      system,
+      employer,
+      target,
       paymentTerms,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
+      startDate: campaign.currentDate,
+      durationDays: duration,
     });
 
     contracts.push(contract);
@@ -448,29 +210,17 @@ export function generateAtBContracts(
     );
     const salvagePercent = generateRandomSalvagePercent(random);
 
-    const paymentTerms = createPaymentTerms({
-      basePayment,
-      successPayment: basePayment.multiply(PAYMENT_MULTIPLIERS.success),
-      partialPayment: basePayment.multiply(PAYMENT_MULTIPLIERS.partial),
-      failurePayment: basePayment.multiply(PAYMENT_MULTIPLIERS.failure),
-      salvagePercent,
-    });
+    const paymentTerms = buildOutcomePaymentTerms(basePayment, salvagePercent);
 
-    const startDate = campaign.currentDate;
-    const endDate = new Date(
-      startDate.getTime() + durationDays * 24 * 60 * 60 * 1000,
-    );
-
-    const contract = createContract({
+    const contract = buildContractRecord({
       id: generateContractId(),
       name: generateContractName(typeDef.name, employer),
-      status: MissionStatus.PENDING,
-      systemId: system,
-      employerId: employer,
-      targetId: target,
+      system,
+      employer,
+      target,
       paymentTerms,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
+      startDate: campaign.currentDate,
+      durationDays,
     });
 
     // Add AtB-specific fields
@@ -554,49 +304,17 @@ export function generateFollowupContract(
   const _forceBV = calculateForceBV(campaign);
 
   // Determine contract type - different from the completed one
-  let typeName: string;
-  let atbType: AtBContractType | undefined;
-
-  if (completedContract.atbContractType) {
-    // AtB contract: pick a different type from the same group
-    const completedDef =
-      CONTRACT_TYPE_DEFINITIONS[completedContract.atbContractType];
-    const groupTypes = getContractTypesByGroup(completedDef.group);
-    const otherTypes = groupTypes.filter(
-      (t) => t !== completedContract.atbContractType,
-    );
-
-    if (otherTypes.length > 0) {
-      atbType = pickRandom(otherTypes, random);
-    } else {
-      // Only one type in group, pick any different AtB type
-      const allTypes = getAvailableContractTypes().filter(
-        (t) => t !== completedContract.atbContractType,
-      );
-      atbType = pickRandom(allTypes, random);
-    }
-    typeName = CONTRACT_TYPE_DEFINITIONS[atbType].name;
-  } else {
-    // Legacy contract: pick a different legacy type
-    const completedType = CONTRACT_TYPES.find((t) =>
-      completedContract.name.includes(t),
-    );
-    const otherTypes = CONTRACT_TYPES.filter((t) => t !== completedType);
-    typeName = pickRandom(otherTypes, random);
-  }
+  const { typeName, atbType } = selectFollowupContractType(
+    completedContract,
+    random,
+  );
 
   // Scale payment up by 10%
   const baseAmount = completedContract.paymentTerms.basePayment.amount;
   const scaledPayment = new Money(Math.round(baseAmount * 1.1 * 100) / 100);
 
   const salvagePercent = generateRandomSalvagePercent(random);
-  const paymentTerms = createPaymentTerms({
-    basePayment: scaledPayment,
-    successPayment: scaledPayment.multiply(PAYMENT_MULTIPLIERS.success),
-    partialPayment: scaledPayment.multiply(PAYMENT_MULTIPLIERS.partial),
-    failurePayment: scaledPayment.multiply(PAYMENT_MULTIPLIERS.failure),
-    salvagePercent,
-  });
+  const paymentTerms = buildOutcomePaymentTerms(scaledPayment, salvagePercent);
 
   // Duration: use AtB length if applicable, otherwise legacy random
   let durationDays: number;
@@ -607,21 +325,15 @@ export function generateFollowupContract(
     durationDays = generateRandomDuration(random);
   }
 
-  const startDate = campaign.currentDate;
-  const endDate = new Date(
-    startDate.getTime() + durationDays * 24 * 60 * 60 * 1000,
-  );
-
-  const contract = createContract({
+  const contract = buildContractRecord({
     id: generateContractId(),
     name: generateContractName(typeName, employer),
-    status: MissionStatus.PENDING,
-    systemId: system,
-    employerId: employer,
-    targetId: target,
+    system,
+    employer,
+    target,
     paymentTerms,
-    startDate: startDate.toISOString(),
-    endDate: endDate.toISOString(),
+    startDate: campaign.currentDate,
+    durationDays,
   });
 
   if (atbType) {
@@ -666,13 +378,10 @@ export function generateContractsWithStanding(
   return contracts.map((contract) => {
     const scaledBase =
       contract.paymentTerms.basePayment.multiply(payMultiplier);
-    const scaledTerms = createPaymentTerms({
-      basePayment: scaledBase,
-      successPayment: scaledBase.multiply(PAYMENT_MULTIPLIERS.success),
-      partialPayment: scaledBase.multiply(PAYMENT_MULTIPLIERS.partial),
-      failurePayment: scaledBase.multiply(PAYMENT_MULTIPLIERS.failure),
-      salvagePercent: contract.paymentTerms.salvagePercent,
-    });
+    const scaledTerms = buildOutcomePaymentTerms(
+      scaledBase,
+      contract.paymentTerms.salvagePercent,
+    );
 
     return {
       ...contract,
