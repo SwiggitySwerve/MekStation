@@ -153,14 +153,22 @@ export class UnitBrowserPage extends BasePage {
     // Header elements
     this.title = page.getByTestId('unit-browser-title');
     this.subtitle = page.getByTestId('unit-browser-subtitle');
-    this.searchInput = page.getByPlaceholder(/search units/i);
+    // Actual UI placeholder reads "Search chassis, model, or variant..." —
+    // the old `/search units/i` regex didn't match. PT-006.
+    this.searchInput = page.getByPlaceholder(/search chassis/i);
     this.filterButton = page.getByRole('button', { name: /filters/i });
     this.viewModeToggle = page.getByTestId('view-mode-toggle');
 
-    // Filter panel
+    // Filter panel — `UnitsFilters.tsx` currently exposes tech base, weight
+    // class, and rules level dropdowns. There is no "filter by unit type"
+    // dropdown in the units page UI (units are filtered by tech base /
+    // weight class / rules level only). `unitTypeFilter` is kept here to
+    // preserve the page-object API for downstream tests but is aliased to
+    // the tech-base filter — a future UI-feature change could surface a
+    // proper unit-type selector and this alias would be replaced. PT-006.
     this.filterPanel = page.getByTestId('unit-browser-filter-panel');
-    this.unitTypeFilter = page.getByLabel(/filter by unit type/i);
     this.techBaseFilter = page.getByLabel(/filter by tech base/i);
+    this.unitTypeFilter = this.techBaseFilter;
     this.rulesLevelFilter = page.getByLabel(/filter by rules level/i);
     this.weightClassFilter = page.getByLabel(/filter by weight class/i);
     this.clearFiltersButton = page.getByRole('button', { name: /clear all/i });
@@ -243,10 +251,13 @@ export class UnitBrowserPage extends BasePage {
   }
 
   async getSubtitleText(): Promise<string> {
-    // The subtitle shows the unit count
+    // Subtitle reads "Browse {N} canonical units from all eras" — match the
+    // distinctive "canonical units" phrase rather than requiring the text to
+    // end with "units" (the trailing "from all eras" used to break this
+    // locator). PT-006.
     const subtitleElement = this.page
       .locator('p')
-      .filter({ hasText: /units?$/i })
+      .filter({ hasText: /canonical units/i })
       .first();
     return (await subtitleElement.textContent()) || '';
   }
