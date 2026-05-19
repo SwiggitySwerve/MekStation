@@ -226,7 +226,11 @@ describe('Elite lance advances in formation; Veteran lets a unit wander ahead', 
     const mate2 = unit({ unitId: 'mate2', position: { q: 1, r: 0 } });
     const mate3 = unit({ unitId: 'mate3', position: { q: 0, r: 1 } });
     const mover = unit({ unitId: 'mover', position: { q: 1, r: 1 } });
-    const enemy = unit({ unitId: 'enemy', position: { q: 0, r: 14 } });
+    // The enemy sits within the lance's sensor range (<= 10 hexes) so it is
+    // already spotted — this isolates the A3a cohesion behavior from the A4
+    // vision scout term, which only rewards moving to spot an *unspotted*
+    // enemy. The mover still has room to wander ahead toward it.
+    const enemy = unit({ unitId: 'enemy', position: { q: 0, r: 9 } });
 
     const friendly = [mate1, mate2, mate3, mover];
     const allUnits = [...friendly, enemy];

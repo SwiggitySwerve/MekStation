@@ -3,7 +3,12 @@ export type { IScoreMoveContext } from './MoveAI';
 export { AttackAI, scoreTarget, structuralExposure } from './AttackAI';
 export type { IFireListEntry } from './AttackAI';
 export { BotPlayer } from './BotPlayer';
-export type { BotGameEvent, IMovementEvent, IAttackEvent } from './BotPlayer';
+export type {
+  BotGameEvent,
+  IMovementEvent,
+  IAttackEvent,
+  IAIAdvancedContext,
+} from './BotPlayer';
 export { DEFAULT_BEHAVIOR } from './types';
 export type {
   IBotBehavior,
@@ -28,11 +33,13 @@ export {
   INERT_RESOURCE_PARAMETERS,
   INERT_COORDINATION_PARAMETERS,
   INERT_OBJECTIVE_PARAMETERS,
+  INERT_ADVANCED_PARAMETERS,
   getTierParameters,
   resolveTierParameters,
   resolveResourceParameters,
   resolveCoordinationParameters,
   resolveObjectiveParameters,
+  resolveAdvancedParameters,
 } from './AITierRegistry';
 export type {
   AITierName,
@@ -41,6 +48,7 @@ export type {
   IAITierResourceParameters,
   IAITierCoordinationParameters,
   IAITierObjectiveParameters,
+  IAITierAdvancedParameters,
 } from './AITierRegistry';
 
 // Per `add-ai-resource-planning` (A2): the resource-planning modules —
@@ -98,3 +106,24 @@ export type {
   IClassifiedObjective,
   IObjectiveLancePlan,
 } from './AIObjectivePlanner';
+
+// Per `add-ai-advanced-systems` (A4): the advanced-systems modules — jump-jet
+// tactics, electronic-warfare awareness, and spotting/vision awareness. The
+// `Elite` tier consumes these; lower tiers leave them inert. These modules
+// only *read* the electronic-warfare and fog-of-war state — they never modify
+// either, and never touch combat to-hit resolution.
+export { evaluateJump } from './AIJumpTactics';
+export type { IJumpEvaluation, IJumpEvaluationOptions } from './AIJumpTactics';
+export {
+  adviseDestination as adviseElectronicWarfare,
+  inertElectronicWarfareAdvice,
+} from './AIElectronicWarfareAdvisor';
+export type {
+  IElectronicWarfareAdvice,
+  IElectronicWarfareContext,
+} from './AIElectronicWarfareAdvisor';
+export {
+  adviseDestination as adviseVision,
+  inertVisionAdvice,
+} from './AIVisionAdvisor';
+export type { IVisionAdvice, IVisionContext } from './AIVisionAdvisor';

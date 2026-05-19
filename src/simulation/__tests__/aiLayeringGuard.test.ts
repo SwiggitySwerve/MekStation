@@ -25,6 +25,13 @@ const AI_MODULE_FILES = [
   'src/simulation/ai/AIThreatMap.ts',
   'src/simulation/ai/AIFireCoordinator.ts',
   'src/simulation/ai/AILancePlanner.ts',
+  // Per `add-ai-advanced-systems` (A4): the advanced-systems modules consume
+  // the electronic-warfare and fog-of-war primitives but must never import
+  // rendering code or the multiplayer server layer.
+  'src/simulation/ai/AIJumpTactics.ts',
+  'src/simulation/ai/AIElectronicWarfareAdvisor.ts',
+  'src/simulation/ai/AIVisionAdvisor.ts',
+  'src/simulation/ai/BotPlayer.ts',
 ];
 
 /**

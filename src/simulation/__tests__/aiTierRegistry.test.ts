@@ -15,9 +15,11 @@ import type { AITierName } from '../ai/AITierRegistry';
 import {
   AI_TIER_REGISTRY,
   DEFAULT_TIER_NAME,
+  INERT_ADVANCED_PARAMETERS,
   INERT_COORDINATION_PARAMETERS,
   INERT_RESOURCE_PARAMETERS,
   getTierParameters,
+  resolveAdvancedParameters,
   resolveCoordinationParameters,
   resolveResourceParameters,
   resolveTierParameters,
@@ -288,6 +290,89 @@ describe('AITierRegistry', () => {
         const resourceActive = tier === 'Veteran' || tier === 'Elite';
         expect(resolveResourceParameters(params).heatLookaheadTurns > 0).toBe(
           resourceActive,
+        );
+      },
+    );
+  });
+
+  // ===========================================================================
+  // `add-ai-advanced-systems` (A4) — Requirement: Advanced-Systems Tier
+  // Parameters. Scenarios "Every tier resolves an advanced block" and
+  // "Lower tiers ignore advanced systems".
+  // ===========================================================================
+  describe('advanced block — every tier resolves a populated record', () => {
+    it.each(ALL_TIERS)('tier %s resolves to an advanced block', (tier) => {
+      const a = resolveAdvancedParameters(getTierParameters(tier));
+      expect(a).toBeDefined();
+      expect(typeof a.advancedSystems).toBe('boolean');
+      expect(typeof a.jumpTacticsWeight).toBe('number');
+      expect(typeof a.ecmAvoidanceWeight).toBe('number');
+      expect(typeof a.ecmCoverageWeight).toBe('number');
+      expect(typeof a.visionWeight).toBe('number');
+    });
+
+    it('every registry entry populates the advanced field directly', () => {
+      for (const tier of ALL_TIERS) {
+        expect(AI_TIER_REGISTRY[tier].advanced).toBeDefined();
+      }
+    });
+  });
+
+  describe('advanced block — Green/Regular/Veteran are fully inert', () => {
+    it.each(['Green', 'Regular', 'Veteran'] as const)(
+      'tier %s disables advanced systems with zeroed weights',
+      (tier) => {
+        const a = resolveAdvancedParameters(getTierParameters(tier));
+        expect(a.advancedSystems).toBe(false);
+        expect(a.jumpTacticsWeight).toBe(0);
+        expect(a.ecmAvoidanceWeight).toBe(0);
+        expect(a.ecmCoverageWeight).toBe(0);
+        expect(a.visionWeight).toBe(0);
+      },
+    );
+
+    it('Veteran keeps the flat-roll jump behavior — advanced disabled', () => {
+      const veteran = getTierParameters('Veteran');
+      expect(resolveAdvancedParameters(veteran).advancedSystems).toBe(false);
+    });
+  });
+
+  describe('advanced block — Elite is populated and active', () => {
+    it('Elite enables advanced systems with non-zero weights', () => {
+      const a = resolveAdvancedParameters(getTierParameters('Elite'));
+      expect(a.advancedSystems).toBe(true);
+      expect(a.jumpTacticsWeight).toBeGreaterThan(0);
+      expect(a.ecmAvoidanceWeight).toBeGreaterThan(0);
+      expect(a.ecmCoverageWeight).toBeGreaterThan(0);
+      expect(a.visionWeight).toBeGreaterThan(0);
+    });
+  });
+
+  describe('resolveAdvancedParameters — fallback for pre-A4 records', () => {
+    it('returns the inert block when a record has no advanced field', () => {
+      const legacyRecord = { tier: 'Elite', movement: {} } as never;
+      const a = resolveAdvancedParameters(legacyRecord);
+      expect(a).toBe(INERT_ADVANCED_PARAMETERS);
+      expect(a.advancedSystems).toBe(false);
+    });
+  });
+
+  describe('A4 registration is additive — earlier blocks untouched', () => {
+    it.each(ALL_TIERS)(
+      'tier %s movement/resource/coordination blocks are unchanged',
+      (tier) => {
+        // A4 only ADDs the `advanced` block — the movement, resource, and
+        // coordination blocks must be byte-identical to A1 / A2 / A3a.
+        const params = getTierParameters(tier);
+        const pathfinderTier = tier === 'Veteran' || tier === 'Elite';
+        expect(params.movement.pathfinderEnabled).toBe(pathfinderTier);
+        const resourceActive = tier === 'Veteran' || tier === 'Elite';
+        expect(resolveResourceParameters(params).heatLookaheadTurns > 0).toBe(
+          resourceActive,
+        );
+        const coordinationActive = tier === 'Elite';
+        expect(resolveCoordinationParameters(params).lanceCoordination).toBe(
+          coordinationActive,
         );
       },
     );

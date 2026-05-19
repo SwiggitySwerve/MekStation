@@ -6,11 +6,13 @@ import type {
   IMovementCapability,
   IUnitPosition,
 } from '@/types/gameplay';
+import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 
 import { GameEventType, GamePhase, MovementType } from '@/types/gameplay';
 import { chooseBestPhysicalAttack } from '@/utils/gameplay/physicalAttacks';
 
 import type { SeededRandom } from '../core/SeededRandom';
+import type { IElectronicWarfareContext } from './AIElectronicWarfareAdvisor';
 import type { IAILanceContext } from './AILancePlanner';
 import type {
   IAttackEvent,
@@ -18,13 +20,17 @@ import type {
   IPhysicalAttackEvent,
   IRetreatEvent,
 } from './AIPlayerEvents';
+import type { IVisionContext } from './AIVisionAdvisor';
 import type { IAIPlayer } from './IAIPlayer';
 import type { IBotBehavior, IAIUnitState, IMove, IWeapon } from './types';
 
 import { planEffectiveThreshold } from './AIHeatPlanner';
+import { evaluateJump } from './AIJumpTactics';
 import {
+  type IAITierAdvancedParameters,
   type IAITierCoordinationParameters,
   type IAITierResourceParameters,
+  resolveAdvancedParameters,
   resolveCoordinationParameters,
   resolveResourceParameters,
   resolveTierParameters,
@@ -92,6 +98,14 @@ export class BotPlayer implements IAIPlayer {
    * `Elite` carries the active block.
    */
   private readonly coordination: IAITierCoordinationParameters;
+  /**
+   * Per `add-ai-advanced-systems` (A4): the advanced-systems block resolved
+   * from the bot's difficulty tier. `Green`/`Regular`/`Veteran` (and an
+   * absent tier) carry the fully-inert block (`advancedSystems: false`) so
+   * `selectMovementType` keeps the flat-probability jump roll and pre-A4
+   * behavior is byte-identical; `Elite` carries the active block.
+   */
+  private readonly advanced: IAITierAdvancedParameters;
 
   constructor(random: SeededRandom, behavior: IBotBehavior = DEFAULT_BEHAVIOR) {
     this.random = random;
@@ -101,6 +115,7 @@ export class BotPlayer implements IAIPlayer {
     const tierParams = resolveTierParameters(behavior.tier);
     this.resource = resolveResourceParameters(tierParams);
     this.coordination = resolveCoordinationParameters(tierParams);
+    this.advanced = resolveAdvancedParameters(tierParams);
   }
 
   /**
@@ -172,6 +187,17 @@ export class BotPlayer implements IAIPlayer {
    * penalizes a lone advance into enemy LOS. When omitted — or when the tier
    * leaves `lanceCoordination` false — the decision is identical to the
    * pre-A3a per-unit behavior.
+   *
+   * Per `add-ai-advanced-systems` (A4) design D2 / D3: an optional
+   * `advancedContext` threads the live electronic-warfare snapshot and the
+   * moving unit's team id into the decision. When supplied AND the bot's
+   * tier enables advanced systems, `scoreMove`'s ECM term avoids hostile ECM
+   * bubbles and rewards covering carriers, and the vision term values
+   * scouting / breaking enemy spotting (the vision context is derived from
+   * `grid` + `allUnits`). When omitted — or when the tier leaves
+   * `advancedSystems` false — the decision is identical to the pre-A4
+   * behavior. The advisors only *read* the EW / fog state; they never modify
+   * it and never touch combat resolution.
    */
   playMovementPhase(
     unit: IAIUnitState,
@@ -179,6 +205,7 @@ export class BotPlayer implements IAIPlayer {
     capability: IMovementCapability,
     allUnits?: readonly IAIUnitState[],
     lanceContext?: IAILanceContext,
+    advancedContext?: IAIAdvancedContext,
   ): IMovementEvent | null {
     if (unit.destroyed) {
       return null;
@@ -202,7 +229,20 @@ export class BotPlayer implements IAIPlayer {
       prone: false,
     };
 
-    const movementType = this.selectMovementType(unit, capability);
+    // Per `add-ai-advanced-systems` (A4) design D1: the jump-tactics gate
+    // needs the enemy set and the grid to call `AIJumpTactics.evaluateJump`.
+    // For non-advanced tiers `selectMovementType` ignores them and keeps the
+    // flat 20% jump roll. The enemy list (when known) drives the charge-
+    // escape motive; an absent list resolves to an empty enemy set.
+    const livingEnemiesForMovement = (allUnits ?? []).filter(
+      (u) => !u.destroyed && u.unitId !== unit.unitId,
+    );
+    const movementType = this.selectMovementType(
+      unit,
+      capability,
+      grid,
+      livingEnemiesForMovement,
+    );
     const moves = this.moveAI.getValidMoves(
       grid,
       position,
@@ -273,6 +313,20 @@ export class BotPlayer implements IAIPlayer {
           // awareness. Omitted entirely when the plan carries no objective
           // layer (a `Destroy` scenario or a non-objective-aware tier).
           ...this.objectiveMoveFields(unit.unitId, lanceContext),
+          // Per `add-ai-advanced-systems` (A4) design D1–D4: thread the
+          // jump-evaluation score, the electronic-warfare context, and the
+          // vision context. `MoveAI.enrichScoreContext` attaches the tier
+          // advanced block; `scoreMove`'s three advanced terms stay inert
+          // when the tier disables `advancedSystems`. Omitted entirely for a
+          // non-advanced tier so the per-unit path is byte-identical.
+          ...this.advancedMoveFields(
+            unit,
+            grid,
+            capability,
+            livingEnemies,
+            lanceContext,
+            advancedContext,
+          ),
         };
       }
     }
@@ -724,10 +778,25 @@ export class BotPlayer implements IAIPlayer {
    * `retreatMovementType`, which prefers Run, falls back to Walk, and
    * NEVER selects Jump. Otherwise the legacy behavior is preserved
    * (20% jump when available, then 60/40 run/walk).
+   *
+   * Per `add-ai-advanced-systems` (A4) design D1 / D6: when the bot's tier
+   * enables advanced systems, the flat 20% jump roll is replaced by a
+   * deterministic jump-tactics gate — `AIJumpTactics.evaluateJump` scores
+   * the unit's best jump destination, and Jump is chosen only when that
+   * score clears `JUMP_TACTICS_THRESHOLD`. This is a *deterministic*
+   * decision: it consumes no `SeededRandom`. The legacy random roll is kept
+   * for every non-advanced tier (`Green` / `Regular` / `Veteran`), so the
+   * SimulationRunner golden traces — pinned to those tiers — see byte-
+   * identical RNG consumption (design D6).
+   *
+   * `grid` and `enemies` are consulted only on the advanced-tier jump-gate
+   * path; the non-advanced path ignores them entirely.
    */
   private selectMovementType(
     unit: IAIUnitState,
     capability: IMovementCapability,
+    grid: IHexGrid,
+    enemies: readonly IAIUnitState[],
   ): MovementType {
     if (capability.walkMP === 0 && capability.jumpMP === 0) {
       return MovementType.Stationary;
@@ -749,6 +818,28 @@ export class BotPlayer implements IAIPlayer {
       }
     }
 
+    // Per A4 design D1: advanced-tier jump-tactics gate. Deterministic — no
+    // `SeededRandom` draw. Jump is chosen only when a jump destination's
+    // tactical score (terrain-clearing / elevation / charge-escape, net of
+    // heat safety) clears the threshold. A heat-unsafe jump drives the score
+    // deep negative, so it never clears the gate on heat grounds alone
+    // (spec scenario "Heat-unsafe jump is rejected").
+    if (this.advanced.advancedSystems && capability.jumpMP > 0) {
+      const evaluation = evaluateJump(unit, grid, capability, enemies, {
+        heatDissipation: unit.heatDissipation,
+        heatLookaheadTurns: this.resource.heatLookaheadTurns,
+      });
+      if (evaluation.bestJumpScore >= JUMP_TACTICS_THRESHOLD) {
+        return MovementType.Jump;
+      }
+      // The jump did not clear the gate — fall through to the walk/run pick.
+      // The advanced tier still draws ONE `next()` for the run/walk split so
+      // the 60/40 instinct is preserved; only the jump *decision* is
+      // deterministic, not the run-vs-walk one.
+      const runWalkRoll = this.random.next();
+      return runWalkRoll < 0.6 ? MovementType.Run : MovementType.Walk;
+    }
+
     const roll = this.random.next();
     if (capability.jumpMP > 0 && roll < 0.2) {
       return MovementType.Jump;
@@ -758,7 +849,114 @@ export class BotPlayer implements IAIPlayer {
     }
     return MovementType.Walk;
   }
+
+  /**
+   * Per `add-ai-advanced-systems` (A4) design D1–D4: assemble the advanced
+   * move-scoring fields for a unit — the jump-evaluation score, the
+   * electronic-warfare context, and the vision context.
+   *
+   * Returns `{}` (no fields) when the bot's tier disables advanced systems,
+   * so `scoreMove`'s three advanced terms stay inert and the unit plays pure
+   * A1/A2/A3a/A3b movement — byte-identical to the pre-A4 bot.
+   *
+   * When advanced systems are enabled:
+   *   - `jumpEvaluationScore` is computed once via `AIJumpTactics.evaluateJump`
+   *     and applied (in `scoreMove`) to jump moves only.
+   *   - `electronicWarfare` is threaded only when the caller supplied an
+   *     `advancedContext` carrying the live EW snapshot — the advisor reads
+   *     it, never writes it.
+   *   - `vision` is derived from the grid and the enemy set — the advisor
+   *     models spotting with the same LOS + sensor-range primitives the
+   *     fog-of-war module uses.
+   *
+   * Pure with respect to RNG — consumes no `SeededRandom`.
+   */
+  private advancedMoveFields(
+    unit: IAIUnitState,
+    grid: IHexGrid,
+    capability: IMovementCapability,
+    livingEnemies: readonly IAIUnitState[],
+    lanceContext?: IAILanceContext,
+    advancedContext?: IAIAdvancedContext,
+  ): Partial<
+    Pick<
+      IScoreMoveContext,
+      'jumpEvaluationScore' | 'electronicWarfare' | 'vision'
+    >
+  > {
+    if (!this.advanced.advancedSystems) {
+      return {};
+    }
+
+    const lancemates = lanceContext
+      ? lanceContext.lancemates.filter((m) => m.unitId !== unit.unitId)
+      : [];
+
+    // Jump-tactics score — the net tactical value of the unit's best jump
+    // destination, precomputed once. `scoreMove` weights it on jump moves.
+    const jumpEvaluation = evaluateJump(unit, grid, capability, livingEnemies, {
+      heatDissipation: unit.heatDissipation,
+      heatLookaheadTurns: this.resource.heatLookaheadTurns,
+    });
+
+    // Vision context — derived from the grid and the enemy set. The advisor
+    // values scouting unspotted enemies and breaking enemy spotting lines.
+    const vision: IVisionContext = {
+      grid,
+      enemies: livingEnemies,
+      lancemates,
+    };
+
+    // Electronic-warfare context — threaded only when the caller supplied a
+    // live EW snapshot. Without it the ECM term has no state to read and is
+    // simply omitted (it stays inert).
+    const electronicWarfare: IElectronicWarfareContext | undefined =
+      advancedContext
+        ? {
+            movingUnitTeamId: advancedContext.movingUnitTeamId,
+            ewState: advancedContext.ewState,
+            lancemates,
+          }
+        : undefined;
+
+    return {
+      jumpEvaluationScore: jumpEvaluation.bestJumpScore,
+      vision,
+      ...(electronicWarfare ? { electronicWarfare } : {}),
+    };
+  }
 }
+
+/**
+ * Per `add-ai-advanced-systems` (A4) design D2: the advanced-systems context
+ * a caller threads into `playMovementPhase` so the ECM advisor has live
+ * electronic-warfare state to read.
+ *
+ * The vision advisor needs no extra context — it is derived from the grid
+ * and enemy set already passed to `playMovementPhase`. The EW advisor, by
+ * contrast, needs the live `IElectronicWarfareState` snapshot and the moving
+ * unit's team id, neither of which is on `IAIUnitState` — hence this carrier.
+ *
+ * Omitting `advancedContext` (or running a non-advanced tier) leaves the ECM
+ * term inert; the bot plays pure A1/A2/A3a/A3b movement.
+ */
+export interface IAIAdvancedContext {
+  /** The team id of the moving unit — keys friendly vs. hostile EW sources. */
+  readonly movingUnitTeamId: string;
+  /** The live electronic-warfare snapshot. Read-only — never mutated. */
+  readonly ewState: IElectronicWarfareState;
+}
+
+/**
+ * Per `add-ai-advanced-systems` (A4) design D1 / open question: the jump-
+ * tactics threshold. On an advanced tier the bot chooses Jump only when its
+ * best jump destination's net tactical score clears this value. Sized at
+ * elevation-gain scale (`ELEVATION_GAIN_PER_LEVEL = 150`) so a single level
+ * of elevation gain, a charge escape, or ~2 MP of skipped terrain is enough
+ * to commit to a jump — but an aimless jump over open ground (score `0`)
+ * never clears it. Revisit after swarm-harness tuning.
+ */
+const JUMP_TACTICS_THRESHOLD = 150;
 
 /**
  * Per `add-bot-retreat-behavior` § 2 (Trigger A) + `wire-bot-ai-helpers-and-capstone`:
