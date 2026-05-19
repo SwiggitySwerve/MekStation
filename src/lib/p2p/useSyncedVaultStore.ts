@@ -4,7 +4,18 @@
  * Zustand store for vault items that sync via Yjs CRDT.
  * Bidirectionally syncs state between Zustand and Y.Map.
  *
+ * BOUNDARY (`add-shared-campaign-state` CO1, design D7): this Yjs
+ * `Y.Map`-backed store is for the content vault (unit / pilot / force
+ * *designs*) ONLY. It SHALL NOT be extended to campaign state. A
+ * campaign is a transactional ledger; CRDT last-writer-wins silently
+ * corrupts it (two players spending the same C-bills merge into one
+ * debit with no overdraft check). Campaign state syncs through the
+ * server-authoritative `CampaignMatchHost` instead — see
+ * `src/lib/multiplayer/server/CampaignMatchHost.ts` and the
+ * `coop-campaign-sync` spec. Do NOT add a campaign `SyncableItemType`.
+ *
  * @spec openspec/changes/add-p2p-vault-sync/specs/vault-sync/spec.md
+ * @spec openspec/changes/add-shared-campaign-state/specs/coop-campaign-sync/spec.md
  */
 
 import * as Y from 'yjs';

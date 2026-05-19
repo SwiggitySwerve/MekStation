@@ -96,6 +96,18 @@ export interface ISyncRoomOptions {
 
 /**
  * Types of vault items that can be synced.
+ *
+ * BOUNDARY (`add-shared-campaign-state` CO1, design D7): this
+ * enumeration is for the Yjs content vault ONLY — unit / pilot / force
+ * *designs*. Campaign state (C-bill balance, roster, contracts, day
+ * counter) is a transactional ledger and SHALL NOT be added here. A
+ * CRDT `Y.Map` is last-writer-wins; it guarantees convergence, not the
+ * `balance >= 0` ledger invariant. Campaign state is synchronized
+ * instead through the server-authoritative `CampaignMatchHost`
+ * `intent → validate → commit → broadcast` loop
+ * (`src/lib/multiplayer/server/CampaignMatchHost.ts`). Do NOT introduce
+ * a `'campaign'` member — that reintroduces the ledger-corruption bug
+ * the Council's DP2 decision ruled out.
  */
 export type SyncableItemType = 'unit' | 'pilot' | 'force';
 
