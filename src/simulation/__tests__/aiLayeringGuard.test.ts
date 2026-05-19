@@ -20,6 +20,11 @@ const AI_MODULE_FILES = [
   'src/simulation/ai/MoveAI.ts',
   'src/simulation/ai/types.ts',
   'src/simulation/ai/behaviorVariants.ts',
+  // Per `add-ai-coordination-tactics` (A3a): the lance-coordination modules
+  // must source everything from the simulation layer — never rendering.
+  'src/simulation/ai/AIThreatMap.ts',
+  'src/simulation/ai/AIFireCoordinator.ts',
+  'src/simulation/ai/AILancePlanner.ts',
 ];
 
 /**

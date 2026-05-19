@@ -18,11 +18,17 @@ import { terrainTagOffersCover } from '@/utils/gameplay/terrainCover';
 
 import type { SeededRandom } from '../core/SeededRandom';
 import type { IAIPath } from './AITerrainPathfinder';
-import type { IAITierMovementParameters } from './AITierRegistry';
+import type {
+  IAITierCoordinationParameters,
+  IAITierMovementParameters,
+} from './AITierRegistry';
 import type { IAIUnitState, IBotBehavior, IMove } from './types';
 
 import { findAllPaths } from './AITerrainPathfinder';
-import { resolveTierParameters } from './AITierRegistry';
+import {
+  resolveCoordinationParameters,
+  resolveTierParameters,
+} from './AITierRegistry';
 import { scoreRetreatMove } from './RetreatAI';
 
 /**
@@ -146,6 +152,30 @@ export interface IScoreMoveContext {
   readonly capability?: IMovementCapability;
   readonly tierMovement?: IAITierMovementParameters;
   readonly pathByDestination?: ReadonlyMap<string, IAIPath>;
+
+  /**
+   * Per `add-ai-coordination-tactics` design D3 / D4: the active difficulty
+   * tier's coordination parameter block. When omitted, or when its
+   * `lanceCoordination` flag is `false` (the `Green` / `Regular` / `Veteran`
+   * tiers, and every legacy caller), `scoreMove`'s cohesion term contributes
+   * zero and the score is byte-identical to the A1/A2 terrain-aware scorer.
+   */
+  readonly tierCoordination?: IAITierCoordinationParameters;
+  /**
+   * Per `add-ai-coordination-tactics` design D3: the rounded centroid of the
+   * friendly lance, from `AILancePlanner`. The cohesion term penalizes a
+   * destination beyond `cohesionRadius` hexes of this point. Omitted for
+   * per-unit (non-coordinated) callers.
+   */
+  readonly lanceCentroid?: IHexCoordinate;
+  /**
+   * Per `add-ai-coordination-tactics` design D3: the moving unit's friendly
+   * lancemates (excluding the unit itself). Used by the lone-advance penalty
+   * — a destination that enters enemy line of sight while no lancemate is
+   * within `cohesionRadius` is penalized as advancing alone. Omitted for
+   * per-unit callers.
+   */
+  readonly lancemates?: readonly IAIUnitState[];
 }
 
 /**
@@ -253,7 +283,82 @@ export function scoreMove(move: IMove, ctx: IScoreMoveContext): number {
   // is byte-identical to the pre-change scorer.
   score += terrainAwareScore(move, ctx);
 
+  // Per `add-ai-coordination-tactics` design D3: the formation-cohesion term.
+  // Additive over the terrain-aware terms. Returns `0` whenever lance
+  // coordination is disabled (`Green` / `Regular` / `Veteran`, every legacy
+  // caller), so the score above is unchanged for those tiers.
+  score += cohesionScore(move, ctx);
+
   return score;
+}
+
+/**
+ * Per `add-ai-coordination-tactics` design D3: the formation-cohesion
+ * scoring term, gated on `lanceCoordination`.
+ *
+ *   - Centroid pull — when the destination sits beyond `cohesionRadius` of
+ *     the lance centroid, a penalty of `-cohesionWeight * (distance -
+ *     cohesionRadius)` scales by how far past the radius it lies. A
+ *     destination inside the radius pays nothing.
+ *   - Lone-advance penalty — an additional `-cohesionWeight` when the
+ *     destination enters at least one enemy's line of sight while *no*
+ *     lancemate is within `cohesionRadius` of it. Advancing alone into a
+ *     kill-box is discouraged; advancing with the lance is not.
+ *
+ * Returns `0` when `tierCoordination` is absent or `lanceCoordination` is
+ * `false`, or when `cohesionWeight` is `0` — the score is byte-identical to
+ * the A1/A2 scorer for every non-`Elite` tier.
+ *
+ * Pure — never mutates inputs, consumes no `SeededRandom`.
+ */
+function cohesionScore(move: IMove, ctx: IScoreMoveContext): number {
+  const { tierCoordination, lanceCentroid, grid, allUnits, attacker } = ctx;
+
+  // Gate: non-coordinated tiers and every legacy caller resolve to a no-op.
+  if (
+    !tierCoordination ||
+    !tierCoordination.lanceCoordination ||
+    tierCoordination.cohesionWeight === 0
+  ) {
+    return 0;
+  }
+  // Without a centroid there is no formation to hold to — no penalty.
+  if (!lanceCentroid) {
+    return 0;
+  }
+
+  const { cohesionRadius, cohesionWeight } = tierCoordination;
+  let delta = 0;
+
+  // Centroid pull — penalize a destination that drifts past the radius.
+  const centroidDistance = hexDistance(move.destination, lanceCentroid);
+  if (centroidDistance > cohesionRadius) {
+    delta -= cohesionWeight * (centroidDistance - cohesionRadius);
+  }
+
+  // Lone-advance penalty — entering enemy LOS with no lancemate close by.
+  const lancemates = ctx.lancemates ?? [];
+  const livingEnemies = allUnits.filter(
+    (u) => !u.destroyed && u.unitId !== attacker.unitId,
+  );
+  const destInEnemyLOS = livingEnemies.some((enemy) => {
+    // A lancemate is never an enemy — exclude friendly units from the LOS
+    // probe. `lancemates` carries the friendly ids.
+    if (lancemates.some((m) => m.unitId === enemy.unitId)) return false;
+    return calculateLOS(enemy.position, move.destination, grid).hasLOS;
+  });
+  if (destInEnemyLOS) {
+    const hasNearbyLancemate = lancemates.some(
+      (mate) =>
+        !mate.destroyed &&
+        hexDistance(mate.position, move.destination) <= cohesionRadius,
+    );
+    if (!hasNearbyLancemate) {
+      delta -= cohesionWeight;
+    }
+  }
+
+  return delta;
 }
 
 /**
@@ -487,13 +592,20 @@ export class MoveAI {
     ctx: IScoreMoveContext,
     moves: readonly IMove[],
   ): IScoreMoveContext {
-    const tierMovement = resolveTierParameters(this.behavior.tier).movement;
+    const tierParams = resolveTierParameters(this.behavior.tier);
+    const tierMovement = tierParams.movement;
+    // Per `add-ai-coordination-tactics` design D3: attach the coordination
+    // block too. `scoreMove`'s cohesion term gates on `lanceCoordination`,
+    // so for `Green` / `Regular` / `Veteran` (and a `ctx` carrying no lance
+    // centroid) this contributes nothing — the score stays byte-identical.
+    const tierCoordination = resolveCoordinationParameters(tierParams);
 
-    // Legacy tiers: attach only the (no-op) tier block. `scoreMove` gates
-    // every new term on `pathfinderEnabled`, so this is byte-identical to
-    // the pre-change behavior.
+    // Legacy tiers: attach the (no-op) tier blocks only. `scoreMove` gates
+    // every terrain-aware term on `pathfinderEnabled` and the cohesion term
+    // on `lanceCoordination`, so this is byte-identical to pre-change
+    // behavior for the non-pathfinder tiers.
     if (!tierMovement.pathfinderEnabled) {
-      return { ...ctx, tierMovement };
+      return { ...ctx, tierMovement, tierCoordination };
     }
 
     // Determine the shared movement type and MP budget for the pathfinder
@@ -508,7 +620,7 @@ export class MoveAI {
       capability,
     );
 
-    return { ...ctx, tierMovement, pathByDestination };
+    return { ...ctx, tierMovement, tierCoordination, pathByDestination };
   }
 }
 
