@@ -13,6 +13,7 @@ import {
   IGameState,
   IHeatPayload,
   IInitiativeRolledPayload,
+  IMoraleShiftedPayload,
   IMovementDeclaredPayload,
   IObjectiveCapturedPayload,
   IObjectiveLostPayload,
@@ -31,6 +32,7 @@ import {
   IUnitRetreatedPayload,
   IUnitStoodPayload,
   IUnitGameState,
+  IWithdrawalDeclaredPayload,
   IGameStartedPayload,
   LockState,
 } from '@/types/gameplay';
@@ -51,6 +53,7 @@ import {
 } from './damageResolution';
 import {
   applyAmmoConsumed,
+  applyMoraleShifted,
   applyPhysicalAttackDeclared,
   applyPhysicalAttackResolved,
   applyPSRResolved,
@@ -61,6 +64,7 @@ import {
   applyUnitFell,
   applyUnitRetreated,
   applyUnitStood,
+  applyWithdrawalDeclared,
 } from './extendedCombat';
 import {
   createInitialGameState,
@@ -191,6 +195,15 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     case GameEventType.UnitRetreated:
       return applyUnitRetreated(state, event.payload as IUnitRetreatedPayload);
 
+    case GameEventType.MoraleShifted:
+      return applyMoraleShifted(state, event.payload as IMoraleShiftedPayload);
+
+    case GameEventType.WithdrawalDeclared:
+      return applyWithdrawalDeclared(
+        state,
+        event.payload as IWithdrawalDeclaredPayload,
+      );
+
     case GameEventType.ObjectiveCaptured:
       return applyObjectiveCaptured(
         state,
@@ -214,6 +227,9 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     case GameEventType.CriticalHit:
     case GameEventType.FacingChanged:
     case GameEventType.AmmoExplosion:
+    // `ForcedWithdrawalTriggered` is informational only — the paired
+    // `WithdrawalDeclared` event performs the actual state change.
+    case GameEventType.ForcedWithdrawalTriggered:
       return state;
 
     default:

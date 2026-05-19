@@ -32,7 +32,11 @@ import type {
   IDamageAppliedPayload,
   ICriticalHitResolvedPayload,
 } from './GameSessionAttackEvents';
-import type { IGameEventBase } from './GameSessionCoreTypes';
+import type {
+  GameSide,
+  IGameEventBase,
+  MoraleLevel,
+} from './GameSessionCoreTypes';
 import type {
   IGameCreatedPayload,
   IGameEndedPayload,
@@ -337,6 +341,48 @@ export interface IVTOLCrashCheckPayload {
 }
 
 /**
+ * Per `add-combat-morale-and-withdrawal` (D8): emitted when a side's
+ * in-battle `battleMorale` changes. The shift is a deterministic, pure
+ * function of the combat-event log, so replaying the log reconstructs
+ * morale exactly. `cause` is a short human-readable label for replay /
+ * UI consumers (e.g. `'enemy unit destroyed'`).
+ */
+export interface IMoraleShiftedPayload {
+  readonly side: GameSide;
+  readonly from: MoraleLevel;
+  readonly to: MoraleLevel;
+  readonly cause: string;
+  readonly turn: number;
+}
+
+/**
+ * Per `add-combat-morale-and-withdrawal` (D8): emitted when a unit is
+ * flagged to withdraw. `declaredBy: 'player'` is a human-declared
+ * withdrawal; `declaredBy: 'forced'` is the Forced Withdrawal rule
+ * auto-withdrawing the unit. `edge` is the map edge the unit will
+ * head toward and exit via the existing `UnitRetreated` machinery.
+ */
+export interface IWithdrawalDeclaredPayload {
+  readonly unitId: string;
+  readonly edge: 'north' | 'south' | 'east' | 'west';
+  readonly declaredBy: 'player' | 'forced';
+  readonly turn: number;
+}
+
+/**
+ * Per `add-combat-morale-and-withdrawal` (D8): emitted by the
+ * end-of-phase Forced Withdrawal check for each unit it compels to
+ * withdraw. `reason` distinguishes a broken-side-morale trigger from a
+ * crippled-unit trigger. Always paired with a `WithdrawalDeclared`
+ * event (`declaredBy: 'forced'`) for the same unit.
+ */
+export interface IForcedWithdrawalTriggeredPayload {
+  readonly unitId: string;
+  readonly reason: 'morale-broken' | 'crippled';
+  readonly turn: number;
+}
+
+/**
  * Union type for all event payloads.
  */
 export type GameEventPayload =
@@ -393,7 +439,10 @@ export type GameEventPayload =
   | IStealthBonusPayload
   | IObjectiveCapturedPayload
   | IObjectiveLostPayload
-  | IObjectiveProgressPayload;
+  | IObjectiveProgressPayload
+  | IMoraleShiftedPayload
+  | IWithdrawalDeclaredPayload
+  | IForcedWithdrawalTriggeredPayload;
 
 /**
  * Complete game event with payload.

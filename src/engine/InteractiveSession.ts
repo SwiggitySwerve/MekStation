@@ -45,6 +45,7 @@ import {
   endGame,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
 
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
@@ -244,6 +245,26 @@ export class InteractiveSession {
       targetId,
       weaponIds,
     });
+    this.tryFinalizeAndPublish();
+  }
+
+  /**
+   * Per `add-combat-morale-and-withdrawal` (D4): the player-facing
+   * withdrawal action. Declares withdrawal for an owned unit toward the
+   * chosen map `edge`. Emits a `WithdrawalDeclared` event
+   * (`declaredBy: 'player'`) — the unit is then routed through the same
+   * edge-ward movement + `UnitRetreated` exit the bot uses, and exits
+   * when it reaches an edge hex.
+   *
+   * The declaration is sticky: a unit that is already withdrawing,
+   * destroyed, or already retreated is a no-op (the player cannot
+   * cancel a declared withdrawal).
+   */
+  declareWithdrawal(
+    unitId: string,
+    edge: 'north' | 'south' | 'east' | 'west',
+  ): void {
+    this.session = declarePlayerWithdrawal(this.session, unitId, edge);
     this.tryFinalizeAndPublish();
   }
 

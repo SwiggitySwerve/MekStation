@@ -2,7 +2,7 @@ import type { IWeapon } from '@/simulation/ai/types';
 import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
-import { hasReachedEdge } from '@/simulation/ai/RetreatAI';
+import { hasReachedEdge, resolveEdge } from '@/simulation/ai/RetreatAI';
 import {
   GamePhase,
   LockState,
@@ -39,6 +39,11 @@ import {
   resolvePendingPSRs,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import {
+  applyForcedWithdrawalCheck,
+  applyMoralePass,
+  applyWithdrawalEdgeExits,
+} from '@/utils/gameplay/morale';
 import {
   buildMovementEventPath,
   maxMovementCostForCapability,
@@ -380,6 +385,7 @@ export function runInteractivePhaseAdvance(
         updatedSession = lockMovement(updatedSession, unitId);
       }
     }
+    updatedSession = runEngineMoraleAndWithdrawalPass(updatedSession);
     updatedSession = advancePhase(updatedSession);
   } else if (phase === GamePhase.WeaponAttack) {
     for (const unitId of Object.keys(updatedSession.currentState.units)) {
@@ -397,6 +403,7 @@ export function runInteractivePhaseAdvance(
     // final). Resolution happens in the End phase so heat + physical
     // phase mods land first.
     updatedSession = checkAndQueueDamagePSRs(updatedSession);
+    updatedSession = runEngineMoraleAndWithdrawalPass(updatedSession);
     updatedSession = advancePhase(updatedSession);
   } else if (phase === GamePhase.PhysicalAttack) {
     // Per `wire-piloting-skill-rolls` § 5: physical-attack triggers
@@ -404,6 +411,7 @@ export function runInteractivePhaseAdvance(
     // physical-attack resolver. Any additional damage-driven PSRs from
     // physical damage are captured here before the phase advances.
     updatedSession = checkAndQueueDamagePSRs(updatedSession);
+    updatedSession = runEngineMoraleAndWithdrawalPass(updatedSession);
     updatedSession = advancePhase(updatedSession);
   } else if (phase === GamePhase.Heat) {
     // Per `wire-heat-generation-and-effects` task 5: when a `grid`
@@ -423,6 +431,7 @@ export function runInteractivePhaseAdvance(
           }
         : undefined;
     updatedSession = resolveHeatPhase(updatedSession, undefined, heatOptions);
+    updatedSession = runEngineMoraleAndWithdrawalPass(updatedSession);
     updatedSession = advancePhase(updatedSession);
   } else if (phase === GamePhase.End) {
     // Per `wire-piloting-skill-rolls` § 7: drain the queue at end of
@@ -430,8 +439,31 @@ export function runInteractivePhaseAdvance(
     // `PSRResolved`, and on failure invokes `applyFall` → emits
     // `UnitFell` + `PilotHit`.
     updatedSession = resolvePendingPSRs(updatedSession);
+    updatedSession = runEngineMoraleAndWithdrawalPass(updatedSession);
     updatedSession = advancePhase(updatedSession);
   }
 
   return updatedSession;
+}
+
+/**
+ * Per `add-combat-morale-and-withdrawal`: run the in-battle morale pass,
+ * the Forced Withdrawal check, and the withdrawal edge-exits at the end
+ * of a phase. Mirrors `InteractiveSession.phases.runMoraleAndWithdrawalPass`
+ * — the forced-withdrawal edge resolver heads each unit toward its
+ * nearest map edge via the bot's existing `RetreatAI.resolveEdge`.
+ */
+function runEngineMoraleAndWithdrawalPass(session: IGameSession): IGameSession {
+  let next = applyMoralePass(session);
+  next = applyForcedWithdrawalCheck(next, (unitId) => {
+    const unit = next.currentState.units[unitId];
+    if (!unit) return null;
+    return resolveEdge(
+      { retreatEdge: 'nearest' } as Parameters<typeof resolveEdge>[0],
+      unit.position,
+      next.config.mapRadius,
+    );
+  });
+  next = applyWithdrawalEdgeExits(next);
+  return next;
 }

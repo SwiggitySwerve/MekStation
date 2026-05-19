@@ -48,6 +48,15 @@ export interface IGameConfig {
    * generation produced the encounter. Null for handcrafted encounters.
    */
   readonly scenarioId?: string | null;
+  /**
+   * Per `add-combat-morale-and-withdrawal` (D5): the Forced Withdrawal
+   * optional rule. When `true`, an end-of-phase check withdraws any
+   * unit — player or bot — whose side `battleMorale` is `BROKEN` or
+   * worse, or that is crippled (a vital-component critical, or more
+   * than 50% internal-structure loss). Defaults to `false` (omitted),
+   * preserving the current fight-to-destruction behavior.
+   */
+  readonly forcedWithdrawal?: boolean;
 }
 
 /**

@@ -15,6 +15,7 @@
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
 
+import { resolveEdge } from '@/simulation/ai/RetreatAI';
 import {
   GamePhase,
   LockState,
@@ -32,6 +33,11 @@ import {
   rollInitiative,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import {
+  applyForcedWithdrawalCheck,
+  applyMoralePass,
+  applyWithdrawalEdgeExits,
+} from '@/utils/gameplay/morale';
 
 /**
  * Collaborator context the coordinator threads into the phase-advance
@@ -54,6 +60,39 @@ export interface IInteractiveSessionPhaseContext {
   readonly waterDepthAt: (position: IHexCoordinate) => number;
   /** Win-condition predicate — gates the End-phase advance. */
   readonly isGameOver: () => boolean;
+}
+
+/**
+ * Per `add-combat-morale-and-withdrawal`: run the in-battle morale pass
+ * and the withdrawal-processing chain at the end of a phase. Order
+ * matters:
+ *
+ *   1. `applyMoralePass` folds new combat events into `MoraleShifted`
+ *      events so `battleMorale` is current before the next step reads
+ *      it.
+ *   2. `applyForcedWithdrawalCheck` withdraws eligible units when the
+ *      scenario rule is on (no-op otherwise).
+ *   3. `applyWithdrawalEdgeExits` emits `UnitRetreated` for any unit
+ *      (player-withdrawing or bot-retreating) that has reached its
+ *      target edge.
+ *
+ * The forced-withdrawal edge resolver heads each unit toward its
+ * nearest map edge via the existing `RetreatAI.resolveEdge` 'nearest'
+ * logic — the same edge resolution the bot uses (design D6).
+ */
+function runMoraleAndWithdrawalPass(session: IGameSession): IGameSession {
+  let next = applyMoralePass(session);
+  next = applyForcedWithdrawalCheck(next, (unitId) => {
+    const unit = next.currentState.units[unitId];
+    if (!unit) return null;
+    return resolveEdge(
+      { retreatEdge: 'nearest' } as Parameters<typeof resolveEdge>[0],
+      unit.position,
+      next.config.mapRadius,
+    );
+  });
+  next = applyWithdrawalEdgeExits(next);
+  return next;
 }
 
 /**
@@ -101,6 +140,9 @@ export function advanceInteractiveSessionPhase(
   } else if (phase === GamePhase.Movement) {
     // Lock any units that haven't been locked yet
     session = lockStragglers(session, lockMovement);
+    // Per `add-combat-morale-and-withdrawal`: a withdrawing unit that
+    // moved onto its target edge exits here via `UnitRetreated`.
+    session = runMoraleAndWithdrawalPass(session);
     session = advancePhase(session);
   } else if (phase === GamePhase.WeaponAttack) {
     // Lock any units that haven't been locked yet
@@ -111,6 +153,10 @@ export function advanceInteractiveSessionPhase(
     // `TwentyPlusPhaseDamage` PSR on any that crossed 20 damage.
     // Resolution deliberately waits for the End phase.
     session = checkAndQueueDamagePSRs(session);
+    // Per `add-combat-morale-and-withdrawal`: weapon-phase destruction
+    // / vital crits feed the morale pass, which may break a side and
+    // trip the Forced Withdrawal check.
+    session = runMoraleAndWithdrawalPass(session);
     session = advancePhase(session);
   } else if (phase === GamePhase.PhysicalAttack) {
     // Per `wire-bot-ai-helpers-and-capstone`: resolve any
@@ -126,6 +172,7 @@ export function advanceInteractiveSessionPhase(
     // also breach the 20+ threshold. Queue any new damage PSRs before
     // the phase flips so they resolve in the End phase.
     session = checkAndQueueDamagePSRs(session);
+    session = runMoraleAndWithdrawalPass(session);
     session = advancePhase(session);
   } else if (phase === GamePhase.Heat) {
     // Per `wire-heat-generation-and-effects` task 5 (water cooling):
@@ -137,12 +184,18 @@ export function advanceInteractiveSessionPhase(
     session = resolveHeatPhase(session, context.diceRollerForResolvers(), {
       getWaterDepth: (_unitId, position) => context.waterDepthAt(position),
     });
+    session = runMoraleAndWithdrawalPass(session);
     session = advancePhase(session);
   } else if (phase === GamePhase.End) {
     // Per `wire-piloting-skill-rolls` § 7: drain the PSR queue for
     // every unit. Failures invoke `applyFall` (→ `UnitFell` +
     // `PilotHit`) and clear the remaining queue on that unit.
     session = resolvePendingPSRs(session, context.diceRollerForResolvers());
+    // Per `add-combat-morale-and-withdrawal`: the End-phase morale +
+    // forced-withdrawal pass runs before the game-over guard so a
+    // forced withdrawal that empties the board is reflected in the
+    // victory check this same advance.
+    session = runMoraleAndWithdrawalPass(session);
     // The End-phase advance is gated on `isGameOver`, which inspects
     // the coordinator's live session. The PSR drain above can itself
     // trip the win condition, so the post-drain session MUST be

@@ -5,6 +5,7 @@ export * from './initiative';
 export * from './movement';
 export * from './combat';
 export * from './status';
+export * from './morale';
 export * from './vehicle';
 export * from './battleArmor';
 export * from './serialization';

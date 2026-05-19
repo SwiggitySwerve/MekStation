@@ -30,7 +30,6 @@ import type { GameplayLayoutProps } from './GameplayLayout.types';
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
 import { ActionBar } from './ActionBar';
-import { ConcedeButton } from './ConcedeButton';
 import { EventLogDisplay } from './EventLogDisplay';
 import {
   HitChancePanel,
@@ -39,6 +38,7 @@ import {
   RecordSheetBody,
   RecordSheetDrawer,
   useResponsiveRecordSheet,
+  WithdrawalTrailingActions,
 } from './GameplayLayout.sections';
 import {
   buildEventActorLookup,
@@ -47,6 +47,7 @@ import {
   buildUnitInfoLookup,
 } from './GameplayLayout.viewModel';
 import { HexMapDisplay } from './HexMapDisplay';
+import { MoraleIndicator } from './MoraleIndicator';
 import { PhaseBanner } from './PhaseBanner';
 
 export type { GameplayLayoutProps } from './GameplayLayout.types';
@@ -376,6 +377,17 @@ export function GameplayLayout({
         }
       />
 
+      {/* Per `add-combat-morale-and-withdrawal` § 4.3: per-side
+          in-battle morale readout. `battleMorale` is event-sourced on
+          the derived state; defaults to all-`STEADY` for legacy
+          sessions whose log predates the morale system. */}
+      {currentState.battleMorale && (
+        <MoraleIndicator
+          battleMorale={currentState.battleMorale}
+          className="mx-2 mt-1"
+        />
+      )}
+
       {/* Main Content Area */}
       <div
         ref={containerRef}
@@ -468,10 +480,16 @@ export function GameplayLayout({
         }
         trailingActions={
           interactiveSession ? (
-            <ConcedeButton
+            // Per `add-combat-morale-and-withdrawal` § 4.1: the
+            // withdraw control + concede button. Extracted into
+            // `GameplayLayout.sections` to keep this file under the
+            // size cap.
+            <WithdrawalTrailingActions
               interactiveSession={interactiveSession}
               sessionId={session.id}
               playerSide={playerSide}
+              selectedUnit={selectedUnit}
+              isPlayerTurn={isPlayerTurn}
             />
           ) : undefined
         }
