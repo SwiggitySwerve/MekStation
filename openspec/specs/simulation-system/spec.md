@@ -813,3 +813,534 @@ The runner MUST emit `GameCreated` exactly once per `run(config)` invocation, be
 - **THEN** the `GameCreated` payload's entry for `player-1` SHALL have `name === 'Atlas AS7-D'` (or some canonical concatenation)
 - **AND** the entry's `gunnery` and `piloting` SHALL match the hydration data's values when present
 
+### Requirement: Shared Terrain Movement-Cost Utility
+
+The system SHALL expose `getTerrainMovementCost` and `getPrimaryTerrainFeature` from a shared simulation-accessible utility module (`src/utils/gameplay/terrainMovementCost.ts`). The simulation layer (`src/simulation/`) SHALL consult terrain movement cost only through this utility and SHALL NOT import from the rendering layer (`src/components/`). The rendering module SHALL re-export both functions so existing rendering call sites are unchanged.
+
+#### Scenario: Open ground costs one movement point
+
+- **GIVEN** a hex with no terrain features
+- **WHEN** `getTerrainMovementCost` is evaluated for that hex
+- **THEN** it SHALL return `1`
+
+#### Scenario: Heavy terrain costs more than open ground
+
+- **GIVEN** a hex containing a heavy-woods terrain feature
+- **WHEN** `getTerrainMovementCost` is evaluated for that hex
+- **THEN** it SHALL return a value greater than `1`
+
+#### Scenario: Simulation layer does not import rendering code
+
+- **GIVEN** the AI pathfinder and move scorer
+- **WHEN** their module imports are resolved
+- **THEN** no import SHALL resolve into `src/components/`
+- **AND** terrain cost SHALL be sourced from `src/utils/gameplay/terrainMovementCost.ts`
+
+### Requirement: AI Difficulty Tier Registry
+
+The system SHALL provide an AI Difficulty Tier Registry mapping each tier name — `Green`, `Regular`, `Veteran`, `Elite` — to a frozen `IAITierParameters` record. The registry SHALL expose `getTierParameters(name)` which returns the parameter record for a known tier and throws an explicit error for an unknown name. `IBotBehavior` SHALL carry an optional `tier` field defaulting to `Regular`. The tier is player-selectable per scenario. `IAITierParameters` SHALL be additively extensible: later AI changes register their own parameter blocks without modifying the movement block defined here.
+
+The movement parameter block SHALL carry `pathfinderEnabled`, `coverWeight`, `losDenialWeight`, and `terrainCostWeight`. The `Green` and `Regular` tiers SHALL set `pathfinderEnabled` to `false` with zeroed scoring weights so they reproduce the pre-change move scorer exactly. The `Veteran` and `Elite` tiers SHALL set `pathfinderEnabled` to `true`.
+
+#### Scenario: Every tier resolves to a parameter record
+
+- **GIVEN** the tier names `Green`, `Regular`, `Veteran`, and `Elite`
+- **WHEN** `getTierParameters` is called for each
+- **THEN** each call SHALL return an `IAITierParameters` record with a populated movement block
+
+#### Scenario: Unknown tier name throws
+
+- **GIVEN** a tier name that is not in the registry
+- **WHEN** `getTierParameters` is called with that name
+- **THEN** an error SHALL be thrown naming the invalid tier and listing the valid tiers
+
+#### Scenario: Default tier is Regular
+
+- **GIVEN** an `IBotBehavior` constructed without an explicit `tier`
+- **WHEN** the bot resolves its tier parameters
+- **THEN** the `Regular` tier SHALL be used
+
+#### Scenario: Lower tiers reproduce the legacy scorer
+
+- **GIVEN** a bot configured with the `Green` or `Regular` tier
+- **WHEN** it scores a candidate move
+- **THEN** the score SHALL be identical to the pre-change `scoreMove` output for the same inputs
+
+### Requirement: AI Terrain-Cost Pathfinder
+
+The system SHALL provide `AITerrainPathfinder` exposing `findPath(request)` and `findAllPaths(grid, origin, movementType, capability)` per the frozen API contract. `findPath` SHALL return an `IAIPath` carrying the destination, the ordered hex sequence from origin to destination, the total movement-point cost, and a `reachable` flag. Path cost SHALL be the sum of per-hex `getTerrainMovementCost`. The search SHALL be deterministic — an identical request SHALL always produce an identical `IAIPath` — using canonical hex-neighbor order to break ties between equal-cost paths, without consuming `SeededRandom`.
+
+When a destination exceeds the movement-point budget, `findPath` SHALL return `reachable: false` with a best-effort partial path. `findAllPaths` SHALL return the cheapest path to every reachable destination keyed by the canonical `"q,r"` hex string.
+
+#### Scenario: Pathfinder routes around costly terrain
+
+- **GIVEN** an origin and a destination where the straight-line path crosses heavy woods and an alternate path of equal hex length crosses only open ground
+- **WHEN** `findPath` runs
+- **THEN** the returned path SHALL be the open-ground route
+- **AND** its `totalMpCost` SHALL be lower than the straight-line route's cost
+
+#### Scenario: Pathfinding is deterministic
+
+- **GIVEN** two identical `IAIPathfindRequest` values
+- **WHEN** `findPath` is called for each
+- **THEN** both SHALL return identical hex sequences and identical `totalMpCost`
+
+#### Scenario: Unreachable destination is flagged
+
+- **GIVEN** a destination whose cheapest path cost exceeds the unit's movement-point budget
+- **WHEN** `findPath` runs
+- **THEN** the returned `IAIPath` SHALL have `reachable` set to `false`
+
+#### Scenario: findAllPaths agrees with per-destination findPath
+
+- **GIVEN** an origin, movement type, and capability
+- **WHEN** `findAllPaths` returns its path map and `findPath` is called separately for one of those destinations
+- **THEN** the path for that destination SHALL be identical in both results
+
+### Requirement: Terrain-Aware Move Scoring
+
+When the active tier sets `pathfinderEnabled` to `true`, `MoveAI` SHALL extend move scoring with three additive terms, each multiplied by its tier weight: a cover term granting `coverWeight` when the destination hex offers partial cover or better, a line-of-sight-denial term granting `losDenialWeight` when the destination breaks the highest-threat enemy's line of sight, and a terrain-cost term subtracting `terrainCostWeight` scaled by the difference between the path's movement-point cost and the straight-line hex distance. The existing line-of-sight, firing-arc, closing-distance, and heat terms SHALL be unchanged. When `pathfinderEnabled` is `false`, none of the three new terms SHALL apply.
+
+#### Scenario: Veteran bot seeks cover
+
+- **GIVEN** a `Veteran` bot choosing between a partial-cover hex and an open hex with otherwise equal scoring inputs
+- **WHEN** move scoring runs
+- **THEN** the partial-cover hex SHALL score higher
+- **AND** the bot SHALL move to the partial-cover hex
+
+#### Scenario: Veteran bot breaks enemy line of sight
+
+- **GIVEN** a `Veteran` bot with two candidate destinations of equal path cost — one keeps it visible to the highest-threat enemy, one breaks that enemy's line of sight
+- **WHEN** move scoring runs
+- **THEN** the line-of-sight-breaking destination SHALL score higher
+
+#### Scenario: Wasteful path scores below an efficient path
+
+- **GIVEN** two destinations of equal tactical value, one reached by a path whose movement-point cost exceeds its hex distance and one reached by a path whose cost equals its hex distance
+- **WHEN** move scoring runs on a `Veteran` bot
+- **THEN** the efficiently-reached destination SHALL score higher
+
+#### Scenario: Regular bot ignores the new terms
+
+- **GIVEN** a `Regular` bot scoring the same candidate moves
+- **WHEN** move scoring runs
+- **THEN** the cover, line-of-sight-denial, and terrain-cost terms SHALL contribute zero
+- **AND** the chosen move SHALL match the pre-change scorer's choice
+
+### Requirement: Resource-Planning Tier Parameters
+
+The AI Difficulty Tier Registry SHALL carry a resource parameter block on each tier, exposing `heatLookaheadTurns`, `ammoConservationWeight`, `critSeekingWeight`, and `weaponModeSelection`. The `Green` and `Regular` tiers SHALL set `heatLookaheadTurns` to `0`, zero the conservation and crit-seeking weights, and set `weaponModeSelection` to `false`, leaving all resource-planning behavior inert. The `Veteran` and `Elite` tiers SHALL populate the block with active values. This block SHALL be registered additively and SHALL NOT modify the movement parameter block.
+
+#### Scenario: Every tier resolves a resource block
+
+- **GIVEN** the tier names `Green`, `Regular`, `Veteran`, and `Elite`
+- **WHEN** the resource parameter block is read for each
+- **THEN** each SHALL return a populated `IAITierResourceParameters` record
+
+#### Scenario: Lower tiers disable resource planning
+
+- **GIVEN** a bot configured with the `Green` or `Regular` tier
+- **WHEN** it plans heat, ammo, crit-seeking, and weapon modes
+- **THEN** multi-turn heat projection SHALL be skipped, ammo conservation SHALL not alter selection, crit-seeking SHALL contribute zero, and every multi-mode weapon SHALL fire its default mode
+
+### Requirement: Multi-Turn Heat Projection
+
+When `heatLookaheadTurns` is greater than zero, the system SHALL provide `AIHeatPlanner.projectHeat` that projects the unit's heat across the lookahead window from current heat, dissipation, and the per-turn heat the candidate fire list generates, and reports the first turn at which a shutdown risk is predicted. When a shutdown is predicted inside the window, `AttackAI` SHALL lower the effective heat budget so the projected curve flattens. The single-turn heat-budget trim SHALL still run each turn. Heat projection SHALL be a pure deterministic function and SHALL NOT consume `SeededRandom`.
+
+#### Scenario: Rising heat curve flags the shutdown turn
+
+- **GIVEN** a unit whose candidate fire list generates more heat per turn than it dissipates
+- **WHEN** `projectHeat` runs over the lookahead window
+- **THEN** `shutdownRiskTurn` SHALL be the first turn the projected heat crosses the shutdown ceiling
+
+#### Scenario: Sustainable fire list reports no risk
+
+- **GIVEN** a unit whose candidate fire list generates no more heat than it dissipates
+- **WHEN** `projectHeat` runs
+- **THEN** `shutdownRiskTurn` SHALL be `-1`
+
+#### Scenario: Veteran bot throttles before shutdown
+
+- **GIVEN** a `Veteran` bot whose alpha strike would shut it down two turns out
+- **WHEN** it selects its fire list
+- **THEN** the effective heat budget SHALL be lowered and lower-efficiency weapons SHALL be culled
+- **AND** the unit SHALL NOT shut down within the lookahead window
+
+### Requirement: Ammo-Runway Projection
+
+When `ammoConservationWeight` is greater than zero, the system SHALL provide `AIAmmoRunway` that estimates, per ammo-dependent weapon, the turns of fire the remaining ammo supports and a conservation multiplier in the range `[0, 1]`. A short runway SHALL lower the weapon's selection priority; a long runway SHALL leave it neutral. Energy weapons SHALL report an infinite runway and a neutral weight. The binary rule that culls a weapon with zero ammo SHALL be unchanged — runway projection SHALL modulate priority only, never eligibility.
+
+#### Scenario: Scarce ammo lowers selection priority
+
+- **GIVEN** an ammo-dependent weapon with only a few turns of fire remaining
+- **WHEN** weapon selection runs on a `Veteran` bot
+- **THEN** the weapon's selection priority SHALL be reduced
+- **AND** the weapon SHALL still be eligible to fire
+
+#### Scenario: Abundant ammo is neutral
+
+- **GIVEN** an ammo-dependent weapon with a long runway of remaining fire
+- **WHEN** weapon selection runs
+- **THEN** the conservation weight SHALL leave the weapon's priority unchanged
+
+#### Scenario: Energy weapons are unaffected
+
+- **GIVEN** an energy weapon with no ammo dependency
+- **WHEN** ammo runway is projected
+- **THEN** it SHALL report an infinite runway and a neutral conservation weight
+
+### Requirement: Crit-Seeking Target Weighting
+
+When `critSeekingWeight` is greater than zero, `AttackAI.scoreTarget` SHALL add a crit-seeking term, multiplied by `critSeekingWeight`, that raises a target's score in proportion to its structural exposure — stripped armor, prior internal damage, or an opened location where a crippling critical hit is reachable. A fully-armored target SHALL receive a zero crit-seeking bonus. The existing threat and kill-probability terms SHALL be unchanged; crit-seeking SHALL be additive.
+
+#### Scenario: Exposed target scores higher
+
+- **GIVEN** two targets identical in threat and kill-probability, one with an open side torso and one fully armored
+- **WHEN** `scoreTarget` runs on a `Veteran` bot
+- **THEN** the open-side-torso target SHALL score higher
+
+#### Scenario: Threat still dominates crit-seeking
+
+- **GIVEN** a near-dead light with an open location and a fresh heavy posing a much larger threat
+- **WHEN** `scoreTarget` runs
+- **THEN** the threat and kill-probability terms MAY still place the fresh heavy above the light
+
+#### Scenario: Crit-seeking disabled yields the legacy score
+
+- **GIVEN** a bot whose `critSeekingWeight` is zero
+- **WHEN** `scoreTarget` runs
+- **THEN** the score SHALL equal the pre-change `scoreTarget` output
+
+### Requirement: Multi-Mode Weapon Selection
+
+When `weaponModeSelection` is enabled, the system SHALL provide `AIWeaponModeSelector` that picks, for each multi-mode weapon, the firing mode maximizing expected damage given range, the target's armor state, and the remaining heat budget. The selected mode SHALL be recorded on the declared attack. A weapon without firing-mode metadata SHALL be treated as single-mode and SHALL fire its default mode unchanged.
+
+#### Scenario: LB-X picks cluster against an exposed target
+
+- **GIVEN** an LB-X autocannon and a target with stripped armor or active evasion
+- **WHEN** mode selection runs
+- **THEN** cluster mode SHALL be selected
+
+#### Scenario: LB-X picks slug against a fresh target
+
+- **GIVEN** an LB-X autocannon and a fresh, fully-armored target at short range
+- **WHEN** mode selection runs
+- **THEN** slug mode SHALL be selected
+
+#### Scenario: Rate-of-fire weapon drops to single fire under heat pressure
+
+- **GIVEN** an Ultra autocannon and a heat budget that cannot absorb double fire
+- **WHEN** mode selection runs
+- **THEN** the single-fire mode SHALL be selected
+
+#### Scenario: Single-mode weapon passes through unchanged
+
+- **GIVEN** a weapon with no firing-mode metadata
+- **WHEN** mode selection runs
+- **THEN** the weapon SHALL fire its default mode
+- **AND** the declared attack SHALL match the pre-change behavior
+
+### Requirement: Coordination Tier Parameters
+
+The AI Difficulty Tier Registry SHALL carry a coordination parameter block on each tier, exposing `lanceCoordination`, `cohesionRadius`, `cohesionWeight`, and `focusFireWeight`. The `Green`, `Regular`, and `Veteran` tiers SHALL set `lanceCoordination` to `false` with zeroed weights, leaving all coordination behavior inert so the `Veteran` tier remains exactly the depth of the movement and resource blocks. The `Elite` tier SHALL populate the block with active values. This block SHALL be registered additively and SHALL NOT modify the movement or resource parameter blocks.
+
+#### Scenario: Every tier resolves a coordination block
+
+- **GIVEN** the tier names `Green`, `Regular`, `Veteran`, and `Elite`
+- **WHEN** the coordination parameter block is read for each
+- **THEN** each SHALL return a populated `IAITierCoordinationParameters` record
+
+#### Scenario: Veteran tier excludes coordination
+
+- **GIVEN** a bot configured with the `Veteran` tier
+- **WHEN** it plans a turn
+- **THEN** the lance planner SHALL NOT be consulted
+- **AND** target selection and movement SHALL match the per-unit behavior of the movement and resource tiers
+
+### Requirement: Multi-Unit Threat Aggregation
+
+When `lanceCoordination` is enabled, the system SHALL provide `AIThreatMap.buildThreatMap` that aggregates each enemy's threat across every friendly lance unit into a single ranked list of `IThreatEntry` records. Each entry SHALL carry the enemy identifier, the summed threat the enemy poses across the lance, and the friendly units that can engage that enemy this turn. The aggregation SHALL be a pure deterministic function, independent of the order of the input unit lists.
+
+#### Scenario: Higher aggregate threat ranks first
+
+- **GIVEN** two enemies, one posing a large summed threat across the lance and one posing a small threat
+- **WHEN** `buildThreatMap` runs
+- **THEN** the high-threat enemy SHALL rank above the low-threat enemy
+
+#### Scenario: Aggregation is order-independent
+
+- **GIVEN** the same friendly and enemy unit sets supplied in two different orders
+- **WHEN** `buildThreatMap` runs for each
+- **THEN** both threat maps SHALL be identical
+
+#### Scenario: Engageable list excludes out-of-range units
+
+- **GIVEN** an enemy that one friendly unit can reach this turn and another cannot
+- **WHEN** `buildThreatMap` runs
+- **THEN** the enemy's `engageableBy` list SHALL contain only the friendly unit that can reach it
+
+### Requirement: Focus-Fire Coordination
+
+When `lanceCoordination` is enabled, the system SHALL provide `AIFireCoordinator` that produces an `IFireAssignment` mapping friendly units to targets. The coordinator SHALL prefer assignments whose combined expected damage finishes a target this turn, concentrating fire rather than spreading it. When a target is finishable by fewer units than assigned, the surplus firepower SHALL be released to the next-ranked threat. When no target is finishable, the lance SHALL concentrate on the highest-aggregate-threat target the most units can engage. `playAttackPhase` SHALL bias each unit's target selection toward its assigned target, falling back to the unit's own threat-scored pick when the assigned target is out of arc or range.
+
+#### Scenario: Lance concentrates fire to finish a target
+
+- **GIVEN** a target that one friendly unit cannot destroy alone but two can together
+- **WHEN** fire coordination runs on an `Elite` lance
+- **THEN** both units SHALL be assigned to that target
+- **AND** the target SHALL appear in `finishableTargets`
+
+#### Scenario: Surplus firepower is released
+
+- **GIVEN** a target already finishable by two units and a third unit that could also engage it
+- **WHEN** fire coordination runs
+- **THEN** the third unit SHALL be assigned to the next-ranked threat rather than the already-finishable target
+
+#### Scenario: Unreachable assignment falls back to the unit's own pick
+
+- **GIVEN** a unit assigned a target that is out of its weapons' arc and range
+- **WHEN** `playAttackPhase` runs
+- **THEN** the unit SHALL fall back to its own threat-scored target selection
+- **AND** no error SHALL be raised
+
+### Requirement: Formation Cohesion Movement
+
+When `lanceCoordination` is enabled, `MoveAI` SHALL extend move scoring with a cohesion term, multiplied by `cohesionWeight`, that penalizes a destination lying beyond `cohesionRadius` from the lance centroid and applies an additional penalty when the destination enters enemy line of sight while no lancemate is within `cohesionRadius`. A unit whose destination is inside the cohesion radius SHALL pay no cohesion penalty. The cohesion term SHALL be additive over the terrain-aware scoring terms. When `lanceCoordination` is disabled, the cohesion term SHALL contribute zero.
+
+#### Scenario: Drifting unit is pulled back toward the lance
+
+- **GIVEN** an `Elite` bot choosing between a destination inside `cohesionRadius` of the lance centroid and one beyond it, with otherwise equal scoring
+- **WHEN** move scoring runs
+- **THEN** the in-radius destination SHALL score higher
+
+#### Scenario: Advancing alone into enemy line of sight is penalized
+
+- **GIVEN** a destination that enters enemy line of sight with no lancemate within `cohesionRadius`
+- **WHEN** move scoring runs on an `Elite` bot
+- **THEN** that destination SHALL receive the additional lone-advance penalty
+
+#### Scenario: In-formation unit is unaffected
+
+- **GIVEN** a unit whose destination is inside `cohesionRadius` of the lance centroid
+- **WHEN** move scoring runs
+- **THEN** the cohesion term SHALL contribute zero to its score
+
+### Requirement: Per-Lance Turn Plan
+
+When `lanceCoordination` is enabled, the system SHALL provide `AILancePlanner.planTurn` that runs once per side per turn and returns an immutable `ILanceTurnPlan` carrying the aggregated threat map, the fire assignment, and the lance centroid. Each unit's movement and attack decisions SHALL consume this plan. `BotPlayer` SHALL accept an optional lance-context parameter; when it is omitted, the bot SHALL fall back to per-unit decisions identical to the pre-change behavior. The lance plan SHALL be a pure deterministic function of the unit set and SHALL NOT consume `SeededRandom`.
+
+#### Scenario: One plan drives every unit in the lance
+
+- **GIVEN** an `Elite` lance of four units beginning a turn
+- **WHEN** `planTurn` runs
+- **THEN** a single `ILanceTurnPlan` SHALL be produced
+- **AND** all four units' move and attack decisions SHALL read from that one plan
+
+#### Scenario: Omitting the lance context preserves per-unit behavior
+
+- **GIVEN** a `BotPlayer` call made without the lance-context parameter
+- **WHEN** the movement and attack phases run
+- **THEN** the decisions SHALL be identical to the pre-change per-unit behavior
+
+#### Scenario: The plan is deterministic
+
+- **GIVEN** the same friendly and enemy unit sets
+- **WHEN** `planTurn` is called twice
+- **THEN** both plans SHALL contain identical threat maps, fire assignments, and centroids
+
+### Requirement: Objective-Awareness Tier Parameters
+
+The AI Difficulty Tier Registry SHALL carry an objective parameter block on each tier, exposing `objectiveAwareness`, `objectiveSeekingWeight`, and `objectiveHoldWeight`. The `Green`, `Regular`, and `Veteran` tiers SHALL set `objectiveAwareness` to `false` with zeroed weights, leaving the bot blind to the objective map so it plays every scenario as `Destroy`. The `Elite` tier SHALL populate the block with active values. This block SHALL be registered additively and SHALL NOT modify the movement, resource, or coordination parameter blocks.
+
+#### Scenario: Every tier resolves an objective block
+
+- **GIVEN** the tier names `Green`, `Regular`, `Veteran`, and `Elite`
+- **WHEN** the objective parameter block is read for each
+- **THEN** each SHALL return a populated `IAITierObjectiveParameters` record
+
+#### Scenario: Lower tiers ignore the objective map
+
+- **GIVEN** a bot configured with the `Green`, `Regular`, or `Veteran` tier playing a `Capture` scenario
+- **WHEN** it plans a turn
+- **THEN** the objective planner SHALL NOT be consulted
+- **AND** the bot SHALL play the scenario as pure attrition
+
+### Requirement: Objective Ingestion and Classification
+
+When `objectiveAwareness` is enabled, the system SHALL provide `AIObjectivePlanner.classifyObjectives` that reads the game session's `objectives` map and scenario objective type and classifies each marker for the bot's side as `take` (a marker the bot must control to win), `hold` (a marker the bot must keep controlling to win), or `deny` (a marker the bot must keep the enemy off). An empty objective map or a `Destroy` scenario type SHALL yield no classified objectives. Classification SHALL be a pure deterministic function and SHALL NOT modify any objective marker.
+
+#### Scenario: Attacker capture marker classifies as take
+
+- **GIVEN** a `Capture` scenario where the bot is the attacking side
+- **WHEN** `classifyObjectives` runs
+- **THEN** each objective marker SHALL be classified `take`
+
+#### Scenario: Defender objective marker classifies as hold
+
+- **GIVEN** a `Defend` scenario where the bot is the defending side
+- **WHEN** `classifyObjectives` runs
+- **THEN** each objective marker SHALL be classified `hold`
+
+#### Scenario: Destroy scenario yields no objectives
+
+- **GIVEN** a scenario whose objective type is `Destroy`, with or without stray markers
+- **WHEN** `classifyObjectives` runs
+- **THEN** it SHALL return an empty list
+- **AND** the bot SHALL fall through to pure coordinated combat
+
+### Requirement: Objective-Aware Lance Planning
+
+When `objectiveAwareness` is enabled and the scenario objective type is not `Destroy`, the per-lance turn plan SHALL carry an objective plan assigning each unit an objective role — `capture`, `hold`, or `screen`. The capture role SHALL be assigned to the unit(s) closest by terrain-pathfinder cost to a `take` marker; the hold role to the unit(s) on or nearest a `hold` marker; the screen role to every other unit. Each role-bearing unit SHALL carry the hex it is working toward or holding. Role assignment SHALL be a pure deterministic function of the objective map and unit positions.
+
+#### Scenario: Capture role goes to the nearest unit
+
+- **GIVEN** a `take` marker and two friendly units at different pathfinder distances from it
+- **WHEN** the objective plan is computed
+- **THEN** the closer unit SHALL receive the `capture` role
+
+#### Scenario: Hold role goes to the unit on the marker
+
+- **GIVEN** a `hold` marker currently occupied by one friendly unit
+- **WHEN** the objective plan is computed
+- **THEN** that unit SHALL receive the `hold` role with the marker hex as its target hex
+
+#### Scenario: Remaining units screen
+
+- **GIVEN** a lance with one capture-role unit and one hold-role unit assigned
+- **WHEN** the objective plan is computed
+- **THEN** every other unit SHALL receive the `screen` role with no objective hex
+
+### Requirement: Objective-Seeking Movement
+
+When `objectiveAwareness` is enabled, `MoveAI` SHALL extend move scoring with an objective term. For a capture-role unit the term SHALL grant `objectiveSeekingWeight` scaled by the reduction in pathfinder distance to its `take` marker, with a large bonus for a destination on the marker hex. For a hold-role unit the term SHALL grant `objectiveHoldWeight` for a destination on its `hold` marker, a reduced value for adjacent hexes, and zero for destinations that abandon the marker. A screen-role unit SHALL receive a zero objective contribution. The objective term SHALL be additive over the terrain-aware and cohesion terms. When `objectiveAwareness` is disabled, the objective term SHALL contribute zero.
+
+#### Scenario: Capture unit moves onto its objective
+
+- **GIVEN** an `Elite` capture-role unit with a candidate destination on its `take` marker and another off it
+- **WHEN** move scoring runs
+- **THEN** the on-marker destination SHALL score higher
+- **AND** the unit SHALL move toward the marker
+
+#### Scenario: Hold unit stays on its objective
+
+- **GIVEN** an `Elite` hold-role unit choosing between staying on its `hold` marker and moving off it to chase an enemy
+- **WHEN** move scoring runs
+- **THEN** the on-marker destination SHALL score higher
+
+#### Scenario: Screen unit ignores the objective term
+
+- **GIVEN** an `Elite` screen-role unit
+- **WHEN** move scoring runs
+- **THEN** the objective term SHALL contribute zero to its score
+
+### Requirement: Objective-Aware Target Discipline
+
+When `objectiveAwareness` is enabled, a unit holding a `capture` or `hold` role SHALL have its target selection biased toward targets engageable without leaving its objective hex or its path to it — the unit SHALL fire from the objective rather than pursue an enemy off it. A `screen`-role unit's target selection SHALL be unchanged from the coordinated combat behavior. This discipline SHALL be a bias over the lance fire assignment, not a replacement — an objective-role unit still concentrates fire with the lance on an in-discipline target.
+
+#### Scenario: Hold unit engages from its objective
+
+- **GIVEN** an `Elite` hold-role unit on its marker with an enemy it could only engage by leaving the marker
+- **WHEN** target selection runs
+- **THEN** the unit SHALL NOT abandon the marker to pursue
+- **AND** it SHALL engage the best target reachable from the marker hex
+
+#### Scenario: Screen unit selects targets normally
+
+- **GIVEN** an `Elite` screen-role unit
+- **WHEN** target selection runs
+- **THEN** its target choice SHALL match the coordinated combat behavior with no objective bias
+
+### Requirement: Advanced-Systems Tier Parameters
+
+The AI Difficulty Tier Registry SHALL carry an advanced parameter block on each tier, exposing `advancedSystems`, `jumpTacticsWeight`, `ecmAvoidanceWeight`, `ecmCoverageWeight`, and `visionWeight`. The `Green`, `Regular`, and `Veteran` tiers SHALL set `advancedSystems` to `false` with zeroed weights, leaving jump tactics, ECM awareness, and vision awareness inert and keeping the flat-probability jump-movement roll. The `Elite` tier SHALL populate the block with active values. This block SHALL be registered additively and SHALL NOT modify the movement, resource, coordination, or objective parameter blocks.
+
+#### Scenario: Every tier resolves an advanced block
+
+- **GIVEN** the tier names `Green`, `Regular`, `Veteran`, and `Elite`
+- **WHEN** the advanced parameter block is read for each
+- **THEN** each SHALL return a populated `IAITierAdvancedParameters` record
+
+#### Scenario: Lower tiers ignore advanced systems
+
+- **GIVEN** a bot configured with the `Green`, `Regular`, or `Veteran` tier
+- **WHEN** it selects movement and scores moves
+- **THEN** jump-movement selection SHALL use the flat-probability roll
+- **AND** the ECM and vision terms SHALL contribute zero
+
+### Requirement: AI Jump-Jet Tactics
+
+When `advancedSystems` is enabled, the system SHALL provide `AIJumpTactics.evaluateJump` that scores a unit's best jump destination for terrain-clearing, elevation gain, and charge or melee escape, and reports whether jumping risks a shutdown inside the heat lookahead window. Jump heat SHALL be weighed through the multi-turn heat projection from the resource-planning change. `BotPlayer.selectMovementType` SHALL choose the Jump movement type only when the best jump destination's tactical score clears a threshold; otherwise it SHALL NOT jump. When `advancedSystems` is disabled, jump selection SHALL keep the flat-probability roll.
+
+#### Scenario: Bot jumps to clear costly terrain
+
+- **GIVEN** an `Elite` unit whose jump destination is reachable only by walking through heavy terrain at high movement-point cost
+- **WHEN** `evaluateJump` runs
+- **THEN** the jump SHALL receive a high terrain-clearing score
+- **AND** `selectMovementType` SHALL choose Jump
+
+#### Scenario: Heat-unsafe jump is rejected
+
+- **GIVEN** an `Elite` unit whose jump heat would push a shutdown inside the heat lookahead window
+- **WHEN** `evaluateJump` runs
+- **THEN** `heatUnsafe` SHALL be `true`
+- **AND** the jump SHALL NOT be chosen on heat grounds alone
+
+#### Scenario: Bot jumps to escape a charge
+
+- **GIVEN** an `Elite` unit with an enemy adjacent and threatening a physical attack, and a heat-safe jump that breaks adjacency
+- **WHEN** `evaluateJump` runs
+- **THEN** the escape jump SHALL receive a charge-escape bonus
+- **AND** `selectMovementType` SHALL choose Jump
+
+#### Scenario: Lower tier keeps the flat jump roll
+
+- **GIVEN** a `Veteran` unit selecting movement
+- **WHEN** `selectMovementType` runs
+- **THEN** jump selection SHALL use the flat-probability roll unchanged from the pre-change behavior
+
+### Requirement: AI Electronic-Warfare Awareness
+
+When `advancedSystems` is enabled, the system SHALL provide `AIElectronicWarfareAdvisor` that consumes the existing electronic-warfare module to advise move scoring. A destination inside a hostile ECM bubble SHALL incur a penalty scaled by `ecmAvoidanceWeight`. A destination that lets an ECM-suite or BAP-probe carrier cover more lancemates, or counter an enemy ECM source, SHALL earn a bonus scaled by `ecmCoverageWeight`. The advisor SHALL only read electronic-warfare state; it SHALL NOT modify the electronic-warfare module and SHALL NOT alter combat to-hit resolution.
+
+#### Scenario: Bot avoids a hostile ECM bubble
+
+- **GIVEN** an `Elite` unit choosing between a destination inside a hostile ECM bubble and one outside it, with otherwise equal scoring
+- **WHEN** move scoring runs
+- **THEN** the destination outside the bubble SHALL score higher
+
+#### Scenario: ECM carrier is rewarded for covering the lance
+
+- **GIVEN** an `Elite` unit carrying an ECM suite, choosing a destination whose bubble covers two lancemates
+- **WHEN** move scoring runs
+- **THEN** that destination SHALL receive an ECM coverage bonus
+
+#### Scenario: Awareness does not touch combat resolution
+
+- **GIVEN** the electronic-warfare advisor in use
+- **WHEN** the bot scores moves
+- **THEN** no to-hit number, weapon eligibility, or combat-resolution path SHALL be modified by the advisor
+- **AND** the electronic-warfare module SHALL be unchanged
+
+### Requirement: AI Spotting and Vision Awareness
+
+When `advancedSystems` is enabled, the system SHALL provide `AIVisionAdvisor` that consumes the existing fog-of-war module to advise move scoring. A destination that newly spots a previously-unspotted enemy SHALL earn a scouting bonus scaled by `visionWeight`. A destination that breaks an enemy's spotting line to the moving unit SHALL earn a line-of-sight-break bonus scaled by `visionWeight`. The advisor SHALL only read fog-of-war visibility; it SHALL NOT modify the fog-of-war module and SHALL NOT hide enemy positions from the bot's planner.
+
+#### Scenario: Bot repositions to scout an unspotted enemy
+
+- **GIVEN** an `Elite` unit with a destination that newly spots an enemy not previously visible to the bot's side
+- **WHEN** move scoring runs
+- **THEN** that destination SHALL receive a scouting bonus
+
+#### Scenario: Bot values breaking an enemy's spotting line
+
+- **GIVEN** an `Elite` unit choosing between a destination spotted by an enemy and one that breaks that enemy's spotting line, with otherwise equal scoring
+- **WHEN** move scoring runs
+- **THEN** the line-of-sight-breaking destination SHALL score higher
+
+#### Scenario: Vision awareness does not modify fog-of-war
+
+- **GIVEN** the vision advisor in use
+- **WHEN** the bot scores moves
+- **THEN** the fog-of-war module SHALL be unchanged
+- **AND** enemy positions SHALL remain fully available to the bot's planner
+
