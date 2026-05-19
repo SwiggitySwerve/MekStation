@@ -18,12 +18,16 @@ interface DayReportPanelProps {
 function aggregateCosts(reports: DayReport[]): DailyCostBreakdown {
   let salariesTotal = 0;
   let maintenanceTotal = 0;
+  let loanRepaymentTotal = 0;
   let maxPersonnel = 0;
   let maxUnits = 0;
 
   for (const report of reports) {
     salariesTotal += report.costs.salaries.amount;
     maintenanceTotal += report.costs.maintenance.amount;
+    // `loanRepayment` is optional on older serialized reports — default
+    // to zero so an aggregate over pre-CP2b reports still sums cleanly.
+    loanRepaymentTotal += report.costs.loanRepayment?.amount ?? 0;
     maxPersonnel = Math.max(maxPersonnel, report.costs.personnelCount);
     maxUnits = Math.max(maxUnits, report.costs.unitCount);
   }
@@ -31,7 +35,8 @@ function aggregateCosts(reports: DayReport[]): DailyCostBreakdown {
   return {
     salaries: new Money(salariesTotal),
     maintenance: new Money(maintenanceTotal),
-    total: new Money(salariesTotal + maintenanceTotal),
+    loanRepayment: new Money(loanRepaymentTotal),
+    total: new Money(salariesTotal + maintenanceTotal + loanRepaymentTotal),
     personnelCount: maxPersonnel,
     unitCount: maxUnits,
   };

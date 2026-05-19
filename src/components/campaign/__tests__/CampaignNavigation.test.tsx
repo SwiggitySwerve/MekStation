@@ -65,3 +65,53 @@ describe('CampaignNavigation — Bays group', () => {
     expect(screen.getByText('Missions')).toBeInTheDocument();
   });
 });
+
+/**
+ * Covers the spec scenario "Command surfaces are reachable": the campaign
+ * navigation exposes a "Command" group linking to the three command-tier
+ * surfaces (CP2b — `add-campaign-command-ui`).
+ *
+ * @spec openspec/changes/add-campaign-command-ui/specs/campaign-command-ui/spec.md
+ */
+describe('CampaignNavigation — Command group', () => {
+  it('renders a "Command" navigation group', () => {
+    render(
+      <CampaignNavigation campaignId="campaign-1" currentPage="dashboard" />,
+    );
+    expect(
+      screen.getByTestId('campaign-nav-command-group'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Command' })).toBeInTheDocument();
+  });
+
+  it('links to all three command surfaces', () => {
+    render(
+      <CampaignNavigation campaignId="campaign-1" currentPage="dashboard" />,
+    );
+    expect(screen.getByText('Personnel & Hiring')).toHaveAttribute(
+      'href',
+      '/gameplay/campaigns/campaign-1/hiring',
+    );
+    expect(screen.getByText('Finances & Loans')).toHaveAttribute(
+      'href',
+      '/gameplay/campaigns/campaign-1/finances',
+    );
+    expect(screen.getByText('Contract Market')).toHaveAttribute(
+      'href',
+      '/gameplay/campaigns/campaign-1/contract-market',
+    );
+  });
+
+  it('marks the active command page with aria-current', () => {
+    render(
+      <CampaignNavigation campaignId="campaign-1" currentPage="finances" />,
+    );
+    expect(screen.getByText('Finances & Loans')).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByText('Personnel & Hiring')).not.toHaveAttribute(
+      'aria-current',
+    );
+  });
+});

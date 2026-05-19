@@ -6,13 +6,20 @@
  * `add-campaign-bay-ui` (CP2a, design D1) — the four post-battle bay
  * surfaces share one navigation group so they read as a cohesive cluster.
  *
+ * The "Command" group (Personnel & Hiring / Finances & Loans / Contract
+ * Market) was added by `add-campaign-command-ui` (CP2b, design D1) — the
+ * three command-tier surfaces share one navigation group so they read as
+ * a cohesive management cluster, paralleling the Bays group.
+ *
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
+ * @spec openspec/changes/add-campaign-command-ui/specs/campaign-command-ui/spec.md
  */
 import Link from 'next/link';
 
 /**
  * Identifier of the currently-active campaign page. The bay pages
- * (`mech-bay`, `repair-bay`, `medical-bay`, `salvage`) were added by CP2a.
+ * (`mech-bay`, `repair-bay`, `medical-bay`, `salvage`) were added by CP2a;
+ * the command pages (`hiring`, `finances`, `contract-market`) by CP2b.
  */
 export type CampaignPageId =
   | 'dashboard'
@@ -22,7 +29,10 @@ export type CampaignPageId =
   | 'mech-bay'
   | 'repair-bay'
   | 'medical-bay'
-  | 'salvage';
+  | 'salvage'
+  | 'hiring'
+  | 'finances'
+  | 'contract-market';
 
 interface CampaignNavigationProps {
   campaignId: string;
@@ -86,6 +96,25 @@ export function CampaignNavigation({
     },
   ];
 
+  // The "Command" group — the three command-tier surfaces (CP2b, design D1).
+  const commandTabs: readonly NavTab[] = [
+    {
+      id: 'hiring',
+      label: 'Personnel & Hiring',
+      href: `/gameplay/campaigns/${campaignId}/hiring`,
+    },
+    {
+      id: 'finances',
+      label: 'Finances & Loans',
+      href: `/gameplay/campaigns/${campaignId}/finances`,
+    },
+    {
+      id: 'contract-market',
+      label: 'Contract Market',
+      href: `/gameplay/campaigns/${campaignId}/contract-market`,
+    },
+  ];
+
   const renderTab = (tab: NavTab): React.ReactElement => (
     <Link
       key={tab.id}
@@ -123,6 +152,21 @@ export function CampaignNavigation({
           aria-label="Bays"
         >
           {bayTabs.map(renderTab)}
+        </div>
+
+        {/* "Command" group — visually separated, semantically labelled. */}
+        <span
+          className="border-border-theme-subtle ml-2 border-l pl-3 text-xs font-semibold tracking-wider text-slate-500 uppercase"
+          data-testid="campaign-nav-command-group"
+        >
+          Command
+        </span>
+        <div
+          className="flex flex-wrap items-center gap-1"
+          role="group"
+          aria-label="Command"
+        >
+          {commandTabs.map(renderTab)}
         </div>
       </nav>
     </div>
