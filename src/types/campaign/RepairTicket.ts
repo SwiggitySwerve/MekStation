@@ -119,4 +119,15 @@ export interface IRepairTicket {
 
   /** Current lifecycle status */
   readonly status: RepairTicketStatus;
+
+  /**
+   * Player-set repair-order ordinal, written by the Repair Bay UI's
+   * priority-reorder action (`add-campaign-bay-ui` CP2a, design D3).
+   *
+   * Lower numbers are worked first. Absent until the player reorders
+   * the queue; the day-advancement repair processor reads this ordinal
+   * (when present) to choose which ticket a tech picks up next. Setting
+   * it does not change ticket content — only work order.
+   */
+  readonly priority?: number;
 }

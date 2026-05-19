@@ -1,19 +1,45 @@
 /**
  * Campaign Navigation Tabs
  * Shared navigation component for campaign detail pages.
+ *
+ * The "Bays" group (Mech / Repair / Medical / Salvage) was added by
+ * `add-campaign-bay-ui` (CP2a, design D1) — the four post-battle bay
+ * surfaces share one navigation group so they read as a cohesive cluster.
+ *
+ * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  */
 import Link from 'next/link';
 
+/**
+ * Identifier of the currently-active campaign page. The bay pages
+ * (`mech-bay`, `repair-bay`, `medical-bay`, `salvage`) were added by CP2a.
+ */
+export type CampaignPageId =
+  | 'dashboard'
+  | 'personnel'
+  | 'forces'
+  | 'missions'
+  | 'mech-bay'
+  | 'repair-bay'
+  | 'medical-bay'
+  | 'salvage';
+
 interface CampaignNavigationProps {
   campaignId: string;
-  currentPage: 'dashboard' | 'personnel' | 'forces' | 'missions';
+  currentPage: CampaignPageId;
+}
+
+interface NavTab {
+  readonly id: CampaignPageId;
+  readonly label: string;
+  readonly href: string;
 }
 
 export function CampaignNavigation({
   campaignId,
   currentPage,
 }: CampaignNavigationProps): React.ReactElement {
-  const tabs = [
+  const tabs: readonly NavTab[] = [
     {
       id: 'dashboard',
       label: 'Dashboard',
@@ -34,29 +60,70 @@ export function CampaignNavigation({
       label: 'Missions',
       href: `/gameplay/campaigns/${campaignId}/missions`,
     },
-  ] as const;
+  ];
+
+  // The "Bays" group — the four post-battle bay surfaces (CP2a, design D1).
+  const bayTabs: readonly NavTab[] = [
+    {
+      id: 'mech-bay',
+      label: 'Mech Bay',
+      href: `/gameplay/campaigns/${campaignId}/mech-bay`,
+    },
+    {
+      id: 'repair-bay',
+      label: 'Repair Bay',
+      href: `/gameplay/campaigns/${campaignId}/repair-bay`,
+    },
+    {
+      id: 'medical-bay',
+      label: 'Medical Bay',
+      href: `/gameplay/campaigns/${campaignId}/medical-bay`,
+    },
+    {
+      id: 'salvage',
+      label: 'Salvage',
+      href: `/gameplay/campaigns/${campaignId}/salvage`,
+    },
+  ];
+
+  const renderTab = (tab: NavTab): React.ReactElement => (
+    <Link
+      key={tab.id}
+      href={tab.href}
+      className={`px-4 py-3 font-medium transition-colors ${
+        currentPage === tab.id
+          ? 'text-accent border-accent border-b-2'
+          : 'text-text-theme-secondary hover:text-text-theme-primary'
+      }`}
+      aria-current={currentPage === tab.id ? 'page' : undefined}
+    >
+      {tab.label}
+    </Link>
+  );
 
   return (
     <div className="border-border-theme mb-6 border-b">
       <nav
-        className="flex gap-1"
+        className="flex flex-wrap items-center gap-1"
         role="navigation"
         aria-label="Campaign sections"
       >
-        {tabs.map((tab) => (
-          <Link
-            key={tab.id}
-            href={tab.href}
-            className={`px-4 py-3 font-medium transition-colors ${
-              currentPage === tab.id
-                ? 'text-accent border-accent border-b-2'
-                : 'text-text-theme-secondary hover:text-text-theme-primary'
-            }`}
-            aria-current={currentPage === tab.id ? 'page' : undefined}
-          >
-            {tab.label}
-          </Link>
-        ))}
+        {tabs.map(renderTab)}
+
+        {/* "Bays" group — visually separated, semantically labelled. */}
+        <span
+          className="border-border-theme-subtle ml-2 border-l pl-3 text-xs font-semibold tracking-wider text-slate-500 uppercase"
+          data-testid="campaign-nav-bays-group"
+        >
+          Bays
+        </span>
+        <div
+          className="flex flex-wrap items-center gap-1"
+          role="group"
+          aria-label="Bays"
+        >
+          {bayTabs.map(renderTab)}
+        </div>
       </nav>
     </div>
   );
