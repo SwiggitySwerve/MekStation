@@ -290,6 +290,33 @@ const MIGRATIONS: readonly IMigration[] = [
       CREATE INDEX IF NOT EXISTS idx_match_logs_version    ON match_logs(version);
     `,
   },
+  {
+    version: 6,
+    name: 'campaigns_schema',
+    up: `
+      -- Server-side campaign persistence per add-campaign-persistence
+      -- design D8. Stores the full SerializedCampaign envelope JSON keyed
+      -- by campaign id under a dedicated keyspace (its own table). The
+      -- envelope's metadata fields are denormalized as columns for cheap
+      -- server-side filtering and for the list endpoint's summary
+      -- projection (D7) — the JSON payload remains the read authority.
+      CREATE TABLE IF NOT EXISTS campaigns (
+        id           TEXT    PRIMARY KEY,    -- SerializedCampaign.campaignId
+        version      INTEGER NOT NULL,       -- monotonic write counter (D5)
+        schema_version INTEGER NOT NULL,     -- SerializedCampaign.schemaVersion
+        name         TEXT    NOT NULL,       -- body.name
+        faction_id   TEXT    NOT NULL,       -- body.factionId
+        current_date TEXT    NOT NULL,       -- body.currentDate (ISO 8601)
+        balance      REAL    NOT NULL,       -- body.finances.balance (C-bills)
+        saved_at     TEXT    NOT NULL,       -- SerializedCampaign.savedAt (ISO 8601)
+        origin_device_id TEXT NOT NULL,      -- SerializedCampaign.originDeviceId
+        payload      TEXT    NOT NULL        -- JSON-stringified SerializedCampaign
+      );
+
+      -- saved_at: campaign-list view sorts by recency.
+      CREATE INDEX IF NOT EXISTS idx_campaigns_saved_at ON campaigns(saved_at);
+    `,
+  },
 ];
 
 /**

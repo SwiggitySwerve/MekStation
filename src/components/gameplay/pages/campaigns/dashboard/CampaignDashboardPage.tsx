@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
@@ -10,6 +10,7 @@ import {
   createDefaultUnitWeights,
   createDefaultTerrainWeights,
 } from '@/simulation/generator';
+import { installCampaignPersistenceWiring } from '@/stores/campaign/campaignPersistenceWiring';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
@@ -39,6 +40,7 @@ import {
   CampaignRosterCard,
   CampaignStatsGrid,
 } from './CampaignDashboardPage.sections';
+import { CampaignSaveStatusCard } from './CampaignSaveStatusCard';
 import { DailyBattleAuditFeed } from './DailyBattleAuditFeed';
 import { PendingOutcomesBanner } from './PendingOutcomesBanner';
 
@@ -59,6 +61,16 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const missionCount = rosterStore.getState().missionCount;
 
   const isClient = useClientReady();
+
+  // Install the campaign-store -> persistence-store dirty bridge once the
+  // client is hydrated. Idempotent — a remount is a no-op. This is what
+  // re-arms the auto-save debounce on day advancement and edits (D6).
+  useEffect(() => {
+    if (isClient) {
+      installCampaignPersistenceWiring();
+    }
+  }, [isClient]);
+
   const pendingOutcomes = usePendingOutcomes();
   const auditEntries = useDailyBattleAudit();
   const applyErrors = useOutcomeApplyErrors();
@@ -173,6 +185,8 @@ export default function CampaignDashboardPage(): React.ReactElement {
       }
     >
       <CampaignNavigation campaignId={campaign.id} currentPage="dashboard" />
+
+      <CampaignSaveStatusCard />
 
       <PendingOutcomesBanner
         outcomes={pendingOutcomes}
