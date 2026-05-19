@@ -10,6 +10,18 @@
  *
  * Based on MekHQ's daily advancement loop, simplified for MVP.
  *
+ * # Module layout (decompose refactor)
+ *
+ * This file is now a thin pipeline coordinator. The individual phase
+ * implementations live in co-located sibling modules and are re-exported
+ * here so that the public API of `dayAdvancement.ts` is unchanged for all
+ * existing importers/tests:
+ *
+ *   - `dayReportTypes.ts`       — report/event interfaces + cost constants
+ *   - `healingProcessing.ts`    — `processHealing` (personnel phase)
+ *   - `contractProcessing.ts`   — `processContracts` (missions phase)
+ *   - `dailyCostsProcessing.ts` — `processDailyCosts` (finance phase)
+ *
  * @module lib/campaign/dayAdvancement
  *
  * # Pipeline Order (Wave 5 / `wire-encounter-to-campaign-round-trip`)
@@ -89,380 +101,46 @@
  * is consistent with the `turnoverProcessor` pattern proven in PR2.
  */
 
-import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import type { IPilot } from '@/types/pilot/PilotInterfaces';
-
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { ICampaign } from '@/types/campaign/Campaign';
-import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
-import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { TransactionType } from '@/types/campaign/enums/TransactionType';
-import { getAllUnits } from '@/types/campaign/Force';
-import { IContract, isContract, IMission } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
-import { IInjury } from '@/types/campaign/Person';
-import { Transaction } from '@/types/campaign/Transaction';
 
+import { processContracts } from './contractProcessing';
+import { processDailyCosts } from './dailyCostsProcessing';
 import { IDayPipelineResult, IDayEvent } from './dayPipeline';
-import { getBestAvailableDoctor } from './medical/doctorCapacity';
-import { MedicalSystem } from './medical/medicalTypes';
-import { performMedicalCheck } from './medical/performMedicalCheck';
+import {
+  DailyCostBreakdown,
+  DayReport,
+  ExpiredContractEvent,
+  HealedPersonEvent,
+  TurnoverDepartureEvent,
+} from './dayReportTypes';
+import { processHealing } from './healingProcessing';
 import { asEventDataShape } from './utils/processorHelpers';
 
 // =============================================================================
-// Constants
+// Re-exports — preserve the historical public API of this module
 // =============================================================================
+//
+// The phase logic and shared types moved to sibling modules during the
+// decompose refactor. These re-exports keep every existing importer
+// (`useCampaignStore`, `DayReportPanel`, processors, tests, etc.) working
+// against `@/lib/campaign/dayAdvancement` exactly as before.
 
-/** Default daily salary per person in C-bills */
-export const DEFAULT_DAILY_SALARY = 50;
-
-/** Default daily maintenance cost per unit in C-bills */
-export const DEFAULT_DAILY_MAINTENANCE = 100;
-
-// =============================================================================
-// Report Types
-// =============================================================================
-
-/**
- * Event describing a person who completed healing.
- */
-export interface HealedPersonEvent {
-  /** Person ID */
-  readonly personId: string;
-  /** Person name */
-  readonly personName: string;
-  /** Injuries that were fully healed this day */
-  readonly healedInjuries: readonly string[];
-  /** Whether the person transitioned from WOUNDED to ACTIVE */
-  readonly returnedToActive: boolean;
-}
-
-/**
- * Event describing a contract that expired.
- */
-export interface ExpiredContractEvent {
-  /** Contract ID */
-  readonly contractId: string;
-  /** Contract name */
-  readonly contractName: string;
-  /** Previous status */
-  readonly previousStatus: MissionStatus;
-  /** New status after expiration */
-  readonly newStatus: MissionStatus;
-}
-
-/**
- * Breakdown of daily costs.
- */
-export interface DailyCostBreakdown {
-  /** Total salary costs */
-  readonly salaries: Money;
-  /** Total maintenance costs */
-  readonly maintenance: Money;
-  /** Total daily costs */
-  readonly total: Money;
-  /** Number of personnel paid */
-  readonly personnelCount: number;
-  /** Number of units maintained */
-  readonly unitCount: number;
-}
-
-/**
- * Report summarizing all events from a single day advancement.
- */
-export interface TurnoverDepartureEvent {
-  readonly personId: string;
-  readonly personName: string;
-  readonly departureType: 'retired' | 'deserted';
-  readonly roll: number;
-  readonly targetNumber: number;
-  readonly payoutAmount: number;
-  readonly modifiers: readonly {
-    modifierId: string;
-    displayName: string;
-    value: number;
-    isStub: boolean;
-  }[];
-}
-
-export interface DayReport {
-  readonly date: Date;
-  readonly healedPersonnel: readonly HealedPersonEvent[];
-  readonly expiredContracts: readonly ExpiredContractEvent[];
-  readonly costs: DailyCostBreakdown;
-  readonly turnoverDepartures: readonly TurnoverDepartureEvent[];
-  readonly campaign: ICampaign;
-}
-
-// =============================================================================
-// Healing Processing
-// =============================================================================
-
-/**
- * Process healing for all wounded roster entries.
- *
- * Per PR4 of `wire-iperson-hard-cutover`: this legacy function reads roster
- * entries directly (no personnel Map) and returns per-pilot patches that
- * the caller commits via `useCampaignRosterStore.applyPilotPatches`.
- * Production uses `healingProcessor` via the DayPipelineRegistry; this
- * standalone function is a thin wrapper kept for the `advanceDay` legacy
- * path and direct unit tests.
- *
- * For each wounded entry:
- * - Use selected medical system to process injuries
- * - Apply medical check results to reduce healing time
- * - Remove injuries where daysToHeal reaches 0
- * - Reduce recoveryTime by 1 (min 0)
- * - If entry is Wounded and all injuries healed + recoveryTime is 0,
- *   transition to Active
- *
- * @param entries - All roster entries (typically `useCampaignRosterStore.getState().pilots`)
- * @param campaign - Campaign with options for doctor assignment
- * @returns Per-pilot patches plus healing events
- */
-export function processHealing(
-  entries: readonly ICampaignRosterEntry[],
-  campaign?: ICampaign,
-): {
-  patches: Map<string, Partial<ICampaignRosterEntry>>;
-  events: HealedPersonEvent[];
-} {
-  const patches = new Map<string, Partial<ICampaignRosterEntry>>();
-  const events: HealedPersonEvent[] = [];
-
-  const medicalSystem =
-    campaign?.options.medicalSystem ?? MedicalSystem.STANDARD;
-  // Doctor lookup uses ALL entries (for primaryRole=DOCTOR filtering).
-  // No vault join in this legacy path — pass empty pilot map (NPCs only).
-  const emptyPilots: ReadonlyMap<string, IPilot> = new Map<string, IPilot>();
-
-  for (const entry of entries) {
-    if (entry.status !== CampaignPilotStatus.Wounded) continue;
-
-    // Process injuries: apply medical checks, track healed ones
-    const healedInjuryIds: string[] = [];
-    const updatedInjuries: IInjury[] = [];
-    const injuries: readonly IInjury[] = entry.injuries ?? [];
-
-    for (const injury of injuries) {
-      if (injury.permanent) {
-        // Permanent injuries don't heal
-        updatedInjuries.push(injury);
-        continue;
-      }
-
-      // Get assigned doctor for this patient using new two-arg signature
-      const doctorEntry = campaign
-        ? getBestAvailableDoctor(entry, entries, emptyPilots, campaign.options)
-        : null;
-
-      // Perform medical check using selected system with new two-arg signature
-      const medicalResult = campaign
-        ? performMedicalCheck(
-            medicalSystem,
-            entry,
-            injury,
-            doctorEntry,
-            null, // doctorPilot: no vault join in this legacy path
-            campaign.options,
-            Math.random,
-          )
-        : null;
-
-      const daysReduced = medicalResult?.healingDaysReduced ?? 1;
-      const newDaysToHeal = Math.max(0, injury.daysToHeal - daysReduced);
-
-      if (newDaysToHeal === 0) {
-        healedInjuryIds.push(injury.id);
-      } else {
-        updatedInjuries.push({ ...injury, daysToHeal: newDaysToHeal });
-      }
-    }
-
-    // Reduce recoveryTime (the roster-entry recovery counter)
-    const oldRecoveryTime = entry.recoveryTime ?? 0;
-    const newRecoveryTime = Math.max(0, oldRecoveryTime - 1);
-
-    // Check if entry should return to active duty
-    const hasHealableInjuries = updatedInjuries.some((i) => !i.permanent);
-    const returnedToActive = !hasHealableInjuries && newRecoveryTime === 0;
-
-    // Commit a patch when ANY field changes — recoveryTime decrements
-    // even when no injury cleared, so the early-return must consider
-    // the recoveryTime delta too. Otherwise wounded pilots would never
-    // tick down their recovery clock.
-    const recoveryChanged = newRecoveryTime !== oldRecoveryTime;
-    const injuriesChanged = healedInjuryIds.length > 0;
-    if (!injuriesChanged && !returnedToActive && !recoveryChanged) {
-      continue;
-    }
-
-    patches.set(entry.pilotId, {
-      injuries: updatedInjuries,
-      recoveryTime: newRecoveryTime,
-      status: returnedToActive ? CampaignPilotStatus.Active : entry.status,
-    });
-
-    // Only emit a healing event when something user-visible happened
-    // (injury cleared OR returned to active). A silent recovery-time
-    // tick stays internal to keep the event log noise-free.
-    if (injuriesChanged || returnedToActive) {
-      events.push({
-        personId: entry.pilotId,
-        personName: entry.pilotName,
-        healedInjuries: healedInjuryIds,
-        returnedToActive,
-      });
-    }
-  }
-
-  return { patches, events };
-}
-
-// =============================================================================
-// Contract Processing
-// =============================================================================
-
-/**
- * Process contract expiration for the campaign.
- *
- * Checks all active contracts against the current date.
- * If a contract's endDate has passed, it is marked as completed (SUCCESS).
- *
- * @param campaign - The campaign to process
- * @returns Updated missions map and expiration events
- */
-export function processContracts(campaign: ICampaign): {
-  missions: Map<string, IMission>;
-  events: ExpiredContractEvent[];
-} {
-  const updatedMissions = new Map(campaign.missions);
-  const events: ExpiredContractEvent[] = [];
-  const currentDate = campaign.currentDate;
-
-  Array.from(campaign.missions.entries()).forEach(([id, mission]) => {
-    // Only process active contracts with end dates
-    if (!isContract(mission)) return;
-    if (mission.status !== MissionStatus.ACTIVE) return;
-    if (!mission.endDate) return;
-
-    const endDate = new Date(mission.endDate);
-    if (currentDate >= endDate) {
-      const updatedContract: IContract = {
-        ...mission,
-        status: MissionStatus.SUCCESS,
-        updatedAt: new Date().toISOString(),
-      };
-
-      updatedMissions.set(id, updatedContract);
-
-      events.push({
-        contractId: id,
-        contractName: mission.name,
-        previousStatus: mission.status,
-        newStatus: MissionStatus.SUCCESS,
-      });
-    }
-  });
-
-  return { missions: updatedMissions, events };
-}
-
-// =============================================================================
-// Daily Costs Processing
-// =============================================================================
-
-/**
- * Process daily costs for the campaign.
- *
- * Calculates:
- * - Salary: DEFAULT_DAILY_SALARY * salaryMultiplier per active person
- * - Maintenance: DEFAULT_DAILY_MAINTENANCE * maintenanceCostMultiplier per unit
- *
- * Deducts from campaign balance and records transactions.
- *
- * @param campaign - The campaign to process
- * @returns Updated finances and cost breakdown
- */
-export function processDailyCosts(campaign: ICampaign): {
-  finances: { transactions: Transaction[]; balance: Money };
-  costs: DailyCostBreakdown;
-} {
-  const { options } = campaign;
-  const newTransactions: Transaction[] = [...campaign.finances.transactions];
-  let currentBalance = campaign.finances.balance;
-
-  // Count billable personnel for salary — read from roster store
-  // (canonical source per PR4 of `wire-iperson-hard-cutover`).
-  // CampaignPilotStatus.KIA is the only non-billable terminal status; Active,
-  // Wounded, Critical, and MIA all still draw salary.
-  const rosterEntries = useCampaignRosterStore.getState().pilots;
-  const personnelCount = rosterEntries.filter(
-    (e) => e.status !== CampaignPilotStatus.KIA,
-  ).length;
-
-  // Calculate salary costs
-  let salaries = Money.ZERO;
-  if (options.payForSalaries && personnelCount > 0) {
-    const dailySalaryPerPerson = new Money(
-      DEFAULT_DAILY_SALARY * options.salaryMultiplier,
-    );
-    salaries = dailySalaryPerPerson.multiply(personnelCount);
-
-    newTransactions.push({
-      id: `tx-salary-${campaign.currentDate.toISOString()}`,
-      type: TransactionType.Expense,
-      amount: salaries,
-      date: campaign.currentDate,
-      description: `Daily salaries for ${personnelCount} personnel`,
-    });
-
-    currentBalance = currentBalance.subtract(salaries);
-  }
-
-  // Count units for maintenance
-  let unitCount = 0;
-  const rootForce = campaign.forces.get(campaign.rootForceId);
-  if (rootForce) {
-    const allUnitIds = getAllUnits(rootForce, campaign.forces);
-    unitCount = allUnitIds.length;
-  }
-
-  // Calculate maintenance costs
-  let maintenance = Money.ZERO;
-  if (options.payForMaintenance && unitCount > 0) {
-    const dailyMaintenancePerUnit = new Money(
-      DEFAULT_DAILY_MAINTENANCE * options.maintenanceCostMultiplier,
-    );
-    maintenance = dailyMaintenancePerUnit.multiply(unitCount);
-
-    newTransactions.push({
-      id: `tx-maintenance-${campaign.currentDate.toISOString()}`,
-      type: TransactionType.Maintenance,
-      amount: maintenance,
-      date: campaign.currentDate,
-      description: `Daily maintenance for ${unitCount} units`,
-    });
-
-    currentBalance = currentBalance.subtract(maintenance);
-  }
-
-  const total = salaries.add(maintenance);
-
-  return {
-    finances: {
-      transactions: newTransactions,
-      balance: currentBalance,
-    },
-    costs: {
-      salaries,
-      maintenance,
-      total,
-      personnelCount,
-      unitCount,
-    },
-  };
-}
+export {
+  DEFAULT_DAILY_SALARY,
+  DEFAULT_DAILY_MAINTENANCE,
+} from './dayReportTypes';
+export type {
+  HealedPersonEvent,
+  ExpiredContractEvent,
+  DailyCostBreakdown,
+  TurnoverDepartureEvent,
+  DayReport,
+} from './dayReportTypes';
+export { processHealing } from './healingProcessing';
+export { processContracts } from './contractProcessing';
+export { processDailyCosts } from './dailyCostsProcessing';
 
 // =============================================================================
 // Main Day Advancement
@@ -529,6 +207,14 @@ export function advanceDay(campaign: ICampaign): DayReport {
 // Multi-Day Advancement
 // =============================================================================
 
+/**
+ * Advance the campaign by `count` days, threading each day's output
+ * campaign into the next iteration.
+ *
+ * @param campaign - The campaign to advance
+ * @param count - Number of days to advance
+ * @returns One DayReport per advanced day, in chronological order
+ */
 export function advanceDays(campaign: ICampaign, count: number): DayReport[] {
   const reports: DayReport[] = [];
   let currentCampaign = campaign;
@@ -546,6 +232,14 @@ export function advanceDays(campaign: ICampaign, count: number): DayReport[] {
 // Pipeline Integration
 // =============================================================================
 
+/**
+ * Convert a registry `IDayPipelineResult` into the legacy `DayReport`
+ * shape consumed by the campaign store and UI panels. Filters the typed
+ * event stream into the per-category arrays the report exposes.
+ *
+ * @param result - The pipeline result emitted by `DayPipelineRegistry`
+ * @returns A `DayReport` mirroring the legacy `advanceDay` output shape
+ */
 export function convertToLegacyDayReport(
   result: IDayPipelineResult,
 ): DayReport {
@@ -596,6 +290,15 @@ export function convertToLegacyDayReport(
   };
 }
 
+/**
+ * Run one day through the registry pipeline and adapt the result to the
+ * legacy `DayReport` shape. This is the canonical store path; `advanceDay`
+ * above is the registry-free fallback.
+ *
+ * @param campaign - The campaign to advance
+ * @param pipeline - An object exposing `processDay` (the day registry)
+ * @returns A legacy `DayReport` for the advanced day
+ */
 export function advanceDayViaPipeline(
   campaign: ICampaign,
   pipeline: { processDay(campaign: ICampaign): IDayPipelineResult },
