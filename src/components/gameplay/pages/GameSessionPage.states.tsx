@@ -14,12 +14,12 @@ import { GameSide } from '@/types/gameplay';
 export function GameLoading(): React.ReactElement {
   return (
     <div
-      className="flex h-screen items-center justify-center bg-gray-900"
+      className="bg-surface-deep flex h-screen items-center justify-center"
       data-testid="game-loading"
     >
       <div className="text-center">
-        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
-        <p className="text-gray-400">Loading game session...</p>
+        <div className="border-accent mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
+        <p className="text-text-theme-secondary">Loading game session...</p>
       </div>
     </div>
   );
@@ -124,14 +124,14 @@ export function CompletedGame({
 
   return (
     <div
-      className="flex h-screen items-center justify-center bg-gray-900"
+      className="bg-surface-deep flex h-screen items-center justify-center"
       data-testid="game-completed"
     >
       <div className="max-w-lg text-center">
         <div className={`mb-4 text-6xl font-bold ${winnerColor}`}>
           {winnerText}
         </div>
-        <p className="mb-8 text-lg text-gray-400 capitalize">
+        <p className="text-text-theme-secondary mb-8 text-lg capitalize">
           {reason.replace('_', ' ')}
         </p>
 
@@ -169,7 +169,7 @@ export function CompletedGame({
           </div>
         </div>
 
-        <div className="mt-8 border-t border-gray-700 pt-8">
+        <div className="border-border-theme mt-8 border-t pt-8">
           <Link
             href={`/audit/timeline?gameId=${gameId}`}
             className="flex items-center justify-center gap-2 text-sm text-cyan-400 transition-colors hover:text-cyan-300"
@@ -193,7 +193,7 @@ export function GameError({
 }: GameErrorProps): React.ReactElement {
   return (
     <div
-      className="flex h-screen items-center justify-center bg-gray-900"
+      className="bg-surface-deep flex h-screen items-center justify-center"
       data-testid="game-error"
     >
       <div className="max-w-md text-center">
@@ -212,10 +212,10 @@ export function GameError({
             />
           </svg>
         </div>
-        <h2 className="mb-2 text-xl font-bold text-white">
+        <h2 className="text-text-theme-primary mb-2 text-xl font-bold">
           Failed to Load Game
         </h2>
-        <p className="mb-4 text-gray-400">{message}</p>
+        <p className="text-text-theme-secondary mb-4">{message}</p>
         <div className="flex items-center justify-center gap-3">
           <Button
             variant="primary"

@@ -1,17 +1,10 @@
 import Link from 'next/link';
 
 import { KeyboardShortcutsHelp } from '@/components/audit/replay';
-import { Button } from '@/components/ui';
+import { Button, PageLoading } from '@/components/ui';
 
 export function ReplayLoading(): React.ReactElement {
-  return (
-    <div className="flex h-screen items-center justify-center bg-gray-900">
-      <div className="text-center">
-        <div className="border-accent mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
-        <p className="text-text-theme-secondary">Loading game replay...</p>
-      </div>
-    </div>
-  );
+  return <PageLoading message="Loading game replay..." />;
 }
 
 interface ReplayErrorProps {
@@ -24,7 +17,7 @@ export function ReplayError({
   gameId,
 }: ReplayErrorProps): React.ReactElement {
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-900">
+    <div className="bg-surface-deep flex h-screen items-center justify-center">
       <div className="max-w-md text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-900/20">
           <svg
