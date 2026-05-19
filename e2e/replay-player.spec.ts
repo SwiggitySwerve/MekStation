@@ -61,8 +61,12 @@ test.describe('Audit Timeline Page', () => {
     // Check filter controls exist
     await expect(page.getByPlaceholder('Search events...')).toBeVisible();
 
-    // Check category filter buttons exist (at least the "All" option)
-    await expect(page.getByRole('button', { name: /All/i })).toBeVisible();
+    // Check category filter buttons exist (at least the "All" option). Scope
+    // to the timeline-filters container — `/All/i` matches several buttons
+    // elsewhere on the page (top-bar dropdowns, etc.) and would trip strict
+    // mode. PT-007.
+    const filters = page.getByTestId('timeline-filters');
+    await expect(filters.getByRole('button', { name: /All/i })).toBeVisible();
   });
 
   test('can toggle advanced query builder', async ({ page }) => {
@@ -78,8 +82,11 @@ test.describe('Audit Timeline Page', () => {
   });
 
   test('category filters are clickable', async ({ page }) => {
-    // Click a category filter
-    const gameFilter = page.getByRole('button', { name: /Game/i });
+    // Click a category filter — scope to the timeline-filters container so
+    // `/Game/i` doesn't strict-mode-collide with top-bar buttons that share
+    // the substring (e.g. an `aria-haspopup="menu"` Games dropdown). PT-007.
+    const filters = page.getByTestId('timeline-filters');
+    const gameFilter = filters.getByRole('button', { name: /Game/i });
     if (await gameFilter.isVisible()) {
       await gameFilter.click();
       // Should be active
