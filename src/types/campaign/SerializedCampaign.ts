@@ -12,6 +12,7 @@
  */
 
 import type { IShoppingList } from './acquisition/acquisitionTypes';
+import type { ICampaignLoan } from './CampaignLoan';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { CampaignType } from './CampaignType';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
@@ -82,6 +83,13 @@ export interface SerializedCampaignBody {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly unitCombatStates: Readonly<Record<string, IUnitCombatState>>;
+  /**
+   * The campaign's loan ledger (CP2b — `add-campaign-command-ui`,
+   * design D4). Optional and absent on pre-CP2b snapshots. Every
+   * `ICampaignLoan` field is already a JSON-safe scalar, so the ledger
+   * serializes directly with no flattening.
+   */
+  readonly loans?: readonly ICampaignLoan[];
 }
 
 // =============================================================================

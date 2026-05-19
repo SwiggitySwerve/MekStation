@@ -64,6 +64,12 @@ export interface DailyCostBreakdown {
   readonly salaries: Money;
   /** Total maintenance costs */
   readonly maintenance: Money;
+  /**
+   * Summed daily repayment of all active campaign loans (CP2b —
+   * `add-campaign-command-ui`, design D4). Zero when the campaign has
+   * no active loans. Included in `total`.
+   */
+  readonly loanRepayment: Money;
   /** Total daily costs */
   readonly total: Money;
   /** Number of personnel paid */

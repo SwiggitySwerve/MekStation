@@ -5,11 +5,18 @@
  * standalone `processDailyCosts` phase used by the legacy `advanceDay`
  * path, by the registry `dailyCostsProcessor`, and by direct unit tests.
  *
- * Behavior is identical to the pre-refactor implementation — this module
- * is a pure cut/paste of the daily-costs phase with no logic change.
+ * As of CP2b (`add-campaign-command-ui`, design D4) the daily-costs phase
+ * also services campaign loans: each active loan's `dailyRepayment` is
+ * summed into the daily cost and debited, the loan's `remainingBalance`
+ * is decremented, and a loan settles to `repaid` once its balance hits
+ * zero. There is no separate loan-repayment engine — repayment reuses
+ * this pipeline (design D4).
  *
  * @module lib/campaign/dailyCostsProcessing
  */
+
+import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
+import type { ICampaignLoan } from '@/types/campaign/CampaignLoan';
 
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { ICampaign } from '@/types/campaign/Campaign';
@@ -26,19 +33,71 @@ import {
 } from './dayReportTypes';
 
 /**
+ * Apply one day of repayment to the campaign's active loans.
+ *
+ * Each active loan repays `min(dailyRepayment, remainingBalance)` — the
+ * final day repays only the residual so a loan never overpays. A loan
+ * whose balance reaches zero settles to `repaid` and stops contributing
+ * to the daily cost (design D4).
+ *
+ * @param loans - the campaign's loan ledger (may be empty/undefined)
+ * @returns the repaid C-bill total and the updated loan ledger
+ */
+function applyLoanRepayments(loans: readonly ICampaignLoan[] | undefined): {
+  repaid: number;
+  nextLoans: readonly ICampaignLoan[];
+} {
+  if (!loans || loans.length === 0) {
+    return { repaid: 0, nextLoans: loans ?? [] };
+  }
+
+  let repaid = 0;
+  const nextLoans = loans.map((loan): ICampaignLoan => {
+    if (loan.status !== 'active') return loan;
+
+    // The last instalment repays only what is left so a loan never
+    // overpays past its remaining balance. A loan whose remaining
+    // balance is within one C-bill cent of the daily instalment is
+    // settled in full this pass — `Money` rounds to cents, so leaving a
+    // sub-cent residual would strand the loan permanently `active`.
+    const isFinalInstalment =
+      loan.remainingBalance <= loan.dailyRepayment + 0.01;
+    const payment = isFinalInstalment
+      ? loan.remainingBalance
+      : loan.dailyRepayment;
+    repaid += payment;
+
+    const remainingBalance = isFinalInstalment
+      ? 0
+      : loan.remainingBalance - payment;
+    const status = isFinalInstalment ? 'repaid' : 'active';
+
+    return {
+      ...loan,
+      remainingBalance,
+      status,
+    };
+  });
+
+  return { repaid, nextLoans };
+}
+
+/**
  * Process daily costs for the campaign.
  *
  * Calculates:
  * - Salary: DEFAULT_DAILY_SALARY * salaryMultiplier per active person
  * - Maintenance: DEFAULT_DAILY_MAINTENANCE * maintenanceCostMultiplier per unit
+ * - Loan repayment: sum of every active loan's `dailyRepayment` (design D4)
  *
  * Deducts from campaign balance and records transactions.
  *
  * @param campaign - The campaign to process
- * @returns Updated finances and cost breakdown
+ * @returns Updated finances, the updated loan ledger, and a cost breakdown
  */
 export function processDailyCosts(campaign: ICampaign): {
   finances: { transactions: Transaction[]; balance: Money };
+  loans: readonly ICampaignLoan[];
   costs: DailyCostBreakdown;
 } {
   const { options } = campaign;
@@ -100,16 +159,39 @@ export function processDailyCosts(campaign: ICampaign): {
     currentBalance = currentBalance.subtract(maintenance);
   }
 
-  const total = salaries.add(maintenance);
+  // Service campaign loans — sum and debit each active loan's daily
+  // repayment, then decrement the loan balances (design D4). Loans are
+  // an additive optional campaign extension; a campaign with no loans
+  // produces a zero repayment and an unchanged (empty) ledger.
+  const campaignLoans = (campaign as ICampaignWithCommand).loans;
+  const { repaid, nextLoans } = applyLoanRepayments(campaignLoans);
+  let loanRepayment = Money.ZERO;
+  if (repaid > 0) {
+    loanRepayment = new Money(repaid);
+
+    newTransactions.push({
+      id: `tx-loan-repayment-${campaign.currentDate.toISOString()}`,
+      type: TransactionType.LoanPayment,
+      amount: loanRepayment,
+      date: campaign.currentDate,
+      description: `Loan repayment: ${loanRepayment.format()}`,
+    });
+
+    currentBalance = currentBalance.subtract(loanRepayment);
+  }
+
+  const total = salaries.add(maintenance).add(loanRepayment);
 
   return {
     finances: {
       transactions: newTransactions,
       balance: currentBalance,
     },
+    loans: nextLoans,
     costs: {
       salaries,
       maintenance,
+      loanRepayment,
       total,
       personnelCount,
       unitCount,

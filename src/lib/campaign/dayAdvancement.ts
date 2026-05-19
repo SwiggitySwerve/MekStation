@@ -190,8 +190,11 @@ export function advanceDay(campaign: ICampaign): DayReport {
     currentDate: nextDate,
     missions: contractResult.missions,
     finances: costResult.finances,
+    // Carry the loan ledger advanced by `processDailyCosts` (design D4 —
+    // `add-campaign-command-ui`) so loan repayment persists.
+    loans: costResult.loans,
     updatedAt: new Date().toISOString(),
-  };
+  } as ICampaign;
 
   return {
     date: processedDate,
@@ -259,6 +262,7 @@ export function convertToLegacyDayReport(
     : {
         salaries: Money.ZERO,
         maintenance: Money.ZERO,
+        loanRepayment: Money.ZERO,
         total: Money.ZERO,
         personnelCount: 0,
         unitCount: 0,

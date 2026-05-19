@@ -32,10 +32,14 @@ export const dailyCostsProcessor: IDayProcessor = {
       });
     }
 
+    // Spread the updated loan ledger alongside finances so loan
+    // repayment (design D4 — `add-campaign-command-ui`) advances the
+    // loan `remainingBalance` / `status` on the persisted campaign.
     const updatedCampaign: ICampaign = {
       ...campaign,
       finances: result.finances,
-    };
+      loans: result.loans,
+    } as ICampaign;
 
     return { events, campaign: updatedCampaign };
   },

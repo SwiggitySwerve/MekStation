@@ -13,6 +13,7 @@
  */
 
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 import type { IFinances } from '@/types/campaign/IFinances';
 import type {
   SerializedCampaignBody,
@@ -105,6 +106,10 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
     createdAt: campaign.createdAt,
     updatedAt: campaign.updatedAt,
     unitCombatStates: campaign.unitCombatStates,
+    // The loan ledger (CP2b — `add-campaign-command-ui`, design D4) is
+    // a campaign-extension field; every `ICampaignLoan` field is already
+    // a JSON-safe scalar so it serializes directly. Omitted when absent.
+    loans: (campaign as ICampaignWithCommand).loans,
   };
 }
 
@@ -140,5 +145,8 @@ export function deserializeCampaignBody(
     createdAt: body.createdAt,
     updatedAt: body.updatedAt,
     unitCombatStates: body.unitCombatStates,
-  };
+    // Restore the loan ledger (design D4). Absent on pre-CP2b snapshots,
+    // in which case the campaign simply carries no `loans` field.
+    ...(body.loans !== undefined ? { loans: body.loans } : {}),
+  } as ICampaign;
 }
