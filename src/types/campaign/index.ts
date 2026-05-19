@@ -4,6 +4,7 @@
  */
 
 export * from './CampaignInterfaces';
+export * from './CoopCampaign';
 export * from './acquisition';
 export * from './awards';
 export * from './contracts';

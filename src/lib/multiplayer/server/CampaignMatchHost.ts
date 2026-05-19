@@ -282,6 +282,101 @@ export class CampaignMatchHost {
   }
 
   /**
+   * Credit the campaign salvage pool — a host-authoritative
+   * reconciliation event (CO2 design D8).
+   *
+   * Post-battle reconciliation needs to GROW the salvage pool (a battle
+   * yields salvage / a mission payout). CO1's guest intent set only
+   * DRAWS from the pool (`AllocateSalvage`); a credit is not a guest
+   * action — it is a host-authoritative consequence of a resolved
+   * encounter. This method commits a `SalvageAllocated` event whose
+   * `poolRemaining` is the pool AFTER adding `value`, so both mirrors
+   * see the larger pool.
+   *
+   * `value` must be positive; a non-positive credit is a no-op rejection
+   * so reconciliation never emits an empty event.
+   */
+  async creditSalvagePool(
+    value: number,
+    reason: string,
+  ): Promise<CampaignIntentResult> {
+    if (this.closed) {
+      return {
+        ok: false,
+        code: INVALID_CAMPAIGN_INTENT,
+        reason: 'session-closed',
+      };
+    }
+    if (!(value > 0) || !Number.isFinite(value)) {
+      return {
+        ok: false,
+        code: INVALID_CAMPAIGN_INTENT,
+        reason: 'malformed-intent',
+      };
+    }
+    void reason;
+    const committed = await this.commitEvents([
+      {
+        type: 'SalvageAllocated',
+        campaignId: this.campaignId,
+        authorPlayerId: this.hostPlayerId,
+        ts: nowIso(),
+        payload: {
+          value,
+          poolRemaining: this.state.salvagePool + value,
+        },
+      },
+    ]);
+    return { ok: true, events: committed };
+  }
+
+  /**
+   * Commit a `RosterUnitChanged` event under host authority — a
+   * post-battle reconciliation consequence (CO2 design D8).
+   *
+   * A co-op battle damages or destroys roster units; the change is a
+   * host-authoritative fact, not a guest intent. This commits the event
+   * through the single commit path so both mirrors converge on the
+   * post-battle roster.
+   */
+  async applyRosterUnitChange(
+    campaignId: string,
+    change: 'added' | 'removed' | 'repaired',
+    unit: {
+      readonly unitId: string;
+      readonly designation: string;
+      readonly status: 'operational' | 'damaged' | 'destroyed';
+    },
+    intentTag: string,
+  ): Promise<CampaignIntentResult> {
+    if (this.closed) {
+      return {
+        ok: false,
+        code: INVALID_CAMPAIGN_INTENT,
+        reason: 'session-closed',
+      };
+    }
+    if (campaignId !== this.campaignId) {
+      return {
+        ok: false,
+        code: INVALID_CAMPAIGN_INTENT,
+        reason: 'campaign-mismatch',
+      };
+    }
+    void intentTag;
+    const committed = await this.commitEvents([
+      {
+        type: 'RosterUnitChanged',
+        campaignId: this.campaignId,
+        authorPlayerId: this.hostPlayerId,
+        ts: nowIso(),
+        payload: { change, unit },
+      },
+    ]);
+    return { ok: true, events: committed };
+  }
+
+  /**
    * Build the typed error envelope for a rejected intent, carrying the
    * originating `intentId` for guest-side correlation. The transport
    * layer (`CampaignSyncSession`) sends this to the originating client.
