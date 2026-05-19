@@ -17,16 +17,19 @@ import {
 import { terrainTagOffersCover } from '@/utils/gameplay/terrainCover';
 
 import type { SeededRandom } from '../core/SeededRandom';
+import type { ObjectiveRole } from './AIObjectivePlanner';
 import type { IAIPath } from './AITerrainPathfinder';
 import type {
   IAITierCoordinationParameters,
   IAITierMovementParameters,
+  IAITierObjectiveParameters,
 } from './AITierRegistry';
 import type { IAIUnitState, IBotBehavior, IMove } from './types';
 
 import { findAllPaths } from './AITerrainPathfinder';
 import {
   resolveCoordinationParameters,
+  resolveObjectiveParameters,
   resolveTierParameters,
 } from './AITierRegistry';
 import { scoreRetreatMove } from './RetreatAI';
@@ -176,6 +179,30 @@ export interface IScoreMoveContext {
    * per-unit callers.
    */
   readonly lancemates?: readonly IAIUnitState[];
+
+  /**
+   * Per `add-ai-objective-awareness` design D3: the active difficulty tier's
+   * objective-awareness parameter block. When omitted, or when its
+   * `objectiveAwareness` flag is `false` (the `Green` / `Regular` / `Veteran`
+   * tiers, and every legacy caller), `scoreMove`'s objective term contributes
+   * zero and the score is byte-identical to the A1/A2/A3a scorer.
+   */
+  readonly tierObjective?: IAITierObjectiveParameters;
+  /**
+   * Per `add-ai-objective-awareness` design D3: the moving unit's objective
+   * role from the lance plan's objective layer. `'capture'` rewards closing
+   * on the objective hex; `'hold'` rewards staying on it; `'screen'` (and an
+   * absent role) leave the objective term at zero. Omitted for callers
+   * without an objective plan.
+   */
+  readonly objectiveRole?: ObjectiveRole;
+  /**
+   * Per `add-ai-objective-awareness` design D3: the hex the moving unit is
+   * working toward (`capture`) or holding (`hold`). The objective term
+   * scores `move.destination` against this hex. Omitted for screen-role
+   * units and callers without an objective plan.
+   */
+  readonly objectiveHex?: IHexCoordinate;
 }
 
 /**
@@ -289,8 +316,107 @@ export function scoreMove(move: IMove, ctx: IScoreMoveContext): number {
   // caller), so the score above is unchanged for those tiers.
   score += cohesionScore(move, ctx);
 
+  // Per `add-ai-objective-awareness` design D3: the objective-seeking /
+  // objective-holding term. Additive over the cohesion term. Returns `0`
+  // whenever objective awareness is disabled (every non-`Elite` tier and
+  // legacy caller) or the unit has no objective role, so the score above is
+  // unchanged for those tiers.
+  score += objectiveScore(move, ctx);
+
   return score;
 }
+
+/**
+ * Per `add-ai-objective-awareness` design D3: the objective movement term,
+ * gated on `objectiveAwareness`.
+ *
+ *   - Capture role — `+objectiveSeekingWeight` per hex of distance reduced
+ *     toward the `take` marker (origin distance minus destination distance),
+ *     so closing on the objective outscores backing off, plus a large flat
+ *     on-marker bonus (`objectiveSeekingWeight * ON_MARKER_BONUS_HEXES`) for
+ *     a destination *on* the marker hex so the unit commits to standing on
+ *     it once in reach.
+ *   - Hold role — `+objectiveHoldWeight` for a destination on the `hold`
+ *     marker, `objectiveHoldWeight * ADJACENT_HOLD_FRACTION` for a
+ *     destination adjacent to it (engage from cover near the marker), and
+ *     `0` for any destination that abandons the marker — so staying planted
+ *     always outscores chasing an enemy off the objective.
+ *   - Screen role (and an absent role) — contributes `0`; the unit plays
+ *     pure A1/A2/A3a movement.
+ *
+ * Returns `0` when `tierObjective` is absent, `objectiveAwareness` is
+ * `false`, no `objectiveHex` is supplied, or the role is `screen` — the
+ * score is byte-identical to the A3a scorer for every non-`Elite` tier and
+ * every screen-role unit.
+ *
+ * Pure — never mutates inputs, consumes no `SeededRandom`.
+ */
+function objectiveScore(move: IMove, ctx: IScoreMoveContext): number {
+  const { tierObjective, objectiveRole, objectiveHex, attacker } = ctx;
+
+  // Gate: non-objective-aware tiers, every legacy caller, and screen-role
+  // units resolve to a no-op.
+  if (!tierObjective || !tierObjective.objectiveAwareness) {
+    return 0;
+  }
+  if (!objectiveRole || objectiveRole === 'screen') {
+    return 0;
+  }
+  if (!objectiveHex) {
+    return 0;
+  }
+
+  const destDistance = hexDistance(move.destination, objectiveHex);
+
+  if (objectiveRole === 'capture') {
+    const { objectiveSeekingWeight } = tierObjective;
+    if (objectiveSeekingWeight === 0) return 0;
+    // A destination on the marker earns a large flat bonus so the unit
+    // commits to standing on the objective once it can reach it.
+    if (destDistance === 0) {
+      return objectiveSeekingWeight * ON_MARKER_BONUS_HEXES;
+    }
+    // Otherwise reward the reduction in distance toward the marker — the
+    // closer the destination is than the unit's current hex, the higher the
+    // term. A destination that backs away pays a negative term.
+    const originDistance = hexDistance(attacker.position, objectiveHex);
+    return objectiveSeekingWeight * (originDistance - destDistance);
+  }
+
+  // Hold role.
+  const { objectiveHoldWeight } = tierObjective;
+  if (objectiveHoldWeight === 0) return 0;
+  // On the marker — full hold weight; the unit keeps control.
+  if (destDistance === 0) {
+    return objectiveHoldWeight;
+  }
+  // Adjacent to the marker — a reduced reward; the unit stays close enough
+  // to re-take the hex while using nearby cover, but a destination ON the
+  // marker still scores strictly higher.
+  if (destDistance === 1) {
+    return objectiveHoldWeight * ADJACENT_HOLD_FRACTION;
+  }
+  // Any destination that abandons the marker forfeits the whole term —
+  // chasing an enemy off the objective is never rewarded.
+  return 0;
+}
+
+/**
+ * Per `add-ai-objective-awareness` design D3: the on-marker capture bonus is
+ * `objectiveSeekingWeight` multiplied by this hex count. Sized so it dwarfs
+ * the per-hex distance-reduction reward — a unit one hex away that *could*
+ * step onto the marker always prefers the on-marker hex over a closer-but-
+ * off-marker destination.
+ */
+const ON_MARKER_BONUS_HEXES = 20;
+
+/**
+ * Per `add-ai-objective-awareness` design D3: a hold-role unit on a hex
+ * adjacent to its marker earns this fraction of the full hold weight — close
+ * enough to re-take the objective and use nearby cover, but strictly below
+ * the on-marker score so the unit prefers to stand on the objective itself.
+ */
+const ADJACENT_HOLD_FRACTION = 0.5;
 
 /**
  * Per `add-ai-coordination-tactics` design D3: the formation-cohesion
@@ -599,13 +725,20 @@ export class MoveAI {
     // so for `Green` / `Regular` / `Veteran` (and a `ctx` carrying no lance
     // centroid) this contributes nothing — the score stays byte-identical.
     const tierCoordination = resolveCoordinationParameters(tierParams);
+    // Per `add-ai-objective-awareness` design D3: attach the objective block.
+    // `scoreMove`'s objective term gates on `objectiveAwareness` and the
+    // caller-supplied `objectiveRole`, so for every non-`Elite` tier (and a
+    // `ctx` carrying no objective role) this contributes nothing — the score
+    // stays byte-identical.
+    const tierObjective = resolveObjectiveParameters(tierParams);
 
     // Legacy tiers: attach the (no-op) tier blocks only. `scoreMove` gates
-    // every terrain-aware term on `pathfinderEnabled` and the cohesion term
-    // on `lanceCoordination`, so this is byte-identical to pre-change
-    // behavior for the non-pathfinder tiers.
+    // every terrain-aware term on `pathfinderEnabled`, the cohesion term on
+    // `lanceCoordination`, and the objective term on `objectiveAwareness`, so
+    // this is byte-identical to pre-change behavior for the non-pathfinder
+    // tiers.
     if (!tierMovement.pathfinderEnabled) {
-      return { ...ctx, tierMovement, tierCoordination };
+      return { ...ctx, tierMovement, tierCoordination, tierObjective };
     }
 
     // Determine the shared movement type and MP budget for the pathfinder
@@ -620,7 +753,13 @@ export class MoveAI {
       capability,
     );
 
-    return { ...ctx, tierMovement, tierCoordination, pathByDestination };
+    return {
+      ...ctx,
+      tierMovement,
+      tierCoordination,
+      tierObjective,
+      pathByDestination,
+    };
   }
 }
 
