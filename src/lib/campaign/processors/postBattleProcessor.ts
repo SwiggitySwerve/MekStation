@@ -1,5 +1,6 @@
 ﻿import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IUnitPrestige } from '@/types/campaign/Prestige';
 import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
@@ -13,6 +14,7 @@ import type { IDayProcessor, IDayProcessorResult } from '../dayPipeline';
 import { publishContractFulfilled } from '../contractFulfillmentBus';
 import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
+import { applyOutcomePrestige } from '../prestige/applyOutcomePrestige';
 import {
   applyContractDelta,
   applyPilotDelta,
@@ -138,6 +140,15 @@ function applyOutcome(
       publishedAt: nowIso,
     });
   }
+  // Per `add-campaign-refit-and-prestige` design D7: the prestige-update
+  // step runs when a battle outcome is applied, so per-unit prestige
+  // tracks combat results deterministically. The post-battle processor's
+  // matchId de-dup (above) guarantees this never double-applies.
+  const updatedPrestige: readonly IUnitPrestige[] = applyOutcomePrestige(
+    outcome,
+    campaign.unitPrestige ?? [],
+    nowIso,
+  );
   const updatedCampaign: ICampaignWithBattleState & {
     readonly recentlyAppliedOutcomes: readonly ICombatOutcome[];
     readonly pendingFulfilledContractIds: readonly string[];
@@ -147,6 +158,7 @@ function applyOutcome(
     pendingBattleOutcomes: remainingQueue,
     processedBattleIds: [...processed, outcome.matchId],
     unitCombatStates: unitStates,
+    unitPrestige: updatedPrestige,
     recentlyAppliedOutcomes: recentlyApplied,
     pendingFulfilledContractIds: nextFulfilled,
     updatedAt: nowIso,

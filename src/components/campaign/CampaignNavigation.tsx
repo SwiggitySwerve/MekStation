@@ -32,7 +32,8 @@ export type CampaignPageId =
   | 'salvage'
   | 'hiring'
   | 'finances'
-  | 'contract-market';
+  | 'contract-market'
+  | 'prestige-morale';
 
 interface CampaignNavigationProps {
   campaignId: string;
@@ -112,6 +113,14 @@ export function CampaignNavigation({
       id: 'contract-market',
       label: 'Contract Market',
       href: `/gameplay/campaigns/${campaignId}/contract-market`,
+    },
+    // The Prestige & Morale surface (CP3 — `add-campaign-refit-and-prestige`,
+    // design D10) — a company-level read-only surface, grouped with the
+    // other command-tier surfaces.
+    {
+      id: 'prestige-morale',
+      label: 'Prestige & Morale',
+      href: `/gameplay/campaigns/${campaignId}/prestige-morale`,
     },
   ];
 

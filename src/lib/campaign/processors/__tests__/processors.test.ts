@@ -254,13 +254,13 @@ describe('registerBuiltinProcessors', () => {
     _resetBuiltinRegistration();
   });
 
-  it('should register all fifteen builtin processors', () => {
+  it('should register all seventeen builtin processors', () => {
     registerBuiltinProcessors();
     const processors = getDayPipeline().getProcessors();
 
-    // 15 = 12 prior + scenario-generation, scenario-encounter-bridge,
-    // and inventory-projection (add-campaign-combat-loop, Wave 4 CP1).
-    expect(processors).toHaveLength(15);
+    // 17 = 15 prior + refit and morale
+    // (add-campaign-refit-and-prestige, Wave 4 CP3).
+    expect(processors).toHaveLength(17);
     expect(processors.map((p) => p.id).sort()).toEqual(
       [
         'healing',
@@ -278,6 +278,8 @@ describe('registerBuiltinProcessors', () => {
         'scenario-generation',
         'scenario-encounter-bridge',
         'inventory-projection',
+        'refit',
+        'morale',
       ].sort(),
     );
   });
@@ -287,7 +289,7 @@ describe('registerBuiltinProcessors', () => {
     registerBuiltinProcessors();
 
     const processors = getDayPipeline().getProcessors();
-    expect(processors).toHaveLength(15);
+    expect(processors).toHaveLength(17);
   });
 
   it('should register processors in correct phase order', () => {
@@ -300,9 +302,12 @@ describe('registerBuiltinProcessors', () => {
     // sorts ascending by phase. add-campaign-combat-loop adds three
     // processors at the tail: scenario-generation (EVENTS=800),
     // scenario-encounter-bridge (EVENTS+10=810), inventory-projection
-    // (CLEANUP=900). Expected order:
+    // (CLEANUP=900). add-campaign-refit-and-prestige (Wave 4 CP3) adds
+    // the refit processor (UNITS=500) and the morale processor
+    // (EVENTS=800). Expected order:
     //   PERSONNEL × 2, MARKETS × 3, post-battle, salvage, repair,
-    //   contracts, FINANCES, EVENTS × 3, EVENTS+10, CLEANUP.
+    //   contracts, refit (UNITS), FINANCES, EVENTS × 4, EVENTS+10,
+    //   CLEANUP.
     expect(processors[0].phase).toBe(DayPhase.PERSONNEL);
     expect(processors[1].phase).toBe(DayPhase.PERSONNEL);
     expect(processors[2].phase).toBe(DayPhase.MARKETS);
@@ -312,11 +317,13 @@ describe('registerBuiltinProcessors', () => {
     expect(processors[6].phase).toBe(DayPhase.MISSIONS - 25); // salvage
     expect(processors[7].phase).toBe(DayPhase.MISSIONS - 10); // repair
     expect(processors[8].phase).toBe(DayPhase.MISSIONS); // contracts
-    expect(processors[9].phase).toBe(DayPhase.FINANCES);
-    expect(processors[10].phase).toBe(DayPhase.EVENTS);
+    expect(processors[9].phase).toBe(DayPhase.UNITS); // refit
+    expect(processors[10].phase).toBe(DayPhase.FINANCES);
     expect(processors[11].phase).toBe(DayPhase.EVENTS);
     expect(processors[12].phase).toBe(DayPhase.EVENTS);
-    expect(processors[13].phase).toBe(DayPhase.EVENTS + 10); // bridge
-    expect(processors[14].phase).toBe(DayPhase.CLEANUP); // inventory
+    expect(processors[13].phase).toBe(DayPhase.EVENTS);
+    expect(processors[14].phase).toBe(DayPhase.EVENTS);
+    expect(processors[15].phase).toBe(DayPhase.EVENTS + 10); // bridge
+    expect(processors[16].phase).toBe(DayPhase.CLEANUP); // inventory
   });
 });

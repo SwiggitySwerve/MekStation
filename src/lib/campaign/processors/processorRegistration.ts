@@ -10,8 +10,10 @@ import {
   personnelMarketProcessor,
   unitMarketProcessor,
 } from './marketProcessors';
+import { moraleProcessor } from './moraleProcessor';
 import { postBattleProcessor } from './postBattleProcessor';
 import { randomEventsProcessor } from './randomEventsProcessor';
+import { refitProcessor } from './refitProcessor';
 import { repairQueueBuilderProcessor } from './repairQueueBuilderProcessor';
 import { salvageProcessor } from './salvageProcessor';
 import { scenarioEncounterBridgeProcessor } from './scenarioEncounterBridgeProcessor';
@@ -56,6 +58,13 @@ export function registerBuiltinProcessors(): void {
   pipeline.register(dailyCostsProcessor);
   pipeline.register(autoAwardsProcessor);
   registerAcquisitionProcessor();
+  // Per `add-campaign-refit-and-prestige` design D5/D9: the refit
+  // processor runs in DayPhase.UNITS (alongside maintenance/repair work);
+  // the morale processor runs in DayPhase.EVENTS, after the battle-effects
+  // block and daily costs so the day's victory/defeat/pay/desertion
+  // signals are settled before morale is evaluated.
+  pipeline.register(refitProcessor);
+  pipeline.register(moraleProcessor);
   pipeline.register(randomEventsProcessor);
   pipeline.register(unitMarketProcessor);
   pipeline.register(personnelMarketProcessor);
