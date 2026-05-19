@@ -1,5 +1,6 @@
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 import type {
   IEventMessage,
   IIntent,
@@ -15,6 +16,7 @@ import type { IMatchStore } from './IMatchStore';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 
+import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
 import { isLobbyIntentKind } from './ServerMatchHostLobbyIntents';
@@ -71,6 +73,18 @@ export async function handleIntent(
     const err = errorMessage(ctx.matchId, 'UNKNOWN_MATCH', 'Match is closed');
     ctx.broadcast(err);
     return [err];
+  }
+
+  // M3 (add-matchmaking-and-spectator) design D5 — a spectator can
+  // never produce an `Intent`. The spectator surface renders no intent
+  // controls, but the server independently rejects ANY intent from a
+  // `kind: 'spectator'` seat — engine-mutating intents AND lobby
+  // intents alike — so a hand-crafted envelope cannot act. No event is
+  // appended. The check runs before lobby routing and before every
+  // integrity gate so a spectator intent is rejected uniformly.
+  const spectatorRejection = await rejectSpectatorIntent(ctx, envelope);
+  if (spectatorRejection) {
+    return spectatorRejection;
   }
 
   // Lobby intents route to the lobby handler BEFORE the integrity
@@ -182,6 +196,43 @@ export async function handleIntent(
 
   ctx.tryPublishOutcome();
   return broadcasts;
+}
+
+/**
+ * M3 design D5 — reject an intent that originates from a
+ * `kind: 'spectator'` seat. Returns the broadcast `Error` list when the
+ * envelope's `playerId` occupies a spectator seat, or `null` when the
+ * player is a participant (or seat metadata is unavailable, in which
+ * case the normal intent path runs).
+ *
+ * The reply is `Error {code: 'INVALID_INTENT', reason:
+ * 'spectator-cannot-act'}`. No event is appended — the function returns
+ * before `dispatchToEngine` is ever reached.
+ */
+async function rejectSpectatorIntent(
+  ctx: IServerMatchHostIntentContext,
+  envelope: IIntent,
+): Promise<readonly IServerMessage[] | null> {
+  let seats: readonly IMatchSeat[];
+  try {
+    const meta = await ctx.store.getMatchMeta(ctx.matchId);
+    seats = meta.seats ?? [];
+  } catch {
+    // No seat metadata — cannot classify the player. Fall through to
+    // the normal intent path rather than blocking a legitimate intent.
+    return null;
+  }
+  if (!isSpectatorPlayer(seats, envelope.playerId)) {
+    return null;
+  }
+  const err = errorMessage(
+    ctx.matchId,
+    'INVALID_INTENT',
+    'spectator-cannot-act',
+    envelope.intentId,
+  );
+  ctx.broadcast(err);
+  return [err];
 }
 
 function errorMessage(

@@ -54,6 +54,7 @@ import {
   MatchClosedPanel,
   MatchLoadingState,
   MatchPauseOverlay,
+  SpectatorIndicator,
 } from './NetworkedGameSurface.overlays';
 
 // =============================================================================
@@ -87,6 +88,14 @@ export interface INetworkedGameSurfaceProps {
   readonly onClearIntentError: () => void;
   /** Forward a player action to the server (D3). */
   readonly onSendGameIntent: (intent: IGameIntent) => boolean;
+  /**
+   * M3 (add-matchmaking-and-spectator) — render the surface in
+   * read-only spectator mode. When `true` the intent-emit action bar is
+   * replaced by a passive `SpectatorIndicator`: no movement, attack,
+   * phase, or concede controls are mounted, so a spectator can never
+   * produce an `Intent` from the UI. Defaults to `false` (player mode).
+   */
+  readonly spectator?: boolean;
 }
 
 // =============================================================================
@@ -111,6 +120,7 @@ export function NetworkedGameSurface({
   intentError,
   onClearIntentError,
   onSendGameIntent,
+  spectator = false,
 }: INetworkedGameSurfaceProps): React.ReactElement {
   // Map-selection state owned here so the action bar stays a controlled
   // presentational component (D3 — the surface is the single source of
@@ -248,17 +258,25 @@ export function NetworkedGameSurface({
       </div>
 
       <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-900/40 p-3">
-        <NetworkedActionBar
-          session={mirrorSession}
-          ownership={ownership}
-          selectedUnitId={selectedUnitId}
-          selectedHex={
-            selectedHex ? { q: selectedHex.q, r: selectedHex.r } : null
-          }
-          targetUnitId={targetUnitId}
-          paused={paused}
-          onSendIntent={handleSendIntent}
-        />
+        {/* M3 — a spectator surface mounts NO intent controls. The
+            action bar (which carries every movement / attack / phase /
+            concede control) is replaced by a passive indicator so the
+            observer cannot produce an Intent from the UI. */}
+        {spectator ? (
+          <SpectatorIndicator />
+        ) : (
+          <NetworkedActionBar
+            session={mirrorSession}
+            ownership={ownership}
+            selectedUnitId={selectedUnitId}
+            selectedHex={
+              selectedHex ? { q: selectedHex.q, r: selectedHex.r } : null
+            }
+            targetUnitId={targetUnitId}
+            paused={paused}
+            onSendIntent={handleSendIntent}
+          />
+        )}
         <SelectionSummary
           selectedUnitId={selectedUnitId}
           targetUnitId={targetUnitId}

@@ -24,6 +24,7 @@ import type { IPlayerToken } from '@/types/multiplayer/Player';
 
 import { CreateMatchForm } from '@/components/multiplayer/CreateMatchForm';
 import { JoinMatchForm } from '@/components/multiplayer/JoinMatchForm';
+import { MatchBrowser } from '@/components/multiplayer/MatchBrowser';
 import { decodeTokenFromWire } from '@/types/multiplayer/Player';
 
 // =============================================================================
@@ -265,6 +266,20 @@ export default function MultiplayerHubPage(): React.ReactElement {
           </h2>
           <JoinMatchForm onSubmit={handleJoin} busy={busy === 'join'} />
         </section>
+      </div>
+
+      {/* M3 — match browser: discover and one-click-join open lobbies.
+          The browser reuses the room-code join path (design D3): a Join
+          click navigates to /multiplayer/lobby/[roomCode]. */}
+      <div className="mt-6">
+        <MatchBrowser
+          wireToken={tokenState?.wireToken ?? null}
+          onJoinLobby={(roomCode) => {
+            void router.push(
+              `/multiplayer/lobby/${encodeURIComponent(roomCode)}`,
+            );
+          }}
+        />
       </div>
     </div>
   );

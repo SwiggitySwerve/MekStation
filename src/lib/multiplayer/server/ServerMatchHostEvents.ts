@@ -13,7 +13,12 @@ import type { RollCapture } from './RollCapture';
 import type { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import type { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
-import { filterEventForPlayer, FogOfWarVisibilityCache } from './fogOfWar';
+import {
+  filterEventForPlayer,
+  filterEventForSpectator,
+  FogOfWarVisibilityCache,
+} from './fogOfWar';
+import { isSpectatorPlayer } from './lobby/spectatorSeats';
 
 export function stampRollsOnNewEvents(
   capture: RollCapture,
@@ -115,16 +120,25 @@ export async function broadcastEvent(ctx: {
     ctx.session.getSession().currentState,
     meta,
   );
+  const seats = meta.seats ?? [];
   for (const recipient of ctx.lifecycle.snapshotRecipients()) {
-    const filtered = filterEventForPlayer(
-      ctx.message.event as IGameEvent,
-      recipient.playerId,
-      state,
-      {
-        config: meta.config,
-        cache: ctx.fogVisibilityCache,
-      },
-    );
+    // M3 design D6 — a spectator recipient is filtered through the
+    // spectator audience (most-redacted view), never through its own
+    // (non-existent) side. A participant is filtered as before.
+    const filtered = isSpectatorPlayer(seats, recipient.playerId)
+      ? filterEventForSpectator(ctx.message.event as IGameEvent, state, {
+          config: meta.config,
+          cache: ctx.fogVisibilityCache,
+        })
+      : filterEventForPlayer(
+          ctx.message.event as IGameEvent,
+          recipient.playerId,
+          state,
+          {
+            config: meta.config,
+            cache: ctx.fogVisibilityCache,
+          },
+        );
     if (!filtered) continue;
     ctx.broadcaster.safeSend(recipient.socket, {
       ...ctx.message,

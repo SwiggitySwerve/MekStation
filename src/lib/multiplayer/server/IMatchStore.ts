@@ -200,6 +200,21 @@ export interface IMatchStore {
    * Idempotent — closing an already-closed match is a no-op.
    */
   closeMatch(matchId: string): Promise<void>;
+
+  /**
+   * Enumerate the metadata of every match the store currently tracks,
+   * optionally filtered by `status`.
+   *
+   * Added by `add-matchmaking-and-spectator` (M3, design D2): the
+   * joinable-lobby query reads `status: 'lobby'` matches and the
+   * spectatable-match query reads `status: 'active'` matches through
+   * this one method. No separate index structure is introduced — the
+   * durable store already keeps a `status` column index, and the
+   * in-memory store scans its small Map.
+   */
+  listMatches(filter?: {
+    readonly status?: MatchStatus;
+  }): Promise<readonly IMatchMeta[]>;
 }
 
 // =============================================================================
