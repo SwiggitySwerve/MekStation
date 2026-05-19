@@ -277,11 +277,57 @@ app
       ws.close(1011, 'wave-2-stub');
     });
 
+    // Cache Next.js's upgrade handler so we can delegate non-MP WS upgrades
+    // to it (HMR uses /_next/webpack-hmr in dev). PT-005: without this,
+    // every browser-loaded page in `npm run dev` logged a critical
+    // WebSocket connection failure, which broke the e2e baseline gate
+    // `app-routes.spec.ts:4` ("homepage loads without errors").
+    const nextUpgradeHandler =
+      typeof app.getUpgradeHandler === 'function'
+        ? app.getUpgradeHandler()
+        : null;
+
+    // Path-prefix whitelist for upgrades that we should pass through to
+    // Next.js instead of destroying. Currently just the webpack-HMR endpoint
+    // (`/_next/webpack-hmr`). Keep this list tight — anything not on it
+    // still gets `socket.destroy()` so a hostile path can't open a long-
+    // lived socket on the multiplayer port.
+    function isNextInternalUpgradePath(pathname) {
+      return pathname === '/_next/webpack-hmr';
+    }
+
     server.on('upgrade', async (req, socket, head) => {
       try {
         const parsedUrl = parse(req.url ?? '/', true);
         if (parsedUrl.pathname !== WS_UPGRADE_PATH) {
-          socket.destroy();
+          // Delegate the HMR upgrade to Next.js when we're running the dev
+          // server. Anything else (unknown path) is still destroyed.
+          if (
+            dev &&
+            nextUpgradeHandler &&
+            isNextInternalUpgradePath(parsedUrl.pathname)
+          ) {
+            try {
+              const ret = nextUpgradeHandler(req, socket, head);
+              if (ret && typeof ret.catch === 'function') {
+                ret.catch((err) => {
+                  // eslint-disable-next-line no-console
+                  console.error('[next-upgrade] handler error', err);
+                  try {
+                    socket.destroy();
+                  } catch {
+                    /* socket already closed */
+                  }
+                });
+              }
+            } catch (err) {
+              // eslint-disable-next-line no-console
+              console.error('[next-upgrade] sync error', err);
+              socket.destroy();
+            }
+          } else {
+            socket.destroy();
+          }
           return;
         }
         const matchId = parsedUrl.query.matchId;
