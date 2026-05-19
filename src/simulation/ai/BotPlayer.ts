@@ -184,6 +184,11 @@ export class BotPlayer implements IAIPlayer {
           allUnits,
           grid,
           highestThreatTarget: best,
+          // Per `add-ai-terrain-aware-movement` design D6: thread the real
+          // movement capability so `MoveAI.selectMove` can run the
+          // terrain-cost pathfinder with the unit's true MP budget rather
+          // than a best-effort estimate from the move set.
+          capability,
         };
       }
     }

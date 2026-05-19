@@ -10,6 +10,8 @@ import {
   MovementType,
 } from '@/types/gameplay';
 
+import type { AITierName } from './AITierRegistry';
+
 // =============================================================================
 // Bot Behavior
 // =============================================================================
@@ -53,15 +55,38 @@ export interface IBotBehavior {
    * profiles can override this without recompiling the AI.
    */
   readonly safeHeatThreshold: number;
+
+  /**
+   * Per `add-ai-terrain-aware-movement` design D3: the AI difficulty tier
+   * this bot plays at. The tier name keys into the AI Difficulty Tier
+   * Registry (`AITierRegistry.ts`), which supplies the movement-scoring
+   * parameters (pathfinder enable flag + cover / LOS-denial / terrain-cost
+   * weights).
+   *
+   * Optional for backward compatibility: when absent, the bot resolves to
+   * the `Regular` tier, which runs the legacy straight-line move scorer
+   * byte-for-byte. Every existing bot, test fixture, and the swarm harness
+   * keep their pre-change behavior until a caller opts into `Veteran` /
+   * `Elite`. The tier is player-selectable per scenario and serializes with
+   * the game-session config.
+   */
+  readonly tier?: AITierName;
 }
 
 /**
  * Default bot behavior settings.
+ *
+ * `tier: 'Regular'` is the legacy-scorer tier — `MoveAI` resolves an absent
+ * `tier` to `Regular` anyway, so pinning it explicitly here is purely
+ * self-documenting and keeps `DEFAULT_BEHAVIOR` aligned with the `default`
+ * preset in `behaviorVariants.ts`. The bot's pre-change move scoring is
+ * unchanged.
  */
 export const DEFAULT_BEHAVIOR: IBotBehavior = {
   retreatThreshold: 0.3,
   retreatEdge: 'nearest',
   safeHeatThreshold: 13,
+  tier: 'Regular',
 };
 
 // =============================================================================
