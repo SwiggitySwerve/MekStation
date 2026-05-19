@@ -81,7 +81,13 @@ export function MobileMenu({
         aria-hidden="true"
       />
 
-      <div className="bg-surface-deep fixed inset-0 z-50 flex flex-col md:hidden">
+      <div
+        // PT-008: stable selector for the mobile-navigation Playwright suite.
+        // The old `locator('aside')` selector matched the now-removed desktop
+        // secondary-sidebar element; this menu is a `<div><nav>` overlay.
+        data-testid="mobile-menu"
+        className="bg-surface-deep fixed inset-0 z-50 flex flex-col md:hidden"
+      >
         <div className="border-border-theme-subtle bg-surface-base flex h-14 items-center justify-between border-b px-4">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg border-b-2 border-cyan-400/60 bg-[#3a3a3c] shadow-lg shadow-cyan-900/30">

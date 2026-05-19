@@ -16,7 +16,7 @@ test.describe('Mobile Navigation Header', () => {
 
     // Should have hamburger menu button on the right
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await expect(menuButton).toBeVisible();
   });
@@ -26,7 +26,7 @@ test.describe('Mobile Navigation Header', () => {
 
     // Should have hamburger menu button
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await expect(menuButton).toBeVisible();
   });
@@ -36,7 +36,7 @@ test.describe('Mobile Navigation Header', () => {
 
     // Should have hamburger menu button
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await expect(menuButton).toBeVisible();
   });
@@ -51,7 +51,7 @@ test.describe('Mobile Navigation Header', () => {
 
     // Mobile header is now shown on ALL pages for consistent UX
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await expect(menuButton).toBeVisible();
   });
@@ -81,12 +81,12 @@ test.describe('Mobile Sidebar', () => {
 
     // Click hamburger menu
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await menuButton.click();
 
     // Sidebar (aside element) should be visible with navigation items
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
 
     // Check for nav links inside sidebar
@@ -103,12 +103,12 @@ test.describe('Mobile Sidebar', () => {
 
     // Open sidebar
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await menuButton.click();
 
     // Sidebar should be visible
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
 
     // Should show full labels, not just icons (brand and subtitle in sidebar)
@@ -123,13 +123,13 @@ test.describe('Mobile Sidebar', () => {
 
     // Open sidebar
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await menuButton.click();
 
     // Verify sidebar is open (wait for animation)
     await page.waitForTimeout(350);
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
 
     // Find Units link (not Dashboard since we're testing navigation TO a different page)
@@ -154,12 +154,12 @@ test.describe('Mobile Sidebar', () => {
 
     // Open sidebar
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await menuButton.click();
 
     // Verify sidebar is open
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
     await expect(sidebar.getByText('Dashboard')).toBeVisible();
 
@@ -176,7 +176,7 @@ test.describe('Mobile Sidebar', () => {
 
     // Open sidebar
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await menuButton.click();
 
@@ -201,7 +201,7 @@ test.describe('Hamburger Menu Button Position (Right-Hand Ergonomics)', () => {
     await page.goto('/settings');
 
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     const buttonBox = await menuButton.boundingBox();
 
@@ -218,7 +218,7 @@ test.describe('Hamburger Menu Button Position (Right-Hand Ergonomics)', () => {
     await page.goto('/settings');
 
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     const buttonBox = await menuButton.boundingBox();
 
@@ -256,7 +256,7 @@ test.describe('Customizer Page', () => {
 
     // Menu button should be in the mobile header (top), not in bottom tray
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await expect(menuButton).toBeVisible();
 
@@ -279,13 +279,13 @@ test.describe('Customizer Page', () => {
 
     // Click the menu button in the mobile header
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await menuButton.click();
 
     // Sidebar should open
     await page.waitForTimeout(350);
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
     await expect(sidebar.getByText('Dashboard')).toBeVisible();
   });
@@ -304,7 +304,7 @@ test.describe('Desktop Sidebar', () => {
     await page.goto('/settings');
 
     // Sidebar (aside) should be visible with nav items
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
     await expect(sidebar.getByText('Dashboard')).toBeVisible();
 
@@ -319,7 +319,7 @@ test.describe('Desktop Sidebar', () => {
     await page.goto('/settings');
 
     // Sidebar should be visible
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
 
     // Brand subtitle should be visible when expanded
@@ -356,11 +356,11 @@ test.describe('Navigation Flows', () => {
   }) => {
     // Start on settings
     await page.goto('/settings');
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
 
     // Helper function to open sidebar and navigate
     async function navigateVia(href: string) {
-      await page.getByRole('button', { name: /open navigation menu/i }).click();
+      await page.getByRole('button', { name: /open menu/i }).click();
       await page.waitForTimeout(350); // Wait for animation
       await expect(sidebar).toBeVisible();
       const link = sidebar.locator(`a[href="${href}"]`);
@@ -385,10 +385,10 @@ test.describe('Navigation Flows', () => {
     page,
   }) => {
     await page.goto('/settings');
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
 
     // Open sidebar
-    await page.getByRole('button', { name: /open navigation menu/i }).click();
+    await page.getByRole('button', { name: /open menu/i }).click();
     await page.waitForTimeout(350); // Wait for animation
     await expect(sidebar.getByText('BattleTech Lab')).toBeVisible();
 
@@ -423,12 +423,12 @@ test.describe('Touch Interactions', () => {
 
     // Tap the hamburger menu
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await menuButton.tap();
 
     // Sidebar should open
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
     await expect(sidebar.getByText('Dashboard')).toBeVisible();
   });
@@ -438,13 +438,13 @@ test.describe('Touch Interactions', () => {
 
     // Open sidebar via tap
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await menuButton.tap();
 
     // Wait for animation and verify sidebar is visible
     await page.waitForTimeout(350);
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
 
     // Find Dashboard link and click via JS (tap can have issues with translated elements)
@@ -470,10 +470,10 @@ test.describe('Gameplay Navigation', () => {
     await page.goto('/');
 
     // Open sidebar
-    await page.getByRole('button', { name: /open navigation menu/i }).click();
+    await page.getByRole('button', { name: /open menu/i }).click();
     await page.waitForTimeout(350);
 
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
 
     // Look for Gameplay section - expandable button
@@ -537,10 +537,10 @@ test.describe('History Navigation', () => {
     await page.goto('/');
 
     // Open sidebar
-    await page.getByRole('button', { name: /open navigation menu/i }).click();
+    await page.getByRole('button', { name: /open menu/i }).click();
     await page.waitForTimeout(350);
 
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
 
     // Find Timeline link within sidebar navigation
@@ -565,10 +565,10 @@ test.describe('History Navigation', () => {
     await page.goto('/');
 
     // Open sidebar
-    await page.getByRole('button', { name: /open navigation menu/i }).click();
+    await page.getByRole('button', { name: /open menu/i }).click();
     await page.waitForTimeout(350);
 
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
 
     // Should show History section (may be title or just Timeline item)
@@ -588,7 +588,7 @@ test.describe('Responsive Layout', () => {
 
     // Mobile header should be visible
     const menuButton = page.getByRole('button', {
-      name: /open navigation menu/i,
+      name: /open menu/i,
     });
     await expect(menuButton).toBeVisible();
 
@@ -599,7 +599,7 @@ test.describe('Responsive Layout', () => {
     await expect(menuButton).not.toBeVisible();
 
     // Desktop sidebar should be visible
-    const sidebar = page.locator('aside');
+    const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
   });
 
