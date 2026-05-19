@@ -10,9 +10,10 @@
  *   4. Open a WebSocket via `useMultiplayerSession` and render
  *      `LobbyPanel` from the `LobbyUpdated` snapshots the server pushes.
  *   5. When the lobby flips to `status === 'active'`, switch the surface
- *      to a "match in progress" placeholder. The full game UI is out of
- *      scope for Wave 5; the placeholder links back to the existing
- *      single-player game UI as the gameplay surface.
+ *      to the `NetworkedGameSurface` — a real networked game surface fed
+ *      by the server `Event` stream (per `complete-multiplayer-game-
+ *      surface`, Wave 3 M1). The player never leaves the WebSocket: the
+ *      surface mounts inside this same route.
  */
 
 import Link from 'next/link';
@@ -22,6 +23,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { IPlayerToken } from '@/types/multiplayer/Player';
 
 import { LobbyPanel } from '@/components/multiplayer/LobbyPanel';
+import { NetworkedGameSurface } from '@/components/multiplayer/NetworkedGameSurface';
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
 import { decodeTokenFromWire } from '@/types/multiplayer/Player';
 
@@ -306,22 +308,22 @@ export default function LobbyPage(): React.ReactElement {
           onIntent={session.sendIntent}
         />
       ) : (
-        <section className="rounded-lg border border-emerald-700 bg-emerald-900/10 p-6 text-center">
-          <h2 className="text-2xl font-semibold text-emerald-200">
-            Match starting…
-          </h2>
-          <p className="mt-2 text-sm text-emerald-300/80">
-            Engine has launched. The dedicated multiplayer game UI is wired in a
-            future wave. For now, hop over to the existing gameplay surface to
-            continue.
-          </p>
-          <Link
-            href="/gameplay"
-            className="mt-4 inline-block rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
-          >
-            Open gameplay
-          </Link>
-        </section>
+        // Per `complete-multiplayer-game-surface` task 7.1: the launched
+        // match renders the real networked game surface in place of the
+        // prior placeholder. The surface is fed entirely by the server
+        // `Event` stream the `useMultiplayerSession` hook accumulates.
+        <NetworkedGameSurface
+          mirrorSession={session.mirrorSession}
+          mirrorEvents={session.mirrorEvents}
+          seats={session.lobbyState.seats}
+          playerId={tokenState.token.playerId}
+          status={session.status}
+          pausedInfo={session.pausedInfo}
+          closedInfo={session.closedInfo}
+          intentError={session.intentError}
+          onClearIntentError={session.clearIntentError}
+          onSendGameIntent={session.sendGameIntent}
+        />
       )}
     </div>
   );

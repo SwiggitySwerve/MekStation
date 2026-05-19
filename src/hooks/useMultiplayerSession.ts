@@ -8,33 +8,41 @@
  * snapshot, and re-emits engine events through React state so the UI
  * re-renders on each broadcast.
  *
- * SSR safety: this hook MUST NOT call `connect()` during server render
- * (Next.js Pages Router invokes hooks during `getServerSideProps`-less
- * pages too, but the connection logic depends on `WebSocket` which only
- * exists in the browser). All real work runs inside the `useEffect`
- * branch so SSR sees a stable initial state.
+ * `complete-multiplayer-game-surface` (Wave 3 M1) extends the hook with
+ * the networked game surface's needs:
+ *   - `mirrorSession` — a read-only client mirror `IGameSession` built
+ *     by applying every received `IGameEvent` (replay + live) through
+ *     the engine reducer in `sequence` order (D2). The networked
+ *     tactical map renders from this.
+ *   - `mirrorEvents` — the ordered `IGameEvent[]` the mirror was built
+ *     from, fed straight to `HexMapDisplay` for animations / effects.
+ *   - `sendGameIntent` — a typed forwarder that wraps an `IGameIntent`
+ *     in an `Intent` envelope and sends it over the existing socket
+ *     (D3). The client never resolves the action locally.
+ *   - `intentError` — the most recent server `Error` envelope, surfaced
+ *     as a non-fatal notification; the connection stays open (D3).
+ *   - `pausedInfo` / `closedInfo` — the lifecycle payloads the game
+ *     surface renders as a pause overlay / terminal panel (D6).
  *
- * State surface:
- *   - `status`: connection lifecycle for the UI banner.
- *   - `lobbyState`: latest `ILobbyUpdated` payload (seats + status +
- *     hostPlayerId). `null` until the first snapshot arrives.
- *   - `events`: accumulated game events (capped to last 200 to avoid
- *     unbounded React state growth). Pages that need full history can
- *     re-fetch via the REST endpoint.
- *   - `error`: most recent error frame (cleared on reconnect).
- *   - `sendIntent`: forwarder to `client.send`.
+ * SSR safety: this hook MUST NOT call `connect()` during server render.
+ * All real work runs inside the `useEffect` branch so SSR sees a stable
+ * initial state.
  *
- * Pure presentational state — no campaign / engine business logic
- * lives here. Pages own composition.
+ * @spec openspec/changes/complete-multiplayer-game-surface/specs/multiplayer-game-surface/spec.md
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type {
   IClientAuth,
   IConnectOptions,
   IMultiplayerClient,
 } from '@/lib/multiplayer/client';
+import type {
+  IGameEvent,
+  IGameIntent,
+  IGameSession,
+} from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IIntentPayload,
   ILobbyUpdated,
@@ -44,6 +52,11 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { connect } from '@/lib/multiplayer/client';
+import { toServerIntent } from '@/lib/multiplayer/gameIntentMap';
+import {
+  buildMirrorSession,
+  mirrorEvents as deriveMirrorEvents,
+} from '@/lib/multiplayer/mirrorMatchSession';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
 
@@ -65,6 +78,25 @@ export type MultiplayerStatus =
   | 'error'; // connection-level failure
 
 export interface IMultiplayerError {
+  readonly code?: string;
+  readonly reason?: string;
+}
+
+/**
+ * The `MatchPaused` payload surfaced to the game surface so it can name
+ * the pending seat(s) and render the grace countdown (D6).
+ */
+export interface IMatchPausedInfo {
+  readonly pendingSlots: readonly string[];
+  readonly graceRemainingMs: number;
+  readonly pendingExpiresAtMs: number | null;
+}
+
+/**
+ * The terminal `Close` payload surfaced to the game surface so it can
+ * render the route-back panel (D6).
+ */
+export interface IMatchClosedInfo {
   readonly code?: string;
   readonly reason?: string;
 }
@@ -96,6 +128,38 @@ export interface IUseMultiplayerSessionResult {
   readonly sendIntent: (intent: IIntentPayload) => void;
   /** Last server sequence number observed (for reconnect resume). */
   readonly lastSeq: number;
+  /**
+   * Read-only client mirror of the authoritative session, rebuilt from
+   * every received `IGameEvent` in `sequence` order. `null` until the
+   * seed `GameCreated` event has been applied (D2).
+   */
+  readonly mirrorSession: IGameSession | null;
+  /**
+   * The ordered `IGameEvent[]` the mirror was built from — fed straight
+   * to `HexMapDisplay` for animations and effect overlays.
+   */
+  readonly mirrorEvents: readonly IGameEvent[];
+  /**
+   * Send a player action: wraps the `IGameIntent` in an `Intent`
+   * envelope and forwards it over the socket. The client does NOT
+   * resolve the action locally — the mirror updates only when the
+   * server's broadcast `Event` arrives (D3). Returns `true` when the
+   * intent was sent, `false` when it could not be mapped to a server
+   * intent (the caller surfaces a notification).
+   */
+  readonly sendGameIntent: (intent: IGameIntent) => boolean;
+  /**
+   * Most recent server `Error` envelope (e.g. wrong-phase,
+   * unauthorized-unit). Non-fatal — the connection stays open. `null`
+   * until an error arrives; cleared by `clearIntentError`.
+   */
+  readonly intentError: IMultiplayerError | null;
+  /** Clear the non-fatal `intentError` (e.g. after the toast dismisses). */
+  readonly clearIntentError: () => void;
+  /** `MatchPaused` payload while the match is paused; `null` otherwise. */
+  readonly pausedInfo: IMatchPausedInfo | null;
+  /** Terminal `Close` payload once the match has closed; `null` before. */
+  readonly closedInfo: IMatchClosedInfo | null;
 }
 
 // =============================================================================
@@ -103,9 +167,10 @@ export interface IUseMultiplayerSessionResult {
 // =============================================================================
 
 /**
- * Cap accumulated events so a long match doesn't unbound React state.
- * 200 is enough for the tail of a fight; UIs that need full history
- * should fetch from the REST endpoint instead of polling React state.
+ * Cap the consumer-facing `events` tail so a long match doesn't unbound
+ * React state. 200 is enough for the event-log panel; the mirror keeps
+ * its OWN uncapped log because it must replay the full history to stay
+ * in sync with the authoritative session.
  */
 const MAX_EVENTS_RETAINED = 200;
 
@@ -119,13 +184,12 @@ const MAX_EVENTS_RETAINED = 200;
  *
  * Re-renders when:
  *   - status transitions
- *   - a new event arrives
+ *   - a new event arrives (and the mirror is rebuilt)
  *   - a `LobbyUpdated` snapshot lands
  *   - an error frame is received
  *
- * The returned `sendIntent` is stable across renders (memoised) so it's
- * safe to pass into child components without causing prop-change
- * cascades.
+ * The returned `sendIntent` / `sendGameIntent` are stable across
+ * renders (memoised) so they're safe to pass into child components.
  */
 export function useMultiplayerSession(
   url: string | null,
@@ -138,6 +202,16 @@ export function useMultiplayerSession(
   const [events, setEvents] = useState<readonly unknown[]>([]);
   const [error, setError] = useState<IMultiplayerError | null>(null);
   const [lastSeq, setLastSeq] = useState<number>(-1);
+  const [intentError, setIntentError] = useState<IMultiplayerError | null>(
+    null,
+  );
+  const [pausedInfo, setPausedInfo] = useState<IMatchPausedInfo | null>(null);
+  const [closedInfo, setClosedInfo] = useState<IMatchClosedInfo | null>(null);
+  // The full, uncapped game-event log the mirror is rebuilt from. Kept
+  // in React state (not just a ref) so a new event triggers a rebuild +
+  // re-render; kept SEPARATE from the capped `events` tail because the
+  // mirror must apply every event since `GameCreated` to stay in sync.
+  const [mirrorLog, setMirrorLog] = useState<readonly unknown[]>([]);
 
   // Stable ref for the live client so `sendIntent` can be memoised
   // without depending on a state value that re-renders on every event.
@@ -152,6 +226,10 @@ export function useMultiplayerSession(
 
     setStatus('connecting');
     setError(null);
+    setIntentError(null);
+    setPausedInfo(null);
+    setClosedInfo(null);
+    setMirrorLog([]);
 
     const client = connect(url, matchId, auth, {
       reconnect: options.reconnect ?? true,
@@ -193,6 +271,13 @@ export function useMultiplayerSession(
           if (paused.pendingExpiresAtMs != null) {
             store.setLocalMatchGraceDeadline(paused.pendingExpiresAtMs);
           }
+          // D6: surface the structured pause payload so the game
+          // surface can name the pending seats + render the countdown.
+          setPausedInfo({
+            pendingSlots: paused.pendingSlots,
+            graceRemainingMs: remainingMs,
+            pendingExpiresAtMs: paused.pendingExpiresAtMs ?? null,
+          });
           setError({
             code: 'MATCH_PAUSED',
             reason: `Waiting for opponent to reconnect (${remainingSeconds} seconds remaining)...`,
@@ -202,6 +287,7 @@ export function useMultiplayerSession(
         if (kind === 'MatchResumed') {
           setStatus('ready');
           setError(null);
+          setPausedInfo(null);
           useGameplayStore.getState().resetLocalMatchStatus();
           void (raw as IMatchResumed);
           return;
@@ -220,28 +306,51 @@ export function useMultiplayerSession(
         }
       }
       // Plain game event — append to the rolling buffer + advance the
-      // lastSeq cursor.
+      // lastSeq cursor. Also append to the uncapped mirror log so the
+      // mirror session rebuilds with the full history.
       setEvents((prev) => {
         const next = prev.concat([raw]);
         return next.length > MAX_EVENTS_RETAINED
           ? next.slice(next.length - MAX_EVENTS_RETAINED)
           : next;
       });
+      setMirrorLog((prev) => prev.concat([raw]));
       setLastSeq(client.lastSeq());
     });
 
     const unsubError = client.on('error', (payload) => {
-      setStatus('error');
       const err = payload as { code?: string; reason?: string } | Error;
+      // A server `Error` envelope (wrong-phase, unauthorized-unit, ...)
+      // carries a stable `code` string and is NON-FATAL — the
+      // connection stays open. Surface it as `intentError` and DO NOT
+      // flip `status` to 'error'. A connection-level failure (an
+      // `Error` instance or a transport `code`) is fatal and flips
+      // `status` (D3).
       if (err instanceof Error) {
+        setStatus('error');
         setError({ code: 'CLIENT_ERROR', reason: err.message });
-      } else {
-        setError({ code: err.code, reason: err.reason });
+        return;
       }
+      if (typeof err.code === 'string' && err.code !== 'CLIENT_ERROR') {
+        // Treated as a non-fatal intent rejection — the server keeps
+        // the socket open and the mirror is untouched.
+        setIntentError({ code: err.code, reason: err.reason });
+        return;
+      }
+      setStatus('error');
+      setError({ code: err.code, reason: err.reason });
     });
 
-    const unsubClose = client.on('close', () => {
+    const unsubClose = client.on('close', (payload) => {
       setStatus('closed');
+      // D6: capture the terminal payload so the surface renders the
+      // route-back panel. A caller-initiated close passes `null`.
+      if (payload && typeof payload === 'object') {
+        const closeInfo = payload as { code?: string; reason?: string };
+        setClosedInfo({ code: closeInfo.code, reason: closeInfo.reason });
+      } else {
+        setClosedInfo({});
+      }
     });
 
     return () => {
@@ -270,6 +379,30 @@ export function useMultiplayerSession(
     clientRef.current.send(intent);
   }, []);
 
+  // Build the mirror session + its event list from the uncapped log.
+  // Memoised on the log identity so a re-render that does not change
+  // the event stream reuses the prior immutable session.
+  const mirrorSession = useMemo(
+    () => buildMirrorSession(mirrorLog),
+    [mirrorLog],
+  );
+  const mirrorEvents = useMemo(
+    () => deriveMirrorEvents(mirrorLog),
+    [mirrorLog],
+  );
+
+  const sendGameIntent = useCallback((intent: IGameIntent): boolean => {
+    if (!clientRef.current) return false;
+    const payload = toServerIntent(intent);
+    if (!payload) return false;
+    clientRef.current.send(payload);
+    return true;
+  }, []);
+
+  const clearIntentError = useCallback(() => {
+    setIntentError(null);
+  }, []);
+
   return {
     status,
     lobbyState,
@@ -277,5 +410,12 @@ export function useMultiplayerSession(
     error,
     sendIntent,
     lastSeq,
+    mirrorSession,
+    mirrorEvents,
+    sendGameIntent,
+    intentError,
+    clearIntentError,
+    pausedInfo,
+    closedInfo,
   };
 }
