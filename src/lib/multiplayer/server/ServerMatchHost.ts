@@ -68,6 +68,12 @@ import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { type IServerDiceRoller } from './CryptoDiceRoller';
 import { FogOfWarVisibilityCache } from './fogOfWar';
+import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
+import {
+  migrateHostIfNeeded,
+  type IHostMigrationResult,
+} from './reconnection/HostMigration';
+import { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import { PendingPeerTracker } from './reconnection/PendingPeerTracker';
 import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import {
@@ -174,6 +180,21 @@ export class ServerMatchHost {
   private readonly outcomePublisher: ServerMatchHostOutcomePublisher;
 
   /**
+   * harden-multiplayer-transport (M2), design D6 — per-connection
+   * token-bucket intent rate limiter. One limiter per host; each
+   * connection gets its own bucket keyed by socket identity.
+   */
+  private readonly rateLimiter = new IntentRateLimiter();
+
+  /**
+   * harden-multiplayer-transport (M2), design D7 — per-match
+   * accepted-intent-id set for replay-attack detection. Reconstructed
+   * from the event log when a match is recovered on server restart so
+   * the replay window does not reopen.
+   */
+  private acceptedIntents = new AcceptedIntentTracker();
+
+  /**
    * Construct directly from an existing `InteractiveSession`. Used by
    * tests + by the registry once it has a session ready.
    *
@@ -189,6 +210,7 @@ export class ServerMatchHost {
     private readonly store: IMatchStore,
     session: InteractiveSession,
     sourceRoller?: IServerDiceRoller,
+    options: { readonly recovered?: boolean } = {},
   ) {
     this.session = session;
     this.capture = new ServerMatchHostCapture(sourceRoller);
@@ -199,20 +221,36 @@ export class ServerMatchHost {
       onLastSocketDropped: (playerId) => {
         if (this.closed) return;
         // Fire-and-forget — meta lookup is async but socket close is
-        // sync. Failures here just skip the pause path; the match keeps
-        // running in degraded mode rather than crashing.
-        void this.maybeMarkPlayerPending(playerId);
+        // sync. Failures here just skip the degradation path; the match
+        // keeps running rather than crashing.
+        // harden-multiplayer-transport (M2): a host-connection loss
+        // runs BOTH paths — host migration (design D4, privilege
+        // reassignment to a survivor) AND the grace path (design D5,
+        // pause-not-abort). They are independent: migration keeps
+        // privileged ops available while the pause waits out the
+        // dropped seat's grace window.
+        void this.handleSocketDropped(playerId);
       },
     });
-    // Stable callback identity — engine holds this reference for the
-    // lifetime of the match. Routes every d6 through whatever
-    // `currentCapture` points at right now.
-    // The engine appends `GameCreated` + `GameStarted` events during
-    // construction. Persist them BEFORE accepting any intents so the
-    // store + the in-memory session never drift.
-    const initialEvents = session.getSession().events;
-    this.lastBroadcastSeq = -1;
-    void this.persistInitialEvents(initialEvents);
+    const sessionEvents = session.getSession().events;
+    if (options.recovered) {
+      // Recovery path (design D3): the session was rebuilt by replaying
+      // the durable event log, so the store already holds every event.
+      // Do NOT re-persist — set the broadcast cursor to the tail and
+      // reconstruct the replay-attack window from the stored log so a
+      // restart does not reopen it (design D7).
+      this.lastBroadcastSeq =
+        sessionEvents.length > 0
+          ? sessionEvents[sessionEvents.length - 1].sequence
+          : -1;
+      this.acceptedIntents = AcceptedIntentTracker.fromEventLog(sessionEvents);
+    } else {
+      // Fresh match: the engine appended `GameCreated` + `GameStarted`
+      // during construction. Persist them BEFORE accepting any intents
+      // so the store + the in-memory session never drift.
+      this.lastBroadcastSeq = -1;
+      void this.persistInitialEvents(sessionEvents);
+    }
   }
 
   /**
@@ -236,6 +274,31 @@ export class ServerMatchHost {
     // callback closed over, so per-intent swaps stay invisible.
     host.capture.adoptExternalCaptureRef(captureRef);
     return host;
+  }
+
+  /**
+   * harden-multiplayer-transport (M2), design D3 — recovery factory.
+   *
+   * Build a `ServerMatchHost` for a match recovered from the durable
+   * store on server startup. The caller has already replayed the
+   * stored event log into `session` (via `hydrateGameSessionFromEvents`
+   * wrapped in an `InteractiveSession`). This constructor variant skips
+   * the initial-event persist (the events are already durably stored)
+   * and reconstructs the replay-attack window from the log so a
+   * restart does not reopen it.
+   *
+   * A reconnecting client's `SessionJoin` with its `lastSeq` then
+   * streams the missing events through the already-built replay path —
+   * recovery does not need to do anything special for that.
+   */
+  static recover(
+    matchId: string,
+    store: IMatchStore,
+    session: InteractiveSession,
+  ): ServerMatchHost {
+    return new ServerMatchHost(matchId, store, session, undefined, {
+      recovered: true,
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -288,6 +351,41 @@ export class ServerMatchHost {
   private async maybeMarkPlayerPending(playerId: string): Promise<void> {
     await maybeMarkPlayerPending(
       buildReconnectContext(this.internals()),
+      playerId,
+    );
+  }
+
+  /**
+   * harden-multiplayer-transport (M2): a socket fully dropping for
+   * `playerId` runs two independent paths:
+   *   - design D4 — if the dropped player held `hostPlayerId`, host
+   *     migration promotes the longest-connected surviving human seat
+   *     so privileged operations stay available.
+   *   - design D5 — the dropped seat enters the pending/grace path so
+   *     the match pauses rather than aborting.
+   * Migration runs first so a privileged op issued during the pause
+   * window is authorized against the already-migrated host.
+   */
+  private async handleSocketDropped(playerId: string): Promise<void> {
+    await this.migrateHostIfNeeded(playerId);
+    await this.maybeMarkPlayerPending(playerId);
+  }
+
+  /**
+   * Design D4 — promote a survivor to `hostPlayerId` when the host's
+   * connection is lost. A no-op when `playerId` was not the host or
+   * when no human seat survives (the grace path then handles it).
+   */
+  private async migrateHostIfNeeded(
+    playerId: string,
+  ): Promise<IHostMigrationResult> {
+    return migrateHostIfNeeded(
+      {
+        matchId: this.matchId,
+        store: this.store,
+        connectedSince: () => this.lifecycle.snapshotConnectedSince(),
+        broadcast: (message) => this.broadcast(message),
+      },
       playerId,
     );
   }
@@ -409,12 +507,35 @@ export class ServerMatchHost {
    * Apply an intent. Returns a list of broadcast envelopes (events +
    * any error) that have already been sent to all sockets. Returning
    * them lets tests assert without reaching into the socket mock.
+   *
+   * `connectionKey` identifies the inbound socket so the per-connection
+   * rate limiter (design D6) debits the right bucket. The WebSocket
+   * upgrade handler passes the per-socket identity; tests may pass any
+   * stable string (or omit it for a shared bucket).
    */
-  async handleIntent(envelope: IIntent): Promise<readonly IServerMessage[]> {
+  async handleIntent(
+    envelope: IIntent,
+    connectionKey?: string,
+  ): Promise<readonly IServerMessage[]> {
     return handleIntentWithContext(
       buildIntentContext(this.internals()),
       envelope,
+      connectionKey,
     );
+  }
+
+  /**
+   * harden-multiplayer-transport (M2) test/observability: drop a
+   * connection's rate-limit bucket. The WebSocket upgrade handler calls
+   * this on socket detach so per-socket state is not retained forever.
+   */
+  releaseConnection(connectionKey: string): void {
+    this.rateLimiter.release(connectionKey);
+  }
+
+  /** Test/observability: number of accepted intent ids retained. */
+  acceptedIntentCount(): number {
+    return this.acceptedIntents.size();
   }
 
   // ---------------------------------------------------------------------------
@@ -531,6 +652,8 @@ export class ServerMatchHost {
       stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
       tryPublishOutcome: () => this.tryPublishOutcome(),
       handleLobbyIntent: (envelope) => this.handleLobbyIntent(envelope),
+      rateLimiter: this.rateLimiter,
+      acceptedIntents: this.acceptedIntents,
     };
   }
 

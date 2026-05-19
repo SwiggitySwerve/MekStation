@@ -26,6 +26,8 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
+import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
+import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import type { PendingPeerTracker } from './reconnection/PendingPeerTracker';
 import type { IServerMatchHostIntentContext } from './ServerMatchHostIntent';
 import type { IServerMatchHostLobbyContext } from './ServerMatchHostLobbyIntents';
@@ -64,6 +66,13 @@ export interface IServerMatchHostInternals {
   readonly handleLobbyIntent: (
     envelope: IIntent,
   ) => Promise<readonly IServerMessage[]>;
+  /**
+   * harden-multiplayer-transport (M2) — per-connection intent rate
+   * limiter (design D6) and per-match accepted-intent-id tracker for
+   * replay-attack detection (design D7).
+   */
+  readonly rateLimiter: IntentRateLimiter;
+  readonly acceptedIntents: AcceptedIntentTracker;
 }
 
 /**
@@ -130,6 +139,8 @@ export function buildIntentContext(
     drainNewEvents: host.drainNewEvents,
     stampRollsOnNewEvents: host.stampRollsOnNewEvents,
     tryPublishOutcome: host.tryPublishOutcome,
+    rateLimiter: host.rateLimiter,
+    acceptedIntents: host.acceptedIntents,
   };
 }
 

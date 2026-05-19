@@ -17,7 +17,8 @@ import { SeededRandom } from '@/simulation/core/SeededRandom';
 
 import type { IMatchStore } from './IMatchStore';
 
-import { getDefaultMatchStore } from './InMemoryMatchStore';
+import { getDefaultMatchStore } from './getDefaultMatchStore';
+import { recoverActiveMatches } from './MatchRecovery';
 import { ServerMatchHost } from './ServerMatchHost';
 
 // =============================================================================
@@ -52,7 +53,7 @@ export interface IRegistryDeps {
   store?: IMatchStore;
 }
 
-class MatchHostRegistry {
+export class MatchHostRegistry {
   private readonly hosts = new Map<string, ServerMatchHost>();
   private readonly store: IMatchStore;
 
@@ -114,6 +115,33 @@ class MatchHostRegistry {
     return this.hosts.get(matchId) ?? null;
   }
 
+  /**
+   * harden-multiplayer-transport (M2), design D3 — server-startup match
+   * recovery. Enumerates every `active` match in the durable store,
+   * rebuilds a `ServerMatchHost` for each by replaying its persisted
+   * event log, and registers the rebuilt hosts so the WebSocket upgrade
+   * handler's `getOrCreate` returns the recovered instance (not a fresh
+   * stub). Returns the number of matches successfully recovered.
+   *
+   * Idempotent: a match already tracked in the registry is left as-is
+   * — recovery never clobbers a live host.
+   */
+  async recoverActiveMatches(): Promise<{
+    readonly recovered: number;
+    readonly failed: number;
+  }> {
+    const result = await recoverActiveMatches(this.store);
+    for (const [matchId, host] of Array.from(result.hosts.entries())) {
+      if (!this.hosts.has(matchId)) {
+        this.hosts.set(matchId, host);
+      }
+    }
+    return {
+      recovered: result.hosts.size,
+      failed: result.failed.length,
+    };
+  }
+
   /** Number of currently-tracked hosts (open or otherwise). */
   size(): number {
     return this.hosts.size;
@@ -140,6 +168,7 @@ class MatchHostRegistry {
 }
 
 let _singleton: MatchHostRegistry | null = null;
+let _recoveryRan = false;
 
 /** Process-local singleton accessor used by REST routes + WS handler. */
 export function getMatchHostRegistry(): MatchHostRegistry {
@@ -149,10 +178,38 @@ export function getMatchHostRegistry(): MatchHostRegistry {
   return _singleton;
 }
 
+/**
+ * harden-multiplayer-transport (M2), design D3 — server-startup
+ * bootstrap. Run ONCE at server boot (before the WebSocket upgrade
+ * handler starts accepting connections): re-instantiates a
+ * `ServerMatchHost` for every `active` match found in the durable
+ * store so a process restart never loses a live game.
+ *
+ * Idempotent — a second call is a no-op, so it is safe to invoke from
+ * a lazily-initialized server module.
+ */
+export async function bootstrapMultiplayerServer(): Promise<{
+  readonly recovered: number;
+  readonly failed: number;
+}> {
+  if (_recoveryRan) {
+    return { recovered: 0, failed: 0 };
+  }
+  _recoveryRan = true;
+  const result = await getMatchHostRegistry().recoverActiveMatches();
+  if (result.recovered > 0 || result.failed > 0) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `[mp-boot] recovered ${result.recovered} active match(es)` +
+        (result.failed > 0 ? `, ${result.failed} failed` : ''),
+    );
+  }
+  return result;
+}
+
 /** Test-only: reset the singleton so tests don't bleed state. */
 export function _resetMatchHostRegistry(): void {
   if (_singleton) _singleton._reset();
   _singleton = null;
+  _recoveryRan = false;
 }
-
-export type { MatchHostRegistry };

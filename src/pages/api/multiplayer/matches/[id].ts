@@ -21,7 +21,10 @@ import {
   type IMatchMeta,
 } from '@/lib/multiplayer/server/IMatchStore';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/InMemoryMatchStore';
-import { getMatchHostRegistry } from '@/lib/multiplayer/server/MatchHostRegistry';
+import {
+  bootstrapMultiplayerServer,
+  getMatchHostRegistry,
+} from '@/lib/multiplayer/server/MatchHostRegistry';
 
 // =============================================================================
 // Response types
@@ -56,6 +59,14 @@ export default async function handler(
   }
 
   const store = getDefaultMatchStore();
+
+  // harden-multiplayer-transport (M2), design D3: ensure server-startup
+  // match recovery has run before this process serves a match. The
+  // call is idempotent — only the first hit actually recovers; every
+  // later call is a cheap no-op. Fire-and-forget so a slow recovery
+  // never delays the response (a recovered host is registered for the
+  // subsequent WebSocket upgrade).
+  void bootstrapMultiplayerServer();
 
   if (req.method === 'GET') {
     const auth = await authenticateRequest(req);

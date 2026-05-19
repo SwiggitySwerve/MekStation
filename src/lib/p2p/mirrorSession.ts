@@ -1,5 +1,16 @@
 /**
- * Mirror Session helpers for the P2P guest peer.
+ * Mirror Session helpers for a networked match's non-host client.
+ *
+ * DP1 transport-consolidation contract (`harden-multiplayer-transport`):
+ * this `mirrorSession` / `gameSessionChannel` event-application pattern
+ * is RETAINED, but only as the **client-side event-application layer**,
+ * pointed at the **authoritative server `Event` stream** rather than at
+ * y-webrtc. The y-webrtc / peer-to-peer path is a non-authoritative
+ * fallback that receives no further hardening — see
+ * `src/lib/multiplayer/server/TRANSPORT.md` for the full contract. The
+ * one-way "client never appends its own events" guarantee enforced by
+ * `applyMirrorEvent` / `assertMirrorAppendForbidden` is exactly what
+ * makes the server the sole authority over the canonical event log.
  *
  * Wave 4 multiplayer foundation B (`add-p2p-game-session-sync` § 4):
  * the guest peer in a networked match runs a mirror copy of the host's

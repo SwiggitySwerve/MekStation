@@ -120,6 +120,18 @@ async function makeActiveHost() {
   return { host, store, matchId };
 }
 
+/**
+ * Drain enough microtask ticks for the socket-drop handler chain.
+ * harden-multiplayer-transport (M2) added host migration ahead of the
+ * grace-pause path, so a drop now runs two sequential async store
+ * reads — a couple of `Promise.resolve()` ticks no longer suffice.
+ */
+async function flushDrop(): Promise<void> {
+  for (let i = 0; i < 8; i++) {
+    await Promise.resolve();
+  }
+}
+
 // =============================================================================
 // Tests
 // =============================================================================
@@ -135,8 +147,7 @@ describe('Reconnection Flow (Wave 4)', () => {
     // Opponent drops.
     host.detachSocket(oppSock);
     // The pending-mark path is async (meta lookup). Flush microtasks.
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushDrop();
 
     expect(host.isPausedForReconnect()).toBe(true);
     const pending = host.getPendingPeersForTests();
@@ -166,8 +177,7 @@ describe('Reconnection Flow (Wave 4)', () => {
     host.attachSocket(hostSock, 'pid_host');
     host.attachSocket(oppSock, 'pid_opp');
     host.detachSocket(oppSock);
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushDrop();
 
     const intent: IIntent = {
       kind: 'Intent',
@@ -195,8 +205,7 @@ describe('Reconnection Flow (Wave 4)', () => {
 
     // Drop opponent.
     host.detachSocket(oppSock);
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushDrop();
     expect(host.isPausedForReconnect()).toBe(true);
 
     // NOTE: we can't run any engine intent while paused, so the seq
@@ -238,8 +247,7 @@ describe('Reconnection Flow (Wave 4)', () => {
     host.attachSocket(hostSock, 'pid_host');
     host.attachSocket(oppSock, 'pid_opp');
     host.detachSocket(oppSock);
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushDrop();
 
     hostSock.clear();
     const markAi: IIntent = {
@@ -314,8 +322,7 @@ describe('Reconnection Flow (Wave 4)', () => {
     host.attachSocket(hostSock, 'pid_host');
     host.attachSocket(oppSock, 'pid_opp');
     host.detachSocket(oppSock);
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushDrop();
     expect(host.getPendingPeersForTests().length).toBe(1);
 
     await host.closeMatch();
@@ -323,7 +330,7 @@ describe('Reconnection Flow (Wave 4)', () => {
     expect(host.isClosed()).toBe(true);
   });
 
-  it('grace timeout appends aborted GameEnded and completes the match', async () => {
+  it('grace timeout completes the match cleanly via concede, never the legacy abort', async () => {
     jest.useFakeTimers();
     jest.setSystemTime(1_000);
     try {
@@ -334,22 +341,24 @@ describe('Reconnection Flow (Wave 4)', () => {
       host.attachSocket(oppSock, 'pid_opp');
 
       host.detachSocket(oppSock);
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushDrop();
       expect(host.isPausedForReconnect()).toBe(true);
 
       jest.advanceTimersByTime(RECONNECT_GRACE_MS);
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushDrop();
 
+      // harden-multiplayer-transport (M2) design D5: grace expiry now
+      // completes the match cleanly through the normal outcome path —
+      // the timed-out player's side is conceded — and NEVER via the
+      // legacy `reason: 'aborted'` abort. The opponent timed out, so
+      // their side is conceded and the player side wins.
       const events = await store.getEvents(matchId);
       const ended = events.find((e) => e.type === GameEventType.GameEnded);
       expect(ended).toBeDefined();
-      expect(ended?.payload).toMatchObject({
-        winner: 'draw',
-        reason: 'aborted',
-      });
+      expect((ended?.payload as { reason?: string }).reason).not.toBe(
+        'aborted',
+      );
+      expect(ended?.payload).toMatchObject({ reason: 'concede' });
       const meta = await store.getMatchMeta(matchId);
       expect(meta.status).toBe('completed');
       expect(host.isClosed()).toBe(true);
@@ -402,8 +411,7 @@ describe('Reconnection Flow (Wave 4)', () => {
     const sock = makeSocket();
     host.attachSocket(sock, 'pid_host');
     host.detachSocket(sock);
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushDrop();
 
     expect(host.isPausedForReconnect()).toBe(false);
     expect(host.getPendingPeersForTests().length).toBe(0);

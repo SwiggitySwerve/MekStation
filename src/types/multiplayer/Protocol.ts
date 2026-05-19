@@ -242,6 +242,17 @@ export function intentHasForbiddenDiceField(payload: unknown): boolean {
   return false;
 }
 
+/**
+ * Per `harden-multiplayer-transport` design D7 (replay-attack
+ * protection): every `Intent` envelope carries a unique `intentId`. The
+ * authoritative server maintains a per-match bounded set of accepted
+ * ids and rejects any inbound intent whose id it has already accepted
+ * with `Error {code: 'DUPLICATE_INTENT'}` — a replayed envelope cannot
+ * re-trigger a movement or attack. The field is OPTIONAL on the schema
+ * for backwards compatibility with pre-M2 clients (an envelope without
+ * an `intentId` simply skips the duplicate check); the M2 client always
+ * stamps one.
+ */
 export const IntentSchema = z
   .object({
     kind: z.literal('Intent'),
@@ -249,6 +260,7 @@ export const IntentSchema = z
     ts: tsSchema,
     playerId: z.string().min(1),
     intent: IntentPayloadSchema,
+    intentId: z.string().min(1).optional(),
   })
   .refine((envelope) => !intentHasForbiddenDiceField(envelope.intent), {
     message: 'client-rolls-forbidden',
@@ -350,15 +362,31 @@ export const ErrorCodeSchema = z.enum([
   // paused waiting for a pending peer to reconnect (or for the host
   // to override via MarkSeatAi / ForfeitMatch).
   'MATCH_PAUSED',
+  // harden-multiplayer-transport (M2) — intent integrity defenses.
+  // RATE_LIMITED: the connection exceeded its per-connection
+  //   token-bucket intent budget. Non-fatal — the connection stays
+  //   open and no event is appended (design D6).
+  // DUPLICATE_INTENT: an intent whose `intentId` the server has
+  //   already accepted for this match was re-sent — a replayed
+  //   envelope cannot re-trigger an action (design D7).
+  'RATE_LIMITED',
+  'DUPLICATE_INTENT',
 ]);
 export type IErrorCode = z.infer<typeof ErrorCodeSchema>;
 
+/**
+ * Error — typed error frame. `intentId` correlates the error back to
+ * the rejected `Intent` envelope (M2 integrity work — `RATE_LIMITED`
+ * and `DUPLICATE_INTENT` both carry it so a client can surface "that
+ * specific action was rejected" rather than a generic banner).
+ */
 export const ErrorMessageSchema = z.object({
   kind: z.literal('Error'),
   matchId: matchIdSchema,
   ts: tsSchema,
   code: ErrorCodeSchema,
   reason: z.string().optional(),
+  intentId: z.string().min(1).optional(),
 });
 export type IErrorMessage = z.infer<typeof ErrorMessageSchema>;
 
@@ -445,6 +473,24 @@ export const SeatTimedOutSchema = z.object({
 });
 export type ISeatTimedOut = z.infer<typeof SeatTimedOutSchema>;
 
+/**
+ * HostMigrated — `harden-multiplayer-transport` (M2), design D4.
+ * Broadcast when the player holding `hostPlayerId` loses their
+ * connection and the server promotes a surviving connected human seat
+ * to host so privileged operations remain available. The match does
+ * NOT abort — authority always lived on the server, so this is a
+ * privilege reassignment, not a state transfer. `previousHostPlayerId`
+ * lets the UI explain the change ("X dropped — Y is now host").
+ */
+export const HostMigratedSchema = z.object({
+  kind: z.literal('HostMigrated'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  previousHostPlayerId: z.string().min(1),
+  hostPlayerId: z.string().min(1),
+});
+export type IHostMigrated = z.infer<typeof HostMigratedSchema>;
+
 export const ServerMessageSchema = z.discriminatedUnion('kind', [
   ReplayStartSchema,
   ReplayChunkSchema,
@@ -457,6 +503,7 @@ export const ServerMessageSchema = z.discriminatedUnion('kind', [
   MatchPausedSchema,
   MatchResumedSchema,
   SeatTimedOutSchema,
+  HostMigratedSchema,
 ]);
 export type IServerMessage = z.infer<typeof ServerMessageSchema>;
 
@@ -496,6 +543,37 @@ export const RECONNECT_GRACE_MS = 60_000;
  * events; chunking the replay payload avoids one huge socket frame.
  */
 export const REPLAY_CHUNK_SIZE = 64;
+
+/**
+ * harden-multiplayer-transport (M2), design D6 — per-connection intent
+ * rate-limit budget (token bucket).
+ *
+ *   - `INTENT_RATE_LIMIT_CAPACITY` is the bucket size: the maximum
+ *     burst of intents a connection may fire back-to-back.
+ *   - `INTENT_RATE_LIMIT_REFILL_PER_SEC` is the steady-state refill
+ *     rate in tokens per second.
+ *
+ * The budget is deliberately generous: a worst-case human in a fast
+ * BattleTech turn declares a handful of moves/attacks plus phase
+ * advances — well under 1 intent/sec sustained, with short bursts. A
+ * burst capacity of 20 and a 5/sec refill means a human cannot
+ * out-click the limiter, while an automated flood (hundreds of intents
+ * per second) trips it within the first ~20 messages. The constants
+ * are exported so a stress test can import + assert against them
+ * rather than hardcoding magic numbers.
+ */
+export const INTENT_RATE_LIMIT_CAPACITY = 20;
+export const INTENT_RATE_LIMIT_REFILL_PER_SEC = 5;
+
+/**
+ * harden-multiplayer-transport (M2), design D7 — bound on the
+ * per-match accepted-intent-id set used for replay-attack detection.
+ * The set only needs to cover the window an attacker could realistically
+ * replay within; once it exceeds this size the oldest ids are evicted
+ * (a replay older than `INTENT_REPLAY_WINDOW` events is no longer a
+ * meaningful attack — the game state has moved far past it).
+ */
+export const INTENT_REPLAY_WINDOW = 2048;
 
 // =============================================================================
 // Helper builders

@@ -43,6 +43,31 @@ export function stampRollsOnNewEvents(
   return stamped;
 }
 
+/**
+ * Stamp an accepted intent's `intentId` onto the first of the events it
+ * produced. Per `harden-multiplayer-transport` design D7, persisting
+ * the id alongside the event log is what lets the recovery routine
+ * reconstruct the `AcceptedIntentTracker` after a server restart — a
+ * previously-accepted intent re-sent post-restart is still rejected as
+ * a duplicate. The id rides in the event payload (same first-event
+ * attribution strategy as roll stamping); only the first event carries
+ * it to keep the log compact.
+ */
+export function stampIntentIdOnNewEvents(
+  intentId: string | undefined,
+  events: readonly IGameEvent[],
+): readonly IGameEvent[] {
+  if (!intentId || events.length === 0) {
+    return events;
+  }
+  const [first, ...rest] = events;
+  const newPayload = {
+    ...(first.payload as Record<string, unknown>),
+    intentId,
+  };
+  return [{ ...first, payload: newPayload as IGameEvent['payload'] }, ...rest];
+}
+
 export async function persistInitialEvents(ctx: {
   readonly matchId: string;
   readonly store: IMatchStore;

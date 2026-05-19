@@ -5,6 +5,7 @@ import type {
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
@@ -66,7 +67,7 @@ export function handleGraceTimeout(
     playerId: entry.playerId,
   };
   ctx.broadcast(msg);
-  void abortExpiredPendingMatch(ctx);
+  void completeExpiredPendingMatch(ctx, entry.playerId);
 }
 
 export function maybeResume(ctx: {
@@ -105,15 +106,54 @@ function broadcastPauseSnapshot(ctx: IServerMatchHostReconnectContext): void {
   });
 }
 
-async function abortExpiredPendingMatch(
+/**
+ * Conclude a match whose reconnect grace window expired.
+ *
+ * Per `harden-multiplayer-transport` design D5: a server-authoritative
+ * match must NOT end via the legacy `reason: 'aborted'` abort path.
+ * When the grace timer fires we complete the match cleanly through the
+ * normal outcome path — the timed-out player's side is conceded so the
+ * surviving players get a clean win and the `CombatOutcomeReady` bus
+ * fires exactly as it would for any conceded match.
+ *
+ * `timedOutPlayerId` is the player whose grace expired; we resolve
+ * their side from `meta.sideAssignments`. If the side cannot be
+ * resolved (corrupt meta) we fall back to `abortMatch` so the match
+ * still reaches a terminal `GameEnded` event rather than hanging — a
+ * documented last-resort, not the primary path.
+ */
+async function completeExpiredPendingMatch(
   ctx: IServerMatchHostReconnectContext,
+  timedOutPlayerId: string,
 ): Promise<void> {
   if (ctx.closed) return;
   ctx.pendingPeers.clearAll();
   ctx.setPaused(false);
   ctx.installFreshCapture();
+
+  // Resolve which game side to concede so the surviving players win.
+  let concededSide: GameSide | null = null;
   try {
-    ctx.session.abortMatch();
+    const meta = await ctx.store.getMatchMeta(ctx.matchId);
+    const assignment = meta.sideAssignments.find(
+      (a) => a.playerId === timedOutPlayerId,
+    );
+    if (assignment) {
+      concededSide =
+        assignment.side === 'player' ? GameSide.Player : GameSide.Opponent;
+    }
+  } catch {
+    concededSide = null;
+  }
+
+  try {
+    if (concededSide != null) {
+      // Normal outcome path — concede the timed-out player's side.
+      ctx.session.concede(concededSide);
+    } else {
+      // Last resort only — meta could not be resolved.
+      ctx.session.abortMatch();
+    }
   } catch (e) {
     const err: IServerMessage = {
       kind: 'Error',

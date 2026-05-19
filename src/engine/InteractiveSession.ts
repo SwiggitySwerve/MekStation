@@ -50,6 +50,7 @@ import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
 
+import { createMinimalGrid } from './GameEngine.helpers';
 import {
   applyInteractiveSessionAttack,
   applyInteractiveSessionMovement,
@@ -167,6 +168,39 @@ export class InteractiveSession {
     storage: MatchLogHydrationStorage = matchLogStorage,
   ): Promise<IGameSession> {
     return hydrateSessionFromMatchLog(matchId, storage);
+  }
+
+  /**
+   * Per `harden-multiplayer-transport` (M2), design D3 — adopt a
+   * pre-built `IGameSession` (rebuilt by replaying a persisted event
+   * log) into a live `InteractiveSession`.
+   *
+   * Server-startup match recovery uses this to re-instantiate a
+   * `ServerMatchHost` for every `active` match after a process restart.
+   * The session's `config` + `units` drive the per-unit lookup maps so
+   * the recovered host can continue to drive the engine — terminal
+   * outcomes (`concede` / `abortMatch`), replay streaming, and host
+   * migration all operate on the adopted state directly.
+   *
+   * The constructor would normally `createGameSession` + `startGame`
+   * from scratch; here we skip that and splice the already-derived
+   * session in over the freshly-created one so `currentState` reflects
+   * the full replayed history rather than a fresh Setup-phase board.
+   */
+  static fromSession(session: IGameSession): InteractiveSession {
+    const instance = new InteractiveSession(
+      session.config.mapRadius,
+      session.config.turnLimit,
+      new SeededRandom(0xc0ffee),
+      createMinimalGrid(session.config.mapRadius),
+      [],
+      [],
+      session.units,
+    );
+    // Replace the fresh Setup-phase session with the replayed one so
+    // `currentState` (status / turn / phase / board) matches history.
+    instance.session = session;
+    return instance;
   }
 
   getState(): IGameState {
