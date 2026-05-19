@@ -1,6 +1,8 @@
 import {
+  GameSide,
   IAmmoConsumedPayload,
   IGameState,
+  IMoraleShiftedPayload,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
   IPSRResolvedPayload,
@@ -11,7 +13,9 @@ import {
   IUnitFellPayload,
   IUnitRetreatedPayload,
   IUnitStoodPayload,
+  IWithdrawalDeclaredPayload,
   LockState,
+  type MoraleLevel,
 } from '@/types/gameplay';
 
 export function applyPSRTriggered(
@@ -306,6 +310,70 @@ export function applyUnitRetreated(
       [payload.unitId]: {
         ...unit,
         hasRetreated: true,
+      },
+    },
+  };
+}
+
+/**
+ * Default in-battle morale — every side starts a battle at `STEADY`
+ * (per `add-combat-morale-and-withdrawal` D1).
+ */
+const DEFAULT_BATTLE_MORALE: Readonly<Record<GameSide, MoraleLevel>> = {
+  [GameSide.Player]: 'STEADY',
+  [GameSide.Opponent]: 'STEADY',
+};
+
+/**
+ * Per `add-combat-morale-and-withdrawal` (D1 / D2): apply a
+ * `MoraleShifted` event to the derived state's per-side `battleMorale`.
+ * The event payload already carries the resolved `to` level — the
+ * morale-shift arithmetic lives in the morale evaluation pass, so the
+ * reducer is a pure state write. `battleMorale` is bootstrapped to all
+ * `STEADY` on the first shift if a producer never seeded it.
+ */
+export function applyMoraleShifted(
+  state: IGameState,
+  payload: IMoraleShiftedPayload,
+): IGameState {
+  const battleMorale = state.battleMorale ?? DEFAULT_BATTLE_MORALE;
+  return {
+    ...state,
+    battleMorale: {
+      ...battleMorale,
+      [payload.side]: payload.to,
+    },
+  };
+}
+
+/**
+ * Per `add-combat-morale-and-withdrawal` (D4 / D6): apply a
+ * `WithdrawalDeclared` event. Latches the unit's `isWithdrawing` flag
+ * and records the player-chosen `retreatTargetEdge` so the unit is
+ * routed through the SAME edge-ward movement + `UnitRetreated` exit the
+ * bot uses. The flag is sticky — re-applying does nothing, and the
+ * edge is locked on the first declaration so a withdrawing unit cannot
+ * be re-aimed.
+ */
+export function applyWithdrawalDeclared(
+  state: IGameState,
+  payload: IWithdrawalDeclaredPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+  if (unit.isWithdrawing) {
+    return state;
+  }
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        isWithdrawing: true,
+        retreatTargetEdge: payload.edge,
       },
     },
   };

@@ -19,6 +19,7 @@ import {
   GameSide,
   GameStatus,
   LockState,
+  type MoraleLevel,
 } from './GameSessionCoreTypes';
 import { Facing, IHexCoordinate, MovementType } from './HexGridInterfaces';
 import { PSRTrigger } from './PSRTriggerCodes';
@@ -210,6 +211,17 @@ export interface IUnitGameState {
    */
   readonly hasRetreated?: boolean;
   /**
+   * Per `add-combat-morale-and-withdrawal` (D4): set `true` by the
+   * `WithdrawalDeclared` reducer when a human player declares
+   * withdrawal for this unit, or when the Forced Withdrawal rule
+   * auto-withdraws it. Distinct from `isRetreating` (which is the
+   * bot-only damage-trigger latch) so the two entry points stay
+   * traceable — but both converge on the same edge-exit machinery via
+   * `retreatTargetEdge`. Sticky for the rest of the match (one-way
+   * latch); the player cannot cancel a declared withdrawal.
+   */
+  readonly isWithdrawing?: boolean;
+  /**
    * Per-type combat-behavior envelope.
    *
    * Per Council #1 (`openspec/council-decisions/2026-05-02-cluster-F-combat-
@@ -267,6 +279,14 @@ export interface IGameState {
    * `{}` and behaves identically to a destruction-only scenario.
    */
   readonly objectives?: Record<string, IObjectiveMarker>;
+  /**
+   * Per `add-combat-morale-and-withdrawal` (D1): in-battle per-side
+   * morale. Every side starts at `STEADY`; the `MoraleShifted` reducer
+   * mutates this in response to combat events. Reconstructed
+   * deterministically by replaying the event log. Independent of
+   * campaign-layer morale (`Contract Morale Tracking`) — D3.
+   */
+  readonly battleMorale?: Record<GameSide, MoraleLevel>;
 }
 
 // =============================================================================

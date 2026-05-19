@@ -1,6 +1,7 @@
 import {
   Facing,
   GamePhase,
+  GameSide,
   GameStatus,
   IAmmoSlotState,
   IComponentDamageState,
@@ -287,5 +288,12 @@ export function createInitialGameState(gameId: string): IGameState {
     activationIndex: 0,
     units: {},
     turnEvents: [],
+    // Per `add-combat-morale-and-withdrawal` (D1): in-battle morale
+    // starts at `STEADY` for every side. `MoraleShifted` events move
+    // it from here; replaying the log reconstructs it exactly.
+    battleMorale: {
+      [GameSide.Player]: 'STEADY',
+      [GameSide.Opponent]: 'STEADY',
+    },
   };
 }

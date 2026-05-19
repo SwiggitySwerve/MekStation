@@ -45,7 +45,15 @@ export function toAIUnitState(
     // Per `wire-bot-ai-helpers-and-capstone`: propagate retreat latch
     // through to the AI so RetreatAI helpers can read it without a
     // round-trip through the session lookup.
-    isRetreating: unit.isRetreating,
+    //
+    // Per `add-combat-morale-and-withdrawal` (D6): a unit flagged
+    // `isWithdrawing` (player declaration or forced withdrawal) is
+    // routed by the move AI exactly like a bot-retreating unit — both
+    // entry points converge on the same edge-ward movement scoring.
+    // The morale/withdrawal entry point and the bot damage trigger are
+    // independent inputs to the SAME machinery, so OR-ing the two
+    // latches here never double-withdraws a unit.
+    isRetreating: unit.isRetreating || unit.isWithdrawing,
     retreatTargetEdge: unit.retreatTargetEdge,
   };
 }

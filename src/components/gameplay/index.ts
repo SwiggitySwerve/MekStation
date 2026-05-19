@@ -12,6 +12,15 @@ export { ActionBar } from './ActionBar';
 export type { ActionBarProps } from './ActionBar';
 export { ConcedeButton } from './ConcedeButton';
 export type { ConcedeButtonProps } from './ConcedeButton';
+export { WithdrawControl } from './WithdrawControl';
+export type { WithdrawControlProps, WithdrawEdge } from './WithdrawControl';
+export { MoraleIndicator } from './MoraleIndicator';
+export type { MoraleIndicatorProps } from './MoraleIndicator';
+export { ForcedWithdrawalNotice } from './ForcedWithdrawalNotice';
+export type {
+  ForcedWithdrawalNoticeProps,
+  ForcedWithdrawalEntry,
+} from './ForcedWithdrawalNotice';
 export { MvpDisplay } from './MvpDisplay';
 export type { MvpDisplayProps } from './MvpDisplay';
 export { EventLogDisplay } from './EventLogDisplay';

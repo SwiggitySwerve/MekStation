@@ -10,9 +10,11 @@ import type {
 
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
+import { ConcedeButton } from './ConcedeButton';
 import { HotkeyHelpOverlay, HotkeyHintBadge } from './help/HotkeyHelpOverlay';
 import { Minimap } from './minimap/Minimap';
 import { RecordSheetDisplay } from './RecordSheetDisplay';
+import { WithdrawControl } from './WithdrawControl';
 
 export const noopInteraction: MapInteractionState = {
   svgRef: { current: null },
@@ -251,6 +253,66 @@ export function HitChancePanel({
         Hit Chance
       </div>
       <div className="text-2xl font-bold text-amber-400">{hitChance}%</div>
+    </div>
+  );
+}
+
+/**
+ * Props for `WithdrawalTrailingActions` — the action-bar trailing slot
+ * holding the per-unit withdraw control plus the always-visible
+ * concede button.
+ *
+ * @spec openspec/changes/add-combat-morale-and-withdrawal/tasks.md § 4.1
+ */
+export interface WithdrawalTrailingActionsProps {
+  /** Live engine session — provides `declareWithdrawal` + `concede`. */
+  readonly interactiveSession: import('@/engine/InteractiveSession').InteractiveSession;
+  /** Session id used to build the post-battle / victory route. */
+  readonly sessionId: string;
+  /** Side this UI player controls. */
+  readonly playerSide: import('@/types/gameplay').GameSide;
+  /** Currently selected unit, or `null` / `undefined` when none. */
+  readonly selectedUnit: IUnitGameState | null | undefined;
+  /** Whether it is the player's turn to act. */
+  readonly isPlayerTurn: boolean;
+}
+
+/**
+ * Per `add-combat-morale-and-withdrawal` § 4.1: the action-bar trailing
+ * actions. Renders the withdraw control for the player's selected,
+ * still-in-play unit alongside the concede button. Extracted into the
+ * sections module so `GameplayLayout` stays under the file-size cap.
+ */
+export function WithdrawalTrailingActions({
+  interactiveSession,
+  sessionId,
+  playerSide,
+  selectedUnit,
+  isPlayerTurn,
+}: WithdrawalTrailingActionsProps): React.ReactElement {
+  const showWithdraw =
+    selectedUnit != null &&
+    selectedUnit.side === playerSide &&
+    !selectedUnit.destroyed &&
+    !selectedUnit.hasRetreated;
+
+  return (
+    <div className="flex items-center gap-2">
+      {showWithdraw && (
+        <WithdrawControl
+          unitId={selectedUnit.id}
+          isWithdrawing={Boolean(selectedUnit.isWithdrawing)}
+          enabled={isPlayerTurn}
+          onDeclareWithdrawal={(unitId, edge) => {
+            interactiveSession.declareWithdrawal(unitId, edge);
+          }}
+        />
+      )}
+      <ConcedeButton
+        interactiveSession={interactiveSession}
+        sessionId={sessionId}
+        playerSide={playerSide}
+      />
     </div>
   );
 }

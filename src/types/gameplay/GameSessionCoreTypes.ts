@@ -265,6 +265,33 @@ export enum GameEventType {
    * scenarios advance toward `holdTurnsRequired`).
    */
   ObjectiveProgress = 'objective_progress',
+
+  // Combat morale and withdrawal events
+  /**
+   * Per `add-combat-morale-and-withdrawal` (D2 / D8): emitted when a
+   * side's in-battle `battleMorale` changes in response to a combat
+   * event. The morale shift is a deterministic, pure function of the
+   * event log — replaying the log reconstructs morale exactly. Carries
+   * `side`, `from`, `to`, `cause`, and `turn`.
+   */
+  MoraleShifted = 'morale_shifted',
+  /**
+   * Per `add-combat-morale-and-withdrawal` (D4 / D8): emitted when a
+   * unit is flagged to withdraw — either a human player declaring
+   * withdrawal for an owned unit (`declaredBy: 'player'`) or the
+   * Forced Withdrawal rule auto-withdrawing it (`declaredBy: 'forced'`).
+   * Carries the chosen target edge; the reducer latches the unit's
+   * `isWithdrawing` flag and `retreatTargetEdge`.
+   */
+  WithdrawalDeclared = 'withdrawal_declared',
+  /**
+   * Per `add-combat-morale-and-withdrawal` (D5 / D8): emitted by the
+   * end-of-phase Forced Withdrawal check for each unit it compels to
+   * withdraw. `reason` distinguishes a broken-morale trigger from a
+   * crippled-unit trigger. Always paired with a `WithdrawalDeclared`
+   * event for the same unit.
+   */
+  ForcedWithdrawalTriggered = 'forced_withdrawal_triggered',
 }
 
 /**
@@ -408,3 +435,47 @@ export type HeatVisualThreshold =
   | 'hot'
   | 'overheat'
   | 'critical';
+
+// =============================================================================
+// Combat Morale
+// =============================================================================
+
+/**
+ * Per `add-combat-morale-and-withdrawal` (D1): the seven-level ordinal
+ * morale scale, ordered worst → best. Reuses the vocabulary of
+ * campaign-layer morale for consistency, but the in-battle state is
+ * wholly separate (D3) — this type never reads or writes campaign
+ * morale storage.
+ */
+export type MoraleLevel =
+  | 'ROUTED'
+  | 'BROKEN'
+  | 'SHAKEN'
+  | 'STEADY'
+  | 'CONFIDENT'
+  | 'INSPIRED'
+  | 'OVERWHELMING';
+
+/**
+ * Canonical ordering of `MoraleLevel`, worst → best. Array index is the
+ * ordinal used by morale-shift clamping arithmetic.
+ */
+export const MORALE_LEVELS: readonly MoraleLevel[] = [
+  'ROUTED',
+  'BROKEN',
+  'SHAKEN',
+  'STEADY',
+  'CONFIDENT',
+  'INSPIRED',
+  'OVERWHELMING',
+] as const;
+
+/**
+ * Per `add-combat-morale-and-withdrawal` (D1): in-battle per-side
+ * morale. Carried on the derived game state — `battleMorale` records a
+ * `MoraleLevel` for every `GameSide`, every side starting at `STEADY`.
+ * Reconstructed deterministically by replaying `MoraleShifted` events.
+ */
+export interface ISessionMoraleState {
+  readonly battleMorale: Record<GameSide, MoraleLevel>;
+}
