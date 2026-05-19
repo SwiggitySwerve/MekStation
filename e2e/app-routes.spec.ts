@@ -92,6 +92,16 @@ test.describe('Network Requests', () => {
     page.on('requestfailed', (request) => {
       // Ignore certain expected failures
       const url = request.url();
+      // Aborted requests are not real failures — they're in-flight requests
+      // cut off when the page navigates / `networkidle` fires. PT-005:
+      // once HMR connects properly, `networkidle` resolves faster and the
+      // app's background data fetches (`/api/catalog`, equipment JSONs)
+      // can be aborted before they complete. They are not network failures
+      // — the resources are fetched and used on later navigation. The test
+      // genuinely cares about ERR_FAILED / ERR_CONNECTION_REFUSED / 4xx-on-
+      // critical-resource, not ERR_ABORTED.
+      const errorText = request.failure()?.errorText ?? '';
+      if (errorText.includes('ERR_ABORTED')) return;
       if (!url.includes('favicon') && !url.includes('analytics')) {
         failedRequests.push(url);
       }
