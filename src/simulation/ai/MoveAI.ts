@@ -17,21 +17,27 @@ import {
 import { terrainTagOffersCover } from '@/utils/gameplay/terrainCover';
 
 import type { SeededRandom } from '../core/SeededRandom';
+import type { IElectronicWarfareContext } from './AIElectronicWarfareAdvisor';
 import type { ObjectiveRole } from './AIObjectivePlanner';
 import type { IAIPath } from './AITerrainPathfinder';
 import type {
+  IAITierAdvancedParameters,
   IAITierCoordinationParameters,
   IAITierMovementParameters,
   IAITierObjectiveParameters,
 } from './AITierRegistry';
+import type { IVisionContext } from './AIVisionAdvisor';
 import type { IAIUnitState, IBotBehavior, IMove } from './types';
 
+import { adviseDestination as adviseEcmDestination } from './AIElectronicWarfareAdvisor';
 import { findAllPaths } from './AITerrainPathfinder';
 import {
+  resolveAdvancedParameters,
   resolveCoordinationParameters,
   resolveObjectiveParameters,
   resolveTierParameters,
 } from './AITierRegistry';
+import { adviseDestination as adviseVisionDestination } from './AIVisionAdvisor';
 import { scoreRetreatMove } from './RetreatAI';
 
 /**
@@ -203,6 +209,39 @@ export interface IScoreMoveContext {
    * units and callers without an objective plan.
    */
   readonly objectiveHex?: IHexCoordinate;
+
+  /**
+   * Per `add-ai-advanced-systems` design D4: the active difficulty tier's
+   * advanced-systems parameter block. When omitted, or when its
+   * `advancedSystems` flag is `false` (the `Green` / `Regular` / `Veteran`
+   * tiers, and every legacy caller), `scoreMove`'s three advanced terms —
+   * jump tactics, ECM advice, vision advice — contribute zero and the score
+   * is byte-identical to the A1/A2/A3a/A3b scorer.
+   */
+  readonly tierAdvanced?: IAITierAdvancedParameters;
+  /**
+   * Per `add-ai-advanced-systems` design D1 / D4: the net tactical score of
+   * the moving unit's best jump destination, from `AIJumpTactics.evaluateJump`.
+   * `scoreMove` adds it (scaled by `jumpTacticsWeight`) ONLY to jump moves —
+   * a jump destination is purposeful only when the unit jumped to reach it.
+   * Omitted for non-advanced tiers and callers that did not evaluate jumps.
+   */
+  readonly jumpEvaluationScore?: number;
+  /**
+   * Per `add-ai-advanced-systems` design D2: the electronic-warfare context
+   * — the moving unit's team id, the live EW snapshot, and its lancemates.
+   * `scoreMove` runs `AIElectronicWarfareAdvisor.adviseDestination` per
+   * candidate destination. Omitted when no EW state is threaded (the term
+   * stays inert).
+   */
+  readonly electronicWarfare?: IElectronicWarfareContext;
+  /**
+   * Per `add-ai-advanced-systems` design D3: the vision context — the grid,
+   * the enemy set, and the moving unit's lancemates. `scoreMove` runs
+   * `AIVisionAdvisor.adviseDestination` per candidate destination. Omitted
+   * when no vision context is threaded (the term stays inert).
+   */
+  readonly vision?: IVisionContext;
 }
 
 /**
@@ -323,7 +362,92 @@ export function scoreMove(move: IMove, ctx: IScoreMoveContext): number {
   // unchanged for those tiers.
   score += objectiveScore(move, ctx);
 
+  // Per `add-ai-advanced-systems` design D4: the jump-tactics, ECM-advice,
+  // and vision-advice terms. Additive over the objective term. Returns `0`
+  // whenever advanced systems are disabled (every non-`Elite` tier and
+  // legacy caller), so the score above is unchanged for those tiers.
+  score += advancedScore(move, ctx);
+
   return score;
+}
+
+/**
+ * Per `add-ai-advanced-systems` design D4: the three advanced-systems
+ * scoring terms, summed. Gated on `advancedSystems` — returns `0` for every
+ * non-`Elite` tier and every legacy caller, so the caller's A1/A2/A3a/A3b
+ * score is preserved exactly.
+ *
+ *   - Jump-tactics term — `+jumpTacticsWeight * jumpEvaluationScore`, applied
+ *     ONLY to jump moves. The jump evaluation (terrain-clearing, elevation,
+ *     charge escape, heat safety) is precomputed once per turn by the caller
+ *     via `AIJumpTactics.evaluateJump`; `scoreMove` only weights it. A
+ *     non-jump move never receives the jump term — a walk destination is not
+ *     a jump.
+ *   - ECM-advice term — `ecmCoverageWeight * coverageBonus -
+ *     ecmAvoidanceWeight * hostileBubblePenalty`, from
+ *     `AIElectronicWarfareAdvisor.adviseDestination`. A destination inside a
+ *     hostile ECM bubble is penalized; an ECM/probe carrier covering the
+ *     lance is rewarded.
+ *   - Vision-advice term — `visionWeight * (scoutBonus + losBreakBonus)`,
+ *     from `AIVisionAdvisor.adviseDestination`. A destination that newly
+ *     spots an enemy or breaks an enemy's spotting line is rewarded.
+ *
+ * Pure — never mutates inputs, consumes no `SeededRandom`. The advisors only
+ * read EW / fog-of-war state; they never touch combat resolution.
+ */
+function advancedScore(move: IMove, ctx: IScoreMoveContext): number {
+  const { tierAdvanced } = ctx;
+
+  // Gate: non-advanced tiers and every legacy caller resolve to a no-op.
+  if (!tierAdvanced || !tierAdvanced.advancedSystems) {
+    return 0;
+  }
+
+  let delta = 0;
+
+  // Jump-tactics term — jump moves only. The score is precomputed for the
+  // unit's best jump destination; here it biases the choice of Jump moves
+  // among the candidate set. `MoveAI.selectMove` already restricts the
+  // candidate set to a single movement type per call, so applying the term
+  // to every jump move in the set is consistent — it lifts jump candidates
+  // uniformly versus the (separate-call) walk/run candidates.
+  if (
+    move.movementType === MovementType.Jump &&
+    tierAdvanced.jumpTacticsWeight !== 0 &&
+    ctx.jumpEvaluationScore !== undefined
+  ) {
+    delta += tierAdvanced.jumpTacticsWeight * ctx.jumpEvaluationScore;
+  }
+
+  // ECM-advice term — penalize a destination inside a hostile ECM bubble,
+  // reward an ECM/probe carrier that covers the lance or counters enemy ECM.
+  if (
+    ctx.electronicWarfare &&
+    (tierAdvanced.ecmAvoidanceWeight !== 0 ||
+      tierAdvanced.ecmCoverageWeight !== 0)
+  ) {
+    const advice = adviseEcmDestination(
+      ctx.attacker,
+      move.destination,
+      ctx.electronicWarfare,
+    );
+    delta += tierAdvanced.ecmCoverageWeight * advice.coverageBonus;
+    delta -= tierAdvanced.ecmAvoidanceWeight * advice.hostileBubblePenalty;
+  }
+
+  // Vision-advice term — reward scouting an unspotted enemy and breaking an
+  // enemy's spotting line to the moving unit.
+  if (ctx.vision && tierAdvanced.visionWeight !== 0) {
+    const advice = adviseVisionDestination(
+      ctx.attacker,
+      move.destination,
+      ctx.vision,
+    );
+    delta +=
+      tierAdvanced.visionWeight * (advice.scoutBonus + advice.losBreakBonus);
+  }
+
+  return delta;
 }
 
 /**
@@ -731,14 +855,25 @@ export class MoveAI {
     // `ctx` carrying no objective role) this contributes nothing — the score
     // stays byte-identical.
     const tierObjective = resolveObjectiveParameters(tierParams);
+    // Per `add-ai-advanced-systems` design D4: attach the advanced block.
+    // `scoreMove`'s three advanced terms gate on `advancedSystems`, so for
+    // every non-`Elite` tier (and a `ctx` carrying no jump/ECM/vision data)
+    // this contributes nothing — the score stays byte-identical.
+    const tierAdvanced = resolveAdvancedParameters(tierParams);
 
     // Legacy tiers: attach the (no-op) tier blocks only. `scoreMove` gates
     // every terrain-aware term on `pathfinderEnabled`, the cohesion term on
-    // `lanceCoordination`, and the objective term on `objectiveAwareness`, so
-    // this is byte-identical to pre-change behavior for the non-pathfinder
-    // tiers.
+    // `lanceCoordination`, the objective term on `objectiveAwareness`, and
+    // the advanced terms on `advancedSystems`, so this is byte-identical to
+    // pre-change behavior for the non-pathfinder tiers.
     if (!tierMovement.pathfinderEnabled) {
-      return { ...ctx, tierMovement, tierCoordination, tierObjective };
+      return {
+        ...ctx,
+        tierMovement,
+        tierCoordination,
+        tierObjective,
+        tierAdvanced,
+      };
     }
 
     // Determine the shared movement type and MP budget for the pathfinder
@@ -758,6 +893,7 @@ export class MoveAI {
       tierMovement,
       tierCoordination,
       tierObjective,
+      tierAdvanced,
       pathByDestination,
     };
   }

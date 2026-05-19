@@ -122,12 +122,41 @@ export interface IAITierObjectiveParameters {
 }
 
 /**
+ * Advanced-systems parameter block — the A4 contribution to a tier's
+ * parameter set (`add-ai-advanced-systems` design D5).
+ *
+ *   - `advancedSystems`: when `false`, the jump-tactics, ECM-awareness, and
+ *     vision advisors are never consulted — `BotPlayer.selectMovementType`
+ *     keeps the flat-probability jump roll and `scoreMove`'s three advanced
+ *     terms contribute nothing, so `Green`/`Regular`/`Veteran` reproduce
+ *     pre-A4 behavior byte-for-byte. When `true`, the bot evaluates jump
+ *     moves with `AIJumpTactics`, avoids hostile ECM bubbles, and values
+ *     scouting / LOS-breaking.
+ *   - `jumpTacticsWeight`: multiplier on the jump-tactics term in
+ *     `scoreMove` (applied to jump moves only). `0` disables it.
+ *   - `ecmAvoidanceWeight`: scales the penalty for a destination inside a
+ *     hostile ECM bubble. `0` disables ECM avoidance.
+ *   - `ecmCoverageWeight`: scales the bonus for an ECM/probe carrier whose
+ *     destination covers lancemates or counters an enemy ECM source. `0`
+ *     disables ECM-coverage rewards.
+ *   - `visionWeight`: scales the scouting and LOS-break bonuses from
+ *     `AIVisionAdvisor`. `0` disables vision awareness.
+ */
+export interface IAITierAdvancedParameters {
+  readonly advancedSystems: boolean;
+  readonly jumpTacticsWeight: number;
+  readonly ecmAvoidanceWeight: number;
+  readonly ecmCoverageWeight: number;
+  readonly visionWeight: number;
+}
+
+/**
  * Full parameter set for one difficulty tier.
  *
  * Open by design: A1 defines `tier` and `movement`. A2 ADDs the optional
  * `resource` block. A3a ADDs the optional `coordination` block. A3b ADDs the
- * optional `objective` block below. A later Wave 2 change ADDs `advanced?`
- * without touching the fields declared here.
+ * optional `objective` block. A4 ADDs the optional `advanced` block below,
+ * without touching the fields declared above it.
  */
 export interface IAITierParameters {
   readonly tier: AITierName;
@@ -153,7 +182,13 @@ export interface IAITierParameters {
    * `resolveObjectiveParameters` to get the inert default when absent.
    */
   readonly objective?: IAITierObjectiveParameters;
-  // A4 ADDs: advanced? block.
+  /**
+   * A4 advanced-systems block. Optional so a tier record built before A4
+   * (or a hand-rolled test fixture) still type-checks; every entry in
+   * `AI_TIER_REGISTRY` populates it. Resolve it through
+   * `resolveAdvancedParameters` to get the inert default when absent.
+   */
+  readonly advanced?: IAITierAdvancedParameters;
 }
 
 /**
@@ -191,6 +226,21 @@ export const INERT_OBJECTIVE_PARAMETERS: IAITierObjectiveParameters = {
   objectiveAwareness: false,
   objectiveSeekingWeight: 0,
   objectiveHoldWeight: 0,
+};
+
+/**
+ * The inert advanced block — every A4 behavior disabled. Used by
+ * `resolveAdvancedParameters` when a tier record predates A4 and as the
+ * literal value `Green`/`Regular`/`Veteran` carry so the jump-tactics gate,
+ * ECM advisor, and vision advisor are never consulted and those tiers keep
+ * the flat-probability jump roll.
+ */
+export const INERT_ADVANCED_PARAMETERS: IAITierAdvancedParameters = {
+  advancedSystems: false,
+  jumpTacticsWeight: 0,
+  ecmAvoidanceWeight: 0,
+  ecmCoverageWeight: 0,
+  visionWeight: 0,
 };
 
 /**
@@ -248,6 +298,17 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         objectiveSeekingWeight: 0,
         objectiveHoldWeight: 0,
       },
+      // A4: fully inert — `advancedSystems: false` means the jump-tactics
+      // gate, ECM advisor, and vision advisor are never consulted; the bot
+      // keeps the flat 20% jump roll and the three advanced move terms
+      // contribute nothing.
+      advanced: {
+        advancedSystems: false,
+        jumpTacticsWeight: 0,
+        ecmAvoidanceWeight: 0,
+        ecmCoverageWeight: 0,
+        visionWeight: 0,
+      },
     },
     Regular: {
       tier: 'Regular',
@@ -279,6 +340,16 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         objectiveAwareness: false,
         objectiveSeekingWeight: 0,
         objectiveHoldWeight: 0,
+      },
+      // A4: fully inert — see `Green`. The determinism golden traces are
+      // pinned to this tier, so the jump roll must stay the flat 20% draw
+      // and every A4 weight must stay zero here.
+      advanced: {
+        advancedSystems: false,
+        jumpTacticsWeight: 0,
+        ecmAvoidanceWeight: 0,
+        ecmCoverageWeight: 0,
+        visionWeight: 0,
       },
     },
     Veteran: {
@@ -320,6 +391,18 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         objectiveAwareness: false,
         objectiveSeekingWeight: 0,
         objectiveHoldWeight: 0,
+      },
+      // A4: fully inert. Per `add-ai-advanced-systems` design D5, the
+      // `Veteran` tier stays exactly A1+A2 depth — `advancedSystems` is
+      // `false` so the jump-tactics gate, ECM advisor, and vision advisor
+      // are never consulted and `selectMovementType` keeps the flat 20%
+      // jump roll. `Elite` is the only tier that runs the advanced systems.
+      advanced: {
+        advancedSystems: false,
+        jumpTacticsWeight: 0,
+        ecmAvoidanceWeight: 0,
+        ecmCoverageWeight: 0,
+        visionWeight: 0,
       },
     },
     Elite: {
@@ -370,6 +453,30 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         objectiveAwareness: true,
         objectiveSeekingWeight: 120,
         objectiveHoldWeight: 800,
+      },
+      // A4: advanced systems active — `Elite` is the only tier that runs the
+      // jump-tactics gate, the ECM advisor, and the vision advisor. Weight
+      // magnitudes sit relative to the existing `scoreMove` scale (LOS
+      // `+1000`, forward-arc `+500`, per-hex distance `-100`):
+      //   - `jumpTacticsWeight: 1` multiplies the raw `AIJumpTactics` score,
+      //     whose terms (terrain-clearing, elevation, charge-escape) are
+      //     already sized in the hundreds so a purposeful jump competes
+      //     with — without dwarfing — the LOS / forward-arc instincts.
+      //   - `ecmAvoidanceWeight: 350` puts a hostile-ECM hex below an
+      //     otherwise-equal clean hex by forward-arc scale: meaningful, but
+      //     a strong shot can still pull the bot into the bubble.
+      //   - `ecmCoverageWeight: 250` rewards an ECM/probe carrier for
+      //     covering the lance — below the avoidance weight so a carrier
+      //     does not chase coverage into a worse tactical hex.
+      //   - `visionWeight: 300` makes scouting an unspotted enemy a
+      //     forward-arc-scale draw; the LOS-break share is a fraction of it
+      //     (see `AIVisionAdvisor`) so it only breaks ties.
+      advanced: {
+        advancedSystems: true,
+        jumpTacticsWeight: 1,
+        ecmAvoidanceWeight: 350,
+        ecmCoverageWeight: 250,
+        visionWeight: 300,
       },
     },
   };
@@ -464,4 +571,22 @@ export function resolveObjectiveParameters(
   params: IAITierParameters,
 ): IAITierObjectiveParameters {
   return params.objective ?? INERT_OBJECTIVE_PARAMETERS;
+}
+
+/**
+ * Resolve the A4 advanced-systems block for a tier parameter record, falling
+ * back to `INERT_ADVANCED_PARAMETERS` when the record predates A4 (the
+ * optional `advanced` field is absent).
+ *
+ * Used by `BotPlayer` and `MoveAI` so a hand-rolled `IAITierParameters`
+ * fixture without an `advanced` block resolves to fully-inert advanced
+ * systems — the bot keeps the flat-probability jump roll and the jump /
+ * ECM / vision terms contribute nothing — rather than throwing on an
+ * undefined access. Every entry in `AI_TIER_REGISTRY` populates `advanced`,
+ * so production callers always get the real tier values.
+ */
+export function resolveAdvancedParameters(
+  params: IAITierParameters,
+): IAITierAdvancedParameters {
+  return params.advanced ?? INERT_ADVANCED_PARAMETERS;
 }
