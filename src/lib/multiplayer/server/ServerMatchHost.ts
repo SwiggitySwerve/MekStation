@@ -25,6 +25,14 @@
  *     and ALSO rejects any inbound intent whose payload smuggles dice
  *     fields (zod refinement on `IntentSchema`).
  *
+ * Architecture: this class is a thin orchestrator. The heavy concerns
+ * live in co-located collaborators — `ServerMatchSocketLifecycle`,
+ * `ServerMatchBroadcaster`, `ServerMatchHostCapture` (roll capture),
+ * `ServerMatchHostOutcomePublisher` (Wave 5 publish safety net), and
+ * the `ServerMatchHost*` free-function modules for replay / intent /
+ * lobby / reconnect logic. `ServerMatchHostContexts` assembles the
+ * plain context objects those free functions consume.
+ *
  * Out of scope for this wave:
  *   - Lobby intents (Wave 3b)
  *   - Outcome bus passthrough (Wave 5 wires it).
@@ -39,10 +47,6 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
-import {
-  publishCombatOutcome,
-  type ICombatOutcomeReadyEvent,
-} from '@/engine/combatOutcomeBus';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import {
   type IGameSessionChannel,
@@ -62,34 +66,39 @@ import {
 import type { IMatchStore } from './IMatchStore';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
-import { CryptoDiceRoller, type IServerDiceRoller } from './CryptoDiceRoller';
+import { type IServerDiceRoller } from './CryptoDiceRoller';
 import { FogOfWarVisibilityCache } from './fogOfWar';
 import { PendingPeerTracker } from './reconnection/PendingPeerTracker';
-import { RollCapture } from './RollCapture';
 import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import {
   buildHostSession,
   type IMatchHostBootstrap,
 } from './ServerMatchHostBootstrap';
+import { ServerMatchHostCapture } from './ServerMatchHostCapture';
+import {
+  buildIntentContext,
+  buildLobbyContext,
+  buildReconnectContext,
+  buildReplayContext,
+  type IServerMatchHostInternals,
+} from './ServerMatchHostContexts';
 import { drainNewEvents } from './ServerMatchHostEngineDispatch';
 import {
   broadcastEvent as broadcastEventWithContext,
   persistInitialEvents,
-  stampRollsOnNewEvents,
 } from './ServerMatchHostEvents';
 import { handleIntent as handleIntentWithContext } from './ServerMatchHostIntent';
 import { handleLobbyIntent as handleLobbyIntentWithContext } from './ServerMatchHostLobbyIntents';
+import { ServerMatchHostOutcomePublisher } from './ServerMatchHostOutcomePublisher';
 import {
   maybeMarkPlayerPending,
   maybeResume,
-  type IServerMatchHostReconnectContext,
 } from './ServerMatchHostReconnectLifecycle';
 import {
   bindReconnectChannel,
   getEventsFromSeq,
   handleReconnectRequest,
   handleSessionJoin,
-  type IServerMatchHostReplayContext,
   sendReplay,
 } from './ServerMatchHostReplay';
 import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
@@ -151,31 +160,18 @@ export class ServerMatchHost {
   private isPaused = false;
 
   /**
-   * Wave 5: server-side `CombatOutcomeReady` publish guard. The
-   * `InteractiveSession.tryFinalizeAndPublish` is the primary publisher
-   * (already wired) — this host-side guard is the safety net that
-   * fires when the engine path is bypassed (e.g., closeMatch on a
-   * server-driven shutdown that left the session in `Active` but the
-   * win-condition predicate already trips). Idempotent — once set, no
-   * further publishes happen for this match.
+   * Wave 3a: the roll-capture cluster (source roller + per-intent
+   * `RollCapture` swap + per-event stamping). A dedicated collaborator
+   * so the host stays a thin orchestrator.
    */
-  private hostOutcomePublished = false;
+  private readonly capture: ServerMatchHostCapture;
 
   /**
-   * Per Wave 3a: the source roller (crypto in prod, seeded in debug).
-   * Stable for the entire match lifetime.
+   * Wave 5: server-side `CombatOutcomeReady` publish safety net. A
+   * dedicated collaborator owning the idempotency guard; the host
+   * calls `tryPublish()` from `closeMatch` and the `ForfeitMatch` path.
    */
-  private readonly sourceRoller: IServerDiceRoller;
-
-  /**
-   * Per Wave 3a: the *currently active* `RollCapture`. Reset between
-   * intent ticks via `installFreshCapture()` so each engine call's
-   * consumed rolls land in a buffer scoped to that call. The
-   * `dispatchD6Roller` callback handed to `InteractiveSession` reads
-   * THROUGH this pointer — that's how a fixed callback can target
-   * different capture buffers across intents.
-   */
-  private currentCapture: RollCapture;
+  private readonly outcomePublisher: ServerMatchHostOutcomePublisher;
 
   /**
    * Construct directly from an existing `InteractiveSession`. Used by
@@ -195,8 +191,8 @@ export class ServerMatchHost {
     sourceRoller?: IServerDiceRoller,
   ) {
     this.session = session;
-    this.sourceRoller = sourceRoller ?? new CryptoDiceRoller();
-    this.currentCapture = new RollCapture(this.sourceRoller);
+    this.capture = new ServerMatchHostCapture(sourceRoller);
+    this.outcomePublisher = new ServerMatchHostOutcomePublisher(session);
     this.lifecycle = new ServerMatchSocketLifecycle({
       matchId: this.matchId,
       broadcaster: this.broadcaster,
@@ -236,36 +232,11 @@ export class ServerMatchHost {
   ): ServerMatchHost {
     const { session, sourceRoller, captureRef } = buildHostSession(bootstrap);
     const host = new ServerMatchHost(matchId, store, session, sourceRoller);
-    host.adoptExternalCaptureRef(captureRef);
+    // Re-route the host's capture pointer through the ref the engine
+    // callback closed over, so per-intent swaps stay invisible.
+    host.capture.adoptExternalCaptureRef(captureRef);
     return host;
   }
-
-  /**
-   * Per Wave 3a internal: replace the host's capture pointer with the
-   * one closed over by the engine callback. Without this, the host's
-   * `currentCapture` and the callback's pointer would diverge after the
-   * first swap. Called only from `static create`.
-   */
-  private adoptExternalCaptureRef(ref: { current: RollCapture }): void {
-    // The host's own `currentCapture` is irrelevant once we have an
-    // external ref — we re-route both reads + writes through `ref`.
-    // We do this by overwriting `currentCapture` with the ref's current
-    // value AND replacing the in-memory swap helper to mutate `ref`.
-    this.currentCapture = ref.current;
-    this.captureSwap = (next: RollCapture) => {
-      ref.current = next;
-      this.currentCapture = next;
-    };
-  }
-
-  /**
-   * Default capture swap (no external ref): just update the host field.
-   * Overridden by `adoptExternalCaptureRef` when the session was built
-   * via `static create`.
-   */
-  private captureSwap: (next: RollCapture) => void = (next) => {
-    this.currentCapture = next;
-  };
 
   // ---------------------------------------------------------------------------
   // Socket management
@@ -315,9 +286,15 @@ export class ServerMatchHost {
    * `MatchPaused` (idempotent — broadcast only on first pending peer).
    */
   private async maybeMarkPlayerPending(playerId: string): Promise<void> {
-    await maybeMarkPlayerPending(this.reconnectContext(), playerId);
+    await maybeMarkPlayerPending(
+      buildReconnectContext(this.internals()),
+      playerId,
+    );
   }
 
+  /**
+   * Wave 4: resolve the pause when the last pending peer reconnects.
+   */
   private maybeResume(): void {
     maybeResume({
       matchId: this.matchId,
@@ -328,27 +305,6 @@ export class ServerMatchHost {
       },
       broadcast: (message) => this.broadcast(message),
     });
-  }
-
-  private reconnectContext(): IServerMatchHostReconnectContext {
-    return {
-      matchId: this.matchId,
-      store: this.store,
-      session: this.session,
-      pendingPeers: this.pendingPeers,
-      closed: this.closed,
-      isPaused: this.isPaused,
-      setPaused: (paused) => {
-        this.isPaused = paused;
-      },
-      broadcast: (message) => this.broadcast(message),
-      broadcastEvent: (message) => this.broadcastEvent(message),
-      closeMatch: () => this.closeMatch(),
-      installFreshCapture: () => this.installFreshCapture(),
-      drainNewEvents: () => this.drainNewEvents(),
-      stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
-      tryPublishOutcome: () => this.tryPublishOutcome(),
-    };
   }
 
   /**
@@ -364,26 +320,28 @@ export class ServerMatchHost {
   // ---------------------------------------------------------------------------
 
   /**
-   * Send the event history >= `fromSeq` to one socket as a
-   * `ReplayStart` → 0+ `ReplayChunk` → `ReplayEnd` triple. Wave 4
-   * paginates via `streamReplay` (default 64 events per chunk).
-   *
-   * Replay envelopes go ONLY to the requesting socket — they are NOT
-   * broadcast. Live events still go to every attached socket via
-   * `broadcast()`.
+   * Stream the event history >= `fromSeq` to one socket. Delegates to
+   * `ServerMatchHostReplay.sendReplay` (framing + fog filtering there).
    */
   async sendReplay(
     socket: IMatchSocket,
     fromSeq = 0,
     playerId?: string,
   ): Promise<void> {
-    await sendReplay(this.replayContext(), socket, fromSeq, playerId);
+    await sendReplay(
+      buildReplayContext(this.internals()),
+      socket,
+      fromSeq,
+      playerId,
+    );
   }
 
+  /** Read the raw event history >= `seq` (delegates to replay module). */
   async getEventsFromSeq(seq: number): Promise<readonly IGameEvent[]> {
-    return getEventsFromSeq(this.replayContext(), seq);
+    return getEventsFromSeq(buildReplayContext(this.internals()), seq);
   }
 
+  /** Answer a P2P reconnect request (delegates to replay module). */
   async handleReconnectRequest(
     request: IReconnectRequestEnvelope,
     channel: Pick<
@@ -395,13 +353,17 @@ export class ServerMatchHost {
     metadataReader: ReconnectMetadataReader = matchLogStorage,
   ): Promise<void> {
     await handleReconnectRequest(
-      this.replayContext(),
+      buildReplayContext(this.internals()),
       request,
       channel,
       metadataReader,
     );
   }
 
+  /**
+   * Subscribe to reconnect requests on a P2P channel; returns an
+   * unsubscribe function (delegates to replay module).
+   */
   bindReconnectChannel(
     channel: Pick<
       IGameSessionChannel,
@@ -412,9 +374,18 @@ export class ServerMatchHost {
     >,
     metadataReader: ReconnectMetadataReader = matchLogStorage,
   ): () => void {
-    return bindReconnectChannel(this.replayContext(), channel, metadataReader);
+    return bindReconnectChannel(
+      buildReplayContext(this.internals()),
+      channel,
+      metadataReader,
+    );
   }
 
+  /**
+   * Handle a `SessionJoin`: replay history, re-bind seat metadata, and
+   * broadcast `LobbyUpdated`/`MatchResumed` (delegates to replay
+   * module).
+   */
   async handleSessionJoin(
     socket: IMatchSocket,
     playerId: string,
@@ -422,22 +393,12 @@ export class ServerMatchHost {
     requestedMatchId = this.matchId,
   ): Promise<void> {
     await handleSessionJoin(
-      this.replayContext(),
+      buildReplayContext(this.internals()),
       socket,
       playerId,
       lastSeq,
       requestedMatchId,
     );
-  }
-
-  private replayContext(): IServerMatchHostReplayContext {
-    return {
-      matchId: this.matchId,
-      store: this.store,
-      session: this.session,
-      safeSend: (socket, message) => this.safeSend(socket, message),
-      maybeResume: () => this.maybeResume(),
-    };
   }
 
   // ---------------------------------------------------------------------------
@@ -451,22 +412,7 @@ export class ServerMatchHost {
    */
   async handleIntent(envelope: IIntent): Promise<readonly IServerMessage[]> {
     return handleIntentWithContext(
-      {
-        matchId: this.matchId,
-        store: this.store,
-        session: this.session,
-        closed: this.closed,
-        isPaused: this.isPaused,
-        broadcast: (message) => this.broadcast(message),
-        broadcastEvent: (message) => this.broadcastEvent(message),
-        closeMatch: () => this.closeMatch(),
-        handleLobbyIntent: (lobbyEnvelope) =>
-          this.handleLobbyIntent(lobbyEnvelope),
-        installFreshCapture: () => this.installFreshCapture(),
-        drainNewEvents: () => this.drainNewEvents(),
-        stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
-        tryPublishOutcome: () => this.tryPublishOutcome(),
-      },
+      buildIntentContext(this.internals()),
       envelope,
     );
   }
@@ -489,9 +435,10 @@ export class ServerMatchHost {
     // Wave 5: last-chance publish before we tear everything down.
     // If the match ended naturally (engine reached Completed) the bus
     // already fired through `InteractiveSession.tryFinalizeAndPublish`
-    // and our local `hostOutcomePublished` guard makes this a no-op.
-    // If the match was force-closed mid-fight (host crash, admin kill)
-    // and the win-condition predicate happens to trip, this catches it.
+    // and the publisher's `hostOutcomePublished` guard makes this a
+    // no-op. If the match was force-closed mid-fight (host crash, admin
+    // kill) and the win-condition predicate happens to trip, this
+    // catches it.
     this.tryPublishOutcome();
     const socketList = this.lifecycle.snapshot();
     for (const socket of socketList) {
@@ -507,58 +454,11 @@ export class ServerMatchHost {
   }
 
   /**
-   * Wave 5: server-side `CombatOutcomeReady` publish helper. Defensive
-   * safety net — `InteractiveSession.tryFinalizeAndPublish` is the
-   * primary path and runs synchronously inside `concede`,
-   * `advancePhase`, `applyAttack`, etc., so by the time `handleIntent`
-   * returns the bus has usually already fired (and our local guard
-   * mirrors the engine's `outcomePublished`). This method exists so
-   * the integration test can prove the bus emits even on the
-   * server-side `closeMatch` path, and so a future code path that
-   * bypasses the engine's lifecycle methods can still feed the
-   * campaign store.
-   *
-   * Behavior:
-   *   - Skip if we've already published from this host.
-   *   - Skip if the engine's own guard already published (we mirror
-   *     by reading `hasPublishedOutcome` so we never double-emit).
-   *   - Skip if the session isn't game-over (most common case).
-   *   - Otherwise, lift the outcome via `getOutcome()` and publish.
-   *
-   * Listener errors don't propagate (the bus swallows them).
+   * Wave 5: delegate to the outcome-publisher safety net. Kept as a
+   * host method so the context builders can pass a stable callback.
    */
   private tryPublishOutcome(): void {
-    if (this.hostOutcomePublished) return;
-    if (this.session.hasPublishedOutcome()) {
-      // Engine already fired; mirror the guard so we don't try again.
-      this.hostOutcomePublished = true;
-      return;
-    }
-    if (!this.session.isGameOver()) return;
-    let outcome;
-    try {
-      outcome = this.session.getOutcome();
-    } catch {
-      // Defensive: derivation should be safe post-game-over, but if
-      // anything throws we don't want to crash the host.
-      return;
-    }
-    // `getOutcome()` itself routes through `tryFinalizeAndPublish`,
-    // which means by the time it returns the engine guard is set and
-    // the bus has fired. Re-check the engine guard so we mirror it.
-    if (this.session.hasPublishedOutcome()) {
-      this.hostOutcomePublished = true;
-      return;
-    }
-    // Defensive belt: the engine guard didn't trip (shouldn't happen)
-    // — publish ourselves. Mark our guard before emitting so a
-    // re-entrant subscriber can't loop.
-    this.hostOutcomePublished = true;
-    const event: ICombatOutcomeReadyEvent = {
-      matchId: outcome.matchId,
-      outcome,
-    };
-    publishCombatOutcome(event);
+    this.outcomePublisher.tryPublish();
   }
 
   /** Test/observability: number of currently-connected sockets. */
@@ -576,6 +476,7 @@ export class ServerMatchHost {
     return this.session.getSession();
   }
 
+  /** Whether `closeMatch` has run. */
   isClosed(): boolean {
     return this.closed;
   }
@@ -601,6 +502,39 @@ export class ServerMatchHost {
   // ---------------------------------------------------------------------------
 
   /**
+   * Assemble the `IServerMatchHostInternals` port the context builders
+   * consume. A fresh object per call so the `closed` / `isPaused`
+   * fields are captured by value at the moment a context is built —
+   * matching the prior inline `*Context()` semantics exactly. All
+   * callbacks are bound arrows so the free-function modules can hold
+   * stable references without `this` rebinding.
+   */
+  private internals(): IServerMatchHostInternals {
+    return {
+      matchId: this.matchId,
+      store: this.store,
+      session: this.session,
+      closed: this.closed,
+      isPaused: this.isPaused,
+      playerRefs: this.playerRefs,
+      pendingPeers: this.pendingPeers,
+      setPaused: (paused) => {
+        this.isPaused = paused;
+      },
+      broadcast: (message) => this.broadcast(message),
+      broadcastEvent: (message) => this.broadcastEvent(message),
+      safeSend: (socket, message) => this.safeSend(socket, message),
+      closeMatch: () => this.closeMatch(),
+      maybeResume: () => this.maybeResume(),
+      installFreshCapture: () => this.installFreshCapture(),
+      drainNewEvents: () => this.drainNewEvents(),
+      stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
+      tryPublishOutcome: () => this.tryPublishOutcome(),
+      handleLobbyIntent: (envelope) => this.handleLobbyIntent(envelope),
+    };
+  }
+
+  /**
    * Snapshot any events the engine appended since our last broadcast
    * cursor and advance the cursor. Pure read against the live session.
    */
@@ -614,35 +548,23 @@ export class ServerMatchHost {
   }
 
   /**
-   * Per `add-authoritative-roll-arbitration` (Wave 3a): swap the active
-   * `RollCapture` for a fresh empty one so the next engine call's
-   * consumed rolls land in a clean buffer. Identity of the engine
-   * callback is stable — it reads through `currentCapture`.
+   * Per Wave 3a: swap the active `RollCapture` for a fresh empty one so
+   * the next engine call's consumed rolls land in a clean buffer.
+   * Delegates to the capture collaborator.
    */
   private installFreshCapture(): void {
-    this.captureSwap(new RollCapture(this.sourceRoller));
+    this.capture.installFresh();
   }
 
   /**
    * Per Wave 3a: stamp the captured d6 sequence onto every fresh event
-   * before persistence + broadcast. Strategy: ALL captured rolls land
-   * on the FIRST event whose payload doesn't already carry `rolls`.
-   *
-   * Why first-event attribution: splitting rolls across multiple events
-   * by consumption order requires per-resolver instrumentation (each
-   * resolver would need to drain a slice into its own emitted event).
-   * For Wave 3a MVP we surface the full buffer on the lead event so
-   * clients can render dice without re-rolling — finer-grained
-   * attribution is a follow-up if a resolver emits more than one
-   * dice-bearing event per intent.
-   *
-   * If the buffer is empty (deterministic intent like `Move` or
-   * `AdvancePhase` from a phase that consumes no dice), we no-op.
+   * before persistence + broadcast. Delegates to the capture
+   * collaborator (first-event attribution strategy documented there).
    */
   private stampRollsOnNewEvents(
     events: readonly IGameEvent[],
   ): readonly IGameEvent[] {
-    return stampRollsOnNewEvents(this.currentCapture, events);
+    return this.capture.stampRollsOnNewEvents(events);
   }
 
   /**
@@ -726,19 +648,7 @@ export class ServerMatchHost {
   ): Promise<readonly IServerMessage[]> {
     const wasPaused = this.isPaused;
     const messages = await handleLobbyIntentWithContext(
-      {
-        matchId: this.matchId,
-        store: this.store,
-        session: this.session,
-        playerRefs: this.playerRefs,
-        pendingPeers: this.pendingPeers,
-        broadcast: (message) => this.broadcast(message),
-        broadcastEvent: (message) => this.broadcastEvent(message),
-        maybeResume: () => this.maybeResume(),
-        installFreshCapture: () => this.installFreshCapture(),
-        drainNewEvents: () => this.drainNewEvents(),
-        stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
-      },
+      buildLobbyContext(this.internals()),
       envelope,
     );
     if (envelope.intent.kind === 'ForfeitMatch') {
