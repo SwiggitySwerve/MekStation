@@ -47,6 +47,11 @@ import type {
   IMovementDeclaredPayload,
   IMovementLockedPayload,
 } from './GameSessionMovementEvents';
+import type {
+  IObjectiveCapturedPayload,
+  IObjectiveLostPayload,
+  IObjectiveProgressPayload,
+} from './GameSessionObjectiveEvents';
 
 export interface IShutdownCheckPayload {
   readonly unitId: string;
@@ -385,7 +390,10 @@ export type GameEventPayload =
   | ISwarmDismountedPayload
   | ILegAttackPayload
   | IMimeticBonusPayload
-  | IStealthBonusPayload;
+  | IStealthBonusPayload
+  | IObjectiveCapturedPayload
+  | IObjectiveLostPayload
+  | IObjectiveProgressPayload;
 
 /**
  * Complete game event with payload.

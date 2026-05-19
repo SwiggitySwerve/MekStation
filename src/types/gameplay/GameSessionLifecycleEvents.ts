@@ -3,6 +3,8 @@
  * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
  */
 
+import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
+
 import type { GamePhase, GameSide } from './GameSessionCoreTypes';
 import type { IGameConfig, IGameUnit } from './GameSessionUnitTypes';
 
@@ -63,6 +65,14 @@ export interface IGameCreatedPayload {
    * manifest from disk.
    */
   readonly encounterMeta?: IEncounterMeta;
+  /**
+   * Per `add-scenario-objective-engine`: scenario objective markers
+   * placed at generation time, keyed by canonical `"q,r"` hex key.
+   * Carried on the seed event so `deriveState` can reconstruct the
+   * objective map from the event log alone. Omitted for destruction-
+   * only scenarios — an absent map behaves identically to today.
+   */
+  readonly objectives?: Record<string, IObjectiveMarker>;
 }
 
 /**

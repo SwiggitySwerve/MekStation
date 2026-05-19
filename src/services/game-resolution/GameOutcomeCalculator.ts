@@ -17,8 +17,10 @@ import {
   IUnitDestroyedPayload,
   IDamageAppliedPayload,
 } from '@/types/gameplay';
+import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
 import { isTurnLimitDraw } from '@/utils/gameplay/gameSessionCore';
 import { deriveState } from '@/utils/gameplay/gameState';
+import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
 
 // =============================================================================
 // Types
@@ -196,7 +198,25 @@ export function calculateGameOutcome(
   let winner: 'player' | 'opponent' | 'draw';
   let reason: VictoryReason;
 
-  if (playerEliminated && opponentEliminated) {
+  // Per `add-scenario-objective-engine` (design.md D4 / task 5): an
+  // objective win is evaluated BEFORE the destruction / turn-limit
+  // path so it takes precedence over a turn-limit draw and over
+  // surviving-unit counts. A markerless scenario routes through the
+  // engine's `destroy` path; that outcome is left to fall through to
+  // the destruction branch below so it keeps the richer
+  // `elimination` / `mutual_destruction` reason labels this calculator
+  // has always produced. Only a true objective-marker win (Capture /
+  // Defend / Breakthrough) short-circuits with reason `objective`.
+  const objectiveOutcome = evaluateObjectiveOutcome(state, config.turnLimit);
+  const objectiveDecided =
+    objectiveOutcome !== null &&
+    objectiveOutcome.objectiveType !== ScenarioObjectiveType.Destroy;
+
+  if (objectiveDecided) {
+    winner =
+      objectiveOutcome!.winningSide === GameSide.Player ? 'player' : 'opponent';
+    reason = 'objective';
+  } else if (playerEliminated && opponentEliminated) {
     // Both eliminated
     winner = 'draw';
     reason = 'mutual_destruction';
@@ -337,6 +357,12 @@ export function calculateCombatStats(
  * Check if a game has ended based on current state.
  */
 export function isGameEnded(state: IGameState, config: IGameConfig): boolean {
+  // Per `add-scenario-objective-engine` (task 5): an objective win
+  // ends the game even with units alive on both sides.
+  if (evaluateObjectiveOutcome(state, config.turnLimit) !== null) {
+    return true;
+  }
+
   const playerEliminated = isSideEliminated(state, GameSide.Player);
   const opponentEliminated = isSideEliminated(state, GameSide.Opponent);
 
@@ -360,6 +386,16 @@ export function determineWinner(
   state: IGameState,
   config: IGameConfig,
 ): 'player' | 'opponent' | 'draw' | null {
+  // Per `add-scenario-objective-engine` (task 5): consult the objective
+  // evaluator first so an objective win is reported even while units
+  // survive on both sides.
+  const objectiveOutcome = evaluateObjectiveOutcome(state, config.turnLimit);
+  if (objectiveOutcome !== null) {
+    return objectiveOutcome.winningSide === GameSide.Player
+      ? 'player'
+      : 'opponent';
+  }
+
   const playerSurviving = countSurvivingUnits(state, GameSide.Player);
   const opponentSurviving = countSurvivingUnits(state, GameSide.Opponent);
 

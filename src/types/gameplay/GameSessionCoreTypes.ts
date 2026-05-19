@@ -241,6 +241,30 @@ export enum GameEventType {
    * an attacker targeting this squad (Basic / Improved / Prototype).
    */
   StealthBonus = 'stealth_bonus',
+
+  // Scenario objective events
+  /**
+   * Per `add-scenario-objective-engine` (D7): emitted by the per-turn
+   * control-detection pass when an objective marker's `controlSide`
+   * changes to a side (was neutral / contested / the other side).
+   * Carries the marker id, capturing side, and turn number so the
+   * event log fully replays objective state.
+   */
+  ObjectiveCaptured = 'objective_captured',
+  /**
+   * Per `add-scenario-objective-engine` (D7): emitted when a marker
+   * that a side controlled becomes contested, neutral, or flips to the
+   * other side. The marker's `controlSide` stays sticky on contest /
+   * vacate — this event records the loss of accrued hold, not a
+   * change of the stored controller.
+   */
+  ObjectiveLost = 'objective_lost',
+  /**
+   * Per `add-scenario-objective-engine` (D7): emitted when a marker's
+   * `holdProgress` changes during the control-detection pass (Capture
+   * scenarios advance toward `holdTurnsRequired`).
+   */
+  ObjectiveProgress = 'objective_progress',
 }
 
 /**

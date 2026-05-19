@@ -2,6 +2,11 @@
  * Core simulation type definitions
  */
 
+import type {
+  ScenarioObjectiveType,
+  VictoryCondition,
+} from '@/types/scenario/ScenarioInterfaces';
+
 import { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 /**
@@ -22,6 +27,21 @@ export interface ISimulationConfig {
 
   /** Map radius in hexes */
   readonly mapRadius: number;
+
+  /**
+   * Per `add-scenario-objective-engine`: optional scenario objective
+   * type. When set to `capture` / `defend` / `breakthrough`,
+   * `ScenarioGenerator` places objective hexes deterministically from
+   * the seed. Omitted / `destroy` → markerless destruction scenario.
+   */
+  readonly objectiveType?: ScenarioObjectiveType;
+
+  /**
+   * Optional victory conditions used to derive objective placement
+   * detail (Capture objective count, hold turns, Breakthrough
+   * required-units). When absent the placement uses engine defaults.
+   */
+  readonly victoryConditions?: readonly VictoryCondition[];
 }
 
 /**
