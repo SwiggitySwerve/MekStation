@@ -4,6 +4,7 @@ import { autoAwardsProcessor } from './autoAwardsProcessor';
 import { contractProcessor } from './contractProcessor';
 import { dailyCostsProcessor } from './dailyCostsProcessor';
 import { healingProcessor } from './healingProcessor';
+import { inventoryProjectionProcessor } from './inventoryProjectionProcessor';
 import {
   contractMarketProcessor,
   personnelMarketProcessor,
@@ -13,6 +14,8 @@ import { postBattleProcessor } from './postBattleProcessor';
 import { randomEventsProcessor } from './randomEventsProcessor';
 import { repairQueueBuilderProcessor } from './repairQueueBuilderProcessor';
 import { salvageProcessor } from './salvageProcessor';
+import { scenarioEncounterBridgeProcessor } from './scenarioEncounterBridgeProcessor';
+import { scenarioGenerationProcessor } from './scenarioGenerationProcessor';
 
 let registered = false;
 
@@ -57,6 +60,14 @@ export function registerBuiltinProcessors(): void {
   pipeline.register(unitMarketProcessor);
   pipeline.register(personnelMarketProcessor);
   pipeline.register(contractMarketProcessor);
+  // Per `add-campaign-combat-loop`: scenario generation (phase EVENTS)
+  // emits `scenario_generated`; the bridge (phase EVENTS + 10) consumes
+  // those events into launchable encounters. Both are registered here
+  // so the campaign combat loop is wired by default. The inventory
+  // projection (phase CLEANUP) runs last, after the battle-effects block.
+  pipeline.register(scenarioGenerationProcessor);
+  pipeline.register(scenarioEncounterBridgeProcessor);
+  pipeline.register(inventoryProjectionProcessor);
 
   registered = true;
 }

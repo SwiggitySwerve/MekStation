@@ -32,6 +32,7 @@ import { registerCampaignStoreAccessor } from './campaignStoreAccessor';
 import {
   dequeueCampaignOutcome,
   enqueueCampaignOutcome,
+  isCampaignLinkedOutcome,
   markCampaignBattleReviewed,
   retryCampaignOutcomeApplication,
 } from './useCampaignStore.outcomes';
@@ -343,6 +344,14 @@ export function useCampaignStore(): StoreApi<CampaignStore> {
       (event: ICombatOutcomeReadyEvent) => {
         const store = campaignStoreInstance;
         if (!store) return;
+        // Per `add-campaign-combat-loop` D7: the automatic enqueue
+        // trigger only routes campaign-linked outcomes. A session that
+        // carries campaign linkage (a `contractId` / `scenarioId` on
+        // its outcome) is enqueued onto this campaign's
+        // `pendingBattleOutcomes`; a standalone skirmish is ignored.
+        // `enqueueOutcome` itself reuses the duplicate-by-`matchId`
+        // guard so a re-published outcome is never enqueued twice.
+        if (!isCampaignLinkedOutcome(event.outcome)) return;
         store.getState().enqueueOutcome(event.outcome);
       },
     );

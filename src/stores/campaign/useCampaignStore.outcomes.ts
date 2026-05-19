@@ -15,6 +15,23 @@ import {
 type GetCampaignStore = () => CampaignStore;
 type SetCampaignStore = (partial: Partial<CampaignStore>) => void;
 
+/**
+ * Per `add-campaign-combat-loop` D7: an outcome is "campaign-linked"
+ * when its originating session carried campaign linkage — i.e. the
+ * `ICombatOutcome` records a `contractId` and/or `scenarioId`. A
+ * standalone skirmish leaves both null and is ignored by the automatic
+ * enqueue trigger.
+ */
+export function isCampaignLinkedOutcome(outcome: ICombatOutcome): boolean {
+  const hasContract =
+    typeof outcome.contractId === 'string' &&
+    outcome.contractId.trim().length > 0;
+  const hasScenario =
+    typeof outcome.scenarioId === 'string' &&
+    outcome.scenarioId.trim().length > 0;
+  return hasContract || hasScenario;
+}
+
 export function enqueueCampaignOutcome(
   get: GetCampaignStore,
   set: SetCampaignStore,

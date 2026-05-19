@@ -544,12 +544,17 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
       ],
     });
 
-    // Match 2 — pilot B unscathed (no contract id; standalone). The
-    // builder only counts wounds on the outcome's own delta, so pilot
-    // B contributes zero to the wounded count.
+    // Match 2 — pilot B unscathed, no contract binding. The builder
+    // only counts wounds on the outcome's own delta, so pilot B
+    // contributes zero to the wounded count. Per `add-campaign-combat-loop`
+    // D7 a session with no campaign linkage at all is NOT auto-enqueued
+    // by the bus trigger — so this match carries a `scenarioId` (the
+    // session WAS campaign-linked, it just has no contract) which keeps
+    // it on the auto-enqueue path while leaving `contractId` null.
     const outcome2 = makeOutcome({
       matchId: 'match-multi-2',
       contractId: '',
+      scenarioId: 'scenario-multi-2',
       winner: GameSide.Player,
       unitDeltas: [makeDelta('unit-B')],
     });
