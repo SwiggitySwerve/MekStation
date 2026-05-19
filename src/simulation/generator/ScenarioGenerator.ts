@@ -1,4 +1,7 @@
-import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
+import type {
+  IMapPreset,
+  IObjectiveMarker,
+} from '@/types/scenario/ScenarioInterfaces';
 
 import {
   IGameSession,
@@ -18,11 +21,19 @@ import {
   Facing,
   MovementType,
 } from '@/types/gameplay/HexGridInterfaces';
-import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import {
+  BiomeType,
+  ScenarioObjectiveType,
+} from '@/types/scenario/ScenarioInterfaces';
 import {
   deriveObjectivePlacementConfig,
   placeObjectives,
 } from '@/utils/gameplay/objectives';
+import {
+  type BiomeType as TerrainBiomeType,
+  generateTerrainMap,
+} from '@/utils/gameplay/terrainGenerator';
 
 import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
@@ -56,7 +67,7 @@ export class ScenarioGenerator {
 
   generate(config: ISimulationConfig, random: SeededRandom): IGameSession {
     const _options = DEFAULT_GENERATION_OPTIONS;
-    const grid = this.generateMap(config.mapRadius, random);
+    const grid = this.generateMap(config.mapRadius, random, config);
 
     const playerUnits = this.generateForce(
       GameSide.Player,
@@ -154,15 +165,33 @@ export class ScenarioGenerator {
     );
   }
 
-  private generateMap(radius: number, random: SeededRandom): IHexGrid {
+  /**
+   * Build the hex grid. When the simulation config supplies a `mapPreset`
+   * (`add-procedural-map-variety`), terrain is generated procedurally with
+   * the preset's feature directives overlaid on base biome generation, so
+   * the map carries clustered woods, buildings, roads, and pavement. Terrain
+   * is seeded from `config.seed`, keeping the map a deterministic function of
+   * the simulation seed. Without a preset the legacy weighted-table terrain
+   * is used unchanged.
+   */
+  private generateMap(
+    radius: number,
+    random: SeededRandom,
+    config: ISimulationConfig,
+  ): IHexGrid {
     const hexes = new Map<string, IHex>();
+    const presetTerrain = config.mapPreset
+      ? this.generatePresetTerrain(radius, config.mapPreset, config.seed)
+      : null;
 
     for (let q = -radius; q <= radius; q++) {
       for (let r = -radius; r <= radius; r++) {
         if (Math.abs(q + r) <= radius) {
           const key = `${q},${r}`;
           const terrain =
-            this.terrainWeights.select(() => random.next()) || 'clear';
+            presetTerrain?.get(key) ??
+            this.terrainWeights.select(() => random.next()) ??
+            'clear';
           hexes.set(key, {
             coord: { q, r },
             occupantId: null,
@@ -177,6 +206,67 @@ export class ScenarioGenerator {
       config: { radius },
       hexes,
     };
+  }
+
+  /**
+   * Generate procedural terrain for a hex-radius map from a map preset and
+   * return it keyed by `"q,r"`. The preset describes a hex-radius scenario
+   * map; the terrain generator works on a rectangular grid, so a `radius` of
+   * `R` is generated as a `(2R + 1) × (2R + 1)` grid and each axial hex
+   * `(q, r)` maps to grid index `(q + R, r + R)`.
+   *
+   * Exposed (not `private`) as a deterministic, terrain-inspectable seam for
+   * tests — the assembled `IGameSession` does not surface the hex grid.
+   */
+  generatePresetTerrain(
+    radius: number,
+    preset: IMapPreset,
+    seed: number,
+  ): Map<string, string> {
+    const dimension = radius * 2 + 1;
+    const { grid } = generateTerrainMap(preset, {
+      width: dimension,
+      height: dimension,
+      biome: this.toTerrainBiome(preset.biome),
+      seed,
+    });
+
+    const terrainByKey = new Map<string, string>();
+    for (const hex of grid) {
+      // Rectangular grid index -> axial coordinate.
+      const q = hex.coordinate.q - radius;
+      const r = hex.coordinate.r - radius;
+      const type = hex.features[0]?.type ?? TerrainType.Clear;
+      terrainByKey.set(`${q},${r}`, type);
+    }
+    return terrainByKey;
+  }
+
+  /**
+   * Map a scenario `BiomeType` to the terrain generator's biome vocabulary.
+   * The terrain generator recognises five base biomes; scenario biomes with
+   * no direct base-pass analogue fall back to the closest match. The preset
+   * feature overlay carries the scenario-specific character regardless.
+   */
+  private toTerrainBiome(biome: BiomeType): TerrainBiomeType {
+    switch (biome) {
+      case BiomeType.Desert:
+      case BiomeType.Volcanic:
+        return 'desert';
+      case BiomeType.Arctic:
+        return 'arctic';
+      case BiomeType.Urban:
+        return 'urban';
+      case BiomeType.Jungle:
+        return 'jungle';
+      case BiomeType.Forest:
+      case BiomeType.Plains:
+      case BiomeType.Badlands:
+      case BiomeType.Swamp:
+      case BiomeType.Mountains:
+      default:
+        return 'temperate';
+    }
   }
 
   private generateForce(

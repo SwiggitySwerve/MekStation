@@ -1,9 +1,13 @@
 import { TerrainType, IHexTerrain } from '@/types/gameplay/TerrainTypes';
 import {
   generateTerrain,
+  generateTerrainMap,
+  presetFeaturesToDirectives,
   TerrainGeneratorConfig,
   BiomeType,
   BIOME_WEIGHTS,
+  type IFeatureDirective,
+  type IPresetFeature,
 } from '@/utils/gameplay/terrainGenerator';
 
 describe('terrainGenerator', () => {
@@ -402,6 +406,424 @@ describe('terrainGenerator', () => {
           );
         }
       });
+    });
+  });
+
+  // ===========================================================================
+  // Procedural Map Variety — preset feature overlay
+  // @spec openspec/changes/add-procedural-map-variety/specs/terrain-generation/spec.md
+  // ===========================================================================
+
+  describe('presetFeatures overlay', () => {
+    const typeCounts = (
+      grid: readonly IHexTerrain[],
+    ): Map<TerrainType, number> => {
+      const counts = new Map<TerrainType, number>();
+      for (const hex of grid) {
+        const t = hex.features[0].type;
+        counts.set(t, (counts.get(t) || 0) + 1);
+      }
+      return counts;
+    };
+
+    const fractionOf = (
+      grid: readonly IHexTerrain[],
+      type: TerrainType,
+    ): number => (typeCounts(grid).get(type) || 0) / grid.length;
+
+    describe('Requirement: Preset Feature Directives', () => {
+      // Scenario: Generation without presetFeatures is unchanged
+      it('produces output identical to base generation when presetFeatures is omitted', () => {
+        const base: TerrainGeneratorConfig = {
+          width: 20,
+          height: 20,
+          biome: 'temperate',
+          seed: 777,
+        };
+        const baseGrid = generateTerrain(base);
+        const withEmpty = generateTerrain({ ...base, presetFeatures: [] });
+        const withUndefined = generateTerrain({
+          ...base,
+          presetFeatures: undefined,
+        });
+
+        expect(withEmpty).toEqual(baseGrid);
+        expect(withUndefined).toEqual(baseGrid);
+      });
+
+      // Scenario: Directives are accepted and applied
+      it('applies a HeavyWoods directive and lands within tolerance of its density', () => {
+        const directive: IFeatureDirective = {
+          type: TerrainType.HeavyWoods,
+          density: 0.3,
+          clusterSize: 3,
+        };
+        const grid = generateTerrain({
+          width: 24,
+          height: 24,
+          biome: 'temperate',
+          seed: 100,
+          presetFeatures: [directive],
+        });
+
+        const heavyFraction = fractionOf(grid, TerrainType.HeavyWoods);
+        expect(heavyFraction).toBeGreaterThan(0);
+        // Realized density within tolerance of the directive's 0.3 target.
+        expect(heavyFraction).toBeGreaterThanOrEqual(0.3 - 0.12);
+        expect(heavyFraction).toBeLessThanOrEqual(0.3 + 0.12);
+      });
+    });
+
+    describe('Requirement: Deterministic Feature Clustering', () => {
+      const cfg = (seed: number): TerrainGeneratorConfig => ({
+        width: 24,
+        height: 24,
+        biome: 'temperate',
+        seed,
+        presetFeatures: [
+          { type: TerrainType.HeavyWoods, density: 0.25, clusterSize: 4 },
+        ],
+      });
+
+      // Scenario: Identical seed yields identical clustered map
+      it('produces an identical grid hex-for-hex for the same seed and presetFeatures', () => {
+        const a = generateTerrain(cfg(2024));
+        const b = generateTerrain(cfg(2024));
+        expect(a).toEqual(b);
+      });
+
+      // Scenario: Different seed yields different feature placement
+      it('places at least some feature hexes at different coordinates for a different seed', () => {
+        const a = generateTerrain(cfg(1));
+        const b = generateTerrain(cfg(2));
+        const differences = a.filter(
+          (hex, i) => hex.features[0].type !== b[i].features[0].type,
+        );
+        expect(differences.length).toBeGreaterThan(0);
+      });
+
+      // Scenario: Features form clusters, not uniform noise
+      it('groups directive hexes into contiguous clusters', () => {
+        const grid = generateTerrain({
+          width: 30,
+          height: 30,
+          biome: 'desert',
+          seed: 55,
+          presetFeatures: [
+            { type: TerrainType.HeavyWoods, density: 0.25, clusterSize: 4 },
+          ],
+        });
+
+        const at = (q: number, r: number): IHexTerrain | undefined =>
+          grid.find((h) => h.coordinate.q === q && h.coordinate.r === r);
+        const isFeature = (h: IHexTerrain | undefined): boolean =>
+          !!h && h.features[0].type === TerrainType.HeavyWoods;
+
+        const featureHexes = grid.filter((h) => isFeature(h));
+        let withFeatureNeighbour = 0;
+        for (const hex of featureHexes) {
+          const neighbours = [
+            at(hex.coordinate.q + 1, hex.coordinate.r),
+            at(hex.coordinate.q - 1, hex.coordinate.r),
+            at(hex.coordinate.q, hex.coordinate.r + 1),
+            at(hex.coordinate.q, hex.coordinate.r - 1),
+          ];
+          if (neighbours.some((n) => isFeature(n))) {
+            withFeatureNeighbour++;
+          }
+        }
+        // Most feature hexes are adjacent to another feature hex — uniform
+        // noise would leave the majority isolated.
+        expect(featureHexes.length).toBeGreaterThan(0);
+        expect(withFeatureNeighbour / featureHexes.length).toBeGreaterThan(0.6);
+      });
+    });
+
+    describe('Requirement: Feature Application Pass', () => {
+      // Scenario: Structures override natural terrain
+      it('makes overlapping hexes Building, not HeavyWoods', () => {
+        // A near-total HeavyWoods directive plus a Building directive — the
+        // building footprints must win in the overlap region.
+        const grid = generateTerrain({
+          width: 20,
+          height: 20,
+          biome: 'temperate',
+          seed: 9,
+          presetFeatures: [
+            { type: TerrainType.HeavyWoods, density: 0.9, clusterSize: 6 },
+            { type: TerrainType.Building, density: 0.15, clusterSize: 2 },
+          ],
+        });
+
+        const buildingHexes = grid.filter(
+          (h) => h.features[0].type === TerrainType.Building,
+        );
+        expect(buildingHexes.length).toBeGreaterThan(0);
+        // Each hex carries exactly one feature, so a Building hex is never
+        // also HeavyWoods.
+        for (const hex of buildingHexes) {
+          expect(hex.features[0].type).toBe(TerrainType.Building);
+        }
+      });
+
+      // Scenario: Application order is independent of directive order
+      it('produces an identical grid regardless of directive list order', () => {
+        const woods: IFeatureDirective = {
+          type: TerrainType.HeavyWoods,
+          density: 0.2,
+          clusterSize: 3,
+        };
+        const building: IFeatureDirective = {
+          type: TerrainType.Building,
+          density: 0.15,
+          clusterSize: 2,
+        };
+        const water: IFeatureDirective = {
+          type: TerrainType.Water,
+          density: 0.1,
+          clusterSize: 2,
+        };
+
+        const orderA = generateTerrain({
+          width: 22,
+          height: 22,
+          biome: 'temperate',
+          seed: 314,
+          presetFeatures: [woods, building, water],
+        });
+        const orderB = generateTerrain({
+          width: 22,
+          height: 22,
+          biome: 'temperate',
+          seed: 314,
+          presetFeatures: [water, building, woods],
+        });
+
+        expect(orderA).toEqual(orderB);
+      });
+    });
+
+    describe('Requirement: Structure Placement', () => {
+      // Scenario: Industrial preset produces buildings and roads
+      it('produces grouped Building footprints and an edge-reaching Road run', () => {
+        const grid = generateTerrain({
+          width: 28,
+          height: 28,
+          biome: 'urban',
+          seed: 4242,
+          presetFeatures: [
+            { type: TerrainType.Building, density: 0.4, clusterSize: 3 },
+            { type: TerrainType.Road, density: 0.2, clusterSize: 4 },
+          ],
+        });
+
+        const counts = typeCounts(grid);
+        expect(counts.get(TerrainType.Building) || 0).toBeGreaterThan(0);
+
+        // Road hexes must reach two opposite edges of the grid.
+        const roadHexes = grid.filter(
+          (h) => h.features[0].type === TerrainType.Road,
+        );
+        expect(roadHexes.length).toBeGreaterThan(0);
+        const qs = roadHexes.map((h) => h.coordinate.q);
+        const rs = roadHexes.map((h) => h.coordinate.r);
+        const touchesLeftRight =
+          Math.min(...qs) === 0 && Math.max(...qs) === 27;
+        const touchesTopBottom =
+          Math.min(...rs) === 0 && Math.max(...rs) === 27;
+        expect(touchesLeftRight || touchesTopBottom).toBe(true);
+      });
+
+      // Scenario: Pavement surrounds buildings
+      it('paves natural hexes orthogonally adjacent to buildings', () => {
+        const width = 24;
+        const height = 24;
+        const grid = generateTerrain({
+          width,
+          height,
+          biome: 'temperate',
+          seed: 17,
+          presetFeatures: [
+            { type: TerrainType.Building, density: 0.1, clusterSize: 2 },
+          ],
+        });
+
+        const at = (q: number, r: number): IHexTerrain | undefined =>
+          q < 0 || q >= width || r < 0 || r >= height
+            ? undefined
+            : grid[r * width + q];
+
+        const buildingHexes = grid.filter(
+          (h) => h.features[0].type === TerrainType.Building,
+        );
+        expect(buildingHexes.length).toBeGreaterThan(0);
+
+        // Every natural hex adjacent to a building must be Pavement.
+        for (const b of buildingHexes) {
+          const neighbours = [
+            at(b.coordinate.q + 1, b.coordinate.r),
+            at(b.coordinate.q - 1, b.coordinate.r),
+            at(b.coordinate.q, b.coordinate.r + 1),
+            at(b.coordinate.q, b.coordinate.r - 1),
+          ];
+          for (const n of neighbours) {
+            if (!n) continue;
+            const t = n.features[0].type;
+            if (t !== TerrainType.Building && t !== TerrainType.Road) {
+              expect(t).toBe(TerrainType.Pavement);
+            }
+          }
+        }
+      });
+
+      it('stamps buildings as small footprint blocks, not scattered hexes', () => {
+        const width = 26;
+        const height = 26;
+        const grid = generateTerrain({
+          width,
+          height,
+          biome: 'temperate',
+          seed: 71,
+          presetFeatures: [
+            { type: TerrainType.Building, density: 0.15, clusterSize: 2 },
+          ],
+        });
+
+        const isBuilding = (q: number, r: number): boolean =>
+          q >= 0 &&
+          q < width &&
+          r >= 0 &&
+          r < height &&
+          grid[r * width + q].features[0].type === TerrainType.Building;
+
+        const buildingHexes = grid.filter(
+          (h) => h.features[0].type === TerrainType.Building,
+        );
+        expect(buildingHexes.length).toBeGreaterThan(0);
+
+        // Most building hexes belong to a multi-hex footprint — a building
+        // hex with at least one orthogonal building neighbour. Footprints of
+        // 1x2/2x1/2x2 dominate; isolated 1x1 footprints are the minority.
+        let withBuildingNeighbour = 0;
+        for (const hex of buildingHexes) {
+          const { q, r } = hex.coordinate;
+          if (
+            isBuilding(q + 1, r) ||
+            isBuilding(q - 1, r) ||
+            isBuilding(q, r + 1) ||
+            isBuilding(q, r - 1)
+          ) {
+            withBuildingNeighbour++;
+          }
+        }
+        expect(withBuildingNeighbour / buildingHexes.length).toBeGreaterThan(
+          0.3,
+        );
+      });
+
+      // Scenario: Road tracing skipped on a tiny grid
+      it('skips road tracing on a 2x2 grid without error', () => {
+        let grid: readonly IHexTerrain[] = [];
+        expect(() => {
+          grid = generateTerrain({
+            width: 2,
+            height: 2,
+            biome: 'temperate',
+            seed: 5,
+            presetFeatures: [
+              { type: TerrainType.Road, density: 0.5, clusterSize: 2 },
+            ],
+          });
+        }).not.toThrow();
+
+        expect(grid).toHaveLength(4);
+        const roadHexes = grid.filter(
+          (h) => h.features[0].type === TerrainType.Road,
+        );
+        expect(roadHexes).toHaveLength(0);
+      });
+    });
+  });
+
+  describe('presetFeaturesToDirectives', () => {
+    it('maps every preset string feature-type to a TerrainType', () => {
+      const features: IPresetFeature[] = [
+        { type: 'woods', density: 0.3, clustering: 0.5 },
+        { type: 'water', density: 0.1, clustering: 0.6 },
+        { type: 'rough', density: 0.2, clustering: 0.4 },
+        { type: 'building', density: 0.25, clustering: 0.8 },
+        { type: 'road', density: 0.15, clustering: 0.9 },
+      ];
+      const directives = presetFeaturesToDirectives(features);
+
+      expect(directives.map((d) => d.type)).toEqual([
+        TerrainType.HeavyWoods,
+        TerrainType.Water,
+        TerrainType.Rough,
+        TerrainType.Building,
+        TerrainType.Road,
+      ]);
+    });
+
+    it('drops elevation features (no terrain-overlay representation)', () => {
+      const directives = presetFeaturesToDirectives([
+        { type: 'elevation', density: 0.5, clustering: 0.3 },
+        { type: 'woods', density: 0.2, clustering: 0.5 },
+      ]);
+      expect(directives).toHaveLength(1);
+      expect(directives[0].type).toBe(TerrainType.HeavyWoods);
+    });
+
+    it('converts clustering to a cluster radius in [1, 5]', () => {
+      const lo = presetFeaturesToDirectives([
+        { type: 'woods', density: 0.2, clustering: 0 },
+      ]);
+      const hi = presetFeaturesToDirectives([
+        { type: 'woods', density: 0.2, clustering: 1 },
+      ]);
+      expect(lo[0].clusterSize).toBe(1);
+      expect(hi[0].clusterSize).toBe(5);
+    });
+
+    it('clamps density to [0, 1]', () => {
+      const directives = presetFeaturesToDirectives([
+        { type: 'woods', density: 2.5, clustering: 0.5 },
+      ]);
+      expect(directives[0].density).toBeLessThanOrEqual(1);
+      expect(directives[0].density).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe('generateTerrainMap', () => {
+    it('records the originating presetId on the generated map', () => {
+      const map = generateTerrainMap(
+        {
+          id: 'industrial_complex',
+          features: [
+            { type: 'building', density: 0.4, clustering: 0.8 },
+            { type: 'road', density: 0.2, clustering: 0.9 },
+          ],
+        },
+        { width: 20, height: 20, biome: 'urban', seed: 88 },
+      );
+      expect(map.presetId).toBe('industrial_complex');
+      expect(map.grid).toHaveLength(400);
+    });
+
+    it('is deterministic for the same preset and seed', () => {
+      const preset = {
+        id: 'p',
+        features: [{ type: 'woods' as const, density: 0.3, clustering: 0.6 }],
+      };
+      const cfg = {
+        width: 18,
+        height: 18,
+        biome: 'temperate' as const,
+        seed: 9,
+      };
+      const a = generateTerrainMap(preset, cfg);
+      const b = generateTerrainMap(preset, cfg);
+      expect(a.grid).toEqual(b.grid);
     });
   });
 

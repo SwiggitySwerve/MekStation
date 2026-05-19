@@ -2,16 +2,34 @@ import {
   TerrainType,
   IHexTerrain,
   ITerrainFeature,
+  type IGeneratedMap,
 } from '@/types/gameplay/TerrainTypes';
 
-export type BiomeType = 'temperate' | 'desert' | 'arctic' | 'urban' | 'jungle';
+import {
+  applyPresetFeatures,
+  presetFeaturesToDirectives,
+  type IPresetFeature,
+} from './terrainFeatures';
+import {
+  SeededRandom,
+  type BiomeType,
+  type IFeatureDirective,
+  type TerrainGeneratorConfig,
+} from './terrainGeneratorTypes';
 
-export interface TerrainGeneratorConfig {
-  width: number;
-  height: number;
-  biome: BiomeType;
-  seed?: number;
-}
+// Re-export the shared generation types so existing importers of
+// `terrainGenerator` keep working unchanged.
+export type {
+  BiomeType,
+  IFeatureDirective,
+  IGeneratedMap,
+  TerrainGeneratorConfig,
+};
+export type { IPresetFeature, PresetFeatureType } from './terrainFeatures';
+export {
+  applyPresetFeatures,
+  presetFeaturesToDirectives,
+} from './terrainFeatures';
 
 export type BiomeWeights = Record<
   BiomeType,
@@ -54,19 +72,6 @@ export const BIOME_WEIGHTS: BiomeWeights = {
     [TerrainType.Water]: 0.1,
   },
 };
-
-class SeededRandom {
-  private seed: number;
-
-  constructor(seed: number) {
-    this.seed = seed;
-  }
-
-  next(): number {
-    this.seed = (this.seed * 1103515245 + 12345) & 0x7fffffff;
-    return this.seed / 0x7fffffff;
-  }
-}
 
 function createGradients(rng: SeededRandom, size: number): number[][] {
   const gradients: number[][] = [];
@@ -257,5 +262,37 @@ export function generateTerrain(config: TerrainGeneratorConfig): IHexTerrain[] {
     }
   }
 
+  // Feature-application pass (D1): an additive overlay run after base biome
+  // generation. The `rng` is reused as-is — already advanced past the base
+  // pass — so the whole map is one deterministic function of the seed (D3).
+  // Omitting `presetFeatures` leaves the base grid untouched.
+  if (config.presetFeatures && config.presetFeatures.length > 0) {
+    return applyPresetFeatures(grid, config.presetFeatures, rng, width, height);
+  }
+
   return grid;
+}
+
+// =============================================================================
+// Preset-Driven Map Generation
+// =============================================================================
+
+/**
+ * Generate a full battle map from a map preset (D6, D8). The preset's
+ * `features` are mapped to `IFeatureDirective`s and overlaid on base biome
+ * generation; the originating `presetId` is recorded on the result.
+ *
+ * `width`/`height`/`biome`/`seed` are supplied by the caller because the
+ * preset's own `radius`/`biome` describe a hex-radius scenario map, whereas
+ * `generateTerrain` works on a rectangular `width × height` grid.
+ *
+ * @spec openspec/changes/add-procedural-map-variety/specs/terrain-generation/spec.md
+ */
+export function generateTerrainMap(
+  preset: { readonly id: string; readonly features: readonly IPresetFeature[] },
+  config: TerrainGeneratorConfig,
+): IGeneratedMap {
+  const directives = presetFeaturesToDirectives(preset.features);
+  const grid = generateTerrain({ ...config, presetFeatures: directives });
+  return { grid, presetId: preset.id };
 }
