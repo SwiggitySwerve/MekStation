@@ -164,9 +164,13 @@ test.describe('Unit Browser @compendium', () => {
     // Click filter button
     await unitBrowser.openFilters();
 
-    // Filter panel should be visible with filter selects
-    await expect(page.getByLabel(/filter by unit type/i)).toBeVisible();
+    // Filter panel should be visible with the selects exposed by
+    // `UnitsFilters.tsx` (tech base / weight class / rules level). PT-006:
+    // there is no "filter by unit type" dropdown in the current UI — the
+    // assertion that used to look for one was checking a UI that never
+    // shipped. Swap to the actual filters that exist.
     await expect(page.getByLabel(/filter by tech base/i)).toBeVisible();
+    await expect(page.getByLabel(/filter by weight class/i)).toBeVisible();
   });
 
   test('view mode toggle works', async ({ page }) => {
