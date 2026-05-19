@@ -3,6 +3,7 @@
  */
 
 import type {
+  IMapPreset,
   ScenarioObjectiveType,
   VictoryCondition,
 } from '@/types/scenario/ScenarioInterfaces';
@@ -42,6 +43,16 @@ export interface ISimulationConfig {
    * required-units). When absent the placement uses engine defaults.
    */
   readonly victoryConditions?: readonly VictoryCondition[];
+
+  /**
+   * Per `add-procedural-map-variety`: optional map preset. When supplied,
+   * `ScenarioGenerator` overlays the preset's feature directives on base
+   * biome generation so the hex grid carries clustered woods, buildings,
+   * roads, and pavement. Terrain placement is seeded from `seed`, so the
+   * map stays a deterministic function of the simulation seed. When
+   * omitted, the legacy weighted-table terrain is used unchanged.
+   */
+  readonly mapPreset?: IMapPreset;
 }
 
 /**

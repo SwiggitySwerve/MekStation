@@ -186,6 +186,79 @@ describe('ScenarioGeneratorService', () => {
     });
   });
 
+  // ===========================================================================
+  // Procedural map terrain wiring
+  // @spec openspec/changes/add-procedural-map-variety/specs/terrain-generation/spec.md
+  // ===========================================================================
+
+  describe('procedural map terrain', () => {
+    it('attaches a generatedMap consuming the selected preset when seeded', () => {
+      const result = service.generate({
+        playerBV: 5000,
+        playerUnitCount: 4,
+        faction: Faction.DRACONIS_COMBINE,
+        era: Era.LATE_SUCCESSION_WARS,
+        difficulty: 1.0,
+        maxModifiers: 0,
+        allowNegativeModifiers: false,
+        seed: 24680,
+      });
+
+      expect(result.generatedMap).toBeDefined();
+      // The map records the originating preset id (D8).
+      expect(result.generatedMap?.presetId).toBe(result.mapPreset.id);
+      // The grid covers a (2R + 1) x (2R + 1) area for a radius-R preset.
+      const dimension = result.mapPreset.radius * 2 + 1;
+      expect(result.generatedMap?.grid).toHaveLength(dimension * dimension);
+    });
+
+    it('regenerates an identical generatedMap for the same seed', () => {
+      const cfg = {
+        playerBV: 5000,
+        playerUnitCount: 4,
+        faction: Faction.DRACONIS_COMBINE,
+        era: Era.LATE_SUCCESSION_WARS,
+        difficulty: 1.0,
+        maxModifiers: 0,
+        allowNegativeModifiers: false,
+        seed: 11111,
+      };
+      const a = service.generate(cfg);
+      const b = service.generate(cfg);
+      expect(a.generatedMap).toEqual(b.generatedMap);
+    });
+
+    it('round-trips presetId through JSON serialization', () => {
+      const result = service.generate({
+        playerBV: 5000,
+        playerUnitCount: 4,
+        faction: Faction.DRACONIS_COMBINE,
+        era: Era.LATE_SUCCESSION_WARS,
+        difficulty: 1.0,
+        maxModifiers: 0,
+        allowNegativeModifiers: false,
+        seed: 33333,
+      });
+      const roundTripped = JSON.parse(JSON.stringify(result));
+      expect(roundTripped.generatedMap.presetId).toBe(
+        result.generatedMap?.presetId,
+      );
+    });
+
+    it('omits generatedMap for an unseeded scenario', () => {
+      const result = service.generate({
+        playerBV: 5000,
+        playerUnitCount: 4,
+        faction: Faction.DRACONIS_COMBINE,
+        era: Era.LATE_SUCCESSION_WARS,
+        difficulty: 1.0,
+        maxModifiers: 0,
+        allowNegativeModifiers: false,
+      });
+      expect(result.generatedMap).toBeUndefined();
+    });
+  });
+
   describe('getAvailableTemplates', () => {
     it('should return all available templates', () => {
       const templates = service.getAvailableTemplates();

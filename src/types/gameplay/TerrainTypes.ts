@@ -119,6 +119,22 @@ export interface IHexTerrain {
   readonly features: readonly ITerrainFeature[];
 }
 
+/**
+ * A fully generated battle map: the hex grid plus the originating preset id.
+ *
+ * Recorded by the procedural terrain generator so a generated map can be
+ * reproduced and debugged from the preset it came from.
+ *
+ * @spec openspec/changes/add-procedural-map-variety/specs/terrain-generation/spec.md
+ */
+export interface IGeneratedMap {
+  /** The generated hex grid (base pass plus optional feature overlay). */
+  readonly grid: readonly IHexTerrain[];
+
+  /** The originating map-preset id, when generation ran from a preset. */
+  readonly presetId?: string;
+}
+
 // =============================================================================
 // Terrain Properties Constant
 // =============================================================================

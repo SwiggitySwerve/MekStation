@@ -1,3 +1,4 @@
+import { INDUSTRIAL_COMPLEX } from '@/constants/scenario/mapPresets';
 import {
   isGameSession,
   GamePhase,
@@ -456,5 +457,64 @@ describe('WeightedTable usage', () => {
 
     const names = Object.keys(counts);
     expect(names.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+// =============================================================================
+// Procedural map preset terrain wiring
+// @spec openspec/changes/add-procedural-map-variety/specs/terrain-generation/spec.md
+// =============================================================================
+
+describe('ScenarioGenerator preset terrain', () => {
+  const buildGenerator = (): ScenarioGenerator =>
+    new ScenarioGenerator(
+      createDefaultUnitWeights(),
+      createDefaultTerrainWeights(),
+    );
+
+  it('still produces a valid session when a mapPreset is supplied', () => {
+    const generator = buildGenerator();
+    const config: ISimulationConfig = {
+      seed: 4242,
+      turnLimit: 20,
+      unitCount: { player: 2, opponent: 2 },
+      mapRadius: 7,
+      mapPreset: INDUSTRIAL_COMPLEX,
+    };
+
+    const session = generator.generate(config, new SeededRandom(config.seed));
+    expect(isGameSession(session)).toBe(true);
+    expect(session.units.length).toBe(4);
+  });
+
+  it('consumes the preset: urban preset terrain contains building hexes', () => {
+    const generator = buildGenerator();
+    const terrain = generator.generatePresetTerrain(8, INDUSTRIAL_COMPLEX, 909);
+    const values = Array.from(terrain.values());
+    expect(values.length).toBeGreaterThan(0);
+    // The industrial preset's building directive must surface building hexes.
+    expect(values.some((t) => t === 'building')).toBe(true);
+    // ...and pavement auto-filled around them.
+    expect(values.some((t) => t === 'pavement')).toBe(true);
+  });
+
+  it('preset terrain generation is deterministic for the same seed', () => {
+    const generator = buildGenerator();
+    const a = generator.generatePresetTerrain(7, INDUSTRIAL_COMPLEX, 555);
+    const b = generator.generatePresetTerrain(7, INDUSTRIAL_COMPLEX, 555);
+    expect(Array.from(a.entries())).toEqual(Array.from(b.entries()));
+  });
+
+  it('keys preset terrain by axial "q,r" coordinates within radius', () => {
+    const generator = buildGenerator();
+    const radius = 5;
+    const terrain = generator.generatePresetTerrain(
+      radius,
+      INDUSTRIAL_COMPLEX,
+      1,
+    );
+    expect(terrain.has(`${-radius},0`)).toBe(true);
+    expect(terrain.has(`0,${radius}`)).toBe(true);
+    expect(terrain.has('0,0')).toBe(true);
   });
 });

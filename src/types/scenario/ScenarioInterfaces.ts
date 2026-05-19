@@ -6,6 +6,7 @@
  */
 
 import type { GameSide } from '@/types/gameplay/GameSessionCoreTypes';
+import type { IGeneratedMap } from '@/types/gameplay/TerrainTypes';
 
 // =============================================================================
 // Scenario Template Enums
@@ -530,6 +531,14 @@ export interface IGeneratedScenario {
   readonly generatedAt: string;
   /** Generation seed (for reproducibility) */
   readonly seed?: number;
+  /**
+   * Procedurally generated battle-map terrain, overlaid with the selected
+   * preset's feature directives. The originating `presetId` is recorded on
+   * the map for replay and debugging.
+   *
+   * @spec openspec/changes/add-procedural-map-variety/specs/terrain-generation/spec.md
+   */
+  readonly generatedMap?: IGeneratedMap;
 }
 
 /**

@@ -2,7 +2,13 @@
  * Map Preset Data
  * Pre-defined map configurations for terrain generation.
  *
+ * Each preset's `features` are mapped to `IFeatureDirective`s and overlaid on
+ * base biome generation by the procedural terrain generator
+ * (`presetFeaturesToDirectives` / `generateTerrainMap`), so a preset shapes
+ * the generated battle map's clustered woods, buildings, roads, and pavement.
+ *
  * @spec openspec/changes/add-scenario-generators/spec.md
+ * @spec openspec/changes/add-procedural-map-variety/specs/terrain-generation/spec.md
  */
 
 import { BiomeType, type IMapPreset } from '../../types/scenario';

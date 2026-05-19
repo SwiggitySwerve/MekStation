@@ -28,7 +28,39 @@ import {
   OpForSkillLevel,
   UnitTypeCategory,
 } from '../../types/scenario';
+import {
+  type BiomeType as TerrainBiomeType,
+  generateTerrainMap,
+  type IGeneratedMap,
+} from '../../utils/gameplay/terrainGenerator';
 import { opForGenerator } from './OpForGeneratorService';
+
+/**
+ * Map a scenario `BiomeType` to the terrain generator's biome vocabulary.
+ * The terrain generator recognises five base biomes; scenario biomes that
+ * have no direct base-pass analogue fall back to the closest match. The
+ * preset feature overlay carries the scenario-specific character regardless.
+ */
+function toTerrainBiome(biome: BiomeType): TerrainBiomeType {
+  switch (biome) {
+    case BiomeType.Desert:
+    case BiomeType.Volcanic:
+      return 'desert';
+    case BiomeType.Arctic:
+      return 'arctic';
+    case BiomeType.Urban:
+      return 'urban';
+    case BiomeType.Jungle:
+      return 'jungle';
+    case BiomeType.Forest:
+    case BiomeType.Plains:
+    case BiomeType.Badlands:
+    case BiomeType.Swamp:
+    case BiomeType.Mountains:
+    default:
+      return 'temperate';
+  }
+}
 
 // =============================================================================
 // Scenario Generator Class
@@ -104,6 +136,11 @@ export class ScenarioGeneratorService {
     // Calculate effective turn limit (may be modified)
     const turnLimit = this.calculateTurnLimit(template, modifiers);
 
+    // Procedurally generate the battle map terrain from the selected preset
+    // (`add-procedural-map-variety`). The preset's feature directives are
+    // overlaid on base biome generation so the map reflects the preset.
+    const generatedMap = this.generateMapTerrain(mapPreset, config.seed);
+
     // Clear seed after generation
     this.clearSeed();
 
@@ -116,7 +153,34 @@ export class ScenarioGeneratorService {
       turnLimit,
       generatedAt: new Date().toISOString(),
       seed: config.seed,
+      ...(generatedMap ? { generatedMap } : {}),
     };
+  }
+
+  /**
+   * Generate the procedural battle-map terrain for the selected preset.
+   *
+   * The preset describes a hex-radius scenario map; the terrain generator
+   * works on a rectangular grid, so a `radius` of `R` yields a
+   * `(2R + 1) × (2R + 1)` grid. Terrain generation is seeded deterministically
+   * from the scenario seed so identical seeds yield identical maps. When the
+   * scenario runs unseeded the map is left undefined (callers that need a
+   * reproducible map should always supply a seed).
+   */
+  private generateMapTerrain(
+    preset: IMapPreset,
+    seed: number | undefined,
+  ): IGeneratedMap | undefined {
+    if (seed === undefined) {
+      return undefined;
+    }
+    const dimension = preset.radius * 2 + 1;
+    return generateTerrainMap(preset, {
+      width: dimension,
+      height: dimension,
+      biome: toTerrainBiome(preset.biome),
+      seed,
+    });
   }
 
   /**
