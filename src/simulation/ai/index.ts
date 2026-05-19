@@ -1,6 +1,7 @@
 export { MoveAI } from './MoveAI';
 export type { IScoreMoveContext } from './MoveAI';
-export { AttackAI } from './AttackAI';
+export { AttackAI, scoreTarget, structuralExposure } from './AttackAI';
+export type { IFireListEntry } from './AttackAI';
 export { BotPlayer } from './BotPlayer';
 export type { BotGameEvent, IMovementEvent, IAttackEvent } from './BotPlayer';
 export { DEFAULT_BEHAVIOR } from './types';
@@ -9,6 +10,10 @@ export type {
   IMove,
   IWeapon,
   IAIUnitState,
+  IAIStructureState,
+  IWeaponFiringMode,
+  IWeaponFiringModes,
+  WeaponModeKind,
   RetreatEdge,
 } from './types';
 
@@ -20,11 +25,36 @@ export type { IAIPath, IAIPathfindRequest } from './AITerrainPathfinder';
 export {
   AI_TIER_REGISTRY,
   DEFAULT_TIER_NAME,
+  INERT_RESOURCE_PARAMETERS,
   getTierParameters,
   resolveTierParameters,
+  resolveResourceParameters,
 } from './AITierRegistry';
 export type {
   AITierName,
   IAITierParameters,
   IAITierMovementParameters,
+  IAITierResourceParameters,
 } from './AITierRegistry';
+
+// Per `add-ai-resource-planning` (A2): the resource-planning modules —
+// multi-turn heat projection, ammo-runway projection, weapon-mode selection.
+export {
+  projectHeat,
+  effectiveHeatBudget,
+  planEffectiveThreshold,
+  SHUTDOWN_RISK_HEAT,
+} from './AIHeatPlanner';
+export type { IHeatProjection } from './AIHeatPlanner';
+export {
+  projectAmmoRunway,
+  computeAmmoRunway,
+  SCARCE_RUNWAY_TURNS,
+  MIN_CONSERVATION_WEIGHT,
+} from './AIAmmoRunway';
+export type { IAmmoRunway } from './AIAmmoRunway';
+export { selectWeaponMode, collectWeaponModes } from './AIWeaponModeSelector';
+export type {
+  IWeaponModeSelection,
+  IWeaponModeContext,
+} from './AIWeaponModeSelector';

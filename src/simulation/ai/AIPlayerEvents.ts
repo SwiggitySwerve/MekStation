@@ -20,6 +20,15 @@ export interface IAttackEvent {
     attackerId: string;
     targetId: string;
     weapons: readonly string[];
+    /**
+     * Per `add-ai-resource-planning` (A2) design D4: the firing mode the bot
+     * selected for each declared weapon, keyed by weapon id. Present only
+     * when the bot's tier enables `weaponModeSelection` and at least one
+     * declared weapon is multi-mode; absent (and the combat engine resolves
+     * default modes) for the `Green`/`Regular` tiers and single-mode-only
+     * fire lists — byte-identical to pre-A2 behavior.
+     */
+    weaponModes?: Readonly<Record<string, string>>;
   };
 }
 

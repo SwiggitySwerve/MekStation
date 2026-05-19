@@ -164,6 +164,66 @@ export interface IWeapon {
    * build `IWeapon` without arc data) keep working — missing = Front.
    */
   readonly mountingArc?: FiringArc;
+
+  /**
+   * Per `add-ai-resource-planning` (A2) design D4: optional firing-mode
+   * metadata for multi-mode weapons — LB-X autocannons (cluster vs. slug),
+   * Ultra / Rotary autocannons (rate of fire). When present,
+   * `AIWeaponModeSelector` picks the expected-damage-maximizing mode given
+   * range, the target's armor state, and the remaining heat budget.
+   *
+   * A weapon WITHOUT this field is single-mode — `AIWeaponModeSelector`
+   * returns its default mode unchanged, so existing weapon fixtures and
+   * runtime wiring need no migration (the selector is byte-identical to
+   * "always default mode" for them).
+   *
+   * Typed as `IWeaponFiringModes` from `AIWeaponModeSelector` — declared
+   * here as a structural shape to keep `types.ts` free of an import cycle
+   * with the selector module.
+   */
+  readonly firingModes?: IWeaponFiringModes;
+}
+
+/**
+ * The kind of multi-mode weapon, used by `AIWeaponModeSelector` to pick the
+ * right mode-selection heuristic.
+ *
+ *   - `cluster-slug`: LB-X autocannon — cluster (spread / crit-seek) vs.
+ *     slug (focused).
+ *   - `rate-of-fire`: Ultra / Rotary autocannon — a higher rate of fire
+ *     trades heat and ammo for damage.
+ */
+export type WeaponModeKind = 'cluster-slug' | 'rate-of-fire';
+
+/**
+ * One selectable firing mode of a multi-mode weapon.
+ *
+ * `damage`, `heat`, and `shotsPerTurn` describe the mode's per-turn cost and
+ * output — they OVERRIDE the weapon's base `damage`/`heat` when the mode is
+ * selected, so the combat engine resolves the chosen mode's numbers.
+ */
+export interface IWeaponFiringMode {
+  /** Stable mode identifier, e.g. `'cluster'`, `'slug'`, `'single'`. */
+  readonly id: string;
+  /** Damage this mode deals per turn. */
+  readonly damage: number;
+  /** Heat this mode generates per turn. */
+  readonly heat: number;
+  /** Ammo rounds this mode consumes per turn (energy weapons: `0`). */
+  readonly shotsPerTurn: number;
+}
+
+/**
+ * Firing-mode metadata for a multi-mode weapon — the optional `firingModes`
+ * field on `IWeapon`.
+ */
+export interface IWeaponFiringModes {
+  /** The mode-selection heuristic family this weapon belongs to. */
+  readonly kind: WeaponModeKind;
+  /** The id of the mode fired when mode selection is disabled. */
+  readonly defaultModeId: string;
+  /** The selectable modes — at least two for a genuine multi-mode weapon. */
+  readonly modes: readonly IWeaponFiringMode[];
 }
 
 // =============================================================================
@@ -248,4 +308,69 @@ export interface IAIUnitState {
    * Set once on trigger and locked. `null` until retreat begins.
    */
   readonly retreatTargetEdge?: 'north' | 'south' | 'east' | 'west' | null;
+
+  /**
+   * Per `add-ai-resource-planning` (A2) design D3: the unit's per-location
+   * armour and internal-structure state, used by `scoreTarget`'s
+   * crit-seeking term to gauge how *exposed* the unit is — a location with
+   * stripped armour and prior internal damage is one good roll from a
+   * crippling critical.
+   *
+   * Optional for backward compatibility: a unit without this field
+   * contributes a zero crit-seeking bonus (treated as fully armoured), so
+   * legacy `IAIUnitState` fixtures and the `Green`/`Regular` tiers — which
+   * zero `critSeekingWeight` anyway — keep the pre-change `scoreTarget`
+   * output exactly. Production `toAIUnitState` populates it from
+   * `IUnitGameState` armour / structure maps.
+   */
+  readonly structureState?: IAIStructureState;
+
+  /**
+   * Per `add-ai-resource-planning` (A2) design D4: `true` when the unit is
+   * actively evading (e.g. ran / jumped this turn for a defensive movement
+   * modifier). `AIWeaponModeSelector` treats an evading target like an
+   * armour-stripped one — cluster fire's spread is more reliable against a
+   * hard-to-hit target. Optional; absent = not evading.
+   */
+  readonly isEvading?: boolean;
+
+  /**
+   * Per `add-ai-resource-planning` (A2) design D1: the unit's per-turn heat
+   * dissipation capacity (sum of functioning heat sinks' dissipation).
+   * `AIHeatPlanner.projectHeat` subtracts this each turn when projecting the
+   * heat curve.
+   *
+   * Optional for backward compatibility: a unit without this field falls
+   * back to the canonical 10-sink baseline (`DEFAULT_HEAT_DISSIPATION`) at
+   * the consumer site. Production `toAIUnitState` reads it from the unit's
+   * heat-sink loadout. The `Green`/`Regular` tiers set `heatLookaheadTurns`
+   * to `0`, so the planner never runs for them regardless.
+   */
+  readonly heatDissipation?: number;
+}
+
+/**
+ * Per-location armour and internal-structure snapshot for a unit, used by
+ * the A2 crit-seeking target weighting.
+ *
+ * Each map is keyed by location name (`"center_torso"`, `"left_torso"`,
+ * `"head"`, …). `armorByLocation` holds remaining armour points;
+ * `armorMaxByLocation` holds the location's starting armour;
+ * `internalByLocation` holds remaining internal structure;
+ * `internalMaxByLocation` holds the location's starting internal structure.
+ *
+ * A location whose armour is `0` is *stripped* — every hit there rolls on
+ * the internal-structure / critical table directly. A location whose
+ * internal structure is below its maximum has taken *prior internal
+ * damage*. Both raise the crit-seeking score (design D3).
+ */
+export interface IAIStructureState {
+  /** Remaining armour points per location. */
+  readonly armorByLocation: Readonly<Record<string, number>>;
+  /** Starting (maximum) armour points per location. */
+  readonly armorMaxByLocation: Readonly<Record<string, number>>;
+  /** Remaining internal structure points per location. */
+  readonly internalByLocation: Readonly<Record<string, number>>;
+  /** Starting (maximum) internal structure points per location. */
+  readonly internalMaxByLocation: Readonly<Record<string, number>>;
 }

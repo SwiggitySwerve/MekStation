@@ -48,17 +48,62 @@ export interface IAITierMovementParameters {
 }
 
 /**
+ * Resource-planning parameter block — the A2 contribution to a tier's
+ * parameter set (`add-ai-resource-planning` design D5).
+ *
+ *   - `heatLookaheadTurns`: how many turns ahead `AIHeatPlanner.projectHeat`
+ *     projects the heat curve. `0` disables multi-turn projection entirely —
+ *     the bot falls back to the single-turn `applyHeatBudget` trim only, so
+ *     `Green`/`Regular` reproduce pre-change behavior byte-for-byte.
+ *   - `ammoConservationWeight`: scales how aggressively a short ammo runway
+ *     drops a weapon's selection priority. `0` disables runway weighting —
+ *     ammo remains a binary eligibility gate, never a priority modulator.
+ *   - `critSeekingWeight`: multiplier on the additive crit-seeking term in
+ *     `scoreTarget`. `0` disables crit-seeking — `scoreTarget` returns the
+ *     pre-change `threat * killProbability` value exactly.
+ *   - `weaponModeSelection`: when `false`, every multi-mode weapon fires its
+ *     default mode and `AIWeaponModeSelector` is never consulted. When
+ *     `true`, the selector picks the expected-damage-maximizing mode.
+ */
+export interface IAITierResourceParameters {
+  readonly heatLookaheadTurns: number;
+  readonly ammoConservationWeight: number;
+  readonly critSeekingWeight: number;
+  readonly weaponModeSelection: boolean;
+}
+
+/**
  * Full parameter set for one difficulty tier.
  *
- * Open by design: A1 defines `tier` and `movement`. Later Wave 2 changes ADD
- * their own optional blocks (`resource?`, `coordination?`, `objective?`,
- * `advanced?`) without touching the fields declared here.
+ * Open by design: A1 defines `tier` and `movement`. A2 ADDs the optional
+ * `resource` block below. Later Wave 2 changes ADD their own optional blocks
+ * (`coordination?`, `objective?`, `advanced?`) without touching the fields
+ * declared here.
  */
 export interface IAITierParameters {
   readonly tier: AITierName;
   readonly movement: IAITierMovementParameters;
-  // A2..A4 ADD: resource?, coordination?, objective?, advanced? blocks.
+  /**
+   * A2 resource-planning block. Optional so a tier record built before A2
+   * (or a hand-rolled test fixture) still type-checks; every entry in
+   * `AI_TIER_REGISTRY` populates it. Resolve it through
+   * `resolveResourceParameters` to get the inert default when absent.
+   */
+  readonly resource?: IAITierResourceParameters;
+  // A3..A4 ADD: coordination?, objective?, advanced? blocks.
 }
+
+/**
+ * The inert resource block — every A2 behavior disabled. Used by
+ * `resolveResourceParameters` when a tier record predates A2 and as the
+ * literal value `Green`/`Regular` carry so the legacy bot is unchanged.
+ */
+export const INERT_RESOURCE_PARAMETERS: IAITierResourceParameters = {
+  heatLookaheadTurns: 0,
+  ammoConservationWeight: 0,
+  critSeekingWeight: 0,
+  weaponModeSelection: false,
+};
 
 /**
  * The frozen tier table.
@@ -91,6 +136,14 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         losDenialWeight: 0,
         terrainCostWeight: 0,
       },
+      // A2: fully inert — the legacy bot's single-turn heat trim, binary
+      // ammo gate, threat-only target score, and default weapon modes.
+      resource: {
+        heatLookaheadTurns: 0,
+        ammoConservationWeight: 0,
+        critSeekingWeight: 0,
+        weaponModeSelection: false,
+      },
     },
     Regular: {
       tier: 'Regular',
@@ -99,6 +152,14 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         coverWeight: 0,
         losDenialWeight: 0,
         terrainCostWeight: 0,
+      },
+      // A2: fully inert — see `Green`. The determinism golden traces are
+      // pinned to this tier, so every A2 weight must stay zero here.
+      resource: {
+        heatLookaheadTurns: 0,
+        ammoConservationWeight: 0,
+        critSeekingWeight: 0,
+        weaponModeSelection: false,
       },
     },
     Veteran: {
@@ -109,6 +170,18 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         losDenialWeight: 400,
         terrainCostWeight: 40,
       },
+      // A2: resource planning active. `heatLookaheadTurns: 3` (design open
+      // question — long enough to catch a building curve, short enough to
+      // stay relevant). Conservation and crit-seeking weights are tuned to
+      // `scoreTarget`'s scale (threat * killProbability is typically
+      // O(1-50)); a crit-seeking weight of `8` makes a fully-exposed target
+      // competitive without overruling a much larger threat.
+      resource: {
+        heatLookaheadTurns: 3,
+        ammoConservationWeight: 0.6,
+        critSeekingWeight: 8,
+        weaponModeSelection: true,
+      },
     },
     Elite: {
       tier: 'Elite',
@@ -117,6 +190,15 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         coverWeight: 450,
         losDenialWeight: 600,
         terrainCostWeight: 60,
+      },
+      // A2: resource planning active, weighted at least as heavily as
+      // `Veteran` — `Elite` looks one turn further ahead, rations ammo and
+      // hunts crits more aggressively.
+      resource: {
+        heatLookaheadTurns: 4,
+        ammoConservationWeight: 0.8,
+        critSeekingWeight: 12,
+        weaponModeSelection: true,
       },
     },
   };
@@ -159,4 +241,21 @@ export function resolveTierParameters(
   name: AITierName | undefined,
 ): IAITierParameters {
   return getTierParameters(name ?? DEFAULT_TIER_NAME);
+}
+
+/**
+ * Resolve the A2 resource-planning block for a tier parameter record,
+ * falling back to `INERT_RESOURCE_PARAMETERS` when the record predates A2
+ * (the optional `resource` field is absent).
+ *
+ * Used by `AttackAI` so a hand-rolled `IAITierParameters` fixture without a
+ * `resource` block resolves to fully-inert resource planning — the legacy
+ * bot behavior — rather than throwing on an undefined access. Every entry in
+ * `AI_TIER_REGISTRY` populates `resource`, so production callers always get
+ * the real tier values.
+ */
+export function resolveResourceParameters(
+  params: IAITierParameters,
+): IAITierResourceParameters {
+  return params.resource ?? INERT_RESOURCE_PARAMETERS;
 }
