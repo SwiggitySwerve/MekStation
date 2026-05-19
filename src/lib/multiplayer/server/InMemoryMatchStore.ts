@@ -193,22 +193,15 @@ export class InMemoryMatchStore implements IMatchStore {
 // Factory + module-level singleton
 // =============================================================================
 
-let _singleton: InMemoryMatchStore | null = null;
-
 /**
- * Default factory used by Wave 1's REST/WS code. Stays a singleton so
- * multiple HTTP handlers + the WebSocket upgrade share one store within
- * a Node process. Tests should construct their own `InMemoryMatchStore`
- * directly to avoid leaking state.
+ * Default match-store accessor. Re-exported here for backwards
+ * compatibility — the selection logic moved to `getDefaultMatchStore.ts`
+ * in `harden-multiplayer-transport` (it now picks the durable SQLite
+ * store in production and this in-memory store in dev/test). Existing
+ * callers that `import { getDefaultMatchStore } from './InMemoryMatchStore'`
+ * keep working unchanged.
  */
-export function getDefaultMatchStore(): InMemoryMatchStore {
-  if (!_singleton) {
-    _singleton = new InMemoryMatchStore();
-  }
-  return _singleton;
-}
-
-/** Test-only: reset the singleton so suites don't bleed into each other. */
-export function _resetDefaultMatchStore(): void {
-  _singleton = null;
-}
+export {
+  getDefaultMatchStore,
+  _resetDefaultMatchStore,
+} from './getDefaultMatchStore';

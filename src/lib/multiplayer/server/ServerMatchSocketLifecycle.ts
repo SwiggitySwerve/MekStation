@@ -51,6 +51,13 @@ interface ISocketState {
   socket: IMatchSocket;
   playerId: string;
   lastInboundAt: number;
+  /**
+   * Wall-clock ms when this socket attached. Per
+   * `harden-multiplayer-transport` design D4, host migration promotes
+   * the *longest-connected* surviving human seat — `connectedAt` is the
+   * tiebreak so the most stable connection inherits host privilege.
+   */
+  connectedAt: number;
   heartbeatTimer: NodeJS.Timeout;
 }
 
@@ -132,10 +139,12 @@ export class ServerMatchSocketLifecycle {
       (heartbeatTimer as NodeJS.Timeout).unref();
     }
 
+    const nowMs = Date.now();
     this.sockets.set(socket, {
       socket,
       playerId,
-      lastInboundAt: Date.now(),
+      lastInboundAt: nowMs,
+      connectedAt: nowMs,
       heartbeatTimer,
     });
   }
@@ -215,5 +224,33 @@ export class ServerMatchSocketLifecycle {
       socket: state.socket,
       playerId: state.playerId,
     }));
+  }
+
+  /**
+   * True iff `playerId` currently has at least one attached socket.
+   * Used by host migration (design D4) to decide which seats survive.
+   */
+  hasPlayer(playerId: string): boolean {
+    return Array.from(this.sockets.values()).some(
+      (s) => s.playerId === playerId,
+    );
+  }
+
+  /**
+   * Snapshot every connected player id with the wall-clock ms its
+   * *earliest* still-attached socket connected. Per design D4 host
+   * migration ranks surviving human seats by connection longevity —
+   * the smallest `connectedAt` is the longest-connected player. A
+   * player with two tabs is reported once, with the earlier tab's time.
+   */
+  snapshotConnectedSince(): ReadonlyMap<string, number> {
+    const earliest = new Map<string, number>();
+    for (const state of Array.from(this.sockets.values())) {
+      const prior = earliest.get(state.playerId);
+      if (prior === undefined || state.connectedAt < prior) {
+        earliest.set(state.playerId, state.connectedAt);
+      }
+    }
+    return earliest;
   }
 }
