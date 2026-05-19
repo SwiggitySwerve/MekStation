@@ -27,10 +27,12 @@ export {
   DEFAULT_TIER_NAME,
   INERT_RESOURCE_PARAMETERS,
   INERT_COORDINATION_PARAMETERS,
+  INERT_OBJECTIVE_PARAMETERS,
   getTierParameters,
   resolveTierParameters,
   resolveResourceParameters,
   resolveCoordinationParameters,
+  resolveObjectiveParameters,
 } from './AITierRegistry';
 export type {
   AITierName,
@@ -38,6 +40,7 @@ export type {
   IAITierMovementParameters,
   IAITierResourceParameters,
   IAITierCoordinationParameters,
+  IAITierObjectiveParameters,
 } from './AITierRegistry';
 
 // Per `add-ai-resource-planning` (A2): the resource-planning modules —
@@ -74,4 +77,24 @@ export {
 } from './AIFireCoordinator';
 export type { IFireAssignment } from './AIFireCoordinator';
 export { planTurn, computeLanceCentroid } from './AILancePlanner';
-export type { ILanceTurnPlan, IAILanceContext } from './AILancePlanner';
+export type {
+  ILanceTurnPlan,
+  IAILanceContext,
+  IObjectivePlanInput,
+} from './AILancePlanner';
+
+// Per `add-ai-objective-awareness` (A3b): the objective planner — reads the
+// scenario objective map, classifies markers, and assigns objective roles.
+// Only the `Elite` tier consumes this; lower tiers leave it inert.
+export {
+  classifyObjectives,
+  assignObjectiveRoles,
+  planObjectives,
+} from './AIObjectivePlanner';
+export type {
+  ObjectiveIntent,
+  ObjectiveRole,
+  ObjectiveCostFn,
+  IClassifiedObjective,
+  IObjectiveLancePlan,
+} from './AIObjectivePlanner';

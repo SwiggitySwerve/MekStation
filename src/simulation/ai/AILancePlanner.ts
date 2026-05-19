@@ -16,13 +16,19 @@
  *   Requirement: Per-Lance Turn Plan
  */
 
-import type { IHexCoordinate } from '@/types/gameplay';
+import type { IGameSession, IHexCoordinate } from '@/types/gameplay';
+import type { GameSide } from '@/types/gameplay';
 
 import type { IFireAssignment } from './AIFireCoordinator';
+import type {
+  IObjectiveLancePlan,
+  ObjectiveCostFn,
+} from './AIObjectivePlanner';
 import type { IThreatEntry } from './AIThreatMap';
 import type { IAIUnitState } from './types';
 
 import { coordinateFire } from './AIFireCoordinator';
+import { planObjectives } from './AIObjectivePlanner';
 import { buildThreatMap } from './AIThreatMap';
 
 /**
@@ -37,6 +43,36 @@ export interface ILanceTurnPlan {
   readonly fireAssignment: IFireAssignment;
   /** Rounded centroid of the living friendly lance, for movement cohesion. */
   readonly lanceCentroid: IHexCoordinate;
+  /**
+   * Per `add-ai-objective-awareness` (A3b) design D2: the optional objective
+   * layer. Present only when `planTurn` is called with the objective inputs
+   * AND the bot's tier enables objective awareness AND the scenario is not
+   * `Destroy`. When absent, the lance plays pure A3a coordinated combat —
+   * every A3a plan built before A3b is unchanged (the field is optional).
+   */
+  readonly objectivePlan?: IObjectiveLancePlan;
+}
+
+/**
+ * Per `add-ai-objective-awareness` (A3b) design D2: the optional objective
+ * context a caller threads into `planTurn` so the lance plan gains its
+ * objective layer.
+ *
+ *   - `session` is the live game session — `classifyObjectives` reads its
+ *     `currentState.objectives` map and the scenario objective type.
+ *   - `botSide` is the side the bot is playing; it decides whether each
+ *     marker is a `take` / `hold` / `deny` objective.
+ *   - `costFn` measures how far a friendly unit is from an objective hex —
+ *     production callers pass a terrain-cost pathfinder probe so the closest
+ *     unit by real movement cost gets the capture role.
+ *
+ * When this context is omitted, `planTurn` returns a plain A3a plan with no
+ * `objectivePlan` — every existing A3a caller is unchanged.
+ */
+export interface IObjectivePlanInput {
+  readonly session: IGameSession;
+  readonly botSide: GameSide;
+  readonly costFn: ObjectiveCostFn;
 }
 
 /**
@@ -124,6 +160,15 @@ export function computeLanceCentroid(
  *   - `fireAssignment` — `coordinateFire(friendly, enemies, threatMap)`.
  *   - `lanceCentroid` — `computeLanceCentroid(friendly)`.
  *
+ * Per `add-ai-objective-awareness` (A3b) design D2: when `objectiveInput` is
+ * supplied, the plan also carries an `objectivePlan` — `planObjectives`
+ * classifies the session's objective map for the bot's side and assigns each
+ * friendly unit an objective role. The objective layer is attached ONLY when
+ * the scenario is not `Destroy` (an empty objective map yields a `'destroy'`
+ * scenario type and no roles, so the bot falls through to pure A3a). The
+ * caller only passes `objectiveInput` for an objective-aware tier, so the
+ * tier flag gates whether the planner ever sees the objective map at all.
+ *
  * The returned plan is frozen so a per-unit decision cannot mutate the shared
  * picture. Pure deterministic function — identical unit sets always yield an
  * identical plan, and no `SeededRandom` is consumed.
@@ -131,14 +176,33 @@ export function computeLanceCentroid(
 export function planTurn(
   friendly: readonly IAIUnitState[],
   enemies: readonly IAIUnitState[],
+  objectiveInput?: IObjectivePlanInput,
 ): ILanceTurnPlan {
   const threatMap = buildThreatMap(friendly, enemies);
   const fireAssignment = coordinateFire(friendly, enemies, threatMap);
   const lanceCentroid = computeLanceCentroid(friendly);
 
+  // A3b objective layer — built only when the objective context is threaded
+  // through (an objective-aware tier). A `Destroy` scenario produces a
+  // `'destroy'` plan with no roles; in that case we omit `objectivePlan`
+  // entirely so the lance plays pure A3a coordinated combat.
+  let objectivePlan: IObjectiveLancePlan | undefined;
+  if (objectiveInput) {
+    const built = planObjectives(
+      objectiveInput.session,
+      objectiveInput.botSide,
+      friendly,
+      objectiveInput.costFn,
+    );
+    if (built.scenarioType !== 'destroy') {
+      objectivePlan = built;
+    }
+  }
+
   return Object.freeze({
     threatMap,
     fireAssignment,
     lanceCentroid,
+    ...(objectivePlan ? { objectivePlan } : {}),
   });
 }

@@ -1,6 +1,7 @@
 import type {
   IComponentDestroyedPayload,
   IGameSession,
+  IHexCoordinate,
   IHexGrid,
   IMovementCapability,
   IUnitPosition,
@@ -183,6 +184,17 @@ export class BotPlayer implements IAIPlayer {
       return null;
     }
 
+    // Per `add-ai-objective-awareness` (A3b) design D3: a capture- or
+    // hold-role unit already standing ON its objective hex stays planted —
+    // every non-stationary move would abandon the marker and forfeit the
+    // objective term. Returning `null` (no `MovementDeclared`) keeps the unit
+    // on the objective so it holds control / accrues hold progress. A
+    // `screen`-role unit, a `Destroy` scenario, or a non-objective-aware tier
+    // never hits this branch and moves exactly as the A3a bot does.
+    if (this.shouldHoldObjectiveHex(unit, lanceContext)) {
+      return null;
+    }
+
     const position: IUnitPosition = {
       unitId: unit.unitId,
       coord: unit.position,
@@ -253,6 +265,14 @@ export class BotPlayer implements IAIPlayer {
                 ),
               }
             : {}),
+          // Per `add-ai-objective-awareness` (A3b) design D3: thread the
+          // unit's objective role and target hex from the lance plan's
+          // objective layer. `MoveAI.enrichScoreContext` attaches the tier
+          // objective block; `scoreMove`'s objective term stays inert for a
+          // `screen`-role unit or when the tier disables objective
+          // awareness. Omitted entirely when the plan carries no objective
+          // layer (a `Destroy` scenario or a non-objective-aware tier).
+          ...this.objectiveMoveFields(unit.unitId, lanceContext),
         };
       }
     }
@@ -304,6 +324,21 @@ export class BotPlayer implements IAIPlayer {
       return null;
     }
 
+    // Per `add-ai-objective-awareness` (A3b) design D4: objective-aware
+    // target discipline. When the unit holds a `capture` or `hold` objective
+    // role, narrow the valid-target set to enemies it can engage WITHOUT
+    // leaving its objective hex — enemies within weapon range of the marker.
+    // The unit fires from the objective rather than chasing an enemy off it.
+    // When no enemy is in-discipline the bias falls through to the full set
+    // (a bounded bias, not a hard mandate — design D4 risk note). A
+    // `screen`-role unit, a `Destroy` scenario, or a non-objective-aware
+    // tier leaves `disciplinedTargets` equal to `validTargets`.
+    const disciplinedTargets = this.applyObjectiveTargetDiscipline(
+      attacker,
+      validTargets,
+      lanceContext,
+    );
+
     // Per `improve-bot-basic-combat-competence` task 2.5: pass attacker
     // so the threat-scored selector picks the most threatening target
     // instead of a uniform-random pick. Per `add-ai-resource-planning`
@@ -315,10 +350,18 @@ export class BotPlayer implements IAIPlayer {
     // focus-fire target overrides the self-scored pick — but only when the
     // assigned target is reachable (in a valid target set and with at least
     // one weapon in arc/range). Otherwise the unit falls back cleanly.
+    //
+    // The coordinated pick and the self-scored pick both run over the
+    // objective-disciplined set so an objective-role unit still concentrates
+    // fire with the lance, but only on an in-discipline target.
     const target =
-      this.selectCoordinatedTarget(attacker, validTargets, lanceContext) ??
+      this.selectCoordinatedTarget(
+        attacker,
+        disciplinedTargets,
+        lanceContext,
+      ) ??
       this.attackAI.selectTarget(
-        validTargets,
+        disciplinedTargets,
         this.random,
         attacker,
         this.resource,
@@ -571,6 +614,111 @@ export class BotPlayer implements IAIPlayer {
   }
 
   /**
+   * Per `add-ai-objective-awareness` (A3b) design D3: resolve the objective
+   * movement fields for a unit from the lance plan's objective layer.
+   *
+   * Returns `{ objectiveRole, objectiveHex }` when the lance plan carries an
+   * objective layer that assigns this unit a `capture` or `hold` role — the
+   * fields `MoveAI.scoreMove`'s objective term consumes. Returns `{}` (no
+   * fields) when there is no objective plan (a `Destroy` scenario or a
+   * non-objective-aware tier), or when the unit is a `screen`-role unit with
+   * no objective hex — so `scoreMove`'s objective term stays inert and the
+   * unit plays pure A3a movement.
+   */
+  private objectiveMoveFields(
+    unitId: string,
+    lanceContext?: IAILanceContext,
+  ): Partial<Pick<IScoreMoveContext, 'objectiveRole' | 'objectiveHex'>> {
+    const objectivePlan = lanceContext?.plan.objectivePlan;
+    if (!objectivePlan) return {};
+
+    const role = objectivePlan.roles.get(unitId);
+    if (!role || role === 'screen') return {};
+
+    const hex = objectivePlan.targetHexes.get(unitId);
+    if (!hex) return {};
+
+    return { objectiveRole: role, objectiveHex: hex };
+  }
+
+  /**
+   * Per `add-ai-objective-awareness` (A3b) design D3: `true` when `unit`
+   * holds a `capture` or `hold` objective role AND is already standing on
+   * its objective hex. Such a unit must stay planted — any move forfeits the
+   * marker. `playMovementPhase` returns `null` (no movement) in that case so
+   * the unit keeps control of the objective.
+   *
+   * Returns `false` for a `screen`-role unit, a unit off its objective hex
+   * (it still needs to move toward it), a `Destroy` scenario, or a
+   * non-objective-aware tier (no `objectivePlan`) — every such unit moves
+   * exactly as the A3a bot does.
+   */
+  private shouldHoldObjectiveHex(
+    unit: IAIUnitState,
+    lanceContext?: IAILanceContext,
+  ): boolean {
+    const objectivePlan = lanceContext?.plan.objectivePlan;
+    if (!objectivePlan) return false;
+
+    const role = objectivePlan.roles.get(unit.unitId);
+    if (role !== 'capture' && role !== 'hold') return false;
+
+    const hex = objectivePlan.targetHexes.get(unit.unitId);
+    if (!hex) return false;
+
+    return unit.position.q === hex.q && unit.position.r === hex.r;
+  }
+
+  /**
+   * Per `add-ai-objective-awareness` (A3b) design D4: objective-aware target
+   * discipline. When `attacker` holds a `capture` or `hold` objective role,
+   * restrict its valid-target set to enemies it can engage from its
+   * objective hex — enemies within the unit's longest live-weapon range of
+   * the marker. The unit fires from the objective rather than pursuing an
+   * enemy off it.
+   *
+   * The discipline is a bounded bias, not a hard mandate (design D4 risk
+   * note): when NO enemy is engageable from the objective hex the full
+   * `validTargets` set is returned unchanged, so the unit still fires its
+   * best available shot rather than going silent. A `screen`-role unit, a
+   * `Destroy` scenario, or a non-objective-aware tier (no `objectivePlan`)
+   * also returns `validTargets` unchanged — target selection is identical to
+   * the A3a coordinated-combat behavior.
+   *
+   * Pure with respect to RNG — consumes no `SeededRandom`.
+   */
+  private applyObjectiveTargetDiscipline(
+    attacker: IAIUnitState,
+    validTargets: readonly IAIUnitState[],
+    lanceContext?: IAILanceContext,
+  ): readonly IAIUnitState[] {
+    const objectivePlan = lanceContext?.plan.objectivePlan;
+    if (!objectivePlan) return validTargets;
+
+    const role = objectivePlan.roles.get(attacker.unitId);
+    if (!role || role === 'screen') return validTargets;
+
+    const hex = objectivePlan.targetHexes.get(attacker.unitId);
+    if (!hex) return validTargets;
+
+    // Longest live-weapon range — the reach the unit has standing on the
+    // objective hex. A unit with no live weapons cannot discipline-filter.
+    let maxRange = 0;
+    for (const weapon of attacker.weapons) {
+      if (weapon.destroyed) continue;
+      if (weapon.longRange > maxRange) maxRange = weapon.longRange;
+    }
+    if (maxRange <= 0) return validTargets;
+
+    const inDiscipline = validTargets.filter(
+      (target) => cubeHexDistance(hex, target.position) <= maxRange,
+    );
+    // Bounded bias: only narrow when at least one enemy is engageable from
+    // the objective; otherwise keep the full set so the unit still fires.
+    return inDiscipline.length > 0 ? inDiscipline : validTargets;
+  }
+
+  /**
    * Per `wire-bot-ai-helpers-and-capstone`: when the unit is retreating
    * we override the random walk/run/jump pick to call
    * `retreatMovementType`, which prefers Run, falls back to Walk, and
@@ -663,6 +811,19 @@ function computeRetreatSignals(
   }
 
   return { ratio, hasVitalCrit };
+}
+
+/**
+ * Per `add-ai-objective-awareness` (A3b): cube-coordinate hex distance
+ * between two axial coordinates. Mirrors the inline distance math in
+ * `playPhysicalAttackPhase` — kept local so `BotPlayer` stays free of a
+ * `hexMath` import dependency. Pure function.
+ */
+function cubeHexDistance(a: IHexCoordinate, b: IHexCoordinate): number {
+  const dq = b.q - a.q;
+  const dr = b.r - a.r;
+  const ds = -dq - dr;
+  return (Math.abs(dq) + Math.abs(dr) + Math.abs(ds)) / 2;
 }
 
 /**

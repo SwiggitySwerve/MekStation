@@ -100,12 +100,34 @@ export interface IAITierCoordinationParameters {
 }
 
 /**
+ * Objective-awareness parameter block — the A3b contribution to a tier's
+ * parameter set (`add-ai-objective-awareness` design D5).
+ *
+ *   - `objectiveAwareness`: when `false`, the bot is blind to the scenario
+ *     objective map — `AIObjectivePlanner` is never consulted, the lance
+ *     plan carries no objective layer, and the bot plays every scenario as
+ *     `Destroy` (pure attrition). When `true`, the bot reads the objective
+ *     markers and plays the scenario (capture / defend / breakthrough).
+ *   - `objectiveSeekingWeight`: multiplier on the move-scoring term that
+ *     rewards a capture-role unit for closing on (and ending on) a `take`
+ *     marker. `0` disables objective-seeking movement.
+ *   - `objectiveHoldWeight`: multiplier on the move-scoring term that
+ *     rewards a hold-role unit for staying on its `hold` marker. `0`
+ *     disables objective-holding movement.
+ */
+export interface IAITierObjectiveParameters {
+  readonly objectiveAwareness: boolean;
+  readonly objectiveSeekingWeight: number;
+  readonly objectiveHoldWeight: number;
+}
+
+/**
  * Full parameter set for one difficulty tier.
  *
  * Open by design: A1 defines `tier` and `movement`. A2 ADDs the optional
- * `resource` block. A3a ADDs the optional `coordination` block below.
- * Later Wave 2 changes ADD their own optional blocks (`objective?`,
- * `advanced?`) without touching the fields declared here.
+ * `resource` block. A3a ADDs the optional `coordination` block. A3b ADDs the
+ * optional `objective` block below. A later Wave 2 change ADDs `advanced?`
+ * without touching the fields declared here.
  */
 export interface IAITierParameters {
   readonly tier: AITierName;
@@ -124,7 +146,14 @@ export interface IAITierParameters {
    * `resolveCoordinationParameters` to get the inert default when absent.
    */
   readonly coordination?: IAITierCoordinationParameters;
-  // A3b..A4 ADD: objective?, advanced? blocks.
+  /**
+   * A3b objective-awareness block. Optional so a tier record built before
+   * A3b (or a hand-rolled test fixture) still type-checks; every entry in
+   * `AI_TIER_REGISTRY` populates it. Resolve it through
+   * `resolveObjectiveParameters` to get the inert default when absent.
+   */
+  readonly objective?: IAITierObjectiveParameters;
+  // A4 ADDs: advanced? block.
 }
 
 /**
@@ -150,6 +179,18 @@ export const INERT_COORDINATION_PARAMETERS: IAITierCoordinationParameters = {
   cohesionRadius: 0,
   cohesionWeight: 0,
   focusFireWeight: 0,
+};
+
+/**
+ * The inert objective block — every A3b behavior disabled. Used by
+ * `resolveObjectiveParameters` when a tier record predates A3b and as the
+ * literal value `Green`/`Regular`/`Veteran` carry so the objective planner
+ * is never consulted and those tiers play every scenario as `Destroy`.
+ */
+export const INERT_OBJECTIVE_PARAMETERS: IAITierObjectiveParameters = {
+  objectiveAwareness: false,
+  objectiveSeekingWeight: 0,
+  objectiveHoldWeight: 0,
 };
 
 /**
@@ -199,6 +240,14 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         cohesionWeight: 0,
         focusFireWeight: 0,
       },
+      // A3b: fully inert — `objectiveAwareness: false` means the objective
+      // planner is never consulted; the bot is blind to the objective map
+      // and plays every scenario as pure attrition (`Destroy`).
+      objective: {
+        objectiveAwareness: false,
+        objectiveSeekingWeight: 0,
+        objectiveHoldWeight: 0,
+      },
     },
     Regular: {
       tier: 'Regular',
@@ -223,6 +272,13 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         cohesionRadius: 0,
         cohesionWeight: 0,
         focusFireWeight: 0,
+      },
+      // A3b: fully inert — see `Green`. The determinism golden traces are
+      // pinned to this tier, so the bot must stay blind to the objective map.
+      objective: {
+        objectiveAwareness: false,
+        objectiveSeekingWeight: 0,
+        objectiveHoldWeight: 0,
       },
     },
     Veteran: {
@@ -255,6 +311,16 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         cohesionWeight: 0,
         focusFireWeight: 0,
       },
+      // A3b: fully inert. Per `add-ai-objective-awareness` design D5, the
+      // `Veteran` tier plays every scenario as `Destroy` — `objectiveAwareness`
+      // is `false`, so the objective planner is never consulted and the
+      // objective movement terms contribute nothing. `Elite` is the only tier
+      // that reads the objective map.
+      objective: {
+        objectiveAwareness: false,
+        objectiveSeekingWeight: 0,
+        objectiveHoldWeight: 0,
+      },
     },
     Elite: {
       tier: 'Elite',
@@ -286,6 +352,24 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         cohesionRadius: 4,
         cohesionWeight: 200,
         focusFireWeight: 400,
+      },
+      // A3b: objective awareness active — `Elite` is the only tier that
+      // reads the scenario objective map and plays the scenario. Weight
+      // magnitudes sit relative to the existing `scoreMove` scale (LOS
+      // `+1000`, forward-arc `+500`, per-hex distance `-100`):
+      //   - `objectiveSeekingWeight: 120` is applied per hex of pathfinder
+      //     distance reduced toward a `take` marker, so a unit closing on
+      //     its objective outscores backing off (which pays only the
+      //     `-100`/hex distance term) — yet a single LOS opportunity can
+      //     still tilt a tie. A destination ON the marker earns a large
+      //     flat bonus (see `MoveAI.objectiveScore`) that dominates.
+      //   - `objectiveHoldWeight: 800` keeps a hold-role unit planted on
+      //     its marker: staying on it outscores chasing an enemy off it,
+      //     since abandoning the marker forfeits the whole term.
+      objective: {
+        objectiveAwareness: true,
+        objectiveSeekingWeight: 120,
+        objectiveHoldWeight: 800,
       },
     },
   };
@@ -362,4 +446,22 @@ export function resolveCoordinationParameters(
   params: IAITierParameters,
 ): IAITierCoordinationParameters {
   return params.coordination ?? INERT_COORDINATION_PARAMETERS;
+}
+
+/**
+ * Resolve the A3b objective-awareness block for a tier parameter record,
+ * falling back to `INERT_OBJECTIVE_PARAMETERS` when the record predates A3b
+ * (the optional `objective` field is absent).
+ *
+ * Used by `BotPlayer`, `AILancePlanner`, and `MoveAI` so a hand-rolled
+ * `IAITierParameters` fixture without an `objective` block resolves to
+ * fully-inert objective awareness — the `Destroy`-only bot — rather than
+ * throwing on an undefined access. Every entry in `AI_TIER_REGISTRY`
+ * populates `objective`, so production callers always get the real tier
+ * values.
+ */
+export function resolveObjectiveParameters(
+  params: IAITierParameters,
+): IAITierObjectiveParameters {
+  return params.objective ?? INERT_OBJECTIVE_PARAMETERS;
 }
