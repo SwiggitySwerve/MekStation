@@ -194,11 +194,28 @@ export class DurableMatchStore implements IMatchStore {
   async appendEvent(matchId: string, event: IGameEvent): Promise<void> {
     const match = this.getMatchRow(matchId);
     if (!match) throw new MatchNotFoundError(matchId);
-    // Transactional all-or-nothing: the INSERT and the `updated_at`
-    // bump are wrapped in a single SQLite transaction. A sequence
-    // collision is caught by the `(match_id, sequence)` PRIMARY KEY
-    // unique constraint and surfaced as `MatchStoreSequenceCollisionError`.
+    // Transactional all-or-nothing: the sequence-collision check, the
+    // event INSERT, and the `updated_at` bump all run inside a single
+    // SQLite transaction.
+    //
+    // The collision is detected by an EXPLICIT check inside the
+    // transaction (a SELECT for the existing `(matchId, sequence)`
+    // row) rather than by catching the `(match_id, sequence)` PRIMARY
+    // KEY violation — the explicit check is deterministic and
+    // independent of how a given better-sqlite3 build phrases /
+    // surfaces its `SqliteError`. The PRIMARY KEY constraint remains as
+    // a defense-in-depth backstop against a concurrent writer that
+    // races between the check and the INSERT.
     const tx = this.db.transaction((mId: string, evt: IGameEvent) => {
+      const existing = this.db
+        .prepare(
+          `SELECT 1 FROM mp_match_events
+           WHERE match_id = ? AND sequence = ?`,
+        )
+        .get(mId, evt.sequence);
+      if (existing) {
+        throw new MatchStoreSequenceCollisionError(mId, evt.sequence);
+      }
       try {
         this.db
           .prepare(
@@ -207,12 +224,9 @@ export class DurableMatchStore implements IMatchStore {
           )
           .run(mId, evt.sequence, JSON.stringify(evt));
       } catch (e) {
-        // A sequence collision trips the `(match_id, sequence)` PRIMARY
-        // KEY constraint. better-sqlite3 surfaces this as a
-        // `SqliteError` whose `.code` is `SQLITE_CONSTRAINT_PRIMARYKEY`
-        // (or the broader `SQLITE_CONSTRAINT`); match on the code AND
-        // the message text so the detection is robust across
-        // better-sqlite3 versions / phrasings.
+        // Backstop: a concurrent writer won the race between the
+        // SELECT above and this INSERT — the unique constraint catches
+        // it. Map it to the same collision error.
         if (isUniqueConstraintError(e)) {
           throw new MatchStoreSequenceCollisionError(mId, evt.sequence);
         }
