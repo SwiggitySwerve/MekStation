@@ -10,6 +10,7 @@ import { GameEventType, GamePhase, MovementType } from '@/types/gameplay';
 import { chooseBestPhysicalAttack } from '@/utils/gameplay/physicalAttacks';
 
 import type { SeededRandom } from '../core/SeededRandom';
+import type { IAILanceContext } from './AILancePlanner';
 import type {
   IAttackEvent,
   IMovementEvent,
@@ -21,7 +22,9 @@ import type { IBotBehavior, IAIUnitState, IMove, IWeapon } from './types';
 
 import { planEffectiveThreshold } from './AIHeatPlanner';
 import {
+  type IAITierCoordinationParameters,
   type IAITierResourceParameters,
+  resolveCoordinationParameters,
   resolveResourceParameters,
   resolveTierParameters,
 } from './AITierRegistry';
@@ -43,6 +46,12 @@ export type {
   IPhysicalAttackEvent,
   IRetreatEvent,
 } from './AIPlayerEvents';
+
+// Per `add-ai-coordination-tactics` (A3a): the lance context type lives in
+// `AILancePlanner` (it pairs with `ILanceTurnPlan`); re-export it here so
+// callers of `playMovementPhase` / `playAttackPhase` can import it alongside
+// `BotPlayer`.
+export type { IAILanceContext } from './AILancePlanner';
 
 /** Vital component types whose destruction triggers a retreat per spec § 2. */
 const VITAL_COMPONENT_TYPES = new Set(['cockpit', 'engine', 'gyro']);
@@ -74,15 +83,23 @@ export class BotPlayer implements IAIPlayer {
    * `Veteran`/`Elite` carry the active block.
    */
   private readonly resource: IAITierResourceParameters;
+  /**
+   * Per `add-ai-coordination-tactics` (A3a): the coordination block resolved
+   * from the bot's difficulty tier. `Green`/`Regular`/`Veteran` (and an
+   * absent tier) carry the fully-inert block (`lanceCoordination: false`) so
+   * the lance plan is never consulted and pre-A3a behavior is byte-identical;
+   * `Elite` carries the active block.
+   */
+  private readonly coordination: IAITierCoordinationParameters;
 
   constructor(random: SeededRandom, behavior: IBotBehavior = DEFAULT_BEHAVIOR) {
     this.random = random;
     this.behavior = behavior;
     this.moveAI = new MoveAI(behavior);
     this.attackAI = new AttackAI();
-    this.resource = resolveResourceParameters(
-      resolveTierParameters(behavior.tier),
-    );
+    const tierParams = resolveTierParameters(behavior.tier);
+    this.resource = resolveResourceParameters(tierParams);
+    this.coordination = resolveCoordinationParameters(tierParams);
   }
 
   /**
@@ -145,14 +162,22 @@ export class BotPlayer implements IAIPlayer {
    *
    * `allUnits` is optional for backward compatibility — callers that
    * haven't migrated yet still get the pre-change behavior (uniform
-   * random pick, or retreat scoring when retreating). Once every
-   * caller is updated, this can be made required.
+   * random pick, or retreat scoring when retreating).
+   *
+   * Per `add-ai-coordination-tactics` (A3a) design D4: an optional
+   * `lanceContext` threads the per-lance turn plan into the unit's movement
+   * decision. When supplied AND the bot's tier enables lance coordination,
+   * `scoreMove`'s cohesion term pulls the unit toward the lance centroid and
+   * penalizes a lone advance into enemy LOS. When omitted — or when the tier
+   * leaves `lanceCoordination` false — the decision is identical to the
+   * pre-A3a per-unit behavior.
    */
   playMovementPhase(
     unit: IAIUnitState,
     grid: IHexGrid,
     capability: IMovementCapability,
     allUnits?: readonly IAIUnitState[],
+    lanceContext?: IAILanceContext,
   ): IMovementEvent | null {
     if (unit.destroyed) {
       return null;
@@ -214,6 +239,20 @@ export class BotPlayer implements IAIPlayer {
           // terrain-cost pathfinder with the unit's true MP budget rather
           // than a best-effort estimate from the move set.
           capability,
+          // Per `add-ai-coordination-tactics` design D3: thread the lance
+          // centroid and the unit's lancemates (excluding the unit itself)
+          // so `scoreMove`'s cohesion term can run. `MoveAI.enrichScoreContext`
+          // attaches the tier coordination block; the term stays inert when
+          // the tier disables `lanceCoordination`. Omitted entirely when no
+          // lance context is supplied — the per-unit path is unchanged.
+          ...(lanceContext
+            ? {
+                lanceCentroid: lanceContext.plan.lanceCentroid,
+                lancemates: lanceContext.lancemates.filter(
+                  (m) => m.unitId !== unit.unitId,
+                ),
+              }
+            : {}),
         };
       }
     }
@@ -242,9 +281,19 @@ export class BotPlayer implements IAIPlayer {
     };
   }
 
+  /**
+   * Per `add-ai-coordination-tactics` (A3a) design D2: an optional
+   * `lanceContext` threads the focus-fire assignment into the unit's attack
+   * decision. When supplied AND the bot's tier enables lance coordination,
+   * the unit's target selection is biased toward its assigned target so the
+   * lance concentrates fire. The assignment is a bias, not a mandate — when
+   * the assigned target is out of the unit's weapons' arc or range, the unit
+   * falls back to its own threat-scored pick and no error is raised.
+   */
   playAttackPhase(
     attacker: IAIUnitState,
     allUnits: readonly IAIUnitState[],
+    lanceContext?: IAILanceContext,
   ): IAttackEvent | null {
     if (attacker.destroyed) {
       return null;
@@ -260,12 +309,20 @@ export class BotPlayer implements IAIPlayer {
     // instead of a uniform-random pick. Per `add-ai-resource-planning`
     // (A2): the tier's resource block is threaded so the crit-seeking term
     // applies — inert for `Green`/`Regular`, active for `Veteran`/`Elite`.
-    const target = this.attackAI.selectTarget(
-      validTargets,
-      this.random,
-      attacker,
-      this.resource,
-    );
+    //
+    // Per `add-ai-coordination-tactics` (A3a) design D2: when a lance plan
+    // is supplied and the tier enables coordination, the unit's assigned
+    // focus-fire target overrides the self-scored pick — but only when the
+    // assigned target is reachable (in a valid target set and with at least
+    // one weapon in arc/range). Otherwise the unit falls back cleanly.
+    const target =
+      this.selectCoordinatedTarget(attacker, validTargets, lanceContext) ??
+      this.attackAI.selectTarget(
+        validTargets,
+        this.random,
+        attacker,
+        this.resource,
+      );
     if (!target) {
       return null;
     }
@@ -470,6 +527,47 @@ export class BotPlayer implements IAIPlayer {
         attackType: bestAttack,
       },
     };
+  }
+
+  /**
+   * Per `add-ai-coordination-tactics` (A3a) design D2: resolve the unit's
+   * focus-fire assignment from the lance plan, returning the assigned target
+   * ONLY when the assignment can actually be honored — the tier enables
+   * coordination, an assignment exists for this unit, the assigned target is
+   * in the unit's valid-target set, and the unit has at least one weapon in
+   * arc and range of it.
+   *
+   * Returns `null` in every other case so `playAttackPhase` falls back to
+   * the unit's own threat-scored pick — the spec's "unreachable assignment
+   * falls back cleanly" contract. Consumes no `SeededRandom`: the
+   * coordinated pick is fully deterministic, and when this returns `null`
+   * the fallback `selectTarget` draws exactly as the per-unit path does.
+   */
+  private selectCoordinatedTarget(
+    attacker: IAIUnitState,
+    validTargets: readonly IAIUnitState[],
+    lanceContext?: IAILanceContext,
+  ): IAIUnitState | null {
+    if (!lanceContext) return null;
+    if (!this.coordination.lanceCoordination) return null;
+
+    const assignedId = lanceContext.plan.fireAssignment.assignments.get(
+      attacker.unitId,
+    );
+    if (!assignedId) return null;
+
+    const assigned = validTargets.find((t) => t.unitId === assignedId);
+    if (!assigned) return null;
+
+    // The assignment is a bias, not a mandate (design D2): honor it only
+    // when the unit can actually shoot the assigned target. `selectWeapons`
+    // applies the arc + range + minRange filters — an empty result means
+    // the target is out of arc/range, so we fall back to the self-scored
+    // pick rather than declaring an attack with no weapons.
+    const firingList = this.attackAI.selectWeapons(attacker, assigned);
+    if (firingList.length === 0) return null;
+
+    return assigned;
   }
 
   /**

@@ -73,12 +73,39 @@ export interface IAITierResourceParameters {
 }
 
 /**
+ * Coordination parameter block — the A3a contribution to a tier's
+ * parameter set (`add-ai-coordination-tactics` design D5).
+ *
+ *   - `lanceCoordination`: when `false`, the lance planner is never
+ *     consulted — `BotPlayer` runs the per-unit decisions exactly as the
+ *     movement and resource tiers do. When `true`, `AILancePlanner` runs
+ *     once per side per turn and feeds the threat map, fire assignment, and
+ *     lance centroid into each unit's move/attack decision.
+ *   - `cohesionRadius`: the formation radius, in hexes, from the lance
+ *     centroid. A destination within this radius pays no cohesion penalty;
+ *     a destination beyond it is penalized in proportion to how far past
+ *     the radius it sits.
+ *   - `cohesionWeight`: multiplier on the formation-cohesion movement term.
+ *     `0` disables the cohesion term — the move scorer is byte-identical to
+ *     the A1/A2 terrain-aware scorer.
+ *   - `focusFireWeight`: multiplier on the focus-fire bias applied to a
+ *     unit's assigned target in `playAttackPhase`. `0` disables the bias —
+ *     each unit picks its own threat-scored target.
+ */
+export interface IAITierCoordinationParameters {
+  readonly lanceCoordination: boolean;
+  readonly cohesionRadius: number;
+  readonly cohesionWeight: number;
+  readonly focusFireWeight: number;
+}
+
+/**
  * Full parameter set for one difficulty tier.
  *
  * Open by design: A1 defines `tier` and `movement`. A2 ADDs the optional
- * `resource` block below. Later Wave 2 changes ADD their own optional blocks
- * (`coordination?`, `objective?`, `advanced?`) without touching the fields
- * declared here.
+ * `resource` block. A3a ADDs the optional `coordination` block below.
+ * Later Wave 2 changes ADD their own optional blocks (`objective?`,
+ * `advanced?`) without touching the fields declared here.
  */
 export interface IAITierParameters {
   readonly tier: AITierName;
@@ -90,7 +117,14 @@ export interface IAITierParameters {
    * `resolveResourceParameters` to get the inert default when absent.
    */
   readonly resource?: IAITierResourceParameters;
-  // A3..A4 ADD: coordination?, objective?, advanced? blocks.
+  /**
+   * A3a coordination block. Optional so a tier record built before A3a
+   * (or a hand-rolled test fixture) still type-checks; every entry in
+   * `AI_TIER_REGISTRY` populates it. Resolve it through
+   * `resolveCoordinationParameters` to get the inert default when absent.
+   */
+  readonly coordination?: IAITierCoordinationParameters;
+  // A3b..A4 ADD: objective?, advanced? blocks.
 }
 
 /**
@@ -103,6 +137,19 @@ export const INERT_RESOURCE_PARAMETERS: IAITierResourceParameters = {
   ammoConservationWeight: 0,
   critSeekingWeight: 0,
   weaponModeSelection: false,
+};
+
+/**
+ * The inert coordination block — every A3a behavior disabled. Used by
+ * `resolveCoordinationParameters` when a tier record predates A3a and as the
+ * literal value `Green`/`Regular`/`Veteran` carry so the lance planner is
+ * never consulted and those tiers stay exactly A1+A2 depth.
+ */
+export const INERT_COORDINATION_PARAMETERS: IAITierCoordinationParameters = {
+  lanceCoordination: false,
+  cohesionRadius: 0,
+  cohesionWeight: 0,
+  focusFireWeight: 0,
 };
 
 /**
@@ -144,6 +191,14 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         critSeekingWeight: 0,
         weaponModeSelection: false,
       },
+      // A3a: fully inert — `lanceCoordination: false` means the lance
+      // planner is never consulted; the bot fights every unit as an island.
+      coordination: {
+        lanceCoordination: false,
+        cohesionRadius: 0,
+        cohesionWeight: 0,
+        focusFireWeight: 0,
+      },
     },
     Regular: {
       tier: 'Regular',
@@ -160,6 +215,14 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         ammoConservationWeight: 0,
         critSeekingWeight: 0,
         weaponModeSelection: false,
+      },
+      // A3a: fully inert — see `Green`. The determinism golden traces are
+      // pinned to this tier, so every coordination weight must stay zero.
+      coordination: {
+        lanceCoordination: false,
+        cohesionRadius: 0,
+        cohesionWeight: 0,
+        focusFireWeight: 0,
       },
     },
     Veteran: {
@@ -182,6 +245,16 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         critSeekingWeight: 8,
         weaponModeSelection: true,
       },
+      // A3a: fully inert. Per `add-ai-coordination-tactics` design D5, the
+      // `Veteran` tier stays exactly A1+A2 depth — `lanceCoordination` is
+      // `false` so the lance planner is never consulted and the cohesion /
+      // focus-fire terms contribute nothing.
+      coordination: {
+        lanceCoordination: false,
+        cohesionRadius: 0,
+        cohesionWeight: 0,
+        focusFireWeight: 0,
+      },
     },
     Elite: {
       tier: 'Elite',
@@ -199,6 +272,20 @@ export const AI_TIER_REGISTRY: Readonly<Record<AITierName, IAITierParameters>> =
         ammoConservationWeight: 0.8,
         critSeekingWeight: 12,
         weaponModeSelection: true,
+      },
+      // A3a: coordination active — `Elite` is the first tier to run the
+      // lance planner. `cohesionRadius: 4` (design open question) keeps the
+      // lance tight enough to mass fire while loose enough to use terrain.
+      // `cohesionWeight: 200` sits below A1's LOS (`+1000`) and forward-arc
+      // (`+500`) terms so cohesion biases the choice without overriding a
+      // strong shot. `focusFireWeight: 400` is at forward-arc scale so the
+      // assigned target meaningfully outweighs a marginally-higher
+      // self-scored pick.
+      coordination: {
+        lanceCoordination: true,
+        cohesionRadius: 4,
+        cohesionWeight: 200,
+        focusFireWeight: 400,
       },
     },
   };
@@ -258,4 +345,21 @@ export function resolveResourceParameters(
   params: IAITierParameters,
 ): IAITierResourceParameters {
   return params.resource ?? INERT_RESOURCE_PARAMETERS;
+}
+
+/**
+ * Resolve the A3a coordination block for a tier parameter record, falling
+ * back to `INERT_COORDINATION_PARAMETERS` when the record predates A3a (the
+ * optional `coordination` field is absent).
+ *
+ * Used by `BotPlayer` and `MoveAI` so a hand-rolled `IAITierParameters`
+ * fixture without a `coordination` block resolves to fully-inert
+ * coordination — the per-unit (A1+A2) bot behavior — rather than throwing on
+ * an undefined access. Every entry in `AI_TIER_REGISTRY` populates
+ * `coordination`, so production callers always get the real tier values.
+ */
+export function resolveCoordinationParameters(
+  params: IAITierParameters,
+): IAITierCoordinationParameters {
+  return params.coordination ?? INERT_COORDINATION_PARAMETERS;
 }

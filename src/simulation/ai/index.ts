@@ -26,15 +26,18 @@ export {
   AI_TIER_REGISTRY,
   DEFAULT_TIER_NAME,
   INERT_RESOURCE_PARAMETERS,
+  INERT_COORDINATION_PARAMETERS,
   getTierParameters,
   resolveTierParameters,
   resolveResourceParameters,
+  resolveCoordinationParameters,
 } from './AITierRegistry';
 export type {
   AITierName,
   IAITierParameters,
   IAITierMovementParameters,
   IAITierResourceParameters,
+  IAITierCoordinationParameters,
 } from './AITierRegistry';
 
 // Per `add-ai-resource-planning` (A2): the resource-planning modules —
@@ -58,3 +61,17 @@ export type {
   IWeaponModeSelection,
   IWeaponModeContext,
 } from './AIWeaponModeSelector';
+
+// Per `add-ai-coordination-tactics` (A3a): the lance-coordination modules —
+// multi-unit threat aggregation, focus-fire assignment, and the per-lance
+// turn plan. The `Elite` tier consumes these; lower tiers leave them inert.
+export { buildThreatMap } from './AIThreatMap';
+export type { IThreatEntry } from './AIThreatMap';
+export {
+  coordinateFire,
+  expectedDamage,
+  remainingDurability,
+} from './AIFireCoordinator';
+export type { IFireAssignment } from './AIFireCoordinator';
+export { planTurn, computeLanceCentroid } from './AILancePlanner';
+export type { ILanceTurnPlan, IAILanceContext } from './AILancePlanner';

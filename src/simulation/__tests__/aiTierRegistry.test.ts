@@ -15,8 +15,10 @@ import type { AITierName } from '../ai/AITierRegistry';
 import {
   AI_TIER_REGISTRY,
   DEFAULT_TIER_NAME,
+  INERT_COORDINATION_PARAMETERS,
   INERT_RESOURCE_PARAMETERS,
   getTierParameters,
+  resolveCoordinationParameters,
   resolveResourceParameters,
   resolveTierParameters,
 } from '../ai/AITierRegistry';
@@ -204,6 +206,89 @@ describe('AITierRegistry', () => {
         const m = getTierParameters(tier).movement;
         const pathfinderTier = tier === 'Veteran' || tier === 'Elite';
         expect(m.pathfinderEnabled).toBe(pathfinderTier);
+      },
+    );
+  });
+
+  // ===========================================================================
+  // `add-ai-coordination-tactics` (A3a) — Requirement: Coordination Tier
+  // Parameters. Scenarios "Every tier resolves a coordination block" and
+  // "Veteran tier excludes coordination".
+  // ===========================================================================
+  describe('coordination block — every tier resolves a populated record', () => {
+    it.each(ALL_TIERS)('tier %s resolves to a coordination block', (tier) => {
+      const c = resolveCoordinationParameters(getTierParameters(tier));
+      expect(c).toBeDefined();
+      expect(typeof c.lanceCoordination).toBe('boolean');
+      expect(typeof c.cohesionRadius).toBe('number');
+      expect(typeof c.cohesionWeight).toBe('number');
+      expect(typeof c.focusFireWeight).toBe('number');
+    });
+
+    it('every registry entry populates the coordination field directly', () => {
+      for (const tier of ALL_TIERS) {
+        expect(AI_TIER_REGISTRY[tier].coordination).toBeDefined();
+      }
+    });
+  });
+
+  describe('coordination block — Green/Regular/Veteran are fully inert', () => {
+    it.each(['Green', 'Regular', 'Veteran'] as const)(
+      'tier %s disables coordination with zeroed weights',
+      (tier) => {
+        const c = resolveCoordinationParameters(getTierParameters(tier));
+        expect(c.lanceCoordination).toBe(false);
+        expect(c.cohesionRadius).toBe(0);
+        expect(c.cohesionWeight).toBe(0);
+        expect(c.focusFireWeight).toBe(0);
+      },
+    );
+
+    it('Veteran stays exactly A1+A2 depth — coordination disabled', () => {
+      // Per design D5: `Veteran` must remain exactly the depth of the
+      // movement + resource blocks, with no coordination behavior.
+      const veteran = getTierParameters('Veteran');
+      expect(resolveCoordinationParameters(veteran).lanceCoordination).toBe(
+        false,
+      );
+      // A1 + A2 blocks are still active on Veteran (proves "A1+A2 depth").
+      expect(veteran.movement.pathfinderEnabled).toBe(true);
+      expect(resolveResourceParameters(veteran).heatLookaheadTurns).toBe(3);
+    });
+  });
+
+  describe('coordination block — Elite is populated and active', () => {
+    it('Elite enables lance coordination with active weights', () => {
+      const c = resolveCoordinationParameters(getTierParameters('Elite'));
+      expect(c.lanceCoordination).toBe(true);
+      expect(c.cohesionRadius).toBeGreaterThan(0);
+      expect(c.cohesionWeight).toBeGreaterThan(0);
+      expect(c.focusFireWeight).toBeGreaterThan(0);
+    });
+  });
+
+  describe('resolveCoordinationParameters — fallback for pre-A3a records', () => {
+    it('returns the inert block when a record has no coordination field', () => {
+      const legacyRecord = { tier: 'Elite', movement: {} } as never;
+      const c = resolveCoordinationParameters(legacyRecord);
+      expect(c).toBe(INERT_COORDINATION_PARAMETERS);
+      expect(c.lanceCoordination).toBe(false);
+    });
+  });
+
+  describe('A3a registration is additive — movement/resource untouched', () => {
+    it.each(ALL_TIERS)(
+      'tier %s movement and resource blocks match their A1/A2 values',
+      (tier) => {
+        // A3a only ADDs the `coordination` block — the movement and resource
+        // blocks must be byte-identical to A1 / A2.
+        const params = getTierParameters(tier);
+        const pathfinderTier = tier === 'Veteran' || tier === 'Elite';
+        expect(params.movement.pathfinderEnabled).toBe(pathfinderTier);
+        const resourceActive = tier === 'Veteran' || tier === 'Elite';
+        expect(resolveResourceParameters(params).heatLookaheadTurns > 0).toBe(
+          resourceActive,
+        );
       },
     );
   });
