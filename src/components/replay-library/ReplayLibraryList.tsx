@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { IReplayManifestEntry } from '@/replay-library/types';
 
-import { Button, Card } from '@/components/ui';
+import { Badge, Button, Card } from '@/components/ui';
 import { ReplaySource } from '@/types/gameplay';
 
 export type SourceFilter = 'all' | ReplaySource;
@@ -44,12 +44,9 @@ export function ReplayRow({
         >
           {entry.id}
         </h3>
-        <span
-          className="bg-surface-raised text-text-theme-secondary rounded px-2 py-1 text-xs"
-          data-testid="replay-source"
-        >
+        <Badge variant="slate" size="md" data-testid="replay-source">
           {entry.replaySource}
-        </span>
+        </Badge>
       </div>
 
       <SourceMetadata entry={entry} />

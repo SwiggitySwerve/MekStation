@@ -54,7 +54,7 @@ export function Button({
   ...props
 }: ButtonProps): React.ReactElement {
   const baseClasses =
-    'rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    'rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep';
   const widthClass = fullWidth ? 'w-full' : '';
 
   return (
