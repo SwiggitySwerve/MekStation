@@ -122,7 +122,16 @@ export interface IDayProcessor {
   readonly phase: DayPhase;
   /** Human-readable name for UI display */
   readonly displayName: string;
-  /** Process one day for the campaign. Must be pure (no side effects). */
+  /**
+   * Process one day for the campaign. Must be pure (no side effects).
+   *
+   * A consumer processor that needs the events produced earlier in the
+   * same day (e.g. the scenario-encounter bridge) reads them from
+   * `getDayEventsSoFar(campaign)` — the pipeline stamps the in-order
+   * event accumulator onto a transient campaign field before each
+   * processor runs. Processors that ignore upstream events keep the
+   * plain two-arg signature.
+   */
   process(campaign: ICampaign, date: Date): IDayProcessorResult;
 }
 
@@ -237,7 +246,18 @@ export class DayPipelineRegistry {
 
     for (const processor of sortedProcessors) {
       try {
-        const result = processor.process(currentCampaign, processedDate);
+        // Stamp the events accumulated so far onto a transient campaign
+        // field so consumer processors (e.g. the scenario-encounter
+        // bridge) can read upstream events via `getDayEventsSoFar`.
+        // A snapshot copy is used so a processor cannot mutate the
+        // pipeline's own accumulator.
+        const campaignWithEvents: ICampaign & {
+          readonly _dayEventsSoFar?: readonly IDayEvent[];
+        } = {
+          ...currentCampaign,
+          _dayEventsSoFar: [...allEvents],
+        };
+        const result = processor.process(campaignWithEvents, processedDate);
         currentCampaign = result.campaign;
         allEvents.push(...result.events);
         processorsRun.push(processor.id);
@@ -251,10 +271,19 @@ export class DayPipelineRegistry {
       }
     }
 
-    // Advance the date by one day AFTER all processors
+    // Advance the date by one day AFTER all processors. Strip the
+    // transient `_dayEventsSoFar` field so it never leaks into the
+    // persisted campaign snapshot.
     const nextDate = new Date(processedDate.getTime() + 24 * 60 * 60 * 1000);
+    const {
+      _dayEventsSoFar: _discardedDayEvents,
+      ...campaignWithoutTransient
+    } = currentCampaign as ICampaign & {
+      readonly _dayEventsSoFar?: readonly IDayEvent[];
+    };
+    void _discardedDayEvents;
     const finalCampaign: ICampaign = {
-      ...currentCampaign,
+      ...campaignWithoutTransient,
       currentDate: nextDate,
       updatedAt: new Date().toISOString(),
     };
@@ -286,6 +315,31 @@ export function getDayPipeline(): DayPipelineRegistry {
  */
 export function _resetDayPipeline(): void {
   pipelineRegistry.reset();
+}
+
+// =============================================================================
+// Day-Event Accumulator Access
+// =============================================================================
+
+/**
+ * Read the events produced earlier in the same day's pipeline run.
+ *
+ * The pipeline stamps an in-order snapshot of the day's accumulated
+ * events onto a transient `_dayEventsSoFar` campaign field before each
+ * processor runs. Consumer processors (e.g. the scenario-encounter
+ * bridge) call this to react to upstream events without coupling to
+ * the processors that emitted them.
+ *
+ * Returns an empty array when the field is absent — e.g. when a
+ * processor is invoked directly in a test rather than via `processDay`.
+ *
+ * @param campaign - the campaign passed to a processor's `process`
+ */
+export function getDayEventsSoFar(campaign: ICampaign): readonly IDayEvent[] {
+  const transient = campaign as ICampaign & {
+    readonly _dayEventsSoFar?: readonly IDayEvent[];
+  };
+  return transient._dayEventsSoFar ?? [];
 }
 
 // =============================================================================

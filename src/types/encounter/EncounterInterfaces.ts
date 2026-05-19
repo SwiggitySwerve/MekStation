@@ -136,6 +136,25 @@ export interface IOpForConfig {
 }
 
 /**
+ * Campaign linkage stamped on an encounter that was generated from a
+ * campaign scenario.
+ *
+ * Per `add-campaign-combat-loop` D2: the scenario-event → encounter
+ * bridge writes this so every downstream step (session launch,
+ * post-battle attribution) can thread linkage back to the originating
+ * contract and scenario. Standalone (non-campaign) encounters leave
+ * `campaignMeta` undefined.
+ */
+export interface IEncounterCampaignMeta {
+  /** Campaign that owns the originating scenario. */
+  readonly campaignId: string;
+  /** Contract the scenario was generated for. */
+  readonly contractId: string;
+  /** Deterministic scenario id that produced this encounter. */
+  readonly scenarioId: string;
+}
+
+/**
  * Reference to a force.
  */
 export interface IForceReference {
@@ -195,6 +214,13 @@ export interface IEncounter {
   readonly updatedAt: string;
   /** Launched game session ID (if launched) */
   readonly gameSessionId?: string;
+  /**
+   * Campaign linkage — present only when the encounter was generated
+   * from a campaign scenario by the `add-campaign-combat-loop`
+   * scenario-event → encounter bridge. Undefined for standalone
+   * encounters authored outside a campaign.
+   */
+  readonly campaignMeta?: IEncounterCampaignMeta;
 }
 
 /**

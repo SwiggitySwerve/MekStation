@@ -345,10 +345,12 @@ describe('Phase 3 capstone — encounter → outcome → campaign round trip', (
   });
 
   it('outcomes for matches with no contractId still flow through the queue and post-battle processor', () => {
-    // Standalone (non-campaign) matches — the spec scenario "Standalone
-    // encounter has encounter id only". The outcome lacks a contract
-    // binding so contract status flipping is skipped, but the rest of
-    // the pipeline still runs.
+    // Standalone (non-campaign) matches. Per `add-campaign-combat-loop`
+    // D7, the *automatic* enqueue trigger ignores a session with no
+    // campaign linkage — a standalone skirmish published on the bus is
+    // NOT auto-enqueued. The outcome can still be enqueued explicitly
+    // (e.g. by a UI action), and once queued the post-battle processor
+    // handles it normally even without a contract binding.
     const store = useCampaignStore();
     store.getState().createCampaign('Standalone Test', 'mercenary');
     store.getState().updateCampaign({});
@@ -361,7 +363,13 @@ describe('Phase 3 capstone — encounter → outcome → campaign round trip', (
     // Strip the contractId per the spec scenario.
     const standalone: ICombatOutcome = { ...outcome, contractId: null };
 
+    // Publishing on the bus does NOT enqueue an unlinked outcome (D7).
     publishCombatOutcome({ matchId: standalone.matchId, outcome: standalone });
+    expect(store.getState().getPendingOutcomeCount()).toBe(0);
+
+    // Explicit enqueue still works — the post-battle processor must
+    // handle a no-contractId outcome once it is on the queue.
+    store.getState().enqueueOutcome(standalone);
     expect(store.getState().getPendingOutcomeCount()).toBe(1);
 
     store.getState().advanceDay();
