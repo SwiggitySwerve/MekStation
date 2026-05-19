@@ -1,3 +1,5 @@
+import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
+
 import {
   GameEventType,
   GamePhase,
@@ -21,17 +23,27 @@ import { createEventBase } from './base';
  * sessions (swarm runner, raw quick-game). Carried verbatim onto the
  * payload so the replay-library backfill scan can recover the
  * per-encounter fields without resolving any external references.
+ *
+ * Per `add-scenario-objective-engine`: optional `objectives` carries
+ * the placed objective markers so `deriveState` can reconstruct the
+ * objective map from the event log. Omitted for destruction-only
+ * scenarios.
  */
 export function createGameCreatedEvent(
   gameId: string,
   config: IGameConfig,
   units: readonly IGameUnit[],
   encounterMeta?: IEncounterMeta,
+  objectives?: Record<string, IObjectiveMarker>,
 ): IGameEvent {
-  const payload: IGameCreatedPayload =
-    encounterMeta === undefined
-      ? { config, units }
-      : { config, units, encounterMeta };
+  const payload: IGameCreatedPayload = {
+    config,
+    units,
+    ...(encounterMeta !== undefined ? { encounterMeta } : {}),
+    ...(objectives !== undefined && Object.keys(objectives).length > 0
+      ? { objectives }
+      : {}),
+  };
   return {
     ...createEventBase(
       gameId,

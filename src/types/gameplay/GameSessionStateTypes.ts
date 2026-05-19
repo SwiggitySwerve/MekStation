@@ -3,6 +3,7 @@
  * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
  */
 
+import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 import type { IAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
 import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
@@ -257,6 +258,15 @@ export interface IGameState {
     readonly winner: GameSide | 'draw';
     readonly reason: string;
   };
+  /**
+   * Per `add-scenario-objective-engine` (design.md D1): scenario
+   * objective markers keyed by canonical `"q,r"` hex coordinate.
+   * Carried on the derived state so victory evaluation, control
+   * detection, and rendering all read one channel — `IHex` is never
+   * modified. A session with no objectives leaves this `undefined` or
+   * `{}` and behaves identically to a destruction-only scenario.
+   */
+  readonly objectives?: Record<string, IObjectiveMarker>;
 }
 
 // =============================================================================

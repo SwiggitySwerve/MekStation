@@ -10,6 +10,7 @@ import type {
   IGameEvent,
   IWeaponStatus,
 } from '@/types/gameplay';
+import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 
 import { AttackEffectsLayer } from '@/components/gameplay/effects/AttackEffectsLayer';
 import { PersistentEffectsLayer } from '@/components/gameplay/effects/PersistentEffectsLayer';
@@ -25,6 +26,7 @@ import { HexCell } from './HexCell';
 import {
   MapControls,
   MapHtmlOverlays,
+  ObjectiveMarkersLayer,
   SensorRingsLayer,
   TerrainOverlayLayers,
   UnitTokensLayer,
@@ -47,6 +49,14 @@ export interface HexMapDisplayProps {
   attackRange?: readonly IHexCoordinate[];
   unitWeapons?: Record<string, readonly IWeaponStatus[]>;
   friendlySide?: GameSide;
+  /**
+   * Per `add-scenario-objective-engine` (D6 / task 6): scenario
+   * objective markers keyed by canonical `"q,r"` hex key. When
+   * present, `ObjectiveMarkersLayer` renders them above the terrain
+   * overlay and below unit tokens. Absent / empty → no objective
+   * layer is drawn (markerless scenario).
+   */
+  objectives?: Readonly<Record<string, IObjectiveMarker>>;
   highlightPath?: readonly IHexCoordinate[];
   /**
    * Per `add-movement-phase-ui` task 4.3: cumulative MP cost of the
@@ -119,6 +129,7 @@ export function HexMapDisplay({
   attackRange = [],
   unitWeapons = {},
   friendlySide = GameSide.Player,
+  objectives,
   highlightPath = [],
   hoverMpCost,
   hoverUnreachable = false,
@@ -407,6 +418,19 @@ export function HexMapDisplay({
               testId="los-overlay"
             />
           )}
+
+        {/*
+          Per add-scenario-objective-engine D6: objective markers
+          render above the terrain layer and below unit tokens so a
+          token standing on an objective hex stays visible on top.
+        */}
+        {objectives && Object.keys(objectives).length > 0 && (
+          <ObjectiveMarkersLayer
+            objectives={objectives}
+            tokens={tokens}
+            friendlySide={friendlySide}
+          />
+        )}
 
         <SensorRingsLayer orderedTokens={orderedTokens} />
 

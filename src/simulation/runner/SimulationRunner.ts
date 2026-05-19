@@ -5,6 +5,7 @@ import {
   ReplaySource,
 } from '@/types/gameplay';
 import { GameSide } from '@/types/gameplay';
+import { runObjectiveControlPass } from '@/utils/gameplay/objectives';
 
 import type { IAIPlayer, AIPlayerFactory } from '../ai/IAIPlayer';
 import type { IWeapon } from '../ai/types';
@@ -142,6 +143,10 @@ export class SimulationRunner {
 
     const grid = createMinimalGrid(config.mapRadius);
     const state = createInitialState(config, this.hydration);
+    // Per `add-scenario-objective-engine`: the objective map seeded
+    // into the initial state is also stamped onto the GameCreated
+    // payload so the persisted event log replays objective state.
+    const seededObjectives = state.objectives;
 
     // Per `emit-game-created-from-runner` (`simulation-system` delta —
     // "Runner Emits GameCreated as Seed Event"): emit `GameCreated` as
@@ -172,6 +177,13 @@ export class SimulationRunner {
             optionalRules: [],
           },
           units: gameUnits,
+          // Per `add-scenario-objective-engine`: stamp the placed
+          // objective markers so the event log fully replays
+          // objective state. Omitted for markerless runs.
+          ...(seededObjectives !== undefined &&
+          Object.keys(seededObjectives).length > 0
+            ? { objectives: seededObjectives }
+            : {}),
         },
       ),
     );
@@ -226,7 +238,7 @@ export class SimulationRunner {
         random: this.random,
       });
 
-      if (isGameOver(currentState)) {
+      if (isGameOver(currentState, config.turnLimit)) {
         break;
       }
 
@@ -246,7 +258,7 @@ export class SimulationRunner {
         random: this.random,
       });
 
-      if (isGameOver(currentState)) {
+      if (isGameOver(currentState, config.turnLimit)) {
         break;
       }
 
@@ -261,6 +273,26 @@ export class SimulationRunner {
       currentState = { ...currentState, phase: GamePhase.End };
       violations.push(...this.invariantRunner.runAll(currentState));
 
+      // Per `add-scenario-objective-engine` (D7 / task 7.2): run the
+      // objective control-detection pass once per turn at the End
+      // phase. It resolves control + hold progress from unit positions
+      // and emits `ObjectiveCaptured` / `ObjectiveLost` /
+      // `ObjectiveProgress` events. No-op for markerless runs.
+      if (
+        currentState.objectives !== undefined &&
+        Object.keys(currentState.objectives).length > 0
+      ) {
+        const pass = runObjectiveControlPass(
+          gameId,
+          currentState,
+          events.length,
+          turn,
+          GamePhase.End,
+        );
+        events.push(...pass.events);
+        currentState = { ...currentState, objectives: pass.objectives };
+      }
+
       events.push(
         createGameEvent(
           gameId,
@@ -271,6 +303,13 @@ export class SimulationRunner {
           { _type: 'turn_ended' as const },
         ),
       );
+
+      // Per `add-scenario-objective-engine` (task 5): an objective win
+      // detected by the End-phase control pass ends the match
+      // immediately — even with units alive on both sides.
+      if (isGameOver(currentState, config.turnLimit)) {
+        break;
+      }
 
       if (this.detectorConfig.haltOnCritical) {
         const anomalyBattleState = buildAnomalyBattleState(currentState);
@@ -292,7 +331,7 @@ export class SimulationRunner {
     }
 
     const durationMs = Date.now() - startTime;
-    const winner = determineWinner(currentState);
+    const winner = determineWinner(currentState, config.turnLimit);
 
     // Phase 0.5 — engine-layer match terminal state. Survivor counts are
     // derived from the same `isUnitOperable` predicate used by

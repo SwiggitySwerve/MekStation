@@ -40,6 +40,12 @@ export function applyGameCreated(
     ...state,
     status: GameStatus.Setup,
     units,
+    // Per `add-scenario-objective-engine`: seed the objective map from
+    // the GameCreated payload so the derived state carries objectives
+    // from sequence 0. Absent → markerless (destruction-only) scenario.
+    ...(payload.objectives !== undefined
+      ? { objectives: { ...payload.objectives } }
+      : {}),
   };
 }
 

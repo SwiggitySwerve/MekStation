@@ -1,3 +1,5 @@
+import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
+
 import {
   IGameSession,
   IGameState,
@@ -16,6 +18,11 @@ import {
   Facing,
   MovementType,
 } from '@/types/gameplay/HexGridInterfaces';
+import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
+import {
+  deriveObjectivePlacementConfig,
+  placeObjectives,
+} from '@/utils/gameplay/objectives';
 
 import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
@@ -67,10 +74,20 @@ export class ScenarioGenerator {
 
     const unitStates = this.placeUnits(gameUnits, grid, random);
 
+    // Per `add-scenario-objective-engine` (task 2): place objective
+    // hexes for a non-`destroy` scenario. Placement is seeded from the
+    // scenario seed so identical seeds yield identical objective maps.
+    const objectives = this.placeScenarioObjectives(config);
+
+    const objectiveType = config.objectiveType ?? ScenarioObjectiveType.Destroy;
     const gameConfig: IGameConfig = {
       mapRadius: config.mapRadius,
       turnLimit: config.turnLimit,
-      victoryConditions: ['destruction'],
+      victoryConditions: [
+        objectiveType === ScenarioObjectiveType.Destroy
+          ? 'destruction'
+          : objectiveType,
+      ],
       optionalRules: [],
     };
 
@@ -82,6 +99,7 @@ export class ScenarioGenerator {
       activationIndex: 0,
       units: unitStates,
       turnEvents: [],
+      ...(Object.keys(objectives).length > 0 ? { objectives } : {}),
     };
 
     const now = new Date().toISOString();
@@ -95,6 +113,45 @@ export class ScenarioGenerator {
       events: [],
       currentState: gameState,
     };
+  }
+
+  /**
+   * Per `add-scenario-objective-engine` (task 2 + 2.2): derives the
+   * objective placement config from the scenario objective type +
+   * victory conditions, then places objective hexes deterministically
+   * from the scenario seed. Returns an empty map for a markerless
+   * (`destroy` / unset) scenario.
+   *
+   * Deployment rows mirror `placeUnits`: the player occupies
+   * `-(radius - 1)` and the opponent occupies `radius - 1`.
+   */
+  private placeScenarioObjectives(
+    config: ISimulationConfig,
+  ): Record<string, IObjectiveMarker> {
+    const objectiveType = config.objectiveType;
+    if (
+      objectiveType === undefined ||
+      objectiveType === ScenarioObjectiveType.Destroy
+    ) {
+      return {};
+    }
+
+    const placementConfig = deriveObjectivePlacementConfig(
+      objectiveType,
+      config.victoryConditions ?? [],
+    );
+    if (placementConfig === null) return {};
+
+    const radius = config.mapRadius;
+    return placeObjectives(
+      placementConfig,
+      {
+        radius,
+        playerRow: -(radius - 1),
+        opponentRow: radius - 1,
+      },
+      config.seed,
+    );
   }
 
   private generateMap(radius: number, random: SeededRandom): IHexGrid {

@@ -2,10 +2,17 @@ import type {
   IComponentDamageState,
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
+import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 import type { IUnitDamageState } from '@/utils/gameplay/damage';
 
 import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
 import { CombatLocation, IGameState, IUnitGameState } from '@/types/gameplay';
+import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
+import {
+  deriveObjectivePlacementConfig,
+  placeObjectives,
+} from '@/utils/gameplay/objectives';
+import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
 
 import type { ISimulationConfig } from '../core/types';
 
@@ -81,6 +88,13 @@ export function createInitialState(
     hydration,
   );
 
+  // Per `add-scenario-objective-engine` (task 2 + task 5): a runner
+  // config carrying an objective type seeds the objective map so the
+  // simulation loop can be won by holding / capturing / breaking
+  // through, not only by destruction. Markerless configs leave
+  // `objectives` undefined and behave exactly as before.
+  const objectives = buildObjectivesForConfig(config);
+
   return {
     gameId: `sim-${config.seed}`,
     status: GameStatus.Active,
@@ -89,7 +103,44 @@ export function createInitialState(
     activationIndex: 0,
     units,
     turnEvents: [],
+    ...(Object.keys(objectives).length > 0 ? { objectives } : {}),
   };
+}
+
+/**
+ * Per `add-scenario-objective-engine`: derives the objective marker map
+ * for a runner config. Mirrors `ScenarioGenerator`'s deployment-row
+ * convention (`createSideUnits` places the player at `-mapRadius + 1`
+ * and the opponent at `mapRadius - 1`). Returns `{}` for a markerless
+ * (`destroy` / unset) config.
+ */
+export function buildObjectivesForConfig(
+  config: ISimulationConfig,
+): Record<string, IObjectiveMarker> {
+  const objectiveType = config.objectiveType;
+  if (
+    objectiveType === undefined ||
+    objectiveType === ScenarioObjectiveType.Destroy
+  ) {
+    return {};
+  }
+
+  const placementConfig = deriveObjectivePlacementConfig(
+    objectiveType,
+    config.victoryConditions ?? [],
+  );
+  if (placementConfig === null) return {};
+
+  const radius = config.mapRadius;
+  return placeObjectives(
+    placementConfig,
+    {
+      radius,
+      playerRow: -radius + 1,
+      opponentRow: radius - 1,
+    },
+    config.seed,
+  );
 }
 
 /**
@@ -317,7 +368,16 @@ export function isUnitOperable(unit: IUnitGameState): boolean {
   return !unit.destroyed && unit.pilotConscious !== false;
 }
 
-export function isGameOver(state: IGameState): boolean {
+export function isGameOver(state: IGameState, turnLimit = 0): boolean {
+  // Per `add-scenario-objective-engine` (task 5): an objective win
+  // ends the simulation even with units alive on both sides. A
+  // markerless state routes through `destroy` and returns null until
+  // a side is eliminated, so the legacy check below still governs
+  // destruction-only runs.
+  if (evaluateObjectiveOutcome(state, turnLimit) !== null) {
+    return true;
+  }
+
   const playerAlive = Object.values(state.units).some(
     (unit) => unit.side === GameSide.Player && isUnitOperable(unit),
   );
@@ -329,7 +389,17 @@ export function isGameOver(state: IGameState): boolean {
 
 export function determineWinner(
   state: IGameState,
+  turnLimit = 0,
 ): 'player' | 'opponent' | 'draw' | null {
+  // Per `add-scenario-objective-engine` (task 5): an objective outcome
+  // takes precedence over the destruction comparison below.
+  const objectiveOutcome = evaluateObjectiveOutcome(state, turnLimit);
+  if (objectiveOutcome !== null) {
+    return objectiveOutcome.winningSide === GameSide.Player
+      ? 'player'
+      : 'opponent';
+  }
+
   const playerAlive = Object.values(state.units).some(
     (unit) => unit.side === GameSide.Player && isUnitOperable(unit),
   );

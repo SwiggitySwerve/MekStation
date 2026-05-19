@@ -14,6 +14,9 @@ import {
   IHeatPayload,
   IInitiativeRolledPayload,
   IMovementDeclaredPayload,
+  IObjectiveCapturedPayload,
+  IObjectiveLostPayload,
+  IObjectiveProgressPayload,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
   IPhaseChangedPayload,
@@ -31,6 +34,7 @@ import {
   IGameStartedPayload,
   LockState,
 } from '@/types/gameplay';
+import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
 
 import {
   applyAttackDeclared,
@@ -67,6 +71,11 @@ import {
   applyGameEnded,
   applyGameStarted,
 } from './lifecycle';
+import {
+  applyObjectiveCaptured,
+  applyObjectiveLost,
+  applyObjectiveProgress,
+} from './objectiveReducer';
 import {
   applyInitiativeRolled,
   applyPhaseChanged,
@@ -181,6 +190,21 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitRetreated:
       return applyUnitRetreated(state, event.payload as IUnitRetreatedPayload);
+
+    case GameEventType.ObjectiveCaptured:
+      return applyObjectiveCaptured(
+        state,
+        event.payload as IObjectiveCapturedPayload,
+      );
+
+    case GameEventType.ObjectiveLost:
+      return applyObjectiveLost(state, event.payload as IObjectiveLostPayload);
+
+    case GameEventType.ObjectiveProgress:
+      return applyObjectiveProgress(
+        state,
+        event.payload as IObjectiveProgressPayload,
+      );
 
     case GameEventType.TurnEnded:
     case GameEventType.InitiativeOrderSet:
@@ -308,6 +332,18 @@ export function checkVictoryConditions(
   state: IGameState,
   config: IGameConfig,
 ): GameSide | 'draw' | null {
+  // Per `add-scenario-objective-engine` (design.md D4 / task 5): the
+  // objective evaluator is consulted FIRST. When it decides a scenario
+  // (Capture / Defend / Breakthrough — and a markerless map routed
+  // through `destroy`) its outcome takes precedence over the
+  // turn-limit draw below. `null` means undecided → fall through to
+  // the destruction / turn-limit path so markerless scenarios still
+  // end on elimination exactly as before.
+  const objectiveOutcome = evaluateObjectiveOutcome(state, config.turnLimit);
+  if (objectiveOutcome !== null) {
+    return objectiveOutcome.winningSide;
+  }
+
   const playerEliminated = isSideEliminated(state, GameSide.Player);
   const opponentEliminated = isSideEliminated(state, GameSide.Opponent);
 
