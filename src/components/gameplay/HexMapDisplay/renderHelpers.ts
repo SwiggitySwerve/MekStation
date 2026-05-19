@@ -10,7 +10,6 @@ import {
   TERRAIN_COLORS,
   WATER_DEPTH_COLORS,
   TERRAIN_PATTERNS,
-  TERRAIN_LAYER_ORDER,
 } from '@/constants/terrain';
 import {
   IHexCoordinate,
@@ -141,27 +140,19 @@ export function hexInList(
 // =============================================================================
 
 /**
- * Get the primary terrain feature (highest layer order) for a hex.
+ * `getPrimaryTerrainFeature` and `getTerrainMovementCost` were extracted into
+ * the simulation-accessible utility `src/utils/gameplay/terrainMovementCost.ts`
+ * per `add-ai-terrain-aware-movement` design D1 so the AI can consult terrain
+ * cost without importing this rendering module. They are re-exported here so
+ * existing rendering call sites are unchanged; `getPrimaryTerrainFeature` is
+ * also imported below for use by the remaining rendering helpers in this file.
  */
-export function getPrimaryTerrainFeature(
-  terrain: IHexTerrain | undefined,
-): { type: TerrainType; level: number } | null {
-  if (!terrain || terrain.features.length === 0) return null;
+export {
+  getPrimaryTerrainFeature,
+  getTerrainMovementCost,
+} from '@/utils/gameplay/terrainMovementCost';
 
-  const sortedFeatures = [...terrain.features].sort(
-    (a, b) => TERRAIN_LAYER_ORDER[b.type] - TERRAIN_LAYER_ORDER[a.type],
-  );
-  return sortedFeatures[0];
-}
-
-export function getTerrainMovementCost(
-  terrain: IHexTerrain | undefined,
-): number {
-  const feature = getPrimaryTerrainFeature(terrain);
-  if (!feature) return 1;
-  const props = TERRAIN_PROPERTIES[feature.type];
-  return 1 + (props?.movementCostModifier.walk ?? 0);
-}
+import { getPrimaryTerrainFeature } from '@/utils/gameplay/terrainMovementCost';
 
 export function getTerrainCoverLevel(
   terrain: IHexTerrain | undefined,

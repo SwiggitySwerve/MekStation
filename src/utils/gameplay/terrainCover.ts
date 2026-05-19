@@ -37,3 +37,25 @@ export function hexProvidesPartialCover(hex: IHex | undefined): boolean {
     CoverLevel.Partial
   );
 }
+
+/**
+ * Return whether a terrain tag grants partial cover OR better (i.e. any
+ * cover level other than `None` — partial or full).
+ *
+ * The AI move scorer's cover term — per `add-ai-terrain-aware-movement`
+ * design D5 — rewards a destination hex that offers "partial cover or
+ * better", so it needs the partial-OR-full predicate rather than the
+ * partial-only `hexProvidesPartialCover`. The argument is the raw
+ * `IHex.terrain` string tag; an unrecognised or absent tag yields `false`.
+ *
+ * @spec openspec/changes/add-ai-terrain-aware-movement/specs/simulation-system/spec.md
+ *   Requirement: Terrain-Aware Move Scoring
+ */
+export function terrainTagOffersCover(terrain: string | undefined): boolean {
+  if (terrain === undefined || !TERRAIN_TYPE_VALUES.has(terrain)) {
+    return false;
+  }
+  return (
+    TERRAIN_PROPERTIES[terrain as TerrainType].coverLevel !== CoverLevel.None
+  );
+}
