@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
+import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashboard';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
 import { PageLayout } from '@/components/ui';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
@@ -207,6 +208,15 @@ export default function CampaignDashboardPage(): React.ReactElement {
         routeId="dashboard"
         dashboardMount
       />
+
+      {/*
+       * Campaign Command Center (`add-campaign-command-center`, Wave 6.1.B).
+       * The 6-card dashboard is the new at-a-glance landing surface — force
+       * snapshot, active contract, finances, day advance, activity log,
+       * quick actions. Mounted at the top so the operator sees the
+       * collated state before the operational widgets below.
+       */}
+      <CampaignDashboard />
 
       <CampaignSaveStatusCard />
 

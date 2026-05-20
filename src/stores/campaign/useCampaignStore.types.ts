@@ -1,6 +1,7 @@
 import type { StoreApi } from 'zustand';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
+import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
@@ -42,6 +43,15 @@ export interface CampaignState {
   outcomeApplyErrors: Record<string, string>;
   forcesStore: StoreApi<ForcesStore> | null;
   missionsStore: StoreApi<MissionsStore> | null;
+  /**
+   * Activity log — 200-entry rolling FIFO buffer
+   * (`add-campaign-command-center` Wave 6.1.B). Day-advance writes
+   * append via `appendActivityLogEntry`. Surfaced by the dashboard's
+   * `<ActivityLogCard>` and the full-log page at
+   * `/gameplay/campaigns/[id]/log`. Bounded retention keeps the
+   * persisted log from growing without bound.
+   */
+  activityLog: IActivityLogEntry[];
 }
 
 export interface CampaignActions {
@@ -79,6 +89,15 @@ export interface CampaignActions {
   getReviewedAt: (matchId: string) => number | null;
   getOutcomeApplyErrors: () => Readonly<Record<string, string>>;
   retryOutcomeApplication: (matchId: string) => boolean;
+  /**
+   * Append an activity log entry, evicting the oldest entry when the
+   * cap (`ACTIVITY_LOG_MAX_ENTRIES`) would be exceeded. FIFO,
+   * last-write-wins on id collisions
+   * (`add-campaign-command-center` Wave 6.1.B, task 1.2).
+   */
+  appendActivityLogEntry: (entry: IActivityLogEntry) => void;
+  /** Read the current activity log (newest last). */
+  getActivityLog: () => readonly IActivityLogEntry[];
 }
 
 export type CampaignStore = CampaignState & CampaignActions;
