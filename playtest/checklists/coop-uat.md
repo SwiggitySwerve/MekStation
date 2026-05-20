@@ -1,5 +1,7 @@
 # Co-op Campaign UAT Checklist — Phase 5
 
+> **Status: UNBLOCKED (2026-05-20)** — Wave 6.1.A `wire-coop-campaign-route` wired the host create / guest join entry points, the host-review surface, the guest proposal overlays, the co-op session badge, and the mission-launch participation picker into the campaign page tree. The Phase 5 manual UAT is now runnable end-to-end.
+
 Two browser windows. Host (window H) drives a campaign; guest (window G) plays with the host under **host-as-GM authority** (per Council #2 DP2 — not CRDT). File defects to `playtest/ISSUES.md`. Feature gaps → `CLOSEOUT.md` "gaps".
 
 ## Smoke pass — shared campaign
