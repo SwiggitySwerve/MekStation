@@ -19,3 +19,11 @@ export type {
   ITrackedProposal,
   ProposalSubmitTransport,
 } from './useGuestProposals';
+// Wave 6.1 — page-level coordinator that decides whether to mount the
+// host review surface, the guest proposal overlay, or nothing based on
+// `campaign.coopSession`. Mounted from every campaign-detail sub-route.
+export { CampaignCoopRouteSurface } from './CampaignCoopRouteSurface';
+export type {
+  CampaignCoopRouteId,
+  CampaignCoopRouteSurfaceProps,
+} from './CampaignCoopRouteSurface';

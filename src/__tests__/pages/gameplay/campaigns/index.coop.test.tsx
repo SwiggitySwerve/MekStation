@@ -125,8 +125,8 @@ describe('CampaignsListPage — co-op entry points', () => {
     fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
 
     expect(mockCreateCampaign).toHaveBeenCalledTimes(1);
-    const [name, factionId, options, coopOpts] =
-      mockCreateCampaign.mock.calls[0];
+    const call = mockCreateCampaign.mock.calls[0] as unknown[];
+    const [name, factionId, options, coopOpts] = call;
     expect(name).toBe('Co-op Campaign ABC234');
     expect(factionId).toBe('mercenary');
     expect(options).toBeUndefined();
@@ -195,7 +195,8 @@ describe('CampaignsListPage — co-op entry points', () => {
 
     expect(fetchSpy).toHaveBeenCalledWith('/api/multiplayer/invites/PQR789');
     expect(mockCreateGuestMirrorCampaign).toHaveBeenCalledTimes(1);
-    const [hostMatchId, snapshot] = mockCreateGuestMirrorCampaign.mock.calls[0];
+    const guestCall = mockCreateGuestMirrorCampaign.mock.calls[0] as unknown[];
+    const [hostMatchId, snapshot] = guestCall;
     expect(hostMatchId).toBe('match-XYZ');
     expect(snapshot).toMatchObject({
       campaignName: 'Co-op Campaign PQR789',
