@@ -276,8 +276,16 @@ export function ReplayLibraryPage(): React.ReactElement {
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 pb-12 md:grid-cols-2 lg:grid-cols-3">
-          {filteredEntries.map((entry) => (
-            <ReplayRow key={entry.id} entry={entry} onWatch={handleWatch} />
+          {filteredEntries.map((entry, idx) => (
+            // Composite key as defense-in-depth: the persister now dedupes
+            // by `entry.id` (PT-101), but the index file may carry stale
+            // duplicates from before the fix landed. Using `${id}-${idx}`
+            // keeps React happy even if dedup ever regresses.
+            <ReplayRow
+              key={`${entry.id}-${idx}`}
+              entry={entry}
+              onWatch={handleWatch}
+            />
           ))}
         </div>
       )}

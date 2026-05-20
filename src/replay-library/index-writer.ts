@@ -157,7 +157,17 @@ export async function appendManifestEntry(
     await fs.mkdir(path.dirname(indexPath), { recursive: true });
 
     const existing = await readExistingManifest(indexPath);
-    const next: IReplayManifestEntry[] = [...existing, entry];
+    // Dedup by `entry.id` with last-write-wins semantics. Re-running a swarm
+    // matrix with the same seeds (or a quick-game whose persister POSTs the
+    // same gameId twice) produces an entry with an ID the index already
+    // knows about; without dedup the index accumulates copies and downstream
+    // React renders crash with "Encountered two children with the same key".
+    // The on-disk jsonl at `entry.path` is overwritten on re-run, so the
+    // newer manifest entry is the source of truth. PT-101.
+    const filtered = existing.filter(
+      (existingEntry) => existingEntry.id !== entry.id,
+    );
+    const next: IReplayManifestEntry[] = [...filtered, entry];
 
     // Atomic write: temp file + rename. The temp filename is colocated with
     // the index so the rename is on the same filesystem (cross-fs renames

@@ -205,4 +205,60 @@ describe('appendManifestEntry', () => {
     const ids = after.map((e) => e.id).sort();
     expect(ids).toEqual(['quick-b', 'sim-a']);
   });
+
+  // -------------------------------------------------------------------------
+  // PT-101 regression: appending an entry whose `id` already exists in the
+  // index replaces the existing entry (last-write-wins) instead of
+  // accumulating duplicates. Surfaced by the Phase-2 SP smoke run when the
+  // swarm matrix was re-executed and the central index grew from 130 to 378
+  // entries with only 98 unique IDs — Replay Library renders crashed with
+  // duplicate React keys.
+  // -------------------------------------------------------------------------
+  it('replaces an existing entry with the same id (last-write-wins) — PT-101', async () => {
+    const cwd = await makeTmpCwd();
+
+    // First write: seed=42, 7 turns
+    const first = makeSwarmEntry('sim-20260520', 42);
+    await appendManifestEntry(first, { cwd });
+
+    // Second write: same id, different payload (simulate a re-run that
+    // produces an identical id with refreshed metadata)
+    const second: ISwarmReplayManifestEntry = {
+      ...makeSwarmEntry('sim-20260520', 42),
+      turns: 12,
+      bvTotal: 6000,
+      configName: 'rerun-config',
+    };
+    await appendManifestEntry(second, { cwd });
+
+    const after = await readReplayIndex({ cwd });
+    expect(after).toHaveLength(1);
+    // Confirms last-write-wins: the newer entry's fields are present.
+    expect(after[0]).toMatchObject({
+      id: 'sim-20260520',
+      turns: 12,
+      bvTotal: 6000,
+    });
+  });
+
+  it('preserves non-conflicting entries when deduping by id — PT-101', async () => {
+    const cwd = await makeTmpCwd();
+
+    await appendManifestEntry(makeSwarmEntry('sim-a', 1), { cwd });
+    await appendManifestEntry(makeQuickEntry('quick-b'), { cwd });
+    await appendManifestEntry(makeSwarmEntry('sim-c', 2), { cwd });
+
+    // Replace `sim-a` only — `quick-b` and `sim-c` should stay.
+    await appendManifestEntry(
+      { ...makeSwarmEntry('sim-a', 1), turns: 99 },
+      { cwd },
+    );
+
+    const after = await readReplayIndex({ cwd });
+    expect(after).toHaveLength(3);
+    const byId = Object.fromEntries(after.map((e) => [e.id, e]));
+    expect(byId['sim-a']?.turns).toBe(99);
+    expect(byId['quick-b']).toBeDefined();
+    expect(byId['sim-c']).toBeDefined();
+  });
 });

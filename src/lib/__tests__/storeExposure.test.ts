@@ -73,6 +73,7 @@ describe('exposeStoresForE2E (PT-004)', () => {
       'pilot',
       'encounter',
       'gameplay',
+      'quickGame',
       'repair',
       'award',
       'tabManager',
