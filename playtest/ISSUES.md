@@ -31,6 +31,8 @@ Append-only ledger for the Waves 1-5 end-to-end playtest. One row per defect. Fe
 
 | PT-102 | 3 | pages/gameplay/campaigns | P1 | closed | SSR hydration mismatch on 3 campaign pages (broken `useState(() => setIsClient(true))`) | `npx playwright test e2e/playtest-campaign-smoke.spec.ts`; React logs `Hydration failed because the server rendered HTML didn't match the client` after the first `/gameplay/campaigns` render with persisted state. Server emits empty-state, client renders loading then real grid → 3-way mismatch. | Root cause: 3 pages call `setIsClient(true)` inside a `useState` initializer (fires synchronously during render — illegal side effect; server renders `isClient=true`/empty-state, client renders `isClient=false`/loading). Affected files: `src/pages/gameplay/campaigns/index.tsx`, `[id]/forces.tsx`, `[id]/missions.tsx`. Fix: replace with proper `useEffect(() => setIsClient(true), [])`. Wave-4 defect (`add-campaign-system`). |
 
+| PT-103 | 5 | pages/gameplay/campaigns/coop | P1 | closed | Co-op campaign route surface — no user URL reaches Wave-5 co-op components | Grep across `src/pages/` for `coop` returned zero matches; Phase-5 manual UAT `playtest/checklists/coop-uat.md` was un-runnable because "host creates a new co-op campaign" had no UI to do it from. The Wave-5 `add-coop-campaign-play` shipped `HostGmReviewSurface` / `GuestProposalSurface` / `CoopParticipationPicker` with full unit tests + Storybook, but no campaign-tree wiring. | **Wave 6.1.A defect (closed by `wire-coop-campaign-route`)**. Added host-create + guest-join entry points on the campaign list; conditional `<CampaignCoopRouteSurface>` mount on dashboard + 5 mutation sub-routes gated on `campaign.coopSession?.mode`; new `/missions/[missionId]/launch` route hosting `<CoopParticipationPicker>` with the zero-deploy block; `coop-session-badge` on `<CampaignNavigation>`. New smoke spec at `e2e/playtest-coop-route-smoke.spec.ts` covers host-mode badge + dashboard host-review surface + single-player no-mount. |
+
 ## Counts (auto-update at phase boundaries)
 
 | Phase | P0 open | P1 open | P2 open    | P3 open            | Closed                              | Deferred |
@@ -40,4 +42,4 @@ Append-only ledger for the Waves 1-5 end-to-end playtest. One row per defect. Fe
 | 2     | 0       | 0       | 0          | 0                  | 1 (PT-101)                          | 0        |
 | 3     | 0       | 0       | 0          | 0                  | 1 (PT-102)                          | 0        |
 | 4     | 0       | 0       | 0          | 0                  | 0                                   | 0        |
-| 5     | 0       | 0       | 0          | 0                  | 0                                   | 0        |
+| 5     | 0       | 0       | 0          | 0                  | 1 (PT-103)                          | 0        |

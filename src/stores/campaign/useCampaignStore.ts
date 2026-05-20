@@ -23,6 +23,7 @@ import {
   ICampaign,
   createCampaign as createCampaignEntity,
 } from '@/types/campaign/Campaign';
+import { createGuestCoopSession } from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
 
@@ -57,7 +58,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         outcomeApplyErrors: {},
         forcesStore: null,
         missionsStore: null,
-        createCampaign: (name, factionId, options) => {
+        createCampaign: (name, factionId, options, coopOpts) => {
           const campaign = createCampaignEntity(name, factionId, options);
           const rootForce: IForce = {
             id: campaign.rootForceId,
@@ -73,9 +74,16 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           const forcesStore = createForcesStore(campaign.id);
           const missionsStore = createMissionsStore(campaign.id);
           forcesStore.getState().addForce(rootForce);
+          // Per `wire-coop-campaign-route` task 1.3: when the caller is the
+          // "Create co-op campaign" entry point on the campaign list page,
+          // `coopOpts.coopSession` is set with `mode: 'host'` — stamp it
+          // directly on the campaign so every downstream gate (the
+          // navigation badge, the dashboard host-review surface, the
+          // mission-launch picker) sees a co-op campaign from frame zero.
           const campaignWithForce: ICampaign = {
             ...campaign,
             forces: new Map([[rootForce.id, rootForce]]),
+            coopSession: coopOpts?.coopSession,
           };
           set({
             campaign: campaignWithForce,
@@ -83,6 +91,50 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             missionsStore,
           });
           return campaign.id;
+        },
+        createGuestMirrorCampaign: (hostMatchId, snapshot) => {
+          // Per `wire-coop-campaign-route` task 1.4: a guest mirror campaign
+          // is minted from the host snapshot the guest receives on join
+          // (over CO1's session-lifecycle protocol). The mirror campaign id
+          // tracks the host's campaign id so cross-window references line
+          // up; the local `coopSession` is stamped with `mode: 'guest'` and
+          // the host's match id so every mutation control submits an
+          // `IGuestProposal` instead of mutating campaign state directly.
+          const campaign = createCampaignEntity(
+            snapshot.campaignName,
+            snapshot.factionId,
+          );
+          const rootForce: IForce = {
+            id: campaign.rootForceId,
+            name: snapshot.campaignName,
+            parentForceId: undefined,
+            subForceIds: [],
+            unitIds: [],
+            forceType: ForceRole.STANDARD,
+            formationLevel: FormationLevel.REGIMENT,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          const localId = snapshot.campaignId || campaign.id;
+          const forcesStore = createForcesStore(localId);
+          const missionsStore = createMissionsStore(localId);
+          forcesStore.getState().addForce(rootForce);
+          const guestSession = createGuestCoopSession(
+            hostMatchId,
+            snapshot.roomCode,
+          );
+          const mirror: ICampaign = {
+            ...campaign,
+            id: localId,
+            forces: new Map([[rootForce.id, rootForce]]),
+            coopSession: guestSession,
+          };
+          set({
+            campaign: mirror,
+            forcesStore,
+            missionsStore,
+          });
+          return localId;
         },
         loadCampaign: (id) => {
           const storageKey = `campaign-${id}`;

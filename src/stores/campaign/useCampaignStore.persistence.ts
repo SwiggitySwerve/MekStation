@@ -5,6 +5,7 @@ import type {
   IMission,
 } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
 import type { IForce } from '@/types/campaign/Force';
 import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
@@ -46,6 +47,12 @@ export interface SerializedCampaignState {
   processedBattleIds: string[];
   reviewedBattleIds: Record<string, number>;
   dailyBattleAudit: IDailyBattleAuditEntry[];
+  /**
+   * Co-op session metadata round-trip (`wire-coop-campaign-route`, Wave 6.1).
+   * Absent on single-player campaigns; present on host or guest mirror
+   * campaigns so a reload preserves the co-op surfaces.
+   */
+  coopSession?: ICoopSession;
   createdAt: string;
   updatedAt: string;
 }
@@ -106,6 +113,12 @@ export function serializeCampaign(
     processedBattleIds: [...processedBattleIds],
     reviewedBattleIds: { ...reviewedBattleIds },
     dailyBattleAudit: [...audit],
+    // Per `wire-coop-campaign-route` Wave 6.1: the coopSession bit is
+    // per-campaign identity (host vs guest vs single-player). Persisting it
+    // here means a reload of a host or guest campaign still mounts the
+    // host-review surface / guest-proposal overlays / coop nav badge.
+    // Absent (undefined) means single-player — no surfaces render.
+    coopSession: campaign.coopSession,
     createdAt: campaign.createdAt,
     updatedAt: campaign.updatedAt,
   };
@@ -146,6 +159,9 @@ export function deserializeCampaign(
     updatedAt: serialized.updatedAt,
     unitCombatStates: {},
     dailyBattleAudit: serialized.dailyBattleAudit,
+    // Per `wire-coop-campaign-route` Wave 6.1: the coopSession field
+    // survives reload so every co-op surface remounts on the same campaign.
+    coopSession: serialized.coopSession,
   } as ICampaign;
 }
 export function persistCampaignRecord(

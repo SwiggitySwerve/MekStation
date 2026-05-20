@@ -2,10 +2,37 @@ import type { StoreApi } from 'zustand';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import type { ForcesStore } from './useForcesStore';
 import type { MissionsStore } from './useMissionsStore';
+
+/**
+ * Optional initialiser knobs passed to `createCampaign` for a co-op
+ * session (`wire-coop-campaign-route`, task 1.3). Separate from
+ * `ICampaignOptions` (which is the in-game options bag) because co-op
+ * session metadata is per-campaign identity, not gameplay tuning.
+ */
+export interface ICreateCampaignCoopOpts {
+  /** Stamped on `campaign.coopSession` at creation time. */
+  readonly coopSession?: ICoopSession;
+}
+
+/**
+ * Minimal host snapshot the guest receives over CO1's session-lifecycle
+ * protocol when joining a co-op campaign. The guest mirror is minted
+ * with the host's id / name / faction so the guest's UI shows the same
+ * campaign identity. Other guest-visible state arrives over the live
+ * `CampaignSnapshotPublished` baseline event after the WebSocket opens.
+ */
+export interface IGuestMirrorSnapshot {
+  readonly campaignId: string;
+  readonly campaignName: string;
+  readonly factionId: string;
+  /** Room code the guest typed to join; surfaced on the navigation badge. */
+  readonly roomCode: string;
+}
 
 export interface CampaignState {
   campaign: ICampaign | null;
@@ -22,6 +49,17 @@ export interface CampaignActions {
     name: string,
     factionId: string,
     options?: Partial<ICampaignOptions>,
+    coopOpts?: ICreateCampaignCoopOpts,
+  ) => string;
+  /**
+   * Mint a guest-mode mirror campaign from a host snapshot — fired when
+   * the user joins a co-op campaign via room code (Wave 6.1, task 1.4).
+   * The freshly minted campaign carries `coopSession.mode = 'guest'`
+   * and the host's `hostMatchId`. Returns the local mirror campaign id.
+   */
+  createGuestMirrorCampaign: (
+    hostMatchId: string,
+    snapshot: IGuestMirrorSnapshot,
   ) => string;
   loadCampaign: (id: string) => boolean;
   saveCampaign: () => void;

@@ -19,6 +19,7 @@ import {
   CommandLoading,
 } from '@/components/campaign/command/CommandStates';
 import { FinancesPanel } from '@/components/campaign/command/FinancesPanel';
+import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
 import { EmptyState, PageLayout } from '@/components/ui';
 import { takeLoan } from '@/stores/campaign/campaignCommandActions';
 import {
@@ -123,8 +124,13 @@ export default function FinancesPage(): React.ReactElement {
       maxWidth="wide"
       breadcrumbs={breadcrumbs}
     >
-      <CampaignNavigation campaignId={campaign.id} currentPage="finances" />
+      <CampaignNavigation
+        campaignId={campaign.id}
+        currentPage="finances"
+        coopSession={campaign.coopSession}
+      />
 
+      <CampaignCoopRouteSurface campaign={campaign} routeId="finances" />
       {actionError ? (
         <CommandError
           message={actionError}
