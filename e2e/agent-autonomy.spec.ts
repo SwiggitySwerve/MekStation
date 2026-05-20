@@ -48,12 +48,15 @@ interface GameplayStoreState {
 test.setTimeout(90000);
 
 async function waitForStoreReady(page: Page): Promise<void> {
+  // PT-009: storeExposure.ts exposes the gameplay store as `gameplay`, not
+  // `gameplayStore`. Previously this poll never resolved and every spec in
+  // this file timed out at the 10s `waitForFunction` floor.
   await page.waitForFunction(
     () => {
       const win = window as unknown as {
-        __ZUSTAND_STORES__?: { gameplayStore?: unknown };
+        __ZUSTAND_STORES__?: { gameplay?: unknown };
       };
-      return win.__ZUSTAND_STORES__?.gameplayStore !== undefined;
+      return win.__ZUSTAND_STORES__?.gameplay !== undefined;
     },
     { timeout: 15000 },
   );
@@ -61,10 +64,7 @@ async function waitForStoreReady(page: Page): Promise<void> {
 
 async function waitForGameSession(page: Page): Promise<void> {
   await expect(async () => {
-    const state = await getStoreState<GameplayStoreState>(
-      page,
-      'gameplayStore',
-    );
+    const state = await getStoreState<GameplayStoreState>(page, 'gameplay');
     expect(state.session).not.toBeNull();
   }).toPass({ timeout: 15000 });
 }
@@ -112,10 +112,7 @@ test.describe('Agent Autonomy', () => {
       await agent.playGame();
 
       // Verify game completed
-      const state = await getStoreState<GameplayStoreState>(
-        page,
-        'gameplayStore',
-      );
+      const state = await getStoreState<GameplayStoreState>(page, 'gameplay');
       expect(state.session).not.toBeNull();
       expect(state.session!.currentState.status).toBe('completed');
       expect(state.session!.currentState.result).toBeTruthy();
@@ -196,10 +193,7 @@ test.describe('Agent Autonomy', () => {
       await agent.playGame();
 
       // Verify winner is one of the valid sides
-      const state = await getStoreState<GameplayStoreState>(
-        page,
-        'gameplayStore',
-      );
+      const state = await getStoreState<GameplayStoreState>(page, 'gameplay');
       const winner = state.session!.currentState.result!.winner;
       expect(['player', 'opponent', 'draw']).toContain(winner);
     },
@@ -238,10 +232,7 @@ test.describe('Agent Autonomy', () => {
       await agent.playGame();
 
       // Verify multiple turns were played (game shouldn't end on turn 1)
-      const state = await getStoreState<GameplayStoreState>(
-        page,
-        'gameplayStore',
-      );
+      const state = await getStoreState<GameplayStoreState>(page, 'gameplay');
       expect(state.session!.currentState.turn).toBeGreaterThanOrEqual(1);
     },
   );

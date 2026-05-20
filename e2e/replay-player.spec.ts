@@ -70,13 +70,24 @@ test.describe('Audit Timeline Page', () => {
   });
 
   test('can toggle advanced query builder', async ({ page }) => {
-    // Click advanced button
+    // Click the page-level "Advanced" toggle. The /audit/timeline page hosts
+    // two Advanced controls — first the page button (timeline.tsx:148) that
+    // toggles `showAdvancedQuery` state, then once QueryBuilder mounts, an
+    // "Advanced Filters" expand inside it. The /Advanced/i regex resolves to
+    // the first/visible one.
     const advancedBtn = page.getByRole('button', { name: /Advanced/i });
     await expect(advancedBtn).toBeVisible();
     await advancedBtn.click();
 
-    // Should show query builder section
-    await expect(page.locator('text=Save Query').first()).toBeVisible({
+    // PT-009: previously asserted `text=Save Query` which lives in a hidden
+    // modal that only opens on a separate Save click (SavedQueries.tsx
+    // line ~340). Clicking the page-level Advanced button renders the
+    // QueryBuilder component (QueryBuilder.tsx:223) with a "Category"
+    // Select, "From Time" / "To Time" Inputs, etc. Assert against the
+    // Category Select via its `<label>` — Select.placeholder ("All
+    // Categories") renders as an `<option>` child rather than the HTML
+    // placeholder attribute, so getByPlaceholder doesn't match it.
+    await expect(page.getByLabel('Category').first()).toBeVisible({
       timeout: 5000,
     });
   });

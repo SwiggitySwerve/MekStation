@@ -213,20 +213,14 @@ test.describe('Campaign Detail Page @campaign', () => {
       morale: 80,
     });
 
-    // Force store subscribers to update by triggering a search (empty string)
+    // PT-009: `setSearchQuery` was removed from the campaign store. The
+    // original code here used it as a workaround to nudge React subscribers
+    // after a programmatic campaign creation. The downstream waitFor below
+    // covers the same need on its own — if the new campaign card doesn't
+    // appear within 10s, the assertion fails with a clear signal anyway.
+    // No-op placeholder retained for future store-nudge needs.
     await page.evaluate(() => {
-      const stores = (
-        window as {
-          __ZUSTAND_STORES__?: {
-            campaign?: {
-              getState: () => { setSearchQuery: (q: string) => void };
-            };
-          };
-        }
-      ).__ZUSTAND_STORES__;
-      if (stores?.campaign) {
-        stores.campaign.getState().setSearchQuery('');
-      }
+      /* no-op — see PT-009 comment above */
     });
 
     // Wait for any campaign card to appear (React should re-render when store updates)
