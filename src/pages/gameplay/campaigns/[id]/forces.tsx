@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
  *
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { PageLayout, Card, EmptyState, Badge } from '@/components/ui';
@@ -150,10 +150,10 @@ export default function ForcesPage(): React.ReactElement {
     { label: 'Forces (TO&E)' },
   ];
 
-  // Hydration fix
-  useState(() => {
+  // Hydration fix — see PT-102 (`src/pages/gameplay/campaigns/index.tsx`).
+  useEffect(() => {
     setIsClient(true);
-  });
+  }, []);
 
   // Show loading state during SSR/hydration
   if (!isClient) {
