@@ -13,6 +13,7 @@ import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useForceStore } from '@/stores/useForceStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { usePilotStore } from '@/stores/usePilotStore';
+import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { useRepairStore } from '@/stores/useRepairStore';
 import {
   useTabManagerStore,
@@ -34,6 +35,10 @@ declare global {
       pilot: typeof usePilotStore;
       encounter: typeof useEncounterStore;
       gameplay: typeof useGameplayStore;
+      // `useQuickGameStore` has no UI selector for `scenarioConfig.scenarioType`
+      // (known limitation — see `playtest/checklists/sp-uat.md`). Expose for
+      // E2E so Phase-2 SP smoke can drive all 4 scenario types directly.
+      quickGame: typeof useQuickGameStore;
       repair: typeof useRepairStore;
       award: typeof useAwardStore;
       tabManager: typeof useTabManagerStore;
@@ -63,6 +68,7 @@ export function exposeStoresForE2E(): void {
     pilot: usePilotStore,
     encounter: useEncounterStore,
     gameplay: useGameplayStore,
+    quickGame: useQuickGameStore,
     repair: useRepairStore,
     award: useAwardStore,
     tabManager: useTabManagerStore,
