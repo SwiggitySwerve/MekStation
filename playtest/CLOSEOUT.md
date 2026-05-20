@@ -5,6 +5,8 @@
 **Scope**: End-to-end exercise of the 18-change Waves 1-5 system shipped 2026-05-19 (PRs [#605](https://github.com/SwiggitySwerve/MekStation/pull/605)…[#623](https://github.com/SwiggitySwerve/MekStation/pull/623))
 **Outcome**: ✅ All scripted scope shipped; **2 new P1 defects surfaced + fixed**; manual UAT artefacts queued for operator execution.
 
+> **2026-05-20 correction (Wave 6.1.C)**: the "end-to-end stable" framing in this closeout is true at the **mount-check** level (every campaign route renders without console errors) but only partially true at the **feature-check** level. An audit conducted at the start of Wave 6.1.C found 3 of 19 campaign subsystems were end-to-end testable from Playwright without code changes; 7 more needed only testid backfill; 9 had no UI to assert against. The audit matrix is checked in at `playtest/phase-6/SUBSYSTEM_UI_AUDIT.md`. Wave 6.1.C ships Track A (3 specs writable today) + shared seed helpers + the e2e-testing capability spec; Tracks B and C (testid backfill + UI stubs for the remaining 16 subsystems) are explicit follow-up candidates filed against this change.
+
 ---
 
 ## Headline
