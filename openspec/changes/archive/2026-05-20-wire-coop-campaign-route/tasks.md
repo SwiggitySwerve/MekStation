@@ -35,4 +35,4 @@
 - [x] 5.1 Author the delta spec at `openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md` adding the "Co-op Campaign Route Surface" requirement with scenarios for host create, guest join, and host-review mount
 - [x] 5.2 `openspec validate wire-coop-campaign-route --strict` passes
 - [x] 5.3 `npm run build`, lint, `tsc --noEmit` typecheck all pass
-- [ ] 5.4 Archive the change to `openspec/changes/archive/2026-05-20-wire-coop-campaign-route/` after merge
+- [x] 5.4 Archive the change to `openspec/changes/archive/2026-05-20-wire-coop-campaign-route/` after merge
