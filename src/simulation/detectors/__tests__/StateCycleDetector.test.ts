@@ -17,6 +17,7 @@ import {
   type IDamageAppliedPayload,
   type IHeatPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { MovementType, Facing } from '@/types/gameplay/HexGridInterfaces';
 
 import { StateCycleDetector, type BattleState } from '../StateCycleDetector';
 
@@ -1005,6 +1006,127 @@ describe('StateCycleDetector', () => {
 
       expect(anomalies).toHaveLength(1);
       expect(anomalies[0].turn).toBe(5);
+    });
+  });
+
+  // =========================================================================
+  // PT-001 — Positional Scope of Cycle Detection
+  // =========================================================================
+  //
+  // Per `polish-wave-6.2-gaps` (gap #7, closes PT-001): the StateCycleDetector
+  // SHALL include each unit's hex position in the snapshot key, so two turns
+  // with identical heat/armor/structure but different positions do NOT
+  // register as a cycle. Without this, Phase-1 swarm sweeps hit a ~96%
+  // false-positive cycle rate as units shuffled around the board with
+  // damage/heat steady.
+
+  describe('PT-001: position-aware cycle detection', () => {
+    const createMovementEventWithPosition = (
+      gameId: string,
+      turn: number,
+      unitId: string,
+      to: { q: number; r: number },
+      sequence: number = 1,
+    ): IGameEvent => ({
+      id: `event-movement-${sequence}`,
+      gameId,
+      sequence,
+      timestamp: new Date().toISOString(),
+      type: GameEventType.MovementDeclared,
+      turn,
+      phase: GamePhase.Movement,
+      actorId: unitId,
+      payload: {
+        unitId,
+        from: { q: 0, r: 0 },
+        to,
+        facing: Facing.North,
+        movementType: MovementType.Walk,
+        mpUsed: 1,
+        heatGenerated: 0,
+      },
+    });
+
+    it('does NOT register a cycle when units repositioned between identical heat/damage snapshots', () => {
+      const battleState = createBattleState([
+        { id: 'unit-1', name: 'Atlas', side: GameSide.Player },
+      ]);
+
+      // Same damage + heat across 4 turns, but unit moves to a new hex each
+      // turn — pre-PT-001 this would trigger a cycle anomaly; post-fix it
+      // should not (real progress).
+      const events: IGameEvent[] = [
+        createDamageEvent('game-1', 1, 'unit-1', 'center_torso', 20, 15, 1),
+        createHeatEvent('game-1', 1, 'unit-1', 5, 2),
+        createMovementEventWithPosition(
+          'game-1',
+          1,
+          'unit-1',
+          { q: 1, r: 0 },
+          3,
+        ),
+        createTurnEndedEvent('game-1', 1, 4),
+
+        createMovementEventWithPosition(
+          'game-1',
+          2,
+          'unit-1',
+          { q: 2, r: 0 },
+          5,
+        ),
+        createTurnEndedEvent('game-1', 2, 6),
+
+        createMovementEventWithPosition(
+          'game-1',
+          3,
+          'unit-1',
+          { q: 3, r: 0 },
+          7,
+        ),
+        createTurnEndedEvent('game-1', 3, 8),
+
+        createMovementEventWithPosition(
+          'game-1',
+          4,
+          'unit-1',
+          { q: 4, r: 0 },
+          9,
+        ),
+        createTurnEndedEvent('game-1', 4, 10),
+      ];
+
+      const anomalies = detector.detect(events, battleState, 3);
+
+      expect(anomalies).toHaveLength(0);
+    });
+
+    it('DOES register a cycle when units stay at the same position with identical heat/damage', () => {
+      const battleState = createBattleState([
+        { id: 'unit-1', name: 'Atlas', side: GameSide.Player },
+      ]);
+
+      // Same damage + heat + same position across 4 turns — genuine cycle.
+      const events: IGameEvent[] = [
+        createDamageEvent('game-1', 1, 'unit-1', 'center_torso', 20, 15, 1),
+        createHeatEvent('game-1', 1, 'unit-1', 5, 2),
+        createMovementEventWithPosition(
+          'game-1',
+          1,
+          'unit-1',
+          { q: 5, r: 5 },
+          3,
+        ),
+        createTurnEndedEvent('game-1', 1, 4),
+
+        createTurnEndedEvent('game-1', 2, 5),
+        createTurnEndedEvent('game-1', 3, 6),
+        createTurnEndedEvent('game-1', 4, 7),
+      ];
+
+      const anomalies = detector.detect(events, battleState, 3);
+
+      expect(anomalies).toHaveLength(1);
+      expect(anomalies[0].type).toBe('state-cycle');
     });
   });
 });

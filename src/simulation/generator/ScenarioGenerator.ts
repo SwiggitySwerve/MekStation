@@ -41,6 +41,21 @@ import { WeightedTable } from '../core/WeightedTable';
 import { UNIT_TEMPLATES } from './templates';
 import { IUnitTemplate, DEFAULT_GENERATION_OPTIONS } from './types';
 
+/**
+ * Per `polish-wave-6.2-gaps` (gap #12, closes PT-003): the default turn
+ * limit for a scenario scales with map radius so larger maps don't hit
+ * the static 50-turn draw cap before forces can engage. r12 stays at 50
+ * (max-pinned); r20 becomes 80; r25 becomes 100.
+ *
+ * Callers that need a fixed `turnLimit` continue to pass it through
+ * `ISimulationConfig.turnLimit` directly — this helper is only consumed
+ * at the boundary where a caller has no opinion (the swarm runner, the
+ * quick-game default, etc.).
+ */
+export function defaultTurnLimit(mapRadius: number): number {
+  return Math.max(50, mapRadius * 4);
+}
+
 export function createDefaultUnitWeights(): WeightedTable<IUnitTemplate> {
   const table = new WeightedTable<IUnitTemplate>();
   table.add(40, UNIT_TEMPLATES[0]);

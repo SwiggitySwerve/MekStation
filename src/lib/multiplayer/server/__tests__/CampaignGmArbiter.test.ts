@@ -269,3 +269,154 @@ describe('CampaignGmArbiter — guest holds no write authority', () => {
     expect(host.getState().balance).toBe(525_000);
   });
 });
+
+// =============================================================================
+// polish-wave-6.2-gaps (gap #3) — host-review proposal timeout
+// =============================================================================
+//
+// A proposal that sits in `pending` longer than `proposalTimeoutMs` auto-
+// resolves with `{ status: 'vetoed', reason: 'host-review-timeout' }`
+// so the guest's pending overlay doesn't hang forever when the host
+// goes AFK / disconnects. Manual host vetoes carry no `reason`, so the
+// guest UI can label the badge distinctly.
+
+async function makeArbiterWithTimeout(
+  mode: 'auto-approve' | 'host-review',
+  initialState: ICampaignAuthoritativeState,
+  proposalTimeoutMs: number,
+): Promise<{
+  arbiter: CampaignGmArbiter;
+  host: CampaignMatchHost;
+}> {
+  const host = new CampaignMatchHost({
+    campaignId: CAMPAIGN_ID,
+    hostPlayerId: HOST_ID,
+    eventStore: new InMemoryCampaignEventStore(),
+    initialState,
+  });
+  await host.open();
+  return {
+    arbiter: new CampaignGmArbiter(host, mode, { proposalTimeoutMs }),
+    host,
+  };
+}
+
+describe('CampaignGmArbiter — host-review proposal timeout (gap #3)', () => {
+  it('autoVetoForTimeout emits a veto with reason "host-review-timeout"', async () => {
+    // A 0-ms timeout would also work but we want to exercise the public
+    // autoVetoForTimeout entry point directly (the timer-fired callback).
+    const { arbiter } = await makeArbiterWithTimeout(
+      'host-review',
+      stateWith({ balance: 600_000 }),
+      10_000,
+    );
+
+    await arbiter.submitProposal(spendProposal(50_000, 'p-timeout'));
+    expect(arbiter.getPendingProposals()).toHaveLength(1);
+
+    const result = arbiter.autoVetoForTimeout('p-timeout');
+
+    expect(result).not.toBeNull();
+    expect(result?.status).toBe('vetoed');
+    if (result?.status === 'vetoed') {
+      expect(result.error.code).toBe(PROPOSAL_VETOED);
+      expect(result.error.reason).toBe('host-review-timeout');
+    }
+    expect(arbiter.getPendingProposals()).toHaveLength(0);
+  });
+
+  it('a host-driven veto omits the reason field (label-distinguishable from auto-veto)', async () => {
+    const { arbiter } = await makeArbiterWithTimeout(
+      'host-review',
+      stateWith({ balance: 600_000 }),
+      10_000,
+    );
+    await arbiter.submitProposal(spendProposal(50_000, 'p-manual'));
+
+    const result = await arbiter.decide('p-manual', 'veto');
+
+    expect(result?.status).toBe('vetoed');
+    if (result?.status === 'vetoed') {
+      expect(result.error.code).toBe(PROPOSAL_VETOED);
+      // No reason on a host-driven veto — the guest UI labels it as
+      // "host vetoed", not "host didn't respond".
+      expect(result.error.reason).toBeUndefined();
+    }
+  });
+
+  it('autoVetoForTimeout is a no-op for a proposal already resolved by the host', async () => {
+    const { arbiter } = await makeArbiterWithTimeout(
+      'host-review',
+      stateWith({ balance: 600_000 }),
+      10_000,
+    );
+    await arbiter.submitProposal(spendProposal(50_000, 'p-resolved'));
+    await arbiter.decide('p-resolved', 'approve');
+
+    // Host already resolved — the auto-veto path returns null and does
+    // not double-veto.
+    const result = arbiter.autoVetoForTimeout('p-resolved');
+    expect(result).toBeNull();
+  });
+
+  it('a manually-resolved proposal cancels its timer (no stale auto-veto fires)', async () => {
+    jest.useFakeTimers();
+    try {
+      const { arbiter } = await makeArbiterWithTimeout(
+        'host-review',
+        stateWith({ balance: 600_000 }),
+        10_000,
+      );
+      await arbiter.submitProposal(spendProposal(50_000, 'p-cancel'));
+      // Resolve before timeout fires.
+      await arbiter.decide('p-cancel', 'veto');
+      // Advance past the original timeout — no auto-veto should fire.
+      jest.advanceTimersByTime(20_000);
+      // Auto-veto path returns null because the entry is gone.
+      expect(arbiter.autoVetoForTimeout('p-cancel')).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('proposalTimeoutMs is configurable — fake timers fire auto-veto at the configured interval', async () => {
+    jest.useFakeTimers();
+    try {
+      const { arbiter } = await makeArbiterWithTimeout(
+        'host-review',
+        stateWith({ balance: 600_000 }),
+        500, // 500 ms — much shorter than default 5 min
+      );
+      await arbiter.submitProposal(spendProposal(50_000, 'p-fast'));
+      expect(arbiter.getPendingProposals()).toHaveLength(1);
+
+      // Advance just past the configured interval — timer should fire.
+      jest.advanceTimersByTime(600);
+
+      // Auto-veto fired automatically; pending queue cleared.
+      expect(arbiter.getPendingProposals()).toHaveLength(0);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('proposalTimeoutMs: 0 disables the auto-veto entirely (legacy behavior)', async () => {
+    jest.useFakeTimers();
+    try {
+      const { arbiter } = await makeArbiterWithTimeout(
+        'host-review',
+        stateWith({ balance: 600_000 }),
+        0,
+      );
+      await arbiter.submitProposal(spendProposal(50_000, 'p-forever'));
+      expect(arbiter.getPendingProposals()).toHaveLength(1);
+
+      // Advance forever — no auto-veto fires.
+      jest.advanceTimersByTime(10 * 60_000);
+
+      expect(arbiter.getPendingProposals()).toHaveLength(1);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+});

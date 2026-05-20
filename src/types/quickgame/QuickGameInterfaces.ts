@@ -129,8 +129,19 @@ export interface IQuickGameScenarioConfig {
   readonly modifierCount: number;
   /** Allow negative modifiers */
   readonly allowNegativeModifiers: boolean;
-  /** Specific scenario type (optional) */
-  readonly scenarioType?: string;
+  /**
+   * Specific scenario type. Per `polish-wave-6.2-gaps` (gap #6), the
+   * Quick Game UI exposes the four scenario archetypes as an enum-style
+   * selector. Default: `Annihilation` (preserves the pre-6.2 implicit
+   * behavior of "destroy all enemies").
+   */
+  readonly scenarioType?: 'Annihilation' | 'CTF' | 'Defend' | 'Breakthrough';
+  /**
+   * AI difficulty tier. Per `polish-wave-6.2-gaps` (gap #4), the Quick
+   * Game UI exposes the four AI tiers (the same ones the campaign system
+   * uses for opfor generation). Default: `Regular`.
+   */
+  readonly aiTier?: 'Green' | 'Regular' | 'Veteran' | 'Elite';
   /** Enemy faction */
   readonly enemyFaction?: string;
   /** Biome preference */

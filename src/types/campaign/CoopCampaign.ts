@@ -155,6 +155,15 @@ export interface IProposalVetoError {
   readonly code: typeof PROPOSAL_VETOED;
   /** The proposal the GM vetoed. */
   readonly proposalId: string;
+  /**
+   * Per `polish-wave-6.2-gaps` (gap #3): distinguishes a host-driven veto
+   * from an auto-veto triggered by the host-review timeout. The guest UI
+   * reads this to label the rejection badge — host-veto is "the GM said
+   * no" (a directed decision), `host-review-timeout` is "the GM didn't
+   * respond" (the proposal aged out). Omitted on legacy / host-driven
+   * vetoes for backward compat.
+   */
+  readonly reason?: 'host-review-timeout';
 }
 
 // =============================================================================
