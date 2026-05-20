@@ -1,3 +1,4 @@
+import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 export interface CampaignDashboardCampaign {
@@ -19,6 +20,13 @@ export interface CampaignDashboardCampaign {
   options: {
     enableDayReportNotifications?: boolean;
   };
+  /**
+   * Co-op session metadata, undefined on single-player campaigns
+   * (`wire-coop-campaign-route` Wave 6.1). Drives the
+   * `<CampaignNavigation>` "Co-op session" badge + the
+   * `<CampaignCoopRouteSurface>` mount on the dashboard.
+   */
+  coopSession?: ICoopSession;
 }
 
 /**

@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
+import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
 import { PageLayout } from '@/components/ui';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
@@ -184,7 +185,28 @@ export default function CampaignDashboardPage(): React.ReactElement {
         />
       }
     >
-      <CampaignNavigation campaignId={campaign.id} currentPage="dashboard" />
+      <CampaignNavigation
+        campaignId={campaign.id}
+        currentPage="dashboard"
+        coopSession={campaign.coopSession}
+      />
+
+      {/*
+       * Co-op route surface mount (`wire-coop-campaign-route` task 2.1).
+       * Renders <HostGmReviewSurface> on the dashboard when this campaign
+       * is a host-mode co-op session with `host-review` arbitration.
+       * Renders nothing on single-player or guest-mode (the guest sees
+       * proposal overlays on mutation routes, not on the dashboard).
+       * Live CO1 broadcast wiring lands in a follow-up — the queue here
+       * is the empty placeholder until then.
+       */}
+      <CampaignCoopRouteSurface
+        campaign={
+          campaign as unknown as import('@/types/campaign/Campaign').ICampaign
+        }
+        routeId="dashboard"
+        dashboardMount
+      />
 
       <CampaignSaveStatusCard />
 
