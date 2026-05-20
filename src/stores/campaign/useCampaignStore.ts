@@ -20,6 +20,11 @@ import { getDayPipeline } from '@/lib/campaign/dayPipeline';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
+  ACTIVITY_LOG_MAX_ENTRIES,
+  isActivityLogEntry,
+  type IActivityLogEntry,
+} from '@/types/campaign/ActivityLog';
+import {
   ICampaign,
   createCampaign as createCampaignEntity,
 } from '@/types/campaign/Campaign';
@@ -58,6 +63,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         outcomeApplyErrors: {},
         forcesStore: null,
         missionsStore: null,
+        activityLog: [],
         createCampaign: (name, factionId, options, coopOpts) => {
           const campaign = createCampaignEntity(name, factionId, options);
           const rootForce: IForce = {
@@ -339,13 +345,28 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         getOutcomeApplyErrors: () => get().outcomeApplyErrors,
         retryOutcomeApplication: (matchId) =>
           retryCampaignOutcomeApplication(get, set, matchId),
+        appendActivityLogEntry: (entry) => {
+          // FIFO 200-cap append with last-write-wins dedup on entry.id.
+          // Mirror the PT-101 fix on the replay-library index writer:
+          // dedup BEFORE append so a repeated emit (same id) overwrites
+          // the older copy instead of duplicating.
+          const existing = get().activityLog;
+          const filtered = existing.filter((e) => e.id !== entry.id);
+          const next = [...filtered, entry];
+          const trimmed =
+            next.length > ACTIVITY_LOG_MAX_ENTRIES
+              ? next.slice(next.length - ACTIVITY_LOG_MAX_ENTRIES)
+              : next;
+          set({ activityLog: trimmed });
+        },
+        getActivityLog: () => get().activityLog,
       }),
       {
         name: 'campaign-store',
         storage: createJSONStorage(() => clientSafeStorage),
         partialize: (state) => {
           if (!state.campaign) {
-            return { campaign: null };
+            return { campaign: null, activityLog: state.activityLog };
           }
           return {
             campaign: serializeCampaign(
@@ -354,18 +375,31 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
               state.processedBattleIds,
               state.reviewedBattleIds,
             ),
+            // The activity log is persisted as a plain readonly array.
+            // Bounded retention (ACTIVITY_LOG_MAX_ENTRIES = 200) on the
+            // append action keeps the persisted payload from growing
+            // without bound across long campaigns.
+            activityLog: state.activityLog,
           };
         },
         merge: (persisted: unknown, current) => {
           const persistedData = persisted as {
             campaign?: SerializedCampaignState | null;
+            activityLog?: IActivityLogEntry[];
           };
+          // Rehydrate the activity log if the persisted blob carries one
+          // (older persisted snapshots won't have the field yet — default
+          // to an empty array to keep round-trip backwards-compatible).
+          const activityLog = Array.isArray(persistedData?.activityLog)
+            ? persistedData.activityLog.filter(isActivityLogEntry)
+            : [];
           if (!persistedData?.campaign) {
             return {
               ...current,
               campaign: null,
               forcesStore: null,
               missionsStore: null,
+              activityLog,
             };
           }
           const serialized = persistedData.campaign;
@@ -382,6 +416,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             reviewedBattleIds: serialized.reviewedBattleIds,
             forcesStore: null,
             missionsStore: null,
+            activityLog,
           };
         },
       },
