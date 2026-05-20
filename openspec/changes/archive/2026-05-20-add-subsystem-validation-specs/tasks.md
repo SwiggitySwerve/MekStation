@@ -34,7 +34,7 @@ The 9 BLOCKED subsystems (contract negotiation, faction reputation, random event
 - [x] 4.2 (Skipped — campaign-system source-of-truth has no per-subsystem requirements to MODIFY; per-subsystem testid sub-requirement is covered by the new `e2e-testing` capability)
 - [x] 4.3 `openspec validate add-subsystem-validation-specs --strict` passes
 - [x] 4.4 `npm run build`, lint, `tsc --noEmit`, jest, `npm run test:e2e -- playtest-subsystem-*.spec.ts` (3 new specs) pass on CI
-- [ ] 4.5 Archive the change to `openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/` after merge
+- [x] 4.5 Archive the change to `openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/` after merge
 
 ## 5. Closeout corrections
 
