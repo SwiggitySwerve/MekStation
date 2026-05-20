@@ -54,10 +54,34 @@ The command shell SHALL support combat, replay, spectator, and GM/referee modes 
 
 ### Requirement: Tactical Shell State Contract
 
-The tactical map interface SHALL expose a typed shell state contract for selected slot, pinned panels, collapsed panels, shell mode, and active context.
+The tactical map interface SHALL expose a typed shell state contract for selected slot, pinned panels, collapsed panels, shell mode, active context, viewer player identity, and per-opponent visibility scopes.
 
 #### Scenario: Shell state round-trips through UI actions
 - **GIVEN** `ITacticalShellState` has a collapsed left tray, pinned right inspector, and active bottom dock tab
 - **WHEN** the shell re-renders after map selection changes
 - **THEN** collapsed, pinned, and active tab state SHALL persist
 - **AND** selection-derived content SHALL update without resetting manually chosen shell layout
+
+#### Scenario: Shell distinguishes selected, active, and inspected unit references
+- **GIVEN** the player is inspecting an ally token mid-turn while a different friendly unit holds activation
+- **WHEN** the shell reads its unit-reference state
+- **THEN** `selectedUnit` (the token the player clicked), `activeUnit` (the unit whose turn it currently is), and `inspectedUnit` (the unit whose record sheet is open in the right tray) SHALL be addressable as three independent fields
+- **AND** the action dock SHALL bind to `activeUnit`, the right-tray inspector SHALL bind to `inspectedUnit`, and the map highlight SHALL bind to `selectedUnit` without cross-coupling
+
+### Requirement: Per-Viewer Visibility Scope
+
+The tactical shell state SHALL carry a viewer identity and per-opponent visibility scope so the same shell composition can render correctly for co-op (N≥2 guests) and PvP campaigns without leaking hidden opponent state.
+
+#### Scenario: Shell state scopes per-viewer for co-op and PvP
+- **GIVEN** a co-op or PvP match with two or more opposing players
+- **WHEN** the shell renders for a specific viewer
+- **THEN** `ITacticalShellState.viewerPlayerId` SHALL identify the local viewer
+- **AND** `opponentVisibilityScopes` SHALL map each opposing player id to their visibility tier (`exact`, `rough`, `last-known`, `hidden`, `unknown`)
+- **AND** the shell SHALL NOT leak hidden opponent state across viewer boundaries
+- **AND** redaction SHALL occur in the data adapter that feeds the shell, not in CSS visibility
+
+#### Scenario: PvP shell renders symmetric chrome for two player factions
+- **GIVEN** a PvP match where player A and player B hold opposing forces
+- **WHEN** player B opens the shell on their client
+- **THEN** the same slot contract SHALL render with player B as `viewerPlayerId`
+- **AND** action dock, inspectors, and intel projection SHALL bind to player B's force without requiring a separate component tree
