@@ -23,7 +23,7 @@ import type {
   SlotId,
 } from '@/types/gameplay/TacticalShellInterfaces';
 
-import { useShellSlotRegistryContext } from './TacticalCommandShell';
+import { useTacticalShell } from './TacticalCommandShell';
 
 export interface ShellSlotProps {
   /** Named shell slot id (top-band, map-center, right-tray, etc.). */
@@ -51,6 +51,11 @@ export interface ShellSlotProps {
  * lives in a `useEffect` so it survives StrictMode double-invocation
  * and self-cleans on unmount via the unregister-with-ownerId-match
  * guard in `useShellSlotRegistry`.
+ *
+ * PR-C: shellMode-aware filtering. If `modes` is non-empty AND does
+ * NOT include the current shell mode, the slot does NOT register and
+ * its children do NOT render. Default (`modes` omitted or empty) means
+ * "all modes" — backward-compatible with PR-B's behavior.
  */
 export function ShellSlot({
   id,
@@ -59,9 +64,16 @@ export function ShellSlot({
   modes,
   children,
 }: ShellSlotProps): ReactElement {
-  const registry = useShellSlotRegistryContext();
+  const { registry, shellMode } = useTacticalShell();
+
+  // A slot owner with `modes` constraint only takes effect in the
+  // listed modes. Per spec `Shell Mode Ownership`, the same slot
+  // contract supports combat/replay/spectator/GM via mode-filtered
+  // owner selection.
+  const modeMatches = !modes || modes.length === 0 || modes.includes(shellMode);
 
   useEffect(() => {
+    if (!modeMatches) return undefined;
     // Snapshot of modes to keep the dep array stable when the caller
     // passes an inline array literal.
     const snapshot: readonly ShellMode[] = modes ?? [];
@@ -69,7 +81,15 @@ export function ShellSlot({
     return () => {
       registry.unregister(id, ownerId);
     };
-  }, [id, ownerId, primary, modes, registry]);
+  }, [id, ownerId, primary, modes, registry, modeMatches]);
+
+  // Hide children in non-matching modes too — per the spec's
+  // "Spectator mode disables private commands" scenario, an
+  // action-dock slot owner with modes={['combat']} must NOT render
+  // its commands in spectator mode (not just refuse to register).
+  if (!modeMatches) {
+    return <></>;
+  }
 
   // Transparent Fragment — no DOM wrapper, no style, no class. Layout
   // markup in the host (today: GameplayLayout's flex tree) keeps
