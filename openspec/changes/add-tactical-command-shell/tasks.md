@@ -1,9 +1,9 @@
 ## 1. Shell Contract
 
-- [ ] 1.1 Define `ITacticalShellState`, shell modes, slot ids, and primary-home mapping in gameplay UI types
+- [x] 1.1 Define `ITacticalShellState`, shell modes, slot ids, and primary-home mapping in gameplay UI types
   > **Note (Wave 7.0 gate):** `ITacticalShellState` MUST distinguish three independent unit references — `selectedUnit` (clicked token), `activeUnit` (whose turn it is), and `inspectedUnit` (open in right-tray record sheet). Action dock binds to `activeUnit`; inspector binds to `inspectedUnit`; map highlight binds to `selectedUnit`. No cross-coupling. This avoids the MegaMek PR #5540 → #5573 firing-arc regression where a single `currentEntity` reference silently broke arc redraw on cross-selection.
   > **Note (Wave 7.0 gate):** `ITacticalShellState` MUST carry `viewerPlayerId` and `opponentVisibilityScopes` from day one (see spec.md `Per-Viewer Visibility Scope` requirement). These fields are forward-compat hooks for co-op N≥2 and PvP campaigns — they may be defaulted in single-viewer matches but the type surface lands now to avoid a future breaking change to the shell contract.
-- [ ] 1.2 Add a shell slot registry that maps phase, actions, inspectors, lenses, event feed, minimap, and replay controls to owners
+- [x] 1.2 Add a shell slot registry that maps phase, actions, inspectors, lenses, event feed, minimap, and replay controls to owners
   > **Note (Wave 7.0 gate):** This task creates the slot-registry surface. Lens additions in `add-tactical-map-lenses-feed-replay` that extend `src/components/gameplay/HexMapDisplay/useMapLayerState.ts` MUST wait for this slot registry to land — sequencing constraint to avoid a collision between shell ownership of the lens-control surface and lens-id extensions to the underlying layer state.
 
 ## 2. Layout Composition
