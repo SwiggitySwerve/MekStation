@@ -43,4 +43,4 @@
 - [x] 6.1 Author the delta at `openspec/changes/add-campaign-command-center/specs/campaign-system/spec.md` adding "Campaign Command Center Dashboard" requirement with 9 scenarios
 - [x] 6.2 `openspec validate add-campaign-command-center --strict` passes
 - [x] 6.3 `npm run build`, lint, `tsc --noEmit`, jest, `npm run test:e2e -- playtest-campaign-smoke.spec.ts` all pass (verified locally; CI gates them)
-- [ ] 6.4 Archive the change to `openspec/changes/archive/2026-05-20-add-campaign-command-center/` after merge
+- [x] 6.4 Archive the change to `openspec/changes/archive/2026-05-20-add-campaign-command-center/` after merge
