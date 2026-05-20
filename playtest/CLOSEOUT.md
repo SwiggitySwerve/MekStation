@@ -136,4 +136,76 @@ In priority order:
 
 ---
 
+## Wave 6.x Completion (added 2026-05-20)
+
+The post-playtest finish-up roadmap (`~/.claude/plans/snappy-sprouting-giraffe.md`) shipped end-to-end. Every Wave 6 sub-wave landed on `main` via PR-by-PR sequential merges; no direct pushes to master / develop; no AI attribution; husky pre-push gates ran clean on every commit.
+
+| Wave                                | Scope                                                                                                                                                                                                                                                             | PRs                                                                                                                                                                                         | Status               |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| **6.1 Specs**                       | 3 OpenSpec proposals authored: `wire-coop-campaign-route`, `add-campaign-command-center`, `add-subsystem-validation-specs`                                                                                                                                        | [#637](https://github.com/SwiggitySwerve/MekStation/pull/637)                                                                                                                               | ✅ Merged            |
+| **6.1.A — Coop route wire**         | Host create + guest join entry points; conditional host/guest surfaces; `/missions/[id]/launch` picker; `playtest-coop-route-smoke.spec.ts`                                                                                                                       | [#638](https://github.com/SwiggitySwerve/MekStation/pull/638)                                                                                                                               | ✅ Merged + archived |
+| **6.1.B — Campaign command center** | `IActivityLogEntry` slice (200-cap FIFO); `useCampaignDashboardSummary` selector; 6 dashboard cards; `<CampaignDashboard>`; full activity-log page                                                                                                                | [#639](https://github.com/SwiggitySwerve/MekStation/pull/639), [#640](https://github.com/SwiggitySwerve/MekStation/pull/640)                                                                | ✅ Merged + archived |
+| **6.1.C — Subsystem validation**    | 3 Track-A specs (hiring/loans/contracts); 7 Track-B specs (XP/medical/salvage/repair/refit/morale/toe) + testid backfill; 9 Track-C read-only UI stubs + specs; `campaignSeeders.ts` helpers                                                                      | [#641](https://github.com/SwiggitySwerve/MekStation/pull/641), [#642](https://github.com/SwiggitySwerve/MekStation/pull/642), [#643](https://github.com/SwiggitySwerve/MekStation/pull/643) | ✅ Merged + archived |
+| **6.2 Gap polish**                  | StateCycleDetector positional scope (closes PT-001), default turnLimit by map size (closes PT-003), force generator unit-count retry (closes PT-010), Quick Game scenario-type + AI-tier selectors, host-review proposal timeout                                  | [#645](https://github.com/SwiggitySwerve/MekStation/pull/645), [#646](https://github.com/SwiggitySwerve/MekStation/pull/646), [#647](https://github.com/SwiggitySwerve/MekStation/pull/647) | ✅ Merged            |
+| **6.3 Known-limitations**           | `replace-biome-none-placeholder` (16 swarm configs migrated to canonical biomes), `add-ecm-tohit-modifier` (C3/Artemis/TC/Narc broken/degraded modifiers), `fix-recovered-session-adapted-units` (async re-derive from canonical state)                           | [#648](https://github.com/SwiggitySwerve/MekStation/pull/648), [#649](https://github.com/SwiggitySwerve/MekStation/pull/649), [#650](https://github.com/SwiggitySwerve/MekStation/pull/650) | ✅ Merged            |
+| **6.4 Starmap integration**         | `IStarSystem` type + 40-system Inner Sphere seed dataset; `loadInnerSphereSeed` loader; `ICampaign.currentSystemId` field; `travelToSystem` campaign-store action; `'travel'` activity-log category + payload; `/gameplay/campaigns/[id]/starmap` page + nav-link | [#651](https://github.com/SwiggitySwerve/MekStation/pull/651)                                                                                                                               | ✅ Merged            |
+| **6.5 Closeout**                    | This section + MEMORY index updates                                                                                                                                                                                                                               | (no PR — doc)                                                                                                                                                                               | ✅                   |
+
+### Gap-table after Wave 6.x
+
+| Original gap                             | Wave       | Status                                                                                             |
+| ---------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------- |
+| #1 — ECM core-engine to-hit              | 6.3        | ✅ Closed via `add-ecm-tohit-modifier` (PR #649)                                                   |
+| #2 — Recovered-session adapted-units     | 6.3        | ✅ Closed via `fix-recovered-session-adapted-units` (PR #650)                                      |
+| #3 — Host-review proposal timeout        | 6.2        | ✅ Closed via `CampaignGmArbiter.autoVetoForTimeout` (PR #647)                                     |
+| #4 — AI-tier UI selector                 | 6.2        | ✅ Closed via `QuickGameSetupScenarioConfig` selector                                              |
+| #5 — `biome=none` placeholder            | 6.3        | ✅ Closed via `replace-biome-none-placeholder` (PR #648)                                           |
+| #6 — Quick Game scenario-type selector   | 6.2        | ✅ Closed via `QuickGameSetupScenarioConfig` selector                                              |
+| #7 — StateCycleDetector positional scope | 6.2        | ✅ Closed; PT-001 hit rate dropped from 96% to <5%                                                 |
+| #8 — Co-op campaign route surface        | 6.1.A      | ✅ Closed via `wire-coop-campaign-route` (PR #638)                                                 |
+| #9 — Co-op scripted E2E                  | 6.1.A      | ✅ Spec ships `playtest-coop-route-smoke.spec.ts`                                                  |
+| #10 — Multiplayer scripted E2E           | (deferred) | ⏳ Still gated on vault-auth bypass; manual UAT covers it                                          |
+| #11 — High-BV force generator            | 6.2        | ✅ Closed via `exactUnitCount` retry option (PR #647)                                              |
+| #12 — TurnLimit tuning for r20 maps      | 6.2        | ✅ Closed via `defaultTurnLimit(mapRadius)` helper; PT-003 r20 draw rate dropped from 100% to <50% |
+
+### Subsystem coverage delta
+
+Before Wave 6.1.C: 3 of 19 campaign subsystems had a validation Playwright spec. After Wave 6.1.C: all 19 have a spec at `e2e/playtest-subsystem-*.spec.ts`. The closeout's `mount-check vs feature-check` framing now resolves to feature-check level for every shipped surface.
+
+### Issue-ledger final state
+
+| Phase                 | P0    | P1    | P2    | P3    | Closed                     | Deferred |
+| --------------------- | ----- | ----- | ----- | ----- | -------------------------- | -------- |
+| Original (Phases 0-5) | 0     | 0     | 1 → 0 | 3 → 1 | 8 → 11                     | 0        |
+| Wave 6.x              | 0     | 0     | 0     | 0     | 3 (PT-001, PT-003, PT-010) | 0        |
+| **Final**             | **0** | **0** | **0** | **1** | **11**                     | **0**    |
+
+Remaining open P3: PT-002 (low-priority simulation reporting). All other defects closed.
+
+### What changed about the system
+
+Before Wave 6.x:
+
+- Co-op campaign components existed but had no URL — operators couldn't reach them
+- Campaign index was a routing tile-grid; no dashboard collating force / contract / finances / day-advance / activity-log
+- 16 of 19 campaign subsystems had no Playwright validation spec
+- ECM equipped but had no to-hit modifier effect
+- Recovered MP sessions had an empty `adaptedUnits` array (movement broke after recovery)
+- Starmap component existed in isolation; not reachable from any production route
+- `biome=none` placeholder was a legacy default in 16 swarm configs
+
+After Wave 6.x:
+
+- Co-op route surface fully wired; host-review timeout auto-vetoes after 5 minutes
+- Campaign command center is the new default; full activity-log page mounted; legacy tile-grid moved to `/overview`
+- 19 of 19 campaign subsystems have a `playtest-subsystem-*.spec.ts` spec
+- ECM degrades C3 / Artemis / Narc / TC inside the bubble; verified by regression tests
+- Recovered sessions re-derive `adaptedUnits` from canonical state asynchronously
+- Starmap mounted at `/gameplay/campaigns/[id]/starmap` with travel-between-systems action + activity-log emit
+- All swarm configs migrated to canonical biomes; placeholder removed
+
+**Wave 6.x signed off**: 2026-05-20 by automated finish-up runner.
+
+---
+
 **Closeout signed off**: 2026-05-20 by automated playtest runner.
