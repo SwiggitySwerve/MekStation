@@ -8,7 +8,12 @@
  * @design D9 — JSON config is primary input; Zod validates at parse time
  */
 
-import { SwarmConfigSchema, SwarmSideConfigSchema } from '../swarmConfigSchema';
+import {
+  CANONICAL_BIOMES,
+  SwarmConfigSchema,
+  SwarmSideConfigSchema,
+  normalizeTerrainBiome,
+} from '../swarmConfigSchema';
 
 // =============================================================================
 // Minimal valid inputs used across multiple tests
@@ -221,9 +226,12 @@ describe('SwarmConfigSchema', () => {
       expect(result.mapRadius).toBe(12);
     });
 
-    it('applies default terrainBiome = none', () => {
+    it('applies default terrainBiome = temperate (replace-biome-none-placeholder)', () => {
+      // Per `replace-biome-none-placeholder` (closes playtest gap #5):
+      // the default biome is `'temperate'`. The legacy `'none'` placeholder
+      // is no longer a valid variant.
       const result = SwarmConfigSchema.parse(VALID_CONFIG);
-      expect(result.terrainBiome).toBe('none');
+      expect(result.terrainBiome).toBe('temperate');
     });
 
     it('applies default output path', () => {
@@ -298,5 +306,91 @@ describe('SwarmConfigSchema', () => {
       });
       expect(result.success).toBe(false);
     });
+  });
+});
+
+// =============================================================================
+// replace-biome-none-placeholder (closes playtest gap #5)
+// =============================================================================
+//
+// The placeholder 'none' is no longer a valid terrainBiome value. Legacy
+// configs that pass 'none' receive a deterministic fallback to 'temperate'
+// with a mandatory console.warn (the warning is the regression signal in
+// CI logs — silent fallback would let stale data hide). Any other unknown
+// biome rejects with a migration-path error.
+
+describe("normalizeTerrainBiome — biome 'none' migration", () => {
+  let warnSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  it('returns each canonical biome unchanged', () => {
+    for (const biome of CANONICAL_BIOMES) {
+      expect(normalizeTerrainBiome(biome)).toBe(biome);
+    }
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  it("legacy 'none' emits console.warn and falls back to 'temperate'", () => {
+    expect(normalizeTerrainBiome('none')).toBe('temperate');
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    // The warning identifies the offending caller surface so the CI log
+    // makes the regression source obvious.
+    expect(warnSpy.mock.calls[0][0]).toMatch(/swarmConfigSchema/);
+    expect(warnSpy.mock.calls[0][0]).toMatch(/biome 'none'/);
+  });
+
+  it("rejects an unknown non-'none' biome with a migration-path error", () => {
+    expect(() => normalizeTerrainBiome('lunar')).toThrow(/no longer supported/);
+    expect(() => normalizeTerrainBiome('lunar')).toThrow(
+      /replace-biome-none-placeholder/,
+    );
+  });
+});
+
+describe("SwarmConfigSchema — biome 'none' migration through the validator", () => {
+  let warnSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  it("legacy terrainBiome: 'none' parses through to 'temperate' with a warning", () => {
+    const result = SwarmConfigSchema.parse({
+      ...VALID_CONFIG,
+      terrainBiome: 'none',
+    });
+    expect(result.terrainBiome).toBe('temperate');
+    expect(warnSpy).toHaveBeenCalled();
+  });
+
+  it('accepts each canonical biome explicitly', () => {
+    for (const biome of CANONICAL_BIOMES) {
+      const result = SwarmConfigSchema.parse({
+        ...VALID_CONFIG,
+        terrainBiome: biome,
+      });
+      expect(result.terrainBiome).toBe(biome);
+    }
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  it("rejects an unknown non-'none' biome with the migration-path error", () => {
+    expect(() =>
+      SwarmConfigSchema.parse({
+        ...VALID_CONFIG,
+        terrainBiome: 'tropical-rainforest',
+      }),
+    ).toThrow(/no longer supported/);
   });
 });
