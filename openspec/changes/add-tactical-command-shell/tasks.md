@@ -8,8 +8,8 @@
 
 ## 2. Layout Composition
 
-- [ ] 2.1 Create a tactical command shell component around the existing map without wrapping the map in a card
-- [ ] 2.2 Move phase banner, action panel, minimap, inspector, and event feed into named slots
+- [x] 2.1 Create a tactical command shell component around the existing map without wrapping the map in a card
+- [x] 2.2 Move phase banner, action panel, minimap, inspector, and event feed into named slots
 - [ ] 2.3 Add pinned/collapsed tray behavior with persistence scoped to the current match
 
 ## 3. Mode Integration

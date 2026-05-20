@@ -50,6 +50,7 @@ import {
 import { HexMapDisplay } from './HexMapDisplay';
 import { MoraleIndicator } from './MoraleIndicator';
 import { PhaseBanner } from './PhaseBanner';
+import { ShellSlot, TacticalCommandShell } from './TacticalCommandShell';
 
 export type { GameplayLayoutProps } from './GameplayLayout.types';
 
@@ -363,160 +364,188 @@ export function GameplayLayout({
   );
 
   return (
-    <div
-      className={`flex h-full flex-col bg-gray-100 ${className}`}
-      data-testid="gameplay-layout"
-    >
-      {/* Phase Banner — hosts the drawer toggle in the persistent HUD
-          only below the `lg:` breakpoint (§ 1.3). Above that the
-          record sheet is always visible and the toggle is
-          unnecessary. */}
-      <PhaseBanner
-        phase={currentState.phase}
-        turn={currentState.turn}
-        activeSide={currentState.firstMover || GameSide.Player}
-        isPlayerTurn={isPlayerTurn}
-        drawer={
-          isNarrow
-            ? {
-                isDrawerOpen: drawerOpen,
-                onToggleDrawer: handleToggleDrawer,
-              }
-            : undefined
-        }
-      />
-
-      {/* Per `add-combat-morale-and-withdrawal` § 4.3: per-side
-          in-battle morale readout. `battleMorale` is event-sourced on
-          the derived state; defaults to all-`STEADY` for legacy
-          sessions whose log predates the morale system. */}
-      {currentState.battleMorale && (
-        <MoraleIndicator
-          battleMorale={currentState.battleMorale}
-          className="mx-2 mt-1"
-        />
-      )}
-
-      {/* Main Content Area */}
+    // Wave 7.1 PR-B: TacticalCommandShell is a logical context provider —
+    // it has zero visible chrome. The existing flex tree below is
+    // unchanged; ShellSlot wrappers are React Fragments that register
+    // slot ownership in `useEffect` without adding DOM. This preserves
+    // every data-testid the Wave 7.0 e2e gate test
+    // (`e2e/gameplay-layout-slots.spec.ts`) asserts, so the gate stays
+    // green through the migration and catches any parallel-hierarchy
+    // regression (Council Momus Attack #4).
+    <TacticalCommandShell viewerPlayerId={localFogPlayerId}>
       <div
-        ref={containerRef}
-        className="flex flex-1 overflow-hidden"
-        data-testid="gameplay-main-content"
+        className={`flex h-full flex-col bg-gray-100 ${className}`}
+        data-testid="gameplay-layout"
       >
-        {/* Map Panel — on narrow layouts we give the map the full
-            width because the record sheet lives in an overlay
-            drawer. On desktop the width is driven by the resizable
-            split-view config. */}
-        <div
-          className="relative"
-          style={{ width: isNarrow ? '100%' : `${layout.mapPanelWidth}%` }}
-          data-testid="map-panel"
-        >
-          <HexMapDisplay
-            radius={config.mapRadius}
-            tokens={tokens}
-            mapId={session.id}
-            events={visibleEvents}
-            selectedHex={selectedUnit?.position || null}
-            hexTerrain={hexTerrain}
-            movementRange={movementRange}
-            unitWeapons={unitWeapons}
-            friendlySide={playerSide}
-            highlightPath={highlightPath}
-            hoverMpCost={hoverMpCost}
-            hoverUnreachable={hoverUnreachable}
-            mpLegend={mpLegend}
-            onHexClick={handleHexClick}
-            onHexHover={onHexHover}
-            onTokenClick={handleTokenClick}
-            onTokenDoubleClick={handleTokenDoubleClick}
-            onInteractionReady={setMapInteraction}
-            overlayChildren={
-              <MapOverlayChildren
-                mapRadius={config.mapRadius}
-                tokens={tokens}
-                camera={{ zoom: camera.zoom, pan: camera.pan }}
-                onCenterAt={handleMinimapCenterAt}
-                onDragPan={handleMinimapDragPan}
-                minimapVisible={minimapVisible}
-                helpOpen={helpOpen}
-                onCloseHelp={handleCloseHelp}
-              />
+        {/* Phase Banner — hosts the drawer toggle in the persistent HUD
+            only below the `lg:` breakpoint (§ 1.3). Above that the
+            record sheet is always visible and the toggle is
+            unnecessary. */}
+        <ShellSlot id="top-band" ownerId="PhaseBanner">
+          <PhaseBanner
+            phase={currentState.phase}
+            turn={currentState.turn}
+            activeSide={currentState.firstMover || GameSide.Player}
+            isPlayerTurn={isPlayerTurn}
+            drawer={
+              isNarrow
+                ? {
+                    isDrawerOpen: drawerOpen,
+                    onToggleDrawer: handleToggleDrawer,
+                  }
+                : undefined
             }
-            className="h-full"
           />
-          {interactivePhase && <HitChancePanel hitChance={hitChance} />}
+        </ShellSlot>
+
+        {/* Per `add-combat-morale-and-withdrawal` § 4.3: per-side
+            in-battle morale readout. `battleMorale` is event-sourced on
+            the derived state; defaults to all-`STEADY` for legacy
+            sessions whose log predates the morale system. */}
+        {currentState.battleMorale && (
+          <ShellSlot id="morale-band" ownerId="MoraleIndicator">
+            <MoraleIndicator
+              battleMorale={currentState.battleMorale}
+              className="mx-2 mt-1"
+            />
+          </ShellSlot>
+        )}
+
+        {/* Main Content Area */}
+        <div
+          ref={containerRef}
+          className="flex flex-1 overflow-hidden"
+          data-testid="gameplay-main-content"
+        >
+          {/* Map Panel — on narrow layouts we give the map the full
+              width because the record sheet lives in an overlay
+              drawer. On desktop the width is driven by the resizable
+              split-view config. */}
+          <ShellSlot id="map-center" ownerId="HexMapDisplay">
+            <div
+              className="relative"
+              style={{ width: isNarrow ? '100%' : `${layout.mapPanelWidth}%` }}
+              data-testid="map-panel"
+            >
+              <HexMapDisplay
+                radius={config.mapRadius}
+                tokens={tokens}
+                mapId={session.id}
+                events={visibleEvents}
+                selectedHex={selectedUnit?.position || null}
+                hexTerrain={hexTerrain}
+                movementRange={movementRange}
+                unitWeapons={unitWeapons}
+                friendlySide={playerSide}
+                highlightPath={highlightPath}
+                hoverMpCost={hoverMpCost}
+                hoverUnreachable={hoverUnreachable}
+                mpLegend={mpLegend}
+                onHexClick={handleHexClick}
+                onHexHover={onHexHover}
+                onTokenClick={handleTokenClick}
+                onTokenDoubleClick={handleTokenDoubleClick}
+                onInteractionReady={setMapInteraction}
+                // TODO PR-C: MapOverlayChildren contains the minimap-cluster
+                // slot owner; register it via its own ShellSlot once the
+                // overlay-children prop contract is reworked to allow
+                // sibling slot registration alongside the SVG portal.
+                overlayChildren={
+                  <MapOverlayChildren
+                    mapRadius={config.mapRadius}
+                    tokens={tokens}
+                    camera={{ zoom: camera.zoom, pan: camera.pan }}
+                    onCenterAt={handleMinimapCenterAt}
+                    onDragPan={handleMinimapDragPan}
+                    minimapVisible={minimapVisible}
+                    helpOpen={helpOpen}
+                    onCloseHelp={handleCloseHelp}
+                  />
+                }
+                className="h-full"
+              />
+              {interactivePhase && <HitChancePanel hitChance={hitChance} />}
+            </div>
+          </ShellSlot>
+
+          {/* Desktop split-view: resize handle + record sheet panel.
+              Hidden below `lg:` (isNarrow) where the drawer takes
+              over. */}
+          {!isNarrow && (
+            <>
+              <div
+                className="w-1 cursor-col-resize bg-gray-300 transition-colors hover:bg-blue-400"
+                onMouseDown={() => setIsDragging(true)}
+                data-testid="resize-handle"
+              />
+              <ShellSlot id="right-tray" ownerId="RecordSheetPanel">
+                <div
+                  className="flex-1 overflow-hidden"
+                  style={{ width: `${100 - layout.mapPanelWidth}%` }}
+                  data-testid="record-sheet-panel"
+                >
+                  {recordSheetBody}
+                </div>
+              </ShellSlot>
+            </>
+          )}
         </div>
 
-        {/* Desktop split-view: resize handle + record sheet panel.
-            Hidden below `lg:` (isNarrow) where the drawer takes
-            over. */}
-        {!isNarrow && (
-          <>
-            <div
-              className="w-1 cursor-col-resize bg-gray-300 transition-colors hover:bg-blue-400"
-              onMouseDown={() => setIsDragging(true)}
-              data-testid="resize-handle"
-            />
-            <div
-              className="flex-1 overflow-hidden"
-              style={{ width: `${100 - layout.mapPanelWidth}%` }}
-              data-testid="record-sheet-panel"
-            >
+        {/* Mobile drawer overlay — only mounted below `lg:` when open.
+            The backdrop captures outside-clicks to close the drawer,
+            matching native mobile-app conventions. `id` wires up to
+            PhaseBanner's `aria-controls` for screen readers. */}
+        {isNarrow && (
+          <ShellSlot id="mobile-drawer" ownerId="RecordSheetDrawer">
+            <RecordSheetDrawer open={drawerOpen} onToggle={handleToggleDrawer}>
               {recordSheetBody}
-            </div>
-          </>
+            </RecordSheetDrawer>
+          </ShellSlot>
         )}
+
+        {/* Action Bar */}
+        <ShellSlot id="bottom-dock" ownerId="ActionBar">
+          <ActionBar
+            phase={currentState.phase}
+            canUndo={canUndo}
+            canAct={isPlayerTurn}
+            onAction={onAction}
+            infoText={
+              interactivePhase ? `Interactive: ${interactivePhase}` : undefined
+            }
+            trailingActions={
+              interactiveSession ? (
+                // Per `add-combat-morale-and-withdrawal` § 4.1: the
+                // withdraw control + concede button. Extracted into
+                // `GameplayLayout.sections` to keep this file under the
+                // size cap.
+                <WithdrawalTrailingActions
+                  interactiveSession={interactiveSession}
+                  sessionId={session.id}
+                  playerSide={playerSide}
+                  selectedUnit={selectedUnit}
+                  isPlayerTurn={isPlayerTurn}
+                />
+              ) : undefined
+            }
+          />
+        </ShellSlot>
+
+        {/* Event Log */}
+        <ShellSlot id="feed" ownerId="EventLogDisplay">
+          <EventLogDisplay
+            events={visibleEvents}
+            collapsed={layout.eventLogCollapsed}
+            onCollapsedChange={(collapsed) =>
+              setLayout((prev) => ({ ...prev, eventLogCollapsed: collapsed }))
+            }
+            maxHeight={150}
+            actorLookup={eventActorLookup}
+            weaponLookup={eventWeaponLookup}
+          />
+        </ShellSlot>
       </div>
-
-      {/* Mobile drawer overlay — only mounted below `lg:` when open.
-          The backdrop captures outside-clicks to close the drawer,
-          matching native mobile-app conventions. `id` wires up to
-          PhaseBanner's `aria-controls` for screen readers. */}
-      {isNarrow && (
-        <RecordSheetDrawer open={drawerOpen} onToggle={handleToggleDrawer}>
-          {recordSheetBody}
-        </RecordSheetDrawer>
-      )}
-
-      {/* Action Bar */}
-      <ActionBar
-        phase={currentState.phase}
-        canUndo={canUndo}
-        canAct={isPlayerTurn}
-        onAction={onAction}
-        infoText={
-          interactivePhase ? `Interactive: ${interactivePhase}` : undefined
-        }
-        trailingActions={
-          interactiveSession ? (
-            // Per `add-combat-morale-and-withdrawal` § 4.1: the
-            // withdraw control + concede button. Extracted into
-            // `GameplayLayout.sections` to keep this file under the
-            // size cap.
-            <WithdrawalTrailingActions
-              interactiveSession={interactiveSession}
-              sessionId={session.id}
-              playerSide={playerSide}
-              selectedUnit={selectedUnit}
-              isPlayerTurn={isPlayerTurn}
-            />
-          ) : undefined
-        }
-      />
-
-      {/* Event Log */}
-      <EventLogDisplay
-        events={visibleEvents}
-        collapsed={layout.eventLogCollapsed}
-        onCollapsedChange={(collapsed) =>
-          setLayout((prev) => ({ ...prev, eventLogCollapsed: collapsed }))
-        }
-        maxHeight={150}
-        actorLookup={eventActorLookup}
-        weaponLookup={eventWeaponLookup}
-      />
-    </div>
+    </TacticalCommandShell>
   );
 }
 

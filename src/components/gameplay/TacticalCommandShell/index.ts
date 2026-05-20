@@ -12,6 +12,16 @@ export {
   type IShellSlotRegistry,
 } from './useShellSlotRegistry';
 
+export {
+  TacticalCommandShell,
+  useTacticalShell,
+  useShellSlotRegistryContext,
+  type ITacticalShellContext,
+  type TacticalCommandShellProps,
+} from './TacticalCommandShell';
+
+export { ShellSlot, type ShellSlotProps } from './ShellSlot';
+
 export type {
   ITacticalShellState,
   IShellActiveContext,
