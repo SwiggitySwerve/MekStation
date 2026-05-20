@@ -1,5 +1,6 @@
 import { Faction } from '@/constants/scenario/rats';
 import { GameEngine } from '@/engine/GameEngine';
+import { createGridFromGeneratedMap } from '@/engine/GameEngine.helpers';
 import { scenarioGenerator } from '@/services/generators';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import {
@@ -10,6 +11,7 @@ import {
 } from '@/types/gameplay';
 import {
   IQuickGameForce,
+  IQuickGameInstance,
   QuickGameStep,
   createQuickGameUnit,
   createQuickGameInstance,
@@ -20,6 +22,20 @@ import { Era } from '@/types/temporal/Era';
 import type { QuickGameStore } from './useQuickGameStore.types';
 
 import { adaptUnits } from './useQuickGameStore.helpers';
+
+function createEngineForQuickGame(game: IQuickGameInstance): GameEngine {
+  const mapRadius = game.scenario?.mapPreset.radius ?? 7;
+  const grid = game.scenario?.generatedMap
+    ? createGridFromGeneratedMap(mapRadius, game.scenario.generatedMap)
+    : undefined;
+
+  return new GameEngine({
+    seed: Date.now(),
+    mapRadius,
+    turnLimit: game.scenario?.turnLimit,
+    grid,
+  });
+}
 
 type SetFn = (
   partial:
@@ -166,7 +182,7 @@ export function createBattleActions(
           })),
         ];
 
-        const engine = new GameEngine({ seed: Date.now() });
+        const engine = createEngineForQuickGame(game);
         const session = engine.runToCompletion(
           playerAdapted,
           opponentAdapted,
@@ -247,7 +263,7 @@ export function createBattleActions(
           })),
         ];
 
-        const engine = new GameEngine({ seed: Date.now() });
+        const engine = createEngineForQuickGame(game);
         const interactiveSession = engine.createInteractiveSession(
           playerAdapted,
           opponentAdapted,

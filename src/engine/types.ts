@@ -5,7 +5,10 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IUnitGameState } from '@/types/gameplay/GameSessionInterfaces';
-import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
+import type {
+  IHexCoordinate,
+  IHexGrid,
+} from '@/types/gameplay/HexGridInterfaces';
 
 // =============================================================================
 // Engine Configuration
@@ -21,6 +24,11 @@ export interface IGameEngineConfig {
   readonly turnLimit?: number;
   /** Random seed for deterministic playback (default: Date.now()) */
   readonly seed?: number;
+  /**
+   * Optional canonical battle map. When provided, movement, LOS, heat, and
+   * AI pathing resolve against this grid instead of a clear placeholder map.
+   */
+  readonly grid?: IHexGrid;
 }
 
 // =============================================================================

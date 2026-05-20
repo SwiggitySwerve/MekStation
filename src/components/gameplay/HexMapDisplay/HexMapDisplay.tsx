@@ -9,6 +9,7 @@ import type {
   IHex,
   IGameEvent,
   IWeaponStatus,
+  MapProjectionMode,
 } from '@/types/gameplay';
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 
@@ -23,8 +24,8 @@ import { GameSide, TerrainType } from '@/types/gameplay';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 
 import { HexCell } from './HexCell';
+import { MapControls } from './HexMapDisplay.controls';
 import {
-  MapControls,
   MapHtmlOverlays,
   ObjectiveMarkersLayer,
   SensorRingsLayer,
@@ -32,6 +33,7 @@ import {
   UnitTokensLayer,
 } from './HexMapDisplay.layers';
 import { TerrainPatternDefs } from './Overlays';
+import { getMapProjectionTransform } from './projection';
 import { generateHexesInRadius, hexEquals, hexInList } from './renderHelpers';
 import {
   useMapInteraction,
@@ -106,6 +108,7 @@ export interface HexMapDisplayProps {
    * positioning logic.
    */
   overlayChildren?: React.ReactNode;
+  projectionMode?: MapProjectionMode;
   showCoordinates?: boolean;
   className?: string;
 }
@@ -140,6 +143,7 @@ export function HexMapDisplay({
   onTokenDoubleClick,
   onInteractionReady,
   overlayChildren,
+  projectionMode = 'topDown',
   showCoordinates = false,
   className = '',
 }: HexMapDisplayProps): React.ReactElement {
@@ -147,7 +151,10 @@ export function HexMapDisplay({
   const activeAnimations = useAnimationQueue((s) => s.active);
   const screenShake = useScreenShake({ events });
 
-  const interaction = useMapInteraction(radius);
+  const interaction = useMapInteraction(radius, projectionMode);
+  const projectionTransform = getMapProjectionTransform(
+    interaction.projectionMode,
+  );
 
   const hexes = useMemo(() => generateHexesInRadius(radius), [radius]);
 
@@ -343,114 +350,122 @@ export function HexMapDisplay({
         <defs>
           <TerrainSymbolDefs />
         </defs>
-        <g>
-          {hexes.map((hex) => {
-            const key = `${hex.q},${hex.r}`;
-            const terrain = terrainLookup.get(key);
-            const isSelected = selectedHex
-              ? hexEquals(hex, selectedHex)
-              : false;
-            const isHovered = hoveredHex ? hexEquals(hex, hoveredHex) : false;
-            const movementInfo = movementRangeLookup.get(key);
-            const isInAttackRange = hexInList(hex, attackRange);
-            const isInPath = hexInList(hex, highlightPath);
+        <g
+          data-testid="map-projection-layer"
+          data-projection-mode={interaction.projectionMode}
+          transform={projectionTransform}
+        >
+          <g>
+            {hexes.map((hex) => {
+              const key = `${hex.q},${hex.r}`;
+              const terrain = terrainLookup.get(key);
+              const isSelected = selectedHex
+                ? hexEquals(hex, selectedHex)
+                : false;
+              const isHovered = hoveredHex ? hexEquals(hex, hoveredHex) : false;
+              const movementInfo = movementRangeLookup.get(key);
+              const isInAttackRange = hexInList(hex, attackRange);
+              const isInPath = hexInList(hex, highlightPath);
 
-            // Per add-movement-phase-ui § 4.3: only the currently
-            // hovered reachable hex gets the MP cost badge.
-            const cellHoverMpCost =
-              isHovered && hoverMpCost !== undefined && movementInfo?.reachable
-                ? hoverMpCost
-                : undefined;
-            // Per § 4.4: flag the hovered cell when it's outside the
-            // reachable envelope so the tooltip layer keys off it.
-            const cellIsUnreachableHover =
-              isHovered && hoverUnreachable && !movementInfo?.reachable;
+              // Per add-movement-phase-ui § 4.3: only the currently
+              // hovered reachable hex gets the MP cost badge.
+              const cellHoverMpCost =
+                isHovered &&
+                hoverMpCost !== undefined &&
+                movementInfo?.reachable
+                  ? hoverMpCost
+                  : undefined;
+              // Per § 4.4: flag the hovered cell when it's outside the
+              // reachable envelope so the tooltip layer keys off it.
+              const cellIsUnreachableHover =
+                isHovered && hoverUnreachable && !movementInfo?.reachable;
 
-            return (
-              <HexCell
-                key={key}
-                hex={hex}
-                terrain={terrain}
-                terrainLookup={terrainLookup}
-                isSelected={isSelected}
-                isHovered={isHovered}
-                movementInfo={movementInfo}
-                isInAttackRange={isInAttackRange}
-                isInPath={isInPath}
-                showCoordinate={showCoordinates}
-                hoverMpCost={cellHoverMpCost}
-                isUnreachableHover={cellIsUnreachableHover}
-                onClick={() => handleHexClick(hex)}
-                onMouseEnter={() => handleHexHover(hex)}
-                onMouseLeave={() => handleHexHover(null)}
+              return (
+                <HexCell
+                  key={key}
+                  hex={hex}
+                  terrain={terrain}
+                  terrainLookup={terrainLookup}
+                  isSelected={isSelected}
+                  isHovered={isHovered}
+                  movementInfo={movementInfo}
+                  isInAttackRange={isInAttackRange}
+                  isInPath={isInPath}
+                  showCoordinate={showCoordinates}
+                  hoverMpCost={cellHoverMpCost}
+                  isUnreachableHover={cellIsUnreachableHover}
+                  onClick={() => handleHexClick(hex)}
+                  onMouseEnter={() => handleHexHover(hex)}
+                  onMouseLeave={() => handleHexHover(null)}
+                />
+              );
+            })}
+          </g>
+
+          {interaction.showFiringArcOverlay &&
+            selectedToken &&
+            selectedToken.side === friendlySide &&
+            !hasActiveMovementAnimation && (
+              <FiringArcOverlay
+                unit={{
+                  coord: selectedToken.position,
+                  facing: selectedToken.facing,
+                  unitId: selectedToken.unitId,
+                }}
+                hexes={hexes}
+                maxRange={selectedWeaponMaxRange}
+                visibleArcs={visibleFiringArcs}
+                enabled
+                testId="firing-arc-overlay"
               />
-            );
-          })}
-        </g>
+            )}
 
-        {interaction.showFiringArcOverlay &&
-          selectedToken &&
-          selectedToken.side === friendlySide &&
-          !hasActiveMovementAnimation && (
-            <FiringArcOverlay
-              unit={{
-                coord: selectedToken.position,
-                facing: selectedToken.facing,
-                unitId: selectedToken.unitId,
-              }}
-              hexes={hexes}
-              maxRange={selectedWeaponMaxRange}
-              visibleArcs={visibleFiringArcs}
-              enabled
-              testId="firing-arc-overlay"
-            />
-          )}
+          {interaction.showLOSOverlay &&
+            selectedUnitPosition &&
+            hoveredHex &&
+            !hasActiveMovementAnimation && (
+              <LineOfSightOverlay
+                origin={selectedUnitPosition}
+                target={hoveredHex}
+                grid={hexGrid}
+                tokens={tokens}
+                testId="los-overlay"
+              />
+            )}
 
-        {interaction.showLOSOverlay &&
-          selectedUnitPosition &&
-          hoveredHex &&
-          !hasActiveMovementAnimation && (
-            <LineOfSightOverlay
-              origin={selectedUnitPosition}
-              target={hoveredHex}
-              grid={hexGrid}
-              tokens={tokens}
-              testId="los-overlay"
-            />
-          )}
-
-        {/*
+          {/*
           Per add-scenario-objective-engine D6: objective markers
           render above the terrain layer and below unit tokens so a
           token standing on an objective hex stays visible on top.
         */}
-        {objectives && Object.keys(objectives).length > 0 && (
-          <ObjectiveMarkersLayer
-            objectives={objectives}
+          {objectives && Object.keys(objectives).length > 0 && (
+            <ObjectiveMarkersLayer
+              objectives={objectives}
+              tokens={tokens}
+              friendlySide={friendlySide}
+            />
+          )}
+
+          <SensorRingsLayer orderedTokens={orderedTokens} />
+
+          <UnitTokensLayer
+            orderedTokens={orderedTokens}
+            movementAnimationsByUnit={movementAnimationsByUnit}
+            events={events}
             tokens={tokens}
-            friendlySide={friendlySide}
+            onTokenClick={handleTokenClick}
+            onTokenDoubleClick={handleTokenDoubleClick}
           />
-        )}
 
-        <SensorRingsLayer orderedTokens={orderedTokens} />
+          <PersistentEffectsLayer tokens={tokens} events={events} />
+          <AttackEffectsLayer events={events} tokens={tokens} mapId={mapId} />
 
-        <UnitTokensLayer
-          orderedTokens={orderedTokens}
-          movementAnimationsByUnit={movementAnimationsByUnit}
-          events={events}
-          tokens={tokens}
-          onTokenClick={handleTokenClick}
-          onTokenDoubleClick={handleTokenDoubleClick}
-        />
-
-        <PersistentEffectsLayer tokens={tokens} events={events} />
-        <AttackEffectsLayer events={events} tokens={tokens} mapId={mapId} />
-
-        <TerrainOverlayLayers
-          interaction={interaction}
-          hexes={hexes}
-          terrainLookup={terrainLookup}
-        />
+          <TerrainOverlayLayers
+            interaction={interaction}
+            hexes={hexes}
+            terrainLookup={terrainLookup}
+          />
+        </g>
       </svg>
       <div className="sr-only" aria-live="polite">
         {screenShake.liveMessage}

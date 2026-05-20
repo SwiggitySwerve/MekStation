@@ -14,6 +14,7 @@ import React, {
 } from 'react';
 
 import { pixelToHex } from '@/constants/hexMap';
+import { hexTerrainFromGrid } from '@/engine/GameEngine.helpers';
 import { useCameraControls } from '@/hooks/useCameraControls';
 import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
@@ -193,6 +194,14 @@ export function GameplayLayout({
       validTargetIds,
       visibilityState,
     ],
+  );
+
+  const hexTerrain = useMemo(
+    () =>
+      interactiveSession
+        ? hexTerrainFromGrid(interactiveSession.getGrid())
+        : [],
+    [interactiveSession],
   );
 
   // Selected unit data
@@ -409,6 +418,7 @@ export function GameplayLayout({
             mapId={session.id}
             events={visibleEvents}
             selectedHex={selectedUnit?.position || null}
+            hexTerrain={hexTerrain}
             movementRange={movementRange}
             unitWeapons={unitWeapons}
             friendlySide={playerSide}

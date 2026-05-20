@@ -215,6 +215,56 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('routes movement and cover overlay toggles through typed layer state', () => {
+    const { unmount } = render(
+      <HexMapDisplay mapId="map-1" radius={1} tokens={[]} selectedHex={null} />,
+    );
+
+    expect(screen.queryByTestId('movement-overlay')).toBeNull();
+    expect(screen.queryByTestId('cover-overlay')).toBeNull();
+
+    fireEvent.click(screen.getByTestId('overlay-toggle-movement'));
+    fireEvent.click(screen.getByTestId('overlay-toggle-cover'));
+
+    expect(screen.getByTestId('movement-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('cover-overlay')).toBeInTheDocument();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('switches to render-only isometric preview without changing axial clicks', () => {
+    const onHexClick = jest.fn();
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        onHexClick={onHexClick}
+      />,
+    );
+
+    const projectionLayer = screen.getByTestId('map-projection-layer');
+    expect(projectionLayer).toHaveAttribute('data-projection-mode', 'topDown');
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'isometricPreview',
+    );
+    expect(projectionLayer.getAttribute('transform')).toContain('matrix(');
+
+    fireEvent.click(screen.getByTestId('hex-1-0'));
+    expect(onHexClick).toHaveBeenCalledWith({ q: 1, r: 0 });
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('hides the LOS line on hex click while leaving the committed click path to the host', () => {
     const onHexClick = jest.fn();
     const onHexHover = jest.fn();

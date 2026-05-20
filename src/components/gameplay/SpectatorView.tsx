@@ -8,6 +8,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { hexTerrainFromGrid } from '@/engine/GameEngine.helpers';
 import {
   useGameplaySelector,
   useGameplayStore,
@@ -142,6 +143,14 @@ export function SpectatorView(): React.ReactElement {
     });
   }, [session, unitInfoLookup]);
 
+  const hexTerrain = useMemo(
+    () =>
+      interactiveSession
+        ? hexTerrainFromGrid(interactiveSession.getGrid())
+        : [],
+    [interactiveSession],
+  );
+
   if (!session || !interactiveSession) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-900">
@@ -213,6 +222,7 @@ export function SpectatorView(): React.ReactElement {
             <HexMapDisplay
               radius={session.config.mapRadius}
               tokens={tokens}
+              hexTerrain={hexTerrain}
               selectedHex={null}
               showCoordinates={false}
             />
