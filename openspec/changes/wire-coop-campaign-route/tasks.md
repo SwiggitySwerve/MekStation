@@ -2,11 +2,11 @@
 
 ## 1. Campaign-list entry points
 
-- [ ] 1.1 Add a "Create Co-op Campaign" button alongside the existing "New Campaign" button on `src/pages/gameplay/campaigns/index.tsx` (testid `create-coop-campaign-btn`)
-- [ ] 1.2 Add a "Join Co-op Campaign" button on the same page that opens a room-code prompt (testid `join-coop-campaign-btn`); on submit, resolve the invite via the existing multiplayer invite endpoint
-- [ ] 1.3 Extend `useCampaignStore.createCampaign(name, factionId, opts)` to accept an optional `coopSession: { mode: 'host' }` so the freshly minted campaign is flagged as a co-op host session at creation time — no new store action needed
-- [ ] 1.4 Add a guest-side `createGuestMirrorCampaign(hostMatchId, snapshot)` action that mints a campaign with `coopSession = { mode: 'guest', hostMatchId }` from the CO1 snapshot the guest receives on join
-- [ ] 1.5 Tests: a host-mode campaign is marked co-op on creation; a guest-mode campaign is marked co-op via the join flow; the existing single-player creation path is untouched
+- [x] 1.1 Add a "Create Co-op Campaign" button alongside the existing "New Campaign" button on `src/pages/gameplay/campaigns/index.tsx` (testid `create-coop-campaign-btn`)
+- [x] 1.2 Add a "Join Co-op Campaign" button on the same page that opens a room-code prompt (testid `join-coop-campaign-btn`); on submit, resolve the invite via the existing multiplayer invite endpoint
+- [x] 1.3 Extend `useCampaignStore.createCampaign(name, factionId, opts)` to accept an optional `coopSession: { mode: 'host' }` so the freshly minted campaign is flagged as a co-op host session at creation time — no new store action needed
+- [x] 1.4 Add a guest-side `createGuestMirrorCampaign(hostMatchId, snapshot)` action that mints a campaign with `coopSession = { mode: 'guest', hostMatchId }` from the CO1 snapshot the guest receives on join
+- [x] 1.5 Tests: a host-mode campaign is marked co-op on creation; a guest-mode campaign is marked co-op via the join flow; the existing single-player creation path is untouched
 
 ## 2. Campaign detail tree — conditional host/guest render
 

@@ -113,6 +113,12 @@ export function serializeCampaign(
     processedBattleIds: [...processedBattleIds],
     reviewedBattleIds: { ...reviewedBattleIds },
     dailyBattleAudit: [...audit],
+    // Per `wire-coop-campaign-route` Wave 6.1: the coopSession bit is
+    // per-campaign identity (host vs guest vs single-player). Persisting it
+    // here means a reload of a host or guest campaign still mounts the
+    // host-review surface / guest-proposal overlays / coop nav badge.
+    // Absent (undefined) means single-player — no surfaces render.
+    coopSession: campaign.coopSession,
     createdAt: campaign.createdAt,
     updatedAt: campaign.updatedAt,
   };
@@ -153,6 +159,9 @@ export function deserializeCampaign(
     updatedAt: serialized.updatedAt,
     unitCombatStates: {},
     dailyBattleAudit: serialized.dailyBattleAudit,
+    // Per `wire-coop-campaign-route` Wave 6.1: the coopSession field
+    // survives reload so every co-op surface remounts on the same campaign.
+    coopSession: serialized.coopSession,
   } as ICampaign;
 }
 export function persistCampaignRecord(
