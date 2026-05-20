@@ -1,6 +1,7 @@
 ## 1. Lens Model
 
 - [ ] 1.1 Define tactical lens presets mapped to map layer ids and intensity defaults
+  > **Note (Wave 7.0 gate):** Lens-id extensions to `src/components/gameplay/HexMapDisplay/useMapLayerState.ts` MUST land AFTER `add-tactical-command-shell` task 1.2 (slot registry). The shell owns the lens-control surface (left tray slot); extending `MapLayerId` / `IMapLayerInteractionState` without the slot registry in place risks a collision between shell-side lens ownership and underlying layer-state ownership. Pull request ordering: shell PR-A (types) and PR-B (slot registry + GameplayLayout migration) merge first; this change opens after.
 - [ ] 1.2 Add lens state selectors for movement, attack, intel, terrain, objective, and survival views
 
 ## 2. Pins and Minimap
