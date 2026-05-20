@@ -2,7 +2,7 @@
   "runs": 10,
   "seed": 20260520,
   "mapRadius": 20,
-  "terrainBiome": "none",
+  "terrainBiome": "temperate",
   "output": "./swarm-output.json",
   "sideA": {
     "bvBudget": 3000,
