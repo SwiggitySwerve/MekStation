@@ -530,3 +530,88 @@ describe('generateRandomForce — default bvTolerance is ±5%', () => {
     expect(outOfRange).toBe(0);
   });
 });
+
+// =============================================================================
+// PT-010 — unitCount widening retry
+// =============================================================================
+//
+// Per `polish-wave-6.2-gaps` (gap #11, closes PT-010): when the requested
+// `count` cannot satisfy the BV budget, the generator retries once at
+// `count + 1` before re-throwing. Opt out via `exactUnitCount: true`.
+// Reproduces the scenario from playtest/ISSUES.md PT-010:
+// 10 000 BV / count=2 — the catalog tops out at ~4500 per unit, so count=2
+// can't reach 9500 (lower bound) but count=3 can hit ~10 000 with three
+// ~3300-BV picks.
+
+describe('generateRandomForce — PT-010 unitCount retry', () => {
+  // Catalog: 20 chassis each at 3000-3500 BV (mid-weight). count=2 can hit
+  // at most 7000 BV (still under 9500 lower bound at ±5% on 10k budget),
+  // but count=3 can sum to ~10 000.
+  function buildPT010Catalog(): IUnitIndexEntry[] {
+    const catalog: IUnitIndexEntry[] = [];
+    for (let i = 0; i < 20; i++) {
+      catalog.push(makeUnit(`pt010-${i}`, `Chassis${i}`, 3000 + i * 25));
+    }
+    return catalog;
+  }
+
+  it("retries at count+1 when count=2 can't hit 10k BV (PT-010 reproduction)", () => {
+    const force = generateRandomForce(
+      baseOpts({
+        bvBudget: 10_000,
+        bvTolerance: 0.05,
+        count: 2,
+        catalog: buildPT010Catalog(),
+        random: new SeededRandom(2026),
+      }),
+    );
+
+    // Retry kicked in: caller asked for 2, generator returned 3 (count+1).
+    expect(force.assignments).toHaveLength(3);
+  });
+
+  it("exactUnitCount: true still throws when count=2 can't hit 10k BV", () => {
+    expect(() =>
+      generateRandomForce(
+        baseOpts({
+          bvBudget: 10_000,
+          bvTolerance: 0.05,
+          count: 2,
+          catalog: buildPT010Catalog(),
+          random: new SeededRandom(2026),
+          exactUnitCount: true,
+        }),
+      ),
+    ).toThrow(BudgetUnsatisfiableError);
+  });
+
+  it('re-throws when even count+1 cannot satisfy the budget', () => {
+    // Budget 100 000 with 20 mid-BV units (max ~3500 per unit) — count+1 still
+    // can't reach the lower bound.
+    expect(() =>
+      generateRandomForce(
+        baseOpts({
+          bvBudget: 100_000,
+          bvTolerance: 0.01,
+          count: 2,
+          catalog: buildPT010Catalog(),
+          random: new SeededRandom(7),
+        }),
+      ),
+    ).toThrow(BudgetUnsatisfiableError);
+  });
+
+  it('returns count units unchanged when count already satisfies the budget', () => {
+    const force = generateRandomForce(
+      baseOpts({
+        bvBudget: 10_000,
+        bvTolerance: 0.3,
+        count: 3,
+        catalog: buildPT010Catalog(),
+        random: new SeededRandom(2026),
+      }),
+    );
+    // No retry needed — caller asked for 3 and got 3.
+    expect(force.assignments).toHaveLength(3);
+  });
+});

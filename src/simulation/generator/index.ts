@@ -2,6 +2,7 @@ export {
   ScenarioGenerator,
   createDefaultUnitWeights,
   createDefaultTerrainWeights,
+  defaultTurnLimit,
 } from './ScenarioGenerator';
 export { LIGHT_SKIRMISH, STANDARD_LANCE, STRESS_TEST } from './presets';
 export {

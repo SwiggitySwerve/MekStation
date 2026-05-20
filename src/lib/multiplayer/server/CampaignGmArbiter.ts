@@ -100,6 +100,28 @@ export type PendingProposalListener = (
 // Arbiter
 // =============================================================================
 
+/**
+ * Per `polish-wave-6.2-gaps` (gap #3): the default host-review timeout. A
+ * proposal that sits in `pending` longer than this without a host
+ * decision auto-resolves as `vetoed` with `reason: 'host-review-timeout'`
+ * so the guest's `<GuestProposalSurface>` pending overlay clears.
+ *
+ * Five minutes is long enough for a host to read the proposal and decide,
+ * short enough that a guest doesn't sit blocked indefinitely if the host
+ * went AFK / disconnected.
+ */
+export const DEFAULT_PROPOSAL_TIMEOUT_MS = 5 * 60_000;
+
+/**
+ * Options for `CampaignGmArbiter`. Per `polish-wave-6.2-gaps` (gap #3),
+ * `proposalTimeoutMs` configures how long a `host-review` proposal may
+ * sit `pending` before the arbiter auto-vetoes it. Pass `0` to disable
+ * the timeout (legacy behavior).
+ */
+export interface ICampaignGmArbiterOptions {
+  readonly proposalTimeoutMs?: number;
+}
+
 export class CampaignGmArbiter {
   private readonly host: CampaignMatchHost;
   /** The GM arbitration mode for this campaign (design D5). */
@@ -107,10 +129,27 @@ export class CampaignGmArbiter {
   /** Proposals awaiting a host decision (`host-review` mode only). */
   private readonly pending = new Map<string, IPendingProposal>();
   private readonly listeners = new Set<PendingProposalListener>();
+  /**
+   * Per polish-wave-6.2-gaps (gap #3): the maximum time a proposal may
+   * sit in `pending` before the arbiter auto-vetoes it. 0 disables.
+   */
+  private readonly proposalTimeoutMs: number;
+  /**
+   * Per polish-wave-6.2-gaps (gap #3): active auto-veto timers keyed by
+   * proposalId, so `decide()` can cancel the timer when the host resolves
+   * the proposal before timeout fires.
+   */
+  private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
 
-  constructor(host: CampaignMatchHost, mode: GmArbitrationMode) {
+  constructor(
+    host: CampaignMatchHost,
+    mode: GmArbitrationMode,
+    options: ICampaignGmArbiterOptions = {},
+  ) {
     this.host = host;
     this.mode = mode;
+    this.proposalTimeoutMs =
+      options.proposalTimeoutMs ?? DEFAULT_PROPOSAL_TIMEOUT_MS;
   }
 
   // ---------------------------------------------------------------------------
@@ -248,6 +287,9 @@ export class CampaignGmArbiter {
     }
     // The proposal leaves the queue regardless of the decision.
     this.pending.delete(proposalId);
+    // Per polish-wave-6.2-gaps (gap #3): cancel the auto-veto timer so a
+    // resolved proposal never receives a stale timeout-veto.
+    this.cancelTimeoutFor(proposalId);
     this.notifyPending();
 
     if (decision === 'veto') {
@@ -263,6 +305,37 @@ export class CampaignGmArbiter {
     // break the ledger invariant (the balance moved while the proposal
     // sat in the queue) still resolves as a mechanical rejection.
     return this.commitProposal(entry.proposal);
+  }
+
+  /**
+   * Per `polish-wave-6.2-gaps` (gap #3): auto-veto a proposal that has
+   * sat in `pending` longer than `proposalTimeoutMs`. Unlike `decide()`,
+   * the rejection envelope carries `reason: 'host-review-timeout'` so the
+   * guest UI can label the badge "host didn't respond" rather than
+   * "host said no". The proposal is removed from the queue, timer cleared,
+   * and listeners notified.
+   *
+   * Returns `null` when no proposal with that id is queued (already
+   * resolved by the host, mode flipped, or the timer fired twice).
+   */
+  autoVetoForTimeout(proposalId: string): GuestProposalResult | null {
+    const entry = this.pending.get(proposalId);
+    if (entry === undefined) {
+      return null;
+    }
+    this.pending.delete(proposalId);
+    this.cancelTimeoutFor(proposalId);
+    this.notifyPending();
+    return {
+      status: 'vetoed',
+      proposalId,
+      error: {
+        ok: false,
+        code: toProposalVetoError(proposalId).code,
+        proposalId,
+        reason: 'host-review-timeout',
+      },
+    };
   }
 
   // ---------------------------------------------------------------------------
@@ -319,6 +392,20 @@ export class CampaignGmArbiter {
   }
 
   /**
+   * Cancel an outstanding auto-veto timer for `proposalId` if one was
+   * armed at `enqueue` time. No-op if no timer is registered. Called by
+   * both `decide()` and `autoVetoForTimeout()` so a proposal can be
+   * resolved cleanly regardless of which path wins the race.
+   */
+  private cancelTimeoutFor(proposalId: string): void {
+    const timer = this.timers.get(proposalId);
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      this.timers.delete(proposalId);
+    }
+  }
+
+  /**
    * Add a proposal to the host review queue with the campaign context
    * the host needs to decide (spec "Host GM Review Surface").
    */
@@ -332,6 +419,24 @@ export class CampaignGmArbiter {
       relevantStanding: relevantStandingFor(proposal, state),
       effectSummary: describeProposalEffect(proposal),
     });
+
+    // Per polish-wave-6.2-gaps (gap #3): arm the auto-veto timer. The
+    // arbiter fires its own callback rather than going through `decide()`
+    // so the resulting rejection carries `reason: 'host-review-timeout'`
+    // (distinguishable in the guest UI). 0 means "no timeout" — preserves
+    // legacy behavior for callers that opt out.
+    if (this.proposalTimeoutMs > 0) {
+      const timer = setTimeout(() => {
+        this.autoVetoForTimeout(proposal.proposalId);
+      }, this.proposalTimeoutMs);
+      // Node-only: don't keep the event loop alive for an idle timer.
+      // (Browser builds get a no-op; jsdom respects setTimeout's return.)
+      if (typeof (timer as { unref?: () => void }).unref === 'function') {
+        (timer as { unref: () => void }).unref();
+      }
+      this.timers.set(proposal.proposalId, timer);
+    }
+
     this.notifyPending();
   }
 

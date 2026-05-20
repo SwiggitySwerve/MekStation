@@ -75,6 +75,16 @@ export interface IRandomForceOptions {
    * Default: Math.ceil(count / 4), minimum 1.
    */
   readonly duplicateChassisCap?: number;
+  /**
+   * Per `polish-wave-6.2-gaps` (gap #11, closes PT-010): when the
+   * requested `count` cannot satisfy the BV budget, the generator
+   * retries ONCE at `count + 1` before re-throwing
+   * `BudgetUnsatisfiableError`. Callers that require strict unit-count
+   * matching (e.g. PvP balance tests, fixed-deployment scenarios) can
+   * opt out by passing `exactUnitCount: true`. Default: false (retry
+   * enabled).
+   */
+  readonly exactUnitCount?: boolean;
 }
 
 /**
@@ -206,6 +216,33 @@ function computeStats(entries: IUnitIndexEntry[]): IForceStats {
  *   satisfy the budget.
  */
 export function generateRandomForce(opts: IRandomForceOptions): IForce {
+  // Per polish-wave-6.2-gaps (gap #11, closes PT-010): retry once at
+  // count + 1 when the requested count can't fit the budget. Opt out via
+  // exactUnitCount: true (PvP-balance / fixed-deployment scenarios). The
+  // retry path is deterministic — the same SeededRandom is reused, but
+  // running with count+1 produces a different draw pattern that may
+  // satisfy the budget where count couldn't (e.g. 10k BV / count=2 needs
+  // two 5000-BV mechs but the catalog tops out at ~4500; count=3 lets
+  // three ~3300-BV mechs hit it).
+  try {
+    return generateRandomForceOnce(opts);
+  } catch (err) {
+    if (
+      err instanceof BudgetUnsatisfiableError &&
+      opts.exactUnitCount !== true &&
+      opts.count > 0
+    ) {
+      return generateRandomForceOnce({ ...opts, count: opts.count + 1 });
+    }
+    throw err;
+  }
+}
+
+/**
+ * Single-attempt force generation — the original algorithm body, exported
+ * privately so `generateRandomForce` can wrap it with the PT-010 retry.
+ */
+function generateRandomForceOnce(opts: IRandomForceOptions): IForce {
   // Default ±5% per spec scenario in
   // openspec/changes/add-encounter-swarm-harness/specs/random-force-generator/spec.md.
   const { bvBudget, bvTolerance = 0.05, count, random, sideId } = opts;

@@ -52,6 +52,7 @@ import { SideKeyedAIPlayer } from '../src/simulation/ai/SideKeyedAIPlayer';
 import { SeededRandom } from '../src/simulation/core/SeededRandom';
 import { ISimulationConfig } from '../src/simulation/core/types';
 import { STANDARD_LANCE } from '../src/simulation/generator/presets';
+import { defaultTurnLimit } from '../src/simulation/generator/ScenarioGenerator';
 import {
   checkUnitPositionUniqueness,
   checkHeatNonNegative,
@@ -675,9 +676,14 @@ async function runSwarmMode(
 
     // --- Build ISimulationConfig ---
     // unitCount must match the actual force sizes.
+    //
+    // Per `polish-wave-6.2-gaps` (gap #12, closes PT-003): swarm runs no
+    // longer hardcode `turnLimit: 50`. The default scales by map radius so
+    // r20 maps don't draw at turn 50 before forces engage. Callers that
+    // want a fixed turn limit can override via swarm config (future work).
     const simConfig: ISimulationConfig = {
       seed: runSeed,
-      turnLimit: 50,
+      turnLimit: defaultTurnLimit(config.mapRadius),
       unitCount: {
         player: config.sideA.unitCount,
         opponent: config.sideB.unitCount,
