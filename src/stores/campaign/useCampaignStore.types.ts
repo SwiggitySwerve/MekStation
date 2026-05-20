@@ -98,6 +98,16 @@ export interface CampaignActions {
   appendActivityLogEntry: (entry: IActivityLogEntry) => void;
   /** Read the current activity log (newest last). */
   getActivityLog: () => readonly IActivityLogEntry[];
+  /**
+   * Travel the campaign force to a different star system
+   * (`wire-starmap-into-campaign` Wave 6.4).
+   *
+   * Validates `systemId` against the Inner Sphere seed dataset and
+   * updates `campaign.currentSystemId` + emits a `'travel'` activity-log
+   * entry. Returns `true` on a successful travel; `false` on no-op
+   * (same system) or invalid systemId.
+   */
+  travelToSystem: (systemId: string) => boolean;
 }
 
 export type CampaignStore = CampaignState & CampaignActions;

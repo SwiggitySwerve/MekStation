@@ -194,6 +194,20 @@ export interface ICampaign {
    * See openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md.
    */
   readonly coopSession?: ICoopSession;
+
+  /**
+   * Current star-system location (`wire-starmap-into-campaign`, Wave 6.4).
+   *
+   * The player's "you are here" pin on the starmap. The field is OPTIONAL
+   * for backward compatibility — a legacy campaign without the field is
+   * treated as stationed at `'terra'` by all UI surfaces (the canonical
+   * default). Updated EXCLUSIVELY via the `useCampaignStore.travelToSystem`
+   * action so the activity-log entry and seed-dataset validation
+   * invariants are enforced together.
+   *
+   * See openspec/changes/wire-starmap-into-campaign/specs/campaign-system/spec.md.
+   */
+  readonly currentSystemId?: string;
 }
 
 // =============================================================================

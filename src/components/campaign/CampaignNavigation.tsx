@@ -34,6 +34,7 @@ export type CampaignPageId =
   | 'personnel'
   | 'forces'
   | 'missions'
+  | 'starmap'
   | 'mech-bay'
   | 'repair-bay'
   | 'medical-bay'
@@ -86,6 +87,15 @@ export function CampaignNavigation({
       id: 'missions',
       label: 'Missions',
       href: `/gameplay/campaigns/${campaignId}/missions`,
+    },
+    // Starmap surface (`wire-starmap-into-campaign` Wave 6.4) — Inner
+    // Sphere navigation + travel between star systems. Sits alongside
+    // the other top-level surfaces so the player can jump into the
+    // starmap without scrolling past the Bays / Command clusters.
+    {
+      id: 'starmap',
+      label: 'Starmap',
+      href: `/gameplay/campaigns/${campaignId}/starmap`,
     },
   ];
 

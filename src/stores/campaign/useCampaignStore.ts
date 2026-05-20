@@ -18,6 +18,7 @@ import {
 } from '@/lib/campaign/dayAdvancement';
 import { getDayPipeline } from '@/lib/campaign/dayPipeline';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
+import { findSystemById } from '@/lib/starmap/loadInnerSphereSeed';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
   ACTIVITY_LOG_MAX_ENTRIES,
@@ -413,6 +414,70 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           set({ activityLog: trimmed });
         },
         getActivityLog: () => get().activityLog,
+        travelToSystem: (systemId: string) => {
+          // Wave 6.4 (wire-starmap-into-campaign): commit a jump between
+          // two seed-dataset star systems. Validates the destination
+          // against the Inner Sphere seed (via findSystemById) and
+          // emits a 'travel' activity-log entry on success.
+          //
+          // Returns:
+          //  - false on unknown systemId (silently — caller logs)
+          //  - false on no-op (already at the same system)
+          //  - true on a successful jump
+          //
+          // The previous system is read off campaign.currentSystemId; if
+          // unset (legacy campaigns from before this wave), it falls back
+          // to 'terra' — the canonical anchor of the Inner Sphere
+          // coordinate system.
+          const { campaign } = get();
+          if (!campaign) return false;
+          if (!systemId) return false;
+          const destination = findSystemById(systemId);
+          if (!destination) return false;
+          const fromSystemId = campaign.currentSystemId ?? 'terra';
+          if (fromSystemId === systemId) return false;
+          const updatedCampaign: ICampaign = {
+            ...campaign,
+            currentSystemId: systemId,
+            updatedAt: new Date().toISOString(),
+          };
+          set({ campaign: updatedCampaign });
+          // Emit the travel entry through the normal append action so
+          // FIFO retention + dedup behave the same as every other
+          // category. The campaignDay is read off the (just updated)
+          // campaign so the entry is anchored on the in-game timeline,
+          // not the wall clock.
+          // Derive a stable campaignDay number from elapsed-days since
+          // the campaign's start date. Mirrors the convention used by
+          // the dayAdvancement pipeline so the activity-log timeline is
+          // consistent across emitters. Falls back to 0 for
+          // legacy campaigns missing `campaignStartDate`.
+          const startDate =
+            updatedCampaign.campaignStartDate ?? updatedCampaign.currentDate;
+          const msPerDay = 24 * 60 * 60 * 1000;
+          const campaignDay = Math.max(
+            0,
+            Math.floor(
+              (updatedCampaign.currentDate.getTime() - startDate.getTime()) /
+                msPerDay,
+            ),
+          );
+          const entryId = `travel-${campaign.id}-${campaignDay}-${systemId}`;
+          get().appendActivityLogEntry({
+            id: entryId,
+            timestamp: new Date().toISOString(),
+            campaignDay,
+            category: 'travel',
+            message: `Jumped to ${destination.name}.`,
+            payload: {
+              event: 'jump',
+              fromSystemId,
+              toSystemId: systemId,
+              toSystemName: destination.name,
+            },
+          });
+          return true;
+        },
       }),
       {
         name: 'campaign-store',

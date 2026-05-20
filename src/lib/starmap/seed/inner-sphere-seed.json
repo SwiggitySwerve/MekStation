@@ -1,0 +1,291 @@
+{
+  "_meta": {
+    "version": 1,
+    "description": "Wave 6.4 MVP seed — 40 canonical Inner Sphere systems anchored at the 3025 succession-states snapshot. The full 3,359-system SUCKit import is a post-MVP follow-up.",
+    "snapshotYear": 3025,
+    "coordinateConvention": "Terra at origin; +x = spinward (Davion-ward), +y = rimward (Periphery-ward); unit = light-years",
+    "spec": "openspec/changes/wire-starmap-into-campaign/specs/starmap-interface/spec.md"
+  },
+  "systems": [
+    {
+      "id": "terra",
+      "name": "Terra",
+      "position": { "x": 0, "y": 0 },
+      "faction": "ComStar",
+      "population": 10000000000
+    },
+    {
+      "id": "tharkad",
+      "name": "Tharkad",
+      "position": { "x": -300, "y": -140 },
+      "faction": "Lyran",
+      "population": 5800000000
+    },
+    {
+      "id": "new-avalon",
+      "name": "New Avalon",
+      "position": { "x": 200, "y": -100 },
+      "faction": "Davion",
+      "population": 6200000000
+    },
+    {
+      "id": "sian",
+      "name": "Sian",
+      "position": { "x": 120, "y": 200 },
+      "faction": "Liao",
+      "population": 4500000000
+    },
+    {
+      "id": "luthien",
+      "name": "Luthien",
+      "position": { "x": 280, "y": 60 },
+      "faction": "Kurita",
+      "population": 5100000000
+    },
+    {
+      "id": "atreus",
+      "name": "Atreus",
+      "position": { "x": -130, "y": 180 },
+      "faction": "Marik",
+      "population": 4900000000
+    },
+    {
+      "id": "taurus",
+      "name": "Taurus",
+      "position": { "x": 60, "y": 360 },
+      "faction": "Periphery",
+      "population": 2200000000
+    },
+    {
+      "id": "canopus",
+      "name": "Canopus",
+      "position": { "x": -90, "y": 380 },
+      "faction": "Periphery",
+      "population": 2100000000
+    },
+    {
+      "id": "alpha-coronis",
+      "name": "Alpha Coronis",
+      "position": { "x": 320, "y": 320 },
+      "faction": "Periphery",
+      "population": 1300000000
+    },
+    {
+      "id": "hindmarsh",
+      "name": "Hindmarsh",
+      "position": { "x": -200, "y": 360 },
+      "faction": "Periphery",
+      "population": 1100000000
+    },
+    {
+      "id": "hesperus-ii",
+      "name": "Hesperus II",
+      "position": { "x": -220, "y": -100 },
+      "faction": "Lyran",
+      "population": 3400000000
+    },
+    {
+      "id": "solaris-vii",
+      "name": "Solaris VII",
+      "position": { "x": -80, "y": -40 },
+      "faction": "Lyran",
+      "population": 1500000000
+    },
+    {
+      "id": "outreach",
+      "name": "Outreach",
+      "position": { "x": 90, "y": -10 },
+      "faction": "Independent",
+      "population": 800000000
+    },
+    {
+      "id": "galax",
+      "name": "Galax",
+      "position": { "x": 240, "y": -160 },
+      "faction": "Davion",
+      "population": 2700000000
+    },
+    {
+      "id": "tikonov",
+      "name": "Tikonov",
+      "position": { "x": 60, "y": 90 },
+      "faction": "Liao",
+      "population": 1900000000
+    },
+    {
+      "id": "robinson",
+      "name": "Robinson",
+      "position": { "x": 290, "y": -40 },
+      "faction": "Davion",
+      "population": 2400000000
+    },
+    {
+      "id": "coventry",
+      "name": "Coventry",
+      "position": { "x": -160, "y": -190 },
+      "faction": "Lyran",
+      "population": 2900000000
+    },
+    {
+      "id": "galatea",
+      "name": "Galatea",
+      "position": { "x": -110, "y": -110 },
+      "faction": "Lyran",
+      "population": 1100000000
+    },
+    {
+      "id": "northwind",
+      "name": "Northwind",
+      "position": { "x": 30, "y": -50 },
+      "faction": "Davion",
+      "population": 900000000
+    },
+    {
+      "id": "skye",
+      "name": "Skye",
+      "position": { "x": -140, "y": -60 },
+      "faction": "Lyran",
+      "population": 2100000000
+    },
+    {
+      "id": "tukayyid",
+      "name": "Tukayyid",
+      "position": { "x": -50, "y": -200 },
+      "faction": "ComStar",
+      "population": 700000000
+    },
+    {
+      "id": "strana-mechty",
+      "name": "Strana Mechty",
+      "position": { "x": -120, "y": -500 },
+      "faction": "Clan",
+      "population": 1400000000
+    },
+    {
+      "id": "huntress",
+      "name": "Huntress",
+      "position": { "x": -160, "y": -540 },
+      "faction": "Clan",
+      "population": 600000000
+    },
+    {
+      "id": "arc-royal",
+      "name": "Arc-Royal",
+      "position": { "x": -260, "y": -200 },
+      "faction": "Lyran",
+      "population": 1200000000
+    },
+    {
+      "id": "tamar",
+      "name": "Tamar",
+      "position": { "x": -80, "y": -260 },
+      "faction": "Clan",
+      "population": 1700000000
+    },
+    {
+      "id": "black-brian",
+      "name": "Black Brian",
+      "position": { "x": -40, "y": -280 },
+      "faction": "Clan",
+      "population": 400000000
+    },
+    {
+      "id": "dieron",
+      "name": "Dieron",
+      "position": { "x": 70, "y": -80 },
+      "faction": "Kurita",
+      "population": 1800000000
+    },
+    {
+      "id": "kentares-iv",
+      "name": "Kentares IV",
+      "position": { "x": 230, "y": 30 },
+      "faction": "Davion",
+      "population": 1300000000
+    },
+    {
+      "id": "benjamin",
+      "name": "Benjamin",
+      "position": { "x": 200, "y": 80 },
+      "faction": "Kurita",
+      "population": 1600000000
+    },
+    {
+      "id": "pesht",
+      "name": "Pesht",
+      "position": { "x": 320, "y": 100 },
+      "faction": "Kurita",
+      "population": 1500000000
+    },
+    {
+      "id": "tamarind",
+      "name": "Tamarind",
+      "position": { "x": -150, "y": 120 },
+      "faction": "Marik",
+      "population": 1100000000
+    },
+    {
+      "id": "andurien",
+      "name": "Andurien",
+      "position": { "x": -90, "y": 240 },
+      "faction": "Marik",
+      "population": 900000000
+    },
+    {
+      "id": "capella",
+      "name": "Capella",
+      "position": { "x": 100, "y": 160 },
+      "faction": "Liao",
+      "population": 1400000000
+    },
+    {
+      "id": "st-ives",
+      "name": "St. Ives",
+      "position": { "x": 160, "y": 140 },
+      "faction": "Liao",
+      "population": 1000000000
+    },
+    {
+      "id": "donegal",
+      "name": "Donegal",
+      "position": { "x": -240, "y": -110 },
+      "faction": "Lyran",
+      "population": 1700000000
+    },
+    {
+      "id": "quentin",
+      "name": "Quentin",
+      "position": { "x": 270, "y": -10 },
+      "faction": "Davion",
+      "population": 800000000
+    },
+    {
+      "id": "kathil",
+      "name": "Kathil",
+      "position": { "x": 170, "y": -70 },
+      "faction": "Davion",
+      "population": 1200000000
+    },
+    {
+      "id": "marik-system",
+      "name": "Marik",
+      "position": { "x": -110, "y": 200 },
+      "faction": "Marik",
+      "population": 600000000
+    },
+    {
+      "id": "rasalhague",
+      "name": "Rasalhague",
+      "position": { "x": 10, "y": -180 },
+      "faction": "Kurita",
+      "population": 2000000000
+    },
+    {
+      "id": "gibson",
+      "name": "Gibson",
+      "position": { "x": -180, "y": 100 },
+      "faction": "Marik",
+      "population": 500000000
+    }
+  ]
+}

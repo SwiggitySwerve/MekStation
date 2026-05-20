@@ -38,7 +38,8 @@ export type ActivityLogCategory =
   | 'medical'
   | 'finances'
   | 'acquisitions'
-  | 'technical';
+  | 'technical'
+  | 'travel';
 
 /**
  * Ordered list of all categories — useful for rendering tabs in a
@@ -52,6 +53,11 @@ export const ACTIVITY_LOG_CATEGORIES: readonly ActivityLogCategory[] = [
   'finances',
   'acquisitions',
   'technical',
+  // Per `wire-starmap-into-campaign` (Wave 6.4): travel between star
+  // systems emits a `'travel'` entry so the dashboard's activity-log
+  // surface shows the jump in the same timeline as combat / personnel
+  // changes.
+  'travel',
 ];
 
 // =============================================================================
@@ -129,6 +135,23 @@ export interface ITechnicalActivityPayload {
   readonly unitName: string;
 }
 
+/**
+ * Travel event — campaign force jumped between star systems.
+ * Per `wire-starmap-into-campaign` (Wave 6.4): emitted by
+ * `useCampaignStore.travelToSystem` when the player commits a jump.
+ * The `fromSystemId` is the previous `campaign.currentSystemId` (or
+ * `'terra'` when the field was unset — the legacy-campaign default).
+ */
+export interface ITravelActivityPayload {
+  readonly event: 'jump';
+  /** Star system the force left. */
+  readonly fromSystemId: string;
+  /** Star system the force arrived at. */
+  readonly toSystemId: string;
+  /** Display name of the destination — denormalized so the dashboard doesn't have to re-resolve the id. */
+  readonly toSystemName: string;
+}
+
 // =============================================================================
 // Discriminated union
 // =============================================================================
@@ -174,6 +197,10 @@ export type IActivityLogEntry =
   | (IActivityLogEntryBase & {
       readonly category: 'technical';
       readonly payload: ITechnicalActivityPayload;
+    })
+  | (IActivityLogEntryBase & {
+      readonly category: 'travel';
+      readonly payload: ITravelActivityPayload;
     });
 
 // =============================================================================
