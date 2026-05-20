@@ -296,6 +296,59 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
               ms.addMission(mission);
             });
           }
+          // Wave 6.1.B task 1.4: emit activity-log entries for the
+          // categorizable events from this day's pipeline. Zero behavior
+          // change to the pipeline itself — the slice is observer-only.
+          const dayNumber =
+            (postPipeline as { dayNumber?: number }).dayNumber ?? 0;
+          const append = get().appendActivityLogEntry;
+          const isoNow = new Date().toISOString();
+          for (const heal of report.healedPersonnel) {
+            append({
+              id: `act-medical-${heal.personId}-${dayNumber}`,
+              category: 'medical',
+              timestamp: isoNow,
+              campaignDay: dayNumber,
+              message: `${heal.personName} recovered`,
+              payload: {
+                pilotId: heal.personId,
+                pilotName: heal.personName,
+                event: 'recovered',
+              },
+            });
+          }
+          for (const exp of report.expiredContracts) {
+            append({
+              id: `act-finances-contract-expiry-${exp.contractId}-${dayNumber}`,
+              category: 'finances',
+              timestamp: isoNow,
+              campaignDay: dayNumber,
+              message: `Contract "${exp.contractName}" expired`,
+              payload: {
+                event: 'contract-expiry',
+                amount: 0,
+                currency: 'C-bills',
+                memo: exp.contractName,
+              },
+            });
+          }
+          // Daily-cost emission — one entry summarizing total daily burn.
+          const totalAmount = report.costs.total?.amount ?? 0;
+          if (totalAmount !== 0) {
+            append({
+              id: `act-finances-daily-costs-${dayNumber}`,
+              category: 'finances',
+              timestamp: isoNow,
+              campaignDay: dayNumber,
+              message: `Daily costs: ${totalAmount.toLocaleString()} C-bills`,
+              payload: {
+                event: 'daily-costs',
+                amount: -totalAmount,
+                currency: 'C-bills',
+              },
+            });
+          }
+
           get().saveCampaign();
           return { ...report, campaign: campaignWithAudit };
         },
