@@ -50,6 +50,7 @@ import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
 
+import { adaptUnit } from './adapters/CompendiumAdapter';
 import { createMinimalGrid } from './GameEngine.helpers';
 import {
   applyInteractiveSessionAttack,
@@ -195,6 +196,51 @@ export class InteractiveSession {
       createMinimalGrid(session.config.mapRadius),
       [],
       [],
+      session.units,
+    );
+    // Replace the fresh Setup-phase session with the replayed one so
+    // `currentState` (status / turn / phase / board) matches history.
+    instance.session = session;
+    return instance;
+  }
+
+  /**
+   * Per `fix-recovered-session-adapted-units` (closes playtest gap #2):
+   * async recovery factory that RE-DERIVES the per-unit adapted state
+   * from each game unit's `unitRef` against the canonical unit catalog,
+   * matching the bootstrap path's `weaponsByUnit` / `movementByUnit` /
+   * gunnery / piloting / tonnage maps.
+   *
+   * The plain `fromSession` adoption skipped this step, so a session
+   * recovered after a server restart had EMPTY adapted-units maps —
+   * which broke move/attack play (the engine's `getAvailableActions`
+   * returned empty lists, and any action throw'd because the per-unit
+   * weapon / movement capability lookup hit `undefined`).
+   *
+   * Callers that need the recovered session to accept new intents
+   * (move, attack) MUST use `fromSessionAsync`. The sync `fromSession`
+   * remains for callers that only need the data-shape adoption
+   * (terminal-outcome derivation, replay streaming) — those paths
+   * don't need adapted-units maps.
+   *
+   * Throws nothing — units whose `unitRef` is not in the catalog are
+   * skipped with a console.warn (the recovered host still has the
+   * other units' adapted state, which is better than a hard failure).
+   */
+  static async fromSessionAsync(
+    session: IGameSession,
+  ): Promise<InteractiveSession> {
+    const adapted = await deriveAdaptedUnitsFromSession(session);
+    const playerAdapted = adapted.filter((u) => u.side === GameSide.Player);
+    const opponentAdapted = adapted.filter((u) => u.side === GameSide.Opponent);
+
+    const instance = new InteractiveSession(
+      session.config.mapRadius,
+      session.config.turnLimit,
+      new SeededRandom(0xc0ffee),
+      createMinimalGrid(session.config.mapRadius),
+      playerAdapted,
+      opponentAdapted,
       session.units,
     );
     // Replace the fresh Setup-phase session with the replayed one so
@@ -501,4 +547,41 @@ export class InteractiveSession {
     };
     return deriveCombatOutcome(this.session, merged);
   }
+}
+
+/**
+ * Per `fix-recovered-session-adapted-units` (closes playtest gap #2):
+ * re-derive adapted units from each game unit's `unitRef` against the
+ * canonical unit catalog. The bootstrap path's
+ * `preBattleSessionBuilder.adaptParticipants` runs the same `adaptUnit`
+ * call per participant; this helper is the recovery-path mirror. Both
+ * paths converge on the same `IAdaptedUnit` shape so a recovered
+ * session is byte-equivalent to a freshly-bootstrapped one with the
+ * same units (bootstrap parity, per spec scenario "Recovered session
+ * adapted-units match bootstrap parity").
+ *
+ * Exported for the recovery test only — production code should use
+ * `InteractiveSession.fromSessionAsync`.
+ */
+export async function deriveAdaptedUnitsFromSession(
+  session: IGameSession,
+): Promise<IAdaptedUnit[]> {
+  const adapted: IAdaptedUnit[] = [];
+  for (const gameUnit of session.units) {
+    const adaptedUnit = await adaptUnit(gameUnit.unitRef, {
+      side: gameUnit.side,
+    });
+    if (adaptedUnit === null) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[InteractiveSession.fromSessionAsync] unit '${gameUnit.id}' ` +
+          `(unitRef '${gameUnit.unitRef}') not found in the canonical ` +
+          `catalog — skipping. The recovered host will not have adapted ` +
+          `state for this unit and any action targeting it will fail.`,
+      );
+      continue;
+    }
+    adapted.push(adaptedUnit);
+  }
+  return adapted;
 }

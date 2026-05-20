@@ -27,6 +27,7 @@ import {
   CommandLoading,
 } from '@/components/campaign/command/CommandStates';
 import { ContractMarketPanel } from '@/components/campaign/command/ContractMarketPanel';
+import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
 import { EmptyState, PageLayout } from '@/components/ui';
 import { generateAtBContracts } from '@/lib/campaign/contractMarket';
 import {
@@ -140,8 +141,10 @@ export default function ContractMarketPage(): React.ReactElement {
       <CampaignNavigation
         campaignId={campaign.id}
         currentPage="contract-market"
+        coopSession={campaign.coopSession}
       />
 
+      <CampaignCoopRouteSurface campaign={campaign} routeId="contract-market" />
       {actionError ? (
         <CommandError
           message={actionError}

@@ -39,9 +39,23 @@ export {
   calculateIndirectFireModifier,
   calculateCalledShotModifier,
 } from './damageModifiers';
-export { calculateToHit, calculateToHitFromContext } from './calculate';
+export {
+  calculateToHit,
+  calculateToHitFromContext,
+  type IEcmContext,
+} from './calculate';
 export { calculateToHitWithC3 } from './c3';
 export type { IC3ToHitInput } from './c3';
+
+// Per `add-ecm-tohit-modifier` (closes playtest gap #1).
+export {
+  calculateEcmModifier,
+  ECM_TO_HIT_MODIFIERS,
+  ECM_MODIFIER_VALUE,
+  type EcmModifierReason,
+  type IEcmCoverageState,
+  type WeaponGuidanceType,
+} from './ecmModifier';
 
 export {
   buildToHitForecast,

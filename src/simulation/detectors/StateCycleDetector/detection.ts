@@ -2,6 +2,7 @@
  * Cycle detection algorithm and detector tracking state
  */
 
+import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
 
 import {
@@ -9,6 +10,7 @@ import {
   type IGameEvent,
   type IDamageAppliedPayload,
   type IHeatPayload,
+  type IMovementDeclaredPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import type { BattleState } from './types';
@@ -32,6 +34,13 @@ interface DetectorTrackingState {
   unitArmor: Map<number, Map<string, Record<string, number>>>;
   unitStructure: Map<number, Map<string, Record<string, number>>>;
   unitHeat: Map<number, Map<string, number>>;
+  /**
+   * Per `polish-wave-6.2-gaps` (PT-001): the latest committed hex
+   * position for each unit, captured from MovementDeclared events.
+   * Position is keyed by unitId (not by turn) because we only need
+   * the most recent position when building the turn-end snapshot.
+   */
+  unitPosition: Map<string, IHexCoordinate>;
   movementThisTurn: boolean;
   destroyedUnits: Set<string>;
   anomalies: IAnomaly[];
@@ -76,6 +85,7 @@ export class StateCycleDetectionEngine {
       unitArmor: new Map(),
       unitStructure: new Map(),
       unitHeat: new Map(),
+      unitPosition: new Map(),
       movementThisTurn: false,
       destroyedUnits: new Set(),
       anomalies: [],
@@ -125,6 +135,20 @@ export class StateCycleDetectionEngine {
     state: DetectorTrackingState,
   ): void {
     state.movementThisTurn = true;
+
+    // Per polish-wave-6.2-gaps (PT-001): record the destination hex from
+    // MovementDeclared so the snapshot reflects post-move positions. The
+    // MovementLocked branch carries only the unitId, so position only updates
+    // when we see the MovementDeclared payload (which carries `to`).
+    if (event.type === GameEventType.MovementDeclared) {
+      const payload = getPayload<IMovementDeclaredPayload>(event);
+      if (payload && payload.to) {
+        state.unitPosition.set(payload.unitId, {
+          q: payload.to.q,
+          r: payload.to.r,
+        });
+      }
+    }
   }
 
   private processDamage(event: IGameEvent, state: DetectorTrackingState): void {
@@ -223,6 +247,7 @@ export class StateCycleDetectionEngine {
       currentArmor,
       currentStructure,
       currentHeat,
+      state.unitPosition,
     );
 
     if (state.snapshotHistory.length > 0) {

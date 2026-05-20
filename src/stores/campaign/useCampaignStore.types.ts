@@ -1,11 +1,39 @@
 import type { StoreApi } from 'zustand';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
+import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import type { ForcesStore } from './useForcesStore';
 import type { MissionsStore } from './useMissionsStore';
+
+/**
+ * Optional initialiser knobs passed to `createCampaign` for a co-op
+ * session (`wire-coop-campaign-route`, task 1.3). Separate from
+ * `ICampaignOptions` (which is the in-game options bag) because co-op
+ * session metadata is per-campaign identity, not gameplay tuning.
+ */
+export interface ICreateCampaignCoopOpts {
+  /** Stamped on `campaign.coopSession` at creation time. */
+  readonly coopSession?: ICoopSession;
+}
+
+/**
+ * Minimal host snapshot the guest receives over CO1's session-lifecycle
+ * protocol when joining a co-op campaign. The guest mirror is minted
+ * with the host's id / name / faction so the guest's UI shows the same
+ * campaign identity. Other guest-visible state arrives over the live
+ * `CampaignSnapshotPublished` baseline event after the WebSocket opens.
+ */
+export interface IGuestMirrorSnapshot {
+  readonly campaignId: string;
+  readonly campaignName: string;
+  readonly factionId: string;
+  /** Room code the guest typed to join; surfaced on the navigation badge. */
+  readonly roomCode: string;
+}
 
 export interface CampaignState {
   campaign: ICampaign | null;
@@ -15,6 +43,15 @@ export interface CampaignState {
   outcomeApplyErrors: Record<string, string>;
   forcesStore: StoreApi<ForcesStore> | null;
   missionsStore: StoreApi<MissionsStore> | null;
+  /**
+   * Activity log — 200-entry rolling FIFO buffer
+   * (`add-campaign-command-center` Wave 6.1.B). Day-advance writes
+   * append via `appendActivityLogEntry`. Surfaced by the dashboard's
+   * `<ActivityLogCard>` and the full-log page at
+   * `/gameplay/campaigns/[id]/log`. Bounded retention keeps the
+   * persisted log from growing without bound.
+   */
+  activityLog: IActivityLogEntry[];
 }
 
 export interface CampaignActions {
@@ -22,6 +59,17 @@ export interface CampaignActions {
     name: string,
     factionId: string,
     options?: Partial<ICampaignOptions>,
+    coopOpts?: ICreateCampaignCoopOpts,
+  ) => string;
+  /**
+   * Mint a guest-mode mirror campaign from a host snapshot — fired when
+   * the user joins a co-op campaign via room code (Wave 6.1, task 1.4).
+   * The freshly minted campaign carries `coopSession.mode = 'guest'`
+   * and the host's `hostMatchId`. Returns the local mirror campaign id.
+   */
+  createGuestMirrorCampaign: (
+    hostMatchId: string,
+    snapshot: IGuestMirrorSnapshot,
   ) => string;
   loadCampaign: (id: string) => boolean;
   saveCampaign: () => void;
@@ -41,6 +89,15 @@ export interface CampaignActions {
   getReviewedAt: (matchId: string) => number | null;
   getOutcomeApplyErrors: () => Readonly<Record<string, string>>;
   retryOutcomeApplication: (matchId: string) => boolean;
+  /**
+   * Append an activity log entry, evicting the oldest entry when the
+   * cap (`ACTIVITY_LOG_MAX_ENTRIES`) would be exceeded. FIFO,
+   * last-write-wins on id collisions
+   * (`add-campaign-command-center` Wave 6.1.B, task 1.2).
+   */
+  appendActivityLogEntry: (entry: IActivityLogEntry) => void;
+  /** Read the current activity log (newest last). */
+  getActivityLog: () => readonly IActivityLogEntry[];
 }
 
 export type CampaignStore = CampaignState & CampaignActions;

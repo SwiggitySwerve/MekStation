@@ -11,10 +11,18 @@
  * three command-tier surfaces share one navigation group so they read as
  * a cohesive management cluster, paralleling the Bays group.
  *
+ * The "Co-op session" badge (`wire-coop-campaign-route` Wave 6.1, task
+ * 2.5) shows when the campaign has a `coopSession` set, surfacing the
+ * local user's role (Host / Guest) and the session's room code so it's
+ * legible at a glance across every campaign sub-route.
+ *
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  * @spec openspec/changes/add-campaign-command-ui/specs/campaign-command-ui/spec.md
+ * @spec openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md
  */
 import Link from 'next/link';
+
+import type { ICoopSession } from '@/types/campaign/CoopSession';
 
 /**
  * Identifier of the currently-active campaign page. The bay pages
@@ -38,6 +46,13 @@ export type CampaignPageId =
 interface CampaignNavigationProps {
   campaignId: string;
   currentPage: CampaignPageId;
+  /**
+   * Co-op session metadata. When set, the navigation renders the
+   * "Co-op session" badge with the local user's role (Host / Guest)
+   * and the session's room code (`wire-coop-campaign-route` task 2.5).
+   * Absent on single-player campaigns.
+   */
+  coopSession?: ICoopSession;
 }
 
 interface NavTab {
@@ -49,6 +64,7 @@ interface NavTab {
 export function CampaignNavigation({
   campaignId,
   currentPage,
+  coopSession,
 }: CampaignNavigationProps): React.ReactElement {
   const tabs: readonly NavTab[] = [
     {
@@ -177,6 +193,34 @@ export function CampaignNavigation({
         >
           {commandTabs.map(renderTab)}
         </div>
+
+        {/*
+         * "Co-op session" badge — only rendered when a coopSession is set
+         * (`wire-coop-campaign-route` task 2.5). Surfaces the local user's
+         * role (Host / Guest) and the session's room code at a glance,
+         * legible from every campaign sub-route. Single-player campaigns
+         * MUST not render this badge (spec scenario "Single-player campaign
+         * mounts neither co-op surface").
+         */}
+        {coopSession ? (
+          <span
+            className="border-accent text-accent ml-auto rounded border bg-slate-900/60 px-3 py-1 text-xs font-semibold tracking-wider uppercase"
+            data-testid="coop-session-badge"
+            aria-label={`Co-op session: ${
+              coopSession.mode === 'host' ? 'Host' : 'Guest'
+            }`}
+          >
+            Co-op session: {coopSession.mode === 'host' ? 'Host' : 'Guest'}
+            {coopSession.mode === 'host' && coopSession.roomCode ? (
+              <span
+                className="text-text-theme-secondary ml-2 font-mono normal-case"
+                data-testid="coop-session-room-code"
+              >
+                {coopSession.roomCode}
+              </span>
+            ) : null}
+          </span>
+        ) : null}
       </nav>
     </div>
   );

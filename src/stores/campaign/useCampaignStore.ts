@@ -20,9 +20,15 @@ import { getDayPipeline } from '@/lib/campaign/dayPipeline';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
+  ACTIVITY_LOG_MAX_ENTRIES,
+  isActivityLogEntry,
+  type IActivityLogEntry,
+} from '@/types/campaign/ActivityLog';
+import {
   ICampaign,
   createCampaign as createCampaignEntity,
 } from '@/types/campaign/Campaign';
+import { createGuestCoopSession } from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
 
@@ -57,7 +63,8 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         outcomeApplyErrors: {},
         forcesStore: null,
         missionsStore: null,
-        createCampaign: (name, factionId, options) => {
+        activityLog: [],
+        createCampaign: (name, factionId, options, coopOpts) => {
           const campaign = createCampaignEntity(name, factionId, options);
           const rootForce: IForce = {
             id: campaign.rootForceId,
@@ -73,9 +80,16 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           const forcesStore = createForcesStore(campaign.id);
           const missionsStore = createMissionsStore(campaign.id);
           forcesStore.getState().addForce(rootForce);
+          // Per `wire-coop-campaign-route` task 1.3: when the caller is the
+          // "Create co-op campaign" entry point on the campaign list page,
+          // `coopOpts.coopSession` is set with `mode: 'host'` — stamp it
+          // directly on the campaign so every downstream gate (the
+          // navigation badge, the dashboard host-review surface, the
+          // mission-launch picker) sees a co-op campaign from frame zero.
           const campaignWithForce: ICampaign = {
             ...campaign,
             forces: new Map([[rootForce.id, rootForce]]),
+            coopSession: coopOpts?.coopSession,
           };
           set({
             campaign: campaignWithForce,
@@ -83,6 +97,50 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             missionsStore,
           });
           return campaign.id;
+        },
+        createGuestMirrorCampaign: (hostMatchId, snapshot) => {
+          // Per `wire-coop-campaign-route` task 1.4: a guest mirror campaign
+          // is minted from the host snapshot the guest receives on join
+          // (over CO1's session-lifecycle protocol). The mirror campaign id
+          // tracks the host's campaign id so cross-window references line
+          // up; the local `coopSession` is stamped with `mode: 'guest'` and
+          // the host's match id so every mutation control submits an
+          // `IGuestProposal` instead of mutating campaign state directly.
+          const campaign = createCampaignEntity(
+            snapshot.campaignName,
+            snapshot.factionId,
+          );
+          const rootForce: IForce = {
+            id: campaign.rootForceId,
+            name: snapshot.campaignName,
+            parentForceId: undefined,
+            subForceIds: [],
+            unitIds: [],
+            forceType: ForceRole.STANDARD,
+            formationLevel: FormationLevel.REGIMENT,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          const localId = snapshot.campaignId || campaign.id;
+          const forcesStore = createForcesStore(localId);
+          const missionsStore = createMissionsStore(localId);
+          forcesStore.getState().addForce(rootForce);
+          const guestSession = createGuestCoopSession(
+            hostMatchId,
+            snapshot.roomCode,
+          );
+          const mirror: ICampaign = {
+            ...campaign,
+            id: localId,
+            forces: new Map([[rootForce.id, rootForce]]),
+            coopSession: guestSession,
+          };
+          set({
+            campaign: mirror,
+            forcesStore,
+            missionsStore,
+          });
+          return localId;
         },
         loadCampaign: (id) => {
           const storageKey = `campaign-${id}`;
@@ -238,6 +296,59 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
               ms.addMission(mission);
             });
           }
+          // Wave 6.1.B task 1.4: emit activity-log entries for the
+          // categorizable events from this day's pipeline. Zero behavior
+          // change to the pipeline itself — the slice is observer-only.
+          const dayNumber =
+            (postPipeline as { dayNumber?: number }).dayNumber ?? 0;
+          const append = get().appendActivityLogEntry;
+          const isoNow = new Date().toISOString();
+          for (const heal of report.healedPersonnel) {
+            append({
+              id: `act-medical-${heal.personId}-${dayNumber}`,
+              category: 'medical',
+              timestamp: isoNow,
+              campaignDay: dayNumber,
+              message: `${heal.personName} recovered`,
+              payload: {
+                pilotId: heal.personId,
+                pilotName: heal.personName,
+                event: 'recovered',
+              },
+            });
+          }
+          for (const exp of report.expiredContracts) {
+            append({
+              id: `act-finances-contract-expiry-${exp.contractId}-${dayNumber}`,
+              category: 'finances',
+              timestamp: isoNow,
+              campaignDay: dayNumber,
+              message: `Contract "${exp.contractName}" expired`,
+              payload: {
+                event: 'contract-expiry',
+                amount: 0,
+                currency: 'C-bills',
+                memo: exp.contractName,
+              },
+            });
+          }
+          // Daily-cost emission — one entry summarizing total daily burn.
+          const totalAmount = report.costs.total?.amount ?? 0;
+          if (totalAmount !== 0) {
+            append({
+              id: `act-finances-daily-costs-${dayNumber}`,
+              category: 'finances',
+              timestamp: isoNow,
+              campaignDay: dayNumber,
+              message: `Daily costs: ${totalAmount.toLocaleString()} C-bills`,
+              payload: {
+                event: 'daily-costs',
+                amount: -totalAmount,
+                currency: 'C-bills',
+              },
+            });
+          }
+
           get().saveCampaign();
           return { ...report, campaign: campaignWithAudit };
         },
@@ -287,13 +398,28 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         getOutcomeApplyErrors: () => get().outcomeApplyErrors,
         retryOutcomeApplication: (matchId) =>
           retryCampaignOutcomeApplication(get, set, matchId),
+        appendActivityLogEntry: (entry) => {
+          // FIFO 200-cap append with last-write-wins dedup on entry.id.
+          // Mirror the PT-101 fix on the replay-library index writer:
+          // dedup BEFORE append so a repeated emit (same id) overwrites
+          // the older copy instead of duplicating.
+          const existing = get().activityLog;
+          const filtered = existing.filter((e) => e.id !== entry.id);
+          const next = [...filtered, entry];
+          const trimmed =
+            next.length > ACTIVITY_LOG_MAX_ENTRIES
+              ? next.slice(next.length - ACTIVITY_LOG_MAX_ENTRIES)
+              : next;
+          set({ activityLog: trimmed });
+        },
+        getActivityLog: () => get().activityLog,
       }),
       {
         name: 'campaign-store',
         storage: createJSONStorage(() => clientSafeStorage),
         partialize: (state) => {
           if (!state.campaign) {
-            return { campaign: null };
+            return { campaign: null, activityLog: state.activityLog };
           }
           return {
             campaign: serializeCampaign(
@@ -302,18 +428,31 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
               state.processedBattleIds,
               state.reviewedBattleIds,
             ),
+            // The activity log is persisted as a plain readonly array.
+            // Bounded retention (ACTIVITY_LOG_MAX_ENTRIES = 200) on the
+            // append action keeps the persisted payload from growing
+            // without bound across long campaigns.
+            activityLog: state.activityLog,
           };
         },
         merge: (persisted: unknown, current) => {
           const persistedData = persisted as {
             campaign?: SerializedCampaignState | null;
+            activityLog?: IActivityLogEntry[];
           };
+          // Rehydrate the activity log if the persisted blob carries one
+          // (older persisted snapshots won't have the field yet — default
+          // to an empty array to keep round-trip backwards-compatible).
+          const activityLog = Array.isArray(persistedData?.activityLog)
+            ? persistedData.activityLog.filter(isActivityLogEntry)
+            : [];
           if (!persistedData?.campaign) {
             return {
               ...current,
               campaign: null,
               forcesStore: null,
               missionsStore: null,
+              activityLog,
             };
           }
           const serialized = persistedData.campaign;
@@ -330,6 +469,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             reviewedBattleIds: serialized.reviewedBattleIds,
             forcesStore: null,
             missionsStore: null,
+            activityLog,
           };
         },
       },
