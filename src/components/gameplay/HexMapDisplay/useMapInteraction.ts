@@ -18,7 +18,7 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
-import type { IHexCoordinate } from '@/types/gameplay';
+import type { IHexCoordinate, MapProjectionMode } from '@/types/gameplay';
 
 import {
   HEX_SIZE,
@@ -26,6 +26,11 @@ import {
   HEX_HEIGHT,
   hexToPixel,
 } from '@/constants/hexMap';
+
+import {
+  useMapLayerState,
+  type IMapLayerInteractionState,
+} from './useMapLayerState';
 
 interface ViewBox {
   x: number;
@@ -107,7 +112,7 @@ export function worldToScreen(
   return { x: sx, y: sy };
 }
 
-export interface MapInteractionState {
+export interface MapInteractionState extends IMapLayerInteractionState {
   svgRef: React.RefObject<SVGSVGElement | null>;
   transformedViewBox: string;
   viewBox: ViewBox;
@@ -115,14 +120,6 @@ export interface MapInteractionState {
   pan: { x: number; y: number };
   setZoom: React.Dispatch<React.SetStateAction<number>>;
   setPan: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>;
-  showMovementOverlay: boolean;
-  setShowMovementOverlay: React.Dispatch<React.SetStateAction<boolean>>;
-  showCoverOverlay: boolean;
-  setShowCoverOverlay: React.Dispatch<React.SetStateAction<boolean>>;
-  showFiringArcOverlay: boolean;
-  setShowFiringArcOverlay: React.Dispatch<React.SetStateAction<boolean>>;
-  showLOSOverlay: boolean;
-  setShowLOSOverlay: React.Dispatch<React.SetStateAction<boolean>>;
   /**
    * Pan the camera by the given screen-space delta (pixels). Used by
    * the keyboard layer (WASD/arrows) and by the minimap drag handler.
@@ -160,7 +157,10 @@ export interface MapInteractionState {
  * Hook — owns camera state for the hex map. `radius` is the map
  * radius in hexes; the world-space viewBox is derived from it.
  */
-export function useMapInteraction(radius: number): MapInteractionState {
+export function useMapInteraction(
+  radius: number,
+  initialProjectionMode: MapProjectionMode = 'topDown',
+): MapInteractionState {
   const [viewBox, setViewBox] = useState<ViewBox>({
     x: 0,
     y: 0,
@@ -176,10 +176,7 @@ export function useMapInteraction(radius: number): MapInteractionState {
     zoom: number;
   } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const [showMovementOverlay, setShowMovementOverlay] = useState(false);
-  const [showCoverOverlay, setShowCoverOverlay] = useState(false);
-  const [showFiringArcOverlay, setShowFiringArcOverlay] = useState(true);
-  const [showLOSOverlay, setShowLOSOverlay] = useState(false);
+  const layerInteraction = useMapLayerState(initialProjectionMode);
 
   // Track mid-flight ease animations so a new centerOn call can
   // cancel the previous one cleanly.
@@ -510,14 +507,7 @@ export function useMapInteraction(radius: number): MapInteractionState {
       pan,
       setZoom,
       setPan,
-      showMovementOverlay,
-      setShowMovementOverlay,
-      showCoverOverlay,
-      setShowCoverOverlay,
-      showFiringArcOverlay,
-      setShowFiringArcOverlay,
-      showLOSOverlay,
-      setShowLOSOverlay,
+      ...layerInteraction,
       panBy,
       zoomTo,
       centerOn,
@@ -534,10 +524,7 @@ export function useMapInteraction(radius: number): MapInteractionState {
       viewBox,
       zoom,
       pan,
-      showMovementOverlay,
-      showCoverOverlay,
-      showFiringArcOverlay,
-      showLOSOverlay,
+      layerInteraction,
       panBy,
       zoomTo,
       centerOn,

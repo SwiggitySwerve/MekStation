@@ -166,6 +166,7 @@ export default function PreBattlePage(): React.ReactElement {
   const launchBattle = usePreBattleLaunch({
     playerForce,
     opponentForce,
+    mapConfig: encounter?.mapConfig,
     pilots,
     router,
     setSession,

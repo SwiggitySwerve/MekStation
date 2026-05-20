@@ -58,11 +58,11 @@ export class GameEngine {
   private readonly grid: IHexGrid;
 
   constructor(config: IGameEngineConfig = {}) {
-    this.mapRadius = config.mapRadius ?? 7;
+    this.mapRadius = config.mapRadius ?? config.grid?.config.radius ?? 7;
     this.turnLimit = config.turnLimit ?? 30;
     this.seed = config.seed ?? Date.now();
     this.random = new SeededRandom(this.seed);
-    this.grid = createMinimalGrid(this.mapRadius);
+    this.grid = config.grid ?? createMinimalGrid(this.mapRadius);
   }
 
   /**

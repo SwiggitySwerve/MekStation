@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { SpectatorMode } from '@/stores/useGameplayStore';
+import type { IMapConfiguration } from '@/types/encounter';
 import type { IForce } from '@/types/force';
 import type { IGameSession } from '@/types/gameplay';
 import type { IPilot } from '@/types/pilot';
@@ -13,6 +14,7 @@ import {
   getAssignedUnitIds,
 } from '@/components/gameplay/pages/preBattleSessionBuilder';
 import { GameEngine } from '@/engine/GameEngine';
+import { createGridFromTerrainPreset } from '@/engine/GameEngine.helpers';
 import { logger } from '@/utils/logger';
 
 export type BattleMode = 'auto' | 'interactive' | 'spectator';
@@ -20,6 +22,7 @@ export type BattleMode = 'auto' | 'interactive' | 'spectator';
 interface UsePreBattleLaunchOptions {
   playerForce: IForce | undefined;
   opponentForce: IForce | undefined;
+  mapConfig: IMapConfiguration | undefined;
   pilots: readonly IPilot[];
   router: NextRouter;
   setSession: (session: IGameSession) => void;
@@ -58,6 +61,7 @@ function getLaunchErrorLogLabel(mode: BattleMode): string {
 export function usePreBattleLaunch({
   playerForce,
   opponentForce,
+  mapConfig,
   pilots,
   router,
   setSession,
@@ -104,7 +108,12 @@ export function usePreBattleLaunch({
           return;
         }
 
-        const engine = new GameEngine({ seed: Date.now() });
+        const mapRadius = mapConfig?.radius ?? 7;
+        const engine = new GameEngine({
+          seed: Date.now(),
+          mapRadius,
+          grid: createGridFromTerrainPreset(mapRadius, mapConfig?.terrain),
+        });
 
         if (mode === 'auto') {
           const session = engine.runToCompletion(
@@ -173,6 +182,7 @@ export function usePreBattleLaunch({
     [
       playerForce,
       opponentForce,
+      mapConfig,
       pilots,
       router,
       setSession,

@@ -12,6 +12,7 @@ import type {
 
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { GameEngine } from '@/engine/GameEngine';
+import { createGridFromTerrainPreset } from '@/engine/GameEngine.helpers';
 import { EncounterStatus, type IEncounter } from '@/types/encounter';
 import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { buildFromSkirmishConfig } from '@/utils/gameplay/preBattleSessionBuilder';
@@ -210,7 +211,15 @@ export function usePreBattleSkirmish({
           piloting: unit.piloting,
         }));
 
-        const engine = new GameEngine({ seed: Date.now() });
+        const engine = new GameEngine({
+          seed: Date.now(),
+          mapRadius: config.mapRadius,
+          turnLimit: config.turnLimit,
+          grid: createGridFromTerrainPreset(
+            config.mapRadius,
+            config.terrainPreset,
+          ),
+        });
         const interactiveSession = engine.createInteractiveSession(
           adaptedPlayerUnits,
           adaptedOpponentUnits,

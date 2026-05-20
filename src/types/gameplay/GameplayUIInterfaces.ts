@@ -45,6 +45,90 @@ export const DEFAULT_LAYOUT_CONFIG: ILayoutConfig = {
   minPanelWidth: 300,
 };
 
+// =============================================================================
+// Tactical Map View Types
+// =============================================================================
+
+/**
+ * Render-only presentation mode for the tactical map. BattleTech rules remain
+ * anchored to axial hex coordinates; projection mode only changes how the SVG
+ * layer is presented to the player.
+ */
+export type MapProjectionMode = 'topDown' | 'isometricPreview';
+
+export const MAP_LAYER_IDS = [
+  'terrain',
+  'elevation',
+  'movement',
+  'path',
+  'cover',
+  'los',
+  'firingArcs',
+  'objectives',
+  'fog',
+  'effects',
+  'sensors',
+] as const;
+
+/**
+ * Stable identifier for map layers that can be shown, hidden, locked, or
+ * dimmed by the tactical-map controls.
+ */
+export type MapLayerId = (typeof MAP_LAYER_IDS)[number];
+
+/**
+ * Player-facing visibility contract for a tactical map layer.
+ */
+export interface IMapLayerState {
+  readonly id: MapLayerId;
+  readonly visible: boolean;
+  readonly locked: boolean;
+  readonly intensity: number;
+}
+
+export type IMapLayerStateById = Readonly<Record<MapLayerId, IMapLayerState>>;
+
+function mapLayer(
+  id: MapLayerId,
+  visible: boolean,
+  locked = false,
+  intensity = 1,
+): IMapLayerState {
+  return { id, visible, locked, intensity };
+}
+
+/**
+ * Default tactical-map layer stack. Locked layers are structural; callers may
+ * still read them through the same public contract, but controls should not
+ * hide them.
+ */
+export const DEFAULT_MAP_LAYER_STATE: IMapLayerStateById = {
+  terrain: mapLayer('terrain', true, true),
+  elevation: mapLayer('elevation', true),
+  movement: mapLayer('movement', false),
+  path: mapLayer('path', true, true),
+  cover: mapLayer('cover', false),
+  los: mapLayer('los', false),
+  firingArcs: mapLayer('firingArcs', true),
+  objectives: mapLayer('objectives', true),
+  fog: mapLayer('fog', true, true),
+  effects: mapLayer('effects', true, true),
+  sensors: mapLayer('sensors', true),
+};
+
+export function setMapLayerVisibility(
+  layers: IMapLayerStateById,
+  id: MapLayerId,
+  visible: boolean,
+): IMapLayerStateById {
+  const layer = layers[id];
+  if (layer.locked || layer.visible === visible) return layers;
+  return {
+    ...layers,
+    [id]: { ...layer, visible },
+  };
+}
+
 /**
  * Get layout config for a given phase.
  */

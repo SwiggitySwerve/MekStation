@@ -8,6 +8,8 @@ import type {
   IWeaponStatus,
 } from '@/types/gameplay';
 
+import { DEFAULT_MAP_LAYER_STATE } from '@/types/gameplay';
+
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
 import { ConcedeButton } from './ConcedeButton';
@@ -24,6 +26,10 @@ export const noopInteraction: MapInteractionState = {
   pan: { x: 0, y: 0 },
   setZoom: () => {},
   setPan: () => {},
+  projectionMode: 'topDown',
+  setProjectionMode: () => {},
+  layerState: DEFAULT_MAP_LAYER_STATE,
+  setLayerVisibility: () => {},
   showMovementOverlay: false,
   setShowMovementOverlay: () => {},
   showCoverOverlay: false,

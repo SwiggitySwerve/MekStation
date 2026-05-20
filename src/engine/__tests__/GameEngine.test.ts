@@ -1,6 +1,7 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IGameUnit } from '@/types/gameplay/GameSessionInterfaces';
 
+import { TerrainPreset } from '@/types/encounter';
 import {
   GameSide,
   GameStatus,
@@ -8,10 +9,15 @@ import {
   LockState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import type { IAdaptedUnit } from '../types';
 
 import { GameEngine, InteractiveSession } from '../GameEngine';
+import {
+  createGridFromHexTerrain,
+  createGridFromTerrainPreset,
+} from '../GameEngine.helpers';
 
 function createTestWeapon(id: string): IWeapon {
   return {
@@ -224,6 +230,49 @@ describe('GameEngine', () => {
 
     it('should return null for getResult when game not over', () => {
       expect(interactive.getResult()).toBeNull();
+    });
+
+    it('threads a configured terrain grid into interactive sessions', () => {
+      const grid = createGridFromHexTerrain(5, [
+        {
+          coordinate: { q: 0, r: 0 },
+          elevation: 2,
+          features: [{ type: TerrainType.HeavyWoods, level: 1 }],
+        },
+      ]);
+      const engine = new GameEngine({
+        seed: 42,
+        turnLimit: 20,
+        grid,
+      });
+      const p1 = createTestUnit('player-1', GameSide.Player, { q: 0, r: -3 });
+      const o1 = createTestUnit('opponent-1', GameSide.Opponent, {
+        q: 0,
+        r: 3,
+      });
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+
+      const configured = engine.createInteractiveSession([p1], [o1], gameUnits);
+
+      const center = configured.getGrid().hexes.get('0,0');
+      expect(configured.getSession().config.mapRadius).toBe(5);
+      expect(center?.terrain).toBe(TerrainType.HeavyWoods);
+      expect(center?.elevation).toBe(2);
+    });
+
+    it('creates deterministic preset terrain grids for encounter launches', () => {
+      const grid = createGridFromTerrainPreset(3, TerrainPreset.Urban);
+
+      expect(grid.config.radius).toBe(3);
+      expect(grid.hexes.get('0,0')?.terrain).toBe(TerrainType.Road);
+      expect(
+        Array.from(grid.hexes.values()).some(
+          (hex) => hex.terrain === TerrainType.Building && hex.elevation === 1,
+        ),
+      ).toBe(true);
     });
   });
 

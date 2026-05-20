@@ -6,7 +6,27 @@ import type {
   IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
 
+import { TerrainPreset } from '@/types/encounter';
+import {
+  TerrainType as GameplayTerrainType,
+  type IGeneratedMap,
+  type IHexTerrain,
+} from '@/types/gameplay/TerrainTypes';
+
 import type { IAdaptedUnit } from './types';
+
+const TERRAIN_TYPE_VALUES = new Set<string>(Object.values(GameplayTerrainType));
+
+function toTerrainType(value: string | undefined): GameplayTerrainType {
+  if (value && TERRAIN_TYPE_VALUES.has(value)) {
+    return value as GameplayTerrainType;
+  }
+  return GameplayTerrainType.Clear;
+}
+
+function primaryTerrainType(hex: IHexTerrain): GameplayTerrainType {
+  return hex.features[0]?.type ?? GameplayTerrainType.Clear;
+}
 
 export function createMinimalGrid(radius: number): IHexGrid {
   const hexes = new Map<string, IHex>();
@@ -24,6 +44,116 @@ export function createMinimalGrid(radius: number): IHexGrid {
     }
   }
   return { config: { radius }, hexes };
+}
+
+export function createGridFromHexTerrain(
+  radius: number,
+  terrain: readonly IHexTerrain[],
+): IHexGrid {
+  const base = createMinimalGrid(radius);
+  const hexes = new Map(base.hexes);
+
+  for (const tile of terrain) {
+    const key = `${tile.coordinate.q},${tile.coordinate.r}`;
+    const existing = hexes.get(key);
+    if (!existing) continue;
+    hexes.set(key, {
+      ...existing,
+      terrain: primaryTerrainType(tile),
+      elevation: tile.elevation,
+    });
+  }
+
+  return { config: { radius }, hexes };
+}
+
+export function createGridFromGeneratedMap(
+  radius: number,
+  generatedMap: IGeneratedMap,
+): IHexGrid {
+  const terrain = generatedMap.grid.map((tile) => ({
+    ...tile,
+    coordinate: {
+      q: tile.coordinate.q - radius,
+      r: tile.coordinate.r - radius,
+    },
+  }));
+  return createGridFromHexTerrain(radius, terrain);
+}
+
+export function createGridFromTerrainPreset(
+  radius: number,
+  preset: string | TerrainPreset | undefined,
+): IHexGrid {
+  const grid = createMinimalGrid(radius);
+  const hexes = new Map(grid.hexes);
+
+  for (const [key, hex] of Array.from(hexes.entries())) {
+    const { q, r } = hex.coord;
+    const ring = Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r));
+    const stripe = Math.abs(q - r);
+    let terrain = GameplayTerrainType.Clear;
+    let elevation = 0;
+
+    switch (preset) {
+      case TerrainPreset.LightWoods:
+        terrain =
+          (q * 17 + r * 31 + radius) % 5 === 0
+            ? GameplayTerrainType.LightWoods
+            : GameplayTerrainType.Clear;
+        elevation = ring % 4 === 0 ? 1 : 0;
+        break;
+      case TerrainPreset.HeavyWoods:
+        terrain =
+          (q * 13 + r * 19 + radius) % 3 === 0
+            ? GameplayTerrainType.HeavyWoods
+            : (q + r) % 4 === 0
+              ? GameplayTerrainType.LightWoods
+              : GameplayTerrainType.Clear;
+        elevation = ring % 3 === 0 ? 1 : 0;
+        break;
+      case TerrainPreset.Urban:
+        terrain =
+          q === 0 || r === 0 || q + r === 0
+            ? GameplayTerrainType.Road
+            : stripe % 4 === 0
+              ? GameplayTerrainType.Building
+              : GameplayTerrainType.Pavement;
+        elevation = terrain === GameplayTerrainType.Building ? 1 : 0;
+        break;
+      case TerrainPreset.Rough:
+        terrain =
+          ring % 2 === 0 || stripe % 5 === 0
+            ? GameplayTerrainType.Rough
+            : GameplayTerrainType.Clear;
+        elevation = Math.min(3, Math.floor(ring / 3));
+        break;
+      case TerrainPreset.Clear:
+      default:
+        terrain = GameplayTerrainType.Clear;
+        elevation = 0;
+    }
+
+    hexes.set(key, { ...hex, terrain, elevation });
+  }
+
+  return { config: { radius }, hexes };
+}
+
+export function hexTerrainFromGrid(grid: IHexGrid): readonly IHexTerrain[] {
+  return Array.from(grid.hexes.values()).map((hex) => {
+    const type = toTerrainType(hex.terrain);
+    return {
+      coordinate: hex.coord,
+      elevation: hex.elevation,
+      features: [
+        {
+          type,
+          level: type === GameplayTerrainType.Water ? 1 : 0,
+        },
+      ],
+    };
+  });
 }
 
 export function toAIUnitState(
