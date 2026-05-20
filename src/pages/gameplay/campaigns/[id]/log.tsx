@@ -36,6 +36,7 @@ const CATEGORY_LABELS: Record<ActivityLogCategory, string> = {
   finances: 'Finances',
   acquisitions: 'Acquisitions',
   technical: 'Technical',
+  travel: 'Travel',
 };
 
 export default function CampaignActivityLogPage(): React.ReactElement {
