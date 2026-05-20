@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
  *
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import { PageLayout, Card, Button, EmptyState } from '@/components/ui';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
@@ -66,10 +66,16 @@ export default function CampaignsListPage(): React.ReactElement {
   const campaigns = campaign ? [campaign] : [];
   const [isClient, setIsClient] = useState(false);
 
-  // Hydration fix
-  useState(() => {
+  // Hydration fix — flip to client AFTER mount so the SSR pass + the
+  // first client render both see `isClient = false` (loading state).
+  // The previous `useState(() => { setIsClient(true); })` form invoked
+  // the setter inside the state initializer, which fires synchronously
+  // during render and produced a server/client divergence on this page
+  // (server: empty state; client during hydration: loading state;
+  // post-hydration: real grid). PT-102.
+  useEffect(() => {
     setIsClient(true);
-  });
+  }, []);
 
   // Navigate to create page
   const handleCreateCampaign = useCallback(() => {
