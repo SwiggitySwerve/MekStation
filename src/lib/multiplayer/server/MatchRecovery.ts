@@ -70,13 +70,19 @@ export function isRecoverableMatchStore(
  * adopt that session into a fresh `InteractiveSession` so the recovered
  * host can accept new intents and drive the engine. Throws if the log
  * is empty or does not begin with `GameCreated`.
+ *
+ * Per `fix-recovered-session-adapted-units` (closes playtest gap #2):
+ * uses `fromSessionAsync` so the recovered host has its per-unit
+ * adapted state (weaponsByUnit / movementByUnit / etc.) populated.
+ * Without this, move/attack on a recovered session throws because
+ * the per-unit maps are empty.
  */
-export function rebuildSessionFromEvents(
+export async function rebuildSessionFromEvents(
   matchId: string,
   events: readonly IGameEvent[],
-): InteractiveSession {
+): Promise<InteractiveSession> {
   const session = hydrateGameSessionFromEvents(matchId, events);
-  return InteractiveSession.fromSession(session);
+  return InteractiveSession.fromSessionAsync(session);
 }
 
 /**
@@ -115,7 +121,7 @@ export async function recoverActiveMatches(
         failed.push(meta.matchId);
         continue;
       }
-      const session = rebuildSessionFromEvents(meta.matchId, events);
+      const session = await rebuildSessionFromEvents(meta.matchId, events);
       const host = ServerMatchHost.recover(meta.matchId, store, session);
       hosts.set(meta.matchId, host);
     } catch (e) {
