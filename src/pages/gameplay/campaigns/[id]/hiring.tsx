@@ -26,6 +26,7 @@ import {
   CommandLoading,
 } from '@/components/campaign/command/CommandStates';
 import { HiringPanel } from '@/components/campaign/command/HiringPanel';
+import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
 import { EmptyState, PageLayout } from '@/components/ui';
 import { generatePersonnelForDay } from '@/lib/campaign/markets/personnelMarket';
 import { hireCandidate } from '@/stores/campaign/campaignCommandActions';
@@ -125,7 +126,13 @@ export default function HiringPage(): React.ReactElement {
       maxWidth="wide"
       breadcrumbs={breadcrumbs}
     >
-      <CampaignNavigation campaignId={campaign.id} currentPage="hiring" />
+      <CampaignNavigation
+        campaignId={campaign.id}
+        currentPage="hiring"
+        coopSession={campaign.coopSession}
+      />
+
+      <CampaignCoopRouteSurface campaign={campaign} routeId="hiring" />
 
       {actionError ? (
         <CommandError

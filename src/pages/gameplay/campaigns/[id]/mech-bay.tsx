@@ -15,6 +15,7 @@ import { BayError, BayLoading } from '@/components/campaign/bays/BayStates';
 import { MechBay } from '@/components/campaign/bays/MechBay';
 import { RefitLaunchPanel } from '@/components/campaign/bays/RefitLaunchPanel';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
+import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
 import { EmptyState, PageLayout } from '@/components/ui';
 import { resolveUnitConfiguration } from '@/lib/campaign/refit/unitConfiguration';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
@@ -94,8 +95,13 @@ export default function MechBayPage(): React.ReactElement {
       maxWidth="wide"
       breadcrumbs={breadcrumbs}
     >
-      <CampaignNavigation campaignId={campaign.id} currentPage="mech-bay" />
+      <CampaignNavigation
+        campaignId={campaign.id}
+        currentPage="mech-bay"
+        coopSession={campaign.coopSession}
+      />
 
+      <CampaignCoopRouteSurface campaign={campaign} routeId="mech-bay" />
       {saveState === 'error' ? (
         <BayError
           message={errorMessage ?? 'The campaign inventory failed to load.'}
