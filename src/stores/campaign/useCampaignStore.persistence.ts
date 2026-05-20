@@ -5,6 +5,7 @@ import type {
   IMission,
 } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
 import type { IForce } from '@/types/campaign/Force';
 import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
@@ -46,6 +47,12 @@ export interface SerializedCampaignState {
   processedBattleIds: string[];
   reviewedBattleIds: Record<string, number>;
   dailyBattleAudit: IDailyBattleAuditEntry[];
+  /**
+   * Co-op session metadata round-trip (`wire-coop-campaign-route`, Wave 6.1).
+   * Absent on single-player campaigns; present on host or guest mirror
+   * campaigns so a reload preserves the co-op surfaces.
+   */
+  coopSession?: ICoopSession;
   createdAt: string;
   updatedAt: string;
 }

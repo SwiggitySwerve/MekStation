@@ -12,6 +12,7 @@ import type { MechBuildConfig } from '@/utils/construction/constructionRules/typ
 
 import type { IShoppingList } from './acquisition/acquisitionTypes';
 import type { ICampaignOptions } from './CampaignOptions';
+import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { SalvageRights, CommandRights } from './Mission';
 import type { IMoraleTransition, IUnitPrestige, MoraleState } from './Prestige';
@@ -180,6 +181,19 @@ export interface ICampaign {
    * an empty list.
    */
   readonly moraleTransitions?: readonly IMoraleTransition[];
+
+  /**
+   * Co-op session metadata (`wire-coop-campaign-route`, Wave 6.1).
+   *
+   * Absent (the `undefined` case) means single-player — every co-op
+   * surface in the campaign page tree SHALL skip render in that case.
+   * Present means a shared co-op campaign; `coopSession.mode` decides
+   * whether the local user sees host (`HostGmReviewSurface`) or guest
+   * (`GuestProposalSurface` overlays) surfaces.
+   *
+   * See openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md.
+   */
+  readonly coopSession?: ICoopSession;
 }
 
 // =============================================================================
