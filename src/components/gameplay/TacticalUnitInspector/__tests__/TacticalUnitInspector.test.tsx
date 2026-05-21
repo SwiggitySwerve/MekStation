@@ -24,20 +24,21 @@
  * @see openspec/changes/add-tactical-unit-inspector-drawers/tasks.md §4.1
  */
 
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
 
-import { GameSide } from "@/types/gameplay";
 import type {
   IGameSession,
   IGameUnit,
   IGameState,
   IUnitGameState,
   IWeaponStatus,
-} from "@/types/gameplay";
-import type { PlayerId } from "@/types/gameplay/TacticalShellInterfaces";
+} from '@/types/gameplay';
+import type { PlayerId } from '@/types/gameplay/TacticalShellInterfaces';
 
-import { TacticalUnitInspector } from "../TacticalUnitInspector";
+import { GameSide, LockState, MovementType } from '@/types/gameplay';
+
+import { TacticalUnitInspector } from '../TacticalUnitInspector';
 
 // =============================================================================
 // Minimal fixture helpers
@@ -69,9 +70,9 @@ function makeUnitState(
     id,
     side,
     position: { q: 0, r: 0 },
-    facing: 0 as unknown as IUnitGameState["facing"],
+    facing: 0 as unknown as IUnitGameState['facing'],
     heat: 8,
-    movementThisTurn: "WALK",
+    movementThisTurn: MovementType.Walk,
     hexesMovedThisTurn: 3,
     armor: { HEAD: 9, CT: 31, LT: 20, RT: 20, LA: 16, RA: 16, LL: 20, RL: 20 },
     structure: {
@@ -90,7 +91,7 @@ function makeUnitState(
     pilotWounds: 0,
     pilotConscious: true,
     destroyed: false,
-    lockState: "unlocked" as unknown as IUnitGameState["lockState"],
+    lockState: LockState.Pending,
     ...overrides,
   };
 }
@@ -103,7 +104,7 @@ function makeWeapon(
   return {
     id,
     name,
-    location: "CT",
+    location: 'CT',
     destroyed: false,
     firedThisTurn: false,
     heat: 3,
@@ -125,21 +126,21 @@ function makeSession(
 
   const currentState = {
     units: stateMap,
-    phase: "movement",
+    phase: 'movement',
     turn: 1,
     firstMover: GameSide.Player,
     initiativeWinner: GameSide.Player,
   } as unknown as IGameState;
 
   return {
-    id: "test-session",
+    id: 'test-session',
     units,
     currentState,
     events: [],
     config: {
       mapRadius: 5,
       turnLimit: 0,
-      victoryConditions: ["elimination"],
+      victoryConditions: ['elimination'],
       optionalRules: [],
     },
     sideOwners: sideOwners ?? null,
@@ -150,20 +151,20 @@ function makeSession(
 // Shared test data
 // =============================================================================
 
-const FRIENDLY_ID = "friendly-1";
-const OPPONENT_ID = "opponent-1";
-const VIEWER_PLAYER_ID: PlayerId = "player-a";
-const OPPONENT_PLAYER_ID: PlayerId = "player-b";
+const FRIENDLY_ID = 'friendly-1';
+const OPPONENT_ID = 'opponent-1';
+const VIEWER_PLAYER_ID: PlayerId = 'player-a';
+const OPPONENT_PLAYER_ID: PlayerId = 'player-b';
 
 const friendlyUnit = makeUnit(FRIENDLY_ID, GameSide.Player, {
-  name: "Atlas AS7-D",
-  unitRef: "atlas-as7-d",
+  name: 'Atlas AS7-D',
+  unitRef: 'atlas-as7-d',
   gunnery: 3,
   piloting: 4,
 });
 const opponentUnit = makeUnit(OPPONENT_ID, GameSide.Opponent, {
-  name: "Mad Cat Prime",
-  unitRef: "mad-cat-prime",
+  name: 'Mad Cat Prime',
+  unitRef: 'mad-cat-prime',
 });
 
 const friendlyState = makeUnitState(FRIENDLY_ID, GameSide.Player, { heat: 12 });
@@ -180,19 +181,19 @@ const session = makeSession(
   },
 );
 
-const mediumLaser = makeWeapon("ml-1", "Medium Laser");
-const lrm20 = makeWeapon("lrm-1", "LRM-20", { ammoRemaining: 1 });
+const mediumLaser = makeWeapon('ml-1', 'Medium Laser');
+const lrm20 = makeWeapon('lrm-1', 'LRM-20', { ammoRemaining: 1 });
 
 // =============================================================================
 // Tests
 // =============================================================================
 
-describe("TacticalUnitInspector", () => {
+describe('TacticalUnitInspector', () => {
   // ---------------------------------------------------------------------------
   // 1. Null / empty state
   // ---------------------------------------------------------------------------
 
-  it("renders the empty placeholder when inspectedUnitId is null", () => {
+  it('renders the empty placeholder when inspectedUnitId is null', () => {
     render(
       <TacticalUnitInspector
         inspectedUnitId={null}
@@ -203,17 +204,17 @@ describe("TacticalUnitInspector", () => {
       />,
     );
 
-    expect(screen.getByTestId("inspector-empty")).toBeTruthy();
-    expect(screen.queryByTestId("inspector-friendly")).toBeNull();
-    expect(screen.queryByTestId("inspector-target")).toBeNull();
-    expect(screen.queryByTestId("inspector-redacted")).toBeNull();
+    expect(screen.getByTestId('inspector-empty')).toBeTruthy();
+    expect(screen.queryByTestId('inspector-friendly')).toBeNull();
+    expect(screen.queryByTestId('inspector-target')).toBeNull();
+    expect(screen.queryByTestId('inspector-redacted')).toBeNull();
   });
 
   // ---------------------------------------------------------------------------
   // 2. Friendly exact state
   // ---------------------------------------------------------------------------
 
-  it("renders full friendly view with correct data-testids and values", () => {
+  it('renders full friendly view with correct data-testids and values', () => {
     render(
       <TacticalUnitInspector
         inspectedUnitId={FRIENDLY_ID}
@@ -222,7 +223,7 @@ describe("TacticalUnitInspector", () => {
         viewerSide={GameSide.Player}
         opponentVisibilityScopes={{}}
         supplemental={{
-          pilotNames: { [FRIENDLY_ID]: "Mechwarrior Smith" },
+          pilotNames: { [FRIENDLY_ID]: 'Mechwarrior Smith' },
           unitWeapons: { [FRIENDLY_ID]: [mediumLaser, lrm20] },
           maxArmor: {
             [FRIENDLY_ID]: {
@@ -254,44 +255,44 @@ describe("TacticalUnitInspector", () => {
     );
 
     // Root + sub-view
-    expect(screen.getByTestId("tactical-unit-inspector")).toBeTruthy();
-    expect(screen.getByTestId("inspector-friendly")).toBeTruthy();
+    expect(screen.getByTestId('tactical-unit-inspector')).toBeTruthy();
+    expect(screen.getByTestId('inspector-friendly')).toBeTruthy();
 
     // Unit identity
-    expect(screen.getByTestId("inspector-unit-name").textContent).toBe(
-      "Atlas AS7-D",
+    expect(screen.getByTestId('inspector-unit-name').textContent).toBe(
+      'Atlas AS7-D',
     );
-    expect(screen.getByTestId("inspector-chassis").textContent).toBe(
-      "atlas-as7-d",
+    expect(screen.getByTestId('inspector-chassis').textContent).toBe(
+      'atlas-as7-d',
     );
 
     // Pilot
-    expect(screen.getByTestId("inspector-pilot-name").textContent).toBe(
-      "Mechwarrior Smith",
+    expect(screen.getByTestId('inspector-pilot-name').textContent).toBe(
+      'Mechwarrior Smith',
     );
-    expect(screen.getByTestId("inspector-pilot-skills").textContent).toContain(
-      "3",
+    expect(screen.getByTestId('inspector-pilot-skills').textContent).toContain(
+      '3',
     );
-    expect(screen.getByTestId("inspector-pilot-skills").textContent).toContain(
-      "4",
+    expect(screen.getByTestId('inspector-pilot-skills').textContent).toContain(
+      '4',
     );
 
     // Heat
-    expect(screen.getByTestId("inspector-heat").textContent).toBe("12");
+    expect(screen.getByTestId('inspector-heat').textContent).toBe('12');
 
     // Armor / structure
-    expect(screen.getByTestId("inspector-armor")).toBeTruthy();
-    expect(screen.getByTestId("inspector-structure")).toBeTruthy();
+    expect(screen.getByTestId('inspector-armor')).toBeTruthy();
+    expect(screen.getByTestId('inspector-structure')).toBeTruthy();
 
     // Movement
-    expect(screen.getByTestId("inspector-movement")).toBeTruthy();
+    expect(screen.getByTestId('inspector-movement')).toBeTruthy();
 
     // Weapons — mediumLaser is ready, lrm20 has ammo warning
     expect(screen.getByTestId(`inspector-weapon-ml-1`)).toBeTruthy();
     expect(screen.getByTestId(`inspector-weapon-lrm-1`)).toBeTruthy();
   });
 
-  it("renders gunnery 3 / piloting 4 skills correctly in pilot-skills cell", () => {
+  it('renders gunnery 3 / piloting 4 skills correctly in pilot-skills cell', () => {
     render(
       <TacticalUnitInspector
         inspectedUnitId={FRIENDLY_ID}
@@ -299,19 +300,19 @@ describe("TacticalUnitInspector", () => {
         viewerPlayerId={VIEWER_PLAYER_ID}
         viewerSide={GameSide.Player}
         opponentVisibilityScopes={{}}
-        supplemental={{ pilotNames: { [FRIENDLY_ID]: "Smith" } }}
+        supplemental={{ pilotNames: { [FRIENDLY_ID]: 'Smith' } }}
       />,
     );
-    const skills = screen.getByTestId("inspector-pilot-skills");
-    expect(skills.textContent).toContain("G3");
-    expect(skills.textContent).toContain("P4");
+    const skills = screen.getByTestId('inspector-pilot-skills');
+    expect(skills.textContent).toContain('G3');
+    expect(skills.textContent).toContain('P4');
   });
 
   // ---------------------------------------------------------------------------
   // 3. Rough opponent — band visible, numbers absent
   // ---------------------------------------------------------------------------
 
-  it("renders target view at rough tier with damage band, no exact numbers", () => {
+  it('renders target view at rough tier with damage band, no exact numbers', () => {
     render(
       <TacticalUnitInspector
         inspectedUnitId={OPPONENT_ID}
@@ -319,26 +320,26 @@ describe("TacticalUnitInspector", () => {
         viewerPlayerId={VIEWER_PLAYER_ID}
         viewerSide={GameSide.Player}
         opponentVisibilityScopes={{
-          [OPPONENT_PLAYER_ID]: "rough",
+          [OPPONENT_PLAYER_ID]: 'rough',
         }}
       />,
     );
 
-    expect(screen.getByTestId("inspector-target")).toBeTruthy();
-    expect(screen.getByTestId("inspector-damage-band")).toBeTruthy();
+    expect(screen.getByTestId('inspector-target')).toBeTruthy();
+    expect(screen.getByTestId('inspector-damage-band')).toBeTruthy();
 
     // At rough tier, exact numbers MUST NOT appear.
-    expect(screen.queryByTestId("inspector-heat")).toBeNull();
-    expect(screen.queryByTestId("inspector-armor")).toBeNull();
-    expect(screen.queryByTestId("inspector-structure")).toBeNull();
+    expect(screen.queryByTestId('inspector-heat')).toBeNull();
+    expect(screen.queryByTestId('inspector-armor')).toBeNull();
+    expect(screen.queryByTestId('inspector-structure')).toBeNull();
 
     // The opponent's unit name IS visible at rough tier.
-    expect(screen.getByTestId("inspector-unit-name").textContent).toBe(
-      "Mad Cat Prime",
+    expect(screen.getByTestId('inspector-unit-name').textContent).toBe(
+      'Mad Cat Prime',
     );
   });
 
-  it("renders target view at exact tier with numeric heat and armor", () => {
+  it('renders target view at exact tier with numeric heat and armor', () => {
     render(
       <TacticalUnitInspector
         inspectedUnitId={OPPONENT_ID}
@@ -346,23 +347,23 @@ describe("TacticalUnitInspector", () => {
         viewerPlayerId={VIEWER_PLAYER_ID}
         viewerSide={GameSide.Player}
         opponentVisibilityScopes={{
-          [OPPONENT_PLAYER_ID]: "exact",
+          [OPPONENT_PLAYER_ID]: 'exact',
         }}
       />,
     );
 
-    expect(screen.getByTestId("inspector-target")).toBeTruthy();
+    expect(screen.getByTestId('inspector-target')).toBeTruthy();
     // At exact tier numeric fields are populated.
-    expect(screen.getByTestId("inspector-heat")).toBeTruthy();
-    expect(screen.getByTestId("inspector-armor")).toBeTruthy();
-    expect(screen.getByTestId("inspector-structure")).toBeTruthy();
+    expect(screen.getByTestId('inspector-heat')).toBeTruthy();
+    expect(screen.getByTestId('inspector-armor')).toBeTruthy();
+    expect(screen.getByTestId('inspector-structure')).toBeTruthy();
   });
 
   // ---------------------------------------------------------------------------
   // 4. Hidden / unknown opponent — DOM-level redaction
   // ---------------------------------------------------------------------------
 
-  it("renders redacted view at hidden tier — zero identifying info in DOM", () => {
+  it('renders redacted view at hidden tier — zero identifying info in DOM', () => {
     render(
       <TacticalUnitInspector
         inspectedUnitId={OPPONENT_ID}
@@ -370,34 +371,34 @@ describe("TacticalUnitInspector", () => {
         viewerPlayerId={VIEWER_PLAYER_ID}
         viewerSide={GameSide.Player}
         opponentVisibilityScopes={{
-          [OPPONENT_PLAYER_ID]: "hidden",
+          [OPPONENT_PLAYER_ID]: 'hidden',
         }}
       />,
     );
 
-    const root = screen.getByTestId("tactical-unit-inspector");
+    const root = screen.getByTestId('tactical-unit-inspector');
 
     // Correct sub-view is mounted.
-    expect(screen.getByTestId("inspector-redacted")).toBeTruthy();
+    expect(screen.getByTestId('inspector-redacted')).toBeTruthy();
 
     // Friendly / target sub-views MUST NOT be present.
-    expect(screen.queryByTestId("inspector-friendly")).toBeNull();
-    expect(screen.queryByTestId("inspector-target")).toBeNull();
+    expect(screen.queryByTestId('inspector-friendly')).toBeNull();
+    expect(screen.queryByTestId('inspector-target')).toBeNull();
 
     // The opponent's real unit name ('Mad Cat Prime') MUST NOT appear anywhere
     // in the rendered DOM — not in text, aria-label, or test-id values.
-    const domText = root.textContent ?? "";
-    expect(domText).not.toContain("Mad Cat Prime");
-    expect(domText).not.toContain("mad-cat-prime");
+    const domText = root.textContent ?? '';
+    expect(domText).not.toContain('Mad Cat Prime');
+    expect(domText).not.toContain('mad-cat-prime');
 
     // The raw numeric heat value (7) MUST NOT appear as text.
-    expect(domText).not.toContain("7");
+    expect(domText).not.toContain('7');
 
     // Generic placeholder MUST be visible.
-    expect(domText).toContain("Unknown Contact");
+    expect(domText).toContain('Unknown Contact');
   });
 
-  it("renders redacted view at unknown tier — zero identifying info in DOM", () => {
+  it('renders redacted view at unknown tier — zero identifying info in DOM', () => {
     render(
       <TacticalUnitInspector
         inspectedUnitId={OPPONENT_ID}
@@ -405,25 +406,25 @@ describe("TacticalUnitInspector", () => {
         viewerPlayerId={VIEWER_PLAYER_ID}
         viewerSide={GameSide.Player}
         opponentVisibilityScopes={{
-          [OPPONENT_PLAYER_ID]: "unknown",
+          [OPPONENT_PLAYER_ID]: 'unknown',
         }}
       />,
     );
 
-    const root = screen.getByTestId("tactical-unit-inspector");
-    const domText = root.textContent ?? "";
+    const root = screen.getByTestId('tactical-unit-inspector');
+    const domText = root.textContent ?? '';
 
-    expect(screen.getByTestId("inspector-redacted")).toBeTruthy();
-    expect(domText).not.toContain("Mad Cat Prime");
-    expect(domText).not.toContain("7"); // raw heat
-    expect(domText).toContain("Unknown Contact");
+    expect(screen.getByTestId('inspector-redacted')).toBeTruthy();
+    expect(domText).not.toContain('Mad Cat Prime');
+    expect(domText).not.toContain('7'); // raw heat
+    expect(domText).toContain('Unknown Contact');
   });
 
   // ---------------------------------------------------------------------------
   // 5. Default tier fallback: missing opponentVisibilityScopes entry → 'rough'
   // ---------------------------------------------------------------------------
 
-  it("falls back to rough tier when opponent is absent from scope map", () => {
+  it('falls back to rough tier when opponent is absent from scope map', () => {
     render(
       <TacticalUnitInspector
         inspectedUnitId={OPPONENT_ID}
@@ -436,8 +437,8 @@ describe("TacticalUnitInspector", () => {
     );
 
     // Target view (rough) renders damage band, not exact numbers.
-    expect(screen.getByTestId("inspector-target")).toBeTruthy();
-    expect(screen.getByTestId("inspector-damage-band")).toBeTruthy();
-    expect(screen.queryByTestId("inspector-heat")).toBeNull();
+    expect(screen.getByTestId('inspector-target')).toBeTruthy();
+    expect(screen.getByTestId('inspector-damage-band')).toBeTruthy();
+    expect(screen.queryByTestId('inspector-heat')).toBeNull();
   });
 });
