@@ -14,19 +14,19 @@
  *     sets textContent asynchronously across a microtask boundary.
  */
 
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook } from '@testing-library/react';
 
-import type { IGameSession } from "@/types/gameplay/GameSessionStateTypes";
+import type { IGameSession } from '@/types/gameplay/GameSessionStateTypes';
 
-import { createMinimalUnitState } from "@/simulation/runner/SimulationRunnerSupport";
-import { useGameplayStore } from "@/stores/useGameplayStore";
+import { createMinimalUnitState } from '@/simulation/runner/SimulationRunnerSupport';
+import { useGameplayStore } from '@/stores/useGameplayStore';
 import {
   GamePhase,
   GameSide,
   LockState,
-} from "@/types/gameplay/GameSessionCoreTypes";
+} from '@/types/gameplay/GameSessionCoreTypes';
 
-import { useScreenReaderAnnouncer } from "../useScreenReaderAnnouncer";
+import { useScreenReaderAnnouncer } from '../useScreenReaderAnnouncer';
 
 // =============================================================================
 // Helpers
@@ -39,19 +39,19 @@ import { useScreenReaderAnnouncer } from "../useScreenReaderAnnouncer";
  */
 function buildSession(phase: GamePhase): IGameSession {
   const playerUnit = {
-    id: "p1",
+    id: 'p1',
     side: GameSide.Player,
-    name: "P1",
-    unitRef: "P-1",
+    name: 'P1',
+    unitRef: 'P-1',
   };
   const opponentUnit = {
-    id: "o1",
+    id: 'o1',
     side: GameSide.Opponent,
-    name: "O1",
-    unitRef: "O-1",
+    name: 'O1',
+    unitRef: 'O-1',
   };
   return {
-    id: "test-session",
+    id: 'test-session',
     units: [playerUnit, opponentUnit],
     currentState: {
       phase,
@@ -60,11 +60,11 @@ function buildSession(phase: GamePhase): IGameSession {
       activationIndex: 0,
       units: {
         p1: {
-          ...createMinimalUnitState("p1", GameSide.Player, { q: 0, r: 0 }),
+          ...createMinimalUnitState('p1', GameSide.Player, { q: 0, r: 0 }),
           lockState: LockState.Resolved,
         },
         o1: {
-          ...createMinimalUnitState("o1", GameSide.Opponent, { q: 1, r: 0 }),
+          ...createMinimalUnitState('o1', GameSide.Opponent, { q: 1, r: 0 }),
           lockState: LockState.Resolved,
         },
       },
@@ -91,55 +91,55 @@ beforeEach(() => {
 // Imperative announce()
 // =============================================================================
 
-describe("useScreenReaderAnnouncer — announce()", () => {
-  it("writes message to polite node for default priority", async () => {
-    const politeNode = document.createElement("div");
+describe('useScreenReaderAnnouncer — announce()', () => {
+  it('writes message to polite node for default priority', async () => {
+    const politeNode = document.createElement('div');
     const { result } = renderHook(() => useScreenReaderAnnouncer());
 
     // Attach the ref manually (simulates what TacticalLiveRegion does).
-    // @ts-expect-error — assigning to read-only ref.current in test
+    // Test-only ref-current write (refs are read-only at the type level).
     result.current.politeRef.current = politeNode;
 
-    act(() => result.current.announce("Movement phase"));
+    act(() => result.current.announce('Movement phase'));
     await flushMicrotasks();
 
-    expect(politeNode.textContent).toBe("Movement phase");
+    expect(politeNode.textContent).toBe('Movement phase');
   });
 
-  it("writes message to assertive node for assertive priority", async () => {
-    const assertiveNode = document.createElement("div");
+  it('writes message to assertive node for assertive priority', async () => {
+    const assertiveNode = document.createElement('div');
     const { result } = renderHook(() => useScreenReaderAnnouncer());
 
-    // @ts-expect-error — assigning to read-only ref.current in test
+    // Test-only ref-current write (refs are read-only at the type level).
     result.current.assertiveRef.current = assertiveNode;
 
-    act(() => result.current.announce("Critical hit!", "assertive"));
+    act(() => result.current.announce('Critical hit!', 'assertive'));
     await flushMicrotasks();
 
-    expect(assertiveNode.textContent).toBe("Critical hit!");
+    expect(assertiveNode.textContent).toBe('Critical hit!');
   });
 
-  it("clears textContent before setting to force re-announcement of same text", async () => {
-    const politeNode = document.createElement("div");
-    politeNode.textContent = "Movement phase";
+  it('clears textContent before setting to force re-announcement of same text', async () => {
+    const politeNode = document.createElement('div');
+    politeNode.textContent = 'Movement phase';
     const { result } = renderHook(() => useScreenReaderAnnouncer());
 
-    // @ts-expect-error — assigning to read-only ref.current in test
+    // Test-only ref-current write (refs are read-only at the type level).
     result.current.politeRef.current = politeNode;
 
     // Announce same text again — should still update.
-    act(() => result.current.announce("Movement phase"));
+    act(() => result.current.announce('Movement phase'));
     // At this point textContent is '' (cleared synchronously).
-    expect(politeNode.textContent).toBe("");
+    expect(politeNode.textContent).toBe('');
     await flushMicrotasks();
-    expect(politeNode.textContent).toBe("Movement phase");
+    expect(politeNode.textContent).toBe('Movement phase');
   });
 
-  it("does nothing when ref node is not yet attached", () => {
+  it('does nothing when ref node is not yet attached', () => {
     const { result } = renderHook(() => useScreenReaderAnnouncer());
     // politeRef.current is null — should not throw.
     expect(() => {
-      act(() => result.current.announce("test"));
+      act(() => result.current.announce('test'));
     }).not.toThrow();
   });
 });
@@ -148,9 +148,9 @@ describe("useScreenReaderAnnouncer — announce()", () => {
 // Auto-announcement: phase changes
 // =============================================================================
 
-describe("useScreenReaderAnnouncer — auto phase announcements", () => {
-  it("announces phase transition when phase changes", async () => {
-    const politeNode = document.createElement("div");
+describe('useScreenReaderAnnouncer — auto phase announcements', () => {
+  it('announces phase transition when phase changes', async () => {
+    const politeNode = document.createElement('div');
 
     // Seed initial session in Movement phase.
     useGameplayStore.setState({
@@ -159,7 +159,7 @@ describe("useScreenReaderAnnouncer — auto phase announcements", () => {
 
     const { result, rerender } = renderHook(() => useScreenReaderAnnouncer());
 
-    // @ts-expect-error — assigning to read-only ref.current in test
+    // Test-only ref-current write (refs are read-only at the type level).
     result.current.politeRef.current = politeNode;
 
     // Transition to WeaponAttack phase.
@@ -171,6 +171,6 @@ describe("useScreenReaderAnnouncer — auto phase announcements", () => {
     rerender();
     await flushMicrotasks();
 
-    expect(politeNode.textContent).toBe("Weapon attack phase");
+    expect(politeNode.textContent).toBe('Weapon attack phase');
   });
 });

@@ -12,9 +12,9 @@
  *     Object.defineProperty on window.matchMedia, which jsdom provides as a stub.
  */
 
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook } from '@testing-library/react';
 
-import { useTacticalSettingsStore } from "@/stores/useTacticalSettingsStore";
+import { useTacticalSettingsStore } from '@/stores/useTacticalSettingsStore';
 
 // =============================================================================
 // Setup
@@ -32,34 +32,34 @@ beforeEach(() => {
 // Default state
 // =============================================================================
 
-describe("useTacticalSettingsStore — defaults", () => {
-  it("minimapSize defaults to medium", () => {
+describe('useTacticalSettingsStore — defaults', () => {
+  it('minimapSize defaults to medium', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
-    expect(result.current.minimapSize).toBe("medium");
+    expect(result.current.minimapSize).toBe('medium');
   });
 
-  it("tooltipDelay defaults to 400", () => {
+  it('tooltipDelay defaults to 400', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     expect(result.current.tooltipDelay).toBe(400);
   });
 
-  it("panelDensity defaults to standard", () => {
+  it('panelDensity defaults to standard', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
-    expect(result.current.panelDensity).toBe("standard");
+    expect(result.current.panelDensity).toBe('standard');
   });
 
-  it("autoCycleActiveUnit defaults to false", () => {
+  it('autoCycleActiveUnit defaults to false', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     expect(result.current.autoCycleActiveUnit).toBe(false);
   });
 
-  it("quickMovement defaults to false when reducedMotion media query is not set", () => {
+  it('quickMovement defaults to false when reducedMotion media query is not set', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     // jsdom window.matchMedia returns false by default — quickMovement matches.
     expect(result.current.quickMovement).toBe(false);
   });
 
-  it("quickCombat defaults to false when reducedMotion media query is not set", () => {
+  it('quickCombat defaults to false when reducedMotion media query is not set', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     expect(result.current.quickCombat).toBe(false);
   });
@@ -69,39 +69,39 @@ describe("useTacticalSettingsStore — defaults", () => {
 // Setters
 // =============================================================================
 
-describe("useTacticalSettingsStore — setters", () => {
-  it("setMinimapSize updates minimapSize", () => {
+describe('useTacticalSettingsStore — setters', () => {
+  it('setMinimapSize updates minimapSize', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
-    act(() => result.current.setMinimapSize("large"));
-    expect(result.current.minimapSize).toBe("large");
+    act(() => result.current.setMinimapSize('large'));
+    expect(result.current.minimapSize).toBe('large');
   });
 
-  it("setTooltipDelay updates tooltipDelay", () => {
+  it('setTooltipDelay updates tooltipDelay', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     act(() => result.current.setTooltipDelay(1000));
     expect(result.current.tooltipDelay).toBe(1000);
   });
 
-  it("setPanelDensity updates panelDensity", () => {
+  it('setPanelDensity updates panelDensity', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
-    act(() => result.current.setPanelDensity("compact"));
-    expect(result.current.panelDensity).toBe("compact");
+    act(() => result.current.setPanelDensity('compact'));
+    expect(result.current.panelDensity).toBe('compact');
   });
 
-  it("setAutoCycleActiveUnit updates autoCycleActiveUnit", () => {
+  it('setAutoCycleActiveUnit updates autoCycleActiveUnit', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     act(() => result.current.setAutoCycleActiveUnit(true));
     expect(result.current.autoCycleActiveUnit).toBe(true);
   });
 
-  it("setQuickMovement updates quickMovement independently", () => {
+  it('setQuickMovement updates quickMovement independently', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     act(() => result.current.setQuickMovement(true));
     expect(result.current.quickMovement).toBe(true);
     expect(result.current.reducedMotion).toBe(false);
   });
 
-  it("setHighContrast updates highContrast", () => {
+  it('setHighContrast updates highContrast', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     act(() => result.current.setHighContrast(true));
     expect(result.current.highContrast).toBe(true);
@@ -112,8 +112,8 @@ describe("useTacticalSettingsStore — setters", () => {
 // setReducedMotion co-sets quickMovement + quickCombat
 // =============================================================================
 
-describe("useTacticalSettingsStore — reducedMotion cascade", () => {
-  it("enabling reducedMotion also enables quickMovement and quickCombat", () => {
+describe('useTacticalSettingsStore — reducedMotion cascade', () => {
+  it('enabling reducedMotion also enables quickMovement and quickCombat', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     act(() => result.current.setReducedMotion(true));
     expect(result.current.reducedMotion).toBe(true);
@@ -121,7 +121,7 @@ describe("useTacticalSettingsStore — reducedMotion cascade", () => {
     expect(result.current.quickCombat).toBe(true);
   });
 
-  it("disabling reducedMotion does NOT force-disable quickMovement or quickCombat", () => {
+  it('disabling reducedMotion does NOT force-disable quickMovement or quickCombat', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     // Enable first.
     act(() => result.current.setReducedMotion(true));
@@ -138,19 +138,19 @@ describe("useTacticalSettingsStore — reducedMotion cascade", () => {
 // resetToDefaults
 // =============================================================================
 
-describe("useTacticalSettingsStore — resetToDefaults", () => {
-  it("resets all settings to defaults", () => {
+describe('useTacticalSettingsStore — resetToDefaults', () => {
+  it('resets all settings to defaults', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
     act(() => {
-      result.current.setMinimapSize("small");
+      result.current.setMinimapSize('small');
       result.current.setTooltipDelay(0);
-      result.current.setPanelDensity("comfortable");
+      result.current.setPanelDensity('comfortable');
       result.current.setAutoCycleActiveUnit(true);
     });
     act(() => result.current.resetToDefaults());
-    expect(result.current.minimapSize).toBe("medium");
+    expect(result.current.minimapSize).toBe('medium');
     expect(result.current.tooltipDelay).toBe(400);
-    expect(result.current.panelDensity).toBe("standard");
+    expect(result.current.panelDensity).toBe('standard');
     expect(result.current.autoCycleActiveUnit).toBe(false);
   });
 });
@@ -159,21 +159,21 @@ describe("useTacticalSettingsStore — resetToDefaults", () => {
 // localStorage persistence
 // =============================================================================
 
-describe("useTacticalSettingsStore — localStorage persistence", () => {
-  it("persists panelDensity to localStorage under tactical-settings:v1", () => {
+describe('useTacticalSettingsStore — localStorage persistence', () => {
+  it('persists panelDensity to localStorage under tactical-settings:v1', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
-    act(() => result.current.setPanelDensity("comfortable"));
-    const raw = localStorage.getItem("tactical-settings:v1");
+    act(() => result.current.setPanelDensity('comfortable'));
+    const raw = localStorage.getItem('tactical-settings:v1');
     expect(raw).not.toBeNull();
     const parsed = JSON.parse(raw!);
-    expect(parsed.state.panelDensity).toBe("comfortable");
+    expect(parsed.state.panelDensity).toBe('comfortable');
   });
 
-  it("persists minimapSize to localStorage", () => {
+  it('persists minimapSize to localStorage', () => {
     const { result } = renderHook(() => useTacticalSettingsStore());
-    act(() => result.current.setMinimapSize("small"));
-    const raw = localStorage.getItem("tactical-settings:v1");
+    act(() => result.current.setMinimapSize('small'));
+    const raw = localStorage.getItem('tactical-settings:v1');
     const parsed = JSON.parse(raw!);
-    expect(parsed.state.minimapSize).toBe("small");
+    expect(parsed.state.minimapSize).toBe('small');
   });
 });
