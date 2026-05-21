@@ -17,12 +17,9 @@
 
 ## 3. NARC / iNarc spotter override
 
-- [ ] 3.1 Extend `IIndirectFireRequest` with NARC/iNarc team-mark flags
-  > DEFERRED — follow-up PR-K3. Requires extending the existing `IIndirectFireRequest` helper API + plumbing team-mark state from `IUnitGameState`.
-- [ ] 3.2 In `computeIndirectFireContext`, treat NARC/iNarc-marked target as implicit spotter when no LOS
-  > DEFERRED — follow-up PR-K3.
-- [ ] 3.3 Add unit test: no-LOS + NARC-target → permitted, basis='narc', spotterId=null
-  > DEFERRED — follow-up PR-K3.
+- [x] 3.1 Extend `IIndirectFireRequest` with NARC/iNarc team-mark flags (optional, backward-compat); add `basis` field to `IIndirectFireResult`
+- [x] 3.2 In `resolveIndirectFire`, permit indirect when no LOS spotter but NARC/iNarc-marked by attacker's team (basis='narc'|'inarc', spotterId absent, toHitPenalty=1); wire `computeIndirectFireContext` to read beacon flags from target unit state (forward-compat ?? [] default)
+- [x] 3.3 11 unit tests in `indirectFire.narc.test.ts` + 4 collaborator end-to-end tests in `InteractiveSession.indirectFire.test.ts`
 
 ## 4. Indirect-eligible weapon catalog + mode toggle
 
