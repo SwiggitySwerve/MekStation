@@ -50,7 +50,12 @@ function buildTarget(
     prone: false,
     shutdown: false,
     destroyed: false,
-    intelConfidence: 'confirmed',
+    intelConfidence: {
+      confidence: 'confirmed',
+      isOutdated: false,
+      lastSeenTurn: 1,
+      tier: 'exact',
+    },
     ...overrides,
   };
 }
@@ -67,7 +72,12 @@ function buildSilhouette(
     totalArmorRemaining: null,
     totalStructureRemaining: null,
     shutdown: null,
-    intelConfidence: 'estimated',
+    intelConfidence: {
+      confidence: 'estimated',
+      isOutdated: false,
+      lastSeenTurn: null,
+      tier: 'silhouette',
+    },
     ...overrides,
   });
 }
@@ -91,7 +101,12 @@ function buildGm(): IGmInspectorView {
     destroyed: false,
     damageBand: 'lightly-damaged',
     secretNotes: [],
-    intelConfidence: 'confirmed',
+    intelConfidence: {
+      confidence: 'confirmed',
+      isOutdated: false,
+      lastSeenTurn: 1,
+      tier: 'gm',
+    },
   };
 }
 
