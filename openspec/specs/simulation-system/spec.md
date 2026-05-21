@@ -1344,3 +1344,91 @@ When `advancedSystems` is enabled, the system SHALL provide `AIVisionAdvisor` th
 - **THEN** the fog-of-war module SHALL be unchanged
 - **AND** enemy positions SHALL remain fully available to the bot's planner
 
+### Requirement: BiomeGenerator Always Returns a Valid Biome
+
+The BiomeGenerator SHALL always return a valid biome value drawn from the four canonical variants (`temperate`, `desert`, `mountain`, `urban`). The previous placeholder value `'none'` is removed from the type union and rejected at the scenario-config validator boundary; legacy callers that pass `'none'` receive a deterministic fallback to `'temperate'` with a `console.warn`. This closes playtest gap #5 (the placeholder was excluded from Phase-1 swarm sweeps because no meaningful terrain could be generated for it).
+
+**Priority**: Low
+
+#### Scenario: Biome enum no longer accepts 'none'
+
+**GIVEN** TypeScript code that attempts `const b: Biome = 'none'`
+**WHEN** the compiler runs
+**THEN** the compile SHALL fail with a type error (the `'none'` variant is no longer part of the `Biome` union)
+
+#### Scenario: Legacy config with biome: 'none' falls back to temperate
+
+**GIVEN** a legacy swarm config or scenario JSON that contains `biome: 'none'`
+**WHEN** the BiomeGenerator processes the config
+**THEN** the generator SHALL emit a `console.warn` identifying the offending caller
+**AND** SHALL generate a `temperate`-biome scenario
+**AND** SHALL NOT silently corrupt the run (the warning ensures regressions in legacy data surface in CI)
+
+#### Scenario: Scenario-config validator rejects 'none'
+
+**GIVEN** an external caller that POSTs a scenario config with `biome: 'none'` to the API boundary
+**WHEN** the validator runs
+**THEN** the validator SHALL reject the config with an error like `biome 'none' is no longer supported — use one of temperate, desert, mountain, urban`
+**AND** the error message SHALL reference this OpenSpec change as the migration path
+
+#### Scenario: Phase-1 swarm matrix runs without 'none' references
+
+**GIVEN** the Phase-1 swarm-config sweep
+**WHEN** the matrix re-runs after migration
+**THEN** zero configs SHALL reference `biome: 'none'`
+**AND** zero `console.warn` calls SHALL fire from the BiomeGenerator legacy-fallback path during the sweep
+
+### Requirement: StateCycleDetector Includes Unit Positions
+
+The StateCycleDetector SHALL include each unit's `position` field in its snapshot key so positional movement between turns does not register as a false-positive state cycle. The previous snapshot scope (armor / structure / heat only) reported a state cycle on 96% of runs even when units had moved between turns (PT-001).
+
+**Priority**: High
+
+#### Scenario: Same heat at different position is not a cycle
+
+**GIVEN** a unit with `heat = 10`, `armor = 30`, `structure = 50` at position `(3, 4)` on turn N
+**AND** the same unit with `heat = 10`, `armor = 30`, `structure = 50` at position `(4, 5)` on turn N+1
+**WHEN** the StateCycleDetector snapshots both turns
+**THEN** the two snapshot keys SHALL differ (because position differs)
+**AND** the detector SHALL NOT flag a state cycle
+
+#### Scenario: Same state at same position is still a cycle
+
+**GIVEN** a unit with `heat = 10`, `position = (3, 4)` on turn N
+**AND** the same unit with `heat = 10`, `position = (3, 4)` on turn N+1 (no movement, no damage)
+**WHEN** the StateCycleDetector snapshots both turns
+**THEN** the two snapshot keys SHALL match
+**AND** the detector MAY flag a candidate state cycle (existing behavior preserved)
+
+#### Scenario: PT-001 hit-rate drops below 5% after the fix
+
+**GIVEN** the Phase-1 smoke matrix that previously produced StateCycleDetector hits on 96% of runs
+**WHEN** the matrix re-runs with the position-aware snapshot
+**THEN** the StateCycleDetector hit rate SHALL drop below 5% (the threshold below which the detector is no longer the dominant signal)
+
+### Requirement: TurnLimit Scales With Map Radius
+
+`ScenarioGenerator` SHALL default `turnLimit` to `max(50, mapRadius * 4)` so larger maps don't draw out at the 50-turn cap. Previously the static `turnLimit = 50` caused r20 maps to draw at 100% (PT-003).
+
+**Priority**: Medium
+
+#### Scenario: r12 default is unchanged
+
+**GIVEN** `ScenarioGenerator.generate({ mapRadius: 12, ... })` with no explicit `turnLimit`
+**WHEN** the scenario is generated
+**THEN** `scenario.turnLimit` SHALL be 50 (`max(50, 12 * 4) = max(50, 48) = 50`)
+
+#### Scenario: r20 default rises to 80
+
+**GIVEN** `ScenarioGenerator.generate({ mapRadius: 20, ... })` with no explicit `turnLimit`
+**WHEN** the scenario is generated
+**THEN** `scenario.turnLimit` SHALL be 80 (`max(50, 20 * 4) = 80`)
+**AND** the Phase-1 r20 draw rate SHALL drop below 50% (PT-003)
+
+#### Scenario: Explicit caller value still wins
+
+**GIVEN** `ScenarioGenerator.generate({ mapRadius: 20, turnLimit: 50, ... })`
+**WHEN** the scenario is generated
+**THEN** `scenario.turnLimit` SHALL be 50 (the caller's explicit value)
+**AND** the auto-scaling SHALL only apply when the caller leaves `turnLimit` undefined
+
