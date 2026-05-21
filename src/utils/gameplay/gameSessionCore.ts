@@ -59,6 +59,8 @@ import {
   createGameCreatedEvent,
   createGameEndedEvent,
   createGameStartedEvent,
+  createIndirectFireNarcOverrideEvent,
+  createIndirectFireSpotterSelectedEvent,
   createInitiativeRolledEvent,
   createMovementDeclaredEvent,
   createMovementLockedEvent,
@@ -381,6 +383,20 @@ export function declareAttack(
   weapons: readonly IWeaponAttack[],
   range: number,
   rangeBracket: RangeBracket,
+  /**
+   * Wave 8 PR-K4: optional pre-computed indirect-fire resolution. When
+   * present and `permitted && isIndirect`, the resolution's `toHitPenalty`
+   * is appended to the to-hit modifier list AND the appropriate indirect-
+   * fire event (`IndirectFireSpotterSelected` / `IndirectFireNarcOverride`)
+   * is emitted immediately after `AttackDeclared`. When undefined, the
+   * function behaves identically to its pre-PR-K4 contract.
+   */
+  indirectFireResolution?: import('@/types/gameplay/CombatInterfaces').IIndirectFireResolution,
+  /**
+   * Optional target hex carried on the indirect-fire event payloads.
+   * Defaults to the live target unit position when omitted.
+   */
+  targetHex?: import('@/types/gameplay/HexGridInterfaces').IHexCoordinate,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.WeaponAttack) {
     throw new Error('Not in weapon attack phase');
@@ -425,6 +441,25 @@ export function declareAttack(
     source: modifier.source,
   }));
 
+  // Wave 8 PR-K4: append indirect-fire penalty to the modifier list so
+  // the AttackDeclared event's toHitNumber reflects the live indirect
+  // resolution. The penalty math (base +1, +1 spotter-walked, -1 FO SPA)
+  // happened upstream in `computeIndirectFireContext`.
+  let finalToHit = toHitCalc.finalToHit;
+  if (
+    indirectFireResolution &&
+    indirectFireResolution.permitted &&
+    indirectFireResolution.isIndirect &&
+    indirectFireResolution.toHitPenalty > 0
+  ) {
+    modifiers.push({
+      name: 'Indirect fire',
+      value: indirectFireResolution.toHitPenalty,
+      source: 'other',
+    });
+    finalToHit += indirectFireResolution.toHitPenalty;
+  }
+
   const weaponIds = weapons.map((weapon) => weapon.weaponId);
   const weaponAttackData: IWeaponAttackData[] = weapons.map((weapon) => ({
     weaponId: weapon.weaponId,
@@ -442,12 +477,58 @@ export function declareAttack(
     attackerId,
     targetId,
     weaponIds,
-    toHitCalc.finalToHit,
+    finalToHit,
     modifiers,
     weaponAttackData,
   );
 
-  return appendEvent(session, event);
+  let updatedSession = appendEvent(session, event);
+
+  // Wave 8 PR-K4: emit the indirect-fire dispatch event after AttackDeclared.
+  // Multi-weapon attacks share the same resolution today (the upstream
+  // collaborator returns a per-weapon result; callers pre-merge when they
+  // declare a multi-weapon attack). The first weaponId in the attack is
+  // used as the event's weapon reference.
+  if (
+    indirectFireResolution &&
+    indirectFireResolution.permitted &&
+    indirectFireResolution.isIndirect &&
+    weaponIds.length > 0
+  ) {
+    const resolvedTargetHex = targetHex ?? targetUnit.position;
+    const eventWeaponId = weaponIds[0];
+    const eventSequence = updatedSession.events.length;
+    if (
+      indirectFireResolution.basis === 'narc' ||
+      indirectFireResolution.basis === 'inarc'
+    ) {
+      const narcEvent = createIndirectFireNarcOverrideEvent(
+        updatedSession.id,
+        eventSequence,
+        turn,
+        attackerId,
+        eventWeaponId,
+        resolvedTargetHex,
+        indirectFireResolution.basis,
+        indirectFireResolution.toHitPenalty,
+      );
+      updatedSession = appendEvent(updatedSession, narcEvent);
+    } else if (indirectFireResolution.spotterId) {
+      const spotterEvent = createIndirectFireSpotterSelectedEvent(
+        updatedSession.id,
+        eventSequence,
+        turn,
+        attackerId,
+        indirectFireResolution.spotterId,
+        eventWeaponId,
+        resolvedTargetHex,
+        indirectFireResolution.toHitPenalty,
+      );
+      updatedSession = appendEvent(updatedSession, spotterEvent);
+    }
+  }
+
+  return updatedSession;
 }
 
 export function lockAttack(
