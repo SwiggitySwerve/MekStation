@@ -45,6 +45,17 @@ export interface EventLogDisplayProps {
    * raw id so the row never blanks.
    */
   weaponLookup?: Record<string, string>;
+  /**
+   * Called when the player clicks an event row to focus the map on the
+   * relevant unit or hex.
+   *
+   * @param eventId - stable id of the clicked event
+   * @param unitId  - unit id from the event payload, if present
+   *
+   * @spec openspec/changes/add-tactical-map-lenses-feed-replay/specs/tactical-map-interface/spec.md
+   *   "Feed row focuses event participants" scenario
+   */
+  onRowFocus?: (eventId: string, unitId?: string) => void;
   /** Optional className for styling */
   className?: string;
 }
@@ -61,6 +72,7 @@ export function EventLogDisplay({
   maxHeight = 200,
   actorLookup,
   weaponLookup,
+  onRowFocus,
   className = '',
 }: EventLogDisplayProps): React.ReactElement {
   const [localCollapsed, setLocalCollapsed] = useState(collapsed);
@@ -121,6 +133,7 @@ export function EventLogDisplay({
                 key={event.id}
                 event={event}
                 actorLookup={actorLookup}
+                onRowFocus={onRowFocus}
               />
             ))
           )}

@@ -16,6 +16,7 @@ import React, {
 import { pixelToHex } from '@/constants/hexMap';
 import { hexTerrainFromGrid } from '@/engine/GameEngine.helpers';
 import { usePhaseQueueProjection } from '@/hooks/gameplay';
+import { useTacticalLensState } from '@/hooks/gameplay/useTacticalLensState';
 import { useCameraControls } from '@/hooks/useCameraControls';
 import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
@@ -56,6 +57,7 @@ import {
   TacticalCommandShell,
   useTacticalShell,
 } from './TacticalCommandShell';
+import { TacticalLensControls } from './TacticalLensControls';
 import { TacticalTurnRail } from './TacticalTurnRail';
 import { TacticalUnitInspector } from './TacticalUnitInspector';
 
@@ -213,6 +215,16 @@ export function GameplayLayout({
   const toggleLOS = useCallback(() => {
     mapInteraction?.setShowLOSOverlay((v) => !v);
   }, [mapInteraction]);
+
+  // Lens state — tracks active lens preset + intensity. The applyLensLayers
+  // side-effect runs via useEffect whenever activeLens or mapInteraction changes.
+  const lensState = useTacticalLensState();
+  useEffect(() => {
+    if (!mapInteraction) return;
+    lensState.applyLensLayers((id, visible) =>
+      mapInteraction.setLayerVisibility(id, visible),
+    );
+  }, [lensState.activeLens, mapInteraction, lensState]);
 
   // Hotkey help overlay (? hotkey).
   const [helpOpen, setHelpOpen] = useState<boolean>(false);
@@ -523,6 +535,23 @@ export function GameplayLayout({
           className="flex flex-1 overflow-hidden"
           data-testid="gameplay-main-content"
         >
+          {/* Left Tray — lens controls + future map-nav widgets.
+              ShellSlot is a React Fragment; the inner div adds the
+              visible strip. Hidden on narrow layouts to preserve
+              the full-width map experience. */}
+          {!isNarrow && (
+            <ShellSlot id="left-tray" ownerId="TacticalLensControls">
+              <div className="flex w-28 flex-shrink-0 flex-col border-r border-gray-200 bg-white">
+                <TacticalLensControls
+                  activeLens={lensState.activeLens}
+                  onLensChange={lensState.setActiveLens}
+                  lensIntensity={lensState.lensIntensity}
+                  onIntensityChange={lensState.setLensIntensity}
+                />
+              </div>
+            </ShellSlot>
+          )}
+
           {/* Map Panel — on narrow layouts we give the map the full
               width because the record sheet lives in an overlay
               drawer. On desktop the width is driven by the resizable
