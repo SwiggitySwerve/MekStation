@@ -11,28 +11,27 @@ import React, {
   useMemo,
   useRef,
   useEffect,
-} from "react";
+} from 'react';
 
-import { pixelToHex } from "@/constants/hexMap";
-import { hexTerrainFromGrid } from "@/engine/GameEngine.helpers";
-import { useCameraControls } from "@/hooks/useCameraControls";
-import { useGameplayHotkeys } from "@/hooks/useGameplayHotkeys";
-import { useAnimationQueue } from "@/stores/useAnimationQueue";
-import { useGameplaySelector } from "@/stores/useGameplayStore";
+import { pixelToHex } from '@/constants/hexMap';
+import { hexTerrainFromGrid } from '@/engine/GameEngine.helpers';
+import { useCameraControls } from '@/hooks/useCameraControls';
+import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
+import { useAnimationQueue } from '@/stores/useAnimationQueue';
+import { useGameplaySelector } from '@/stores/useGameplayStore';
 import {
   GameSide,
   ILayoutConfig,
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
-} from "@/types/gameplay";
-import { filterEventsForMovementAnimations } from "@/utils/gameplay/movement/eventLogSync";
+} from '@/types/gameplay';
+import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
 
-import type { GameplayLayoutProps } from "./GameplayLayout.types";
-import type { MapInteractionState } from "./HexMapDisplay/useMapInteraction";
+import type { GameplayLayoutProps } from './GameplayLayout.types';
+import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
-import { ActionBar } from "./ActionBar";
-import { TacticalActionDock } from "./TacticalActionDock";
-import { EventLogDisplay } from "./EventLogDisplay";
+import { ActionBar } from './ActionBar';
+import { EventLogDisplay } from './EventLogDisplay';
 import {
   HitChancePanel,
   MapOverlayChildren,
@@ -41,19 +40,20 @@ import {
   RecordSheetDrawer,
   useResponsiveRecordSheet,
   WithdrawalTrailingActions,
-} from "./GameplayLayout.sections";
+} from './GameplayLayout.sections';
 import {
   buildEventActorLookup,
   buildEventWeaponLookup,
   buildGameplayTokens,
   buildUnitInfoLookup,
-} from "./GameplayLayout.viewModel";
-import { HexMapDisplay } from "./HexMapDisplay";
-import { MoraleIndicator } from "./MoraleIndicator";
-import { PhaseBanner } from "./PhaseBanner";
-import { ShellSlot, TacticalCommandShell } from "./TacticalCommandShell";
+} from './GameplayLayout.viewModel';
+import { HexMapDisplay } from './HexMapDisplay';
+import { MoraleIndicator } from './MoraleIndicator';
+import { PhaseBanner } from './PhaseBanner';
+import { TacticalActionDock } from './TacticalActionDock';
+import { ShellSlot, TacticalCommandShell } from './TacticalCommandShell';
 
-export type { GameplayLayoutProps } from "./GameplayLayout.types";
+export type { GameplayLayoutProps } from './GameplayLayout.types';
 
 /**
  * Main gameplay layout with split view.
@@ -83,8 +83,8 @@ export function GameplayLayout({
   mpLegend,
   interactiveSession,
   playerSide = GameSide.Player,
-  shellMode = "combat",
-  className = "",
+  shellMode = 'combat',
+  className = '',
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
   const activeAnimations = useAnimationQueue((s) => s.active);
@@ -239,11 +239,11 @@ export function GameplayLayout({
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
       return () => {
-        window.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("mouseup", handleMouseUp);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
       };
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
@@ -430,7 +430,7 @@ export function GameplayLayout({
           <ShellSlot id="map-center" ownerId="HexMapDisplay">
             <div
               className="relative"
-              style={{ width: isNarrow ? "100%" : `${layout.mapPanelWidth}%` }}
+              style={{ width: isNarrow ? '100%' : `${layout.mapPanelWidth}%` }}
               data-testid="map-panel"
             >
               <HexMapDisplay

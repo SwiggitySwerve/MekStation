@@ -22,20 +22,20 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.1, §2.3
  */
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState } from 'react';
 
 import type {
   CommandAvailability,
   ITacticalCommand,
   ITacticalCommandContext,
-} from "@/types/gameplay";
-import type { ShellMode } from "@/types/gameplay/TacticalShellInterfaces";
+} from '@/types/gameplay';
+import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
-import { CommandTooltip } from "./CommandTooltip";
+import { CommandTooltip } from './CommandTooltip';
 import {
   groupCommandsByCategory,
   useCommandRegistry,
-} from "./useCommandRegistry";
+} from './useCommandRegistry';
 
 export interface TacticalActionDockProps {
   /** Command context — drives availability + preview. */
@@ -56,14 +56,14 @@ export interface TacticalActionDockProps {
   readonly className?: string;
 }
 
-const CATEGORY_LABELS: Record<ITacticalCommand["category"], string> = {
-  movement: "Movement",
-  facing: "Facing",
-  weapon: "Weapons",
-  physical: "Physical",
-  "heat-end": "Phase",
-  utility: "Utility",
-  gm: "GM",
+const CATEGORY_LABELS: Record<ITacticalCommand['category'], string> = {
+  movement: 'Movement',
+  facing: 'Facing',
+  weapon: 'Weapons',
+  physical: 'Physical',
+  'heat-end': 'Phase',
+  utility: 'Utility',
+  gm: 'GM',
 };
 
 interface CommandButtonProps {
@@ -81,11 +81,11 @@ function CommandButton({
   const disabled = !availability.available;
 
   const baseClasses =
-    "relative px-3 py-2 min-h-[44px] rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2";
+    'relative px-3 py-2 min-h-[44px] rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
   const enabledClasses =
-    "bg-surface-raised hover:bg-surface-deep text-text-theme-primary focus:ring-border-theme cursor-pointer";
+    'bg-surface-raised hover:bg-surface-deep text-text-theme-primary focus:ring-border-theme cursor-pointer';
   const disabledClasses =
-    "bg-surface-base text-text-theme-secondary opacity-50 cursor-not-allowed";
+    'bg-surface-base text-text-theme-secondary opacity-50 cursor-not-allowed';
 
   return (
     <div
@@ -127,7 +127,7 @@ function CommandButton({
  * Group of commands sharing a category.
  */
 interface CommandGroupProps {
-  readonly category: ITacticalCommand["category"];
+  readonly category: ITacticalCommand['category'];
   readonly commands: readonly ITacticalCommand[];
   readonly ctx: ITacticalCommandContext;
   readonly onDispatch: (command: ITacticalCommand) => void;
@@ -175,7 +175,7 @@ export function TacticalActionDock({
   onAction,
   trailingActions,
   infoText,
-  className = "",
+  className = '',
 }: TacticalActionDockProps): React.ReactElement {
   const commands = useCommandRegistry(ctx, shellMode);
   const groups = groupCommandsByCategory(commands);
@@ -196,7 +196,7 @@ export function TacticalActionDock({
         // depending on a modal stack that doesn't exist yet.
         // Wave 7.3+ replaces this with the dedicated confirm UI.
         const ok =
-          typeof window === "undefined"
+          typeof window === 'undefined'
             ? true
             : window.confirm(`Confirm: ${command.label}?`);
         if (!ok) return;

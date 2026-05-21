@@ -9,43 +9,43 @@
  */
 
 // Ammo construction shape (single source-of-truth, PR6 collapse)
-export * from "./AmmoTypes";
+export * from './AmmoTypes';
 
 // Hex Grid System
-export * from "./HexGridInterfaces";
+export * from './HexGridInterfaces';
 
 // Terrain System
-export * from "./TerrainTypes";
+export * from './TerrainTypes';
 
-export * from "./EnvironmentalConditions";
+export * from './EnvironmentalConditions';
 
 // Game Session Core
-export * from "./GameSessionInterfaces";
-export * from "./GameLobbyInterfaces";
+export * from './GameSessionInterfaces';
+export * from './GameLobbyInterfaces';
 
 // PSR trigger codes (PR E: lifted to its own module to avoid cycle
 // between GameSessionInterfaces and pilotingSkillRolls/types).
-export * from "./PSRTriggerCodes";
+export * from './PSRTriggerCodes';
 
 // Combat Resolution
-export * from "./CombatInterfaces";
+export * from './CombatInterfaces';
 
 // Gameplay UI
-export * from "./GameplayUIInterfaces";
+export * from './GameplayUIInterfaces';
 
 // Tactical Command system (Wave 7.2 PR-D)
-export * from "./TacticalCommandInterfaces";
+export * from './TacticalCommandInterfaces';
 
 // Unit Sprite System (Phase 7 visual layer — mech silhouettes + pip ring)
-export * from "./UnitSpriteTypes";
+export * from './UnitSpriteTypes';
 
 // Vehicle Combat Behavior
-export * from "./VehicleCombatInterfaces";
+export * from './VehicleCombatInterfaces';
 
 // Battle Armor Combat Behavior
-export * from "./BattleArmorCombatInterfaces";
+export * from './BattleArmorCombatInterfaces';
 
 // Per-type combat behavior state envelopes consumed by IUnitGameState.
-export type { IAerospaceCombatState } from "@/utils/gameplay/aerospace/state";
-export type { IInfantryCombatState } from "@/utils/gameplay/infantry/state";
-export type { IProtoMechCombatState } from "@/utils/gameplay/protomech/state";
+export type { IAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
+export type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
+export type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';

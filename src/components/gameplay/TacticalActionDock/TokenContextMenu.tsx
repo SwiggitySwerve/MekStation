@@ -18,20 +18,20 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.2
  */
 
-import React, { useCallback } from "react";
+import React, { useCallback } from 'react';
 
 import type {
   CommandAvailability,
   ITacticalCommand,
   ITacticalCommandContext,
-} from "@/types/gameplay";
-import type { ShellMode } from "@/types/gameplay/TacticalShellInterfaces";
+} from '@/types/gameplay';
+import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 import {
   filterCommandsForEnemyToken,
   filterCommandsForFriendlyToken,
   useCommandRegistry,
-} from "./useCommandRegistry";
+} from './useCommandRegistry';
 
 export interface TokenContextMenuProps {
   /** Unit id of the token the player right-clicked. */
@@ -85,8 +85,8 @@ function MenuItem({
       onClick={onActivate}
       className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm ${
         disabled
-          ? "text-text-theme-secondary cursor-not-allowed opacity-50"
-          : "text-text-theme-primary hover:bg-surface-deep cursor-pointer"
+          ? 'text-text-theme-secondary cursor-not-allowed opacity-50'
+          : 'text-text-theme-primary hover:bg-surface-deep cursor-pointer'
       }`}
       data-testid={`token-menu-item-${command.id}`}
       data-command-id={command.id}
@@ -142,7 +142,7 @@ export function TokenContextMenu({
       if (!availability.available) return;
       if (command.requiresConfirmation) {
         const ok =
-          typeof window === "undefined"
+          typeof window === 'undefined'
             ? true
             : window.confirm(`Confirm: ${command.label}?`);
         if (!ok) return;
@@ -163,13 +163,13 @@ export function TokenContextMenu({
   // Escape closes the menu.
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         e.preventDefault();
         onClose();
       }
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
   return (
@@ -177,12 +177,12 @@ export function TokenContextMenu({
       role="menu"
       data-testid="token-context-menu"
       data-token-unit-id={tokenUnitId}
-      data-token-side={isFriendly ? "friendly" : "enemy"}
-      style={{ position: "fixed", left: anchor.x, top: anchor.y, zIndex: 50 }}
+      data-token-side={isFriendly ? 'friendly' : 'enemy'}
+      style={{ position: 'fixed', left: anchor.x, top: anchor.y, zIndex: 50 }}
       className="bg-surface-base border-border-theme min-w-[12rem] rounded border shadow-lg"
     >
       <div className="border-border-theme text-text-theme-secondary border-b px-3 py-1 text-xs font-semibold uppercase">
-        {isFriendly ? "Friendly Unit" : "Enemy Unit"}
+        {isFriendly ? 'Friendly Unit' : 'Enemy Unit'}
       </div>
       {visible.length === 0 ? (
         <div

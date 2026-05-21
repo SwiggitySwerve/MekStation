@@ -15,7 +15,7 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
  */
 
-import { GamePhase, type ITacticalCommand } from "@/types/gameplay";
+import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
 const ALL_PHASES: readonly GamePhase[] = [
   GamePhase.Initiative,
@@ -31,9 +31,9 @@ export function buildGmReferralCommands(): readonly ITacticalCommand[] {
 }
 
 const GmAdvancePhaseCommand: ITacticalCommand = {
-  id: "gm.advance-phase",
-  category: "gm",
-  label: "Advance Phase (GM)",
+  id: 'gm.advance-phase',
+  category: 'gm',
+  label: 'Advance Phase (GM)',
   phaseConstraints: ALL_PHASES,
   requiresConfirmation: true, // GM force-advance bypasses validation.
   undoable: false,
@@ -41,14 +41,14 @@ const GmAdvancePhaseCommand: ITacticalCommand = {
     return { available: true };
   },
   commit() {
-    return { actionId: "gm-advance-phase", payload: {} };
+    return { actionId: 'gm-advance-phase', payload: {} };
   },
 };
 
 const GmSetDamageCommand: ITacticalCommand = {
-  id: "gm.set-damage",
-  category: "gm",
-  label: "Set Damage (GM)",
+  id: 'gm.set-damage',
+  category: 'gm',
+  label: 'Set Damage (GM)',
   phaseConstraints: ALL_PHASES,
   requiresConfirmation: true,
   undoable: true,
@@ -58,19 +58,19 @@ const GmSetDamageCommand: ITacticalCommand = {
     // "click the unit you want to mod, hit GM Set Damage". If nothing
     // is selected we surface the disabled-reason so the GM learns.
     if (!ctx.selectedUnitId) {
-      return { available: false, reason: "Select a unit first." };
+      return { available: false, reason: 'Select a unit first.' };
     }
     return { available: true };
   },
   commit() {
-    return { actionId: "gm-set-damage", payload: {} };
+    return { actionId: 'gm-set-damage', payload: {} };
   },
 };
 
 const GmGrantResourceCommand: ITacticalCommand = {
-  id: "gm.grant-resource",
-  category: "gm",
-  label: "Grant Resource (GM)",
+  id: 'gm.grant-resource',
+  category: 'gm',
+  label: 'Grant Resource (GM)',
   phaseConstraints: ALL_PHASES,
   requiresConfirmation: false,
   undoable: true,
@@ -78,6 +78,6 @@ const GmGrantResourceCommand: ITacticalCommand = {
     return { available: true };
   },
   commit() {
-    return { actionId: "gm-grant-resource", payload: {} };
+    return { actionId: 'gm-grant-resource', payload: {} };
   },
 };

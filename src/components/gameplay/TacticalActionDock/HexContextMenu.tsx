@@ -10,17 +10,17 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.2
  */
 
-import React, { useCallback } from "react";
+import React, { useCallback } from 'react';
 
 import type {
   CommandAvailability,
   IHexCoordinate,
   ITacticalCommand,
   ITacticalCommandContext,
-} from "@/types/gameplay";
-import type { ShellMode } from "@/types/gameplay/TacticalShellInterfaces";
+} from '@/types/gameplay';
+import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
-import { filterCommandsForHex, useCommandRegistry } from "./useCommandRegistry";
+import { filterCommandsForHex, useCommandRegistry } from './useCommandRegistry';
 
 export interface HexContextMenuProps {
   /** Axial hex coordinate the player right-clicked. */
@@ -61,8 +61,8 @@ function MenuItem({
       onClick={onActivate}
       className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm ${
         disabled
-          ? "text-text-theme-secondary cursor-not-allowed opacity-50"
-          : "text-text-theme-primary hover:bg-surface-deep cursor-pointer"
+          ? 'text-text-theme-secondary cursor-not-allowed opacity-50'
+          : 'text-text-theme-primary hover:bg-surface-deep cursor-pointer'
       }`}
       data-testid={`hex-menu-item-${command.id}`}
       data-command-id={command.id}
@@ -104,7 +104,7 @@ export function HexContextMenu({
       if (!availability.available) return;
       if (command.requiresConfirmation) {
         const ok =
-          typeof window === "undefined"
+          typeof window === 'undefined'
             ? true
             : window.confirm(`Confirm: ${command.label}?`);
         if (!ok) return;
@@ -118,13 +118,13 @@ export function HexContextMenu({
 
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         e.preventDefault();
         onClose();
       }
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
   return (
@@ -133,7 +133,7 @@ export function HexContextMenu({
       data-testid="hex-context-menu"
       data-hex-q={hex.q}
       data-hex-r={hex.r}
-      style={{ position: "fixed", left: anchor.x, top: anchor.y, zIndex: 50 }}
+      style={{ position: 'fixed', left: anchor.x, top: anchor.y, zIndex: 50 }}
       className="bg-surface-base border-border-theme min-w-[12rem] rounded border shadow-lg"
     >
       <div className="border-border-theme text-text-theme-secondary border-b px-3 py-1 text-xs font-semibold uppercase">

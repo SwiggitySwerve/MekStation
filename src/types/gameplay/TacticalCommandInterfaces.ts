@@ -40,9 +40,10 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.1, §1.2
  */
 
-import type { GamePhase } from "./GameSessionCoreTypes";
-import type { IHexCoordinate } from "./HexGridInterfaces";
-import type { PhysicalAttackType } from "@/utils/gameplay/physicalAttacks/types";
+import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
+
+import type { GamePhase } from './GameSessionCoreTypes';
+import type { IHexCoordinate } from './HexGridInterfaces';
 
 /**
  * Top-level command categories. Determines dock grouping and which
@@ -70,13 +71,13 @@ import type { PhysicalAttackType } from "@/utils/gameplay/physicalAttacks/types"
  *                    out for non-GM shellModes today.
  */
 export type TacticalCommandCategory =
-  | "movement"
-  | "facing"
-  | "weapon"
-  | "physical"
-  | "heat-end"
-  | "utility"
-  | "gm";
+  | 'movement'
+  | 'facing'
+  | 'weapon'
+  | 'physical'
+  | 'heat-end'
+  | 'utility'
+  | 'gm';
 
 /**
  * Result returned by `command.availability(state)`. When `available`
@@ -120,7 +121,7 @@ export interface ITacticalCommandContext {
  * wired into HexMapDisplay.
  */
 export interface IMovementCommandPreview {
-  readonly kind: "movement";
+  readonly kind: 'movement';
   /** Path hexes from origin to destination (inclusive of both ends). */
   readonly path: readonly IHexCoordinate[];
   /** Movement-point cost of the previewed path. */
@@ -128,7 +129,7 @@ export interface IMovementCommandPreview {
   /** Proposed final facing after movement (0..5). */
   readonly finalFacing: number;
   /** Walk vs run vs jump (drives heat preview + indicator color). */
-  readonly mode: "walk" | "run" | "jump";
+  readonly mode: 'walk' | 'run' | 'jump';
   /** True if the previewed destination is unreachable (over MP). */
   readonly unreachable: boolean;
 }
@@ -138,12 +139,12 @@ export interface IMovementCommandPreview {
  * during WeaponAttack phase.
  */
 export interface IWeaponAttackCommandPreview {
-  readonly kind: "weapon-attack";
+  readonly kind: 'weapon-attack';
   readonly targetUnitId: string;
   /** To-hit number after all modifiers (2..12). */
   readonly toHit: number | null;
   /** Range band the target falls into. */
-  readonly rangeBand: "short" | "medium" | "long" | "extreme" | "out";
+  readonly rangeBand: 'short' | 'medium' | 'long' | 'extreme' | 'out';
   /** Total heat the attack will generate. */
   readonly heatCost: number;
   /** Ammo type → number of shots consumed. */
@@ -157,7 +158,7 @@ export interface IWeaponAttackCommandPreview {
  * during PhysicalAttack phase.
  */
 export interface IPhysicalAttackCommandPreview {
-  readonly kind: "physical-attack";
+  readonly kind: 'physical-attack';
   readonly targetUnitId: string;
   readonly attackType: PhysicalAttackType;
   readonly toHit: number | null;

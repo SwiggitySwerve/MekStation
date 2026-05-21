@@ -13,34 +13,34 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
  */
 
-import { GamePhase, type ITacticalCommand } from "@/types/gameplay";
+import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
 export function buildHeatEndCommands(): readonly ITacticalCommand[] {
   return [HeatContinueCommand, EndPhaseCommand, NextTurnCommand];
 }
 
 const HeatContinueCommand: ITacticalCommand = {
-  id: "heat.continue",
-  category: "heat-end",
-  label: "Continue",
-  hotkey: "Enter",
+  id: 'heat.continue',
+  category: 'heat-end',
+  label: 'Continue',
+  hotkey: 'Enter',
   phaseConstraints: [GamePhase.Heat],
   requiresConfirmation: false,
   undoable: false,
   availability(ctx) {
-    if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     return { available: true };
   },
   commit() {
-    return { actionId: "continue", payload: {} };
+    return { actionId: 'continue', payload: {} };
   },
 };
 
 const EndPhaseCommand: ITacticalCommand = {
-  id: "heat-end.end-phase",
-  category: "heat-end",
-  label: "End Phase",
-  hotkey: "Enter",
+  id: 'heat-end.end-phase',
+  category: 'heat-end',
+  label: 'End Phase',
+  hotkey: 'Enter',
   phaseConstraints: [
     GamePhase.Movement,
     GamePhase.WeaponAttack,
@@ -52,27 +52,27 @@ const EndPhaseCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   availability(ctx) {
-    if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     return { available: true };
   },
   commit() {
-    return { actionId: "lock", payload: { endPhase: true } };
+    return { actionId: 'lock', payload: { endPhase: true } };
   },
 };
 
 const NextTurnCommand: ITacticalCommand = {
-  id: "heat-end.next-turn",
-  category: "heat-end",
-  label: "Next Turn",
-  hotkey: "Enter",
+  id: 'heat-end.next-turn',
+  category: 'heat-end',
+  label: 'Next Turn',
+  hotkey: 'Enter',
   phaseConstraints: [GamePhase.End],
   requiresConfirmation: false,
   undoable: false,
   availability(ctx) {
-    if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     return { available: true };
   },
   commit() {
-    return { actionId: "next-turn", payload: {} };
+    return { actionId: 'next-turn', payload: {} };
   },
 };

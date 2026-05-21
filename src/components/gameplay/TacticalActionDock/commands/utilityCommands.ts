@@ -9,7 +9,7 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
  */
 
-import { GamePhase, type ITacticalCommand } from "@/types/gameplay";
+import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
 const ALL_PHASES: readonly GamePhase[] = [
   GamePhase.Initiative,
@@ -30,45 +30,45 @@ export function buildUtilityCommands(): readonly ITacticalCommand[] {
 }
 
 const UtilityEjectCommand: ITacticalCommand = {
-  id: "utility.eject",
-  category: "utility",
-  label: "Eject",
+  id: 'utility.eject',
+  category: 'utility',
+  label: 'Eject',
   phaseConstraints: ALL_PHASES,
   requiresConfirmation: true, // Eject ends the unit's combat life.
   undoable: false,
   availability(ctx) {
     if (!ctx.activeUnitId)
-      return { available: false, reason: "No unit is active." };
-    if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     return { available: true };
   },
   commit() {
-    return { actionId: "eject", payload: {} };
+    return { actionId: 'eject', payload: {} };
   },
 };
 
 const UtilityWithdrawCommand: ITacticalCommand = {
-  id: "utility.withdraw",
-  category: "utility",
-  label: "Withdraw",
+  id: 'utility.withdraw',
+  category: 'utility',
+  label: 'Withdraw',
   phaseConstraints: ALL_PHASES,
   requiresConfirmation: true,
   undoable: true,
   availability(ctx) {
     if (!ctx.activeUnitId)
-      return { available: false, reason: "No unit is active." };
-    if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     return { available: true };
   },
   commit() {
-    return { actionId: "withdraw", payload: {} };
+    return { actionId: 'withdraw', payload: {} };
   },
 };
 
 const UtilityConcedeCommand: ITacticalCommand = {
-  id: "utility.concede",
-  category: "utility",
-  label: "Concede",
+  id: 'utility.concede',
+  category: 'utility',
+  label: 'Concede',
   phaseConstraints: ALL_PHASES,
   requiresConfirmation: true,
   undoable: false,
@@ -78,28 +78,28 @@ const UtilityConcedeCommand: ITacticalCommand = {
     return { available: true };
   },
   commit() {
-    return { actionId: "concede", payload: {} };
+    return { actionId: 'concede', payload: {} };
   },
 };
 
 const UtilityRequestSpotCommand: ITacticalCommand = {
-  id: "utility.request-spot",
-  category: "utility",
-  label: "Request Spot",
+  id: 'utility.request-spot',
+  category: 'utility',
+  label: 'Request Spot',
   phaseConstraints: [GamePhase.WeaponAttack],
   requiresConfirmation: false,
   undoable: true,
   targetsEnemy: true,
   availability(ctx) {
     if (!ctx.activeUnitId)
-      return { available: false, reason: "No unit is active." };
-    if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     if (!ctx.targetUnitId) {
-      return { available: false, reason: "Select a target to spot." };
+      return { available: false, reason: 'Select a target to spot.' };
     }
     return { available: true };
   },
   commit() {
-    return { actionId: "request-spot", payload: {} };
+    return { actionId: 'request-spot', payload: {} };
   },
 };

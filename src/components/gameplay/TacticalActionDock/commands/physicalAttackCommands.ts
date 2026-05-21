@@ -9,7 +9,7 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
  */
 
-import { GamePhase, type ITacticalCommand } from "@/types/gameplay";
+import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
 export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
   return [
@@ -27,60 +27,60 @@ function requireActiveAndTarget(ctx: {
   targetUnitId: string | null;
 }): { available: true } | { available: false; reason: string } {
   if (!ctx.activeUnitId)
-    return { available: false, reason: "No unit is active." };
-  if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+    return { available: false, reason: 'No unit is active.' };
+  if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
   if (!ctx.targetUnitId) {
-    return { available: false, reason: "Select an enemy target first." };
+    return { available: false, reason: 'Select an enemy target first.' };
   }
   return { available: true };
 }
 
 const PhysicalPunchCommand: ITacticalCommand = {
-  id: "physical.punch",
-  category: "physical",
-  label: "Punch",
+  id: 'physical.punch',
+  category: 'physical',
+  label: 'Punch',
   phaseConstraints: [GamePhase.PhysicalAttack],
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
   availability: requireActiveAndTarget,
   commit() {
-    return { actionId: "physical-attack", payload: { attackType: "punch" } };
+    return { actionId: 'physical-attack', payload: { attackType: 'punch' } };
   },
 };
 
 const PhysicalKickCommand: ITacticalCommand = {
-  id: "physical.kick",
-  category: "physical",
-  label: "Kick",
+  id: 'physical.kick',
+  category: 'physical',
+  label: 'Kick',
   phaseConstraints: [GamePhase.PhysicalAttack],
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
   availability: requireActiveAndTarget,
   commit() {
-    return { actionId: "physical-attack", payload: { attackType: "kick" } };
+    return { actionId: 'physical-attack', payload: { attackType: 'kick' } };
   },
 };
 
 const PhysicalChargeCommand: ITacticalCommand = {
-  id: "physical.charge",
-  category: "physical",
-  label: "Charge",
+  id: 'physical.charge',
+  category: 'physical',
+  label: 'Charge',
   phaseConstraints: [GamePhase.PhysicalAttack],
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
   availability: requireActiveAndTarget,
   commit() {
-    return { actionId: "physical-attack", payload: { attackType: "charge" } };
+    return { actionId: 'physical-attack', payload: { attackType: 'charge' } };
   },
 };
 
 const PhysicalDeathFromAboveCommand: ITacticalCommand = {
-  id: "physical.dfa",
-  category: "physical",
-  label: "Death From Above",
+  id: 'physical.dfa',
+  category: 'physical',
+  label: 'Death From Above',
   phaseConstraints: [GamePhase.PhysicalAttack],
   requiresConfirmation: true,
   undoable: false,
@@ -94,14 +94,14 @@ const PhysicalDeathFromAboveCommand: ITacticalCommand = {
     return { available: true };
   },
   commit() {
-    return { actionId: "physical-attack", payload: { attackType: "dfa" } };
+    return { actionId: 'physical-attack', payload: { attackType: 'dfa' } };
   },
 };
 
 const PhysicalClubCommand: ITacticalCommand = {
-  id: "physical.club",
-  category: "physical",
-  label: "Club",
+  id: 'physical.club',
+  category: 'physical',
+  label: 'Club',
   phaseConstraints: [GamePhase.PhysicalAttack],
   requiresConfirmation: true,
   undoable: false,
@@ -114,6 +114,6 @@ const PhysicalClubCommand: ITacticalCommand = {
     return { available: true };
   },
   commit() {
-    return { actionId: "physical-attack", payload: { attackType: "hatchet" } };
+    return { actionId: 'physical-attack', payload: { attackType: 'hatchet' } };
   },
 };

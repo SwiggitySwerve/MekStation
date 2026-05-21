@@ -11,7 +11,7 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
  */
 
-import { GamePhase, type ITacticalCommand } from "@/types/gameplay";
+import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
 export function buildWeaponAttackCommands(): readonly ITacticalCommand[] {
   return [
@@ -22,46 +22,46 @@ export function buildWeaponAttackCommands(): readonly ITacticalCommand[] {
 }
 
 const WeaponDeclareAttackCommand: ITacticalCommand = {
-  id: "weapon.declare-attack",
-  category: "weapon",
-  label: "Declare Attack",
-  hotkey: "F",
+  id: 'weapon.declare-attack',
+  category: 'weapon',
+  label: 'Declare Attack',
+  hotkey: 'F',
   phaseConstraints: [GamePhase.WeaponAttack],
   requiresConfirmation: false,
   undoable: true,
   targetsEnemy: true,
   availability(ctx) {
     if (!ctx.activeUnitId)
-      return { available: false, reason: "No unit is active." };
-    if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     if (!ctx.targetUnitId) {
       // Disabled-with-reason — the command stays visible so the player
       // learns the gating fact. Spec: `Disabled command explains
       // invalidity` scenario.
-      return { available: false, reason: "Select an enemy target first." };
+      return { available: false, reason: 'Select an enemy target first.' };
     }
     return { available: true };
   },
   commit() {
-    return { actionId: "declare-attack", payload: {} };
+    return { actionId: 'declare-attack', payload: {} };
   },
 };
 
 const WeaponFireVolleyCommand: ITacticalCommand = {
-  id: "weapon.fire-volley",
-  category: "weapon",
-  label: "Fire Volley",
-  hotkey: "Enter",
+  id: 'weapon.fire-volley',
+  category: 'weapon',
+  label: 'Fire Volley',
+  hotkey: 'Enter',
   phaseConstraints: [GamePhase.WeaponAttack],
   requiresConfirmation: true, // Irreversible commit; spec requires confirm.
   undoable: false,
   targetsEnemy: true,
   availability(ctx) {
     if (!ctx.activeUnitId)
-      return { available: false, reason: "No unit is active." };
-    if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     if (!ctx.targetUnitId) {
-      return { available: false, reason: "No target selected." };
+      return { available: false, reason: 'No target selected.' };
     }
     // Per-weapon range/heat/ammo/arc gating happens in the engine.
     // Wave 7.3+ will inject the projected gate into context so this
@@ -69,24 +69,24 @@ const WeaponFireVolleyCommand: ITacticalCommand = {
     return { available: true };
   },
   commit() {
-    return { actionId: "lock", payload: { volley: true } };
+    return { actionId: 'lock', payload: { volley: true } };
   },
 };
 
 const WeaponClearAttacksCommand: ITacticalCommand = {
-  id: "weapon.clear-attacks",
-  category: "weapon",
-  label: "Clear Attacks",
+  id: 'weapon.clear-attacks',
+  category: 'weapon',
+  label: 'Clear Attacks',
   phaseConstraints: [GamePhase.WeaponAttack],
   requiresConfirmation: false,
   undoable: false,
   availability(ctx) {
     if (!ctx.activeUnitId)
-      return { available: false, reason: "No unit is active." };
-    if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+      return { available: false, reason: 'No unit is active.' };
+    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
     return { available: true };
   },
   commit() {
-    return { actionId: "clear", payload: {} };
+    return { actionId: 'clear', payload: {} };
   },
 };

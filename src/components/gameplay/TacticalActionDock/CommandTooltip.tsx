@@ -12,13 +12,13 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.3
  */
 
-import React from "react";
+import React from 'react';
 
 import {
   buildCommandTooltip,
   type CommandAvailability,
   type ITacticalCommand,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
 export interface CommandTooltipProps {
   readonly command: ITacticalCommand;
@@ -44,7 +44,7 @@ export function CommandTooltip({
     <div
       role="tooltip"
       data-testid={`command-tooltip-${command.id}`}
-      className="bg-surface-deep text-text-theme-primary border-border-theme pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded border px-2 py-1 text-xs shadow"
+      className="bg-surface-deep text-text-theme-primary border-border-theme pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded border px-2 py-1 text-xs whitespace-nowrap shadow"
     >
       <div className="font-medium">{tooltip.label}</div>
       {hasHotkey && (
