@@ -2,6 +2,10 @@
 
 End-to-end Playwright validation coverage for the MekStation platform — covers subsystem validation, smoke specs, regression assertions, and the test-data seeding infrastructure that supports them.
 
+## Purpose
+
+End-to-end Playwright validation coverage for the MekStation platform — covers subsystem validation, smoke specs, regression assertions, and the test-data seeding infrastructure that supports them. Every shipped subsystem MUST have a corresponding spec; coverage gaps fail the CI gate.
+
 ## Requirements
 
 ### Requirement: Subsystem Validation Coverage

@@ -2078,6 +2078,328 @@ mounted live-play animation queue.
 - **AND** the layer SHALL NOT play full-duration beam / missile
   trail animations
 
+### Requirement: Tactical Command Shell Slots
+
+The tactical map interface SHALL provide a map-first command shell with named slots for combat information and controls.
+
+#### Scenario: Desktop shell allocates persistent border regions
+- **GIVEN** the tactical combat route renders at desktop width
+- **WHEN** the command shell mounts
+- **THEN** the center region SHALL be the interactive map
+- **AND** the top band SHALL contain phase, round, initiative, and global match status
+- **AND** the bottom dock SHALL contain active-unit actions and end/confirm controls
+- **AND** the left tray SHALL contain map lenses, objectives, and navigation controls
+- **AND** the right tray SHALL contain selected unit and target inspectors
+- **AND** the minimap cluster SHALL be reachable without covering the active unit token
+
+#### Scenario: Combat facts have one primary home
+- **GIVEN** phase, active unit, target state, heat, weapons, event history, and map lenses are all available
+- **WHEN** the shell renders
+- **THEN** each fact SHALL have exactly one primary slot owner
+- **AND** secondary surfaces MAY show a summary only if they deep-link or focus the primary owner
+
+### Requirement: Map-Dominant Visual Priority
+
+The command shell SHALL preserve the map as the dominant surface and avoid carding the map inside decorative containers.
+
+#### Scenario: Border UI does not consume the battlefield
+- **GIVEN** a player enters a playable combat phase
+- **WHEN** all default shell slots are visible
+- **THEN** no persistent border region SHALL overlap selectable hexes
+- **AND** transient overlays SHALL dismiss or collapse before blocking movement or attack confirmation
+
+#### Scenario: Pinned panels preserve map interaction
+- **GIVEN** the player pins a right inspector or bottom drawer
+- **WHEN** the player pans, zooms, selects a unit, or hovers a hex
+- **THEN** map interaction SHALL remain available
+- **AND** the pinned panel SHALL not steal scroll or drag gestures intended for the map outside its own bounds
+
+### Requirement: Shell Mode Ownership
+
+The command shell SHALL support combat, replay, spectator, and GM/referee modes through the same slot contract.
+
+#### Scenario: Replay mode swaps action dock for playback controls
+- **GIVEN** a replay is loaded into the tactical shell
+- **WHEN** replay mode is active
+- **THEN** the bottom dock SHALL show playback controls instead of combat commit buttons
+- **AND** unit inspectors and event feed SHALL reflect the replay cursor state
+
+#### Scenario: Spectator mode disables private commands
+- **GIVEN** a user views a match as a spectator
+- **WHEN** the shell renders
+- **THEN** action commands SHALL be disabled or absent
+- **AND** public map lenses, event feed, minimap, and visible unit inspectors SHALL remain available
+
+### Requirement: Tactical Shell State Contract
+
+The tactical map interface SHALL expose a typed shell state contract for selected slot, pinned panels, collapsed panels, shell mode, active context, viewer player identity, and per-opponent visibility scopes.
+
+#### Scenario: Shell state round-trips through UI actions
+- **GIVEN** `ITacticalShellState` has a collapsed left tray, pinned right inspector, and active bottom dock tab
+- **WHEN** the shell re-renders after map selection changes
+- **THEN** collapsed, pinned, and active tab state SHALL persist
+- **AND** selection-derived content SHALL update without resetting manually chosen shell layout
+
+#### Scenario: Shell distinguishes selected, active, and inspected unit references
+- **GIVEN** the player is inspecting an ally token mid-turn while a different friendly unit holds activation
+- **WHEN** the shell reads its unit-reference state
+- **THEN** `selectedUnit` (the token the player clicked), `activeUnit` (the unit whose turn it currently is), and `inspectedUnit` (the unit whose record sheet is open in the right tray) SHALL be addressable as three independent fields
+- **AND** the action dock SHALL bind to `activeUnit`, the right-tray inspector SHALL bind to `inspectedUnit`, and the map highlight SHALL bind to `selectedUnit` without cross-coupling
+
+### Requirement: Per-Viewer Visibility Scope
+
+The tactical shell state SHALL carry a viewer identity and per-opponent visibility scope so the same shell composition can render correctly for co-op (N≥2 guests) and PvP campaigns without leaking hidden opponent state.
+
+#### Scenario: Shell state scopes per-viewer for co-op and PvP
+- **GIVEN** a co-op or PvP match with two or more opposing players
+- **WHEN** the shell renders for a specific viewer
+- **THEN** `ITacticalShellState.viewerPlayerId` SHALL identify the local viewer
+- **AND** `opponentVisibilityScopes` SHALL map each opposing player id to their visibility tier (`exact`, `rough`, `last-known`, `hidden`, `unknown`)
+- **AND** the shell SHALL NOT leak hidden opponent state across viewer boundaries
+- **AND** redaction SHALL occur in the data adapter that feeds the shell, not in CSS visibility
+
+#### Scenario: PvP shell renders symmetric chrome for two player factions
+- **GIVEN** a PvP match where player A and player B hold opposing forces
+- **WHEN** player B opens the shell on their client
+- **THEN** the same slot contract SHALL render with player B as `viewerPlayerId`
+- **AND** action dock, inspectors, and intel projection SHALL bind to player B's force without requiring a separate component tree
+
+### Requirement: Tactical Command Registry
+
+The tactical map interface SHALL expose a command registry for active-unit and map-context actions.
+
+#### Scenario: Active unit command set follows phase
+- **GIVEN** a player unit is selected during the Movement phase
+- **WHEN** the action dock renders
+- **THEN** movement, facing, stand/stabilize, and cancel commands SHALL be available according to engine validation
+- **AND** weapon and physical attack commands SHALL be absent or disabled with phase-specific reasons
+
+#### Scenario: Disabled command explains invalidity
+- **GIVEN** a unit cannot fire a selected weapon because of range, heat, ammo, or arc
+- **WHEN** the weapon command is shown
+- **THEN** the command SHALL expose a disabled reason derived from rule validation
+- **AND** the UI SHALL show that reason in a tooltip or detail pane
+
+### Requirement: Command Preview Lifecycle
+
+The tactical action menu system SHALL preview irreversible command outcomes before commit.
+
+#### Scenario: Movement preview shows path and facing
+- **GIVEN** a player selects a movement destination
+- **WHEN** the movement command preview is active
+- **THEN** the map SHALL show the path, movement cost, destination, and proposed facing
+- **AND** the confirm control SHALL commit only the currently previewed destination and facing
+
+#### Scenario: Attack preview shows expected consequences
+- **GIVEN** a player selects an enemy target during a weapon or physical attack phase
+- **WHEN** an attack command preview is active
+- **THEN** the UI SHALL show target, range band, to-hit number, selected weapons or physical attack type, heat cost, ammo impact, and likely damage envelope where available
+
+### Requirement: Context Menus Mirror Command Registry
+
+Hex and unit context menus SHALL be secondary views over the same command registry used by the action dock.
+
+#### Scenario: Unit token context menu filters commands
+- **GIVEN** the player right-clicks or long-presses a friendly unit token
+- **WHEN** the context menu opens
+- **THEN** it SHALL list commands valid for that unit and current phase
+- **AND** selecting a command SHALL update the same selected command state used by the action dock
+
+#### Scenario: Enemy token context menu targets enemy
+- **GIVEN** the player opens a context menu on a visible enemy token
+- **WHEN** attack commands are valid
+- **THEN** target-aware commands SHALL preselect that enemy as the target
+- **AND** command preview SHALL still require explicit confirmation before commit
+
+### Requirement: Command Confirmation and Cancellation
+
+The action menu system SHALL provide consistent commit, cancel, undo-where-supported, and end-phase behavior.
+
+#### Scenario: Cancel returns to neutral selection state
+- **GIVEN** a command preview is active
+- **WHEN** the player cancels the preview
+- **THEN** no engine action SHALL be committed
+- **AND** selected unit and target state SHALL remain intact unless the player explicitly clears them
+
+#### Scenario: End phase distinguishes no-op from unresolved actions
+- **GIVEN** the player presses End Phase
+- **WHEN** required actions remain for active units
+- **THEN** the UI SHALL warn or cycle to the next required action according to match settings
+- **AND** the engine SHALL not advance until required commits are resolved or explicitly skipped where legal
+
+### Requirement: Tactical Turn Order Rail
+
+The tactical map interface SHALL render a turn order rail that communicates phase, active side, active unit, upcoming units, and unresolved action counts.
+
+#### Scenario: Rail shows current and upcoming activations
+- **GIVEN** a tactical session has multiple units across both sides
+- **WHEN** the rail renders during an interactive phase
+- **THEN** the current active unit SHALL be visually distinct
+- **AND** upcoming units SHALL be shown in initiative order where the session exposes one
+- **AND** completed, skipped, destroyed, or withdrawn units SHALL use distinct compact states
+
+#### Scenario: Rail selects and focuses units
+- **GIVEN** the player selects a unit in the rail
+- **WHEN** the unit is visible and selectable
+- **THEN** the map SHALL select or focus that unit according to phase rules
+- **AND** if the unit is hidden by fog or unavailable, the rail SHALL explain why it cannot be focused
+
+### Requirement: Phase Progression Controls
+
+The tactical map interface SHALL provide phase progression controls that distinguish legal advance, optional skip, and blocked advance.
+
+#### Scenario: End phase button is blocked with reasons
+- **GIVEN** required actions remain
+- **WHEN** the player hovers or activates End Phase
+- **THEN** the UI SHALL list unresolved blockers
+- **AND** the player SHALL be able to focus the first blocker from that list
+
+#### Scenario: Optional skip remains explicit
+- **GIVEN** an attack is optional for the active unit
+- **WHEN** the player chooses to skip
+- **THEN** the UI SHALL confirm the skip state for that unit
+- **AND** the phase rail SHALL mark the unit as skipped rather than silently removing it
+
+### Requirement: Tactical Unit Inspector
+
+The tactical map interface SHALL provide unit inspectors for selected friendly units, selected targets, and contextual comparisons.
+
+#### Scenario: Friendly unit inspector shows exact combat state
+- **GIVEN** the player selects a friendly unit
+- **WHEN** the unit inspector renders
+- **THEN** it SHALL show unit name, chassis/variant where available, pilot, movement state, facing, heat, armor/structure summary, weapon readiness, ammo warnings, critical effects, prone/shutdown state, and active phase obligations
+
+#### Scenario: Target inspector respects intel projection
+- **GIVEN** the player selects or previews an enemy target
+- **WHEN** the target inspector renders
+- **THEN** it SHALL show only fields available from the opponent intel projection
+- **AND** exact hidden fields SHALL not be recoverable from labels, tooltips, DOM text, ARIA text, or test ids
+
+### Requirement: Record Sheet Drawers
+
+The tactical map interface SHALL provide drill-down drawers for detailed BattleTech unit state without navigating away from combat.
+
+#### Scenario: Armor and structure drawer
+- **GIVEN** a unit inspector is open
+- **WHEN** the player opens Armor/Structure
+- **THEN** the drawer SHALL show location armor points, internal structure points, destroyed locations, transferred damage indicators, and critical damage markers
+
+#### Scenario: Weapons and heat drawer
+- **GIVEN** a unit inspector is open
+- **WHEN** the player opens Weapons/Heat
+- **THEN** the drawer SHALL show weapon list, range bands, heat, ammo/bin availability where applicable, disabled reasons, current heat, heat sinks, shutdown risk, and ammo explosion risk where modeled
+
+### Requirement: Contextual Target Comparison
+
+The tactical map interface SHALL provide a contextual comparison between active unit and target during command preview.
+
+#### Scenario: Weapon preview comparison
+- **GIVEN** the player previews a weapon attack
+- **WHEN** an enemy target is selected
+- **THEN** the comparison panel SHALL show attacker movement modifier, target movement modifier, range band, arc, LOS/cover, weapon selection, total heat, and expected hit/damage summary where available
+
+#### Scenario: Physical preview comparison
+- **GIVEN** the player previews a physical attack
+- **WHEN** an enemy target is selected
+- **THEN** the comparison panel SHALL show valid physical attack types, relative position, required movement state, piloting constraints, expected damage, and fall risk where available
+
+### Requirement: Inspector Pinning and Density
+
+Inspectors SHALL support peek, pinned, expanded, and mobile bottom-sheet density modes.
+
+#### Scenario: Hover peek does not replace pinned selection
+- **GIVEN** the player has a pinned selected unit inspector
+- **WHEN** the player hovers another unit
+- **THEN** the hover peek SHALL appear as a secondary transient summary
+- **AND** the pinned inspector SHALL remain the primary detail panel
+
+#### Scenario: Mobile inspector uses tabs
+- **GIVEN** the viewport is mobile width
+- **WHEN** the unit inspector opens
+- **THEN** it SHALL render as a bottom sheet with tabs for Summary, Armor, Weapons, Effects, and Pilot
+- **AND** closing the sheet SHALL return focus to the map or triggering token
+
+### Requirement: Tactical Map Lenses
+
+The tactical map interface SHALL provide task-oriented map lenses that control underlying map layers without changing rules.
+
+#### Scenario: Movement lens
+- **GIVEN** a unit is selected during Movement phase
+- **WHEN** the player enables the Movement lens
+- **THEN** the map SHALL show reachable hexes, path preview, movement cost, blocked destinations, and terrain/elevation cues relevant to movement
+
+#### Scenario: Attack lens
+- **GIVEN** a unit is selected during Weapon Attack or Physical Attack phase
+- **WHEN** the player enables the Attack lens
+- **THEN** the map SHALL show firing arcs or physical attack vectors, LOS, range bands, cover, and valid/invalid targets
+
+#### Scenario: Intel lens
+- **GIVEN** opponent intel or fog-of-war is active
+- **WHEN** the player enables the Intel lens
+- **THEN** the map SHALL show visible, last-known, sensor contact, and hidden/unknown areas using distinct non-conflicting visual states
+
+### Requirement: Tactical Pins and Markers
+
+The tactical map interface SHALL support map pins and markers for objectives, player notes, GM notes, and detected contacts.
+
+#### Scenario: Player adds a tactical pin
+- **GIVEN** the player has permission to add local pins
+- **WHEN** they create a pin on a hex
+- **THEN** the pin SHALL store coordinate, label, optional category, visibility scope, and created turn/phase
+- **AND** the pin SHALL be shown on the map and minimap while its layer is visible
+
+#### Scenario: GM pin visibility scope
+- **GIVEN** a GM creates a pin
+- **WHEN** they choose private, side-only, or public scope
+- **THEN** only authorized viewers SHALL receive the pin projection
+
+### Requirement: Combat Feed Docking
+
+The tactical map interface SHALL provide a combat feed that summarizes events and can drive map focus.
+
+#### Scenario: Feed row focuses event participants
+- **GIVEN** the combat feed contains a movement, attack, heat, objective, or destruction event
+- **WHEN** the user selects the feed row
+- **THEN** the map SHALL focus the relevant unit or hex
+- **AND** the right inspector SHALL show the relevant unit, target, or event detail where available
+
+#### Scenario: Feed prioritizes combat-critical events
+- **GIVEN** many events occur in one phase
+- **WHEN** the feed renders collapsed
+- **THEN** destruction, shutdown, ammo explosion, objective, critical hit, and phase transition events SHALL be prioritized above low-impact movement chatter
+
+### Requirement: Opponent Intel Display Language
+
+The tactical map interface SHALL display opponent intel tier, confidence, and staleness consistently across tokens, inspectors, previews, and feed rows.
+
+#### Scenario: Rough enemy state is visibly approximate
+- **GIVEN** a visible enemy unit is projected with rough intel
+- **WHEN** the player opens the target inspector
+- **THEN** armor, heat, ammo, movement, and weapon readiness SHALL use approximate bands or labels
+- **AND** the inspector SHALL include a confidence marker such as Exact, Estimated, Last Known, or Unknown
+
+#### Scenario: Last-known enemy uses stale styling
+- **GIVEN** an enemy unit has only last-known visibility
+- **WHEN** its token or inspector summary renders
+- **THEN** the UI SHALL show last-known coordinate and stale turn/phase
+- **AND** exact current state SHALL not be shown
+
+### Requirement: Intel Policy Setup Controls
+
+The tactical interface SHALL expose GM/scenario controls for selecting opponent intel policy before or during authorized match setup.
+
+#### Scenario: GM selects preset before launch
+- **GIVEN** a GM or scenario author configures a tactical match
+- **WHEN** they choose opponent intel preset Open, Rough, Sensor Limited, or Hidden
+- **THEN** the match configuration SHALL persist that policy
+- **AND** the pre-battle summary SHALL display the chosen policy before launch
+
+#### Scenario: Player cannot weaken fog from combat UI
+- **GIVEN** a player without GM/referee authority is in combat
+- **WHEN** they open tactical settings
+- **THEN** opponent intel policy controls SHALL be read-only or absent
+- **AND** no client-side toggle SHALL reveal hidden exact state
+
 ## Data Model Requirements
 
 ### Required Interfaces
