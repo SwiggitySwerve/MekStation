@@ -66,6 +66,22 @@ export interface IIndirectFireRequest {
   readonly spotterCandidates: readonly ISpotterCandidate[];
   /** The hex grid (for LOS checks) */
   readonly grid: IHexGrid;
+  /**
+   * Whether the target has been NARC-marked by the attacker's team.
+   * Optional for backward compatibility — existing call sites without NARC
+   * data leave this undefined and receive no NARC override.
+   *
+   * @spec openspec/changes/add-indirect-fire-and-spotter-network/specs/indirect-fire-system/spec.md §3
+   */
+  readonly targetNarcMarkedByTeam?: boolean;
+  /**
+   * Whether the target has been iNarc-marked by the attacker's team.
+   * Optional for backward compatibility — existing call sites without iNarc
+   * data leave this undefined and receive no iNarc override.
+   *
+   * @spec openspec/changes/add-indirect-fire-and-spotter-network/specs/indirect-fire-system/spec.md §3
+   */
+  readonly targetINarcMarkedByTeam?: boolean;
 }
 
 /** Result of indirect fire eligibility check */
@@ -76,7 +92,7 @@ export interface IIndirectFireResult {
   readonly reason?: string;
   /** Whether this is actually an indirect fire attack (LOS blocked) */
   readonly isIndirect: boolean;
-  /** Selected spotter (if indirect fire) */
+  /** Selected spotter (if indirect fire via LOS spotter) */
   readonly spotter?: ISpotterCandidate;
   /** Whether the spotter walked this turn */
   readonly spotterWalked: boolean;
@@ -84,6 +100,16 @@ export interface IIndirectFireResult {
   readonly toHitPenalty: number;
   /** LOS result from spotter to target */
   readonly spotterLOS?: ILOSResult;
+  /**
+   * How the indirect resolution was established.
+   * - `'los'`   — a friendly LOS spotter was elected
+   * - `'narc'`  — NARC beacon on target by attacker's team (no LOS spotter needed)
+   * - `'inarc'` — iNarc beacon on target by attacker's team
+   * Absent when isIndirect=false or permitted=false.
+   *
+   * @spec openspec/changes/add-indirect-fire-and-spotter-network/specs/indirect-fire-system/spec.md §3
+   */
+  readonly basis?: 'los' | 'narc' | 'inarc';
 }
 
 /** Semi-guided LRM resolution context */
@@ -263,8 +289,16 @@ export function isIndirectFireCapable(weaponId: string): boolean {
  * This is the main entry point for the indirect fire system.
  * It determines:
  * 1. Whether the attack needs indirect fire (LOS blocked)
- * 2. Whether indirect fire is possible (valid spotter exists)
- * 3. The to-hit penalty (+1 base, +1 if spotter walked)
+ * 2. Whether indirect fire is possible (valid spotter or NARC/iNarc override)
+ * 3. The to-hit penalty (+1 base, +1 if spotter walked; NARC/iNarc = base only)
+ *
+ * Resolution priority when attacker has no LOS:
+ *   a. LOS spotter elected → basis='los'
+ *   b. No spotter + NARC mark by attacker's team → basis='narc', spotterId=null
+ *   c. No spotter + iNarc mark by attacker's team → basis='inarc', spotterId=null
+ *   d. None of the above → rejected
+ *
+ * When both NARC and iNarc are true, NARC takes precedence (basis='narc').
  */
 export function resolveIndirectFire(
   request: IIndirectFireRequest,
@@ -291,7 +325,7 @@ export function resolveIndirectFire(
     };
   }
 
-  // Find a valid spotter
+  // Find a valid LOS spotter first — preferred over NARC/iNarc override.
   const spotterResult = findBestSpotter(
     request.spotterCandidates,
     request.attackerEntityId,
@@ -300,32 +334,62 @@ export function resolveIndirectFire(
     request.grid,
   );
 
-  if (!spotterResult) {
+  if (spotterResult) {
+    // LOS spotter found — basis='los'. FO SPA cancels the spotter-walked +1.
+    const { spotter, losResult } = spotterResult;
+    const spotterWalked = spotter.movementType === MovementType.Walk;
+    // Forward Observer SPA cancels the +1 spotter-walked add. The base +1
+    // indirect-fire penalty still applies. Run/Jump ineligibility is enforced
+    // upstream in isEligibleSpotter — FO does not override that restriction.
+    const hasFoSpa = spotter.pilotSpas?.includes('forward_observer') ?? false;
+    const toHitPenalty = spotterWalked && !hasFoSpa ? 2 : 1;
+
     return {
-      permitted: false,
-      reason:
-        'No friendly unit with line of sight to target is available as spotter',
-      isIndirect: false,
-      spotterWalked: false,
-      toHitPenalty: 0,
+      permitted: true,
+      isIndirect: true,
+      basis: 'los',
+      spotter,
+      spotterWalked,
+      toHitPenalty,
+      spotterLOS: losResult,
     };
   }
 
-  const { spotter, losResult } = spotterResult;
-  const spotterWalked = spotter.movementType === MovementType.Walk;
-  // Forward Observer SPA cancels the +1 spotter-walked add. The base +1
-  // indirect-fire penalty still applies. Run/Jump ineligibility is enforced
-  // upstream in isEligibleSpotter — FO does not override that restriction.
-  const hasFoSpa = spotter.pilotSpas?.includes('forward_observer') ?? false;
-  const toHitPenalty = spotterWalked && !hasFoSpa ? 2 : 1;
+  // No LOS spotter — check NARC/iNarc beacon override (§3).
+  // NARC takes precedence over iNarc when both are true.
+  const narcMarked = request.targetNarcMarkedByTeam === true;
+  const inarcMarked = request.targetINarcMarkedByTeam === true;
 
+  if (narcMarked) {
+    // NARC-marked by attacker's team → implicit spotter, base penalty only.
+    return {
+      permitted: true,
+      isIndirect: true,
+      basis: 'narc',
+      spotterWalked: false,
+      toHitPenalty: 1,
+    };
+  }
+
+  if (inarcMarked) {
+    // iNarc-marked by attacker's team → implicit spotter, base penalty only.
+    return {
+      permitted: true,
+      isIndirect: true,
+      basis: 'inarc',
+      spotterWalked: false,
+      toHitPenalty: 1,
+    };
+  }
+
+  // No spotter and no NARC/iNarc override — reject.
   return {
-    permitted: true,
-    isIndirect: true,
-    spotter,
-    spotterWalked,
-    toHitPenalty,
-    spotterLOS: losResult,
+    permitted: false,
+    reason:
+      'No friendly unit with line of sight to target is available as spotter',
+    isIndirect: false,
+    spotterWalked: false,
+    toHitPenalty: 0,
   };
 }
 

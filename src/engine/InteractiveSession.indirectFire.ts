@@ -41,7 +41,13 @@ import { calculateLOS } from '@/utils/gameplay/lineOfSight';
  *     non-attacker unit in the current game state. When `pilotSpasByUnitId`
  *     is supplied, the matching SPA list is threaded into each candidate so
  *     the helper can apply FO (Forward Observer) and future SPA cancellations.
- *  5. Delegate to `resolveIndirectFire` and map the result to
+ *  5. When no LOS spotter is found, check NARC/iNarc beacon flags on the
+ *     target unit (§3). When `targetEntityId` is supplied and the target unit
+ *     carries `narcMarkedByTeams` / `iNarcMarkedByTeams` arrays, those flags
+ *     are plumbed into the helper. If the target unit or the arrays are absent
+ *     (fields not yet populated by weapon resolution), both flags default to
+ *     `false` — forward-compatible once NARC weapon resolution lands.
+ *  6. Delegate to `resolveIndirectFire` and map the result to
  *     `IIndirectFireResolution`.
  *
  * This function is a pure collaborator — it reads from `gameState` and
@@ -50,6 +56,8 @@ import { calculateLOS } from '@/utils/gameplay/lineOfSight';
  * @param pilotSpasByUnitId - Optional map of unit-id → canonical SPA id list.
  *   Callers (e.g. the attack resolver) can supply this when pilot data is
  *   already in scope. Units absent from the map receive no SPA modifiers.
+ * @param targetEntityId - Optional entity ID of the target unit. When provided,
+ *   NARC/iNarc beacon state is read from the target's unit game state.
  */
 export function computeIndirectFireContext(
   attackerId: string,
@@ -58,6 +66,7 @@ export function computeIndirectFireContext(
   gameState: IGameState,
   grid: IHexGrid,
   pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>,
+  targetEntityId?: string,
 ): IIndirectFireResolution {
   const attackerUnit = gameState.units[attackerId];
   if (!attackerUnit) {
@@ -114,8 +123,25 @@ export function computeIndirectFireContext(
     });
   }
 
+  // Derive NARC/iNarc beacon flags for the target unit (§3).
+  // The fields `narcMarkedByTeams` / `iNarcMarkedByTeams` do not exist yet on
+  // IUnitGameState — they land when NARC weapon resolution ships in a later PR.
+  // Until then we read them defensively via `any`-cast so this compiles cleanly
+  // against the current type and the forward-compat default (false) applies.
+  const targetUnit = targetEntityId
+    ? gameState.units[targetEntityId]
+    : undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const targetUnitAny = targetUnit as any;
+  const narcMarkedByTeams: readonly string[] =
+    targetUnitAny?.narcMarkedByTeams ?? [];
+  const inarcMarkedByTeams: readonly string[] =
+    targetUnitAny?.iNarcMarkedByTeams ?? [];
+  const targetNarcMarkedByTeam = narcMarkedByTeams.includes(attackerTeamId);
+  const targetINarcMarkedByTeam = inarcMarkedByTeams.includes(attackerTeamId);
+
   // Delegate to the pure helper — it handles eligibility, LOS per spotter,
-  // spotter-election tiebreak, and penalty arithmetic.
+  // spotter-election tiebreak, NARC/iNarc override, and penalty arithmetic.
   const result = resolveIndirectFire({
     attackerEntityId: attackerId,
     attackerTeamId,
@@ -125,6 +151,8 @@ export function computeIndirectFireContext(
     attackerHasLOS: false,
     spotterCandidates,
     grid,
+    targetNarcMarkedByTeam,
+    targetINarcMarkedByTeam,
   });
 
   if (!result.permitted) {
@@ -137,11 +165,12 @@ export function computeIndirectFireContext(
     };
   }
 
+  // Map basis from helper result — 'los' | 'narc' | 'inarc' all pass through.
   return {
     permitted: true,
     isIndirect: true,
     spotterId: result.spotter?.entityId ?? null,
-    basis: 'los',
+    basis: result.basis,
     toHitPenalty: result.toHitPenalty,
   };
 }
