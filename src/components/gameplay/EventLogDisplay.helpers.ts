@@ -235,6 +235,49 @@ export function formatEvent(
       text = `Game ended: ${payload.winner === 'draw' ? 'Draw' : `${payload.winner} wins`} (${payload.reason})`;
       break;
     }
+    // Wave 8 PR-K5: indirect-fire dispatch event renderers. Format-cases
+    // for all 4 indirect-fire events ship together; SpotterLost is emitted
+    // by PR-K6 but its formatter case lands here to avoid a churn follow-up.
+    case GameEventType.IndirectFireSpotterSelected: {
+      const payload = event.payload as {
+        attackerId: string;
+        spotterId: string;
+        weaponId: string;
+        toHitPenalty: number;
+      };
+      unitId = payload.attackerId;
+      text = `Indirect fire: spotted by ${payload.spotterId} (+${payload.toHitPenalty} TN)`;
+      break;
+    }
+    case GameEventType.IndirectFireNarcOverride: {
+      const payload = event.payload as {
+        attackerId: string;
+        basis: 'narc' | 'inarc';
+        toHitPenalty: number;
+      };
+      unitId = payload.attackerId;
+      text = `Indirect fire: ${payload.basis} beacon override on target (+${payload.toHitPenalty} TN)`;
+      break;
+    }
+    case GameEventType.IndirectFireForwardObserver: {
+      const payload = event.payload as {
+        attackerId: string;
+        spotterId: string;
+      };
+      unitId = payload.attackerId;
+      text = `Indirect fire: Forward Observer ${payload.spotterId} cancels walking penalty`;
+      break;
+    }
+    case GameEventType.IndirectFireSpotterLost: {
+      const payload = event.payload as {
+        attackerId: string;
+        spotterId: string;
+        reason: string;
+      };
+      unitId = payload.attackerId;
+      text = `Indirect fire: spotter ${payload.spotterId} lost — attack misses (${payload.reason})`;
+      break;
+    }
     default:
       text = event.type.replace(/_/g, ' ');
   }

@@ -37,6 +37,8 @@ import {
 } from '@/utils/gameplay/movement/eventPath';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
+import { computeIndirectFireContext } from './InteractiveSession.indirectFire';
+
 /**
  * Inputs for `applyInteractiveSessionMovement` — the live session, the
  * grid the pathfinder uses, and the cached per-unit movement maps.
@@ -95,6 +97,14 @@ export function applyInteractiveSessionMovement(
 /**
  * Inputs for `applyInteractiveSessionAttack` — the live session and the
  * cached per-unit weapon map.
+ *
+ * Wave 8 PR-K5: `grid` and `targetHex` are OPTIONAL fields. When `grid`
+ * is supplied, `applyInteractiveSessionAttack` pre-computes the
+ * indirect-fire resolution per weapon and threads the first
+ * `permitted && isIndirect` result into `declareAttack` (the engine path
+ * established by PR-K + PR-K4). When omitted, the function behaves
+ * identically to its pre-K5 contract — no resolution computed, no
+ * indirect-fire events emitted.
  */
 export interface IApplyAttackInput {
   readonly session: IGameSession;
@@ -102,12 +112,26 @@ export interface IApplyAttackInput {
   readonly attackerId: string;
   readonly targetId: string;
   readonly weaponIds: readonly string[];
+  /** Wave 8 PR-K5: optional grid for indirect-fire LOS + spotter election. */
+  readonly grid?: IHexGrid;
+  /**
+   * Wave 8 PR-K5: optional override of the target hex carried on the
+   * indirect-fire event payloads. Defaults to the target unit's live
+   * position when omitted.
+   */
+  readonly targetHex?: IHexCoordinate;
 }
 
 /**
  * Declare and lock a weapon attack for the current WeaponAttack phase.
  * Firing arc is intentionally NOT pre-computed here — `resolveAttack`
  * derives it from live positions + target facing at resolve time.
+ *
+ * Wave 8 PR-K5: when `input.grid` is supplied, walks weapon ids and
+ * picks the first weapon whose `computeIndirectFireContext` returns
+ * `permitted && isIndirect` to thread into `declareAttack`. LRM volleys
+ * share a single spotter election per declaration (matches MegaMek
+ * `Compute.findSpottersForArtillery`).
  */
 export function applyInteractiveSessionAttack(
   input: IApplyAttackInput,
@@ -119,6 +143,31 @@ export function applyInteractiveSessionAttack(
     input.attackerId,
   );
 
+  // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid available.
+  let indirectFireResolution:
+    | import('@/types/gameplay/CombatInterfaces').IIndirectFireResolution
+    | undefined;
+  let resolvedTargetHex = input.targetHex;
+  if (input.grid) {
+    const targetUnit = input.session.currentState.units[input.targetId];
+    resolvedTargetHex = resolvedTargetHex ?? targetUnit?.position;
+    if (resolvedTargetHex && targetUnit) {
+      for (const weaponId of input.weaponIds) {
+        const result = computeIndirectFireContext(
+          input.attackerId,
+          weaponId,
+          resolvedTargetHex,
+          input.session.currentState,
+          input.grid,
+        );
+        if (result.permitted && result.isIndirect) {
+          indirectFireResolution = result;
+          break;
+        }
+      }
+    }
+  }
+
   let session = declareAttack(
     input.session,
     input.attackerId,
@@ -126,6 +175,8 @@ export function applyInteractiveSessionAttack(
     weaponAttacks,
     3,
     RangeBracket.Short,
+    indirectFireResolution,
+    resolvedTargetHex,
   );
   session = lockAttack(session, input.attackerId);
   return session;
