@@ -54,12 +54,26 @@ export type SlotId =
  * feeding the shell, NEVER in CSS visibility. Hidden exact state SHALL
  * not be recoverable from labels, tooltips, DOM text, ARIA text, or test
  * ids.
+ *
+ * Tier semantics (most → least information):
+ *   'gm'         — privileged GM/referee view: exact state + pilot
+ *                  identity + private notes. Never flows to player shell.
+ *   'exact'      — open information: all visible enemy state shown.
+ *   'rough'      — band-quantized values (e.g. "lightly damaged"); name
+ *                  visible, chassis and numeric fields hidden.
+ *   'last-known' — stale snapshot from last observation; may be outdated.
+ *   'silhouette' — chassis weight class only (Light/Medium/Heavy/Assault);
+ *                  name and chassis designator NOT shown.
+ *   'hidden'     — token absent or blank; no combat state exposed.
+ *   'unknown'    — unit never observed; completely opaque.
  */
 export type OpponentIntelTier =
+  | 'gm' // privileged: exact state + pilot identity + private metadata
   | 'exact' // open information — all visible enemy state shown
   | 'rough' // band-quantized values (e.g. "lightly damaged")
   | 'last-known' // stale snapshot of prior visibility
-  | 'hidden' // token absent or silhouette-only
+  | 'silhouette' // weight-class silhouette only — no name/chassis
+  | 'hidden' // token absent or blank; no state exposed
   | 'unknown'; // never observed
 
 /**
@@ -194,11 +208,13 @@ export const ALL_SHELL_MODES: readonly ShellMode[] = [
   'gm',
 ];
 
-/** Exhaustive list of all opponent intel tiers. */
+/** Exhaustive list of all opponent intel tiers, ordered most → least information. */
 export const ALL_OPPONENT_INTEL_TIERS: readonly OpponentIntelTier[] = [
+  'gm',
   'exact',
   'rough',
   'last-known',
+  'silhouette',
   'hidden',
   'unknown',
 ];
