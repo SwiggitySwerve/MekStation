@@ -14,21 +14,21 @@
  * @spec openspec/changes/add-indirect-fire-and-spotter-network/specs/indirect-fire-system/spec.md §3
  */
 
-import { MovementType } from "@/types/gameplay";
-import { IHex, IHexGrid } from "@/types/gameplay/HexGridInterfaces";
-import { TerrainType } from "@/types/gameplay/TerrainTypes";
+import { MovementType } from '@/types/gameplay';
+import { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import {
   resolveIndirectFire,
   IIndirectFireRequest,
   ISpotterCandidate,
-} from "../indirectFire";
+} from '../indirectFire';
 
 // =============================================================================
 // Fixtures
 // =============================================================================
 
-function makeHex(q: number, r: number, terrain = "clear", elevation = 0): IHex {
+function makeHex(q: number, r: number, terrain = 'clear', elevation = 0): IHex {
   return { coord: { q, r }, occupantId: null, terrain, elevation };
 }
 
@@ -45,7 +45,7 @@ function makeClearGrid(): IHexGrid {
 /** Grid with heavy woods at (3,0) — blocks attacker LOS from (0,0) to (5,0). */
 function makeBlockedGrid(): IHexGrid {
   const grid = makeClearGrid();
-  grid.hexes.set("3,0", makeHex(3, 0, TerrainType.HeavyWoods));
+  grid.hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
   return grid;
 }
 
@@ -53,8 +53,8 @@ function makeSpotter(
   overrides: Partial<ISpotterCandidate> = {},
 ): ISpotterCandidate {
   return {
-    entityId: "spotter-1",
-    teamId: "team-A",
+    entityId: 'spotter-1',
+    teamId: 'team-A',
     // Position (5,1) is off-axis — it has clear LOS to (5,0) but is NOT on the
     // blocked (0,0)→(5,0) line, so it can serve as a valid LOS spotter.
     position: { q: 5, r: 1 },
@@ -69,11 +69,11 @@ function makeNoLosNoSpotterRequest(
   overrides: Partial<IIndirectFireRequest> = {},
 ): IIndirectFireRequest {
   return {
-    attackerEntityId: "attacker-1",
-    attackerTeamId: "team-A",
+    attackerEntityId: 'attacker-1',
+    attackerTeamId: 'team-A',
     attackerPosition: { q: 0, r: 0 },
     targetPosition: { q: 5, r: 0 },
-    weaponId: "lrm-15",
+    weaponId: 'lrm-15',
     attackerHasLOS: false,
     spotterCandidates: [],
     grid: makeBlockedGrid(),
@@ -85,15 +85,15 @@ function makeNoLosNoSpotterRequest(
 // §3.1 — NARC-marked target (attacker's team)
 // =============================================================================
 
-describe("NARC spotter override", () => {
-  it("permits indirect fire when target is NARC-marked by attacker team and no LOS spotter exists", () => {
+describe('NARC spotter override', () => {
+  it('permits indirect fire when target is NARC-marked by attacker team and no LOS spotter exists', () => {
     const result = resolveIndirectFire(
       makeNoLosNoSpotterRequest({ targetNarcMarkedByTeam: true }),
     );
 
     expect(result.permitted).toBe(true);
     expect(result.isIndirect).toBe(true);
-    expect(result.basis).toBe("narc");
+    expect(result.basis).toBe('narc');
     // No human spotter elected — spotterId is absent on the helper result.
     expect(result.spotter).toBeUndefined();
     // Base +1 only — no spotter-walked add since there is no spotter.
@@ -101,7 +101,7 @@ describe("NARC spotter override", () => {
     expect(result.spotterWalked).toBe(false);
   });
 
-  it("rejects when NARC mark is by enemy team (flag not set for attacker team)", () => {
+  it('rejects when NARC mark is by enemy team (flag not set for attacker team)', () => {
     // Simulate an enemy team's NARC mark: the flag for the attacker's team is false.
     const result = resolveIndirectFire(
       makeNoLosNoSpotterRequest({ targetNarcMarkedByTeam: false }),
@@ -111,7 +111,7 @@ describe("NARC spotter override", () => {
     expect(result.basis).toBeUndefined();
   });
 
-  it("rejects when NARC flag is undefined (backward-compat — no override applied)", () => {
+  it('rejects when NARC flag is undefined (backward-compat — no override applied)', () => {
     // Existing call sites omit the flag → no NARC override, no spotter → rejected.
     const result = resolveIndirectFire(makeNoLosNoSpotterRequest());
 
@@ -123,21 +123,21 @@ describe("NARC spotter override", () => {
 // §3.2 — iNarc-marked target (attacker's team)
 // =============================================================================
 
-describe("iNarc spotter override", () => {
-  it("permits indirect fire when target is iNarc-marked by attacker team and no LOS spotter exists", () => {
+describe('iNarc spotter override', () => {
+  it('permits indirect fire when target is iNarc-marked by attacker team and no LOS spotter exists', () => {
     const result = resolveIndirectFire(
       makeNoLosNoSpotterRequest({ targetINarcMarkedByTeam: true }),
     );
 
     expect(result.permitted).toBe(true);
     expect(result.isIndirect).toBe(true);
-    expect(result.basis).toBe("inarc");
+    expect(result.basis).toBe('inarc');
     expect(result.spotter).toBeUndefined();
     expect(result.toHitPenalty).toBe(1);
     expect(result.spotterWalked).toBe(false);
   });
 
-  it("rejects when iNarc flag is false", () => {
+  it('rejects when iNarc flag is false', () => {
     const result = resolveIndirectFire(
       makeNoLosNoSpotterRequest({ targetINarcMarkedByTeam: false }),
     );
@@ -150,7 +150,7 @@ describe("iNarc spotter override", () => {
 // §3.3 — NARC precedence over iNarc when both are true
 // =============================================================================
 
-describe("NARC vs iNarc precedence", () => {
+describe('NARC vs iNarc precedence', () => {
   it('returns basis="narc" when both NARC and iNarc are true (NARC wins)', () => {
     const result = resolveIndirectFire(
       makeNoLosNoSpotterRequest({
@@ -160,7 +160,7 @@ describe("NARC vs iNarc precedence", () => {
     );
 
     expect(result.permitted).toBe(true);
-    expect(result.basis).toBe("narc");
+    expect(result.basis).toBe('narc');
     expect(result.toHitPenalty).toBe(1);
   });
 });
@@ -169,7 +169,7 @@ describe("NARC vs iNarc precedence", () => {
 // §3.4 — LOS spotter takes precedence over NARC/iNarc override
 // =============================================================================
 
-describe("LOS spotter preference over NARC override", () => {
+describe('LOS spotter preference over NARC override', () => {
   it('elects LOS spotter (basis="los") even when target is NARC-marked', () => {
     // Spotter at (5,1) has clear LOS to target at (5,0) despite woods at (3,0).
     const result = resolveIndirectFire(
@@ -181,11 +181,11 @@ describe("LOS spotter preference over NARC override", () => {
     );
 
     expect(result.permitted).toBe(true);
-    expect(result.basis).toBe("los");
+    expect(result.basis).toBe('los');
     // LOS spotter is stationary → base penalty only.
     expect(result.toHitPenalty).toBe(1);
     expect(result.spotter).toBeDefined();
-    expect(result.spotter?.entityId).toBe("spotter-1");
+    expect(result.spotter?.entityId).toBe('spotter-1');
   });
 
   it('elects LOS spotter (basis="los") even when target is iNarc-marked', () => {
@@ -197,7 +197,7 @@ describe("LOS spotter preference over NARC override", () => {
       }),
     );
 
-    expect(result.basis).toBe("los");
+    expect(result.basis).toBe('los');
     expect(result.permitted).toBe(true);
   });
 });
@@ -206,14 +206,14 @@ describe("LOS spotter preference over NARC override", () => {
 // §3.5 — Attacker has LOS → direct-fire pass-through, NARC irrelevant
 // =============================================================================
 
-describe("direct-fire pass-through ignores NARC", () => {
-  it("returns isIndirect=false when attacker has LOS, regardless of NARC mark", () => {
+describe('direct-fire pass-through ignores NARC', () => {
+  it('returns isIndirect=false when attacker has LOS, regardless of NARC mark', () => {
     const result = resolveIndirectFire({
-      attackerEntityId: "attacker-1",
-      attackerTeamId: "team-A",
+      attackerEntityId: 'attacker-1',
+      attackerTeamId: 'team-A',
       attackerPosition: { q: 0, r: 0 },
       targetPosition: { q: 5, r: 0 },
-      weaponId: "lrm-15",
+      weaponId: 'lrm-15',
       attackerHasLOS: true,
       spotterCandidates: [],
       grid: makeClearGrid(),
