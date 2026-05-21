@@ -28,8 +28,11 @@ import {
   type ReactNode,
 } from 'react';
 
+import { useGameplayStore } from '@/stores/useGameplayStore';
+import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
 import {
   createDefaultShellState,
+  type IElectedSpotter,
   type ITacticalShellState,
   type PlayerId,
   type ShellMode,
@@ -221,6 +224,72 @@ export function TacticalCommandShell({
   const updateState = useCallback((partial: Partial<ITacticalShellState>) => {
     setState((prev) => ({ ...prev, ...partial }));
   }, []);
+
+  // Wave 8 PR-K8 — G1: subscribe to IndirectFireSpotterSelected /
+  // IndirectFireSpotterLost events from the gameplay store and project
+  // them into `electedSpotters` for token-ring / inspector consumption.
+  // Cleared on turn rollover so stale spotter visuals don't persist.
+  const session = useGameplayStore((s) => s.session);
+  const lastProcessedEventIndex = useRef<number>(0);
+  const lastSeenTurn = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!session) return;
+    const events = session.events;
+    const currentTurn = session.currentState?.turn ?? null;
+
+    // Turn rollover → clear elected spotters.
+    if (
+      lastSeenTurn.current !== null &&
+      currentTurn !== null &&
+      currentTurn !== lastSeenTurn.current
+    ) {
+      setState((prev) =>
+        prev.electedSpotters.length === 0
+          ? prev
+          : { ...prev, electedSpotters: [] },
+      );
+    }
+    lastSeenTurn.current = currentTurn;
+
+    // Walk new events since last process. Process Selected/Lost in order.
+    const startIdx = lastProcessedEventIndex.current;
+    if (startIdx >= events.length) return;
+
+    let nextSpotters: IElectedSpotter[] | null = null;
+    for (let i = startIdx; i < events.length; i++) {
+      const evt = events[i];
+      if (evt.type === GameEventType.IndirectFireSpotterSelected) {
+        const p = evt.payload as {
+          attackerId: string;
+          spotterId: string;
+        };
+        if (!nextSpotters) nextSpotters = [...state.electedSpotters];
+        // Idempotent: skip if pair already present.
+        const exists = nextSpotters.some(
+          (s) => s.spotterId === p.spotterId && s.attackerId === p.attackerId,
+        );
+        if (!exists) {
+          nextSpotters.push({
+            spotterId: p.spotterId,
+            attackerId: p.attackerId,
+          });
+        }
+      } else if (evt.type === GameEventType.IndirectFireSpotterLost) {
+        const p = evt.payload as { attackerId: string; spotterId: string };
+        if (!nextSpotters) nextSpotters = [...state.electedSpotters];
+        nextSpotters = nextSpotters.filter(
+          (s) =>
+            !(s.spotterId === p.spotterId && s.attackerId === p.attackerId),
+        );
+      }
+    }
+    lastProcessedEventIndex.current = events.length;
+
+    if (nextSpotters !== null) {
+      setState((prev) => ({ ...prev, electedSpotters: nextSpotters! }));
+    }
+  }, [session, state.electedSpotters]);
 
   // Memoize context value so consumers don't churn re-renders when no
   // shell-relevant prop changed. The state object identity changes on
