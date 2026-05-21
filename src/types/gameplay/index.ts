@@ -33,6 +33,9 @@ export * from './CombatInterfaces';
 // Gameplay UI
 export * from './GameplayUIInterfaces';
 
+// Tactical Command system (Wave 7.2 PR-D)
+export * from './TacticalCommandInterfaces';
+
 // Unit Sprite System (Phase 7 visual layer — mech silhouettes + pip ring)
 export * from './UnitSpriteTypes';
 

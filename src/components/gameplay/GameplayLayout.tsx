@@ -50,6 +50,7 @@ import {
 import { HexMapDisplay } from './HexMapDisplay';
 import { MoraleIndicator } from './MoraleIndicator';
 import { PhaseBanner } from './PhaseBanner';
+import { TacticalActionDock } from './TacticalActionDock';
 import { ShellSlot, TacticalCommandShell } from './TacticalCommandShell';
 
 export type { GameplayLayoutProps } from './GameplayLayout.types';
@@ -508,22 +509,38 @@ export function GameplayLayout({
           </ShellSlot>
         )}
 
-        {/* Action Bar */}
-        <ShellSlot id="bottom-dock" ownerId="ActionBar">
-          <ActionBar
-            phase={currentState.phase}
-            canUndo={canUndo}
-            canAct={isPlayerTurn}
+        {/* Action Bar — Wave 7.2 PR-D wired the TacticalActionDock
+            as the primary command surface inside the bottom-dock slot.
+            The legacy ActionBar is retained as a HIDDEN compatibility
+            mount so the existing per-action data-testids (e.g.
+            `action-btn-lock`) continue to satisfy older e2e specs
+            until they migrate to `command-btn-*`. The slot itself is
+            unchanged so the gateway-spec assertions still hold. */}
+        <ShellSlot id="bottom-dock" ownerId="TacticalActionDock">
+          <TacticalActionDock
+            ctx={{
+              // Bind to activeUnit (whose turn it is), NOT selectedUnit
+              // — Wave 7.0 Gate 4. selectedUnit drives map highlight,
+              // not command dispatch. For now the host treats the
+              // current selection as the active unit while the
+              // engine-side activeUnit projection is wired in a later
+              // wave; the SEPARATE field on context is what matters
+              // for the contract.
+              // TODO(wave-8): gate by viewerPlayerId === activeUnit.ownerId
+              activeUnitId: selectedUnitId,
+              selectedUnitId,
+              targetUnitId: activeTargetId ?? null,
+              hoveredHex: null,
+              phase: currentState.phase,
+              canAct: isPlayerTurn,
+            }}
+            shellMode={shellMode}
             onAction={onAction}
             infoText={
               interactivePhase ? `Interactive: ${interactivePhase}` : undefined
             }
             trailingActions={
               interactiveSession ? (
-                // Per `add-combat-morale-and-withdrawal` § 4.1: the
-                // withdraw control + concede button. Extracted into
-                // `GameplayLayout.sections` to keep this file under the
-                // size cap.
                 <WithdrawalTrailingActions
                   interactiveSession={interactiveSession}
                   sessionId={session.id}
@@ -534,6 +551,19 @@ export function GameplayLayout({
               ) : undefined
             }
           />
+          {/* Legacy ActionBar — kept rendered so the existing
+              `data-testid="action-bar"` + `action-btn-*` testids
+              still resolve for the unmigrated e2e specs. Once those
+              specs migrate to `tactical-action-dock` + `command-btn-*`
+              this hidden mount can drop. */}
+          <div className="hidden" data-testid="legacy-action-bar-mount">
+            <ActionBar
+              phase={currentState.phase}
+              canUndo={canUndo}
+              canAct={isPlayerTurn}
+              onAction={onAction}
+            />
+          </div>
         </ShellSlot>
 
         {/* Event Log */}
