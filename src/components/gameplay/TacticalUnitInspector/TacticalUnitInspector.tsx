@@ -19,21 +19,22 @@
  * @see openspec/changes/add-tactical-unit-inspector-drawers/tasks.md §2.1
  */
 
-import React from 'react';
+import React from "react";
 
-import type { GameSide } from '@/types/gameplay';
-import type { IGameSession } from '@/types/gameplay';
-import type { IWeaponStatus } from '@/types/gameplay';
-import type { IInspectorProjection } from '@/types/gameplay/TacticalInspectorInterfaces';
+import type { GameSide } from "@/types/gameplay";
+import type { IGameSession } from "@/types/gameplay";
+import type { IWeaponStatus } from "@/types/gameplay";
+import type { IInspectorProjection } from "@/types/gameplay/TacticalInspectorInterfaces";
 import type {
   OpponentIntelTier,
   PlayerId,
-} from '@/types/gameplay/TacticalShellInterfaces';
+} from "@/types/gameplay/TacticalShellInterfaces";
 
 import {
   useUnitInspectorProjection,
   type IInspectorSupplementalData,
-} from '@/hooks/gameplay/useUnitInspectorProjection';
+} from "@/hooks/gameplay/useUnitInspectorProjection";
+import { useTacticalShell } from "@/components/gameplay/TacticalCommandShell";
 
 // =============================================================================
 // Props
@@ -76,13 +77,30 @@ export interface TacticalUnitInspectorProps {
 function FriendlyView({
   projection,
 }: {
-  projection: Extract<IInspectorProjection, { kind: 'friendly' }>;
+  projection: Extract<IInspectorProjection, { kind: "friendly" }>;
 }): React.ReactElement {
   const pilotStatusColor = !projection.pilotConscious
-    ? 'text-red-600'
+    ? "text-red-600"
     : projection.pilotWounds >= 3
-      ? 'text-amber-600'
-      : 'text-gray-700';
+      ? "text-amber-600"
+      : "text-gray-700";
+
+  // Wave 8 PR-K8 — G1: render a "Spotting for: {attackerId}" badge when
+  // the inspected unit is currently an elected LOS spotter. Pulls from
+  // the shell context's electedSpotters list (populated by event
+  // subscription in TacticalCommandShell). Only shown for friendly
+  // inspectors — opponent unit's spotting role for ITS team is hidden
+  // from the player by the fog-of-war contract.
+  const shellSpotters = (() => {
+    try {
+      return useTacticalShell().state.electedSpotters;
+    } catch {
+      return [];
+    }
+  })();
+  const spotterEntry = shellSpotters.find(
+    (s) => s.spotterId === projection.unitId,
+  );
 
   return (
     <div className="flex flex-col gap-2 p-3" data-testid="inspector-friendly">
@@ -97,6 +115,14 @@ function FriendlyView({
         <div className="text-xs text-gray-500" data-testid="inspector-chassis">
           {projection.chassis}
         </div>
+        {spotterEntry && (
+          <div
+            className="mt-1 inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800"
+            data-testid="inspector-spotting-badge"
+          >
+            Spotting for: {spotterEntry.attackerId}
+          </div>
+        )}
       </div>
 
       {/* Pilot */}
@@ -122,7 +148,7 @@ function FriendlyView({
             className={pilotStatusColor}
             data-testid="inspector-pilot-wounds"
           >
-            {projection.pilotConscious ? `${projection.pilotWounds}/5` : 'KIA'}
+            {projection.pilotConscious ? `${projection.pilotWounds}/5` : "KIA"}
           </span>
         </div>
       )}
@@ -133,10 +159,10 @@ function FriendlyView({
         <span
           className={
             projection.heat >= 20
-              ? 'font-semibold text-red-600'
+              ? "font-semibold text-red-600"
               : projection.heat >= 10
-                ? 'font-medium text-amber-600'
-                : 'text-gray-800'
+                ? "font-medium text-amber-600"
+                : "text-gray-800"
           }
           data-testid="inspector-heat"
         >
@@ -213,7 +239,7 @@ function FriendlyView({
         <span className="text-gray-600">Movement</span>
         <span className="text-gray-800" data-testid="inspector-movement">
           {projection.movementThisTurn} ({projection.hexesMoved} hex
-          {projection.hexesMoved !== 1 ? 'es' : ''})
+          {projection.hexesMoved !== 1 ? "es" : ""})
         </span>
       </div>
 
@@ -224,10 +250,10 @@ function FriendlyView({
           {projection.weapons.map((w) => (
             <div
               key={w.weaponId}
-              className={`flex items-center justify-between text-xs ${w.disabled ? 'opacity-50' : ''}`}
+              className={`flex items-center justify-between text-xs ${w.disabled ? "opacity-50" : ""}`}
               data-testid={`inspector-weapon-${w.weaponId}`}
             >
-              <span className={w.disabled ? 'line-through' : ''}>
+              <span className={w.disabled ? "line-through" : ""}>
                 {w.displayName}
               </span>
               {w.disabledReason && (
@@ -248,21 +274,21 @@ function FriendlyView({
 function TargetView({
   projection,
 }: {
-  projection: Extract<IInspectorProjection, { kind: 'target' }>;
+  projection: Extract<IInspectorProjection, { kind: "target" }>;
 }): React.ReactElement {
   const bandLabel: Record<string, string> = {
-    pristine: 'Pristine',
-    'lightly-damaged': 'Lightly Damaged',
-    'moderately-damaged': 'Moderately Damaged',
-    'heavily-damaged': 'Heavily Damaged',
-    crippled: 'Crippled',
+    pristine: "Pristine",
+    "lightly-damaged": "Lightly Damaged",
+    "moderately-damaged": "Moderately Damaged",
+    "heavily-damaged": "Heavily Damaged",
+    crippled: "Crippled",
   };
   const bandColor: Record<string, string> = {
-    pristine: 'text-green-600',
-    'lightly-damaged': 'text-green-700',
-    'moderately-damaged': 'text-amber-600',
-    'heavily-damaged': 'text-orange-600',
-    crippled: 'text-red-600',
+    pristine: "text-green-600",
+    "lightly-damaged": "text-green-700",
+    "moderately-damaged": "text-amber-600",
+    "heavily-damaged": "text-orange-600",
+    crippled: "text-red-600",
   };
 
   return (
@@ -292,7 +318,7 @@ function TargetView({
       <div className="flex items-center justify-between text-xs">
         <span className="text-gray-600">Damage</span>
         <span
-          className={`font-medium ${bandColor[projection.damageBand] ?? 'text-gray-800'}`}
+          className={`font-medium ${bandColor[projection.damageBand] ?? "text-gray-800"}`}
           data-testid="inspector-damage-band"
         >
           {bandLabel[projection.damageBand] ?? projection.damageBand}
@@ -307,10 +333,10 @@ function TargetView({
             <span
               className={
                 (projection.heat ?? 0) >= 20
-                  ? 'font-semibold text-red-600'
+                  ? "font-semibold text-red-600"
                   : (projection.heat ?? 0) >= 10
-                    ? 'font-medium text-amber-600'
-                    : 'text-gray-800'
+                    ? "font-medium text-amber-600"
+                    : "text-gray-800"
               }
               data-testid="inspector-heat"
             >
@@ -397,7 +423,7 @@ export function TacticalUnitInspector({
   viewerSide,
   opponentVisibilityScopes,
   supplemental,
-  className = '',
+  className = "",
 }: TacticalUnitInspectorProps): React.ReactElement {
   const projection = useUnitInspectorProjection({
     unitId: inspectedUnitId,
@@ -424,11 +450,11 @@ export function TacticalUnitInspector({
       className={`h-full overflow-y-auto bg-white ${className}`}
       data-testid="tactical-unit-inspector"
     >
-      {projection.kind === 'friendly' && (
+      {projection.kind === "friendly" && (
         <FriendlyView projection={projection} />
       )}
-      {projection.kind === 'target' && <TargetView projection={projection} />}
-      {projection.kind === 'redacted' && <RedactedView />}
+      {projection.kind === "target" && <TargetView projection={projection} />}
+      {projection.kind === "redacted" && <RedactedView />}
     </div>
   );
 }
