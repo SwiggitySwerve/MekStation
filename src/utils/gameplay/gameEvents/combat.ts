@@ -1,3 +1,11 @@
+import type {
+  IIndirectFireForwardObserverPayload,
+  IIndirectFireNarcOverridePayload,
+  IIndirectFireSpotterLostPayload,
+  IIndirectFireSpotterSelectedPayload,
+} from '@/types/gameplay/CombatInterfaces';
+import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
+
 import {
   GameEventType,
   GamePhase,
@@ -282,6 +290,163 @@ export function createComponentDestroyedEvent(
       turn,
       GamePhase.WeaponAttack,
       unitId,
+    ),
+    payload,
+  };
+}
+
+// =============================================================================
+// Indirect-Fire dispatch events (Wave 8 PR-K4)
+// =============================================================================
+
+/**
+ * Emitted when a friendly LOS spotter is elected for an indirect-fire attack.
+ * Payload mirrors IIndirectFireSpotterSelectedPayload (basis='los',
+ * spotterId always non-null).
+ */
+export function createIndirectFireSpotterSelectedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  attackerId: string,
+  spotterId: string,
+  weaponId: string,
+  targetHex: IHexCoordinate,
+  toHitPenalty: number,
+  ammoId?: string,
+): IGameEvent {
+  const payload: IIndirectFireSpotterSelectedPayload = {
+    attackerId,
+    spotterId,
+    weaponId,
+    ammoId,
+    targetHex,
+    toHitPenalty,
+    basis: 'los',
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.IndirectFireSpotterSelected,
+      turn,
+      GamePhase.WeaponAttack,
+      attackerId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Emitted when indirect fire is permitted via NARC/iNarc beacon instead of
+ * a LOS spotter.
+ */
+export function createIndirectFireNarcOverrideEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  attackerId: string,
+  weaponId: string,
+  targetHex: IHexCoordinate,
+  basis: 'narc' | 'inarc',
+  toHitPenalty: number,
+  ammoId?: string,
+): IGameEvent {
+  const payload: IIndirectFireNarcOverridePayload = {
+    attackerId,
+    spotterId: null,
+    weaponId,
+    ammoId,
+    targetHex,
+    toHitPenalty,
+    basis,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.IndirectFireNarcOverride,
+      turn,
+      GamePhase.WeaponAttack,
+      attackerId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Emitted in addition to IndirectFireSpotterSelected when the spotter's
+ * pilot holds the FORWARD_OBSERVER SPA and the +1 spotter-walked penalty
+ * is cancelled.
+ */
+export function createIndirectFireForwardObserverEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  attackerId: string,
+  spotterId: string,
+  weaponId: string,
+  targetHex: IHexCoordinate,
+  toHitPenalty: number,
+  ammoId?: string,
+): IGameEvent {
+  const payload: IIndirectFireForwardObserverPayload = {
+    attackerId,
+    spotterId,
+    weaponId,
+    ammoId,
+    targetHex,
+    toHitPenalty,
+    basis: 'los',
+    penaltyCancelled: 1,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.IndirectFireForwardObserver,
+      turn,
+      GamePhase.WeaponAttack,
+      attackerId,
+    ),
+    payload,
+  };
+}
+
+/**
+ * Emitted when the elected spotter is destroyed between to-hit time and
+ * damage resolution, forcing an auto-miss.
+ */
+export function createIndirectFireSpotterLostEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  attackerId: string,
+  spotterId: string,
+  weaponId: string,
+  targetHex: IHexCoordinate,
+  basis: 'los' | 'narc' | 'inarc' | 'semi-guided-tag',
+  reason: string,
+  ammoId?: string,
+): IGameEvent {
+  const payload: IIndirectFireSpotterLostPayload = {
+    attackerId,
+    spotterId,
+    weaponId,
+    ammoId,
+    targetHex,
+    toHitPenalty: 0,
+    basis,
+    reason,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.IndirectFireSpotterLost,
+      turn,
+      GamePhase.WeaponAttack,
+      attackerId,
     ),
     payload,
   };
