@@ -1,5 +1,6 @@
 import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution/types';
 
+import { computeIndirectFireContext } from '@/engine/InteractiveSession.indirectFire';
 import {
   GameEventType,
   GamePhase,
@@ -245,6 +246,31 @@ export function runAttackPhase(options: {
         weapon.minRange,
       );
 
+      // Wave 8 PR-K7: Quick-Sim indirect-fire dispatch.
+      // The interactive path (declareAttack) and bot path (runAttackPhase)
+      // pre-compute indirect-fire resolution via computeIndirectFireContext
+      // and thread the +1/+2 penalty + spotter event through the engine. The
+      // Quick-Sim pipeline doesn't go through declareAttack — it hand-rolls
+      // AttackDeclared / AttackResolved. Wire the same dispatch here so
+      // mass-scale BV-balance Monte Carlo runs reflect indirect-fire to-hit
+      // math when LRMs fire against units the attacker has no LOS to.
+      const indirectFireResolution = grid
+        ? computeIndirectFireContext(
+            unitId,
+            weaponId,
+            targetNow.position,
+            currentState,
+            grid,
+          )
+        : null;
+      const indirectFirePenalty =
+        indirectFireResolution &&
+        indirectFireResolution.permitted &&
+        indirectFireResolution.isIndirect
+          ? indirectFireResolution.toHitPenalty
+          : 0;
+      const adjustedToHit = toHitCalc.finalToHit + indirectFirePenalty;
+
       const firingArc = calculateFiringArc(
         attackerNow.position,
         targetNow.position,
@@ -255,6 +281,18 @@ export function runAttackPhase(options: {
       // the to-hit roll. Carries the weapon id, range bracket, firing
       // arc, and the full modifier breakdown so replay / metrics
       // consumers can show the GATOR math without recomputing it.
+      const baseModifiers = modifiersToPayload(toHitCalc.modifiers);
+      const declaredModifiers =
+        indirectFirePenalty > 0
+          ? [
+              ...baseModifiers,
+              {
+                name: 'Indirect fire',
+                value: indirectFirePenalty,
+                source: 'other' as const,
+              },
+            ]
+          : baseModifiers;
       events.push(
         createGameEvent(
           gameId,
@@ -266,8 +304,8 @@ export function runAttackPhase(options: {
             attackerId: unitId,
             targetId,
             weapons: [weaponId],
-            toHitNumber: toHitCalc.finalToHit,
-            modifiers: modifiersToPayload(toHitCalc.modifiers),
+            toHitNumber: adjustedToHit,
+            modifiers: declaredModifiers,
             range: bracketToPayloadRange(rangeBracket),
             firingArc,
           },
@@ -275,10 +313,62 @@ export function runAttackPhase(options: {
         ),
       );
 
+      // Wave 8 PR-K7: emit IndirectFireSpotterSelected (basis='los') or
+      // IndirectFireNarcOverride immediately after AttackDeclared when
+      // indirect fire is in effect — mirrors PR-K4's declareAttack
+      // dispatch so the event log + downstream consumers see the same
+      // sequence regardless of which pipeline ran.
+      if (
+        indirectFireResolution &&
+        indirectFireResolution.permitted &&
+        indirectFireResolution.isIndirect
+      ) {
+        const basis = indirectFireResolution.basis;
+        if (basis === 'narc' || basis === 'inarc') {
+          events.push(
+            createGameEvent(
+              gameId,
+              events.length,
+              GameEventType.IndirectFireNarcOverride,
+              currentState.turn,
+              GamePhase.WeaponAttack,
+              {
+                attackerId: unitId,
+                spotterId: null,
+                weaponId,
+                targetHex: targetNow.position,
+                toHitPenalty: indirectFirePenalty,
+                basis,
+              },
+              unitId,
+            ),
+          );
+        } else if (indirectFireResolution.spotterId) {
+          events.push(
+            createGameEvent(
+              gameId,
+              events.length,
+              GameEventType.IndirectFireSpotterSelected,
+              currentState.turn,
+              GamePhase.WeaponAttack,
+              {
+                attackerId: unitId,
+                spotterId: indirectFireResolution.spotterId,
+                weaponId,
+                targetHex: targetNow.position,
+                toHitPenalty: indirectFirePenalty,
+                basis: 'los' as const,
+              },
+              unitId,
+            ),
+          );
+        }
+      }
+
       const die1 = d6Roller();
       const die2 = d6Roller();
       const attackRoll = die1 + die2;
-      const hit = attackRoll >= toHitCalc.finalToHit;
+      const hit = attackRoll >= adjustedToHit;
 
       if (!hit) {
         // Per `combat-resolution` delta: emit `AttackResolved` even on
@@ -297,7 +387,9 @@ export function runAttackPhase(options: {
               targetId,
               weaponId,
               roll: attackRoll,
-              toHitNumber: toHitCalc.finalToHit,
+              // Wave 8 PR-K7: `toHitNumber` matches AttackDeclared so the
+              // event-log + invariant pairs line up under indirect-fire.
+              toHitNumber: adjustedToHit,
               hit: false,
               heat: weapon.heat,
               attackerArc: firingArc,
@@ -317,7 +409,9 @@ export function runAttackPhase(options: {
         weaponId,
         weapon,
         attackRoll,
-        toHitNumber: toHitCalc.finalToHit,
+        // Wave 8 PR-K7: use the indirect-fire-adjusted to-hit so the
+        // AttackResolved.toHitNumber on hits matches AttackDeclared.
+        toHitNumber: adjustedToHit,
         firingArc,
         partialCover: targetPartialCover,
         d6Roller,
