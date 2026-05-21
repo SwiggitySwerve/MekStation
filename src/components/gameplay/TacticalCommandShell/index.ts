@@ -16,6 +16,7 @@ export {
   TacticalCommandShell,
   useTacticalShell,
   useShellSlotRegistryContext,
+  useElectedSpotters,
   type ITacticalShellContext,
   type TacticalCommandShellProps,
 } from './TacticalCommandShell';

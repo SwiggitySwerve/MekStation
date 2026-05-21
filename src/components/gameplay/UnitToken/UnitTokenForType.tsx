@@ -15,32 +15,32 @@
  *        §Per-Type Token Rendering — dispatcher routes to correct renderer
  */
 
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from 'react';
 
-import type { TacticalAnimation } from "@/stores/useAnimationQueue";
-import type { IGameEvent, IUnitToken } from "@/types/gameplay";
+import type { TacticalAnimation } from '@/stores/useAnimationQueue';
+import type { IGameEvent, IUnitToken } from '@/types/gameplay';
 
-import { useMovementTween } from "@/components/gameplay/animation/useMovementTween";
-import { hexToPixel } from "@/components/gameplay/HexMapDisplay/renderHelpers";
-import { useTacticalShell } from "@/components/gameplay/TacticalCommandShell";
-import { useAnimationQueue } from "@/stores/useAnimationQueue";
-import { MovementType, TokenUnitType } from "@/types/gameplay";
+import { useMovementTween } from '@/components/gameplay/animation/useMovementTween';
+import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
+import { useElectedSpotters } from '@/components/gameplay/TacticalCommandShell';
+import { useAnimationQueue } from '@/stores/useAnimationQueue';
+import { MovementType, TokenUnitType } from '@/types/gameplay';
 
-import { AerospaceToken } from "./AerospaceToken";
-import { BattleArmorToken } from "./BattleArmorToken";
-import { InfantryToken } from "./InfantryToken";
-import { MechToken } from "./MechToken";
-import { ProtoMechToken } from "./ProtoMechToken";
+import { AerospaceToken } from './AerospaceToken';
+import { BattleArmorToken } from './BattleArmorToken';
+import { InfantryToken } from './InfantryToken';
+import { MechToken } from './MechToken';
+import { ProtoMechToken } from './ProtoMechToken';
 import {
   renderFogMarker,
   renderJumpArc,
   TokenVisualEffects,
-} from "./UnitTokenForType.effects";
+} from './UnitTokenForType.effects';
 import {
   projectEvents,
   projectThermalVisualState,
-} from "./UnitTokenForType.projectors";
-import { VehicleToken } from "./VehicleToken";
+} from './UnitTokenForType.projectors';
+import { VehicleToken } from './VehicleToken';
 
 // =============================================================================
 // Props
@@ -107,7 +107,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
       movementAnimation?.path && movementAnimation.path.length > 0
         ? movementAnimation.path
         : [
-            token.fogStatus === "lastKnown" && token.lastKnownPosition
+            token.fogStatus === 'lastKnown' && token.lastKnownPosition
               ? token.lastKnownPosition
               : token.position,
           ],
@@ -146,6 +146,18 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     onDoubleClick(token.unitId);
   };
 
+  // Wave 8 PR-K8 — G1: subscribe to elected-spotter state from the shell
+  // context. When this token's unit is currently spotting for an
+  // indirect-fire attack, render a yellow/amber ring overlay. Cleared
+  // automatically on IndirectFireSpotterLost / turn rollover.
+  //
+  // Hook MUST be called BEFORE the conditional BA-mounted early return
+  // below so React's rules-of-hooks ordering invariant is preserved.
+  // `useElectedSpotters` returns [] when no TacticalCommandShell is in
+  // the ancestry — token degrades to no-ring in storybook / standalone.
+  const shellSpotters = useElectedSpotters();
+  const isSpotter = shellSpotters.some((s) => s.spotterId === token.unitId);
+
   // BA mounted on a mech: render as a badge overlaid on the host mech token,
   // not as a standalone token at its own hex position.
   if (token.unitType === TokenUnitType.BattleArmor && token.mountedOn) {
@@ -161,7 +173,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
             onClick(token.unitId);
           }}
           onDoubleClick={handleDoubleClick}
-          style={{ cursor: "pointer" }}
+          style={{ cursor: 'pointer' }}
           data-testid={`unit-token-${token.unitId}`}
         >
           <BattleArmorToken
@@ -176,15 +188,15 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   }
 
   const displayPosition =
-    token.fogStatus === "lastKnown" && token.lastKnownPosition
+    token.fogStatus === 'lastKnown' && token.lastKnownPosition
       ? token.lastKnownPosition
       : token.position;
   const { x, y } = movementAnimation
     ? { x: tween.x, y: tween.y }
     : hexToPixel(displayPosition);
   const fogDisplayFields =
-    token.fogStatus === "hidden"
-      ? { designation: "?", name: "Hidden contact" }
+    token.fogStatus === 'hidden'
+      ? { designation: '?', name: 'Hidden contact' }
       : {};
   // Build the render-time token. The spread preserves `unitType`, but TS
   // can't infer that, so we re-narrow via a generic helper that re-tags the
@@ -198,9 +210,9 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
         position: displayPosition,
       } as IUnitToken);
   const fogOpacity =
-    token.fogStatus === "hidden"
+    token.fogStatus === 'hidden'
       ? 0.45
-      : token.fogStatus === "lastKnown"
+      : token.fogStatus === 'lastKnown'
         ? 0.62
         : 1;
 
@@ -209,31 +221,16 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     onClick(token.unitId);
   };
 
-  // Wave 8 PR-K8 — G1: subscribe to elected-spotter state from the shell
-  // context. When this token's unit is currently spotting for an
-  // indirect-fire attack, render a yellow/amber ring overlay. Cleared
-  // automatically on IndirectFireSpotterLost / turn rollover.
-  const shellSpotters = (() => {
-    try {
-      return useTacticalShell().state.electedSpotters;
-    } catch {
-      // Token may render outside a TacticalCommandShell in storybook /
-      // standalone tests — degrade gracefully (no ring).
-      return [];
-    }
-  })();
-  const isSpotter = shellSpotters.some((s) => s.spotterId === token.unitId);
-
   const wrapperProps = {
     transform: `translate(${x}, ${y}) scale(${tween.scale})`,
     onClick: handleClick,
     onDoubleClick: handleDoubleClick,
-    style: { cursor: "pointer" as const, opacity: fogOpacity },
-    "data-testid": `unit-token-${token.unitId}`,
-    "data-animating": movementAnimation ? "true" : undefined,
-    "data-animation-id": movementAnimationId,
-    "data-fog-status": token.fogStatus,
-    "data-spotter": isSpotter ? "true" : undefined,
+    style: { cursor: 'pointer' as const, opacity: fogOpacity },
+    'data-testid': `unit-token-${token.unitId}`,
+    'data-animating': movementAnimation ? 'true' : undefined,
+    'data-animation-id': movementAnimationId,
+    'data-fog-status': token.fogStatus,
+    'data-spotter': isSpotter ? 'true' : undefined,
   };
 
   const jumpArc = renderJumpArc(token.unitId, movementAnimation, tween);

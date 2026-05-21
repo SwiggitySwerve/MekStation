@@ -335,3 +335,19 @@ export function useTacticalShell(): ITacticalShellContext {
 export function useShellSlotRegistryContext(): IShellSlotRegistry {
   return useTacticalShell().registry;
 }
+
+/**
+ * Non-throwing accessor for elected-spotter state (PR-K8 — G1).
+ *
+ * Unlike `useTacticalShell()`, this hook returns an empty array when
+ * called outside a `<TacticalCommandShell>` — used by token / inspector
+ * components that may also render in storybook / standalone test
+ * contexts where wrapping the whole shell would be over-scaffolding.
+ *
+ * Inside a shell, returns the live `electedSpotters` list (event-driven
+ * projection of `IndirectFireSpotterSelected` / `IndirectFireSpotterLost`).
+ */
+export function useElectedSpotters(): readonly IElectedSpotter[] {
+  const ctx = useContext(ShellContext);
+  return ctx?.state.electedSpotters ?? [];
+}
