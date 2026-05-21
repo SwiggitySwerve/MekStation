@@ -42,7 +42,7 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §3.1, §3.2
  */
 
-import { useMemo } from "react";
+import { useMemo } from 'react';
 
 import type {
   ICommandPreview,
@@ -52,8 +52,8 @@ import type {
   ITacticalCommand,
   ITacticalCommandContext,
   IWeaponAttackCommandPreview,
-} from "@/types/gameplay";
-import type { PhysicalAttackType } from "@/utils/gameplay/physicalAttacks/types";
+} from '@/types/gameplay';
+import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
 
 /**
  * Auxiliary inputs the preview hook needs that don't live on
@@ -68,13 +68,13 @@ export interface ICommandPreviewInputs {
   /** True if the previewed destination is over the unit's MP envelope. */
   readonly hoverUnreachable?: boolean;
   /** Active movement mode (walk / run / jump). */
-  readonly movementMode?: "walk" | "run" | "jump";
+  readonly movementMode?: 'walk' | 'run' | 'jump';
   /** Final facing the previewed movement ends on (0..5). */
   readonly previewFacing?: number;
   /** To-hit number for the current weapon attack (2..12 or null). */
   readonly hitChance?: number | null;
   /** Range band for the current weapon attack. */
-  readonly weaponRangeBand?: "short" | "medium" | "long" | "extreme" | "out";
+  readonly weaponRangeBand?: 'short' | 'medium' | 'long' | 'extreme' | 'out';
   /** Active physical attack type from the physical-attack plan. */
   readonly physicalAttackType?: PhysicalAttackType | null;
 }
@@ -99,11 +99,11 @@ export function buildCommandPreview(
   }
 
   switch (command.category) {
-    case "movement":
+    case 'movement':
       return buildMovementPreview(inputs);
-    case "weapon":
+    case 'weapon':
       return buildWeaponPreview(ctx, inputs);
-    case "physical":
+    case 'physical':
       return buildPhysicalPreview(ctx, inputs);
     default:
       // facing / heat-end / utility / gm have no map preview.
@@ -117,11 +117,11 @@ function buildMovementPreview(
   const path = inputs.highlightPath ?? [];
   if (path.length === 0) return null;
   return {
-    kind: "movement",
+    kind: 'movement',
     path,
     mpCost: inputs.hoverMpCost ?? 0,
     finalFacing: inputs.previewFacing ?? 0,
-    mode: inputs.movementMode ?? "walk",
+    mode: inputs.movementMode ?? 'walk',
     unreachable: Boolean(inputs.hoverUnreachable),
   };
 }
@@ -136,10 +136,10 @@ function buildWeaponPreview(
   // cleanly from the existing surface; heat / ammo / damage zero out
   // until the engine projection lands.
   return {
-    kind: "weapon-attack",
+    kind: 'weapon-attack',
     targetUnitId: ctx.targetUnitId,
     toHit: inputs.hitChance ?? null,
-    rangeBand: inputs.weaponRangeBand ?? "medium",
+    rangeBand: inputs.weaponRangeBand ?? 'medium',
     heatCost: 0,
     ammoUsage: {},
     expectedDamage: 0,
@@ -156,7 +156,7 @@ function buildPhysicalPreview(
   // to-hit / damage / self-damage / PSR. Today we ship the kind +
   // attack-type so the inspector can label the previewed attack.
   return {
-    kind: "physical-attack",
+    kind: 'physical-attack',
     targetUnitId: ctx.targetUnitId,
     attackType: inputs.physicalAttackType,
     toHit: null,
@@ -178,7 +178,11 @@ export function useCommandPreview(
   ctx: ITacticalCommandContext,
   inputs: ICommandPreviewInputs,
 ): ICommandPreview | null {
-  return useMemo(
+  // ctx + inputs are intentionally exploded so callers can pass
+  // fresh objects each render. See useCommandRegistry for the same
+  // pattern.
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const memoised = useMemo(
     () => buildCommandPreview(command, ctx, inputs),
     [
       command,
@@ -199,4 +203,6 @@ export function useCommandPreview(
       inputs.physicalAttackType,
     ],
   );
+  /* eslint-enable react-hooks/exhaustive-deps */
+  return memoised;
 }

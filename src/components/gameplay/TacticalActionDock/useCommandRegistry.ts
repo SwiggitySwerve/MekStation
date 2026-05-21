@@ -17,23 +17,24 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2, §2.1
  */
 
-import { useMemo } from "react";
+import { useMemo } from 'react';
+
+import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 import {
   filterCommandsByPhase,
   type GamePhase,
   type ITacticalCommand,
   type ITacticalCommandContext,
-} from "@/types/gameplay";
-import type { ShellMode } from "@/types/gameplay/TacticalShellInterfaces";
+} from '@/types/gameplay';
 
-import { buildFacingCommands } from "./commands/facingCommands";
-import { buildGmReferralCommands } from "./commands/gmReferralCommands";
-import { buildHeatEndCommands } from "./commands/heatEndCommands";
-import { buildMovementCommands } from "./commands/movementCommands";
-import { buildPhysicalAttackCommands } from "./commands/physicalAttackCommands";
-import { buildUtilityCommands } from "./commands/utilityCommands";
-import { buildWeaponAttackCommands } from "./commands/weaponAttackCommands";
+import { buildFacingCommands } from './commands/facingCommands';
+import { buildGmReferralCommands } from './commands/gmReferralCommands';
+import { buildHeatEndCommands } from './commands/heatEndCommands';
+import { buildMovementCommands } from './commands/movementCommands';
+import { buildPhysicalAttackCommands } from './commands/physicalAttackCommands';
+import { buildUtilityCommands } from './commands/utilityCommands';
+import { buildWeaponAttackCommands } from './commands/weaponAttackCommands';
 
 /**
  * Build the full command set for the given context + shell mode.
@@ -60,7 +61,7 @@ export function buildCommandRegistry(
     ...buildUtilityCommands(),
   ];
 
-  if (shellMode === "gm") {
+  if (shellMode === 'gm') {
     families.push(...buildGmReferralCommands());
   }
 
@@ -84,7 +85,11 @@ export function useCommandRegistry(
   ctx: ITacticalCommandContext,
   shellMode: ShellMode,
 ): readonly ITacticalCommand[] {
-  return useMemo(
+  // ctx is intentionally exploded — the dependency array tracks the
+  // value identity of each field, not the wrapping object, so callers
+  // can pass a fresh ctx each render without triggering churn.
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const memoised = useMemo(
     () => buildCommandRegistry(ctx, shellMode),
     [
       ctx.activeUnitId,
@@ -95,12 +100,10 @@ export function useCommandRegistry(
       ctx.phase,
       ctx.canAct,
       shellMode,
-      // ctx is intentionally exploded — the dependency array tracks
-      // the value identity of each field, not the wrapping object,
-      // so callers can pass a fresh ctx each render without
-      // triggering churn.
     ],
   );
+  /* eslint-enable react-hooks/exhaustive-deps */
+  return memoised;
 }
 
 /**
@@ -144,17 +147,17 @@ export function filterCommandsForHex(
 export function groupCommandsByCategory(
   commands: readonly ITacticalCommand[],
 ): ReadonlyArray<{
-  readonly category: ITacticalCommand["category"];
+  readonly category: ITacticalCommand['category'];
   readonly commands: readonly ITacticalCommand[];
 }> {
-  const order: ReadonlyArray<ITacticalCommand["category"]> = [
-    "movement",
-    "facing",
-    "weapon",
-    "physical",
-    "heat-end",
-    "utility",
-    "gm",
+  const order: ReadonlyArray<ITacticalCommand['category']> = [
+    'movement',
+    'facing',
+    'weapon',
+    'physical',
+    'heat-end',
+    'utility',
+    'gm',
   ];
   return order
     .map((category) => ({
