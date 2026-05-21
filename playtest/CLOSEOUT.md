@@ -79,23 +79,25 @@ These do not block the playtest exit but are documented for future polish waves:
 
 > The playtest's "Defects only; log gaps" operating principle put the following items in this section rather than `ISSUES.md`. Each is a candidate for an OpenSpec change in a future polish wave.
 
+> **2026-05-21 closeout sweep**: gaps #1, #2, #3, #5, #6, #7, #11, #12 closed by the dormant-changes archive PR (`add-ecm-tohit-modifier`, `fix-recovered-session-adapted-units`, `polish-wave-6.2-gaps`, `replace-biome-none-placeholder`). Wave 7 (#653-#664) closed the tactical-UI surfaces. Active gaps reduced from 12 → 4. Remaining gaps are co-op / multiplayer scripted E2E (#8/#9/#10 — still blocked on vault-auth bypass for two-identity flows) and AI-tier UI selector (#4 — moved to polish-wave-6.2-gaps with the scenario-type selector and shipped via that change).
+
 ### Pre-existing (from `post-roadmap-followups`)
 
-1. **ECM core-engine to-hit modifier** — ECM bubbles affect AI awareness only, not combat-resolution to-hit modifiers (C3 / Artemis / targeting-computer degradation). Wave-6 candidate.
-2. **Recovered-session adapted-units** — `InteractiveSession.fromSession()` rebuilds with empty adapted-units arrays; full move/attack play after server-restart recovery is broken by design until a future change wires re-derivation.
-3. **Host-review proposal timeout** — unanswered guest proposals stay `pending` forever; no auto-veto.
-4. **AI-tier UI selector** — `AITierRegistry` exists and is wired in code; no in-app UI to select tier yet (test by editing config).
-5. **`biome=none`** — placeholder value; not a real biome variant. Phase-1 swarm matrix already routes around this.
+1. ~~**ECM core-engine to-hit modifier**~~ — **CLOSED** by `add-ecm-tohit-modifier` (archived 2026-05-21). 30 unit tests cover all 4 guidance × 4 ECM-position combinations; per-weapon guidance detection deferred to a follow-on with its scenario-level integration test.
+2. ~~**Recovered-session adapted-units**~~ — **CLOSED** by `fix-recovered-session-adapted-units` (archived 2026-05-21). `fromSession` re-derives via `adaptedUnitRebuilder`; regression spec at `src/multiplayer/server/__tests__/InteractiveSession.recovery.test.ts`.
+3. ~~**Host-review proposal timeout**~~ — **CLOSED** by `polish-wave-6.2-gaps` §2 (archived 2026-05-21). `CampaignGmArbiter` auto-vetoes pending proposals after `proposalTimeoutMs` (default 5 min); auto-veto labeled distinctly via `decision.reason: 'host-review-timeout'`.
+4. ~~**AI-tier UI selector**~~ — **CLOSED** by `polish-wave-6.2-gaps` §1.2. `quick-game-ai-tier-select` testid lands on `QuickGameSetup`; defaults to `Regular` (preserves existing behavior).
+5. ~~**`biome=none`**~~ — **CLOSED** by `replace-biome-none-placeholder` (archived 2026-05-21). Generator falls back to `'temperate'` with a `console.warn`; validator on the scenario-config boundary rejects new `biome: 'none'` writes; 16 swarm-config JSONs migrated.
 
 ### Surfaced during this playtest
 
-6. **Quick Game scenario-type selector** — `scenarioConfig.scenarioType` is settable in the store but has no UI control on the Quick Game `ConfigureScenarioStep`. The Phase 2 SP smoke spec drives it via `useQuickGameStore.setScenarioConfig({ scenarioType })` directly. Wave-6 candidate: add a Select control in `QuickGameSetupScenarioConfig.tsx`.
-7. **StateCycleDetector positional scope** (PT-001) — detector snapshot is `{armor, structure, heat}`, lacks unit positions. Fires from turn 3 in 96% of runs because units move but don't yet deal damage. Wave-6 candidate: extend `BattleStateSnapshot` to include `Map<unitId, {q,r,facing}>` and update `snapshotsEqual` to compare it.
-8. **Co-op campaign route surface** — `useCoopSession` hook + `CoopParticipationPicker` / `GuestProposalSurface` / `HostGmReviewSurface` components exist; no `/coop-campaigns/*` page route mounts them. Wire candidate: extend `src/pages/gameplay/campaigns/[id]/index.tsx` to render the host/guest surfaces when the active campaign is a co-op session. See `playtest/phase-5/COOP_SCOPE.md`.
-9. **Co-op scripted E2E** — blocked on gap #8 above + vault-auth bypass for two-identity scripted flows. Wave-6 candidate.
-10. **Multiplayer scripted E2E** — same blocker (vault auth + two-identity orchestration). Wave-6 candidate. Manual UAT covers it in this cycle.
-11. **High-BV force generator** (PT-010) — catalog can't produce 2-unit pairs at 10k BV. Either widen `unitCount` in the smoke matrix for high-BV bands or extend the public unit catalog.
-12. **TurnLimit tuning for large maps** (PT-003) — turnLimit=50 → 100% draw on r20. Either raise the default turnLimit on large maps or have the AI engage more aggressively. Likely tuning rather than spec change.
+6. ~~**Quick Game scenario-type selector**~~ — **CLOSED** by `polish-wave-6.2-gaps` §1.1. `quick-game-scenario-select` testid on `QuickGameSetup` binds to `useQuickGameStore.scenarioConfig.scenarioType`.
+7. ~~**StateCycleDetector positional scope** (PT-001)~~ — **CLOSED** by `polish-wave-6.2-gaps` §3. `snapshotKey` now includes per-unit `position`. Phase-1 smoke re-run task (§3.3 in the archived change) deferred — empirical confirmation that hit rate drops below 5% requires a fresh swarm matrix run.
+8. **Co-op campaign route surface** — `useCoopSession` hook + `CoopParticipationPicker` / `GuestProposalSurface` / `HostGmReviewSurface` components exist; no `/coop-campaigns/*` page route mounts them. Wire candidate: extend `src/pages/gameplay/campaigns/[id]/index.tsx` to render the host/guest surfaces when the active campaign is a co-op session. See `playtest/phase-5/COOP_SCOPE.md`. **STILL OPEN.**
+9. **Co-op scripted E2E** — blocked on gap #8 above + vault-auth bypass for two-identity scripted flows. **STILL OPEN.**
+10. **Multiplayer scripted E2E** — same blocker (vault auth + two-identity orchestration). Manual UAT covers it. **STILL OPEN.**
+11. ~~**High-BV force generator** (PT-010)~~ — **CLOSED** by `polish-wave-6.2-gaps` §4. Force generator catches `BudgetUnsatisfiableError` at requested `unitCount` and retries once at `unitCount + 1` before re-throwing; opt-out via `exactUnitCount: true`.
+12. ~~**TurnLimit tuning for large maps** (PT-003)~~ — **CLOSED** by `polish-wave-6.2-gaps` §5. Default `turnLimit = Math.max(50, mapRadius * 4)`; r20 maps default to 80. Re-run task (§5.3 in the archived change) deferred — empirical confirmation that draw rate drops below 50% requires a fresh swarm matrix run.
 
 ## Manual UAT outstanding
 
