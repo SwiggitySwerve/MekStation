@@ -205,15 +205,48 @@ export function findBestSpotter(
 // =============================================================================
 
 /**
+ * Weapon families that may fire indirectly. Mirrors MegaMek
+ * `ComputeToHit.java:384-388`. Used as the single source of truth for
+ * indirect-fire eligibility checks across the engine + UI surfaces.
+ *
+ * Per the add-indirect-fire-and-spotter-network spec (§4.1):
+ *  - LRM        — standard LRM-5/10/15/20 (IS + Clan)
+ *  - LRM_IMP    — Improved LRM (3070+ tech)
+ *  - MML_LRM    — Multi-Missile Launcher loaded with LRM ammo (SRM ammo NOT eligible)
+ *  - MEK_MORTAR — light/heavy Mek Mortar
+ *  - NLRM       — Narced LRM variants
+ *
+ * Notable exclusions: Streak SRM/LRM (lock-on requires LOS) and direct-
+ * fire ballistics. Arrow IV uses separate artillery mechanics tracked in
+ * the deferred `add-arrow-iv-artillery` change.
+ */
+export type IndirectEligibleWeaponFamily =
+  | 'LRM'
+  | 'LRM_IMP'
+  | 'MML_LRM'
+  | 'MEK_MORTAR'
+  | 'NLRM';
+
+export const INDIRECT_ELIGIBLE_WEAPON_FAMILIES: readonly IndirectEligibleWeaponFamily[] =
+  ['LRM', 'LRM_IMP', 'MML_LRM', 'MEK_MORTAR', 'NLRM'];
+
+/**
  * Check if a weapon is capable of indirect fire.
  *
- * Only LRM weapons can fire indirectly in standard BattleTech rules.
- * Arrow IV has separate artillery mechanics (not implemented here).
+ * Uses substring matching against the weapon id as a pragmatic bridge
+ * until the per-weapon `family` field lands in the catalog. The matched
+ * substrings map 1:1 with the families enumerated in
+ * `INDIRECT_ELIGIBLE_WEAPON_FAMILIES`. Streak variants are explicitly
+ * excluded (lock-on requires LOS).
  */
 export function isIndirectFireCapable(weaponId: string): boolean {
   const id = weaponId.toLowerCase();
-  // LRMs (including semi-guided, clan, IS variants)
-  return id.includes('lrm') && !id.includes('streak');
+  if (id.includes('streak')) return false;
+  // LRM / LRM-IMP / NLRM / MML-LRM (MML in LRM mode) — all share 'lrm' substring.
+  if (id.includes('lrm')) return true;
+  // Mek Mortar — 'mortar' or 'mek-mortar'.
+  if (id.includes('mortar')) return true;
+  return false;
 }
 
 /**
