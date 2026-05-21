@@ -49,9 +49,9 @@ function getPhaseLabel(phase: GamePhase): string {
     case GamePhase.Movement:
       return 'Movement';
     case GamePhase.WeaponAttack:
-      return 'Weapons';
+      return 'Weapon Attack';
     case GamePhase.PhysicalAttack:
-      return 'Physical';
+      return 'Physical Attack';
     case GamePhase.Heat:
       return 'Heat';
     case GamePhase.End:
@@ -295,13 +295,16 @@ export function TacticalTurnRail({
     >
       {/* Phase / Round header */}
       <div className="flex flex-shrink-0 flex-col items-start leading-tight">
+        {/* `phase-name` testid preserved from PhaseBanner — addInteractiveCombatCoreUI
+            smoke test asserts on this label, and other downstream tests + the
+            screen-reader contract know this id. */}
         <span
           className="text-sm font-bold tracking-wide uppercase"
-          data-testid="rail-phase-label"
+          data-testid="phase-name"
         >
           {phaseLabel}
         </span>
-        <span className="text-xs opacity-75" data-testid="rail-turn-number">
+        <span className="text-xs opacity-75" data-testid="turn-number">
           Round {turn}
         </span>
       </div>
