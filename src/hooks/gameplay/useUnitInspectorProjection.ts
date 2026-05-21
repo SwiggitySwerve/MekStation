@@ -39,8 +39,11 @@ import type {
 import type {
   DamageBand,
   IFriendlyInspectorView,
+  IGmInspectorView,
   IInspectorProjection,
   IInspectorWeapon,
+  IIntelConfidence,
+  IntelConfidence,
   IRedactedInspectorView,
   ITargetInspectorView,
 } from '@/types/gameplay/TacticalInspectorInterfaces';
@@ -49,6 +52,7 @@ import type {
   PlayerId,
 } from '@/types/gameplay/TacticalShellInterfaces';
 
+import { assertNoLeakedSecrets } from '@/services/intel/intelGuardrails';
 import { GameSide } from '@/types/gameplay';
 
 // =============================================================================
@@ -70,6 +74,24 @@ export interface IInspectorSupplementalData {
   >;
   /** Heat-sink counts keyed by unit id. */
   readonly heatSinks?: Readonly<Record<string, number>>;
+  /**
+   * Turn on which each unit was last directly observed, keyed by unit id.
+   * Used to compute staleness for 'last-known' tier projections.
+   * Null / missing entry = unit has never been directly observed ('unknown' tier).
+   */
+  readonly lastSeenTurns?: Readonly<Record<string, number>>;
+  /**
+   * Match-level staleness threshold (from `IIntelPolicyPreset.stalenessThresholdTurns`).
+   * When set, a 'last-known' unit whose last-seen turn is older than this many
+   * turns receives `isOutdated: true` in its `IIntelConfidence` record.
+   */
+  readonly stalenessThresholdTurns?: number;
+  /**
+   * GM-only private notes attached to each unit, keyed by unit id.
+   * These are server-side strings never transmitted to player sockets.
+   * Only consumed when the active tier is 'gm'.
+   */
+  readonly secretNotes?: Readonly<Record<string, readonly string[]>>;
 }
 
 // =============================================================================
@@ -180,6 +202,82 @@ function collectCriticalEffects(
   }
 
   return effects;
+}
+
+// =============================================================================
+// Intel confidence helpers — §2.1
+// =============================================================================
+
+/**
+ * Map an `OpponentIntelTier` to its `IntelConfidence` bucket.
+ * Used to build the `IIntelConfidence` badge attached to target projections.
+ */
+function tierToConfidence(tier: OpponentIntelTier): IntelConfidence {
+  switch (tier) {
+    case 'gm':
+    case 'exact':
+      return 'confirmed';
+    case 'rough':
+      return 'partial';
+    case 'silhouette':
+    case 'last-known':
+      return 'estimated';
+    case 'hidden':
+    case 'unknown':
+      return 'unconfirmed';
+  }
+}
+
+/**
+ * Derive the full `IIntelConfidence` record for a target or GM projection.
+ *
+ * @param tier                  Active opponent intel tier.
+ * @param currentTurn           Current game turn number (for staleness calc).
+ * @param lastSeenTurn          Turn the unit was last observed, or null.
+ * @param stalenessThreshold    Turns after which last-known data is 'outdated'.
+ *                              Undefined means no decay applies.
+ */
+function deriveIntelConfidence(
+  tier: OpponentIntelTier,
+  currentTurn: number,
+  lastSeenTurn: number | null,
+  stalenessThreshold: number | undefined,
+): IIntelConfidence {
+  const confidence = tierToConfidence(tier);
+
+  // Staleness only applies to 'last-known' tier.
+  const isOutdated =
+    tier === 'last-known' &&
+    lastSeenTurn !== null &&
+    stalenessThreshold !== undefined &&
+    currentTurn - lastSeenTurn > stalenessThreshold;
+
+  return {
+    confidence,
+    isOutdated,
+    lastSeenTurn,
+    tier,
+  };
+}
+
+/**
+ * Derive a BattleTech chassis weight class from a unit's tonnage.
+ * Falls back to 'Medium' when tonnage is unknown or zero.
+ *
+ * BattleTech canonical ranges:
+ *   Light   : 20–35 tons
+ *   Medium  : 40–55 tons
+ *   Heavy   : 60–75 tons
+ *   Assault : 80–100 tons
+ */
+function chassisClassFromTonnage(
+  tonnage: number | undefined,
+): 'Light' | 'Medium' | 'Heavy' | 'Assault' {
+  if (!tonnage || tonnage <= 0) return 'Medium';
+  if (tonnage <= 35) return 'Light';
+  if (tonnage <= 55) return 'Medium';
+  if (tonnage <= 75) return 'Heavy';
+  return 'Assault';
 }
 
 // =============================================================================
@@ -310,10 +408,89 @@ export function useUnitInspectorProjection(
       unitId,
       contactLabel: 'Unknown Contact',
     };
+    // Defense-in-depth: assert the projection respects its tier before
+    // returning. No-op in production; throws in dev/test if exact state
+    // ever leaks through.
+    assertNoLeakedSecrets(redacted, tier);
     return redacted;
   }
 
-  // 'exact' or 'rough' — partial target projection.
+  // Derive intel confidence — used by all non-redacted opponent projections.
+  const currentTurn = session.currentState.turn;
+  const lastSeenTurn = supplemental.lastSeenTurns?.[unitId] ?? null;
+  const intelConfidence = deriveIntelConfidence(
+    tier,
+    currentTurn,
+    lastSeenTurn,
+    supplemental.stalenessThresholdTurns,
+  );
+
+  // 'gm' — privileged full-reveal view (pilot identity + secret notes).
+  // MUST only be emitted when shellMode === 'gm'; the hook trusts the caller
+  // to only set tier === 'gm' for GM-shell viewers.
+  if (tier === 'gm') {
+    const pilotName =
+      supplemental.pilotNames?.[unitId] ?? `Pilot (${gameUnit.pilotRef})`;
+    const totalArmorRemainingGm = sumValues(unitState.armor);
+    const maxArmorRecordGm = supplemental.maxArmor?.[unitId] ?? {};
+    const maxTotalGm = sumValues(maxArmorRecordGm);
+    const damageBandGm = armorFractionToBand(totalArmorRemainingGm, maxTotalGm);
+
+    const gmView: IGmInspectorView = {
+      kind: 'gm',
+      unitId,
+      name: gameUnit.name,
+      chassis: gameUnit.unitRef,
+      pilotName,
+      gunnery: gameUnit.gunnery,
+      piloting: gameUnit.piloting,
+      pilotWounds: unitState.pilotWounds,
+      pilotConscious: unitState.pilotConscious,
+      heat: unitState.heat,
+      totalArmorRemaining: totalArmorRemainingGm,
+      totalStructureRemaining: sumValues(unitState.structure),
+      prone: unitState.prone ?? false,
+      shutdown: unitState.shutdown ?? false,
+      destroyed: unitState.destroyed,
+      damageBand: damageBandGm,
+      secretNotes: supplemental.secretNotes?.[unitId] ?? [],
+      intelConfidence,
+    };
+    assertNoLeakedSecrets(gmView, tier);
+    return gmView;
+  }
+
+  // 'silhouette' — weight-class silhouette only; name and chassis NOT revealed.
+  if (tier === 'silhouette') {
+    const silhouetteView: ITargetInspectorView = {
+      kind: 'target',
+      unitId,
+      name: null,
+      chassis: null,
+      chassisClass: chassisClassFromTonnage(
+        (gameUnit as { tonnage?: number }).tonnage,
+      ),
+      isExact: false,
+      heat: null,
+      // Compute damage band even at silhouette tier — visible from the token.
+      damageBand: armorFractionToBand(
+        sumValues(unitState.armor),
+        sumValues(supplemental.maxArmor?.[unitId] ?? {}),
+      ),
+      totalArmorRemaining: null,
+      totalStructureRemaining: null,
+      prone: unitState.prone ?? false,
+      shutdown: null,
+      destroyed: unitState.destroyed,
+      intelConfidence,
+    };
+    assertNoLeakedSecrets(silhouetteView, tier);
+    return silhouetteView;
+  }
+
+  // 'exact', 'rough', 'last-known' — partial target projection.
+  // 'last-known' is treated like 'rough' (band-quantized) but its
+  // intelConfidence carries staleness info for the badge.
   const isExact = tier === 'exact';
 
   // Compute total armor for rough-band mapping.
@@ -327,16 +504,20 @@ export function useUnitInspectorProjection(
     unitId,
     name: gameUnit.name,
     chassis: isExact ? gameUnit.unitRef : null,
+    // chassisClass is only populated at 'silhouette' tier; null at rough/exact.
+    chassisClass: null,
     isExact,
     heat: isExact ? unitState.heat : null,
     damageBand,
     totalArmorRemaining: isExact ? totalArmorRemaining : null,
     totalStructureRemaining: isExact ? sumValues(unitState.structure) : null,
-    // Prone is visually observable on the map at both tiers.
+    // Prone is visually observable on the map at all tiers.
     prone: unitState.prone ?? false,
     shutdown: isExact ? (unitState.shutdown ?? false) : null,
     destroyed: unitState.destroyed,
+    intelConfidence,
   };
 
+  assertNoLeakedSecrets(view, tier);
   return view;
 }

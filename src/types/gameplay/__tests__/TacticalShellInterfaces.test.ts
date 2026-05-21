@@ -58,11 +58,16 @@ describe('TacticalShellInterfaces', () => {
   });
 
   describe('ALL_OPPONENT_INTEL_TIERS', () => {
-    it('contains the 5 tiers from the opponent-intel spec', () => {
+    // Wave 7.3 PR-H extended this from 5 → 7 tiers. 'gm' was added at
+    // the top (privileged GM-shell view), and 'silhouette' was added
+    // between 'last-known' and 'hidden' (chassis class only, no name).
+    it('contains the 7 tiers from the opponent-intel spec', () => {
       expect(ALL_OPPONENT_INTEL_TIERS).toEqual([
+        'gm',
         'exact',
         'rough',
         'last-known',
+        'silhouette',
         'hidden',
         'unknown',
       ]);
