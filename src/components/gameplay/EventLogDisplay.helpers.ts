@@ -356,6 +356,47 @@ export function annotateGroupedEvents(
   return result;
 }
 
+/**
+ * Returns a display priority for an event so the feed can sort or
+ * badge critical rows when collapsed.
+ *
+ * Tiers (high → low):
+ *   critical — UnitDestroyed, AmmoExplosion, GameEnded (irreversible combat outcomes)
+ *   high     — CriticalHit, CriticalHitResolved, HeatEffectApplied (pivotal mid-battle signals)
+ *   normal   — AttackResolved, DamageApplied, PhysicalAttackResolved, PhaseChanged (standard combat loop)
+ *   low      — MovementDeclared, MovementLocked, HeatGenerated, HeatDissipated, TurnStarted,
+ *              TurnEnded, InitiativeRolled, FacingChanged (ambient bookkeeping)
+ *
+ * @spec openspec/changes/add-tactical-map-lenses-feed-replay/specs/tactical-map-interface/spec.md
+ *   "Feed prioritizes combat-critical events" scenario
+ */
+export type EventPriority = 'critical' | 'high' | 'normal' | 'low';
+
+export function getEventPriority(event: IGameEvent): EventPriority {
+  switch (event.type) {
+    case GameEventType.UnitDestroyed:
+    case GameEventType.AmmoExplosion:
+    case GameEventType.GameEnded:
+      return 'critical';
+    case GameEventType.CriticalHit:
+    case GameEventType.CriticalHitResolved:
+    case GameEventType.HeatEffectApplied:
+      return 'high';
+    case GameEventType.AttackResolved:
+    case GameEventType.AttackDeclared:
+    case GameEventType.AttackLocked:
+    case GameEventType.AttacksRevealed:
+    case GameEventType.PhysicalAttackResolved:
+    case GameEventType.PhysicalAttackDeclared:
+    case GameEventType.DamageApplied:
+    case GameEventType.PhaseChanged:
+    case GameEventType.PilotHit:
+      return 'normal';
+    default:
+      return 'low';
+  }
+}
+
 export function getPhaseLabel(phase: GamePhase): string {
   switch (phase) {
     case GamePhase.Initiative:

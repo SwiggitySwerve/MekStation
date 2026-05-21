@@ -9,11 +9,20 @@ import {
 interface EventRowProps {
   readonly event: IFormattedEventWithGrouping;
   readonly actorLookup?: Record<string, string>;
+  /**
+   * Called when the user clicks this row to focus the map on the
+   * relevant unit or hex.
+   *
+   * @spec openspec/changes/add-tactical-map-lenses-feed-replay/specs/tactical-map-interface/spec.md
+   *   "Feed row focuses event participants" scenario
+   */
+  readonly onRowFocus?: (eventId: string, unitId?: string) => void;
 }
 
 export function EventRow({
   event,
   actorLookup,
+  onRowFocus,
 }: EventRowProps): React.ReactElement {
   const iconColor = getIconColor(event.icon);
   const actor = event.unitId
@@ -25,10 +34,25 @@ export function EventRow({
     <div
       className={`flex items-start gap-2 px-2 py-1 text-sm hover:bg-gray-50 ${
         isNested ? 'pl-8 text-gray-600 italic' : ''
-      }`}
+      } ${onRowFocus ? 'cursor-pointer' : ''}`}
       data-testid="event-row"
       data-event-id={event.id}
       data-indent-level={event.indentLevel ?? 0}
+      onClick={
+        onRowFocus ? () => onRowFocus(event.id, event.unitId) : undefined
+      }
+      role={onRowFocus ? 'button' : undefined}
+      tabIndex={onRowFocus ? 0 : undefined}
+      onKeyDown={
+        onRowFocus
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onRowFocus(event.id, event.unitId);
+              }
+            }
+          : undefined
+      }
     >
       <span
         className={`${iconColor} w-4 font-bold`}
