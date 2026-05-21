@@ -24,6 +24,7 @@ import {
   createAttackInvalidEvent,
   createAttackResolvedEvent,
   createDamageAppliedEvent,
+  createIndirectFireSpotterLostEvent,
   createLocationDestroyedEvent,
   createPilotHitEvent,
   createPSRTriggeredEvent,
@@ -120,7 +121,55 @@ export function resolveAttack(
     }
 
     const attackRoll = diceRoller();
-    const hit = attackRoll.total >= toHitNumber;
+    let hit = attackRoll.total >= toHitNumber;
+
+    // Wave 8 PR-K6: spotter-liveness mid-resolution re-check.
+    // Walk session.events backward to find the IndirectFireSpotterSelected
+    // event matching this attacker + weapon (most-recent first). If the
+    // elected spotter has been destroyed between attack declaration and
+    // resolution, force the attack to auto-miss + emit IndirectFireSpotterLost.
+    // Ammo is already consumed above (lines 80-119); heat carries on
+    // AttackResolved.heat regardless of hit — both preserved.
+    for (let i = currentSession.events.length - 1; i >= 0; i--) {
+      const evt = currentSession.events[i];
+      if (evt.type !== GameEventType.IndirectFireSpotterSelected) continue;
+      const ifPayload = evt.payload as {
+        attackerId: string;
+        weaponId: string;
+        spotterId: string;
+        targetHex: { q: number; r: number };
+        basis: 'los' | 'narc' | 'inarc' | 'semi-guided-tag';
+      };
+      if (
+        ifPayload.attackerId !== attackerId ||
+        ifPayload.weaponId !== weaponId
+      ) {
+        continue;
+      }
+      const spotterUnit =
+        currentSession.currentState.units[ifPayload.spotterId];
+      if (spotterUnit?.destroyed) {
+        const lostSequence = currentSession.events.length;
+        const lostTurn = currentSession.currentState.turn;
+        currentSession = appendEvent(
+          currentSession,
+          createIndirectFireSpotterLostEvent(
+            currentSession.id,
+            lostSequence,
+            lostTurn,
+            attackerId,
+            ifPayload.spotterId,
+            weaponId,
+            ifPayload.targetHex,
+            ifPayload.basis,
+            'Spotter destroyed before resolution',
+            ammoBinIdForResolved ?? undefined,
+          ),
+        );
+        hit = false;
+      }
+      break; // most-recent spotter selection found — stop walking
+    }
 
     const sequence = currentSession.events.length;
     const { turn } = currentSession.currentState;
