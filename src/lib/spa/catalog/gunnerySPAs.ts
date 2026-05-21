@@ -95,4 +95,14 @@ export const GUNNERY_SPAS: readonly ISPADefinition[] = [
     isOriginOnly: true,
     xpCost: 40,
   }),
+  gunnery({
+    id: 'forward_observer',
+    displayName: 'Forward Observer',
+    description:
+      'Forward Observer — designates targets for indirect fire without walking penalty. Pilot acts as spotter without the +1 spotter-walked modifier regardless of movement type. Base +1 indirect-fire penalty still applies.',
+    // MegaMek: OptionsConstants.MISC_FORWARD_OBSERVER; CamOps source,
+    // xpCost 20 (gunnery builder default). BV cost is absorbed into pilot BV
+    // via the standard ability surcharge — no separate catalog cost field.
+    pipelines: ['to-hit'],
+  }),
 ];
