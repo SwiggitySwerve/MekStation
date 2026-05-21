@@ -51,10 +51,93 @@ import {
 import { HexMapDisplay } from './HexMapDisplay';
 import { MoraleIndicator } from './MoraleIndicator';
 import { TacticalActionDock } from './TacticalActionDock';
-import { ShellSlot, TacticalCommandShell } from './TacticalCommandShell';
+import {
+  ShellSlot,
+  TacticalCommandShell,
+  useTacticalShell,
+} from './TacticalCommandShell';
 import { TacticalTurnRail } from './TacticalTurnRail';
+import { TacticalUnitInspector } from './TacticalUnitInspector';
 
 export type { GameplayLayoutProps } from './GameplayLayout.types';
+
+// =============================================================================
+// DesktopRightTray — inner component that reads inspector state from shell
+// context and renders the right-tray slot.
+//
+// Must be a SEPARATE component (not inlined in GameplayLayout) because
+// GameplayLayout is the TacticalCommandShell provider — calling
+// useTacticalShell() at its scope level would throw "must be called inside
+// a <TacticalCommandShell>". As a child rendered inside the shell tree,
+// DesktopRightTray is within context.
+// =============================================================================
+
+interface DesktopRightTrayProps {
+  readonly selectedUnitId: string | null;
+  readonly session: import('@/types/gameplay').IGameSession;
+  readonly viewerPlayerId: string;
+  readonly viewerSide: import('@/types/gameplay').GameSide;
+  readonly mapPanelWidth: number;
+  readonly supplemental: import('@/hooks/gameplay/useUnitInspectorProjection').IInspectorSupplementalData;
+  /**
+   * The legacy rich `RecordSheetBody` rendered as the friendly-unit
+   * detail surface. The new `TacticalUnitInspector` is used for opponent
+   * units (where its redaction policy matters); friendly units keep the
+   * existing full record-sheet rendering until the drawer-based
+   * decomposition in §2.2 lands. This preserves existing testids
+   * (record-sheet-unit-name, no-unit-selected, heat-tick-*, location-pips-*)
+   * that the addInteractiveCombatCoreUI smoke test asserts on.
+   */
+  readonly friendlyRecordSheet: React.ReactNode;
+}
+
+function DesktopRightTray({
+  selectedUnitId,
+  session,
+  viewerPlayerId,
+  viewerSide,
+  mapPanelWidth,
+  supplemental,
+  friendlyRecordSheet,
+}: DesktopRightTrayProps): React.ReactElement {
+  const { state } = useTacticalShell();
+
+  // Wave 7.0 Gate 4: bind to inspectedUnit first, fall back to selectedUnitId.
+  // NEVER bind to state.activeUnit — that drives the action dock, not the inspector.
+  const inspectedUnitId = state.inspectedUnit ?? selectedUnitId;
+
+  // Determine whether the inspected unit is friendly. Friendly units use
+  // the legacy RecordSheetBody (preserves existing testids + drill-down);
+  // opponent units use the new TacticalUnitInspector (applies opponent
+  // intel redaction per spec).
+  const inspectedUnitSide = inspectedUnitId
+    ? session.currentState.units[inspectedUnitId]?.side
+    : null;
+  const isFriendly = inspectedUnitSide === viewerSide;
+
+  return (
+    <ShellSlot id="right-tray" ownerId="RecordSheetPanel">
+      <div
+        className="flex-1 overflow-auto"
+        style={{ width: `${100 - mapPanelWidth}%` }}
+        data-testid="record-sheet-panel"
+      >
+        {isFriendly || inspectedUnitId === null ? (
+          friendlyRecordSheet
+        ) : (
+          <TacticalUnitInspector
+            inspectedUnitId={inspectedUnitId}
+            session={session}
+            viewerPlayerId={viewerPlayerId}
+            viewerSide={viewerSide}
+            opponentVisibilityScopes={state.opponentVisibilityScopes}
+            supplemental={supplemental}
+          />
+        )}
+      </div>
+    </ShellSlot>
+  );
+}
 
 /**
  * Main gameplay layout with split view.
@@ -491,9 +574,10 @@ export function GameplayLayout({
             </div>
           </ShellSlot>
 
-          {/* Desktop split-view: resize handle + record sheet panel.
-              Hidden below `lg:` (isNarrow) where the drawer takes
-              over. */}
+          {/* Desktop split-view: resize handle + inspector right tray.
+              Hidden below `lg:` (isNarrow) where the mobile drawer takes
+              over. DesktopRightTray is a child component so it can safely
+              call useTacticalShell() from within the shell context tree. */}
           {!isNarrow && (
             <>
               <div
@@ -501,15 +585,21 @@ export function GameplayLayout({
                 onMouseDown={() => setIsDragging(true)}
                 data-testid="resize-handle"
               />
-              <ShellSlot id="right-tray" ownerId="RecordSheetPanel">
-                <div
-                  className="flex-1 overflow-hidden"
-                  style={{ width: `${100 - layout.mapPanelWidth}%` }}
-                  data-testid="record-sheet-panel"
-                >
-                  {recordSheetBody}
-                </div>
-              </ShellSlot>
+              <DesktopRightTray
+                selectedUnitId={selectedUnitId}
+                session={session}
+                viewerPlayerId={localFogPlayerId}
+                viewerSide={playerSide}
+                mapPanelWidth={layout.mapPanelWidth}
+                supplemental={{
+                  pilotNames,
+                  unitWeapons,
+                  maxArmor,
+                  maxStructure,
+                  heatSinks,
+                }}
+                friendlyRecordSheet={recordSheetBody}
+              />
             </>
           )}
         </div>
