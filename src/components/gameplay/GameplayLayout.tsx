@@ -82,6 +82,7 @@ export function GameplayLayout({
   mpLegend,
   interactiveSession,
   playerSide = GameSide.Player,
+  shellMode = 'combat',
   className = '',
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
@@ -372,7 +373,11 @@ export function GameplayLayout({
     // (`e2e/gameplay-layout-slots.spec.ts`) asserts, so the gate stays
     // green through the migration and catches any parallel-hierarchy
     // regression (Council Momus Attack #4).
-    <TacticalCommandShell viewerPlayerId={localFogPlayerId}>
+    <TacticalCommandShell
+      viewerPlayerId={localFogPlayerId}
+      shellMode={shellMode}
+      sessionId={session.id}
+    >
       <div
         className={`flex h-full flex-col bg-gray-100 ${className}`}
         data-testid="gameplay-layout"

@@ -8,6 +8,7 @@ import type {
   IPilotSpaSummary,
   IWeaponStatus,
 } from '@/types/gameplay';
+import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 export interface GameplayLayoutProps {
   /** Game session data */
@@ -59,6 +60,15 @@ export interface GameplayLayoutProps {
   interactiveSession?: InteractiveSession;
   /** Player side controlling this UI (defaults to GameSide.Player). */
   playerSide?: GameSide;
+  /**
+   * Tactical command shell rendering mode (Wave 7.1 PR-C).
+   *
+   * Default 'combat' for live play; pass 'replay' from the replay route,
+   * 'gm' for referee mode. Spectator mode renders through `SpectatorView`,
+   * not this layout. Shell mode flows into `TacticalCommandShell` and
+   * drives mode-aware slot owner selection.
+   */
+  shellMode?: ShellMode;
   /** Optional className for styling */
   className?: string;
 }

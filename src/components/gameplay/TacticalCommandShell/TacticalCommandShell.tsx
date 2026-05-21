@@ -1,32 +1,38 @@
 /**
  * TacticalCommandShell — the React context provider for the Tactical UI shell.
  *
- * Authored in Wave 7.1 PR-B as the runtime substrate that the PR-A slot
- * registry hook plugs into. The shell does NOT change the rendered DOM in
- * PR-B; it provides the registry context that `ShellSlot` consumes to
- * declare slot ownership without forcing layout rewrites. PR-C wires
- * shellMode flag through this context to drive mode-aware rendering.
+ * PR-A introduced the slot registry.
+ * PR-B added the context provider + ShellSlot wrapper.
+ * PR-C (this file) extends the context with mutable shell state, setter API,
+ *   per-match sessionStorage persistence, and shellMode-driven slot filtering.
  *
  * Per the shell spec's "Map-Dominant Visual Priority" requirement, the
  * shell intentionally has NO border chrome of its own — it is a logical
- * container, not a visual one. The hosting layout (currently
- * `GameplayLayout`) owns the visible flex tree; the shell just provides
- * the registry for slot-owner declarations.
+ * container, not a visual one. The hosting layout (`GameplayLayout` for
+ * combat / replay / gm; `SpectatorView` for spectator) owns the visible
+ * flex tree; the shell provides the registry + state for slot owners.
  *
  * @spec openspec/changes/add-tactical-command-shell/specs/tactical-map-interface/spec.md
- * @see openspec/changes/add-tactical-command-shell/tasks.md §2.1, §2.2
+ * @see openspec/changes/add-tactical-command-shell/tasks.md §2.3, §3.1, §3.2
  */
 
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
   type ReactElement,
   type ReactNode,
 } from 'react';
 
-import type {
-  PlayerId,
-  ShellMode,
+import {
+  createDefaultShellState,
+  type ITacticalShellState,
+  type PlayerId,
+  type ShellMode,
 } from '@/types/gameplay/TacticalShellInterfaces';
 
 import {
@@ -35,19 +41,54 @@ import {
 } from './useShellSlotRegistry';
 
 /**
+ * Subset of `ITacticalShellState` fields that survive across page reloads
+ * and route swaps for the same match (per task 2.3 — "persistence scoped
+ * to the current match"). Selected/active/inspected unit references are
+ * session-runtime only and intentionally NOT persisted; they re-derive
+ * from interactive-session state on mount.
+ */
+interface IPersistedShellSlice {
+  leftTrayCollapsed: boolean;
+  rightTrayPinned: boolean;
+  bottomDockActiveTab: string | null;
+}
+
+const PERSISTED_KEYS = [
+  'leftTrayCollapsed',
+  'rightTrayPinned',
+  'bottomDockActiveTab',
+] as const satisfies readonly (keyof IPersistedShellSlice)[];
+
+const STORAGE_KEY_PREFIX = 'tactical-shell:';
+
+function storageKey(sessionId: string): string {
+  return `${STORAGE_KEY_PREFIX}${sessionId}`;
+}
+
+/**
  * Bundle of shell-managed state exposed to consumers via React context.
  *
- * PR-B exposes only the registry and the static `viewerPlayerId` /
- * `shellMode` props. PR-C extends this with mutable shell state (tray
- * collapsed, pinned panels, etc.) once the persistence scope is wired.
+ * Static (set once at mount):
+ *   - registry / viewerPlayerId / shellMode / sessionId
+ *
+ * Mutable (driven by user interaction; persisted slice survives reload):
+ *   - state — current ITacticalShellState
+ *   - updateState — partial-update merge with persistence side-effect
  */
 export interface ITacticalShellContext {
-  /** Shell slot registry; consumers register/unregister slot owners. */
   readonly registry: IShellSlotRegistry;
-  /** Local viewer's player id. Drives intel projection in target inspectors. */
   readonly viewerPlayerId: PlayerId;
-  /** Current shell rendering mode. PR-B always passes 'combat'. */
   readonly shellMode: ShellMode;
+  /** Session id for sessionStorage persistence; null when not match-scoped. */
+  readonly sessionId: string | null;
+  /** Current shell state — the live single source of truth for slot UI. */
+  readonly state: ITacticalShellState;
+  /**
+   * Merge a partial update into shell state. Persisted fields
+   * (leftTrayCollapsed, rightTrayPinned, bottomDockActiveTab) are
+   * written through to `sessionStorage` keyed by `sessionId`.
+   */
+  readonly updateState: (partial: Partial<ITacticalShellState>) => void;
 }
 
 const ShellContext = createContext<ITacticalShellContext | null>(null);
@@ -57,24 +98,146 @@ export interface TacticalCommandShellProps {
   viewerPlayerId: PlayerId;
   /** Shell rendering mode. Defaults to 'combat'. */
   shellMode?: ShellMode;
-  /** Hosting layout subtree (the existing GameplayLayout, today). */
+  /**
+   * Match session id. When provided, persisted tray state is read from
+   * and written to `sessionStorage` keyed by this id (per task 2.3).
+   * Pass `null`/omit for non-match shells (preview, storybook, tests).
+   */
+  sessionId?: string | null;
+  /** Hosting layout subtree. */
   children: ReactNode;
+}
+
+/**
+ * Read persisted tray state for a given session from `sessionStorage`.
+ * Returns null if no persisted state exists, sessionStorage is
+ * unavailable (SSR / private mode), or the stored value is malformed.
+ */
+function readPersistedSlice(
+  sessionId: string | null,
+): IPersistedShellSlice | null {
+  if (!sessionId || typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(storageKey(sessionId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as unknown;
+    if (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      typeof (parsed as Record<string, unknown>).leftTrayCollapsed ===
+        'boolean' &&
+      typeof (parsed as Record<string, unknown>).rightTrayPinned === 'boolean'
+    ) {
+      const obj = parsed as Record<string, unknown>;
+      return {
+        leftTrayCollapsed: obj.leftTrayCollapsed as boolean,
+        rightTrayPinned: obj.rightTrayPinned as boolean,
+        bottomDockActiveTab:
+          typeof obj.bottomDockActiveTab === 'string'
+            ? (obj.bottomDockActiveTab as string)
+            : null,
+      };
+    }
+    return null;
+  } catch {
+    // Corrupt JSON or sessionStorage throw — fall through to defaults.
+    return null;
+  }
+}
+
+function writePersistedSlice(
+  sessionId: string | null,
+  slice: IPersistedShellSlice,
+): void {
+  if (!sessionId || typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(storageKey(sessionId), JSON.stringify(slice));
+  } catch {
+    // sessionStorage can throw on quota exceeded or in restricted
+    // browsing modes. Failing to persist is degradable — the UI keeps
+    // working, just doesn't survive reload.
+  }
 }
 
 /**
  * Provide the tactical command shell context to a layout subtree.
  *
- * Add this AT or NEAR THE ROOT of the gameplay layout — once per match
- * route. Adding it deeper (inside individual sections) defeats the
- * "one primary home" rule because each subtree gets its own registry.
+ * Add this AT or NEAR THE ROOT of the gameplay/spectator layout — once
+ * per match route. Adding it deeper (inside individual sections)
+ * defeats the "one primary home" rule because each subtree gets its
+ * own registry.
  */
 export function TacticalCommandShell({
   viewerPlayerId,
   shellMode = 'combat',
+  sessionId = null,
   children,
 }: TacticalCommandShellProps): ReactElement {
   const registry = useShellSlotRegistry();
-  const value: ITacticalShellContext = { registry, viewerPlayerId, shellMode };
+
+  // Lazy-init: the persistence read runs exactly once per shell mount,
+  // and the resulting state seeds React state. Subsequent updates flow
+  // through `updateState` → setState → useEffect write-through.
+  const [state, setState] = useState<ITacticalShellState>(() => {
+    const base = createDefaultShellState(viewerPlayerId);
+    const persisted = readPersistedSlice(sessionId);
+    if (!persisted) return base;
+    return {
+      ...base,
+      leftTrayCollapsed: persisted.leftTrayCollapsed,
+      rightTrayPinned: persisted.rightTrayPinned,
+      bottomDockActiveTab: persisted.bottomDockActiveTab,
+    };
+  });
+
+  // Track the previous persisted slice so the write-through useEffect
+  // skips writes when nothing in the persistable slice changed (the
+  // unit-reference triple mutates much more often than tray state).
+  const lastPersistedRef = useRef<IPersistedShellSlice>({
+    leftTrayCollapsed: state.leftTrayCollapsed,
+    rightTrayPinned: state.rightTrayPinned,
+    bottomDockActiveTab: state.bottomDockActiveTab,
+  });
+
+  // Persist on change to the slice we care about.
+  useEffect(() => {
+    const slice: IPersistedShellSlice = {
+      leftTrayCollapsed: state.leftTrayCollapsed,
+      rightTrayPinned: state.rightTrayPinned,
+      bottomDockActiveTab: state.bottomDockActiveTab,
+    };
+    const prev = lastPersistedRef.current;
+    const changed = PERSISTED_KEYS.some((k) => slice[k] !== prev[k]);
+    if (!changed) return;
+    lastPersistedRef.current = slice;
+    writePersistedSlice(sessionId, slice);
+  }, [
+    state.leftTrayCollapsed,
+    state.rightTrayPinned,
+    state.bottomDockActiveTab,
+    sessionId,
+  ]);
+
+  const updateState = useCallback((partial: Partial<ITacticalShellState>) => {
+    setState((prev) => ({ ...prev, ...partial }));
+  }, []);
+
+  // Memoize context value so consumers don't churn re-renders when no
+  // shell-relevant prop changed. The state object identity changes on
+  // every updateState call, which IS what we want — that's the
+  // re-render signal for slot owners that subscribe to shell state.
+  const value = useMemo<ITacticalShellContext>(
+    () => ({
+      registry,
+      viewerPlayerId,
+      shellMode,
+      sessionId,
+      state,
+      updateState,
+    }),
+    [registry, viewerPlayerId, shellMode, sessionId, state, updateState],
+  );
+
   return (
     <ShellContext.Provider value={value}>{children}</ShellContext.Provider>
   );

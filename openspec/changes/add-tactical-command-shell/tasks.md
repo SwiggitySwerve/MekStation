@@ -10,12 +10,12 @@
 
 - [x] 2.1 Create a tactical command shell component around the existing map without wrapping the map in a card
 - [x] 2.2 Move phase banner, action panel, minimap, inspector, and event feed into named slots
-- [ ] 2.3 Add pinned/collapsed tray behavior with persistence scoped to the current match
+- [x] 2.3 Add pinned/collapsed tray behavior with persistence scoped to the current match
 
 ## 3. Mode Integration
 
-- [ ] 3.1 Render combat, replay, spectator, and GM/referee shell modes from the same slot contract
-- [ ] 3.2 Disable private commands in spectator mode while preserving public map and feed tools
+- [x] 3.1 Render combat, replay, spectator, and GM/referee shell modes from the same slot contract
+- [x] 3.2 Disable private commands in spectator mode while preserving public map and feed tools
 
 ## 4. Verification
 
