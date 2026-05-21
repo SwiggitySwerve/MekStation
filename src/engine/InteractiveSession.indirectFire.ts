@@ -120,6 +120,11 @@ export function computeIndirectFireContext(
       // Thread pilot SPA list into candidate when caller supplies it.
       // Absent entries leave pilotSpas undefined — no SPA modifier applied.
       pilotSpas: pilotSpasByUnitId?.[unitId],
+      // Thread pilot gunnery into candidate for the spotter-skill modifier.
+      // IUnitGameState.gunnery is optional (seeded at session-creation time from
+      // IGameUnit.gunnery). When absent (synthetic fixtures, legacy saves), the
+      // helper defaults to 4 (MegaMek baseline, modifier = 0).
+      spotterGunnery: unit.gunnery,
     });
   }
 

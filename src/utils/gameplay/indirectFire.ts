@@ -46,6 +46,15 @@ export interface ISpotterCandidate {
    * penalty (the unit still must have walked, not run/jumped, to be eligible).
    */
   readonly pilotSpas?: readonly string[];
+  /**
+   * Gunnery skill of the spotter's pilot. Optional for backward compatibility —
+   * call sites that pre-date PR-K9 leave this undefined, which is treated as
+   * the MegaMek default gunnery of 4 (modifier = 0).
+   *
+   * Per MegaMek ArtilleryWeaponIndirectFireHandler.java L192-194:
+   *   int spotterMod = (spotter.getGunnery() - 4) / 2;  // Java integer division
+   */
+  readonly spotterGunnery?: number;
 }
 
 /** The firing unit's indirect fire context */
@@ -342,7 +351,18 @@ export function resolveIndirectFire(
     // indirect-fire penalty still applies. Run/Jump ineligibility is enforced
     // upstream in isEligibleSpotter — FO does not override that restriction.
     const hasFoSpa = spotter.pilotSpas?.includes('forward_observer') ?? false;
-    const toHitPenalty = spotterWalked && !hasFoSpa ? 2 : 1;
+    const walkedPenalty = spotterWalked && !hasFoSpa ? 1 : 0;
+
+    // Per MegaMek ArtilleryWeaponIndirectFireHandler.java L192-194:
+    //   int spotterMod = (spotter.getGunnery() - 4) / 2;
+    // Java uses integer division which truncates toward zero (NOT floor).
+    // G2 → -1, G3 → 0, G4 → 0, G5 → 0, G6 → +1.
+    // Absent spotterGunnery defaults to 4 (MegaMek default, modifier = 0).
+    const effectiveGunnery = spotter.spotterGunnery ?? 4;
+    const gunneryMod = Math.trunc((effectiveGunnery - 4) / 2);
+
+    // Base +1 indirect-fire penalty + walked penalty + gunnery modifier.
+    const toHitPenalty = 1 + walkedPenalty + gunneryMod;
 
     return {
       permitted: true,
