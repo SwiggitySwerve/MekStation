@@ -4,6 +4,7 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
+import type { IIndirectFireResolution } from '@/types/gameplay/CombatInterfaces';
 import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import {
@@ -57,6 +58,7 @@ import {
   applyInteractiveSessionMovement,
 } from './InteractiveSession.actions';
 import { runInteractiveSessionAITurn } from './InteractiveSession.ai';
+import { computeIndirectFireContext as computeIndirectFireContextImpl } from './InteractiveSession.indirectFire';
 import { finalizeSessionOutcome } from './InteractiveSession.outcome';
 import {
   hydrateSessionFromMatchLog,
@@ -288,6 +290,36 @@ export class InteractiveSession {
       this.session.currentState,
       unitId,
       this.weaponsByUnit,
+    );
+  }
+
+  /**
+   * Per `add-indirect-fire-and-spotter-network` §1 (Engine Integration Contract):
+   * single integration point between the engine and the indirect-fire helper.
+   *
+   * Enumerates `ISpotterCandidate[]` from the current `gameState`, calls the
+   * existing `resolveIndirectFire` helper, and returns an `IIndirectFireResolution`
+   * for the to-hit pipeline to consume before the attack roll resolves.
+   *
+   * @param attackerId - The unit declaring the attack.
+   * @param weaponId   - The weapon slot being fired (used for eligibility check).
+   * @param targetHex  - Hex coordinate of the target.
+   * @returns `IIndirectFireResolution` with `permitted`, `isIndirect`, `spotterId`,
+   *          `basis`, `toHitPenalty`, and optionally `reason`.
+   *
+   * @spec openspec/changes/add-indirect-fire-and-spotter-network/specs/indirect-fire-system/spec.md
+   */
+  computeIndirectFireContext(
+    attackerId: string,
+    weaponId: string,
+    targetHex: IHexCoordinate,
+  ): IIndirectFireResolution {
+    return computeIndirectFireContextImpl(
+      attackerId,
+      weaponId,
+      targetHex,
+      this.session.currentState,
+      this.grid,
     );
   }
 

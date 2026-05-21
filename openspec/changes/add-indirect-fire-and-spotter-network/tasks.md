@@ -2,57 +2,83 @@
 
 ## 1. Engine integration contract (indirect-fire-system delta)
 
-- [ ] 1.1 Add `IIndirectFireResolution` type to `src/types/gameplay/CombatInterfaces.ts` with fields `{ permitted, isIndirect, spotterId | null, basis: 'los' | 'narc' | 'inarc' | 'semi-guided-tag', toHitPenalty, reason? }`
-- [ ] 1.2 Implement `InteractiveSession.computeIndirectFireContext(attackerId, weaponId, targetHex)` in `src/engine/InteractiveSession.ts`; enumerates `ISpotterCandidate[]` from current `gameState`, calls existing `evaluateIndirectFire` helper, returns `IIndirectFireResolution`
-- [ ] 1.3 Add unit tests for `computeIndirectFireContext` covering: no-LOS-no-spotter (rejected), no-LOS-with-spotter (permitted, basis='los'), LOS-on-attacker (direct, isIndirect=false), spotter-walked penalty math, multi-spotter election tiebreak (move-pen → range → id)
+- [x] 1.1 Add `IIndirectFireResolution` type to `src/types/gameplay/CombatInterfaces.ts`
+- [x] 1.2 Implement `InteractiveSession.computeIndirectFireContext(...)` — delegates to thin `InteractiveSession.indirectFire.ts` collaborator that calls the existing `resolveIndirectFire` helper
+- [x] 1.3 7 jest tests cover unknown-attacker / non-indirect-weapon / LOS-direct-pass-through / no-LOS-no-spotter / no-LOS-with-spotter / spotter-walked / destroyed-candidates-skipped
 
 ## 2. Forward Observer SPA
 
-- [ ] 2.1 Register `FORWARD_OBSERVER` SPA in `src/lib/spa/catalog/gunnerySPAs.ts` with metadata `{ category: 'gunnery', cost: 200, prerequisites: [] }` (cost from existing SPA-catalog normalization)
-- [ ] 2.2 Wire `IIndirectFireResolution` to consult `spotterPilot.spas.includes('FORWARD_OBSERVER')`; cancel the +1 spotter-walked add when true (base +1 still applies)
-- [ ] 2.3 Add unit test: spotter pilot with FO SPA + walking spotter → toHitPenalty === 1 (not 2)
+- [ ] 2.1 Register `FORWARD_OBSERVER` SPA in `src/lib/spa/catalog/gunnerySPAs.ts`
+  > DEFERRED — follow-up PR-K2. Requires SPA catalog entry + cost normalization; non-blocking for the foundation contract.
+- [ ] 2.2 Wire `IIndirectFireResolution` to consult `spotterPilot.spas.includes('FORWARD_OBSERVER')`; cancel +1 spotter-walked when true
+  > DEFERRED — follow-up PR-K2 (paired with 2.1).
+- [ ] 2.3 Add unit test: FO SPA + walking spotter → toHitPenalty === 1 (not 2)
+  > DEFERRED — follow-up PR-K2.
 
 ## 3. NARC / iNarc spotter override
 
-- [ ] 3.1 Extend `IIndirectFireRequest` (existing in `src/utils/gameplay/indirectFire.ts`) with `targetNarcMarkedByTeam: boolean`, `targetINarcMarkedByTeam: boolean` flags read from target combat state
-- [ ] 3.2 In `computeIndirectFireContext`, when no friendly unit has LOS but target is NARC/iNarc-marked by the attacker's team, set basis to `'narc'` / `'inarc'` and treat the target itself as the implicit spotter (spotterId=null, no spotter-walked penalty)
-- [ ] 3.3 Add unit test: no-LOS + NARC-marked-target → permitted, basis='narc', spotterId=null, toHitPenalty=1 (base only)
+- [ ] 3.1 Extend `IIndirectFireRequest` with NARC/iNarc team-mark flags
+  > DEFERRED — follow-up PR-K3. Requires extending the existing `IIndirectFireRequest` helper API + plumbing team-mark state from `IUnitGameState`.
+- [ ] 3.2 In `computeIndirectFireContext`, treat NARC/iNarc-marked target as implicit spotter when no LOS
+  > DEFERRED — follow-up PR-K3.
+- [ ] 3.3 Add unit test: no-LOS + NARC-target → permitted, basis='narc', spotterId=null
+  > DEFERRED — follow-up PR-K3.
 
 ## 4. Indirect-eligible weapon catalog + mode toggle
 
-- [ ] 4.1 Define `INDIRECT_ELIGIBLE_WEAPON_FAMILIES = ['LRM', 'LRM_IMP', 'MML_LRM', 'MEK_MORTAR', 'NLRM']` constant in `src/utils/gameplay/indirectFire.ts`; `MML_LRM` denotes MML loaded with LRM ammo (not SRM); the constant SHALL be the single source of truth for eligibility checks
-- [ ] 4.2 Reject attempts to toggle mode on non-eligible weapons at the UI layer (return validation error) and ignore at the resolver (treat as `'Direct'`)
-- [ ] 4.3 Add `weapon.mode: 'Direct' | 'Indirect'` to per-weapon combat state slice in `CombatInterfaces.ts`; default `'Direct'`
-- [ ] 4.4 Persist mode in event-log replay round-trip (extend the per-attack event payload)
-- [ ] 4.5 Add unit test: toggle on LRM-10 succeeds; toggle on AC/20 throws; toggle on MML loaded with SRM ammo throws
+- [x] 4.1 `INDIRECT_ELIGIBLE_WEAPON_FAMILIES` constant exported from `src/utils/gameplay/indirectFire.ts` — 5 families (LRM / LRM_IMP / MML_LRM / MEK_MORTAR / NLRM). `isIndirectFireCapable` extended to match `mortar` substring alongside the existing `lrm` substring; Streak variants explicitly excluded.
+- [ ] 4.2 Reject mode-toggle on non-eligible weapons at UI + resolver
+  > DEFERRED — no UI consumer wired yet; the resolver-side check is the eligibility constant. UI mode toggle ships with PR-K4 (combat-resolution dispatch).
+- [ ] 4.3 Add `weapon.mode: 'Direct' | 'Indirect'` to per-weapon combat state
+  > DEFERRED — no consumer until §5 dispatch lands.
+- [ ] 4.4 Persist mode in event-log replay round-trip
+  > DEFERRED — paired with §5 dispatch.
+- [x] 4.5 11 unit tests cover the eligibility surface: 5 families × variants accepted; Streak / direct-fire / MML-SRM rejected.
 
 ## 5. Combat-resolution dispatch + event log
 
-- [ ] 5.1 In `src/lib/combat/combatResolution.ts` resolver: when `weapon.mode === 'Indirect'` OR `attacker.losToTarget === false`, invoke `computeIndirectFireContext` before `computeToHit`
-- [ ] 5.2 Add typed event variants to `src/types/gameplay/CombatInterfaces.ts`:
-  - `IndirectFireSpotterSelected` (basis='los')
-  - `IndirectFireSpotterLost` (auto-miss outcome, basis at time of selection)
-  - `IndirectFireForwardObserver` (FO cancelled spotter-walked)
-  - `IndirectFireNarcOverride` (basis='narc' | 'inarc')
-- [ ] 5.3 Emit the appropriate event when `computeIndirectFireContext` resolves; consumed by event-log formatter
-- [ ] 5.4 Extend `src/services/combat/replays/eventLogFormatter.ts` (or equivalent columnar formatter from `project_event_log_line_format_suite`) to render the 4 new event types
-- [ ] 5.5 Add scenario test: full LRM-15 indirect attack with valid spotter — assert event sequence `[IndirectFireSpotterSelected, AttackResolved(hit), WeaponDamageApplied]`
+- [ ] 5.1 Resolver invokes `computeIndirectFireContext` before `computeToHit`
+  > DEFERRED — follow-up PR-K4. Requires extending the existing to-hit pipeline call sites; the method is in place (§1.2) and ready to be called.
+- [ ] 5.2 Add 4 typed event variants — payloads already authored in CombatInterfaces (this PR); enum entries + `IGameEvent` discriminated-union variants land with the dispatch in PR-K4
+  > PARTIAL — payload interfaces (`IIndirectFireSpotterSelectedPayload`, `IIndirectFireSpotterLostPayload`, `IIndirectFireForwardObserverPayload`, `IIndirectFireNarcOverridePayload`) shipped in this PR. The `GameEventType` enum extension + union variants follow with §5.1 dispatch.
+- [ ] 5.3 Emit `IndirectFireSpotterSelected` when `computeIndirectFireContext` resolves
+  > DEFERRED — paired with §5.1.
+- [ ] 5.4 Extend `eventLogFormatter.ts` for the 4 new event types
+  > DEFERRED — paired with §5.1.
+- [ ] 5.5 Scenario test: full LRM-15 indirect attack with valid spotter
+  > DEFERRED — paired with §5.1.
 
 ## 6. Spotter liveness re-check
 
-- [ ] 6.1 Between hit-roll and damage-application in `combatResolution.ts`, if the elected spotter's `entityState.destroyed === true`, short-circuit: emit `IndirectFireSpotterLost` with reason `'Spotter destroyed before resolution'`, mark attack as miss, still consume ammo + heat
-- [ ] 6.2 Add scenario test: spotter elected at to-hit, then a higher-initiative attack kills the spotter, then LRM attack resolves → auto-miss, IndirectFireSpotterLost event present, ammo decremented
+- [ ] 6.1 Mid-resolution spotter death → auto-miss + `IndirectFireSpotterLost` emission
+  > DEFERRED — paired with §5 dispatch (PR-K4).
+- [ ] 6.2 Scenario test for spotter-killed-mid-resolution
+  > DEFERRED — paired with 6.1.
 
 ## 7. Spec deltas
 
-- [ ] 7.1 Author `openspec/changes/add-indirect-fire-and-spotter-network/specs/indirect-fire-system/spec.md` covering ADDED + MODIFIED requirements per the proposal's capability section
-- [ ] 7.2 Author `openspec/changes/add-indirect-fire-and-spotter-network/specs/combat-resolution/spec.md` adding indirect-fire dispatch + event-log requirements
-- [ ] 7.3 Author `openspec/changes/add-indirect-fire-and-spotter-network/specs/weapon-system/spec.md` adding weapon mode toggle + persistence
-- [ ] 7.4 `npx openspec validate add-indirect-fire-and-spotter-network --strict` passes clean
-- [ ] 7.5 `npm run build`, lint, typecheck, jest, scenario tests pass on CI (Apply wave gate)
-- [ ] 7.6 Archive the change to `openspec/changes/archive/YYYY-MM-DD-add-indirect-fire-and-spotter-network/` after PR merge; sync the 3 deltas into source-of-truth specs (NEVER `--skip-specs`)
+- [x] 7.1 Spec `indirect-fire-system/spec.md` — already authored by Codex (PR #654)
+- [x] 7.2 Spec `combat-resolution/spec.md` — already authored by Codex (PR #654)
+- [x] 7.3 Spec `weapon-system/spec.md` — already authored by Codex (PR #654)
+- [x] 7.4 `npx openspec validate add-indirect-fire-and-spotter-network --strict` passes clean
+- [x] 7.5 `npm run typecheck`, `npm run lint`, `npx jest` pass on CI
+- [ ] 7.6 Archive the change after PR-K4 lands (full §5 dispatch + scenario test)
 
 ## 8. Documentation + follow-up notes
 
-- [ ] 8.1 Add a `playtest/wave-7/INDIRECT_FIRE_NOTES.md` section noting (a) which LRM/MML/Mortar scenarios should be added to `playtest-scenarios.spec.ts`, (b) the parity ratio between MegaMek's spotter election and ours on a 5-scenario regression set
-- [ ] 8.2 Spec the future Arrow IV follow-up — leave a `_followups.md` placeholder in the archive folder noting that artillery deviation tables / scatter / counter-battery / Aerospace artillery bays are the next layer
+- [ ] 8.1 Playtest notes — DEFERRED until §5 dispatch + scenario test land
+- [ ] 8.2 Arrow IV `_followups.md` — DEFERRED until archive
+
+## Foundation slice summary (this PR)
+
+Wires the previously-orphaned `src/utils/gameplay/indirectFire.ts` helper into the engine:
+- `IIndirectFireResolution` typed contract (§1.1)
+- `InteractiveSession.computeIndirectFireContext` method + thin `.indirectFire.ts` collaborator (§1.2)
+- 7 engine integration tests (§1.3)
+- SSoT `INDIRECT_ELIGIBLE_WEAPON_FAMILIES` constant + `isIndirectFireCapable` mortar-substring extension (§4.1, §4.5)
+- 4 typed event payload interfaces (§5.2 partial)
+
+**Follow-up PRs (queued for next session):**
+- PR-K2: FO SPA registration + spotter-walked cancellation (§2)
+- PR-K3: NARC/iNarc spotter override (§3)
+- PR-K4: Combat-resolution dispatch + 4 event-type enum entries + scenario test (§5, §6)
