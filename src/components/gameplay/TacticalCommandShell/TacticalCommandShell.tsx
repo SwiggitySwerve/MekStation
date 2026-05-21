@@ -235,7 +235,13 @@ export function TacticalCommandShell({
 
   useEffect(() => {
     if (!session) return;
-    const events = session.events;
+    // Some test fixtures and early-mount paths construct a session
+    // without an `events` array. Coerce to [] so the rollover branch
+    // still runs and the walk safely bails. Without this guard the
+    // `events.length` read at the early-return crashes consumers that
+    // wrap the shell with a minimal session (e.g.
+    // `useActivationFocusRequest.test.tsx`).
+    const events = session.events ?? [];
     const currentTurn = session.currentState?.turn ?? null;
 
     // Turn rollover → clear elected spotters.
