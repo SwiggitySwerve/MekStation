@@ -15,31 +15,32 @@
  *        §Per-Type Token Rendering — dispatcher routes to correct renderer
  */
 
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from "react";
 
-import type { TacticalAnimation } from '@/stores/useAnimationQueue';
-import type { IGameEvent, IUnitToken } from '@/types/gameplay';
+import type { TacticalAnimation } from "@/stores/useAnimationQueue";
+import type { IGameEvent, IUnitToken } from "@/types/gameplay";
 
-import { useMovementTween } from '@/components/gameplay/animation/useMovementTween';
-import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
-import { useAnimationQueue } from '@/stores/useAnimationQueue';
-import { MovementType, TokenUnitType } from '@/types/gameplay';
+import { useMovementTween } from "@/components/gameplay/animation/useMovementTween";
+import { hexToPixel } from "@/components/gameplay/HexMapDisplay/renderHelpers";
+import { useTacticalShell } from "@/components/gameplay/TacticalCommandShell";
+import { useAnimationQueue } from "@/stores/useAnimationQueue";
+import { MovementType, TokenUnitType } from "@/types/gameplay";
 
-import { AerospaceToken } from './AerospaceToken';
-import { BattleArmorToken } from './BattleArmorToken';
-import { InfantryToken } from './InfantryToken';
-import { MechToken } from './MechToken';
-import { ProtoMechToken } from './ProtoMechToken';
+import { AerospaceToken } from "./AerospaceToken";
+import { BattleArmorToken } from "./BattleArmorToken";
+import { InfantryToken } from "./InfantryToken";
+import { MechToken } from "./MechToken";
+import { ProtoMechToken } from "./ProtoMechToken";
 import {
   renderFogMarker,
   renderJumpArc,
   TokenVisualEffects,
-} from './UnitTokenForType.effects';
+} from "./UnitTokenForType.effects";
 import {
   projectEvents,
   projectThermalVisualState,
-} from './UnitTokenForType.projectors';
-import { VehicleToken } from './VehicleToken';
+} from "./UnitTokenForType.projectors";
+import { VehicleToken } from "./VehicleToken";
 
 // =============================================================================
 // Props
@@ -72,6 +73,15 @@ export interface UnitTokenForTypeProps {
 }
 
 // =============================================================================
+// Constants
+// =============================================================================
+
+/** Radius of the spotter-ring overlay drawn around units currently elected
+ *  as LOS spotters for indirect fire. Tuned to fit just outside the typical
+ *  token chrome at the standard `HEX_SIZE = 25` rendering scale. */
+const HEX_SPOTTER_RING_RADIUS = 22;
+
+// =============================================================================
 // Dispatcher Component
 // =============================================================================
 
@@ -97,7 +107,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
       movementAnimation?.path && movementAnimation.path.length > 0
         ? movementAnimation.path
         : [
-            token.fogStatus === 'lastKnown' && token.lastKnownPosition
+            token.fogStatus === "lastKnown" && token.lastKnownPosition
               ? token.lastKnownPosition
               : token.position,
           ],
@@ -151,7 +161,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
             onClick(token.unitId);
           }}
           onDoubleClick={handleDoubleClick}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
           data-testid={`unit-token-${token.unitId}`}
         >
           <BattleArmorToken
@@ -166,15 +176,15 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   }
 
   const displayPosition =
-    token.fogStatus === 'lastKnown' && token.lastKnownPosition
+    token.fogStatus === "lastKnown" && token.lastKnownPosition
       ? token.lastKnownPosition
       : token.position;
   const { x, y } = movementAnimation
     ? { x: tween.x, y: tween.y }
     : hexToPixel(displayPosition);
   const fogDisplayFields =
-    token.fogStatus === 'hidden'
-      ? { designation: '?', name: 'Hidden contact' }
+    token.fogStatus === "hidden"
+      ? { designation: "?", name: "Hidden contact" }
       : {};
   // Build the render-time token. The spread preserves `unitType`, but TS
   // can't infer that, so we re-narrow via a generic helper that re-tags the
@@ -188,9 +198,9 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
         position: displayPosition,
       } as IUnitToken);
   const fogOpacity =
-    token.fogStatus === 'hidden'
+    token.fogStatus === "hidden"
       ? 0.45
-      : token.fogStatus === 'lastKnown'
+      : token.fogStatus === "lastKnown"
         ? 0.62
         : 1;
 
@@ -199,15 +209,31 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     onClick(token.unitId);
   };
 
+  // Wave 8 PR-K8 — G1: subscribe to elected-spotter state from the shell
+  // context. When this token's unit is currently spotting for an
+  // indirect-fire attack, render a yellow/amber ring overlay. Cleared
+  // automatically on IndirectFireSpotterLost / turn rollover.
+  const shellSpotters = (() => {
+    try {
+      return useTacticalShell().state.electedSpotters;
+    } catch {
+      // Token may render outside a TacticalCommandShell in storybook /
+      // standalone tests — degrade gracefully (no ring).
+      return [];
+    }
+  })();
+  const isSpotter = shellSpotters.some((s) => s.spotterId === token.unitId);
+
   const wrapperProps = {
     transform: `translate(${x}, ${y}) scale(${tween.scale})`,
     onClick: handleClick,
     onDoubleClick: handleDoubleClick,
-    style: { cursor: 'pointer' as const, opacity: fogOpacity },
-    'data-testid': `unit-token-${token.unitId}`,
-    'data-animating': movementAnimation ? 'true' : undefined,
-    'data-animation-id': movementAnimationId,
-    'data-fog-status': token.fogStatus,
+    style: { cursor: "pointer" as const, opacity: fogOpacity },
+    "data-testid": `unit-token-${token.unitId}`,
+    "data-animating": movementAnimation ? "true" : undefined,
+    "data-animation-id": movementAnimationId,
+    "data-fog-status": token.fogStatus,
+    "data-spotter": isSpotter ? "true" : undefined,
   };
 
   const jumpArc = renderJumpArc(token.unitId, movementAnimation, tween);
@@ -221,6 +247,27 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
           thermalVisualState={thermalVisualState}
         >
           <>
+            {isSpotter && (
+              <circle
+                cx={0}
+                cy={0}
+                r={HEX_SPOTTER_RING_RADIUS}
+                fill="none"
+                stroke="#facc15"
+                strokeWidth={2.5}
+                strokeDasharray="4 3"
+                opacity={0.85}
+                pointerEvents="none"
+                data-testid={`spotter-ring-${token.unitId}`}
+              >
+                <animate
+                  attributeName="opacity"
+                  values="0.85;0.45;0.85"
+                  dur="1.6s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+            )}
             {children}
             {renderFogMarker(token)}
           </>
