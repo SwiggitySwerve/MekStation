@@ -140,6 +140,7 @@ export class GameEngine {
         botPlayer,
         weaponsByUnit,
         gunneryByUnit,
+        this.grid,
       );
       session = resolveAllAttacks(session, diceRoller);
       session = advancePhase(session);

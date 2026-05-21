@@ -52,6 +52,7 @@ import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { toAIUnitState } from './GameEngine.helpers';
+import { computeIndirectFireContext } from './InteractiveSession.indirectFire';
 
 /**
  * Adapt a single-d6 roller into the 2d6 `DiceRoller` shape used by
@@ -230,6 +231,10 @@ export function runAttackPhase(
   botPlayer: BotPlayer,
   weaponsByUnit: Map<string, readonly IWeapon[]>,
   gunneryByUnit: Map<string, number>,
+  // Wave 8 PR-K5: optional grid for indirect-fire LOS + spotter election.
+  // When omitted, the bot's attack-phase loop behaves identically to its
+  // pre-K5 contract — no indirect-fire dispatch.
+  grid?: IHexGrid,
 ): IGameSession {
   // Per `wire-bot-ai-helpers-and-capstone`: re-evaluate retreat — a
   // unit might have crossed the threshold from damage taken during
@@ -274,6 +279,32 @@ export function runAttackPhase(
         unitId,
       );
 
+      // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid
+      // available. Pick the FIRST weapon whose resolution is
+      // permitted+isIndirect (LRM volleys share a single spotter
+      // election per declaration).
+      let indirectFireResolution:
+        | import('@/types/gameplay/CombatInterfaces').IIndirectFireResolution
+        | undefined;
+      const targetUnit =
+        updatedSession.currentState.units[atkEvt.payload.targetId];
+      const targetHex = targetUnit?.position;
+      if (grid && targetHex && targetUnit) {
+        for (const weaponId of atkEvt.payload.weapons) {
+          const result = computeIndirectFireContext(
+            unitId,
+            weaponId,
+            targetHex,
+            updatedSession.currentState,
+            grid,
+          );
+          if (result.permitted && result.isIndirect) {
+            indirectFireResolution = result;
+            break;
+          }
+        }
+      }
+
       // Arc is computed inside resolveAttack at resolve time.
       updatedSession = declareAttack(
         updatedSession,
@@ -282,6 +313,8 @@ export function runAttackPhase(
         weaponAttacks,
         3,
         RangeBracket.Short,
+        indirectFireResolution,
+        targetHex,
       );
     }
     updatedSession = lockAttack(updatedSession, unitId);

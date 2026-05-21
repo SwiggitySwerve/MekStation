@@ -350,12 +350,18 @@ export class InteractiveSession {
     weaponIds: readonly string[],
   ): void {
     // Declare-then-lock logic lives in `InteractiveSession.actions`.
+    // Wave 8 PR-K5: pass the grid + target hex so the action layer can
+    // pre-compute the indirect-fire resolution and thread it into
+    // `declareAttack` (engine path established by PR-K + PR-K4).
+    const targetUnit = this.session.currentState.units[targetId];
     this.session = applyInteractiveSessionAttack({
       session: this.session,
       weaponsByUnit: this.weaponsByUnit,
       attackerId,
       targetId,
       weaponIds,
+      grid: this.grid,
+      targetHex: targetUnit?.position,
     });
     this.tryFinalizeAndPublish();
   }
