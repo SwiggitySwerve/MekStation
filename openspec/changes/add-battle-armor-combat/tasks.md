@@ -2,18 +2,18 @@
 
 ## 1. BA squad combat state (formalize existing minimal shape)
 
-- [ ] 1.1 Define `IBASquadCombatState` in `src/types/gameplay/CombatInterfaces.ts` with fields `{ troopers: ITrooperState[], swarmingUnitId?: string, swarmedByUnitIds: string[], mountedOn?: string, mimeticActiveThisTurn: boolean, stealthActiveThisTurn: boolean }`. `ITrooperState` = `{ index, alive, armorRemaining, equipmentDestroyed: string[] }`
-- [ ] 1.2 Provide a helper `getNumberActiveTroopers(state)` returning `state.troopers.filter(t => t.alive).length`
-- [ ] 1.3 Provide helpers `isDmgLight(state)` / `isDmgModerate(state)` per the existing MegaMek thresholds (`< 0.9` and `< 0.75` of squad size respectively)
-- [ ] 1.4 Unit-test initial state population, dead-trooper-retention, helper thresholds
+- [x] 1.1 Define `IBASquadCombatState` in `src/types/gameplay/CombatInterfaces.ts` with fields `{ troopers: ITrooperState[], swarmingUnitId?: string, swarmedByUnitIds: string[], mountedOn?: string, mimeticActiveThisTurn: boolean, stealthActiveThisTurn: boolean }`. `ITrooperState` = `{ index, alive, armorRemaining, equipmentDestroyed: string[] }`
+- [x] 1.2 Provide a helper `getNumberActiveTroopers(state)` returning `state.troopers.filter(t => t.alive).length`
+- [x] 1.3 Provide helpers `isDmgLight(state)` / `isDmgModerate(state)` per the existing MegaMek thresholds (`< 0.9` and `< 0.75` of squad size respectively)
+- [x] 1.4 Unit-test initial state population, dead-trooper-retention, helper thresholds
 
 ## 2. Squad damage allocation
 
-- [ ] 2.1 Implement `allocateSquadDamage(squad: IBASquadCombatState, totalDamage: number, rng: IDiceRoller, options: { tacOpsCritSlots: boolean })` in `src/lib/combat/baCombat.ts`. Returns `{ allocations: { trooperIndex, damage, criticalHit }[], events: BACombatEvent[] }`
-- [ ] 2.2 For each damage point: roll d6, re-roll if the resulting trooper is dead, apply damage to that trooper's armor
-- [ ] 2.3 If `tacOpsCritSlots && previousRollLocation === currentRollLocation && !isAttackingConvInfantry` → flag `criticalHit: true`
-- [ ] 2.4 When a trooper's armor drops to 0, mark `alive: false` and emit `BATrooperKilled`
-- [ ] 2.5 Unit-test: 4 damage on a full squad distributes 4 troopers; 4 damage with one dead trooper distributes among the 3 alive
+- [x] 2.1 Implement `allocateSquadDamage(squad: IBASquadCombatState, totalDamage: number, rng: IDiceRoller, options: { tacOpsCritSlots: boolean })` in `src/lib/combat/baCombat.ts`. Returns `{ allocations: { trooperIndex, damage, criticalHit }[], events: BACombatEvent[] }`
+- [x] 2.2 For each damage point: roll d6, re-roll if the resulting trooper is dead, apply damage to that trooper's armor
+- [x] 2.3 If `tacOpsCritSlots && previousRollLocation === currentRollLocation && !isAttackingConvInfantry` → flag `criticalHit: true`
+- [x] 2.4 When a trooper's armor drops to 0, mark `alive: false` and emit `BATrooperKilled`
+- [x] 2.5 Unit-test: 4 damage on a full squad distributes 4 troopers; 4 damage with one dead trooper distributes among the 3 alive
 
 ## 3. Swarm attack — to-hit + state machine
 
@@ -97,3 +97,18 @@
 - [ ] 12.1 Add a `playtest/wave-7/BA_COMBAT_NOTES.md` section: scenarios to add to `playtest-scenarios.spec.ts` (BA-swarm-vs-Locust, BA-leg-vs-Atlas, anti-personnel-fire-vs-half-dead-squad)
 - [ ] 12.2 Spec the future BA-transport follow-up — `add-ba-transport-rules` covering magnetic clamp mount/dismount, mechanized-chassis capacity, host-damage-triggered dismount. Note in `_followups.md` placeholder in archive folder
 - [ ] 12.3 Note BA stealth / mimetic to-hit modifiers as a separate Wave-8 follow-up (`add-ba-stealth-modifiers`)
+
+## PR-L Foundation Slice Status (2026-05-21)
+
+**Completed in PR-L (this PR):** §1 tasks 1.1–1.4, §2 tasks 2.1–2.5, BACombatEvent union scaffolding (7 variants, payload interfaces only — no GameEventType enum extension).
+
+**Deferred to PR-L2:** §3 Swarm attack to-hit + state machine, §4 Swarm fire while attached.
+
+**Deferred to PR-L3:** §5 Mounted-trooper adapter (`getTrooperAtLocation`), §6 Leg attack.
+
+**Deferred to PR-L4:** §7 Vibroclaw / brush-off / dislodge, §8 Squad fire reduction effect on outgoing fire.
+
+**Notes:**
+- `BACombatEvent.BATrooperKilled.squadId` is populated with `squad.swarmingUnitId ?? ''` in the damage allocator. PR-L2 callers should supply the actual squad unit ID via the squad context they already hold.
+- Existing `IBattleArmorCombatState` in `BattleArmorCombatInterfaces.ts` (from `add-battlearmor-combat-behavior`) is NOT removed — the two shapes co-exist. Consolidation is a follow-up.
+- `D6Roller` (from `src/utils/gameplay/diceTypes.ts`) is used as the `rng` parameter type — the spec's `IDiceRoller` maps to this existing abstraction.
