@@ -23,13 +23,13 @@ import React from 'react';
 
 import type { GameSide } from '@/types/gameplay';
 import type { IGameSession } from '@/types/gameplay';
-import type { IWeaponStatus } from '@/types/gameplay';
 import type { IInspectorProjection } from '@/types/gameplay/TacticalInspectorInterfaces';
 import type {
   OpponentIntelTier,
   PlayerId,
 } from '@/types/gameplay/TacticalShellInterfaces';
 
+import { useElectedSpotters } from '@/components/gameplay/TacticalCommandShell';
 import {
   useUnitInspectorProjection,
   type IInspectorSupplementalData,
@@ -84,6 +84,19 @@ function FriendlyView({
       ? 'text-amber-600'
       : 'text-gray-700';
 
+  // Wave 8 PR-K8 — G1: render a "Spotting for: {attackerId}" badge when
+  // the inspected unit is currently an elected LOS spotter. Pulls from
+  // the shell context's electedSpotters list (populated by event
+  // subscription in TacticalCommandShell). Only shown for friendly
+  // inspectors — opponent unit's spotting role for ITS team is hidden
+  // from the player by the fog-of-war contract.
+  // useElectedSpotters returns [] when no TacticalCommandShell is in the
+  // ancestry — inspector degrades to no-badge in standalone test contexts.
+  const shellSpotters = useElectedSpotters();
+  const spotterEntry = shellSpotters.find(
+    (s) => s.spotterId === projection.unitId,
+  );
+
   return (
     <div className="flex flex-col gap-2 p-3" data-testid="inspector-friendly">
       {/* Header */}
@@ -97,6 +110,14 @@ function FriendlyView({
         <div className="text-xs text-gray-500" data-testid="inspector-chassis">
           {projection.chassis}
         </div>
+        {spotterEntry && (
+          <div
+            className="mt-1 inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800"
+            data-testid="inspector-spotting-badge"
+          >
+            Spotting for: {spotterEntry.attackerId}
+          </div>
+        )}
       </div>
 
       {/* Pilot */}

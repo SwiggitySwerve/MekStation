@@ -22,6 +22,7 @@ import type { IGameEvent, IUnitToken } from '@/types/gameplay';
 
 import { useMovementTween } from '@/components/gameplay/animation/useMovementTween';
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
+import { useElectedSpotters } from '@/components/gameplay/TacticalCommandShell';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { MovementType, TokenUnitType } from '@/types/gameplay';
 
@@ -70,6 +71,15 @@ export interface UnitTokenForTypeProps {
    */
   allTokens?: readonly IUnitToken[];
 }
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+/** Radius of the spotter-ring overlay drawn around units currently elected
+ *  as LOS spotters for indirect fire. Tuned to fit just outside the typical
+ *  token chrome at the standard `HEX_SIZE = 25` rendering scale. */
+const HEX_SPOTTER_RING_RADIUS = 22;
 
 // =============================================================================
 // Dispatcher Component
@@ -135,6 +145,18 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     e.stopPropagation();
     onDoubleClick(token.unitId);
   };
+
+  // Wave 8 PR-K8 — G1: subscribe to elected-spotter state from the shell
+  // context. When this token's unit is currently spotting for an
+  // indirect-fire attack, render a yellow/amber ring overlay. Cleared
+  // automatically on IndirectFireSpotterLost / turn rollover.
+  //
+  // Hook MUST be called BEFORE the conditional BA-mounted early return
+  // below so React's rules-of-hooks ordering invariant is preserved.
+  // `useElectedSpotters` returns [] when no TacticalCommandShell is in
+  // the ancestry — token degrades to no-ring in storybook / standalone.
+  const shellSpotters = useElectedSpotters();
+  const isSpotter = shellSpotters.some((s) => s.spotterId === token.unitId);
 
   // BA mounted on a mech: render as a badge overlaid on the host mech token,
   // not as a standalone token at its own hex position.
@@ -208,6 +230,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     'data-animating': movementAnimation ? 'true' : undefined,
     'data-animation-id': movementAnimationId,
     'data-fog-status': token.fogStatus,
+    'data-spotter': isSpotter ? 'true' : undefined,
   };
 
   const jumpArc = renderJumpArc(token.unitId, movementAnimation, tween);
@@ -221,6 +244,27 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
           thermalVisualState={thermalVisualState}
         >
           <>
+            {isSpotter && (
+              <circle
+                cx={0}
+                cy={0}
+                r={HEX_SPOTTER_RING_RADIUS}
+                fill="none"
+                stroke="#facc15"
+                strokeWidth={2.5}
+                strokeDasharray="4 3"
+                opacity={0.85}
+                pointerEvents="none"
+                data-testid={`spotter-ring-${token.unitId}`}
+              >
+                <animate
+                  attributeName="opacity"
+                  values="0.85;0.45;0.85"
+                  dur="1.6s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+            )}
             {children}
             {renderFogMarker(token)}
           </>

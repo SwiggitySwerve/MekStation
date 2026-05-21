@@ -114,6 +114,20 @@ export interface IShellActiveContext {
 }
 
 /**
+ * A single elected spotter entry tracked by the shell for indirect-fire
+ * visual feedback.
+ *
+ * Carrying both `spotterId` and `attackerId` allows the inspector badge to
+ * display "Spotting for: {attackerDesignation}" without a secondary lookup.
+ */
+export interface IElectedSpotter {
+  /** The unit acting as spotter (elected via IndirectFireSpotterSelected). */
+  readonly spotterId: UnitId;
+  /** The unit whose LRM/indirect attack this spotter supports. */
+  readonly attackerId: UnitId;
+}
+
+/**
  * Typed state contract for the tactical command shell.
  *
  * MUST distinguish three independent unit references (Wave 7.0 gate 4 —
@@ -133,6 +147,12 @@ export interface IShellActiveContext {
  *   - `opponentVisibilityScopes`   per-opponent intel tier; redaction
  *                                  happens in the data adapter, NEVER in
  *                                  CSS visibility (see `OpponentIntelTier`)
+ *
+ * `electedSpotters` tracks units currently acting as LOS spotters for
+ * in-flight indirect-fire attacks (Wave 8 PR-K8 — G1). Entries are added on
+ * `IndirectFireSpotterSelected` events, removed on `IndirectFireSpotterLost`,
+ * and cleared entirely at turn rollover. Cleared at turn boundary so stale
+ * spotter rings don't persist into the next turn.
  */
 export interface ITacticalShellState {
   /** Current shell rendering mode. */
@@ -156,6 +176,15 @@ export interface ITacticalShellState {
   readonly opponentVisibilityScopes: Readonly<
     Record<PlayerId, OpponentIntelTier>
   >;
+
+  /**
+   * Units currently elected as LOS spotters for in-flight indirect-fire
+   * attacks. Cleared at turn rollover so stale rings don't persist.
+   *
+   * Carrying `attackerId` alongside `spotterId` avoids a secondary lookup
+   * in the unit inspector badge ("Spotting for: {attacker}").
+   */
+  readonly electedSpotters: readonly IElectedSpotter[];
 }
 
 /**
@@ -180,6 +209,7 @@ export function createDefaultShellState(
     inspectedUnit: null,
     viewerPlayerId,
     opponentVisibilityScopes: {},
+    electedSpotters: [],
   };
 }
 
