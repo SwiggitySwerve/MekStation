@@ -82,12 +82,11 @@ function buildLRMAttack(): readonly IWeaponAttack[] {
       weaponName: 'LRM-15',
       damage: 9,
       heat: 5,
-      category: 'missile' as never,
       minRange: 6,
       shortRange: 7,
       mediumRange: 14,
       longRange: 21,
-    } as IWeaponAttack,
+    } as unknown as IWeaponAttack,
   ];
 }
 
