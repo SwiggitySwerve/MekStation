@@ -95,4 +95,9 @@ export const GUNNERY_SPAS: readonly ISPADefinition[] = [
     isOriginOnly: true,
     xpCost: 40,
   }),
+  // Forward Observer is registered in `miscAndInfantrySPAs.ts` under
+  // the `support` category — that's the MegaMek source-category match
+  // (`MISC_FORWARD_OBSERVER`). PR-K2's spotter-walked cancellation
+  // reads the same `forward_observer` id from `pilotSpas` regardless
+  // of source category.
 ];

@@ -38,12 +38,18 @@ import { calculateLOS } from '@/utils/gameplay/lineOfSight';
  *  3. When the attacker has LOS, return a direct-fire pass-through
  *     (permitted=true, isIndirect=false, toHitPenalty=0).
  *  4. Build `ISpotterCandidate[]` from every operational, friendly,
- *     non-attacker unit in the current game state.
+ *     non-attacker unit in the current game state. When `pilotSpasByUnitId`
+ *     is supplied, the matching SPA list is threaded into each candidate so
+ *     the helper can apply FO (Forward Observer) and future SPA cancellations.
  *  5. Delegate to `resolveIndirectFire` and map the result to
  *     `IIndirectFireResolution`.
  *
  * This function is a pure collaborator — it reads from `gameState` and
  * `grid` but never mutates them.
+ *
+ * @param pilotSpasByUnitId - Optional map of unit-id → canonical SPA id list.
+ *   Callers (e.g. the attack resolver) can supply this when pilot data is
+ *   already in scope. Units absent from the map receive no SPA modifiers.
  */
 export function computeIndirectFireContext(
   attackerId: string,
@@ -51,6 +57,7 @@ export function computeIndirectFireContext(
   targetHex: IHexCoordinate,
   gameState: IGameState,
   grid: IHexGrid,
+  pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>,
 ): IIndirectFireResolution {
   const attackerUnit = gameState.units[attackerId];
   if (!attackerUnit) {
@@ -101,6 +108,9 @@ export function computeIndirectFireContext(
       position: unit.position,
       movementType: unit.movementThisTurn,
       isOperational: !unit.destroyed && !unit.shutdown,
+      // Thread pilot SPA list into candidate when caller supplies it.
+      // Absent entries leave pilotSpas undefined — no SPA modifier applied.
+      pilotSpas: pilotSpasByUnitId?.[unitId],
     });
   }
 

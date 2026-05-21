@@ -38,6 +38,14 @@ export interface ISpotterCandidate {
   readonly movementType: MovementType;
   /** Whether the unit is operational (not destroyed/shutdown) */
   readonly isOperational: boolean;
+  /**
+   * Canonical SPA IDs owned by the pilot of this spotter unit. Optional for
+   * backward compatibility — existing call sites that do not supply pilot data
+   * leave this undefined and receive no SPA-driven modifier cancellations.
+   * When present, the `FORWARD_OBSERVER` id cancels the +1 spotter-walked
+   * penalty (the unit still must have walked, not run/jumped, to be eligible).
+   */
+  readonly pilotSpas?: readonly string[];
 }
 
 /** The firing unit's indirect fire context */
@@ -305,7 +313,11 @@ export function resolveIndirectFire(
 
   const { spotter, losResult } = spotterResult;
   const spotterWalked = spotter.movementType === MovementType.Walk;
-  const toHitPenalty = spotterWalked ? 2 : 1;
+  // Forward Observer SPA cancels the +1 spotter-walked add. The base +1
+  // indirect-fire penalty still applies. Run/Jump ineligibility is enforced
+  // upstream in isEligibleSpotter — FO does not override that restriction.
+  const hasFoSpa = spotter.pilotSpas?.includes('forward_observer') ?? false;
+  const toHitPenalty = spotterWalked && !hasFoSpa ? 2 : 1;
 
   return {
     permitted: true,

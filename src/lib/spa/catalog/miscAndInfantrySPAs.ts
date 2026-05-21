@@ -26,7 +26,8 @@ export const MISC_SPAS: readonly ISPADefinition[] = [
   support({
     id: 'forward_observer',
     displayName: 'Forward Observer',
-    description: '-2 artillery fire adjustment, -1 gunnery when spotting.',
+    description:
+      '-2 artillery fire adjustment, -1 gunnery when spotting. Indirect-fire spotting: cancels the +1 spotter-walked modifier regardless of movement type (base +1 indirect penalty still applies). Mirrors MegaMek MISC_FORWARD_OBSERVER.',
     pipelines: ['to-hit'],
   }),
   support({
