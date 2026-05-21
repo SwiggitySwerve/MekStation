@@ -1,0 +1,119 @@
+/**
+ * Physical attack command family — punch, kick, charge, DFA, club.
+ *
+ * Physical attacks resolve as single irreversible actions (unlike a
+ * multi-weapon volley). All variants set `requiresConfirmation: true`
+ * because a charge or DFA can self-damage and a player must opt in.
+ *
+ * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md
+ * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
+ */
+
+import { GamePhase, type ITacticalCommand } from "@/types/gameplay";
+
+export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
+  return [
+    PhysicalPunchCommand,
+    PhysicalKickCommand,
+    PhysicalChargeCommand,
+    PhysicalDeathFromAboveCommand,
+    PhysicalClubCommand,
+  ];
+}
+
+function requireActiveAndTarget(ctx: {
+  activeUnitId: string | null;
+  canAct: boolean;
+  targetUnitId: string | null;
+}): { available: true } | { available: false; reason: string } {
+  if (!ctx.activeUnitId)
+    return { available: false, reason: "No unit is active." };
+  if (!ctx.canAct) return { available: false, reason: "Not your turn." };
+  if (!ctx.targetUnitId) {
+    return { available: false, reason: "Select an enemy target first." };
+  }
+  return { available: true };
+}
+
+const PhysicalPunchCommand: ITacticalCommand = {
+  id: "physical.punch",
+  category: "physical",
+  label: "Punch",
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: "physical-attack", payload: { attackType: "punch" } };
+  },
+};
+
+const PhysicalKickCommand: ITacticalCommand = {
+  id: "physical.kick",
+  category: "physical",
+  label: "Kick",
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: "physical-attack", payload: { attackType: "kick" } };
+  },
+};
+
+const PhysicalChargeCommand: ITacticalCommand = {
+  id: "physical.charge",
+  category: "physical",
+  label: "Charge",
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: "physical-attack", payload: { attackType: "charge" } };
+  },
+};
+
+const PhysicalDeathFromAboveCommand: ITacticalCommand = {
+  id: "physical.dfa",
+  category: "physical",
+  label: "Death From Above",
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability(ctx) {
+    const base = requireActiveAndTarget(ctx);
+    if (!base.available) return base;
+    // DFA requires jump-jet capacity. Until the context carries unit
+    // capabilities, the engine refuses non-jumping units. Wave 7.3+
+    // upgrades this to a `disabledReason: "No jump jets equipped."`
+    return { available: true };
+  },
+  commit() {
+    return { actionId: "physical-attack", payload: { attackType: "dfa" } };
+  },
+};
+
+const PhysicalClubCommand: ITacticalCommand = {
+  id: "physical.club",
+  category: "physical",
+  label: "Club",
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability(ctx) {
+    const base = requireActiveAndTarget(ctx);
+    if (!base.available) return base;
+    // Club requires a held weapon (hatchet, sword, mace, etc).
+    // Engine refuses the commit until that lands in context.
+    return { available: true };
+  },
+  commit() {
+    return { actionId: "physical-attack", payload: { attackType: "hatchet" } };
+  },
+};
