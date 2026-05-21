@@ -15,6 +15,7 @@ import React, {
 
 import { pixelToHex } from '@/constants/hexMap';
 import { hexTerrainFromGrid } from '@/engine/GameEngine.helpers';
+import { usePhaseQueueProjection } from '@/hooks/gameplay';
 import { useCameraControls } from '@/hooks/useCameraControls';
 import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
@@ -49,9 +50,9 @@ import {
 } from './GameplayLayout.viewModel';
 import { HexMapDisplay } from './HexMapDisplay';
 import { MoraleIndicator } from './MoraleIndicator';
-import { PhaseBanner } from './PhaseBanner';
 import { TacticalActionDock } from './TacticalActionDock';
 import { ShellSlot, TacticalCommandShell } from './TacticalCommandShell';
+import { TacticalTurnRail } from './TacticalTurnRail';
 
 export type { GameplayLayoutProps } from './GameplayLayout.types';
 
@@ -94,6 +95,13 @@ export function GameplayLayout({
   // red ring (distinct from the static validTarget ring painted on
   // every fireable enemy).
   const activeTargetId = useGameplaySelector((s) => s.attackPlan.targetUnitId);
+
+  // Wave 7.2 PR-E: phase queue projection drives the TacticalTurnRail.
+  // The projection is a derived view of session state — it never writes
+  // back. Rail clicks call `onUnitSelect` (sets `selectedUnit` only),
+  // honoring the Wave 7.0 Gate 4 decoupling: rail selection ≠ active
+  // unit, which the engine owns exclusively.
+  const phaseQueueProjection = usePhaseQueueProjection();
   const [layout, setLayout] = useState<ILayoutConfig>(DEFAULT_LAYOUT_CONFIG);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -387,12 +395,21 @@ export function GameplayLayout({
             only below the `lg:` breakpoint (§ 1.3). Above that the
             record sheet is always visible and the toggle is
             unnecessary. */}
-        <ShellSlot id="top-band" ownerId="PhaseBanner">
-          <PhaseBanner
-            phase={currentState.phase}
+        {/* Wave 7.2 PR-E: TacticalTurnRail replaces PhaseBanner as the
+            top-band owner. Rail surfaces phase + round + initiative-
+            ordered unit tokens with skipped/completed/destroyed/withdrawn
+            visual states. Wave 7.0 Gate 4 invariant: `onUnitSelect` sets
+            `selectedUnit` only — never `activeUnit` (engine-owned). */}
+        <ShellSlot id="top-band" ownerId="TacticalTurnRail">
+          <TacticalTurnRail
+            projection={phaseQueueProjection}
+            gameUnits={units}
+            unitStates={currentState.units}
+            shellMode={shellMode}
             turn={currentState.turn}
-            activeSide={currentState.firstMover || GameSide.Player}
-            isPlayerTurn={isPlayerTurn}
+            phase={currentState.phase}
+            selectedUnitId={selectedUnitId}
+            onUnitSelect={onUnitSelect}
             drawer={
               isNarrow
                 ? {
