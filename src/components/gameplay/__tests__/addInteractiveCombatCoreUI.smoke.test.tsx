@@ -109,12 +109,17 @@ describe('12.1 Token selection swaps record sheet', () => {
       />,
     );
 
-    const header2 = screen.getByTestId('record-sheet-unit-name');
+    // Wave 7.2 PR-F: opponent units now route through TacticalUnitInspector
+    // (applies opponent intel redaction per spec) instead of the legacy
+    // RecordSheetBody. At the default 'rough' visibility tier the chassis
+    // name is still visible (silhouette-level recognition); the precise
+    // heat / armor / structure numerics are hidden until 'exact' tier.
+    const header2 = screen.getByTestId('inspector-unit-name');
     expect(header2).toHaveTextContent(/Hunchback/i);
 
-    // Side badge must also swap from Player (blue) → Opponent (red).
-    const badge = screen.getByTestId('record-sheet-side-badge');
-    expect(badge.dataset.side).toBe('opponent');
+    // Inspector exposes the opponent target view (kind === 'target')
+    // rather than the friendly record sheet.
+    expect(screen.getByTestId('inspector-target')).toBeTruthy();
   });
 
   it('shows the placeholder when no unit is selected', () => {
