@@ -84,6 +84,34 @@ export type UIBehaviorPersisted = z.infer<typeof UIBehaviorPersistedSchema>;
 // mekstation-customizer-settings  (useCustomizerSettingsStore — partialized)
 // =============================================================================
 
+// =============================================================================
+// tactical-settings:v1  (useTacticalSettingsStore)
+// =============================================================================
+
+/**
+ * Persisted shape of `useTacticalSettingsStore`.
+ *
+ * All fields are optional so payloads written before a new field was added are
+ * accepted and merged with defaults rather than discarded entirely.
+ */
+export const TacticalSettingsPersistedSchema = z.object({
+  minimapSize: z.enum(['small', 'medium', 'large']).optional(),
+  tooltipDelay: z.number().int().min(0).max(5000).optional(),
+  panelDensity: z.enum(['compact', 'standard', 'comfortable']).optional(),
+  autoCycleActiveUnit: z.boolean().optional(),
+  quickMovement: z.boolean().optional(),
+  quickCombat: z.boolean().optional(),
+  reducedMotion: z.boolean().optional(),
+  highContrast: z.boolean().optional(),
+});
+export type TacticalSettingsPersisted = z.infer<
+  typeof TacticalSettingsPersistedSchema
+>;
+
+// =============================================================================
+// mekstation-customizer-settings  (useCustomizerSettingsStore — partialized)
+// =============================================================================
+
 /** Persisted shape of `useCustomizerSettingsStore` — the `partialize` subset. */
 export const CustomizerSettingsPersistedSchema = z.object({
   armorDiagramMode: z.enum(['schematic', 'silhouette']),
