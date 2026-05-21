@@ -87,6 +87,12 @@ export enum GameEventType {
   AttackResolved = 'attack_resolved',
   DamageApplied = 'damage_applied',
 
+  // Indirect-fire events (Wave 8 PR-K4)
+  IndirectFireSpotterSelected = 'indirect_fire_spotter_selected',
+  IndirectFireSpotterLost = 'indirect_fire_spotter_lost',
+  IndirectFireForwardObserver = 'indirect_fire_forward_observer',
+  IndirectFireNarcOverride = 'indirect_fire_narc_override',
+
   // Status events
   HeatGenerated = 'heat_generated',
   HeatDissipated = 'heat_dissipated',
