@@ -37,6 +37,12 @@ export {
   groupCommandsByCategory,
 } from "./useCommandRegistry";
 
+export {
+  useCommandPreview,
+  buildCommandPreview,
+  type ICommandPreviewInputs,
+} from "./useCommandPreview";
+
 export { buildMovementCommands } from "./commands/movementCommands";
 export { buildFacingCommands } from "./commands/facingCommands";
 export { buildWeaponAttackCommands } from "./commands/weaponAttackCommands";
