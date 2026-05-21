@@ -11,28 +11,28 @@ import React, {
   useMemo,
   useRef,
   useEffect,
-} from 'react';
+} from "react";
 
-import { pixelToHex } from '@/constants/hexMap';
-import { hexTerrainFromGrid } from '@/engine/GameEngine.helpers';
-import { usePhaseQueueProjection } from '@/hooks/gameplay';
-import { useCameraControls } from '@/hooks/useCameraControls';
-import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
-import { useAnimationQueue } from '@/stores/useAnimationQueue';
-import { useGameplaySelector } from '@/stores/useGameplayStore';
+import { pixelToHex } from "@/constants/hexMap";
+import { hexTerrainFromGrid } from "@/engine/GameEngine.helpers";
+import { usePhaseQueueProjection } from "@/hooks/gameplay";
+import { useCameraControls } from "@/hooks/useCameraControls";
+import { useGameplayHotkeys } from "@/hooks/useGameplayHotkeys";
+import { useAnimationQueue } from "@/stores/useAnimationQueue";
+import { useGameplaySelector } from "@/stores/useGameplayStore";
 import {
   GameSide,
   ILayoutConfig,
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
-} from '@/types/gameplay';
-import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
+} from "@/types/gameplay";
+import { filterEventsForMovementAnimations } from "@/utils/gameplay/movement/eventLogSync";
 
-import type { GameplayLayoutProps } from './GameplayLayout.types';
-import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
+import type { GameplayLayoutProps } from "./GameplayLayout.types";
+import type { MapInteractionState } from "./HexMapDisplay/useMapInteraction";
 
-import { ActionBar } from './ActionBar';
-import { EventLogDisplay } from './EventLogDisplay';
+import { ActionBar } from "./ActionBar";
+import { EventLogDisplay } from "./EventLogDisplay";
 import {
   HitChancePanel,
   MapOverlayChildren,
@@ -41,20 +41,79 @@ import {
   RecordSheetDrawer,
   useResponsiveRecordSheet,
   WithdrawalTrailingActions,
-} from './GameplayLayout.sections';
+} from "./GameplayLayout.sections";
 import {
   buildEventActorLookup,
   buildEventWeaponLookup,
   buildGameplayTokens,
   buildUnitInfoLookup,
-} from './GameplayLayout.viewModel';
-import { HexMapDisplay } from './HexMapDisplay';
-import { MoraleIndicator } from './MoraleIndicator';
-import { TacticalActionDock } from './TacticalActionDock';
-import { ShellSlot, TacticalCommandShell } from './TacticalCommandShell';
-import { TacticalTurnRail } from './TacticalTurnRail';
+} from "./GameplayLayout.viewModel";
+import { HexMapDisplay } from "./HexMapDisplay";
+import { MoraleIndicator } from "./MoraleIndicator";
+import { TacticalActionDock } from "./TacticalActionDock";
+import {
+  ShellSlot,
+  TacticalCommandShell,
+  useTacticalShell,
+} from "./TacticalCommandShell";
+import { TacticalTurnRail } from "./TacticalTurnRail";
+import { TacticalUnitInspector } from "./TacticalUnitInspector";
 
-export type { GameplayLayoutProps } from './GameplayLayout.types';
+export type { GameplayLayoutProps } from "./GameplayLayout.types";
+
+// =============================================================================
+// DesktopRightTray — inner component that reads inspector state from shell
+// context and renders the right-tray slot.
+//
+// Must be a SEPARATE component (not inlined in GameplayLayout) because
+// GameplayLayout is the TacticalCommandShell provider — calling
+// useTacticalShell() at its scope level would throw "must be called inside
+// a <TacticalCommandShell>". As a child rendered inside the shell tree,
+// DesktopRightTray is within context.
+// =============================================================================
+
+interface DesktopRightTrayProps {
+  readonly selectedUnitId: string | null;
+  readonly session: import("@/types/gameplay").IGameSession;
+  readonly viewerPlayerId: string;
+  readonly viewerSide: import("@/types/gameplay").GameSide;
+  readonly mapPanelWidth: number;
+  readonly supplemental: import("@/hooks/gameplay/useUnitInspectorProjection").IInspectorSupplementalData;
+}
+
+function DesktopRightTray({
+  selectedUnitId,
+  session,
+  viewerPlayerId,
+  viewerSide,
+  mapPanelWidth,
+  supplemental,
+}: DesktopRightTrayProps): React.ReactElement {
+  const { state } = useTacticalShell();
+
+  // Wave 7.0 Gate 4: bind to inspectedUnit first, fall back to selectedUnitId.
+  // NEVER bind to state.activeUnit — that drives the action dock, not the inspector.
+  const inspectedUnitId = state.inspectedUnit ?? selectedUnitId;
+
+  return (
+    <ShellSlot id="right-tray" ownerId="RecordSheetPanel">
+      <div
+        className="flex-1 overflow-auto"
+        style={{ width: `${100 - mapPanelWidth}%` }}
+        data-testid="record-sheet-panel"
+      >
+        <TacticalUnitInspector
+          inspectedUnitId={inspectedUnitId}
+          session={session}
+          viewerPlayerId={viewerPlayerId}
+          viewerSide={viewerSide}
+          opponentVisibilityScopes={state.opponentVisibilityScopes}
+          supplemental={supplemental}
+        />
+      </div>
+    </ShellSlot>
+  );
+}
 
 /**
  * Main gameplay layout with split view.
@@ -84,8 +143,8 @@ export function GameplayLayout({
   mpLegend,
   interactiveSession,
   playerSide = GameSide.Player,
-  shellMode = 'combat',
-  className = '',
+  shellMode = "combat",
+  className = "",
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
   const activeAnimations = useAnimationQueue((s) => s.active);
@@ -247,11 +306,11 @@ export function GameplayLayout({
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
       return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
       };
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
@@ -447,7 +506,7 @@ export function GameplayLayout({
           <ShellSlot id="map-center" ownerId="HexMapDisplay">
             <div
               className="relative"
-              style={{ width: isNarrow ? '100%' : `${layout.mapPanelWidth}%` }}
+              style={{ width: isNarrow ? "100%" : `${layout.mapPanelWidth}%` }}
               data-testid="map-panel"
             >
               <HexMapDisplay
@@ -491,9 +550,10 @@ export function GameplayLayout({
             </div>
           </ShellSlot>
 
-          {/* Desktop split-view: resize handle + record sheet panel.
-              Hidden below `lg:` (isNarrow) where the drawer takes
-              over. */}
+          {/* Desktop split-view: resize handle + inspector right tray.
+              Hidden below `lg:` (isNarrow) where the mobile drawer takes
+              over. DesktopRightTray is a child component so it can safely
+              call useTacticalShell() from within the shell context tree. */}
           {!isNarrow && (
             <>
               <div
@@ -501,15 +561,20 @@ export function GameplayLayout({
                 onMouseDown={() => setIsDragging(true)}
                 data-testid="resize-handle"
               />
-              <ShellSlot id="right-tray" ownerId="RecordSheetPanel">
-                <div
-                  className="flex-1 overflow-hidden"
-                  style={{ width: `${100 - layout.mapPanelWidth}%` }}
-                  data-testid="record-sheet-panel"
-                >
-                  {recordSheetBody}
-                </div>
-              </ShellSlot>
+              <DesktopRightTray
+                selectedUnitId={selectedUnitId}
+                session={session}
+                viewerPlayerId={localFogPlayerId}
+                viewerSide={playerSide}
+                mapPanelWidth={layout.mapPanelWidth}
+                supplemental={{
+                  pilotNames,
+                  unitWeapons,
+                  maxArmor,
+                  maxStructure,
+                  heatSinks,
+                }}
+              />
             </>
           )}
         </div>
