@@ -222,4 +222,91 @@ describe('computeIndirectFireContext', () => {
     // Should pick s1 (alive); s2 is excluded as a candidate.
     expect(result.spotterId).toBe('s1');
   });
+
+  // -------------------------------------------------------------------------
+  // §3 NARC/iNarc override wired through collaborator
+  // -------------------------------------------------------------------------
+  it('wires NARC override through collaborator: no spotter + NARC-marked target → permitted, basis=narc', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    // Target unit with narcMarkedByTeams carrying the attacker's side.
+    const targetUnit = makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 });
+    (
+      targetUnit as unknown as { narcMarkedByTeams: string[] }
+    ).narcMarkedByTeams = [GameSide.Player as string];
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, targetUnit]),
+      makeBlockedGrid(),
+      undefined,
+      't1', // targetEntityId supplied so collaborator reads the narc flags
+    );
+
+    expect(result.permitted).toBe(true);
+    expect(result.isIndirect).toBe(true);
+    expect(result.basis).toBe('narc');
+    expect(result.spotterId).toBeNull(); // no human spotter
+    expect(result.toHitPenalty).toBe(1); // base only
+  });
+
+  it('wires iNarc override through collaborator: no spotter + iNarc-marked target → permitted, basis=inarc', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const targetUnit = makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 });
+    (
+      targetUnit as unknown as { iNarcMarkedByTeams: string[] }
+    ).iNarcMarkedByTeams = [GameSide.Player as string];
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, targetUnit]),
+      makeBlockedGrid(),
+      undefined,
+      't1',
+    );
+
+    expect(result.permitted).toBe(true);
+    expect(result.basis).toBe('inarc');
+    expect(result.spotterId).toBeNull();
+    expect(result.toHitPenalty).toBe(1);
+  });
+
+  it('rejects when NARC-marked by enemy team (arrays present but wrong team)', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const targetUnit = makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 });
+    // Marked by enemy team only — attacker's team is not in the array.
+    (
+      targetUnit as unknown as { narcMarkedByTeams: string[] }
+    ).narcMarkedByTeams = [GameSide.Opponent as string];
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, targetUnit]),
+      makeBlockedGrid(),
+      undefined,
+      't1',
+    );
+
+    expect(result.permitted).toBe(false);
+  });
+
+  it('falls back gracefully when targetEntityId is absent (no NARC override)', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    // No targetEntityId supplied — NARC flags default to false, no spotter → rejected.
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker]),
+      makeBlockedGrid(),
+      // pilotSpasByUnitId and targetEntityId both absent
+    );
+
+    expect(result.permitted).toBe(false);
+  });
 });
