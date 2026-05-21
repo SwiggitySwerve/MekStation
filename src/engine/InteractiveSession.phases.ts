@@ -22,6 +22,10 @@ import {
   type IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
+  resolveSwarmFireForAttachedSquads,
+  type IResolveSwarmFireOptions,
+} from '@/utils/gameplay/battlearmor/swarmFireResolver';
+import {
   advancePhase,
   checkAndQueueDamagePSRs,
   lockAttack,
@@ -60,6 +64,22 @@ export interface IInteractiveSessionPhaseContext {
   readonly waterDepthAt: (position: IHexCoordinate) => number;
   /** Win-condition predicate — gates the End-phase advance. */
   readonly isGameOver: () => boolean;
+  /**
+   * PR-L2 §3: per-turn swarm-fire trigger.  When present, the End-phase
+   * advance iterates every BA squad currently attached via its older
+   * `IBattleArmorCombatState.swarmingUnitId` pointer, computes per-tick
+   * swarm damage via `calculateSwarmDamage`, and appends one `SwarmDamage`
+   * event per attached squad with non-zero damage.  When `undefined`
+   * (legacy callers, tests that do not exercise swarm fire), the End-phase
+   * skips the trigger entirely — no event-stream pollution.
+   *
+   * `getSquadDef` returns swarm-eligible weapons + flags for the squad;
+   * `getHostLocationLabel` (optional) picks the location label for the
+   * emitted event.
+   *
+   * @spec openspec/changes/add-battle-armor-combat/specs/battle-armor-combat/spec.md
+   */
+  readonly swarmFireOptions?: IResolveSwarmFireOptions;
 }
 
 /**
@@ -191,6 +211,18 @@ export function advanceInteractiveSessionPhase(
     // every unit. Failures invoke `applyFall` (→ `UnitFell` +
     // `PilotHit`) and clear the remaining queue on that unit.
     session = resolvePendingPSRs(session, context.diceRollerForResolvers());
+    // PR-L2 §3: BA swarm-fire-while-attached.  Every BA squad currently
+    // attached to a host mek fires its swarm-eligible weapons once at
+    // the host.  No-op when the context did not supply
+    // `swarmFireOptions` (legacy callers + non-BA tests).  Runs BEFORE
+    // the morale pass so the swarm-damage event is in the log when
+    // morale evaluates the turn's combat outcomes.
+    if (context.swarmFireOptions) {
+      session = resolveSwarmFireForAttachedSquads(
+        session,
+        context.swarmFireOptions,
+      );
+    }
     // Per `add-combat-morale-and-withdrawal`: the End-phase morale +
     // forced-withdrawal pass runs before the game-over guard so a
     // forced withdrawal that empties the board is reflected in the

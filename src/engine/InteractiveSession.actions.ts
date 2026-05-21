@@ -18,6 +18,10 @@ import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
+  calculateSwarmDamage,
+  type IBASwarmFireSquadDef,
+} from '@/lib/combat/baCombat';
+import {
   Facing,
   MovementType,
   RangeBracket,
@@ -25,12 +29,14 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import { createSwarmDamageEvent } from '@/utils/gameplay/gameEvents/battleArmor';
 import {
   declareAttack,
   declareMovement,
   lockAttack,
   lockMovement,
 } from '@/utils/gameplay/gameSession';
+import { appendEvent } from '@/utils/gameplay/gameSession';
 import {
   buildMovementEventPath,
   maxMovementCostForCapability,
@@ -180,4 +186,89 @@ export function applyInteractiveSessionAttack(
   );
   session = lockAttack(session, input.attackerId);
   return session;
+}
+
+// =============================================================================
+// PR-L2 §3 — Swarm-fire-while-attached action handler
+// =============================================================================
+
+/**
+ * Inputs for `applyInteractiveSessionSwarmFire` — fires a BA squad's non-missile
+ * non-body-mounted weapons at the host mek it is currently swarm-attached to,
+ * auto-hitting (no to-hit roll) per TacticalOperations swarm-fire rules.
+ *
+ * The caller is responsible for:
+ *   1. Confirming the swarm is in fact attached (the action does not re-validate).
+ *   2. Building `squadDef.weapons` filtered down to swarm-eligible weapons
+ *      (non-missile, non-body-mounted, non-InfantryAttack).  The dispatch
+ *      layer that does this filtering lives in PR-L3; this action handler
+ *      trusts its caller's filter.
+ *   3. Computing `hostLocation` per the mounted-trooper-adapter mapping
+ *      established by PR-L §5.1 (RT-front->1, LT-front->2, RT-rear->3,
+ *      LT-rear->4, CT-front->6, CT-rear->5).  The action does not pick a
+ *      location; it just stamps whatever the caller chose into the event.
+ *
+ * @spec openspec/changes/add-battle-armor-combat/specs/battle-armor-combat/spec.md
+ *   (Requirement: Swarm Fire While Attached)
+ */
+export interface IApplySwarmFireInput {
+  readonly session: IGameSession;
+  /** Attacker (BA squad) unit id. */
+  readonly squadId: string;
+  /** Host (mek) unit id being swarmed. */
+  readonly hostUnitId: string;
+  /** Squad combat state (new IBASquadCombatState shape). */
+  readonly squad: import('@/types/gameplay').IBASquadCombatState;
+  /** Pre-filtered swarm-eligible weapons + vibroclaw / myomer flags. */
+  readonly squadDef: IBASwarmFireSquadDef;
+  /**
+   * Host location label to stamp on the SwarmDamage event.  Caller picks
+   * this via the PR-L mounted-trooper adapter — front-trooper slots resolve
+   * to front locations; rear-trooper slots to rear locations.
+   */
+  readonly hostLocationLabel: string;
+}
+
+/**
+ * Resolve one tick of swarm fire from `squadId` against `hostUnitId`.
+ *
+ * Computes damage via `calculateSwarmDamage` and appends a single
+ * `SwarmDamage` event (using the established `createSwarmDamageEvent`
+ * factory from the prior `add-battlearmor-combat-behavior` change — its
+ * `unitId / targetUnitId / damage / locationLabel` shape exactly matches
+ * what this action needs).
+ *
+ * Returns the original session unchanged when:
+ *   - the attacking squad is destroyed (0 active troopers; damage = 0),
+ *   - OR the host or squad units cannot be found in `session.currentState`.
+ *
+ * Otherwise returns the session with one new `SwarmDamage` event appended.
+ * The action handler is intentionally side-effect-free beyond appending
+ * the event; damage application to the host mek's armor pipeline lives
+ * downstream (PR-L3 wires the dispatch layer that consumes this event).
+ */
+export function applyInteractiveSessionSwarmFire(
+  input: IApplySwarmFireInput,
+): IGameSession {
+  const attackerUnit = input.session.currentState.units[input.squadId];
+  const hostUnit = input.session.currentState.units[input.hostUnitId];
+  if (!attackerUnit || !hostUnit) return input.session;
+
+  const damage = calculateSwarmDamage(input.squad, input.squadDef);
+  if (damage <= 0) return input.session;
+
+  const sequence = input.session.events.length;
+  const { turn, phase } = input.session.currentState;
+  const event = createSwarmDamageEvent(
+    input.session.id,
+    sequence,
+    turn,
+    phase,
+    input.squadId,
+    input.hostUnitId,
+    damage,
+    input.hostLocationLabel,
+  );
+
+  return appendEvent(input.session, event);
 }
