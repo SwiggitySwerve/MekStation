@@ -1,10 +1,10 @@
+import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type {
   IIndirectFireForwardObserverPayload,
   IIndirectFireNarcOverridePayload,
   IIndirectFireSpotterLostPayload,
   IIndirectFireSpotterSelectedPayload,
-} from '@/types/gameplay/CombatInterfaces';
-import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
+} from '@/types/gameplay/IndirectFireInterfaces';
 
 import {
   GameEventType,

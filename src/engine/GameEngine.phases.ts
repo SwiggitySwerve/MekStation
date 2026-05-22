@@ -284,7 +284,7 @@ export function runAttackPhase(
       // permitted+isIndirect (LRM volleys share a single spotter
       // election per declaration).
       let indirectFireResolution:
-        | import('@/types/gameplay/CombatInterfaces').IIndirectFireResolution
+        | import('@/types/gameplay/IndirectFireInterfaces').IIndirectFireResolution
         | undefined;
       const targetUnit =
         updatedSession.currentState.units[atkEvt.payload.targetId];

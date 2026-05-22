@@ -155,7 +155,7 @@ export function applyInteractiveSessionAttack(
 
   // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid available.
   let indirectFireResolution:
-    | import('@/types/gameplay/CombatInterfaces').IIndirectFireResolution
+    | import('@/types/gameplay/IndirectFireInterfaces').IIndirectFireResolution
     | undefined;
   let resolvedTargetHex = input.targetHex;
   if (input.grid) {

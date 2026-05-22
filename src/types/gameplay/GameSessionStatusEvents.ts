@@ -14,14 +14,6 @@ import type {
   ISwarmDismountedPayload,
   ITrooperKilledPayload,
 } from './BattleArmorCombatInterfaces';
-// Wave 8 PR-K4: indirect-fire dispatch events. Payloads ship in
-// `CombatInterfaces.ts` (PR-K) — wired into the GameEventPayload union here.
-import type {
-  IIndirectFireForwardObserverPayload,
-  IIndirectFireNarcOverridePayload,
-  IIndirectFireSpotterLostPayload,
-  IIndirectFireSpotterSelectedPayload,
-} from './CombatInterfaces';
 import type {
   IAttackDeclaredPayload,
   IAttackInvalidPayload,
@@ -65,6 +57,14 @@ import type {
   IObjectiveLostPayload,
   IObjectiveProgressPayload,
 } from './GameSessionObjectiveEvents';
+// Wave 8 PR-K4: indirect-fire dispatch events. Payloads extracted to
+// IndirectFireInterfaces.ts (PR-types-split G9).
+import type {
+  IIndirectFireForwardObserverPayload,
+  IIndirectFireNarcOverridePayload,
+  IIndirectFireSpotterLostPayload,
+  IIndirectFireSpotterSelectedPayload,
+} from './IndirectFireInterfaces';
 
 export interface IShutdownCheckPayload {
   readonly unitId: string;

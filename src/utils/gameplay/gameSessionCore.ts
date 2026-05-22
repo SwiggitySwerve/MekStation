@@ -391,7 +391,7 @@ export function declareAttack(
    * is emitted immediately after `AttackDeclared`. When undefined, the
    * function behaves identically to its pre-PR-K4 contract.
    */
-  indirectFireResolution?: import('@/types/gameplay/CombatInterfaces').IIndirectFireResolution,
+  indirectFireResolution?: import('@/types/gameplay/IndirectFireInterfaces').IIndirectFireResolution,
   /**
    * Optional target hex carried on the indirect-fire event payloads.
    * Defaults to the live target unit position when omitted.
