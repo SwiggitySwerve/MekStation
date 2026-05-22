@@ -11,6 +11,7 @@
 
 import type {
   ILegAttackPayload,
+  ILegAttackResolvedPayload,
   IMimeticBonusPayload,
   ISquadEliminatedPayload,
   IStealthBonusPayload,
@@ -263,6 +264,51 @@ export function createStealthBonusEvent(
       gameId,
       sequence,
       GameEventType.StealthBonus,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+/**
+ * Emitted for every PR-L3 BA leg-attack resolution (Mek or Vehicle target),
+ * carrying the resolved hit / damage / hitLocation / critModifier shape.
+ *
+ * Distinct from `createLegAttackEvent` (which serves the older
+ * `add-battlearmor-combat-behavior` 2d6-vs-TN flow) so both event streams
+ * co-exist during the IBASquadCombatState migration.
+ *
+ * @spec openspec/changes/add-battle-armor-combat/specs/battle-armor-combat/spec.md
+ *   (Requirement: Leg Attack)
+ */
+export function createLegAttackResolvedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  targetUnitId: string,
+  hit: boolean,
+  damage: number,
+  hitLocation: string,
+  critModifier: number,
+  survivingTroopers: number,
+): IGameEvent {
+  const payload: ILegAttackResolvedPayload = {
+    unitId,
+    targetUnitId,
+    hit,
+    damage,
+    hitLocation,
+    critModifier,
+    survivingTroopers,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.LegAttackResolved,
       turn,
       phase,
       unitId,

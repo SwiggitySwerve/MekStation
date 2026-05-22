@@ -5,6 +5,7 @@
 
 import type {
   ILegAttackPayload,
+  ILegAttackResolvedPayload,
   IMimeticBonusPayload,
   ISquadEliminatedPayload,
   IStealthBonusPayload,
@@ -443,6 +444,7 @@ export type GameEventPayload =
   | ISwarmDamagePayload
   | ISwarmDismountedPayload
   | ILegAttackPayload
+  | ILegAttackResolvedPayload
   | IMimeticBonusPayload
   | IStealthBonusPayload
   | IObjectiveCapturedPayload
