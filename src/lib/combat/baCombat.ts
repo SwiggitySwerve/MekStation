@@ -314,3 +314,86 @@ export function calculateSwarmDamage(
 
   return weaponSum + vibroclawBonus + myomerBonus;
 }
+// =============================================================================
+// §5 — Leg-attack damage formula (PR-L3)
+// =============================================================================
+
+/**
+ * Squad-level loadout fields required by the leg-attack damage formula.
+ * Kept narrow on purpose: this struct represents what `calculateLegAttackDamage`
+ * actually reads, not the full BA squad definition (which lives in
+ * `IBattleArmorUnit`). Callers extract these from the canonical squad data.
+ *
+ * Distinct from `IBASwarmFireSquadDef`:
+ *   - swarm fire trusts a caller-pre-filtered weapon list and scales
+ *     per-weapon damage by surviving troopers;
+ *   - leg attack has NO per-weapon damage component — it deals a flat
+ *     base of 4 plus the squad's vibroclaw count plus an optional myomer
+ *     booster bonus that scales with active troopers.
+ */
+export interface IBALegAttackSquadDef {
+  /**
+   * Squad-level vibroclaw count. Each vibroclaw adds one flat point of
+   * damage to the leg-attack total (matches the spec formula
+   * `4 + vibroClaws + ...`). Typical loadouts: 0, 1, 2, or 4 for a
+   * 4-trooper squad where every trooper carries a single vibroclaw.
+   */
+  readonly vibroClaws: number;
+  /**
+   * True when the squad has a Myomer Booster AND it is currently active
+   * (booster active = not destroyed and powered on this turn). Adds
+   * `activeTroopers × 2` to total damage when true (matches the spec
+   * formula `(myomerBooster ? activeTroopers × 2 : 0)`).
+   */
+  readonly myomerBoosterActive: boolean;
+}
+
+/**
+ * Pure leg-attack damage formula for a BA squad performing an anti-mech
+ * (or anti-vehicle) leg attack.
+ *
+ * Formula (per `add-battle-armor-combat` Requirement: Leg Attack):
+ *
+ * ```
+ * total = 4
+ *       + squadDef.vibroClaws
+ *       + (squadDef.myomerBoosterActive ? activeTroopers × 2 : 0)
+ * ```
+ *
+ * Returns 0 when no troopers are alive (a destroyed squad cannot perform
+ * the attack at all — the base-4 component is gated on having at least
+ * one surviving trooper, matching the swarm-fire `0 troopers → 0 damage`
+ * contract).
+ *
+ * Spec canonical numbers:
+ *   - 4 troopers, no equipment                     → 4   (4 + 0 + 0)
+ *   - +1 squad vibroclaw                           → 5   (4 + 1 + 0)
+ *   - +4 squad vibroclaws (one per trooper)        → 8   (4 + 4 + 0)
+ *   - +myomer booster active, 4 troopers           → 12  (4 + 0 + 8)
+ *   - +4 vibroclaws + myomer + 4 troopers          → 16  (4 + 4 + 8)
+ *   - 0 active troopers                            → 0
+ *
+ * @spec openspec/changes/add-battle-armor-combat/specs/battle-armor-combat/spec.md
+ *   (Requirement: Leg Attack)
+ */
+export function calculateLegAttackDamage(
+  squad: IBASquadCombatState,
+  squadDef: IBALegAttackSquadDef,
+): number {
+  const activeTroopers = getNumberActiveTroopers(squad);
+  if (activeTroopers === 0) return 0;
+
+  // Base damage component — flat 4 per the spec, only when the squad has at
+  // least one surviving trooper to perform the attack.
+  const baseDamage = 4;
+
+  // Vibroclaw bonus — each squad-level vibroclaw adds one flat point.
+  // Spec: "+ vibroClaws" — a count, not multiplied by troopers.
+  const vibroclawBonus = squadDef.vibroClaws > 0 ? squadDef.vibroClaws : 0;
+
+  // Myomer Booster bonus — `activeTroopers × 2` when active.
+  // Spec: "(myomerBooster ? activeTroopers × 2 : 0)".
+  const myomerBonus = squadDef.myomerBoosterActive ? activeTroopers * 2 : 0;
+
+  return baseDamage + vibroclawBonus + myomerBonus;
+}
