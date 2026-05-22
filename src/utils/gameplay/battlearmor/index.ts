@@ -18,3 +18,4 @@ export * from './swarm';
 export * from './vibroClaw';
 export * from './stealth';
 export * from './swarmFireResolver';
+export * from './legAttackResolver';
