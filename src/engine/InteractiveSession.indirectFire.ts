@@ -14,12 +14,12 @@
  * @spec openspec/changes/add-indirect-fire-and-spotter-network/specs/indirect-fire-system/spec.md
  */
 
-import type { IIndirectFireResolution } from '@/types/gameplay/CombatInterfaces';
 import type { IGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
 } from '@/types/gameplay/HexGridInterfaces';
+import type { IIndirectFireResolution } from '@/types/gameplay/IndirectFireInterfaces';
 
 import {
   resolveIndirectFire,
