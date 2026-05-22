@@ -22,9 +22,17 @@ import type { IBALegAttackSquadDef } from '@/lib/combat/baCombat';
 import type { IBASquadCombatState } from '@/types/gameplay';
 import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
-import { Facing } from '@/types/gameplay/HexGridInterfaces';
-
+import { EngineType } from '@/types/construction/EngineType';
 import {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
+import { Facing } from '@/types/gameplay/HexGridInterfaces';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+
+import { createVehicleCombatState } from '../../vehicleDamage';
+import {
+  applyVehicleLegAttackCrit,
   LEG_ATTACK_HARDENED_CRIT_MODIFIER,
   LEG_ATTACK_HUMAN_TRO_MEK_CRIT_MODIFIER,
   MEK_LEFT_LEG_LABEL,
@@ -227,8 +235,8 @@ describe('resolveVehicleLegAttack — vehicleFiringArc wiring (G5 orphan-rot clo
     const result = resolveVehicleLegAttack({
       squad: makeSquad(4),
       squadDef: makeSquadDef(),
-      attackerPos: { q: 0, r: -2, s: 2 },
-      targetPos: { q: 0, r: 0, s: 0 },
+      attackerPos: { q: 0, r: -2 },
+      targetPos: { q: 0, r: 0 },
       targetFacing: Facing.North,
     });
     expect(result.hit).toBe(true);
@@ -241,8 +249,8 @@ describe('resolveVehicleLegAttack — vehicleFiringArc wiring (G5 orphan-rot clo
     const result = resolveVehicleLegAttack({
       squad: makeSquad(4),
       squadDef: makeSquadDef(),
-      attackerPos: { q: 0, r: 2, s: -2 },
-      targetPos: { q: 0, r: 0, s: 0 },
+      attackerPos: { q: 0, r: 2 },
+      targetPos: { q: 0, r: 0 },
       targetFacing: Facing.North,
     });
     expect(result.hitLocation).toBe('rear');
@@ -252,8 +260,8 @@ describe('resolveVehicleLegAttack — vehicleFiringArc wiring (G5 orphan-rot clo
     const result = resolveVehicleLegAttack({
       squad: makeSquad(4),
       squadDef: makeSquadDef({ vibroClaws: 4 }),
-      attackerPos: { q: 0, r: 0, s: 0 },
-      targetPos: { q: 0, r: 0, s: 0 },
+      attackerPos: { q: 0, r: 0 },
+      targetPos: { q: 0, r: 0 },
       targetFacing: Facing.North,
     });
     expect(result.hit).toBe(true);
@@ -265,8 +273,8 @@ describe('resolveVehicleLegAttack — vehicleFiringArc wiring (G5 orphan-rot clo
     const result = resolveVehicleLegAttack({
       squad: makeSquad(4),
       squadDef: makeSquadDef({ myomerBoosterActive: true }),
-      attackerPos: { q: 2, r: 0, s: -2 },
-      targetPos: { q: 0, r: 0, s: 0 },
+      attackerPos: { q: 2, r: 0 },
+      targetPos: { q: 0, r: 0 },
       targetFacing: Facing.North,
     });
     expect(result.hit).toBe(true);
@@ -279,8 +287,8 @@ describe('resolveVehicleLegAttack — vehicleFiringArc wiring (G5 orphan-rot clo
     const result = resolveVehicleLegAttack({
       squad: makeSquad(4),
       squadDef: makeSquadDef(),
-      attackerPos: { q: 0, r: -1, s: 1 },
-      targetPos: { q: 0, r: 0, s: 0 },
+      attackerPos: { q: 0, r: -1 },
+      targetPos: { q: 0, r: 0 },
       targetFacing: Facing.North,
       hardenedArmor: true,
     });
@@ -293,8 +301,8 @@ describe('resolveVehicleLegAttack — vehicleFiringArc wiring (G5 orphan-rot clo
     const result = resolveVehicleLegAttack({
       squad: makeSquad(4),
       squadDef: makeSquadDef(),
-      attackerPos: { q: -2, r: 1, s: 1 },
-      targetPos: { q: 0, r: 0, s: 0 },
+      attackerPos: { q: -2, r: 1 },
+      targetPos: { q: 0, r: 0 },
       targetFacing: Facing.North,
     });
     // The exact arc depends on `determineArc` boundary rules; either left
@@ -335,5 +343,109 @@ describe('resolveMekLegAttack — damage formula integration', () => {
     });
     // 4 (base) + 4 (vibroclaws) + 4 * 2 (myomer) = 16
     expect(result.damage).toBe(16);
+  });
+});
+describe('applyVehicleLegAttackCrit — vehicleCriticalHitResolution wiring (G6 orphan-rot closed)', () => {
+  function makeVehicleState() {
+    return createVehicleCombatState({
+      unitId: 'tank-leg',
+      motionType: GroundMotionType.TRACKED,
+      originalCruiseMP: 4,
+      armor: {
+        [VehicleLocation.FRONT]: 10,
+      } as Partial<Record<VehicleLocation | VTOLLocation, number>>,
+      structure: {
+        [VehicleLocation.FRONT]: 5,
+      } as Partial<Record<VehicleLocation | VTOLLocation, number>>,
+    });
+  }
+
+  it('FIRST PRODUCTION CALLER: no modifier + roll 7 (3+4) → weapon_destroyed crit', () => {
+    const vehicleState = makeVehicleState();
+    const result = applyVehicleLegAttackCrit({
+      vehicleState,
+      engineType: EngineType.ICE,
+      hasAmmoInSlot: false,
+      critModifier: 0,
+      diceRoller: scriptedRoller([3, 4]),
+    });
+    expect(result.applied.kind).toBe('weapon_destroyed');
+    expect(result.state.destroyed).toBe(false);
+  });
+
+  it('Hardened (-2) shifts 7 → 5 → no crit', () => {
+    const vehicleState = makeVehicleState();
+    const result = applyVehicleLegAttackCrit({
+      vehicleState,
+      engineType: EngineType.ICE,
+      hasAmmoInSlot: false,
+      critModifier: -2,
+      diceRoller: scriptedRoller([3, 4]),
+    });
+    expect(result.applied.kind).toBe('none');
+  });
+
+  it('HUMAN_TRO_MEK (+1) shifts 11 → 12 → ammo_explosion when ammo present', () => {
+    const vehicleState = makeVehicleState();
+    const result = applyVehicleLegAttackCrit({
+      vehicleState,
+      engineType: EngineType.ICE,
+      hasAmmoInSlot: true,
+      critModifier: 1,
+      diceRoller: scriptedRoller([5, 6]),
+    });
+    expect(result.applied.kind).toBe('ammo_explosion');
+    expect(result.ammoExplosion).toBe(true);
+    expect(result.state.destroyed).toBe(true);
+  });
+
+  it('modifier clamps to 12 max (HUMAN_TRO_MEK + already-12 roll stays 12)', () => {
+    const vehicleState = makeVehicleState();
+    const result = applyVehicleLegAttackCrit({
+      vehicleState,
+      engineType: EngineType.ICE,
+      hasAmmoInSlot: true,
+      critModifier: 1,
+      diceRoller: scriptedRoller([6, 6]),
+    });
+    expect(result.applied.kind).toBe('ammo_explosion');
+  });
+
+  it('modifier clamps to 2 min (Hardened + already-2 roll stays 2)', () => {
+    const vehicleState = makeVehicleState();
+    const result = applyVehicleLegAttackCrit({
+      vehicleState,
+      engineType: EngineType.ICE,
+      hasAmmoInSlot: false,
+      critModifier: -2,
+      diceRoller: scriptedRoller([1, 1]),
+    });
+    expect(result.applied.kind).toBe('none');
+  });
+
+  it('engine-hit applies to motive state (state mutation flows through)', () => {
+    const vehicleState = makeVehicleState();
+    const result = applyVehicleLegAttackCrit({
+      vehicleState,
+      engineType: EngineType.ICE,
+      hasAmmoInSlot: false,
+      critModifier: 0,
+      diceRoller: scriptedRoller([5, 6]),
+    });
+    expect(result.applied.kind).toBe('engine_hit');
+    expect(result.state.motive.engineHits).toBe(1);
+  });
+
+  it('fuel_tank crit on fusion engine becomes no-effect (reroll branch in helper)', () => {
+    const vehicleState = makeVehicleState();
+    const result = applyVehicleLegAttackCrit({
+      vehicleState,
+      // Standard fusion engine → no fuel tank → reroll → kind becomes 'none'.
+      engineType: EngineType.STANDARD,
+      hasAmmoInSlot: false,
+      critModifier: 0,
+      diceRoller: scriptedRoller([5, 5]),
+    });
+    expect(result.applied.kind).toBe('none');
   });
 });

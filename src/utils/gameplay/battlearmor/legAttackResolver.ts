@@ -27,11 +27,16 @@
  */
 
 import type { IBASquadCombatState } from '@/types/gameplay';
+import type {
+  IVehicleCombatState,
+  IVehicleCritRollResult,
+} from '@/types/gameplay';
 
 import {
   calculateLegAttackDamage,
   type IBALegAttackSquadDef,
 } from '@/lib/combat/baCombat';
+import { EngineType } from '@/types/construction/EngineType';
 import {
   type Facing,
   type FiringArc,
@@ -40,6 +45,12 @@ import {
 import { D6Roller, defaultD6Roller } from '@/utils/gameplay/diceTypes';
 
 import { calculateFiringArc } from '../firingArc';
+import {
+  applyVehicleCritEffect,
+  type IVehicleCritEffectResult,
+  rollVehicleCrit,
+  vehicleCritFromRoll,
+} from '../vehicleCriticalHitResolution';
 
 // =============================================================================
 // Crit-modifier constants
@@ -338,4 +349,96 @@ export function resolveVehicleLegAttack(
     hitLocation,
     critModifier,
   };
+}
+// =============================================================================
+// Vehicle leg-attack crit pipeline (FIRST CALLER of vehicleCriticalHitResolution.ts)
+// =============================================================================
+
+/**
+ * Inputs for `applyVehicleLegAttackCrit`. Carries the live vehicle
+ * combat-state plus the engine type + ammo-slot context that
+ * `applyVehicleCritEffect` needs to resolve the crit table.
+ *
+ * The `critModifier` field is the SAME crit modifier produced by
+ * `resolveVehicleLegAttack` (Hardened: -2; HUMAN_TRO_MEK SPA: +1) and is
+ * applied additively to the 2d6 crit roll. This wires the spec-required
+ * crit modifier directly into the vehicle crit table — Hardened armor
+ * shifts the roll DOWN (less severe), and HUMAN_TRO_MEK shifts it UP.
+ */
+export interface IApplyVehicleLegAttackCritInput {
+  /** Target vehicle's combat state. */
+  readonly vehicleState: IVehicleCombatState;
+  /**
+   * Engine type (drives the fuel-tank reroll branch in
+   * `applyVehicleCritEffect`).
+   */
+  readonly engineType: EngineType | string | number;
+  /**
+   * Whether ammo is mounted at the crit location (drives the
+   * ammo-explosion branch).
+   */
+  readonly hasAmmoInSlot: boolean;
+  /**
+   * Crit modifier from the leg-attack resolution (Hardened: -2;
+   * HUMAN_TRO_MEK: +1). Applied additively to the 2d6 roll, clamped
+   * into the table's [2, 12] range.
+   */
+  readonly critModifier: number;
+  /** Optional D6 roller override (test determinism). */
+  readonly diceRoller?: D6Roller;
+}
+
+/**
+ * Roll a vehicle crit with the leg-attack `critModifier` baked into the
+ * 2d6 result, then apply its effect to the vehicle's combat state.
+ *
+ * This is the FIRST production caller of
+ * `vehicleCriticalHitResolution.applyVehicleCritEffect` outside the
+ * helper's own tests (G6 orphan-rot risk closed).
+ *
+ * Algorithm:
+ *   1. Roll a fresh 2d6 vehicle crit via `rollVehicleCrit`.
+ *   2. Apply the `critModifier` to the roll's total, clamping into
+ *      [2, 12] so a Hardened roll cannot drop below "no crit" and a
+ *      HUMAN_TRO_MEK SPA roll cannot exceed "ammo explosion".
+ *   3. Map the modified total back onto a crit kind via
+ *      `vehicleCritFromRoll` (preserving the original dice pair for
+ *      replay/audit but treating the SUM as if it had been the
+ *      modified total).
+ *   4. Apply the resulting crit effect via `applyVehicleCritEffect`.
+ *
+ * Returns the helper's `IVehicleCritEffectResult` shape verbatim so the
+ * caller can chain it through the damage pipeline.
+ */
+export function applyVehicleLegAttackCrit(
+  input: IApplyVehicleLegAttackCritInput,
+): IVehicleCritEffectResult {
+  const diceRoller = input.diceRoller ?? defaultD6Roller;
+
+  // 1. Roll a fresh 2d6 vehicle crit.
+  const rolled = rollVehicleCrit(diceRoller);
+
+  // 2. Apply the leg-attack crit modifier to the rolled total, clamped
+  // into the table's [2, 12] range.
+  const modifiedTotal = Math.min(
+    12,
+    Math.max(2, rolled.roll + input.critModifier),
+  );
+
+  // 3. Re-derive the crit kind from the modified total. We synthesize
+  // a dice pair whose sum equals the modified total so
+  // `vehicleCritFromRoll` resolves the correct kind — the helper's
+  // table-lookup is sum-driven (it does not inspect individual dice).
+  const synthD1 = Math.max(1, Math.min(6, modifiedTotal - 1));
+  const synthD2 = modifiedTotal - synthD1;
+  const modifiedCrit: IVehicleCritRollResult = vehicleCritFromRoll([
+    synthD1,
+    synthD2,
+  ]);
+
+  // 4. Apply the crit effect to the vehicle state.
+  return applyVehicleCritEffect(input.vehicleState, modifiedCrit, {
+    engineType: input.engineType,
+    hasAmmoInSlot: input.hasAmmoInSlot,
+  });
 }
