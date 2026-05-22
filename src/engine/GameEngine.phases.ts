@@ -51,8 +51,8 @@ import {
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
+import { prepareAttackContext } from './attackContext';
 import { toAIUnitState } from './GameEngine.helpers';
-import { computeIndirectFireContext } from './InteractiveSession.indirectFire';
 
 /**
  * Adapt a single-d6 roller into the 2d6 `DiceRoller` shape used by
@@ -279,31 +279,22 @@ export function runAttackPhase(
         unitId,
       );
 
-      // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid
-      // available. Pick the FIRST weapon whose resolution is
-      // permitted+isIndirect (LRM volleys share a single spotter
-      // election per declaration).
-      let indirectFireResolution:
-        | import('@/types/gameplay/IndirectFireInterfaces').IIndirectFireResolution
-        | undefined;
+      // Wave 8 PR-K5/K11: delegate indirect-fire pre-resolution to
+      // prepareAttackContext. The returned IAttackPreResolution union
+      // threads straight through declareAttack (accepts either shape).
       const targetUnit =
         updatedSession.currentState.units[atkEvt.payload.targetId];
       const targetHex = targetUnit?.position;
-      if (grid && targetHex && targetUnit) {
-        for (const weaponId of atkEvt.payload.weapons) {
-          const result = computeIndirectFireContext(
-            unitId,
-            weaponId,
-            targetHex,
-            updatedSession.currentState,
-            grid,
-          );
-          if (result.permitted && result.isIndirect) {
-            indirectFireResolution = result;
-            break;
-          }
-        }
-      }
+      const attackPreResolution =
+        grid && targetHex && targetUnit
+          ? prepareAttackContext(
+              unitId,
+              atkEvt.payload.weapons,
+              atkEvt.payload.targetId,
+              updatedSession.currentState,
+              grid,
+            )
+          : undefined;
 
       // Arc is computed inside resolveAttack at resolve time.
       updatedSession = declareAttack(
@@ -313,7 +304,7 @@ export function runAttackPhase(
         weaponAttacks,
         3,
         RangeBracket.Short,
-        indirectFireResolution,
+        attackPreResolution,
         targetHex,
       );
     }
