@@ -90,6 +90,7 @@ export type PhysicalAttackInvalidReason =
   | 'ElevationMismatch'
   | 'TargetMissing'
   | 'TargetDestroyed'
+  | 'TargetRetreated'
   | 'TargetEjected'
   | 'DifferentBoard'
   | 'TargetPassenger'
@@ -189,6 +190,11 @@ export interface IPhysicalAttackInput {
    * physical targets.
    */
   readonly targetDestroyed?: boolean;
+  /**
+   * MekStation lifecycle targetability: retreated or withdrawn units have
+   * left active combat and cannot be selected as physical targets.
+   */
+  readonly targetRetreated?: boolean;
   /**
    * MekStation lifecycle targetability: ejected units have left active combat
    * and cannot be selected as physical targets.

@@ -358,6 +358,7 @@ export function runPhysicalAttackPhase(options: {
       targetImmobile: target.shutdown ?? false,
       targetExists: true,
       targetDestroyed: target.destroyed,
+      targetRetreated: target.hasRetreated,
       targetEjected: target.hasEjected,
       attackerBoardId: unit.boardId,
       targetBoardId: target.boardId,

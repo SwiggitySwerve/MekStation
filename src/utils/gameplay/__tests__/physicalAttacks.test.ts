@@ -962,6 +962,64 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows retreated physical targets before self and friendly checks', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetRetreated: true,
+            targetIsSelf: true,
+            targetDistance: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetRetreated',
+      });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetRetreated: true,
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetRetreated',
+      });
+
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetRetreated: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetRetreated',
+      });
+
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetRetreated: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetRetreated',
+      });
+    });
+
     it('disallows passenger physical targets across supported physical attack families', () => {
       expect(
         canPunch(

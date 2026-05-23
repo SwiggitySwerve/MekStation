@@ -68,6 +68,21 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the resolver SHALL emit `PhysicalAttackResolved` with `TargetEjected`
 - **AND** no damage, displacement, or PSR side effect SHALL be emitted
 
+#### Scenario: Physical attacks cannot target retreated units
+
+- **GIVEN** an attacker declares any supported BattleMech physical attack against a retreated or withdrawn target unit
+- **WHEN** the shared physical legality gate runs
+- **THEN** the attack SHALL be rejected with `TargetRetreated`
+- **AND** physical eligibility and runner target selection SHALL remove retreated units from target lists
+- **AND** no damage, displacement, or PSR side effect SHALL be emitted
+
+#### Scenario: Stale physical declarations resolve retreated targets as invalid
+
+- **GIVEN** an already-declared physical attack whose target unit retreats before resolution
+- **WHEN** the physical attack resolver runs
+- **THEN** the resolver SHALL emit `PhysicalAttackResolved` with `TargetRetreated`
+- **AND** no damage, displacement, or PSR side effect SHALL be emitted
+
 #### Scenario: Push target must be directly ahead
 
 - **GIVEN** an attacker declares a push against an adjacent target

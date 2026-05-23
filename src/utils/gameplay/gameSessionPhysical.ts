@@ -447,6 +447,7 @@ export function declarePhysicalAttack(
     targetImmobile: targetState?.shutdown,
     targetExists: targetState !== undefined,
     targetDestroyed: targetState?.destroyed,
+    targetRetreated: targetState?.hasRetreated,
     targetEjected: targetState?.hasEjected,
     attackerBoardId: attackerState.boardId,
     targetBoardId: targetState?.boardId,
@@ -618,6 +619,15 @@ export function resolveAllPhysicalAttacks(
       );
       continue;
     }
+    if (targetState.hasRetreated) {
+      currentSession = appendInvalidPhysicalResolution(
+        currentSession,
+        turn,
+        payload,
+        'TargetRetreated',
+      );
+      continue;
+    }
     if (targetState.hasEjected) {
       currentSession = appendInvalidPhysicalResolution(
         currentSession,
@@ -668,6 +678,7 @@ export function resolveAllPhysicalAttacks(
       targetImmobile: targetState.shutdown,
       targetExists: true,
       targetDestroyed: targetState.destroyed,
+      targetRetreated: targetState.hasRetreated,
       targetEjected: targetState.hasEjected,
       attackerBoardId: attackerState.boardId,
       targetBoardId: targetState.boardId,

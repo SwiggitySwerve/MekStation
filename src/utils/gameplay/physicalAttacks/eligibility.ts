@@ -213,7 +213,14 @@ export function getEligiblePhysicalAttacks(
   context: IEligibilityContext,
 ): readonly IPhysicalAttackOption[] {
   if (!attacker || !target) return [];
-  if (attacker.destroyed || target.destroyed || target.hasEjected) return [];
+  if (
+    attacker.destroyed ||
+    target.destroyed ||
+    target.hasRetreated ||
+    target.hasEjected
+  ) {
+    return [];
+  }
   // Per spec scenario "Non-adjacent target returns empty list".
   if (hexDistance(attacker.position, target.position) !== 1) return [];
 
@@ -253,6 +260,7 @@ export function getEligiblePhysicalAttacks(
     targetImmobile: target.shutdown,
     targetExists: true,
     targetDestroyed: target.destroyed,
+    targetRetreated: target.hasRetreated,
     targetEjected: target.hasEjected,
     targetIsPassenger: target.isPassenger,
     attackerBoardId: attacker.boardId,

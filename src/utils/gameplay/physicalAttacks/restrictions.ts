@@ -49,6 +49,13 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
+  if (input.targetRetreated) {
+    return blocked(
+      'Physical attacks cannot target retreated units',
+      'TargetRetreated',
+    );
+  }
+
   if (input.targetEjected) {
     return blocked(
       'Physical attacks cannot target ejected units',

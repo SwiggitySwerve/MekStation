@@ -80,7 +80,7 @@ export const ACTION_ELIGIBILITY_COMBAT_SUPPORT = {
   ),
   'retreated-targetability': integrated(
     'retreated-targetability',
-    'interactive and runner target filters reject hasRetreated units as targets',
+    'interactive, runner, ranged attack, physical attack, and objective target filters reject hasRetreated units as targets',
   ),
   'ejected-targetability': integrated(
     'ejected-targetability',
