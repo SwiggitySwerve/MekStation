@@ -82,6 +82,12 @@ export function physicalElevationRestriction(
       : null;
   }
 
+  if (attackType === 'push') {
+    return context.attackerBaseElevation !== context.targetBaseElevation
+      ? 'Target elevation not in range'
+      : null;
+  }
+
   return null;
 }
 

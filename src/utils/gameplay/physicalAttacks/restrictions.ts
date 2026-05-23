@@ -1,5 +1,7 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+import { hexNeighbor } from '../hexMath';
 import { physicalElevationRestriction } from './elevation';
 import {
   IPhysicalAttackInput,
@@ -19,6 +21,15 @@ function limbConflict(
   if (!limb) return false;
   if (!usedThisTurn || usedThisTurn.length === 0) return false;
   return usedThisTurn.includes(limb);
+}
+
+function isRepresentedMek(unitType: UnitType | undefined): boolean {
+  if (unitType === undefined) return true;
+  return (
+    unitType === UnitType.BATTLEMECH ||
+    unitType === UnitType.OMNIMECH ||
+    unitType === UnitType.INDUSTRIALMECH
+  );
 }
 
 export function canPunch(
@@ -180,6 +191,93 @@ export function canMeleeWeapon(
       allowed: false,
       reason: 'Hand actuator destroyed',
       reasonCode: 'MissingActuator',
+    };
+  }
+
+  return { allowed: true };
+}
+
+export function canPush(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  if (!isRepresentedMek(input.attackerUnitType)) {
+    return {
+      allowed: false,
+      reason: "Non-meks can't push",
+      reasonCode: 'AttackerNotMek',
+    };
+  }
+
+  if (!isRepresentedMek(input.targetUnitType)) {
+    return {
+      allowed: false,
+      reason: 'Target is not a mek',
+      reasonCode: 'TargetNotMek',
+    };
+  }
+
+  if (input.attackerProne) {
+    return {
+      allowed: false,
+      reason: 'Attacker is prone',
+      reasonCode: 'AttackerProne',
+    };
+  }
+
+  if (input.targetProne) {
+    return {
+      allowed: false,
+      reason: 'Target is prone',
+      reasonCode: 'TargetProne',
+    };
+  }
+
+  if (input.targetIsAirborne) {
+    return {
+      allowed: false,
+      reason: 'Cannot push an airborne target',
+      reasonCode: 'TargetAirborne',
+    };
+  }
+
+  if (input.weaponsFiredFromArm && input.weaponsFiredFromArm.length > 0) {
+    return {
+      allowed: false,
+      reason: 'Weapons fired from arm this turn',
+      reasonCode: 'WeaponFiredThisTurn',
+    };
+  }
+
+  if (
+    input.attackerPosition &&
+    input.targetPosition &&
+    input.attackerFacing !== undefined
+  ) {
+    const expectedTargetHex = hexNeighbor(
+      input.attackerPosition,
+      input.attackerFacing,
+    );
+    if (
+      expectedTargetHex.q !== input.targetPosition.q ||
+      expectedTargetHex.r !== input.targetPosition.r
+    ) {
+      return {
+        allowed: false,
+        reason: 'Target not directly ahead of feet',
+        reasonCode: 'TargetNotDirectlyAhead',
+      };
+    }
+  }
+
+  const elevationRestriction = physicalElevationRestriction(
+    'push',
+    input.elevationContext,
+  );
+  if (elevationRestriction) {
+    return {
+      allowed: false,
+      reason: elevationRestriction,
+      reasonCode: 'TargetElevationNotInRange',
     };
   }
 

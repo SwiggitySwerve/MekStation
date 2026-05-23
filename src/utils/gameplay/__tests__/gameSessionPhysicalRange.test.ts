@@ -10,6 +10,7 @@ import {
   type IHexCoordinate,
   type IPhysicalAttackResolvedPayload,
 } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import {
   declarePhysicalAttack,
@@ -23,7 +24,10 @@ const PUNCH_CONTEXT: IPhysicalAttackContext = {
   arm: 'right',
 };
 
-function buildPhysicalSession(targetPosition: IHexCoordinate): IGameSession {
+function buildPhysicalSession(
+  targetPosition: IHexCoordinate,
+  targetUnitType: UnitType = UnitType.BATTLEMECH,
+): IGameSession {
   return {
     id: 'physical-range-session',
     createdAt: '',
@@ -34,7 +38,28 @@ function buildPhysicalSession(targetPosition: IHexCoordinate): IGameSession {
       victoryConditions: [],
       optionalRules: [],
     },
-    units: [],
+    units: [
+      {
+        id: 'attacker',
+        name: 'Attacker',
+        side: GameSide.Player,
+        unitRef: 'attacker-ref',
+        pilotRef: 'pilot-a',
+        gunnery: 4,
+        piloting: 5,
+        unitType: UnitType.BATTLEMECH,
+      },
+      {
+        id: 'target',
+        name: 'Target',
+        side: GameSide.Opponent,
+        unitRef: 'target-ref',
+        pilotRef: 'pilot-t',
+        gunnery: 4,
+        piloting: 5,
+        unitType: targetUnitType,
+      },
+    ],
     events: [],
     currentState: {
       gameId: 'physical-range-session',
@@ -169,6 +194,66 @@ describe('declarePhysicalAttack target range', () => {
       toHitNumber: Infinity,
       hit: false,
       location: 'TargetElevationNotInRange',
+    });
+  });
+
+  it('rejects push declarations against represented non-Mek targets', () => {
+    const session = buildPhysicalSession({ q: 1, r: 0 }, UnitType.VEHICLE);
+
+    const next = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'push',
+      PUNCH_CONTEXT,
+    );
+
+    expect(
+      next.events.some(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toBe(false);
+    const rejection = next.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(rejection?.payload as IPhysicalAttackResolvedPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetNotMek',
+    });
+  });
+
+  it('rejects push declarations when the target is not directly ahead', () => {
+    const session = buildPhysicalSession({ q: 0, r: 1 });
+
+    const next = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'push',
+      PUNCH_CONTEXT,
+    );
+
+    expect(
+      next.events.some(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toBe(false);
+    const rejection = next.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(rejection?.payload as IPhysicalAttackResolvedPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetNotDirectlyAhead',
     });
   });
 });

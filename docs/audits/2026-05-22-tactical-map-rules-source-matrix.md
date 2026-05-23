@@ -68,6 +68,25 @@ both command preview rows and direct declarations use the same
 `src/components/gameplay/__tests__/GameplayLayout.commandPreview.test.ts`, and
 `src/components/gameplay/__tests__/addInteractiveCombatCoreUI.smoke.test.tsx`.
 
+Additional push target-legality pin: MegaMek
+`PushAttackAction.java:158-180` restricts push to Mek attackers and Mek
+targets, blocks airborne attackers, flipped arms, missing arms, and arm weapon
+fire; `PushAttackAction.java:212-260` also requires same base elevation,
+front-hex facing, non-airborne targets, and neither unit prone. MekStation now
+models the represented subset: non-Mek attackers/targets, prone attacker/target,
+airborne target, not-directly-ahead target, arm weapon fire, and same-base
+elevation all produce typed push restrictions. The same restriction path feeds
+physical option rows, command preview, and `declarePhysicalAttack`, so push is
+not shown as commit-ready when the engine would reject it. Coverage:
+`src/utils/gameplay/physicalAttacks/restrictions.ts`,
+`src/utils/gameplay/physicalAttacks/toHit.ts`,
+`src/utils/gameplay/physicalAttacks/eligibility.ts`,
+`src/utils/gameplay/gameSessionPhysical.ts`,
+`src/components/gameplay/GameplayLayout.commandPreview.ts`,
+`src/utils/gameplay/__tests__/physicalAttacks.test.ts`,
+`src/utils/gameplay/__tests__/gameSessionPhysicalRange.test.ts`, and
+`src/components/gameplay/__tests__/GameplayLayout.commandPreview.test.ts`.
+
 Additional LOS/cover pin for this slice: MegaMek `LosEffects.java:1461-1483`
 assigns horizontal target cover only for Mek-style targets when the hex
 adjacent to the target reaches the target's total height and the attacker is

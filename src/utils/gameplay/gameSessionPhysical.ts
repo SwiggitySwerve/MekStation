@@ -76,6 +76,8 @@ export function declarePhysicalAttack(
 
   const componentDamage =
     attackerState.componentDamage ?? buildDefaultComponentDamageState();
+  const attackerUnit = session.units.find((unit) => unit.id === attackerId);
+  const targetUnit = session.units.find((unit) => unit.id === targetId);
 
   const targetRangeRestriction = physicalTargetRangeRestriction(
     attackerState,
@@ -107,6 +109,17 @@ export function declarePhysicalAttack(
     attackerMovementModifier: context.attackerMovementModifier,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     attackerRanThisTurn: context.attackerRanThisTurn,
+    attackerUnitType: context.attackerUnitType ?? attackerUnit?.unitType,
+    targetUnitType: context.targetUnitType ?? targetUnit?.unitType,
+    attackerPosition: attackerState.position,
+    targetPosition: targetState.position,
+    attackerFacing: attackerState.facing,
+    targetProne: context.targetProne ?? targetState.prone,
+    targetIsAirborne:
+      context.targetIsAirborne ??
+      ((targetState.combatState?.kind === 'aero' ||
+        targetState.combatState?.kind === 'proto') &&
+        (targetState.combatState.state.altitude ?? 0) > 0),
     limbsUsedThisTurn: context.limbsUsedThisTurn,
     limb: context.limb,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,

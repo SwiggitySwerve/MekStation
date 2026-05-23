@@ -390,6 +390,8 @@ export interface ICommitPhysicalAttackArgs {
   readonly attackerPiloting: number;
   readonly attackerTonnage?: number;
   readonly targetTonnage?: number;
+  readonly attackerUnitType?: IPhysicalAttackInput['attackerUnitType'];
+  readonly targetUnitType?: IPhysicalAttackInput['targetUnitType'];
   readonly hexesMoved?: number;
   readonly attackerRanThisTurn?: boolean;
   readonly attackerJumpedThisTurn?: boolean;
@@ -471,6 +473,8 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
           targetTonnage,
           pilotingSkill: args.attackerPiloting,
           hexesMoved,
+          attackerUnitType: args.attackerUnitType,
+          targetUnitType: args.targetUnitType,
           limb: plan.limb ?? undefined,
           arm: armForPhysicalLimb(plan.limb),
           weaponsFiredFromArm:

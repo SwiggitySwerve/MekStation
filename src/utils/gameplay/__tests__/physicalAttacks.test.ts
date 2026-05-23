@@ -1,5 +1,6 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import { IComponentDamageState } from '@/types/gameplay';
+import { Facing, IComponentDamageState } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import {
   calculatePunchDamage,
@@ -22,6 +23,7 @@ import {
   getPhysicalMissConsequences,
   canPunch,
   canKick,
+  canPush,
   canMeleeWeapon,
   getEffectiveWeight,
   applyUnderwaterModifier,
@@ -503,6 +505,81 @@ describe('physicalAttacks', () => {
         reason: 'Target elevation not in range',
         reasonCode: 'TargetElevationNotInRange',
       });
+    });
+  });
+
+  describe('canPush', () => {
+    it('should disallow non-Mek push targets', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          targetUnitType: UnitType.VEHICLE,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target is not a mek',
+        reasonCode: 'TargetNotMek',
+      });
+    });
+
+    it('should disallow push targets that are not directly ahead', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          attackerPosition: { q: 0, r: 0 },
+          targetPosition: { q: 0, r: 1 },
+          attackerFacing: Facing.Southeast,
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target not directly ahead of feet',
+        reasonCode: 'TargetNotDirectlyAhead',
+      });
+    });
+
+    it('should disallow push targets on a different base elevation', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 1,
+            targetTopElevation: 2,
+          },
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target elevation not in range',
+        reasonCode: 'TargetElevationNotInRange',
+      });
+    });
+
+    it('should allow a same-elevation Mek directly ahead', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          attackerUnitType: UnitType.BATTLEMECH,
+          targetUnitType: UnitType.OMNIMECH,
+          attackerPosition: { q: 0, r: 0 },
+          targetPosition: { q: 1, r: 0 },
+          attackerFacing: Facing.Southeast,
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 0,
+            targetTopElevation: 1,
+          },
+        }),
+      );
+
+      expect(result).toEqual({ allowed: true });
     });
   });
 

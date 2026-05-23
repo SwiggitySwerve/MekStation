@@ -512,6 +512,12 @@ export function runPhysicalAttackPhase(
       const piloting = pilotingByUnit.get(unitId) ?? DEFAULT_PILOTING_SKILL;
       const targetState =
         updatedSession.currentState.units[physEvt.payload.targetId] ?? null;
+      const attackerBinding = updatedSession.units.find(
+        (entry) => entry.id === physEvt.payload.attackerId,
+      );
+      const targetBinding = updatedSession.units.find(
+        (entry) => entry.id === physEvt.payload.targetId,
+      );
       updatedSession = declarePhysicalAttack(
         updatedSession,
         physEvt.payload.attackerId,
@@ -521,6 +527,8 @@ export function runPhysicalAttackPhase(
           attackerTonnage: DEFAULT_ATTACKER_TONNAGE,
           pilotingSkill: piloting,
           hexesMoved: unit.hexesMovedThisTurn,
+          attackerUnitType: attackerBinding?.unitType,
+          targetUnitType: targetBinding?.unitType,
           elevationContext:
             grid && targetState
               ? buildPhysicalElevationContext(unit, targetState, grid)

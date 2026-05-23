@@ -96,6 +96,14 @@ When a selected unit has a configured weapon list, the map SHALL derive attack-r
 - **AND** a direct commit of that same punch or kick SHALL reject with the same typed reason
 - **AND** the command preview SHALL preserve the restriction instead of showing the row as legal
 
+#### Scenario: Physical push legality matches commit
+
+- **GIVEN** a unit previews a push option against an adjacent represented target
+- **WHEN** the target is not a Mek, is prone or airborne, is not directly ahead of the attacker, or is not at the attacker's base elevation
+- **THEN** the push option SHALL be disabled with the matching typed reason
+- **AND** a direct commit of that same push SHALL reject with the same typed reason
+- **AND** the command preview SHALL preserve the restriction instead of showing push as legal
+
 ### Requirement: Fog-Aware Target Projection
 
 Fog targetability in the tactical map SHALL consume the same grid, LOS, and visibility inputs as combat validation.

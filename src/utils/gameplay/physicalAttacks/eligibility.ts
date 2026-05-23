@@ -31,6 +31,7 @@ import {
   canKick,
   canMeleeWeapon,
   canPunch,
+  canPush,
 } from './restrictions';
 import { calculatePhysicalToHit } from './toHit';
 import {
@@ -68,6 +69,8 @@ export interface IEligibilityContext {
   readonly targetMovementModifier?: number;
   /** Attacker movement modifier (used by charge to-hit). */
   readonly attackerMovementModifier?: number;
+  readonly attackerUnitType?: IPhysicalAttackInput['attackerUnitType'];
+  readonly targetUnitType?: IPhysicalAttackInput['targetUnitType'];
   /** Per-attacker presence flags for arm actuators (punches). */
   readonly lowerArmActuatorPresent?: boolean;
   readonly handActuatorPresent?: boolean;
@@ -223,6 +226,13 @@ export function getEligiblePhysicalAttacks(
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,
     footActuatorPresent: context.footActuatorPresent,
+    attackerUnitType: context.attackerUnitType,
+    targetUnitType: context.targetUnitType,
+    attackerPosition: attacker.position,
+    targetPosition: target.position,
+    attackerFacing: attacker.facing,
+    targetProne: target.prone,
+    targetIsAirborne: physicalTargetIsAirborne(target),
     elevationContext: context.elevationContext,
   } as const;
 
@@ -294,13 +304,19 @@ export function getEligiblePhysicalAttacks(
   const dfaRestriction = canDFA(dfaInput);
   options.push(buildOption('dfa', dfaInput, dfaRestriction));
 
-  // Push — no restrictions today (the engine handles displacement
-  // rules at resolution). Always eligible when a target is adjacent.
+  // Push legality mirrors MegaMek's represented target-type, facing,
+  // prone, and elevation gates before commit. Displacement destination
+  // handling remains a resolution/intent-overlay concern.
   const pushInput: IPhysicalAttackInput = {
     ...baseInput,
     attackType: 'push',
+    weaponsFiredFromArm: [
+      ...(context.weaponsFiredFromLeftArm ?? []),
+      ...(context.weaponsFiredFromRightArm ?? []),
+    ],
   };
-  options.push(buildOption('push', pushInput, { allowed: true }));
+  const pushRestriction = canPush(pushInput);
+  options.push(buildOption('push', pushInput, pushRestriction));
 
   // Melee weapons — one row per equipped type, gated by
   // `canMeleeWeapon` (shoulder / hand / lower-arm actuator destruction
@@ -318,4 +334,14 @@ export function getEligiblePhysicalAttacks(
   }
 
   return options;
+}
+
+function physicalTargetIsAirborne(target: IUnitGameState): boolean {
+  switch (target.combatState?.kind) {
+    case 'aero':
+    case 'proto':
+      return (target.combatState.state.altitude ?? 0) > 0;
+    default:
+      return false;
+  }
 }

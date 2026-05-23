@@ -19,6 +19,7 @@ import {
   canKick,
   canMeleeWeapon,
   canPunch,
+  canPush,
 } from './restrictions';
 import {
   IPhysicalAttackInput,
@@ -232,6 +233,18 @@ export function calculateDFAToHit(
 export function calculatePushToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
+  const restriction = canPush(input);
+  if (!restriction.allowed) {
+    return {
+      baseToHit: input.pilotingSkill - PUSH_TO_HIT_BONUS,
+      finalToHit: Infinity,
+      modifiers: [],
+      allowed: false,
+      restrictionReason: restriction.reason,
+      restrictionReasonCode: restriction.reasonCode,
+    };
+  }
+
   const baseToHit = input.pilotingSkill - PUSH_TO_HIT_BONUS;
   const modifiers: IPhysicalModifier[] = [];
 

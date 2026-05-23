@@ -94,6 +94,8 @@ export function buildCommandPreviewInputs({
         attackerPilotingSkill:
           attackerState?.piloting ?? attackerBinding?.piloting ?? 5,
         targetTonnage: 65,
+        attackerUnitType: attackerBinding?.unitType,
+        targetUnitType: targetBinding?.unitType,
         weaponsFiredFromLeftArm: attackerState?.weaponsFiredThisTurn,
         weaponsFiredFromRightArm: attackerState?.weaponsFiredThisTurn,
         attackerRanThisTurn:

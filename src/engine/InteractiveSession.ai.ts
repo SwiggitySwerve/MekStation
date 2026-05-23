@@ -179,6 +179,12 @@ export function runInteractiveSessionAITurn(
       if (physEvt) {
         const targetState =
           session.currentState.units[physEvt.payload.targetId] ?? null;
+        const attackerBinding = session.units.find(
+          (entry) => entry.id === physEvt.payload.attackerId,
+        );
+        const targetBinding = session.units.find(
+          (entry) => entry.id === physEvt.payload.targetId,
+        );
         setSession(
           declarePhysicalAttack(
             session,
@@ -189,6 +195,8 @@ export function runInteractiveSessionAITurn(
               attackerTonnage: context.tonnageByUnit.get(unitId) ?? 65,
               pilotingSkill: context.pilotingByUnit.get(unitId) ?? 5,
               hexesMoved: unit.hexesMovedThisTurn,
+              attackerUnitType: attackerBinding?.unitType,
+              targetUnitType: targetBinding?.unitType,
               elevationContext: targetState
                 ? buildPhysicalElevationContext(unit, targetState, context.grid)
                 : undefined,

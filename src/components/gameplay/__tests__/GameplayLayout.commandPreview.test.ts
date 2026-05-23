@@ -17,6 +17,7 @@ import {
   type IUnitToken,
   type IWeaponStatus,
 } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import { buildCommandPreviewInputs } from '../GameplayLayout.commandPreview';
@@ -434,6 +435,56 @@ describe('buildCommandPreviewInputs', () => {
         allowed: false,
         restrictionReason: 'Target elevation not in range',
         restrictionReasonCode: 'TargetElevationNotInRange',
+      },
+    });
+  });
+
+  it('preserves represented push target restrictions before commit', () => {
+    const currentState = makeState({
+      phase: GamePhase.PhysicalAttack,
+      units: {
+        a1: makeUnitState({
+          id: 'a1',
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+        }),
+        t1: makeUnitState({
+          id: 't1',
+          side: GameSide.Opponent,
+          position: { q: 1, r: 0 },
+        }),
+      },
+    });
+
+    const inputs = buildCommandPreviewInputs({
+      currentState,
+      selectedUnitId: 'a1',
+      activeTargetId: null,
+      tokens: [],
+      unitBindings: [
+        makeUnitBinding({ id: 'a1', unitType: UnitType.BATTLEMECH }),
+        makeUnitBinding({
+          id: 't1',
+          name: 'Target Vehicle',
+          side: GameSide.Opponent,
+          unitType: UnitType.VEHICLE,
+        }),
+      ],
+      mapRadius: 3,
+      grid: createMinimalGrid(3),
+      unitWeapons: {},
+      hitChance: null,
+      physicalAttackTargetId: 't1',
+      physicalAttackType: 'push',
+    });
+
+    expect(inputs.physicalAttackOption).toMatchObject({
+      attackType: 'push',
+      restrictionsFailed: ['TargetNotMek'],
+      toHit: {
+        allowed: false,
+        restrictionReason: 'Target is not a mek',
+        restrictionReasonCode: 'TargetNotMek',
       },
     });
   });

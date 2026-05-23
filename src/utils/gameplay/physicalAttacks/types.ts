@@ -1,4 +1,11 @@
-import { IComponentDamageState, IUnitGameState } from '@/types/gameplay';
+import type { UnitType } from '@/types/unit/BattleMechInterfaces';
+
+import {
+  Facing,
+  IComponentDamageState,
+  IHexCoordinate,
+  IUnitGameState,
+} from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
 export type PhysicalAttackType =
@@ -53,6 +60,11 @@ export type PhysicalAttackInvalidReason =
   | 'NoRunThisTurn'
   | 'LimbMissing'
   | 'AttackerProne'
+  | 'AttackerNotMek'
+  | 'TargetNotMek'
+  | 'TargetNotDirectlyAhead'
+  | 'TargetProne'
+  | 'TargetAirborne'
   | 'TargetNotInPhysicalRange'
   | 'TargetElevationNotInRange'
   | 'UnsupportedAttackType'
@@ -87,6 +99,13 @@ export interface IPhysicalAttackInput {
   readonly isUnderwater?: boolean;
   readonly weaponsFiredFromArm?: readonly string[];
   readonly attackerProne?: boolean;
+  readonly attackerUnitType?: UnitType;
+  readonly targetUnitType?: UnitType;
+  readonly attackerPosition?: IHexCoordinate;
+  readonly targetPosition?: IHexCoordinate;
+  readonly attackerFacing?: Facing;
+  readonly targetProne?: boolean;
+  readonly targetIsAirborne?: boolean;
   readonly targetTonnage?: number;
   /**
    * Per `implement-physical-attack-phase` task 4.3 / 5.3: target movement

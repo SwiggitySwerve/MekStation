@@ -11,6 +11,7 @@ import {
   canKick,
   canMeleeWeapon,
   canPunch,
+  canPush,
   type IPhysicalAttackInput,
   IPhysicalAttackRestriction,
   PhysicalAttackLimb,
@@ -60,6 +61,10 @@ export interface IPhysicalAttackContext {
    */
   readonly attackerJumpedThisTurn?: boolean;
   readonly attackerRanThisTurn?: boolean;
+  readonly attackerUnitType?: IPhysicalAttackInput['attackerUnitType'];
+  readonly targetUnitType?: IPhysicalAttackInput['targetUnitType'];
+  readonly targetProne?: boolean;
+  readonly targetIsAirborne?: boolean;
   /**
    * Per task 8.5: the destination hex for a push. If `false` the caller
    * has already determined the push target hex is blocked / off-map.
@@ -106,6 +111,7 @@ export function physicalAttackRestrictionForType(
   if (attackType === 'kick') return canKick(input);
   if (attackType === 'charge') return canCharge(input);
   if (attackType === 'dfa') return canDFA(input);
+  if (attackType === 'push') return canPush(input);
   if (
     attackType === 'hatchet' ||
     attackType === 'sword' ||
