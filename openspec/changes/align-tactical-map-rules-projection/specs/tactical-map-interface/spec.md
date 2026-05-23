@@ -96,6 +96,15 @@ When a selected unit has a configured weapon list, the map SHALL derive attack-r
 - **THEN** highlighted attack hexes SHALL come from the weapon-backed combat projection
 - **AND** stale raw `attackRange` data SHALL NOT mark additional targets as valid
 
+#### Scenario: C3 spotter range improves projected and committed brackets
+
+- **GIVEN** a selected unit is represented in an operational C3 network
+- **AND** a networked spotter has a better weapon range bracket to the target than the attacker
+- **WHEN** the map previews a direct weapon attack
+- **THEN** the combat projection SHALL expose the C3-improved range bracket and spotter identity
+- **AND** the committed `AttackDeclared` event SHALL use the same C3-improved range bracket and to-hit number
+- **AND** indirect fire SHALL continue to use its indirect-fire resolution instead of C3 range improvement
+
 #### Scenario: Selected weapon constrains visible firing arcs
 
 - **GIVEN** the selected unit has operational weapons with known mounted arcs

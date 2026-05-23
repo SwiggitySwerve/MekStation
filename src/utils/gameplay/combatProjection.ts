@@ -245,6 +245,8 @@ export function deriveCombatRangeHexes({
           indirectFire,
         })
       : undefined;
+    const effectiveRangeBracket =
+      toHitProjection?.rangeBracket ?? usableRangeBracket;
     const blockedReason = blockedReasonForHex(
       attackInvalidState,
       firingArc,
@@ -254,7 +256,7 @@ export function deriveCombatRangeHexes({
     results.push({
       hex,
       distance,
-      rangeBracket: usableRangeBracket,
+      rangeBracket: effectiveRangeBracket,
       inRange,
       inArc,
       losState: los.state,
@@ -271,6 +273,9 @@ export function deriveCombatRangeHexes({
       toHitNumber: toHitProjection?.toHitNumber,
       toHitModifiers: toHitProjection?.toHitModifiers,
       toHitReason: toHitProjection?.toHitReason,
+      c3BenefitApplied: toHitProjection?.c3BenefitApplied,
+      c3SpotterId: toHitProjection?.c3SpotterId,
+      c3SpotterRange: toHitProjection?.c3SpotterRange,
       firingArc,
       hasTarget,
       targetVisibilityState,

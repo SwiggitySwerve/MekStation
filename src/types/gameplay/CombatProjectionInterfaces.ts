@@ -62,6 +62,12 @@ export interface ICombatRangeHex {
   readonly toHitModifiers?: readonly IToHitModifier[];
   /** Player-facing to-hit summary */
   readonly toHitReason?: string;
+  /** C3 network improved the range bracket used by this preview */
+  readonly c3BenefitApplied?: boolean;
+  /** C3 unit whose target range supplied the improved bracket */
+  readonly c3SpotterId?: string | null;
+  /** Range from the C3 spotter to the projected target */
+  readonly c3SpotterRange?: number | null;
   /** Firing arc classifier result */
   readonly firingArc: CombatFiringArc;
   /** Hex has at least one enemy target token */

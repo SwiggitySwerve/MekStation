@@ -5,6 +5,7 @@
 
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 import type { IAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
+import type { IC3NetworkState } from '@/utils/gameplay/c3Network';
 import type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
 import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
 
@@ -263,6 +264,8 @@ export interface IGameState {
   readonly activationIndex: number;
   /** Per-unit states */
   readonly units: Record<string, IUnitGameState>;
+  /** Optional tactical C3 network snapshot used by attack projection/commit. */
+  readonly c3State?: IC3NetworkState;
   /** Events this turn for display */
   readonly turnEvents: readonly IGameEvent[];
   /** Game result (if completed) */

@@ -25,6 +25,7 @@ import {
   type IAirborneAeroSpottingEquipment,
   type ISpotterCandidate,
 } from './indirectFire';
+import { calculateToHitWithC3, selectC3RangeBracket } from './toHit/c3';
 import { calculateToHit } from './toHit/calculate';
 import { calculateInterveningTerrainModifier } from './toHit/environmentModifiers';
 
@@ -92,9 +93,13 @@ export function deriveToHitProjection({
   readonly indirectFire?: ReturnType<typeof deriveIndirectFireProjection>;
 }):
   | {
+      readonly rangeBracket: RangeBracket;
       readonly toHitNumber: number;
       readonly toHitModifiers: readonly IToHitModifier[];
       readonly toHitReason: string;
+      readonly c3BenefitApplied?: boolean;
+      readonly c3SpotterId?: string | null;
+      readonly c3SpotterRange?: number | null;
     }
   | undefined {
   if (!combatState || !targetUnitId || weapons.length === 0) return undefined;
@@ -116,29 +121,76 @@ export function deriveToHitProjection({
       modifier !== null && modifier !== undefined,
   );
 
-  const toHitCalc = calculateToHit(
-    {
-      gunnery: attackerUnit.gunnery ?? DEFAULT_GUNNERY,
-      movementType: attackerUnit.movementThisTurn ?? MovementType.Stationary,
-      heat: attackerUnit.heat ?? 0,
-      damageModifiers: terrainModifiers,
-      prone: attackerUnit.prone ?? false,
-    },
-    {
-      movementType: targetUnit.movementThisTurn ?? MovementType.Stationary,
-      hexesMoved: targetUnit.hexesMovedThisTurn ?? 0,
-      prone: targetUnit.prone ?? false,
-      immobile: isRepresentedTargetImmobile(targetUnit),
-      partialCover: targetPartialCover,
-    },
-    rangeBracket,
+  const attackerState = {
+    gunnery: attackerUnit.gunnery ?? DEFAULT_GUNNERY,
+    movementType: attackerUnit.movementThisTurn ?? MovementType.Stationary,
+    heat: attackerUnit.heat ?? 0,
+    damageModifiers: terrainModifiers,
+    prone: attackerUnit.prone ?? false,
+  };
+  const targetState = {
+    movementType: targetUnit.movementThisTurn ?? MovementType.Stationary,
+    hexesMoved: targetUnit.hexesMovedThisTurn ?? 0,
+    prone: targetUnit.prone ?? false,
+    immobile: isRepresentedTargetImmobile(targetUnit),
+    partialCover: targetPartialCover,
+  };
+  const minimumRange = minimumRangeForWeapons(
+    weapons,
     distance,
-    minimumRangeForWeapons(
-      weapons,
-      distance,
-      isGroundToGroundGameAttack(attackerUnit, targetUnit),
-    ),
+    isGroundToGroundGameAttack(attackerUnit, targetUnit),
   );
+  const weaponRangeProfiles = weapons.map((weapon) => ({
+    short: weapon.ranges.short,
+    medium: weapon.ranges.medium,
+    long: weapon.ranges.long,
+    extreme: weapon.ranges.extreme,
+    minimum: weapon.ranges.minimum,
+  }));
+  const c3State = combatState.c3State;
+  const c3Selection =
+    indirectFire?.available === true || !c3State
+      ? undefined
+      : selectC3RangeBracket({
+          attackerEntityId: attacker.unitId,
+          targetPosition: targetUnit.position,
+          weaponRangeProfiles,
+          directRangeBracket: rangeBracket,
+          c3State,
+        });
+  const c3WeaponRangeProfile =
+    c3Selection !== undefined
+      ? weaponRangeProfiles[c3Selection.weaponIndex]
+      : undefined;
+  let c3Result: ReturnType<typeof calculateToHitWithC3>['c3Result'] | undefined;
+  const toHitCalc =
+    c3Selection !== undefined && c3WeaponRangeProfile !== undefined && c3State
+      ? (() => {
+          const c3ToHit = calculateToHitWithC3(
+            attackerState,
+            targetState,
+            rangeBracket,
+            distance,
+            {
+              attackerEntityId: attacker.unitId,
+              targetPosition: targetUnit.position,
+              weaponRangeProfile: c3WeaponRangeProfile,
+              c3State,
+            },
+            minimumRange,
+          );
+          c3Result = c3ToHit.c3Result.benefitApplied
+            ? c3ToHit.c3Result
+            : undefined;
+          return c3ToHit;
+        })()
+      : calculateToHit(
+          attackerState,
+          targetState,
+          rangeBracket,
+          distance,
+          minimumRange,
+        );
   const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
     name: modifier.name,
     value: modifier.value,
@@ -156,9 +208,13 @@ export function deriveToHitProjection({
   }
 
   return {
+    rangeBracket: c3Result?.bestBracket ?? rangeBracket,
     toHitNumber,
     toHitModifiers: modifiers,
     toHitReason: formatToHitReason(toHitNumber, modifiers),
+    c3BenefitApplied: c3Result?.benefitApplied,
+    c3SpotterId: c3Result?.spotterId,
+    c3SpotterRange: c3Result?.spotterRange,
   };
 }
 

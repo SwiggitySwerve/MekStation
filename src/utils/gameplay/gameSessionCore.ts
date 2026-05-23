@@ -74,6 +74,7 @@ import {
 import { allUnitsLocked, deriveState } from './gameState';
 import { isGroundToGroundGameAttack } from './groundToGround';
 import { calculateInterveningTerrainModifier, calculateToHit } from './toHit';
+import { calculateToHitWithC3, selectC3RangeBracket } from './toHit/c3';
 
 export interface ICreateGameSessionOptions {
   readonly id?: string;
@@ -435,6 +436,7 @@ export function declareAttack(
     throw new Error(`Attacker ${attackerId} not found in units`);
   }
 
+  const resolvedTargetHex = targetHex ?? targetUnit.position;
   const interveningTerrainModifier = calculateInterveningTerrainModifier(
     interveningTerrainEffects,
   );
@@ -446,29 +448,79 @@ export function declareAttack(
       modifier !== null && modifier !== undefined,
   );
 
-  const toHitCalc = calculateToHit(
-    {
-      gunnery: attacker.gunnery,
-      movementType: attackerUnit.movementThisTurn,
-      heat: attackerUnit.heat,
-      damageModifiers: terrainModifiers,
-      prone: attackerUnit.prone ?? false,
-    },
-    {
-      movementType: targetUnit.movementThisTurn,
-      hexesMoved: targetUnit.hexesMovedThisTurn,
-      prone: targetUnit.prone ?? false,
-      immobile: isRepresentedTargetImmobile(targetUnit),
-      partialCover: targetPartialCover,
-    },
-    rangeBracket,
+  const attackerState = {
+    gunnery: attacker.gunnery,
+    movementType: attackerUnit.movementThisTurn,
+    heat: attackerUnit.heat,
+    damageModifiers: terrainModifiers,
+    prone: attackerUnit.prone ?? false,
+  };
+  const targetState = {
+    movementType: targetUnit.movementThisTurn,
+    hexesMoved: targetUnit.hexesMovedThisTurn,
+    prone: targetUnit.prone ?? false,
+    immobile: isRepresentedTargetImmobile(targetUnit),
+    partialCover: targetPartialCover,
+  };
+  const minimumRange = minimumRangeForAttack(
+    weapons,
     range,
-    minimumRangeForAttack(
-      weapons,
-      range,
-      isGroundToGroundGameAttack(attackerUnit, targetUnit),
-    ),
+    isGroundToGroundGameAttack(attackerUnit, targetUnit),
   );
+  const c3State = session.currentState.c3State;
+  const indirectAttack =
+    indirectFireResolution?.permitted === true &&
+    indirectFireResolution.isIndirect;
+  const weaponRangeProfiles = weapons.map((weapon) => ({
+    short: weapon.shortRange,
+    medium: weapon.mediumRange,
+    long: weapon.longRange,
+    extreme: weapon.extremeRange,
+    minimum: weapon.minRange,
+  }));
+  const c3Selection =
+    indirectAttack || !c3State
+      ? undefined
+      : selectC3RangeBracket({
+          attackerEntityId: attackerId,
+          targetPosition: resolvedTargetHex,
+          weaponRangeProfiles,
+          directRangeBracket: rangeBracket,
+          c3State,
+        });
+  const c3WeaponRangeProfile =
+    c3Selection !== undefined
+      ? weaponRangeProfiles[c3Selection.weaponIndex]
+      : undefined;
+  let effectiveRangeBracket = rangeBracket;
+  const toHitCalc =
+    c3Selection !== undefined && c3WeaponRangeProfile !== undefined && c3State
+      ? (() => {
+          const c3ToHit = calculateToHitWithC3(
+            attackerState,
+            targetState,
+            rangeBracket,
+            range,
+            {
+              attackerEntityId: attackerId,
+              targetPosition: resolvedTargetHex,
+              weaponRangeProfile: c3WeaponRangeProfile,
+              c3State,
+            },
+            minimumRange,
+          );
+          if (c3ToHit.c3Result.benefitApplied) {
+            effectiveRangeBracket = c3ToHit.c3Result.bestBracket;
+          }
+          return c3ToHit;
+        })()
+      : calculateToHit(
+          attackerState,
+          targetState,
+          rangeBracket,
+          range,
+          minimumRange,
+        );
 
   const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
     name: modifier.name,
@@ -515,7 +567,7 @@ export function declareAttack(
     finalToHit,
     modifiers,
     weaponAttackData,
-    rangeBracket,
+    effectiveRangeBracket,
   );
 
   let updatedSession = appendEvent(session, event);
@@ -531,7 +583,6 @@ export function declareAttack(
     indirectFireResolution.isIndirect &&
     weaponIds.length > 0
   ) {
-    const resolvedTargetHex = targetHex ?? targetUnit.position;
     const eventWeaponId = weaponIds[0];
     const eventSequence = updatedSession.events.length;
     if (

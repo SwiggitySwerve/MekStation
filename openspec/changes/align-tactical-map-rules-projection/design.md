@@ -38,6 +38,13 @@ Combat overlays must be weapon-backed when the selected unit has configured weap
 
 The combat projection must expose range band, selected weapons, firing arc, LOS, cover, fog visibility, heat/ammo impact, and invalid reasons. Selected-weapon firing-arc overlays must respect mounted arcs; weapons with all-arc/unknown mounting keep the broader overlay rather than pretending a narrower arc is authoritative.
 
+C3 range projection is pinned to MegaMek tactical behavior:
+`Compute.getRangeMods(...)` asks `ComputeC3Spotter.findC3Spotter(...)`, then
+`RangeType.rangeBracketC3(...)` can improve the attacker's direct-fire range
+bracket when a connected C3 spotter has a better bracket to the target. C3 does
+not replace indirect-fire resolution, and minimum-range penalties continue to
+use the attacker's distance.
+
 ## Visibility/Fog
 
 Fog targetability and rendered token state must use the same grid and LOS assumptions as attack validation. Hidden or last-known contacts may render as intelligence, but they must not remain active/valid targets unless the rules projection says the current viewer can legally target them.

@@ -15,6 +15,7 @@
 - [x] Add combat projection fixtures for range bands, LOS/cover invalid reasons, ammo/heat projection, and multi-weapon volley display.
 - [ ] Source-check and fixture special combat cases against BattleTech/MegaMek: C3, indirect fire handoff, underwater/torpedo restrictions, minimum/short/medium/long/extreme range policy, and physical attack target legality.
   - [x] Weapon-backed map projection now preserves represented extreme range and agrees with committed engine attacks for extreme bracket/to-hit.
+  - [x] C3 network spotter range now source-pins preview/commit agreement for represented direct attacks, including the C3-improved range bracket and spotter metadata while preserving indirect-fire separation.
   - [x] Physical attack target range now agrees between map highlights and committed declarations: non-adjacent unit targets are not highlighted and direct commits resolve as impossible.
   - [x] Physical punch/kick elevation legality now agrees between command preview rows and committed declarations, using MegaMek-style target vertical spans.
   - [x] Physical push target legality now agrees between command preview rows and committed declarations for represented unit type, facing, prone, and same-elevation gates.

@@ -23,6 +23,12 @@ import {
 } from '@/types/gameplay';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
+import {
+  addC3Network,
+  createC3MasterSlaveNetwork,
+  createC3Unit,
+  createEmptyC3State,
+} from '@/utils/gameplay/c3Network';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import {
   advancePhase,
@@ -357,6 +363,66 @@ function setupSessionAtWeaponAttack(): IGameSession {
   };
 
   return session;
+}
+
+function setupC3SessionAtWeaponAttack(): IGameSession {
+  let session = createGameSession(
+    {
+      mapRadius: 6,
+      turnLimit: 0,
+      victoryConditions: ['elimination'],
+      optionalRules: [],
+    } as never,
+    buildUnitsWithSpotter(),
+  );
+  session = startGame(session, GameSide.Player);
+  session = rollInitiative(session);
+  session = advancePhase(session);
+  session = advancePhase(session);
+  session.currentState.units.a1 = {
+    ...session.currentState.units.a1,
+    position: { q: 0, r: 0 },
+    facing: Facing.Southeast,
+    movementThisTurn: MovementType.Stationary,
+  };
+  session.currentState.units.t1 = {
+    ...session.currentState.units.t1,
+    position: { q: 6, r: 0 },
+    facing: Facing.North,
+    movementThisTurn: MovementType.Stationary,
+  };
+  session.currentState.units.s1 = {
+    ...session.currentState.units.s1,
+    position: { q: 5, r: -1 },
+    facing: Facing.North,
+    movementThisTurn: MovementType.Stationary,
+  };
+
+  const c3Network = createC3MasterSlaveNetwork('test-c3-network', [
+    createC3Unit({
+      entityId: 'a1',
+      teamId: GameSide.Player,
+      role: 'master',
+      position: session.currentState.units.a1.position,
+    }),
+    createC3Unit({
+      entityId: 's1',
+      teamId: GameSide.Player,
+      role: 'slave',
+      position: session.currentState.units.s1.position,
+    }),
+  ]);
+  if (!c3Network) {
+    throw new Error('Expected C3 test network to be valid');
+  }
+
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      c3State: addC3Network(createEmptyC3State(), c3Network),
+    },
+  };
 }
 
 function setupVehicleTargetSessionAtWeaponAttack(): IGameSession {
@@ -1741,6 +1807,90 @@ describe('interactive attack projection agreement', () => {
           name: 'Range (medium)',
           value: 2,
           source: 'range',
+        }),
+      ]),
+    );
+  });
+
+  it('uses C3 spotter range brackets in preview and committed attacks', () => {
+    const session = setupC3SessionAtWeaponAttack();
+    const grid = makeClearGrid(6);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 6, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [makeWeaponStatus()],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 6 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: true,
+      rangeBracket: RangeBracket.Short,
+      c3BenefitApplied: true,
+      c3SpotterId: 's1',
+      c3SpotterRange: 2,
+      toHitNumber: 4,
+    });
+    expect(projection?.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Range (short)',
+          value: 0,
+          source: 'range',
+        }),
+        expect.objectContaining({
+          name: 'C3 Network',
+          value: 0,
+          source: 'equipment',
+        }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      grid,
+    });
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.range).toBe(projection!.rangeBracket);
+    expect(payload.toHitNumber).toBe(projection!.toHitNumber);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Range (short)',
+          value: 0,
+          source: 'range',
+        }),
+        expect.objectContaining({
+          name: 'C3 Network',
+          value: 0,
+          source: 'equipment',
         }),
       ]),
     );
