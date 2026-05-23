@@ -2044,6 +2044,14 @@ describe('HexMapDisplay combat projection', () => {
             movementMode: 'walk',
             reachable: true,
             movementType: MovementType.Walk,
+            standUpRequired: true,
+            standUpMode: 'careful',
+            standUpCost: 2,
+            standUpPsrRequired: true,
+            standUpPsrReason: 'Careful stand',
+            standUpPsrTargetNumber: 4,
+            standUpPsrModifier: -2,
+            standUpPsrModifierDetails: ['Careful stand -2'],
           },
         ]}
         unitWeapons={{
@@ -2119,6 +2127,15 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-movement'),
     ).toHaveTextContent('Movement: reachable - walk; 3 MP');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up'),
+    ).toHaveTextContent('Careful stand: +2 MP');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up-psr'),
+    ).toHaveTextContent('Careful stand TN 4 (-2)');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-stand-up-modifiers'),
+    ).toHaveTextContent('Modifiers: Careful stand -2');
     expect(screen.getByTestId('hex-tactical-tooltip-combat')).toHaveTextContent(
       'Combat: Blocked',
     );
