@@ -12,11 +12,19 @@ import {
   GameSide,
   LockState,
   MovementType,
+  TerrainType,
   type IMovementCapability,
+  type IHexCoordinate,
+  type IHexGrid,
   type IUnitGameState,
 } from '@/types/gameplay';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { deriveReachableHexes } from '@/utils/gameplay/movement/reachable';
+import { coordToKey } from '@/utils/gameplay/hexMath';
+import {
+  deriveMovementRangeHexForDestination,
+  deriveReachableHexes,
+} from '@/utils/gameplay/movement/reachable';
+import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 function makeUnitAtOrigin(): IUnitGameState {
   return {
@@ -27,6 +35,7 @@ function makeUnitAtOrigin(): IUnitGameState {
     heat: 0,
     movementThisTurn: MovementType.Stationary,
     hexesMovedThisTurn: 0,
+    piloting: 5,
     armor: {},
     structure: {},
     destroyedLocations: [],
@@ -37,6 +46,33 @@ function makeUnitAtOrigin(): IUnitGameState {
     destroyed: false,
     lockState: LockState.Pending,
   };
+}
+
+function setHex(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  terrain: string,
+  elevation = 0,
+): IHexGrid {
+  const key = coordToKey(coord);
+  const hex = grid.hexes.get(key);
+  if (!hex) throw new Error(`Missing test hex ${key}`);
+  const hexes = new Map(grid.hexes);
+  hexes.set(key, { ...hex, terrain, elevation });
+  return { ...grid, hexes };
+}
+
+function setOccupant(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  occupantId: string,
+): IHexGrid {
+  const key = coordToKey(coord);
+  const hex = grid.hexes.get(key);
+  if (!hex) throw new Error(`Missing test hex ${key}`);
+  const hexes = new Map(grid.hexes);
+  hexes.set(key, { ...hex, occupantId });
+  return { ...grid, hexes };
 }
 
 describe('deriveReachableHexes', () => {
@@ -90,6 +126,917 @@ describe('deriveReachableHexes', () => {
     expect(neighbor?.mpCost).toBe(1);
   });
 
+  it('subtracts normal stand-up MP before projecting prone ground reach', () => {
+    const grid = createHexGrid({ radius: 6 });
+    const unit = { ...makeUnitAtOrigin(), prone: true };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+
+    const maxStandingWalk = result.find(
+      (entry) => entry.hex.q === 2 && entry.hex.r === 0,
+    );
+    expect(maxStandingWalk).toMatchObject({
+      mpCost: 4,
+      heatGenerated: 1,
+      reachable: true,
+      movementType: MovementType.Walk,
+      standUpRequired: true,
+      standUpCost: 2,
+      standUpPsrRequired: true,
+      standUpPsrReason: 'Standing up',
+      standUpPsrTargetNumber: 5,
+      standUpPsrModifier: 0,
+    });
+
+    const tooFar = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 3, r: 0 },
+    );
+    expect(tooFar).toMatchObject({
+      mpCost: 5,
+      reachable: false,
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails:
+        'Destination is 3 hexes away, but max range for walk after standing is 2',
+      standUpRequired: true,
+      standUpCost: 2,
+      standUpPsrRequired: true,
+    });
+  });
+
+  it('projects prone jump attempts as blocked until the unit stands', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = { ...makeUnitAtOrigin(), prone: true };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Jump,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      mpCost: 2,
+      heatGenerated: 0,
+      reachable: false,
+      movementType: MovementType.Jump,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails: 'Unit is prone and must stand before jumping',
+      standUpRequired: true,
+      standUpCost: 2,
+      standUpPsrRequired: true,
+      standUpPsrTargetNumber: 5,
+    });
+  });
+
+  it('blocks prone ground projection when destroyed leg plus both arms makes standing impossible', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      prone: true,
+      destroyedLocations: ['left_leg', 'left_arm', 'right_arm'],
+    };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      mpCost: 2,
+      reachable: false,
+      movementType: MovementType.Walk,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails:
+        'Cannot stand with a destroyed leg and both arms destroyed',
+      standUpRequired: true,
+      standUpCost: 2,
+      standUpPsrRequired: true,
+      standUpPsrImpossibleReason:
+        'Cannot stand with a destroyed leg and both arms destroyed',
+    });
+  });
+
+  it('projects stand-up PSR modifier details from represented pilot and gyro state', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      prone: true,
+      piloting: 4,
+      pilotWounds: 1,
+      componentDamage: {
+        engineHits: 0,
+        gyroHits: 1,
+        sensorHits: 0,
+        lifeSupport: 0,
+        cockpitHit: false,
+        actuators: {},
+        weaponsDestroyed: [],
+        heatSinksDestroyed: 0,
+        jumpJetsDestroyed: 0,
+      },
+    };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      reachable: true,
+      standUpPsrTargetNumber: 8,
+      standUpPsrModifier: 4,
+      standUpPsrModifierDetails: ['Gyro damage +3', 'Pilot wounds +1'],
+    });
+  });
+
+  it('reports terrain and elevation costs for reachable ground movement', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 1);
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 3, runMP: 5, jumpMP: 0 };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+
+    const elevatedWoods = result.find((r) => r.hex.q === 1 && r.hex.r === 0);
+    expect(elevatedWoods).toMatchObject({
+      mpCost: 3,
+      terrainCost: 1,
+      elevationDelta: 1,
+      elevationCost: 1,
+      heatGenerated: 1,
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+    expect(elevatedWoods?.path).toEqual([
+      { q: 0, r: 0 },
+      { q: 1, r: 0 },
+    ]);
+  });
+
+  it('prices encoded multi-feature terrain consistently with grid terrain projection', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([
+        { type: TerrainType.Rough, level: 1 },
+        { type: TerrainType.HeavyWoods, level: 1 },
+      ]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 3, runMP: 5, jumpMP: 0 };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+
+    const encodedHeavyWoods = result.find(
+      (r) => r.hex.q === 1 && r.hex.r === 0,
+    );
+    expect(encodedHeavyWoods).toMatchObject({
+      mpCost: 3,
+      terrainCost: 2,
+      elevationDelta: 0,
+      elevationCost: 0,
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+  });
+
+  it('marks ground destinations blocked when they require an illegal elevation climb', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 3);
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 5, runMP: 8, jumpMP: 0 };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+
+    const blocked = result.find((r) => r.hex.q === 1 && r.hex.r === 0);
+    expect(blocked).toMatchObject({
+      mpCost: Infinity,
+      elevationDelta: 3,
+      elevationCost: 3,
+      movementMode: 'walk',
+      reachable: false,
+      movementType: MovementType.Walk,
+      blockedReason: 'Elevation change of 3 exceeds ground movement limit',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails:
+        'Elevation change of 3 exceeds ground movement limit',
+    });
+  });
+
+  it('uses MegaMek vehicle elevation limits for tracked movement reachability', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 2);
+    const unit = makeUnitAtOrigin();
+
+    const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 5,
+      runMP: 8,
+      jumpMP: 0,
+      movementMode: 'tracked',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+    const walking = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 5,
+      runMP: 8,
+      jumpMP: 0,
+      movementMode: 'walk',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(tracked).toMatchObject({
+      mpCost: Infinity,
+      elevationDelta: 2,
+      elevationCost: 2,
+      movementMode: 'tracked',
+      reachable: false,
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails:
+        'Elevation change of 2 exceeds Tracked movement limit',
+    });
+    expect(walking).toMatchObject({
+      mpCost: 3,
+      elevationDelta: 2,
+      elevationCost: 2,
+      movementMode: 'walk',
+      reachable: true,
+    });
+  });
+
+  it('marks destinations over the MP budget with the engine insufficient-MP reason', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 0);
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 1, runMP: 1, jumpMP: 0 };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+
+    const expensiveWoods = result.find((r) => r.hex.q === 1 && r.hex.r === 0);
+    expect(expensiveWoods).toMatchObject({
+      mpCost: 2,
+      terrainCost: 1,
+      reachable: false,
+      movementType: MovementType.Walk,
+      blockedReason: 'Path costs 2 MP, but only 1 MP is available',
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails: 'Path costs 2 MP, but only 1 MP is available',
+    });
+  });
+
+  it('uses vehicle motive mode when pricing terrain for reachability', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 0);
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'vtol',
+    };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+
+    const woods = result.find((r) => r.hex.q === 1 && r.hex.r === 0);
+    expect(woods).toMatchObject({
+      mpCost: 1,
+      terrainCost: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementMode: 'vtol',
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+  });
+
+  it('allows walking through depth-1 water while blocking tracked entry', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Water, 0);
+    const unit = makeUnitAtOrigin();
+
+    const walking = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'walk',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+    const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'tracked',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+    const hover = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'hover',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(walking).toMatchObject({
+      mpCost: 2,
+      terrainCost: 1,
+      heatGenerated: 1,
+      movementMode: 'walk',
+      reachable: true,
+    });
+    expect(tracked).toMatchObject({
+      movementMode: 'tracked',
+      reachable: false,
+      blockedReason: 'Water blocks ground movement',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Water blocks ground movement',
+    });
+    expect(hover).toMatchObject({
+      mpCost: 1,
+      terrainCost: 0,
+      heatGenerated: 0,
+      movementMode: 'hover',
+      reachable: true,
+    });
+  });
+
+  it('prices encoded deep water even when another feature is primary', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([
+        { type: TerrainType.Water, level: 2 },
+        { type: TerrainType.Smoke, level: 1 },
+      ]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const walking = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      movementMode: 'walk',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+    const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'tracked',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+    const hover = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'hover',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(walking).toMatchObject({
+      mpCost: 4,
+      terrainCost: 3,
+      movementMode: 'walk',
+      reachable: true,
+    });
+    expect(tracked).toMatchObject({
+      movementMode: 'tracked',
+      reachable: false,
+      blockedReason: 'Water blocks ground movement',
+      movementInvalidReason: 'TerrainBlocked',
+    });
+    expect(hover).toMatchObject({
+      mpCost: 1,
+      movementMode: 'hover',
+      reachable: true,
+    });
+  });
+
+  it('lets tracked movement cross ice-covered water as surface terrain', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([
+        { type: TerrainType.Water, level: 2 },
+        { type: TerrainType.Ice, level: 1 },
+      ]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'tracked',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(tracked).toMatchObject({
+      mpCost: 1,
+      terrainCost: 0,
+      heatGenerated: 0,
+      movementMode: 'tracked',
+      reachable: true,
+    });
+  });
+
+  it('lets tracked movement cross bridge-covered water as surface terrain', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([
+        { type: TerrainType.Water, level: 2 },
+        { type: TerrainType.Bridge, level: 1 },
+      ]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'tracked',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(tracked).toMatchObject({
+      mpCost: 1,
+      terrainCost: 0,
+      heatGenerated: 0,
+      movementMode: 'tracked',
+      reachable: true,
+    });
+  });
+
+  it('lets tracked movement cross paved-road water as surface terrain', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([
+        { type: TerrainType.Water, level: 2 },
+        { type: TerrainType.Road, level: 1 },
+      ]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'tracked',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(tracked).toMatchObject({
+      mpCost: 1,
+      terrainCost: 0,
+      heatGenerated: 0,
+      movementMode: 'tracked',
+      reachable: true,
+    });
+  });
+
+  it.each([3, 4] as const)(
+    'blocks tracked movement from treating road level %i water as paved surface',
+    (roadLevel) => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+      grid = setHex(
+        grid,
+        { q: 1, r: 0 },
+        terrainStringFromFeatures([
+          { type: TerrainType.Water, level: 2 },
+          { type: TerrainType.Road, level: roadLevel },
+        ]),
+        0,
+      );
+      const unit = makeUnitAtOrigin();
+
+      const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
+        walkMP: 3,
+        runMP: 5,
+        jumpMP: 0,
+        movementMode: 'tracked',
+      }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+      expect(tracked).toMatchObject({
+        mpCost: Infinity,
+        heatGenerated: 0,
+        movementMode: 'tracked',
+        reachable: false,
+        blockedReason: 'Water blocks ground movement',
+        movementInvalidReason: 'TerrainBlocked',
+        movementInvalidDetails: 'Water blocks ground movement',
+      });
+    },
+  );
+
+  it('projects tracked road-bonus destinations one MP beyond base walking MP', () => {
+    let grid = createHexGrid({ radius: 4 });
+    for (const q of [1, 2, 3]) {
+      grid = setHex(
+        grid,
+        { q, r: 0 },
+        terrainStringFromFeatures([{ type: TerrainType.Road, level: 1 }]),
+        0,
+      );
+    }
+    const unit = makeUnitAtOrigin();
+
+    const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 2,
+      runMP: 3,
+      jumpMP: 0,
+      movementMode: 'tracked',
+    }).find((r) => r.hex.q === 3 && r.hex.r === 0);
+
+    expect(tracked).toMatchObject({
+      mpCost: 3,
+      terrainCost: 0,
+      heatGenerated: 0,
+      movementMode: 'tracked',
+      reachable: true,
+    });
+  });
+
+  it('requires dirt and gravel road bonus paths to match MegaMek motive eligibility', () => {
+    let dirtGrid = createHexGrid({ radius: 4 });
+    let gravelGrid = createHexGrid({ radius: 4 });
+    for (const q of [1, 2, 3]) {
+      dirtGrid = setHex(
+        dirtGrid,
+        { q, r: 0 },
+        terrainStringFromFeatures([{ type: TerrainType.Road, level: 3 }]),
+        0,
+      );
+      gravelGrid = setHex(
+        gravelGrid,
+        { q, r: 0 },
+        terrainStringFromFeatures([{ type: TerrainType.Road, level: 4 }]),
+        0,
+      );
+    }
+    const unit = makeUnitAtOrigin();
+    const baseCapability = { walkMP: 2, runMP: 3, jumpMP: 0 } as const;
+
+    const hoverDirt = deriveReachableHexes(unit, MovementType.Walk, dirtGrid, {
+      ...baseCapability,
+      movementMode: 'hover',
+    }).find((r) => r.hex.q === 3 && r.hex.r === 0);
+    const trackedDirt = deriveReachableHexes(
+      unit,
+      MovementType.Walk,
+      dirtGrid,
+      {
+        ...baseCapability,
+        movementMode: 'tracked',
+      },
+    ).find((r) => r.hex.q === 3 && r.hex.r === 0);
+    const trackedGravel = deriveReachableHexes(
+      unit,
+      MovementType.Walk,
+      gravelGrid,
+      {
+        ...baseCapability,
+        movementMode: 'tracked',
+      },
+    ).find((r) => r.hex.q === 3 && r.hex.r === 0);
+    const wheeledGravel = deriveReachableHexes(
+      unit,
+      MovementType.Walk,
+      gravelGrid,
+      {
+        ...baseCapability,
+        movementMode: 'wheeled',
+      },
+    ).find((r) => r.hex.q === 3 && r.hex.r === 0);
+
+    expect(hoverDirt).toMatchObject({ reachable: true, mpCost: 3 });
+    expect(trackedDirt).toMatchObject({
+      reachable: false,
+      movementInvalidReason: 'NoLegalPath',
+    });
+    expect(trackedGravel).toMatchObject({ reachable: true, mpCost: 3 });
+    expect(wheeledGravel).toMatchObject({
+      reachable: false,
+      movementInvalidReason: 'NoLegalPath',
+    });
+  });
+
+  it('blocks naval movement under low bridges while letting submarines pass with depth clearance', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Water, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([
+        { type: TerrainType.Water, level: 2 },
+        { type: TerrainType.Bridge, level: 0 },
+      ]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const naval = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'naval',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+    const submarine = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'submarine',
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(naval).toMatchObject({
+      reachable: false,
+      movementMode: 'naval',
+      blockedReason: 'Naval movement lacks bridge clearance',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Naval movement lacks bridge clearance',
+    });
+    expect(submarine).toMatchObject({
+      mpCost: 1,
+      terrainCost: 0,
+      heatGenerated: 0,
+      movementMode: 'submarine',
+      reachable: true,
+    });
+  });
+
+  it('lets flotation-hull tracked vehicles enter water with water MP costs', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      movementMode: 'tracked',
+      waterCapability: { flotationHull: true },
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(tracked).toMatchObject({
+      mpCost: 4,
+      terrainCost: 3,
+      heatGenerated: 0,
+      movementMode: 'tracked',
+      reachable: true,
+    });
+  });
+
+  it('lets flotation-hull tracked vehicles run one first step into water', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const tracked = deriveReachableHexes(unit, MovementType.Run, grid, {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      movementMode: 'tracked',
+      waterCapability: { flotationHull: true },
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(tracked).toMatchObject({
+      mpCost: 4,
+      terrainCost: 3,
+      heatGenerated: 0,
+      movementMode: 'tracked',
+      reachable: true,
+    });
+  });
+
+  it('blocks flotation-hull tracked vehicles from running into water after the first step', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 2, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const tracked = deriveReachableHexes(unit, MovementType.Run, grid, {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      movementMode: 'tracked',
+      waterCapability: { flotationHull: true },
+    }).find((r) => r.hex.q === 2 && r.hex.r === 0);
+
+    expect(tracked).toMatchObject({
+      movementMode: 'tracked',
+      reachable: false,
+      blockedReason: 'Water blocks ground movement',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Water blocks ground movement',
+    });
+  });
+
+  it('lets fully amphibious tracked vehicles run into water with amphibious MP cost', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const tracked = deriveReachableHexes(unit, MovementType.Run, grid, {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      movementMode: 'tracked',
+      waterCapability: { fullyAmphibious: true },
+    }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+    expect(tracked).toMatchObject({
+      mpCost: 2,
+      terrainCost: 1,
+      heatGenerated: 0,
+      movementMode: 'tracked',
+      reachable: true,
+    });
+  });
+
+  it('lets VTOL motive ignore abrupt elevation changes for reachability', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 4);
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'vtol',
+    };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+
+    const highGround = result.find((r) => r.hex.q === 1 && r.hex.r === 0);
+    expect(highGround).toMatchObject({
+      mpCost: 1,
+      elevationDelta: 4,
+      elevationCost: 0,
+      movementMode: 'vtol',
+      reachable: true,
+    });
+  });
+
+  it('lets WiGE motive ignore ground terrain and abrupt elevation like an airborne mover', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.HeavyWoods, 4);
+    const unit = makeUnitAtOrigin();
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'wige',
+    });
+
+    const highWoods = result.find((r) => r.hex.q === 1 && r.hex.r === 0);
+    expect(highWoods).toMatchObject({
+      mpCost: 1,
+      terrainCost: 0,
+      elevationDelta: 4,
+      elevationCost: 0,
+      movementMode: 'wige',
+      reachable: true,
+      movementType: MovementType.Walk,
+    });
+  });
+
+  it('requires naval motive movement to stay on water terrain', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Water, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Water, 0);
+    grid = setHex(grid, { q: 0, r: 1 }, TerrainType.Clear, 0);
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = {
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'naval',
+    };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+    const water = result.find((r) => r.hex.q === 1 && r.hex.r === 0);
+    const land = result.find((r) => r.hex.q === 0 && r.hex.r === 1);
+
+    expect(water).toMatchObject({
+      mpCost: 1,
+      terrainCost: 0,
+      elevationCost: 0,
+      movementMode: 'naval',
+      reachable: true,
+    });
+    expect(land).toMatchObject({
+      movementMode: 'naval',
+      reachable: false,
+      blockedReason: 'Naval movement requires water terrain',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Naval movement requires water terrain',
+    });
+  });
+
+  it.each<['hydrofoil' | 'submarine', string]>([
+    ['hydrofoil', 'Hydrofoil movement requires water terrain'],
+    ['submarine', 'Submarine movement requires water terrain'],
+  ])(
+    'marks %s land destinations blocked with a motive-specific reason',
+    (movementMode, blockedReason) => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Water, 0);
+      grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+      const unit = makeUnitAtOrigin();
+
+      const result = deriveReachableHexes(unit, MovementType.Walk, grid, {
+        walkMP: 3,
+        runMP: 5,
+        jumpMP: 0,
+        movementMode,
+      }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+      expect(result).toMatchObject({
+        movementMode,
+        reachable: false,
+        blockedReason,
+        movementInvalidReason: 'TerrainBlocked',
+        movementInvalidDetails: blockedReason,
+      });
+    },
+  );
+
+  it.each<['rail' | 'maglev', string]>([
+    ['rail', 'Rail movement requires rail terrain'],
+    ['maglev', 'Maglev movement requires rail terrain'],
+  ])(
+    'marks %s destinations blocked until the map has rail terrain',
+    (movementMode, blockedReason) => {
+      const grid = createHexGrid({ radius: 3 });
+      const unit = makeUnitAtOrigin();
+
+      const result = deriveReachableHexes(unit, MovementType.Walk, grid, {
+        walkMP: 3,
+        runMP: 5,
+        jumpMP: 0,
+        movementMode,
+      }).find((r) => r.hex.q === 1 && r.hex.r === 0);
+
+      expect(result).toMatchObject({
+        movementMode,
+        reachable: false,
+        blockedReason,
+        movementInvalidReason: 'TerrainBlocked',
+        movementInvalidDetails: blockedReason,
+      });
+    },
+  );
+
   it('expands the reachable envelope when switching Walk → Run', () => {
     const grid = createHexGrid({ radius: 8 });
     const unit = makeUnitAtOrigin();
@@ -100,6 +1047,79 @@ describe('deriveReachableHexes', () => {
 
     // Run covers strictly more ground than Walk on an open grid.
     expect(run.length).toBeGreaterThan(walk.length);
+  });
+
+  it('uses heat-penalized MP for movement overlays', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = { ...makeUnitAtOrigin(), heat: 10 };
+    const cap: IMovementCapability = { walkMP: 5, runMP: 8, jumpMP: 0 };
+
+    const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
+
+    expect(result.some((entry) => entry.hex.q === 3 && entry.hex.r === 0)).toBe(
+      true,
+    );
+    expect(result.some((entry) => entry.hex.q === 4 && entry.hex.r === 0)).toBe(
+      false,
+    );
+  });
+
+  it('marks occupied landing and destination hexes blocked', () => {
+    let grid = createHexGrid({ radius: 4 });
+    grid = setOccupant(grid, { q: 1, r: 0 }, 'enemy-1');
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
+
+    const walk = deriveReachableHexes(unit, MovementType.Walk, grid, cap).find(
+      (r) => r.hex.q === 1 && r.hex.r === 0,
+    );
+    const jump = deriveReachableHexes(unit, MovementType.Jump, grid, cap).find(
+      (r) => r.hex.q === 1 && r.hex.r === 0,
+    );
+
+    expect(walk).toMatchObject({
+      reachable: false,
+      heatGenerated: 0,
+      blockedReason: 'Destination hex is occupied',
+      movementInvalidReason: 'DestinationOccupied',
+      movementInvalidDetails: 'Destination hex is occupied',
+    });
+    expect(jump).toMatchObject({
+      reachable: false,
+      heatGenerated: 0,
+      blockedReason: 'Destination hex is occupied',
+      movementInvalidReason: 'DestinationOccupied',
+      movementInvalidDetails: 'Destination hex is occupied',
+    });
+  });
+
+  it('marks shutdown units immobile in movement projection', () => {
+    const grid = createHexGrid({ radius: 4 });
+    const unit = { ...makeUnitAtOrigin(), shutdown: true };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
+
+    const walk = deriveReachableHexes(unit, MovementType.Walk, grid, cap).find(
+      (r) => r.hex.q === 1 && r.hex.r === 0,
+    );
+    const jump = deriveReachableHexes(unit, MovementType.Jump, grid, cap).find(
+      (r) => r.hex.q === 1 && r.hex.r === 0,
+    );
+
+    expect(walk).toMatchObject({
+      reachable: false,
+      mpCost: 0,
+      heatGenerated: 0,
+      blockedReason: 'Unit is shut down and cannot move',
+      movementInvalidReason: 'UnitImmobile',
+      movementInvalidDetails: 'Unit is shut down and cannot move',
+    });
+    expect(jump).toMatchObject({
+      reachable: false,
+      mpCost: 0,
+      heatGenerated: 0,
+      movementInvalidReason: 'UnitImmobile',
+      movementInvalidDetails: 'Unit is shut down and cannot move',
+    });
   });
 
   it('jump reach is a flat hex-distance gate regardless of path', () => {
@@ -113,6 +1133,9 @@ describe('deriveReachableHexes', () => {
     for (const entry of jump) {
       expect(entry.movementType).toBe(MovementType.Jump);
       expect(entry.mpCost).toBeLessThanOrEqual(3);
+      expect(entry.terrainCost).toBe(0);
+      expect(entry.elevationCost).toBe(0);
+      expect(entry.heatGenerated).toBeGreaterThanOrEqual(3);
     }
 
     // Origin hex is excluded.
@@ -123,6 +1146,52 @@ describe('deriveReachableHexes', () => {
     const far = jump.find((r) => r.hex.q === 3 && r.hex.r === 0);
     expect(far).toBeDefined();
     expect(far?.mpCost).toBe(3);
+    expect(far?.heatGenerated).toBe(3);
+  });
+
+  it('caps jump landing rise by jump MP while allowing equal rises and drops', () => {
+    let grid = createHexGrid({ radius: 5 });
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 3);
+    grid = setHex(grid, { q: 2, r: 0 }, TerrainType.Clear, 2);
+    grid = setHex(grid, { q: 0, r: 2 }, TerrainType.Clear, -5);
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 2 };
+
+    const jump = deriveReachableHexes(unit, MovementType.Jump, grid, cap);
+    const tooHigh = jump.find((r) => r.hex.q === 1 && r.hex.r === 0);
+    const equalRise = jump.find((r) => r.hex.q === 2 && r.hex.r === 0);
+    const drop = jump.find((r) => r.hex.q === 0 && r.hex.r === 2);
+
+    expect(tooHigh).toMatchObject({
+      mpCost: 1,
+      elevationDelta: 3,
+      elevationCost: 0,
+      terrainCost: 0,
+      heatGenerated: 0,
+      reachable: false,
+      movementType: MovementType.Jump,
+      blockedReason: 'Jump elevation rise of 3 exceeds jump MP 2',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Jump elevation rise of 3 exceeds jump MP 2',
+    });
+    expect(equalRise).toMatchObject({
+      mpCost: 2,
+      elevationDelta: 2,
+      elevationCost: 0,
+      terrainCost: 0,
+      heatGenerated: 3,
+      reachable: true,
+      movementType: MovementType.Jump,
+    });
+    expect(drop).toMatchObject({
+      mpCost: 2,
+      elevationDelta: -5,
+      elevationCost: 0,
+      terrainCost: 0,
+      heatGenerated: 3,
+      reachable: true,
+      movementType: MovementType.Jump,
+    });
   });
 
   it('jump returns empty when unit has zero jumpMP', () => {
@@ -135,6 +1204,24 @@ describe('deriveReachableHexes', () => {
     expect(jump).toEqual([]);
   });
 
+  it('marks off-map jump landings with the engine out-of-bounds reason', () => {
+    const grid = createHexGrid({ radius: 1 });
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 2, runMP: 3, jumpMP: 2 };
+
+    const jump = deriveReachableHexes(unit, MovementType.Jump, grid, cap);
+    const offMap = jump.find((r) => r.hex.q === 2 && r.hex.r === 0);
+
+    expect(offMap).toMatchObject({
+      reachable: false,
+      heatGenerated: 0,
+      movementType: MovementType.Jump,
+      blockedReason: 'Destination is outside map bounds',
+      movementInvalidReason: 'DestinationOutOfBounds',
+      movementInvalidDetails: 'Destination is outside map bounds',
+    });
+  });
+
   it('returned hexes are sorted by ascending mpCost', () => {
     const grid = createHexGrid({ radius: 6 });
     const unit = makeUnitAtOrigin();
@@ -145,5 +1232,90 @@ describe('deriveReachableHexes', () => {
     for (let i = 1; i < result.length; i++) {
       expect(result[i].mpCost).toBeGreaterThanOrEqual(result[i - 1].mpCost);
     }
+  });
+});
+
+describe('deriveMovementRangeHexForDestination', () => {
+  it('projects an on-map destination beyond MP with an engine-aligned insufficient-MP reason', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 2, runMP: 3, jumpMP: 0 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 4, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      hex: { q: 4, r: 0 },
+      mpCost: 4,
+      reachable: false,
+      movementType: MovementType.Walk,
+      movementMode: 'walk',
+      blockedReason: 'Destination is 4 hexes away, but max range for walk is 2',
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails:
+        'Destination is 4 hexes away, but max range for walk is 2',
+    });
+  });
+
+  it('projects a hover destination even when heat leaves no jump MP', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = { ...makeUnitAtOrigin(), heat: 25 };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 2 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Jump,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      hex: { q: 1, r: 0 },
+      mpCost: 1,
+      terrainCost: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      reachable: false,
+      movementType: MovementType.Jump,
+      movementMode: 'jump',
+      blockedReason: 'Destination is 1 hexes away, but max range for jump is 0',
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails:
+        'Destination is 1 hexes away, but max range for jump is 0',
+    });
+  });
+
+  it('projects no-jump-jets hover destinations with the commit validator reason', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Jump,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      hex: { q: 1, r: 0 },
+      mpCost: 0,
+      terrainCost: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      reachable: false,
+      movementType: MovementType.Jump,
+      movementMode: 'jump',
+      blockedReason: 'Unit cannot jump (no jump jets)',
+      movementInvalidReason: 'JumpUnavailable',
+      movementInvalidDetails: 'Unit cannot jump (no jump jets)',
+    });
   });
 });

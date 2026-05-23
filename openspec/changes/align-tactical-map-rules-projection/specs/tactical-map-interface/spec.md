@@ -43,6 +43,14 @@ For each projected movement hex, the map SHALL expose at least movement mode, cu
 - **THEN** the map SHALL avoid presenting it as a legal destination
 - **AND** the UI SHALL expose the specific invalid reason from movement validation
 
+#### Scenario: Prone movement reserves stand-up MP
+
+- **GIVEN** a prone unit previews ground movement
+- **WHEN** the map projects walk or run destinations
+- **THEN** the projection SHALL reserve normal stand-up MP before path MP
+- **AND** the projected hex metadata SHALL expose stand-up cost, PSR target/modifiers when represented, and impossible stand-up reasons
+- **AND** jump destinations SHALL be blocked until the unit stands
+
 ### Requirement: Combat Projection Explanation
 
 Combat highlights SHALL expose weapon-backed attack legality, range, firing arc, LOS, cover, visibility, heat, ammo, and disabled reasons.

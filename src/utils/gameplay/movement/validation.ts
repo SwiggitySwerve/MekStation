@@ -118,7 +118,8 @@ export function validateMovement(
 
 /**
  * Check if a unit is prone and needs to stand.
- * Standing costs all walking MP.
+ * Normal stand-up costs 2 MP. MegaMek charges 1 MP when the unit only has
+ * runMP 1, matching GetUpStep's reduced-cost edge case.
  */
 export function canStand(
   position: IUnitPosition,
@@ -131,7 +132,7 @@ export function canStand(
  * Get the MP cost to stand from prone.
  */
 export function getStandingCost(capability: IMovementCapability): number {
-  return capability.walkMP;
+  return capability.runMP === 1 ? 1 : 2;
 }
 
 /**
