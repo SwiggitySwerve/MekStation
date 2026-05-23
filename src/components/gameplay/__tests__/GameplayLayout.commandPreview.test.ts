@@ -388,6 +388,56 @@ describe('buildCommandPreviewInputs', () => {
     expect(inputs.physicalAttackOption?.toHit.allowed).toBe(false);
   });
 
+  it('preserves physical elevation restrictions from the shared map grid', () => {
+    const baseGrid = createMinimalGrid(3);
+    const hexes = new Map(baseGrid.hexes);
+    const targetHex = hexes.get('1,0');
+    expect(targetHex).toBeDefined();
+    hexes.set('1,0', { ...targetHex!, elevation: 2 });
+    const grid = { ...baseGrid, hexes };
+    const currentState = makeState({
+      phase: GamePhase.PhysicalAttack,
+      units: {
+        a1: makeUnitState({
+          id: 'a1',
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+        }),
+        t1: makeUnitState({
+          id: 't1',
+          side: GameSide.Opponent,
+          position: { q: 1, r: 0 },
+        }),
+      },
+    });
+
+    const inputs = buildCommandPreviewInputs({
+      currentState,
+      selectedUnitId: 'a1',
+      activeTargetId: null,
+      tokens: [],
+      unitBindings: [makeUnitBinding()],
+      mapRadius: 3,
+      grid,
+      unitWeapons: {},
+      hitChance: null,
+      physicalAttackTargetId: 't1',
+      physicalAttackType: 'kick',
+      physicalAttackLimb: 'rightLeg',
+    });
+
+    expect(inputs.physicalAttackOption).toMatchObject({
+      attackType: 'kick',
+      limb: 'rightLeg',
+      restrictionsFailed: ['TargetElevationNotInRange'],
+      toHit: {
+        allowed: false,
+        restrictionReason: 'Target elevation not in range',
+        restrictionReasonCode: 'TargetElevationNotInRange',
+      },
+    });
+  });
+
   it('carries hovered movement projection inputs for the command preview', () => {
     const weapon = makeWeapon();
     const movementInfo: IMovementRangeHex = {

@@ -75,6 +75,7 @@ export interface IEligibilityContext {
   readonly footActuatorPresent?: boolean;
   /** Equipped melee weapon types (hatchet / sword / mace / lance). */
   readonly meleeWeaponsEquipped?: readonly PhysicalAttackType[];
+  readonly elevationContext?: IPhysicalAttackInput['elevationContext'];
 }
 
 /**
@@ -222,6 +223,7 @@ export function getEligiblePhysicalAttacks(
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,
     footActuatorPresent: context.footActuatorPresent,
+    elevationContext: context.elevationContext,
   } as const;
 
   const options: IPhysicalAttackOption[] = [];

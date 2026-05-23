@@ -27,6 +27,7 @@ import {
   lockMovement,
 } from '@/utils/gameplay/gameSession';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
+import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import {
   gameUnitUsesMekHorizontalCover,
   gameUnitUsesMekWaterCover,
@@ -176,6 +177,8 @@ export function runInteractiveSessionAITurn(
         enemies,
       );
       if (physEvt) {
+        const targetState =
+          session.currentState.units[physEvt.payload.targetId] ?? null;
         setSession(
           declarePhysicalAttack(
             session,
@@ -186,6 +189,9 @@ export function runInteractiveSessionAITurn(
               attackerTonnage: context.tonnageByUnit.get(unitId) ?? 65,
               pilotingSkill: context.pilotingByUnit.get(unitId) ?? 5,
               hexesMoved: unit.hexesMovedThisTurn,
+              elevationContext: targetState
+                ? buildPhysicalElevationContext(unit, targetState, context.grid)
+                : undefined,
             },
           ),
         );

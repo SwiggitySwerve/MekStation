@@ -88,6 +88,14 @@ When a selected unit has a configured weapon list, the map SHALL derive attack-r
 - **THEN** the overlay SHALL avoid claiming a narrower arc than the rules projection can justify
 - **AND** target validation SHALL remain the authority for final legality
 
+#### Scenario: Physical attack elevation legality matches commit
+
+- **GIVEN** a unit previews punch or kick options against an adjacent target on a different elevation
+- **WHEN** the target's vertical span is outside the represented attacker's punch arm height or kick base elevation
+- **THEN** the physical attack option SHALL be disabled with a target-elevation invalid reason
+- **AND** a direct commit of that same punch or kick SHALL reject with the same typed reason
+- **AND** the command preview SHALL preserve the restriction instead of showing the row as legal
+
 ### Requirement: Fog-Aware Target Projection
 
 Fog targetability in the tactical map SHALL consume the same grid, LOS, and visibility inputs as combat validation.

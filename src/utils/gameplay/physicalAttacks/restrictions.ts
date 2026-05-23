@@ -1,5 +1,6 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
+import { physicalElevationRestriction } from './elevation';
 import {
   IPhysicalAttackInput,
   IPhysicalAttackRestriction,
@@ -67,6 +68,18 @@ export function canPunch(
     };
   }
 
+  const elevationRestriction = physicalElevationRestriction(
+    'punch',
+    input.elevationContext,
+  );
+  if (elevationRestriction) {
+    return {
+      allowed: false,
+      reason: elevationRestriction,
+      reasonCode: 'TargetElevationNotInRange',
+    };
+  }
+
   return { allowed: true };
 }
 
@@ -113,6 +126,18 @@ export function canKick(
       allowed: false,
       reason: 'Limb already used this turn',
       reasonCode: 'SameLimbUsedThisTurn',
+    };
+  }
+
+  const elevationRestriction = physicalElevationRestriction(
+    'kick',
+    input.elevationContext,
+  );
+  if (elevationRestriction) {
+    return {
+      allowed: false,
+      reason: elevationRestriction,
+      reasonCode: 'TargetElevationNotInRange',
     };
   }
 

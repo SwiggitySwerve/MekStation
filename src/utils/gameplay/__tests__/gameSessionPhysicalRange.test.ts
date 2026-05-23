@@ -139,4 +139,36 @@ describe('declarePhysicalAttack target range', () => {
       ),
     ).toBe(false);
   });
+
+  it('rejects adjacent physical targets when elevation blocks the attack', () => {
+    const session = buildPhysicalSession({ q: 1, r: 0 });
+
+    const next = declarePhysicalAttack(session, 'attacker', 'target', 'kick', {
+      ...PUNCH_CONTEXT,
+      elevationContext: {
+        attackerBaseElevation: 0,
+        attackerArmElevation: 1,
+        targetBaseElevation: 1,
+        targetTopElevation: 2,
+      },
+    });
+
+    expect(
+      next.events.some(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toBe(false);
+    const rejection = next.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(rejection?.payload as IPhysicalAttackResolvedPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetElevationNotInRange',
+    });
+  });
 });

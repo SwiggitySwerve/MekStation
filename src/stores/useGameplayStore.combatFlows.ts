@@ -15,6 +15,7 @@ import { create } from 'zustand';
 
 import type { InteractiveSession } from '@/engine/GameEngine';
 import type {
+  IPhysicalAttackInput,
   PhysicalAttackLimb,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
@@ -394,6 +395,7 @@ export interface ICommitPhysicalAttackArgs {
   readonly attackerJumpedThisTurn?: boolean;
   readonly weaponsFiredFromLeftArm?: readonly string[];
   readonly weaponsFiredFromRightArm?: readonly string[];
+  readonly elevationContext?: IPhysicalAttackInput['elevationContext'];
 }
 
 const EMPTY_PHYSICAL_PLAN: IPhysicalAttackPlan = {
@@ -480,6 +482,7 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
           attackerJumpedThisTurn:
             args.attackerJumpedThisTurn ??
             attackerState?.movementThisTurn === MovementType.Jump,
+          elevationContext: args.elevationContext,
         },
       );
 

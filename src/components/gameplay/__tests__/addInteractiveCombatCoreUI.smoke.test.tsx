@@ -38,6 +38,7 @@ import {
   type IDamageAppliedPayload,
   type IGameEvent,
   type IGameSession,
+  type IHexGrid,
   type IWeaponStatus,
 } from '@/types/gameplay';
 
@@ -93,8 +94,9 @@ function renderLayout(
 
 function createInteractiveSessionStub(
   session: IGameSession,
+  gridOverride?: IHexGrid,
 ): InteractiveSession {
-  const grid = createMinimalGrid(session.config.mapRadius);
+  const grid = gridOverride ?? createMinimalGrid(session.config.mapRadius);
 
   return {
     getGrid: () => grid,

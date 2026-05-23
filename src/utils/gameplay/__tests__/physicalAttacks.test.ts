@@ -437,6 +437,25 @@ describe('physicalAttacks', () => {
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('fired');
     });
+
+    it('should disallow punch when target elevation is outside arm height', () => {
+      const result = canPunch(
+        makeInput({
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 2,
+            targetTopElevation: 3,
+          },
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target elevation not in range',
+        reasonCode: 'TargetElevationNotInRange',
+      });
+    });
   });
 
   describe('canKick', () => {
@@ -464,6 +483,26 @@ describe('physicalAttacks', () => {
       );
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('Hip');
+    });
+
+    it('should disallow kick when attacker elevation is outside target height', () => {
+      const result = canKick(
+        makeInput({
+          attackType: 'kick',
+          elevationContext: {
+            attackerBaseElevation: 0,
+            attackerArmElevation: 1,
+            targetBaseElevation: 1,
+            targetTopElevation: 2,
+          },
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target elevation not in range',
+        reasonCode: 'TargetElevationNotInRange',
+      });
     });
   });
 

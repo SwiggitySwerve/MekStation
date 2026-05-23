@@ -50,12 +50,23 @@ Coverage: `InteractiveSession.queries.ts`, `weaponAttackBuilder.ts`,
 Additional physical-attack target-range pin: MegaMek
 `PhysicalAttackAction.java:97-100` rejects physical attacks when effective
 distance is greater than 1; `PunchAttackAction.java:196-199` and
-`KickAttackAction.java:238-246` add attack-specific elevation gates that still
-need a richer MekStation grid/context projection. MekStation now rejects direct
-physical declarations beyond adjacent unit range with a typed impossible
-resolution and keeps the map from highlighting those targets. Coverage:
-`gameSessionPhysical.ts`, `addInteractiveCombatCoreUI.smoke.test.tsx`, and
-`useGameplayStore.combatFlows.test.ts`.
+`KickAttackAction.java:238-246` add attack-specific elevation gates.
+MekStation now rejects direct physical declarations beyond adjacent unit range
+with a typed impossible resolution and keeps the map from highlighting those
+targets. This slice also adds a shared physical elevation context: punch
+legality compares the target base/top span to the attacker's arm level, kick
+legality compares the attacker's base level to the target base/top span, and
+both command preview rows and direct declarations use the same
+`TargetElevationNotInRange` reason. Coverage:
+`src/utils/gameplay/physicalAttacks/elevation.ts`,
+`src/utils/gameplay/physicalAttacks/restrictions.ts`,
+`src/utils/gameplay/gameSessionPhysical.ts`,
+`src/components/gameplay/GameplayLayout.commandPreview.ts`,
+`src/components/gameplay/PhysicalAttackPanel.tsx`,
+`src/utils/gameplay/__tests__/physicalAttacks.test.ts`,
+`src/utils/gameplay/__tests__/gameSessionPhysicalRange.test.ts`,
+`src/components/gameplay/__tests__/GameplayLayout.commandPreview.test.ts`, and
+`src/components/gameplay/__tests__/addInteractiveCombatCoreUI.smoke.test.tsx`.
 
 Additional LOS/cover pin for this slice: MegaMek `LosEffects.java:1461-1483`
 assigns horizontal target cover only for Mek-style targets when the hex

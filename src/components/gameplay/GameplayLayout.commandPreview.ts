@@ -15,6 +15,7 @@ import type {
 import { GamePhase, MovementType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import { coordToKey } from '@/utils/gameplay/hexMath';
+import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
 
 import type { ICommandPreviewInputs } from './TacticalActionDock';
@@ -82,6 +83,9 @@ export function buildCommandPreviewInputs({
     const attackerBinding = unitBindings.find(
       (unit) => unit.id === selectedUnitId,
     );
+    const targetBinding = unitBindings.find(
+      (unit) => unit.id === physicalAttackTargetId,
+    );
     const physicalOptions = getEligiblePhysicalAttacks(
       attackerState,
       targetState,
@@ -96,6 +100,12 @@ export function buildCommandPreviewInputs({
           attackerState?.movementThisTurn === MovementType.Run,
         attackerJumpedThisTurn:
           attackerState?.movementThisTurn === MovementType.Jump,
+        elevationContext:
+          attackerState && targetState && grid
+            ? buildPhysicalElevationContext(attackerState, targetState, grid, {
+                targetUnit: targetBinding,
+              })
+            : undefined,
       },
     );
     const physicalAttackOption =

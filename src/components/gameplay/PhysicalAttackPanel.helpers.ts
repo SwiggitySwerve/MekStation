@@ -30,6 +30,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   LimbMissing: 'Limb is missing',
   AttackerProne: 'Attacker is prone',
   TargetNotInPhysicalRange: 'Target must be adjacent',
+  TargetElevationNotInRange: 'Target elevation is not in range',
   UnsupportedAttackType: 'Attack type is unsupported',
   DestinationBlocked: 'Push destination is blocked',
 };

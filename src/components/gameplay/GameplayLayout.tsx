@@ -32,6 +32,7 @@ import {
 } from '@/types/gameplay';
 import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
+import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
 import { projectStandUpPsr } from '@/utils/gameplay/standUpRules';
 
@@ -308,7 +309,8 @@ export function GameplayLayout({
     return Object.entries(currentState.units)
       .filter(([, targetState]) => targetState.side !== attackerState.side)
       .filter(([, targetState]) => !targetState.destroyed)
-      .filter(([, targetState]) => {
+      .filter(([targetId, targetState]) => {
+        const targetBinding = units.find((unit) => unit.id === targetId);
         const options = getEligiblePhysicalAttacks(attackerState, targetState, {
           attackerTonnage: 65,
           attackerPilotingSkill:
@@ -320,6 +322,16 @@ export function GameplayLayout({
             attackerState.movementThisTurn === MovementType.Run,
           attackerJumpedThisTurn:
             attackerState.movementThisTurn === MovementType.Jump,
+          elevationContext: combatGrid
+            ? buildPhysicalElevationContext(
+                attackerState,
+                targetState,
+                combatGrid,
+                {
+                  targetUnit: targetBinding,
+                },
+              )
+            : undefined,
         });
         return options.some(
           (option) =>
@@ -327,7 +339,7 @@ export function GameplayLayout({
         );
       })
       .map(([unitId]) => unitId);
-  }, [currentState, selectedUnitId, units]);
+  }, [combatGrid, currentState, selectedUnitId, units]);
 
   const baseTokens = useMemo(
     () =>

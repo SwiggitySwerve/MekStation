@@ -153,6 +153,7 @@ export class GameEngine {
         gunneryByUnit,
         pilotingByUnit,
         d6Roller,
+        this.grid,
       );
       session = advancePhase(session);
       // Per `wire-heat-generation-and-effects` task 5: pass a

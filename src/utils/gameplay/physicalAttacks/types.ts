@@ -54,8 +54,26 @@ export type PhysicalAttackInvalidReason =
   | 'LimbMissing'
   | 'AttackerProne'
   | 'TargetNotInPhysicalRange'
+  | 'TargetElevationNotInRange'
   | 'UnsupportedAttackType'
   | 'DestinationBlocked';
+
+/**
+ * MegaMek-style absolute elevation context for punch / kick legality.
+ *
+ * `attackerBaseElevation` is the attacker's hex level plus any unit
+ * elevation/altitude. `attackerArmElevation` is the level of a Mek's arms.
+ * `targetBaseElevation` and `targetTopElevation` bracket the target's
+ * vertical space. Callers omit this when no authoritative grid is available,
+ * preserving legacy fixture behavior until the map/engine path can supply it.
+ */
+export interface IPhysicalAttackElevationContext {
+  readonly attackerBaseElevation: number;
+  readonly attackerArmElevation: number;
+  readonly targetBaseElevation: number;
+  readonly targetTopElevation: number;
+  readonly targetIsAirborneVTOLOrWiGE?: boolean;
+}
 
 export interface IPhysicalAttackInput {
   readonly attackerTonnage: number;
@@ -117,6 +135,7 @@ export interface IPhysicalAttackInput {
    */
   readonly upperLegActuatorPresent?: boolean;
   readonly footActuatorPresent?: boolean;
+  readonly elevationContext?: IPhysicalAttackElevationContext;
 }
 
 export interface IPhysicalToHitResult {

@@ -65,6 +65,7 @@ export interface IPhysicalAttackContext {
    * has already determined the push target hex is blocked / off-map.
    */
   readonly pushDestinationValid?: boolean;
+  readonly elevationContext?: IPhysicalAttackInput['elevationContext'];
 }
 
 /**

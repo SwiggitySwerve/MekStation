@@ -50,6 +50,7 @@ import {
   applyMoralePass,
   applyWithdrawalEdgeExits,
 } from '@/utils/gameplay/morale';
+import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getWeaponRangeBracket } from '@/utils/gameplay/range';
 import {
   gameUnitUsesMekHorizontalCover,
@@ -480,6 +481,7 @@ export function runPhysicalAttackPhase(
   gunneryByUnit: Map<string, number>,
   pilotingByUnit: Map<string, number>,
   d6Roller: D6Roller = defaultD6Roller,
+  grid?: IHexGrid,
 ): IGameSession {
   let updatedSession = session;
 
@@ -508,6 +510,8 @@ export function runPhysicalAttackPhase(
     const physEvt = botPlayer.playPhysicalAttackPhase(aiUnit, enemies);
     if (physEvt) {
       const piloting = pilotingByUnit.get(unitId) ?? DEFAULT_PILOTING_SKILL;
+      const targetState =
+        updatedSession.currentState.units[physEvt.payload.targetId] ?? null;
       updatedSession = declarePhysicalAttack(
         updatedSession,
         physEvt.payload.attackerId,
@@ -517,6 +521,10 @@ export function runPhysicalAttackPhase(
           attackerTonnage: DEFAULT_ATTACKER_TONNAGE,
           pilotingSkill: piloting,
           hexesMoved: unit.hexesMovedThisTurn,
+          elevationContext:
+            grid && targetState
+              ? buildPhysicalElevationContext(unit, targetState, grid)
+              : undefined,
         },
       );
     }
