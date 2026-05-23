@@ -5,6 +5,7 @@ import {
   IMovementDeclaredPayload,
   IUnitGameState,
   LockState,
+  MovementType,
 } from '@/types/gameplay';
 
 export function applyMovementDeclared(
@@ -16,6 +17,13 @@ export function applyMovementDeclared(
     return state;
   }
 
+  const prone =
+    payload.standUpAttempt === true
+      ? payload.standUpSucceeded !== true
+      : unit.prone && payload.movementType !== MovementType.Stationary
+        ? false
+        : unit.prone;
+
   const updatedUnit: IUnitGameState = {
     ...unit,
     position: payload.to,
@@ -23,6 +31,7 @@ export function applyMovementDeclared(
     movementThisTurn: payload.movementType,
     hexesMovedThisTurn: payload.mpUsed,
     heat: unit.heat + payload.heatGenerated,
+    prone,
     lockState: LockState.Planning,
   };
 

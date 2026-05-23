@@ -17,6 +17,7 @@ import {
   isGyroDestroyed,
   resolveAllPSRs,
 } from './pilotingSkillRolls';
+import { projectStandUpPsr } from './standUpRules';
 
 export function checkAndQueueDamagePSRs(session: IGameSession): IGameSession {
   let currentSession = session;
@@ -310,16 +311,18 @@ export function attemptStandUp(
     ),
   );
 
-  // 2. Roll the PSR: piloting skill + gyro-hit modifier + wound
-  //    modifier + trigger-specific modifier. Canonical stand-up TN is
-  //    piloting + 0 (plus any active modifiers).
-  const componentDamage = unitState.componentDamage;
-  const gyroModifier = (componentDamage?.gyroHits ?? 0) * 3;
-  const woundModifier = unitState.pilotWounds;
-  const tn =
-    unit.piloting + gyroModifier + woundModifier + psr.additionalModifier;
-  const roll = diceRoller();
-  const passed = roll.total >= tn;
+  // 2. Roll the PSR with the same modifier projection the map exposes.
+  //    Destroyed-leg-plus-both-arms is an impossible stand-up target.
+  const standUpPsr = projectStandUpPsr({
+    unitState,
+    unitPiloting: unit.piloting,
+    unitType: unit.unitType,
+  });
+  const tn = standUpPsr.targetNumber ?? unit.piloting;
+  const roll = standUpPsr.impossibleReason
+    ? { total: 0, dice: [0, 0] as const }
+    : diceRoller();
+  const passed = !standUpPsr.impossibleReason && roll.total >= tn;
 
   const resolvedSeq = currentSession.events.length;
   currentSession = appendEvent(
@@ -332,9 +335,9 @@ export function attemptStandUp(
       unitId,
       tn,
       roll.total,
-      gyroModifier + woundModifier,
+      standUpPsr.modifier,
       passed,
-      psr.reason,
+      standUpPsr.impossibleReason ?? psr.reason,
       psr.reasonCode,
     ),
   );
