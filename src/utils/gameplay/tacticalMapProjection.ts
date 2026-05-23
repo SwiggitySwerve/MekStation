@@ -1,5 +1,6 @@
 import type {
   ICombatRangeHex,
+  ICombatLineOfSightBlocker,
   IHexCoordinate,
   IHexTerrain,
   IMovementRangeHex,
@@ -23,12 +24,20 @@ export type TacticalMapHexProjectionStatus =
   | 'blocked'
   | 'mixed';
 
+export interface ITacticalMapCombatLosBlockerReference {
+  readonly targetHex: IHexCoordinate;
+  readonly targetUnitIds: readonly string[];
+  readonly losState: ICombatRangeHex['losState'];
+  readonly blocker: ICombatLineOfSightBlocker;
+}
+
 export interface ITacticalMapHexProjection {
   readonly hex: IHexCoordinate;
   readonly key: string;
   readonly terrain: IHexTerrain;
   readonly movement?: IMovementRangeHex;
   readonly combat?: ICombatRangeHex;
+  readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
   readonly isSelected: boolean;
   readonly isHovered: boolean;
   readonly pathIndex?: number;
@@ -64,6 +73,8 @@ export function buildTacticalMapHexProjectionLookup({
   ITacticalMapHexProjection
 > {
   const projections = new Map<string, ITacticalMapHexProjection>();
+  const combatLosBlockerRefsByKey =
+    buildCombatLosBlockerReferenceLookup(combatRangeLookup);
 
   for (const hex of hexes) {
     const key = coordToKey(hex);
@@ -74,6 +85,7 @@ export function buildTacticalMapHexProjectionLookup({
         terrain: terrainLookup.get(key) ?? defaultHexTerrain(hex),
         movement: movementRangeLookup.get(key),
         combat: combatRangeLookup.get(key),
+        combatLosBlockerFor: combatLosBlockerRefsByKey.get(key) ?? [],
         isSelected: selectedHex ? hexEquals(hex, selectedHex) : false,
         isHovered: hoveredHex ? hexEquals(hex, hoveredHex) : false,
         pathIndex: highlightPathIndexLookup.get(key),
@@ -90,6 +102,7 @@ export function buildTacticalMapHexProjection({
   terrain,
   movement,
   combat,
+  combatLosBlockerFor = [],
   isSelected,
   isHovered,
   pathIndex,
@@ -99,6 +112,7 @@ export function buildTacticalMapHexProjection({
   readonly terrain: IHexTerrain;
   readonly movement?: IMovementRangeHex;
   readonly combat?: ICombatRangeHex;
+  readonly combatLosBlockerFor?: readonly ITacticalMapCombatLosBlockerReference[];
   readonly isSelected: boolean;
   readonly isHovered: boolean;
   readonly pathIndex?: number;
@@ -125,6 +139,7 @@ export function buildTacticalMapHexProjection({
     terrain,
     movement,
     combat,
+    combatLosBlockerFor,
     isSelected,
     isHovered,
     pathIndex,
@@ -137,6 +152,7 @@ export function buildTacticalMapHexProjection({
       terrain,
       movement,
       combat,
+      combatLosBlockerFor,
       intent,
       status,
       blockedReasons,
@@ -150,6 +166,34 @@ function defaultHexTerrain(hex: IHexCoordinate): IHexTerrain {
     elevation: 0,
     features: [{ type: TerrainType.Clear, level: 0 }],
   };
+}
+
+function buildCombatLosBlockerReferenceLookup(
+  combatRangeLookup: ReadonlyMap<string, ICombatRangeHex>,
+): ReadonlyMap<string, readonly ITacticalMapCombatLosBlockerReference[]> {
+  const refsByKey = new Map<string, ITacticalMapCombatLosBlockerReference[]>();
+
+  combatRangeLookup.forEach((combat) => {
+    if (
+      !combat.hasTarget ||
+      !combat.lineOfSightBlocker ||
+      combat.losState === 'clear'
+    ) {
+      return;
+    }
+
+    const key = coordToKey(combat.lineOfSightBlocker.hex);
+    const refs = refsByKey.get(key) ?? [];
+    refs.push({
+      targetHex: combat.hex,
+      targetUnitIds: combat.targetUnitIds,
+      losState: combat.losState,
+      blocker: combat.lineOfSightBlocker,
+    });
+    refsByKey.set(key, refs);
+  });
+
+  return refsByKey;
 }
 
 function deriveProjectionIntent({
@@ -221,6 +265,7 @@ function formatProjectionExplanation({
   terrain,
   movement,
   combat,
+  combatLosBlockerFor,
   intent,
   status,
   blockedReasons,
@@ -232,6 +277,7 @@ function formatProjectionExplanation({
   readonly intent: TacticalMapHexProjectionIntent;
   readonly status: TacticalMapHexProjectionStatus;
   readonly blockedReasons: readonly string[];
+  readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
 }): string {
   const terrainTypes =
     terrain.features.length === 0
@@ -383,6 +429,15 @@ function formatProjectionExplanation({
     if (combat.indirectFireReason) {
       parts.push(combat.indirectFireReason);
     }
+  }
+  if (combatLosBlockerFor.length > 0) {
+    const targets = combatLosBlockerFor.map(
+      (ref) => `${ref.targetHex.q},${ref.targetHex.r}`,
+    );
+    const reasons = Array.from(
+      new Set(combatLosBlockerFor.map((ref) => ref.blocker.reason)),
+    );
+    parts.push(`LOS blocker for ${targets.join(',')}: ${reasons.join('; ')}`);
   }
   if (blockedReasons.length > 0) {
     parts.push(`blocked ${blockedReasons.join('; ')}`);

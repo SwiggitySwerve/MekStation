@@ -317,4 +317,53 @@ describe('tacticalMapProjection', () => {
       inAttackRange: true,
     });
   });
+
+  it('attaches combat LOS blocker references to the intervening blocker hex', () => {
+    const projectionLookup = buildTacticalMapHexProjectionLookup({
+      hexes: [
+        { q: 1, r: 0 },
+        { q: 2, r: 0 },
+      ],
+      terrainLookup: new Map([['1,0', terrain(2, TerrainType.Clear)]]),
+      movementRangeLookup: new Map(),
+      combatRangeLookup: new Map([
+        [
+          '2,0',
+          combat({
+            hex: { q: 2, r: 0 },
+            distance: 2,
+            losState: 'blocked',
+            attackable: false,
+            attackInvalidReason: 'NoLineOfSight',
+            attackInvalidDetails: 'Blocked by elevation +2 at (1, 0)',
+            blockedReason: 'Blocked by elevation +2 at (1, 0)',
+            lineOfSightBlockerReason: 'Blocked by elevation +2 at (1, 0)',
+            lineOfSightBlocker: {
+              hex: { q: 1, r: 0 },
+              kind: 'elevation',
+              reason: 'Blocked by elevation +2 at (1, 0)',
+            },
+          }),
+        ],
+      ]),
+    });
+
+    const blocker = projectionLookup.get('1,0');
+
+    expect(blocker?.combatLosBlockerFor).toMatchObject([
+      {
+        targetHex: { q: 2, r: 0 },
+        targetUnitIds: ['enemy'],
+        losState: 'blocked',
+        blocker: {
+          hex: { q: 1, r: 0 },
+          kind: 'elevation',
+          reason: 'Blocked by elevation +2 at (1, 0)',
+        },
+      },
+    ]);
+    expect(blocker?.explanation).toContain(
+      'LOS blocker for 2,0: Blocked by elevation +2 at (1, 0)',
+    );
+  });
 });

@@ -1,8 +1,9 @@
 import React from 'react';
 
 import type { ICombatRangeHex, IHexCoordinate } from '@/types/gameplay';
+import type { ITacticalMapCombatLosBlockerReference } from '@/utils/gameplay/tacticalMapProjection';
 
-import { RangeBracket } from '@/types/gameplay';
+import { RangeBracket, TerrainType } from '@/types/gameplay';
 
 function formatRangeBracketLabel(bracket: RangeBracket): string {
   switch (bracket) {
@@ -69,9 +70,126 @@ function formatWeaponList(ids: readonly string[]): string {
   return ids.length > 0 ? ids.join(', ') : 'none';
 }
 
+function formatHexKey(hex: IHexCoordinate): string {
+  return `${hex.q},${hex.r}`;
+}
+
+function formatLOSBlockerTerrainLabel(
+  terrain: TerrainType | undefined,
+): string {
+  switch (terrain) {
+    case TerrainType.Building:
+      return 'BLDG';
+    case TerrainType.LightWoods:
+    case TerrainType.HeavyWoods:
+      return 'WDS';
+    case TerrainType.Smoke:
+      return 'SMK';
+    default:
+      return 'BLK';
+  }
+}
+
+function formatLOSBlockerBadgeLabel(
+  ref: ITacticalMapCombatLosBlockerReference,
+): string {
+  if (ref.losState === 'partial' || ref.blocker.kind === 'cover') {
+    return 'LOS COV';
+  }
+  switch (ref.blocker.kind) {
+    case 'elevation':
+      return 'LOS ELEV';
+    case 'wreck':
+      return 'LOS WRK';
+    case 'terrain':
+      return `LOS ${formatLOSBlockerTerrainLabel(ref.blocker.terrain)}`;
+    default:
+      return 'LOS BLK';
+  }
+}
+
+function strongestLOSBlockerReference(
+  refs: readonly ITacticalMapCombatLosBlockerReference[],
+): ITacticalMapCombatLosBlockerReference {
+  return refs.find((ref) => ref.losState === 'blocked') ?? refs[0];
+}
+
+function formatLOSBlockerTitle(
+  refs: readonly ITacticalMapCombatLosBlockerReference[],
+): string {
+  const primary = strongestLOSBlockerReference(refs);
+  const targetHexes = refs.map((ref) => formatHexKey(ref.targetHex));
+  const uniqueReasons = Array.from(
+    new Set(refs.map((ref) => ref.blocker.reason)),
+  );
+  const affectedTargets = `affects target hex${targetHexes.length === 1 ? '' : 'es'} ${targetHexes.join(', ')}`;
+  return `LOS ${primary.losState} at blocker ${formatHexKey(primary.blocker.hex)}: ${uniqueReasons.join('; ')}; ${affectedTargets}`;
+}
+
 function formatCombatBadgeSummary(combatInfo: ICombatRangeHex): string {
   const status = combatInfo.attackable ? 'attack available' : 'not attackable';
   return `${formatRangeBracketName(combatInfo.rangeBracket)} range at ${combatInfo.distance} hexes; ${status}; weapons available ${formatWeaponList(combatInfo.weaponIdsAvailable)}`;
+}
+
+export function CombatLineOfSightBlockerBadge({
+  x,
+  y,
+  hex,
+  blockerRefs,
+}: {
+  readonly x: number;
+  readonly y: number;
+  readonly hex: IHexCoordinate;
+  readonly blockerRefs?: readonly ITacticalMapCombatLosBlockerReference[];
+}): React.ReactElement | null {
+  if (!blockerRefs || blockerRefs.length === 0) return null;
+
+  const primary = strongestLOSBlockerReference(blockerRefs);
+  const label = formatLOSBlockerBadgeLabel(primary);
+  const title = formatLOSBlockerTitle(blockerRefs);
+  const targetHexes = blockerRefs.map((ref) => formatHexKey(ref.targetHex));
+  const targetIds = blockerRefs.map((ref) => ref.targetUnitIds.join(','));
+  const width = Math.max(44, label.length * 5.4 + 10);
+  const isPartial = primary.losState === 'partial';
+
+  return (
+    <g
+      pointerEvents="none"
+      data-testid={`hex-combat-los-blocker-badge-${hex.q}-${hex.r}`}
+      aria-label={title}
+      data-combat-los-blocker-target-hexes={targetHexes.join('|')}
+      data-combat-los-blocker-target-ids={targetIds.join('|')}
+      data-combat-los-blocker-state={primary.losState}
+      data-combat-los-blocker-kind={primary.blocker.kind}
+      data-combat-los-blocker-terrain={primary.blocker.terrain}
+      data-combat-los-blocker-unit={primary.blocker.unitId}
+      data-combat-los-blocker-reason={primary.blocker.reason}
+    >
+      <title>{title}</title>
+      <rect
+        x={x - width / 2}
+        y={y - 36}
+        width={width}
+        height={12}
+        rx={3}
+        fill={isPartial ? '#075985' : '#581c87'}
+        opacity={0.94}
+        stroke="#f8fafc"
+        strokeOpacity={0.6}
+        strokeWidth={0.75}
+      />
+      <text
+        x={x}
+        y={y - 27}
+        textAnchor="middle"
+        fontSize={8}
+        fontWeight="bold"
+        fill={isPartial ? '#e0f2fe' : '#faf5ff'}
+      >
+        {label}
+      </text>
+    </g>
+  );
 }
 
 function CombatGeometryBadges({

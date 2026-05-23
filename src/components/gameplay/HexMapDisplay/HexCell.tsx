@@ -8,6 +8,7 @@ import type {
   MapProjectionMode,
 } from '@/types/gameplay';
 import type {
+  ITacticalMapCombatLosBlockerReference,
   TacticalMapHexProjectionIntent,
   TacticalMapHexProjectionStatus,
 } from '@/utils/gameplay/tacticalMapProjection';
@@ -16,7 +17,10 @@ import { TerrainArtLayer } from '@/components/gameplay/terrain/TerrainArtLayer';
 import { HEX_COLORS } from '@/constants/hexMap';
 import { MovementType } from '@/types/gameplay';
 
-import { CombatRangeBadge } from './HexCell.combatBadges';
+import {
+  CombatLineOfSightBlockerBadge,
+  CombatRangeBadge,
+} from './HexCell.combatBadges';
 import { CombatImpactBadge } from './HexCell.combatImpactBadge';
 import { MovementHoverCostBadge } from './HexCell.hoverMovementBadge';
 import {
@@ -103,6 +107,7 @@ export interface HexCellProps {
   isHovered: boolean;
   movementInfo?: IMovementRangeHex;
   combatInfo?: ICombatRangeHex;
+  combatLosBlockerFor?: readonly ITacticalMapCombatLosBlockerReference[];
   isInAttackRange: boolean;
   isInPath: boolean;
   pathIndex?: number;
@@ -144,6 +149,7 @@ export const HexCell = React.memo(function HexCell({
   isHovered,
   movementInfo,
   combatInfo,
+  combatLosBlockerFor,
   isInAttackRange,
   isInPath,
   pathIndex,
@@ -249,6 +255,16 @@ export const HexCell = React.memo(function HexCell({
       : pathIndex === 0
         ? 'path start'
         : `path step ${pathIndex}`;
+  const combatLosBlockerTargetHexes =
+    combatLosBlockerFor && combatLosBlockerFor.length > 0
+      ? combatLosBlockerFor
+          .map((ref) => `${ref.targetHex.q},${ref.targetHex.r}`)
+          .join('|')
+      : undefined;
+  const combatLosBlockerReasons =
+    combatLosBlockerFor && combatLosBlockerFor.length > 0
+      ? combatLosBlockerFor.map((ref) => ref.blocker.reason).join('|')
+      : undefined;
   const hexLabel = `Hex ${hex.q},${hex.r}; terrain ${formatTerrainFeaturesLabel(
     terrainTypes,
   )}; primary ${formatTerrainLabel(terrainType)}; elevation ${elevationLabel}${
@@ -328,6 +344,14 @@ export const HexCell = React.memo(function HexCell({
       data-combat-distance={combatInfo?.distance}
       data-combat-los-state={combatInfo?.losState}
       data-combat-los-blocker-reason={combatInfo?.lineOfSightBlockerReason}
+      data-combat-los-blocker-hex={
+        combatInfo?.lineOfSightBlocker
+          ? `${combatInfo.lineOfSightBlocker.hex.q},${combatInfo.lineOfSightBlocker.hex.r}`
+          : undefined
+      }
+      data-combat-los-blocker-kind={combatInfo?.lineOfSightBlocker?.kind}
+      data-combat-los-blocker-terrain={combatInfo?.lineOfSightBlocker?.terrain}
+      data-combat-los-blocker-unit={combatInfo?.lineOfSightBlocker?.unitId}
       data-combat-target-cover-level={combatInfo?.targetCoverLevel}
       data-combat-target-partial-cover={
         combatInfo
@@ -386,6 +410,8 @@ export const HexCell = React.memo(function HexCell({
       data-weapons-in-arc={combatInfo?.weaponIdsInArc.join(',')}
       data-weapons-available={combatInfo?.weaponIdsAvailable.join(',')}
       data-combat-target-ids={combatInfo?.targetUnitIds.join(',')}
+      data-combat-los-blocker-for-target-hexes={combatLosBlockerTargetHexes}
+      data-combat-los-blocker-for-reasons={combatLosBlockerReasons}
       aria-label={hexLabel}
       data-elevation-layers={elevationLayerCount || undefined}
     >
@@ -525,6 +551,12 @@ export const HexCell = React.memo(function HexCell({
         hex={hex}
         hoverMpCost={hoverMpCost}
         movementInfo={movementInfo}
+      />
+      <CombatLineOfSightBlockerBadge
+        x={x}
+        y={y}
+        hex={hex}
+        blockerRefs={combatLosBlockerFor}
       />
       <CombatRangeBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
       <CombatImpactBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />

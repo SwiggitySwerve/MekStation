@@ -4,7 +4,7 @@ import type {
   IToHitModifier,
 } from './GameSessionAttackEvents';
 import type { IHexCoordinate, RangeBracket } from './HexGridInterfaces';
-import type { CoverLevel } from './TerrainTypes';
+import type { CoverLevel, TerrainType } from './TerrainTypes';
 
 export type CombatLOSState = 'clear' | 'partial' | 'blocked';
 
@@ -21,6 +21,26 @@ export type CombatTargetVisibilityState =
   | 'hidden'
   | 'lastKnown'
   | 'mixed';
+
+export type CombatLineOfSightBlockerKind =
+  | 'terrain'
+  | 'elevation'
+  | 'wreck'
+  | 'cover'
+  | 'unknown';
+
+export interface ICombatLineOfSightBlocker {
+  /** Intervening hex responsible for blocked or partial LOS. */
+  readonly hex: IHexCoordinate;
+  /** Player-facing blocker category for compact map badges. */
+  readonly kind: CombatLineOfSightBlockerKind;
+  /** Blocking or modifying terrain type when the classifier identified one. */
+  readonly terrain?: TerrainType;
+  /** Wreck/unit id when a destroyed unit blocks LOS. */
+  readonly unitId?: string;
+  /** Player-facing explanation from the shared LOS classifier. */
+  readonly reason: string;
+}
 
 export interface ICombatWeaponImpact {
   /** Weapon status id included in the projected available volley. */
@@ -57,6 +77,8 @@ export interface ICombatRangeHex {
   readonly losState: CombatLOSState;
   /** Player-facing direct-LOS blocker explanation, even when indirect fire is legal */
   readonly lineOfSightBlockerReason?: string;
+  /** Intervening LOS blocker or partial-cover hex from the shared classifier */
+  readonly lineOfSightBlocker?: ICombatLineOfSightBlocker;
   /** Cover level provided by the target hex terrain */
   readonly targetCoverLevel: CoverLevel;
   /** Target hex grants partial cover to an occupant */

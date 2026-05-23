@@ -329,6 +329,7 @@ export function useHexMapDisplayState({
           isHovered={projection?.isHovered ?? false}
           movementInfo={movementInfo}
           combatInfo={projection?.combat}
+          combatLosBlockerFor={projection?.combatLosBlockerFor}
           isInAttackRange={projection?.inAttackRange ?? false}
           isInPath={pathIndex !== undefined}
           pathIndex={pathIndex}

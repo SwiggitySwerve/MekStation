@@ -373,9 +373,18 @@ describe('deriveCombatRangeHexes', () => {
       losState: 'blocked',
       attackable: false,
       attackInvalidReason: 'NoLineOfSight',
+      lineOfSightBlocker: {
+        hex: { q: 1, r: 0 },
+        kind: 'elevation',
+        reason: 'Blocked by elevation +2 at (1, 0)',
+      },
     });
-    expect(targetHex?.lineOfSightBlockerReason).toBeTruthy();
-    expect(targetHex?.attackInvalidDetails).toBeTruthy();
+    expect(targetHex?.lineOfSightBlockerReason).toBe(
+      'Blocked by elevation +2 at (1, 0)',
+    );
+    expect(targetHex?.attackInvalidDetails).toBe(
+      'Blocked by elevation +2 at (1, 0)',
+    );
   });
 });
 

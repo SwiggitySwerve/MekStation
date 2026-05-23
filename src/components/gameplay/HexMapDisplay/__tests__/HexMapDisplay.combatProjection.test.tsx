@@ -1271,6 +1271,15 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-los-blocker-reason',
       expect.stringContaining('Blocked by building'),
     );
+    expect(targetHex).toHaveAttribute('data-combat-los-blocker-hex', '1,0');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'terrain',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      TerrainType.Building,
+    );
     expect(targetHex).toHaveAttribute('data-combat-valid-target', 'false');
     expect(targetHex).toHaveAttribute(
       'data-combat-invalid-reason',
@@ -1330,6 +1339,45 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-combat-arc-badge-2-0')).toHaveTextContent(
       'FRONT',
     );
+    const blockerHex = screen.getByTestId('hex-1-0');
+    expect(blockerHex).toHaveAttribute(
+      'data-combat-los-blocker-for-target-hexes',
+      '2,0',
+    );
+    expect(blockerHex).toHaveAttribute(
+      'data-combat-los-blocker-for-reasons',
+      'Blocked by building at (1, 0)',
+    );
+    const blockerBadge = screen.getByTestId('hex-combat-los-blocker-badge-1-0');
+    expect(blockerBadge).toHaveTextContent('LOS BLDG');
+    expect(blockerBadge).toHaveAttribute(
+      'aria-label',
+      'LOS blocked at blocker 1,0: Blocked by building at (1, 0); affects target hex 2,0',
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-target-hexes',
+      '2,0',
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-target-ids',
+      'enemy',
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-state',
+      'blocked',
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'terrain',
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      TerrainType.Building,
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Blocked by building at (1, 0)',
+    );
 
     fireEvent.mouseEnter(targetHex);
     expect(screen.getByTestId('hex-combat-tooltip-status')).toHaveTextContent(
@@ -1384,6 +1432,11 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-los-blocker-reason',
       'Blocked by elevation +2 at (1, 0)',
     );
+    expect(targetHex).toHaveAttribute('data-combat-los-blocker-hex', '1,0');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'elevation',
+    );
     expect(targetHex).toHaveAttribute(
       'data-combat-invalid-details',
       'Blocked by elevation +2 at (1, 0)',
@@ -1396,6 +1449,20 @@ describe('HexMapDisplay combat projection', () => {
     expect(invalidBadge).toHaveTextContent('ELEV');
     expect(invalidBadge).toHaveAttribute(
       'data-invalid-badge-reason',
+      'Blocked by elevation +2 at (1, 0)',
+    );
+    const blockerBadge = screen.getByTestId('hex-combat-los-blocker-badge-1-0');
+    expect(blockerBadge).toHaveTextContent('LOS ELEV');
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-state',
+      'blocked',
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'elevation',
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-reason',
       'Blocked by elevation +2 at (1, 0)',
     );
   });
@@ -1441,6 +1508,12 @@ describe('HexMapDisplay combat projection', () => {
 
     const targetHex = screen.getByTestId('hex-2-0');
     expect(targetHex).toHaveAttribute('data-combat-los-state', 'partial');
+    expect(targetHex).toHaveAttribute('data-combat-los-blocker-hex', '1,0');
+    expect(targetHex).toHaveAttribute('data-combat-los-blocker-kind', 'cover');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      TerrainType.Smoke,
+    );
     expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
     expect(targetHex).toHaveAttribute(
       'data-combat-blocked-reason',
@@ -1455,6 +1528,24 @@ describe('HexMapDisplay combat projection', () => {
       'P-LOS',
     );
     expect(screen.getByTestId('hex-to-hit-badge-2-0')).toHaveTextContent('TN5');
+    const blockerBadge = screen.getByTestId('hex-combat-los-blocker-badge-1-0');
+    expect(blockerBadge).toHaveTextContent('LOS COV');
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-state',
+      'partial',
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-kind',
+      'cover',
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-terrain',
+      TerrainType.Smoke,
+    );
+    expect(blockerBadge).toHaveAttribute(
+      'data-combat-los-blocker-reason',
+      'Partial cover through smoke at (1, 0)',
+    );
 
     fireEvent.mouseEnter(targetHex);
     expect(screen.getByTestId('hex-combat-tooltip-geometry')).toHaveTextContent(

@@ -1,7 +1,9 @@
 import type {
   CombatFiringArc,
+  CombatLineOfSightBlockerKind,
   IGameState,
   ICombatRangeHex,
+  ICombatLineOfSightBlocker,
   ICombatWeaponImpact,
   IHexCoordinate,
   IHexGrid,
@@ -82,6 +84,34 @@ function expectedDamageForProjection(
 ): number | undefined {
   if (toHitNumber === undefined) return undefined;
   return availableWeaponDamage * (getTwoD6HitProbability(toHitNumber) / 100);
+}
+
+function blockerKindForLOS(
+  los: ReturnType<typeof classifyLOS>,
+): CombatLineOfSightBlockerKind {
+  if (los.engineResult.blockingUnit) return 'wreck';
+  if (los.engineResult.blockingElevation !== undefined) return 'elevation';
+  if (los.state === 'partial') return 'cover';
+  if (los.blockerAnnotations[0]?.terrain || los.engineResult.blockingTerrain) {
+    return 'terrain';
+  }
+  return 'unknown';
+}
+
+function lineOfSightBlockerForLOS(
+  los: ReturnType<typeof classifyLOS>,
+): ICombatLineOfSightBlocker | undefined {
+  const annotation = los.blockerAnnotations[0];
+  const hex = annotation?.coord ?? los.engineResult.blockedBy;
+  if (!hex) return undefined;
+
+  return {
+    hex,
+    kind: blockerKindForLOS(los),
+    terrain: annotation?.terrain ?? los.engineResult.blockingTerrain,
+    unitId: los.engineResult.blockingUnit?.unitId,
+    reason: annotation?.title ?? lineOfSightBlockedDetails(los),
+  };
 }
 
 export function deriveCombatRangeHexes({
@@ -181,9 +211,10 @@ export function deriveCombatRangeHexes({
           )
         : rangeBracket;
     const los = classifyLOS(attacker.position, hex, grid, { tokens });
+    const lineOfSightBlocker = lineOfSightBlockerForLOS(los);
     const lineOfSightBlockerReason =
       los.state === 'blocked'
-        ? (los.blockerAnnotations[0]?.title ?? lineOfSightBlockedDetails(los))
+        ? (lineOfSightBlocker?.reason ?? lineOfSightBlockedDetails(los))
         : undefined;
     const targetUnitIds = targetContacts.map((contact) => contact.unitId);
     const selectedTargetContact = targetUnitId
@@ -326,6 +357,7 @@ export function deriveCombatRangeHexes({
       inArc,
       losState: los.state,
       lineOfSightBlockerReason,
+      lineOfSightBlocker,
       targetCoverLevel: targetCover.coverLevel,
       targetPartialCover: targetCover.partialCover,
       targetCoverModifier: targetCover.modifier,
