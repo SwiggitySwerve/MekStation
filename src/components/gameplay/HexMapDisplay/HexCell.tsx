@@ -17,6 +17,7 @@ import { HEX_COLORS } from '@/constants/hexMap';
 import { MovementType } from '@/types/gameplay';
 
 import { CombatRangeBadge } from './HexCell.combatBadges';
+import { CombatImpactBadge } from './HexCell.combatImpactBadge';
 import { MovementHoverCostBadge } from './HexCell.hoverMovementBadge';
 import {
   CombatInvalidBadge,
@@ -526,6 +527,7 @@ export const HexCell = React.memo(function HexCell({
         movementInfo={movementInfo}
       />
       <CombatRangeBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
+      <CombatImpactBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
       <CombatInvalidBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
     </g>
   );

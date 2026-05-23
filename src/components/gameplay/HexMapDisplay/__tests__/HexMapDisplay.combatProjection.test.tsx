@@ -385,6 +385,41 @@ describe('HexMapDisplay combat projection', () => {
         'weapon heat +4, ammo AC/5 -1 11 left, damage 10',
       ),
     );
+    expect(screen.getByTestId('hex-combat-impact-badge-2-0')).toHaveTextContent(
+      'H+4 D10',
+    );
+    expect(screen.getByTestId('hex-combat-impact-badge-2-0')).toHaveTextContent(
+      'A1',
+    );
+    expect(screen.getByTestId('hex-combat-impact-badge-2-0')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        'Projected attack impact: +4 heat; damage 10 listed',
+      ),
+    );
+    expect(screen.getByTestId('hex-combat-impact-badge-2-0')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('ammo AC/5 -1 11 left'),
+    );
+    expect(screen.getByTestId('hex-combat-impact-badge-2-0')).toHaveAttribute(
+      'data-combat-impact-badge-heat',
+      '4',
+    );
+    expect(screen.getByTestId('hex-combat-impact-badge-2-0')).toHaveAttribute(
+      'data-combat-impact-badge-damage',
+      '10',
+    );
+    expect(screen.getByTestId('hex-combat-impact-badge-2-0')).toHaveAttribute(
+      'data-combat-impact-badge-expected-damage',
+    );
+    expect(screen.getByTestId('hex-combat-impact-badge-2-0')).toHaveAttribute(
+      'data-combat-impact-badge-ammo-consumed',
+      '1',
+    );
+    expect(screen.getByTestId('hex-combat-impact-badge-2-0')).toHaveAttribute(
+      'data-combat-impact-badge-ammo-summary',
+      'AC/5 -1 11 left',
+    );
 
     fireEvent.mouseEnter(targetHex);
 
