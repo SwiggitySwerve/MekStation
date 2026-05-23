@@ -185,6 +185,7 @@ export function buildDamageStateFromUnit(
     destroyedLocations: unit.destroyedLocations as CombatLocation[],
     pilotWounds: unit.pilotWounds,
     pilotConscious: unit.pilotConscious,
+    pilotAbilities: unit.abilities,
     destroyed: unit.destroyed,
   };
 }

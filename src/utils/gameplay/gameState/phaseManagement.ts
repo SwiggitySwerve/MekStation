@@ -58,6 +58,7 @@ export function applyTurnStarted(
       ...units[unitId],
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
+      tagDesignated: false,
     };
   }
 

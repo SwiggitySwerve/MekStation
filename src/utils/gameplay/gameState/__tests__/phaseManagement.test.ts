@@ -51,6 +51,7 @@ function makeUnit(
   id: string,
   pendingPSRs: readonly IPendingPSR[] = [],
   weaponsFiredThisTurn: readonly string[] = [],
+  overrides: Partial<IUnitGameState> = {},
 ): IUnitGameState {
   return {
     id,
@@ -71,6 +72,7 @@ function makeUnit(
     lockState: LockState.Pending,
     pendingPSRs,
     weaponsFiredThisTurn,
+    ...overrides,
   };
 }
 
@@ -151,6 +153,20 @@ describe('applyTurnStarted — pendingPSRs clear (regression protection)', () =>
 
     expect(result.units['unit-1'].weaponsFiredThisTurn).toEqual([]);
     expect(result.units['unit-1'].pendingPSRs).toEqual([]);
+  });
+
+  it('clears transient TAG designations but preserves persistent NARC markers', () => {
+    const initial = makeState({
+      'unit-1': makeUnit('unit-1', [], [], {
+        tagDesignated: true,
+        narcedBy: [GameSide.Opponent],
+      }),
+    });
+
+    const result = applyTurnStarted(initial, makeTurnStartedEvent(2));
+
+    expect(result.units['unit-1'].tagDesignated).toBe(false);
+    expect(result.units['unit-1'].narcedBy).toEqual([GameSide.Opponent]);
   });
 
   it('leaves units with empty pendingPSRs untouched (idempotent on empty queue)', () => {

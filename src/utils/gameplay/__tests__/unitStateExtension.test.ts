@@ -17,6 +17,7 @@ import {
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IAmmoConsumedPayload,
+  PSRTrigger,
 } from '@/types/gameplay';
 
 import {
@@ -356,6 +357,27 @@ describe('Phase 4: IUnitGameState Extension', () => {
       const psrs = result.units['unit-1'].pendingPSRs ?? [];
       expect(psrs).toHaveLength(1);
       expect(psrs[0].reason).toBe('20+ damage this phase');
+    });
+
+    it('preserves canonical PSR reason codes on pending PSRs', () => {
+      const state = createStateWithUnit();
+      const event = makeEvent(GameEventType.PSRTriggered, {
+        unitId: 'unit-1',
+        reason: 'Reactor shutdown',
+        additionalModifier: 0,
+        triggerSource: 'heat_shutdown',
+        reasonCode: PSRTrigger.Shutdown,
+      } satisfies IPSRTriggeredPayload);
+
+      const result = applyEvent(state, event);
+      const psrs = result.units['unit-1'].pendingPSRs ?? [];
+
+      expect(psrs).toHaveLength(1);
+      expect(psrs[0]).toMatchObject({
+        entityId: 'unit-1',
+        reason: 'Reactor shutdown',
+        reasonCode: PSRTrigger.Shutdown,
+      });
     });
 
     it('accumulates multiple PSRs', () => {

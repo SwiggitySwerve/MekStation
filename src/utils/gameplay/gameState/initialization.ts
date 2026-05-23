@@ -228,6 +228,7 @@ export function createInitialUnitState(
 
   return {
     id: unit.id,
+    unitType: unit.unitType,
     side: unit.side,
     position: startPosition,
     facing: startFacing,
@@ -240,6 +241,16 @@ export function createInitialUnitState(
     // These fields never mutate mid-match.
     gunnery: unit.gunnery,
     piloting: unit.piloting,
+    heatSinks: unit.heatSinks,
+    heatSinkType: unit.heatSinkType,
+    hasTSM: unit.hasTSM ?? false,
+    abilities: unit.abilities,
+    designatedWeaponType: unit.designatedWeaponType,
+    designatedWeaponCategory: unit.designatedWeaponCategory,
+    designatedTargetId: unit.designatedTargetId,
+    designatedRangeBracket: unit.designatedRangeBracket,
+    unitQuirks: unit.unitQuirks,
+    weaponQuirks: unit.weaponQuirks,
     armor: {},
     structure: {},
     // Per `add-bot-retreat-behavior` § 2 (Trigger A): the retreat trigger
@@ -274,6 +285,7 @@ export function createInitialUnitState(
     isRetreating: false,
     retreatTargetEdge: undefined,
     hasRetreated: false,
+    hasEjected: false,
     // Per-type combat-behavior envelope (mech / vehicle paths leave undefined).
     combatState,
   };
