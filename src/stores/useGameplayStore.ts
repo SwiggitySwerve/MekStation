@@ -42,6 +42,7 @@ import {
   setAttackTargetLogic,
   setPlannedMovementLogic,
   shouldClearAttackPlanOnPhaseChange,
+  standActiveUnitLogic,
   togglePlannedWeaponLogic,
   type IAttackPlan,
   type IPlannedMovement,
@@ -203,6 +204,8 @@ interface GameplayActions {
   setPlannedMovement: (plan: IPlannedMovement) => void;
   clearPlannedMovement: () => void;
   commitPlannedMovement: () => void;
+  /** Commit a zero-hex stand-up movement for the selected prone unit. */
+  standActiveUnit: () => void;
   /**
    * Per `add-combat-phase-ui-flows`: Attack-phase planning actions.
    * `setAttackTarget` sets the target id when an enemy token is
@@ -435,6 +438,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   setPlannedMovement: (plan) => setPlannedMovementLogic(plan, set),
   clearPlannedMovement: () => clearPlannedMovementLogic(set),
   commitPlannedMovement: () => commitPlannedMovementLogic(get, set),
+  standActiveUnit: () => standActiveUnitLogic(get, set),
   setAttackTarget: (unitId) => setAttackTargetLogic(unitId, set),
   togglePlannedWeapon: (weaponId) => togglePlannedWeaponLogic(weaponId, set),
   clearAttackPlan: () => clearAttackPlanLogic(set),

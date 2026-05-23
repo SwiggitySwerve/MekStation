@@ -1,3 +1,4 @@
+import type { PhysicalAttackIntent } from '@/components/gameplay/PhysicalAttackPanel';
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
 import type {
@@ -49,6 +50,8 @@ export interface GameplayLayoutProps {
   validTargetIds?: readonly string[];
   /** Movement range hexes for map display */
   movementRange?: readonly IMovementRangeHex[];
+  hoveredHex?: IHexCoordinate | null;
+  hoverMovementInfo?: IMovementRangeHex;
   highlightPath?: readonly IHexCoordinate[];
   hoverMpCost?: number;
   hoverUnreachable?: boolean;
@@ -58,6 +61,7 @@ export interface GameplayLayoutProps {
   };
   onHexHover?: (hex: IHexCoordinate | null) => void;
   interactiveSession?: InteractiveSession;
+  physicalAttackIntent?: PhysicalAttackIntent | null;
   /** Player side controlling this UI (defaults to GameSide.Player). */
   playerSide?: GameSide;
   /**

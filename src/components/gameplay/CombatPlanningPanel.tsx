@@ -55,6 +55,8 @@ import { WeaponSelector } from './WeaponSelector';
 export interface CombatPlanningPanelProps {
   /** Walk MP for the currently selected unit (provided by parent). */
   walkMP?: number;
+  /** Run MP for the currently selected unit (provided by parent). */
+  runMP?: number;
   /** Jump MP for the currently selected unit (provided by parent). */
   jumpMP?: number;
   /**
@@ -101,6 +103,7 @@ function weaponToForecastInput(weapon: IWeapon): IForecastInput {
 
 export function CombatPlanningPanel({
   walkMP = 0,
+  runMP = Math.ceil(walkMP * 1.5),
   jumpMP = 0,
   weapons = [],
   onPhysicalAttackIntentChange,
@@ -149,6 +152,7 @@ export function CombatPlanningPanel({
       clearPlannedMovement();
       if (selected) {
         setPlannedMovement({
+          unitId: selected.id,
           destination: selected.state.position,
           facing: selected.state.facing,
           movementType: type,
@@ -179,7 +183,7 @@ export function CombatPlanningPanel({
   }, [plannedMovement, selected]);
 
   const movementType = plannedMovement?.movementType ?? MovementType.Walk;
-  const mpCost = plannedMovement?.path.length ?? 0;
+  const mpCost = plannedMovement?.mpCost ?? plannedMovement?.path.length ?? 0;
   const jumpHexes = movementType === MovementType.Jump ? mpCost : undefined;
 
   // ---------------------------------------------------------------------------
@@ -259,6 +263,7 @@ export function CombatPlanningPanel({
         <MovementTypeSwitcher
           active={movementType}
           walkMP={walkMP}
+          runMP={runMP}
           jumpMP={jumpMP}
           onChange={handleTypeChange}
         />
@@ -270,6 +275,11 @@ export function CombatPlanningPanel({
           ready={planReady && plannedMovement?.facing !== undefined}
           mpCost={mpCost}
           movementType={movementType}
+          heatGenerated={plannedMovement?.heatGenerated}
+          movementMode={plannedMovement?.movementMode}
+          terrainCost={plannedMovement?.terrainCost}
+          elevationDelta={plannedMovement?.elevationDelta}
+          elevationCost={plannedMovement?.elevationCost}
           jumpHexes={jumpHexes}
           onCommit={commitPlannedMovement}
         />

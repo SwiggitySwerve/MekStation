@@ -121,7 +121,7 @@ describe('add-attack-phase-ui § 11.2 — out-of-range weapons cannot be fired',
     expect(screen.getByTestId('weapon-checkbox-med-laser-1')).toBeDisabled();
   });
 
-  it('renders the Out-of-range indicator below minRange (minimum-range gap)', () => {
+  it('renders a minimum-range penalty below minRange and keeps the weapon fireable', () => {
     render(
       <WeaponSelector
         weapons={[lrm15]}
@@ -131,10 +131,13 @@ describe('add-attack-phase-ui § 11.2 — out-of-range weapons cannot be fired',
         onToggle={jest.fn()}
       />,
     );
+    expect(screen.getByTestId('weapon-min-range-lrm15-1')).toHaveTextContent(
+      'Min +5',
+    );
     expect(
-      screen.getByTestId('weapon-out-of-range-lrm15-1'),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId('weapon-checkbox-lrm15-1')).toBeDisabled();
+      screen.queryByTestId('weapon-out-of-range-lrm15-1'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('weapon-checkbox-lrm15-1')).not.toBeDisabled();
   });
 
   it('marks the row as data-disabled when range exceeds longRange', () => {

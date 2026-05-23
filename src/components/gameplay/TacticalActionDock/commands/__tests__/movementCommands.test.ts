@@ -23,6 +23,9 @@ function makeCtx(
     hoveredHex: null,
     phase: GamePhase.Movement,
     canAct: true,
+    activeUnitProne: true,
+    activeUnitHeat: 0,
+    movementCapability: { walkMP: 4, runMP: 6, jumpMP: 0 },
     ...overrides,
   };
 }
@@ -93,8 +96,96 @@ describe('movementCommands', () => {
     });
   });
 
+  it('jump is disabled with a player-facing reason when the unit has no jump MP', () => {
+    const jump = commands.find((c) => c.id === 'movement.jump')!;
+    expect(
+      jump.availability(
+        makeCtx({
+          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'No jump capability.',
+    });
+  });
+
+  it('jump stays available when the active unit has jump MP', () => {
+    const jump = commands.find((c) => c.id === 'movement.jump')!;
+    expect(
+      jump.availability(
+        makeCtx({
+          activeUnitProne: false,
+          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+        }),
+      ),
+    ).toEqual({ available: true });
+  });
+
+  it('jump explains that a jump-capable prone unit must stand first', () => {
+    const jump = commands.find((c) => c.id === 'movement.jump')!;
+
+    expect(
+      jump.availability(
+        makeCtx({
+          activeUnitProne: true,
+          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Unit is prone and must stand before jumping.',
+    });
+  });
+
   it('stand commit produces a stand actionId', () => {
     const stand = commands.find((c) => c.id === 'movement.stand')!;
     expect(stand.commit(makeCtx()).actionId).toBe('stand');
+  });
+
+  it('stand is available only for prone units with movement capability', () => {
+    const stand = commands.find((c) => c.id === 'movement.stand')!;
+
+    expect(stand.availability(makeCtx())).toEqual({ available: true });
+    expect(stand.availability(makeCtx({ activeUnitProne: false }))).toEqual({
+      available: false,
+      reason: 'Unit is not prone.',
+    });
+    expect(stand.availability(makeCtx({ movementCapability: null }))).toEqual({
+      available: false,
+      reason: 'No movement capability.',
+    });
+  });
+
+  it('stand availability uses heat-reduced MP so the dock matches engine validation', () => {
+    const stand = commands.find((c) => c.id === 'movement.stand')!;
+
+    expect(
+      stand.availability(
+        makeCtx({
+          activeUnitHeat: 10,
+          movementCapability: { walkMP: 2, runMP: 3, jumpMP: 0 },
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Needs 2 MP to stand after heat penalty.',
+    });
+  });
+
+  it('stand availability surfaces source-backed impossible stand reasons', () => {
+    const stand = commands.find((c) => c.id === 'movement.stand')!;
+    const reason = 'Cannot stand with a destroyed leg and both arms destroyed';
+
+    expect(
+      stand.availability(
+        makeCtx({
+          activeUnitStandUpImpossibleReason: reason,
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason,
+    });
   });
 });

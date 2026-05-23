@@ -17,9 +17,11 @@
 
 import type { InteractiveSession } from '@/engine/GameEngine';
 
+import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
+import { InteractivePhase } from '@/stores/useGameplayStore.helpers';
 import {
   Facing,
   GameEventType,
@@ -29,7 +31,11 @@ import {
   LockState,
   MovementType,
   type IGameSession,
+  type IGameEvent,
+  type IHexCoordinate,
   type IPhysicalAttackDeclaredPayload,
+  type IPhysicalAttackResolvedPayload,
+  type IWeaponStatus,
 } from '@/types/gameplay';
 
 interface FakeSessionCalls {
@@ -121,6 +127,220 @@ function buildFakeSession(): {
   };
 }
 
+function buildStandFakeSession(prone = true): {
+  session: InteractiveSession;
+  calls: FakeSessionCalls;
+  snapshot: IGameSession;
+} {
+  const calls: FakeSessionCalls = { movement: [], attacks: [] };
+  const snapshot: IGameSession = {
+    id: 'stand-session',
+    createdAt: '',
+    updatedAt: '',
+    config: {
+      mapRadius: 5,
+      turnLimit: 0,
+      victoryConditions: [],
+      optionalRules: [],
+    },
+    units: [],
+    events: [],
+    currentState: {
+      gameId: 'stand-session',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.Movement,
+      activationIndex: 0,
+      units: {
+        'unit-a': {
+          id: 'unit-a',
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+          facing: Facing.North,
+          heat: 0,
+          movementThisTurn: MovementType.Stationary,
+          hexesMovedThisTurn: 0,
+          armor: {},
+          structure: {},
+          destroyedLocations: [],
+          destroyedEquipment: [],
+          ammo: {},
+          pilotWounds: 0,
+          pilotConscious: true,
+          destroyed: false,
+          lockState: LockState.Planning,
+          prone,
+        },
+      },
+      turnEvents: [],
+    },
+  };
+
+  const fake = {
+    applyMovement: (
+      unitId: string,
+      to: { q: number; r: number },
+      facing: Facing,
+      type: MovementType,
+      path?: readonly { q: number; r: number }[],
+    ) => {
+      calls.movement.push({
+        unitId,
+        to,
+        facing,
+        type,
+        ...(path !== undefined ? { path } : {}),
+      });
+      (snapshot.events as IGameEvent[]).push({
+        id: 'stand-move',
+        gameId: snapshot.id,
+        sequence: 0,
+        turn: 1,
+        phase: GamePhase.Movement,
+        type: GameEventType.MovementDeclared,
+        actorId: unitId,
+        timestamp: '',
+        payload: {
+          unitId,
+          from: { q: 0, r: 0 },
+          to,
+          facing,
+          movementType: type,
+          mpUsed: 2,
+          heatGenerated: 1,
+          path,
+        },
+      } as IGameEvent);
+      snapshot.currentState.units['unit-a'] = {
+        ...snapshot.currentState.units['unit-a'],
+        prone: false,
+      };
+    },
+    getSession: () => snapshot,
+    getState: () => snapshot.currentState,
+    isGameOver: () => false,
+    getResult: () => null,
+    advancePhase: () => undefined,
+    runAITurn: () => undefined,
+    getAvailableActions: () => ({ validMoves: [], validTargets: [] }),
+    concede: () => undefined,
+  };
+
+  return {
+    session: fake as unknown as InteractiveSession,
+    calls,
+    snapshot,
+  };
+}
+
+function buildWeaponTargetSelectionSession(targetQ: number): {
+  session: IGameSession;
+  interactiveSession: InteractiveSession;
+} {
+  const session: IGameSession = {
+    id: 'weapon-target-session',
+    createdAt: '',
+    updatedAt: '',
+    config: {
+      mapRadius: 5,
+      turnLimit: 0,
+      victoryConditions: [],
+      optionalRules: [],
+    },
+    units: [
+      {
+        id: 'attacker',
+        name: 'Attacker',
+        side: GameSide.Player,
+        unitRef: 'attacker-ref',
+        pilotRef: 'pilot-a',
+        gunnery: 4,
+        piloting: 5,
+      },
+      {
+        id: 'target',
+        name: 'Target',
+        side: GameSide.Opponent,
+        unitRef: 'target-ref',
+        pilotRef: 'pilot-t',
+        gunnery: 4,
+        piloting: 5,
+      },
+    ],
+    events: [],
+    currentState: {
+      gameId: 'weapon-target-session',
+      status: GameStatus.Active,
+      turn: 1,
+      phase: GamePhase.WeaponAttack,
+      activationIndex: 0,
+      units: {
+        attacker: {
+          id: 'attacker',
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+          facing: Facing.Southeast,
+          heat: 0,
+          movementThisTurn: MovementType.Stationary,
+          hexesMovedThisTurn: 0,
+          armor: {},
+          structure: {},
+          destroyedLocations: [],
+          destroyedEquipment: [],
+          ammo: {},
+          pilotWounds: 0,
+          pilotConscious: true,
+          destroyed: false,
+          lockState: LockState.Planning,
+        },
+        target: {
+          id: 'target',
+          side: GameSide.Opponent,
+          position: { q: targetQ, r: 0 },
+          facing: Facing.North,
+          heat: 0,
+          movementThisTurn: MovementType.Stationary,
+          hexesMovedThisTurn: 0,
+          armor: {},
+          structure: {},
+          destroyedLocations: [],
+          destroyedEquipment: [],
+          ammo: {},
+          pilotWounds: 0,
+          pilotConscious: true,
+          destroyed: false,
+          lockState: LockState.Planning,
+        },
+      },
+      turnEvents: [],
+    },
+  };
+  const grid = createMinimalGrid(session.config.mapRadius);
+
+  const interactiveSession = {
+    getSession: () => session,
+    getState: () => session.currentState,
+    getGrid: () => grid,
+    getAvailableActions: () => ({ validMoves: [], validTargets: [] }),
+    isGameOver: () => false,
+  } as unknown as InteractiveSession;
+
+  return { session, interactiveSession };
+}
+
+function buildSmallLaser(): IWeaponStatus {
+  return {
+    id: 'small-laser',
+    name: 'Small Laser',
+    location: 'right_arm',
+    destroyed: false,
+    firedThisTurn: false,
+    heat: 1,
+    damage: 3,
+    ranges: { short: 1, medium: 2, long: 3 },
+  };
+}
+
 describe('useGameplayStore — combat-phase planning actions', () => {
   beforeEach(() => {
     useGameplayStore.getState().reset();
@@ -169,11 +389,39 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       expect(fake.calls.movement).toHaveLength(0);
     });
 
+    it('commitPlannedMovement clears stale plans owned by another unit', () => {
+      const fake = buildFakeSession();
+      useGameplayStore.setState({
+        interactiveSession: fake.session,
+        plannedMovement: {
+          unitId: 'unit-b',
+          destination: { q: 3, r: -1 },
+          facing: Facing.Southeast,
+          movementType: MovementType.Run,
+          path: [
+            { q: 0, r: 0 },
+            { q: 3, r: -1 },
+          ],
+        },
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      useGameplayStore.getState().commitPlannedMovement();
+
+      expect(fake.calls.movement).toHaveLength(0);
+      expect(useGameplayStore.getState().plannedMovement).toBeNull();
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBe('unit-a');
+    });
+
     it('commitPlannedMovement calls applyMovement and clears the plan', () => {
       const fake = buildFakeSession();
       useGameplayStore.setState({
         interactiveSession: fake.session,
         plannedMovement: {
+          unitId: 'unit-a',
           destination: { q: 3, r: -1 },
           facing: Facing.Southeast,
           movementType: MovementType.Run,
@@ -250,6 +498,61 @@ describe('useGameplayStore — combat-phase planning actions', () => {
 
       expect(calls.advancePhase).toBe(1);
     });
+
+    it('standActiveUnit commits a zero-hex walk for a selected prone unit', () => {
+      const { session, calls, snapshot } = buildStandFakeSession(true);
+      useGameplayStore.setState({
+        interactiveSession: session,
+        session: snapshot,
+        plannedMovement: {
+          destination: { q: 2, r: 0 },
+          facing: Facing.South,
+          movementType: MovementType.Walk,
+          path: [
+            { q: 0, r: 0 },
+            { q: 1, r: 0 },
+            { q: 2, r: 0 },
+          ],
+        },
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      useGameplayStore.getState().standActiveUnit();
+
+      expect(calls.movement).toEqual([
+        {
+          unitId: 'unit-a',
+          to: { q: 0, r: 0 },
+          facing: Facing.North,
+          type: MovementType.Walk,
+          path: [{ q: 0, r: 0 }],
+        },
+      ]);
+      expect(useGameplayStore.getState().plannedMovement).toBeNull();
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+      expect(useGameplayStore.getState().session).toBe(snapshot);
+      expect(snapshot.currentState.units['unit-a'].prone).toBe(false);
+    });
+
+    it('standActiveUnit is a no-op when the selected unit is already standing', () => {
+      const { session, calls, snapshot } = buildStandFakeSession(false);
+      useGameplayStore.setState({
+        interactiveSession: session,
+        session: snapshot,
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      useGameplayStore.getState().standActiveUnit();
+
+      expect(calls.movement).toHaveLength(0);
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBe('unit-a');
+    });
   });
 
   describe('attackPlan', () => {
@@ -258,6 +561,66 @@ describe('useGameplayStore — combat-phase planning actions', () => {
         targetUnitId: null,
         selectedWeapons: [],
       });
+    });
+
+    it('derives selectable weapon targets from shared combat projection', () => {
+      const { session, interactiveSession } =
+        buildWeaponTargetSelectionSession(2);
+      useGameplayStore.setState({
+        session,
+        interactiveSession,
+        interactivePhase: InteractivePhase.SelectUnit,
+        unitWeapons: { attacker: [buildSmallLaser()] },
+      });
+
+      useGameplayStore.getState().handleInteractiveTokenClick('attacker');
+
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBe('attacker');
+      expect(useGameplayStore.getState().interactivePhase).toBe(
+        InteractivePhase.SelectTarget,
+      );
+      expect(useGameplayStore.getState().validTargetIds).toEqual(['target']);
+    });
+
+    it('ignores weapon target clicks rejected by shared combat projection', () => {
+      const { session, interactiveSession } =
+        buildWeaponTargetSelectionSession(5);
+      useGameplayStore.setState({
+        session,
+        interactiveSession,
+        interactivePhase: InteractivePhase.SelectUnit,
+        unitWeapons: { attacker: [buildSmallLaser()] },
+      });
+
+      useGameplayStore.getState().handleInteractiveTokenClick('attacker');
+      useGameplayStore.getState().handleInteractiveTokenClick('target');
+
+      expect(useGameplayStore.getState().validTargetIds).toEqual([]);
+      expect(useGameplayStore.getState().attackPlan.targetUnitId).toBeNull();
+      expect(useGameplayStore.getState().interactivePhase).toBe(
+        InteractivePhase.SelectTarget,
+      );
+    });
+
+    it('accepts weapon target clicks when shared combat projection allows them', () => {
+      const { session, interactiveSession } =
+        buildWeaponTargetSelectionSession(2);
+      useGameplayStore.setState({
+        session,
+        interactiveSession,
+        interactivePhase: InteractivePhase.SelectUnit,
+        unitWeapons: { attacker: [buildSmallLaser()] },
+      });
+
+      useGameplayStore.getState().handleInteractiveTokenClick('attacker');
+      useGameplayStore.getState().handleInteractiveTokenClick('target');
+
+      expect(useGameplayStore.getState().attackPlan.targetUnitId).toBe(
+        'target',
+      );
+      expect(useGameplayStore.getState().interactivePhase).toBe(
+        InteractivePhase.SelectWeapons,
+      );
     });
 
     it('setAttackTarget sets both attackPlan.targetUnitId and ui.targetUnitId', () => {
@@ -470,7 +833,12 @@ function buildMovementAnimationSession(): {
  * and the events list — everything else is filler typed via
  * `unknown` to avoid duplicating every field of `IUnitGameState`.
  */
-function buildPhysicalSession(): IGameSession {
+function buildPhysicalSession(
+  overrides: {
+    readonly attackerMovementThisTurn?: MovementType;
+    readonly defenderPosition?: IHexCoordinate;
+  } = {},
+): IGameSession {
   return {
     id: 'fake-physical-session',
     createdAt: '',
@@ -496,7 +864,8 @@ function buildPhysicalSession(): IGameSession {
           position: { q: 0, r: 0 },
           facing: 0,
           heat: 0,
-          movementThisTurn: 'walk',
+          movementThisTurn:
+            overrides.attackerMovementThisTurn ?? MovementType.Walk,
           hexesMovedThisTurn: 0,
           armor: {},
           structure: {},
@@ -511,10 +880,10 @@ function buildPhysicalSession(): IGameSession {
         'phys-defender': {
           id: 'phys-defender',
           side: GameSide.Opponent,
-          position: { q: 1, r: 0 },
+          position: overrides.defenderPosition ?? { q: 1, r: 0 },
           facing: 0,
           heat: 0,
-          movementThisTurn: 'walk',
+          movementThisTurn: MovementType.Walk,
           hexesMovedThisTurn: 0,
           armor: {},
           structure: {},
@@ -532,8 +901,10 @@ function buildPhysicalSession(): IGameSession {
   } as unknown as IGameSession;
 }
 
-function buildPhysicalFakeSession(): InteractiveSession {
-  let snapshot = buildPhysicalSession();
+function buildPhysicalFakeSession(
+  snapshotOverride?: IGameSession,
+): InteractiveSession {
+  let snapshot = snapshotOverride ?? buildPhysicalSession();
   return {
     getSession: () => snapshot,
     getState: () => snapshot.currentState,
@@ -560,6 +931,7 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
       targetUnitId: null,
       attackType: null,
+      limb: null,
     });
   });
 
@@ -579,6 +951,18 @@ describe('usePhysicalAttackPlanStore', () => {
     ).toBe('punch');
   });
 
+  it('setPhysicalAttackType preserves the selected physical limb', () => {
+    usePhysicalAttackPlanStore
+      .getState()
+      .setPhysicalAttackType('punch', 'rightArm');
+    expect(
+      usePhysicalAttackPlanStore.getState().physicalAttackPlan,
+    ).toMatchObject({
+      attackType: 'punch',
+      limb: 'rightArm',
+    });
+  });
+
   it('clearPhysicalAttackPlan resets target + type', () => {
     const store = usePhysicalAttackPlanStore.getState();
     store.setPhysicalAttackTarget('phys-defender');
@@ -587,6 +971,7 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
       targetUnitId: null,
       attackType: null,
+      limb: null,
     });
   });
 
@@ -625,6 +1010,70 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(payload.attackType).toBe('punch');
   });
 
+  it('commitPhysicalAttack rejects non-adjacent targets before declaration', () => {
+    const fake = buildPhysicalFakeSession(
+      buildPhysicalSession({ defenderPosition: { q: 2, r: 0 } }),
+    );
+    const store = usePhysicalAttackPlanStore.getState();
+    store.setPhysicalAttackTarget('phys-defender');
+    store.setPhysicalAttackType('punch');
+
+    const next = usePhysicalAttackPlanStore.getState().commitPhysicalAttack({
+      interactiveSession: fake,
+      attackerId: 'phys-attacker',
+      attackerPiloting: 4,
+      attackerTonnage: 50,
+      targetTonnage: 50,
+    });
+
+    expect(next).not.toBeNull();
+    expect(
+      next!.events.some(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toBe(false);
+    const rejected = next!.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(rejected).toBeDefined();
+    const payload = rejected!.payload as IPhysicalAttackResolvedPayload;
+    expect(payload).toMatchObject({
+      attackerId: 'phys-attacker',
+      targetId: 'phys-defender',
+      attackType: 'punch',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetNotInPhysicalRange',
+    });
+  });
+
+  it('commitPhysicalAttack infers run-gated charge legality from the attacker state', () => {
+    const fake = buildPhysicalFakeSession(
+      buildPhysicalSession({ attackerMovementThisTurn: MovementType.Run }),
+    );
+    const store = usePhysicalAttackPlanStore.getState();
+    store.setPhysicalAttackTarget('phys-defender');
+    store.setPhysicalAttackType('charge');
+
+    const next = usePhysicalAttackPlanStore.getState().commitPhysicalAttack({
+      interactiveSession: fake,
+      attackerId: 'phys-attacker',
+      attackerPiloting: 4,
+      attackerTonnage: 50,
+      targetTonnage: 50,
+      hexesMoved: 3,
+    });
+
+    expect(next).not.toBeNull();
+    const declared = next!.events.find(
+      (e) => e.type === GameEventType.PhysicalAttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IPhysicalAttackDeclaredPayload;
+    expect(payload.attackType).toBe('charge');
+  });
+
   it('commitPhysicalAttack clears the plan after a successful commit', () => {
     const fake = buildPhysicalFakeSession();
     const store = usePhysicalAttackPlanStore.getState();
@@ -638,6 +1087,7 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
       targetUnitId: null,
       attackType: null,
+      limb: null,
     });
   });
 });

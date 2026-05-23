@@ -17,11 +17,14 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
  */
 
+import { getHeatMovementPenalty } from '@/constants/heat';
 import {
   GamePhase,
+  MovementType,
   type ITacticalCommand,
   type ITacticalCommandContext,
 } from '@/types/gameplay';
+import { getMaxMP, getStandingCost } from '@/utils/gameplay/movement';
 
 /**
  * Build the movement-family command list for the current active unit.
@@ -99,11 +102,15 @@ const MovementJumpCommand: ITacticalCommand = {
     if (!ctx.activeUnitId)
       return { available: false, reason: 'No unit is active.' };
     if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    // Jump-jet availability is a per-unit fact resolved by the engine —
-    // today the dock surfaces the command and the engine refuses the
-    // commit; Wave 7.3+ will inject the jump-MP envelope so this
-    // predicate can return a `disabledReason: "No jump jets equipped."`
-    // before the user clicks.
+    if (ctx.movementCapability && ctx.movementCapability.jumpMP <= 0) {
+      return { available: false, reason: 'No jump capability.' };
+    }
+    if (ctx.activeUnitProne === true) {
+      return {
+        available: false,
+        reason: 'Unit is prone and must stand before jumping.',
+      };
+    }
     return { available: true };
   },
   commit() {
@@ -122,9 +129,42 @@ const MovementStandCommand: ITacticalCommand = {
     if (!ctx.activeUnitId)
       return { available: false, reason: 'No unit is active.' };
     if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    // The unit-is-prone fact lives on the engine state. Until the
-    // command context carries it, surface the command and let the
-    // engine refuse non-prone stand attempts.
+    if (ctx.activeUnitProne !== true) {
+      return { available: false, reason: 'Unit is not prone.' };
+    }
+    if (!ctx.movementCapability) {
+      return { available: false, reason: 'No movement capability.' };
+    }
+    if (ctx.activeUnitStandUpImpossibleReason) {
+      return {
+        available: false,
+        reason: ctx.activeUnitStandUpImpossibleReason,
+      };
+    }
+    if (ctx.movementCapability.walkMP <= 0) {
+      return { available: false, reason: 'Unit cannot stand.' };
+    }
+    const standingCost = getStandingCost(ctx.movementCapability);
+    const heatPenalty = getHeatMovementPenalty(ctx.activeUnitHeat ?? 0);
+    const effectiveWalkMP = getMaxMP(
+      ctx.movementCapability,
+      MovementType.Walk,
+      heatPenalty,
+    );
+    const effectiveRunMP = getMaxMP(
+      ctx.movementCapability,
+      MovementType.Run,
+      heatPenalty,
+    );
+    if (Math.max(effectiveWalkMP, effectiveRunMP) < standingCost) {
+      return {
+        available: false,
+        reason:
+          heatPenalty > 0
+            ? `Needs ${standingCost} MP to stand after heat penalty.`
+            : `Needs ${standingCost} MP to stand.`,
+      };
+    }
     return { available: true };
   },
   commit() {

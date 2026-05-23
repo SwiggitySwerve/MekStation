@@ -21,19 +21,26 @@ import { useCameraControls } from '@/hooks/useCameraControls';
 import { useGameplayHotkeys } from '@/hooks/useGameplayHotkeys';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
+import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
 import {
+  GamePhase,
   GameSide,
   ILayoutConfig,
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
+  MovementType,
 } from '@/types/gameplay';
+import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
+import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
+import { projectStandUpPsr } from '@/utils/gameplay/standUpRules';
 
 import type { GameplayLayoutProps } from './GameplayLayout.types';
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
 import { ActionBar } from './ActionBar';
 import { EventLogDisplay } from './EventLogDisplay';
+import { buildCommandPreviewInputs } from './GameplayLayout.commandPreview';
 import {
   HitChancePanel,
   MapOverlayChildren,
@@ -51,6 +58,7 @@ import {
 } from './GameplayLayout.viewModel';
 import { HexMapDisplay } from './HexMapDisplay';
 import { MoraleIndicator } from './MoraleIndicator';
+import { PhysicalAttackIntentArrow } from './overlays/PhysicalAttackIntentArrow';
 import { TacticalActionDock } from './TacticalActionDock';
 import {
   ShellSlot,
@@ -163,11 +171,14 @@ export function GameplayLayout({
   hitChance,
   validTargetIds = [],
   movementRange = [],
+  hoveredHex,
+  hoverMovementInfo,
   highlightPath = [],
   hoverMpCost,
   hoverUnreachable = false,
   mpLegend,
   interactiveSession,
+  physicalAttackIntent,
   playerSide = GameSide.Player,
   shellMode = 'combat',
   className = '',
@@ -180,6 +191,9 @@ export function GameplayLayout({
   // red ring (distinct from the static validTarget ring painted on
   // every fireable enemy).
   const activeTargetId = useGameplaySelector((s) => s.attackPlan.targetUnitId);
+  const physicalAttackPlan = usePhysicalAttackPlanStore(
+    (s) => s.physicalAttackPlan,
+  );
 
   // Wave 7.2 PR-E: phase queue projection drives the TacticalTurnRail.
   // The projection is a derived view of session state — it never writes
@@ -267,14 +281,55 @@ export function GameplayLayout({
     [activeAnimations, events, queuedAnimations, session.id],
   );
 
+  const combatGrid = useMemo(
+    () => interactiveSession?.getGrid() ?? null,
+    [interactiveSession],
+  );
+
   const visibilityState = useMemo(
-    () => ({ ...currentState, sideOwners: session.sideOwners ?? null }),
-    [currentState, session.sideOwners],
+    () => ({
+      ...currentState,
+      sideOwners: session.sideOwners ?? null,
+      ...(combatGrid ? { grid: combatGrid } : {}),
+    }),
+    [combatGrid, currentState, session.sideOwners],
   );
   const localFogPlayerId =
     session.sideOwners?.[playerSide] ?? playerSide.toString();
 
-  const tokens = useMemo(
+  const validPhysicalTargetIds = useMemo(() => {
+    if (currentState.phase !== GamePhase.PhysicalAttack || !selectedUnitId) {
+      return [];
+    }
+    const attackerState = currentState.units[selectedUnitId] ?? null;
+    const attackerBinding = units.find((unit) => unit.id === selectedUnitId);
+    if (!attackerState) return [];
+
+    return Object.entries(currentState.units)
+      .filter(([, targetState]) => targetState.side !== attackerState.side)
+      .filter(([, targetState]) => !targetState.destroyed)
+      .filter(([, targetState]) => {
+        const options = getEligiblePhysicalAttacks(attackerState, targetState, {
+          attackerTonnage: 65,
+          attackerPilotingSkill:
+            attackerState.piloting ?? attackerBinding?.piloting ?? 5,
+          targetTonnage: 65,
+          weaponsFiredFromLeftArm: attackerState.weaponsFiredThisTurn,
+          weaponsFiredFromRightArm: attackerState.weaponsFiredThisTurn,
+          attackerRanThisTurn:
+            attackerState.movementThisTurn === MovementType.Run,
+          attackerJumpedThisTurn:
+            attackerState.movementThisTurn === MovementType.Jump,
+        });
+        return options.some(
+          (option) =>
+            option.toHit.allowed && option.restrictionsFailed.length === 0,
+        );
+      })
+      .map(([unitId]) => unitId);
+  }, [currentState, selectedUnitId, units]);
+
+  const baseTokens = useMemo(
     () =>
       buildGameplayTokens({
         currentState,
@@ -282,8 +337,11 @@ export function GameplayLayout({
         session,
         unitInfoLookup,
         selectedUnitId,
-        validTargetIds,
+        validTargetIds:
+          currentState.phase === GamePhase.WeaponAttack ? [] : validTargetIds,
         activeTargetId,
+        validPhysicalTargetIds,
+        activePhysicalTargetId: physicalAttackPlan.targetUnitId,
         playerSide,
         localFogPlayerId,
         visibilityState,
@@ -298,16 +356,114 @@ export function GameplayLayout({
       session,
       unitInfoLookup,
       validTargetIds,
+      validPhysicalTargetIds,
       visibilityState,
+      physicalAttackPlan.targetUnitId,
+    ],
+  );
+
+  const validWeaponTargetIds = useMemo(
+    () =>
+      deriveValidWeaponTargetIds({
+        currentState,
+        selectedUnitId,
+        tokens: baseTokens,
+        mapRadius: config.mapRadius,
+        grid: combatGrid,
+        unitWeapons,
+      }),
+    [
+      baseTokens,
+      combatGrid,
+      config.mapRadius,
+      currentState,
+      selectedUnitId,
+      unitWeapons,
+    ],
+  );
+
+  const effectiveValidTargetIds =
+    currentState.phase === GamePhase.WeaponAttack && interactiveSession
+      ? validWeaponTargetIds
+      : validTargetIds;
+
+  const tokens = useMemo(
+    () =>
+      buildGameplayTokens({
+        currentState,
+        config,
+        session,
+        unitInfoLookup,
+        selectedUnitId,
+        validTargetIds: effectiveValidTargetIds,
+        activeTargetId,
+        validPhysicalTargetIds,
+        activePhysicalTargetId: physicalAttackPlan.targetUnitId,
+        playerSide,
+        localFogPlayerId,
+        visibilityState,
+      }),
+    [
+      activeTargetId,
+      config,
+      currentState,
+      effectiveValidTargetIds,
+      localFogPlayerId,
+      playerSide,
+      selectedUnitId,
+      session,
+      unitInfoLookup,
+      validPhysicalTargetIds,
+      visibilityState,
+      physicalAttackPlan.targetUnitId,
     ],
   );
 
   const hexTerrain = useMemo(
+    () => (combatGrid ? hexTerrainFromGrid(combatGrid) : []),
+    [combatGrid],
+  );
+
+  const commandPreviewInputs = useMemo(
     () =>
-      interactiveSession
-        ? hexTerrainFromGrid(interactiveSession.getGrid())
-        : [],
-    [interactiveSession],
+      buildCommandPreviewInputs({
+        currentState,
+        selectedUnitId,
+        activeTargetId,
+        tokens,
+        unitBindings: units,
+        mapRadius: config.mapRadius,
+        grid: combatGrid,
+        unitWeapons,
+        hitChance,
+        physicalAttackTargetId: physicalAttackPlan.targetUnitId,
+        physicalAttackType: physicalAttackPlan.attackType,
+        physicalAttackLimb: physicalAttackPlan.limb,
+        hoveredHex,
+        movementInfo: hoverMovementInfo,
+        highlightPath,
+        hoverMpCost,
+        hoverUnreachable,
+      }),
+    [
+      activeTargetId,
+      config.mapRadius,
+      currentState,
+      highlightPath,
+      hitChance,
+      hoveredHex,
+      hoverMovementInfo,
+      hoverMpCost,
+      hoverUnreachable,
+      combatGrid,
+      physicalAttackPlan.attackType,
+      physicalAttackPlan.limb,
+      physicalAttackPlan.targetUnitId,
+      selectedUnitId,
+      tokens,
+      units,
+      unitWeapons,
+    ],
   );
 
   // Selected unit data
@@ -320,6 +476,17 @@ export function GameplayLayout({
   const selectedUnitFromSession = selectedUnitId
     ? (units.find((u) => u.id === selectedUnitId) ?? null)
     : null;
+  const selectedMovementCapability = useMemo(() => {
+    if (!interactiveSession || !selectedUnitId) return null;
+    return interactiveSession.getMovementCapability(selectedUnitId);
+  }, [interactiveSession, selectedUnitId]);
+  const selectedStandUpImpossibleReason = selectedUnit?.prone
+    ? projectStandUpPsr({
+        unitState: selectedUnit,
+        unitPiloting: selectedUnit.piloting,
+        unitType: selectedUnitFromSession?.unitType,
+      }).impossibleReason
+    : undefined;
 
   // Handle panel resize
   const handleMouseMove = useCallback(
@@ -570,7 +737,9 @@ export function GameplayLayout({
                 selectedHex={selectedUnit?.position || null}
                 hexTerrain={hexTerrain}
                 movementRange={movementRange}
+                targetUnitId={activeTargetId}
                 unitWeapons={unitWeapons}
+                combatState={currentState}
                 friendlySide={playerSide}
                 highlightPath={highlightPath}
                 hoverMpCost={hoverMpCost}
@@ -581,6 +750,15 @@ export function GameplayLayout({
                 onTokenClick={handleTokenClick}
                 onTokenDoubleClick={handleTokenDoubleClick}
                 onInteractionReady={setMapInteraction}
+                svgOverlayChildren={
+                  physicalAttackIntent ? (
+                    <PhysicalAttackIntentArrow
+                      {...physicalAttackIntent}
+                      side={selectedUnit?.side ?? playerSide}
+                      testId="physical-attack-intent-arrow"
+                    />
+                  ) : null
+                }
                 // TODO PR-C: MapOverlayChildren contains the minimap-cluster
                 // slot owner; register it via its own ShellSlot once the
                 // overlay-children prop contract is reworked to allow
@@ -669,9 +847,15 @@ export function GameplayLayout({
               hoveredHex: null,
               phase: currentState.phase,
               canAct: isPlayerTurn,
+              activeUnitProne: selectedUnit?.prone ?? false,
+              activeUnitHeat: selectedUnit?.heat ?? 0,
+              activeUnitStandUpImpossibleReason:
+                selectedStandUpImpossibleReason,
+              movementCapability: selectedMovementCapability,
             }}
             shellMode={shellMode}
             onAction={onAction}
+            previewInputs={commandPreviewInputs}
             infoText={
               interactivePhase ? `Interactive: ${interactivePhase}` : undefined
             }

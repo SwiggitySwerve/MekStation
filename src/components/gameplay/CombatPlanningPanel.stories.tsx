@@ -243,6 +243,7 @@ const meta: Meta<typeof CombatPlanningPanel> = {
   ],
   args: {
     walkMP: 3,
+    runMP: 5,
     jumpMP: 0,
     weapons,
     attackerTonnage: 100,

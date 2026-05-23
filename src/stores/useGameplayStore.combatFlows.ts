@@ -14,7 +14,10 @@
 import { create } from 'zustand';
 
 import type { InteractiveSession } from '@/engine/GameEngine';
-import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
+import type {
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
 
 import { getPrefersReducedMotion } from '@/hooks/useReducedMotion';
 import {
@@ -77,6 +80,7 @@ export interface IAttackPlan {
 export interface IPhysicalAttackPlan {
   readonly targetUnitId: string | null;
   readonly attackType: PhysicalAttackType | null;
+  readonly limb: PhysicalAttackLimb | null;
 }
 
 /**
@@ -147,6 +151,49 @@ export function commitPlannedMovementLogic(get: GetFn, set: SetFn): void {
     fallbackPath: plannedMovement.path,
     fallbackMode: plannedMovement.movementType,
   });
+
+  set({
+    session: nextSession,
+    interactivePhase: InteractivePhase.SelectUnit,
+    plannedMovement: null,
+    validMovementHexes: [],
+    ui: { ...get().ui, selectedUnitId: null },
+  });
+}
+
+/**
+ * Commit a standalone stand-up action for the selected prone unit through the
+ * same movement validator used by normal map movement. This declares a
+ * zero-hex Walk move at the unit's current position so stand-up MP, invalid
+ * events, locking, and state replay stay on the movement event path.
+ */
+export function standActiveUnitLogic(get: GetFn, set: SetFn): void {
+  const { interactiveSession, ui } = get();
+  if (!interactiveSession || !ui.selectedUnitId) return;
+
+  const unitId = ui.selectedUnitId;
+  const beforeSession = interactiveSession.getSession();
+  const unitState = beforeSession.currentState.units[unitId];
+  if (!unitState?.prone) return;
+
+  const beforeEventCount = beforeSession.events.length;
+  interactiveSession.applyMovement(
+    unitId,
+    unitState.position,
+    unitState.facing,
+    MovementType.Walk,
+    [unitState.position],
+  );
+
+  const nextSession = interactiveSession.getSession();
+  const declared = nextSession.events
+    .slice(beforeEventCount)
+    .some((event) => event.type === GameEventType.MovementDeclared);
+
+  if (!declared) {
+    set({ session: nextSession, plannedMovement: null });
+    return;
+  }
 
   set({
     session: nextSession,
@@ -307,7 +354,10 @@ export interface IPhysicalAttackPlanState {
   /** Target-lock setter — mirrors `setAttackTarget` for the weapon flow. */
   setPhysicalAttackTarget: (unitId: string | null) => void;
   /** Stash the chosen attack type. */
-  setPhysicalAttackType: (attackType: PhysicalAttackType | null) => void;
+  setPhysicalAttackType: (
+    attackType: PhysicalAttackType | null,
+    limb?: PhysicalAttackLimb | null,
+  ) => void;
   /** Reset back to `{targetUnitId: null, attackType: null}`. */
   clearPhysicalAttackPlan: () => void;
   /**
@@ -334,11 +384,16 @@ export interface ICommitPhysicalAttackArgs {
   readonly attackerTonnage?: number;
   readonly targetTonnage?: number;
   readonly hexesMoved?: number;
+  readonly attackerRanThisTurn?: boolean;
+  readonly attackerJumpedThisTurn?: boolean;
+  readonly weaponsFiredFromLeftArm?: readonly string[];
+  readonly weaponsFiredFromRightArm?: readonly string[];
 }
 
 const EMPTY_PHYSICAL_PLAN: IPhysicalAttackPlan = {
   targetUnitId: null,
   attackType: null,
+  limb: null,
 };
 
 /**
@@ -361,9 +416,9 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
         },
       })),
 
-    setPhysicalAttackType: (attackType) =>
+    setPhysicalAttackType: (attackType, limb = null) =>
       set((state) => ({
-        physicalAttackPlan: { ...state.physicalAttackPlan, attackType },
+        physicalAttackPlan: { ...state.physicalAttackPlan, attackType, limb },
       })),
 
     clearPhysicalAttackPlan: () =>
@@ -408,6 +463,17 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
           targetTonnage,
           pilotingSkill: args.attackerPiloting,
           hexesMoved,
+          limb: plan.limb ?? undefined,
+          arm: armForPhysicalLimb(plan.limb),
+          weaponsFiredFromArm:
+            weaponsFiredFromArmForPhysicalLimb(plan.limb, args) ??
+            attackerState?.weaponsFiredThisTurn,
+          attackerRanThisTurn:
+            args.attackerRanThisTurn ??
+            attackerState?.movementThisTurn === MovementType.Run,
+          attackerJumpedThisTurn:
+            args.attackerJumpedThisTurn ??
+            attackerState?.movementThisTurn === MovementType.Jump,
         },
       );
 
@@ -416,6 +482,23 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
     },
   }),
 );
+
+function armForPhysicalLimb(
+  limb: PhysicalAttackLimb | null,
+): 'left' | 'right' | undefined {
+  if (limb === 'leftArm') return 'left';
+  if (limb === 'rightArm') return 'right';
+  return undefined;
+}
+
+function weaponsFiredFromArmForPhysicalLimb(
+  limb: PhysicalAttackLimb | null,
+  args: ICommitPhysicalAttackArgs,
+): readonly string[] | undefined {
+  if (limb === 'leftArm') return args.weaponsFiredFromLeftArm;
+  if (limb === 'rightArm') return args.weaponsFiredFromRightArm;
+  return undefined;
+}
 
 // ---------------------------------------------------------------------------
 // Phase selectors (task 1.1)

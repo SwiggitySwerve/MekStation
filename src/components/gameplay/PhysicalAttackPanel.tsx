@@ -35,6 +35,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import type {
   IPhysicalAttackInput,
   IPhysicalAttackOption,
+  PhysicalAttackLimb,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
@@ -43,7 +44,7 @@ import {
   useSelectedUnit,
 } from '@/stores/useGameplayStore';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
-import { GamePhase, type IHexCoordinate } from '@/types/gameplay';
+import { GamePhase, MovementType, type IHexCoordinate } from '@/types/gameplay';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
 
@@ -88,6 +89,14 @@ interface MeleeTarget {
   id: string;
   name: string;
   position: IHexCoordinate;
+}
+
+function armForPhysicalLimb(
+  limb: PhysicalAttackLimb | null,
+): 'left' | 'right' | undefined {
+  if (limb === 'leftArm') return 'left';
+  if (limb === 'rightArm') return 'right';
+  return undefined;
 }
 
 export function PhysicalAttackPanel({
@@ -177,8 +186,9 @@ export function PhysicalAttackPanel({
       weaponsFiredFromLeftArm: selected.state.weaponsFiredThisTurn,
       weaponsFiredFromRightArm: selected.state.weaponsFiredThisTurn,
       limbsUsedThisTurn: undefined,
-      attackerRanThisTurn: false,
-      attackerJumpedThisTurn: false,
+      attackerRanThisTurn: selected.state.movementThisTurn === MovementType.Run,
+      attackerJumpedThisTurn:
+        selected.state.movementThisTurn === MovementType.Jump,
       meleeWeaponsEquipped,
     });
   }, [selected, targetState, attackerTonnage, meleeWeaponsEquipped]);
@@ -196,12 +206,22 @@ export function PhysicalAttackPanel({
       pilotingSkill: selected.unit.piloting,
       componentDamage: selected.state.componentDamage ?? EMPTY_DAMAGE,
       attackType: physicalAttackPlan.attackType,
+      limb: physicalAttackPlan.limb ?? undefined,
+      arm: armForPhysicalLimb(physicalAttackPlan.limb),
       heat: selected.state.heat,
       attackerProne: selected.state.prone,
       hexesMoved: selected.state.hexesMovedThisTurn,
       weaponsFiredFromArm: selected.state.weaponsFiredThisTurn,
+      attackerRanThisTurn: selected.state.movementThisTurn === MovementType.Run,
+      attackerJumpedThisTurn:
+        selected.state.movementThisTurn === MovementType.Jump,
     };
-  }, [selected, attackerTonnage, physicalAttackPlan.attackType]);
+  }, [
+    selected,
+    attackerTonnage,
+    physicalAttackPlan.attackType,
+    physicalAttackPlan.limb,
+  ]);
 
   // ---------------------------------------------------------------------------
   // Callbacks
@@ -250,7 +270,7 @@ export function PhysicalAttackPanel({
    */
   const handleDeclare = useCallback(
     (option: IPhysicalAttackOption) => {
-      setPhysicalAttackType(option.attackType);
+      setPhysicalAttackType(option.attackType, option.limb ?? null);
       setForecastOpen(true);
     },
     [setPhysicalAttackType],
@@ -264,6 +284,11 @@ export function PhysicalAttackPanel({
       attackerPiloting: selected.unit.piloting,
       attackerTonnage,
       hexesMoved: selected.state.hexesMovedThisTurn,
+      weaponsFiredFromLeftArm: selected.state.weaponsFiredThisTurn,
+      weaponsFiredFromRightArm: selected.state.weaponsFiredThisTurn,
+      attackerRanThisTurn: selected.state.movementThisTurn === MovementType.Run,
+      attackerJumpedThisTurn:
+        selected.state.movementThisTurn === MovementType.Jump,
     });
     if (next) {
       setSession(next);
@@ -271,7 +296,10 @@ export function PhysicalAttackPanel({
         (t) => t.id === physicalAttackPlan.targetUnitId,
       );
       setCommittedSummary(
-        `Declared ${attackTypeLabel(physicalAttackPlan.attackType ?? 'punch')} vs ${target?.name ?? 'target'}`,
+        `Declared ${attackTypeLabel(
+          physicalAttackPlan.attackType ?? 'punch',
+          physicalAttackPlan.limb ?? undefined,
+        )} vs ${target?.name ?? 'target'}`,
       );
     }
     setForecastOpen(false);
@@ -285,6 +313,7 @@ export function PhysicalAttackPanel({
     meleeTargets,
     physicalAttackPlan.targetUnitId,
     physicalAttackPlan.attackType,
+    physicalAttackPlan.limb,
     onIntentChange,
   ]);
 

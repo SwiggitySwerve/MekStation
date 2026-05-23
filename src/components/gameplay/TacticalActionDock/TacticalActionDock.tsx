@@ -31,7 +31,14 @@ import type {
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
+import { GamePhase } from '@/types/gameplay';
+
 import { CommandTooltip } from './CommandTooltip';
+import { CommandPreviewPanel } from './TacticalActionDock.preview';
+import {
+  useCommandPreview,
+  type ICommandPreviewInputs,
+} from './useCommandPreview';
 import {
   groupCommandsByCategory,
   useCommandRegistry,
@@ -52,6 +59,8 @@ export interface TacticalActionDockProps {
   readonly trailingActions?: React.ReactNode;
   /** Optional informational text shown in the trailing region. */
   readonly infoText?: string;
+  /** Rules-backed projection inputs for the active command preview. */
+  readonly previewInputs?: ICommandPreviewInputs;
   /** Optional className for styling. */
   readonly className?: string;
 }
@@ -162,6 +171,71 @@ function CommandGroup({
   );
 }
 
+function previewCommandForContext({
+  commands,
+  ctx,
+  previewInputs,
+}: {
+  readonly commands: readonly ITacticalCommand[];
+  readonly ctx: ITacticalCommandContext;
+  readonly previewInputs: ICommandPreviewInputs | undefined;
+}): ITacticalCommand | null {
+  if (
+    ctx.phase === GamePhase.WeaponAttack &&
+    (ctx.targetUnitId || previewInputs?.combatInfo)
+  ) {
+    return (
+      commands.find((command) => command.id === 'weapon.fire-volley') ?? null
+    );
+  }
+
+  const movementMode =
+    previewInputs?.movementInfo?.movementType ?? previewInputs?.movementMode;
+  const hasMovementPreview =
+    Boolean(previewInputs?.movementInfo) ||
+    Boolean(previewInputs?.highlightPath?.length);
+  if (ctx.phase === GamePhase.Movement && movementMode && hasMovementPreview) {
+    return (
+      commands.find((command) => command.id === `movement.${movementMode}`) ??
+      null
+    );
+  }
+
+  const physicalAttackType =
+    previewInputs?.physicalAttackOption?.attackType ??
+    previewInputs?.physicalAttackType;
+  if (
+    ctx.phase === GamePhase.PhysicalAttack &&
+    physicalAttackType &&
+    (ctx.targetUnitId || previewInputs?.physicalTargetUnitId)
+  ) {
+    return (
+      commands.find(
+        (command) =>
+          command.id === commandIdForPhysicalAttack(physicalAttackType),
+      ) ?? null
+    );
+  }
+
+  return null;
+}
+
+function commandIdForPhysicalAttack(
+  attackType: NonNullable<ICommandPreviewInputs['physicalAttackType']>,
+): string {
+  switch (attackType) {
+    case 'dfa':
+      return 'physical.dfa';
+    case 'hatchet':
+    case 'sword':
+    case 'mace':
+    case 'lance':
+      return 'physical.club';
+    default:
+      return `physical.${attackType}`;
+  }
+}
+
 /**
  * The tactical action dock — primary command surface.
  *
@@ -175,10 +249,21 @@ export function TacticalActionDock({
   onAction,
   trailingActions,
   infoText,
+  previewInputs,
   className = '',
 }: TacticalActionDockProps): React.ReactElement {
   const commands = useCommandRegistry(ctx, shellMode);
   const groups = groupCommandsByCategory(commands);
+  const previewCommand = previewCommandForContext({
+    commands,
+    ctx,
+    previewInputs,
+  });
+  const commandPreview = useCommandPreview(
+    previewCommand,
+    ctx,
+    previewInputs ?? {},
+  );
 
   const dispatchCommand = useCallback(
     (command: ITacticalCommand) => {
@@ -234,6 +319,7 @@ export function TacticalActionDock({
         ))}
       </div>
       <div className="flex items-center gap-3">
+        {commandPreview && <CommandPreviewPanel preview={commandPreview} />}
         {infoText && (
           <div className="text-text-theme-secondary text-sm">{infoText}</div>
         )}

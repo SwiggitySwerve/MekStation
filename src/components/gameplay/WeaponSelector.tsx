@@ -26,6 +26,7 @@ import React, { useMemo, useState } from 'react';
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IAttackerState, ITargetState } from '@/types/gameplay';
 
+import { getMinimumRangePenalty } from '@/utils/gameplay/range';
 import {
   previewAttackOutcome,
   ZERO_PREVIEW,
@@ -103,20 +104,26 @@ function RangeBadge({
 
 /**
  * Pick the active range bracket for `range` vs the weapon's thresholds.
- * Returns `null` when the range is below minimum (in-range, but none of
- * S/M/L is the "active" bracket because minRange gating applies) or
- * above long (out of range — no bracket to highlight). Matches the
- * bracket semantics used by `buildToHitForecast`.
+ * Minimum range is legal with a to-hit penalty, so the normal S/M/L bracket
+ * remains active. Returns `null` only above long range.
  */
 function pickActiveBracket(
   range: number,
   weapon: IWeapon,
 ): 'S' | 'M' | 'L' | null {
-  if (weapon.minRange > 0 && range < weapon.minRange) return null;
   if (range > weapon.longRange) return null;
   if (range <= weapon.shortRange) return 'S';
   if (range <= weapon.mediumRange) return 'M';
   return 'L';
+}
+
+function minimumRangePenaltyForWeapon(range: number, weapon: IWeapon): number {
+  return getMinimumRangePenalty(range, {
+    short: weapon.shortRange,
+    medium: weapon.mediumRange,
+    long: weapon.longRange,
+    minimum: weapon.minRange,
+  });
 }
 
 interface StatusBadgeProps {
@@ -241,7 +248,8 @@ interface WeaponRowProps {
 /**
  * Single weapon row with its checkbox + badges. Out-of-range and
  * no-ammo conditions both disable the checkbox so the player can't
- * accidentally queue an unfireable weapon.
+ * accidentally queue an unfireable weapon. Minimum range remains legal
+ * and displays as a penalty warning, matching the map combat projection.
  */
 function WeaponRow({
   weapon,
@@ -257,13 +265,16 @@ function WeaponRow({
   // Anything > 0 has ammo. Exactly 0 is empty. The lookup defaults to
   // -1 in the parent so weapons without bins are treated as energy.
   const noAmmo = ammoRemaining === 0;
-  const outOfRange =
-    rangeToTarget > weapon.longRange ||
-    (weapon.minRange > 0 && rangeToTarget < weapon.minRange);
+  const outOfRange = rangeToTarget > weapon.longRange;
+  const minimumRangePenalty = minimumRangePenaltyForWeapon(
+    rangeToTarget,
+    weapon,
+  );
+  const insideMinimumRange = minimumRangePenalty > 0;
 
   const disabled = destroyed || noAmmo || outOfRange;
   // Per `add-attack-phase-ui` task 4.2: highlight the bracket that the
-  // current range falls into (null when OOR or inside min-range).
+  // current range falls into (null only when out of range).
   const activeBracket = pickActiveBracket(rangeToTarget, weapon);
 
   return (
@@ -340,6 +351,13 @@ function WeaponRow({
             tone="red"
           />
         )}
+        {!destroyed && !outOfRange && insideMinimumRange && (
+          <StatusBadge
+            label={`Min +${minimumRangePenalty}`}
+            testid={`weapon-min-range-${weapon.id}`}
+            tone="amber"
+          />
+        )}
       </div>
       {showPreview && <PreviewColumns weaponId={weapon.id} preview={preview} />}
     </li>
@@ -414,9 +432,7 @@ export function WeaponSelector({
     if (!previewEnabled || !attacker || !target) return {};
     const out: Record<string, IAttackPreview | null> = {};
     for (const w of weapons) {
-      const outOfRange =
-        rangeToTarget > w.longRange ||
-        (w.minRange > 0 && rangeToTarget < w.minRange);
+      const outOfRange = rangeToTarget > w.longRange;
       // Per spec scenario "Preview null for out-of-range weapons":
       // out-of-range previews must be `null` so the row renders "—"
       // not zeroed numbers.

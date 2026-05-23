@@ -8,7 +8,9 @@
 
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import type { PhysicalAttackIntent } from '@/components/gameplay';
 
 import {
   CombatPlanningPanel,
@@ -17,6 +19,7 @@ import {
 } from '@/components/gameplay';
 import { useGameSessionLifecycle } from '@/components/gameplay/pages/gameSession/GameSessionPage.lifecycle';
 import { useGameMovementPlanning } from '@/components/gameplay/pages/gameSession/GameSessionPage.movement';
+import { planningWeaponsForSelectedUnit } from '@/components/gameplay/pages/gameSession/GameSessionPage.weaponPlanning';
 import {
   CompletedGame,
   GameError,
@@ -74,6 +77,7 @@ export default function GameSessionPage(): React.ReactElement {
   const runAITurn = useGameplaySelector((state) => state.runAITurn);
   const skipPhase = useGameplaySelector((state) => state.skipPhase);
   const checkGameOver = useGameplaySelector((state) => state.checkGameOver);
+  const standActiveUnit = useGameplaySelector((state) => state.standActiveUnit);
 
   const isCompletedForRedirect =
     session?.currentState.status === GameStatus.Completed;
@@ -98,6 +102,22 @@ export default function GameSessionPage(): React.ReactElement {
     phase,
     handleInteractiveHexClick,
   });
+  const selectedPlanningWeapons = useMemo(
+    () =>
+      planningWeaponsForSelectedUnit({
+        selectedUnitId: ui.selectedUnitId,
+        unitWeapons,
+      }),
+    [ui.selectedUnitId, unitWeapons],
+  );
+  const [physicalAttackIntent, setPhysicalAttackIntent] =
+    useState<PhysicalAttackIntent | null>(null);
+
+  useEffect(() => {
+    if (phase !== GamePhase.PhysicalAttack || !ui.selectedUnitId) {
+      setPhysicalAttackIntent(null);
+    }
+  }, [phase, ui.selectedUnitId]);
 
   const handleRetry = useCallback(() => {
     clearError();
@@ -134,6 +154,9 @@ export default function GameSessionPage(): React.ReactElement {
         case 'skip':
           skipPhase();
           break;
+        case 'stand':
+          standActiveUnit();
+          break;
         case 'next-turn':
           runAITurn();
           break;
@@ -156,6 +179,7 @@ export default function GameSessionPage(): React.ReactElement {
       isInteractive,
       handleAction,
       skipPhase,
+      standActiveUnit,
       runAITurn,
       fireWeapons,
       advanceInteractivePhase,
@@ -249,19 +273,24 @@ export default function GameSessionPage(): React.ReactElement {
             hitChance={hitChance}
             validTargetIds={validTargetIds}
             movementRange={movement.movementRangeHexes}
+            hoveredHex={movement.hoveredHex}
+            hoverMovementInfo={movement.hoveredMovementRangeHex}
             highlightPath={movement.hoveredPath}
             hoverMpCost={movement.hoverMpCost}
             hoverUnreachable={movement.hoverUnreachable}
             mpLegend={movement.mpLegend}
             interactiveSession={interactiveSession ?? undefined}
+            physicalAttackIntent={physicalAttackIntent}
             playerSide={GameSide.Player}
           />
         </div>
         {showPlanningPanel && ui.selectedUnitId && (
           <CombatPlanningPanel
-            walkMP={movement.capability?.walkMP ?? 0}
-            jumpMP={movement.capability?.jumpMP ?? 0}
-            weapons={[]}
+            walkMP={movement.effectiveMovementMps?.walkMP ?? 0}
+            runMP={movement.effectiveMovementMps?.runMP ?? 0}
+            jumpMP={movement.effectiveMovementMps?.jumpMP ?? 0}
+            weapons={selectedPlanningWeapons}
+            onPhysicalAttackIntentChange={setPhysicalAttackIntent}
           />
         )}
       </div>

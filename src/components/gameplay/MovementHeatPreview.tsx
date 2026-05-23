@@ -23,6 +23,11 @@ export interface MovementHeatPreviewProps {
   /** The movement type the player is currently planning. */
   movementType: MovementType;
   /**
+   * Exact rules-backed heat from the movement projection. When present, it
+   * wins over local derivation so the action panel mirrors the map preview.
+   */
+  heatGenerated?: number;
+  /**
    * Number of hexes the unit will jump (only used when
    * `movementType === MovementType.Jump`). Walk and Run heat are
    * fixed at 1/2 regardless of distance per canonical rules.
@@ -41,10 +46,11 @@ const MOVEMENT_TYPE_LABEL: Record<MovementType, string> = {
 
 export function MovementHeatPreview({
   movementType,
+  heatGenerated,
   jumpHexes = 0,
   className = '',
 }: MovementHeatPreviewProps): React.ReactElement {
-  const heat = calculateMovementHeat(movementType, jumpHexes);
+  const heat = heatGenerated ?? calculateMovementHeat(movementType, jumpHexes);
   const label = MOVEMENT_TYPE_LABEL[movementType] ?? 'Move';
 
   return (
