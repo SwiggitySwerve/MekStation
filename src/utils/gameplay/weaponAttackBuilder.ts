@@ -57,6 +57,7 @@ export function buildWeaponAttack(
   return {
     weaponId: wData.id,
     weaponName: wData.name,
+    mountingArc: wData.mountingArc,
     damage: wData.damage,
     heat: wData.heat,
     category: inferWeaponCategory(wData),
@@ -64,6 +65,7 @@ export function buildWeaponAttack(
     shortRange: wData.shortRange,
     mediumRange: wData.mediumRange,
     longRange: wData.longRange,
+    extremeRange: wData.extremeRange,
     isCluster: false,
   };
 }

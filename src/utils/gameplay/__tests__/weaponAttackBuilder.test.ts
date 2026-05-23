@@ -9,6 +9,7 @@
 import type { IWeapon } from '@/simulation/ai/types';
 
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { FiringArc } from '@/types/gameplay';
 import {
   buildWeaponAttack,
   buildWeaponAttacks,
@@ -71,6 +72,31 @@ describe('buildWeaponAttack', () => {
     const result = buildWeaponAttack('ac20-1', [ac20]);
     expect(result?.damage).toBe(20);
     expect(result?.heat).toBe(7);
+  });
+
+  it('preserves represented extreme range for engine range checks', () => {
+    const result = buildWeaponAttack('er-ac-1', [
+      {
+        ...ac20,
+        id: 'er-ac-1',
+        name: 'Extended AC',
+        longRange: 6,
+        extremeRange: 9,
+      },
+    ]);
+    expect(result?.longRange).toBe(6);
+    expect(result?.extremeRange).toBe(9);
+  });
+
+  it('preserves mounted firing arc for engine arc checks', () => {
+    const result = buildWeaponAttack('rear-ml-1', [
+      {
+        ...mediumLaser,
+        id: 'rear-ml-1',
+        mountingArc: FiringArc.Rear,
+      },
+    ]);
+    expect(result?.mountingArc).toBe(FiringArc.Rear);
   });
 
   it('returns null + warns when the weapon id is not on the unit', () => {

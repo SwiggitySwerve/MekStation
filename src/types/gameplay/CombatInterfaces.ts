@@ -85,6 +85,8 @@ export interface IWeaponAttack {
   readonly weaponId: string;
   /** Weapon name */
   readonly weaponName: string;
+  /** Mounted firing arc, when known. Missing means legacy omnidirectional. */
+  readonly mountingArc?: FiringArc;
   /** Damage per hit */
   readonly damage: number;
   /** Heat generated */

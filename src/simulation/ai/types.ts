@@ -137,6 +137,9 @@ export interface IWeapon {
   /** Long range (hexes) */
   readonly longRange: number;
 
+  /** Extreme range (hexes), when represented for the weapon */
+  readonly extremeRange?: number;
+
   /** Damage dealt on hit */
   readonly damage: number;
 
