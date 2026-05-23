@@ -12,6 +12,7 @@ import {
 } from './HexCell.labels';
 import {
   hexToPixel,
+  getPrimaryTerrainFeature,
   getTerrainMovementCost,
   getTerrainCoverLevel,
 } from './renderHelpers';
@@ -80,7 +81,16 @@ export const CoverOverlay = React.memo(function CoverOverlay({
   const { x, y } = hexToPixel(hex);
   const coverLevel = getTerrainCoverLevel(terrain);
   const coverLabel = formatCoverOverlayLabel(coverLevel);
-  const coverTitle = formatCoverOverlayTitle(coverLevel);
+  const terrainTypes = terrain?.features.map((feature) => feature.type) ?? [];
+  const terrainLabel = formatTerrainFeaturesLabel(terrainTypes);
+  const elevation = terrain?.elevation ?? 0;
+  const elevationLabel = formatElevationLabel(elevation);
+  const primaryTerrain = getPrimaryTerrainFeature(terrain)?.type ?? 'clear';
+  const coverTitle = formatCoverOverlayTitle(
+    coverLevel,
+    terrainLabel,
+    elevationLabel,
+  );
 
   const shieldPath = `M${x},${y - 14} L${x - 10},${y - 6} L${x - 10},${y + 4} Q${x},${y + 14} ${x + 10},${y + 4} L${x + 10},${y - 6} Z`;
 
@@ -105,6 +115,11 @@ export const CoverOverlay = React.memo(function CoverOverlay({
       pointerEvents="none"
       data-testid={`cover-overlay-hex-${hex.q}-${hex.r}`}
       data-cover-level={coverLevel}
+      data-cover-source-terrain={primaryTerrain}
+      data-terrain-features={
+        terrainTypes.length > 0 ? terrainTypes.join(',') : 'clear'
+      }
+      data-elevation={elevation}
       aria-label={coverTitle}
     >
       <title>{coverTitle}</title>
@@ -159,7 +174,7 @@ function formatCoverOverlayLabel(coverLevel: CoverLevel): string {
   }
 }
 
-function formatCoverOverlayTitle(coverLevel: CoverLevel): string {
+function formatCoverOverlayBaseTitle(coverLevel: CoverLevel): string {
   switch (coverLevel) {
     case CoverLevel.Full:
       return 'Full cover';
@@ -168,6 +183,14 @@ function formatCoverOverlayTitle(coverLevel: CoverLevel): string {
     case CoverLevel.None:
       return 'No cover';
   }
+}
+
+function formatCoverOverlayTitle(
+  coverLevel: CoverLevel,
+  terrainLabel: string,
+  elevationLabel: string,
+): string {
+  return `${formatCoverOverlayBaseTitle(coverLevel)}; terrain ${terrainLabel}; elevation ${elevationLabel}`;
 }
 
 // =============================================================================

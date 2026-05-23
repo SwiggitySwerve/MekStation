@@ -385,7 +385,23 @@ describe('HexMapDisplay terrain and elevation labels', () => {
     expect(screen.getByTestId('cover-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
       'aria-label',
-      expect.stringContaining('cover'),
+      'Partial cover; terrain light woods; elevation +2',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'data-cover-level',
+      'partial',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'data-cover-source-terrain',
+      TerrainType.LightWoods,
+    );
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'data-terrain-features',
+      TerrainType.LightWoods,
+    );
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'data-elevation',
+      '2',
     );
     expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('los-overlay')).toBeInTheDocument();
