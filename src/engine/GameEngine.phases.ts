@@ -59,6 +59,7 @@ import {
   getTargetCoverInfo,
 } from '@/utils/gameplay/terrainCover';
 import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
+import { weaponPassesRepresentedWaterAttackRules } from '@/utils/gameplay/underwaterAttacks';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
@@ -377,7 +378,7 @@ export function runAttackPhase(
               targetHex,
             ).arc
           : null;
-      const usableWeaponAttacks =
+      const rangeAndArcWeaponAttacks =
         targetArc === null
           ? []
           : weaponAttacks.filter(
@@ -385,6 +386,17 @@ export function runAttackPhase(
                 isWeaponInRange(weapon, attackRange) &&
                 weaponCoversTargetArc(weapon, targetArc),
             );
+      const usableWeaponAttacks =
+        grid && targetHex
+          ? rangeAndArcWeaponAttacks.filter((weapon) =>
+              weaponPassesRepresentedWaterAttackRules({
+                grid,
+                attackerPosition: unit.position,
+                targetPosition: targetHex,
+                weapon,
+              }),
+            )
+          : rangeAndArcWeaponAttacks;
       const attackRangeBracket = bestAttackRangeBracket(
         attackRange,
         usableWeaponAttacks,

@@ -16,6 +16,7 @@
 - [ ] Source-check and fixture special combat cases against BattleTech/MegaMek: C3, indirect fire handoff, underwater/torpedo restrictions, minimum/short/medium/long/extreme range policy, and physical attack target legality.
   - [x] Weapon-backed map projection now preserves represented extreme range and agrees with committed engine attacks for extreme bracket/to-hit.
   - [x] Minimum/short/medium/long/extreme range policy is source-pinned against MegaMek range brackets and committed to-hit modifiers, including ground-to-ground minimum-range penalties and airborne/aerospace minimum-range exemption.
+  - [x] Underwater and torpedo attack legality now source-pins represented underwater-target blocking, torpedo-only water targets, torpedo whole-line water checks, and preview/commit invalid reason agreement.
   - [x] C3 network spotter range now source-pins preview/commit agreement for represented direct attacks, including the C3-improved range bracket and spotter metadata while preserving indirect-fire separation.
   - [x] Indirect-fire spotter handoff now source-pins represented spotter movement penalties: run/jump spotters remain legal with MegaMek-style +2/+3 movement adds, infantry/BA spotters ignore the movement add, and map preview agrees with committed attack declaration.
   - [x] Physical attack target range now agrees between map highlights and committed declarations: non-adjacent unit targets are not highlighted and direct commits resolve as impossible.

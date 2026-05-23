@@ -35,6 +35,7 @@ import {
   getTargetCoverInfo,
 } from '@/utils/gameplay/terrainCover';
 import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
+import { weaponPassesRepresentedWaterAttackRules } from '@/utils/gameplay/underwaterAttacks';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { toAIUnitState } from './GameEngine.helpers';
@@ -122,6 +123,17 @@ export function runInteractiveSessionAITurn(
         );
         const targetHex =
           session.currentState.units[atkEvt.payload.targetId]?.position;
+        const usableWeaponAttacks = targetHex
+          ? weaponAttacks.filter((weapon) =>
+              weaponPassesRepresentedWaterAttackRules({
+                grid: context.grid,
+                attackerPosition: refreshedUnit?.position ?? unit.position,
+                targetPosition: targetHex,
+                weapon,
+              }),
+            )
+          : weaponAttacks;
+        if (usableWeaponAttacks.length === 0) continue;
         const targetPartialCover = targetHex
           ? getTargetCoverInfo(
               context.grid,
@@ -158,7 +170,7 @@ export function runInteractiveSessionAITurn(
             session,
             unitId,
             atkEvt.payload.targetId,
-            weaponAttacks,
+            usableWeaponAttacks,
             3,
             RangeBracket.Short,
             undefined,

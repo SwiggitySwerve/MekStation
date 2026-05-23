@@ -46,6 +46,15 @@ modifier is `(minimum - distance) + 1`, applies only when minimum range is
 positive and the attack is represented as ground-to-ground, and must be exposed
 by both map preview and committed `AttackDeclared` modifiers.
 
+Underwater and torpedo attack legality is pinned to MegaMek tactical behavior:
+`Compute.getRangeMods(...)` rejects underwater targets when the weapon is not
+underwater-capable, rejects torpedo weapons against non-water targets, and
+`ComputeToHitIsImpossible(...)` rejects torpedo lines whose minimum water depth
+falls below 1. MekStation's represented map layer currently treats water depth
+2+ as underwater for target legality, water depth 1+ as a valid water line for
+torpedoes, and threads the same invalid reason through map preview and
+committed attack validation.
+
 C3 range projection is pinned to MegaMek tactical behavior:
 `Compute.getRangeMods(...)` asks `ComputeC3Spotter.findC3Spotter(...)`, then
 `RangeType.rangeBracketC3(...)` can improve the attacker's direct-fire range

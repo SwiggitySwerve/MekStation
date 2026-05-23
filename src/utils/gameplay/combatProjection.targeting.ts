@@ -235,6 +235,7 @@ export function deriveAttackInvalidState({
   operationalWeaponCount,
   weaponReadinessInvalidState,
   visibilityBlockedReason,
+  weaponEnvironmentInvalidState,
   indirectFirePermitted,
 }: {
   readonly hasTarget: boolean;
@@ -249,6 +250,10 @@ export function deriveAttackInvalidState({
     typeof deriveWeaponReadinessInvalidState
   >;
   readonly visibilityBlockedReason?: string;
+  readonly weaponEnvironmentInvalidState?: {
+    readonly reason: IAttackInvalidPayload['reason'];
+    readonly details: string;
+  };
   readonly indirectFirePermitted: boolean;
 }): {
   readonly reason?: IAttackInvalidPayload['reason'];
@@ -282,6 +287,7 @@ export function deriveAttackInvalidState({
     };
   }
   if (!inArc || !hasAvailableWeapon) {
+    if (weaponEnvironmentInvalidState) return weaponEnvironmentInvalidState;
     return {
       reason: 'OutOfArc',
       details: `No selected weapons can fire into the ${firingArc} arc`,

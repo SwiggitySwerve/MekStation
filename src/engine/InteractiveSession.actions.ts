@@ -72,6 +72,10 @@ import {
   getTargetCoverInfo,
 } from '@/utils/gameplay/terrainCover';
 import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
+import {
+  representedWaterAttackInvalidState,
+  weaponPassesRepresentedWaterAttackRules,
+} from '@/utils/gameplay/underwaterAttacks';
 import { canPlayerSeeUnit } from '@/utils/gameplay/visibility';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
@@ -493,8 +497,27 @@ export function applyInteractiveSessionAttack(
   const weaponsInArc = weaponAttacks.filter((weapon) =>
     weaponCoversTargetArc(weapon, targetArc),
   );
-  const usableWeaponAttacks = weaponsInRange.filter((weapon) =>
+  const rangeAndArcWeaponAttacks = weaponsInRange.filter((weapon) =>
     weaponCoversTargetArc(weapon, targetArc),
+  );
+  const waterAttackInvalidState =
+    input.grid && resolvedTargetHex
+      ? representedWaterAttackInvalidState({
+          grid: input.grid,
+          attackerPosition: attackerUnit.position,
+          targetPosition: resolvedTargetHex,
+          weapons: rangeAndArcWeaponAttacks,
+        })
+      : undefined;
+  const usableWeaponAttacks = rangeAndArcWeaponAttacks.filter((weapon) =>
+    input.grid && resolvedTargetHex
+      ? weaponPassesRepresentedWaterAttackRules({
+          grid: input.grid,
+          attackerPosition: attackerUnit.position,
+          targetPosition: resolvedTargetHex,
+          weapon,
+        })
+      : true,
   );
   const losTokens = buildLineOfSightTokens(input.session.currentState);
 
@@ -533,6 +556,16 @@ export function applyInteractiveSessionAttack(
     );
   }
   if (weaponsInArc.length === 0 || usableWeaponAttacks.length === 0) {
+    if (waterAttackInvalidState) {
+      return appendInteractiveAttackInvalid(
+        input.session,
+        input.attackerId,
+        input.targetId,
+        waterAttackInvalidState.reason,
+        waterAttackInvalidState.details,
+        input.weaponIds[0],
+      );
+    }
     return appendInteractiveAttackInvalid(
       input.session,
       input.attackerId,

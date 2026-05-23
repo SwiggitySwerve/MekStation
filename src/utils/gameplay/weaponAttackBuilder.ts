@@ -67,6 +67,7 @@ export function buildWeaponAttack(
     longRange: wData.longRange,
     extremeRange: wData.extremeRange,
     isCluster: false,
+    isTorpedo: wData.isTorpedo,
   };
 }
 

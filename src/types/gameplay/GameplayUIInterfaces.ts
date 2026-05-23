@@ -593,6 +593,8 @@ export interface IWeaponStatus {
     readonly extreme?: number;
     readonly minimum?: number;
   };
+  /** True for represented torpedo weapons that must remain in water. */
+  readonly isTorpedo?: boolean;
 }
 
 /**

@@ -109,6 +109,8 @@ export interface IWeaponAttack {
   readonly isCluster: boolean;
   /** Cluster size (if cluster weapon) */
   readonly clusterSize?: number;
+  /** True for represented torpedo weapons that must remain in water. */
+  readonly isTorpedo?: boolean;
 }
 
 /**

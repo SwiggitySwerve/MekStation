@@ -211,6 +211,52 @@ function makeTargetDepthOneWaterGrid(): IHexGrid {
   return { config: { radius: 3 }, hexes };
 }
 
+function makeTargetDepthTwoWaterGrid(): IHexGrid {
+  const hexes = new Map<string, IHex>();
+  for (let q = -2; q <= 3; q += 1) {
+    for (let r = -2; r <= 3; r += 1) {
+      hexes.set(`${q},${r}`, makeHex(q, r));
+    }
+  }
+
+  hexes.set(
+    '2,0',
+    makeHex(
+      2,
+      0,
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+    ),
+  );
+  return { config: { radius: 3 }, hexes };
+}
+
+function makeContinuousWaterAttackGrid(): IHexGrid {
+  const grid = makeTargetDepthTwoWaterGrid();
+  grid.hexes.set(
+    '0,0',
+    makeHex(
+      0,
+      0,
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 1 }]),
+    ),
+  );
+  grid.hexes.set(
+    '1,0',
+    makeHex(
+      1,
+      0,
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 1 }]),
+    ),
+  );
+  return grid;
+}
+
+function makeTorpedoPathBreakGrid(): IHexGrid {
+  const grid = makeContinuousWaterAttackGrid();
+  grid.hexes.set('1,0', makeHex(1, 0));
+  return grid;
+}
+
 function makeIndirectFireGrid(): IHexGrid {
   const hexes = new Map<string, IHex>();
   for (let q = -2; q <= 8; q += 1) {
@@ -653,6 +699,29 @@ function buildWeaponsByUnit(): Map<string, readonly IWeapon[]> {
           minRange: 0,
           ammoPerTon: -1,
           destroyed: false,
+        },
+      ],
+    ],
+  ]);
+}
+
+function buildTorpedoWeaponsByUnit(): Map<string, readonly IWeapon[]> {
+  return new Map([
+    [
+      'a1',
+      [
+        {
+          id: 'lrt-15',
+          name: 'LR Torpedo 15',
+          shortRange: 7,
+          mediumRange: 14,
+          longRange: 21,
+          damage: 9,
+          heat: 5,
+          minRange: 0,
+          ammoPerTon: 8,
+          destroyed: false,
+          isTorpedo: true,
         },
       ],
     ],
@@ -1715,6 +1784,158 @@ describe('interactive attack projection agreement', () => {
         }),
       ]),
     );
+  });
+
+  it('rejects non-torpedo attacks against represented underwater targets in preview and commit', () => {
+    const session = setupSessionAtWeaponAttack();
+    const grid = makeTargetDepthTwoWaterGrid();
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [makeWeaponStatus()],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      inRange: true,
+      inArc: true,
+      attackable: false,
+      weaponIdsInRange: ['medium-laser'],
+      weaponIdsInArc: ['medium-laser'],
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'InvalidTarget',
+      attackInvalidDetails: 'Target underwater, but not weapon.',
+      blockedReason: 'Target underwater, but not weapon.',
+    });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      grid,
+    });
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload).toMatchObject({
+      reason: projection!.attackInvalidReason,
+      details: projection!.attackInvalidDetails,
+    } satisfies Partial<IAttackInvalidPayload>);
+  });
+
+  it('keeps represented torpedo attacks legal only when the full line stays in water', () => {
+    const session = setupSessionAtWeaponAttack();
+    const grid = makeContinuousWaterAttackGrid();
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+    const torpedoStatus = makeWeaponStatus({
+      id: 'lrt-15',
+      name: 'LR Torpedo 15',
+      heat: 5,
+      damage: 9,
+      ranges: { short: 7, medium: 14, long: 21 },
+      isTorpedo: true,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [torpedoStatus],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: true,
+      weaponIdsAvailable: ['lrt-15'],
+    });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildTorpedoWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrt-15'],
+      grid,
+    });
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect((declared!.payload as IAttackDeclaredPayload).weapons).toEqual([
+      'lrt-15',
+    ]);
+
+    const brokenGrid = makeTorpedoPathBreakGrid();
+    const brokenProjection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(brokenGrid.hexes.values(), (hex) => hex.coord),
+      grid: brokenGrid,
+      tokens: [attackerToken, targetToken],
+      weapons: [torpedoStatus],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(brokenProjection).toBeDefined();
+    expect(brokenProjection).toMatchObject({
+      attackable: false,
+      weaponIdsAvailable: [],
+      attackInvalidReason: 'InvalidTarget',
+      attackInvalidDetails: 'Torpedo path leaves water.',
+      blockedReason: 'Torpedo path leaves water.',
+    });
+
+    const brokenResult = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildTorpedoWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrt-15'],
+      grid: brokenGrid,
+    });
+    const invalid = brokenResult.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload).toMatchObject({
+      reason: brokenProjection!.attackInvalidReason,
+      details: brokenProjection!.attackInvalidDetails,
+    } satisfies Partial<IAttackInvalidPayload>);
   });
 
   it('keeps mixed weapon arc range brackets aligned between preview and committed attacks', () => {

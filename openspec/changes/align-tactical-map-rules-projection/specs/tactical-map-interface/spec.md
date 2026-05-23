@@ -105,6 +105,14 @@ When a selected unit has a configured weapon list, the map SHALL derive attack-r
 - **AND** minimum-range penalties SHALL be exposed in preview and committed to-hit modifiers for represented ground-to-ground attacks
 - **AND** represented airborne/aerospace targets SHALL not receive ground-to-ground minimum-range penalties
 
+#### Scenario: Underwater and torpedo legality matches committed attacks
+
+- **GIVEN** a selected unit previews attacks against represented depth-2 water targets or with represented torpedo weapons
+- **WHEN** the target is underwater, the target is not in water, or the torpedo line leaves water
+- **THEN** the combat projection SHALL filter illegal weapons and expose the same invalid reason a committed attack will emit
+- **AND** non-torpedo weapons SHALL NOT be highlighted as valid against represented underwater targets
+- **AND** torpedo weapons SHALL be highlighted as valid only when the target is in water and every represented line hex has water depth at least 1
+
 #### Scenario: C3 spotter range improves projected and committed brackets
 
 - **GIVEN** a selected unit is represented in an operational C3 network

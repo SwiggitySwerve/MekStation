@@ -40,6 +40,10 @@ import {
   tokenUsesMekWaterCover,
 } from './terrainCover';
 import { calculateTargetTerrainModifierFromHex } from './toHit';
+import {
+  representedWaterAttackInvalidState,
+  weaponPassesRepresentedWaterAttackRules,
+} from './underwaterAttacks';
 export { isOperationalWeaponStatus } from './combatProjection.targeting';
 
 export interface ICombatProjectionInput {
@@ -106,10 +110,28 @@ export function deriveCombatRangeHexes({
     const weaponIdsInArc = operationalWeapons
       .filter((weapon) => weaponCanCoverTargetArc(weapon, targetArc))
       .map((weapon) => weapon.id);
-    const availableWeapons = operationalWeapons.filter(
+    const targetContacts = targetIdsAtHex(hex, attacker, tokens);
+    const rangeAndArcWeapons = operationalWeapons.filter(
       (weapon) =>
         weaponCanCoverTargetArc(weapon, targetArc) &&
         weaponBracketAtDistance(weapon, distance) !== RangeBracket.OutOfRange,
+    );
+    const waterAttackInvalidState =
+      targetContacts.length > 0
+        ? representedWaterAttackInvalidState({
+            grid,
+            attackerPosition: attacker.position,
+            targetPosition: hex,
+            weapons: rangeAndArcWeapons,
+          })
+        : undefined;
+    const availableWeapons = rangeAndArcWeapons.filter((weapon) =>
+      weaponPassesRepresentedWaterAttackRules({
+        grid,
+        attackerPosition: attacker.position,
+        targetPosition: hex,
+        weapon,
+      }),
     );
     const weaponIdsAvailable = availableWeapons.map((weapon) => weapon.id);
     const inArc = weaponIdsInArc.length > 0;
@@ -126,7 +148,6 @@ export function deriveCombatRangeHexes({
       los.state === 'blocked'
         ? (los.blockerAnnotations[0]?.title ?? lineOfSightBlockedDetails(los))
         : undefined;
-    const targetContacts = targetIdsAtHex(hex, attacker, tokens);
     const targetUnitIds = targetContacts.map((contact) => contact.unitId);
     const selectedTargetContact = targetUnitId
       ? targetContacts.find((contact) => contact.unitId === targetUnitId)
@@ -221,6 +242,7 @@ export function deriveCombatRangeHexes({
       operationalWeaponCount: operationalWeapons.length,
       weaponReadinessInvalidState,
       visibilityBlockedReason,
+      weaponEnvironmentInvalidState: waterAttackInvalidState,
       indirectFirePermitted: indirectFire?.available === true,
     });
     const attackable =

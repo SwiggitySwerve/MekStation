@@ -174,6 +174,7 @@ function engineWeaponToStatus(
     ...ammoTotals,
     heat: weapon.heat,
     damage: weapon.damage,
+    isTorpedo: weapon.isTorpedo,
     ranges: {
       short: weapon.shortRange,
       medium: weapon.mediumRange,

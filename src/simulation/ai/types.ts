@@ -185,6 +185,9 @@ export interface IWeapon {
    * with the selector module.
    */
   readonly firingModes?: IWeaponFiringModes;
+
+  /** True for represented torpedo weapons that must remain in water. */
+  readonly isTorpedo?: boolean;
 }
 
 /**
