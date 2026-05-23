@@ -237,6 +237,27 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
     'tsm',
     'UnitHydration, game/session physical contexts, and runPhysicalAttackPhase thread hasTSM into resolvePhysicalAttack so active TSM doubles physical damage at heat 9+',
   ),
+  talons: helperOnly(
+    'talons',
+    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, and runPhysicalAttackPhase consume explicit talon leg state for source-backed +50% kick/DFA damage',
+    'UnitHydration does not yet derive talon mount state from equipment, and non-biped talon arm-location behavior is not modeled',
+    [
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator',
+        url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/KickAttackAction.java#L95-L122',
+        sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+      },
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek DfaAttackAction.getDamageFor and hasTalons apply 1.5 DFA damage when a qualifying talon leg has a working foot actuator',
+        url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L95-L104',
+        sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+      },
+    ],
+  ),
   underwater: integrated(
     'underwater',
     'runPhysicalAttackPhase and session physical contexts derive isUnderwater from water-tagged hexes before calculatePhysicalDamage/applyUnderwaterModifier halves physical damage',

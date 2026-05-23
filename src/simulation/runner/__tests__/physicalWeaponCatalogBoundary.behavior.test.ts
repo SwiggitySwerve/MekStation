@@ -61,11 +61,15 @@ function makeUnit(
 describe('physical weapon catalog runtime boundary', () => {
   it('does not project unsupported catalog-only physical weapons as runtime attack options', () => {
     const unsupportedPhysicalWeapons = unsupportedPhysicalWeaponIds();
+    const helperOnlyPhysicalWeapons = Object.values(
+      PHYSICAL_WEAPON_COMBAT_SUPPORT,
+    )
+      .filter((entry) => entry.level === 'helper-only')
+      .map((entry) => entry.id);
 
     expect(unsupportedPhysicalWeapons).toEqual([
       'claws',
       'flail',
-      'talons',
       'wrecking-ball',
     ]);
     for (const weaponId of unsupportedPhysicalWeapons) {
@@ -78,6 +82,11 @@ describe('physical weapon catalog runtime boundary', () => {
         gap: expect.stringContaining('No runtime PhysicalAttackType'),
       });
     }
+    expect(helperOnlyPhysicalWeapons).toEqual(['talons']);
+    expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.talons).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('UnitHydration'),
+    });
 
     const options = getEligiblePhysicalAttacks(
       makeUnit('attacker', GameSide.Player),
@@ -92,6 +101,7 @@ describe('physical weapon catalog runtime boundary', () => {
         meleeWeaponsEquipped: [
           ...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
           ...unsupportedPhysicalWeapons,
+          ...helperOnlyPhysicalWeapons,
         ] as unknown as readonly PhysicalAttackType[],
       },
     );
@@ -100,7 +110,10 @@ describe('physical weapon catalog runtime boundary', () => {
     expect(projectedAttackTypes).toEqual(
       expect.arrayContaining([...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES]),
     );
-    for (const weaponId of unsupportedPhysicalWeapons) {
+    for (const weaponId of [
+      ...unsupportedPhysicalWeapons,
+      ...helperOnlyPhysicalWeapons,
+    ]) {
       expect(projectedAttackTypes).not.toContain(weaponId);
     }
   });

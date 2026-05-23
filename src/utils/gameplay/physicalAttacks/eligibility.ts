@@ -84,6 +84,11 @@ export interface IEligibilityContext {
   readonly handActuatorPresent?: boolean;
   readonly upperLegActuatorPresent?: boolean;
   readonly footActuatorPresent?: boolean;
+  /** Per-leg talon state used by kick/DFA damage projections. */
+  readonly leftLegHasTalons?: boolean;
+  readonly rightLegHasTalons?: boolean;
+  readonly leftFootActuatorPresent?: boolean;
+  readonly rightFootActuatorPresent?: boolean;
   /** Equipped melee weapon types (hatchet / sword / mace / lance). */
   readonly meleeWeaponsEquipped?: readonly PhysicalAttackType[];
   /** False when the computed push destination is off-map or occupied. */
@@ -292,6 +297,10 @@ export function getEligiblePhysicalAttacks(
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,
     footActuatorPresent: context.footActuatorPresent,
+    leftLegHasTalons: context.leftLegHasTalons ?? attacker.leftLegHasTalons,
+    rightLegHasTalons: context.rightLegHasTalons ?? attacker.rightLegHasTalons,
+    leftFootActuatorPresent: context.leftFootActuatorPresent,
+    rightFootActuatorPresent: context.rightFootActuatorPresent,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: isTargetDirectlyAhead(
       attacker.position,

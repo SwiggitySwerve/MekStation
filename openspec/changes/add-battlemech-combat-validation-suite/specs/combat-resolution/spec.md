@@ -282,7 +282,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 
 ### Requirement: Source-Backed Physical Weapon Runtime Support
 
-BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `ClubAttackAction` damage, to-hit, and legality behavior before a cataloged physical weapon is marked integrated.
+BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `ClubAttackAction` damage, to-hit, and legality behavior before a cataloged physical weapon is marked integrated. Physical equipment that modifies existing physical actions, such as talons, SHALL be source-checked against the relevant MegaMek action resolvers before it is marked helper-only or integrated.
 
 #### Scenario: Retractable blade uses source-backed damage, to-hit, and extension gate
 
@@ -294,6 +294,16 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **WHEN** the caller explicitly marks the retractable blade as not extended
 - **THEN** helper and event-sourced declaration validation SHALL reject the attack with `RetractableBladeNotExtended`
 - **AND** the validation catalog SHALL keep physical weapon mode hydration as a separate out-of-scope concern until combat units carry actual physical weapon mode state
+
+#### Scenario: Talons modify kick and DFA damage without becoming a selectable attack type
+
+- **GIVEN** a BattleMech has explicit biped leg talon combat state and a working foot actuator
+- **WHEN** it resolves a kick using that leg
+- **THEN** kick target damage SHALL apply MegaMek's source-backed `round(baseKickDamage * 1.5)` talon modifier before physical damage bonuses
+- **WHEN** it resolves death from above with at least one qualifying talon leg
+- **THEN** DFA target damage SHALL apply MegaMek's source-backed truncating `baseDfaDamage * 1.5` talon modifier before physical damage bonuses
+- **AND** talons SHALL remain non-selectable in runtime physical attack option lists because they modify existing kick/DFA actions rather than declaring a distinct physical attack
+- **AND** the validation catalog SHALL keep mounted-equipment hydration and non-biped talon arm-location behavior visible as remaining gaps
 
 ### Requirement: Designator Marker Replay State
 

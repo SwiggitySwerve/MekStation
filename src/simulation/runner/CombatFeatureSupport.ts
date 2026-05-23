@@ -104,6 +104,30 @@ const MEGAMEK_6CA1867_RETRACTABLE_BLADE_MODE_GATE = {
   sourceVersion: '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_325B_TALON_KICK_DAMAGE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek KickAttackAction.getDamageFor applies a 1.5 talon multiplier when the kicking leg has working talons and a working foot actuator',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/KickAttackAction.java#L95-L122',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_TALON_DFA_DAMAGE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek DfaAttackAction.getDamageFor multiplies DFA target damage by 1.5 when hasTalons is true, and hasTalons requires a working talon plus foot actuator on a qualifying leg',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L95-L104',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_TALON_DFA_LEG_GATE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek DfaAttackAction.hasTalons checks working talons and working foot actuators on biped legs, with a separate non-biped path',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/DfaAttackAction.java#L427-L445',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
 const MEGAMEK_325B_ARTEMIS_CLUSTER_MODIFIERS = {
   kind: 'megamek-source',
   citation:
@@ -520,8 +544,17 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
       MEGAMEK_6CA1867_RETRACTABLE_BLADE_MODE_GATE,
     ],
   ),
+  talons: helperOnly(
+    'talons',
+    'source-backed kick and DFA damage helpers apply the +50% talon modifier when explicit biped leg/foot talon state is present',
+    'UnitHydration does not yet derive talon mount state from equipment, and non-biped talon arm-location behavior is not modeled',
+    [
+      MEGAMEK_325B_TALON_KICK_DAMAGE,
+      MEGAMEK_325B_TALON_DFA_DAMAGE,
+      MEGAMEK_325B_TALON_DFA_LEG_GATE,
+    ],
+  ),
   claws: unsupported('claws', NO_RUNTIME_PHYSICAL_WEAPON),
   flail: unsupported('flail', NO_RUNTIME_PHYSICAL_WEAPON),
-  talons: unsupported('talons', NO_RUNTIME_PHYSICAL_WEAPON),
   'wrecking-ball': unsupported('wrecking-ball', NO_RUNTIME_PHYSICAL_WEAPON),
 } satisfies Record<string, ICombatFeatureSupportEntry>;

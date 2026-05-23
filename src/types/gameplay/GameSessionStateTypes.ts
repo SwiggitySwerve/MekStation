@@ -232,6 +232,13 @@ export interface IUnitGameState {
   readonly heatSinkType?: 'single' | 'double';
   /** Triple-strength myomer installed; active physical damage doubles at heat 9+. */
   readonly hasTSM?: boolean;
+  /**
+   * Talon equipment projected into combat state. Undefined means the session
+   * builder has not hydrated talon mounts; explicit true/false lets physical
+   * damage apply MegaMek's source-backed kick/DFA talon modifier.
+   */
+  readonly leftLegHasTalons?: boolean;
+  readonly rightLegHasTalons?: boolean;
   /** BattleMech stealth armor installed; active effects still require own ECM support. */
   readonly hasStealthArmor?: boolean;
   /** Armor remaining per location */

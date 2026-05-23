@@ -1341,6 +1341,22 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     },
   );
 
+  it('threads talon state into runner kick damage resolution', () => {
+    const { events } = runPhase('kick', {
+      attacker: {
+        leftLegHasTalons: true,
+      },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'kick',
+      hit: true,
+      damage: 20,
+    });
+  });
+
   it('applies charge target clusters, attacker self-damage, and both PSRs', () => {
     const { events, result } = runPhase('charge', {
       attacker: {

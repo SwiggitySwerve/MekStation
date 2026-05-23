@@ -1236,6 +1236,10 @@ describe('BattleMech combat feature-gap tracking', () => {
       .filter((entry) => entry.level === 'unsupported')
       .map((entry) => entry.id)
       .sort();
+    const helperOnly = Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
+      .filter((entry) => entry.level === 'helper-only')
+      .map((entry) => entry.id)
+      .sort();
 
     expect(integrated).toEqual(
       [...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES].sort(),
@@ -1247,7 +1251,8 @@ describe('BattleMech combat feature-gap tracking', () => {
           (entry.sourceRefs?.length ?? 0) === 0 ? [entry.id] : [],
         ),
     ).toEqual([]);
-    expect(unsupported).toEqual(['claws', 'flail', 'talons', 'wrecking-ball']);
+    expect(helperOnly).toEqual(['talons']);
+    expect(unsupported).toEqual(['claws', 'flail', 'wrecking-ball']);
   });
 
   it('tracks runner range brackets including extreme range support', () => {
@@ -1353,7 +1358,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual(['tsm', 'underwater']);
     expect(
       supportIdsByLevel(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual([]);
+    ).toEqual(['talons']);
   });
 
   it('tracks movement action rules and terrain/environment rule gaps', () => {

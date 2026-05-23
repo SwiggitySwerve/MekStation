@@ -354,6 +354,38 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(byType.get('retractable-blade')?.damage.targetDamage).toBe(8);
   });
 
+  it('projects source-backed talon damage on kick and DFA rows', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        leftLegHasTalons: true,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerJumpedThisTurn: true,
+      pushDestinationValid: true,
+    });
+    const leftKick = options.find(
+      (option) => option.attackType === 'kick' && option.limb === 'leftLeg',
+    );
+    const rightKick = options.find(
+      (option) => option.attackType === 'kick' && option.limb === 'rightLeg',
+    );
+    const dfa = options.find((option) => option.attackType === 'dfa');
+
+    expect(leftKick?.damage.targetDamage).toBe(24);
+    expect(rightKick?.damage.targetDamage).toBe(16);
+    expect(dfa?.damage.targetDamage).toBe(36);
+  });
+
   it('projects passenger physical targets as restricted options', () => {
     const attacker = unitState(
       'attacker',

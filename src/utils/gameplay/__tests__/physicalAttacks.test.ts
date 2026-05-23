@@ -360,6 +360,46 @@ describe('physicalAttacks', () => {
       // floor(73/5) = 14
       expect(calculateKickDamage(makeInput({ attackerTonnage: 73 }))).toBe(14);
     });
+
+    it('applies source-backed talon damage to the selected kicking leg', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            limb: 'leftLeg',
+            leftLegHasTalons: true,
+          }),
+        ),
+      ).toBe(15);
+    });
+
+    it('does not apply talon damage when the selected leg lacks working talons', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            limb: 'leftLeg',
+            rightLegHasTalons: true,
+          }),
+        ),
+      ).toBe(10);
+    });
+
+    it('requires a working foot actuator for talon kick damage', () => {
+      expect(
+        calculateKickDamage(
+          makeInput({
+            attackerTonnage: 50,
+            attackType: 'kick',
+            limb: 'leftLeg',
+            leftLegHasTalons: true,
+            leftFootActuatorPresent: false,
+          }),
+        ),
+      ).toBe(10);
+    });
   });
 
   // =============================================================================
@@ -420,6 +460,31 @@ describe('physicalAttacks', () => {
           makeInput({ attackerTonnage: 80, attackType: 'dfa' }),
         ),
       ).toBe(24);
+    });
+
+    it('applies source-backed talon damage when either DFA leg has working talons', () => {
+      expect(
+        calculateDFADamageToTarget(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'dfa',
+            leftLegHasTalons: true,
+          }),
+        ),
+      ).toBe(31);
+    });
+
+    it('does not apply DFA talon damage without a working foot actuator', () => {
+      expect(
+        calculateDFADamageToTarget(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'dfa',
+            leftLegHasTalons: true,
+            leftFootActuatorPresent: false,
+          }),
+        ),
+      ).toBe(21);
     });
   });
 

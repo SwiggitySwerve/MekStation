@@ -351,6 +351,16 @@ export interface IPhysicalAttackInput {
   readonly upperLegActuatorPresent?: boolean;
   readonly footActuatorPresent?: boolean;
   /**
+   * Source-backed Talons modifier state. MegaMek applies the +50% damage
+   * modifier only when the attacking leg (or either DFA leg) has working
+   * talons and a working foot actuator. Undefined preserves callers that
+   * do not yet hydrate mounted talon equipment.
+   */
+  readonly leftLegHasTalons?: boolean;
+  readonly rightLegHasTalons?: boolean;
+  readonly leftFootActuatorPresent?: boolean;
+  readonly rightFootActuatorPresent?: boolean;
+  /**
    * Per task 8.5: a push is only legal when the displacement destination
    * is on-map and unoccupied. Undefined preserves legacy callers that have
    * not computed the push hex yet.
@@ -457,6 +467,10 @@ export interface IChooseBestPhysicalAttackOptions {
   hasTSM?: boolean;
   pilotAbilities?: readonly string[];
   unitQuirks?: readonly string[];
+  leftLegHasTalons?: boolean;
+  rightLegHasTalons?: boolean;
+  leftFootActuatorPresent?: boolean;
+  rightFootActuatorPresent?: boolean;
   attackerEvading?: boolean;
   attackerLoadingOrUnloadingCargo?: boolean;
   attackerTargetedByDisplacementAttackerId?: string;

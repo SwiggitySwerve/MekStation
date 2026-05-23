@@ -89,6 +89,45 @@ function punchDamageBonus(input: IPhysicalAttackInput): number {
   );
 }
 
+function footActuatorWorksForLeg(
+  input: IPhysicalAttackInput,
+  limb: 'leftLeg' | 'rightLeg',
+): boolean {
+  if (input.componentDamage.actuators[ActuatorType.FOOT]) return false;
+  if (input.footActuatorPresent === false) return false;
+  if (limb === 'leftLeg') return input.leftFootActuatorPresent !== false;
+  return input.rightFootActuatorPresent !== false;
+}
+
+function legHasWorkingTalons(
+  input: IPhysicalAttackInput,
+  limb: 'leftLeg' | 'rightLeg',
+): boolean {
+  const hasTalons =
+    limb === 'leftLeg'
+      ? input.leftLegHasTalons === true
+      : input.rightLegHasTalons === true;
+  return hasTalons && footActuatorWorksForLeg(input, limb);
+}
+
+function selectedKickLegHasWorkingTalons(input: IPhysicalAttackInput): boolean {
+  if (input.limb === 'leftLeg' || input.limb === 'rightLeg') {
+    return legHasWorkingTalons(input, input.limb);
+  }
+
+  return (
+    legHasWorkingTalons(input, 'leftLeg') ||
+    legHasWorkingTalons(input, 'rightLeg')
+  );
+}
+
+function dfaHasWorkingTalons(input: IPhysicalAttackInput): boolean {
+  return (
+    legHasWorkingTalons(input, 'leftLeg') ||
+    legHasWorkingTalons(input, 'rightLeg')
+  );
+}
+
 export function calculatePunchDamage(input: IPhysicalAttackInput): number {
   const effectiveWeight = getEffectiveWeight(
     input.attackerTonnage,
@@ -119,9 +158,11 @@ export function calculateKickDamage(input: IPhysicalAttackInput): number {
     input.hasTSM ?? false,
   );
 
-  const damage =
-    Math.floor(effectiveWeight / KICK_DAMAGE_DIVISOR) +
-    physicalDamageBonus(input);
+  let damage = Math.floor(effectiveWeight / KICK_DAMAGE_DIVISOR);
+  if (selectedKickLegHasWorkingTalons(input)) {
+    damage = Math.round(damage * 1.5);
+  }
+  damage += physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -160,10 +201,13 @@ export function calculateDFADamageToTarget(
     input.hasTSM ?? false,
   );
 
-  const damage =
+  let damage =
     Math.ceil(effectiveWeight / DFA_TARGET_DAMAGE_DIVISOR) *
-      DFA_DAMAGE_MULTIPLIER +
-    physicalDamageBonus(input);
+    DFA_DAMAGE_MULTIPLIER;
+  if (dfaHasWorkingTalons(input)) {
+    damage = Math.trunc(damage * 1.5);
+  }
+  damage += physicalDamageBonus(input);
 
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }

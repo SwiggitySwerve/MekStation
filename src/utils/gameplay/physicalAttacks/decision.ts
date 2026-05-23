@@ -44,6 +44,10 @@ export function chooseBestPhysicalAttack(
     hasTSM: options.hasTSM,
     pilotAbilities: options.pilotAbilities,
     unitQuirks: options.unitQuirks,
+    leftLegHasTalons: options.leftLegHasTalons,
+    rightLegHasTalons: options.rightLegHasTalons,
+    leftFootActuatorPresent: options.leftFootActuatorPresent,
+    rightFootActuatorPresent: options.rightFootActuatorPresent,
     attackerEvading: options.attackerEvading,
     attackerLoadingOrUnloadingCargo: options.attackerLoadingOrUnloadingCargo,
     attackerTargetedByDisplacementAttackerId:

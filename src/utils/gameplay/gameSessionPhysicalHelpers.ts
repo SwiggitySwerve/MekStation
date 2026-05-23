@@ -54,6 +54,15 @@ export interface IPhysicalAttackContext {
   readonly upperLegActuatorPresent?: boolean;
   readonly footActuatorPresent?: boolean;
   /**
+   * Per-leg talon state for source-backed kick/DFA damage modifiers.
+   * Equipment hydration is optional today, so callers may supply it
+   * explicitly through the physical context.
+   */
+  readonly leftLegHasTalons?: boolean;
+  readonly rightLegHasTalons?: boolean;
+  readonly leftFootActuatorPresent?: boolean;
+  readonly rightFootActuatorPresent?: boolean;
+  /**
    * Per tasks 3.6 / 3.7: DFA requires a jump; charge requires a run.
    */
   readonly attackerJumpedThisTurn?: boolean;
