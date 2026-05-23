@@ -462,8 +462,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'official-physical-weapons': helperOnly(
     'official-physical-weapons',
-    'Catalog contracts enumerate official physical weapons, runtime support tracks each supported physical weapon family, and talons are classified as a kick/DFA damage modifier rather than a selectable attack type',
-    'The physical weapon catalog still contains physical weapons with no runtime PhysicalAttackType, and talon equipment hydration is not wired from mounted equipment',
+    'Catalog contracts enumerate official physical weapons, runtime support tracks each supported physical weapon family, and claws/talons are classified as modifiers rather than selectable attack types',
+    'The physical weapon catalog still contains physical weapons with no runtime PhysicalAttackType, and claw/talon destroyed/missing/breached equipment lifecycle is not wired from mounted equipment',
     [
       'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
       'featureSupport.physicalWeapons.hatchet',
@@ -681,8 +681,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'physical-weapon-actions': helperOnly(
     'physical-weapon-actions',
-    'Runtime physical weapon actions cover player commands, wire intents, runner resolution, active TSM damage context, source-backed melee damage/to-hit modifiers for hatchet, sword, mace, lance, and retractable blade, plus source-backed talon kick/DFA damage modifiers',
-    'Some official physical weapons still lack runtime attack types, and talon equipment hydration remains explicit context/state only',
+    'Runtime physical weapon actions cover player commands, wire intents, runner resolution, active TSM damage context, source-backed melee damage/to-hit modifiers for hatchet, sword, mace, lance, and retractable blade, plus source-backed claw punch and talon kick/DFA damage modifiers',
+    'Some official physical weapons still lack runtime attack types, and claw/talon destroyed/missing/breached equipment lifecycle remains out of scope',
     [
       'actions.physicalAttackCommands.hatchet',
       'actions.physicalAttackCommands.sword',
@@ -698,6 +698,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'featureSupport.physicalWeapons.flail',
       'featureSupport.physicalWeapons.talons',
       'featureSupport.physicalWeapons.wrecking-ball',
+      'ruleSupport.physicalDamageModifiers.claws',
       'ruleSupport.physicalDamageModifiers.tsm',
       'ruleSupport.physicalDamageModifiers.talons',
       'ruleSupport.physicalDamageModifiers.underwater',

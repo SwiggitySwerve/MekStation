@@ -1357,6 +1357,24 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('threads claw state into runner punch damage and to-hit resolution', () => {
+    const { events } = runPhase('punch', {
+      attacker: {
+        rightArmHasClaw: true,
+      },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'punch',
+      roll: 8,
+      toHitNumber: 6,
+      hit: true,
+      damage: 10,
+    });
+  });
+
   it('applies charge target clusters, attacker self-damage, and both PSRs', () => {
     const { events, result } = runPhase('charge', {
       attacker: {

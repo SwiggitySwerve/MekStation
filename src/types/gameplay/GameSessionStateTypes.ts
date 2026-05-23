@@ -239,6 +239,13 @@ export interface IUnitGameState {
    */
   readonly leftLegHasTalons?: boolean;
   readonly rightLegHasTalons?: boolean;
+  /**
+   * Claw equipment projected into combat state. UnitHydration derives this
+   * from arm critical slots for catalog units; undefined preserves synthetic
+   * fixtures that do not carry mounted claw equipment.
+   */
+  readonly leftArmHasClaw?: boolean;
+  readonly rightArmHasClaw?: boolean;
   /** BattleMech stealth armor installed; active effects still require own ECM support. */
   readonly hasStealthArmor?: boolean;
   /** Armor remaining per location */

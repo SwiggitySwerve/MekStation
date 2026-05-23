@@ -1,6 +1,7 @@
 import { CombatLocation } from '@/types/gameplay';
 
 export const PUNCH_DAMAGE_DIVISOR = 10;
+export const CLAW_PUNCH_DAMAGE_DIVISOR = 7;
 export const KICK_DAMAGE_DIVISOR = 5;
 export const KICK_TO_HIT_BONUS = 2;
 export const PUSH_TO_HIT_BONUS = 1;
@@ -28,6 +29,7 @@ export const PHYSICAL_CLUSTER_SIZE = 5;
 export const UPPER_ARM_PUNCH_MODIFIER = 2;
 export const LOWER_ARM_PUNCH_MODIFIER = 2;
 export const HAND_PUNCH_MODIFIER = 1;
+export const CLAW_PUNCH_TO_HIT_MODIFIER = 1;
 export const UPPER_LEG_KICK_MODIFIER = 2;
 export const LOWER_LEG_KICK_MODIFIER = 2;
 export const FOOT_KICK_MODIFIER = 1;

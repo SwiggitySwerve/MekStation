@@ -128,6 +128,30 @@ const MEGAMEK_325B_TALON_DFA_LEG_GATE = {
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_325B_CLAW_PUNCH_DAMAGE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek PunchAttackAction.getDamageFor uses ceil(weight / 7) when the punching arm has working claws',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/PunchAttackAction.java#L390-L405',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_CLAW_PUNCH_TO_HIT = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek PunchAttackAction.toHit adds the claw punch modifier and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/PunchAttackAction.java#L309-L333',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_CLAW_EQUIPMENT_GATE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Mek.hasClaw checks arm critical slots for a non-destroyed, non-missing, non-breached hand-weapon claw mount',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Mek.java#L6146-L6165',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
 const MEGAMEK_325B_ARTEMIS_CLUSTER_MODIFIERS = {
   kind: 'megamek-source',
   citation:
@@ -554,7 +578,16 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
       MEGAMEK_325B_TALON_DFA_LEG_GATE,
     ],
   ),
-  claws: unsupported('claws', NO_RUNTIME_PHYSICAL_WEAPON),
+  claws: helperOnly(
+    'claws',
+    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state or UnitHydration arm critical-slot state without exposing claws as a selectable attack type',
+    'Destroyed/missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    [
+      MEGAMEK_325B_CLAW_PUNCH_DAMAGE,
+      MEGAMEK_325B_CLAW_PUNCH_TO_HIT,
+      MEGAMEK_325B_CLAW_EQUIPMENT_GATE,
+    ],
+  ),
   flail: unsupported('flail', NO_RUNTIME_PHYSICAL_WEAPON),
   'wrecking-ball': unsupported('wrecking-ball', NO_RUNTIME_PHYSICAL_WEAPON),
 } satisfies Record<string, ICombatFeatureSupportEntry>;

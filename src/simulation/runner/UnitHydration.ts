@@ -186,10 +186,22 @@ export interface IHydratedTalonState {
   readonly rightLegHasTalons: boolean;
 }
 
+export interface IHydratedClawState {
+  readonly leftArmHasClaw: boolean;
+  readonly rightArmHasClaw: boolean;
+}
+
 function hasTalonCriticalSlot(slots: readonly string[]): boolean {
   return slots.some((slot) =>
     normalizeCriticalSlotText(slot).includes('talons'),
   );
+}
+
+function hasClawCriticalSlot(slots: readonly string[]): boolean {
+  return slots.some((slot) => {
+    const normalized = normalizeCriticalSlotText(slot);
+    return normalized === 'isclaw' || normalized === 'claw';
+  });
 }
 
 export function hydrateTalonStateFromFullUnit(
@@ -202,6 +214,20 @@ export function hydrateTalonStateFromFullUnit(
     ),
     rightLegHasTalons: hasTalonCriticalSlot(
       locationSlotTexts(criticalSlots, 'RIGHT_LEG'),
+    ),
+  };
+}
+
+export function hydrateClawStateFromFullUnit(
+  fullUnit: IFullUnit,
+): IHydratedClawState {
+  const criticalSlots = criticalSlotsFromFullUnit(fullUnit);
+  return {
+    leftArmHasClaw: hasClawCriticalSlot(
+      locationSlotTexts(criticalSlots, 'LEFT_ARM'),
+    ),
+    rightArmHasClaw: hasClawCriticalSlot(
+      locationSlotTexts(criticalSlots, 'RIGHT_ARM'),
     ),
   };
 }
@@ -956,6 +982,7 @@ export function createHydratedUnitState(
   const { structure } = hydrateStructureFromFullUnit(fullUnit);
   const heatSinks = hydrateHeatSinksFromFullUnit(fullUnit);
   const talons = hydrateTalonStateFromFullUnit(fullUnit);
+  const claws = hydrateClawStateFromFullUnit(fullUnit);
 
   return {
     id: runnerUnitId,
@@ -972,6 +999,8 @@ export function createHydratedUnitState(
     hasTSM: hydrateHasTSMFromFullUnit(fullUnit),
     leftLegHasTalons: talons.leftLegHasTalons,
     rightLegHasTalons: talons.rightLegHasTalons,
+    leftArmHasClaw: claws.leftArmHasClaw,
+    rightArmHasClaw: claws.rightArmHasClaw,
     hasStealthArmor: hydrateHasStealthArmorFromFullUnit(fullUnit),
     unitQuirks: hydrateUnitQuirksFromFullUnit(fullUnit),
     weaponLocationById: weaponLocationByIdFromWeapons(hydrated.aiWeapons),

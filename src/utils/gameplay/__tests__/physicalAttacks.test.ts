@@ -286,6 +286,46 @@ describe('physicalAttacks', () => {
       expect(calculatePunchDamage(makeInput({ attackerTonnage: 20 }))).toBe(2);
     });
 
+    it('applies source-backed claw damage to the selected punching arm', () => {
+      expect(
+        calculatePunchDamage(
+          makeInput({
+            attackerTonnage: 55,
+            arm: 'left',
+            leftArmHasClaw: true,
+          }),
+        ),
+      ).toBe(8);
+    });
+
+    it('does not apply claw damage when the selected punching arm lacks claws', () => {
+      expect(
+        calculatePunchDamage(
+          makeInput({
+            attackerTonnage: 55,
+            arm: 'left',
+            rightArmHasClaw: true,
+          }),
+        ),
+      ).toBe(6);
+    });
+
+    it('applies arm actuator damage after the claw punch base', () => {
+      expect(
+        calculatePunchDamage(
+          makeInput({
+            attackerTonnage: 55,
+            arm: 'left',
+            leftArmHasClaw: true,
+            componentDamage: {
+              ...DEFAULT_COMPONENT_DAMAGE,
+              actuators: { [ActuatorType.UPPER_ARM]: true },
+            },
+          }),
+        ),
+      ).toBe(4);
+    });
+
     it('should halve damage with upper arm actuator destroyed', () => {
       const damage = calculatePunchDamage(
         makeInput({
@@ -2611,6 +2651,47 @@ describe('physicalAttacks', () => {
       expect(result.finalToHit).toBe(6);
     });
 
+    it('adds the source-backed claw punch modifier for the selected arm', () => {
+      const result = calculatePunchToHit(
+        makeInput({
+          pilotingSkill: 5,
+          arm: 'left',
+          leftArmHasClaw: true,
+        }),
+      );
+
+      expect(result.finalToHit).toBe(6);
+      expect(result.modifiers).toContainEqual(
+        expect.objectContaining({
+          name: 'Using Claws',
+          value: 1,
+          source: 'physical-equipment',
+        }),
+      );
+    });
+
+    it('uses claws instead of a destroyed hand actuator modifier', () => {
+      const result = calculatePunchToHit(
+        makeInput({
+          pilotingSkill: 5,
+          arm: 'right',
+          rightArmHasClaw: true,
+          componentDamage: {
+            ...DEFAULT_COMPONENT_DAMAGE,
+            actuators: { [ActuatorType.HAND]: true },
+          },
+        }),
+      );
+
+      expect(result.finalToHit).toBe(6);
+      expect(result.modifiers).toContainEqual(
+        expect.objectContaining({ name: 'Using Claws', value: 1 }),
+      );
+      expect(result.modifiers).not.toContainEqual(
+        expect.objectContaining({ name: 'Hand actuator destroyed' }),
+      );
+    });
+
     it('should stack multiple actuator mods', () => {
       const result = calculatePunchToHit(
         makeInput({
@@ -3179,6 +3260,19 @@ describe('physicalAttacks', () => {
       });
       // Prone prevents kick, hip destroyed prevents kick
       // Only punch available
+      expect(result).toBe('punch');
+    });
+
+    it('considers matching claw punch damage when choosing the best attack', () => {
+      const compDamage = {
+        ...DEFAULT_COMPONENT_DAMAGE,
+        actuators: { [ActuatorType.HIP]: true },
+      };
+      const result = chooseBestPhysicalAttack(80, 5, compDamage, {
+        leftArmHasClaw: true,
+        rightArmHasClaw: false,
+      });
+
       expect(result).toBe('punch');
     });
 

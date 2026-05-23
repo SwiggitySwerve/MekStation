@@ -46,6 +46,7 @@ import {
   hydrateHasStealthArmorFromFullUnit,
   hydrateHasTSMFromFullUnit,
   hydrateHeatSinksFromFullUnit,
+  hydrateClawStateFromFullUnit,
   hydrateStructureFromFullUnit,
   hydrateTalonStateFromFullUnit,
   resolveCatalogDamage,
@@ -442,6 +443,31 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
 
     expect(unitState.leftLegHasTalons).toBe(true);
     expect(unitState.rightLegHasTalons).toBe(true);
+  });
+
+  it('hydrates BattleMech claws from arm critical slots into unit state', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('mantis-mts-t3');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    expect(hydrateClawStateFromFullUnit(fullUnit)).toEqual({
+      leftArmHasClaw: true,
+      rightArmHasClaw: true,
+    });
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit,
+      aiWeapons: hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup),
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.leftArmHasClaw).toBe(true);
+    expect(unitState.rightArmHasClaw).toBe(true);
   });
 
   it('hydrates BattleMech stealth armor and critical-slot ECM from a real unit', async () => {

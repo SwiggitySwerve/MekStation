@@ -361,6 +361,13 @@ export interface IPhysicalAttackInput {
   readonly leftFootActuatorPresent?: boolean;
   readonly rightFootActuatorPresent?: boolean;
   /**
+   * Source-backed Claw modifier state. MegaMek treats claws as working hand
+   * weapons that modify punch damage/to-hit for the matching arm, not as a
+   * standalone selectable physical attack type.
+   */
+  readonly leftArmHasClaw?: boolean;
+  readonly rightArmHasClaw?: boolean;
+  /**
    * Per task 8.5: a push is only legal when the displacement destination
    * is on-map and unoccupied. Undefined preserves legacy callers that have
    * not computed the push hex yet.
@@ -471,6 +478,8 @@ export interface IChooseBestPhysicalAttackOptions {
   rightLegHasTalons?: boolean;
   leftFootActuatorPresent?: boolean;
   rightFootActuatorPresent?: boolean;
+  leftArmHasClaw?: boolean;
+  rightArmHasClaw?: boolean;
   attackerEvading?: boolean;
   attackerLoadingOrUnloadingCargo?: boolean;
   attackerTargetedByDisplacementAttackerId?: string;

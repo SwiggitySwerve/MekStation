@@ -386,6 +386,37 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(dfa?.damage.targetDamage).toBe(36);
   });
 
+  it('projects source-backed claw modifiers on matching punch rows', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        leftArmHasClaw: true,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 55,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      pushDestinationValid: true,
+    });
+    const leftPunch = options.find(
+      (option) => option.attackType === 'punch' && option.limb === 'leftArm',
+    );
+    const rightPunch = options.find(
+      (option) => option.attackType === 'punch' && option.limb === 'rightArm',
+    );
+
+    expect(leftPunch?.damage.targetDamage).toBe(8);
+    expect(leftPunch?.toHit.finalToHit).toBe(6);
+    expect(rightPunch?.damage.targetDamage).toBe(6);
+    expect(rightPunch?.toHit.finalToHit).toBe(5);
+  });
+
   it('projects passenger physical targets as restricted options', () => {
     const attacker = unitState(
       'attacker',

@@ -65,13 +65,10 @@ describe('physical weapon catalog runtime boundary', () => {
       PHYSICAL_WEAPON_COMBAT_SUPPORT,
     )
       .filter((entry) => entry.level === 'helper-only')
-      .map((entry) => entry.id);
+      .map((entry) => entry.id)
+      .sort();
 
-    expect(unsupportedPhysicalWeapons).toEqual([
-      'claws',
-      'flail',
-      'wrecking-ball',
-    ]);
+    expect(unsupportedPhysicalWeapons).toEqual(['flail', 'wrecking-ball']);
     for (const weaponId of unsupportedPhysicalWeapons) {
       const supportId = weaponId as PhysicalWeaponSupportId;
       expect(SUPPORTED_PHYSICAL_ATTACK_TYPES).not.toContain(
@@ -82,7 +79,11 @@ describe('physical weapon catalog runtime boundary', () => {
         gap: expect.stringContaining('No runtime PhysicalAttackType'),
       });
     }
-    expect(helperOnlyPhysicalWeapons).toEqual(['talons']);
+    expect(helperOnlyPhysicalWeapons).toEqual(['claws', 'talons']);
+    expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.claws).toMatchObject({
+      level: 'helper-only',
+      gap: expect.stringContaining('claw equipment lifecycle'),
+    });
     expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.talons).toMatchObject({
       level: 'helper-only',
       gap: expect.stringContaining('talon equipment lifecycle'),

@@ -63,6 +63,13 @@ export interface IPhysicalAttackContext {
   readonly leftFootActuatorPresent?: boolean;
   readonly rightFootActuatorPresent?: boolean;
   /**
+   * Per-arm claw state for source-backed punch damage/to-hit modifiers.
+   * Equipment hydration is optional today, so callers may supply it
+   * explicitly through the physical context.
+   */
+  readonly leftArmHasClaw?: boolean;
+  readonly rightArmHasClaw?: boolean;
+  /**
    * Per tasks 3.6 / 3.7: DFA requires a jump; charge requires a run.
    */
   readonly attackerJumpedThisTurn?: boolean;

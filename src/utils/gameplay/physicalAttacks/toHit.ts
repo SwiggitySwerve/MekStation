@@ -3,6 +3,7 @@ import { calculateMeleeSpecialistModifier } from '@/utils/gameplay/spaModifiers'
 
 import {
   FOOT_KICK_MODIFIER,
+  CLAW_PUNCH_TO_HIT_MODIFIER,
   HAND_PUNCH_MODIFIER,
   HATCHET_TO_HIT_MODIFIER,
   KICK_TO_HIT_BONUS,
@@ -106,6 +107,16 @@ function appendDfaPilotingDifferentialModifier(
   });
 }
 
+function selectedPunchArmHasClaw(input: IPhysicalAttackInput): boolean {
+  if (input.arm === 'left' || input.limb === 'leftArm') {
+    return input.leftArmHasClaw === true;
+  }
+  if (input.arm === 'right' || input.limb === 'rightArm') {
+    return input.rightArmHasClaw === true;
+  }
+  return input.rightArmHasClaw === true || input.leftArmHasClaw === true;
+}
+
 export function calculatePunchToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
@@ -140,11 +151,20 @@ export function calculatePunchToHit(
     });
   }
 
-  if (actuators[ActuatorType.HAND]) {
+  const usingClaws = selectedPunchArmHasClaw(input);
+  if (actuators[ActuatorType.HAND] && !usingClaws) {
     modifiers.push({
       name: 'Hand actuator destroyed',
       value: HAND_PUNCH_MODIFIER,
       source: 'actuator',
+    });
+  }
+
+  if (usingClaws) {
+    modifiers.push({
+      name: 'Using Claws',
+      value: CLAW_PUNCH_TO_HIT_MODIFIER,
+      source: 'physical-equipment',
     });
   }
 

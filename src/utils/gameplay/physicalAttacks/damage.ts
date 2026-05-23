@@ -11,6 +11,7 @@ import { getMeleeMasterDamageBonus } from '@/utils/gameplay/spaModifiers';
 
 import {
   CHARGE_DAMAGE_DIVISOR,
+  CLAW_PUNCH_DAMAGE_DIVISOR,
   DFA_ATTACKER_DAMAGE_DIVISOR,
   DFA_DAMAGE_MULTIPLIER,
   DFA_HIT_ATTACKER_PSR_MODIFIER,
@@ -128,6 +129,16 @@ function dfaHasWorkingTalons(input: IPhysicalAttackInput): boolean {
   );
 }
 
+function selectedPunchArmHasClaw(input: IPhysicalAttackInput): boolean {
+  if (input.arm === 'left' || input.limb === 'leftArm') {
+    return input.leftArmHasClaw === true;
+  }
+  if (input.arm === 'right' || input.limb === 'rightArm') {
+    return input.rightArmHasClaw === true;
+  }
+  return input.rightArmHasClaw === true || input.leftArmHasClaw === true;
+}
+
 export function calculatePunchDamage(input: IPhysicalAttackInput): number {
   const effectiveWeight = getEffectiveWeight(
     input.attackerTonnage,
@@ -135,7 +146,10 @@ export function calculatePunchDamage(input: IPhysicalAttackInput): number {
     input.hasTSM ?? false,
   );
 
-  let damage = Math.ceil(effectiveWeight / PUNCH_DAMAGE_DIVISOR);
+  const divisor = selectedPunchArmHasClaw(input)
+    ? CLAW_PUNCH_DAMAGE_DIVISOR
+    : PUNCH_DAMAGE_DIVISOR;
+  let damage = Math.ceil(effectiveWeight / divisor);
   const actuators = input.componentDamage.actuators;
 
   if (actuators[ActuatorType.UPPER_ARM]) {

@@ -487,6 +487,8 @@ export function declarePhysicalAttack(
       context.rightLegHasTalons ?? attackerState.rightLegHasTalons,
     leftFootActuatorPresent: context.leftFootActuatorPresent,
     rightFootActuatorPresent: context.rightFootActuatorPresent,
+    leftArmHasClaw: context.leftArmHasClaw ?? attackerState.leftArmHasClaw,
+    rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
     pushDestinationValid: context.pushDestinationValid,
     pushTargetDirectlyAhead: targetState
       ? isTargetDirectlyAhead(
@@ -722,6 +724,8 @@ export function resolveAllPhysicalAttacks(
         context.rightLegHasTalons ?? attackerState.rightLegHasTalons,
       leftFootActuatorPresent: context.leftFootActuatorPresent,
       rightFootActuatorPresent: context.rightFootActuatorPresent,
+      leftArmHasClaw: context.leftArmHasClaw ?? attackerState.leftArmHasClaw,
+      rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
       pushDestinationValid: context.pushDestinationValid,
       pushTargetDirectlyAhead: isTargetDirectlyAhead(
         attackerState.position,

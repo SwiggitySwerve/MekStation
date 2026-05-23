@@ -306,6 +306,16 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **AND** catalog UnitHydration SHALL derive biped leg talon state from `LEFT_LEG` and `RIGHT_LEG` critical slots containing Talons entries
 - **AND** the validation catalog SHALL keep destroyed/missing/breached talon equipment lifecycle and non-biped talon arm-location behavior visible as remaining gaps
 
+#### Scenario: Claws modify punch damage and to-hit without becoming a selectable attack type
+
+- **GIVEN** a BattleMech has explicit arm claw combat state for the punching arm
+- **WHEN** it resolves a punch using that arm
+- **THEN** punch target damage SHALL use MegaMek's source-backed `ceil(attackerWeight / 7)` claw base before actuator, pilot ability, quirk, and environmental modifiers
+- **AND** punch to-hit SHALL include MegaMek's source-backed `+1` claw modifier while suppressing the hand-actuator destroyed modifier for that claw arm
+- **AND** claws SHALL remain non-selectable in runtime physical attack option lists because they modify punch rather than declaring a distinct physical attack
+- **AND** catalog UnitHydration SHALL derive arm claw state from `LEFT_ARM` and `RIGHT_ARM` critical slots containing `ISClaw` entries
+- **AND** the validation catalog SHALL keep destroyed/missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions visible as remaining gaps
+
 ### Requirement: Designator Marker Replay State
 
 Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC pod variants SHALL remain explicit gaps until their variant-specific runner missile effects are represented.

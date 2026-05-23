@@ -16,7 +16,7 @@ These are documented gaps in functionality, not defects. They represent future w
 
 **Current explicit gaps**:
 
-- Official physical weapon catalog entries without runtime attack types: claws, flail, retractable blade, talons, wrecking ball.
+- Official physical weapon catalog entries without runtime attack types: flail, wrecking ball. Claws and talons intentionally remain modifiers on punch/kick/DFA rather than standalone attacks; their destroyed/missing/breached equipment lifecycle remains a gap.
 - Non-BattleMech physical combat families require separate validation matrices.
 - Generic invariants that only say "physical attack unavailable" may still be filtered as legacy limitations unless they are part of the BattleMech catalog validation lane.
 

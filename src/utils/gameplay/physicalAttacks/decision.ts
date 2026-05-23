@@ -48,6 +48,8 @@ export function chooseBestPhysicalAttack(
     rightLegHasTalons: options.rightLegHasTalons,
     leftFootActuatorPresent: options.leftFootActuatorPresent,
     rightFootActuatorPresent: options.rightFootActuatorPresent,
+    leftArmHasClaw: options.leftArmHasClaw,
+    rightArmHasClaw: options.rightArmHasClaw,
     attackerEvading: options.attackerEvading,
     attackerLoadingOrUnloadingCargo: options.attackerLoadingOrUnloadingCargo,
     attackerTargetedByDisplacementAttackerId:
@@ -86,7 +88,14 @@ export function chooseBestPhysicalAttack(
   };
 
   if (canPunch(leftPunchInput).allowed || canPunch(rightPunchInput).allowed) {
-    const punchDamage = calculatePunchDamage(baseInput);
+    const punchDamage = Math.max(
+      canPunch(leftPunchInput).allowed
+        ? calculatePunchDamage(leftPunchInput)
+        : 0,
+      canPunch(rightPunchInput).allowed
+        ? calculatePunchDamage(rightPunchInput)
+        : 0,
+    );
     candidates.push({ type: 'punch', expectedDamage: punchDamage });
   }
 

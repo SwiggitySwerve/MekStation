@@ -34,6 +34,8 @@ function helperOnly(
 const MEGAMEK_HEAT_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 const MEGAMEK_TO_HIT_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+const MEGAMEK_PHYSICAL_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
 function megamekHeatSourceRef(
   citation: string,
@@ -236,6 +238,27 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
   tsm: integrated(
     'tsm',
     'UnitHydration, game/session physical contexts, and runPhysicalAttackPhase thread hasTSM into resolvePhysicalAttack so active TSM doubles physical damage at heat 9+',
+  ),
+  claws: helperOnly(
+    'claws',
+    'calculatePunchDamage, calculatePunchToHit, eligibility projection, session physical contexts, UnitHydration, and runPhysicalAttackPhase consume claw arm state for source-backed punch damage/to-hit modifiers',
+    'Destroyed/missing/breached claw equipment lifecycle, the PLAYTEST_3 no-modifier option, and claw club-with-hand interactions are not modeled',
+    [
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek PunchAttackAction.getDamageFor uses ceil(weight / 7) when the punching arm has working claws',
+        url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PHYSICAL_SOURCE_VERSION}/megamek/src/megamek/common/actions/PunchAttackAction.java#L390-L405`,
+        sourceVersion: MEGAMEK_PHYSICAL_SOURCE_VERSION,
+      },
+      {
+        kind: 'megamek-source',
+        citation:
+          'MegaMek PunchAttackAction.toHit adds the claw punch modifier and suppresses hand actuator missing/destroyed penalties when claws replace the hand',
+        url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PHYSICAL_SOURCE_VERSION}/megamek/src/megamek/common/actions/PunchAttackAction.java#L309-L333`,
+        sourceVersion: MEGAMEK_PHYSICAL_SOURCE_VERSION,
+      },
+    ],
   ),
   talons: helperOnly(
     'talons',
