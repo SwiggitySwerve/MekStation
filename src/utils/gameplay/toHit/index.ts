@@ -44,6 +44,11 @@ export {
   calculateToHitFromContext,
   type IEcmContext,
 } from './calculate';
+export {
+  buildWeaponAttackActuatorDamage,
+  buildWeaponAttackAttackerToHitState,
+  buildWeaponAttackTargetToHitState,
+} from './stateHydration';
 export { calculateToHitWithC3 } from './c3';
 export type { IC3ToHitInput } from './c3';
 

@@ -78,6 +78,7 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
     expect(result.isIndirect).toBe(true);
     expect(result.spotterWalked).toBe(true);
     expect(result.toHitPenalty).toBe(2);
+    expect(result.forwardObserverApplied).toBe(false);
   });
 
   it('walking spotter WITH FO SPA cancels walked add — toHitPenalty is 1 (base only)', () => {
@@ -92,6 +93,7 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
     // spotterWalked still true — FO cancels the penalty add but the fact stays
     expect(result.spotterWalked).toBe(true);
     expect(result.toHitPenalty).toBe(1);
+    expect(result.forwardObserverApplied).toBe(true);
   });
 
   // §2 Scenario: FO is a no-op when spotter is stationary
@@ -106,6 +108,7 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
     expect(result.isIndirect).toBe(true);
     expect(result.spotterWalked).toBe(false);
     expect(result.toHitPenalty).toBe(1);
+    expect(result.forwardObserverApplied).toBe(false);
   });
 
   // FO does NOT override run/jump ineligibility — spot-check
@@ -130,5 +133,32 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
 
     expect(result.permitted).toBe(true);
     expect(result.toHitPenalty).toBe(2);
+    expect(result.forwardObserverApplied).toBe(false);
+  });
+
+  it('Oblique Attacker on the firing pilot reduces the indirect-fire penalty by 1', () => {
+    const spotter = makeSpotter({ movementType: MovementType.Stationary });
+    const result = resolveIndirectFire({
+      ...makeRequest(spotter),
+      attackerPilotSpas: ['oblique-attacker'],
+    });
+
+    expect(result.permitted).toBe(true);
+    expect(result.isIndirect).toBe(true);
+    expect(result.toHitPenalty).toBe(0);
+    expect(result.obliqueAttackerApplied).toBe(true);
+  });
+
+  it('Oblique Attacker stacks with walked-spotter penalty arithmetic', () => {
+    const spotter = makeSpotter({ movementType: MovementType.Walk });
+    const result = resolveIndirectFire({
+      ...makeRequest(spotter),
+      attackerPilotSpas: ['oblique_attacker'],
+    });
+
+    expect(result.permitted).toBe(true);
+    expect(result.spotterWalked).toBe(true);
+    expect(result.toHitPenalty).toBe(1);
+    expect(result.obliqueAttackerApplied).toBe(true);
   });
 });

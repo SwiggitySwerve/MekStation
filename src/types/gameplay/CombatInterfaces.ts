@@ -107,6 +107,10 @@ export interface IWeaponAttack {
   readonly isCluster: boolean;
   /** Cluster size (if cluster weapon) */
   readonly clusterSize?: number;
+  /** Attack declares a TacOps-style called shot. */
+  readonly calledShot?: boolean;
+  /** Called-shot setup was provided by a teammate. */
+  readonly teammateCalledShot?: boolean;
 }
 
 /**
@@ -748,6 +752,17 @@ export interface IIndirectFireResolution {
    * 2 = base + spotter walked.
    */
   readonly toHitPenalty: number;
+  /**
+   * True when a walking LOS spotter's Forward Observer SPA cancelled the
+   * walked-spotter penalty. Consumers use this to emit the matching audit
+   * event after the selected-spotter event.
+   */
+  readonly forwardObserverApplied?: boolean;
+  /**
+   * True when the attacker's Oblique Attacker SPA reduced the final
+   * indirect-fire penalty. The net penalty remains in `toHitPenalty`.
+   */
+  readonly obliqueAttackerApplied?: boolean;
   /** Human-readable reason when permitted=false. */
   readonly reason?: string;
 }

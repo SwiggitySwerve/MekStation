@@ -22,6 +22,11 @@ import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { logger } from '@/utils/logger';
 
+export interface IWeaponAttackIntentOptions {
+  readonly calledShots?: Readonly<Record<string, boolean>>;
+  readonly teammateCalledShots?: Readonly<Record<string, boolean>>;
+}
+
 /**
  * Resolve a single weapon id against the attacker's weapon inventory and
  * produce the combat-facing `IWeaponAttack` shape. Returns `null` when the
@@ -36,6 +41,7 @@ export function buildWeaponAttack(
   weaponId: string,
   unitWeapons: readonly IWeapon[],
   attackerId?: string,
+  options?: IWeaponAttackIntentOptions,
 ): IWeaponAttack | null {
   const wData = unitWeapons.find((w) => w.id === weaponId);
   if (!wData) {
@@ -65,6 +71,10 @@ export function buildWeaponAttack(
     mediumRange: wData.mediumRange,
     longRange: wData.longRange,
     isCluster: false,
+    ...(options?.calledShots?.[weaponId] === true ? { calledShot: true } : {}),
+    ...(options?.teammateCalledShots?.[weaponId] === true
+      ? { teammateCalledShot: true }
+      : {}),
   };
 }
 
@@ -77,10 +87,11 @@ export function buildWeaponAttacks(
   weaponIds: readonly string[],
   unitWeapons: readonly IWeapon[],
   attackerId?: string,
+  options?: IWeaponAttackIntentOptions,
 ): IWeaponAttack[] {
   const resolved: IWeaponAttack[] = [];
   for (const wId of weaponIds) {
-    const built = buildWeaponAttack(wId, unitWeapons, attackerId);
+    const built = buildWeaponAttack(wId, unitWeapons, attackerId, options);
     if (built) resolved.push(built);
   }
   return resolved;

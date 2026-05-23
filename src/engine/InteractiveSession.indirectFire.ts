@@ -42,11 +42,9 @@ import { calculateLOS } from '@/utils/gameplay/lineOfSight';
  *     is supplied, the matching SPA list is threaded into each candidate so
  *     the helper can apply FO (Forward Observer) and future SPA cancellations.
  *  5. When no LOS spotter is found, check NARC/iNarc beacon flags on the
- *     target unit (§3). When `targetEntityId` is supplied and the target unit
- *     carries `narcMarkedByTeams` / `iNarcMarkedByTeams` arrays, those flags
- *     are plumbed into the helper. If the target unit or the arrays are absent
- *     (fields not yet populated by weapon resolution), both flags default to
- *     `false` — forward-compatible once NARC weapon resolution lands.
+ *     target unit (§3). Canonical NARC state is `IUnitGameState.narcedBy`;
+ *     legacy `narcMarkedByTeams` / `iNarcMarkedByTeams` arrays are still read
+ *     defensively for older fixtures and saves.
  *  6. Delegate to `resolveIndirectFire` and map the result to
  *     `IIndirectFireResolution`.
  *
@@ -110,16 +108,16 @@ export function computeIndirectFireContext(
   const spotterCandidates: ISpotterCandidate[] = [];
   for (const [unitId, unit] of Object.entries(gameState.units)) {
     // Skip destroyed, retreated, or non-operational units.
-    if (unit.destroyed || unit.hasRetreated) continue;
+    if (unit.destroyed || unit.hasRetreated || unit.hasEjected) continue;
     spotterCandidates.push({
       entityId: unitId,
       teamId: unit.side as string,
       position: unit.position,
       movementType: unit.movementThisTurn,
       isOperational: !unit.destroyed && !unit.shutdown,
-      // Thread pilot SPA list into candidate when caller supplies it.
-      // Absent entries leave pilotSpas undefined — no SPA modifier applied.
-      pilotSpas: pilotSpasByUnitId?.[unitId],
+      // Thread pilot SPA list into candidate when caller supplies it, falling
+      // back to the combat-state ability list hydrated onto the unit.
+      pilotSpas: pilotSpasByUnitId?.[unitId] ?? unit.abilities,
       // Thread pilot gunnery into candidate for the spotter-skill modifier.
       // IUnitGameState.gunnery is optional (seeded at session-creation time from
       // IGameUnit.gunnery). When absent (synthetic fixtures, legacy saves), the
@@ -128,18 +126,20 @@ export function computeIndirectFireContext(
     });
   }
 
-  // Derive NARC/iNarc beacon flags for the target unit (§3).
-  // The fields `narcMarkedByTeams` / `iNarcMarkedByTeams` do not exist yet on
-  // IUnitGameState — they land when NARC weapon resolution ships in a later PR.
-  // Until then we read them defensively via `any`-cast so this compiles cleanly
-  // against the current type and the forward-compat default (false) applies.
+  // Derive NARC/iNarc beacon flags for the target unit (§3). NARC uses the
+  // canonical `narcedBy` state field; legacy arrays stay as a compatibility
+  // fallback until older indirect-fire fixtures are retired.
   const targetUnit = targetEntityId
     ? gameState.units[targetEntityId]
     : undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const targetUnitAny = targetUnit as any;
-  const narcMarkedByTeams: readonly string[] =
+  const legacyNarcMarkedByTeams: readonly string[] =
     targetUnitAny?.narcMarkedByTeams ?? [];
+  const narcMarkedByTeams: readonly string[] = [
+    ...(targetUnit?.narcedBy ?? []),
+    ...legacyNarcMarkedByTeams,
+  ];
   const inarcMarkedByTeams: readonly string[] =
     targetUnitAny?.iNarcMarkedByTeams ?? [];
   const targetNarcMarkedByTeam = narcMarkedByTeams.includes(attackerTeamId);
@@ -154,6 +154,8 @@ export function computeIndirectFireContext(
     targetPosition: targetHex,
     weaponId,
     attackerHasLOS: false,
+    attackerPilotSpas:
+      pilotSpasByUnitId?.[attackerId] ?? attackerUnit.abilities,
     spotterCandidates,
     grid,
     targetNarcMarkedByTeam,
@@ -177,5 +179,7 @@ export function computeIndirectFireContext(
     spotterId: result.spotter?.entityId ?? null,
     basis: result.basis,
     toHitPenalty: result.toHitPenalty,
+    forwardObserverApplied: result.forwardObserverApplied,
+    obliqueAttackerApplied: result.obliqueAttackerApplied,
   };
 }

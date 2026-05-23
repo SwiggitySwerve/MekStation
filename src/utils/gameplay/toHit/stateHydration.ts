@@ -1,0 +1,86 @@
+import type {
+  IActuatorDamage,
+  IAttackerState,
+  IComponentDamageState,
+  ISecondaryTarget,
+  ITargetState,
+  IUnitGameState,
+} from '@/types/gameplay';
+
+import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+
+interface IWeaponToHitDescriptor {
+  readonly id: string;
+  readonly name: string;
+  readonly category?: string;
+}
+
+export function buildWeaponAttackActuatorDamage(
+  componentDamage: IComponentDamageState | undefined,
+): IActuatorDamage | undefined {
+  const actuators = componentDamage?.actuators;
+  if (!actuators) return undefined;
+
+  const actuatorDamage: IActuatorDamage = {
+    shoulderDestroyed: actuators[ActuatorType.SHOULDER] ?? false,
+    upperArmDestroyed: actuators[ActuatorType.UPPER_ARM] ?? false,
+    lowerArmDestroyed: actuators[ActuatorType.LOWER_ARM] ?? false,
+  };
+
+  return actuatorDamage.shoulderDestroyed ||
+    actuatorDamage.upperArmDestroyed ||
+    actuatorDamage.lowerArmDestroyed
+    ? actuatorDamage
+    : undefined;
+}
+
+export function buildWeaponAttackAttackerToHitState(
+  unit: IUnitGameState,
+  gunnery: number,
+  weapon?: IWeaponToHitDescriptor,
+  targetId?: string,
+  secondaryTarget?: ISecondaryTarget,
+  calledShot?: boolean,
+  teammateCalledShot?: boolean,
+): IAttackerState {
+  return {
+    gunnery,
+    movementType: unit.movementThisTurn,
+    heat: unit.heat,
+    damageModifiers: [],
+    pilotWounds: unit.pilotWounds,
+    sensorHits: unit.componentDamage?.sensorHits,
+    actuatorDamage: buildWeaponAttackActuatorDamage(unit.componentDamage),
+    prone: unit.prone ?? false,
+    abilities: unit.abilities,
+    weaponType: weapon?.name ?? weapon?.id,
+    weaponCategory: weapon?.category,
+    designatedWeaponType: unit.designatedWeaponType,
+    designatedWeaponCategory: unit.designatedWeaponCategory,
+    targetId,
+    secondaryTarget,
+    calledShot,
+    teammateCalledShot,
+    designatedTargetId: unit.designatedTargetId,
+    designatedRangeBracket: unit.designatedRangeBracket,
+    unitQuirks: unit.unitQuirks,
+    weaponQuirks: unit.weaponQuirks,
+  };
+}
+
+export function buildWeaponAttackTargetToHitState(
+  unit: IUnitGameState,
+  partialCover: boolean,
+): ITargetState {
+  return {
+    movementType: unit.movementThisTurn,
+    hexesMoved: unit.hexesMovedThisTurn,
+    prone: unit.prone ?? false,
+    immobile: unit.shutdown ?? false,
+    partialCover,
+    unitQuirks: unit.unitQuirks,
+    weaponQuirks: unit.weaponQuirks,
+    abilities: unit.abilities,
+    isDodging: unit.isDodging,
+  };
+}

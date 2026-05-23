@@ -201,6 +201,53 @@ describe('computeIndirectFireContext', () => {
     );
     expect(result.permitted).toBe(true);
     expect(result.toHitPenalty).toBe(2);
+    expect(result.forwardObserverApplied).toBe(false);
+  });
+
+  it('hydrates Forward Observer from unit abilities and flags the cancellation', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const spotter = makeUnit(
+      's1',
+      GameSide.Player,
+      { q: 5, r: 1 },
+      MovementType.Walk,
+    );
+    (spotter as unknown as { abilities: string[] }).abilities = [
+      'forward_observer',
+    ];
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, spotter]),
+      makeBlockedGrid(),
+    );
+
+    expect(result.permitted).toBe(true);
+    expect(result.toHitPenalty).toBe(1);
+    expect(result.forwardObserverApplied).toBe(true);
+  });
+
+  it('hydrates Oblique Attacker from attacker abilities and reduces indirect-fire penalty', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    (attacker as unknown as { abilities: string[] }).abilities = [
+      'oblique-attacker',
+    ];
+    const spotter = makeUnit('s1', GameSide.Player, { q: 5, r: 1 });
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, spotter]),
+      makeBlockedGrid(),
+    );
+
+    expect(result.permitted).toBe(true);
+    expect(result.isIndirect).toBe(true);
+    expect(result.toHitPenalty).toBe(0);
+    expect(result.obliqueAttackerApplied).toBe(true);
   });
 
   // -------------------------------------------------------------------------
@@ -226,6 +273,30 @@ describe('computeIndirectFireContext', () => {
   // -------------------------------------------------------------------------
   // §3 NARC/iNarc override wired through collaborator
   // -------------------------------------------------------------------------
+  it('wires canonical narcedBy state through collaborator: no spotter + NARC-marked target → permitted, basis=narc', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const targetUnit = makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 });
+    (targetUnit as unknown as { narcedBy: string[] }).narcedBy = [
+      GameSide.Player as string,
+    ];
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, targetUnit]),
+      makeBlockedGrid(),
+      undefined,
+      't1',
+    );
+
+    expect(result.permitted).toBe(true);
+    expect(result.isIndirect).toBe(true);
+    expect(result.basis).toBe('narc');
+    expect(result.spotterId).toBeNull();
+    expect(result.toHitPenalty).toBe(1);
+  });
+
   it('wires NARC override through collaborator: no spotter + NARC-marked target → permitted, basis=narc', () => {
     const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
     // Target unit with narcMarkedByTeams carrying the attacker's side.

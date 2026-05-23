@@ -15,6 +15,7 @@ import { MovementType } from '@/types/gameplay';
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
 import { calculateLOS, ILOSResult } from './lineOfSight';
+import { getObliqueAttackerBonus } from './spaModifiers';
 import {
   isSemiGuidedLRM,
   isTargetTAGDesignated,
@@ -71,6 +72,11 @@ export interface IIndirectFireRequest {
   readonly weaponId: string;
   /** Whether the attacker has direct LOS to target */
   readonly attackerHasLOS: boolean;
+  /**
+   * Canonical SPA IDs owned by the firing pilot. Optional for backward
+   * compatibility. Oblique Attacker reduces the indirect-fire penalty by 1.
+   */
+  readonly attackerPilotSpas?: readonly string[];
   /** All friendly units that could spot */
   readonly spotterCandidates: readonly ISpotterCandidate[];
   /** The hex grid (for LOS checks) */
@@ -107,6 +113,10 @@ export interface IIndirectFireResult {
   readonly spotterWalked: boolean;
   /** Total indirect fire to-hit penalty (+1 base, +1 if spotter walked) */
   readonly toHitPenalty: number;
+  /** Whether Forward Observer cancelled the +1 walked-spotter penalty. */
+  readonly forwardObserverApplied?: boolean;
+  /** Whether Oblique Attacker reduced the final indirect-fire penalty. */
+  readonly obliqueAttackerApplied?: boolean;
   /** LOS result from spotter to target */
   readonly spotterLOS?: ILOSResult;
   /**
@@ -312,6 +322,14 @@ export function isIndirectFireCapable(weaponId: string): boolean {
 export function resolveIndirectFire(
   request: IIndirectFireRequest,
 ): IIndirectFireResult {
+  const obliqueAttackerModifier = getObliqueAttackerBonus(
+    request.attackerPilotSpas ?? [],
+  );
+  const applyAttackerPenaltyModifiers = (penalty: number) =>
+    Math.max(0, penalty + obliqueAttackerModifier);
+  const obliqueApplied = (penalty: number) =>
+    applyAttackerPenaltyModifiers(penalty) !== penalty;
+
   // If attacker has direct LOS, no indirect fire needed
   if (request.attackerHasLOS) {
     return {
@@ -351,6 +369,7 @@ export function resolveIndirectFire(
     // indirect-fire penalty still applies. Run/Jump ineligibility is enforced
     // upstream in isEligibleSpotter — FO does not override that restriction.
     const hasFoSpa = spotter.pilotSpas?.includes('forward_observer') ?? false;
+    const forwardObserverApplied = spotterWalked && hasFoSpa;
     const walkedPenalty = spotterWalked && !hasFoSpa ? 1 : 0;
 
     // Per MegaMek ArtilleryWeaponIndirectFireHandler.java L192-194:
@@ -361,8 +380,10 @@ export function resolveIndirectFire(
     const effectiveGunnery = spotter.spotterGunnery ?? 4;
     const gunneryMod = Math.trunc((effectiveGunnery - 4) / 2);
 
-    // Base +1 indirect-fire penalty + walked penalty + gunnery modifier.
-    const toHitPenalty = 1 + walkedPenalty + gunneryMod;
+    // Base +1 indirect-fire penalty + walked penalty + gunnery modifier,
+    // then attacker-side SPA modifiers such as Oblique Attacker.
+    const basePenalty = 1 + walkedPenalty + gunneryMod;
+    const toHitPenalty = applyAttackerPenaltyModifiers(basePenalty);
 
     return {
       permitted: true,
@@ -372,6 +393,8 @@ export function resolveIndirectFire(
       spotterWalked,
       toHitPenalty,
       spotterLOS: losResult,
+      forwardObserverApplied,
+      obliqueAttackerApplied: obliqueApplied(basePenalty),
     };
   }
 
@@ -387,7 +410,8 @@ export function resolveIndirectFire(
       isIndirect: true,
       basis: 'narc',
       spotterWalked: false,
-      toHitPenalty: 1,
+      toHitPenalty: applyAttackerPenaltyModifiers(1),
+      obliqueAttackerApplied: obliqueApplied(1),
     };
   }
 
@@ -398,7 +422,8 @@ export function resolveIndirectFire(
       isIndirect: true,
       basis: 'inarc',
       spotterWalked: false,
-      toHitPenalty: 1,
+      toHitPenalty: applyAttackerPenaltyModifiers(1),
+      obliqueAttackerApplied: obliqueApplied(1),
     };
   }
 

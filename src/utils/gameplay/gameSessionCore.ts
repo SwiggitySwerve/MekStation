@@ -59,6 +59,7 @@ import {
   createGameCreatedEvent,
   createGameEndedEvent,
   createGameStartedEvent,
+  createIndirectFireForwardObserverEvent,
   createIndirectFireNarcOverrideEvent,
   createIndirectFireSpotterSelectedEvent,
   createInitiativeRolledEvent,
@@ -66,8 +67,13 @@ import {
   createMovementLockedEvent,
   createPhaseChangedEvent,
 } from './gameEvents';
+import { invalidateInvalidTargetAttack } from './gameSessionAttackResolutionValidation';
 import { allUnitsLocked, deriveState } from './gameState';
-import { calculateToHit } from './toHit';
+import {
+  buildWeaponAttackAttackerToHitState,
+  buildWeaponAttackTargetToHitState,
+  calculateToHit,
+} from './toHit';
 
 export interface ICreateGameSessionOptions {
   readonly id?: string;
@@ -408,6 +414,15 @@ export function declareAttack(
   if (!attackerUnit) {
     throw new Error(`Attacker unit ${attackerId} not found`);
   }
+
+  const invalidTargetSession = invalidateInvalidTargetAttack(
+    session,
+    attackerId,
+    targetId,
+    weapons.map((weapon) => weapon.weaponId),
+  );
+  if (invalidTargetSession) return invalidTargetSession;
+
   if (!targetUnit) {
     throw new Error(`Target unit ${targetId} not found`);
   }
@@ -418,21 +433,27 @@ export function declareAttack(
   }
 
   const toHitCalc = calculateToHit(
-    {
-      gunnery: attacker.gunnery,
-      movementType: attackerUnit.movementThisTurn,
-      heat: attackerUnit.heat,
-      damageModifiers: [],
-    },
-    {
-      movementType: targetUnit.movementThisTurn,
-      hexesMoved: targetUnit.hexesMovedThisTurn,
-      prone: false,
-      immobile: false,
-      partialCover: false,
-    },
+    buildWeaponAttackAttackerToHitState(
+      attackerUnit,
+      attacker.gunnery,
+      weapons[0]
+        ? {
+            id: weapons[0].weaponId,
+            name: weapons[0].weaponName,
+            category: weapons[0].category,
+          }
+        : undefined,
+      targetId,
+      undefined,
+      weapons.some((weapon) => weapon.calledShot === true),
+      weapons.some((weapon) => weapon.teammateCalledShot === true),
+    ),
+    buildWeaponAttackTargetToHitState(targetUnit, false),
     rangeBracket,
     range,
+    weapons[0]?.minRange,
+    undefined,
+    weapons[0]?.weaponId,
   );
 
   const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
@@ -525,6 +546,19 @@ export function declareAttack(
         indirectFireResolution.toHitPenalty,
       );
       updatedSession = appendEvent(updatedSession, spotterEvent);
+      if (indirectFireResolution.forwardObserverApplied) {
+        const forwardObserverEvent = createIndirectFireForwardObserverEvent(
+          updatedSession.id,
+          updatedSession.events.length,
+          turn,
+          attackerId,
+          indirectFireResolution.spotterId,
+          eventWeaponId,
+          resolvedTargetHex,
+          indirectFireResolution.toHitPenalty,
+        );
+        updatedSession = appendEvent(updatedSession, forwardObserverEvent);
+      }
     }
   }
 
