@@ -33,6 +33,12 @@ function formatMovementModeLabel(mode: string | undefined): string | null {
       return 'HYD';
     case 'submarine':
       return 'SUB';
+    case 'umu':
+      return 'UMU';
+    case 'biped_swim':
+      return 'BSW';
+    case 'quad_swim':
+      return 'QSW';
     case 'wige':
       return 'WiGE';
     case 'rail':
@@ -56,12 +62,31 @@ function formatMovementReachBadgeLabel(
   return `${modeLabel} ${mpLabel}`;
 }
 
+function formatMovementModeTitleLabel(mode: string): string {
+  switch (mode) {
+    case 'vtol':
+      return 'VTOL';
+    case 'wige':
+      return 'WiGE';
+    case 'umu':
+      return 'UMU';
+    case 'biped_swim':
+      return 'biped swim';
+    case 'quad_swim':
+      return 'quad swim';
+    default:
+      return mode.replace(/_/g, ' ');
+  }
+}
+
 function formatMovementModeTitle(movementInfo: IMovementRangeHex): string {
   if (
     movementInfo.movementMode &&
     movementInfo.movementMode !== movementInfo.movementType
   ) {
-    return `${movementInfo.movementType} via ${movementInfo.movementMode}`;
+    return `${movementInfo.movementType} via ${formatMovementModeTitleLabel(
+      movementInfo.movementMode,
+    )}`;
   }
   return movementInfo.movementType;
 }

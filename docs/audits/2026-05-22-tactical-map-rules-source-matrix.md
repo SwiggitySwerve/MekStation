@@ -142,6 +142,20 @@ the run path is blocked by that rule; the movement plan now commits that
 projection as `Walk`, so preview MP/heat/path data and committed engine
 resolution agree instead of turning a walk-only green hex into a rejected run.
 
+Additional UMU/swim water-movement pin: MegaMek
+`EntityMovementMode.java:47-67` defines `BIPED_SWIM`, `QUAD_SWIM`, and
+`INF_UMU`, with helper predicates at `EntityMovementMode.java:140-154`.
+MegaMek `MoveStep.java:2758-2761` skips normal destination terrain cost for
+swim movement, and `MoveStep.java:2781-2804` excludes hover, naval, hydrofoil,
+submarine, `INF_UMU`, VTOL, `BIPED_SWIM`, `QUAD_SWIM`, and WiGE from extra
+water-depth MP costs. `MoveStep.java:3236-3279` also excludes `INF_UMU` from
+the run-into-water prohibition. MekStation now maps UMU/biped-swim/quad-swim
+motive strings into tactical movement modes, displays UMU badges/readable
+labels on the map, removes represented water-depth surcharges for those modes,
+and keeps UMU preview/commit behavior aligned for deep-water movement. Frogman
+Mek/ProtoMek modifiers and full underwater elevation envelopes remain outside
+this slice.
+
 Additional small-unit movement data pin: MegaMek `Infantry.java:560-568` and
 `BattleArmor.java:520-523` return walk MP as base run MP unless optional TacOps
 fast infantry movement is enabled. MegaMek `ProtoMek.java:602-606` falls back to

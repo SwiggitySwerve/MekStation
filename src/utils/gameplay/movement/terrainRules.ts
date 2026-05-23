@@ -17,21 +17,45 @@ function hasAmphibiousWaterMovement(
   );
 }
 
+function isWaterRunExemptMotive(movementType: UnitMovementType): boolean {
+  return (
+    movementType === 'hover' ||
+    movementType === 'naval' ||
+    movementType === 'hydrofoil' ||
+    movementType === 'submarine' ||
+    movementType === 'umu' ||
+    movementType === 'vtol' ||
+    movementType === 'wige'
+  );
+}
+
+function isWaterDepthCostExemptMotive(movementType: UnitMovementType): boolean {
+  return (
+    movementType === 'jump' ||
+    movementType === 'hover' ||
+    movementType === 'vtol' ||
+    movementType === 'wige' ||
+    movementType === 'naval' ||
+    movementType === 'hydrofoil' ||
+    movementType === 'submarine' ||
+    movementType === 'umu' ||
+    movementType === 'biped_swim' ||
+    movementType === 'quad_swim'
+  );
+}
+
 export function blocksWaterMovement(
   movementType: UnitMovementType,
   context: IMovementCostContext,
 ): boolean {
   const isRunningWaterEntry =
     context.declaredMovementType === MovementType.Run || movementType === 'run';
-  const isWaterRunExemptMotive =
-    movementType === 'hover' ||
-    movementType === 'naval' ||
-    movementType === 'hydrofoil' ||
-    movementType === 'submarine' ||
-    movementType === 'vtol' ||
-    movementType === 'wige';
 
-  if (isRunningWaterEntry && !isWaterRunExemptMotive && !context.isFirstStep) {
+  if (
+    isRunningWaterEntry &&
+    !isWaterRunExemptMotive(movementType) &&
+    !context.isFirstStep
+  ) {
     return !context.waterCapability?.fullyAmphibious;
   }
   if (movementType === 'tracked' || movementType === 'wheeled') {
@@ -49,15 +73,7 @@ export function waterMovementCostModifier(
   context: IMovementCostContext,
 ): number {
   if (waterLevel <= 0) return 0;
-  if (
-    movementType === 'jump' ||
-    movementType === 'hover' ||
-    movementType === 'vtol' ||
-    movementType === 'wige' ||
-    movementType === 'naval' ||
-    movementType === 'hydrofoil' ||
-    movementType === 'submarine'
-  ) {
+  if (isWaterDepthCostExemptMotive(movementType)) {
     return 0;
   }
   if (hasAmphibiousWaterMovement(context.waterCapability)) {
@@ -195,6 +211,12 @@ export function formatMovementModeForReason(
       return 'VTOL';
     case 'wige':
       return 'WiGE';
+    case 'umu':
+      return 'UMU';
+    case 'biped_swim':
+      return 'Biped swim';
+    case 'quad_swim':
+      return 'Quad swim';
     default:
       return movementType.charAt(0).toUpperCase() + movementType.slice(1);
   }

@@ -74,6 +74,14 @@ For each projected movement hex, the map SHALL expose at least movement mode, cu
 - **THEN** the movement projection SHALL apply the represented infantry terrain-cost profile
 - **AND** committed movement SHALL spend the same MP cost that the preview exposed
 
+#### Scenario: UMU and swim movement ignore represented water-depth surcharges
+
+- **GIVEN** a represented UMU, biped-swim, or quad-swim movement mode enters water terrain
+- **WHEN** movement projection computes the destination MP cost
+- **THEN** the water-depth surcharge SHALL NOT be added for that movement mode
+- **AND** UMU run movement SHALL remain legal when entering water after the first step
+- **AND** committed movement SHALL spend the same MP cost and heat that the preview exposed
+
 ### Requirement: Combat Projection Explanation
 
 Combat highlights SHALL expose weapon-backed attack legality, range, firing arc, LOS, cover, visibility, heat, ammo, and disabled reasons.

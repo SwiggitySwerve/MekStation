@@ -418,6 +418,19 @@ function movementModeFromUnitData(
       return 'hydrofoil';
     case 'submarine':
       return 'submarine';
+    case 'umu':
+    case 'infumu':
+    case 'infantryumu':
+    case 'scuba':
+    case 'infscuba':
+    case 'infantryscuba':
+      return 'umu';
+    case 'bipedswim':
+    case 'bipedumu':
+      return 'biped_swim';
+    case 'quadswim':
+    case 'quadumu':
+      return 'quad_swim';
     case 'wige':
     case 'wingingroundeffect':
       return 'wige';

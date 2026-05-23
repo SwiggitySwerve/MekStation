@@ -484,6 +484,32 @@ describe('movement', () => {
       expect(cost).toBe(2);
     });
 
+    it.each(['umu', 'biped_swim', 'quad_swim'] as const)(
+      'should not add water-depth MP for %s movement',
+      (movementMode) => {
+        let grid = createHexGrid({ radius: 3 });
+        grid = setHexTerrain(
+          grid,
+          { q: 1, r: 0 },
+          terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+        );
+
+        const step = getMovementStepCostBreakdown(
+          grid,
+          { q: 1, r: 0 },
+          movementMode,
+          { q: 0, r: 0 },
+        );
+
+        expect(step).toMatchObject({
+          mpCost: 1,
+          baseCost: 1,
+          terrainCost: 0,
+          elevationCost: 0,
+        });
+      },
+    );
+
     it('should add 1 MP for elevation change going up', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);

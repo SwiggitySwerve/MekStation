@@ -59,6 +59,9 @@ export type MovementTravelMode =
   | 'naval'
   | 'hydrofoil'
   | 'submarine'
+  | 'umu'
+  | 'biped_swim'
+  | 'quad_swim'
   | 'wige'
   | 'rail'
   | 'maglev';

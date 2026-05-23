@@ -752,6 +752,46 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('renders UMU motive movement badges with readable non-color labels', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 1,
+            terrainCost: 0,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'umu',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent(
+      'W/UMU 1MP',
+    );
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-mode',
+      'umu',
+    );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('walk via UMU reachable'),
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders an insufficient-MP badge for over-budget movement destinations', () => {
     const { unmount } = render(
       <HexMapDisplay

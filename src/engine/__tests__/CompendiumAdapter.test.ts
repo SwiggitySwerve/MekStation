@@ -369,6 +369,23 @@ describe('CompendiumAdapter', () => {
       });
     });
 
+    it.each([
+      ['Biped Swim', 'biped_swim'],
+      ['Quad Swim', 'quad_swim'],
+    ] as const)(
+      'should preserve %s Mek swim motion for map pathing',
+      (motionType, movementMode) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'BATTLEMECH',
+          motionType,
+        } as unknown as IFullUnit);
+
+        expect(result.movementMode).toBe(movementMode);
+        expect(result.movementHeatProfile).toBe('mek');
+      },
+    );
+
     it('should preserve limited amphibious vehicle water movement equipment', () => {
       const result = adaptUnitFromData({
         ...createAtlasData(),
@@ -503,6 +520,22 @@ describe('CompendiumAdapter', () => {
       expect(result.walkMP).toBe(2);
       expect(result.runMP).toBe(2);
       expect(result.movementMode).toBe('walk');
+      expect(result.movementTerrainProfile).toBe('infantry');
+    });
+
+    it('should map battle armor UMU motion into underwater map pathing', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'BATTLE_ARMOR',
+        motiveType: 'UMU',
+        movement: { groundMP: 3, jumpMP: 0 },
+      } as unknown as IFullUnit);
+
+      expect(result.walkMP).toBe(3);
+      expect(result.runMP).toBe(3);
+      expect(result.jumpMP).toBe(0);
+      expect(result.movementMode).toBe('umu');
+      expect(result.movementHeatProfile).toBe('none');
       expect(result.movementTerrainProfile).toBe('infantry');
     });
 

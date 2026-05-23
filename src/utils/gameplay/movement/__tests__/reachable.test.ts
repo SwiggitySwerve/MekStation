@@ -560,6 +560,90 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('lets UMU movement cross deep water without water-depth MP surcharges', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+    const baseCapability = { walkMP: 1, runMP: 1, jumpMP: 0 } as const;
+
+    const walking = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        ...baseCapability,
+        movementMode: 'walk',
+      },
+      { q: 1, r: 0 },
+    );
+    const umu = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        ...baseCapability,
+        movementMode: 'umu',
+        movementHeatProfile: 'none',
+        movementTerrainProfile: 'infantry',
+      },
+      { q: 1, r: 0 },
+    );
+
+    expect(walking).toMatchObject({
+      reachable: false,
+      mpCost: 4,
+      terrainCost: 3,
+      movementMode: 'walk',
+      movementInvalidReason: 'InsufficientMP',
+    });
+    expect(umu).toMatchObject({
+      reachable: true,
+      mpCost: 1,
+      terrainCost: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementMode: 'umu',
+      movementType: MovementType.Walk,
+    });
+  });
+
+  it('lets UMU run movement enter water after the first step', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 2, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const umu = deriveReachableHexes(unit, MovementType.Run, grid, {
+      walkMP: 2,
+      runMP: 2,
+      jumpMP: 0,
+      movementMode: 'umu',
+      movementHeatProfile: 'none',
+      movementTerrainProfile: 'infantry',
+    }).find((r) => r.hex.q === 2 && r.hex.r === 0);
+
+    expect(umu).toMatchObject({
+      reachable: true,
+      mpCost: 2,
+      terrainCost: 0,
+      heatGenerated: 0,
+      movementMode: 'umu',
+      movementType: MovementType.Run,
+    });
+  });
+
   it('lets tracked movement cross ice-covered water as surface terrain', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);

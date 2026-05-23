@@ -107,7 +107,20 @@ interface MovementCommitSummaryProps {
 }
 
 function formatModeLabel(mode: string): string {
-  return mode.charAt(0).toUpperCase() + mode.slice(1);
+  switch (mode) {
+    case 'vtol':
+      return 'VTOL';
+    case 'wige':
+      return 'WiGE';
+    case 'umu':
+      return 'UMU';
+    case 'biped_swim':
+      return 'Biped swim';
+    case 'quad_swim':
+      return 'Quad swim';
+    default:
+      return mode.charAt(0).toUpperCase() + mode.slice(1).replace(/_/g, ' ');
+  }
 }
 
 function formatSigned(value: number): string {

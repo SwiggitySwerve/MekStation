@@ -24,6 +24,25 @@ export function formatTerrainFeaturesLabel(
   return terrainTypes.map(formatTerrainLabel).join(', ');
 }
 
+export function formatMovementModeLabel(mode: string | undefined): string {
+  switch (mode) {
+    case 'vtol':
+      return 'VTOL';
+    case 'wige':
+      return 'WiGE';
+    case 'umu':
+      return 'UMU';
+    case 'biped_swim':
+      return 'biped swim';
+    case 'quad_swim':
+      return 'quad swim';
+    case undefined:
+      return '';
+    default:
+      return mode.replace(/_/g, ' ');
+  }
+}
+
 export function formatCombatLabel(combatInfo: ICombatRangeHex): string {
   const targetLabel = combatInfo.hasTarget
     ? `, targets ${combatInfo.targetUnitIds.join(', ')}`
@@ -88,7 +107,7 @@ export function formatMovementLabel(movementInfo: IMovementRangeHex): string {
   return `${movementInfo.movementType}${
     movementInfo.movementMode &&
     movementInfo.movementMode !== movementInfo.movementType
-      ? ` via ${movementInfo.movementMode}`
+      ? ` via ${formatMovementModeLabel(movementInfo.movementMode)}`
       : ''
   } ${movementInfo.reachable ? 'reachable' : 'blocked'}: ${movementInfo.mpCost} MP${
     movementInfo.terrainCost !== undefined

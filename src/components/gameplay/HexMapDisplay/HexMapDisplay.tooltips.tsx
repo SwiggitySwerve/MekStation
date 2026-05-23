@@ -10,6 +10,7 @@ import { CoverLevel, TERRAIN_PROPERTIES } from '@/types/gameplay/TerrainTypes';
 
 import {
   formatElevationLabel,
+  formatMovementModeLabel,
   formatTerrainFeaturesLabel,
 } from './HexCell.labels';
 import {
@@ -218,7 +219,7 @@ function MovementHoverTooltip({
   const movementMode =
     movementInfo.movementMode &&
     movementInfo.movementMode !== movementInfo.movementType
-      ? ` via ${movementInfo.movementMode}`
+      ? ` via ${formatMovementModeLabel(movementInfo.movementMode)}`
       : '';
   const status = movementInfo.reachable ? 'Reachable' : 'Blocked';
   const reason =
