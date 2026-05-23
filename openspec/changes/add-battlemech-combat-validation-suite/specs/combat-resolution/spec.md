@@ -160,6 +160,15 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** immobile targets SHALL remain legal for this gate even when movement is incomplete
 - **AND** no damage, displacement, or PSR side effect SHALL be emitted on rejection
 
+#### Scenario: Death from above applies Infantry and Battle Armor target-class modifiers
+
+- **GIVEN** a DFA declaration is evaluated after the attacker jumped this turn
+- **WHEN** the target is Infantry
+- **THEN** death from above to-hit SHALL include a +3 target-class modifier
+- **WHEN** the target is Battle Armor
+- **THEN** death from above to-hit SHALL include a +1 target-class modifier
+- **AND** helper, eligibility UI, event-sourced declaration, and runner resolution SHALL report the same modifier outcome
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

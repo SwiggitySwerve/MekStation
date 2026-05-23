@@ -327,6 +327,7 @@ const TO_HIT_CORE_MODIFIER_SUPPORT_REFS = [
   'heat',
   'environmental-conditions',
   'partial-cover',
+  'physical-dfa-target-class',
   'target-prone',
   'target-immobile',
   'indirect-fire',
@@ -612,7 +613,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'to-hit-core-modifiers': integrated(
     'to-hit-core-modifiers',
-    'Runner to-hit support covers gunnery, range, minimum range, movement, heat, environment, target state, partial cover, terrain features, and indirect fire',
+    'Runner to-hit support covers gunnery, range, minimum range, movement, heat, environment, target state, DFA target class, partial cover, terrain features, and indirect fire',
     TO_HIT_CORE_MODIFIER_SUPPORT_REFS,
   ),
   'to-hit-advanced-modifiers': helperOnly(

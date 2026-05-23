@@ -1412,6 +1412,25 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expectPendingPSR(result, 'player-1', PSRTrigger.DFATarget);
   });
 
+  it('applies source-backed DFA Battle Armor target-class to-hit modifier', () => {
+    const { events } = runPhase('dfa', {
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      },
+      target: {
+        unitType: UnitType.BATTLE_ARMOR,
+      },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'dfa',
+      roll: 8,
+      toHitNumber: 6,
+      hit: true,
+    });
+  });
+
   it('applies source-backed DFA hit displacement', () => {
     const { events, result } = runPhase('dfa', {
       attacker: {

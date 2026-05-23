@@ -7,6 +7,7 @@ import {
   type IComponentDamageState,
   type IGameSession,
   type IGameUnit,
+  type IPhysicalAttackDeclaredPayload,
   type IPilotHitPayload,
   type IPhysicalAttackResolvedPayload,
   type IPSRTriggeredPayload,
@@ -886,6 +887,54 @@ describe('BattleMech physical combat behavior validation lane', () => {
       immobileTargetOptions.find((option) => option.attackType === 'dfa')
         ?.restrictionsFailed,
     ).toEqual([]);
+  });
+
+  it('surfaces DFA target-class to-hit modifiers in eligibility projection', () => {
+    const attacker = unitState('attacker', GameSide.Player, { q: 0, r: 0 });
+
+    const infantryOptions = getEligiblePhysicalAttacks(
+      attacker,
+      unitState(
+        'target',
+        GameSide.Opponent,
+        { q: 1, r: 0 },
+        {
+          unitType: UnitType.INFANTRY,
+        },
+      ),
+      {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetTonnage: 75,
+        attackerJumpedThisTurn: true,
+      },
+    );
+    const battleArmorOptions = getEligiblePhysicalAttacks(
+      attacker,
+      unitState(
+        'target',
+        GameSide.Opponent,
+        { q: 1, r: 0 },
+        {
+          unitType: UnitType.BATTLE_ARMOR,
+        },
+      ),
+      {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetTonnage: 75,
+        attackerJumpedThisTurn: true,
+      },
+    );
+
+    expect(
+      infantryOptions.find((option) => option.attackType === 'dfa')?.toHit
+        .finalToHit,
+    ).toBe(8);
+    expect(
+      battleArmorOptions.find((option) => option.attackType === 'dfa')?.toHit
+        .finalToHit,
+    ).toBe(6);
   });
 
   it('surfaces non-Mek charge target-class gates in eligibility projection', () => {
@@ -2479,6 +2528,31 @@ describe('BattleMech physical combat behavior validation lane', () => {
         (entry) => entry.type === GameEventType.DamageApplied,
       ),
     ).toBe(false);
+  });
+
+  it('preserves DFA Battle Armor target-class to-hit modifiers during resolution', () => {
+    const declared = declareAdjacentPhysicalAttack(
+      'dfa',
+      physicalContext({
+        attackerJumpedThisTurn: true,
+        hexesMoved: 4,
+      }),
+      {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      },
+      { unitType: UnitType.BATTLE_ARMOR },
+    );
+
+    const event = declared.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = event?.payload as IPhysicalAttackDeclaredPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'dfa',
+      toHitNumber: 6,
+    });
   });
 
   it('emits event-sourced push displacement with attacker follow-through', () => {

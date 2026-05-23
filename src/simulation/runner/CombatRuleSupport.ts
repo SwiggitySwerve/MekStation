@@ -87,6 +87,16 @@ const MEGAMEK_CALLED_SHOT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_DFA_TARGET_CLASS_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek DfaAttackAction.toHit applies +3 for Infantry targets and +1 for Battle Armor targets.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/actions/DfaAttackAction.java#L340-L345`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const RUNNER_RANGE_BRACKET_COMBAT_SUPPORT = {
   [RangeBracket.Short]: integrated(
     RangeBracket.Short,
@@ -142,6 +152,11 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   'partial-cover': integrated(
     'partial-cover',
     'runAttackPhase emits AttackDeclared partial-cover modifiers from target hex terrain',
+  ),
+  'physical-dfa-target-class': integrated(
+    'physical-dfa-target-class',
+    'calculateDFAToHit consumes targetUnitType, and eligibility, event-sourced resolution, and runner physical resolution apply source-backed DFA Infantry/Battle Armor target-class modifiers',
+    MEGAMEK_DFA_TARGET_CLASS_SOURCE_REFS,
   ),
   'target-prone': integrated(
     'target-prone',

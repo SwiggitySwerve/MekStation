@@ -1292,6 +1292,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'indirect-fire',
       'minimum-range',
       'partial-cover',
+      'physical-dfa-target-class',
       'pilot-wounds',
       'range',
       'secondary-target',
@@ -1306,12 +1307,15 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual(['c3', 'ecm', 'hull-down']);
   });
 
-  it('pins secondary-target and called-shot modifiers to MegaMek refs', () => {
+  it('pins source-backed to-hit modifiers to MegaMek refs', () => {
     const secondaryTargetRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['secondary-target'].sourceRefs ??
       [];
     const calledShotRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['called-shot'].sourceRefs ?? [];
+    const physicalDfaTargetClassRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['physical-dfa-target-class']
+        .sourceRefs ?? [];
 
     expect(secondaryTargetRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',
@@ -1320,9 +1324,16 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(calledShotRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek ComputeAttackerToHitMods applies +3 TacOps called-shot modifiers for high, low, left, and right called shots.',
     ]);
+    expect(physicalDfaTargetClassRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek DfaAttackAction.toHit applies +3 for Infantry targets and +1 for Battle Armor targets.',
+    ]);
 
     expect(
-      [...secondaryTargetRefs, ...calledShotRefs].every(
+      [
+        ...secondaryTargetRefs,
+        ...calledShotRefs,
+        ...physicalDfaTargetClassRefs,
+      ].every(
         (sourceRef) =>
           sourceRef.kind === 'megamek-source' &&
           sourceRef.sourceVersion ===

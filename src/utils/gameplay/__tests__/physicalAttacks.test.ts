@@ -1,5 +1,6 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { Facing, IComponentDamageState, IHexGrid } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import {
   calculatePunchDamage,
@@ -2155,6 +2156,36 @@ describe('physicalAttacks', () => {
       );
       expect(result.baseToHit).toBe(4);
       expect(result.allowed).toBe(true);
+    });
+
+    it('applies source-backed DFA target-class modifiers', () => {
+      const infantry = calculateDFAToHit(
+        makeInput({
+          pilotingSkill: 5,
+          attackType: 'dfa',
+          targetUnitType: UnitType.INFANTRY,
+        }),
+      );
+      const battleArmor = calculateDFAToHit(
+        makeInput({
+          pilotingSkill: 5,
+          attackType: 'dfa',
+          targetUnitType: UnitType.BATTLE_ARMOR,
+        }),
+      );
+
+      expect(infantry.finalToHit).toBe(8);
+      expect(infantry.modifiers).toContainEqual({
+        name: 'Infantry target',
+        value: 3,
+        source: 'target-class',
+      });
+      expect(battleArmor.finalToHit).toBe(6);
+      expect(battleArmor.modifiers).toContainEqual({
+        name: 'Battle Armor target',
+        value: 1,
+        source: 'target-class',
+      });
     });
   });
 

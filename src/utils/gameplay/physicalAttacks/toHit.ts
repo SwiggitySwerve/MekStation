@@ -60,6 +60,32 @@ function appendMeleeSpecialist(
   });
 }
 
+function normalizedUnitType(unitType: string | undefined): string {
+  return unitType?.toLowerCase().replace(/[\s_-]+/g, '') ?? '';
+}
+
+function appendDfaTargetClassModifier(
+  modifiers: IPhysicalModifier[],
+  targetUnitType: string | undefined,
+): void {
+  switch (normalizedUnitType(targetUnitType)) {
+    case 'infantry':
+      modifiers.push({
+        name: 'Infantry target',
+        value: 3,
+        source: 'target-class',
+      });
+      break;
+    case 'battlearmor':
+      modifiers.push({
+        name: 'Battle Armor target',
+        value: 1,
+        source: 'target-class',
+      });
+      break;
+  }
+}
+
 export function calculatePunchToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
@@ -235,6 +261,7 @@ export function calculateDFAToHit(
 
   const modifiers: IPhysicalModifier[] = [];
 
+  appendDfaTargetClassModifier(modifiers, input.targetUnitType);
   // DFA inherits TMM like punch/kick.
   appendTMM(modifiers, input.targetMovementModifier);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
