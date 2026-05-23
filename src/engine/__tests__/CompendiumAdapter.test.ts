@@ -6,6 +6,7 @@ import {
   canonicalizeWeaponId,
   getWeaponData,
 } from '../adapters/CompendiumAdapter';
+import { toMovementCapability } from '../GameEngine.helpers';
 
 jest.mock('@/services/units/CanonicalUnitService', () => {
   const unitStore: Record<string, IFullUnit> = {};
@@ -341,6 +342,20 @@ describe('CompendiumAdapter', () => {
       expect(result.runMP).toBe(5);
       expect(result.jumpMP).toBe(0);
       expect(result.movementHeatProfile).toBe('mek');
+    });
+
+    it('should preserve no-arms quirk as represented stand-up capability', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        quirks: ['no_arms'],
+      } as unknown as IFullUnit);
+
+      expect(result.standUpCapability).toEqual({
+        noMinimalArmsQuirk: true,
+      });
+      expect(toMovementCapability(result).standUpCapability).toEqual({
+        noMinimalArmsQuirk: true,
+      });
     });
 
     it('should map vehicle motion type into movement pathing mode', () => {

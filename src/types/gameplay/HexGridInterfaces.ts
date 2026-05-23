@@ -102,6 +102,8 @@ export interface IMovementWaterCapability {
  * Optional stand-up rule switches represented by movement projection.
  */
 export interface IMovementStandUpCapability {
+  /** MegaMek no/minimal-arms quirk: stand-up PSR gets +2 before arm checks. */
+  readonly noMinimalArmsQuirk?: boolean;
   /** TacOps Attempting to Stand: destroyed arms add represented PSR penalties. */
   readonly tacOpsAttemptingStand?: boolean;
 }

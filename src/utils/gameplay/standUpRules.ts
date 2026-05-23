@@ -63,7 +63,7 @@ export function projectStandUpPsr({
     unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
     unitState.pilotWounds,
   );
-  const representedStandUpModifiers = tacOpsAttemptingStandArmModifiers(
+  const representedStandUpModifiers = representedStandUpCapabilityModifiers(
     unitState,
     movementCapability,
   );
@@ -121,6 +121,16 @@ function tacOpsAttemptingStandArmModifiers(
       ? [{ name: 'Left arm destroyed', value: 2 }]
       : []),
   ];
+}
+
+function representedStandUpCapabilityModifiers(
+  unitState: IUnitGameState,
+  movementCapability?: IMovementCapability,
+): readonly IStandUpPsrModifier[] {
+  if (movementCapability?.standUpCapability?.noMinimalArmsQuirk === true) {
+    return [{ name: 'No/minimal arms', value: 2 }];
+  }
+  return tacOpsAttemptingStandArmModifiers(unitState, movementCapability);
 }
 
 export function destroyedLegAndArmsStandBlock(

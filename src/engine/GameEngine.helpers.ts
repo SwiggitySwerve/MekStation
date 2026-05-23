@@ -212,5 +212,8 @@ export function toMovementCapability(
     ...(adapted.waterCapability
       ? { waterCapability: adapted.waterCapability }
       : {}),
+    ...(adapted.standUpCapability
+      ? { standUpCapability: adapted.standUpCapability }
+      : {}),
   };
 }

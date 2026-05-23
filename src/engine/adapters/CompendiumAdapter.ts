@@ -12,6 +12,7 @@ import {
 import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
+  type IMovementStandUpCapability,
   type IMovementWaterCapability,
   MovementType,
   type MovementHeatProfile,
@@ -19,6 +20,7 @@ import {
   type MovementTerrainProfile,
 } from '@/types/gameplay/HexGridInterfaces';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
+import { UNIT_QUIRK_IDS } from '@/utils/gameplay/quirkModifiers';
 import { logger } from '@/utils/logger';
 
 import type { IAdaptedUnit, IAdaptUnitOptions, IWeaponData } from '../types';
@@ -204,6 +206,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
   movementHeatProfile?: MovementHeatProfile;
   movementTerrainProfile?: MovementTerrainProfile;
   waterCapability?: IMovementWaterCapability;
+  standUpCapability?: IMovementStandUpCapability;
 } {
   const movement = recordField(unitData.movement);
   const walkMP =
@@ -222,6 +225,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
   const movementHeatProfile = movementHeatProfileFromUnitData(unitData);
   const movementTerrainProfile = movementTerrainProfileFromUnitData(unitData);
   const waterCapability = waterCapabilityFromUnitData(unitData);
+  const standUpCapability = standUpCapabilityFromUnitData(unitData);
   return {
     walkMP,
     runMP,
@@ -230,6 +234,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
     ...(movementHeatProfile ? { movementHeatProfile } : {}),
     ...(movementTerrainProfile ? { movementTerrainProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
+    ...(standUpCapability ? { standUpCapability } : {}),
   };
 }
 
@@ -395,6 +400,15 @@ function waterCapabilityFromUnitData(
     : undefined;
 }
 
+function standUpCapabilityFromUnitData(
+  unitData: Record<string, unknown>,
+): IMovementStandUpCapability | undefined {
+  const noMinimalArmsQuirk = stringArrayField(unitData, 'quirks').some(
+    (quirk) => normalizedKey(quirk) === normalizedKey(UNIT_QUIRK_IDS.NO_ARMS),
+  );
+  return noMinimalArmsQuirk ? { noMinimalArmsQuirk } : undefined;
+}
+
 function booleanField(
   source: Record<string, unknown>,
   ...fieldNames: readonly string[]
@@ -486,6 +500,21 @@ function stringField(
   return undefined;
 }
 
+function stringArrayField(
+  source: Record<string, unknown> | undefined,
+  ...fieldNames: readonly string[]
+): readonly string[] {
+  for (const fieldName of fieldNames) {
+    const value = source?.[fieldName];
+    if (Array.isArray(value)) {
+      return value.filter(
+        (entry): entry is string => typeof entry === 'string',
+      );
+    }
+  }
+  return [];
+}
+
 function normalizedKey(value: unknown): string {
   return typeof value === 'string'
     ? value.toLowerCase().replace(/[^a-z0-9]+/g, '')
@@ -543,6 +572,7 @@ export function adaptUnitFromData(
     movementHeatProfile,
     movementTerrainProfile,
     waterCapability,
+    standUpCapability,
   } = calculateMovement(unitData);
 
   // Ammo — provide one ton of ammo per ballistic/missile weapon type
@@ -587,6 +617,7 @@ export function adaptUnitFromData(
     ...(movementHeatProfile ? { movementHeatProfile } : {}),
     ...(movementTerrainProfile ? { movementTerrainProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
+    ...(standUpCapability ? { standUpCapability } : {}),
   };
 }
 

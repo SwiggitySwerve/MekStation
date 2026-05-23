@@ -10,6 +10,7 @@ import type {
   IHexGrid,
   MovementHeatProfile,
   MovementTerrainProfile,
+  IMovementStandUpCapability,
   IMovementWaterCapability,
   MovementMotiveMode,
 } from '@/types/gameplay/HexGridInterfaces';
@@ -60,6 +61,8 @@ export interface IAdaptedUnit extends IUnitGameState {
   readonly movementTerrainProfile?: MovementTerrainProfile;
   /** Optional equipment that modifies water movement legality and MP costs. */
   readonly waterCapability?: IMovementWaterCapability;
+  /** Optional stand-up rules that affect prone movement projection. */
+  readonly standUpCapability?: IMovementStandUpCapability;
 }
 
 // =============================================================================

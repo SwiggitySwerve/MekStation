@@ -42,7 +42,8 @@
   - [x] Special ProtoMech and Battle Armor movement fixtures now prove represented explicit ProtoMech run MP and Battle Armor VTOL/no-heat movement stay aligned between preview and commit.
   - [x] Represented TacOps Fast Infantry Movement now source-pins MegaMek Infantry/BattleArmor run-MP fallback and keeps fast infantry run preview/commit movement aligned.
   - [x] Represented TacOps Attempting to Stand destroyed-arm modifiers now source-pin MegaMek's +2 per destroyed arm and keep preview/commit PSR target numbers aligned.
-  - [ ] Add remaining optional quirk/no-arms and side-specific arm-actuator TacOps stand-up modifiers not represented by current unit state and any not-yet-represented infantry-specific terrain/heat rules.
+  - [x] Represented no/minimal-arms stand-up quirk now source-pins MegaMek's +2 modifier and override of TacOps arm checks through adapter, preview, and commit coverage.
+  - [ ] Add remaining optional Playtest2 trying-to-stand bonus, side-specific arm-actuator TacOps stand-up modifiers not represented by current unit state, and any not-yet-represented infantry-specific terrain/heat rules.
 - [x] Ensure highlighted walk/run/jump ranges expose MP cost, heat, elevation delta, terrain reason, and invalid reason.
 
 ## 4. Terrain and elevation readability
