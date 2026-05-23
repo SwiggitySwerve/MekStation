@@ -108,6 +108,9 @@ export interface IVehicle extends IGroundUnit {
   /** Has amphibious chassis */
   readonly isAmphibious: boolean;
 
+  /** Has limited amphibious chassis */
+  readonly limitedAmphibious?: boolean;
+
   /** Has trailer hitch */
   readonly hasTrailerHitch: boolean;
 

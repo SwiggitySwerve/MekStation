@@ -8,6 +8,8 @@ import type { IUnitGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
+  IMovementWaterCapability,
+  MovementMotiveMode,
 } from '@/types/gameplay/HexGridInterfaces';
 
 // =============================================================================
@@ -48,6 +50,10 @@ export interface IAdaptedUnit extends IUnitGameState {
   readonly runMP: number;
   /** Jump movement points (0 if no jump jets) */
   readonly jumpMP: number;
+  /** Chassis/squad motive mode used for terrain and elevation pathing. */
+  readonly movementMode?: MovementMotiveMode;
+  /** Optional equipment that modifies water movement legality and MP costs. */
+  readonly waterCapability?: IMovementWaterCapability;
 }
 
 // =============================================================================

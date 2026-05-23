@@ -10,7 +10,12 @@ import {
   getCanonicalUnitService,
 } from '@/services/units/CanonicalUnitService';
 import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
-import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import {
+  Facing,
+  type IMovementWaterCapability,
+  MovementType,
+  type MovementMotiveMode,
+} from '@/types/gameplay/HexGridInterfaces';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
 import { logger } from '@/utils/logger';
 
@@ -193,14 +198,176 @@ function calculateMovement(unitData: Record<string, unknown>): {
   walkMP: number;
   runMP: number;
   jumpMP: number;
+  movementMode?: MovementMotiveMode;
+  waterCapability?: IMovementWaterCapability;
 } {
-  const movement = unitData.movement as
-    | { walk?: number; jump?: number }
-    | undefined;
-  const walkMP = movement?.walk ?? 0;
-  const jumpMP = movement?.jump ?? 0;
-  const runMP = Math.ceil(walkMP * 1.5);
-  return { walkMP, runMP, jumpMP };
+  const movement = recordField(unitData.movement);
+  const walkMP =
+    numberField(movement, 'walk', 'walkMP', 'groundMP', 'cruiseMP') ??
+    numberField(unitData, 'walkMP', 'groundMP', 'cruiseMP') ??
+    0;
+  const explicitRunMP =
+    numberField(movement, 'run', 'runMP', 'flankMP') ??
+    numberField(unitData, 'runMP', 'flankMP');
+  const jumpMP =
+    numberField(movement, 'jump', 'jumpMP', 'jumpingMP') ??
+    numberField(unitData, 'jumpMP', 'jumpingMP') ??
+    0;
+  const runMP = explicitRunMP ?? deriveRunMP(unitData, walkMP);
+  const movementMode = movementModeFromUnitData(unitData);
+  const waterCapability = waterCapabilityFromUnitData(unitData);
+  return {
+    walkMP,
+    runMP,
+    jumpMP,
+    ...(movementMode ? { movementMode } : {}),
+    ...(waterCapability ? { waterCapability } : {}),
+  };
+}
+
+function recordField(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === 'object' && value !== null
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function numberField(
+  source: Record<string, unknown> | undefined,
+  ...fieldNames: readonly string[]
+): number | undefined {
+  for (const fieldName of fieldNames) {
+    const value = source?.[fieldName];
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function deriveRunMP(
+  unitData: Record<string, unknown>,
+  walkMP: number,
+): number {
+  const unitType = normalizedKey(unitData.unitType);
+
+  // MegaMek Infantry#getRunMP and BattleArmor#getRunMP return walk MP unless
+  // the optional TacOps fast-infantry rule is enabled. MekStation does not
+  // model that optional rule in tactical projections yet, so the adapter keeps
+  // the base oracle behavior when no explicit run MP is supplied.
+  if (unitType === 'infantry' || unitType === 'battlearmor') {
+    return walkMP;
+  }
+
+  return Math.ceil(walkMP * 1.5);
+}
+
+function waterCapabilityFromUnitData(
+  unitData: Record<string, unknown>,
+): IMovementWaterCapability | undefined {
+  const waterCapability: IMovementWaterCapability = {
+    fullyAmphibious: booleanField(
+      unitData,
+      'isAmphibious',
+      'amphibious',
+      'fullyAmphibious',
+      'isFullyAmphibious',
+    ),
+    limitedAmphibious: booleanField(
+      unitData,
+      'limitedAmphibious',
+      'isLimitedAmphibious',
+    ),
+    flotationHull: booleanField(unitData, 'hasFlotationHull', 'flotationHull'),
+  };
+  return waterCapability.fullyAmphibious ||
+    waterCapability.limitedAmphibious ||
+    waterCapability.flotationHull
+    ? waterCapability
+    : undefined;
+}
+
+function booleanField(
+  source: Record<string, unknown>,
+  ...fieldNames: readonly string[]
+): boolean {
+  return fieldNames.some((fieldName) => source[fieldName] === true);
+}
+
+function movementModeFromUnitData(
+  unitData: Record<string, unknown>,
+): MovementMotiveMode | undefined {
+  const movement = recordField(unitData.movement);
+  const raw =
+    stringField(unitData, 'motionType', 'motiveType', 'movementType') ??
+    stringField(movement, 'motionType', 'motiveType', 'movementType');
+  if (typeof raw !== 'string') return undefined;
+  const normalized = normalizedKey(raw);
+  switch (normalized) {
+    case 'biped':
+    case 'tripod':
+    case 'quad':
+    case 'foot':
+    case 'ground':
+    case 'leg':
+    case 'infleg':
+    case 'infantryleg':
+    case 'jump':
+    case 'infjump':
+    case 'infantryjump':
+      return 'walk';
+    case 'tracked':
+    case 'mechanizedtracked':
+    case 'inftracked':
+      return 'tracked';
+    case 'wheeled':
+    case 'motorized':
+    case 'infmotorized':
+    case 'mechanizedwheeled':
+    case 'infwheeled':
+      return 'wheeled';
+    case 'hover':
+    case 'mechanizedhover':
+    case 'infhover':
+      return 'hover';
+    case 'vtol':
+    case 'mechanizedvtol':
+    case 'infvtol':
+      return 'vtol';
+    case 'naval':
+      return 'naval';
+    case 'hydrofoil':
+      return 'hydrofoil';
+    case 'submarine':
+      return 'submarine';
+    case 'wige':
+    case 'wingingroundeffect':
+      return 'wige';
+    case 'rail':
+      return 'rail';
+    case 'maglev':
+      return 'maglev';
+    default:
+      return undefined;
+  }
+}
+
+function stringField(
+  source: Record<string, unknown> | undefined,
+  ...fieldNames: readonly string[]
+): string | undefined {
+  for (const fieldName of fieldNames) {
+    const value = source?.[fieldName];
+    if (typeof value === 'string') {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function normalizedKey(value: unknown): string {
+  return typeof value === 'string'
+    ? value.toLowerCase().replace(/[^a-z0-9]+/g, '')
+    : '';
 }
 
 // =============================================================================
@@ -246,7 +413,8 @@ export function adaptUnitFromData(
   const weapons = extractWeapons(rawEquipment, fullUnit.id);
 
   // Movement
-  const { walkMP, runMP, jumpMP } = calculateMovement(unitData);
+  const { walkMP, runMP, jumpMP, movementMode, waterCapability } =
+    calculateMovement(unitData);
 
   // Ammo — provide one ton of ammo per ballistic/missile weapon type
   const ammo: Record<string, number> = {};
@@ -256,7 +424,7 @@ export function adaptUnitFromData(
     }
   }
 
-  return {
+  const adapted: IAdaptedUnit = {
     id: fullUnit.id,
     side,
     position,
@@ -283,6 +451,11 @@ export function adaptUnitFromData(
     walkMP,
     runMP,
     jumpMP,
+  };
+  return {
+    ...adapted,
+    ...(movementMode ? { movementMode } : {}),
+    ...(waterCapability ? { waterCapability } : {}),
   };
 }
 

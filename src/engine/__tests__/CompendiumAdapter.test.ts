@@ -342,6 +342,151 @@ describe('CompendiumAdapter', () => {
       expect(result.jumpMP).toBe(0);
     });
 
+    it('should map vehicle motion type into movement pathing mode', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Hover',
+      } as unknown as IFullUnit);
+
+      expect(result.movementMode).toBe('hover');
+    });
+
+    it('should preserve represented vehicle water movement equipment', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Tracked',
+        hasFlotationHull: true,
+        isAmphibious: true,
+      } as unknown as IFullUnit);
+
+      expect(result.waterCapability).toEqual({
+        fullyAmphibious: true,
+        limitedAmphibious: false,
+        flotationHull: true,
+      });
+    });
+
+    it('should preserve limited amphibious vehicle water movement equipment', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Tracked',
+        isLimitedAmphibious: true,
+      } as unknown as IFullUnit);
+
+      expect(result.waterCapability).toEqual({
+        fullyAmphibious: false,
+        limitedAmphibious: true,
+        flotationHull: false,
+      });
+    });
+
+    it.each([
+      ['Naval', 'naval'],
+      ['Hydrofoil', 'hydrofoil'],
+      ['Submarine', 'submarine'],
+      ['WiGE', 'wige'],
+      ['Rail', 'rail'],
+      ['Maglev', 'maglev'],
+    ] as const)(
+      'should preserve %s vehicle motion for map pathing',
+      (motionType, movementMode) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'VEHICLE',
+          motionType,
+        } as unknown as IFullUnit);
+
+        expect(result.movementMode).toBe(movementMode);
+      },
+    );
+
+    it('should read generated vehicle cruise/flank movement data', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'VEHICLE',
+        motionType: 'Tracked',
+        movement: { cruiseMP: 5, flankMP: 8, jumpMP: 0 },
+      } as unknown as IFullUnit);
+
+      expect(result.walkMP).toBe(5);
+      expect(result.runMP).toBe(8);
+      expect(result.jumpMP).toBe(0);
+      expect(result.movementMode).toBe('tracked');
+    });
+
+    it('should read infantry ground/jump MP and use base infantry run MP', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motiveType: 'Jump',
+        movement: { groundMP: 3, jumpMP: 3 },
+      } as unknown as IFullUnit);
+
+      // MegaMek Infantry#getRunMP returns walk MP unless optional TacOps
+      // fast infantry movement is enabled; MekStation projections do not
+      // model that optional rule yet.
+      expect(result.walkMP).toBe(3);
+      expect(result.runMP).toBe(3);
+      expect(result.jumpMP).toBe(3);
+      expect(result.movementMode).toBe('walk');
+    });
+
+    it.each([
+      ['MechanizedTracked', 3, 'tracked'],
+      ['MechanizedWheeled', 4, 'wheeled'],
+      ['MechanizedHover', 5, 'hover'],
+      ['MechanizedVTOL', 6, 'vtol'],
+    ] as const)(
+      'should map infantry %s motive into map pathing mode',
+      (motiveType, groundMP, movementMode) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'INFANTRY',
+          motiveType,
+          movement: { groundMP, jumpMP: 0 },
+        } as unknown as IFullUnit);
+
+        expect(result.walkMP).toBe(groundMP);
+        expect(result.runMP).toBe(groundMP);
+        expect(result.jumpMP).toBe(0);
+        expect(result.movementMode).toBe(movementMode);
+      },
+    );
+
+    it('should read battle armor squad MP and VTOL motion type', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'BATTLE_ARMOR',
+        motionType: 'VTOL',
+        movement: { groundMP: 2, jumpMP: 0 },
+      } as unknown as IFullUnit);
+
+      // MegaMek BattleArmor#getRunMP also returns walk MP unless optional
+      // fast infantry movement is enabled.
+      expect(result.walkMP).toBe(2);
+      expect(result.runMP).toBe(2);
+      expect(result.jumpMP).toBe(0);
+      expect(result.movementMode).toBe('vtol');
+    });
+
+    it('should preserve explicit ProtoMech run MP from canonical unit data', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'PROTOMECH',
+        walkMP: 4,
+        runMP: 5,
+        jumpMP: 2,
+        movement: undefined,
+      } as unknown as IFullUnit);
+
+      expect(result.walkMP).toBe(4);
+      expect(result.runMP).toBe(5);
+      expect(result.jumpMP).toBe(2);
+    });
+
     it('should have 7 weapons (4 ML, 1 AC/20, 1 LRM-20, 1 SRM-6)', () => {
       const result = adaptUnitFromData(createAtlasData());
       expect(result.weapons).toHaveLength(7);

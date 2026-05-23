@@ -167,6 +167,28 @@ describe('VehicleUnitHandler', () => {
       expect(result.data?.unit?.metadata.model).toBe('Light Tank');
     });
 
+    it('should parse represented water chassis mods from equipment and raw tags', () => {
+      const doc = createMockBlkDocument({
+        equipmentByLocation: {
+          'Body Equipment': [
+            'Combat Vehicle Chassis Mod [Limited Amphibious]',
+            'Combat Vehicle Chassis Mod (Flotation Hull)',
+          ],
+        },
+        rawTags: {
+          fully_amphibious: 'true',
+        },
+      });
+      const result = handler.parse(doc);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.unit).toMatchObject({
+        hasFlotationHull: true,
+        isAmphibious: true,
+        limitedAmphibious: true,
+      });
+    });
+
     it('should parse tracked tank motion type', () => {
       const doc = createTrackedTankDocument();
       const result = handler.parse(doc);
