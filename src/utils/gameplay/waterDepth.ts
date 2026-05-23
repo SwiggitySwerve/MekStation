@@ -13,6 +13,9 @@
 
 import type { IHexCoordinate, IHexGrid } from '@/types/gameplay';
 
+import { TerrainType } from '@/types/gameplay';
+import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
+
 export function waterDepthAtPosition(
   grid: IHexGrid,
   position: IHexCoordinate,
@@ -24,9 +27,15 @@ export function waterDepthAtPosition(
 }
 
 export function parseWaterDepth(terrain: string): number {
-  if (!terrain.startsWith('water')) return 0;
-  const parts = terrain.split(':');
-  if (parts.length === 1) return 1;
-  const depth = Number.parseInt(parts[1], 10);
-  return Number.isFinite(depth) && depth >= 0 ? depth : 0;
+  if (terrain.startsWith('water')) {
+    const parts = terrain.split(':');
+    if (parts.length === 1) return 1;
+    const depth = Number.parseInt(parts[1], 10);
+    return Number.isFinite(depth) && depth >= 0 ? depth : 0;
+  }
+
+  const waterFeature = terrainFeaturesFromString(terrain).find(
+    (feature) => feature.type === TerrainType.Water,
+  );
+  return waterFeature?.level ?? 0;
 }
