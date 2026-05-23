@@ -81,6 +81,17 @@ function announcementFor(classification: LOSClassification): string {
     : 'Line of sight blocked';
 }
 
+function losStateLabel(state: LOSOverlayState): string {
+  switch (state) {
+    case 'clear':
+      return 'LOS';
+    case 'partial':
+      return 'P-LOS';
+    case 'blocked':
+      return 'NO LOS';
+  }
+}
+
 function CoverIcon({
   annotation,
 }: {
@@ -161,6 +172,54 @@ function BlockerAnnotation({
   return <CoverIcon annotation={annotation} />;
 }
 
+function LOSStateBadge({
+  classification,
+  start,
+  end,
+  announcement,
+}: {
+  readonly classification: LOSClassification;
+  readonly start: { readonly x: number; readonly y: number };
+  readonly end: { readonly x: number; readonly y: number };
+  readonly announcement: string;
+}): React.ReactElement {
+  const label = losStateLabel(classification.state);
+  const x = (start.x + end.x) / 2;
+  const y = (start.y + end.y) / 2 - 12;
+  const width = label.length * 6 + 12;
+
+  return (
+    <g
+      data-testid="los-state-badge"
+      data-state={classification.state}
+      aria-label={announcement}
+    >
+      <title>{announcement}</title>
+      <rect
+        x={x - width / 2}
+        y={y - 8}
+        width={width}
+        height={14}
+        rx={3}
+        fill="#0f172a"
+        fillOpacity={0.88}
+        stroke={LOS_STYLES[classification.state].stroke}
+        strokeWidth={1}
+      />
+      <text
+        x={x}
+        y={y + 2}
+        textAnchor="middle"
+        fontSize={8}
+        fontWeight="bold"
+        fill="#f8fafc"
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
 function LineOfSightOverlayComponent({
   origin,
   target,
@@ -227,6 +286,12 @@ function LineOfSightOverlayComponent({
         strokeWidth={2}
         strokeLinecap="round"
         strokeDasharray={style.dash}
+      />
+      <LOSStateBadge
+        classification={classification}
+        start={start}
+        end={end}
+        announcement={announcement}
       />
       {classification.blockerAnnotations.map((annotation) => (
         <BlockerAnnotation

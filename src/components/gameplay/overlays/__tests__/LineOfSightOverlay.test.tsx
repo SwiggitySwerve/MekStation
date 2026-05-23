@@ -83,6 +83,15 @@ describe('LineOfSightOverlay', () => {
     expect(line).toHaveAttribute('stroke', '#16a34a');
     expect(line).toHaveAttribute('stroke-width', '2');
     expect(line).not.toHaveAttribute('stroke-dasharray');
+    expect(screen.getByTestId('los-state-badge')).toHaveAttribute(
+      'data-state',
+      'clear',
+    );
+    expect(screen.getByTestId('los-state-badge')).toHaveTextContent('LOS');
+    expect(screen.getByTestId('los-state-badge')).toHaveAttribute(
+      'aria-label',
+      'Line of sight clear',
+    );
   });
 
   it('renders partial cover as a dashed yellow line with a titled cover annotation', () => {
@@ -97,6 +106,11 @@ describe('LineOfSightOverlay', () => {
     expect(line).toHaveAttribute('data-state', 'partial');
     expect(line).toHaveAttribute('stroke', '#ca8a04');
     expect(line).toHaveAttribute('stroke-dasharray', '6,4');
+    expect(screen.getByTestId('los-state-badge')).toHaveAttribute(
+      'data-state',
+      'partial',
+    );
+    expect(screen.getByTestId('los-state-badge')).toHaveTextContent('P-LOS');
 
     const annotation = screen.getByTestId('los-annotation-cover-1,0');
     expect(annotation).toHaveAttribute('data-icon', 'cover');
@@ -115,7 +129,7 @@ describe('LineOfSightOverlay', () => {
   it('renders blocked LOS as a solid red line ending at the first blocker', () => {
     const grid = createGrid([
       createHex(0, 0),
-      createHex(1, 0, TerrainType.Building),
+      createHex(1, 0, TerrainType.Building, 1),
       createHex(2, 0),
     ]);
     const blockerPixel = hexToPixel({ q: 1, r: 0 });
@@ -129,6 +143,11 @@ describe('LineOfSightOverlay', () => {
     expect(line).not.toHaveAttribute('stroke-dasharray');
     expect(line).toHaveAttribute('x2', String(blockerPixel.x));
     expect(line).not.toHaveAttribute('x2', String(targetPixel.x));
+    expect(screen.getByTestId('los-state-badge')).toHaveAttribute(
+      'data-state',
+      'blocked',
+    );
+    expect(screen.getByTestId('los-state-badge')).toHaveTextContent('NO LOS');
 
     const annotation = screen.getByTestId('los-annotation-wall-1,0');
     expect(annotation).toHaveAttribute('data-icon', 'wall');
@@ -140,7 +159,7 @@ describe('LineOfSightOverlay', () => {
   it('renders hovered LOS behind a wall as a red line ending at the wall', () => {
     const grid = createGrid([
       createHex(0, 0),
-      createHex(1, 0, TerrainType.Building),
+      createHex(1, 0, TerrainType.Building, 1),
       createHex(2, 0),
     ]);
     const blockerPixel = hexToPixel({ q: 1, r: 0 });
@@ -192,7 +211,7 @@ describe('LineOfSightOverlay', () => {
     // share the same opacity transition.
     const grid = createGrid([
       createHex(0, 0),
-      createHex(1, 0, TerrainType.Building),
+      createHex(1, 0, TerrainType.Building, 1),
       createHex(2, 0),
     ]);
     renderOverlay(grid);
