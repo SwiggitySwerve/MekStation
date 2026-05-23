@@ -629,10 +629,13 @@ describe('game session role and intent contracts', () => {
 
     expect(GAME_INTENT_TYPES).toEqual([
       'declareMovement',
+      'stand',
       'declareAttack',
       'declarePhysical',
       'confirmHeat',
       'endPhase',
+      'eject',
+      'withdraw',
       'concede',
     ]);
     expect(isGameIntent(intent)).toBe(true);

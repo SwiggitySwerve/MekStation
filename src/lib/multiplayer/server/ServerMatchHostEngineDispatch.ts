@@ -23,12 +23,32 @@ export function dispatchToEngine(
       );
       return;
     }
+    case 'Stand': {
+      session.attemptStandUp(intent.unitId);
+      return;
+    }
     case 'Attack': {
       session.applyAttack(intent.attackerId, intent.targetId, intent.weaponIds);
       return;
     }
+    case 'Physical': {
+      session.applyPhysicalAttack(
+        intent.attackerId,
+        intent.targetId,
+        intent.attackType,
+      );
+      return;
+    }
     case 'AdvancePhase': {
       session.advancePhase();
+      return;
+    }
+    case 'Eject': {
+      session.ejectUnit(intent.unitId);
+      return;
+    }
+    case 'Withdraw': {
+      session.declareWithdrawal(intent.unitId, intent.edge);
       return;
     }
     case 'Concede': {

@@ -24,7 +24,11 @@ import {
   createHostIntentRouter,
   type IHostIntentRouterAdapter,
 } from '../hostIntentRouter';
-import { buildDeclareMovementIntent } from '../intentTranslation';
+import {
+  buildConcedeIntent,
+  buildDeclareMovementIntent,
+  buildStandIntent,
+} from '../intentTranslation';
 
 const FIXED_TIMESTAMP = '2026-04-30T00:00:00.000Z';
 const HOST_PEER = 'host-peer';
@@ -87,6 +91,8 @@ function fixtureSession(): IGameSession {
 function makeAdapter(initial: IGameSession): {
   adapter: IHostIntentRouterAdapter;
   appended: IGameEvent[];
+  concededSides: GameSide[];
+  standAttempts: string[];
   rejections: { reason: string; detail?: string }[];
   setSession: (session: IGameSession) => void;
   setGuestPending: (pending: boolean) => void;
@@ -94,6 +100,8 @@ function makeAdapter(initial: IGameSession): {
   let session = initial;
   let guestPending = false;
   const appended: IGameEvent[] = [];
+  const concededSides: GameSide[] = [];
+  const standAttempts: string[] = [];
   const rejections: { reason: string; detail?: string }[] = [];
 
   const adapter: IHostIntentRouterAdapter = {
@@ -101,6 +109,12 @@ function makeAdapter(initial: IGameSession): {
     appendEvent: (event) => {
       appended.push(event);
       session = appendEvent(session, event);
+    },
+    concede: (side) => {
+      concededSides.push(side);
+    },
+    stand: (unitId) => {
+      standAttempts.push(unitId);
     },
     broadcastRejection: (rejection) => {
       rejections.push({
@@ -114,6 +128,8 @@ function makeAdapter(initial: IGameSession): {
   return {
     adapter,
     appended,
+    concededSides,
+    standAttempts,
     rejections,
     setSession: (next) => {
       session = next;
@@ -150,6 +166,46 @@ describe('hostIntentRouter', () => {
       'movement_declared',
       'movement_locked',
     ]);
+    expect(harness.rejections).toEqual([]);
+  });
+
+  it('routes a guest-owned concede intent through the authoritative host command path', () => {
+    const harness = makeAdapter(fixtureSession());
+    const router = createHostIntentRouter(harness.adapter);
+
+    const result = router.handleIntent(
+      buildConcedeIntent(GUEST_PEER, { side: GameSide.Opponent }),
+    );
+
+    expect(result.outcome).toBe('applied');
+    if (result.outcome !== 'applied') return;
+    expect(result.events).toEqual([]);
+    expect(result.command).toEqual({
+      kind: 'concede',
+      side: GameSide.Opponent,
+    });
+    expect(harness.concededSides).toEqual([GameSide.Opponent]);
+    expect(harness.appended).toEqual([]);
+    expect(harness.rejections).toEqual([]);
+  });
+
+  it('routes a guest-owned stand intent through the authoritative host command path', () => {
+    const harness = makeAdapter(fixtureSession());
+    const router = createHostIntentRouter(harness.adapter);
+
+    const result = router.handleIntent(
+      buildStandIntent(GUEST_PEER, { unitId: 'guest-0' }),
+    );
+
+    expect(result.outcome).toBe('applied');
+    if (result.outcome !== 'applied') return;
+    expect(result.events).toEqual([]);
+    expect(result.command).toEqual({
+      kind: 'stand',
+      unitId: 'guest-0',
+    });
+    expect(harness.standAttempts).toEqual(['guest-0']);
+    expect(harness.appended).toEqual([]);
     expect(harness.rejections).toEqual([]);
   });
 

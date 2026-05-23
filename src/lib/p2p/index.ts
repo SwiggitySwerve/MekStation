@@ -179,15 +179,27 @@ export {
 } from './mirrorSession';
 
 export {
+  buildConcedeIntent,
   buildDeclareAttackIntent,
   buildDeclareMovementIntent,
+  buildDeclarePhysicalIntent,
+  buildEjectIntent,
   buildEndPhaseIntent,
+  buildStandIntent,
+  buildWithdrawIntent,
   translateIntentToEvents,
+  type IConcedeIntentPayload,
   type IDeclareAttackIntentPayload,
   type IDeclareMovementIntentPayload,
+  type IDeclarePhysicalIntentPayload,
+  type IEjectIntentPayload,
   type IEndPhaseIntentPayload,
+  type IIntentCommandTranslation,
   type IIntentRejection,
   type IIntentTranslation,
+  type IStandIntentPayload,
+  type IWithdrawIntentPayload,
+  type IntentTranslationCommand,
   type IntentRejectionReason,
   type IntentTranslationResult,
 } from './intentTranslation';

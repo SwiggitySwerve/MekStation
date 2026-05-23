@@ -45,7 +45,9 @@ import {
 } from '../gameSessionRoles';
 import { createHostIntentRouter } from '../hostIntentRouter';
 import {
+  buildConcedeIntent,
   buildDeclareMovementIntent,
+  buildStandIntent,
   translateIntentToEvents,
 } from '../intentTranslation';
 import { applyMirrorEvent, createMirrorSession } from '../mirrorSession';
@@ -271,6 +273,8 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
         // engine does after applying the event locally.
         hostChannel.broadcastEvent(event);
       },
+      concede: () => undefined,
+      stand: () => undefined,
       broadcastRejection: (rejection) => {
         hostChannel.broadcastRejection({ reason: rejection.reason });
       },
@@ -300,6 +304,107 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
       )
       .map((e) => e.type);
     expect(newEvents).toEqual(['movement_declared', 'movement_locked']);
+  });
+
+  it('guest broadcastIntent -> host routes concede through the authoritative command adapter', () => {
+    let hostSession = createGameSession(fixtureConfig(), fixtureUnits(), {
+      id: 'match-concede-1',
+      createdAt: FIXED_TIMESTAMP,
+      hostPeerId: HOST_PEER,
+      guestPeerId: GUEST_PEER,
+      sideOwners: fixtureSideOwners(),
+    });
+    hostSession = startGame(hostSession, GameSide.Player);
+
+    const hostChannel = createGameSessionChannel({
+      localPeerId: HOST_PEER,
+      eventArray,
+    });
+    const guestChannel = createGameSessionChannel({
+      localPeerId: GUEST_PEER,
+      eventArray,
+    });
+
+    const concededSides: GameSide[] = [];
+    const router = createHostIntentRouter({
+      getSession: () => hostSession,
+      appendEvent: (event) => {
+        hostSession = appendEvent(hostSession, event);
+        hostChannel.broadcastEvent(event);
+      },
+      concede: (side) => {
+        concededSides.push(side);
+      },
+      stand: () => undefined,
+      broadcastRejection: (rejection) => {
+        hostChannel.broadcastRejection({ reason: rejection.reason });
+      },
+    });
+    const unsubscribeIntent = hostChannel.onPeerIntent((intent) => {
+      router.handleIntent(intent);
+    });
+
+    guestChannel.broadcastIntent(
+      buildConcedeIntent(GUEST_PEER, { side: GameSide.Opponent }),
+    );
+
+    unsubscribeIntent();
+
+    expect(concededSides).toEqual([GameSide.Opponent]);
+  });
+
+  it('guest broadcastIntent -> host routes stand through the authoritative command adapter', () => {
+    let hostSession = createGameSession(fixtureConfig(), fixtureUnits(), {
+      id: 'match-stand-1',
+      createdAt: FIXED_TIMESTAMP,
+      hostPeerId: HOST_PEER,
+      guestPeerId: GUEST_PEER,
+      sideOwners: fixtureSideOwners(),
+    });
+    hostSession = startGame(hostSession, GameSide.Player);
+    hostSession = {
+      ...hostSession,
+      currentState: {
+        ...hostSession.currentState,
+        phase: GamePhase.Movement,
+      },
+    };
+
+    const hostChannel = createGameSessionChannel({
+      localPeerId: HOST_PEER,
+      eventArray,
+    });
+    const guestChannel = createGameSessionChannel({
+      localPeerId: GUEST_PEER,
+      eventArray,
+    });
+
+    const standAttempts: string[] = [];
+    const router = createHostIntentRouter({
+      getSession: () => hostSession,
+      appendEvent: (event) => {
+        hostSession = appendEvent(hostSession, event);
+        hostChannel.broadcastEvent(event);
+      },
+      concede: () => undefined,
+      stand: (unitId) => {
+        standAttempts.push(unitId);
+      },
+      broadcastRejection: (rejection) => {
+        hostChannel.broadcastRejection({ reason: rejection.reason });
+      },
+    });
+    const unsubscribeIntent = hostChannel.onPeerIntent((intent) => {
+      router.handleIntent(intent);
+    });
+
+    guestChannel.broadcastIntent(
+      buildStandIntent(GUEST_PEER, { unitId: 'guest-0' }),
+    );
+
+    unsubscribeIntent();
+
+    expect(standAttempts).toEqual(['guest-0']);
   });
 
   it('rejects an out-of-phase intent and broadcasts a peer-rejected envelope', () => {
