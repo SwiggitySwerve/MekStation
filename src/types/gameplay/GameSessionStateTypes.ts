@@ -154,6 +154,16 @@ export interface IUnitGameState {
    */
   readonly isMakingDisplacementAttack?: boolean;
   /**
+   * Whether this unit is currently making a push attack. Push legality uses
+   * this to distinguish legal counter-pushes from other displacement attacks.
+   */
+  readonly isPushing?: boolean;
+  /**
+   * Target id of this unit's active displacement attack. Push legality uses
+   * this to prove counter-push ownership when `isPushing` is true.
+   */
+  readonly displacementAttackTargetId?: string;
+  /**
    * Attacker id whose displacement physical attack currently targets this
    * unit. Charge/DFA reject when the owning attacker differs.
    */

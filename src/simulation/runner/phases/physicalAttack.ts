@@ -150,9 +150,14 @@ export function runPhysicalAttackPhase(options: {
           attackerEvading: unit.isEvading,
           attackerLoadingOrUnloadingCargo: unit.isLoadingOrUnloadingCargo,
           attackerId: unit.id,
+          targetId: target.id,
+          attackerTargetedByDisplacementAttackerId:
+            unit.targetedByDisplacementAttackerId,
           attackerBoardId: unit.boardId,
           targetBoardId: target.boardId,
           targetIsMakingDisplacementAttack: target.isMakingDisplacementAttack,
+          targetIsPushing: target.isPushing,
+          targetDisplacementAttackTargetId: target.displacementAttackTargetId,
           targetedByDisplacementAttackerId:
             target.targetedByDisplacementAttackerId,
           elevationDifference,
@@ -185,6 +190,7 @@ export function runPhysicalAttackPhase(options: {
 
     const attackInput: IPhysicalAttackInput = {
       attackerId: unit.id,
+      targetId: target.id,
       attackerTonnage: DEFAULT_TONNAGE,
       pilotingSkill: unit.piloting ?? DEFAULT_PILOTING,
       componentDamage,
@@ -204,6 +210,8 @@ export function runPhysicalAttackPhase(options: {
       targetUnitType: target.unitType,
       attackerEvading: unit.isEvading,
       attackerLoadingOrUnloadingCargo: unit.isLoadingOrUnloadingCargo,
+      attackerTargetedByDisplacementAttackerId:
+        unit.targetedByDisplacementAttackerId,
       heat: unit.heat,
       hasTSM: unit.hasTSM ?? false,
       isUnderwater,
@@ -219,6 +227,8 @@ export function runPhysicalAttackPhase(options: {
       targetIsSwarming: target.isSwarming,
       targetIsMakingDFA: target.isMakingDFA,
       targetIsMakingDisplacementAttack: target.isMakingDisplacementAttack,
+      targetIsPushing: target.isPushing,
+      targetDisplacementAttackTargetId: target.displacementAttackTargetId,
       targetedByDisplacementAttackerId: target.targetedByDisplacementAttackerId,
       targetIsAirborne: target.isAirborne,
       attackerOccupiedBuildingId: unit.occupiedBuildingId,

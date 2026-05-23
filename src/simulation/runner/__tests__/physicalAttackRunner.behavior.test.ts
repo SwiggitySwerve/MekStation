@@ -403,6 +403,32 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
+  it('rejects injected push declarations against targets pushing another unit before side effects', () => {
+    const { events, result } = runPhase('push', {
+      attacker: { facing: Facing.Southeast },
+      target: {
+        isMakingDisplacementAttack: true,
+        isPushing: true,
+        displacementAttackTargetId: 'third-unit',
+      },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'TargetPushingAnotherMek',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(damageEventsFor(events, 'player-1')).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
   it('rejects injected physical declarations against targets inside another building before side effects', () => {
     const { events, result } = runPhase('kick', {
       target: { occupiedBuildingId: 'building-east' },

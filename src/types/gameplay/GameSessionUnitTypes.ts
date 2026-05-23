@@ -158,6 +158,16 @@ export interface IGameUnit {
    */
   readonly isMakingDisplacementAttack?: boolean;
   /**
+   * Optional push lifecycle state copied into combat state. Push declarations
+   * use this plus `displacementAttackTargetId` to distinguish counter-pushes.
+   */
+  readonly isPushing?: boolean;
+  /**
+   * Optional target id of this unit's active displacement attack. Push legality
+   * allows counter-pushes only when this id points at the new attacker.
+   */
+  readonly displacementAttackTargetId?: string;
+  /**
    * Optional attacker id whose charge/DFA/push displacement currently targets
    * this unit. Charge/DFA reject when another attacker already owns it.
    */

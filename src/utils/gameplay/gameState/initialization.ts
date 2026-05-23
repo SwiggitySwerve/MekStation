@@ -235,6 +235,8 @@ export function createInitialUnitState(
     isSwarming: unit.isSwarming,
     isMakingDFA: unit.isMakingDFA,
     isMakingDisplacementAttack: unit.isMakingDisplacementAttack,
+    isPushing: unit.isPushing,
+    displacementAttackTargetId: unit.displacementAttackTargetId,
     targetedByDisplacementAttackerId: unit.targetedByDisplacementAttackerId,
     isAirborne: unit.isAirborne,
     occupiedBuildingId: unit.occupiedBuildingId,

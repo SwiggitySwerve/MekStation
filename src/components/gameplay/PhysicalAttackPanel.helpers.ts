@@ -51,6 +51,8 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   TargetMakingDFA: 'Target is making a DFA attack',
   TargetMakingDisplacementAttack: 'Target is making a displacement attack',
   TargetOfDisplacementAttack: 'Target is already being displaced',
+  TargetPushingAnotherMek: 'Target is pushing another unit',
+  AttackerTargetOfDisplacementAttack: 'Attacker is already being displaced',
   TargetAirborne: 'Target is airborne',
   TargetInsideBuilding: 'Target is inside another building',
   SelfTarget: 'Cannot target self',

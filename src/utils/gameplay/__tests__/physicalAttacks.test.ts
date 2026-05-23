@@ -1090,6 +1090,84 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows push displacement conflicts except legal counter-pushes', () => {
+      expect(
+        canPush(
+          makeInput({
+            attackerId: 'attacker',
+            targetId: 'target',
+            attackType: 'push',
+            targetIsMakingDisplacementAttack: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDisplacementAttack',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackerId: 'attacker',
+            targetId: 'target',
+            attackType: 'push',
+            targetIsMakingDisplacementAttack: true,
+            targetIsPushing: true,
+            targetDisplacementAttackTargetId: 'other-target',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPushingAnotherMek',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackerId: 'attacker',
+            targetId: 'target',
+            attackType: 'push',
+            attackerTargetedByDisplacementAttackerId: 'other-attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerTargetOfDisplacementAttack',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackerId: 'attacker',
+            targetId: 'target',
+            attackType: 'push',
+            targetedByDisplacementAttackerId: 'other-attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetOfDisplacementAttack',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackerId: 'attacker',
+            targetId: 'target',
+            attackType: 'push',
+            attackerTargetedByDisplacementAttackerId: 'target',
+            targetIsMakingDisplacementAttack: true,
+            targetIsPushing: true,
+            targetDisplacementAttackTargetId: 'attacker',
+            targetedByDisplacementAttackerId: 'attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+    });
+
     it('disallows targets inside another building across supported physical attack families', () => {
       const buildingTarget = {
         targetOccupiedBuildingId: 'building-east',

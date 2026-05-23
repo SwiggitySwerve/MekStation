@@ -188,10 +188,14 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     const unit = baseGameUnit({
       unitType: UnitType.BATTLEMECH,
       isMakingDisplacementAttack: true,
+      isPushing: true,
+      displacementAttackTargetId: 'target-2',
       targetedByDisplacementAttackerId: 'attacker-2',
     });
     const state = createInitialUnitState(unit, POSITION, Facing.North);
     expect(state.isMakingDisplacementAttack).toBe(true);
+    expect(state.isPushing).toBe(true);
+    expect(state.displacementAttackTargetId).toBe('target-2');
     expect(state.targetedByDisplacementAttackerId).toBe('attacker-2');
   });
 

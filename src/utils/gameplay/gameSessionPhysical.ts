@@ -189,6 +189,7 @@ export function declarePhysicalAttack(
 
   const input: IPhysicalAttackInput = {
     attackerId,
+    targetId,
     attackerTonnage: context.attackerTonnage,
     pilotingSkill: context.pilotingSkill,
     componentDamage,
@@ -207,6 +208,8 @@ export function declarePhysicalAttack(
     targetUnitType: targetState?.unitType,
     attackerEvading: attackerState.isEvading,
     attackerLoadingOrUnloadingCargo: attackerState.isLoadingOrUnloadingCargo,
+    attackerTargetedByDisplacementAttackerId:
+      attackerState.targetedByDisplacementAttackerId,
     attackerProne: attackerState.prone,
     targetProne: targetState?.prone,
     targetMovementComplete: context.targetMovementComplete,
@@ -219,6 +222,8 @@ export function declarePhysicalAttack(
     targetIsSwarming: targetState?.isSwarming,
     targetIsMakingDFA: targetState?.isMakingDFA,
     targetIsMakingDisplacementAttack: targetState?.isMakingDisplacementAttack,
+    targetIsPushing: targetState?.isPushing,
+    targetDisplacementAttackTargetId: targetState?.displacementAttackTargetId,
     targetedByDisplacementAttackerId:
       targetState?.targetedByDisplacementAttackerId,
     targetIsAirborne: targetState?.isAirborne,
@@ -388,6 +393,7 @@ export function resolveAllPhysicalAttacks(
 
     const input: IPhysicalAttackInput = {
       attackerId: payload.attackerId,
+      targetId: payload.targetId,
       attackerTonnage: context.attackerTonnage,
       pilotingSkill: context.pilotingSkill,
       componentDamage,
@@ -408,6 +414,8 @@ export function resolveAllPhysicalAttacks(
       targetUnitType: targetState.unitType,
       attackerEvading: attackerState.isEvading,
       attackerLoadingOrUnloadingCargo: attackerState.isLoadingOrUnloadingCargo,
+      attackerTargetedByDisplacementAttackerId:
+        attackerState.targetedByDisplacementAttackerId,
       attackerProne: attackerState.prone,
       targetProne: targetState.prone,
       targetMovementComplete: context.targetMovementComplete,
@@ -420,6 +428,8 @@ export function resolveAllPhysicalAttacks(
       targetIsSwarming: targetState.isSwarming,
       targetIsMakingDFA: targetState.isMakingDFA,
       targetIsMakingDisplacementAttack: targetState.isMakingDisplacementAttack,
+      targetIsPushing: targetState.isPushing,
+      targetDisplacementAttackTargetId: targetState.displacementAttackTargetId,
       targetedByDisplacementAttackerId:
         targetState.targetedByDisplacementAttackerId,
       targetIsAirborne: targetState.isAirborne,

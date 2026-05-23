@@ -289,10 +289,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canPush consumes elevationDifference and rejects non-zero target elevation deltas',
     PUSH_ACTION_LINES,
   ),
-  'push.displacement-state-conflicts': unsupported(
+  'push.displacement-state-conflicts': integrated(
     'push.displacement-state-conflicts',
     'push',
-    'push restrictions do not model target/attacker participation in another push, charge, or DFA',
+    'canPush consumes targetIsMakingDisplacementAttack, targetIsPushing, targetDisplacementAttackTargetId, attackerTargetedByDisplacementAttackerId, and targetedByDisplacementAttackerId to reject non-push displacement targets, targets pushing another Mek, attackers already targeted by another displacement attacker, and targets already owned by another displacement attacker while preserving source-backed counter-push allowances',
     PUSH_ACTION_LINES,
   ),
   'push.target-directly-ahead': integrated(

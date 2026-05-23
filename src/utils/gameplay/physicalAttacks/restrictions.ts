@@ -563,6 +563,47 @@ export function canPush(
     };
   }
 
+  if (input.targetIsMakingDisplacementAttack && !input.targetIsPushing) {
+    return {
+      allowed: false,
+      reason: 'Target is making a charge/DFA attack',
+      reasonCode: 'TargetMakingDisplacementAttack',
+    };
+  }
+
+  if (
+    input.targetIsPushing &&
+    input.targetDisplacementAttackTargetId !== input.attackerId
+  ) {
+    return {
+      allowed: false,
+      reason: 'Target is pushing another Mek',
+      reasonCode: 'TargetPushingAnotherMek',
+    };
+  }
+
+  if (
+    input.attackerTargetedByDisplacementAttackerId !== undefined &&
+    input.attackerTargetedByDisplacementAttackerId !== input.targetId
+  ) {
+    return {
+      allowed: false,
+      reason: 'Attacker is the target of another push/charge/DFA',
+      reasonCode: 'AttackerTargetOfDisplacementAttack',
+    };
+  }
+
+  if (
+    input.targetedByDisplacementAttackerId !== undefined &&
+    input.targetedByDisplacementAttackerId !== input.attackerId
+  ) {
+    return {
+      allowed: false,
+      reason: 'Target is the target of another push/charge/DFA',
+      reasonCode: 'TargetOfDisplacementAttack',
+    };
+  }
+
   if (input.attackerProne) {
     return {
       allowed: false,

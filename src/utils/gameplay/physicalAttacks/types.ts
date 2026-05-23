@@ -96,6 +96,8 @@ export type PhysicalAttackInvalidReason =
   | 'TargetMakingDFA'
   | 'TargetMakingDisplacementAttack'
   | 'TargetOfDisplacementAttack'
+  | 'TargetPushingAnotherMek'
+  | 'AttackerTargetOfDisplacementAttack'
   | 'TargetAirborne'
   | 'TargetInsideBuilding'
   | 'SelfTarget'
@@ -107,6 +109,7 @@ export type PhysicalAttackInvalidReason =
 
 export interface IPhysicalAttackInput {
   readonly attackerId?: string;
+  readonly targetId?: string;
   readonly attackerTonnage: number;
   readonly pilotingSkill: number;
   readonly componentDamage: IComponentDamageState;
@@ -152,6 +155,11 @@ export interface IPhysicalAttackInput {
    * unloading cargo cannot make physical attacks.
    */
   readonly attackerLoadingOrUnloadingCargo?: boolean;
+  /**
+   * Source-backed push legality: a unit that is already the target of a
+   * displacement attack can only counter-push the unit that owns that attack.
+   */
+  readonly attackerTargetedByDisplacementAttackerId?: string;
   readonly attackerProne?: boolean;
   readonly targetTonnage?: number;
   /**
@@ -201,6 +209,12 @@ export interface IPhysicalAttackInput {
    * attack cannot be declared as charge/DFA targets.
    */
   readonly targetIsMakingDisplacementAttack?: boolean;
+  /**
+   * Source-backed push legality: targets currently pushing another unit can
+   * only be counter-pushed by that unit.
+   */
+  readonly targetIsPushing?: boolean;
+  readonly targetDisplacementAttackTargetId?: string;
   /**
    * Source-backed charge/DFA legality: a target already owned by another
    * displacement attacker cannot be selected.
@@ -375,6 +389,7 @@ export interface IPhysicalAttackRestriction {
 
 export interface IChooseBestPhysicalAttackOptions {
   attackerId?: string;
+  targetId?: string;
   canReachForCharge?: boolean;
   hexesMoved?: number;
   isJumping?: boolean;
@@ -388,10 +403,13 @@ export interface IChooseBestPhysicalAttackOptions {
   unitQuirks?: readonly string[];
   attackerEvading?: boolean;
   attackerLoadingOrUnloadingCargo?: boolean;
+  attackerTargetedByDisplacementAttackerId?: string;
   attackerBoardId?: string;
   targetBoardId?: string;
   elevationDifference?: number;
   targetIsMakingDisplacementAttack?: boolean;
+  targetIsPushing?: boolean;
+  targetDisplacementAttackTargetId?: string;
   targetedByDisplacementAttackerId?: string;
 }
 
