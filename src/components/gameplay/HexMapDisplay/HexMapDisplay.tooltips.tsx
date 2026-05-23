@@ -15,6 +15,7 @@ import {
   formatTerrainFeaturesLabel,
 } from './HexCell.labels';
 import { CombinedTacticalHoverTooltip } from './HexMapDisplay.combinedTooltip';
+import { MapMovementPointLegend } from './HexMapDisplay.mpLegend';
 import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
@@ -103,42 +104,7 @@ export function MapHtmlOverlays({
         !hoverCombatInfo &&
         hoverTerrainInfo && <TerrainHoverTooltip terrain={hoverTerrainInfo} />}
 
-      {mpLegend && (
-        <div
-          className="pointer-events-none absolute bottom-4 left-4 flex flex-col gap-1 rounded bg-white/90 p-2 text-xs shadow"
-          data-testid="mp-legend"
-        >
-          {(['walk', 'run', 'jump'] as const).map((kind) => {
-            const isActive = mpLegend.active === kind;
-            const isJumpDisabled = kind === 'jump' && !mpLegend.jumpAvailable;
-            const swatch =
-              kind === 'walk'
-                ? 'bg-green-500'
-                : kind === 'run'
-                  ? 'bg-yellow-500'
-                  : 'bg-blue-500';
-            const label =
-              kind === 'walk' ? 'Walk' : kind === 'run' ? 'Run' : 'Jump';
-            return (
-              <div
-                key={kind}
-                className={`flex items-center gap-2 rounded px-1 py-0.5 ${
-                  isActive
-                    ? 'font-semibold ring-1 ring-slate-700'
-                    : 'opacity-70'
-                } ${isJumpDisabled ? 'opacity-40' : ''}`}
-                data-testid={`mp-legend-${kind}`}
-                data-active={isActive ? 'true' : undefined}
-                data-disabled={isJumpDisabled ? 'true' : undefined}
-                title={isJumpDisabled ? 'No jump capability' : undefined}
-              >
-                <span className={`inline-block h-3 w-3 rounded-sm ${swatch}`} />
-                <span>{label}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {mpLegend && <MapMovementPointLegend {...mpLegend} />}
     </>
   );
 }

@@ -290,6 +290,55 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('exposes movement mode legend state and disabled jump reason', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        mpLegend={{ active: 'run', jumpAvailable: false }}
+      />,
+    );
+
+    expect(screen.getByTestId('mp-legend')).toHaveClass('pointer-events-none');
+    expect(screen.getByTestId('mp-legend-walk')).toHaveAttribute(
+      'aria-label',
+      'Walk movement range; inactive',
+    );
+    expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
+      'data-active',
+      'true',
+    );
+    expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
+      'aria-label',
+      'Run movement range; active',
+    );
+    expect(screen.getByTestId('mp-legend-jump')).toHaveClass(
+      'pointer-events-auto',
+    );
+    expect(screen.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'data-disabled',
+      'true',
+    );
+    expect(screen.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'data-disabled-reason',
+      'No jump capability',
+    );
+    expect(screen.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'title',
+      'No jump capability',
+    );
+    expect(screen.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'aria-label',
+      'Jump movement range; inactive; disabled: No jump capability',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders readable elevation labels and movement cost metadata on hexes', () => {
     const { unmount } = render(
       <HexMapDisplay
