@@ -204,6 +204,20 @@ interface UnitTokensLayerProps {
   >;
 }
 
+function deriveIsometricVisibilityRule(
+  token: IUnitToken,
+): 'hidden' | 'lastKnown' | undefined {
+  if (token.fogStatus === 'hidden') return 'hidden';
+  if (token.fogStatus === 'lastKnown') return 'lastKnown';
+  return undefined;
+}
+
+function describeIsometricVisibilityRule(rule: 'hidden' | 'lastKnown'): string {
+  return rule === 'hidden'
+    ? 'Hidden contact is limited by fog or visibility rules'
+    : 'Last known contact is limited to stale visibility information';
+}
+
 export function UnitTokensLayer({
   orderedTokens,
   movementAnimationsByUnit,
@@ -217,26 +231,38 @@ export function UnitTokensLayer({
 }: UnitTokensLayerProps): React.ReactElement {
   return (
     <g>
-      {orderedTokens.map((token) => (
-        <UnitTokenForType
-          key={token.unitId}
-          token={token}
-          movementAnimation={movementAnimationsByUnit.get(token.unitId)}
-          onClick={onTokenClick}
-          onDoubleClick={onTokenDoubleClick}
-          events={events}
-          allTokens={tokens}
-          isOcclusionHighlighted={
-            isIsometricView &&
-            (token.isSelected || isometricOcclusionUnitIds.has(token.unitId))
-          }
-          isometricOcclusionReason={
-            isIsometricView
-              ? isometricOcclusionInfoByUnit?.get(token.unitId)?.reason
-              : undefined
-          }
-        />
-      ))}
+      {orderedTokens.map((token) => {
+        const visibilityRule = isIsometricView
+          ? deriveIsometricVisibilityRule(token)
+          : undefined;
+
+        return (
+          <UnitTokenForType
+            key={token.unitId}
+            token={token}
+            movementAnimation={movementAnimationsByUnit.get(token.unitId)}
+            onClick={onTokenClick}
+            onDoubleClick={onTokenDoubleClick}
+            events={events}
+            allTokens={tokens}
+            isOcclusionHighlighted={
+              isIsometricView &&
+              (token.isSelected || isometricOcclusionUnitIds.has(token.unitId))
+            }
+            isometricOcclusionReason={
+              isIsometricView
+                ? isometricOcclusionInfoByUnit?.get(token.unitId)?.reason
+                : undefined
+            }
+            isometricVisibilityRule={visibilityRule}
+            isometricVisibilityRuleReason={
+              visibilityRule
+                ? describeIsometricVisibilityRule(visibilityRule)
+                : undefined
+            }
+          />
+        );
+      })}
     </g>
   );
 }

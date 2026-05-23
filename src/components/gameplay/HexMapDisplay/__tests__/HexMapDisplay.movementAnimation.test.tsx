@@ -1408,6 +1408,98 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('distinguishes isometric fog visibility rules from terrain occlusion', () => {
+    const hiddenContact = makeToken({
+      unitId: 'hidden-contact',
+      name: 'Hidden scout',
+      side: GameSide.Opponent,
+      fogStatus: 'hidden',
+      position: { q: 0, r: 0 },
+    });
+    const lastKnownContact = makeToken({
+      unitId: 'last-known-contact',
+      name: 'Last known scout',
+      side: GameSide.Opponent,
+      fogStatus: 'lastKnown',
+      position: { q: 2, r: 0 },
+      lastKnownPosition: { q: -1, r: 0 },
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={2}
+        tokens={[hiddenContact, lastKnownContact]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 4,
+            features: [{ type: TerrainType.Building, level: 1 }],
+          },
+        ]}
+      />,
+    );
+
+    expect(
+      screen.queryByTestId('isometric-visibility-rule-hidden-contact'),
+    ).toBeNull();
+    expect(screen.getByTestId('fog-marker-hidden-contact')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    const hiddenToken = screen.getByTestId('unit-token-hidden-contact');
+    expect(hiddenToken).toHaveAttribute(
+      'data-isometric-visibility-rule',
+      'hidden',
+    );
+    expect(hiddenToken).toHaveAttribute(
+      'data-isometric-visibility-rule-reason',
+      'Hidden contact is limited by fog or visibility rules',
+    );
+    expect(hiddenToken).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        'Hidden contact is limited by fog or visibility rules',
+      ),
+    );
+    expect(hiddenToken).not.toHaveAttribute('data-visibility-boost', 'true');
+    expect(hiddenToken).not.toHaveAttribute('data-isometric-occlusion-reason');
+    expect(
+      screen.getByTestId('isometric-scene-token-hidden-contact'),
+    ).not.toHaveAttribute('data-isometric-foreground-boost', 'true');
+    expect(
+      screen.queryByTestId('isometric-visibility-halo-hidden-contact'),
+    ).toBeNull();
+    expect(
+      screen.queryByTestId('isometric-visibility-reason-hidden-contact'),
+    ).toBeNull();
+    expect(
+      screen.getByTestId('isometric-visibility-rule-hidden-contact'),
+    ).toHaveTextContent('FOG');
+    expect(screen.getByTestId('fog-marker-hidden-contact')).toBeInTheDocument();
+
+    const lastKnownToken = screen.getByTestId('unit-token-last-known-contact');
+    expect(lastKnownToken).toHaveAttribute(
+      'data-isometric-visibility-rule',
+      'lastKnown',
+    );
+    expect(lastKnownToken).toHaveAttribute(
+      'data-isometric-visibility-rule-reason',
+      'Last known contact is limited to stale visibility information',
+    );
+    expect(
+      screen.getByTestId('isometric-visibility-rule-last-known-contact'),
+    ).toHaveTextContent('LAST');
+    expect(
+      screen.getByTestId('fog-marker-last-known-contact'),
+    ).toBeInTheDocument();
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('highlights the selected unit for isometric occlusion readability', () => {
     const selected = makeToken({
       unitId: 'selected',

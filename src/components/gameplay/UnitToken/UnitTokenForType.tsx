@@ -26,6 +26,8 @@ import { useElectedSpotters } from '@/components/gameplay/TacticalCommandShell';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { MovementType, TokenUnitType } from '@/types/gameplay';
 
+import type { IsometricVisibilityRule } from './UnitTokenForType.effects';
+
 import { AerospaceToken } from './AerospaceToken';
 import { BattleArmorToken } from './BattleArmorToken';
 import { InfantryToken } from './InfantryToken';
@@ -33,6 +35,7 @@ import { MechToken } from './MechToken';
 import { ProtoMechToken } from './ProtoMechToken';
 import {
   renderFogMarker,
+  renderIsometricVisibilityRuleBadge,
   renderJumpArc,
   TokenVisualEffects,
 } from './UnitTokenForType.effects';
@@ -68,6 +71,9 @@ export interface UnitTokenForTypeProps {
   /** Render an always-visible halo for selected units in the isometric view. */
   isOcclusionHighlighted?: boolean;
   isometricOcclusionReason?: string;
+  /** Isometric-only rule reason for contacts limited by fog/visibility rules. */
+  isometricVisibilityRule?: IsometricVisibilityRule;
+  isometricVisibilityRuleReason?: string;
   /**
    * All tokens on the map — used to locate the host mech when BA is mounted.
    * Only the token whose `unitId === baToken.mountedOn` is consulted.
@@ -97,6 +103,8 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   allTokens,
   isOcclusionHighlighted = false,
   isometricOcclusionReason,
+  isometricVisibilityRule,
+  isometricVisibilityRuleReason,
 }: UnitTokenForTypeProps): React.ReactElement | null {
   const eventState = useMemo(
     () => projectEvents(token.unitId, events),
@@ -220,15 +228,20 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
       : token.fogStatus === 'lastKnown'
         ? 0.62
         : 1;
-  const isometricVisibilityLabel = isOcclusionHighlighted
-    ? (isometricOcclusionReason ?? 'Isometric visibility highlighted')
-    : undefined;
+  const isometricVisibilityLabel = [
+    isOcclusionHighlighted
+      ? (isometricOcclusionReason ?? 'Isometric visibility highlighted')
+      : null,
+    isometricVisibilityRuleReason,
+  ]
+    .filter((part): part is string => Boolean(part))
+    .join('; ');
   const tokenAriaLabel = [
     `Unit ${renderToken.name}`,
     `id ${renderToken.unitId}`,
     `side ${renderToken.side}`,
     isSpotter ? 'indirect-fire spotter' : null,
-    isometricVisibilityLabel,
+    isometricVisibilityLabel || null,
   ]
     .filter((part): part is string => Boolean(part))
     .join('; ');
@@ -250,6 +263,8 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     'data-spotter': isSpotter ? 'true' : undefined,
     'data-visibility-boost': isOcclusionHighlighted ? 'true' : undefined,
     'data-isometric-occlusion-reason': isometricOcclusionReason,
+    'data-isometric-visibility-rule': isometricVisibilityRule,
+    'data-isometric-visibility-rule-reason': isometricVisibilityRuleReason,
     'aria-label': tokenAriaLabel,
   };
 
@@ -307,6 +322,11 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
                   ELEV
                 </text>
               </g>
+            )}
+            {renderIsometricVisibilityRuleBadge(
+              token.unitId,
+              isometricVisibilityRule,
+              isometricVisibilityRuleReason,
             )}
             {isSpotter && (
               <circle
