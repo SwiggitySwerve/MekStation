@@ -42,7 +42,10 @@ import {
   MovementStandUpBadge,
 } from './HexCell.movementBadges';
 import { ProjectionStatusBadge } from './HexCell.projectionBadges';
-import { isIsometricProjection } from './projection';
+import {
+  isIsometricProjection,
+  type IsometricTerrainOccluderInfo,
+} from './projection';
 import {
   hexToPixel,
   hexPath,
@@ -105,6 +108,7 @@ export interface HexCellProps {
   tacticalProjectionStatus?: TacticalMapHexProjectionStatus;
   tacticalProjectionBlockedReasons?: readonly string[];
   tacticalProjectionExplanation?: string;
+  isometricOccluderInfo?: IsometricTerrainOccluderInfo;
   showCoordinate: boolean;
   projectionMode?: MapProjectionMode;
   /**
@@ -145,6 +149,7 @@ export const HexCell = React.memo(function HexCell({
   tacticalProjectionStatus,
   tacticalProjectionBlockedReasons,
   tacticalProjectionExplanation,
+  isometricOccluderInfo,
   showCoordinate,
   projectionMode = 'topDown',
   hoverMpCost,
@@ -209,6 +214,19 @@ export const HexCell = React.memo(function HexCell({
 
   const isJumpTile =
     movementInfo?.reachable && movementInfo.movementType === MovementType.Jump;
+  const isIsometricOccluder =
+    isIsometricTile &&
+    isometricOccluderInfo !== undefined &&
+    isometricOccluderInfo.occludedUnitIds.length > 0;
+  const occludedUnitIds = isIsometricOccluder
+    ? isometricOccluderInfo.occludedUnitIds.join(',')
+    : undefined;
+  const occlusionReasons = isIsometricOccluder
+    ? isometricOccluderInfo.reasons.join('|')
+    : undefined;
+  const occluderLabel = isIsometricOccluder
+    ? `; occludes units ${occludedUnitIds}`
+    : '';
 
   /*
    * Per `add-terrain-rendering` task 5: the terrain art layer
@@ -235,7 +253,7 @@ export const HexCell = React.memo(function HexCell({
     movementLabel ? `; ${movementLabel}` : ''
   }${combatLabel ? `; ${combatLabel}` : ''}${
     pathLabel ? `; ${pathLabel}` : ''
-  }`;
+  }${occluderLabel}`;
 
   return (
     <g
@@ -297,6 +315,13 @@ export const HexCell = React.memo(function HexCell({
           : undefined
       }
       data-tactical-projection-explanation={tacticalProjectionExplanation}
+      data-isometric-occludes-units={occludedUnitIds}
+      data-isometric-occlusion-reasons={occlusionReasons}
+      data-isometric-occluder-elevation={
+        isIsometricOccluder
+          ? isometricOccluderInfo.occluderElevation
+          : undefined
+      }
       data-combat-range-bracket={combatInfo?.rangeBracket}
       data-combat-distance={combatInfo?.distance}
       data-combat-los-state={combatInfo?.losState}
@@ -368,6 +393,9 @@ export const HexCell = React.memo(function HexCell({
         y={y}
         hex={hex}
         elevationLayerCount={elevationLayerCount}
+        isometricOccluderInfo={
+          isIsometricOccluder ? isometricOccluderInfo : undefined
+        }
       />
       {hasTerrainArt && terrainLookup && (
         <TerrainArtLayer
@@ -399,6 +427,48 @@ export const HexCell = React.memo(function HexCell({
           pointerEvents="none"
           data-testid={`jump-pattern-${hex.q}-${hex.r}`}
         />
+      )}
+      {isIsometricOccluder && (
+        <g
+          pointerEvents="none"
+          data-testid={`hex-isometric-occluder-highlight-${hex.q}-${hex.r}`}
+          data-isometric-occludes-units={occludedUnitIds}
+          data-isometric-occlusion-reasons={occlusionReasons}
+          aria-label={`Tall elevation ${elevationLabel} may hide units ${occludedUnitIds}`}
+        >
+          <title>
+            {`Tall elevation ${elevationLabel} may hide units ${occludedUnitIds}`}
+          </title>
+          <path
+            d={pathD}
+            fill="none"
+            stroke="#38bdf8"
+            strokeWidth={2.25}
+            strokeDasharray="5 3"
+            opacity={0.92}
+          />
+          <rect
+            x={x - 18}
+            y={y - 25}
+            width={36}
+            height={12}
+            rx={2}
+            fill="#0f172a"
+            fillOpacity={0.88}
+            stroke="#38bdf8"
+            strokeWidth={0.75}
+          />
+          <text
+            x={x}
+            y={y - 16}
+            textAnchor="middle"
+            fontSize={8}
+            fontWeight="bold"
+            fill="#e0f2fe"
+          >
+            OCC
+          </text>
+        </g>
       )}
       {showCoordinate && (
         <text x={x} y={y + 4} textAnchor="middle" fontSize={10} fill="#64748b">

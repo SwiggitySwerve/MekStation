@@ -61,6 +61,14 @@ export interface IsometricTerrainOcclusionInfo {
   readonly reason: string;
 }
 
+export interface IsometricTerrainOccluderInfo {
+  readonly occluderHex: IHexCoordinate;
+  readonly occluderElevation: number;
+  readonly rotationStep: number;
+  readonly occludedUnitIds: readonly string[];
+  readonly reasons: readonly string[];
+}
+
 function displayPositionForToken(token: IUnitToken): IHexCoordinate {
   if (token.fogStatus === 'lastKnown' && token.lastKnownPosition) {
     return token.lastKnownPosition;
@@ -141,4 +149,53 @@ export function deriveIsometricTerrainOcclusionInfo({
   }
 
   return info;
+}
+
+export function deriveIsometricTerrainOccluderInfo(
+  terrainOcclusionInfo: readonly IsometricTerrainOcclusionInfo[],
+): ReadonlyMap<string, IsometricTerrainOccluderInfo> {
+  const lookup = new Map<
+    string,
+    {
+      occluderHex: IHexCoordinate;
+      occluderElevation: number;
+      rotationStep: number;
+      occludedUnitIds: string[];
+      reasons: string[];
+    }
+  >();
+
+  for (const info of terrainOcclusionInfo) {
+    const key = coordToKey(info.occluderHex);
+    let occluder = lookup.get(key);
+    if (!occluder) {
+      occluder = {
+        occluderHex: info.occluderHex,
+        occluderElevation: info.occluderElevation,
+        rotationStep: info.rotationStep,
+        occludedUnitIds: [],
+        reasons: [],
+      };
+      lookup.set(key, occluder);
+    }
+    if (!occluder.occludedUnitIds.includes(info.unitId)) {
+      occluder.occludedUnitIds.push(info.unitId);
+    }
+    if (!occluder.reasons.includes(info.reason)) {
+      occluder.reasons.push(info.reason);
+    }
+  }
+
+  return new Map(
+    Array.from(lookup.entries()).map(([key, value]) => [
+      key,
+      {
+        occluderHex: value.occluderHex,
+        occluderElevation: value.occluderElevation,
+        rotationStep: value.rotationStep,
+        occludedUnitIds: value.occludedUnitIds,
+        reasons: value.reasons,
+      },
+    ]),
+  );
 }

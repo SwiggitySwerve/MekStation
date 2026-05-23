@@ -2,6 +2,8 @@ import React from 'react';
 
 import type { IHexCoordinate } from '@/types/gameplay';
 
+import type { IsometricTerrainOccluderInfo } from './projection';
+
 import { formatElevationLabel } from './HexCell.labels';
 import { hexPath } from './renderHelpers';
 
@@ -24,19 +26,35 @@ export function IsometricElevationStack({
   y,
   hex,
   elevationLayerCount,
+  isometricOccluderInfo,
 }: {
   readonly x: number;
   readonly y: number;
   readonly hex: IHexCoordinate;
   readonly elevationLayerCount: number;
+  readonly isometricOccluderInfo?: IsometricTerrainOccluderInfo;
 }): React.ReactElement | null {
   if (elevationLayerCount <= 0) return null;
+
+  const occludedUnitIds = isometricOccluderInfo?.occludedUnitIds ?? [];
+  const occlusionReasons = isometricOccluderInfo?.reasons ?? [];
+  const occludesUnits =
+    occludedUnitIds.length > 0 ? occludedUnitIds.join(',') : undefined;
+  const occluderTitle = occludesUnits
+    ? `Elevation stack ${hex.q},${hex.r} may hide units ${occludesUnits}`
+    : undefined;
 
   return (
     <g
       pointerEvents="none"
       data-testid={`hex-elevation-stack-${hex.q}-${hex.r}`}
+      data-isometric-occludes-units={occludesUnits}
+      data-isometric-occlusion-reasons={
+        occlusionReasons.length > 0 ? occlusionReasons.join('|') : undefined
+      }
+      aria-label={occluderTitle}
     >
+      {occluderTitle && <title>{occluderTitle}</title>}
       {Array.from({ length: elevationLayerCount }, (_, i) => {
         const layer = elevationLayerCount - i;
         const offset = layer * ISOMETRIC_ELEVATION_LAYER_OFFSET;
@@ -54,9 +72,10 @@ export function IsometricElevationStack({
               d={hexPath(x, y + offset)}
               fill="#475569"
               opacity={0.18 + (layer / elevationLayerCount) * 0.08}
-              stroke="#1e293b"
-              strokeOpacity={0.28}
-              strokeWidth={0.75}
+              stroke={occludesUnits ? '#38bdf8' : '#1e293b'}
+              strokeOpacity={occludesUnits ? 0.78 : 0.28}
+              strokeWidth={occludesUnits ? 1.1 : 0.75}
+              strokeDasharray={occludesUnits ? '4 3' : undefined}
             />
             <rect
               x={x + 23}

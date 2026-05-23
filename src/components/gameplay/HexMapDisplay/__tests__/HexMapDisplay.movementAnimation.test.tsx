@@ -1611,6 +1611,25 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-isometric-occlusion-reason',
       'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
     );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-isometric-occluder-elevation',
+      '4',
+    );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-isometric-occlusion-reasons',
+      'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+    );
+    expect(
+      screen.getByTestId('hex-isometric-occluder-highlight-1-0'),
+    ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
+    expect(screen.getByTestId('hex-elevation-stack-1-0')).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
 
     fireEvent.click(screen.getByTestId('projection-rotate-right'));
     fireEvent.click(screen.getByTestId('projection-rotate-right'));
@@ -1631,6 +1650,15 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.queryByTestId('isometric-visibility-reason-occluded'),
     ).toBeNull();
+    expect(screen.getByTestId('hex-1-0')).not.toHaveAttribute(
+      'data-isometric-occludes-units',
+    );
+    expect(
+      screen.queryByTestId('hex-isometric-occluder-highlight-1-0'),
+    ).toBeNull();
+    expect(screen.getByTestId('hex-elevation-stack-1-0')).not.toHaveAttribute(
+      'data-isometric-occludes-units',
+    );
 
     act(() => {
       unmount();

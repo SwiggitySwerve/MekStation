@@ -28,6 +28,7 @@ import {
   useCombatRangeLookup,
   useHexGrid,
   useHighlightPathLookup,
+  useIsometricOccluderInfo,
   useIsometricOcclusionIds,
   useIsometricOcclusionInfo,
   useMovementAnimationsByUnit,
@@ -224,6 +225,10 @@ export function useHexMapDisplayState({
     terrainLookup,
     rotationStep: interaction.isometricRotationStep,
   });
+  const isometricTerrainOccluderInfoByHex = useIsometricOccluderInfo({
+    isIsometricView,
+    isometricTerrainOcclusionInfoByUnit,
+  });
   const isometricOcclusionUnitIds = useIsometricOcclusionIds({
     isIsometricView,
     tokens,
@@ -313,6 +318,7 @@ export function useHexMapDisplayState({
       const projection = tacticalMapProjectionLookup.get(key);
       const movementInfo = projection?.movement;
       const pathIndex = projection?.pathIndex;
+      const isometricOccluderInfo = isometricTerrainOccluderInfoByHex.get(key);
       return (
         <HexCell
           key={`hex-cell-${key}`}
@@ -330,6 +336,7 @@ export function useHexMapDisplayState({
           tacticalProjectionStatus={projection?.status}
           tacticalProjectionBlockedReasons={projection?.blockedReasons}
           tacticalProjectionExplanation={projection?.explanation}
+          isometricOccluderInfo={isometricOccluderInfo || undefined}
           showCoordinate={showCoordinates}
           projectionMode={interaction.projectionMode}
           hoverMpCost={
@@ -356,6 +363,7 @@ export function useHexMapDisplayState({
       hoverMpCost,
       hoverUnreachable,
       interaction.projectionMode,
+      isometricTerrainOccluderInfoByHex,
       showCoordinates,
       tacticalMapProjectionLookup,
       terrainLookup,

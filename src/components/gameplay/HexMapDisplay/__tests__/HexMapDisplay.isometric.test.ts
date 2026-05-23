@@ -6,7 +6,10 @@ import {
   buildIsometricSceneItems,
   type IsometricSceneItem,
 } from '../HexMapDisplay.isometric';
-import { deriveIsometricTerrainOcclusionInfo } from '../projection';
+import {
+  deriveIsometricTerrainOccluderInfo,
+  deriveIsometricTerrainOcclusionInfo,
+} from '../projection';
 
 function makeTerrain(
   q: number,
@@ -163,5 +166,31 @@ describe('HexMapDisplay isometric projection helpers', () => {
       reason: 'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
     });
     expect(rearCameraInfo).toHaveLength(0);
+  });
+
+  it('groups hidden units by the tall terrain hex that may occlude them', () => {
+    const terrainLookup = makeTerrainLookup([
+      makeTerrain(1, 0, 4, TerrainType.Building),
+    ]);
+    const tokens = [
+      makeToken({ unitId: 'occluded-a', position: { q: 0, r: 0 } }),
+      makeToken({ unitId: 'occluded-b', position: { q: 0, r: -1 } }),
+    ];
+
+    const occlusionInfo = deriveIsometricTerrainOcclusionInfo({
+      tokens,
+      terrainLookup,
+      rotationStep: 0,
+    });
+    const occluderInfo = deriveIsometricTerrainOccluderInfo(occlusionInfo);
+
+    expect(occluderInfo.size).toBe(1);
+    expect(occluderInfo.get('1,0')).toMatchObject({
+      occluderHex: { q: 1, r: 0 },
+      occluderElevation: 4,
+      rotationStep: 0,
+      occludedUnitIds: ['occluded-a', 'occluded-b'],
+      reasons: ['Elevated terrain +4 at (1, 0) may hide unit at elevation +0'],
+    });
   });
 });

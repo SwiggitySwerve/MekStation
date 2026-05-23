@@ -22,9 +22,13 @@ import {
   type UiFiringArc,
 } from '@/utils/overlays/arcClassifier';
 
-import type { IsometricTerrainOcclusionInfo } from './projection';
+import type {
+  IsometricTerrainOccluderInfo,
+  IsometricTerrainOcclusionInfo,
+} from './projection';
 
 import {
+  deriveIsometricTerrainOccluderInfo,
   deriveIsometricTerrainOcclusionInfo,
   isometricDepthKey,
 } from './projection';
@@ -268,6 +272,26 @@ export function useIsometricOcclusionIds({
     isometricTerrainOcclusionInfoByUnit,
     tokens,
   ]);
+}
+
+export function useIsometricOccluderInfo({
+  isIsometricView,
+  isometricTerrainOcclusionInfoByUnit,
+}: {
+  readonly isIsometricView: boolean;
+  readonly isometricTerrainOcclusionInfoByUnit: ReadonlyMap<
+    string,
+    IsometricTerrainOcclusionInfo
+  >;
+}): ReadonlyMap<string, IsometricTerrainOccluderInfo> {
+  return useMemo(() => {
+    if (!isIsometricView || isometricTerrainOcclusionInfoByUnit.size === 0) {
+      return new Map<string, IsometricTerrainOccluderInfo>();
+    }
+    return deriveIsometricTerrainOccluderInfo(
+      Array.from(isometricTerrainOcclusionInfoByUnit.values()),
+    );
+  }, [isIsometricView, isometricTerrainOcclusionInfoByUnit]);
 }
 
 export function useSelectedWeaponMaxRange({
