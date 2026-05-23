@@ -13,6 +13,7 @@ import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
   chooseBestPhysicalAttack,
   computePushDisplacement,
+  BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
   IPhysicalAttackInput,
   isTargetDirectlyAhead,
   isValidDisplacement,
@@ -324,7 +325,11 @@ export function runPhysicalAttackPhase(options: {
         : isValidDisplacement(
             grid,
             computePushDisplacement(target.position, unit.facing),
-            target.id,
+            {
+              excludeUnitId: target.id,
+              source: target.position,
+              maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+            },
           );
 
     const attackInput: IPhysicalAttackInput = {

@@ -22,6 +22,7 @@ import { isInBounds, isOccupied } from '../hexGrid';
 import { hexNeighbor } from '../hexMath';
 
 const DISPLACEMENT_OFFSETS = [0, 1, 5, 2, 4, 3] as const;
+export const BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE = 2;
 
 export interface IDfaDisplacementOutcome {
   readonly displacements: readonly IPhysicalDisplacement[];
@@ -30,6 +31,21 @@ export interface IDfaDisplacementOutcome {
 
 export interface IChargeDisplacementOutcome {
   readonly displacements: readonly IPhysicalDisplacement[];
+}
+
+export interface IDisplacementLegalityOptions {
+  readonly excludeUnitId?: string;
+  readonly source?: IHexCoordinate;
+  readonly maxElevationChange?: number;
+}
+
+function normalizeDisplacementLegalityOptions(
+  optionsOrExcludeUnitId?: string | IDisplacementLegalityOptions,
+): IDisplacementLegalityOptions {
+  if (typeof optionsOrExcludeUnitId === 'string') {
+    return { excludeUnitId: optionsOrExcludeUnitId };
+  }
+  return optionsOrExcludeUnitId ?? {};
 }
 
 /**
@@ -61,8 +77,10 @@ export function isTargetDirectlyAhead(
 
 /**
  * Per Resolved Q3: a hex is a valid displacement destination when it's
- * in-bounds AND unoccupied. Mirrors `Compute.isValidDisplacement` in
- * MegaMek (returns false for off-map / occupied hexes).
+ * in-bounds, not blocked by another unit, and does not climb beyond the
+ * BattleMech elevation-change cap when the caller supplies a source hex.
+ * Mirrors `Compute.isValidDisplacement` in MegaMek (off-map, stacking, and
+ * `getMaxElevationChange` checks).
  *
  * `excludeUnitId` is the entity being displaced — its current hex still
  * counts as "occupied" but should NOT block a self-displacement (the
@@ -72,14 +90,30 @@ export function isTargetDirectlyAhead(
 export function isValidDisplacement(
   grid: IHexGrid,
   coord: IHexCoordinate,
-  excludeUnitId?: string,
+  optionsOrExcludeUnitId?: string | IDisplacementLegalityOptions,
 ): boolean {
+  const options = normalizeDisplacementLegalityOptions(optionsOrExcludeUnitId);
   if (!isInBounds(grid, coord)) return false;
+  const hex = grid.hexes.get(`${coord.q},${coord.r}`);
+  if (
+    options.source !== undefined &&
+    options.maxElevationChange !== undefined &&
+    Number.isFinite(options.maxElevationChange)
+  ) {
+    const sourceHex = grid.hexes.get(`${options.source.q},${options.source.r}`);
+    const elevationChange = (hex?.elevation ?? 0) - (sourceHex?.elevation ?? 0);
+    if (elevationChange > options.maxElevationChange) return false;
+  }
+
   if (!isOccupied(grid, coord)) return true;
   // Same-unit-already-here case: allow.
-  const hex = grid.hexes.get(`${coord.q},${coord.r}`);
-  if (hex && excludeUnitId && hex.occupantId === excludeUnitId) return true;
-  return false;
+  const occupiedByDisplacedUnit =
+    hex &&
+    options.excludeUnitId !== undefined &&
+    hex.occupantId === options.excludeUnitId;
+  if (!occupiedByDisplacedUnit) return false;
+
+  return true;
 }
 
 /**
@@ -110,8 +144,13 @@ export function computeMissedChargeDisplacement(
   const leftHex = translateHex(source, leftFacing);
   const rightHex = translateHex(source, rightFacing);
 
-  const leftValid = isValidDisplacement(grid, leftHex, attackerId);
-  const rightValid = isValidDisplacement(grid, rightHex, attackerId);
+  const options = {
+    excludeUnitId: attackerId,
+    source,
+    maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+  };
+  const leftValid = isValidDisplacement(grid, leftHex, options);
+  const rightValid = isValidDisplacement(grid, rightHex, options);
 
   if (!leftValid && !rightValid) return source;
   if (leftValid && !rightValid) return leftHex;
@@ -175,7 +214,13 @@ export function computeChargeDisplacementOutcome(options: {
     attackerFacing,
   );
 
-  if (!isValidDisplacement(grid, targetDestination, targetId)) {
+  if (
+    !isValidDisplacement(grid, targetDestination, {
+      excludeUnitId: targetId,
+      source: targetPosition,
+      maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+    })
+  ) {
     return { displacements: [] };
   }
 
@@ -216,7 +261,13 @@ export function computeValidDisplacement(
       source,
       ((direction + offset) % 6) as Facing,
     );
-    if (isValidDisplacement(grid, candidate, displacedUnitId)) {
+    if (
+      isValidDisplacement(grid, candidate, {
+        excludeUnitId: displacedUnitId,
+        source,
+        maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+      })
+    ) {
       return candidate;
     }
   }
@@ -248,7 +299,15 @@ export function computePreferredDisplacement(
       source,
       ((direction + offset) % 6) as Facing,
     );
-    if (!isValidDisplacement(grid, candidate, displacedUnitId)) continue;
+    if (
+      !isValidDisplacement(grid, candidate, {
+        excludeUnitId: displacedUnitId,
+        source,
+        maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+      })
+    ) {
+      continue;
+    }
 
     const elevation =
       grid.hexes.get(`${candidate.q},${candidate.r}`)?.elevation ?? 0;

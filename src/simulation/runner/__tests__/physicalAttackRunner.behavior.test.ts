@@ -152,6 +152,7 @@ function createState(): IGameState {
 function createPhysicalGrid(
   options: {
     targetElevation?: number;
+    displacementElevation?: number;
     waterTarget?: boolean;
     blockDfaDisplacement?: boolean;
     blockChargeDisplacement?: boolean;
@@ -177,7 +178,7 @@ function createPhysicalGrid(
         ? 'blocker-1'
         : null,
     terrain: TerrainType.Clear,
-    elevation: 0,
+    elevation: options.displacementElevation ?? 0,
   });
   hexes.set('2,0', {
     coord: { q: 2, r: 0 },
@@ -1469,6 +1470,31 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(damageEventsFor(events, 'opponent-1')).toHaveLength(6);
     expect(damageEventsFor(events, 'player-1').length).toBeGreaterThan(0);
     expect(destroyed).toBeUndefined();
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+    expect(result.units['opponent-1'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
+    );
+    expect(result.units['player-1'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
+    );
+  });
+
+  it('keeps a successful charge in place when displacement would climb too high', () => {
+    const { events, result } = runPhase('charge', {
+      attacker: {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      },
+      grid: createPhysicalGrid({ displacementElevation: 3 }),
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'charge',
+      hit: true,
+      damage: 28,
+    });
+    expect(resolvedPayload(events).displacements).toBeUndefined();
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
     expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
     expect(result.units['opponent-1'].pendingPSRs).not.toContainEqual(

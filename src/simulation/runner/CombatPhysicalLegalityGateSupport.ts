@@ -72,6 +72,8 @@ const DFA_ACTION_LINES =
   'MegaMek DfaAttackAction movement validation and toHit, DfaAttackAction.java:140-329';
 const GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES =
   'MegaMek PunchAttackAction, KickAttackAction, ClubAttackAction, and DfaAttackAction return AUTOMATIC_SUCCESS for adjacent GunEmplacement targets after impossibility checks';
+const DISPLACEMENT_ELEVATION_LINES =
+  'MegaMek Compute.isValidDisplacement rejects displacement climbs above Entity.getMaxElevationChange; Mek.getMaxElevationChange returns 2 for normal BattleMechs';
 
 const PHYSICAL_ATTACK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek PhysicalAttackAction.toHitIsImpossible applies shared physical attack impossibility gates',
@@ -133,6 +135,18 @@ const DFA_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF = megamekPhysicalSourceRef(
   'L318-L323',
 );
 
+const COMPUTE_DISPLACEMENT_ELEVATION_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek Compute.isValidDisplacement rejects displacement destinations above the unit max elevation change',
+  'common/compute/Compute.java',
+  'L951-L1017',
+);
+
+const MEK_MAX_ELEVATION_CHANGE_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek Mek.getMaxElevationChange returns 2 for normal BattleMechs',
+  'common/units/Mek.java',
+  'L3416-L3422',
+);
+
 function sourceRefsForAuthority(
   authority: string,
 ): readonly ICombatFeatureSourceReference[] {
@@ -151,6 +165,11 @@ function sourceRefsForAuthority(
         KICK_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF,
         CLUB_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF,
         DFA_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF,
+      ];
+    case DISPLACEMENT_ELEVATION_LINES:
+      return [
+        COMPUTE_DISPLACEMENT_ELEVATION_SOURCE_REF,
+        MEK_MAX_ELEVATION_CHANGE_SOURCE_REF,
       ];
     case PHYSICAL_ATTACK_ACTION_LINES:
     default:
@@ -249,6 +268,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared',
     'calculatePhysicalToHit marks explicit or hydrated gun-emplacement targets as automatic success for punch, kick, DFA, and supported club/melee attacks; resolvePhysicalAttack skips to-hit dice and PhysicalAttackResolved carries automaticHit metadata',
     GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES,
+  ),
+  'shared.displacement-elevation-cap': integrated(
+    'shared.displacement-elevation-cap',
+    'shared',
+    'isValidDisplacement now rejects BattleMech displacement destinations that climb more than two elevation levels from source, and push/charge/DFA session plus runner displacement helpers thread that cap before emitting displacement or PSR side effects',
+    DISPLACEMENT_ELEVATION_LINES,
   ),
   'push.destination-open': integrated(
     'push.destination-open',

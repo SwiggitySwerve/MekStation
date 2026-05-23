@@ -215,6 +215,16 @@ function blockedChargeDisplacementGrid() {
   return placeUnit(adjacentPhysicalGrid(), { q: 1, r: 1 }, 'charge-blocker');
 }
 
+function elevatedChargeDisplacementGrid() {
+  const grid = adjacentPhysicalGrid();
+  const hexes = new Map(grid.hexes);
+  const destination = hexes.get('1,1');
+  if (destination) {
+    hexes.set('1,1', { ...destination, elevation: 3 });
+  }
+  return { ...grid, hexes };
+}
+
 function withUnitState(
   session: IGameSession,
   unitId: string,
@@ -3028,6 +3038,52 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(
       damageEvents.filter((entry) => entry.unitId === 'attacker').length,
     ).toBeGreaterThan(0);
+    expect(chargedPsrs).toHaveLength(0);
+    expect(destroyed).toBeUndefined();
+  });
+
+  it('emits event-sourced charge damage without displacement when the target climb is too high', () => {
+    const context = physicalContext({
+      hexesMoved: 5,
+      attackerRanThisTurn: true,
+    });
+    const declared = declareAdjacentPhysicalAttack('charge', context, {
+      facing: Facing.South,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3, 3, 3, 3, 3, 3]),
+      elevatedChargeDisplacementGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+    const damageEvents = resolved.events
+      .filter((entry) => entry.type === GameEventType.DamageApplied)
+      .map((entry) => entry.payload as IDamageAppliedPayload);
+    const chargedPsrs = resolved.events
+      .filter((entry) => entry.type === GameEventType.PSRTriggered)
+      .map((entry) => entry.payload as IPSRTriggeredPayload)
+      .filter((entry) => entry.reasonCode === PSRTrigger.Charged);
+    const destroyed = resolved.events.find(
+      (entry) =>
+        entry.type === GameEventType.UnitDestroyed &&
+        (entry.payload as IUnitDestroyedPayload).cause ===
+          'impossible_displacement',
+    );
+
+    expect(payload).toMatchObject({
+      attackType: 'charge',
+      hit: true,
+    });
+    expect(payload.damage).toBeGreaterThan(0);
+    expect(payload.displacements).toBeUndefined();
+    expect(
+      damageEvents.filter((entry) => entry.unitId === 'target'),
+    ).toHaveLength(Math.ceil((payload.damage ?? 0) / 5));
     expect(chargedPsrs).toHaveLength(0);
     expect(destroyed).toBeUndefined();
   });

@@ -91,6 +91,7 @@ describe('BattleMech combat validation catalog index', () => {
         'motive_damaged',
         'physical.charge',
         'physical.push',
+        'shared.displacement-elevation-cap',
         'push.destination-open',
         'push.attacker-is-mek',
         'push.target-is-mek',

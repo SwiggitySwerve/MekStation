@@ -197,6 +197,15 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** the resolver SHALL NOT emit `cause=impossible_displacement`
 - **AND** helper, event-sourced resolution, runner resolution, catalog, and source-truth audit evidence SHALL report the same source-backed outcome
 
+#### Scenario: Physical displacement rejects climbs above BattleMech limits
+
+- **GIVEN** a push, charge, or death-from-above displacement would move a BattleMech target into a destination hex more than two elevation levels above its source hex
+- **WHEN** the shared displacement helper evaluates the destination
+- **THEN** the displacement SHALL be treated as invalid before position changes or displacement PSRs are emitted
+- **AND** successful charge damage SHALL still apply while both units remain in their original hexes
+- **AND** helper, event-sourced resolution, runner resolution, catalog, and source-truth audit evidence SHALL cite the MegaMek `Compute.isValidDisplacement` and `Mek.getMaxElevationChange` anchors
+- **AND** domino-chain displacement, friendly-unit avoidance, and DropShip-radius displacement SHALL remain explicit gaps
+
 #### Scenario: Push rejects arm-mounted weapons fired this turn
 
 - **GIVEN** a push declaration is evaluated with evidence that either attacker arm fired a weapon this turn

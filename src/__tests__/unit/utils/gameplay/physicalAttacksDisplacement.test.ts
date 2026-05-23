@@ -11,6 +11,7 @@ import { describe, it, expect } from '@jest/globals';
 import { Facing, IHexCoordinate } from '@/types/gameplay';
 import { createHexGrid, placeUnit } from '@/utils/gameplay/hexGrid';
 import {
+  BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
   computeMissedChargeDisplacement,
   computePushDisplacement,
   isValidDisplacement,
@@ -52,6 +53,26 @@ describe('physicalAttacks/displacement', () => {
       let grid = createHexGrid({ radius: 2 });
       grid = placeUnit(grid, { q: 0, r: 0 }, 'unit-a');
       expect(isValidDisplacement(grid, { q: 0, r: 0 }, 'unit-a')).toBe(true);
+    });
+
+    it('rejects BattleMech displacement climbs above the source-backed elevation cap', () => {
+      const grid = createHexGrid({ radius: 2 });
+      const source: IHexCoordinate = { q: 0, r: 0 };
+      const destination: IHexCoordinate = { q: 1, r: 0 };
+      const destinationKey = `${destination.q},${destination.r}`;
+      const destinationHex = grid.hexes.get(destinationKey)!;
+      grid.hexes.set(destinationKey, {
+        ...destinationHex,
+        elevation: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE + 1,
+      });
+
+      expect(
+        isValidDisplacement(grid, destination, {
+          excludeUnitId: 'unit-a',
+          source,
+          maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+        }),
+      ).toBe(false);
     });
   });
 
@@ -98,7 +119,10 @@ describe('physicalAttacks/displacement', () => {
       const rightHex = translateHex(source, ((Facing.North + 1) % 6) as Facing);
       const rightKey = `${rightHex.q},${rightHex.r}`;
       const existing = grid.hexes.get(rightKey)!;
-      grid.hexes.set(rightKey, { ...existing, elevation: 3 });
+      grid.hexes.set(rightKey, {
+        ...existing,
+        elevation: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+      });
 
       const dest = computeMissedChargeDisplacement(
         grid,
@@ -108,6 +132,29 @@ describe('physicalAttacks/displacement', () => {
         () => 1, // RNG ignored when elevations differ
       );
       expect(dest).toEqual(rightHex);
+    });
+
+    it('skips higher-elevation side hexes that exceed BattleMech displacement limits', () => {
+      const grid = createHexGrid({ radius: 3 });
+      const source: IHexCoordinate = { q: 0, r: 0 };
+      const rightHex = translateHex(source, ((Facing.North + 1) % 6) as Facing);
+      const rightKey = `${rightHex.q},${rightHex.r}`;
+      const existing = grid.hexes.get(rightKey)!;
+      grid.hexes.set(rightKey, {
+        ...existing,
+        elevation: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE + 1,
+      });
+
+      const dest = computeMissedChargeDisplacement(
+        grid,
+        'attacker',
+        source,
+        Facing.North,
+        () => 6,
+      );
+      expect(dest).toEqual(
+        translateHex(source, ((Facing.North + 5) % 6) as Facing),
+      );
     });
   });
 

@@ -36,6 +36,7 @@ import {
   computeDfaDisplacements,
   computePreferredDisplacement,
   computeValidDisplacement,
+  BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
   isTargetDirectlyAhead,
   getEffectiveWeight,
   applyUnderwaterModifier,
@@ -163,6 +164,29 @@ describe('physicalAttacks', () => {
           Facing.South,
         ),
       ).toEqual({ q: 1, r: 1 });
+    });
+
+    it('treats BattleMech displacement above two elevation levels as invalid', () => {
+      const grid = makeDisplacementGrid();
+      const hexes = new Map(grid.hexes);
+      const blockedClimb = hexes.get('1,1');
+      if (blockedClimb) {
+        hexes.set('1,1', {
+          ...blockedClimb,
+          elevation: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE + 1,
+        });
+      }
+
+      expect(
+        computeChargeDisplacementOutcome({
+          grid: { ...grid, hexes },
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+        }).displacements,
+      ).toEqual([]);
     });
 
     it('checks push target feet-facing instead of adjacency alone', () => {

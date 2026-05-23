@@ -60,6 +60,7 @@ import {
   canPush,
   computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
+  BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
   calculatePhysicalToHit,
   computeMissedChargeDisplacement,
   computePushDisplacement,
@@ -153,7 +154,13 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
     target.position,
     attacker.facing,
   );
-  if (!isValidDisplacement(grid, targetDestination, target.id)) {
+  if (
+    !isValidDisplacement(grid, targetDestination, {
+      excludeUnitId: target.id,
+      source: target.position,
+      maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+    })
+  ) {
     return { displacements: [] };
   }
 
