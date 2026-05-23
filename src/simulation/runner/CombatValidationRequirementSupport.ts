@@ -6,11 +6,23 @@ import {
   INVALID_TARGET_STATE_SUPPORT,
 } from './CombatAttackInvalidationSupport';
 import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from './CombatCanonicalSpaSupport';
+import { CRITICAL_SLOT_EFFECT_COMBAT_SUPPORT } from './CombatCriticalSlotEffectSupport';
+import { CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT } from './CombatCriticalSlotHydrationSupport';
+import {
+  CRITICAL_COMPONENT_COMBAT_SUPPORT,
+  DAMAGE_RESOLUTION_COMBAT_SUPPORT,
+  DESTRUCTION_CAUSE_COMBAT_SUPPORT,
+  PILOT_DAMAGE_COMBAT_SUPPORT,
+} from './CombatDamageSupport';
 import {
   QUIRK_COMBAT_SUPPORT,
   SPA_COMBAT_SUPPORT,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
+import {
+  PSR_RESOLUTION_COMBAT_SUPPORT,
+  RUNNER_PSR_TRIGGER_COMBAT_SUPPORT,
+} from './CombatLifecycleSupport';
 import { PHYSICAL_LEGALITY_GATE_SUPPORT } from './CombatPhysicalLegalityGateSupport';
 import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from './CombatPilotModifierApplicationSupport';
 import { PILOT_SKILL_COMBAT_SUPPORT } from './CombatPilotSkillSupport';
@@ -302,6 +314,54 @@ const TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS = [
   'ecm',
   'c3',
 ].map((id) => `ruleSupport.toHitModifiers.${id}`);
+
+const DAMAGE_RESOLUTION_SUPPORT_REFS = supportRefs(
+  'damageAndDeath',
+  'damageResolution',
+  DAMAGE_RESOLUTION_COMBAT_SUPPORT,
+);
+
+const DESTRUCTION_CAUSE_SUPPORT_REFS = supportRefs(
+  'damageAndDeath',
+  'destructionCauses',
+  DESTRUCTION_CAUSE_COMBAT_SUPPORT,
+);
+
+const CRITICAL_COMPONENT_SUPPORT_REFS = supportRefs(
+  'damageAndDeath',
+  'criticalComponents',
+  CRITICAL_COMPONENT_COMBAT_SUPPORT,
+);
+
+const CRITICAL_SLOT_EFFECT_SUPPORT_REFS = supportRefs(
+  'damageAndDeath',
+  'criticalSlotEffects',
+  CRITICAL_SLOT_EFFECT_COMBAT_SUPPORT,
+);
+
+const PILOT_DAMAGE_SUPPORT_REFS = supportRefs(
+  'damageAndDeath',
+  'pilotDamage',
+  PILOT_DAMAGE_COMBAT_SUPPORT,
+);
+
+const PSR_RESOLUTION_SUPPORT_REFS = supportRefs(
+  'lifecycleAndPsr',
+  'psrResolution',
+  PSR_RESOLUTION_COMBAT_SUPPORT,
+);
+
+const PSR_TRIGGER_SUPPORT_REFS = supportRefs(
+  'lifecycleAndPsr',
+  'psrTriggers',
+  RUNNER_PSR_TRIGGER_COMBAT_SUPPORT,
+);
+
+const CRITICAL_SLOT_HYDRATION_SUPPORT_REFS = supportRefs(
+  'damageAndDeath',
+  'criticalSlotHydration',
+  CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT,
+);
 
 function primaryAuthorityFor(
   id: CombatRequirementId,
@@ -631,64 +691,31 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'damage-resolution': helperOnly(
     'damage-resolution',
-    'Damage support covers armor, internal structure, rear armor, transfer, location destruction, heat ammo explosion cascades, and 20+ damage PSRs',
+    'Damage support covers armor, internal structure, rear armor, transfer, location destruction, heat ammo explosion cascades, 20+ damage PSRs, and destruction-cause classification',
     'Cause-specific state persistence for several destruction causes is still helper-only',
-    [
-      'damageAndDeath.damageResolution.armor-damage',
-      'damageAndDeath.damageResolution.internal-structure-damage',
-      'damageAndDeath.damageResolution.damage-transfer',
-      'damageAndDeath.damageResolution.heat-ammo-explosion-damage-cascade',
-      'damageAndDeath.damageResolution.destruction-cause-state-persistence',
-    ],
+    [...DAMAGE_RESOLUTION_SUPPORT_REFS, ...DESTRUCTION_CAUSE_SUPPORT_REFS],
   ),
   'critical-effects': helperOnly(
     'critical-effects',
     'Critical component support covers engine, gyro, cockpit, sensors, life support, actuators, ammo, heat sinks, jump jets, equipment, and weapons',
     'Catalog-mounted ammo, equipment, heat sink, jump jet, and weapon slots are not hydrated into the default runner manifest',
-    [
-      'damageAndDeath.criticalComponents.engine',
-      'damageAndDeath.criticalComponents.gyro',
-      'damageAndDeath.criticalComponents.cockpit',
-      'damageAndDeath.criticalSlotEffects.weapon',
-      'damageAndDeath.criticalSlotEffects.ammo',
-      'damageAndDeath.criticalSlotEffects.heat_sink',
-      'damageAndDeath.criticalSlotEffects.jump_jet',
-      'damageAndDeath.criticalSlotEffects.equipment',
-      'damageAndDeath.criticalComponents.heat_sink',
-      'damageAndDeath.criticalSlotHydration.weapon',
-    ],
+    [...CRITICAL_COMPONENT_SUPPORT_REFS, ...CRITICAL_SLOT_EFFECT_SUPPORT_REFS],
   ),
   'pilot-damage-death': integrated(
     'pilot-damage-death',
     'Pilot damage support covers head hits, cockpit crit death, heat pilot damage, unconsciousness, and lethal wound destruction',
-    [
-      'damageAndDeath.pilotDamage.head-hit-wound',
-      'damageAndDeath.pilotDamage.unconsciousness',
-      'damageAndDeath.pilotDamage.pilot-death',
-      'damageAndDeath.pilotDamage.heat-pilot-damage',
-    ],
+    PILOT_DAMAGE_SUPPORT_REFS,
   ),
   'psr-resolution': integrated(
     'psr-resolution',
     'PSR support covers pending PSR resolution, reason-code preservation, falls, pilot wounds, pilot death, and pending clear',
-    [
-      'lifecycleAndPsr.psrResolution.pending-psr-resolution',
-      'lifecycleAndPsr.psrResolution.failed-psr-fall',
-      'lifecycleAndPsr.psrResolution.fall-pilot-death',
-      'lifecycleAndPsr.psrResolution.pending-psr-clear',
-    ],
+    PSR_RESOLUTION_SUPPORT_REFS,
   ),
   'psr-trigger-catalog': helperOnly(
     'psr-trigger-catalog',
     'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, MASC, and supercharger triggers',
     'Building-collapse, MASC, and supercharger triggers are helper-only until runner movement/heat phases queue them',
-    [
-      'lifecycleAndPsr.psrTriggers.20+_damage',
-      'lifecycleAndPsr.psrTriggers.kicked',
-      'lifecycleAndPsr.psrTriggers.heat_shutdown',
-      'lifecycleAndPsr.psrTriggers.entering_rubble',
-      'lifecycleAndPsr.psrTriggers.masc_failure',
-    ],
+    PSR_TRIGGER_SUPPORT_REFS,
   ),
   'turn-rotation-removal': integrated(
     'turn-rotation-removal',
@@ -786,12 +813,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'critical-slot-hydration',
     'Critical-slot hydration support catalogs every component type the resolver can represent',
     'UnitHydration does not yet build catalog-mounted equipment, heat sink, jump jet, weapon, or ammo slots into runner manifests',
-    [
-      'damageAndDeath.criticalSlotHydration.actuator',
-      'damageAndDeath.criticalSlotHydration.heat_sink',
-      'damageAndDeath.criticalSlotHydration.jump_jet',
-      'damageAndDeath.criticalSlotHydration.weapon',
-    ],
+    CRITICAL_SLOT_HYDRATION_SUPPORT_REFS,
   ),
   'known-limitation-audit': integrated(
     'known-limitation-audit',

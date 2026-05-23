@@ -11,10 +11,22 @@ import {
   INVALID_TARGET_STATE_SUPPORT,
 } from '../CombatAttackInvalidationSupport';
 import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from '../CombatCanonicalSpaSupport';
+import { CRITICAL_SLOT_EFFECT_COMBAT_SUPPORT } from '../CombatCriticalSlotEffectSupport';
+import { CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT } from '../CombatCriticalSlotHydrationSupport';
+import {
+  CRITICAL_COMPONENT_COMBAT_SUPPORT,
+  DAMAGE_RESOLUTION_COMBAT_SUPPORT,
+  DESTRUCTION_CAUSE_COMBAT_SUPPORT,
+  PILOT_DAMAGE_COMBAT_SUPPORT,
+} from '../CombatDamageSupport';
 import {
   QUIRK_COMBAT_SUPPORT,
   SPA_COMBAT_SUPPORT,
 } from '../CombatFeatureSupport';
+import {
+  PSR_RESOLUTION_COMBAT_SUPPORT,
+  RUNNER_PSR_TRIGGER_COMBAT_SUPPORT,
+} from '../CombatLifecycleSupport';
 import { PHYSICAL_LEGALITY_GATE_SUPPORT } from '../CombatPhysicalLegalityGateSupport';
 import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from '../CombatPilotModifierApplicationSupport';
 import { PILOT_SKILL_COMBAT_SUPPORT } from '../CombatPilotSkillSupport';
@@ -547,6 +559,79 @@ describe('BattleMech combat validation requirement crosswalk', () => {
         'pilotSkills',
         'pilotModifierResolvers',
         PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
+
+  it('backs damage and death requirements with every damage support row', () => {
+    expect(
+      missingRefsForRequirement(
+        'damage-resolution',
+        'damageAndDeath',
+        'damageResolution',
+        DAMAGE_RESOLUTION_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'damage-resolution',
+        'damageAndDeath',
+        'destructionCauses',
+        DESTRUCTION_CAUSE_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'pilot-damage-death',
+        'damageAndDeath',
+        'pilotDamage',
+        PILOT_DAMAGE_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
+
+  it('backs critical-effect requirements with every critical support row', () => {
+    expect(
+      missingRefsForRequirement(
+        'critical-effects',
+        'damageAndDeath',
+        'criticalComponents',
+        CRITICAL_COMPONENT_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'critical-effects',
+        'damageAndDeath',
+        'criticalSlotEffects',
+        CRITICAL_SLOT_EFFECT_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'critical-slot-hydration',
+        'damageAndDeath',
+        'criticalSlotHydration',
+        CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
+
+  it('backs PSR requirements with every PSR support row', () => {
+    expect(
+      missingRefsForRequirement(
+        'psr-resolution',
+        'lifecycleAndPsr',
+        'psrResolution',
+        PSR_RESOLUTION_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'psr-trigger-catalog',
+        'lifecycleAndPsr',
+        'psrTriggers',
+        RUNNER_PSR_TRIGGER_COMBAT_SUPPORT,
       ),
     ).toEqual([]);
   });
