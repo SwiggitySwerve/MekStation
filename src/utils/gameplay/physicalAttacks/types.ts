@@ -70,6 +70,7 @@ export type PhysicalAttackInvalidReason =
   | 'HipDestroyed'
   | 'ShoulderDestroyed'
   | 'SameLimbUsedThisTurn'
+  | 'AttackerEvading'
   | 'NoJumpThisTurn'
   | 'NoRunThisTurn'
   | 'AttackerInfantry'
@@ -127,6 +128,11 @@ export interface IPhysicalAttackInput {
    */
   readonly attackerArmsFlipped?: boolean;
   readonly targetUnitType?: string;
+  /**
+   * Source-backed shared physical legality: an attacker that is evading
+   * cannot make normal physical attacks.
+   */
+  readonly attackerEvading?: boolean;
   readonly attackerProne?: boolean;
   readonly targetTonnage?: number;
   /**
@@ -328,6 +334,7 @@ export interface IChooseBestPhysicalAttackOptions {
   hasTSM?: boolean;
   pilotAbilities?: readonly string[];
   unitQuirks?: readonly string[];
+  attackerEvading?: boolean;
   elevationDifference?: number;
 }
 

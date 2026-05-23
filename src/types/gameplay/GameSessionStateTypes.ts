@@ -142,6 +142,12 @@ export interface IUnitGameState {
    * undefined preserves legacy fixtures without swarm lifecycle state.
    */
   readonly isSwarming?: boolean;
+  /**
+   * Whether this unit is currently evading. Explicit true blocks
+   * source-backed physical attack declarations by this attacker; undefined
+   * preserves legacy fixtures without evasion state.
+   */
+  readonly isEvading?: boolean;
   /** Which side this unit belongs to */
   readonly side: GameSide;
   /** Current position */

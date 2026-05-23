@@ -49,6 +49,13 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
+  if (input.attackerEvading) {
+    return blocked(
+      'Physical attacks cannot be made while evading',
+      'AttackerEvading',
+    );
+  }
+
   if (input.targetIsPassenger) {
     return blocked(
       'Physical attacks cannot target transported passengers',

@@ -376,6 +376,35 @@ describe('BattleMech physical combat behavior validation lane', () => {
     ).toBe(true);
   });
 
+  it('projects evading attackers as restricted physical options', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+        isEvading: true,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerRanThisTurn: true,
+      attackerJumpedThisTurn: true,
+      pushDestinationValid: true,
+    });
+
+    expect(options).toHaveLength(7);
+    expect(
+      options.every((option) =>
+        option.restrictionsFailed.includes('AttackerEvading'),
+      ),
+    ).toBe(true);
+  });
+
   it('surfaces distinct physical restriction reasons instead of hiding them', () => {
     const attacker = unitState(
       'attacker',
@@ -1300,6 +1329,65 @@ describe('BattleMech physical combat behavior validation lane', () => {
       toHitNumber: Infinity,
       hit: false,
       location: 'TargetSwarming',
+    });
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.DamageApplied,
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects evading physical attackers before scheduling resolution', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), { isEvading: true }),
+      'attacker',
+      'target',
+      'kick',
+      physicalContext(),
+    );
+
+    const declarations = rejected.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'AttackerEvading',
+    });
+  });
+
+  it('resolves stale physical declarations by evading attackers as invalid events', () => {
+    const declared = declareAdjacentPhysicalAttack('kick', physicalContext());
+    const resolved = resolveAllPhysicalAttacks(
+      withUnitState(declared, 'attacker', { isEvading: true }),
+      new Map([['attacker', physicalContext()]]),
+      scriptedDice([6, 6, 3]),
+    );
+
+    const resolvedEvents = resolved.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = resolvedEvents.at(-1)
+      ?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(resolvedEvents).toHaveLength(1);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'AttackerEvading',
     });
     expect(
       resolved.events.some(

@@ -10,7 +10,13 @@ import {
   calculatePunchDamage,
   calculateSwordDamage,
 } from './damage';
-import { canKick, canMeleeWeapon, canPunch } from './restrictions';
+import {
+  canCharge,
+  canDFA,
+  canKick,
+  canMeleeWeapon,
+  canPunch,
+} from './restrictions';
 import {
   IChooseBestPhysicalAttackOptions,
   IPhysicalAttackCandidate,
@@ -35,6 +41,7 @@ export function chooseBestPhysicalAttack(
     hasTSM: options.hasTSM,
     pilotAbilities: options.pilotAbilities,
     unitQuirks: options.unitQuirks,
+    attackerEvading: options.attackerEvading,
     elevationDifference: options.elevationDifference,
   };
 
@@ -68,20 +75,28 @@ export function chooseBestPhysicalAttack(
   }
 
   if (options.isJumping) {
-    const dfaDamage = calculateDFADamageToTarget({
+    const dfaInput: IPhysicalAttackInput = {
       ...baseInput,
       attackType: 'dfa',
-    });
-    candidates.push({ type: 'dfa', expectedDamage: dfaDamage });
+      attackerJumpedThisTurn: true,
+    };
+    if (canDFA(dfaInput).allowed) {
+      const dfaDamage = calculateDFADamageToTarget(dfaInput);
+      candidates.push({ type: 'dfa', expectedDamage: dfaDamage });
+    }
   }
 
   if (options.canReachForCharge && (options.hexesMoved ?? 0) > 1) {
-    const chargeDamage = calculateChargeDamageToTarget({
+    const chargeInput: IPhysicalAttackInput = {
       ...baseInput,
       attackType: 'charge',
       hexesMoved: options.hexesMoved,
-    });
-    candidates.push({ type: 'charge', expectedDamage: chargeDamage });
+      attackerRanThisTurn: true,
+    };
+    if (canCharge(chargeInput).allowed) {
+      const chargeDamage = calculateChargeDamageToTarget(chargeInput);
+      candidates.push({ type: 'charge', expectedDamage: chargeDamage });
+    }
   }
 
   if (options.hasMeleeWeapon) {

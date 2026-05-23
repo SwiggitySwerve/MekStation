@@ -148,6 +148,11 @@ export interface IGameUnit {
    */
   readonly isSwarming?: boolean;
   /**
+   * Optional evasion state copied into combat state. Explicit true blocks
+   * source-backed physical attack declarations by this unit.
+   */
+  readonly isEvading?: boolean;
+  /**
    * Per-type construction inputs consumed by `createInitialUnitState` to
    * build `combatState` via `create{Type}CombatState` factories. Each block
    * is OPTIONAL at the type level so the legacy mech-only call path stays

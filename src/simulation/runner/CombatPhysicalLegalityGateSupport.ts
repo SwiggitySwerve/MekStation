@@ -174,10 +174,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared restriction helpers reject explicit non-adjacent targetDistance, event-sourced declarations emit TargetNotAdjacent before scheduling, and runner enemy selection excludes non-adjacent physical targets',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
-  'shared.attacker-not-evading': unsupported(
+  'shared.attacker-not-evading': integrated(
     'shared.attacker-not-evading',
     'shared',
-    'current unit combat state does not expose evading state to physical restrictions',
+    'IUnitGameState exposes optional isEvading, shared restriction helpers reject attackerEvading, and eligibility/session/runner inputs thread evasion state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
   'shared.not-loading-unloading-cargo': unsupported(

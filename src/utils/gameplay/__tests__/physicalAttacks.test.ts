@@ -941,6 +941,83 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows evading attackers across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            attackerEvading: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerEvading',
+      });
+    });
+
     it('disallows self-targeted physical attacks before adjacency checks', () => {
       expect(
         canPunch(
@@ -1896,6 +1973,17 @@ describe('physicalAttacks', () => {
       // Prone prevents kick, hip destroyed prevents kick
       // Only punch available
       expect(result).toBe('punch');
+    });
+
+    it('should return null when the attacker is evading', () => {
+      const result = chooseBestPhysicalAttack(80, 5, DEFAULT_COMPONENT_DAMAGE, {
+        attackerEvading: true,
+        canReachForCharge: true,
+        hexesMoved: 6,
+        isJumping: true,
+        hasMeleeWeapon: 'mace',
+      });
+      expect(result).toBeNull();
     });
   });
 
