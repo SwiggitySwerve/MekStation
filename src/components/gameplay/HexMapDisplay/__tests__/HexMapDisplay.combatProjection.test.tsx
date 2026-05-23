@@ -2078,6 +2078,49 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-combat-invalid-badge-3-0'),
     ).toHaveTextContent('OUT');
+
+    fireEvent.mouseEnter(targetHex);
+
+    const tacticalTooltip = screen.getByTestId('hex-tactical-tooltip');
+    expect(tacticalTooltip).toHaveAttribute(
+      'data-tactical-tooltip-status',
+      'mixed',
+    );
+    expect(tacticalTooltip).toHaveAttribute(
+      'data-tactical-tooltip-intent',
+      'movement-combat',
+    );
+    expect(screen.getByTestId('hex-tactical-tooltip-status')).toHaveTextContent(
+      'Mixed - movement-combat',
+    );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-elevation-context'),
+    ).toHaveTextContent('Elevation: 0');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement'),
+    ).toHaveTextContent('Movement: reachable - walk; 3 MP');
+    expect(screen.getByTestId('hex-tactical-tooltip-combat')).toHaveTextContent(
+      'Combat: Blocked',
+    );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-target'),
+    ).toHaveTextContent('Target: enemy');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-range'),
+    ).toHaveTextContent('Range: out of range at 3 hexes');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-geometry'),
+    ).toHaveTextContent('LOS clear; front arc');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-reason'),
+    ).toHaveTextContent('Out of weapon range');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-projection-reasons'),
+    ).toHaveTextContent(
+      "Target at 3 hexes is outside the selected weapons' range",
+    );
+    expect(screen.queryByTestId('hex-movement-tooltip')).toBeNull();
+    expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
   });
 
   it('marks ammo-empty weapons with the engine out-of-ammo rejection reason', () => {

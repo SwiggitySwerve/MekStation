@@ -78,6 +78,7 @@ export interface HexMapDisplayState {
   readonly hoverMovementInfo: IMovementRangeHex | undefined;
   readonly hoverCombatInfo: ICombatRangeHex | undefined;
   readonly hoverTerrainInfo: IHexTerrain | undefined;
+  readonly hoverProjectionInfo: ITacticalMapHexProjection | undefined;
   readonly tacticalMapProjectionLookup: ReadonlyMap<
     string,
     ITacticalMapHexProjection
@@ -288,34 +289,23 @@ export function useHexMapDisplayState({
     (unitId: string) => onTokenDoubleClick?.(unitId),
     [onTokenDoubleClick],
   );
-  const hoverUnreachableReason = useMemo(() => {
-    if (!hoverUnreachable || !hoveredHex) return undefined;
-    const movementInfo = tacticalMapProjectionLookup.get(
-      coordToKey(hoveredHex),
-    )?.movement;
-    if (!movementInfo || movementInfo.reachable) return undefined;
-    return (
-      movementInfo.movementInvalidDetails ??
-      movementInfo.blockedReason ??
-      movementInfo.movementInvalidReason
-    );
-  }, [hoverUnreachable, hoveredHex, tacticalMapProjectionLookup]);
-  const hoverMovementInfo = useMemo(() => {
+  const hoverProjectionInfo = useMemo(() => {
     if (!hoveredHex) return undefined;
-    return tacticalMapProjectionLookup.get(coordToKey(hoveredHex))?.movement;
+    return tacticalMapProjectionLookup.get(coordToKey(hoveredHex));
   }, [hoveredHex, tacticalMapProjectionLookup]);
-  const hoverCombatInfo = useMemo(() => {
-    if (!hoveredHex) return undefined;
-    const combatInfo = tacticalMapProjectionLookup.get(
-      coordToKey(hoveredHex),
-    )?.combat;
-    if (!combatInfo) return undefined;
-    return combatInfo.hasTarget || combatInfo.inRange ? combatInfo : undefined;
-  }, [hoveredHex, tacticalMapProjectionLookup]);
-  const hoverTerrainInfo = useMemo((): IHexTerrain | undefined => {
-    if (!hoveredHex) return undefined;
-    return tacticalMapProjectionLookup.get(coordToKey(hoveredHex))?.terrain;
-  }, [hoveredHex, tacticalMapProjectionLookup]);
+  const hoverMovementInfo = hoverProjectionInfo?.movement;
+  const hoverCombatInfo =
+    hoverProjectionInfo?.combat &&
+    (hoverProjectionInfo.combat.hasTarget || hoverProjectionInfo.combat.inRange)
+      ? hoverProjectionInfo.combat
+      : undefined;
+  const hoverTerrainInfo = hoverProjectionInfo?.terrain;
+  const hoverUnreachableReason =
+    hoverUnreachable && hoverMovementInfo && !hoverMovementInfo.reachable
+      ? (hoverMovementInfo.movementInvalidDetails ??
+        hoverMovementInfo.blockedReason ??
+        hoverMovementInfo.movementInvalidReason)
+      : undefined;
 
   const renderHexCell = useCallback(
     (hex: IHexCoordinate): React.ReactElement => {
@@ -404,6 +394,7 @@ export function useHexMapDisplayState({
     hoverMovementInfo,
     hoverCombatInfo,
     hoverTerrainInfo,
+    hoverProjectionInfo,
     tacticalMapProjectionLookup,
     renderHexCell,
     handleTokenClick,

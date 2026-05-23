@@ -5,6 +5,7 @@ import type {
   IHexTerrain,
   IMovementRangeHex,
 } from '@/types/gameplay';
+import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import { CoverLevel, TERRAIN_PROPERTIES } from '@/types/gameplay/TerrainTypes';
 
@@ -13,6 +14,7 @@ import {
   formatMovementModeLabel,
   formatTerrainFeaturesLabel,
 } from './HexCell.labels';
+import { CombinedTacticalHoverTooltip } from './HexMapDisplay.combinedTooltip';
 import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
@@ -26,6 +28,7 @@ interface MapHtmlOverlaysProps {
   readonly hoverMovementInfo?: IMovementRangeHex;
   readonly hoverCombatInfo?: ICombatRangeHex;
   readonly hoverTerrainInfo?: IHexTerrain;
+  readonly hoverProjectionInfo?: ITacticalMapHexProjection;
   readonly mpLegend?: {
     readonly active: 'walk' | 'run' | 'jump';
     readonly jumpAvailable: boolean;
@@ -38,49 +41,64 @@ export function MapHtmlOverlays({
   hoverMovementInfo,
   hoverCombatInfo,
   hoverTerrainInfo,
+  hoverProjectionInfo,
   mpLegend,
 }: MapHtmlOverlaysProps): React.ReactElement {
+  const showCombinedTacticalTooltip = Boolean(
+    hoverProjectionInfo?.movement && hoverProjectionInfo.combat,
+  );
+
   return (
     <>
-      {hoverMovementInfo && (
+      {showCombinedTacticalTooltip && hoverProjectionInfo && (
+        <CombinedTacticalHoverTooltip projection={hoverProjectionInfo} />
+      )}
+
+      {!showCombinedTacticalTooltip && hoverMovementInfo && (
         <MovementHoverTooltip
           movementInfo={hoverMovementInfo}
           terrain={hoverTerrainInfo}
         />
       )}
 
-      {!hoverMovementInfo && hoverUnreachable && (
-        <div
-          className="pointer-events-none absolute top-2 left-1/2 max-w-[260px] -translate-x-1/2 rounded bg-slate-900/90 px-2 py-1 text-xs font-medium text-slate-100 shadow"
-          data-testid="hex-unreachable-tooltip"
-          role="tooltip"
-        >
-          <div>Unreachable</div>
-          {hoverUnreachableReason && (
-            <div
-              className="mt-0.5 text-[11px] font-normal text-slate-200"
-              data-testid="hex-unreachable-tooltip-reason"
-            >
-              {hoverUnreachableReason}
-            </div>
-          )}
-          {hoverTerrainInfo && (
-            <TerrainContextRows
-              terrain={hoverTerrainInfo}
-              testIdPrefix="hex-unreachable-tooltip"
-            />
-          )}
-        </div>
-      )}
+      {!showCombinedTacticalTooltip &&
+        !hoverMovementInfo &&
+        hoverUnreachable && (
+          <div
+            className="pointer-events-none absolute top-2 left-1/2 max-w-[260px] -translate-x-1/2 rounded bg-slate-900/90 px-2 py-1 text-xs font-medium text-slate-100 shadow"
+            data-testid="hex-unreachable-tooltip"
+            role="tooltip"
+          >
+            <div>Unreachable</div>
+            {hoverUnreachableReason && (
+              <div
+                className="mt-0.5 text-[11px] font-normal text-slate-200"
+                data-testid="hex-unreachable-tooltip-reason"
+              >
+                {hoverUnreachableReason}
+              </div>
+            )}
+            {hoverTerrainInfo && (
+              <TerrainContextRows
+                terrain={hoverTerrainInfo}
+                testIdPrefix="hex-unreachable-tooltip"
+              />
+            )}
+          </div>
+        )}
 
-      {!hoverMovementInfo && !hoverUnreachable && hoverCombatInfo && (
-        <CombatHoverTooltip
-          combatInfo={hoverCombatInfo}
-          terrain={hoverTerrainInfo}
-        />
-      )}
+      {!showCombinedTacticalTooltip &&
+        !hoverMovementInfo &&
+        !hoverUnreachable &&
+        hoverCombatInfo && (
+          <CombatHoverTooltip
+            combatInfo={hoverCombatInfo}
+            terrain={hoverTerrainInfo}
+          />
+        )}
 
-      {!hoverMovementInfo &&
+      {!showCombinedTacticalTooltip &&
+        !hoverMovementInfo &&
         !hoverUnreachable &&
         !hoverCombatInfo &&
         hoverTerrainInfo && <TerrainHoverTooltip terrain={hoverTerrainInfo} />}
