@@ -149,6 +149,12 @@ export interface IUnitGameState {
    */
   readonly isMakingDFA?: boolean;
   /**
+   * Optional building occupancy identifier for shared physical legality.
+   * Explicit ids allow physical attacks only when attacker and target occupy
+   * the same building.
+   */
+  readonly occupiedBuildingId?: string;
+  /**
    * Whether this unit is currently evading. Explicit true blocks
    * source-backed physical attack declarations by this attacker; undefined
    * preserves legacy fixtures without evasion state.

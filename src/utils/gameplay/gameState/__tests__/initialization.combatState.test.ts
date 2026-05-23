@@ -184,6 +184,15 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.isMakingDFA).toBe(true);
   });
 
+  it('copies optional building occupancy state for physical targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      occupiedBuildingId: 'building-east',
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.occupiedBuildingId).toBe('building-east');
+  });
+
   it('copies optional evading state for physical attacker legality gates', () => {
     const unit = baseGameUnit({
       unitType: UnitType.BATTLEMECH,

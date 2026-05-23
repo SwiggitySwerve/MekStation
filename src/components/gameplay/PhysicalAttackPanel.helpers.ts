@@ -46,6 +46,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   TargetPassenger: 'Target is being transported',
   TargetSwarming: 'Target is swarming another unit',
   TargetMakingDFA: 'Target is making a DFA attack',
+  TargetInsideBuilding: 'Target is inside another building',
   SelfTarget: 'Cannot target self',
   FriendlyTarget: 'Cannot target friendly unit',
   TargetNotAdjacent: 'Target must be adjacent',

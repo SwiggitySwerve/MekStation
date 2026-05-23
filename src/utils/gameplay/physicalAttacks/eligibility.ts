@@ -248,6 +248,8 @@ export function getEligiblePhysicalAttacks(
     targetIsPassenger: target.isPassenger,
     targetIsSwarming: target.isSwarming,
     targetIsMakingDFA: target.isMakingDFA,
+    attackerOccupiedBuildingId: attacker.occupiedBuildingId,
+    targetOccupiedBuildingId: target.occupiedBuildingId,
     targetIsSelf: attacker.id === target.id,
     targetIsFriendly: attacker.side === target.side,
     targetDistance: hexDistance(attacker.position, target.position),

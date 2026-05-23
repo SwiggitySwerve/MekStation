@@ -153,6 +153,12 @@ export interface IGameUnit {
    */
   readonly isMakingDFA?: boolean;
   /**
+   * Optional building occupancy identifier copied into combat state. Explicit
+   * ids allow source-backed physical target declarations only from the same
+   * building.
+   */
+  readonly occupiedBuildingId?: string;
+  /**
    * Optional evasion state copied into combat state. Explicit true blocks
    * source-backed physical attack declarations by this unit.
    */

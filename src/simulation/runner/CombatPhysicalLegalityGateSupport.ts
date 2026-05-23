@@ -210,10 +210,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared restriction helpers reject targetIsSwarming, IUnitGameState exposes optional isSwarming, and eligibility/session/runner inputs thread swarm-attack state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
-  'shared.building-occupancy': unsupported(
+  'shared.building-occupancy': integrated(
     'shared.building-occupancy',
     'shared',
-    'same-building and target-inside-building validation is not represented in BattleMech physical restriction input',
+    'shared restriction helpers reject targetOccupiedBuildingId unless attackerOccupiedBuildingId matches, IUnitGameState exposes optional occupiedBuildingId, and eligibility/session/runner inputs thread building occupancy state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
   'shared.target-not-making-dfa': integrated(
@@ -397,10 +397,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'DFA restrictions do not model target participation in another charge, DFA, or displacement target state',
     DFA_ACTION_LINES,
   ),
-  'dfa.target-not-inside-building': unsupported(
+  'dfa.target-not-inside-building': integrated(
     'dfa.target-not-inside-building',
     'dfa',
-    'DFA restrictions do not reject entity targets inside buildings',
+    'canDFA consumes the shared targetOccupiedBuildingId gate and rejects entity targets inside another building as TargetInsideBuilding through eligibility, event-sourced declaration/resolution, and runner resolution inputs',
     DFA_ACTION_LINES,
   ),
   'dfa.building-auto-hit': unsupported(

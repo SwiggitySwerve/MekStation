@@ -77,6 +77,16 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
+  if (
+    input.targetOccupiedBuildingId &&
+    input.targetOccupiedBuildingId !== input.attackerOccupiedBuildingId
+  ) {
+    return blocked(
+      'Physical attacks cannot target units inside another building',
+      'TargetInsideBuilding',
+    );
+  }
+
   if (input.targetIsSelf) {
     return blocked('Physical attacks cannot target the attacker', 'SelfTarget');
   }

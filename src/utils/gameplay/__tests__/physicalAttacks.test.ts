@@ -1018,6 +1018,97 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows targets inside another building across supported physical attack families', () => {
+      const buildingTarget = {
+        targetOccupiedBuildingId: 'building-east',
+        targetDistance: 1,
+      } satisfies Partial<IPhysicalAttackInput>;
+
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            ...buildingTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetInsideBuilding',
+      });
+    });
+
+    it('allows physical targets inside the same building', () => {
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            attackerOccupiedBuildingId: 'building-east',
+            targetOccupiedBuildingId: 'building-east',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+    });
+
     it('disallows evading attackers across supported physical attack families', () => {
       expect(
         canPunch(
