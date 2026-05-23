@@ -17,6 +17,7 @@ import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
+import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
 
 import type { ICommandPreviewInputs } from './TacticalActionDock';
 
@@ -107,6 +108,10 @@ export function buildCommandPreviewInputs({
             ? buildPhysicalElevationContext(attackerState, targetState, grid, {
                 targetUnit: targetBinding,
               })
+            : undefined,
+        terrainContext:
+          attackerState && targetState && grid
+            ? buildPhysicalTerrainContext(attackerState, targetState, grid)
             : undefined,
       },
     );

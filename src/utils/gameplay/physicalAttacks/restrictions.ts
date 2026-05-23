@@ -292,6 +292,17 @@ export function canPush(
     };
   }
 
+  if (
+    input.terrainContext?.targetInBuilding === true &&
+    input.terrainContext.attackerInBuilding !== true
+  ) {
+    return {
+      allowed: false,
+      reason: 'Target is inside building',
+      reasonCode: 'TargetInsideBuilding',
+    };
+  }
+
   return { allowed: true };
 }
 

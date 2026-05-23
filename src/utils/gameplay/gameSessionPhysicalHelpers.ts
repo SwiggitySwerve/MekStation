@@ -71,6 +71,7 @@ export interface IPhysicalAttackContext {
    */
   readonly pushDestinationValid?: boolean;
   readonly elevationContext?: IPhysicalAttackInput['elevationContext'];
+  readonly terrainContext?: IPhysicalAttackInput['terrainContext'];
 }
 
 /**

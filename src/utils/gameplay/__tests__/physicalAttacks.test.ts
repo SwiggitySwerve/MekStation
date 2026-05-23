@@ -556,6 +556,24 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('should disallow outside pushes against targets in building hexes', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          terrainContext: {
+            attackerInBuilding: false,
+            targetInBuilding: true,
+          },
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Target is inside building',
+        reasonCode: 'TargetInsideBuilding',
+      });
+    });
+
     it('should disallow push targets on a different base elevation', () => {
       const result = canPush(
         makeInput({

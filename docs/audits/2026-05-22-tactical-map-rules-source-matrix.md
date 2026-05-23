@@ -90,6 +90,14 @@ not shown as commit-ready when the engine would reject it. Coverage:
 `src/utils/gameplay/__tests__/physicalAttacks.test.ts`,
 `src/utils/gameplay/__tests__/gameSessionPhysicalRange.test.ts`, and
 `src/components/gameplay/__tests__/GameplayLayout.commandPreview.test.ts`.
+Additional represented building-target pin: MegaMek
+`PushAttackAction.java:260-265` rejects pushes against targets inside buildings
+from attackers outside that building. MekStation does not yet model building
+identity, so this slice only gates the represented safe case where the target
+occupies a building hex and the attacker does not. The shared terrain context
+feeds physical option rows, command preview, player commit, and bot/auto
+physical declarations; same-building and different-building identity checks
+remain unrepresented follow-ups until map building IDs exist.
 
 Additional LOS/cover pin for this slice: MegaMek `LosEffects.java:1461-1483`
 assigns horizontal target cover only for Mek-style targets when the hex

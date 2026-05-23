@@ -128,6 +128,7 @@ export function declarePhysicalAttack(
     upperLegActuatorPresent: context.upperLegActuatorPresent,
     footActuatorPresent: context.footActuatorPresent,
     elevationContext: context.elevationContext,
+    terrainContext: context.terrainContext,
   };
 
   const restriction = physicalAttackRestrictionForType(attackType, input);

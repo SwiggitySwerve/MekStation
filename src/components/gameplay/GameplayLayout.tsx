@@ -34,6 +34,7 @@ import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
+import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
 import { projectStandUpPsr } from '@/utils/gameplay/standUpRules';
 
 import type { GameplayLayoutProps } from './GameplayLayout.types';
@@ -332,6 +333,13 @@ export function GameplayLayout({
                 {
                   targetUnit: targetBinding,
                 },
+              )
+            : undefined,
+          terrainContext: combatGrid
+            ? buildPhysicalTerrainContext(
+                attackerState,
+                targetState,
+                combatGrid,
               )
             : undefined,
         });

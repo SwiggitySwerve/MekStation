@@ -6,5 +6,6 @@ export * from './elevation';
 export * from './eligibility';
 export * from './resolution';
 export * from './restrictions';
+export * from './terrain';
 export * from './toHit';
 export * from './types';

@@ -289,4 +289,34 @@ describe('declarePhysicalAttack target range', () => {
       location: 'LimbMissing',
     });
   });
+
+  it('rejects push declarations against represented building occupants', () => {
+    const session = buildPhysicalSession({ q: 1, r: 0 });
+
+    const next = declarePhysicalAttack(session, 'attacker', 'target', 'push', {
+      ...PUNCH_CONTEXT,
+      terrainContext: {
+        attackerInBuilding: false,
+        targetInBuilding: true,
+      },
+    });
+
+    expect(
+      next.events.some(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toBe(false);
+    const rejection = next.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(rejection?.payload as IPhysicalAttackResolvedPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetInsideBuilding',
+    });
+  });
 });

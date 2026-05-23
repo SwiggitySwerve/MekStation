@@ -19,6 +19,7 @@
   - [x] Physical punch/kick elevation legality now agrees between command preview rows and committed declarations, using MegaMek-style target vertical spans.
   - [x] Physical push target legality now agrees between command preview rows and committed declarations for represented unit type, facing, prone, and same-elevation gates.
   - [x] Physical push missing-arm legality now agrees between command preview rows and committed declarations using represented destroyed arm locations.
+  - [x] Physical push building-target legality now agrees between command preview rows and committed declarations for the represented outside-attacker/target-in-building case.
 
 ## 3. Movement highlight agreement
 

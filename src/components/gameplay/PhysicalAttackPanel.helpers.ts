@@ -34,6 +34,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   TargetNotDirectlyAhead: 'Push target must be directly ahead',
   TargetProne: 'Target is prone',
   TargetAirborne: 'Target is airborne',
+  TargetInsideBuilding: 'Target is inside a building',
   TargetNotInPhysicalRange: 'Target must be adjacent',
   TargetElevationNotInRange: 'Target elevation is not in range',
   UnsupportedAttackType: 'Attack type is unsupported',

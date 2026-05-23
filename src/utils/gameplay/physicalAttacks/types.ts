@@ -65,6 +65,7 @@ export type PhysicalAttackInvalidReason =
   | 'TargetNotDirectlyAhead'
   | 'TargetProne'
   | 'TargetAirborne'
+  | 'TargetInsideBuilding'
   | 'TargetNotInPhysicalRange'
   | 'TargetElevationNotInRange'
   | 'UnsupportedAttackType'
@@ -85,6 +86,16 @@ export interface IPhysicalAttackElevationContext {
   readonly targetBaseElevation: number;
   readonly targetTopElevation: number;
   readonly targetIsAirborneVTOLOrWiGE?: boolean;
+}
+
+/**
+ * Represented terrain state for physical-attack gates that depend on more than
+ * elevation. Building identity is not modeled yet, so callers only set the
+ * coarse "occupies a building hex" flags that can be proven from the grid.
+ */
+export interface IPhysicalAttackTerrainContext {
+  readonly attackerInBuilding: boolean;
+  readonly targetInBuilding: boolean;
 }
 
 export interface IPhysicalAttackInput {
@@ -156,6 +167,7 @@ export interface IPhysicalAttackInput {
   readonly upperLegActuatorPresent?: boolean;
   readonly footActuatorPresent?: boolean;
   readonly elevationContext?: IPhysicalAttackElevationContext;
+  readonly terrainContext?: IPhysicalAttackTerrainContext;
 }
 
 export interface IPhysicalToHitResult {

@@ -12,12 +12,14 @@ import {
   type IGameState,
   type IGameUnit,
   type IHexCoordinate,
+  type IHexGrid,
   type IMovementRangeHex,
   type IUnitGameState,
   type IUnitToken,
   type IWeaponStatus,
 } from '@/types/gameplay';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { coordToKey } from '@/utils/gameplay/hexMath';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import { buildCommandPreviewInputs } from '../GameplayLayout.commandPreview';
@@ -116,6 +118,23 @@ function makeWeapon(overrides: Partial<IWeaponStatus> = {}): IWeaponStatus {
     damage: 5,
     ranges: { short: 2, medium: 4, long: 6 },
     ...overrides,
+  };
+}
+
+function gridWithTerrain(
+  coord: IHexCoordinate,
+  terrain: string,
+  radius = 3,
+): IHexGrid {
+  const grid = createMinimalGrid(radius);
+  const key = coordToKey(coord);
+  const hex = grid.hexes.get(key);
+  if (!hex) {
+    throw new Error(`test grid missing hex ${key}`);
+  }
+  return {
+    ...grid,
+    hexes: new Map(grid.hexes).set(key, { ...hex, terrain }),
   };
 }
 
@@ -538,6 +557,59 @@ describe('buildCommandPreviewInputs', () => {
         allowed: false,
         restrictionReason: 'Arm missing',
         restrictionReasonCode: 'LimbMissing',
+      },
+    });
+  });
+
+  it('preserves represented push building-target restrictions before commit', () => {
+    const currentState = makeState({
+      phase: GamePhase.PhysicalAttack,
+      units: {
+        a1: makeUnitState({
+          id: 'a1',
+          side: GameSide.Player,
+          position: { q: 0, r: 0 },
+        }),
+        t1: makeUnitState({
+          id: 't1',
+          side: GameSide.Opponent,
+          position: { q: 1, r: 0 },
+        }),
+      },
+    });
+
+    const inputs = buildCommandPreviewInputs({
+      currentState,
+      selectedUnitId: 'a1',
+      activeTargetId: null,
+      tokens: [],
+      unitBindings: [
+        makeUnitBinding({ id: 'a1', unitType: UnitType.BATTLEMECH }),
+        makeUnitBinding({
+          id: 't1',
+          name: 'Target Mek',
+          side: GameSide.Opponent,
+          unitType: UnitType.BATTLEMECH,
+        }),
+      ],
+      mapRadius: 3,
+      grid: gridWithTerrain(
+        { q: 1, r: 0 },
+        terrainStringFromFeatures([{ type: TerrainType.Building, level: 1 }]),
+      ),
+      unitWeapons: {},
+      hitChance: null,
+      physicalAttackTargetId: 't1',
+      physicalAttackType: 'push',
+    });
+
+    expect(inputs.physicalAttackOption).toMatchObject({
+      attackType: 'push',
+      restrictionsFailed: ['TargetInsideBuilding'],
+      toHit: {
+        allowed: false,
+        restrictionReason: 'Target is inside building',
+        restrictionReasonCode: 'TargetInsideBuilding',
       },
     });
   });

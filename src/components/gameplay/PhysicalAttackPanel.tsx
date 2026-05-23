@@ -48,6 +48,7 @@ import { GamePhase, MovementType, type IHexCoordinate } from '@/types/gameplay';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
+import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
 
 import type { PhysicalAttackIntentVariant } from './overlays/PhysicalAttackIntentArrow';
 
@@ -207,6 +208,9 @@ export function PhysicalAttackPanel({
             },
           )
         : undefined,
+      terrainContext: physicalGrid
+        ? buildPhysicalTerrainContext(selected.state, targetState, physicalGrid)
+        : undefined,
     });
   }, [
     selected,
@@ -259,6 +263,14 @@ export function PhysicalAttackPanel({
               {
                 targetUnit,
               },
+            )
+          : undefined,
+      terrainContext:
+        targetState && physicalGrid
+          ? buildPhysicalTerrainContext(
+              selected.state,
+              targetState,
+              physicalGrid,
             )
           : undefined,
     };
@@ -351,6 +363,14 @@ export function PhysicalAttackPanel({
               targetState,
               physicalGrid,
               { targetUnit },
+            )
+          : undefined,
+      terrainContext:
+        targetState && physicalGrid
+          ? buildPhysicalTerrainContext(
+              selected.state,
+              targetState,
+              physicalGrid,
             )
           : undefined,
     });

@@ -398,6 +398,7 @@ export interface ICommitPhysicalAttackArgs {
   readonly weaponsFiredFromLeftArm?: readonly string[];
   readonly weaponsFiredFromRightArm?: readonly string[];
   readonly elevationContext?: IPhysicalAttackInput['elevationContext'];
+  readonly terrainContext?: IPhysicalAttackInput['terrainContext'];
 }
 
 const EMPTY_PHYSICAL_PLAN: IPhysicalAttackPlan = {
@@ -487,6 +488,7 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
             args.attackerJumpedThisTurn ??
             attackerState?.movementThisTurn === MovementType.Jump,
           elevationContext: args.elevationContext,
+          terrainContext: args.terrainContext,
         },
       );
 

@@ -51,6 +51,7 @@ import {
   applyWithdrawalEdgeExits,
 } from '@/utils/gameplay/morale';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
+import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
 import { getWeaponRangeBracket } from '@/utils/gameplay/range';
 import {
   gameUnitUsesMekHorizontalCover,
@@ -532,6 +533,10 @@ export function runPhysicalAttackPhase(
           elevationContext:
             grid && targetState
               ? buildPhysicalElevationContext(unit, targetState, grid)
+              : undefined,
+          terrainContext:
+            grid && targetState
+              ? buildPhysicalTerrainContext(unit, targetState, grid)
               : undefined,
         },
       );

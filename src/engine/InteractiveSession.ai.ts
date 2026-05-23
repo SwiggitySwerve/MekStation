@@ -28,6 +28,7 @@ import {
 } from '@/utils/gameplay/gameSession';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
+import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
 import {
   gameUnitUsesMekHorizontalCover,
   gameUnitUsesMekWaterCover,
@@ -199,6 +200,9 @@ export function runInteractiveSessionAITurn(
               targetUnitType: targetBinding?.unitType,
               elevationContext: targetState
                 ? buildPhysicalElevationContext(unit, targetState, context.grid)
+                : undefined,
+              terrainContext: targetState
+                ? buildPhysicalTerrainContext(unit, targetState, context.grid)
                 : undefined,
             },
           ),
