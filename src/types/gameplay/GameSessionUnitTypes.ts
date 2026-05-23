@@ -128,6 +128,11 @@ export interface IGameUnit {
    */
   readonly unitType?: import('@/types/unit/BattleMechInterfaces').UnitType;
   /**
+   * Optional BattleMech chassis posture copied into combat state for physical
+   * legality gates. Undefined preserves legacy synthetic biped fixtures.
+   */
+  readonly isQuad?: boolean;
+  /**
    * Per-type construction inputs consumed by `createInitialUnitState` to
    * build `combatState` via `create{Type}CombatState` factories. Each block
    * is OPTIONAL at the type level so the legacy mech-only call path stays

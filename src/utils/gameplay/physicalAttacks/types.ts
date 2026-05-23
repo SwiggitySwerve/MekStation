@@ -74,6 +74,7 @@ export type PhysicalAttackInvalidReason =
   | 'NoRunThisTurn'
   | 'AttackerInfantry'
   | 'AttackerNotMek'
+  | 'AttackerQuad'
   | 'TargetNotMek'
   | 'TargetInfantryOrProtoMek'
   | 'LimbMissing'
@@ -114,6 +115,10 @@ export interface IPhysicalAttackInput {
    * targets/attackers that MegaMek would not treat as `Mek` instances.
    */
   readonly attackerUnitType?: string;
+  /**
+   * Source-backed push legality: quad BattleMechs cannot push.
+   */
+  readonly attackerIsQuad?: boolean;
   readonly targetUnitType?: string;
   readonly attackerProne?: boolean;
   readonly targetTonnage?: number;

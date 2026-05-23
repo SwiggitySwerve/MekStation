@@ -119,6 +119,11 @@ export interface IUnitGameState {
    * armor, and ProtoMechs. Undefined preserves legacy synthetic mech states.
    */
   readonly unitType?: string;
+  /**
+   * BattleMech chassis posture used by source-backed physical legality gates.
+   * Undefined preserves legacy synthetic biped BattleMech fixtures.
+   */
+  readonly isQuad?: boolean;
   /** Which side this unit belongs to */
   readonly side: GameSide;
   /** Current position */

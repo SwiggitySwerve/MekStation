@@ -236,6 +236,7 @@ export function getEligiblePhysicalAttacks(
     heat: attacker.heat,
     attackerDestroyedLocations: attacker.destroyedLocations,
     attackerUnitType: attacker.unitType,
+    attackerIsQuad: attacker.isQuad,
     targetUnitType: target.unitType,
     attackerProne: attacker.prone,
     targetProne: target.prone,

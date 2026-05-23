@@ -229,6 +229,7 @@ export function createInitialUnitState(
   return {
     id: unit.id,
     unitType: unit.unitType,
+    isQuad: unit.isQuad,
     side: unit.side,
     position: startPosition,
     facing: startFacing,

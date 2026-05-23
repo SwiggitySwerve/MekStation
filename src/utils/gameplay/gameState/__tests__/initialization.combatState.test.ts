@@ -142,6 +142,12 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.combatState).toBeUndefined();
   });
 
+  it('copies optional quad chassis state for BattleMech physical legality gates', () => {
+    const unit = baseGameUnit({ unitType: UnitType.BATTLEMECH, isQuad: true });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isQuad).toBe(true);
+  });
+
   it('leaves combatState undefined for VEHICLE (kind: vehicle is a future variant)', () => {
     const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
     const state = createInitialUnitState(unit, POSITION, Facing.North);

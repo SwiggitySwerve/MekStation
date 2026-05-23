@@ -1045,6 +1045,18 @@ describe('physicalAttacks', () => {
         canPush(
           makeInput({
             attackType: 'push',
+            attackerIsQuad: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerQuad',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
             targetUnitType: 'ProtoMech',
           }),
         ),

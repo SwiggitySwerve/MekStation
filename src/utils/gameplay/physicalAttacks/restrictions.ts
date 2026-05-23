@@ -397,6 +397,14 @@ export function canPush(
     };
   }
 
+  if (input.attackerIsQuad) {
+    return {
+      allowed: false,
+      reason: 'Quad BattleMechs cannot push',
+      reasonCode: 'AttackerQuad',
+    };
+  }
+
   if (explicitNonMekUnitType(input.targetUnitType)) {
     return {
       allowed: false,

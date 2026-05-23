@@ -13,7 +13,7 @@ The current implementation has already started this pattern with `CombatValidati
 - Require every integrated mechanic to carry executable evidence and source-truth notes.
 - Require every unsupported mechanic to remain visible until implemented, with no silent omissions.
 - Add physical-attack legality coverage for push, charge, death from above, posture, elevation, facing, quirk, displacement, and physical weapon gates.
-- Record the current headway: shared missing/destroyed/self/friendly/non-adjacent target gates, push attacker/target Mek unit-type gates, charge standing-Mek target gates, charge non-Mek-to-infantry/ProtoMech target gates, charge elevation-overlap gates, charge target movement-complete/immobile gates, push no-arms, both-arms-present, same-elevation, attacker-not-prone, target-not-prone, target-directly-ahead, push-destination-valid, push arm-fired gate with runner weapon-location hydration gap, DFA jump/prone/infantry-family-attacker gates, and catalog contract coverage are now tracked.
+- Record the current headway: shared missing/destroyed/self/friendly/non-adjacent target gates, push attacker/target Mek unit-type gates, push quad BattleMech rejection, charge standing-Mek target gates, charge non-Mek-to-infantry/ProtoMech target gates, charge elevation-overlap gates, charge target movement-complete/immobile gates, push no-arms, both-arms-present, same-elevation, attacker-not-prone, target-not-prone, target-directly-ahead, push-destination-valid, push arm-fired gate with runner weapon-location hydration gap, DFA jump/prone/infantry-family-attacker gates, and catalog contract coverage are now tracked.
 
 ## Non-Goals
 

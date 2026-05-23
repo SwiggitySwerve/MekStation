@@ -240,10 +240,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'IUnitGameState carries explicit unitType, canPush rejects explicit non-Mek attackers as AttackerNotMek, and eligibility/session/runner inputs thread attackerUnitType into push validation',
     PUSH_ACTION_LINES,
   ),
-  'push.attacker-not-quad': unsupported(
+  'push.attacker-not-quad': integrated(
     'push.attacker-not-quad',
     'push',
-    'quad configuration is not represented in push restriction input',
+    'canPush consumes attackerIsQuad, IUnitGameState exposes optional isQuad, and eligibility/session/runner inputs thread quad chassis state into push validation',
     PUSH_ACTION_LINES,
   ),
   'push.attacker-grounded': unsupported(

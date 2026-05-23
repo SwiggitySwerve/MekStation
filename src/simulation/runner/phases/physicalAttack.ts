@@ -189,6 +189,7 @@ export function runPhysicalAttackPhase(options: {
           : undefined,
       attackerDestroyedLocations: unit.destroyedLocations,
       attackerUnitType: unit.unitType,
+      attackerIsQuad: unit.isQuad,
       targetUnitType: target.unitType,
       heat: unit.heat,
       hasTSM: unit.hasTSM ?? false,

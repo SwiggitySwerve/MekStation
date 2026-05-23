@@ -916,6 +916,32 @@ describe('BattleMech physical combat behavior validation lane', () => {
     });
   });
 
+  it('rejects quad BattleMech push declarations before scheduling resolution', () => {
+    const session = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), { isQuad: true }, {}),
+      'attacker',
+      'target',
+      'push',
+      physicalContext({ pushDestinationValid: true }),
+    );
+    const payload = session.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      session.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'AttackerQuad',
+    });
+  });
+
   it('rejects non-adjacent physical declarations before scheduling resolution', () => {
     let session = withUnitState(physicalPhaseSession(), 'attacker', {
       position: { q: 0, r: 0 },
