@@ -37,7 +37,8 @@
   - [x] Represented Infantry, Battle Armor, ProtoMech, vehicle, and aerospace movement now separates pathing motive mode from Mek-style movement heat, so walk-like non-Mek movement projects and commits 0 movement heat.
   - [x] Represented non-mechanized Infantry and Battle Armor terrain profiles now source-pin doubled elevation MP and the woods-entry discount into projection/commit agreement.
   - [x] Represented UMU, biped-swim, and quad-swim movement modes now source-pin water-depth MP exemptions, with UMU run-into-water preview/commit agreement.
-  - [ ] Add remaining optional arm/quirk/TacOps stand-up modifiers not represented by current unit state, infantry-specific terrain/heat rules, Frogman and full swim elevation/underwater behavior, and special ProtoMech/Battle Armor movement fixtures.
+  - [x] Represented biped-swim and quad-swim movement now source-pins underwater movement against MegaMek: swim destinations require water terrain and represented ground-elevation rises do not add MP while swimming.
+  - [ ] Add remaining optional arm/quirk/TacOps stand-up modifiers not represented by current unit state, infantry-specific terrain/heat rules, Frogman behavior, and special ProtoMech/Battle Armor movement fixtures.
 - [x] Ensure highlighted walk/run/jump ranges expose MP cost, heat, elevation delta, terrain reason, and invalid reason.
 
 ## 4. Terrain and elevation readability

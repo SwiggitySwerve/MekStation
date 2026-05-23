@@ -44,6 +44,10 @@ function isWaterDepthCostExemptMotive(movementType: UnitMovementType): boolean {
   );
 }
 
+function isMekSwimMovement(movementType: UnitMovementType): boolean {
+  return movementType === 'biped_swim' || movementType === 'quad_swim';
+}
+
 export function blocksWaterMovement(
   movementType: UnitMovementType,
   context: IMovementCostContext,
@@ -163,7 +167,8 @@ export function paysElevationCost(movementType: UnitMovementType): boolean {
     movementType !== 'wige' &&
     movementType !== 'naval' &&
     movementType !== 'hydrofoil' &&
-    movementType !== 'submarine'
+    movementType !== 'submarine' &&
+    !isMekSwimMovement(movementType)
   );
 }
 
@@ -189,7 +194,8 @@ export function requiresWaterTerrain(movementType: UnitMovementType): boolean {
   return (
     movementType === 'naval' ||
     movementType === 'hydrofoil' ||
-    movementType === 'submarine'
+    movementType === 'submarine' ||
+    isMekSwimMovement(movementType)
   );
 }
 

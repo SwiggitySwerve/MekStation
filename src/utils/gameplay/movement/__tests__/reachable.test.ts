@@ -644,6 +644,61 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('keeps Mek swim movement in water and ignores represented elevation rises', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(
+      grid,
+      { q: 0, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      0,
+    );
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      3,
+    );
+    grid = setHex(grid, { q: 0, r: 1 }, TerrainType.Clear, 0);
+    const unit = makeUnitAtOrigin();
+    const capability = {
+      walkMP: 1,
+      runMP: 1,
+      jumpMP: 0,
+      movementMode: 'biped_swim',
+    } as const;
+
+    const elevatedWater = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 1, r: 0 },
+    );
+    const dryLand = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 0, r: 1 },
+    );
+
+    expect(elevatedWater).toMatchObject({
+      reachable: true,
+      mpCost: 1,
+      terrainCost: 0,
+      elevationDelta: 3,
+      elevationCost: 0,
+      movementMode: 'biped_swim',
+      movementType: MovementType.Walk,
+    });
+    expect(dryLand).toMatchObject({
+      reachable: false,
+      blockedReason: 'Biped swim movement requires water terrain',
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: 'Biped swim movement requires water terrain',
+    });
+  });
+
   it('lets tracked movement cross ice-covered water as surface terrain', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);

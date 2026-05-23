@@ -32,6 +32,15 @@ Movement overlays must distinguish walk, run, jump, and unit-type-specific movem
 
 This applies to ground units first and remains extensible for vehicles, VTOL, infantry, battle armor, ProtoMechs, and aerospace-adjacent tactical units.
 
+UMU and Mek swim movement projection is pinned to MegaMek tactical behavior:
+`MovementDisplay` only enables Mek swim gear for underwater units,
+`MovementType.getMovementType(...)` classifies `BIPED_SWIM`, `QUAD_SWIM`, and
+`INF_UMU` as water movement, and `MoveStep.calcMovementCostFor(...)` excludes
+biped/quad swim from ordinary terrain and water-depth surcharges. MekStation's
+represented layer therefore keeps biped/quad swim destinations in water terrain,
+does not charge represented ground-elevation rises while swimming, and leaves
+infantry UMU land-entry behavior to the existing UMU-specific projection.
+
 ## Combat Projection
 
 Combat overlays must be weapon-backed when the selected unit has configured weapons. Legacy raw `attackRange` is allowed only as a compatibility fallback when no configured weapon list exists.

@@ -443,6 +443,88 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps Mek swim elevation movement legal between preview and commit validation', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    grid.hexes.set(
+      '0,0',
+      makeHex(
+        0,
+        0,
+        terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      ),
+    );
+    grid.hexes.set(
+      '1,0',
+      makeHex(
+        1,
+        0,
+        terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+        3,
+      ),
+    );
+    const movementByUnit = capability({
+      walkMP: 1,
+      runMP: 1,
+      movementMode: 'biped_swim',
+      movementHeatProfile: 'none',
+    });
+
+    const preview = deriveReachableHexes(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+    ).find((entry) => entry.hex.q === 1 && entry.hex.r === 0);
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      movementMode: 'biped_swim',
+      mpCost: 1,
+      terrainCost: 0,
+      elevationDelta: 3,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementType: MovementType.Walk,
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementInvalid,
+      ),
+    ).toBe(false);
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: preview!.hex,
+      movementType: preview!.movementType,
+      mpUsed: preview!.mpCost,
+      heatGenerated: preview!.heatGenerated,
+    });
+  });
+
   it('keeps tracked ice-covered water movement legal between preview and commit validation', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.blocker = {
