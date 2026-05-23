@@ -1313,6 +1313,21 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-isometric-rotation-step',
       '0',
     );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveTextContent(
+      'View 0 deg',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveAttribute(
+      'data-isometric-rotation-degrees',
+      '0',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveAttribute(
+      'aria-label',
+      'Isometric camera heading 0 degrees',
+    );
     expect(projectionLayer.getAttribute('transform')).toContain('rotate(0)');
     expect(projectionLayer.getAttribute('transform')).toContain('matrix(');
     expect(screen.getByTestId('hex-elevation-stack-1-0')).toBeInTheDocument();
@@ -1332,6 +1347,17 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-isometric-rotation-step',
       '1',
     );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveTextContent(
+      'View 60 deg',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '1',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveAttribute(
+      'data-isometric-rotation-degrees',
+      '60',
+    );
     expect(projectionLayer.getAttribute('transform')).toContain('rotate(60)');
 
     fireEvent.click(screen.getByTestId('projection-rotate-left'));
@@ -1347,6 +1373,17 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(projectionLayer).toHaveAttribute(
       'data-isometric-rotation-step',
       '5',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveTextContent(
+      'View 300 deg',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '5',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveAttribute(
+      'data-isometric-rotation-degrees',
+      '300',
     );
     expect(projectionLayer.getAttribute('transform')).toContain('rotate(300)');
 

@@ -140,10 +140,17 @@ function ResetViewIcon(): React.ReactElement {
   );
 }
 
+function formatIsometricRotationDegrees(rotationStep: number): number {
+  return rotationStep * 60;
+}
+
 export function MapControls({
   interaction,
 }: MapControlsProps): React.ReactElement {
   const isIsometric = isIsometricProjection(interaction.projectionMode);
+  const isometricRotationDegrees = formatIsometricRotationDegrees(
+    interaction.isometricRotationStep,
+  );
 
   return (
     <div
@@ -179,7 +186,19 @@ export function MapControls({
           )}
         </button>
         {isIsometric && (
-          <div className="flex gap-1" data-testid="isometric-rotation-controls">
+          <div
+            className="flex items-center gap-1"
+            data-testid="isometric-rotation-controls"
+          >
+            <div
+              className="pointer-events-none rounded bg-slate-950/85 px-2 py-1 text-[10px] font-semibold text-slate-100 shadow"
+              aria-label={`Isometric camera heading ${isometricRotationDegrees} degrees`}
+              data-testid="isometric-rotation-heading"
+              data-isometric-rotation-step={interaction.isometricRotationStep}
+              data-isometric-rotation-degrees={isometricRotationDegrees}
+            >
+              View {isometricRotationDegrees} deg
+            </div>
             <button
               type="button"
               onClick={interaction.rotateIsometricLeft}
