@@ -239,6 +239,7 @@ export function PhysicalAttackPanel({
       heat: selected.state.heat,
       attackerProne: selected.state.prone,
       attackerUnitType: selected.unit.unitType,
+      attackerDestroyedLocations: selected.state.destroyedLocations,
       targetUnitType: targetUnit?.unitType,
       attackerPosition: selected.state.position,
       targetPosition: targetState?.position,

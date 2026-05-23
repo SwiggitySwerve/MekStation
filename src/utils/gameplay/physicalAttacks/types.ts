@@ -100,6 +100,7 @@ export interface IPhysicalAttackInput {
   readonly weaponsFiredFromArm?: readonly string[];
   readonly attackerProne?: boolean;
   readonly attackerUnitType?: UnitType;
+  readonly attackerDestroyedLocations?: readonly string[];
   readonly targetUnitType?: UnitType;
   readonly attackerPosition?: IHexCoordinate;
   readonly targetPosition?: IHexCoordinate;

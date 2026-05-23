@@ -27,6 +27,7 @@ const PUNCH_CONTEXT: IPhysicalAttackContext = {
 function buildPhysicalSession(
   targetPosition: IHexCoordinate,
   targetUnitType: UnitType = UnitType.BATTLEMECH,
+  attackerDestroyedLocations: readonly string[] = [],
 ): IGameSession {
   return {
     id: 'physical-range-session',
@@ -78,7 +79,7 @@ function buildPhysicalSession(
           hexesMovedThisTurn: 0,
           armor: {},
           structure: {},
-          destroyedLocations: [],
+          destroyedLocations: attackerDestroyedLocations,
           destroyedEquipment: [],
           ammo: {},
           pilotWounds: 0,
@@ -254,6 +255,38 @@ describe('declarePhysicalAttack target range', () => {
       toHitNumber: Infinity,
       hit: false,
       location: 'TargetNotDirectlyAhead',
+    });
+  });
+
+  it('rejects push declarations when either attacker arm is missing', () => {
+    const session = buildPhysicalSession({ q: 1, r: 0 }, UnitType.BATTLEMECH, [
+      'right_arm',
+    ]);
+
+    const next = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'push',
+      PUNCH_CONTEXT,
+    );
+
+    expect(
+      next.events.some(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toBe(false);
+    const rejection = next.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    expect(rejection?.payload as IPhysicalAttackResolvedPayload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'LimbMissing',
     });
   });
 });

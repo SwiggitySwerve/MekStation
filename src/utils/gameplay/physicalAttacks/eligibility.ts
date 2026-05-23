@@ -222,6 +222,7 @@ export function getEligiblePhysicalAttacks(
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
+    attackerDestroyedLocations: attacker.destroyedLocations,
     lowerArmActuatorPresent: context.lowerArmActuatorPresent,
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,

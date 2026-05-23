@@ -240,6 +240,17 @@ export function canPush(
     };
   }
 
+  if (
+    input.attackerDestroyedLocations?.includes('left_arm') ||
+    input.attackerDestroyedLocations?.includes('right_arm')
+  ) {
+    return {
+      allowed: false,
+      reason: 'Arm missing',
+      reasonCode: 'LimbMissing',
+    };
+  }
+
   if (input.weaponsFiredFromArm && input.weaponsFiredFromArm.length > 0) {
     return {
       allowed: false,

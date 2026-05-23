@@ -489,6 +489,59 @@ describe('buildCommandPreviewInputs', () => {
     });
   });
 
+  it('preserves represented push arm-missing restrictions before commit', () => {
+    const currentState = makeState({
+      phase: GamePhase.PhysicalAttack,
+      units: {
+        a1: {
+          ...makeUnitState({
+            id: 'a1',
+            side: GameSide.Player,
+            position: { q: 0, r: 0 },
+          }),
+          destroyedLocations: ['left_arm'],
+        },
+        t1: makeUnitState({
+          id: 't1',
+          side: GameSide.Opponent,
+          position: { q: 1, r: 0 },
+        }),
+      },
+    });
+
+    const inputs = buildCommandPreviewInputs({
+      currentState,
+      selectedUnitId: 'a1',
+      activeTargetId: null,
+      tokens: [],
+      unitBindings: [
+        makeUnitBinding({ id: 'a1', unitType: UnitType.BATTLEMECH }),
+        makeUnitBinding({
+          id: 't1',
+          name: 'Target Mek',
+          side: GameSide.Opponent,
+          unitType: UnitType.BATTLEMECH,
+        }),
+      ],
+      mapRadius: 3,
+      grid: createMinimalGrid(3),
+      unitWeapons: {},
+      hitChance: null,
+      physicalAttackTargetId: 't1',
+      physicalAttackType: 'push',
+    });
+
+    expect(inputs.physicalAttackOption).toMatchObject({
+      attackType: 'push',
+      restrictionsFailed: ['LimbMissing'],
+      toHit: {
+        allowed: false,
+        restrictionReason: 'Arm missing',
+        restrictionReasonCode: 'LimbMissing',
+      },
+    });
+  });
+
   it('carries hovered movement projection inputs for the command preview', () => {
     const weapon = makeWeapon();
     const movementInfo: IMovementRangeHex = {

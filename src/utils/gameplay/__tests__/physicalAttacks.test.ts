@@ -541,6 +541,21 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('should disallow push when either attacker arm is missing', () => {
+      const result = canPush(
+        makeInput({
+          attackType: 'push',
+          attackerDestroyedLocations: ['left_arm'],
+        }),
+      );
+
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Arm missing',
+        reasonCode: 'LimbMissing',
+      });
+    });
+
     it('should disallow push targets on a different base elevation', () => {
       const result = canPush(
         makeInput({

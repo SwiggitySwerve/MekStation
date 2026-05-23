@@ -110,6 +110,7 @@ export function declarePhysicalAttack(
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerUnitType: context.attackerUnitType ?? attackerUnit?.unitType,
+    attackerDestroyedLocations: attackerState.destroyedLocations,
     targetUnitType: context.targetUnitType ?? targetUnit?.unitType,
     attackerPosition: attackerState.position,
     targetPosition: targetState.position,

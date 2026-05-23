@@ -99,7 +99,7 @@ When a selected unit has a configured weapon list, the map SHALL derive attack-r
 #### Scenario: Physical push legality matches commit
 
 - **GIVEN** a unit previews a push option against an adjacent represented target
-- **WHEN** the target is not a Mek, is prone or airborne, is not directly ahead of the attacker, or is not at the attacker's base elevation
+- **WHEN** the target is not a Mek, is prone or airborne, is not directly ahead of the attacker, is not at the attacker's base elevation, or either attacker arm is destroyed
 - **THEN** the push option SHALL be disabled with the matching typed reason
 - **AND** a direct commit of that same push SHALL reject with the same typed reason
 - **AND** the command preview SHALL preserve the restriction instead of showing push as legal

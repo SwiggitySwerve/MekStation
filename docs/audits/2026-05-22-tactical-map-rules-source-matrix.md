@@ -75,7 +75,11 @@ fire; `PushAttackAction.java:212-260` also requires same base elevation,
 front-hex facing, non-airborne targets, and neither unit prone. MekStation now
 models the represented subset: non-Mek attackers/targets, prone attacker/target,
 airborne target, not-directly-ahead target, arm weapon fire, and same-base
-elevation all produce typed push restrictions. The same restriction path feeds
+elevation all produce typed push restrictions. MegaMek
+`PushAttackAction.java:184-186` also requires both arms to be present, so
+MekStation now treats represented `left_arm` / `right_arm` destroyed locations
+as a `LimbMissing` push restriction in the same projection/commit path. The
+same restriction path feeds
 physical option rows, command preview, and `declarePhysicalAttack`, so push is
 not shown as commit-ready when the engine would reject it. Coverage:
 `src/utils/gameplay/physicalAttacks/restrictions.ts`,

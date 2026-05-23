@@ -18,6 +18,7 @@
   - [x] Physical attack target range now agrees between map highlights and committed declarations: non-adjacent unit targets are not highlighted and direct commits resolve as impossible.
   - [x] Physical punch/kick elevation legality now agrees between command preview rows and committed declarations, using MegaMek-style target vertical spans.
   - [x] Physical push target legality now agrees between command preview rows and committed declarations for represented unit type, facing, prone, and same-elevation gates.
+  - [x] Physical push missing-arm legality now agrees between command preview rows and committed declarations using represented destroyed arm locations.
 
 ## 3. Movement highlight agreement
 
