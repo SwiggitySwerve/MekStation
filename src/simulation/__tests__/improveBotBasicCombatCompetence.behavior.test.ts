@@ -490,11 +490,11 @@ describe('Task 6.5 — scoreMove behavior', () => {
   it('prefers the LoS destination over a non-LoS destination', () => {
     // Per hexLine empirical check: enemy (3,0) → (0,-2) passes through (2,0);
     // enemy (3,0) → (0,2) does NOT pass through (2,0). Blocking (2,0) with
-    // heavy_woods (blocksLOS: true, losBlockHeight: 1) blocks LoS from enemy
+    // a building blocks LoS from enemy
     // to (0,-2) but leaves LoS to (0,2) clear — same distance from enemy for
     // both destinations, so only the LoS bonus differs.
     const overrides = new Map<string, string>();
-    overrides.set('2,0', 'heavy_woods');
+    overrides.set('2,0', 'building');
     const grid = makeGrid(5, overrides);
 
     const attacker = makeUnit({ unitId: 'a', position: { q: 0, r: 0 } });

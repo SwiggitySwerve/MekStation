@@ -37,6 +37,7 @@ import {
   MovementType,
   GameEventType,
 } from '@/types/gameplay';
+import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 
 import type { IWeapon } from '../../ai/types';
 
@@ -91,6 +92,33 @@ function createMediumLaser(id = 'medium-laser-test'): IWeapon {
     ammoPerTon: -1,
     destroyed: false,
   };
+}
+
+function createLRM15(id = 'lrm-15-test'): IWeapon {
+  return {
+    id,
+    name: 'LRM-15',
+    shortRange: 7,
+    mediumRange: 14,
+    longRange: 21,
+    damage: 9,
+    heat: 5,
+    minRange: 6,
+    ammoPerTon: 8,
+    destroyed: false,
+  };
+}
+
+function makeAerospaceCombatState(altitude: number) {
+  return createAerospaceCombatState({
+    maxSI: 10,
+    armorByArc: { nose: 10, leftWing: 8, rightWing: 8, aft: 6 },
+    heatSinks: 10,
+    fuelPoints: 20,
+    safeThrust: 6,
+    maxThrust: 9,
+    altitude,
+  });
 }
 
 /**
@@ -291,6 +319,37 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       );
       expect(weaponIds).toContain('ml-1');
       expect(weaponIds).toContain('ml-2');
+    });
+
+    it('does not include minimum-range modifiers against airborne aerospace targets', () => {
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [createLRM15()],
+        targetPosition: { q: 3, r: 0 },
+      });
+      state.units['opponent-1'] = {
+        ...state.units['opponent-1'],
+        combatState: {
+          kind: 'aero',
+          state: makeAerospaceCombatState(3),
+        },
+      };
+
+      const events = runPhase({ state, weaponsByUnit });
+      const declared = events.find(
+        (e) => e.type === GameEventType.AttackDeclared,
+      );
+      expect(declared).toBeDefined();
+
+      const payload = declared!.payload as IAttackDeclaredPayload;
+      expect(payload.weapons).toEqual(['lrm-15-test']);
+      expect(payload.toHitNumber).toBe(4);
+      expect(payload.modifiers).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'Minimum Range',
+          }),
+        ]),
+      );
     });
   });
 

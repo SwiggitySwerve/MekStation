@@ -135,8 +135,9 @@ function makeBlockedGrid(): IHexGrid {
       hexes.set(`${q},${r}`, makeHex(q, r));
     }
   }
-  // Heavy woods at (5, 0) blocks LOS from attacker (0,0) → target (10,0).
-  hexes.set('5,0', makeHex(5, 0, TerrainType.HeavyWoods));
+  // Heavy + light woods exceed MegaMek's intervening woods LOS threshold.
+  hexes.set('4,0', makeHex(4, 0, TerrainType.HeavyWoods));
+  hexes.set('5,0', makeHex(5, 0, TerrainType.LightWoods));
   return { config: { radius: 15 }, hexes };
 }
 
