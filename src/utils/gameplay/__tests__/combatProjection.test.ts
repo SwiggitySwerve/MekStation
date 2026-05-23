@@ -135,6 +135,61 @@ describe('deriveCombatRangeHexes', () => {
     expect(targetHex?.attackInvalidReason).toBeUndefined();
   });
 
+  it('projects available weapon heat and ammo impact from weapon statuses', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    const targetHex = deriveCombatRangeHexes({
+      attacker,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attacker, target],
+      weapons: [
+        makeWeapon({ id: 'medium-laser', name: 'Medium Laser', heat: 3 }),
+        makeWeapon({
+          id: 'ac-5',
+          name: 'AC/5',
+          heat: 1,
+          ammoRemaining: 12,
+        }),
+      ],
+      combatState: makeCombatState({
+        attacker: { side: GameSide.Player, position: { q: 0, r: 0 } },
+        target: { side: GameSide.Opponent, position: { q: 2, r: 0 } },
+      }),
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(targetHex).toMatchObject({
+      attackable: true,
+      weaponIdsAvailable: ['medium-laser', 'ac-5'],
+      availableWeaponHeat: 4,
+      availableWeaponImpacts: [
+        {
+          weaponId: 'medium-laser',
+          weaponName: 'Medium Laser',
+          heat: 3,
+          ammoConsumed: 0,
+        },
+        {
+          weaponId: 'ac-5',
+          weaponName: 'AC/5',
+          heat: 1,
+          ammoConsumed: 1,
+          ammoRemaining: 12,
+        },
+      ],
+    });
+  });
+
   it('keeps out-of-range targets explainable instead of making them disappear', () => {
     const grid = createHexGrid({ radius: 3 });
     const attacker = makeToken({

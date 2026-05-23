@@ -21,6 +21,7 @@ import { MapMovementPointLegend } from './HexMapDisplay.mpLegend';
 import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
+  formatCombatWeaponImpactLabel,
   formatCombatWeaponLabel,
   formatMovementPathSummaryLabel,
   formatToHitModifierLabel,
@@ -323,6 +324,7 @@ function CombatHoverTooltip({
   const minimumRangeLabel = combatInfo.minimumRangeReason;
   const indirectFireLabel = combatInfo.indirectFireReason;
   const modifierLabel = formatToHitModifierLabel(combatInfo);
+  const weaponImpactLabel = formatCombatWeaponImpactLabel(combatInfo);
 
   return (
     <div
@@ -352,6 +354,11 @@ function CombatHoverTooltip({
       )}
       {weaponLabel && (
         <div data-testid="hex-combat-tooltip-weapons">{weaponLabel}</div>
+      )}
+      {weaponImpactLabel && (
+        <div data-testid="hex-combat-tooltip-weapon-impact">
+          {weaponImpactLabel}
+        </div>
       )}
       {visibilityLabel && (
         <div data-testid="hex-combat-tooltip-visibility">{visibilityLabel}</div>

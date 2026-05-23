@@ -333,6 +333,23 @@ function formatProjectionExplanation({
     }
     if (combat.weaponIdsAvailable.length > 0) {
       parts.push(`weapons ${combat.weaponIdsAvailable.join(',')}`);
+      if (combat.hasTarget) {
+        parts.push(
+          `weapon heat ${formatSignedCost(combat.availableWeaponHeat)}`,
+        );
+        const ammoImpacts = combat.availableWeaponImpacts
+          .filter((impact) => impact.ammoConsumed > 0)
+          .map((impact) => {
+            const remaining =
+              impact.ammoRemaining === undefined
+                ? ''
+                : ` ${Math.max(0, impact.ammoRemaining - impact.ammoConsumed)} left`;
+            return `${impact.weaponName} -${impact.ammoConsumed}${remaining}`;
+          });
+        if (ammoImpacts.length > 0) {
+          parts.push(`ammo ${ammoImpacts.join(', ')}`);
+        }
+      }
     } else if (
       combat.weaponIdsInRange.length > 0 ||
       combat.weaponIdsInArc.length > 0

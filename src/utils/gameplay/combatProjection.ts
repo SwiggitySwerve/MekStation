@@ -2,6 +2,7 @@ import type {
   CombatFiringArc,
   IGameState,
   ICombatRangeHex,
+  ICombatWeaponImpact,
   IHexCoordinate,
   IHexGrid,
   IUnitToken,
@@ -54,6 +55,17 @@ export interface ICombatProjectionInput {
   readonly tokens: readonly IUnitToken[];
   readonly weapons: readonly IWeaponStatus[];
   readonly combatState?: IGameState | null;
+}
+
+function weaponImpactForStatus(weapon: IWeaponStatus): ICombatWeaponImpact {
+  const ammoRemaining = weapon.ammoRemaining;
+  return {
+    weaponId: weapon.id,
+    weaponName: weapon.name,
+    heat: weapon.heat,
+    ammoConsumed: ammoRemaining === undefined ? 0 : 1,
+    ammoRemaining,
+  };
 }
 
 export function deriveCombatRangeHexes({
@@ -134,6 +146,11 @@ export function deriveCombatRangeHexes({
       }),
     );
     const weaponIdsAvailable = availableWeapons.map((weapon) => weapon.id);
+    const availableWeaponImpacts = availableWeapons.map(weaponImpactForStatus);
+    const availableWeaponHeat = availableWeaponImpacts.reduce(
+      (sum, impact) => sum + impact.heat,
+      0,
+    );
     const inArc = weaponIdsInArc.length > 0;
     const usableRangeBracket =
       availableWeapons.length > 0
@@ -308,6 +325,8 @@ export function deriveCombatRangeHexes({
       weaponIdsInRange,
       weaponIdsInArc,
       weaponIdsAvailable,
+      availableWeaponImpacts,
+      availableWeaponHeat,
       targetUnitIds,
       validTargetUnitIds: attackable ? visibleTargetUnitIds : [],
       attackInvalidReason: attackInvalidState.reason,

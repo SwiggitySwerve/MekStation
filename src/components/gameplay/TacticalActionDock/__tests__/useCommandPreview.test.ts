@@ -68,6 +68,15 @@ function makeCombatInfo(
     weaponIdsInRange: ['medium-laser'],
     weaponIdsInArc: ['medium-laser'],
     weaponIdsAvailable: ['medium-laser'],
+    availableWeaponImpacts: [
+      {
+        weaponId: 'medium-laser',
+        weaponName: 'Medium Laser',
+        heat: 3,
+        ammoConsumed: 0,
+      },
+    ],
+    availableWeaponHeat: 3,
     targetUnitIds: ['enemy-x'],
     validTargetUnitIds: ['enemy-x'],
     ...overrides,

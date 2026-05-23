@@ -59,6 +59,15 @@ function combat(overrides: Partial<ICombatRangeHex> = {}): ICombatRangeHex {
     weaponIdsInRange: ['medium-laser'],
     weaponIdsInArc: ['medium-laser'],
     weaponIdsAvailable: ['medium-laser'],
+    availableWeaponImpacts: [
+      {
+        weaponId: 'medium-laser',
+        weaponName: 'Medium Laser',
+        heat: 3,
+        ammoConsumed: 0,
+      },
+    ],
+    availableWeaponHeat: 3,
     targetUnitIds: ['enemy'],
     validTargetUnitIds: ['enemy'],
     ...overrides,
@@ -91,6 +100,7 @@ describe('tacticalMapProjection', () => {
     expect(projection.combat?.weaponIdsAvailable).toEqual(['medium-laser']);
     expect(projection.explanation).toContain('terrain rough');
     expect(projection.explanation).toContain('Walk reachable 2 MP');
+    expect(projection.explanation).toContain('weapon heat +3');
   });
 
   it('preserves movement and combat blocked reasons as a mixed projection', () => {

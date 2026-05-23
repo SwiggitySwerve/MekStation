@@ -322,6 +322,127 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.queryByTestId('hex-combat-visibility-badge-2-0')).toBeNull();
   });
 
+  it('shows projected weapon heat and ammo impact in combat hover explanations', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={2}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        unitWeapons={{
+          selected: [
+            makeWeapon({ id: 'medium-laser', name: 'Medium Laser', heat: 3 }),
+            makeWeapon({
+              id: 'ac-5',
+              name: 'AC/5',
+              heat: 1,
+              ammoRemaining: 12,
+            }),
+          ],
+        }}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-2-0');
+    expect(targetHex).toHaveAttribute(
+      'data-weapons-available',
+      'medium-laser,ac-5',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('weapon heat +4'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('ammo AC/5 -1 11 left'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('weapon heat +4, ammo AC/5 -1 11 left'),
+    );
+
+    fireEvent.mouseEnter(targetHex);
+
+    expect(screen.getByTestId('hex-combat-tooltip-weapons')).toHaveTextContent(
+      'Weapons: medium-laser, ac-5',
+    );
+    expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-impact'),
+    ).toHaveTextContent('Impact: +4 heat; ammo AC/5 -1 (11 left)');
+  });
+
+  it('shows projected weapon heat and ammo impact in combined tactical hover explanations', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={2}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 2, r: 0 },
+            mpCost: 2,
+            terrainCost: 0,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'walk',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+        unitWeapons={{
+          selected: [
+            makeWeapon({
+              id: 'ac-5',
+              name: 'AC/5',
+              heat: 1,
+              ammoRemaining: 8,
+            }),
+          ],
+        }}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-2-0');
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'movement-combat',
+    );
+
+    fireEvent.mouseEnter(targetHex);
+
+    expect(screen.getByTestId('hex-tactical-tooltip-combat')).toHaveTextContent(
+      'Combat: Attack available',
+    );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact'),
+    ).toHaveTextContent('Impact: +1 heat; ammo AC/5 -1 (7 left)');
+    expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
+  });
+
   it('uses represented weapon extreme range instead of marking engine-legal attacks out of range', () => {
     const selected = makeToken({
       unitId: 'selected',
@@ -553,6 +674,7 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-combat-tooltip-range')).toHaveTextContent(
       'short at 1 hexes',
     );
+    expect(screen.queryByTestId('hex-combat-tooltip-weapon-impact')).toBeNull();
     expect(screen.queryByTestId('hex-combat-tooltip-reason')).toBeNull();
   });
 

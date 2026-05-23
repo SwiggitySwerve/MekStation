@@ -11,6 +11,7 @@ import {
 import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
+  formatCombatWeaponImpactLabel,
   formatCombatWeaponLabel,
   formatMovementPathSummaryLabel,
   formatToHitModifierLabel,
@@ -119,6 +120,7 @@ export function CombinedTacticalHoverTooltip({
       ? combatInfo.targetUnitIds.join(', ')
       : 'No target';
   const weaponLabel = formatCombatWeaponLabel(combatInfo);
+  const weaponImpactLabel = formatCombatWeaponImpactLabel(combatInfo);
   const visibilityLabel = formatCombatVisibilityLabel(combatInfo);
   const coverLabel = formatCombatCoverLabel(combatInfo);
   const modifierLabel = formatToHitModifierLabel(combatInfo);
@@ -218,6 +220,11 @@ export function CombinedTacticalHoverTooltip({
       {weaponLabel && (
         <div data-testid="hex-tactical-tooltip-combat-weapons">
           {weaponLabel}
+        </div>
+      )}
+      {weaponImpactLabel && (
+        <div data-testid="hex-tactical-tooltip-combat-weapon-impact">
+          {weaponImpactLabel}
         </div>
       )}
       {visibilityLabel && (

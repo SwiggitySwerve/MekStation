@@ -47,6 +47,12 @@ export function formatCombatLabel(combatInfo: ICombatRangeHex): string {
   const targetLabel = combatInfo.hasTarget
     ? `, targets ${combatInfo.targetUnitIds.join(', ')}`
     : '';
+  const weaponImpactLabel =
+    combatInfo.hasTarget && combatInfo.availableWeaponImpacts.length > 0
+      ? `, weapon heat +${combatInfo.availableWeaponHeat}${formatAmmoImpactLabel(
+          combatInfo,
+        )}`
+      : '';
   const visibilityLabel =
     combatInfo.targetVisibilityState !== 'none'
       ? `, visibility ${combatInfo.targetVisibilityState}`
@@ -77,7 +83,20 @@ export function formatCombatLabel(combatInfo: ICombatRangeHex): string {
   return `combat ${combatInfo.rangeBracket.replace(
     /_/g,
     ' ',
-  )} at ${combatInfo.distance} hexes, LOS ${combatInfo.losState}, ${combatInfo.firingArc} arc${targetLabel}${visibilityLabel}${coverLabel}${minimumRangeLabel}${toHitLabel}${losBlockerLabel}${invalidLabel}${indirectLabel}${note}`;
+  )} at ${combatInfo.distance} hexes, LOS ${combatInfo.losState}, ${combatInfo.firingArc} arc${targetLabel}${weaponImpactLabel}${visibilityLabel}${coverLabel}${minimumRangeLabel}${toHitLabel}${losBlockerLabel}${invalidLabel}${indirectLabel}${note}`;
+}
+
+function formatAmmoImpactLabel(combatInfo: ICombatRangeHex): string {
+  const ammoImpacts = combatInfo.availableWeaponImpacts
+    .filter((impact) => impact.ammoConsumed > 0)
+    .map((impact) => {
+      const remaining =
+        impact.ammoRemaining === undefined
+          ? ''
+          : ` ${Math.max(0, impact.ammoRemaining - impact.ammoConsumed)} left`;
+      return `${impact.weaponName} -${impact.ammoConsumed}${remaining}`;
+    });
+  return ammoImpacts.length > 0 ? `, ammo ${ammoImpacts.join(', ')}` : '';
 }
 
 export function formatMovementLabel(movementInfo: IMovementRangeHex): string {

@@ -26,6 +26,26 @@ export function formatCombatWeaponLabel(
   return null;
 }
 
+export function formatCombatWeaponImpactLabel(
+  combatInfo: ICombatRangeHex,
+): string | null {
+  if (!combatInfo.hasTarget) return null;
+  if (combatInfo.availableWeaponImpacts.length === 0) return null;
+
+  const ammoRows = combatInfo.availableWeaponImpacts
+    .filter((impact) => impact.ammoConsumed > 0)
+    .map((impact) => {
+      const remaining =
+        impact.ammoRemaining === undefined
+          ? ''
+          : ` (${Math.max(0, impact.ammoRemaining - impact.ammoConsumed)} left)`;
+      return `${impact.weaponName} -${impact.ammoConsumed}${remaining}`;
+    });
+  const ammoLabel = ammoRows.length > 0 ? `; ammo ${ammoRows.join('; ')}` : '';
+
+  return `Impact: +${combatInfo.availableWeaponHeat} heat${ammoLabel}`;
+}
+
 export function formatCombatVisibilityLabel(
   combatInfo: ICombatRangeHex,
 ): string | null {
