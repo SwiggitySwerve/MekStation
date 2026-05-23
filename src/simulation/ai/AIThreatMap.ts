@@ -63,7 +63,8 @@ function canEngage(friendly: IAIUnitState, enemy: IAIUnitState): boolean {
   let maxRange = 0;
   for (const weapon of friendly.weapons) {
     if (weapon.destroyed) continue;
-    if (weapon.longRange > maxRange) maxRange = weapon.longRange;
+    const range = weapon.extremeRange ?? weapon.longRange;
+    if (range > maxRange) maxRange = range;
   }
   if (maxRange <= 0) return false;
 

@@ -424,7 +424,8 @@ describe('wire-bot-ai-helpers-and-capstone — smoke test', () => {
       expect(evt!.type).toBe(GameEventType.PhysicalAttackDeclared);
       expect(evt!.payload.attackerId).toBe('attacker');
       expect(evt!.payload.targetId).toBe('target');
-      // Phase 1 catalog supports punch / kick — both should be valid.
+      // The default bot has no movement/weapon context here, so its
+      // adjacent-melee choice is limited to the basic body attacks.
       expect(['punch', 'kick']).toContain(evt!.payload.attackType);
     });
 

@@ -2,6 +2,7 @@
  * Core simulation type definitions
  */
 
+import type { IEnvironmentalConditions } from '@/types/gameplay';
 import type {
   IMapPreset,
   ScenarioObjectiveType,
@@ -53,6 +54,13 @@ export interface ISimulationConfig {
    * omitted, the legacy weighted-table terrain is used unchanged.
    */
   readonly mapPreset?: IMapPreset;
+
+  /**
+   * Optional battlefield environment used by heat resolution. Atmosphere and
+   * temperature modify effective dissipation through the shared environmental
+   * combat helper.
+   */
+  readonly environmentalConditions?: IEnvironmentalConditions;
 }
 
 /**

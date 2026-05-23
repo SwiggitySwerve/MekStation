@@ -53,6 +53,7 @@ export function emitCoveredLegMiss(options: {
   targetId: string;
   weaponId: string;
   weapon: IWeapon;
+  projectileCount?: number;
   attackRoll: number;
   toHitNumber: number;
   firingArc: 'front' | 'left' | 'right' | 'rear';
@@ -65,6 +66,7 @@ export function emitCoveredLegMiss(options: {
     targetId,
     weaponId,
     weapon,
+    projectileCount,
     attackRoll,
     toHitNumber,
     firingArc,
@@ -85,6 +87,7 @@ export function emitCoveredLegMiss(options: {
         toHitNumber,
         hit: false,
         heat: weapon.heat,
+        ...(projectileCount !== undefined ? { projectileCount } : {}),
         attackerArc: firingArc,
       },
       attackerId,
@@ -110,8 +113,9 @@ export function consumeWeaponAmmo(options: {
   gameId: string;
   attackerId: string;
   weapon: IWeapon;
+  ammoWeaponType?: string;
 }): IGameState {
-  const { events, gameId, attackerId, weapon } = options;
+  const { ammoWeaponType, events, gameId, attackerId, weapon } = options;
   let { currentState } = options;
 
   const attackerForAmmo = currentState.units[attackerId];
@@ -121,7 +125,7 @@ export function consumeWeaponAmmo(options: {
     Object.keys(ammoStateBefore).length > 0 &&
     !isEnergyWeapon(weapon.name)
   ) {
-    const baseWeaponType = weaponTypeFromMountId(weapon.id);
+    const baseWeaponType = ammoWeaponType ?? weaponTypeFromMountId(weapon.id);
     const ammoResult = consumeAmmo(ammoStateBefore, attackerId, baseWeaponType);
     if (ammoResult) {
       currentState = {

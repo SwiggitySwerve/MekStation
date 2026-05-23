@@ -23,6 +23,21 @@ export function applyEngineHit(
   const newHits = componentDamage.engineHits + 1;
   const updatedDamage = { ...componentDamage, engineHits: newHits };
 
+  // Per the PSR trigger catalog, engine criticals produce a canonical
+  // engine-hit PSR signal. The runner/session layers decide whether a
+  // destroyed target keeps the pending roll; this keeps the critical
+  // pipeline as the single source of truth for crit-origin PSR triggers.
+  events.push({
+    type: 'psr_triggered',
+    payload: {
+      unitId,
+      reason: 'Engine hit',
+      additionalModifier: 0,
+      triggerSource: PSRTrigger.EngineHit,
+      reasonCode: PSRTrigger.EngineHit,
+    },
+  });
+
   if (newHits >= ENGINE_DESTRUCTION_THRESHOLD) {
     events.push({
       type: 'unit_destroyed',

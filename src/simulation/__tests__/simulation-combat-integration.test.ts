@@ -1,4 +1,5 @@
 import { GameEventType } from '@/types/gameplay';
+import { SUPPORTED_PHYSICAL_ATTACK_TYPES } from '@/utils/gameplay/physicalAttacks/types';
 
 import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
@@ -182,7 +183,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
       }
     });
 
-    it('should only attempt punch or kick in simulation', () => {
+    it('should only attempt runtime-supported physical attack types in simulation', () => {
       const config: ISimulationConfig = {
         seed: 41003,
         turnLimit: 10,
@@ -198,7 +199,9 @@ describe('Simulation Combat Integration (Phase 17)', () => {
 
       for (const evt of declaredEvents) {
         const payload = evt.payload as { attackType: string };
-        expect(['punch', 'kick']).toContain(payload.attackType);
+        expect(SUPPORTED_PHYSICAL_ATTACK_TYPES as readonly string[]).toContain(
+          payload.attackType,
+        );
       }
     });
 

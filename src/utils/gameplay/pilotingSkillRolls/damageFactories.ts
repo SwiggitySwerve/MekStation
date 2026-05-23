@@ -66,9 +66,9 @@ export function createGyroPSR(entityId: string): IPendingPSR {
  * canonical engine-crit handling, an engine hit triggers a PSR for the
  * affected mech. The factory produces the catalog entry; the actual
  * dispatch from `CriticalEffectType.EngineHit` into the pending PSR queue
- * is wired by the critical-hit pipeline in a future change. Shipping the
- * factory here keeps the trigger catalog complete and gives the future
- * dispatcher a canonical entry point.
+ * is wired by the critical-hit pipeline and runner crit-event queueing.
+ * Keeping the factory here gives non-critical callers the same canonical
+ * entry point.
  *
  * @spec openspec/specs/piloting-skill-rolls/spec.md
  *   Requirement: PSR Trigger Catalog

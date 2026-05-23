@@ -1,24 +1,39 @@
 import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution/types';
 
-import { computeIndirectFireContext } from '@/engine/InteractiveSession.indirectFire';
 import {
+  FiringArc,
   GameEventType,
   GamePhase,
+  type IEnvironmentalConditions,
   IAttackerState,
   IGameEvent,
   IGameState,
   IHexGrid,
+  ISecondaryTarget,
   ITargetState,
   RangeBracket,
 } from '@/types/gameplay';
+import { consumeAmmo } from '@/utils/gameplay/ammoTracking';
 import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
+import {
+  ECM_RADIUS,
+  getECMProtectedFlag,
+} from '@/utils/gameplay/electronicWarfare';
+import { calculateEnvironmentalModifiers } from '@/utils/gameplay/environmentalModifiers';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import { getClusterHitterBonus } from '@/utils/gameplay/spaModifiers';
+import { isMissileWeapon } from '@/utils/gameplay/specialWeaponMechanics';
 import { hexProvidesPartialCover } from '@/utils/gameplay/terrainCover';
-import { calculateToHit } from '@/utils/gameplay/toHit';
+import {
+  buildWeaponAttackAttackerToHitState,
+  buildWeaponAttackTargetToHitState,
+  calculateToHit,
+} from '@/utils/gameplay/toHit';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
 import type { IWeapon } from '../../ai/types';
+import type { IResolvedAMSInterception } from './weaponAttackAMS';
 
 import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
@@ -31,10 +46,212 @@ import {
 } from '../SimulationRunnerSupport';
 import { createD6Roller, createGameEvent } from './utils';
 import {
+  expandSelectedModeIntoShots,
+  getSelectedFiringMode,
+  hasAmmoForValidShot,
+  isSemiGuidedAmmoSelectedForWeapon,
+  isWeaponJammed,
+  markWeaponFiredForHeat,
+  markWeaponJammed,
+  resolveSpecialProjectileHit,
+  selectedAmmoWeaponType,
+  selectedModeToHitModifier,
+  shouldJamOnNaturalTwo,
+  shouldSpendAmmoAndHeatOnMiss,
+} from './weaponAttackFiringModes';
+import {
   bracketToPayloadRange,
   modifiersToPayload,
 } from './weaponAttackHelpers';
 import { resolveWeaponHit } from './weaponAttackHitResolution';
+import { consumeWeaponAmmo } from './weaponAttackHitResolution.helpers';
+import { validateLineOfSightForAttack } from './weaponAttackLineOfSight';
+import { validateDeclaredAttackTarget } from './weaponAttackTargetValidation';
+import {
+  calculateInterveningTerrainToHitModifier,
+  calculateTargetTerrainToHitModifier,
+} from './weaponAttackTerrainModifiers';
+
+function isTargetInAttackerFrontArc(
+  state: IGameState,
+  attackerId: string,
+  targetId: string,
+): boolean {
+  const attacker = state.units[attackerId];
+  const target = state.units[targetId];
+  if (!attacker || !target) return false;
+
+  return (
+    calculateFiringArc(target.position, attacker.position, attacker.facing) ===
+    FiringArc.Front
+  );
+}
+
+function isAttackerStealthArmorActive(
+  attacker: IGameState['units'][string],
+  state: IGameState,
+): boolean {
+  if (
+    attacker.hasStealthArmor !== true ||
+    attacker.shutdown === true ||
+    !state.electronicWarfare
+  ) {
+    return false;
+  }
+
+  return state.electronicWarfare.ecmSuites.some(
+    (suite) =>
+      suite.teamId === attacker.side &&
+      suite.mode === 'ecm' &&
+      suite.operational &&
+      (suite.entityId === attacker.id ||
+        suite.entityId.startsWith(`${attacker.id}:`)) &&
+      hexDistance(attacker.position, suite.position) <= ECM_RADIUS,
+  );
+}
+
+function selectPrimaryWeaponAttackTargetId(
+  state: IGameState,
+  attackerId: string,
+  targetIds: readonly string[],
+): string | undefined {
+  const distinctTargetIds = targetIds.filter(
+    (targetId, index) => targetIds.indexOf(targetId) === index,
+  );
+  return (
+    distinctTargetIds.find((targetId) =>
+      isTargetInAttackerFrontArc(state, attackerId, targetId),
+    ) ?? distinctTargetIds[0]
+  );
+}
+
+function buildSecondaryTargetState(
+  state: IGameState,
+  attackerId: string,
+  targetId: string,
+  primaryTargetId: string | undefined,
+): ISecondaryTarget | undefined {
+  if (!primaryTargetId || targetId === primaryTargetId) return undefined;
+
+  return {
+    isSecondary: true,
+    inFrontArc: isTargetInAttackerFrontArc(state, attackerId, targetId),
+  };
+}
+
+function applyAMSInterceptionResult(options: {
+  currentState: IGameState;
+  events: IGameEvent[];
+  gameId: string;
+  attackerId: string;
+  targetId: string;
+  incomingWeaponId: string;
+  interception: IResolvedAMSInterception | undefined;
+}): IGameState {
+  const {
+    events,
+    gameId,
+    attackerId,
+    targetId,
+    incomingWeaponId,
+    interception,
+  } = options;
+  let { currentState } = options;
+  if (interception === undefined) {
+    return currentState;
+  }
+
+  currentState = markWeaponFiredForHeat(
+    currentState,
+    targetId,
+    interception.amsWeaponId,
+  );
+
+  let ammoBinId: string | undefined;
+  let ammoRemaining: number | undefined;
+  const defender = currentState.units[targetId];
+  const ammoStateBefore = defender?.ammoState;
+  if (
+    interception.ammoConsumed > 0 &&
+    ammoStateBefore &&
+    Object.keys(ammoStateBefore).length > 0
+  ) {
+    const ammoResult = consumeAmmo(
+      ammoStateBefore,
+      targetId,
+      interception.ammoWeaponType,
+      interception.ammoConsumed,
+    );
+    if (ammoResult) {
+      ammoBinId = ammoResult.event.binId;
+      ammoRemaining = ammoResult.event.roundsRemaining;
+      currentState = {
+        ...currentState,
+        units: {
+          ...currentState.units,
+          [targetId]: {
+            ...currentState.units[targetId],
+            ammoState: ammoResult.updatedAmmoState,
+          },
+        },
+      };
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.AmmoConsumed,
+          currentState.turn,
+          GamePhase.WeaponAttack,
+          {
+            unitId: targetId,
+            binId: ammoResult.event.binId,
+            weaponType: ammoResult.event.weaponType,
+            roundsConsumed: ammoResult.event.roundsConsumed,
+            roundsRemaining: ammoResult.event.roundsRemaining,
+          },
+          targetId,
+        ),
+      );
+    }
+  }
+
+  events.push(
+    createGameEvent(
+      gameId,
+      events.length,
+      GameEventType.AMSInterception,
+      currentState.turn,
+      GamePhase.WeaponAttack,
+      {
+        defenderId: targetId,
+        targetId,
+        attackerId,
+        incomingWeaponId,
+        amsWeaponId: interception.amsWeaponId,
+        resolution: interception.resolution,
+        incomingProjectiles: interception.incomingProjectiles,
+        projectilesIntercepted: interception.projectilesIntercepted,
+        projectilesRemaining: interception.projectilesRemaining,
+        ammoConsumed: interception.ammoConsumed,
+        roll: interception.roll,
+        ...(interception.clusterRoll !== undefined
+          ? { clusterRoll: interception.clusterRoll }
+          : {}),
+        ...(interception.clusterModifier !== undefined
+          ? { clusterModifier: interception.clusterModifier }
+          : {}),
+        ...(interception.modifiedClusterRoll !== undefined
+          ? { modifiedClusterRoll: interception.modifiedClusterRoll }
+          : {}),
+        ...(ammoBinId !== undefined ? { ammoBinId } : {}),
+        ...(ammoRemaining !== undefined ? { ammoRemaining } : {}),
+      },
+      targetId,
+    ),
+  );
+
+  return currentState;
+}
 
 export function runAttackPhase(options: {
   state: IGameState;
@@ -77,6 +294,7 @@ export function runAttackPhase(options: {
    * read-only invariants should pass a copy.
    */
   manifestsByUnit?: Map<string, CriticalSlotManifest>;
+  environmentalConditions?: IEnvironmentalConditions;
 }): IGameState {
   const {
     botPlayer,
@@ -89,6 +307,7 @@ export function runAttackPhase(options: {
     violations,
     weaponsByUnit,
     manifestsByUnit,
+    environmentalConditions,
   } = options;
   let currentState = { ...state, phase: GamePhase.WeaponAttack };
   violations.push(...invariantRunner.runAll(currentState));
@@ -119,7 +338,13 @@ export function runAttackPhase(options: {
 
   for (const unitId of Object.keys(currentState.units)) {
     const unit = currentState.units[unitId];
-    if (unit.destroyed || unit.shutdown) {
+    if (
+      unit.destroyed ||
+      unit.hasRetreated ||
+      unit.hasEjected ||
+      unit.shutdown ||
+      !unit.pilotConscious
+    ) {
       continue;
     }
 
@@ -127,17 +352,13 @@ export function runAttackPhase(options: {
     const enemyUnits = allAIUnits.filter(
       (aiEnemy) =>
         !aiEnemy.destroyed &&
+        !currentState.units[aiEnemy.unitId].hasRetreated &&
+        !currentState.units[aiEnemy.unitId].hasEjected &&
         currentState.units[aiEnemy.unitId].side !== unit.side,
     );
     const attackEvent = botPlayer.playAttackPhase(aiUnit, enemyUnits);
 
     if (!attackEvent) {
-      continue;
-    }
-
-    const targetId = attackEvent.payload.targetId;
-    const target = currentState.units[targetId];
-    if (!target || target.destroyed) {
       continue;
     }
 
@@ -152,6 +373,16 @@ export function runAttackPhase(options: {
       continue;
     }
 
+    const targetIdsByWeapon = attackEvent.payload.weaponTargets ?? {};
+    const declaredTargetIds = declaredWeaponIds.map(
+      (weaponId) => targetIdsByWeapon[weaponId] ?? attackEvent.payload.targetId,
+    );
+    const primaryTargetId = selectPrimaryWeaponAttackTargetId(
+      currentState,
+      unitId,
+      declaredTargetIds,
+    );
+
     // Map AI-declared weapon ids back to the hydrated `IWeapon` mounts
     // so per-weapon damage / range / heat use the catalog data. Falls
     // back to the synthetic minimal weapon when hydration didn't
@@ -165,28 +396,113 @@ export function runAttackPhase(options: {
     }
 
     for (const weaponId of declaredWeaponIds) {
+      const targetId =
+        targetIdsByWeapon[weaponId] ?? attackEvent.payload.targetId;
+      const targetValidation = validateDeclaredAttackTarget({
+        currentState,
+        events,
+        gameId,
+        unitId,
+        targetId,
+        declaredWeaponIds: [weaponId],
+      });
+      if (!targetValidation.permitted) {
+        continue;
+      }
+
       // Re-read attacker / target state per weapon — a previous mount
       // in this same loop may have destroyed the target (or, for
       // future heat-explosion paths, the attacker).
       const attackerNow = currentState.units[unitId];
       const targetNow = currentState.units[targetId];
-      if (attackerNow.destroyed || attackerNow.shutdown) {
+      if (
+        attackerNow.destroyed ||
+        attackerNow.hasRetreated ||
+        attackerNow.hasEjected ||
+        attackerNow.shutdown ||
+        !attackerNow.pilotConscious
+      ) {
         break;
       }
-      if (!targetNow || targetNow.destroyed) {
+      if (
+        !targetNow ||
+        targetNow.destroyed ||
+        targetNow.hasRetreated ||
+        targetNow.hasEjected
+      ) {
         // Target died mid-volley; subsequent mounts can't fire at it.
         break;
       }
 
-      const weapon: IWeapon =
-        weaponLookup.get(weaponId) ?? createMinimalWeapon(weaponId);
+      const hydratedWeapon = weaponLookup.get(weaponId);
+      if (!hydratedWeapon && hydratedWeapons) {
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.AttackInvalid,
+            currentState.turn,
+            GamePhase.WeaponAttack,
+            {
+              attackerId: unitId,
+              targetId,
+              weaponId,
+              reason: 'UnknownWeapon' as const,
+              details:
+                'Declared weapon id was not present in the hydrated catalog weapon map',
+            },
+            unitId,
+          ),
+        );
+        continue;
+      }
+      const baseWeapon: IWeapon =
+        hydratedWeapon ?? createMinimalWeapon(weaponId);
+      const selectedModeId = attackEvent.payload.weaponModes?.[weaponId];
+      const selectedMode = getSelectedFiringMode(baseWeapon, selectedModeId);
+      const selectedShotWeapons = expandSelectedModeIntoShots(
+        baseWeapon,
+        selectedMode,
+      );
+      const ammoWeaponType = selectedAmmoWeaponType(baseWeapon, selectedMode);
+      const declaredWeaponModes =
+        selectedModeId && selectedMode !== undefined
+          ? { [weaponId]: selectedModeId }
+          : undefined;
+      const calledShot = attackEvent.payload.calledShots?.[weaponId] === true;
+      const teammateCalledShot =
+        attackEvent.payload.teammateCalledShots?.[weaponId] === true;
 
       const distance = hexDistance(attackerNow.position, targetNow.position);
+      if (distance === 0) {
+        // Same-hex ranged fire is invalid in both the event-sourced session
+        // resolver and the quick-sim runner. Emit AttackInvalid before any
+        // to-hit roll, heat, ammo, or damage side effects.
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.AttackInvalid,
+            currentState.turn,
+            GamePhase.WeaponAttack,
+            {
+              attackerId: unitId,
+              targetId,
+              weaponId,
+              reason: 'SameHex' as const,
+            },
+            unitId,
+          ),
+        );
+        continue;
+      }
+
       const rangeBracket = getRangeBracket(
         distance,
-        weapon.shortRange,
-        weapon.mediumRange,
-        weapon.longRange,
+        baseWeapon.shortRange,
+        baseWeapon.mediumRange,
+        baseWeapon.longRange,
+        baseWeapon.extremeRange,
       );
       if (rangeBracket === RangeBracket.OutOfRange) {
         // Per `combat-resolution` delta: out-of-range attacks emit
@@ -211,17 +527,25 @@ export function runAttackPhase(options: {
         continue;
       }
 
-      const attackerState: IAttackerState = {
-        // Per `add-encounter-swarm-harness` Phase 1: use the unit's real
-        // gunnery so pilot skills drive hit probability, not just target
-        // selection. Falls back to DEFAULT_GUNNERY for synthetic units
-        // constructed via createMinimalUnitState() which does not
-        // populate pilot skills.
-        gunnery: attackerNow.gunnery ?? DEFAULT_GUNNERY,
-        movementType: attackerNow.movementThisTurn,
-        heat: attackerNow.heat,
-        damageModifiers: [],
-      };
+      // Per `add-encounter-swarm-harness` Phase 1: use the unit's real
+      // gunnery so pilot skills drive hit probability, not just target
+      // selection. Falls back to DEFAULT_GUNNERY for synthetic units
+      // constructed via createMinimalUnitState() which does not
+      // populate pilot skills.
+      const attackerState: IAttackerState = buildWeaponAttackAttackerToHitState(
+        attackerNow,
+        attackerNow.gunnery ?? DEFAULT_GUNNERY,
+        baseWeapon,
+        targetId,
+        buildSecondaryTargetState(
+          currentState,
+          unitId,
+          targetId,
+          primaryTargetId,
+        ),
+        calledShot,
+        teammateCalledShot,
+      );
       // Partial cover is derived from the terrain of the target's own hex
       // (Total Warfare p. 53). The runner's all-clear grid yields `false`
       // today; the moment varied terrain lands this lights up automatically.
@@ -230,20 +554,19 @@ export function runAttackPhase(options: {
       );
       const targetPartialCover = hexProvidesPartialCover(targetHex);
 
-      const targetState: ITargetState = {
-        movementType: targetNow.movementThisTurn,
-        hexesMoved: targetNow.hexesMovedThisTurn,
-        prone: targetNow.prone ?? false,
-        immobile: targetNow.shutdown ?? false,
-        partialCover: targetPartialCover,
-      };
+      const targetState: ITargetState = buildWeaponAttackTargetToHitState(
+        targetNow,
+        targetPartialCover,
+      );
 
       const toHitCalc = calculateToHit(
         attackerState,
         targetState,
         rangeBracket,
         distance,
-        weapon.minRange,
+        baseWeapon.minRange,
+        undefined,
+        baseWeapon.id,
       );
 
       // Wave 8 PR-K7: Quick-Sim indirect-fire dispatch.
@@ -254,22 +577,35 @@ export function runAttackPhase(options: {
       // AttackDeclared / AttackResolved. Wire the same dispatch here so
       // mass-scale BV-balance Monte Carlo runs reflect indirect-fire to-hit
       // math when LRMs fire against units the attacker has no LOS to.
-      const indirectFireResolution = grid
-        ? computeIndirectFireContext(
-            unitId,
-            weaponId,
-            targetNow.position,
-            currentState,
-            grid,
-          )
-        : null;
+      const lineOfSight = validateLineOfSightForAttack({
+        currentState,
+        events,
+        gameId,
+        grid,
+        unitId,
+        targetId,
+        weaponId,
+        attackerPosition: attackerNow.position,
+        targetPosition: targetNow.position,
+      });
+      if (!lineOfSight.permitted) {
+        continue;
+      }
+      const indirectFireResolution = lineOfSight.indirectFireResolution;
       const indirectFirePenalty =
         indirectFireResolution &&
         indirectFireResolution.permitted &&
         indirectFireResolution.isIndirect
           ? indirectFireResolution.toHitPenalty
           : 0;
-      const adjustedToHit = toHitCalc.finalToHit + indirectFirePenalty;
+      const modeToHitModifier = selectedModeToHitModifier(
+        baseWeapon,
+        selectedMode,
+      );
+      const adjustedToHit =
+        toHitCalc.finalToHit +
+        indirectFirePenalty +
+        (modeToHitModifier?.value ?? 0);
 
       const firingArc = calculateFiringArc(
         attackerNow.position,
@@ -293,106 +629,60 @@ export function runAttackPhase(options: {
               },
             ]
           : baseModifiers;
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.AttackDeclared,
-          currentState.turn,
-          GamePhase.WeaponAttack,
-          {
-            attackerId: unitId,
-            targetId,
-            weapons: [weaponId],
-            toHitNumber: adjustedToHit,
-            modifiers: declaredModifiers,
-            range: bracketToPayloadRange(rangeBracket),
-            firingArc,
-          },
-          unitId,
-        ),
+      const modeAdjustedModifiers =
+        modeToHitModifier !== null
+          ? [...declaredModifiers, modeToHitModifier]
+          : declaredModifiers;
+      const interveningTerrainModifier =
+        calculateInterveningTerrainToHitModifier(grid, lineOfSight.losResult);
+      const targetTerrainModifier = calculateTargetTerrainToHitModifier(
+        grid,
+        targetNow.position,
       );
+      const terrainAdjustedToHit =
+        adjustedToHit +
+        (targetTerrainModifier?.value ?? 0) +
+        (interveningTerrainModifier?.value ?? 0);
+      const finalDeclaredModifiers = [
+        ...modeAdjustedModifiers,
+        ...(targetTerrainModifier ? [targetTerrainModifier] : []),
+        ...(interveningTerrainModifier ? [interveningTerrainModifier] : []),
+      ];
+      const environmentalModifiers =
+        environmentalConditions !== undefined
+          ? calculateEnvironmentalModifiers(environmentalConditions, {
+              isMissileWeapon:
+                isMissileWeapon(baseWeapon.id) ||
+                isMissileWeapon(baseWeapon.name),
+            })
+          : [];
+      const environmentalModifierTotal = environmentalModifiers.reduce(
+        (total, modifier) => total + modifier.value,
+        0,
+      );
+      const environmentAdjustedToHit =
+        terrainAdjustedToHit + environmentalModifierTotal;
+      const attackModifiers =
+        environmentalModifiers.length > 0
+          ? [
+              ...finalDeclaredModifiers,
+              ...modifiersToPayload(environmentalModifiers),
+            ]
+          : finalDeclaredModifiers;
 
-      // Wave 8 PR-K7: emit IndirectFireSpotterSelected (basis='los') or
-      // IndirectFireNarcOverride immediately after AttackDeclared when
-      // indirect fire is in effect — mirrors PR-K4's declareAttack
-      // dispatch so the event log + downstream consumers see the same
-      // sequence regardless of which pipeline ran.
-      if (
-        indirectFireResolution &&
-        indirectFireResolution.permitted &&
-        indirectFireResolution.isIndirect
-      ) {
-        const basis = indirectFireResolution.basis;
-        if (basis === 'narc' || basis === 'inarc') {
-          events.push(
-            createGameEvent(
-              gameId,
-              events.length,
-              GameEventType.IndirectFireNarcOverride,
-              currentState.turn,
-              GamePhase.WeaponAttack,
-              {
-                attackerId: unitId,
-                spotterId: null,
-                weaponId,
-                targetHex: targetNow.position,
-                toHitPenalty: indirectFirePenalty,
-                basis,
-              },
-              unitId,
-            ),
-          );
-        } else if (indirectFireResolution.spotterId) {
-          events.push(
-            createGameEvent(
-              gameId,
-              events.length,
-              GameEventType.IndirectFireSpotterSelected,
-              currentState.turn,
-              GamePhase.WeaponAttack,
-              {
-                attackerId: unitId,
-                spotterId: indirectFireResolution.spotterId,
-                weaponId,
-                targetHex: targetNow.position,
-                toHitPenalty: indirectFirePenalty,
-                basis: 'los' as const,
-              },
-              unitId,
-            ),
-          );
-        }
-      }
-
-      const die1 = d6Roller();
-      const die2 = d6Roller();
-      const attackRoll = die1 + die2;
-      const hit = attackRoll >= adjustedToHit;
-
-      if (!hit) {
-        // Per `combat-resolution` delta: emit `AttackResolved` even on
-        // misses so `AttackDeclared.length === AttackResolved.length`
-        // is an end-of-match invariant. Hit-location is omitted on
-        // miss (the field is optional on `IAttackResolvedPayload`).
+      if (isWeaponJammed(currentState.units[unitId], baseWeapon.id)) {
         events.push(
           createGameEvent(
             gameId,
             events.length,
-            GameEventType.AttackResolved,
+            GameEventType.AttackInvalid,
             currentState.turn,
             GamePhase.WeaponAttack,
             {
               attackerId: unitId,
               targetId,
               weaponId,
-              roll: attackRoll,
-              // Wave 8 PR-K7: `toHitNumber` matches AttackDeclared so the
-              // event-log + invariant pairs line up under indirect-fire.
-              toHitNumber: adjustedToHit,
-              hit: false,
-              heat: weapon.heat,
-              attackerArc: firingArc,
+              reason: 'WeaponJammed' as const,
             },
             unitId,
           ),
@@ -400,25 +690,287 @@ export function runAttackPhase(options: {
         continue;
       }
 
-      currentState = resolveWeaponHit({
-        currentState,
-        events,
-        gameId,
-        unitId,
-        targetId,
-        weaponId,
-        weapon,
-        attackRoll,
-        // Wave 8 PR-K7: use the indirect-fire-adjusted to-hit so the
-        // AttackResolved.toHitNumber on hits matches AttackDeclared.
-        toHitNumber: adjustedToHit,
-        firingArc,
-        partialCover: targetPartialCover,
-        d6Roller,
-        getOrSeedManifest,
-        manifestsByUnit,
-        weaponsByUnit,
-      });
+      for (const shotWeapon of selectedShotWeapons) {
+        const attackerBeforeShot = currentState.units[unitId];
+        const targetBeforeShot = currentState.units[targetId];
+        if (
+          attackerBeforeShot.destroyed ||
+          attackerBeforeShot.hasRetreated ||
+          attackerBeforeShot.hasEjected ||
+          attackerBeforeShot.shutdown ||
+          !attackerBeforeShot.pilotConscious
+        ) {
+          break;
+        }
+        if (
+          !targetBeforeShot ||
+          targetBeforeShot.destroyed ||
+          targetBeforeShot.hasRetreated ||
+          targetBeforeShot.hasEjected
+        ) {
+          break;
+        }
+
+        if (
+          !hasAmmoForValidShot(attackerBeforeShot, baseWeapon, selectedMode)
+        ) {
+          events.push(
+            createGameEvent(
+              gameId,
+              events.length,
+              GameEventType.AttackInvalid,
+              currentState.turn,
+              GamePhase.WeaponAttack,
+              {
+                attackerId: unitId,
+                targetId,
+                weaponId,
+                reason: 'OutOfAmmo' as const,
+              },
+              unitId,
+            ),
+          );
+          break;
+        }
+
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.AttackDeclared,
+            currentState.turn,
+            GamePhase.WeaponAttack,
+            {
+              attackerId: unitId,
+              targetId,
+              weapons: [weaponId],
+              ...(declaredWeaponModes
+                ? { weaponModes: declaredWeaponModes }
+                : {}),
+              toHitNumber: environmentAdjustedToHit,
+              modifiers: attackModifiers,
+              range: bracketToPayloadRange(rangeBracket),
+              firingArc,
+            },
+            unitId,
+          ),
+        );
+
+        // Wave 8 PR-K7: emit IndirectFireSpotterSelected (basis='los') or
+        // IndirectFireNarcOverride immediately after AttackDeclared when
+        // indirect fire is in effect — mirrors PR-K4's declareAttack
+        // dispatch so the event log + downstream consumers see the same
+        // sequence regardless of which pipeline ran.
+        if (
+          indirectFireResolution &&
+          indirectFireResolution.permitted &&
+          indirectFireResolution.isIndirect
+        ) {
+          const basis = indirectFireResolution.basis;
+          if (basis === 'narc' || basis === 'inarc') {
+            events.push(
+              createGameEvent(
+                gameId,
+                events.length,
+                GameEventType.IndirectFireNarcOverride,
+                currentState.turn,
+                GamePhase.WeaponAttack,
+                {
+                  attackerId: unitId,
+                  spotterId: null,
+                  weaponId,
+                  targetHex: targetNow.position,
+                  toHitPenalty: indirectFirePenalty,
+                  basis,
+                },
+                unitId,
+              ),
+            );
+          } else if (indirectFireResolution.spotterId) {
+            events.push(
+              createGameEvent(
+                gameId,
+                events.length,
+                GameEventType.IndirectFireSpotterSelected,
+                currentState.turn,
+                GamePhase.WeaponAttack,
+                {
+                  attackerId: unitId,
+                  spotterId: indirectFireResolution.spotterId,
+                  weaponId,
+                  targetHex: targetNow.position,
+                  toHitPenalty: indirectFirePenalty,
+                  basis: 'los' as const,
+                },
+                unitId,
+              ),
+            );
+            if (indirectFireResolution.forwardObserverApplied) {
+              events.push(
+                createGameEvent(
+                  gameId,
+                  events.length,
+                  GameEventType.IndirectFireForwardObserver,
+                  currentState.turn,
+                  GamePhase.WeaponAttack,
+                  {
+                    attackerId: unitId,
+                    spotterId: indirectFireResolution.spotterId,
+                    weaponId,
+                    targetHex: targetNow.position,
+                    toHitPenalty: indirectFirePenalty,
+                    basis: 'los' as const,
+                    penaltyCancelled: 1,
+                  },
+                  unitId,
+                ),
+              );
+            }
+          }
+        }
+
+        const die1 = d6Roller();
+        const die2 = d6Roller();
+        const attackRoll = die1 + die2;
+        const jammedOnNaturalTwo =
+          attackRoll === 2 && shouldJamOnNaturalTwo(baseWeapon, selectedMode);
+        if (jammedOnNaturalTwo) {
+          currentState = markWeaponJammed(currentState, unitId, baseWeapon.id);
+        }
+        const hit =
+          !jammedOnNaturalTwo && attackRoll >= environmentAdjustedToHit;
+
+        if (!hit) {
+          const spendOnMiss = shouldSpendAmmoAndHeatOnMiss(baseWeapon);
+          if (spendOnMiss) {
+            currentState = markWeaponFiredForHeat(
+              currentState,
+              unitId,
+              baseWeapon.id,
+            );
+          }
+
+          // Per `combat-resolution` delta: emit `AttackResolved` even on
+          // misses so `AttackDeclared.length === AttackResolved.length`
+          // is an end-of-match invariant. Hit-location is omitted on
+          // miss (the field is optional on `IAttackResolvedPayload`).
+          events.push(
+            createGameEvent(
+              gameId,
+              events.length,
+              GameEventType.AttackResolved,
+              currentState.turn,
+              GamePhase.WeaponAttack,
+              {
+                attackerId: unitId,
+                targetId,
+                weaponId,
+                roll: attackRoll,
+                // Wave 8 PR-K7: `toHitNumber` matches AttackDeclared so the
+                // event-log + invariant pairs line up under indirect-fire.
+                toHitNumber: environmentAdjustedToHit,
+                hit: false,
+                heat: spendOnMiss ? shotWeapon.heat : 0,
+                attackerArc: firingArc,
+              },
+              unitId,
+            ),
+          );
+          if (spendOnMiss) {
+            currentState = consumeWeaponAmmo({
+              currentState,
+              events,
+              gameId,
+              attackerId: unitId,
+              weapon: baseWeapon,
+              ammoWeaponType,
+            });
+          }
+          continue;
+        }
+
+        currentState = markWeaponFiredForHeat(
+          currentState,
+          unitId,
+          baseWeapon.id,
+        );
+        const targetEcmProtected = currentState.electronicWarfare
+          ? getECMProtectedFlag(
+              attackerBeforeShot.position,
+              attackerBeforeShot.side as string,
+              unitId,
+              targetBeforeShot.position,
+              targetBeforeShot.side as string,
+              targetId,
+              currentState.electronicWarfare,
+            )
+          : undefined;
+        const attackerStealthActive = isAttackerStealthArmorActive(
+          attackerBeforeShot,
+          currentState,
+        );
+
+        const resolvedShot = resolveSpecialProjectileHit({
+          baseWeapon,
+          shotWeapon,
+          selectedMode,
+          d6Roller,
+          clusterContext: {
+            attackerTeamId: attackerBeforeShot.side as string,
+            hasArtemisIV: baseWeapon.hasArtemisIV,
+            hasPrototypeArtemisIV: baseWeapon.hasPrototypeArtemisIV,
+            hasArtemisV: baseWeapon.hasArtemisV,
+            attackerStealthActive,
+            isIndirectFire:
+              indirectFireResolution?.permitted === true &&
+              indirectFireResolution.isIndirect,
+            targetNarcedBy: targetBeforeShot.narcedBy,
+            targetTagDesignated: targetBeforeShot.tagDesignated,
+            targetEcmProtected,
+            isSemiGuided: isSemiGuidedAmmoSelectedForWeapon(
+              attackerBeforeShot,
+              baseWeapon,
+              selectedMode,
+            ),
+            clusterHitterSPA:
+              getClusterHitterBonus(attackerBeforeShot.abilities ?? []) > 0,
+            targetWeapons: weaponsByUnit?.get(targetId),
+            targetAmmoState: targetBeforeShot.ammoState,
+          },
+        });
+
+        currentState = applyAMSInterceptionResult({
+          currentState,
+          events,
+          gameId,
+          attackerId: unitId,
+          targetId,
+          incomingWeaponId: weaponId,
+          interception: resolvedShot.amsInterception,
+        });
+
+        currentState = resolveWeaponHit({
+          currentState,
+          events,
+          gameId,
+          unitId,
+          targetId,
+          weaponId,
+          weapon: resolvedShot.weapon,
+          ammoWeaponType,
+          projectileCount: resolvedShot.projectileCount,
+          attackRoll,
+          // Wave 8 PR-K7: use the indirect-fire-adjusted to-hit so the
+          // AttackResolved.toHitNumber on hits matches AttackDeclared.
+          toHitNumber: environmentAdjustedToHit,
+          firingArc,
+          partialCover: targetPartialCover,
+          d6Roller,
+          getOrSeedManifest,
+          manifestsByUnit,
+          weaponsByUnit,
+        });
+      }
     }
   }
 

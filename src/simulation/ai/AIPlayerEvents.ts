@@ -21,6 +21,12 @@ export interface IAttackEvent {
     targetId: string;
     weapons: readonly string[];
     /**
+     * Optional per-weapon target override for multi-target fire. When absent,
+     * every declared weapon uses `targetId`, preserving the legacy single-target
+     * attack event shape.
+     */
+    weaponTargets?: Readonly<Record<string, string>>;
+    /**
      * Per `add-ai-resource-planning` (A2) design D4: the firing mode the bot
      * selected for each declared weapon, keyed by weapon id. Present only
      * when the bot's tier enables `weaponModeSelection` and at least one
@@ -29,6 +35,10 @@ export interface IAttackEvent {
      * fire lists — byte-identical to pre-A2 behavior.
      */
     weaponModes?: Readonly<Record<string, string>>;
+    /** Optional per-weapon called-shot declarations keyed by weapon id. */
+    calledShots?: Readonly<Record<string, boolean>>;
+    /** Optional per-weapon teammate-assisted called shots keyed by weapon id. */
+    teammateCalledShots?: Readonly<Record<string, boolean>>;
   };
 }
 

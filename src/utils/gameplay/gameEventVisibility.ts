@@ -23,6 +23,8 @@ const ACTOR_ONLY_EVENTS = new Set<GameEventType>([
 
 const TARGET_VISIBLE_EVENTS = new Set<GameEventType>([
   GameEventType.AttackResolved,
+  GameEventType.AMSInterception,
+  GameEventType.DesignatorMarkerApplied,
   GameEventType.DamageApplied,
   GameEventType.PhysicalAttackResolved,
 ]);

@@ -41,6 +41,7 @@ import {
   IUnitGameState,
   LockState,
   MovementType,
+  PSRTrigger,
 } from '@/types/gameplay';
 import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import { resolveDamage } from '@/utils/gameplay/damage';
@@ -52,6 +53,7 @@ import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { runAttackPhase } from '../phases/weaponAttack';
+import { resolveWeaponHit } from '../phases/weaponAttackHitResolution';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
 
 // =============================================================================
@@ -157,6 +159,37 @@ describe('resolveDamage critical-hit dispatch (Phase 3 spec scenarios)', () => {
     expect(result.criticalHits).toHaveLength(1);
     expect(result.criticalHits[0].location).toBe('center_torso');
     expect(result.criticalHits[0].slot.destroyed).toBe(true);
+  });
+
+  it('Scenario: engine critical emits an engine-hit PSR trigger', () => {
+    const roller = scriptedRoller([4, 4, 1]);
+    const state = buildPrimedDamageState({ location: 'center_torso' });
+    const stateWithCtx: IUnitDamageState = {
+      ...state,
+      criticalContext: {
+        unitId: 'opponent-1',
+        manifest: buildDefaultCriticalSlotManifest(),
+        componentDamage: DEFAULT_COMPONENT_DAMAGE,
+      },
+    };
+
+    const { criticalEvents } = resolveDamage(
+      stateWithCtx,
+      'center_torso',
+      5,
+      roller,
+    );
+
+    expect(criticalEvents).toContainEqual(
+      expect.objectContaining({
+        type: 'psr_triggered',
+        payload: expect.objectContaining({
+          unitId: 'opponent-1',
+          reasonCode: PSRTrigger.EngineHit,
+          triggerSource: PSRTrigger.EngineHit,
+        }),
+      }),
+    );
   });
 
   it('Scenario: structure damage with crit roll 7 produces 0 critical hits', () => {
@@ -271,12 +304,28 @@ function createAC20(id = 'ac-20'): IWeapon {
   };
 }
 
+function createCritProbeWeapon(id = 'engine-probe'): IWeapon {
+  return {
+    id,
+    name: 'Engine Probe',
+    shortRange: 3,
+    mediumRange: 6,
+    longRange: 9,
+    damage: 5,
+    heat: 0,
+    minRange: 0,
+    ammoPerTon: -1,
+    destroyed: false,
+  };
+}
+
 function createUnit(
   id: string,
   side: GameSide,
   position: { q: number; r: number },
   armorOverride: Partial<IUnitGameState['armor']> = {},
   structureOverride: Partial<IUnitGameState['structure']> = {},
+  unitOverride: Partial<IUnitGameState> = {},
 ): IUnitGameState {
   return {
     id,
@@ -326,6 +375,7 @@ function createUnit(
     weaponsFiredThisTurn: [],
     gunnery: 4,
     piloting: 5,
+    ...unitOverride,
   };
 }
 
@@ -541,6 +591,105 @@ describe('runAttackPhase crit event chain (Phase 3, combat-resolution delta)', (
   });
 
   describe('PSR + UnitDestroyed cascades', () => {
+    it('runner queues a pending LegDamage PSR when leg structure takes damage', () => {
+      const scenario = buildPrimedRunnerScenario();
+      const events: IGameEvent[] = [];
+
+      const next = resolveWeaponHit({
+        currentState: scenario.state,
+        events,
+        gameId: scenario.state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'leg-probe',
+        weapon: createCritProbeWeapon('leg-probe'),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        // hit location 4+5 = left leg, crit trigger 1+1 = no crit.
+        d6Roller: scriptedRoller([4, 5, 1, 1]),
+        getOrSeedManifest: () => buildDefaultCriticalSlotManifest(),
+      });
+
+      const psrEvent = events.find(
+        (event) =>
+          event.type === GameEventType.PSRTriggered &&
+          (event.payload as IPSRTriggeredPayload).reasonCode ===
+            PSRTrigger.LegDamage,
+      );
+      expect(psrEvent?.payload).toMatchObject({
+        unitId: 'opponent-1',
+        reason: 'Leg damage (internal structure exposed)',
+        triggerSource: PSRTrigger.LegDamage,
+        reasonCode: PSRTrigger.LegDamage,
+      });
+      expect(next.units['opponent-1'].pendingPSRs).toEqual([
+        expect.objectContaining({
+          reasonCode: PSRTrigger.LegDamage,
+          triggerSource: PSRTrigger.LegDamage,
+        }),
+      ]);
+    });
+
+    it('runner queues a pending EngineHit PSR when an engine crit resolves', () => {
+      const scenario = buildPrimedRunnerScenario();
+      const events: IGameEvent[] = [];
+      const getOrSeedManifest = (unitId: string): CriticalSlotManifest => {
+        const existing = scenario.manifestsByUnit.get(unitId);
+        if (existing) return existing;
+        const seeded = buildDefaultCriticalSlotManifest();
+        scenario.manifestsByUnit.set(unitId, seeded);
+        return seeded;
+      };
+
+      const next = resolveWeaponHit({
+        currentState: scenario.state,
+        events,
+        gameId: scenario.state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'engine-probe',
+        weapon: createCritProbeWeapon(),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        // hit location 3+4 = CT, crit trigger 4+4 = one crit,
+        // slot-selection 1 = first CT slot (engine).
+        d6Roller: scriptedRoller([3, 4, 4, 4, 1]),
+        getOrSeedManifest,
+        manifestsByUnit: scenario.manifestsByUnit,
+      });
+
+      const engineResolved = events.find(
+        (event) =>
+          event.type === GameEventType.CriticalHitResolved &&
+          (event.payload as ICriticalHitResolvedPayload).componentType ===
+            'engine',
+      );
+      expect(engineResolved).toBeDefined();
+
+      const psrEvent = events.find(
+        (event) =>
+          event.type === GameEventType.PSRTriggered &&
+          (event.payload as IPSRTriggeredPayload).reasonCode ===
+            PSRTrigger.EngineHit,
+      );
+      expect(psrEvent?.payload).toMatchObject({
+        unitId: 'opponent-1',
+        reason: 'Engine hit',
+        triggerSource: PSRTrigger.EngineHit,
+        reasonCode: PSRTrigger.EngineHit,
+      });
+      expect(next.units['opponent-1'].pendingPSRs).toEqual([
+        expect.objectContaining({
+          reasonCode: PSRTrigger.EngineHit,
+          triggerSource: PSRTrigger.EngineHit,
+        }),
+      ]);
+    });
+
     it('PSRTriggered fires after a gyro CriticalHitResolved (gyro PSR cascade)', () => {
       // Hard to deterministically force gyro slot in the runner — we
       // assert structurally: when ANY gyro CriticalHitResolved fires

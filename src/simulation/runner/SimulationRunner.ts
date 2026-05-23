@@ -46,6 +46,7 @@ import {
   type UnitHydrationMap,
 } from './SimulationRunnerState';
 import { createMinimalGrid } from './SimulationRunnerSupport';
+import { appendRunnerGameEndedEvent } from './SimulationRunnerTerminalEvent';
 import { IDetectorConfig, ISimulationRunResult } from './types';
 
 /**
@@ -212,17 +213,20 @@ export class SimulationRunner {
         state: currentState,
         botPlayer,
         grid,
+        environmentalConditions: config.environmentalConditions,
         invariantRunner: this.invariantRunner,
         violations,
         events,
         gameId,
         weaponsByUnit: this.weaponsByUnit,
+        random: this.random,
       });
 
       currentState = runAttackPhase({
         state: currentState,
         botPlayer,
         grid,
+        environmentalConditions: config.environmentalConditions,
         invariantRunner: this.invariantRunner,
         violations,
         events,
@@ -244,10 +248,12 @@ export class SimulationRunner {
 
       currentState = runPhysicalAttackPhase({
         state: currentState,
+        botPlayer,
         invariantRunner: this.invariantRunner,
         violations,
         events,
         gameId,
+        grid,
         random: this.random,
       });
 
@@ -264,6 +270,8 @@ export class SimulationRunner {
 
       currentState = runHeatPhase({
         state: currentState,
+        grid,
+        environmentalConditions: config.environmentalConditions,
         events,
         gameId,
         random: this.random,
@@ -355,6 +363,15 @@ export class SimulationRunner {
       maxTurns: MAX_TURNS,
       hadWithdrawal: false,
       hadForfeit: false,
+    });
+
+    appendRunnerGameEndedEvent({
+      events,
+      gameId,
+      state: currentState,
+      turnLimit,
+      winner,
+      haltedByCriticalAnomaly,
     });
 
     const keyMomentBattleState = buildKeyMomentBattleState(currentState);
