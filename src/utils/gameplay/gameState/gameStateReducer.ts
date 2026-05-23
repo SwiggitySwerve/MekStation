@@ -6,6 +6,7 @@ import {
   IAttackDeclaredPayload,
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
+  IDesignatorMarkerAppliedPayload,
   IGameConfig,
   IGameCreatedPayload,
   IGameEndedPayload,
@@ -54,6 +55,7 @@ import {
 } from './damageResolution';
 import {
   applyAmmoConsumed,
+  applyDesignatorMarkerApplied,
   applyMoraleShifted,
   applyPhysicalAttackDeclared,
   applyPhysicalAttackResolved,
@@ -187,6 +189,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.AmmoConsumed:
       return applyAmmoConsumed(state, event.payload as IAmmoConsumedPayload);
+
+    case GameEventType.DesignatorMarkerApplied:
+      return applyDesignatorMarkerApplied(
+        state,
+        event.payload as IDesignatorMarkerAppliedPayload,
+      );
 
     case GameEventType.RetreatTriggered:
       return applyRetreatTriggered(

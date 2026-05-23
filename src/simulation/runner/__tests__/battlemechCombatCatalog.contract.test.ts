@@ -701,10 +701,10 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(supportGaps(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual(['lb-x-ac', 'mml', 'rotary-ac', 'streak-srm', 'ultra-ac']);
+    ).toEqual(['lb-x-ac', 'mml', 'rotary-ac', 'streak-srm', 'tag', 'ultra-ac']);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['ams', 'artemis', 'narc', 'tag']);
+    ).toEqual(['ams', 'artemis', 'narc']);
 
     expect(supportGaps(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT)).toEqual([]);
     expect(
@@ -732,6 +732,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'streak-lock-no-spend-on-miss',
       'streak-rack-projectiles',
       'tag-designation-hit',
+      'tag-intent-wire-state-replay',
       'tag-marker-lifecycle-events',
       'tag-semi-guided-cluster-bonus',
       'tag-turn-lifecycle-clear',
@@ -748,11 +749,7 @@ describe('BattleMech combat catalog validation lane', () => {
     ).toEqual(expect.stringContaining('indirect-fire state'));
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual([
-      'inarc-pod-variants',
-      'narc-marker-lifecycle-events',
-      'tag-intent-wire-state-replay',
-    ]);
+    ).toEqual(['inarc-pod-variants', 'narc-marker-lifecycle-events']);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'unsupported'),
     ).toEqual([]);
@@ -958,7 +955,7 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.mml.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.level).toBe('helper-only');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.level).toBe('helper-only');
-    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('helper-only');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['lb-x-ac'].level).toBe(
       'integrated',
     );
@@ -978,7 +975,7 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(
       SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['tag-intent-wire-state-replay']
         .level,
-    ).toBe('helper-only');
+    ).toBe('integrated');
     expect(
       SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-projectile-reduction'].level,
     ).toBe('integrated');
@@ -995,7 +992,6 @@ describe('BattleMech combat catalog validation lane', () => {
       [
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.gap,
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap,
-        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.gap,
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.artemis.gap,
       ].every((gap) => typeof gap === 'string' && gap.length > 0),
     ).toBe(true);

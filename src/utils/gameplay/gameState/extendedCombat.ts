@@ -1,6 +1,7 @@
 import {
   GameSide,
   IAmmoConsumedPayload,
+  IDesignatorMarkerAppliedPayload,
   IGameState,
   IMoraleShiftedPayload,
   IPhysicalAttackDeclaredPayload,
@@ -264,6 +265,52 @@ export function applyAmmoConsumed(
             remainingRounds: payload.roundsRemaining,
           },
         },
+      },
+    },
+  };
+}
+
+export function applyDesignatorMarkerApplied(
+  state: IGameState,
+  payload: IDesignatorMarkerAppliedPayload,
+): IGameState {
+  const target = state.units[payload.targetId];
+  if (!target) {
+    return state;
+  }
+
+  if (payload.marker === 'tag') {
+    if (target.tagDesignated) {
+      return state;
+    }
+    return {
+      ...state,
+      units: {
+        ...state.units,
+        [payload.targetId]: {
+          ...target,
+          tagDesignated: true,
+        },
+      },
+    };
+  }
+
+  if (!payload.teamId) {
+    return state;
+  }
+
+  const narcedBy = target.narcedBy ?? [];
+  if (narcedBy.includes(payload.teamId)) {
+    return state;
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.targetId]: {
+        ...target,
+        narcedBy: [...narcedBy, payload.teamId],
       },
     },
   };

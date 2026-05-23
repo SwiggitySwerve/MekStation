@@ -453,10 +453,9 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
     'isAMS + resolveAMSInterception applies the MegaMek/TW -4 cluster-table modifier, resolveSingleMissileAMSInterception handles NARC/Thunderbolt-style single missiles, consumes defender AMS ammo, emits AMSInterception events, marks ammo-fed or Laser AMS as fired for heat accounting, and handles Streak as cluster-roll 11',
     'AMS defender choice, arc enforcement, and optional multi-use rules remain unverified',
   ),
-  tag: helperOnly(
+  tag: integrated(
     'tag',
-    'isTAG + runner TAG hits attach tagDesignated and emit DesignatorMarkerApplied + turn lifecycle clears tagDesignated + runner semi-guided LRM cluster modifiers consume tagged targets + isTargetTAGDesignated + semi-guided LRM indirect-fire helpers',
-    'TAG marker intent/wire payload and replay reducer state-change application are not wired outside the runner event stream',
+    'isTAG + generic Attack game/wire intent support + runner TAG hits attach tagDesignated and emit DesignatorMarkerApplied + replay reducer reapplies tagDesignated + turn lifecycle clears tagDesignated + runner semi-guided LRM cluster modifiers consume tagged targets + isTargetTAGDesignated + semi-guided LRM indirect-fire helpers',
   ),
   artemis: helperOnly(
     'artemis',

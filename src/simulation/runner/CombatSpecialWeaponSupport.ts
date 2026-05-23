@@ -206,7 +206,7 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'narc-marker-lifecycle-events': helperOnly(
     'narc-marker-lifecycle-events',
-    'Runner target state preserves NARC markers after beacon hits and emits DesignatorMarkerApplied for standard NARC marker attachment',
+    'Runner target state preserves NARC markers after beacon hits, emits DesignatorMarkerApplied for standard NARC marker attachment, and replay reducer reapplies standard NARC marker state',
     'iNarc pod variants are not represented in runner missile resolution',
     MEGAMEK_NARC_MARKER_SOURCE_REFS,
   ),
@@ -249,10 +249,9 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
     'tag-semi-guided-cluster-bonus',
     'isSemiGuidedAmmoSelectedForWeapon plus targetTagDesignated applies semi-guided LRM cluster bonuses',
   ),
-  'tag-intent-wire-state-replay': helperOnly(
+  'tag-intent-wire-state-replay': integrated(
     'tag-intent-wire-state-replay',
-    'Runner TAG hits mutate target tagDesignated state',
-    'TAG marker intent, wire payload, and replay reducer state-change application are not wired',
+    'Generic Attack game and wire intents carry TAG weapon ids through declareAttack, runner TAG hits emit DesignatorMarkerApplied, the replay reducer reapplies tagDesignated target state, and TurnStarted clears transient TAG state',
   ),
   'artemis-cluster-modifier': integrated(
     'artemis-cluster-modifier',

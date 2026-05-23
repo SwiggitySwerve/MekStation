@@ -1276,9 +1276,7 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           (event) => event.type === GameEventType.DamageApplied,
         ),
       ).toBe(false);
-      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe(
-        'helper-only',
-      );
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('integrated');
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
         'tagDesignated',
       );
@@ -1908,8 +1906,8 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
         'semi-guided',
       );
-      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.gap).not.toContain(
-        'semi-guided',
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
+        'replay reducer',
       );
     });
 

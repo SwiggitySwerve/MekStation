@@ -241,6 +241,18 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** event-sourced resolution and runner resolution SHALL immediately apply fall damage, set the attacker prone with the source-backed rear fall facing, emit `UnitFell`, and avoid queuing the normal `DFAMiss` PSR for that grid-backed fall branch
 - **AND** the attacker SHALL roll the source-backed fall pilot-damage avoidance check, applying one fall-sourced pilot wound and `PilotHit` only when that check fails
 
+### Requirement: Designator Marker Replay State
+
+Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC pod variants SHALL remain explicit gaps until their variant-specific runner missile effects are represented.
+
+#### Scenario: Replay applies TAG and standard NARC marker state
+
+- **GIVEN** a replay stream contains `DesignatorMarkerApplied` events for TAG and standard NARC hits
+- **WHEN** the event-sourced state reducer applies those events
+- **THEN** TAG events SHALL mark the target as TAG-designated for the turn
+- **AND** standard NARC events SHALL add the marking team to the target's `narcedBy` list without duplicate markers
+- **AND** the catalog SHALL continue to list iNARC pod variants as helper-only until variant effects are implemented
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

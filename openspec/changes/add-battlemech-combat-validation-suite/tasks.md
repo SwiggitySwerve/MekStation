@@ -46,6 +46,7 @@
 
 - [ ] 3.1 Expand weapon attack action coverage across every weapon family and ammo family.
 - [x] 3.1.1 Cross-link every ammunition compatibility support row into the official-ammo requirement checklist.
+- [x] 3.1.2 Integrate TAG and standard NARC `DesignatorMarkerApplied` replay state through reducer tests, validation catalog rows, and OpenSpec coverage while leaving iNARC pod variants helper-only.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.

@@ -24,6 +24,7 @@ import {
   IInitiativeRolledPayload,
   IMovementDeclaredPayload,
   IDamageAppliedPayload,
+  IDesignatorMarkerAppliedPayload,
   IHeatPayload,
   IPilotHitPayload,
   IUnitDestroyedPayload,
@@ -774,6 +775,84 @@ describe('applyEvent - UnitDestroyed', () => {
     const newState = applyEvent(state, destroyedEvent);
 
     expect(newState.units['unit-1'].destroyed).toBe(true);
+  });
+});
+
+// =============================================================================
+// applyEvent Tests - DesignatorMarkerApplied
+// =============================================================================
+
+describe('applyEvent - DesignatorMarkerApplied', () => {
+  it('should replay TAG designator marker state onto the target', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [
+          createTestUnit({ id: 'player-1', side: GameSide.Player }),
+          createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+        ],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const markerEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'tag-1',
+        marker: 'tag',
+        persistent: false,
+        turn: 1,
+      } as IDesignatorMarkerAppliedPayload,
+    });
+
+    const newState = applyEvent(state, markerEvent);
+
+    expect(newState.units['opponent-1'].tagDesignated).toBe(true);
+    expect(newState.units['opponent-1'].narcedBy).toEqual([]);
+  });
+
+  it('should replay NARC marker state without duplicating team markers', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [
+          createTestUnit({ id: 'player-1', side: GameSide.Player }),
+          createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+        ],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const markerEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'narc-1',
+        marker: 'narc',
+        persistent: true,
+        turn: 1,
+        teamId: GameSide.Player,
+      } as IDesignatorMarkerAppliedPayload,
+    });
+
+    const firstReplay = applyEvent(state, markerEvent);
+    const secondReplay = applyEvent(firstReplay, markerEvent);
+
+    expect(secondReplay.units['opponent-1'].narcedBy).toEqual([
+      GameSide.Player,
+    ]);
+    expect(secondReplay.units['opponent-1'].tagDesignated).toBe(false);
   });
 });
 
