@@ -286,6 +286,8 @@ export function useHexMapDisplayState({
           pathIndex={pathIndex}
           tacticalProjectionIntent={projection?.intent}
           tacticalProjectionStatus={projection?.status}
+          tacticalProjectionMovementStatus={projection?.movementStatus}
+          tacticalProjectionCombatStatus={projection?.combatStatus}
           tacticalProjectionBlockedReasons={projection?.blockedReasons}
           tacticalProjectionExplanation={projection?.explanation}
           isometricOccluderInfo={isometricOccluderInfo || undefined}

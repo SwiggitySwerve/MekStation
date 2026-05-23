@@ -2573,6 +2573,14 @@ describe('HexMapDisplay combat projection', () => {
       'data-tactical-projection-status',
       'mixed',
     );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-movement-status',
+      'legal',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-combat-status',
+      'blocked',
+    );
     expect(targetHex).toHaveAttribute('data-reachable', 'true');
     expect(targetHex).toHaveAttribute('data-combat-valid-target', 'false');
     expect(targetHex).toHaveAttribute(
@@ -2585,6 +2593,12 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       targetHex.getAttribute('data-tactical-projection-explanation'),
     ).toContain('status mixed');
+    expect(
+      targetHex.getAttribute('data-tactical-projection-explanation'),
+    ).toContain('movement status legal');
+    expect(
+      targetHex.getAttribute('data-tactical-projection-explanation'),
+    ).toContain('combat status blocked');
     expect(
       targetHex.getAttribute('data-tactical-projection-explanation'),
     ).toContain('path 3 steps');
@@ -2600,6 +2614,14 @@ describe('HexMapDisplay combat projection', () => {
     expect(projectionBadge).toHaveAttribute(
       'data-projection-status-badge-intent',
       'movement-combat',
+    );
+    expect(projectionBadge).toHaveAttribute(
+      'data-projection-status-badge-movement-status',
+      'legal',
+    );
+    expect(projectionBadge).toHaveAttribute(
+      'data-projection-status-badge-combat-status',
+      'blocked',
     );
     expect(
       projectionBadge.getAttribute('data-projection-status-badge-reasons'),
@@ -2625,9 +2647,20 @@ describe('HexMapDisplay combat projection', () => {
       'data-tactical-tooltip-intent',
       'movement-combat',
     );
+    expect(tacticalTooltip).toHaveAttribute(
+      'data-tactical-tooltip-movement-status',
+      'legal',
+    );
+    expect(tacticalTooltip).toHaveAttribute(
+      'data-tactical-tooltip-combat-status',
+      'blocked',
+    );
     expect(screen.getByTestId('hex-tactical-tooltip-status')).toHaveTextContent(
       'Mixed - movement-combat',
     );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-channel-status'),
+    ).toHaveTextContent('Movement channel: legal; combat channel: blocked');
     expect(
       screen.getByTestId('hex-tactical-tooltip-elevation-context'),
     ).toHaveTextContent('Elevation: 0');

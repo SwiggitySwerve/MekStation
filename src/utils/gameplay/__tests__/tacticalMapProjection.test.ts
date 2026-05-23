@@ -110,12 +110,16 @@ describe('tacticalMapProjection', () => {
       inAttackRange: true,
       intent: 'movement-combat',
       status: 'legal',
+      movementStatus: 'legal',
+      combatStatus: 'attackable',
       blockedReasons: [],
     });
     expect(projection.terrain.elevation).toBe(2);
     expect(projection.movement?.mpCost).toBe(2);
     expect(projection.combat?.weaponIdsAvailable).toEqual(['medium-laser']);
     expect(projection.explanation).toContain('terrain rough');
+    expect(projection.explanation).toContain('movement status legal');
+    expect(projection.explanation).toContain('combat status attackable');
     expect(projection.explanation).toContain('Walk reachable 2 MP');
     expect(projection.explanation).toContain(
       'weapon options medium-laser short range in arc available',
@@ -146,6 +150,8 @@ describe('tacticalMapProjection', () => {
 
     expect(projection.status).toBe('mixed');
     expect(projection.intent).toBe('movement-combat');
+    expect(projection.movementStatus).toBe('blocked');
+    expect(projection.combatStatus).toBe('attackable');
     expect(projection.blockedReasons).toEqual([
       'Rubble cliff blocks path',
       'No legal walk path within 4 MP',
@@ -245,6 +251,8 @@ describe('tacticalMapProjection', () => {
     });
 
     expect(projection.status).toBe('mixed');
+    expect(projection.movementStatus).toBe('mixed');
+    expect(projection.combatStatus).toBe('none');
     expect(projection.blockedReasons).toEqual([
       'Jump elevation rise of 4 exceeds jump MP 3',
       'TerrainBlocked',
@@ -464,6 +472,8 @@ describe('tacticalMapProjection', () => {
     expect(blockedTarget).toMatchObject({
       intent: 'combat',
       status: 'blocked',
+      movementStatus: 'none',
+      combatStatus: 'blocked',
     });
     expect(blockedTarget.blockedReasons).toEqual([
       'LOS blocked by heavy woods at 0,0',
@@ -473,8 +483,41 @@ describe('tacticalMapProjection', () => {
     expect(emptyRange).toMatchObject({
       intent: 'combat',
       status: 'legal',
+      movementStatus: 'none',
+      combatStatus: 'range-only',
       blockedReasons: [],
     });
+  });
+
+  it('preserves top-level legal status while marking mixed visible and obscured combat channels', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: terrain(),
+      movement: undefined,
+      combat: combat({
+        targetUnitIds: ['visible-enemy', 'fog-contact'],
+        visibleTargetUnitIds: ['visible-enemy'],
+        obscuredTargetUnitIds: ['fog-contact'],
+        validTargetUnitIds: ['visible-enemy'],
+        targetVisibilityState: 'mixed',
+        visibilityBlockedReason:
+          'Some contacts are hidden or last-known and cannot be targeted',
+        attackable: true,
+      }),
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection).toMatchObject({
+      intent: 'combat',
+      status: 'legal',
+      movementStatus: 'none',
+      combatStatus: 'mixed',
+    });
+    expect(projection.explanation).toContain('combat status mixed');
+    expect(projection.explanation).toContain('visibility mixed');
   });
 
   it('builds a lookup with default clear terrain and legacy attack-range fallback', () => {

@@ -2,8 +2,10 @@ import React from 'react';
 
 import type { IHexCoordinate } from '@/types/gameplay';
 import type {
+  TacticalMapCombatProjectionStatus,
   TacticalMapHexProjectionIntent,
   TacticalMapHexProjectionStatus,
+  TacticalMapMovementProjectionStatus,
 } from '@/utils/gameplay/tacticalMapProjection';
 
 function formatProjectionStatusLabel(
@@ -22,11 +24,15 @@ function formatProjectionStatusLabel(
 function formatProjectionStatusTitle({
   status,
   intent,
+  movementStatus,
+  combatStatus,
   blockedReasons,
   explanation,
 }: {
   readonly status: TacticalMapHexProjectionStatus;
   readonly intent: TacticalMapHexProjectionIntent | undefined;
+  readonly movementStatus: TacticalMapMovementProjectionStatus | undefined;
+  readonly combatStatus: TacticalMapCombatProjectionStatus | undefined;
   readonly blockedReasons: readonly string[] | undefined;
   readonly explanation: string | undefined;
 }): string {
@@ -36,6 +42,8 @@ function formatProjectionStatusTitle({
       : 'Blocked tactical projection';
   const parts = [statusLabel];
   if (intent) parts.push(`intent ${intent}`);
+  if (movementStatus) parts.push(`movement ${movementStatus}`);
+  if (combatStatus) parts.push(`combat ${combatStatus}`);
   if (blockedReasons?.length)
     parts.push(`blocked ${blockedReasons.join('; ')}`);
   if (explanation) parts.push(explanation);
@@ -48,6 +56,8 @@ export function ProjectionStatusBadge({
   hex,
   status,
   intent,
+  movementStatus,
+  combatStatus,
   blockedReasons,
   explanation,
 }: {
@@ -56,6 +66,8 @@ export function ProjectionStatusBadge({
   readonly hex: IHexCoordinate;
   readonly status?: TacticalMapHexProjectionStatus;
   readonly intent?: TacticalMapHexProjectionIntent;
+  readonly movementStatus?: TacticalMapMovementProjectionStatus;
+  readonly combatStatus?: TacticalMapCombatProjectionStatus;
   readonly blockedReasons?: readonly string[];
   readonly explanation?: string;
 }): React.ReactElement | null {
@@ -65,6 +77,8 @@ export function ProjectionStatusBadge({
   const title = formatProjectionStatusTitle({
     status,
     intent,
+    movementStatus,
+    combatStatus,
     blockedReasons,
     explanation,
   });
@@ -78,6 +92,8 @@ export function ProjectionStatusBadge({
       aria-label={title}
       data-projection-status-badge-status={status}
       data-projection-status-badge-intent={intent}
+      data-projection-status-badge-movement-status={movementStatus}
+      data-projection-status-badge-combat-status={combatStatus}
       data-projection-status-badge-reasons={blockedReasons?.join('|')}
       data-projection-status-badge-explanation={explanation}
     >

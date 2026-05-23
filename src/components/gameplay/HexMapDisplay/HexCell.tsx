@@ -9,8 +9,10 @@ import type {
 } from '@/types/gameplay';
 import type {
   ITacticalMapCombatLosBlockerReference,
+  TacticalMapCombatProjectionStatus,
   TacticalMapHexProjectionIntent,
   TacticalMapHexProjectionStatus,
+  TacticalMapMovementProjectionStatus,
 } from '@/utils/gameplay/tacticalMapProjection';
 
 import { TerrainArtLayer } from '@/components/gameplay/terrain/TerrainArtLayer';
@@ -131,6 +133,8 @@ export interface HexCellProps {
   pathIndex?: number;
   tacticalProjectionIntent?: TacticalMapHexProjectionIntent;
   tacticalProjectionStatus?: TacticalMapHexProjectionStatus;
+  tacticalProjectionMovementStatus?: TacticalMapMovementProjectionStatus;
+  tacticalProjectionCombatStatus?: TacticalMapCombatProjectionStatus;
   tacticalProjectionBlockedReasons?: readonly string[];
   tacticalProjectionExplanation?: string;
   isometricOccluderInfo?: IsometricTerrainOccluderInfo;
@@ -173,6 +177,8 @@ export const HexCell = React.memo(function HexCell({
   pathIndex,
   tacticalProjectionIntent,
   tacticalProjectionStatus,
+  tacticalProjectionMovementStatus,
+  tacticalProjectionCombatStatus,
   tacticalProjectionBlockedReasons,
   tacticalProjectionExplanation,
   isometricOccluderInfo,
@@ -376,6 +382,10 @@ export const HexCell = React.memo(function HexCell({
       }
       data-tactical-projection-intent={tacticalProjectionIntent}
       data-tactical-projection-status={tacticalProjectionStatus}
+      data-tactical-projection-movement-status={
+        tacticalProjectionMovementStatus
+      }
+      data-tactical-projection-combat-status={tacticalProjectionCombatStatus}
       data-tactical-projection-blocked-reasons={
         tacticalProjectionBlockedReasons &&
         tacticalProjectionBlockedReasons.length > 0
@@ -582,6 +592,8 @@ export const HexCell = React.memo(function HexCell({
         hex={hex}
         status={tacticalProjectionStatus}
         intent={tacticalProjectionIntent}
+        movementStatus={tacticalProjectionMovementStatus}
+        combatStatus={tacticalProjectionCombatStatus}
         blockedReasons={tacticalProjectionBlockedReasons}
         explanation={tacticalProjectionExplanation}
       />

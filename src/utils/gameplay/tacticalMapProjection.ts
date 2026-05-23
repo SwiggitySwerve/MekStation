@@ -26,6 +26,19 @@ export type TacticalMapHexProjectionStatus =
   | 'blocked'
   | 'mixed';
 
+export type TacticalMapMovementProjectionStatus =
+  | 'none'
+  | 'legal'
+  | 'blocked'
+  | 'mixed';
+
+export type TacticalMapCombatProjectionStatus =
+  | 'none'
+  | 'range-only'
+  | 'attackable'
+  | 'blocked'
+  | 'mixed';
+
 export interface ITacticalMapCombatLosBlockerReference {
   readonly targetHex: IHexCoordinate;
   readonly targetUnitIds: readonly string[];
@@ -46,6 +59,8 @@ export interface ITacticalMapHexProjection {
   readonly inAttackRange: boolean;
   readonly intent: TacticalMapHexProjectionIntent;
   readonly status: TacticalMapHexProjectionStatus;
+  readonly movementStatus: TacticalMapMovementProjectionStatus;
+  readonly combatStatus: TacticalMapCombatProjectionStatus;
   readonly blockedReasons: readonly string[];
   readonly explanation: string;
 }
@@ -122,6 +137,11 @@ export function buildTacticalMapHexProjection({
 }): ITacticalMapHexProjection {
   const inAttackRange = inLegacyAttackRange || Boolean(combat?.inRange);
   const blockedReasons = collectBlockedReasons(movement, combat);
+  const movementStatus = deriveMovementProjectionStatus(movement);
+  const combatStatus = deriveCombatProjectionStatus({
+    combat,
+    inAttackRange,
+  });
   const intent = deriveProjectionIntent({
     isSelected,
     pathIndex,
@@ -148,6 +168,8 @@ export function buildTacticalMapHexProjection({
     inAttackRange,
     intent,
     status,
+    movementStatus,
+    combatStatus,
     blockedReasons,
     explanation: formatProjectionExplanation({
       hex,
@@ -157,6 +179,8 @@ export function buildTacticalMapHexProjection({
       combatLosBlockerFor,
       intent,
       status,
+      movementStatus,
+      combatStatus,
       blockedReasons,
     }),
   };
@@ -284,6 +308,47 @@ function movementHasBlockedOption(
   );
 }
 
+function deriveMovementProjectionStatus(
+  movement: IMovementRangeHex | undefined,
+): TacticalMapMovementProjectionStatus {
+  if (!movement) return 'none';
+
+  const hasReachableOption = movementHasReachableOption(movement);
+  const hasBlockedOption = movementHasBlockedOption(movement);
+
+  if (hasReachableOption && hasBlockedOption) return 'mixed';
+  if (hasReachableOption) return 'legal';
+  return 'blocked';
+}
+
+function deriveCombatProjectionStatus({
+  combat,
+  inAttackRange,
+}: {
+  readonly combat?: ICombatRangeHex;
+  readonly inAttackRange: boolean;
+}): TacticalMapCombatProjectionStatus {
+  if (!combat) return inAttackRange ? 'range-only' : 'none';
+
+  if (combat.hasTarget) {
+    if (combat.attackable) {
+      return combatHasBlockedTargets(combat) ? 'mixed' : 'attackable';
+    }
+    return 'blocked';
+  }
+
+  if (combat.inRange || inAttackRange) return 'range-only';
+  return 'none';
+}
+
+function combatHasBlockedTargets(combat: ICombatRangeHex): boolean {
+  if (!combat.attackable) return false;
+  if (combat.targetUnitIds.length > combat.validTargetUnitIds.length) {
+    return true;
+  }
+  return combat.obscuredTargetUnitIds.length > 0;
+}
+
 function collectBlockedReasons(
   movement: IMovementRangeHex | undefined,
   combat: ICombatRangeHex | undefined,
@@ -324,6 +389,8 @@ function formatProjectionExplanation({
   combatLosBlockerFor,
   intent,
   status,
+  movementStatus,
+  combatStatus,
   blockedReasons,
 }: {
   readonly hex: IHexCoordinate;
@@ -332,6 +399,8 @@ function formatProjectionExplanation({
   readonly combat?: ICombatRangeHex;
   readonly intent: TacticalMapHexProjectionIntent;
   readonly status: TacticalMapHexProjectionStatus;
+  readonly movementStatus: TacticalMapMovementProjectionStatus;
+  readonly combatStatus: TacticalMapCombatProjectionStatus;
   readonly blockedReasons: readonly string[];
   readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
 }): string {
@@ -343,6 +412,8 @@ function formatProjectionExplanation({
     `Hex ${hex.q},${hex.r}`,
     `intent ${intent}`,
     `status ${status}`,
+    `movement status ${movementStatus}`,
+    `combat status ${combatStatus}`,
     `terrain ${terrainTypes}`,
     `elevation ${terrain.elevation}`,
   ];

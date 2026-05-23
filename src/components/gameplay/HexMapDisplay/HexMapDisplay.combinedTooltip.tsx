@@ -142,6 +142,8 @@ export function CombinedTacticalHoverTooltip({
       data-testid="hex-tactical-tooltip"
       data-tactical-tooltip-status={projection.status}
       data-tactical-tooltip-intent={projection.intent}
+      data-tactical-tooltip-movement-status={projection.movementStatus}
+      data-tactical-tooltip-combat-status={projection.combatStatus}
       data-tactical-tooltip-blocked-reasons={projection.blockedReasons.join(
         '|',
       )}
@@ -149,6 +151,13 @@ export function CombinedTacticalHoverTooltip({
     >
       <div className="font-semibold" data-testid="hex-tactical-tooltip-status">
         {formatProjectionStatusLabel(projection.status)} - {projection.intent}
+      </div>
+      <div
+        className="text-[11px] text-slate-200"
+        data-testid="hex-tactical-tooltip-channel-status"
+      >
+        Movement channel: {projection.movementStatus}; combat channel:{' '}
+        {projection.combatStatus}
       </div>
       <ProjectionTerrainRows projection={projection} />
       <IsometricOccluderContextRows
