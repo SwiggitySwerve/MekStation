@@ -41,6 +41,7 @@ import {
   tokenUsesMekWaterCover,
 } from './terrainCover';
 import { calculateTargetTerrainModifierFromHex } from './toHit';
+import { getTwoD6HitProbability } from './toHit/forecast';
 import {
   representedWaterAttackInvalidState,
   weaponPassesRepresentedWaterAttackRules,
@@ -63,9 +64,24 @@ function weaponImpactForStatus(weapon: IWeaponStatus): ICombatWeaponImpact {
     weaponId: weapon.id,
     weaponName: weapon.name,
     heat: weapon.heat,
+    damage: weaponDamageValue(weapon),
     ammoConsumed: ammoRemaining === undefined ? 0 : 1,
     ammoRemaining,
   };
+}
+
+function weaponDamageValue(weapon: IWeaponStatus): number {
+  if (typeof weapon.damage === 'number') return weapon.damage;
+  const parsed = Number.parseFloat(weapon.damage);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function expectedDamageForProjection(
+  availableWeaponDamage: number,
+  toHitNumber: number | undefined,
+): number | undefined {
+  if (toHitNumber === undefined) return undefined;
+  return availableWeaponDamage * (getTwoD6HitProbability(toHitNumber) / 100);
 }
 
 export function deriveCombatRangeHexes({
@@ -149,6 +165,10 @@ export function deriveCombatRangeHexes({
     const availableWeaponImpacts = availableWeapons.map(weaponImpactForStatus);
     const availableWeaponHeat = availableWeaponImpacts.reduce(
       (sum, impact) => sum + impact.heat,
+      0,
+    );
+    const availableWeaponDamage = availableWeaponImpacts.reduce(
+      (sum, impact) => sum + impact.damage,
       0,
     );
     const inArc = weaponIdsInArc.length > 0;
@@ -291,6 +311,12 @@ export function deriveCombatRangeHexes({
       firingArc,
       los,
     );
+    const expectedDamage = attackable
+      ? expectedDamageForProjection(
+          availableWeaponDamage,
+          toHitProjection?.toHitNumber,
+        )
+      : undefined;
 
     results.push({
       hex,
@@ -327,6 +353,8 @@ export function deriveCombatRangeHexes({
       weaponIdsAvailable,
       availableWeaponImpacts,
       availableWeaponHeat,
+      availableWeaponDamage,
+      expectedDamage,
       targetUnitIds,
       validTargetUnitIds: attackable ? visibleTargetUnitIds : [],
       attackInvalidReason: attackInvalidState.reason,

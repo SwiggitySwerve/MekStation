@@ -51,7 +51,7 @@ export function formatCombatLabel(combatInfo: ICombatRangeHex): string {
     combatInfo.hasTarget && combatInfo.availableWeaponImpacts.length > 0
       ? `, weapon heat +${combatInfo.availableWeaponHeat}${formatAmmoImpactLabel(
           combatInfo,
-        )}`
+        )}${formatDamageImpactLabel(combatInfo)}`
       : '';
   const visibilityLabel =
     combatInfo.targetVisibilityState !== 'none'
@@ -97,6 +97,19 @@ function formatAmmoImpactLabel(combatInfo: ICombatRangeHex): string {
       return `${impact.weaponName} -${impact.ammoConsumed}${remaining}`;
     });
   return ammoImpacts.length > 0 ? `, ammo ${ammoImpacts.join(', ')}` : '';
+}
+
+function formatDamageImpactLabel(combatInfo: ICombatRangeHex): string {
+  if (combatInfo.availableWeaponDamage <= 0) return '';
+  const expected =
+    combatInfo.expectedDamage === undefined
+      ? ''
+      : `, expected ${formatDamageValue(combatInfo.expectedDamage)}`;
+  return `, damage ${formatDamageValue(combatInfo.availableWeaponDamage)}${expected}`;
+}
+
+function formatDamageValue(value: number): string {
+  return Number.isInteger(value) ? `${value}` : value.toFixed(1);
 }
 
 export function formatMovementLabel(movementInfo: IMovementRangeHex): string {

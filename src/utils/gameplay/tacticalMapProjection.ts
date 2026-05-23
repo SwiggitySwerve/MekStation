@@ -337,6 +337,16 @@ function formatProjectionExplanation({
         parts.push(
           `weapon heat ${formatSignedCost(combat.availableWeaponHeat)}`,
         );
+        if (combat.availableWeaponDamage > 0) {
+          parts.push(
+            `damage ${formatDamageValue(combat.availableWeaponDamage)} listed`,
+          );
+          if (combat.expectedDamage !== undefined) {
+            parts.push(
+              `expected damage ${formatDamageValue(combat.expectedDamage)}`,
+            );
+          }
+        }
         const ammoImpacts = combat.availableWeaponImpacts
           .filter((impact) => impact.ammoConsumed > 0)
           .map((impact) => {
@@ -388,4 +398,8 @@ function formatMovementType(movementType: string): string {
 
 function formatSignedCost(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
+}
+
+function formatDamageValue(value: number): string {
+  return Number.isInteger(value) ? `${value}` : value.toFixed(1);
 }

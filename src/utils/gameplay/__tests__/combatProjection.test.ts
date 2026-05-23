@@ -11,6 +11,7 @@ import {
   TokenUnitType,
 } from '@/types/gameplay';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
+import { getTwoD6HitProbability } from '@/utils/gameplay/toHit/forecast';
 
 import { deriveCombatRangeHexes } from '../combatProjection';
 import { deriveValidWeaponTargetIds } from '../combatTargetIds';
@@ -177,17 +178,24 @@ describe('deriveCombatRangeHexes', () => {
           weaponId: 'medium-laser',
           weaponName: 'Medium Laser',
           heat: 3,
+          damage: 5,
           ammoConsumed: 0,
         },
         {
           weaponId: 'ac-5',
           weaponName: 'AC/5',
           heat: 1,
+          damage: 5,
           ammoConsumed: 1,
           ammoRemaining: 12,
         },
       ],
+      availableWeaponDamage: 10,
     });
+    expect(targetHex?.expectedDamage).toBeCloseTo(
+      10 * (getTwoD6HitProbability(targetHex!.toHitNumber!) / 100),
+      4,
+    );
   });
 
   it('keeps out-of-range targets explainable instead of making them disappear', () => {

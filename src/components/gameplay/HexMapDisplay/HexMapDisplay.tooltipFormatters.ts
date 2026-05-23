@@ -42,8 +42,20 @@ export function formatCombatWeaponImpactLabel(
       return `${impact.weaponName} -${impact.ammoConsumed}${remaining}`;
     });
   const ammoLabel = ammoRows.length > 0 ? `; ammo ${ammoRows.join('; ')}` : '';
+  const damageLabel =
+    combatInfo.availableWeaponDamage > 0
+      ? `; damage ${formatDamageValue(combatInfo.availableWeaponDamage)} listed${
+          combatInfo.expectedDamage !== undefined
+            ? `, ${formatDamageValue(combatInfo.expectedDamage)} expected`
+            : ''
+        }`
+      : '';
 
-  return `Impact: +${combatInfo.availableWeaponHeat} heat${ammoLabel}`;
+  return `Impact: +${combatInfo.availableWeaponHeat} heat${ammoLabel}${damageLabel}`;
+}
+
+function formatDamageValue(value: number): string {
+  return Number.isInteger(value) ? `${value}` : value.toFixed(1);
 }
 
 export function formatCombatVisibilityLabel(

@@ -67,10 +67,13 @@ function makeCombatInfo(
         weaponId: 'medium-laser',
         weaponName: 'Medium Laser',
         heat: 3,
+        damage: 5,
         ammoConsumed: 0,
       },
     ],
     availableWeaponHeat: 3,
+    availableWeaponDamage: 5,
+    expectedDamage: 2.1,
     targetUnitIds: ['enemy-x'],
     validTargetUnitIds: ['enemy-x'],
     toHitNumber: 8,
@@ -374,17 +377,21 @@ describe('TacticalActionDock', () => {
                 weaponId: 'medium-laser',
                 weaponName: 'Medium Laser',
                 heat: 3,
+                damage: 5,
                 ammoConsumed: 0,
               },
               {
                 weaponId: 'ac-5',
                 weaponName: 'AC/5',
                 heat: 1,
+                damage: 5,
                 ammoConsumed: 1,
                 ammoRemaining: 8,
               },
             ],
             availableWeaponHeat: 4,
+            availableWeaponDamage: 10,
+            expectedDamage: 4.2,
           }),
           weaponStatuses: [
             makeWeapon({ heat: 12 }),
@@ -410,6 +417,10 @@ describe('TacticalActionDock', () => {
       'Medium Laser,AC/5',
     );
     expect(preview).toHaveAttribute('data-command-preview-heat', '4');
+    expect(preview).toHaveAttribute(
+      'data-command-preview-expected-damage',
+      '4.20',
+    );
     expect(screen.getByTestId('command-preview-weapons')).toHaveTextContent(
       'Weapons Medium Laser, AC/5',
     );

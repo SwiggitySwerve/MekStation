@@ -340,6 +340,10 @@ describe('HexMapDisplay combat projection', () => {
         radius={2}
         tokens={[selected, enemy]}
         selectedHex={null}
+        combatState={makeCombatState({
+          selected: { side: GameSide.Player, position: { q: 0, r: 0 } },
+          enemy: { side: GameSide.Opponent, position: { q: 2, r: 0 } },
+        })}
         unitWeapons={{
           selected: [
             makeWeapon({ id: 'medium-laser', name: 'Medium Laser', heat: 3 }),
@@ -368,8 +372,18 @@ describe('HexMapDisplay combat projection', () => {
       expect.stringContaining('ammo AC/5 -1 11 left'),
     );
     expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('damage 10 listed'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('expected damage'),
+    );
+    expect(targetHex).toHaveAttribute(
       'aria-label',
-      expect.stringContaining('weapon heat +4, ammo AC/5 -1 11 left'),
+      expect.stringContaining(
+        'weapon heat +4, ammo AC/5 -1 11 left, damage 10',
+      ),
     );
 
     fireEvent.mouseEnter(targetHex);
@@ -379,7 +393,12 @@ describe('HexMapDisplay combat projection', () => {
     );
     expect(
       screen.getByTestId('hex-combat-tooltip-weapon-impact'),
-    ).toHaveTextContent('Impact: +4 heat; ammo AC/5 -1 (11 left)');
+    ).toHaveTextContent(
+      'Impact: +4 heat; ammo AC/5 -1 (11 left); damage 10 listed',
+    );
+    expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-impact'),
+    ).toHaveTextContent('expected');
   });
 
   it('shows projected weapon heat and ammo impact in combined tactical hover explanations', () => {
@@ -400,6 +419,10 @@ describe('HexMapDisplay combat projection', () => {
         radius={2}
         tokens={[selected, enemy]}
         selectedHex={null}
+        combatState={makeCombatState({
+          selected: { side: GameSide.Player, position: { q: 0, r: 0 } },
+          enemy: { side: GameSide.Opponent, position: { q: 2, r: 0 } },
+        })}
         movementRange={[
           {
             hex: { q: 2, r: 0 },
@@ -439,7 +462,12 @@ describe('HexMapDisplay combat projection', () => {
     );
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact'),
-    ).toHaveTextContent('Impact: +1 heat; ammo AC/5 -1 (7 left)');
+    ).toHaveTextContent(
+      'Impact: +1 heat; ammo AC/5 -1 (7 left); damage 5 listed',
+    );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact'),
+    ).toHaveTextContent('expected');
     expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
   });
 

@@ -21,9 +21,8 @@
  *   - Weapon attack preview is PARTIAL today. The to-hit number is
  *     plumbed through `hitChance` and the attack plan ID through the
  *     gameplay store. When the caller supplies the shared combat hex
- *     projection and selected weapon statuses, the preview also mirrors
- *     the map's range band, to-hit number, heat cost, ammo usage, and
- *     expected damage envelope.
+ *     projection, the preview also mirrors the map's range band, to-hit
+ *     number, heat cost, ammo usage, and expected damage envelope.
  *
  *   - Physical attack preview mirrors the shared physical eligibility
  *     projection, including to-hit, damage, self-risk, PSR triggers, and
@@ -60,7 +59,6 @@ import type {
 } from '@/utils/gameplay/physicalAttacks/types';
 
 import { RangeBracket } from '@/types/gameplay';
-import { getTwoD6HitProbability } from '@/utils/gameplay/toHit/forecast';
 
 import { REASON_COPY } from '../PhysicalAttackPanel.helpers';
 
@@ -90,7 +88,7 @@ export interface ICommandPreviewInputs {
   readonly weaponRangeBand?: 'short' | 'medium' | 'long' | 'extreme' | 'out';
   /** Shared rules-backed combat projection for the hovered/target hex. */
   readonly combatInfo?: ICombatRangeHex;
-  /** Selected unit weapon statuses used to summarize attack cost/effect. */
+  /** Selected unit weapon statuses retained for call-site compatibility. */
   readonly weaponStatuses?: readonly IWeaponStatus[];
   /** Target unit selected in the physical-attack planning projection. */
   readonly physicalTargetUnitId?: string | null;
@@ -197,13 +195,6 @@ function buildWeaponPreview(
   const blockedReason = inputs.combatInfo
     ? combatBlockedReason(inputs.combatInfo)
     : undefined;
-  const availableWeaponIds = new Set(inputs.combatInfo?.weaponIdsAvailable);
-  const selectedWeapons =
-    attackable && inputs.combatInfo && inputs.weaponStatuses
-      ? inputs.weaponStatuses.filter((weapon) =>
-          availableWeaponIds.has(weapon.id),
-        )
-      : [];
   const availableWeaponImpacts =
     attackable && inputs.combatInfo
       ? inputs.combatInfo.availableWeaponImpacts
@@ -228,7 +219,10 @@ function buildWeaponPreview(
     weaponIds: availableWeaponImpacts.map((impact) => impact.weaponId),
     weaponNames: availableWeaponImpacts.map((impact) => impact.weaponName),
     ammoUsage: ammoUsageForImpacts(availableWeaponImpacts),
-    expectedDamage: expectedDamageForWeapons(selectedWeapons, toHit),
+    expectedDamage:
+      attackable && inputs.combatInfo
+        ? (inputs.combatInfo.expectedDamage ?? 0)
+        : 0,
   };
 }
 
@@ -272,24 +266,6 @@ function ammoUsageForImpacts(
       (usage[impact.weaponName] ?? 0) + impact.ammoConsumed;
     return usage;
   }, {});
-}
-
-function weaponDamageValue(weapon: IWeaponStatus): number {
-  if (typeof weapon.damage === 'number') return weapon.damage;
-  const parsed = Number.parseFloat(weapon.damage);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function expectedDamageForWeapons(
-  weapons: readonly IWeaponStatus[],
-  toHit: number | null,
-): number {
-  if (toHit === null) return 0;
-  const hitProbability = getTwoD6HitProbability(toHit) / 100;
-  return weapons.reduce(
-    (sum, weapon) => sum + weaponDamageValue(weapon) * hitProbability,
-    0,
-  );
 }
 
 function buildPhysicalPreview(
@@ -375,7 +351,6 @@ export function useCommandPreview(
       inputs.hitChance,
       inputs.weaponRangeBand,
       inputs.combatInfo,
-      inputs.weaponStatuses,
       inputs.physicalTargetUnitId,
       inputs.physicalAttackType,
       inputs.physicalAttackLimb,

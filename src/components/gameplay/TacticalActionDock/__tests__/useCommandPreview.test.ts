@@ -73,10 +73,13 @@ function makeCombatInfo(
         weaponId: 'medium-laser',
         weaponName: 'Medium Laser',
         heat: 3,
+        damage: 5,
         ammoConsumed: 0,
       },
     ],
     availableWeaponHeat: 3,
+    availableWeaponDamage: 5,
+    expectedDamage: 2.1,
     targetUnitIds: ['enemy-x'],
     validTargetUnitIds: ['enemy-x'],
     ...overrides,
@@ -349,17 +352,21 @@ describe('buildCommandPreview', () => {
               weaponId: 'medium-laser',
               weaponName: 'Medium Laser',
               heat: 3,
+              damage: 5,
               ammoConsumed: 0,
             },
             {
               weaponId: 'ac-5',
               weaponName: 'AC/5',
               heat: 1,
+              damage: 5,
               ammoConsumed: 1,
               ammoRemaining: 20,
             },
           ],
           availableWeaponHeat: 4,
+          availableWeaponDamage: 10,
+          expectedDamage: 7.25,
         }),
         weaponStatuses: [
           makeWeapon({ heat: 12 }),
@@ -390,7 +397,7 @@ describe('buildCommandPreview', () => {
       expect(preview.weaponIds).toEqual(['medium-laser', 'ac-5']);
       expect(preview.weaponNames).toEqual(['Medium Laser', 'AC/5']);
       expect(preview.ammoUsage).toEqual({ 'AC/5': 1 });
-      expect(preview.expectedDamage).toBeCloseTo(4.2, 2);
+      expect(preview.expectedDamage).toBeCloseTo(7.25, 2);
     } else {
       throw new Error('expected weapon-attack preview');
     }
