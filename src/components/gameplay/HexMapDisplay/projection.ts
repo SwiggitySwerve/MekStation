@@ -1,4 +1,12 @@
-import type { MapProjectionMode } from '@/types/gameplay';
+import type {
+  IHexCoordinate,
+  IHexTerrain,
+  IUnitToken,
+  MapIsometricRotationStep,
+  MapProjectionMode,
+} from '@/types/gameplay';
+
+import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 
 /**
  * SVG transform applied to the whole render layer. Rules and hit targets stay
@@ -6,7 +14,131 @@ import type { MapProjectionMode } from '@/types/gameplay';
  */
 export function getMapProjectionTransform(
   mode: MapProjectionMode,
+  rotationStep: MapIsometricRotationStep = 0,
 ): string | undefined {
   if (mode === 'topDown') return undefined;
-  return 'matrix(1 0 0.28 0.72 0 0)';
+  return `rotate(${rotationStep * 60}) matrix(1 0 0.28 0.72 0 0)`;
+}
+
+export function isIsometricProjection(mode: MapProjectionMode): boolean {
+  return mode === 'isometric2d' || mode === 'isometricPreview';
+}
+
+export function rotateAxialCamera(
+  hex: IHexCoordinate,
+  rotationStep: number,
+): IHexCoordinate {
+  let x = hex.q;
+  let z = hex.r;
+  let y = -x - z;
+  for (let i = 0; i < rotationStep; i++) {
+    const nextX = -z;
+    const nextY = -x;
+    const nextZ = -y;
+    x = nextX;
+    y = nextY;
+    z = nextZ;
+  }
+  return { q: x, r: z };
+}
+
+export function isometricDepthKey(
+  hex: IHexCoordinate,
+  terrainLookup: ReadonlyMap<string, IHexTerrain>,
+  rotationStep: number,
+): number {
+  const rotated = rotateAxialCamera(hex, rotationStep);
+  const elevation = terrainLookup.get(coordToKey(hex))?.elevation ?? 0;
+  return (rotated.r * 2 + rotated.q) * 100 + elevation;
+}
+
+export interface IsometricTerrainOcclusionInfo {
+  readonly unitId: string;
+  readonly occluderHex: IHexCoordinate;
+  readonly occluderElevation: number;
+  readonly unitElevation: number;
+  readonly rotationStep: number;
+  readonly reason: string;
+}
+
+function displayPositionForToken(token: IUnitToken): IHexCoordinate {
+  if (token.fogStatus === 'lastKnown' && token.lastKnownPosition) {
+    return token.lastKnownPosition;
+  }
+  return token.position;
+}
+
+function formatSignedElevation(elevation: number): string {
+  return elevation >= 0 ? `+${elevation}` : `${elevation}`;
+}
+
+function isTerrainInFrontOfUnit(
+  unitHex: IHexCoordinate,
+  terrainHex: IHexCoordinate,
+  rotationStep: number,
+): boolean {
+  const unitRotated = rotateAxialCamera(unitHex, rotationStep);
+  const terrainRotated = rotateAxialCamera(terrainHex, rotationStep);
+  const unitDepth = unitRotated.r * 2 + unitRotated.q;
+  const terrainDepth = terrainRotated.r * 2 + terrainRotated.q;
+  const depthDelta = terrainDepth - unitDepth;
+  if (depthDelta <= 0 || depthDelta > 3) return false;
+  return Math.abs(terrainRotated.q - unitRotated.q) <= 1;
+}
+
+export function deriveIsometricTerrainOccludedUnitIds({
+  tokens,
+  terrainLookup,
+  rotationStep,
+}: {
+  readonly tokens: readonly IUnitToken[];
+  readonly terrainLookup: ReadonlyMap<string, IHexTerrain>;
+  readonly rotationStep: number;
+}): ReadonlySet<string> {
+  return new Set(
+    deriveIsometricTerrainOcclusionInfo({
+      tokens,
+      terrainLookup,
+      rotationStep,
+    }).map((info) => info.unitId),
+  );
+}
+
+export function deriveIsometricTerrainOcclusionInfo({
+  tokens,
+  terrainLookup,
+  rotationStep,
+}: {
+  readonly tokens: readonly IUnitToken[];
+  readonly terrainLookup: ReadonlyMap<string, IHexTerrain>;
+  readonly rotationStep: number;
+}): readonly IsometricTerrainOcclusionInfo[] {
+  const ids = new Set<string>();
+  const info: IsometricTerrainOcclusionInfo[] = [];
+
+  for (const token of tokens) {
+    if (token.fogStatus === 'hidden') continue;
+    const position = displayPositionForToken(token);
+    const unitElevation =
+      terrainLookup.get(coordToKey(position))?.elevation ?? 0;
+
+    terrainLookup.forEach((terrain) => {
+      if (ids.has(token.unitId)) return;
+      if (terrain.elevation - unitElevation < 2) return;
+      if (hexDistance(position, terrain.coordinate) > 2) return;
+      if (isTerrainInFrontOfUnit(position, terrain.coordinate, rotationStep)) {
+        ids.add(token.unitId);
+        info.push({
+          unitId: token.unitId,
+          occluderHex: terrain.coordinate,
+          occluderElevation: terrain.elevation,
+          unitElevation,
+          rotationStep,
+          reason: `Elevated terrain ${formatSignedElevation(terrain.elevation)} at (${terrain.coordinate.q}, ${terrain.coordinate.r}) may hide unit at elevation ${formatSignedElevation(unitElevation)}`,
+        });
+      }
+    });
+  }
+
+  return info;
 }
