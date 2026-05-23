@@ -234,6 +234,23 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['multi-target-penalty-application']
         .gap,
     ).toContain('source-backed MegaMek');
+
+    const multiTaskerRefs = SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? [];
+    expect(multiTaskerRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker',
+      'MegaMek OptionsConstants defines the source-backed Multi-Tasker SPA id as multi_tasker',
+    ]);
+    expect(SPA_COMBAT_SUPPORT['multi-target'].sourceRefs).toEqual(
+      multiTaskerRefs,
+    );
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'multi-target-penalty-application'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual([
+      'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',
+      'MegaMek OptionsConstants defines GUNNERY_MULTI_TASKER as multi_tasker.',
+    ]);
   });
 
   it('keeps local called-shot helpers out of MegaMek-backed SPA claims', () => {
@@ -252,5 +269,37 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application'].gap,
     ).toContain('not Marksman/Sharpshooter reduction');
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'called-shot-application'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual([
+      'MegaMek ComputeAttackerToHitMods applies +3 TacOps called-shot modifiers for high, low, left, and right called shots.',
+    ]);
+  });
+
+  it('keeps source-backed pilot modifier refs commit-pinned', () => {
+    const refs = [
+      ...(SPA_COMBAT_SUPPORT['multi-tasker'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['multi-target'].sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'multi-target-penalty-application'
+      ].sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['called-shot-application']
+        .sourceRefs ?? []),
+    ];
+
+    expect(refs.length).toBeGreaterThan(0);
+    expect(
+      refs.every(
+        (sourceRef) =>
+          sourceRef.kind === 'megamek-source' &&
+          sourceRef.sourceVersion ===
+            '325b2504c7b7750ecdcb85468621fb2de2ad8e60' &&
+          sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
+          sourceRef.url.includes(sourceRef.sourceVersion) &&
+          sourceRef.url.includes('#L'),
+      ),
+    ).toBe(true);
   });
 });

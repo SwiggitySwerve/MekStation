@@ -32,6 +32,8 @@ function helperOnly(
 }
 
 const MEGAMEK_HEAT_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+const MEGAMEK_TO_HIT_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
 function megamekHeatSourceRef(
   citation: string,
@@ -57,6 +59,33 @@ const MEGAMEK_HEAT_AMMO_SELECTION_SOURCE_REF = megamekHeatSourceRef(
   'server/totalWarfare/TWGameManager.java',
   'L22855-L22923',
 );
+
+const MEGAMEK_SECONDARY_TARGET_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/compute/Compute.java#L2494-L2615`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek OptionsConstants defines GUNNERY_MULTI_TASKER as multi_tasker.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L192-L200`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_CALLED_SHOT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ComputeAttackerToHitMods applies +3 TacOps called-shot modifiers for high, low, left, and right called shots.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/actions/compute/ComputeAttackerToHitMods.java#L108-L138`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
 
 export const RUNNER_RANGE_BRACKET_COMBAT_SUPPORT = {
   [RangeBracket.Short]: integrated(
@@ -149,11 +178,13 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
   ),
   'secondary-target': integrated(
     'secondary-target',
-    'runAttackPhase accepts per-weapon target declarations, marks non-primary targets as secondary, and threads secondaryTarget state into calculateToHit',
+    'Source-backed runAttackPhase accepts per-weapon target declarations, marks non-primary targets as secondary, and threads secondaryTarget state into calculateToHit',
+    MEGAMEK_SECONDARY_TARGET_SOURCE_REFS,
   ),
   'called-shot': integrated(
     'called-shot',
-    'runAttackPhase and declareAttack carry called-shot intent into calculateCalledShotModifier for the TacOps-style +3 called-shot penalty',
+    'Source-backed runAttackPhase and declareAttack carry called-shot intent into calculateCalledShotModifier for the TacOps-style +3 called-shot penalty',
+    MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   ),
   ecm: helperOnly(
     'ecm',

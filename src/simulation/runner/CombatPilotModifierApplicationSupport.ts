@@ -1,25 +1,73 @@
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
-function integrated(id: string, evidence: string): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence };
+function integrated(
+  id: string,
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'integrated', evidence, sourceRefs }
+    : { id, level: 'integrated', evidence };
 }
 
 function helperOnly(
   id: string,
   evidence: string,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return { id, level: 'helper-only', evidence, gap };
+  return sourceRefs
+    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
+    : { id, level: 'helper-only', evidence, gap };
 }
 
-function unsupported(id: string, gap: string): ICombatFeatureSupportEntry {
-  return {
+function unsupported(
+  id: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  const entry: ICombatFeatureSupportEntry = {
     id,
     level: 'unsupported',
     evidence: 'No combat resolver consumes this modifier family',
     gap,
   };
+
+  return sourceRefs ? { ...entry, sourceRefs } : entry;
 }
+
+const MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
+const MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/compute/Compute.java#L2494-L2615`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek OptionsConstants defines GUNNERY_MULTI_TASKER as multi_tasker.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L192-L200`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_CALLED_SHOT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ComputeAttackerToHitMods applies +3 TacOps called-shot modifiers for high, low, left, and right called shots.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/actions/compute/ComputeAttackerToHitMods.java#L108-L138`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
 
 export interface IPilotModifierResolverAssignment {
   readonly spaIds: readonly string[];
@@ -41,8 +89,9 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'called-shot-application': helperOnly(
     'called-shot-application',
-    'runAttackPhase and declareAttack pass calledShot intent into calculateCalledShotModifier for TacOps-style +3 called-shot penalties; local Marksman/legacy Sharpshooter helper reductions still exist',
+    'Source-backed runAttackPhase and declareAttack pass calledShot intent into calculateCalledShotModifier for TacOps-style +3 called-shot penalties; local Marksman/legacy Sharpshooter helper reductions still exist',
     'MegaMek source validates called-shot penalties but not Marksman/Sharpshooter reduction',
+    MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   ),
   'indirect-fire-spa-application': integrated(
     'indirect-fire-spa-application',
@@ -116,6 +165,7 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   'multi-target-penalty-application': unsupported(
     'multi-target-penalty-application',
     'The local Multi-Target SPA is not wired because the source-backed MegaMek secondary-target reducer is Multi-Tasker/multi_tasker, which is already handled through ranged to-hit calculation',
+    MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
   ),
   'target-priority-application': unsupported(
     'target-priority-application',

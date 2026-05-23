@@ -54,3 +54,4 @@
 - [x] 4.3.3 Add structured MegaMek source anchors for TAG and NARC marker application, TAG turn clearing, and iNARC variant scope.
 - [x] 4.3.4 Add structured MegaMek source anchors for ECM suite and active-probe hydration rows used by Artemis ECM countering.
 - [x] 4.3.5 Add structured MegaMek source anchors for Artemis cluster, indirect-fire, ECM, and stealth suppression rows.
+- [x] 4.3.6 Add structured MegaMek source anchors for secondary-target, Multi-Tasker, local Multi-Target, and called-shot modifier boundaries.

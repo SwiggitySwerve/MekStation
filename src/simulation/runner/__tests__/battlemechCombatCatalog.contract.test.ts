@@ -1306,6 +1306,34 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual(['c3', 'ecm', 'hull-down']);
   });
 
+  it('pins secondary-target and called-shot modifiers to MegaMek refs', () => {
+    const secondaryTargetRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['secondary-target'].sourceRefs ??
+      [];
+    const calledShotRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['called-shot'].sourceRefs ?? [];
+
+    expect(secondaryTargetRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',
+      'MegaMek OptionsConstants defines GUNNERY_MULTI_TASKER as multi_tasker.',
+    ]);
+    expect(calledShotRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek ComputeAttackerToHitMods applies +3 TacOps called-shot modifiers for high, low, left, and right called shots.',
+    ]);
+
+    expect(
+      [...secondaryTargetRefs, ...calledShotRefs].every(
+        (sourceRef) =>
+          sourceRef.kind === 'megamek-source' &&
+          sourceRef.sourceVersion ===
+            '325b2504c7b7750ecdcb85468621fb2de2ad8e60' &&
+          sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
+          sourceRef.url.includes(sourceRef.sourceVersion) &&
+          sourceRef.url.includes('#L'),
+      ),
+    ).toBe(true);
+  });
+
   it('tracks physical damage modifiers separately from helper-only environment inputs', () => {
     expect(supportGaps(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT)).toEqual([]);
     expect(

@@ -54,13 +54,19 @@ function helperOnly(
     : { id, level: 'helper-only', evidence, gap };
 }
 
-function unsupported(id: string, gap: string): ICombatFeatureSupportEntry {
-  return {
+function unsupported(
+  id: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  const entry: ICombatFeatureSupportEntry = {
     id,
     level: 'unsupported',
     evidence: 'No combat behavior wired',
     gap,
   };
+
+  return sourceRefs ? { ...entry, sourceRefs } : entry;
 }
 
 const NO_RUNTIME_PHYSICAL_WEAPON =
@@ -114,6 +120,27 @@ const MEGAMEK_325B_PROTOTYPE_ARTEMIS_FCS = {
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
+const MEGAMEK_325B_SECONDARY_TARGET_MODIFIERS = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L2494-L2615',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MULTI_TASKER_OPTION = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek OptionsConstants defines the source-backed Multi-Tasker SPA id as multi_tasker',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/options/OptionsConstants.java#L192-L200',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MULTI_TASKER_SOURCE_REFS = [
+  MEGAMEK_325B_SECONDARY_TARGET_MODIFIERS,
+  MEGAMEK_325B_MULTI_TASKER_OPTION,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const SPA_COMBAT_SUPPORT = {
   'weapon-specialist': integrated(
     'weapon-specialist',
@@ -139,7 +166,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'multi-tasker': integrated(
     'multi-tasker',
-    'calculateMultiTaskerModifier + calculateToHit',
+    'Source-backed calculateMultiTaskerModifier + calculateToHit secondary-target penalty reduction',
+    MEGAMEK_325B_MULTI_TASKER_SOURCE_REFS,
   ),
   'range-master': integrated(
     'range-master',
@@ -241,6 +269,7 @@ export const SPA_COMBAT_SUPPORT = {
   'multi-target': unsupported(
     'multi-target',
     'Local Multi-Target is not the MegaMek source-backed SPA; source-backed secondary-target penalty reduction is Multi-Tasker/multi_tasker',
+    MEGAMEK_325B_MULTI_TASKER_SOURCE_REFS,
   ),
   'iron-will': integrated(
     'iron-will',
