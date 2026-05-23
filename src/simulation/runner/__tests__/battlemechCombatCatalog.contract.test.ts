@@ -1292,6 +1292,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'indirect-fire',
       'minimum-range',
       'partial-cover',
+      'physical-dfa-piloting-differential',
       'physical-dfa-target-class',
       'pilot-wounds',
       'range',
@@ -1316,6 +1317,10 @@ describe('BattleMech combat feature-gap tracking', () => {
     const physicalDfaTargetClassRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['physical-dfa-target-class']
         .sourceRefs ?? [];
+    const physicalDfaPilotingDifferentialRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[
+        'physical-dfa-piloting-differential'
+      ].sourceRefs ?? [];
 
     expect(secondaryTargetRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Compute.getSecondaryTargetMod applies the secondary-target modifier and reduces it for Multi-Tasker.',
@@ -1327,12 +1332,18 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(physicalDfaTargetClassRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek DfaAttackAction.toHit applies +3 for Infantry targets and +1 for Battle Armor targets.',
     ]);
+    expect(
+      physicalDfaPilotingDifferentialRefs.map(({ citation }) => citation),
+    ).toEqual([
+      'MegaMek DfaAttackAction.toHit applies attacker piloting minus target piloting as the piloting skill differential.',
+    ]);
 
     expect(
       [
         ...secondaryTargetRefs,
         ...calledShotRefs,
         ...physicalDfaTargetClassRefs,
+        ...physicalDfaPilotingDifferentialRefs,
       ].every(
         (sourceRef) =>
           sourceRef.kind === 'megamek-source' &&

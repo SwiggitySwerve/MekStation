@@ -146,6 +146,11 @@ export interface IPhysicalAttackInput {
   readonly attackerArmsFlipped?: boolean;
   readonly targetUnitType?: string;
   /**
+   * Source-backed DFA to-hit: MegaMek applies attacker piloting minus target
+   * piloting as a piloting-skill differential modifier.
+   */
+  readonly targetPilotingSkill?: number;
+  /**
    * Source-backed shared physical legality: an attacker that is evading
    * cannot make normal physical attacks.
    */

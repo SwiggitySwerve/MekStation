@@ -86,6 +86,25 @@ function appendDfaTargetClassModifier(
   }
 }
 
+function appendDfaPilotingDifferentialModifier(
+  modifiers: IPhysicalModifier[],
+  attackerPilotingSkill: number,
+  targetPilotingSkill: number | undefined,
+): void {
+  if (
+    targetPilotingSkill === undefined ||
+    attackerPilotingSkill === targetPilotingSkill
+  ) {
+    return;
+  }
+
+  modifiers.push({
+    name: 'Piloting skill differential',
+    value: attackerPilotingSkill - targetPilotingSkill,
+    source: 'pilot-skill',
+  });
+}
+
 export function calculatePunchToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
@@ -264,6 +283,11 @@ export function calculateDFAToHit(
   appendDfaTargetClassModifier(modifiers, input.targetUnitType);
   // DFA inherits TMM like punch/kick.
   appendTMM(modifiers, input.targetMovementModifier);
+  appendDfaPilotingDifferentialModifier(
+    modifiers,
+    input.pilotingSkill,
+    input.targetPilotingSkill,
+  );
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);

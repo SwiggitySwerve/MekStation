@@ -1431,6 +1431,26 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('applies source-backed DFA piloting skill differential modifier', () => {
+    const { events } = runPhase('dfa', {
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+        piloting: 5,
+      },
+      target: {
+        piloting: 3,
+      },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'dfa',
+      roll: 8,
+      toHitNumber: 7,
+      hit: true,
+    });
+  });
+
   it('applies source-backed DFA hit displacement', () => {
     const { events, result } = runPhase('dfa', {
       attacker: {
@@ -1463,6 +1483,9 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       attacker: {
         movementThisTurn: MovementType.Jump,
         hexesMovedThisTurn: 4,
+        piloting: 12,
+      },
+      target: {
         piloting: 12,
       },
       grid: createPhysicalGrid(),

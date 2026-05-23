@@ -234,6 +234,7 @@ export function declarePhysicalAttack(
     attackerIsAirborne: attackerState.isAirborne,
     attackerArmsFlipped: attackerState.armsFlipped,
     targetUnitType: targetState?.unitType,
+    targetPilotingSkill: targetState?.piloting,
     attackerEvading: attackerState.isEvading,
     attackerLoadingOrUnloadingCargo: attackerState.isLoadingOrUnloadingCargo,
     attackerTargetedByDisplacementAttackerId:
@@ -444,6 +445,7 @@ export function resolveAllPhysicalAttacks(
       attackerIsAirborne: attackerState.isAirborne,
       attackerArmsFlipped: attackerState.armsFlipped,
       targetUnitType: targetState.unitType,
+      targetPilotingSkill: targetState.piloting,
       attackerEvading: attackerState.isEvading,
       attackerLoadingOrUnloadingCargo: attackerState.isLoadingOrUnloadingCargo,
       attackerTargetedByDisplacementAttackerId:

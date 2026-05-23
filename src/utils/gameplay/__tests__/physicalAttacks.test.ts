@@ -2187,6 +2187,23 @@ describe('physicalAttacks', () => {
         source: 'target-class',
       });
     });
+
+    it('applies source-backed DFA piloting skill differential', () => {
+      const result = calculateDFAToHit(
+        makeInput({
+          pilotingSkill: 5,
+          attackType: 'dfa',
+          targetPilotingSkill: 3,
+        }),
+      );
+
+      expect(result.finalToHit).toBe(7);
+      expect(result.modifiers).toContainEqual({
+        name: 'Piloting skill differential',
+        value: 2,
+        source: 'pilot-skill',
+      });
+    });
   });
 
   describe('calculatePushToHit', () => {

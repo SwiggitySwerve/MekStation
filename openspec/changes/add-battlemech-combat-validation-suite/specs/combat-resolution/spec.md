@@ -169,6 +169,14 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** death from above to-hit SHALL include a +1 target-class modifier
 - **AND** helper, eligibility UI, event-sourced declaration, and runner resolution SHALL report the same modifier outcome
 
+#### Scenario: Death from above applies piloting skill differential
+
+- **GIVEN** a DFA declaration is evaluated after the attacker jumped this turn
+- **AND** the attacker and target have different piloting skills
+- **WHEN** the DFA to-hit number is calculated
+- **THEN** death from above to-hit SHALL include attacker piloting minus target piloting as a modifier
+- **AND** helper, eligibility UI, event-sourced declaration, and runner resolution SHALL report the same modifier outcome
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

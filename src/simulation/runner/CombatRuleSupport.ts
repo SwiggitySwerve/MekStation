@@ -97,6 +97,16 @@ const MEGAMEK_DFA_TARGET_CLASS_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_DFA_PILOTING_DIFFERENTIAL_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek DfaAttackAction.toHit applies attacker piloting minus target piloting as the piloting skill differential.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/actions/DfaAttackAction.java#L354-L357`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const RUNNER_RANGE_BRACKET_COMBAT_SUPPORT = {
   [RangeBracket.Short]: integrated(
     RangeBracket.Short,
@@ -157,6 +167,11 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
     'physical-dfa-target-class',
     'calculateDFAToHit consumes targetUnitType, and eligibility, event-sourced resolution, and runner physical resolution apply source-backed DFA Infantry/Battle Armor target-class modifiers',
     MEGAMEK_DFA_TARGET_CLASS_SOURCE_REFS,
+  ),
+  'physical-dfa-piloting-differential': integrated(
+    'physical-dfa-piloting-differential',
+    'calculateDFAToHit consumes targetPilotingSkill, and eligibility, event-sourced resolution, and runner physical resolution apply source-backed DFA attacker-minus-target piloting differential',
+    MEGAMEK_DFA_PILOTING_DIFFERENTIAL_SOURCE_REFS,
   ),
   'target-prone': integrated(
     'target-prone',

@@ -937,6 +937,27 @@ describe('BattleMech physical combat behavior validation lane', () => {
     ).toBe(6);
   });
 
+  it('surfaces DFA piloting skill differential in eligibility projection', () => {
+    const attacker = unitState('attacker', GameSide.Player, { q: 0, r: 0 });
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 1, r: 0 },
+      { piloting: 3 },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerJumpedThisTurn: true,
+    });
+
+    expect(
+      options.find((option) => option.attackType === 'dfa')?.toHit.finalToHit,
+    ).toBe(7);
+  });
+
   it('surfaces non-Mek charge target-class gates in eligibility projection', () => {
     const attacker = unitState(
       'attacker',
@@ -2552,6 +2573,32 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(payload).toMatchObject({
       attackType: 'dfa',
       toHitNumber: 6,
+    });
+  });
+
+  it('preserves DFA piloting skill differential during declaration', () => {
+    const declared = declareAdjacentPhysicalAttack(
+      'dfa',
+      physicalContext({
+        pilotingSkill: 5,
+        attackerJumpedThisTurn: true,
+        hexesMoved: 4,
+      }),
+      {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      },
+      { piloting: 3 },
+    );
+
+    const event = declared.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = event?.payload as IPhysicalAttackDeclaredPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'dfa',
+      toHitNumber: 7,
     });
   });
 
