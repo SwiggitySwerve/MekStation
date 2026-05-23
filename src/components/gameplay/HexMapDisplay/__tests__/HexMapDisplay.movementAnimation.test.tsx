@@ -579,6 +579,70 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('keeps movement type visible on hovered path cost badges', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hoverMpCost={4}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 4,
+            terrainCost: 1,
+            elevationDelta: 1,
+            elevationCost: 1,
+            heatGenerated: 2,
+            movementMode: 'hover',
+            path: [
+              { q: 0, r: 0 },
+              { q: 1, r: 0 },
+            ],
+            reachable: true,
+            movementType: MovementType.Run,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent(
+      'R/HOV 4MP',
+    );
+
+    fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+
+    expect(screen.queryByTestId('hex-movement-badge-1-0')).toBeNull();
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveTextContent(
+      'R/HOV 4MP',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'aria-label',
+      'run via hover path preview: 4 MP',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-hover-mp-cost',
+      '4',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-type',
+      'run',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-mode',
+      'hover',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-heat-generated',
+      '2',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('shows terrain and elevation inspection when no action hover is active', () => {
     const { unmount } = render(
       <HexMapDisplay

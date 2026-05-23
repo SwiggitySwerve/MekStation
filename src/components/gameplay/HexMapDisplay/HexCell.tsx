@@ -17,6 +17,7 @@ import { HEX_COLORS } from '@/constants/hexMap';
 import { MovementType } from '@/types/gameplay';
 
 import { CombatRangeBadge } from './HexCell.combatBadges';
+import { MovementHoverCostBadge } from './HexCell.hoverMovementBadge';
 import {
   CombatInvalidBadge,
   MovementInvalidBadge,
@@ -517,29 +518,13 @@ export const HexCell = React.memo(function HexCell({
         heatGenerated={movementInfo?.heatGenerated}
       />
       <MovementInvalidBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
-      {hoverMpCost !== undefined && (
-        <g pointerEvents="none" data-testid={`hex-mp-badge-${hex.q}-${hex.r}`}>
-          <rect
-            x={x - 14}
-            y={y + 6}
-            width={28}
-            height={12}
-            rx={3}
-            fill="#1e293b"
-            opacity={0.9}
-          />
-          <text
-            x={x}
-            y={y + 15}
-            textAnchor="middle"
-            fontSize={9}
-            fontWeight="bold"
-            fill="#f8fafc"
-          >
-            {hoverMpCost} MP
-          </text>
-        </g>
-      )}
+      <MovementHoverCostBadge
+        x={x}
+        y={y}
+        hex={hex}
+        hoverMpCost={hoverMpCost}
+        movementInfo={movementInfo}
+      />
       <CombatRangeBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
       <CombatInvalidBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
     </g>

@@ -50,7 +50,7 @@ function formatMovementModeLabel(mode: string | undefined): string | null {
   }
 }
 
-function formatMovementReachBadgeLabel(
+export function formatMovementReachBadgeLabel(
   movementInfo: IMovementRangeHex,
 ): string {
   const typeLabel = formatMovementTypeLabel(movementInfo.movementType);
@@ -79,7 +79,9 @@ function formatMovementModeTitleLabel(mode: string): string {
   }
 }
 
-function formatMovementModeTitle(movementInfo: IMovementRangeHex): string {
+export function formatMovementModeTitle(
+  movementInfo: IMovementRangeHex,
+): string {
   if (
     movementInfo.movementMode &&
     movementInfo.movementMode !== movementInfo.movementType
