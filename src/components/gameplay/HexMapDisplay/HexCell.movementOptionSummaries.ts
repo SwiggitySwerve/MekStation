@@ -103,6 +103,7 @@ function movementRangeOptionFor(
     heatGenerated: movementInfo.heatGenerated,
     blockedReason: movementInfo.blockedReason,
     movementInvalidReason: movementInfo.movementInvalidReason,
+    movementInvalidDetails: movementInfo.movementInvalidDetails,
   };
 }
 
@@ -138,6 +139,47 @@ export function uniqueMovementTypeLabels(
   return Array.from(new Set(displayLabels)).join('/');
 }
 
+export function movementOptionBlockedDetail(
+  option: IMovementRangeModeOption,
+): string | undefined {
+  if (option.reachable) return undefined;
+  return (
+    option.movementInvalidDetails ??
+    option.blockedReason ??
+    option.movementInvalidReason
+  );
+}
+
+export function movementOptionBlockedReasonsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const blockedOptions = options
+    .map((option) => {
+      const reason = movementOptionBlockedDetail(option);
+      return reason ? `${option.movementType}:${reason}` : null;
+    })
+    .filter((entry): entry is string => entry !== null);
+  return blockedOptions.length > 0 ? blockedOptions.join('|') : undefined;
+}
+
+export function movementOptionInvalidReasonsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const invalidOptions = options
+    .filter((option) => option.movementInvalidReason)
+    .map((option) => `${option.movementType}:${option.movementInvalidReason}`);
+  return invalidOptions.length > 0 ? invalidOptions.join('|') : undefined;
+}
+
+export function movementOptionInvalidDetailsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const invalidOptions = options
+    .filter((option) => option.movementInvalidDetails)
+    .map((option) => `${option.movementType}:${option.movementInvalidDetails}`);
+  return invalidOptions.length > 0 ? invalidOptions.join('|') : undefined;
+}
+
 export function formatMovementOptionTitle(
   option: IMovementRangeModeOption,
 ): string {
@@ -148,8 +190,9 @@ export function formatMovementOptionTitle(
   const cost = Number.isFinite(option.mpCost) ? `${option.mpCost} MP` : 'X MP';
   const heat =
     option.heatGenerated === undefined ? '' : `, heat +${option.heatGenerated}`;
+  const blockedDetail = movementOptionBlockedDetail(option);
   const blocked = option.reachable
     ? ''
-    : `, blocked${option.blockedReason ? `: ${option.blockedReason}` : ''}`;
+    : `, blocked${blockedDetail ? `: ${blockedDetail}` : ''}`;
   return `${option.movementType}${movementMode} ${option.reachable ? 'reachable' : 'blocked'} ${cost}${heat}${blocked}`;
 }

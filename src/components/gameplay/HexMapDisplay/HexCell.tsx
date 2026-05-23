@@ -47,6 +47,11 @@ import {
   MovementStepCostBadge,
   MovementStandUpBadge,
 } from './HexCell.movementBadges';
+import {
+  movementOptionBlockedReasonsAttribute,
+  movementOptionInvalidDetailsAttribute,
+  movementOptionInvalidReasonsAttribute,
+} from './HexCell.movementOptionSummaries';
 import { ProjectionStatusBadge } from './HexCell.projectionBadges';
 import {
   isIsometricProjection,
@@ -297,6 +302,11 @@ export const HexCell = React.memo(function HexCell({
       ? combatLosBlockerFor.map((ref) => ref.blocker.reason).join('|')
       : undefined;
   const movementOptionCount = movementInfo?.movementModeOptions?.length;
+  const movementOptions =
+    movementInfo?.movementModeOptions &&
+    movementInfo.movementModeOptions.length > 1
+      ? movementInfo.movementModeOptions
+      : undefined;
   const hexLabel = `Hex ${hex.q},${hex.r}; terrain ${formatTerrainFeaturesLabel(
     terrainTypes,
   )}; primary ${formatTerrainLabel(terrainType)}; elevation ${elevationLabel}${
@@ -326,6 +336,15 @@ export const HexCell = React.memo(function HexCell({
       data-movement-option-types={movementOptionTypesAttribute(movementInfo)}
       data-movement-option-costs={movementOptionCostsAttribute(movementInfo)}
       data-movement-option-states={movementOptionStatesAttribute(movementInfo)}
+      data-movement-option-blocked-reasons={movementOptionBlockedReasonsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-invalid-reasons={movementOptionInvalidReasonsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-invalid-details={movementOptionInvalidDetailsAttribute(
+        movementOptions ?? [],
+      )}
       data-mp-cost={movementInfo?.mpCost}
       data-terrain-cost={movementInfo?.terrainCost}
       data-heat-generated={movementInfo?.heatGenerated}

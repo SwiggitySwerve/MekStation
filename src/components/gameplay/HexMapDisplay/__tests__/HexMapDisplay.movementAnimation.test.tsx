@@ -657,6 +657,104 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('marks same-hex movement options mixed when one mode is engine-blocked', () => {
+    const blockedReason = 'Jump elevation rise of 3 exceeds jump MP 2';
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 3,
+            heatGenerated: 0,
+            movementMode: 'tracked',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 4,
+            heatGenerated: 2,
+            movementMode: 'tracked',
+            reachable: true,
+            movementType: MovementType.Run,
+          },
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 1,
+            heatGenerated: 1,
+            movementMode: 'jump',
+            reachable: false,
+            movementType: MovementType.Jump,
+            blockedReason,
+            movementInvalidReason: 'TerrainBlocked',
+            movementInvalidDetails: blockedReason,
+          },
+        ]}
+      />,
+    );
+
+    const hex = screen.getByTestId('hex-1-0');
+    expect(hex).toHaveAttribute('data-tactical-projection-status', 'mixed');
+    expect(hex).toHaveAttribute(
+      'data-tactical-projection-blocked-reasons',
+      `${blockedReason}|TerrainBlocked`,
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-states',
+      'walk:reachable|run:reachable|jump:blocked',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-blocked-reasons',
+      `jump:${blockedReason}`,
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-invalid-reasons',
+      'jump:TerrainBlocked',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-invalid-details',
+      `jump:${blockedReason}`,
+    );
+    expect(hex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining(`jump blocked 1 MP heat +1: ${blockedReason}`),
+    );
+
+    expect(
+      screen.getByTestId('hex-projection-status-badge-1-0'),
+    ).toHaveAttribute('data-projection-status-badge-status', 'mixed');
+
+    const badge = screen.getByTestId('hex-movement-badge-1-0');
+    expect(badge).toHaveTextContent('W/R 3MP');
+    expect(badge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        `jump blocked 1 MP, heat +1, blocked: ${blockedReason}`,
+      ),
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-blocked-reasons',
+      `jump:${blockedReason}`,
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-invalid-reasons',
+      'jump:TerrainBlocked',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-invalid-details',
+      `jump:${blockedReason}`,
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('keeps movement type visible on hovered path cost badges', () => {
     const { unmount } = render(
       <HexMapDisplay

@@ -215,6 +215,8 @@ describe('tacticalMapProjection', () => {
             heatGenerated: 1,
             blockedReason: 'Jump elevation rise of 4 exceeds jump MP 3',
             movementInvalidReason: 'TerrainBlocked',
+            movementInvalidDetails:
+              'Jump elevation rise of 4 exceeds jump MP 3',
           },
         ],
       }),
@@ -225,8 +227,16 @@ describe('tacticalMapProjection', () => {
       inLegacyAttackRange: false,
     });
 
+    expect(projection.status).toBe('mixed');
+    expect(projection.blockedReasons).toEqual([
+      'Jump elevation rise of 4 exceeds jump MP 3',
+      'TerrainBlocked',
+    ]);
     expect(projection.explanation).toContain(
-      'movement options walk via tracked reachable 3 MP heat +0, run via tracked reachable 3 MP heat +2, jump blocked 4 MP heat +1',
+      'movement options walk via tracked reachable 3 MP heat +0, run via tracked reachable 3 MP heat +2, jump blocked 4 MP heat +1: Jump elevation rise of 4 exceeds jump MP 3',
+    );
+    expect(projection.explanation).toContain(
+      'blocked Jump elevation rise of 4 exceeds jump MP 3; TerrainBlocked',
     );
   });
 

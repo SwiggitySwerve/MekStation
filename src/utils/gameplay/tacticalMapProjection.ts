@@ -229,18 +229,55 @@ function deriveProjectionStatus({
   readonly combat?: ICombatRangeHex;
   readonly inAttackRange: boolean;
 }): TacticalMapHexProjectionStatus {
+  const movementLegal = movementHasReachableOption(movement);
+  const movementBlocked = movementHasBlockedOption(movement);
   const legal =
-    Boolean(movement?.reachable) ||
+    movementLegal ||
     Boolean(combat?.attackable) ||
     (inAttackRange && !combat?.hasTarget);
   const blocked =
-    (movement ? !movement.reachable : false) ||
+    movementBlocked ||
     (combat ? combat.hasTarget && !combat.attackable : false);
 
   if (legal && blocked) return 'mixed';
   if (blocked) return 'blocked';
   if (legal) return 'legal';
   return 'neutral';
+}
+
+function movementOptionsForProjection(
+  movement: IMovementRangeHex | undefined,
+): readonly IMovementRangeModeOption[] {
+  if (!movement) return [];
+  if (movement.movementModeOptions?.length) return movement.movementModeOptions;
+  return [
+    {
+      movementType: movement.movementType,
+      movementMode: movement.movementMode,
+      reachable: movement.reachable,
+      mpCost: movement.mpCost,
+      heatGenerated: movement.heatGenerated,
+      blockedReason: movement.blockedReason,
+      movementInvalidReason: movement.movementInvalidReason,
+      movementInvalidDetails: movement.movementInvalidDetails,
+    },
+  ];
+}
+
+function movementHasReachableOption(
+  movement: IMovementRangeHex | undefined,
+): boolean {
+  return movementOptionsForProjection(movement).some(
+    (option) => option.reachable,
+  );
+}
+
+function movementHasBlockedOption(
+  movement: IMovementRangeHex | undefined,
+): boolean {
+  return movementOptionsForProjection(movement).some(
+    (option) => !option.reachable,
+  );
 }
 
 function collectBlockedReasons(
@@ -251,6 +288,7 @@ function collectBlockedReasons(
     movement?.movementInvalidDetails,
     movement?.blockedReason,
     movement?.movementInvalidReason,
+    ...movementOptionBlockedReasons(movement),
     combat?.attackInvalidDetails,
     combat?.blockedReason,
     combat?.visibilityBlockedReason,
@@ -259,6 +297,19 @@ function collectBlockedReasons(
   ].filter((reason): reason is string => Boolean(reason));
 
   return Array.from(new Set(reasons));
+}
+
+function movementOptionBlockedReasons(
+  movement: IMovementRangeHex | undefined,
+): readonly string[] {
+  return movementOptionsForProjection(movement)
+    .filter((option) => !option.reachable)
+    .flatMap((option) => [
+      option.movementInvalidDetails,
+      option.blockedReason,
+      option.movementInvalidReason,
+    ])
+    .filter((reason): reason is string => Boolean(reason));
 }
 
 function formatProjectionExplanation({
@@ -472,9 +523,22 @@ function formatMovementOption(option: IMovementRangeModeOption): string {
     option.heatGenerated === undefined
       ? ''
       : ` heat ${formatSignedCost(option.heatGenerated)}`;
+  const blockedDetail = movementOptionBlockedDetail(option);
+  const blocked = blockedDetail ? `: ${blockedDetail}` : '';
   return `${option.movementType}${mode} ${
     option.reachable ? 'reachable' : 'blocked'
-  } ${option.mpCost} MP${heat}`;
+  } ${option.mpCost} MP${heat}${option.reachable ? '' : blocked}`;
+}
+
+function movementOptionBlockedDetail(
+  option: IMovementRangeModeOption,
+): string | undefined {
+  if (option.reachable) return undefined;
+  return (
+    option.movementInvalidDetails ??
+    option.blockedReason ??
+    option.movementInvalidReason
+  );
 }
 
 function formatDamageValue(value: number): string {

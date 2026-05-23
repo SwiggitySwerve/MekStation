@@ -432,6 +432,8 @@ export interface IMovementRangeModeOption {
   readonly blockedReason?: string;
   /** Engine-aligned rejection reason for illegal destinations. */
   readonly movementInvalidReason?: IMovementInvalidPayload['reason'];
+  /** Engine-style detail string paired with movementInvalidReason. */
+  readonly movementInvalidDetails?: string;
 }
 
 export interface IMovementRangeHex {

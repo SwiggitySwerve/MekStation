@@ -7,6 +7,9 @@ import {
   formatMovementModeTitleLabel,
   formatMovementOptionTitle,
   formatMovementTypeLabel,
+  movementOptionBlockedReasonsAttribute,
+  movementOptionInvalidDetailsAttribute,
+  movementOptionInvalidReasonsAttribute,
   movementOptionsForBadge,
   uniqueMovementTypeLabels,
 } from './HexCell.movementOptionSummaries';
@@ -186,6 +189,21 @@ export function MovementReachBadge({
           ? movementOptions
               .map((option) => `${option.movementType}:${option.mpCost}`)
               .join('|')
+          : undefined
+      }
+      data-movement-badge-option-blocked-reasons={
+        movementOptions.length > 1
+          ? movementOptionBlockedReasonsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-invalid-reasons={
+        movementOptions.length > 1
+          ? movementOptionInvalidReasonsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-invalid-details={
+        movementOptions.length > 1
+          ? movementOptionInvalidDetailsAttribute(movementOptions)
           : undefined
       }
     >
