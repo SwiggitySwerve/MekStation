@@ -405,10 +405,30 @@ describe('HexMapDisplay combat projection', () => {
     expect(movementHex).toHaveAttribute('data-heat-generated', '1');
     expect(movementHex).toHaveAttribute('data-terrain-primary', 'rough');
     expect(movementHex).toHaveAttribute('data-elevation', '1');
+    expect(movementHex).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'movement-combat',
+    );
+    expect(movementHex).toHaveAttribute(
+      'data-tactical-projection-status',
+      'legal',
+    );
+    expect(movementHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('Walk reachable 3 MP'),
+    );
     expect(targetHex).toHaveAttribute('data-combat-range-bracket', 'short');
     expect(targetHex).toHaveAttribute('data-combat-los-state', 'clear');
     expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
     expect(targetHex).toHaveAttribute('data-weapons-available', 'medium-laser');
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'combat',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-status',
+      'legal',
+    );
 
     fireEvent.click(screen.getByTestId('projection-toggle'));
 
@@ -441,6 +461,14 @@ describe('HexMapDisplay combat projection', () => {
       'data-elevation',
       '1',
     );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'movement-combat',
+    );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-tactical-projection-status',
+      'legal',
+    );
     expect(screen.getByTestId('hex-2-0')).toHaveAttribute(
       'data-combat-range-bracket',
       'short',
@@ -456,6 +484,14 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-2-0')).toHaveAttribute(
       'data-weapons-available',
       'medium-laser',
+    );
+    expect(screen.getByTestId('hex-2-0')).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'combat',
+    );
+    expect(screen.getByTestId('hex-2-0')).toHaveAttribute(
+      'data-tactical-projection-status',
+      'legal',
     );
   });
 

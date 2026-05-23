@@ -7,6 +7,10 @@ import type {
   IHexTerrain,
   MapProjectionMode,
 } from '@/types/gameplay';
+import type {
+  TacticalMapHexProjectionIntent,
+  TacticalMapHexProjectionStatus,
+} from '@/utils/gameplay/tacticalMapProjection';
 
 import { TerrainArtLayer } from '@/components/gameplay/terrain/TerrainArtLayer';
 import { HEX_COLORS } from '@/constants/hexMap';
@@ -96,6 +100,10 @@ export interface HexCellProps {
   isInAttackRange: boolean;
   isInPath: boolean;
   pathIndex?: number;
+  tacticalProjectionIntent?: TacticalMapHexProjectionIntent;
+  tacticalProjectionStatus?: TacticalMapHexProjectionStatus;
+  tacticalProjectionBlockedReasons?: readonly string[];
+  tacticalProjectionExplanation?: string;
   showCoordinate: boolean;
   projectionMode?: MapProjectionMode;
   /**
@@ -132,6 +140,10 @@ export const HexCell = React.memo(function HexCell({
   isInAttackRange,
   isInPath,
   pathIndex,
+  tacticalProjectionIntent,
+  tacticalProjectionStatus,
+  tacticalProjectionBlockedReasons,
+  tacticalProjectionExplanation,
   showCoordinate,
   projectionMode = 'topDown',
   hoverMpCost,
@@ -275,6 +287,15 @@ export const HexCell = React.memo(function HexCell({
             ? 'start'
             : pathIndex
       }
+      data-tactical-projection-intent={tacticalProjectionIntent}
+      data-tactical-projection-status={tacticalProjectionStatus}
+      data-tactical-projection-blocked-reasons={
+        tacticalProjectionBlockedReasons &&
+        tacticalProjectionBlockedReasons.length > 0
+          ? tacticalProjectionBlockedReasons.join('|')
+          : undefined
+      }
+      data-tactical-projection-explanation={tacticalProjectionExplanation}
       data-combat-range-bracket={combatInfo?.rangeBracket}
       data-combat-distance={combatInfo?.distance}
       data-combat-los-state={combatInfo?.losState}

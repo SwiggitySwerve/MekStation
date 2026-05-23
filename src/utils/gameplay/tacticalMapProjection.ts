@@ -1,0 +1,270 @@
+import type {
+  ICombatRangeHex,
+  IHexCoordinate,
+  IHexTerrain,
+  IMovementRangeHex,
+} from '@/types/gameplay';
+
+import { TerrainType } from '@/types/gameplay';
+
+import { coordToKey, hexEquals } from './hexMath';
+
+export type TacticalMapHexProjectionIntent =
+  | 'terrain'
+  | 'selected'
+  | 'path'
+  | 'movement'
+  | 'combat'
+  | 'movement-combat';
+
+export type TacticalMapHexProjectionStatus =
+  | 'neutral'
+  | 'legal'
+  | 'blocked'
+  | 'mixed';
+
+export interface ITacticalMapHexProjection {
+  readonly hex: IHexCoordinate;
+  readonly key: string;
+  readonly terrain: IHexTerrain;
+  readonly movement?: IMovementRangeHex;
+  readonly combat?: ICombatRangeHex;
+  readonly isSelected: boolean;
+  readonly isHovered: boolean;
+  readonly pathIndex?: number;
+  readonly inAttackRange: boolean;
+  readonly intent: TacticalMapHexProjectionIntent;
+  readonly status: TacticalMapHexProjectionStatus;
+  readonly blockedReasons: readonly string[];
+  readonly explanation: string;
+}
+
+export interface BuildTacticalMapHexProjectionLookupInput {
+  readonly hexes: readonly IHexCoordinate[];
+  readonly terrainLookup: ReadonlyMap<string, IHexTerrain>;
+  readonly movementRangeLookup: ReadonlyMap<string, IMovementRangeHex>;
+  readonly combatRangeLookup: ReadonlyMap<string, ICombatRangeHex>;
+  readonly selectedHex?: IHexCoordinate | null;
+  readonly hoveredHex?: IHexCoordinate | null;
+  readonly highlightPathIndexLookup?: ReadonlyMap<string, number>;
+  readonly legacyAttackRangeLookup?: ReadonlySet<string>;
+}
+
+export function buildTacticalMapHexProjectionLookup({
+  hexes,
+  terrainLookup,
+  movementRangeLookup,
+  combatRangeLookup,
+  selectedHex = null,
+  hoveredHex = null,
+  highlightPathIndexLookup = new Map(),
+  legacyAttackRangeLookup = new Set(),
+}: BuildTacticalMapHexProjectionLookupInput): ReadonlyMap<
+  string,
+  ITacticalMapHexProjection
+> {
+  const projections = new Map<string, ITacticalMapHexProjection>();
+
+  for (const hex of hexes) {
+    const key = coordToKey(hex);
+    projections.set(
+      key,
+      buildTacticalMapHexProjection({
+        hex,
+        terrain: terrainLookup.get(key) ?? defaultHexTerrain(hex),
+        movement: movementRangeLookup.get(key),
+        combat: combatRangeLookup.get(key),
+        isSelected: selectedHex ? hexEquals(hex, selectedHex) : false,
+        isHovered: hoveredHex ? hexEquals(hex, hoveredHex) : false,
+        pathIndex: highlightPathIndexLookup.get(key),
+        inLegacyAttackRange: legacyAttackRangeLookup.has(key),
+      }),
+    );
+  }
+
+  return projections;
+}
+
+export function buildTacticalMapHexProjection({
+  hex,
+  terrain,
+  movement,
+  combat,
+  isSelected,
+  isHovered,
+  pathIndex,
+  inLegacyAttackRange,
+}: {
+  readonly hex: IHexCoordinate;
+  readonly terrain: IHexTerrain;
+  readonly movement?: IMovementRangeHex;
+  readonly combat?: ICombatRangeHex;
+  readonly isSelected: boolean;
+  readonly isHovered: boolean;
+  readonly pathIndex?: number;
+  readonly inLegacyAttackRange: boolean;
+}): ITacticalMapHexProjection {
+  const inAttackRange = inLegacyAttackRange || Boolean(combat?.inRange);
+  const blockedReasons = collectBlockedReasons(movement, combat);
+  const intent = deriveProjectionIntent({
+    isSelected,
+    pathIndex,
+    movement,
+    combat,
+    inAttackRange,
+  });
+  const status = deriveProjectionStatus({
+    movement,
+    combat,
+    inAttackRange,
+  });
+
+  return {
+    hex,
+    key: coordToKey(hex),
+    terrain,
+    movement,
+    combat,
+    isSelected,
+    isHovered,
+    pathIndex,
+    inAttackRange,
+    intent,
+    status,
+    blockedReasons,
+    explanation: formatProjectionExplanation({
+      hex,
+      terrain,
+      movement,
+      combat,
+      intent,
+      status,
+      blockedReasons,
+    }),
+  };
+}
+
+function defaultHexTerrain(hex: IHexCoordinate): IHexTerrain {
+  return {
+    coordinate: hex,
+    elevation: 0,
+    features: [{ type: TerrainType.Clear, level: 0 }],
+  };
+}
+
+function deriveProjectionIntent({
+  isSelected,
+  pathIndex,
+  movement,
+  combat,
+  inAttackRange,
+}: {
+  readonly isSelected: boolean;
+  readonly pathIndex?: number;
+  readonly movement?: IMovementRangeHex;
+  readonly combat?: ICombatRangeHex;
+  readonly inAttackRange: boolean;
+}): TacticalMapHexProjectionIntent {
+  if (isSelected) return 'selected';
+  if (pathIndex !== undefined) return 'path';
+  if (movement && (combat?.hasTarget || inAttackRange)) {
+    return 'movement-combat';
+  }
+  if (movement) return 'movement';
+  if (combat?.hasTarget || inAttackRange) return 'combat';
+  return 'terrain';
+}
+
+function deriveProjectionStatus({
+  movement,
+  combat,
+  inAttackRange,
+}: {
+  readonly movement?: IMovementRangeHex;
+  readonly combat?: ICombatRangeHex;
+  readonly inAttackRange: boolean;
+}): TacticalMapHexProjectionStatus {
+  const legal =
+    Boolean(movement?.reachable) ||
+    Boolean(combat?.attackable) ||
+    (inAttackRange && !combat?.hasTarget);
+  const blocked =
+    (movement ? !movement.reachable : false) ||
+    (combat ? combat.hasTarget && !combat.attackable : false);
+
+  if (legal && blocked) return 'mixed';
+  if (blocked) return 'blocked';
+  if (legal) return 'legal';
+  return 'neutral';
+}
+
+function collectBlockedReasons(
+  movement: IMovementRangeHex | undefined,
+  combat: ICombatRangeHex | undefined,
+): readonly string[] {
+  const reasons = [
+    movement?.movementInvalidDetails,
+    movement?.blockedReason,
+    movement?.movementInvalidReason,
+    combat?.attackInvalidDetails,
+    combat?.blockedReason,
+    combat?.visibilityBlockedReason,
+    combat?.lineOfSightBlockerReason,
+    combat?.attackInvalidReason,
+  ].filter((reason): reason is string => Boolean(reason));
+
+  return Array.from(new Set(reasons));
+}
+
+function formatProjectionExplanation({
+  hex,
+  terrain,
+  movement,
+  combat,
+  intent,
+  status,
+  blockedReasons,
+}: {
+  readonly hex: IHexCoordinate;
+  readonly terrain: IHexTerrain;
+  readonly movement?: IMovementRangeHex;
+  readonly combat?: ICombatRangeHex;
+  readonly intent: TacticalMapHexProjectionIntent;
+  readonly status: TacticalMapHexProjectionStatus;
+  readonly blockedReasons: readonly string[];
+}): string {
+  const terrainTypes =
+    terrain.features.length === 0
+      ? TerrainType.Clear
+      : terrain.features.map((feature) => feature.type).join(',');
+  const parts = [
+    `Hex ${hex.q},${hex.r}`,
+    `intent ${intent}`,
+    `status ${status}`,
+    `terrain ${terrainTypes}`,
+    `elevation ${terrain.elevation}`,
+  ];
+
+  if (movement) {
+    parts.push(
+      `${formatMovementType(movement.movementType)} ${
+        movement.reachable ? 'reachable' : 'blocked'
+      } ${movement.mpCost} MP`,
+    );
+  }
+  if (combat) {
+    parts.push(
+      `combat ${combat.rangeBracket} ${combat.distance} hexes LOS ${combat.losState}`,
+    );
+  }
+  if (blockedReasons.length > 0) {
+    parts.push(`blocked ${blockedReasons.join('; ')}`);
+  }
+
+  return parts.join('; ');
+}
+
+function formatMovementType(movementType: string): string {
+  if (movementType.length === 0) return movementType;
+  return `${movementType[0].toUpperCase()}${movementType.slice(1)}`;
+}
