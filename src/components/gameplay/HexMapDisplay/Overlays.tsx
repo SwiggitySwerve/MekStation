@@ -7,6 +7,10 @@ import { TerrainType } from '@/types/gameplay';
 import { CoverLevel } from '@/types/gameplay/TerrainTypes';
 
 import {
+  formatElevationLabel,
+  formatTerrainFeaturesLabel,
+} from './HexCell.labels';
+import {
   hexToPixel,
   getTerrainMovementCost,
   getTerrainCoverLevel,
@@ -27,19 +31,34 @@ export const MovementCostOverlay = React.memo(function MovementCostOverlay({
 }: MovementCostOverlayProps): React.ReactElement {
   const { x, y } = hexToPixel(hex);
   const cost = getTerrainMovementCost(terrain);
+  const terrainTypes = terrain?.features.map((feature) => feature.type) ?? [];
+  const terrainLabel = formatTerrainFeaturesLabel(terrainTypes);
+  const elevation = terrain?.elevation ?? 0;
+  const elevationLabel = formatElevationLabel(elevation);
+  const title = `Terrain movement cost ${cost}; terrain ${terrainLabel}; elevation ${elevationLabel}`;
 
   return (
-    <g pointerEvents="none">
+    <g
+      pointerEvents="none"
+      data-testid={`movement-cost-overlay-hex-${hex.q}-${hex.r}`}
+      data-terrain-movement-cost={cost}
+      data-terrain-features={
+        terrainTypes.length > 0 ? terrainTypes.join(',') : undefined
+      }
+      data-elevation={elevation}
+      aria-label={title}
+    >
+      <title>{title}</title>
       <circle cx={x} cy={y} r={12} fill="#1e293b" opacity={0.85} />
       <text
         x={x}
         y={y + 4}
         textAnchor="middle"
-        fontSize={11}
+        fontSize={9}
         fontWeight="bold"
         fill="#f8fafc"
       >
-        {cost}
+        T{cost}
       </text>
     </g>
   );
@@ -60,6 +79,8 @@ export const CoverOverlay = React.memo(function CoverOverlay({
 }: CoverOverlayProps): React.ReactElement {
   const { x, y } = hexToPixel(hex);
   const coverLevel = getTerrainCoverLevel(terrain);
+  const coverLabel = formatCoverOverlayLabel(coverLevel);
+  const coverTitle = formatCoverOverlayTitle(coverLevel);
 
   const shieldPath = `M${x},${y - 14} L${x - 10},${y - 6} L${x - 10},${y + 4} Q${x},${y + 14} ${x + 10},${y + 4} L${x + 10},${y - 6} Z`;
 
@@ -80,7 +101,13 @@ export const CoverOverlay = React.memo(function CoverOverlay({
   }
 
   return (
-    <g pointerEvents="none">
+    <g
+      pointerEvents="none"
+      data-testid={`cover-overlay-hex-${hex.q}-${hex.r}`}
+      data-cover-level={coverLevel}
+      aria-label={coverTitle}
+    >
+      <title>{coverTitle}</title>
       <path
         d={shieldPath}
         fill={fillColor}
@@ -98,9 +125,50 @@ export const CoverOverlay = React.memo(function CoverOverlay({
           strokeWidth={2}
         />
       )}
+      <rect
+        x={x - 17}
+        y={y + 9}
+        width={34}
+        height={11}
+        rx={3}
+        fill="#0f172a"
+        fillOpacity={0.86}
+      />
+      <text
+        x={x}
+        y={y + 17}
+        textAnchor="middle"
+        fontSize={7}
+        fontWeight="bold"
+        fill="#f8fafc"
+      >
+        {coverLabel}
+      </text>
     </g>
   );
 });
+
+function formatCoverOverlayLabel(coverLevel: CoverLevel): string {
+  switch (coverLevel) {
+    case CoverLevel.Full:
+      return 'FULL';
+    case CoverLevel.Partial:
+      return 'PART';
+    case CoverLevel.None:
+      return 'NONE';
+  }
+}
+
+function formatCoverOverlayTitle(coverLevel: CoverLevel): string {
+  switch (coverLevel) {
+    case CoverLevel.Full:
+      return 'Full cover';
+    case CoverLevel.Partial:
+      return 'Partial cover';
+    case CoverLevel.None:
+      return 'No cover';
+  }
+}
 
 // =============================================================================
 // LOSLine

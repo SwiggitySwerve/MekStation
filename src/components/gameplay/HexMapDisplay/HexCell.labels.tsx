@@ -1,0 +1,311 @@
+import React from 'react';
+
+import type {
+  ICombatRangeHex,
+  IHexCoordinate,
+  IMovementRangeHex,
+} from '@/types/gameplay';
+
+import { TERRAIN_LAYER_ORDER } from '@/constants/terrain';
+
+export function formatElevationLabel(elevation: number): string {
+  if (elevation > 0) return `+${elevation}`;
+  return `${elevation}`;
+}
+
+export function formatTerrainLabel(terrainType: string | null): string {
+  return terrainType ? terrainType.replace(/_/g, ' ') : 'clear';
+}
+
+export function formatTerrainFeaturesLabel(
+  terrainTypes: readonly string[],
+): string {
+  if (terrainTypes.length === 0) return 'clear';
+  return terrainTypes.map(formatTerrainLabel).join(', ');
+}
+
+export function formatCombatLabel(combatInfo: ICombatRangeHex): string {
+  const targetLabel = combatInfo.hasTarget
+    ? `, targets ${combatInfo.targetUnitIds.join(', ')}`
+    : '';
+  const visibilityLabel =
+    combatInfo.targetVisibilityState !== 'none'
+      ? `, visibility ${combatInfo.targetVisibilityState}`
+      : '';
+  const coverLabel = combatInfo.targetCoverReason
+    ? `, ${combatInfo.targetCoverReason}`
+    : '';
+  const minimumRangeLabel = combatInfo.minimumRangeReason
+    ? `, ${combatInfo.minimumRangeReason}`
+    : '';
+  const toHitLabel = combatInfo.toHitReason
+    ? `, ${combatInfo.toHitReason}`
+    : '';
+  const losBlockerLabel = combatInfo.lineOfSightBlockerReason
+    ? `, ${combatInfo.lineOfSightBlockerReason}`
+    : '';
+  const invalidLabel = combatInfo.attackInvalidReason
+    ? `, invalid ${combatInfo.attackInvalidReason}${
+        combatInfo.attackInvalidDetails
+          ? `: ${combatInfo.attackInvalidDetails}`
+          : ''
+      }`
+    : '';
+  const indirectLabel = combatInfo.indirectFireReason
+    ? `, ${combatInfo.indirectFireReason}`
+    : '';
+  const note = combatInfo.blockedReason ? `, ${combatInfo.blockedReason}` : '';
+  return `combat ${combatInfo.rangeBracket.replace(
+    /_/g,
+    ' ',
+  )} at ${combatInfo.distance} hexes, LOS ${combatInfo.losState}, ${combatInfo.firingArc} arc${targetLabel}${visibilityLabel}${coverLabel}${minimumRangeLabel}${toHitLabel}${losBlockerLabel}${invalidLabel}${indirectLabel}${note}`;
+}
+
+export function formatMovementLabel(movementInfo: IMovementRangeHex): string {
+  const standPsrLabel = movementInfo.standUpPsrRequired
+    ? `, stand PSR${
+        movementInfo.standUpPsrImpossibleReason
+          ? ` impossible: ${movementInfo.standUpPsrImpossibleReason}`
+          : movementInfo.standUpPsrTargetNumber === undefined
+            ? ' required'
+            : ` TN ${movementInfo.standUpPsrTargetNumber}`
+      }`
+    : '';
+  const standLabel = movementInfo.standUpRequired
+    ? `, stand +${movementInfo.standUpCost ?? '?'} MP${standPsrLabel}`
+    : '';
+  const invalidLabel = movementInfo.movementInvalidReason
+    ? `, invalid ${movementInfo.movementInvalidReason}${
+        movementInfo.movementInvalidDetails
+          ? `: ${movementInfo.movementInvalidDetails}`
+          : ''
+      }`
+    : '';
+  const blockedLabel = movementInfo.blockedReason
+    ? `, ${movementInfo.blockedReason}`
+    : '';
+
+  return `${movementInfo.movementType}${
+    movementInfo.movementMode &&
+    movementInfo.movementMode !== movementInfo.movementType
+      ? ` via ${movementInfo.movementMode}`
+      : ''
+  } ${movementInfo.reachable ? 'reachable' : 'blocked'}: ${movementInfo.mpCost} MP${
+    movementInfo.terrainCost !== undefined
+      ? `, terrain +${movementInfo.terrainCost}`
+      : ''
+  }${
+    movementInfo.elevationDelta !== undefined
+      ? `, elevation ${formatElevationLabel(movementInfo.elevationDelta)}`
+      : ''
+  }${
+    movementInfo.heatGenerated !== undefined
+      ? `, heat +${movementInfo.heatGenerated}`
+      : ''
+  }${standLabel}${invalidLabel}${blockedLabel}`;
+}
+
+function formatTerrainBadge(terrainType: string | null): string {
+  switch (terrainType) {
+    case 'light_woods':
+      return 'LWD';
+    case 'heavy_woods':
+      return 'HWD';
+    case 'building':
+      return 'BLDG';
+    case 'pavement':
+      return 'PAV';
+    case 'road':
+      return 'RD';
+    case 'rough':
+      return 'RGH';
+    case 'rubble':
+      return 'RBL';
+    case 'water':
+      return 'WTR';
+    case 'sand':
+      return 'SND';
+    case 'mud':
+      return 'MUD';
+    case 'snow':
+      return 'SNW';
+    case 'ice':
+      return 'ICE';
+    case 'swamp':
+      return 'SWP';
+    case 'bridge':
+      return 'BRG';
+    case 'fire':
+      return 'FIR';
+    case 'smoke':
+      return 'SMK';
+    default:
+      return 'CLR';
+  }
+}
+
+function sortTerrainTypesForDisplay(
+  terrainTypes: readonly string[],
+): readonly string[] {
+  return [...terrainTypes].sort((a, b) => {
+    const aOrder = TERRAIN_LAYER_ORDER[a as keyof typeof TERRAIN_LAYER_ORDER];
+    const bOrder = TERRAIN_LAYER_ORDER[b as keyof typeof TERRAIN_LAYER_ORDER];
+    return (bOrder ?? 0) - (aOrder ?? 0);
+  });
+}
+
+function formatTerrainBadgeLabel(terrainTypes: readonly string[]): string {
+  const displayTypes = sortTerrainTypesForDisplay(terrainTypes);
+  if (displayTypes.length === 0) return formatTerrainBadge(null);
+
+  const visibleBadges = displayTypes
+    .slice(0, 2)
+    .map((terrainType) => formatTerrainBadge(terrainType));
+  const hiddenCount = displayTypes.length - visibleBadges.length;
+  return `${visibleBadges.join('/')}${hiddenCount > 0 ? `+${hiddenCount}` : ''}`;
+}
+
+export function ElevationBadge({
+  x,
+  y,
+  hex,
+  label,
+}: {
+  readonly x: number;
+  readonly y: number;
+  readonly hex: IHexCoordinate;
+  readonly label: string;
+}): React.ReactElement {
+  const title = `Elevation ${label}`;
+  return (
+    <g
+      pointerEvents="none"
+      data-testid={`hex-elevation-label-${hex.q}-${hex.r}`}
+      role="img"
+      aria-label={title}
+      data-elevation-label={label}
+    >
+      <title>{title}</title>
+      <rect
+        x={x - 12}
+        y={y - 21}
+        width={24}
+        height={14}
+        rx={3}
+        fill="#f8fafc"
+        opacity={0.88}
+        stroke="#334155"
+        strokeOpacity={0.4}
+        strokeWidth={0.75}
+      />
+      <text
+        x={x}
+        y={y - 11}
+        textAnchor="middle"
+        fontSize={10}
+        fontWeight="bold"
+        fill="#0f172a"
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
+export function TerrainBadge({
+  x,
+  y,
+  hex,
+  terrainTypes,
+}: {
+  readonly x: number;
+  readonly y: number;
+  readonly hex: IHexCoordinate;
+  readonly terrainTypes: readonly string[];
+}): React.ReactElement {
+  const displayTypes = sortTerrainTypesForDisplay(terrainTypes);
+  const label = formatTerrainBadgeLabel(displayTypes);
+  const title = `Terrain ${formatTerrainFeaturesLabel(displayTypes)}`;
+  const width = Math.max(30, label.length * 6 + 8);
+
+  return (
+    <g
+      pointerEvents="none"
+      data-testid={`hex-terrain-label-${hex.q}-${hex.r}`}
+      role="img"
+      aria-label={title}
+      data-terrain-badge={label}
+      data-terrain-features={
+        displayTypes.length > 0 ? displayTypes.join(',') : 'clear'
+      }
+    >
+      <title>{title}</title>
+      <rect
+        x={x - width / 2}
+        y={y - 5}
+        width={width}
+        height={11}
+        rx={3}
+        fill="#f8fafc"
+        opacity={0.82}
+        stroke="#334155"
+        strokeOpacity={0.35}
+        strokeWidth={0.6}
+      />
+      <text
+        x={x}
+        y={y + 3}
+        textAnchor="middle"
+        fontSize={7}
+        fontWeight="bold"
+        fill="#334155"
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
+export function HeatBadge({
+  x,
+  y,
+  hex,
+  heatGenerated,
+}: {
+  readonly x: number;
+  readonly y: number;
+  readonly hex: IHexCoordinate;
+  readonly heatGenerated?: number;
+}): React.ReactElement | null {
+  if (!heatGenerated) return null;
+  const title = `Heat generated +${heatGenerated}`;
+  return (
+    <g
+      pointerEvents="none"
+      data-testid={`hex-heat-badge-${hex.q}-${hex.r}`}
+      aria-label={title}
+      data-heat-generated={heatGenerated}
+    >
+      <title>{title}</title>
+      <rect
+        x={x + 3}
+        y={y + 20}
+        width={26}
+        height={12}
+        rx={3}
+        fill="#c2410c"
+        opacity={0.9}
+      />
+      <text
+        x={x + 16}
+        y={y + 29}
+        textAnchor="middle"
+        fontSize={8}
+        fontWeight="bold"
+        fill="#fff7ed"
+      >
+        +{heatGenerated}H
+      </text>
+    </g>
+  );
+}

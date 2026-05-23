@@ -152,6 +152,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
 
     expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('firing-arc-label-0,-1')).toHaveTextContent(
+      'FRONT',
+    );
     expect(screen.getByTestId('los-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('los-line')).toBeInTheDocument();
 
@@ -217,7 +220,24 @@ describe('HexMapDisplay tactical visual layers', () => {
 
   it('routes movement and cover overlay toggles through typed layer state', () => {
     const { unmount } = render(
-      <HexMapDisplay mapId="map-1" radius={1} tokens={[]} selectedHex={null} />,
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.LightWoods, level: 1 }],
+          },
+          {
+            coordinate: { q: 0, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.HeavyWoods, level: 1 }],
+          },
+        ]}
+      />,
     );
 
     expect(screen.queryByTestId('movement-overlay')).toBeNull();
@@ -228,13 +248,856 @@ describe('HexMapDisplay tactical visual layers', () => {
 
     expect(screen.getByTestId('movement-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('cover-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('movement-cost-overlay-hex-1-0')).toHaveAttribute(
+      'data-terrain-movement-cost',
+      '2',
+    );
+    expect(
+      screen.getByTestId('movement-cost-overlay-hex-1-0'),
+    ).toHaveTextContent('T2');
+    expect(screen.getByTestId('movement-cost-overlay-hex-1-0')).toHaveAttribute(
+      'aria-label',
+      'Terrain movement cost 2; terrain light woods; elevation 0',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-1-0')).toHaveAttribute(
+      'data-cover-level',
+      'partial',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-1-0')).toHaveTextContent(
+      'PART',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-1-0')).toHaveAttribute(
+      'aria-label',
+      'Partial cover',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-0-0')).toHaveAttribute(
+      'data-cover-level',
+      'full',
+    );
+    expect(screen.getByTestId('cover-overlay-hex-0-0')).toHaveTextContent(
+      'FULL',
+    );
+    expect(screen.getByTestId('cover-overlay-hex--1-0')).toHaveAttribute(
+      'data-cover-level',
+      'none',
+    );
+    expect(screen.getByTestId('cover-overlay-hex--1-0')).toHaveTextContent(
+      'NONE',
+    );
 
     act(() => {
       unmount();
     });
   });
 
-  it('switches to render-only isometric preview without changing axial clicks', () => {
+  it('renders readable elevation labels and movement cost metadata on hexes', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 0, r: 0 },
+            elevation: 2,
+            features: [{ type: TerrainType.Clear, level: 0 }],
+          },
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 1,
+            features: [
+              { type: TerrainType.LightWoods, level: 1 },
+              { type: TerrainType.Building, level: 1 },
+            ],
+          },
+        ]}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 3,
+            terrainCost: 1,
+            elevationDelta: 1,
+            elevationCost: 1,
+            heatGenerated: 0,
+            standUpRequired: true,
+            standUpCost: 2,
+            standUpPsrRequired: true,
+            standUpPsrReason: 'Standing up',
+            standUpPsrTargetNumber: 5,
+            standUpPsrModifier: 0,
+            movementMode: 'tracked',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId('hex-elevation-label-0-0')).toHaveTextContent(
+      '+2',
+    );
+    expect(screen.getByTestId('hex-elevation-label-1-0')).toHaveTextContent(
+      '+1',
+    );
+    expect(screen.getByTestId('hex-terrain-label-1-0')).toHaveTextContent(
+      'BLDG/LWD',
+    );
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent(
+      'W/TRK 3MP',
+    );
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveAttribute(
+      'aria-label',
+      'walk via tracked reachable: 3 MP',
+    );
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-mode',
+      'tracked',
+    );
+    expect(screen.getByTestId('hex-stand-up-badge-1-0')).toHaveTextContent(
+      'STAND 2MP PSR5',
+    );
+    expect(screen.getByTestId('hex-stand-up-badge-1-0')).toHaveAttribute(
+      'aria-label',
+      'Must stand before moving: stand-up cost 2 MP; PSR required TN 5',
+    );
+
+    const reachable = screen.getByTestId('hex-1-0');
+    expect(reachable).toHaveAttribute(
+      'data-terrain-features',
+      'light_woods,building',
+    );
+    expect(reachable).toHaveAttribute('data-terrain-primary', 'building');
+    expect(reachable).toHaveAttribute('data-mp-cost', '3');
+    expect(reachable).toHaveAttribute('data-terrain-cost', '1');
+    expect(reachable).toHaveAttribute('data-heat-generated', '0');
+    expect(screen.queryByTestId('hex-heat-badge-1-0')).toBeNull();
+    expect(reachable).toHaveAttribute('data-elevation-delta', '1');
+    expect(reachable).toHaveAttribute('data-elevation-cost', '1');
+    expect(reachable).toHaveAttribute('data-movement-mode', 'tracked');
+    expect(reachable).toHaveAttribute('data-stand-up-required', 'true');
+    expect(reachable).toHaveAttribute('data-stand-up-cost', '2');
+    expect(reachable).toHaveAttribute('data-stand-up-psr-required', 'true');
+    expect(reachable).toHaveAttribute('data-stand-up-psr-target', '5');
+    expect(reachable).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('terrain light woods, building'),
+    );
+    expect(reachable).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('primary building'),
+    );
+    expect(reachable).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('walk via tracked reachable'),
+    );
+
+    fireEvent.mouseEnter(reachable);
+    expect(screen.getByTestId('hex-movement-tooltip-status')).toHaveTextContent(
+      'Reachable - walk via tracked',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-cost')).toHaveTextContent(
+      'MP: 3',
+    );
+    expect(
+      screen.getByTestId('hex-movement-tooltip-terrain-context'),
+    ).toHaveTextContent('Terrain: light woods, building');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-elevation-context'),
+    ).toHaveTextContent('Elevation: +1');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-terrain'),
+    ).toHaveTextContent('Terrain cost: +1');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-elevation'),
+    ).toHaveTextContent('Elevation: +1, cost +1');
+    expect(screen.getByTestId('hex-movement-tooltip-heat')).toHaveTextContent(
+      'Heat: +0',
+    );
+    expect(
+      screen.getByTestId('hex-movement-tooltip-stand-up'),
+    ).toHaveTextContent('Stand up: +2 MP');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-stand-up-psr'),
+    ).toHaveTextContent('Standing up TN 5');
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('shows terrain and elevation inspection when no action hover is active', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 1,
+            features: [
+              { type: TerrainType.LightWoods, level: 1 },
+              { type: TerrainType.Building, level: 1 },
+            ],
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+
+    expect(screen.getByTestId('hex-terrain-tooltip-title')).toHaveTextContent(
+      'Terrain: light woods, building',
+    );
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-elevation'),
+    ).toHaveTextContent('Elevation: +1');
+    expect(screen.getByTestId('hex-terrain-tooltip-cover')).toHaveTextContent(
+      'Cover: partial',
+    );
+    expect(screen.getByTestId('hex-terrain-tooltip-los')).toHaveTextContent(
+      'LOS: blocks',
+    );
+    expect(screen.queryByTestId('hex-movement-tooltip')).toBeNull();
+    expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('keeps terrain and elevation context visible on generic unreachable hovers', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hoverUnreachable
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 2,
+            features: [{ type: TerrainType.HeavyWoods, level: 1 }],
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+
+    expect(screen.getByTestId('hex-unreachable-tooltip')).toHaveTextContent(
+      'Unreachable',
+    );
+    expect(
+      screen.getByTestId('hex-unreachable-tooltip-terrain-context'),
+    ).toHaveTextContent('Terrain: heavy woods');
+    expect(
+      screen.getByTestId('hex-unreachable-tooltip-elevation-context'),
+    ).toHaveTextContent('Elevation: +2');
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders shutdown movement immobility as a blocked map reason', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hoverUnreachable
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 0,
+            heatGenerated: 0,
+            movementMode: 'walk',
+            reachable: false,
+            movementType: MovementType.Walk,
+            blockedReason: 'Unit is shut down and cannot move',
+            movementInvalidReason: 'UnitImmobile',
+            movementInvalidDetails: 'Unit is shut down and cannot move',
+          },
+        ]}
+      />,
+    );
+
+    const blocked = screen.getByTestId('hex-1-0');
+    expect(blocked).toHaveAttribute('data-reachable', 'false');
+    expect(blocked).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'UnitImmobile',
+    );
+    expect(blocked).toHaveAttribute(
+      'data-movement-invalid-details',
+      'Unit is shut down and cannot move',
+    );
+    expect(blocked).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('invalid UnitImmobile'),
+    );
+    expect(
+      screen.getByTestId('hex-movement-invalid-badge-1-0'),
+    ).toHaveTextContent('SHUT');
+
+    fireEvent.mouseEnter(blocked);
+    expect(screen.getByTestId('hex-movement-tooltip-status')).toHaveTextContent(
+      'Blocked - walk',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-reason')).toHaveTextContent(
+      'Unit is shut down and cannot move',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders blocked movement reason metadata for illegal destinations', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hoverUnreachable
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: Infinity,
+            terrainCost: 1,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'tracked',
+            reachable: false,
+            movementType: MovementType.Walk,
+            blockedReason: 'Water blocks ground movement',
+            movementInvalidReason: 'TerrainBlocked',
+            movementInvalidDetails: 'Water blocks ground movement',
+          },
+        ]}
+      />,
+    );
+
+    const blocked = screen.getByTestId('hex-1-0');
+    expect(blocked).toHaveAttribute('data-reachable', 'false');
+    expect(blocked).toHaveAttribute('data-movement-mode', 'tracked');
+    expect(blocked).toHaveAttribute(
+      'data-movement-blocked-reason',
+      'Water blocks ground movement',
+    );
+    expect(blocked).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'TerrainBlocked',
+    );
+    expect(blocked).toHaveAttribute(
+      'data-movement-invalid-details',
+      'Water blocks ground movement',
+    );
+    expect(blocked).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('invalid TerrainBlocked'),
+    );
+    expect(blocked).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Water blocks ground movement'),
+    );
+    const invalidBadge = screen.getByTestId('hex-movement-invalid-badge-1-0');
+    expect(invalidBadge).toHaveTextContent('WTR');
+    expect(invalidBadge).toHaveAttribute('data-invalid-badge-kind', 'movement');
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-code',
+      'TerrainBlocked',
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Water blocks ground movement',
+    );
+
+    fireEvent.mouseEnter(blocked);
+    expect(screen.getByTestId('hex-movement-tooltip-status')).toHaveTextContent(
+      'Blocked - walk via tracked',
+    );
+    expect(screen.getByTestId('hex-movement-tooltip-cost')).toHaveTextContent(
+      'MP: X',
+    );
+    expect(
+      screen.getByTestId('hex-movement-tooltip-terrain-context'),
+    ).toHaveTextContent('Terrain: clear');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-elevation-context'),
+    ).toHaveTextContent('Elevation: 0');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-terrain'),
+    ).toHaveTextContent('Terrain cost: +1');
+    expect(screen.getByTestId('hex-movement-tooltip-reason')).toHaveTextContent(
+      'Water blocks ground movement',
+    );
+    expect(screen.queryByTestId('hex-unreachable-tooltip')).toBeNull();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders impossible stand-up movement metadata without relying on color', () => {
+    const reason = 'Cannot stand with a destroyed leg and both arms destroyed';
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 2,
+            heatGenerated: 0,
+            standUpRequired: true,
+            standUpCost: 2,
+            standUpPsrRequired: true,
+            standUpPsrReason: 'Standing up',
+            standUpPsrTargetNumber: Infinity,
+            standUpPsrModifier: 0,
+            standUpPsrImpossibleReason: reason,
+            movementMode: 'walk',
+            reachable: false,
+            movementType: MovementType.Walk,
+            blockedReason: reason,
+            movementInvalidReason: 'InvalidDestination',
+            movementInvalidDetails: reason,
+          },
+        ]}
+      />,
+    );
+
+    const blocked = screen.getByTestId('hex-1-0');
+    expect(blocked).toHaveAttribute('data-reachable', 'false');
+    expect(blocked).toHaveAttribute('data-stand-up-required', 'true');
+    expect(blocked).toHaveAttribute(
+      'data-stand-up-psr-impossible-reason',
+      reason,
+    );
+    expect(screen.getByTestId('hex-stand-up-badge-1-0')).toHaveTextContent(
+      'STAND IMP',
+    );
+    expect(screen.getByTestId('hex-stand-up-badge-1-0')).toHaveAttribute(
+      'aria-label',
+      `Cannot stand before moving: ${reason}; stand-up cost 2 MP; PSR impossible`,
+    );
+    expect(
+      screen.getByTestId('hex-movement-invalid-badge-1-0'),
+    ).toHaveTextContent('STAND');
+    expect(blocked).toHaveAttribute(
+      'aria-label',
+      expect.not.stringContaining('Infinity'),
+    );
+
+    fireEvent.mouseEnter(blocked);
+    expect(
+      screen.getByTestId('hex-movement-tooltip-stand-up-psr'),
+    ).toHaveTextContent(`Standing up impossible - ${reason}`);
+    expect(screen.getByTestId('hex-movement-tooltip-reason')).toHaveTextContent(
+      reason,
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders naval motive movement badges with readable non-color labels', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 1,
+            terrainCost: 0,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'naval',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent(
+      'W/NAV 1MP',
+    );
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-mode',
+      'naval',
+    );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('walk via naval reachable'),
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders an insufficient-MP badge for over-budget movement destinations', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 3,
+            terrainCost: 2,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 0,
+            reachable: false,
+            movementType: MovementType.Walk,
+            blockedReason: 'Path costs 3 MP, but only 2 MP is available',
+            movementInvalidReason: 'InsufficientMP',
+            movementInvalidDetails:
+              'Path costs 3 MP, but only 2 MP is available',
+          },
+        ]}
+      />,
+    );
+
+    expect(
+      screen.getByTestId('hex-movement-invalid-badge-1-0'),
+    ).toHaveTextContent('NO MP');
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders elevation-blocked movement reasons as visible map badges', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: Infinity,
+            terrainCost: 1,
+            elevationDelta: 3,
+            elevationCost: 0,
+            reachable: false,
+            movementType: MovementType.Walk,
+            blockedReason:
+              'Elevation change of 3 exceeds ground movement limit',
+            movementInvalidReason: 'TerrainBlocked',
+            movementInvalidDetails:
+              'Elevation change of 3 exceeds ground movement limit',
+          },
+        ]}
+      />,
+    );
+
+    const invalidBadge = screen.getByTestId('hex-movement-invalid-badge-1-0');
+    expect(invalidBadge).toHaveTextContent('ELEV');
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Elevation change of 3 exceeds ground movement limit',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders terrain and elevation step costs directly on reachable movement hexes', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 3,
+            terrainCost: 1,
+            elevationDelta: 2,
+            elevationCost: 2,
+            movementMode: 'tracked',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+      />,
+    );
+
+    const movementHex = screen.getByTestId('hex-1-0');
+    expect(movementHex).toHaveAttribute('data-terrain-cost', '1');
+    expect(movementHex).toHaveAttribute('data-elevation-delta', '2');
+    expect(movementHex).toHaveAttribute('data-elevation-cost', '2');
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent(
+      'W/TRK 3MP',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveTextContent(
+      'T+1 E+2 UP2',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'aria-label',
+      'Movement step cost: terrain +1; elevation cost +2; elevation delta +2',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-elevation-cost',
+      '2',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders movement preview path sequence metadata and visible step badges', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={{ q: 0, r: 0 }}
+        highlightPath={[
+          { q: 0, r: 0 },
+          { q: 1, r: 0 },
+          { q: 1, r: -1 },
+        ]}
+      />,
+    );
+
+    const startHex = screen.getByTestId('hex-0-0');
+    const firstStepHex = screen.getByTestId('hex-1-0');
+    const secondStepHex = screen.getByTestId('hex-1--1');
+
+    expect(startHex).toHaveAttribute('data-path-index', '0');
+    expect(startHex).toHaveAttribute('data-path-step', 'start');
+    expect(firstStepHex).toHaveAttribute('data-path-index', '1');
+    expect(firstStepHex).toHaveAttribute('data-path-step', '1');
+    expect(secondStepHex).toHaveAttribute('data-path-index', '2');
+    expect(secondStepHex).toHaveAttribute('data-path-step', '2');
+    expect(secondStepHex).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('path step 2'),
+    );
+
+    expect(screen.getByTestId('hex-path-step-badge-0-0')).toHaveTextContent(
+      'S',
+    );
+    expect(screen.getByTestId('hex-path-step-badge-1-0')).toHaveTextContent(
+      '#1',
+    );
+    expect(screen.getByTestId('hex-path-step-badge-1--1')).toHaveTextContent(
+      '#2',
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+    expect(screen.getByTestId('map-projection-layer')).toHaveAttribute(
+      'data-projection-mode',
+      'isometric2d',
+    );
+    expect(screen.getByTestId('hex-1--1')).toHaveAttribute(
+      'data-path-step',
+      '2',
+    );
+    expect(screen.getByTestId('hex-path-step-badge-1--1')).toHaveTextContent(
+      '#2',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders VTOL elevation changes without inventing ground elevation MP costs', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 1,
+            terrainCost: 0,
+            elevationDelta: 4,
+            elevationCost: 0,
+            movementMode: 'vtol',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+      />,
+    );
+
+    const vtolHex = screen.getByTestId('hex-1-0');
+    expect(vtolHex).toHaveAttribute('data-movement-mode', 'vtol');
+    expect(vtolHex).toHaveAttribute('data-elevation-delta', '4');
+    expect(vtolHex).toHaveAttribute('data-elevation-cost', '0');
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent(
+      'W/VTOL 1MP',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveTextContent(
+      'UP4',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'aria-label',
+      'Movement step cost: elevation delta +4',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-elevation-cost',
+      '0',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders jump heat impact as map metadata and a visible badge', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 1,
+            terrainCost: 0,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 1,
+            reachable: true,
+            movementType: MovementType.Jump,
+          },
+        ]}
+      />,
+    );
+
+    const jumpHex = screen.getByTestId('hex-1-0');
+    expect(jumpHex).toHaveAttribute('data-heat-generated', '1');
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent(
+      'J 1MP',
+    );
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-type',
+      'jump',
+    );
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-heat-generated',
+      '1',
+    );
+    expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveTextContent('+1H');
+    expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveAttribute(
+      'aria-label',
+      'Heat generated +1',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('renders too-high jump landings as elevation-blocked map hexes', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 3,
+            features: [{ type: TerrainType.Clear, level: 0 }],
+          },
+        ]}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 1,
+            terrainCost: 0,
+            elevationDelta: 3,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'jump',
+            reachable: false,
+            movementType: MovementType.Jump,
+            blockedReason: 'Jump elevation rise of 3 exceeds jump MP 2',
+            movementInvalidReason: 'TerrainBlocked',
+            movementInvalidDetails:
+              'Jump elevation rise of 3 exceeds jump MP 2',
+          },
+        ]}
+      />,
+    );
+
+    const jumpHex = screen.getByTestId('hex-1-0');
+    expect(jumpHex).toHaveAttribute('data-reachable', 'false');
+    expect(jumpHex).toHaveAttribute('data-elevation', '3');
+    expect(jumpHex).toHaveAttribute('data-elevation-delta', '3');
+    expect(jumpHex).toHaveAttribute('data-elevation-cost', '0');
+    expect(jumpHex).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'TerrainBlocked',
+    );
+    expect(jumpHex).toHaveAttribute(
+      'data-movement-invalid-details',
+      'Jump elevation rise of 3 exceeds jump MP 2',
+    );
+    expect(
+      screen.getByTestId('hex-movement-invalid-badge-1-0'),
+    ).toHaveTextContent('ELEV');
+    expect(
+      screen.getByTestId('hex-movement-invalid-badge-1-0'),
+    ).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Jump elevation rise of 3 exceeds jump MP 2',
+    );
+
+    fireEvent.mouseEnter(jumpHex);
+    expect(screen.getByTestId('hex-movement-tooltip-status')).toHaveTextContent(
+      'Blocked - jump',
+    );
+    expect(
+      screen.getByTestId('hex-movement-tooltip-elevation-context'),
+    ).toHaveTextContent('Elevation: +3');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-elevation'),
+    ).toHaveTextContent('Elevation: +3, cost +0');
+    expect(screen.getByTestId('hex-movement-tooltip-reason')).toHaveTextContent(
+      'Jump elevation rise of 3 exceeds jump MP 2',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('switches to rotatable render-only isometric 2.5D without changing axial clicks', () => {
     const onHexClick = jest.fn();
     const { unmount } = render(
       <HexMapDisplay
@@ -242,6 +1105,13 @@ describe('HexMapDisplay tactical visual layers', () => {
         radius={1}
         tokens={[]}
         selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 2,
+            features: [{ type: TerrainType.Clear, level: 0 }],
+          },
+        ]}
         onHexClick={onHexClick}
       />,
     );
@@ -253,12 +1123,332 @@ describe('HexMapDisplay tactical visual layers', () => {
 
     expect(projectionLayer).toHaveAttribute(
       'data-projection-mode',
-      'isometricPreview',
+      'isometric2d',
     );
+    expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
+    expect(projectionLayer.getAttribute('transform')).toContain('rotate(0)');
     expect(projectionLayer.getAttribute('transform')).toContain('matrix(');
+    expect(screen.getByTestId('hex-elevation-stack-1-0')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('hex-elevation-stack-layer-1-0-2'),
+    ).toHaveAttribute('data-elevation-layer', '2');
+    expect(
+      screen.getByTestId('hex-elevation-stack-layer-1-0-2'),
+    ).toHaveTextContent('+2');
+    expect(
+      screen.getByTestId('hex-elevation-stack-layer-1-0-1'),
+    ).toHaveAttribute('aria-label', 'Elevation layer +1 of hex 1,0');
+
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+
+    expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '1',
+    );
+    expect(projectionLayer.getAttribute('transform')).toContain('rotate(60)');
+
+    fireEvent.click(screen.getByTestId('projection-rotate-left'));
+
+    expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
+    expect(projectionLayer.getAttribute('transform')).toContain('rotate(0)');
+
+    fireEvent.click(screen.getByTestId('projection-rotate-left'));
+
+    expect(projectionLayer).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '5',
+    );
+    expect(projectionLayer.getAttribute('transform')).toContain('rotate(300)');
 
     fireEvent.click(screen.getByTestId('hex-1-0'));
     expect(onHexClick).toHaveBeenCalledWith({ q: 1, r: 0 });
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('reorders rendered isometric hex depth when the camera rotates', () => {
+    const { unmount } = render(
+      <HexMapDisplay mapId="map-1" radius={1} tokens={[]} selectedHex={null} />,
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    const unrotatedEast = screen.getByTestId('isometric-scene-hex-1-0');
+    const unrotatedSouth = screen.getByTestId('isometric-scene-hex-0-1');
+    expect(
+      Number(unrotatedEast.getAttribute('data-isometric-depth-key')),
+    ).toBeLessThan(
+      Number(unrotatedSouth.getAttribute('data-isometric-depth-key')),
+    );
+    expect(unrotatedEast.compareDocumentPosition(unrotatedSouth)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+
+    const rotatedEast = screen.getByTestId('isometric-scene-hex-1-0');
+    const rotatedSouth = screen.getByTestId('isometric-scene-hex-0-1');
+    expect(
+      Number(rotatedEast.getAttribute('data-isometric-depth-key')),
+    ).toBeGreaterThan(
+      Number(rotatedSouth.getAttribute('data-isometric-depth-key')),
+    );
+    expect(rotatedSouth.compareDocumentPosition(rotatedEast)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('depth-sorts isometric terrain and units while boosting highlighted units', () => {
+    const ordinary = makeToken({
+      unitId: 'ordinary',
+      position: { q: 0, r: -1 },
+    });
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[ordinary, selected]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 0, r: 1 },
+            elevation: 5,
+            features: [{ type: TerrainType.Building, level: 1 }],
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    const ordinaryToken = screen.getByTestId('isometric-scene-token-ordinary');
+    const foregroundHex = screen.getByTestId('isometric-scene-hex-0-1');
+    const selectedToken = screen.getByTestId('isometric-scene-token-selected');
+
+    expect(ordinaryToken.compareDocumentPosition(foregroundHex)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(foregroundHex.compareDocumentPosition(selectedToken)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(ordinaryToken).not.toHaveAttribute(
+      'data-isometric-foreground-boost',
+      'true',
+    );
+    expect(selectedToken).toHaveAttribute(
+      'data-isometric-foreground-boost',
+      'true',
+    );
+    expect(
+      Number(ordinaryToken.getAttribute('data-isometric-depth-key')),
+    ).toBeLessThan(
+      Number(foregroundHex.getAttribute('data-isometric-depth-key')),
+    );
+    expect(
+      Number(selectedToken.getAttribute('data-isometric-depth-key')),
+    ).toBeGreaterThan(
+      Number(foregroundHex.getAttribute('data-isometric-depth-key')),
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('boosts units hidden behind tall terrain from the isometric camera angle', () => {
+    const occluded = makeToken({
+      unitId: 'occluded',
+      position: { q: 0, r: 0 },
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[occluded]}
+        selectedHex={null}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 4,
+            features: [{ type: TerrainType.Building, level: 1 }],
+          },
+        ]}
+      />,
+    );
+
+    expect(
+      screen.queryByTestId('isometric-visibility-halo-occluded'),
+    ).toBeNull();
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(
+      screen.getByTestId('isometric-visibility-halo-occluded'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-foreground-boost', 'true');
+    expect(
+      screen.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-hex', '1,0');
+    expect(
+      screen.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute('data-isometric-occluder-elevation', '4');
+    expect(
+      screen.getByTestId('isometric-scene-token-occluded'),
+    ).toHaveAttribute(
+      'data-isometric-occlusion-reason',
+      'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+    );
+    expect(screen.getByTestId('unit-token-occluded')).toHaveAttribute(
+      'data-visibility-boost',
+      'true',
+    );
+    expect(screen.getByTestId('unit-token-occluded')).toHaveAttribute(
+      'data-isometric-occlusion-reason',
+      'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+    );
+    expect(screen.getByTestId('unit-token-occluded')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+      ),
+    );
+    expect(
+      screen.getByTestId('isometric-visibility-reason-occluded'),
+    ).toHaveTextContent('ELEV');
+    expect(
+      screen.getByTestId('isometric-visibility-reason-occluded'),
+    ).toHaveAttribute(
+      'data-isometric-occlusion-reason',
+      'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+    );
+
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+
+    expect(
+      screen.queryByTestId('isometric-visibility-halo-occluded'),
+    ).toBeNull();
+    expect(
+      screen.getByTestId('isometric-scene-token-occluded'),
+    ).not.toHaveAttribute('data-isometric-foreground-boost', 'true');
+    expect(
+      screen.getByTestId('isometric-scene-token-occluded'),
+    ).not.toHaveAttribute('data-isometric-occlusion-reason');
+    expect(screen.getByTestId('unit-token-occluded')).not.toHaveAttribute(
+      'data-isometric-occlusion-reason',
+    );
+    expect(
+      screen.queryByTestId('isometric-visibility-reason-occluded'),
+    ).toBeNull();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('highlights the selected unit for isometric occlusion readability', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[selected]}
+        selectedHex={null}
+      />,
+    );
+
+    expect(
+      screen.queryByTestId('isometric-visibility-halo-selected'),
+    ).toBeNull();
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(
+      screen.getByTestId('isometric-visibility-halo-selected'),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('unit-token-selected')).toHaveAttribute(
+      'data-visibility-boost',
+      'true',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('highlights combat-projected targets for isometric occlusion readability', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      isValidTarget: false,
+      position: { q: 2, r: 0 },
+    });
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={2}
+        tokens={[selected, target]}
+        selectedHex={null}
+        unitWeapons={{ selected: [makeWeapon()] }}
+        hexTerrain={[
+          {
+            coordinate: { q: 1, r: 0 },
+            elevation: 4,
+            features: [{ type: TerrainType.Building, level: 1 }],
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.queryByTestId('isometric-visibility-halo-target')).toBeNull();
+    expect(screen.getByTestId('hex-2-0')).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'NoLineOfSight',
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(
+      screen.getByTestId('isometric-visibility-halo-target'),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('unit-token-target')).toHaveAttribute(
+      'data-visibility-boost',
+      'true',
+    );
 
     act(() => {
       unmount();
@@ -322,6 +1512,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
 
     expect(screen.getByTestId('firing-arc-hex-0,-1')).toBeInTheDocument();
+    expect(screen.getByTestId('firing-arc-label-0,-1')).toHaveTextContent(
+      'FRONT',
+    );
     expect(screen.queryByTestId('firing-arc-hex-0,-2')).toBeNull();
 
     act(() => {
@@ -329,7 +1522,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
-  it('renders rear-arc information only when no configured weapons are operational', () => {
+  it('hides firing-arc information when no configured weapons are operational', () => {
     const selected = makeToken({
       unitId: 'selected',
       isSelected: true,
@@ -355,10 +1548,7 @@ describe('HexMapDisplay tactical visual layers', () => {
 
     expect(screen.queryByTestId('firing-arc-hex-0,-1')).toBeNull();
     expect(screen.queryByTestId('firing-arc-hex-1,0')).toBeNull();
-    expect(screen.getByTestId('firing-arc-hex-0,1')).toHaveAttribute(
-      'data-arc',
-      'rear',
-    );
+    expect(screen.queryByTestId('firing-arc-hex-0,1')).toBeNull();
 
     act(() => {
       unmount();
@@ -415,7 +1605,7 @@ describe('HexMapDisplay tactical visual layers', () => {
           {
             coordinate: { q: 1, r: 0 },
             elevation: 0,
-            features: [{ type: TerrainType.Building, level: 1 }],
+            features: [{ type: TerrainType.Building, level: 2 }],
           },
         ]}
       />,
@@ -429,6 +1619,11 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(line).toHaveAttribute('stroke', '#dc2626');
     expect(line).toHaveAttribute('x2', String(blockerPixel.x));
     expect(line).not.toHaveAttribute('x2', String(targetPixel.x));
+    expect(screen.getByTestId('los-state-badge')).toHaveAttribute(
+      'data-state',
+      'blocked',
+    );
+    expect(screen.getByTestId('los-state-badge')).toHaveTextContent('NO LOS');
     expect(screen.getByTestId('los-annotation-wall-1,0')).toBeInTheDocument();
 
     act(() => {

@@ -196,6 +196,12 @@ interface UnitTokensLayerProps {
   readonly tokens: readonly IUnitToken[];
   readonly onTokenClick: (unitId: string) => void;
   readonly onTokenDoubleClick: (unitId: string) => void;
+  readonly isIsometricView: boolean;
+  readonly isometricOcclusionUnitIds: ReadonlySet<string>;
+  readonly isometricOcclusionInfoByUnit?: ReadonlyMap<
+    string,
+    { readonly reason: string }
+  >;
 }
 
 export function UnitTokensLayer({
@@ -205,6 +211,9 @@ export function UnitTokensLayer({
   tokens,
   onTokenClick,
   onTokenDoubleClick,
+  isIsometricView,
+  isometricOcclusionUnitIds,
+  isometricOcclusionInfoByUnit,
 }: UnitTokensLayerProps): React.ReactElement {
   return (
     <g>
@@ -217,6 +226,15 @@ export function UnitTokensLayer({
           onDoubleClick={onTokenDoubleClick}
           events={events}
           allTokens={tokens}
+          isOcclusionHighlighted={
+            isIsometricView &&
+            (token.isSelected || isometricOcclusionUnitIds.has(token.unitId))
+          }
+          isometricOcclusionReason={
+            isIsometricView
+              ? isometricOcclusionInfoByUnit?.get(token.unitId)?.reason
+              : undefined
+          }
         />
       ))}
     </g>
@@ -262,70 +280,6 @@ export function TerrainOverlayLayers({
             );
           })}
         </g>
-      )}
-    </>
-  );
-}
-
-interface MapHtmlOverlaysProps {
-  readonly hoverUnreachable: boolean;
-  readonly mpLegend?: {
-    readonly active: 'walk' | 'run' | 'jump';
-    readonly jumpAvailable: boolean;
-  };
-}
-
-export function MapHtmlOverlays({
-  hoverUnreachable,
-  mpLegend,
-}: MapHtmlOverlaysProps): React.ReactElement {
-  return (
-    <>
-      {hoverUnreachable && (
-        <div
-          className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 rounded bg-slate-900/90 px-2 py-1 text-xs font-medium text-slate-100 shadow"
-          data-testid="hex-unreachable-tooltip"
-          role="tooltip"
-        >
-          Unreachable
-        </div>
-      )}
-
-      {mpLegend && (
-        <div
-          className="pointer-events-none absolute bottom-4 left-4 flex flex-col gap-1 rounded bg-white/90 p-2 text-xs shadow"
-          data-testid="mp-legend"
-        >
-          {(['walk', 'run', 'jump'] as const).map((kind) => {
-            const isActive = mpLegend.active === kind;
-            const isJumpDisabled = kind === 'jump' && !mpLegend.jumpAvailable;
-            const swatch =
-              kind === 'walk'
-                ? 'bg-green-500'
-                : kind === 'run'
-                  ? 'bg-yellow-500'
-                  : 'bg-blue-500';
-            const label =
-              kind === 'walk' ? 'Walk' : kind === 'run' ? 'Run' : 'Jump';
-            return (
-              <div
-                key={kind}
-                className={`flex items-center gap-2 rounded px-1 py-0.5 ${
-                  isActive
-                    ? 'font-semibold ring-1 ring-slate-700'
-                    : 'opacity-70'
-                } ${isJumpDisabled ? 'opacity-40' : ''}`}
-                data-testid={`mp-legend-${kind}`}
-                data-active={isActive ? 'true' : undefined}
-                data-disabled={isJumpDisabled ? 'true' : undefined}
-                title={isJumpDisabled ? 'No jump capability' : undefined}
-              >
-                <span className={`inline-block h-3 w-3 rounded-sm ${swatch}`} />
-                <span>{label}</span>
-              </div>
-            );
-          })}
-        </div>
       )}
     </>
   );

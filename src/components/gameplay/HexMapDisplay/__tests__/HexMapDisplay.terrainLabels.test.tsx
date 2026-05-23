@@ -1,0 +1,382 @@
+import { act, fireEvent, render, screen } from '@testing-library/react';
+
+import type {
+  IHexCoordinate,
+  IHexTerrain,
+  IMovementRangeHex,
+  IUnitToken,
+  IWeaponStatus,
+} from '@/types/gameplay';
+
+import { useAnimationQueue } from '@/stores/useAnimationQueue';
+import {
+  Facing,
+  GameSide,
+  MovementType,
+  TerrainType,
+  TokenUnitType,
+} from '@/types/gameplay';
+
+import { formatElevationLabel, formatTerrainLabel } from '../HexCell.labels';
+import { HexMapDisplay } from '../HexMapDisplay';
+import {
+  FOCUS_BUMP_ZOOM,
+  type MapInteractionState,
+  ZOOM_MAX,
+  ZOOM_MIN,
+} from '../useMapInteraction';
+
+const TERRAIN_COORDS: readonly IHexCoordinate[] = [
+  { q: 0, r: -2 },
+  { q: 1, r: -2 },
+  { q: 2, r: -2 },
+  { q: -1, r: -1 },
+  { q: 0, r: -1 },
+  { q: 1, r: -1 },
+  { q: 2, r: -1 },
+  { q: -2, r: 0 },
+  { q: -1, r: 0 },
+  { q: 0, r: 0 },
+  { q: 1, r: 0 },
+  { q: 2, r: 0 },
+  { q: -2, r: 1 },
+  { q: -1, r: 1 },
+  { q: 0, r: 1 },
+  { q: 1, r: 1 },
+  { q: -2, r: 2 },
+  { q: -1, r: 2 },
+  { q: 0, r: 2 },
+];
+
+const TERRAIN_BADGE_BY_TYPE = {
+  [TerrainType.Clear]: 'CLR',
+  [TerrainType.Pavement]: 'PAV',
+  [TerrainType.Road]: 'RD',
+  [TerrainType.LightWoods]: 'LWD',
+  [TerrainType.HeavyWoods]: 'HWD',
+  [TerrainType.Rough]: 'RGH',
+  [TerrainType.Rubble]: 'RBL',
+  [TerrainType.Water]: 'WTR',
+  [TerrainType.Sand]: 'SND',
+  [TerrainType.Mud]: 'MUD',
+  [TerrainType.Snow]: 'SNW',
+  [TerrainType.Ice]: 'ICE',
+  [TerrainType.Swamp]: 'SWP',
+  [TerrainType.Building]: 'BLDG',
+  [TerrainType.Bridge]: 'BRG',
+  [TerrainType.Fire]: 'FIR',
+  [TerrainType.Smoke]: 'SMK',
+} satisfies Record<TerrainType, string>;
+
+function terrainFeatureLevel(type: TerrainType): number {
+  return type === TerrainType.Clear ? 0 : 1;
+}
+
+function buildTerrainMatrix(): readonly IHexTerrain[] {
+  return Object.values(TerrainType).map((type, index) => ({
+    coordinate: TERRAIN_COORDS[index],
+    elevation: (index % 7) - 3,
+    features: [{ type, level: terrainFeatureLevel(type) }],
+  }));
+}
+
+function makeToken(overrides: Partial<IUnitToken>): IUnitToken {
+  return {
+    unitId: 'unit',
+    name: 'Unit',
+    side: GameSide.Player,
+    position: { q: 0, r: 0 },
+    facing: Facing.Southeast,
+    isSelected: false,
+    isValidTarget: false,
+    isDestroyed: false,
+    designation: 'UNT',
+    unitType: TokenUnitType.Mech,
+    ...overrides,
+  } as IUnitToken;
+}
+
+function makeWeapon(overrides: Partial<IWeaponStatus> = {}): IWeaponStatus {
+  return {
+    id: 'medium-laser',
+    name: 'Medium Laser',
+    location: 'right_arm',
+    destroyed: false,
+    firedThisTurn: false,
+    heat: 3,
+    damage: 5,
+    ranges: { short: 2, medium: 4, long: 6 },
+    ...overrides,
+  };
+}
+
+function assertTerrainAndElevationBadges(
+  terrainMatrix: readonly IHexTerrain[],
+): void {
+  for (const terrain of terrainMatrix) {
+    const { q, r } = terrain.coordinate;
+    const terrainType = terrain.features[0].type;
+    const terrainLabel = formatTerrainLabel(terrainType);
+    const elevationLabel = formatElevationLabel(terrain.elevation);
+
+    expect(screen.getByTestId(`hex-${q}-${r}`)).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        `terrain ${terrainLabel}; primary ${terrainLabel}; elevation ${elevationLabel}`,
+      ),
+    );
+    expect(screen.getByTestId(`hex-${q}-${r}`)).toHaveAttribute(
+      'data-terrain-primary',
+      terrainType,
+    );
+    expect(screen.getByTestId(`hex-${q}-${r}`)).toHaveAttribute(
+      'data-elevation',
+      `${terrain.elevation}`,
+    );
+
+    expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveTextContent(
+      TERRAIN_BADGE_BY_TYPE[terrainType],
+    );
+    expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
+      'aria-label',
+      `Terrain ${terrainLabel}`,
+    );
+    expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
+      'data-terrain-badge',
+      TERRAIN_BADGE_BY_TYPE[terrainType],
+    );
+    expect(
+      screen.getByTestId(`hex-terrain-label-${q}-${r}`).querySelector('rect'),
+    ).toHaveAttribute('height', '11');
+    expect(
+      screen.getByTestId(`hex-terrain-label-${q}-${r}`).querySelector('text'),
+    ).toHaveAttribute('font-size', '7');
+
+    expect(
+      screen.getByTestId(`hex-elevation-label-${q}-${r}`),
+    ).toHaveTextContent(elevationLabel);
+    expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
+      'aria-label',
+      `Elevation ${elevationLabel}`,
+    );
+    expect(
+      screen.getByTestId(`hex-elevation-label-${q}-${r}`).querySelector('rect'),
+    ).toHaveAttribute('height', '14');
+    expect(
+      screen.getByTestId(`hex-elevation-label-${q}-${r}`).querySelector('text'),
+    ).toHaveAttribute('font-size', '10');
+  }
+}
+
+describe('HexMapDisplay terrain and elevation labels', () => {
+  beforeEach(() => {
+    act(() => {
+      useAnimationQueue.getState().reset();
+    });
+  });
+
+  afterEach(() => {
+    act(() => {
+      useAnimationQueue.getState().reset();
+    });
+  });
+
+  it('renders the full terrain vocabulary with readable elevation labels in top-down and isometric modes', () => {
+    const terrainMatrix = buildTerrainMatrix();
+    const tallHex = terrainMatrix.find((terrain) => terrain.elevation > 0);
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="terrain-labels"
+        radius={2}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={terrainMatrix}
+      />,
+    );
+
+    expect(screen.getByTestId('map-projection-layer')).toHaveAttribute(
+      'data-projection-mode',
+      'topDown',
+    );
+    assertTerrainAndElevationBadges(terrainMatrix);
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(screen.getByTestId('map-projection-layer')).toHaveAttribute(
+      'data-projection-mode',
+      'isometric2d',
+    );
+    assertTerrainAndElevationBadges(terrainMatrix);
+    expect(tallHex).toBeDefined();
+    expect(
+      screen.getByTestId(
+        `hex-elevation-stack-${tallHex?.coordinate.q}-${tallHex?.coordinate.r}`,
+      ),
+    ).toBeInTheDocument();
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('keeps top-down terrain and elevation badges exposed across playable zoom levels', () => {
+    const roughRise: IHexTerrain = {
+      coordinate: { q: 1, r: 0 },
+      elevation: 2,
+      features: [{ type: TerrainType.Rough, level: 1 }],
+    };
+    let interaction: MapInteractionState | null = null;
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="terrain-zoom-labels"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={[roughRise]}
+        onInteractionReady={(nextInteraction) => {
+          interaction = nextInteraction;
+        }}
+      />,
+    );
+
+    const requireInteraction = (): MapInteractionState => {
+      if (!interaction) {
+        throw new Error('Expected HexMapDisplay to expose map interaction');
+      }
+      return interaction;
+    };
+
+    const assertTopDownLabels = (): void => {
+      expect(screen.getByTestId('map-projection-layer')).toHaveAttribute(
+        'data-projection-mode',
+        'topDown',
+      );
+      assertTerrainAndElevationBadges([roughRise]);
+    };
+
+    assertTopDownLabels();
+
+    for (const zoom of [ZOOM_MIN, FOCUS_BUMP_ZOOM, ZOOM_MAX]) {
+      act(() => {
+        requireInteraction().setZoom(zoom);
+      });
+      expect(requireInteraction().zoom).toBe(zoom);
+      assertTopDownLabels();
+    }
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('keeps terrain and elevation readable while tactical overlays stack', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      isValidTarget: true,
+    });
+    const contact = makeToken({
+      unitId: 'contact',
+      side: GameSide.Opponent,
+      position: { q: -1, r: 1 },
+      lastKnownPosition: { q: -1, r: 1 },
+      fogStatus: 'lastKnown',
+    });
+    const terrainMatrix: readonly IHexTerrain[] = [
+      {
+        coordinate: { q: 0, r: 0 },
+        elevation: 0,
+        features: [{ type: TerrainType.Clear, level: 0 }],
+      },
+      {
+        coordinate: { q: 1, r: 0 },
+        elevation: 1,
+        features: [{ type: TerrainType.Rough, level: 1 }],
+      },
+      {
+        coordinate: { q: 2, r: 0 },
+        elevation: 2,
+        features: [{ type: TerrainType.LightWoods, level: 1 }],
+      },
+      {
+        coordinate: { q: -1, r: 1 },
+        elevation: -1,
+        features: [{ type: TerrainType.Water, level: 1 }],
+      },
+    ];
+    const movementRange: readonly IMovementRangeHex[] = [
+      {
+        hex: { q: 1, r: 0 },
+        mpCost: 3,
+        terrainCost: 1,
+        elevationDelta: 1,
+        elevationCost: 1,
+        heatGenerated: 1,
+        movementMode: 'walk',
+        reachable: true,
+        movementType: MovementType.Walk,
+      },
+    ];
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="terrain-overlay-stack"
+        radius={2}
+        tokens={[selected, target, contact]}
+        selectedHex={selected.position}
+        hexTerrain={terrainMatrix}
+        movementRange={movementRange}
+        highlightPath={[
+          { q: 0, r: 0 },
+          { q: 1, r: 0 },
+        ]}
+        unitWeapons={{ selected: [makeWeapon()] }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('overlay-toggle-movement'));
+    fireEvent.click(screen.getByTestId('overlay-toggle-cover'));
+    fireEvent.click(screen.getByTestId('overlay-toggle-los'));
+    fireEvent.mouseEnter(screen.getByTestId('hex-2-0'));
+
+    assertTerrainAndElevationBadges(terrainMatrix);
+    expect(screen.getByTestId('movement-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('movement-cost-overlay-hex-1-0')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Terrain movement cost'),
+    );
+    expect(screen.getByTestId('cover-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('cover-overlay-hex-2-0')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('cover'),
+    );
+    expect(screen.getByTestId('firing-arc-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('los-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('los-line')).toBeInTheDocument();
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent('W');
+    expect(screen.getByTestId('hex-path-step-badge-1-0')).toHaveTextContent(
+      '1',
+    );
+    expect(screen.getByTestId('hex-heat-badge-1-0')).toHaveTextContent('+1H');
+    expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveTextContent('S');
+    expect(screen.getByTestId('hex-combat-los-badge-2-0')).toHaveTextContent(
+      'LOS',
+    );
+    expect(screen.getByTestId('unit-token-selected')).toBeInTheDocument();
+    expect(screen.getByTestId('unit-token-target')).toBeInTheDocument();
+    expect(screen.getByTestId('fog-marker-contact')).toBeInTheDocument();
+
+    act(() => {
+      unmount();
+    });
+  });
+});

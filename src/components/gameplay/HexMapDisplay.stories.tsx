@@ -284,22 +284,43 @@ export const TerrainWithSelection: Story = {
   },
 };
 
+const allTerrainTypeCoordinates = [
+  { q: 0, r: -2 },
+  { q: 1, r: -2 },
+  { q: 2, r: -2 },
+  { q: -1, r: -1 },
+  { q: 0, r: -1 },
+  { q: 1, r: -1 },
+  { q: 2, r: -1 },
+  { q: -2, r: 0 },
+  { q: -1, r: 0 },
+  { q: 0, r: 0 },
+  { q: 1, r: 0 },
+  { q: 2, r: 0 },
+  { q: -2, r: 1 },
+  { q: -1, r: 1 },
+  { q: 0, r: 1 },
+  { q: 1, r: 1 },
+  { q: -2, r: 2 },
+  { q: -1, r: 2 },
+  { q: 0, r: 2 },
+];
+
 export const AllTerrainTypes: Story = {
   args: {
-    radius: 4,
+    radius: 2,
     tokens: [],
     selectedHex: null,
-    hexTerrain: Object.values(TerrainType).map((type, index) => {
-      const angle = (index / Object.values(TerrainType).length) * 2 * Math.PI;
-      const radius = 2;
-      const q = Math.round(radius * Math.cos(angle));
-      const r = Math.round(radius * Math.sin(angle));
-      return {
-        coordinate: { q, r },
-        elevation: 0,
-        features: [{ type, level: type === TerrainType.Water ? 2 : 1 }],
-      };
-    }),
+    hexTerrain: Object.values(TerrainType).map((type, index) => ({
+      coordinate: allTerrainTypeCoordinates[index],
+      elevation: (index % 7) - 3,
+      features: [
+        {
+          type,
+          level: type === TerrainType.Clear ? 0 : 1,
+        },
+      ],
+    })),
     showCoordinates: true,
   },
 };

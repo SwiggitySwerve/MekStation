@@ -65,6 +65,9 @@ export interface UnitTokenForTypeProps {
   events?: readonly IGameEvent[];
   /** Active movement animation for this unit, supplied by HexMapDisplay. */
   movementAnimation?: TacticalAnimation;
+  /** Render an always-visible halo for selected units in the isometric view. */
+  isOcclusionHighlighted?: boolean;
+  isometricOcclusionReason?: string;
   /**
    * All tokens on the map — used to locate the host mech when BA is mounted.
    * Only the token whose `unitId === baToken.mountedOn` is consulted.
@@ -92,6 +95,8 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   events,
   movementAnimation,
   allTokens,
+  isOcclusionHighlighted = false,
+  isometricOcclusionReason,
 }: UnitTokenForTypeProps): React.ReactElement | null {
   const eventState = useMemo(
     () => projectEvents(token.unitId, events),
@@ -215,6 +220,18 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
       : token.fogStatus === 'lastKnown'
         ? 0.62
         : 1;
+  const isometricVisibilityLabel = isOcclusionHighlighted
+    ? (isometricOcclusionReason ?? 'Isometric visibility highlighted')
+    : undefined;
+  const tokenAriaLabel = [
+    `Unit ${renderToken.name}`,
+    `id ${renderToken.unitId}`,
+    `side ${renderToken.side}`,
+    isSpotter ? 'indirect-fire spotter' : null,
+    isometricVisibilityLabel,
+  ]
+    .filter((part): part is string => Boolean(part))
+    .join('; ');
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -231,6 +248,9 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     'data-animation-id': movementAnimationId,
     'data-fog-status': token.fogStatus,
     'data-spotter': isSpotter ? 'true' : undefined,
+    'data-visibility-boost': isOcclusionHighlighted ? 'true' : undefined,
+    'data-isometric-occlusion-reason': isometricOcclusionReason,
+    'aria-label': tokenAriaLabel,
   };
 
   const jumpArc = renderJumpArc(token.unitId, movementAnimation, tween);
@@ -238,12 +258,56 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     <>
       {jumpArc}
       <g {...wrapperProps}>
+        <title>{tokenAriaLabel}</title>
         <TokenVisualEffects
           token={token}
           events={events}
           thermalVisualState={thermalVisualState}
         >
           <>
+            {isOcclusionHighlighted && (
+              <circle
+                cx={0}
+                cy={0}
+                r={30}
+                fill="#f8fafc"
+                fillOpacity={0.18}
+                stroke="#38bdf8"
+                strokeWidth={3}
+                strokeDasharray="5 3"
+                pointerEvents="none"
+                data-testid={`isometric-visibility-halo-${token.unitId}`}
+              />
+            )}
+            {isometricOcclusionReason && (
+              <g
+                pointerEvents="none"
+                data-testid={`isometric-visibility-reason-${token.unitId}`}
+                data-isometric-occlusion-reason={isometricOcclusionReason}
+              >
+                <rect
+                  x={-18}
+                  y={-43}
+                  width={36}
+                  height={14}
+                  rx={3}
+                  fill="#0f172a"
+                  fillOpacity={0.9}
+                  stroke="#38bdf8"
+                  strokeWidth={1}
+                />
+                <text
+                  x={0}
+                  y={-33}
+                  textAnchor="middle"
+                  fontSize={8}
+                  fontWeight="bold"
+                  fill="#f8fafc"
+                >
+                  ELEV
+                </text>
+              </g>
+            )}
             {isSpotter && (
               <circle
                 cx={0}
