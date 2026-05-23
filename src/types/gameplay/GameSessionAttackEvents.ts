@@ -551,6 +551,8 @@ export interface IPhysicalAttackResolvedPayload {
    * when the destination is legal.
    */
   readonly displacements?: readonly IPhysicalDisplacement[];
+  readonly automaticHit?: boolean;
+  readonly automaticHitReason?: string;
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): consumed d6s for
    * the to-hit + hit-location rolls (location omitted on miss). OPTIONAL.

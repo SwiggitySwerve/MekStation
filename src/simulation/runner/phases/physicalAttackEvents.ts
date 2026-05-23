@@ -84,6 +84,8 @@ export function emitPhysicalAttackResolvedEvent(options: {
           : result.restrictionReasonCode,
         roll: result.roll,
         displacements: displacements.length > 0 ? displacements : undefined,
+        automaticHit: result.automaticHit,
+        automaticHitReason: result.automaticHitReason,
       },
       attackerId,
     ),

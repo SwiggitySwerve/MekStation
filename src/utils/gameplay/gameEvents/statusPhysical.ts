@@ -65,6 +65,8 @@ export function createPhysicalAttackResolvedEvent(
   location?: string,
   clusters?: IPhysicalAttackResolvedPayload['clusters'],
   displacements?: IPhysicalAttackResolvedPayload['displacements'],
+  automaticHit?: boolean,
+  automaticHitReason?: string,
 ): IGameEvent {
   const payload: IPhysicalAttackResolvedPayload = {
     attackerId,
@@ -77,6 +79,8 @@ export function createPhysicalAttackResolvedEvent(
     location,
     clusters,
     displacements,
+    automaticHit,
+    automaticHitReason,
   };
   return {
     ...createEventBase(

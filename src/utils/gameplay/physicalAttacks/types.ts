@@ -45,6 +45,13 @@ export function isSupportedPhysicalAttackType(
   );
 }
 
+export function physicalTargetObjectTypeForUnitType(
+  unitType: string | undefined,
+): PhysicalTargetObjectType | undefined {
+  const canonical = unitType?.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return canonical === 'gunemplacement' ? 'gunEmplacement' : undefined;
+}
+
 /**
  * Per `implement-physical-attack-phase` task 2.1: canonical declaration
  * shape emitted by players (human UI + bot). `limb` is required for
@@ -416,6 +423,8 @@ export interface IPhysicalToHitResult {
    * reason matching the `IPhysicalAttackRestriction.reasonCode`.
    */
   readonly restrictionReasonCode?: PhysicalAttackInvalidReason;
+  readonly automaticHit?: boolean;
+  readonly automaticHitReason?: string;
 }
 
 export interface IPhysicalModifier {
@@ -449,6 +458,8 @@ export interface IPhysicalAttackResult {
   readonly hitLocation?: CombatLocation;
   readonly restrictionReasonCode?: PhysicalAttackInvalidReason;
   readonly targetDisplaced: boolean;
+  readonly automaticHit?: boolean;
+  readonly automaticHitReason?: string;
 }
 
 export interface IPhysicalAttackRestriction {

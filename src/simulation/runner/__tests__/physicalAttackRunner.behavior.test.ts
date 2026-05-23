@@ -307,6 +307,26 @@ function expectPendingPSR(
 }
 
 describe('runPhysicalAttackPhase behavior validation lane', () => {
+  it('resolves source-backed gun-emplacement physical targets as automatic hits', () => {
+    const { events } = runPhase('kick', {
+      target: { unitType: 'Gun Emplacement' },
+    });
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: 0,
+      hit: true,
+      damage: 13,
+      automaticHit: true,
+      automaticHitReason: 'Targeting adjacent gun emplacement.',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(1);
+  });
+
   it('honors an injected push declaration and queues the pushed PSR', () => {
     const { events, result } = runPhase('push', {
       attacker: { facing: Facing.Southeast },

@@ -164,7 +164,7 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   ),
   [GameEventType.PhysicalAttackResolved]: integrated(
     GameEventType.PhysicalAttackResolved,
-    'runner and interactive physical phases emit PhysicalAttackResolved for hit, miss, and rejection outcomes',
+    'runner and interactive physical phases emit PhysicalAttackResolved for hit, miss, rejection, and automatic-hit outcomes',
   ),
   [GameEventType.ShutdownCheck]: integrated(
     GameEventType.ShutdownCheck,

@@ -68,6 +68,7 @@ import {
   IPhysicalAttackRestriction,
   isTargetDirectlyAhead,
   isValidDisplacement,
+  physicalTargetObjectTypeForUnitType,
   PhysicalAttackType,
   isSupportedPhysicalAttackType,
   resolveDfaMissFallDamage,
@@ -446,6 +447,9 @@ export function declarePhysicalAttack(
     targetMovementComplete: context.targetMovementComplete,
     targetImmobile: targetState?.shutdown,
     targetExists: targetState !== undefined,
+    targetObjectType: physicalTargetObjectTypeForUnitType(
+      targetState?.unitType,
+    ),
     targetDestroyed: targetState?.destroyed,
     targetRetreated: targetState?.hasRetreated,
     targetEjected: targetState?.hasEjected,
@@ -687,6 +691,9 @@ export function resolveAllPhysicalAttacks(
       targetMovementComplete: context.targetMovementComplete,
       targetImmobile: targetState.shutdown,
       targetExists: true,
+      targetObjectType: physicalTargetObjectTypeForUnitType(
+        targetState.unitType,
+      ),
       targetDestroyed: targetState.destroyed,
       targetRetreated: targetState.hasRetreated,
       targetEjected: targetState.hasEjected,
@@ -784,6 +791,8 @@ export function resolveAllPhysicalAttacks(
         result.hit ? result.hitLocation : result.restrictionReasonCode,
         undefined,
         displacements.length > 0 ? displacements : undefined,
+        result.automaticHit,
+        result.automaticHitReason,
       ),
     );
 

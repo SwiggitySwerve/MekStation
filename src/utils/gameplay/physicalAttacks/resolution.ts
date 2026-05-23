@@ -43,10 +43,11 @@ export function resolvePhysicalAttack(
     };
   }
 
-  const die1 = diceRoller();
-  const die2 = diceRoller();
-  const roll = die1 + die2;
-  const hit = roll >= toHitResult.finalToHit;
+  const automaticHit = toHitResult.automaticHit === true;
+  const die1 = automaticHit ? 0 : diceRoller();
+  const die2 = automaticHit ? 0 : diceRoller();
+  const roll = automaticHit ? 0 : die1 + die2;
+  const hit = automaticHit || roll >= toHitResult.finalToHit;
 
   if (hit) {
     const damageResult = calculatePhysicalDamage(input);
@@ -68,6 +69,8 @@ export function resolvePhysicalAttack(
       attackerPSRModifier: damageResult.attackerPSRModifier,
       hitLocation,
       targetDisplaced: damageResult.targetDisplaced,
+      automaticHit: toHitResult.automaticHit,
+      automaticHitReason: toHitResult.automaticHitReason,
     };
   }
 

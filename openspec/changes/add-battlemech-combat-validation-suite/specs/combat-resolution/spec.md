@@ -139,7 +139,15 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **WHEN** the action-specific legality gate runs
 - **THEN** the attack SHALL be rejected with `InvalidPhysicalTarget`
 - **AND** the catalog SHALL record that MegaMek source order returns `Invalid Target` for non-entity targets before the later adjacent-building branch
-- **AND** gun-emplacement automatic-success semantics SHALL remain an explicit gap until the physical outcome model can represent automatic success
+- **AND** non-unit building and fuel-tank physical target resolution SHALL remain an explicit gap
+
+#### Scenario: Gun-emplacement physical targets resolve as automatic hits
+
+- **GIVEN** a punch, kick, death from above, or runtime melee physical attack targets an adjacent gun emplacement
+- **WHEN** the physical to-hit and resolution helpers run
+- **THEN** the attack SHALL resolve as an automatic hit without consuming to-hit dice
+- **AND** the resolved event SHALL carry automatic-hit metadata
+- **AND** BattleMech charge against gun emplacements SHALL remain rejected as a non-Mek target by source order
 
 #### Scenario: Charge rejects invalid standing-Mek target gates
 

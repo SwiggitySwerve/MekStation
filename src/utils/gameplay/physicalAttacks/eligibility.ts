@@ -44,6 +44,7 @@ import {
   PhysicalAttackInvalidReason,
   PhysicalAttackLimb,
   PhysicalAttackType,
+  physicalTargetObjectTypeForUnitType,
 } from './types';
 
 const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPE_SET = new Set<string>(
@@ -270,6 +271,7 @@ export function getEligiblePhysicalAttacks(
     targetMovementComplete: context.targetMovementComplete,
     targetImmobile: target.shutdown,
     targetExists: true,
+    targetObjectType: physicalTargetObjectTypeForUnitType(target.unitType),
     targetDestroyed: target.destroyed,
     targetRetreated: target.hasRetreated,
     targetEjected: target.hasEjected,

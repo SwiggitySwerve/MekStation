@@ -33,6 +33,34 @@ import {
   IPhysicalToHitResult,
 } from './types';
 
+const AUTOMATIC_SUCCESS_TO_HIT = 0;
+const GUN_EMPLACEMENT_AUTOMATIC_HIT_REASON =
+  'Targeting adjacent gun emplacement.';
+
+function gunEmplacementAutomaticSuccess(
+  input: IPhysicalAttackInput,
+): IPhysicalToHitResult | undefined {
+  if (input.targetObjectType !== 'gunEmplacement') return undefined;
+  if (input.attackType === 'push' || input.attackType === 'charge') {
+    return undefined;
+  }
+
+  return {
+    baseToHit: input.pilotingSkill,
+    finalToHit: AUTOMATIC_SUCCESS_TO_HIT,
+    modifiers: [
+      {
+        name: 'Targeting adjacent gun emplacement',
+        value: 0,
+        source: 'target-object',
+      },
+    ],
+    allowed: true,
+    automaticHit: true,
+    automaticHitReason: GUN_EMPLACEMENT_AUTOMATIC_HIT_REASON,
+  };
+}
+
 /**
  * Per `implement-physical-attack-phase` tasks 4.3 / 5.3: append the target
  * movement modifier (TMM) as a labelled modifier. Callers derive TMM from
@@ -134,6 +162,9 @@ export function calculatePunchToHit(
     };
   }
 
+  const automaticSuccess = gunEmplacementAutomaticSuccess(input);
+  if (automaticSuccess) return automaticSuccess;
+
   const modifiers: IPhysicalModifier[] = [];
   const actuators = input.componentDamage.actuators;
 
@@ -196,6 +227,14 @@ export function calculateKickToHit(
       allowed: false,
       restrictionReason: restriction.reason,
       restrictionReasonCode: restriction.reasonCode,
+    };
+  }
+
+  const automaticSuccess = gunEmplacementAutomaticSuccess(input);
+  if (automaticSuccess) {
+    return {
+      ...automaticSuccess,
+      baseToHit: input.pilotingSkill - KICK_TO_HIT_BONUS,
     };
   }
 
@@ -301,6 +340,9 @@ export function calculateDFAToHit(
     };
   }
 
+  const automaticSuccess = gunEmplacementAutomaticSuccess(input);
+  if (automaticSuccess) return automaticSuccess;
+
   const modifiers: IPhysicalModifier[] = [];
 
   appendDfaTargetClassModifier(modifiers, input.targetUnitType);
@@ -392,6 +434,9 @@ export function calculateMeleeWeaponToHit(
       weaponMod = WRECKING_BALL_TO_HIT_MODIFIER;
       break;
   }
+
+  const automaticSuccess = gunEmplacementAutomaticSuccess(input);
+  if (automaticSuccess) return automaticSuccess;
 
   const modifiers: IPhysicalModifier[] = [
     {

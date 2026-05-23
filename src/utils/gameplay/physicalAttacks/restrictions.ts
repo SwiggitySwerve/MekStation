@@ -568,6 +568,9 @@ export function canCharge(
     return blocked('Charge requires a run this turn', 'NoRunThisTurn');
   }
   if (legacyOrMekUnitType(input.attackerUnitType)) {
+    if (input.targetObjectType === 'gunEmplacement') {
+      return blocked('Charge target must be a Mek', 'TargetNotMek');
+    }
     if (explicitNonMekUnitType(input.targetUnitType)) {
       return blocked('Charge target must be a Mek', 'TargetNotMek');
     }
@@ -670,6 +673,14 @@ export function canPush(
   }
 
   if (explicitNonMekUnitType(input.targetUnitType)) {
+    return {
+      allowed: false,
+      reason: 'Push target must be a Mek',
+      reasonCode: 'TargetNotMek',
+    };
+  }
+
+  if (input.targetObjectType === 'gunEmplacement') {
     return {
       allowed: false,
       reason: 'Push target must be a Mek',

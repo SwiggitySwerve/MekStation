@@ -70,6 +70,8 @@ const CHARGE_ACTION_LINES =
   'MegaMek ChargeAttackAction.toHit, ChargeAttackAction.java:116-274';
 const DFA_ACTION_LINES =
   'MegaMek DfaAttackAction movement validation and toHit, DfaAttackAction.java:140-329';
+const GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES =
+  'MegaMek PunchAttackAction, KickAttackAction, ClubAttackAction, and DfaAttackAction return AUTOMATIC_SUCCESS for adjacent GunEmplacement targets after impossibility checks';
 
 const PHYSICAL_ATTACK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek PhysicalAttackAction.toHitIsImpossible applies shared physical attack impossibility gates',
@@ -107,6 +109,30 @@ const DFA_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'L140-L329',
 );
 
+const PUNCH_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek PunchAttackAction returns AUTOMATIC_SUCCESS when targeting an adjacent GunEmplacement',
+  'common/actions/PunchAttackAction.java',
+  'L276-L281',
+);
+
+const KICK_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek KickAttackAction returns AUTOMATIC_SUCCESS when targeting an adjacent GunEmplacement',
+  'common/actions/KickAttackAction.java',
+  'L273-L278',
+);
+
+const CLUB_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek ClubAttackAction returns AUTOMATIC_SUCCESS when targeting an adjacent GunEmplacement',
+  'common/actions/ClubAttackAction.java',
+  'L503-L508',
+);
+
+const DFA_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek DfaAttackAction returns AUTOMATIC_SUCCESS when targeting an adjacent GunEmplacement',
+  'common/actions/DfaAttackAction.java',
+  'L318-L323',
+);
+
 function sourceRefsForAuthority(
   authority: string,
 ): readonly ICombatFeatureSourceReference[] {
@@ -119,6 +145,13 @@ function sourceRefsForAuthority(
       return [CHARGE_ACTION_SOURCE_REF];
     case DFA_ACTION_LINES:
       return [DFA_ACTION_SOURCE_REF];
+    case GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES:
+      return [
+        PUNCH_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF,
+        KICK_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF,
+        CLUB_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF,
+        DFA_GUN_EMPLACEMENT_AUTO_HIT_SOURCE_REF,
+      ];
     case PHYSICAL_ATTACK_ACTION_LINES:
     default:
       return [PHYSICAL_ATTACK_ACTION_SOURCE_REF];
@@ -210,6 +243,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared restriction helpers consume targetObjectType and reject woods-clearing, building-ignition, and hex-ignition physical targets as InvalidPhysicalTarget',
     'Runtime physical declarations and runner selection still target unit ids only, so non-unit hex target commands remain out of scope',
     PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.gun-emplacement-automatic-hit': integrated(
+    'shared.gun-emplacement-automatic-hit',
+    'shared',
+    'calculatePhysicalToHit marks explicit or hydrated gun-emplacement targets as automatic success for punch, kick, DFA, and supported club/melee attacks; resolvePhysicalAttack skips to-hit dice and PhysicalAttackResolved carries automaticHit metadata',
+    GUN_EMPLACEMENT_AUTOMATIC_HIT_LINES,
   ),
   'push.destination-open': integrated(
     'push.destination-open',
@@ -349,7 +388,7 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'charge.building-auto-hit',
     'charge',
     'canCharge rejects explicit building and fuel-tank targetObjectType values as InvalidPhysicalTarget because MegaMek ChargeAttackAction returns Invalid Target for non-entity targets before its later adjacent-building branch',
-    'Gun-emplacement automatic-success semantics and runtime non-unit physical target declarations remain unsupported',
+    'Runtime non-unit physical target declarations remain unsupported; BattleMech charge against gun emplacements remains rejected as a non-Mek target by source order',
     CHARGE_ACTION_LINES,
   ),
   'dfa.requires-jump': integrated(
@@ -406,7 +445,7 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'dfa.building-auto-hit',
     'dfa',
     'canDFA rejects explicit building and fuel-tank targetObjectType values as InvalidPhysicalTarget because MegaMek DfaAttackAction returns Invalid Target for non-entity targets before its later adjacent-building branch',
-    'Gun-emplacement automatic-success semantics and runtime non-unit physical target declarations remain unsupported',
+    'Runtime non-unit building/fuel-tank physical target declarations remain unsupported; gun-emplacement automatic success is covered by shared.gun-emplacement-automatic-hit',
     DFA_ACTION_LINES,
   ),
 } satisfies Record<string, IPhysicalLegalityGateSupportEntry>;

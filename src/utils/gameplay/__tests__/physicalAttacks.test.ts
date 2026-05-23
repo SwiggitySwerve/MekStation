@@ -1909,6 +1909,66 @@ describe('physicalAttacks', () => {
       }
     });
 
+    it('treats explicit gun emplacements as automatic-success physical targets where source-backed', () => {
+      for (const attackType of [
+        'punch',
+        'kick',
+        'dfa',
+        'hatchet',
+        'sword',
+        'mace',
+        'lance',
+        'retractable-blade',
+        'flail',
+        'wrecking-ball',
+      ] as const) {
+        const result = calculatePhysicalToHit(
+          makeInput({
+            attackType,
+            attackerJumpedThisTurn: attackType === 'dfa' ? true : undefined,
+            targetObjectType: 'gunEmplacement',
+            targetDistance: 1,
+          }),
+        );
+
+        expect(result).toMatchObject({
+          allowed: true,
+          finalToHit: 0,
+          automaticHit: true,
+          automaticHitReason: 'Targeting adjacent gun emplacement.',
+        });
+      }
+    });
+
+    it('keeps gun emplacements out of BattleMech push and charge target classes', () => {
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetObjectType: 'gunEmplacement',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotMek',
+      });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetObjectType: 'gunEmplacement',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetNotMek',
+      });
+    });
+
     it('disallows airborne physical targets across supported physical attack families', () => {
       expect(
         canPunch(
@@ -3231,6 +3291,28 @@ describe('physicalAttacks', () => {
       expect(result.roll).toBe(7);
       expect(result.targetDamage).toBe(8);
       expect(result.hitLocation).toBe('center_torso');
+    });
+
+    it('resolves gun-emplacement automatic success without rolling to-hit dice', () => {
+      const roller = makeDiceSequence([6]);
+      const result = resolvePhysicalAttack(
+        makeInput({
+          pilotingSkill: 5,
+          targetObjectType: 'gunEmplacement',
+          targetDistance: 1,
+        }),
+        roller,
+      );
+
+      expect(result).toMatchObject({
+        hit: true,
+        roll: 0,
+        toHitNumber: 0,
+        targetDamage: 8,
+        hitLocation: 'head',
+        automaticHit: true,
+        automaticHitReason: 'Targeting adjacent gun emplacement.',
+      });
     });
 
     it('should resolve a missing punch', () => {
