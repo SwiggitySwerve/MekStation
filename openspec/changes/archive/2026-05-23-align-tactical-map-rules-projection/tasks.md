@@ -70,4 +70,4 @@
 - [x] Run `npm.cmd run typecheck`.
 - [x] Run `npx.cmd oxlint`.
 - [x] Run visual/browser verification for top-down and isometric mode before archive.
-- [ ] Archive the change only after movement, combat, terrain/elevation, fog, and isometric acceptance cases are implemented and passing.
+- [x] Archive the change only after movement, combat, terrain/elevation, fog, and isometric acceptance cases are implemented and passing.
