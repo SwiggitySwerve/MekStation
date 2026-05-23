@@ -7,7 +7,10 @@ import {
 } from '@/types/gameplay';
 import { resolveDamage } from '@/utils/gameplay/damage';
 import { isHeadHit } from '@/utils/gameplay/hitLocation';
-import { determinePhysicalHitLocation } from '@/utils/gameplay/physicalAttacks';
+import {
+  determinePhysicalHitLocation,
+  type IPhysicalDamageCluster,
+} from '@/utils/gameplay/physicalAttacks';
 
 import { HEAD_HIT_DAMAGE_CAP } from '../SimulationRunnerConstants';
 import {
@@ -133,6 +136,33 @@ export function applyPhysicalDamageClusters(options: {
       unitId: options.unitId,
       hitLocation,
       damage: options.clusters[i],
+      d6Roller: options.d6Roller,
+      ...(options.sourceUnitId !== undefined
+        ? { sourceUnitId: options.sourceUnitId }
+        : {}),
+    });
+  }
+  return currentState;
+}
+
+export function applyPhysicalDamageClusterLocations(options: {
+  state: IGameState;
+  events: IGameEvent[];
+  gameId: string;
+  unitId: string;
+  clusters: readonly IPhysicalDamageCluster[];
+  d6Roller: () => number;
+  sourceUnitId?: string;
+}): IGameState {
+  let currentState = options.state;
+  for (const cluster of options.clusters) {
+    currentState = applyPhysicalDamage({
+      state: currentState,
+      events: options.events,
+      gameId: options.gameId,
+      unitId: options.unitId,
+      hitLocation: cluster.location,
+      damage: cluster.damage,
       d6Roller: options.d6Roller,
       ...(options.sourceUnitId !== undefined
         ? { sourceUnitId: options.sourceUnitId }

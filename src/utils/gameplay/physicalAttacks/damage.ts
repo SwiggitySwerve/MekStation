@@ -1,4 +1,10 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import { CombatLocation, Facing, FiringArc } from '@/types/gameplay';
+import { calculateFallDamage } from '@/utils/gameplay/fallMechanics';
+import {
+  determineHitLocation,
+  type D6Roller,
+} from '@/utils/gameplay/hitLocation';
 import { getBattleFistDamageBonus } from '@/utils/gameplay/quirkModifiers';
 import { getMeleeMasterDamageBonus } from '@/utils/gameplay/spaModifiers';
 
@@ -7,6 +13,8 @@ import {
   DFA_ATTACKER_DAMAGE_DIVISOR,
   DFA_DAMAGE_MULTIPLIER,
   DFA_HIT_ATTACKER_PSR_MODIFIER,
+  DFA_MISS_FALL_FACING_OFFSET,
+  DFA_MISS_FALL_HEIGHT,
   DFA_MISS_PSR_MODIFIER,
   DFA_TARGET_DAMAGE_DIVISOR,
   HATCHET_DAMAGE_DIVISOR,
@@ -25,6 +33,19 @@ import {
   IPhysicalDamageResult,
   PhysicalAttackType,
 } from './types';
+
+export interface IPhysicalDamageCluster {
+  readonly damage: number;
+  readonly location: CombatLocation;
+}
+
+export interface IDfaMissFallDamageResult {
+  readonly fallDamage: number;
+  readonly fallHeight: number;
+  readonly newFacing: Facing;
+  readonly pilotDamage: number;
+  readonly clusters: readonly IPhysicalDamageCluster[];
+}
 
 export function getEffectiveWeight(
   tonnage: number,
@@ -144,6 +165,30 @@ export function calculateDFADamageToAttacker(
     input.attackerTonnage / DFA_ATTACKER_DAMAGE_DIVISOR,
   );
   return Math.ceil(totalDamage / 2);
+}
+
+export function resolveDfaMissFallDamage(
+  attackerTonnage: number,
+  currentFacing: Facing,
+  diceRoller: D6Roller,
+): IDfaMissFallDamageResult {
+  const fallDamage = calculateFallDamage(attackerTonnage, DFA_MISS_FALL_HEIGHT);
+  const clusters = splitPhysicalDamageIntoClusters(fallDamage).map(
+    (damage): IPhysicalDamageCluster => ({
+      damage,
+      location: determineHitLocation(FiringArc.Rear, diceRoller).location,
+    }),
+  );
+
+  return {
+    fallDamage,
+    fallHeight: DFA_MISS_FALL_HEIGHT,
+    newFacing: ((currentFacing + DFA_MISS_FALL_FACING_OFFSET) % 6) as Facing,
+    // MegaMek rolls separately to avoid pilot damage after doEntityFall.
+    // MekStation does not yet model that pilot-damage avoidance check here.
+    pilotDamage: 0,
+    clusters,
+  };
 }
 
 export function calculateHatchetDamage(input: IPhysicalAttackInput): number {

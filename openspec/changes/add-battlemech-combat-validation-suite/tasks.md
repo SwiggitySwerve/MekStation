@@ -61,6 +61,7 @@
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
 - [x] 3.5.3 Integrate source-backed DFA impossible-displacement destruction through helper, event-sourced resolution, runner resolution, and destruction-cause catalog coverage.
 - [x] 3.5.4 Integrate source-backed successful-DFA attacker PSR +4 through helper, event-sourced resolution, runner resolution, PSR catalog, and audit coverage.
+- [x] 3.5.5 Integrate source-backed missed-DFA immediate fall damage/prone timing through helper, event-sourced resolution, runner resolution, event catalog, and audit coverage.
 
 ## 4. Source-truth cross-checks
 

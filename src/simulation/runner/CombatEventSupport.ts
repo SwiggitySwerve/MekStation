@@ -152,7 +152,7 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   ),
   [GameEventType.UnitFell]: integrated(
     GameEventType.UnitFell,
-    'failed PSRs emit UnitFell with fall damage, facing, and pilot damage context',
+    'failed PSRs and source-backed missed-DFA fall resolution emit UnitFell with fall damage, facing, and pilot damage context',
   ),
   [GameEventType.UnitStood]: integrated(
     GameEventType.UnitStood,

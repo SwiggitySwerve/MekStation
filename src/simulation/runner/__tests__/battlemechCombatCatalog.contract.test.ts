@@ -1628,7 +1628,6 @@ describe('BattleMech combat feature-gap tracking', () => {
         PSRTrigger.Pushed,
         PSRTrigger.KickMiss,
         PSRTrigger.ChargeMiss,
-        PSRTrigger.DFAMiss,
         PSRTrigger.Shutdown,
         PSRTrigger.StandingUp,
         PSRTrigger.EnteringRubble,
@@ -1645,6 +1644,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       supportIdsByLevel(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual(
       [
+        PSRTrigger.DFAMiss,
         PSRTrigger.BuildingCollapse,
         PSRTrigger.MASCFailure,
         PSRTrigger.SuperchargerFailure,
@@ -1656,6 +1656,13 @@ describe('BattleMech combat feature-gap tracking', () => {
       ),
     ).toContain(
       'MegaMek resolveDfaAttack queues attacker PilotingRollData +4 for "executed death from above" after a successful DFA.',
+    );
+    expect(
+      RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.DFAMiss].sourceRefs?.map(
+        (sourceRef) => sourceRef.citation,
+      ),
+    ).toContain(
+      'MegaMek resolveDfaAttack displaces the target on a missed DFA, then immediately calls doEntityFall on the attacker with fall height 2 and facing 3.',
     );
   });
 

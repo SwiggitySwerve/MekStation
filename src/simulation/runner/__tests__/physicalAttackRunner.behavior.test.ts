@@ -17,6 +17,7 @@ import {
   IMovementCapability,
   IPhysicalAttackResolvedPayload,
   IUnitDestroyedPayload,
+  IUnitFellPayload,
   IUnitGameState,
   LockState,
   MovementType,
@@ -1524,9 +1525,28 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       },
     ]);
     expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
-    expectPendingPSR(result, 'player-1', PSRTrigger.DFAMiss);
+    const attackerFallDamage = damageEventsFor(events, 'player-1');
+    const fell = events.find((event) => event.type === GameEventType.UnitFell);
+    const fallPayload = fell?.payload as IUnitFellPayload | undefined;
+    expect(
+      attackerFallDamage.reduce((sum, event) => sum + event.damage, 0),
+    ).toBe(21);
+    expect(fallPayload).toMatchObject({
+      unitId: 'player-1',
+      fallDamage: 21,
+      newFacing: Facing.North,
+      pilotDamage: 0,
+      location: 'dfa_miss',
+      reason: 'Missed DFA',
+      reasonCode: PSRTrigger.DFAMiss,
+    });
+    expect(result.units['player-1'].pendingPSRs).toEqual([]);
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 1 });
-    expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['player-1']).toMatchObject({
+      position: { q: 1, r: 0 },
+      prone: true,
+      facing: Facing.North,
+    });
   });
 
   it('destroys the DFA target when hit displacement is impossible', () => {

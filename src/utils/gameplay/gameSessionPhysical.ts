@@ -33,6 +33,7 @@ import {
   createPhysicalAttackResolvedEvent,
   createPSRTriggeredEvent,
   createUnitDestroyedEvent,
+  createUnitFellEvent,
 } from './gameEvents';
 import {
   buildDefaultComponentDamageState,
@@ -63,6 +64,7 @@ import {
   isValidDisplacement,
   PhysicalAttackType,
   isSupportedPhysicalAttackType,
+  resolveDfaMissFallDamage,
   resolvePhysicalAttack,
   splitPhysicalDamageIntoClusters,
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
@@ -152,6 +154,83 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
       },
     ],
   };
+}
+
+function dfaMissDropsAttacker(
+  displacements: readonly IPhysicalDisplacement[],
+  attackerId: string,
+): boolean {
+  return displacements.some(
+    (displacement) =>
+      displacement.unitId === attackerId && displacement.reason === 'dfa_miss',
+  );
+}
+
+function appendDfaMissFallDamage(
+  session: IGameSession,
+  options: {
+    readonly turn: number;
+    readonly attackerId: string;
+    readonly attackerTonnage: number;
+    readonly attackerFacing: IGameSession['currentState']['units'][string]['facing'];
+    readonly d6Roller: D6Roller;
+  },
+): IGameSession {
+  const { attackerFacing, attackerId, attackerTonnage, d6Roller, turn } =
+    options;
+  const fall = resolveDfaMissFallDamage(
+    attackerTonnage,
+    attackerFacing,
+    d6Roller,
+  );
+
+  let currentSession = session;
+  for (const cluster of fall.clusters) {
+    const attacker = currentSession.currentState.units[attackerId];
+    if (!attacker || attacker.destroyed) break;
+
+    const damageState = buildDamageStateFromUnit(attacker);
+    const damageResult = resolveDamagePipeline(
+      damageState,
+      cluster.location,
+      cluster.damage,
+    );
+    for (const locationDamage of damageResult.result.locationDamages) {
+      const damageSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createDamageAppliedEvent(
+          currentSession.id,
+          damageSeq,
+          turn,
+          attackerId,
+          locationDamage.location,
+          locationDamage.damage,
+          locationDamage.armorRemaining,
+          locationDamage.structureRemaining,
+          locationDamage.destroyed,
+        ),
+      );
+    }
+  }
+
+  const fallSeq = currentSession.events.length;
+  return appendEvent(
+    currentSession,
+    createUnitFellEvent(
+      currentSession.id,
+      fallSeq,
+      turn,
+      GamePhase.PhysicalAttack,
+      attackerId,
+      fall.fallDamage,
+      fall.newFacing,
+      fall.pilotDamage,
+      'dfa_miss',
+      'Missed DFA',
+      PSRTrigger.DFAMiss,
+    ),
+  );
 }
 
 /**
@@ -527,6 +606,11 @@ export function resolveAllPhysicalAttacks(
     const displacements = displacementOutcome.displacements;
     const impossibleDisplacementDestroyedUnitId =
       displacementOutcome.impossibleDisplacementDestroyedUnitId;
+    const dfaMissFallApplies =
+      !result.hit &&
+      payload.attackType === 'dfa' &&
+      impossibleDisplacementDestroyedUnitId !== payload.attackerId &&
+      dfaMissDropsAttacker(displacements, payload.attackerId);
 
     const resolvedSeq = currentSession.events.length;
     currentSession = appendEvent(
@@ -767,7 +851,8 @@ export function resolveAllPhysicalAttacks(
     if (
       !result.hit &&
       result.attackerPSR &&
-      impossibleDisplacementDestroyedUnitId !== payload.attackerId
+      impossibleDisplacementDestroyedUnitId !== payload.attackerId &&
+      !dfaMissFallApplies
     ) {
       const triggerSource =
         payload.attackType === 'kick'
@@ -801,6 +886,16 @@ export function resolveAllPhysicalAttacks(
           missReasonCode,
         ),
       );
+    }
+
+    if (dfaMissFallApplies) {
+      currentSession = appendDfaMissFallDamage(currentSession, {
+        turn,
+        attackerId: payload.attackerId,
+        attackerTonnage: context.attackerTonnage,
+        attackerFacing: attackerState.facing,
+        d6Roller,
+      });
     }
 
     if (

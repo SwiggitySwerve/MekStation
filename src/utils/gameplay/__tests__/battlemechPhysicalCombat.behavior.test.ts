@@ -5,6 +5,7 @@ import {
   GamePhase,
   GameSide,
   type IComponentDamageState,
+  type IDamageAppliedPayload,
   type IGameSession,
   type IGameUnit,
   type IPhysicalAttackDeclaredPayload,
@@ -12,6 +13,7 @@ import {
   type IPhysicalAttackResolvedPayload,
   type IPSRTriggeredPayload,
   type IUnitDestroyedPayload,
+  type IUnitFellPayload,
   type IUnitGameState,
   LockState,
   MovementType,
@@ -50,6 +52,28 @@ const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
   weaponsDestroyed: [],
   heatSinksDestroyed: 0,
   jumpJetsDestroyed: 0,
+};
+
+const STANDARD_ARMOR = {
+  head: 9,
+  center_torso: 31,
+  left_torso: 22,
+  right_torso: 22,
+  left_arm: 17,
+  right_arm: 17,
+  left_leg: 21,
+  right_leg: 21,
+};
+
+const STANDARD_STRUCTURE = {
+  head: 3,
+  center_torso: 21,
+  left_torso: 14,
+  right_torso: 14,
+  left_arm: 11,
+  right_arm: 11,
+  left_leg: 14,
+  right_leg: 14,
 };
 
 function unitState(
@@ -2747,6 +2771,8 @@ describe('BattleMech physical combat behavior validation lane', () => {
     });
     const declared = declareAdjacentPhysicalAttack('dfa', context, {
       facing: Facing.South,
+      armor: STANDARD_ARMOR,
+      structure: STANDARD_STRUCTURE,
     });
 
     const resolved = resolveAllPhysicalAttacks(
@@ -2815,7 +2841,18 @@ describe('BattleMech physical combat behavior validation lane', () => {
     const event = resolved.events.find(
       (entry) => entry.type === GameEventType.PhysicalAttackResolved,
     );
+    const fell = resolved.events.find(
+      (entry) => entry.type === GameEventType.UnitFell,
+    );
+    const psrEvents = resolved.events.filter(
+      (entry) => entry.type === GameEventType.PSRTriggered,
+    );
+    const fallDamage = resolved.events
+      .filter((entry) => entry.type === GameEventType.DamageApplied)
+      .map((entry) => entry.payload as IDamageAppliedPayload)
+      .filter((entry) => entry.unitId === 'attacker');
     const payload = event?.payload as IPhysicalAttackResolvedPayload;
+    const fallPayload = fell?.payload as IUnitFellPayload | undefined;
 
     expect(payload).toMatchObject({
       attackType: 'dfa',
@@ -2843,6 +2880,22 @@ describe('BattleMech physical combat behavior validation lane', () => {
       q: 1,
       r: 0,
     });
+    expect(fallDamage.reduce((sum, entry) => sum + entry.damage, 0)).toBe(24);
+    expect(fallPayload).toMatchObject({
+      unitId: 'attacker',
+      fallDamage: 24,
+      newFacing: Facing.North,
+      pilotDamage: 0,
+      location: 'dfa_miss',
+      reason: 'Missed DFA',
+      reasonCode: PSRTrigger.DFAMiss,
+    });
+    expect(resolved.currentState.units.attacker).toMatchObject({
+      prone: true,
+      facing: Facing.North,
+      pendingPSRs: [],
+    });
+    expect(psrEvents).toHaveLength(0);
   });
 
   it('emits event-sourced DFA target destruction on impossible hit displacement', () => {

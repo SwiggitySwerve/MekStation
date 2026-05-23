@@ -192,6 +192,13 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the attacker PSR SHALL use the MegaMek-backed +4 "executed death from above" modifier
 - **AND** event-sourced resolution and runner resolution SHALL both surface the same modifier while the target's hit-by-DFA PSR remains unmodified
 
+#### Scenario: Death from above miss immediately drops the attacker
+
+- **GIVEN** a death-from-above attack misses and the target has a legal displacement hex
+- **WHEN** the DFA miss displacement branch runs
+- **THEN** the target SHALL move to the preferred displacement hex and the attacker SHALL fall into the target's original hex
+- **AND** event-sourced resolution and runner resolution SHALL immediately apply fall damage, set the attacker prone with the source-backed rear fall facing, emit `UnitFell`, and avoid queuing the normal `DFAMiss` PSR for that grid-backed fall branch
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

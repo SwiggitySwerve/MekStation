@@ -1,9 +1,11 @@
 import {
+  GameEventType,
   GamePhase,
   IGameEvent,
   IGameState,
   IHexGrid,
   MovementType,
+  PSRTrigger,
 } from '@/types/gameplay';
 import { firedWeaponIdsFromMountedArm } from '@/utils/gameplay/gameSessionPhysicalHelpers';
 import { hexDistance } from '@/utils/gameplay/hexMath';
@@ -14,6 +16,7 @@ import {
   isTargetDirectlyAhead,
   isValidDisplacement,
   PhysicalAttackType,
+  resolveDfaMissFallDamage,
   resolvePhysicalAttack,
   splitPhysicalDamageIntoClusters,
 } from '@/utils/gameplay/physicalAttacks';
@@ -35,6 +38,7 @@ import {
 } from '../SimulationRunnerConstants';
 import { toAIUnitState } from '../SimulationRunnerSupport';
 import {
+  applyPhysicalDamageClusterLocations,
   applyDfaAttackerLegDamage,
   applyPhysicalDamageClusters,
 } from './physicalAttackDamage';
@@ -54,7 +58,42 @@ import {
   queuePendingPSR,
   targetPSRForAttack,
 } from './physicalAttackPsr';
-import { createD6Roller } from './utils';
+import { createD6Roller, createGameEvent } from './utils';
+
+function dfaMissDropsAttacker(
+  displacements: readonly {
+    readonly unitId: string;
+    readonly reason: string;
+  }[],
+  attackerId: string,
+): boolean {
+  return displacements.some(
+    (displacement) =>
+      displacement.unitId === attackerId && displacement.reason === 'dfa_miss',
+  );
+}
+
+function markUnitFallenAfterDfaMiss(
+  state: IGameState,
+  unitId: string,
+  newFacing: IGameState['units'][string]['facing'],
+): IGameState {
+  const unit = state.units[unitId];
+  if (!unit) return state;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [unitId]: {
+        ...unit,
+        prone: true,
+        facing: newFacing,
+        pendingPSRs: [],
+      },
+    },
+  };
+}
 
 export function runPhysicalAttackPhase(options: {
   state: IGameState;
@@ -279,6 +318,13 @@ export function runPhysicalAttackPhase(options: {
     const displacements = displacementOutcome.displacements;
     const impossibleDisplacementDestroyedUnitId =
       displacementOutcome.impossibleDisplacementDestroyedUnitId;
+    const dfaMissFall =
+      !result.hit &&
+      bestAttack === 'dfa' &&
+      impossibleDisplacementDestroyedUnitId !== unitId &&
+      dfaMissDropsAttacker(displacements, unitId)
+        ? resolveDfaMissFallDamage(DEFAULT_TONNAGE, unit.facing, d6Roller)
+        : undefined;
 
     emitPhysicalAttackDeclaredEvent({
       events,
@@ -355,7 +401,8 @@ export function runPhysicalAttackPhase(options: {
     if (
       !result.hit &&
       result.attackerPSR &&
-      impossibleDisplacementDestroyedUnitId !== unitId
+      impossibleDisplacementDestroyedUnitId !== unitId &&
+      dfaMissFall === undefined
     ) {
       currentState = queuePendingPSR(
         currentState,
@@ -369,6 +416,41 @@ export function runPhysicalAttackPhase(options: {
         currentState,
         displacement.unitId,
         displacement.to,
+      );
+    }
+
+    if (dfaMissFall !== undefined) {
+      currentState = applyPhysicalDamageClusterLocations({
+        state: currentState,
+        events,
+        gameId,
+        unitId,
+        clusters: dfaMissFall.clusters,
+        d6Roller,
+      });
+      currentState = markUnitFallenAfterDfaMiss(
+        currentState,
+        unitId,
+        dfaMissFall.newFacing,
+      );
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.UnitFell,
+          currentState.turn,
+          GamePhase.PhysicalAttack,
+          {
+            unitId,
+            fallDamage: dfaMissFall.fallDamage,
+            newFacing: dfaMissFall.newFacing,
+            pilotDamage: dfaMissFall.pilotDamage,
+            location: 'dfa_miss',
+            reason: 'Missed DFA',
+            reasonCode: PSRTrigger.DFAMiss,
+          },
+          unitId,
+        ),
       );
     }
 

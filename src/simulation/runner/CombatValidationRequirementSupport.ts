@@ -701,8 +701,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'physical-self-risk': helperOnly(
     'physical-self-risk',
-    'Runner and event-sourced physical behavior cover charge/DFA target damage, self-damage, successful push/charge/DFA displacement, charge/DFA miss displacement, DFA impossible-displacement destruction, source-backed successful-DFA attacker PSR +4, miss consequences, and PSR queueing',
-    'Blocked charge displacement semantics, immediate DFA miss fall damage/prone timing, and stale grid occupancy after displacement still need coverage',
+    'Runner and event-sourced physical behavior cover charge/DFA target damage, self-damage, successful push/charge/DFA displacement, charge/DFA miss displacement, source-backed immediate DFA miss fall damage/prone timing, DFA impossible-displacement destruction, source-backed successful-DFA attacker PSR +4, miss consequences, and PSR queueing',
+    'Blocked charge displacement semantics, missed-DFA pilot-damage avoidance checks, and stale grid occupancy after displacement still need coverage',
     [
       'lifecycleAndPsr.psrTriggers.charged',
       'lifecycleAndPsr.psrTriggers.charge_miss',

@@ -19,8 +19,11 @@ function helperOnly(
   id: string,
   evidence: string,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return { id, level: 'helper-only', evidence, gap };
+  return sourceRefs
+    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
+    : { id, level: 'helper-only', evidence, gap };
 }
 
 const MEGAMEK_DFA_ATTACKER_PSR_SOURCE_REFS = [
@@ -29,6 +32,16 @@ const MEGAMEK_DFA_ATTACKER_PSR_SOURCE_REFS = [
     citation:
       'MegaMek resolveDfaAttack queues attacker PilotingRollData +4 for "executed death from above" after a successful DFA.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L15417-L15422',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_DFA_MISS_FALL_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek resolveDfaAttack displaces the target on a missed DFA, then immediately calls doEntityFall on the attacker with fall height 2 and facing 3.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L15225-L15245',
     sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -169,9 +182,11 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     PSRTrigger.ChargeMiss,
     'physicalAttackPsr queues createChargeMissPSR for attacker charge misses',
   ),
-  [PSRTrigger.DFAMiss]: integrated(
+  [PSRTrigger.DFAMiss]: helperOnly(
     PSRTrigger.DFAMiss,
-    'physicalAttackPsr queues createDFAMissPSR for attacker DFA misses',
+    'createDFAMissPSR remains available for legacy/no-grid fallback coverage',
+    'Source-backed grid resolution applies immediate missed-DFA fall damage and UnitFell instead of queuing a normal DFAMiss PSR',
+    MEGAMEK_DFA_MISS_FALL_SOURCE_REFS,
   ),
   [PSRTrigger.Shutdown]: integrated(
     PSRTrigger.Shutdown,
