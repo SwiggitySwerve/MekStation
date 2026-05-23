@@ -203,6 +203,9 @@ export function toMovementCapability(
   return {
     ...capability,
     ...(adapted.movementMode ? { movementMode: adapted.movementMode } : {}),
+    ...(adapted.movementHeatProfile
+      ? { movementHeatProfile: adapted.movementHeatProfile }
+      : {}),
     ...(adapted.waterCapability
       ? { waterCapability: adapted.waterCapability }
       : {}),

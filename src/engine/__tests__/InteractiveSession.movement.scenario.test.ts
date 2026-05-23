@@ -2112,4 +2112,57 @@ describe('applyInteractiveSessionMovement', () => {
       ),
     ).toBe(true);
   });
+
+  it('keeps non-Mek movement heat aligned between preview and commit', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({
+      walkMP: 3,
+      runMP: 3,
+      jumpMP: 3,
+      movementMode: 'walk',
+      movementHeatProfile: 'none',
+    });
+
+    const preview = deriveReachableHexes(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+    ).find((entry) => entry.hex.q === 1 && entry.hex.r === 0);
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      movementMode: 'walk',
+      heatGenerated: 0,
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      movementType: MovementType.Walk,
+      heatGenerated: 0,
+    });
+  });
 });

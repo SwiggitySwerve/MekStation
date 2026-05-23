@@ -108,6 +108,7 @@ export function validateMovement(
     movementType,
     distance,
     capability.movementMode,
+    capability.movementHeatProfile,
   );
 
   return {

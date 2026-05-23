@@ -165,6 +165,7 @@ export function deriveMovementRangeHexForDestination(
     mpType,
     dist,
     capability.movementMode,
+    capability.movementHeatProfile,
   );
   const movementMode =
     mpType === MovementType.Jump

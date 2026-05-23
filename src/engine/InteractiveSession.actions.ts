@@ -177,6 +177,7 @@ export function applyInteractiveSessionMovement(
           MovementType.Walk,
           0,
           movementCapability.movementMode,
+          movementCapability.movementHeatProfile,
         ),
         [from],
         {

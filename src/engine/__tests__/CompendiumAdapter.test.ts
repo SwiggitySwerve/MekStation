@@ -340,6 +340,7 @@ describe('CompendiumAdapter', () => {
       expect(result.walkMP).toBe(3);
       expect(result.runMP).toBe(5);
       expect(result.jumpMP).toBe(0);
+      expect(result.movementHeatProfile).toBe('mek');
     });
 
     it('should map vehicle motion type into movement pathing mode', () => {
@@ -415,6 +416,7 @@ describe('CompendiumAdapter', () => {
       expect(result.runMP).toBe(8);
       expect(result.jumpMP).toBe(0);
       expect(result.movementMode).toBe('tracked');
+      expect(result.movementHeatProfile).toBe('none');
     });
 
     it('should read infantry ground/jump MP and use base infantry run MP', () => {
@@ -432,6 +434,7 @@ describe('CompendiumAdapter', () => {
       expect(result.runMP).toBe(3);
       expect(result.jumpMP).toBe(3);
       expect(result.movementMode).toBe('walk');
+      expect(result.movementHeatProfile).toBe('none');
     });
 
     it.each([
@@ -453,6 +456,7 @@ describe('CompendiumAdapter', () => {
         expect(result.runMP).toBe(groundMP);
         expect(result.jumpMP).toBe(0);
         expect(result.movementMode).toBe(movementMode);
+        expect(result.movementHeatProfile).toBe('none');
       },
     );
 
@@ -470,6 +474,7 @@ describe('CompendiumAdapter', () => {
       expect(result.runMP).toBe(2);
       expect(result.jumpMP).toBe(0);
       expect(result.movementMode).toBe('vtol');
+      expect(result.movementHeatProfile).toBe('none');
     });
 
     it('should preserve explicit ProtoMech run MP from canonical unit data', () => {
@@ -485,6 +490,7 @@ describe('CompendiumAdapter', () => {
       expect(result.walkMP).toBe(4);
       expect(result.runMP).toBe(5);
       expect(result.jumpMP).toBe(2);
+      expect(result.movementHeatProfile).toBe('none');
     });
 
     it('should have 7 weapons (4 ML, 1 AC/20, 1 LRM-20, 1 SRM-6)', () => {

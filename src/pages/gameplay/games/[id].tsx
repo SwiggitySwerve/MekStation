@@ -292,6 +292,7 @@ export default function GameSessionPage(): React.ReactElement {
             walkMP={movement.effectiveMovementMps?.walkMP ?? 0}
             runMP={movement.effectiveMovementMps?.runMP ?? 0}
             jumpMP={movement.effectiveMovementMps?.jumpMP ?? 0}
+            movementHeatProfile={movement.capability?.movementHeatProfile}
             weapons={selectedPlanningWeapons}
             onPhysicalAttackIntentChange={setPhysicalAttackIntent}
           />

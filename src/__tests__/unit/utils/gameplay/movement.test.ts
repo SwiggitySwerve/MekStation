@@ -153,6 +153,28 @@ describe('movement', () => {
       expect(calculateMovementHeat(MovementType.Run, 6, 'hover')).toBe(0);
       expect(calculateMovementHeat(MovementType.Jump, 4, 'vtol')).toBe(0);
     });
+
+    it('should return 0 for non-Mek units that path like walkers', () => {
+      expect(calculateMovementHeat(MovementType.Walk, 4, 'walk', 'none')).toBe(
+        0,
+      );
+      expect(calculateMovementHeat(MovementType.Run, 6, 'walk', 'none')).toBe(
+        0,
+      );
+      expect(calculateMovementHeat(MovementType.Jump, 4, 'walk', 'none')).toBe(
+        0,
+      );
+    });
+
+    it('should keep explicit Mek heat even when the profile is supplied', () => {
+      expect(
+        calculateMovementHeat(MovementType.Walk, 4, undefined, 'mek'),
+      ).toBe(1);
+      expect(calculateMovementHeat(MovementType.Run, 6, 'walk', 'mek')).toBe(2);
+      expect(calculateMovementHeat(MovementType.Jump, 4, 'walk', 'mek')).toBe(
+        4,
+      );
+    });
   });
 
   // =========================================================================

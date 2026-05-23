@@ -26,6 +26,7 @@ import type {
   IAttackerState,
   IHexCoordinate,
   ITargetState,
+  MovementHeatProfile,
 } from '@/types/gameplay';
 import type { IForecastInput } from '@/utils/gameplay/toHit/forecast';
 
@@ -59,6 +60,8 @@ export interface CombatPlanningPanelProps {
   runMP?: number;
   /** Jump MP for the currently selected unit (provided by parent). */
   jumpMP?: number;
+  /** Rules-level movement heat source for the currently selected unit. */
+  movementHeatProfile?: MovementHeatProfile;
   /**
    * Weapons mounted on the currently selected unit (provided by
    * parent). Sourced from the unit's catalog data.
@@ -105,6 +108,7 @@ export function CombatPlanningPanel({
   walkMP = 0,
   runMP = Math.ceil(walkMP * 1.5),
   jumpMP = 0,
+  movementHeatProfile,
   weapons = [],
   onPhysicalAttackIntentChange,
   attackerTonnage,
@@ -276,6 +280,7 @@ export function CombatPlanningPanel({
           mpCost={mpCost}
           movementType={movementType}
           heatGenerated={plannedMovement?.heatGenerated}
+          movementHeatProfile={movementHeatProfile}
           movementMode={plannedMovement?.movementMode}
           terrainCost={plannedMovement?.terrainCost}
           elevationDelta={plannedMovement?.elevationDelta}

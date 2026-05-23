@@ -710,6 +710,7 @@ export class MoveAI {
         movementType,
         distance,
         capability.movementMode,
+        capability.movementHeatProfile,
       );
 
       for (let facing = 0; facing < 6; facing++) {

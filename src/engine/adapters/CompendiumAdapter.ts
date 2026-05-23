@@ -14,6 +14,7 @@ import {
   Facing,
   type IMovementWaterCapability,
   MovementType,
+  type MovementHeatProfile,
   type MovementMotiveMode,
 } from '@/types/gameplay/HexGridInterfaces';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
@@ -199,6 +200,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
   runMP: number;
   jumpMP: number;
   movementMode?: MovementMotiveMode;
+  movementHeatProfile?: MovementHeatProfile;
   waterCapability?: IMovementWaterCapability;
 } {
   const movement = recordField(unitData.movement);
@@ -215,12 +217,14 @@ function calculateMovement(unitData: Record<string, unknown>): {
     0;
   const runMP = explicitRunMP ?? deriveRunMP(unitData, walkMP);
   const movementMode = movementModeFromUnitData(unitData);
+  const movementHeatProfile = movementHeatProfileFromUnitData(unitData);
   const waterCapability = waterCapabilityFromUnitData(unitData);
   return {
     walkMP,
     runMP,
     jumpMP,
     ...(movementMode ? { movementMode } : {}),
+    ...(movementHeatProfile ? { movementHeatProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
   };
 }
@@ -259,6 +263,44 @@ function deriveRunMP(
   }
 
   return Math.ceil(walkMP * 1.5);
+}
+
+function movementHeatProfileFromUnitData(
+  unitData: Record<string, unknown>,
+): MovementHeatProfile | undefined {
+  switch (normalizedKey(unitData.unitType)) {
+    case 'battlemech':
+    case 'battlemek':
+    case 'mech':
+    case 'mek':
+    case 'omnimech':
+    case 'omnimek':
+    case 'industrialmech':
+    case 'industrialmek':
+      return 'mek';
+    case 'infantry':
+    case 'battlearmor':
+    case 'protomech':
+    case 'vehicle':
+    case 'combatvehicle':
+    case 'tank':
+    case 'supportvehicle':
+    case 'supporttank':
+    case 'supportvtol':
+    case 'vtol':
+    case 'aero':
+    case 'aerospace':
+    case 'conventionalfighter':
+    case 'convfighter':
+    case 'smallcraft':
+    case 'dropship':
+    case 'jumpship':
+    case 'warship':
+    case 'spacestation':
+      return 'none';
+    default:
+      return undefined;
+  }
 }
 
 function waterCapabilityFromUnitData(
@@ -413,8 +455,14 @@ export function adaptUnitFromData(
   const weapons = extractWeapons(rawEquipment, fullUnit.id);
 
   // Movement
-  const { walkMP, runMP, jumpMP, movementMode, waterCapability } =
-    calculateMovement(unitData);
+  const {
+    walkMP,
+    runMP,
+    jumpMP,
+    movementMode,
+    movementHeatProfile,
+    waterCapability,
+  } = calculateMovement(unitData);
 
   // Ammo — provide one ton of ammo per ballistic/missile weapon type
   const ammo: Record<string, number> = {};
@@ -455,6 +503,7 @@ export function adaptUnitFromData(
   return {
     ...adapted,
     ...(movementMode ? { movementMode } : {}),
+    ...(movementHeatProfile ? { movementHeatProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
   };
 }

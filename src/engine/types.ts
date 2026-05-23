@@ -8,6 +8,7 @@ import type { IUnitGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
+  MovementHeatProfile,
   IMovementWaterCapability,
   MovementMotiveMode,
 } from '@/types/gameplay/HexGridInterfaces';
@@ -52,6 +53,8 @@ export interface IAdaptedUnit extends IUnitGameState {
   readonly jumpMP: number;
   /** Chassis/squad motive mode used for terrain and elevation pathing. */
   readonly movementMode?: MovementMotiveMode;
+  /** Whether movement should generate Mek-style engine heat. */
+  readonly movementHeatProfile?: MovementHeatProfile;
   /** Optional equipment that modifies water movement legality and MP costs. */
   readonly waterCapability?: IMovementWaterCapability;
 }

@@ -2,8 +2,9 @@
  * Per-change smoke test for add-movement-phase-ui.
  *
  * Asserts:
- * - MovementHeatPreview renders the canonical per-type heat values
+ * - MovementHeatPreview renders the Mek-style per-type heat values
  *   (Walk=+1, Run=+2, Jump=max(3,jumpMP), Stationary=0)
+ *   and honors no-heat unit profiles.
  * - HEX_COLORS exposes per-movement-type tile colors (walk/run/jump)
  *
  * @spec openspec/changes/add-movement-phase-ui/tasks.md § 3, § 9
@@ -59,6 +60,19 @@ describe('add-movement-phase-ui — smoke test', () => {
       // No "+" prefix when heat is 0
       expect(preview.textContent).toContain('0');
       expect(preview.textContent).not.toContain('+0');
+    });
+
+    it('renders 0 fallback heat for non-Mek movement profiles', () => {
+      render(
+        <MovementHeatPreview
+          movementType={MovementType.Walk}
+          movementHeatProfile="none"
+        />,
+      );
+      const preview = screen.getByTestId('movement-heat-preview');
+      expect(preview.dataset.heat).toBe('0');
+      expect(preview.textContent).toContain('0');
+      expect(preview.textContent).not.toContain('+1');
     });
   });
 

@@ -1350,4 +1350,44 @@ describe('deriveMovementRangeHexForDestination', () => {
       movementInvalidDetails: 'Unit cannot jump (no jump jets)',
     });
   });
+
+  it('projects non-Mek walk-like units without Mek movement heat', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = {
+      walkMP: 3,
+      runMP: 3,
+      jumpMP: 3,
+      movementMode: 'walk',
+      movementHeatProfile: 'none',
+    };
+
+    const walkProjection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+    const jumpProjection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Jump,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(walkProjection).toMatchObject({
+      movementType: MovementType.Walk,
+      movementMode: 'walk',
+      reachable: true,
+      heatGenerated: 0,
+    });
+    expect(jumpProjection).toMatchObject({
+      movementType: MovementType.Jump,
+      movementMode: 'jump',
+      reachable: true,
+      heatGenerated: 0,
+    });
+  });
 });

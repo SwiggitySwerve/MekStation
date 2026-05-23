@@ -2,7 +2,7 @@
  * Movement Modifiers
  */
 
-import type { MovementMotiveMode } from '@/types/gameplay';
+import type { MovementHeatProfile, MovementMotiveMode } from '@/types/gameplay';
 
 import { MovementType } from '@/types/gameplay';
 
@@ -10,6 +10,19 @@ function motiveModeGeneratesMovementHeat(
   movementMode: MovementMotiveMode | undefined,
 ): boolean {
   return movementMode === undefined || movementMode === 'walk';
+}
+
+function heatProfileGeneratesMovementHeat(
+  movementHeatProfile: MovementHeatProfile | undefined,
+  movementMode: MovementMotiveMode | undefined,
+): boolean {
+  if (movementHeatProfile === 'none') {
+    return false;
+  }
+  if (movementHeatProfile === 'mek') {
+    return true;
+  }
+  return motiveModeGeneratesMovementHeat(movementMode);
 }
 
 /**
@@ -23,8 +36,9 @@ export function calculateMovementHeat(
   movementType: MovementType,
   hexesMoved: number,
   movementMode?: MovementMotiveMode,
+  movementHeatProfile?: MovementHeatProfile,
 ): number {
-  if (!motiveModeGeneratesMovementHeat(movementMode)) {
+  if (!heatProfileGeneratesMovementHeat(movementHeatProfile, movementMode)) {
     return 0;
   }
 

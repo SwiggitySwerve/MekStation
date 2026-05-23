@@ -4,8 +4,8 @@
  * Per `add-movement-phase-ui` task 9: a small preview chip the action
  * panel shows below the MP-type buttons during the Movement phase. It
  * surfaces the heat the unit will accumulate this turn for the chosen
- * movement type (Walk = +1, Run = +2, Jump = max(3, jumpMP)) so the
- * player can plan around heat limits before committing the move.
+ * movement type so the player can plan around heat limits before committing
+ * the move.
  *
  * Heat math is delegated to `calculateMovementHeat` from
  * `utils/gameplay/movement` so this component can never drift from the
@@ -15,6 +15,8 @@
  */
 
 import React from 'react';
+
+import type { MovementHeatProfile } from '@/types/gameplay';
 
 import { MovementType } from '@/types/gameplay';
 import { calculateMovementHeat } from '@/utils/gameplay/movement';
@@ -33,6 +35,8 @@ export interface MovementHeatPreviewProps {
    * fixed at 1/2 regardless of distance per canonical rules.
    */
   jumpHexes?: number;
+  /** Rules-level movement heat source for fallback previews. */
+  movementHeatProfile?: MovementHeatProfile;
   /** Optional className for layout overrides. */
   className?: string;
 }
@@ -48,9 +52,17 @@ export function MovementHeatPreview({
   movementType,
   heatGenerated,
   jumpHexes = 0,
+  movementHeatProfile,
   className = '',
 }: MovementHeatPreviewProps): React.ReactElement {
-  const heat = heatGenerated ?? calculateMovementHeat(movementType, jumpHexes);
+  const heat =
+    heatGenerated ??
+    calculateMovementHeat(
+      movementType,
+      jumpHexes,
+      undefined,
+      movementHeatProfile,
+    );
   const label = MOVEMENT_TYPE_LABEL[movementType] ?? 'Move';
 
   return (

@@ -70,6 +70,12 @@ export type MovementTravelMode =
 export type MovementMotiveMode = Exclude<MovementTravelMode, 'run' | 'jump'>;
 
 /**
+ * Rules-level movement heat source. Most entities inherit MegaMek's base
+ * zero movement heat; Meks override it with engine walk/run/jump heat.
+ */
+export type MovementHeatProfile = 'mek' | 'none';
+
+/**
  * Water-capable equipment represented by the tactical movement layer.
  */
 export interface IMovementWaterCapability {
@@ -230,6 +236,8 @@ export interface IMovementCapability {
   readonly jumpMP: number;
   /** Chassis/squad motive mode for terrain and elevation pathing. */
   readonly movementMode?: MovementMotiveMode;
+  /** Whether movement should generate Mek-style engine heat. */
+  readonly movementHeatProfile?: MovementHeatProfile;
   /** MegaMek-style entity height used for bridge clearance checks; default is 0. */
   readonly unitHeight?: number;
   /** Optional equipment that modifies water movement legality and MP costs. */

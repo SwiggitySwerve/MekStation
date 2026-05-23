@@ -155,6 +155,26 @@ MP fields before tactical map projection. Coverage lives in
 regression coverage in `src/utils/gameplay/movement/__tests__/reachable.test.ts`
 and `src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`.
 
+Additional movement-heat profile pin: MegaMek `Entity.java:3366-3367`,
+`Entity.java:3419-3420`, and `Entity.java:3532-3533` return 0 walking,
+running, and jumping heat for the base entity, while `Mek.java:987-989`,
+`Mek.java:1034-1037`, and `Mek.java:1281-1301` override that behavior with
+engine walk/run/jump heat. MekStation now carries a `movementHeatProfile`
+separate from terrain pathing motive mode, so infantry, battle armor,
+ProtoMechs, vehicles, and aerospace units can path through represented terrain
+without inheriting Mek movement heat from `movementMode: 'walk'`. Coverage lives
+in `src/types/gameplay/HexGridInterfaces.ts`,
+`src/engine/adapters/CompendiumAdapter.ts`,
+`src/utils/gameplay/movement/modifiers.ts`,
+`src/utils/gameplay/movement/reachable.ts`,
+`src/utils/gameplay/movement/validation.ts`,
+`src/engine/InteractiveSession.actions.ts`,
+`src/simulation/ai/MoveAI.ts`, `src/components/gameplay/MovementHeatPreview.tsx`,
+`src/__tests__/unit/utils/gameplay/movement.test.ts`,
+`src/engine/__tests__/CompendiumAdapter.test.ts`,
+`src/utils/gameplay/movement/__tests__/reachable.test.ts`, and
+`src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`.
+
 Additional prone stand-up movement pin: MegaMek `GetUpStep.java:62` charges
 normal stand-up as 2 MP, except a unit with `runMP == 1` spends 1 MP.
 `MoveStep.java:2021-2026` blocks prone Meks from spending MP on anything except

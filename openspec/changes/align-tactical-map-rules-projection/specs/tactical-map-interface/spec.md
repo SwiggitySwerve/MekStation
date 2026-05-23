@@ -60,6 +60,13 @@ For each projected movement hex, the map SHALL expose at least movement mode, cu
 - **AND** the stand-up PSR projection and resolution SHALL include the careful-stand -2 modifier
 - **AND** movement events SHALL identify the stand-up mode as `careful`
 
+#### Scenario: Non-Mek movement does not inherit Mek heat
+
+- **GIVEN** a represented non-Mek unit uses walk-like pathing for terrain and elevation costs
+- **WHEN** the map projects walk, run, or jump destinations for that unit
+- **THEN** movement heat SHALL come from the unit's movement heat profile rather than the pathing mode alone
+- **AND** previewed movement heat SHALL match committed movement events
+
 ### Requirement: Combat Projection Explanation
 
 Combat highlights SHALL expose weapon-backed attack legality, range, firing arc, LOS, cover, visibility, heat, ammo, and disabled reasons.
