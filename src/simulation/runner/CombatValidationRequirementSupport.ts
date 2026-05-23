@@ -15,6 +15,10 @@ import {
   PILOT_DAMAGE_COMBAT_SUPPORT,
 } from './CombatDamageSupport';
 import {
+  BATTLEMECH_COMBAT_EVENT_SUPPORT,
+  NON_BATTLEMECH_EVENT_SCOPE_SUPPORT,
+} from './CombatEventSupport';
+import {
   QUIRK_COMBAT_SUPPORT,
   SPA_COMBAT_SUPPORT,
   type ICombatFeatureSupportEntry,
@@ -23,6 +27,7 @@ import {
   PSR_RESOLUTION_COMBAT_SUPPORT,
   RUNNER_PSR_TRIGGER_COMBAT_SUPPORT,
 } from './CombatLifecycleSupport';
+import { RUNNER_INTERACTIVE_PARITY_SUPPORT } from './CombatParitySupport';
 import { PHYSICAL_LEGALITY_GATE_SUPPORT } from './CombatPhysicalLegalityGateSupport';
 import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from './CombatPilotModifierApplicationSupport';
 import { PILOT_SKILL_COMBAT_SUPPORT } from './CombatPilotSkillSupport';
@@ -361,6 +366,24 @@ const CRITICAL_SLOT_HYDRATION_SUPPORT_REFS = supportRefs(
   'damageAndDeath',
   'criticalSlotHydration',
   CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT,
+);
+
+const RUNNER_INTERACTIVE_PARITY_SUPPORT_REFS = supportRefs(
+  'parityAndIntegration',
+  'runnerInteractiveParity',
+  RUNNER_INTERACTIVE_PARITY_SUPPORT,
+);
+
+const BATTLEMECH_EVENT_SUPPORT_REFS = supportRefs(
+  'eventStream',
+  'battleMechCombatEvents',
+  BATTLEMECH_COMBAT_EVENT_SUPPORT,
+);
+
+const NON_BATTLEMECH_EVENT_SCOPE_SUPPORT_REFS = supportRefs(
+  'eventStream',
+  'nonBattleMechEventScope',
+  NON_BATTLEMECH_EVENT_SCOPE_SUPPORT,
 );
 
 function primaryAuthorityFor(
@@ -709,7 +732,10 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'psr-resolution': integrated(
     'psr-resolution',
     'PSR support covers pending PSR resolution, reason-code preservation, falls, pilot wounds, pilot death, and pending clear',
-    PSR_RESOLUTION_SUPPORT_REFS,
+    [
+      ...PSR_RESOLUTION_SUPPORT_REFS,
+      'parityAndIntegration.representativeScenarios.phase-psr-queue-lifecycle',
+    ],
   ),
   'psr-trigger-catalog': helperOnly(
     'psr-trigger-catalog',
@@ -727,6 +753,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'lifecycleAndPsr.actionEligibility.retreated',
       'lifecycleAndPsr.actionEligibility.ejected',
       'parityAndIntegration.representativeScenarios.turn-rotation-lifecycle-removal',
+      'parityAndIntegration.representativeScenarios.interactive-actor-lifecycle-removal',
     ],
   ),
   'targetability-lifecycle': integrated(
@@ -746,8 +773,10 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'actions.tacticalCommands.utility.eject',
       'actions.gameIntents.eject',
       'actions.wireIntents.Eject',
+      'actions.p2pIntents.eject',
       'eventStream.battleMechCombatEvents.unit_ejected',
       'lifecycleAndPsr.actionEligibility.ejection-damage-preservation',
+      'parityAndIntegration.representativeScenarios.ejection-damage-preservation',
       'parityAndIntegration.representativeScenarios.ejection-command-intent-outcome',
     ],
   ),
@@ -770,30 +799,17 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'parityAndIntegration.representativeScenarios.objective-control-lifecycle-filter',
       'parityAndIntegration.representativeScenarios.objective-outcome-precedence',
       'parityAndIntegration.representativeScenarios.terminal-survivor-filter',
+      'parityAndIntegration.representativeScenarios.runner-terminal-summary',
       'parityAndIntegration.representativeScenarios.interactive-terminal-event',
       'parityAndIntegration.representativeScenarios.runner-terminal-game-ended-event',
+      'lifecycleAndPsr.actionEligibility.force-survivor-counts',
     ],
   ),
   'runner-interactive-parity': integrated(
     'runner-interactive-parity',
     'Parity support covers movement, attack, physical, PSR, heat, objective, targetability, and terminal-state comparisons with matching terminal and heat-dissipation event semantics',
     [
-      'parityAndIntegration.runnerInteractiveParity.movement-action-eligibility',
-      'parityAndIntegration.runnerInteractiveParity.movement-validation',
-      'parityAndIntegration.runnerInteractiveParity.movement-heat-and-event-path',
-      'parityAndIntegration.runnerInteractiveParity.weapon-target-validation',
-      'parityAndIntegration.runnerInteractiveParity.weapon-range-and-to-hit',
-      'parityAndIntegration.runnerInteractiveParity.weapon-indirect-fire',
-      'parityAndIntegration.runnerInteractiveParity.weapon-damage-critical-events',
-      'parityAndIntegration.runnerInteractiveParity.physical-attack-resolution',
-      'parityAndIntegration.runnerInteractiveParity.heat-core-resolution',
-      'parityAndIntegration.runnerInteractiveParity.heat-dissipation-event-payload',
-      'parityAndIntegration.runnerInteractiveParity.heat-environment-and-water',
-      'parityAndIntegration.runnerInteractiveParity.heat-pilot-damage',
-      'parityAndIntegration.runnerInteractiveParity.psr-resolution',
-      'parityAndIntegration.runnerInteractiveParity.psr-piloting-skill',
-      'parityAndIntegration.runnerInteractiveParity.objective-outcome',
-      'parityAndIntegration.runnerInteractiveParity.terminal-game-ended-event',
+      ...RUNNER_INTERACTIVE_PARITY_SUPPORT_REFS,
       'parityAndIntegration.representativeScenarios.runner-terminal-game-ended-event',
     ],
   ),
@@ -802,11 +818,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'Event stream support catalogs BattleMech combat events and splits non-BattleMech event families out of scope',
     'Some event families are unsupported until their authoritative action paths exist',
     [
-      'eventStream.battleMechCombatEvents.attack_declared',
-      'eventStream.battleMechCombatEvents.attack_invalid',
-      'eventStream.battleMechCombatEvents.physical_attack_resolved',
-      'eventStream.battleMechCombatEvents.unit_ejected',
-      'eventStream.nonBattleMechEventScope.motive_damaged',
+      ...BATTLEMECH_EVENT_SUPPORT_REFS,
+      ...NON_BATTLEMECH_EVENT_SCOPE_SUPPORT_REFS,
     ],
   ),
   'critical-slot-hydration': helperOnly(
@@ -817,11 +830,12 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'known-limitation-audit': integrated(
     'known-limitation-audit',
-    'Validation scope support bypasses broad known-limitation filters and audits which broad pattern would have matched',
+    'Validation scope support bypasses broad known-limitation filters, audits which broad pattern would have matched, forbids catalog filter gates, and pins official BattleMech catalog scope',
     [
       'validationScope.knownLimitationsAndScope.known-limitation-bypass',
       'validationScope.knownLimitationsAndScope.known-limitation-pattern-audit',
       'validationScope.knownLimitationsAndScope.catalog-filter-gate-ban',
+      'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
     ],
   ),
   'non-battlemech-scope': helperOnly(
@@ -829,8 +843,9 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'Validation scope support splits aerospace, vehicle, battle armor, infantry, protomech, and motive-system responsibilities out of this BattleMech suite',
     'Non-BattleMech systems need their own validation matrices rather than being treated as BattleMech coverage',
     [
+      'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
       'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
-      'eventStream.nonBattleMechEventScope.motive_damaged',
+      ...NON_BATTLEMECH_EVENT_SCOPE_SUPPORT_REFS,
     ],
   ),
 } satisfies Record<string, ICombatRequirementSupportEntry>;

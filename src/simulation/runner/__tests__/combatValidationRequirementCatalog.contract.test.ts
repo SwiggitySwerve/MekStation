@@ -20,13 +20,20 @@ import {
   PILOT_DAMAGE_COMBAT_SUPPORT,
 } from '../CombatDamageSupport';
 import {
+  BATTLEMECH_COMBAT_EVENT_SUPPORT,
+  NON_BATTLEMECH_EVENT_SCOPE_SUPPORT,
+} from '../CombatEventSupport';
+import {
   QUIRK_COMBAT_SUPPORT,
   SPA_COMBAT_SUPPORT,
 } from '../CombatFeatureSupport';
+import { COMBAT_INTEGRATION_SCENARIO_SUPPORT } from '../CombatIntegrationSupport';
 import {
+  ACTION_ELIGIBILITY_COMBAT_SUPPORT,
   PSR_RESOLUTION_COMBAT_SUPPORT,
   RUNNER_PSR_TRIGGER_COMBAT_SUPPORT,
 } from '../CombatLifecycleSupport';
+import { RUNNER_INTERACTIVE_PARITY_SUPPORT } from '../CombatParitySupport';
 import { PHYSICAL_LEGALITY_GATE_SUPPORT } from '../CombatPhysicalLegalityGateSupport';
 import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from '../CombatPilotModifierApplicationSupport';
 import { PILOT_SKILL_COMBAT_SUPPORT } from '../CombatPilotSkillSupport';
@@ -51,6 +58,7 @@ import {
   COMBAT_REQUIREMENT_PRIMARY_AUTHORITIES,
   type ICombatRequirementSupportEntry,
 } from '../CombatValidationRequirementSupport';
+import { BATTLEMECH_VALIDATION_SCOPE_SUPPORT } from '../CombatValidationScopeSupport';
 
 const EXPECTED_REQUIREMENT_IDS = [
   'attack-invalidation',
@@ -159,6 +167,14 @@ function refsFor(
   support: Record<string, ICombatRequirementSupportEntry>,
 ): readonly string[] {
   return Object.values(support).flatMap((entry) => [...entry.supportMapRefs]);
+}
+
+function supportRefs(
+  sectionId: string,
+  mapId: string,
+  support: Record<string, ICombatFeatureSupportEntry>,
+): readonly string[] {
+  return Object.keys(support).map((id) => `${sectionId}.${mapId}.${id}`);
 }
 
 function sourceBackedFeatureRows(): readonly {
@@ -636,29 +652,91 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toEqual([]);
   });
 
+  it('backs lifecycle requirements with every action-eligibility support row', () => {
+    expect(
+      missingRefsAcrossRequirements(
+        [
+          'turn-rotation-removal',
+          'targetability-lifecycle',
+          'ejection-lifecycle',
+          'retreat-withdrawal',
+          'objective-terminal-state',
+        ],
+        'lifecycleAndPsr',
+        'actionEligibility',
+        ACTION_ELIGIBILITY_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
+
+  it('backs lifecycle, PSR, objective, and parity claims with every representative scenario row', () => {
+    expect(
+      missingRefsAcrossRequirements(
+        [
+          'turn-rotation-removal',
+          'targetability-lifecycle',
+          'ejection-lifecycle',
+          'psr-resolution',
+          'objective-terminal-state',
+          'runner-interactive-parity',
+        ],
+        'parityAndIntegration',
+        'representativeScenarios',
+        COMBAT_INTEGRATION_SCENARIO_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
+
   it('backs runner-interactive parity claims with every parity support row', () => {
+    expect(
+      missingRefsForRequirement(
+        'runner-interactive-parity',
+        'parityAndIntegration',
+        'runnerInteractiveParity',
+        RUNNER_INTERACTIVE_PARITY_SUPPORT,
+      ),
+    ).toEqual([]);
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['runner-interactive-parity']
         .supportMapRefs,
     ).toEqual([
-      'parityAndIntegration.runnerInteractiveParity.movement-action-eligibility',
-      'parityAndIntegration.runnerInteractiveParity.movement-validation',
-      'parityAndIntegration.runnerInteractiveParity.movement-heat-and-event-path',
-      'parityAndIntegration.runnerInteractiveParity.weapon-target-validation',
-      'parityAndIntegration.runnerInteractiveParity.weapon-range-and-to-hit',
-      'parityAndIntegration.runnerInteractiveParity.weapon-indirect-fire',
-      'parityAndIntegration.runnerInteractiveParity.weapon-damage-critical-events',
-      'parityAndIntegration.runnerInteractiveParity.physical-attack-resolution',
-      'parityAndIntegration.runnerInteractiveParity.heat-core-resolution',
-      'parityAndIntegration.runnerInteractiveParity.heat-dissipation-event-payload',
-      'parityAndIntegration.runnerInteractiveParity.heat-environment-and-water',
-      'parityAndIntegration.runnerInteractiveParity.heat-pilot-damage',
-      'parityAndIntegration.runnerInteractiveParity.psr-resolution',
-      'parityAndIntegration.runnerInteractiveParity.psr-piloting-skill',
-      'parityAndIntegration.runnerInteractiveParity.objective-outcome',
-      'parityAndIntegration.runnerInteractiveParity.terminal-game-ended-event',
+      ...supportRefs(
+        'parityAndIntegration',
+        'runnerInteractiveParity',
+        RUNNER_INTERACTIVE_PARITY_SUPPORT,
+      ),
       'parityAndIntegration.representativeScenarios.runner-terminal-game-ended-event',
     ]);
+  });
+
+  it('backs event-stream scope with every BattleMech and non-BattleMech event row', () => {
+    expect(
+      missingRefsForRequirement(
+        'event-stream',
+        'eventStream',
+        'battleMechCombatEvents',
+        BATTLEMECH_COMBAT_EVENT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'event-stream',
+        'eventStream',
+        'nonBattleMechEventScope',
+        NON_BATTLEMECH_EVENT_SCOPE_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
+
+  it('backs validation-scope requirements with every scope support row', () => {
+    expect(
+      missingRefsAcrossRequirements(
+        ['known-limitation-audit', 'non-battlemech-scope'],
+        'validationScope',
+        'knownLimitationsAndScope',
+        BATTLEMECH_VALIDATION_SCOPE_SUPPORT,
+      ),
+    ).toEqual([]);
   });
 
   it('backs physical-core claims with every source-checked physical legality gate row', () => {
