@@ -688,6 +688,7 @@ describe('deriveReachableHexes', () => {
       terrainCost: 0,
       elevationDelta: 3,
       elevationCost: 0,
+      heatGenerated: 1,
       movementMode: 'biped_swim',
       movementType: MovementType.Walk,
     });

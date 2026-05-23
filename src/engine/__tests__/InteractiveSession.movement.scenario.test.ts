@@ -471,7 +471,6 @@ describe('applyInteractiveSessionMovement', () => {
       walkMP: 1,
       runMP: 1,
       movementMode: 'biped_swim',
-      movementHeatProfile: 'none',
     });
 
     const preview = deriveReachableHexes(
@@ -488,7 +487,7 @@ describe('applyInteractiveSessionMovement', () => {
       terrainCost: 0,
       elevationDelta: 3,
       elevationCost: 0,
-      heatGenerated: 0,
+      heatGenerated: 1,
       movementType: MovementType.Walk,
     });
 

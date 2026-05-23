@@ -25,6 +25,12 @@ function heatProfileGeneratesMovementHeat(
   return motiveModeGeneratesMovementHeat(movementMode);
 }
 
+function isMekSwimMovementMode(
+  movementMode: MovementMotiveMode | undefined,
+): boolean {
+  return movementMode === 'biped_swim' || movementMode === 'quad_swim';
+}
+
 /**
  * Calculate heat generated from movement.
  *
@@ -38,6 +44,14 @@ export function calculateMovementHeat(
   movementMode?: MovementMotiveMode,
   movementHeatProfile?: MovementHeatProfile,
 ): number {
+  if (
+    isMekSwimMovementMode(movementMode) &&
+    movementHeatProfile !== 'none' &&
+    movementType !== MovementType.Stationary
+  ) {
+    return 1;
+  }
+
   if (!heatProfileGeneratesMovementHeat(movementHeatProfile, movementMode)) {
     return 0;
   }

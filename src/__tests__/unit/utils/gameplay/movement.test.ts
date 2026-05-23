@@ -166,6 +166,16 @@ describe('movement', () => {
       );
     });
 
+    it('should return MegaMek UMU heat for Mek swim movement', () => {
+      expect(calculateMovementHeat(MovementType.Walk, 1, 'biped_swim')).toBe(1);
+      expect(
+        calculateMovementHeat(MovementType.Run, 2, 'quad_swim', 'mek'),
+      ).toBe(1);
+      expect(
+        calculateMovementHeat(MovementType.Walk, 1, 'biped_swim', 'none'),
+      ).toBe(0);
+    });
+
     it('should keep explicit Mek heat even when the profile is supplied', () => {
       expect(
         calculateMovementHeat(MovementType.Walk, 4, undefined, 'mek'),

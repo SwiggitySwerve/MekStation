@@ -36,9 +36,11 @@ UMU and Mek swim movement projection is pinned to MegaMek tactical behavior:
 `MovementDisplay` only enables Mek swim gear for underwater units,
 `MovementType.getMovementType(...)` classifies `BIPED_SWIM`, `QUAD_SWIM`, and
 `INF_UMU` as water movement, and `MoveStep.calcMovementCostFor(...)` excludes
-biped/quad swim from ordinary terrain and water-depth surcharges. MekStation's
-represented layer therefore keeps biped/quad swim destinations in water terrain,
-does not charge represented ground-elevation rises while swimming, and leaves
+biped/quad swim from ordinary terrain and water-depth surcharges.
+`TWGameManager.addMovementHeat()` applies a flat UMU heat point to biped/quad
+swim movement. MekStation's represented layer therefore keeps biped/quad swim
+destinations in water terrain, does not charge represented ground-elevation
+rises while swimming, applies the represented flat swim heat, and leaves
 infantry UMU land-entry behavior to the existing UMU-specific projection.
 
 ## Combat Projection
