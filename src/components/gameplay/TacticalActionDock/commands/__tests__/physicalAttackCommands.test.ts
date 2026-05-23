@@ -26,14 +26,18 @@ function makeCtx(
 describe('physicalAttackCommands', () => {
   const commands = buildPhysicalAttackCommands();
 
-  it('exposes punch / kick / charge / dfa / club', () => {
+  it('exposes core and supported melee weapon physical attacks', () => {
     const ids = commands.map((c) => c.id);
     expect(ids).toEqual([
       'physical.punch',
       'physical.kick',
+      'physical.push',
       'physical.charge',
       'physical.dfa',
       'physical.club',
+      'physical.sword',
+      'physical.mace',
+      'physical.lance',
     ]);
   });
 
@@ -67,11 +71,35 @@ describe('physicalAttackCommands', () => {
     });
   });
 
+  it('push dispatches physical-attack actionId with attackType=push', () => {
+    const push = commands.find((c) => c.id === 'physical.push')!;
+    expect(push.commit(makeCtx())).toEqual({
+      actionId: 'physical-attack',
+      payload: { attackType: 'push' },
+    });
+  });
+
   it('dfa dispatches physical-attack actionId with attackType=dfa', () => {
     const dfa = commands.find((c) => c.id === 'physical.dfa')!;
     expect(dfa.commit(makeCtx())).toEqual({
       actionId: 'physical-attack',
       payload: { attackType: 'dfa' },
+    });
+  });
+
+  it('melee weapon commands dispatch their supported physical attack types', () => {
+    const commandAttackTypes = Object.fromEntries(
+      commands.map((command) => [
+        command.id,
+        command.commit(makeCtx()).payload?.attackType,
+      ]),
+    );
+
+    expect(commandAttackTypes).toMatchObject({
+      'physical.club': 'hatchet',
+      'physical.sword': 'sword',
+      'physical.mace': 'mace',
+      'physical.lance': 'lance',
     });
   });
 });

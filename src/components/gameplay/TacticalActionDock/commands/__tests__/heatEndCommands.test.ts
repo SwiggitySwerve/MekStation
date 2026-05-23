@@ -56,6 +56,14 @@ describe('heatEndCommands', () => {
     expect(cont.phaseConstraints).toEqual([GamePhase.Heat]);
   });
 
+  it('heat-continue commits the existing authoritative continue action', () => {
+    const cont = commands.find((c) => c.id === 'heat.continue')!;
+    expect(cont.commit(makeCtx({ phase: GamePhase.Heat }))).toEqual({
+      actionId: 'continue',
+      payload: {},
+    });
+  });
+
   it('end-phase is disabled-with-reason when canAct is false', () => {
     const endPhase = commands.find((c) => c.id === 'heat-end.end-phase')!;
     const result = endPhase.availability(makeCtx({ canAct: false }));

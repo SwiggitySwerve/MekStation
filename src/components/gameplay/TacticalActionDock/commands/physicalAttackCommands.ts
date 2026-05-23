@@ -1,5 +1,5 @@
 /**
- * Physical attack command family — punch, kick, charge, DFA, club.
+ * Physical attack command family: punch, kick, push, charge, DFA, melee.
  *
  * Physical attacks resolve as single irreversible actions (unlike a
  * multi-weapon volley). All variants set `requiresConfirmation: true`
@@ -15,9 +15,13 @@ export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
   return [
     PhysicalPunchCommand,
     PhysicalKickCommand,
+    PhysicalPushCommand,
     PhysicalChargeCommand,
     PhysicalDeathFromAboveCommand,
     PhysicalClubCommand,
+    PhysicalSwordCommand,
+    PhysicalMaceCommand,
+    PhysicalLanceCommand,
   ];
 }
 
@@ -60,6 +64,20 @@ const PhysicalKickCommand: ITacticalCommand = {
   availability: requireActiveAndTarget,
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'kick' } };
+  },
+};
+
+const PhysicalPushCommand: ITacticalCommand = {
+  id: 'physical.push',
+  category: 'physical',
+  label: 'Push',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: 'physical-attack', payload: { attackType: 'push' } };
   },
 };
 
@@ -115,5 +133,47 @@ const PhysicalClubCommand: ITacticalCommand = {
   },
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'hatchet' } };
+  },
+};
+
+const PhysicalSwordCommand: ITacticalCommand = {
+  id: 'physical.sword',
+  category: 'physical',
+  label: 'Sword',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: 'physical-attack', payload: { attackType: 'sword' } };
+  },
+};
+
+const PhysicalMaceCommand: ITacticalCommand = {
+  id: 'physical.mace',
+  category: 'physical',
+  label: 'Mace',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: 'physical-attack', payload: { attackType: 'mace' } };
+  },
+};
+
+const PhysicalLanceCommand: ITacticalCommand = {
+  id: 'physical.lance',
+  category: 'physical',
+  label: 'Lance',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: 'physical-attack', payload: { attackType: 'lance' } };
   },
 };

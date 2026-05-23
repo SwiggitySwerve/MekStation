@@ -1,0 +1,514 @@
+import type { InteractiveSession } from '@/engine/GameEngine';
+
+import { InteractivePhase, useGameplayStore } from '@/stores/useGameplayStore';
+import {
+  DEFAULT_UI_STATE,
+  Facing,
+  GameEventType,
+  GamePhase,
+  GameSide,
+  GameStatus,
+  LockState,
+  MovementType,
+  type IGameSession,
+  type IGameUnit,
+  type IMovementDeclaredPayload,
+} from '@/types/gameplay';
+import {
+  advancePhase,
+  createGameSession,
+  rollInitiative,
+  startGame,
+} from '@/utils/gameplay/gameSession';
+
+function makeGameUnits(): IGameUnit[] {
+  return [
+    {
+      id: 'player-a',
+      name: 'Atlas',
+      side: GameSide.Player,
+      unitRef: 'atlas-as7-d',
+      pilotRef: 'pilot-a',
+      gunnery: 4,
+      piloting: 5,
+    },
+    {
+      id: 'player-b',
+      name: 'Hunchback',
+      side: GameSide.Player,
+      unitRef: 'hunchback-hbk-4g',
+      pilotRef: 'pilot-b',
+      gunnery: 4,
+      piloting: 5,
+    },
+    {
+      id: 'opponent-a',
+      name: 'Marauder',
+      side: GameSide.Opponent,
+      unitRef: 'marauder-mad-3r',
+      pilotRef: 'pilot-c',
+      gunnery: 4,
+      piloting: 5,
+    },
+  ];
+}
+
+function makeSession(): IGameSession {
+  const session = createGameSession(
+    {
+      mapRadius: 5,
+      turnLimit: 30,
+      victoryConditions: [],
+      optionalRules: [],
+    },
+    makeGameUnits(),
+    {
+      id: 'utility-session',
+      createdAt: '2026-05-22T00:00:00.000Z',
+    },
+  );
+  return startGame(session, GameSide.Player);
+}
+
+function forceWeaponAttackState(session: IGameSession): IGameSession {
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      status: GameStatus.Active,
+      phase: GamePhase.WeaponAttack,
+      units: {
+        ...session.currentState.units,
+        'player-a': {
+          ...session.currentState.units['player-a'],
+          lockState: LockState.Pending,
+        },
+        'opponent-a': {
+          ...session.currentState.units['opponent-a'],
+          lockState: LockState.Pending,
+        },
+      },
+    },
+  };
+}
+
+function forceHeatState(session: IGameSession): IGameSession {
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      status: GameStatus.Active,
+      phase: GamePhase.Heat,
+    },
+  };
+}
+
+function forceMovementState(session: IGameSession): IGameSession {
+  let movementSession = session;
+  if (movementSession.currentState.phase === GamePhase.Initiative) {
+    movementSession = rollInitiative(movementSession, GameSide.Player, () => 6);
+    movementSession = advancePhase(movementSession);
+  }
+
+  return {
+    ...movementSession,
+    currentState: {
+      ...movementSession.currentState,
+      status: GameStatus.Active,
+      phase: GamePhase.Movement,
+      units: {
+        ...movementSession.currentState.units,
+        'player-a': {
+          ...movementSession.currentState.units['player-a'],
+          facing: Facing.North,
+          lockState: LockState.Pending,
+        },
+      },
+    },
+  };
+}
+
+function forceProneMovementState(session: IGameSession): IGameSession {
+  return {
+    ...session,
+    units: session.units.map((unit) =>
+      unit.id === 'player-a' ? { ...unit, piloting: 2 } : unit,
+    ),
+    currentState: {
+      ...session.currentState,
+      status: GameStatus.Active,
+      phase: GamePhase.Movement,
+      units: {
+        ...session.currentState.units,
+        'player-a': {
+          ...session.currentState.units['player-a'],
+          prone: true,
+          pilotWounds: 0,
+          destroyed: false,
+        },
+      },
+    },
+  };
+}
+
+describe('useGameplayStore utility actions', () => {
+  beforeEach(() => {
+    useGameplayStore.getState().reset();
+  });
+
+  it('turns the eject action into UnitEjected state for local sessions', () => {
+    const session = makeSession();
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+        queuedWeaponIds: ['medium-laser'],
+      },
+    });
+
+    useGameplayStore.getState().handleAction('eject');
+
+    const updated = useGameplayStore.getState().session!;
+    const event = updated.events.find(
+      (entry) => entry.type === GameEventType.UnitEjected,
+    );
+    expect(event).toBeDefined();
+    expect(event!.payload).toMatchObject({
+      unitId: 'player-a',
+      reason: 'player_declared',
+    });
+    expect(updated.currentState.units['player-a'].hasEjected).toBe(true);
+    expect(updated.currentState.units['player-a'].destroyed).toBe(false);
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
+  });
+
+  it('delegates eject to InteractiveSession when one is active', () => {
+    let snapshot = makeSession();
+    const ejectedUnitIds: string[] = [];
+    const fake = {
+      ejectUnit: (unitId: string) => {
+        ejectedUnitIds.push(unitId);
+        snapshot = {
+          ...snapshot,
+          currentState: {
+            ...snapshot.currentState,
+            units: {
+              ...snapshot.currentState.units,
+              [unitId]: {
+                ...snapshot.currentState.units[unitId],
+                hasEjected: true,
+                lockState: LockState.Resolved,
+              },
+            },
+          },
+        };
+      },
+      getSession: () => snapshot,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session: snapshot,
+      interactiveSession: fake,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+        queuedWeaponIds: ['medium-laser'],
+      },
+    });
+
+    useGameplayStore.getState().handleAction('eject');
+
+    expect(ejectedUnitIds).toEqual(['player-a']);
+    expect(
+      useGameplayStore.getState().session!.currentState.units['player-a']
+        .hasEjected,
+    ).toBe(true);
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
+  });
+
+  it('turns the stand action into a local stand-up PSR attempt', () => {
+    const session = forceProneMovementState(makeSession());
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+        queuedWeaponIds: ['medium-laser'],
+      },
+    });
+
+    useGameplayStore.getState().handleAction('stand');
+
+    const updated = useGameplayStore.getState().session!;
+    expect(
+      updated.events.some((entry) => entry.type === GameEventType.PSRTriggered),
+    ).toBe(true);
+    expect(
+      updated.events.some((entry) => entry.type === GameEventType.PSRResolved),
+    ).toBe(true);
+    expect(
+      updated.events.some((entry) => entry.type === GameEventType.UnitStood),
+    ).toBe(true);
+    expect(updated.currentState.units['player-a'].prone).toBe(false);
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
+  });
+
+  it('delegates stand to InteractiveSession when one is active', () => {
+    let snapshot = forceProneMovementState(makeSession());
+    const standUnitIds: string[] = [];
+    const fake = {
+      attemptStandUp: (unitId: string) => {
+        standUnitIds.push(unitId);
+        snapshot = {
+          ...snapshot,
+          currentState: {
+            ...snapshot.currentState,
+            units: {
+              ...snapshot.currentState.units,
+              [unitId]: {
+                ...snapshot.currentState.units[unitId],
+                prone: false,
+              },
+            },
+          },
+        };
+      },
+      getSession: () => snapshot,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session: snapshot,
+      interactiveSession: fake,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+        queuedWeaponIds: ['medium-laser'],
+      },
+    });
+
+    useGameplayStore.getState().handleAction('stand');
+
+    expect(standUnitIds).toEqual(['player-a']);
+    expect(
+      useGameplayStore.getState().session!.currentState.units['player-a'].prone,
+    ).toBe(false);
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
+    expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
+  });
+
+  it('turns facing-right into a same-hex movement declaration for local sessions', () => {
+    const session = forceMovementState(makeSession());
+    const start = session.currentState.units['player-a'].position;
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+      },
+    });
+
+    useGameplayStore.getState().handleAction('facing-right');
+
+    const updated = useGameplayStore.getState().session!;
+    const movement = updated.events.find(
+      (entry) => entry.type === GameEventType.MovementDeclared,
+    );
+    expect(movement?.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'player-a',
+      from: start,
+      to: start,
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      mpUsed: 1,
+      heatGenerated: 1,
+    });
+    expect(
+      updated.events.some(
+        (entry) => entry.type === GameEventType.MovementLocked,
+      ),
+    ).toBe(true);
+    expect(updated.currentState.units['player-a'].facing).toBe(
+      Facing.Northeast,
+    );
+    expect(updated.currentState.units['player-a'].lockState).toBe(
+      LockState.Locked,
+    );
+  });
+
+  it('delegates facing-left to InteractiveSession as a same-hex movement', () => {
+    let snapshot = forceMovementState(makeSession());
+    const movements: Array<{
+      readonly unitId: string;
+      readonly facing: Facing;
+      readonly movementType: MovementType;
+      readonly path: readonly { readonly q: number; readonly r: number }[];
+    }> = [];
+    const fake = {
+      applyMovement: (
+        unitId: string,
+        _to: { q: number; r: number },
+        facing: Facing,
+        movementType: MovementType,
+        path: readonly { readonly q: number; readonly r: number }[],
+      ) => {
+        movements.push({ unitId, facing, movementType, path });
+        snapshot = {
+          ...snapshot,
+          currentState: {
+            ...snapshot.currentState,
+            units: {
+              ...snapshot.currentState.units,
+              [unitId]: {
+                ...snapshot.currentState.units[unitId],
+                facing,
+              },
+            },
+          },
+        };
+      },
+      getSession: () => snapshot,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session: snapshot,
+      interactiveSession: fake,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+      },
+    });
+
+    useGameplayStore.getState().handleAction('facing-left');
+
+    expect(movements).toEqual([
+      {
+        unitId: 'player-a',
+        facing: Facing.Northwest,
+        movementType: MovementType.Walk,
+        path: [snapshot.currentState.units['player-a'].position],
+      },
+    ]);
+    expect(
+      useGameplayStore.getState().session!.currentState.units['player-a']
+        .facing,
+    ).toBe(Facing.Northwest);
+  });
+
+  it('excludes ejected targets when selecting a weapon-attack target', () => {
+    const base = forceWeaponAttackState(makeSession());
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: {
+          ...base.currentState.units,
+          'opponent-a': {
+            ...base.currentState.units['opponent-a'],
+            hasEjected: true,
+          },
+          'opponent-b': {
+            id: 'opponent-b',
+            side: GameSide.Opponent,
+            position: { q: 1, r: 0 },
+            facing: Facing.South,
+            heat: 0,
+            movementThisTurn: MovementType.Stationary,
+            hexesMovedThisTurn: 0,
+            armor: {},
+            structure: {},
+            destroyedLocations: [],
+            destroyedEquipment: [],
+            ammo: {},
+            pilotWounds: 0,
+            pilotConscious: true,
+            destroyed: false,
+            lockState: LockState.Pending,
+            hasRetreated: false,
+            hasEjected: false,
+          },
+        },
+      },
+    } satisfies IGameSession;
+    const fake = {
+      getState: () => session.currentState,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session,
+      interactiveSession: fake,
+      interactivePhase: InteractivePhase.SelectUnit,
+      ui: DEFAULT_UI_STATE,
+    });
+
+    useGameplayStore.getState().handleInteractiveTokenClick('player-a');
+
+    expect(useGameplayStore.getState().validTargetIds).toEqual(['opponent-b']);
+  });
+
+  it('turns the heat continue action into an interactive heat phase advance', () => {
+    let snapshot = forceHeatState(makeSession());
+    const advancedFrom: GamePhase[] = [];
+    const fake = {
+      advancePhase: () => {
+        advancedFrom.push(snapshot.currentState.phase);
+        snapshot = {
+          ...snapshot,
+          currentState: {
+            ...snapshot.currentState,
+            phase: GamePhase.End,
+          },
+        };
+      },
+      getSession: () => snapshot,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session: snapshot,
+      interactiveSession: fake,
+      ui: DEFAULT_UI_STATE,
+    });
+
+    useGameplayStore.getState().handleAction('continue');
+
+    expect(advancedFrom).toEqual([GamePhase.Heat]);
+    expect(useGameplayStore.getState().session!.currentState.phase).toBe(
+      GamePhase.End,
+    );
+  });
+
+  it('keeps heat continue inert outside the Heat phase', () => {
+    const session = forceWeaponAttackState(makeSession());
+    const advancedFrom: GamePhase[] = [];
+    const fake = {
+      advancePhase: () => {
+        advancedFrom.push(session.currentState.phase);
+      },
+      getSession: () => session,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session,
+      interactiveSession: fake,
+      ui: DEFAULT_UI_STATE,
+    });
+
+    useGameplayStore.getState().handleAction('continue');
+
+    expect(advancedFrom).toEqual([]);
+    expect(useGameplayStore.getState().session!.currentState.phase).toBe(
+      GamePhase.WeaponAttack,
+    );
+  });
+});

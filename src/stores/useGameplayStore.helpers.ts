@@ -6,15 +6,24 @@ import {
   IGameplayUIState,
   GamePhase,
   GameSide,
+  MovementType,
 } from '@/types/gameplay';
+import { createUnitEjectedEvent } from '@/utils/gameplay/gameEvents';
 import {
   lockMovement,
+  declareMovement,
+  attemptStandUp,
   advancePhase,
+  appendEvent,
   canAdvancePhase,
   rollInitiative,
   endGame,
   replayToSequence,
 } from '@/utils/gameplay/gameSession';
+import {
+  rotateFacingClockwise,
+  rotateFacingCounterClockwise,
+} from '@/utils/gameplay/unitPosition';
 import { logger } from '@/utils/logger';
 
 import { useAnimationQueue } from './useAnimationQueue';
@@ -63,6 +72,7 @@ export function handleActionLogic(
   session: IGameSession | null,
   ui: IGameplayUIState,
   set: SetFn,
+  interactiveSession?: InteractiveSession | null,
 ): void {
   if (!session) return;
 
@@ -99,6 +109,80 @@ export function handleActionLogic(
       }
       break;
     }
+    case 'continue': {
+      if (phase !== GamePhase.Heat || !canAdvancePhase(session)) return;
+
+      if (interactiveSession) {
+        interactiveSession.advancePhase();
+        set({ session: interactiveSession.getSession() });
+        break;
+      }
+
+      const updatedSession = advancePhase(session);
+      set({ session: updatedSession });
+      break;
+    }
+    case 'stand': {
+      const unitId = ui.selectedUnitId;
+      if (!unitId || phase !== GamePhase.Movement) return;
+
+      if (interactiveSession) {
+        interactiveSession.attemptStandUp(unitId);
+        set({
+          session: interactiveSession.getSession(),
+          ui: clearCombatSelection(ui),
+        });
+        break;
+      }
+
+      set({
+        session: attemptStandUp(session, unitId),
+        ui: clearCombatSelection(ui),
+      });
+      break;
+    }
+    case 'facing-left':
+    case 'facing-right': {
+      const unitId = ui.selectedUnitId;
+      if (!unitId || phase !== GamePhase.Movement) return;
+
+      const unit = session.currentState.units[unitId];
+      if (!unit || unit.destroyed || unit.hasRetreated || unit.hasEjected) {
+        return;
+      }
+
+      const facing =
+        actionId === 'facing-left'
+          ? rotateFacingCounterClockwise(unit.facing)
+          : rotateFacingClockwise(unit.facing);
+
+      if (interactiveSession) {
+        interactiveSession.applyMovement(
+          unitId,
+          unit.position,
+          facing,
+          MovementType.Walk,
+          [unit.position],
+        );
+        set({ session: interactiveSession.getSession() });
+        break;
+      }
+
+      let updatedSession = declareMovement(
+        session,
+        unitId,
+        unit.position,
+        unit.position,
+        facing,
+        MovementType.Walk,
+        1,
+        1,
+        [unit.position],
+      );
+      updatedSession = lockMovement(updatedSession, unitId);
+      set({ session: updatedSession });
+      break;
+    }
     case 'clear':
       set((state) => {
         return {
@@ -120,6 +204,38 @@ export function handleActionLogic(
     case 'concede': {
       const updatedSession = endGame(session, GameSide.Opponent, 'concede');
       set({ session: updatedSession });
+      break;
+    }
+    case 'eject': {
+      const unitId = ui.selectedUnitId;
+      if (!unitId) return;
+
+      const unit = session.currentState.units[unitId];
+      if (!unit || unit.destroyed || unit.hasRetreated || unit.hasEjected) {
+        return;
+      }
+
+      if (interactiveSession) {
+        interactiveSession.ejectUnit(unitId);
+        set({
+          session: interactiveSession.getSession(),
+          ui: clearCombatSelection(ui),
+        });
+        break;
+      }
+
+      const ejectionEvent = createUnitEjectedEvent(
+        session.id,
+        session.events.length,
+        session.currentState.turn,
+        session.currentState.phase,
+        unitId,
+        'player_declared',
+      );
+      set({
+        session: appendEvent(session, ejectionEvent),
+        ui: clearCombatSelection(ui),
+      });
       break;
     }
     default:
@@ -226,7 +342,15 @@ export function handleInteractiveTokenClickLogic(
 
   const state = interactiveSession.getState();
   const unit = state.units[unitId];
-  if (!unit || unit.destroyed) return;
+  if (
+    !unit ||
+    unit.destroyed ||
+    unit.hasRetreated ||
+    unit.hasEjected ||
+    !unit.pilotConscious
+  ) {
+    return;
+  }
 
   const { phase } = state;
 
@@ -242,7 +366,13 @@ export function handleInteractiveTokenClickLogic(
           ui: { ...s.ui, selectedUnitId: unitId },
           interactivePhase: InteractivePhase.SelectTarget,
           validTargetIds: Object.entries(state.units)
-            .filter(([, u]) => u.side === GameSide.Opponent && !u.destroyed)
+            .filter(
+              ([, u]) =>
+                u.side === GameSide.Opponent &&
+                !u.destroyed &&
+                !u.hasRetreated &&
+                !u.hasEjected,
+            )
             .map(([id]) => id),
         };
       });
@@ -294,6 +424,15 @@ export function skipPhaseLogic(
       queuedWeaponIds: [],
     },
   });
+}
+
+function clearCombatSelection(ui: IGameplayUIState): IGameplayUIState {
+  return {
+    ...ui,
+    selectedUnitId: null,
+    targetUnitId: null,
+    queuedWeaponIds: [],
+  };
 }
 
 function shouldWaitForAnimations(): boolean {

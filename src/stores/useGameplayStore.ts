@@ -369,8 +369,8 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   // Phase / AI / engine handshake (delegated to useGameplayStore.helpers)
   // -------------------------------------------------------------------------
   handleAction: (actionId) => {
-    const { session, ui } = get();
-    handleActionLogic(actionId, session, ui, set);
+    const { session, ui, interactiveSession } = get();
+    handleActionLogic(actionId, session, ui, set, interactiveSession);
   },
   runAITurn: () => {
     const { interactiveSession } = get();

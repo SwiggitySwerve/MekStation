@@ -33,6 +33,7 @@ import {
   canMeleeWeapon,
   canPunch,
 } from '@/utils/gameplay/physicalAttacks/restrictions';
+import { SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES } from '@/utils/gameplay/physicalAttacks/types';
 
 export interface PhysicalAttackTypePickerProps {
   /**
@@ -80,12 +81,6 @@ interface OptionRow {
   enabled: boolean;
   reason?: string;
 }
-
-const ALL_MELEE_TYPES: readonly PhysicalAttackType[] = [
-  'hatchet',
-  'sword',
-  'mace',
-];
 
 /**
  * Build the picker row list. Each row computes its own
@@ -161,7 +156,7 @@ function buildOptions(props: PhysicalAttackTypePickerProps): OptionRow[] {
   // Only render melee-weapon rows for weapons the mech actually has.
   // Equipped-but-blocked weapons render as disabled rows so the player
   // sees WHY they can't swing this turn.
-  for (const meleeType of ALL_MELEE_TYPES) {
+  for (const meleeType of SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES) {
     if (!props.meleeWeaponsEquipped?.includes(meleeType)) continue;
     const restriction = canMeleeWeapon({
       ...baseInput,
