@@ -317,6 +317,8 @@ export function deriveCombatRangeHexes({
       indirectFireSpotterId: indirectFire?.spotterId,
       indirectFireBasis: indirectFire?.basis,
       indirectFireToHitPenalty: indirectFire?.toHitPenalty,
+      indirectFireForwardObserver: indirectFire?.forwardObserverApplied,
+      indirectFirePenaltyCancelled: indirectFire?.penaltyCancelled,
       indirectFireReason: indirectFire?.reason,
     });
   }

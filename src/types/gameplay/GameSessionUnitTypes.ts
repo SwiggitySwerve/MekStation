@@ -76,6 +76,8 @@ export interface IGameUnit {
   /** Pilot skills */
   readonly gunnery: number;
   readonly piloting: number;
+  /** Canonical Special Piloting Ability ids carried by this unit's pilot. */
+  readonly pilotSpas?: readonly string[];
   /** Total heat sinks on unit (default: 10 if not provided) */
   readonly heatSinks?: number;
   /**

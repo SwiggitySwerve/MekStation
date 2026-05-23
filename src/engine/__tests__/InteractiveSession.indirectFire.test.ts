@@ -259,6 +259,31 @@ describe('computeIndirectFireContext', () => {
     expect(result.toHitPenalty).toBe(penalty);
   });
 
+  it('uses session-state pilot SPAs to cancel walked Forward Observer penalty', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const spotter = {
+      ...makeUnit('s1', GameSide.Player, { q: 5, r: 1 }, MovementType.Walk),
+      pilotSpas: ['forward_observer'],
+    };
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, spotter]),
+      makeBlockedGrid(),
+    );
+
+    expect(result).toMatchObject({
+      permitted: true,
+      isIndirect: true,
+      spotterId: 's1',
+      basis: 'los',
+      toHitPenalty: 1,
+      forwardObserverApplied: true,
+      spotterMovementPenaltyCancelled: 1,
+    });
+  });
+
   // -------------------------------------------------------------------------
   // Skips destroyed / retreated units when enumerating candidates
   // -------------------------------------------------------------------------

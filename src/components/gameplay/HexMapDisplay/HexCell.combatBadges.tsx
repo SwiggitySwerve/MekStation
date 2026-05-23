@@ -255,6 +255,12 @@ export function CombatRangeBadge({
           data-combat-indirect-badge-penalty={
             combatInfo.indirectFireToHitPenalty
           }
+          data-combat-indirect-badge-forward-observer={
+            combatInfo.indirectFireForwardObserver ? 'true' : undefined
+          }
+          data-combat-indirect-badge-penalty-cancelled={
+            combatInfo.indirectFirePenaltyCancelled
+          }
         >
           <title>{indirectTitle}</title>
           <rect

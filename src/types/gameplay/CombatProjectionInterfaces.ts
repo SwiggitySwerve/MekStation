@@ -106,6 +106,10 @@ export interface ICombatRangeHex {
   readonly indirectFireBasis?: IndirectFireBasis;
   /** To-hit penalty contributed by indirect fire */
   readonly indirectFireToHitPenalty?: number;
+  /** Forward Observer SPA cancelled the walked-spotter indirect-fire add */
+  readonly indirectFireForwardObserver?: boolean;
+  /** Indirect-fire penalty points cancelled by Forward Observer */
+  readonly indirectFirePenaltyCancelled?: number;
   /** Player-facing indirect-fire explanation */
   readonly indirectFireReason?: string;
 }

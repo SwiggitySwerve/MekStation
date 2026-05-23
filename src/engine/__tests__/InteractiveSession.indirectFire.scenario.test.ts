@@ -18,7 +18,10 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IIndirectFireSpotterSelectedPayload } from '@/types/gameplay/CombatInterfaces';
+import type {
+  IIndirectFireForwardObserverPayload,
+  IIndirectFireSpotterSelectedPayload,
+} from '@/types/gameplay/CombatInterfaces';
 import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
 import {
@@ -226,6 +229,48 @@ describe('applyInteractiveSessionAttack — indirect-fire wiring (PR-K5)', () =>
     expect(spotterPayload.spotterId).toBe('s1');
     expect(spotterPayload.weaponId).toBe('lrm-15-1');
     expect(spotterPayload.basis).toBe('los');
+  });
+
+  it('POSITIVE: Forward Observer spotter cancels walked penalty and emits FO event', () => {
+    const session = setupSessionAtWeaponAttack(true);
+    session.currentState.units.s1 = {
+      ...session.currentState.units.s1,
+      movementThisTurn: MovementType.Walk,
+      pilotSpas: ['forward_observer'],
+    };
+    const grid = makeBlockedGrid();
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsMap(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-15-1'],
+      grid,
+    });
+
+    const declared = result.events.find(
+      (e) => e.type === GameEventType.AttackDeclared,
+    );
+    const declaredPayload = declared!.payload as IAttackDeclaredPayload;
+    expect(
+      declaredPayload.modifiers.find((m) => m.name === 'Indirect fire'),
+    ).toMatchObject({ value: 1 });
+
+    const forwardObserverEvent = result.events.find(
+      (e) => e.type === GameEventType.IndirectFireForwardObserver,
+    );
+    expect(forwardObserverEvent).toBeDefined();
+    expect(
+      forwardObserverEvent!.payload as IIndirectFireForwardObserverPayload,
+    ).toMatchObject({
+      attackerId: 'a1',
+      spotterId: 's1',
+      weaponId: 'lrm-15-1',
+      basis: 'los',
+      toHitPenalty: 1,
+      penaltyCancelled: 1,
+    });
   });
 
   it('NEGATIVE: no spotter present — blocked LOS emits AttackInvalid', () => {

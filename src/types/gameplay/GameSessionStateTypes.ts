@@ -136,6 +136,12 @@ export interface IUnitGameState {
    * semantics as `gunnery` — `DEFAULT_PILOTING` applies when absent.
    */
   readonly piloting?: number;
+  /**
+   * Canonical SPA ids copied from the session unit binding so rules projection
+   * and commit validation can resolve pilot abilities without reaching back
+   * into the campaign vault.
+   */
+  readonly pilotSpas?: readonly string[];
   /** Armor remaining per location */
   readonly armor: Record<string, number>;
   /** Structure remaining per location */

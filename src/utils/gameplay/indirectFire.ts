@@ -137,6 +137,10 @@ export interface IIndirectFireResult {
   readonly spotterWalked: boolean;
   /** Total indirect fire to-hit penalty (+1 base plus represented movement) */
   readonly toHitPenalty: number;
+  /** Forward Observer SPA cancelled the represented walked-spotter add. */
+  readonly forwardObserverApplied?: boolean;
+  /** Penalty points cancelled by Forward Observer, when represented. */
+  readonly spotterMovementPenaltyCancelled?: number;
   /** LOS result from spotter to target */
   readonly spotterLOS?: ILOSResult;
   /**
@@ -470,8 +474,10 @@ export function resolveIndirectFire(
     // indirect-fire penalty still applies, and run/jump spotter penalties are
     // left intact until those SPA interactions are represented explicitly.
     const hasFoSpa = spotter.pilotSpas?.includes('forward_observer') ?? false;
-    const movementPenalty =
-      spotterWalked && hasFoSpa ? 0 : calculateSpotterMovementPenalty(spotter);
+    const forwardObserverApplied = spotterWalked && hasFoSpa;
+    const movementPenalty = forwardObserverApplied
+      ? 0
+      : calculateSpotterMovementPenalty(spotter);
 
     // Per MegaMek ArtilleryWeaponIndirectFireHandler.java L192-194:
     //   int spotterMod = (spotter.getGunnery() - 4) / 2;
@@ -491,6 +497,8 @@ export function resolveIndirectFire(
       spotter,
       spotterWalked,
       toHitPenalty,
+      forwardObserverApplied,
+      spotterMovementPenaltyCancelled: forwardObserverApplied ? 1 : 0,
       spotterLOS: losResult,
     };
   }
@@ -607,6 +615,8 @@ export function resolveIndirectFireWithSemiGuided(
       spotter: undefined,
       toHitPenalty: 0,
       spotterWalked: false,
+      forwardObserverApplied: false,
+      spotterMovementPenaltyCancelled: 0,
     };
   }
 

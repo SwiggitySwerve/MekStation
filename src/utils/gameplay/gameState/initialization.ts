@@ -240,6 +240,7 @@ export function createInitialUnitState(
     // These fields never mutate mid-match.
     gunnery: unit.gunnery,
     piloting: unit.piloting,
+    pilotSpas: unit.pilotSpas,
     armor: {},
     structure: {},
     // Per `add-bot-retreat-behavior` § 2 (Trigger A): the retreat trigger

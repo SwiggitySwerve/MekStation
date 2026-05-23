@@ -756,6 +756,10 @@ export interface IIndirectFireResolution {
    * 4 = base + spotter jumped.
    */
   readonly toHitPenalty: number;
+  /** Forward Observer SPA cancelled the represented walked-spotter add. */
+  readonly forwardObserverApplied?: boolean;
+  /** Penalty points cancelled by Forward Observer, when represented. */
+  readonly spotterMovementPenaltyCancelled?: number;
   /** Human-readable reason when permitted=false. */
   readonly reason?: string;
 }

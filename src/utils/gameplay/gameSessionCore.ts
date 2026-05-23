@@ -64,6 +64,7 @@ import {
   createGameCreatedEvent,
   createGameEndedEvent,
   createGameStartedEvent,
+  createIndirectFireForwardObserverEvent,
   createIndirectFireNarcOverrideEvent,
   createIndirectFireSpotterSelectedEvent,
   createInitiativeRolledEvent,
@@ -612,6 +613,19 @@ export function declareAttack(
         indirectFireResolution.toHitPenalty,
       );
       updatedSession = appendEvent(updatedSession, spotterEvent);
+      if (indirectFireResolution.forwardObserverApplied === true) {
+        const forwardObserverEvent = createIndirectFireForwardObserverEvent(
+          updatedSession.id,
+          updatedSession.events.length,
+          turn,
+          attackerId,
+          indirectFireResolution.spotterId,
+          eventWeaponId,
+          resolvedTargetHex,
+          indirectFireResolution.toHitPenalty,
+        );
+        updatedSession = appendEvent(updatedSession, forwardObserverEvent);
+      }
     }
   }
 

@@ -43,13 +43,18 @@ function formatIndirectFireReason({
   basis,
   spotterId,
   toHitPenalty,
+  forwardObserverApplied,
 }: {
   readonly basis: IndirectFireBasis;
   readonly spotterId?: string | null;
   readonly toHitPenalty: number;
+  readonly forwardObserverApplied?: boolean;
 }): string {
   if (basis === 'los') {
-    return `Indirect fire via spotter ${spotterId ?? 'unknown'} (+${toHitPenalty})`;
+    const reason = `Indirect fire via spotter ${spotterId ?? 'unknown'} (+${toHitPenalty})`;
+    return forwardObserverApplied
+      ? `${reason}; Forward Observer cancels walked spotter penalty`
+      : reason;
   }
   if (basis === 'semi-guided-tag') {
     return 'Semi-guided indirect fire via TAG (no indirect penalty)';
@@ -232,6 +237,7 @@ function buildSpotterCandidates(
     isOperational: !unit.destroyed && !unit.shutdown && !unit.hasRetreated,
     isAirborneAerospace: isAirborneGameUnit(unit),
     airborneAeroSpottingEquipment: getAirborneAeroSpottingEquipment(unit),
+    pilotSpas: unit.pilotSpas,
     spotterGunnery: unit.gunnery,
   }));
 }
@@ -294,6 +300,8 @@ export function deriveIndirectFireProjection({
       readonly spotterId: string | null;
       readonly basis: IndirectFireBasis;
       readonly toHitPenalty: number;
+      readonly forwardObserverApplied?: boolean;
+      readonly penaltyCancelled?: number;
       readonly reason: string;
       readonly interveningTerrainEffects: readonly ILOSInterveningTerrainEffect[];
     }
@@ -345,12 +353,15 @@ export function deriveIndirectFireProjection({
     spotterId,
     basis: result.basis,
     toHitPenalty: result.toHitPenalty,
+    forwardObserverApplied: result.forwardObserverApplied,
+    penaltyCancelled: result.spotterMovementPenaltyCancelled,
     interveningTerrainEffects:
       result.spotterLOS?.interveningTerrainEffects ?? [],
     reason: formatIndirectFireReason({
       basis: result.basis,
       spotterId,
       toHitPenalty: result.toHitPenalty,
+      forwardObserverApplied: result.forwardObserverApplied,
     }),
   };
 }

@@ -267,6 +267,8 @@ export interface IApplyAttackInput {
   readonly weaponIds: readonly string[];
   /** Wave 8 PR-K5: optional grid for indirect-fire LOS + spotter election. */
   readonly grid?: IHexGrid;
+  /** Optional unit-id to canonical pilot SPA ids map for indirect-fire SPAs. */
+  readonly pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>;
   /**
    * Wave 8 PR-K5: optional override of the target hex carried on the
    * indirect-fire event payloads. Defaults to the target unit's live
@@ -535,7 +537,7 @@ export function applyInteractiveSessionAttack(
           resolvedTargetHex,
           input.session.currentState,
           input.grid,
-          undefined,
+          input.pilotSpasByUnitId,
           input.targetId,
           losTokens,
         );

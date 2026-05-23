@@ -326,6 +326,12 @@ export const HexCell = React.memo(function HexCell({
       data-combat-indirect-spotter={combatInfo?.indirectFireSpotterId}
       data-combat-indirect-basis={combatInfo?.indirectFireBasis}
       data-combat-indirect-penalty={combatInfo?.indirectFireToHitPenalty}
+      data-combat-indirect-forward-observer={
+        combatInfo?.indirectFireForwardObserver ? 'true' : undefined
+      }
+      data-combat-indirect-penalty-cancelled={
+        combatInfo?.indirectFirePenaltyCancelled
+      }
       data-combat-indirect-reason={combatInfo?.indirectFireReason}
       data-weapons-in-range={combatInfo?.weaponIdsInRange.join(',')}
       data-weapons-in-arc={combatInfo?.weaponIdsInArc.join(',')}

@@ -15,6 +15,7 @@
 
 import type {
   IIndirectFireResolution,
+  IIndirectFireForwardObserverPayload,
   IIndirectFireSpotterSelectedPayload,
   IIndirectFireNarcOverridePayload,
 } from '@/types/gameplay/CombatInterfaces';
@@ -243,6 +244,52 @@ describe('declareAttack indirect-fire dispatch (PR-K4 §5.1)', () => {
     const spotterPayload = spotterEvent!
       .payload as IIndirectFireSpotterSelectedPayload;
     expect(spotterPayload.toHitPenalty).toBe(2);
+  });
+
+  it('emits ForwardObserver event when FO cancels walked spotter penalty', () => {
+    const session = setupWeaponAttackSession();
+    const resolution: IIndirectFireResolution = {
+      permitted: true,
+      isIndirect: true,
+      spotterId: 's1',
+      basis: 'los',
+      toHitPenalty: 1,
+      forwardObserverApplied: true,
+      spotterMovementPenaltyCancelled: 1,
+    };
+
+    const result = declareAttack(
+      session,
+      'a1',
+      't1',
+      buildLRMAttack(),
+      14,
+      RangeBracket.Medium,
+      resolution,
+    );
+
+    const spotterEventIndex = result.events.findIndex(
+      (e) => e.type === GameEventType.IndirectFireSpotterSelected,
+    );
+    const forwardObserverEvent = result.events.find(
+      (e) => e.type === GameEventType.IndirectFireForwardObserver,
+    );
+
+    expect(spotterEventIndex).toBeGreaterThan(-1);
+    expect(forwardObserverEvent).toBeDefined();
+    expect(forwardObserverEvent!.sequence).toBe(
+      result.events[spotterEventIndex].sequence + 1,
+    );
+    expect(
+      forwardObserverEvent!.payload as IIndirectFireForwardObserverPayload,
+    ).toMatchObject({
+      attackerId: 'a1',
+      spotterId: 's1',
+      weaponId: 'lrm-15-1',
+      basis: 'los',
+      toHitPenalty: 1,
+      penaltyCancelled: 1,
+    });
   });
 
   it('does NOT emit indirect events when resolution.permitted is false', () => {

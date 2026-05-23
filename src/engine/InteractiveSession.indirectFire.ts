@@ -143,9 +143,9 @@ export function computeIndirectFireContext(
       isOperational: !unit.destroyed && !unit.shutdown,
       isAirborneAerospace: isAirborneGameUnit(unit),
       airborneAeroSpottingEquipment: getAirborneAeroSpottingEquipment(unit),
-      // Thread pilot SPA list into candidate when caller supplies it.
-      // Absent entries leave pilotSpas undefined — no SPA modifier applied.
-      pilotSpas: pilotSpasByUnitId?.[unitId],
+      // Prefer per-call pilot SPA overrides, then persisted session state.
+      // Absent entries leave pilotSpas undefined - no SPA modifier applied.
+      pilotSpas: pilotSpasByUnitId?.[unitId] ?? unit.pilotSpas,
       // Thread pilot gunnery into candidate for the spotter-skill modifier.
       // IUnitGameState.gunnery is optional (seeded at session-creation time from
       // IGameUnit.gunnery). When absent (synthetic fixtures, legacy saves), the
@@ -215,5 +215,7 @@ export function computeIndirectFireContext(
     spotterId: result.spotter?.entityId ?? null,
     basis: result.basis,
     toHitPenalty: result.toHitPenalty,
+    forwardObserverApplied: result.forwardObserverApplied,
+    spotterMovementPenaltyCancelled: result.spotterMovementPenaltyCancelled,
   };
 }
