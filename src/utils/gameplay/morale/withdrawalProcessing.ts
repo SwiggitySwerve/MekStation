@@ -142,6 +142,7 @@ export function applyWithdrawalEdgeExits(session: IGameSession): IGameSession {
     if (!unit) continue;
     if (unit.destroyed) continue;
     if (unit.hasRetreated) continue;
+    if (unit.hasEjected) continue;
     if (!unit.isWithdrawing && !unit.isRetreating) continue;
     if (!unit.retreatTargetEdge) continue;
     if (
@@ -189,7 +190,7 @@ export function declarePlayerWithdrawal(
 ): IGameSession {
   const unit = session.currentState.units[unitId];
   if (!unit) return session;
-  if (unit.destroyed || unit.hasRetreated) return session;
+  if (unit.destroyed || unit.hasRetreated || unit.hasEjected) return session;
   if (unit.isWithdrawing) return session;
 
   const { turn, phase } = session.currentState;

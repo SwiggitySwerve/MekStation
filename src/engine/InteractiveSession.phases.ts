@@ -12,7 +12,10 @@
  * call order are identical to the pre-extraction class body.
  */
 
-import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
+import type {
+  IHexCoordinate,
+  IHexGrid,
+} from '@/types/gameplay/HexGridInterfaces';
 import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import { resolveEdge } from '@/simulation/ai/RetreatAI';
@@ -60,8 +63,12 @@ export interface IInteractiveSessionPhaseContext {
   readonly diceRollerForResolvers: () => DiceRoller | undefined;
   /** Per-unit physical-attack context (tonnage / piloting / hexes moved). */
   readonly physicalContextByUnit: () => Map<string, IPhysicalAttackContext>;
+  /** Encounter grid for source-backed physical displacement validation. */
+  readonly grid?: () => IHexGrid | undefined;
   /** Water-depth provider for the Heat-phase cooling bonus. */
   readonly waterDepthAt: (position: IHexCoordinate) => number;
+  /** Terrain heat provider for fire and other environmental heat sources. */
+  readonly environmentHeatEffectAt: (position: IHexCoordinate) => number;
   /** Win-condition predicate — gates the End-phase advance. */
   readonly isGameOver: () => boolean;
   /**
@@ -187,6 +194,7 @@ export function advanceInteractiveSessionPhase(
       session,
       context.physicalContextByUnit(),
       context.diceRollerForResolvers(),
+      context.grid?.(),
     );
     // Per `wire-piloting-skill-rolls` § 5: physical-attack damage can
     // also breach the 20+ threshold. Queue any new damage PSRs before
@@ -203,6 +211,8 @@ export function advanceInteractiveSessionPhase(
     // that doesn't match. Existing grids use `'clear'` → bonus 0.
     session = resolveHeatPhase(session, context.diceRollerForResolvers(), {
       getWaterDepth: (_unitId, position) => context.waterDepthAt(position),
+      getEnvironmentHeatEffect: (_unitId, position) =>
+        context.environmentHeatEffectAt(position),
     });
     session = runMoraleAndWithdrawalPass(session);
     session = advancePhase(session);

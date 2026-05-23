@@ -22,6 +22,7 @@ import {
 import {
   createMoraleShiftedEvent,
   createUnitDestroyedEvent,
+  createUnitEjectedEvent,
 } from '@/utils/gameplay/gameEvents';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
 import { appendEvent } from '@/utils/gameplay/gameSessionCore';
@@ -204,6 +205,34 @@ describe('forcedWithdrawalReasonFor — never re-triggers', () => {
       }),
     ).toBeNull();
   });
+
+  it('returns null for an ejected unit', () => {
+    const u: IUnitGameState = {
+      id: 'u',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      facing: 0,
+      heat: 0,
+      movementThisTurn: 'stationary' as IUnitGameState['movementThisTurn'],
+      hexesMovedThisTurn: 0,
+      armor: {},
+      structure: {},
+      destroyedLocations: [],
+      destroyedEquipment: [],
+      ammo: {},
+      pilotWounds: 0,
+      pilotConscious: true,
+      destroyed: false,
+      lockState: 'pending' as IUnitGameState['lockState'],
+      hasEjected: true,
+    };
+    expect(
+      forcedWithdrawalReasonFor(u, {
+        [GameSide.Player]: 'BROKEN',
+        [GameSide.Opponent]: 'STEADY',
+      }),
+    ).toBeNull();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -298,6 +327,30 @@ describe('Player Withdrawal Declaration', () => {
       'east',
     );
   });
+
+  it('does not declare withdrawal for an already ejected unit', () => {
+    let session = newSession();
+    session = appendEvent(
+      session,
+      createUnitEjectedEvent(
+        session.id,
+        session.events.length,
+        session.currentState.turn,
+        session.currentState.phase,
+        'player-1',
+        'player_declared',
+      ),
+    );
+    const afterEject = session.events.length;
+
+    session = declarePlayerWithdrawal(session, 'player-1', 'east');
+
+    expect(session.events.length).toBe(afterEject);
+    expect(session.currentState.units['player-1'].isWithdrawing).toBeFalsy();
+    expect(
+      session.currentState.units['player-1'].retreatTargetEdge,
+    ).toBeUndefined();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -328,6 +381,34 @@ describe('Withdrawal Map-Edge Exit', () => {
     session = applyWithdrawalEdgeExits(session);
     expect(
       session.events.some((e) => e.type === GameEventType.UnitRetreated),
+    ).toBe(false);
+  });
+
+  it('does not emit UnitRetreated for an ejected withdrawing unit', () => {
+    let session = newSession();
+    session = declarePlayerWithdrawal(session, 'player-1', 'north');
+    session = appendEvent(
+      session,
+      createUnitEjectedEvent(
+        session.id,
+        session.events.length,
+        session.currentState.turn,
+        session.currentState.phase,
+        'player-1',
+        'player_declared',
+      ),
+    );
+
+    session = applyWithdrawalEdgeExits(session);
+
+    expect(session.currentState.units['player-1'].hasEjected).toBe(true);
+    expect(session.currentState.units['player-1'].hasRetreated).toBeFalsy();
+    expect(
+      session.events.some(
+        (e) =>
+          e.type === GameEventType.UnitRetreated &&
+          (e.payload as { unitId: string }).unitId === 'player-1',
+      ),
     ).toBe(false);
   });
 });

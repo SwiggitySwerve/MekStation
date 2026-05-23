@@ -18,7 +18,10 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IIndirectFireSpotterSelectedPayload } from '@/types/gameplay/CombatInterfaces';
+import type {
+  IIndirectFireForwardObserverPayload,
+  IIndirectFireSpotterSelectedPayload,
+} from '@/types/gameplay/CombatInterfaces';
 import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
 import {
@@ -30,6 +33,7 @@ import {
   type IGameUnit,
   type IGameSession,
   type IAttackDeclaredPayload,
+  type IAttackInvalidPayload,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import {
@@ -159,6 +163,32 @@ function setupSessionAtWeaponAttack(includeSpotter: boolean): IGameSession {
 // =============================================================================
 
 describe('applyInteractiveSessionAttack — indirect-fire wiring (PR-K5)', () => {
+  it('NEGATIVE: invalid targets are not declaration-locked by the wrapper', () => {
+    const session = setupSessionAtWeaponAttack(false);
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsMap(),
+      attackerId: 'a1',
+      targetId: 'missing-target',
+      weaponIds: ['lrm-15-1'],
+    });
+
+    const newEvents = result.events.slice(session.events.length);
+    expect(newEvents.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(newEvents[0].payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 'missing-target',
+      weaponId: 'lrm-15-1',
+      reason: 'InvalidTarget',
+    });
+    expect(result.currentState.units.a1.lockState).toBe(
+      session.currentState.units.a1.lockState,
+    );
+  });
+
   it('POSITIVE: spotter with LOS triggers IndirectFireSpotterSelected', () => {
     const session = setupSessionAtWeaponAttack(true);
     const grid = makeBlockedGrid();
@@ -195,6 +225,84 @@ describe('applyInteractiveSessionAttack — indirect-fire wiring (PR-K5)', () =>
     expect(spotterPayload.spotterId).toBe('s1');
     expect(spotterPayload.weaponId).toBe('lrm-15-1');
     expect(spotterPayload.basis).toBe('los');
+  });
+
+  it('POSITIVE: walking Forward Observer spotter emits the cancellation event', () => {
+    const session = setupSessionAtWeaponAttack(true);
+    session.currentState.units.s1 = {
+      ...session.currentState.units.s1,
+      movementThisTurn: MovementType.Walk,
+      abilities: ['forward_observer'],
+    };
+    const grid = makeBlockedGrid();
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsMap(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-15-1'],
+      grid,
+    });
+
+    const indirectEvents = result.events.filter(
+      (e) =>
+        e.type === GameEventType.IndirectFireSpotterSelected ||
+        e.type === GameEventType.IndirectFireForwardObserver,
+    );
+    expect(indirectEvents.map((e) => e.type)).toEqual([
+      GameEventType.IndirectFireSpotterSelected,
+      GameEventType.IndirectFireForwardObserver,
+    ]);
+
+    const forwardObserverPayload = indirectEvents[1]
+      .payload as IIndirectFireForwardObserverPayload;
+    expect(forwardObserverPayload).toMatchObject({
+      attackerId: 'a1',
+      spotterId: 's1',
+      weaponId: 'lrm-15-1',
+      basis: 'los',
+      toHitPenalty: 1,
+      penaltyCancelled: 1,
+    });
+  });
+
+  it('POSITIVE: Oblique Attacker reduces indirect-fire declaration penalty', () => {
+    const session = setupSessionAtWeaponAttack(true);
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      abilities: ['oblique-attacker'],
+    };
+    const grid = makeBlockedGrid();
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsMap(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-15-1'],
+      grid,
+    });
+
+    const declared = result.events.find(
+      (e) => e.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const declaredPayload = declared!.payload as IAttackDeclaredPayload;
+    expect(
+      declaredPayload.modifiers.find((m) => m.name === 'Indirect fire'),
+    ).toBeUndefined();
+
+    const spotterEvent = result.events.find(
+      (e) => e.type === GameEventType.IndirectFireSpotterSelected,
+    );
+    expect(spotterEvent?.payload).toMatchObject({
+      attackerId: 'a1',
+      spotterId: 's1',
+      weaponId: 'lrm-15-1',
+      basis: 'los',
+      toHitPenalty: 0,
+    });
   });
 
   it('NEGATIVE: no spotter present — no indirect-fire events emitted', () => {

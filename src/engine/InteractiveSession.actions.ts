@@ -22,6 +22,7 @@ import {
   type IBALegAttackSquadDef,
   type IBASwarmFireSquadDef,
 } from '@/lib/combat/baCombat';
+import { GameEventType } from '@/types/gameplay';
 import {
   Facing,
   MovementType,
@@ -45,6 +46,7 @@ import {
   buildMovementEventPath,
   maxMovementCostForCapability,
 } from '@/utils/gameplay/movement/eventPath';
+import { validateMovement } from '@/utils/gameplay/movement/validation';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { computeIndirectFireContext } from './InteractiveSession.indirectFire';
@@ -79,15 +81,41 @@ export function applyInteractiveSessionMovement(
   if (!unit) return input.session;
 
   const capability = input.movementByUnit.get(input.unitId);
+  if (!capability) return input.session;
+
+  const validation = validateMovement(
+    input.grid,
+    {
+      unitId: input.unitId,
+      coord: unit.position,
+      facing: unit.facing,
+      prone: unit.prone ?? false,
+    },
+    input.to,
+    input.facing,
+    input.movementType,
+    capability,
+    unit.heat,
+  );
+  if (!validation.valid) {
+    throw new Error(
+      `Invalid movement for ${input.unitId}: ${validation.error ?? 'unknown'}`,
+    );
+  }
+
   const eventPath =
-    input.path ??
-    buildMovementEventPath({
-      grid: input.grid,
-      from: unit.position,
-      to: input.to,
-      movementType: input.movementType,
-      maxCost: maxMovementCostForCapability(capability, input.movementType),
-    });
+    input.movementType === MovementType.Jump && input.path
+      ? input.path
+      : buildMovementEventPath({
+          grid: input.grid,
+          from: unit.position,
+          to: input.to,
+          movementType: input.movementType,
+          maxCost: Math.min(
+            validation.mpCost,
+            maxMovementCostForCapability(capability, input.movementType),
+          ),
+        });
 
   let session = declareMovement(
     input.session,
@@ -96,8 +124,8 @@ export function applyInteractiveSessionMovement(
     input.to,
     input.facing,
     input.movementType,
-    0,
-    input.movementType === MovementType.Jump ? 1 : 0,
+    validation.mpCost,
+    validation.heatGenerated,
     eventPath,
   );
   session = lockMovement(session, input.unitId);
@@ -130,6 +158,10 @@ export interface IApplyAttackInput {
    * position when omitted.
    */
   readonly targetHex?: IHexCoordinate;
+  /** Optional called-shot intent keyed by weapon id. */
+  readonly calledShots?: Readonly<Record<string, boolean>>;
+  /** Optional teammate-assisted called-shot intent keyed by weapon id. */
+  readonly teammateCalledShots?: Readonly<Record<string, boolean>>;
 }
 
 /**
@@ -151,6 +183,10 @@ export function applyInteractiveSessionAttack(
     input.weaponIds,
     unitWeapons,
     input.attackerId,
+    {
+      calledShots: input.calledShots,
+      teammateCalledShots: input.teammateCalledShots,
+    },
   );
 
   // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid available.
@@ -178,6 +214,7 @@ export function applyInteractiveSessionAttack(
     }
   }
 
+  const eventCountBeforeDeclaration = input.session.events.length;
   let session = declareAttack(
     input.session,
     input.attackerId,
@@ -188,6 +225,11 @@ export function applyInteractiveSessionAttack(
     indirectFireResolution,
     resolvedTargetHex,
   );
+  const declarationEmitted = session.events
+    .slice(eventCountBeforeDeclaration)
+    .some((event) => event.type === GameEventType.AttackDeclared);
+  if (!declarationEmitted) return session;
+
   session = lockAttack(session, input.attackerId);
   return session;
 }
