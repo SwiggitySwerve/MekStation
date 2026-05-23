@@ -4,7 +4,10 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IIndirectFireResolution } from '@/types/gameplay/CombatInterfaces';
+import type {
+  IIndirectFireResolution,
+  WeaponFireMode,
+} from '@/types/gameplay/CombatInterfaces';
 import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import {
@@ -354,6 +357,7 @@ export class InteractiveSession {
     attackerId: string,
     targetId: string,
     weaponIds: readonly string[],
+    weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
   ): void {
     // Declare-then-lock logic lives in `InteractiveSession.actions`.
     // Wave 8 PR-K5: pass the grid + target hex so the action layer can
@@ -366,6 +370,7 @@ export class InteractiveSession {
       attackerId,
       targetId,
       weaponIds,
+      weaponModesByWeaponId,
       grid: this.grid,
       targetHex: targetUnit?.position,
     });

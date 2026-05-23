@@ -27,7 +27,7 @@
 - [ ] 4.2 Reject mode-toggle on non-eligible weapons at UI + resolver
   > Still pending because the per-weapon Direct/Indirect UI toggle is not wired.
 - [ ] 4.3 Add `weapon.mode: 'Direct' | 'Indirect'` to per-weapon combat state
-  > Still pending until the UI/state toggle lands.
+  > Engine declaration payloads now carry resolved `mode` with invalid Indirect requests normalized to Direct; UI/state toggle wiring remains pending.
 - [ ] 4.4 Persist mode in event-log replay round-trip
   > Still pending with the per-weapon mode toggle.
 - [x] 4.5 Unit tests cover the eligibility surface: accepted families and rejected Streak / direct-fire / MML-SRM variants.

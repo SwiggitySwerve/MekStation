@@ -171,6 +171,7 @@ function engineWeaponToStatus(
   return {
     id: weapon.id,
     name: weapon.name,
+    mode: 'Direct',
     location: 'unknown',
     mountingArc: weapon.mountingArc,
     destroyed: weapon.destroyed,

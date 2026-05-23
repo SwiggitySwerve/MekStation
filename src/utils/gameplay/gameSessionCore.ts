@@ -552,6 +552,7 @@ export function declareAttack(
   const weaponAttackData: IWeaponAttackData[] = weapons.map((weapon) => ({
     weaponId: weapon.weaponId,
     weaponName: weapon.weaponName,
+    mode: weapon.mode ?? 'Direct',
     damage: weapon.damage,
     heat: weapon.heat,
   }));

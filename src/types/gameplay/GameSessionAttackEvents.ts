@@ -3,6 +3,7 @@
  * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
  */
 
+import type { WeaponFireMode } from './CombatInterfaces';
 import type {
   AttackVisualCategory,
   HeatVisualThreshold,
@@ -55,6 +56,8 @@ export interface IWeaponAttackData {
   readonly weaponId: string;
   /** Weapon name */
   readonly weaponName: string;
+  /** Resolved per-weapon fire mode at declaration time. */
+  readonly mode?: WeaponFireMode;
   /** Damage per hit */
   readonly damage: number;
   /** Heat generated */

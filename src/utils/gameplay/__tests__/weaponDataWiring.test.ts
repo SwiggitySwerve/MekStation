@@ -191,6 +191,7 @@ describe('Weapon Data Wiring', () => {
         {
           weaponId: 'ac-20-1',
           weaponName: 'AC/20',
+          mode: 'Direct',
           damage: 20,
           heat: 7,
           category: 'ballistic' as never,
@@ -409,6 +410,7 @@ describe('Weapon Data Wiring', () => {
       expect(payload.weaponAttacks![0].damage).toBe(20);
       expect(payload.weaponAttacks![0].heat).toBe(7);
       expect(payload.weaponAttacks![0].weaponName).toBe('AC/20');
+      expect(payload.weaponAttacks![0].mode).toBe('Direct');
     });
   });
 

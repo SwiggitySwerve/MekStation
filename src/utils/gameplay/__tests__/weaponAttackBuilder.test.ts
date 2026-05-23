@@ -13,6 +13,7 @@ import { FiringArc } from '@/types/gameplay';
 import {
   buildWeaponAttack,
   buildWeaponAttacks,
+  resolveWeaponFireMode,
 } from '@/utils/gameplay/weaponAttackBuilder';
 import { logger } from '@/utils/logger';
 
@@ -136,6 +137,41 @@ describe('buildWeaponAttack', () => {
     expect(buildWeaponAttack('lrm10-1', [lrm10])?.category).toBe(
       WeaponCategory.MISSILE,
     );
+  });
+
+  it('defaults unresolved fire mode to Direct', () => {
+    expect(buildWeaponAttack('lrm10-1', [lrm10])?.mode).toBe('Direct');
+  });
+
+  it('preserves requested Indirect mode for indirect-capable weapons', () => {
+    expect(
+      buildWeaponAttack('lrm10-1', [lrm10], 'unit-1', {
+        'lrm10-1': 'Indirect',
+      })?.mode,
+    ).toBe('Indirect');
+  });
+
+  it('falls back to Direct when Indirect is requested for a non-eligible weapon', () => {
+    expect(
+      buildWeaponAttack('ac20-1', [ac20], 'unit-1', {
+        'ac20-1': 'Indirect',
+      })?.mode,
+    ).toBe('Direct');
+  });
+});
+
+describe('resolveWeaponFireMode', () => {
+  it('resolves eligible indirect mode requests', () => {
+    expect(resolveWeaponFireMode('lrm-15-1', 'Indirect')).toBe('Indirect');
+  });
+
+  it('normalizes missing and explicit direct modes to Direct', () => {
+    expect(resolveWeaponFireMode('lrm-15-1')).toBe('Direct');
+    expect(resolveWeaponFireMode('lrm-15-1', 'Direct')).toBe('Direct');
+  });
+
+  it('normalizes corrupt non-eligible indirect requests to Direct', () => {
+    expect(resolveWeaponFireMode('ac-20-1', 'Indirect')).toBe('Direct');
   });
 });
 

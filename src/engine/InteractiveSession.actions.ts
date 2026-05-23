@@ -17,6 +17,7 @@ import type { IWeapon } from '@/simulation/ai/types';
 import type {
   IIndirectFireResolution,
   IWeaponAttack,
+  WeaponFireMode,
 } from '@/types/gameplay/CombatInterfaces';
 import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type { IAttackInvalidPayload } from '@/types/gameplay/GameSessionAttackEvents';
@@ -265,6 +266,8 @@ export interface IApplyAttackInput {
   readonly attackerId: string;
   readonly targetId: string;
   readonly weaponIds: readonly string[];
+  /** Optional requested per-weapon fire modes; invalid Indirect modes resolve to Direct. */
+  readonly weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>;
   /** Wave 8 PR-K5: optional grid for indirect-fire LOS + spotter election. */
   readonly grid?: IHexGrid;
   /** Optional unit-id to canonical pilot SPA ids map for indirect-fire SPAs. */
@@ -425,6 +428,7 @@ export function applyInteractiveSessionAttack(
     input.weaponIds,
     unitWeapons,
     input.attackerId,
+    input.weaponModesByWeaponId,
   );
   const attackerUnit = input.session.currentState.units[input.attackerId];
   const targetUnit = input.session.currentState.units[input.targetId];

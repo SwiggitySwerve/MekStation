@@ -7,6 +7,7 @@
 
 import { WeightClass } from '@/types/enums/WeightClass';
 
+import type { WeaponFireMode } from './CombatInterfaces';
 import type { IMovementInvalidPayload } from './GameSessionMovementEvents';
 import type { ArmorPipState, ChassisArchetype } from './UnitSpriteTypes';
 
@@ -556,6 +557,8 @@ export interface IWeaponStatus {
   readonly id: string;
   /** Weapon name */
   readonly name: string;
+  /** Current per-weapon combat fire mode. Defaults to Direct when absent. */
+  readonly mode?: WeaponFireMode;
   /** Location mounted */
   readonly location: string;
   /** Mounted firing arc, when known. Missing means legacy omnidirectional. */

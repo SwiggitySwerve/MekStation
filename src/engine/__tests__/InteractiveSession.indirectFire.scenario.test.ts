@@ -203,6 +203,7 @@ describe('applyInteractiveSessionAttack — indirect-fire wiring (PR-K5)', () =>
       attackerId: 'a1',
       targetId: 't1',
       weaponIds: ['lrm-15-1'],
+      weaponModesByWeaponId: { 'lrm-15-1': 'Indirect' },
       grid,
     });
 
@@ -212,6 +213,7 @@ describe('applyInteractiveSessionAttack — indirect-fire wiring (PR-K5)', () =>
     );
     expect(declared).toBeDefined();
     const declaredPayload = declared!.payload as IAttackDeclaredPayload;
+    expect(declaredPayload.weaponAttacks?.[0]?.mode).toBe('Indirect');
     const indirectMod = declaredPayload.modifiers.find(
       (m) => m.name === 'Indirect fire',
     );

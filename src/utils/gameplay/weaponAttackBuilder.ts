@@ -17,10 +17,22 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
+import type {
+  IWeaponAttack,
+  WeaponFireMode,
+} from '@/types/gameplay/CombatInterfaces';
 
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { isIndirectFireCapable } from '@/utils/gameplay/indirectFire';
 import { logger } from '@/utils/logger';
+
+export function resolveWeaponFireMode(
+  weaponId: string,
+  requestedMode?: WeaponFireMode,
+): WeaponFireMode {
+  if (requestedMode !== 'Indirect') return 'Direct';
+  return isIndirectFireCapable(weaponId) ? 'Indirect' : 'Direct';
+}
 
 /**
  * Resolve a single weapon id against the attacker's weapon inventory and
@@ -36,6 +48,7 @@ export function buildWeaponAttack(
   weaponId: string,
   unitWeapons: readonly IWeapon[],
   attackerId?: string,
+  weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
 ): IWeaponAttack | null {
   const wData = unitWeapons.find((w) => w.id === weaponId);
   if (!wData) {
@@ -57,6 +70,7 @@ export function buildWeaponAttack(
   return {
     weaponId: wData.id,
     weaponName: wData.name,
+    mode: resolveWeaponFireMode(wData.id, weaponModesByWeaponId?.[wData.id]),
     mountingArc: wData.mountingArc,
     damage: wData.damage,
     heat: wData.heat,
@@ -80,10 +94,16 @@ export function buildWeaponAttacks(
   weaponIds: readonly string[],
   unitWeapons: readonly IWeapon[],
   attackerId?: string,
+  weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
 ): IWeaponAttack[] {
   const resolved: IWeaponAttack[] = [];
   for (const wId of weaponIds) {
-    const built = buildWeaponAttack(wId, unitWeapons, attackerId);
+    const built = buildWeaponAttack(
+      wId,
+      unitWeapons,
+      attackerId,
+      weaponModesByWeaponId,
+    );
     if (built) resolved.push(built);
   }
   return resolved;
