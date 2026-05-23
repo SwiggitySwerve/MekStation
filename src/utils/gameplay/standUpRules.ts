@@ -1,6 +1,7 @@
 import type {
   IComponentDamageState,
   IMovementCapability,
+  MovementStandUpArmActuator,
   IUnitGameState,
   StandUpMode,
 } from '@/types/gameplay';
@@ -113,14 +114,44 @@ function tacOpsAttemptingStandArmModifiers(
   }
 
   const destroyed = new Set(unitState.destroyedLocations);
+  const armActuators = movementCapability.standUpCapability.armActuators;
   return [
     ...(destroyed.has('right_arm')
       ? [{ name: 'Right arm destroyed', value: 2 }]
-      : []),
+      : tacOpsArmActuatorModifier('Right arm', armActuators?.right)),
     ...(destroyed.has('left_arm')
       ? [{ name: 'Left arm destroyed', value: 2 }]
-      : []),
+      : tacOpsArmActuatorModifier('Left arm', armActuators?.left)),
   ];
+}
+
+function tacOpsArmActuatorModifier(
+  armName: string,
+  actuator?: MovementStandUpArmActuator,
+): readonly IStandUpPsrModifier[] {
+  if (actuator === undefined) return [];
+
+  return [
+    {
+      name: `${armName} ${formatStandUpArmActuator(actuator)} actuator missing/destroyed`,
+      value: 1,
+    },
+  ];
+}
+
+function formatStandUpArmActuator(
+  actuator: MovementStandUpArmActuator,
+): string {
+  switch (actuator) {
+    case 'hand':
+      return 'hand';
+    case 'lower_arm':
+      return 'lower';
+    case 'upper_arm':
+      return 'upper';
+    case 'shoulder':
+      return 'shoulder';
+  }
 }
 
 function representedStandUpCapabilityModifiers(

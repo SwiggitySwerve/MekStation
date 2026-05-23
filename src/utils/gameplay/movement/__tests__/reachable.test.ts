@@ -326,6 +326,74 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('projects represented TacOps arm-actuator stand-up penalties per arm', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      prone: true,
+    };
+    const cap: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      standUpCapability: {
+        tacOpsAttemptingStand: true,
+        armActuators: { right: 'hand', left: 'shoulder' },
+      },
+    };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      reachable: true,
+      standUpPsrTargetNumber: 7,
+      standUpPsrModifier: 2,
+      standUpPsrModifierDetails: [
+        'Right arm hand actuator missing/destroyed +1',
+        'Left arm shoulder actuator missing/destroyed +1',
+      ],
+    });
+  });
+
+  it('uses destroyed arm before represented TacOps arm-actuator checks', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      prone: true,
+      destroyedLocations: ['right_arm'],
+    };
+    const cap: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      standUpCapability: {
+        tacOpsAttemptingStand: true,
+        armActuators: { right: 'hand' },
+      },
+    };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      reachable: true,
+      standUpPsrTargetNumber: 7,
+      standUpPsrModifier: 2,
+      standUpPsrModifierDetails: ['Right arm destroyed +2'],
+    });
+  });
+
   it('projects represented no-arms stand-up quirk before TacOps arm checks', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = {

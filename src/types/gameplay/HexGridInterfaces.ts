@@ -101,9 +101,24 @@ export interface IMovementWaterCapability {
 /**
  * Optional stand-up rule switches represented by movement projection.
  */
+export type MovementStandUpArmActuator =
+  | 'hand'
+  | 'lower_arm'
+  | 'upper_arm'
+  | 'shoulder';
+
+export interface IMovementStandUpArmActuators {
+  /** First missing/destroyed left-arm actuator, in MegaMek stand-up priority. */
+  readonly left?: MovementStandUpArmActuator;
+  /** First missing/destroyed right-arm actuator, in MegaMek stand-up priority. */
+  readonly right?: MovementStandUpArmActuator;
+}
+
 export interface IMovementStandUpCapability {
   /** MegaMek no/minimal-arms quirk: stand-up PSR gets +2 before arm checks. */
   readonly noMinimalArmsQuirk?: boolean;
+  /** Side-specific arm actuator losses represented for TacOps Attempting to Stand. */
+  readonly armActuators?: IMovementStandUpArmActuators;
   /** TacOps Attempting to Stand: destroyed arms add represented PSR penalties. */
   readonly tacOpsAttemptingStand?: boolean;
 }
