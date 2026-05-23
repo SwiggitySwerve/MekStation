@@ -2598,4 +2598,78 @@ describe('applyInteractiveSessionMovement', () => {
       heatGenerated: 0,
     });
   });
+
+  it('keeps TacOps fast infantry run movement aligned between preview and commit', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const destination = { q: 4, r: 0 };
+    const movementByUnit = capability({
+      walkMP: 3,
+      runMP: 4,
+      jumpMP: 0,
+      movementMode: 'walk',
+      movementHeatProfile: 'none',
+      movementTerrainProfile: 'infantry',
+    });
+    const unitCapability = movementByUnit.get('m1')!;
+
+    const walkPreview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      unitCapability,
+      destination,
+    );
+    const runPreview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Run,
+      grid,
+      unitCapability,
+      destination,
+    );
+
+    expect(walkPreview).toMatchObject({
+      reachable: false,
+      mpCost: 4,
+      movementInvalidReason: 'InsufficientMP',
+    });
+    expect(runPreview).toMatchObject({
+      reachable: true,
+      mpCost: 4,
+      heatGenerated: 0,
+      movementType: MovementType.Run,
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: destination,
+      facing: Facing.Southeast,
+      movementType: MovementType.Run,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+        { q: 2, r: 0 },
+        { q: 3, r: 0 },
+        destination,
+      ],
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      movementType: runPreview!.movementType,
+      mpUsed: runPreview!.mpCost,
+      heatGenerated: runPreview!.heatGenerated,
+    });
+  });
 });

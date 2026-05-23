@@ -471,6 +471,27 @@ describe('CompendiumAdapter', () => {
     });
 
     it.each([
+      ['INFANTRY', 'Jump', 3, 4],
+      ['INFANTRY', 'Foot', 0, 2],
+      ['BATTLE_ARMOR', 'Foot', 2, 3],
+    ] as const)(
+      'should apply represented TacOps fast-infantry run MP for %s',
+      (unitType, motiveType, groundMP, expectedRunMP) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType,
+          motiveType,
+          movement: { groundMP, jumpMP: 0 },
+          tacOpsFastInfantryMove: true,
+        } as unknown as IFullUnit);
+
+        expect(result.walkMP).toBe(groundMP);
+        expect(result.runMP).toBe(expectedRunMP);
+        expect(result.movementHeatProfile).toBe('none');
+      },
+    );
+
+    it.each([
       ['MechanizedTracked', 3, 'tracked'],
       ['MechanizedWheeled', 4, 'wheeled'],
       ['MechanizedHover', 5, 'hover'],

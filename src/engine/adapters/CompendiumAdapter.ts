@@ -257,16 +257,37 @@ function deriveRunMP(
   walkMP: number,
 ): number {
   const unitType = normalizedKey(unitData.unitType);
+  const fastInfantryMove = tacOpsFastInfantryMoveEnabled(unitData);
 
   // MegaMek Infantry#getRunMP and BattleArmor#getRunMP return walk MP unless
-  // the optional TacOps fast-infantry rule is enabled. MekStation does not
-  // model that optional rule in tactical projections yet, so the adapter keeps
-  // the base oracle behavior when no explicit run MP is supplied.
-  if (unitType === 'infantry' || unitType === 'battlearmor') {
-    return walkMP;
+  // the optional TacOps fast-infantry rule is enabled. When source data marks
+  // that represented option, preserve MegaMek's fallback instead of deriving a
+  // Mek-style 1.5x run MP.
+  if (unitType === 'infantry') {
+    return fastInfantryMove ? (walkMP > 0 ? walkMP + 1 : walkMP + 2) : walkMP;
+  }
+  if (unitType === 'battlearmor') {
+    return fastInfantryMove ? walkMP + 1 : walkMP;
   }
 
   return Math.ceil(walkMP * 1.5);
+}
+
+function tacOpsFastInfantryMoveEnabled(
+  unitData: Record<string, unknown>,
+): boolean {
+  const movement = recordField(unitData.movement);
+  const fieldNames = [
+    'tacOpsFastInfantryMove',
+    'tacOpsFastInfantryMovement',
+    'fastInfantryMove',
+    'fastInfantryMovement',
+    'fastInfantry',
+  ] as const;
+  return (
+    booleanField(unitData, ...fieldNames) ||
+    (movement !== undefined && booleanField(movement, ...fieldNames))
+  );
 }
 
 function movementHeatProfileFromUnitData(
