@@ -5,7 +5,7 @@
 - [x] 1.1 Create active OpenSpec change for combat validation suite headway.
 - [x] 1.2 Add catalog contract requirement for combat actions, modifiers, legality gates, and unsupported gaps.
 - [x] 1.3 Keep `docs/audits/2026-05-22-combat-validation-source-truth.md` updated as source-truth audit evidence.
-- [ ] 1.4 Add OpenSpec validation to routine combat feature verification.
+- [x] 1.4 Add OpenSpec validation to routine combat feature verification.
 
 ## 2. Physical attack legality gates
 
