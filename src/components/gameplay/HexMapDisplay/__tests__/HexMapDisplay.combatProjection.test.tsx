@@ -1974,10 +1974,25 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-blocked-reason',
       'Out of weapon range',
     );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-status',
+      'blocked',
+    );
     expect(screen.getByTestId('hex-combat-badge-3-0')).toHaveTextContent('OUT');
     expect(
       screen.getByTestId('hex-combat-invalid-badge-3-0'),
     ).toHaveTextContent('OUT');
+    const projectionBadge = screen.getByTestId(
+      'hex-projection-status-badge-3-0',
+    );
+    expect(projectionBadge).toHaveTextContent('BLK');
+    expect(projectionBadge).toHaveAttribute(
+      'data-projection-status-badge-status',
+      'blocked',
+    );
+    expect(
+      projectionBadge.getAttribute('data-projection-status-badge-reasons'),
+    ).toContain("Target at 3 hexes is outside the selected weapons' range");
   });
 
   it('renders a projection status badge when movement is legal but combat is blocked on the same hex', () => {

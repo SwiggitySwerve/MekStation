@@ -14,8 +14,9 @@
 ## 3. Verification
 
 - [x] 3.1 Add focused render coverage for a mixed movement/combat projection
-- [x] 3.2 Focused Jest coverage passes
-- [x] 3.3 `npm.cmd run typecheck` passes
-- [x] 3.4 `npm.cmd run lint` passes
-- [x] 3.5 `npm.cmd run format:check` passes
-- [x] 3.6 `npx.cmd openspec validate add-tactical-map-projection-status-badges --strict` passes
+- [x] 3.2 Add focused render coverage for a blocked combat projection
+- [x] 3.3 Focused Jest coverage passes
+- [x] 3.4 `npm.cmd run typecheck` passes
+- [x] 3.5 `npm.cmd run lint` passes
+- [x] 3.6 `npm.cmd run format:check` passes
+- [x] 3.7 `npx.cmd openspec validate add-tactical-map-projection-status-badges --strict` passes
