@@ -6,6 +6,7 @@ import {
   canonicalizeWeaponId,
   getWeaponData,
 } from '../adapters/CompendiumAdapter';
+import { WEAPON_DATABASE } from '../adapters/CompendiumWeaponData';
 
 jest.mock('@/services/units/CanonicalUnitService', () => {
   const unitStore: Record<string, IFullUnit> = {};
@@ -153,7 +154,7 @@ describe('CompendiumAdapter', () => {
     });
 
     it('should return undefined for unknown weapons', () => {
-      expect(getWeaponData('plasma-cannon')).toBeUndefined();
+      expect(getWeaponData('definitely-not-a-weapon')).toBeUndefined();
     });
 
     it('should have correct stats for medium laser', () => {
@@ -164,6 +165,34 @@ describe('CompendiumAdapter', () => {
       expect(ml.mediumRange).toBe(6);
       expect(ml.longRange).toBe(9);
       expect(ml.ammoPerTon).toBe(-1);
+    });
+
+    it('resolves official catalog weapons that are absent from the static legacy database', () => {
+      expect(WEAPON_DATABASE['uac-5']).toBeUndefined();
+      expect(getWeaponData('uac-5')).toMatchObject({
+        id: 'uac-5',
+        name: 'Ultra AC/5',
+        damage: 5,
+        heat: 1,
+        minRange: 2,
+        shortRange: 6,
+        mediumRange: 13,
+        longRange: 20,
+        ammoPerTon: 20,
+      });
+
+      expect(WEAPON_DATABASE['mml-9']).toBeUndefined();
+      expect(getWeaponData('mml-9')).toMatchObject({
+        id: 'mml-9',
+        name: 'MML 9',
+        damage: 18,
+        heat: 5,
+        minRange: 0,
+        shortRange: 3,
+        mediumRange: 6,
+        longRange: 9,
+        ammoPerTon: 13,
+      });
     });
 
     // Per wire-real-weapon-data task 2.3: resolve both IS and Clan weapon
@@ -194,10 +223,11 @@ describe('CompendiumAdapter', () => {
         expect(getWeaponData('IS-AC-20')?.damage).toBe(20);
       });
 
-      it('resolves Clan-prefixed ids by falling back to IS equivalent', () => {
-        // The static engine DB only ships IS rows today — Clan variants
-        // fall through to the stripped IS id until a follow-up change
-        // lands the Clan-specific stats.
+      it('resolves Clan-prefixed ids against official rows before legacy IS fallback', () => {
+        // Official catalog rows win for Clan IDs that exist; legacy IS
+        // fallback remains for IDs the official catalog does not contain.
+        expect(getWeaponData('clan-uac-5')?.id).toBe('clan-uac-5');
+        expect(getWeaponData('cl-uac-5')?.id).toBe('clan-uac-5');
         expect(getWeaponData('clan-medium-laser')?.id).toBe('medium-laser');
         expect(getWeaponData('cl-ac-20')?.id).toBe('ac-20');
         expect(getWeaponData('c-ppc')?.id).toBe('ppc');
@@ -209,13 +239,14 @@ describe('CompendiumAdapter', () => {
       });
 
       it('still returns undefined for genuinely unknown weapons', () => {
-        expect(getWeaponData('plasma-cannon')).toBeUndefined();
-        expect(getWeaponData('clan-plasma-cannon')).toBeUndefined();
+        expect(getWeaponData('definitely-not-a-weapon')).toBeUndefined();
+        expect(getWeaponData('clan-definitely-not-a-weapon')).toBeUndefined();
       });
 
       it('canonicalizeWeaponId exposes the normalization result directly', () => {
         expect(canonicalizeWeaponId('Medium Laser')).toBe('medium-laser');
         expect(canonicalizeWeaponId('AC/20')).toBe('ac-20');
+        expect(canonicalizeWeaponId('cl-uac-5')).toBe('clan-uac-5');
         expect(canonicalizeWeaponId('clan-medium-laser')).toBe('medium-laser');
         expect(canonicalizeWeaponId('unknown-foo')).toBe('unknown-foo');
       });
@@ -302,7 +333,7 @@ describe('CompendiumAdapter', () => {
           movement: { walk: 4, jump: 0 },
           equipment: [
             { id: 'medium-laser', location: 'CENTER_TORSO' },
-            { id: 'plasma-cannon', location: 'RIGHT_ARM' }, // not in DB
+            { id: 'definitely-not-a-weapon', location: 'RIGHT_ARM' },
           ],
         } as unknown as IFullUnit;
 
@@ -319,12 +350,63 @@ describe('CompendiumAdapter', () => {
         expect(
           warnSpy.mock.calls.length === 0 ||
             warnSpy.mock.calls.some((call) =>
-              String(call[0] ?? '').includes('plasma-cannon'),
+              String(call[0] ?? '').includes('definitely-not-a-weapon'),
             ),
         ).toBe(true);
       } finally {
         warnSpy.mockRestore();
       }
+    });
+
+    it('retains official-only catalog weapons when adapting unit equipment', () => {
+      const data = {
+        id: 'official-only-mech',
+        chassis: 'Test',
+        variant: 'T-3',
+        tonnage: 50,
+        techBase: 'INNER_SPHERE',
+        era: 'SUCCESSION_WARS',
+        unitType: 'BATTLEMECH',
+        engine: { type: 'FUSION', rating: 200 },
+        armor: {
+          type: 'STANDARD',
+          allocation: {
+            LEFT_ARM: 10,
+            RIGHT_ARM: 10,
+            LEFT_TORSO: 10,
+            RIGHT_TORSO: 10,
+            CENTER_TORSO: 10,
+            HEAD: 9,
+            LEFT_LEG: 10,
+            RIGHT_LEG: 10,
+          },
+        },
+        structure: { type: 'STANDARD' },
+        heatSinks: { type: 'SINGLE', count: 10 },
+        movement: { walk: 4, jump: 0 },
+        equipment: [
+          { id: 'uac-5', location: 'RIGHT_ARM' },
+          { id: 'mml-9', location: 'LEFT_TORSO' },
+        ],
+      } as unknown as IFullUnit;
+
+      const result = adaptUnitFromData(data);
+
+      expect(result.weapons).toHaveLength(2);
+      expect(result.weapons).toEqual([
+        expect.objectContaining({
+          id: 'official-only-mech-uac-5-1',
+          name: 'Ultra AC/5',
+          damage: 5,
+          heat: 1,
+        }),
+        expect.objectContaining({
+          id: 'official-only-mech-mml-9-1',
+          name: 'MML 9',
+          damage: 18,
+          heat: 5,
+        }),
+      ]);
     });
   });
 
@@ -340,6 +422,12 @@ describe('CompendiumAdapter', () => {
       expect(result.walkMP).toBe(3);
       expect(result.runMP).toBe(5);
       expect(result.jumpMP).toBe(0);
+    });
+
+    it('should preserve canonical heat sink count and type', () => {
+      const result = adaptUnitFromData(createAtlasData());
+      expect(result.heatSinks).toBe(20);
+      expect(result.heatSinkType).toBe('single');
     });
 
     it('should have 7 weapons (4 ML, 1 AC/20, 1 LRM-20, 1 SRM-6)', () => {
@@ -421,6 +509,12 @@ describe('CompendiumAdapter', () => {
     it('should have 4 weapons (1 AC/20, 2 ML, 1 SL)', () => {
       const result = adaptUnitFromData(createHunchbackData());
       expect(result.weapons).toHaveLength(4);
+    });
+
+    it('should preserve non-default single heat sink counts', () => {
+      const result = adaptUnitFromData(createHunchbackData());
+      expect(result.heatSinks).toBe(13);
+      expect(result.heatSinkType).toBe('single');
     });
   });
 

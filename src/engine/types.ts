@@ -86,6 +86,8 @@ export interface IWeaponData {
   readonly mediumRange: number;
   /** Long range in hexes */
   readonly longRange: number;
+  /** Extreme range in hexes, when catalog data provides it */
+  readonly extremeRange?: number;
   /** Damage per hit */
   readonly damage: number;
   /** Heat generated when fired */

@@ -26,6 +26,7 @@
  */
 
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
+import type { ECMType, IActiveProbe } from '@/utils/gameplay/electronicWarfare';
 
 import {
   Facing,
@@ -37,7 +38,7 @@ import {
 } from '@/types/gameplay';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage/constants';
 
-import type { IWeapon } from '../ai/types';
+import type { IWeapon, IWeaponFiringModes } from '../ai/types';
 
 import { DEFAULT_COMPONENT_DAMAGE } from './SimulationRunnerConstants';
 
@@ -55,6 +56,7 @@ import { DEFAULT_COMPONENT_DAMAGE } from './SimulationRunnerConstants';
 export interface ICatalogWeaponStats {
   readonly id: string;
   readonly name: string;
+  readonly subType?: string;
   readonly damage: number | string;
   readonly heat: number;
   readonly ranges: {
@@ -62,8 +64,10 @@ export interface ICatalogWeaponStats {
     readonly short: number;
     readonly medium: number;
     readonly long: number;
+    readonly extreme?: number;
   };
   readonly ammoPerTon?: number;
+  readonly special?: readonly string[];
 }
 
 /**
@@ -72,6 +76,24 @@ export interface ICatalogWeaponStats {
  * `buildWeaponLookupFromCatalogFiles` below.
  */
 export type WeaponLookup = (id: string) => ICatalogWeaponStats | null;
+
+export interface IHydratedAIWeaponsReport {
+  readonly weapons: readonly IWeapon[];
+  readonly resolvedEquipmentIds: readonly string[];
+  readonly unresolvedEquipmentIds: readonly string[];
+}
+
+export interface IHydratedECMSuiteData {
+  readonly type: ECMType;
+  readonly sourceEquipmentId: string;
+  readonly sourceLocation?: string;
+}
+
+export interface IHydratedActiveProbeData {
+  readonly type: IActiveProbe['type'];
+  readonly sourceEquipmentId: string;
+  readonly sourceLocation?: string;
+}
 
 // =============================================================================
 // Equipment shape (subset of public/data/units/battlemechs/*.json `equipment`)
@@ -89,6 +111,85 @@ interface IUnitEquipmentEntry {
   readonly location: string;
 }
 
+interface IHydratableEquipmentSignal {
+  readonly id: string;
+  readonly sourceLocation?: string;
+}
+
+type CriticalSlotMap = Readonly<Record<string, readonly (string | null)[]>>;
+
+type HeatSinkKind = 'single' | 'double';
+
+interface IFullUnitHeatSinks {
+  readonly count?: number;
+  readonly type?: string;
+}
+
+function toHeatSinkKind(type: unknown): HeatSinkKind {
+  if (typeof type !== 'string') return 'single';
+  return type.toUpperCase().includes('DOUBLE') ? 'double' : 'single';
+}
+
+export function hydrateHeatSinksFromFullUnit(fullUnit: IFullUnit): {
+  readonly count: number;
+  readonly kind: HeatSinkKind;
+} {
+  const heatSinks = (fullUnit as { heatSinks?: IFullUnitHeatSinks }).heatSinks;
+  const count =
+    typeof heatSinks?.count === 'number' && Number.isFinite(heatSinks.count)
+      ? heatSinks.count
+      : 10;
+  return {
+    count,
+    kind: toHeatSinkKind(heatSinks?.type),
+  };
+}
+
+export function hydrateHasTSMFromFullUnit(fullUnit: IFullUnit): boolean {
+  const movement = (
+    fullUnit as {
+      movement?: { enhancements?: readonly unknown[]; hasTSM?: boolean };
+    }
+  ).movement;
+  if (movement?.hasTSM === true) return true;
+  return (
+    movement?.enhancements?.some(
+      (enhancement) =>
+        typeof enhancement === 'string' && enhancement.toLowerCase() === 'tsm',
+    ) ?? false
+  );
+}
+
+export function hydrateHasStealthArmorFromFullUnit(
+  fullUnit: IFullUnit,
+): boolean {
+  const armorType = (fullUnit as { armor?: { type?: unknown } }).armor?.type;
+  if (
+    typeof armorType === 'string' &&
+    normalizeCriticalSlotText(armorType) === 'stealth'
+  ) {
+    return true;
+  }
+
+  return equipmentSignalsFromFullUnit(fullUnit).some((signal) => {
+    const normalized = normalizeCriticalSlotText(signal.id);
+    return (
+      normalized === 'stealtharmor' ||
+      normalized === 'isstealth' ||
+      normalized.endsWith('stealtharmor')
+    );
+  });
+}
+
+export function hydrateUnitQuirksFromFullUnit(
+  fullUnit: IFullUnit,
+): readonly string[] {
+  const quirks = (fullUnit as { quirks?: readonly unknown[] }).quirks;
+  return (
+    quirks?.filter((quirk): quirk is string => typeof quirk === 'string') ?? []
+  );
+}
+
 // =============================================================================
 // Damage resolution for missile-style strings
 // =============================================================================
@@ -99,6 +200,9 @@ interface IUnitEquipmentEntry {
  * AC, lasers, MGs come through as plain numbers (`damage: 5`).
  * LRM/SRM/MRM come through as `"N/missile"` — multiply by the missile count
  * implied by the weapon id (`lrm-20` → 20, `srm-6` → 6, `mrm-30` → 30).
+ * MML entries are variable damage (`"1-2/missile"`) because ammo choice
+ * controls the per-missile damage; the runner stores max volley damage, so use
+ * the upper bound.
  *
  * If the parse fails (unknown format), return 0 — this should NEVER happen
  * for canonical Atlas/Locust loadouts but the fallback keeps tests green if
@@ -111,8 +215,10 @@ export function resolveCatalogDamage(
   if (typeof damage === 'number') {
     return damage;
   }
-  // String form: "1/missile" → multiply by missile count parsed from id.
-  const match = damage.match(/^(\d+)\s*\/\s*missile$/i);
+  // String forms:
+  //   "1/missile" -> multiply by missile count parsed from id.
+  //   "1-2/missile" -> variable damage, use the upper bound.
+  const match = damage.match(/^(?:\d+\s*-\s*)?(\d+)\s*\/\s*missile$/i);
   if (!match) {
     return 0;
   }
@@ -142,18 +248,444 @@ export function toAIWeapon(
   catalogWeapon: ICatalogWeaponStats,
   mountIndex: number,
 ): IWeapon {
+  const damage = resolveCatalogDamage(catalogWeapon.damage, catalogWeapon.id);
+  const firingModes = buildCatalogFiringModes(catalogWeapon, damage);
   return {
     id: `${catalogWeapon.id}-${mountIndex}`,
     name: catalogWeapon.name,
     shortRange: catalogWeapon.ranges.short,
     mediumRange: catalogWeapon.ranges.medium,
     longRange: catalogWeapon.ranges.long,
-    damage: resolveCatalogDamage(catalogWeapon.damage, catalogWeapon.id),
+    ...(catalogWeapon.ranges.extreme !== undefined
+      ? { extremeRange: catalogWeapon.ranges.extreme }
+      : {}),
+    damage,
     heat: catalogWeapon.heat,
     minRange: catalogWeapon.ranges.minimum,
     ammoPerTon: catalogWeapon.ammoPerTon ?? -1,
     destroyed: false,
+    ...(firingModes ? { firingModes } : {}),
   };
+}
+
+function catalogText(catalogWeapon: ICatalogWeaponStats): string {
+  return [
+    catalogWeapon.id,
+    catalogWeapon.name,
+    catalogWeapon.subType ?? '',
+    ...(catalogWeapon.special ?? []),
+  ]
+    .join(' ')
+    .toLowerCase();
+}
+
+function buildCatalogFiringModes(
+  catalogWeapon: ICatalogWeaponStats,
+  damage: number,
+): IWeaponFiringModes | undefined {
+  const text = catalogText(catalogWeapon);
+  if (text.includes('ultra ac') || /^clan-uac-\d+/.test(catalogWeapon.id)) {
+    return {
+      kind: 'rate-of-fire',
+      defaultModeId: 'single',
+      modes: [
+        {
+          id: 'single',
+          damage,
+          heat: catalogWeapon.heat,
+          shotsPerTurn: 1,
+        },
+        {
+          id: 'double',
+          damage: damage * 2,
+          heat: catalogWeapon.heat * 2,
+          shotsPerTurn: 2,
+        },
+      ],
+    };
+  }
+
+  if (text.includes('rotary ac') || /^clan-rac-\d+/.test(catalogWeapon.id)) {
+    return {
+      kind: 'rate-of-fire',
+      defaultModeId: 'rof-1',
+      modes: [1, 2, 3, 4, 5, 6].map((shots) => ({
+        id: `rof-${shots}`,
+        damage: damage * shots,
+        heat: catalogWeapon.heat * shots,
+        shotsPerTurn: shots,
+      })),
+    };
+  }
+
+  if (text.includes('lb-x ac') || /^clan-lb-\d+-x-ac/.test(catalogWeapon.id)) {
+    return {
+      kind: 'cluster-slug',
+      defaultModeId: 'slug',
+      modes: [
+        {
+          id: 'slug',
+          damage,
+          heat: catalogWeapon.heat,
+          shotsPerTurn: 1,
+        },
+        {
+          id: 'cluster',
+          damage,
+          heat: catalogWeapon.heat,
+          shotsPerTurn: 1,
+        },
+      ],
+    };
+  }
+
+  if (catalogWeapon.subType === 'MML' || /\bmml\b/.test(text)) {
+    const rackSize = missileCountFromWeaponId(catalogWeapon.id);
+    return {
+      kind: 'ammo-mode',
+      defaultModeId: 'srm',
+      modes: [
+        {
+          id: 'srm',
+          damage,
+          heat: catalogWeapon.heat,
+          shotsPerTurn: 1,
+          ammoWeaponType: `srm-${rackSize}`,
+        },
+        {
+          id: 'lrm',
+          damage: rackSize,
+          heat: catalogWeapon.heat,
+          shotsPerTurn: 1,
+          ammoWeaponType: `lrm-${rackSize}`,
+        },
+      ],
+    };
+  }
+
+  return undefined;
+}
+
+function missileCountFromWeaponId(weaponId: string): number {
+  const match = weaponId.match(/(\d+)(?!.*\d)/);
+  return match ? parseInt(match[1], 10) : 1;
+}
+
+function normalizeCriticalSlotText(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function normalizeEquipmentLocation(location: string): string {
+  return location.split(',')[0]?.trim() ?? location.trim();
+}
+
+function normalizeEquipmentId(id: string): string {
+  return id
+    .replace(/^\d+-/, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function equipmentSignalsFromFullUnit(
+  fullUnit: IFullUnit,
+): readonly IHydratableEquipmentSignal[] {
+  const equipment =
+    (fullUnit.equipment as readonly unknown[] | undefined) ?? [];
+  const signals: IHydratableEquipmentSignal[] = [];
+
+  for (const raw of equipment) {
+    if (!raw || typeof raw !== 'object') continue;
+    const entry = raw as Partial<IUnitEquipmentEntry>;
+    if (typeof entry.id !== 'string') continue;
+
+    const sourceLocation =
+      typeof entry.location === 'string'
+        ? normalizeEquipmentLocation(entry.location)
+        : undefined;
+    signals.push({
+      id: entry.id,
+      ...(sourceLocation ? { sourceLocation } : {}),
+    });
+  }
+
+  const criticalSlots = criticalSlotsFromFullUnit(fullUnit);
+  for (const [location, slots] of Object.entries(criticalSlots)) {
+    const sourceLocation = normalizeEquipmentLocation(location);
+    for (const slot of slots) {
+      if (typeof slot !== 'string') continue;
+      signals.push({
+        id: slot,
+        ...(sourceLocation ? { sourceLocation } : {}),
+      });
+    }
+  }
+
+  return signals;
+}
+
+const ECM_TYPE_BY_EQUIPMENT_ID: Readonly<Record<string, ECMType>> = {
+  guardianecm: 'guardian',
+  guardianecmsuite: 'guardian',
+  guardianecmsuiteprototype: 'guardian',
+  isguardianecm: 'guardian',
+  isguardianecmsuite: 'guardian',
+  isguardianecmsuiteprototype: 'guardian',
+  angelecm: 'angel',
+  angelecmsuite: 'angel',
+  isangelecm: 'angel',
+  isangelecmsuite: 'angel',
+  isthbangelecmsuite: 'angel',
+  thbangelecmsuite: 'angel',
+  clanecm: 'clan',
+  clanecmsuite: 'clan',
+  clecmsuite: 'clan',
+  ecmsuite: 'clan',
+  clncews: 'clan',
+  clnovacews: 'clan',
+  clwatchdogcews: 'clan',
+  clwatchdogecm: 'clan',
+  novacews: 'clan',
+  novacombinedelectronicwarfaresystemcews: 'clan',
+  watchdogcews: 'clan',
+  watchdogcompositeelectronicwarfaresystemcews: 'clan',
+  watchdogecm: 'clan',
+  watchdogecmsuite: 'clan',
+};
+
+const ACTIVE_PROBE_TYPE_BY_EQUIPMENT_ID: Readonly<
+  Record<string, IActiveProbe['type']>
+> = {
+  activeprobebeagle: 'beagle',
+  activeprobebeagleprototype: 'beagle',
+  beagleactiveprobe: 'beagle',
+  beagleactiveprobeprototype: 'beagle',
+  isactiveprobebeagle: 'beagle',
+  isactiveprobebeagleprototype: 'beagle',
+  isbeagleactiveprobe: 'beagle',
+  isbeagleactiveprobeprototype: 'beagle',
+  bloodhoundactiveprobe: 'bloodhound',
+  isbloodhoundactiveprobe: 'bloodhound',
+  isthbbloodhoundactiveprobe: 'bloodhound',
+  thbbloodhoundactiveprobe: 'bloodhound',
+  clanactiveprobe: 'clan-active-probe',
+  clactiveprobe: 'clan-active-probe',
+  activeprobelight: 'light-active-probe',
+  clanlightactiveprobe: 'light-active-probe',
+  cllightactiveprobe: 'light-active-probe',
+  isactiveprobelight: 'light-active-probe',
+  lightactiveprobe: 'light-active-probe',
+  clwatchdogcews: 'watchdog-cews',
+  clwatchdogecm: 'watchdog-cews',
+  watchdogcews: 'watchdog-cews',
+  watchdogcompositeelectronicwarfaresystemcews: 'watchdog-cews',
+  watchdogecm: 'watchdog-cews',
+  watchdogecmsuite: 'watchdog-cews',
+  clncews: 'nova-cews',
+  clnovacews: 'nova-cews',
+  novacews: 'nova-cews',
+  novacombinedelectronicwarfaresystemcews: 'nova-cews',
+};
+
+function classifyECMSuiteEquipment(id: string): ECMType | null {
+  const normalized = normalizeEquipmentId(id);
+  return (
+    ECM_TYPE_BY_EQUIPMENT_ID[normalized] ??
+    (normalized.includes('guardianecm')
+      ? 'guardian'
+      : normalized.includes('angelecm')
+        ? 'angel'
+        : normalized.includes('ecmsuite') || normalized.includes('cews')
+          ? 'clan'
+          : null)
+  );
+}
+
+function classifyActiveProbeEquipment(id: string): IActiveProbe['type'] | null {
+  const normalized = normalizeEquipmentId(id);
+  return (
+    ACTIVE_PROBE_TYPE_BY_EQUIPMENT_ID[normalized] ??
+    (normalized.includes('bloodhoundactiveprobe')
+      ? 'bloodhound'
+      : normalized.includes('beagleactiveprobe')
+        ? 'beagle'
+        : normalized.includes('lightactiveprobe')
+          ? 'light-active-probe'
+          : normalized.includes('watchdog')
+            ? 'watchdog-cews'
+            : normalized.includes('nova') || normalized.includes('ncews')
+              ? 'nova-cews'
+              : normalized.includes('activeprobe')
+                ? 'clan-active-probe'
+                : null)
+  );
+}
+
+export function hydrateECMSuitesFromFullUnit(
+  fullUnit: IFullUnit,
+): readonly IHydratedECMSuiteData[] {
+  const suites: IHydratedECMSuiteData[] = [];
+  const seen = new Set<string>();
+
+  for (const signal of equipmentSignalsFromFullUnit(fullUnit)) {
+    const type = classifyECMSuiteEquipment(signal.id);
+    if (!type) continue;
+
+    const key = `${type}:${normalizeEquipmentId(signal.id)}:${signal.sourceLocation ?? ''}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    suites.push({
+      type,
+      sourceEquipmentId: signal.id,
+      ...(signal.sourceLocation
+        ? { sourceLocation: signal.sourceLocation }
+        : {}),
+    });
+  }
+
+  return suites;
+}
+
+export function hydrateActiveProbesFromFullUnit(
+  fullUnit: IFullUnit,
+): readonly IHydratedActiveProbeData[] {
+  const probes: IHydratedActiveProbeData[] = [];
+  const seen = new Set<string>();
+
+  for (const signal of equipmentSignalsFromFullUnit(fullUnit)) {
+    const type = classifyActiveProbeEquipment(signal.id);
+    if (!type) continue;
+
+    const key = `${type}:${normalizeEquipmentId(signal.id)}:${signal.sourceLocation ?? ''}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    probes.push({
+      type,
+      sourceEquipmentId: signal.id,
+      ...(signal.sourceLocation
+        ? { sourceLocation: signal.sourceLocation }
+        : {}),
+    });
+  }
+
+  return probes;
+}
+
+function criticalSlotsFromFullUnit(fullUnit: IFullUnit): CriticalSlotMap {
+  const raw = (fullUnit as { criticalSlots?: unknown }).criticalSlots;
+  if (!raw || typeof raw !== 'object') return {};
+
+  const out: Record<string, readonly (string | null)[]> = {};
+  for (const [location, slots] of Object.entries(raw)) {
+    if (!Array.isArray(slots)) continue;
+    out[location] = slots.map((slot) =>
+      typeof slot === 'string' || slot === null ? slot : null,
+    );
+  }
+  return out;
+}
+
+function locationSlotTexts(
+  criticalSlots: CriticalSlotMap,
+  location: string,
+): readonly string[] {
+  return (criticalSlots[location] ?? []).filter(
+    (slot): slot is string => typeof slot === 'string',
+  );
+}
+
+function hasArtemisIVFCS(slots: readonly string[]): boolean {
+  return slots.some((slot) => {
+    const normalized = normalizeCriticalSlotText(slot);
+    return (
+      normalized.includes('artemisiv') &&
+      !normalized.includes('ammo') &&
+      !normalized.includes('capable') &&
+      !normalized.includes('artemisv') &&
+      !normalized.includes('prototypeartemisiv') &&
+      !normalized.includes('artemisivproto')
+    );
+  });
+}
+
+function hasPrototypeArtemisIVFCS(slots: readonly string[]): boolean {
+  return slots.some((slot) => {
+    const normalized = normalizeCriticalSlotText(slot);
+    return (
+      (normalized.includes('prototypeartemisiv') ||
+        normalized.includes('artemisivproto')) &&
+      !normalized.includes('ammo') &&
+      !normalized.includes('capable')
+    );
+  });
+}
+
+function hasArtemisVFCS(slots: readonly string[]): boolean {
+  return slots.some((slot) => {
+    const normalized = normalizeCriticalSlotText(slot);
+    return (
+      normalized.includes('artemisv') &&
+      !normalized.includes('ammo') &&
+      !normalized.includes('capable')
+    );
+  });
+}
+
+function hasArtemisIVCapableAmmo(slots: readonly string[]): boolean {
+  return slots.some((slot) => {
+    const normalized = normalizeCriticalSlotText(slot);
+    return (
+      normalized.includes('artemiscapable') &&
+      !normalized.includes('artemisvcapable')
+    );
+  });
+}
+
+function hasArtemisVCapableAmmo(slots: readonly string[]): boolean {
+  return slots.some((slot) =>
+    normalizeCriticalSlotText(slot).includes('artemisvcapable'),
+  );
+}
+
+function isArtemisCompatibleCatalogWeapon(
+  catalogWeapon: ICatalogWeaponStats,
+): boolean {
+  const text = catalogText(catalogWeapon);
+  if (/\bstreak\b|narc|tag|anti[-\s]?missile|ams/.test(text)) return false;
+  return (
+    /\blrm\b|lrm[-\s]?\d+/.test(text) ||
+    /\bsrm\b|srm[-\s]?\d+/.test(text) ||
+    /\bmml\b|mml[-\s]?\d+/.test(text)
+  );
+}
+
+function applyArtemisGuidanceFlags(
+  weapon: IWeapon,
+  catalogWeapon: ICatalogWeaponStats,
+  locationSlots: readonly string[],
+): IWeapon {
+  if (!isArtemisCompatibleCatalogWeapon(catalogWeapon)) return weapon;
+
+  if (hasArtemisVFCS(locationSlots) && hasArtemisVCapableAmmo(locationSlots)) {
+    return { ...weapon, hasArtemisV: true };
+  }
+
+  if (
+    hasArtemisIVFCS(locationSlots) &&
+    hasArtemisIVCapableAmmo(locationSlots)
+  ) {
+    return { ...weapon, hasArtemisIV: true };
+  }
+
+  if (
+    hasPrototypeArtemisIVFCS(locationSlots) &&
+    hasArtemisIVCapableAmmo(locationSlots)
+  ) {
+    return { ...weapon, hasPrototypeArtemisIV: true };
+  }
+
+  return weapon;
 }
 
 /**
@@ -165,24 +697,76 @@ export function toAIWeapon(
  * Order is preserved from the catalog file so tests can assert
  * deterministic indices.
  */
-export function hydrateAIWeaponsFromFullUnit(
+export function hydrateAIWeaponsFromFullUnitWithReport(
   fullUnit: IFullUnit,
   weaponLookup: WeaponLookup,
-): readonly IWeapon[] {
+): IHydratedAIWeaponsReport {
   const equipment =
     (fullUnit.equipment as readonly unknown[] | undefined) ?? [];
+  const criticalSlots = criticalSlotsFromFullUnit(fullUnit);
   const out: IWeapon[] = [];
+  const resolvedEquipmentIds: string[] = [];
+  const unresolvedEquipmentIds: string[] = [];
   let mountIndex = 0;
   for (const raw of equipment) {
     if (!raw || typeof raw !== 'object') continue;
     const entry = raw as IUnitEquipmentEntry;
     if (typeof entry.id !== 'string') continue;
     const stats = weaponLookup(entry.id);
-    if (!stats) continue;
-    out.push(toAIWeapon(stats, mountIndex));
+    if (!stats) {
+      unresolvedEquipmentIds.push(entry.id);
+      continue;
+    }
+    const location =
+      typeof entry.location === 'string'
+        ? normalizeEquipmentLocation(entry.location)
+        : '';
+    const aiWeapon = toAIWeapon(stats, mountIndex);
+    out.push(
+      applyArtemisGuidanceFlags(
+        aiWeapon,
+        stats,
+        locationSlotTexts(criticalSlots, location),
+      ),
+    );
+    resolvedEquipmentIds.push(entry.id);
     mountIndex++;
   }
-  return out;
+  return { weapons: out, resolvedEquipmentIds, unresolvedEquipmentIds };
+}
+
+export function hydrateAIWeaponsFromFullUnitStrict(
+  fullUnit: IFullUnit,
+  weaponLookup: WeaponLookup,
+): readonly IWeapon[] {
+  const report = hydrateAIWeaponsFromFullUnitWithReport(fullUnit, weaponLookup);
+  const unitLabel =
+    [fullUnit.chassis, fullUnit.model ?? fullUnit.variant]
+      .filter((part): part is string => typeof part === 'string')
+      .join(' ')
+      .trim() || fullUnit.id;
+
+  if (report.unresolvedEquipmentIds.length > 0) {
+    throw new Error(
+      `Unable to hydrate combat weapons for ${unitLabel}: unresolved equipment ids ${report.unresolvedEquipmentIds.join(
+        ', ',
+      )}`,
+    );
+  }
+  if (report.weapons.length === 0) {
+    throw new Error(
+      `Unable to hydrate combat weapons for ${unitLabel}: no combat weapons resolved`,
+    );
+  }
+
+  return report.weapons;
+}
+
+export function hydrateAIWeaponsFromFullUnit(
+  fullUnit: IFullUnit,
+  weaponLookup: WeaponLookup,
+): readonly IWeapon[] {
+  return hydrateAIWeaponsFromFullUnitWithReport(fullUnit, weaponLookup).weapons;
 }
 
 // =============================================================================
@@ -343,6 +927,7 @@ export function createHydratedUnitState(
     hydrated;
   const { armor } = hydrateArmorFromFullUnit(fullUnit);
   const { structure } = hydrateStructureFromFullUnit(fullUnit);
+  const heatSinks = hydrateHeatSinksFromFullUnit(fullUnit);
 
   return {
     id: runnerUnitId,
@@ -354,6 +939,11 @@ export function createHydratedUnitState(
     hexesMovedThisTurn: 0,
     gunnery,
     piloting,
+    heatSinks: heatSinks.count,
+    heatSinkType: heatSinks.kind,
+    hasTSM: hydrateHasTSMFromFullUnit(fullUnit),
+    hasStealthArmor: hydrateHasStealthArmorFromFullUnit(fullUnit),
+    unitQuirks: hydrateUnitQuirksFromFullUnit(fullUnit),
     armor,
     // Mirror starting structure into `startingInternalStructure` so the
     // retreat-trigger ratio (per `add-bot-retreat-behavior`) sees the
@@ -366,6 +956,8 @@ export function createHydratedUnitState(
     pilotWounds: 0,
     pilotConscious: true,
     destroyed: false,
+    hasRetreated: false,
+    hasEjected: false,
     lockState: LockState.Pending,
     componentDamage: DEFAULT_COMPONENT_DAMAGE,
     prone: false,
@@ -404,6 +996,7 @@ export function buildWeaponLookupFromCatalogFiles(
       const damage = item.damage;
       const heat = item.heat;
       const name = item.name;
+      const subType = item.subType;
       const ranges = item.ranges;
       if (
         typeof id !== 'string' ||
@@ -422,13 +1015,20 @@ export function buildWeaponLookupFromCatalogFiles(
       const long = typeof r.long === 'number' ? r.long : 0;
       const ammoPerTon =
         typeof item.ammoPerTon === 'number' ? item.ammoPerTon : -1;
+      const special = Array.isArray(item.special)
+        ? item.special.filter(
+            (entry): entry is string => typeof entry === 'string',
+          )
+        : [];
       map.set(id, {
         id,
         name,
+        ...(typeof subType === 'string' ? { subType } : {}),
         damage,
         heat,
         ranges: { minimum, short, medium, long },
         ammoPerTon,
+        special,
       });
     }
   }

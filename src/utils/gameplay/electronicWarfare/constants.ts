@@ -6,6 +6,12 @@ export const BLOODHOUND_ECM_COUNTER_RANGE = 8;
 
 export const CLAN_PROBE_ECM_COUNTER_RANGE = 5;
 
+export const LIGHT_PROBE_ECM_COUNTER_RANGE = 3;
+
+export const WATCHDOG_CEWS_ECM_COUNTER_RANGE = 5;
+
+export const NOVA_CEWS_ECM_COUNTER_RANGE = 5;
+
 export const STEALTH_ARMOR_MODIFIERS = {
   short: 0,
   medium: 1,

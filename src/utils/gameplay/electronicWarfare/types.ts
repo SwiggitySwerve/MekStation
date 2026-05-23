@@ -13,8 +13,16 @@ export interface IECMSuite {
   readonly position: IHexCoordinate;
 }
 
+export type ActiveProbeType =
+  | 'beagle'
+  | 'bloodhound'
+  | 'clan-active-probe'
+  | 'light-active-probe'
+  | 'watchdog-cews'
+  | 'nova-cews';
+
 export interface IActiveProbe {
-  readonly type: 'beagle' | 'bloodhound' | 'clan-active-probe';
+  readonly type: ActiveProbeType;
   readonly operational: boolean;
   readonly entityId: string;
   readonly teamId: string;

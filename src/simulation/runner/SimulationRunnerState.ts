@@ -4,6 +4,7 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 import type { IUnitDamageState } from '@/utils/gameplay/damage';
+import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 
 import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
 import { CombatLocation, IGameState, IUnitGameState } from '@/types/gameplay';
@@ -20,6 +21,9 @@ import { DEFAULT_GUNNERY, DEFAULT_PILOTING } from './SimulationRunnerConstants';
 import { createMinimalUnitState } from './SimulationRunnerSupport';
 import {
   createHydratedUnitState,
+  hydrateActiveProbesFromFullUnit,
+  hydrateECMSuitesFromFullUnit,
+  hydrateHeatSinksFromFullUnit,
   type IHydratedUnitData,
 } from './UnitHydration';
 
@@ -67,6 +71,52 @@ function createSideUnits(
   }
 }
 
+function buildElectronicWarfareState(
+  units: Readonly<Record<string, IUnitGameState>>,
+  hydration: UnitHydrationMap | undefined,
+): IElectronicWarfareState | undefined {
+  if (!hydration) return undefined;
+
+  const ecmSuites: IElectronicWarfareState['ecmSuites'] = Object.entries(
+    units,
+  ).flatMap(([unitId, unit]) => {
+    const hydrated = hydration.get(unitId);
+    if (!hydrated) return [];
+
+    return hydrateECMSuitesFromFullUnit(hydrated.fullUnit).map(
+      (suite, index) => ({
+        type: suite.type,
+        mode: 'ecm' as const,
+        operational: true,
+        entityId: `${unitId}:${suite.sourceEquipmentId}:${index}`,
+        teamId: unit.side,
+        position: { ...unit.position },
+      }),
+    );
+  });
+  const activeProbes: IElectronicWarfareState['activeProbes'] = Object.entries(
+    units,
+  ).flatMap(([unitId, unit]) => {
+    const hydrated = hydration.get(unitId);
+    if (!hydrated) return [];
+
+    return hydrateActiveProbesFromFullUnit(hydrated.fullUnit).map((probe) => ({
+      type: probe.type,
+      operational: true,
+      entityId: unitId,
+      teamId: unit.side,
+      position: { ...unit.position },
+    }));
+  });
+
+  return ecmSuites.length > 0 || activeProbes.length > 0
+    ? {
+        ecmSuites,
+        activeProbes,
+      }
+    : undefined;
+}
+
 export function createInitialState(
   config: ISimulationConfig,
   hydration?: UnitHydrationMap,
@@ -94,6 +144,7 @@ export function createInitialState(
   // through, not only by destruction. Markerless configs leave
   // `objectives` undefined and behave exactly as before.
   const objectives = buildObjectivesForConfig(config);
+  const electronicWarfare = buildElectronicWarfareState(units, hydration);
 
   return {
     gameId: `sim-${config.seed}`,
@@ -104,6 +155,7 @@ export function createInitialState(
     units,
     turnEvents: [],
     ...(Object.keys(objectives).length > 0 ? { objectives } : {}),
+    ...(electronicWarfare ? { electronicWarfare } : {}),
   };
 }
 
@@ -185,6 +237,7 @@ export function synthesizeGameUnits(
         const chassis = fullUnit.chassis ?? id;
         const model = fullUnit.model ?? '';
         const name = model.length > 0 ? `${chassis} ${model}` : chassis;
+        const heatSinks = hydrateHeatSinksFromFullUnit(hydrated.fullUnit);
         result.push({
           id,
           name,
@@ -193,6 +246,8 @@ export function synthesizeGameUnits(
           pilotRef: `pilot-${id}`,
           gunnery: hydrated.gunnery ?? DEFAULT_GUNNERY,
           piloting: hydrated.piloting ?? DEFAULT_PILOTING,
+          heatSinks: heatSinks.count,
+          heatSinkType: heatSinks.kind,
         });
       } else {
         // Synthetic minimal-unit fallback path: no catalog data
@@ -223,6 +278,7 @@ export function resetTurnState(state: IGameState): IGameState {
       damageThisPhase: 0,
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
+      tagDesignated: false,
     };
   }
 
@@ -277,6 +333,7 @@ export function buildDamageState(unit: IUnitGameState): IUnitDamageState {
     destroyedLocations: unit.destroyedLocations as CombatLocation[],
     pilotWounds: unit.pilotWounds,
     pilotConscious: unit.pilotConscious,
+    pilotAbilities: unit.abilities,
     destroyed: unit.destroyed,
   };
 }
@@ -365,7 +422,12 @@ export function applyDamageResultToState(
 }
 
 export function isUnitOperable(unit: IUnitGameState): boolean {
-  return !unit.destroyed && unit.pilotConscious !== false;
+  return (
+    !unit.destroyed &&
+    !unit.hasRetreated &&
+    !unit.hasEjected &&
+    unit.pilotConscious !== false
+  );
 }
 
 export function isGameOver(state: IGameState, turnLimit = 0): boolean {

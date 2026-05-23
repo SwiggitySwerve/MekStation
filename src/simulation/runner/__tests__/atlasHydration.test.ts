@@ -24,15 +24,28 @@
  * (sync JSON imports — no fetch needed).
  */
 
+import type { IFullUnit } from '@/services/units/CanonicalUnitService';
+
 import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
 import { GameSide } from '@/types/gameplay';
 import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 
 import {
+  createMinimalUnitState,
+  toCatalogAIUnitState,
+} from '../SimulationRunnerSupport';
+import {
   buildWeaponLookupFromCatalogFiles,
   createHydratedUnitState,
   hydrateAIWeaponsFromFullUnit,
+  hydrateAIWeaponsFromFullUnitStrict,
+  hydrateAIWeaponsFromFullUnitWithReport,
   hydrateArmorFromFullUnit,
+  hydrateActiveProbesFromFullUnit,
+  hydrateECMSuitesFromFullUnit,
+  hydrateHasStealthArmorFromFullUnit,
+  hydrateHasTSMFromFullUnit,
+  hydrateHeatSinksFromFullUnit,
   hydrateStructureFromFullUnit,
   resolveCatalogDamage,
   type IHydratedUnitData,
@@ -52,6 +65,7 @@ const LOCUST_TONNAGE = 20;
 // Locust: HD=8 + LA=4 + RA=4 + LL=8 + RL=8 + CT=10+2 + LT=8+2 + RT=8+2 = 64
 const ATLAS_CANONICAL_TOTAL_ARMOR = 304;
 const LOCUST_CANONICAL_TOTAL_ARMOR = 64;
+const ATLAS_CANONICAL_HEAT_SINKS = 20;
 
 describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
   it('resolves Atlas AS7-D from the Node catalog with the canonical loadout', async () => {
@@ -115,6 +129,138 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     expect(srm6?.heat).toBe(4);
   });
 
+  it('hydrates Artemis IV guidance only when a compatible launcher has linked FCS and Artemis-capable ammo', async () => {
+    const service = getNodeCanonicalUnitService();
+    const artemisUnit = await service.getById('longshot-lng-2');
+    const standardUnit = await service.getById('atlas-as7-d');
+    expect(artemisUnit).not.toBeNull();
+    expect(standardUnit).not.toBeNull();
+    if (!artemisUnit || !standardUnit) return;
+
+    const artemisWeapons = hydrateAIWeaponsFromFullUnit(
+      artemisUnit,
+      weaponLookup,
+    );
+    const standardWeapons = hydrateAIWeaponsFromFullUnit(
+      standardUnit,
+      weaponLookup,
+    );
+    const artemisSRMs = artemisWeapons.filter((weapon) =>
+      /srm\s*6/i.test(weapon.name),
+    );
+    const standardLRM = standardWeapons.find((weapon) =>
+      /lrm\s*20/i.test(weapon.name),
+    );
+
+    expect(artemisSRMs).toHaveLength(2);
+    expect(
+      artemisSRMs.filter((weapon) => weapon.hasArtemisIV === true),
+    ).toHaveLength(1);
+    expect(artemisSRMs.every((weapon) => !weapon.hasArtemisV)).toBe(true);
+    expect(artemisSRMs.every((weapon) => !weapon.hasPrototypeArtemisIV)).toBe(
+      true,
+    );
+    expect(standardLRM?.hasArtemisIV).toBeUndefined();
+    expect(standardLRM?.hasPrototypeArtemisIV).toBeUndefined();
+    expect(standardLRM?.hasArtemisV).toBeUndefined();
+  });
+
+  it('hydrates prototype Artemis IV guidance from matching FCS and Artemis-capable ammo', () => {
+    const prototypeUnit: IFullUnit = {
+      id: 'synthetic-prototype-artemis-iv',
+      chassis: 'Synthetic',
+      variant: 'Prototype Artemis IV',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3050',
+      unitType: 'BattleMech',
+      equipment: [{ id: 'srm-6', location: 'RIGHT_TORSO' }],
+      criticalSlots: {
+        RIGHT_TORSO: [
+          'IS SRM 6',
+          'ISArtemisIVProto',
+          'IS Ammo SRM-6 Artemis-capable',
+        ],
+      },
+    };
+
+    const weapons = hydrateAIWeaponsFromFullUnit(prototypeUnit, weaponLookup);
+
+    expect(weapons).toHaveLength(1);
+    expect(weapons[0].hasPrototypeArtemisIV).toBe(true);
+    expect(weapons[0].hasArtemisIV).toBeUndefined();
+    expect(weapons[0].hasArtemisV).toBeUndefined();
+  });
+
+  it('hydrates Artemis V guidance from matching FCS and Artemis V-capable ammo', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('alpha-wolf-b');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    const weapons = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
+    const srmLaunchers = weapons.filter((weapon) =>
+      /srm\s*6/i.test(weapon.name),
+    );
+
+    expect(srmLaunchers).toHaveLength(2);
+    expect(srmLaunchers.every((weapon) => weapon.hasArtemisV)).toBe(true);
+    expect(srmLaunchers.every((weapon) => !weapon.hasArtemisIV)).toBe(true);
+    expect(srmLaunchers.every((weapon) => !weapon.hasPrototypeArtemisIV)).toBe(
+      true,
+    );
+  });
+
+  it('reports unresolved weapon refs so strict catalog hydration cannot fall back silently', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('atlas-as7-d');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    const brokenUnit: IFullUnit = {
+      ...fullUnit,
+      equipment: [
+        ...((fullUnit.equipment as readonly unknown[] | undefined) ?? []),
+        { id: 'missing-catalog-weapon', location: 'RIGHT_ARM' },
+      ],
+    };
+    const emptyUnit: IFullUnit = {
+      ...fullUnit,
+      id: 'atlas-as7-d-empty-loadout',
+      equipment: [],
+    };
+
+    const partialReport = hydrateAIWeaponsFromFullUnitWithReport(
+      brokenUnit,
+      weaponLookup,
+    );
+    expect(partialReport.weapons).toHaveLength(7);
+    expect(partialReport.resolvedEquipmentIds).toHaveLength(7);
+    expect(partialReport.unresolvedEquipmentIds).toEqual([
+      'missing-catalog-weapon',
+    ]);
+    expect(() =>
+      hydrateAIWeaponsFromFullUnitStrict(brokenUnit, weaponLookup),
+    ).toThrow('missing-catalog-weapon');
+
+    const emptyReport = hydrateAIWeaponsFromFullUnitWithReport(
+      emptyUnit,
+      weaponLookup,
+    );
+    expect(emptyReport.weapons).toHaveLength(0);
+    expect(() =>
+      hydrateAIWeaponsFromFullUnitStrict(emptyUnit, weaponLookup),
+    ).toThrow('no combat weapons resolved');
+
+    const unitState = createMinimalUnitState('player-1', GameSide.Player, {
+      q: 0,
+      r: 0,
+    });
+    expect(() => toCatalogAIUnitState(unitState, [])).toThrow(
+      'refusing synthetic Medium Laser fallback',
+    );
+  });
+
   it('hydrates Atlas armor: per-location map sums to 304 across 11 locations', async () => {
     const service = getNodeCanonicalUnitService();
     const fullUnit = await service.getById('atlas-as7-d');
@@ -163,6 +309,215 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     expect(structure.right_leg).toBe(21);
   });
 
+  it('hydrates Atlas heat sinks from the catalog', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('atlas-as7-d');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    const heatSinks = hydrateHeatSinksFromFullUnit(fullUnit);
+
+    expect(heatSinks).toEqual({
+      count: ATLAS_CANONICAL_HEAT_SINKS,
+      kind: 'single',
+    });
+  });
+
+  it('normalizes double heat sink catalog strings for runner state', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('atlas-as7-d');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    const doubleSinkUnit: IFullUnit = {
+      ...fullUnit,
+      id: 'double-sink-test',
+      heatSinks: { type: 'DOUBLE', count: 14 },
+    };
+
+    expect(hydrateHeatSinksFromFullUnit(doubleSinkUnit)).toEqual({
+      count: 14,
+      kind: 'double',
+    });
+  });
+
+  it('hydrates TSM movement enhancements into runner physical damage state', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('atlas-as7-d');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    const baseMovement =
+      (fullUnit as { movement?: Record<string, unknown> }).movement ?? {};
+    const tsmUnit: IFullUnit = {
+      ...fullUnit,
+      id: 'tsm-hydration-test',
+      movement: {
+        ...baseMovement,
+        enhancements: ['TSM'],
+      },
+    };
+    const booleanTsmUnit: IFullUnit = {
+      ...fullUnit,
+      id: 'tsm-boolean-hydration-test',
+      movement: {
+        ...baseMovement,
+        hasTSM: true,
+      },
+    };
+
+    expect(hydrateHasTSMFromFullUnit(fullUnit)).toBe(false);
+    expect(hydrateHasTSMFromFullUnit(tsmUnit)).toBe(true);
+    expect(hydrateHasTSMFromFullUnit(booleanTsmUnit)).toBe(true);
+
+    const aiWeapons = hydrateAIWeaponsFromFullUnit(tsmUnit, weaponLookup);
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit: tsmUnit,
+      aiWeapons,
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.hasTSM).toBe(true);
+  });
+
+  it('hydrates BattleMech stealth armor and critical-slot ECM from a real unit', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('wasp-wsp-3l');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    expect(hydrateHasStealthArmorFromFullUnit(fullUnit)).toBe(true);
+    expect(hydrateECMSuitesFromFullUnit(fullUnit)).toEqual([
+      {
+        type: 'guardian',
+        sourceEquipmentId: 'ISGuardianECMSuite',
+        sourceLocation: 'LEFT_TORSO',
+      },
+    ]);
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit,
+      aiWeapons: [],
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.hasStealthArmor).toBe(true);
+  });
+
+  it('hydrates standard ECM and CEWS equipment ids for EW seeding', () => {
+    const ecmUnit: IFullUnit = {
+      id: 'synthetic-ecm-suite-hydration-test',
+      chassis: 'Synthetic',
+      variant: 'ECM',
+      tonnage: 50,
+      techBase: 'Mixed',
+      era: '3050',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: '1-isguardianecm', location: 'HEAD' },
+        { id: '1-isangelecm', location: 'LEFT_TORSO' },
+        { id: '1-clecmsuite', location: 'RIGHT_TORSO,_AMMO:10' },
+        { id: '1-clwatchdogcews', location: 'CENTER_TORSO' },
+        {
+          id: 'nova-combined-electronic-warfare-system-cews',
+          location: 'HEAD',
+        },
+      ],
+    };
+
+    expect(hydrateECMSuitesFromFullUnit(ecmUnit)).toEqual([
+      {
+        type: 'guardian',
+        sourceEquipmentId: '1-isguardianecm',
+        sourceLocation: 'HEAD',
+      },
+      {
+        type: 'angel',
+        sourceEquipmentId: '1-isangelecm',
+        sourceLocation: 'LEFT_TORSO',
+      },
+      {
+        type: 'clan',
+        sourceEquipmentId: '1-clecmsuite',
+        sourceLocation: 'RIGHT_TORSO',
+      },
+      {
+        type: 'clan',
+        sourceEquipmentId: '1-clwatchdogcews',
+        sourceLocation: 'CENTER_TORSO',
+      },
+      {
+        type: 'clan',
+        sourceEquipmentId: 'nova-combined-electronic-warfare-system-cews',
+        sourceLocation: 'HEAD',
+      },
+    ]);
+  });
+
+  it('hydrates active probe and CEWS equipment ids for ECM countering', () => {
+    const probeUnit: IFullUnit = {
+      id: 'synthetic-active-probe-hydration-test',
+      chassis: 'Synthetic',
+      variant: 'Probe',
+      tonnage: 50,
+      techBase: 'Mixed',
+      era: '3050',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: '1-isbeagleactiveprobe', location: 'HEAD' },
+        { id: '1-isbloodhoundactiveprobe', location: 'LEFT_TORSO' },
+        { id: '1-clactiveprobe', location: 'RIGHT_TORSO' },
+        { id: '1-cllightactiveprobe', location: 'RIGHT_ARM' },
+        { id: '1-clwatchdogcews', location: 'CENTER_TORSO' },
+        {
+          id: 'nova-combined-electronic-warfare-system-cews',
+          location: 'HEAD',
+        },
+      ],
+    };
+
+    expect(hydrateActiveProbesFromFullUnit(probeUnit)).toEqual([
+      {
+        type: 'beagle',
+        sourceEquipmentId: '1-isbeagleactiveprobe',
+        sourceLocation: 'HEAD',
+      },
+      {
+        type: 'bloodhound',
+        sourceEquipmentId: '1-isbloodhoundactiveprobe',
+        sourceLocation: 'LEFT_TORSO',
+      },
+      {
+        type: 'clan-active-probe',
+        sourceEquipmentId: '1-clactiveprobe',
+        sourceLocation: 'RIGHT_TORSO',
+      },
+      {
+        type: 'light-active-probe',
+        sourceEquipmentId: '1-cllightactiveprobe',
+        sourceLocation: 'RIGHT_ARM',
+      },
+      {
+        type: 'watchdog-cews',
+        sourceEquipmentId: '1-clwatchdogcews',
+        sourceLocation: 'CENTER_TORSO',
+      },
+      {
+        type: 'nova-cews',
+        sourceEquipmentId: 'nova-combined-electronic-warfare-system-cews',
+        sourceLocation: 'HEAD',
+      },
+    ]);
+  });
+
   it('produces a fully-hydrated IUnitGameState with armor / structure / weapons all populated', async () => {
     const service = getNodeCanonicalUnitService();
     const fullUnit = await service.getById('atlas-as7-d');
@@ -186,6 +541,8 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     expect(unitState.side).toBe(GameSide.Player);
     expect(unitState.gunnery).toBe(4);
     expect(unitState.piloting).toBe(5);
+    expect(unitState.heatSinks).toBe(ATLAS_CANONICAL_HEAT_SINKS);
+    expect(unitState.heatSinkType).toBe('single');
 
     // Armor + structure end up on the IUnitGameState directly.
     const armorTotal = Object.values(unitState.armor).reduce(

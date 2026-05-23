@@ -9,8 +9,14 @@ import {
   type IFullUnit,
   getCanonicalUnitService,
 } from '@/services/units/CanonicalUnitService';
+import {
+  buildWeaponLookupFromCatalogFiles,
+  hydrateHeatSinksFromFullUnit,
+  resolveCatalogDamage,
+} from '@/simulation/runner/UnitHydration';
 import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
 import { logger } from '@/utils/logger';
 
@@ -22,6 +28,30 @@ import {
   WEAPON_ID_ALIASES,
 } from './CompendiumWeaponData';
 
+const officialWeaponLookup =
+  buildWeaponLookupFromCatalogFiles(WEAPON_CATALOG_FILES);
+
+function getOfficialWeaponData(equipmentId: string): IWeaponData | undefined {
+  const catalogWeapon = officialWeaponLookup(equipmentId);
+  if (!catalogWeapon) return undefined;
+
+  return {
+    id: catalogWeapon.id,
+    name: catalogWeapon.name,
+    shortRange: catalogWeapon.ranges.short,
+    mediumRange: catalogWeapon.ranges.medium,
+    longRange: catalogWeapon.ranges.long,
+    ...(catalogWeapon.ranges.extreme !== undefined
+      ? { extremeRange: catalogWeapon.ranges.extreme }
+      : {}),
+    damage: resolveCatalogDamage(catalogWeapon.damage, catalogWeapon.id),
+    heat: catalogWeapon.heat,
+    minRange: catalogWeapon.ranges.minimum,
+    ammoPerTon: catalogWeapon.ammoPerTon ?? -1,
+    destroyed: false,
+  };
+}
+
 export function canonicalizeWeaponId(equipmentId: string): string {
   if (!equipmentId) return equipmentId;
   const raw = equipmentId.toLowerCase().trim();
@@ -32,15 +62,18 @@ export function canonicalizeWeaponId(equipmentId: string): string {
     return WEAPON_ID_ALIASES[normalized];
   }
   // Direct catalog hit — done.
-  if (WEAPON_DATABASE[normalized]) {
+  if (officialWeaponLookup(normalized) || WEAPON_DATABASE[normalized]) {
     return normalized;
   }
   // Clan-prefixed fallback: strip prefix and re-check against catalog or
-  // alias map. The static DB only holds IS rows today, so this fall-through
-  // gives Clan variants the IS equivalent stats (documented below).
+  // alias map. Official Clan rows win for abbreviated prefixes; legacy IS
+  // fallback remains for ids the official catalog does not contain.
   for (const pattern of CLAN_PREFIX_PATTERNS) {
     if (pattern.test(normalized)) {
       const stripped = normalized.replace(pattern, '');
+      const expandedClan = `clan-${stripped}`;
+      if (officialWeaponLookup(expandedClan)) return expandedClan;
+      if (officialWeaponLookup(stripped)) return stripped;
       if (WEAPON_DATABASE[stripped]) return stripped;
       if (WEAPON_ID_ALIASES[stripped]) return WEAPON_ID_ALIASES[stripped];
     }
@@ -49,15 +82,16 @@ export function canonicalizeWeaponId(equipmentId: string): string {
 }
 
 /**
- * Look up static weapon data by equipment ID. Accepts both IS and Clan
- * variants via `canonicalizeWeaponId`. Returns `undefined` when no entry
+ * Look up official catalog weapon data by equipment ID. Accepts both IS and Clan
+ * variants via `canonicalizeWeaponId`. Static weapon data is a legacy
+ * fallback after the official catalog. Returns `undefined` when no entry
  * matches — callers are expected to surface the miss (e.g., via
  * `weaponAttackBuilder` logger.warn + skip, per task 3.3) rather than
  * silently defaulting to a 5-damage / 3-heat placeholder.
  */
 export function getWeaponData(equipmentId: string): IWeaponData | undefined {
   const canonicalId = canonicalizeWeaponId(equipmentId);
-  return WEAPON_DATABASE[canonicalId];
+  return getOfficialWeaponData(canonicalId) ?? WEAPON_DATABASE[canonicalId];
 }
 
 // =============================================================================
@@ -159,7 +193,7 @@ function extractWeapons(
     // inventory — and later the weaponAttackBuilder would warn about a
     // missing weapon that was actually discarded here.
     const canonicalId = canonicalizeWeaponId(item.id);
-    const data = WEAPON_DATABASE[canonicalId];
+    const data = getWeaponData(item.id);
     if (!data) {
       // Task 3.3: do not silently skip — surface the miss so data-pipeline
       // bugs are observable. Combat resilience is preserved because the
@@ -167,8 +201,8 @@ function extractWeapons(
       // player cannot then declare it as a firing weapon.
       logger.warn(
         `[CompendiumAdapter] Weapon id "${item.id}" on unit "${unitId}" ` +
-          `(canonical: "${canonicalId}") has no static catalog entry — ` +
-          `skipping. Add it to WEAPON_DATABASE or WEAPON_ID_ALIASES.`,
+          `(canonical: "${canonicalId}") has no official weapon catalog entry — ` +
+          `skipping. Add it to the official catalog or WEAPON_ID_ALIASES.`,
       );
       continue;
     }
@@ -222,6 +256,7 @@ export function adaptUnitFromData(
 
   const unitData = fullUnit as unknown as Record<string, unknown>;
   const tonnage = (unitData.tonnage as number) ?? 50;
+  const heatSinks = hydrateHeatSinksFromFullUnit(fullUnit);
 
   // Armor
   const armorAllocation =
@@ -258,12 +293,15 @@ export function adaptUnitFromData(
 
   return {
     id: fullUnit.id,
+    unitType: fullUnit.unitType,
     side,
     position,
     facing,
     heat: 0,
     movementThisTurn: MovementType.Stationary,
     hexesMovedThisTurn: 0,
+    heatSinks: heatSinks.count,
+    heatSinkType: heatSinks.kind,
     armor,
     structure,
     // Per `add-bot-retreat-behavior` § 2 (Trigger A): seed the retreat
@@ -278,6 +316,8 @@ export function adaptUnitFromData(
     pilotWounds: 0,
     pilotConscious: true,
     destroyed: false,
+    hasRetreated: false,
+    hasEjected: false,
     lockState: LockState.Pending,
     weapons,
     walkMP,
