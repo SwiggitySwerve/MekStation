@@ -67,6 +67,13 @@ For each projected movement hex, the map SHALL expose at least movement mode, cu
 - **THEN** movement heat SHALL come from the unit's movement heat profile rather than the pathing mode alone
 - **AND** previewed movement heat SHALL match committed movement events
 
+#### Scenario: Infantry terrain profile adjusts movement costs
+
+- **GIVEN** a represented non-mechanized infantry or battle armor unit previews ground movement
+- **WHEN** the destination includes woods or an upward elevation change
+- **THEN** the movement projection SHALL apply the represented infantry terrain-cost profile
+- **AND** committed movement SHALL spend the same MP cost that the preview exposed
+
 ### Requirement: Combat Projection Explanation
 
 Combat highlights SHALL expose weapon-backed attack legality, range, firing arc, LOS, cover, visibility, heat, ammo, and disabled reasons.

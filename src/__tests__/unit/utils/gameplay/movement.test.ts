@@ -430,6 +430,46 @@ describe('movement', () => {
       expect(cost).toBe(3);
     });
 
+    it('should apply infantry woods entry discount with minimum 1 MP', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.LightWoods);
+
+      const step = getMovementStepCostBreakdown(
+        grid,
+        { q: 1, r: 0 },
+        'walk',
+        { q: 0, r: 0 },
+        { movementTerrainProfile: 'infantry' },
+      );
+
+      expect(step).toMatchObject({
+        mpCost: 1,
+        baseCost: 1,
+        terrainCost: 0,
+        elevationCost: 0,
+      });
+    });
+
+    it('should apply infantry woods discount to heavy woods without dropping below base cost', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.HeavyWoods);
+
+      const step = getMovementStepCostBreakdown(
+        grid,
+        { q: 1, r: 0 },
+        'walk',
+        { q: 0, r: 0 },
+        { movementTerrainProfile: 'infantry' },
+      );
+
+      expect(step).toMatchObject({
+        mpCost: 2,
+        baseCost: 1,
+        terrainCost: 1,
+        elevationCost: 0,
+      });
+    });
+
     it('should return 1 for heavy woods with jump', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.HeavyWoods);
@@ -453,6 +493,28 @@ describe('movement', () => {
         r: 0,
       });
       expect(cost).toBe(2);
+    });
+
+    it('should double non-flying infantry elevation costs', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 1);
+
+      const step = getMovementStepCostBreakdown(
+        grid,
+        { q: 1, r: 0 },
+        'walk',
+        { q: 0, r: 0 },
+        { movementTerrainProfile: 'infantry' },
+      );
+
+      expect(step).toMatchObject({
+        mpCost: 3,
+        baseCost: 1,
+        terrainCost: 0,
+        elevationDelta: 1,
+        elevationCost: 2,
+      });
     });
 
     it('should add 2 MP for two level elevation change', () => {

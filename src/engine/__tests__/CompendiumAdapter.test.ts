@@ -435,6 +435,7 @@ describe('CompendiumAdapter', () => {
       expect(result.jumpMP).toBe(3);
       expect(result.movementMode).toBe('walk');
       expect(result.movementHeatProfile).toBe('none');
+      expect(result.movementTerrainProfile).toBe('infantry');
     });
 
     it.each([
@@ -457,8 +458,21 @@ describe('CompendiumAdapter', () => {
         expect(result.jumpMP).toBe(0);
         expect(result.movementMode).toBe(movementMode);
         expect(result.movementHeatProfile).toBe('none');
+        expect(result.movementTerrainProfile).toBeUndefined();
       },
     );
+
+    it('should preserve infantry terrain profile for motorized infantry motive', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'INFANTRY',
+        motiveType: 'Motorized',
+        movement: { groundMP: 3, jumpMP: 0 },
+      } as unknown as IFullUnit);
+
+      expect(result.movementMode).toBe('wheeled');
+      expect(result.movementTerrainProfile).toBe('infantry');
+    });
 
     it('should read battle armor squad MP and VTOL motion type', () => {
       const result = adaptUnitFromData({
@@ -475,6 +489,21 @@ describe('CompendiumAdapter', () => {
       expect(result.jumpMP).toBe(0);
       expect(result.movementMode).toBe('vtol');
       expect(result.movementHeatProfile).toBe('none');
+      expect(result.movementTerrainProfile).toBeUndefined();
+    });
+
+    it('should preserve battle armor foot terrain profile', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'BATTLE_ARMOR',
+        motiveType: 'Foot',
+        movement: { groundMP: 2, jumpMP: 0 },
+      } as unknown as IFullUnit);
+
+      expect(result.walkMP).toBe(2);
+      expect(result.runMP).toBe(2);
+      expect(result.movementMode).toBe('walk');
+      expect(result.movementTerrainProfile).toBe('infantry');
     });
 
     it('should preserve explicit ProtoMech run MP from canonical unit data', () => {

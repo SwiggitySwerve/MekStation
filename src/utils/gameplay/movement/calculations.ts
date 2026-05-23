@@ -187,6 +187,11 @@ export function getMovementStepCostBreakdown(
     (feature) => feature.type === TerrainType.Ice,
   );
   const hasSurfaceIce = hasWaterFeature && hasIceFeature && waterLevel > 0;
+  const hasWoodsFeature = terrainFeatures.some(
+    (feature) =>
+      feature.type === TerrainType.LightWoods ||
+      feature.type === TerrainType.HeavyWoods,
+  );
 
   if (requiresWaterTerrain(movementType) && !hasWaterFeature) {
     return {
@@ -286,7 +291,9 @@ export function getMovementStepCostBreakdown(
     if (fromHex) {
       elevationDelta = hex.elevation - fromHex.elevation;
       if (elevationDelta > 0 && paysElevationCost(movementType)) {
-        elevationCost = elevationDelta;
+        elevationCost =
+          elevationDelta *
+          (context.movementTerrainProfile === 'infantry' ? 2 : 1);
         const maxElevationChange =
           maxElevationChangeForMovementType(movementType);
 
@@ -311,10 +318,21 @@ export function getMovementStepCostBreakdown(
     }
   }
 
+  const infantryWoodsDiscount =
+    context.movementTerrainProfile === 'infantry' &&
+    hasWoodsFeature &&
+    !hasPavementSurfaceFeature
+      ? 1
+      : 0;
+  const totalCost = Math.max(
+    1,
+    baseCost + terrainCost + elevationCost - infantryWoodsDiscount,
+  );
+
   return {
-    mpCost: baseCost + terrainCost + elevationCost,
+    mpCost: totalCost,
     baseCost,
-    terrainCost,
+    terrainCost: totalCost - baseCost - elevationCost,
     elevationCost,
     elevationDelta,
   };

@@ -2165,4 +2165,61 @@ describe('applyInteractiveSessionMovement', () => {
       heatGenerated: 0,
     });
   });
+
+  it('keeps infantry woods movement cost aligned between preview and commit', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    grid.hexes.set('1,0', makeHex(1, 0, TerrainType.LightWoods));
+    const movementByUnit = capability({
+      walkMP: 1,
+      runMP: 1,
+      jumpMP: 0,
+      movementMode: 'walk',
+      movementHeatProfile: 'none',
+      movementTerrainProfile: 'infantry',
+    });
+
+    const preview = deriveReachableHexes(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+    ).find((entry) => entry.hex.q === 1 && entry.hex.r === 0);
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      mpCost: 1,
+      terrainCost: 0,
+      heatGenerated: 0,
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      movementType: MovementType.Walk,
+      mpUsed: 1,
+      heatGenerated: 0,
+    });
+  });
 });

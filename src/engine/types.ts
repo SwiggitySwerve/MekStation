@@ -9,6 +9,7 @@ import type {
   IHexCoordinate,
   IHexGrid,
   MovementHeatProfile,
+  MovementTerrainProfile,
   IMovementWaterCapability,
   MovementMotiveMode,
 } from '@/types/gameplay/HexGridInterfaces';
@@ -55,6 +56,8 @@ export interface IAdaptedUnit extends IUnitGameState {
   readonly movementMode?: MovementMotiveMode;
   /** Whether movement should generate Mek-style engine heat. */
   readonly movementHeatProfile?: MovementHeatProfile;
+  /** Unit-type terrain-cost adjustments layered over motive-mode pathing. */
+  readonly movementTerrainProfile?: MovementTerrainProfile;
   /** Optional equipment that modifies water movement legality and MP costs. */
   readonly waterCapability?: IMovementWaterCapability;
 }

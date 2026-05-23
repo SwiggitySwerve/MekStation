@@ -16,6 +16,7 @@ import {
   MovementType,
   type MovementHeatProfile,
   type MovementMotiveMode,
+  type MovementTerrainProfile,
 } from '@/types/gameplay/HexGridInterfaces';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
 import { logger } from '@/utils/logger';
@@ -201,6 +202,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
   jumpMP: number;
   movementMode?: MovementMotiveMode;
   movementHeatProfile?: MovementHeatProfile;
+  movementTerrainProfile?: MovementTerrainProfile;
   waterCapability?: IMovementWaterCapability;
 } {
   const movement = recordField(unitData.movement);
@@ -218,6 +220,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
   const runMP = explicitRunMP ?? deriveRunMP(unitData, walkMP);
   const movementMode = movementModeFromUnitData(unitData);
   const movementHeatProfile = movementHeatProfileFromUnitData(unitData);
+  const movementTerrainProfile = movementTerrainProfileFromUnitData(unitData);
   const waterCapability = waterCapabilityFromUnitData(unitData);
   return {
     walkMP,
@@ -225,6 +228,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
     jumpMP,
     ...(movementMode ? { movementMode } : {}),
     ...(movementHeatProfile ? { movementHeatProfile } : {}),
+    ...(movementTerrainProfile ? { movementTerrainProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
   };
 }
@@ -300,6 +304,39 @@ function movementHeatProfileFromUnitData(
       return 'none';
     default:
       return undefined;
+  }
+}
+
+function movementTerrainProfileFromUnitData(
+  unitData: Record<string, unknown>,
+): MovementTerrainProfile | undefined {
+  const unitType = normalizedKey(unitData.unitType);
+  if (unitType !== 'infantry' && unitType !== 'battlearmor') {
+    return undefined;
+  }
+
+  const movement = recordField(unitData.movement);
+  const raw =
+    stringField(unitData, 'motionType', 'motiveType', 'movementType') ??
+    stringField(movement, 'motionType', 'motiveType', 'movementType');
+  const normalized = normalizedKey(raw);
+  switch (normalized) {
+    case 'tracked':
+    case 'mechanizedtracked':
+    case 'inftracked':
+    case 'wheeled':
+    case 'mechanizedwheeled':
+    case 'infwheeled':
+    case 'hover':
+    case 'mechanizedhover':
+    case 'infhover':
+    case 'vtol':
+    case 'mechanizedvtol':
+    case 'infvtol':
+    case 'submarine':
+      return undefined;
+    default:
+      return 'infantry';
   }
 }
 
@@ -461,6 +498,7 @@ export function adaptUnitFromData(
     jumpMP,
     movementMode,
     movementHeatProfile,
+    movementTerrainProfile,
     waterCapability,
   } = calculateMovement(unitData);
 
@@ -504,6 +542,7 @@ export function adaptUnitFromData(
     ...adapted,
     ...(movementMode ? { movementMode } : {}),
     ...(movementHeatProfile ? { movementHeatProfile } : {}),
+    ...(movementTerrainProfile ? { movementTerrainProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
   };
 }

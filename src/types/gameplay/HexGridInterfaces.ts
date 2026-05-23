@@ -76,6 +76,12 @@ export type MovementMotiveMode = Exclude<MovementTravelMode, 'run' | 'jump'>;
 export type MovementHeatProfile = 'mek' | 'none';
 
 /**
+ * Unit-type movement terrain adjustments that cannot be inferred from motive
+ * mode alone.
+ */
+export type MovementTerrainProfile = 'infantry';
+
+/**
  * Water-capable equipment represented by the tactical movement layer.
  */
 export interface IMovementWaterCapability {
@@ -238,6 +244,8 @@ export interface IMovementCapability {
   readonly movementMode?: MovementMotiveMode;
   /** Whether movement should generate Mek-style engine heat. */
   readonly movementHeatProfile?: MovementHeatProfile;
+  /** Unit-type terrain-cost adjustments layered over motive-mode pathing. */
+  readonly movementTerrainProfile?: MovementTerrainProfile;
   /** MegaMek-style entity height used for bridge clearance checks; default is 0. */
   readonly unitHeight?: number;
   /** Optional equipment that modifies water movement legality and MP costs. */

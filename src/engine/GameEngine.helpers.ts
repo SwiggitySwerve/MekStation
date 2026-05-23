@@ -206,6 +206,9 @@ export function toMovementCapability(
     ...(adapted.movementHeatProfile
       ? { movementHeatProfile: adapted.movementHeatProfile }
       : {}),
+    ...(adapted.movementTerrainProfile
+      ? { movementTerrainProfile: adapted.movementTerrainProfile }
+      : {}),
     ...(adapted.waterCapability
       ? { waterCapability: adapted.waterCapability }
       : {}),

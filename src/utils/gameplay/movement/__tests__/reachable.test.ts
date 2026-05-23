@@ -1390,4 +1390,49 @@ describe('deriveMovementRangeHexForDestination', () => {
       heatGenerated: 0,
     });
   });
+
+  it('uses infantry terrain profile for woods and elevation costs', () => {
+    let grid = createHexGrid({ radius: 5 });
+    grid = setHex(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 0);
+    grid = setHex(grid, { q: 0, r: 1 }, TerrainType.Clear, 1);
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = {
+      walkMP: 1,
+      runMP: 1,
+      jumpMP: 0,
+      movementMode: 'walk',
+      movementTerrainProfile: 'infantry',
+    };
+
+    const woodsProjection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+    const elevationProjection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 0, r: 1 },
+    );
+
+    expect(woodsProjection).toMatchObject({
+      reachable: true,
+      mpCost: 1,
+      terrainCost: 0,
+      elevationCost: 0,
+      movementMode: 'walk',
+    });
+    expect(elevationProjection).toMatchObject({
+      reachable: false,
+      mpCost: 3,
+      terrainCost: 0,
+      elevationDelta: 1,
+      elevationCost: 2,
+      movementInvalidReason: 'InsufficientMP',
+    });
+  });
 });

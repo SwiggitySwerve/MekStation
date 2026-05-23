@@ -175,6 +175,22 @@ in `src/types/gameplay/HexGridInterfaces.ts`,
 `src/utils/gameplay/movement/__tests__/reachable.test.ts`, and
 `src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`.
 
+Additional infantry terrain-cost pin: MegaMek `MoveStep.java:2828-2837`
+doubles elevation MP for non-flying infantry, and `MoveStep.java:2892-2899`
+reduces non-mechanized infantry woods-entry cost by 1 MP while preserving a
+minimum 1 MP step cost. MekStation now carries
+`movementTerrainProfile: 'infantry'` separately from motive mode so conventional infantry and foot/jump
+battle armor can use the represented infantry terrain profile without changing
+Mek walking costs or mechanized infantry motive costs. Coverage lives in
+`src/types/gameplay/HexGridInterfaces.ts`,
+`src/engine/adapters/CompendiumAdapter.ts`,
+`src/utils/gameplay/movement/costContext.ts`,
+`src/utils/gameplay/movement/calculations.ts`,
+`src/__tests__/unit/utils/gameplay/movement.test.ts`,
+`src/engine/__tests__/CompendiumAdapter.test.ts`,
+`src/utils/gameplay/movement/__tests__/reachable.test.ts`, and
+`src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`.
+
 Additional prone stand-up movement pin: MegaMek `GetUpStep.java:62` charges
 normal stand-up as 2 MP, except a unit with `runMP == 1` spends 1 MP.
 `MoveStep.java:2021-2026` blocks prone Meks from spending MP on anything except

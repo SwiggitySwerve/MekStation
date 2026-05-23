@@ -1,5 +1,6 @@
 import type {
   IMovementCapability,
+  MovementTerrainProfile,
   IMovementWaterCapability,
 } from '@/types/gameplay';
 
@@ -8,6 +9,7 @@ import { MovementType } from '@/types/gameplay';
 export interface IMovementCostContext {
   readonly declaredMovementType?: MovementType;
   readonly isFirstStep?: boolean;
+  readonly movementTerrainProfile?: MovementTerrainProfile;
   readonly unitHeight?: number;
   readonly waterCapability?: IMovementWaterCapability;
 }
@@ -21,6 +23,9 @@ export function movementCostContextForCapability(
     declaredMovementType: movementType,
     ...(stepContext.isFirstStep !== undefined
       ? { isFirstStep: stepContext.isFirstStep }
+      : {}),
+    ...(capability.movementTerrainProfile
+      ? { movementTerrainProfile: capability.movementTerrainProfile }
       : {}),
     ...(capability.unitHeight !== undefined
       ? { unitHeight: capability.unitHeight }
