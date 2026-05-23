@@ -117,6 +117,33 @@ const MEGAMEK_ACTIVE_PROBE_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MissileWeaponHandler applies Artemis IV, prototype Artemis IV, and Artemis V cluster modifiers while suppressing ECM and attacker stealth.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/MissileWeaponHandler.java#L124-L200',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'LRMHandler skips Artemis cluster modifiers in indirect mode and applies the same Artemis IV, prototype Artemis IV, Artemis V, ECM, and stealth branches for direct LRM fire.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/lrm/LRMHandler.java#L139-L217',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_STEALTH_ACTIVE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'Mek.isStealthActive requires stealth equipment mode On and active ECM support.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Mek.java#L3442-L3457',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   'uac-rate-of-fire': integrated(
     'uac-rate-of-fire',
@@ -229,11 +256,13 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'artemis-cluster-modifier': integrated(
     'artemis-cluster-modifier',
-    'UnitHydration approximates Artemis IV/prototype IV/V flags from same-location FCS plus Artemis-capable ammo, runAttackPhase passes those flags plus indirect-fire state into missileClusterModifier, and calculateClusterModifiers applies MegaMek-parity IV/prototype IV/V bonuses without stacking while suppressing them for indirect fire',
+    'Source-backed UnitHydration approximates Artemis IV/prototype IV/V flags from same-location FCS plus Artemis-capable ammo, runAttackPhase passes those flags plus indirect-fire state into missileClusterModifier, and calculateClusterModifiers applies MegaMek-parity IV/prototype IV/V bonuses without stacking while suppressing them for indirect fire',
+    MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS,
   ),
   'artemis-ecm-suppression': integrated(
     'artemis-ecm-suppression',
-    'calculateClusterModifiers accepts ecmProtected and zeroes Artemis IV/prototype IV/V bonuses, and runAttackPhase derives target ECM coverage plus active-probe countering from runner electronic-warfare state before missile cluster resolution',
+    'Source-backed calculateClusterModifiers accepts ecmProtected and zeroes Artemis IV/prototype IV/V bonuses, and runAttackPhase derives target ECM coverage plus active-probe countering from runner electronic-warfare state before missile cluster resolution',
+    MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS,
   ),
   'artemis-ecm-suite-hydration': integrated(
     'artemis-ecm-suite-hydration',
@@ -247,6 +276,10 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'artemis-stealth-suppression': integrated(
     'artemis-stealth-suppression',
-    'createHydratedUnitState preserves BattleMech stealth armor, runAttackPhase detects active attacker stealth from the unit own operational ECM suite, and calculateClusterModifiers suppresses Artemis IV/prototype IV/V cluster bonuses while active',
+    'Source-backed createHydratedUnitState preserves BattleMech stealth armor, runAttackPhase detects active attacker stealth from the unit own operational ECM suite, and calculateClusterModifiers suppresses Artemis IV/prototype IV/V cluster bonuses while active',
+    [
+      ...MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS,
+      ...MEGAMEK_STEALTH_ACTIVE_SOURCE_REFS,
+    ],
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;

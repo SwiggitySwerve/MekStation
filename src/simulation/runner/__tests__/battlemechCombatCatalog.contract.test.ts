@@ -1100,6 +1100,51 @@ describe('BattleMech combat catalog validation lane', () => {
       ),
     ).toBe(true);
   });
+
+  it('pins Artemis cluster, ECM, and stealth suppression to MegaMek refs', () => {
+    const sourceRefsFor = (
+      id: keyof typeof SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT,
+    ) => SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[id].sourceRefs ?? [];
+
+    expect(
+      sourceRefsFor('artemis-cluster-modifier').map(({ citation }) => citation),
+    ).toEqual([
+      'MissileWeaponHandler applies Artemis IV, prototype Artemis IV, and Artemis V cluster modifiers while suppressing ECM and attacker stealth.',
+      'LRMHandler skips Artemis cluster modifiers in indirect mode and applies the same Artemis IV, prototype Artemis IV, Artemis V, ECM, and stealth branches for direct LRM fire.',
+    ]);
+    expect(
+      sourceRefsFor('artemis-ecm-suppression').map(({ citation }) => citation),
+    ).toEqual(
+      sourceRefsFor('artemis-cluster-modifier').map(({ citation }) => citation),
+    );
+    expect(
+      sourceRefsFor('artemis-stealth-suppression').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MissileWeaponHandler applies Artemis IV, prototype Artemis IV, and Artemis V cluster modifiers while suppressing ECM and attacker stealth.',
+      'LRMHandler skips Artemis cluster modifiers in indirect mode and applies the same Artemis IV, prototype Artemis IV, Artemis V, ECM, and stealth branches for direct LRM fire.',
+      'Mek.isStealthActive requires stealth equipment mode On and active ECM support.',
+    ]);
+
+    const refs = [
+      ...sourceRefsFor('artemis-cluster-modifier'),
+      ...sourceRefsFor('artemis-ecm-suppression'),
+      ...sourceRefsFor('artemis-stealth-suppression'),
+    ];
+
+    expect(
+      refs.every(
+        (sourceRef) =>
+          sourceRef.kind === 'megamek-source' &&
+          sourceRef.sourceVersion ===
+            '325b2504c7b7750ecdcb85468621fb2de2ad8e60' &&
+          sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
+          sourceRef.url.includes(sourceRef.sourceVersion) &&
+          sourceRef.url.includes('#L'),
+      ),
+    ).toBe(true);
+  });
 });
 
 describe('BattleMech combat feature-gap tracking', () => {
