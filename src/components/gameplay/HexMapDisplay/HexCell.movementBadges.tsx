@@ -2,81 +2,34 @@ import React from 'react';
 
 import type { IHexCoordinate, IMovementRangeHex } from '@/types/gameplay';
 
-import { MovementType } from '@/types/gameplay';
-
-function formatMovementTypeLabel(type: MovementType): string {
-  switch (type) {
-    case MovementType.Walk:
-      return 'W';
-    case MovementType.Run:
-      return 'R';
-    case MovementType.Jump:
-      return 'J';
-    case MovementType.Stationary:
-      return 'S';
-  }
-}
-
-function formatMovementModeLabel(mode: string | undefined): string | null {
-  switch (mode) {
-    case 'tracked':
-      return 'TRK';
-    case 'wheeled':
-      return 'WHL';
-    case 'hover':
-      return 'HOV';
-    case 'vtol':
-      return 'VTOL';
-    case 'naval':
-      return 'NAV';
-    case 'hydrofoil':
-      return 'HYD';
-    case 'submarine':
-      return 'SUB';
-    case 'umu':
-      return 'UMU';
-    case 'biped_swim':
-      return 'BSW';
-    case 'quad_swim':
-      return 'QSW';
-    case 'wige':
-      return 'WiGE';
-    case 'rail':
-      return 'RAIL';
-    case 'maglev':
-      return 'MAG';
-    default:
-      return null;
-  }
-}
+import {
+  formatMovementModeLabel,
+  formatMovementModeTitleLabel,
+  formatMovementOptionTitle,
+  formatMovementTypeLabel,
+  movementOptionsForBadge,
+  uniqueMovementTypeLabels,
+} from './HexCell.movementOptionSummaries';
 
 export function formatMovementReachBadgeLabel(
   movementInfo: IMovementRangeHex,
 ): string {
-  const typeLabel = formatMovementTypeLabel(movementInfo.movementType);
+  const options = movementOptionsForBadge(movementInfo);
+  const typeLabel =
+    options.length > 1
+      ? uniqueMovementTypeLabels(options)
+      : formatMovementTypeLabel(movementInfo.movementType);
   const motiveLabel = formatMovementModeLabel(movementInfo.movementMode);
-  const modeLabel = motiveLabel ? `${typeLabel}/${motiveLabel}` : typeLabel;
+  const modeLabel =
+    options.length > 1
+      ? typeLabel
+      : motiveLabel
+        ? `${typeLabel}/${motiveLabel}`
+        : typeLabel;
   const mpLabel = Number.isFinite(movementInfo.mpCost)
     ? `${movementInfo.mpCost}MP`
     : 'XMP';
   return `${modeLabel} ${mpLabel}`;
-}
-
-function formatMovementModeTitleLabel(mode: string): string {
-  switch (mode) {
-    case 'vtol':
-      return 'VTOL';
-    case 'wige':
-      return 'WiGE';
-    case 'umu':
-      return 'UMU';
-    case 'biped_swim':
-      return 'biped swim';
-    case 'quad_swim':
-      return 'quad swim';
-    default:
-      return mode.replace(/_/g, ' ');
-  }
 }
 
 export function formatMovementModeTitle(
@@ -91,6 +44,15 @@ export function formatMovementModeTitle(
     )}`;
   }
   return movementInfo.movementType;
+}
+
+export function formatMovementReachBadgeTitle(
+  movementInfo: IMovementRangeHex,
+): string {
+  const primary = `${formatMovementModeTitle(movementInfo)} reachable: ${movementInfo.mpCost} MP`;
+  const options = movementInfo.movementModeOptions ?? [];
+  if (options.length <= 1) return primary;
+  return `${primary}; options ${options.map(formatMovementOptionTitle).join('; ')}`;
 }
 
 function formatElevationDeltaLabel(elevationDelta: number): string {
@@ -198,7 +160,8 @@ export function MovementReachBadge({
 }): React.ReactElement | null {
   if (!movementInfo?.reachable) return null;
   const label = formatMovementReachBadgeLabel(movementInfo);
-  const title = `${formatMovementModeTitle(movementInfo)} reachable: ${movementInfo.mpCost} MP`;
+  const title = formatMovementReachBadgeTitle(movementInfo);
+  const movementOptions = movementInfo.movementModeOptions ?? [];
   const width = Math.max(34, label.length * 5.6 + 10);
 
   return (
@@ -210,6 +173,21 @@ export function MovementReachBadge({
       data-movement-badge-mode={movementInfo.movementMode}
       data-movement-badge-mp-cost={movementInfo.mpCost}
       data-movement-badge-heat-generated={movementInfo.heatGenerated}
+      data-movement-badge-option-count={
+        movementOptions.length > 1 ? movementOptions.length : undefined
+      }
+      data-movement-badge-option-types={
+        movementOptions.length > 1
+          ? movementOptions.map((option) => option.movementType).join(',')
+          : undefined
+      }
+      data-movement-badge-option-costs={
+        movementOptions.length > 1
+          ? movementOptions
+              .map((option) => `${option.movementType}:${option.mpCost}`)
+              .join('|')
+          : undefined
+      }
     >
       <title>{title}</title>
       <rect

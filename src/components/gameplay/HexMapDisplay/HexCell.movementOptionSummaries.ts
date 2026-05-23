@@ -1,0 +1,155 @@
+import type {
+  IMovementRangeHex,
+  IMovementRangeModeOption,
+} from '@/types/gameplay';
+
+import { MovementType } from '@/types/gameplay';
+
+const MOVEMENT_TYPE_PRIORITY: Record<MovementType, number> = {
+  [MovementType.Stationary]: 0,
+  [MovementType.Walk]: 1,
+  [MovementType.Run]: 2,
+  [MovementType.Jump]: 3,
+};
+
+export function formatMovementTypeLabel(type: MovementType): string {
+  switch (type) {
+    case MovementType.Walk:
+      return 'W';
+    case MovementType.Run:
+      return 'R';
+    case MovementType.Jump:
+      return 'J';
+    case MovementType.Stationary:
+      return 'S';
+  }
+}
+
+export function formatMovementModeLabel(
+  mode: string | undefined,
+): string | null {
+  switch (mode) {
+    case 'tracked':
+      return 'TRK';
+    case 'wheeled':
+      return 'WHL';
+    case 'hover':
+      return 'HOV';
+    case 'vtol':
+      return 'VTOL';
+    case 'naval':
+      return 'NAV';
+    case 'hydrofoil':
+      return 'HYD';
+    case 'submarine':
+      return 'SUB';
+    case 'umu':
+      return 'UMU';
+    case 'biped_swim':
+      return 'BSW';
+    case 'quad_swim':
+      return 'QSW';
+    case 'wige':
+      return 'WiGE';
+    case 'rail':
+      return 'RAIL';
+    case 'maglev':
+      return 'MAG';
+    default:
+      return null;
+  }
+}
+
+export function formatMovementModeTitleLabel(mode: string): string {
+  switch (mode) {
+    case 'vtol':
+      return 'VTOL';
+    case 'wige':
+      return 'WiGE';
+    case 'umu':
+      return 'UMU';
+    case 'biped_swim':
+      return 'biped swim';
+    case 'quad_swim':
+      return 'quad swim';
+    default:
+      return mode.replace(/_/g, ' ');
+  }
+}
+
+function compareMovementRangePrimary(
+  a: IMovementRangeHex,
+  b: IMovementRangeHex,
+): number {
+  if (a.reachable !== b.reachable) return a.reachable ? -1 : 1;
+  const typeDelta =
+    MOVEMENT_TYPE_PRIORITY[a.movementType] -
+    MOVEMENT_TYPE_PRIORITY[b.movementType];
+  if (typeDelta !== 0) return typeDelta;
+  if (a.mpCost === b.mpCost) return 0;
+  if (!Number.isFinite(a.mpCost)) return 1;
+  if (!Number.isFinite(b.mpCost)) return -1;
+  return a.mpCost - b.mpCost;
+}
+
+function movementRangeOptionFor(
+  movementInfo: IMovementRangeHex,
+): IMovementRangeModeOption {
+  return {
+    movementType: movementInfo.movementType,
+    movementMode: movementInfo.movementMode,
+    reachable: movementInfo.reachable,
+    mpCost: movementInfo.mpCost,
+    heatGenerated: movementInfo.heatGenerated,
+    blockedReason: movementInfo.blockedReason,
+    movementInvalidReason: movementInfo.movementInvalidReason,
+  };
+}
+
+export function withSameHexMovementOptions(
+  candidates: readonly IMovementRangeHex[],
+): IMovementRangeHex {
+  const sorted = [...candidates].sort(compareMovementRangePrimary);
+  const primary = sorted[0];
+  if (sorted.length === 1) return primary;
+  return {
+    ...primary,
+    movementModeOptions: sorted.map(movementRangeOptionFor),
+  };
+}
+
+export function movementOptionsForBadge(
+  movementInfo: IMovementRangeHex,
+): readonly IMovementRangeModeOption[] {
+  const options = movementInfo.movementModeOptions ?? [];
+  return options.length > 1 ? options : [movementRangeOptionFor(movementInfo)];
+}
+
+export function uniqueMovementTypeLabels(
+  options: readonly IMovementRangeModeOption[],
+): string {
+  const labels = options
+    .filter((option) => option.reachable)
+    .map((option) => formatMovementTypeLabel(option.movementType));
+  const displayLabels =
+    labels.length > 0
+      ? labels
+      : options.map((option) => formatMovementTypeLabel(option.movementType));
+  return Array.from(new Set(displayLabels)).join('/');
+}
+
+export function formatMovementOptionTitle(
+  option: IMovementRangeModeOption,
+): string {
+  const movementMode =
+    option.movementMode && option.movementMode !== option.movementType
+      ? ` via ${formatMovementModeTitleLabel(option.movementMode)}`
+      : '';
+  const cost = Number.isFinite(option.mpCost) ? `${option.mpCost} MP` : 'X MP';
+  const heat =
+    option.heatGenerated === undefined ? '' : `, heat +${option.heatGenerated}`;
+  const blocked = option.reachable
+    ? ''
+    : `, blocked${option.blockedReason ? `: ${option.blockedReason}` : ''}`;
+  return `${option.movementType}${movementMode} ${option.reachable ? 'reachable' : 'blocked'} ${cost}${heat}${blocked}`;
+}

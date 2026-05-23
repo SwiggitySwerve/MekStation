@@ -187,6 +187,49 @@ describe('tacticalMapProjection', () => {
     expect(projection.explanation).toContain('elevation -1');
   });
 
+  it('includes same-hex movement mode options in the shared projection explanation', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: terrain(),
+      movement: movement({
+        movementModeOptions: [
+          {
+            movementType: MovementType.Walk,
+            movementMode: 'tracked',
+            reachable: true,
+            mpCost: 3,
+            heatGenerated: 0,
+          },
+          {
+            movementType: MovementType.Run,
+            movementMode: 'tracked',
+            reachable: true,
+            mpCost: 3,
+            heatGenerated: 2,
+          },
+          {
+            movementType: MovementType.Jump,
+            movementMode: 'jump',
+            reachable: false,
+            mpCost: 4,
+            heatGenerated: 1,
+            blockedReason: 'Jump elevation rise of 4 exceeds jump MP 3',
+            movementInvalidReason: 'TerrainBlocked',
+          },
+        ],
+      }),
+      combat: undefined,
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection.explanation).toContain(
+      'movement options walk via tracked reachable 3 MP heat +0, run via tracked reachable 3 MP heat +2, jump blocked 4 MP heat +1',
+    );
+  });
+
   it('includes combat modifier details in the shared projection explanation', () => {
     const projection = buildTacticalMapHexProjection({
       hex: { q: 1, r: 0 },

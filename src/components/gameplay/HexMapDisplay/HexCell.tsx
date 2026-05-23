@@ -69,6 +69,37 @@ import {
  */
 const JUMP_PATTERN_URL = 'url(#pattern-jump-range)';
 
+function movementOptionTypesAttribute(
+  movementInfo?: IMovementRangeHex,
+): string | undefined {
+  const options = movementInfo?.movementModeOptions;
+  if (!options || options.length <= 1) return undefined;
+  return options.map((option) => option.movementType).join(',');
+}
+
+function movementOptionCostsAttribute(
+  movementInfo?: IMovementRangeHex,
+): string | undefined {
+  const options = movementInfo?.movementModeOptions;
+  if (!options || options.length <= 1) return undefined;
+  return options
+    .map((option) => `${option.movementType}:${option.mpCost}`)
+    .join('|');
+}
+
+function movementOptionStatesAttribute(
+  movementInfo?: IMovementRangeHex,
+): string | undefined {
+  const options = movementInfo?.movementModeOptions;
+  if (!options || options.length <= 1) return undefined;
+  return options
+    .map(
+      (option) =>
+        `${option.movementType}:${option.reachable ? 'reachable' : 'blocked'}`,
+    )
+    .join('|');
+}
+
 /**
  * Per `add-movement-phase-ui` task 3.2-3.4: pick the per-type tile
  * color (MegaMek-style cyan = walk, yellow = run, red = jump). Falls
@@ -265,6 +296,7 @@ export const HexCell = React.memo(function HexCell({
     combatLosBlockerFor && combatLosBlockerFor.length > 0
       ? combatLosBlockerFor.map((ref) => ref.blocker.reason).join('|')
       : undefined;
+  const movementOptionCount = movementInfo?.movementModeOptions?.length;
   const hexLabel = `Hex ${hex.q},${hex.r}; terrain ${formatTerrainFeaturesLabel(
     terrainTypes,
   )}; primary ${formatTerrainLabel(terrainType)}; elevation ${elevationLabel}${
@@ -286,6 +318,14 @@ export const HexCell = React.memo(function HexCell({
       }
       data-movement-type={movementInfo?.movementType}
       data-movement-mode={movementInfo?.movementMode}
+      data-movement-option-count={
+        movementOptionCount && movementOptionCount > 1
+          ? movementOptionCount
+          : undefined
+      }
+      data-movement-option-types={movementOptionTypesAttribute(movementInfo)}
+      data-movement-option-costs={movementOptionCostsAttribute(movementInfo)}
+      data-movement-option-states={movementOptionStatesAttribute(movementInfo)}
       data-mp-cost={movementInfo?.mpCost}
       data-terrain-cost={movementInfo?.terrainCost}
       data-heat-generated={movementInfo?.heatGenerated}

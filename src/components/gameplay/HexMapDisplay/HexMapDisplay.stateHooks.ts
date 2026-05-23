@@ -27,6 +27,7 @@ import type {
   IsometricTerrainOcclusionInfo,
 } from './projection';
 
+import { withSameHexMovementOptions } from './HexCell.movementOptionSummaries';
 import {
   deriveIsometricTerrainOccluderInfo,
   deriveIsometricTerrainOcclusionInfo,
@@ -51,8 +52,18 @@ export function useMovementRangeLookup(
   movementRange: readonly IMovementRangeHex[],
 ): ReadonlyMap<string, IMovementRangeHex> {
   return useMemo(() => {
+    const grouped = new Map<string, IMovementRangeHex[]>();
+    for (const m of movementRange) {
+      const key = coordToKey(m.hex);
+      const entries = grouped.get(key) ?? [];
+      entries.push(m);
+      grouped.set(key, entries);
+    }
+
     const map = new Map<string, IMovementRangeHex>();
-    for (const m of movementRange) map.set(coordToKey(m.hex), m);
+    grouped.forEach((entries, key) => {
+      map.set(key, withSameHexMovementOptions(entries));
+    });
     return map;
   }, [movementRange]);
 }

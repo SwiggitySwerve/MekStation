@@ -579,6 +579,84 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('preserves walk run and jump options when movement projections share a hex', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 3,
+            heatGenerated: 0,
+            movementMode: 'tracked',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 3,
+            heatGenerated: 2,
+            movementMode: 'tracked',
+            reachable: true,
+            movementType: MovementType.Run,
+          },
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 1,
+            heatGenerated: 1,
+            movementMode: 'jump',
+            reachable: true,
+            movementType: MovementType.Jump,
+          },
+        ]}
+      />,
+    );
+
+    const hex = screen.getByTestId('hex-1-0');
+    expect(hex).toHaveAttribute('data-movement-type', 'walk');
+    expect(hex).toHaveAttribute('data-movement-option-count', '3');
+    expect(hex).toHaveAttribute('data-movement-option-types', 'walk,run,jump');
+    expect(hex).toHaveAttribute(
+      'data-movement-option-costs',
+      'walk:3|run:3|jump:1',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-states',
+      'walk:reachable|run:reachable|jump:reachable',
+    );
+    expect(hex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining(
+        'movement options walk via tracked reachable 3 MP heat +0, run via tracked reachable 3 MP heat +2, jump reachable 1 MP heat +1',
+      ),
+    );
+
+    const badge = screen.getByTestId('hex-movement-badge-1-0');
+    expect(badge).toHaveTextContent('W/R/J 3MP');
+    expect(badge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        'options walk via tracked reachable 3 MP, heat +0; run via tracked reachable 3 MP, heat +2; jump reachable 1 MP, heat +1',
+      ),
+    );
+    expect(badge).toHaveAttribute('data-movement-badge-option-count', '3');
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-types',
+      'walk,run,jump',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-costs',
+      'walk:3|run:3|jump:1',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('keeps movement type visible on hovered path cost badges', () => {
     const { unmount } = render(
       <HexMapDisplay

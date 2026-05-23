@@ -4,6 +4,7 @@ import type {
   IHexCoordinate,
   IHexTerrain,
   IMovementRangeHex,
+  IMovementRangeModeOption,
 } from '@/types/gameplay';
 
 import { TerrainType } from '@/types/gameplay';
@@ -322,6 +323,13 @@ function formatProjectionExplanation({
     if (movement.heatGenerated !== undefined) {
       parts.push(`heat ${formatSignedCost(movement.heatGenerated)}`);
     }
+    if (movement.movementModeOptions?.length) {
+      parts.push(
+        `movement options ${movement.movementModeOptions
+          .map(formatMovementOption)
+          .join(', ')}`,
+      );
+    }
     if (movement.path && movement.path.length > 1) {
       const stepCount = movement.path.length - 1;
       parts.push(`path ${stepCount} ${stepCount === 1 ? 'step' : 'steps'}`);
@@ -453,6 +461,20 @@ function formatMovementType(movementType: string): string {
 
 function formatSignedCost(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
+}
+
+function formatMovementOption(option: IMovementRangeModeOption): string {
+  const mode =
+    option.movementMode && option.movementMode !== option.movementType
+      ? ` via ${option.movementMode}`
+      : '';
+  const heat =
+    option.heatGenerated === undefined
+      ? ''
+      : ` heat ${formatSignedCost(option.heatGenerated)}`;
+  return `${option.movementType}${mode} ${
+    option.reachable ? 'reachable' : 'blocked'
+  } ${option.mpCost} MP${heat}`;
 }
 
 function formatDamageValue(value: number): string {
