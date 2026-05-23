@@ -1,5 +1,6 @@
 import { IGameSession } from '@/types/gameplay';
 
+import { resolvePilotConsciousnessCheck } from './damage';
 import { type DiceRoller } from './diceTypes';
 import { resolveFall } from './fallMechanics';
 import {
@@ -17,6 +18,7 @@ import {
   isGyroDestroyed,
   resolveAllPSRs,
 } from './pilotingSkillRolls';
+import { calculatePilotingQuirkPSRModifier } from './quirkModifiers';
 
 export function checkAndQueueDamagePSRs(session: IGameSession): IGameSession {
   let currentSession = session;
@@ -140,6 +142,16 @@ export function resolvePendingPSRs(
 
       const currentUnitState = currentSession.currentState.units[unitId];
       const totalWounds = currentUnitState.pilotWounds + 1;
+      const consciousnessCheck = resolvePilotConsciousnessCheck(
+        totalWounds,
+        1,
+        currentUnitState.abilities ?? unit.abilities ?? [],
+        d6Roller,
+      );
+      const consciousnessPassed =
+        currentUnitState.pilotConscious &&
+        (consciousnessCheck.conscious ?? true) &&
+        totalWounds < 6;
       const pilotSequence = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -151,9 +163,9 @@ export function resolvePendingPSRs(
           unitId,
           1,
           totalWounds,
-          'head_hit',
+          'fall',
           true,
-          totalWounds < 6,
+          consciousnessPassed,
         ),
       );
 
@@ -171,6 +183,7 @@ export function resolvePendingPSRs(
       componentDamage,
       unitState.pilotWounds,
       d6Roller,
+      unitState.unitQuirks ?? unit.unitQuirks ?? [],
     );
 
     for (const result of batchResult.results) {
@@ -243,6 +256,16 @@ export function resolvePendingPSRs(
 
       const currentUnitState = currentSession.currentState.units[unitId];
       const totalWounds = currentUnitState.pilotWounds + 1;
+      const consciousnessCheck = resolvePilotConsciousnessCheck(
+        totalWounds,
+        1,
+        currentUnitState.abilities ?? unit.abilities ?? [],
+        d6Roller,
+      );
+      const consciousnessPassed =
+        currentUnitState.pilotConscious &&
+        (consciousnessCheck.conscious ?? true) &&
+        totalWounds < 6;
       const pilotSequence = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -254,9 +277,9 @@ export function resolvePendingPSRs(
           unitId,
           1,
           totalWounds,
-          'head_hit',
+          'fall',
           true,
-          totalWounds < 6,
+          consciousnessPassed,
         ),
       );
     }
@@ -316,8 +339,16 @@ export function attemptStandUp(
   const componentDamage = unitState.componentDamage;
   const gyroModifier = (componentDamage?.gyroHits ?? 0) * 3;
   const woundModifier = unitState.pilotWounds;
+  const quirkModifier = calculatePilotingQuirkPSRModifier(
+    unitState.unitQuirks ?? unit.unitQuirks ?? [],
+    false,
+  );
   const tn =
-    unit.piloting + gyroModifier + woundModifier + psr.additionalModifier;
+    unit.piloting +
+    gyroModifier +
+    woundModifier +
+    psr.additionalModifier +
+    quirkModifier;
   const roll = diceRoller();
   const passed = roll.total >= tn;
 
@@ -332,7 +363,7 @@ export function attemptStandUp(
       unitId,
       tn,
       roll.total,
-      gyroModifier + woundModifier,
+      gyroModifier + woundModifier + quirkModifier,
       passed,
       psr.reason,
       psr.reasonCode,

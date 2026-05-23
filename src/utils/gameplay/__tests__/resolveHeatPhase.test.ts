@@ -28,6 +28,7 @@ import {
   IWeaponAttack,
   WeaponCategory,
 } from '@/types/gameplay';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import { type DiceRoller } from '../diceTypes';
 import {
@@ -41,6 +42,7 @@ import {
   lockAttack,
   resolveHeatPhase,
 } from '../gameSession';
+import { getTerrainHeatEffect } from '../heat';
 
 // =============================================================================
 // Test Fixtures
@@ -216,6 +218,22 @@ describe('resolveHeatPhase — event-driven heat integration', () => {
       const session = resolveHeatPhase(createHeatPhaseSession(), fixedRoller);
       // opponent-1 ran for 2 movement heat.
       expect(heatGeneratedAmount(session, 'opponent-1', 'movement')).toBe(2);
+    });
+
+    it('accumulates environmental heat from terrain effects during heat resolution', () => {
+      const session = resolveHeatPhase(
+        createHeatPhaseSession([]),
+        fixedRoller,
+        {
+          getEnvironmentHeatEffect: (unitId) =>
+            unitId === 'player-1'
+              ? getTerrainHeatEffect([{ type: TerrainType.Fire, level: 1 }])
+              : 0,
+        },
+      );
+
+      expect(heatGeneratedAmount(session, 'player-1', 'environment')).toBe(5);
+      expect(heatGeneratedAmount(session, 'opponent-1', 'environment')).toBe(0);
     });
 
     it('emits no firing-heat event for a unit that declared no attack', () => {

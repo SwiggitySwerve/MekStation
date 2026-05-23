@@ -8,6 +8,7 @@ import {
   GameEventType,
   GamePhase,
   IAttackDeclaredPayload,
+  IEnvironmentalConditions,
   IGameSession,
   IHexCoordinate,
   IMovementDeclaredPayload,
@@ -16,7 +17,9 @@ import {
 import { logger } from '@/utils/logger';
 
 import { resolveAmmoExplosion } from './ammoTracking';
+import { resolvePilotConsciousnessCheck } from './damage';
 import { type DiceRoller } from './diceTypes';
+import { calculateEnvironmentalHeatModifier } from './environmentalModifiers';
 import {
   createAmmoExplosionEvent,
   createHeatDissipatedEvent,
@@ -30,6 +33,14 @@ import {
 import { appendEvent } from './gameSessionCore';
 import { getWaterCoolingBonus } from './heat';
 import { roll2d6 as rollDice } from './hitLocation';
+import {
+  getWeaponCoolingHeatModifier,
+  getWeaponQuirks,
+} from './quirkModifiers';
+import {
+  getCoolUnderFireHeatReduction,
+  getHotDogShutdownThresholdBonus,
+} from './spaModifiers';
 
 /**
  * Per `wire-heat-generation-and-effects` task 5 (water cooling) and
@@ -41,6 +52,11 @@ import { roll2d6 as rollDice } from './hitLocation';
  */
 export interface IResolveHeatPhaseOptions {
   readonly getWaterDepth?: (unitId: string, position: IHexCoordinate) => number;
+  readonly getEnvironmentHeatEffect?: (
+    unitId: string,
+    position: IHexCoordinate,
+  ) => number;
+  readonly environmentalConditions?: IEnvironmentalConditions;
 }
 
 export function resolveHeatPhase(
@@ -65,6 +81,9 @@ export function resolveHeatPhase(
     if (!unit || unitState.destroyed) {
       continue;
     }
+    const hotDogBonus = getHotDogShutdownThresholdBonus(
+      unitState.abilities ?? unit.abilities ?? [],
+    );
 
     let heatFromMovement = 0;
     const movementEvent = turnEvents.find(
@@ -86,7 +105,21 @@ export function resolveHeatPhase(
       const payload = attackEvent.payload as IAttackDeclaredPayload;
       if (payload.weaponAttacks && payload.weaponAttacks.length > 0) {
         for (const weaponAttack of payload.weaponAttacks) {
-          heatFromWeapons += weaponAttack.heat;
+          const quirks = [
+            ...getWeaponQuirks(
+              unitState.weaponQuirks ?? unit.weaponQuirks,
+              weaponAttack.weaponId,
+            ),
+            ...getWeaponQuirks(
+              unitState.weaponQuirks ?? unit.weaponQuirks,
+              weaponAttack.weaponName,
+            ),
+          ];
+          heatFromWeapons += Math.max(
+            0,
+            weaponAttack.heat +
+              getWeaponCoolingHeatModifier(quirks, weaponAttack.heat),
+          );
         }
       } else {
         // Producers now always populate weaponAttacks (per
@@ -105,10 +138,17 @@ export function resolveHeatPhase(
     const componentDamage = unitState.componentDamage;
     const engineHits = componentDamage?.engineHits ?? 0;
     const heatFromEngine = engineHits * ENGINE_HIT_HEAT;
+    const unitPosition = unitState.position;
+    const heatFromEnvironment = Math.max(
+      0,
+      options?.getEnvironmentHeatEffect !== undefined
+        ? options.getEnvironmentHeatEffect(unitId, unitPosition)
+        : 0,
+    );
 
     // Per `wire-heat-generation-and-effects` task 13.1 + 0.5.4: emit
     // one `HeatGenerated` event per contributing source (movement /
-    // firing / engine_hit) so UI + AI consumers can break down the
+    // firing / engine_hit / environment) so UI + AI consumers can break down the
     // per-turn heat budget without summing adjacent events or parsing
     // attack payloads. Skip sources that contributed zero.
     //
@@ -171,6 +211,23 @@ export function resolveHeatPhase(
         ),
       );
     }
+    if (heatFromEnvironment > 0) {
+      runningHeat += heatFromEnvironment;
+      const seq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createHeatGeneratedEvent(
+          currentSession.id,
+          seq,
+          turn,
+          GamePhase.Heat,
+          unitId,
+          heatFromEnvironment,
+          'environment',
+          runningHeat,
+        ),
+      );
+    }
 
     const currentHeatBeforeDissipation =
       currentSession.currentState.units[unitId].heat;
@@ -195,14 +252,29 @@ export function resolveHeatPhase(
     // read depth via the `getWaterDepth` provider callback. Callers
     // that don't track water (legacy + tests) omit it, yielding a zero
     // bonus and preserving existing behaviour.
-    const unitPosition = currentSession.currentState.units[unitId].position;
     const waterDepth =
       options?.getWaterDepth !== undefined
         ? options.getWaterDepth(unitId, unitPosition)
         : 0;
     const waterBonus = getWaterCoolingBonus(waterDepth);
+    const environmentalModifier =
+      options?.environmentalConditions !== undefined
+        ? calculateEnvironmentalHeatModifier(options.environmentalConditions)
+        : 0;
+    const heatGenerationReduction = Math.min(
+      getCoolUnderFireHeatReduction(
+        unitState.abilities ?? unit.abilities ?? [],
+      ),
+      heatFromMovement + heatFromWeapons + heatFromEngine + heatFromEnvironment,
+    );
 
-    const totalDissipation = baseDissipation + waterBonus;
+    const totalDissipation = Math.max(
+      0,
+      baseDissipation +
+        waterBonus +
+        environmentalModifier +
+        heatGenerationReduction,
+    );
     const newHeat = Math.max(
       0,
       currentHeatBeforeDissipation - totalDissipation,
@@ -218,7 +290,12 @@ export function resolveHeatPhase(
       unitId,
       totalDissipation,
       newHeat,
-      { baseDissipation, waterBonus },
+      {
+        baseDissipation,
+        waterBonus,
+        environmentalModifier,
+        heatGenerationReduction,
+      },
     );
     currentSession = appendEvent(currentSession, dissipationEvent);
 
@@ -232,7 +309,7 @@ export function resolveHeatPhase(
     // (30) to be eligible — automatic at heat 0 (TN 0).
     const stateAfterDissipation = currentSession.currentState.units[unitId];
     if (stateAfterDissipation.shutdown && finalHeat <= 29) {
-      const startupTN = getShutdownTN(finalHeat);
+      const startupTN = getShutdownTN(finalHeat, hotDogBonus);
       const autoRestart = startupTN === 0;
       const startupRoll = autoRestart ? null : diceRoller();
       const startupSuccess = autoRestart
@@ -299,7 +376,7 @@ export function resolveHeatPhase(
         ),
       );
     } else {
-      const shutdownTN = getShutdownTN(finalHeat);
+      const shutdownTN = getShutdownTN(finalHeat, hotDogBonus);
       if (shutdownTN > 0) {
         const shutdownRoll = diceRoller();
         const shutdownAvoided = shutdownRoll.total >= shutdownTN;
@@ -334,6 +411,7 @@ export function resolveHeatPhase(
               0,
               'heat_shutdown',
               unit?.piloting,
+              PSRTrigger.Shutdown,
             ),
           );
         }
@@ -467,6 +545,20 @@ export function resolveHeatPhase(
     if (pilotDamage > 0) {
       const currentUnitState = currentSession.currentState.units[unitId];
       const totalWounds = currentUnitState.pilotWounds + pilotDamage;
+      const d6Roller = () => {
+        const roll = diceRoller();
+        return roll.dice[0];
+      };
+      const consciousnessCheck = resolvePilotConsciousnessCheck(
+        totalWounds,
+        pilotDamage,
+        currentUnitState.abilities ?? unit.abilities ?? [],
+        d6Roller,
+      );
+      const consciousnessPassed =
+        currentUnitState.pilotConscious &&
+        (consciousnessCheck.conscious ?? true) &&
+        totalWounds < 6;
       const pilotSequence = currentSession.events.length;
       currentSession = appendEvent(
         currentSession,
@@ -480,7 +572,7 @@ export function resolveHeatPhase(
           totalWounds,
           'heat',
           true,
-          totalWounds < 6,
+          consciousnessPassed,
         ),
       );
     }

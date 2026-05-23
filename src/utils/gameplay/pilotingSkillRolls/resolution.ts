@@ -8,7 +8,23 @@ import { IComponentDamageState, IPendingPSR } from '@/types/gameplay';
 
 import { defaultD6Roller } from '../diceTypes';
 import { D6Roller, roll2d6 } from '../hitLocation';
+import { calculatePilotingQuirkPSRModifier } from '../quirkModifiers';
 import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
+
+function isTerrainPSR(psr: IPendingPSR): boolean {
+  switch (psr.reasonCode ?? psr.triggerSource) {
+    case PSRTrigger.EnteringRubble:
+    case PSRTrigger.RunningRoughTerrain:
+    case PSRTrigger.MovingOnIce:
+    case PSRTrigger.EnteringWater:
+    case PSRTrigger.ExitingWater:
+    case PSRTrigger.Skidding:
+    case PSRTrigger.BuildingCollapse:
+      return true;
+    default:
+      return false;
+  }
+}
 
 /**
  * Resolve a single PSR.
@@ -27,8 +43,14 @@ export function resolvePSR(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
+  unitQuirks: readonly string[] = [],
 ): IPSRResult {
-  const modifiers = calculatePSRModifiers(psr, componentDamage, pilotWounds);
+  const modifiers = calculatePSRModifiers(
+    psr,
+    componentDamage,
+    pilotWounds,
+    unitQuirks,
+  );
 
   const totalModifier = modifiers.reduce((sum, m) => sum + m.value, 0);
 
@@ -67,6 +89,7 @@ export function resolveAllPSRs(
   componentDamage: IComponentDamageState,
   pilotWounds: number,
   diceRoller: D6Roller = defaultD6Roller,
+  unitQuirks: readonly string[] = [],
 ): IPSRBatchResult {
   if (pendingPSRs.length === 0) {
     return {
@@ -87,6 +110,7 @@ export function resolveAllPSRs(
       componentDamage,
       pilotWounds,
       diceRoller,
+      unitQuirks,
     );
     results.push(result);
 
@@ -122,6 +146,7 @@ export function calculatePSRModifiers(
   psr: IPendingPSR,
   componentDamage: IComponentDamageState,
   pilotWounds: number,
+  unitQuirks: readonly string[] = [],
 ): readonly IPSRModifier[] {
   const modifiers: IPSRModifier[] = [];
 
@@ -180,6 +205,18 @@ export function calculatePSRModifiers(
       name: `${psr.reason} modifier`,
       value: psr.additionalModifier,
       source: psr.triggerSource,
+    });
+  }
+
+  const quirkModifier = calculatePilotingQuirkPSRModifier(
+    unitQuirks,
+    isTerrainPSR(psr),
+  );
+  if (quirkModifier !== 0) {
+    modifiers.push({
+      name: 'Piloting quirks',
+      value: quirkModifier,
+      source: 'quirk',
     });
   }
 

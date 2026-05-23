@@ -48,6 +48,7 @@ import {
   PSRTrigger,
   IPSRResult,
 } from '../pilotingSkillRolls';
+import { UNIT_QUIRK_IDS } from '../quirkModifiers';
 
 const DEFAULT_COMP_DAMAGE: IComponentDamageState = {
   engineHits: 0,
@@ -183,6 +184,27 @@ describe('Piloting Skill Rolls', () => {
       );
       expect(result.targetNumber).toBe(13); // 5 + 3 + 1 + 4
     });
+
+    it('should apply all-scope piloting quirks to the PSR target number', () => {
+      const psr: IPendingPSR = createDamagePSR('unit-1');
+      const roller = makeDiceSequence([2, 2]); // total = 4
+      const result = resolvePSR(5, psr, DEFAULT_COMP_DAMAGE, 0, roller, [
+        UNIT_QUIRK_IDS.STABLE,
+      ]);
+
+      expect(result.targetNumber).toBe(4);
+      expect(result.roll).toBe(4);
+      expect(result.passed).toBe(true);
+      expect(result.modifiers).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'Piloting quirks',
+            source: 'quirk',
+            value: -1,
+          }),
+        ]),
+      );
+    });
   });
 
   describe('resolveAllPSRs — first-failure-clears-remaining', () => {
@@ -310,6 +332,52 @@ describe('Piloting Skill Rolls', () => {
       const psr: IPendingPSR = createDamagePSR('unit-1');
       const mods = calculatePSRModifiers(psr, DEFAULT_COMP_DAMAGE, 0);
       expect(mods).toHaveLength(0);
+    });
+
+    it.each([
+      [UNIT_QUIRK_IDS.STABLE, -1],
+      [UNIT_QUIRK_IDS.HARD_TO_PILOT, 1],
+      [UNIT_QUIRK_IDS.CRAMPED_COCKPIT, 1],
+    ])('should apply %s to non-terrain PSRs', (quirkId, expectedValue) => {
+      const psr: IPendingPSR = createDamagePSR('unit-1');
+      const mods = calculatePSRModifiers(psr, DEFAULT_COMP_DAMAGE, 0, [
+        quirkId,
+      ]);
+
+      expect(mods).toEqual([
+        {
+          name: 'Piloting quirks',
+          source: 'quirk',
+          value: expectedValue,
+        },
+      ]);
+    });
+
+    it.each([
+      [UNIT_QUIRK_IDS.EASY_TO_PILOT, -1],
+      [UNIT_QUIRK_IDS.UNBALANCED, 1],
+    ])('should apply %s only to terrain PSRs', (quirkId, expectedValue) => {
+      const terrainMods = calculatePSRModifiers(
+        createRubblePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [quirkId],
+      );
+      const damageMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [quirkId],
+      );
+
+      expect(terrainMods).toEqual([
+        {
+          name: 'Piloting quirks',
+          source: 'quirk',
+          value: expectedValue,
+        },
+      ]);
+      expect(damageMods).toHaveLength(0);
     });
   });
 

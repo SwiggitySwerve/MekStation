@@ -25,6 +25,7 @@ import {
   IPilotHitPayload,
   IPSRTriggeredPayload,
   IHeatPayload,
+  PSRTrigger,
 } from '@/types/gameplay';
 
 import {
@@ -505,6 +506,9 @@ describe('resolveHeatPhase', () => {
       expect(psrEvents.length).toBeGreaterThanOrEqual(1);
       expect((psrEvents[0].payload as IPSRTriggeredPayload).reason).toBe(
         'Reactor shutdown',
+      );
+      expect((psrEvents[0].payload as IPSRTriggeredPayload).reasonCode).toBe(
+        PSRTrigger.Shutdown,
       );
     });
   });

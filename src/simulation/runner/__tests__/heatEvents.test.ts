@@ -33,16 +33,22 @@ import {
   GameStatus,
   IAmmoConsumedPayload,
   IAmmoExplosionPayload,
+  IDamageAppliedPayload,
   IAmmoSlotState,
   IGameEvent,
   IGameState,
   IHeatEffectAppliedPayload,
+  ILocationDestroyedPayload,
   IHeatPayload,
   IPilotHitPayload,
+  IPSRTriggeredPayload,
   IShutdownCheckPayload,
+  IStartupAttemptPayload,
+  ITransferDamagePayload,
   IUnitGameState,
   LockState,
   MovementType,
+  PSRTrigger,
 } from '@/types/gameplay';
 
 import type { IWeapon } from '../../ai/types';
@@ -248,9 +254,58 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     const disPayload = heatDis!.payload as IHeatPayload;
     expect(disPayload.unitId).toBe('player-1');
     // 10 base heat sinks, no destruction → 10 dissipation.
-    expect(disPayload.amount).toBe(10);
+    expect(disPayload.amount).toBe(-10);
     expect(disPayload.newTotal).toBe(0);
   });
+
+  it.each([
+    ['Improved Cooling', 'improved_cooling', 9],
+    ['Poor Cooling', 'poor_cooling', 11],
+    ['No Cooling', 'no_cooling', 20],
+  ])(
+    'applies %s weapon quirk while summing fired weapon heat',
+    (_label, quirkId, expectedHeat) => {
+      const weapon: IWeapon = {
+        id: 'ppc-cooling-test',
+        name: 'PPC',
+        shortRange: 6,
+        mediumRange: 12,
+        longRange: 18,
+        damage: 10,
+        heat: 10,
+        minRange: 3,
+        ammoPerTon: -1,
+        destroyed: false,
+      };
+      const unit = createUnit(
+        'player-1',
+        GameSide.Player,
+        { q: 0, r: 0 },
+        {
+          heat: 0,
+          heatSinks: 0,
+          weaponsFiredThisTurn: [weapon.id],
+          weaponQuirks: { [weapon.id]: [quirkId] },
+        },
+      );
+      const state = makeMinimalState({ 'player-1': unit });
+      const events: IGameEvent[] = [];
+
+      const newState = runHeatPhase({
+        state,
+        events,
+        gameId: state.gameId,
+        random: new SeededRandom(42),
+        weaponsByUnit: new Map([['player-1', [weapon]]]),
+      });
+
+      const heatGen = events.find(
+        (e) => e.type === GameEventType.HeatGenerated,
+      )!.payload as IHeatPayload;
+      expect(heatGen.amount).toBe(expectedHeat);
+      expect(newState.units['player-1'].heat).toBe(expectedHeat);
+    },
+  );
 
   it('emits HeatEffectApplied for every threshold the new total meets (alpha-strike at heat 0 → ~30)', () => {
     // Spec scenario: "Atlas alpha-strike at heat 0 produces shutdown
@@ -336,6 +391,51 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     expect(payload.heatLevel).toBeGreaterThanOrEqual(30);
   });
 
+  it('queues a fixed-TN shutdown PSR when auto-shutdown fires', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 40,
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+    const random = new SeededRandom(42);
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random,
+    });
+
+    const shutdownIndex = events.findIndex(
+      (e) => e.type === GameEventType.ShutdownCheck,
+    );
+    const psrIndex = events.findIndex(
+      (e) => e.type === GameEventType.PSRTriggered,
+    );
+    const psr = events[psrIndex]?.payload as IPSRTriggeredPayload | undefined;
+
+    expect(shutdownIndex).toBeGreaterThanOrEqual(0);
+    expect(psrIndex).toBeGreaterThan(shutdownIndex);
+    expect(psr).toMatchObject({
+      unitId: 'player-1',
+      reason: 'Reactor shutdown',
+      triggerSource: PSRTrigger.Shutdown,
+      reasonCode: PSRTrigger.Shutdown,
+      basePilotingSkill: 5,
+    });
+    expect(newState.units['player-1'].pendingPSRs).toContainEqual(
+      expect.objectContaining({
+        reasonCode: PSRTrigger.Shutdown,
+        triggerSource: PSRTrigger.Shutdown,
+      }),
+    );
+  });
+
   it('emits ShutdownCheck { automatic: false } at heat 14-29 (avoidable)', () => {
     // Start at 30 so after 10 dissipation newHeat = 20 (avoidable
     // shutdown band).
@@ -407,7 +507,80 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     expect(newState.units['player-1'].shutdown).toBe(true);
   });
 
-  it('emits AmmoExplosion { source: HeatInduced } at heat 30+ with auto-explode', () => {
+  it('emits StartupAttempt and clears shutdown after cooling below the shutdown band', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 12,
+        shutdown: true,
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+    const random = new SeededRandom(42);
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random,
+    });
+
+    const startupAttempt = events.find(
+      (e) => e.type === GameEventType.StartupAttempt,
+    );
+    expect(startupAttempt).toBeDefined();
+    expect(startupAttempt!.payload as IStartupAttemptPayload).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 0,
+      roll: 0,
+      success: true,
+    });
+    expect(
+      events.find((e) => e.type === GameEventType.ShutdownCheck),
+    ).toBeUndefined();
+    expect(newState.units['player-1'].shutdown).toBe(false);
+  });
+
+  it('uses seeded 2d6 startup rolls while the shutdown unit remains in the shutdown band', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 20,
+        heatSinks: 0,
+        shutdown: true,
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+    const random = new SeededRandom(2);
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random,
+    });
+
+    const startupAttempt = events.find(
+      (e) => e.type === GameEventType.StartupAttempt,
+    );
+    expect(startupAttempt).toBeDefined();
+    expect(startupAttempt!.payload as IStartupAttemptPayload).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 6,
+      roll: 7,
+      success: true,
+      rolls: [5, 2],
+    });
+    expect(newState.units['player-1'].shutdown).toBe(false);
+  });
+
+  it('emits HeatInduced AmmoExplosion with weapon-scaled damage at heat 30+', () => {
     // Heat 30+ auto-explodes loaded explosive ammo bins. Start at 40
     // so newHeat = 30 after dissipation.
     const ammoState: Record<string, IAmmoSlotState> = {
@@ -433,7 +606,13 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     const events: IGameEvent[] = [];
     const random = new SeededRandom(42);
 
-    runHeatPhase({ state, events, gameId: state.gameId, random });
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random,
+      weaponsByUnit: new Map([['player-1', createAtlasWeapons()]]),
+    });
 
     const ammoExplosion = events.find(
       (e) => e.type === GameEventType.AmmoExplosion,
@@ -444,6 +623,172 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     expect(payload.source).toBe('HeatInduced');
     expect(payload.location).toBe('right_torso');
     expect(payload.binId).toBe('ac-20-bin-0');
+    expect(payload.roundsDestroyed).toBe(5);
+    expect(payload.damage).toBe(100);
+    expect(
+      newState.units['player-1'].ammoState?.['ac-20-bin-0'].remainingRounds,
+    ).toBe(0);
+  });
+
+  it('routes HeatInduced AmmoExplosion damage through transfer and destruction cascade', () => {
+    const ammoState: Record<string, IAmmoSlotState> = {
+      'ac-20-bin-0': {
+        binId: 'ac-20-bin-0',
+        weaponType: 'ac-20',
+        location: 'right_torso',
+        remainingRounds: 5,
+        maxRounds: 5,
+        isExplosive: true,
+      },
+    };
+    const baseUnit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 40,
+        ammoState,
+      },
+    );
+    const unit: IUnitGameState = {
+      ...baseUnit,
+      armor: {
+        ...baseUnit.armor,
+        right_torso: 0,
+        center_torso: 0,
+      },
+      structure: {
+        ...baseUnit.structure,
+        right_torso: 5,
+        center_torso: 10,
+      },
+    };
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(42),
+      weaponsByUnit: new Map([['player-1', createAtlasWeapons()]]),
+    });
+
+    const explosionIndex = events.findIndex(
+      (e) => e.type === GameEventType.AmmoExplosion,
+    );
+    const firstDamageIndex = events.findIndex(
+      (e) => e.type === GameEventType.DamageApplied,
+    );
+    const transfer = events.find(
+      (e) => e.type === GameEventType.TransferDamage,
+    );
+    const destroyed = events.find(
+      (e) => e.type === GameEventType.UnitDestroyed,
+    );
+    const damageLocations = events
+      .filter((e) => e.type === GameEventType.DamageApplied)
+      .map((e) => (e.payload as IDamageAppliedPayload).location);
+    const destroyedLocations = events
+      .filter((e) => e.type === GameEventType.LocationDestroyed)
+      .map((e) => (e.payload as ILocationDestroyedPayload).location);
+
+    expect(explosionIndex).toBeGreaterThanOrEqual(0);
+    expect(firstDamageIndex).toBeGreaterThan(explosionIndex);
+    expect(damageLocations).toEqual(['right_torso', 'center_torso']);
+    expect(destroyedLocations).toEqual(['right_torso', 'center_torso']);
+    expect(transfer!.payload as ITransferDamagePayload).toMatchObject({
+      unitId: 'player-1',
+      fromLocation: 'right_torso',
+      toLocation: 'center_torso',
+      damage: 95,
+    });
+    expect(destroyed!.payload).toMatchObject({
+      unitId: 'player-1',
+      cause: 'ammo_explosion',
+    });
+    expect(newState.units['player-1']).toMatchObject({
+      destroyed: true,
+      destroyedLocations: expect.arrayContaining([
+        'right_torso',
+        'right_arm',
+        'center_torso',
+      ]),
+    });
+    expect(
+      newState.units['player-1'].ammoState?.['ac-20-bin-0'].remainingRounds,
+    ).toBe(0);
+  });
+
+  it('selects a single highest-damage loaded ammo bin for heat cookoff', () => {
+    const ammoState: Record<string, IAmmoSlotState> = {
+      'ac-2-bin-0': {
+        binId: 'ac-2-bin-0',
+        weaponType: 'ac-2',
+        location: 'left_torso',
+        remainingRounds: 10,
+        maxRounds: 45,
+        isExplosive: true,
+      },
+      'ac-20-bin-0': {
+        binId: 'ac-20-bin-0',
+        weaponType: 'ac-20',
+        location: 'right_torso',
+        remainingRounds: 1,
+        maxRounds: 5,
+        isExplosive: true,
+      },
+    };
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 40,
+        ammoState,
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+
+    runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(42),
+      weaponsByUnit: new Map([
+        [
+          'player-1',
+          [
+            ...createAtlasWeapons(),
+            {
+              id: 'ac-2-0',
+              name: 'AC/2',
+              shortRange: 8,
+              mediumRange: 16,
+              longRange: 24,
+              damage: 2,
+              heat: 1,
+              minRange: 4,
+              ammoPerTon: 45,
+              destroyed: false,
+            },
+          ],
+        ],
+      ]),
+    });
+
+    const ammoExplosions = events.filter(
+      (e) => e.type === GameEventType.AmmoExplosion,
+    );
+    expect(ammoExplosions).toHaveLength(1);
+    expect(ammoExplosions[0].payload as IAmmoExplosionPayload).toMatchObject({
+      binId: 'ac-20-bin-0',
+      weaponType: 'ac-20',
+      roundsDestroyed: 1,
+      damage: 20,
+      source: 'HeatInduced',
+    });
   });
 
   it('does NOT emit AmmoExplosion below heat 19', () => {
@@ -520,6 +865,279 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     expect(heatGen.amount).toBe(5);
   });
 
+  it('emits movement-sourced heat for walk, run, and jump distance', () => {
+    const cases: readonly {
+      readonly movementThisTurn: MovementType;
+      readonly hexesMovedThisTurn: number;
+      readonly expectedHeat: number;
+    }[] = [
+      {
+        movementThisTurn: MovementType.Walk,
+        hexesMovedThisTurn: 1,
+        expectedHeat: 1,
+      },
+      {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 4,
+        expectedHeat: 2,
+      },
+      {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 2,
+        expectedHeat: 3,
+      },
+      {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 6,
+        expectedHeat: 6,
+      },
+    ];
+
+    for (const testCase of cases) {
+      const unit = createUnit(
+        'player-1',
+        GameSide.Player,
+        { q: 0, r: 0 },
+        {
+          heat: 10,
+          movementThisTurn: testCase.movementThisTurn,
+          hexesMovedThisTurn: testCase.hexesMovedThisTurn,
+        },
+      );
+      const state = makeMinimalState({ 'player-1': unit });
+      const events: IGameEvent[] = [];
+      const random = new SeededRandom(42);
+
+      runHeatPhase({ state, events, gameId: state.gameId, random });
+
+      const heatGen = events.find(
+        (e) => e.type === GameEventType.HeatGenerated,
+      )!.payload as IHeatPayload;
+      expect(heatGen.source).toBe('movement');
+      expect(heatGen.amount).toBe(testCase.expectedHeat);
+      expect(heatGen.newTotal).toBe(testCase.expectedHeat);
+    }
+  });
+
+  it('emits heat-sourced PilotHit and mutates wounds when life support is damaged', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 25,
+        heatSinks: 0,
+        componentDamage: { ...DEFAULT_COMPONENT_DAMAGE, lifeSupport: 1 },
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+    const random = new SeededRandom(42);
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random,
+    });
+
+    const pilotHit = events.find((e) => e.type === GameEventType.PilotHit);
+    expect(pilotHit).toBeDefined();
+    expect(pilotHit!.payload as IPilotHitPayload).toMatchObject({
+      unitId: 'player-1',
+      wounds: 2,
+      totalWounds: 2,
+      source: 'heat',
+      consciousnessCheckRequired: true,
+      consciousnessCheckPassed: true,
+    });
+    expect(newState.units['player-1']).toMatchObject({
+      pilotWounds: 2,
+      pilotConscious: true,
+      destroyed: false,
+    });
+  });
+
+  it('applies consciousness SPAs to heat-sourced pilot damage', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        abilities: ['iron-man'],
+        heat: 15,
+        heatSinks: 0,
+        componentDamage: { ...DEFAULT_COMPONENT_DAMAGE, lifeSupport: 1 },
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: { next: () => 0 } as SeededRandom,
+    });
+
+    const pilotHit = events.find((e) => e.type === GameEventType.PilotHit);
+    expect(pilotHit?.payload as IPilotHitPayload).toMatchObject({
+      unitId: 'player-1',
+      wounds: 1,
+      totalWounds: 1,
+      source: 'heat',
+      consciousnessCheckRequired: true,
+      consciousnessCheckPassed: true,
+    });
+    expect(newState.units['player-1']).toMatchObject({
+      pilotWounds: 1,
+      pilotConscious: true,
+      destroyed: false,
+    });
+  });
+
+  it('destroys the unit when heat pilot damage reaches lethal wounds', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 15,
+        heatSinks: 0,
+        pilotWounds: 5,
+        componentDamage: { ...DEFAULT_COMPONENT_DAMAGE, lifeSupport: 1 },
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+    const random = new SeededRandom(42);
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random,
+    });
+
+    const unitDestroyed = events.find(
+      (e) => e.type === GameEventType.UnitDestroyed,
+    );
+    expect(unitDestroyed?.payload).toMatchObject({
+      unitId: 'player-1',
+      cause: 'pilot_death',
+    });
+    expect(newState.units['player-1']).toMatchObject({
+      pilotWounds: 6,
+      pilotConscious: false,
+      destroyed: true,
+    });
+  });
+
+  it('reduces heat dissipation when heat sinks are destroyed', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 10,
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          heatSinksDestroyed: 3,
+        },
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+    const random = new SeededRandom(42);
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random,
+    });
+
+    const heatDis = events.find((e) => e.type === GameEventType.HeatDissipated)!
+      .payload as IHeatPayload;
+    expect(heatDis.amount).toBe(-7);
+    expect(heatDis.newTotal).toBe(3);
+    expect(heatDis.breakdown).toMatchObject({
+      baseDissipation: 7,
+      waterBonus: 0,
+    });
+    expect(newState.units['player-1'].heat).toBe(3);
+  });
+
+  it('uses the unit heat sink count for dissipation instead of the synthetic base', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 25,
+        heatSinks: 20,
+        heatSinkType: 'single',
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+    const random = new SeededRandom(42);
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random,
+    });
+
+    const heatDis = events.find((e) => e.type === GameEventType.HeatDissipated)!
+      .payload as IHeatPayload;
+    expect(heatDis.amount).toBe(-20);
+    expect(heatDis.newTotal).toBe(5);
+    expect(heatDis.breakdown).toMatchObject({
+      baseDissipation: 20,
+      waterBonus: 0,
+    });
+    expect(newState.units['player-1'].heat).toBe(5);
+  });
+
+  it('debits destroyed double heat sinks at double-sink rating', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 25,
+        heatSinks: 10,
+        heatSinkType: 'double',
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          heatSinksDestroyed: 3,
+        },
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+    const random = new SeededRandom(42);
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random,
+    });
+
+    const heatDis = events.find((e) => e.type === GameEventType.HeatDissipated)!
+      .payload as IHeatPayload;
+    expect(heatDis.amount).toBe(-14);
+    expect(heatDis.newTotal).toBe(11);
+    expect(heatDis.breakdown).toMatchObject({
+      baseDissipation: 14,
+      waterBonus: 0,
+    });
+    expect(newState.units['player-1'].heat).toBe(11);
+  });
+
   it('HeatDissipated breakdown includes baseDissipation + waterBonus fields', () => {
     const unit = createUnit('player-1', GameSide.Player, { q: 0, r: 0 });
     const state = makeMinimalState({ 'player-1': unit });
@@ -532,8 +1150,8 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
       .payload as IHeatPayload;
     expect(heatDis.breakdown).toBeDefined();
     expect(heatDis.breakdown!.baseDissipation).toBe(10);
-    // Phase 4 doesn't yet thread water terrain — bonus is 0.
     expect(heatDis.breakdown!.waterBonus).toBe(0);
+    expect(heatDis.breakdown!.environmentalModifier).toBe(0);
   });
 
   it('skips destroyed units in the heat phase', () => {

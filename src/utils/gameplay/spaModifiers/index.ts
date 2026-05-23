@@ -10,10 +10,12 @@ export {
   calculateJumpingJackModifier,
   calculateMeleeSpecialistModifier,
   getClusterHitterBonus,
+  getCoolUnderFireHeatReduction,
   getEffectiveWounds,
   getHotDogShutdownThresholdBonus,
   getIronManModifier,
   getMeleeMasterDamageBonus,
+  getSomeLikeItHotHeatPenaltyReduction,
   getTacticalGeniusBonus,
   calculateMultiTaskerModifier,
 } from './abilityModifiers';

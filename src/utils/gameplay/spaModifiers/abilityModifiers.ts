@@ -158,3 +158,27 @@ export function getHotDogShutdownThresholdBonus(
 ): number {
   return hasSPA(abilities, 'hot_dog') ? 3 : 0;
 }
+
+/**
+ * Cool Under Fire: reduce generated heat by 1 per turn, minimum 0.
+ */
+export function getCoolUnderFireHeatReduction(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'cool_under_fire') ||
+    hasSPA(abilities, 'cool-under-fire')
+    ? 1
+    : 0;
+}
+
+/**
+ * Some Like It Hot: reduce heat-induced to-hit penalties by 1.
+ */
+export function getSomeLikeItHotHeatPenaltyReduction(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'some_like_it_hot') ||
+    hasSPA(abilities, 'some-like-it-hot')
+    ? 1
+    : 0;
+}

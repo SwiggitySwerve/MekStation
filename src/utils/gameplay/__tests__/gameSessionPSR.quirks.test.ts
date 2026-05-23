@@ -1,0 +1,123 @@
+import {
+  GameEventType,
+  GamePhase,
+  GameSide,
+  type IGameSession,
+  type IGameUnit,
+  type IPilotHitPayload,
+  type IPSRResolvedPayload,
+  PSRTrigger,
+} from '@/types/gameplay';
+
+import type { DiceRoller } from '../diceTypes';
+
+import { createGameSession, startGame } from '../gameSession';
+import { resolvePendingPSRs } from '../gameSessionPSR';
+import { createDamagePSR } from '../pilotingSkillRolls';
+import { UNIT_QUIRK_IDS } from '../quirkModifiers';
+
+function config() {
+  return {
+    mapRadius: 4,
+    turnLimit: 0,
+    victoryConditions: ['elimination'],
+    optionalRules: [],
+  };
+}
+
+function units(overrides: Partial<IGameUnit> = {}): readonly IGameUnit[] {
+  return [
+    {
+      id: 'player-1',
+      name: 'PSR Tester',
+      side: GameSide.Player,
+      unitRef: 'player-ref',
+      pilotRef: 'player-pilot',
+      gunnery: 4,
+      piloting: 5,
+      unitQuirks: [UNIT_QUIRK_IDS.HARD_TO_PILOT],
+      ...overrides,
+    },
+  ];
+}
+
+function scriptedD6(values: readonly number[]): DiceRoller {
+  let index = 0;
+  return () => ({
+    dice: [values[Math.min(index++, values.length - 1)], 1],
+    total: 2,
+    isSnakeEyes: false,
+    isBoxcars: false,
+  });
+}
+
+function withPendingPSR(session: IGameSession): IGameSession {
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      phase: GamePhase.PhysicalAttack,
+      units: {
+        ...session.currentState.units,
+        'player-1': {
+          ...session.currentState.units['player-1'],
+          pendingPSRs: [createDamagePSR('player-1')],
+        },
+      },
+    },
+  };
+}
+
+describe('interactive PSR quirk application', () => {
+  it('applies unit piloting quirks when resolving pending PSRs', () => {
+    const session = withPendingPSR(
+      startGame(createGameSession(config(), units()), GameSide.Player),
+    );
+
+    const next = resolvePendingPSRs(session, scriptedD6([3, 3]));
+
+    const resolved = next.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    )?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 6,
+      modifiers: 1,
+      roll: 6,
+      passed: true,
+      reasonCode: PSRTrigger.PhaseDamage20Plus,
+    });
+    expect(next.currentState.units['player-1'].pendingPSRs).toEqual([]);
+  });
+
+  it('applies consciousness SPAs after failed pending PSR fall damage', () => {
+    const session = withPendingPSR(
+      startGame(
+        createGameSession(
+          config(),
+          units({ abilities: ['iron-man'], unitQuirks: [] }),
+        ),
+        GameSide.Player,
+      ),
+    );
+
+    const next = resolvePendingPSRs(session, scriptedD6([1, 1, 1, 1, 1, 1, 1]));
+
+    const pilotHit = next.events.find(
+      (event) => event.type === GameEventType.PilotHit,
+    )?.payload as IPilotHitPayload | undefined;
+    expect(pilotHit).toMatchObject({
+      unitId: 'player-1',
+      wounds: 1,
+      totalWounds: 1,
+      source: 'fall',
+      consciousnessCheckRequired: true,
+      consciousnessCheckPassed: true,
+    });
+    expect(next.currentState.units['player-1']).toMatchObject({
+      prone: true,
+      pilotWounds: 1,
+      pilotConscious: true,
+    });
+  });
+});

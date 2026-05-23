@@ -1,6 +1,6 @@
 export { applyDamageToLocation, applyDamageWithTransfer } from './location';
 export { checkCriticalHitTrigger, getCriticalHitCount } from './critical';
-export { applyPilotDamage } from './pilot';
+export { applyPilotDamage, resolvePilotConsciousnessCheck } from './pilot';
 export { checkUnitDestruction } from './destruction';
 export { resolveDamage, HEAD_DAMAGE_CAP_PER_HIT } from './resolve';
 export { applyDamageWithTerrainEffects } from './terrain';
