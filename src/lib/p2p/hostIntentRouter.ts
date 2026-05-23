@@ -34,6 +34,7 @@ import type {
 import {
   translateIntentToEvents,
   type IntentRejectionReason,
+  type IIntentTranslationOptions,
   type IntentTranslationResult,
 } from './intentTranslation';
 
@@ -64,6 +65,12 @@ export interface IHostIntentRouterAdapter {
     reason: IntentRejectionReason | string;
     detail?: string;
   }) => void;
+  /**
+   * Optional host-authoritative rules context. When provided, movement
+   * intents are validated against the same grid/capability data the local
+   * engine uses instead of trusting guest-supplied MP, heat, or path data.
+   */
+  readonly getIntentTranslationOptions?: () => IIntentTranslationOptions;
   /**
    * True when the host is currently in a `guestPending` state and
    * cannot apply the guest's intents in real time. Defaults to false.
@@ -139,7 +146,11 @@ export function createHostIntentRouter(
       return { outcome: 'buffered' };
     }
     const session = adapter.getSession();
-    const translation = translateIntentToEvents(intent, session);
+    const translation = translateIntentToEvents(
+      intent,
+      session,
+      adapter.getIntentTranslationOptions?.(),
+    );
     return tryApply(intent, translation);
   };
 
@@ -149,7 +160,11 @@ export function createHostIntentRouter(
     const results: HostIntentRouterResult[] = [];
     for (const intent of drained) {
       const session = adapter.getSession();
-      const translation = translateIntentToEvents(intent, session);
+      const translation = translateIntentToEvents(
+        intent,
+        session,
+        adapter.getIntentTranslationOptions?.(),
+      );
       results.push(tryApply(intent, translation));
     }
     return results;

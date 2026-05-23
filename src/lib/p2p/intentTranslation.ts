@@ -34,8 +34,10 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   type Facing,
-  type MovementType,
   type IHexCoordinate,
+  type IHexGrid,
+  type IMovementCapability,
+  type MovementType,
 } from '@/types/gameplay/HexGridInterfaces';
 import {
   createAttackDeclaredEvent,
@@ -46,6 +48,11 @@ import {
   createMovementLockedEvent,
 } from '@/utils/gameplay/gameEvents/movement';
 import { createPhaseChangedEvent } from '@/utils/gameplay/gameEvents/turnPhase';
+import { hexEquals } from '@/utils/gameplay/hexMath';
+import {
+  gridWithUnitOccupants,
+  validateCommittedMovement,
+} from '@/utils/gameplay/movement';
 
 // =============================================================================
 // Public payload shapes
@@ -100,6 +107,7 @@ export type IntentRejectionReason =
   | 'malformed-payload'
   | 'wrong-phase'
   | 'unowned-unit'
+  | 'illegal-movement'
   | 'unsupported-intent';
 
 export interface IIntentRejection {
@@ -119,6 +127,15 @@ export interface IIntentTranslation {
 }
 
 export type IntentTranslationResult = IIntentTranslation | IIntentRejection;
+
+export interface IIntentMovementRules {
+  readonly grid: IHexGrid;
+  readonly movementByUnit: ReadonlyMap<string, IMovementCapability>;
+}
+
+export interface IIntentTranslationOptions {
+  readonly movementRules?: IIntentMovementRules;
+}
 
 // =============================================================================
 // Translation entry point
@@ -141,6 +158,7 @@ export type IntentTranslationResult = IIntentTranslation | IIntentRejection;
 export function translateIntentToEvents(
   intent: IGameIntent,
   session: IGameSession | null,
+  options: IIntentTranslationOptions = {},
 ): IntentTranslationResult {
   if (!session) {
     return { ok: false, reason: 'no-active-session' };
@@ -148,7 +166,7 @@ export function translateIntentToEvents(
 
   switch (intent.type) {
     case 'declareMovement':
-      return translateDeclareMovement(intent, session);
+      return translateDeclareMovement(intent, session, options);
     case 'declareAttack':
       return translateDeclareAttack(intent, session);
     case 'endPhase':
@@ -173,6 +191,7 @@ export function translateIntentToEvents(
 function translateDeclareMovement(
   intent: IGameIntent,
   session: IGameSession,
+  options: IIntentTranslationOptions,
 ): IntentTranslationResult {
   const payload = asMovementPayload(intent.payload);
   if (!payload) {
@@ -187,19 +206,26 @@ function translateDeclareMovement(
     return { ok: false, reason: 'unowned-unit' };
   }
 
+  const resolvedMovement = resolveHostMovementPayload(
+    payload,
+    session,
+    options.movementRules,
+  );
+  if (!resolvedMovement.ok) return resolvedMovement;
+
   const baseSeq = session.events.length;
   const declared = createMovementDeclaredEvent(
     session.id,
     baseSeq,
     session.currentState.turn,
     payload.unitId,
-    payload.from,
+    resolvedMovement.from,
     payload.to,
     payload.facing,
     payload.movementType,
-    payload.mpUsed,
-    payload.heatGenerated,
-    payload.path,
+    resolvedMovement.mpUsed,
+    resolvedMovement.heatGenerated,
+    resolvedMovement.path,
   );
   const locked = createMovementLockedEvent(
     session.id,
@@ -209,6 +235,75 @@ function translateDeclareMovement(
   );
 
   return { ok: true, events: [declared, locked] };
+}
+
+type ResolvedMovementPayload =
+  | {
+      readonly ok: true;
+      readonly from: IHexCoordinate;
+      readonly mpUsed: number;
+      readonly heatGenerated: number;
+      readonly path?: readonly IHexCoordinate[];
+    }
+  | IIntentRejection;
+
+function resolveHostMovementPayload(
+  payload: IDeclareMovementIntentPayload,
+  session: IGameSession,
+  movementRules: IIntentMovementRules | undefined,
+): ResolvedMovementPayload {
+  if (!movementRules) {
+    return {
+      ok: true,
+      from: payload.from,
+      mpUsed: payload.mpUsed,
+      heatGenerated: payload.heatGenerated,
+      path: payload.path,
+    };
+  }
+
+  const unit = session.currentState.units[payload.unitId];
+  if (!unit) {
+    return {
+      ok: false,
+      reason: 'malformed-payload',
+      detail: `Unknown unit ${payload.unitId}`,
+    };
+  }
+
+  if (!hexEquals(payload.from, unit.position)) {
+    return {
+      ok: false,
+      reason: 'illegal-movement',
+      detail: `Intent starts at (${payload.from.q}, ${payload.from.r}) but unit ${payload.unitId} is at (${unit.position.q}, ${unit.position.r})`,
+    };
+  }
+
+  const validation = validateCommittedMovement({
+    grid: gridWithUnitOccupants(movementRules.grid, session.currentState.units),
+    unit,
+    to: payload.to,
+    facing: payload.facing,
+    movementType: payload.movementType,
+    capability: movementRules.movementByUnit.get(payload.unitId),
+    path: payload.path,
+  });
+
+  if (!validation.valid) {
+    return {
+      ok: false,
+      reason: 'illegal-movement',
+      detail: validation.details,
+    };
+  }
+
+  return {
+    ok: true,
+    from: unit.position,
+    mpUsed: validation.mpCost,
+    heatGenerated: validation.heatGenerated,
+    path: validation.path,
+  };
 }
 
 function translateDeclareAttack(
