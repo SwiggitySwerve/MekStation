@@ -507,7 +507,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'special-weapon-families': helperOnly(
     'special-weapon-families',
     'Special weapon family support catalogs UAC, RAC, LB-X, Streak, MML, NARC, AMS, TAG, and Artemis responsibilities',
-    'Several family-specific mechanics are helper-only until iNarc Nemesis redirect, broader iNarc ECM C3/sensor effects, AMS defender choice/arc rules, or Artemis exact-link/Nova-network/damage-lifecycle edges are wired',
+    'Several family-specific mechanics are helper-only until broader iNarc ECM C3/sensor effects, AMS defender choice/arc rules, or Artemis exact-link/Nova-network/damage-lifecycle edges are wired',
     [
       'featureSupport.specialWeaponFamilies.ultra-ac',
       'featureSupport.specialWeaponFamilies.rotary-ac',
@@ -523,6 +523,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'featureSupport.specialWeaponMechanics.narc-marker-lifecycle-events',
       'featureSupport.specialWeaponMechanics.inarc-variant-ammo-attachment',
       'featureSupport.specialWeaponMechanics.inarc-ecm-attacker-flight-path-suppression',
+      'featureSupport.specialWeaponMechanics.inarc-nemesis-redirect',
       'featureSupport.specialWeaponMechanics.inarc-homing-marker-attachment',
       'featureSupport.specialWeaponMechanics.inarc-homing-cluster-modifier',
       'featureSupport.specialWeaponMechanics.inarc-homing-to-hit-modifier',

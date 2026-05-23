@@ -522,8 +522,8 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   ),
   narc: helperOnly(
     'narc',
-    'isNarc + getNarcBonus + runner NARC hits attach narcedBy + runner iNarc selected-ammo hits attach Homing/ECM/Haywire/Nemesis iNarcPods + DesignatorMarkerApplied replay + indirect-fire NARC/iNARC basis helpers consume canonical marker state + runner direct NARC-compatible missile cluster, iNarc Homing to-hit, iNarc Haywire to-hit, and iNarc ECM attacker flight-path Artemis suppression consume marker state',
-    'iNarc Nemesis redirect and broader iNarc ECM C3/sensor effects are not wired into runner missile resolution',
+    'isNarc + getNarcBonus + runner NARC hits attach narcedBy + runner iNarc selected-ammo hits attach Homing/ECM/Haywire/Nemesis iNarcPods + DesignatorMarkerApplied replay + indirect-fire NARC/iNARC basis helpers consume canonical marker state + runner direct NARC-compatible missile cluster, iNarc Homing to-hit, iNarc Haywire to-hit, iNarc ECM attacker flight-path Artemis suppression, and iNarc Nemesis redirect consume marker state',
+    'Broader iNarc ECM C3/sensor effects are not wired into runner missile resolution',
   ),
   ams: helperOnly(
     'ams',

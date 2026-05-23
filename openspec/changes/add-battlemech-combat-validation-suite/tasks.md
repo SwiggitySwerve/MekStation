@@ -60,6 +60,7 @@
 - [x] 3.1.4 Integrate source-backed iNARC Haywire attacker to-hit modifier consumption and replay coverage while leaving remaining ECM/Nemesis pod effects helper-only.
 - [x] 3.1.5 Integrate source-backed selected-ammo iNARC pod variant attachment for Homing, ECM, Haywire, and Nemesis while leaving remaining ECM/Nemesis pod effects helper-only.
 - [x] 3.1.6 Integrate source-backed attacker iNARC ECM flight-path suppression for Artemis IV/prototype IV/V cluster guidance while leaving iNARC Nemesis redirect and broader ECM C3/sensor effects helper-only.
+- [x] 3.1.7 Integrate source-backed iNARC Nemesis redirect for direct confusable missile attacks against friendly intervening Nemesis pod carriers while leaving broader ECM C3/sensor effects helper-only.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.

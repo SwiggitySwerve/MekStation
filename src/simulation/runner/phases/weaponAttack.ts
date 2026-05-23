@@ -50,6 +50,7 @@ import {
 } from '../SimulationRunnerSupport';
 import { createD6Roller, createGameEvent } from './utils';
 import {
+  findINarcNemesisRedirectTarget,
   hasINarcPodType,
   iNarcHomingTeams,
 } from './weaponAttackDesignatorMarkers';
@@ -447,7 +448,7 @@ export function runAttackPhase(options: {
     }
 
     for (const weaponId of declaredWeaponIds) {
-      const targetId =
+      let targetId =
         targetIdsByWeapon[weaponId] ?? attackEvent.payload.targetId;
       const targetValidation = validateDeclaredAttackTarget({
         currentState,
@@ -459,30 +460,6 @@ export function runAttackPhase(options: {
       });
       if (!targetValidation.permitted) {
         continue;
-      }
-
-      // Re-read attacker / target state per weapon — a previous mount
-      // in this same loop may have destroyed the target (or, for
-      // future heat-explosion paths, the attacker).
-      const attackerNow = currentState.units[unitId];
-      const targetNow = currentState.units[targetId];
-      if (
-        attackerNow.destroyed ||
-        attackerNow.hasRetreated ||
-        attackerNow.hasEjected ||
-        attackerNow.shutdown ||
-        !attackerNow.pilotConscious
-      ) {
-        break;
-      }
-      if (
-        !targetNow ||
-        targetNow.destroyed ||
-        targetNow.hasRetreated ||
-        targetNow.hasEjected
-      ) {
-        // Target died mid-volley; subsequent mounts can't fire at it.
-        break;
       }
 
       const hydratedWeapon = weaponLookup.get(weaponId);
@@ -520,6 +497,41 @@ export function runAttackPhase(options: {
         selectedModeId && selectedMode !== undefined
           ? { [weaponId]: selectedModeId }
           : undefined;
+      const nemesisRedirectTargetId = findINarcNemesisRedirectTarget({
+        currentState,
+        attackerId: unitId,
+        targetId,
+        weapon: baseWeapon,
+        selectedMode,
+        ammoWeaponType,
+      });
+      if (nemesisRedirectTargetId !== undefined) {
+        targetId = nemesisRedirectTargetId;
+      }
+
+      // may have destroyed the target, and iNARC Nemesis may redirect to a
+      // friendly unit standing between attacker and the original target.
+      const attackerNow = currentState.units[unitId];
+      const targetNow = currentState.units[targetId];
+      if (
+        attackerNow.destroyed ||
+        attackerNow.hasRetreated ||
+        attackerNow.hasEjected ||
+        attackerNow.shutdown ||
+        !attackerNow.pilotConscious
+      ) {
+        break;
+      }
+      if (
+        !targetNow ||
+        targetNow.destroyed ||
+        targetNow.hasRetreated ||
+        targetNow.hasEjected
+      ) {
+        // Target died mid-volley; subsequent mounts can't fire at it.
+        break;
+      }
+
       const calledShot = attackEvent.payload.calledShots?.[weaponId] === true;
       const teammateCalledShot =
         attackEvent.payload.teammateCalledShots?.[weaponId] === true;

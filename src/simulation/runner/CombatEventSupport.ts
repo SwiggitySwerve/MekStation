@@ -184,7 +184,7 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   ),
   [GameEventType.DesignatorMarkerApplied]: integrated(
     GameEventType.DesignatorMarkerApplied,
-    'runner NARC, iNARC Homing, and TAG hits emit DesignatorMarkerApplied when they mutate target marker state',
+    'runner NARC, iNARC variant, and TAG hits emit DesignatorMarkerApplied when they mutate target marker state',
   ),
   [GameEventType.AttackInvalid]: integrated(
     GameEventType.AttackInvalid,

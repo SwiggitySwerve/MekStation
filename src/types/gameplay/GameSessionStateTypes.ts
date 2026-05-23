@@ -330,7 +330,7 @@ export interface IUnitGameState {
   readonly jammedWeapons?: readonly string[];
   /** Target has Narc beacon attached */
   readonly narcedBy?: readonly string[];
-  /** Target has iNARC pods attached. Only Homing is currently resolved. */
+  /** Target has iNARC pods attached; variant effects are resolved separately. */
   readonly iNarcPods?: readonly IINarcPodState[];
   /** Target is TAG-designated this turn */
   readonly tagDesignated?: boolean;

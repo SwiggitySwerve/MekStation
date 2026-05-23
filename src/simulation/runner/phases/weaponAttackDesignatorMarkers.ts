@@ -5,9 +5,10 @@ import {
   IGameState,
   type IINarcPodState,
 } from '@/types/gameplay';
+import { hexLine } from '@/utils/gameplay/hexMath';
 import { isNarc, isTAG } from '@/utils/gameplay/specialWeaponMechanics';
 
-import type { IWeapon } from '../../ai/types';
+import type { IWeapon, IWeaponFiringMode } from '../../ai/types';
 
 import { createGameEvent } from './utils';
 import { weaponTypeFromMountId } from './weaponAttackHelpers';
@@ -90,6 +91,94 @@ export function hasINarcPodType(
   podType: IINarcPodState['podType'],
 ): boolean {
   return (unit?.iNarcPods ?? []).some((pod) => pod.podType === podType);
+}
+
+function isIndirectWeaponMode(mode: IWeaponFiringMode | undefined): boolean {
+  return /\bindirect\b/i.test(mode?.id ?? '');
+}
+
+function isArtemisLinkedMissile(weapon: IWeapon): boolean {
+  return (
+    weapon.hasArtemisIV === true ||
+    weapon.hasPrototypeArtemisIV === true ||
+    weapon.hasArtemisV === true
+  );
+}
+
+function isAtmWeapon(weapon: IWeapon, ammoWeaponType: string): boolean {
+  const text = `${weaponTypeFromMountId(weapon.id)} ${weapon.name} ${ammoWeaponType}`;
+  return /\batm[\s-]?\d*/i.test(text);
+}
+
+function isSourceBackedNemesisLrmSrm(
+  weapon: IWeapon,
+  ammoWeaponType: string,
+): boolean {
+  const text = `${weaponTypeFromMountId(weapon.id)} ${weapon.name} ${ammoWeaponType}`;
+  return /\b(?:lrm|srm)[\s-]?\d*/i.test(text);
+}
+
+function isNemesisConfusableMissile(options: {
+  weapon: IWeapon;
+  selectedMode: IWeaponFiringMode | undefined;
+  ammoWeaponType: string;
+}): boolean {
+  const { ammoWeaponType, selectedMode, weapon } = options;
+  if (isIndirectWeaponMode(selectedMode)) return false;
+  const atmWeapon = isAtmWeapon(weapon, ammoWeaponType);
+  const lrmOrSrmWeapon = isSourceBackedNemesisLrmSrm(weapon, ammoWeaponType);
+  if (atmWeapon) return true;
+  if (isArtemisLinkedMissile(weapon)) return lrmOrSrmWeapon;
+  return lrmOrSrmWeapon;
+}
+
+export function findINarcNemesisRedirectTarget(options: {
+  currentState: IGameState;
+  attackerId: string;
+  targetId: string;
+  weapon: IWeapon;
+  selectedMode: IWeaponFiringMode | undefined;
+  ammoWeaponType: string;
+}): string | undefined {
+  const {
+    ammoWeaponType,
+    attackerId,
+    currentState,
+    selectedMode,
+    targetId,
+    weapon,
+  } = options;
+  const attacker = currentState.units[attackerId];
+  const target = currentState.units[targetId];
+  if (!attacker || !target) return undefined;
+  if (!isNemesisConfusableMissile({ ammoWeaponType, selectedMode, weapon })) {
+    return undefined;
+  }
+
+  const interveningKeys = new Set(
+    hexLine(attacker.position, target.position)
+      .slice(1, -1)
+      .map((coord) => `${coord.q},${coord.r}`),
+  );
+  if (interveningKeys.size === 0) return undefined;
+
+  return Object.values(currentState.units)
+    .filter(
+      (unit) =>
+        unit.id !== attackerId &&
+        unit.id !== targetId &&
+        unit.side === attacker.side &&
+        !unit.destroyed &&
+        unit.hasRetreated !== true &&
+        unit.hasEjected !== true &&
+        hasINarcPodType(unit, 'nemesis') &&
+        interveningKeys.has(`${unit.position.q},${unit.position.r}`),
+    )
+    .sort(
+      (a, b) =>
+        hexLine(attacker.position, a.position).length -
+        hexLine(attacker.position, b.position).length,
+    )[0]?.id;
 }
 
 export function markTargetINarcPod(options: {

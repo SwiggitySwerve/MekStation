@@ -725,6 +725,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'inarc-homing-cluster-modifier',
       'inarc-homing-marker-attachment',
       'inarc-homing-to-hit-modifier',
+      'inarc-nemesis-redirect',
       'inarc-variant-ammo-attachment',
       'lbx-cluster-to-hit',
       'lbx-slug-cluster-modes',
@@ -1047,6 +1048,14 @@ describe('BattleMech combat catalog validation lane', () => {
       'MissileWeaponHandler suppresses Artemis, prototype Artemis, and Artemis V cluster guidance when the attacker-to-target missile path is ECM affected.',
     ]);
     expect(
+      sourceRefsFor('inarc-nemesis-redirect').map(({ citation }) => citation),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'MissileWeaponHandler redirects iNarc Nemesis-confusable missiles to friendly intervening Nemesis pod carriers before returning to the original target on misses.',
+      'MissileWeaponHandler scopes iNarc Nemesis confusion to direct ATM, Artemis-linked, NARC-capable, or Listen-Kill LRM/SRM missile attacks.',
+      'Game.getNemesisTargets returns friendly entities with iNarc Nemesis pods attached in intervening hexes between attacker and original target.',
+    ]);
+    expect(
       sourceRefsFor('inarc-homing-to-hit-modifier').map(
         ({ citation }) => citation,
       ),
@@ -1084,6 +1093,7 @@ describe('BattleMech combat catalog validation lane', () => {
       ...sourceRefsFor('inarc-pod-variants'),
       ...sourceRefsFor('inarc-variant-ammo-attachment'),
       ...sourceRefsFor('inarc-ecm-attacker-flight-path-suppression'),
+      ...sourceRefsFor('inarc-nemesis-redirect'),
       ...sourceRefsFor('inarc-homing-marker-attachment'),
       ...sourceRefsFor('inarc-homing-cluster-modifier'),
       ...sourceRefsFor('inarc-homing-to-hit-modifier'),

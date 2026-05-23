@@ -1802,6 +1802,99 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       ).toBe('integrated');
     });
 
+    it('iNARC Nemesis pods redirect source-backed confusable missiles to friendly intervening units', () => {
+      const lrm = createLRM10();
+      const scenario = buildScenario({
+        attackerWeapons: [lrm],
+        attackerStateOverride: { gunnery: 0 },
+        attackerPosition: { q: 0, r: 0 },
+        targetPosition: { q: 7, r: 0 },
+      });
+      const nemesisCarrier = {
+        ...createUnit('player-2', GameSide.Player, { q: 3, r: 0 }),
+        iNarcPods: [{ teamId: GameSide.Opponent, podType: 'nemesis' as const }],
+      };
+      const weaponsByUnit = new Map(scenario.weaponsByUnit);
+      weaponsByUnit.set('player-2', []);
+
+      const result = runPhaseWithResult({
+        state: {
+          ...scenario.state,
+          units: {
+            ...scenario.state.units,
+            'player-2': nemesisCarrier,
+          },
+        },
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+        random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      });
+
+      const declared = result.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const resolved = result.events.find(
+        (event) => event.type === GameEventType.AttackResolved,
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+      expect(declared.payload.targetId).toBe('player-2');
+      expect(resolved.payload).toMatchObject({
+        targetId: 'player-2',
+        hit: true,
+      });
+      expect(result.state.units['player-2'].armor).not.toEqual(
+        nemesisCarrier.armor,
+      );
+      expect(result.state.units['opponent-1'].armor).toEqual(
+        scenario.state.units['opponent-1'].armor,
+      );
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-nemesis-redirect'].level,
+      ).toBe('integrated');
+    });
+
+    it('iNARC Nemesis pods do not redirect non-confusable MRM fire', () => {
+      const mrm = createMRM10();
+      const scenario = buildScenario({
+        attackerWeapons: [mrm],
+        attackerStateOverride: { gunnery: 0 },
+        attackerPosition: { q: 0, r: 0 },
+        targetPosition: { q: 7, r: 0 },
+      });
+      const nemesisCarrier = {
+        ...createUnit('player-2', GameSide.Player, { q: 3, r: 0 }),
+        iNarcPods: [{ teamId: GameSide.Opponent, podType: 'nemesis' as const }],
+      };
+      const weaponsByUnit = new Map(scenario.weaponsByUnit);
+      weaponsByUnit.set('player-2', []);
+
+      const result = runPhaseWithResult({
+        state: {
+          ...scenario.state,
+          units: {
+            ...scenario.state.units,
+            'player-2': nemesisCarrier,
+          },
+        },
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(mrm.id),
+        random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      });
+
+      const declared = result.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const resolved = result.events.find(
+        (event) => event.type === GameEventType.AttackResolved,
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+      expect(declared.payload.targetId).toBe('opponent-1');
+      expect(resolved.payload.targetId).toBe('opponent-1');
+      expect(result.state.units['player-2'].armor).toEqual(
+        nemesisCarrier.armor,
+      );
+    });
+
     it('prototype Artemis IV flags shift missile cluster results by +1 in direct and runner resolution', () => {
       const lrm = createLRM10();
       const prototypeArtemisLRM: IWeapon = {
