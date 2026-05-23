@@ -100,6 +100,9 @@ function movementRangeOptionFor(
     movementMode: movementInfo.movementMode,
     reachable: movementInfo.reachable,
     mpCost: movementInfo.mpCost,
+    terrainCost: movementInfo.terrainCost,
+    elevationDelta: movementInfo.elevationDelta,
+    elevationCost: movementInfo.elevationCost,
     heatGenerated: movementInfo.heatGenerated,
     blockedReason: movementInfo.blockedReason,
     movementInvalidReason: movementInfo.movementInvalidReason,
@@ -180,6 +183,60 @@ export function movementOptionInvalidDetailsAttribute(
   return invalidOptions.length > 0 ? invalidOptions.join('|') : undefined;
 }
 
+export function movementOptionTerrainCostsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const costOptions = options
+    .filter((option) => option.terrainCost !== undefined)
+    .map((option) => `${option.movementType}:${option.terrainCost}`);
+  return costOptions.length > 0 ? costOptions.join('|') : undefined;
+}
+
+export function movementOptionElevationDeltasAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const elevationOptions = options
+    .filter((option) => option.elevationDelta !== undefined)
+    .map((option) => `${option.movementType}:${option.elevationDelta}`);
+  return elevationOptions.length > 0 ? elevationOptions.join('|') : undefined;
+}
+
+export function movementOptionElevationCostsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  const costOptions = options
+    .filter((option) => option.elevationCost !== undefined)
+    .map((option) => `${option.movementType}:${option.elevationCost}`);
+  return costOptions.length > 0 ? costOptions.join('|') : undefined;
+}
+
+function formatSignedCost(value: number): string {
+  return value >= 0 ? `+${value}` : `${value}`;
+}
+
+function formatMovementOptionCostBreakdown(
+  option: IMovementRangeModeOption,
+): string {
+  const parts: string[] = [];
+  if (option.terrainCost !== undefined) {
+    parts.push(`terrain ${formatSignedCost(option.terrainCost)}`);
+  }
+  if (
+    option.elevationDelta !== undefined ||
+    option.elevationCost !== undefined
+  ) {
+    const elevationParts: string[] = [];
+    if (option.elevationDelta !== undefined) {
+      elevationParts.push(`delta ${formatSignedCost(option.elevationDelta)}`);
+    }
+    if (option.elevationCost !== undefined) {
+      elevationParts.push(`cost ${formatSignedCost(option.elevationCost)}`);
+    }
+    parts.push(`elevation ${elevationParts.join(' ')}`);
+  }
+  return parts.length > 0 ? `, ${parts.join(', ')}` : '';
+}
+
 export function formatMovementOptionTitle(
   option: IMovementRangeModeOption,
 ): string {
@@ -188,11 +245,12 @@ export function formatMovementOptionTitle(
       ? ` via ${formatMovementModeTitleLabel(option.movementMode)}`
       : '';
   const cost = Number.isFinite(option.mpCost) ? `${option.mpCost} MP` : 'X MP';
+  const costBreakdown = formatMovementOptionCostBreakdown(option);
   const heat =
     option.heatGenerated === undefined ? '' : `, heat +${option.heatGenerated}`;
   const blockedDetail = movementOptionBlockedDetail(option);
   const blocked = option.reachable
     ? ''
     : `, blocked${blockedDetail ? `: ${blockedDetail}` : ''}`;
-  return `${option.movementType}${movementMode} ${option.reachable ? 'reachable' : 'blocked'} ${cost}${heat}${blocked}`;
+  return `${option.movementType}${movementMode} ${option.reachable ? 'reachable' : 'blocked'} ${cost}${costBreakdown}${heat}${blocked}`;
 }

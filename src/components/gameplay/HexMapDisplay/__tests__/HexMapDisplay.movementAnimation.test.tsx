@@ -590,6 +590,9 @@ describe('HexMapDisplay tactical visual layers', () => {
           {
             hex: { q: 1, r: 0 },
             mpCost: 3,
+            terrainCost: 1,
+            elevationDelta: 1,
+            elevationCost: 1,
             heatGenerated: 0,
             movementMode: 'tracked',
             reachable: true,
@@ -598,6 +601,9 @@ describe('HexMapDisplay tactical visual layers', () => {
           {
             hex: { q: 1, r: 0 },
             mpCost: 3,
+            terrainCost: 2,
+            elevationDelta: 1,
+            elevationCost: 1,
             heatGenerated: 2,
             movementMode: 'tracked',
             reachable: true,
@@ -606,6 +612,9 @@ describe('HexMapDisplay tactical visual layers', () => {
           {
             hex: { q: 1, r: 0 },
             mpCost: 1,
+            terrainCost: 0,
+            elevationDelta: 2,
+            elevationCost: 0,
             heatGenerated: 1,
             movementMode: 'jump',
             reachable: true,
@@ -628,9 +637,21 @@ describe('HexMapDisplay tactical visual layers', () => {
       'walk:reachable|run:reachable|jump:reachable',
     );
     expect(hex).toHaveAttribute(
+      'data-movement-option-terrain-costs',
+      'walk:1|run:2|jump:0',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-elevation-deltas',
+      'walk:1|run:1|jump:2',
+    );
+    expect(hex).toHaveAttribute(
+      'data-movement-option-elevation-costs',
+      'walk:1|run:1|jump:0',
+    );
+    expect(hex).toHaveAttribute(
       'data-tactical-projection-explanation',
       expect.stringContaining(
-        'movement options walk via tracked reachable 3 MP heat +0, run via tracked reachable 3 MP heat +2, jump reachable 1 MP heat +1',
+        'movement options walk via tracked reachable 3 MP terrain +1 elevation delta +1 cost +1 heat +0, run via tracked reachable 3 MP terrain +2 elevation delta +1 cost +1 heat +2, jump reachable 1 MP terrain +0 elevation delta +2 cost +0 heat +1',
       ),
     );
 
@@ -639,7 +660,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(badge).toHaveAttribute(
       'aria-label',
       expect.stringContaining(
-        'options walk via tracked reachable 3 MP, heat +0; run via tracked reachable 3 MP, heat +2; jump reachable 1 MP, heat +1',
+        'options walk via tracked reachable 3 MP, terrain +1, elevation delta +1 cost +1, heat +0; run via tracked reachable 3 MP, terrain +2, elevation delta +1 cost +1, heat +2; jump reachable 1 MP, terrain +0, elevation delta +2 cost +0, heat +1',
       ),
     );
     expect(badge).toHaveAttribute('data-movement-badge-option-count', '3');
@@ -650,6 +671,18 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(badge).toHaveAttribute(
       'data-movement-badge-option-costs',
       'walk:3|run:3|jump:1',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-terrain-costs',
+      'walk:1|run:2|jump:0',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-elevation-deltas',
+      'walk:1|run:1|jump:2',
+    );
+    expect(badge).toHaveAttribute(
+      'data-movement-badge-option-elevation-costs',
+      'walk:1|run:1|jump:0',
     );
 
     act(() => {

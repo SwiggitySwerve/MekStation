@@ -49,8 +49,11 @@ import {
 } from './HexCell.movementBadges';
 import {
   movementOptionBlockedReasonsAttribute,
+  movementOptionElevationCostsAttribute,
+  movementOptionElevationDeltasAttribute,
   movementOptionInvalidDetailsAttribute,
   movementOptionInvalidReasonsAttribute,
+  movementOptionTerrainCostsAttribute,
 } from './HexCell.movementOptionSummaries';
 import { ProjectionStatusBadge } from './HexCell.projectionBadges';
 import {
@@ -343,6 +346,15 @@ export const HexCell = React.memo(function HexCell({
         movementOptions ?? [],
       )}
       data-movement-option-invalid-details={movementOptionInvalidDetailsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-terrain-costs={movementOptionTerrainCostsAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-elevation-deltas={movementOptionElevationDeltasAttribute(
+        movementOptions ?? [],
+      )}
+      data-movement-option-elevation-costs={movementOptionElevationCostsAttribute(
         movementOptions ?? [],
       )}
       data-mp-cost={movementInfo?.mpCost}

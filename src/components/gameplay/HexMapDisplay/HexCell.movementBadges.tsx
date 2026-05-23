@@ -8,8 +8,11 @@ import {
   formatMovementOptionTitle,
   formatMovementTypeLabel,
   movementOptionBlockedReasonsAttribute,
+  movementOptionElevationCostsAttribute,
+  movementOptionElevationDeltasAttribute,
   movementOptionInvalidDetailsAttribute,
   movementOptionInvalidReasonsAttribute,
+  movementOptionTerrainCostsAttribute,
   movementOptionsForBadge,
   uniqueMovementTypeLabels,
 } from './HexCell.movementOptionSummaries';
@@ -204,6 +207,21 @@ export function MovementReachBadge({
       data-movement-badge-option-invalid-details={
         movementOptions.length > 1
           ? movementOptionInvalidDetailsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-terrain-costs={
+        movementOptions.length > 1
+          ? movementOptionTerrainCostsAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-elevation-deltas={
+        movementOptions.length > 1
+          ? movementOptionElevationDeltasAttribute(movementOptions)
+          : undefined
+      }
+      data-movement-badge-option-elevation-costs={
+        movementOptions.length > 1
+          ? movementOptionElevationCostsAttribute(movementOptions)
           : undefined
       }
     >

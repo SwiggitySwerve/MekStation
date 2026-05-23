@@ -240,6 +240,56 @@ describe('tacticalMapProjection', () => {
     );
   });
 
+  it('includes per-option terrain and elevation costs in same-hex movement explanations', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: terrain(2, TerrainType.Rough),
+      movement: movement({
+        movementModeOptions: [
+          {
+            movementType: MovementType.Walk,
+            movementMode: 'tracked',
+            reachable: true,
+            mpCost: 4,
+            terrainCost: 1,
+            elevationDelta: 1,
+            elevationCost: 1,
+            heatGenerated: 0,
+          },
+          {
+            movementType: MovementType.Run,
+            movementMode: 'tracked',
+            reachable: true,
+            mpCost: 5,
+            terrainCost: 2,
+            elevationDelta: 1,
+            elevationCost: 1,
+            heatGenerated: 2,
+          },
+          {
+            movementType: MovementType.Jump,
+            movementMode: 'jump',
+            reachable: true,
+            mpCost: 2,
+            terrainCost: 0,
+            elevationDelta: 2,
+            elevationCost: 0,
+            heatGenerated: 1,
+          },
+        ],
+      }),
+      combat: undefined,
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection.explanation).toContain(
+      'movement options walk via tracked reachable 4 MP terrain +1 elevation delta +1 cost +1 heat +0, run via tracked reachable 5 MP terrain +2 elevation delta +1 cost +1 heat +2, jump reachable 2 MP terrain +0 elevation delta +2 cost +0 heat +1',
+    );
+  });
+
   it('includes combat modifier details in the shared projection explanation', () => {
     const projection = buildTacticalMapHexProjection({
       hex: { q: 1, r: 0 },
