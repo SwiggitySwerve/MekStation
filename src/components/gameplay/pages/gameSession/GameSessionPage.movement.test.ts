@@ -2,11 +2,12 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { IGameSession, IMovementRangeHex } from '@/types/gameplay';
 
-import { MovementType, Facing } from '@/types/gameplay';
+import { MovementType, Facing, GamePhase } from '@/types/gameplay';
 
 import {
   appendHoveredMovementProjection,
   buildMovementPlan,
+  buildMovementLegendState,
   getEffectiveMovementMps,
   getPlannedMovementForSelectedUnit,
   mergeRunMovementRangeHexes,
@@ -32,6 +33,48 @@ describe('getEffectiveMovementMps', () => {
       runMP: 0,
       jumpMP: 0,
     });
+  });
+});
+
+describe('buildMovementLegendState', () => {
+  it('threads selected motive mode and effective MP values into the map legend state', () => {
+    expect(
+      buildMovementLegendState({
+        phase: GamePhase.Movement,
+        isPlayerControlled: true,
+        effectiveMovementMps: { walkMP: 3, runMP: 5, jumpMP: 0 },
+        movementType: MovementType.Run,
+        movementMode: 'vtol',
+      }),
+    ).toEqual({
+      active: 'run',
+      jumpAvailable: false,
+      movementMode: 'vtol',
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 0,
+    });
+  });
+
+  it('hides the map legend outside player-controlled movement planning', () => {
+    expect(
+      buildMovementLegendState({
+        phase: GamePhase.WeaponAttack,
+        isPlayerControlled: true,
+        effectiveMovementMps: { walkMP: 3, runMP: 5, jumpMP: 1 },
+        movementType: MovementType.Walk,
+        movementMode: 'tracked',
+      }),
+    ).toBeUndefined();
+    expect(
+      buildMovementLegendState({
+        phase: GamePhase.Movement,
+        isPlayerControlled: false,
+        effectiveMovementMps: { walkMP: 3, runMP: 5, jumpMP: 1 },
+        movementType: MovementType.Walk,
+        movementMode: 'tracked',
+      }),
+    ).toBeUndefined();
   });
 });
 

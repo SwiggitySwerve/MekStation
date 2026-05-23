@@ -9,6 +9,8 @@ import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProj
 
 import { CoverLevel, TERRAIN_PROPERTIES } from '@/types/gameplay/TerrainTypes';
 
+import type { MapMovementPointLegendState } from './HexMapDisplay.types';
+
 import {
   formatElevationLabel,
   formatMovementModeLabel,
@@ -30,10 +32,7 @@ interface MapHtmlOverlaysProps {
   readonly hoverCombatInfo?: ICombatRangeHex;
   readonly hoverTerrainInfo?: IHexTerrain;
   readonly hoverProjectionInfo?: ITacticalMapHexProjection;
-  readonly mpLegend?: {
-    readonly active: 'walk' | 'run' | 'jump';
-    readonly jumpAvailable: boolean;
-  };
+  readonly mpLegend?: MapMovementPointLegendState;
 }
 
 export function MapHtmlOverlays({

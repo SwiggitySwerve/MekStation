@@ -15,6 +15,15 @@ import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 
 import type { MapInteractionState } from './useMapInteraction';
 
+export interface MapMovementPointLegendState {
+  readonly active: 'walk' | 'run' | 'jump';
+  readonly jumpAvailable: boolean;
+  readonly movementMode?: string;
+  readonly walkMP?: number;
+  readonly runMP?: number;
+  readonly jumpMP?: number;
+}
+
 export interface HexMapDisplayProps {
   mapId?: string;
   radius: number;
@@ -32,10 +41,7 @@ export interface HexMapDisplayProps {
   highlightPath?: readonly IHexCoordinate[];
   hoverMpCost?: number;
   hoverUnreachable?: boolean;
-  mpLegend?: {
-    readonly active: 'walk' | 'run' | 'jump';
-    readonly jumpAvailable: boolean;
-  };
+  mpLegend?: MapMovementPointLegendState;
   onHexClick?: (hex: IHexCoordinate) => void;
   onHexHover?: (hex: IHexCoordinate | null) => void;
   onTokenClick?: (unitId: string) => void;

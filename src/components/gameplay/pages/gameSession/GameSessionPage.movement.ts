@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { MapMovementPointLegendState } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
 import type { InteractiveSession } from '@/engine/GameEngine';
 
 import { useGameplaySelector } from '@/stores/useGameplayStore';
@@ -22,6 +23,7 @@ import { logger } from '@/utils/logger';
 import {
   appendHoveredMovementProjection,
   buildMovementPlan,
+  buildMovementLegendState,
   getEffectiveMovementMps,
   getPlannedMovementForSelectedUnit,
   mergeRunMovementRangeHexes,
@@ -51,12 +53,7 @@ interface MovementPlanningResult {
   readonly hoveredPath: readonly IHexCoordinate[];
   readonly hoverMpCost: number | undefined;
   readonly hoverUnreachable: boolean;
-  readonly mpLegend:
-    | {
-        readonly active: 'walk' | 'run' | 'jump';
-        readonly jumpAvailable: boolean;
-      }
-    | undefined;
+  readonly mpLegend: MapMovementPointLegendState | undefined;
   readonly setHoveredHex: (hex: IHexCoordinate | null) => void;
   readonly handleHexClick: (hex: IHexCoordinate) => void;
 }
@@ -257,21 +254,20 @@ export function useGameMovementPlanning({
     !reachableKeySet.has(`${hoveredHex.q},${hoveredHex.r}`);
 
   const mpLegend = useMemo(() => {
-    if (
-      phase !== GamePhase.Movement ||
-      !isPlayerControlled ||
-      !effectiveMovementMps
-    ) {
-      return undefined;
-    }
-    const active =
-      movementType === MovementType.Jump
-        ? ('jump' as const)
-        : movementType === MovementType.Run
-          ? ('run' as const)
-          : ('walk' as const);
-    return { active, jumpAvailable: effectiveMovementMps.jumpMP > 0 };
-  }, [phase, isPlayerControlled, effectiveMovementMps, movementType]);
+    return buildMovementLegendState({
+      phase,
+      isPlayerControlled,
+      effectiveMovementMps,
+      movementType,
+      movementMode: capability?.movementMode,
+    });
+  }, [
+    capability?.movementMode,
+    effectiveMovementMps,
+    isPlayerControlled,
+    movementType,
+    phase,
+  ]);
 
   const handleHexClick = useCallback(
     (hex: IHexCoordinate) => {

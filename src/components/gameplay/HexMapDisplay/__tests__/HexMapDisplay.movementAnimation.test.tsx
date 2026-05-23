@@ -339,6 +339,65 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('exposes selected movement motive and effective MP values in the legend', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        mpLegend={{
+          active: 'run',
+          jumpAvailable: false,
+          movementMode: 'vtol',
+          walkMP: 3,
+          runMP: 5,
+          jumpMP: 0,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId('mp-legend')).toHaveAttribute(
+      'data-movement-mode',
+      'vtol',
+    );
+    expect(screen.getByTestId('mp-legend')).toHaveAttribute(
+      'data-walk-mp',
+      '3',
+    );
+    expect(screen.getByTestId('mp-legend')).toHaveAttribute('data-run-mp', '5');
+    expect(screen.getByTestId('mp-legend')).toHaveAttribute(
+      'data-jump-mp',
+      '0',
+    );
+    expect(screen.getByTestId('mp-legend-motive')).toHaveTextContent(
+      'Motive VTOL',
+    );
+    expect(screen.getByTestId('mp-legend-motive')).toHaveAttribute(
+      'aria-label',
+      'Movement motive VTOL',
+    );
+    expect(screen.getByTestId('mp-legend-run')).toHaveTextContent('Run 5MP');
+    expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
+      'data-active',
+      'true',
+    );
+    expect(screen.getByTestId('mp-legend-run')).toHaveAttribute('data-mp', '5');
+    expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
+      'aria-label',
+      'Run movement range; active; 5 MP; motive VTOL',
+    );
+    expect(screen.getByTestId('mp-legend-jump')).toHaveTextContent('Jump 0MP');
+    expect(screen.getByTestId('mp-legend-jump')).toHaveAttribute(
+      'aria-label',
+      'Jump movement range; inactive; 0 MP; motive VTOL; disabled: No jump capability',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders readable elevation labels and movement cost metadata on hexes', () => {
     const { unmount } = render(
       <HexMapDisplay

@@ -1,3 +1,4 @@
+import type { MapMovementPointLegendState } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
 import type { IPlannedMovement } from '@/stores/useGameplayStore';
 import type {
   IGameSession,
@@ -7,7 +8,7 @@ import type {
 } from '@/types/gameplay';
 
 import { getHeatMovementPenalty } from '@/constants/heat';
-import { Facing, MovementType } from '@/types/gameplay';
+import { Facing, GamePhase, MovementType } from '@/types/gameplay';
 import { AXIAL_DIRECTION_DELTAS } from '@/types/gameplay/HexGridInterfaces';
 import { getMaxMP } from '@/utils/gameplay/movement';
 
@@ -37,6 +38,42 @@ export function getEffectiveMovementMps(
     walkMP: getMaxMP(capability, MovementType.Walk, heatPenalty),
     runMP: getMaxMP(capability, MovementType.Run, heatPenalty),
     jumpMP: getMaxMP(capability, MovementType.Jump, heatPenalty),
+  };
+}
+
+export function buildMovementLegendState({
+  phase,
+  isPlayerControlled,
+  effectiveMovementMps,
+  movementType,
+  movementMode,
+}: {
+  readonly phase: GamePhase | undefined;
+  readonly isPlayerControlled: boolean;
+  readonly effectiveMovementMps: IEffectiveMovementMps | null;
+  readonly movementType: MovementType;
+  readonly movementMode?: string;
+}): MapMovementPointLegendState | undefined {
+  if (
+    phase !== GamePhase.Movement ||
+    !isPlayerControlled ||
+    !effectiveMovementMps
+  ) {
+    return undefined;
+  }
+  const active =
+    movementType === MovementType.Jump
+      ? ('jump' as const)
+      : movementType === MovementType.Run
+        ? ('run' as const)
+        : ('walk' as const);
+  return {
+    active,
+    jumpAvailable: effectiveMovementMps.jumpMP > 0,
+    movementMode,
+    walkMP: effectiveMovementMps.walkMP,
+    runMP: effectiveMovementMps.runMP,
+    jumpMP: effectiveMovementMps.jumpMP,
   };
 }
 

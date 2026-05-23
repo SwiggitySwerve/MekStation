@@ -1,3 +1,4 @@
+import type { MapMovementPointLegendState } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
 import type { PhysicalAttackIntent } from '@/components/gameplay/PhysicalAttackPanel';
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
@@ -55,10 +56,7 @@ export interface GameplayLayoutProps {
   highlightPath?: readonly IHexCoordinate[];
   hoverMpCost?: number;
   hoverUnreachable?: boolean;
-  mpLegend?: {
-    readonly active: 'walk' | 'run' | 'jump';
-    readonly jumpAvailable: boolean;
-  };
+  mpLegend?: MapMovementPointLegendState;
   onHexHover?: (hex: IHexCoordinate | null) => void;
   interactiveSession?: InteractiveSession;
   physicalAttackIntent?: PhysicalAttackIntent | null;
