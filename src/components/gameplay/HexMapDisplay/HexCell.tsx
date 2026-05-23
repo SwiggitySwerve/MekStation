@@ -41,6 +41,7 @@ import {
   MovementStepCostBadge,
   MovementStandUpBadge,
 } from './HexCell.movementBadges';
+import { ProjectionStatusBadge } from './HexCell.projectionBadges';
 import { isIsometricProjection } from './projection';
 import {
   hexToPixel,
@@ -405,6 +406,15 @@ export const HexCell = React.memo(function HexCell({
         </text>
       )}
       <ElevationBadge x={x} y={y} hex={hex} label={elevationLabel} />
+      <ProjectionStatusBadge
+        x={x}
+        y={y}
+        hex={hex}
+        status={tacticalProjectionStatus}
+        intent={tacticalProjectionIntent}
+        blockedReasons={tacticalProjectionBlockedReasons}
+        explanation={tacticalProjectionExplanation}
+      />
       <TerrainBadge x={x} y={y} hex={hex} terrainTypes={terrainTypes} />
       {hoverMpCost === undefined && (
         <MovementReachBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />

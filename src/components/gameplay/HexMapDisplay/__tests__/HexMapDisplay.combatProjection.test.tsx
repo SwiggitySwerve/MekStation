@@ -1980,6 +1980,91 @@ describe('HexMapDisplay combat projection', () => {
     ).toHaveTextContent('OUT');
   });
 
+  it('renders a projection status badge when movement is legal but combat is blocked on the same hex', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 3, r: 0 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={3}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: 3, r: 0 },
+            mpCost: 3,
+            terrainCost: 1,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 0,
+            movementMode: 'walk',
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+        ]}
+        unitWeapons={{
+          selected: [makeWeapon({ ranges: { short: 1, medium: 1, long: 2 } })],
+        }}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-3-0');
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'movement-combat',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-status',
+      'mixed',
+    );
+    expect(targetHex).toHaveAttribute('data-reachable', 'true');
+    expect(targetHex).toHaveAttribute('data-combat-valid-target', 'false');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'OutOfRange',
+    );
+    expect(
+      targetHex.getAttribute('data-tactical-projection-blocked-reasons'),
+    ).toContain("Target at 3 hexes is outside the selected weapons' range");
+    expect(
+      targetHex.getAttribute('data-tactical-projection-explanation'),
+    ).toContain('status mixed');
+
+    const projectionBadge = screen.getByTestId(
+      'hex-projection-status-badge-3-0',
+    );
+    expect(projectionBadge).toHaveTextContent('MIX');
+    expect(projectionBadge).toHaveAttribute(
+      'data-projection-status-badge-status',
+      'mixed',
+    );
+    expect(projectionBadge).toHaveAttribute(
+      'data-projection-status-badge-intent',
+      'movement-combat',
+    );
+    expect(
+      projectionBadge.getAttribute('data-projection-status-badge-reasons'),
+    ).toContain("Target at 3 hexes is outside the selected weapons' range");
+    expect(
+      projectionBadge.getAttribute('data-projection-status-badge-explanation'),
+    ).toContain('Walk reachable 3 MP');
+    expect(screen.getByTestId('hex-movement-badge-3-0')).toHaveTextContent(
+      'W 3MP',
+    );
+    expect(
+      screen.getByTestId('hex-combat-invalid-badge-3-0'),
+    ).toHaveTextContent('OUT');
+  });
+
   it('marks ammo-empty weapons with the engine out-of-ammo rejection reason', () => {
     const selected = makeToken({
       unitId: 'selected',
