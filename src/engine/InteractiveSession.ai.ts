@@ -8,6 +8,7 @@ import {
   GameSide,
   type IGameEvent,
   type IGameSession,
+  type IUnitGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -30,9 +31,24 @@ import {
   buildMovementEventPath,
   maxMovementCostForCapability,
 } from '@/utils/gameplay/movement/eventPath';
+import { validateMovement } from '@/utils/gameplay/movement/validation';
+import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { toAIUnitState } from './GameEngine.helpers';
+
+function elevationDifferenceBetween(
+  grid: IHexGrid,
+  attacker: IUnitGameState,
+  target: IUnitGameState | undefined,
+): number {
+  if (!target) return 0;
+  const attackerHex = grid.hexes.get(
+    `${attacker.position.q},${attacker.position.r}`,
+  );
+  const targetHex = grid.hexes.get(`${target.position.q},${target.position.r}`);
+  return (targetHex?.elevation ?? 0) - (attackerHex?.elevation ?? 0);
+}
 
 export interface IInteractiveSessionAIContext {
   readonly side: GameSide;
@@ -84,14 +100,34 @@ export function runInteractiveSessionAITurn(
         cap,
       );
       if (moveEvt) {
+        const validation = validateMovement(
+          context.grid,
+          {
+            unitId,
+            coord: refreshedUnit.position,
+            facing: refreshedUnit.facing,
+            prone: refreshedUnit.prone ?? false,
+          },
+          moveEvt.payload.to,
+          moveEvt.payload.facing as Facing,
+          moveEvt.payload.movementType,
+          cap,
+          refreshedUnit.heat,
+        );
+        if (!validation.valid) {
+          setSession(lockMovement(session, unitId));
+          emitUnitRetreatedIfNeeded(context, unitId);
+          continue;
+        }
+
         const eventPath = buildMovementEventPath({
           grid: context.grid,
           from: refreshedUnit.position,
           to: moveEvt.payload.to,
           movementType: moveEvt.payload.movementType,
-          maxCost: maxMovementCostForCapability(
-            cap,
-            moveEvt.payload.movementType,
+          maxCost: Math.min(
+            validation.mpCost,
+            maxMovementCostForCapability(cap, moveEvt.payload.movementType),
           ),
         });
         setSession(
@@ -102,8 +138,8 @@ export function runInteractiveSessionAITurn(
             moveEvt.payload.to,
             moveEvt.payload.facing as Facing,
             moveEvt.payload.movementType,
-            moveEvt.payload.mpUsed,
-            moveEvt.payload.heatGenerated,
+            validation.mpCost,
+            validation.heatGenerated,
             eventPath,
           ),
         );
@@ -122,6 +158,10 @@ export function runInteractiveSessionAITurn(
           atkEvt.payload.weapons,
           weapons,
           unitId,
+          {
+            calledShots: atkEvt.payload.calledShots,
+            teammateCalledShots: atkEvt.payload.teammateCalledShots,
+          },
         );
         setSession(
           declareAttack(
@@ -143,6 +183,7 @@ export function runInteractiveSessionAITurn(
         enemies,
       );
       if (physEvt) {
+        const targetUnit = session.currentState.units[physEvt.payload.targetId];
         setSession(
           declarePhysicalAttack(
             session,
@@ -153,6 +194,19 @@ export function runInteractiveSessionAITurn(
               attackerTonnage: context.tonnageByUnit.get(unitId) ?? 65,
               pilotingSkill: context.pilotingByUnit.get(unitId) ?? 5,
               hexesMoved: unit.hexesMovedThisTurn,
+              isUnderwater:
+                waterDepthAtPosition(context.grid, unit.position) > 0 ||
+                (targetUnit
+                  ? waterDepthAtPosition(context.grid, targetUnit.position) > 0
+                  : false),
+              pilotAbilities: unit.abilities,
+              unitQuirks: unit.unitQuirks,
+              elevationDifference: elevationDifferenceBetween(
+                context.grid,
+                unit,
+                targetUnit,
+              ),
+              targetMovementComplete: true,
             },
           ),
         );
@@ -197,6 +251,7 @@ function emitUnitRetreatedIfNeeded(
   if (
     !postMoveUnit ||
     postMoveUnit.destroyed ||
+    postMoveUnit.hasEjected ||
     !postMoveUnit.isRetreating ||
     postMoveUnit.hasRetreated ||
     !postMoveUnit.retreatTargetEdge ||
@@ -240,6 +295,7 @@ function buildEnemyAIUnits(
     .filter(
       (unit) =>
         !unit.destroyed &&
+        !session.currentState.units[unit.unitId].hasEjected &&
         session.currentState.units[unit.unitId].side !== side,
     );
 }

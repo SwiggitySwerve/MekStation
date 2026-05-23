@@ -15,8 +15,8 @@
  * This module is intentionally pure — it does NOT call into the
  * channel, the engine, or any side-effecty store. The host wiring
  * layer (`useHostIntentRouter`, server harness, integration tests)
- * passes a session snapshot in and gets a `Result<IGameEvent[],
- * IntentRejection>` back.
+ * passes a session snapshot in and gets translated host events, a
+ * host-owned command, or a structured rejection back.
  *
  * @spec openspec/changes/add-p2p-game-session-sync/specs/multiplayer-sync/spec.md § 5
  * @spec openspec/changes/add-p2p-game-session-sync/specs/multiplayer-sync/spec.md "Side Ownership"
@@ -28,68 +28,53 @@ import {
   type IGameEvent,
   type IGameIntent,
   type IGameSession,
-  type IWeaponAttackData,
   canLocalPeerControlSide,
   canLocalPeerControlUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
-  type Facing,
-  type MovementType,
-  type IHexCoordinate,
-} from '@/types/gameplay/HexGridInterfaces';
-import {
   createAttackDeclaredEvent,
   createAttackLockedEvent,
 } from '@/utils/gameplay/gameEvents/combat';
+import { createWithdrawalDeclaredEvent } from '@/utils/gameplay/gameEvents/morale';
 import {
   createMovementDeclaredEvent,
   createMovementLockedEvent,
 } from '@/utils/gameplay/gameEvents/movement';
+import {
+  createPhysicalAttackDeclaredEvent,
+  createUnitEjectedEvent,
+} from '@/utils/gameplay/gameEvents/statusPhysical';
 import { createPhaseChangedEvent } from '@/utils/gameplay/gameEvents/turnPhase';
 
-// =============================================================================
-// Public payload shapes
-// =============================================================================
+import {
+  asAttackPayload,
+  asConcedePayload,
+  asEjectPayload,
+  asEndPhasePayload,
+  asMovementPayload,
+  asPhysicalPayload,
+  asStandPayload,
+  asWithdrawPayload,
+} from './intentTranslationPayloads';
 
-/**
- * Payload the guest UI sends with a `declareMovement` intent. Mirrors
- * the parameters of `applyMovement` on the host's `InteractiveSession`
- * but expressed as a flat data record so it serializes cleanly through
- * the Yjs channel.
- */
-export interface IDeclareMovementIntentPayload {
-  readonly unitId: string;
-  readonly from: IHexCoordinate;
-  readonly to: IHexCoordinate;
-  readonly facing: Facing;
-  readonly movementType: MovementType;
-  readonly mpUsed: number;
-  readonly heatGenerated: number;
-  readonly path?: readonly IHexCoordinate[];
-}
-
-/**
- * Payload for a `declareAttack` intent. The host re-derives the actual
- * to-hit modifiers + range bracket from authoritative state at resolve
- * time; the intent only needs to name the attacker, target and weapon
- * picks plus the snapshot of weapon stats the UI was looking at.
- */
-export interface IDeclareAttackIntentPayload {
-  readonly attackerId: string;
-  readonly targetId: string;
-  readonly weapons: readonly string[];
-  readonly toHitNumber: number;
-  readonly weaponAttacks?: readonly IWeaponAttackData[];
-}
-
-/**
- * Payload for an `endPhase` intent — the guest is asking the host to
- * advance through the current phase. Host validates that the local
- * phase matches the intent's `phase` to refuse stale clicks.
- */
-export interface IEndPhaseIntentPayload {
-  readonly phase: GamePhase;
-}
+export {
+  buildConcedeIntent,
+  buildDeclareAttackIntent,
+  buildDeclareMovementIntent,
+  buildDeclarePhysicalIntent,
+  buildEjectIntent,
+  buildEndPhaseIntent,
+  buildStandIntent,
+  buildWithdrawIntent,
+  type IConcedeIntentPayload,
+  type IDeclareAttackIntentPayload,
+  type IDeclareMovementIntentPayload,
+  type IDeclarePhysicalIntentPayload,
+  type IEjectIntentPayload,
+  type IEndPhaseIntentPayload,
+  type IStandIntentPayload,
+  type IWithdrawIntentPayload,
+} from './intentTranslationPayloads';
 
 // =============================================================================
 // Translation result
@@ -118,7 +103,26 @@ export interface IIntentTranslation {
   readonly events: readonly IGameEvent[];
 }
 
-export type IntentTranslationResult = IIntentTranslation | IIntentRejection;
+export type IntentTranslationCommand =
+  | {
+      readonly kind: 'concede';
+      readonly side: GameSide;
+    }
+  | {
+      readonly kind: 'stand';
+      readonly unitId: string;
+    };
+
+export interface IIntentCommandTranslation {
+  readonly ok: true;
+  readonly events: readonly IGameEvent[];
+  readonly command: IntentTranslationCommand;
+}
+
+export type IntentTranslationResult =
+  | IIntentTranslation
+  | IIntentCommandTranslation
+  | IIntentRejection;
 
 // =============================================================================
 // Translation entry point
@@ -126,9 +130,9 @@ export type IntentTranslationResult = IIntentTranslation | IIntentRejection;
 
 /**
  * Validate a guest-authored intent against the host's current session
- * and produce the events the host should append. Returns a structured
- * rejection when the intent is malformed, out-of-phase, or attempts
- * to mutate a unit the guest does not own.
+ * and produce the events or host-owned command the host should apply.
+ * Returns a structured rejection when the intent is malformed, out-of-
+ * phase, or attempts to mutate a unit the guest does not own.
  *
  * The host wiring layer typically:
  *   1. Listens via `channel.onPeerIntent`.
@@ -149,20 +153,22 @@ export function translateIntentToEvents(
   switch (intent.type) {
     case 'declareMovement':
       return translateDeclareMovement(intent, session);
+    case 'stand':
+      return translateStand(intent, session);
     case 'declareAttack':
       return translateDeclareAttack(intent, session);
+    case 'declarePhysical':
+      return translateDeclarePhysical(intent, session);
+    case 'eject':
+      return translateEject(intent, session);
+    case 'withdraw':
+      return translateWithdraw(intent, session);
     case 'endPhase':
       return translateEndPhase(intent, session);
     case 'concede':
       return translateConcede(intent, session);
-    case 'declarePhysical':
     case 'confirmHeat':
-      // These intents are reserved by the spec but not yet wired into
-      // the host translator; UI consumers can broadcast them today and
-      // the host will surface a structured rejection so the guest sees
-      // a deterministic "not implemented" toast instead of a silent
-      // drop. Promoting them to translated events is a Wave 5 polish.
-      return { ok: false, reason: 'unsupported-intent', detail: intent.type };
+      return translateConfirmHeat(intent, session);
   }
 }
 
@@ -211,6 +217,30 @@ function translateDeclareMovement(
   return { ok: true, events: [declared, locked] };
 }
 
+function translateStand(
+  intent: IGameIntent,
+  session: IGameSession,
+): IntentTranslationResult {
+  const payload = asStandPayload(intent.payload);
+  if (!payload) {
+    return { ok: false, reason: 'malformed-payload' };
+  }
+
+  if (session.currentState.phase !== GamePhase.Movement) {
+    return { ok: false, reason: 'wrong-phase' };
+  }
+
+  if (!canLocalPeerControlUnit(session, intent.authorPeerId, payload.unitId)) {
+    return { ok: false, reason: 'unowned-unit' };
+  }
+
+  return {
+    ok: true,
+    events: [],
+    command: { kind: 'stand', unitId: payload.unitId },
+  };
+}
+
 function translateDeclareAttack(
   intent: IGameIntent,
   session: IGameSession,
@@ -252,14 +282,94 @@ function translateDeclareAttack(
   return { ok: true, events: [declared, locked] };
 }
 
+function translateDeclarePhysical(
+  intent: IGameIntent,
+  session: IGameSession,
+): IntentTranslationResult {
+  const payload = asPhysicalPayload(intent.payload);
+  if (!payload) {
+    return { ok: false, reason: 'malformed-payload' };
+  }
+
+  if (session.currentState.phase !== GamePhase.PhysicalAttack) {
+    return { ok: false, reason: 'wrong-phase' };
+  }
+
+  if (
+    !canLocalPeerControlUnit(session, intent.authorPeerId, payload.attackerId)
+  ) {
+    return { ok: false, reason: 'unowned-unit' };
+  }
+
+  const attacker = session.currentState.units[payload.attackerId];
+  const event = createPhysicalAttackDeclaredEvent(
+    session.id,
+    session.events.length,
+    session.currentState.turn,
+    payload.attackerId,
+    payload.targetId,
+    payload.attackType,
+    payload.toHitNumber ?? attacker?.piloting ?? 5,
+  );
+
+  return { ok: true, events: [event] };
+}
+
+function translateEject(
+  intent: IGameIntent,
+  session: IGameSession,
+): IntentTranslationResult {
+  const payload = asEjectPayload(intent.payload);
+  if (!payload) {
+    return { ok: false, reason: 'malformed-payload' };
+  }
+
+  if (!canLocalPeerControlUnit(session, intent.authorPeerId, payload.unitId)) {
+    return { ok: false, reason: 'unowned-unit' };
+  }
+
+  const event = createUnitEjectedEvent(
+    session.id,
+    session.events.length,
+    session.currentState.turn,
+    session.currentState.phase,
+    payload.unitId,
+    'player_declared',
+  );
+  return { ok: true, events: [event] };
+}
+
+function translateWithdraw(
+  intent: IGameIntent,
+  session: IGameSession,
+): IntentTranslationResult {
+  const payload = asWithdrawPayload(intent.payload);
+  if (!payload) {
+    return { ok: false, reason: 'malformed-payload' };
+  }
+
+  if (!canLocalPeerControlUnit(session, intent.authorPeerId, payload.unitId)) {
+    return { ok: false, reason: 'unowned-unit' };
+  }
+
+  const event = createWithdrawalDeclaredEvent(
+    session.id,
+    session.events.length,
+    session.currentState.turn,
+    session.currentState.phase,
+    payload.unitId,
+    payload.edge,
+    'player',
+  );
+  return { ok: true, events: [event] };
+}
+
 function translateEndPhase(
   intent: IGameIntent,
   session: IGameSession,
 ): IntentTranslationResult {
   const payload = asEndPhasePayload(intent.payload);
-  if (!payload) {
-    return { ok: false, reason: 'malformed-payload' };
-  }
+  if (!payload) return { ok: false, reason: 'malformed-payload' };
 
   if (session.currentState.phase !== payload.phase) {
     return { ok: false, reason: 'wrong-phase' };
@@ -270,10 +380,7 @@ function translateEndPhase(
   // ownership, an end-phase request is meaningless and we reject
   // rather than silently advance — keeps the host log free of stale
   // input from third peers that somehow snuck a rebroadcast in.
-  const guestOwnsAnySide =
-    canLocalPeerControlSide(session, intent.authorPeerId, GameSide.Player) ||
-    canLocalPeerControlSide(session, intent.authorPeerId, GameSide.Opponent);
-  if (!guestOwnsAnySide) {
+  if (!peerOwnsAnySide(session, intent.authorPeerId)) {
     return { ok: false, reason: 'unowned-unit' };
   }
 
@@ -283,130 +390,60 @@ function translateEndPhase(
   // raw `PhaseChanged` event would skip those side-effects, so we
   // emit a marker event the host wiring layer treats as "call
   // advancePhase()". The integration test covers the round trip.
-  const seq = session.events.length;
-  const marker = createPhaseChangedEvent(
-    session.id,
-    seq,
-    session.currentState.turn,
-    payload.phase,
-    payload.phase,
-  );
+  return {
+    ok: true,
+    events: [createAdvancePhaseMarker(session, payload.phase)],
+  };
+}
 
-  return { ok: true, events: [marker] };
+function translateConfirmHeat(
+  intent: IGameIntent,
+  session: IGameSession,
+): IntentTranslationResult {
+  if (session.currentState.phase !== GamePhase.Heat)
+    return { ok: false, reason: 'wrong-phase' };
+
+  return peerOwnsAnySide(session, intent.authorPeerId)
+    ? { ok: true, events: [createAdvancePhaseMarker(session, GamePhase.Heat)] }
+    : { ok: false, reason: 'unowned-unit' };
 }
 
 function translateConcede(
   intent: IGameIntent,
   session: IGameSession,
 ): IntentTranslationResult {
-  if (
-    !canLocalPeerControlSide(session, intent.authorPeerId, GameSide.Player) &&
-    !canLocalPeerControlSide(session, intent.authorPeerId, GameSide.Opponent)
-  ) {
+  const payload = asConcedePayload(intent.payload);
+  if (!payload) {
+    return { ok: false, reason: 'malformed-payload' };
+  }
+
+  if (!canLocalPeerControlSide(session, intent.authorPeerId, payload.side)) {
     return { ok: false, reason: 'unowned-unit' };
   }
-  // The host's `concede(side)` takes care of constructing the
-  // GameEnded event with the correct winner. We surface a sentinel
-  // shape the host wiring routes to `concede()` instead of a synthetic
-  // GameEnded event so the existing tryFinalizeAndPublish path runs
-  // (campaign hook, outcome bus emit). Wave 5 follow-up will make this
-  // a first-class translator output once the host harness needs it.
-  return { ok: false, reason: 'unsupported-intent', detail: 'concede' };
+
+  return {
+    ok: true,
+    events: [],
+    command: { kind: 'concede', side: payload.side },
+  };
 }
 
-// =============================================================================
-// Payload shape guards
-// =============================================================================
-
-function asMovementPayload(
-  payload: unknown,
-): IDeclareMovementIntentPayload | null {
-  if (!isRecord(payload)) return null;
-  if (typeof payload.unitId !== 'string') return null;
-  if (!isHexCoord(payload.from) || !isHexCoord(payload.to)) return null;
-  if (typeof payload.facing !== 'number') return null;
-  if (typeof payload.movementType !== 'string') return null;
-  if (typeof payload.mpUsed !== 'number') return null;
-  if (typeof payload.heatGenerated !== 'number') return null;
-  if (
-    payload.path !== undefined &&
-    !(Array.isArray(payload.path) && payload.path.every(isHexCoord))
-  ) {
-    return null;
-  }
-  return payload as unknown as IDeclareMovementIntentPayload;
-}
-
-function asAttackPayload(payload: unknown): IDeclareAttackIntentPayload | null {
-  if (!isRecord(payload)) return null;
-  if (typeof payload.attackerId !== 'string') return null;
-  if (typeof payload.targetId !== 'string') return null;
-  if (
-    !Array.isArray(payload.weapons) ||
-    !payload.weapons.every((value) => typeof value === 'string')
-  ) {
-    return null;
-  }
-  if (typeof payload.toHitNumber !== 'number') return null;
-  return payload as unknown as IDeclareAttackIntentPayload;
-}
-
-function asEndPhasePayload(payload: unknown): IEndPhaseIntentPayload | null {
-  if (!isRecord(payload)) return null;
-  if (typeof payload.phase !== 'string') return null;
-  return payload as unknown as IEndPhaseIntentPayload;
-}
-
-function isHexCoord(value: unknown): value is IHexCoordinate {
+function peerOwnsAnySide(session: IGameSession, peerId: string): boolean {
   return (
-    isRecord(value) &&
-    typeof value.q === 'number' &&
-    typeof value.r === 'number'
+    canLocalPeerControlSide(session, peerId, GameSide.Player) ||
+    canLocalPeerControlSide(session, peerId, GameSide.Opponent)
   );
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-// =============================================================================
-// Convenience: typed intent constructors for the guest UI
-// =============================================================================
-
-/**
- * Build a fully-formed `declareMovement` intent. The guest UI uses this
- * to keep the channel call site free of `as` casts; the host's
- * translator validates the shape regardless.
- */
-export function buildDeclareMovementIntent(
-  authorPeerId: string,
-  payload: IDeclareMovementIntentPayload,
-): IGameIntent {
-  return {
-    type: 'declareMovement',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildDeclareAttackIntent(
-  authorPeerId: string,
-  payload: IDeclareAttackIntentPayload,
-): IGameIntent {
-  return {
-    type: 'declareAttack',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildEndPhaseIntent(
-  authorPeerId: string,
-  payload: IEndPhaseIntentPayload,
-): IGameIntent {
-  return {
-    type: 'endPhase',
-    payload,
-    authorPeerId,
-  };
+function createAdvancePhaseMarker(
+  session: IGameSession,
+  phase: GamePhase,
+): IGameEvent {
+  return createPhaseChangedEvent(
+    session.id,
+    session.events.length,
+    session.currentState.turn,
+    phase,
+    phase,
+  );
 }

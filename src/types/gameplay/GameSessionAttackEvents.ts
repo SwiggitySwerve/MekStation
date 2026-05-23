@@ -8,7 +8,7 @@ import type {
   HeatVisualThreshold,
 } from './GameSessionCoreTypes';
 
-import { Facing } from './HexGridInterfaces';
+import { Facing, IHexCoordinate } from './HexGridInterfaces';
 import { PSRTrigger } from './PSRTriggerCodes';
 
 /**
@@ -21,6 +21,8 @@ export interface IAttackDeclaredPayload {
   readonly targetId: string;
   /** Weapon ID(s) used (backward-compatible) */
   readonly weapons: readonly string[];
+  /** Selected firing mode by weapon id for multi-mode weapons. */
+  readonly weaponModes?: Readonly<Record<string, string>>;
   /** Full weapon attack data (damage, heat, ranges per weapon) */
   readonly weaponAttacks?: readonly IWeaponAttackData[];
   /** Calculated to-hit number */
@@ -157,7 +159,9 @@ export interface IAttackInvalidPayload {
     | 'SameHex'
     | 'OutOfRange'
     | 'NoLineOfSight'
-    | 'InvalidTarget';
+    | 'InvalidTarget'
+    | 'UnknownWeapon'
+    | 'WeaponJammed';
   readonly details?: string;
 }
 
@@ -232,10 +236,15 @@ export interface IHeatPayload {
    * re-reading terrain state. `baseDissipation` is the heat-sink
    * contribution (count × rating − destroyed × rating), `waterBonus`
    * is the water-cooling add per `getWaterCoolingBonus(depth)`.
+   * `environmentalModifier` is the net atmosphere/temperature adjustment.
+   * `heatGenerationReduction` is the per-turn generated-heat reduction
+   * from abilities such as Cool Under Fire, capped by generated heat.
    */
   readonly breakdown?: {
     readonly baseDissipation: number;
     readonly waterBonus: number;
+    readonly environmentalModifier?: number;
+    readonly heatGenerationReduction?: number;
   };
 }
 
@@ -257,7 +266,12 @@ export interface IPilotHitPayload {
    * life-support damage); distinct from `'head_hit'` (head-location
    * critical) so UI / replay consumers can show the right cause.
    */
-  readonly source: 'head_hit' | 'ammo_explosion' | 'mech_destruction' | 'heat';
+  readonly source:
+    | 'head_hit'
+    | 'ammo_explosion'
+    | 'mech_destruction'
+    | 'fall'
+    | 'heat';
   /** Consciousness check required? */
   readonly consciousnessCheckRequired: boolean;
   /** Consciousness check result (if required) */
@@ -499,6 +513,13 @@ export interface IPhysicalAttackDeclaredPayload {
   readonly limb?: 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg';
 }
 
+export interface IPhysicalDisplacement {
+  readonly unitId: string;
+  readonly from: IHexCoordinate;
+  readonly to: IHexCoordinate;
+  readonly reason: 'push' | 'charge' | 'charge_miss' | 'dfa' | 'dfa_miss';
+}
+
 export interface IPhysicalAttackResolvedPayload {
   readonly attackerId: string;
   readonly targetId: string;
@@ -518,6 +539,12 @@ export interface IPhysicalAttackResolvedPayload {
     readonly damage: number;
     readonly location: string;
   }[];
+  /**
+   * Source-backed physical displacement results. Push, charge, and DFA move
+   * the target and then the attacker follows into the target's original hex
+   * when the destination is legal.
+   */
+  readonly displacements?: readonly IPhysicalDisplacement[];
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): consumed d6s for
    * the to-hit + hit-location rolls (location omitted on miss). OPTIONAL.

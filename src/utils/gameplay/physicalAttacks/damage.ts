@@ -1,4 +1,6 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import { getBattleFistDamageBonus } from '@/utils/gameplay/quirkModifiers';
+import { getMeleeMasterDamageBonus } from '@/utils/gameplay/spaModifiers';
 
 import {
   CHARGE_DAMAGE_DIVISOR,
@@ -11,7 +13,6 @@ import {
   LANCE_CHARGE_DAMAGE_MULTIPLIER,
   LANCE_DAMAGE_DIVISOR,
   MACE_DAMAGE_DIVISOR,
-  MACE_WEIGHT_MULTIPLIER,
   PHYSICAL_CLUSTER_SIZE,
   PUNCH_DAMAGE_DIVISOR,
   SWORD_DAMAGE_BONUS,
@@ -45,6 +46,17 @@ export function applyUnderwaterModifier(
   return damage;
 }
 
+function physicalDamageBonus(input: IPhysicalAttackInput): number {
+  return getMeleeMasterDamageBonus(input.pilotAbilities ?? []);
+}
+
+function punchDamageBonus(input: IPhysicalAttackInput): number {
+  return (
+    physicalDamageBonus(input) +
+    getBattleFistDamageBonus(input.unitQuirks ?? [], input.arm ?? 'right')
+  );
+}
+
 export function calculatePunchDamage(input: IPhysicalAttackInput): number {
   const effectiveWeight = getEffectiveWeight(
     input.attackerTonnage,
@@ -63,6 +75,8 @@ export function calculatePunchDamage(input: IPhysicalAttackInput): number {
     damage = Math.floor(damage / 2);
   }
 
+  damage += punchDamageBonus(input);
+
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -73,7 +87,9 @@ export function calculateKickDamage(input: IPhysicalAttackInput): number {
     input.hasTSM ?? false,
   );
 
-  const damage = Math.floor(effectiveWeight / KICK_DAMAGE_DIVISOR);
+  const damage =
+    Math.floor(effectiveWeight / KICK_DAMAGE_DIVISOR) +
+    physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -89,7 +105,8 @@ export function calculateChargeDamageToTarget(
   const hexesMoved = input.hexesMoved ?? 0;
   const multiplier = Math.max(0, hexesMoved - 1);
   const damage =
-    Math.ceil(effectiveWeight / CHARGE_DAMAGE_DIVISOR) * multiplier;
+    Math.ceil(effectiveWeight / CHARGE_DAMAGE_DIVISOR) * multiplier +
+    physicalDamageBonus(input);
 
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
@@ -113,7 +130,8 @@ export function calculateDFADamageToTarget(
 
   const damage =
     Math.ceil(effectiveWeight / DFA_TARGET_DAMAGE_DIVISOR) *
-    DFA_DAMAGE_MULTIPLIER;
+      DFA_DAMAGE_MULTIPLIER +
+    physicalDamageBonus(input);
 
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
@@ -133,7 +151,9 @@ export function calculateHatchetDamage(input: IPhysicalAttackInput): number {
     input.heat ?? 0,
     input.hasTSM ?? false,
   );
-  const damage = Math.floor(effectiveWeight / HATCHET_DAMAGE_DIVISOR);
+  const damage =
+    Math.floor(effectiveWeight / HATCHET_DAMAGE_DIVISOR) +
+    physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -144,7 +164,9 @@ export function calculateSwordDamage(input: IPhysicalAttackInput): number {
     input.hasTSM ?? false,
   );
   const damage =
-    Math.floor(effectiveWeight / SWORD_DAMAGE_DIVISOR) + SWORD_DAMAGE_BONUS;
+    Math.ceil(effectiveWeight / SWORD_DAMAGE_DIVISOR) +
+    SWORD_DAMAGE_BONUS +
+    physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -154,9 +176,9 @@ export function calculateMaceDamage(input: IPhysicalAttackInput): number {
     input.heat ?? 0,
     input.hasTSM ?? false,
   );
-  const damage = Math.floor(
-    (effectiveWeight * MACE_WEIGHT_MULTIPLIER) / MACE_DAMAGE_DIVISOR,
-  );
+  const damage =
+    Math.ceil(effectiveWeight / MACE_DAMAGE_DIVISOR) +
+    physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -178,7 +200,9 @@ export function calculateLanceDamage(
     input.hasTSM ?? false,
   );
   const base = Math.floor(effectiveWeight / LANCE_DAMAGE_DIVISOR);
-  const damage = isCharging ? base * LANCE_CHARGE_DAMAGE_MULTIPLIER : base;
+  const damage =
+    (isCharging ? base * LANCE_CHARGE_DAMAGE_MULTIPLIER : base) +
+    physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -328,6 +352,8 @@ export function getPhysicalMissConsequences(attackType: PhysicalAttackType): {
 } {
   switch (attackType) {
     case 'kick':
+      return { attackerPSR: true, attackerPSRModifier: 0 };
+    case 'charge':
       return { attackerPSR: true, attackerPSRModifier: 0 };
     case 'dfa':
       return { attackerPSR: true, attackerPSRModifier: DFA_MISS_PSR_MODIFIER };

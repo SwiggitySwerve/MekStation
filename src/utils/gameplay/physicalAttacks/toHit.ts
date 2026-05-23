@@ -1,10 +1,12 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import { calculateMeleeSpecialistModifier } from '@/utils/gameplay/spaModifiers';
 
 import {
   FOOT_KICK_MODIFIER,
   HAND_PUNCH_MODIFIER,
   HATCHET_TO_HIT_MODIFIER,
   KICK_TO_HIT_BONUS,
+  LANCE_TO_HIT_MODIFIER,
   LOWER_ARM_PUNCH_MODIFIER,
   LOWER_LEG_KICK_MODIFIER,
   MACE_TO_HIT_MODIFIER,
@@ -19,6 +21,7 @@ import {
   canKick,
   canMeleeWeapon,
   canPunch,
+  canPush,
 } from './restrictions';
 import {
   IPhysicalAttackInput,
@@ -41,6 +44,19 @@ function appendTMM(
     name: 'Target movement modifier',
     value: tmm,
     source: 'movement',
+  });
+}
+
+function appendMeleeSpecialist(
+  modifiers: IPhysicalModifier[],
+  abilities: readonly string[] | undefined,
+): void {
+  const modifier = calculateMeleeSpecialistModifier(abilities ?? []);
+  if (!modifier) return;
+  modifiers.push({
+    name: modifier.name,
+    value: modifier.value,
+    source: modifier.source,
   });
 }
 
@@ -88,6 +104,7 @@ export function calculatePunchToHit(
 
   // Per task 4.3: target movement modifier (TMM) applies to punch to-hit.
   appendTMM(modifiers, input.targetMovementModifier);
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
 
@@ -143,6 +160,7 @@ export function calculateKickToHit(
 
   // Per task 5.3: target movement modifier (TMM) applies to kick to-hit.
   appendTMM(modifiers, input.targetMovementModifier);
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
   const baseToHit = input.pilotingSkill - KICK_TO_HIT_BONUS;
@@ -187,6 +205,7 @@ export function calculateChargeToHit(
 
   // Per task 4.3 / 5.3 analog: charge also respects target TMM.
   appendTMM(modifiers, input.targetMovementModifier);
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
 
@@ -218,6 +237,7 @@ export function calculateDFAToHit(
 
   // DFA inherits TMM like punch/kick.
   appendTMM(modifiers, input.targetMovementModifier);
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
 
@@ -232,10 +252,23 @@ export function calculateDFAToHit(
 export function calculatePushToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
+  const restriction = canPush(input);
+  if (!restriction.allowed) {
+    return {
+      baseToHit: input.pilotingSkill - PUSH_TO_HIT_BONUS,
+      finalToHit: Infinity,
+      modifiers: [],
+      allowed: false,
+      restrictionReason: restriction.reason,
+      restrictionReasonCode: restriction.reasonCode,
+    };
+  }
+
   const baseToHit = input.pilotingSkill - PUSH_TO_HIT_BONUS;
   const modifiers: IPhysicalModifier[] = [];
 
   appendTMM(modifiers, input.targetMovementModifier);
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
 
   return {
@@ -273,9 +306,7 @@ export function calculateMeleeWeaponToHit(
       weaponMod = MACE_TO_HIT_MODIFIER;
       break;
     case 'lance':
-      // Per task 9.4: lance baseline to-hit uses no weapon modifier; the
-      // +0 entry keeps the modifier list non-empty for replay/debug.
-      weaponMod = 0;
+      weaponMod = LANCE_TO_HIT_MODIFIER;
       break;
   }
 
@@ -288,6 +319,7 @@ export function calculateMeleeWeaponToHit(
   ];
 
   appendTMM(modifiers, input.targetMovementModifier);
+  appendMeleeSpecialist(modifiers, input.pilotAbilities);
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
 
   return {

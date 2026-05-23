@@ -5,6 +5,7 @@ import {
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
   IRetreatTriggeredPayload,
+  IUnitEjectedPayload,
   IUnitRetreatedPayload,
   PhysicalAttackEventType,
 } from '@/types/gameplay';
@@ -63,6 +64,7 @@ export function createPhysicalAttackResolvedEvent(
   damage?: number,
   location?: string,
   clusters?: IPhysicalAttackResolvedPayload['clusters'],
+  displacements?: IPhysicalAttackResolvedPayload['displacements'],
 ): IGameEvent {
   const payload: IPhysicalAttackResolvedPayload = {
     attackerId,
@@ -74,6 +76,7 @@ export function createPhysicalAttackResolvedEvent(
     damage,
     location,
     clusters,
+    displacements,
   };
   return {
     ...createEventBase(
@@ -140,6 +143,28 @@ export function createUnitRetreatedEvent(
       gameId,
       sequence,
       GameEventType.UnitRetreated,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createUnitEjectedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  reason: IUnitEjectedPayload['reason'],
+): IGameEvent {
+  const payload: IUnitEjectedPayload = { unitId, turn, reason };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.UnitEjected,
       turn,
       phase,
       unitId,

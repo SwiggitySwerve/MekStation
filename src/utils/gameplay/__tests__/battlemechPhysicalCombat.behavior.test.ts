@@ -1,0 +1,1529 @@
+import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import {
+  Facing,
+  GameEventType,
+  GamePhase,
+  GameSide,
+  type IComponentDamageState,
+  type IGameSession,
+  type IGameUnit,
+  type IPilotHitPayload,
+  type IPhysicalAttackResolvedPayload,
+  type IPSRTriggeredPayload,
+  type IUnitGameState,
+  LockState,
+  MovementType,
+  PSRTrigger,
+} from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
+import type { DiceRoller } from '../diceTypes';
+
+import {
+  advancePhase,
+  createGameSession,
+  rollInitiative,
+  startGame,
+} from '../gameSession';
+import {
+  declarePhysicalAttack,
+  resolveAllPhysicalAttacks,
+  type IPhysicalAttackContext,
+} from '../gameSessionPhysical';
+import { resolvePendingPSRs } from '../gameSessionPSR';
+import { createHexGrid, placeUnit } from '../hexGrid';
+import {
+  chooseBestPhysicalAttack,
+  getEligiblePhysicalAttacks,
+  type PhysicalAttackType,
+} from '../physicalAttacks';
+
+const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
+  engineHits: 0,
+  gyroHits: 0,
+  sensorHits: 0,
+  lifeSupport: 0,
+  cockpitHit: false,
+  actuators: {},
+  weaponsDestroyed: [],
+  heatSinksDestroyed: 0,
+  jumpJetsDestroyed: 0,
+};
+
+function unitState(
+  id: string,
+  side: GameSide,
+  position = { q: 0, r: 0 },
+  overrides: Partial<IUnitGameState> = {},
+): IUnitGameState {
+  return {
+    id,
+    side,
+    position,
+    facing: Facing.North,
+    heat: 0,
+    movementThisTurn: MovementType.Stationary,
+    hexesMovedThisTurn: 0,
+    gunnery: 4,
+    piloting: 5,
+    armor: {},
+    structure: {},
+    startingInternalStructure: {},
+    destroyedLocations: [],
+    destroyedEquipment: [],
+    ammo: {},
+    pilotWounds: 0,
+    pilotConscious: true,
+    destroyed: false,
+    lockState: LockState.Pending,
+    damageThisPhase: 0,
+    componentDamage: DEFAULT_COMPONENT_DAMAGE,
+    prone: false,
+    shutdown: false,
+    ammoState: {},
+    pendingPSRs: [],
+    weaponsFiredThisTurn: [],
+    jammedWeapons: [],
+    narcedBy: [],
+    tagDesignated: false,
+    isRetreating: false,
+    hasRetreated: false,
+    ...overrides,
+  };
+}
+
+function gameUnits(): readonly IGameUnit[] {
+  return [
+    {
+      id: 'attacker',
+      name: 'Physical Attacker',
+      side: GameSide.Player,
+      unitRef: 'attacker-ref',
+      pilotRef: 'attacker-pilot',
+      gunnery: 4,
+      piloting: 5,
+    },
+    {
+      id: 'target',
+      name: 'Physical Target',
+      side: GameSide.Opponent,
+      unitRef: 'target-ref',
+      pilotRef: 'target-pilot',
+      gunnery: 4,
+      piloting: 5,
+    },
+  ];
+}
+
+function physicalPhaseSession() {
+  let session = createGameSession(
+    {
+      mapRadius: 10,
+      turnLimit: 0,
+      victoryConditions: ['elimination'],
+      optionalRules: [],
+    },
+    gameUnits(),
+    { id: 'physical-validation' },
+  );
+  session = startGame(session, GameSide.Player);
+  session = rollInitiative(session, GameSide.Player, scriptedD6([6, 1, 6, 1]));
+  session = advancePhase(session);
+  session = advancePhase(session);
+  session = advancePhase(session);
+  expect(session.currentState.phase).toBe(GamePhase.PhysicalAttack);
+  return session;
+}
+
+function scriptedD6(values: readonly number[]) {
+  let i = 0;
+  return () => values[Math.min(i++, values.length - 1)];
+}
+
+function scriptedDice(firstDice: readonly number[]): DiceRoller {
+  let i = 0;
+  return () => {
+    const first = firstDice[Math.min(i++, firstDice.length - 1)];
+    return {
+      dice: [first, 1],
+      total: first + 1,
+      isSnakeEyes: first === 1,
+      isBoxcars: first === 6,
+    };
+  };
+}
+
+function physicalContext(
+  overrides: Partial<IPhysicalAttackContext> = {},
+): IPhysicalAttackContext {
+  return {
+    attackerTonnage: 80,
+    targetTonnage: 75,
+    pilotingSkill: 5,
+    ...overrides,
+  };
+}
+
+function adjacentPhysicalGrid() {
+  let grid = createHexGrid({ radius: 3 });
+  grid = placeUnit(grid, { q: 0, r: 0 }, 'attacker');
+  grid = placeUnit(grid, { q: 1, r: 0 }, 'target');
+  return grid;
+}
+
+function withUnitState(
+  session: IGameSession,
+  unitId: string,
+  overrides: Partial<IUnitGameState>,
+): IGameSession {
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      units: {
+        ...session.currentState.units,
+        [unitId]: {
+          ...session.currentState.units[unitId],
+          ...overrides,
+        },
+      },
+    },
+  };
+}
+
+function withPhysicalPositions(
+  session: IGameSession,
+  attackerOverrides: Partial<IUnitGameState> = {},
+  targetOverrides: Partial<IUnitGameState> = {},
+): IGameSession {
+  let positioned = withUnitState(session, 'attacker', {
+    position: { q: 0, r: 0 },
+    facing: Facing.Southeast,
+    ...attackerOverrides,
+  });
+  positioned = withUnitState(positioned, 'target', {
+    position: { q: 1, r: 0 },
+    ...targetOverrides,
+  });
+  return positioned;
+}
+
+function withoutUnitState(session: IGameSession, unitId: string): IGameSession {
+  const { [unitId]: _removed, ...units } = session.currentState.units;
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      units,
+    },
+  };
+}
+
+function declareAdjacentPhysicalAttack(
+  attackType: PhysicalAttackType,
+  context: IPhysicalAttackContext,
+  attackerOverrides: Partial<IUnitGameState> = {},
+  targetOverrides: Partial<IUnitGameState> = {},
+): IGameSession {
+  const session = withPhysicalPositions(
+    physicalPhaseSession(),
+    attackerOverrides,
+    targetOverrides,
+  );
+  const declared = declarePhysicalAttack(
+    session,
+    'attacker',
+    'target',
+    attackType,
+    context,
+  );
+
+  // Declaration appends an event and rebuilds state from the event log; keep
+  // the resolver fixture positions aligned with the declaration fixture.
+  return withPhysicalPositions(declared, attackerOverrides, targetOverrides);
+}
+
+describe('BattleMech physical combat behavior validation lane', () => {
+  it('projects every runtime-supported physical action with rule modifiers', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+    const meleeWeapons: readonly PhysicalAttackType[] = [
+      'hatchet',
+      'sword',
+      'mace',
+      'lance',
+    ];
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      targetMovementModifier: 2,
+      attackerMovementModifier: 1,
+      attackerRanThisTurn: true,
+      attackerJumpedThisTurn: true,
+      meleeWeaponsEquipped: meleeWeapons,
+      pushDestinationValid: true,
+    });
+
+    expect(
+      options.map((option) => `${option.attackType}:${option.limb ?? '-'}`),
+    ).toEqual([
+      'punch:leftArm',
+      'punch:rightArm',
+      'kick:leftLeg',
+      'kick:rightLeg',
+      'charge:-',
+      'dfa:-',
+      'push:-',
+      'hatchet:-',
+      'sword:-',
+      'mace:-',
+      'lance:-',
+    ]);
+    expect(
+      options.every((option) => option.restrictionsFailed.length === 0),
+    ).toBe(true);
+
+    const byType = new Map(
+      options.map((option) => [option.attackType, option]),
+    );
+    expect(byType.get('kick')?.toHit.finalToHit).toBe(5);
+    expect(byType.get('charge')?.toHit.finalToHit).toBe(8);
+    expect(byType.get('dfa')?.toHit.finalToHit).toBe(7);
+    expect(byType.get('sword')?.toHit.finalToHit).toBe(5);
+    expect(byType.get('mace')?.toHit.finalToHit).toBe(8);
+    expect(byType.get('lance')?.toHit.finalToHit).toBe(8);
+    expect(byType.get('sword')?.damage.targetDamage).toBe(9);
+    expect(byType.get('mace')?.damage.targetDamage).toBe(20);
+    expect(byType.get('lance')?.damage.targetDamage).toBe(16);
+  });
+
+  it('surfaces distinct physical restriction reasons instead of hiding them', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+      },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      weaponsFiredFromLeftArm: ['left-medium-laser'],
+      limbsUsedThisTurn: ['rightLeg'],
+      attackerRanThisTurn: false,
+      attackerJumpedThisTurn: false,
+      meleeWeaponsEquipped: ['hatchet'],
+      pushDestinationValid: false,
+    });
+
+    const reasonByRow = new Map(
+      options.map((option) => [
+        `${option.attackType}:${option.limb ?? '-'}`,
+        option.restrictionsFailed,
+      ]),
+    );
+
+    expect(reasonByRow.get('punch:leftArm')).toEqual(['WeaponFiredThisTurn']);
+    expect(reasonByRow.get('kick:rightLeg')).toEqual(['SameLimbUsedThisTurn']);
+    expect(reasonByRow.get('charge:-')).toEqual(['NoRunThisTurn']);
+    expect(reasonByRow.get('dfa:-')).toEqual(['NoJumpThisTurn']);
+    expect(reasonByRow.get('push:-')).toEqual(['WeaponFiredThisTurn']);
+    expect(reasonByRow.get('hatchet:-')).toEqual([]);
+  });
+
+  it('surfaces side-adjacent push targets as not directly ahead', () => {
+    const attacker = unitState('attacker', GameSide.Player);
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      pushDestinationValid: true,
+    });
+
+    expect(
+      options.find((option) => option.attackType === 'push')
+        ?.restrictionsFailed,
+    ).toEqual(['TargetNotDirectlyAhead']);
+  });
+
+  it('surfaces non-Mek unit types in push eligibility projection', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { facing: Facing.Southeast },
+    );
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 1, r: 0 },
+      { unitType: UnitType.BATTLE_ARMOR },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      pushDestinationValid: true,
+    });
+
+    expect(
+      options.find((option) => option.attackType === 'push')
+        ?.restrictionsFailed,
+    ).toEqual(['TargetNotMek']);
+  });
+
+  it('surfaces standing-Mek target gates in charge eligibility projection', () => {
+    const attacker = unitState('attacker', GameSide.Player, { q: 0, r: 0 });
+    const nonMekTarget = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 1, r: 0 },
+      { unitType: UnitType.BATTLE_ARMOR },
+    );
+
+    const nonMekTargetOptions = getEligiblePhysicalAttacks(
+      attacker,
+      nonMekTarget,
+      {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetTonnage: 75,
+        attackerRanThisTurn: true,
+      },
+    );
+
+    expect(
+      nonMekTargetOptions.find((option) => option.attackType === 'charge')
+        ?.restrictionsFailed,
+    ).toEqual(['TargetNotMek']);
+
+    const proneTargetOptions = getEligiblePhysicalAttacks(
+      attacker,
+      unitState('target', GameSide.Opponent, { q: 1, r: 0 }, { prone: true }),
+      {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetTonnage: 75,
+        attackerRanThisTurn: true,
+      },
+    );
+
+    expect(
+      proneTargetOptions.find((option) => option.attackType === 'charge')
+        ?.restrictionsFailed,
+    ).toEqual(['TargetProne']);
+
+    const elevatedTargetOptions = getEligiblePhysicalAttacks(
+      attacker,
+      unitState('target', GameSide.Opponent, { q: 1, r: 0 }),
+      {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetTonnage: 75,
+        attackerRanThisTurn: true,
+        elevationDifference: 2,
+      },
+    );
+
+    expect(
+      elevatedTargetOptions.find((option) => option.attackType === 'charge')
+        ?.restrictionsFailed,
+    ).toEqual(['ElevationMismatch']);
+
+    const targetStillMovingOptions = getEligiblePhysicalAttacks(
+      attacker,
+      unitState('target', GameSide.Opponent, { q: 1, r: 0 }),
+      {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetTonnage: 75,
+        attackerRanThisTurn: true,
+        targetMovementComplete: false,
+      },
+    );
+
+    expect(
+      targetStillMovingOptions.find((option) => option.attackType === 'charge')
+        ?.restrictionsFailed,
+    ).toEqual(['TargetMovementIncomplete']);
+  });
+
+  it('surfaces non-Mek charge target-class gates in eligibility projection', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { unitType: UnitType.VEHICLE },
+    );
+    const infantryTarget = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 1, r: 0 },
+      { unitType: UnitType.INFANTRY },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, infantryTarget, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerRanThisTurn: true,
+    });
+
+    expect(
+      options.find((option) => option.attackType === 'charge')
+        ?.restrictionsFailed,
+    ).toEqual(['TargetInfantryOrProtoMek']);
+  });
+
+  it('surfaces infantry-family attacker gates in DFA eligibility projection', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { unitType: UnitType.BATTLE_ARMOR },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerJumpedThisTurn: true,
+    });
+
+    expect(
+      options.find((option) => option.attackType === 'dfa')?.restrictionsFailed,
+    ).toEqual(['AttackerInfantry']);
+  });
+
+  it('lets AI choose a lance when leg attacks are blocked', () => {
+    const componentDamage = {
+      ...DEFAULT_COMPONENT_DAMAGE,
+      actuators: { [ActuatorType.HIP]: true },
+    };
+
+    expect(
+      chooseBestPhysicalAttack(80, 5, componentDamage, {
+        attackerProne: true,
+        hasMeleeWeapon: 'lance',
+      }),
+    ).toBe('lance');
+  });
+
+  it('rejects blocked push declarations without scheduling a physical attack', () => {
+    const session = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession()),
+      'attacker',
+      'target',
+      'push',
+      physicalContext({ pushDestinationValid: false }),
+    );
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'DestinationBlocked',
+    });
+  });
+
+  it('rejects push declarations against prone targets before scheduling resolution', () => {
+    const session = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {}, { prone: true }),
+      'attacker',
+      'target',
+      'push',
+      physicalContext({ pushDestinationValid: true }),
+    );
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetProne',
+    });
+  });
+
+  it('rejects charge declarations against prone or explicit non-Mek targets before scheduling resolution', () => {
+    const proneTarget = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        {
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+        },
+        { prone: true },
+      ),
+      'attacker',
+      'target',
+      'charge',
+      physicalContext({ attackerRanThisTurn: true, hexesMoved: 5 }),
+    );
+    const proneTargetPayload = proneTarget.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      proneTarget.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(proneTargetPayload).toMatchObject({
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetProne',
+    });
+
+    const nonMekTarget = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        {
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+        },
+        { unitType: UnitType.PROTOMECH },
+      ),
+      'attacker',
+      'target',
+      'charge',
+      physicalContext({ attackerRanThisTurn: true, hexesMoved: 5 }),
+    );
+    const nonMekTargetPayload = nonMekTarget.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      nonMekTarget.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(nonMekTargetPayload).toMatchObject({
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetNotMek',
+    });
+  });
+
+  it('rejects non-Mek charge declarations against infantry or ProtoMech targets', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        {
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          unitType: UnitType.VEHICLE,
+        },
+        { unitType: UnitType.PROTOMECH },
+      ),
+      'attacker',
+      'target',
+      'charge',
+      physicalContext({ attackerRanThisTurn: true, hexesMoved: 5 }),
+    );
+    const rejection = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      rejected.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetInfantryOrProtoMek',
+    });
+  });
+
+  it('rejects charge declarations when target elevation does not overlap the attacker', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      }),
+      'attacker',
+      'target',
+      'charge',
+      physicalContext({
+        attackerRanThisTurn: true,
+        hexesMoved: 5,
+        elevationDifference: 2,
+      }),
+    );
+    const rejection = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      rejected.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'ElevationMismatch',
+    });
+  });
+
+  it('rejects charge declarations against targets that have not completed movement', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      }),
+      'attacker',
+      'target',
+      'charge',
+      physicalContext({
+        attackerRanThisTurn: true,
+        hexesMoved: 5,
+        targetMovementComplete: false,
+      }),
+    );
+    const rejection = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      rejected.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetMovementIncomplete',
+    });
+  });
+
+  it('rejects DFA declarations by infantry-family attackers before scheduling resolution', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+        unitType: UnitType.INFANTRY,
+      }),
+      'attacker',
+      'target',
+      'dfa',
+      physicalContext({
+        attackerJumpedThisTurn: true,
+        hexesMoved: 4,
+      }),
+    );
+    const rejection = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      rejected.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'AttackerInfantry',
+    });
+  });
+
+  it('rejects push declarations after arm-mounted weapons fired', () => {
+    const session = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession()),
+      'attacker',
+      'target',
+      'push',
+      physicalContext({
+        pushDestinationValid: true,
+        weaponsFiredFromArm: ['right-arm-medium-laser'],
+      }),
+    );
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'WeaponFiredThisTurn',
+    });
+  });
+
+  it('rejects push declarations when either attacker arm is missing', () => {
+    const session = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        { destroyedLocations: ['right_arm'] },
+        {},
+      ),
+      'attacker',
+      'target',
+      'push',
+      physicalContext({ pushDestinationValid: true }),
+    );
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'LimbMissing',
+    });
+  });
+
+  it('rejects push declarations when attacker or target is explicitly non-Mek', () => {
+    const nonMekAttacker = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        { unitType: UnitType.VEHICLE },
+        {},
+      ),
+      'attacker',
+      'target',
+      'push',
+      physicalContext({ pushDestinationValid: true }),
+    );
+    const nonMekAttackerPayload = nonMekAttacker.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      nonMekAttacker.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(nonMekAttackerPayload).toMatchObject({
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'AttackerNotMek',
+    });
+
+    const nonMekTarget = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        {},
+        { unitType: UnitType.PROTOMECH },
+      ),
+      'attacker',
+      'target',
+      'push',
+      physicalContext({ pushDestinationValid: true }),
+    );
+    const nonMekTargetPayload = nonMekTarget.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      nonMekTarget.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(nonMekTargetPayload).toMatchObject({
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetNotMek',
+    });
+  });
+
+  it('rejects non-adjacent physical declarations before scheduling resolution', () => {
+    let session = withUnitState(physicalPhaseSession(), 'attacker', {
+      position: { q: 0, r: 0 },
+    });
+    session = withUnitState(session, 'target', {
+      position: { q: 2, r: 0 },
+    });
+    const rejected = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'kick',
+      physicalContext(),
+    );
+
+    const declarations = rejected.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetNotAdjacent',
+    });
+  });
+
+  it('rejects missing physical targets before scheduling resolution', () => {
+    const rejected = declarePhysicalAttack(
+      physicalPhaseSession(),
+      'attacker',
+      'missing-target',
+      'kick',
+      physicalContext(),
+    );
+
+    const declarations = rejected.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'missing-target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetMissing',
+    });
+  });
+
+  it('resolves stale physical declarations against missing targets as invalid events', () => {
+    const declared = declareAdjacentPhysicalAttack('kick', physicalContext());
+    const resolved = resolveAllPhysicalAttacks(
+      withoutUnitState(declared, 'target'),
+      new Map([['attacker', physicalContext()]]),
+      scriptedDice([6, 6, 3]),
+    );
+
+    const resolvedEvents = resolved.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = resolvedEvents.at(-1)
+      ?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(resolvedEvents).toHaveLength(1);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetMissing',
+    });
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.DamageApplied,
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects destroyed physical targets before scheduling resolution', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {}, { destroyed: true }),
+      'attacker',
+      'target',
+      'kick',
+      physicalContext(),
+    );
+
+    const declarations = rejected.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetDestroyed',
+    });
+  });
+
+  it('resolves stale physical declarations against destroyed targets as invalid events', () => {
+    const declared = declareAdjacentPhysicalAttack('kick', physicalContext());
+    const resolved = resolveAllPhysicalAttacks(
+      withUnitState(declared, 'target', { destroyed: true }),
+      new Map([['attacker', physicalContext()]]),
+      scriptedDice([6, 6, 3]),
+    );
+
+    const resolvedEvents = resolved.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = resolvedEvents.at(-1)
+      ?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(resolvedEvents).toHaveLength(1);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetDestroyed',
+    });
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.DamageApplied,
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects self-targeted physical declarations before scheduling resolution', () => {
+    const rejected = declarePhysicalAttack(
+      physicalPhaseSession(),
+      'attacker',
+      'attacker',
+      'kick',
+      physicalContext(),
+    );
+
+    const declarations = rejected.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'attacker',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'SelfTarget',
+    });
+  });
+
+  it('rejects friendly physical declarations before scheduling resolution', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        {},
+        { side: GameSide.Player },
+      ),
+      'attacker',
+      'target',
+      'kick',
+      physicalContext(),
+    );
+
+    const declarations = rejected.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'FriendlyTarget',
+    });
+  });
+
+  it('rejects side-adjacent push declarations before scheduling resolution', () => {
+    let session = withUnitState(physicalPhaseSession(), 'attacker', {
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    session = withUnitState(session, 'target', {
+      position: { q: 1, r: 0 },
+    });
+    const rejected = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'push',
+      physicalContext({ pushDestinationValid: true }),
+    );
+
+    const declarations = rejected.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetNotDirectlyAhead',
+    });
+  });
+
+  it('ignores unsupported catalog-only physical weapon ids before declaration', () => {
+    const session = physicalPhaseSession();
+    const afterUnsupported = declarePhysicalAttack(
+      session,
+      'attacker',
+      'target',
+      'wrecking-ball',
+      physicalContext(),
+    );
+
+    expect(afterUnsupported).toBe(session);
+    expect(
+      afterUnsupported.events.filter(
+        (event) =>
+          event.type === GameEventType.PhysicalAttackDeclared ||
+          event.type === GameEventType.PhysicalAttackResolved,
+      ),
+    ).toHaveLength(0);
+  });
+
+  it('preserves charge movement and target movement modifiers during resolution', () => {
+    const declared = declareAdjacentPhysicalAttack(
+      'charge',
+      physicalContext({
+        hexesMoved: 5,
+        attackerRanThisTurn: true,
+        attackerMovementModifier: 1,
+        targetMovementModifier: 2,
+      }),
+    );
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([
+        [
+          'attacker',
+          physicalContext({
+            hexesMoved: 5,
+            attackerRanThisTurn: true,
+            attackerMovementModifier: 1,
+            targetMovementModifier: 2,
+          }),
+        ],
+      ]),
+      scriptedDice([3, 4]),
+    );
+
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload.toHitNumber).toBe(8);
+    expect(payload.roll).toBe(7);
+    expect(payload.hit).toBe(false);
+    expect(
+      resolved.events.some(
+        (entry) => entry.type === GameEventType.DamageApplied,
+      ),
+    ).toBe(false);
+  });
+
+  it('emits event-sourced push displacement with attacker follow-through', () => {
+    const context = physicalContext({ pushDestinationValid: true });
+    const declared = declareAdjacentPhysicalAttack('push', context, {
+      facing: Facing.Southeast,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6]),
+      adjacentPhysicalGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload.displacements).toEqual([
+      {
+        unitId: 'target',
+        from: { q: 1, r: 0 },
+        to: { q: 2, r: 0 },
+        reason: 'push',
+      },
+      {
+        unitId: 'attacker',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'push',
+      },
+    ]);
+    expect(resolved.currentState.units.target.position).toEqual({
+      q: 2,
+      r: 0,
+    });
+    expect(resolved.currentState.units.attacker.position).toEqual({
+      q: 1,
+      r: 0,
+    });
+  });
+
+  it('emits event-sourced charge displacement with attacker follow-through', () => {
+    const context = physicalContext({
+      hexesMoved: 5,
+      attackerRanThisTurn: true,
+    });
+    const declared = declareAdjacentPhysicalAttack('charge', context, {
+      facing: Facing.South,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3, 3, 3, 3, 3, 3]),
+      adjacentPhysicalGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload.displacements).toEqual([
+      {
+        unitId: 'target',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 1 },
+        reason: 'charge',
+      },
+      {
+        unitId: 'attacker',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'charge',
+      },
+    ]);
+    expect(resolved.currentState.units.target.position).toEqual({
+      q: 1,
+      r: 1,
+    });
+    expect(resolved.currentState.units.attacker.position).toEqual({
+      q: 1,
+      r: 0,
+    });
+  });
+
+  it('emits event-sourced charge-miss displacement for the attacker only', () => {
+    const context = physicalContext({
+      hexesMoved: 5,
+      attackerRanThisTurn: true,
+    });
+    const declared = declareAdjacentPhysicalAttack('charge', context, {
+      facing: Facing.South,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([1, 1]),
+      adjacentPhysicalGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'charge',
+      hit: false,
+    });
+    expect(payload.displacements).toEqual([
+      {
+        unitId: 'attacker',
+        from: { q: 0, r: 0 },
+        to: { q: -1, r: 1 },
+        reason: 'charge_miss',
+      },
+    ]);
+    expect(resolved.currentState.units.attacker.position).toEqual({
+      q: -1,
+      r: 1,
+    });
+  });
+
+  it('emits event-sourced DFA hit displacement with attacker follow-through', () => {
+    const context = physicalContext({
+      hexesMoved: 4,
+      attackerJumpedThisTurn: true,
+    });
+    const declared = declareAdjacentPhysicalAttack('dfa', context, {
+      facing: Facing.South,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3, 3, 3, 3, 3, 3]),
+      adjacentPhysicalGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload.displacements).toEqual([
+      {
+        unitId: 'target',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 1 },
+        reason: 'dfa',
+      },
+      {
+        unitId: 'attacker',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'dfa',
+      },
+    ]);
+    expect(resolved.currentState.units.target.position).toEqual({
+      q: 1,
+      r: 1,
+    });
+    expect(resolved.currentState.units.attacker.position).toEqual({
+      q: 1,
+      r: 0,
+    });
+  });
+
+  it('emits event-sourced DFA miss displacement for target and attacker', () => {
+    const context = physicalContext({
+      hexesMoved: 4,
+      attackerJumpedThisTurn: true,
+    });
+    const declared = declareAdjacentPhysicalAttack('dfa', context, {
+      facing: Facing.South,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([1, 1]),
+      adjacentPhysicalGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'dfa',
+      hit: false,
+    });
+    expect(payload.displacements).toEqual([
+      {
+        unitId: 'target',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 1 },
+        reason: 'dfa_miss',
+      },
+      {
+        unitId: 'attacker',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'dfa_miss',
+      },
+    ]);
+    expect(resolved.currentState.units.target.position).toEqual({
+      q: 1,
+      r: 1,
+    });
+    expect(resolved.currentState.units.attacker.position).toEqual({
+      q: 1,
+      r: 0,
+    });
+  });
+
+  it('threads active TSM through session physical resolution', () => {
+    const context = physicalContext({ hasTSM: true });
+    const declared = declareAdjacentPhysicalAttack('kick', context, {
+      heat: 9,
+      hasTSM: true,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3]),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'kick',
+      roll: 12,
+      toHitNumber: 3,
+      hit: true,
+      damage: 32,
+    });
+  });
+
+  it('threads underwater state through session physical resolution', () => {
+    const context = physicalContext({ isUnderwater: true });
+    const declared = declareAdjacentPhysicalAttack('kick', context);
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3]),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'kick',
+      roll: 12,
+      toHitNumber: 3,
+      hit: true,
+      damage: 8,
+    });
+  });
+
+  it('turns a missed kick PSR into a fall and clears targetability state', () => {
+    const declared = declareAdjacentPhysicalAttack('kick', physicalContext());
+    const withMissPsr = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', physicalContext()]]),
+      scriptedDice([1, 1]),
+    );
+
+    const psrEvent = withMissPsr.events.find(
+      (entry) => entry.type === GameEventType.PSRTriggered,
+    );
+    const psrPayload = psrEvent?.payload as IPSRTriggeredPayload;
+    expect(psrPayload.reasonCode).toBe(PSRTrigger.KickMiss);
+    expect(withMissPsr.currentState.units.attacker.pendingPSRs).toHaveLength(1);
+
+    const afterFailedPSR = resolvePendingPSRs(
+      withMissPsr,
+      scriptedDice([1, 1, 1]),
+    );
+
+    expect(afterFailedPSR.currentState.units.attacker.prone).toBe(true);
+    expect(afterFailedPSR.currentState.units.attacker.pendingPSRs).toEqual([]);
+    expect(
+      afterFailedPSR.events.some(
+        (entry) => entry.type === GameEventType.UnitFell,
+      ),
+    ).toBe(true);
+    expect(
+      afterFailedPSR.events.some(
+        (entry) => entry.type === GameEventType.PilotHit,
+      ),
+    ).toBe(true);
+    const pilotHit = afterFailedPSR.events.find(
+      (entry) => entry.type === GameEventType.PilotHit,
+    );
+    expect((pilotHit?.payload as IPilotHitPayload).source).toBe('fall');
+  });
+});

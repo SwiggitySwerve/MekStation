@@ -120,6 +120,12 @@ export enum GameEventType {
   ShutdownCheck = 'shutdown_check',
   StartupAttempt = 'startup_attempt',
   AmmoConsumed = 'ammo_consumed',
+  AMSInterception = 'ams_interception',
+  /**
+   * A zero-damage designator hit changed target marker state. NARC markers
+   * persist on the target; TAG designations are transient turn state.
+   */
+  DesignatorMarkerApplied = 'designator_marker_applied',
   /**
    * Per `wire-ammo-consumption`: attack attempt was rejected before any
    * damage, heat, or `AttackResolved` event fired. Reasons grow over
@@ -166,6 +172,12 @@ export enum GameEventType {
    * the unit on the edge hex.
    */
   UnitRetreated = 'unit_retreated',
+  /**
+   * Fired when a pilot ejects from a unit. The unit leaves active combat
+   * immediately without being marked destroyed and without mutating
+   * armor/structure.
+   */
+  UnitEjected = 'unit_ejected',
   /**
    * Per `add-vehicle-combat-behavior`: fired when a vehicle takes a
    * structure-exposing hit (or an any-hit for Hover/Naval/Hydrofoil/Submarine/WiGE
@@ -358,10 +370,13 @@ export enum ReplaySource {
  */
 export const GAME_INTENT_TYPES = [
   'declareMovement',
+  'stand',
   'declareAttack',
   'declarePhysical',
   'confirmHeat',
   'endPhase',
+  'eject',
+  'withdraw',
   'concede',
 ] as const;
 

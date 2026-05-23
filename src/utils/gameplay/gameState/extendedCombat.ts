@@ -10,6 +10,7 @@ import {
   IRetreatTriggeredPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
+  IUnitEjectedPayload,
   IUnitFellPayload,
   IUnitRetreatedPayload,
   IUnitStoodPayload,
@@ -42,6 +43,9 @@ export function applyPSRTriggered(
             reason: payload.reason,
             additionalModifier: payload.additionalModifier,
             triggerSource: payload.triggerSource,
+            ...(payload.reasonCode !== undefined
+              ? { reasonCode: payload.reasonCode }
+              : {}),
           },
         ],
       },
@@ -147,27 +151,39 @@ export function applyPhysicalAttackResolved(
   state: IGameState,
   payload: IPhysicalAttackResolvedPayload,
 ): IGameState {
-  if (!payload.hit) {
+  if (!payload.hit && (payload.displacements?.length ?? 0) === 0) {
     return state;
   }
 
-  const target = state.units[payload.targetId];
-  if (!target) {
-    return state;
+  let units: IGameState['units'] = state.units;
+
+  if (payload.hit) {
+    const target = state.units[payload.targetId];
+    if (target) {
+      const currentDamageThisPhase = target.damageThisPhase ?? 0;
+      units = {
+        ...units,
+        [payload.targetId]: {
+          ...target,
+          damageThisPhase: currentDamageThisPhase + (payload.damage ?? 0),
+        },
+      };
+    }
   }
 
-  const currentDamageThisPhase = target.damageThisPhase ?? 0;
-
-  return {
-    ...state,
-    units: {
-      ...state.units,
-      [payload.targetId]: {
-        ...target,
-        damageThisPhase: currentDamageThisPhase + (payload.damage ?? 0),
+  for (const displacement of payload.displacements ?? []) {
+    const displacedUnit = units[displacement.unitId];
+    if (!displacedUnit) continue;
+    units = {
+      ...units,
+      [displacement.unitId]: {
+        ...displacedUnit,
+        position: displacement.to,
       },
-    },
-  };
+    };
+  }
+
+  return { ...state, units };
 }
 
 export function applyShutdownCheck(
@@ -310,6 +326,37 @@ export function applyUnitRetreated(
       [payload.unitId]: {
         ...unit,
         hasRetreated: true,
+      },
+    },
+  };
+}
+
+/**
+ * Ejection removes the pilot from combat without damaging the chassis. The
+ * unit no longer blocks turn rotation, objective control, or targetability,
+ * but post-battle damage accounting can still inspect the preserved armor and
+ * structure values.
+ */
+export function applyUnitEjected(
+  state: IGameState,
+  payload: IUnitEjectedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+  if (unit.hasEjected) {
+    return state;
+  }
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        hasEjected: true,
+        lockState: LockState.Resolved,
+        pendingAction: undefined,
       },
     },
   };

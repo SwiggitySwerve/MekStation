@@ -105,6 +105,33 @@ describe('Protocol envelope schemas', () => {
       expect(IntentSchema.safeParse(env).success).toBe(true);
     });
 
+    it('parses a Stand intent', () => {
+      const env = {
+        kind: 'Intent' as const,
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: { kind: 'Stand' as const, unitId: 'u1' },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(true);
+    });
+
+    it('parses a Physical intent', () => {
+      const env = {
+        kind: 'Intent' as const,
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: {
+          kind: 'Physical' as const,
+          attackerId: 'u1',
+          targetId: 'u2',
+          attackType: 'lance',
+        },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(true);
+    });
+
     it('parses an AdvancePhase intent', () => {
       const env = {
         kind: 'Intent' as const,
@@ -127,6 +154,17 @@ describe('Protocol envelope schemas', () => {
       expect(IntentSchema.safeParse(env).success).toBe(true);
     });
 
+    it('parses an Eject intent', () => {
+      const env = {
+        kind: 'Intent' as const,
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: { kind: 'Eject' as const, unitId: 'u1' },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(true);
+    });
+
     it('rejects Attack with empty weaponIds', () => {
       const env = {
         kind: 'Intent',
@@ -139,6 +177,44 @@ describe('Protocol envelope schemas', () => {
           targetId: 'u2',
           weaponIds: [],
         },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(false);
+    });
+
+    it('rejects Physical with an unsupported attack type', () => {
+      const env = {
+        kind: 'Intent',
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: {
+          kind: 'Physical',
+          attackerId: 'u1',
+          targetId: 'u2',
+          attackType: 'wrecking-ball',
+        },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(false);
+    });
+
+    it('rejects Eject with empty unitId', () => {
+      const env = {
+        kind: 'Intent',
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: { kind: 'Eject', unitId: '' },
+      };
+      expect(IntentSchema.safeParse(env).success).toBe(false);
+    });
+
+    it('rejects Stand with empty unitId', () => {
+      const env = {
+        kind: 'Intent',
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: { kind: 'Stand', unitId: '' },
       };
       expect(IntentSchema.safeParse(env).success).toBe(false);
     });

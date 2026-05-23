@@ -11,6 +11,10 @@ export interface IPhysicalAttackContext {
   readonly attackerTonnage: number;
   readonly targetTonnage?: number;
   readonly pilotingSkill: number;
+  /** Triple-strength myomer installed on the attacker. */
+  readonly hasTSM?: boolean;
+  /** True when the physical attack is occurring in water. */
+  readonly isUnderwater?: boolean;
   readonly arm?: 'left' | 'right';
   readonly hexesMoved?: number;
   readonly weaponsFiredFromArm?: readonly string[];
@@ -23,6 +27,11 @@ export interface IPhysicalAttackContext {
    * Per task 6.1: attacker-movement modifier for charge to-hit.
    */
   readonly attackerMovementModifier?: number;
+  /**
+   * Charge target movement gate. False rejects unless the target is immobile.
+   * Undefined preserves callers that do not model movement completion.
+   */
+  readonly targetMovementComplete?: boolean;
   /**
    * Per task 3.5: limbs already used for physical attacks this turn
    * (same limb cannot punch AND kick in one turn).
@@ -52,6 +61,11 @@ export interface IPhysicalAttackContext {
    * has already determined the push target hex is blocked / off-map.
    */
   readonly pushDestinationValid?: boolean;
+  /** Pilot abilities and unit quirks that modify physical attacks. */
+  readonly pilotAbilities?: readonly string[];
+  readonly unitQuirks?: readonly string[];
+  /** Target elevation minus attacker elevation. */
+  readonly elevationDifference?: number;
 }
 
 /**

@@ -5,6 +5,7 @@ import {
   calculateDFADamageToTarget,
   calculateHatchetDamage,
   calculateKickDamage,
+  calculateLanceDamage,
   calculateMaceDamage,
   calculatePunchDamage,
   calculateSwordDamage,
@@ -32,6 +33,9 @@ export function chooseBestPhysicalAttack(
     attackType: 'punch',
     heat: options.heat,
     hasTSM: options.hasTSM,
+    pilotAbilities: options.pilotAbilities,
+    unitQuirks: options.unitQuirks,
+    elevationDifference: options.elevationDifference,
   };
 
   const kickInput: IPhysicalAttackInput = {
@@ -97,6 +101,9 @@ export function chooseBestPhysicalAttack(
           break;
         case 'mace':
           meleeDamage = calculateMaceDamage(meleeInput);
+          break;
+        case 'lance':
+          meleeDamage = calculateLanceDamage(meleeInput);
           break;
       }
       candidates.push({

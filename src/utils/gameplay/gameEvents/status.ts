@@ -73,7 +73,7 @@ export function createPilotHitEvent(
   unitId: string,
   wounds: number,
   totalWounds: number,
-  source: 'head_hit' | 'ammo_explosion' | 'mech_destruction' | 'heat',
+  source: IPilotHitPayload['source'],
   consciousnessCheckRequired: boolean,
   consciousnessCheckPassed?: boolean,
 ): IGameEvent {
@@ -226,5 +226,6 @@ export {
   createPhysicalAttackDeclaredEvent,
   createPhysicalAttackResolvedEvent,
   createRetreatTriggeredEvent,
+  createUnitEjectedEvent,
   createUnitRetreatedEvent,
 } from './statusPhysical';

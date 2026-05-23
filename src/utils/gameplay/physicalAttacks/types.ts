@@ -1,16 +1,37 @@
 import { IComponentDamageState, IUnitGameState } from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
+export const CORE_PHYSICAL_ATTACK_TYPES = [
+  'punch',
+  'kick',
+  'charge',
+  'dfa',
+  'push',
+] as const;
+
+export const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES = [
+  'hatchet',
+  'sword',
+  'mace',
+  'lance',
+] as const;
+
+export const SUPPORTED_PHYSICAL_ATTACK_TYPES = [
+  ...CORE_PHYSICAL_ATTACK_TYPES,
+  ...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
+] as const;
+
 export type PhysicalAttackType =
-  | 'punch'
-  | 'kick'
-  | 'charge'
-  | 'dfa'
-  | 'push'
-  | 'hatchet'
-  | 'sword'
-  | 'mace'
-  | 'lance';
+  (typeof SUPPORTED_PHYSICAL_ATTACK_TYPES)[number];
+
+export function isSupportedPhysicalAttackType(
+  value: unknown,
+): value is PhysicalAttackType {
+  return (
+    typeof value === 'string' &&
+    (SUPPORTED_PHYSICAL_ATTACK_TYPES as readonly string[]).includes(value)
+  );
+}
 
 /**
  * Per `implement-physical-attack-phase` task 2.1: canonical declaration
@@ -51,8 +72,23 @@ export type PhysicalAttackInvalidReason =
   | 'SameLimbUsedThisTurn'
   | 'NoJumpThisTurn'
   | 'NoRunThisTurn'
+  | 'AttackerInfantry'
+  | 'AttackerNotMek'
+  | 'TargetNotMek'
+  | 'TargetInfantryOrProtoMek'
   | 'LimbMissing'
+  | 'NoArmsQuirk'
+  | 'LowArmsQuirk'
   | 'AttackerProne'
+  | 'TargetProne'
+  | 'TargetMovementIncomplete'
+  | 'ElevationMismatch'
+  | 'TargetMissing'
+  | 'TargetDestroyed'
+  | 'SelfTarget'
+  | 'FriendlyTarget'
+  | 'TargetNotAdjacent'
+  | 'TargetNotDirectlyAhead'
   | 'UnsupportedAttackType'
   | 'DestinationBlocked';
 
@@ -67,8 +103,57 @@ export interface IPhysicalAttackInput {
   readonly hasTSM?: boolean;
   readonly isUnderwater?: boolean;
   readonly weaponsFiredFromArm?: readonly string[];
+  /**
+   * Source-backed push legality: a BattleMech needs both arm locations
+   * present to push.
+   */
+  readonly attackerDestroyedLocations?: readonly string[];
+  /**
+   * Construction-side unit-type discriminators. Undefined preserves legacy
+   * synthetic BattleMech fixtures; explicit non-Mek values let push reject
+   * targets/attackers that MegaMek would not treat as `Mek` instances.
+   */
+  readonly attackerUnitType?: string;
+  readonly targetUnitType?: string;
   readonly attackerProne?: boolean;
   readonly targetTonnage?: number;
+  /**
+   * Source-backed physical legality gates can depend on the target's
+   * posture; push cannot target prone BattleMechs.
+   */
+  readonly targetProne?: boolean;
+  /**
+   * Source-backed charge legality: charge targets must have completed
+   * movement unless they are immobile.
+   */
+  readonly targetMovementComplete?: boolean;
+  readonly targetImmobile?: boolean;
+  /**
+   * Source-backed shared physical legality: a physical attack must have an
+   * existing target unit.
+   */
+  readonly targetExists?: boolean;
+  /**
+   * MekStation lifecycle targetability: destroyed units are no longer valid
+   * physical targets.
+   */
+  readonly targetDestroyed?: boolean;
+  /**
+   * Source-backed shared physical legality: a unit cannot declare a normal
+   * BattleMech physical attack against itself.
+   */
+  readonly targetIsSelf?: boolean;
+  /**
+   * Source-backed shared physical legality: normal physical attacks cannot
+   * target same-side units.
+   */
+  readonly targetIsFriendly?: boolean;
+  /**
+   * Source-backed shared physical legality: BattleMech physical attacks in
+   * the current runtime target adjacent units. Undefined preserves callers
+   * without board-position context; explicit non-1 distances reject.
+   */
+  readonly targetDistance?: number;
   /**
    * Per `implement-physical-attack-phase` task 4.3 / 5.3: target movement
    * modifier applied to punch / kick / melee to-hit. Callers compute TMM
@@ -116,6 +201,40 @@ export interface IPhysicalAttackInput {
    */
   readonly upperLegActuatorPresent?: boolean;
   readonly footActuatorPresent?: boolean;
+  /**
+   * Per task 8.5: a push is only legal when the displacement destination
+   * is on-map and unoccupied. Undefined preserves legacy callers that have
+   * not computed the push hex yet.
+   */
+  readonly pushDestinationValid?: boolean;
+  /**
+   * MegaMek push legality requires the target to be directly ahead of the
+   * attacker's feet facing. Undefined preserves callers that do not have
+   * board position/facing context.
+   */
+  readonly pushTargetDirectlyAhead?: boolean;
+  /**
+   * Pilot abilities and unit quirks that modify physical attacks. Kept on
+   * the shared input so helper, runner, and interactive paths consume the
+   * same Melee Specialist / Melee Master / Battle Fists / arm restriction
+   * behavior.
+   */
+  readonly pilotAbilities?: readonly string[];
+  readonly unitQuirks?: readonly string[];
+  /**
+   * Target elevation minus attacker elevation. Positive values mean the
+   * target is above the attacker, which triggers Low Arms restrictions.
+   * Charge also uses this to verify the attacker and target vertical bands
+   * overlap. Undefined preserves callers without board elevation context.
+   */
+  readonly elevationDifference?: number;
+  /**
+   * Unit height above its current elevation, following MegaMek's `height()`
+   * convention where a normal standing Mek is 1. Undefined defaults to a
+   * normal standing BattleMech.
+   */
+  readonly attackerHeight?: number;
+  readonly targetHeight?: number;
 }
 
 export interface IPhysicalToHitResult {
@@ -160,6 +279,7 @@ export interface IPhysicalAttackResult {
   readonly attackerPSR: boolean;
   readonly attackerPSRModifier: number;
   readonly hitLocation?: CombatLocation;
+  readonly restrictionReasonCode?: PhysicalAttackInvalidReason;
   readonly targetDisplaced: boolean;
 }
 
@@ -184,6 +304,9 @@ export interface IChooseBestPhysicalAttackOptions {
   attackerProne?: boolean;
   heat?: number;
   hasTSM?: boolean;
+  pilotAbilities?: readonly string[];
+  unitQuirks?: readonly string[];
+  elevationDifference?: number;
 }
 
 export interface IPhysicalAttackCandidate {

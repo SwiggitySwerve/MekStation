@@ -17,6 +17,8 @@ import {
   GameEventType,
   IGameEvent,
   IGameSession,
+  IHexGrid,
+  IPhysicalDisplacement,
   IPhysicalAttackDeclaredPayload,
   PSRTrigger,
 } from '@/types/gameplay';
@@ -24,7 +26,7 @@ import {
 import type { IPhysicalAttackContext } from './gameSessionPhysicalHelpers';
 
 import { resolveDamage as resolveDamagePipeline } from './damage';
-import { type DiceRoller } from './diceTypes';
+import { type D6Roller, type DiceRoller } from './diceTypes';
 import {
   createDamageAppliedEvent,
   createPhysicalAttackDeclaredEvent,
@@ -37,6 +39,7 @@ import {
 } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 import { buildRestrictionEventReason } from './gameSessionPhysicalHelpers';
+import { hexDistance } from './hexMath';
 import { roll2d6 as rollDice } from './hitLocation';
 import {
   canCharge,
@@ -44,13 +47,94 @@ import {
   canKick,
   canMeleeWeapon,
   canPunch,
+  canPush,
+  calculatePhysicalToHit,
+  computeDfaDisplacements,
+  computeMissedChargeDisplacement,
+  computePushDisplacement,
   determinePhysicalHitLocation,
   IPhysicalAttackInput,
   IPhysicalAttackRestriction,
+  isTargetDirectlyAhead,
+  isValidDisplacement,
   PhysicalAttackType,
+  isSupportedPhysicalAttackType,
   resolvePhysicalAttack,
   splitPhysicalDamageIntoClusters,
 } from './physicalAttacks';
+
+function computeResolvedPhysicalDisplacements(options: {
+  readonly grid?: IHexGrid;
+  readonly attackType: PhysicalAttackType;
+  readonly attacker: IGameSession['currentState']['units'][string];
+  readonly target: IGameSession['currentState']['units'][string];
+  readonly hit: boolean;
+  readonly d6Roller: D6Roller;
+}): readonly IPhysicalDisplacement[] {
+  const { attackType, attacker, d6Roller, grid, hit, target } = options;
+  if (!grid) {
+    return [];
+  }
+
+  if (!hit && attackType === 'charge') {
+    const destination = computeMissedChargeDisplacement(
+      grid,
+      attacker.id,
+      attacker.position,
+      attacker.facing,
+      d6Roller,
+    );
+    if (
+      destination.q === attacker.position.q &&
+      destination.r === attacker.position.r
+    ) {
+      return [];
+    }
+    return [
+      {
+        unitId: attacker.id,
+        from: attacker.position,
+        to: destination,
+        reason: 'charge_miss',
+      },
+    ];
+  }
+
+  if (attackType === 'dfa') {
+    return computeDfaDisplacements({
+      grid,
+      attackerId: attacker.id,
+      attackerPosition: attacker.position,
+      attackerFacing: attacker.facing,
+      targetId: target.id,
+      targetPosition: target.position,
+      hit,
+    });
+  }
+
+  if (!hit || (attackType !== 'push' && attackType !== 'charge')) return [];
+
+  const targetDestination = computePushDisplacement(
+    target.position,
+    attacker.facing,
+  );
+  if (!isValidDisplacement(grid, targetDestination, target.id)) return [];
+
+  return [
+    {
+      unitId: target.id,
+      from: target.position,
+      to: targetDestination,
+      reason: attackType,
+    },
+    {
+      unitId: attacker.id,
+      from: attacker.position,
+      to: target.position,
+      reason: attackType,
+    },
+  ];
+}
 
 /**
  * Per `implement-physical-attack-phase` task 2: declare a physical
@@ -60,15 +144,43 @@ import {
  */
 export { type IPhysicalAttackContext } from './gameSessionPhysicalHelpers';
 
+function appendInvalidPhysicalResolution(
+  session: IGameSession,
+  turn: number,
+  payload: IPhysicalAttackDeclaredPayload,
+  reason: string,
+): IGameSession {
+  return appendEvent(
+    session,
+    createPhysicalAttackResolvedEvent(
+      session.id,
+      session.events.length,
+      turn,
+      payload.attackerId,
+      payload.targetId,
+      payload.attackType,
+      0,
+      Infinity,
+      false,
+      undefined,
+      reason,
+    ),
+  );
+}
+
 export function declarePhysicalAttack(
   session: IGameSession,
   attackerId: string,
   targetId: string,
-  attackType: PhysicalAttackType,
+  attackType: PhysicalAttackType | string,
   context: IPhysicalAttackContext,
 ): IGameSession {
   const attackerState = session.currentState.units[attackerId];
   if (!attackerState || attackerState.destroyed) {
+    return session;
+  }
+  const targetState = session.currentState.units[targetId];
+  if (!isSupportedPhysicalAttackType(attackType)) {
     return session;
   }
 
@@ -83,9 +195,25 @@ export function declarePhysicalAttack(
     arm: context.arm,
     hexesMoved: context.hexesMoved,
     heat: attackerState.heat,
-    isUnderwater: false,
+    hasTSM: context.hasTSM,
+    isUnderwater: context.isUnderwater ?? false,
     weaponsFiredFromArm: context.weaponsFiredFromArm,
+    attackerDestroyedLocations: attackerState.destroyedLocations,
+    attackerUnitType: attackerState.unitType,
+    targetUnitType: targetState?.unitType,
     attackerProne: attackerState.prone,
+    targetProne: targetState?.prone,
+    targetMovementComplete: context.targetMovementComplete,
+    targetImmobile: targetState?.shutdown,
+    targetExists: targetState !== undefined,
+    targetDestroyed: targetState?.destroyed,
+    targetIsSelf: attackerId === targetId,
+    targetIsFriendly: targetState
+      ? attackerState.side === targetState.side
+      : undefined,
+    targetDistance: targetState
+      ? hexDistance(attackerState.position, targetState.position)
+      : undefined,
     targetTonnage: context.targetTonnage,
     targetMovementModifier: context.targetMovementModifier,
     attackerMovementModifier: context.attackerMovementModifier,
@@ -97,6 +225,17 @@ export function declarePhysicalAttack(
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,
     footActuatorPresent: context.footActuatorPresent,
+    pushDestinationValid: context.pushDestinationValid,
+    pushTargetDirectlyAhead: targetState
+      ? isTargetDirectlyAhead(
+          attackerState.position,
+          attackerState.facing,
+          targetState.position,
+        )
+      : undefined,
+    pilotAbilities: context.pilotAbilities ?? attackerState.abilities,
+    unitQuirks: context.unitQuirks ?? attackerState.unitQuirks,
+    elevationDifference: context.elevationDifference,
   };
 
   // Per task 3.1 / 3.2 / 3.3 / 3.4 / 3.5 / 3.6 / 3.7: restrictions run
@@ -111,6 +250,8 @@ export function declarePhysicalAttack(
     restriction = canCharge(input);
   } else if (attackType === 'dfa') {
     restriction = canDFA(input);
+  } else if (attackType === 'push') {
+    restriction = canPush(input);
   } else if (
     attackType === 'hatchet' ||
     attackType === 'sword' ||
@@ -153,7 +294,7 @@ export function declarePhysicalAttack(
   // Pre-declaration to-hit calc — the resolver re-rolls, but the
   // declared event carries the calculated TN so UI can show the
   // forecast modal before resolution.
-  const declaredTN = context.pilotingSkill;
+  const declaredTN = calculatePhysicalToHit(input).finalToHit;
 
   return appendEvent(
     session,
@@ -163,7 +304,7 @@ export function declarePhysicalAttack(
       turn,
       attackerId,
       targetId,
-      attackType as 'punch' | 'kick' | 'charge' | 'dfa' | 'push',
+      attackType,
       declaredTN,
     ),
   );
@@ -186,6 +327,7 @@ export function resolveAllPhysicalAttacks(
   session: IGameSession,
   contextByAttacker: Map<string, IPhysicalAttackContext>,
   diceRoller: DiceRoller = rollDice,
+  grid?: IHexGrid,
 ): IGameSession {
   const { turn } = session.currentState;
   const declarations = session.events.filter(
@@ -201,9 +343,28 @@ export function resolveAllPhysicalAttacks(
 
     const attackerState = currentSession.currentState.units[payload.attackerId];
     const targetState = currentSession.currentState.units[payload.targetId];
-    if (!attackerState || !targetState || targetState.destroyed) {
+    if (!attackerState) {
       continue;
     }
+    if (!targetState) {
+      currentSession = appendInvalidPhysicalResolution(
+        currentSession,
+        turn,
+        payload,
+        'TargetMissing',
+      );
+      continue;
+    }
+    if (targetState.destroyed) {
+      currentSession = appendInvalidPhysicalResolution(
+        currentSession,
+        turn,
+        payload,
+        'TargetDestroyed',
+      );
+      continue;
+    }
+    const targetContext = contextByAttacker.get(payload.targetId);
 
     const componentDamage =
       attackerState.componentDamage ?? buildDefaultComponentDamageState();
@@ -216,10 +377,43 @@ export function resolveAllPhysicalAttacks(
       arm: context.arm,
       hexesMoved: context.hexesMoved,
       heat: attackerState.heat,
-      isUnderwater: false,
+      hasTSM: context.hasTSM,
+      isUnderwater:
+        (context.isUnderwater ?? false) ||
+        (targetContext?.isUnderwater ?? false),
       weaponsFiredFromArm: context.weaponsFiredFromArm,
+      attackerDestroyedLocations: attackerState.destroyedLocations,
+      attackerUnitType: attackerState.unitType,
+      targetUnitType: targetState.unitType,
       attackerProne: attackerState.prone,
+      targetProne: targetState.prone,
+      targetMovementComplete: context.targetMovementComplete,
+      targetImmobile: targetState.shutdown,
+      targetExists: true,
+      targetDestroyed: targetState.destroyed,
+      targetIsSelf: payload.attackerId === payload.targetId,
+      targetIsFriendly: attackerState.side === targetState.side,
+      targetDistance: hexDistance(attackerState.position, targetState.position),
       targetTonnage: context.targetTonnage,
+      targetMovementModifier: context.targetMovementModifier,
+      attackerMovementModifier: context.attackerMovementModifier,
+      attackerJumpedThisTurn: context.attackerJumpedThisTurn,
+      attackerRanThisTurn: context.attackerRanThisTurn,
+      limbsUsedThisTurn: context.limbsUsedThisTurn,
+      limb: context.limb,
+      lowerArmActuatorPresent: context.lowerArmActuatorPresent,
+      handActuatorPresent: context.handActuatorPresent,
+      upperLegActuatorPresent: context.upperLegActuatorPresent,
+      footActuatorPresent: context.footActuatorPresent,
+      pushDestinationValid: context.pushDestinationValid,
+      pushTargetDirectlyAhead: isTargetDirectlyAhead(
+        attackerState.position,
+        attackerState.facing,
+        targetState.position,
+      ),
+      pilotAbilities: context.pilotAbilities ?? attackerState.abilities,
+      unitQuirks: context.unitQuirks ?? attackerState.unitQuirks,
+      elevationDifference: context.elevationDifference,
     };
 
     // The standalone module uses a d6 roller; wrap our 2d6 roller's
@@ -230,6 +424,14 @@ export function resolveAllPhysicalAttacks(
     };
 
     const result = resolvePhysicalAttack(input, d6Roller);
+    const displacements = computeResolvedPhysicalDisplacements({
+      grid,
+      attackType: payload.attackType,
+      attacker: attackerState,
+      target: targetState,
+      hit: result.hit,
+      d6Roller,
+    });
 
     const resolvedSeq = currentSession.events.length;
     currentSession = appendEvent(
@@ -246,6 +448,8 @@ export function resolveAllPhysicalAttacks(
         result.hit,
         result.hit ? result.targetDamage : undefined,
         result.hitLocation,
+        undefined,
+        displacements.length > 0 ? displacements : undefined,
       ),
     );
 

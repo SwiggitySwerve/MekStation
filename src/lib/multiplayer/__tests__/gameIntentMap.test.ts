@@ -16,8 +16,11 @@ import {
   declareAttackIntent,
   declareMovementIntent,
   declarePhysicalIntent,
+  ejectIntent,
   endPhaseIntent,
+  standIntent,
   toServerIntent,
+  withdrawIntent,
 } from '../gameIntentMap';
 
 const PEER = 'player';
@@ -53,6 +56,23 @@ describe('toServerIntent — declareMovement', () => {
     expect(wire).toMatchObject({ kind: 'Move', facing: 1 });
   });
 
+  it('maps same-hex facing changes through the Move wire payload', () => {
+    const intent = declareMovementIntent(PEER, {
+      unitId: 'player-1',
+      to: { q: 0, r: 0 },
+      facing: 5,
+      movementType: 'walk',
+    });
+
+    expect(toServerIntent(intent)).toEqual({
+      kind: 'Move',
+      unitId: 'player-1',
+      to: { q: 0, r: 0 },
+      facing: 5,
+      movementType: 'walk',
+    });
+  });
+
   it('returns null for a movement intent missing the unit id', () => {
     const intent = declareMovementIntent(PEER, {
       unitId: '',
@@ -61,6 +81,18 @@ describe('toServerIntent — declareMovement', () => {
       movementType: 'walk',
     });
     expect(toServerIntent(intent)).toBeNull();
+  });
+});
+
+describe('toServerIntent stand', () => {
+  it('maps a stand intent to a Stand wire payload', () => {
+    const wire = toServerIntent(standIntent(PEER, { unitId: 'player-1' }));
+    expect(wire).toEqual({ kind: 'Stand', unitId: 'player-1' });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for stand without a unit id', () => {
+    expect(toServerIntent(standIntent(PEER, { unitId: '' }))).toBeNull();
   });
 });
 
@@ -92,7 +124,7 @@ describe('toServerIntent — declareAttack', () => {
 });
 
 describe('toServerIntent — declarePhysical', () => {
-  it('maps a physical intent onto the Attack envelope', () => {
+  it('maps a physical intent to a Physical wire payload', () => {
     const intent = declarePhysicalIntent(PEER, {
       attackerId: 'player-1',
       targetId: 'opponent-1',
@@ -100,12 +132,22 @@ describe('toServerIntent — declarePhysical', () => {
     });
     const wire = toServerIntent(intent);
     expect(wire).toEqual({
-      kind: 'Attack',
+      kind: 'Physical',
       attackerId: 'player-1',
       targetId: 'opponent-1',
-      weaponIds: ['kick'],
+      attackType: 'kick',
     });
     expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for an unsupported physical attack type', () => {
+    const intent = declarePhysicalIntent(PEER, {
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'wrecking-ball' as never,
+    });
+
+    expect(toServerIntent(intent)).toBeNull();
   });
 });
 
@@ -114,6 +156,39 @@ describe('toServerIntent — endPhase / concede', () => {
     expect(toServerIntent(endPhaseIntent(PEER))).toEqual({
       kind: 'AdvancePhase',
     });
+  });
+
+  it('maps eject to the Eject wire payload', () => {
+    const wire = toServerIntent(ejectIntent(PEER, { unitId: 'player-1' }));
+    expect(wire).toEqual({ kind: 'Eject', unitId: 'player-1' });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for eject without a unit id', () => {
+    expect(toServerIntent(ejectIntent(PEER, { unitId: '' }))).toBeNull();
+  });
+
+  it('maps withdraw to the Withdraw wire payload', () => {
+    const wire = toServerIntent(
+      withdrawIntent(PEER, { unitId: 'player-1', edge: 'north' }),
+    );
+    expect(wire).toEqual({
+      kind: 'Withdraw',
+      unitId: 'player-1',
+      edge: 'north',
+    });
+    expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+  });
+
+  it('returns null for withdraw without a valid edge', () => {
+    expect(
+      toServerIntent(
+        withdrawIntent(PEER, {
+          unitId: 'player-1',
+          edge: 'nearest' as never,
+        }),
+      ),
+    ).toBeNull();
   });
 
   it('maps a concede intent to the Concede wire payload', () => {

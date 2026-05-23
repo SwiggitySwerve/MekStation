@@ -157,6 +157,36 @@ export interface IAmmoConsumedPayload {
   readonly roundsRemaining: number;
 }
 
+export interface IAMSInterceptionPayload {
+  readonly defenderId: string;
+  readonly targetId: string;
+  readonly attackerId: string;
+  readonly incomingWeaponId: string;
+  readonly amsWeaponId: string;
+  readonly resolution: 'cluster-table' | 'single-missile';
+  readonly incomingProjectiles: number;
+  readonly projectilesIntercepted: number;
+  readonly projectilesRemaining: number;
+  readonly ammoConsumed: number;
+  readonly roll: readonly number[];
+  readonly clusterRoll?: number;
+  readonly clusterModifier?: number;
+  readonly modifiedClusterRoll?: number;
+  readonly ammoBinId?: string;
+  readonly ammoRemaining?: number;
+}
+
+export interface IDesignatorMarkerAppliedPayload {
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly weaponId: string;
+  readonly marker: 'narc' | 'tag';
+  readonly persistent: boolean;
+  readonly turn: number;
+  readonly location?: string;
+  readonly teamId?: string;
+}
+
 /**
  * Per `integrate-damage-pipeline`: a location's internal structure has
  * reached zero. `cascadedTo` is set when the destruction triggered a
@@ -274,6 +304,16 @@ export interface IUnitRetreatedPayload {
   readonly unitId: string;
   readonly retreatEdge: 'north' | 'south' | 'east' | 'west';
   readonly turn: number;
+}
+
+/**
+ * Pilot ejection removes a unit from active combat without damaging the
+ * chassis. Reducers keep armor/structure intact and leave `destroyed=false`.
+ */
+export interface IUnitEjectedPayload {
+  readonly unitId: string;
+  readonly turn: number;
+  readonly reason: 'player_declared' | 'forced' | 'pilot_survival';
 }
 
 /**
@@ -425,6 +465,8 @@ export type GameEventPayload =
   | IHeatEffectAppliedPayload
   | IStartupAttemptPayload
   | IAmmoConsumedPayload
+  | IAMSInterceptionPayload
+  | IDesignatorMarkerAppliedPayload
   | IAttackInvalidPayload
   | ILocationDestroyedPayload
   | ITransferDamagePayload
@@ -432,6 +474,7 @@ export type GameEventPayload =
   | ICriticalHitPayload
   | IRetreatTriggeredPayload
   | IUnitRetreatedPayload
+  | IUnitEjectedPayload
   | IMotiveDamagedPayload
   | IMotivePenaltyAppliedPayload
   | IVehicleImmobilizedPayload

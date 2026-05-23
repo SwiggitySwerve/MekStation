@@ -24,6 +24,8 @@
 
 import { z } from 'zod';
 
+import { SUPPORTED_PHYSICAL_ATTACK_TYPES } from '@/utils/gameplay/physicalAttacks/types';
+
 import { MatchSeatSchema } from './Lobby';
 
 // =============================================================================
@@ -66,9 +68,10 @@ export type ISessionJoin = z.infer<typeof SessionJoinSchema>;
  * (out-of-phase, wrong side, unknown unit, etc.) and either applies +
  * broadcasts the resulting events or replies with an `Error` envelope.
  *
- * Wave 1 supports `Move`, `Attack`, `AdvancePhase`, `Concede`. Lobby
- * intents (`OccupySeat`, `LeaveSeat`, `Ready`, `LaunchMatch`) land in
- * Wave 3b and slot in here as additional discriminants.
+ * Wave 1 supports `Move`, `Stand`, `Attack`, `Physical`, `AdvancePhase`, `Eject`,
+ * `Withdraw`, `Concede`. Lobby intents (`OccupySeat`, `LeaveSeat`,
+ * `Ready`, `LaunchMatch`) land in Wave 3b and slot in here as additional
+ * discriminants.
  */
 export const MoveIntentSchema = z.object({
   kind: z.literal('Move'),
@@ -79,6 +82,12 @@ export const MoveIntentSchema = z.object({
 });
 export type IMoveIntent = z.infer<typeof MoveIntentSchema>;
 
+export const StandIntentSchema = z.object({
+  kind: z.literal('Stand'),
+  unitId: z.string().min(1),
+});
+export type IStandIntent = z.infer<typeof StandIntentSchema>;
+
 export const AttackIntentSchema = z.object({
   kind: z.literal('Attack'),
   attackerId: z.string().min(1),
@@ -86,6 +95,14 @@ export const AttackIntentSchema = z.object({
   weaponIds: z.array(z.string().min(1)).min(1),
 });
 export type IAttackIntent = z.infer<typeof AttackIntentSchema>;
+
+export const PhysicalIntentSchema = z.object({
+  kind: z.literal('Physical'),
+  attackerId: z.string().min(1),
+  targetId: z.string().min(1),
+  attackType: z.enum(SUPPORTED_PHYSICAL_ATTACK_TYPES),
+});
+export type IPhysicalIntent = z.infer<typeof PhysicalIntentSchema>;
 
 export const AdvancePhaseIntentSchema = z.object({
   kind: z.literal('AdvancePhase'),
@@ -97,6 +114,19 @@ export const ConcedeIntentSchema = z.object({
   side: z.enum(['player', 'opponent']),
 });
 export type IConcedeIntent = z.infer<typeof ConcedeIntentSchema>;
+
+export const EjectIntentSchema = z.object({
+  kind: z.literal('Eject'),
+  unitId: z.string().min(1),
+});
+export type IEjectIntent = z.infer<typeof EjectIntentSchema>;
+
+export const WithdrawIntentSchema = z.object({
+  kind: z.literal('Withdraw'),
+  unitId: z.string().min(1),
+  edge: z.enum(['north', 'south', 'east', 'west']),
+});
+export type IWithdrawIntent = z.infer<typeof WithdrawIntentSchema>;
 
 // ---------------------------------------------------------------------------
 // Wave 3b lobby intents
@@ -193,9 +223,13 @@ export type IForfeitMatchIntent = z.infer<typeof ForfeitMatchIntentSchema>;
 
 export const IntentPayloadSchema = z.discriminatedUnion('kind', [
   MoveIntentSchema,
+  StandIntentSchema,
   AttackIntentSchema,
+  PhysicalIntentSchema,
   AdvancePhaseIntentSchema,
   ConcedeIntentSchema,
+  EjectIntentSchema,
+  WithdrawIntentSchema,
   OccupySeatIntentSchema,
   LeaveSeatIntentSchema,
   ReassignSeatIntentSchema,

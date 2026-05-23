@@ -5,6 +5,7 @@
 
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 import type { IAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
+import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 import type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
 import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
 
@@ -21,7 +22,12 @@ import {
   LockState,
   type MoraleLevel,
 } from './GameSessionCoreTypes';
-import { Facing, IHexCoordinate, MovementType } from './HexGridInterfaces';
+import {
+  Facing,
+  IHexCoordinate,
+  MovementType,
+  RangeBracket,
+} from './HexGridInterfaces';
 import { PSRTrigger } from './PSRTriggerCodes';
 
 // Component Damage & Combat State Types
@@ -107,6 +113,12 @@ export interface IPendingPSR {
 export interface IUnitGameState {
   /** Unit ID */
   readonly id: string;
+  /**
+   * Construction-side unit type carried into combat for source-backed rules
+   * that distinguish BattleMechs from vehicles, aerospace, infantry, battle
+   * armor, and ProtoMechs. Undefined preserves legacy synthetic mech states.
+   */
+  readonly unitType?: string;
   /** Which side this unit belongs to */
   readonly side: GameSide;
   /** Current position */
@@ -135,6 +147,14 @@ export interface IUnitGameState {
    * semantics as `gunnery` — `DEFAULT_PILOTING` applies when absent.
    */
   readonly piloting?: number;
+  /** Total heat sinks on unit (default: 10 if omitted by legacy fixtures). */
+  readonly heatSinks?: number;
+  /** Heat-sink rating used for dissipation and destroyed-sink debits. */
+  readonly heatSinkType?: 'single' | 'double';
+  /** Triple-strength myomer installed; active physical damage doubles at heat 9+. */
+  readonly hasTSM?: boolean;
+  /** BattleMech stealth armor installed; active effects still require own ECM support. */
+  readonly hasStealthArmor?: boolean;
   /** Armor remaining per location */
   readonly armor: Record<string, number>;
   /** Structure remaining per location */
@@ -182,6 +202,20 @@ export interface IUnitGameState {
   readonly pendingPSRs?: readonly IPendingPSR[];
   readonly weaponsFiredThisTurn?: readonly string[];
   readonly edgePointsRemaining?: number;
+  /**
+   * Pilot SPA ids available to attack/to-hit resolvers. Kept as catalog ids
+   * (for example `weapon-specialist`) so modifier helpers can canonicalize
+   * legacy underscore spellings themselves.
+   */
+  readonly abilities?: readonly string[];
+  /** Flat SPA designation fields consumed by the to-hit modifier pipeline. */
+  readonly designatedWeaponType?: string;
+  readonly designatedWeaponCategory?: string;
+  readonly designatedTargetId?: string;
+  readonly designatedRangeBracket?: RangeBracket;
+  /** Unit and weapon quirk ids available to attack/to-hit resolvers. */
+  readonly unitQuirks?: readonly string[];
+  readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
   readonly isDodging?: boolean;
   /** Weapons that are jammed (UAC/RAC jam mechanic) */
   readonly jammedWeapons?: readonly string[];
@@ -210,6 +244,12 @@ export interface IUnitGameState {
    * summaries can list withdrawn units separately from combat losses.
    */
   readonly hasRetreated?: boolean;
+  /**
+   * Pilot has ejected from this unit. The chassis remains available for
+   * post-battle accounting, but the unit no longer participates in combat
+   * action queues, target lists, objectives, or side-survival checks.
+   */
+  readonly hasEjected?: boolean;
   /**
    * Per `add-combat-morale-and-withdrawal` (D4): set `true` by the
    * `WithdrawalDeclared` reducer when a human player declares
@@ -287,6 +327,12 @@ export interface IGameState {
    * campaign-layer morale (`Contract Morale Tracking`) — D3.
    */
   readonly battleMorale?: Record<GameSide, MoraleLevel>;
+  /**
+   * Optional battle-wide electronic-warfare state. AI movement already accepts
+   * this shape for ECM-aware positioning; combat phases read it only when
+   * scenario/session builders provide it, preserving legacy no-EW behavior.
+   */
+  readonly electronicWarfare?: IElectronicWarfareState;
 }
 
 // =============================================================================

@@ -6,6 +6,7 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IIndirectFireResolution } from '@/types/gameplay/CombatInterfaces';
 import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
+import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks';
 
 import {
   deriveCombatOutcome,
@@ -24,6 +25,7 @@ import {
   type ICombatOutcome,
 } from '@/types/combat/CombatOutcome';
 import {
+  GamePhase,
   GameSide,
   GameStatus,
   type IGameSession,
@@ -39,11 +41,14 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import { createUnitEjectedEvent } from '@/utils/gameplay/gameEvents';
 import {
   createGameSession,
   startGame,
   appendEvent,
+  declarePhysicalAttack,
   endGame,
+  attemptStandUp as attemptStandUpAction,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
@@ -70,6 +75,7 @@ import { getAvailableActionsForState } from './InteractiveSession.queries';
 import {
   d6RollerForResolvers,
   diceRollerForResolvers,
+  environmentHeatEffectAt,
   physicalContextByUnit,
   waterDepthAt,
 } from './InteractiveSession.resolvers';
@@ -344,6 +350,18 @@ export class InteractiveSession {
     this.tryFinalizeAndPublish();
   }
 
+  attemptStandUp(unitId: string): void {
+    if (this.session.currentState.status !== GameStatus.Active) return;
+    if (this.session.currentState.phase !== GamePhase.Movement) return;
+
+    this.session = attemptStandUpAction(
+      this.session,
+      unitId,
+      this.diceRollerForResolvers(),
+    );
+    this.tryFinalizeAndPublish();
+  }
+
   applyAttack(
     attackerId: string,
     targetId: string,
@@ -363,6 +381,32 @@ export class InteractiveSession {
       grid: this.grid,
       targetHex: targetUnit?.position,
     });
+    this.tryFinalizeAndPublish();
+  }
+
+  applyPhysicalAttack(
+    attackerId: string,
+    targetId: string,
+    attackType: PhysicalAttackType,
+  ): void {
+    const baseContext = this.physicalContextByUnit().get(attackerId);
+    if (!baseContext) return;
+    const context: IPhysicalAttackContext = {
+      ...baseContext,
+      elevationDifference: this.elevationDifferenceBetween(
+        attackerId,
+        targetId,
+      ),
+      targetMovementComplete: true,
+    };
+
+    this.session = declarePhysicalAttack(
+      this.session,
+      attackerId,
+      targetId,
+      attackType,
+      context,
+    );
     this.tryFinalizeAndPublish();
   }
 
@@ -386,6 +430,27 @@ export class InteractiveSession {
     this.tryFinalizeAndPublish();
   }
 
+  ejectUnit(unitId: string): void {
+    if (this.session.currentState.status !== GameStatus.Active) return;
+
+    const unit = this.session.currentState.units[unitId];
+    if (!unit || unit.destroyed || unit.hasRetreated || unit.hasEjected) {
+      return;
+    }
+
+    this.appendAndPersistEvent(
+      createUnitEjectedEvent(
+        this.session.id,
+        this.session.events.length,
+        this.session.currentState.turn,
+        this.session.currentState.phase,
+        unitId,
+        'player_declared',
+      ),
+    );
+    this.tryFinalizeAndPublish();
+  }
+
   advancePhase(): void {
     // Per-phase transition logic lives in `InteractiveSession.phases`.
     // The class stays a thin coordinator: it threads its private state
@@ -400,7 +465,10 @@ export class InteractiveSession {
       d6RollerForResolvers: () => this.d6RollerForResolvers(),
       diceRollerForResolvers: () => this.diceRollerForResolvers(),
       physicalContextByUnit: () => this.physicalContextByUnit(),
+      grid: () => this.grid,
       waterDepthAt: (position) => this.waterDepthAt(position),
+      environmentHeatEffectAt: (position) =>
+        this.environmentHeatEffectAt(position),
       isGameOver: () => this.isGameOver(),
     });
     // Wave 5: any phase transition can land us in a victory condition
@@ -444,6 +512,7 @@ export class InteractiveSession {
       this.session,
       this.tonnageByUnit,
       this.pilotingByUnit,
+      this.grid,
     );
   }
 
@@ -538,6 +607,26 @@ export class InteractiveSession {
   // Heat-phase water-depth lookup lives in `InteractiveSession.resolvers`.
   private waterDepthAt(position: IHexCoordinate): number {
     return waterDepthAt(this.grid, position);
+  }
+
+  private elevationDifferenceBetween(
+    attackerId: string,
+    targetId: string,
+  ): number {
+    const attacker = this.session.currentState.units[attackerId];
+    const target = this.session.currentState.units[targetId];
+    if (!attacker || !target) return 0;
+    const attackerHex = this.grid.hexes.get(
+      `${attacker.position.q},${attacker.position.r}`,
+    );
+    const targetHex = this.grid.hexes.get(
+      `${target.position.q},${target.position.r}`,
+    );
+    return (targetHex?.elevation ?? 0) - (attackerHex?.elevation ?? 0);
+  }
+
+  private environmentHeatEffectAt(position: IHexCoordinate): number {
+    return environmentHeatEffectAt(this.grid, position);
   }
 
   isGameOver(): boolean {

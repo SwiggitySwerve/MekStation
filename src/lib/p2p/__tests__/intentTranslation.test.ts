@@ -17,9 +17,14 @@ import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSessionCore';
 
 import {
+  buildConcedeIntent,
   buildDeclareAttackIntent,
   buildDeclareMovementIntent,
+  buildDeclarePhysicalIntent,
+  buildEjectIntent,
   buildEndPhaseIntent,
+  buildStandIntent,
+  buildWithdrawIntent,
   translateIntentToEvents,
 } from '../intentTranslation';
 
@@ -143,6 +148,45 @@ describe('translateIntentToEvents', () => {
     expect(result.reason).toBe('unowned-unit');
   });
 
+  it('translates a guest-owned stand intent into an authoritative host command', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildStandIntent(GUEST_PEER, { unitId: 'guest-0' });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toEqual([]);
+    expect('command' in result).toBe(true);
+    if (!('command' in result)) return;
+    expect(result.command).toEqual({
+      kind: 'stand',
+      unitId: 'guest-0',
+    });
+  });
+
+  it('rejects stand outside the Movement phase', () => {
+    const session = withPhase(fixtureSession(), GamePhase.WeaponAttack);
+    const intent = buildStandIntent(GUEST_PEER, { unitId: 'guest-0' });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('wrong-phase');
+  });
+
+  it('rejects stand for a unit the guest does not own', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildStandIntent(GUEST_PEER, { unitId: 'host-0' });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('unowned-unit');
+  });
+
   it('rejects an attack declared from outside the WeaponAttack phase', () => {
     const session = withPhase(fixtureSession(), GamePhase.Movement);
     const intent = buildDeclareAttackIntent(GUEST_PEER, {
@@ -174,6 +218,170 @@ describe('translateIntentToEvents', () => {
       'attack_declared',
       'attack_locked',
     ]);
+  });
+
+  it('translates a guest-owned declarePhysical in the PhysicalAttack phase', () => {
+    const session = withPhase(fixtureSession(), GamePhase.PhysicalAttack);
+    const intent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'kick',
+      toHitNumber: 6,
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0].type).toBe('physical_attack_declared');
+    expect(result.events[0].sequence).toBe(session.events.length);
+    expect(result.events[0].payload).toMatchObject({
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'kick',
+      toHitNumber: 6,
+    });
+  });
+
+  it('rejects declarePhysical outside the PhysicalAttack phase', () => {
+    const session = withPhase(fixtureSession(), GamePhase.WeaponAttack);
+    const intent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'guest-0',
+      targetId: 'host-0',
+      attackType: 'kick',
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('wrong-phase');
+  });
+
+  it('rejects declarePhysical for a unit the guest does not own', () => {
+    const session = withPhase(fixtureSession(), GamePhase.PhysicalAttack);
+    const intent = buildDeclarePhysicalIntent(GUEST_PEER, {
+      attackerId: 'host-0',
+      targetId: 'guest-0',
+      attackType: 'kick',
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('unowned-unit');
+  });
+
+  it('translates a guest-owned eject intent into UnitEjected', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildEjectIntent(GUEST_PEER, { unitId: 'guest-0' });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0].type).toBe('unit_ejected');
+    expect(result.events[0].sequence).toBe(session.events.length);
+    expect(result.events[0].payload).toMatchObject({
+      unitId: 'guest-0',
+      reason: 'player_declared',
+    });
+  });
+
+  it('rejects eject for a unit the guest does not own', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildEjectIntent(GUEST_PEER, { unitId: 'host-0' });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('unowned-unit');
+  });
+
+  it('translates a guest-owned withdraw intent into WithdrawalDeclared', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildWithdrawIntent(GUEST_PEER, {
+      unitId: 'guest-0',
+      edge: 'north',
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0].type).toBe('withdrawal_declared');
+    expect(result.events[0].sequence).toBe(session.events.length);
+    expect(result.events[0].payload).toMatchObject({
+      unitId: 'guest-0',
+      edge: 'north',
+      declaredBy: 'player',
+    });
+  });
+
+  it('rejects withdraw for a unit the guest does not own', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildWithdrawIntent(GUEST_PEER, {
+      unitId: 'host-0',
+      edge: 'north',
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('unowned-unit');
+  });
+
+  it('translates a guest-owned concede intent into an authoritative host command', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildConcedeIntent(GUEST_PEER, {
+      side: GameSide.Opponent,
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toEqual([]);
+    expect('command' in result).toBe(true);
+    if (!('command' in result)) return;
+    expect(result.command).toEqual({
+      kind: 'concede',
+      side: GameSide.Opponent,
+    });
+  });
+
+  it('rejects concede for a side the peer does not own', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent = buildConcedeIntent(GUEST_PEER, {
+      side: GameSide.Player,
+    });
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('unowned-unit');
+  });
+
+  it('rejects malformed concede payloads with a structured error', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent: IGameIntent = {
+      type: 'concede',
+      payload: { side: 'spectator' },
+      authorPeerId: GUEST_PEER,
+    };
+
+    const result = translateIntentToEvents(intent, session);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('malformed-payload');
   });
 
   it('rejects an endPhase whose claimed phase does not match the session', () => {
@@ -217,17 +425,35 @@ describe('translateIntentToEvents', () => {
     expect(result.reason).toBe('malformed-payload');
   });
 
-  it('marks unsupported intents as unsupported with a detail string', () => {
+  it('translates confirmHeat in the Heat phase into an advance-phase marker', () => {
     const session = withPhase(fixtureSession(), GamePhase.Heat);
     const intent: IGameIntent = {
       type: 'confirmHeat',
-      payload: { unitId: 'guest-0' },
+      payload: {},
+      authorPeerId: GUEST_PEER,
+    };
+    const result = translateIntentToEvents(intent, session);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0].type).toBe('phase_changed');
+    expect(result.events[0].sequence).toBe(session.events.length);
+    expect(result.events[0].payload).toMatchObject({
+      fromPhase: GamePhase.Heat,
+      toPhase: GamePhase.Heat,
+    });
+  });
+
+  it('rejects confirmHeat outside the Heat phase', () => {
+    const session = withPhase(fixtureSession(), GamePhase.Movement);
+    const intent: IGameIntent = {
+      type: 'confirmHeat',
+      payload: {},
       authorPeerId: GUEST_PEER,
     };
     const result = translateIntentToEvents(intent, session);
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.reason).toBe('unsupported-intent');
-    expect(result.detail).toBe('confirmHeat');
+    expect(result.reason).toBe('wrong-phase');
   });
 });

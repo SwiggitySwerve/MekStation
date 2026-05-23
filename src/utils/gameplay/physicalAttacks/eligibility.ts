@@ -25,15 +25,18 @@ import type { IUnitGameState } from '@/types/gameplay';
 
 import { hexDistance } from '../hexMath';
 import { calculatePhysicalDamage } from './damage';
+import { isTargetDirectlyAhead } from './displacement';
 import {
   canCharge,
   canDFA,
   canKick,
   canMeleeWeapon,
   canPunch,
+  canPush,
 } from './restrictions';
 import { calculatePhysicalToHit } from './toHit';
 import {
+  SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
   IPhysicalAttackInput,
   IPhysicalAttackOption,
   IPhysicalAttackRestriction,
@@ -42,6 +45,10 @@ import {
   PhysicalAttackLimb,
   PhysicalAttackType,
 } from './types';
+
+const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPE_SET = new Set<string>(
+  SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
+);
 
 /**
  * Per `add-physical-attack-phase-ui` task 3.2: caller-supplied context
@@ -68,6 +75,10 @@ export interface IEligibilityContext {
   readonly targetMovementModifier?: number;
   /** Attacker movement modifier (used by charge to-hit). */
   readonly attackerMovementModifier?: number;
+  /** Charge target movement-complete gate; false blocks unless target is immobile. */
+  readonly targetMovementComplete?: boolean;
+  /** Triple-strength myomer installed on the attacker. */
+  readonly hasTSM?: boolean;
   /** Per-attacker presence flags for arm actuators (punches). */
   readonly lowerArmActuatorPresent?: boolean;
   readonly handActuatorPresent?: boolean;
@@ -75,6 +86,13 @@ export interface IEligibilityContext {
   readonly footActuatorPresent?: boolean;
   /** Equipped melee weapon types (hatchet / sword / mace / lance). */
   readonly meleeWeaponsEquipped?: readonly PhysicalAttackType[];
+  /** False when the computed push destination is off-map or occupied. */
+  readonly pushDestinationValid?: boolean;
+  /** Pilot abilities and unit quirks that modify physical attacks. */
+  readonly pilotAbilities?: readonly string[];
+  readonly unitQuirks?: readonly string[];
+  /** Target elevation minus attacker elevation. */
+  readonly elevationDifference?: number;
 }
 
 /**
@@ -176,6 +194,12 @@ function buildOption(
   };
 }
 
+function isRuntimeMeleeWeaponAttackType(
+  weaponType: PhysicalAttackType,
+): boolean {
+  return SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPE_SET.has(weaponType);
+}
+
 /**
  * Per spec scenario "Fully-intact mech returns punch + kick options":
  * the canonical entry point. Returns `[]` when target is null or more
@@ -210,11 +234,22 @@ export function getEligiblePhysicalAttacks(
     pilotingSkill: context.attackerPilotingSkill,
     componentDamage,
     heat: attacker.heat,
+    attackerDestroyedLocations: attacker.destroyedLocations,
+    attackerUnitType: attacker.unitType,
+    targetUnitType: target.unitType,
     attackerProne: attacker.prone,
+    targetProne: target.prone,
+    targetMovementComplete: context.targetMovementComplete,
+    targetImmobile: target.shutdown,
+    targetExists: true,
+    targetIsSelf: attacker.id === target.id,
+    targetIsFriendly: attacker.side === target.side,
+    targetDistance: hexDistance(attacker.position, target.position),
     hexesMoved: attacker.hexesMovedThisTurn,
     targetTonnage: context.targetTonnage,
     targetMovementModifier: context.targetMovementModifier,
     attackerMovementModifier: context.attackerMovementModifier,
+    hasTSM: context.hasTSM,
     attackerRanThisTurn: context.attackerRanThisTurn,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
@@ -222,6 +257,15 @@ export function getEligiblePhysicalAttacks(
     handActuatorPresent: context.handActuatorPresent,
     upperLegActuatorPresent: context.upperLegActuatorPresent,
     footActuatorPresent: context.footActuatorPresent,
+    pushDestinationValid: context.pushDestinationValid,
+    pushTargetDirectlyAhead: isTargetDirectlyAhead(
+      attacker.position,
+      attacker.facing,
+      target.position,
+    ),
+    pilotAbilities: context.pilotAbilities ?? attacker.abilities,
+    unitQuirks: context.unitQuirks ?? attacker.unitQuirks,
+    elevationDifference: context.elevationDifference,
   } as const;
 
   const options: IPhysicalAttackOption[] = [];
@@ -292,18 +336,26 @@ export function getEligiblePhysicalAttacks(
   const dfaRestriction = canDFA(dfaInput);
   options.push(buildOption('dfa', dfaInput, dfaRestriction));
 
-  // Push — no restrictions today (the engine handles displacement
-  // rules at resolution). Always eligible when a target is adjacent.
+  // Push is gated by facing, posture, elevation, quirks, and optional
+  // displacement-destination validity when callers can compute it.
   const pushInput: IPhysicalAttackInput = {
     ...baseInput,
     attackType: 'push',
+    weaponsFiredFromArm: [
+      ...(context.weaponsFiredFromLeftArm ?? []),
+      ...(context.weaponsFiredFromRightArm ?? []),
+    ],
   };
-  options.push(buildOption('push', pushInput, { allowed: true }));
+  options.push(buildOption('push', pushInput, canPush(pushInput)));
 
   // Melee weapons — one row per equipped type, gated by
   // `canMeleeWeapon` (shoulder / hand / lower-arm actuator destruction
   // and per-arm weapon-fire lockouts).
   for (const weaponType of context.meleeWeaponsEquipped ?? []) {
+    if (!isRuntimeMeleeWeaponAttackType(weaponType)) {
+      continue;
+    }
+
     const meleeInput: IPhysicalAttackInput = {
       ...baseInput,
       attackType: weaponType,

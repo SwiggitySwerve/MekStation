@@ -27,6 +27,7 @@ import {
   IRetreatTriggeredPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
+  IUnitEjectedPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
   IUnitRetreatedPayload,
@@ -61,6 +62,7 @@ import {
   applyRetreatTriggered,
   applyShutdownCheck,
   applyStartupAttempt,
+  applyUnitEjected,
   applyUnitFell,
   applyUnitRetreated,
   applyUnitStood,
@@ -195,6 +197,9 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     case GameEventType.UnitRetreated:
       return applyUnitRetreated(state, event.payload as IUnitRetreatedPayload);
 
+    case GameEventType.UnitEjected:
+      return applyUnitEjected(state, event.payload as IUnitEjectedPayload);
+
     case GameEventType.MoraleShifted:
       return applyMoraleShifted(state, event.payload as IMoraleShiftedPayload);
 
@@ -273,7 +278,13 @@ export function getActiveUnits(
   side: GameSide,
 ): readonly IUnitGameState[] {
   return Object.values(state.units).filter(
-    (unit) => unit.side === side && !unit.destroyed && unit.pilotConscious,
+    (unit) =>
+      unit.side === side &&
+      !unit.destroyed &&
+      !unit.shutdown &&
+      !unit.hasRetreated &&
+      !unit.hasEjected &&
+      unit.pilotConscious,
   );
 }
 
@@ -283,6 +294,9 @@ export function getUnitsAwaitingAction(
   return Object.values(state.units).filter(
     (unit) =>
       !unit.destroyed &&
+      !unit.shutdown &&
+      !unit.hasRetreated &&
+      !unit.hasEjected &&
       unit.pilotConscious &&
       unit.lockState === LockState.Pending,
   );
@@ -290,7 +304,12 @@ export function getUnitsAwaitingAction(
 
 export function allUnitsLocked(state: IGameState): boolean {
   const activeUnits = Object.values(state.units).filter(
-    (unit) => !unit.destroyed && unit.pilotConscious,
+    (unit) =>
+      !unit.destroyed &&
+      !unit.shutdown &&
+      !unit.hasRetreated &&
+      !unit.hasEjected &&
+      unit.pilotConscious,
   );
 
   return activeUnits.every(
@@ -317,7 +336,11 @@ function getSurvivingUnitsForSide(
   // remaining-unit total — even though `destroyed` stays false so that
   // post-battle summaries can distinguish withdrawal from combat loss.
   return Object.values(state.units).filter(
-    (unit) => !unit.destroyed && !unit.hasRetreated && unit.side === side,
+    (unit) =>
+      !unit.destroyed &&
+      !unit.hasRetreated &&
+      !unit.hasEjected &&
+      unit.side === side,
   );
 }
 

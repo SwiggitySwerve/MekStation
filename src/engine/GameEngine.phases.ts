@@ -7,6 +7,7 @@ import {
   GamePhase,
   LockState,
   type IGameSession,
+  type IUnitGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -39,6 +40,7 @@ import {
   resolvePendingPSRs,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
 import {
   applyForcedWithdrawalCheck,
   applyMoralePass,
@@ -48,6 +50,7 @@ import {
   buildMovementEventPath,
   maxMovementCostForCapability,
 } from '@/utils/gameplay/movement/eventPath';
+import { validateMovement } from '@/utils/gameplay/movement/validation';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
@@ -73,6 +76,19 @@ function toDiceRoller(d6: D6Roller): DiceRoller {
   };
 }
 
+function elevationDifferenceBetween(
+  grid: IHexGrid | undefined,
+  attacker: IUnitGameState,
+  target: IUnitGameState | undefined,
+): number {
+  if (!grid || !target) return 0;
+  const attackerHex = grid.hexes.get(
+    `${attacker.position.q},${attacker.position.r}`,
+  );
+  const targetHex = grid.hexes.get(`${target.position.q},${target.position.r}`);
+  return (targetHex?.elevation ?? 0) - (attackerHex?.elevation ?? 0);
+}
+
 /**
  * Per `wire-bot-ai-helpers-and-capstone`: default attacker tonnage
  * shared with `SimulationRunnerConstants` (65t). Catalog data isn't
@@ -82,6 +98,20 @@ function toDiceRoller(d6: D6Roller): DiceRoller {
 const DEFAULT_ATTACKER_TONNAGE = 65;
 /** Default piloting skill when no `IGameUnit` lookup is available. */
 const DEFAULT_PILOTING_SKILL = 5;
+
+function canUnitAct(unit: IUnitGameState): boolean {
+  return (
+    !unit.destroyed &&
+    !unit.shutdown &&
+    !unit.hasRetreated &&
+    !unit.hasEjected &&
+    unit.pilotConscious
+  );
+}
+
+function canUnitBeTargeted(unit: IUnitGameState): boolean {
+  return !unit.destroyed && !unit.hasRetreated && !unit.hasEjected;
+}
 
 /**
  * Per `wire-bot-ai-helpers-and-capstone`: invoke the bot's retreat
@@ -99,7 +129,7 @@ function emitRetreatTriggers(
   let updated = session;
   for (const unitId of Object.keys(updated.currentState.units)) {
     const unit = updated.currentState.units[unitId];
-    if (unit.destroyed) continue;
+    if (!canUnitAct(unit)) continue;
     const weapons = weaponsByUnit.get(unitId) ?? [];
     const gunnery = gunneryByUnit.get(unitId) ?? 4;
     const aiUnit = toAIUnitState(unit, weapons, gunnery);
@@ -147,6 +177,7 @@ export function runMovementPhase(
       updatedSession = lockMovement(updatedSession, unitId);
       continue;
     }
+    if (!canUnitAct(unit)) continue;
 
     const weapons = weaponsByUnit.get(unitId) ?? [];
     const gunnery = gunneryByUnit.get(unitId) ?? 4;
@@ -159,14 +190,33 @@ export function runMovementPhase(
     const moveEvt = botPlayer.playMovementPhase(aiUnit, grid, cap);
 
     if (moveEvt) {
+      const validation = validateMovement(
+        grid,
+        {
+          unitId,
+          coord: unit.position,
+          facing: unit.facing,
+          prone: unit.prone ?? false,
+        },
+        moveEvt.payload.to,
+        moveEvt.payload.facing as Facing,
+        moveEvt.payload.movementType,
+        cap,
+        unit.heat,
+      );
+      if (!validation.valid) {
+        updatedSession = lockMovement(updatedSession, unitId);
+        continue;
+      }
+
       const eventPath = buildMovementEventPath({
         grid,
         from: unit.position,
         to: moveEvt.payload.to,
         movementType: moveEvt.payload.movementType,
-        maxCost: maxMovementCostForCapability(
-          cap,
-          moveEvt.payload.movementType,
+        maxCost: Math.min(
+          validation.mpCost,
+          maxMovementCostForCapability(cap, moveEvt.payload.movementType),
         ),
       });
       updatedSession = declareMovement(
@@ -176,8 +226,8 @@ export function runMovementPhase(
         moveEvt.payload.to,
         moveEvt.payload.facing as Facing,
         moveEvt.payload.movementType,
-        moveEvt.payload.mpUsed,
-        moveEvt.payload.heatGenerated,
+        validation.mpCost,
+        validation.heatGenerated,
         eventPath,
       );
     }
@@ -195,6 +245,7 @@ export function runMovementPhase(
     if (
       postMoveUnit &&
       !postMoveUnit.destroyed &&
+      !postMoveUnit.hasEjected &&
       postMoveUnit.isRetreating &&
       !postMoveUnit.hasRetreated &&
       postMoveUnit.retreatTargetEdge
@@ -261,13 +312,14 @@ export function runAttackPhase(
       updatedSession = lockAttack(updatedSession, unitId);
       continue;
     }
+    if (!canUnitAct(unit)) continue;
 
     const weapons = weaponsByUnit.get(unitId) ?? [];
     const gunnery = gunneryByUnit.get(unitId) ?? 4;
     const aiUnit = toAIUnitState(unit, weapons, gunnery);
     const enemies = allAIUnits.filter(
       (a) =>
-        !a.destroyed &&
+        canUnitBeTargeted(updatedSession.currentState.units[a.unitId]) &&
         updatedSession.currentState.units[a.unitId].side !== unit.side,
     );
 
@@ -277,6 +329,10 @@ export function runAttackPhase(
         atkEvt.payload.weapons,
         weapons,
         unitId,
+        {
+          calledShots: atkEvt.payload.calledShots,
+          teammateCalledShots: atkEvt.payload.teammateCalledShots,
+        },
       );
 
       // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid
@@ -336,6 +392,7 @@ export function runPhysicalAttackPhase(
   gunneryByUnit: Map<string, number>,
   pilotingByUnit: Map<string, number>,
   d6Roller: D6Roller = defaultD6Roller,
+  grid?: IHexGrid,
 ): IGameSession {
   let updatedSession = session;
 
@@ -350,20 +407,22 @@ export function runPhysicalAttackPhase(
 
   for (const unitId of Object.keys(updatedSession.currentState.units)) {
     const unit = updatedSession.currentState.units[unitId];
-    if (unit.destroyed) continue;
+    if (!canUnitAct(unit)) continue;
 
     const weapons = weaponsByUnit.get(unitId) ?? [];
     const gunnery = gunneryByUnit.get(unitId) ?? 4;
     const aiUnit = toAIUnitState(unit, weapons, gunnery);
     const enemies = allAIUnits.filter(
       (a) =>
-        !a.destroyed &&
+        canUnitBeTargeted(updatedSession.currentState.units[a.unitId]) &&
         updatedSession.currentState.units[a.unitId].side !== unit.side,
     );
 
     const physEvt = botPlayer.playPhysicalAttackPhase(aiUnit, enemies);
     if (physEvt) {
       const piloting = pilotingByUnit.get(unitId) ?? DEFAULT_PILOTING_SKILL;
+      const targetUnit =
+        updatedSession.currentState.units[physEvt.payload.targetId];
       updatedSession = declarePhysicalAttack(
         updatedSession,
         physEvt.payload.attackerId,
@@ -372,7 +431,22 @@ export function runPhysicalAttackPhase(
         {
           attackerTonnage: DEFAULT_ATTACKER_TONNAGE,
           pilotingSkill: piloting,
+          hasTSM: unit.hasTSM ?? false,
           hexesMoved: unit.hexesMovedThisTurn,
+          isUnderwater:
+            grid !== undefined &&
+            (waterDepthAtPosition(grid, unit.position) > 0 ||
+              (targetUnit
+                ? waterDepthAtPosition(grid, targetUnit.position) > 0
+                : false)),
+          pilotAbilities: unit.abilities,
+          unitQuirks: unit.unitQuirks,
+          elevationDifference: elevationDifferenceBetween(
+            grid,
+            unit,
+            targetUnit,
+          ),
+          targetMovementComplete: true,
         },
       );
     }
@@ -384,7 +458,13 @@ export function runPhysicalAttackPhase(
     contextMap.set(uid, {
       attackerTonnage: DEFAULT_ATTACKER_TONNAGE,
       pilotingSkill: pilotingByUnit.get(uid) ?? DEFAULT_PILOTING_SKILL,
+      hasTSM: u.hasTSM ?? false,
       hexesMoved: u.hexesMovedThisTurn,
+      targetMovementComplete: true,
+      isUnderwater:
+        grid !== undefined ? waterDepthAtPosition(grid, u.position) > 0 : false,
+      pilotAbilities: u.abilities,
+      unitQuirks: u.unitQuirks,
     });
   }
   // Per `add-quick-resolve-monte-carlo`: thread the seeded roller into
@@ -393,6 +473,7 @@ export function runPhysicalAttackPhase(
     updatedSession,
     contextMap,
     toDiceRoller(d6Roller),
+    grid,
   );
 
   return updatedSession;
@@ -460,6 +541,13 @@ export function runInteractivePhaseAdvance(
             ) => {
               const unit = updatedSession.currentState.units[unitId];
               return unit ? waterDepthAtPosition(grid, unit.position) : 0;
+            },
+            getEnvironmentHeatEffect: (
+              unitId: string,
+              _position: import('@/types/gameplay').IHexCoordinate,
+            ) => {
+              const unit = updatedSession.currentState.units[unitId];
+              return unit ? getGridTerrainHeatEffect(grid, unit.position) : 0;
             },
           }
         : undefined;

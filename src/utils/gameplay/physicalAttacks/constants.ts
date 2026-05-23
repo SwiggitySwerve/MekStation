@@ -11,13 +11,12 @@ export const DFA_ATTACKER_DAMAGE_DIVISOR = 5;
 export const HATCHET_DAMAGE_DIVISOR = 5;
 export const SWORD_DAMAGE_DIVISOR = 10;
 export const SWORD_DAMAGE_BONUS = 1;
-export const MACE_WEIGHT_MULTIPLIER = 2;
-export const MACE_DAMAGE_DIVISOR = 5;
+export const MACE_DAMAGE_DIVISOR = 4;
 // Per `implement-physical-attack-phase` task 9.4: lance damage baseline
 // is floor(weight / 5); doubled when the attacker is charging.
 export const LANCE_DAMAGE_DIVISOR = 5;
 export const LANCE_CHARGE_DAMAGE_MULTIPLIER = 2;
-export const LANCE_TO_HIT_MODIFIER = 0;
+export const LANCE_TO_HIT_MODIFIER = 1;
 
 // Per task 6.4 / 7.4: charge + DFA damage splits into 5-point clusters
 // before hit-location resolution. Damage under 5 is a single cluster.

@@ -6,6 +6,7 @@
 import type { IAmmoConstructionInit } from './AmmoTypes';
 import type { IEnvironmentalConditions } from './EnvironmentalConditions';
 import type { GameSide } from './GameSessionCoreTypes';
+import type { RangeBracket } from './HexGridInterfaces';
 
 // Game Configuration
 // =============================================================================
@@ -87,6 +88,21 @@ export interface IGameUnit {
    * also debited at this rating (a destroyed DHS loses 2 dissipation).
    */
   readonly heatSinkType?: 'single' | 'double';
+  /**
+   * Triple-strength myomer construction flag. When true, physical damage
+   * helpers double effective weight once the unit reaches heat 9+.
+   */
+  readonly hasTSM?: boolean;
+  /** Pilot SPA ids copied into combat state for modifier resolution. */
+  readonly abilities?: readonly string[];
+  /** SPA designation fields copied into combat state for to-hit resolution. */
+  readonly designatedWeaponType?: string;
+  readonly designatedWeaponCategory?: string;
+  readonly designatedTargetId?: string;
+  readonly designatedRangeBracket?: RangeBracket;
+  /** Unit and weapon quirk ids copied into combat state for modifier resolution. */
+  readonly unitQuirks?: readonly string[];
+  readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
   /**
    * Ammo bin construction data (one entry per ton of ammo carried).
    * When present, `createGameSession` seeds this unit's `ammoState` so

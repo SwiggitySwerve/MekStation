@@ -10,11 +10,18 @@
  * @spec openspec/changes/implement-physical-attack-phase/specs/physical-attack-system/spec.md
  */
 
-import { Facing, IHexCoordinate, IHexGrid } from '@/types/gameplay';
+import {
+  Facing,
+  IHexCoordinate,
+  IHexGrid,
+  IPhysicalDisplacement,
+} from '@/types/gameplay';
 
 import { D6Roller } from '../diceTypes';
 import { isInBounds, isOccupied } from '../hexGrid';
 import { hexNeighbor } from '../hexMath';
+
+const DISPLACEMENT_OFFSETS = [0, 1, 5, 2, 4, 3] as const;
 
 /**
  * Per Resolved Q3: thin wrapper over `hexNeighbor` to mirror MegaMek's
@@ -26,6 +33,21 @@ export function translateHex(
   facing: Facing,
 ): IHexCoordinate {
   return hexNeighbor(coord, facing);
+}
+
+/**
+ * Push legality uses the attacker's feet facing, not just adjacency:
+ * MegaMek requires the target to occupy `attacker.position.translated(facing)`.
+ */
+export function isTargetDirectlyAhead(
+  attackerPosition: IHexCoordinate,
+  attackerFacing: Facing,
+  targetPosition: IHexCoordinate,
+): boolean {
+  const directlyAhead = translateHex(attackerPosition, attackerFacing);
+  return (
+    directlyAhead.q === targetPosition.q && directlyAhead.r === targetPosition.r
+  );
 }
 
 /**
@@ -112,4 +134,135 @@ export function computePushDisplacement(
   attackerFacing: Facing,
 ): IHexCoordinate {
   return translateHex(targetPosition, attackerFacing);
+}
+
+/**
+ * Mirrors MegaMek `Compute.getValidDisplacement`: choose the first legal
+ * adjacent hex nearest to the displacement direction. Dropship two-hex
+ * displacement and domino chains are intentionally outside this helper's
+ * current simplified grid model.
+ *
+ * Source: MegaMek `Compute.java:1019-1046`.
+ */
+export function computeValidDisplacement(
+  grid: IHexGrid,
+  displacedUnitId: string,
+  source: IHexCoordinate,
+  direction: Facing,
+): IHexCoordinate | null {
+  for (const offset of DISPLACEMENT_OFFSETS) {
+    const candidate = translateHex(
+      source,
+      ((direction + offset) % 6) as Facing,
+    );
+    if (isValidDisplacement(grid, candidate, displacedUnitId)) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Mirrors MegaMek `Compute.getPreferredDisplacement` for DFA misses: scan
+ * nearest-to-direction hexes, prefer same elevation, otherwise keep the
+ * highest legal elevation. Friendly-unit avoidance is not represented in
+ * the current `IHexGrid` occupancy model.
+ *
+ * Source: MegaMek `Compute.java:1056-1114`.
+ */
+export function computePreferredDisplacement(
+  grid: IHexGrid,
+  displacedUnitId: string,
+  source: IHexCoordinate,
+  direction: Facing,
+): IHexCoordinate | null {
+  const sourceElevation =
+    grid.hexes.get(`${source.q},${source.r}`)?.elevation ?? 0;
+  let highest: IHexCoordinate | null = null;
+  let highestElevation = Number.NEGATIVE_INFINITY;
+
+  for (const offset of DISPLACEMENT_OFFSETS) {
+    const candidate = translateHex(
+      source,
+      ((direction + offset) % 6) as Facing,
+    );
+    if (!isValidDisplacement(grid, candidate, displacedUnitId)) continue;
+
+    const elevation =
+      grid.hexes.get(`${candidate.q},${candidate.r}`)?.elevation ?? 0;
+    if (elevation > highestElevation) {
+      highestElevation = elevation;
+      highest = candidate;
+    }
+    if (elevation === sourceElevation) {
+      return candidate;
+    }
+  }
+
+  return highest;
+}
+
+/**
+ * Source-backed DFA displacement:
+ * - hit: target is displaced by `getValidDisplacement`, attacker occupies
+ *   the target's original hex.
+ * - miss: target uses `getPreferredDisplacement`, attacker falls into the
+ *   target's original hex.
+ *
+ * If the target cannot be displaced, MegaMek enters an "impossible
+ * displacement" destruction branch. MekStation does not yet model that
+ * destruction path here, so this helper returns no displacement rather than
+ * stacking units in one hex.
+ *
+ * Source: MegaMek `TWGameManager.resolveDfaAttack`
+ * (`TWGameManager.java:15225-15265`, `15352-15422`).
+ */
+export function computeDfaDisplacements(options: {
+  readonly grid: IHexGrid;
+  readonly attackerId: string;
+  readonly attackerPosition: IHexCoordinate;
+  readonly attackerFacing: Facing;
+  readonly targetId: string;
+  readonly targetPosition: IHexCoordinate;
+  readonly hit: boolean;
+}): readonly IPhysicalDisplacement[] {
+  const {
+    attackerFacing,
+    attackerId,
+    attackerPosition,
+    grid,
+    hit,
+    targetId,
+    targetPosition,
+  } = options;
+
+  const targetDestination = hit
+    ? computeValidDisplacement(grid, targetId, targetPosition, attackerFacing)
+    : computePreferredDisplacement(
+        grid,
+        targetId,
+        targetPosition,
+        attackerFacing,
+      );
+
+  if (!targetDestination) {
+    return [];
+  }
+
+  const reason = hit ? 'dfa' : 'dfa_miss';
+  return [
+    {
+      unitId: targetId,
+      from: targetPosition,
+      to: targetDestination,
+      reason,
+    },
+    {
+      unitId: attackerId,
+      from: attackerPosition,
+      to: targetPosition,
+      reason,
+    },
+  ];
 }

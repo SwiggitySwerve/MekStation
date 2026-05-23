@@ -38,6 +38,7 @@ export function resolvePhysicalAttack(
       targetPSR: false,
       attackerPSR: false,
       attackerPSRModifier: 0,
+      restrictionReasonCode: toHitResult.restrictionReasonCode,
       targetDisplaced: false,
     };
   }
