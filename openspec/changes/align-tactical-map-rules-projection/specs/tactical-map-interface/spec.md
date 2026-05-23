@@ -105,6 +105,17 @@ When a selected unit has a configured weapon list, the map SHALL derive attack-r
 - **AND** the committed `AttackDeclared` event SHALL use the same C3-improved range bracket and to-hit number
 - **AND** indirect fire SHALL continue to use its indirect-fire resolution instead of C3 range improvement
 
+#### Scenario: Indirect-fire spotter movement penalty matches commit
+
+- **GIVEN** a selected unit has no direct LOS to a target
+- **AND** an indirect-fire-capable weapon is selected
+- **AND** a friendly represented spotter has LOS to the target after walking, running, or jumping
+- **WHEN** the map previews the attack
+- **THEN** the target hex SHALL remain attackable via indirect fire
+- **AND** the combat projection SHALL expose the elected spotter and the total indirect-fire penalty including represented spotter movement
+- **AND** the committed `AttackDeclared` event SHALL apply the same indirect-fire penalty
+- **AND** represented infantry or battle armor spotters SHALL not receive a spotter movement penalty
+
 #### Scenario: Selected weapon constrains visible firing arcs
 
 - **GIVEN** the selected unit has operational weapons with known mounted arcs

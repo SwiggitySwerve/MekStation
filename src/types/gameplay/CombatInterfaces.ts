@@ -621,8 +621,10 @@ export interface ISecondaryTarget {
 export interface IIndirectFire {
   /** Whether this is an indirect fire attack */
   readonly isIndirect: boolean;
-  /** Whether the spotter walked this turn */
+  /** Whether the spotter walked this turn. Legacy field for +1 walk-only callers. */
   readonly spotterWalked: boolean;
+  /** Optional represented spotter movement penalty: walk=1, run=2, jump=3. */
+  readonly spotterMovementPenalty?: number;
 }
 
 /**
@@ -748,6 +750,8 @@ export interface IIndirectFireResolution {
    * 0 for direct-fire or semi-guided-tag with active TAG.
    * 1 = base indirect only (stationary spotter or NARC/iNarc).
    * 2 = base + spotter walked.
+   * 3 = base + spotter ran.
+   * 4 = base + spotter jumped.
    */
   readonly toHitPenalty: number;
   /** Human-readable reason when permitted=false. */

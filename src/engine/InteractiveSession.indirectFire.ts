@@ -137,6 +137,9 @@ export function computeIndirectFireContext(
       teamId: unit.side as string,
       position: unit.position,
       movementType: unit.movementThisTurn,
+      isInfantry:
+        unit.combatState?.kind === 'platoon' ||
+        unit.combatState?.kind === 'squad',
       isOperational: !unit.destroyed && !unit.shutdown,
       isAirborneAerospace: isAirborneGameUnit(unit),
       airborneAeroSpottingEquipment: getAirborneAeroSpottingEquipment(unit),

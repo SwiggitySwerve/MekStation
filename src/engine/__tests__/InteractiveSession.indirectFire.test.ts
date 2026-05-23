@@ -239,16 +239,15 @@ describe('computeIndirectFireContext', () => {
   });
 
   // -------------------------------------------------------------------------
-  // Spotter walked → +1 spotter-walked penalty stacks on top of base +1
+  // Spotter movement penalty stacks on top of base +1.
   // -------------------------------------------------------------------------
-  it('applies +1 spotter-walked penalty when spotter ran/walked', () => {
+  it.each([
+    [MovementType.Walk, 2],
+    [MovementType.Run, 3],
+    [MovementType.Jump, 4],
+  ] as const)('applies %s spotter movement penalty', (movement, penalty) => {
     const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
-    const spotter = makeUnit(
-      's1',
-      GameSide.Player,
-      { q: 5, r: 1 },
-      MovementType.Walk,
-    );
+    const spotter = makeUnit('s1', GameSide.Player, { q: 5, r: 1 }, movement);
     const result = computeIndirectFireContext(
       'a1',
       'lrm-15',
@@ -257,7 +256,7 @@ describe('computeIndirectFireContext', () => {
       makeBlockedGrid(),
     );
     expect(result.permitted).toBe(true);
-    expect(result.toHitPenalty).toBe(2);
+    expect(result.toHitPenalty).toBe(penalty);
   });
 
   // -------------------------------------------------------------------------

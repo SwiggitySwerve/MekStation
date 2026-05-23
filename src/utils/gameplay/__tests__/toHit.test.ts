@@ -2239,6 +2239,16 @@ describe('calculateIndirectFireModifier', () => {
     expect(mod?.value).toBe(2);
   });
 
+  it('should use explicit spotter movement penalty when supplied', () => {
+    const info: IIndirectFire = {
+      isIndirect: true,
+      spotterWalked: false,
+      spotterMovementPenalty: 3,
+    };
+    const mod = calculateIndirectFireModifier(info);
+    expect(mod?.value).toBe(4);
+  });
+
   it('should set source to other', () => {
     const info: IIndirectFire = { isIndirect: true, spotterWalked: false };
     expect(calculateIndirectFireModifier(info)?.source).toBe('other');

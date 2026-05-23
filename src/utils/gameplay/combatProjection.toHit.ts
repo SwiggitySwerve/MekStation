@@ -226,6 +226,9 @@ function buildSpotterCandidates(
     teamId: unit.side as string,
     position: unit.position,
     movementType: unit.movementThisTurn ?? MovementType.Stationary,
+    isInfantry:
+      unit.combatState?.kind === 'platoon' ||
+      unit.combatState?.kind === 'squad',
     isOperational: !unit.destroyed && !unit.shutdown && !unit.hasRetreated,
     isAirborneAerospace: isAirborneGameUnit(unit),
     airborneAeroSpottingEquipment: getAirborneAeroSpottingEquipment(unit),

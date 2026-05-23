@@ -4,6 +4,7 @@ import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import {
   isEligibleSpotter,
+  calculateSpotterMovementPenalty,
   spotterHasLOS,
   findBestSpotter,
   isIndirectFireCapable,
@@ -182,14 +183,14 @@ describe('Spotter Mechanics', () => {
       expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(true);
     });
 
-    it('should reject running spotter', () => {
+    it('should accept running spotter', () => {
       const spotter = makeSpotter({ movementType: MovementType.Run });
-      expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(false);
+      expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(true);
     });
 
-    it('should reject jumping spotter', () => {
+    it('should accept jumping spotter', () => {
       const spotter = makeSpotter({ movementType: MovementType.Jump });
-      expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(false);
+      expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(true);
     });
 
     it('should reject destroyed/shutdown spotter', () => {
@@ -218,6 +219,32 @@ describe('Spotter Mechanics', () => {
         airborneAeroSpottingEquipment: { reconCamera: true },
       });
       expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(true);
+    });
+  });
+
+  describe('calculateSpotterMovementPenalty', () => {
+    it.each([
+      [MovementType.Stationary, 0],
+      [MovementType.Walk, 1],
+      [MovementType.Run, 2],
+      [MovementType.Jump, 3],
+    ] as const)(
+      'maps %s to MegaMek spotter penalty %i',
+      (movement, penalty) => {
+        expect(
+          calculateSpotterMovementPenalty(
+            makeSpotter({ movementType: movement }),
+          ),
+        ).toBe(penalty);
+      },
+    );
+
+    it('does not apply a movement penalty to infantry spotters', () => {
+      expect(
+        calculateSpotterMovementPenalty(
+          makeSpotter({ movementType: MovementType.Jump, isInfantry: true }),
+        ),
+      ).toBe(0);
     });
   });
 
@@ -309,7 +336,7 @@ describe('Spotter Mechanics', () => {
       expect(result!.spotter.entityId).toBe('has-los');
     });
 
-    it('should filter out running and jumping spotters', () => {
+    it('should prefer running spotter over jumping spotter by movement penalty', () => {
       const running = makeSpotter({
         entityId: 'runner',
         movementType: MovementType.Run,
@@ -325,7 +352,8 @@ describe('Spotter Mechanics', () => {
         { q: 5, r: 0 },
         makeClearGrid(),
       );
-      expect(result).toBeNull();
+      expect(result).not.toBeNull();
+      expect(result!.spotter.entityId).toBe('runner');
     });
 
     it('should skip airborne aerospace spotters that lack represented spotting gear', () => {
@@ -649,17 +677,54 @@ describe('Indirect Fire Edge Cases', () => {
     expect(result.toHitPenalty).toBe(1);
   });
 
-  it('should handle all spotters being ineligible', () => {
+  it('should handle all represented spotters being ineligible', () => {
     const spotters = [
-      makeSpotter({ entityId: 'runner', movementType: MovementType.Run }),
-      makeSpotter({ entityId: 'jumper', movementType: MovementType.Jump }),
       makeSpotter({ entityId: 'dead', isOperational: false }),
       makeSpotter({ entityId: 'attacker-1' }), // same as attacker
+      makeSpotter({ entityId: 'enemy', teamId: 'team-B' }),
     ];
     const result = resolveIndirectFire(
       makeRequest({ spotterCandidates: spotters }),
     );
     expect(result.permitted).toBe(false);
+  });
+
+  it.each([
+    [MovementType.Run, 3],
+    [MovementType.Jump, 4],
+  ] as const)(
+    'should permit %s spotter with MegaMek movement penalty',
+    (movement, toHitPenalty) => {
+      const result = resolveIndirectFire(
+        makeRequest({
+          spotterCandidates: [
+            makeSpotter({ entityId: 'moved-spotter', movementType: movement }),
+          ],
+        }),
+      );
+
+      expect(result.permitted).toBe(true);
+      expect(result.spotter!.entityId).toBe('moved-spotter');
+      expect(result.toHitPenalty).toBe(toHitPenalty);
+    },
+  );
+
+  it('should not charge spotter movement penalty to infantry spotters', () => {
+    const result = resolveIndirectFire(
+      makeRequest({
+        spotterCandidates: [
+          makeSpotter({
+            entityId: 'jumping-infantry',
+            movementType: MovementType.Jump,
+            isInfantry: true,
+          }),
+        ],
+      }),
+    );
+
+    expect(result.permitted).toBe(true);
+    expect(result.spotter!.entityId).toBe('jumping-infantry');
+    expect(result.toHitPenalty).toBe(1);
   });
 
   it('should not permit indirect fire for SRM weapons', () => {

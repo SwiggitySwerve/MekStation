@@ -45,6 +45,14 @@ bracket when a connected C3 spotter has a better bracket to the target. C3 does
 not replace indirect-fire resolution, and minimum-range penalties continue to
 use the attacker's distance.
 
+Indirect-fire spotter projection is pinned to MegaMek tactical behavior:
+`Entity.canSpot()` rejects sprinting/evading/off-board spotters, not ordinary
+run or jump movement, and `Compute.getSpotterMovementModifier(...)` applies
+walk/run/jump penalties of +1/+2/+3 while exempting infantry. MekStation's
+current represented movement set has no sprint/evade state, so run and jump
+spotters remain legal and carry the movement penalty through both map preview
+and committed attack declaration.
+
 ## Visibility/Fog
 
 Fog targetability and rendered token state must use the same grid and LOS assumptions as attack validation. Hidden or last-known contacts may render as intelligence, but they must not remain active/valid targets unless the rules projection says the current viewer can legally target them.

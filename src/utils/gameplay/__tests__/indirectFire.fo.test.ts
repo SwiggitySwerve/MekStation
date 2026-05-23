@@ -108,16 +108,16 @@ describe('Forward Observer SPA (indirectFire helper)', () => {
     expect(result.toHitPenalty).toBe(1);
   });
 
-  // FO does NOT override run/jump ineligibility — spot-check
-  it('running spotter WITH FO SPA remains ineligible — attack rejected (no valid spotter)', () => {
+  // FO only cancels walked spotter movement in the currently represented rules.
+  it('running spotter WITH FO SPA remains legal but keeps run penalty', () => {
     const spotter = makeSpotter({
       movementType: MovementType.Run,
       pilotSpas: ['forward_observer'],
     });
     const result = resolveIndirectFire(makeRequest(spotter));
 
-    // Running spotter is screened by isEligibleSpotter before FO logic runs.
-    expect(result.permitted).toBe(false);
+    expect(result.permitted).toBe(true);
+    expect(result.toHitPenalty).toBe(3);
   });
 
   // pilotSpas undefined (legacy call site) — no regression

@@ -3,8 +3,8 @@
  *
  * Implements BattleTech indirect fire mechanics:
  * - LRM indirect fire mode: fire without LOS, requires spotter
- * - Spotter mechanics: friendly unit with LOS to target, movement restriction
- * - Indirect fire to-hit penalties: +1 base, +1 if spotter walked
+ * - Spotter mechanics: friendly unit with LOS to target
+ * - Indirect fire to-hit penalties: +1 base, plus represented spotter movement
  * - Semi-guided LRM with TAG designation
  * - Indirect fire LOS validation (spotter→target, not attacker→target)
  *
@@ -18,6 +18,7 @@ import {
 } from '@/types/gameplay';
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
+import { hexDistance } from './hexMath';
 import { calculateLOS, ILOSResult } from './lineOfSight';
 import {
   isSemiGuidedLRM,
@@ -40,6 +41,8 @@ export interface ISpotterCandidate {
   readonly position: IHexCoordinate;
   /** Movement type this turn */
   readonly movementType: MovementType;
+  /** Infantry and battle armor ignore spotter movement penalties in MegaMek. */
+  readonly isInfantry?: boolean;
   /** Whether the unit is operational (not destroyed/shutdown) */
   readonly isOperational: boolean;
   /**
@@ -132,7 +135,7 @@ export interface IIndirectFireResult {
   readonly spotter?: ISpotterCandidate;
   /** Whether the spotter walked this turn */
   readonly spotterWalked: boolean;
-  /** Total indirect fire to-hit penalty (+1 base, +1 if spotter walked) */
+  /** Total indirect fire to-hit penalty (+1 base plus represented movement) */
   readonly toHitPenalty: number;
   /** LOS result from spotter to target */
   readonly spotterLOS?: ILOSResult;
@@ -193,7 +196,7 @@ function hasAirborneAeroSpottingEquipment(
  * A valid spotter must:
  * - Be operational (not destroyed/shutdown)
  * - Be on the same team as the attacker
- * - NOT have run or jumped this turn (stationary or walked only)
+ * - NOT be sprinting/evading (not represented by the current MovementType)
  * - NOT be the attacker itself
  * - Have line of sight to the target
  */
@@ -219,15 +222,25 @@ export function isEligibleSpotter(
     return false;
   }
 
-  // Must not have run or jumped (only stationary or walked)
-  if (
-    candidate.movementType === MovementType.Run ||
-    candidate.movementType === MovementType.Jump
-  ) {
-    return false;
-  }
-
   return true;
+}
+
+export function calculateSpotterMovementPenalty(
+  candidate: ISpotterCandidate,
+): number {
+  if (candidate.isInfantry === true) return 0;
+
+  switch (candidate.movementType) {
+    case MovementType.Walk:
+      return 1;
+    case MovementType.Run:
+      return 2;
+    case MovementType.Jump:
+      return 3;
+    case MovementType.Stationary:
+    default:
+      return 0;
+  }
 }
 
 /**
@@ -252,8 +265,9 @@ export function spotterHasLOS(
 /**
  * Find the best available spotter for an indirect fire attack.
  *
- * Prefers spotters that stood still (no additional penalty) over those
- * that walked (+1 penalty). Among equal movement, prefers the first eligible.
+ * Prefers spotters with the lowest represented MegaMek movement penalty.
+ * Among equal movement penalty, prefers lower intervening LOS modifiers,
+ * then the shorter spotter-target range, then stable unit id ordering.
  */
 export function findBestSpotter(
   candidates: readonly ISpotterCandidate[],
@@ -270,34 +284,47 @@ export function findBestSpotter(
 
   if (eligible.length === 0) return null;
 
-  // Check LOS for each eligible spotter, preferring stationary over walked
-  let bestStationary: {
+  let best: {
     spotter: ISpotterCandidate;
     losResult: ILOSResult;
-  } | null = null;
-  let bestWalked: {
-    spotter: ISpotterCandidate;
-    losResult: ILOSResult;
+    movementPenalty: number;
+    losModifier: number;
+    distance: number;
   } | null = null;
 
   for (const candidate of eligible) {
     const losResult = spotterHasLOS(candidate, targetPosition, grid, losTokens);
     if (!losResult.hasLOS) continue;
 
-    if (candidate.movementType === MovementType.Stationary) {
-      if (!bestStationary) {
-        bestStationary = { spotter: candidate, losResult };
-      }
-    } else {
-      // Walk
-      if (!bestWalked) {
-        bestWalked = { spotter: candidate, losResult };
-      }
+    const contender = {
+      spotter: candidate,
+      losResult,
+      movementPenalty: calculateSpotterMovementPenalty(candidate),
+      losModifier: losResult.interveningTerrainEffects.reduce(
+        (sum, effect) => sum + effect.modifier,
+        0,
+      ),
+      distance: hexDistance(candidate.position, targetPosition),
+    };
+
+    if (
+      best === null ||
+      contender.movementPenalty < best.movementPenalty ||
+      (contender.movementPenalty === best.movementPenalty &&
+        contender.losModifier < best.losModifier) ||
+      (contender.movementPenalty === best.movementPenalty &&
+        contender.losModifier === best.losModifier &&
+        contender.distance < best.distance) ||
+      (contender.movementPenalty === best.movementPenalty &&
+        contender.losModifier === best.losModifier &&
+        contender.distance === best.distance &&
+        contender.spotter.entityId.localeCompare(best.spotter.entityId) < 0)
+    ) {
+      best = contender;
     }
   }
 
-  // Prefer stationary spotter (lower penalty)
-  return bestStationary ?? bestWalked ?? null;
+  return best;
 }
 
 // =============================================================================
@@ -440,10 +467,11 @@ export function resolveIndirectFire(
     const { spotter, losResult } = spotterResult;
     const spotterWalked = spotter.movementType === MovementType.Walk;
     // Forward Observer SPA cancels the +1 spotter-walked add. The base +1
-    // indirect-fire penalty still applies. Run/Jump ineligibility is enforced
-    // upstream in isEligibleSpotter — FO does not override that restriction.
+    // indirect-fire penalty still applies, and run/jump spotter penalties are
+    // left intact until those SPA interactions are represented explicitly.
     const hasFoSpa = spotter.pilotSpas?.includes('forward_observer') ?? false;
-    const walkedPenalty = spotterWalked && !hasFoSpa ? 1 : 0;
+    const movementPenalty =
+      spotterWalked && hasFoSpa ? 0 : calculateSpotterMovementPenalty(spotter);
 
     // Per MegaMek ArtilleryWeaponIndirectFireHandler.java L192-194:
     //   int spotterMod = (spotter.getGunnery() - 4) / 2;
@@ -453,8 +481,8 @@ export function resolveIndirectFire(
     const effectiveGunnery = spotter.spotterGunnery ?? 4;
     const gunneryMod = Math.trunc((effectiveGunnery - 4) / 2);
 
-    // Base +1 indirect-fire penalty + walked penalty + gunnery modifier.
-    const toHitPenalty = 1 + walkedPenalty + gunneryMod;
+    // Base +1 indirect-fire penalty + movement penalty + gunnery modifier.
+    const toHitPenalty = 1 + movementPenalty + gunneryMod;
 
     return {
       permitted: true,

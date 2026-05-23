@@ -2439,6 +2439,79 @@ describe('interactive attack projection agreement', () => {
     ).toBe(true);
   });
 
+  it('keeps run-moved indirect-fire spotter penalty aligned between preview and commit', () => {
+    const session = setupIndirectSessionAtWeaponAttack();
+    session.currentState.units.s1 = {
+      ...session.currentState.units.s1,
+      movementThisTurn: MovementType.Run,
+    };
+    const grid = makeIndirectFireGrid();
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const spotterToken = makeToken({
+      unitId: 's1',
+      position: { q: 5, r: 1 },
+      facing: Facing.North,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 5, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, spotterToken, targetToken],
+      weapons: [
+        makeWeaponStatus({
+          id: 'lrm-15-1',
+          name: 'LRM-15',
+          heat: 5,
+          damage: 9,
+          ranges: { short: 7, medium: 14, long: 21 },
+        }),
+      ],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 5 && hex.hex.r === 0);
+
+    expect(projection).toMatchObject({
+      attackable: true,
+      indirectFireAvailable: true,
+      indirectFireSpotterId: 's1',
+      indirectFireBasis: 'los',
+      indirectFireToHitPenalty: 3,
+      indirectFireReason: 'Indirect fire via spotter s1 (+3)',
+    });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildIndirectWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-15-1'],
+      grid,
+    });
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    const declaredPayload = declared!.payload as IAttackDeclaredPayload;
+    const indirectModifier = declaredPayload.modifiers.find(
+      (modifier) => modifier.name === 'Indirect fire',
+    );
+    expect(indirectModifier?.value).toBe(projection!.indirectFireToHitPenalty);
+  });
+
   it.each([
     {
       markerKey: 'narcMarkedByTeams',

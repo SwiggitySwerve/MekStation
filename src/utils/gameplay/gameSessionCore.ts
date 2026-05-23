@@ -530,8 +530,8 @@ export function declareAttack(
 
   // Wave 8 PR-K4: append indirect-fire penalty to the modifier list so
   // the AttackDeclared event's toHitNumber reflects the live indirect
-  // resolution. The penalty math (base +1, +1 spotter-walked, -1 FO SPA)
-  // happened upstream in `computeIndirectFireContext`.
+  // resolution. The penalty math (base +1 plus represented spotter movement
+  // and FO SPA adjustments) happened upstream in `computeIndirectFireContext`.
   let finalToHit = toHitCalc.finalToHit;
   if (
     indirectFireResolution &&
