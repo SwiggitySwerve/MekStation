@@ -855,7 +855,7 @@ describe('applyEvent - DesignatorMarkerApplied', () => {
     expect(secondReplay.units['opponent-1'].tagDesignated).toBe(false);
   });
 
-  it('should replay iNARC homing pods without duplicating team pods', () => {
+  it('should replay iNARC variant pods without duplicating team pods', () => {
     let state = createInitialGameState('game-1');
 
     const createEvent = createTestEvent({
@@ -885,18 +885,39 @@ describe('applyEvent - DesignatorMarkerApplied', () => {
         teamId: GameSide.Player,
       } as IDesignatorMarkerAppliedPayload,
     });
+    const haywireMarkerEvent = createTestEvent({
+      sequence: 3,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'opponent-1',
+        targetId: 'player-1',
+        weaponId: 'inarc-1',
+        marker: 'inarc',
+        podType: 'haywire',
+        persistent: true,
+        turn: 1,
+        teamId: GameSide.Opponent,
+      } as IDesignatorMarkerAppliedPayload,
+    });
 
     const firstReplay = applyEvent(state, markerEvent);
     const secondReplay = applyEvent(firstReplay, markerEvent);
+    const haywireReplay = applyEvent(secondReplay, haywireMarkerEvent);
 
-    expect(secondReplay.units['opponent-1'].iNarcPods).toEqual([
+    expect(haywireReplay.units['opponent-1'].iNarcPods).toEqual([
       {
         teamId: GameSide.Player,
         podType: 'homing',
         location: 'center_torso',
       },
     ]);
-    expect(secondReplay.units['opponent-1'].narcedBy).toEqual([]);
+    expect(haywireReplay.units['opponent-1'].narcedBy).toEqual([]);
+    expect(haywireReplay.units['player-1'].iNarcPods).toEqual([
+      {
+        teamId: GameSide.Opponent,
+        podType: 'haywire',
+      },
+    ]);
   });
 });
 

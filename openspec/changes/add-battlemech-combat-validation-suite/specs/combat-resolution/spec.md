@@ -330,17 +330,18 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 
 ### Requirement: Designator Marker Replay State
 
-Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC Homing pod markers SHALL append a distinct `iNarcPods` entry without falling back to `narcedBy`; direct NARC-compatible missile cluster resolution and runner to-hit declaration SHALL consume that Homing pod state. iNARC ECM, Haywire, and Nemesis pod effects SHALL remain explicit gaps until their variant-specific runner missile effects are represented.
+Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC Homing pod markers SHALL append a distinct `iNarcPods` entry without falling back to `narcedBy`; direct NARC-compatible missile cluster resolution and runner to-hit declaration SHALL consume that Homing pod state. iNARC Haywire pod markers SHALL replay into distinct `iNarcPods` state and runner to-hit declaration SHALL consume that attacker pod state as a source-backed +1 attacker to-hit modifier. iNARC ECM and Nemesis pod effects SHALL remain explicit gaps until their variant-specific runner effects are represented.
 
-#### Scenario: Replay applies TAG, standard NARC, and iNARC Homing marker state
+#### Scenario: Replay applies TAG, standard NARC, iNARC Homing, and iNARC Haywire marker state
 
-- **GIVEN** a replay stream contains `DesignatorMarkerApplied` events for TAG, standard NARC, and iNARC Homing hits
+- **GIVEN** a replay stream contains `DesignatorMarkerApplied` events for TAG, standard NARC, iNARC Homing, and iNARC Haywire hits
 - **WHEN** the event-sourced state reducer applies those events
 - **THEN** TAG events SHALL mark the target as TAG-designated for the turn
 - **AND** standard NARC events SHALL add the marking team to the target's `narcedBy` list without duplicate markers
 - **AND** iNARC Homing events SHALL add `{ teamId, podType: "homing" }` to target `iNarcPods` without adding the team to `narcedBy`
 - **AND** direct NARC-compatible missile cluster and to-hit resolution SHALL consume source-backed iNARC Homing state while indirect-fire cluster bonuses stay suppressed
-- **AND** the catalog SHALL continue to list iNARC ECM, Haywire, and Nemesis pod variants as helper-only until variant effects are implemented
+- **AND** attack declaration SHALL consume source-backed iNARC Haywire state on the attacker as a +1 to-hit modifier
+- **AND** the catalog SHALL continue to list iNARC ECM and Nemesis pod variants as helper-only until variant effects are implemented
 
 ### Requirement: Source-Truth Cross-Check Discipline
 

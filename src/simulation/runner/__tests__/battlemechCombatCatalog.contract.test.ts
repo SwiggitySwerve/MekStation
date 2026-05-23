@@ -720,6 +720,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'artemis-ecm-suite-hydration',
       'artemis-ecm-suppression',
       'artemis-stealth-suppression',
+      'inarc-haywire-to-hit-modifier',
       'inarc-homing-cluster-modifier',
       'inarc-homing-marker-attachment',
       'inarc-homing-to-hit-modifier',
@@ -1037,6 +1038,16 @@ describe('BattleMech combat catalog validation lane', () => {
       'MissileWeaponHandler applies the NARC cluster modifier to direct NARC-capable missiles when the target is NARCed or iNARC Homing-marked and target ECM does not suppress it.',
     ]);
     expect(
+      sourceRefsFor('inarc-haywire-to-hit-modifier').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'Entity.isINarcedWith checks attached iNarc pod type from any team.',
+      'ComputeToHit derives isHaywireINarced from the attacker entity before compiling attacker to-hit modifiers.',
+      'ComputeAttackerToHitMods applies the +1 iNarc Haywire attacker to-hit modifier.',
+    ]);
+    expect(
       sourceRefsFor('tag-designation-hit').map(({ citation }) => citation),
     ).toEqual([
       'TAGHandler creates TagInfo, tags the target entity, and marks the attacker as spotting for indirect fire.',
@@ -1054,6 +1065,7 @@ describe('BattleMech combat catalog validation lane', () => {
       ...sourceRefsFor('inarc-homing-marker-attachment'),
       ...sourceRefsFor('inarc-homing-cluster-modifier'),
       ...sourceRefsFor('inarc-homing-to-hit-modifier'),
+      ...sourceRefsFor('inarc-haywire-to-hit-modifier'),
       ...sourceRefsFor('tag-designation-hit'),
       ...sourceRefsFor('tag-turn-lifecycle-clear'),
       ...sourceRefsFor('tag-marker-lifecycle-events'),

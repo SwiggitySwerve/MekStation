@@ -79,6 +79,31 @@ const MEGAMEK_INARC_HOMING_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_INARC_HAYWIRE_SOURCE_REFS = [
+  MEGAMEK_INARC_VARIANT_SOURCE_REFS[0],
+  {
+    kind: 'megamek-source',
+    citation:
+      'Entity.isINarcedWith checks attached iNarc pod type from any team.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L7336-L7344',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'ComputeToHit derives isHaywireINarced from the attacker entity before compiling attacker to-hit modifiers.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/compute/ComputeToHit.java#L209-L210',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'ComputeAttackerToHitMods applies the +1 iNarc Haywire attacker to-hit modifier.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/compute/ComputeAttackerToHitMods.java#L196-L199',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_TAG_DESIGNATION_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -232,8 +257,8 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'inarc-pod-variants': helperOnly(
     'inarc-pod-variants',
-    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes; Homing has runner marker and missile guidance coverage',
-    'iNarc ECM, Haywire, and Nemesis pod effects are not represented in runner missile resolution',
+    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes; Homing has runner marker and missile guidance coverage, and Haywire has attacker to-hit coverage',
+    'iNarc ECM and Nemesis pod effects are not represented in runner missile resolution',
     MEGAMEK_INARC_VARIANT_SOURCE_REFS,
   ),
   'inarc-homing-marker-attachment': integrated(
@@ -250,6 +275,11 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
     'inarc-homing-to-hit-modifier',
     'runAttackPhase consumes target iNarc Homing pod state and applies the source-backed -1 iNarc Homing to-hit modifier to NARC-compatible missiles when target ECM does not suppress it',
     MEGAMEK_INARC_HOMING_SOURCE_REFS,
+  ),
+  'inarc-haywire-to-hit-modifier': integrated(
+    'inarc-haywire-to-hit-modifier',
+    'runAttackPhase consumes attacker iNarc Haywire pod state and applies the source-backed +1 attacker to-hit modifier',
+    MEGAMEK_INARC_HAYWIRE_SOURCE_REFS,
   ),
   'narc-marker-lifecycle-events': integrated(
     'narc-marker-lifecycle-events',

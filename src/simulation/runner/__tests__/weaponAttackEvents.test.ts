@@ -1534,6 +1534,52 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       );
     });
 
+    it('iNARC haywire pods apply the source-backed attacker to-hit penalty', () => {
+      const laser = createMediumLaser();
+      const baseline = buildScenario({
+        attackerWeapons: [laser],
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [laser],
+        attackerStateOverride: {
+          iNarcPods: [{ teamId: GameSide.Opponent, podType: 'haywire' }],
+        },
+      });
+
+      const baselineResult = runPhaseWithResult({
+        state: baseline.state,
+        weaponsByUnit: baseline.weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(laser.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(laser.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+
+      const declared = result.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const baselineDeclared = baselineResult.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+
+      expect(declared.payload.toHitNumber).toBe(
+        baselineDeclared.payload.toHitNumber + 1,
+      );
+      expect(declared.payload.modifiers).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'iNARC Haywire',
+            value: 1,
+            source: 'equipment',
+          }),
+        ]),
+      );
+    });
+
     it('Artemis IV flags shift missile cluster results in direct and runner resolution', () => {
       const lrm = createLRM10();
       const artemisLRM: IWeapon = { ...lrm, hasArtemisIV: true };

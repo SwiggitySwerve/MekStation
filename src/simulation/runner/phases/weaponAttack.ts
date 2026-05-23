@@ -49,7 +49,10 @@ import {
   toAIUnitState,
 } from '../SimulationRunnerSupport';
 import { createD6Roller, createGameEvent } from './utils';
-import { iNarcHomingTeams } from './weaponAttackDesignatorMarkers';
+import {
+  hasINarcPodType,
+  iNarcHomingTeams,
+} from './weaponAttackDesignatorMarkers';
 import {
   expandSelectedModeIntoShots,
   getSelectedFiringMode,
@@ -136,6 +139,18 @@ function iNarcHomingToHitModifier(options: {
   return {
     name: 'iNARC Homing',
     value: -1,
+    source: 'equipment',
+  };
+}
+
+function iNarcHaywireToHitModifier(
+  attacker: IGameState['units'][string] | undefined,
+): IToHitModifier | null {
+  if (!hasINarcPodType(attacker, 'haywire')) return null;
+
+  return {
+    name: 'iNARC Haywire',
+    value: 1,
     source: 'equipment',
   };
 }
@@ -645,6 +660,7 @@ export function runAttackPhase(options: {
         targetEcmProtected,
         weapon: baseWeapon,
       });
+      const iNarcHaywireModifier = iNarcHaywireToHitModifier(attackerNow);
       const modeToHitModifier = selectedModeToHitModifier(
         baseWeapon,
         selectedMode,
@@ -653,7 +669,8 @@ export function runAttackPhase(options: {
         toHitCalc.finalToHit +
         indirectFirePenalty +
         (modeToHitModifier?.value ?? 0) +
-        (iNarcHomingModifier?.value ?? 0);
+        (iNarcHomingModifier?.value ?? 0) +
+        (iNarcHaywireModifier?.value ?? 0);
 
       const firingArc = calculateFiringArc(
         attackerNow.position,
@@ -685,6 +702,10 @@ export function runAttackPhase(options: {
         iNarcHomingModifier !== null
           ? [...modeAdjustedModifiers, iNarcHomingModifier]
           : modeAdjustedModifiers;
+      const iNarcAdjustedModifiers =
+        iNarcHaywireModifier !== null
+          ? [...guidanceAdjustedModifiers, iNarcHaywireModifier]
+          : guidanceAdjustedModifiers;
       const interveningTerrainModifier =
         calculateInterveningTerrainToHitModifier(grid, lineOfSight.losResult);
       const targetTerrainModifier = calculateTargetTerrainToHitModifier(
@@ -696,7 +717,7 @@ export function runAttackPhase(options: {
         (targetTerrainModifier?.value ?? 0) +
         (interveningTerrainModifier?.value ?? 0);
       const finalDeclaredModifiers = [
-        ...guidanceAdjustedModifiers,
+        ...iNarcAdjustedModifiers,
         ...(targetTerrainModifier ? [targetTerrainModifier] : []),
         ...(interveningTerrainModifier ? [interveningTerrainModifier] : []),
       ];

@@ -72,6 +72,13 @@ export function iNarcHomingTeams(
   return teams;
 }
 
+export function hasINarcPodType(
+  unit: IGameState['units'][string] | undefined,
+  podType: IINarcPodState['podType'],
+): boolean {
+  return (unit?.iNarcPods ?? []).some((pod) => pod.podType === podType);
+}
+
 export function markTargetINarcPod(options: {
   currentState: IGameState;
   targetId: string;
