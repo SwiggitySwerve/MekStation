@@ -44,6 +44,13 @@ const MEGAMEK_DFA_MISS_FALL_SOURCE_REFS = [
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L15225-L15245',
     sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
   },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek doEntityFall rolls checkPilotAvoidFallDamage after fall damage and adds fallHeight - 1 to the pilot-damage avoidance target.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L23233-L23357',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export const ACTION_ELIGIBILITY_COMBAT_SUPPORT = {
@@ -185,7 +192,7 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   [PSRTrigger.DFAMiss]: helperOnly(
     PSRTrigger.DFAMiss,
     'createDFAMissPSR remains available for legacy/no-grid fallback coverage',
-    'Source-backed grid resolution applies immediate missed-DFA fall damage and UnitFell instead of queuing a normal DFAMiss PSR',
+    'Source-backed grid resolution applies immediate missed-DFA fall damage, UnitFell, and pilot-damage avoidance instead of queuing a normal DFAMiss PSR',
     MEGAMEK_DFA_MISS_FALL_SOURCE_REFS,
   ),
   [PSRTrigger.Shutdown]: integrated(

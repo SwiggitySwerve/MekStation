@@ -25,10 +25,15 @@ import {
 
 import type { IPhysicalAttackContext } from './gameSessionPhysicalHelpers';
 
-import { resolveDamage as resolveDamagePipeline } from './damage';
+import {
+  PILOT_DEATH_WOUND_THRESHOLD,
+  resolveDamage as resolveDamagePipeline,
+  resolvePilotConsciousnessCheck,
+} from './damage';
 import { type D6Roller, type DiceRoller } from './diceTypes';
 import {
   createDamageAppliedEvent,
+  createPilotHitEvent,
   createPhysicalAttackDeclaredEvent,
   createPhysicalAttackResolvedEvent,
   createPSRTriggeredEvent,
@@ -65,6 +70,7 @@ import {
   PhysicalAttackType,
   isSupportedPhysicalAttackType,
   resolveDfaMissFallDamage,
+  resolveDfaMissFallPilotDamageAvoidance,
   resolvePhysicalAttack,
   splitPhysicalDamageIntoClusters,
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
@@ -172,12 +178,21 @@ function appendDfaMissFallDamage(
     readonly turn: number;
     readonly attackerId: string;
     readonly attackerTonnage: number;
+    readonly attackerPilotingSkill: number;
+    readonly attackerPilotAbilities?: readonly string[];
     readonly attackerFacing: IGameSession['currentState']['units'][string]['facing'];
     readonly d6Roller: D6Roller;
   },
 ): IGameSession {
-  const { attackerFacing, attackerId, attackerTonnage, d6Roller, turn } =
-    options;
+  const {
+    attackerFacing,
+    attackerId,
+    attackerPilotingSkill,
+    attackerPilotAbilities,
+    attackerTonnage,
+    d6Roller,
+    turn,
+  } = options;
   const fall = resolveDfaMissFallDamage(
     attackerTonnage,
     attackerFacing,
@@ -215,7 +230,15 @@ function appendDfaMissFallDamage(
   }
 
   const fallSeq = currentSession.events.length;
-  return appendEvent(
+  const attacker = currentSession.currentState.units[attackerId];
+  const pilotAbilities = attackerPilotAbilities ?? attacker?.abilities ?? [];
+  const pilotDamageAvoidance = resolveDfaMissFallPilotDamageAvoidance(
+    attackerPilotingSkill,
+    fall.fallHeight,
+    d6Roller,
+    pilotAbilities,
+  );
+  currentSession = appendEvent(
     currentSession,
     createUnitFellEvent(
       currentSession.id,
@@ -225,12 +248,86 @@ function appendDfaMissFallDamage(
       attackerId,
       fall.fallDamage,
       fall.newFacing,
-      fall.pilotDamage,
+      pilotDamageAvoidance.pilotDamage,
       'dfa_miss',
       'Missed DFA',
       PSRTrigger.DFAMiss,
     ),
   );
+  return appendDfaMissFallPilotDamage(currentSession, {
+    turn,
+    attackerId,
+    pilotDamage: pilotDamageAvoidance.pilotDamage,
+    pilotAbilities,
+    d6Roller,
+  });
+}
+
+function appendDfaMissFallPilotDamage(
+  session: IGameSession,
+  options: {
+    readonly turn: number;
+    readonly attackerId: string;
+    readonly pilotDamage: number;
+    readonly pilotAbilities: readonly string[];
+    readonly d6Roller: D6Roller;
+  },
+): IGameSession {
+  const { attackerId, d6Roller, pilotAbilities, pilotDamage, turn } = options;
+  if (pilotDamage <= 0) {
+    return session;
+  }
+
+  const attacker = session.currentState.units[attackerId];
+  if (!attacker) {
+    return session;
+  }
+
+  const totalWounds = attacker.pilotWounds + pilotDamage;
+  const consciousnessCheck = resolvePilotConsciousnessCheck(
+    totalWounds,
+    pilotDamage,
+    pilotAbilities,
+    d6Roller,
+  );
+  const consciousnessPassed =
+    totalWounds < PILOT_DEATH_WOUND_THRESHOLD &&
+    attacker.pilotConscious &&
+    (consciousnessCheck.conscious ?? true);
+  const pilotKilled =
+    totalWounds >= PILOT_DEATH_WOUND_THRESHOLD && !attacker.destroyed;
+
+  let currentSession = appendEvent(
+    session,
+    createPilotHitEvent(
+      session.id,
+      session.events.length,
+      turn,
+      GamePhase.PhysicalAttack,
+      attackerId,
+      pilotDamage,
+      totalWounds,
+      'fall',
+      consciousnessCheck.consciousnessCheckRequired,
+      consciousnessPassed,
+    ),
+  );
+
+  if (pilotKilled) {
+    currentSession = appendEvent(
+      currentSession,
+      createUnitDestroyedEvent(
+        currentSession.id,
+        currentSession.events.length,
+        turn,
+        GamePhase.PhysicalAttack,
+        attackerId,
+        'pilot_death',
+      ),
+    );
+  }
+
+  return currentSession;
 }
 
 /**
@@ -893,6 +990,9 @@ export function resolveAllPhysicalAttacks(
         turn,
         attackerId: payload.attackerId,
         attackerTonnage: context.attackerTonnage,
+        attackerPilotingSkill: context.pilotingSkill,
+        attackerPilotAbilities:
+          context.pilotAbilities ?? attackerState.abilities,
         attackerFacing: attackerState.facing,
         d6Roller,
       });

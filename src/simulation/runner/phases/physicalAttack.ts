@@ -7,6 +7,7 @@ import {
   MovementType,
   PSRTrigger,
 } from '@/types/gameplay';
+import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
 import { firedWeaponIdsFromMountedArm } from '@/utils/gameplay/gameSessionPhysicalHelpers';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
@@ -17,6 +18,7 @@ import {
   isValidDisplacement,
   PhysicalAttackType,
   resolveDfaMissFallDamage,
+  resolveDfaMissFallPilotDamageAvoidance,
   resolvePhysicalAttack,
   splitPhysicalDamageIntoClusters,
 } from '@/utils/gameplay/physicalAttacks';
@@ -33,6 +35,7 @@ import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import {
   DEFAULT_COMPONENT_DAMAGE,
+  LETHAL_PILOT_WOUNDS,
   DEFAULT_PILOTING,
   DEFAULT_TONNAGE,
 } from '../SimulationRunnerConstants';
@@ -90,6 +93,88 @@ function markUnitFallenAfterDfaMiss(
         prone: true,
         facing: newFacing,
         pendingPSRs: [],
+      },
+    },
+  };
+}
+
+function applyDfaMissFallPilotDamage(options: {
+  readonly state: IGameState;
+  readonly events: IGameEvent[];
+  readonly gameId: string;
+  readonly unitId: string;
+  readonly pilotDamage: number;
+  readonly d6Roller: () => number;
+}): IGameState {
+  const { d6Roller, events, gameId, pilotDamage, state, unitId } = options;
+  if (pilotDamage <= 0) {
+    return state;
+  }
+
+  const unit = state.units[unitId];
+  if (!unit) {
+    return state;
+  }
+
+  const totalWounds = unit.pilotWounds + pilotDamage;
+  const consciousnessCheck = resolvePilotConsciousnessCheck(
+    totalWounds,
+    pilotDamage,
+    unit.abilities ?? [],
+    d6Roller,
+  );
+  const pilotConscious =
+    totalWounds < LETHAL_PILOT_WOUNDS &&
+    unit.pilotConscious &&
+    (consciousnessCheck.conscious ?? true);
+  const pilotKilled = totalWounds >= LETHAL_PILOT_WOUNDS && !unit.destroyed;
+
+  events.push(
+    createGameEvent(
+      gameId,
+      events.length,
+      GameEventType.PilotHit,
+      state.turn,
+      GamePhase.PhysicalAttack,
+      {
+        unitId,
+        wounds: pilotDamage,
+        totalWounds,
+        source: 'fall',
+        consciousnessCheckRequired:
+          consciousnessCheck.consciousnessCheckRequired,
+        consciousnessCheckPassed: pilotConscious,
+      },
+      unitId,
+    ),
+  );
+
+  if (pilotKilled) {
+    events.push(
+      createGameEvent(
+        gameId,
+        events.length,
+        GameEventType.UnitDestroyed,
+        state.turn,
+        GamePhase.PhysicalAttack,
+        {
+          unitId,
+          cause: 'pilot_death',
+        },
+        unitId,
+      ),
+    );
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [unitId]: {
+        ...unit,
+        pilotWounds: totalWounds,
+        pilotConscious,
+        destroyed: pilotKilled ? true : unit.destroyed,
       },
     },
   };
@@ -428,6 +513,12 @@ export function runPhysicalAttackPhase(options: {
         clusters: dfaMissFall.clusters,
         d6Roller,
       });
+      const pilotDamageAvoidance = resolveDfaMissFallPilotDamageAvoidance(
+        unit.piloting ?? DEFAULT_PILOTING,
+        dfaMissFall.fallHeight,
+        d6Roller,
+        unit.abilities ?? [],
+      );
       currentState = markUnitFallenAfterDfaMiss(
         currentState,
         unitId,
@@ -444,7 +535,7 @@ export function runPhysicalAttackPhase(options: {
             unitId,
             fallDamage: dfaMissFall.fallDamage,
             newFacing: dfaMissFall.newFacing,
-            pilotDamage: dfaMissFall.pilotDamage,
+            pilotDamage: pilotDamageAvoidance.pilotDamage,
             location: 'dfa_miss',
             reason: 'Missed DFA',
             reasonCode: PSRTrigger.DFAMiss,
@@ -452,6 +543,14 @@ export function runPhysicalAttackPhase(options: {
           unitId,
         ),
       );
+      currentState = applyDfaMissFallPilotDamage({
+        state: currentState,
+        events,
+        gameId,
+        unitId,
+        pilotDamage: pilotDamageAvoidance.pilotDamage,
+        d6Roller,
+      });
     }
 
     currentState = applyImpossibleDisplacementDestruction({

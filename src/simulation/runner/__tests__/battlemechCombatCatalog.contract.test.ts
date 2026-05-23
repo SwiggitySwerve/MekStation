@@ -1498,6 +1498,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual([
       'cockpit-crit-pilot-death',
       'consciousness-check',
+      'fall-pilot-damage',
       'head-hit-pilot-event',
       'head-hit-wound',
       'heat-pilot-damage',
@@ -1663,6 +1664,13 @@ describe('BattleMech combat feature-gap tracking', () => {
       ),
     ).toContain(
       'MegaMek resolveDfaAttack displaces the target on a missed DFA, then immediately calls doEntityFall on the attacker with fall height 2 and facing 3.',
+    );
+    expect(
+      RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.DFAMiss].sourceRefs?.map(
+        (sourceRef) => sourceRef.citation,
+      ),
+    ).toContain(
+      'MegaMek doEntityFall rolls checkPilotAvoidFallDamage after fall damage and adds fallHeight - 1 to the pilot-damage avoidance target.',
     );
   });
 

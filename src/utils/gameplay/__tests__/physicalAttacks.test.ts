@@ -21,6 +21,7 @@ import {
   calculatePhysicalToHit,
   calculatePhysicalDamage,
   getPhysicalMissConsequences,
+  resolveDfaMissFallPilotDamageAvoidance,
   canPunch,
   canKick,
   canCharge,
@@ -413,6 +414,55 @@ describe('physicalAttacks', () => {
           makeInput({ attackerTonnage: 50, attackType: 'dfa' }),
         ),
       ).toBe(5);
+    });
+  });
+
+  describe('resolveDfaMissFallPilotDamageAvoidance', () => {
+    it('applies the source-backed fall-height modifier and wounds on failure', () => {
+      const rolls = [2, 3];
+      const result = resolveDfaMissFallPilotDamageAvoidance(
+        5,
+        2,
+        () => rolls.shift() ?? 1,
+      );
+
+      expect(result).toMatchObject({
+        targetNumber: 6,
+        roll: 5,
+        dice: [2, 3],
+        passed: false,
+        pilotDamage: 1,
+      });
+    });
+
+    it('avoids missed-DFA fall pilot damage on a successful roll', () => {
+      const rolls = [3, 3];
+      const result = resolveDfaMissFallPilotDamageAvoidance(
+        5,
+        2,
+        () => rolls.shift() ?? 1,
+      );
+
+      expect(result).toMatchObject({
+        targetNumber: 6,
+        roll: 6,
+        dice: [3, 3],
+        passed: true,
+        pilotDamage: 0,
+      });
+    });
+
+    it('honors source-backed Manei Domini fall-pilot-damage immunity', () => {
+      const result = resolveDfaMissFallPilotDamageAvoidance(5, 2, () => 1, [
+        'dermal_armor',
+      ]);
+
+      expect(result).toMatchObject({
+        targetNumber: 6,
+        dice: [],
+        passed: true,
+        pilotDamage: 0,
+      });
     });
   });
 

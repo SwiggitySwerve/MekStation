@@ -3,6 +3,7 @@ import { CombatLocation, Facing, FiringArc } from '@/types/gameplay';
 import { calculateFallDamage } from '@/utils/gameplay/fallMechanics';
 import {
   determineHitLocation,
+  roll2d6,
   type D6Roller,
 } from '@/utils/gameplay/hitLocation';
 import { getBattleFistDamageBonus } from '@/utils/gameplay/quirkModifiers';
@@ -45,6 +46,14 @@ export interface IDfaMissFallDamageResult {
   readonly newFacing: Facing;
   readonly pilotDamage: number;
   readonly clusters: readonly IPhysicalDamageCluster[];
+}
+
+export interface IDfaMissFallPilotDamageAvoidanceResult {
+  readonly targetNumber: number;
+  readonly roll: number;
+  readonly dice: readonly number[];
+  readonly passed: boolean;
+  readonly pilotDamage: number;
 }
 
 export function getEffectiveWeight(
@@ -188,6 +197,37 @@ export function resolveDfaMissFallDamage(
     // MekStation does not yet model that pilot-damage avoidance check here.
     pilotDamage: 0,
     clusters,
+  };
+}
+
+export function resolveDfaMissFallPilotDamageAvoidance(
+  pilotingSkill: number,
+  fallHeight: number,
+  diceRoller: D6Roller,
+  pilotAbilities: readonly string[] = [],
+): IDfaMissFallPilotDamageAvoidanceResult {
+  const hasPilotDamageImmunity =
+    pilotAbilities.includes('dermal_armor') ||
+    pilotAbilities.includes('tsm_implant');
+  const targetNumber = pilotingSkill + Math.max(0, fallHeight - 1);
+  if (hasPilotDamageImmunity) {
+    return {
+      targetNumber,
+      roll: Infinity,
+      dice: [],
+      passed: true,
+      pilotDamage: 0,
+    };
+  }
+
+  const roll = roll2d6(diceRoller);
+  const passed = roll.total >= targetNumber;
+  return {
+    targetNumber,
+    roll: roll.total,
+    dice: roll.dice,
+    passed,
+    pilotDamage: passed ? 0 : 1,
   };
 }
 

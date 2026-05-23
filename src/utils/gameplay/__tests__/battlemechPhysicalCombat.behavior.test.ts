@@ -2844,6 +2844,9 @@ describe('BattleMech physical combat behavior validation lane', () => {
     const fell = resolved.events.find(
       (entry) => entry.type === GameEventType.UnitFell,
     );
+    const pilotHit = resolved.events.find(
+      (entry) => entry.type === GameEventType.PilotHit,
+    );
     const psrEvents = resolved.events.filter(
       (entry) => entry.type === GameEventType.PSRTriggered,
     );
@@ -2853,6 +2856,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       .filter((entry) => entry.unitId === 'attacker');
     const payload = event?.payload as IPhysicalAttackResolvedPayload;
     const fallPayload = fell?.payload as IUnitFellPayload | undefined;
+    const pilotHitPayload = pilotHit?.payload as IPilotHitPayload | undefined;
 
     expect(payload).toMatchObject({
       attackType: 'dfa',
@@ -2885,17 +2889,70 @@ describe('BattleMech physical combat behavior validation lane', () => {
       unitId: 'attacker',
       fallDamage: 24,
       newFacing: Facing.North,
-      pilotDamage: 0,
+      pilotDamage: 1,
       location: 'dfa_miss',
       reason: 'Missed DFA',
       reasonCode: PSRTrigger.DFAMiss,
+    });
+    expect(pilotHitPayload).toMatchObject({
+      unitId: 'attacker',
+      wounds: 1,
+      totalWounds: 1,
+      source: 'fall',
+      consciousnessCheckRequired: true,
+      consciousnessCheckPassed: false,
     });
     expect(resolved.currentState.units.attacker).toMatchObject({
       prone: true,
       facing: Facing.North,
       pendingPSRs: [],
+      pilotWounds: 1,
+      pilotConscious: false,
     });
     expect(psrEvents).toHaveLength(0);
+  });
+
+  it('passes missed-DFA fall pilot-damage avoidance without a PilotHit', () => {
+    const context = physicalContext({
+      hexesMoved: 4,
+      attackerJumpedThisTurn: true,
+    });
+    const declared = declareAdjacentPhysicalAttack('dfa', context, {
+      facing: Facing.South,
+      armor: STANDARD_ARMOR,
+      structure: STANDARD_STRUCTURE,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 6]),
+      adjacentPhysicalGrid(),
+    );
+    const fell = resolved.events.find(
+      (entry) => entry.type === GameEventType.UnitFell,
+    );
+    const pilotHit = resolved.events.find(
+      (entry) => entry.type === GameEventType.PilotHit,
+    );
+    const fallPayload = fell?.payload as IUnitFellPayload | undefined;
+
+    expect(fallPayload).toMatchObject({
+      unitId: 'attacker',
+      fallDamage: 24,
+      newFacing: Facing.North,
+      pilotDamage: 0,
+      location: 'dfa_miss',
+      reason: 'Missed DFA',
+      reasonCode: PSRTrigger.DFAMiss,
+    });
+    expect(pilotHit).toBeUndefined();
+    expect(resolved.currentState.units.attacker).toMatchObject({
+      prone: true,
+      facing: Facing.North,
+      pilotWounds: 0,
+      pilotConscious: true,
+    });
   });
 
   it('emits event-sourced DFA target destruction on impossible hit displacement', () => {

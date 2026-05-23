@@ -15,6 +15,7 @@ import {
   IDamageAppliedPayload,
   IPhysicalAttackDeclaredPayload,
   IMovementCapability,
+  IPilotHitPayload,
   IPhysicalAttackResolvedPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
@@ -1527,7 +1528,11 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
     const attackerFallDamage = damageEventsFor(events, 'player-1');
     const fell = events.find((event) => event.type === GameEventType.UnitFell);
+    const pilotHit = events.find(
+      (event) => event.type === GameEventType.PilotHit,
+    );
     const fallPayload = fell?.payload as IUnitFellPayload | undefined;
+    const pilotHitPayload = pilotHit?.payload as IPilotHitPayload | undefined;
     expect(
       attackerFallDamage.reduce((sum, event) => sum + event.damage, 0),
     ).toBe(21);
@@ -1535,10 +1540,18 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       unitId: 'player-1',
       fallDamage: 21,
       newFacing: Facing.North,
-      pilotDamage: 0,
+      pilotDamage: 1,
       location: 'dfa_miss',
       reason: 'Missed DFA',
       reasonCode: PSRTrigger.DFAMiss,
+    });
+    expect(pilotHitPayload).toMatchObject({
+      unitId: 'player-1',
+      wounds: 1,
+      totalWounds: 1,
+      source: 'fall',
+      consciousnessCheckRequired: true,
+      consciousnessCheckPassed: true,
     });
     expect(result.units['player-1'].pendingPSRs).toEqual([]);
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 1 });
@@ -1546,6 +1559,8 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       position: { q: 1, r: 0 },
       prone: true,
       facing: Facing.North,
+      pilotWounds: 1,
+      pilotConscious: true,
     });
   });
 

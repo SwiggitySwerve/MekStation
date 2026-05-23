@@ -198,6 +198,7 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **WHEN** the DFA miss displacement branch runs
 - **THEN** the target SHALL move to the preferred displacement hex and the attacker SHALL fall into the target's original hex
 - **AND** event-sourced resolution and runner resolution SHALL immediately apply fall damage, set the attacker prone with the source-backed rear fall facing, emit `UnitFell`, and avoid queuing the normal `DFAMiss` PSR for that grid-backed fall branch
+- **AND** the attacker SHALL roll the source-backed fall pilot-damage avoidance check, applying one fall-sourced pilot wound and `PilotHit` only when that check fails
 
 ### Requirement: Source-Truth Cross-Check Discipline
 

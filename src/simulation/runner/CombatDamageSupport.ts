@@ -38,6 +38,16 @@ const MEGAMEK_DFA_IMPOSSIBLE_DISPLACEMENT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_FALL_PILOT_DAMAGE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek doEntityFall rolls checkPilotAvoidFallDamage after fall damage and applies one crew hit when that piloting check fails.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L23233-L23357',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
   'armor-damage': integrated(
     'armor-damage',
@@ -114,6 +124,11 @@ export const PILOT_DAMAGE_COMBAT_SUPPORT = {
   'heat-pilot-damage': integrated(
     'heat-pilot-damage',
     'runHeatPhase and resolveHeatPhase emit PilotHit source=heat, persist wound totals, and destroy pilots at lethal heat wounds',
+  ),
+  'fall-pilot-damage': integrated(
+    'fall-pilot-damage',
+    'runPSRPhase, resolvePendingPSRs, and source-backed missed-DFA fall resolution emit PilotHit source=fall, persist wound totals, and destroy pilots at lethal fall wounds',
+    MEGAMEK_FALL_PILOT_DAMAGE_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 
