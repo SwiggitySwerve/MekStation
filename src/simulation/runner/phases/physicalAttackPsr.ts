@@ -6,6 +6,7 @@ import {
 import {
   createChargedPSR,
   createChargeMissPSR,
+  createDFAAttackerPSR,
   createDFAMissPSR,
   createDFATargetPSR,
   createKickedPSR,
@@ -66,7 +67,7 @@ export function attackerHitPSRForAttack(
       };
     case 'dfa':
       return {
-        ...createDFATargetPSR(attackerId),
+        ...createDFAAttackerPSR(attackerId),
         additionalModifier: result.attackerPSRModifier,
       };
     default:

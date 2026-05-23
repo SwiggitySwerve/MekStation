@@ -1414,7 +1414,14 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       initialState.units['player-1'].armor.right_leg ?? 0,
     );
     expectPendingPSR(result, 'opponent-1', PSRTrigger.DFATarget);
-    expectPendingPSR(result, 'player-1', PSRTrigger.DFATarget);
+    expect(result.units['player-1'].pendingPSRs).toContainEqual(
+      expect.objectContaining({
+        reason: 'Executed DFA',
+        reasonCode: PSRTrigger.DFATarget,
+        additionalModifier: 4,
+        triggerSource: 'dfa_attacker_hit',
+      }),
+    );
   });
 
   it('applies source-backed DFA Battle Armor target-class to-hit modifier', () => {

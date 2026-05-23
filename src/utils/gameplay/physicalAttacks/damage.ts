@@ -6,6 +6,7 @@ import {
   CHARGE_DAMAGE_DIVISOR,
   DFA_ATTACKER_DAMAGE_DIVISOR,
   DFA_DAMAGE_MULTIPLIER,
+  DFA_HIT_ATTACKER_PSR_MODIFIER,
   DFA_MISS_PSR_MODIFIER,
   DFA_TARGET_DAMAGE_DIVISOR,
   HATCHET_DAMAGE_DIVISOR,
@@ -270,7 +271,7 @@ export function calculatePhysicalDamage(
         attackerLegDamagePerLeg: calculateDFADamageToAttacker(input),
         targetPSR: true,
         attackerPSR: true,
-        attackerPSRModifier: 0,
+        attackerPSRModifier: DFA_HIT_ATTACKER_PSR_MODIFIER,
         hitTable: 'punch',
         targetDisplaced: false,
       };

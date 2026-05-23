@@ -27,6 +27,7 @@ import {
   createFootActuatorPSR,
   createKickedPSR,
   createChargedPSR,
+  createDFAAttackerPSR,
   createDFATargetPSR,
   createPushedPSR,
   createKickMissPSR,
@@ -164,6 +165,20 @@ describe('Piloting Skill Rolls', () => {
 
       expect(result.targetNumber).toBe(9); // 5 + 4
       expect(result.passed).toBe(true); // 9 >= 9
+    });
+
+    it('should apply source-backed DFA attacker +4 modifier', () => {
+      const psr: IPendingPSR = createDFAAttackerPSR('unit-1');
+      const roller = makeDiceSequence([5, 4]); // total = 9
+      const result = resolvePSR(5, psr, DEFAULT_COMP_DAMAGE, 0, roller);
+
+      expect(psr).toMatchObject({
+        reason: 'Executed DFA',
+        reasonCode: PSRTrigger.DFATarget,
+        triggerSource: 'dfa_attacker_hit',
+      });
+      expect(result.targetNumber).toBe(9);
+      expect(result.passed).toBe(true);
     });
 
     it('should return modifier breakdown', () => {

@@ -8,6 +8,7 @@ export const CHARGE_DAMAGE_DIVISOR = 10;
 export const DFA_TARGET_DAMAGE_DIVISOR = 10;
 export const DFA_DAMAGE_MULTIPLIER = 3;
 export const DFA_ATTACKER_DAMAGE_DIVISOR = 5;
+export const DFA_HIT_ATTACKER_PSR_MODIFIER = 4;
 export const HATCHET_DAMAGE_DIVISOR = 5;
 export const SWORD_DAMAGE_DIVISOR = 10;
 export const SWORD_DAMAGE_BONUS = 1;

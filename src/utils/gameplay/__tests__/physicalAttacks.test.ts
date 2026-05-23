@@ -2371,6 +2371,7 @@ describe('physicalAttacks', () => {
       expect(result.attackerLegDamagePerLeg).toBe(7);
       expect(result.targetPSR).toBe(true);
       expect(result.attackerPSR).toBe(true);
+      expect(result.attackerPSRModifier).toBe(4);
       expect(result.hitTable).toBe('punch');
     });
 

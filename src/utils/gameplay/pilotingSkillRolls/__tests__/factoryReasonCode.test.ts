@@ -14,6 +14,7 @@ import {
   // combat family
   createKickedPSR,
   createChargedPSR,
+  createDFAAttackerPSR,
   createDFATargetPSR,
   createPushedPSR,
   createKickMissPSR,
@@ -58,6 +59,11 @@ describe('PSR factory reasonCode population (PR E)', () => {
       ['createKickedPSR', createKickedPSR(ENTITY), PSRTrigger.Kicked],
       ['createChargedPSR', createChargedPSR(ENTITY), PSRTrigger.Charged],
       ['createDFATargetPSR', createDFATargetPSR(ENTITY), PSRTrigger.DFATarget],
+      [
+        'createDFAAttackerPSR',
+        createDFAAttackerPSR(ENTITY),
+        PSRTrigger.DFATarget,
+      ],
       ['createPushedPSR', createPushedPSR(ENTITY), PSRTrigger.Pushed],
       ['createKickMissPSR', createKickMissPSR(ENTITY), PSRTrigger.KickMiss],
       [

@@ -28,6 +28,7 @@ export {
 export {
   createKickedPSR,
   createChargedPSR,
+  createDFAAttackerPSR,
   createDFATargetPSR,
   createPushedPSR,
   createKickMissPSR,

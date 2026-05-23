@@ -1650,6 +1650,13 @@ describe('BattleMech combat feature-gap tracking', () => {
         PSRTrigger.SuperchargerFailure,
       ].sort(),
     );
+    expect(
+      RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.DFATarget].sourceRefs?.map(
+        (sourceRef) => sourceRef.citation,
+      ),
+    ).toContain(
+      'MegaMek resolveDfaAttack queues attacker PilotingRollData +4 for "executed death from above" after a successful DFA.',
+    );
   });
 
   it('audits known-limitation traps without filtering combat validation failures', () => {

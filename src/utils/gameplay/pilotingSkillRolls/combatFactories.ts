@@ -5,6 +5,7 @@
 
 import type { IPendingPSR } from '@/types/gameplay';
 
+import { DFA_HIT_ATTACKER_PSR_MODIFIER } from '../physicalAttacks/constants';
 import { PSRTrigger } from './types';
 
 /**
@@ -43,6 +44,23 @@ export function createDFATargetPSR(entityId: string): IPendingPSR {
     reasonCode: PSRTrigger.DFATarget,
     additionalModifier: 0,
     triggerSource: PSRTrigger.DFATarget,
+  };
+}
+
+/**
+ * Create a pending PSR for the attacker after executing a DFA.
+ *
+ * MegaMek queues this as `PilotingRollData(..., 4, "executed death from above")`.
+ * The canonical reason bucket stays `DFATarget` for backward-compatible PSR
+ * taxonomy, while the triggerSource distinguishes attacker-side DFA fallout.
+ */
+export function createDFAAttackerPSR(entityId: string): IPendingPSR {
+  return {
+    entityId,
+    reason: 'Executed DFA',
+    reasonCode: PSRTrigger.DFATarget,
+    additionalModifier: DFA_HIT_ATTACKER_PSR_MODIFIER,
+    triggerSource: 'dfa_attacker_hit',
   };
 }
 

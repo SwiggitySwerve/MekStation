@@ -185,6 +185,13 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** a missed DFA SHALL destroy the attacker with `cause=impossible_displacement` without queuing the normal miss PSR
 - **AND** helper, event-sourced resolution, runner resolution, and the destruction-cause catalog SHALL report the same source-backed outcome
 
+#### Scenario: Death from above successful attacker PSR uses source-backed modifier
+
+- **GIVEN** a death-from-above attack hits its target
+- **WHEN** the attacker-side post-DFA piloting skill roll is queued
+- **THEN** the attacker PSR SHALL use the MegaMek-backed +4 "executed death from above" modifier
+- **AND** event-sourced resolution and runner resolution SHALL both surface the same modifier while the target's hit-by-DFA PSR remains unmodified
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

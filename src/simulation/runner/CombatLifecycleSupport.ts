@@ -1,9 +1,18 @@
 import { PSRTrigger } from '@/types/gameplay';
 
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
-function integrated(id: string, evidence: string): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence };
+function integrated(
+  id: string,
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'integrated', evidence, sourceRefs }
+    : { id, level: 'integrated', evidence };
 }
 
 function helperOnly(
@@ -13,6 +22,16 @@ function helperOnly(
 ): ICombatFeatureSupportEntry {
   return { id, level: 'helper-only', evidence, gap };
 }
+
+const MEGAMEK_DFA_ATTACKER_PSR_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek resolveDfaAttack queues attacker PilotingRollData +4 for "executed death from above" after a successful DFA.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L15417-L15422',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
 
 export const ACTION_ELIGIBILITY_COMBAT_SUPPORT = {
   destroyed: integrated(
@@ -135,7 +154,8 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.DFATarget]: integrated(
     PSRTrigger.DFATarget,
-    'physicalAttackPsr queues createDFATargetPSR for DFA target falls',
+    'physicalAttackPsr queues createDFATargetPSR for DFA target falls and createDFAAttackerPSR +4 for successful DFA attackers',
+    MEGAMEK_DFA_ATTACKER_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.Pushed]: integrated(
     PSRTrigger.Pushed,

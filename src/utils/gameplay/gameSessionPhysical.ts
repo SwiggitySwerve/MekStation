@@ -754,7 +754,9 @@ export function resolveAllPhysicalAttacks(
           turn,
           GamePhase.PhysicalAttack,
           payload.attackerId,
-          `Hit ${payload.attackType}`,
+          payload.attackType === 'dfa'
+            ? 'Executed DFA'
+            : `Hit ${payload.attackType}`,
           result.attackerPSRModifier,
           attackerHitTrigger,
           context.pilotingSkill,
