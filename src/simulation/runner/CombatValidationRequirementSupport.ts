@@ -21,6 +21,7 @@ import {
 import {
   QUIRK_COMBAT_SUPPORT,
   SPA_COMBAT_SUPPORT,
+  type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 import {
@@ -107,6 +108,30 @@ const MEKSTATION_LIFECYCLE_CONTRACT_AUTHORITY = {
   rationale:
     'The tabletop outcome exists, but target filtering, event emission, turn rotation, objectives, and network parity are MekStation product contracts.',
 } satisfies ICombatRequirementPrimaryAuthority;
+
+const MEGAMEK_EJECTION_LIFECYCLE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MovePathHandler routes manual EJECT movement into ejectEntity handling.',
+    url: 'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L177-L215',
+    sourceVersion: '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'TWGameManager.ejectEntity marks crew ejected, creates the ejected crew entity, destroys the original unit, and removes it with REMOVE_EJECTED for manual ejection.',
+    url: 'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L28991-L29232',
+    sourceVersion: '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'ServerReportsHelper separates active unit, ejected unit, and ejected crew counts after combat.',
+    url: 'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/server/ServerReportsHelper.java#L46-L89',
+    sourceVersion: '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
 
 export const COMBAT_REQUIREMENT_PRIMARY_AUTHORITIES = {
   'official-ranged-weapons': MEGAMEK_EQUIPMENT_DATA_AUTHORITY,
@@ -396,14 +421,17 @@ function integrated(
   id: CombatRequirementId,
   evidence: string,
   supportMapRefs: readonly string[],
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatRequirementSupportEntry {
-  return {
+  const entry: ICombatRequirementSupportEntry = {
     id,
     level: 'integrated',
     evidence,
     primaryAuthority: primaryAuthorityFor(id),
     supportMapRefs,
   };
+
+  return sourceRefs ? { ...entry, sourceRefs } : entry;
 }
 
 function helperOnly(
@@ -779,6 +807,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'parityAndIntegration.representativeScenarios.ejection-damage-preservation',
       'parityAndIntegration.representativeScenarios.ejection-command-intent-outcome',
     ],
+    MEGAMEK_EJECTION_LIFECYCLE_SOURCE_REFS,
   ),
   'retreat-withdrawal': integrated(
     'retreat-withdrawal',

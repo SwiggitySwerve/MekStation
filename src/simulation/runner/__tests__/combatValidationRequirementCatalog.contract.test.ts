@@ -318,6 +318,34 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(invalidSourceRefs).toEqual([]);
   });
 
+  it('pins ejection lifecycle to MegaMek original-unit removal sources', () => {
+    const sourceRefs =
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['ejection-lifecycle']
+        .sourceRefs ?? [];
+
+    expect(sourceRefs).toHaveLength(3);
+    expect(sourceRefs.map((sourceRef) => sourceRef.kind)).toEqual([
+      'megamek-source',
+      'megamek-source',
+      'megamek-source',
+    ]);
+    expect(sourceRefs.map(({ citation }) => citation)).toEqual([
+      'MovePathHandler routes manual EJECT movement into ejectEntity handling.',
+      'TWGameManager.ejectEntity marks crew ejected, creates the ejected crew entity, destroys the original unit, and removes it with REMOVE_EJECTED for manual ejection.',
+      'ServerReportsHelper separates active unit, ejected unit, and ejected crew counts after combat.',
+    ]);
+    expect(sourceRefs.map(({ sourceVersion }) => sourceVersion)).toEqual([
+      '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
+      '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
+      '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
+    ]);
+    expect(sourceRefs.map(({ url }) => url)).toEqual([
+      'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L177-L215',
+      'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L28991-L29232',
+      'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/server/ServerReportsHelper.java#L46-L89',
+    ]);
+  });
+
   it('separates rules authorities from implementation evidence references', () => {
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['official-ranged-weapons']
