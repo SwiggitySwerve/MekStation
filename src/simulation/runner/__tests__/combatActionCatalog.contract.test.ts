@@ -42,6 +42,7 @@ import {
   PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT,
 } from '../CombatPhysicalActionClassScopeSupport';
 import { PHYSICAL_ATTACK_ACTION_SUPPORT } from '../CombatPhysicalActionSupport';
+import { PHYSICAL_LEGALITY_GATE_SUPPORT } from '../CombatPhysicalLegalityGateSupport';
 
 function sortedKeys(record: Record<string, unknown>): readonly string[] {
   return Object.keys(record).sort();
@@ -320,5 +321,45 @@ describe('BattleMech combat action support catalog', () => {
       'thrash',
       'trip',
     ]);
+  });
+
+  it('anchors every physical legality gate to commit-pinned MegaMek source', () => {
+    const invalidSourceRefs = Object.values(
+      PHYSICAL_LEGALITY_GATE_SUPPORT,
+    ).flatMap((entry) => {
+      const sourceRefs = entry.sourceRefs ?? [];
+      if (sourceRefs.length === 0) return [`${entry.id}: missing sourceRefs`];
+
+      return sourceRefs.flatMap((sourceRef, index) => {
+        const sourceRefId = `${entry.id}.sourceRefs[${index}]`;
+        const failures: string[] = [];
+
+        if (sourceRef.kind !== 'megamek-source') {
+          failures.push(`${sourceRefId}: expected megamek-source`);
+        }
+        if (!sourceRef.url.includes('github.com/MegaMek/megamek/blob/')) {
+          failures.push(`${sourceRefId}: missing MegaMek blob URL`);
+        }
+        if (!sourceRef.url.includes(sourceRef.sourceVersion)) {
+          failures.push(`${sourceRefId}: source version not pinned in URL`);
+        }
+        if (!sourceRef.url.includes('#L')) {
+          failures.push(`${sourceRefId}: missing line anchor`);
+        }
+        if (sourceRef.citation.trim().length === 0) {
+          failures.push(`${sourceRefId}: missing citation`);
+        }
+
+        return failures;
+      });
+    });
+
+    expect(invalidSourceRefs).toEqual([]);
+    expect(
+      Object.values(PHYSICAL_LEGALITY_GATE_SUPPORT)
+        .filter((entry) => entry.level !== 'integrated')
+        .map((entry) => entry.gap)
+        .every((gap) => typeof gap === 'string' && gap.length > 0),
+    ).toBe(true);
   });
 });

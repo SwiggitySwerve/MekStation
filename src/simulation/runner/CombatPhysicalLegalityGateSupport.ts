@@ -1,4 +1,7 @@
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
 export type PhysicalLegalityAttackFamily = 'shared' | 'push' | 'charge' | 'dfa';
 
@@ -13,7 +16,14 @@ function integrated(
   evidence: string,
   authority: string,
 ): IPhysicalLegalityGateSupportEntry {
-  return { id, attackFamily, authority, level: 'integrated', evidence };
+  return {
+    id,
+    attackFamily,
+    authority,
+    level: 'integrated',
+    evidence,
+    sourceRefs: sourceRefsForAuthority(authority),
+  };
 }
 
 function helperOnly(
@@ -23,7 +33,15 @@ function helperOnly(
   gap: string,
   authority: string,
 ): IPhysicalLegalityGateSupportEntry {
-  return { id, attackFamily, authority, level: 'helper-only', evidence, gap };
+  return {
+    id,
+    attackFamily,
+    authority,
+    level: 'helper-only',
+    evidence,
+    gap,
+    sourceRefs: sourceRefsForAuthority(authority),
+  };
 }
 
 function unsupported(
@@ -40,6 +58,23 @@ function unsupported(
     evidence:
       'MegaMek legality gate is source-checked but not enforced by MekStation physical restriction helpers',
     gap,
+    sourceRefs: sourceRefsForAuthority(authority),
+  };
+}
+
+const MEGAMEK_PHYSICAL_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
+function megamekPhysicalSourceRef(
+  citation: string,
+  path: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'megamek-source',
+    citation,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PHYSICAL_SOURCE_VERSION}/megamek/src/megamek/${path}#${lineRange}`,
+    sourceVersion: MEGAMEK_PHYSICAL_SOURCE_VERSION,
   };
 }
 
@@ -53,6 +88,60 @@ const CHARGE_ACTION_LINES =
   'MegaMek ChargeAttackAction.toHit, ChargeAttackAction.java:116-274';
 const DFA_ACTION_LINES =
   'MegaMek DfaAttackAction.toHit, DfaAttackAction.java:232-329';
+
+const PHYSICAL_ATTACK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek PhysicalAttackAction.toHitIsImpossible applies shared physical attack impossibility gates',
+  'common/actions/PhysicalAttackAction.java',
+  'L76-L167',
+);
+
+const TARGETABILITY_GAME_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek Game.getValidTargets filters physical target candidates through Entity.isTargetable',
+  'common/game/Game.java',
+  'L701-L728',
+);
+
+const TARGETABILITY_ENTITY_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek Entity.isTargetable excludes destroyed, doomed, off-board, undeployed, transported, captured, and positionless units',
+  'common/units/Entity.java',
+  'L1963-L1975',
+);
+
+const PUSH_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek PushAttackAction.toHit applies push-specific BattleMech legality gates',
+  'common/actions/PushAttackAction.java',
+  'L112-L286',
+);
+
+const CHARGE_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek ChargeAttackAction.toHit applies charge-specific BattleMech legality gates',
+  'common/actions/ChargeAttackAction.java',
+  'L116-L274',
+);
+
+const DFA_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek DfaAttackAction.toHit applies death-from-above-specific legality gates',
+  'common/actions/DfaAttackAction.java',
+  'L232-L329',
+);
+
+function sourceRefsForAuthority(
+  authority: string,
+): readonly ICombatFeatureSourceReference[] {
+  switch (authority) {
+    case TARGETABILITY_LIFECYCLE_LINES:
+      return [TARGETABILITY_GAME_SOURCE_REF, TARGETABILITY_ENTITY_SOURCE_REF];
+    case PUSH_ACTION_LINES:
+      return [PUSH_ACTION_SOURCE_REF];
+    case CHARGE_ACTION_LINES:
+      return [CHARGE_ACTION_SOURCE_REF];
+    case DFA_ACTION_LINES:
+      return [DFA_ACTION_SOURCE_REF];
+    case PHYSICAL_ATTACK_ACTION_LINES:
+    default:
+      return [PHYSICAL_ATTACK_ACTION_SOURCE_REF];
+  }
+}
 
 export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
   'shared.target-not-null': integrated(

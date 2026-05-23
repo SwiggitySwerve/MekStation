@@ -47,5 +47,5 @@
 ## 4. Source-truth cross-checks
 
 - [x] 4.1 Cross-check current physical legality gates against MegaMek behavior notes.
-- [ ] 4.2 Add source anchors for remaining physical gaps before marking them integrated.
+- [x] 4.2 Add source anchors for remaining physical gaps before marking them integrated.
 - [ ] 4.3 Cross-check weapon, heat, movement, SPA, quirk, and lifecycle rows against rulebook/MegaMek/MekHQ references before implementation claims.

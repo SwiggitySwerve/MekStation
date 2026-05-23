@@ -39,6 +39,7 @@ The three-lane validation direction is still right: catalog contracts, behavior-
 - Charge target movement-complete legality is source-backed by MegaMek: `ChargeAttackAction.toHit` rejects charge targets that have not completed movement unless the target is immobile. MekStation now passes optional movement-complete state through charge restriction helpers from eligibility and event-sourced declaration/resolution, preserves immobile targets via shutdown-derived target immobility, and treats runner physical resolution as post-movement complete.
 - DFA infantry-family attacker legality is source-backed by MegaMek: `DfaAttackAction.toHit` rejects `Infantry` attackers before hit resolution. MekStation now maps explicit Infantry and Battle Armor unit types into `AttackerInfantry` rejection through helper, eligibility, event-sourced declaration/resolution, and runner physical resolution, keeping those non-BattleMech paths from silently using BattleMech DFA behavior.
 - Push arm-fired weapon legality is source-backed by MegaMek: `PushAttackAction.toHit` rejects when `weaponFiredFrom(Mek.LOC_RIGHT_ARM)` or `weaponFiredFrom(Mek.LOC_LEFT_ARM)` is true. MekStation now rejects push when arm-fired weapon ids are supplied to the physical restriction input, event-sourced declarations reject before scheduling, and runner injected push declarations conservatively thread the flat `weaponsFiredThisTurn` list through the same gate. Exact runner parity still needs weapon-location hydration so torso-fired weapons are not treated as arm-fired weapons.
+- Every `PHYSICAL_LEGALITY_GATE_SUPPORT` row now carries structured `sourceRefs` to local MegaMek commit `325b2504c7b7750ecdcb85468621fb2de2ad8e60`, including shared physical impossibility gates, destroyed-target targetability, push, charge, and DFA legality ranges. Unsupported physical gaps therefore have line-anchored authority before any future implementation promotes them to integrated.
 
 ## Council Cross-Exam Findings
 
@@ -60,6 +61,7 @@ The three-lane validation direction is still right: catalog contracts, behavior-
 - For lifecycle claims, require command/intent/wire coverage, event emission, state mutation, target filtering, and terminal summary evidence.
 - Feature support rows that put `source-backed` in their evidence must carry structured `sourceRefs` with pinned rulebook or MegaMek/MekHQ authority links; prose-only authority claims are not enough.
 - Helper-only or unsupported combat classes must have a named authority row, an expected simulation scenario, and an explicit reason for exclusion from the BattleMech matrix.
+- Physical legality rows must carry commit-pinned MegaMek `sourceRefs`; unsupported rows may stay unsupported, but they cannot stay source-ambiguous.
 
 ## Source References
 
