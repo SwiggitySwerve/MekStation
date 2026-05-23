@@ -1913,6 +1913,39 @@ describe('HexMapDisplay tactical visual layers', () => {
       'occluded',
     );
 
+    fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+
+    const tooltipOccluder = screen.getByTestId(
+      'hex-terrain-tooltip-isometric-occluder',
+    );
+    expect(tooltipOccluder).toHaveAttribute(
+      'data-isometric-occludes-units',
+      'occluded',
+    );
+    expect(tooltipOccluder).toHaveAttribute(
+      'data-isometric-occluder-elevation',
+      '4',
+    );
+    expect(tooltipOccluder).toHaveAttribute(
+      'data-isometric-occluder-hex',
+      '1,0',
+    );
+    expect(tooltipOccluder).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '0',
+    );
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-isometric-occluder-units'),
+    ).toHaveTextContent('may hide occluded');
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-isometric-occluder-rotation'),
+    ).toHaveTextContent('Occluder elevation +4; camera 0 deg');
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-isometric-occluder-reasons'),
+    ).toHaveTextContent(
+      'Elevated terrain +4 at (1, 0) may hide unit at elevation +0',
+    );
+
     fireEvent.click(screen.getByTestId('projection-rotate-right'));
     fireEvent.click(screen.getByTestId('projection-rotate-right'));
     fireEvent.click(screen.getByTestId('projection-rotate-right'));
@@ -1941,6 +1974,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-elevation-stack-1-0')).not.toHaveAttribute(
       'data-isometric-occludes-units',
     );
+    expect(
+      screen.queryByTestId('hex-terrain-tooltip-isometric-occluder'),
+    ).toBeNull();
 
     act(() => {
       unmount();

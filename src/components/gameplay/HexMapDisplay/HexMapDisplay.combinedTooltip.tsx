@@ -3,12 +3,15 @@ import React from 'react';
 import type { ICombatRangeHex, IMovementRangeHex } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
+import type { IsometricTerrainOccluderInfo } from './projection';
+
 import {
   formatElevationLabel,
   formatMovementModeLabel,
   formatTerrainFeaturesLabel,
 } from './HexCell.labels';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
+import { IsometricOccluderContextRows } from './HexMapDisplay.terrainTooltip';
 import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
@@ -97,8 +100,10 @@ function ProjectionTerrainRows({
 
 export function CombinedTacticalHoverTooltip({
   projection,
+  isometricOccluderInfo,
 }: {
   readonly projection: ITacticalMapHexProjection;
+  readonly isometricOccluderInfo?: IsometricTerrainOccluderInfo;
 }): React.ReactElement | null {
   const movementInfo = projection.movement;
   const combatInfo = projection.combat;
@@ -144,6 +149,10 @@ export function CombinedTacticalHoverTooltip({
         {formatProjectionStatusLabel(projection.status)} - {projection.intent}
       </div>
       <ProjectionTerrainRows projection={projection} />
+      <IsometricOccluderContextRows
+        info={isometricOccluderInfo}
+        testIdPrefix="hex-tactical-tooltip"
+      />
       <div
         className="mt-1 border-t border-slate-700/70 pt-1"
         data-testid="hex-tactical-tooltip-movement"

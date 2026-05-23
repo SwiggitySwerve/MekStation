@@ -1,25 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type {
-  ICombatRangeHex,
-  IGameEvent,
-  IHexCoordinate,
-  IHexTerrain,
-  IMovementRangeHex,
-  IUnitToken,
-} from '@/types/gameplay';
-import type { UiFiringArc } from '@/utils/overlays/arcClassifier';
+import type { IHexCoordinate } from '@/types/gameplay';
 
 import { useScreenShake } from '@/hooks/useScreenShake';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { GameSide } from '@/types/gameplay';
 import { isOperationalWeaponStatus } from '@/utils/gameplay/combatProjection';
 import { coordToKey } from '@/utils/gameplay/hexMath';
-import {
-  buildTacticalMapHexProjectionLookup,
-  type ITacticalMapHexProjection,
-} from '@/utils/gameplay/tacticalMapProjection';
+import { buildTacticalMapHexProjectionLookup } from '@/utils/gameplay/tacticalMapProjection';
 
+import type { HexMapDisplayState } from './HexMapDisplay.stateTypes';
 import type { HexMapDisplayProps } from './HexMapDisplay.types';
 
 import { HexCell } from './HexCell';
@@ -45,49 +35,6 @@ import {
 } from './projection';
 import { generateHexesInRadius } from './renderHelpers';
 import { useMapInteraction } from './useMapInteraction';
-
-export interface HexMapDisplayState {
-  readonly mapId: string;
-  readonly tokens: readonly IUnitToken[];
-  readonly events: readonly IGameEvent[];
-  readonly screenShake: ReturnType<typeof useScreenShake>;
-  readonly interaction: ReturnType<typeof useMapInteraction>;
-  readonly projectionTransform: string | undefined;
-  readonly isIsometricView: boolean;
-  readonly hexes: readonly IHexCoordinate[];
-  readonly renderedHexes: readonly IHexCoordinate[];
-  readonly terrainLookup: ReturnType<typeof useTerrainLookup>;
-  readonly hexGrid: ReturnType<typeof useHexGrid>;
-  readonly selectedToken: IUnitToken | null;
-  readonly selectedUnitPosition: IHexCoordinate | null;
-  readonly movementAnimationsByUnit: ReturnType<
-    typeof useMovementAnimationsByUnit
-  >;
-  readonly orderedTokens: ReturnType<typeof useOrderedTokens>;
-  readonly hasActiveMovementAnimation: boolean;
-  readonly isometricTerrainOcclusionInfoByUnit: ReturnType<
-    typeof useIsometricOcclusionInfo
-  >;
-  readonly isometricOcclusionUnitIds: ReturnType<
-    typeof useIsometricOcclusionIds
-  >;
-  readonly isometricSceneItems: ReturnType<typeof buildIsometricSceneItems>;
-  readonly selectedWeaponMaxRange: number;
-  readonly visibleFiringArcs: readonly UiFiringArc[] | undefined;
-  readonly hoveredHex: IHexCoordinate | null;
-  readonly hoverUnreachableReason: string | undefined;
-  readonly hoverMovementInfo: IMovementRangeHex | undefined;
-  readonly hoverCombatInfo: ICombatRangeHex | undefined;
-  readonly hoverTerrainInfo: IHexTerrain | undefined;
-  readonly hoverProjectionInfo: ITacticalMapHexProjection | undefined;
-  readonly tacticalMapProjectionLookup: ReadonlyMap<
-    string,
-    ITacticalMapHexProjection
-  >;
-  readonly renderHexCell: (hex: IHexCoordinate) => React.ReactElement;
-  readonly handleTokenClick: (unitId: string) => void;
-  readonly handleTokenDoubleClick: (unitId: string) => void;
-}
 
 export function useHexMapDisplayState({
   mapId = 'default-map',
@@ -305,6 +252,10 @@ export function useHexMapDisplayState({
       ? hoverProjectionInfo.combat
       : undefined;
   const hoverTerrainInfo = hoverProjectionInfo?.terrain;
+  const hoverIsometricOccluderInfo = useMemo(() => {
+    if (!hoveredHex || !isIsometricView) return undefined;
+    return isometricTerrainOccluderInfoByHex.get(coordToKey(hoveredHex));
+  }, [hoveredHex, isIsometricView, isometricTerrainOccluderInfoByHex]);
   const hoverUnreachableReason =
     hoverUnreachable && hoverMovementInfo && !hoverMovementInfo.reachable
       ? (hoverMovementInfo.movementInvalidDetails ??
@@ -404,6 +355,7 @@ export function useHexMapDisplayState({
     hoverCombatInfo,
     hoverTerrainInfo,
     hoverProjectionInfo,
+    hoverIsometricOccluderInfo,
     tacticalMapProjectionLookup,
     renderHexCell,
     handleTokenClick,

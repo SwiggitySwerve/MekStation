@@ -60,6 +60,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
     hoverCombatInfo,
     hoverTerrainInfo,
     hoverProjectionInfo,
+    hoverIsometricOccluderInfo,
     renderHexCell,
     handleTokenClick,
     handleTokenDoubleClick,
@@ -190,6 +191,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
         hoverCombatInfo={hoverCombatInfo}
         hoverTerrainInfo={hoverTerrainInfo}
         hoverProjectionInfo={hoverProjectionInfo}
+        hoverIsometricOccluderInfo={hoverIsometricOccluderInfo}
         mpLegend={mpLegend}
       />
       <MapControls interaction={interaction} />

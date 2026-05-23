@@ -7,18 +7,21 @@ import type {
 } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
-import { CoverLevel, TERRAIN_PROPERTIES } from '@/types/gameplay/TerrainTypes';
-
 import type { MapMovementPointLegendState } from './HexMapDisplay.types';
+import type { IsometricTerrainOccluderInfo } from './projection';
 
 import {
   formatElevationLabel,
   formatMovementModeLabel,
-  formatTerrainFeaturesLabel,
 } from './HexCell.labels';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import { CombinedTacticalHoverTooltip } from './HexMapDisplay.combinedTooltip';
 import { MapMovementPointLegend } from './HexMapDisplay.mpLegend';
+import {
+  IsometricOccluderContextRows,
+  TerrainContextRows,
+  TerrainHoverTooltip,
+} from './HexMapDisplay.terrainTooltip';
 import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
@@ -35,6 +38,7 @@ interface MapHtmlOverlaysProps {
   readonly hoverCombatInfo?: ICombatRangeHex;
   readonly hoverTerrainInfo?: IHexTerrain;
   readonly hoverProjectionInfo?: ITacticalMapHexProjection;
+  readonly hoverIsometricOccluderInfo?: IsometricTerrainOccluderInfo;
   readonly mpLegend?: MapMovementPointLegendState;
 }
 
@@ -45,6 +49,7 @@ export function MapHtmlOverlays({
   hoverCombatInfo,
   hoverTerrainInfo,
   hoverProjectionInfo,
+  hoverIsometricOccluderInfo,
   mpLegend,
 }: MapHtmlOverlaysProps): React.ReactElement {
   const showCombinedTacticalTooltip = Boolean(
@@ -54,13 +59,17 @@ export function MapHtmlOverlays({
   return (
     <>
       {showCombinedTacticalTooltip && hoverProjectionInfo && (
-        <CombinedTacticalHoverTooltip projection={hoverProjectionInfo} />
+        <CombinedTacticalHoverTooltip
+          projection={hoverProjectionInfo}
+          isometricOccluderInfo={hoverIsometricOccluderInfo}
+        />
       )}
 
       {!showCombinedTacticalTooltip && hoverMovementInfo && (
         <MovementHoverTooltip
           movementInfo={hoverMovementInfo}
           terrain={hoverTerrainInfo}
+          isometricOccluderInfo={hoverIsometricOccluderInfo}
         />
       )}
 
@@ -87,6 +96,10 @@ export function MapHtmlOverlays({
                 testIdPrefix="hex-unreachable-tooltip"
               />
             )}
+            <IsometricOccluderContextRows
+              info={hoverIsometricOccluderInfo}
+              testIdPrefix="hex-unreachable-tooltip"
+            />
           </div>
         )}
 
@@ -97,6 +110,7 @@ export function MapHtmlOverlays({
           <CombatHoverTooltip
             combatInfo={hoverCombatInfo}
             terrain={hoverTerrainInfo}
+            isometricOccluderInfo={hoverIsometricOccluderInfo}
           />
         )}
 
@@ -104,103 +118,26 @@ export function MapHtmlOverlays({
         !hoverMovementInfo &&
         !hoverUnreachable &&
         !hoverCombatInfo &&
-        hoverTerrainInfo && <TerrainHoverTooltip terrain={hoverTerrainInfo} />}
+        hoverTerrainInfo && (
+          <TerrainHoverTooltip
+            terrain={hoverTerrainInfo}
+            isometricOccluderInfo={hoverIsometricOccluderInfo}
+          />
+        )}
 
       {mpLegend && <MapMovementPointLegend {...mpLegend} />}
     </>
   );
 }
 
-function terrainCoverLabel(terrain: IHexTerrain): CoverLevel {
-  let bestCover = CoverLevel.None;
-  for (const feature of terrain.features) {
-    const cover = TERRAIN_PROPERTIES[feature.type].coverLevel;
-    if (cover === CoverLevel.Full) return cover;
-    if (cover === CoverLevel.Partial) bestCover = cover;
-  }
-  return bestCover;
-}
-
-function TerrainHoverTooltip({
-  terrain,
-}: {
-  readonly terrain: IHexTerrain;
-}): React.ReactElement {
-  const terrainTypes = terrain.features.map((feature) => feature.type);
-  const blocksLos = terrain.features.some(
-    (feature) => TERRAIN_PROPERTIES[feature.type].blocksLOS,
-  );
-  const heatEffect = terrain.features.reduce(
-    (total, feature) => total + TERRAIN_PROPERTIES[feature.type].heatEffect,
-    0,
-  );
-  const specialRules = terrain.features
-    .flatMap((feature) => TERRAIN_PROPERTIES[feature.type].specialRules)
-    .join(', ');
-
-  return (
-    <div
-      className="pointer-events-none absolute top-2 left-1/2 max-w-[300px] -translate-x-1/2 rounded bg-slate-950/90 px-3 py-2 text-xs text-slate-100 shadow"
-      data-testid="hex-terrain-tooltip"
-      role="tooltip"
-    >
-      <div className="font-semibold" data-testid="hex-terrain-tooltip-title">
-        Terrain: {formatTerrainFeaturesLabel(terrainTypes)}
-      </div>
-      <div data-testid="hex-terrain-tooltip-elevation">
-        Elevation: {formatElevationLabel(terrain.elevation)}
-      </div>
-      <div data-testid="hex-terrain-tooltip-cover">
-        Cover: {terrainCoverLabel(terrain)}
-      </div>
-      <div data-testid="hex-terrain-tooltip-los">
-        LOS: {blocksLos ? 'blocks' : 'clear'}
-      </div>
-      {heatEffect !== 0 && (
-        <div data-testid="hex-terrain-tooltip-heat">
-          Heat effect: {heatEffect > 0 ? '+' : ''}
-          {heatEffect}
-        </div>
-      )}
-      {specialRules && (
-        <div
-          className="mt-1 text-[11px] text-slate-200"
-          data-testid="hex-terrain-tooltip-rules"
-        >
-          {specialRules}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TerrainContextRows({
-  terrain,
-  testIdPrefix,
-}: {
-  readonly terrain: IHexTerrain;
-  readonly testIdPrefix: string;
-}): React.ReactElement {
-  const terrainTypes = terrain.features.map((feature) => feature.type);
-
-  return (
-    <div className="mt-1 border-t border-slate-700/70 pt-1 text-[11px] text-slate-200">
-      <div data-testid={`${testIdPrefix}-terrain-context`}>
-        Terrain: {formatTerrainFeaturesLabel(terrainTypes)}
-      </div>
-      <div data-testid={`${testIdPrefix}-elevation-context`}>
-        Elevation: {formatElevationLabel(terrain.elevation)}
-      </div>
-    </div>
-  );
-}
-
 function MovementHoverTooltip({
   movementInfo,
   terrain,
+  isometricOccluderInfo,
 }: {
   readonly movementInfo: IMovementRangeHex;
   readonly terrain?: IHexTerrain;
+  readonly isometricOccluderInfo?: IsometricTerrainOccluderInfo;
 }): React.ReactElement {
   const movementMode =
     movementInfo.movementMode &&
@@ -233,6 +170,10 @@ function MovementHoverTooltip({
           testIdPrefix="hex-movement-tooltip"
         />
       )}
+      <IsometricOccluderContextRows
+        info={isometricOccluderInfo}
+        testIdPrefix="hex-movement-tooltip"
+      />
       {movementInfo.terrainCost !== undefined && (
         <div data-testid="hex-movement-tooltip-terrain">
           Terrain cost: +{movementInfo.terrainCost}
@@ -296,9 +237,11 @@ function MovementHoverTooltip({
 function CombatHoverTooltip({
   combatInfo,
   terrain,
+  isometricOccluderInfo,
 }: {
   readonly combatInfo: ICombatRangeHex;
   readonly terrain?: IHexTerrain;
+  readonly isometricOccluderInfo?: IsometricTerrainOccluderInfo;
 }): React.ReactElement {
   const targetLabel =
     combatInfo.targetUnitIds.length > 0
@@ -353,6 +296,10 @@ function CombatHoverTooltip({
           testIdPrefix="hex-combat-tooltip"
         />
       )}
+      <IsometricOccluderContextRows
+        info={isometricOccluderInfo}
+        testIdPrefix="hex-combat-tooltip"
+      />
       {weaponLabel && (
         <div data-testid="hex-combat-tooltip-weapons">{weaponLabel}</div>
       )}
