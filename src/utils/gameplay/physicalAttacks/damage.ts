@@ -19,6 +19,7 @@ import {
   DFA_MISS_FALL_HEIGHT,
   DFA_MISS_PSR_MODIFIER,
   DFA_TARGET_DAMAGE_DIVISOR,
+  FLAIL_DAMAGE,
   HATCHET_DAMAGE_DIVISOR,
   KICK_DAMAGE_DIVISOR,
   LANCE_CHARGE_DAMAGE_MULTIPLIER,
@@ -30,6 +31,7 @@ import {
   SWORD_DAMAGE_BONUS,
   SWORD_DAMAGE_DIVISOR,
   TSM_ACTIVATION_HEAT,
+  WRECKING_BALL_DAMAGE,
 } from './constants';
 import {
   IPhysicalAttackInput,
@@ -365,6 +367,18 @@ export function calculateLanceDamage(
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
+export function calculateFlailDamage(input: IPhysicalAttackInput): number {
+  const damage = FLAIL_DAMAGE + physicalDamageBonus(input);
+  return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
+}
+
+export function calculateWreckingBallDamage(
+  input: IPhysicalAttackInput,
+): number {
+  const damage = WRECKING_BALL_DAMAGE + physicalDamageBonus(input);
+  return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
+}
+
 /**
  * Per `implement-physical-attack-phase` tasks 6.4 / 7.4: split damage
  * into 5-point clusters before hit-location resolution. Zero damage
@@ -494,6 +508,28 @@ export function calculatePhysicalDamage(
     case 'retractable-blade':
       return {
         targetDamage: calculateRetractableBladeDamage(input),
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
+    case 'flail':
+      return {
+        targetDamage: calculateFlailDamage(input),
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
+    case 'wrecking-ball':
+      return {
+        targetDamage: calculateWreckingBallDamage(input),
         attackerDamage: 0,
         attackerLegDamagePerLeg: 0,
         targetPSR: false,

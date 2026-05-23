@@ -132,6 +132,24 @@ describe('Protocol envelope schemas', () => {
       expect(IntentSchema.safeParse(env).success).toBe(true);
     });
 
+    it('parses source-backed flail and wrecking ball Physical intents', () => {
+      for (const attackType of ['flail', 'wrecking-ball']) {
+        const env = {
+          kind: 'Intent' as const,
+          matchId: 'm',
+          ts: nowIso(),
+          playerId: 'p',
+          intent: {
+            kind: 'Physical' as const,
+            attackerId: 'u1',
+            targetId: 'u2',
+            attackType,
+          },
+        };
+        expect(IntentSchema.safeParse(env).success).toBe(true);
+      }
+    });
+
     it('parses an AdvancePhase intent', () => {
       const env = {
         kind: 'Intent' as const,
@@ -191,7 +209,7 @@ describe('Protocol envelope schemas', () => {
           kind: 'Physical',
           attackerId: 'u1',
           targetId: 'u2',
-          attackType: 'wrecking-ball',
+          attackType: 'talons',
         },
       };
       expect(IntentSchema.safeParse(env).success).toBe(false);

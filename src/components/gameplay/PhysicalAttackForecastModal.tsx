@@ -97,6 +97,10 @@ function attackTypeLabel(attackType: PhysicalAttackType): string {
       return 'Lance';
     case 'retractable-blade':
       return 'Retractable Blade';
+    case 'flail':
+      return 'Flail';
+    case 'wrecking-ball':
+      return 'Wrecking Ball';
   }
 }
 

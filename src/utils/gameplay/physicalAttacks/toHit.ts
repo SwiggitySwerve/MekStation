@@ -4,6 +4,7 @@ import { calculateMeleeSpecialistModifier } from '@/utils/gameplay/spaModifiers'
 import {
   FOOT_KICK_MODIFIER,
   CLAW_PUNCH_TO_HIT_MODIFIER,
+  FLAIL_TO_HIT_MODIFIER,
   HAND_PUNCH_MODIFIER,
   HATCHET_TO_HIT_MODIFIER,
   KICK_TO_HIT_BONUS,
@@ -16,6 +17,7 @@ import {
   SWORD_TO_HIT_MODIFIER,
   UPPER_ARM_PUNCH_MODIFIER,
   UPPER_LEG_KICK_MODIFIER,
+  WRECKING_BALL_TO_HIT_MODIFIER,
 } from './constants';
 import {
   canCharge,
@@ -383,6 +385,12 @@ export function calculateMeleeWeaponToHit(
     case 'retractable-blade':
       weaponMod = RETRACTABLE_BLADE_TO_HIT_MODIFIER;
       break;
+    case 'flail':
+      weaponMod = FLAIL_TO_HIT_MODIFIER;
+      break;
+    case 'wrecking-ball':
+      weaponMod = WRECKING_BALL_TO_HIT_MODIFIER;
+      break;
   }
 
   const modifiers: IPhysicalModifier[] = [
@@ -424,6 +432,8 @@ export function calculatePhysicalToHit(
     case 'mace':
     case 'lance':
     case 'retractable-blade':
+    case 'flail':
+    case 'wrecking-ball':
       return calculateMeleeWeaponToHit(input);
     default:
       return {

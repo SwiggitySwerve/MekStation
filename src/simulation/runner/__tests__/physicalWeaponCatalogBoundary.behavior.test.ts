@@ -29,6 +29,13 @@ function unsupportedPhysicalWeaponIds(): readonly string[] {
     .map((entry) => entry.id);
 }
 
+function helperOnlyPhysicalWeaponIds(): readonly string[] {
+  return Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
+    .filter((entry) => entry.level === 'helper-only')
+    .map((entry) => entry.id)
+    .sort();
+}
+
 function makeUnit(
   id: string,
   side: GameSide,
@@ -59,24 +66,16 @@ function makeUnit(
 }
 
 describe('physical weapon catalog runtime boundary', () => {
-  it('does not project unsupported catalog-only physical weapons as runtime attack options', () => {
+  it('projects all standalone official physical weapons but not modifier-only equipment', () => {
     const unsupportedPhysicalWeapons = unsupportedPhysicalWeaponIds();
-    const helperOnlyPhysicalWeapons = Object.values(
-      PHYSICAL_WEAPON_COMBAT_SUPPORT,
-    )
-      .filter((entry) => entry.level === 'helper-only')
-      .map((entry) => entry.id)
-      .sort();
+    const helperOnlyPhysicalWeapons = helperOnlyPhysicalWeaponIds();
 
-    expect(unsupportedPhysicalWeapons).toEqual(['flail', 'wrecking-ball']);
-    for (const weaponId of unsupportedPhysicalWeapons) {
+    expect(unsupportedPhysicalWeapons).toEqual([]);
+    for (const weaponId of SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES) {
       const supportId = weaponId as PhysicalWeaponSupportId;
-      expect(SUPPORTED_PHYSICAL_ATTACK_TYPES).not.toContain(
-        weaponId as PhysicalAttackType,
-      );
+      expect(SUPPORTED_PHYSICAL_ATTACK_TYPES).toContain(weaponId);
       expect(PHYSICAL_WEAPON_COMBAT_SUPPORT[supportId]).toMatchObject({
-        level: 'unsupported',
-        gap: expect.stringContaining('No runtime PhysicalAttackType'),
+        level: 'integrated',
       });
     }
     expect(helperOnlyPhysicalWeapons).toEqual(['claws', 'talons']);
@@ -101,7 +100,6 @@ describe('physical weapon catalog runtime boundary', () => {
         pushDestinationValid: true,
         meleeWeaponsEquipped: [
           ...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
-          ...unsupportedPhysicalWeapons,
           ...helperOnlyPhysicalWeapons,
         ] as unknown as readonly PhysicalAttackType[],
       },
@@ -111,10 +109,7 @@ describe('physical weapon catalog runtime boundary', () => {
     expect(projectedAttackTypes).toEqual(
       expect.arrayContaining([...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES]),
     );
-    for (const weaponId of [
-      ...unsupportedPhysicalWeapons,
-      ...helperOnlyPhysicalWeapons,
-    ]) {
+    for (const weaponId of helperOnlyPhysicalWeapons) {
       expect(projectedAttackTypes).not.toContain(weaponId);
     }
   });
@@ -145,8 +140,8 @@ describe('physical weapon catalog runtime boundary', () => {
     }
   });
 
-  it('rejects unsupported catalog-only physical weapons before they reach runtime action dispatch', () => {
-    for (const weaponId of unsupportedPhysicalWeaponIds()) {
+  it('rejects modifier-only physical equipment before runtime action dispatch', () => {
+    for (const weaponId of helperOnlyPhysicalWeaponIds()) {
       const intent: IGameIntent = {
         type: 'declarePhysical',
         authorPeerId: 'peer-1',

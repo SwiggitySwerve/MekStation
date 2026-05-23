@@ -140,11 +140,30 @@ describe('toServerIntent — declarePhysical', () => {
     expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
   });
 
+  it('maps source-backed flail and wrecking ball physical intents', () => {
+    for (const attackType of ['flail', 'wrecking-ball'] as const) {
+      const intent = declarePhysicalIntent(PEER, {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        attackType,
+      });
+      const wire = toServerIntent(intent);
+
+      expect(wire).toEqual({
+        kind: 'Physical',
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        attackType,
+      });
+      expect(IntentPayloadSchema.safeParse(wire).success).toBe(true);
+    }
+  });
+
   it('returns null for an unsupported physical attack type', () => {
     const intent = declarePhysicalIntent(PEER, {
       attackerId: 'player-1',
       targetId: 'opponent-1',
-      attackType: 'wrecking-ball' as never,
+      attackType: 'talons' as never,
     });
 
     expect(toServerIntent(intent)).toBeNull();

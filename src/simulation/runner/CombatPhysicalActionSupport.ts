@@ -50,4 +50,12 @@ export const PHYSICAL_ATTACK_ACTION_SUPPORT = {
     'retractable-blade',
     'Tactical command, game intent, wire schema, dispatcher, and runner physical weapon support resolve retractable blade',
   ),
+  flail: integrated(
+    'flail',
+    'Tactical command, game intent, wire schema, dispatcher, and runner physical weapon support resolve source-backed flail',
+  ),
+  'wrecking-ball': integrated(
+    'wrecking-ball',
+    'Tactical command, game intent, wire schema, dispatcher, and runner physical weapon support resolve source-backed wrecking ball',
+  ),
 } satisfies Record<PhysicalAttackType, ICombatActionSupportEntry>;

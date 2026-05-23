@@ -84,6 +84,8 @@ export function attackTypeLabel(
     mace: 'Mace',
     lance: 'Lance',
     'retractable-blade': 'Retractable Blade',
+    flail: 'Flail',
+    'wrecking-ball': 'Wrecking Ball',
   };
   const label = base[attackType];
   if (!limb) return label;

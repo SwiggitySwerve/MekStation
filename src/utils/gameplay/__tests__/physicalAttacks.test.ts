@@ -9,10 +9,12 @@ import {
   calculateChargeDamageToAttacker,
   calculateDFADamageToTarget,
   calculateDFADamageToAttacker,
+  calculateFlailDamage,
   calculateHatchetDamage,
   calculateSwordDamage,
   calculateMaceDamage,
   calculateRetractableBladeDamage,
+  calculateWreckingBallDamage,
   calculatePunchToHit,
   calculateKickToHit,
   calculateChargeToHit,
@@ -674,6 +676,52 @@ describe('physicalAttacks', () => {
     });
   });
 
+  describe('source-backed constant physical weapon damage', () => {
+    it('computes constant flail and wrecking ball damage', () => {
+      expect(calculateFlailDamage(makeInput({ attackType: 'flail' }))).toBe(9);
+      expect(
+        calculateWreckingBallDamage(makeInput({ attackType: 'wrecking-ball' })),
+      ).toBe(8);
+    });
+
+    it('does not double flail or wrecking ball damage with active TSM', () => {
+      const activeTsm = {
+        hasTSM: true,
+        heat: 9,
+      };
+
+      expect(
+        calculateFlailDamage(makeInput({ ...activeTsm, attackType: 'flail' })),
+      ).toBe(9);
+      expect(
+        calculateWreckingBallDamage(
+          makeInput({ ...activeTsm, attackType: 'wrecking-ball' }),
+        ),
+      ).toBe(8);
+    });
+
+    it('applies Melee Master and underwater modifiers to constant weapons', () => {
+      expect(
+        calculateFlailDamage(
+          makeInput({
+            attackType: 'flail',
+            pilotAbilities: ['melee-master'],
+            isUnderwater: true,
+          }),
+        ),
+      ).toBe(5);
+      expect(
+        calculateWreckingBallDamage(
+          makeInput({
+            attackType: 'wrecking-ball',
+            pilotAbilities: ['melee-master'],
+            isUnderwater: true,
+          }),
+        ),
+      ).toBe(4);
+    });
+  });
+
   // =============================================================================
   // TSM Tests
   // =============================================================================
@@ -771,6 +819,29 @@ describe('physicalAttacks', () => {
           }),
         ),
       ).toBe(14);
+    });
+
+    it('should not double flail or wrecking ball damage with TSM at heat 9+', () => {
+      expect(
+        calculateFlailDamage(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'flail',
+            hasTSM: true,
+            heat: 9,
+          }),
+        ),
+      ).toBe(9);
+      expect(
+        calculateWreckingBallDamage(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'wrecking-ball',
+            hasTSM: true,
+            heat: 9,
+          }),
+        ),
+      ).toBe(8);
     });
   });
 
@@ -970,6 +1041,58 @@ describe('physicalAttacks', () => {
         allowed: false,
         reasonCode: 'RetractableBladeNotExtended',
       });
+    });
+
+    it('allows flails and lances without a working hand actuator', () => {
+      const componentDamage = {
+        ...DEFAULT_COMPONENT_DAMAGE,
+        actuators: { [ActuatorType.HAND]: true },
+      };
+
+      expect(
+        canMeleeWeapon(makeInput({ attackType: 'flail', componentDamage }))
+          .allowed,
+      ).toBe(true);
+      expect(
+        canMeleeWeapon(makeInput({ attackType: 'lance', componentDamage }))
+          .allowed,
+      ).toBe(true);
+    });
+
+    it('treats wrecking balls as torso-mounted physical weapons', () => {
+      const result = canMeleeWeapon(
+        makeInput({
+          attackType: 'wrecking-ball',
+          unitQuirks: ['no_arms'],
+          weaponsFiredFromArm: ['right-arm-ppc'],
+          componentDamage: {
+            ...DEFAULT_COMPONENT_DAMAGE,
+            actuators: {
+              [ActuatorType.SHOULDER]: true,
+              [ActuatorType.LOWER_ARM]: true,
+              [ActuatorType.HAND]: true,
+            },
+          },
+        }),
+      );
+
+      expect(result.allowed).toBe(true);
+    });
+
+    it('disallows flails but allows wrecking balls on quad BattleMechs', () => {
+      expect(
+        canMeleeWeapon(
+          makeInput({ attackType: 'flail', attackerIsQuad: true }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerQuad',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({ attackType: 'wrecking-ball', attackerIsQuad: true }),
+        ).allowed,
+      ).toBe(true);
     });
   });
 
@@ -2873,6 +2996,20 @@ describe('physicalAttacks', () => {
       expect(result.finalToHit).toBe(3);
     });
 
+    it('should apply 0 for flail', () => {
+      const result = calculateMeleeWeaponToHit(
+        makeInput({ pilotingSkill: 5, attackType: 'flail' }),
+      );
+      expect(result.finalToHit).toBe(5);
+    });
+
+    it('should apply +1 for wrecking ball', () => {
+      const result = calculateMeleeWeaponToHit(
+        makeInput({ pilotingSkill: 5, attackType: 'wrecking-ball' }),
+      );
+      expect(result.finalToHit).toBe(6);
+    });
+
     it('should not allow if lower arm destroyed', () => {
       const result = calculateMeleeWeaponToHit(
         makeInput({
@@ -2985,6 +3122,21 @@ describe('physicalAttacks', () => {
       );
       expect(result.targetDamage).toBe(7);
       expect(result.hitTable).toBe('punch');
+    });
+
+    it('should return flail and wrecking ball damage with punch table', () => {
+      expect(
+        calculatePhysicalDamage(makeInput({ attackType: 'flail' })),
+      ).toMatchObject({
+        targetDamage: 9,
+        hitTable: 'punch',
+      });
+      expect(
+        calculatePhysicalDamage(makeInput({ attackType: 'wrecking-ball' })),
+      ).toMatchObject({
+        targetDamage: 8,
+        hitTable: 'punch',
+      });
     });
   });
 

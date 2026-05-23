@@ -15,6 +15,8 @@ export const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES = [
   'mace',
   'lance',
   'retractable-blade',
+  'flail',
+  'wrecking-ball',
 ] as const;
 
 export const SUPPORTED_PHYSICAL_ATTACK_TYPES = [

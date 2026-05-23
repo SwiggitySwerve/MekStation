@@ -295,6 +295,18 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **THEN** helper and event-sourced declaration validation SHALL reject the attack with `RetractableBladeNotExtended`
 - **AND** the validation catalog SHALL keep physical weapon mode hydration as a separate out-of-scope concern until combat units carry actual physical weapon mode state
 
+#### Scenario: Flail and wrecking ball use source-backed constant club attacks
+
+- **GIVEN** a BattleMech declares a flail or wrecking ball attack against an adjacent valid target
+- **WHEN** helper, eligibility, tactical-command, intent/wire, event-sourced, or runner resolution surfaces validate the declaration
+- **THEN** both `flail` and `wrecking-ball` SHALL be accepted as runtime physical attack types
+- **AND** flail target damage SHALL be constant `9` plus physical damage bonuses, with underwater halving but without active TSM doubling
+- **AND** wrecking ball target damage SHALL be constant `8` plus physical damage bonuses, with underwater halving but without active TSM doubling
+- **AND** flail to-hit SHALL include source-backed `+0` and wrecking ball to-hit SHALL include source-backed `+1`
+- **AND** flail SHALL not require a hand actuator but SHALL stay blocked on quad BattleMechs
+- **AND** wrecking ball SHALL be treated as a non-arm-mounted physical weapon for arm, hand, shoulder, No Arms, and quad legality gates
+- **AND** the validation catalog SHALL have no unsupported standalone official physical weapon runtime types after flail and wrecking ball integration, while modifier-only claw/talon lifecycle and full mounted physical-weapon lifecycle remain visible gaps
+
 #### Scenario: Talons modify kick and DFA damage without becoming a selectable attack type
 
 - **GIVEN** a BattleMech has explicit biped leg talon combat state and a working foot actuator

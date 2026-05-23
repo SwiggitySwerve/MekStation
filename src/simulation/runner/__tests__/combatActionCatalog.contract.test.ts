@@ -109,6 +109,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.charge',
       'physical.club',
       'physical.dfa',
+      'physical.flail',
       'physical.kick',
       'physical.lance',
       'physical.mace',
@@ -116,6 +117,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.push',
       'physical.retractable-blade',
       'physical.sword',
+      'physical.wrecking-ball',
       'utility.concede',
       'utility.eject',
       'weapon.fire-volley',
@@ -250,6 +252,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.charge': 'charge',
       'physical.club': 'hatchet',
       'physical.dfa': 'dfa',
+      'physical.flail': 'flail',
       'physical.kick': 'kick',
       'physical.lance': 'lance',
       'physical.mace': 'mace',
@@ -257,12 +260,14 @@ describe('BattleMech combat action support catalog', () => {
       'physical.push': 'push',
       'physical.retractable-blade': 'retractable-blade',
       'physical.sword': 'sword',
+      'physical.wrecking-ball': 'wrecking-ball',
     });
     expect(
       supportIdsByLevel(PHYSICAL_ATTACK_ACTION_SUPPORT, 'integrated'),
     ).toEqual([
       'charge',
       'dfa',
+      'flail',
       'hatchet',
       'kick',
       'lance',
@@ -271,6 +276,7 @@ describe('BattleMech combat action support catalog', () => {
       'push',
       'retractable-blade',
       'sword',
+      'wrecking-ball',
     ]);
     expect(
       supportIdsByLevel(PHYSICAL_ATTACK_ACTION_SUPPORT, 'helper-only'),

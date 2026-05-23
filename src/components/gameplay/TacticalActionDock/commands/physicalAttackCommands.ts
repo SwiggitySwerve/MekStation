@@ -23,6 +23,8 @@ export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
     PhysicalMaceCommand,
     PhysicalLanceCommand,
     PhysicalRetractableBladeCommand,
+    PhysicalFlailCommand,
+    PhysicalWreckingBallCommand,
   ];
 }
 
@@ -192,6 +194,37 @@ const PhysicalRetractableBladeCommand: ITacticalCommand = {
     return {
       actionId: 'physical-attack',
       payload: { attackType: 'retractable-blade' },
+    };
+  },
+};
+
+const PhysicalFlailCommand: ITacticalCommand = {
+  id: 'physical.flail',
+  category: 'physical',
+  label: 'Flail',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return { actionId: 'physical-attack', payload: { attackType: 'flail' } };
+  },
+};
+
+const PhysicalWreckingBallCommand: ITacticalCommand = {
+  id: 'physical.wrecking-ball',
+  category: 'physical',
+  label: 'Wrecking Ball',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return {
+      actionId: 'physical-attack',
+      payload: { attackType: 'wrecking-ball' },
     };
   },
 };

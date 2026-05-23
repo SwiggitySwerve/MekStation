@@ -10,13 +10,14 @@ These are documented gaps in functionality, not defects. They represent future w
 
 **Status**: Partially Implemented; broad legacy filter retained for generic simulation detectors
 
-**Why**: The current BattleMech combat stack has runtime support for punch, kick, push, charge, death-from-above, and the supported melee weapon attack types (hatchet, sword, mace, lance). The broad `physicalAttacks` known-limitation bucket is retained only for older generic invariant reports whose messages do not distinguish implemented BattleMech mechanics from missing physical-combat families.
+**Why**: The current BattleMech combat stack has runtime support for punch, kick, push, charge, death-from-above, and the supported melee weapon attack types (hatchet, sword, mace, lance, retractable blade, flail, wrecking ball). The broad `physicalAttacks` known-limitation bucket is retained only for older generic invariant reports whose messages do not distinguish implemented BattleMech mechanics from missing physical-combat families.
 
 **Catalog validation rule**: BattleMech combat validation invariants must not be filtered through this broad bucket. They bypass known-limitation filtering via `battlemech-combat-validation` and use the explicit support maps under `src/simulation/runner/` to classify integrated, helper-only, and unsupported physical behavior.
 
 **Current explicit gaps**:
 
-- Official physical weapon catalog entries without runtime attack types: flail, wrecking ball. Claws and talons intentionally remain modifiers on punch/kick/DFA rather than standalone attacks; their destroyed/missing/breached equipment lifecycle remains a gap.
+- Claws and talons intentionally remain modifiers on punch/kick/DFA rather than standalone attacks; their destroyed/missing/breached equipment lifecycle remains a gap.
+- Full physical-weapon mount location, mode, and damaged-equipment lifecycle parity remains partial.
 - Non-BattleMech physical combat families require separate validation matrices.
 - Generic invariants that only say "physical attack unavailable" may still be filtered as legacy limitations unless they are part of the BattleMech catalog validation lane.
 

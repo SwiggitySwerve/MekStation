@@ -304,6 +304,8 @@ describe('BattleMech physical combat behavior validation lane', () => {
       'mace',
       'lance',
       'retractable-blade',
+      'flail',
+      'wrecking-ball',
     ];
 
     const options = getEligiblePhysicalAttacks(attacker, target, {
@@ -333,6 +335,8 @@ describe('BattleMech physical combat behavior validation lane', () => {
       'mace:-',
       'lance:-',
       'retractable-blade:-',
+      'flail:-',
+      'wrecking-ball:-',
     ]);
     expect(
       options.every((option) => option.restrictionsFailed.length === 0),
@@ -348,10 +352,14 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(byType.get('mace')?.toHit.finalToHit).toBe(8);
     expect(byType.get('lance')?.toHit.finalToHit).toBe(8);
     expect(byType.get('retractable-blade')?.toHit.finalToHit).toBe(5);
+    expect(byType.get('flail')?.toHit.finalToHit).toBe(7);
+    expect(byType.get('wrecking-ball')?.toHit.finalToHit).toBe(8);
     expect(byType.get('sword')?.damage.targetDamage).toBe(9);
     expect(byType.get('mace')?.damage.targetDamage).toBe(20);
     expect(byType.get('lance')?.damage.targetDamage).toBe(16);
     expect(byType.get('retractable-blade')?.damage.targetDamage).toBe(8);
+    expect(byType.get('flail')?.damage.targetDamage).toBe(9);
+    expect(byType.get('wrecking-ball')?.damage.targetDamage).toBe(8);
   });
 
   it('projects source-backed talon damage on kick and DFA rows', () => {
@@ -2777,19 +2785,19 @@ describe('BattleMech physical combat behavior validation lane', () => {
     });
   });
 
-  it('ignores unsupported catalog-only physical weapon ids before declaration', () => {
+  it('ignores helper-only physical weapon modifier ids before declaration', () => {
     const session = physicalPhaseSession();
-    const afterUnsupported = declarePhysicalAttack(
+    const afterHelperOnly = declarePhysicalAttack(
       session,
       'attacker',
       'target',
-      'wrecking-ball',
+      'talons',
       physicalContext(),
     );
 
-    expect(afterUnsupported).toBe(session);
+    expect(afterHelperOnly).toBe(session);
     expect(
-      afterUnsupported.events.filter(
+      afterHelperOnly.events.filter(
         (event) =>
           event.type === GameEventType.PhysicalAttackDeclared ||
           event.type === GameEventType.PhysicalAttackResolved,

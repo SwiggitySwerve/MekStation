@@ -22,6 +22,10 @@ export const RETRACTABLE_BLADE_DAMAGE_DIVISOR = 10;
 export const LANCE_DAMAGE_DIVISOR = 5;
 export const LANCE_CHARGE_DAMAGE_MULTIPLIER = 2;
 export const LANCE_TO_HIT_MODIFIER = 1;
+export const FLAIL_DAMAGE = 9;
+export const WRECKING_BALL_DAMAGE = 8;
+export const FLAIL_TO_HIT_MODIFIER = 0;
+export const WRECKING_BALL_TO_HIT_MODIFIER = 1;
 
 // Per task 6.4 / 7.4: charge + DFA damage splits into 5-point clusters
 // before hit-location resolution. Damage under 5 is a single cluster.

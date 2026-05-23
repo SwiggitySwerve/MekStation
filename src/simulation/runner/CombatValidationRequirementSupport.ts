@@ -462,8 +462,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'official-physical-weapons': helperOnly(
     'official-physical-weapons',
-    'Catalog contracts enumerate official physical weapons, runtime support tracks each supported physical weapon family, and claws/talons are classified as modifiers rather than selectable attack types',
-    'The physical weapon catalog still contains physical weapons with no runtime PhysicalAttackType, and claw/talon destroyed/missing/breached equipment lifecycle is not wired from mounted equipment',
+    'Catalog contracts enumerate official physical weapons, all standalone runtime physical weapon families are integrated, and claws/talons are classified as modifiers rather than selectable attack types',
+    'Claw/talon destroyed/missing/breached equipment lifecycle is not wired from mounted equipment, and full mounted physical-weapon mode/location lifecycle remains partial',
     [
       'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
       'featureSupport.physicalWeapons.hatchet',
@@ -681,14 +681,16 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'physical-weapon-actions': helperOnly(
     'physical-weapon-actions',
-    'Runtime physical weapon actions cover player commands, wire intents, runner resolution, active TSM damage context, source-backed melee damage/to-hit modifiers for hatchet, sword, mace, lance, and retractable blade, plus source-backed claw punch and talon kick/DFA damage modifiers',
-    'Some official physical weapons still lack runtime attack types, and claw/talon destroyed/missing/breached equipment lifecycle remains out of scope',
+    'Runtime physical weapon actions cover player commands, wire intents, runner resolution, active TSM damage context, source-backed melee damage/to-hit modifiers for hatchet, sword, mace, lance, retractable blade, flail, and wrecking ball, plus source-backed claw punch and talon kick/DFA damage modifiers',
+    'Claw/talon destroyed/missing/breached equipment lifecycle, full physical weapon mount location/mode state, and non-BattleMech physical weapon families remain out of scope',
     [
       'actions.physicalAttackCommands.hatchet',
       'actions.physicalAttackCommands.sword',
       'actions.physicalAttackCommands.mace',
       'actions.physicalAttackCommands.lance',
       'actions.physicalAttackCommands.retractable-blade',
+      'actions.physicalAttackCommands.flail',
+      'actions.physicalAttackCommands.wrecking-ball',
       'featureSupport.physicalWeapons.hatchet',
       'featureSupport.physicalWeapons.sword',
       'featureSupport.physicalWeapons.mace',

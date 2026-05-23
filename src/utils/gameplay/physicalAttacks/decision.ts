@@ -3,6 +3,7 @@ import { IComponentDamageState } from '@/types/gameplay';
 import {
   calculateChargeDamageToTarget,
   calculateDFADamageToTarget,
+  calculateFlailDamage,
   calculateHatchetDamage,
   calculateKickDamage,
   calculateLanceDamage,
@@ -10,6 +11,7 @@ import {
   calculatePunchDamage,
   calculateRetractableBladeDamage,
   calculateSwordDamage,
+  calculateWreckingBallDamage,
 } from './damage';
 import {
   canCharge,
@@ -147,6 +149,12 @@ export function chooseBestPhysicalAttack(
           break;
         case 'retractable-blade':
           meleeDamage = calculateRetractableBladeDamage(meleeInput);
+          break;
+        case 'flail':
+          meleeDamage = calculateFlailDamage(meleeInput);
+          break;
+        case 'wrecking-ball':
+          meleeDamage = calculateWreckingBallDamage(meleeInput);
           break;
       }
       candidates.push({

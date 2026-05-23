@@ -39,6 +39,8 @@ describe('physicalAttackCommands', () => {
       'physical.mace',
       'physical.lance',
       'physical.retractable-blade',
+      'physical.flail',
+      'physical.wrecking-ball',
     ]);
   });
 
@@ -102,6 +104,8 @@ describe('physicalAttackCommands', () => {
       'physical.mace': 'mace',
       'physical.lance': 'lance',
       'physical.retractable-blade': 'retractable-blade',
+      'physical.flail': 'flail',
+      'physical.wrecking-ball': 'wrecking-ball',
     });
   });
 });

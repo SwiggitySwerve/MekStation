@@ -1222,7 +1222,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toBe(false);
   });
 
-  it('tracks physical catalog entries not yet represented by runtime attack types', () => {
+  it('tracks official physical catalog entries against runtime attack support', () => {
     expect(sortedKeys(PHYSICAL_WEAPON_COMBAT_SUPPORT)).toEqual(
       ids(physicalWeaponItems),
     );
@@ -1252,7 +1252,7 @@ describe('BattleMech combat feature-gap tracking', () => {
         ),
     ).toEqual([]);
     expect(helperOnly).toEqual(['claws', 'talons']);
-    expect(unsupported).toEqual(['flail', 'wrecking-ball']);
+    expect(unsupported).toEqual([]);
   });
 
   it('tracks runner range brackets including extreme range support', () => {

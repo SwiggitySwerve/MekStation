@@ -69,9 +69,6 @@ function unsupported(
   return sourceRefs ? { ...entry, sourceRefs } : entry;
 }
 
-const NO_RUNTIME_PHYSICAL_WEAPON =
-  'No runtime PhysicalAttackType, to-hit, or damage implementation';
-
 const BMM_ERRATA_701_LANCE_TO_HIT = {
   kind: 'rulebook',
   citation:
@@ -102,6 +99,30 @@ const MEGAMEK_6CA1867_RETRACTABLE_BLADE_MODE_GATE = {
     'MegaMek ClubAttackAction.toHit rejects retractable blade attacks unless the blade is extended',
   url: 'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/common/actions/ClubAttackAction.java#L329-L332',
   sourceVersion: '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_FLAIL_WRECKING_DAMAGE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek ClubAttackAction.getDamageFor applies constant 9 flail damage and constant 8 wrecking ball damage, and excludes both from active TSM doubling',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/ClubAttackAction.java#L112-L205',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_FLAIL_WRECKING_TO_HIT = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek ClubAttackAction.getHitModFor returns flail +0 and wrecking ball +1 physical weapon modifiers',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/ClubAttackAction.java#L227-L245',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_FLAIL_WRECKING_LEGALITY = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek ClubAttackAction.toHit lets flail and wrecking ball attacks avoid hand-actuator requirements, rejects flails on quads, and allows wrecking balls on quads',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/ClubAttackAction.java#L300-L520',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
 const MEGAMEK_325B_TALON_KICK_DAMAGE = {
@@ -588,6 +609,22 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
       MEGAMEK_325B_CLAW_EQUIPMENT_GATE,
     ],
   ),
-  flail: unsupported('flail', NO_RUNTIME_PHYSICAL_WEAPON),
-  'wrecking-ball': unsupported('wrecking-ball', NO_RUNTIME_PHYSICAL_WEAPON),
+  flail: integrated(
+    'flail',
+    'source-backed calculateFlailDamage + 0 flail to-hit modifier plus no-hand and quad legality gates',
+    [
+      MEGAMEK_325B_FLAIL_WRECKING_DAMAGE,
+      MEGAMEK_325B_FLAIL_WRECKING_TO_HIT,
+      MEGAMEK_325B_FLAIL_WRECKING_LEGALITY,
+    ],
+  ),
+  'wrecking-ball': integrated(
+    'wrecking-ball',
+    'source-backed calculateWreckingBallDamage + +1 wrecking ball to-hit modifier plus torso-mounted arm/quad legality gates',
+    [
+      MEGAMEK_325B_FLAIL_WRECKING_DAMAGE,
+      MEGAMEK_325B_FLAIL_WRECKING_TO_HIT,
+      MEGAMEK_325B_FLAIL_WRECKING_LEGALITY,
+    ],
+  ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;

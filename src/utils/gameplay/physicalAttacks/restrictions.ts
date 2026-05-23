@@ -254,6 +254,22 @@ function verticalBandsOverlap(input: IPhysicalAttackInput): boolean {
   return attackerBottom <= targetTop && attackerTop >= targetBottom;
 }
 
+function meleeWeaponIsArmMounted(
+  attackType: IPhysicalAttackInput['attackType'],
+): boolean {
+  return attackType !== 'wrecking-ball';
+}
+
+function meleeWeaponNeedsHand(
+  attackType: IPhysicalAttackInput['attackType'],
+): boolean {
+  return (
+    attackType !== 'flail' &&
+    attackType !== 'lance' &&
+    attackType !== 'wrecking-ball'
+  );
+}
+
 export function canPunch(
   input: IPhysicalAttackInput,
 ): IPhysicalAttackRestriction {
@@ -395,8 +411,18 @@ export function canMeleeWeapon(
   }
 
   const unitQuirks = input.unitQuirks ?? [];
+  const armMounted = meleeWeaponIsArmMounted(input.attackType);
+  const needsHand = meleeWeaponNeedsHand(input.attackType);
 
-  if (hasNoArms(unitQuirks)) {
+  if (input.attackerIsQuad && input.attackType !== 'wrecking-ball') {
+    return {
+      allowed: false,
+      reason: 'Quad BattleMechs cannot use this melee weapon',
+      reasonCode: 'AttackerQuad',
+    };
+  }
+
+  if (armMounted && hasNoArms(unitQuirks)) {
     return {
       allowed: false,
       reason: 'No Arms quirk prevents arm-mounted melee attacks',
@@ -404,7 +430,10 @@ export function canMeleeWeapon(
     };
   }
 
-  if (isLowArmsRestricted(unitQuirks, input.elevationDifference ?? 0)) {
+  if (
+    armMounted &&
+    isLowArmsRestricted(unitQuirks, input.elevationDifference ?? 0)
+  ) {
     return {
       allowed: false,
       reason: 'Low Arms quirk prevents attacks against higher targets',
@@ -414,7 +443,11 @@ export function canMeleeWeapon(
 
   const actuators = input.componentDamage.actuators;
 
-  if (input.weaponsFiredFromArm && input.weaponsFiredFromArm.length > 0) {
+  if (
+    armMounted &&
+    input.weaponsFiredFromArm &&
+    input.weaponsFiredFromArm.length > 0
+  ) {
     return {
       allowed: false,
       reason: 'Arm fired weapons this turn',
@@ -422,7 +455,7 @@ export function canMeleeWeapon(
     };
   }
 
-  if (actuators[ActuatorType.SHOULDER]) {
+  if (armMounted && actuators[ActuatorType.SHOULDER]) {
     return {
       allowed: false,
       reason: 'Shoulder actuator destroyed',
@@ -432,7 +465,7 @@ export function canMeleeWeapon(
 
   // Per `physical-weapons-system` delta "Missing hand/lower-arm blocks
   // club attack": destruction of either actuator blocks the attack.
-  if (actuators[ActuatorType.LOWER_ARM]) {
+  if (armMounted && actuators[ActuatorType.LOWER_ARM]) {
     return {
       allowed: false,
       reason: 'Lower arm actuator destroyed',
@@ -440,7 +473,7 @@ export function canMeleeWeapon(
     };
   }
 
-  if (actuators[ActuatorType.HAND]) {
+  if (armMounted && needsHand && actuators[ActuatorType.HAND]) {
     return {
       allowed: false,
       reason: 'Hand actuator destroyed',

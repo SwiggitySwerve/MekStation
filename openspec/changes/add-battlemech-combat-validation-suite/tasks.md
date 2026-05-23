@@ -49,6 +49,7 @@
 - [x] 2.32.6 Add source-backed talon kick/DFA damage modifiers through explicit combat state/context while leaving mounted-equipment hydration and non-biped talon locations explicit out of scope.
 - [x] 2.32.7 Hydrate biped BattleMech talon leg state from catalog critical slots so source-backed talon kick/DFA modifiers apply to real unit data, while leaving destroyed/missing/breached talon lifecycle and non-biped talon behavior explicit out of scope.
 - [x] 2.32.8 Add source-backed claw punch damage/to-hit modifiers through explicit combat state/context plus catalog arm critical-slot hydration, while keeping claws non-selectable and destroyed/missing/breached claw lifecycle explicit out of scope.
+- [x] 2.32.9 Add source-backed flail and wrecking-ball runtime attacks with constant damage, to-hit modifiers, intent/wire support, runner coverage, and catalog boundary updates while leaving full mounted physical-weapon lifecycle explicit out of scope.
 
 ## 3. Full combat validation catalog
 

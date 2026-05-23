@@ -163,6 +163,16 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack retractable-blade; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
   ),
+  'physical.flail': integrated(
+    'physical.flail',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits physical-attack flail; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+  ),
+  'physical.wrecking-ball': integrated(
+    'physical.wrecking-ball',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits physical-attack wrecking-ball; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+  ),
   'heat.continue': integrated(
     'heat.continue',
     'tactical-command',
