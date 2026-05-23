@@ -8,20 +8,29 @@ These are documented gaps in functionality, not defects. They represent future w
 
 ## Physical Attacks
 
-**Status**: Not Implemented (marked "Future" in codebase)
+**Status**: Partially Implemented; broad legacy filter retained for generic simulation detectors
 
-**Why**: Physical attacks (punches, kicks, pushes, charges, death-from-above) require complex hit location tables, damage calculations, and piloting skill checks that are not yet implemented. The game phase exists (`GamePhase.PhysicalAttack`) but has no resolution logic.
+**Why**: The current BattleMech combat stack has runtime support for punch, kick, push, charge, death-from-above, and the supported melee weapon attack types (hatchet, sword, mace, lance). The broad `physicalAttacks` known-limitation bucket is retained only for older generic invariant reports whose messages do not distinguish implemented BattleMech mechanics from missing physical-combat families.
 
-**When**: Planned for future milestone after ranged combat is stable and thoroughly tested.
+**Catalog validation rule**: BattleMech combat validation invariants must not be filtered through this broad bucket. They bypass known-limitation filtering via `battlemech-combat-validation` and use the explicit support maps under `src/simulation/runner/` to classify integrated, helper-only, and unsupported physical behavior.
 
-**Code Reference**: `src/types/gameplay/GameSessionInterfaces.ts:39` - `PhysicalAttack = 'physical_attack'` with comment "Physical attacks (future)"
+**Current explicit gaps**:
+
+- Official physical weapon catalog entries without runtime attack types: claws, flail, retractable blade, talons, wrecking ball.
+- Non-BattleMech physical combat families require separate validation matrices.
+- Generic invariants that only say "physical attack unavailable" may still be filtered as legacy limitations unless they are part of the BattleMech catalog validation lane.
+
+**Code Reference**:
+
+- `src/utils/gameplay/physicalAttacks/types.ts` - runtime-supported physical attack type list
+- `src/simulation/runner/CombatFeatureSupport.ts` - official physical weapon support map
+- `src/simulation/runner/CombatPhysicalActionSupport.ts` - physical action support map
 
 **Example Violations to Exclude**:
 
-- "Unit should have physical attack option available"
-- "Physical attack phase has no actions"
-- "Melee combat not resolved"
-- "Punch/kick/charge not implemented"
+- "Generic physical attack option unavailable in non-catalog detector"
+- "Vehicle melee combat not resolved"
+- "Unsupported physical weapon lacks runtime attack type"
 
 ---
 
@@ -101,7 +110,6 @@ These are documented gaps in functionality, not defects. They represent future w
 - Fall checks after taking leg damage
 - Skid checks after running on pavement
 - Consciousness checks after head hits (defined but not enforced)
-- Ejection mechanics
 
 **When**: Part of pilot mechanics milestone.
 
@@ -115,7 +123,6 @@ These are documented gaps in functionality, not defects. They represent future w
 - "Piloting check not performed after leg damage"
 - "Unit should fall after failed piloting check"
 - "Consciousness check not triggered"
-- "Ejection not available"
 
 ---
 

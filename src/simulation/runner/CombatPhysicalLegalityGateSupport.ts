@@ -1,0 +1,323 @@
+import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+
+export type PhysicalLegalityAttackFamily = 'shared' | 'push' | 'charge' | 'dfa';
+
+export interface IPhysicalLegalityGateSupportEntry extends ICombatFeatureSupportEntry {
+  readonly attackFamily: PhysicalLegalityAttackFamily;
+  readonly authority: string;
+}
+
+function integrated(
+  id: string,
+  attackFamily: PhysicalLegalityAttackFamily,
+  evidence: string,
+  authority: string,
+): IPhysicalLegalityGateSupportEntry {
+  return { id, attackFamily, authority, level: 'integrated', evidence };
+}
+
+function helperOnly(
+  id: string,
+  attackFamily: PhysicalLegalityAttackFamily,
+  evidence: string,
+  gap: string,
+  authority: string,
+): IPhysicalLegalityGateSupportEntry {
+  return { id, attackFamily, authority, level: 'helper-only', evidence, gap };
+}
+
+function unsupported(
+  id: string,
+  attackFamily: PhysicalLegalityAttackFamily,
+  gap: string,
+  authority: string,
+): IPhysicalLegalityGateSupportEntry {
+  return {
+    id,
+    attackFamily,
+    authority,
+    level: 'unsupported',
+    evidence:
+      'MegaMek legality gate is source-checked but not enforced by MekStation physical restriction helpers',
+    gap,
+  };
+}
+
+const PHYSICAL_ATTACK_ACTION_LINES =
+  'MegaMek PhysicalAttackAction.toHitIsImpossible, PhysicalAttackAction.java:76-167';
+const TARGETABILITY_LIFECYCLE_LINES =
+  'MegaMek Game.getValidTargets filters Entity.isTargetable, Game.java:701-718; Entity.isTargetable excludes destroyed units, Entity.java:1967-1976';
+const PUSH_ACTION_LINES =
+  'MegaMek PushAttackAction.toHit, PushAttackAction.java:112-286';
+const CHARGE_ACTION_LINES =
+  'MegaMek ChargeAttackAction.toHit, ChargeAttackAction.java:116-274';
+const DFA_ACTION_LINES =
+  'MegaMek DfaAttackAction.toHit, DfaAttackAction.java:232-329';
+
+export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
+  'shared.target-not-null': integrated(
+    'shared.target-not-null',
+    'shared',
+    'shared restriction helpers reject targetExists=false, event-sourced declarations emit TargetMissing before scheduling, and stale declared events resolve to TargetMissing when the target unit no longer exists',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.target-not-destroyed': integrated(
+    'shared.target-not-destroyed',
+    'shared',
+    'shared restriction helpers reject targetDestroyed, event-sourced declarations and stale declared resolution emit TargetDestroyed without damage side effects, and runner enemy selection excludes destroyed physical targets',
+    TARGETABILITY_LIFECYCLE_LINES,
+  ),
+  'shared.friendly-fire': integrated(
+    'shared.friendly-fire',
+    'shared',
+    'shared restriction helpers reject targetIsFriendly, event-sourced declarations emit FriendlyTarget before scheduling, and runner enemy selection excludes same-side physical targets',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.same-board': unsupported(
+    'shared.same-board',
+    'shared',
+    'current physical attack input has no board identity or same-board validation',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.adjacent-range': integrated(
+    'shared.adjacent-range',
+    'shared',
+    'shared restriction helpers reject explicit non-adjacent targetDistance, event-sourced declarations emit TargetNotAdjacent before scheduling, and runner enemy selection excludes non-adjacent physical targets',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.attacker-not-evading': unsupported(
+    'shared.attacker-not-evading',
+    'shared',
+    'current unit combat state does not expose evading state to physical restrictions',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.not-loading-unloading-cargo': unsupported(
+    'shared.not-loading-unloading-cargo',
+    'shared',
+    'cargo interaction state is not represented in BattleMech physical restriction input',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.target-not-passenger': unsupported(
+    'shared.target-not-passenger',
+    'shared',
+    'transport/passenger state is not represented in BattleMech physical restriction input',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.not-self-target': integrated(
+    'shared.not-self-target',
+    'shared',
+    'shared restriction helpers reject targetIsSelf before adjacency checks, event-sourced declarations emit SelfTarget before scheduling, and runner enemy selection cannot select the acting unit',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.target-not-airborne': unsupported(
+    'shared.target-not-airborne',
+    'shared',
+    'airborne target state is not represented in BattleMech physical restriction input',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.target-not-swarming': unsupported(
+    'shared.target-not-swarming',
+    'shared',
+    'swarm target state is not represented in BattleMech physical restriction input',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.building-occupancy': unsupported(
+    'shared.building-occupancy',
+    'shared',
+    'same-building and target-inside-building validation is not represented in BattleMech physical restriction input',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.target-not-making-dfa': unsupported(
+    'shared.target-not-making-dfa',
+    'shared',
+    'displacement-attack state is not represented in BattleMech physical restriction input',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.invalid-hex-target': unsupported(
+    'shared.invalid-hex-target',
+    'shared',
+    'physical target type does not represent woods clearing, building ignition, or hex ignition targets',
+    PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'push.destination-open': integrated(
+    'push.destination-open',
+    'push',
+    'canPush consumes pushDestinationValid, and runner/session displacement helpers reject blocked or off-map push destinations',
+    PUSH_ACTION_LINES,
+  ),
+  'push.attacker-is-mek': integrated(
+    'push.attacker-is-mek',
+    'push',
+    'IUnitGameState carries explicit unitType, canPush rejects explicit non-Mek attackers as AttackerNotMek, and eligibility/session/runner inputs thread attackerUnitType into push validation',
+    PUSH_ACTION_LINES,
+  ),
+  'push.attacker-not-quad': unsupported(
+    'push.attacker-not-quad',
+    'push',
+    'quad configuration is not represented in push restriction input',
+    PUSH_ACTION_LINES,
+  ),
+  'push.attacker-grounded': unsupported(
+    'push.attacker-grounded',
+    'push',
+    'AirMek/VTOL/WIGE airborne state is not represented in push restriction input',
+    PUSH_ACTION_LINES,
+  ),
+  'push.target-is-mek': integrated(
+    'push.target-is-mek',
+    'push',
+    'IUnitGameState carries explicit unitType, canPush rejects explicit non-Mek targets as TargetNotMek, and eligibility/session/runner inputs thread targetUnitType into push validation',
+    PUSH_ACTION_LINES,
+  ),
+  'push.arms-not-flipped': unsupported(
+    'push.arms-not-flipped',
+    'push',
+    'flipped-arm state is not represented in push restriction input',
+    PUSH_ACTION_LINES,
+  ),
+  'push.both-arms-present': integrated(
+    'push.both-arms-present',
+    'push',
+    'canPush consumes attackerDestroyedLocations, eligibility/session/runner inputs pass unit destroyedLocations, and push declarations reject missing left or right arm with LimbMissing',
+    PUSH_ACTION_LINES,
+  ),
+  'push.no-arms-quirk': integrated(
+    'push.no-arms-quirk',
+    'push',
+    'canPush now rejects No Arms quirk through the shared physical restriction input',
+    PUSH_ACTION_LINES,
+  ),
+  'push.no-arm-weapons-fired': helperOnly(
+    'push.no-arm-weapons-fired',
+    'push',
+    'canPush rejects supplied arm-fired weapon ids, event-sourced push declarations emit WeaponFiredThisTurn before scheduling, and runner injected push declarations conservatively pass the flat fired-weapon list through the same gate',
+    'runner unit state does not yet hydrate weapon mount locations, so runner coverage cannot distinguish arm-mounted fired weapons from torso-mounted fired weapons',
+    PUSH_ACTION_LINES,
+  ),
+  'push.same-elevation': integrated(
+    'push.same-elevation',
+    'push',
+    'canPush consumes elevationDifference and rejects non-zero target elevation deltas',
+    PUSH_ACTION_LINES,
+  ),
+  'push.displacement-state-conflicts': unsupported(
+    'push.displacement-state-conflicts',
+    'push',
+    'push restrictions do not model target/attacker participation in another push, charge, or DFA',
+    PUSH_ACTION_LINES,
+  ),
+  'push.target-directly-ahead': integrated(
+    'push.target-directly-ahead',
+    'push',
+    'runner, event-sourced session, and eligibility inputs derive pushTargetDirectlyAhead from attacker position/facing and target position; canPush rejects side-adjacent targets',
+    PUSH_ACTION_LINES,
+  ),
+  'push.attacker-not-prone': integrated(
+    'push.attacker-not-prone',
+    'push',
+    'canPush rejects attackerProne before to-hit or displacement side effects',
+    PUSH_ACTION_LINES,
+  ),
+  'push.target-not-prone': integrated(
+    'push.target-not-prone',
+    'push',
+    'canPush consumes targetProne and rejects push declarations against prone targets',
+    PUSH_ACTION_LINES,
+  ),
+  'push.not-building-target': unsupported(
+    'push.not-building-target',
+    'push',
+    'push restrictions do not model building/fuel-tank target rejection',
+    PUSH_ACTION_LINES,
+  ),
+  'charge.requires-run': integrated(
+    'charge.requires-run',
+    'charge',
+    'canCharge rejects declarations when attackerRanThisTurn is false',
+    CHARGE_ACTION_LINES,
+  ),
+  'charge.target-entity': unsupported(
+    'charge.target-entity',
+    'charge',
+    'charge restrictions do not distinguish entity, building, fuel-tank, gun-emplacement, or invalid hex targets',
+    CHARGE_ACTION_LINES,
+  ),
+  'charge.target-mek-standing': integrated(
+    'charge.target-mek-standing',
+    'charge',
+    'canCharge consumes attackerUnitType, targetUnitType, and targetProne; BattleMech-compatible attackers reject explicit non-Mek targets as TargetNotMek and prone targets as TargetProne through eligibility, event-sourced declaration, and runner resolution inputs',
+    CHARGE_ACTION_LINES,
+  ),
+  'charge.no-infantry-protomek': integrated(
+    'charge.no-infantry-protomek',
+    'charge',
+    'canCharge consumes attackerUnitType and targetUnitType to reject explicit non-Mek charges against Infantry, Battle Armor, or ProtoMech targets as TargetInfantryOrProtoMek; eligibility, event-sourced declaration, and runner resolution thread the same target-class gate',
+    CHARGE_ACTION_LINES,
+  ),
+  'charge.elevation-overlap': integrated(
+    'charge.elevation-overlap',
+    'charge',
+    'canCharge consumes elevationDifference plus default standing-Mek heights to reject non-overlapping attacker/target elevation bands as ElevationMismatch; eligibility, event-sourced declaration, and runner resolution thread the same elevation delta',
+    CHARGE_ACTION_LINES,
+  ),
+  'charge.target-moved-or-immobile': integrated(
+    'charge.target-moved-or-immobile',
+    'charge',
+    'canCharge consumes targetMovementComplete and targetImmobile to reject targets that have not completed movement unless they are immobile; eligibility, event-sourced declaration/resolution, and runner resolution thread the post-movement charge gate',
+    CHARGE_ACTION_LINES,
+  ),
+  'charge.displacement-state-conflicts': unsupported(
+    'charge.displacement-state-conflicts',
+    'charge',
+    'charge restrictions do not model target participation in another charge, DFA, or displacement target state',
+    CHARGE_ACTION_LINES,
+  ),
+  'charge.building-auto-hit': unsupported(
+    'charge.building-auto-hit',
+    'charge',
+    'charge restrictions do not model adjacent building, fuel-tank, or gun-emplacement automatic hit targets',
+    CHARGE_ACTION_LINES,
+  ),
+  'dfa.requires-jump': integrated(
+    'dfa.requires-jump',
+    'dfa',
+    'canDFA rejects declarations when attackerJumpedThisTurn is false',
+    DFA_ACTION_LINES,
+  ),
+  'dfa.attacker-not-infantry': integrated(
+    'dfa.attacker-not-infantry',
+    'dfa',
+    'canDFA consumes attackerUnitType and rejects explicit Infantry/Battle Armor attackers as AttackerInfantry; eligibility, event-sourced declaration, and runner resolution thread the same attacker unit-type gate',
+    DFA_ACTION_LINES,
+  ),
+  'dfa.vtol-elevation-reachable': unsupported(
+    'dfa.vtol-elevation-reachable',
+    'dfa',
+    'DFA restrictions do not model airborne VTOL/WIGE elevation reach against jump MP',
+    DFA_ACTION_LINES,
+  ),
+  'dfa.attacker-not-prone': integrated(
+    'dfa.attacker-not-prone',
+    'dfa',
+    'canDFA rejects attackerProne even when attackerJumpedThisTurn is true',
+    DFA_ACTION_LINES,
+  ),
+  'dfa.displacement-state-conflicts': unsupported(
+    'dfa.displacement-state-conflicts',
+    'dfa',
+    'DFA restrictions do not model target participation in another charge, DFA, or displacement target state',
+    DFA_ACTION_LINES,
+  ),
+  'dfa.target-not-inside-building': unsupported(
+    'dfa.target-not-inside-building',
+    'dfa',
+    'DFA restrictions do not reject entity targets inside buildings',
+    DFA_ACTION_LINES,
+  ),
+  'dfa.building-auto-hit': unsupported(
+    'dfa.building-auto-hit',
+    'dfa',
+    'DFA restrictions do not model adjacent building, fuel-tank, or gun-emplacement automatic hit targets',
+    DFA_ACTION_LINES,
+  ),
+} satisfies Record<string, IPhysicalLegalityGateSupportEntry>;

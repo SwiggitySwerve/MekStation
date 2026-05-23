@@ -1,5 +1,6 @@
 import {
   isKnownLimitation,
+  getLimitationPatternCategory,
   getLimitationCategory,
   getLimitationExplanation,
   filterKnownLimitations,
@@ -172,7 +173,7 @@ describe('knownLimitations', () => {
         expect(isKnownLimitation(violation)).toBe(true);
       });
 
-      it('should identify ejection violations', () => {
+      it('should not hide local ejection lifecycle regressions', () => {
         const violation: IViolation = {
           invariant: 'checkPilotActions',
           severity: 'info',
@@ -180,7 +181,7 @@ describe('knownLimitations', () => {
           context: {},
         };
 
-        expect(isKnownLimitation(violation)).toBe(true);
+        expect(isKnownLimitation(violation)).toBe(false);
       });
     });
 
@@ -407,6 +408,19 @@ describe('knownLimitations', () => {
 
         expect(isKnownLimitation(violation)).toBe(true);
       });
+
+      it('should not suppress BattleMech combat validation failures', () => {
+        const violation: IViolation = {
+          invariant: 'battlemech-combat-validation',
+          severity: 'warning',
+          message: 'Physical attack charge and death from above missing',
+          context: {},
+        };
+
+        expect(isKnownLimitation(violation)).toBe(false);
+        expect(getLimitationCategory(violation)).toBeNull();
+        expect(getLimitationPatternCategory(violation)).toBe('physicalAttacks');
+      });
     });
   });
 
@@ -540,6 +554,27 @@ describe('knownLimitations', () => {
       const filtered = filterKnownLimitations(violations);
 
       expect(filtered).toHaveLength(2);
+    });
+
+    it('should keep combat-validation violations even when message text matches a broad limitation', () => {
+      const violations: IViolation[] = [
+        {
+          invariant: 'battlemech-combat-validation',
+          severity: 'warning',
+          message: 'Line of sight blocked by intervening terrain',
+          context: {},
+        },
+        {
+          invariant: 'checkLineOfSight',
+          severity: 'warning',
+          message: 'Line of sight blocked by intervening terrain',
+          context: {},
+        },
+      ];
+
+      const filtered = filterKnownLimitations(violations);
+
+      expect(filtered).toEqual([violations[0]]);
     });
   });
 

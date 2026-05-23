@@ -1,0 +1,702 @@
+/* eslint-disable max-lines -- Requirement crosswalk intentionally catalogs the full active combat-validation scope. */
+
+import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+
+import { PHYSICAL_LEGALITY_GATE_SUPPORT } from './CombatPhysicalLegalityGateSupport';
+
+export type CombatRequirementAuthorityKind =
+  | 'rulebook'
+  | 'megamek-source'
+  | 'mekhq-behavior'
+  | 'mekstation-deviation';
+
+export interface ICombatRequirementPrimaryAuthority {
+  readonly kind: CombatRequirementAuthorityKind;
+  readonly citation: string;
+  readonly rationale: string;
+}
+
+export interface ICombatRequirementSupportEntry extends ICombatFeatureSupportEntry {
+  readonly primaryAuthority: ICombatRequirementPrimaryAuthority;
+  readonly supportMapRefs: readonly string[];
+}
+
+const MEGAMEK_EQUIPMENT_DATA_AUTHORITY = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek/mm-data equipment records plus MekStation catalog import contracts',
+  rationale:
+    'Official equipment coverage is a data-provenance requirement before combat rules can be applied.',
+} satisfies ICombatRequirementPrimaryAuthority;
+
+const MEGAMEK_TACTICAL_SOURCE_AUTHORITY = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek tactical source and API behavior used as executable BattleTech oracle',
+  rationale:
+    'The mechanic is pinned to executable MegaMek behavior where MekStation needs parity rather than product-only semantics.',
+} satisfies ICombatRequirementPrimaryAuthority;
+
+const MEKHQ_CAMPAIGN_BEHAVIOR_AUTHORITY = {
+  kind: 'mekhq-behavior',
+  citation: 'MekHQ campaign maintenance and repair-cycle behavior',
+  rationale:
+    'Campaign quirks such as Rugged are MekHQ campaign behavior, not tabletop combat critical-hit prevention rules.',
+} satisfies ICombatRequirementPrimaryAuthority;
+
+const RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY = {
+  kind: 'rulebook',
+  citation:
+    'BattleTech Total Warfare / BattleMech Manual core BattleMech combat rules',
+  rationale:
+    'Canonical tabletop BattleMech rules define the combat behavior; implementation evidence proves local wiring only.',
+} satisfies ICombatRequirementPrimaryAuthority;
+
+const MEKSTATION_VALIDATION_CONTRACT_AUTHORITY = {
+  kind: 'mekstation-deviation',
+  citation: 'MekStation combat-validation suite and OpenSpec scope contracts',
+  rationale:
+    'This row governs local catalog hygiene, product wiring, parity, or scope partitioning rather than a tabletop combat rule.',
+} satisfies ICombatRequirementPrimaryAuthority;
+
+const MEKSTATION_LIFECYCLE_CONTRACT_AUTHORITY = {
+  kind: 'mekstation-deviation',
+  citation:
+    'MekStation interactive/runner lifecycle semantics layered over tabletop outcomes',
+  rationale:
+    'The tabletop outcome exists, but target filtering, event emission, turn rotation, objectives, and network parity are MekStation product contracts.',
+} satisfies ICombatRequirementPrimaryAuthority;
+
+export const COMBAT_REQUIREMENT_PRIMARY_AUTHORITIES = {
+  'official-ranged-weapons': MEGAMEK_EQUIPMENT_DATA_AUTHORITY,
+  'official-physical-weapons': MEGAMEK_EQUIPMENT_DATA_AUTHORITY,
+  'official-ammo': MEGAMEK_EQUIPMENT_DATA_AUTHORITY,
+  'weapon-stat-mapping': MEGAMEK_EQUIPMENT_DATA_AUTHORITY,
+  'special-weapon-families': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'fallback-prevention': MEKSTATION_VALIDATION_CONTRACT_AUTHORITY,
+  'damage-string-hazards': MEGAMEK_EQUIPMENT_DATA_AUTHORITY,
+  'movement-actions': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'movement-validation': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'movement-enhancements': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'heat-generation': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'heat-dissipation': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'heat-lifecycle': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'range-validation': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'attack-invalidation': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'to-hit-core-modifiers': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'to-hit-advanced-modifiers': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'terrain-movement-los-cover': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'terrain-environment-modifiers': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'physical-core-actions': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'physical-weapon-actions': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'physical-self-risk': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'pilot-skills': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'spa-quirk-catalog': MEGAMEK_TACTICAL_SOURCE_AUTHORITY,
+  'spa-quirk-resolver-application': MEKSTATION_VALIDATION_CONTRACT_AUTHORITY,
+  'campaign-quirk-behavior': MEKHQ_CAMPAIGN_BEHAVIOR_AUTHORITY,
+  'damage-resolution': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'critical-effects': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'pilot-damage-death': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'psr-resolution': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'psr-trigger-catalog': RULEBOOK_BATTLEMECH_COMBAT_AUTHORITY,
+  'turn-rotation-removal': MEKSTATION_LIFECYCLE_CONTRACT_AUTHORITY,
+  'targetability-lifecycle': MEKSTATION_LIFECYCLE_CONTRACT_AUTHORITY,
+  'ejection-lifecycle': MEKSTATION_LIFECYCLE_CONTRACT_AUTHORITY,
+  'retreat-withdrawal': MEKSTATION_LIFECYCLE_CONTRACT_AUTHORITY,
+  'objective-terminal-state': MEKSTATION_LIFECYCLE_CONTRACT_AUTHORITY,
+  'runner-interactive-parity': MEKSTATION_LIFECYCLE_CONTRACT_AUTHORITY,
+  'event-stream': MEKSTATION_VALIDATION_CONTRACT_AUTHORITY,
+  'critical-slot-hydration': MEGAMEK_EQUIPMENT_DATA_AUTHORITY,
+  'known-limitation-audit': MEKSTATION_VALIDATION_CONTRACT_AUTHORITY,
+  'non-battlemech-scope': MEKSTATION_VALIDATION_CONTRACT_AUTHORITY,
+} satisfies Record<string, ICombatRequirementPrimaryAuthority>;
+
+type CombatRequirementId = keyof typeof COMBAT_REQUIREMENT_PRIMARY_AUTHORITIES;
+
+const PHYSICAL_LEGALITY_GATE_SUPPORT_REFS = Object.keys(
+  PHYSICAL_LEGALITY_GATE_SUPPORT,
+).map((id) => `ruleSupport.physicalLegalityGates.${id}`);
+
+function primaryAuthorityFor(
+  id: CombatRequirementId,
+): ICombatRequirementPrimaryAuthority {
+  return COMBAT_REQUIREMENT_PRIMARY_AUTHORITIES[id];
+}
+
+function integrated(
+  id: CombatRequirementId,
+  evidence: string,
+  supportMapRefs: readonly string[],
+): ICombatRequirementSupportEntry {
+  return {
+    id,
+    level: 'integrated',
+    evidence,
+    primaryAuthority: primaryAuthorityFor(id),
+    supportMapRefs,
+  };
+}
+
+function helperOnly(
+  id: CombatRequirementId,
+  evidence: string,
+  gap: string,
+  supportMapRefs: readonly string[],
+): ICombatRequirementSupportEntry {
+  return {
+    id,
+    level: 'helper-only',
+    evidence,
+    gap,
+    primaryAuthority: primaryAuthorityFor(id),
+    supportMapRefs,
+  };
+}
+
+export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
+  'official-ranged-weapons': integrated(
+    'official-ranged-weapons',
+    'Catalog contracts enumerate every official ranged weapon and require non-synthetic AI weapon mapping',
+    [
+      'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
+    ],
+  ),
+  'official-physical-weapons': helperOnly(
+    'official-physical-weapons',
+    'Catalog contracts enumerate official physical weapons and runtime support tracks each supported physical weapon family',
+    'The physical weapon catalog still contains physical weapons with no runtime PhysicalAttackType',
+    [
+      'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
+      'featureSupport.physicalWeapons.hatchet',
+      'featureSupport.physicalWeapons.sword',
+      'featureSupport.physicalWeapons.mace',
+      'featureSupport.physicalWeapons.lance',
+      'featureSupport.physicalWeapons.claws',
+      'featureSupport.physicalWeapons.flail',
+      'featureSupport.physicalWeapons.retractable-blade',
+      'featureSupport.physicalWeapons.talons',
+      'featureSupport.physicalWeapons.wrecking-ball',
+    ],
+  ),
+  'official-ammo': helperOnly(
+    'official-ammo',
+    'Catalog contracts enumerate official ammo entries, require compatible rows to become consumable bins, and classify every empty-compatible row through the ammo support map',
+    'Some official ammo rows are non-BattleMech scope and need separate aerospace, vehicle, battle armor, artillery, or aquatic matrices',
+    [
+      'featureSupport.ammunitionCompatibility.battlemech-compatible-ammo',
+      'featureSupport.ammunitionCompatibility.battlemech-ammo-missing-compatible-weapon-refs',
+      'featureSupport.ammunitionCompatibility.non-battlemech-aerospace-capital-ammo',
+      'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
+      'validationScope.knownLimitationsAndScope.non-battlemech-ammo-scope',
+    ],
+  ),
+  'weapon-stat-mapping': integrated(
+    'weapon-stat-mapping',
+    'Weapon catalog contracts and runner rule maps cover damage, heat, range, minimum range, ammo, and hydrated mount conversion',
+    [
+      'ruleSupport.heatRules.weapon-heat',
+      'ruleSupport.rangeBrackets.short',
+      'ruleSupport.toHitModifiers.minimum-range',
+    ],
+  ),
+  'special-weapon-families': helperOnly(
+    'special-weapon-families',
+    'Special weapon family support catalogs UAC, RAC, LB-X, Streak, MML, NARC, AMS, TAG, and Artemis responsibilities',
+    'Several family-specific mechanics are helper-only until iNarc pod variants, TAG intent/wire replay, AMS defender choice/arc rules, or Artemis exact-link/Nova-network/damage-lifecycle edges are wired',
+    [
+      'featureSupport.specialWeaponFamilies.ultra-ac',
+      'featureSupport.specialWeaponFamilies.rotary-ac',
+      'featureSupport.specialWeaponFamilies.lb-x-ac',
+      'featureSupport.specialWeaponFamilies.streak-srm',
+      'featureSupport.specialWeaponFamilies.narc',
+      'featureSupport.specialWeaponFamilies.ams',
+      'featureSupport.specialWeaponFamilies.tag',
+      'featureSupport.specialWeaponFamilies.artemis',
+      'featureSupport.specialWeaponMechanics.mml-variable-damage',
+      'featureSupport.specialWeaponMechanics.mml-srm-lrm-ammo-compatibility',
+      'featureSupport.specialWeaponMechanics.narc-marker-attachment',
+      'featureSupport.specialWeaponMechanics.narc-marker-lifecycle-events',
+      'featureSupport.specialWeaponMechanics.ams-projectile-reduction',
+      'featureSupport.specialWeaponMechanics.ams-streak-cluster-parity',
+      'featureSupport.specialWeaponMechanics.ams-single-missile-parity',
+      'featureSupport.specialWeaponMechanics.ams-ammo-consumption',
+      'featureSupport.specialWeaponMechanics.ams-interception-events',
+      'featureSupport.specialWeaponMechanics.tag-designation-hit',
+      'featureSupport.specialWeaponMechanics.tag-marker-lifecycle-events',
+      'featureSupport.specialWeaponMechanics.tag-intent-wire-state-replay',
+      'featureSupport.specialWeaponMechanics.active-probe-counter-hydration',
+      'featureSupport.specialWeaponMechanics.artemis-cluster-modifier',
+      'featureSupport.specialWeaponMechanics.artemis-ecm-suppression',
+      'featureSupport.specialWeaponMechanics.artemis-ecm-suite-hydration',
+      'featureSupport.specialWeaponMechanics.artemis-stealth-suppression',
+    ],
+  ),
+  'fallback-prevention': integrated(
+    'fallback-prevention',
+    'Catalog contracts reject static weapon database drift and synthetic Medium Laser fallback hiding hydration failures',
+    [
+      'validationScope.knownLimitationsAndScope.battlemech-official-catalog-scope',
+    ],
+  ),
+  'damage-string-hazards': integrated(
+    'damage-string-hazards',
+    'Catalog contracts pin variable damage strings such as MML 1-2/missile so they do not collapse to zero damage; MML firing modes split SRM/LRM damage and consume distinct SRM/LRM ammo-bin families',
+    [
+      'featureSupport.specialWeaponFamilies.mml',
+      'featureSupport.specialWeaponMechanics.mml-variable-damage',
+      'featureSupport.specialWeaponMechanics.mml-srm-lrm-mode-damage',
+      'featureSupport.specialWeaponMechanics.mml-srm-lrm-ammo-compatibility',
+    ],
+  ),
+  'movement-actions': helperOnly(
+    'movement-actions',
+    'Action and movement rule maps cover walk, run, jump, same-hex facing rotation, stand, prone state, and torso-twist exposure',
+    'Voluntary prone plus torso-twist state are not authoritative end-to-end actions',
+    [
+      'actions.tacticalCommands.movement.walk',
+      'actions.tacticalCommands.movement.stand',
+      'actions.tacticalCommands.facing.rotate-left',
+      'actions.tacticalCommands.facing.rotate-right',
+      'actions.tacticalCommands.facing.torso-twist',
+      'ruleSupport.movementRules.prone',
+    ],
+  ),
+  'movement-validation': integrated(
+    'movement-validation',
+    'Movement rule and terrain type matrices cover MP cost, heat MP penalties, terrain blocking, elevation, and occupancy',
+    [
+      'ruleSupport.movementRules.occupancy',
+      'ruleSupport.movementRules.elevation',
+      'ruleSupport.movementRules.heat-mp-penalty',
+      'ruleSupport.terrainEnvironment.terrain-movement-costs',
+      'ruleSupport.terrainEnvironment.water-ground-disallow',
+    ],
+  ),
+  'movement-enhancements': helperOnly(
+    'movement-enhancements',
+    'Movement enhancement support catalogs MASC, supercharger, TSM, and partial wing against combat movement behavior',
+    'MASC, supercharger, TSM movement-speed, and partial-wing jump effects remain helper-only until combat movement capabilities, activation intents, and failure checks are wired',
+    [
+      'ruleSupport.movementEnhancements.MASC',
+      'ruleSupport.movementEnhancements.Supercharger',
+      'ruleSupport.movementEnhancements.Triple-Strength Myomer',
+      'ruleSupport.movementEnhancements.Partial Wing',
+    ],
+  ),
+  'heat-generation': integrated(
+    'heat-generation',
+    'Heat rules cover movement heat, weapon heat, engine heat, and heat generated event emission',
+    [
+      'ruleSupport.heatRules.weapon-heat',
+      'ruleSupport.heatRules.movement-heat',
+      'ruleSupport.heatRules.engine-heat',
+    ],
+  ),
+  'heat-dissipation': integrated(
+    'heat-dissipation',
+    'Heat rules cover heat sink count, double sink rating, and destroyed heat sink dissipation loss',
+    [
+      'ruleSupport.heatRules.dissipation',
+      'ruleSupport.heatRules.heat-sink-damage',
+    ],
+  ),
+  'heat-lifecycle': integrated(
+    'heat-lifecycle',
+    'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, water/fire/environment effects, heat pilot damage, and heat-induced ammo explosion selection plus damage cascade',
+    [
+      'ruleSupport.heatRules.threshold-effects',
+      'ruleSupport.heatRules.shutdown-check',
+      'ruleSupport.heatRules.auto-shutdown',
+      'ruleSupport.heatRules.startup',
+      'ruleSupport.heatRules.ammo-explosion-risk',
+      'ruleSupport.heatRules.heat-induced-ammo-explosion',
+      'ruleSupport.heatRules.water-cooling',
+      'ruleSupport.heatRules.fire-heat',
+      'ruleSupport.heatRules.environmental-heat',
+      'ruleSupport.heatRules.pilot-heat-damage',
+    ],
+  ),
+  'range-validation': integrated(
+    'range-validation',
+    'Range support covers short, medium, long, extreme, out-of-range invalidation, and minimum range penalties',
+    [
+      'ruleSupport.rangeBrackets.short',
+      'ruleSupport.rangeBrackets.medium',
+      'ruleSupport.rangeBrackets.long',
+      'ruleSupport.rangeBrackets.extreme',
+      'ruleSupport.rangeBrackets.out_of_range',
+      'ruleSupport.toHitModifiers.minimum-range',
+    ],
+  ),
+  'attack-invalidation': integrated(
+    'attack-invalidation',
+    'Invalidation support covers range, LOS, target state, ammo, same-hex, unknown weapon, jammed weapon, and no-side-effect guarantees',
+    [
+      'invalidation.attackReasons.OutOfRange',
+      'invalidation.attackReasons.NoLineOfSight',
+      'invalidation.attackReasons.OutOfAmmo',
+      'invalidation.attackReasons.WeaponJammed',
+      'invalidation.attackReasons.SameHex',
+      'invalidation.invalidAttackSideEffects.no-heat-spent',
+    ],
+  ),
+  'to-hit-core-modifiers': integrated(
+    'to-hit-core-modifiers',
+    'Runner to-hit support covers gunnery, range, movement, heat, target state, partial cover, and indirect fire',
+    [
+      'ruleSupport.toHitModifiers.gunnery',
+      'ruleSupport.toHitModifiers.range',
+      'ruleSupport.toHitModifiers.attacker-movement',
+      'ruleSupport.toHitModifiers.target-movement',
+      'ruleSupport.toHitModifiers.heat',
+      'ruleSupport.toHitModifiers.partial-cover',
+      'ruleSupport.toHitModifiers.indirect-fire',
+    ],
+  ),
+  'to-hit-advanced-modifiers': helperOnly(
+    'to-hit-advanced-modifiers',
+    'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, and terrain features',
+    'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, secondary-target state, and non-blocking intervening terrain, but several advanced modifier inputs are still helper-only',
+    [
+      'ruleSupport.toHitModifiers.pilot-wounds',
+      'ruleSupport.toHitModifiers.sensor-damage',
+      'ruleSupport.toHitModifiers.actuator-damage',
+      'ruleSupport.toHitModifiers.attacker-prone',
+      'ruleSupport.toHitModifiers.hull-down',
+      'ruleSupport.toHitModifiers.secondary-target',
+      'ruleSupport.toHitModifiers.ecm',
+      'ruleSupport.toHitModifiers.c3',
+      'ruleSupport.toHitModifiers.terrain-features',
+    ],
+  ),
+  'terrain-movement-los-cover': integrated(
+    'terrain-movement-los-cover',
+    'Terrain matrices cover movement, LOS blocking, and partial-cover derivation for every TerrainType',
+    [
+      'ruleSupport.terrainEnvironment.terrain-movement-costs',
+      'ruleSupport.terrainEnvironment.terrain-los-blocking',
+      'ruleSupport.terrainEnvironment.terrain-partial-cover',
+      'ruleSupport.terrainTypeMovement.clear',
+      'ruleSupport.terrainTypeLos.heavy_woods',
+    ],
+  ),
+  'terrain-environment-modifiers': helperOnly(
+    'terrain-environment-modifiers',
+    'Terrain/environment maps track woods, rubble, rough, water, ice, swamp, buildings, fire, smoke, fog, night, dust, mines, and extreme conditions',
+    'Building-collapse, dust, and minefield modifiers remain helper-only until runner phases consume those battlefield conditions',
+    [
+      'ruleSupport.terrainEnvironment.terrain-to-hit-features',
+      'ruleSupport.terrainEnvironment.water-cooling',
+      'ruleSupport.terrainEnvironment.fire-heat',
+      'ruleSupport.terrainEnvironment.smoke-to-hit',
+      'ruleSupport.terrainEnvironment.fog',
+      'ruleSupport.terrainEnvironment.night',
+      'ruleSupport.terrainEnvironment.wind',
+      'ruleSupport.terrainEnvironment.dust',
+      'ruleSupport.terrainEnvironment.mines',
+      'ruleSupport.terrainTypePsr.rubble',
+      'ruleSupport.terrainTypePsr.sand',
+      'ruleSupport.terrainTypePsr.building',
+    ],
+  ),
+  'physical-core-actions': helperOnly(
+    'physical-core-actions',
+    'Physical action maps, runner behavior tests, event-sourced physical resolution, the MegaMek physical action class scope catalog, and the source-checked legality gate catalog cover punch, kick, push, charge, death from above, active TSM damage, underwater modifiers, successful push/charge/DFA hit displacement, charge/DFA miss displacement, runner automatic charge/DFA selection from movement state, push attacker/target Mek unit-type rejection, charge standing-Mek target rejection, charge non-Mek-to-infantry/ProtoMech target rejection, charge elevation-overlap rejection, charge target movement-complete/immobile rejection, DFA infantry-family attacker rejection, push both-arms-present rejection, push arm-fired helper/session rejection, and explicit scope splits for extra MegaMek physical classes',
+    'BattleMech-applicable MegaMek classes such as brush-off, thrash, trip, grapple, break grapple, and jump-jet attacks remain unsupported; runner push arm-fired weapon parity still needs weapon-location hydration; remaining stricter push/charge/DFA legality gates are cataloged but still unsupported',
+    [
+      'actions.physicalAttackCommands.punch',
+      'actions.physicalAttackCommands.kick',
+      'actions.physicalAttackCommands.push',
+      'actions.physicalAttackCommands.charge',
+      'actions.physicalAttackCommands.dfa',
+      'actions.physicalActionClassScope.punch',
+      'actions.physicalActionClassScope.kick',
+      'actions.physicalActionClassScope.push',
+      'actions.physicalActionClassScope.charge',
+      'actions.physicalActionClassScope.dfa',
+      'actions.physicalActionClassScope.club',
+      'actions.physicalActionClassScope.brush-off',
+      'actions.physicalActionClassScope.thrash',
+      'actions.physicalActionClassScope.trip',
+      'actions.physicalActionClassScope.grapple',
+      'actions.physicalActionClassScope.break-grapple',
+      'actions.physicalActionClassScope.jump-jet-attack',
+      'actions.physicalActionClassScope.airmek-ram',
+      'actions.physicalActionClassScope.battle-armor-vibro-claw',
+      'actions.physicalActionClassScope.lay-explosives',
+      'actions.physicalActionClassScope.protomek-physical',
+      'actions.physicalActionClassScope.ram',
+      ...PHYSICAL_LEGALITY_GATE_SUPPORT_REFS,
+      'ruleSupport.physicalDamageModifiers.tsm',
+      'ruleSupport.physicalDamageModifiers.underwater',
+    ],
+  ),
+  'physical-weapon-actions': helperOnly(
+    'physical-weapon-actions',
+    'Runtime physical weapon actions cover player commands, wire intents, runner resolution, active TSM damage context, and source-backed melee damage/to-hit modifiers for hatchet, sword, mace, and lance',
+    'Some official physical weapons still lack runtime attack types',
+    [
+      'actions.physicalAttackCommands.hatchet',
+      'actions.physicalAttackCommands.sword',
+      'actions.physicalAttackCommands.mace',
+      'actions.physicalAttackCommands.lance',
+      'featureSupport.physicalWeapons.hatchet',
+      'featureSupport.physicalWeapons.sword',
+      'featureSupport.physicalWeapons.mace',
+      'featureSupport.physicalWeapons.lance',
+      'featureSupport.physicalWeapons.claws',
+      'featureSupport.physicalWeapons.flail',
+      'featureSupport.physicalWeapons.retractable-blade',
+      'featureSupport.physicalWeapons.talons',
+      'featureSupport.physicalWeapons.wrecking-ball',
+      'ruleSupport.physicalDamageModifiers.tsm',
+      'ruleSupport.physicalDamageModifiers.underwater',
+    ],
+  ),
+  'physical-self-risk': helperOnly(
+    'physical-self-risk',
+    'Runner and event-sourced physical behavior cover charge/DFA target damage, self-damage, successful push/charge/DFA displacement, charge/DFA miss displacement, miss consequences, and PSR queueing',
+    'Impossible-displacement destruction, blocked charge/DFA displacement semantics, DFA fall damage/prone timing, and stale grid occupancy after displacement still need coverage',
+    [
+      'lifecycleAndPsr.psrTriggers.charged',
+      'lifecycleAndPsr.psrTriggers.charge_miss',
+      'lifecycleAndPsr.psrTriggers.dfa_target',
+      'lifecycleAndPsr.psrTriggers.dfa_miss',
+    ],
+  ),
+  'pilot-skills': helperOnly(
+    'pilot-skills',
+    'Pilot skill support covers gunnery, piloting, indirect-fire spotter gunnery, wound penalties, and PSR resolution',
+    'Initiative modifiers are still helper-only',
+    [
+      'pilotSkills.pilotSkillUse.ranged-gunnery-to-hit',
+      'pilotSkills.pilotSkillUse.physical-piloting-to-hit',
+      'pilotSkills.pilotSkillUse.psr-piloting-resolution',
+      'pilotSkills.pilotSkillUse.initiative-skill-modifiers',
+      'pilotSkills.pilotSkillUse.pilot-wound-ranged-penalty',
+    ],
+  ),
+  'spa-quirk-catalog': helperOnly(
+    'spa-quirk-catalog',
+    'SPA and quirk support maps cover the combat SPA helper catalog, the canonical SPA catalog boundary, and every mech or weapon quirk in the local catalogs',
+    'Several canonical SPA, SPA-helper, and quirk entries remain helper-only or unsupported until runner/application plumbing exists',
+    [
+      'featureSupport.pilotAbilities.weapon-specialist',
+      'featureSupport.canonicalPilotAbilityScope.forward_observer',
+      'featureSupport.canonicalPilotAbilityScope.golden_goose',
+      'featureSupport.pilotAbilities.edge',
+      'featureSupport.mechQuirks.improved_targeting_short',
+      'featureSupport.mechQuirks.protected_actuators',
+      'featureSupport.mechQuirks.rugged_1',
+    ],
+  ),
+  'spa-quirk-resolver-application': helperOnly(
+    'spa-quirk-resolver-application',
+    'Pilot modifier resolver support maps every SPA and quirk to the combat resolver family that applies or should apply it, with ranged to-hit state and weapon to-hit quirks now hydrated by attack paths',
+    'Most non-ranged-to-hit resolver families are still helper-only until their phases consume hydrated ability and quirk state',
+    [
+      'pilotSkills.pilotModifierResolvers.ranged-to-hit-calculation',
+      'pilotSkills.pilotModifierResolvers.ranged-to-hit-state-hydration',
+      'pilotSkills.pilotModifierResolvers.physical-damage-application',
+      'pilotSkills.pilotModifierResolvers.physical-restriction-application',
+      'pilotSkills.pilotModifierResolvers.psr-application',
+      'pilotSkills.pilotModifierResolvers.psr-spa-application',
+      'pilotSkills.pilotModifierResolvers.critical-prevention-application',
+      'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
+      'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+      'pilotSkills.pilotModifierResolvers.movement-application',
+    ],
+  ),
+  'campaign-quirk-behavior': helperOnly(
+    'campaign-quirk-behavior',
+    'Rugged quirk support exposes MekHQ-style maintenance-cycle multipliers and keeps that behavior separate from combat critical-hit prevention',
+    'The combat runner has no campaign maintenance cycle subsystem',
+    [
+      'featureSupport.mechQuirks.rugged_1',
+      'featureSupport.mechQuirks.rugged_2',
+      'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
+    ],
+  ),
+  'damage-resolution': helperOnly(
+    'damage-resolution',
+    'Damage support covers armor, internal structure, rear armor, transfer, location destruction, heat ammo explosion cascades, and 20+ damage PSRs',
+    'Cause-specific state persistence for several destruction causes is still helper-only',
+    [
+      'damageAndDeath.damageResolution.armor-damage',
+      'damageAndDeath.damageResolution.internal-structure-damage',
+      'damageAndDeath.damageResolution.damage-transfer',
+      'damageAndDeath.damageResolution.heat-ammo-explosion-damage-cascade',
+      'damageAndDeath.damageResolution.destruction-cause-state-persistence',
+    ],
+  ),
+  'critical-effects': helperOnly(
+    'critical-effects',
+    'Critical component support covers engine, gyro, cockpit, sensors, life support, actuators, ammo, heat sinks, jump jets, equipment, and weapons',
+    'Catalog-mounted ammo, equipment, heat sink, jump jet, and weapon slots are not hydrated into the default runner manifest',
+    [
+      'damageAndDeath.criticalComponents.engine',
+      'damageAndDeath.criticalComponents.gyro',
+      'damageAndDeath.criticalComponents.cockpit',
+      'damageAndDeath.criticalSlotEffects.weapon',
+      'damageAndDeath.criticalSlotEffects.ammo',
+      'damageAndDeath.criticalSlotEffects.heat_sink',
+      'damageAndDeath.criticalSlotEffects.jump_jet',
+      'damageAndDeath.criticalSlotEffects.equipment',
+      'damageAndDeath.criticalComponents.heat_sink',
+      'damageAndDeath.criticalSlotHydration.weapon',
+    ],
+  ),
+  'pilot-damage-death': integrated(
+    'pilot-damage-death',
+    'Pilot damage support covers head hits, cockpit crit death, heat pilot damage, unconsciousness, and lethal wound destruction',
+    [
+      'damageAndDeath.pilotDamage.head-hit-wound',
+      'damageAndDeath.pilotDamage.unconsciousness',
+      'damageAndDeath.pilotDamage.pilot-death',
+      'damageAndDeath.pilotDamage.heat-pilot-damage',
+    ],
+  ),
+  'psr-resolution': integrated(
+    'psr-resolution',
+    'PSR support covers pending PSR resolution, reason-code preservation, falls, pilot wounds, pilot death, and pending clear',
+    [
+      'lifecycleAndPsr.psrResolution.pending-psr-resolution',
+      'lifecycleAndPsr.psrResolution.failed-psr-fall',
+      'lifecycleAndPsr.psrResolution.fall-pilot-death',
+      'lifecycleAndPsr.psrResolution.pending-psr-clear',
+    ],
+  ),
+  'psr-trigger-catalog': helperOnly(
+    'psr-trigger-catalog',
+    'PSR trigger support catalogs damage, leg/actuator/gyro/engine, kicked, charged, DFA, pushed, shutdown, standing, terrain, skid, MASC, and supercharger triggers',
+    'Building-collapse, MASC, and supercharger triggers are helper-only until runner movement/heat phases queue them',
+    [
+      'lifecycleAndPsr.psrTriggers.20+_damage',
+      'lifecycleAndPsr.psrTriggers.kicked',
+      'lifecycleAndPsr.psrTriggers.heat_shutdown',
+      'lifecycleAndPsr.psrTriggers.entering_rubble',
+      'lifecycleAndPsr.psrTriggers.masc_failure',
+    ],
+  ),
+  'turn-rotation-removal': integrated(
+    'turn-rotation-removal',
+    'Integration support and behavior tests cover destroyed, shutdown, unconscious, retreated, and ejected actors leaving normal turn queues',
+    [
+      'lifecycleAndPsr.actionEligibility.destroyed',
+      'lifecycleAndPsr.actionEligibility.shutdown',
+      'lifecycleAndPsr.actionEligibility.unconscious',
+      'lifecycleAndPsr.actionEligibility.retreated',
+      'lifecycleAndPsr.actionEligibility.ejected',
+      'parityAndIntegration.representativeScenarios.turn-rotation-lifecycle-removal',
+    ],
+  ),
+  'targetability-lifecycle': integrated(
+    'targetability-lifecycle',
+    'Lifecycle support tracks which terminal states remain targetable or are removed from target filters',
+    [
+      'lifecycleAndPsr.actionEligibility.shutdown-targetability',
+      'lifecycleAndPsr.actionEligibility.retreated-targetability',
+      'lifecycleAndPsr.actionEligibility.ejected-targetability',
+      'parityAndIntegration.representativeScenarios.targetability-lifecycle-filter',
+    ],
+  ),
+  'ejection-lifecycle': integrated(
+    'ejection-lifecycle',
+    'MegaMek backs original-unit removal on manual ejection; MekStation covers command/intent/wire routing, UnitEjected state, damage preservation, targetability removal, and terminal survivor counts',
+    [
+      'actions.tacticalCommands.utility.eject',
+      'actions.gameIntents.eject',
+      'actions.wireIntents.Eject',
+      'eventStream.battleMechCombatEvents.unit_ejected',
+      'lifecycleAndPsr.actionEligibility.ejection-damage-preservation',
+      'parityAndIntegration.representativeScenarios.ejection-command-intent-outcome',
+    ],
+  ),
+  'retreat-withdrawal': integrated(
+    'retreat-withdrawal',
+    'Retreat lifecycle support removes retreated units from actions, targets, survivor counts, and objectives; player withdrawal is integrated through the edge-selecting WithdrawControl plus game intent, wire payload, server dispatch, and P2P translation',
+    [
+      'actions.directUiActions.utility.withdraw-control',
+      'actions.gameIntents.withdraw',
+      'actions.wireIntents.Withdraw',
+      'actions.p2pIntents.withdraw',
+      'lifecycleAndPsr.actionEligibility.retreated',
+      'lifecycleAndPsr.actionEligibility.retreated-targetability',
+    ],
+  ),
+  'objective-terminal-state': integrated(
+    'objective-terminal-state',
+    'Integration support covers objective eligibility, survivor filters, terminal summary, and interactive plus runner terminal GameEnded events',
+    [
+      'parityAndIntegration.representativeScenarios.objective-control-lifecycle-filter',
+      'parityAndIntegration.representativeScenarios.objective-outcome-precedence',
+      'parityAndIntegration.representativeScenarios.terminal-survivor-filter',
+      'parityAndIntegration.representativeScenarios.interactive-terminal-event',
+      'parityAndIntegration.representativeScenarios.runner-terminal-game-ended-event',
+    ],
+  ),
+  'runner-interactive-parity': integrated(
+    'runner-interactive-parity',
+    'Parity support covers movement, attack, physical, PSR, heat, objective, targetability, and terminal-state comparisons with matching terminal and heat-dissipation event semantics',
+    [
+      'parityAndIntegration.runnerInteractiveParity.movement-action-eligibility',
+      'parityAndIntegration.runnerInteractiveParity.movement-validation',
+      'parityAndIntegration.runnerInteractiveParity.movement-heat-and-event-path',
+      'parityAndIntegration.runnerInteractiveParity.weapon-target-validation',
+      'parityAndIntegration.runnerInteractiveParity.weapon-range-and-to-hit',
+      'parityAndIntegration.runnerInteractiveParity.weapon-indirect-fire',
+      'parityAndIntegration.runnerInteractiveParity.weapon-damage-critical-events',
+      'parityAndIntegration.runnerInteractiveParity.physical-attack-resolution',
+      'parityAndIntegration.runnerInteractiveParity.heat-core-resolution',
+      'parityAndIntegration.runnerInteractiveParity.heat-dissipation-event-payload',
+      'parityAndIntegration.runnerInteractiveParity.heat-environment-and-water',
+      'parityAndIntegration.runnerInteractiveParity.heat-pilot-damage',
+      'parityAndIntegration.runnerInteractiveParity.psr-resolution',
+      'parityAndIntegration.runnerInteractiveParity.psr-piloting-skill',
+      'parityAndIntegration.runnerInteractiveParity.objective-outcome',
+      'parityAndIntegration.runnerInteractiveParity.terminal-game-ended-event',
+      'parityAndIntegration.representativeScenarios.runner-terminal-game-ended-event',
+    ],
+  ),
+  'event-stream': helperOnly(
+    'event-stream',
+    'Event stream support catalogs BattleMech combat events and splits non-BattleMech event families out of scope',
+    'Some event families are unsupported until their authoritative action paths exist',
+    [
+      'eventStream.battleMechCombatEvents.attack_declared',
+      'eventStream.battleMechCombatEvents.attack_invalid',
+      'eventStream.battleMechCombatEvents.physical_attack_resolved',
+      'eventStream.battleMechCombatEvents.unit_ejected',
+      'eventStream.nonBattleMechEventScope.motive_damaged',
+    ],
+  ),
+  'critical-slot-hydration': helperOnly(
+    'critical-slot-hydration',
+    'Critical-slot hydration support catalogs every component type the resolver can represent',
+    'UnitHydration does not yet build catalog-mounted equipment, heat sink, jump jet, weapon, or ammo slots into runner manifests',
+    [
+      'damageAndDeath.criticalSlotHydration.actuator',
+      'damageAndDeath.criticalSlotHydration.heat_sink',
+      'damageAndDeath.criticalSlotHydration.jump_jet',
+      'damageAndDeath.criticalSlotHydration.weapon',
+    ],
+  ),
+  'known-limitation-audit': integrated(
+    'known-limitation-audit',
+    'Validation scope support bypasses broad known-limitation filters and audits which broad pattern would have matched',
+    [
+      'validationScope.knownLimitationsAndScope.known-limitation-bypass',
+      'validationScope.knownLimitationsAndScope.known-limitation-pattern-audit',
+      'validationScope.knownLimitationsAndScope.catalog-filter-gate-ban',
+    ],
+  ),
+  'non-battlemech-scope': helperOnly(
+    'non-battlemech-scope',
+    'Validation scope support splits aerospace, vehicle, battle armor, infantry, protomech, and motive-system responsibilities out of this BattleMech suite',
+    'Non-BattleMech systems need their own validation matrices rather than being treated as BattleMech coverage',
+    [
+      'validationScope.knownLimitationsAndScope.non-battlemech-combat-system-split',
+      'eventStream.nonBattleMechEventScope.motive_damaged',
+    ],
+  ),
+} satisfies Record<string, ICombatRequirementSupportEntry>;

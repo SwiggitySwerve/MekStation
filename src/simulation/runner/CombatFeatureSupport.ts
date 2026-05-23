@@ -1,0 +1,486 @@
+/**
+ * Explicit support matrix for combat-active pilot SPAs and mech quirks.
+ *
+ * The catalog validation suite uses this as the line between implemented
+ * behavior and known feature gaps. Adding a combat-active SPA or quirk without
+ * updating this file should fail fast instead of letting a broad
+ * known-limitation filter hide the missing rule.
+ */
+
+export type CombatFeatureSupportLevel =
+  | 'integrated'
+  | 'helper-only'
+  | 'unsupported';
+
+export type CombatFeatureSourceKind =
+  | 'rulebook'
+  | 'megamek-source'
+  | 'mekhq-behavior'
+  | 'mekstation-deviation';
+
+export interface ICombatFeatureSourceReference {
+  readonly kind: CombatFeatureSourceKind;
+  readonly citation: string;
+  readonly url: string;
+  readonly sourceVersion: string;
+}
+
+export interface ICombatFeatureSupportEntry {
+  readonly id: string;
+  readonly level: CombatFeatureSupportLevel;
+  readonly evidence: string;
+  readonly gap?: string;
+  readonly sourceRefs?: readonly ICombatFeatureSourceReference[];
+}
+
+function integrated(
+  id: string,
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'integrated', evidence, sourceRefs }
+    : { id, level: 'integrated', evidence };
+}
+
+function helperOnly(
+  id: string,
+  evidence: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
+    : { id, level: 'helper-only', evidence, gap };
+}
+
+function unsupported(id: string, gap: string): ICombatFeatureSupportEntry {
+  return {
+    id,
+    level: 'unsupported',
+    evidence: 'No combat behavior wired',
+    gap,
+  };
+}
+
+const NO_RUNTIME_PHYSICAL_WEAPON =
+  'No runtime PhysicalAttackType, to-hit, or damage implementation';
+
+const BMM_ERRATA_701_LANCE_TO_HIT = {
+  kind: 'rulebook',
+  citation:
+    'BattleMech Manual Errata v7.01 Physical Weapon Attacks Table changes Lance to-hit modifier to +1',
+  url: 'https://battletech.com/wp-content/uploads/2025/06/78_BattleMech-Manual-2023-09-17-v7.01-3.pdf',
+  sourceVersion: 'v7.01',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_6CA1867_PHYSICAL_WEAPON_DAMAGE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek ClubAttackAction.getDamageFor applies physical weapon damage formulas including sword ceil(weight/10)+1 and mace ceil(weight/4)',
+  url: 'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/common/actions/ClubAttackAction.java#L91-L182',
+  sourceVersion: '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_6CA1867_PHYSICAL_WEAPON_TO_HIT = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek ClubAttackAction.getHitModFor returns hatchet -1, sword -2, mace +1, and lance +1 physical weapon modifiers',
+  url: 'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/common/actions/ClubAttackAction.java#L218-L251',
+  sourceVersion: '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_ARTEMIS_CLUSTER_MODIFIERS = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek MissileWeaponHandler applies Artemis IV +2, prototype Artemis IV +1, and Artemis V +3 cluster modifiers while suppressing ECM and stealth',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/MissileWeaponHandler.java#L144-L188',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_LRM_ARTEMIS_INDIRECT_GUARD = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek LRMHandler skips Artemis cluster modifiers when the weapon mode is Indirect and includes prototype Artemis IV in the same modifier chain',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/lrm/LRMHandler.java#L159-L207',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_PROTOTYPE_ARTEMIS_FCS = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek MiscType.createISProtoArtemis defines Prototype Artemis IV FCS with F_ARTEMIS_PROTO',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/MiscType.java#L6276-L6295',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+export const SPA_COMBAT_SUPPORT = {
+  'weapon-specialist': integrated(
+    'weapon-specialist',
+    'calculateWeaponSpecialistModifier + calculateAttackerSPAModifiers',
+  ),
+  'gunnery-specialist': integrated(
+    'gunnery-specialist',
+    'calculateGunnerySpecialistModifier + calculateAttackerSPAModifiers',
+  ),
+  marksman: helperOnly(
+    'marksman',
+    'getSharpshooterBonus plus calculateCalledShotModifier reduce called-shot penalties for the local Marksman helper',
+    'MegaMek source cross-check found TacOps called shots but not Marksman as a called-shot SPA',
+  ),
+  sniper: integrated('sniper', 'calculateSniperModifier + calculateToHit'),
+  'blood-stalker': integrated(
+    'blood-stalker',
+    'calculateBloodStalkerModifier + calculateAttackerSPAModifiers',
+  ),
+  'cluster-hitter': integrated(
+    'cluster-hitter',
+    'getClusterHitterBonus plus runAttackPhase clusterContext and resolveSpecialProjectileHit missile cluster table shift',
+  ),
+  'multi-tasker': integrated(
+    'multi-tasker',
+    'calculateMultiTaskerModifier + calculateToHit',
+  ),
+  'range-master': integrated(
+    'range-master',
+    'calculateRangeMasterModifier + calculateAttackerSPAModifiers',
+  ),
+  sandblaster: unsupported(
+    'sandblaster',
+    'Ultra/RAC cluster-hit damage modifier is not wired',
+  ),
+  'oblique-attacker': integrated(
+    'oblique-attacker',
+    'getObliqueAttackerBonus plus resolveIndirectFire attackerPilotSpas reduces runner and interactive indirect-fire penalties',
+  ),
+  forward_observer: integrated(
+    'forward_observer',
+    'computeIndirectFireContext hydrates spotter abilities into resolveIndirectFire, cancels walked-spotter penalties, and emits IndirectFireForwardObserver audit events',
+  ),
+  sharpshooter: helperOnly(
+    'sharpshooter',
+    'getSharpshooterBonus plus calculateCalledShotModifier preserve the local legacy Sharpshooter alias for called-shot penalty reduction',
+    'Sharpshooter is not a canonical SPA id, and MegaMek keeps the Sharpshooter constant commented out',
+  ),
+  'jumping-jack': integrated(
+    'jumping-jack',
+    'calculateJumpingJackModifier + calculateToHit',
+  ),
+  'melee-specialist': integrated(
+    'melee-specialist',
+    'calculateMeleeSpecialistModifier plus physical attack input pilotAbilities reduces helper, runner, and interactive physical to-hit TNs',
+  ),
+  'melee-master': integrated(
+    'melee-master',
+    'getMeleeMasterDamageBonus plus physical attack input pilotAbilities increases helper and runner physical target damage',
+  ),
+  'maneuvering-ace': unsupported(
+    'maneuvering-ace',
+    'Terrain and skid PSR modifier is not wired',
+  ),
+  'terrain-master': unsupported(
+    'terrain-master',
+    'Terrain PSR modifier is not wired',
+  ),
+  acrobat: unsupported('acrobat', 'DFA PSR modifier is not wired'),
+  'cross-country': unsupported(
+    'cross-country',
+    'Running terrain PSR modifier is not wired',
+  ),
+  'dodge-maneuver': integrated(
+    'dodge-maneuver',
+    'calculateDodgeManeuverModifier + calculateToHit',
+  ),
+  evasive: unsupported('evasive', 'TMM bonus is not wired'),
+  'natural-grace': unsupported(
+    'natural-grace',
+    'Fall PSR modifier is not wired',
+  ),
+  'iron-man': integrated(
+    'iron-man',
+    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs',
+  ),
+  'pain-resistance': integrated(
+    'pain-resistance',
+    'getEffectiveWounds plus calculateToHit; getConsciousnessCheckModifier plus pilot damage, fall, and heat consciousness checks',
+  ),
+  edge: helperOnly(
+    'edge',
+    'createEdgeState/canUseEdge/useEdge',
+    'No attack/PSR/crit resolver consumes Edge state',
+  ),
+  toughness: integrated(
+    'toughness',
+    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs',
+  ),
+  'tactical-genius': helperOnly(
+    'tactical-genius',
+    'getTacticalGeniusBonus',
+    'Initiative phase does not consume pilot abilities',
+  ),
+  'speed-demon': unsupported(
+    'speed-demon',
+    'Run-distance and heat tradeoff is not wired',
+  ),
+  'combat-intuition': unsupported(
+    'combat-intuition',
+    'Round-one initiative override is not wired',
+  ),
+  'hot-dog': integrated(
+    'hot-dog',
+    'getHotDogShutdownThresholdBonus plus runHeatPhase and resolveHeatPhase shift avoidable shutdown/startup TN thresholds from heat 14 to heat 17',
+  ),
+  'cool-under-fire': integrated(
+    'cool-under-fire',
+    'runHeatPhase and resolveHeatPhase apply getCoolUnderFireHeatReduction as capped generated-heat relief in the HeatDissipated breakdown',
+  ),
+  'some-like-it-hot': integrated(
+    'some-like-it-hot',
+    'calculateToHit consumes getSomeLikeItHotHeatPenaltyReduction so runner AttackDeclared heat modifiers are reduced by 1',
+  ),
+  'multi-target': unsupported(
+    'multi-target',
+    'Local Multi-Target is not the MegaMek source-backed SPA; source-backed secondary-target penalty reduction is Multi-Tasker/multi_tasker',
+  ),
+  'iron-will': integrated(
+    'iron-will',
+    'getConsciousnessCheckModifier plus applyPilotDamage, runPSRPhase, resolvePendingPSRs, runHeatPhase, and resolveHeatPhase lower consciousness TNs through the Iron Man alias',
+  ),
+  'heavy-lifter': unsupported(
+    'heavy-lifter',
+    'Carry/throw-object physical combat is not implemented',
+  ),
+  'animal-mimicry': unsupported(
+    'animal-mimicry',
+    'Terrain-specific PSR modifier is not wired',
+  ),
+  antagonizer: unsupported(
+    'antagonizer',
+    'Target-priority enforcement is not wired',
+  ),
+} satisfies Record<string, ICombatFeatureSupportEntry>;
+
+export const QUIRK_COMBAT_SUPPORT = {
+  improved_targeting_short: integrated(
+    'improved_targeting_short',
+    'calculateTargetingQuirkModifier + calculateToHit',
+  ),
+  improved_targeting_medium: integrated(
+    'improved_targeting_medium',
+    'calculateTargetingQuirkModifier + calculateToHit',
+  ),
+  improved_targeting_long: integrated(
+    'improved_targeting_long',
+    'calculateTargetingQuirkModifier + calculateToHit',
+  ),
+  poor_targeting_short: integrated(
+    'poor_targeting_short',
+    'calculateTargetingQuirkModifier + calculateToHit',
+  ),
+  poor_targeting_medium: integrated(
+    'poor_targeting_medium',
+    'calculateTargetingQuirkModifier + calculateToHit',
+  ),
+  poor_targeting_long: integrated(
+    'poor_targeting_long',
+    'calculateTargetingQuirkModifier + calculateToHit',
+  ),
+  distracting: integrated(
+    'distracting',
+    'calculateDistractingModifier + calculateToHit',
+  ),
+  low_profile: integrated(
+    'low_profile',
+    'calculateLowProfileModifier + calculateToHit',
+  ),
+  easy_to_pilot: integrated(
+    'easy_to_pilot',
+    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply terrain-only PSR target-number relief',
+  ),
+  stable: integrated(
+    'stable',
+    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply all-PSR target-number relief',
+  ),
+  hard_to_pilot: integrated(
+    'hard_to_pilot',
+    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply all-PSR target-number penalties',
+  ),
+  unbalanced: integrated(
+    'unbalanced',
+    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply terrain-only PSR target-number penalties',
+  ),
+  cramped_cockpit: integrated(
+    'cramped_cockpit',
+    'calculatePilotingQuirkPSRModifier plus resolveAllPSRs/runPSRPhase/resolvePendingPSRs apply all-PSR target-number penalties',
+  ),
+  battle_fists_la: integrated(
+    'battle_fists_la',
+    'getBattleFistDamageBonus plus physical attack input unitQuirks increases matching-arm punch damage',
+  ),
+  battle_fists_ra: integrated(
+    'battle_fists_ra',
+    'getBattleFistDamageBonus plus physical attack input unitQuirks increases matching-arm punch damage in runner resolution',
+  ),
+  no_arms: integrated(
+    'no_arms',
+    'hasNoArms plus physical attack input unitQuirks rejects punch and arm-mounted melee attacks',
+  ),
+  low_arms: integrated(
+    'low_arms',
+    'isLowArmsRestricted plus physical attack elevationDifference rejects elevated punch and arm-mounted melee attacks',
+  ),
+  command_mech: helperOnly(
+    'command_mech',
+    'calculateInitiativeQuirkModifier',
+    'Initiative phase does not consume unit quirks',
+  ),
+  battle_computer: helperOnly(
+    'battle_computer',
+    'calculateInitiativeQuirkModifier',
+    'Initiative phase does not consume unit quirks',
+  ),
+  sensor_ghosts: integrated(
+    'sensor_ghosts',
+    'calculateSensorGhostsModifier + calculateToHit',
+  ),
+  multi_trac: integrated(
+    'multi_trac',
+    'calculateMultiTracModifier + calculateToHit',
+  ),
+  rugged_1: helperOnly(
+    'rugged_1',
+    'getRuggedMaintenanceMultiplier models the MekHQ maintenance-cycle multiplier',
+    'Rugged is a campaign maintenance quirk, not a combat critical-hit prevention rule',
+  ),
+  rugged_2: helperOnly(
+    'rugged_2',
+    'getRuggedMaintenanceMultiplier models the MekHQ maintenance-cycle multiplier',
+    'Rugged is a campaign maintenance quirk, not a combat critical-hit prevention rule',
+  ),
+  protected_actuators: helperOnly(
+    'protected_actuators',
+    'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier',
+    'Infantry and battle-armor anti-Mek Leg/Swarm attack paths do not consume actuator quirks',
+  ),
+  exposed_actuators: helperOnly(
+    'exposed_actuators',
+    'getAntiMekActuatorTargetModifier exposes the anti-Mek Leg/Swarm target-number modifier',
+    'Infantry and battle-armor anti-Mek Leg/Swarm attack paths do not consume actuator quirks',
+  ),
+  accurate: integrated(
+    'accurate',
+    'buildWeaponAttackAttackerToHitState hydrates weaponQuirks, runAttackPhase passes the firing weapon id into calculateToHit, and calculateAttackerQuirkModifiers applies calculateAccurateWeaponModifier',
+  ),
+  inaccurate: integrated(
+    'inaccurate',
+    'buildWeaponAttackAttackerToHitState hydrates weaponQuirks, runAttackPhase passes the firing weapon id into calculateToHit, and calculateAttackerQuirkModifiers applies calculateInaccurateWeaponModifier',
+  ),
+  stable_weapon: integrated(
+    'stable_weapon',
+    'buildWeaponAttackAttackerToHitState hydrates weaponQuirks, runAttackPhase passes the firing weapon id into calculateToHit, and calculateAttackerQuirkModifiers applies calculateStableWeaponModifier',
+  ),
+  improved_cooling: integrated(
+    'improved_cooling',
+    'runHeatPhase and resolveHeatPhase consume getWeaponCoolingHeatModifier while summing fired weapon heat',
+  ),
+  poor_cooling: integrated(
+    'poor_cooling',
+    'runHeatPhase and resolveHeatPhase consume getWeaponCoolingHeatModifier while summing fired weapon heat',
+  ),
+  no_cooling: integrated(
+    'no_cooling',
+    'runHeatPhase and resolveHeatPhase consume getWeaponCoolingHeatModifier while summing fired weapon heat',
+  ),
+} satisfies Record<string, ICombatFeatureSupportEntry>;
+
+export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
+  'ultra-ac': integrated(
+    'ultra-ac',
+    'UnitHydration.buildCatalogFiringModes + expandSelectedModeIntoShots + shouldJamOnNaturalTwo + markWeaponJammed + AIWeaponModeSelector',
+  ),
+  'rotary-ac': integrated(
+    'rotary-ac',
+    'UnitHydration.buildCatalogFiringModes + expandSelectedModeIntoShots + shouldJamOnNaturalTwo + markWeaponJammed + AIWeaponModeSelector',
+  ),
+  'lb-x-ac': integrated(
+    'lb-x-ac',
+    'UnitHydration.buildCatalogFiringModes + selectedModeToHitModifier + resolveClusterModeHit + weaponAttackEvents LB-X cluster coverage',
+  ),
+  'streak-srm': integrated(
+    'streak-srm',
+    'shouldSpendAmmoAndHeatOnMiss + resolveSpecialProjectileHit rack-size derivation',
+  ),
+  mml: integrated(
+    'mml',
+    'resolveCatalogDamage handles variable 1-2/missile descriptors, UnitHydration exposes SRM/LRM modes, and selected modes consume distinct SRM/LRM ammo bins',
+  ),
+  narc: helperOnly(
+    'narc',
+    'isNarc + getNarcBonus + runner NARC hits attach narcedBy and emit DesignatorMarkerApplied + indirect-fire NARC basis helpers consume canonical marker state + runner missile cluster modifiers consume narcedBy',
+    'iNarc pod variants are not wired into runner missile resolution',
+  ),
+  ams: helperOnly(
+    'ams',
+    'isAMS + resolveAMSInterception applies the MegaMek/TW -4 cluster-table modifier, resolveSingleMissileAMSInterception handles NARC/Thunderbolt-style single missiles, consumes defender AMS ammo, emits AMSInterception events, marks ammo-fed or Laser AMS as fired for heat accounting, and handles Streak as cluster-roll 11',
+    'AMS defender choice, arc enforcement, and optional multi-use rules remain unverified',
+  ),
+  tag: helperOnly(
+    'tag',
+    'isTAG + runner TAG hits attach tagDesignated and emit DesignatorMarkerApplied + turn lifecycle clears tagDesignated + runner semi-guided LRM cluster modifiers consume tagged targets + isTargetTAGDesignated + semi-guided LRM indirect-fire helpers',
+    'TAG marker intent/wire payload and replay reducer state-change application are not wired outside the runner event stream',
+  ),
+  artemis: helperOnly(
+    'artemis',
+    'UnitHydration approximates source-backed Artemis IV/prototype IV/V flag discovery from critical-slot FCS plus Artemis-capable ammo; runner missile cluster resolution consumes those flags for direct fire, indirect-fire suppression, ECM suppression, active-probe ECM countering, and active attacker-stealth suppression from runner electronic-warfare state',
+    'Exact multi-launcher FCS link allocation, Nova CEWS networking, and FCS/ECM/probe/stealth mode or damage lifecycle are not fully represented in runner missile resolution',
+    [
+      MEGAMEK_325B_ARTEMIS_CLUSTER_MODIFIERS,
+      MEGAMEK_325B_LRM_ARTEMIS_INDIRECT_GUARD,
+      MEGAMEK_325B_PROTOTYPE_ARTEMIS_FCS,
+    ],
+  ),
+} satisfies Record<string, ICombatFeatureSupportEntry>;
+
+export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
+  hatchet: integrated(
+    'hatchet',
+    'source-backed calculateHatchetDamage + -1 hatchet to-hit modifier',
+    [
+      MEGAMEK_6CA1867_PHYSICAL_WEAPON_DAMAGE,
+      MEGAMEK_6CA1867_PHYSICAL_WEAPON_TO_HIT,
+    ],
+  ),
+  sword: integrated(
+    'sword',
+    'source-backed calculateSwordDamage + -2 sword to-hit modifier',
+    [
+      MEGAMEK_6CA1867_PHYSICAL_WEAPON_DAMAGE,
+      MEGAMEK_6CA1867_PHYSICAL_WEAPON_TO_HIT,
+    ],
+  ),
+  mace: integrated(
+    'mace',
+    'source-backed calculateMaceDamage + +1 mace to-hit modifier',
+    [
+      MEGAMEK_6CA1867_PHYSICAL_WEAPON_DAMAGE,
+      MEGAMEK_6CA1867_PHYSICAL_WEAPON_TO_HIT,
+    ],
+  ),
+  lance: integrated(
+    'lance',
+    'source-backed calculateLanceDamage + +1 lance to-hit modifier',
+    [
+      BMM_ERRATA_701_LANCE_TO_HIT,
+      MEGAMEK_6CA1867_PHYSICAL_WEAPON_DAMAGE,
+      MEGAMEK_6CA1867_PHYSICAL_WEAPON_TO_HIT,
+    ],
+  ),
+  claws: unsupported('claws', NO_RUNTIME_PHYSICAL_WEAPON),
+  flail: unsupported('flail', NO_RUNTIME_PHYSICAL_WEAPON),
+  'retractable-blade': unsupported(
+    'retractable-blade',
+    NO_RUNTIME_PHYSICAL_WEAPON,
+  ),
+  talons: unsupported('talons', NO_RUNTIME_PHYSICAL_WEAPON),
+  'wrecking-ball': unsupported('wrecking-ball', NO_RUNTIME_PHYSICAL_WEAPON),
+} satisfies Record<string, ICombatFeatureSupportEntry>;

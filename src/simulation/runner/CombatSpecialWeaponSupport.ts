@@ -1,0 +1,139 @@
+import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+
+function integrated(id: string, evidence: string): ICombatFeatureSupportEntry {
+  return { id, level: 'integrated', evidence };
+}
+
+function helperOnly(
+  id: string,
+  evidence: string,
+  gap: string,
+): ICombatFeatureSupportEntry {
+  return { id, level: 'helper-only', evidence, gap };
+}
+
+export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
+  'uac-rate-of-fire': integrated(
+    'uac-rate-of-fire',
+    'UnitHydration.buildCatalogFiringModes exposes single/double Ultra AC modes and runAttackPhase expands selected modes into shots',
+  ),
+  'uac-jam-on-natural-two': integrated(
+    'uac-jam-on-natural-two',
+    'shouldJamOnNaturalTwo plus markWeaponJammed handles Ultra AC jam state on natural 2',
+  ),
+  'rac-rate-of-fire': integrated(
+    'rac-rate-of-fire',
+    'UnitHydration.buildCatalogFiringModes exposes Rotary AC rate-of-fire modes and AIWeaponModeSelector can select them',
+  ),
+  'rac-jam-on-natural-two': integrated(
+    'rac-jam-on-natural-two',
+    'shouldJamOnNaturalTwo plus markWeaponJammed handles Rotary AC jam state on natural 2',
+  ),
+  'lbx-slug-cluster-modes': integrated(
+    'lbx-slug-cluster-modes',
+    'UnitHydration.buildCatalogFiringModes exposes LB-X slug/cluster modes and resolveClusterModeHit resolves cluster projectiles',
+  ),
+  'lbx-cluster-to-hit': integrated(
+    'lbx-cluster-to-hit',
+    'selectedModeToHitModifier applies the LB-X cluster to-hit adjustment during AttackDeclared math',
+  ),
+  'streak-lock-no-spend-on-miss': integrated(
+    'streak-lock-no-spend-on-miss',
+    'shouldSpendAmmoAndHeatOnMiss prevents Streak SRM ammo and heat spending when lock fails',
+  ),
+  'streak-rack-projectiles': integrated(
+    'streak-rack-projectiles',
+    'resolveSpecialProjectileHit derives the Streak rack size as projectile count on successful lock',
+  ),
+  'mml-variable-damage': integrated(
+    'mml-variable-damage',
+    'resolveCatalogDamage parses variable MML descriptors such as 1-2/missile into nonzero rack damage',
+  ),
+  'mml-srm-lrm-mode-damage': integrated(
+    'mml-srm-lrm-mode-damage',
+    'UnitHydration.buildCatalogFiringModes exposes MML SRM/LRM modes and runner selected modes change resolved damage',
+  ),
+  'mml-srm-lrm-ammo-compatibility': integrated(
+    'mml-srm-lrm-ammo-compatibility',
+    'MML firing-mode metadata maps selected SRM/LRM modes to distinct srm-N/lrm-N ammo-bin families for runner ammo checks and consumption',
+  ),
+  'narc-marker-attachment': integrated(
+    'narc-marker-attachment',
+    'applyDesignatorMarkerHit attaches attacker-team NARC markers to hit targets without applying damage',
+  ),
+  'narc-cluster-modifier': integrated(
+    'narc-cluster-modifier',
+    'missileClusterModifier consumes targetNarcedBy and resolveSpecialProjectileHit applies the NARC cluster bonus',
+  ),
+  'inarc-pod-variants': helperOnly(
+    'inarc-pod-variants',
+    'Indirect-fire helpers can distinguish iNarc basis flags',
+    'iNarc pod variants are not represented in runner missile resolution',
+  ),
+  'narc-marker-lifecycle-events': helperOnly(
+    'narc-marker-lifecycle-events',
+    'Runner target state preserves NARC markers after beacon hits and emits DesignatorMarkerApplied for standard NARC marker attachment',
+    'iNarc pod variants are not represented in runner missile resolution',
+  ),
+  'ams-projectile-reduction': integrated(
+    'ams-projectile-reduction',
+    'resolveSpecialProjectileHit passes target-mounted AMS weapons through resolveAMSInterception, which applies the Total Warfare/MegaMek -4 cluster-table modifier',
+  ),
+  'ams-streak-cluster-parity': integrated(
+    'ams-streak-cluster-parity',
+    'resolveSpecialProjectileHit treats Streak hits as cluster-roll 11 when target AMS engages, then applies the AMS -4 cluster-table modifier',
+  ),
+  'ams-single-missile-parity': integrated(
+    'ams-single-missile-parity',
+    'resolveSingleMissileAMSInterception mirrors MegaMek NARC/Thunderbolt handlers by rolling 1d6 and destroying the single incoming pod or missile on 1-3',
+  ),
+  'ams-ammo-consumption': integrated(
+    'ams-ammo-consumption',
+    'runAttackPhase passes defender ammo state into missile resolution and consumes the target-mounted AMS ammo bin during cluster or single-missile interception',
+  ),
+  'ams-interception-events': integrated(
+    'ams-interception-events',
+    'runAttackPhase emits AMSInterception payloads with incoming, intercepted, and remaining projectile counts before damage resolution',
+  ),
+  'tag-designation-hit': integrated(
+    'tag-designation-hit',
+    'applyDesignatorMarkerHit marks targets as TAG-designated on hit without applying damage',
+  ),
+  'tag-turn-lifecycle-clear': integrated(
+    'tag-turn-lifecycle-clear',
+    'turn lifecycle reset clears transient TAG designations while preserving persistent NARC markers',
+  ),
+  'tag-marker-lifecycle-events': integrated(
+    'tag-marker-lifecycle-events',
+    'runner TAG hits emit DesignatorMarkerApplied when they set transient tagDesignated target state',
+  ),
+  'tag-semi-guided-cluster-bonus': integrated(
+    'tag-semi-guided-cluster-bonus',
+    'isSemiGuidedAmmoSelectedForWeapon plus targetTagDesignated applies semi-guided LRM cluster bonuses',
+  ),
+  'tag-intent-wire-state-replay': helperOnly(
+    'tag-intent-wire-state-replay',
+    'Runner TAG hits mutate target tagDesignated state',
+    'TAG marker intent, wire payload, and replay reducer state-change application are not wired',
+  ),
+  'artemis-cluster-modifier': integrated(
+    'artemis-cluster-modifier',
+    'UnitHydration approximates Artemis IV/prototype IV/V flags from same-location FCS plus Artemis-capable ammo, runAttackPhase passes those flags plus indirect-fire state into missileClusterModifier, and calculateClusterModifiers applies MegaMek-parity IV/prototype IV/V bonuses without stacking while suppressing them for indirect fire',
+  ),
+  'artemis-ecm-suppression': integrated(
+    'artemis-ecm-suppression',
+    'calculateClusterModifiers accepts ecmProtected and zeroes Artemis IV/prototype IV/V bonuses, and runAttackPhase derives target ECM coverage plus active-probe countering from runner electronic-warfare state before missile cluster resolution',
+  ),
+  'artemis-ecm-suite-hydration': integrated(
+    'artemis-ecm-suite-hydration',
+    'UnitHydration maps standard Guardian, Angel, Clan, Watchdog CEWS, and Nova CEWS ECM ids from hydrated BattleMech equipment and critical slots, and createInitialState seeds those suites into IGameState.electronicWarfare',
+  ),
+  'active-probe-counter-hydration': integrated(
+    'active-probe-counter-hydration',
+    'UnitHydration maps Beagle, Bloodhound, Clan, light, Watchdog CEWS, and Nova CEWS active-probe equipment ids; createInitialState seeds active probes for ECM countering before Artemis cluster suppression',
+  ),
+  'artemis-stealth-suppression': integrated(
+    'artemis-stealth-suppression',
+    'createHydratedUnitState preserves BattleMech stealth armor, runAttackPhase detects active attacker stealth from the unit own operational ECM suite, and calculateClusterModifiers suppresses Artemis IV/prototype IV/V cluster bonuses while active',
+  ),
+} satisfies Record<string, ICombatFeatureSupportEntry>;
