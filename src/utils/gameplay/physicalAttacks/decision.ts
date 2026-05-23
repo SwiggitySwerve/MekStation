@@ -8,6 +8,7 @@ import {
   calculateLanceDamage,
   calculateMaceDamage,
   calculatePunchDamage,
+  calculateRetractableBladeDamage,
   calculateSwordDamage,
 } from './damage';
 import {
@@ -130,6 +131,9 @@ export function chooseBestPhysicalAttack(
           break;
         case 'lance':
           meleeDamage = calculateLanceDamage(meleeInput);
+          break;
+        case 'retractable-blade':
+          meleeDamage = calculateRetractableBladeDamage(meleeInput);
           break;
       }
       candidates.push({

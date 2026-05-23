@@ -22,6 +22,7 @@ export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
     PhysicalSwordCommand,
     PhysicalMaceCommand,
     PhysicalLanceCommand,
+    PhysicalRetractableBladeCommand,
   ];
 }
 
@@ -175,5 +176,22 @@ const PhysicalLanceCommand: ITacticalCommand = {
   availability: requireActiveAndTarget,
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'lance' } };
+  },
+};
+
+const PhysicalRetractableBladeCommand: ITacticalCommand = {
+  id: 'physical.retractable-blade',
+  category: 'physical',
+  label: 'Retractable Blade',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability: requireActiveAndTarget,
+  commit() {
+    return {
+      actionId: 'physical-attack',
+      payload: { attackType: 'retractable-blade' },
+    };
   },
 };

@@ -82,6 +82,13 @@ interface OptionRow {
   reason?: string;
 }
 
+function titleCaseAttackType(attackType: PhysicalAttackType): string {
+  return attackType
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 /**
  * Build the picker row list. Each row computes its own
  * enabled/reason via the restrictions helpers — this keeps the
@@ -164,7 +171,7 @@ function buildOptions(props: PhysicalAttackTypePickerProps): OptionRow[] {
     });
     rows.push({
       type: meleeType,
-      label: meleeType.charAt(0).toUpperCase() + meleeType.slice(1),
+      label: titleCaseAttackType(meleeType),
       enabled: restriction.allowed,
       reason: restriction.allowed ? undefined : restriction.reason,
     });

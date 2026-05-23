@@ -114,6 +114,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.mace',
       'physical.punch',
       'physical.push',
+      'physical.retractable-blade',
       'physical.sword',
       'utility.concede',
       'utility.eject',
@@ -254,6 +255,7 @@ describe('BattleMech combat action support catalog', () => {
       'physical.mace': 'mace',
       'physical.punch': 'punch',
       'physical.push': 'push',
+      'physical.retractable-blade': 'retractable-blade',
       'physical.sword': 'sword',
     });
     expect(
@@ -267,6 +269,7 @@ describe('BattleMech combat action support catalog', () => {
       'mace',
       'punch',
       'push',
+      'retractable-blade',
       'sword',
     ]);
     expect(

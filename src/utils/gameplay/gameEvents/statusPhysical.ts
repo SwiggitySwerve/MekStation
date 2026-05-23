@@ -14,7 +14,7 @@ import { createEventBase } from './base';
 
 /**
  * Per `implement-physical-attack-phase` task 2.4: emitted when a unit
- * declares a physical attack (punch / kick / charge / DFA / push / club).
+ * declares a physical attack (punch / kick / charge / DFA / push / melee).
  */
 export function createPhysicalAttackDeclaredEvent(
   gameId: string,

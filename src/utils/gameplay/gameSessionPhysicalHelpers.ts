@@ -59,6 +59,11 @@ export interface IPhysicalAttackContext {
   readonly attackerJumpedThisTurn?: boolean;
   readonly attackerRanThisTurn?: boolean;
   /**
+   * Source-backed retractable blade gate. False means the blade is still
+   * retracted and cannot be used for a club attack.
+   */
+  readonly retractableBladeExtended?: boolean;
+  /**
    * Per task 8.5: the destination hex for a push. If `false` the caller
    * has already determined the push target hex is blocked / off-map.
    */

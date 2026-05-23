@@ -108,7 +108,7 @@ describe('PhysicalAttackTypePicker', () => {
         attackerTonnage={50}
         pilotingSkill={4}
         componentDamage={EMPTY_DAMAGE}
-        meleeWeaponsEquipped={['hatchet', 'lance']}
+        meleeWeaponsEquipped={['hatchet', 'lance', 'retractable-blade']}
         onSelect={jest.fn()}
       />,
     );
@@ -116,6 +116,9 @@ describe('PhysicalAttackTypePicker', () => {
       screen.getByTestId('physical-attack-row-hatchet'),
     ).toBeInTheDocument();
     expect(screen.getByTestId('physical-attack-row-lance')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('physical-attack-row-retractable-blade'),
+    ).toBeInTheDocument();
     expect(
       screen.queryByTestId('physical-attack-row-sword'),
     ).not.toBeInTheDocument();

@@ -15,6 +15,7 @@ export const HATCHET_DAMAGE_DIVISOR = 5;
 export const SWORD_DAMAGE_DIVISOR = 10;
 export const SWORD_DAMAGE_BONUS = 1;
 export const MACE_DAMAGE_DIVISOR = 4;
+export const RETRACTABLE_BLADE_DAMAGE_DIVISOR = 10;
 // Per `implement-physical-attack-phase` task 9.4: lance damage baseline
 // is floor(weight / 5); doubled when the attacker is charging.
 export const LANCE_DAMAGE_DIVISOR = 5;
@@ -33,6 +34,7 @@ export const FOOT_KICK_MODIFIER = 1;
 export const HATCHET_TO_HIT_MODIFIER = -1;
 export const SWORD_TO_HIT_MODIFIER = -2;
 export const MACE_TO_HIT_MODIFIER = 1;
+export const RETRACTABLE_BLADE_TO_HIT_MODIFIER = -2;
 export const DFA_MISS_PSR_MODIFIER = 4;
 
 export const PUNCH_HIT_TABLE: Readonly<Record<number, CombatLocation>> = {

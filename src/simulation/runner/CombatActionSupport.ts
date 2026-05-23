@@ -158,6 +158,11 @@ export const COMBAT_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildPhysicalAttackCommands commits physical-attack lance; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
   ),
+  'physical.retractable-blade': integrated(
+    'physical.retractable-blade',
+    'tactical-command',
+    'buildPhysicalAttackCommands commits physical-attack retractable-blade; declarePhysical/Physical/dispatchToEngine.applyPhysicalAttack carry it',
+  ),
   'heat.continue': integrated(
     'heat.continue',
     'tactical-command',

@@ -280,6 +280,21 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** event-sourced resolution and runner resolution SHALL immediately apply fall damage, set the attacker prone with the source-backed rear fall facing, emit `UnitFell`, and avoid queuing the normal `DFAMiss` PSR for that grid-backed fall branch
 - **AND** the attacker SHALL roll the source-backed fall pilot-damage avoidance check, applying one fall-sourced pilot wound and `PilotHit` only when that check fails
 
+### Requirement: Source-Backed Physical Weapon Runtime Support
+
+BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `ClubAttackAction` damage, to-hit, and legality behavior before a cataloged physical weapon is marked integrated.
+
+#### Scenario: Retractable blade uses source-backed damage, to-hit, and extension gate
+
+- **GIVEN** a BattleMech declares a retractable blade attack against an adjacent valid target
+- **WHEN** the blade is extended or the caller does not yet hydrate blade mode state
+- **THEN** helper, eligibility, intent/wire validation, event-sourced resolution, and runner resolution SHALL accept `retractable-blade` as a runtime physical attack type
+- **AND** target damage SHALL be `ceil(attackerWeight / 10)` with active TSM affecting effective weight
+- **AND** to-hit SHALL include the source-backed `-2` retractable blade modifier
+- **WHEN** the caller explicitly marks the retractable blade as not extended
+- **THEN** helper and event-sourced declaration validation SHALL reject the attack with `RetractableBladeNotExtended`
+- **AND** the validation catalog SHALL keep physical weapon mode hydration as a separate out-of-scope concern until combat units carry actual physical weapon mode state
+
 ### Requirement: Designator Marker Replay State
 
 Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC pod variants SHALL remain explicit gaps until their variant-specific runner missile effects are represented.

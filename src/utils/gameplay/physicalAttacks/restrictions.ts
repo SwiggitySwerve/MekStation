@@ -383,6 +383,17 @@ export function canMeleeWeapon(
   const sharedRestriction = sharedPhysicalTargetRestriction(input);
   if (!sharedRestriction.allowed) return sharedRestriction;
 
+  if (
+    input.attackType === 'retractable-blade' &&
+    input.retractableBladeExtended === false
+  ) {
+    return {
+      allowed: false,
+      reason: 'Retractable blade is not extended',
+      reasonCode: 'RetractableBladeNotExtended',
+    };
+  }
+
   const unitQuirks = input.unitQuirks ?? [];
 
   if (hasNoArms(unitQuirks)) {

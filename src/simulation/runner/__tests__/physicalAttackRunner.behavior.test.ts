@@ -1311,6 +1311,7 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     ['sword', 3, 8],
     ['mace', 6, 17],
     ['lance', 6, 13],
+    ['retractable-blade', 3, 7],
   ] satisfies Array<[PhysicalAttackType, number, number]>)(
     'honors supported melee weapon %s through runner resolution',
     (attackType, toHitNumber, damage) => {

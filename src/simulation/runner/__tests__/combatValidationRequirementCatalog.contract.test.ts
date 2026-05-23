@@ -276,6 +276,9 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     expect(sourceBackedRows.map(({ ref }) => ref)).toContain(
       'featureSupport.physicalWeapons.lance',
     );
+    expect(sourceBackedRows.map(({ ref }) => ref)).toContain(
+      'featureSupport.physicalWeapons.retractable-blade',
+    );
 
     const invalidSourceRefs = sourceBackedRows.flatMap(({ ref, entry }) => {
       const sourceRefs = entry.sourceRefs ?? [];

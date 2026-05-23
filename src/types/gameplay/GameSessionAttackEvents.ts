@@ -487,8 +487,8 @@ export interface IUnitStoodPayload {
 
 /**
  * Per `implement-physical-attack-phase` task 2.2: physical attack event
- * types include core physical attacks plus the four melee-weapon variants
- * (hatchet, sword, mace, lance). The resolved payload uses the same
+ * types include core physical attacks plus the melee-weapon variants
+ * (hatchet, sword, mace, lance, retractable blade). The resolved payload uses the same
  * union so club swings and charges emit the same event shape.
  */
 export type PhysicalAttackEventType =
@@ -500,7 +500,8 @@ export type PhysicalAttackEventType =
   | 'hatchet'
   | 'sword'
   | 'mace'
-  | 'lance';
+  | 'lance'
+  | 'retractable-blade';
 
 export interface IPhysicalAttackDeclaredPayload {
   readonly attackerId: string;

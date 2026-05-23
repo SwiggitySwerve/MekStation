@@ -1247,13 +1247,7 @@ describe('BattleMech combat feature-gap tracking', () => {
           (entry.sourceRefs?.length ?? 0) === 0 ? [entry.id] : [],
         ),
     ).toEqual([]);
-    expect(unsupported).toEqual([
-      'claws',
-      'flail',
-      'retractable-blade',
-      'talons',
-      'wrecking-ball',
-    ]);
+    expect(unsupported).toEqual(['claws', 'flail', 'talons', 'wrecking-ball']);
   });
 
   it('tracks runner range brackets including extreme range support', () => {

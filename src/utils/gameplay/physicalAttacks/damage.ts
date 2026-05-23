@@ -25,6 +25,7 @@ import {
   MACE_DAMAGE_DIVISOR,
   PHYSICAL_CLUSTER_SIZE,
   PUNCH_DAMAGE_DIVISOR,
+  RETRACTABLE_BLADE_DAMAGE_DIVISOR,
   SWORD_DAMAGE_BONUS,
   SWORD_DAMAGE_DIVISOR,
   TSM_ACTIVATION_HEAT,
@@ -268,6 +269,20 @@ export function calculateMaceDamage(input: IPhysicalAttackInput): number {
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
+export function calculateRetractableBladeDamage(
+  input: IPhysicalAttackInput,
+): number {
+  const effectiveWeight = getEffectiveWeight(
+    input.attackerTonnage,
+    input.heat ?? 0,
+    input.hasTSM ?? false,
+  );
+  const damage =
+    Math.ceil(effectiveWeight / RETRACTABLE_BLADE_DAMAGE_DIVISOR) +
+    physicalDamageBonus(input);
+  return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
+}
+
 /**
  * Per `implement-physical-attack-phase` task 9.4: lance damage is
  * floor(weight / 5); when the attacker is charging (caller sets
@@ -410,6 +425,17 @@ export function calculatePhysicalDamage(
         // resolution layer when the attacker is simultaneously charging;
         // the baseline damage path is used here.
         targetDamage: calculateLanceDamage(input, false),
+        attackerDamage: 0,
+        attackerLegDamagePerLeg: 0,
+        targetPSR: false,
+        attackerPSR: false,
+        attackerPSRModifier: 0,
+        hitTable: 'punch',
+        targetDisplaced: false,
+      };
+    case 'retractable-blade':
+      return {
+        targetDamage: calculateRetractableBladeDamage(input),
         attackerDamage: 0,
         attackerLegDamagePerLeg: 0,
         targetPSR: false,

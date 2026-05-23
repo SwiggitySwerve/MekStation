@@ -118,8 +118,8 @@ export const PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT = {
   club: integrated(
     'club',
     'ClubAttackAction',
-    'MekStation maps BattleMech club-family physical weapons to source-backed hatchet, sword, mace, and lance runtime attack types',
-    ['hatchet', 'sword', 'mace', 'lance'],
+    'MekStation maps BattleMech club-family physical weapons to source-backed hatchet, sword, mace, lance, and retractable blade runtime attack types',
+    ['hatchet', 'sword', 'mace', 'lance', 'retractable-blade'],
   ),
   'brush-off': unsupportedBattleMech(
     'brush-off',

@@ -45,6 +45,7 @@
 - [x] 2.32.2 Add helper-level DFA VTOL/WIGE elevation-reach gate while leaving runtime VTOL/WIGE motion-state hydration explicit out of scope.
 - [x] 2.32.3 Add helper-level DFA mechanical jump booster rejection while leaving runtime movement-step hydration explicit out of scope.
 - [x] 2.32.4 Add helper-level charge/DFA building and fuel-tank target rejection while leaving gun-emplacement automatic-success semantics explicit out of scope.
+- [x] 2.32.5 Integrate source-backed retractable blade damage, to-hit, optional extended-mode legality, runtime intent/wire validation, and runner resolution while leaving physical weapon mode hydration explicit out of scope.
 
 ## 3. Full combat validation catalog
 

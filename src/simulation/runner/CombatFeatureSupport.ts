@@ -83,7 +83,7 @@ const BMM_ERRATA_701_LANCE_TO_HIT = {
 const MEGAMEK_6CA1867_PHYSICAL_WEAPON_DAMAGE = {
   kind: 'megamek-source',
   citation:
-    'MegaMek ClubAttackAction.getDamageFor applies physical weapon damage formulas including sword ceil(weight/10)+1 and mace ceil(weight/4)',
+    'MegaMek ClubAttackAction.getDamageFor applies physical weapon damage formulas including sword ceil(weight/10)+1, mace ceil(weight/4), and retractable blade ceil(weight/10)',
   url: 'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/common/actions/ClubAttackAction.java#L91-L182',
   sourceVersion: '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
 } satisfies ICombatFeatureSourceReference;
@@ -91,8 +91,16 @@ const MEGAMEK_6CA1867_PHYSICAL_WEAPON_DAMAGE = {
 const MEGAMEK_6CA1867_PHYSICAL_WEAPON_TO_HIT = {
   kind: 'megamek-source',
   citation:
-    'MegaMek ClubAttackAction.getHitModFor returns hatchet -1, sword -2, mace +1, and lance +1 physical weapon modifiers',
+    'MegaMek ClubAttackAction.getHitModFor returns hatchet -1, sword -2, mace +1, lance +1, and retractable blade -2 physical weapon modifiers',
   url: 'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/common/actions/ClubAttackAction.java#L218-L251',
+  sourceVersion: '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_6CA1867_RETRACTABLE_BLADE_MODE_GATE = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek ClubAttackAction.toHit rejects retractable blade attacks unless the blade is extended',
+  url: 'https://github.com/MegaMek/megamek/blob/6ca18676725d273f6b96a3fe5bdd9ecda22c2811/megamek/src/megamek/common/actions/ClubAttackAction.java#L329-L332',
   sourceVersion: '6ca18676725d273f6b96a3fe5bdd9ecda22c2811',
 } satisfies ICombatFeatureSourceReference;
 
@@ -503,12 +511,17 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
       MEGAMEK_6CA1867_PHYSICAL_WEAPON_TO_HIT,
     ],
   ),
+  'retractable-blade': integrated(
+    'retractable-blade',
+    'source-backed calculateRetractableBladeDamage + -2 retractable blade to-hit modifier plus optional extended-mode legality gate',
+    [
+      MEGAMEK_6CA1867_PHYSICAL_WEAPON_DAMAGE,
+      MEGAMEK_6CA1867_PHYSICAL_WEAPON_TO_HIT,
+      MEGAMEK_6CA1867_RETRACTABLE_BLADE_MODE_GATE,
+    ],
+  ),
   claws: unsupported('claws', NO_RUNTIME_PHYSICAL_WEAPON),
   flail: unsupported('flail', NO_RUNTIME_PHYSICAL_WEAPON),
-  'retractable-blade': unsupported(
-    'retractable-blade',
-    NO_RUNTIME_PHYSICAL_WEAPON,
-  ),
   talons: unsupported('talons', NO_RUNTIME_PHYSICAL_WEAPON),
   'wrecking-ball': unsupported('wrecking-ball', NO_RUNTIME_PHYSICAL_WEAPON),
 } satisfies Record<string, ICombatFeatureSupportEntry>;

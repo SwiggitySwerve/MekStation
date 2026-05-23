@@ -12,6 +12,7 @@ import {
   calculateHatchetDamage,
   calculateSwordDamage,
   calculateMaceDamage,
+  calculateRetractableBladeDamage,
   calculatePunchToHit,
   calculateKickToHit,
   calculateChargeToHit,
@@ -544,6 +545,30 @@ describe('physicalAttacks', () => {
     });
   });
 
+  describe('calculateRetractableBladeDamage', () => {
+    it('computes ceil(weight/10) for a 70-ton mech', () => {
+      expect(
+        calculateRetractableBladeDamage(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'retractable-blade',
+          }),
+        ),
+      ).toBe(7);
+    });
+
+    it('rounds retractable blade damage up for non-even tonnage', () => {
+      expect(
+        calculateRetractableBladeDamage(
+          makeInput({
+            attackerTonnage: 65,
+            attackType: 'retractable-blade',
+          }),
+        ),
+      ).toBe(7);
+    });
+  });
+
   // =============================================================================
   // TSM Tests
   // =============================================================================
@@ -627,6 +652,20 @@ describe('physicalAttacks', () => {
           }),
         ),
       ).toBe(35);
+    });
+
+    it('should double retractable blade damage with TSM at heat 9+', () => {
+      // 70t TSM: effective 140, ceil(140 / 10) = 14
+      expect(
+        calculateRetractableBladeDamage(
+          makeInput({
+            attackerTonnage: 70,
+            attackType: 'retractable-blade',
+            hasTSM: true,
+            heat: 9,
+          }),
+        ),
+      ).toBe(14);
     });
   });
 
@@ -811,6 +850,20 @@ describe('physicalAttacks', () => {
       expect(result).toMatchObject({
         allowed: false,
         reasonCode: 'NoArmsQuirk',
+      });
+    });
+
+    it('disallows retractable blade attacks when the blade is not extended', () => {
+      const result = canMeleeWeapon(
+        makeInput({
+          attackType: 'retractable-blade',
+          retractableBladeExtended: false,
+        }),
+      );
+
+      expect(result).toMatchObject({
+        allowed: false,
+        reasonCode: 'RetractableBladeNotExtended',
       });
     });
   });
@@ -2667,6 +2720,13 @@ describe('physicalAttacks', () => {
       expect(result.finalToHit).toBe(6);
     });
 
+    it('should apply -2 for retractable blade', () => {
+      const result = calculateMeleeWeaponToHit(
+        makeInput({ pilotingSkill: 5, attackType: 'retractable-blade' }),
+      );
+      expect(result.finalToHit).toBe(3);
+    });
+
     it('should not allow if lower arm destroyed', () => {
       const result = calculateMeleeWeaponToHit(
         makeInput({
@@ -2767,6 +2827,17 @@ describe('physicalAttacks', () => {
         makeInput({ attackerTonnage: 70, attackType: 'hatchet' }),
       );
       expect(result.targetDamage).toBe(14);
+      expect(result.hitTable).toBe('punch');
+    });
+
+    it('should return retractable blade damage with punch table', () => {
+      const result = calculatePhysicalDamage(
+        makeInput({
+          attackerTonnage: 70,
+          attackType: 'retractable-blade',
+        }),
+      );
+      expect(result.targetDamage).toBe(7);
       expect(result.hitTable).toBe('punch');
     });
   });

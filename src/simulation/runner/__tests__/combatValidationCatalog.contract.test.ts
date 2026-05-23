@@ -101,6 +101,7 @@ describe('BattleMech combat validation catalog index', () => {
         'physical.sword',
         'physical.mace',
         'physical.lance',
+        'physical.retractable-blade',
         'charge.requires-run',
         'charge.target-mek-standing',
         'dfa.requires-jump',

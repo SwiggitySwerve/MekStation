@@ -65,7 +65,6 @@ describe('physical weapon catalog runtime boundary', () => {
     expect(unsupportedPhysicalWeapons).toEqual([
       'claws',
       'flail',
-      'retractable-blade',
       'talons',
       'wrecking-ball',
     ]);

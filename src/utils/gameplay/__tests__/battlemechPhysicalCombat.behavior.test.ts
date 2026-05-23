@@ -303,6 +303,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       'sword',
       'mace',
       'lance',
+      'retractable-blade',
     ];
 
     const options = getEligiblePhysicalAttacks(attacker, target, {
@@ -331,6 +332,7 @@ describe('BattleMech physical combat behavior validation lane', () => {
       'sword:-',
       'mace:-',
       'lance:-',
+      'retractable-blade:-',
     ]);
     expect(
       options.every((option) => option.restrictionsFailed.length === 0),
@@ -345,9 +347,11 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(byType.get('sword')?.toHit.finalToHit).toBe(5);
     expect(byType.get('mace')?.toHit.finalToHit).toBe(8);
     expect(byType.get('lance')?.toHit.finalToHit).toBe(8);
+    expect(byType.get('retractable-blade')?.toHit.finalToHit).toBe(5);
     expect(byType.get('sword')?.damage.targetDamage).toBe(9);
     expect(byType.get('mace')?.damage.targetDamage).toBe(20);
     expect(byType.get('lance')?.damage.targetDamage).toBe(16);
+    expect(byType.get('retractable-blade')?.damage.targetDamage).toBe(8);
   });
 
   it('projects passenger physical targets as restricted options', () => {

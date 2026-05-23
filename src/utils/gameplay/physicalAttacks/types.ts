@@ -14,6 +14,7 @@ export const SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES = [
   'sword',
   'mace',
   'lance',
+  'retractable-blade',
 ] as const;
 
 export const SUPPORTED_PHYSICAL_ATTACK_TYPES = [
@@ -119,6 +120,7 @@ export type PhysicalAttackInvalidReason =
   | 'TargetNotAdjacent'
   | 'TargetNotDirectlyAhead'
   | 'UnsupportedAttackType'
+  | 'RetractableBladeNotExtended'
   | 'DestinationBlocked';
 
 export interface IPhysicalAttackInput {
@@ -174,6 +176,12 @@ export interface IPhysicalAttackInput {
    * unloading cargo cannot make physical attacks.
    */
   readonly attackerLoadingOrUnloadingCargo?: boolean;
+  /**
+   * Source-backed retractable blade legality: MegaMek rejects the attack
+   * when the blade is not extended. Undefined preserves legacy runtime
+   * contexts that do not yet hydrate physical weapon mode state.
+   */
+  readonly retractableBladeExtended?: boolean;
   /**
    * Source-backed push legality: a unit that is already the target of a
    * displacement attack can only counter-push the unit that owns that attack.

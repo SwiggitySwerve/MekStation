@@ -472,6 +472,7 @@ export function declarePhysicalAttack(
     targetTonnage: context.targetTonnage,
     targetMovementModifier: context.targetMovementModifier,
     attackerMovementModifier: context.attackerMovementModifier,
+    retractableBladeExtended: context.retractableBladeExtended,
     attackerJumpedThisTurn: context.attackerJumpedThisTurn,
     attackerRanThisTurn: context.attackerRanThisTurn,
     limbsUsedThisTurn: context.limbsUsedThisTurn,
@@ -511,7 +512,8 @@ export function declarePhysicalAttack(
     attackType === 'hatchet' ||
     attackType === 'sword' ||
     attackType === 'mace' ||
-    attackType === 'lance'
+    attackType === 'lance' ||
+    attackType === 'retractable-blade'
   ) {
     restriction = canMeleeWeapon(input);
   } else {
@@ -699,6 +701,7 @@ export function resolveAllPhysicalAttacks(
       targetTonnage: context.targetTonnage,
       targetMovementModifier: context.targetMovementModifier,
       attackerMovementModifier: context.attackerMovementModifier,
+      retractableBladeExtended: context.retractableBladeExtended,
       attackerJumpedThisTurn: context.attackerJumpedThisTurn,
       attackerRanThisTurn: context.attackerRanThisTurn,
       limbsUsedThisTurn: context.limbsUsedThisTurn,

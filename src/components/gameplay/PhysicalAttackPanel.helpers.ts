@@ -65,6 +65,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   TargetNotAdjacent: 'Target must be adjacent',
   TargetNotDirectlyAhead: 'Push target must be directly ahead',
   UnsupportedAttackType: 'Attack type is unsupported',
+  RetractableBladeNotExtended: 'Retractable blade is not extended',
   DestinationBlocked: 'Push destination is blocked',
 };
 
@@ -82,6 +83,7 @@ export function attackTypeLabel(
     sword: 'Sword',
     mace: 'Mace',
     lance: 'Lance',
+    'retractable-blade': 'Retractable Blade',
   };
   const label = base[attackType];
   if (!limb) return label;

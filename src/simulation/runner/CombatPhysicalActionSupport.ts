@@ -46,4 +46,8 @@ export const PHYSICAL_ATTACK_ACTION_SUPPORT = {
     'lance',
     'Tactical command, game intent, wire schema, dispatcher, and runner physical weapon support resolve lance',
   ),
+  'retractable-blade': integrated(
+    'retractable-blade',
+    'Tactical command, game intent, wire schema, dispatcher, and runner physical weapon support resolve retractable blade',
+  ),
 } satisfies Record<PhysicalAttackType, ICombatActionSupportEntry>;

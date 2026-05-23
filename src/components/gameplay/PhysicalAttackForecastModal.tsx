@@ -95,6 +95,8 @@ function attackTypeLabel(attackType: PhysicalAttackType): string {
       return 'Mace';
     case 'lance':
       return 'Lance';
+    case 'retractable-blade':
+      return 'Retractable Blade';
   }
 }
 

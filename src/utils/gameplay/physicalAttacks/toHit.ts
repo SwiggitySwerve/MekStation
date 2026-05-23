@@ -11,6 +11,7 @@ import {
   LOWER_LEG_KICK_MODIFIER,
   MACE_TO_HIT_MODIFIER,
   PUSH_TO_HIT_BONUS,
+  RETRACTABLE_BLADE_TO_HIT_MODIFIER,
   SWORD_TO_HIT_MODIFIER,
   UPPER_ARM_PUNCH_MODIFIER,
   UPPER_LEG_KICK_MODIFIER,
@@ -359,6 +360,9 @@ export function calculateMeleeWeaponToHit(
     case 'lance':
       weaponMod = LANCE_TO_HIT_MODIFIER;
       break;
+    case 'retractable-blade':
+      weaponMod = RETRACTABLE_BLADE_TO_HIT_MODIFIER;
+      break;
   }
 
   const modifiers: IPhysicalModifier[] = [
@@ -399,6 +403,7 @@ export function calculatePhysicalToHit(
     case 'sword':
     case 'mace':
     case 'lance':
+    case 'retractable-blade':
       return calculateMeleeWeaponToHit(input);
     default:
       return {

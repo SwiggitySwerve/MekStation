@@ -93,6 +93,8 @@ export interface IEligibilityContext {
   readonly unitQuirks?: readonly string[];
   /** Target elevation minus attacker elevation. */
   readonly elevationDifference?: number;
+  /** False when a retractable blade is present but not extended. */
+  readonly retractableBladeExtended?: boolean;
 }
 
 /**
@@ -252,6 +254,7 @@ export function getEligiblePhysicalAttacks(
     targetPilotingSkill: target.piloting,
     attackerEvading: attacker.isEvading,
     attackerLoadingOrUnloadingCargo: attacker.isLoadingOrUnloadingCargo,
+    retractableBladeExtended: context.retractableBladeExtended,
     attackerTargetedByDisplacementAttackerId:
       attacker.targetedByDisplacementAttackerId,
     attackerProne: attacker.prone,
