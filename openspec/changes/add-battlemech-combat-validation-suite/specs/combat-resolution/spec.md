@@ -119,6 +119,20 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the push SHALL be rejected with the matching restriction code
 - **AND** eligibility UI, event-sourced declaration, and runner resolution SHALL report the same gate outcome
 
+#### Scenario: Physical helpers reject invalid hex target objects
+
+- **GIVEN** a physical helper evaluates a woods-clearing, building-ignition, or hex-ignition target object
+- **WHEN** the shared physical legality gate runs
+- **THEN** the attack SHALL be rejected with `InvalidPhysicalTarget`
+- **AND** the validation catalog SHALL mark this as helper-only until runtime physical declarations can target non-unit objects
+
+#### Scenario: Push helpers reject building and fuel-tank target objects
+
+- **GIVEN** a push helper evaluates a building or fuel-tank target object
+- **WHEN** the push legality gate runs
+- **THEN** the push SHALL be rejected with `TargetBuilding`
+- **AND** the validation catalog SHALL mark this as helper-only until runtime physical declarations can target non-unit objects
+
 #### Scenario: Charge rejects invalid standing-Mek target gates
 
 - **GIVEN** a BattleMech-compatible attacker declares a charge after running this turn

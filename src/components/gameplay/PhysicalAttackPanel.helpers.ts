@@ -57,6 +57,8 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   AttackerTargetOfDisplacementAttack: 'Attacker is already being displaced',
   TargetAirborne: 'Target is airborne',
   TargetInsideBuilding: 'Target is inside another building',
+  InvalidPhysicalTarget: 'Target cannot be attacked physically',
+  TargetBuilding: 'Cannot push buildings or fuel tanks',
   SelfTarget: 'Cannot target self',
   FriendlyTarget: 'Cannot target friendly unit',
   TargetNotAdjacent: 'Target must be adjacent',

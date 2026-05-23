@@ -24,6 +24,15 @@ export const SUPPORTED_PHYSICAL_ATTACK_TYPES = [
 export type PhysicalAttackType =
   (typeof SUPPORTED_PHYSICAL_ATTACK_TYPES)[number];
 
+export type PhysicalTargetObjectType =
+  | 'entity'
+  | 'building'
+  | 'fuelTank'
+  | 'gunEmplacement'
+  | 'buildingIgnite'
+  | 'hexClear'
+  | 'hexIgnite';
+
 export function isSupportedPhysicalAttackType(
   value: unknown,
 ): value is PhysicalAttackType {
@@ -102,6 +111,8 @@ export type PhysicalAttackInvalidReason =
   | 'AttackerTargetOfDisplacementAttack'
   | 'TargetAirborne'
   | 'TargetInsideBuilding'
+  | 'InvalidPhysicalTarget'
+  | 'TargetBuilding'
   | 'SelfTarget'
   | 'FriendlyTarget'
   | 'TargetNotAdjacent'
@@ -185,6 +196,13 @@ export interface IPhysicalAttackInput {
    * existing target unit.
    */
   readonly targetExists?: boolean;
+  /**
+   * Source-backed non-unit target discriminator. Undefined preserves the
+   * runtime's current unit-id-only declarations; explicit values let helper
+   * tests model MegaMek physical target types such as woods clearing,
+   * building ignition, and fuel tanks without conflating them with unitType.
+   */
+  readonly targetObjectType?: PhysicalTargetObjectType;
   /**
    * MekStation lifecycle targetability: destroyed units are no longer valid
    * physical targets.

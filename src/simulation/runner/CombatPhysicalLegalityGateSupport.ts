@@ -26,6 +26,24 @@ function integrated(
   };
 }
 
+function helperOnly(
+  id: string,
+  attackFamily: PhysicalLegalityAttackFamily,
+  evidence: string,
+  gap: string,
+  authority: string,
+): IPhysicalLegalityGateSupportEntry {
+  return {
+    id,
+    attackFamily,
+    authority,
+    level: 'helper-only',
+    evidence,
+    gap,
+    sourceRefs: sourceRefsForAuthority(authority),
+  };
+}
+
 function unsupported(
   id: string,
   attackFamily: PhysicalLegalityAttackFamily,
@@ -204,10 +222,11 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared restriction helpers reject targetIsMakingDFA, IUnitGameState exposes optional isMakingDFA, and eligibility/session/runner inputs thread DFA-making target state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
-  'shared.invalid-hex-target': unsupported(
+  'shared.invalid-hex-target': helperOnly(
     'shared.invalid-hex-target',
     'shared',
-    'physical target type does not represent woods clearing, building ignition, or hex ignition targets',
+    'shared restriction helpers consume targetObjectType and reject woods-clearing, building-ignition, and hex-ignition physical targets as InvalidPhysicalTarget',
+    'Runtime physical declarations and runner selection still target unit ids only, so non-unit hex target commands remain out of scope',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
   'push.destination-open': integrated(
@@ -294,10 +313,11 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canPush consumes targetProne and rejects push declarations against prone targets',
     PUSH_ACTION_LINES,
   ),
-  'push.not-building-target': unsupported(
+  'push.not-building-target': helperOnly(
     'push.not-building-target',
     'push',
-    'push restrictions do not model building/fuel-tank target rejection',
+    'canPush consumes targetObjectType and rejects building or fuel-tank targets as TargetBuilding',
+    'Runtime physical declarations and runner selection still target unit ids only, so building/fuel-tank push commands remain out of scope',
     PUSH_ACTION_LINES,
   ),
   'charge.requires-run': integrated(

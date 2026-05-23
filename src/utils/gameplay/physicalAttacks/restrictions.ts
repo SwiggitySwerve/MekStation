@@ -18,6 +18,14 @@ function blocked(
   return { allowed: false, reason, reasonCode };
 }
 
+const INVALID_PHYSICAL_TARGET_OBJECT_TYPES = new Set([
+  'buildingIgnite',
+  'hexClear',
+  'hexIgnite',
+]);
+
+const PUSH_BLOCKED_TARGET_OBJECT_TYPES = new Set(['building', 'fuelTank']);
+
 /**
  * Per `implement-physical-attack-phase` task 3.5: same limb (arm or leg)
  * SHALL NOT be used for both a kick and a punch in the same turn.
@@ -39,6 +47,16 @@ function sharedPhysicalTargetRestriction(
     return blocked(
       'Physical attacks require an existing target',
       'TargetMissing',
+    );
+  }
+
+  if (
+    input.targetObjectType &&
+    INVALID_PHYSICAL_TARGET_OBJECT_TYPES.has(input.targetObjectType)
+  ) {
+    return blocked(
+      'Physical attacks cannot target woods-clearing, building-ignition, or hex-ignition targets',
+      'InvalidPhysicalTarget',
     );
   }
 
@@ -542,6 +560,17 @@ export function canPush(
       allowed: false,
       reason: 'Cannot push with arms flipped to the rear',
       reasonCode: 'ArmsFlipped',
+    };
+  }
+
+  if (
+    input.targetObjectType &&
+    PUSH_BLOCKED_TARGET_OBJECT_TYPES.has(input.targetObjectType)
+  ) {
+    return {
+      allowed: false,
+      reason: 'Push cannot target buildings or fuel tanks',
+      reasonCode: 'TargetBuilding',
     };
   }
 

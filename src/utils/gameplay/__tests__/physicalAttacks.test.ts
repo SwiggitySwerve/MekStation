@@ -1492,6 +1492,110 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows invalid physical hex targets across supported attack families', () => {
+      const invalidHexTarget = {
+        targetObjectType: 'hexClear',
+        targetDistance: 1,
+      } satisfies Partial<IPhysicalAttackInput>;
+
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            ...invalidHexTarget,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'InvalidPhysicalTarget',
+      });
+    });
+
+    it('disallows push targets that are buildings or fuel tanks', () => {
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetObjectType: 'building',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetBuilding',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetObjectType: 'fuelTank',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetBuilding',
+      });
+    });
+
     it('disallows airborne physical targets across supported physical attack families', () => {
       expect(
         canPunch(
