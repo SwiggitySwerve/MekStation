@@ -18,7 +18,7 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 
 import type { TacticalAnimation } from '@/stores/useAnimationQueue';
-import type { IGameEvent, IUnitToken } from '@/types/gameplay';
+import type { IGameEvent, IHexCoordinate, IUnitToken } from '@/types/gameplay';
 
 import { useMovementTween } from '@/components/gameplay/animation/useMovementTween';
 import { hexToPixel } from '@/components/gameplay/HexMapDisplay/renderHelpers';
@@ -89,6 +89,94 @@ export interface UnitTokenForTypeProps {
  *  as LOS spotters for indirect fire. Tuned to fit just outside the typical
  *  token chrome at the standard `HEX_SIZE = 25` rendering scale. */
 const HEX_SPOTTER_RING_RADIUS = 22;
+
+type TokenWrapperMetadata = Record<string, string | number | undefined>;
+
+function formatTokenHex(hex: IHexCoordinate): string {
+  return `${hex.q},${hex.r}`;
+}
+
+function tokenTypeStateMetadata(token: IUnitToken): TokenWrapperMetadata {
+  switch (token.unitType) {
+    case TokenUnitType.Aerospace:
+      return {
+        'data-aerospace-altitude': token.altitude,
+        'data-aerospace-velocity': token.velocity,
+      };
+    case TokenUnitType.BattleArmor:
+      return {
+        'data-mounted-on': token.mountedOn,
+      };
+    case TokenUnitType.Vehicle:
+      return {
+        'data-vehicle-motion-type': token.vehicleMotionType,
+      };
+    default:
+      return {};
+  }
+}
+
+function tokenWrapperMetadata(
+  token: IUnitToken,
+  displayPosition: IHexCoordinate,
+  sourcePosition: IHexCoordinate = token.position,
+): TokenWrapperMetadata {
+  return {
+    'data-unit-type': token.unitType,
+    'data-token-map-position': formatTokenHex(displayPosition),
+    'data-token-source-position': formatTokenHex(sourcePosition),
+    'data-token-facing': token.facing,
+    ...tokenTypeStateMetadata(token),
+  };
+}
+
+function tokenTypeLabelParts(token: IUnitToken): readonly string[] {
+  switch (token.unitType) {
+    case TokenUnitType.Aerospace: {
+      const parts = [`altitude ${token.altitude}`];
+      if (token.velocity !== undefined)
+        parts.push(`velocity ${token.velocity}`);
+      return parts;
+    }
+    case TokenUnitType.BattleArmor:
+      return token.mountedOn ? [`mounted on ${token.mountedOn}`] : [];
+    case TokenUnitType.Vehicle:
+      return token.vehicleMotionType
+        ? [`motion ${token.vehicleMotionType}`]
+        : [];
+    default:
+      return [];
+  }
+}
+
+function formatTokenAriaLabel({
+  token,
+  displayPosition,
+  sourcePosition = token.position,
+  isSpotter,
+  isometricVisibilityLabel,
+}: {
+  readonly token: IUnitToken;
+  readonly displayPosition: IHexCoordinate;
+  readonly sourcePosition?: IHexCoordinate;
+  readonly isSpotter: boolean;
+  readonly isometricVisibilityLabel: string;
+}): string {
+  return [
+    `Unit ${token.name}`,
+    `id ${token.unitId}`,
+    `side ${token.side}`,
+    `type ${token.unitType}`,
+    `position ${formatTokenHex(displayPosition)}`,
+    `source position ${formatTokenHex(sourcePosition)}`,
+    `facing ${token.facing}`,
+    ...tokenTypeLabelParts(token),
+    isSpotter ? 'indirect-fire spotter' : null,
+    isometricVisibilityLabel || null,
+  ]
+    .filter((part): part is string => Boolean(part))
+    .join('; ');
+}
 
 // =============================================================================
 // Dispatcher Component
@@ -177,6 +265,13 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     const hostToken = allTokens?.find((t) => t.unitId === token.mountedOn);
     if (hostToken) {
       const { x, y } = hexToPixel(hostToken.position);
+      const mountedTokenAriaLabel = formatTokenAriaLabel({
+        token,
+        displayPosition: hostToken.position,
+        sourcePosition: token.position,
+        isSpotter,
+        isometricVisibilityLabel: '',
+      });
       // Badge is offset to the top-right of the host mech token.
       return (
         <g
@@ -188,7 +283,10 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
           onDoubleClick={handleDoubleClick}
           style={{ cursor: 'pointer' }}
           data-testid={`unit-token-${token.unitId}`}
+          aria-label={mountedTokenAriaLabel}
+          {...tokenWrapperMetadata(token, hostToken.position, token.position)}
         >
+          <title>{mountedTokenAriaLabel}</title>
           <BattleArmorToken
             token={token}
             eventState={eventState}
@@ -236,15 +334,13 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   ]
     .filter((part): part is string => Boolean(part))
     .join('; ');
-  const tokenAriaLabel = [
-    `Unit ${renderToken.name}`,
-    `id ${renderToken.unitId}`,
-    `side ${renderToken.side}`,
-    isSpotter ? 'indirect-fire spotter' : null,
-    isometricVisibilityLabel || null,
-  ]
-    .filter((part): part is string => Boolean(part))
-    .join('; ');
+  const tokenAriaLabel = formatTokenAriaLabel({
+    token: renderToken,
+    displayPosition,
+    sourcePosition: token.position,
+    isSpotter,
+    isometricVisibilityLabel,
+  });
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -266,6 +362,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     'data-isometric-visibility-rule': isometricVisibilityRule,
     'data-isometric-visibility-rule-reason': isometricVisibilityRuleReason,
     'aria-label': tokenAriaLabel,
+    ...tokenWrapperMetadata(renderToken, displayPosition, token.position),
   };
 
   const jumpArc = renderJumpArc(token.unitId, movementAnimation, tween);

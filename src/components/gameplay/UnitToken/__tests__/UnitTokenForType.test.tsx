@@ -96,7 +96,20 @@ describe('UnitTokenForType dispatcher routing', () => {
   it('renders a <g> with data-testid="unit-token-unit-1" for any token', () => {
     const token = makeToken({ unitType: TokenUnitType.Mech });
     renderInSvg(<UnitTokenForType token={token} onClick={noop} />);
-    expect(screen.getByTestId('unit-token-unit-1')).toBeInTheDocument();
+    const wrapper = screen.getByTestId('unit-token-unit-1');
+    expect(wrapper).toBeInTheDocument();
+    expect(wrapper).toHaveAttribute('data-unit-type', TokenUnitType.Mech);
+    expect(wrapper).toHaveAttribute('data-token-map-position', '0,0');
+    expect(wrapper).toHaveAttribute('data-token-source-position', '0,0');
+    expect(wrapper).toHaveAttribute('data-token-facing', `${Facing.North}`);
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('type mech'),
+    );
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('position 0,0'),
+    );
   });
 
   it('renders a hidden-contact marker for fogged tokens', () => {
@@ -127,6 +140,14 @@ describe('UnitTokenForType dispatcher routing', () => {
     expect(
       screen.getByTestId('unit-token-unit-1').getAttribute('transform'),
     ).toContain('translate(60');
+    expect(screen.getByTestId('unit-token-unit-1')).toHaveAttribute(
+      'data-token-map-position',
+      '1,0',
+    );
+    expect(screen.getByTestId('unit-token-unit-1')).toHaveAttribute(
+      'data-token-source-position',
+      '0,0',
+    );
     expect(screen.getByTestId('fog-marker-unit-1')).toBeInTheDocument();
   });
 
@@ -159,6 +180,17 @@ describe('UnitTokenForType dispatcher routing', () => {
       (el) => el.textContent,
     );
     expect(texts.some((t) => t?.includes('3'))).toBe(true);
+    expect(wrapper).toHaveAttribute('data-unit-type', TokenUnitType.Aerospace);
+    expect(wrapper).toHaveAttribute('data-aerospace-altitude', '3');
+    expect(wrapper).toHaveAttribute('data-aerospace-velocity', '5');
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('altitude 3'),
+    );
+    expect(wrapper).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('velocity 5'),
+    );
   });
 
   it('Infantry → renders trooper-count label text', () => {
@@ -222,6 +254,7 @@ describe('BattleArmor mounted-on-mech badge', () => {
       unitId: 'ba-1',
       unitType: TokenUnitType.BattleArmor,
       mountedOn: 'mech-host',
+      position: { q: 2, r: 0 },
       trooperCount: 4,
     });
 
@@ -242,6 +275,26 @@ describe('BattleArmor mounted-on-mech badge', () => {
 
     // Badge variant renders inside unit-token-ba-1 with data-testid="ba-badge-ba-1".
     expect(screen.getByTestId('ba-badge-ba-1')).toBeInTheDocument();
+    expect(screen.getByTestId('unit-token-ba-1')).toHaveAttribute(
+      'data-unit-type',
+      TokenUnitType.BattleArmor,
+    );
+    expect(screen.getByTestId('unit-token-ba-1')).toHaveAttribute(
+      'data-mounted-on',
+      'mech-host',
+    );
+    expect(screen.getByTestId('unit-token-ba-1')).toHaveAttribute(
+      'data-token-map-position',
+      '0,0',
+    );
+    expect(screen.getByTestId('unit-token-ba-1')).toHaveAttribute(
+      'data-token-source-position',
+      '2,0',
+    );
+    expect(screen.getByTestId('unit-token-ba-1')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('mounted on mech-host'),
+    );
   });
 
   it('BA without host token falls back to standalone rendering', () => {
