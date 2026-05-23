@@ -299,6 +299,38 @@ export function applyDesignatorMarkerApplied(
     return state;
   }
 
+  if (payload.marker === 'inarc') {
+    const podType = payload.podType ?? 'homing';
+    const iNarcPods = target.iNarcPods ?? [];
+    if (
+      iNarcPods.some(
+        (pod) => pod.teamId === payload.teamId && pod.podType === podType,
+      )
+    ) {
+      return state;
+    }
+
+    return {
+      ...state,
+      units: {
+        ...state.units,
+        [payload.targetId]: {
+          ...target,
+          iNarcPods: [
+            ...iNarcPods,
+            {
+              teamId: payload.teamId,
+              podType,
+              ...(payload.location !== undefined
+                ? { location: payload.location }
+                : {}),
+            },
+          ],
+        },
+      },
+    };
+  }
+
   const narcedBy = target.narcedBy ?? [];
   if (narcedBy.includes(payload.teamId)) {
     return state;

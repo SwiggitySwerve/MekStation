@@ -122,8 +122,8 @@ export enum GameEventType {
   AmmoConsumed = 'ammo_consumed',
   AMSInterception = 'ams_interception',
   /**
-   * A zero-damage designator hit changed target marker state. NARC markers
-   * persist on the target; TAG designations are transient turn state.
+   * A zero-damage designator hit changed target marker state. NARC and
+   * iNARC markers persist on the target; TAG designations are transient.
    */
   DesignatorMarkerApplied = 'designator_marker_applied',
   /**

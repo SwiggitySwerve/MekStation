@@ -3,6 +3,7 @@ import {
   GamePhase,
   IGameEvent,
   IGameState,
+  type IINarcPodState,
 } from '@/types/gameplay';
 import { isNarc, isTAG } from '@/utils/gameplay/specialWeaponMechanics';
 
@@ -13,6 +14,12 @@ import { weaponTypeFromMountId } from './weaponAttackHelpers';
 
 export function isNarcBeaconWeapon(weapon: IWeapon): boolean {
   return isNarc(weaponTypeFromMountId(weapon.id)) || isNarc(weapon.name);
+}
+
+export function isINarcBeaconWeapon(weapon: IWeapon): boolean {
+  const text =
+    `${weaponTypeFromMountId(weapon.id)} ${weapon.name}`.toLowerCase();
+  return /\bi[-\s]?narc\b/.test(text) || text.includes('inarc');
 }
 
 export function isTagDesignatorWeapon(weapon: IWeapon): boolean {
@@ -38,6 +45,63 @@ export function markTargetNarcedBy(options: {
       [targetId]: {
         ...target,
         narcedBy: [...narcedBy, attackerTeamId],
+      },
+    },
+  };
+}
+
+export function iNarcHomingTeams(
+  unit: IGameState['units'][string] | undefined,
+): readonly string[] {
+  if (!unit) return [];
+  const homingPodTeams = (unit.iNarcPods ?? [])
+    .filter((pod) => pod.podType === 'homing')
+    .map((pod) => pod.teamId);
+
+  const legacyTeams =
+    (unit as unknown as { iNarcMarkedByTeams?: readonly string[] })
+      .iNarcMarkedByTeams ?? [];
+
+  const teams: string[] = [];
+  for (const teamId of [...homingPodTeams, ...legacyTeams]) {
+    if (!teams.includes(teamId)) {
+      teams.push(teamId);
+    }
+  }
+
+  return teams;
+}
+
+export function markTargetINarcPod(options: {
+  currentState: IGameState;
+  targetId: string;
+  attackerTeamId: string | undefined;
+  location?: string;
+  podType: IINarcPodState['podType'];
+}): IGameState {
+  const { attackerTeamId, location, podType, targetId } = options;
+  const target = options.currentState.units[targetId];
+  if (!target || !attackerTeamId) return options.currentState;
+
+  const iNarcPods = target.iNarcPods ?? [];
+  const alreadyAttached = iNarcPods.some(
+    (pod) => pod.teamId === attackerTeamId && pod.podType === podType,
+  );
+  if (alreadyAttached) return options.currentState;
+
+  const pod: IINarcPodState = {
+    teamId: attackerTeamId,
+    podType,
+    ...(location !== undefined ? { location } : {}),
+  };
+
+  return {
+    ...options.currentState,
+    units: {
+      ...options.currentState.units,
+      [targetId]: {
+        ...target,
+        iNarcPods: [...iNarcPods, pod],
       },
     },
   };
@@ -69,7 +133,8 @@ export function emitDesignatorMarkerApplied(options: {
   unitId: string;
   targetId: string;
   weaponId: string;
-  marker: 'narc' | 'tag';
+  marker: 'inarc' | 'narc' | 'tag';
+  podType?: IINarcPodState['podType'];
   persistent: boolean;
   location?: string;
   teamId?: string;
@@ -80,6 +145,7 @@ export function emitDesignatorMarkerApplied(options: {
     location,
     marker,
     persistent,
+    podType,
     targetId,
     teamId,
     turn,
@@ -99,6 +165,7 @@ export function emitDesignatorMarkerApplied(options: {
         targetId,
         weaponId,
         marker,
+        ...(podType !== undefined ? { podType } : {}),
         persistent,
         turn,
         ...(location !== undefined ? { location } : {}),

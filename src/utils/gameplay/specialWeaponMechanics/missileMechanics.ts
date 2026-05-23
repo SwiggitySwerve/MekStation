@@ -4,7 +4,7 @@
  * Implements BattleTech missile weapon resolution:
  * - LB-X: slug (standard) vs cluster (cluster table, -1 to-hit) modes
  * - Artemis IV/prototype IV/V: +2/+1/+3 cluster table roll bonus
- * - Narc/iNarc: +2 cluster table roll bonus for missiles vs marked target
+ * - Narc/iNarc: +2 cluster table roll bonus for NARC-compatible missiles vs marked target
  * - MRM: -1 cluster column modifier
  * - Streak SRM: All-or-nothing (verification)
  *
@@ -45,6 +45,17 @@ export function isArtemisCompatibleMissileWeapon(weaponId: string): boolean {
   const id = weaponId.toLowerCase();
   if (id.includes('streak')) return false;
   return id.includes('lrm') || id.includes('srm') || id.includes('mml');
+}
+
+export function isNarcCompatibleMissileWeapon(weaponId: string): boolean {
+  const id = weaponId.toLowerCase();
+  if (id.includes('streak')) return false;
+  return (
+    id.includes('lrm') ||
+    id.includes('srm') ||
+    id.includes('mml') ||
+    id.includes('nlrm')
+  );
 }
 
 export function isMRM(weaponId: string): boolean {
@@ -181,11 +192,12 @@ export function getArtemisVBonus(
 
 /**
  * Calculate Narc beacon cluster table bonus.
- * +2 to cluster hit table roll for missile attacks against narced target.
+ * +2 to cluster hit table roll for NARC-compatible missile attacks against narced target.
  * Nullified by enemy ECM.
  */
 export function getNarcBonus(targetStatus: ITargetStatusFlags): number {
   if (!targetStatus.narcedTarget) return 0;
+  if (targetStatus.isIndirectFire) return 0;
   if (targetStatus.ecmProtected) return 0; // ECM nullifies Narc
   return 2;
 }
@@ -243,7 +255,9 @@ export function calculateClusterModifiers(
         ? getArtemisIVBonus(equipment, targetStatus)
         : getPrototypeArtemisIVBonus(equipment, targetStatus)
     : 0;
-  const narcBonus = isMissileWeapon(weaponId) ? getNarcBonus(targetStatus) : 0;
+  const narcBonus = isNarcCompatibleMissileWeapon(weaponId)
+    ? getNarcBonus(targetStatus)
+    : 0;
   const clusterHitterBonus = clusterHitterSPA ? 1 : 0;
   const mrmPenalty = getMRMClusterModifier(weaponId);
   const semiGuidedBonus = getSemiGuidedLRMBonus(equipment, targetStatus);

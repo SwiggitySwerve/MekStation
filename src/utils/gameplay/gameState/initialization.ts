@@ -292,6 +292,7 @@ export function createInitialUnitState(
     weaponsFiredThisTurn: [],
     jammedWeapons: [],
     narcedBy: [],
+    iNarcPods: [],
     tagDesignated: false,
     // Retreat fields (per `add-bot-retreat-behavior` § 1.2): explicit
     // defaults so replayed states always observe the same shape as

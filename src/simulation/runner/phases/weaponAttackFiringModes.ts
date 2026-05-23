@@ -37,6 +37,7 @@ export interface IResolvedShotWeapon {
 export interface IMissileClusterModifierContext {
   readonly attackerTeamId?: string;
   readonly targetNarcedBy?: readonly string[];
+  readonly targetINarcedBy?: readonly string[];
   readonly targetTagDesignated?: boolean;
   readonly targetEcmProtected?: boolean;
   readonly hasArtemisIV?: boolean;
@@ -299,9 +300,12 @@ function missileClusterModifier(options: {
 }): number {
   const { context, weapon } = options;
   const targetNarcedBy = context?.targetNarcedBy ?? [];
+  const targetINarcedBy = context?.targetINarcedBy ?? [];
   const attackerTeamId = context?.attackerTeamId;
   const narcedTarget =
-    attackerTeamId !== undefined && targetNarcedBy.includes(attackerTeamId);
+    attackerTeamId !== undefined &&
+    (targetNarcedBy.includes(attackerTeamId) ||
+      targetINarcedBy.includes(attackerTeamId));
 
   return calculateClusterModifiers(
     weaponTypeFromMountId(weapon.id),

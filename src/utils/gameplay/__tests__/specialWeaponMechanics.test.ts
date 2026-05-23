@@ -24,6 +24,7 @@ import {
   isLBXAC,
   isMissileWeapon,
   isMRM,
+  isNarcCompatibleMissileWeapon,
   isStreakSRM,
   isAMS,
   isTAG,
@@ -531,6 +532,15 @@ describe('Special Weapon Mechanics', () => {
 
       expect(getNarcBonus(target)).toBe(0);
     });
+
+    it('should not apply the cluster bonus during indirect fire', () => {
+      const target: ITargetStatusFlags = {
+        narcedTarget: true,
+        isIndirectFire: true,
+      };
+
+      expect(getNarcBonus(target)).toBe(0);
+    });
   });
 
   // =========================================================================
@@ -636,6 +646,17 @@ describe('Special Weapon Mechanics', () => {
       expect(mods.total).toBe(-1);
     });
 
+    it('should not apply NARC guidance to non-NARC-compatible MRM launchers', () => {
+      const equipment: IWeaponEquipmentFlags = {};
+      const target: ITargetStatusFlags = { narcedTarget: true };
+
+      const mods = calculateClusterModifiers('mrm-20', equipment, target);
+
+      expect(mods.narcBonus).toBe(0);
+      expect(mods.mrmPenalty).toBe(-1);
+      expect(mods.total).toBe(-1);
+    });
+
     it('should apply prototype Artemis IV as a +1 cluster-table modifier', () => {
       const equipment: IWeaponEquipmentFlags = {
         hasPrototypeArtemisIV: true,
@@ -737,6 +758,16 @@ describe('Special Weapon Mechanics', () => {
       expect(isMissileWeapon('mrm-20')).toBe(true);
       expect(isMissileWeapon('atm-6')).toBe(true);
       expect(isMissileWeapon('ac-10')).toBe(false);
+    });
+
+    it('should detect NARC-compatible missile weapons separately from generic missiles', () => {
+      expect(isNarcCompatibleMissileWeapon('lrm-10')).toBe(true);
+      expect(isNarcCompatibleMissileWeapon('srm-4')).toBe(true);
+      expect(isNarcCompatibleMissileWeapon('mml-9')).toBe(true);
+      expect(isNarcCompatibleMissileWeapon('nlrm-10')).toBe(true);
+      expect(isNarcCompatibleMissileWeapon('mrm-20')).toBe(false);
+      expect(isNarcCompatibleMissileWeapon('atm-6')).toBe(false);
+      expect(isNarcCompatibleMissileWeapon('streak-srm-6')).toBe(false);
     });
 
     it('should detect MRM weapons', () => {

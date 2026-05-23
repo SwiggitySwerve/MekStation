@@ -180,7 +180,8 @@ export interface IDesignatorMarkerAppliedPayload {
   readonly attackerId: string;
   readonly targetId: string;
   readonly weaponId: string;
-  readonly marker: 'narc' | 'tag';
+  readonly marker: 'inarc' | 'narc' | 'tag';
+  readonly podType?: 'homing' | 'ecm' | 'haywire' | 'nemesis';
   readonly persistent: boolean;
   readonly turn: number;
   readonly location?: string;

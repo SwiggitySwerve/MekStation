@@ -127,8 +127,8 @@ export function computeIndirectFireContext(
   }
 
   // Derive NARC/iNarc beacon flags for the target unit (§3). NARC uses the
-  // canonical `narcedBy` state field; legacy arrays stay as a compatibility
-  // fallback until older indirect-fire fixtures are retired.
+  // canonical `narcedBy` state field; iNARC uses Homing pods from `iNarcPods`.
+  // Legacy arrays stay as compatibility fallbacks until older fixtures retire.
   const targetUnit = targetEntityId
     ? gameState.units[targetEntityId]
     : undefined;
@@ -140,10 +140,17 @@ export function computeIndirectFireContext(
     ...(targetUnit?.narcedBy ?? []),
     ...legacyNarcMarkedByTeams,
   ];
+  const canonicalINarcMarkedByTeams =
+    targetUnit?.iNarcPods
+      ?.filter((pod) => pod.podType === 'homing')
+      .map((pod) => pod.teamId) ?? [];
   const inarcMarkedByTeams: readonly string[] =
     targetUnitAny?.iNarcMarkedByTeams ?? [];
   const targetNarcMarkedByTeam = narcMarkedByTeams.includes(attackerTeamId);
-  const targetINarcMarkedByTeam = inarcMarkedByTeams.includes(attackerTeamId);
+  const targetINarcMarkedByTeam = [
+    ...canonicalINarcMarkedByTeams,
+    ...inarcMarkedByTeams,
+  ].includes(attackerTeamId);
 
   // Delegate to the pure helper — it handles eligibility, LOS per spotter,
   // spotter-election tiebreak, NARC/iNarc override, and penalty arithmetic.

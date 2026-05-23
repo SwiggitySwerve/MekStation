@@ -114,7 +114,7 @@ export interface IClusterModifiers {
 
 /** Target status flags affecting weapon resolution */
 export interface ITargetStatusFlags {
-  /** Target has a Narc beacon attached */
+  /** Target has a NARC or iNARC Homing beacon attached */
   readonly narcedTarget?: boolean;
   /** Target is TAG-designated this turn */
   readonly tagDesignated?: boolean;

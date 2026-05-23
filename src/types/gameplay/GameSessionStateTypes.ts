@@ -78,6 +78,17 @@ export interface IAmmoSlotState {
   readonly isExplosive: boolean;
 }
 
+export type INarcPodType = 'homing' | 'ecm' | 'haywire' | 'nemesis';
+
+export interface IINarcPodState {
+  /** Team that attached this iNARC pod. */
+  readonly teamId: string;
+  /** Source-backed iNARC pod type. Homing is the guidance pod. */
+  readonly podType: INarcPodType;
+  /** Hit location the pod attached to, when known. */
+  readonly location?: string;
+}
+
 /**
  * A pending Piloting Skill Roll that must be resolved.
  */
@@ -319,6 +330,8 @@ export interface IUnitGameState {
   readonly jammedWeapons?: readonly string[];
   /** Target has Narc beacon attached */
   readonly narcedBy?: readonly string[];
+  /** Target has iNARC pods attached. Only Homing is currently resolved. */
+  readonly iNarcPods?: readonly IINarcPodState[];
   /** Target is TAG-designated this turn */
   readonly tagDesignated?: boolean;
   /**

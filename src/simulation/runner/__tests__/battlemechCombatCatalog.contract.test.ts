@@ -720,6 +720,9 @@ describe('BattleMech combat catalog validation lane', () => {
       'artemis-ecm-suite-hydration',
       'artemis-ecm-suppression',
       'artemis-stealth-suppression',
+      'inarc-homing-cluster-modifier',
+      'inarc-homing-marker-attachment',
+      'inarc-homing-to-hit-modifier',
       'lbx-cluster-to-hit',
       'lbx-slug-cluster-modes',
       'mml-srm-lrm-ammo-compatibility',
@@ -727,6 +730,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'mml-variable-damage',
       'narc-cluster-modifier',
       'narc-marker-attachment',
+      'narc-marker-lifecycle-events',
       'rac-jam-on-natural-two',
       'rac-rate-of-fire',
       'streak-lock-no-spend-on-miss',
@@ -749,7 +753,7 @@ describe('BattleMech combat catalog validation lane', () => {
     ).toEqual(expect.stringContaining('indirect-fire state'));
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['inarc-pod-variants', 'narc-marker-lifecycle-events']);
+    ).toEqual(['inarc-pod-variants']);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'unsupported'),
     ).toEqual([]);
@@ -1022,6 +1026,17 @@ describe('BattleMech combat catalog validation lane', () => {
       'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
     ]);
     expect(
+      sourceRefsFor('inarc-homing-to-hit-modifier').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'Entity.isINarcedBy returns true only for Homing iNarc pods from the firing team.',
+      'ComputeToHit marks NARC-capable LRM/SRM/MML attacks as iNarc-guided when the target carries a Homing iNarc pod and target ECM does not suppress it.',
+      'ComputeToHit applies the -1 iNarc Homing to-hit modifier to iNarc-guided missile attacks.',
+      'MissileWeaponHandler applies the NARC cluster modifier to direct NARC-capable missiles when the target is NARCed or iNARC Homing-marked and target ECM does not suppress it.',
+    ]);
+    expect(
       sourceRefsFor('tag-designation-hit').map(({ citation }) => citation),
     ).toEqual([
       'TAGHandler creates TagInfo, tags the target entity, and marks the attacker as spotting for indirect fire.',
@@ -1036,6 +1051,9 @@ describe('BattleMech combat catalog validation lane', () => {
     const refs = [
       ...sourceRefsFor('narc-marker-attachment'),
       ...sourceRefsFor('inarc-pod-variants'),
+      ...sourceRefsFor('inarc-homing-marker-attachment'),
+      ...sourceRefsFor('inarc-homing-cluster-modifier'),
+      ...sourceRefsFor('inarc-homing-to-hit-modifier'),
       ...sourceRefsFor('tag-designation-hit'),
       ...sourceRefsFor('tag-turn-lifecycle-clear'),
       ...sourceRefsFor('tag-marker-lifecycle-events'),

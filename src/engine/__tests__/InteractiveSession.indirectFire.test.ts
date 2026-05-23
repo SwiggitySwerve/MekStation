@@ -326,8 +326,13 @@ describe('computeIndirectFireContext', () => {
     const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
     const targetUnit = makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 });
     (
-      targetUnit as unknown as { iNarcMarkedByTeams: string[] }
-    ).iNarcMarkedByTeams = [GameSide.Player as string];
+      targetUnit as unknown as { iNarcPods: typeof targetUnit.iNarcPods }
+    ).iNarcPods = [
+      {
+        teamId: GameSide.Player,
+        podType: 'homing',
+      },
+    ];
 
     const result = computeIndirectFireContext(
       'a1',

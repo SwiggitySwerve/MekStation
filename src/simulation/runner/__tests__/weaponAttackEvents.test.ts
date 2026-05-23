@@ -226,6 +226,21 @@ function createNarcBeacon(id = 'narc-0'): IWeapon {
   };
 }
 
+function createINarcBeacon(id = 'inarc-0'): IWeapon {
+  return {
+    id,
+    name: 'iNARC Launcher',
+    shortRange: 4,
+    mediumRange: 8,
+    longRange: 12,
+    damage: 0,
+    heat: 0,
+    minRange: 0,
+    ammoPerTon: 4,
+    destroyed: false,
+  };
+}
+
 function createTAGDesignator(id = 'tag-0'): IWeapon {
   return {
     id,
@@ -1234,6 +1249,60 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       });
     });
 
+    it('iNARC homing pod hits attach variant marker state without standard NARC state', () => {
+      const weapon = createINarcBeacon();
+      const ammoBin = createAmmoBin({
+        weaponType: 'inarc',
+        remainingRounds: 2,
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [weapon],
+        attackerStateOverride: {
+          gunnery: 2,
+          ammoState: { [ammoBin.binId]: ammoBin },
+        },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(weapon.id),
+      });
+
+      const resolved = result.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const markerApplied = result.events.find(
+        (event) => event.type === GameEventType.DesignatorMarkerApplied,
+      ) as
+        | (IGameEvent & { payload: IDesignatorMarkerAppliedPayload })
+        | undefined;
+
+      expect(resolved.payload).toMatchObject({
+        hit: true,
+        damage: 0,
+        heat: 0,
+      });
+      expect(markerApplied?.payload).toMatchObject({
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: weapon.id,
+        marker: 'inarc',
+        podType: 'homing',
+        persistent: true,
+        teamId: GameSide.Player,
+      });
+      expect(result.state.units['opponent-1'].iNarcPods).toEqual([
+        expect.objectContaining({
+          teamId: GameSide.Player,
+          podType: 'homing',
+        }),
+      ]);
+      expect(result.state.units['opponent-1'].narcedBy).toBeUndefined();
+    });
+
     it('TAG hits designate the target without applying damage', () => {
       const weapon = createTAGDesignator();
       const { state, weaponsByUnit } = buildScenario({
@@ -1322,6 +1391,146 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       });
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.evidence).toContain(
         'cluster',
+      );
+    });
+
+    it('iNARC homing pods drive source-backed missile guidance without using narcedBy', () => {
+      const lrm = createLRM10();
+      const inarced = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          attackerTeamId: GameSide.Player,
+          targetINarcedBy: [GameSide.Player],
+        },
+      });
+      const indirectINarced = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          attackerTeamId: GameSide.Player,
+          targetINarcedBy: [GameSide.Player],
+          isIndirectFire: true,
+        },
+      });
+      const mrm = createMRM10();
+      const mrmWithoutGuidance = resolveSpecialProjectileHit({
+        baseWeapon: mrm,
+        shotWeapon: mrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+      });
+      const mrmWithINarcPod = resolveSpecialProjectileHit({
+        baseWeapon: mrm,
+        shotWeapon: mrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          attackerTeamId: GameSide.Player,
+          targetINarcedBy: [GameSide.Player],
+        },
+      });
+
+      expect(inarced).toMatchObject({
+        projectileCount: 8,
+        weapon: { damage: 8 },
+      });
+      expect(indirectINarced).toMatchObject({
+        projectileCount: 6,
+        weapon: { damage: 6 },
+      });
+      expect(mrmWithINarcPod).toMatchObject(mrmWithoutGuidance);
+    });
+
+    it('iNARC homing pods apply the source-backed missile to-hit bonus', () => {
+      const lrm = createLRM10();
+      const baseline = buildScenario({
+        attackerWeapons: [lrm],
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [lrm],
+        targetStateOverride: {
+          iNarcPods: [{ teamId: GameSide.Player, podType: 'homing' }],
+        },
+      });
+
+      const baselineResult = runPhaseWithResult({
+        state: baseline.state,
+        weaponsByUnit: baseline.weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(lrm.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+
+      const declared = result.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const baselineDeclared = baselineResult.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+
+      expect(declared.payload.toHitNumber).toBe(
+        baselineDeclared.payload.toHitNumber - 1,
+      );
+      expect(declared.payload.modifiers).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'iNARC Homing',
+            value: -1,
+            source: 'equipment',
+          }),
+        ]),
+      );
+    });
+
+    it('iNARC homing pods do not guide non-NARC-compatible MRM launchers', () => {
+      const mrm = createMRM10();
+      const baseline = buildScenario({
+        attackerWeapons: [mrm],
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [mrm],
+        targetStateOverride: {
+          iNarcPods: [{ teamId: GameSide.Player, podType: 'homing' }],
+        },
+      });
+
+      const baselineResult = runPhaseWithResult({
+        state: baseline.state,
+        weaponsByUnit: baseline.weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(mrm.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(mrm.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+
+      const declared = result.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const baselineDeclared = baselineResult.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+
+      expect(declared.payload.toHitNumber).toBe(
+        baselineDeclared.payload.toHitNumber,
+      );
+      expect(declared.payload.modifiers).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: 'iNARC Homing' }),
+        ]),
       );
     });
 

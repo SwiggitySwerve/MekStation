@@ -9,6 +9,7 @@ import {
   IGameEvent,
   IGameState,
   IHexGrid,
+  IToHitModifier,
   ISecondaryTarget,
   ITargetState,
   RangeBracket,
@@ -23,7 +24,10 @@ import { calculateEnvironmentalModifiers } from '@/utils/gameplay/environmentalM
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import { getClusterHitterBonus } from '@/utils/gameplay/spaModifiers';
-import { isMissileWeapon } from '@/utils/gameplay/specialWeaponMechanics';
+import {
+  isMissileWeapon,
+  isNarcCompatibleMissileWeapon,
+} from '@/utils/gameplay/specialWeaponMechanics';
 import { hexProvidesPartialCover } from '@/utils/gameplay/terrainCover';
 import {
   buildWeaponAttackAttackerToHitState,
@@ -45,6 +49,7 @@ import {
   toAIUnitState,
 } from '../SimulationRunnerSupport';
 import { createD6Roller, createGameEvent } from './utils';
+import { iNarcHomingTeams } from './weaponAttackDesignatorMarkers';
 import {
   expandSelectedModeIntoShots,
   getSelectedFiringMode,
@@ -108,6 +113,31 @@ function isAttackerStealthArmorActive(
         suite.entityId.startsWith(`${attacker.id}:`)) &&
       hexDistance(attacker.position, suite.position) <= ECM_RADIUS,
   );
+}
+
+function iNarcHomingToHitModifier(options: {
+  attackerTeamId?: string;
+  targetINarcedBy: readonly string[];
+  targetEcmProtected?: boolean;
+  weapon: IWeapon;
+}): IToHitModifier | null {
+  const { attackerTeamId, targetEcmProtected, targetINarcedBy, weapon } =
+    options;
+  if (attackerTeamId === undefined) return null;
+  if (targetEcmProtected === true) return null;
+  if (!targetINarcedBy.includes(attackerTeamId)) return null;
+  if (
+    !isNarcCompatibleMissileWeapon(weapon.id) &&
+    !isNarcCompatibleMissileWeapon(weapon.name)
+  ) {
+    return null;
+  }
+
+  return {
+    name: 'iNARC Homing',
+    value: -1,
+    source: 'equipment',
+  };
 }
 
 function selectPrimaryWeaponAttackTargetId(
@@ -598,6 +628,23 @@ export function runAttackPhase(options: {
         indirectFireResolution.isIndirect
           ? indirectFireResolution.toHitPenalty
           : 0;
+      const targetEcmProtected = currentState.electronicWarfare
+        ? getECMProtectedFlag(
+            attackerNow.position,
+            attackerNow.side as string,
+            unitId,
+            targetNow.position,
+            targetNow.side as string,
+            targetId,
+            currentState.electronicWarfare,
+          )
+        : undefined;
+      const iNarcHomingModifier = iNarcHomingToHitModifier({
+        attackerTeamId: attackerNow.side as string,
+        targetINarcedBy: iNarcHomingTeams(targetNow),
+        targetEcmProtected,
+        weapon: baseWeapon,
+      });
       const modeToHitModifier = selectedModeToHitModifier(
         baseWeapon,
         selectedMode,
@@ -605,7 +652,8 @@ export function runAttackPhase(options: {
       const adjustedToHit =
         toHitCalc.finalToHit +
         indirectFirePenalty +
-        (modeToHitModifier?.value ?? 0);
+        (modeToHitModifier?.value ?? 0) +
+        (iNarcHomingModifier?.value ?? 0);
 
       const firingArc = calculateFiringArc(
         attackerNow.position,
@@ -633,6 +681,10 @@ export function runAttackPhase(options: {
         modeToHitModifier !== null
           ? [...declaredModifiers, modeToHitModifier]
           : declaredModifiers;
+      const guidanceAdjustedModifiers =
+        iNarcHomingModifier !== null
+          ? [...modeAdjustedModifiers, iNarcHomingModifier]
+          : modeAdjustedModifiers;
       const interveningTerrainModifier =
         calculateInterveningTerrainToHitModifier(grid, lineOfSight.losResult);
       const targetTerrainModifier = calculateTargetTerrainToHitModifier(
@@ -644,7 +696,7 @@ export function runAttackPhase(options: {
         (targetTerrainModifier?.value ?? 0) +
         (interveningTerrainModifier?.value ?? 0);
       const finalDeclaredModifiers = [
-        ...modeAdjustedModifiers,
+        ...guidanceAdjustedModifiers,
         ...(targetTerrainModifier ? [targetTerrainModifier] : []),
         ...(interveningTerrainModifier ? [interveningTerrainModifier] : []),
       ];
@@ -925,6 +977,7 @@ export function runAttackPhase(options: {
               indirectFireResolution?.permitted === true &&
               indirectFireResolution.isIndirect,
             targetNarcedBy: targetBeforeShot.narcedBy,
+            targetINarcedBy: iNarcHomingTeams(targetBeforeShot),
             targetTagDesignated: targetBeforeShot.tagDesignated,
             targetEcmProtected,
             isSemiGuided: isSemiGuidedAmmoSelectedForWeapon(

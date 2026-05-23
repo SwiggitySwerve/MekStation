@@ -26,8 +26,10 @@ import { applyCritAmmoExplosions } from './weaponAttackAmmoExplosions';
 import {
   emitDesignatorMarkerApplied,
   emitZeroDamageDesignatorHit,
+  isINarcBeaconWeapon,
   isNarcBeaconWeapon,
   isTagDesignatorWeapon,
+  markTargetINarcPod,
   markTargetNarcedBy,
   markTargetTagDesignated,
 } from './weaponAttackDesignatorMarkers';
@@ -158,6 +160,64 @@ export function resolveWeaponHit(options: {
       toHitNumber,
       firingArc,
     });
+    return consumeWeaponAmmo({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      weapon,
+      ammoWeaponType,
+    });
+  }
+
+  if (isINarcBeaconWeapon(weapon)) {
+    const attackerTeamId = currentState.units[unitId]?.side as
+      | string
+      | undefined;
+    const wasAlreadyINarced =
+      attackerTeamId !== undefined &&
+      (currentState.units[targetId].iNarcPods ?? []).some(
+        (pod) => pod.teamId === attackerTeamId && pod.podType === 'homing',
+      );
+    currentState = markTargetINarcPod({
+      currentState,
+      targetId,
+      attackerTeamId,
+      location,
+      podType: 'homing',
+    });
+
+    emitZeroDamageDesignatorHit({
+      events,
+      gameId,
+      turn: currentState.turn,
+      unitId,
+      targetId,
+      weaponId,
+      attackRoll,
+      toHitNumber,
+      location,
+      weapon,
+      projectileCount,
+      firingArc,
+    });
+
+    if (!wasAlreadyINarced && attackerTeamId !== undefined) {
+      emitDesignatorMarkerApplied({
+        events,
+        gameId,
+        turn: currentState.turn,
+        unitId,
+        targetId,
+        weaponId,
+        marker: 'inarc',
+        podType: 'homing',
+        persistent: true,
+        location,
+        teamId: attackerTeamId,
+      });
+    }
+
     return consumeWeaponAmmo({
       currentState,
       events,

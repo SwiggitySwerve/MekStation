@@ -854,6 +854,50 @@ describe('applyEvent - DesignatorMarkerApplied', () => {
     ]);
     expect(secondReplay.units['opponent-1'].tagDesignated).toBe(false);
   });
+
+  it('should replay iNARC homing pods without duplicating team pods', () => {
+    let state = createInitialGameState('game-1');
+
+    const createEvent = createTestEvent({
+      type: GameEventType.GameCreated,
+      payload: {
+        config: createTestConfig(),
+        units: [
+          createTestUnit({ id: 'player-1', side: GameSide.Player }),
+          createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+        ],
+      } as IGameCreatedPayload,
+    });
+    state = applyEvent(state, createEvent);
+
+    const markerEvent = createTestEvent({
+      sequence: 2,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'inarc-1',
+        marker: 'inarc',
+        podType: 'homing',
+        persistent: true,
+        turn: 1,
+        location: 'center_torso',
+        teamId: GameSide.Player,
+      } as IDesignatorMarkerAppliedPayload,
+    });
+
+    const firstReplay = applyEvent(state, markerEvent);
+    const secondReplay = applyEvent(firstReplay, markerEvent);
+
+    expect(secondReplay.units['opponent-1'].iNarcPods).toEqual([
+      {
+        teamId: GameSide.Player,
+        podType: 'homing',
+        location: 'center_torso',
+      },
+    ]);
+    expect(secondReplay.units['opponent-1'].narcedBy).toEqual([]);
+  });
 });
 
 // =============================================================================

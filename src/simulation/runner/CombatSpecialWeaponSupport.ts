@@ -47,6 +47,38 @@ const MEGAMEK_INARC_VARIANT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_INARC_HOMING_SOURCE_REFS = [
+  MEGAMEK_INARC_VARIANT_SOURCE_REFS[0],
+  {
+    kind: 'megamek-source',
+    citation:
+      'Entity.isINarcedBy returns true only for Homing iNarc pods from the firing team.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L7325-L7334',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'ComputeToHit marks NARC-capable LRM/SRM/MML attacks as iNarc-guided when the target carries a Homing iNarc pod and target ECM does not suppress it.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/compute/ComputeToHit.java#L348-L360',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'ComputeToHit applies the -1 iNarc Homing to-hit modifier to iNarc-guided missile attacks.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/actions/compute/ComputeToHit.java#L952-L955',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MissileWeaponHandler applies the NARC cluster modifier to direct NARC-capable missiles when the target is NARCed or iNARC Homing-marked and target ECM does not suppress it.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/MissileWeaponHandler.java#L232-L260',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_TAG_DESIGNATION_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -196,19 +228,33 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'narc-cluster-modifier': integrated(
     'narc-cluster-modifier',
-    'missileClusterModifier consumes targetNarcedBy and resolveSpecialProjectileHit applies the NARC cluster bonus',
+    'missileClusterModifier consumes targetNarcedBy and resolveSpecialProjectileHit applies the NARC cluster bonus to NARC-compatible missiles',
   ),
   'inarc-pod-variants': helperOnly(
     'inarc-pod-variants',
-    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes',
-    'iNarc pod variants are not represented in runner missile resolution',
+    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes; Homing has runner marker and missile guidance coverage',
+    'iNarc ECM, Haywire, and Nemesis pod effects are not represented in runner missile resolution',
     MEGAMEK_INARC_VARIANT_SOURCE_REFS,
   ),
-  'narc-marker-lifecycle-events': helperOnly(
+  'inarc-homing-marker-attachment': integrated(
+    'inarc-homing-marker-attachment',
+    'Runner iNarc Homing hits attach iNarcPods state, emit DesignatorMarkerApplied marker=inarc/podType=homing, and replay that marker without falling back to narcedBy',
+    MEGAMEK_INARC_HOMING_SOURCE_REFS,
+  ),
+  'inarc-homing-cluster-modifier': integrated(
+    'inarc-homing-cluster-modifier',
+    'resolveSpecialProjectileHit consumes targetINarcedBy as source-backed Homing iNarc guidance for direct NARC-compatible missile cluster modifiers while suppressing the cluster bonus during indirect fire',
+    MEGAMEK_INARC_HOMING_SOURCE_REFS,
+  ),
+  'inarc-homing-to-hit-modifier': integrated(
+    'inarc-homing-to-hit-modifier',
+    'runAttackPhase consumes target iNarc Homing pod state and applies the source-backed -1 iNarc Homing to-hit modifier to NARC-compatible missiles when target ECM does not suppress it',
+    MEGAMEK_INARC_HOMING_SOURCE_REFS,
+  ),
+  'narc-marker-lifecycle-events': integrated(
     'narc-marker-lifecycle-events',
-    'Runner target state preserves NARC markers after beacon hits, emits DesignatorMarkerApplied for standard NARC marker attachment, and replay reducer reapplies standard NARC marker state',
-    'iNarc pod variants are not represented in runner missile resolution',
-    MEGAMEK_NARC_MARKER_SOURCE_REFS,
+    'Runner target state preserves standard NARC markers and iNarc Homing pods after beacon hits, emits DesignatorMarkerApplied for marker attachment, and replay reducer reapplies marker state',
+    [...MEGAMEK_NARC_MARKER_SOURCE_REFS, ...MEGAMEK_INARC_HOMING_SOURCE_REFS],
   ),
   'ams-projectile-reduction': integrated(
     'ams-projectile-reduction',
