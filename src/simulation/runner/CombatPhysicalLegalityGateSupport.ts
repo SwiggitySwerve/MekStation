@@ -26,24 +26,6 @@ function integrated(
   };
 }
 
-function helperOnly(
-  id: string,
-  attackFamily: PhysicalLegalityAttackFamily,
-  evidence: string,
-  gap: string,
-  authority: string,
-): IPhysicalLegalityGateSupportEntry {
-  return {
-    id,
-    attackFamily,
-    authority,
-    level: 'helper-only',
-    evidence,
-    gap,
-    sourceRefs: sourceRefsForAuthority(authority),
-  };
-}
-
 function unsupported(
   id: string,
   attackFamily: PhysicalLegalityAttackFamily,
@@ -276,11 +258,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canPush now rejects No Arms quirk through the shared physical restriction input',
     PUSH_ACTION_LINES,
   ),
-  'push.no-arm-weapons-fired': helperOnly(
+  'push.no-arm-weapons-fired': integrated(
     'push.no-arm-weapons-fired',
     'push',
-    'canPush rejects supplied arm-fired weapon ids, event-sourced push declarations emit WeaponFiredThisTurn before scheduling, and runner injected push declarations conservatively pass the flat fired-weapon list through the same gate',
-    'runner unit state does not yet hydrate weapon mount locations, so runner coverage cannot distinguish arm-mounted fired weapons from torso-mounted fired weapons',
+    'canPush rejects supplied arm-fired weapon ids, event-sourced push declarations derive arm-fired ids from weaponLocationById when context is absent, and runner injected push declarations reject hydrated arm-mounted weapon fire while allowing hydrated torso-mounted weapon fire',
     PUSH_ACTION_LINES,
   ),
   'push.same-elevation': integrated(

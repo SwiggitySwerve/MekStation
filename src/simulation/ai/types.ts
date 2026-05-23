@@ -153,6 +153,13 @@ export interface IWeapon {
   readonly ammoPerTon: number;
 
   /**
+   * Mounted unit location, when hydrated from catalog/unit construction data.
+   * Values are source labels such as `LEFT_ARM`, `RIGHT_TORSO`, or
+   * `Center Torso`; consumers normalize at the rule boundary.
+   */
+  readonly location?: string;
+
+  /**
    * Optional missile fire-control flags hydrated from canonical unit critical
    * slots. When present, runner missile resolution can apply source-backed
    * Artemis cluster-table bonuses without each test hand-building helper

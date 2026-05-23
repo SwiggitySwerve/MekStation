@@ -247,6 +247,7 @@ export function resolveCatalogDamage(
 export function toAIWeapon(
   catalogWeapon: ICatalogWeaponStats,
   mountIndex: number,
+  location?: string,
 ): IWeapon {
   const damage = resolveCatalogDamage(catalogWeapon.damage, catalogWeapon.id);
   const firingModes = buildCatalogFiringModes(catalogWeapon, damage);
@@ -263,6 +264,7 @@ export function toAIWeapon(
     heat: catalogWeapon.heat,
     minRange: catalogWeapon.ranges.minimum,
     ammoPerTon: catalogWeapon.ammoPerTon ?? -1,
+    ...(location ? { location } : {}),
     destroyed: false,
     ...(firingModes ? { firingModes } : {}),
   };
@@ -721,7 +723,7 @@ export function hydrateAIWeaponsFromFullUnitWithReport(
       typeof entry.location === 'string'
         ? normalizeEquipmentLocation(entry.location)
         : '';
-    const aiWeapon = toAIWeapon(stats, mountIndex);
+    const aiWeapon = toAIWeapon(stats, mountIndex, location);
     out.push(
       applyArtemisGuidanceFlags(
         aiWeapon,
@@ -944,6 +946,7 @@ export function createHydratedUnitState(
     hasTSM: hydrateHasTSMFromFullUnit(fullUnit),
     hasStealthArmor: hydrateHasStealthArmorFromFullUnit(fullUnit),
     unitQuirks: hydrateUnitQuirksFromFullUnit(fullUnit),
+    weaponLocationById: weaponLocationByIdFromWeapons(hydrated.aiWeapons),
     armor,
     // Mirror starting structure into `startingInternalStructure` so the
     // retreat-trigger ratio (per `add-bot-retreat-behavior`) sees the
@@ -966,6 +969,18 @@ export function createHydratedUnitState(
     damageThisPhase: 0,
     weaponsFiredThisTurn: [],
   };
+}
+
+export function weaponLocationByIdFromWeapons(
+  weapons: readonly IWeapon[],
+): Readonly<Record<string, string>> | undefined {
+  const out: Record<string, string> = {};
+  for (const weapon of weapons) {
+    if (weapon.location !== undefined && weapon.location.length > 0) {
+      out[weapon.id] = weapon.location;
+    }
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
 }
 
 // =============================================================================

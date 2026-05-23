@@ -132,7 +132,8 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **WHEN** the push legality gate runs
 - **THEN** the push SHALL be rejected with `WeaponFiredThisTurn`
 - **AND** helper and event-sourced declaration paths SHALL reject before side effects
-- **AND** runner coverage SHALL remain marked partial until fired weapon ids can be resolved to mounted arm locations instead of a flat fired-weapon list
+- **AND** event-sourced and runner paths SHALL use hydrated mounted weapon locations to reject left/right-arm fire while allowing non-arm mounted fire
+- **AND** unknown or unhydrated fired weapon ids SHALL remain conservative and reject the push rather than silently allowing a potentially arm-fired weapon
 
 #### Scenario: Death from above rejects prone attackers
 

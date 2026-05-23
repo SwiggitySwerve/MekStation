@@ -544,7 +544,7 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
-  it('rejects injected push declarations when fired weapons are supplied to the arm-fired gate', () => {
+  it('keeps injected push declarations conservative when fired weapon locations are unknown', () => {
     const { events, result } = runPhase('push', {
       attacker: {
         facing: Facing.Southeast,
@@ -565,6 +565,56 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
     expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
+  it('rejects injected push declarations after hydrated arm-mounted weapon fire', () => {
+    const { events, result } = runPhase('push', {
+      attacker: {
+        facing: Facing.Southeast,
+        weaponsFiredThisTurn: ['right-arm-medium-laser'],
+        weaponLocationById: {
+          'right-arm-medium-laser': 'RIGHT_ARM',
+        },
+      },
+    });
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'WeaponFiredThisTurn',
+    });
+    expect(resolved.displacements).toBeUndefined();
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
+  it('allows injected push declarations after hydrated torso-mounted weapon fire', () => {
+    const { events, result } = runPhase('push', {
+      attacker: {
+        facing: Facing.Southeast,
+        weaponsFiredThisTurn: ['center-torso-laser'],
+        weaponLocationById: {
+          'center-torso-laser': 'CENTER_TORSO',
+        },
+      },
+    });
+
+    const resolved = resolvedPayload(events);
+    expect(resolved).toMatchObject({
+      attackType: 'push',
+      roll: 8,
+      toHitNumber: 4,
+      hit: true,
+      damage: 0,
+    });
+    expect(result.units['opponent-1'].pendingPSRs).toEqual([
+      expect.objectContaining({ reasonCode: PSRTrigger.Pushed }),
+    ]);
   });
 
   it('rejects injected push declarations when either attacker arm is missing', () => {

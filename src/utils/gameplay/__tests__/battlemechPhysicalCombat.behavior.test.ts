@@ -1206,6 +1206,61 @@ describe('BattleMech physical combat behavior validation lane', () => {
     });
   });
 
+  it('derives push arm-fire rejection from hydrated attacker weapon locations', () => {
+    const session = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        weaponsFiredThisTurn: ['medium-laser-0'],
+        weaponLocationById: { 'medium-laser-0': 'LEFT_ARM' },
+      }),
+      'attacker',
+      'target',
+      'push',
+      physicalContext({ pushDestinationValid: true }),
+    );
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'WeaponFiredThisTurn',
+    });
+  });
+
+  it('does not reject push declarations after hydrated torso-mounted weapon fire', () => {
+    const session = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        weaponsFiredThisTurn: ['medium-laser-0'],
+        weaponLocationById: { 'medium-laser-0': 'CENTER_TORSO' },
+      }),
+      'attacker',
+      'target',
+      'push',
+      physicalContext({ pushDestinationValid: true }),
+    );
+
+    const declarations = session.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const rejection = session.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+
+    expect(declarations).toHaveLength(1);
+    expect(rejection).toBeUndefined();
+  });
+
   it('rejects push declarations when either attacker arm is missing', () => {
     const session = declarePhysicalAttack(
       withPhysicalPositions(

@@ -18,7 +18,7 @@
 - [x] 2.7 Integrate shared friendly-target gate for helper, event-sourced declaration, and runner physical target selection.
 - [x] 2.8 Integrate shared target-exists gate for helper, event-sourced declaration, and stale declaration resolution paths.
 - [x] 2.9 Integrate shared target-not-destroyed gate for helper, event-sourced declaration, stale declaration resolution, and runner physical target selection.
-- [x] 2.10 Partially integrate push arm-fired weapon gate for helper, event-sourced declaration, and conservative runner resolution while tracking runner weapon-location hydration as the remaining gap.
+- [x] 2.10 Integrate push arm-fired weapon gate for helper, event-sourced declaration, and runner resolution through hydrated weapon mount locations while preserving conservative rejection for unknown fired weapon ids.
 - [x] 2.11 Integrate push both-arms-present gate for helper, eligibility, event-sourced declaration, and runner resolution through unit destroyed-location state.
 - [x] 2.12 Integrate push attacker/target Mek unit-type gates for helper, eligibility, event-sourced declaration, and runner resolution through explicit combat unit-type state.
 - [x] 2.13 Integrate charge standing-Mek target gate for helper, eligibility, event-sourced declaration, and runner resolution through target unit type and prone state.
@@ -39,7 +39,7 @@
 - [x] 2.28 Integrate shared same-board rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat board identity.
 - [x] 2.29 Integrate charge/DFA displacement-state rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat displacement lifecycle state.
 - [x] 2.30 Integrate push displacement-state and counter-push rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat displacement lifecycle ownership state.
-- [ ] 2.31 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, runner arm-mounted weapon-location hydration, and pilot skill roll fallout.
+- [ ] 2.31 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, and pilot skill roll fallout.
 
 ## 3. Full combat validation catalog
 

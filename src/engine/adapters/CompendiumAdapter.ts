@@ -213,6 +213,7 @@ function extractWeapons(
     weapons.push({
       ...data,
       id: `${unitId}-${canonicalId}-${count}`,
+      location: item.location,
     });
   }
 

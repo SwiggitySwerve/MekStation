@@ -104,6 +104,12 @@ export interface IGameUnit {
   readonly unitQuirks?: readonly string[];
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
   /**
+   * Mounted weapon location by runtime weapon id. Optional so legacy setup
+   * paths keep working; hydrated runners and adapters populate it for physical
+   * arm-fired legality checks.
+   */
+  readonly weaponLocationById?: Readonly<Record<string, string>>;
+  /**
    * Ammo bin construction data (one entry per ton of ammo carried).
    * When present, `createGameSession` seeds this unit's `ammoState` so
    * the attack resolver can consume bins per fire. When absent, the

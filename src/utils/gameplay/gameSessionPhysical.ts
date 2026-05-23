@@ -38,7 +38,10 @@ import {
   buildDamageStateFromUnit,
 } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
-import { buildRestrictionEventReason } from './gameSessionPhysicalHelpers';
+import {
+  buildRestrictionEventReason,
+  firedWeaponIdsFromMountedArm,
+} from './gameSessionPhysicalHelpers';
 import { hexDistance } from './hexMath';
 import { roll2d6 as rollDice } from './hitLocation';
 import {
@@ -61,6 +64,7 @@ import {
   isSupportedPhysicalAttackType,
   resolvePhysicalAttack,
   splitPhysicalDamageIntoClusters,
+  SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
 } from './physicalAttacks';
 
 function computeResolvedPhysicalDisplacements(options: {
@@ -144,6 +148,26 @@ function computeResolvedPhysicalDisplacements(options: {
  */
 export { type IPhysicalAttackContext } from './gameSessionPhysicalHelpers';
 
+function weaponsFiredFromArmForAttack(
+  attackerState: IGameSession['currentState']['units'][string],
+  attackType: PhysicalAttackType,
+  context: IPhysicalAttackContext,
+): readonly string[] | undefined {
+  if (context.weaponsFiredFromArm !== undefined) {
+    return context.weaponsFiredFromArm;
+  }
+  if (attackType === 'push') return firedWeaponIdsFromMountedArm(attackerState);
+  if (
+    attackType === 'punch' ||
+    (SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES as readonly string[]).includes(
+      attackType,
+    )
+  ) {
+    return firedWeaponIdsFromMountedArm(attackerState, context.arm);
+  }
+  return undefined;
+}
+
 function appendInvalidPhysicalResolution(
   session: IGameSession,
   turn: number,
@@ -199,7 +223,11 @@ export function declarePhysicalAttack(
     heat: attackerState.heat,
     hasTSM: context.hasTSM,
     isUnderwater: context.isUnderwater ?? false,
-    weaponsFiredFromArm: context.weaponsFiredFromArm,
+    weaponsFiredFromArm: weaponsFiredFromArmForAttack(
+      attackerState,
+      attackType,
+      context,
+    ),
     attackerDestroyedLocations: attackerState.destroyedLocations,
     attackerUnitType: attackerState.unitType,
     attackerIsQuad: attackerState.isQuad,
@@ -405,7 +433,11 @@ export function resolveAllPhysicalAttacks(
       isUnderwater:
         (context.isUnderwater ?? false) ||
         (targetContext?.isUnderwater ?? false),
-      weaponsFiredFromArm: context.weaponsFiredFromArm,
+      weaponsFiredFromArm: weaponsFiredFromArmForAttack(
+        attackerState,
+        payload.attackType,
+        context,
+      ),
       attackerDestroyedLocations: attackerState.destroyedLocations,
       attackerUnitType: attackerState.unitType,
       attackerIsQuad: attackerState.isQuad,

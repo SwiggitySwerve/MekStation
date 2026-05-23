@@ -244,6 +244,21 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.boardId).toBe('board-alpha');
   });
 
+  it('copies optional mounted weapon locations for physical arm-fire gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      weaponLocationById: {
+        'medium-laser-0': 'RIGHT_ARM',
+        'ac-20-1': 'RIGHT_TORSO',
+      },
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.weaponLocationById).toEqual({
+      'medium-laser-0': 'RIGHT_ARM',
+      'ac-20-1': 'RIGHT_TORSO',
+    });
+  });
+
   it('leaves combatState undefined for VEHICLE (kind: vehicle is a future variant)', () => {
     const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
     const state = createInitialUnitState(unit, POSITION, Facing.North);

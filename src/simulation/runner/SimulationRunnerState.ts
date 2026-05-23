@@ -24,6 +24,7 @@ import {
   hydrateActiveProbesFromFullUnit,
   hydrateECMSuitesFromFullUnit,
   hydrateHeatSinksFromFullUnit,
+  weaponLocationByIdFromWeapons,
   type IHydratedUnitData,
 } from './UnitHydration';
 
@@ -248,6 +249,7 @@ export function synthesizeGameUnits(
           piloting: hydrated.piloting ?? DEFAULT_PILOTING,
           heatSinks: heatSinks.count,
           heatSinkType: heatSinks.kind,
+          weaponLocationById: weaponLocationByIdFromWeapons(hydrated.aiWeapons),
         });
       } else {
         // Synthetic minimal-unit fallback path: no catalog data

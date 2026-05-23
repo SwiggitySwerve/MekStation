@@ -129,6 +129,40 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     expect(srm6?.heat).toBe(4);
   });
 
+  it('hydrates mounted weapon locations into AI weapons and unit state', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-location-hydration',
+      chassis: 'Synthetic',
+      variant: 'Location Hydration',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3025',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: 'medium-laser', location: 'LEFT_ARM' },
+        { id: 'ac-20', location: 'RIGHT_TORSO' },
+      ],
+    };
+
+    const weapons = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
+    expect(weapons.map((weapon) => [weapon.id, weapon.location])).toEqual([
+      ['medium-laser-0', 'LEFT_ARM'],
+      ['ac-20-1', 'RIGHT_TORSO'],
+    ]);
+
+    const state = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit,
+      aiWeapons: weapons,
+    });
+    expect(state.weaponLocationById).toEqual({
+      'medium-laser-0': 'LEFT_ARM',
+      'ac-20-1': 'RIGHT_TORSO',
+    });
+  });
+
   it('hydrates Artemis IV guidance only when a compatible launcher has linked FCS and Artemis-capable ammo', async () => {
     const service = getNodeCanonicalUnitService();
     const artemisUnit = await service.getById('longshot-lng-2');

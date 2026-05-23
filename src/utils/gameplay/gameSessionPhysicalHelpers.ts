@@ -1,3 +1,5 @@
+import type { IUnitGameState } from '@/types/gameplay';
+
 import type {
   IPhysicalAttackRestriction,
   PhysicalAttackLimb,
@@ -66,6 +68,46 @@ export interface IPhysicalAttackContext {
   readonly unitQuirks?: readonly string[];
   /** Target elevation minus attacker elevation. */
   readonly elevationDifference?: number;
+}
+
+type ArmSide = 'left' | 'right';
+
+function normalizeMountedLocation(location: string | undefined): string {
+  return (location ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+}
+
+function isArmMountedLocation(location: string, arm?: ArmSide): boolean {
+  if (arm === 'left') return location === 'left_arm' || location === 'la';
+  if (arm === 'right') return location === 'right_arm' || location === 'ra';
+  return (
+    location === 'left_arm' ||
+    location === 'la' ||
+    location === 'right_arm' ||
+    location === 'ra'
+  );
+}
+
+export function firedWeaponIdsFromMountedArm(
+  unit: Pick<IUnitGameState, 'weaponsFiredThisTurn' | 'weaponLocationById'>,
+  arm?: ArmSide,
+): readonly string[] {
+  const firedWeaponIds = unit.weaponsFiredThisTurn ?? [];
+  if (firedWeaponIds.length === 0) return [];
+
+  const weaponLocationById = unit.weaponLocationById;
+  if (weaponLocationById === undefined) return firedWeaponIds;
+
+  return firedWeaponIds.filter((weaponId) => {
+    const mountedLocation = normalizeMountedLocation(
+      weaponLocationById[weaponId],
+    );
+    return (
+      mountedLocation.length === 0 || isArmMountedLocation(mountedLocation, arm)
+    );
+  });
 }
 
 /**

@@ -280,6 +280,11 @@ export interface IUnitGameState {
   /** Pending piloting skill rolls to resolve */
   readonly pendingPSRs?: readonly IPendingPSR[];
   readonly weaponsFiredThisTurn?: readonly string[];
+  /**
+   * Mounted weapon location by runtime weapon id. Used by physical legality
+   * gates to distinguish arm-fired weapons from torso/head/leg weapons.
+   */
+  readonly weaponLocationById?: Readonly<Record<string, string>>;
   readonly edgePointsRemaining?: number;
   /**
    * Pilot SPA ids available to attack/to-hit resolvers. Kept as catalog ids

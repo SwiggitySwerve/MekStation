@@ -6,6 +6,7 @@ import {
   IHexGrid,
   MovementType,
 } from '@/types/gameplay';
+import { firedWeaponIdsFromMountedArm } from '@/utils/gameplay/gameSessionPhysicalHelpers';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
   chooseBestPhysicalAttack,
@@ -102,7 +103,12 @@ export function runPhysicalAttackPhase(options: {
     }
 
     const componentDamage = unit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE;
-    const weaponsFired = unit.weaponsFiredThisTurn ?? [];
+    const weaponsFiredFromLeftArm = firedWeaponIdsFromMountedArm(unit, 'left');
+    const weaponsFiredFromRightArm = firedWeaponIdsFromMountedArm(
+      unit,
+      'right',
+    );
+    const weaponsFiredFromEitherArm = firedWeaponIdsFromMountedArm(unit);
     const hexesMoved = unit.hexesMovedThisTurn ?? 0;
     const attackerRanThisTurn = unit.movementThisTurn === MovementType.Run;
     const attackerJumpedThisTurn = unit.movementThisTurn === MovementType.Jump;
@@ -138,8 +144,8 @@ export function runPhysicalAttackPhase(options: {
         componentDamage,
         {
           attackerProne: unit.prone ?? false,
-          weaponsFiredFromLeftArm: weaponsFired,
-          weaponsFiredFromRightArm: weaponsFired,
+          weaponsFiredFromLeftArm,
+          weaponsFiredFromRightArm,
           heat: unit.heat,
           hasTSM: unit.hasTSM ?? false,
           canReachForCharge: attackerRanThisTurn && hexesMoved > 1,
@@ -199,9 +205,11 @@ export function runPhysicalAttackPhase(options: {
       hexesMoved,
       attackerProne: unit.prone ?? false,
       weaponsFiredFromArm:
-        bestAttack === 'punch' || bestAttack === 'push'
-          ? weaponsFired
-          : undefined,
+        bestAttack === 'push'
+          ? weaponsFiredFromEitherArm
+          : bestAttack === 'punch'
+            ? weaponsFiredFromRightArm
+            : undefined,
       attackerDestroyedLocations: unit.destroyedLocations,
       attackerUnitType: unit.unitType,
       attackerIsQuad: unit.isQuad,

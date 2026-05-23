@@ -265,6 +265,7 @@ export function createInitialUnitState(
     designatedRangeBracket: unit.designatedRangeBracket,
     unitQuirks: unit.unitQuirks,
     weaponQuirks: unit.weaponQuirks,
+    weaponLocationById: unit.weaponLocationById,
     armor: {},
     structure: {},
     // Per `add-bot-retreat-behavior` § 2 (Trigger A): the retreat trigger
