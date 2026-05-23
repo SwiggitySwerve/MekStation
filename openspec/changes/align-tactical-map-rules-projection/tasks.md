@@ -13,7 +13,7 @@
 - [x] Pin weapon-backed combat projection so stale raw `attackRange` cannot override configured weapons.
 - [x] Pin selected-weapon firing-arc overlay so rear-mounted weapons shade rear arcs and destroyed-only weapon lists hide arc shading.
 - [x] Add combat projection fixtures for range bands, LOS/cover invalid reasons, ammo/heat projection, and multi-weapon volley display.
-- [ ] Source-check and fixture special combat cases against BattleTech/MegaMek: C3, indirect fire handoff, underwater/torpedo restrictions, minimum/short/medium/long/extreme range policy, and physical attack target legality.
+- [x] Source-check and fixture special combat cases against BattleTech/MegaMek: C3, indirect fire handoff, underwater/torpedo restrictions, minimum/short/medium/long/extreme range policy, and physical attack target legality.
   - [x] Weapon-backed map projection now preserves represented extreme range and agrees with committed engine attacks for extreme bracket/to-hit.
   - [x] Minimum/short/medium/long/extreme range policy is source-pinned against MegaMek range brackets and committed to-hit modifiers, including ground-to-ground minimum-range penalties and airborne/aerospace minimum-range exemption.
   - [x] Underwater and torpedo attack legality now source-pins represented underwater-target blocking, torpedo-only water targets, torpedo whole-line water checks, and preview/commit invalid reason agreement.
