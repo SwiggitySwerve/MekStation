@@ -215,6 +215,15 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** immobile targets SHALL remain legal for this gate even when movement is incomplete
 - **AND** no damage, displacement, or PSR side effect SHALL be emitted on rejection
 
+#### Scenario: Death from above helper checks VTOL/WIGE elevation reach
+
+- **GIVEN** a DFA helper evaluates an airborne VTOL or WIGE target
+- **WHEN** the target elevation above the attacker's height is within the attacker's jump MP
+- **THEN** the generic airborne-target gate SHALL NOT reject the target
+- **WHEN** the target elevation above the attacker's height exceeds the attacker's jump MP
+- **THEN** death from above SHALL be rejected with `ElevationMismatch`
+- **AND** the validation catalog SHALL mark this as helper-only until runtime physical declarations hydrate VTOL/WIGE target motion state and attacker jump MP
+
 #### Scenario: Death from above applies Infantry and Battle Armor target-class modifiers
 
 - **GIVEN** a DFA declaration is evaluated after the attacker jumped this turn

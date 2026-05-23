@@ -261,6 +261,13 @@ export interface IPhysicalAttackInput {
    */
   readonly targetIsAirborne?: boolean;
   /**
+   * Source-backed DFA exception: MegaMek separately checks low-altitude
+   * VTOL/WIGE reach against attacker jump MP instead of treating those target
+   * types as generic airborne units.
+   */
+  readonly targetIsAirborneVTOLorWIGE?: boolean;
+  readonly attackerJumpMP?: number;
+  /**
    * Source-backed shared physical legality: targets inside a building can only
    * be attacked physically by an attacker inside the same building.
    */

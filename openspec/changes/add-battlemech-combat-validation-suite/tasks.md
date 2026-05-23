@@ -42,6 +42,7 @@
 - [x] 2.31 Integrate DFA target movement-complete/immobile gate for helper, eligibility, and event-sourced declaration/resolution while preserving runner physical resolution as post-movement complete.
 - [ ] 2.32 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, and pilot skill roll fallout.
 - [x] 2.32.1 Add helper-level target object gates for invalid physical hex targets and push building/fuel-tank rejection while leaving runtime non-unit target commands explicit out of scope.
+- [x] 2.32.2 Add helper-level DFA VTOL/WIGE elevation-reach gate while leaving runtime VTOL/WIGE motion-state hydration explicit out of scope.
 
 ## 3. Full combat validation catalog
 

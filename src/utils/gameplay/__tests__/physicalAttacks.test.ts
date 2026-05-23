@@ -2339,6 +2339,45 @@ describe('physicalAttacks', () => {
         reasonCode: 'AttackerInfantry',
       });
     });
+
+    it('allows DFA against reachable airborne VTOL/WIGE targets', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerHeight: 1,
+            attackerJumpMP: 3,
+            elevationDifference: 4,
+            targetIsAirborne: true,
+            targetIsAirborneVTOLorWIGE: true,
+            targetMovementComplete: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+    });
+
+    it('disallows DFA when airborne VTOL/WIGE elevation is beyond jump MP', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerHeight: 1,
+            attackerJumpMP: 3,
+            elevationDifference: 5,
+            targetIsAirborne: true,
+            targetIsAirborneVTOLorWIGE: true,
+            targetMovementComplete: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'ElevationMismatch',
+      });
+    });
   });
 
   // =============================================================================

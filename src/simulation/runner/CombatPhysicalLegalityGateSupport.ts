@@ -380,10 +380,11 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canDFA consumes attackerUnitType and rejects explicit Infantry/Battle Armor attackers as AttackerInfantry; eligibility, event-sourced declaration, and runner resolution thread the same attacker unit-type gate',
     DFA_ACTION_LINES,
   ),
-  'dfa.vtol-elevation-reachable': unsupported(
+  'dfa.vtol-elevation-reachable': helperOnly(
     'dfa.vtol-elevation-reachable',
     'dfa',
-    'DFA restrictions do not model airborne VTOL/WIGE elevation reach against jump MP',
+    'canDFA distinguishes targetIsAirborneVTOLorWIGE from generic airborne targets and rejects unreachable VTOL/WIGE targets when target elevation above attacker height exceeds attackerJumpMP',
+    'Runtime physical eligibility and runner resolution do not yet hydrate VTOL/WIGE target motion type or attacker jump MP into physical declarations',
     DFA_ACTION_LINES,
   ),
   'dfa.target-moved-or-immobile': integrated(

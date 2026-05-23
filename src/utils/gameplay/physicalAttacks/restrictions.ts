@@ -127,7 +127,10 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
-  if (input.targetIsAirborne) {
+  const dfaTargetIsAirborneVtolOrWige =
+    input.attackType === 'dfa' && input.targetIsAirborneVTOLorWIGE;
+
+  if (input.targetIsAirborne && !dfaTargetIsAirborneVtolOrWige) {
     return blocked(
       'Physical attacks cannot target airborne units',
       'TargetAirborne',
@@ -446,6 +449,19 @@ export function canDFA(
       reason: 'Cannot DFA while prone',
       reasonCode: 'AttackerProne',
     };
+  }
+  if (input.targetIsAirborneVTOLorWIGE) {
+    const attackerJumpMP = input.attackerJumpMP ?? 0;
+    const targetAboveAttackerTop =
+      (input.elevationDifference ?? 0) -
+      (input.attackerHeight ?? DEFAULT_STANDING_MEK_HEIGHT);
+
+    if (targetAboveAttackerTop > attackerJumpMP) {
+      return blocked(
+        'DFA target elevation is beyond attacker jump MP',
+        'ElevationMismatch',
+      );
+    }
   }
   if (input.targetMovementComplete === false && input.targetImmobile !== true) {
     return blocked(
