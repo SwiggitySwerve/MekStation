@@ -14,13 +14,21 @@
  */
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
+import type {
+  IIndirectFireResolution,
+  IWeaponAttack,
+} from '@/types/gameplay/CombatInterfaces';
+import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
+import type { IAttackInvalidPayload } from '@/types/gameplay/GameSessionAttackEvents';
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
+import type { IMovementInvalidPayload } from '@/types/gameplay/GameSessionMovementEvents';
+import type { DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import {
   calculateSwarmDamage,
   type IBASwarmFireSquadDef,
 } from '@/lib/combat/baCombat';
+import { GameEventType, TokenUnitType } from '@/types/gameplay';
 import {
   Facing,
   MovementType,
@@ -29,18 +37,39 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import { canFireFromArc, determineArc } from '@/utils/gameplay/firingArcs';
+import {
+  createAttackInvalidEvent,
+  createMovementInvalidEvent,
+} from '@/utils/gameplay/gameEvents';
 import { createSwarmDamageEvent } from '@/utils/gameplay/gameEvents/battleArmor';
 import {
   declareAttack,
   declareMovement,
   lockAttack,
   lockMovement,
+  attemptStandUp,
 } from '@/utils/gameplay/gameSession';
 import { appendEvent } from '@/utils/gameplay/gameSession';
+import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 import {
-  buildMovementEventPath,
-  maxMovementCostForCapability,
-} from '@/utils/gameplay/movement/eventPath';
+  calculateLOS,
+  formatLOSBlockedDetails,
+} from '@/utils/gameplay/lineOfSight';
+import {
+  calculateMovementHeat,
+  gridWithUnitOccupants,
+  getStandingCost,
+  validateCommittedMovement,
+} from '@/utils/gameplay/movement';
+import { getWeaponRangeBracket } from '@/utils/gameplay/range';
+import {
+  gameUnitUsesMekHorizontalCover,
+  gameUnitUsesMekWaterCover,
+  getTargetCoverInfo,
+} from '@/utils/gameplay/terrainCover';
+import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
+import { canPlayerSeeUnit } from '@/utils/gameplay/visibility';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { computeIndirectFireContext } from './InteractiveSession.indirectFire';
@@ -59,6 +88,8 @@ export interface IApplyMovementInput {
   readonly movementType: MovementType;
   /** Optional pre-computed path; built from the grid when omitted. */
   readonly path?: readonly IHexCoordinate[];
+  /** Optional authoritative roller for stand-up PSR resolution. */
+  readonly diceRoller?: DiceRoller;
 }
 
 /**
@@ -74,30 +105,125 @@ export function applyInteractiveSessionMovement(
   const unit = input.session.currentState.units[input.unitId];
   if (!unit) return input.session;
 
-  const capability = input.movementByUnit.get(input.unitId);
-  const eventPath =
-    input.path ??
-    buildMovementEventPath({
-      grid: input.grid,
-      from: unit.position,
-      to: input.to,
-      movementType: input.movementType,
-      maxCost: maxMovementCostForCapability(capability, input.movementType),
-    });
+  const from = unit.position;
+  const gridWithOccupants = gridWithUnitOccupants(
+    input.grid,
+    input.session.currentState.units,
+  );
+  const movementCapability = input.movementByUnit.get(input.unitId);
+  const validation = validateCommittedMovement({
+    grid: gridWithOccupants,
+    unit,
+    to: input.to,
+    facing: input.facing,
+    movementType: input.movementType,
+    capability: movementCapability,
+    path: input.path,
+  });
 
-  let session = declareMovement(
-    input.session,
+  if (!validation.valid) {
+    return appendInteractiveMovementInvalid(
+      input.session,
+      input.unitId,
+      from,
+      input.to,
+      input.facing,
+      input.movementType,
+      validation.reason,
+      validation.details,
+      validation.mpCost,
+      validation.heatGenerated,
+    );
+  }
+
+  const standUpAttempt =
+    unit.prone === true &&
+    movementCapability !== undefined &&
+    input.movementType !== MovementType.Jump &&
+    input.movementType !== MovementType.Stationary;
+
+  let session = input.session;
+  let standUpSucceeded: boolean | undefined;
+  if (standUpAttempt) {
+    const beforeStandEventCount = session.events.length;
+    session = attemptStandUp(session, input.unitId, input.diceRoller);
+    standUpSucceeded = session.events
+      .slice(beforeStandEventCount)
+      .some((event) => event.type === GameEventType.UnitStood);
+
+    if (!standUpSucceeded) {
+      session = declareMovement(
+        session,
+        input.unitId,
+        from,
+        from,
+        unit.facing,
+        input.movementType,
+        getStandingCost(movementCapability),
+        calculateMovementHeat(
+          MovementType.Walk,
+          0,
+          movementCapability.movementMode,
+        ),
+        [from],
+        {
+          standUpAttempt: true,
+          standUpSucceeded: false,
+        },
+      );
+      session = lockMovement(session, input.unitId);
+      return session;
+    }
+  }
+
+  session = declareMovement(
+    session,
     input.unitId,
-    unit.position,
+    from,
     input.to,
     input.facing,
     input.movementType,
-    0,
-    input.movementType === MovementType.Jump ? 1 : 0,
-    eventPath,
+    validation.mpCost,
+    validation.heatGenerated,
+    validation.path,
+    {
+      standUpAttempt,
+      standUpSucceeded,
+    },
   );
   session = lockMovement(session, input.unitId);
   return session;
+}
+
+function appendInteractiveMovementInvalid(
+  session: IGameSession,
+  unitId: string,
+  from: IHexCoordinate,
+  to: IHexCoordinate,
+  facing: Facing,
+  movementType: MovementType,
+  reason: IMovementInvalidPayload['reason'],
+  details?: string,
+  mpCost?: number,
+  heatGenerated?: number,
+): IGameSession {
+  return appendEvent(
+    session,
+    createMovementInvalidEvent(
+      session.id,
+      session.events.length,
+      session.currentState.turn,
+      unitId,
+      from,
+      to,
+      facing,
+      movementType,
+      reason,
+      details,
+      mpCost,
+      heatGenerated,
+    ),
+  );
 }
 
 /**
@@ -128,6 +254,135 @@ export interface IApplyAttackInput {
   readonly targetHex?: IHexCoordinate;
 }
 
+const ATTACK_RANGE_BRACKET_RANK: Readonly<Record<RangeBracket, number>> = {
+  [RangeBracket.Short]: 0,
+  [RangeBracket.Medium]: 1,
+  [RangeBracket.Long]: 2,
+  [RangeBracket.Extreme]: 3,
+  [RangeBracket.OutOfRange]: 4,
+};
+
+function bestAttackRangeBracket(
+  range: number,
+  weaponAttacks: readonly IWeaponAttack[],
+): RangeBracket {
+  if (weaponAttacks.length === 0) return RangeBracket.Short;
+
+  return weaponAttacks.reduce<RangeBracket>((best, weapon) => {
+    const bracket = getWeaponRangeBracket(range, {
+      short: weapon.shortRange,
+      medium: weapon.mediumRange,
+      long: weapon.longRange,
+      extreme: weapon.extremeRange,
+      minimum: weapon.minRange,
+    });
+    return ATTACK_RANGE_BRACKET_RANK[bracket] < ATTACK_RANGE_BRACKET_RANK[best]
+      ? bracket
+      : best;
+  }, RangeBracket.OutOfRange);
+}
+
+function weaponCoversTargetArc(
+  weapon: IWeaponAttack,
+  targetArc: ReturnType<typeof determineArc>['arc'],
+): boolean {
+  if (weapon.mountingArc === undefined) return true;
+  return canFireFromArc(weapon.mountingArc, targetArc);
+}
+
+function indirectInterveningTerrainEffects({
+  session,
+  grid,
+  targetHex,
+  indirectFireResolution,
+}: {
+  readonly session: IGameSession;
+  readonly grid: IHexGrid;
+  readonly targetHex: IHexCoordinate;
+  readonly indirectFireResolution?: IIndirectFireResolution;
+}): ReturnType<typeof calculateLOS>['interveningTerrainEffects'] {
+  if (
+    indirectFireResolution?.permitted !== true ||
+    indirectFireResolution.isIndirect !== true ||
+    !indirectFireResolution.spotterId
+  ) {
+    return [];
+  }
+
+  const spotter = session.currentState.units[indirectFireResolution.spotterId];
+  if (!spotter) return [];
+  return calculateLOS(spotter.position, targetHex, grid)
+    .interveningTerrainEffects;
+}
+
+function buildLineOfSightTokens(
+  state: IGameSession['currentState'],
+): readonly IUnitToken[] {
+  return Object.values(state.units)
+    .filter((unit) => unit.destroyed && !unit.hasRetreated)
+    .map((unit) => ({
+      unitId: unit.id,
+      name: unit.id,
+      side: unit.side,
+      position: unit.position,
+      facing: unit.facing,
+      isSelected: false,
+      isValidTarget: false,
+      isDestroyed: true,
+      designation: unit.id,
+      unitType: TokenUnitType.Mech,
+    }));
+}
+
+function appendInteractiveAttackInvalid(
+  session: IGameSession,
+  attackerId: string,
+  targetId: string,
+  reason: IAttackInvalidPayload['reason'],
+  details: string,
+  weaponId?: string,
+): IGameSession {
+  return appendEvent(
+    session,
+    createAttackInvalidEvent(
+      session.id,
+      session.events.length,
+      session.currentState.turn,
+      attackerId,
+      targetId,
+      reason,
+      weaponId,
+      details,
+    ),
+  );
+}
+
+function attackVisibilityBlockedReason(
+  input: IApplyAttackInput,
+  attackerUnit: IGameSession['currentState']['units'][string],
+  targetUnit: IGameSession['currentState']['units'][string],
+): string | undefined {
+  if (input.session.config.fogOfWar !== true) return undefined;
+  if (targetUnit.side === attackerUnit.side) return undefined;
+  if (!input.grid) {
+    return 'Target visibility cannot be verified without the battle map grid';
+  }
+
+  const attackerPlayerId =
+    input.session.sideOwners?.[attackerUnit.side] ?? attackerUnit.side;
+  const visibilityState = {
+    ...input.session.currentState,
+    sideOwners: input.session.sideOwners ?? null,
+    grid: input.grid,
+  };
+
+  if (canPlayerSeeUnit(attackerPlayerId, input.targetId, visibilityState)) {
+    return undefined;
+  }
+
+  return `Target ${input.targetId} is not currently visible to ${attackerUnit.side}`;
+}
+
 /**
  * Declare and lock a weapon attack for the current WeaponAttack phase.
  * Firing arc is intentionally NOT pre-computed here — `resolveAttack`
@@ -148,23 +403,101 @@ export function applyInteractiveSessionAttack(
     unitWeapons,
     input.attackerId,
   );
+  const attackerUnit = input.session.currentState.units[input.attackerId];
+  const targetUnit = input.session.currentState.units[input.targetId];
+  if (!attackerUnit) return input.session;
+  if (!targetUnit || targetUnit.destroyed) {
+    return appendInteractiveAttackInvalid(
+      input.session,
+      input.attackerId,
+      input.targetId,
+      'InvalidTarget',
+      `Target ${input.targetId} is not a live unit`,
+      input.weaponIds[0],
+    );
+  }
+  if (weaponAttacks.length === 0) {
+    return appendInteractiveAttackInvalid(
+      input.session,
+      input.attackerId,
+      input.targetId,
+      'InvalidTarget',
+      'No valid weapons selected for this attack',
+      input.weaponIds[0],
+    );
+  }
+  const visibilityBlockedReason = attackVisibilityBlockedReason(
+    input,
+    attackerUnit,
+    targetUnit,
+  );
+  if (visibilityBlockedReason) {
+    return appendInteractiveAttackInvalid(
+      input.session,
+      input.attackerId,
+      input.targetId,
+      'TargetNotVisible',
+      visibilityBlockedReason,
+      input.weaponIds[0],
+    );
+  }
+
+  const resolvedTargetHex = input.targetHex ?? targetUnit.position;
+  const attackRange = hexDistance(attackerUnit.position, resolvedTargetHex);
+  if (attackRange === 0) {
+    return appendInteractiveAttackInvalid(
+      input.session,
+      input.attackerId,
+      input.targetId,
+      'SameHex',
+      'Attacker and target occupy the same hex',
+      input.weaponIds[0],
+    );
+  }
+
+  const targetArc = determineArc(
+    {
+      unitId: input.attackerId,
+      coord: attackerUnit.position,
+      facing: attackerUnit.facing,
+      prone: false,
+    },
+    resolvedTargetHex,
+  ).arc;
+  const weaponsInRange = weaponAttacks.filter(
+    (weapon) =>
+      getWeaponRangeBracket(attackRange, {
+        short: weapon.shortRange,
+        medium: weapon.mediumRange,
+        long: weapon.longRange,
+        extreme: weapon.extremeRange,
+        minimum: weapon.minRange,
+      }) !== RangeBracket.OutOfRange,
+  );
+  const weaponsInArc = weaponAttacks.filter((weapon) =>
+    weaponCoversTargetArc(weapon, targetArc),
+  );
+  const usableWeaponAttacks = weaponsInRange.filter((weapon) =>
+    weaponCoversTargetArc(weapon, targetArc),
+  );
+  const losTokens = buildLineOfSightTokens(input.session.currentState);
 
   // Wave 8 PR-K5: pre-compute indirect-fire resolution when grid available.
-  let indirectFireResolution:
-    | import('@/types/gameplay/CombatInterfaces').IIndirectFireResolution
-    | undefined;
-  let resolvedTargetHex = input.targetHex;
-  if (input.grid) {
-    const targetUnit = input.session.currentState.units[input.targetId];
-    resolvedTargetHex = resolvedTargetHex ?? targetUnit?.position;
+  let indirectFireResolution: IIndirectFireResolution | undefined;
+  if (input.grid && usableWeaponAttacks.length > 0) {
     if (resolvedTargetHex && targetUnit) {
-      for (const weaponId of input.weaponIds) {
+      for (const weaponId of usableWeaponAttacks.map(
+        (weapon) => weapon.weaponId,
+      )) {
         const result = computeIndirectFireContext(
           input.attackerId,
           weaponId,
           resolvedTargetHex,
           input.session.currentState,
           input.grid,
+          undefined,
+          input.targetId,
+          losTokens,
         );
         if (result.permitted && result.isIndirect) {
           indirectFireResolution = result;
@@ -173,16 +506,101 @@ export function applyInteractiveSessionAttack(
       }
     }
   }
+  if (weaponsInRange.length === 0) {
+    return appendInteractiveAttackInvalid(
+      input.session,
+      input.attackerId,
+      input.targetId,
+      'OutOfRange',
+      `Target at ${attackRange} hexes is outside the selected weapons' range`,
+      input.weaponIds[0],
+    );
+  }
+  if (weaponsInArc.length === 0 || usableWeaponAttacks.length === 0) {
+    return appendInteractiveAttackInvalid(
+      input.session,
+      input.attackerId,
+      input.targetId,
+      'OutOfArc',
+      `No selected weapons can fire into the ${targetArc} arc`,
+      input.weaponIds[0],
+    );
+  }
+
+  const attackRangeBracket = bestAttackRangeBracket(
+    attackRange,
+    usableWeaponAttacks,
+  );
+
+  let directLos: ReturnType<typeof calculateLOS> | undefined;
+  if (input.grid && resolvedTargetHex) {
+    directLos = calculateLOS(
+      attackerUnit.position,
+      resolvedTargetHex,
+      input.grid,
+      undefined,
+      undefined,
+      losTokens,
+    );
+    const indirectAllowed =
+      indirectFireResolution?.permitted === true &&
+      indirectFireResolution.isIndirect;
+    if (!directLos.hasLOS && !indirectAllowed) {
+      return appendInteractiveAttackInvalid(
+        input.session,
+        input.attackerId,
+        input.targetId,
+        'NoLineOfSight',
+        formatLOSBlockedDetails(directLos),
+        input.weaponIds[0],
+      );
+    }
+  }
+
+  const targetPartialCover =
+    input.grid && resolvedTargetHex
+      ? getTargetCoverInfo(
+          input.grid,
+          attackerUnit.position,
+          resolvedTargetHex,
+          {
+            horizontalCoverEligible: gameUnitUsesMekHorizontalCover(
+              input.session.units.find((unit) => unit.id === input.targetId),
+            ),
+            targetHexWaterCoverEligible: gameUnitUsesMekWaterCover(
+              input.session.units.find((unit) => unit.id === input.targetId),
+            ),
+          },
+        ).partialCover
+      : false;
+  const targetTerrainModifier =
+    input.grid && resolvedTargetHex
+      ? calculateTargetTerrainModifierFromHex(
+          input.grid.hexes.get(coordToKey(resolvedTargetHex)),
+        )
+      : null;
 
   let session = declareAttack(
     input.session,
     input.attackerId,
     input.targetId,
-    weaponAttacks,
-    3,
-    RangeBracket.Short,
+    usableWeaponAttacks,
+    attackRange,
+    attackRangeBracket,
     indirectFireResolution,
     resolvedTargetHex,
+    targetPartialCover,
+    directLos?.hasLOS
+      ? directLos.interveningTerrainEffects
+      : input.grid
+        ? indirectInterveningTerrainEffects({
+            session: input.session,
+            grid: input.grid,
+            targetHex: resolvedTargetHex,
+            indirectFireResolution,
+          })
+        : [],
+    targetTerrainModifier,
   );
   session = lockAttack(session, input.attackerId);
   return session;

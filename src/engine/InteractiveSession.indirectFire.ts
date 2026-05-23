@@ -15,18 +15,31 @@
  */
 
 import type { IIndirectFireResolution } from '@/types/gameplay/CombatInterfaces';
+import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type { IGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
 } from '@/types/gameplay/HexGridInterfaces';
 
+import { isAirborneGameUnit } from '@/utils/gameplay/groundToGround';
 import {
-  resolveIndirectFire,
+  resolveIndirectFireWithSemiGuided,
   isIndirectFireCapable,
+  type IAirborneAeroSpottingEquipment,
   type ISpotterCandidate,
 } from '@/utils/gameplay/indirectFire';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
+
+type AirborneAeroSpottingUnitState = IGameState['units'][string] & {
+  readonly airborneAeroSpottingEquipment?: IAirborneAeroSpottingEquipment;
+};
+
+function getAirborneAeroSpottingEquipment(
+  unit: IGameState['units'][string],
+): IAirborneAeroSpottingEquipment | undefined {
+  return (unit as AirborneAeroSpottingUnitState).airborneAeroSpottingEquipment;
+}
 
 /**
  * Derive `IIndirectFireResolution` for an attack declared from
@@ -67,6 +80,7 @@ export function computeIndirectFireContext(
   grid: IHexGrid,
   pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>,
   targetEntityId?: string,
+  losTokens: readonly IUnitToken[] = [],
 ): IIndirectFireResolution {
   const attackerUnit = gameState.units[attackerId];
   if (!attackerUnit) {
@@ -91,7 +105,14 @@ export function computeIndirectFireContext(
   }
 
   // Compute attacker→target LOS to determine whether indirect is needed.
-  const attackerLOS = calculateLOS(attackerUnit.position, targetHex, grid);
+  const attackerLOS = calculateLOS(
+    attackerUnit.position,
+    targetHex,
+    grid,
+    undefined,
+    undefined,
+    losTokens,
+  );
   if (attackerLOS.hasLOS) {
     // Direct fire is available; indirect context is a pass-through.
     return {
@@ -117,6 +138,8 @@ export function computeIndirectFireContext(
       position: unit.position,
       movementType: unit.movementThisTurn,
       isOperational: !unit.destroyed && !unit.shutdown,
+      isAirborneAerospace: isAirborneGameUnit(unit),
+      airborneAeroSpottingEquipment: getAirborneAeroSpottingEquipment(unit),
       // Thread pilot SPA list into candidate when caller supplies it.
       // Absent entries leave pilotSpas undefined — no SPA modifier applied.
       pilotSpas: pilotSpasByUnitId?.[unitId],
@@ -147,18 +170,30 @@ export function computeIndirectFireContext(
 
   // Delegate to the pure helper — it handles eligibility, LOS per spotter,
   // spotter-election tiebreak, NARC/iNarc override, and penalty arithmetic.
-  const result = resolveIndirectFire({
-    attackerEntityId: attackerId,
-    attackerTeamId,
-    attackerPosition: attackerUnit.position,
-    targetPosition: targetHex,
-    weaponId,
-    attackerHasLOS: false,
-    spotterCandidates,
-    grid,
-    targetNarcMarkedByTeam,
-    targetINarcMarkedByTeam,
-  });
+  const result = resolveIndirectFireWithSemiGuided(
+    {
+      attackerEntityId: attackerId,
+      attackerTeamId,
+      attackerPosition: attackerUnit.position,
+      targetPosition: targetHex,
+      weaponId,
+      attackerHasLOS: false,
+      attackerAirborne: isAirborneGameUnit(attackerUnit),
+      spotterCandidates,
+      grid,
+      losTokens,
+      targetNarcMarkedByTeam,
+      targetINarcMarkedByTeam,
+    },
+    {
+      weaponId,
+      equipment: { isSemiGuided: false },
+      targetStatus: {
+        tagDesignated: targetUnitAny?.tagDesignated === true,
+        ecmProtected: targetUnitAny?.ecmProtected === true,
+      },
+    },
+  );
 
   if (!result.permitted) {
     return {

@@ -12,6 +12,10 @@ import {
   type IGeneratedMap,
   type IHexTerrain,
 } from '@/types/gameplay/TerrainTypes';
+import {
+  terrainFeaturesFromString,
+  terrainStringFromFeatures,
+} from '@/utils/gameplay/terrainEncoding';
 
 import type { IAdaptedUnit } from './types';
 
@@ -22,10 +26,6 @@ function toTerrainType(value: string | undefined): GameplayTerrainType {
     return value as GameplayTerrainType;
   }
   return GameplayTerrainType.Clear;
-}
-
-function primaryTerrainType(hex: IHexTerrain): GameplayTerrainType {
-  return hex.features[0]?.type ?? GameplayTerrainType.Clear;
 }
 
 export function createMinimalGrid(radius: number): IHexGrid {
@@ -59,7 +59,7 @@ export function createGridFromHexTerrain(
     if (!existing) continue;
     hexes.set(key, {
       ...existing,
-      terrain: primaryTerrainType(tile),
+      terrain: terrainStringFromFeatures(tile.features),
       elevation: tile.elevation,
     });
   }
@@ -143,15 +143,19 @@ export function createGridFromTerrainPreset(
 export function hexTerrainFromGrid(grid: IHexGrid): readonly IHexTerrain[] {
   return Array.from(grid.hexes.values()).map((hex) => {
     const type = toTerrainType(hex.terrain);
+    const encodedFeatures = terrainFeaturesFromString(hex.terrain);
     return {
       coordinate: hex.coord,
       elevation: hex.elevation,
-      features: [
-        {
-          type,
-          level: type === GameplayTerrainType.Water ? 1 : 0,
-        },
-      ],
+      features:
+        encodedFeatures.length > 0
+          ? encodedFeatures
+          : [
+              {
+                type,
+                level: type === GameplayTerrainType.Water ? 1 : 0,
+              },
+            ],
     };
   });
 }
@@ -191,9 +195,16 @@ export function toAIUnitState(
 export function toMovementCapability(
   adapted: IAdaptedUnit,
 ): IMovementCapability {
-  return {
+  const capability: IMovementCapability = {
     walkMP: adapted.walkMP,
     runMP: adapted.runMP,
     jumpMP: adapted.jumpMP,
+  };
+  return {
+    ...capability,
+    ...(adapted.movementMode ? { movementMode: adapted.movementMode } : {}),
+    ...(adapted.waterCapability
+      ? { waterCapability: adapted.waterCapability }
+      : {}),
   };
 }

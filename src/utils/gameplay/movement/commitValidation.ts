@@ -23,6 +23,7 @@ import {
 import { buildMovementEventPath } from './eventPath';
 import { movementModeForPath } from './mode';
 import { hexHasPavementRoadBonusSurface } from './pathfinding';
+import { deriveMovementRangeHexForDestination } from './reachable';
 import { getStandingCost, validateMovement } from './validation';
 
 export interface ICommittedMovementValidationInput {
@@ -84,6 +85,34 @@ export function validateCommittedMovement(
     getHeatMovementPenalty(input.unit.heat),
   );
   const standingCost = input.unit.prone ? getStandingCost(input.capability) : 0;
+  const projection = deriveMovementRangeHexForDestination(
+    input.unit,
+    input.movementType,
+    input.grid,
+    input.capability,
+    input.to,
+  );
+  const shouldDeferImpossibleStandUpResolution =
+    input.unit.prone === true &&
+    input.movementType !== MovementType.Jump &&
+    projection?.standUpPsrImpossibleReason;
+  if (
+    projection &&
+    !projection.reachable &&
+    !shouldDeferImpossibleStandUpResolution
+  ) {
+    return {
+      valid: false,
+      reason: projection.movementInvalidReason ?? 'InvalidDestination',
+      details:
+        projection.movementInvalidDetails ??
+        projection.blockedReason ??
+        'Movement is not legal',
+      mpCost: projection.mpCost,
+      heatGenerated: projection.heatGenerated,
+    };
+  }
+
   const validation = validateMovement(
     input.grid,
     {
@@ -120,6 +149,21 @@ export function validateCommittedMovement(
           heatGenerated: validation.heatGenerated,
         };
       }
+      if (projection?.reachable) {
+        return {
+          valid: true,
+          mpCost: pathValidation.mpCost ?? projection.mpCost,
+          heatGenerated: projection.heatGenerated ?? 0,
+          path: input.path,
+        };
+      }
+    } else if (projection?.reachable) {
+      return {
+        valid: true,
+        mpCost: projection.mpCost,
+        heatGenerated: projection.heatGenerated ?? 0,
+        path: projection.path ?? [from, input.to],
+      };
     }
 
     const directBlockedStep = directTerrainBlockedStep({
@@ -150,6 +194,13 @@ export function validateCommittedMovement(
   }
 
   let mpCost = validation.mpCost;
+  let heatGenerated = validation.heatGenerated;
+  let committedPath: readonly IHexCoordinate[] | undefined;
+  if (projection?.reachable) {
+    mpCost = projection.mpCost;
+    heatGenerated = projection.heatGenerated ?? 0;
+    committedPath = projection.path ?? [from, input.to];
+  }
   if (input.path !== undefined) {
     const pathValidation = validateSuppliedMovementPath({
       grid: input.grid,
@@ -167,18 +218,19 @@ export function validateCommittedMovement(
         reason: pathValidation.reason,
         details: pathValidation.details,
         mpCost: pathValidation.mpCost,
-        heatGenerated: validation.heatGenerated,
+        heatGenerated,
       };
     }
-    mpCost = pathValidation.mpCost ?? validation.mpCost;
+    mpCost = pathValidation.mpCost ?? mpCost;
+    committedPath = input.path;
   }
 
   return {
     valid: true,
     mpCost,
-    heatGenerated: validation.heatGenerated,
+    heatGenerated,
     path:
-      input.path ??
+      committedPath ??
       buildMovementEventPath({
         grid: input.grid,
         from,

@@ -290,6 +290,8 @@ export class InteractiveSession {
       this.session.currentState,
       unitId,
       this.weaponsByUnit,
+      this.movementByUnit,
+      { session: this.session, grid: this.grid },
     );
   }
 
@@ -340,6 +342,7 @@ export class InteractiveSession {
       facing,
       movementType,
       path,
+      diceRoller: this.diceRollerForResolvers(),
     });
     this.tryFinalizeAndPublish();
   }

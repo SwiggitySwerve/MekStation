@@ -20,6 +20,7 @@ import {
   IToHitModifier,
   ITransferDamagePayload,
   IWeaponAttackData,
+  RangeBracket,
 } from '@/types/gameplay';
 
 import { createEventBase } from './base';
@@ -34,6 +35,7 @@ export function createAttackDeclaredEvent(
   toHitNumber: number,
   modifiers: readonly IToHitModifier[],
   weaponAttacks?: readonly IWeaponAttackData[],
+  rangeBracket?: RangeBracket,
 ): IGameEvent {
   const payload: IAttackDeclaredPayload = {
     attackerId,
@@ -42,6 +44,10 @@ export function createAttackDeclaredEvent(
     toHitNumber,
     modifiers,
     weaponAttacks,
+    range:
+      rangeBracket === undefined || rangeBracket === RangeBracket.OutOfRange
+        ? undefined
+        : rangeBracket,
   };
 
   return {

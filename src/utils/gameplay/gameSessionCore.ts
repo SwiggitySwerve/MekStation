@@ -14,11 +14,14 @@ import {
   IGameUnit,
   IHexCoordinate,
   IToHitModifier,
+  IToHitModifierDetail,
   IWeaponAttack,
   IWeaponAttackData,
   MovementType,
   RangeBracket,
 } from '@/types/gameplay';
+
+import type { ILOSInterveningTerrainEffect } from './lineOfSight';
 
 /**
  * Per `add-victory-and-post-battle-summary` design D3 + spec scenario
@@ -52,6 +55,7 @@ export function isTurnLimitDraw(
   return delta <= TURN_LIMIT_DRAW_TOLERANCE;
 }
 
+import { isRepresentedTargetImmobile } from './combatImmobility';
 import { type D6Roller, defaultD6Roller } from './diceTypes';
 import {
   createAttackDeclaredEvent,
@@ -67,7 +71,8 @@ import {
   createPhaseChangedEvent,
 } from './gameEvents';
 import { allUnitsLocked, deriveState } from './gameState';
-import { calculateToHit } from './toHit';
+import { isGroundToGroundGameAttack } from './groundToGround';
+import { calculateInterveningTerrainModifier, calculateToHit } from './toHit';
 
 export interface ICreateGameSessionOptions {
   readonly id?: string;
@@ -327,6 +332,10 @@ export function declareMovement(
   mpUsed: number,
   heatGenerated: number,
   path?: readonly IHexCoordinate[],
+  options?: {
+    readonly standUpAttempt?: boolean;
+    readonly standUpSucceeded?: boolean;
+  },
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {
     throw new Error('Not in movement phase');
@@ -351,6 +360,7 @@ export function declareMovement(
     mpUsed,
     heatGenerated,
     path,
+    options,
   );
 
   return appendEvent(session, event);
@@ -397,6 +407,12 @@ export function declareAttack(
    * Defaults to the live target unit position when omitted.
    */
   targetHex?: import('@/types/gameplay/HexGridInterfaces').IHexCoordinate,
+  /** Whether the target's hex grants partial cover for this declaration. */
+  targetPartialCover = false,
+  /** Intervening LOS terrain effects that should modify the attack to-hit. */
+  interveningTerrainEffects: readonly ILOSInterveningTerrainEffect[] = [],
+  /** Target-hex woods/smoke terrain modifier, separate from true partial cover. */
+  targetTerrainModifier: IToHitModifierDetail | null = null,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.WeaponAttack) {
     throw new Error('Not in weapon attack phase');
@@ -417,22 +433,39 @@ export function declareAttack(
     throw new Error(`Attacker ${attackerId} not found in units`);
   }
 
+  const interveningTerrainModifier = calculateInterveningTerrainModifier(
+    interveningTerrainEffects,
+  );
+  const terrainModifiers = [
+    interveningTerrainModifier,
+    targetTerrainModifier,
+  ].filter(
+    (modifier): modifier is IToHitModifierDetail =>
+      modifier !== null && modifier !== undefined,
+  );
+
   const toHitCalc = calculateToHit(
     {
       gunnery: attacker.gunnery,
       movementType: attackerUnit.movementThisTurn,
       heat: attackerUnit.heat,
-      damageModifiers: [],
+      damageModifiers: terrainModifiers,
+      prone: attackerUnit.prone ?? false,
     },
     {
       movementType: targetUnit.movementThisTurn,
       hexesMoved: targetUnit.hexesMovedThisTurn,
-      prone: false,
-      immobile: false,
-      partialCover: false,
+      prone: targetUnit.prone ?? false,
+      immobile: isRepresentedTargetImmobile(targetUnit),
+      partialCover: targetPartialCover,
     },
     rangeBracket,
     range,
+    minimumRangeForAttack(
+      weapons,
+      range,
+      isGroundToGroundGameAttack(attackerUnit, targetUnit),
+    ),
   );
 
   const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
@@ -480,6 +513,7 @@ export function declareAttack(
     finalToHit,
     modifiers,
     weaponAttackData,
+    rangeBracket,
   );
 
   let updatedSession = appendEvent(session, event);
@@ -529,6 +563,20 @@ export function declareAttack(
   }
 
   return updatedSession;
+}
+
+function minimumRangeForAttack(
+  weapons: readonly IWeaponAttack[],
+  range: number,
+  minimumRangeApplies = true,
+): number {
+  if (!minimumRangeApplies) return 0;
+  return weapons.reduce((strictestMinimum, weapon) => {
+    const minimum = weapon.minRange ?? 0;
+    return minimum > range
+      ? Math.max(strictestMinimum, minimum)
+      : strictestMinimum;
+  }, 0);
 }
 
 export function lockAttack(

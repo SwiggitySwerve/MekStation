@@ -26,6 +26,7 @@ import type {
 
 import { MovementType, GameSide } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 
 import { computeIndirectFireContext } from '../InteractiveSession.indirectFire';
 
@@ -54,8 +55,9 @@ function makeClearGrid(): IHexGrid {
 
 function makeBlockedGrid(): IHexGrid {
   const grid = makeClearGrid();
-  // Heavy woods at (3, 0) blocks LOS from (0,0) → (5,0)
-  grid.hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
+  // Heavy + light woods exceed MegaMek's intervening woods LOS threshold.
+  grid.hexes.set('2,0', makeHex(2, 0, TerrainType.HeavyWoods));
+  grid.hexes.set('3,0', makeHex(3, 0, TerrainType.LightWoods));
   return grid;
 }
 
@@ -88,6 +90,18 @@ function makeState(units: IUnitGameState[]): IGameState {
   return {
     units: map,
   } as unknown as IGameState;
+}
+
+function makeAerospaceCombatState(altitude: number) {
+  return createAerospaceCombatState({
+    maxSI: 10,
+    armorByArc: { nose: 10, leftWing: 8, rightWing: 8, aft: 6 },
+    heatSinks: 10,
+    fuelPoints: 20,
+    safeThrust: 6,
+    maxThrust: 9,
+    altitude,
+  });
 }
 
 // =============================================================================
@@ -179,6 +193,49 @@ describe('computeIndirectFireContext', () => {
     expect(result.basis).toBe('los');
     // Spotter stationary → toHitPenalty=1 (base only); walking adds +1.
     expect(result.toHitPenalty).toBe(1);
+  });
+
+  it('rejects airborne aerospace spotter without represented recon or imager equipment', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const spotter = {
+      ...makeUnit('s1', GameSide.Player, { q: 5, r: 1 }),
+      combatState: {
+        kind: 'aero',
+        state: makeAerospaceCombatState(3),
+      },
+    } as IUnitGameState;
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, spotter]),
+      makeBlockedGrid(),
+    );
+    expect(result.permitted).toBe(false);
+    expect(result.spotterId).toBeNull();
+  });
+
+  it('permits airborne aerospace spotter with represented recon equipment', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const spotter = {
+      ...makeUnit('s1', GameSide.Player, { q: 5, r: 1 }),
+      combatState: {
+        kind: 'aero',
+        state: makeAerospaceCombatState(3),
+      },
+      airborneAeroSpottingEquipment: { reconCamera: true },
+    } as unknown as IUnitGameState;
+    const result = computeIndirectFireContext(
+      'a1',
+      'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, spotter]),
+      makeBlockedGrid(),
+    );
+    expect(result.permitted).toBe(true);
+    expect(result.isIndirect).toBe(true);
+    expect(result.spotterId).toBe('s1');
+    expect(result.basis).toBe('los');
   });
 
   // -------------------------------------------------------------------------
@@ -285,6 +342,51 @@ describe('computeIndirectFireContext', () => {
     const result = computeIndirectFireContext(
       'a1',
       'lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, targetUnit]),
+      makeBlockedGrid(),
+      undefined,
+      't1',
+    );
+
+    expect(result.permitted).toBe(false);
+  });
+
+  it('wires semi-guided TAG through collaborator: no spotter + TAG-designated target → permitted with no indirect penalty', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const targetUnit = {
+      ...makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 }),
+      tagDesignated: true,
+    };
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'semi-guided-lrm-15',
+      { q: 5, r: 0 },
+      makeState([attacker, targetUnit]),
+      makeBlockedGrid(),
+      undefined,
+      't1',
+    );
+
+    expect(result.permitted).toBe(true);
+    expect(result.isIndirect).toBe(true);
+    expect(result.basis).toBe('semi-guided-tag');
+    expect(result.spotterId).toBeNull();
+    expect(result.toHitPenalty).toBe(0);
+  });
+
+  it('rejects semi-guided TAG when ECM protection nullifies the target designation', () => {
+    const attacker = makeUnit('a1', GameSide.Player, { q: 0, r: 0 });
+    const targetUnit = {
+      ...makeUnit('t1', GameSide.Opponent, { q: 5, r: 0 }),
+      tagDesignated: true,
+      ecmProtected: true,
+    } as ReturnType<typeof makeUnit> & { ecmProtected: boolean };
+
+    const result = computeIndirectFireContext(
+      'a1',
+      'semi-guided-lrm-15',
       { q: 5, r: 0 },
       makeState([attacker, targetUnit]),
       makeBlockedGrid(),

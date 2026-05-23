@@ -1,5 +1,8 @@
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
+import type {
+  IIndirectFireResolution,
+  IWeaponAttack,
+} from '@/types/gameplay/CombatInterfaces';
 
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { hasReachedEdge, resolveEdge } from '@/simulation/ai/RetreatAI';
@@ -11,6 +14,7 @@ import {
 import {
   Facing,
   RangeBracket,
+  type IHexCoordinate,
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
@@ -19,6 +23,7 @@ import {
   type DiceRoller,
   defaultD6Roller,
 } from '@/utils/gameplay/diceTypes';
+import { canFireFromArc, determineArc } from '@/utils/gameplay/firingArcs';
 import {
   createRetreatTriggeredEvent,
   createUnitRetreatedEvent,
@@ -27,7 +32,6 @@ import {
   rollInitiative,
   advancePhase,
   appendEvent,
-  declareMovement,
   lockMovement,
   declareAttack,
   lockAttack,
@@ -39,19 +43,25 @@ import {
   resolvePendingPSRs,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import {
   applyForcedWithdrawalCheck,
   applyMoralePass,
   applyWithdrawalEdgeExits,
 } from '@/utils/gameplay/morale';
+import { getWeaponRangeBracket } from '@/utils/gameplay/range';
 import {
-  buildMovementEventPath,
-  maxMovementCostForCapability,
-} from '@/utils/gameplay/movement/eventPath';
+  gameUnitUsesMekHorizontalCover,
+  gameUnitUsesMekWaterCover,
+  getTargetCoverInfo,
+} from '@/utils/gameplay/terrainCover';
+import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { toAIUnitState } from './GameEngine.helpers';
+import { applyInteractiveSessionMovement } from './InteractiveSession.actions';
 import { computeIndirectFireContext } from './InteractiveSession.indirectFire';
 
 /**
@@ -82,6 +92,79 @@ function toDiceRoller(d6: D6Roller): DiceRoller {
 const DEFAULT_ATTACKER_TONNAGE = 65;
 /** Default piloting skill when no `IGameUnit` lookup is available. */
 const DEFAULT_PILOTING_SKILL = 5;
+
+const ATTACK_RANGE_BRACKET_RANK: Readonly<Record<RangeBracket, number>> = {
+  [RangeBracket.Short]: 0,
+  [RangeBracket.Medium]: 1,
+  [RangeBracket.Long]: 2,
+  [RangeBracket.Extreme]: 3,
+  [RangeBracket.OutOfRange]: 4,
+};
+
+function bestAttackRangeBracket(
+  range: number,
+  weaponAttacks: readonly IWeaponAttack[],
+): RangeBracket {
+  if (weaponAttacks.length === 0) return RangeBracket.Short;
+
+  return weaponAttacks.reduce<RangeBracket>((best, weapon) => {
+    const bracket = getWeaponRangeBracket(range, {
+      short: weapon.shortRange,
+      medium: weapon.mediumRange,
+      long: weapon.longRange,
+      extreme: weapon.extremeRange,
+      minimum: weapon.minRange,
+    });
+    return ATTACK_RANGE_BRACKET_RANK[bracket] < ATTACK_RANGE_BRACKET_RANK[best]
+      ? bracket
+      : best;
+  }, RangeBracket.OutOfRange);
+}
+
+function isWeaponInRange(weapon: IWeaponAttack, range: number): boolean {
+  return (
+    getWeaponRangeBracket(range, {
+      short: weapon.shortRange,
+      medium: weapon.mediumRange,
+      long: weapon.longRange,
+      extreme: weapon.extremeRange,
+      minimum: weapon.minRange,
+    }) !== RangeBracket.OutOfRange
+  );
+}
+
+function weaponCoversTargetArc(
+  weapon: IWeaponAttack,
+  targetArc: ReturnType<typeof determineArc>['arc'],
+): boolean {
+  if (weapon.mountingArc === undefined) return true;
+  return canFireFromArc(weapon.mountingArc, targetArc);
+}
+
+function indirectInterveningTerrainEffects({
+  session,
+  grid,
+  targetHex,
+  indirectFireResolution,
+}: {
+  readonly session: IGameSession;
+  readonly grid: IHexGrid;
+  readonly targetHex: IHexCoordinate;
+  readonly indirectFireResolution?: IIndirectFireResolution;
+}): ReturnType<typeof calculateLOS>['interveningTerrainEffects'] {
+  if (
+    indirectFireResolution?.permitted !== true ||
+    indirectFireResolution.isIndirect !== true ||
+    !indirectFireResolution.spotterId
+  ) {
+    return [];
+  }
+
+  const spotter = session.currentState.units[indirectFireResolution.spotterId];
+  if (!spotter) return [];
+  return calculateLOS(spotter.position, targetHex, grid)
+    .interveningTerrainEffects;
+}
 
 /**
  * Per `wire-bot-ai-helpers-and-capstone`: invoke the bot's retreat
@@ -159,29 +242,21 @@ export function runMovementPhase(
     const moveEvt = botPlayer.playMovementPhase(aiUnit, grid, cap);
 
     if (moveEvt) {
-      const eventPath = buildMovementEventPath({
+      updatedSession = applyInteractiveSessionMovement({
+        session: updatedSession,
         grid,
-        from: unit.position,
-        to: moveEvt.payload.to,
-        movementType: moveEvt.payload.movementType,
-        maxCost: maxMovementCostForCapability(
-          cap,
-          moveEvt.payload.movementType,
-        ),
-      });
-      updatedSession = declareMovement(
-        updatedSession,
+        movementByUnit,
         unitId,
-        unit.position,
-        moveEvt.payload.to,
-        moveEvt.payload.facing as Facing,
-        moveEvt.payload.movementType,
-        moveEvt.payload.mpUsed,
-        moveEvt.payload.heatGenerated,
-        eventPath,
-      );
+        to: moveEvt.payload.to,
+        facing: moveEvt.payload.facing as Facing,
+        movementType: moveEvt.payload.movementType,
+      });
     }
-    updatedSession = lockMovement(updatedSession, unitId);
+    if (
+      updatedSession.currentState.units[unitId]?.lockState !== LockState.Locked
+    ) {
+      updatedSession = lockMovement(updatedSession, unitId);
+    }
 
     // Per `add-bot-retreat-behavior` § 7.2–7.3: after the unit locks in
     // its movement, check whether the new position touches the locked
@@ -283,14 +358,39 @@ export function runAttackPhase(
       // available. Pick the FIRST weapon whose resolution is
       // permitted+isIndirect (LRM volleys share a single spotter
       // election per declaration).
-      let indirectFireResolution:
-        | import('@/types/gameplay/CombatInterfaces').IIndirectFireResolution
-        | undefined;
+      let indirectFireResolution: IIndirectFireResolution | undefined;
       const targetUnit =
         updatedSession.currentState.units[atkEvt.payload.targetId];
       const targetHex = targetUnit?.position;
-      if (grid && targetHex && targetUnit) {
-        for (const weaponId of atkEvt.payload.weapons) {
+      const attackRange = targetHex ? hexDistance(unit.position, targetHex) : 3;
+      const targetArc =
+        targetHex && attackRange > 0
+          ? determineArc(
+              {
+                unitId,
+                coord: unit.position,
+                facing: unit.facing,
+                prone: false,
+              },
+              targetHex,
+            ).arc
+          : null;
+      const usableWeaponAttacks =
+        targetArc === null
+          ? []
+          : weaponAttacks.filter(
+              (weapon) =>
+                isWeaponInRange(weapon, attackRange) &&
+                weaponCoversTargetArc(weapon, targetArc),
+            );
+      const attackRangeBracket = bestAttackRangeBracket(
+        attackRange,
+        usableWeaponAttacks,
+      );
+      if (grid && targetHex && targetUnit && usableWeaponAttacks.length > 0) {
+        for (const weaponId of usableWeaponAttacks.map(
+          (weapon) => weapon.weaponId,
+        )) {
           const result = computeIndirectFireContext(
             unitId,
             weaponId,
@@ -304,17 +404,61 @@ export function runAttackPhase(
           }
         }
       }
+      if (
+        usableWeaponAttacks.length === 0 ||
+        attackRangeBracket === RangeBracket.OutOfRange
+      ) {
+        updatedSession = lockAttack(updatedSession, unitId);
+        continue;
+      }
+      const targetPartialCover =
+        grid && targetHex
+          ? getTargetCoverInfo(grid, unit.position, targetHex, {
+              horizontalCoverEligible: gameUnitUsesMekHorizontalCover(
+                updatedSession.units.find(
+                  (entry) => entry.id === atkEvt.payload.targetId,
+                ),
+              ),
+              targetHexWaterCoverEligible: gameUnitUsesMekWaterCover(
+                updatedSession.units.find(
+                  (entry) => entry.id === atkEvt.payload.targetId,
+                ),
+              ),
+            }).partialCover
+          : false;
+      const targetTerrainModifier =
+        grid && targetHex
+          ? calculateTargetTerrainModifierFromHex(
+              grid.hexes.get(coordToKey(targetHex)),
+            )
+          : null;
+      const directLos =
+        grid && targetHex
+          ? calculateLOS(unit.position, targetHex, grid)
+          : undefined;
 
       // Arc is computed inside resolveAttack at resolve time.
       updatedSession = declareAttack(
         updatedSession,
         unitId,
         atkEvt.payload.targetId,
-        weaponAttacks,
-        3,
-        RangeBracket.Short,
+        usableWeaponAttacks,
+        attackRange,
+        attackRangeBracket,
         indirectFireResolution,
         targetHex,
+        targetPartialCover,
+        directLos?.hasLOS
+          ? directLos.interveningTerrainEffects
+          : grid && targetHex
+            ? indirectInterveningTerrainEffects({
+                session: updatedSession,
+                grid,
+                targetHex,
+                indirectFireResolution,
+              })
+            : [],
+        targetTerrainModifier,
       );
     }
     updatedSession = lockAttack(updatedSession, unitId);

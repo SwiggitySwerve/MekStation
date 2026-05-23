@@ -1,15 +1,32 @@
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IGameUnit } from '@/types/gameplay/GameSessionInterfaces';
+import type { IAttackDeclaredPayload } from '@/types/gameplay/GameSessionAttackEvents';
+import type {
+  IGameSession,
+  IGameUnit,
+} from '@/types/gameplay/GameSessionInterfaces';
+import type { IMovementInvalidPayload } from '@/types/gameplay/GameSessionMovementEvents';
 
+import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { TerrainPreset } from '@/types/encounter';
 import {
+  GameEventType,
   GameSide,
   GameStatus,
   GamePhase,
   LockState,
 } from '@/types/gameplay/GameSessionInterfaces';
-import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import {
+  Facing,
+  MovementType,
+  RangeBracket,
+} from '@/types/gameplay/HexGridInterfaces';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import {
+  advancePhase,
+  createGameSession,
+  rollInitiative,
+  startGame,
+} from '@/utils/gameplay/gameSession';
 
 import type { IAdaptedUnit } from '../types';
 
@@ -17,7 +34,9 @@ import { GameEngine, InteractiveSession } from '../GameEngine';
 import {
   createGridFromHexTerrain,
   createGridFromTerrainPreset,
+  hexTerrainFromGrid,
 } from '../GameEngine.helpers';
+import { runAttackPhase, runMovementPhase } from '../GameEngine.phases';
 
 function createTestWeapon(id: string): IWeapon {
   return {
@@ -30,6 +49,21 @@ function createTestWeapon(id: string): IWeapon {
     heat: 3,
     minRange: 0,
     ammoPerTon: -1,
+    destroyed: false,
+  };
+}
+
+function createAmmoWeapon(id: string): IWeapon {
+  return {
+    id,
+    name: 'AC/5',
+    shortRange: 3,
+    mediumRange: 6,
+    longRange: 9,
+    damage: 5,
+    heat: 1,
+    minRange: 0,
+    ammoPerTon: 20,
     destroyed: false,
   };
 }
@@ -90,6 +124,82 @@ function createGameUnit(id: string, side: GameSide): IGameUnit {
     pilotRef: 'default',
     gunnery: 4,
     piloting: 5,
+  };
+}
+
+function setupEngineSessionAtAttackPhase(): IGameSession {
+  let session = createGameSession(
+    {
+      mapRadius: 12,
+      turnLimit: 0,
+      victoryConditions: ['elimination'],
+      optionalRules: [],
+    } as never,
+    [
+      createGameUnit('bot-1', GameSide.Player),
+      createGameUnit('target-1', GameSide.Opponent),
+    ],
+  );
+  session = startGame(session, GameSide.Player);
+  session = rollInitiative(session);
+  session = advancePhase(session);
+  session = advancePhase(session);
+  session.currentState.units['bot-1'] = {
+    ...session.currentState.units['bot-1'],
+    position: { q: 0, r: 0 },
+    facing: Facing.North,
+    movementThisTurn: MovementType.Stationary,
+  };
+  session.currentState.units['target-1'] = {
+    ...session.currentState.units['target-1'],
+    position: { q: 5, r: 0 },
+    facing: Facing.South,
+    movementThisTurn: MovementType.Stationary,
+  };
+  return session;
+}
+
+function setupEngineSessionAtMovementPhase(): IGameSession {
+  let session = createGameSession(
+    {
+      mapRadius: 12,
+      turnLimit: 0,
+      victoryConditions: ['elimination'],
+      optionalRules: [],
+    } as never,
+    [
+      createGameUnit('bot-1', GameSide.Player),
+      createGameUnit('target-1', GameSide.Opponent),
+    ],
+  );
+  session = startGame(session, GameSide.Player);
+  session = advancePhase(session);
+  session.currentState.units['bot-1'] = {
+    ...session.currentState.units['bot-1'],
+    position: { q: 0, r: 0 },
+    facing: Facing.North,
+    movementThisTurn: MovementType.Stationary,
+  };
+  session.currentState.units['target-1'] = {
+    ...session.currentState.units['target-1'],
+    position: { q: 5, r: 0 },
+    facing: Facing.South,
+    movementThisTurn: MovementType.Stationary,
+  };
+  return session;
+}
+
+function placeInteractiveUnit(
+  interactive: InteractiveSession,
+  unitId: string,
+  position: { q: number; r: number },
+  facing: Facing,
+): void {
+  const state = interactive.getSession().currentState;
+  state.units[unitId] = {
+    ...state.units[unitId],
+    position,
+    facing,
   };
 }
 
@@ -185,6 +295,113 @@ describe('GameEngine', () => {
     });
   });
 
+  describe('runAttackPhase', () => {
+    it('declares bot weapon attacks with the real distance-derived range bracket', () => {
+      const session = setupEngineSessionAtAttackPhase();
+      const botPlayer = {
+        evaluateRetreat: jest.fn(() => null),
+        playAttackPhase: jest.fn((unit: { unitId: string }) =>
+          unit.unitId === 'bot-1'
+            ? {
+                type: 'AttackDeclared',
+                payload: {
+                  attackerId: 'bot-1',
+                  targetId: 'target-1',
+                  weapons: ['bot-laser'],
+                },
+              }
+            : null,
+        ),
+      } as unknown as BotPlayer;
+      const weapon = {
+        ...createTestWeapon('bot-laser'),
+        shortRange: 3,
+        mediumRange: 6,
+        longRange: 9,
+      };
+
+      const result = runAttackPhase(
+        session,
+        botPlayer,
+        new Map([['bot-1', [weapon]]]),
+        new Map([['bot-1', 4]]),
+      );
+
+      const declared = result.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      );
+      expect(declared).toBeDefined();
+      const payload = declared!.payload as IAttackDeclaredPayload;
+      expect(payload.range).toBe(RangeBracket.Medium);
+      expect(payload.toHitNumber).toBe(6);
+      expect(payload.modifiers).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: `Range (${RangeBracket.Medium})`,
+            value: 2,
+          }),
+        ]),
+      );
+    });
+  });
+
+  describe('runMovementPhase', () => {
+    it('routes bot movement through the rules-backed movement validator', () => {
+      const session = setupEngineSessionAtMovementPhase();
+      const grid = createGridFromHexTerrain(12, []);
+      const botPlayer = {
+        evaluateRetreat: jest.fn(() => null),
+        playMovementPhase: jest.fn((unit: { unitId: string }) =>
+          unit.unitId === 'bot-1'
+            ? {
+                type: GameEventType.MovementDeclared,
+                payload: {
+                  unitId: 'bot-1',
+                  from: { q: 0, r: 0 },
+                  to: { q: 1, r: 0 },
+                  facing: Facing.Southeast,
+                  movementType: MovementType.Walk,
+                  mpUsed: 1,
+                  heatGenerated: 1,
+                },
+              }
+            : null,
+        ),
+      } as unknown as BotPlayer;
+
+      const result = runMovementPhase(
+        session,
+        grid,
+        botPlayer,
+        new Map(),
+        new Map([['bot-1', { walkMP: 0, runMP: 0, jumpMP: 0 }]]),
+        new Map([['bot-1', 4]]),
+      );
+
+      expect(
+        result.events.some(
+          (event) =>
+            event.type === GameEventType.MovementDeclared &&
+            event.actorId === 'bot-1',
+        ),
+      ).toBe(false);
+
+      const invalid = result.events.find(
+        (event) =>
+          event.type === GameEventType.MovementInvalid &&
+          event.actorId === 'bot-1',
+      );
+      expect(invalid).toBeDefined();
+      expect(invalid!.payload as IMovementInvalidPayload).toMatchObject({
+        unitId: 'bot-1',
+        reason: 'InsufficientMP',
+      });
+      expect(result.currentState.units['bot-1'].lockState).toBe(
+        LockState.Locked,
+      );
+    });
+  });
+
   describe('createInteractiveSession', () => {
     let interactive: InteractiveSession;
 
@@ -276,6 +493,33 @@ describe('GameEngine', () => {
     });
   });
 
+  describe('terrain grid helpers', () => {
+    it('preserves multi-feature terrain for rules-backed projection consumers', () => {
+      const grid = createGridFromHexTerrain(2, [
+        {
+          coordinate: { q: 1, r: 0 },
+          elevation: 0,
+          features: [
+            { type: TerrainType.LightWoods, level: 1 },
+            { type: TerrainType.Building, level: 2 },
+          ],
+        },
+      ]);
+
+      const encoded = grid.hexes.get('1,0')?.terrain;
+      expect(encoded).toContain(TerrainType.LightWoods);
+      expect(encoded).toContain(TerrainType.Building);
+
+      const roundTripped = hexTerrainFromGrid(grid).find(
+        (tile) => tile.coordinate.q === 1 && tile.coordinate.r === 0,
+      );
+      expect(roundTripped?.features).toEqual([
+        { type: TerrainType.LightWoods, level: 1 },
+        { type: TerrainType.Building, level: 2 },
+      ]);
+    });
+  });
+
   describe('phase cycling', () => {
     it('should advance through phases: initiative → movement → attack → heat → end', () => {
       const engine = new GameEngine({ seed: 42, turnLimit: 20, mapRadius: 5 });
@@ -338,6 +582,93 @@ describe('GameEngine', () => {
   });
 
   describe('getAvailableActions', () => {
+    it('returns movement destinations from rules-backed walk/run/jump projections', () => {
+      const engine = new GameEngine({ seed: 42, turnLimit: 20, mapRadius: 5 });
+      const p1: IAdaptedUnit = {
+        ...createTestUnit('player-1', GameSide.Player, { q: 0, r: 0 }),
+        walkMP: 1,
+        runMP: 2,
+        jumpMP: 3,
+      };
+      const o1 = createTestUnit('opponent-1', GameSide.Opponent, {
+        q: -5,
+        r: 0,
+      });
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+      const interactive = engine.createInteractiveSession(
+        [p1],
+        [o1],
+        gameUnits,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'player-1',
+        { q: 0, r: 0 },
+        Facing.Southeast,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'opponent-1',
+        { q: -5, r: 0 },
+        Facing.North,
+      );
+
+      const moveKeys = new Set(
+        interactive
+          .getAvailableActions('player-1')
+          .validMoves.map((hex) => `${hex.q},${hex.r}`),
+      );
+      expect(moveKeys).toContain('1,0');
+      expect(moveKeys).toContain('2,0');
+      expect(moveKeys).toContain('3,0');
+      expect(moveKeys).not.toContain('4,0');
+    });
+
+    it('excludes occupied destinations from available movement actions', () => {
+      const engine = new GameEngine({ seed: 42, turnLimit: 20, mapRadius: 5 });
+      const p1: IAdaptedUnit = {
+        ...createTestUnit('player-1', GameSide.Player, { q: 0, r: 0 }),
+        walkMP: 2,
+        runMP: 2,
+        jumpMP: 2,
+      };
+      const o1 = createTestUnit('opponent-1', GameSide.Opponent, {
+        q: 1,
+        r: 0,
+      });
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+      const interactive = engine.createInteractiveSession(
+        [p1],
+        [o1],
+        gameUnits,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'player-1',
+        { q: 0, r: 0 },
+        Facing.Southeast,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'opponent-1',
+        { q: 1, r: 0 },
+        Facing.North,
+      );
+
+      const moveKeys = new Set(
+        interactive
+          .getAvailableActions('player-1')
+          .validMoves.map((hex) => `${hex.q},${hex.r}`),
+      );
+      expect(moveKeys).not.toContain('1,0');
+    });
+
     it('should return valid targets for an active unit', () => {
       const engine = new GameEngine({ seed: 42, turnLimit: 20, mapRadius: 5 });
       const p1 = createTestUnit('player-1', GameSide.Player, { q: 0, r: -3 });
@@ -354,10 +685,162 @@ describe('GameEngine', () => {
         [o1],
         gameUnits,
       );
+      placeInteractiveUnit(
+        interactive,
+        'player-1',
+        { q: 0, r: 0 },
+        Facing.Southeast,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'opponent-1',
+        { q: 2, r: 0 },
+        Facing.North,
+      );
 
       const actions = interactive.getAvailableActions('player-1');
       expect(actions.validTargets.length).toBeGreaterThan(0);
       expect(actions.validTargets[0].unitId).toBe('opponent-1');
+      expect(actions.validTargets[0].weapons).toEqual(['player-1-ml-1']);
+    });
+
+    it('excludes weapon targets outside projected weapon range', () => {
+      const engine = new GameEngine({ seed: 42, turnLimit: 20, mapRadius: 10 });
+      const p1 = createTestUnit('player-1', GameSide.Player, { q: 0, r: 0 });
+      const o1 = createTestUnit('opponent-1', GameSide.Opponent, {
+        q: 10,
+        r: 0,
+      });
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+      const interactive = engine.createInteractiveSession(
+        [p1],
+        [o1],
+        gameUnits,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'player-1',
+        { q: 0, r: 0 },
+        Facing.Southeast,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'opponent-1',
+        { q: 10, r: 0 },
+        Facing.North,
+      );
+
+      const actions = interactive.getAvailableActions('player-1');
+      expect(actions.validTargets).toEqual([]);
+    });
+
+    it('excludes weapon targets blocked by projected elevation LOS', () => {
+      const grid = createGridFromHexTerrain(3, [
+        {
+          coordinate: { q: 1, r: 0 },
+          elevation: 2,
+          features: [{ type: TerrainType.Clear, level: 0 }],
+        },
+      ]);
+      const engine = new GameEngine({ seed: 42, turnLimit: 20, grid });
+      const p1 = createTestUnit('player-1', GameSide.Player, { q: 0, r: 0 });
+      const o1 = createTestUnit('opponent-1', GameSide.Opponent, {
+        q: 2,
+        r: 0,
+      });
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+      const interactive = engine.createInteractiveSession(
+        [p1],
+        [o1],
+        gameUnits,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'player-1',
+        { q: 0, r: 0 },
+        Facing.Southeast,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'opponent-1',
+        { q: 2, r: 0 },
+        Facing.North,
+      );
+
+      const actions = interactive.getAvailableActions('player-1');
+      expect(actions.validTargets).toEqual([]);
+    });
+
+    it('excludes ammo-fed weapon targets when no matching ammo remains', () => {
+      const engine = new GameEngine({ seed: 42, turnLimit: 20, mapRadius: 5 });
+      const p1: IAdaptedUnit = {
+        ...createTestUnit('player-1', GameSide.Player, { q: 0, r: 0 }),
+        weapons: [createAmmoWeapon('player-1-ac5-1')],
+      };
+      const o1 = createTestUnit('opponent-1', GameSide.Opponent, {
+        q: 2,
+        r: 0,
+      });
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+      const interactive = engine.createInteractiveSession(
+        [p1],
+        [o1],
+        gameUnits,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'player-1',
+        { q: 0, r: 0 },
+        Facing.Southeast,
+      );
+      placeInteractiveUnit(
+        interactive,
+        'opponent-1',
+        { q: 2, r: 0 },
+        Facing.North,
+      );
+      const state = interactive.getSession().currentState;
+      state.units['player-1'] = {
+        ...state.units['player-1'],
+        ammoState: {
+          'ac5-bin': {
+            binId: 'ac5-bin',
+            weaponType: 'AC/5',
+            location: 'right_torso',
+            remainingRounds: 0,
+            maxRounds: 20,
+            isExplosive: true,
+          },
+        },
+      };
+
+      expect(interactive.getAvailableActions('player-1').validTargets).toEqual(
+        [],
+      );
+
+      state.units['player-1'] = {
+        ...state.units['player-1'],
+        ammoState: {
+          ...state.units['player-1'].ammoState,
+          'ac5-bin': {
+            ...state.units['player-1'].ammoState!['ac5-bin'],
+            remainingRounds: 3,
+          },
+        },
+      };
+
+      expect(interactive.getAvailableActions('player-1').validTargets).toEqual([
+        { unitId: 'opponent-1', weapons: ['player-1-ac5-1'] },
+      ]);
     });
 
     it('should return empty for nonexistent unit', () => {
