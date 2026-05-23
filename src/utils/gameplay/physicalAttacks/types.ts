@@ -87,6 +87,7 @@ export type PhysicalAttackInvalidReason =
   | 'ElevationMismatch'
   | 'TargetMissing'
   | 'TargetDestroyed'
+  | 'TargetPassenger'
   | 'SelfTarget'
   | 'FriendlyTarget'
   | 'TargetNotAdjacent'
@@ -148,6 +149,11 @@ export interface IPhysicalAttackInput {
    * physical targets.
    */
   readonly targetDestroyed?: boolean;
+  /**
+   * Source-backed shared physical legality: transported passenger units cannot
+   * be targeted by normal physical attacks.
+   */
+  readonly targetIsPassenger?: boolean;
   /**
    * Source-backed shared physical legality: a unit cannot declare a normal
    * BattleMech physical attack against itself.

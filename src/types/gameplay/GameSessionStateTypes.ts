@@ -130,6 +130,12 @@ export interface IUnitGameState {
    * legacy fixtures without torso/arm posture state.
    */
   readonly armsFlipped?: boolean;
+  /**
+   * Whether this unit is currently transported as a passenger. Explicit true
+   * blocks source-backed physical targetability; undefined preserves legacy
+   * fixtures without transport state.
+   */
+  readonly isPassenger?: boolean;
   /** Which side this unit belongs to */
   readonly side: GameSide;
   /** Current position */

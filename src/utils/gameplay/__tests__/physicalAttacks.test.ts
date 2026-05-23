@@ -787,6 +787,83 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows passenger physical targets across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetIsPassenger: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetPassenger',
+      });
+    });
+
     it('disallows self-targeted physical attacks before adjacency checks', () => {
       expect(
         canPunch(

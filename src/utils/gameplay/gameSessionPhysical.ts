@@ -209,6 +209,7 @@ export function declarePhysicalAttack(
     targetImmobile: targetState?.shutdown,
     targetExists: targetState !== undefined,
     targetDestroyed: targetState?.destroyed,
+    targetIsPassenger: targetState?.isPassenger,
     targetIsSelf: attackerId === targetId,
     targetIsFriendly: targetState
       ? attackerState.side === targetState.side
@@ -395,6 +396,7 @@ export function resolveAllPhysicalAttacks(
       targetImmobile: targetState.shutdown,
       targetExists: true,
       targetDestroyed: targetState.destroyed,
+      targetIsPassenger: targetState.isPassenger,
       targetIsSelf: payload.attackerId === payload.targetId,
       targetIsFriendly: attackerState.side === targetState.side,
       targetDistance: hexDistance(attackerState.position, targetState.position),
@@ -451,7 +453,7 @@ export function resolveAllPhysicalAttacks(
         result.toHitNumber,
         result.hit,
         result.hit ? result.targetDamage : undefined,
-        result.hitLocation,
+        result.hit ? result.hitLocation : result.restrictionReasonCode,
         undefined,
         displacements.length > 0 ? displacements : undefined,
       ),

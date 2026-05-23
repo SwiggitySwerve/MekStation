@@ -49,6 +49,13 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
+  if (input.targetIsPassenger) {
+    return blocked(
+      'Physical attacks cannot target transported passengers',
+      'TargetPassenger',
+    );
+  }
+
   if (input.targetIsSelf) {
     return blocked('Physical attacks cannot target the attacker', 'SelfTarget');
   }

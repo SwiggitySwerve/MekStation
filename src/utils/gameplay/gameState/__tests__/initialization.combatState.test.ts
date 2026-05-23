@@ -157,6 +157,15 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.armsFlipped).toBe(true);
   });
 
+  it('copies optional passenger state for physical targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isPassenger: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isPassenger).toBe(true);
+  });
+
   it('leaves combatState undefined for VEHICLE (kind: vehicle is a future variant)', () => {
     const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
     const state = createInitialUnitState(unit, POSITION, Facing.North);

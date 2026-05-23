@@ -186,10 +186,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'cargo interaction state is not represented in BattleMech physical restriction input',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
-  'shared.target-not-passenger': unsupported(
+  'shared.target-not-passenger': integrated(
     'shared.target-not-passenger',
     'shared',
-    'transport/passenger state is not represented in BattleMech physical restriction input',
+    'shared restriction helpers reject targetIsPassenger, IUnitGameState exposes optional isPassenger, and eligibility/session/runner inputs thread transported-passenger state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
   'shared.not-self-target': integrated(

@@ -244,6 +244,7 @@ export function getEligiblePhysicalAttacks(
     targetMovementComplete: context.targetMovementComplete,
     targetImmobile: target.shutdown,
     targetExists: true,
+    targetIsPassenger: target.isPassenger,
     targetIsSelf: attacker.id === target.id,
     targetIsFriendly: attacker.side === target.side,
     targetDistance: hexDistance(attacker.position, target.position),

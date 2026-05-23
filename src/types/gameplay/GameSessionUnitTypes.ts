@@ -138,6 +138,11 @@ export interface IGameUnit {
    */
   readonly armsFlipped?: boolean;
   /**
+   * Optional transport/passenger state copied into combat state. Explicit true
+   * blocks source-backed physical target declarations against this unit.
+   */
+  readonly isPassenger?: boolean;
+  /**
    * Per-type construction inputs consumed by `createInitialUnitState` to
    * build `combatState` via `create{Type}CombatState` factories. Each block
    * is OPTIONAL at the type level so the legacy mech-only call path stays
