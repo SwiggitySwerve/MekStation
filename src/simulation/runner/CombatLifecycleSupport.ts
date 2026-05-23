@@ -84,7 +84,7 @@ export const ACTION_ELIGIBILITY_COMBAT_SUPPORT = {
   ),
   'ejected-targetability': integrated(
     'ejected-targetability',
-    'interactive and runner target filters reject hasEjected units as targets',
+    'interactive, runner, ranged attack, physical attack, and objective target filters reject hasEjected units as targets',
   ),
   'ejection-damage-preservation': integrated(
     'ejection-damage-preservation',

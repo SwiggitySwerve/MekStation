@@ -64,6 +64,7 @@
 - [x] 3.5.5 Integrate source-backed missed-DFA immediate fall damage/prone timing through helper, event-sourced resolution, runner resolution, event catalog, and audit coverage.
 - [x] 3.5.6 Integrate source-backed missed-DFA fall pilot-damage avoidance through helper, event-sourced resolution, runner resolution, pilot-damage catalog, and audit coverage.
 - [x] 3.5.7 Integrate source-backed blocked successful-charge displacement no-op/no-PSR semantics through helper, event-sourced resolution, runner resolution, catalog, and audit coverage.
+- [x] 3.5.8 Integrate ejected-target physical targetability removal/rejection through helper, eligibility, event-sourced declaration/resolution, runner target selection, catalog, and audit coverage.
 
 ## 4. Source-truth cross-checks
 

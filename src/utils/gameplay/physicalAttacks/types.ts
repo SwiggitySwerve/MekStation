@@ -90,6 +90,7 @@ export type PhysicalAttackInvalidReason =
   | 'ElevationMismatch'
   | 'TargetMissing'
   | 'TargetDestroyed'
+  | 'TargetEjected'
   | 'DifferentBoard'
   | 'TargetPassenger'
   | 'TargetSwarming'
@@ -188,6 +189,11 @@ export interface IPhysicalAttackInput {
    * physical targets.
    */
   readonly targetDestroyed?: boolean;
+  /**
+   * MekStation lifecycle targetability: ejected units have left active combat
+   * and cannot be selected as physical targets.
+   */
+  readonly targetEjected?: boolean;
   /**
    * Source-backed shared physical legality: attacker and target must be on
    * the same board. Undefined values preserve legacy single-board fixtures.

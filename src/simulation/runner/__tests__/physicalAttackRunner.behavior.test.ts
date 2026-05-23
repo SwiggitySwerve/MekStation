@@ -351,6 +351,18 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
+  it('removes ejected units from runner physical target selection', () => {
+    const { events, result } = runPhase('kick', {
+      target: { hasEjected: true },
+    });
+
+    expect(events).toHaveLength(0);
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
   it('rejects injected physical declarations against swarming targets before side effects', () => {
     const { events, result } = runPhase('kick', {
       target: { isSwarming: true },

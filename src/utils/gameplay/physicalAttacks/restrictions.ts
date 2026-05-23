@@ -49,6 +49,13 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
+  if (input.targetEjected) {
+    return blocked(
+      'Physical attacks cannot target ejected units',
+      'TargetEjected',
+    );
+  }
+
   if (
     input.attackerBoardId !== undefined &&
     input.targetBoardId !== undefined &&

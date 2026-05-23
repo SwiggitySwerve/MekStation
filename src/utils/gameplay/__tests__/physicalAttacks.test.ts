@@ -904,6 +904,64 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows ejected physical targets before self and friendly checks', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetEjected: true,
+            targetIsSelf: true,
+            targetDistance: 0,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetEjected',
+      });
+
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetEjected: true,
+            targetIsFriendly: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetEjected',
+      });
+
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetEjected: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetEjected',
+      });
+
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetEjected: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetEjected',
+      });
+    });
+
     it('disallows passenger physical targets across supported physical attack families', () => {
       expect(
         canPunch(

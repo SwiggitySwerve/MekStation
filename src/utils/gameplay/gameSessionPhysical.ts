@@ -447,6 +447,7 @@ export function declarePhysicalAttack(
     targetImmobile: targetState?.shutdown,
     targetExists: targetState !== undefined,
     targetDestroyed: targetState?.destroyed,
+    targetEjected: targetState?.hasEjected,
     attackerBoardId: attackerState.boardId,
     targetBoardId: targetState?.boardId,
     targetIsPassenger: targetState?.isPassenger,
@@ -617,6 +618,15 @@ export function resolveAllPhysicalAttacks(
       );
       continue;
     }
+    if (targetState.hasEjected) {
+      currentSession = appendInvalidPhysicalResolution(
+        currentSession,
+        turn,
+        payload,
+        'TargetEjected',
+      );
+      continue;
+    }
     const targetContext = contextByAttacker.get(payload.targetId);
 
     const componentDamage =
@@ -658,6 +668,7 @@ export function resolveAllPhysicalAttacks(
       targetImmobile: targetState.shutdown,
       targetExists: true,
       targetDestroyed: targetState.destroyed,
+      targetEjected: targetState.hasEjected,
       attackerBoardId: attackerState.boardId,
       targetBoardId: targetState.boardId,
       targetIsPassenger: targetState.isPassenger,
