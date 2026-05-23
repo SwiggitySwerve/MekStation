@@ -6,6 +6,7 @@ import type {
   IMovementRangeHex,
   IUnitToken,
   IWeaponStatus,
+  MapProjectionMode,
 } from '@/types/gameplay';
 
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
@@ -112,12 +113,19 @@ function makeWeapon(overrides: Partial<IWeaponStatus> = {}): IWeaponStatus {
 
 function assertTerrainAndElevationBadges(
   terrainMatrix: readonly IHexTerrain[],
+  projectionMode: MapProjectionMode = 'topDown',
 ): void {
   for (const terrain of terrainMatrix) {
     const { q, r } = terrain.coordinate;
     const terrainType = terrain.features[0].type;
     const terrainLabel = formatTerrainLabel(terrainType);
     const elevationLabel = formatElevationLabel(terrain.elevation);
+    const elevationSign =
+      terrain.elevation > 0
+        ? 'positive'
+        : terrain.elevation < 0
+          ? 'negative'
+          : 'zero';
 
     expect(screen.getByTestId(`hex-${q}-${r}`)).toHaveAttribute(
       'aria-label',
@@ -145,6 +153,14 @@ function assertTerrainAndElevationBadges(
       'data-terrain-badge',
       TERRAIN_BADGE_BY_TYPE[terrainType],
     );
+    expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
+      'data-terrain-feature-count',
+      `${terrain.features.length}`,
+    );
+    expect(screen.getByTestId(`hex-terrain-label-${q}-${r}`)).toHaveAttribute(
+      'data-projection-mode',
+      projectionMode,
+    );
     expect(
       screen.getByTestId(`hex-terrain-label-${q}-${r}`).querySelector('rect'),
     ).toHaveAttribute('height', '11');
@@ -157,7 +173,19 @@ function assertTerrainAndElevationBadges(
     ).toHaveTextContent(elevationLabel);
     expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
       'aria-label',
-      `Elevation ${elevationLabel}`,
+      `Elevation ${elevationLabel} (level ${terrain.elevation})`,
+    );
+    expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
+      'data-elevation-value',
+      `${terrain.elevation}`,
+    );
+    expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
+      'data-elevation-sign',
+      elevationSign,
+    );
+    expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
+      'data-projection-mode',
+      projectionMode,
     );
     expect(
       screen.getByTestId(`hex-elevation-label-${q}-${r}`).querySelector('rect'),
@@ -207,7 +235,7 @@ describe('HexMapDisplay terrain and elevation labels', () => {
       'data-projection-mode',
       'isometric2d',
     );
-    assertTerrainAndElevationBadges(terrainMatrix);
+    assertTerrainAndElevationBadges(terrainMatrix, 'isometric2d');
     expect(tallHex).toBeDefined();
     expect(
       screen.getByTestId(

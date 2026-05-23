@@ -4,6 +4,7 @@ import type {
   ICombatRangeHex,
   IHexCoordinate,
   IMovementRangeHex,
+  MapProjectionMode,
 } from '@/types/gameplay';
 
 import { TERRAIN_LAYER_ORDER } from '@/constants/terrain';
@@ -220,14 +221,20 @@ export function ElevationBadge({
   x,
   y,
   hex,
+  elevation,
   label,
+  projectionMode,
 }: {
   readonly x: number;
   readonly y: number;
   readonly hex: IHexCoordinate;
+  readonly elevation: number;
   readonly label: string;
+  readonly projectionMode: MapProjectionMode;
 }): React.ReactElement {
-  const title = `Elevation ${label}`;
+  const elevationSign =
+    elevation > 0 ? 'positive' : elevation < 0 ? 'negative' : 'zero';
+  const title = `Elevation ${label} (level ${elevation})`;
   return (
     <g
       pointerEvents="none"
@@ -235,6 +242,9 @@ export function ElevationBadge({
       role="img"
       aria-label={title}
       data-elevation-label={label}
+      data-elevation-value={elevation}
+      data-elevation-sign={elevationSign}
+      data-projection-mode={projectionMode}
     >
       <title>{title}</title>
       <rect
@@ -268,11 +278,13 @@ export function TerrainBadge({
   y,
   hex,
   terrainTypes,
+  projectionMode,
 }: {
   readonly x: number;
   readonly y: number;
   readonly hex: IHexCoordinate;
   readonly terrainTypes: readonly string[];
+  readonly projectionMode: MapProjectionMode;
 }): React.ReactElement {
   const displayTypes = sortTerrainTypesForDisplay(terrainTypes);
   const label = formatTerrainBadgeLabel(displayTypes);
@@ -289,6 +301,8 @@ export function TerrainBadge({
       data-terrain-features={
         displayTypes.length > 0 ? displayTypes.join(',') : 'clear'
       }
+      data-terrain-feature-count={displayTypes.length}
+      data-projection-mode={projectionMode}
     >
       <title>{title}</title>
       <rect
