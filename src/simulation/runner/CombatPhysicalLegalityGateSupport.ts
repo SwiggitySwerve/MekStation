@@ -258,10 +258,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'IUnitGameState carries explicit unitType, canPush rejects explicit non-Mek targets as TargetNotMek, and eligibility/session/runner inputs thread targetUnitType into push validation',
     PUSH_ACTION_LINES,
   ),
-  'push.arms-not-flipped': unsupported(
+  'push.arms-not-flipped': integrated(
     'push.arms-not-flipped',
     'push',
-    'flipped-arm state is not represented in push restriction input',
+    'canPush consumes attackerArmsFlipped, IUnitGameState exposes optional armsFlipped, and eligibility/session/runner inputs thread rear-flipped arm state into push validation',
     PUSH_ACTION_LINES,
   ),
   'push.both-arms-present': integrated(

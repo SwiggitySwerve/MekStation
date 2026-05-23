@@ -148,6 +148,15 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.isQuad).toBe(true);
   });
 
+  it('copies optional flipped-arm state for BattleMech physical legality gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      armsFlipped: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.armsFlipped).toBe(true);
+  });
+
   it('leaves combatState undefined for VEHICLE (kind: vehicle is a future variant)', () => {
     const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
     const state = createInitialUnitState(unit, POSITION, Facing.North);

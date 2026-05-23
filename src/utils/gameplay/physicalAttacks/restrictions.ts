@@ -405,6 +405,14 @@ export function canPush(
     };
   }
 
+  if (input.attackerArmsFlipped) {
+    return {
+      allowed: false,
+      reason: 'Cannot push with arms flipped to the rear',
+      reasonCode: 'ArmsFlipped',
+    };
+  }
+
   if (explicitNonMekUnitType(input.targetUnitType)) {
     return {
       allowed: false,

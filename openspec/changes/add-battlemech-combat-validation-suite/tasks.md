@@ -27,7 +27,8 @@
 - [x] 2.16 Integrate non-Mek charge target-class gate for helper, eligibility, event-sourced declaration, and runner resolution through Infantry/Battle Armor/ProtoMech unit-type checks.
 - [x] 2.17 Integrate charge target movement-complete/immobile gate for helper, eligibility, event-sourced declaration/resolution, and runner post-movement resolution through source-backed target movement-complete checks.
 - [x] 2.18 Integrate push quad BattleMech rejection for helper, eligibility, event-sourced declaration, and runner resolution through optional combat chassis state.
-- [ ] 2.19 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, runner arm-mounted weapon-location hydration, and pilot skill roll fallout.
+- [x] 2.19 Integrate push rear-flipped-arm rejection for helper, eligibility, event-sourced declaration, and runner resolution through optional combat arm-posture state.
+- [ ] 2.20 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, runner arm-mounted weapon-location hydration, and pilot skill roll fallout.
 
 ## 3. Full combat validation catalog
 

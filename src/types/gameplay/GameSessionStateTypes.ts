@@ -124,6 +124,12 @@ export interface IUnitGameState {
    * Undefined preserves legacy synthetic biped BattleMech fixtures.
    */
   readonly isQuad?: boolean;
+  /**
+   * Whether the BattleMech has flipped its arms to the rear this turn.
+   * Explicit true blocks source-backed push legality; undefined preserves
+   * legacy fixtures without torso/arm posture state.
+   */
+  readonly armsFlipped?: boolean;
   /** Which side this unit belongs to */
   readonly side: GameSide;
   /** Current position */

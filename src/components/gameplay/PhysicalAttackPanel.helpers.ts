@@ -30,6 +30,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   AttackerInfantry: 'Infantry cannot perform DFA',
   AttackerNotMek: 'Attacker must be a Mek',
   AttackerQuad: 'Quad BattleMechs cannot push',
+  ArmsFlipped: 'Rear-flipped arms cannot push',
   TargetNotMek: 'Target must be a Mek',
   TargetInfantryOrProtoMek: 'Cannot charge Infantry or ProtoMech targets',
   LimbMissing: 'Limb is missing',

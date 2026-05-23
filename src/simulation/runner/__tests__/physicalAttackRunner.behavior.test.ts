@@ -460,6 +460,33 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('rejects injected push declarations with rear-flipped arms before side effects', () => {
+    const flippedArms = runPhase('push', {
+      attacker: {
+        facing: Facing.Southeast,
+        armsFlipped: true,
+      },
+    });
+
+    expect(resolvedPayload(flippedArms.events)).toMatchObject({
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'ArmsFlipped',
+    });
+    expect(flippedArms.result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+    expect(flippedArms.result.units['opponent-1'].position).toEqual({
+      q: 1,
+      r: 0,
+    });
+    expect(flippedArms.result.units['player-1'].position).toEqual({
+      q: 0,
+      r: 0,
+    });
+  });
+
   it('rejects injected charge declarations against non-Mek or prone targets before side effects', () => {
     const nonMekTarget = runPhase('charge', {
       attacker: {

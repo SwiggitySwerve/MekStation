@@ -230,6 +230,7 @@ export function createInitialUnitState(
     id: unit.id,
     unitType: unit.unitType,
     isQuad: unit.isQuad,
+    armsFlipped: unit.armsFlipped,
     side: unit.side,
     position: startPosition,
     facing: startFacing,

@@ -133,6 +133,11 @@ export interface IGameUnit {
    */
   readonly isQuad?: boolean;
   /**
+   * Optional arm-posture state copied into combat state. Explicit true blocks
+   * source-backed push declarations with rear-flipped arms.
+   */
+  readonly armsFlipped?: boolean;
+  /**
    * Per-type construction inputs consumed by `createInitialUnitState` to
    * build `combatState` via `create{Type}CombatState` factories. Each block
    * is OPTIONAL at the type level so the legacy mech-only call path stays

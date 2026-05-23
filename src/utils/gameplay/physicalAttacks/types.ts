@@ -75,6 +75,7 @@ export type PhysicalAttackInvalidReason =
   | 'AttackerInfantry'
   | 'AttackerNotMek'
   | 'AttackerQuad'
+  | 'ArmsFlipped'
   | 'TargetNotMek'
   | 'TargetInfantryOrProtoMek'
   | 'LimbMissing'
@@ -119,6 +120,10 @@ export interface IPhysicalAttackInput {
    * Source-backed push legality: quad BattleMechs cannot push.
    */
   readonly attackerIsQuad?: boolean;
+  /**
+   * Source-backed push legality: rear-flipped arms cannot push.
+   */
+  readonly attackerArmsFlipped?: boolean;
   readonly targetUnitType?: string;
   readonly attackerProne?: boolean;
   readonly targetTonnage?: number;
