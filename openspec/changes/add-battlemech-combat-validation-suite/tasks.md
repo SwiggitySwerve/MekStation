@@ -39,6 +39,7 @@
 - [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
 - [x] 3.4.1 Add support-matrix tests that separate runner-integrated to-hit modifiers from helper-only modifier math.
 - [x] 3.4.2 Cross-link pilot skill, SPA, canonical SPA, quirk, and pilot modifier resolver support rows into pilot/SPAs/quirks requirement checklists.
+- [x] 3.4.3 Cross-link range bracket, attack invalidation, invalid target state, invalid side-effect, and to-hit modifier support rows into range/invalidation/to-hit requirement checklists.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 
 ## 4. Source-truth cross-checks

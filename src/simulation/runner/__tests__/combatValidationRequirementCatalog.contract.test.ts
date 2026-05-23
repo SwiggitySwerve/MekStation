@@ -5,6 +5,11 @@ import type {
 } from '../CombatValidationCatalog';
 
 import { AMMUNITION_COMPATIBILITY_SUPPORT } from '../CombatAmmunitionSupport';
+import {
+  ATTACK_INVALIDATION_REASON_SUPPORT,
+  ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT,
+  INVALID_TARGET_STATE_SUPPORT,
+} from '../CombatAttackInvalidationSupport';
 import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from '../CombatCanonicalSpaSupport';
 import {
   QUIRK_COMBAT_SUPPORT,
@@ -17,6 +22,8 @@ import {
   HEAT_RULE_COMBAT_SUPPORT,
   MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
   MOVEMENT_RULE_COMBAT_SUPPORT,
+  RUNNER_RANGE_BRACKET_COMBAT_SUPPORT,
+  RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT,
   TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
 } from '../CombatRuleSupport';
 import {
@@ -362,6 +369,59 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       'ruleSupport.heatRules.heat-induced-ammo-explosion',
       'ruleSupport.heatRules.pilot-heat-damage',
     ]);
+  });
+
+  it('backs range requirements with every range bracket support row', () => {
+    expect(
+      missingRefsForRequirement(
+        'range-validation',
+        'ruleSupport',
+        'rangeBrackets',
+        RUNNER_RANGE_BRACKET_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['range-validation']
+        .supportMapRefs,
+    ).toContain('ruleSupport.toHitModifiers.minimum-range');
+  });
+
+  it('backs attack invalidation requirements with every invalidation support row', () => {
+    expect(
+      missingRefsForRequirement(
+        'attack-invalidation',
+        'invalidation',
+        'attackReasons',
+        ATTACK_INVALIDATION_REASON_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'attack-invalidation',
+        'invalidation',
+        'invalidTargetStates',
+        INVALID_TARGET_STATE_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'attack-invalidation',
+        'invalidation',
+        'invalidAttackSideEffects',
+        ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
+
+  it('backs to-hit requirements with every to-hit modifier support row', () => {
+    expect(
+      missingRefsAcrossRequirements(
+        ['to-hit-core-modifiers', 'to-hit-advanced-modifiers'],
+        'ruleSupport',
+        'toHitModifiers',
+        RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
   });
 
   it('backs official-ammo claims with every ammunition compatibility support row', () => {

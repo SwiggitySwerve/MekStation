@@ -1,5 +1,10 @@
 /* eslint-disable max-lines -- Requirement crosswalk intentionally catalogs the full active combat-validation scope. */
 
+import {
+  ATTACK_INVALIDATION_REASON_SUPPORT,
+  ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT,
+  INVALID_TARGET_STATE_SUPPORT,
+} from './CombatAttackInvalidationSupport';
 import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from './CombatCanonicalSpaSupport';
 import {
   QUIRK_COMBAT_SUPPORT,
@@ -12,6 +17,7 @@ import { PILOT_SKILL_COMBAT_SUPPORT } from './CombatPilotSkillSupport';
 import {
   MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
   MOVEMENT_RULE_COMBAT_SUPPORT,
+  RUNNER_RANGE_BRACKET_COMBAT_SUPPORT,
   TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
 } from './CombatRuleSupport';
 import {
@@ -246,6 +252,57 @@ const HEAT_LIFECYCLE_SUPPORT_REFS = [
   'pilot-heat-damage',
 ].map((id) => `ruleSupport.heatRules.${id}`);
 
+const RANGE_BRACKET_SUPPORT_REFS = supportRefs(
+  'ruleSupport',
+  'rangeBrackets',
+  RUNNER_RANGE_BRACKET_COMBAT_SUPPORT,
+);
+
+const ATTACK_INVALIDATION_REASON_SUPPORT_REFS = supportRefs(
+  'invalidation',
+  'attackReasons',
+  ATTACK_INVALIDATION_REASON_SUPPORT,
+);
+
+const INVALID_TARGET_STATE_SUPPORT_REFS = supportRefs(
+  'invalidation',
+  'invalidTargetStates',
+  INVALID_TARGET_STATE_SUPPORT,
+);
+
+const ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT_REFS = supportRefs(
+  'invalidation',
+  'invalidAttackSideEffects',
+  ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT,
+);
+
+const TO_HIT_CORE_MODIFIER_SUPPORT_REFS = [
+  'gunnery',
+  'range',
+  'minimum-range',
+  'attacker-movement',
+  'target-movement',
+  'heat',
+  'environmental-conditions',
+  'partial-cover',
+  'target-prone',
+  'target-immobile',
+  'indirect-fire',
+  'terrain-features',
+].map((id) => `ruleSupport.toHitModifiers.${id}`);
+
+const TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS = [
+  'pilot-wounds',
+  'sensor-damage',
+  'actuator-damage',
+  'attacker-prone',
+  'hull-down',
+  'secondary-target',
+  'called-shot',
+  'ecm',
+  'c3',
+].map((id) => `ruleSupport.toHitModifiers.${id}`);
+
 function primaryAuthorityFor(
   id: CombatRequirementId,
 ): ICombatRequirementPrimaryAuthority {
@@ -431,55 +488,27 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'range-validation': integrated(
     'range-validation',
     'Range support covers short, medium, long, extreme, out-of-range invalidation, and minimum range penalties',
-    [
-      'ruleSupport.rangeBrackets.short',
-      'ruleSupport.rangeBrackets.medium',
-      'ruleSupport.rangeBrackets.long',
-      'ruleSupport.rangeBrackets.extreme',
-      'ruleSupport.rangeBrackets.out_of_range',
-      'ruleSupport.toHitModifiers.minimum-range',
-    ],
+    [...RANGE_BRACKET_SUPPORT_REFS, 'ruleSupport.toHitModifiers.minimum-range'],
   ),
   'attack-invalidation': integrated(
     'attack-invalidation',
     'Invalidation support covers range, LOS, target state, ammo, same-hex, unknown weapon, jammed weapon, and no-side-effect guarantees',
     [
-      'invalidation.attackReasons.OutOfRange',
-      'invalidation.attackReasons.NoLineOfSight',
-      'invalidation.attackReasons.OutOfAmmo',
-      'invalidation.attackReasons.WeaponJammed',
-      'invalidation.attackReasons.SameHex',
-      'invalidation.invalidAttackSideEffects.no-heat-spent',
+      ...ATTACK_INVALIDATION_REASON_SUPPORT_REFS,
+      ...INVALID_TARGET_STATE_SUPPORT_REFS,
+      ...ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT_REFS,
     ],
   ),
   'to-hit-core-modifiers': integrated(
     'to-hit-core-modifiers',
-    'Runner to-hit support covers gunnery, range, movement, heat, target state, partial cover, and indirect fire',
-    [
-      'ruleSupport.toHitModifiers.gunnery',
-      'ruleSupport.toHitModifiers.range',
-      'ruleSupport.toHitModifiers.attacker-movement',
-      'ruleSupport.toHitModifiers.target-movement',
-      'ruleSupport.toHitModifiers.heat',
-      'ruleSupport.toHitModifiers.partial-cover',
-      'ruleSupport.toHitModifiers.indirect-fire',
-    ],
+    'Runner to-hit support covers gunnery, range, minimum range, movement, heat, environment, target state, partial cover, terrain features, and indirect fire',
+    TO_HIT_CORE_MODIFIER_SUPPORT_REFS,
   ),
   'to-hit-advanced-modifiers': helperOnly(
     'to-hit-advanced-modifiers',
     'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, ECM, C3, and terrain features',
     'Runner attack state now hydrates wounds, sensor hits, coarse arm-actuator damage, attacker prone state, secondary-target state, and non-blocking intervening terrain, but several advanced modifier inputs are still helper-only',
-    [
-      'ruleSupport.toHitModifiers.pilot-wounds',
-      'ruleSupport.toHitModifiers.sensor-damage',
-      'ruleSupport.toHitModifiers.actuator-damage',
-      'ruleSupport.toHitModifiers.attacker-prone',
-      'ruleSupport.toHitModifiers.hull-down',
-      'ruleSupport.toHitModifiers.secondary-target',
-      'ruleSupport.toHitModifiers.ecm',
-      'ruleSupport.toHitModifiers.c3',
-      'ruleSupport.toHitModifiers.terrain-features',
-    ],
+    TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
   ),
   'terrain-movement-los-cover': integrated(
     'terrain-movement-los-cover',
