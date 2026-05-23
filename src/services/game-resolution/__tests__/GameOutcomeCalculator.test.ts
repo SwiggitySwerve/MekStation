@@ -37,6 +37,7 @@ function createMockUnit(
   id: string,
   side: GameSide,
   destroyed: boolean = false,
+  overrides: Partial<IUnitGameState> = {},
 ): IUnitGameState {
   return {
     id,
@@ -55,21 +56,40 @@ function createMockUnit(
     pilotConscious: true,
     destroyed,
     lockState: LockState.Pending,
+    ...overrides,
   };
 }
 
 function createMockState(
-  playerUnits: Array<{ id: string; destroyed: boolean }>,
-  opponentUnits: Array<{ id: string; destroyed: boolean }>,
+  playerUnits: Array<{
+    id: string;
+    destroyed: boolean;
+    overrides?: Partial<IUnitGameState>;
+  }>,
+  opponentUnits: Array<{
+    id: string;
+    destroyed: boolean;
+    overrides?: Partial<IUnitGameState>;
+  }>,
   turn: number = 1,
 ): IGameState {
   const units: Record<string, IUnitGameState> = {};
 
   for (const u of playerUnits) {
-    units[u.id] = createMockUnit(u.id, GameSide.Player, u.destroyed);
+    units[u.id] = createMockUnit(
+      u.id,
+      GameSide.Player,
+      u.destroyed,
+      u.overrides,
+    );
   }
   for (const u of opponentUnits) {
-    units[u.id] = createMockUnit(u.id, GameSide.Opponent, u.destroyed);
+    units[u.id] = createMockUnit(
+      u.id,
+      GameSide.Opponent,
+      u.destroyed,
+      u.overrides,
+    );
   }
 
   return {
@@ -185,6 +205,39 @@ describe('GameOutcomeCalculator', () => {
 
       expect(outcome.winner).toBe('draw');
       expect(outcome.reason).toBe('mutual_destruction');
+    });
+
+    it('treats ejected units as exited combat without counting them destroyed', () => {
+      const state = createMockState(
+        [{ id: 'p1', destroyed: false, overrides: { hasEjected: true } }],
+        [{ id: 'o1', destroyed: false }],
+      );
+      const config = createMockConfig();
+      const input = createMockInput(state, config);
+
+      const outcome = calculateGameOutcome(input);
+
+      expect(outcome.winner).toBe('opponent');
+      expect(outcome.reason).toBe('elimination');
+      expect(outcome.playerUnitsSurviving).toBe(0);
+      expect(outcome.playerUnitsDestroyed).toBe(0);
+      expect(outcome.description).toContain('exited combat');
+    });
+
+    it('treats retreated units as exited combat without counting them destroyed', () => {
+      const state = createMockState(
+        [{ id: 'p1', destroyed: false, overrides: { hasRetreated: true } }],
+        [{ id: 'o1', destroyed: false }],
+      );
+      const config = createMockConfig();
+      const input = createMockInput(state, config);
+
+      const outcome = calculateGameOutcome(input);
+
+      expect(outcome.winner).toBe('opponent');
+      expect(outcome.reason).toBe('elimination');
+      expect(outcome.playerUnitsSurviving).toBe(0);
+      expect(outcome.playerUnitsDestroyed).toBe(0);
     });
 
     it('should handle turn limit with player advantage (damage delta beyond 5%)', () => {
@@ -320,6 +373,16 @@ describe('GameOutcomeCalculator', () => {
       expect(isGameEnded(state, config)).toBe(true);
     });
 
+    it('should return true when all player units have ejected', () => {
+      const state = createMockState(
+        [{ id: 'p1', destroyed: false, overrides: { hasEjected: true } }],
+        [{ id: 'o1', destroyed: false }],
+      );
+      const config = createMockConfig();
+
+      expect(isGameEnded(state, config)).toBe(true);
+    });
+
     it('should return true when turn limit exceeded', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
@@ -368,6 +431,16 @@ describe('GameOutcomeCalculator', () => {
     it('should return opponent when player eliminated', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: true }],
+        [{ id: 'o1', destroyed: false }],
+      );
+      const config = createMockConfig();
+
+      expect(determineWinner(state, config)).toBe('opponent');
+    });
+
+    it('should return opponent when all player units have ejected', () => {
+      const state = createMockState(
+        [{ id: 'p1', destroyed: false, overrides: { hasEjected: true } }],
         [{ id: 'o1', destroyed: false }],
       );
       const config = createMockConfig();

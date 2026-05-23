@@ -9,7 +9,14 @@ export function getAvailableActionsForState(
   weaponsByUnit: Map<string, readonly IWeapon[]>,
 ): IAvailableActions {
   const unit = state.units[unitId];
-  if (!unit || unit.destroyed) {
+  if (
+    !unit ||
+    unit.destroyed ||
+    unit.shutdown ||
+    unit.hasRetreated ||
+    unit.hasEjected ||
+    !unit.pilotConscious
+  ) {
     return { validMoves: [], validTargets: [] };
   }
 
@@ -17,7 +24,12 @@ export function getAvailableActionsForState(
   const validTargets: { unitId: string; weapons: string[] }[] = [];
 
   for (const [uid, candidate] of Object.entries(state.units)) {
-    if (candidate.side !== unit.side && !candidate.destroyed) {
+    if (
+      candidate.side !== unit.side &&
+      !candidate.destroyed &&
+      !candidate.hasRetreated &&
+      !candidate.hasEjected
+    ) {
       validTargets.push({
         unitId: uid,
         weapons: weapons.filter((weapon) => !weapon.destroyed).map((w) => w.id),
