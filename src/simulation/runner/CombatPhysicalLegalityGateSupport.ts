@@ -355,10 +355,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canCharge consumes targetMovementComplete and targetImmobile to reject targets that have not completed movement unless they are immobile; eligibility, event-sourced declaration/resolution, and runner resolution thread the post-movement charge gate',
     CHARGE_ACTION_LINES,
   ),
-  'charge.displacement-state-conflicts': unsupported(
+  'charge.displacement-state-conflicts': integrated(
     'charge.displacement-state-conflicts',
     'charge',
-    'charge restrictions do not model target participation in another charge, DFA, or displacement target state',
+    'canCharge consumes targetIsMakingDisplacementAttack and targetedByDisplacementAttackerId to reject targets already making a charge/DFA or already owned by another displacement attacker; eligibility, event-sourced declaration/resolution, runner resolution, and automatic selection thread the same optional displacement state',
     CHARGE_ACTION_LINES,
   ),
   'charge.building-auto-hit': unsupported(
@@ -391,10 +391,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canDFA rejects attackerProne even when attackerJumpedThisTurn is true',
     DFA_ACTION_LINES,
   ),
-  'dfa.displacement-state-conflicts': unsupported(
+  'dfa.displacement-state-conflicts': integrated(
     'dfa.displacement-state-conflicts',
     'dfa',
-    'DFA restrictions do not model target participation in another charge, DFA, or displacement target state',
+    'canDFA consumes targetIsMakingDisplacementAttack and targetedByDisplacementAttackerId to reject targets already making a charge/DFA or already owned by another displacement attacker; eligibility, event-sourced declaration/resolution, runner resolution, and automatic selection thread the same optional displacement state',
     DFA_ACTION_LINES,
   ),
   'dfa.target-not-inside-building': integrated(

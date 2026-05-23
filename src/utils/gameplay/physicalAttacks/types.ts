@@ -94,6 +94,8 @@ export type PhysicalAttackInvalidReason =
   | 'TargetPassenger'
   | 'TargetSwarming'
   | 'TargetMakingDFA'
+  | 'TargetMakingDisplacementAttack'
+  | 'TargetOfDisplacementAttack'
   | 'TargetAirborne'
   | 'TargetInsideBuilding'
   | 'SelfTarget'
@@ -104,6 +106,7 @@ export type PhysicalAttackInvalidReason =
   | 'DestinationBlocked';
 
 export interface IPhysicalAttackInput {
+  readonly attackerId?: string;
   readonly attackerTonnage: number;
   readonly pilotingSkill: number;
   readonly componentDamage: IComponentDamageState;
@@ -193,6 +196,16 @@ export interface IPhysicalAttackInput {
    * be targeted by normal physical attacks.
    */
   readonly targetIsMakingDFA?: boolean;
+  /**
+   * Source-backed charge/DFA legality: targets already making a displacement
+   * attack cannot be declared as charge/DFA targets.
+   */
+  readonly targetIsMakingDisplacementAttack?: boolean;
+  /**
+   * Source-backed charge/DFA legality: a target already owned by another
+   * displacement attacker cannot be selected.
+   */
+  readonly targetedByDisplacementAttackerId?: string;
   /**
    * Source-backed shared physical legality: airborne units cannot be targeted
    * by normal physical attacks.
@@ -361,6 +374,7 @@ export interface IPhysicalAttackRestriction {
 }
 
 export interface IChooseBestPhysicalAttackOptions {
+  attackerId?: string;
   canReachForCharge?: boolean;
   hexesMoved?: number;
   isJumping?: boolean;
@@ -377,6 +391,8 @@ export interface IChooseBestPhysicalAttackOptions {
   attackerBoardId?: string;
   targetBoardId?: string;
   elevationDifference?: number;
+  targetIsMakingDisplacementAttack?: boolean;
+  targetedByDisplacementAttackerId?: string;
 }
 
 export interface IPhysicalAttackCandidate {

@@ -184,6 +184,17 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.isMakingDFA).toBe(true);
   });
 
+  it('copies optional displacement attack state for charge and DFA targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isMakingDisplacementAttack: true,
+      targetedByDisplacementAttackerId: 'attacker-2',
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isMakingDisplacementAttack).toBe(true);
+    expect(state.targetedByDisplacementAttackerId).toBe('attacker-2');
+  });
+
   it('copies optional building occupancy state for physical targetability gates', () => {
     const unit = baseGameUnit({
       unitType: UnitType.BATTLEMECH,

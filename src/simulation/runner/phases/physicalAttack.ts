@@ -149,8 +149,12 @@ export function runPhysicalAttackPhase(options: {
           unitQuirks: unit.unitQuirks,
           attackerEvading: unit.isEvading,
           attackerLoadingOrUnloadingCargo: unit.isLoadingOrUnloadingCargo,
+          attackerId: unit.id,
           attackerBoardId: unit.boardId,
           targetBoardId: target.boardId,
+          targetIsMakingDisplacementAttack: target.isMakingDisplacementAttack,
+          targetedByDisplacementAttackerId:
+            target.targetedByDisplacementAttackerId,
           elevationDifference,
         },
       );
@@ -180,6 +184,7 @@ export function runPhysicalAttackPhase(options: {
           );
 
     const attackInput: IPhysicalAttackInput = {
+      attackerId: unit.id,
       attackerTonnage: DEFAULT_TONNAGE,
       pilotingSkill: unit.piloting ?? DEFAULT_PILOTING,
       componentDamage,
@@ -213,6 +218,8 @@ export function runPhysicalAttackPhase(options: {
       targetIsPassenger: target.isPassenger,
       targetIsSwarming: target.isSwarming,
       targetIsMakingDFA: target.isMakingDFA,
+      targetIsMakingDisplacementAttack: target.isMakingDisplacementAttack,
+      targetedByDisplacementAttackerId: target.targetedByDisplacementAttackerId,
       targetIsAirborne: target.isAirborne,
       attackerOccupiedBuildingId: unit.occupiedBuildingId,
       targetOccupiedBuildingId: target.occupiedBuildingId,

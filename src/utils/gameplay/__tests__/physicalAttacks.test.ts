@@ -1018,6 +1018,78 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows charge and DFA against targets in displacement conflicts', () => {
+      expect(
+        canCharge(
+          makeInput({
+            attackerId: 'attacker',
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetIsMakingDisplacementAttack: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDisplacementAttack',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackerId: 'attacker',
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetIsMakingDisplacementAttack: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDisplacementAttack',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackerId: 'attacker',
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetedByDisplacementAttackerId: 'other-attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetOfDisplacementAttack',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackerId: 'attacker',
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetedByDisplacementAttackerId: 'other-attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetOfDisplacementAttack',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackerId: 'attacker',
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetedByDisplacementAttackerId: 'attacker',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+    });
+
     it('disallows targets inside another building across supported physical attack families', () => {
       const buildingTarget = {
         targetOccupiedBuildingId: 'building-east',

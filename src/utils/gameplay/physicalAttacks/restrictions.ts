@@ -133,6 +133,29 @@ function sharedPhysicalTargetRestriction(
   return { allowed: true };
 }
 
+function chargeDfaDisplacementStateRestriction(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  if (input.targetIsMakingDisplacementAttack) {
+    return blocked(
+      'Target is already making a charge/DFA attack',
+      'TargetMakingDisplacementAttack',
+    );
+  }
+
+  if (
+    input.targetedByDisplacementAttackerId !== undefined &&
+    input.targetedByDisplacementAttackerId !== input.attackerId
+  ) {
+    return blocked(
+      'Target is the target of another charge/DFA',
+      'TargetOfDisplacementAttack',
+    );
+  }
+
+  return { allowed: true };
+}
+
 const MEK_UNIT_TYPES = new Set([
   'battlemech',
   'mek',
@@ -392,6 +415,9 @@ export function canDFA(
       reasonCode: 'AttackerProne',
     };
   }
+  const displacementRestriction = chargeDfaDisplacementStateRestriction(input);
+  if (!displacementRestriction.allowed) return displacementRestriction;
+
   return { allowed: true };
 }
 
@@ -430,10 +456,25 @@ export function canCharge(
       'ElevationMismatch',
     );
   }
+  if (input.targetIsMakingDisplacementAttack) {
+    return blocked(
+      'Target is already making a charge/DFA attack',
+      'TargetMakingDisplacementAttack',
+    );
+  }
   if (input.targetMovementComplete === false && input.targetImmobile !== true) {
     return blocked(
       'Charge target must be done with movement',
       'TargetMovementIncomplete',
+    );
+  }
+  if (
+    input.targetedByDisplacementAttackerId !== undefined &&
+    input.targetedByDisplacementAttackerId !== input.attackerId
+  ) {
+    return blocked(
+      'Target is the target of another charge/DFA',
+      'TargetOfDisplacementAttack',
     );
   }
   return { allowed: true };

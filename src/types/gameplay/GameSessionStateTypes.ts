@@ -149,6 +149,16 @@ export interface IUnitGameState {
    */
   readonly isMakingDFA?: boolean;
   /**
+   * Whether this unit is currently making any displacement physical attack
+   * (charge/DFA/push). Explicit true blocks charge/DFA targetability.
+   */
+  readonly isMakingDisplacementAttack?: boolean;
+  /**
+   * Attacker id whose displacement physical attack currently targets this
+   * unit. Charge/DFA reject when the owning attacker differs.
+   */
+  readonly targetedByDisplacementAttackerId?: string;
+  /**
    * Whether this unit is currently airborne. Explicit true blocks
    * source-backed physical targetability; undefined preserves legacy fixtures
    * without airborne state.

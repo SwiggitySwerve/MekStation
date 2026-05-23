@@ -153,6 +153,16 @@ export interface IGameUnit {
    */
   readonly isMakingDFA?: boolean;
   /**
+   * Optional displacement attack state copied into combat state. Explicit true
+   * blocks source-backed charge/DFA target declarations against this unit.
+   */
+  readonly isMakingDisplacementAttack?: boolean;
+  /**
+   * Optional attacker id whose charge/DFA/push displacement currently targets
+   * this unit. Charge/DFA reject when another attacker already owns it.
+   */
+  readonly targetedByDisplacementAttackerId?: string;
+  /**
    * Optional airborne state copied into combat state. Explicit true blocks
    * source-backed physical target declarations against this unit.
    */

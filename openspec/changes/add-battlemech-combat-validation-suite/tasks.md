@@ -37,7 +37,8 @@
 - [x] 2.26 Integrate push airborne-attacker rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat airborne state.
 - [x] 2.27 Integrate shared loading/unloading-cargo attacker rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat cargo-interaction state.
 - [x] 2.28 Integrate shared same-board rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat board identity.
-- [ ] 2.29 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, runner arm-mounted weapon-location hydration, and pilot skill roll fallout.
+- [x] 2.29 Integrate charge/DFA displacement-state rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat displacement lifecycle state.
+- [ ] 2.30 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, runner arm-mounted weapon-location hydration, and pilot skill roll fallout.
 
 ## 3. Full combat validation catalog
 

@@ -188,6 +188,7 @@ export function declarePhysicalAttack(
     attackerState.componentDamage ?? buildDefaultComponentDamageState();
 
   const input: IPhysicalAttackInput = {
+    attackerId,
     attackerTonnage: context.attackerTonnage,
     pilotingSkill: context.pilotingSkill,
     componentDamage,
@@ -217,6 +218,9 @@ export function declarePhysicalAttack(
     targetIsPassenger: targetState?.isPassenger,
     targetIsSwarming: targetState?.isSwarming,
     targetIsMakingDFA: targetState?.isMakingDFA,
+    targetIsMakingDisplacementAttack: targetState?.isMakingDisplacementAttack,
+    targetedByDisplacementAttackerId:
+      targetState?.targetedByDisplacementAttackerId,
     targetIsAirborne: targetState?.isAirborne,
     attackerOccupiedBuildingId: attackerState.occupiedBuildingId,
     targetOccupiedBuildingId: targetState?.occupiedBuildingId,
@@ -383,6 +387,7 @@ export function resolveAllPhysicalAttacks(
       attackerState.componentDamage ?? buildDefaultComponentDamageState();
 
     const input: IPhysicalAttackInput = {
+      attackerId: payload.attackerId,
       attackerTonnage: context.attackerTonnage,
       pilotingSkill: context.pilotingSkill,
       componentDamage,
@@ -414,6 +419,9 @@ export function resolveAllPhysicalAttacks(
       targetIsPassenger: targetState.isPassenger,
       targetIsSwarming: targetState.isSwarming,
       targetIsMakingDFA: targetState.isMakingDFA,
+      targetIsMakingDisplacementAttack: targetState.isMakingDisplacementAttack,
+      targetedByDisplacementAttackerId:
+        targetState.targetedByDisplacementAttackerId,
       targetIsAirborne: targetState.isAirborne,
       attackerOccupiedBuildingId: attackerState.occupiedBuildingId,
       targetOccupiedBuildingId: targetState.occupiedBuildingId,

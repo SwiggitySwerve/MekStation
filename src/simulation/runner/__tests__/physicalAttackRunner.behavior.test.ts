@@ -378,6 +378,31 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
+  it('rejects injected charge declarations against targets making displacement attacks before side effects', () => {
+    const { events, result } = runPhase('charge', {
+      attacker: {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      },
+      target: { isMakingDisplacementAttack: true },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'TargetMakingDisplacementAttack',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(damageEventsFor(events, 'player-1')).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
   it('rejects injected physical declarations against targets inside another building before side effects', () => {
     const { events, result } = runPhase('kick', {
       target: { occupiedBuildingId: 'building-east' },
@@ -1143,6 +1168,31 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
             event.type === GameEventType.PhysicalAttackResolved),
       ),
     ).toEqual([]);
+  });
+
+  it('does not automatically select charge against targets making displacement attacks', () => {
+    const { events } = runAutomaticPhase({
+      attacker: {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      },
+      target: {
+        isMakingDisplacementAttack: true,
+      },
+    });
+
+    const declared = events.find(
+      (event) =>
+        event.type === GameEventType.PhysicalAttackDeclared &&
+        (event.payload as IPhysicalAttackDeclaredPayload).attackerId ===
+          'player-1',
+    )?.payload as IPhysicalAttackDeclaredPayload | undefined;
+
+    expect(declared).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'kick',
+    });
   });
 
   it.each([

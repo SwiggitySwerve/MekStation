@@ -230,6 +230,7 @@ export function getEligiblePhysicalAttacks(
   };
 
   const baseInput = {
+    attackerId: attacker.id,
     attackerTonnage: context.attackerTonnage,
     pilotingSkill: context.attackerPilotingSkill,
     componentDamage,
@@ -252,6 +253,8 @@ export function getEligiblePhysicalAttacks(
     targetBoardId: target.boardId,
     targetIsSwarming: target.isSwarming,
     targetIsMakingDFA: target.isMakingDFA,
+    targetIsMakingDisplacementAttack: target.isMakingDisplacementAttack,
+    targetedByDisplacementAttackerId: target.targetedByDisplacementAttackerId,
     targetIsAirborne: target.isAirborne,
     attackerOccupiedBuildingId: attacker.occupiedBuildingId,
     targetOccupiedBuildingId: target.occupiedBuildingId,

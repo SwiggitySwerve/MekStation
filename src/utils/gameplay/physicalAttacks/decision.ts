@@ -33,6 +33,7 @@ export function chooseBestPhysicalAttack(
   const candidates: IPhysicalAttackCandidate[] = [];
 
   const baseInput: IPhysicalAttackInput = {
+    attackerId: options.attackerId,
     attackerTonnage,
     pilotingSkill,
     componentDamage,
@@ -46,6 +47,8 @@ export function chooseBestPhysicalAttack(
     attackerBoardId: options.attackerBoardId,
     targetBoardId: options.targetBoardId,
     elevationDifference: options.elevationDifference,
+    targetIsMakingDisplacementAttack: options.targetIsMakingDisplacementAttack,
+    targetedByDisplacementAttackerId: options.targetedByDisplacementAttackerId,
   };
 
   const kickInput: IPhysicalAttackInput = {

@@ -411,6 +411,51 @@ describe('BattleMech physical combat behavior validation lane', () => {
     ).toBe(true);
   });
 
+  it('projects charge and DFA displacement conflicts as restricted options', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        facing: Facing.Southeast,
+      },
+    );
+    const target = unitState(
+      'target',
+      GameSide.Opponent,
+      { q: 1, r: 0 },
+      {
+        isMakingDisplacementAttack: true,
+      },
+    );
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      attackerRanThisTurn: true,
+      attackerJumpedThisTurn: true,
+      pushDestinationValid: true,
+    });
+    const byType = new Map(
+      options.map((option) => [option.attackType, option]),
+    );
+
+    expect(options).toHaveLength(7);
+    expect(byType.get('charge')?.restrictionsFailed).toContain(
+      'TargetMakingDisplacementAttack',
+    );
+    expect(byType.get('dfa')?.restrictionsFailed).toContain(
+      'TargetMakingDisplacementAttack',
+    );
+    expect(byType.get('kick')?.restrictionsFailed).not.toContain(
+      'TargetMakingDisplacementAttack',
+    );
+    expect(byType.get('push')?.restrictionsFailed).not.toContain(
+      'TargetMakingDisplacementAttack',
+    );
+  });
+
   it('projects targets inside another building as restricted physical options', () => {
     const attacker = unitState(
       'attacker',
@@ -1581,6 +1626,76 @@ describe('BattleMech physical combat behavior validation lane', () => {
       hit: false,
       location: 'TargetMakingDFA',
     });
+  });
+
+  it('rejects charge targets making displacement attacks before scheduling physical resolution', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        {},
+        { isMakingDisplacementAttack: true },
+      ),
+      'attacker',
+      'target',
+      'charge',
+      physicalContext({ attackerRanThisTurn: true }),
+    );
+
+    const declarations = rejected.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    );
+    const payload = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(declarations).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'charge',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetMakingDisplacementAttack',
+    });
+  });
+
+  it('resolves stale DFA declarations against targets owned by another displacement attacker as invalid events', () => {
+    const declared = declareAdjacentPhysicalAttack(
+      'dfa',
+      physicalContext({ attackerJumpedThisTurn: true }),
+    );
+    const resolved = resolveAllPhysicalAttacks(
+      withUnitState(declared, 'target', {
+        targetedByDisplacementAttackerId: 'other-attacker',
+      }),
+      new Map([
+        ['attacker', physicalContext({ attackerJumpedThisTurn: true })],
+      ]),
+      scriptedDice([6, 6, 3]),
+    );
+
+    const resolvedEvents = resolved.events.filter(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = resolvedEvents.at(-1)
+      ?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(resolvedEvents).toHaveLength(1);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetOfDisplacementAttack',
+    });
+    expect(
+      resolved.events.some(
+        (event) => event.type === GameEventType.DamageApplied,
+      ),
+    ).toBe(false);
   });
 
   it('resolves stale physical declarations against targets making DFA as invalid events', () => {
