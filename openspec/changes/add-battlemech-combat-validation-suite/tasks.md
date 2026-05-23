@@ -59,6 +59,7 @@
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
+- [x] 3.5.3 Integrate source-backed DFA impossible-displacement destruction through helper, event-sourced resolution, runner resolution, and destruction-cause catalog coverage.
 
 ## 4. Source-truth cross-checks
 

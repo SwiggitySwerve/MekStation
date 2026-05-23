@@ -1,7 +1,16 @@
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
-function integrated(id: string, evidence: string): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence };
+function integrated(
+  id: string,
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'integrated', evidence, sourceRefs }
+    : { id, level: 'integrated', evidence };
 }
 
 function helperOnly(
@@ -11,6 +20,23 @@ function helperOnly(
 ): ICombatFeatureSupportEntry {
   return { id, level: 'helper-only', evidence, gap };
 }
+
+const MEGAMEK_DFA_IMPOSSIBLE_DISPLACEMENT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek resolveDfaAttack destroys the attacker on a missed DFA when the target cannot be displaced.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L15233-L15265',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek resolveDfaAttack destroys the target on a successful DFA when the target cannot be displaced.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L15352-L15366',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
 
 export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
   'armor-damage': integrated(
@@ -155,6 +181,11 @@ export const DESTRUCTION_CAUSE_COMBAT_SUPPORT = {
   engine_destroyed: integrated(
     'engine_destroyed',
     'resolveDamage and runner critical-event translation map third engine crits to engine_destroyed',
+  ),
+  impossible_displacement: integrated(
+    'impossible_displacement',
+    'DFA impossible-displacement branches emit UnitDestroyed cause=impossible_displacement for the blocked unit in runner and event-sourced physical resolution',
+    MEGAMEK_DFA_IMPOSSIBLE_DISPLACEMENT_SOURCE_REFS,
   ),
   pilot_death: integrated(
     'pilot_death',

@@ -105,16 +105,18 @@ export function createUnitDestroyedEvent(
   turn: number,
   phase: GamePhase,
   unitId: string,
-  cause:
-    | 'damage'
-    | 'ammo_explosion'
-    | 'pilot_death'
-    | 'engine_destroyed'
-    | 'shutdown'
-    | 'ct_destroyed'
-    | 'head_destroyed',
+  cause: IUnitDestroyedPayload['cause'],
+  options?: {
+    readonly killerUnitId?: string;
+  },
 ): IGameEvent {
-  const payload: IUnitDestroyedPayload = { unitId, cause };
+  const payload: IUnitDestroyedPayload = {
+    unitId,
+    cause,
+    ...(options?.killerUnitId !== undefined
+      ? { killerUnitId: options.killerUnitId }
+      : {}),
+  };
 
   return {
     ...createEventBase(

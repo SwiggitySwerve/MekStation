@@ -17,7 +17,7 @@ import { weaponTypeFromMountId } from './weaponAttackHelpers';
 /**
  * Canonical `UnitDestroyed` cause taxonomy. Extracted as a named alias
  * so the resolution phase and its helpers share one definition instead
- * of repeating the seven-member union at every call site (it appears in
+ * of repeating the shared union at every call site (it appears in
  * both `emitCritEvents` and `applyCritAmmoExplosions` today).
  */
 export type DestructionCause =
@@ -25,6 +25,7 @@ export type DestructionCause =
   | 'ammo_explosion'
   | 'pilot_death'
   | 'engine_destroyed'
+  | 'impossible_displacement'
   | 'shutdown'
   | 'ct_destroyed'
   | 'head_destroyed';

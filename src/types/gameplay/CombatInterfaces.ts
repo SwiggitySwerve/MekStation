@@ -341,7 +341,7 @@ export interface IDamageResult {
    * (in `GameSessionInterfaces.ts`) and the `cause` field on
    * `IDestructionCheckResult` / `destructionCause` field on
    * `IUnitDamageState` (in `utils/gameplay/damage/types.ts`). All three
-   * MUST contain exactly the same 7 values per the
+   * MUST contain exactly the same 8 values per the
    * `add-combat-fidelity-suite` Phase 0.5 reconciliation.
    */
   readonly destructionCause?:
@@ -349,6 +349,7 @@ export interface IDamageResult {
     | 'ammo_explosion'
     | 'pilot_death'
     | 'engine_destroyed'
+    | 'impossible_displacement'
     | 'shutdown'
     | 'ct_destroyed'
     | 'head_destroyed';

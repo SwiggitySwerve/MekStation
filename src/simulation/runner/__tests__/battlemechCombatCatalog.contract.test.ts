@@ -1524,10 +1524,25 @@ describe('BattleMech combat feature-gap tracking', () => {
 
     expect(
       supportIdsByLevel(DESTRUCTION_CAUSE_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual(['ammo_explosion', 'damage', 'engine_destroyed', 'pilot_death']);
+    ).toEqual([
+      'ammo_explosion',
+      'damage',
+      'engine_destroyed',
+      'impossible_displacement',
+      'pilot_death',
+    ]);
     expect(
       supportIdsByLevel(DESTRUCTION_CAUSE_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual(['ct_destroyed', 'head_destroyed', 'shutdown']);
+
+    expect(
+      DESTRUCTION_CAUSE_COMBAT_SUPPORT.impossible_displacement.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek resolveDfaAttack destroys the attacker on a missed DFA when the target cannot be displaced.',
+      'MegaMek resolveDfaAttack destroys the target on a successful DFA when the target cannot be displaced.',
+    ]);
   });
 
   it('tracks runner-vs-interactive parity and marks cross-stack gaps', () => {

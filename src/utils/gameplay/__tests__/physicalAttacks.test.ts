@@ -27,6 +27,7 @@ import {
   canDFA,
   canMeleeWeapon,
   canPush,
+  computeDfaDisplacementOutcome,
   computeDfaDisplacements,
   computePreferredDisplacement,
   computeValidDisplacement,
@@ -107,6 +108,18 @@ function makeDisplacementGrid(): IHexGrid {
     elevation: 1,
   });
   return { config: { radius: 2 }, hexes };
+}
+
+function makeBlockedDfaDisplacementGrid(): IHexGrid {
+  const grid = makeDisplacementGrid();
+  const hexes = new Map(grid.hexes);
+  for (const key of ['1,1', '2,0', '0,1']) {
+    const hex = hexes.get(key);
+    if (hex) {
+      hexes.set(key, { ...hex, occupantId: `blocker-${key}` });
+    }
+  }
+  return { ...grid, hexes };
 }
 
 // =============================================================================
@@ -198,6 +211,35 @@ describe('physicalAttacks', () => {
           reason: 'dfa_miss',
         },
       ]);
+    });
+
+    it('identifies source-backed DFA impossible-displacement destruction', () => {
+      const grid = makeBlockedDfaDisplacementGrid();
+      const base = {
+        grid,
+        attackerId: 'attacker',
+        attackerPosition: { q: 0, r: 0 },
+        attackerFacing: Facing.South,
+        targetId: 'target',
+        targetPosition: { q: 1, r: 0 },
+      };
+
+      expect(computeDfaDisplacementOutcome({ ...base, hit: true })).toEqual({
+        displacements: [
+          {
+            unitId: 'attacker',
+            from: { q: 0, r: 0 },
+            to: { q: 1, r: 0 },
+            reason: 'dfa',
+          },
+        ],
+        impossibleDisplacementDestroyedUnitId: 'target',
+      });
+
+      expect(computeDfaDisplacementOutcome({ ...base, hit: false })).toEqual({
+        displacements: [],
+        impossibleDisplacementDestroyedUnitId: 'attacker',
+      });
     });
   });
 

@@ -329,13 +329,15 @@ export interface IUnitDestroyedPayload {
    * event. Priority order when multiple conditions apply in the same
    * turn (per `damage-system` spec):
    *   `pilot_death` > `head_destroyed` > `ct_destroyed` >
-   *   `engine_destroyed` > `ammo_explosion` > `shutdown` > `damage`.
+   *   `engine_destroyed` > `ammo_explosion` >
+   *   `impossible_displacement` > `shutdown` > `damage`.
    */
   readonly cause:
     | 'damage'
     | 'ammo_explosion'
     | 'pilot_death'
     | 'engine_destroyed'
+    | 'impossible_displacement'
     | 'shutdown'
     | 'ct_destroyed'
     | 'head_destroyed';

@@ -1,5 +1,4 @@
 import {
-  GameEventType,
   GamePhase,
   IGameEvent,
   IGameState,
@@ -40,17 +39,22 @@ import {
   applyPhysicalDamageClusters,
 } from './physicalAttackDamage';
 import {
-  computePhysicalDisplacements,
+  computePhysicalDisplacementOutcome,
   displaceUnit,
   elevationDifferenceBetween,
 } from './physicalAttackDisplacement';
+import {
+  applyImpossibleDisplacementDestruction,
+  emitPhysicalAttackDeclaredEvent,
+  emitPhysicalAttackResolvedEvent,
+} from './physicalAttackEvents';
 import {
   attackerHitPSRForAttack,
   attackerMissPSRForAttack,
   queuePendingPSR,
   targetPSRForAttack,
 } from './physicalAttackPsr';
-import { createD6Roller, createGameEvent } from './utils';
+import { createD6Roller } from './utils';
 
 export function runPhysicalAttackPhase(options: {
   state: IGameState;
@@ -261,9 +265,9 @@ export function runPhysicalAttackPhase(options: {
     };
 
     const result = resolvePhysicalAttack(attackInput, d6Roller);
-    const displacements =
+    const displacementOutcome =
       result.restrictionReasonCode === undefined
-        ? computePhysicalDisplacements({
+        ? computePhysicalDisplacementOutcome({
             grid,
             attackType: bestAttack,
             attacker: unit,
@@ -271,24 +275,20 @@ export function runPhysicalAttackPhase(options: {
             hit: result.hit,
             d6Roller,
           })
-        : [];
+        : { displacements: [] };
+    const displacements = displacementOutcome.displacements;
+    const impossibleDisplacementDestroyedUnitId =
+      displacementOutcome.impossibleDisplacementDestroyedUnitId;
 
-    events.push(
-      createGameEvent(
-        gameId,
-        events.length,
-        GameEventType.PhysicalAttackDeclared,
-        currentState.turn,
-        GamePhase.PhysicalAttack,
-        {
-          attackerId: unitId,
-          targetId: target.id,
-          attackType: bestAttack,
-          toHitNumber: result.toHitNumber,
-        },
-        unitId,
-      ),
-    );
+    emitPhysicalAttackDeclaredEvent({
+      events,
+      gameId,
+      turn: currentState.turn,
+      attackerId: unitId,
+      targetId: target.id,
+      attackType: bestAttack,
+      toHitNumber: result.toHitNumber,
+    });
 
     if (result.hit && result.targetDamage > 0 && result.hitLocation) {
       const targetClusters =
@@ -338,7 +338,11 @@ export function runPhysicalAttackPhase(options: {
       });
     }
 
-    if (result.hit && result.targetPSR) {
+    if (
+      result.hit &&
+      result.targetPSR &&
+      impossibleDisplacementDestroyedUnitId !== target.id
+    ) {
       const psr = targetPSRForAttack(bestAttack, target.id);
       if (psr) currentState = queuePendingPSR(currentState, target.id, psr);
     }
@@ -348,7 +352,11 @@ export function runPhysicalAttackPhase(options: {
       if (psr) currentState = queuePendingPSR(currentState, unitId, psr);
     }
 
-    if (!result.hit && result.attackerPSR) {
+    if (
+      !result.hit &&
+      result.attackerPSR &&
+      impossibleDisplacementDestroyedUnitId !== unitId
+    ) {
       currentState = queuePendingPSR(
         currentState,
         unitId,
@@ -364,29 +372,26 @@ export function runPhysicalAttackPhase(options: {
       );
     }
 
-    events.push(
-      createGameEvent(
-        gameId,
-        events.length,
-        GameEventType.PhysicalAttackResolved,
-        currentState.turn,
-        GamePhase.PhysicalAttack,
-        {
-          attackerId: unitId,
-          targetId: target.id,
-          attackType: bestAttack,
-          toHitNumber: result.toHitNumber,
-          hit: result.hit,
-          damage: result.targetDamage,
-          location: result.hit
-            ? result.hitLocation
-            : result.restrictionReasonCode,
-          roll: result.roll,
-          displacements: displacements.length > 0 ? displacements : undefined,
-        },
-        unitId,
-      ),
-    );
+    currentState = applyImpossibleDisplacementDestruction({
+      state: currentState,
+      events,
+      gameId,
+      turn: currentState.turn,
+      destroyedUnitId: impossibleDisplacementDestroyedUnitId,
+      attackerId: unitId,
+      targetId: target.id,
+    });
+
+    emitPhysicalAttackResolvedEvent({
+      events,
+      gameId,
+      turn: currentState.turn,
+      attackerId: unitId,
+      targetId: target.id,
+      attackType: bestAttack,
+      result,
+      displacements,
+    });
   }
 
   violations.push(...invariantRunner.runAll(currentState));

@@ -11,6 +11,7 @@ import {
   type IPilotHitPayload,
   type IPhysicalAttackResolvedPayload,
   type IPSRTriggeredPayload,
+  type IUnitDestroyedPayload,
   type IUnitGameState,
   LockState,
   MovementType,
@@ -169,6 +170,20 @@ function adjacentPhysicalGrid() {
   let grid = createHexGrid({ radius: 3 });
   grid = placeUnit(grid, { q: 0, r: 0 }, 'attacker');
   grid = placeUnit(grid, { q: 1, r: 0 }, 'target');
+  return grid;
+}
+
+function blockedDfaDisplacementGrid() {
+  let grid = adjacentPhysicalGrid();
+  [
+    { q: 1, r: 1 },
+    { q: 0, r: 1 },
+    { q: 2, r: 0 },
+    { q: 1, r: -1 },
+    { q: 2, r: -1 },
+  ].forEach((coord, index) => {
+    grid = placeUnit(grid, coord, `blocker-${index}`);
+  });
   return grid;
 }
 
@@ -2815,6 +2830,81 @@ describe('BattleMech physical combat behavior validation lane', () => {
       q: 1,
       r: 0,
     });
+  });
+
+  it('emits event-sourced DFA target destruction on impossible hit displacement', () => {
+    const context = physicalContext({
+      hexesMoved: 4,
+      attackerJumpedThisTurn: true,
+    });
+    const declared = declareAdjacentPhysicalAttack('dfa', context, {
+      facing: Facing.South,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3, 3, 3, 3, 3, 3]),
+      blockedDfaDisplacementGrid(),
+    );
+    const destroyed = resolved.events.find(
+      (entry) =>
+        entry.type === GameEventType.UnitDestroyed &&
+        (entry.payload as IUnitDestroyedPayload).unitId === 'target',
+    );
+    const payload = destroyed?.payload as IUnitDestroyedPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'target',
+      cause: 'impossible_displacement',
+      killerUnitId: 'attacker',
+    });
+    expect(resolved.currentState.units.target.destroyed).toBe(true);
+    expect(resolved.currentState.units.attacker.position).toEqual({
+      q: 1,
+      r: 0,
+    });
+  });
+
+  it('emits event-sourced DFA attacker destruction on impossible miss displacement', () => {
+    const context = physicalContext({
+      hexesMoved: 4,
+      attackerJumpedThisTurn: true,
+    });
+    const declared = declareAdjacentPhysicalAttack('dfa', context, {
+      facing: Facing.South,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([1, 1]),
+      blockedDfaDisplacementGrid(),
+    );
+    const destroyed = resolved.events.find(
+      (entry) =>
+        entry.type === GameEventType.UnitDestroyed &&
+        (entry.payload as IUnitDestroyedPayload).unitId === 'attacker',
+    );
+    const psrEvents = resolved.events.filter(
+      (entry) => entry.type === GameEventType.PSRTriggered,
+    );
+    const resolvedAttack = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const resolvedPayload = resolvedAttack?.payload as
+      | IPhysicalAttackResolvedPayload
+      | undefined;
+    const payload = destroyed?.payload as IUnitDestroyedPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'attacker',
+      cause: 'impossible_displacement',
+    });
+    expect(payload?.killerUnitId).toBeUndefined();
+    expect(resolvedPayload?.displacements).toBeUndefined();
+    expect(psrEvents).toHaveLength(0);
+    expect(resolved.currentState.units.attacker.destroyed).toBe(true);
   });
 
   it('threads active TSM through session physical resolution', () => {

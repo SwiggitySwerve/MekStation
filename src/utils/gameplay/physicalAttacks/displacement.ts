@@ -23,6 +23,11 @@ import { hexNeighbor } from '../hexMath';
 
 const DISPLACEMENT_OFFSETS = [0, 1, 5, 2, 4, 3] as const;
 
+export interface IDfaDisplacementOutcome {
+  readonly displacements: readonly IPhysicalDisplacement[];
+  readonly impossibleDisplacementDestroyedUnitId?: string;
+}
+
 /**
  * Per Resolved Q3: thin wrapper over `hexNeighbor` to mirror MegaMek's
  * `Coords.translated(facing)` API name. `facing` is the integer 0-5
@@ -211,14 +216,14 @@ export function computePreferredDisplacement(
  *   target's original hex.
  *
  * If the target cannot be displaced, MegaMek enters an "impossible
- * displacement" destruction branch. MekStation does not yet model that
- * destruction path here, so this helper returns no displacement rather than
- * stacking units in one hex.
+ * displacement" destruction branch:
+ * - hit: target is destroyed and the attacker lands in the target hex.
+ * - miss: attacker is destroyed and no displacement occurs.
  *
  * Source: MegaMek `TWGameManager.resolveDfaAttack`
  * (`TWGameManager.java:15225-15265`, `15352-15422`).
  */
-export function computeDfaDisplacements(options: {
+export function computeDfaDisplacementOutcome(options: {
   readonly grid: IHexGrid;
   readonly attackerId: string;
   readonly attackerPosition: IHexCoordinate;
@@ -226,7 +231,7 @@ export function computeDfaDisplacements(options: {
   readonly targetId: string;
   readonly targetPosition: IHexCoordinate;
   readonly hit: boolean;
-}): readonly IPhysicalDisplacement[] {
+}): IDfaDisplacementOutcome {
   const {
     attackerFacing,
     attackerId,
@@ -247,22 +252,42 @@ export function computeDfaDisplacements(options: {
       );
 
   if (!targetDestination) {
-    return [];
+    return {
+      displacements: hit
+        ? [
+            {
+              unitId: attackerId,
+              from: attackerPosition,
+              to: targetPosition,
+              reason: 'dfa',
+            },
+          ]
+        : [],
+      impossibleDisplacementDestroyedUnitId: hit ? targetId : attackerId,
+    };
   }
 
   const reason = hit ? 'dfa' : 'dfa_miss';
-  return [
-    {
-      unitId: targetId,
-      from: targetPosition,
-      to: targetDestination,
-      reason,
-    },
-    {
-      unitId: attackerId,
-      from: attackerPosition,
-      to: targetPosition,
-      reason,
-    },
-  ];
+  return {
+    displacements: [
+      {
+        unitId: targetId,
+        from: targetPosition,
+        to: targetDestination,
+        reason,
+      },
+      {
+        unitId: attackerId,
+        from: attackerPosition,
+        to: targetPosition,
+        reason,
+      },
+    ],
+  };
+}
+
+export function computeDfaDisplacements(
+  options: Parameters<typeof computeDfaDisplacementOutcome>[0],
+): readonly IPhysicalDisplacement[] {
+  return computeDfaDisplacementOutcome(options).displacements;
 }

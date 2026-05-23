@@ -16,6 +16,7 @@ import {
   IPhysicalAttackDeclaredPayload,
   IMovementCapability,
   IPhysicalAttackResolvedPayload,
+  IUnitDestroyedPayload,
   IUnitGameState,
   LockState,
   MovementType,
@@ -147,7 +148,11 @@ function createState(): IGameState {
 }
 
 function createPhysicalGrid(
-  options: { targetElevation?: number; waterTarget?: boolean } = {},
+  options: {
+    targetElevation?: number;
+    waterTarget?: boolean;
+    blockDfaDisplacement?: boolean;
+  } = {},
 ): IHexGrid {
   const hexes = new Map();
   hexes.set('0,0', {
@@ -164,13 +169,13 @@ function createPhysicalGrid(
   });
   hexes.set('1,1', {
     coord: { q: 1, r: 1 },
-    occupantId: null,
+    occupantId: options.blockDfaDisplacement ? 'blocker-1' : null,
     terrain: TerrainType.Clear,
     elevation: 0,
   });
   hexes.set('2,0', {
     coord: { q: 2, r: 0 },
-    occupantId: null,
+    occupantId: options.blockDfaDisplacement ? 'blocker-2' : null,
     terrain: TerrainType.Clear,
     elevation: 0,
   });
@@ -1515,5 +1520,76 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expectPendingPSR(result, 'player-1', PSRTrigger.DFAMiss);
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 1 });
     expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
+  });
+
+  it('destroys the DFA target when hit displacement is impossible', () => {
+    const { events, result } = runPhase('dfa', {
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      },
+      grid: createPhysicalGrid({ blockDfaDisplacement: true }),
+    });
+    const destroyed = events.find(
+      (event) =>
+        event.type === GameEventType.UnitDestroyed &&
+        (event.payload as IUnitDestroyedPayload).unitId === 'opponent-1',
+    );
+    const payload = destroyed?.payload as IUnitDestroyedPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'opponent-1',
+      cause: 'impossible_displacement',
+      killerUnitId: 'player-1',
+    });
+    expect(resolvedPayload(events).displacements).toEqual([
+      {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'dfa',
+      },
+    ]);
+    expect(result.units['opponent-1'].destroyed).toBe(true);
+    expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
+  });
+
+  it('destroys the DFA attacker when miss displacement is impossible', () => {
+    const { events, result } = runPhase('dfa', {
+      attacker: {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+        piloting: 12,
+      },
+      target: {
+        piloting: 12,
+      },
+      grid: createPhysicalGrid({ blockDfaDisplacement: true }),
+    });
+    const destroyed = events.find(
+      (event) =>
+        event.type === GameEventType.UnitDestroyed &&
+        (event.payload as IUnitDestroyedPayload).unitId === 'player-1',
+    );
+    const psrEvents = events.filter(
+      (event) => event.type === GameEventType.PSRTriggered,
+    );
+    const payload = destroyed?.payload as IUnitDestroyedPayload | undefined;
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'dfa',
+      hit: false,
+      roll: 8,
+      toHitNumber: 12,
+    });
+    expect(resolvedPayload(events).displacements).toBeUndefined();
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      cause: 'impossible_displacement',
+    });
+    expect(payload?.killerUnitId).toBeUndefined();
+    expect(psrEvents).toHaveLength(0);
+    expect(result.units['player-1'].destroyed).toBe(true);
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 });

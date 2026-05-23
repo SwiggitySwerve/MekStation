@@ -177,6 +177,14 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** death from above to-hit SHALL include attacker piloting minus target piloting as a modifier
 - **AND** helper, eligibility UI, event-sourced declaration, and runner resolution SHALL report the same modifier outcome
 
+#### Scenario: Death from above impossible displacement destroys the blocked unit
+
+- **GIVEN** a DFA hit or miss is resolved and every legal displacement hex for the target is blocked or off-map
+- **WHEN** the DFA displacement branch runs
+- **THEN** a successful DFA SHALL destroy the target with `cause=impossible_displacement` and move the attacker into the target hex
+- **AND** a missed DFA SHALL destroy the attacker with `cause=impossible_displacement` without queuing the normal miss PSR
+- **AND** helper, event-sourced resolution, runner resolution, and the destruction-cause catalog SHALL report the same source-backed outcome
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

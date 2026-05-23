@@ -1,11 +1,16 @@
 import { IGameState, IHexGrid, IPhysicalDisplacement } from '@/types/gameplay';
 import {
-  computeDfaDisplacements,
+  computeDfaDisplacementOutcome,
   computeMissedChargeDisplacement,
   computePushDisplacement,
   isValidDisplacement,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks';
+
+interface IPhysicalDisplacementOutcome {
+  readonly displacements: readonly IPhysicalDisplacement[];
+  readonly impossibleDisplacementDestroyedUnitId?: string;
+}
 
 export function elevationDifferenceBetween(
   grid: IHexGrid | undefined,
@@ -48,8 +53,19 @@ export function computePhysicalDisplacements(options: {
   hit: boolean;
   d6Roller: () => number;
 }): readonly IPhysicalDisplacement[] {
+  return computePhysicalDisplacementOutcome(options).displacements;
+}
+
+export function computePhysicalDisplacementOutcome(options: {
+  grid?: IHexGrid;
+  attackType: PhysicalAttackType;
+  attacker: IGameState['units'][string];
+  target: IGameState['units'][string];
+  hit: boolean;
+  d6Roller: () => number;
+}): IPhysicalDisplacementOutcome {
   const { attackType, attacker, d6Roller, grid, hit, target } = options;
-  if (!grid) return [];
+  if (!grid) return { displacements: [] };
 
   if (!hit && attackType === 'charge') {
     const destination = computeMissedChargeDisplacement(
@@ -63,20 +79,22 @@ export function computePhysicalDisplacements(options: {
       destination.q === attacker.position.q &&
       destination.r === attacker.position.r
     ) {
-      return [];
+      return { displacements: [] };
     }
-    return [
-      {
-        unitId: attacker.id,
-        from: attacker.position,
-        to: destination,
-        reason: 'charge_miss',
-      },
-    ];
+    return {
+      displacements: [
+        {
+          unitId: attacker.id,
+          from: attacker.position,
+          to: destination,
+          reason: 'charge_miss',
+        },
+      ],
+    };
   }
 
   if (attackType === 'dfa') {
-    return computeDfaDisplacements({
+    return computeDfaDisplacementOutcome({
       grid,
       attackerId: attacker.id,
       attackerPosition: attacker.position,
@@ -87,26 +105,32 @@ export function computePhysicalDisplacements(options: {
     });
   }
 
-  if (!hit || (attackType !== 'push' && attackType !== 'charge')) return [];
+  if (!hit || (attackType !== 'push' && attackType !== 'charge')) {
+    return { displacements: [] };
+  }
 
   const targetDestination = computePushDisplacement(
     target.position,
     attacker.facing,
   );
-  if (!isValidDisplacement(grid, targetDestination, target.id)) return [];
+  if (!isValidDisplacement(grid, targetDestination, target.id)) {
+    return { displacements: [] };
+  }
 
-  return [
-    {
-      unitId: target.id,
-      from: target.position,
-      to: targetDestination,
-      reason: attackType,
-    },
-    {
-      unitId: attacker.id,
-      from: attacker.position,
-      to: target.position,
-      reason: attackType,
-    },
-  ];
+  return {
+    displacements: [
+      {
+        unitId: target.id,
+        from: target.position,
+        to: targetDestination,
+        reason: attackType,
+      },
+      {
+        unitId: attacker.id,
+        from: attacker.position,
+        to: target.position,
+        reason: attackType,
+      },
+    ],
+  };
 }

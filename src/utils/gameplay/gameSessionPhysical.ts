@@ -32,6 +32,7 @@ import {
   createPhysicalAttackDeclaredEvent,
   createPhysicalAttackResolvedEvent,
   createPSRTriggeredEvent,
+  createUnitDestroyedEvent,
 } from './gameEvents';
 import {
   buildDefaultComponentDamageState,
@@ -51,8 +52,8 @@ import {
   canMeleeWeapon,
   canPunch,
   canPush,
+  computeDfaDisplacementOutcome,
   calculatePhysicalToHit,
-  computeDfaDisplacements,
   computeMissedChargeDisplacement,
   computePushDisplacement,
   determinePhysicalHitLocation,
@@ -67,17 +68,22 @@ import {
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
 } from './physicalAttacks';
 
-function computeResolvedPhysicalDisplacements(options: {
+interface IResolvedPhysicalDisplacementOutcome {
+  readonly displacements: readonly IPhysicalDisplacement[];
+  readonly impossibleDisplacementDestroyedUnitId?: string;
+}
+
+function computeResolvedPhysicalDisplacementOutcome(options: {
   readonly grid?: IHexGrid;
   readonly attackType: PhysicalAttackType;
   readonly attacker: IGameSession['currentState']['units'][string];
   readonly target: IGameSession['currentState']['units'][string];
   readonly hit: boolean;
   readonly d6Roller: D6Roller;
-}): readonly IPhysicalDisplacement[] {
+}): IResolvedPhysicalDisplacementOutcome {
   const { attackType, attacker, d6Roller, grid, hit, target } = options;
   if (!grid) {
-    return [];
+    return { displacements: [] };
   }
 
   if (!hit && attackType === 'charge') {
@@ -92,20 +98,22 @@ function computeResolvedPhysicalDisplacements(options: {
       destination.q === attacker.position.q &&
       destination.r === attacker.position.r
     ) {
-      return [];
+      return { displacements: [] };
     }
-    return [
-      {
-        unitId: attacker.id,
-        from: attacker.position,
-        to: destination,
-        reason: 'charge_miss',
-      },
-    ];
+    return {
+      displacements: [
+        {
+          unitId: attacker.id,
+          from: attacker.position,
+          to: destination,
+          reason: 'charge_miss',
+        },
+      ],
+    };
   }
 
   if (attackType === 'dfa') {
-    return computeDfaDisplacements({
+    return computeDfaDisplacementOutcome({
       grid,
       attackerId: attacker.id,
       attackerPosition: attacker.position,
@@ -116,28 +124,34 @@ function computeResolvedPhysicalDisplacements(options: {
     });
   }
 
-  if (!hit || (attackType !== 'push' && attackType !== 'charge')) return [];
+  if (!hit || (attackType !== 'push' && attackType !== 'charge')) {
+    return { displacements: [] };
+  }
 
   const targetDestination = computePushDisplacement(
     target.position,
     attacker.facing,
   );
-  if (!isValidDisplacement(grid, targetDestination, target.id)) return [];
+  if (!isValidDisplacement(grid, targetDestination, target.id)) {
+    return { displacements: [] };
+  }
 
-  return [
-    {
-      unitId: target.id,
-      from: target.position,
-      to: targetDestination,
-      reason: attackType,
-    },
-    {
-      unitId: attacker.id,
-      from: attacker.position,
-      to: target.position,
-      reason: attackType,
-    },
-  ];
+  return {
+    displacements: [
+      {
+        unitId: target.id,
+        from: target.position,
+        to: targetDestination,
+        reason: attackType,
+      },
+      {
+        unitId: attacker.id,
+        from: attacker.position,
+        to: target.position,
+        reason: attackType,
+      },
+    ],
+  };
 }
 
 /**
@@ -502,7 +516,7 @@ export function resolveAllPhysicalAttacks(
     };
 
     const result = resolvePhysicalAttack(input, d6Roller);
-    const displacements = computeResolvedPhysicalDisplacements({
+    const displacementOutcome = computeResolvedPhysicalDisplacementOutcome({
       grid,
       attackType: payload.attackType,
       attacker: attackerState,
@@ -510,6 +524,9 @@ export function resolveAllPhysicalAttacks(
       hit: result.hit,
       d6Roller,
     });
+    const displacements = displacementOutcome.displacements;
+    const impossibleDisplacementDestroyedUnitId =
+      displacementOutcome.impossibleDisplacementDestroyedUnitId;
 
     const resolvedSeq = currentSession.events.length;
     currentSession = appendEvent(
@@ -672,7 +689,11 @@ export function resolveAllPhysicalAttacks(
     const targetUnit = currentSession.units.find(
       (u) => u.id === payload.targetId,
     );
-    if (result.hit && result.targetPSR) {
+    if (
+      result.hit &&
+      result.targetPSR &&
+      impossibleDisplacementDestroyedUnitId !== payload.targetId
+    ) {
       // Per `structure-psr-reason-as-discriminated-code` (PR E): map the
       // generic `physical_attack_target` trigger source to the canonical
       // `PSRTrigger` matching the originating attack type so consumers
@@ -741,7 +762,11 @@ export function resolveAllPhysicalAttacks(
         ),
       );
     }
-    if (!result.hit && result.attackerPSR) {
+    if (
+      !result.hit &&
+      result.attackerPSR &&
+      impossibleDisplacementDestroyedUnitId !== payload.attackerId
+    ) {
       const triggerSource =
         payload.attackType === 'kick'
           ? 'kick_miss'
@@ -772,6 +797,28 @@ export function resolveAllPhysicalAttacks(
           triggerSource,
           context.pilotingSkill,
           missReasonCode,
+        ),
+      );
+    }
+
+    if (
+      impossibleDisplacementDestroyedUnitId !== undefined &&
+      !currentSession.currentState.units[impossibleDisplacementDestroyedUnitId]
+        ?.destroyed
+    ) {
+      const destroyedSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createUnitDestroyedEvent(
+          currentSession.id,
+          destroyedSeq,
+          turn,
+          GamePhase.PhysicalAttack,
+          impossibleDisplacementDestroyedUnitId,
+          'impossible_displacement',
+          impossibleDisplacementDestroyedUnitId === payload.targetId
+            ? { killerUnitId: payload.attackerId }
+            : undefined,
         ),
       );
     }
