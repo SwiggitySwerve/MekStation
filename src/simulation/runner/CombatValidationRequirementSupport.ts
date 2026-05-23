@@ -3,6 +3,18 @@
 import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
 
 import { PHYSICAL_LEGALITY_GATE_SUPPORT } from './CombatPhysicalLegalityGateSupport';
+import {
+  MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
+  MOVEMENT_RULE_COMBAT_SUPPORT,
+  TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
+} from './CombatRuleSupport';
+import {
+  TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT,
+  TERRAIN_TYPE_HEAT_COMBAT_SUPPORT,
+  TERRAIN_TYPE_LOS_COMBAT_SUPPORT,
+  TERRAIN_TYPE_MOVEMENT_COMBAT_SUPPORT,
+  TERRAIN_TYPE_PSR_COMBAT_SUPPORT,
+} from './CombatTerrainEnvironmentSupport';
 
 export type CombatRequirementAuthorityKind =
   | 'rulebook'
@@ -116,6 +128,62 @@ type CombatRequirementId = keyof typeof COMBAT_REQUIREMENT_PRIMARY_AUTHORITIES;
 const PHYSICAL_LEGALITY_GATE_SUPPORT_REFS = Object.keys(
   PHYSICAL_LEGALITY_GATE_SUPPORT,
 ).map((id) => `ruleSupport.physicalLegalityGates.${id}`);
+
+function supportRefs(
+  sectionId: string,
+  mapId: string,
+  support: Record<string, ICombatFeatureSupportEntry>,
+): readonly string[] {
+  return Object.keys(support).map((id) => `${sectionId}.${mapId}.${id}`);
+}
+
+const MOVEMENT_RULE_SUPPORT_REFS = supportRefs(
+  'ruleSupport',
+  'movementRules',
+  MOVEMENT_RULE_COMBAT_SUPPORT,
+);
+
+const MOVEMENT_ENHANCEMENT_SUPPORT_REFS = supportRefs(
+  'ruleSupport',
+  'movementEnhancements',
+  MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
+);
+
+const TERRAIN_ENVIRONMENT_SUPPORT_REFS = supportRefs(
+  'ruleSupport',
+  'terrainEnvironment',
+  TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
+);
+
+const TERRAIN_TYPE_MOVEMENT_SUPPORT_REFS = supportRefs(
+  'ruleSupport',
+  'terrainTypeMovement',
+  TERRAIN_TYPE_MOVEMENT_COMBAT_SUPPORT,
+);
+
+const TERRAIN_TYPE_LOS_SUPPORT_REFS = supportRefs(
+  'ruleSupport',
+  'terrainTypeLos',
+  TERRAIN_TYPE_LOS_COMBAT_SUPPORT,
+);
+
+const TERRAIN_TYPE_ATTACK_MODIFIER_SUPPORT_REFS = supportRefs(
+  'ruleSupport',
+  'terrainTypeAttackModifiers',
+  TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT,
+);
+
+const TERRAIN_TYPE_HEAT_SUPPORT_REFS = supportRefs(
+  'ruleSupport',
+  'terrainTypeHeat',
+  TERRAIN_TYPE_HEAT_COMBAT_SUPPORT,
+);
+
+const TERRAIN_TYPE_PSR_SUPPORT_REFS = supportRefs(
+  'ruleSupport',
+  'terrainTypePsr',
+  TERRAIN_TYPE_PSR_COMBAT_SUPPORT,
+);
 
 function primaryAuthorityFor(
   id: CombatRequirementId,
@@ -264,7 +332,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'actions.tacticalCommands.facing.rotate-left',
       'actions.tacticalCommands.facing.rotate-right',
       'actions.tacticalCommands.facing.torso-twist',
-      'ruleSupport.movementRules.prone',
+      ...MOVEMENT_RULE_SUPPORT_REFS,
     ],
   ),
   'movement-validation': integrated(
@@ -282,12 +350,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'movement-enhancements',
     'Movement enhancement support catalogs MASC, supercharger, TSM, and partial wing against combat movement behavior',
     'MASC, supercharger, TSM movement-speed, and partial-wing jump effects remain helper-only until combat movement capabilities, activation intents, and failure checks are wired',
-    [
-      'ruleSupport.movementEnhancements.MASC',
-      'ruleSupport.movementEnhancements.Supercharger',
-      'ruleSupport.movementEnhancements.Triple-Strength Myomer',
-      'ruleSupport.movementEnhancements.Partial Wing',
-    ],
+    MOVEMENT_ENHANCEMENT_SUPPORT_REFS,
   ),
   'heat-generation': integrated(
     'heat-generation',
@@ -382,8 +445,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'ruleSupport.terrainEnvironment.terrain-movement-costs',
       'ruleSupport.terrainEnvironment.terrain-los-blocking',
       'ruleSupport.terrainEnvironment.terrain-partial-cover',
-      'ruleSupport.terrainTypeMovement.clear',
-      'ruleSupport.terrainTypeLos.heavy_woods',
+      ...TERRAIN_TYPE_MOVEMENT_SUPPORT_REFS,
+      ...TERRAIN_TYPE_LOS_SUPPORT_REFS,
     ],
   ),
   'terrain-environment-modifiers': helperOnly(
@@ -391,18 +454,10 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'Terrain/environment maps track woods, rubble, rough, water, ice, swamp, buildings, fire, smoke, fog, night, dust, mines, and extreme conditions',
     'Building-collapse, dust, and minefield modifiers remain helper-only until runner phases consume those battlefield conditions',
     [
-      'ruleSupport.terrainEnvironment.terrain-to-hit-features',
-      'ruleSupport.terrainEnvironment.water-cooling',
-      'ruleSupport.terrainEnvironment.fire-heat',
-      'ruleSupport.terrainEnvironment.smoke-to-hit',
-      'ruleSupport.terrainEnvironment.fog',
-      'ruleSupport.terrainEnvironment.night',
-      'ruleSupport.terrainEnvironment.wind',
-      'ruleSupport.terrainEnvironment.dust',
-      'ruleSupport.terrainEnvironment.mines',
-      'ruleSupport.terrainTypePsr.rubble',
-      'ruleSupport.terrainTypePsr.sand',
-      'ruleSupport.terrainTypePsr.building',
+      ...TERRAIN_ENVIRONMENT_SUPPORT_REFS,
+      ...TERRAIN_TYPE_ATTACK_MODIFIER_SUPPORT_REFS,
+      ...TERRAIN_TYPE_HEAT_SUPPORT_REFS,
+      ...TERRAIN_TYPE_PSR_SUPPORT_REFS,
     ],
   ),
   'physical-core-actions': helperOnly(

@@ -6,6 +6,18 @@ import type {
 
 import { AMMUNITION_COMPATIBILITY_SUPPORT } from '../CombatAmmunitionSupport';
 import { PHYSICAL_LEGALITY_GATE_SUPPORT } from '../CombatPhysicalLegalityGateSupport';
+import {
+  MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
+  MOVEMENT_RULE_COMBAT_SUPPORT,
+  TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
+} from '../CombatRuleSupport';
+import {
+  TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT,
+  TERRAIN_TYPE_HEAT_COMBAT_SUPPORT,
+  TERRAIN_TYPE_LOS_COMBAT_SUPPORT,
+  TERRAIN_TYPE_MOVEMENT_COMBAT_SUPPORT,
+  TERRAIN_TYPE_PSR_COMBAT_SUPPORT,
+} from '../CombatTerrainEnvironmentSupport';
 import { BATTLEMECH_COMBAT_VALIDATION_CATALOG } from '../CombatValidationCatalog';
 import {
   BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT,
@@ -135,6 +147,22 @@ function sourceBackedFeatureRows(): readonly {
           : [],
       ),
     );
+}
+
+function missingRefsForRequirement(
+  requirementId: keyof typeof BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT,
+  sectionId: string,
+  mapId: string,
+  support: Record<string, ICombatFeatureSupportEntry>,
+): readonly string[] {
+  const requirementRefs = new Set(
+    BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT[requirementId].supportMapRefs,
+  );
+
+  return Object.keys(support)
+    .map((id) => `${sectionId}.${mapId}.${id}`)
+    .filter((ref) => !requirementRefs.has(ref))
+    .sort();
 }
 
 describe('BattleMech combat validation requirement crosswalk', () => {
@@ -286,15 +314,84 @@ describe('BattleMech combat validation requirement crosswalk', () => {
   });
 
   it('backs official-ammo claims with every ammunition compatibility support row', () => {
-    const officialAmmoRefs = new Set(
-      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['official-ammo'].supportMapRefs,
-    );
-    const missingAmmoRefs = Object.keys(AMMUNITION_COMPATIBILITY_SUPPORT)
-      .map((id) => `featureSupport.ammunitionCompatibility.${id}`)
-      .filter((ref) => !officialAmmoRefs.has(ref))
-      .sort();
+    expect(
+      missingRefsForRequirement(
+        'official-ammo',
+        'featureSupport',
+        'ammunitionCompatibility',
+        AMMUNITION_COMPATIBILITY_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
 
-    expect(missingAmmoRefs).toEqual([]);
+  it('backs movement requirements with every movement and movement-enhancement support row', () => {
+    expect(
+      missingRefsForRequirement(
+        'movement-actions',
+        'ruleSupport',
+        'movementRules',
+        MOVEMENT_RULE_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'movement-enhancements',
+        'ruleSupport',
+        'movementEnhancements',
+        MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
+
+  it('backs terrain requirements with every terrain support row', () => {
+    expect(
+      missingRefsForRequirement(
+        'terrain-movement-los-cover',
+        'ruleSupport',
+        'terrainTypeMovement',
+        TERRAIN_TYPE_MOVEMENT_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'terrain-movement-los-cover',
+        'ruleSupport',
+        'terrainTypeLos',
+        TERRAIN_TYPE_LOS_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'terrain-environment-modifiers',
+        'ruleSupport',
+        'terrainEnvironment',
+        TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'terrain-environment-modifiers',
+        'ruleSupport',
+        'terrainTypeAttackModifiers',
+        TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'terrain-environment-modifiers',
+        'ruleSupport',
+        'terrainTypeHeat',
+        TERRAIN_TYPE_HEAT_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'terrain-environment-modifiers',
+        'ruleSupport',
+        'terrainTypePsr',
+        TERRAIN_TYPE_PSR_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
   });
 
   it('backs runner-interactive parity claims with every parity support row', () => {
