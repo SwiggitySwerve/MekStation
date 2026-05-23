@@ -36,17 +36,15 @@ import {
   buildDamageStateFromUnit,
 } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
-import { buildRestrictionEventReason } from './gameSessionPhysicalHelpers';
+import {
+  appendPhysicalAttackRestrictionResolution,
+  physicalAttackRestrictionForType,
+  physicalTargetRangeRestriction,
+} from './gameSessionPhysicalHelpers';
 import { roll2d6 as rollDice } from './hitLocation';
 import {
-  canCharge,
-  canDFA,
-  canKick,
-  canMeleeWeapon,
-  canPunch,
   determinePhysicalHitLocation,
   IPhysicalAttackInput,
-  IPhysicalAttackRestriction,
   PhysicalAttackType,
   resolvePhysicalAttack,
   splitPhysicalDamageIntoClusters,
@@ -71,9 +69,27 @@ export function declarePhysicalAttack(
   if (!attackerState || attackerState.destroyed) {
     return session;
   }
+  const targetState = session.currentState.units[targetId];
+  if (!targetState || targetState.destroyed) {
+    return session;
+  }
 
   const componentDamage =
     attackerState.componentDamage ?? buildDefaultComponentDamageState();
+
+  const targetRangeRestriction = physicalTargetRangeRestriction(
+    attackerState,
+    targetState,
+  );
+  if (!targetRangeRestriction.allowed) {
+    return appendPhysicalAttackRestrictionResolution(
+      session,
+      attackerId,
+      targetId,
+      attackType,
+      targetRangeRestriction,
+    );
+  }
 
   const input: IPhysicalAttackInput = {
     attackerTonnage: context.attackerTonnage,
@@ -99,28 +115,7 @@ export function declarePhysicalAttack(
     footActuatorPresent: context.footActuatorPresent,
   };
 
-  // Per task 3.1 / 3.2 / 3.3 / 3.4 / 3.5 / 3.6 / 3.7: restrictions run
-  // per attack type. Charge / DFA / melee gate on the same helpers used
-  // by the to-hit layer.
-  let restriction: IPhysicalAttackRestriction;
-  if (attackType === 'punch') {
-    restriction = canPunch(input);
-  } else if (attackType === 'kick') {
-    restriction = canKick(input);
-  } else if (attackType === 'charge') {
-    restriction = canCharge(input);
-  } else if (attackType === 'dfa') {
-    restriction = canDFA(input);
-  } else if (
-    attackType === 'hatchet' ||
-    attackType === 'sword' ||
-    attackType === 'mace' ||
-    attackType === 'lance'
-  ) {
-    restriction = canMeleeWeapon(input);
-  } else {
-    restriction = { allowed: true };
-  }
+  const restriction = physicalAttackRestrictionForType(attackType, input);
 
   if (!restriction.allowed) {
     // Per spec task 3.8: rejections surface as a
@@ -128,23 +123,12 @@ export function declarePhysicalAttack(
     // event whose `location` field carries the reason code so replay +
     // UI can distinguish rejections from rolled misses. A future change
     // can promote this to a dedicated `PhysicalAttackInvalid` event.
-    const sequence = session.events.length;
-    const { turn } = session.currentState;
-    return appendEvent(
+    return appendPhysicalAttackRestrictionResolution(
       session,
-      createPhysicalAttackResolvedEvent(
-        session.id,
-        sequence,
-        turn,
-        attackerId,
-        targetId,
-        attackType,
-        0,
-        Infinity,
-        false,
-        undefined,
-        buildRestrictionEventReason(restriction),
-      ),
+      attackerId,
+      targetId,
+      attackType,
+      restriction,
     );
   }
 

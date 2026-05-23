@@ -1,4 +1,17 @@
-import type {
+import type { IGameSession, IUnitGameState } from '@/types/gameplay';
+
+import type { PhysicalAttackType } from './physicalAttacks/types';
+
+import { createPhysicalAttackResolvedEvent } from './gameEvents';
+import { appendEvent } from './gameSessionCore';
+import { hexDistance } from './hexMath';
+import {
+  canCharge,
+  canDFA,
+  canKick,
+  canMeleeWeapon,
+  canPunch,
+  type IPhysicalAttackInput,
   IPhysicalAttackRestriction,
   PhysicalAttackLimb,
 } from './physicalAttacks';
@@ -66,5 +79,66 @@ export function buildRestrictionEventReason(
 ): string {
   return (
     restriction.reasonCode ?? restriction.reason ?? 'PhysicalAttackInvalid'
+  );
+}
+
+export function physicalTargetRangeRestriction(
+  attacker: IUnitGameState,
+  target: IUnitGameState,
+): IPhysicalAttackRestriction {
+  if (hexDistance(attacker.position, target.position) <= 1) {
+    return { allowed: true };
+  }
+
+  return {
+    allowed: false,
+    reason: 'Target not in physical attack range',
+    reasonCode: 'TargetNotInPhysicalRange',
+  };
+}
+
+export function physicalAttackRestrictionForType(
+  attackType: PhysicalAttackType,
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  if (attackType === 'punch') return canPunch(input);
+  if (attackType === 'kick') return canKick(input);
+  if (attackType === 'charge') return canCharge(input);
+  if (attackType === 'dfa') return canDFA(input);
+  if (
+    attackType === 'hatchet' ||
+    attackType === 'sword' ||
+    attackType === 'mace' ||
+    attackType === 'lance'
+  ) {
+    return canMeleeWeapon(input);
+  }
+  return { allowed: true };
+}
+
+export function appendPhysicalAttackRestrictionResolution(
+  session: IGameSession,
+  attackerId: string,
+  targetId: string,
+  attackType: PhysicalAttackType,
+  restriction: IPhysicalAttackRestriction,
+): IGameSession {
+  const sequence = session.events.length;
+  const { turn } = session.currentState;
+  return appendEvent(
+    session,
+    createPhysicalAttackResolvedEvent(
+      session.id,
+      sequence,
+      turn,
+      attackerId,
+      targetId,
+      attackType,
+      0,
+      Infinity,
+      false,
+      undefined,
+      buildRestrictionEventReason(restriction),
+    ),
   );
 }

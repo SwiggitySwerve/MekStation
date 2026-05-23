@@ -29,6 +29,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   NoRunThisTurn: 'Charge requires running this turn',
   LimbMissing: 'Limb is missing',
   AttackerProne: 'Attacker is prone',
+  TargetNotInPhysicalRange: 'Target must be adjacent',
   UnsupportedAttackType: 'Attack type is unsupported',
   DestinationBlocked: 'Push destination is blocked',
 };

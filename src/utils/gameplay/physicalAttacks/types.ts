@@ -53,6 +53,7 @@ export type PhysicalAttackInvalidReason =
   | 'NoRunThisTurn'
   | 'LimbMissing'
   | 'AttackerProne'
+  | 'TargetNotInPhysicalRange'
   | 'UnsupportedAttackType'
   | 'DestinationBlocked';
 
