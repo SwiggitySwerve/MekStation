@@ -4,6 +4,7 @@ import type {
   CombatValidationSupportMap,
 } from '../CombatValidationCatalog';
 
+import { AMMUNITION_COMPATIBILITY_SUPPORT } from '../CombatAmmunitionSupport';
 import { PHYSICAL_LEGALITY_GATE_SUPPORT } from '../CombatPhysicalLegalityGateSupport';
 import { BATTLEMECH_COMBAT_VALIDATION_CATALOG } from '../CombatValidationCatalog';
 import {
@@ -282,6 +283,18 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       'ruleSupport.heatRules.environmental-heat',
       'ruleSupport.heatRules.pilot-heat-damage',
     ]);
+  });
+
+  it('backs official-ammo claims with every ammunition compatibility support row', () => {
+    const officialAmmoRefs = new Set(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['official-ammo'].supportMapRefs,
+    );
+    const missingAmmoRefs = Object.keys(AMMUNITION_COMPATIBILITY_SUPPORT)
+      .map((id) => `featureSupport.ammunitionCompatibility.${id}`)
+      .filter((ref) => !officialAmmoRefs.has(ref))
+      .sort();
+
+    expect(missingAmmoRefs).toEqual([]);
   });
 
   it('backs runner-interactive parity claims with every parity support row', () => {
