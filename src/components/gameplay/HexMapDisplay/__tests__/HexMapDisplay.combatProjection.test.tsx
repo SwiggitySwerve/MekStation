@@ -47,6 +47,24 @@ function makeWeapon(overrides: Partial<IWeaponStatus> = {}): IWeaponStatus {
   };
 }
 
+function getToHitModifierRow(
+  container: HTMLElement,
+  name: string,
+): HTMLElement {
+  const row = Array.from(
+    container.querySelectorAll<HTMLElement>(
+      '[data-combat-to-hit-modifier-name]',
+    ),
+  ).find(
+    (element) =>
+      element.getAttribute('data-combat-to-hit-modifier-name') === name,
+  );
+  if (!row) {
+    throw new Error(`Missing to-hit modifier row: ${name}`);
+  }
+  return row;
+}
+
 function makeCombatState(
   units: Record<
     string,
@@ -571,6 +589,13 @@ describe('HexMapDisplay combat projection', () => {
           selected: { side: GameSide.Player, position: { q: 0, r: 0 } },
           enemy: { side: GameSide.Opponent, position: { q: 2, r: 0 } },
         })}
+        hexTerrain={[
+          {
+            coordinate: { q: 2, r: 0 },
+            elevation: 0,
+            features: [{ type: TerrainType.LightWoods, level: 1 }],
+          },
+        ]}
         movementRange={[
           {
             hex: { q: 2, r: 0 },
@@ -619,6 +644,20 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact'),
     ).toHaveTextContent('expected');
+    const toHitRows = screen.getByTestId(
+      'hex-tactical-tooltip-combat-to-hit-modifiers',
+    );
+    expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-names',
+      expect.stringContaining('Target Terrain'),
+    );
+    expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-values',
+      expect.stringContaining('1'),
+    );
+    expect(getToHitModifierRow(toHitRows, 'Target Terrain')).toHaveTextContent(
+      'Target Terrain +1',
+    );
     expect(screen.queryByTestId('hex-combat-tooltip')).toBeNull();
   });
 
@@ -1758,6 +1797,15 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-combat-tooltip-modifiers'),
     ).toHaveTextContent('Intervening Terrain +2');
+    const toHitRows = screen.getByTestId('hex-combat-tooltip-to-hit-modifiers');
+    expect(toHitRows).toHaveAttribute('data-combat-to-hit-number', '6');
+    expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-values',
+      expect.stringContaining('2'),
+    );
+    expect(
+      getToHitModifierRow(toHitRows, 'Intervening Terrain'),
+    ).toHaveTextContent('Intervening Terrain +2');
   });
 
   it('preserves multi-feature terrain blockers when deriving combat LOS from map terrain', () => {
@@ -2113,6 +2161,33 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-combat-tooltip-modifiers'),
     ).toHaveTextContent('Target Terrain +1');
+    const toHitRows = screen.getByTestId('hex-combat-tooltip-to-hit-modifiers');
+    expect(toHitRows).toHaveAttribute('data-combat-to-hit-number', '5');
+    expect(toHitRows).toHaveAttribute('data-combat-to-hit-modifier-count', '6');
+    expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-names',
+      'Gunnery Skill|Range (short)|Attacker Movement|Target Movement (TMM)|Heat|Target Terrain',
+    );
+    expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-values',
+      '4|0|0|0|0|1',
+    );
+    expect(toHitRows).toHaveAttribute(
+      'data-combat-to-hit-modifier-sources',
+      expect.stringContaining('terrain'),
+    );
+    expect(getToHitModifierRow(toHitRows, 'Gunnery Skill')).toHaveTextContent(
+      'Gunnery Skill +4',
+    );
+    const targetTerrainModifier = getToHitModifierRow(
+      toHitRows,
+      'Target Terrain',
+    );
+    expect(targetTerrainModifier).toHaveAttribute(
+      'data-combat-to-hit-modifier-name',
+      'Target Terrain',
+    );
+    expect(targetTerrainModifier).toHaveTextContent('Target Terrain +1');
   });
 
   it('surfaces minimum-range penalties on otherwise valid attack targets', () => {

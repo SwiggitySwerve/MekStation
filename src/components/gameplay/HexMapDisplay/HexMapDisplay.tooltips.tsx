@@ -23,6 +23,7 @@ import {
   TerrainContextRows,
   TerrainHoverTooltip,
 } from './HexMapDisplay.terrainTooltip';
+import { CombatToHitModifierRows } from './HexMapDisplay.toHitModifierRows';
 import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
@@ -336,6 +337,10 @@ function CombatHoverTooltip({
       {modifierLabel && (
         <div data-testid="hex-combat-tooltip-modifiers">{modifierLabel}</div>
       )}
+      <CombatToHitModifierRows
+        combatInfo={combatInfo}
+        testId="hex-combat-tooltip-to-hit-modifiers"
+      />
       {reason && (
         <div
           className="mt-1 text-[11px] text-slate-200"

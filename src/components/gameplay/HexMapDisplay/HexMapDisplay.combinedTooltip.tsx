@@ -13,6 +13,7 @@ import {
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
 import { IsometricOccluderContextRows } from './HexMapDisplay.terrainTooltip';
+import { CombatToHitModifierRows } from './HexMapDisplay.toHitModifierRows';
 import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
@@ -269,6 +270,10 @@ export function CombinedTacticalHoverTooltip({
           {modifierLabel}
         </div>
       )}
+      <CombatToHitModifierRows
+        combatInfo={combatInfo}
+        testId="hex-tactical-tooltip-combat-to-hit-modifiers"
+      />
       {combatReason && (
         <div
           className="text-[11px] text-slate-200"
