@@ -29,6 +29,7 @@ interface ArcStyle {
   readonly fillOpacity: number;
   readonly stroke: string;
   readonly label: string;
+  readonly shortLabel: string;
 }
 
 const ARC_STYLES: Record<Exclude<UiFiringArc, 'out-of-arc'>, ArcStyle> = {
@@ -37,24 +38,28 @@ const ARC_STYLES: Record<Exclude<UiFiringArc, 'out-of-arc'>, ArcStyle> = {
     fillOpacity: 0.25,
     stroke: '#15803d',
     label: 'Front arc',
+    shortLabel: 'FRONT',
   },
   'left-side': {
     fill: '#eab308',
     fillOpacity: 0.2,
     stroke: '#a16207',
     label: 'Left side arc',
+    shortLabel: 'L ARC',
   },
   'right-side': {
     fill: '#eab308',
     fillOpacity: 0.2,
     stroke: '#a16207',
     label: 'Right side arc',
+    shortLabel: 'R ARC',
   },
   rear: {
     fill: '#f43f5e',
     fillOpacity: 0.25,
     stroke: '#be123c',
     label: 'Rear arc',
+    shortLabel: 'REAR',
   },
 };
 
@@ -192,6 +197,48 @@ function ArcShape({
   );
 }
 
+function ArcTextBadge({
+  hex,
+  style,
+}: {
+  readonly hex: IHexCoordinate;
+  readonly style: ArcStyle;
+}): React.ReactElement {
+  const { x, y } = hexToPixel(hex);
+  const width = style.shortLabel.length * 6 + 10;
+  const key = coordToKey(hex);
+
+  return (
+    <g
+      data-testid={`firing-arc-label-${key}`}
+      data-arc-label={style.shortLabel}
+      aria-label={style.label}
+    >
+      <rect
+        x={x - width / 2}
+        y={y + 10}
+        width={width}
+        height={13}
+        rx={3}
+        fill="#0f172a"
+        fillOpacity={0.86}
+        stroke={style.stroke}
+        strokeWidth={1}
+      />
+      <text
+        x={x}
+        y={y + 19}
+        textAnchor="middle"
+        fontSize={8}
+        fontWeight="bold"
+        fill="#f8fafc"
+      >
+        {style.shortLabel}
+      </text>
+    </g>
+  );
+}
+
 function FiringArcOverlayComponent({
   unit,
   hexes,
@@ -247,6 +294,7 @@ function FiringArcOverlayComponent({
               hex={hex}
               testId={`firing-arc-shape-${typedArc}-${key}`}
             />
+            <ArcTextBadge hex={hex} style={style} />
           </g>
         );
       })}

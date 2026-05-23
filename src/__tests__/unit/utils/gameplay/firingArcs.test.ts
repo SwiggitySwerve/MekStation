@@ -80,23 +80,21 @@ describe('firingArcs', () => {
   });
 
   describe('getRearArcDirections()', () => {
-    it('should return 3 directions for rear arc', () => {
+    it('should return the strict rear direction', () => {
       const directions = getRearArcDirections(Facing.North);
-      expect(directions.length).toBe(3);
+      expect(directions.length).toBe(1);
     });
 
-    it('should include directions behind facing', () => {
+    it('should include the direct opposite direction', () => {
       const directions = getRearArcDirections(Facing.North);
       expect(directions).toContain(Facing.South);
-      expect(directions).toContain(Facing.Southeast);
-      expect(directions).toContain(Facing.Southwest);
     });
   });
 
   describe('getLeftArcDirection() / getRightArcDirection()', () => {
     it('should return correct side directions', () => {
-      expect(getLeftArcDirection(Facing.North)).toBe(Facing.Southeast);
-      expect(getRightArcDirection(Facing.North)).toBe(Facing.Southwest);
+      expect(getLeftArcDirection(Facing.North)).toBe(Facing.Southwest);
+      expect(getRightArcDirection(Facing.North)).toBe(Facing.Southeast);
     });
   });
 

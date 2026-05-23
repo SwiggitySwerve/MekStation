@@ -59,6 +59,13 @@ describe('FiringArcOverlay', () => {
     expect(
       screen.getByTestId('firing-arc-shape-front-0,-1'),
     ).toBeInTheDocument();
+    expect(screen.getByTestId('firing-arc-label-0,-1')).toHaveAttribute(
+      'data-arc-label',
+      'FRONT',
+    );
+    expect(screen.getByTestId('firing-arc-label-0,-1')).toHaveTextContent(
+      'FRONT',
+    );
 
     expect(container.querySelectorAll('title').length).toBeGreaterThan(0);
   });
@@ -77,6 +84,9 @@ describe('FiringArcOverlay', () => {
     expect(
       screen.getByTestId('firing-arc-shape-right-side-1,0'),
     ).toBeInTheDocument();
+    expect(screen.getByTestId('firing-arc-label-1,0')).toHaveTextContent(
+      'R ARC',
+    );
 
     const rearHex = screen.getByTestId('firing-arc-hex-0,1');
     expect(rearHex).toHaveAttribute('data-arc', 'rear');
@@ -85,6 +95,9 @@ describe('FiringArcOverlay', () => {
       '#f43f5e',
     );
     expect(screen.getByTestId('firing-arc-shape-rear-0,1')).toBeInTheDocument();
+    expect(screen.getByTestId('firing-arc-label-0,1')).toHaveTextContent(
+      'REAR',
+    );
   });
 
   it('keeps out-of-range and hidden arcs unrendered', () => {

@@ -25,17 +25,17 @@ describe('calculateFiringArc', () => {
       );
     });
 
-    it('detects Right arc — attacker at northeast adjacent (on boundary)', () => {
-      // NE adjacent hex is exactly on the front/right boundary — falls to Right
+    it('detects Front arc for northeast adjacent front boundary', () => {
+      // NE adjacent hex is exactly on MegaMek's front/right boundary; front wins.
       expect(calculateFiringArc({ q: 1, r: -1 }, targetPos, facing)).toBe(
-        FiringArc.Right,
+        FiringArc.Front,
       );
     });
 
-    it('detects Left arc — attacker at northwest adjacent (on boundary)', () => {
-      // NW adjacent hex is exactly on the front/left boundary — falls to Left
+    it('detects Front arc for northwest adjacent front boundary', () => {
+      // NW adjacent hex is exactly on MegaMek's front/left boundary; front wins.
       expect(calculateFiringArc({ q: -1, r: 0 }, targetPos, facing)).toBe(
-        FiringArc.Left,
+        FiringArc.Front,
       );
     });
 
@@ -319,14 +319,15 @@ describe('calculateFiringArc with torso twist', () => {
         FiringArc.Rear,
       );
 
-      // With left twist (facing shifts N→NE), south position might shift to left side
+      // With left twist (facing shifts N to NE), south is on the rear/right
+      // boundary; MegaMek gives that boundary to the side arc.
       const withTwist = calculateFiringArc(
         attackerBehind,
         targetPos,
         Facing.North,
         'left',
       );
-      expect([FiringArc.Rear, FiringArc.Left]).toContain(withTwist);
+      expect(withTwist).toBe(FiringArc.Right);
     });
   });
 
