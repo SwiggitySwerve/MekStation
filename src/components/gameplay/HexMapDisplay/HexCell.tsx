@@ -55,12 +55,15 @@ import {
   MovementStandUpBadge,
 } from './HexCell.movementBadges';
 import {
+  movementOptionCostsAttribute,
   movementOptionBlockedReasonsAttribute,
   movementOptionElevationCostsAttribute,
   movementOptionElevationDeltasAttribute,
   movementOptionInvalidDetailsAttribute,
   movementOptionInvalidReasonsAttribute,
+  movementOptionStatesAttribute,
   movementOptionTerrainCostsAttribute,
+  movementOptionTypesAttribute,
 } from './HexCell.movementOptionSummaries';
 import { ProjectionStatusBadge } from './HexCell.projectionBadges';
 import {
@@ -83,37 +86,6 @@ import {
  * reference it by URL.
  */
 const JUMP_PATTERN_URL = 'url(#pattern-jump-range)';
-
-function movementOptionTypesAttribute(
-  movementInfo?: IMovementRangeHex,
-): string | undefined {
-  const options = movementInfo?.movementModeOptions;
-  if (!options || options.length <= 1) return undefined;
-  return options.map((option) => option.movementType).join(',');
-}
-
-function movementOptionCostsAttribute(
-  movementInfo?: IMovementRangeHex,
-): string | undefined {
-  const options = movementInfo?.movementModeOptions;
-  if (!options || options.length <= 1) return undefined;
-  return options
-    .map((option) => `${option.movementType}:${option.mpCost}`)
-    .join('|');
-}
-
-function movementOptionStatesAttribute(
-  movementInfo?: IMovementRangeHex,
-): string | undefined {
-  const options = movementInfo?.movementModeOptions;
-  if (!options || options.length <= 1) return undefined;
-  return options
-    .map(
-      (option) =>
-        `${option.movementType}:${option.reachable ? 'reachable' : 'blocked'}`,
-    )
-    .join('|');
-}
 
 /**
  * Per `add-movement-phase-ui` task 3.2-3.4: pick the per-type tile

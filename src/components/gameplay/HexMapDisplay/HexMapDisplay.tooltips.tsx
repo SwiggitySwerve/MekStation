@@ -16,6 +16,7 @@ import {
 } from './HexCell.labels';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import { CombinedTacticalHoverTooltip } from './HexMapDisplay.combinedTooltip';
+import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
 import { MapMovementPointLegend } from './HexMapDisplay.mpLegend';
 import {
   IsometricOccluderContextRows,
@@ -173,6 +174,10 @@ function MovementHoverTooltip({
       <IsometricOccluderContextRows
         info={isometricOccluderInfo}
         testIdPrefix="hex-movement-tooltip"
+      />
+      <MovementModeOptionRows
+        movementInfo={movementInfo}
+        testId="hex-movement-tooltip-mode-options"
       />
       {movementInfo.terrainCost !== undefined && (
         <div data-testid="hex-movement-tooltip-terrain">

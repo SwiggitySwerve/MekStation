@@ -11,6 +11,7 @@ import {
   formatTerrainFeaturesLabel,
 } from './HexCell.labels';
 import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
+import { MovementModeOptionRows } from './HexMapDisplay.movementOptionRows';
 import { IsometricOccluderContextRows } from './HexMapDisplay.terrainTooltip';
 import {
   formatCombatCoverLabel,
@@ -162,6 +163,10 @@ export function CombinedTacticalHoverTooltip({
         {movementMode};{' '}
         {Number.isFinite(movementInfo.mpCost) ? movementInfo.mpCost : 'X'} MP
       </div>
+      <MovementModeOptionRows
+        movementInfo={movementInfo}
+        testId="hex-tactical-tooltip-movement-options"
+      />
       {movementInfo.terrainCost !== undefined && (
         <div data-testid="hex-tactical-tooltip-movement-terrain">
           Terrain cost: +{movementInfo.terrainCost}

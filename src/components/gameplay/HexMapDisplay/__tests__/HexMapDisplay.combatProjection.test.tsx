@@ -2471,6 +2471,17 @@ describe('HexMapDisplay combat projection', () => {
               { q: 3, r: 0 },
             ],
           },
+          {
+            hex: { q: 3, r: 0 },
+            mpCost: 4,
+            terrainCost: 2,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 2,
+            movementMode: 'tracked',
+            reachable: true,
+            movementType: MovementType.Run,
+          },
         ]}
         unitWeapons={{
           selected: [makeWeapon({ ranges: { short: 1, medium: 1, long: 2 } })],
@@ -2522,7 +2533,7 @@ describe('HexMapDisplay combat projection', () => {
       projectionBadge.getAttribute('data-projection-status-badge-explanation'),
     ).toContain('Walk reachable 3 MP');
     expect(screen.getByTestId('hex-movement-badge-3-0')).toHaveTextContent(
-      'W 3MP',
+      'W/R 3MP',
     );
     expect(
       screen.getByTestId('hex-combat-invalid-badge-3-0'),
@@ -2560,6 +2571,25 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-movement-path'),
     ).toHaveTextContent('Path: 3 steps');
+    const movementOptions = screen.getByTestId(
+      'hex-tactical-tooltip-movement-options',
+    );
+    expect(movementOptions).toHaveAttribute('data-movement-option-count', '2');
+    expect(movementOptions).toHaveAttribute(
+      'data-movement-option-types',
+      'walk,run',
+    );
+    expect(movementOptions).toHaveAttribute(
+      'data-movement-option-costs',
+      'walk:3|run:4',
+    );
+    expect(
+      screen.getByTestId(
+        'hex-tactical-tooltip-movement-options-option-run-tracked-1',
+      ),
+    ).toHaveTextContent(
+      'run via tracked reachable 4 MP, terrain +2, elevation delta +0 cost +0, heat +2',
+    );
     expect(screen.getByTestId('hex-tactical-tooltip-combat')).toHaveTextContent(
       'Combat: Blocked',
     );

@@ -685,6 +685,44 @@ describe('HexMapDisplay tactical visual layers', () => {
       'walk:1|run:1|jump:0',
     );
 
+    fireEvent.mouseEnter(hex);
+
+    const optionRows = screen.getByTestId('hex-movement-tooltip-mode-options');
+    expect(optionRows).toHaveAttribute('data-movement-option-count', '3');
+    expect(optionRows).toHaveAttribute(
+      'data-movement-option-types',
+      'walk,run,jump',
+    );
+    expect(optionRows).toHaveAttribute(
+      'data-movement-option-costs',
+      'walk:3|run:3|jump:1',
+    );
+    expect(optionRows).toHaveAttribute(
+      'data-movement-option-states',
+      'walk:reachable|run:reachable|jump:reachable',
+    );
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-walk-tracked-0',
+      ),
+    ).toHaveTextContent(
+      'walk via tracked reachable 3 MP, terrain +1, elevation delta +1 cost +1, heat +0',
+    );
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-run-tracked-1',
+      ),
+    ).toHaveTextContent(
+      'run via tracked reachable 3 MP, terrain +2, elevation delta +1 cost +1, heat +2',
+    );
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-jump-jump-2',
+      ),
+    ).toHaveTextContent(
+      'jump reachable 1 MP, terrain +0, elevation delta +2 cost +0, heat +1',
+    );
+
     act(() => {
       unmount();
     });
@@ -782,6 +820,35 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-movement-badge-option-invalid-details',
       `jump:${blockedReason}`,
     );
+
+    fireEvent.mouseEnter(hex);
+
+    const optionRows = screen.getByTestId('hex-movement-tooltip-mode-options');
+    expect(optionRows).toHaveAttribute(
+      'data-movement-option-states',
+      'walk:reachable|run:reachable|jump:blocked',
+    );
+    expect(optionRows).toHaveAttribute(
+      'data-movement-option-blocked-reasons',
+      `jump:${blockedReason}`,
+    );
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-jump-jump-2',
+      ),
+    ).toHaveTextContent(
+      `jump blocked 1 MP, heat +1, blocked: ${blockedReason}`,
+    );
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-jump-jump-2',
+      ),
+    ).toHaveAttribute('data-movement-option-state', 'blocked');
+    expect(
+      screen.getByTestId(
+        'hex-movement-tooltip-mode-options-option-jump-jump-2',
+      ),
+    ).toHaveAttribute('data-movement-option-blocked-reason', blockedReason);
 
     act(() => {
       unmount();

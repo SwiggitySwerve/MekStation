@@ -129,6 +129,37 @@ export function movementOptionsForBadge(
   return options.length > 1 ? options : [movementRangeOptionFor(movementInfo)];
 }
 
+export function movementOptionTypesAttribute(
+  movementInfo?: IMovementRangeHex,
+): string | undefined {
+  const options = movementInfo?.movementModeOptions;
+  if (!options || options.length <= 1) return undefined;
+  return options.map((option) => option.movementType).join(',');
+}
+
+export function movementOptionCostsAttribute(
+  movementInfo?: IMovementRangeHex,
+): string | undefined {
+  const options = movementInfo?.movementModeOptions;
+  if (!options || options.length <= 1) return undefined;
+  return options
+    .map((option) => `${option.movementType}:${option.mpCost}`)
+    .join('|');
+}
+
+export function movementOptionStatesAttribute(
+  movementInfo?: IMovementRangeHex,
+): string | undefined {
+  const options = movementInfo?.movementModeOptions;
+  if (!options || options.length <= 1) return undefined;
+  return options
+    .map(
+      (option) =>
+        `${option.movementType}:${option.reachable ? 'reachable' : 'blocked'}`,
+    )
+    .join('|');
+}
+
 export function uniqueMovementTypeLabels(
   options: readonly IMovementRangeModeOption[],
 ): string {
