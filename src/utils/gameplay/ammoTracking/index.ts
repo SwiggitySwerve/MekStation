@@ -4,7 +4,9 @@ export {
   hasAmmoForWeapon,
   getTotalAmmo,
   getAmmoBinsAtLocation,
+  findAvailableAmmoBin,
   selectRandomAmmoBin,
+  normalizeAmmoWeaponType,
 } from './state';
 export {
   resolveAmmoExplosion,

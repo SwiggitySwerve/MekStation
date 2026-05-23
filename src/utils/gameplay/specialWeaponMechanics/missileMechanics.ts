@@ -3,7 +3,7 @@
  *
  * Implements BattleTech missile weapon resolution:
  * - LB-X: slug (standard) vs cluster (cluster table, -1 to-hit) modes
- * - Artemis IV/V: +2 cluster table roll bonus
+ * - Artemis IV/prototype IV/V: +2/+1/+3 cluster table roll bonus
  * - Narc/iNarc: +2 cluster table roll bonus for missiles vs marked target
  * - MRM: -1 cluster column modifier
  * - Streak SRM: All-or-nothing (verification)
@@ -35,9 +35,16 @@ export function isMissileWeapon(weaponId: string): boolean {
   return (
     id.includes('lrm') ||
     id.includes('srm') ||
+    id.includes('mml') ||
     id.includes('mrm') ||
     id.includes('atm')
   );
+}
+
+export function isArtemisCompatibleMissileWeapon(weaponId: string): boolean {
+  const id = weaponId.toLowerCase();
+  if (id.includes('streak')) return false;
+  return id.includes('lrm') || id.includes('srm') || id.includes('mml');
 }
 
 export function isMRM(weaponId: string): boolean {
@@ -58,7 +65,7 @@ export function isNarc(weaponId: string): boolean {
 
 export function isSemiGuidedLRM(weaponId: string): boolean {
   const id = weaponId.toLowerCase();
-  return id.includes('semi-guided') || id.includes('sg-lrm');
+  return /semi[-\s]?guided/.test(id) || /\bsg[-\s]?lrm\b/.test(id);
 }
 
 // =============================================================================
@@ -119,35 +126,53 @@ export function resolveLBXCluster(
 }
 
 // =============================================================================
-// 13.5: Artemis IV/V Cluster Bonus
+// 13.5: Artemis IV/prototype IV/V Cluster Bonus
 // =============================================================================
 
 /**
  * Calculate Artemis IV cluster table bonus.
  * +2 to cluster hit table roll when equipped and linked.
- * Nullified by enemy ECM.
+ * Nullified by enemy ECM, indirect fire, and active stealth on the attacker.
  */
 export function getArtemisIVBonus(
   equipment: IWeaponEquipmentFlags,
   targetStatus: ITargetStatusFlags,
 ): number {
   if (!equipment.hasArtemisIV) return 0;
+  if (targetStatus.isIndirectFire) return 0;
   if (targetStatus.ecmProtected) return 0; // ECM nullifies Artemis
+  if (targetStatus.attackerStealthActive) return 0;
   return 2;
 }
 
 /**
+ * Calculate prototype Artemis IV cluster table bonus.
+ * +1 to cluster hit table roll when equipped and linked.
+ */
+export function getPrototypeArtemisIVBonus(
+  equipment: IWeaponEquipmentFlags,
+  targetStatus: ITargetStatusFlags,
+): number {
+  if (!equipment.hasPrototypeArtemisIV) return 0;
+  if (targetStatus.isIndirectFire) return 0;
+  if (targetStatus.ecmProtected) return 0;
+  if (targetStatus.attackerStealthActive) return 0;
+  return 1;
+}
+
+/**
  * Calculate Artemis V cluster table bonus.
- * +2 to cluster hit table roll when equipped and linked.
- * Slightly harder to jam via ECM than Artemis IV (still nullified for now).
+ * +3 to cluster hit table roll when equipped and linked.
  */
 export function getArtemisVBonus(
   equipment: IWeaponEquipmentFlags,
   targetStatus: ITargetStatusFlags,
 ): number {
   if (!equipment.hasArtemisV) return 0;
+  if (targetStatus.isIndirectFire) return 0;
   if (targetStatus.ecmProtected) return 0; // ECM nullifies (Phase 14 may differentiate)
-  return 2;
+  if (targetStatus.attackerStealthActive) return 0;
+  return 3;
 }
 
 // =============================================================================
@@ -211,9 +236,13 @@ export function calculateClusterModifiers(
   targetStatus: ITargetStatusFlags,
   clusterHitterSPA: boolean = false,
 ): IClusterModifiers {
-  const artemisBonus =
-    getArtemisIVBonus(equipment, targetStatus) +
-    getArtemisVBonus(equipment, targetStatus);
+  const artemisBonus = isArtemisCompatibleMissileWeapon(weaponId)
+    ? equipment.hasArtemisV
+      ? getArtemisVBonus(equipment, targetStatus)
+      : equipment.hasArtemisIV
+        ? getArtemisIVBonus(equipment, targetStatus)
+        : getPrototypeArtemisIVBonus(equipment, targetStatus)
+    : 0;
   const narcBonus = isMissileWeapon(weaponId) ? getNarcBonus(targetStatus) : 0;
   const clusterHitterBonus = clusterHitterSPA ? 1 : 0;
   const mrmPenalty = getMRMClusterModifier(weaponId);

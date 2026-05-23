@@ -25,25 +25,21 @@ import {
 // =============================================================================
 
 export function isUltraAC(weaponId: string): boolean {
-  return (
-    (/^(clan-)?u?ac-\d+$/i.test(weaponId) &&
-      weaponId.toLowerCase().startsWith('uac')) ||
-    weaponId.toLowerCase().includes('ultra')
-  );
+  const id = weaponId.toLowerCase();
+  return /^(?:clan-)?uac-\d+$/.test(id) || id.includes('ultra');
 }
 
 export function isRotaryAC(weaponId: string): boolean {
-  return (
-    weaponId.toLowerCase().startsWith('rac') ||
-    weaponId.toLowerCase().includes('rotary')
-  );
+  const id = weaponId.toLowerCase();
+  return /^(?:clan-)?rac-\d+$/.test(id) || id.includes('rotary');
 }
 
 export function isLBXAC(weaponId: string): boolean {
+  const id = weaponId.toLowerCase();
   return (
-    weaponId.toLowerCase().startsWith('lb-') ||
-    weaponId.toLowerCase().includes('lb-x') ||
-    weaponId.toLowerCase().includes('lbx')
+    /^(?:clan-)?lb-\d+-x(?:-ac)?$/.test(id) ||
+    id.includes('lb-x') ||
+    id.includes('lbx')
   );
 }
 

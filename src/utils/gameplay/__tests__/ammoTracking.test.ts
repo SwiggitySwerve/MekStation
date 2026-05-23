@@ -14,7 +14,9 @@ import {
   selectRandomAmmoBin,
   getTotalAmmo,
   getAmmoBinsAtLocation,
+  findAvailableAmmoBin,
   isEnergyWeapon,
+  normalizeAmmoWeaponType,
   IAmmoConstructionData,
 } from '../ammoTracking';
 
@@ -172,6 +174,104 @@ describe('consumeAmmo', () => {
     const result = consumeAmmo(ammoState, 'unit-1', 'AC/10', 5);
     expect(result!.updatedAmmoState['bin-1'].remainingRounds).toBe(0);
   });
+
+  it('matches equivalent catalog IDs, slashes, and display names', () => {
+    expect(normalizeAmmoWeaponType('AC/20')).toBe('ac-20');
+    expect(normalizeAmmoWeaponType('AC-20')).toBe('ac-20');
+    expect(normalizeAmmoWeaponType('LRM 20')).toBe('lrm-20');
+    expect(normalizeAmmoWeaponType('Ultra AC/5')).toBe('uac-5');
+    expect(normalizeAmmoWeaponType('Ultra AC/5 (Clan)')).toBe('clan-uac-5');
+
+    const ammoState = {
+      'ac20-1': makeAmmoBin({
+        binId: 'ac20-1',
+        weaponType: 'AC/20',
+        remainingRounds: 5,
+      }),
+      'lrm20-1': makeAmmoBin({
+        binId: 'lrm20-1',
+        weaponType: 'lrm-20',
+        remainingRounds: 5,
+      }),
+      'clan-uac5-1': makeAmmoBin({
+        binId: 'clan-uac5-1',
+        weaponType: 'Ultra AC/5 (Clan)',
+        remainingRounds: 5,
+      }),
+    };
+
+    expect(consumeAmmo(ammoState, 'unit-1', 'ac-20')?.event.binId).toBe(
+      'ac20-1',
+    );
+    expect(consumeAmmo(ammoState, 'unit-1', 'LRM 20')?.event.binId).toBe(
+      'lrm20-1',
+    );
+    expect(consumeAmmo(ammoState, 'unit-1', 'clan-uac-5')?.event.binId).toBe(
+      'clan-uac5-1',
+    );
+  });
+
+  it('does not merge Clan and Inner Sphere ammo bins during normalized matching', () => {
+    const ammoState = {
+      'clan-uac5-1': makeAmmoBin({
+        binId: 'clan-uac5-1',
+        weaponType: 'clan-uac-5',
+        remainingRounds: 5,
+      }),
+    };
+
+    expect(consumeAmmo(ammoState, 'unit-1', 'uac-5')).toBeNull();
+    expect(
+      consumeAmmo(ammoState, 'unit-1', 'Ultra AC/5 (Clan)'),
+    ).not.toBeNull();
+  });
+
+  it('matches official AMS ammo names to AMS launchers', () => {
+    expect(normalizeAmmoWeaponType('AMS Ammo')).toBe('ams');
+    expect(normalizeAmmoWeaponType('Anti-Missile System Ammo')).toBe('ams');
+    expect(normalizeAmmoWeaponType('ISAMS Ammo')).toBe('ams');
+    expect(normalizeAmmoWeaponType('CLAMS Ammo')).toBe('clan-ams');
+
+    const ammoState = {
+      'ams-1': makeAmmoBin({
+        binId: 'ams-1',
+        weaponType: 'AMS Ammo',
+        remainingRounds: 5,
+      }),
+      'clan-ams-1': makeAmmoBin({
+        binId: 'clan-ams-1',
+        weaponType: 'CLAMS Ammo',
+        remainingRounds: 5,
+      }),
+    };
+
+    expect(consumeAmmo(ammoState, 'unit-1', 'ams')?.event.binId).toBe('ams-1');
+    expect(consumeAmmo(ammoState, 'unit-1', 'clan-ams')?.event.binId).toBe(
+      'clan-ams-1',
+    );
+  });
+
+  it('matches semi-guided LRM ammo to the base LRM launcher while preserving the selected variant', () => {
+    expect(normalizeAmmoWeaponType('Semi-Guided LRM 10')).toBe('lrm-10');
+    expect(normalizeAmmoWeaponType('LRM 10 Semi-Guided')).toBe('lrm-10');
+    expect(normalizeAmmoWeaponType('SG LRM 10')).toBe('lrm-10');
+
+    const ammoState = {
+      'sg-lrm10-1': makeAmmoBin({
+        binId: 'sg-lrm10-1',
+        weaponType: 'Semi-Guided LRM 10',
+        remainingRounds: 5,
+      }),
+    };
+
+    expect(hasAmmoForWeapon(ammoState, 'lrm-10')).toBe(true);
+    expect(findAvailableAmmoBin(ammoState, 'LRM 10')?.weaponType).toBe(
+      'Semi-Guided LRM 10',
+    );
+    expect(consumeAmmo(ammoState, 'unit-1', 'lrm-10')?.event.binId).toBe(
+      'sg-lrm10-1',
+    );
+  });
 });
 
 // =============================================================================
@@ -196,6 +296,24 @@ describe('hasAmmoForWeapon', () => {
 
   it('returns true for energy weapons regardless of ammo', () => {
     expect(hasAmmoForWeapon({}, 'Medium Laser', true)).toBe(true);
+  });
+
+  it('uses normalized weapon-type matching for availability and totals', () => {
+    const ammoState = {
+      'bin-1': makeAmmoBin({
+        binId: 'bin-1',
+        weaponType: 'AC/20',
+        remainingRounds: 4,
+      }),
+      'bin-2': makeAmmoBin({
+        binId: 'bin-2',
+        weaponType: 'ac-20',
+        remainingRounds: 3,
+      }),
+    };
+
+    expect(hasAmmoForWeapon(ammoState, 'AC-20')).toBe(true);
+    expect(getTotalAmmo(ammoState, 'AC/20')).toBe(7);
   });
 });
 

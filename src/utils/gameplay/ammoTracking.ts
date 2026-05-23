@@ -12,7 +12,9 @@ export {
   hasAmmoForWeapon,
   getTotalAmmo,
   getAmmoBinsAtLocation,
+  findAvailableAmmoBin,
   selectRandomAmmoBin,
+  normalizeAmmoWeaponType,
 } from './ammoTracking/state';
 export {
   resolveAmmoExplosion,
