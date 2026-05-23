@@ -14,6 +14,7 @@ import { PHYSICAL_LEGALITY_GATE_SUPPORT } from '../CombatPhysicalLegalityGateSup
 import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from '../CombatPilotModifierApplicationSupport';
 import { PILOT_SKILL_COMBAT_SUPPORT } from '../CombatPilotSkillSupport';
 import {
+  HEAT_RULE_COMBAT_SUPPORT,
   MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
   MOVEMENT_RULE_COMBAT_SUPPORT,
   TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
@@ -172,6 +173,25 @@ function missingRefsForRequirement(
     .sort();
 }
 
+function missingRefsAcrossRequirements(
+  requirementIds: readonly (keyof typeof BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT)[],
+  sectionId: string,
+  mapId: string,
+  support: Record<string, ICombatFeatureSupportEntry>,
+): readonly string[] {
+  const requirementRefs = new Set(
+    requirementIds.flatMap((requirementId) => [
+      ...BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT[requirementId]
+        .supportMapRefs,
+    ]),
+  );
+
+  return Object.keys(support)
+    .map((id) => `${sectionId}.${mapId}.${id}`)
+    .filter((ref) => !requirementRefs.has(ref))
+    .sort();
+}
+
 describe('BattleMech combat validation requirement crosswalk', () => {
   it('turns the active goal requirements into an explicit checklist', () => {
     expect(sortedKeys(BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT)).toEqual(
@@ -302,7 +322,34 @@ describe('BattleMech combat validation requirement crosswalk', () => {
     ).toEqual([]);
   });
 
-  it('backs heat lifecycle claims with each heat rule catalog row they name', () => {
+  it('backs heat requirements with every heat rule support row', () => {
+    expect(
+      missingRefsAcrossRequirements(
+        ['heat-generation', 'heat-dissipation', 'heat-lifecycle'],
+        'ruleSupport',
+        'heatRules',
+        HEAT_RULE_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-generation']
+        .supportMapRefs,
+    ).toEqual([
+      'ruleSupport.heatRules.weapon-heat',
+      'ruleSupport.heatRules.movement-heat',
+      'ruleSupport.heatRules.jump-distance-heat',
+      'ruleSupport.heatRules.engine-heat',
+      'ruleSupport.heatRules.fire-heat',
+    ]);
+    expect(
+      BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-dissipation']
+        .supportMapRefs,
+    ).toEqual([
+      'ruleSupport.heatRules.dissipation',
+      'ruleSupport.heatRules.heat-sink-damage',
+      'ruleSupport.heatRules.water-cooling',
+      'ruleSupport.heatRules.environmental-heat',
+    ]);
     expect(
       BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['heat-lifecycle']
         .supportMapRefs,
@@ -313,9 +360,6 @@ describe('BattleMech combat validation requirement crosswalk', () => {
       'ruleSupport.heatRules.startup',
       'ruleSupport.heatRules.ammo-explosion-risk',
       'ruleSupport.heatRules.heat-induced-ammo-explosion',
-      'ruleSupport.heatRules.water-cooling',
-      'ruleSupport.heatRules.fire-heat',
-      'ruleSupport.heatRules.environmental-heat',
       'ruleSupport.heatRules.pilot-heat-damage',
     ]);
   });

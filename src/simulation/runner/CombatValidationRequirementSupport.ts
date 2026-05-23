@@ -221,6 +221,31 @@ const PILOT_MODIFIER_RESOLVER_SUPPORT_REFS = supportRefs(
   PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT,
 );
 
+const HEAT_GENERATION_SUPPORT_REFS = [
+  'weapon-heat',
+  'movement-heat',
+  'jump-distance-heat',
+  'engine-heat',
+  'fire-heat',
+].map((id) => `ruleSupport.heatRules.${id}`);
+
+const HEAT_DISSIPATION_SUPPORT_REFS = [
+  'dissipation',
+  'heat-sink-damage',
+  'water-cooling',
+  'environmental-heat',
+].map((id) => `ruleSupport.heatRules.${id}`);
+
+const HEAT_LIFECYCLE_SUPPORT_REFS = [
+  'threshold-effects',
+  'shutdown-check',
+  'auto-shutdown',
+  'startup',
+  'ammo-explosion-risk',
+  'heat-induced-ammo-explosion',
+  'pilot-heat-damage',
+].map((id) => `ruleSupport.heatRules.${id}`);
+
 function primaryAuthorityFor(
   id: CombatRequirementId,
 ): ICombatRequirementPrimaryAuthority {
@@ -390,36 +415,18 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'heat-generation': integrated(
     'heat-generation',
-    'Heat rules cover movement heat, weapon heat, engine heat, and heat generated event emission',
-    [
-      'ruleSupport.heatRules.weapon-heat',
-      'ruleSupport.heatRules.movement-heat',
-      'ruleSupport.heatRules.engine-heat',
-    ],
+    'Heat rules cover movement heat, jump-distance heat, weapon heat, engine heat, environmental fire heat, and heat generated event emission',
+    HEAT_GENERATION_SUPPORT_REFS,
   ),
   'heat-dissipation': integrated(
     'heat-dissipation',
-    'Heat rules cover heat sink count, double sink rating, and destroyed heat sink dissipation loss',
-    [
-      'ruleSupport.heatRules.dissipation',
-      'ruleSupport.heatRules.heat-sink-damage',
-    ],
+    'Heat rules cover heat sink count, double sink rating, destroyed heat sink dissipation loss, water cooling, and environmental dissipation modifiers',
+    HEAT_DISSIPATION_SUPPORT_REFS,
   ),
   'heat-lifecycle': integrated(
     'heat-lifecycle',
-    'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, water/fire/environment effects, heat pilot damage, and heat-induced ammo explosion selection plus damage cascade',
-    [
-      'ruleSupport.heatRules.threshold-effects',
-      'ruleSupport.heatRules.shutdown-check',
-      'ruleSupport.heatRules.auto-shutdown',
-      'ruleSupport.heatRules.startup',
-      'ruleSupport.heatRules.ammo-explosion-risk',
-      'ruleSupport.heatRules.heat-induced-ammo-explosion',
-      'ruleSupport.heatRules.water-cooling',
-      'ruleSupport.heatRules.fire-heat',
-      'ruleSupport.heatRules.environmental-heat',
-      'ruleSupport.heatRules.pilot-heat-damage',
-    ],
+    'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, heat pilot damage, and heat-induced ammo explosion selection plus damage cascade',
+    HEAT_LIFECYCLE_SUPPORT_REFS,
   ),
   'range-validation': integrated(
     'range-validation',
