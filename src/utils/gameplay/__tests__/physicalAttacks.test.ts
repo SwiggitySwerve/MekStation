@@ -1533,6 +1533,18 @@ describe('physicalAttacks', () => {
         canPush(
           makeInput({
             attackType: 'push',
+            attackerIsAirborne: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerAirborne',
+      });
+
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
             attackerArmsFlipped: true,
           }),
         ),

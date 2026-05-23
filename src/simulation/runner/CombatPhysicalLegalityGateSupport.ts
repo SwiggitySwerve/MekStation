@@ -246,10 +246,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canPush consumes attackerIsQuad, IUnitGameState exposes optional isQuad, and eligibility/session/runner inputs thread quad chassis state into push validation',
     PUSH_ACTION_LINES,
   ),
-  'push.attacker-grounded': unsupported(
+  'push.attacker-grounded': integrated(
     'push.attacker-grounded',
     'push',
-    'AirMek/VTOL/WIGE airborne state is not represented in push restriction input',
+    'canPush consumes attackerIsAirborne, IUnitGameState exposes optional isAirborne, and eligibility/session/runner inputs thread airborne attacker state into push validation',
     PUSH_ACTION_LINES,
   ),
   'push.target-is-mek': integrated(

@@ -592,6 +592,28 @@ describe('BattleMech physical combat behavior validation lane', () => {
     ).toEqual(['TargetNotMek']);
   });
 
+  it('surfaces airborne push attackers in eligibility projection', () => {
+    const attacker = unitState(
+      'attacker',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      { facing: Facing.Southeast, isAirborne: true },
+    );
+    const target = unitState('target', GameSide.Opponent, { q: 1, r: 0 });
+
+    const options = getEligiblePhysicalAttacks(attacker, target, {
+      attackerTonnage: 80,
+      attackerPilotingSkill: 5,
+      targetTonnage: 75,
+      pushDestinationValid: true,
+    });
+
+    expect(
+      options.find((option) => option.attackType === 'push')
+        ?.restrictionsFailed,
+    ).toEqual(['AttackerAirborne']);
+  });
+
   it('surfaces standing-Mek target gates in charge eligibility projection', () => {
     const attacker = unitState('attacker', GameSide.Player, { q: 0, r: 0 });
     const nonMekTarget = unitState(
@@ -1143,6 +1165,32 @@ describe('BattleMech physical combat behavior validation lane', () => {
       toHitNumber: Infinity,
       hit: false,
       location: 'AttackerQuad',
+    });
+  });
+
+  it('rejects airborne push attackers before scheduling resolution', () => {
+    const session = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), { isAirborne: true }, {}),
+      'attacker',
+      'target',
+      'push',
+      physicalContext({ pushDestinationValid: true }),
+    );
+    const payload = session.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      session.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackType: 'push',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'AttackerAirborne',
     });
   });
 

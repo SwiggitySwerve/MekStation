@@ -450,6 +450,14 @@ export function canPush(
     };
   }
 
+  if (input.attackerIsAirborne) {
+    return {
+      allowed: false,
+      reason: 'Cannot push while airborne',
+      reasonCode: 'AttackerAirborne',
+    };
+  }
+
   if (input.attackerArmsFlipped) {
     return {
       allowed: false,
