@@ -2219,6 +2219,87 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps TacOps destroyed-arm stand-up penalties aligned between preview and commit', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      prone: true,
+      destroyedLocations: ['right_arm'],
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      standUpCapability: { tacOpsAttemptingStand: true },
+    });
+
+    const preview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+      { q: 1, r: 0 },
+    );
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      mpCost: 3,
+      standUpRequired: true,
+      standUpPsrTargetNumber: 7,
+      standUpPsrModifier: 2,
+      standUpPsrModifierDetails: ['Right arm destroyed +2'],
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+      diceRoller: fixed2d6(6),
+    });
+
+    const resolved = result.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    );
+    expect(resolved?.payload).toMatchObject({
+      targetNumber: 7,
+      roll: 6,
+      modifiers: 2,
+      passed: false,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      mpUsed: 2,
+      standUpAttempt: true,
+      standUpSucceeded: false,
+    });
+    expect(
+      result.events.some((event) => event.type === GameEventType.UnitStood),
+    ).toBe(false);
+    expect(result.currentState.units.m1).toMatchObject({
+      position: { q: 0, r: 0 },
+      prone: true,
+    });
+  });
+
   it('commits standalone stand-up as a zero-hex walk with stand-up MP cost', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {

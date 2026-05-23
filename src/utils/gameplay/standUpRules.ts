@@ -39,6 +39,11 @@ export interface IStandUpPsrProjection {
   readonly impossibleReason?: string;
 }
 
+interface IStandUpPsrModifier {
+  readonly name: string;
+  readonly value: number;
+}
+
 export function projectStandUpPsr({
   unitState,
   unitPiloting,
@@ -58,6 +63,11 @@ export function projectStandUpPsr({
     unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
     unitState.pilotWounds,
   );
+  const representedStandUpModifiers = tacOpsAttemptingStandArmModifiers(
+    unitState,
+    movementCapability,
+  );
+  const allModifiers = [...modifiers, ...representedStandUpModifiers];
   const carefulStandModifier = shouldApplyCarefulStandModifier(
     movementCapability,
     standUpMode,
@@ -65,7 +75,7 @@ export function projectStandUpPsr({
     ? -2
     : 0;
   const modifier =
-    modifiers.reduce((sum, entry) => sum + entry.value, 0) +
+    allModifiers.reduce((sum, entry) => sum + entry.value, 0) +
     carefulStandModifier;
   const impossibleReason = destroyedLegAndArmsStandBlock(unitState, unitType);
 
@@ -73,7 +83,7 @@ export function projectStandUpPsr({
     reason: psr.reason,
     modifier,
     modifierDetails: [
-      ...modifiers.map(
+      ...allModifiers.map(
         (entry) => `${entry.name} ${entry.value >= 0 ? '+' : ''}${entry.value}`,
       ),
       ...(carefulStandModifier === 0 ? [] : ['Careful stand -2']),
@@ -92,6 +102,25 @@ export function shouldApplyCarefulStandModifier(
   standUpMode: StandUpMode,
 ): boolean {
   return standUpMode === 'careful' && (movementCapability?.walkMP ?? 0) > 2;
+}
+
+function tacOpsAttemptingStandArmModifiers(
+  unitState: IUnitGameState,
+  movementCapability?: IMovementCapability,
+): readonly IStandUpPsrModifier[] {
+  if (movementCapability?.standUpCapability?.tacOpsAttemptingStand !== true) {
+    return [];
+  }
+
+  const destroyed = new Set(unitState.destroyedLocations);
+  return [
+    ...(destroyed.has('right_arm')
+      ? [{ name: 'Right arm destroyed', value: 2 }]
+      : []),
+    ...(destroyed.has('left_arm')
+      ? [{ name: 'Left arm destroyed', value: 2 }]
+      : []),
+  ];
 }
 
 export function destroyedLegAndArmsStandBlock(

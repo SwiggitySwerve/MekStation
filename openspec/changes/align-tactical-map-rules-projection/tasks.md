@@ -41,7 +41,8 @@
   - [x] Represented Frogman movement now source-pins the MegaMek depth-2+ water surcharge reduction and keeps preview/commit MP and heat aligned.
   - [x] Special ProtoMech and Battle Armor movement fixtures now prove represented explicit ProtoMech run MP and Battle Armor VTOL/no-heat movement stay aligned between preview and commit.
   - [x] Represented TacOps Fast Infantry Movement now source-pins MegaMek Infantry/BattleArmor run-MP fallback and keeps fast infantry run preview/commit movement aligned.
-  - [ ] Add remaining optional arm/quirk/TacOps stand-up modifiers not represented by current unit state and any not-yet-represented infantry-specific terrain/heat rules.
+  - [x] Represented TacOps Attempting to Stand destroyed-arm modifiers now source-pin MegaMek's +2 per destroyed arm and keep preview/commit PSR target numbers aligned.
+  - [ ] Add remaining optional quirk/no-arms and side-specific arm-actuator TacOps stand-up modifiers not represented by current unit state and any not-yet-represented infantry-specific terrain/heat rules.
 - [x] Ensure highlighted walk/run/jump ranges expose MP cost, heat, elevation delta, terrain reason, and invalid reason.
 
 ## 4. Terrain and elevation readability

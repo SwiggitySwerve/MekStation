@@ -296,6 +296,36 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('projects represented TacOps destroyed-arm stand-up penalties', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      prone: true,
+      destroyedLocations: ['right_arm'],
+    };
+    const cap: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 0,
+      standUpCapability: { tacOpsAttemptingStand: true },
+    };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+    );
+
+    expect(projected).toMatchObject({
+      reachable: true,
+      standUpPsrTargetNumber: 7,
+      standUpPsrModifier: 2,
+      standUpPsrModifierDetails: ['Right arm destroyed +2'],
+    });
+  });
+
   it('reports terrain and elevation costs for reachable ground movement', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);

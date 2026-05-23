@@ -99,6 +99,14 @@ export interface IMovementWaterCapability {
 }
 
 /**
+ * Optional stand-up rule switches represented by movement projection.
+ */
+export interface IMovementStandUpCapability {
+  /** TacOps Attempting to Stand: destroyed arms add represented PSR penalties. */
+  readonly tacOpsAttemptingStand?: boolean;
+}
+
+/**
  * Firing arc classification.
  */
 export enum FiringArc {
@@ -255,6 +263,8 @@ export interface IMovementCapability {
   readonly unitHeight?: number;
   /** Optional equipment that modifies water movement legality and MP costs. */
   readonly waterCapability?: IMovementWaterCapability;
+  /** Optional stand-up rules that affect prone movement projection. */
+  readonly standUpCapability?: IMovementStandUpCapability;
 }
 
 /**
