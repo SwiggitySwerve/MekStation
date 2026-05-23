@@ -47,6 +47,17 @@ const MEGAMEK_INARC_VARIANT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_INARC_POD_TYPE_SOURCE_REFS = [
+  MEGAMEK_INARC_VARIANT_SOURCE_REFS[0],
+  {
+    kind: 'megamek-source',
+    citation:
+      'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/INarcPod.java#L53-L59',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_INARC_HOMING_SOURCE_REFS = [
   MEGAMEK_INARC_VARIANT_SOURCE_REFS[0],
   {
@@ -257,9 +268,14 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'inarc-pod-variants': helperOnly(
     'inarc-pod-variants',
-    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes; Homing has runner marker and missile guidance coverage, and Haywire has attacker to-hit coverage',
+    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes; selected ammo can attach each runner pod type, Homing has runner marker and missile guidance coverage, and Haywire has attacker to-hit coverage',
     'iNarc ECM and Nemesis pod effects are not represented in runner missile resolution',
-    MEGAMEK_INARC_VARIANT_SOURCE_REFS,
+    MEGAMEK_INARC_POD_TYPE_SOURCE_REFS,
+  ),
+  'inarc-variant-ammo-attachment': integrated(
+    'inarc-variant-ammo-attachment',
+    'Runner iNarc hits derive Homing, ECM, Haywire, and Nemesis podType from the selected ammo weapon type before attaching iNarcPods state and emitting DesignatorMarkerApplied',
+    MEGAMEK_INARC_POD_TYPE_SOURCE_REFS,
   ),
   'inarc-homing-marker-attachment': integrated(
     'inarc-homing-marker-attachment',

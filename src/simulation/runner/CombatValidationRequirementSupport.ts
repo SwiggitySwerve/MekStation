@@ -521,6 +521,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
       'featureSupport.specialWeaponMechanics.mml-srm-lrm-ammo-compatibility',
       'featureSupport.specialWeaponMechanics.narc-marker-attachment',
       'featureSupport.specialWeaponMechanics.narc-marker-lifecycle-events',
+      'featureSupport.specialWeaponMechanics.inarc-variant-ammo-attachment',
       'featureSupport.specialWeaponMechanics.inarc-homing-marker-attachment',
       'featureSupport.specialWeaponMechanics.inarc-homing-cluster-modifier',
       'featureSupport.specialWeaponMechanics.inarc-homing-to-hit-modifier',

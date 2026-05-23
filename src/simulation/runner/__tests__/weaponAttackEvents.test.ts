@@ -241,6 +241,46 @@ function createINarcBeacon(id = 'inarc-0'): IWeapon {
   };
 }
 
+function createSelectableINarcBeacon(id = 'inarc-0'): IWeapon {
+  return {
+    ...createINarcBeacon(id),
+    firingModes: {
+      kind: 'ammo-mode',
+      defaultModeId: 'homing',
+      modes: [
+        {
+          id: 'homing',
+          damage: 0,
+          heat: 0,
+          shotsPerTurn: 1,
+          ammoWeaponType: 'inarc',
+        },
+        {
+          id: 'ecm',
+          damage: 0,
+          heat: 0,
+          shotsPerTurn: 1,
+          ammoWeaponType: 'inarc-ecm',
+        },
+        {
+          id: 'haywire',
+          damage: 0,
+          heat: 0,
+          shotsPerTurn: 1,
+          ammoWeaponType: 'inarc-haywire',
+        },
+        {
+          id: 'nemesis',
+          damage: 0,
+          heat: 0,
+          shotsPerTurn: 1,
+          ammoWeaponType: 'inarc-nemesis',
+        },
+      ],
+    },
+  };
+}
+
 function createTAGDesignator(id = 'tag-0'): IWeapon {
   return {
     id,
@@ -1302,6 +1342,62 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       ]);
       expect(result.state.units['opponent-1'].narcedBy).toBeUndefined();
     });
+
+    it.each([
+      ['ecm', 'inarc-ecm'],
+      ['haywire', 'inarc-haywire'],
+      ['nemesis', 'inarc-nemesis'],
+    ] as const)(
+      'iNARC %s ammo hits attach the selected pod variant without standard NARC state',
+      (modeId, ammoWeaponType) => {
+        const weapon = createSelectableINarcBeacon();
+        const ammoBin = createAmmoBin({
+          weaponType: ammoWeaponType,
+          remainingRounds: 2,
+        });
+        const { state, weaponsByUnit } = buildScenario({
+          attackerWeapons: [weapon],
+          attackerStateOverride: {
+            gunnery: 2,
+            ammoState: { [ammoBin.binId]: ammoBin },
+          },
+        });
+
+        const result = runPhaseWithResult({
+          state,
+          weaponsByUnit,
+          botPlayer: new ScriptedAttackAI(weapon.id, modeId),
+          random: new SequenceRandom([6, 6, 3, 4]),
+        });
+
+        const markerApplied = result.events.find(
+          (event) => event.type === GameEventType.DesignatorMarkerApplied,
+        ) as
+          | (IGameEvent & { payload: IDesignatorMarkerAppliedPayload })
+          | undefined;
+
+        expect(markerApplied?.payload).toMatchObject({
+          attackerId: 'player-1',
+          targetId: 'opponent-1',
+          weaponId: weapon.id,
+          marker: 'inarc',
+          podType: modeId,
+          persistent: true,
+          teamId: GameSide.Player,
+        });
+        expect(result.state.units['opponent-1'].iNarcPods).toEqual([
+          expect.objectContaining({
+            teamId: GameSide.Player,
+            podType: modeId,
+          }),
+        ]);
+        expect(result.state.units['opponent-1'].narcedBy).toBeUndefined();
+        expect(
+          result.state.units['player-1'].ammoState?.[ammoBin.binId]
+            .remainingRounds,
+        ).toBe(1);
+      },
+    );
 
     it('TAG hits designate the target without applying damage', () => {
       const weapon = createTAGDesignator();

@@ -22,6 +22,19 @@ export function isINarcBeaconWeapon(weapon: IWeapon): boolean {
   return /\bi[-\s]?narc\b/.test(text) || text.includes('inarc');
 }
 
+export function iNarcPodTypeFromAmmoWeaponType(
+  ammoWeaponType: string | undefined,
+): IINarcPodState['podType'] {
+  const normalized = (ammoWeaponType ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-');
+
+  if (/(?:^|-)ecm(?:-|$)/.test(normalized)) return 'ecm';
+  if (/(?:^|-)haywire(?:-|$)/.test(normalized)) return 'haywire';
+  if (/(?:^|-)nemesis(?:-|$)/.test(normalized)) return 'nemesis';
+  return 'homing';
+}
+
 export function isTagDesignatorWeapon(weapon: IWeapon): boolean {
   return isTAG(weaponTypeFromMountId(weapon.id)) || isTAG(weapon.name);
 }

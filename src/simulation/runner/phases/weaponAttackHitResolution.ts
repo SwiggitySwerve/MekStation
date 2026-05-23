@@ -25,6 +25,7 @@ import { createGameEvent } from './utils';
 import { applyCritAmmoExplosions } from './weaponAttackAmmoExplosions';
 import {
   emitDesignatorMarkerApplied,
+  iNarcPodTypeFromAmmoWeaponType,
   emitZeroDamageDesignatorHit,
   isINarcBeaconWeapon,
   isNarcBeaconWeapon,
@@ -174,17 +175,18 @@ export function resolveWeaponHit(options: {
     const attackerTeamId = currentState.units[unitId]?.side as
       | string
       | undefined;
+    const podType = iNarcPodTypeFromAmmoWeaponType(ammoWeaponType);
     const wasAlreadyINarced =
       attackerTeamId !== undefined &&
       (currentState.units[targetId].iNarcPods ?? []).some(
-        (pod) => pod.teamId === attackerTeamId && pod.podType === 'homing',
+        (pod) => pod.teamId === attackerTeamId && pod.podType === podType,
       );
     currentState = markTargetINarcPod({
       currentState,
       targetId,
       attackerTeamId,
       location,
-      podType: 'homing',
+      podType,
     });
 
     emitZeroDamageDesignatorHit({
@@ -211,7 +213,7 @@ export function resolveWeaponHit(options: {
         targetId,
         weaponId,
         marker: 'inarc',
-        podType: 'homing',
+        podType,
         persistent: true,
         location,
         teamId: attackerTeamId,

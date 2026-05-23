@@ -724,6 +724,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'inarc-homing-cluster-modifier',
       'inarc-homing-marker-attachment',
       'inarc-homing-to-hit-modifier',
+      'inarc-variant-ammo-attachment',
       'lbx-cluster-to-hit',
       'lbx-slug-cluster-modes',
       'mml-srm-lrm-ammo-compatibility',
@@ -1025,6 +1026,15 @@ describe('BattleMech combat catalog validation lane', () => {
       sourceRefsFor('inarc-pod-variants').map(({ citation }) => citation),
     ).toEqual([
       'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-variant-ammo-attachment').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
     ]);
     expect(
       sourceRefsFor('inarc-homing-to-hit-modifier').map(
@@ -1062,6 +1072,7 @@ describe('BattleMech combat catalog validation lane', () => {
     const refs = [
       ...sourceRefsFor('narc-marker-attachment'),
       ...sourceRefsFor('inarc-pod-variants'),
+      ...sourceRefsFor('inarc-variant-ammo-attachment'),
       ...sourceRefsFor('inarc-homing-marker-attachment'),
       ...sourceRefsFor('inarc-homing-cluster-modifier'),
       ...sourceRefsFor('inarc-homing-to-hit-modifier'),

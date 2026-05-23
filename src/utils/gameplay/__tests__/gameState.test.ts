@@ -899,20 +899,58 @@ describe('applyEvent - DesignatorMarkerApplied', () => {
         teamId: GameSide.Opponent,
       } as IDesignatorMarkerAppliedPayload,
     });
+    const ecmMarkerEvent = createTestEvent({
+      sequence: 4,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'inarc-1',
+        marker: 'inarc',
+        podType: 'ecm',
+        persistent: true,
+        turn: 1,
+        teamId: GameSide.Player,
+      } as IDesignatorMarkerAppliedPayload,
+    });
+    const nemesisMarkerEvent = createTestEvent({
+      sequence: 5,
+      type: GameEventType.DesignatorMarkerApplied,
+      payload: {
+        attackerId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'inarc-1',
+        marker: 'inarc',
+        podType: 'nemesis',
+        persistent: true,
+        turn: 1,
+        teamId: GameSide.Player,
+      } as IDesignatorMarkerAppliedPayload,
+    });
 
     const firstReplay = applyEvent(state, markerEvent);
     const secondReplay = applyEvent(firstReplay, markerEvent);
     const haywireReplay = applyEvent(secondReplay, haywireMarkerEvent);
+    const ecmReplay = applyEvent(haywireReplay, ecmMarkerEvent);
+    const nemesisReplay = applyEvent(ecmReplay, nemesisMarkerEvent);
 
-    expect(haywireReplay.units['opponent-1'].iNarcPods).toEqual([
+    expect(nemesisReplay.units['opponent-1'].iNarcPods).toEqual([
       {
         teamId: GameSide.Player,
         podType: 'homing',
         location: 'center_torso',
       },
+      {
+        teamId: GameSide.Player,
+        podType: 'ecm',
+      },
+      {
+        teamId: GameSide.Player,
+        podType: 'nemesis',
+      },
     ]);
-    expect(haywireReplay.units['opponent-1'].narcedBy).toEqual([]);
-    expect(haywireReplay.units['player-1'].iNarcPods).toEqual([
+    expect(nemesisReplay.units['opponent-1'].narcedBy).toEqual([]);
+    expect(nemesisReplay.units['player-1'].iNarcPods).toEqual([
       {
         teamId: GameSide.Opponent,
         podType: 'haywire',
