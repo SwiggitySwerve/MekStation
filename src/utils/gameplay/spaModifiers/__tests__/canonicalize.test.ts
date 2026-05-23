@@ -15,9 +15,11 @@ import {
   calculateMeleeSpecialistModifier,
   calculateMultiTaskerModifier,
   getClusterHitterBonus,
+  getCoolUnderFireHeatReduction,
   getHotDogShutdownThresholdBonus,
   getIronManModifier,
   getMeleeMasterDamageBonus,
+  getSomeLikeItHotHeatPenaltyReduction,
   getTacticalGeniusBonus,
 } from '../abilityModifiers';
 import { hasSPA } from '../canonicalize';
@@ -135,6 +137,11 @@ describe('combat modifiers accept canonical ids', () => {
 
   it('getHotDogShutdownThresholdBonus fires on canonical id', () => {
     expect(getHotDogShutdownThresholdBonus(['hot_dog'])).toBe(3);
+  });
+
+  it('heat SPA helpers fire on canonical ids', () => {
+    expect(getCoolUnderFireHeatReduction(['cool_under_fire'])).toBe(1);
+    expect(getSomeLikeItHotHeatPenaltyReduction(['some_like_it_hot'])).toBe(1);
   });
 
   it('getObliqueAttackerBonus fires on canonical id', () => {

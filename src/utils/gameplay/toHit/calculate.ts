@@ -11,6 +11,7 @@ import { calculateAttackerQuirkModifiers } from '../quirkModifiers';
 import {
   calculateAttackerSPAModifiers,
   getEffectiveWounds,
+  getSomeLikeItHotHeatPenaltyReduction,
 } from '../spaModifiers';
 import { aggregateModifiers } from './aggregation';
 import { createBaseModifier } from './baseModifier';
@@ -69,6 +70,7 @@ export function calculateToHit(
   range: number,
   minRange: number = 0,
   ecmContext?: IEcmContext,
+  weaponId?: string,
 ): IToHitCalculation {
   const modifiers: IToHitModifierDetail[] = [];
 
@@ -92,7 +94,12 @@ export function calculateToHit(
 
   modifiers.push(calculateAttackerMovementModifier(attacker.movementType));
   modifiers.push(calculateTMM(target.movementType, target.hexesMoved));
-  modifiers.push(calculateHeatModifier(attacker.heat));
+  modifiers.push(
+    calculateHeatModifier(
+      attacker.heat,
+      getSomeLikeItHotHeatPenaltyReduction(attacker.abilities ?? []),
+    ),
+  );
 
   const proneMod = calculateProneModifier(target.prone, range);
   if (proneMod) modifiers.push(proneMod);
@@ -197,6 +204,7 @@ export function calculateToHit(
     attacker,
     target,
     rangeBracket,
+    weaponId,
   );
   modifiers.push(...quirkModifiers);
 

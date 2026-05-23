@@ -108,22 +108,23 @@ export function calculateMultiTracModifier(
 }
 
 /**
- * Rugged: provides critical hit resistance.
- * Returns the number of crits that can be negated this game.
- * @param unitQuirks - Unit's quirk identifiers
- * @returns Max crit negations (0, 1, or 2)
+ * Rugged: campaign maintenance-cycle multiplier.
  */
-export function getRuggedCritNegations(unitQuirks: readonly string[]): number {
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.RUGGED_2)) return 2;
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.RUGGED_1)) return 1;
-  return 0;
+export function getRuggedMaintenanceMultiplier(
+  unitQuirks: readonly string[],
+): number {
+  if (unitQuirks.includes(UNIT_QUIRK_IDS.RUGGED_2)) return 3;
+  if (unitQuirks.includes(UNIT_QUIRK_IDS.RUGGED_1)) return 2;
+  return 1;
 }
 
 /**
- * Protected/Exposed Actuators: modifier to enemy crit determination roll.
- * @returns Modifier to add to crit roll (+1 Protected = harder to crit, -1 Exposed = easier)
+ * Protected/Exposed Actuators: target-number modifier for anti-Mek Leg/Swarm
+ * attacks against this unit.
  */
-export function getActuatorCritModifier(unitQuirks: readonly string[]): number {
+export function getAntiMekActuatorTargetModifier(
+  unitQuirks: readonly string[],
+): number {
   if (unitQuirks.includes(UNIT_QUIRK_IDS.PROTECTED_ACTUATORS)) return 1;
   if (unitQuirks.includes(UNIT_QUIRK_IDS.EXPOSED_ACTUATORS)) return -1;
   return 0;

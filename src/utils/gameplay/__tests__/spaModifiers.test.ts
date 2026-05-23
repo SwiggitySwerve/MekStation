@@ -17,6 +17,8 @@ import {
   getEffectiveWounds,
   getIronManModifier,
   getHotDogShutdownThresholdBonus,
+  getCoolUnderFireHeatReduction,
+  getSomeLikeItHotHeatPenaltyReduction,
   createEdgeState,
   canUseEdge,
   useEdge,
@@ -329,19 +331,38 @@ describe('spaModifiers', () => {
     });
   });
 
+  describe('Heat SPAs', () => {
+    it('returns Cool Under Fire generated-heat reduction', () => {
+      expect(getCoolUnderFireHeatReduction(['cool-under-fire'])).toBe(1);
+      expect(getCoolUnderFireHeatReduction([])).toBe(0);
+    });
+
+    it('returns Some Like It Hot heat to-hit reduction', () => {
+      expect(getSomeLikeItHotHeatPenaltyReduction(['some-like-it-hot'])).toBe(
+        1,
+      );
+      expect(getSomeLikeItHotHeatPenaltyReduction([])).toBe(0);
+    });
+  });
+
   describe('Edge Trigger System', () => {
-    it('defines exactly 6 trigger types', () => {
-      expect(Object.keys(EDGE_TRIGGERS)).toHaveLength(6);
+    it('defines all MegaMek Edge trigger types', () => {
+      expect(Object.keys(EDGE_TRIGGERS)).toHaveLength(11);
     });
 
     it('includes all required trigger types', () => {
       const triggers: EdgeTriggerType[] = [
-        'reroll-to-hit',
-        'reroll-damage-location',
-        'reroll-critical-hit',
-        'reroll-psr',
-        'reroll-consciousness',
-        'negate-critical-hit',
+        'edge_when_headhit',
+        'edge_when_tac',
+        'edge_when_ko',
+        'edge_when_explosion',
+        'edge_when_masc_fails',
+        'edge_when_aero_alt_loss',
+        'edge_when_aero_explosion',
+        'edge_when_aero_ko',
+        'edge_when_aero_lucky_crit',
+        'edge_when_aero_nuke_crit',
+        'edge_when_aero_unit_cargo_lost',
       ];
       for (const trigger of triggers) {
         expect(EDGE_TRIGGERS[trigger]).toBeDefined();
@@ -357,7 +378,7 @@ describe('spaModifiers', () => {
 
     it('allows edge use when points remain', () => {
       const state = createEdgeState(1);
-      expect(canUseEdge(state, 'reroll-to-hit')).toBe(true);
+      expect(canUseEdge(state, 'edge_when_tac')).toBe(true);
     });
 
     it('denies edge use when no points remain', () => {
@@ -366,31 +387,31 @@ describe('spaModifiers', () => {
         remainingPoints: 0,
         usageHistory: [],
       };
-      expect(canUseEdge(state, 'reroll-to-hit')).toBe(false);
+      expect(canUseEdge(state, 'edge_when_tac')).toBe(false);
     });
 
     it('denies edge use when state is undefined', () => {
-      expect(canUseEdge(undefined, 'reroll-to-hit')).toBe(false);
+      expect(canUseEdge(undefined, 'edge_when_tac')).toBe(false);
     });
 
     it('consumes an edge point on use', () => {
       const state = createEdgeState(2);
       const newState = useEdge(
         state,
-        'reroll-to-hit',
+        'edge_when_tac',
         1,
         'unit-1',
-        'Rerolled to-hit',
+        'Rerolled TAC location',
       );
       expect(newState.remainingPoints).toBe(1);
       expect(newState.usageHistory).toHaveLength(1);
-      expect(newState.usageHistory[0].trigger).toBe('reroll-to-hit');
+      expect(newState.usageHistory[0].trigger).toBe('edge_when_tac');
     });
 
     it('tracks multiple edge uses', () => {
       let state = createEdgeState(3);
-      state = useEdge(state, 'reroll-to-hit', 1, 'unit-1', 'Miss reroll');
-      state = useEdge(state, 'reroll-psr', 2, 'unit-1', 'PSR reroll');
+      state = useEdge(state, 'edge_when_tac', 1, 'unit-1', 'TAC reroll');
+      state = useEdge(state, 'edge_when_ko', 2, 'unit-1', 'KO reroll');
       expect(state.remainingPoints).toBe(1);
       expect(state.usageHistory).toHaveLength(2);
     });
@@ -402,7 +423,7 @@ describe('spaModifiers', () => {
         usageHistory: [],
       };
       expect(() =>
-        useEdge(state, 'reroll-to-hit', 1, 'unit-1', 'test'),
+        useEdge(state, 'edge_when_tac', 1, 'unit-1', 'test'),
       ).toThrow('No Edge points remaining');
     });
   });
@@ -482,6 +503,10 @@ describe('spaModifiers', () => {
   });
 
   describe('Sharpshooter', () => {
+    it('returns -1 bonus for canonical Marksman', () => {
+      expect(getSharpshooterBonus(['marksman'])).toBe(-1);
+    });
+
     it('returns -1 bonus', () => {
       expect(getSharpshooterBonus(['sharpshooter'])).toBe(-1);
     });
@@ -600,6 +625,175 @@ describe('spaModifiers', () => {
   });
 
   describe('calculateToHit SPA integration', () => {
+    const baseAttacker: IAttackerState = {
+      gunnery: 4,
+      movementType: MovementType.Stationary,
+      heat: 0,
+      damageModifiers: [],
+    };
+
+    const baseTarget: ITargetState = {
+      movementType: MovementType.Stationary,
+      hexesMoved: 0,
+      prone: false,
+      immobile: false,
+      partialCover: false,
+    };
+
+    const integratedToHitSPACases: readonly {
+      readonly id: string;
+      readonly modifierName?: string;
+      readonly attacker: IAttackerState;
+      readonly target: ITargetState;
+      readonly rangeBracket: RangeBracket;
+      readonly range: number;
+      readonly expectedFinalToHit: number;
+    }[] = [
+      {
+        id: 'weapon-specialist',
+        modifierName: 'Weapon Specialist',
+        attacker: {
+          ...baseAttacker,
+          abilities: ['weapon-specialist'],
+          weaponType: 'Medium Laser',
+          designatedWeaponType: 'Medium Laser',
+        },
+        target: baseTarget,
+        rangeBracket: RangeBracket.Short,
+        range: 1,
+        expectedFinalToHit: 2,
+      },
+      {
+        id: 'gunnery-specialist',
+        modifierName: 'Gunnery Specialist',
+        attacker: {
+          ...baseAttacker,
+          abilities: ['gunnery-specialist'],
+          weaponCategory: 'energy',
+          designatedWeaponCategory: 'energy',
+        },
+        target: baseTarget,
+        rangeBracket: RangeBracket.Short,
+        range: 1,
+        expectedFinalToHit: 3,
+      },
+      {
+        id: 'blood-stalker',
+        modifierName: 'Blood Stalker',
+        attacker: {
+          ...baseAttacker,
+          abilities: ['blood-stalker'],
+          targetId: 'enemy-1',
+          designatedTargetId: 'enemy-1',
+        },
+        target: baseTarget,
+        rangeBracket: RangeBracket.Short,
+        range: 1,
+        expectedFinalToHit: 3,
+      },
+      {
+        id: 'range-master',
+        modifierName: 'Range Master',
+        attacker: {
+          ...baseAttacker,
+          abilities: ['range-master'],
+          designatedRangeBracket: RangeBracket.Medium,
+        },
+        target: baseTarget,
+        rangeBracket: RangeBracket.Medium,
+        range: 5,
+        expectedFinalToHit: 4,
+      },
+      {
+        id: 'sniper',
+        modifierName: 'Sniper',
+        attacker: {
+          ...baseAttacker,
+          abilities: ['sniper'],
+        },
+        target: baseTarget,
+        rangeBracket: RangeBracket.Long,
+        range: 9,
+        expectedFinalToHit: 6,
+      },
+      {
+        id: 'multi-tasker',
+        modifierName: 'Multi-Tasker',
+        attacker: {
+          ...baseAttacker,
+          abilities: ['multi-tasker'],
+          secondaryTarget: { isSecondary: true, inFrontArc: true },
+        },
+        target: baseTarget,
+        rangeBracket: RangeBracket.Short,
+        range: 1,
+        expectedFinalToHit: 4,
+      },
+      {
+        id: 'jumping-jack',
+        modifierName: 'Jumping Jack',
+        attacker: {
+          ...baseAttacker,
+          abilities: ['jumping-jack'],
+          movementType: MovementType.Jump,
+        },
+        target: baseTarget,
+        rangeBracket: RangeBracket.Short,
+        range: 1,
+        expectedFinalToHit: 5,
+      },
+      {
+        id: 'dodge-maneuver',
+        modifierName: 'Dodge Maneuver',
+        attacker: baseAttacker,
+        target: {
+          ...baseTarget,
+          abilities: ['dodge-maneuver'],
+          isDodging: true,
+        },
+        rangeBracket: RangeBracket.Short,
+        range: 1,
+        expectedFinalToHit: 6,
+      },
+      {
+        id: 'pain-resistance',
+        modifierName: 'Pilot Wounds',
+        attacker: {
+          ...baseAttacker,
+          abilities: ['pain-resistance'],
+          pilotWounds: 2,
+        },
+        target: baseTarget,
+        rangeBracket: RangeBracket.Short,
+        range: 1,
+        expectedFinalToHit: 5,
+      },
+    ];
+
+    it.each(integratedToHitSPACases)(
+      'applies catalog to-hit SPA $id through full calculateToHit',
+      ({
+        id,
+        modifierName,
+        attacker,
+        target,
+        rangeBracket,
+        range,
+        expectedFinalToHit,
+      }) => {
+        expect(SPA_CATALOG[id].pipelines).toContain('to-hit');
+
+        const result = calculateToHit(attacker, target, rangeBracket, range);
+
+        expect(result.finalToHit).toBe(expectedFinalToHit);
+        if (modifierName) {
+          expect(result.modifiers.map((modifier) => modifier.name)).toContain(
+            modifierName,
+          );
+        }
+      },
+    );
+
     it('applies weapon specialist -2 in full to-hit calc', () => {
       const attacker: IAttackerState = {
         gunnery: 4,

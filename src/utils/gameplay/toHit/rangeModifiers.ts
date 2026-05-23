@@ -53,11 +53,11 @@ export function calculateMinimumRangeModifier(
   range: number,
   minRange: number,
 ): IToHitModifierDetail | null {
-  if (minRange <= 0 || range >= minRange) {
+  if (minRange <= 0 || range > minRange) {
     return null;
   }
 
-  const penalty = minRange - range;
+  const penalty = minRange - range + 1;
   return {
     name: 'Minimum Range',
     value: penalty,

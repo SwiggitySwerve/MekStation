@@ -10,16 +10,21 @@ import { RangeBracket } from '@/types/gameplay';
 // =============================================================================
 
 /**
- * The 6 specific Edge trigger types for mek combat.
- * Edge is NOT a generic reroll — each trigger has specific usage conditions.
+ * MegaMek-style Edge trigger options. Edge is not a generic critical
+ * canceller; each trigger has specific usage conditions.
  */
 export type EdgeTriggerType =
-  | 'reroll-to-hit'
-  | 'reroll-damage-location'
-  | 'reroll-critical-hit'
-  | 'reroll-psr'
-  | 'reroll-consciousness'
-  | 'negate-critical-hit';
+  | 'edge_when_headhit'
+  | 'edge_when_tac'
+  | 'edge_when_ko'
+  | 'edge_when_explosion'
+  | 'edge_when_masc_fails'
+  | 'edge_when_aero_alt_loss'
+  | 'edge_when_aero_explosion'
+  | 'edge_when_aero_ko'
+  | 'edge_when_aero_lucky_crit'
+  | 'edge_when_aero_nuke_crit'
+  | 'edge_when_aero_unit_cargo_lost';
 
 /**
  * State of a pilot's Edge points during a game.

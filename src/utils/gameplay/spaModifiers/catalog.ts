@@ -98,6 +98,14 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     combatEffect: '-1 to indirect fire penalty',
     requiresDesignation: false,
   },
+  forward_observer: {
+    id: 'forward_observer',
+    name: 'Forward Observer',
+    category: 'gunnery',
+    pipelines: ['to-hit'],
+    combatEffect: 'Cancels the +1 walked-spotter indirect-fire penalty',
+    requiresDesignation: false,
+  },
   sharpshooter: {
     id: 'sharpshooter',
     name: 'Sharpshooter',
@@ -219,7 +227,7 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     name: 'Edge',
     category: 'toughness',
     pipelines: ['special'],
-    combatEffect: '6 specific reroll triggers, points do not regenerate',
+    combatEffect: 'MegaMek-style trigger-specific Edge options',
     requiresDesignation: false,
   },
   toughness: {
@@ -366,8 +374,11 @@ export function getObliqueAttackerBonus(abilities: readonly string[]): number {
 }
 
 export function getSharpshooterBonus(abilities: readonly string[]): number {
-  // 'sharpshooter' doesn't exist in the canonical catalog — it's a
-  // System-B-only legacy alias. Fall back to the raw match for the id
-  // so existing callers keep working until the UI offers a real alternative.
-  return abilities.includes('sharpshooter') ? -1 : 0;
+  // 'sharpshooter' is a System-B-only legacy alias. The local campaign SPA
+  // with the same called-shot effect is Marksman; MegaMek source does not
+  // validate either id as a called-shot reducer.
+  return hasCanonicalSPA(abilities, 'marksman') ||
+    abilities.includes('sharpshooter')
+    ? -1
+    : 0;
 }

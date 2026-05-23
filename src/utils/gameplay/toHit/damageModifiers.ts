@@ -5,6 +5,8 @@ import {
   IToHitModifierDetail,
 } from '@/types/gameplay';
 
+import { getSharpshooterBonus } from '../spaModifiers';
+
 export function calculateProneModifier(
   targetProne: boolean,
   range: number,
@@ -170,16 +172,21 @@ export function calculateCalledShotModifier(
     };
   }
 
-  const sharpshooterReduction = abilities?.includes('sharpshooter') ? 1 : 0;
-  const value = 3 - sharpshooterReduction;
+  const calledShotReduction = -(abilities
+    ? getSharpshooterBonus(abilities)
+    : 0);
+  const value = 3 - calledShotReduction;
+  const reductionName = abilities?.includes('marksman')
+    ? 'Marksman'
+    : 'Sharpshooter';
 
   return {
     name: 'Called Shot',
     value,
     source: 'other',
     description:
-      sharpshooterReduction > 0
-        ? `Called shot (Sharpshooter): +${value}`
+      calledShotReduction > 0
+        ? `Called shot (${reductionName}): +${value}`
         : `Called shot: +${value}`,
   };
 }

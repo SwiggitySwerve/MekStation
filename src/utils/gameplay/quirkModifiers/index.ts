@@ -30,7 +30,7 @@ export {
   calculateInitiativeQuirkModifier,
   calculateSensorGhostsModifier,
   calculateMultiTracModifier,
-  getRuggedCritNegations,
-  getActuatorCritModifier,
+  getRuggedMaintenanceMultiplier,
+  getAntiMekActuatorTargetModifier,
 } from './defensiveQuirks';
 export { calculateAttackerQuirkModifiers, hasQuirk } from './aggregation';

@@ -15,8 +15,8 @@ import {
   calculateInitiativeQuirkModifier,
   calculateSensorGhostsModifier,
   calculateMultiTracModifier,
-  getRuggedCritNegations,
-  getActuatorCritModifier,
+  getRuggedMaintenanceMultiplier,
+  getAntiMekActuatorTargetModifier,
   calculateAccurateWeaponModifier,
   calculateInaccurateWeaponModifier,
   calculateStableWeaponModifier,
@@ -354,36 +354,36 @@ describe('Combat Quirks', () => {
 });
 
 // =============================================================================
-// Crit Quirks (Task 12.9)
+// Campaign and Anti-Mek Quirks (Task 12.9)
 // =============================================================================
 
-describe('Crit Quirks', () => {
-  it('Rugged 1: 1 crit negation', () => {
-    expect(getRuggedCritNegations([UNIT_QUIRK_IDS.RUGGED_1])).toBe(1);
+describe('Campaign and Anti-Mek Quirks', () => {
+  it('Rugged 1: doubles the maintenance cycle', () => {
+    expect(getRuggedMaintenanceMultiplier([UNIT_QUIRK_IDS.RUGGED_1])).toBe(2);
   });
 
-  it('Rugged 2: 2 crit negations', () => {
-    expect(getRuggedCritNegations([UNIT_QUIRK_IDS.RUGGED_2])).toBe(2);
+  it('Rugged 2: triples the maintenance cycle', () => {
+    expect(getRuggedMaintenanceMultiplier([UNIT_QUIRK_IDS.RUGGED_2])).toBe(3);
   });
 
-  it('no Rugged: 0 crit negations', () => {
-    expect(getRuggedCritNegations([])).toBe(0);
+  it('no Rugged: normal maintenance cycle', () => {
+    expect(getRuggedMaintenanceMultiplier([])).toBe(1);
   });
 
-  it('Protected Actuators: +1 crit roll modifier', () => {
-    expect(getActuatorCritModifier([UNIT_QUIRK_IDS.PROTECTED_ACTUATORS])).toBe(
-      1,
-    );
+  it('Protected Actuators: +1 anti-Mek attack target modifier', () => {
+    expect(
+      getAntiMekActuatorTargetModifier([UNIT_QUIRK_IDS.PROTECTED_ACTUATORS]),
+    ).toBe(1);
   });
 
-  it('Exposed Actuators: -1 crit roll modifier', () => {
-    expect(getActuatorCritModifier([UNIT_QUIRK_IDS.EXPOSED_ACTUATORS])).toBe(
-      -1,
-    );
+  it('Exposed Actuators: -1 anti-Mek attack target modifier', () => {
+    expect(
+      getAntiMekActuatorTargetModifier([UNIT_QUIRK_IDS.EXPOSED_ACTUATORS]),
+    ).toBe(-1);
   });
 
-  it('no crit quirks: 0', () => {
-    expect(getActuatorCritModifier([])).toBe(0);
+  it('no actuator quirk: 0 anti-Mek attack target modifier', () => {
+    expect(getAntiMekActuatorTargetModifier([])).toBe(0);
   });
 });
 
@@ -655,6 +655,160 @@ describe('calculateToHit integration with quirks', () => {
     immobile: false,
     partialCover: false,
   };
+
+  const integratedToHitQuirkCases: readonly {
+    readonly id: string;
+    readonly modifierName: string;
+    readonly attacker: IAttackerState;
+    readonly target: ITargetState;
+    readonly rangeBracket: RangeBracket;
+    readonly range: number;
+    readonly expectedFinalToHit: number;
+  }[] = [
+    {
+      id: UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT,
+      modifierName: 'Improved Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 3,
+    },
+    {
+      id: UNIT_QUIRK_IDS.IMPROVED_TARGETING_MEDIUM,
+      modifierName: 'Improved Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.IMPROVED_TARGETING_MEDIUM],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Medium,
+      range: 6,
+      expectedFinalToHit: 5,
+    },
+    {
+      id: UNIT_QUIRK_IDS.IMPROVED_TARGETING_LONG,
+      modifierName: 'Improved Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.IMPROVED_TARGETING_LONG],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Long,
+      range: 9,
+      expectedFinalToHit: 7,
+    },
+    {
+      id: UNIT_QUIRK_IDS.POOR_TARGETING_SHORT,
+      modifierName: 'Poor Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.POOR_TARGETING_SHORT],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 5,
+    },
+    {
+      id: UNIT_QUIRK_IDS.POOR_TARGETING_MEDIUM,
+      modifierName: 'Poor Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.POOR_TARGETING_MEDIUM],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Medium,
+      range: 6,
+      expectedFinalToHit: 7,
+    },
+    {
+      id: UNIT_QUIRK_IDS.POOR_TARGETING_LONG,
+      modifierName: 'Poor Targeting',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.POOR_TARGETING_LONG],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Long,
+      range: 9,
+      expectedFinalToHit: 9,
+    },
+    {
+      id: UNIT_QUIRK_IDS.SENSOR_GHOSTS,
+      modifierName: 'Sensor Ghosts',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.SENSOR_GHOSTS],
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 5,
+    },
+    {
+      id: UNIT_QUIRK_IDS.MULTI_TRAC,
+      modifierName: 'Multi-Trac',
+      attacker: {
+        ...baseAttacker,
+        unitQuirks: [UNIT_QUIRK_IDS.MULTI_TRAC],
+        secondaryTarget: { isSecondary: true, inFrontArc: true },
+      },
+      target: baseTarget,
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 4,
+    },
+    {
+      id: UNIT_QUIRK_IDS.DISTRACTING,
+      modifierName: 'Distracting',
+      attacker: baseAttacker,
+      target: {
+        ...baseTarget,
+        unitQuirks: [UNIT_QUIRK_IDS.DISTRACTING],
+      },
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 5,
+    },
+    {
+      id: UNIT_QUIRK_IDS.LOW_PROFILE,
+      modifierName: 'Low Profile',
+      attacker: baseAttacker,
+      target: {
+        ...baseTarget,
+        unitQuirks: [UNIT_QUIRK_IDS.LOW_PROFILE],
+      },
+      rangeBracket: RangeBracket.Short,
+      range: 3,
+      expectedFinalToHit: 5,
+    },
+  ];
+
+  it.each(integratedToHitQuirkCases)(
+    'applies catalog to-hit quirk $id through full calculateToHit',
+    ({
+      id,
+      modifierName,
+      attacker,
+      target,
+      rangeBracket,
+      range,
+      expectedFinalToHit,
+    }) => {
+      expect(QUIRK_CATALOG[id].pipelines).toContain('to-hit');
+
+      const result = calculateToHit(attacker, target, rangeBracket, range);
+
+      expect(result.finalToHit).toBe(expectedFinalToHit);
+      expect(result.modifiers.map((modifier) => modifier.name)).toContain(
+        modifierName,
+      );
+    },
+  );
 
   it('Improved Targeting Short reduces to-hit at short range', () => {
     const attacker: IAttackerState = {

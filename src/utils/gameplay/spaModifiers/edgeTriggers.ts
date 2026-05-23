@@ -12,29 +12,49 @@ export const EDGE_TRIGGERS: Record<
   EdgeTriggerType,
   { name: string; description: string }
 > = {
-  'reroll-to-hit': {
-    name: 'Reroll To-Hit',
-    description: 'Reroll a to-hit attack roll (attacker or defender)',
+  edge_when_headhit: {
+    name: 'Head Hit',
+    description: 'Reroll a head-hit location result',
   },
-  'reroll-damage-location': {
-    name: 'Reroll Damage Location',
-    description: 'Reroll a hit location determination roll',
+  edge_when_tac: {
+    name: 'Through-Armor Critical',
+    description: 'Reroll a through-armor critical hit location result',
   },
-  'reroll-critical-hit': {
-    name: 'Reroll Critical Hit',
-    description: 'Reroll a critical hit determination roll',
+  edge_when_ko: {
+    name: 'Pilot KO',
+    description: 'Reroll a pilot knockout consciousness check',
   },
-  'reroll-psr': {
-    name: 'Reroll PSR',
-    description: 'Reroll a piloting skill roll',
+  edge_when_explosion: {
+    name: 'Critical Explosion',
+    description: 'Reroll a critical hit that would trigger an ammo explosion',
   },
-  'reroll-consciousness': {
-    name: 'Reroll Consciousness',
-    description: 'Reroll a consciousness check',
+  edge_when_masc_fails: {
+    name: 'MASC / Supercharger Failure',
+    description: 'Reroll a MASC or supercharger failure check',
   },
-  'negate-critical-hit': {
-    name: 'Negate Critical Hit',
-    description: 'Cancel one critical hit that was just determined',
+  edge_when_aero_alt_loss: {
+    name: 'Aero Altitude Loss',
+    description: 'Reroll an aerospace altitude-loss check',
+  },
+  edge_when_aero_explosion: {
+    name: 'Aero Critical Explosion',
+    description: 'Reroll an aerospace critical explosion result',
+  },
+  edge_when_aero_ko: {
+    name: 'Aero Pilot KO',
+    description: 'Reroll an aerospace pilot knockout check',
+  },
+  edge_when_aero_lucky_crit: {
+    name: 'Aero Lucky Crit',
+    description: 'Skip or reroll an aerospace lucky critical hit trigger',
+  },
+  edge_when_aero_nuke_crit: {
+    name: 'Aero Nuke Crit',
+    description: 'Reroll a nuclear missile SI damage roll',
+  },
+  edge_when_aero_unit_cargo_lost: {
+    name: 'Transport Cargo Lost',
+    description: 'Reroll a transported-unit cargo loss check',
   },
 };
 
@@ -58,7 +78,6 @@ export function canUseEdge(
 ): boolean {
   if (!edgeState) return false;
   if (edgeState.remainingPoints <= 0) return false;
-  // All 6 triggers are always available as long as points remain
   return trigger in EDGE_TRIGGERS;
 }
 

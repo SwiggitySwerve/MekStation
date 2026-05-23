@@ -6,17 +6,26 @@ import {
 
 import { HEAT_THRESHOLDS } from './constants';
 
-export function calculateHeatModifier(heat: number): IToHitModifierDetail {
+export function calculateHeatModifier(
+  heat: number,
+  penaltyReduction: number = 0,
+): IToHitModifierDetail {
   const threshold = HEAT_THRESHOLDS.find(
     (entry) => heat >= entry.minHeat && heat <= entry.maxHeat,
   );
-  const value = threshold?.modifier ?? 0;
+  const rawValue = threshold?.modifier ?? 0;
+  const value = Math.max(0, rawValue - penaltyReduction);
 
   return {
     name: 'Heat',
     value,
     source: 'heat',
-    description: heat === 0 ? 'No heat penalty' : `Heat ${heat}: +${value}`,
+    description:
+      heat === 0
+        ? 'No heat penalty'
+        : penaltyReduction > 0 && rawValue > value
+          ? `Heat ${heat}: +${value} after heat-penalty reduction`
+          : `Heat ${heat}: +${value}`,
   };
 }
 
@@ -53,7 +62,7 @@ export function calculateHullDownModifier(
 
 export function getTerrainToHitModifier(
   targetTerrain: readonly ITerrainFeature[],
-  interveningTerrain: readonly ITerrainFeature[][],
+  interveningTerrain: readonly (readonly ITerrainFeature[])[],
 ): number {
   let modifier = 0;
 

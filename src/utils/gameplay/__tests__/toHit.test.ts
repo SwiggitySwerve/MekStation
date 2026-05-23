@@ -797,9 +797,9 @@ describe('calculateMinimumRangeModifier', () => {
   });
 
   describe('target outside minimum range', () => {
-    it('should return null when range equals minRange', () => {
+    it('should return +1 when range equals minRange', () => {
       const modifier = calculateMinimumRangeModifier(3, 3);
-      expect(modifier).toBeNull();
+      expect(modifier?.value).toBe(1);
     });
 
     it('should return null when range exceeds minRange', () => {
@@ -811,17 +811,17 @@ describe('calculateMinimumRangeModifier', () => {
   describe('target inside minimum range', () => {
     it('should return +1 for 1 hex under minimum', () => {
       const modifier = calculateMinimumRangeModifier(2, 3);
-      expect(modifier?.value).toBe(1);
+      expect(modifier?.value).toBe(2);
     });
 
-    it('should return +3 for 3 hexes under minimum', () => {
+    it('should return +4 for 3 hexes under minimum plus the canonical +1', () => {
       const modifier = calculateMinimumRangeModifier(0, 3);
-      expect(modifier?.value).toBe(3);
+      expect(modifier?.value).toBe(4);
     });
 
-    it('should return +5 for LRM with minRange 6 at range 1', () => {
+    it('should return +6 for LRM with minRange 6 at range 1', () => {
       const modifier = calculateMinimumRangeModifier(1, 6);
-      expect(modifier?.value).toBe(5);
+      expect(modifier?.value).toBe(6);
     });
   });
 
@@ -1019,8 +1019,8 @@ describe('calculateToHit', () => {
     const target = createTestTargetState();
     const result = calculateToHit(attacker, target, RangeBracket.Short, 2, 5);
 
-    // Gunnery 4 + Min range penalty 3 = 7
-    expect(result.finalToHit).toBe(7);
+    // Gunnery 4 + Min range penalty 4 = 8
+    expect(result.finalToHit).toBe(8);
   });
 
   it('should include prone modifier (close range)', () => {
@@ -1210,8 +1210,8 @@ describe('calculateToHitFromContext', () => {
     });
     const result = calculateToHitFromContext(context, 5);
 
-    // Gunnery 4 + Min range penalty 3 = 7
-    expect(result.finalToHit).toBe(7);
+    // Gunnery 4 + Min range penalty 4 = 8
+    expect(result.finalToHit).toBe(8);
   });
 });
 
@@ -1698,8 +1698,8 @@ describe('Integration: Full to-hit calculations', () => {
     const target = createTestTargetState();
     const result = calculateToHit(attacker, target, RangeBracket.Short, 1, 6);
 
-    // Gunnery 4 + MinRange penalty 5 = 9
-    expect(result.finalToHit).toBe(9);
+    // Gunnery 4 + MinRange penalty 6 = 10
+    expect(result.finalToHit).toBe(10);
   });
 });
 
@@ -2218,6 +2218,12 @@ describe('calculateCalledShotModifier', () => {
     expect(mod?.description).toContain('Sharpshooter');
   });
 
+  it('should return +2 with canonical Marksman SPA and no teammate', () => {
+    const mod = calculateCalledShotModifier(true, false, ['marksman']);
+    expect(mod?.value).toBe(2);
+    expect(mod?.description).toContain('Marksman');
+  });
+
   it('should return +0 with both teammate and Sharpshooter', () => {
     const mod = calculateCalledShotModifier(true, true, ['sharpshooter']);
     expect(mod?.value).toBe(0);
@@ -2262,6 +2268,18 @@ describe('calculateToHit with teammate called shot', () => {
       gunnery: 4,
       calledShot: true,
       abilities: ['sharpshooter'],
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    const calledMod = result.modifiers.find((m) => m.name === 'Called Shot');
+    expect(calledMod?.value).toBe(2);
+  });
+
+  it('should apply +2 with canonical Marksman and no teammate', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      calledShot: true,
+      abilities: ['marksman'],
     });
     const target = createTestTargetState();
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
