@@ -202,6 +202,7 @@ export function runPhysicalAttackPhase(options: {
       targetExists: true,
       targetDestroyed: target.destroyed,
       targetIsPassenger: target.isPassenger,
+      targetIsSwarming: target.isSwarming,
       targetIsSelf: unit.id === target.id,
       targetIsFriendly: unit.side === target.side,
       targetDistance: hexDistance(unit.position, target.position),

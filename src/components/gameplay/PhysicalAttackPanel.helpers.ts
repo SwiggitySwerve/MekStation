@@ -43,6 +43,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   TargetMissing: 'Target no longer exists',
   TargetDestroyed: 'Target is destroyed',
   TargetPassenger: 'Target is being transported',
+  TargetSwarming: 'Target is swarming another unit',
   SelfTarget: 'Cannot target self',
   FriendlyTarget: 'Cannot target friendly unit',
   TargetNotAdjacent: 'Target must be adjacent',

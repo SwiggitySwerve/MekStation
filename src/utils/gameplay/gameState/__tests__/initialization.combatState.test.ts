@@ -166,6 +166,15 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.isPassenger).toBe(true);
   });
 
+  it('copies optional swarming state for physical targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isSwarming: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isSwarming).toBe(true);
+  });
+
   it('leaves combatState undefined for VEHICLE (kind: vehicle is a future variant)', () => {
     const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
     const state = createInitialUnitState(unit, POSITION, Facing.North);

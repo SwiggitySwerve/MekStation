@@ -204,10 +204,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'airborne target state is not represented in BattleMech physical restriction input',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
-  'shared.target-not-swarming': unsupported(
+  'shared.target-not-swarming': integrated(
     'shared.target-not-swarming',
     'shared',
-    'swarm target state is not represented in BattleMech physical restriction input',
+    'shared restriction helpers reject targetIsSwarming, IUnitGameState exposes optional isSwarming, and eligibility/session/runner inputs thread swarm-attack state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
   'shared.building-occupancy': unsupported(

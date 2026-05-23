@@ -56,6 +56,13 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
+  if (input.targetIsSwarming) {
+    return blocked(
+      'Physical attacks cannot target units conducting a swarm attack',
+      'TargetSwarming',
+    );
+  }
+
   if (input.targetIsSelf) {
     return blocked('Physical attacks cannot target the attacker', 'SelfTarget');
   }

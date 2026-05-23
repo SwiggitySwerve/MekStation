@@ -136,6 +136,12 @@ export interface IUnitGameState {
    * fixtures without transport state.
    */
   readonly isPassenger?: boolean;
+  /**
+   * Whether this unit is currently conducting a swarm attack against another
+   * unit. Explicit true blocks source-backed physical targetability;
+   * undefined preserves legacy fixtures without swarm lifecycle state.
+   */
+  readonly isSwarming?: boolean;
   /** Which side this unit belongs to */
   readonly side: GameSide;
   /** Current position */

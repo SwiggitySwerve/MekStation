@@ -88,6 +88,7 @@ export type PhysicalAttackInvalidReason =
   | 'TargetMissing'
   | 'TargetDestroyed'
   | 'TargetPassenger'
+  | 'TargetSwarming'
   | 'SelfTarget'
   | 'FriendlyTarget'
   | 'TargetNotAdjacent'
@@ -154,6 +155,11 @@ export interface IPhysicalAttackInput {
    * be targeted by normal physical attacks.
    */
   readonly targetIsPassenger?: boolean;
+  /**
+   * Source-backed shared physical legality: units conducting a swarm attack
+   * cannot be targeted by normal physical attacks.
+   */
+  readonly targetIsSwarming?: boolean;
   /**
    * Source-backed shared physical legality: a unit cannot declare a normal
    * BattleMech physical attack against itself.
