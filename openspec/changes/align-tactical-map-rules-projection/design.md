@@ -38,6 +38,14 @@ Combat overlays must be weapon-backed when the selected unit has configured weap
 
 The combat projection must expose range band, selected weapons, firing arc, LOS, cover, fog visibility, heat/ammo impact, and invalid reasons. Selected-weapon firing-arc overlays must respect mounted arcs; weapons with all-arc/unknown mounting keep the broader overlay rather than pretending a narrower arc is authoritative.
 
+Weapon range projection is pinned to MegaMek tactical behavior:
+`RangeType.rangeBracket(...)` assigns short/medium/long/extreme/out-of-range by
+comparing distance to the represented weapon range cutoffs, and
+`Compute.getRangeMods(...)` applies the range modifier. The minimum-range
+modifier is `(minimum - distance) + 1`, applies only when minimum range is
+positive and the attack is represented as ground-to-ground, and must be exposed
+by both map preview and committed `AttackDeclared` modifiers.
+
 C3 range projection is pinned to MegaMek tactical behavior:
 `Compute.getRangeMods(...)` asks `ComputeC3Spotter.findC3Spotter(...)`, then
 `RangeType.rangeBracketC3(...)` can improve the attacker's direct-fire range

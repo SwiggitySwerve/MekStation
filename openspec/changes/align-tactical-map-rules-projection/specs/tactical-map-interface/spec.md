@@ -96,6 +96,15 @@ When a selected unit has a configured weapon list, the map SHALL derive attack-r
 - **THEN** highlighted attack hexes SHALL come from the weapon-backed combat projection
 - **AND** stale raw `attackRange` data SHALL NOT mark additional targets as valid
 
+#### Scenario: Range brackets and minimum range match committed attacks
+
+- **GIVEN** a selected unit has weapons with represented minimum, short, medium, long, and extreme ranges
+- **WHEN** the map previews attacks at those distances
+- **THEN** the combat projection SHALL expose the same range bracket the committed attack will declare
+- **AND** represented extreme range SHALL remain attackable when the weapon carries an extreme cutoff
+- **AND** minimum-range penalties SHALL be exposed in preview and committed to-hit modifiers for represented ground-to-ground attacks
+- **AND** represented airborne/aerospace targets SHALL not receive ground-to-ground minimum-range penalties
+
 #### Scenario: C3 spotter range improves projected and committed brackets
 
 - **GIVEN** a selected unit is represented in an operational C3 network
