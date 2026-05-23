@@ -222,6 +222,7 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     case GameEventType.TurnEnded:
     case GameEventType.InitiativeOrderSet:
     case GameEventType.AttacksRevealed:
+    case GameEventType.MovementInvalid:
     case GameEventType.AttackResolved:
     case GameEventType.HeatEffectApplied:
     case GameEventType.CriticalHit:

@@ -5,6 +5,7 @@ import {
   IGameEvent,
   IHexCoordinate,
   IMovementDeclaredPayload,
+  IMovementInvalidPayload,
   IMovementLockedPayload,
   MovementType,
 } from '@/types/gameplay';
@@ -27,6 +28,10 @@ export function createMovementDeclaredEvent(
   mpUsed: number,
   heatGenerated: number,
   path?: readonly IHexCoordinate[],
+  options?: {
+    readonly standUpAttempt?: boolean;
+    readonly standUpSucceeded?: boolean;
+  },
 ): IGameEvent {
   const mode = movementAnimationModeForType(movementType);
   const payload: IMovementDeclaredPayload = {
@@ -39,6 +44,10 @@ export function createMovementDeclaredEvent(
     path: normalizeMovementEventPath(from, to, path),
     mpUsed,
     heatGenerated,
+    ...(options?.standUpAttempt ? { standUpAttempt: true } : {}),
+    ...(options?.standUpAttempt && options.standUpSucceeded !== undefined
+      ? { standUpSucceeded: options.standUpSucceeded }
+      : {}),
   };
 
   return {
@@ -46,6 +55,45 @@ export function createMovementDeclaredEvent(
       gameId,
       sequence,
       GameEventType.MovementDeclared,
+      turn,
+      GamePhase.Movement,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createMovementInvalidEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  from: IHexCoordinate,
+  to: IHexCoordinate,
+  facing: Facing,
+  movementType: MovementType,
+  reason: IMovementInvalidPayload['reason'],
+  details?: string,
+  mpCost?: number,
+  heatGenerated?: number,
+): IGameEvent {
+  const payload: IMovementInvalidPayload = {
+    unitId,
+    from,
+    to,
+    facing,
+    movementType,
+    reason,
+    details,
+    mpCost,
+    heatGenerated,
+  };
+
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.MovementInvalid,
       turn,
       GamePhase.Movement,
       unitId,

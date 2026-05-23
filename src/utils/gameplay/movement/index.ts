@@ -5,8 +5,12 @@ export {
   createMovementCapability,
   getMaxMP,
   getHexMovementCost,
+  getMovementStepCostBreakdown,
+  calculatePathMovementCost,
   estimateMovementCost,
 } from './calculations';
+export type { IMovementStepCostBreakdown } from './calculations';
+export { movementModeForPath, movementModeForRange } from './mode';
 export {
   validateMovement,
   canStand,
@@ -14,9 +18,18 @@ export {
   getValidDestinations,
 } from './validation';
 export {
+  validateCommittedMovement,
+  movementInvalidReasonFromValidation,
+} from './commitValidation';
+export type {
+  ICommittedMovementValidationInput,
+  CommittedMovementValidationResult,
+} from './commitValidation';
+export {
   calculateMovementHeat,
   calculateTMM,
   calculateAttackerMovementModifier,
 } from './modifiers';
 export { findPath } from './pathfinding';
 export { deriveReachableHexes } from './reachable';
+export { gridWithUnitOccupants } from './occupancy';

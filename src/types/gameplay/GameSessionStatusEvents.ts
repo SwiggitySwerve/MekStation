@@ -57,6 +57,7 @@ import type {
 import type {
   IAttackLockedPayload,
   IMovementDeclaredPayload,
+  IMovementInvalidPayload,
   IMovementLockedPayload,
 } from './GameSessionMovementEvents';
 import type {
@@ -402,6 +403,7 @@ export type GameEventPayload =
   | IPhaseChangedPayload
   | IInitiativeRolledPayload
   | IMovementDeclaredPayload
+  | IMovementInvalidPayload
   | IMovementLockedPayload
   | IAttackDeclaredPayload
   | IAttackLockedPayload

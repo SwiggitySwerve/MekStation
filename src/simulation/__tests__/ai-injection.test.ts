@@ -12,9 +12,9 @@
  * player returned by the factory, never falling back to a hardcoded BotPlayer.
  */
 
-import { GameEventType } from '@/types/gameplay';
+import { GameEventType, MovementType } from '@/types/gameplay';
 
-import type { IAIPlayer, IAIUnitState } from '../ai/IAIPlayer';
+import type { IAIPlayer, IAIUnitState, IMovementEvent } from '../ai/IAIPlayer';
 
 import { StandStillAIPlayer } from '../ai/StandStillAIPlayer';
 import { ISimulationConfig } from '../core/types';
@@ -29,6 +29,32 @@ const BASE_CONFIG: ISimulationConfig = {
 };
 
 describe('AI factory injection', () => {
+  class IllegalMoveAIPlayer implements IAIPlayer {
+    evaluateRetreat() {
+      return null;
+    }
+    playMovementPhase(unit: IAIUnitState): IMovementEvent {
+      return {
+        type: GameEventType.MovementDeclared,
+        payload: {
+          unitId: unit.unitId,
+          from: unit.position,
+          to: { q: unit.position.q + 5, r: unit.position.r },
+          facing: unit.facing,
+          movementType: MovementType.Walk,
+          mpUsed: 1,
+          heatGenerated: 0,
+        },
+      };
+    }
+    playAttackPhase() {
+      return null;
+    }
+    playPhysicalAttackPhase() {
+      return null;
+    }
+  }
+
   describe('StandStillAIPlayer injected', () => {
     let runner: SimulationRunner;
 
@@ -102,6 +128,37 @@ describe('AI factory injection', () => {
 
       // BotPlayer always moves; at least one event across 5 turns with 2 units.
       expect(movementEvents.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Injected movement proposals are engine-validated', () => {
+    it('emits MovementInvalid instead of MovementDeclared for impossible movement', () => {
+      const runner = new SimulationRunner(
+        BASE_CONFIG.seed,
+        undefined,
+        undefined,
+        () => new IllegalMoveAIPlayer(),
+      );
+
+      const result = runner.run({
+        ...BASE_CONFIG,
+        turnLimit: 1,
+        unitCount: { player: 1, opponent: 0 },
+      });
+
+      const declared = result.events.filter(
+        (event) => event.type === GameEventType.MovementDeclared,
+      );
+      const invalid = result.events.filter(
+        (event) => event.type === GameEventType.MovementInvalid,
+      );
+
+      expect(declared).toHaveLength(0);
+      expect(invalid).toHaveLength(1);
+      expect(invalid[0].payload).toMatchObject({
+        unitId: 'player-1',
+        reason: 'InsufficientMP',
+      });
     });
   });
 

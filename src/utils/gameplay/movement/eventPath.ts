@@ -19,6 +19,8 @@ import {
   hexLine,
 } from '@/utils/gameplay/hexMath';
 
+import { movementCostContextForCapability } from './calculations';
+import { movementModeForPath } from './mode';
 import { findPath } from './pathfinding';
 
 export function movementAnimationModeForType(
@@ -51,9 +53,10 @@ export function buildMovementEventPath(params: {
   readonly from: IHexCoordinate;
   readonly to: IHexCoordinate;
   readonly movementType: MovementType;
+  readonly capability?: IMovementCapability | null;
   readonly maxCost?: number;
 }): readonly IHexCoordinate[] {
-  const { grid, from, to, movementType, maxCost } = params;
+  const { grid, from, to, movementType, capability, maxCost } = params;
 
   if (hexEquals(from, to)) {
     return [copyHex(from)];
@@ -66,7 +69,16 @@ export function buildMovementEventPath(params: {
     return [copyHex(from), copyHex(to)];
   }
 
-  const path = findPath(grid, from, to, maxCost ?? Infinity);
+  const path = findPath(
+    grid,
+    from,
+    to,
+    maxCost ?? Infinity,
+    movementModeForPath(movementType, capability),
+    capability
+      ? movementCostContextForCapability(movementType, capability)
+      : undefined,
+  );
   return normalizeMovementEventPath(from, to, path ?? undefined);
 }
 

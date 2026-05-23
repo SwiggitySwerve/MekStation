@@ -77,6 +77,7 @@ export enum GameEventType {
 
   // Movement events
   MovementDeclared = 'movement_declared',
+  MovementInvalid = 'movement_invalid',
   MovementLocked = 'movement_locked',
   FacingChanged = 'facing_changed',
 
