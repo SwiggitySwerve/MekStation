@@ -91,6 +91,10 @@ export function waterMovementCostModifier(
 
 export const ROAD_LEVEL_DIRT = 3;
 export const ROAD_LEVEL_GRAVEL = 4;
+const TAC_OPS_INFANTRY_PAVEMENT_BONUS_OPTION_KEYS = new Set([
+  'tacopsinfpavebonus',
+  'advancedtacopsinfpavebonus',
+]);
 
 export function isPavedRoadFeature(feature: ITerrainFeature): boolean {
   return (
@@ -110,12 +114,20 @@ export function isPavementSurfaceFeature(feature: ITerrainFeature): boolean {
 
 export function isPavementRoadBonusEligibleMode(
   movementType: UnitMovementType,
+  context: Pick<
+    IMovementCostContext,
+    'optionalRules' | 'pavementRoadBonusProfile'
+  > = {},
 ): boolean {
-  return (
+  const motiveEligible =
     movementType === 'tracked' ||
     movementType === 'wheeled' ||
-    movementType === 'hover'
-  );
+    movementType === 'hover';
+  if (!motiveEligible) return false;
+  if (context.pavementRoadBonusProfile === 'tacops_infantry') {
+    return hasTacOpsInfantryPavementBonus(context.optionalRules ?? []);
+  }
+  return true;
 }
 
 export function isPavementRoadBonusSurfaceFeature(
@@ -229,4 +241,14 @@ export function formatMovementModeForReason(
     default:
       return movementType.charAt(0).toUpperCase() + movementType.slice(1);
   }
+}
+
+function hasTacOpsInfantryPavementBonus(
+  optionalRules: readonly string[],
+): boolean {
+  return optionalRules.some((rule) =>
+    TAC_OPS_INFANTRY_PAVEMENT_BONUS_OPTION_KEYS.has(
+      rule.toLowerCase().replace(/[^a-z0-9]+/g, ''),
+    ),
+  );
 }

@@ -36,7 +36,7 @@ export interface ICommittedMovementValidationInput {
   readonly capability?: IMovementCapability | null;
   readonly path?: readonly IHexCoordinate[];
   readonly standUpMode?: StandUpMode;
-  readonly optionalRules?: readonly string[];
+  readonly optionalRules?: readonly string[] | undefined;
 }
 
 export type CommittedMovementValidationResult =
@@ -160,6 +160,7 @@ export function validateCommittedMovement(
         capability: input.capability,
         maxCost,
         standingCost,
+        optionalRules: input.optionalRules,
       });
       if (!pathValidation.valid) {
         return {
@@ -194,6 +195,7 @@ export function validateCommittedMovement(
       movementType: input.movementType,
       capability: input.capability,
       standingCost,
+      optionalRules: input.optionalRules,
     });
     if (directBlockedStep) {
       return {
@@ -238,6 +240,7 @@ export function validateCommittedMovement(
       capability: input.capability,
       maxCost,
       standingCost,
+      optionalRules: input.optionalRules,
     });
     if (!pathValidation.valid) {
       return {
@@ -265,6 +268,7 @@ export function validateCommittedMovement(
         movementType: input.movementType,
         capability: input.capability,
         maxCost: mpCost,
+        optionalRules: input.optionalRules,
       }),
   };
 }
@@ -276,6 +280,7 @@ function directTerrainBlockedStep(input: {
   readonly movementType: MovementType;
   readonly capability: IMovementCapability;
   readonly standingCost?: number;
+  readonly optionalRules?: readonly string[] | undefined;
 }): { readonly blockedReason: string; readonly mpCost: number } | null {
   if (input.movementType === MovementType.Jump) return null;
   if (hexDistance(input.from, input.to) !== 1) return null;
@@ -287,6 +292,7 @@ function directTerrainBlockedStep(input: {
   const costContext = movementCostContextForCapability(
     input.movementType,
     input.capability,
+    { optionalRules: input.optionalRules },
   );
   const step = getMovementStepCostBreakdown(
     input.grid,
@@ -343,6 +349,7 @@ function validateSuppliedMovementPath(input: {
   readonly capability: IMovementCapability;
   readonly maxCost: number;
   readonly standingCost: number;
+  readonly optionalRules?: readonly string[];
 }): ISuppliedMovementPathValidation {
   if (input.path.length === 0) {
     return {
@@ -381,8 +388,9 @@ function validateSuppliedMovementPath(input: {
   const costContext = movementCostContextForCapability(
     input.movementType,
     input.capability,
+    { optionalRules: input.optionalRules },
   );
-  const pavementRoadBonusMP = getPavementRoadBonusMP(movementMode);
+  const pavementRoadBonusMP = getPavementRoadBonusMP(movementMode, costContext);
   let isPavementRoadBonusPath = pavementRoadBonusMP > 0;
   let totalCost = input.standingCost;
   if (totalCost > input.maxCost) {

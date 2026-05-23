@@ -209,6 +209,9 @@ export function toMovementCapability(
     ...(adapted.movementTerrainProfile
       ? { movementTerrainProfile: adapted.movementTerrainProfile }
       : {}),
+    ...(adapted.pavementRoadBonusProfile
+      ? { pavementRoadBonusProfile: adapted.pavementRoadBonusProfile }
+      : {}),
     ...(adapted.waterCapability
       ? { waterCapability: adapted.waterCapability }
       : {}),

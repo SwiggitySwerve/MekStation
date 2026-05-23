@@ -18,6 +18,7 @@ import {
   MovementType,
   type MovementHeatProfile,
   type MovementMotiveMode,
+  type MovementPavementRoadBonusProfile,
   type MovementTerrainProfile,
 } from '@/types/gameplay/HexGridInterfaces';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage';
@@ -206,6 +207,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
   movementMode?: MovementMotiveMode;
   movementHeatProfile?: MovementHeatProfile;
   movementTerrainProfile?: MovementTerrainProfile;
+  pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
   waterCapability?: IMovementWaterCapability;
   standUpCapability?: IMovementStandUpCapability;
 } {
@@ -225,6 +227,8 @@ function calculateMovement(unitData: Record<string, unknown>): {
   const movementMode = movementModeFromUnitData(unitData);
   const movementHeatProfile = movementHeatProfileFromUnitData(unitData);
   const movementTerrainProfile = movementTerrainProfileFromUnitData(unitData);
+  const pavementRoadBonusProfile =
+    pavementRoadBonusProfileFromUnitData(unitData);
   const waterCapability = waterCapabilityFromUnitData(unitData);
   const standUpCapability = standUpCapabilityFromUnitData(unitData);
   return {
@@ -234,6 +238,7 @@ function calculateMovement(unitData: Record<string, unknown>): {
     ...(movementMode ? { movementMode } : {}),
     ...(movementHeatProfile ? { movementHeatProfile } : {}),
     ...(movementTerrainProfile ? { movementTerrainProfile } : {}),
+    ...(pavementRoadBonusProfile ? { pavementRoadBonusProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
     ...(standUpCapability ? { standUpCapability } : {}),
   };
@@ -364,6 +369,35 @@ function movementTerrainProfileFromUnitData(
       return undefined;
     default:
       return 'infantry';
+  }
+}
+
+function pavementRoadBonusProfileFromUnitData(
+  unitData: Record<string, unknown>,
+): MovementPavementRoadBonusProfile | undefined {
+  if (normalizedKey(unitData.unitType) !== 'infantry') {
+    return undefined;
+  }
+
+  const movement = recordField(unitData.movement);
+  const raw =
+    stringField(unitData, 'motionType', 'motiveType', 'movementType') ??
+    stringField(movement, 'motionType', 'motiveType', 'movementType');
+  switch (normalizedKey(raw)) {
+    case 'motorized':
+    case 'infmotorized':
+    case 'tracked':
+    case 'mechanizedtracked':
+    case 'inftracked':
+    case 'wheeled':
+    case 'mechanizedwheeled':
+    case 'infwheeled':
+    case 'hover':
+    case 'mechanizedhover':
+    case 'infhover':
+      return 'tacops_infantry';
+    default:
+      return undefined;
   }
 }
 
@@ -640,6 +674,7 @@ export function adaptUnitFromData(
     movementMode,
     movementHeatProfile,
     movementTerrainProfile,
+    pavementRoadBonusProfile,
     waterCapability,
     standUpCapability,
   } = calculateMovement(unitData);
@@ -685,6 +720,7 @@ export function adaptUnitFromData(
     ...(movementMode ? { movementMode } : {}),
     ...(movementHeatProfile ? { movementHeatProfile } : {}),
     ...(movementTerrainProfile ? { movementTerrainProfile } : {}),
+    ...(pavementRoadBonusProfile ? { pavementRoadBonusProfile } : {}),
     ...(waterCapability ? { waterCapability } : {}),
     ...(standUpCapability ? { standUpCapability } : {}),
   };

@@ -117,8 +117,14 @@ function getRawMaxMP(
   }
 }
 
-export function getPavementRoadBonusMP(movementMode: UnitMovementType): number {
-  return isPavementRoadBonusEligibleMode(movementMode)
+export function getPavementRoadBonusMP(
+  movementMode: UnitMovementType,
+  context: Pick<
+    IMovementCostContext,
+    'optionalRules' | 'pavementRoadBonusProfile'
+  > = {},
+): number {
+  return isPavementRoadBonusEligibleMode(movementMode, context)
     ? PAVEMENT_ROAD_BONUS_MP
     : 0;
 }

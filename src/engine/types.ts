@@ -9,6 +9,7 @@ import type {
   IHexCoordinate,
   IHexGrid,
   MovementHeatProfile,
+  MovementPavementRoadBonusProfile,
   MovementTerrainProfile,
   IMovementStandUpCapability,
   IMovementWaterCapability,
@@ -59,6 +60,8 @@ export interface IAdaptedUnit extends IUnitGameState {
   readonly movementHeatProfile?: MovementHeatProfile;
   /** Unit-type terrain-cost adjustments layered over motive-mode pathing. */
   readonly movementTerrainProfile?: MovementTerrainProfile;
+  /** Optional profile controlling whether pavement/road +1 MP applies. */
+  readonly pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
   /** Optional equipment that modifies water movement legality and MP costs. */
   readonly waterCapability?: IMovementWaterCapability;
   /** Optional stand-up rules that affect prone movement projection. */

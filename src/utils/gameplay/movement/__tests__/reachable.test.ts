@@ -1010,6 +1010,58 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('gates represented infantry pavement bonus behind the TacOps option', () => {
+    let grid = createHexGrid({ radius: 4 });
+    for (const q of [1, 2, 3]) {
+      grid = setHex(
+        grid,
+        { q, r: 0 },
+        terrainStringFromFeatures([{ type: TerrainType.Road, level: 1 }]),
+        0,
+      );
+    }
+    const unit = makeUnitAtOrigin();
+    const mechanizedInfantry: IMovementCapability = {
+      walkMP: 2,
+      runMP: 2,
+      jumpMP: 0,
+      movementMode: 'tracked',
+      movementHeatProfile: 'none',
+      pavementRoadBonusProfile: 'tacops_infantry',
+    };
+
+    const disabled = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      mechanizedInfantry,
+      { q: 3, r: 0 },
+    );
+    const enabled = deriveReachableHexes(
+      unit,
+      MovementType.Walk,
+      grid,
+      mechanizedInfantry,
+      'normal',
+      { optionalRules: ['tacops_inf_pave_bonus'] },
+    ).find((r) => r.hex.q === 3 && r.hex.r === 0);
+
+    expect(disabled).toMatchObject({
+      reachable: false,
+      movementMode: 'tracked',
+      movementInvalidReason: 'InsufficientMP',
+      movementInvalidDetails:
+        'Destination is 3 hexes away, but max range for walk is 2',
+    });
+    expect(enabled).toMatchObject({
+      mpCost: 3,
+      terrainCost: 0,
+      heatGenerated: 0,
+      movementMode: 'tracked',
+      reachable: true,
+    });
+  });
+
   it('requires dirt and gravel road bonus paths to match MegaMek motive eligibility', () => {
     let dirtGrid = createHexGrid({ radius: 4 });
     let gravelGrid = createHexGrid({ radius: 4 });

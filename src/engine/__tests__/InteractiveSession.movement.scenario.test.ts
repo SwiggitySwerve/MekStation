@@ -900,6 +900,88 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps TacOps infantry pavement bonus aligned between preview and commit', () => {
+    const baseSession = setupSessionAtMovement();
+    const session: IGameSession = {
+      ...baseSession,
+      config: {
+        ...baseSession.config,
+        optionalRules: ['tacops_inf_pave_bonus'],
+      },
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    for (const q of [1, 2, 3]) {
+      grid.hexes.set(
+        `${q},0`,
+        makeHex(
+          q,
+          0,
+          terrainStringFromFeatures([{ type: TerrainType.Road, level: 1 }]),
+        ),
+      );
+    }
+    const movementByUnit = capability({
+      walkMP: 2,
+      runMP: 2,
+      movementMode: 'tracked',
+      movementHeatProfile: 'none',
+      pavementRoadBonusProfile: 'tacops_infantry',
+    });
+
+    const preview = deriveReachableHexes(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+      'normal',
+      { optionalRules: session.config.optionalRules },
+    ).find((entry) => entry.hex.q === 3 && entry.hex.r === 0);
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      movementMode: 'tracked',
+      mpCost: 3,
+      terrainCost: 0,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementType: MovementType.Walk,
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 3, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      path: preview!.path,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementInvalid,
+      ),
+    ).toBe(false);
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: preview!.hex,
+      movementType: preview!.movementType,
+      mpUsed: preview!.mpCost,
+      heatGenerated: preview!.heatGenerated,
+      path: preview!.path,
+    });
+  });
+
   it('keeps naval low-bridge clearance blocked between preview and commit validation', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.blocker = {

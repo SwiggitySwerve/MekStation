@@ -101,6 +101,11 @@ export function deriveReachableHexes(
 
   const origin = unit.position;
   const projectionMovementMode = movementModeForRange(mpType, capability);
+  const projectionCostContext = movementCostContextForCapability(
+    mpType,
+    capability,
+    { optionalRules: ruleOptions.optionalRules },
+  );
   const standingCost =
     unit.prone && mpType !== MovementType.Jump
       ? getStandingCost(capability, standUpMode)
@@ -109,7 +114,8 @@ export function deriveReachableHexes(
   const candidateRange =
     mpType === MovementType.Jump
       ? mp
-      : pathBudget + getPavementRoadBonusMP(projectionMovementMode);
+      : pathBudget +
+        getPavementRoadBonusMP(projectionMovementMode, projectionCostContext);
   const candidates = hexesInRange(origin, candidateRange);
   const results: IMovementRangeHex[] = [];
 
@@ -175,7 +181,9 @@ export function deriveMovementRangeHexForDestination(
     mpType === MovementType.Jump
       ? movementModeForRange(mpType, capability)
       : movementModeForPath(mpType, capability);
-  const costContext = movementCostContextForCapability(mpType, capability);
+  const costContext = movementCostContextForCapability(mpType, capability, {
+    optionalRules: ruleOptions.optionalRules,
+  });
   const standingCost = unit.prone
     ? getStandingCost(capability, standUpMode)
     : 0;
@@ -183,7 +191,7 @@ export function deriveMovementRangeHexForDestination(
   const maxPathCost =
     mpType === MovementType.Jump
       ? mp
-      : pathBudget + getPavementRoadBonusMP(movementMode);
+      : pathBudget + getPavementRoadBonusMP(movementMode, costContext);
   const immobileReason = representedUnitImmobileReason(unit);
   if (immobileReason) {
     return immobileMovementRangeHex({

@@ -56,8 +56,10 @@ export function buildMovementEventPath(params: {
   readonly movementType: MovementType;
   readonly capability?: IMovementCapability | null;
   readonly maxCost?: number;
+  readonly optionalRules?: readonly string[] | undefined;
 }): readonly IHexCoordinate[] {
-  const { grid, from, to, movementType, capability, maxCost } = params;
+  const { grid, from, to, movementType, capability, maxCost, optionalRules } =
+    params;
 
   if (hexEquals(from, to)) {
     return [copyHex(from)];
@@ -77,7 +79,9 @@ export function buildMovementEventPath(params: {
     maxCost ?? Infinity,
     movementModeForPath(movementType, capability),
     capability
-      ? movementCostContextForCapability(movementType, capability)
+      ? movementCostContextForCapability(movementType, capability, {
+          optionalRules,
+        })
       : undefined,
   );
   return normalizeMovementEventPath(from, to, path ?? undefined);

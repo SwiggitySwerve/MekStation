@@ -81,6 +81,15 @@ For each projected movement hex, the map SHALL expose at least movement mode, cu
 - **THEN** the movement projection SHALL apply the represented infantry terrain-cost profile
 - **AND** committed movement SHALL spend the same MP cost that the preview exposed
 
+#### Scenario: TacOps infantry pavement bonus is optional-rule gated
+
+- **GIVEN** a represented motorized, tracked, wheeled, or hover infantry unit previews pavement or paved-road movement
+- **WHEN** the TacOps infantry pavement bonus optional rule is disabled
+- **THEN** the movement projection SHALL NOT grant the vehicle-style +1 pavement/road MP bonus
+- **WHEN** the same session enables the represented TacOps infantry pavement bonus optional rule
+- **THEN** the movement projection SHALL allow the +1 MP pavement/road bonus for that eligible infantry unit
+- **AND** committed movement SHALL accept the same destination, MP cost, heat, and path that the preview exposed
+
 #### Scenario: UMU and swim movement match represented water movement
 
 - **GIVEN** a represented UMU, biped-swim, or quad-swim movement mode enters water terrain

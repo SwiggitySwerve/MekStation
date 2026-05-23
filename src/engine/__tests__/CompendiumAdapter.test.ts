@@ -568,6 +568,9 @@ describe('CompendiumAdapter', () => {
         expect(result.movementMode).toBe(movementMode);
         expect(result.movementHeatProfile).toBe('none');
         expect(result.movementTerrainProfile).toBeUndefined();
+        expect(result.pavementRoadBonusProfile).toBe(
+          movementMode === 'vtol' ? undefined : 'tacops_infantry',
+        );
       },
     );
 
@@ -581,6 +584,7 @@ describe('CompendiumAdapter', () => {
 
       expect(result.movementMode).toBe('wheeled');
       expect(result.movementTerrainProfile).toBe('infantry');
+      expect(result.pavementRoadBonusProfile).toBe('tacops_infantry');
     });
 
     it('should read battle armor squad MP and VTOL motion type', () => {

@@ -29,7 +29,7 @@
 
 - [x] Audit current movement overlay data flow and identify any UI-local legality or cost calculations.
 - [x] Add preview-vs-commit fixtures for walking, running, jumping, facing, elevation changes, terrain costs, and blocked elevation/terrain.
-- [ ] Source-check unit-type edge cases against BattleTech/MegaMek: ground vehicles, VTOL/hover, infantry, battle armor, ProtoMechs, prone/standing, water, pavement/roads, and jump landing restrictions.
+- [x] Source-check unit-type edge cases against BattleTech/MegaMek: ground vehicles, VTOL/hover, infantry, battle armor, ProtoMechs, prone/standing, water, pavement/roads, and jump landing restrictions.
   - [x] Ground vehicles, VTOL/hover, water, pavement/roads, and jump landing restrictions have source-pinned projection/commit fixtures.
   - [x] Adapter preserves generated vehicle cruise/flank MP, infantry and battle armor ground/jump MP, mechanized infantry motive modes, and explicit ProtoMech run MP before map projection.
   - [x] Normal prone stand-up MP is source-pinned into walk/run projection, heat-reduced Stand Up command availability, prone Jump command blocking, standalone Stand Up command dispatch, commit validation, PSR success/failure event outcomes, moving-after-stand PSR gating, destroyed-leg-plus-both-arms impossible stand gates, represented PSR modifier details, map/dock stand-up badges/tooltips/reasons, and post-move prone state clearing.
@@ -46,7 +46,7 @@
   - [x] Represented side-specific arm-actuator TacOps stand-up modifiers now source-pin MegaMek's first failed hand/lower/upper/shoulder actuator per arm and keep preview/commit PSR target numbers aligned.
   - [x] Adapter source fields now preserve represented TacOps stand-up arm-actuator data from nested/flat movement source fields into shared movement capability.
   - [x] Represented Playtest2 trying-to-stand now source-pins MegaMek's optional `playtest_2` -1 stand-up PSR modifier and keeps preview/commit target numbers aligned.
-  - [ ] Add any not-yet-represented infantry-specific terrain/heat rules.
+  - [x] Represented TacOps Infantry Pavement Bonus now source-pins MegaMek's optional `tacops_inf_pave_bonus` gate for motorized/tracked/wheeled/hover infantry and keeps preview/commit road-bonus movement aligned.
 - [x] Ensure highlighted walk/run/jump ranges expose MP cost, heat, elevation delta, terrain reason, and invalid reason.
 
 ## 4. Terrain and elevation readability

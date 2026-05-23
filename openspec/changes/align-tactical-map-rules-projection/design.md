@@ -32,6 +32,14 @@ Movement overlays must distinguish walk, run, jump, and unit-type-specific movem
 
 This applies to ground units first and remains extensible for vehicles, VTOL, infantry, battle armor, ProtoMechs, and aerospace-adjacent tactical units.
 
+Represented TacOps infantry pavement movement is pinned to MegaMek tactical
+behavior: `ConvInfantry.isEligibleForPavementOrRoadBonus()` only grants the
++1 pavement/road MP bonus when `ADVANCED_TAC_OPS_INF_PAVE_BONUS` is enabled
+and the stored infantry motive is tracked, wheeled, hover, or motorized.
+MekStation therefore carries an explicit infantry road-bonus capability flag
+from adapter data and activates it only from the session optional rule instead
+of letting those infantry units inherit vehicle road-bonus eligibility.
+
 UMU and Mek swim movement projection is pinned to MegaMek tactical behavior:
 `MovementDisplay` only enables Mek swim gear for underwater units,
 `MovementType.getMovementType(...)` classifies `BIPED_SWIM`, `QUAD_SWIM`, and

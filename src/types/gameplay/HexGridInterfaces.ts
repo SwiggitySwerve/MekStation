@@ -85,6 +85,12 @@ export type MovementHeatProfile = 'mek' | 'none';
 export type MovementTerrainProfile = 'infantry';
 
 /**
+ * Optional road-bonus eligibility profile. Default vehicle motive modes keep
+ * their normal road bonus; represented infantry motives use the TacOps option.
+ */
+export type MovementPavementRoadBonusProfile = 'tacops_infantry';
+
+/**
  * Water-capable equipment represented by the tactical movement layer.
  */
 export interface IMovementWaterCapability {
@@ -276,6 +282,8 @@ export interface IMovementCapability {
   readonly movementHeatProfile?: MovementHeatProfile;
   /** Unit-type terrain-cost adjustments layered over motive-mode pathing. */
   readonly movementTerrainProfile?: MovementTerrainProfile;
+  /** Optional profile controlling whether pavement/road +1 MP applies. */
+  readonly pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
   /** MegaMek-style entity height used for bridge clearance checks; default is 0. */
   readonly unitHeight?: number;
   /** Optional equipment that modifies water movement legality and MP costs. */

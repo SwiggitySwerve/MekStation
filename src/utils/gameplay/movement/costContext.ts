@@ -1,5 +1,6 @@
 import type {
   IMovementCapability,
+  MovementPavementRoadBonusProfile,
   MovementTerrainProfile,
   IMovementWaterCapability,
 } from '@/types/gameplay';
@@ -10,6 +11,8 @@ export interface IMovementCostContext {
   readonly declaredMovementType?: MovementType;
   readonly isFirstStep?: boolean;
   readonly movementTerrainProfile?: MovementTerrainProfile;
+  readonly pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
+  readonly optionalRules?: readonly string[] | undefined;
   readonly unitHeight?: number;
   readonly waterCapability?: IMovementWaterCapability;
 }
@@ -17,7 +20,7 @@ export interface IMovementCostContext {
 export function movementCostContextForCapability(
   movementType: MovementType,
   capability: IMovementCapability,
-  stepContext: Pick<IMovementCostContext, 'isFirstStep'> = {},
+  stepContext: Pick<IMovementCostContext, 'isFirstStep' | 'optionalRules'> = {},
 ): IMovementCostContext {
   return {
     declaredMovementType: movementType,
@@ -26,6 +29,12 @@ export function movementCostContextForCapability(
       : {}),
     ...(capability.movementTerrainProfile
       ? { movementTerrainProfile: capability.movementTerrainProfile }
+      : {}),
+    ...(capability.pavementRoadBonusProfile
+      ? { pavementRoadBonusProfile: capability.pavementRoadBonusProfile }
+      : {}),
+    ...(stepContext.optionalRules !== undefined
+      ? { optionalRules: stepContext.optionalRules }
       : {}),
     ...(capability.unitHeight !== undefined
       ? { unitHeight: capability.unitHeight }
