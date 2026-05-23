@@ -1113,6 +1113,54 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('summarizes projected path length in the movement hover tooltip', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={2}
+        tokens={[]}
+        selectedHex={{ q: 0, r: 0 }}
+        movementRange={[
+          {
+            hex: { q: 1, r: -1 },
+            mpCost: 4,
+            terrainCost: 1,
+            elevationDelta: 1,
+            elevationCost: 1,
+            heatGenerated: 0,
+            movementMode: 'walk',
+            reachable: true,
+            movementType: MovementType.Walk,
+            path: [
+              { q: 0, r: 0 },
+              { q: 1, r: 0 },
+              { q: 1, r: -1 },
+            ],
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.mouseEnter(screen.getByTestId('hex-1--1'));
+
+    expect(screen.getByTestId('hex-movement-tooltip-cost')).toHaveTextContent(
+      'MP: 4',
+    );
+    expect(
+      screen.getByTestId('hex-movement-tooltip-terrain'),
+    ).toHaveTextContent('Terrain cost: +1');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-elevation'),
+    ).toHaveTextContent('Elevation: +1, cost +1');
+    expect(screen.getByTestId('hex-movement-tooltip-path')).toHaveTextContent(
+      'Path: 2 steps',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('renders VTOL elevation changes without inventing ground elevation MP costs', () => {
     const { unmount } = render(
       <HexMapDisplay

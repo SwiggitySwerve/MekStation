@@ -22,6 +22,7 @@ import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
   formatCombatWeaponLabel,
+  formatMovementPathSummaryLabel,
   formatToHitModifierLabel,
 } from './HexMapDisplay.tooltipFormatters';
 
@@ -209,6 +210,7 @@ function MovementHoverTooltip({
     movementInfo.movementInvalidDetails ??
     movementInfo.blockedReason ??
     movementInfo.movementInvalidReason;
+  const pathSummaryLabel = formatMovementPathSummaryLabel(movementInfo);
 
   return (
     <div
@@ -246,6 +248,9 @@ function MovementHoverTooltip({
         <div data-testid="hex-movement-tooltip-heat">
           Heat: +{movementInfo.heatGenerated}
         </div>
+      )}
+      {pathSummaryLabel && (
+        <div data-testid="hex-movement-tooltip-path">{pathSummaryLabel}</div>
       )}
       {movementInfo.standUpRequired && (
         <div data-testid="hex-movement-tooltip-stand-up">

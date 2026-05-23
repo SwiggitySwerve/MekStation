@@ -2052,6 +2052,12 @@ describe('HexMapDisplay combat projection', () => {
             standUpPsrTargetNumber: 4,
             standUpPsrModifier: -2,
             standUpPsrModifierDetails: ['Careful stand -2'],
+            path: [
+              { q: 0, r: 0 },
+              { q: 1, r: 0 },
+              { q: 2, r: 0 },
+              { q: 3, r: 0 },
+            ],
           },
         ]}
         unitWeapons={{
@@ -2081,6 +2087,9 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       targetHex.getAttribute('data-tactical-projection-explanation'),
     ).toContain('status mixed');
+    expect(
+      targetHex.getAttribute('data-tactical-projection-explanation'),
+    ).toContain('path 3 steps');
 
     const projectionBadge = screen.getByTestId(
       'hex-projection-status-badge-3-0',
@@ -2136,6 +2145,9 @@ describe('HexMapDisplay combat projection', () => {
     expect(
       screen.getByTestId('hex-tactical-tooltip-movement-stand-up-modifiers'),
     ).toHaveTextContent('Modifiers: Careful stand -2');
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-movement-path'),
+    ).toHaveTextContent('Path: 3 steps');
     expect(screen.getByTestId('hex-tactical-tooltip-combat')).toHaveTextContent(
       'Combat: Blocked',
     );

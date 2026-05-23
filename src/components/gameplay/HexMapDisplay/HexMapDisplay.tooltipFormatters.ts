@@ -1,4 +1,4 @@
-import type { ICombatRangeHex } from '@/types/gameplay';
+import type { ICombatRangeHex, IMovementRangeHex } from '@/types/gameplay';
 
 import { CoverLevel } from '@/types/gameplay/TerrainTypes';
 
@@ -83,6 +83,17 @@ export function formatToHitModifierLabel(
         `${modifier.name} ${modifier.value >= 0 ? '+' : ''}${modifier.value}`,
     )
     .join('; ')}`;
+}
+
+export function formatMovementPathSummaryLabel(
+  movementInfo: IMovementRangeHex,
+): string | null {
+  const stepCount =
+    movementInfo.path && movementInfo.path.length > 1
+      ? movementInfo.path.length - 1
+      : 0;
+  if (stepCount === 0) return null;
+  return `Path: ${stepCount} ${stepCount === 1 ? 'step' : 'steps'}`;
 }
 
 function formatCombatVisibilityStateLabel(

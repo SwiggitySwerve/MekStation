@@ -12,6 +12,7 @@ import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
   formatCombatWeaponLabel,
+  formatMovementPathSummaryLabel,
   formatToHitModifierLabel,
 } from './HexMapDisplay.tooltipFormatters';
 
@@ -123,6 +124,7 @@ export function CombinedTacticalHoverTooltip({
   const modifierLabel = formatToHitModifierLabel(combatInfo);
   const movementReason = movementReasonText(movementInfo);
   const combatReason = combatReasonText(combatInfo);
+  const pathSummaryLabel = formatMovementPathSummaryLabel(movementInfo);
 
   return (
     <div
@@ -164,6 +166,11 @@ export function CombinedTacticalHoverTooltip({
       {movementInfo.heatGenerated !== undefined && (
         <div data-testid="hex-tactical-tooltip-movement-heat">
           Heat: +{movementInfo.heatGenerated}
+        </div>
+      )}
+      {pathSummaryLabel && (
+        <div data-testid="hex-tactical-tooltip-movement-path">
+          {pathSummaryLabel}
         </div>
       )}
       {movementInfo.standUpRequired && (
