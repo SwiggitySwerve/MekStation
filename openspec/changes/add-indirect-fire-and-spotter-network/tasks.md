@@ -41,6 +41,8 @@
 - [x] 5.3 Emit `IndirectFireSpotterSelected` when `computeIndirectFireContext` resolves
 - [x] 5.4 Extend event-log display formatting for the 4 new event types
 - [x] 5.5 Scenario test: full LRM-15 indirect attack with valid spotter
+- [x] 5.6 Apply +1 `Spotting for indirect fire` modifier when an elected spotter fires later in the same turn
+  > Implemented by scanning prior same-turn `IndirectFireSpotterSelected` events during `declareAttack`; covered by a focused dispatch regression.
 
 ## 6. Spotter liveness re-check
 
@@ -71,6 +73,7 @@ The indirect-fire engine path now has:
 - Per-weapon Direct/Indirect mode selection in the weapon planning UI, with non-eligible weapon rejection before commit
 - Event-log serialization coverage for mixed Direct/Indirect `AttackDeclared.weaponAttacks[].mode`
 - Combat-resolution dispatch and event-log formatting for the four indirect-fire event variants
+- Same-turn +1 spotting-fire modifier for elected spotters who later fire their own direct attacks
 - Spotter liveness re-check with auto-miss + `IndirectFireSpotterLost`
 
 **Remaining PR-sized work:**

@@ -547,6 +547,21 @@ export function declareAttack(
     });
     finalToHit += indirectFireResolution.toHitPenalty;
   }
+  if (
+    !indirectAttack &&
+    wasElectedIndirectSpotterThisTurn(
+      session,
+      attackerId,
+      session.currentState.turn,
+    )
+  ) {
+    modifiers.push({
+      name: 'Spotting for indirect fire',
+      value: 1,
+      source: 'other',
+    });
+    finalToHit += 1;
+  }
 
   const weaponIds = weapons.map((weapon) => weapon.weaponId);
   const weaponAttackData: IWeaponAttackData[] = weapons.map((weapon) => ({
@@ -645,6 +660,23 @@ function minimumRangeForAttack(
       ? Math.max(strictestMinimum, minimum)
       : strictestMinimum;
   }, 0);
+}
+
+function wasElectedIndirectSpotterThisTurn(
+  session: IGameSession,
+  spotterId: string,
+  turn: number,
+): boolean {
+  return session.events.some((event) => {
+    if (
+      event.turn !== turn ||
+      event.type !== GameEventType.IndirectFireSpotterSelected
+    ) {
+      return false;
+    }
+    const payload = event.payload as { readonly spotterId?: string | null };
+    return payload.spotterId === spotterId;
+  });
 }
 
 export function lockAttack(
