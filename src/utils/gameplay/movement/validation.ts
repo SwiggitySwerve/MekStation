@@ -103,7 +103,11 @@ export function validateMovement(
     }
   }
 
-  const heatGenerated = calculateMovementHeat(movementType, distance);
+  const heatGenerated = calculateMovementHeat(
+    movementType,
+    distance,
+    capability.movementMode,
+  );
 
   return {
     valid: true,

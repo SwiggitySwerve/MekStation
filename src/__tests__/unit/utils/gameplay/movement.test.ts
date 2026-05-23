@@ -145,6 +145,12 @@ describe('movement', () => {
       expect(calculateMovementHeat(MovementType.Jump, 4)).toBe(4);
       expect(calculateMovementHeat(MovementType.Jump, 6)).toBe(6);
     });
+
+    it('should return 0 for represented vehicle motive movement', () => {
+      expect(calculateMovementHeat(MovementType.Walk, 4, 'tracked')).toBe(0);
+      expect(calculateMovementHeat(MovementType.Run, 6, 'hover')).toBe(0);
+      expect(calculateMovementHeat(MovementType.Jump, 4, 'vtol')).toBe(0);
+    });
   });
 
   // =========================================================================
