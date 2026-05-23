@@ -1,5 +1,8 @@
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IGameUnit } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IGameState,
+  IGameUnit,
+} from '@/types/gameplay/GameSessionInterfaces';
 
 import { TerrainPreset } from '@/types/encounter';
 import {
@@ -334,6 +337,33 @@ describe('GameEngine', () => {
 
       const session = engine.runToCompletion([p1], [o1], gameUnits);
       expect(session).toBeDefined();
+    });
+
+    it('quick-sim winner checks treat ejected units as out of force', () => {
+      const engine = new GameEngine({ seed: 42, turnLimit: 20, mapRadius: 5 });
+      const p1 = createTestUnit('player-1', GameSide.Player, { q: 0, r: -3 });
+      const o1 = createTestUnit('opponent-1', GameSide.Opponent, {
+        q: 0,
+        r: 3,
+      });
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+      const interactive = engine.createInteractiveSession(
+        [p1],
+        [o1],
+        gameUnits,
+      );
+      interactive.ejectUnit('player-1');
+
+      const winner = (
+        engine as unknown as {
+          determineWinnerFromState(state: IGameState): GameSide | 'draw';
+        }
+      ).determineWinnerFromState(interactive.getState());
+
+      expect(winner).toBe(GameSide.Opponent);
     });
   });
 

@@ -153,6 +153,7 @@ export class GameEngine {
         gunneryByUnit,
         pilotingByUnit,
         d6Roller,
+        this.grid,
       );
       session = advancePhase(session);
       // Per `wire-heat-generation-and-effects` task 5: pass a
@@ -212,11 +213,14 @@ export class GameEngine {
   }
 
   private determineWinnerFromState(state: IGameState): GameSide | 'draw' {
+    const remainsInForce = (u: IGameState['units'][string]): boolean =>
+      !u.destroyed && !u.hasRetreated && !u.hasEjected;
+
     const playerAlive = Object.values(state.units).some(
-      (u) => u.side === GameSide.Player && !u.destroyed,
+      (u) => u.side === GameSide.Player && remainsInForce(u),
     );
     const opponentAlive = Object.values(state.units).some(
-      (u) => u.side === GameSide.Opponent && !u.destroyed,
+      (u) => u.side === GameSide.Opponent && remainsInForce(u),
     );
 
     if (!playerAlive && !opponentAlive) return 'draw';
@@ -224,10 +228,10 @@ export class GameEngine {
     if (!playerAlive) return GameSide.Opponent;
     // Turn limit — compare surviving counts
     const pCount = Object.values(state.units).filter(
-      (u) => u.side === GameSide.Player && !u.destroyed,
+      (u) => u.side === GameSide.Player && remainsInForce(u),
     ).length;
     const oCount = Object.values(state.units).filter(
-      (u) => u.side === GameSide.Opponent && !u.destroyed,
+      (u) => u.side === GameSide.Opponent && remainsInForce(u),
     ).length;
     if (pCount > oCount) return GameSide.Player;
     if (oCount > pCount) return GameSide.Opponent;

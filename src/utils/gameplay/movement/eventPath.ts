@@ -224,13 +224,47 @@ export function decomposeMovementSteps(
   const path = input.path ?? [from, to];
   const netDisplacement = hexDistance(from, to);
 
-  // Stationary moves emit no step chain.
-  if (movementType === MovementType.Stationary || hexEquals(from, to)) {
+  // Stationary moves emit no step chain. Same-hex moves with a facing
+  // change still emit turn steps below.
+  if (
+    movementType === MovementType.Stationary ||
+    (hexEquals(from, to) && fromFacing === toFacing)
+  ) {
     return {
       steps: [],
       hexesMoved: 0,
       straightHexes: 0,
       turningMpCost: 0,
+      netDisplacement,
+    };
+  }
+
+  if (hexEquals(from, to)) {
+    const steps: IMovementStep[] = [];
+    let nextIndex = 0;
+    let currentFacing: Facing = fromFacing;
+    let rotations = shortestRotation(currentFacing, toFacing);
+    while (rotations !== 0) {
+      const stepDir: 1 | -1 = rotations > 0 ? 1 : -1;
+      const newFacing = (((currentFacing + stepDir) % 6) + 6) % 6;
+      const turn: ITurnStep = {
+        kind: 'turn',
+        index: nextIndex++,
+        at: copyHex(from),
+        fromFacing: currentFacing,
+        toFacing: newFacing as Facing,
+        mpCost: 1,
+      };
+      steps.push(turn);
+      currentFacing = newFacing as Facing;
+      rotations = shortestRotation(currentFacing, toFacing);
+    }
+
+    return {
+      steps,
+      hexesMoved: 0,
+      straightHexes: 0,
+      turningMpCost: steps.length,
       netDisplacement,
     };
   }

@@ -7,29 +7,44 @@ import type { IPendingPSR } from '@/types/gameplay';
 
 import { PSRTrigger } from './types';
 
+function movementStepTriggerSource(
+  stepIndex: number | undefined,
+): string | null {
+  if (stepIndex === undefined) return null;
+  return `movement-step:${stepIndex}`;
+}
+
 /**
  * Create a pending PSR for running with a damaged hip (per hex moved).
  */
-export function createRunningDamagedHipPSR(entityId: string): IPendingPSR {
+export function createRunningDamagedHipPSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Running with damaged hip',
     reasonCode: PSRTrigger.RunningDamagedHip,
     additionalModifier: 0,
-    triggerSource: PSRTrigger.RunningDamagedHip,
+    triggerSource: movementStepSource ?? PSRTrigger.RunningDamagedHip,
   };
 }
 
 /**
  * Create a pending PSR for running with a damaged gyro.
  */
-export function createRunningDamagedGyroPSR(entityId: string): IPendingPSR {
+export function createRunningDamagedGyroPSR(
+  entityId: string,
+  stepIndex?: number,
+): IPendingPSR {
+  const movementStepSource = movementStepTriggerSource(stepIndex);
   return {
     entityId,
     reason: 'Running with damaged gyro',
     reasonCode: PSRTrigger.RunningDamagedGyro,
     additionalModifier: 0,
-    triggerSource: PSRTrigger.RunningDamagedGyro,
+    triggerSource: movementStepSource ?? PSRTrigger.RunningDamagedGyro,
   };
 }
 

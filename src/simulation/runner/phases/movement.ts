@@ -2,19 +2,24 @@ import {
   Facing,
   GameEventType,
   GamePhase,
+  type IEnvironmentalConditions,
   IGameEvent,
   IGameState,
   IHexGrid,
+  type IMovementCapability,
 } from '@/types/gameplay';
 import {
+  buildMovementEventPath,
   decomposeMovementSteps,
+  maxMovementCostForCapability,
   movementAnimationModeForType,
-  normalizeMovementEventPath,
 } from '@/utils/gameplay/movement/eventPath';
+import { validateMovement } from '@/utils/gameplay/movement/validation';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
 import type { IWeapon } from '../../ai/types';
 
+import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { applyMovementEvent } from '../SimulationRunnerState';
@@ -22,7 +27,10 @@ import {
   createMovementCapability,
   toAIUnitState,
 } from '../SimulationRunnerSupport';
-import { createGameEvent } from './utils';
+import { queueMovementDamagePSRs } from './movementDamagePsr';
+import { resolveRunnerStandUpAttempt } from './movementStandUp';
+import { queueMovementTerrainPSRs } from './movementTerrainPsr';
+import { createD6Roller, createGameEvent } from './utils';
 
 export function runMovementPhase(options: {
   state: IGameState;
@@ -39,6 +47,9 @@ export function runMovementPhase(options: {
    * non-swarm callers keep their current behavior.
    */
   weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
+  movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
+  environmentalConditions?: IEnvironmentalConditions;
+  random?: SeededRandom;
 }): IGameState {
   const {
     botPlayer,
@@ -49,26 +60,70 @@ export function runMovementPhase(options: {
     state,
     violations,
     weaponsByUnit,
+    movementCapabilitiesByUnit,
+    environmentalConditions,
+    random,
   } = options;
   let currentState = { ...state, phase: GamePhase.Movement };
+  const d6Roller = random ? createD6Roller(random) : () => 6;
   violations.push(...invariantRunner.runAll(currentState));
 
   for (const unitId of Object.keys(currentState.units)) {
     const unit = currentState.units[unitId];
-    if (unit.destroyed) {
+    if (
+      unit.destroyed ||
+      unit.hasRetreated ||
+      unit.hasEjected ||
+      unit.shutdown ||
+      !unit.pilotConscious
+    ) {
       continue;
     }
 
     const aiUnit = toAIUnitState(unit, weaponsByUnit?.get(unitId));
-    const capability = createMovementCapability();
+    const capability =
+      movementCapabilitiesByUnit?.get(unitId) ?? createMovementCapability();
     const moveEvent = botPlayer.playMovementPhase(aiUnit, grid, capability);
 
     if (moveEvent) {
-      currentState = applyMovementEvent(
-        currentState,
-        unitId,
-        moveEvent.payload,
+      if (unit.prone) {
+        currentState = resolveRunnerStandUpAttempt({
+          currentState,
+          events,
+          gameId,
+          unitId,
+          d6Roller,
+        });
+        continue;
+      }
+
+      const validation = validateMovement(
+        grid,
+        {
+          unitId,
+          coord: unit.position,
+          facing: unit.facing,
+          prone: unit.prone ?? false,
+        },
+        moveEvent.payload.to,
+        moveEvent.payload.facing as Facing,
+        moveEvent.payload.movementType,
+        capability,
+        unit.heat,
+        environmentalConditions,
       );
+
+      if (!validation.valid) {
+        continue;
+      }
+
+      const committedPayload = {
+        ...moveEvent.payload,
+        mpUsed: validation.mpCost,
+        heatGenerated: validation.heatGenerated,
+      };
+
+      currentState = applyMovementEvent(currentState, unitId, committedPayload);
 
       // Per `enrich-movement-declared-with-chain-and-displacement`
       // (movement-system delta): synthesize the per-step chain plus the
@@ -93,21 +148,33 @@ export function runMovementPhase(options: {
       // PSR phase exists. PSRs that fire OUTSIDE movement-step
       // resolution (damage, heat, gyro destroyed) MUST RETAIN their
       // existing free-string `triggerSource` values.
-      const path = normalizeMovementEventPath(
-        unit.position,
-        moveEvent.payload.to,
-      );
+      // Current runner PSR wiring covers stand-up before movement commit,
+      // then terrain PSRs for rubble, running through rough, ice, water
+      // entry/exit, and skidding. Special-equipment PSRs remain follow-on work.
+      const path = buildMovementEventPath({
+        grid,
+        from: unit.position,
+        to: committedPayload.to,
+        movementType: committedPayload.movementType,
+        maxCost: Math.min(
+          validation.mpCost,
+          maxMovementCostForCapability(
+            capability,
+            committedPayload.movementType,
+          ),
+        ),
+      });
       const decomposition = decomposeMovementSteps({
         from: unit.position,
-        to: moveEvent.payload.to,
+        to: committedPayload.to,
         fromFacing: unit.facing as Facing,
-        toFacing: moveEvent.payload.facing as Facing,
-        movementType: moveEvent.payload.movementType,
-        mpUsed: moveEvent.payload.mpUsed,
+        toFacing: committedPayload.facing as Facing,
+        movementType: committedPayload.movementType,
+        mpUsed: committedPayload.mpUsed,
         path,
         grid,
       });
-      const mode = movementAnimationModeForType(moveEvent.payload.movementType);
+      const mode = movementAnimationModeForType(committedPayload.movementType);
 
       events.push(
         createGameEvent(
@@ -119,13 +186,13 @@ export function runMovementPhase(options: {
           {
             unitId,
             from: unit.position,
-            to: moveEvent.payload.to,
-            facing: moveEvent.payload.facing as Facing,
-            movementType: moveEvent.payload.movementType,
+            to: committedPayload.to,
+            facing: committedPayload.facing as Facing,
+            movementType: committedPayload.movementType,
             ...(mode ? { mode } : {}),
             path,
-            mpUsed: moveEvent.payload.mpUsed,
-            heatGenerated: 0,
+            mpUsed: committedPayload.mpUsed,
+            heatGenerated: committedPayload.heatGenerated,
             hexesMoved: decomposition.hexesMoved,
             straightHexes: decomposition.straightHexes,
             turningMpCost: decomposition.turningMpCost,
@@ -135,6 +202,25 @@ export function runMovementPhase(options: {
           unitId,
         ),
       );
+
+      currentState = queueMovementDamagePSRs({
+        currentState,
+        events,
+        gameId,
+        unitId,
+        movementType: committedPayload.movementType,
+        steps: decomposition.steps,
+      });
+
+      currentState = queueMovementTerrainPSRs({
+        currentState,
+        events,
+        gameId,
+        grid,
+        unitId,
+        movementType: committedPayload.movementType,
+        steps: decomposition.steps,
+      });
     }
   }
 

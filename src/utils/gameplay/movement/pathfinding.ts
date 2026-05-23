@@ -83,7 +83,13 @@ export function findPath(
 
       if (!hexEquals(neighbor, end) && isOccupied(grid, neighbor)) continue;
 
-      const moveCost = getHexMovementCost(grid, neighbor);
+      const moveCost = getHexMovementCost(
+        grid,
+        neighbor,
+        'walk',
+        current.coord,
+      );
+      if (!Number.isFinite(moveCost)) continue;
       const tentativeG = current.g + moveCost;
 
       if (tentativeG > maxCost) continue;

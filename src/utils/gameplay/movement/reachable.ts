@@ -36,6 +36,9 @@ import type {
 import { MovementType } from '@/types/gameplay';
 import { hexDistance, hexesInRange } from '@/utils/gameplay/hexMath';
 
+import type { UnitMovementType } from './types';
+
+import { getHexMovementCost } from './calculations';
 import { findPath } from './pathfinding';
 
 /**
@@ -98,7 +101,7 @@ export function deriveReachableHexes(
     const path = findPath(grid, origin, hex, mp);
     if (!path || path.length === 0) continue;
 
-    const cost = computePathCost(grid, path);
+    const cost = computePathCost(grid, path, mpType);
     if (cost > mp) continue;
 
     results.push({
@@ -144,34 +147,29 @@ function maxMPFor(
 function computePathCost(
   grid: IHexGrid,
   path: readonly IHexCoordinate[],
+  movementType: MovementType,
 ): number {
-  // We sum by looking up each hex on the grid; the pathfinder
-  // respects `getHexMovementCost` on walk, so we replicate the same
-  // lookup to report the true cost to the UI. Importing the actual
-  // per-hex cost util would create a circular import from the
-  // movement package, so we duplicate the lookup by reading terrain
-  // and elevation directly off the IHexGrid we already received.
+  const unitMovementType = toUnitMovementType(movementType);
   let total = 0;
   for (let i = 1; i < path.length; i++) {
     const prev = path[i - 1];
     const curr = path[i];
-    total += stepCost(grid, prev, curr);
+    const cost = getHexMovementCost(grid, curr, unitMovementType, prev);
+    if (!Number.isFinite(cost)) return Infinity;
+    total += cost;
   }
   return total;
 }
 
-function stepCost(
-  grid: IHexGrid,
-  from: IHexCoordinate,
-  to: IHexCoordinate,
-): number {
-  const toHex = grid.hexes.get(`${to.q},${to.r}`);
-  const fromHex = grid.hexes.get(`${from.q},${from.r}`);
-  if (!toHex) return 1;
-  let cost = 1;
-  // Elevation cost (matches `calculations.ts#getHexMovementCost`).
-  if (fromHex && toHex.elevation > fromHex.elevation) {
-    cost += toHex.elevation - fromHex.elevation;
+function toUnitMovementType(movementType: MovementType): UnitMovementType {
+  switch (movementType) {
+    case MovementType.Run:
+      return 'run';
+    case MovementType.Jump:
+      return 'jump';
+    case MovementType.Walk:
+    case MovementType.Stationary:
+    default:
+      return 'walk';
   }
-  return cost;
 }
