@@ -175,6 +175,15 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.isSwarming).toBe(true);
   });
 
+  it('copies optional DFA-making state for physical targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isMakingDFA: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isMakingDFA).toBe(true);
+  });
+
   it('copies optional evading state for physical attacker legality gates', () => {
     const unit = baseGameUnit({
       unitType: UnitType.BATTLEMECH,

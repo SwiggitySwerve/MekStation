@@ -216,10 +216,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'same-building and target-inside-building validation is not represented in BattleMech physical restriction input',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
-  'shared.target-not-making-dfa': unsupported(
+  'shared.target-not-making-dfa': integrated(
     'shared.target-not-making-dfa',
     'shared',
-    'displacement-attack state is not represented in BattleMech physical restriction input',
+    'shared restriction helpers reject targetIsMakingDFA, IUnitGameState exposes optional isMakingDFA, and eligibility/session/runner inputs thread DFA-making target state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
   'shared.invalid-hex-target': unsupported(

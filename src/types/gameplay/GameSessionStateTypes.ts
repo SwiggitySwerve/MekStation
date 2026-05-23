@@ -143,6 +143,12 @@ export interface IUnitGameState {
    */
   readonly isSwarming?: boolean;
   /**
+   * Whether this unit is currently making a death-from-above attack. Explicit
+   * true blocks source-backed physical targetability; undefined preserves
+   * legacy fixtures without DFA lifecycle state.
+   */
+  readonly isMakingDFA?: boolean;
+  /**
    * Whether this unit is currently evading. Explicit true blocks
    * source-backed physical attack declarations by this attacker; undefined
    * preserves legacy fixtures without evasion state.

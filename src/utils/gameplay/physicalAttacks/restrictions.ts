@@ -70,6 +70,13 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
+  if (input.targetIsMakingDFA) {
+    return blocked(
+      'Physical attacks cannot target units making a DFA attack',
+      'TargetMakingDFA',
+    );
+  }
+
   if (input.targetIsSelf) {
     return blocked('Physical attacks cannot target the attacker', 'SelfTarget');
   }

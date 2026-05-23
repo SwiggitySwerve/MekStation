@@ -31,7 +31,8 @@
 - [x] 2.20 Integrate shared transported-passenger target rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat transport state.
 - [x] 2.21 Integrate shared swarming-target rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat swarm state.
 - [x] 2.22 Integrate shared evading-attacker rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat evasion state.
-- [ ] 2.23 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, runner arm-mounted weapon-location hydration, and pilot skill roll fallout.
+- [x] 2.23 Integrate shared target-making-DFA rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat DFA lifecycle state.
+- [ ] 2.24 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, runner arm-mounted weapon-location hydration, and pilot skill roll fallout.
 
 ## 3. Full combat validation catalog
 

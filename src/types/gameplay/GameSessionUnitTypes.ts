@@ -148,6 +148,11 @@ export interface IGameUnit {
    */
   readonly isSwarming?: boolean;
   /**
+   * Optional death-from-above attack state copied into combat state. Explicit
+   * true blocks source-backed physical target declarations against this unit.
+   */
+  readonly isMakingDFA?: boolean;
+  /**
    * Optional evasion state copied into combat state. Explicit true blocks
    * source-backed physical attack declarations by this unit.
    */

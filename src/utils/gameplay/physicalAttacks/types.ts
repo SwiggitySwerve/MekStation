@@ -90,6 +90,7 @@ export type PhysicalAttackInvalidReason =
   | 'TargetDestroyed'
   | 'TargetPassenger'
   | 'TargetSwarming'
+  | 'TargetMakingDFA'
   | 'SelfTarget'
   | 'FriendlyTarget'
   | 'TargetNotAdjacent'
@@ -166,6 +167,11 @@ export interface IPhysicalAttackInput {
    * cannot be targeted by normal physical attacks.
    */
   readonly targetIsSwarming?: boolean;
+  /**
+   * Source-backed shared physical legality: units making a DFA attack cannot
+   * be targeted by normal physical attacks.
+   */
+  readonly targetIsMakingDFA?: boolean;
   /**
    * Source-backed shared physical legality: a unit cannot declare a normal
    * BattleMech physical attack against itself.

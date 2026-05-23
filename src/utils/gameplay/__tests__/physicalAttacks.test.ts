@@ -941,6 +941,83 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows targets making DFA across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetIsMakingDFA: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMakingDFA',
+      });
+    });
+
     it('disallows evading attackers across supported physical attack families', () => {
       expect(
         canPunch(

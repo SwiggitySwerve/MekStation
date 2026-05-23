@@ -354,6 +354,25 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
+  it('rejects injected physical declarations against targets making DFA before side effects', () => {
+    const { events, result } = runPhase('kick', {
+      target: { isMakingDFA: true },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'TargetMakingDFA',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
   it('rejects injected physical declarations by evading attackers before side effects', () => {
     const { events, result } = runPhase('kick', {
       attacker: { isEvading: true },
