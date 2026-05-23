@@ -425,6 +425,14 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-badge-weapon-option-blocked-reasons',
       'rear-laser:out of front arc|small-laser:out of range',
     );
+
+    fireEvent.mouseEnter(targetHex);
+
+    expect(
+      screen.getByTestId('hex-combat-tooltip-weapon-options'),
+    ).toHaveTextContent(
+      'Weapon options: front-laser: short range, in arc; available; rear-laser: short range, out of arc; blocked - out of front arc; small-laser: out of range, in arc; blocked - out of range',
+    );
   });
 
   it('shows projected weapon heat and ammo impact in combat hover explanations', () => {
@@ -605,6 +613,9 @@ describe('HexMapDisplay combat projection', () => {
     ).toHaveTextContent(
       'Impact: +1 heat; ammo AC/5 -1 (7 left); damage 5 listed',
     );
+    expect(
+      screen.getByTestId('hex-tactical-tooltip-combat-weapon-options'),
+    ).toHaveTextContent('Weapon options: ac-5: short range, in arc; available');
     expect(
       screen.getByTestId('hex-tactical-tooltip-combat-weapon-impact'),
     ).toHaveTextContent('expected');

@@ -8,6 +8,7 @@ import {
   formatMovementModeLabel,
   formatTerrainFeaturesLabel,
 } from './HexCell.labels';
+import { CombatWeaponOptionRows } from './HexMapDisplay.combatWeaponOptions';
 import {
   formatCombatCoverLabel,
   formatCombatVisibilityLabel,
@@ -222,6 +223,10 @@ export function CombinedTacticalHoverTooltip({
           {weaponLabel}
         </div>
       )}
+      <CombatWeaponOptionRows
+        combatInfo={combatInfo}
+        testId="hex-tactical-tooltip-combat-weapon-options"
+      />
       {weaponImpactLabel && (
         <div data-testid="hex-tactical-tooltip-combat-weapon-impact">
           {weaponImpactLabel}
