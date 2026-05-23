@@ -56,12 +56,15 @@
 - [x] 7.3 Spec `weapon-system/spec.md` authored
 - [x] 7.4 `npx.cmd openspec validate add-indirect-fire-and-spotter-network --strict` passes clean
 - [x] 7.5 Focused jest/typecheck verification passes for current slices
-- [ ] 7.6 Archive the change after per-weapon mode toggle/replay and documentation follow-ups land
+- [ ] 7.6 Archive the change after review/merge or explicit user instruction
+  > Implementation and documentation follow-ups are now represented. Leave the change unarchived until the branch is reviewed/merged or the user explicitly asks to archive.
 
 ## 8. Documentation + follow-up notes
 
-- [ ] 8.1 Playtest notes for indirect-fire UI mode toggle, replay, and FO/NARC map explanation cases
-- [ ] 8.2 Arrow IV `_followups.md` before archive
+- [x] 8.1 Playtest notes for indirect-fire UI mode toggle, replay, and FO/NARC map explanation cases
+  > Captured in `playtest-notes.md` with automated evidence and manual browser-playtest gaps called out.
+- [x] 8.2 Arrow IV `_followups.md` before archive
+  > Captured in `_followups.md` as a separate future `add-arrow-iv-artillery` OpenSpec change boundary.
 
 ## Current slice summary
 
@@ -75,6 +78,7 @@ The indirect-fire engine path now has:
 - Combat-resolution dispatch and event-log formatting for the four indirect-fire event variants
 - Same-turn +1 spotting-fire modifier for elected spotters who later fire their own direct attacks
 - Spotter liveness re-check with auto-miss + `IndirectFireSpotterLost`
+- Playtest/readiness notes plus explicit Arrow IV/artillery follow-up boundaries
 
 **Remaining PR-sized work:**
-- PR-K7: playtest notes + Arrow IV follow-up + archive readiness (`7.6`, `8.1-8.2`)
+- PR-K8: archive the change after review/merge or explicit archive instruction (`7.6`)
