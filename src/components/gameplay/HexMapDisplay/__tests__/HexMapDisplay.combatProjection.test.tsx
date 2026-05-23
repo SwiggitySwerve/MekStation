@@ -275,6 +275,22 @@ describe('HexMapDisplay combat projection', () => {
     expect(targetHex).not.toHaveAttribute('data-combat-invalid-reason');
     expect(targetHex).toHaveAttribute('data-weapons-in-range', 'medium-laser');
     expect(targetHex).toHaveAttribute('data-weapons-available', 'medium-laser');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'medium-laser:short',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-arc-states',
+      'medium-laser:in-arc',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-environment-states',
+      'medium-laser:legal',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'medium-laser:available',
+    );
     expect(targetHex).toHaveAttribute('data-combat-target-ids', 'enemy');
     expect(targetHex).toHaveAttribute(
       'data-tactical-projection-explanation',
@@ -296,6 +312,12 @@ describe('HexMapDisplay combat projection', () => {
       'data-tactical-projection-explanation',
       expect.stringContaining('weapons medium-laser'),
     );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining(
+        'weapon options medium-laser short range in arc available',
+      ),
+    );
     expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveTextContent('S');
     expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveAttribute(
       'aria-label',
@@ -304,6 +326,14 @@ describe('HexMapDisplay combat projection', () => {
     expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveAttribute(
       'data-combat-badge-attackable',
       'true',
+    );
+    expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveAttribute(
+      'data-combat-badge-weapon-option-ranges',
+      'medium-laser:short',
+    );
+    expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveAttribute(
+      'data-combat-badge-weapon-option-availability',
+      'medium-laser:available',
     );
     expect(screen.getByTestId('hex-combat-los-badge-2-0')).toHaveTextContent(
       'LOS',
@@ -320,6 +350,81 @@ describe('HexMapDisplay combat projection', () => {
       'true',
     );
     expect(screen.queryByTestId('hex-combat-visibility-badge-2-0')).toBeNull();
+  });
+
+  it('renders mixed per-weapon range and arc option metadata', () => {
+    const selected = makeToken({
+      unitId: 'selected',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    const enemy = makeToken({
+      unitId: 'enemy',
+      side: GameSide.Opponent,
+      position: { q: 0, r: -2 },
+    });
+
+    render(
+      <HexMapDisplay
+        mapId="combat-map"
+        radius={3}
+        tokens={[selected, enemy]}
+        selectedHex={null}
+        unitWeapons={{
+          selected: [
+            makeWeapon({
+              id: 'front-laser',
+              mountingArc: FiringArc.Front,
+            }),
+            makeWeapon({
+              id: 'rear-laser',
+              mountingArc: FiringArc.Rear,
+            }),
+            makeWeapon({
+              id: 'small-laser',
+              ranges: { short: 1, medium: 1, long: 1 },
+            }),
+          ],
+        }}
+      />,
+    );
+
+    const targetHex = screen.getByTestId('hex-0--2');
+    expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    expect(targetHex).toHaveAttribute('data-weapons-available', 'front-laser');
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'front-laser:short|rear-laser:short|small-laser:out_of_range',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-arc-states',
+      'front-laser:in-arc|rear-laser:out-of-arc|small-laser:in-arc',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'front-laser:available|rear-laser:blocked|small-laser:blocked',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'rear-laser:out of front arc|small-laser:out of range',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining(
+        'weapon options front-laser short range in arc available, rear-laser short range out of arc blocked: out of front arc, small-laser out_of_range range in arc blocked: out of range',
+      ),
+    );
+
+    const combatBadge = screen.getByTestId('hex-combat-badge-0--2');
+    expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-ranges',
+      'front-laser:short|rear-laser:short|small-laser:out_of_range',
+    );
+    expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-blocked-reasons',
+      'rear-laser:out of front arc|small-laser:out of range',
+    );
   });
 
   it('shows projected weapon heat and ammo impact in combat hover explanations', () => {
@@ -856,8 +961,28 @@ describe('HexMapDisplay combat projection', () => {
     expect(targetHex).toHaveAttribute('data-weapons-in-arc', '');
     expect(targetHex).toHaveAttribute('data-weapons-available', '');
     expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-ranges',
+      'front-laser:short',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-arc-states',
+      'front-laser:out-of-arc',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-availability',
+      'front-laser:blocked',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-combat-weapon-option-blocked-reasons',
+      'front-laser:out of rear arc',
+    );
+    expect(targetHex).toHaveAttribute(
       'data-combat-blocked-reason',
       'No weapons cover rear arc',
+    );
+    expect(screen.getByTestId('hex-combat-badge-0-1')).toHaveAttribute(
+      'data-combat-badge-weapon-option-blocked-reasons',
+      'front-laser:out of rear arc',
     );
     expect(
       screen.getByTestId('hex-combat-invalid-badge-0-1'),

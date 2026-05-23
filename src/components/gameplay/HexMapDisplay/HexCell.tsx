@@ -22,6 +22,13 @@ import {
   CombatRangeBadge,
 } from './HexCell.combatBadges';
 import { CombatImpactBadge } from './HexCell.combatImpactBadge';
+import {
+  combatWeaponOptionArcStatesAttribute,
+  combatWeaponOptionAvailabilityAttribute,
+  combatWeaponOptionBlockedReasonsAttribute,
+  combatWeaponOptionEnvironmentStatesAttribute,
+  combatWeaponOptionRangesAttribute,
+} from './HexCell.combatOptionSummaries';
 import { MovementHoverCostBadge } from './HexCell.hoverMovementBadge';
 import {
   CombatInvalidBadge,
@@ -480,6 +487,21 @@ export const HexCell = React.memo(function HexCell({
       data-weapons-in-range={combatInfo?.weaponIdsInRange.join(',')}
       data-weapons-in-arc={combatInfo?.weaponIdsInArc.join(',')}
       data-weapons-available={combatInfo?.weaponIdsAvailable.join(',')}
+      data-combat-weapon-option-ranges={combatWeaponOptionRangesAttribute(
+        combatInfo?.weaponRangeOptions ?? [],
+      )}
+      data-combat-weapon-option-arc-states={combatWeaponOptionArcStatesAttribute(
+        combatInfo?.weaponRangeOptions ?? [],
+      )}
+      data-combat-weapon-option-environment-states={combatWeaponOptionEnvironmentStatesAttribute(
+        combatInfo?.weaponRangeOptions ?? [],
+      )}
+      data-combat-weapon-option-availability={combatWeaponOptionAvailabilityAttribute(
+        combatInfo?.weaponRangeOptions ?? [],
+      )}
+      data-combat-weapon-option-blocked-reasons={combatWeaponOptionBlockedReasonsAttribute(
+        combatInfo?.weaponRangeOptions ?? [],
+      )}
       data-combat-target-ids={combatInfo?.targetUnitIds.join(',')}
       data-combat-los-blocker-for-target-hexes={combatLosBlockerTargetHexes}
       data-combat-los-blocker-for-reasons={combatLosBlockerReasons}

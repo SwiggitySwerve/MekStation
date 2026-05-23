@@ -4,7 +4,6 @@ import type {
   IGameState,
   ICombatRangeHex,
   ICombatLineOfSightBlocker,
-  ICombatWeaponImpact,
   IHexCoordinate,
   IHexGrid,
   IUnitToken,
@@ -34,6 +33,10 @@ import {
   deriveIndirectFireProjection,
   deriveToHitProjection,
 } from './combatProjection.toHit';
+import {
+  deriveCombatWeaponRangeOptions,
+  weaponImpactForStatus,
+} from './combatProjection.weaponOptions';
 import { determineArc } from './firingArcs';
 import { isGroundToGroundTokenAttack } from './groundToGround';
 import { coordToKey, hexDistance } from './hexMath';
@@ -58,24 +61,6 @@ export interface ICombatProjectionInput {
   readonly tokens: readonly IUnitToken[];
   readonly weapons: readonly IWeaponStatus[];
   readonly combatState?: IGameState | null;
-}
-
-function weaponImpactForStatus(weapon: IWeaponStatus): ICombatWeaponImpact {
-  const ammoRemaining = weapon.ammoRemaining;
-  return {
-    weaponId: weapon.id,
-    weaponName: weapon.name,
-    heat: weapon.heat,
-    damage: weaponDamageValue(weapon),
-    ammoConsumed: ammoRemaining === undefined ? 0 : 1,
-    ammoRemaining,
-  };
-}
-
-function weaponDamageValue(weapon: IWeaponStatus): number {
-  if (typeof weapon.damage === 'number') return weapon.damage;
-  const parsed = Number.parseFloat(weapon.damage);
-  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function expectedDamageForProjection(
@@ -280,6 +265,15 @@ export function deriveCombatRangeHexes({
       minimumRangePenalty,
       minimumRangeWeaponIds,
     );
+    const weaponRangeOptions = deriveCombatWeaponRangeOptions({
+      weapons: operationalWeapons,
+      distance,
+      targetArc,
+      grid,
+      attackerPosition: attacker.position,
+      targetPosition: hex,
+      minimumRangeApplies,
+    });
     const targetVisibilityState = shouldProjectSelectedTarget
       ? selectedTargetContact.visibility
       : summarizeTargetVisibility(targetContacts);
@@ -383,6 +377,7 @@ export function deriveCombatRangeHexes({
       weaponIdsInRange,
       weaponIdsInArc,
       weaponIdsAvailable,
+      weaponRangeOptions,
       availableWeaponImpacts,
       availableWeaponHeat,
       availableWeaponDamage,

@@ -62,6 +62,20 @@ function makeCombatInfo(
     weaponIdsInRange: ['medium-laser'],
     weaponIdsInArc: ['medium-laser'],
     weaponIdsAvailable: ['medium-laser'],
+    weaponRangeOptions: [
+      {
+        weaponId: 'medium-laser',
+        weaponName: 'Medium Laser',
+        heat: 3,
+        damage: 5,
+        ammoConsumed: 0,
+        rangeBracket: RangeBracket.Medium,
+        inRange: true,
+        inArc: true,
+        environmentLegal: true,
+        available: true,
+      },
+    ],
     availableWeaponImpacts: [
       {
         weaponId: 'medium-laser',

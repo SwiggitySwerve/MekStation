@@ -129,6 +129,16 @@ describe('deriveCombatRangeHexes', () => {
       weaponIdsInRange: ['medium-laser'],
       weaponIdsInArc: ['medium-laser'],
       weaponIdsAvailable: ['medium-laser'],
+      weaponRangeOptions: [
+        {
+          weaponId: 'medium-laser',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: true,
+          environmentLegal: true,
+          available: true,
+        },
+      ],
       targetUnitIds: ['target'],
       validTargetUnitIds: ['target'],
     });
@@ -267,7 +277,144 @@ describe('deriveCombatRangeHexes', () => {
       weaponIdsInRange: ['rear-laser'],
       weaponIdsInArc: [],
       weaponIdsAvailable: [],
+      weaponRangeOptions: [
+        {
+          weaponId: 'rear-laser',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: false,
+          environmentLegal: true,
+          available: false,
+          blockedReason: 'out of front arc',
+        },
+      ],
       attackInvalidReason: 'OutOfArc',
+    });
+  });
+
+  it('keeps mixed per-weapon range and arc options explainable', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      position: { q: 0, r: -2 },
+    });
+
+    const targetHex = deriveCombatRangeHexes({
+      attacker,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attacker, target],
+      weapons: [
+        makeWeapon({
+          id: 'front-laser',
+          mountingArc: FiringArc.Front,
+        }),
+        makeWeapon({
+          id: 'rear-laser',
+          mountingArc: FiringArc.Rear,
+        }),
+        makeWeapon({
+          id: 'small-laser',
+          ranges: { short: 1, medium: 1, long: 1 },
+        }),
+      ],
+    }).find((hex) => hex.hex.q === 0 && hex.hex.r === -2);
+
+    expect(targetHex).toMatchObject({
+      attackable: true,
+      weaponIdsAvailable: ['front-laser'],
+      weaponRangeOptions: [
+        {
+          weaponId: 'front-laser',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: true,
+          environmentLegal: true,
+          available: true,
+        },
+        {
+          weaponId: 'rear-laser',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: false,
+          environmentLegal: true,
+          available: false,
+          blockedReason: 'out of front arc',
+        },
+        {
+          weaponId: 'small-laser',
+          rangeBracket: 'out_of_range',
+          inRange: false,
+          inArc: true,
+          environmentLegal: true,
+          available: false,
+          blockedReason: 'out of range',
+        },
+      ],
+    });
+  });
+
+  it('marks per-weapon represented water legality separately', () => {
+    const grid = createHexGrid({ radius: 3 });
+    for (const key of ['0,0', '1,0', '2,0']) {
+      const hex = grid.hexes.get(key);
+      expect(hex).toBeDefined();
+      grid.hexes.set(key, {
+        ...hex!,
+        terrain: 'water:2',
+      });
+    }
+    const attacker = makeToken({
+      unitId: 'attacker',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+    });
+    const target = makeToken({
+      unitId: 'target',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+    });
+
+    const targetHex = deriveCombatRangeHexes({
+      attacker,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attacker, target],
+      weapons: [
+        makeWeapon({ id: 'medium-laser' }),
+        makeWeapon({ id: 'torpedo', name: 'Torpedo', isTorpedo: true }),
+      ],
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(targetHex).toMatchObject({
+      attackable: true,
+      weaponIdsAvailable: ['torpedo'],
+      weaponRangeOptions: [
+        {
+          weaponId: 'medium-laser',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: true,
+          environmentLegal: false,
+          available: false,
+          blockedReason: 'Target underwater, but not weapon.',
+        },
+        {
+          weaponId: 'torpedo',
+          rangeBracket: 'short',
+          inRange: true,
+          inArc: true,
+          environmentLegal: true,
+          available: true,
+        },
+      ],
     });
   });
 

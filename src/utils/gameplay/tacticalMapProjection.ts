@@ -1,6 +1,7 @@
 import type {
   ICombatRangeHex,
   ICombatLineOfSightBlocker,
+  ICombatWeaponRangeOption,
   IHexCoordinate,
   IHexTerrain,
   IMovementRangeHex,
@@ -474,6 +475,13 @@ function formatProjectionExplanation({
     ) {
       parts.push('weapons none available');
     }
+    if (combat.weaponRangeOptions.length > 0) {
+      parts.push(
+        `weapon options ${combat.weaponRangeOptions
+          .map(formatCombatWeaponOption)
+          .join(', ')}`,
+      );
+    }
     if (combat.targetCoverModifier > 0) {
       parts.push(
         combat.targetCoverReason ??
@@ -567,4 +575,17 @@ function movementOptionBlockedDetail(
 
 function formatDamageValue(value: number): string {
   return Number.isInteger(value) ? `${value}` : value.toFixed(1);
+}
+
+function formatCombatWeaponOption(option: ICombatWeaponRangeOption): string {
+  const arc = option.inArc ? 'in arc' : 'out of arc';
+  const environment = option.environmentLegal ? '' : ' environment blocked';
+  const minimumRange =
+    option.minimumRangePenalty === undefined
+      ? ''
+      : ` min +${option.minimumRangePenalty}`;
+  const blocked = option.available
+    ? 'available'
+    : `blocked${option.blockedReason ? `: ${option.blockedReason}` : ''}`;
+  return `${option.weaponId} ${option.rangeBracket} range ${arc}${environment}${minimumRange} ${blocked}`;
 }

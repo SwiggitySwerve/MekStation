@@ -5,6 +5,14 @@ import type { ITacticalMapCombatLosBlockerReference } from '@/utils/gameplay/tac
 
 import { RangeBracket, TerrainType } from '@/types/gameplay';
 
+import {
+  combatWeaponOptionArcStatesAttribute,
+  combatWeaponOptionAvailabilityAttribute,
+  combatWeaponOptionBlockedReasonsAttribute,
+  combatWeaponOptionEnvironmentStatesAttribute,
+  combatWeaponOptionRangesAttribute,
+} from './HexCell.combatOptionSummaries';
+
 function formatRangeBracketLabel(bracket: RangeBracket): string {
   switch (bracket) {
     case RangeBracket.Short:
@@ -128,7 +136,14 @@ function formatLOSBlockerTitle(
 
 function formatCombatBadgeSummary(combatInfo: ICombatRangeHex): string {
   const status = combatInfo.attackable ? 'attack available' : 'not attackable';
-  return `${formatRangeBracketName(combatInfo.rangeBracket)} range at ${combatInfo.distance} hexes; ${status}; weapons available ${formatWeaponList(combatInfo.weaponIdsAvailable)}`;
+  const blockedOptions = combatInfo.weaponRangeOptions
+    .filter((option) => !option.available)
+    .map((option) => `${option.weaponId} ${option.blockedReason ?? 'blocked'}`);
+  const optionSummary =
+    blockedOptions.length > 0
+      ? `; blocked weapons ${blockedOptions.join(', ')}`
+      : '';
+  return `${formatRangeBracketName(combatInfo.rangeBracket)} range at ${combatInfo.distance} hexes; ${status}; weapons available ${formatWeaponList(combatInfo.weaponIdsAvailable)}${optionSummary}`;
 }
 
 export function CombatLineOfSightBlockerBadge({
@@ -361,6 +376,21 @@ export function CombatRangeBadge({
       data-combat-badge-attackable={combatInfo.attackable ? 'true' : 'false'}
       data-combat-badge-weapons-available={combatInfo.weaponIdsAvailable.join(
         ',',
+      )}
+      data-combat-badge-weapon-option-ranges={combatWeaponOptionRangesAttribute(
+        combatInfo.weaponRangeOptions,
+      )}
+      data-combat-badge-weapon-option-arc-states={combatWeaponOptionArcStatesAttribute(
+        combatInfo.weaponRangeOptions,
+      )}
+      data-combat-badge-weapon-option-environment-states={combatWeaponOptionEnvironmentStatesAttribute(
+        combatInfo.weaponRangeOptions,
+      )}
+      data-combat-badge-weapon-option-availability={combatWeaponOptionAvailabilityAttribute(
+        combatInfo.weaponRangeOptions,
+      )}
+      data-combat-badge-weapon-option-blocked-reasons={combatWeaponOptionBlockedReasonsAttribute(
+        combatInfo.weaponRangeOptions,
       )}
     >
       <title>{combatSummary}</title>

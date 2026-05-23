@@ -59,6 +59,20 @@ function combat(overrides: Partial<ICombatRangeHex> = {}): ICombatRangeHex {
     weaponIdsInRange: ['medium-laser'],
     weaponIdsInArc: ['medium-laser'],
     weaponIdsAvailable: ['medium-laser'],
+    weaponRangeOptions: [
+      {
+        weaponId: 'medium-laser',
+        weaponName: 'Medium Laser',
+        heat: 3,
+        damage: 5,
+        ammoConsumed: 0,
+        rangeBracket: RangeBracket.Short,
+        inRange: true,
+        inArc: true,
+        environmentLegal: true,
+        available: true,
+      },
+    ],
     availableWeaponImpacts: [
       {
         weaponId: 'medium-laser',
@@ -103,6 +117,9 @@ describe('tacticalMapProjection', () => {
     expect(projection.combat?.weaponIdsAvailable).toEqual(['medium-laser']);
     expect(projection.explanation).toContain('terrain rough');
     expect(projection.explanation).toContain('Walk reachable 2 MP');
+    expect(projection.explanation).toContain(
+      'weapon options medium-laser short range in arc available',
+    );
     expect(projection.explanation).toContain('weapon heat +3');
     expect(projection.explanation).toContain('damage 5 listed');
     expect(projection.explanation).toContain('expected damage 2.1');
@@ -334,6 +351,78 @@ describe('tacticalMapProjection', () => {
     );
     expect(projection.explanation).toContain('Walk reachable 2 MP');
     expect(projection.explanation).toContain('elevation 1');
+  });
+
+  it('includes per-weapon range and arc options in the shared projection explanation', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: terrain(),
+      movement: undefined,
+      combat: combat({
+        weaponIdsInRange: ['front-laser', 'rear-laser'],
+        weaponIdsInArc: ['front-laser', 'small-laser'],
+        weaponIdsAvailable: ['front-laser'],
+        weaponRangeOptions: [
+          {
+            weaponId: 'front-laser',
+            weaponName: 'Front Laser',
+            heat: 3,
+            damage: 5,
+            ammoConsumed: 0,
+            rangeBracket: RangeBracket.Short,
+            inRange: true,
+            inArc: true,
+            environmentLegal: true,
+            available: true,
+          },
+          {
+            weaponId: 'rear-laser',
+            weaponName: 'Rear Laser',
+            heat: 3,
+            damage: 5,
+            ammoConsumed: 0,
+            rangeBracket: RangeBracket.Short,
+            inRange: true,
+            inArc: false,
+            environmentLegal: true,
+            available: false,
+            blockedReason: 'out of front arc',
+          },
+          {
+            weaponId: 'small-laser',
+            weaponName: 'Small Laser',
+            heat: 1,
+            damage: 3,
+            ammoConsumed: 0,
+            rangeBracket: RangeBracket.OutOfRange,
+            inRange: false,
+            inArc: true,
+            environmentLegal: true,
+            available: false,
+            blockedReason: 'out of range',
+          },
+        ],
+        availableWeaponImpacts: [
+          {
+            weaponId: 'front-laser',
+            weaponName: 'Front Laser',
+            heat: 3,
+            damage: 5,
+            ammoConsumed: 0,
+          },
+        ],
+        availableWeaponHeat: 3,
+        availableWeaponDamage: 5,
+      }),
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection.explanation).toContain(
+      'weapon options front-laser short range in arc available, rear-laser short range out of arc blocked: out of front arc, small-laser out_of_range range in arc blocked: out of range',
+    );
   });
 
   it('marks blocked enemy targets without treating empty range hexes as blocked targets', () => {
