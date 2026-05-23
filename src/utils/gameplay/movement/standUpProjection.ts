@@ -2,6 +2,7 @@ import type {
   IMovementCapability,
   IMovementRangeHex,
   IUnitGameState,
+  StandUpMode,
 } from '@/types/gameplay';
 
 import { projectStandUpPsr } from '@/utils/gameplay/standUpRules';
@@ -11,6 +12,7 @@ import { getStandingCost } from './validation';
 type StandUpProjection = Pick<
   IMovementRangeHex,
   | 'standUpRequired'
+  | 'standUpMode'
   | 'standUpCost'
   | 'standUpPsrRequired'
   | 'standUpPsrReason'
@@ -23,17 +25,21 @@ type StandUpProjection = Pick<
 export function deriveStandUpProjection(
   unit: IUnitGameState,
   capability: IMovementCapability,
+  standUpMode: StandUpMode = 'normal',
 ): StandUpProjection {
   if (!unit.prone) return {};
 
   const psr = projectStandUpPsr({
     unitState: unit,
     unitPiloting: unit.piloting,
+    movementCapability: capability,
+    standUpMode,
   });
 
   return {
     standUpRequired: true,
-    standUpCost: getStandingCost(capability),
+    standUpMode,
+    standUpCost: getStandingCost(capability, standUpMode),
     standUpPsrRequired: true,
     standUpPsrReason: psr.reason,
     standUpPsrModifier: psr.modifier,

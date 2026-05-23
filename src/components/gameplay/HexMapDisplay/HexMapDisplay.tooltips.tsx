@@ -265,7 +265,10 @@ function MovementHoverTooltip({
       )}
       {movementInfo.standUpRequired && (
         <div data-testid="hex-movement-tooltip-stand-up">
-          Stand up: +{movementInfo.standUpCost ?? '?'} MP
+          {movementInfo.standUpMode === 'careful'
+            ? 'Careful stand'
+            : 'Stand up'}
+          : +{movementInfo.standUpCost ?? '?'} MP
         </div>
       )}
       {movementInfo.standUpPsrRequired && (

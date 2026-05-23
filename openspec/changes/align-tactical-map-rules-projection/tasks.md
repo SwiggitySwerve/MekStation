@@ -25,7 +25,8 @@
   - [x] Ground vehicles, VTOL/hover, water, pavement/roads, and jump landing restrictions have source-pinned projection/commit fixtures.
   - [x] Adapter preserves generated vehicle cruise/flank MP, infantry and battle armor ground/jump MP, mechanized infantry motive modes, and explicit ProtoMech run MP before map projection.
   - [x] Normal prone stand-up MP is source-pinned into walk/run projection, heat-reduced Stand Up command availability, prone Jump command blocking, standalone Stand Up command dispatch, commit validation, PSR success/failure event outcomes, moving-after-stand PSR gating, destroyed-leg-plus-both-arms impossible stand gates, represented PSR modifier details, map/dock stand-up badges/tooltips/reasons, and post-move prone state clearing.
-  - [ ] Add remaining careful-stand outcomes, optional arm/quirk/TacOps stand-up modifiers not represented by current unit state, infantry-specific terrain/heat rules, UMU/frogman/swim movement, and special ProtoMech/Battle Armor movement fixtures.
+  - [x] TacOps careful stand now has source-pinned projection/commit coverage: whole-turn walk-MP cost when walk MP is above 2, -2 stand-up PSR modifier, rejected paired destination movement, `standUpMode: 'careful'` event metadata, and a dedicated dock action.
+  - [ ] Add remaining optional arm/quirk/TacOps stand-up modifiers not represented by current unit state, infantry-specific terrain/heat rules, UMU/frogman/swim movement, and special ProtoMech/Battle Armor movement fixtures.
 - [x] Ensure highlighted walk/run/jump ranges expose MP cost, heat, elevation delta, terrain reason, and invalid reason.
 
 ## 4. Terrain and elevation readability

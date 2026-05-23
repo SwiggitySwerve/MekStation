@@ -29,6 +29,7 @@ import {
   IGameplayUIState,
   IPilotSpaSummary,
   IWeaponStatus,
+  type StandUpMode,
 } from '@/types/gameplay';
 import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
 import { logger } from '@/utils/logger';
@@ -205,7 +206,7 @@ interface GameplayActions {
   clearPlannedMovement: () => void;
   commitPlannedMovement: () => void;
   /** Commit a zero-hex stand-up movement for the selected prone unit. */
-  standActiveUnit: () => void;
+  standActiveUnit: (standUpMode?: StandUpMode) => void;
   /**
    * Per `add-combat-phase-ui-flows`: Attack-phase planning actions.
    * `setAttackTarget` sets the target id when an enemy token is
@@ -438,7 +439,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   setPlannedMovement: (plan) => setPlannedMovementLogic(plan, set),
   clearPlannedMovement: () => clearPlannedMovementLogic(set),
   commitPlannedMovement: () => commitPlannedMovementLogic(get, set),
-  standActiveUnit: () => standActiveUnitLogic(get, set),
+  standActiveUnit: (standUpMode) => standActiveUnitLogic(get, set, standUpMode),
   setAttackTarget: (unitId) => setAttackTargetLogic(unitId, set),
   togglePlannedWeapon: (weaponId) => togglePlannedWeaponLogic(weaponId, set),
   clearAttackPlan: () => clearAttackPlanLogic(set),

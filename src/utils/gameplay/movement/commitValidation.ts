@@ -4,6 +4,7 @@ import type {
   IHexGrid,
   IMovementCapability,
   IUnitGameState,
+  StandUpMode,
 } from '@/types/gameplay';
 import type { IMovementInvalidPayload } from '@/types/gameplay/GameSessionMovementEvents';
 
@@ -34,6 +35,7 @@ export interface ICommittedMovementValidationInput {
   readonly movementType: MovementType;
   readonly capability?: IMovementCapability | null;
   readonly path?: readonly IHexCoordinate[];
+  readonly standUpMode?: StandUpMode;
 }
 
 export type CommittedMovementValidationResult =
@@ -84,13 +86,30 @@ export function validateCommittedMovement(
     input.movementType,
     getHeatMovementPenalty(input.unit.heat),
   );
-  const standingCost = input.unit.prone ? getStandingCost(input.capability) : 0;
+  const standUpMode = input.standUpMode ?? 'normal';
+  const standingCost = input.unit.prone
+    ? getStandingCost(input.capability, standUpMode)
+    : 0;
+  if (
+    input.unit.prone &&
+    standUpMode === 'careful' &&
+    !hexEquals(from, input.to)
+  ) {
+    return {
+      valid: false,
+      reason: 'InvalidDestination',
+      details: 'Careful stand consumes the movement for this turn',
+      mpCost: standingCost,
+      heatGenerated: 0,
+    };
+  }
   const projection = deriveMovementRangeHexForDestination(
     input.unit,
     input.movementType,
     input.grid,
     input.capability,
     input.to,
+    standUpMode,
   );
   const shouldDeferImpossibleStandUpResolution =
     input.unit.prone === true &&
@@ -193,7 +212,13 @@ export function validateCommittedMovement(
     };
   }
 
-  let mpCost = validation.mpCost;
+  let mpCost =
+    standingCost > 0 &&
+    input.movementType !== MovementType.Jump &&
+    input.movementType !== MovementType.Stationary &&
+    hexEquals(from, input.to)
+      ? standingCost
+      : validation.mpCost;
   let heatGenerated = validation.heatGenerated;
   let committedPath: readonly IHexCoordinate[] | undefined;
   if (projection?.reachable) {

@@ -51,6 +51,15 @@ For each projected movement hex, the map SHALL expose at least movement mode, cu
 - **AND** the projected hex metadata SHALL expose stand-up cost, PSR target/modifiers when represented, and impossible stand-up reasons
 - **AND** jump destinations SHALL be blocked until the unit stands
 
+#### Scenario: Careful stand consumes the movement turn
+
+- **GIVEN** a prone unit chooses TacOps careful stand
+- **WHEN** movement projection or commit validation evaluates a non-origin destination
+- **THEN** the destination SHALL be rejected with the same invalid reason before commit and at commit time
+- **AND** a standalone careful stand SHALL spend walking MP when walk MP is above 2
+- **AND** the stand-up PSR projection and resolution SHALL include the careful-stand -2 modifier
+- **AND** movement events SHALL identify the stand-up mode as `careful`
+
 ### Requirement: Combat Projection Explanation
 
 Combat highlights SHALL expose weapon-backed attack legality, range, firing arc, LOS, cover, visibility, heat, ammo, and disabled reasons.

@@ -7,6 +7,8 @@ import type { MovementAnimationMode } from './GameSessionCoreTypes';
 
 import { Facing, IHexCoordinate, MovementType } from './HexGridInterfaces';
 
+export type StandUpMode = 'normal' | 'careful';
+
 /**
  * Movement declared event payload.
  */
@@ -46,6 +48,8 @@ export interface IMovementDeclaredPayload {
    * failed stand-up PSR while still recording the MP spent.
    */
   readonly standUpSucceeded?: boolean;
+  /** Stand-up variant used for this declaration. */
+  readonly standUpMode?: StandUpMode;
   /**
    * Per `enrich-movement-declared-with-chain-and-displacement` (movement-system
    * delta — Movement Decomposition Fields): total hex transitions in the
@@ -177,6 +181,8 @@ export interface IStandUpStep {
   readonly mpCost: number;
   /** AttemptStand fires regardless of stand outcome — always `true`. */
   readonly psrTriggered: boolean;
+  /** Normal GET_UP or TacOps CAREFUL_STAND. */
+  readonly mode?: StandUpMode;
 }
 
 export interface IGoProneStep {

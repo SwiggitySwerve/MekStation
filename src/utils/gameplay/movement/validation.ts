@@ -11,6 +11,7 @@ import {
   IMovementValidation,
   MovementType,
   Facing,
+  StandUpMode,
 } from '@/types/gameplay';
 
 import { isInBounds, isOccupied } from '../hexGrid';
@@ -130,8 +131,16 @@ export function canStand(
 
 /**
  * Get the MP cost to stand from prone.
+ * TacOps careful stand uses the whole walking allowance when walk MP is
+ * above 2; otherwise MegaMek falls back to the normal stand-up cost.
  */
-export function getStandingCost(capability: IMovementCapability): number {
+export function getStandingCost(
+  capability: IMovementCapability,
+  standUpMode: StandUpMode = 'normal',
+): number {
+  if (standUpMode === 'careful' && capability.walkMP > 2) {
+    return capability.walkMP;
+  }
   return capability.runMP === 1 ? 1 : 2;
 }
 

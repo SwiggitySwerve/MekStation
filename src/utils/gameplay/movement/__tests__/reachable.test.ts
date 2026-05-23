@@ -168,6 +168,38 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('projects TacOps careful stand as a whole-turn stand with the PSR bonus', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = { ...makeUnitAtOrigin(), prone: true };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+      'careful',
+    );
+
+    expect(projected).toMatchObject({
+      mpCost: 4,
+      heatGenerated: 0,
+      reachable: false,
+      movementType: MovementType.Walk,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails:
+        'Careful stand consumes the movement for this turn',
+      standUpRequired: true,
+      standUpMode: 'careful',
+      standUpCost: 4,
+      standUpPsrRequired: true,
+      standUpPsrTargetNumber: 3,
+      standUpPsrModifier: -2,
+      standUpPsrModifierDetails: ['Careful stand -2'],
+    });
+  });
+
   it('projects prone jump attempts as blocked until the unit stands', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = { ...makeUnitAtOrigin(), prone: true };

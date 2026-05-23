@@ -250,6 +250,7 @@ export const HexCell = React.memo(function HexCell({
       data-stand-up-required={
         movementInfo?.standUpRequired ? 'true' : undefined
       }
+      data-stand-up-mode={movementInfo?.standUpMode}
       data-stand-up-cost={movementInfo?.standUpCost}
       data-stand-up-psr-required={
         movementInfo?.standUpPsrRequired ? 'true' : undefined

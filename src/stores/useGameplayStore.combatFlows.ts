@@ -30,6 +30,7 @@ import {
   IMovementDeclaredPayload,
   MovementAnimationMode,
   MovementType,
+  type StandUpMode,
 } from '@/types/gameplay';
 import { declarePhysicalAttack } from '@/utils/gameplay/gameSession';
 
@@ -167,7 +168,11 @@ export function commitPlannedMovementLogic(get: GetFn, set: SetFn): void {
  * zero-hex Walk move at the unit's current position so stand-up MP, invalid
  * events, locking, and state replay stay on the movement event path.
  */
-export function standActiveUnitLogic(get: GetFn, set: SetFn): void {
+export function standActiveUnitLogic(
+  get: GetFn,
+  set: SetFn,
+  standUpMode: StandUpMode = 'normal',
+): void {
   const { interactiveSession, ui } = get();
   if (!interactiveSession || !ui.selectedUnitId) return;
 
@@ -183,6 +188,7 @@ export function standActiveUnitLogic(get: GetFn, set: SetFn): void {
     unitState.facing,
     MovementType.Walk,
     [unitState.position],
+    standUpMode,
   );
 
   const nextSession = interactiveSession.getSession();

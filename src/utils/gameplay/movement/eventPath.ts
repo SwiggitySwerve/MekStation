@@ -9,6 +9,7 @@ import type {
   IStandUpStep,
   ITurnStep,
   MovementAnimationMode,
+  StandUpMode,
 } from '@/types/gameplay';
 
 import { AXIAL_DIRECTION_DELTAS, MovementType } from '@/types/gameplay';
@@ -165,6 +166,8 @@ export interface IDecomposeMovementInput {
    * future stand-up wiring.
    */
   readonly startedProne?: boolean;
+  readonly standUpCost?: number;
+  readonly standUpMode?: StandUpMode;
 }
 
 /**
@@ -281,11 +284,12 @@ export function decomposeMovementSteps(
       kind: 'standUp',
       index: nextIndex++,
       at: copyHex(from),
-      mpCost: 2,
+      mpCost: input.standUpCost ?? 2,
       psrTriggered: true,
+      ...(input.standUpMode ? { mode: input.standUpMode } : {}),
     };
     steps.push(standUp);
-    turningMpCost += 2;
+    turningMpCost += standUp.mpCost;
   }
 
   for (let i = 1; i < path.length; i++) {

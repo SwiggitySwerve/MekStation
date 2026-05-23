@@ -33,13 +33,14 @@ function makeCtx(
 describe('movementCommands', () => {
   const commands = buildMovementCommands();
 
-  it('exposes walk / run / jump / stand / stabilize / cancel', () => {
+  it('exposes walk / run / jump / stand / careful stand / stabilize / cancel', () => {
     const ids = commands.map((c) => c.id);
     expect(ids).toEqual([
       'movement.walk',
       'movement.run',
       'movement.jump',
       'movement.stand',
+      'movement.carefulStand',
       'movement.stabilize',
       'movement.cancel',
     ]);
@@ -141,6 +142,30 @@ describe('movementCommands', () => {
   it('stand commit produces a stand actionId', () => {
     const stand = commands.find((c) => c.id === 'movement.stand')!;
     expect(stand.commit(makeCtx()).actionId).toBe('stand');
+  });
+
+  it('careful stand commits its own actionId and needs spare walk MP', () => {
+    const carefulStand = commands.find(
+      (c) => c.id === 'movement.carefulStand',
+    )!;
+
+    expect(carefulStand.commit(makeCtx())).toEqual({
+      actionId: 'stand-careful',
+      payload: { mode: 'careful' },
+    });
+    expect(carefulStand.availability(makeCtx())).toEqual({
+      available: true,
+    });
+    expect(
+      carefulStand.availability(
+        makeCtx({
+          movementCapability: { walkMP: 2, runMP: 3, jumpMP: 0 },
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Careful Stand needs more than 2 walk MP.',
+    });
   });
 
   it('stand is available only for prone units with movement capability', () => {

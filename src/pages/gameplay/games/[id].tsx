@@ -157,6 +157,9 @@ export default function GameSessionPage(): React.ReactElement {
         case 'stand':
           standActiveUnit();
           break;
+        case 'stand-careful':
+          standActiveUnit('careful');
+          break;
         case 'next-turn':
           runAITurn();
           break;

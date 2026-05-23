@@ -39,6 +39,7 @@ export function buildMovementCommands(): readonly ITacticalCommand[] {
     MovementRunCommand,
     MovementJumpCommand,
     MovementStandCommand,
+    MovementCarefulStandCommand,
     MovementStabilizeCommand,
     MovementCancelCommand,
   ];
@@ -169,6 +170,41 @@ const MovementStandCommand: ITacticalCommand = {
   },
   commit() {
     return { actionId: 'stand', payload: {} };
+  },
+};
+
+const MovementCarefulStandCommand: ITacticalCommand = {
+  id: 'movement.carefulStand',
+  category: 'movement',
+  label: 'Careful Stand',
+  phaseConstraints: [GamePhase.Movement],
+  requiresConfirmation: false,
+  undoable: true,
+  availability(ctx) {
+    const base = MovementStandCommand.availability(ctx);
+    if (!base.available) return base;
+    if (!ctx.movementCapability) {
+      return { available: false, reason: 'No movement capability.' };
+    }
+    const heatPenalty = getHeatMovementPenalty(ctx.activeUnitHeat ?? 0);
+    const effectiveWalkMP = getMaxMP(
+      ctx.movementCapability,
+      MovementType.Walk,
+      heatPenalty,
+    );
+    if (effectiveWalkMP <= 2) {
+      return {
+        available: false,
+        reason:
+          heatPenalty > 0
+            ? 'Careful Stand needs more than 2 walk MP after heat penalty.'
+            : 'Careful Stand needs more than 2 walk MP.',
+      };
+    }
+    return { available: true };
+  },
+  commit() {
+    return { actionId: 'stand-careful', payload: { mode: 'careful' } };
   },
 };
 

@@ -1,4 +1,9 @@
-import type { IComponentDamageState, IUnitGameState } from '@/types/gameplay';
+import type {
+  IComponentDamageState,
+  IMovementCapability,
+  IUnitGameState,
+  StandUpMode,
+} from '@/types/gameplay';
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
@@ -38,10 +43,14 @@ export function projectStandUpPsr({
   unitState,
   unitPiloting,
   unitType,
+  movementCapability,
+  standUpMode = 'normal',
 }: {
   readonly unitState: IUnitGameState;
   readonly unitPiloting?: number;
   readonly unitType?: UnitType;
+  readonly movementCapability?: IMovementCapability;
+  readonly standUpMode?: StandUpMode;
 }): IStandUpPsrProjection {
   const psr = createStandingUpPSR(unitState.id);
   const modifiers = calculatePSRModifiers(
@@ -49,15 +58,26 @@ export function projectStandUpPsr({
     unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
     unitState.pilotWounds,
   );
-  const modifier = modifiers.reduce((sum, entry) => sum + entry.value, 0);
+  const carefulStandModifier = shouldApplyCarefulStandModifier(
+    movementCapability,
+    standUpMode,
+  )
+    ? -2
+    : 0;
+  const modifier =
+    modifiers.reduce((sum, entry) => sum + entry.value, 0) +
+    carefulStandModifier;
   const impossibleReason = destroyedLegAndArmsStandBlock(unitState, unitType);
 
   return {
     reason: psr.reason,
     modifier,
-    modifierDetails: modifiers.map(
-      (entry) => `${entry.name} ${entry.value >= 0 ? '+' : ''}${entry.value}`,
-    ),
+    modifierDetails: [
+      ...modifiers.map(
+        (entry) => `${entry.name} ${entry.value >= 0 ? '+' : ''}${entry.value}`,
+      ),
+      ...(carefulStandModifier === 0 ? [] : ['Careful stand -2']),
+    ],
     impossibleReason,
     ...(unitPiloting === undefined
       ? {}
@@ -65,6 +85,13 @@ export function projectStandUpPsr({
           targetNumber: impossibleReason ? Infinity : unitPiloting + modifier,
         }),
   };
+}
+
+export function shouldApplyCarefulStandModifier(
+  movementCapability: IMovementCapability | undefined,
+  standUpMode: StandUpMode,
+): boolean {
+  return standUpMode === 'careful' && (movementCapability?.walkMP ?? 0) > 2;
 }
 
 export function destroyedLegAndArmsStandBlock(

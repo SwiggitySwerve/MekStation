@@ -8,6 +8,7 @@ import {
   IMovementInvalidPayload,
   IMovementLockedPayload,
   MovementType,
+  type StandUpMode,
 } from '@/types/gameplay';
 import {
   movementAnimationModeForType,
@@ -31,6 +32,7 @@ export function createMovementDeclaredEvent(
   options?: {
     readonly standUpAttempt?: boolean;
     readonly standUpSucceeded?: boolean;
+    readonly standUpMode?: StandUpMode;
   },
 ): IGameEvent {
   const mode = movementAnimationModeForType(movementType);
@@ -47,6 +49,9 @@ export function createMovementDeclaredEvent(
     ...(options?.standUpAttempt ? { standUpAttempt: true } : {}),
     ...(options?.standUpAttempt && options.standUpSucceeded !== undefined
       ? { standUpSucceeded: options.standUpSucceeded }
+      : {}),
+    ...(options?.standUpAttempt && options.standUpMode
+      ? { standUpMode: options.standUpMode }
       : {}),
   };
 

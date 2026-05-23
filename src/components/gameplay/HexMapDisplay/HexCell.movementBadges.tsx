@@ -110,11 +110,12 @@ function formatMovementStepCostTitle(movementInfo: IMovementRangeHex): string {
 }
 
 function formatStandUpBadgeLabel(movementInfo: IMovementRangeHex): string {
-  if (movementInfo.standUpPsrImpossibleReason) return 'STAND IMP';
+  const prefix = movementInfo.standUpMode === 'careful' ? 'C-STAND' : 'STAND';
+  if (movementInfo.standUpPsrImpossibleReason) return `${prefix} IMP`;
   const cost =
     movementInfo.standUpCost === undefined
-      ? 'STAND'
-      : `STAND ${movementInfo.standUpCost}MP`;
+      ? prefix
+      : `${prefix} ${movementInfo.standUpCost}MP`;
   if (!movementInfo.standUpPsrRequired) return cost;
   if (movementInfo.standUpPsrTargetNumber === undefined) return `${cost} PSR`;
   return `${cost} PSR${movementInfo.standUpPsrTargetNumber}`;
@@ -126,7 +127,9 @@ function formatStandUpBadgeTitle(movementInfo: IMovementRangeHex): string {
     details.push(movementInfo.standUpPsrImpossibleReason);
   }
   if (movementInfo.standUpCost !== undefined) {
-    details.push(`stand-up cost ${movementInfo.standUpCost} MP`);
+    details.push(
+      `${movementInfo.standUpMode === 'careful' ? 'careful stand' : 'stand-up'} cost ${movementInfo.standUpCost} MP`,
+    );
   }
   if (movementInfo.standUpPsrRequired) {
     if (movementInfo.standUpPsrImpossibleReason) {
@@ -152,7 +155,7 @@ function formatStandUpBadgeTitle(movementInfo: IMovementRangeHex): string {
   }
   return movementInfo.standUpPsrImpossibleReason
     ? `Cannot stand before moving: ${details.join('; ')}`
-    : `Must stand before moving: ${details.join('; ')}`;
+    : `${movementInfo.standUpMode === 'careful' ? 'Careful stand' : 'Must stand'} before moving: ${details.join('; ')}`;
 }
 
 export function MovementReachBadge({
@@ -276,6 +279,7 @@ export function MovementStandUpBadge({
       pointerEvents="none"
       data-testid={`hex-stand-up-badge-${hex.q}-${hex.r}`}
       aria-label={title}
+      data-stand-up-mode={movementInfo.standUpMode}
       data-stand-up-cost={movementInfo.standUpCost}
       data-stand-up-psr-required={
         movementInfo.standUpPsrRequired ? 'true' : 'false'

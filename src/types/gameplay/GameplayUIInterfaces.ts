@@ -439,6 +439,8 @@ export interface IMovementRangeHex {
   readonly heatGenerated?: number;
   /** True when a prone unit must stand before this movement can resolve. */
   readonly standUpRequired?: boolean;
+  /** Normal stand-up or TacOps careful stand. */
+  readonly standUpMode?: 'normal' | 'careful';
   /** MP reserved for standing from prone before entering the projected path. */
   readonly standUpCost?: number;
   /** True when the stand-up step requires a piloting skill roll. */

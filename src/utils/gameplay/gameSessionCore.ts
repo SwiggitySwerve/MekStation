@@ -19,6 +19,7 @@ import {
   IWeaponAttackData,
   MovementType,
   RangeBracket,
+  type StandUpMode,
 } from '@/types/gameplay';
 
 import type { ILOSInterveningTerrainEffect } from './lineOfSight';
@@ -335,6 +336,7 @@ export function declareMovement(
   options?: {
     readonly standUpAttempt?: boolean;
     readonly standUpSucceeded?: boolean;
+    readonly standUpMode?: StandUpMode;
   },
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {

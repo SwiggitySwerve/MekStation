@@ -121,6 +121,12 @@ offers `GET_UP` / `CAREFUL_STAND` as the available path step from prone end
 states. MegaMek `MovePathHandler.java:2027-2058` resolves the stand-up
 piloting check, stops normal movement after a failed normal stand-up attempt,
 and leaves failed attempts prone; `CarefulStandStep.java:61-65`,
+`MoveStep.java:2219-2238`, `Entity.java:7671-7672`, and
+`MovePathHandler.java:1049-1055` source-pin TacOps careful stand as a prone
+stand variant that costs the walking allowance when walk MP is above 2,
+receives a -2 PSR modifier, and consumes the movement turn rather than pairing
+with destination movement. `MoveCommand.java:153-154` is the client command pin
+for adding the `CAREFUL_STAND` step when the optional rule is active.
 `Entity.java:7803-7830` adds the represented impossible case where a Mek cannot
 stand with a destroyed leg plus both arms destroyed, and
 `MekWithArms.java:410-430` remains the source pin for optional advanced
@@ -137,9 +143,14 @@ impossible before the player commits, and resolves the same stand-up PSR before
 committed prone ground movement. A successful stand-up continues to the projected
 destination; a failed stand-up records only the stand-up MP/heat, stays at the
 origin, locks movement, and remains prone. The map projection now exposes
-`standUpRequired`, `standUpCost`, stand-up PSR reason/target/modifier metadata,
-impossible-stand reasons, and non-color stand-up badges/tooltips/dock disabled
-reasons so the player sees the stand gate before commit. Coverage lives in
+`standUpRequired`, `standUpMode`, `standUpCost`, stand-up PSR
+reason/target/modifier metadata, impossible-stand reasons, and non-color
+stand-up badges/tooltips/dock disabled reasons so the player sees the stand
+gate before commit. TacOps careful stand now projects as a whole-turn stand,
+uses walking MP as the cost when above 2, carries the -2 PSR modifier into
+projection/resolution, rejects paired destination movement, emits
+`standUpMode: 'careful'`, and has its own dock action. Coverage lives in
+`src/types/gameplay/GameSessionMovementEvents.ts`,
 `src/utils/gameplay/standUpRules.ts`,
 `src/utils/gameplay/movement/standUpProjection.ts`,
 `src/utils/gameplay/movement/validation.ts`,
@@ -150,13 +161,12 @@ reasons so the player sees the stand gate before commit. Coverage lives in
 `src/components/gameplay/TacticalActionDock/commands/movementCommands.ts`,
 `src/components/gameplay/HexMapDisplay/HexCell.movementBadges.tsx`,
 `src/components/gameplay/HexMapDisplay/HexMapDisplay.tooltips.tsx`,
-`src/components/gameplay/TacticalActionDock/commands/movementCommands.ts`,
 `src/stores/useGameplayStore.combatFlows.ts`,
 `src/__tests__/unit/utils/gameplay/movement.test.ts`,
 `src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.movementAnimation.test.tsx`,
 `src/utils/gameplay/movement/__tests__/reachable.test.ts`, and
 `src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`. Remaining
-gaps: careful stand, optional arm/quirk/TacOps stand-up modifiers, and
+gaps: optional arm/quirk/TacOps stand-up modifiers beyond careful stand and
 special-unit stand-up exceptions are still not fully modeled.
 
 Additional fog visibility pin: engine attack visibility already passes the

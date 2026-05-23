@@ -1897,6 +1897,122 @@ describe('applyInteractiveSessionMovement', () => {
     expect(result.currentState.units.m1.prone).toBe(false);
   });
 
+  it('commits TacOps careful stand as a whole-turn zero-hex walk with the PSR bonus', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      prone: true,
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+      path: [{ q: 0, r: 0 }],
+      diceRoller: fixed2d6(3),
+      standUpMode: 'careful',
+    });
+
+    const resolved = result.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    );
+    expect(resolved?.payload).toMatchObject({
+      targetNumber: 3,
+      roll: 3,
+      modifiers: -2,
+      passed: true,
+    });
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: { q: 0, r: 0 },
+      movementType: MovementType.Walk,
+      mpUsed: 4,
+      standUpAttempt: true,
+      standUpSucceeded: true,
+      standUpMode: 'careful',
+    });
+    expect(result.currentState.units.m1.prone).toBe(false);
+  });
+
+  it('rejects TacOps careful stand when paired with destination movement', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      prone: true,
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+      standUpMode: 'careful',
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalid?.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: 'InvalidDestination',
+      details: 'Careful stand consumes the movement for this turn',
+      mpCost: 4,
+    });
+
+    const jumpResult = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit: capability({ walkMP: 4, runMP: 6, jumpMP: 3 }),
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Jump,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+      standUpMode: 'careful',
+    });
+
+    const invalidJump = jumpResult.events.find(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalidJump?.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: 'InvalidDestination',
+      details: 'Careful stand consumes the movement for this turn',
+      mpCost: 4,
+    });
+  });
+
   it('keeps a unit prone when standalone stand-up PSR fails after spending MP', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {

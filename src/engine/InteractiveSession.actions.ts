@@ -21,7 +21,10 @@ import type {
 import type { IUnitToken } from '@/types/gameplay/GameplayUIInterfaces';
 import type { IAttackInvalidPayload } from '@/types/gameplay/GameSessionAttackEvents';
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
-import type { IMovementInvalidPayload } from '@/types/gameplay/GameSessionMovementEvents';
+import type {
+  IMovementInvalidPayload,
+  StandUpMode,
+} from '@/types/gameplay/GameSessionMovementEvents';
 import type { DiceRoller } from '@/utils/gameplay/diceTypes';
 
 import {
@@ -90,6 +93,8 @@ export interface IApplyMovementInput {
   readonly path?: readonly IHexCoordinate[];
   /** Optional authoritative roller for stand-up PSR resolution. */
   readonly diceRoller?: DiceRoller;
+  /** Normal GET_UP or TacOps CAREFUL_STAND for prone stand-up attempts. */
+  readonly standUpMode?: StandUpMode;
 }
 
 /**
@@ -119,6 +124,7 @@ export function applyInteractiveSessionMovement(
     movementType: input.movementType,
     capability: movementCapability,
     path: input.path,
+    standUpMode: input.standUpMode,
   });
 
   if (!validation.valid) {
@@ -144,9 +150,16 @@ export function applyInteractiveSessionMovement(
 
   let session = input.session;
   let standUpSucceeded: boolean | undefined;
+  const standUpMode = input.standUpMode ?? 'normal';
   if (standUpAttempt) {
     const beforeStandEventCount = session.events.length;
-    session = attemptStandUp(session, input.unitId, input.diceRoller);
+    session = attemptStandUp(
+      session,
+      input.unitId,
+      input.diceRoller,
+      standUpMode,
+      movementCapability,
+    );
     standUpSucceeded = session.events
       .slice(beforeStandEventCount)
       .some((event) => event.type === GameEventType.UnitStood);
@@ -159,7 +172,7 @@ export function applyInteractiveSessionMovement(
         from,
         unit.facing,
         input.movementType,
-        getStandingCost(movementCapability),
+        getStandingCost(movementCapability, standUpMode),
         calculateMovementHeat(
           MovementType.Walk,
           0,
@@ -169,6 +182,7 @@ export function applyInteractiveSessionMovement(
         {
           standUpAttempt: true,
           standUpSucceeded: false,
+          standUpMode,
         },
       );
       session = lockMovement(session, input.unitId);
@@ -189,6 +203,7 @@ export function applyInteractiveSessionMovement(
     {
       standUpAttempt,
       standUpSucceeded,
+      standUpMode,
     },
   );
   session = lockMovement(session, input.unitId);

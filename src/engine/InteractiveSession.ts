@@ -31,6 +31,7 @@ import {
   type IGameUnit,
   type IGameEvent,
   type IGameState,
+  type StandUpMode,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -331,6 +332,7 @@ export class InteractiveSession {
     facing: Facing,
     movementType: MovementType,
     path?: readonly IHexCoordinate[],
+    standUpMode?: StandUpMode,
   ): void {
     // Declare-then-lock logic lives in `InteractiveSession.actions`.
     this.session = applyInteractiveSessionMovement({
@@ -342,6 +344,7 @@ export class InteractiveSession {
       facing,
       movementType,
       path,
+      standUpMode,
       diceRoller: this.diceRollerForResolvers(),
     });
     this.tryFinalizeAndPublish();

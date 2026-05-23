@@ -31,6 +31,7 @@ import type {
   IMovementCapability,
   IMovementRangeHex,
   IUnitGameState,
+  StandUpMode,
 } from '@/types/gameplay';
 
 import { getHeatMovementPenalty } from '@/constants/heat';
@@ -85,6 +86,7 @@ export function deriveReachableHexes(
   mpType: MovementType,
   grid: IHexGrid,
   capability: IMovementCapability,
+  standUpMode: StandUpMode = 'normal',
 ): readonly IMovementRangeHex[] {
   if (mpType === MovementType.Stationary) {
     return [];
@@ -99,7 +101,7 @@ export function deriveReachableHexes(
   const projectionMovementMode = movementModeForRange(mpType, capability);
   const standingCost =
     unit.prone && mpType !== MovementType.Jump
-      ? getStandingCost(capability)
+      ? getStandingCost(capability, standUpMode)
       : 0;
   const pathBudget = Math.max(0, mp - standingCost);
   const candidateRange =
@@ -110,7 +112,14 @@ export function deriveReachableHexes(
   const results: IMovementRangeHex[] = [];
 
   const projectCandidate = (hex: IHexCoordinate): IMovementRangeHex | null =>
-    deriveMovementRangeHexForDestination(unit, mpType, grid, capability, hex);
+    deriveMovementRangeHexForDestination(
+      unit,
+      mpType,
+      grid,
+      capability,
+      hex,
+      standUpMode,
+    );
 
   if (mpType === MovementType.Jump) {
     for (const hex of candidates) {
@@ -139,6 +148,7 @@ export function deriveMovementRangeHexForDestination(
   grid: IHexGrid,
   capability: IMovementCapability,
   hex: IHexCoordinate,
+  standUpMode: StandUpMode = 'normal',
 ): IMovementRangeHex | null {
   if (mpType === MovementType.Stationary) {
     return null;
@@ -161,7 +171,9 @@ export function deriveMovementRangeHexForDestination(
       ? movementModeForRange(mpType, capability)
       : movementModeForPath(mpType, capability);
   const costContext = movementCostContextForCapability(mpType, capability);
-  const standingCost = unit.prone ? getStandingCost(capability) : 0;
+  const standingCost = unit.prone
+    ? getStandingCost(capability, standUpMode)
+    : 0;
   const pathBudget = mp - standingCost;
   const maxPathCost =
     mpType === MovementType.Jump
@@ -179,7 +191,11 @@ export function deriveMovementRangeHexForDestination(
     });
   }
 
-  const standUpProjection = deriveStandUpProjection(unit, capability);
+  const standUpProjection = deriveStandUpProjection(
+    unit,
+    capability,
+    standUpMode,
+  );
 
   if (!isInBounds(grid, hex)) {
     return withStandUpProjection(
@@ -228,6 +244,26 @@ export function deriveMovementRangeHexForDestination(
     };
   }
 
+  if (unit.prone && standUpMode === 'careful') {
+    const details = 'Careful stand consumes the movement for this turn';
+    return {
+      hex,
+      mpCost: standingCost,
+      terrainCost: undefined,
+      elevationDelta: undefined,
+      elevationCost: undefined,
+      path: [origin],
+      heatGenerated: 0,
+      movementMode,
+      reachable: false,
+      movementType: mpType,
+      blockedReason: details,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails: details,
+      ...standUpProjection,
+    };
+  }
+
   if (unit.prone && mpType === MovementType.Jump) {
     const details = 'Unit is prone and must stand before jumping';
     return {
@@ -248,10 +284,7 @@ export function deriveMovementRangeHexForDestination(
     };
   }
 
-  if (
-    standUpProjection.standUpPsrImpossibleReason &&
-    mpType !== MovementType.Jump
-  ) {
+  if (standUpProjection.standUpPsrImpossibleReason) {
     const details = standUpProjection.standUpPsrImpossibleReason;
     return {
       hex,

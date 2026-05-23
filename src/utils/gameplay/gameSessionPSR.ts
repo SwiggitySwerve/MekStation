@@ -1,4 +1,8 @@
-import { IGameSession } from '@/types/gameplay';
+import type {
+  IGameSession,
+  IMovementCapability,
+  StandUpMode,
+} from '@/types/gameplay';
 
 import { type DiceRoller } from './diceTypes';
 import { resolveFall } from './fallMechanics';
@@ -280,6 +284,8 @@ export function attemptStandUp(
   session: IGameSession,
   unitId: string,
   diceRoller: DiceRoller = rollDice,
+  standUpMode: StandUpMode = 'normal',
+  movementCapability?: IMovementCapability,
 ): IGameSession {
   const { turn } = session.currentState;
   const phase = session.currentState.phase;
@@ -317,6 +323,8 @@ export function attemptStandUp(
     unitState,
     unitPiloting: unit.piloting,
     unitType: unit.unitType,
+    movementCapability,
+    standUpMode,
   });
   const tn = standUpPsr.targetNumber ?? unit.piloting;
   const roll = standUpPsr.impossibleReason
