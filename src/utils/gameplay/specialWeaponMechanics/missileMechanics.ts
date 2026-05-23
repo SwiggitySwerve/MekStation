@@ -140,6 +140,13 @@ export function resolveLBXCluster(
 // 13.5: Artemis IV/prototype IV/V Cluster Bonus
 // =============================================================================
 
+function isArtemisSuppressedByECM(targetStatus: ITargetStatusFlags): boolean {
+  return (
+    targetStatus.flightPathEcmAffected === true ||
+    targetStatus.ecmProtected === true
+  );
+}
+
 /**
  * Calculate Artemis IV cluster table bonus.
  * +2 to cluster hit table roll when equipped and linked.
@@ -151,7 +158,7 @@ export function getArtemisIVBonus(
 ): number {
   if (!equipment.hasArtemisIV) return 0;
   if (targetStatus.isIndirectFire) return 0;
-  if (targetStatus.ecmProtected) return 0; // ECM nullifies Artemis
+  if (isArtemisSuppressedByECM(targetStatus)) return 0;
   if (targetStatus.attackerStealthActive) return 0;
   return 2;
 }
@@ -166,7 +173,7 @@ export function getPrototypeArtemisIVBonus(
 ): number {
   if (!equipment.hasPrototypeArtemisIV) return 0;
   if (targetStatus.isIndirectFire) return 0;
-  if (targetStatus.ecmProtected) return 0;
+  if (isArtemisSuppressedByECM(targetStatus)) return 0;
   if (targetStatus.attackerStealthActive) return 0;
   return 1;
 }
@@ -181,7 +188,7 @@ export function getArtemisVBonus(
 ): number {
   if (!equipment.hasArtemisV) return 0;
   if (targetStatus.isIndirectFire) return 0;
-  if (targetStatus.ecmProtected) return 0; // ECM nullifies (Phase 14 may differentiate)
+  if (isArtemisSuppressedByECM(targetStatus)) return 0;
   if (targetStatus.attackerStealthActive) return 0;
   return 3;
 }

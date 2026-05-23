@@ -155,6 +155,12 @@ function iNarcHaywireToHitModifier(
   };
 }
 
+function isFlightPathAffectedByINarcECM(
+  attacker: IGameState['units'][string] | undefined,
+): boolean {
+  return hasINarcPodType(attacker, 'ecm');
+}
+
 function selectPrimaryWeaponAttackTargetId(
   state: IGameState,
   attackerId: string,
@@ -982,6 +988,9 @@ export function runAttackPhase(options: {
           attackerBeforeShot,
           currentState,
         );
+        const flightPathEcmAffected =
+          targetEcmProtected === true ||
+          isFlightPathAffectedByINarcECM(attackerBeforeShot);
 
         const resolvedShot = resolveSpecialProjectileHit({
           baseWeapon,
@@ -994,6 +1003,7 @@ export function runAttackPhase(options: {
             hasPrototypeArtemisIV: baseWeapon.hasPrototypeArtemisIV,
             hasArtemisV: baseWeapon.hasArtemisV,
             attackerStealthActive,
+            flightPathEcmAffected,
             isIndirectFire:
               indirectFireResolution?.permitted === true &&
               indirectFireResolution.isIndirect,

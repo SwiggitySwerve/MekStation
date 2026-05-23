@@ -115,6 +115,24 @@ const MEGAMEK_INARC_HAYWIRE_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_INARC_ECM_SOURCE_REFS = [
+  MEGAMEK_INARC_VARIANT_SOURCE_REFS[0],
+  {
+    kind: 'megamek-source',
+    citation:
+      'ComputeECM treats an entity with an iNarc ECM pod as ECM-affected at its own position while evaluating the attacker-to-target path.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/ComputeECM.java#L472-L515',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MissileWeaponHandler suppresses Artemis, prototype Artemis, and Artemis V cluster guidance when the attacker-to-target missile path is ECM affected.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/MissileWeaponHandler.java#L137-L200',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_TAG_DESIGNATION_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -268,9 +286,14 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'inarc-pod-variants': helperOnly(
     'inarc-pod-variants',
-    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes; selected ammo can attach each runner pod type, Homing has runner marker and missile guidance coverage, and Haywire has attacker to-hit coverage',
-    'iNarc ECM and Nemesis pod effects are not represented in runner missile resolution',
+    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes; selected ammo can attach each runner pod type, Homing has runner marker and missile guidance coverage, Haywire has attacker to-hit coverage, and ECM suppresses attacker flight-path Artemis guidance',
+    'iNarc Nemesis redirect and broader iNarc ECM C3/sensor effects are not represented in runner missile resolution',
     MEGAMEK_INARC_POD_TYPE_SOURCE_REFS,
+  ),
+  'inarc-ecm-attacker-flight-path-suppression': integrated(
+    'inarc-ecm-attacker-flight-path-suppression',
+    'runAttackPhase consumes attacker iNarc ECM pod state as source-backed flight-path ECM that suppresses Artemis IV/prototype IV/V cluster modifiers without suppressing target-only NARC guidance',
+    MEGAMEK_INARC_ECM_SOURCE_REFS,
   ),
   'inarc-variant-ammo-attachment': integrated(
     'inarc-variant-ammo-attachment',

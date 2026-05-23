@@ -118,8 +118,10 @@ export interface ITargetStatusFlags {
   readonly narcedTarget?: boolean;
   /** Target is TAG-designated this turn */
   readonly tagDesignated?: boolean;
-  /** Target has active ECM (nullifies Artemis/Narc/TAG) */
+  /** Target has active ECM (nullifies target-anchored Narc/TAG guidance). */
   readonly ecmProtected?: boolean;
+  /** Attacker-to-target flight path has active ECM (nullifies Artemis guidance). */
+  readonly flightPathEcmAffected?: boolean;
   /** Attack is resolving as indirect fire; linked missile guidance bonuses do not apply. */
   readonly isIndirectFire?: boolean;
   /** Attacking unit has active stealth armor; MegaMek suppresses its Artemis guidance. */

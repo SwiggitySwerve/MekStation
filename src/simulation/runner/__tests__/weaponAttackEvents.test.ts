@@ -1739,6 +1739,69 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       ).toBe('integrated');
     });
 
+    it('iNARC ECM pods on the attacker suppress source-backed Artemis flight-path guidance', () => {
+      const lrm = createLRM10();
+      const artemisLRM: IWeapon = { ...lrm, hasArtemisIV: true };
+      const baselineScenario = buildScenario({
+        attackerWeapons: [artemisLRM],
+        attackerStateOverride: { gunnery: 0 },
+        targetPosition: { q: 7, r: 0 },
+      });
+      const ecmPodScenario = buildScenario({
+        attackerWeapons: [artemisLRM],
+        attackerStateOverride: {
+          gunnery: 0,
+          iNarcPods: [{ teamId: GameSide.Opponent, podType: 'ecm' }],
+        },
+        targetPosition: { q: 7, r: 0 },
+      });
+
+      const baselineResult = runPhaseWithResult({
+        ...baselineScenario,
+        botPlayer: new ScriptedAttackAI(artemisLRM.id),
+        random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      });
+      const ecmPodResult = runPhaseWithResult({
+        ...ecmPodScenario,
+        botPlayer: new ScriptedAttackAI(artemisLRM.id),
+        random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      });
+      const narcedWithAttackerECM = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          attackerTeamId: GameSide.Player,
+          flightPathEcmAffected: true,
+          targetNarcedBy: [GameSide.Player],
+        },
+      });
+
+      const baselineResolved = baselineResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const ecmPodResolved = ecmPodResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+      expect(baselineResolved.payload.projectileCount).toBe(6);
+      expect(ecmPodResolved.payload.projectileCount).toBe(3);
+      expect(narcedWithAttackerECM).toMatchObject({
+        projectileCount: 8,
+        weapon: { damage: 8 },
+      });
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'inarc-ecm-attacker-flight-path-suppression'
+        ].level,
+      ).toBe('integrated');
+    });
+
     it('prototype Artemis IV flags shift missile cluster results by +1 in direct and runner resolution', () => {
       const lrm = createLRM10();
       const prototypeArtemisLRM: IWeapon = {

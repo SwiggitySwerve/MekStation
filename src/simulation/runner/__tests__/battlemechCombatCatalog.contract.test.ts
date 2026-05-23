@@ -720,6 +720,7 @@ describe('BattleMech combat catalog validation lane', () => {
       'artemis-ecm-suite-hydration',
       'artemis-ecm-suppression',
       'artemis-stealth-suppression',
+      'inarc-ecm-attacker-flight-path-suppression',
       'inarc-haywire-to-hit-modifier',
       'inarc-homing-cluster-modifier',
       'inarc-homing-marker-attachment',
@@ -1037,6 +1038,15 @@ describe('BattleMech combat catalog validation lane', () => {
       'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
     ]);
     expect(
+      sourceRefsFor('inarc-ecm-attacker-flight-path-suppression').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'ComputeECM treats an entity with an iNarc ECM pod as ECM-affected at its own position while evaluating the attacker-to-target path.',
+      'MissileWeaponHandler suppresses Artemis, prototype Artemis, and Artemis V cluster guidance when the attacker-to-target missile path is ECM affected.',
+    ]);
+    expect(
       sourceRefsFor('inarc-homing-to-hit-modifier').map(
         ({ citation }) => citation,
       ),
@@ -1073,6 +1083,7 @@ describe('BattleMech combat catalog validation lane', () => {
       ...sourceRefsFor('narc-marker-attachment'),
       ...sourceRefsFor('inarc-pod-variants'),
       ...sourceRefsFor('inarc-variant-ammo-attachment'),
+      ...sourceRefsFor('inarc-ecm-attacker-flight-path-suppression'),
       ...sourceRefsFor('inarc-homing-marker-attachment'),
       ...sourceRefsFor('inarc-homing-cluster-modifier'),
       ...sourceRefsFor('inarc-homing-to-hit-modifier'),

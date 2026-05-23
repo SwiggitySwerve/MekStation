@@ -330,7 +330,7 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 
 ### Requirement: Designator Marker Replay State
 
-Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC launcher hits SHALL derive the attached `iNarcPods` `podType` from the selected ammo weapon type so Homing, ECM, Haywire, and Nemesis ammo can each attach distinct marker state without falling back to `narcedBy`. Direct NARC-compatible missile cluster resolution and runner to-hit declaration SHALL consume Homing pod state. Runner to-hit declaration SHALL consume Haywire pod state on the attacker as a source-backed +1 attacker to-hit modifier. iNARC ECM and Nemesis pod effects SHALL remain explicit gaps until their variant-specific runner effects are represented.
+Designator marker events SHALL replay into the same target marker state consumed by combat resolution. TAG markers SHALL set transient `tagDesignated` state that clears at turn start. Standard NARC markers SHALL append the marking team to `narcedBy` without duplicate entries and SHALL persist across turn starts. iNARC launcher hits SHALL derive the attached `iNarcPods` `podType` from the selected ammo weapon type so Homing, ECM, Haywire, and Nemesis ammo can each attach distinct marker state without falling back to `narcedBy`. Direct NARC-compatible missile cluster resolution and runner to-hit declaration SHALL consume Homing pod state. Runner to-hit declaration SHALL consume Haywire pod state on the attacker as a source-backed +1 attacker to-hit modifier. Runner missile cluster resolution SHALL consume attacker iNARC ECM pod state as flight-path ECM for Artemis IV/prototype IV/V suppression without treating it as target ECM for NARC guidance. iNARC Nemesis redirect and broader iNARC ECM C3/sensor effects SHALL remain explicit gaps until their variant-specific runner effects are represented.
 
 #### Scenario: Replay applies TAG, standard NARC, and iNARC variant marker state
 
@@ -341,7 +341,8 @@ Designator marker events SHALL replay into the same target marker state consumed
 - **AND** iNARC selected-ammo hits SHALL add Homing, ECM, Haywire, or Nemesis `{ teamId, podType }` entries to target `iNarcPods` without adding the team to `narcedBy`
 - **AND** direct NARC-compatible missile cluster and to-hit resolution SHALL consume source-backed iNARC Homing state while indirect-fire cluster bonuses stay suppressed
 - **AND** attack declaration SHALL consume source-backed iNARC Haywire state on the attacker as a +1 to-hit modifier
-- **AND** the catalog SHALL continue to list iNARC ECM and Nemesis pod variants as helper-only until variant effects are implemented
+- **AND** missile cluster resolution SHALL consume source-backed attacker iNARC ECM state to suppress Artemis flight-path guidance while preserving target-only NARC guidance
+- **AND** the catalog SHALL continue to list iNARC Nemesis redirect and broader iNARC ECM C3/sensor effects as helper-only until variant effects are implemented
 
 ### Requirement: Source-Truth Cross-Check Discipline
 

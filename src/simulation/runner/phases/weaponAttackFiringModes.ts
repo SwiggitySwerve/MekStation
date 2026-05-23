@@ -40,6 +40,7 @@ export interface IMissileClusterModifierContext {
   readonly targetINarcedBy?: readonly string[];
   readonly targetTagDesignated?: boolean;
   readonly targetEcmProtected?: boolean;
+  readonly flightPathEcmAffected?: boolean;
   readonly hasArtemisIV?: boolean;
   readonly hasPrototypeArtemisIV?: boolean;
   readonly hasArtemisV?: boolean;
@@ -241,9 +242,8 @@ export function resolveClusterModeHit(options: {
   d6Roller: () => number;
 }): IResolvedShotWeapon {
   const { baseWeapon, d6Roller, selectedMode, shotWeapon } = options;
-  if (!isClusterSlugMode(baseWeapon, selectedMode)) {
+  if (!isClusterSlugMode(baseWeapon, selectedMode))
     return { weapon: shotWeapon };
-  }
 
   const clusterRoll = d6Roller() + d6Roller();
   const projectileCount = lookupClusterHits(
@@ -320,6 +320,7 @@ function missileClusterModifier(options: {
       narcedTarget,
       tagDesignated: context?.targetTagDesignated,
       ecmProtected: context?.targetEcmProtected,
+      flightPathEcmAffected: context?.flightPathEcmAffected,
       isIndirectFire: context?.isIndirectFire,
       attackerStealthActive: context?.attackerStealthActive,
     },
@@ -334,14 +335,10 @@ function resolveMissileClusterHit(options: {
   clusterContext?: IMissileClusterModifierContext;
 }): IResolvedShotWeapon {
   const { baseWeapon, clusterContext, d6Roller, shotWeapon } = options;
-  if (!isMissileClusterWeaponMount(baseWeapon)) {
-    return { weapon: shotWeapon };
-  }
+  if (!isMissileClusterWeaponMount(baseWeapon)) return { weapon: shotWeapon };
 
   const rackSize = missileRackSize(baseWeapon);
-  if (rackSize === undefined) {
-    return { weapon: shotWeapon };
-  }
+  if (rackSize === undefined) return { weapon: shotWeapon };
 
   const clusterDice = [d6Roller(), d6Roller()] as const;
   const clusterRoll = clusterDice[0] + clusterDice[1];
@@ -379,9 +376,7 @@ function resolveStreakModeHit(options: {
   clusterContext?: IMissileClusterModifierContext;
 }): IResolvedShotWeapon {
   const { baseWeapon, clusterContext, shotWeapon } = options;
-  if (!isStreakWeaponMount(baseWeapon)) {
-    return { weapon: shotWeapon };
-  }
+  if (!isStreakWeaponMount(baseWeapon)) return { weapon: shotWeapon };
 
   const projectileCount = missileRackSize(baseWeapon);
   if (projectileCount === undefined) {

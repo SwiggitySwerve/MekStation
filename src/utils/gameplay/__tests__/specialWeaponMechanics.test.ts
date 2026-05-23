@@ -466,6 +466,21 @@ describe('Special Weapon Mechanics', () => {
       expect(getArtemisIVBonus(equipment, target)).toBe(0);
     });
 
+    it('Artemis IV should be nullified by flight-path ECM without nullifying target-only NARC', () => {
+      const result = calculateClusterModifiers(
+        'lrm-15',
+        { hasArtemisIV: true },
+        {
+          flightPathEcmAffected: true,
+          narcedTarget: true,
+        },
+      );
+
+      expect(result.artemisBonus).toBe(0);
+      expect(result.narcBonus).toBe(2);
+      expect(result.total).toBe(2);
+    });
+
     it('Artemis V should be nullified by ECM', () => {
       const equipment: IWeaponEquipmentFlags = { hasArtemisV: true };
       const target: ITargetStatusFlags = { ecmProtected: true };
