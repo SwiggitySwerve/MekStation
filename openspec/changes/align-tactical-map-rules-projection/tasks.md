@@ -39,7 +39,8 @@
   - [x] Represented UMU, biped-swim, and quad-swim movement modes now source-pin water-depth MP exemptions, with UMU run-into-water preview/commit agreement.
   - [x] Represented biped-swim and quad-swim movement now source-pins underwater movement against MegaMek: swim destinations require water terrain, represented ground-elevation rises do not add MP while swimming, and flat UMU swim heat is exposed in preview and commit.
   - [x] Represented Frogman movement now source-pins the MegaMek depth-2+ water surcharge reduction and keeps preview/commit MP and heat aligned.
-  - [ ] Add remaining optional arm/quirk/TacOps stand-up modifiers not represented by current unit state, infantry-specific terrain/heat rules, and special ProtoMech/Battle Armor movement fixtures.
+  - [x] Special ProtoMech and Battle Armor movement fixtures now prove represented explicit ProtoMech run MP and Battle Armor VTOL/no-heat movement stay aligned between preview and commit.
+  - [ ] Add remaining optional arm/quirk/TacOps stand-up modifiers not represented by current unit state and any infantry-specific terrain/heat rules not covered by current fixtures.
 - [x] Ensure highlighted walk/run/jump ranges expose MP cost, heat, elevation delta, terrain reason, and invalid reason.
 
 ## 4. Terrain and elevation readability

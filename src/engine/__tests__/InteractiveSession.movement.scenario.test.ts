@@ -1619,6 +1619,156 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps Battle Armor VTOL movement aligned between preview and commit validation', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear, 4));
+    const movementByUnit = capability({
+      walkMP: 2,
+      runMP: 2,
+      jumpMP: 0,
+      movementMode: 'vtol',
+      movementHeatProfile: 'none',
+    });
+
+    const preview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+      { q: 1, r: 0 },
+    );
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      movementMode: 'vtol',
+      mpCost: 1,
+      elevationDelta: 4,
+      elevationCost: 0,
+      heatGenerated: 0,
+      movementType: MovementType.Walk,
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementInvalid,
+      ),
+    ).toBe(false);
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: preview!.hex,
+      movementType: preview!.movementType,
+      mpUsed: preview!.mpCost,
+      heatGenerated: preview!.heatGenerated,
+    });
+  });
+
+  it('keeps ProtoMech explicit run MP aligned between preview and commit validation', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: -5, r: 0 },
+    };
+    const grid = makeGrid();
+    const destination = { q: 5, r: 0 };
+    const movementByUnit = capability({
+      walkMP: 4,
+      runMP: 5,
+      jumpMP: 0,
+      movementMode: 'walk',
+      movementHeatProfile: 'none',
+    });
+    const unitCapability = movementByUnit.get('m1')!;
+
+    const walkPreview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      unitCapability,
+      destination,
+    );
+    const runPreview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Run,
+      grid,
+      unitCapability,
+      destination,
+    );
+
+    expect(walkPreview).toMatchObject({
+      reachable: false,
+      movementMode: 'walk',
+      mpCost: 5,
+      movementInvalidReason: 'InsufficientMP',
+    });
+    expect(runPreview).toMatchObject({
+      reachable: true,
+      movementMode: 'walk',
+      mpCost: 5,
+      heatGenerated: 0,
+      movementType: MovementType.Run,
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: destination,
+      facing: Facing.Southeast,
+      movementType: MovementType.Run,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+        { q: 2, r: 0 },
+        { q: 3, r: 0 },
+        { q: 4, r: 0 },
+        destination,
+      ],
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementInvalid,
+      ),
+    ).toBe(false);
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: runPreview!.hex,
+      movementType: runPreview!.movementType,
+      mpUsed: runPreview!.mpCost,
+      heatGenerated: runPreview!.heatGenerated,
+    });
+  });
+
   it('keeps tracked vehicle elevation limits aligned between preview and commit validation', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.blocker = {
