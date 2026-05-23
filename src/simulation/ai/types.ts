@@ -137,6 +137,9 @@ export interface IWeapon {
   /** Long range (hexes) */
   readonly longRange: number;
 
+  /** Extreme range (hexes), when advanced range rules are enabled */
+  readonly extremeRange?: number;
+
   /** Damage dealt on hit */
   readonly damage: number;
 
@@ -148,6 +151,16 @@ export interface IWeapon {
 
   /** Ammo per ton (-1 = energy weapon, no ammo needed) */
   readonly ammoPerTon: number;
+
+  /**
+   * Optional missile fire-control flags hydrated from canonical unit critical
+   * slots. When present, runner missile resolution can apply source-backed
+   * Artemis cluster-table bonuses without each test hand-building helper
+   * contexts.
+   */
+  readonly hasArtemisIV?: boolean;
+  readonly hasPrototypeArtemisIV?: boolean;
+  readonly hasArtemisV?: boolean;
 
   /** Is this weapon destroyed? */
   readonly destroyed: boolean;
@@ -193,7 +206,7 @@ export interface IWeapon {
  *   - `rate-of-fire`: Ultra / Rotary autocannon — a higher rate of fire
  *     trades heat and ammo for damage.
  */
-export type WeaponModeKind = 'cluster-slug' | 'rate-of-fire';
+export type WeaponModeKind = 'ammo-mode' | 'cluster-slug' | 'rate-of-fire';
 
 /**
  * One selectable firing mode of a multi-mode weapon.
@@ -211,6 +224,8 @@ export interface IWeaponFiringMode {
   readonly heat: number;
   /** Ammo rounds this mode consumes per turn (energy weapons: `0`). */
   readonly shotsPerTurn: number;
+  /** Optional ammo-bin weapon family when mode choice changes ammo type. */
+  readonly ammoWeaponType?: string;
 }
 
 /**

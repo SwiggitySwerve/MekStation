@@ -39,6 +39,15 @@ const ULTRA_MODES: IWeaponFiringModes = {
   ],
 };
 
+const MML_MODES: IWeaponFiringModes = {
+  kind: 'ammo-mode',
+  defaultModeId: 'lrm',
+  modes: [
+    { id: 'srm', damage: 2, heat: 4, shotsPerTurn: 1, ammoWeaponType: 'srm-5' },
+    { id: 'lrm', damage: 1, heat: 4, shotsPerTurn: 1, ammoWeaponType: 'lrm-5' },
+  ],
+};
+
 function lbxWeapon(overrides: Partial<IWeapon> = {}): IWeapon {
   return {
     id: 'lbx10',
@@ -69,6 +78,23 @@ function ultraWeapon(overrides: Partial<IWeapon> = {}): IWeapon {
     ammoPerTon: 20,
     destroyed: false,
     firingModes: ULTRA_MODES,
+    ...overrides,
+  };
+}
+
+function mmlWeapon(overrides: Partial<IWeapon> = {}): IWeapon {
+  return {
+    id: 'mml5',
+    name: 'MML 5',
+    shortRange: 3,
+    mediumRange: 8,
+    longRange: 15,
+    damage: 1,
+    heat: 4,
+    minRange: 0,
+    ammoPerTon: 24,
+    destroyed: false,
+    firingModes: MML_MODES,
     ...overrides,
   };
 }
@@ -185,6 +211,26 @@ describe('AIWeaponModeSelector.selectWeaponMode', () => {
         true,
       );
       expect(sel.modeId).toBe('single');
+    });
+  });
+
+  describe('ammo-mode weapons', () => {
+    it('picks SRM ammo mode at short range and LRM mode beyond short range', () => {
+      const shortRange = selectWeaponMode(
+        mmlWeapon(),
+        ctx({ distance: 2 }),
+        true,
+      );
+      const beyondShort = selectWeaponMode(
+        mmlWeapon(),
+        ctx({ distance: 7 }),
+        true,
+      );
+
+      expect(shortRange.modeId).toBe('srm');
+      expect(shortRange.ammoWeaponType).toBe('srm-5');
+      expect(beyondShort.modeId).toBe('lrm');
+      expect(beyondShort.ammoWeaponType).toBe('lrm-5');
     });
   });
 
