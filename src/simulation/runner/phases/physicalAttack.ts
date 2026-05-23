@@ -403,6 +403,11 @@ export function runPhysicalAttackPhase(options: {
     const displacements = displacementOutcome.displacements;
     const impossibleDisplacementDestroyedUnitId =
       displacementOutcome.impossibleDisplacementDestroyedUnitId;
+    const chargeHitDisplacementBlocked =
+      result.hit &&
+      bestAttack === 'charge' &&
+      Boolean(grid) &&
+      displacements.length === 0;
     const dfaMissFall =
       !result.hit &&
       bestAttack === 'dfa' &&
@@ -472,13 +477,14 @@ export function runPhysicalAttackPhase(options: {
     if (
       result.hit &&
       result.targetPSR &&
-      impossibleDisplacementDestroyedUnitId !== target.id
+      impossibleDisplacementDestroyedUnitId !== target.id &&
+      !chargeHitDisplacementBlocked
     ) {
       const psr = targetPSRForAttack(bestAttack, target.id);
       if (psr) currentState = queuePendingPSR(currentState, target.id, psr);
     }
 
-    if (result.hit && result.attackerPSR) {
+    if (result.hit && result.attackerPSR && !chargeHitDisplacementBlocked) {
       const psr = attackerHitPSRForAttack(bestAttack, unitId, result);
       if (psr) currentState = queuePendingPSR(currentState, unitId, psr);
     }

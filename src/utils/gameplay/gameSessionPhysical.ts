@@ -58,6 +58,7 @@ import {
   canMeleeWeapon,
   canPunch,
   canPush,
+  computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
   calculatePhysicalToHit,
   computeMissedChargeDisplacement,
@@ -132,7 +133,18 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
     });
   }
 
-  if (!hit || (attackType !== 'push' && attackType !== 'charge')) {
+  if (hit && attackType === 'charge') {
+    return computeChargeDisplacementOutcome({
+      grid,
+      attackerId: attacker.id,
+      attackerPosition: attacker.position,
+      attackerFacing: attacker.facing,
+      targetId: target.id,
+      targetPosition: target.position,
+    });
+  }
+
+  if (!hit || attackType !== 'push') {
     return { displacements: [] };
   }
 
@@ -703,6 +715,11 @@ export function resolveAllPhysicalAttacks(
     const displacements = displacementOutcome.displacements;
     const impossibleDisplacementDestroyedUnitId =
       displacementOutcome.impossibleDisplacementDestroyedUnitId;
+    const chargeHitDisplacementBlocked =
+      result.hit &&
+      payload.attackType === 'charge' &&
+      Boolean(grid) &&
+      displacements.length === 0;
     const dfaMissFallApplies =
       !result.hit &&
       payload.attackType === 'dfa' &&
@@ -873,7 +890,8 @@ export function resolveAllPhysicalAttacks(
     if (
       result.hit &&
       result.targetPSR &&
-      impossibleDisplacementDestroyedUnitId !== payload.targetId
+      impossibleDisplacementDestroyedUnitId !== payload.targetId &&
+      !chargeHitDisplacementBlocked
     ) {
       // Per `structure-psr-reason-as-discriminated-code` (PR E): map the
       // generic `physical_attack_target` trigger source to the canonical
@@ -906,7 +924,7 @@ export function resolveAllPhysicalAttacks(
         ),
       );
     }
-    if (result.hit && result.attackerPSR) {
+    if (result.hit && result.attackerPSR && !chargeHitDisplacementBlocked) {
       // Per task 6.6 / 7.5: on charge / DFA hit the attacker also rolls a
       // PSR. Use a typed trigger source so the PSR resolver can apply the
       // attack-specific modifier table.

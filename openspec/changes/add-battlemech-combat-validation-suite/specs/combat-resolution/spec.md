@@ -126,6 +126,17 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** immobile targets SHALL remain legal for this gate even when movement is incomplete
 - **AND** no damage, displacement, or PSR side effect SHALL be emitted on rejection
 
+#### Scenario: Blocked successful charge displacement keeps both units in place
+
+- **GIVEN** a charge attack hits after charge damage is resolved
+- **AND** the target displacement hex in the attacker's facing direction is blocked or otherwise invalid
+- **WHEN** the successful charge displacement branch runs
+- **THEN** the target and attacker SHALL remain in their original hexes
+- **AND** charge target damage and charge attacker self-damage SHALL still apply
+- **AND** charge-specific displacement PSRs SHALL NOT be emitted for either unit
+- **AND** the resolver SHALL NOT emit `cause=impossible_displacement`
+- **AND** helper, event-sourced resolution, runner resolution, catalog, and source-truth audit evidence SHALL report the same source-backed outcome
+
 #### Scenario: Push rejects arm-mounted weapons fired this turn
 
 - **GIVEN** a push declaration is evaluated with evidence that either attacker arm fired a weapon this turn

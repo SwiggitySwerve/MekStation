@@ -28,6 +28,10 @@ export interface IDfaDisplacementOutcome {
   readonly impossibleDisplacementDestroyedUnitId?: string;
 }
 
+export interface IChargeDisplacementOutcome {
+  readonly displacements: readonly IPhysicalDisplacement[];
+}
+
 /**
  * Per Resolved Q3: thin wrapper over `hexNeighbor` to mirror MegaMek's
  * `Coords.translated(facing)` API name. `facing` is the integer 0-5
@@ -139,6 +143,58 @@ export function computePushDisplacement(
   attackerFacing: Facing,
 ): IHexCoordinate {
   return translateHex(targetPosition, attackerFacing);
+}
+
+/**
+ * Source-backed successful charge displacement. MegaMek resolves charge damage
+ * before this branch; if the target's forward hex is invalid, neither unit is
+ * displaced and the result is not treated as impossible-displacement
+ * destruction.
+ *
+ * Source: MegaMek `TWGameManager.resolveChargeDamage`
+ * (`TWGameManager.java:14884-14892`).
+ */
+export function computeChargeDisplacementOutcome(options: {
+  readonly grid: IHexGrid;
+  readonly attackerId: string;
+  readonly attackerPosition: IHexCoordinate;
+  readonly attackerFacing: Facing;
+  readonly targetId: string;
+  readonly targetPosition: IHexCoordinate;
+}): IChargeDisplacementOutcome {
+  const {
+    attackerFacing,
+    attackerId,
+    attackerPosition,
+    grid,
+    targetId,
+    targetPosition,
+  } = options;
+  const targetDestination = computePushDisplacement(
+    targetPosition,
+    attackerFacing,
+  );
+
+  if (!isValidDisplacement(grid, targetDestination, targetId)) {
+    return { displacements: [] };
+  }
+
+  return {
+    displacements: [
+      {
+        unitId: targetId,
+        from: targetPosition,
+        to: targetDestination,
+        reason: 'charge',
+      },
+      {
+        unitId: attackerId,
+        from: attackerPosition,
+        to: targetPosition,
+        reason: 'charge',
+      },
+    ],
+  };
 }
 
 /**

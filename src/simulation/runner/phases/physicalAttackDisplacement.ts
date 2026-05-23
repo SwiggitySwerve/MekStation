@@ -1,5 +1,6 @@
 import { IGameState, IHexGrid, IPhysicalDisplacement } from '@/types/gameplay';
 import {
+  computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
   computeMissedChargeDisplacement,
   computePushDisplacement,
@@ -105,7 +106,18 @@ export function computePhysicalDisplacementOutcome(options: {
     });
   }
 
-  if (!hit || (attackType !== 'push' && attackType !== 'charge')) {
+  if (hit && attackType === 'charge') {
+    return computeChargeDisplacementOutcome({
+      grid,
+      attackerId: attacker.id,
+      attackerPosition: attacker.position,
+      attackerFacing: attacker.facing,
+      targetId: target.id,
+      targetPosition: target.position,
+    });
+  }
+
+  if (!hit || attackType !== 'push') {
     return { displacements: [] };
   }
 

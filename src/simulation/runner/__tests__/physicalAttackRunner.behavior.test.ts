@@ -154,6 +154,7 @@ function createPhysicalGrid(
     targetElevation?: number;
     waterTarget?: boolean;
     blockDfaDisplacement?: boolean;
+    blockChargeDisplacement?: boolean;
   } = {},
 ): IHexGrid {
   const hexes = new Map();
@@ -171,7 +172,10 @@ function createPhysicalGrid(
   });
   hexes.set('1,1', {
     coord: { q: 1, r: 1 },
-    occupantId: options.blockDfaDisplacement ? 'blocker-1' : null,
+    occupantId:
+      options.blockDfaDisplacement || options.blockChargeDisplacement
+        ? 'blocker-1'
+        : null,
     terrain: TerrainType.Clear,
     elevation: 0,
   });
@@ -1358,6 +1362,40 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     ]);
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 1 });
     expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
+  });
+
+  it('keeps a successful charge in place when target displacement is blocked', () => {
+    const { events, result } = runPhase('charge', {
+      attacker: {
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      },
+      grid: createPhysicalGrid({ blockChargeDisplacement: true }),
+    });
+    const destroyed = events.find(
+      (event) =>
+        event.type === GameEventType.UnitDestroyed &&
+        (event.payload as IUnitDestroyedPayload).cause ===
+          'impossible_displacement',
+    );
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'charge',
+      hit: true,
+      damage: 28,
+    });
+    expect(resolvedPayload(events).displacements).toBeUndefined();
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(6);
+    expect(damageEventsFor(events, 'player-1').length).toBeGreaterThan(0);
+    expect(destroyed).toBeUndefined();
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+    expect(result.units['opponent-1'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
+    );
+    expect(result.units['player-1'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
+    );
   });
 
   it('queues charge-miss PSR without damaging the target', () => {

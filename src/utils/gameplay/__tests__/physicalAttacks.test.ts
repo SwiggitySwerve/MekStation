@@ -28,6 +28,7 @@ import {
   canDFA,
   canMeleeWeapon,
   canPush,
+  computeChargeDisplacementOutcome,
   computeDfaDisplacementOutcome,
   computeDfaDisplacements,
   computePreferredDisplacement,
@@ -123,6 +124,16 @@ function makeBlockedDfaDisplacementGrid(): IHexGrid {
   return { ...grid, hexes };
 }
 
+function makeBlockedChargeDisplacementGrid(): IHexGrid {
+  const grid = makeDisplacementGrid();
+  const hexes = new Map(grid.hexes);
+  const hex = hexes.get('1,1');
+  if (hex) {
+    hexes.set('1,1', { ...hex, occupantId: 'charge-blocker' });
+  }
+  return { ...grid, hexes };
+}
+
 // =============================================================================
 // Punch Damage Tests
 // =============================================================================
@@ -158,6 +169,19 @@ describe('physicalAttacks', () => {
       expect(
         isTargetDirectlyAhead({ q: 0, r: 0 }, Facing.South, { q: 1, r: 0 }),
       ).toBe(false);
+    });
+
+    it('keeps successful charge units in place when target displacement is blocked', () => {
+      expect(
+        computeChargeDisplacementOutcome({
+          grid: makeBlockedChargeDisplacementGrid(),
+          attackerId: 'attacker',
+          attackerPosition: { q: 0, r: 0 },
+          attackerFacing: Facing.South,
+          targetId: 'target',
+          targetPosition: { q: 1, r: 0 },
+        }).displacements,
+      ).toEqual([]);
     });
 
     it('models source-backed DFA hit and miss displacement order', () => {
