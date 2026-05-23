@@ -5,7 +5,14 @@ import type {
 } from '../CombatValidationCatalog';
 
 import { AMMUNITION_COMPATIBILITY_SUPPORT } from '../CombatAmmunitionSupport';
+import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from '../CombatCanonicalSpaSupport';
+import {
+  QUIRK_COMBAT_SUPPORT,
+  SPA_COMBAT_SUPPORT,
+} from '../CombatFeatureSupport';
 import { PHYSICAL_LEGALITY_GATE_SUPPORT } from '../CombatPhysicalLegalityGateSupport';
+import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from '../CombatPilotModifierApplicationSupport';
+import { PILOT_SKILL_COMBAT_SUPPORT } from '../CombatPilotSkillSupport';
 import {
   MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
   MOVEMENT_RULE_COMBAT_SUPPORT,
@@ -390,6 +397,52 @@ describe('BattleMech combat validation requirement crosswalk', () => {
         'ruleSupport',
         'terrainTypePsr',
         TERRAIN_TYPE_PSR_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
+
+  it('backs pilot skill requirements with every pilot skill support row', () => {
+    expect(
+      missingRefsForRequirement(
+        'pilot-skills',
+        'pilotSkills',
+        'pilotSkillUse',
+        PILOT_SKILL_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+  });
+
+  it('backs SPA and quirk requirements with every support row', () => {
+    expect(
+      missingRefsForRequirement(
+        'spa-quirk-catalog',
+        'featureSupport',
+        'pilotAbilities',
+        SPA_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'spa-quirk-catalog',
+        'featureSupport',
+        'canonicalPilotAbilityScope',
+        CANONICAL_SPA_COMBAT_SCOPE_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'spa-quirk-catalog',
+        'featureSupport',
+        'mechQuirks',
+        QUIRK_COMBAT_SUPPORT,
+      ),
+    ).toEqual([]);
+    expect(
+      missingRefsForRequirement(
+        'spa-quirk-resolver-application',
+        'pilotSkills',
+        'pilotModifierResolvers',
+        PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT,
       ),
     ).toEqual([]);
   });

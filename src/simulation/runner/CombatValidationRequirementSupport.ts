@@ -1,8 +1,14 @@
 /* eslint-disable max-lines -- Requirement crosswalk intentionally catalogs the full active combat-validation scope. */
 
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
-
+import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from './CombatCanonicalSpaSupport';
+import {
+  QUIRK_COMBAT_SUPPORT,
+  SPA_COMBAT_SUPPORT,
+  type ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 import { PHYSICAL_LEGALITY_GATE_SUPPORT } from './CombatPhysicalLegalityGateSupport';
+import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from './CombatPilotModifierApplicationSupport';
+import { PILOT_SKILL_COMBAT_SUPPORT } from './CombatPilotSkillSupport';
 import {
   MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
   MOVEMENT_RULE_COMBAT_SUPPORT,
@@ -183,6 +189,36 @@ const TERRAIN_TYPE_PSR_SUPPORT_REFS = supportRefs(
   'ruleSupport',
   'terrainTypePsr',
   TERRAIN_TYPE_PSR_COMBAT_SUPPORT,
+);
+
+const PILOT_SKILL_SUPPORT_REFS = supportRefs(
+  'pilotSkills',
+  'pilotSkillUse',
+  PILOT_SKILL_COMBAT_SUPPORT,
+);
+
+const PILOT_ABILITY_SUPPORT_REFS = supportRefs(
+  'featureSupport',
+  'pilotAbilities',
+  SPA_COMBAT_SUPPORT,
+);
+
+const CANONICAL_SPA_SUPPORT_REFS = supportRefs(
+  'featureSupport',
+  'canonicalPilotAbilityScope',
+  CANONICAL_SPA_COMBAT_SCOPE_SUPPORT,
+);
+
+const MECH_QUIRK_SUPPORT_REFS = supportRefs(
+  'featureSupport',
+  'mechQuirks',
+  QUIRK_COMBAT_SUPPORT,
+);
+
+const PILOT_MODIFIER_RESOLVER_SUPPORT_REFS = supportRefs(
+  'pilotSkills',
+  'pilotModifierResolvers',
+  PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT,
 );
 
 function primaryAuthorityFor(
@@ -529,44 +565,23 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
     'pilot-skills',
     'Pilot skill support covers gunnery, piloting, indirect-fire spotter gunnery, wound penalties, and PSR resolution',
     'Initiative modifiers are still helper-only',
-    [
-      'pilotSkills.pilotSkillUse.ranged-gunnery-to-hit',
-      'pilotSkills.pilotSkillUse.physical-piloting-to-hit',
-      'pilotSkills.pilotSkillUse.psr-piloting-resolution',
-      'pilotSkills.pilotSkillUse.initiative-skill-modifiers',
-      'pilotSkills.pilotSkillUse.pilot-wound-ranged-penalty',
-    ],
+    PILOT_SKILL_SUPPORT_REFS,
   ),
   'spa-quirk-catalog': helperOnly(
     'spa-quirk-catalog',
     'SPA and quirk support maps cover the combat SPA helper catalog, the canonical SPA catalog boundary, and every mech or weapon quirk in the local catalogs',
     'Several canonical SPA, SPA-helper, and quirk entries remain helper-only or unsupported until runner/application plumbing exists',
     [
-      'featureSupport.pilotAbilities.weapon-specialist',
-      'featureSupport.canonicalPilotAbilityScope.forward_observer',
-      'featureSupport.canonicalPilotAbilityScope.golden_goose',
-      'featureSupport.pilotAbilities.edge',
-      'featureSupport.mechQuirks.improved_targeting_short',
-      'featureSupport.mechQuirks.protected_actuators',
-      'featureSupport.mechQuirks.rugged_1',
+      ...PILOT_ABILITY_SUPPORT_REFS,
+      ...CANONICAL_SPA_SUPPORT_REFS,
+      ...MECH_QUIRK_SUPPORT_REFS,
     ],
   ),
   'spa-quirk-resolver-application': helperOnly(
     'spa-quirk-resolver-application',
     'Pilot modifier resolver support maps every SPA and quirk to the combat resolver family that applies or should apply it, with ranged to-hit state and weapon to-hit quirks now hydrated by attack paths',
     'Most non-ranged-to-hit resolver families are still helper-only until their phases consume hydrated ability and quirk state',
-    [
-      'pilotSkills.pilotModifierResolvers.ranged-to-hit-calculation',
-      'pilotSkills.pilotModifierResolvers.ranged-to-hit-state-hydration',
-      'pilotSkills.pilotModifierResolvers.physical-damage-application',
-      'pilotSkills.pilotModifierResolvers.physical-restriction-application',
-      'pilotSkills.pilotModifierResolvers.psr-application',
-      'pilotSkills.pilotModifierResolvers.psr-spa-application',
-      'pilotSkills.pilotModifierResolvers.critical-prevention-application',
-      'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
-      'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
-      'pilotSkills.pilotModifierResolvers.movement-application',
-    ],
+    PILOT_MODIFIER_RESOLVER_SUPPORT_REFS,
   ),
   'campaign-quirk-behavior': helperOnly(
     'campaign-quirk-behavior',
