@@ -29,6 +29,8 @@ import {
   findPath,
   getHexMovementCost,
 } from '@/utils/gameplay/movement';
+import { getMovementStepCostBreakdown } from '@/utils/gameplay/movement/calculations';
+import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 function setHexTerrain(
   grid: IHexGrid,
@@ -413,11 +415,11 @@ describe('movement', () => {
       expect(cost).toBe(1);
     });
 
-    it('should return Infinity for water with walk', () => {
+    it('should add 1 MP for water with walk', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Water);
       const cost = getHexMovementCost(grid, { q: 0, r: 0 }, 'walk');
-      expect(cost).toBe(Infinity);
+      expect(cost).toBe(2);
     });
 
     it('should add 1 MP for elevation change going up', () => {
@@ -473,6 +475,75 @@ describe('movement', () => {
         r: 0,
       });
       expect(cost).toBe(3);
+    });
+
+    it('should block tracked vehicles from entering water without flotation', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(
+        grid,
+        { q: 1, r: 0 },
+        terrainStringFromFeatures([{ type: TerrainType.Water, level: 1 }]),
+      );
+
+      const blocked = getMovementStepCostBreakdown(
+        grid,
+        { q: 1, r: 0 },
+        'tracked',
+        { q: 0, r: 0 },
+      );
+      const flotationCost = getHexMovementCost(
+        grid,
+        { q: 1, r: 0 },
+        'tracked',
+        { q: 0, r: 0 },
+        { waterCapability: { flotationHull: true } },
+      );
+
+      expect(blocked).toMatchObject({
+        mpCost: Infinity,
+        blockedReason: 'Water blocks ground movement',
+      });
+      expect(flotationCost).toBe(2);
+    });
+
+    it('should enforce vehicle elevation limits while preserving walking climb rules', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 2);
+
+      const walkCost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', {
+        q: 0,
+        r: 0,
+      });
+      const tracked = getMovementStepCostBreakdown(
+        grid,
+        { q: 1, r: 0 },
+        'tracked',
+        { q: 0, r: 0 },
+      );
+
+      expect(walkCost).toBe(3);
+      expect(tracked).toMatchObject({
+        mpCost: Infinity,
+        elevationDelta: 2,
+        blockedReason: 'Elevation change of 2 exceeds Tracked movement limit',
+      });
+    });
+
+    it('should require naval movement to remain on water terrain', () => {
+      const grid = createHexGrid({ radius: 3 });
+
+      const blocked = getMovementStepCostBreakdown(
+        grid,
+        { q: 1, r: 0 },
+        'naval',
+        { q: 0, r: 0 },
+      );
+
+      expect(blocked).toMatchObject({
+        mpCost: Infinity,
+        blockedReason: 'Naval movement requires water terrain',
+      });
     });
 
     it('should return Infinity for invalid hex', () => {
