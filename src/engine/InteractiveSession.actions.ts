@@ -129,6 +129,7 @@ export function applyInteractiveSessionMovement(
     capability: movementCapability,
     path: input.path,
     standUpMode: input.standUpMode,
+    optionalRules: input.session.config.optionalRules,
   });
 
   if (!validation.valid) {

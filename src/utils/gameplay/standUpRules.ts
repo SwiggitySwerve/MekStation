@@ -32,6 +32,12 @@ const MEK_STAND_UNIT_TYPES = new Set<UnitType | undefined>([
   UnitType.INDUSTRIALMECH,
 ]);
 
+const PLAYTEST_2_OPTIONAL_RULE_KEY = 'playtest2';
+
+export interface IStandUpRuleOptions {
+  readonly optionalRules?: readonly string[];
+}
+
 export interface IStandUpPsrProjection {
   readonly reason: string;
   readonly targetNumber?: number;
@@ -51,12 +57,14 @@ export function projectStandUpPsr({
   unitType,
   movementCapability,
   standUpMode = 'normal',
+  optionalRules = [],
 }: {
   readonly unitState: IUnitGameState;
   readonly unitPiloting?: number;
   readonly unitType?: UnitType;
   readonly movementCapability?: IMovementCapability;
   readonly standUpMode?: StandUpMode;
+  readonly optionalRules?: readonly string[];
 }): IStandUpPsrProjection {
   const psr = createStandingUpPSR(unitState.id);
   const modifiers = calculatePSRModifiers(
@@ -64,11 +72,16 @@ export function projectStandUpPsr({
     unitState.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
     unitState.pilotWounds,
   );
+  const playtest2Modifiers = playtest2TryingToStandModifiers(optionalRules);
   const representedStandUpModifiers = representedStandUpCapabilityModifiers(
     unitState,
     movementCapability,
   );
-  const allModifiers = [...modifiers, ...representedStandUpModifiers];
+  const allModifiers = [
+    ...modifiers,
+    ...playtest2Modifiers,
+    ...representedStandUpModifiers,
+  ];
   const carefulStandModifier = shouldApplyCarefulStandModifier(
     movementCapability,
     standUpMode,
@@ -96,6 +109,27 @@ export function projectStandUpPsr({
           targetNumber: impossibleReason ? Infinity : unitPiloting + modifier,
         }),
   };
+}
+
+function playtest2TryingToStandModifiers(
+  optionalRules: readonly string[],
+): readonly IStandUpPsrModifier[] {
+  return hasOptionalRule(optionalRules, PLAYTEST_2_OPTIONAL_RULE_KEY)
+    ? [{ name: 'Trying to stand', value: -1 }]
+    : [];
+}
+
+function hasOptionalRule(
+  optionalRules: readonly string[],
+  expectedKey: string,
+): boolean {
+  return optionalRules.some(
+    (rule) => normalizedOptionalRuleKey(rule) === expectedKey,
+  );
+}
+
+function normalizedOptionalRuleKey(rule: string): string {
+  return rule.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
 export function shouldApplyCarefulStandModifier(

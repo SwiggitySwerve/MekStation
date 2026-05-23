@@ -325,6 +325,7 @@ export function attemptStandUp(
     unitType: unit.unitType,
     movementCapability,
     standUpMode,
+    optionalRules: session.config.optionalRules,
   });
   const tn = standUpPsr.targetNumber ?? unit.piloting;
   const roll = standUpPsr.impossibleReason

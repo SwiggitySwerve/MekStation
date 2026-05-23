@@ -4,6 +4,7 @@ import type {
   IUnitGameState,
   StandUpMode,
 } from '@/types/gameplay';
+import type { IStandUpRuleOptions } from '@/utils/gameplay/standUpRules';
 
 import { projectStandUpPsr } from '@/utils/gameplay/standUpRules';
 
@@ -26,6 +27,7 @@ export function deriveStandUpProjection(
   unit: IUnitGameState,
   capability: IMovementCapability,
   standUpMode: StandUpMode = 'normal',
+  ruleOptions: IStandUpRuleOptions = {},
 ): StandUpProjection {
   if (!unit.prone) return {};
 
@@ -34,6 +36,7 @@ export function deriveStandUpProjection(
     unitPiloting: unit.piloting,
     movementCapability: capability,
     standUpMode,
+    optionalRules: ruleOptions.optionalRules,
   });
 
   return {

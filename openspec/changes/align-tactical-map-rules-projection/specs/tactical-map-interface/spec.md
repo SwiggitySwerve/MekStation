@@ -51,6 +51,13 @@ For each projected movement hex, the map SHALL expose at least movement mode, cu
 - **AND** the projected hex metadata SHALL expose stand-up cost, PSR target/modifiers when represented, and impossible stand-up reasons
 - **AND** jump destinations SHALL be blocked until the unit stands
 
+#### Scenario: Playtest2 trying-to-stand bonus agrees between map and commit
+
+- **GIVEN** a prone unit attempts to stand while the represented `playtest_2` optional rule is enabled
+- **WHEN** the map projects the stand-up PSR and committed movement resolves the stand-up attempt
+- **THEN** both projection and resolution SHALL include the `Trying to stand -1` PSR modifier
+- **AND** the projected target number SHALL match the committed PSR target number
+
 #### Scenario: Careful stand consumes the movement turn
 
 - **GIVEN** a prone unit chooses TacOps careful stand

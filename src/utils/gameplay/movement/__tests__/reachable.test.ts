@@ -326,6 +326,32 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('projects represented Playtest2 trying-to-stand bonus', () => {
+    const grid = createHexGrid({ radius: 5 });
+    const unit = {
+      ...makeUnitAtOrigin(),
+      prone: true,
+    };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
+
+    const projected = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      cap,
+      { q: 1, r: 0 },
+      'normal',
+      { optionalRules: ['playtest_2'] },
+    );
+
+    expect(projected).toMatchObject({
+      reachable: true,
+      standUpPsrTargetNumber: 4,
+      standUpPsrModifier: -1,
+      standUpPsrModifierDetails: ['Trying to stand -1'],
+    });
+  });
+
   it('projects represented TacOps arm-actuator stand-up penalties per arm', () => {
     const grid = createHexGrid({ radius: 5 });
     const unit = {

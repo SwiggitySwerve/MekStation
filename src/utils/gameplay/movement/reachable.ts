@@ -33,6 +33,7 @@ import type {
   IUnitGameState,
   StandUpMode,
 } from '@/types/gameplay';
+import type { IStandUpRuleOptions } from '@/utils/gameplay/standUpRules';
 
 import { getHeatMovementPenalty } from '@/constants/heat';
 import { MovementType } from '@/types/gameplay';
@@ -87,6 +88,7 @@ export function deriveReachableHexes(
   grid: IHexGrid,
   capability: IMovementCapability,
   standUpMode: StandUpMode = 'normal',
+  ruleOptions: IStandUpRuleOptions = {},
 ): readonly IMovementRangeHex[] {
   if (mpType === MovementType.Stationary) {
     return [];
@@ -119,6 +121,7 @@ export function deriveReachableHexes(
       capability,
       hex,
       standUpMode,
+      ruleOptions,
     );
 
   if (mpType === MovementType.Jump) {
@@ -149,6 +152,7 @@ export function deriveMovementRangeHexForDestination(
   capability: IMovementCapability,
   hex: IHexCoordinate,
   standUpMode: StandUpMode = 'normal',
+  ruleOptions: IStandUpRuleOptions = {},
 ): IMovementRangeHex | null {
   if (mpType === MovementType.Stationary) {
     return null;
@@ -196,6 +200,7 @@ export function deriveMovementRangeHexForDestination(
     unit,
     capability,
     standUpMode,
+    ruleOptions,
   );
 
   if (!isInBounds(grid, hex)) {

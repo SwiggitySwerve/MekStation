@@ -36,6 +36,7 @@ export interface ICommittedMovementValidationInput {
   readonly capability?: IMovementCapability | null;
   readonly path?: readonly IHexCoordinate[];
   readonly standUpMode?: StandUpMode;
+  readonly optionalRules?: readonly string[];
 }
 
 export type CommittedMovementValidationResult =
@@ -110,6 +111,7 @@ export function validateCommittedMovement(
     input.capability,
     input.to,
     standUpMode,
+    { optionalRules: input.optionalRules },
   );
   const shouldDeferImpossibleStandUpResolution =
     input.unit.prone === true &&

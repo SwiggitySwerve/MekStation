@@ -29,6 +29,8 @@ import {
   type IEffectiveMovementMps,
 } from './GameSessionPage.movementPlanning';
 
+const EMPTY_OPTIONAL_RULES: readonly string[] = [];
+
 interface MovementPlanningParams {
   readonly session: IGameSession | null;
   readonly interactiveSession: InteractiveSession | null;
@@ -97,6 +99,7 @@ export function useGameMovementPlanning({
   );
   const movementType =
     plannedMovementForSelected?.movementType ?? MovementType.Walk;
+  const optionalRules = session?.config.optionalRules ?? EMPTY_OPTIONAL_RULES;
   const effectiveMovementMps = useMemo((): IEffectiveMovementMps | null => {
     if (!capability || !selectedUnitState) return null;
     return getEffectiveMovementMps(capability, selectedUnitState.heat);
@@ -127,6 +130,8 @@ export function useGameMovementPlanning({
       movementType,
       movementGrid,
       capability,
+      'normal',
+      { optionalRules },
     );
     if (movementType !== MovementType.Run) return primary;
 
@@ -135,6 +140,8 @@ export function useGameMovementPlanning({
       MovementType.Walk,
       movementGrid,
       capability,
+      'normal',
+      { optionalRules },
     );
     return mergeRunMovementRangeHexes(primary, walk);
   }, [
@@ -145,6 +152,7 @@ export function useGameMovementPlanning({
     isPlayerControlled,
     phase,
     movementType,
+    optionalRules,
   ]);
 
   const baseMovementRangeLookup = useMemo(() => {
@@ -176,6 +184,8 @@ export function useGameMovementPlanning({
       movementGrid,
       capability,
       hoveredHex,
+      'normal',
+      { optionalRules },
     );
   }, [
     hoveredHex,
@@ -187,6 +197,7 @@ export function useGameMovementPlanning({
     phase,
     movementType,
     baseMovementRangeLookup,
+    optionalRules,
   ]);
 
   const movementRangeHexes = useMemo(

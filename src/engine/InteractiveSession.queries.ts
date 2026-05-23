@@ -54,6 +54,7 @@ export function getAvailableActionsForState(
         unit,
         movementCapability,
         occupiedGrid,
+        options.session?.config.optionalRules ?? [],
       )
     : [];
 
@@ -98,6 +99,7 @@ function deriveAvailableMovementDestinations(
   unit: IGameState['units'][string],
   movementCapability: IMovementCapability,
   grid: IHexGrid,
+  optionalRules: readonly string[],
 ): readonly IHexCoordinate[] {
   const reachableByKey = new Map<string, IHexCoordinate>();
 
@@ -107,6 +109,8 @@ function deriveAvailableMovementDestinations(
       movementType,
       grid,
       movementCapability,
+      'normal',
+      { optionalRules },
     )) {
       if (movementHex.reachable) {
         reachableByKey.set(coordToKey(movementHex.hex), movementHex.hex);

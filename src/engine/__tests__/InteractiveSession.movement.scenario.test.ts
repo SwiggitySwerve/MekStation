@@ -2300,6 +2300,85 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps Playtest2 trying-to-stand bonus aligned between preview and commit', () => {
+    const baseSession = setupSessionAtMovement();
+    const session: IGameSession = {
+      ...baseSession,
+      config: {
+        ...baseSession.config,
+        optionalRules: ['playtest_2'],
+      },
+    };
+    session.currentState.units.m1 = {
+      ...session.currentState.units.m1,
+      prone: true,
+    };
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
+
+    const preview = deriveMovementRangeHexForDestination(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+      { q: 1, r: 0 },
+      'normal',
+      { optionalRules: session.config.optionalRules },
+    );
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      standUpPsrTargetNumber: 4,
+      standUpPsrModifier: -1,
+      standUpPsrModifierDetails: ['Trying to stand -1'],
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+      diceRoller: fixed2d6(4),
+    });
+
+    const resolved = result.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    );
+    expect(resolved?.payload).toMatchObject({
+      targetNumber: 4,
+      roll: 4,
+      modifiers: -1,
+      passed: true,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      mpUsed: 3,
+      standUpAttempt: true,
+      standUpSucceeded: true,
+    });
+    expect(result.currentState.units.m1).toMatchObject({
+      position: { q: 1, r: 0 },
+      prone: false,
+    });
+  });
+
   it('keeps TacOps arm-actuator stand-up penalties aligned between preview and commit', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.m1 = {
