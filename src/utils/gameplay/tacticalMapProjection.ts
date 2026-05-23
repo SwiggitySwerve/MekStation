@@ -251,6 +251,74 @@ function formatProjectionExplanation({
         movement.reachable ? 'reachable' : 'blocked'
       } ${movement.mpCost} MP`,
     );
+    const movementTypeName = String(movement.movementType).toLowerCase();
+    if (movement.movementMode && movement.movementMode !== movementTypeName) {
+      parts.push(`mode ${movement.movementMode}`);
+    }
+    if (movement.terrainCost !== undefined) {
+      parts.push(`terrain cost ${formatSignedCost(movement.terrainCost)}`);
+    }
+    if (
+      movement.elevationDelta !== undefined ||
+      movement.elevationCost !== undefined
+    ) {
+      const elevationParts: string[] = [];
+      if (movement.elevationDelta !== undefined) {
+        elevationParts.push(
+          `delta ${formatSignedCost(movement.elevationDelta)}`,
+        );
+      }
+      if (movement.elevationCost !== undefined) {
+        elevationParts.push(`cost ${formatSignedCost(movement.elevationCost)}`);
+      }
+      parts.push(`elevation ${elevationParts.join(' ')}`);
+    }
+    if (movement.heatGenerated !== undefined) {
+      parts.push(`heat ${formatSignedCost(movement.heatGenerated)}`);
+    }
+    if (movement.path && movement.path.length > 1) {
+      const stepCount = movement.path.length - 1;
+      parts.push(`path ${stepCount} ${stepCount === 1 ? 'step' : 'steps'}`);
+    }
+    if (movement.standUpRequired) {
+      const standUpMode = movement.standUpMode ?? 'normal';
+      const standUpCost =
+        movement.standUpCost === undefined
+          ? ''
+          : ` ${formatSignedCost(movement.standUpCost)} MP`;
+      parts.push(`stand-up ${standUpMode}${standUpCost}`);
+      if (movement.standUpPsrImpossibleReason) {
+        parts.push(
+          `stand-up impossible ${movement.standUpPsrImpossibleReason}`,
+        );
+      } else if (movement.standUpPsrRequired) {
+        const psrReason = movement.standUpPsrReason
+          ? `${movement.standUpPsrReason} `
+          : '';
+        const target =
+          movement.standUpPsrTargetNumber === undefined
+            ? 'unknown'
+            : Number.isFinite(movement.standUpPsrTargetNumber)
+              ? `${movement.standUpPsrTargetNumber}`
+              : 'impossible';
+        parts.push(`stand-up PSR ${psrReason}TN ${target}`);
+      }
+      if (
+        movement.standUpPsrModifier !== undefined &&
+        movement.standUpPsrModifier !== 0
+      ) {
+        parts.push(
+          `stand-up PSR modifier ${formatSignedCost(
+            movement.standUpPsrModifier,
+          )}`,
+        );
+      }
+      if (movement.standUpPsrModifierDetails?.length) {
+        parts.push(
+          `stand-up modifiers ${movement.standUpPsrModifierDetails.join('; ')}`,
+        );
+      }
+    }
   }
   if (combat) {
     parts.push(
@@ -299,4 +367,8 @@ function formatProjectionExplanation({
 function formatMovementType(movementType: string): string {
   if (movementType.length === 0) return movementType;
   return `${movementType[0].toUpperCase()}${movementType.slice(1)}`;
+}
+
+function formatSignedCost(value: number): string {
+  return value >= 0 ? `+${value}` : `${value}`;
 }

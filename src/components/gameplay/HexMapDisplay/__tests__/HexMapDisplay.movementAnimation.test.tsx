@@ -376,6 +376,10 @@ describe('HexMapDisplay tactical visual layers', () => {
             standUpPsrTargetNumber: 5,
             standUpPsrModifier: 0,
             movementMode: 'tracked',
+            path: [
+              { q: 0, r: 0 },
+              { q: 1, r: 0 },
+            ],
             reachable: true,
             movementType: MovementType.Walk,
           },
@@ -424,6 +428,38 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(reachable).toHaveAttribute('data-elevation-delta', '1');
     expect(reachable).toHaveAttribute('data-elevation-cost', '1');
     expect(reachable).toHaveAttribute('data-movement-mode', 'tracked');
+    expect(reachable).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('Walk reachable 3 MP'),
+    );
+    expect(reachable).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('mode tracked'),
+    );
+    expect(reachable).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('terrain cost +1'),
+    );
+    expect(reachable).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('elevation delta +1 cost +1'),
+    );
+    expect(reachable).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('heat +0'),
+    );
+    expect(reachable).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('path 1 step'),
+    );
+    expect(reachable).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('stand-up normal +2 MP'),
+    );
+    expect(reachable).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('stand-up PSR Standing up TN 5'),
+    );
     expect(reachable).toHaveAttribute('data-stand-up-required', 'true');
     expect(reachable).toHaveAttribute('data-stand-up-cost', '2');
     expect(reachable).toHaveAttribute('data-stand-up-psr-required', 'true');

@@ -124,6 +124,54 @@ describe('tacticalMapProjection', () => {
     );
   });
 
+  it('includes movement cost details in the shared projection explanation', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: terrain(-1, TerrainType.Rough),
+      movement: movement({
+        mpCost: 5,
+        terrainCost: 2,
+        elevationDelta: -1,
+        elevationCost: 0,
+        heatGenerated: 3,
+        movementMode: 'tracked',
+        path: [
+          { q: 0, r: 0 },
+          { q: 0, r: 1 },
+          { q: 1, r: 0 },
+        ],
+        standUpRequired: true,
+        standUpMode: 'careful',
+        standUpCost: 1,
+        standUpPsrRequired: true,
+        standUpPsrReason: 'Careful stand',
+        standUpPsrTargetNumber: 4,
+        standUpPsrModifier: -2,
+        standUpPsrModifierDetails: ['Careful stand -2'],
+      }),
+      combat: undefined,
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection.explanation).toContain('Walk reachable 5 MP');
+    expect(projection.explanation).toContain('mode tracked');
+    expect(projection.explanation).toContain('terrain cost +2');
+    expect(projection.explanation).toContain('elevation delta -1 cost +0');
+    expect(projection.explanation).toContain('heat +3');
+    expect(projection.explanation).toContain('path 2 steps');
+    expect(projection.explanation).toContain('stand-up careful +1 MP');
+    expect(projection.explanation).toContain('stand-up PSR Careful stand TN 4');
+    expect(projection.explanation).toContain('stand-up PSR modifier -2');
+    expect(projection.explanation).toContain(
+      'stand-up modifiers Careful stand -2',
+    );
+    expect(projection.explanation).toContain('terrain rough');
+    expect(projection.explanation).toContain('elevation -1');
+  });
+
   it('includes combat modifier details in the shared projection explanation', () => {
     const projection = buildTacticalMapHexProjection({
       hex: { q: 1, r: 0 },
