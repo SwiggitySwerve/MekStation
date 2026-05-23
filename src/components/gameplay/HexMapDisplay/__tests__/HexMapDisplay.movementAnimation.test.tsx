@@ -306,10 +306,16 @@ describe('HexMapDisplay tactical visual layers', () => {
       'aria-label',
       'Walk movement range; inactive',
     );
+    expect(
+      screen.getByTestId('mp-legend-walk').querySelector('span'),
+    ).toHaveClass('bg-cyan-400');
     expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
       'data-active',
       'true',
     );
+    expect(
+      screen.getByTestId('mp-legend-run').querySelector('span'),
+    ).toHaveClass('bg-yellow-500');
     expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
       'aria-label',
       'Run movement range; active',
@@ -317,6 +323,9 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('mp-legend-jump')).toHaveClass(
       'pointer-events-auto',
     );
+    expect(
+      screen.getByTestId('mp-legend-jump').querySelector('span'),
+    ).toHaveClass('bg-red-500');
     expect(screen.getByTestId('mp-legend-jump')).toHaveAttribute(
       'data-disabled',
       'true',

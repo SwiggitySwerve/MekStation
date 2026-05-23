@@ -65,9 +65,9 @@ const JUMP_PATTERN_URL = 'url(#pattern-jump-range)';
 
 /**
  * Per `add-movement-phase-ui` task 3.2-3.4: pick the per-type tile
- * color (green = walk, yellow = run, blue = jump). Falls back to the
- * uniform `movementRange` color for legacy callers that don't set a
- * type or use Stationary.
+ * color (MegaMek-style cyan = walk, yellow = run, red = jump). Falls
+ * back to the uniform `movementRange` color for legacy callers that
+ * don't set a type or use Stationary.
  */
 function colorForMovementType(type: MovementType): string {
   switch (type) {

@@ -78,10 +78,11 @@ describe('add-movement-phase-ui — smoke test', () => {
 
   describe('HEX_COLORS movement-type palette (task 3.2-3.4)', () => {
     it('exposes per-movement-type tile colors', () => {
-      // Per spec: green=Walk, yellow=Run, blue=Jump
-      expect(HEX_COLORS.movementRangeWalk).toBe('#bbf7d0');
+      // MegaMek movement reference: cyan=Walk, yellow=Run, red=Jump.
+      expect(HEX_COLORS.movementRangeWalk).toBe('#67e8f9');
       expect(HEX_COLORS.movementRangeRun).toBe('#fef08a');
-      expect(HEX_COLORS.movementRangeJump).toBe('#bfdbfe');
+      expect(HEX_COLORS.movementRangeJump).toBe('#f87171');
+      expect(HEX_COLORS.movementRangeUnreachable).toBe('#64748b');
       // Legacy uniform color preserved for backwards compat
       expect(HEX_COLORS.movementRange).toBeDefined();
     });

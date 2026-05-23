@@ -51,10 +51,10 @@ export function MapMovementPointLegend({
         const mpLabel = mp === undefined ? undefined : `${mp} MP`;
         const swatch =
           kind === 'walk'
-            ? 'bg-green-500'
+            ? 'bg-cyan-400'
             : kind === 'run'
               ? 'bg-yellow-500'
-              : 'bg-blue-500';
+              : 'bg-red-500';
         const label =
           kind === 'walk' ? 'Walk' : kind === 'run' ? 'Run' : 'Jump';
         const stateParts = [

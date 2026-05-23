@@ -46,15 +46,15 @@ export const HEX_COLORS: Record<string, string> = {
   /** Reachable movement range (legacy uniform color; per
    *  add-movement-phase-ui task 3.2-3.4 use the per-type colors below
    *  when movement type is known). */
-  movementRange: '#86efac',
-  /** Walk-range tile (green per spec) */
-  movementRangeWalk: '#bbf7d0',
-  /** Run-range tile (yellow per spec) */
+  movementRange: '#67e8f9',
+  /** Walk-range tile (cyan per MegaMek movement phase reference) */
+  movementRangeWalk: '#67e8f9',
+  /** Run-range tile (yellow per MegaMek movement phase reference) */
   movementRangeRun: '#fef08a',
-  /** Jump-range tile (blue per spec) */
-  movementRangeJump: '#bfdbfe',
-  /** Unreachable/blocked movement */
-  movementRangeUnreachable: '#fca5a5',
+  /** Jump-range tile (red per MegaMek movement phase reference) */
+  movementRangeJump: '#f87171',
+  /** Unreachable/blocked movement (dark gray per MegaMek path convention) */
+  movementRangeUnreachable: '#64748b',
   /** Attack range highlight */
   attackRange: '#fecaca',
   /** Path visualization */
