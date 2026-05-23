@@ -1596,6 +1596,38 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows charge and DFA against explicit building or fuel-tank targets', () => {
+      for (const targetObjectType of ['building', 'fuelTank'] as const) {
+        expect(
+          canCharge(
+            makeInput({
+              attackType: 'charge',
+              attackerRanThisTurn: true,
+              targetObjectType,
+              targetDistance: 1,
+            }),
+          ),
+        ).toMatchObject({
+          allowed: false,
+          reasonCode: 'InvalidPhysicalTarget',
+        });
+
+        expect(
+          canDFA(
+            makeInput({
+              attackType: 'dfa',
+              attackerJumpedThisTurn: true,
+              targetObjectType,
+              targetDistance: 1,
+            }),
+          ),
+        ).toMatchObject({
+          allowed: false,
+          reasonCode: 'InvalidPhysicalTarget',
+        });
+      }
+    });
+
     it('disallows airborne physical targets across supported physical attack families', () => {
       expect(
         canPunch(

@@ -44,6 +44,7 @@
 - [x] 2.32.1 Add helper-level target object gates for invalid physical hex targets and push building/fuel-tank rejection while leaving runtime non-unit target commands explicit out of scope.
 - [x] 2.32.2 Add helper-level DFA VTOL/WIGE elevation-reach gate while leaving runtime VTOL/WIGE motion-state hydration explicit out of scope.
 - [x] 2.32.3 Add helper-level DFA mechanical jump booster rejection while leaving runtime movement-step hydration explicit out of scope.
+- [x] 2.32.4 Add helper-level charge/DFA building and fuel-tank target rejection while leaving gun-emplacement automatic-success semantics explicit out of scope.
 
 ## 3. Full combat validation catalog
 

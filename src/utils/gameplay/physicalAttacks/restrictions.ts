@@ -24,6 +24,11 @@ const INVALID_PHYSICAL_TARGET_OBJECT_TYPES = new Set([
   'hexIgnite',
 ]);
 
+const CHARGE_DFA_NON_ENTITY_TARGET_OBJECT_TYPES = new Set([
+  'building',
+  'fuelTank',
+]);
+
 const PUSH_BLOCKED_TARGET_OBJECT_TYPES = new Set(['building', 'fuelTank']);
 
 /**
@@ -185,6 +190,22 @@ function chargeDfaDisplacementStateRestriction(
     return blocked(
       'Target is the target of another charge/DFA',
       'TargetOfDisplacementAttack',
+    );
+  }
+
+  return { allowed: true };
+}
+
+function chargeDfaTargetObjectRestriction(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  if (
+    input.targetObjectType &&
+    CHARGE_DFA_NON_ENTITY_TARGET_OBJECT_TYPES.has(input.targetObjectType)
+  ) {
+    return blocked(
+      'Charge and DFA require entity targets',
+      'InvalidPhysicalTarget',
     );
   }
 
@@ -429,6 +450,9 @@ export function canDFA(
   const sharedRestriction = sharedPhysicalTargetRestriction(input);
   if (!sharedRestriction.allowed) return sharedRestriction;
 
+  const targetObjectRestriction = chargeDfaTargetObjectRestriction(input);
+  if (!targetObjectRestriction.allowed) return targetObjectRestriction;
+
   if (input.attackerUsedMechanicalJumpBooster) {
     return {
       allowed: false,
@@ -492,6 +516,9 @@ export function canCharge(
 ): IPhysicalAttackRestriction {
   const sharedRestriction = sharedPhysicalTargetRestriction(input);
   if (!sharedRestriction.allowed) return sharedRestriction;
+
+  const targetObjectRestriction = chargeDfaTargetObjectRestriction(input);
+  if (!targetObjectRestriction.allowed) return targetObjectRestriction;
 
   if (input.attackerRanThisTurn === false) {
     return blocked('Charge requires a run this turn', 'NoRunThisTurn');

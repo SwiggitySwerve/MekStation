@@ -44,24 +44,6 @@ function helperOnly(
   };
 }
 
-function unsupported(
-  id: string,
-  attackFamily: PhysicalLegalityAttackFamily,
-  gap: string,
-  authority: string,
-): IPhysicalLegalityGateSupportEntry {
-  return {
-    id,
-    attackFamily,
-    authority,
-    level: 'unsupported',
-    evidence:
-      'MegaMek legality gate is source-checked but not enforced by MekStation physical restriction helpers',
-    gap,
-    sourceRefs: sourceRefsForAuthority(authority),
-  };
-}
-
 const MEGAMEK_PHYSICAL_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
@@ -326,10 +308,11 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canCharge rejects declarations when attackerRanThisTurn is false',
     CHARGE_ACTION_LINES,
   ),
-  'charge.target-entity': unsupported(
+  'charge.target-entity': helperOnly(
     'charge.target-entity',
     'charge',
-    'charge restrictions do not distinguish entity, building, fuel-tank, gun-emplacement, or invalid hex targets',
+    'canCharge consumes targetObjectType and rejects explicit building or fuel-tank charge targets as InvalidPhysicalTarget, matching MegaMek source order where non-entity targets return Invalid Target before later physical target branches',
+    'Runtime physical declarations and runner selection still target unit ids only; gun-emplacement automatic-success semantics need a separate automatic physical outcome model',
     CHARGE_ACTION_LINES,
   ),
   'charge.target-mek-standing': integrated(
@@ -362,10 +345,11 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canCharge consumes targetIsMakingDisplacementAttack and targetedByDisplacementAttackerId to reject targets already making a charge/DFA or already owned by another displacement attacker; eligibility, event-sourced declaration/resolution, runner resolution, and automatic selection thread the same optional displacement state',
     CHARGE_ACTION_LINES,
   ),
-  'charge.building-auto-hit': unsupported(
+  'charge.building-auto-hit': helperOnly(
     'charge.building-auto-hit',
     'charge',
-    'charge restrictions do not model adjacent building, fuel-tank, or gun-emplacement automatic hit targets',
+    'canCharge rejects explicit building and fuel-tank targetObjectType values as InvalidPhysicalTarget because MegaMek ChargeAttackAction returns Invalid Target for non-entity targets before its later adjacent-building branch',
+    'Gun-emplacement automatic-success semantics and runtime non-unit physical target declarations remain unsupported',
     CHARGE_ACTION_LINES,
   ),
   'dfa.requires-jump': integrated(
@@ -418,10 +402,11 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'canDFA consumes the shared targetOccupiedBuildingId gate and rejects entity targets inside another building as TargetInsideBuilding through eligibility, event-sourced declaration/resolution, and runner resolution inputs',
     DFA_ACTION_LINES,
   ),
-  'dfa.building-auto-hit': unsupported(
+  'dfa.building-auto-hit': helperOnly(
     'dfa.building-auto-hit',
     'dfa',
-    'DFA restrictions do not model adjacent building, fuel-tank, or gun-emplacement automatic hit targets',
+    'canDFA rejects explicit building and fuel-tank targetObjectType values as InvalidPhysicalTarget because MegaMek DfaAttackAction returns Invalid Target for non-entity targets before its later adjacent-building branch',
+    'Gun-emplacement automatic-success semantics and runtime non-unit physical target declarations remain unsupported',
     DFA_ACTION_LINES,
   ),
 } satisfies Record<string, IPhysicalLegalityGateSupportEntry>;

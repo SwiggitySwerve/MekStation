@@ -133,6 +133,14 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** the push SHALL be rejected with `TargetBuilding`
 - **AND** the validation catalog SHALL mark this as helper-only until runtime physical declarations can target non-unit objects
 
+#### Scenario: Charge and death from above helpers reject non-entity building targets
+
+- **GIVEN** a charge or death from above helper evaluates a building or fuel-tank target object
+- **WHEN** the action-specific legality gate runs
+- **THEN** the attack SHALL be rejected with `InvalidPhysicalTarget`
+- **AND** the catalog SHALL record that MegaMek source order returns `Invalid Target` for non-entity targets before the later adjacent-building branch
+- **AND** gun-emplacement automatic-success semantics SHALL remain an explicit gap until the physical outcome model can represent automatic success
+
 #### Scenario: Charge rejects invalid standing-Mek target gates
 
 - **GIVEN** a BattleMech-compatible attacker declares a charge after running this turn
