@@ -1263,6 +1263,24 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(supportIdsByLevel(HEAT_RULE_COMBAT_SUPPORT, 'helper-only')).toEqual(
       [],
     );
+
+    const heatAmmoExplosionRefs =
+      HEAT_RULE_COMBAT_SUPPORT['heat-induced-ammo-explosion'].sourceRefs ?? [];
+    expect(
+      heatAmmoExplosionRefs.map((sourceRef) => sourceRef.citation),
+    ).toEqual([
+      expect.stringContaining('HeatResolver checks heat >= 19'),
+      expect.stringContaining('explodeAmmoFromHeat selects'),
+    ]);
+    expect(
+      heatAmmoExplosionRefs.every(
+        (sourceRef) =>
+          sourceRef.kind === 'megamek-source' &&
+          sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
+          sourceRef.url.includes(sourceRef.sourceVersion) &&
+          sourceRef.url.includes('#L'),
+      ),
+    ).toBe(true);
   });
 
   it('tracks damage, pilot injury, critical components, and destruction causes', () => {

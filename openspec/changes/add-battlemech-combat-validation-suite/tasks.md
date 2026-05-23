@@ -49,3 +49,4 @@
 - [x] 4.1 Cross-check current physical legality gates against MegaMek behavior notes.
 - [x] 4.2 Add source anchors for remaining physical gaps before marking them integrated.
 - [ ] 4.3 Cross-check weapon, heat, movement, SPA, quirk, and lifecycle rows against rulebook/MegaMek/MekHQ references before implementation claims.
+- [x] 4.3.1 Add structured MegaMek source anchors for heat-induced ammo explosion threshold and ammo-bin selection behavior.

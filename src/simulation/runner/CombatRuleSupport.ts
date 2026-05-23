@@ -5,19 +5,58 @@ import {
 import { RangeBracket } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
-function integrated(id: string, evidence: string): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence };
+function integrated(
+  id: string,
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'integrated', evidence, sourceRefs }
+    : { id, level: 'integrated', evidence };
 }
 
 function helperOnly(
   id: string,
   evidence: string,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return { id, level: 'helper-only', evidence, gap };
+  return sourceRefs
+    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
+    : { id, level: 'helper-only', evidence, gap };
 }
+
+const MEGAMEK_HEAT_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
+function megamekHeatSourceRef(
+  citation: string,
+  path: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'megamek-source',
+    citation,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_HEAT_SOURCE_VERSION}/megamek/src/megamek/${path}#${lineRange}`,
+    sourceVersion: MEGAMEK_HEAT_SOURCE_VERSION,
+  };
+}
+
+const MEGAMEK_HEAT_AMMO_EXPLOSION_ROLL_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek HeatResolver checks heat >= 19 and routes failed ammo-explosion checks through explodeAmmoFromHeat',
+  'server/totalWarfare/HeatResolver.java',
+  'L1182-L1217',
+);
+
+const MEGAMEK_HEAT_AMMO_SELECTION_SOURCE_REF = megamekHeatSourceRef(
+  'MegaMek TWGameManager.explodeAmmoFromHeat selects the most destructive hittable explosive ammo bin before explosion resolution',
+  'server/totalWarfare/TWGameManager.java',
+  'L22855-L22923',
+);
 
 export const RUNNER_RANGE_BRACKET_COMBAT_SUPPORT = {
   [RangeBracket.Short]: integrated(
@@ -327,6 +366,10 @@ export const HEAT_RULE_COMBAT_SUPPORT = {
   'heat-induced-ammo-explosion': integrated(
     'heat-induced-ammo-explosion',
     'runHeatPhase emits one AmmoExplosion source HeatInduced for the highest per-round damage loaded ammo bin, reports remaining rounds multiplied by matched weapon damage, empties that bin, and applies the damage cascade',
+    [
+      MEGAMEK_HEAT_AMMO_EXPLOSION_ROLL_SOURCE_REF,
+      MEGAMEK_HEAT_AMMO_SELECTION_SOURCE_REF,
+    ],
   ),
   'pilot-heat-damage': integrated(
     'pilot-heat-damage',
