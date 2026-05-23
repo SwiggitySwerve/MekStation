@@ -181,6 +181,31 @@ export function hydrateHasStealthArmorFromFullUnit(
   });
 }
 
+export interface IHydratedTalonState {
+  readonly leftLegHasTalons: boolean;
+  readonly rightLegHasTalons: boolean;
+}
+
+function hasTalonCriticalSlot(slots: readonly string[]): boolean {
+  return slots.some((slot) =>
+    normalizeCriticalSlotText(slot).includes('talons'),
+  );
+}
+
+export function hydrateTalonStateFromFullUnit(
+  fullUnit: IFullUnit,
+): IHydratedTalonState {
+  const criticalSlots = criticalSlotsFromFullUnit(fullUnit);
+  return {
+    leftLegHasTalons: hasTalonCriticalSlot(
+      locationSlotTexts(criticalSlots, 'LEFT_LEG'),
+    ),
+    rightLegHasTalons: hasTalonCriticalSlot(
+      locationSlotTexts(criticalSlots, 'RIGHT_LEG'),
+    ),
+  };
+}
+
 export function hydrateUnitQuirksFromFullUnit(
   fullUnit: IFullUnit,
 ): readonly string[] {
@@ -930,6 +955,7 @@ export function createHydratedUnitState(
   const { armor } = hydrateArmorFromFullUnit(fullUnit);
   const { structure } = hydrateStructureFromFullUnit(fullUnit);
   const heatSinks = hydrateHeatSinksFromFullUnit(fullUnit);
+  const talons = hydrateTalonStateFromFullUnit(fullUnit);
 
   return {
     id: runnerUnitId,
@@ -944,6 +970,8 @@ export function createHydratedUnitState(
     heatSinks: heatSinks.count,
     heatSinkType: heatSinks.kind,
     hasTSM: hydrateHasTSMFromFullUnit(fullUnit),
+    leftLegHasTalons: talons.leftLegHasTalons,
+    rightLegHasTalons: talons.rightLegHasTalons,
     hasStealthArmor: hydrateHasStealthArmorFromFullUnit(fullUnit),
     unitQuirks: hydrateUnitQuirksFromFullUnit(fullUnit),
     weaponLocationById: weaponLocationByIdFromWeapons(hydrated.aiWeapons),

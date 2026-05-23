@@ -239,8 +239,8 @@ export const PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT = {
   ),
   talons: helperOnly(
     'talons',
-    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, and runPhysicalAttackPhase consume explicit talon leg state for source-backed +50% kick/DFA damage',
-    'UnitHydration does not yet derive talon mount state from equipment, and non-biped talon arm-location behavior is not modeled',
+    'calculateKickDamage, calculateDFADamageToTarget, eligibility projection, session physical contexts, UnitHydration, and runPhysicalAttackPhase consume talon leg state for source-backed +50% kick/DFA damage',
+    'Destroyed/missing/breached talon equipment lifecycle and non-biped talon arm-location behavior are not modeled',
     [
       {
         kind: 'megamek-source',

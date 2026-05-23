@@ -303,7 +303,8 @@ BattleMech physical weapon runtime support SHALL stay aligned with MegaMek `Club
 - **WHEN** it resolves death from above with at least one qualifying talon leg
 - **THEN** DFA target damage SHALL apply MegaMek's source-backed truncating `baseDfaDamage * 1.5` talon modifier before physical damage bonuses
 - **AND** talons SHALL remain non-selectable in runtime physical attack option lists because they modify existing kick/DFA actions rather than declaring a distinct physical attack
-- **AND** the validation catalog SHALL keep mounted-equipment hydration and non-biped talon arm-location behavior visible as remaining gaps
+- **AND** catalog UnitHydration SHALL derive biped leg talon state from `LEFT_LEG` and `RIGHT_LEG` critical slots containing Talons entries
+- **AND** the validation catalog SHALL keep destroyed/missing/breached talon equipment lifecycle and non-biped talon arm-location behavior visible as remaining gaps
 
 ### Requirement: Designator Marker Replay State
 

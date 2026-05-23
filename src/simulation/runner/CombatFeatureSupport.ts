@@ -546,8 +546,8 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
   ),
   talons: helperOnly(
     'talons',
-    'source-backed kick and DFA damage helpers apply the +50% talon modifier when explicit biped leg/foot talon state is present',
-    'UnitHydration does not yet derive talon mount state from equipment, and non-biped talon arm-location behavior is not modeled',
+    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit state or UnitHydration leg critical-slot state',
+    'Destroyed/missing/breached talon equipment lifecycle and non-biped talon arm-location behavior are not modeled',
     [
       MEGAMEK_325B_TALON_KICK_DAMAGE,
       MEGAMEK_325B_TALON_DFA_DAMAGE,

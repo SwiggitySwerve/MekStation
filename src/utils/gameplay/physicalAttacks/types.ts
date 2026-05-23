@@ -353,8 +353,8 @@ export interface IPhysicalAttackInput {
   /**
    * Source-backed Talons modifier state. MegaMek applies the +50% damage
    * modifier only when the attacking leg (or either DFA leg) has working
-   * talons and a working foot actuator. Undefined preserves callers that
-   * do not yet hydrate mounted talon equipment.
+   * talons and a working foot actuator. Undefined preserves callers outside
+   * UnitHydration that do not carry mounted talon equipment.
    */
   readonly leftLegHasTalons?: boolean;
   readonly rightLegHasTalons?: boolean;

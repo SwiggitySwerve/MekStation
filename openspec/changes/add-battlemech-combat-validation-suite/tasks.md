@@ -47,6 +47,7 @@
 - [x] 2.32.4 Add helper-level charge/DFA building and fuel-tank target rejection while leaving gun-emplacement automatic-success semantics explicit out of scope.
 - [x] 2.32.5 Integrate source-backed retractable blade damage, to-hit, optional extended-mode legality, runtime intent/wire validation, and runner resolution while leaving physical weapon mode hydration explicit out of scope.
 - [x] 2.32.6 Add source-backed talon kick/DFA damage modifiers through explicit combat state/context while leaving mounted-equipment hydration and non-biped talon locations explicit out of scope.
+- [x] 2.32.7 Hydrate biped BattleMech talon leg state from catalog critical slots so source-backed talon kick/DFA modifiers apply to real unit data, while leaving destroyed/missing/breached talon lifecycle and non-biped talon behavior explicit out of scope.
 
 ## 3. Full combat validation catalog
 

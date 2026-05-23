@@ -233,9 +233,9 @@ export interface IUnitGameState {
   /** Triple-strength myomer installed; active physical damage doubles at heat 9+. */
   readonly hasTSM?: boolean;
   /**
-   * Talon equipment projected into combat state. Undefined means the session
-   * builder has not hydrated talon mounts; explicit true/false lets physical
-   * damage apply MegaMek's source-backed kick/DFA talon modifier.
+   * Talon equipment projected into combat state. UnitHydration derives this
+   * from leg critical slots for catalog units; undefined preserves synthetic
+   * fixtures that do not carry mounted talon equipment.
    */
   readonly leftLegHasTalons?: boolean;
   readonly rightLegHasTalons?: boolean;

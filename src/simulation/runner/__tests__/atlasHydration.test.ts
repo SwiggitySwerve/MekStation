@@ -47,6 +47,7 @@ import {
   hydrateHasTSMFromFullUnit,
   hydrateHeatSinksFromFullUnit,
   hydrateStructureFromFullUnit,
+  hydrateTalonStateFromFullUnit,
   resolveCatalogDamage,
   type IHydratedUnitData,
 } from '../UnitHydration';
@@ -416,6 +417,31 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     });
 
     expect(unitState.hasTSM).toBe(true);
+  });
+
+  it('hydrates BattleMech talons from leg critical slots into unit state', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('caesar-ces-5d');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    expect(hydrateTalonStateFromFullUnit(fullUnit)).toEqual({
+      leftLegHasTalons: true,
+      rightLegHasTalons: true,
+    });
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit,
+      aiWeapons: hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup),
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.leftLegHasTalons).toBe(true);
+    expect(unitState.rightLegHasTalons).toBe(true);
   });
 
   it('hydrates BattleMech stealth armor and critical-slot ECM from a real unit', async () => {

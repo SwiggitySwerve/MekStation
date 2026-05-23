@@ -85,7 +85,7 @@ describe('physical weapon catalog runtime boundary', () => {
     expect(helperOnlyPhysicalWeapons).toEqual(['talons']);
     expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.talons).toMatchObject({
       level: 'helper-only',
-      gap: expect.stringContaining('UnitHydration'),
+      gap: expect.stringContaining('talon equipment lifecycle'),
     });
 
     const options = getEligiblePhysicalAttacks(
