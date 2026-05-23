@@ -149,6 +149,8 @@ export function runPhysicalAttackPhase(options: {
           unitQuirks: unit.unitQuirks,
           attackerEvading: unit.isEvading,
           attackerLoadingOrUnloadingCargo: unit.isLoadingOrUnloadingCargo,
+          attackerBoardId: unit.boardId,
+          targetBoardId: target.boardId,
           elevationDifference,
         },
       );
@@ -206,6 +208,8 @@ export function runPhysicalAttackPhase(options: {
       targetImmobile: target.shutdown ?? false,
       targetExists: true,
       targetDestroyed: target.destroyed,
+      attackerBoardId: unit.boardId,
+      targetBoardId: target.boardId,
       targetIsPassenger: target.isPassenger,
       targetIsSwarming: target.isSwarming,
       targetIsMakingDFA: target.isMakingDFA,

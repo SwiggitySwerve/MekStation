@@ -1340,6 +1340,98 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows different-board targets across supported physical attack families', () => {
+      const boardMismatch = {
+        attackerBoardId: 'board-alpha',
+        targetBoardId: 'board-beta',
+        targetDistance: 1,
+      };
+
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            ...boardMismatch,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'DifferentBoard',
+      });
+    });
+
+    it('allows same-board physical targets when board identity is explicit', () => {
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            attackerBoardId: 'board-alpha',
+            targetBoardId: 'board-alpha',
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+    });
+
     it('disallows self-targeted physical attacks before adjacency checks', () => {
       expect(
         canPunch(

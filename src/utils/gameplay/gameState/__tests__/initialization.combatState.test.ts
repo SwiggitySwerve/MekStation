@@ -220,6 +220,15 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.isLoadingOrUnloadingCargo).toBe(true);
   });
 
+  it('copies optional board identity for physical same-board gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      boardId: 'board-alpha',
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.boardId).toBe('board-alpha');
+  });
+
   it('leaves combatState undefined for VEHICLE (kind: vehicle is a future variant)', () => {
     const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
     const state = createInitialUnitState(unit, POSITION, Facing.North);

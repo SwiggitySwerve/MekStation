@@ -175,6 +175,12 @@ export interface IGameUnit {
    */
   readonly isLoadingOrUnloadingCargo?: boolean;
   /**
+   * Optional board identity copied into combat state. When both attacker and
+   * target provide explicit ids, source-backed physical declarations require
+   * them to match.
+   */
+  readonly boardId?: string;
+  /**
    * Per-type construction inputs consumed by `createInitialUnitState` to
    * build `combatState` via `create{Type}CombatState` factories. Each block
    * is OPTIONAL at the type level so the legacy mech-only call path stays

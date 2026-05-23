@@ -172,6 +172,12 @@ export interface IUnitGameState {
    * undefined preserves legacy fixtures without cargo interaction state.
    */
   readonly isLoadingOrUnloadingCargo?: boolean;
+  /**
+   * Optional board identity for multi-board combat. When both attacker and
+   * target provide explicit ids, source-backed physical declarations require
+   * them to match.
+   */
+  readonly boardId?: string;
   /** Which side this unit belongs to */
   readonly side: GameSide;
   /** Current position */

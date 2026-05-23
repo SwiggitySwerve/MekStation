@@ -43,6 +43,8 @@ export function chooseBestPhysicalAttack(
     unitQuirks: options.unitQuirks,
     attackerEvading: options.attackerEvading,
     attackerLoadingOrUnloadingCargo: options.attackerLoadingOrUnloadingCargo,
+    attackerBoardId: options.attackerBoardId,
+    targetBoardId: options.targetBoardId,
     elevationDifference: options.elevationDifference,
   };
 

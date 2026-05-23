@@ -90,6 +90,7 @@ export type PhysicalAttackInvalidReason =
   | 'ElevationMismatch'
   | 'TargetMissing'
   | 'TargetDestroyed'
+  | 'DifferentBoard'
   | 'TargetPassenger'
   | 'TargetSwarming'
   | 'TargetMakingDFA'
@@ -171,6 +172,12 @@ export interface IPhysicalAttackInput {
    * physical targets.
    */
   readonly targetDestroyed?: boolean;
+  /**
+   * Source-backed shared physical legality: attacker and target must be on
+   * the same board. Undefined values preserve legacy single-board fixtures.
+   */
+  readonly attackerBoardId?: string;
+  readonly targetBoardId?: string;
   /**
    * Source-backed shared physical legality: transported passenger units cannot
    * be targeted by normal physical attacks.
@@ -367,6 +374,8 @@ export interface IChooseBestPhysicalAttackOptions {
   unitQuirks?: readonly string[];
   attackerEvading?: boolean;
   attackerLoadingOrUnloadingCargo?: boolean;
+  attackerBoardId?: string;
+  targetBoardId?: string;
   elevationDifference?: number;
 }
 

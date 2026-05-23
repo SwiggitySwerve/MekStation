@@ -230,6 +230,7 @@ function runPhase(
 function runAutomaticPhase(
   options: {
     attacker?: Partial<IUnitGameState>;
+    target?: Partial<IUnitGameState>;
   } = {},
 ): {
   initialState: IGameState;
@@ -246,6 +247,10 @@ function runAutomaticPhase(
       'player-1': {
         ...baseState.units['player-1'],
         ...options.attacker,
+      },
+      'opponent-1': {
+        ...baseState.units['opponent-1'],
+        ...options.target,
       },
     },
   };
@@ -442,6 +447,26 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       hit: false,
       damage: 0,
       location: 'AttackerCargoInteraction',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
+  it('rejects injected physical declarations against different-board targets before side effects', () => {
+    const { events, result } = runPhase('kick', {
+      attacker: { boardId: 'board-alpha' },
+      target: { boardId: 'board-beta' },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'DifferentBoard',
     });
     expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
     expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
@@ -1085,6 +1110,28 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
         isLoadingOrUnloadingCargo: true,
         movementThisTurn: MovementType.Run,
         hexesMovedThisTurn: 5,
+      },
+    });
+
+    expect(
+      events.filter(
+        (event) =>
+          event.actorId === 'player-1' &&
+          (event.type === GameEventType.PhysicalAttackDeclared ||
+            event.type === GameEventType.PhysicalAttackResolved),
+      ),
+    ).toEqual([]);
+  });
+
+  it('does not automatically select physical attacks against different-board targets', () => {
+    const { events } = runAutomaticPhase({
+      attacker: {
+        boardId: 'board-alpha',
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      },
+      target: {
+        boardId: 'board-beta',
       },
     });
 

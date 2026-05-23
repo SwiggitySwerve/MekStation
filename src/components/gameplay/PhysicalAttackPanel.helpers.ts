@@ -45,6 +45,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   ElevationMismatch: 'Target must be at the same elevation',
   TargetMissing: 'Target no longer exists',
   TargetDestroyed: 'Target is destroyed',
+  DifferentBoard: 'Target is on another board',
   TargetPassenger: 'Target is being transported',
   TargetSwarming: 'Target is swarming another unit',
   TargetMakingDFA: 'Target is making a DFA attack',

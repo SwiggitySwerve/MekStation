@@ -162,10 +162,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared restriction helpers reject targetIsFriendly, event-sourced declarations emit FriendlyTarget before scheduling, and runner enemy selection excludes same-side physical targets',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
-  'shared.same-board': unsupported(
+  'shared.same-board': integrated(
     'shared.same-board',
     'shared',
-    'current physical attack input has no board identity or same-board validation',
+    'IUnitGameState exposes optional boardId, shared restriction helpers reject explicit board mismatches, and eligibility/session/runner inputs thread attacker/target board identity into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
   'shared.adjacent-range': integrated(

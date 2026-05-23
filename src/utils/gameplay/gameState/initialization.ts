@@ -238,6 +238,7 @@ export function createInitialUnitState(
     occupiedBuildingId: unit.occupiedBuildingId,
     isEvading: unit.isEvading,
     isLoadingOrUnloadingCargo: unit.isLoadingOrUnloadingCargo,
+    boardId: unit.boardId,
     side: unit.side,
     position: startPosition,
     facing: startFacing,

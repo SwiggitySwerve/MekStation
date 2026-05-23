@@ -49,6 +49,17 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
+  if (
+    input.attackerBoardId !== undefined &&
+    input.targetBoardId !== undefined &&
+    input.attackerBoardId !== input.targetBoardId
+  ) {
+    return blocked(
+      'Physical attacks require attacker and target on the same board',
+      'DifferentBoard',
+    );
+  }
+
   if (input.attackerEvading) {
     return blocked(
       'Physical attacks cannot be made while evading',
