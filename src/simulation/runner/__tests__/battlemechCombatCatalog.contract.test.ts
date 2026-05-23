@@ -1009,6 +1009,55 @@ describe('BattleMech combat catalog validation lane', () => {
       'artemisv',
     ]);
   });
+
+  it('pins TAG and NARC marker mechanics to MegaMek handler refs', () => {
+    const sourceRefsFor = (
+      id: keyof typeof SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT,
+    ) => SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[id].sourceRefs ?? [];
+
+    expect(
+      sourceRefsFor('narc-marker-attachment').map(({ citation }) => citation),
+    ).toEqual([
+      'NarcHandler creates a standard NarcPod and attaches it to the hit target location.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-pod-variants').map(({ citation }) => citation),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+    ]);
+    expect(
+      sourceRefsFor('tag-designation-hit').map(({ citation }) => citation),
+    ).toEqual([
+      'TAGHandler creates TagInfo, tags the target entity, and marks the attacker as spotting for indirect fire.',
+    ]);
+    expect(
+      sourceRefsFor('tag-turn-lifecycle-clear').map(({ citation }) => citation),
+    ).toEqual([
+      'TWPhasePreparationManager clears previous-round TAG info during initiative preparation.',
+      'Game.resetTagInfo clears the tagInfoForTurn collection.',
+    ]);
+
+    const refs = [
+      ...sourceRefsFor('narc-marker-attachment'),
+      ...sourceRefsFor('inarc-pod-variants'),
+      ...sourceRefsFor('tag-designation-hit'),
+      ...sourceRefsFor('tag-turn-lifecycle-clear'),
+      ...sourceRefsFor('tag-marker-lifecycle-events'),
+      ...sourceRefsFor('narc-marker-lifecycle-events'),
+    ];
+
+    expect(
+      refs.every(
+        (sourceRef) =>
+          sourceRef.kind === 'megamek-source' &&
+          sourceRef.sourceVersion ===
+            '325b2504c7b7750ecdcb85468621fb2de2ad8e60' &&
+          sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
+          sourceRef.url.includes(sourceRef.sourceVersion) &&
+          sourceRef.url.includes('#L'),
+      ),
+    ).toBe(true);
+  });
 });
 
 describe('BattleMech combat feature-gap tracking', () => {

@@ -1,16 +1,77 @@
-import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
+import type {
+  ICombatFeatureSourceReference,
+  ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
-function integrated(id: string, evidence: string): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence };
+function integrated(
+  id: string,
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+): ICombatFeatureSupportEntry {
+  return sourceRefs
+    ? { id, level: 'integrated', evidence, sourceRefs }
+    : { id, level: 'integrated', evidence };
 }
 
 function helperOnly(
   id: string,
   evidence: string,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return { id, level: 'helper-only', evidence, gap };
+  return sourceRefs
+    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
+    : { id, level: 'helper-only', evidence, gap };
 }
+
+const MEGAMEK_DESIGNATOR_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
+const MEGAMEK_NARC_MARKER_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'NarcHandler creates a standard NarcPod and attaches it to the hit target location.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/NarcHandler.java#L243-L253',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_INARC_VARIANT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/NarcHandler.java#L254-L290',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_TAG_DESIGNATION_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'TAGHandler creates TagInfo, tags the target entity, and marks the attacker as spotting for indirect fire.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/TAGHandler.java#L75-L87',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_TAG_CLEAR_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'TWPhasePreparationManager clears previous-round TAG info during initiative preparation.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWPhasePreparationManager.java#L73-L78',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation: 'Game.resetTagInfo clears the tagInfoForTurn collection.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/game/Game.java#L3162-L3167',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
 
 export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   'uac-rate-of-fire': integrated(
@@ -59,7 +120,8 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'narc-marker-attachment': integrated(
     'narc-marker-attachment',
-    'applyDesignatorMarkerHit attaches attacker-team NARC markers to hit targets without applying damage',
+    'Source-backed standard NARC marker behavior: applyDesignatorMarkerHit attaches attacker-team NARC markers to hit targets without applying damage',
+    MEGAMEK_NARC_MARKER_SOURCE_REFS,
   ),
   'narc-cluster-modifier': integrated(
     'narc-cluster-modifier',
@@ -67,13 +129,15 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'inarc-pod-variants': helperOnly(
     'inarc-pod-variants',
-    'Indirect-fire helpers can distinguish iNarc basis flags',
+    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes',
     'iNarc pod variants are not represented in runner missile resolution',
+    MEGAMEK_INARC_VARIANT_SOURCE_REFS,
   ),
   'narc-marker-lifecycle-events': helperOnly(
     'narc-marker-lifecycle-events',
     'Runner target state preserves NARC markers after beacon hits and emits DesignatorMarkerApplied for standard NARC marker attachment',
     'iNarc pod variants are not represented in runner missile resolution',
+    MEGAMEK_NARC_MARKER_SOURCE_REFS,
   ),
   'ams-projectile-reduction': integrated(
     'ams-projectile-reduction',
@@ -97,15 +161,18 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'tag-designation-hit': integrated(
     'tag-designation-hit',
-    'applyDesignatorMarkerHit marks targets as TAG-designated on hit without applying damage',
+    'Source-backed TAG marker behavior: applyDesignatorMarkerHit marks targets as TAG-designated on hit without applying damage',
+    MEGAMEK_TAG_DESIGNATION_SOURCE_REFS,
   ),
   'tag-turn-lifecycle-clear': integrated(
     'tag-turn-lifecycle-clear',
-    'turn lifecycle reset clears transient TAG designations while preserving persistent NARC markers',
+    'Source-backed turn lifecycle reset clears transient TAG designations while preserving persistent NARC markers',
+    MEGAMEK_TAG_CLEAR_SOURCE_REFS,
   ),
   'tag-marker-lifecycle-events': integrated(
     'tag-marker-lifecycle-events',
     'runner TAG hits emit DesignatorMarkerApplied when they set transient tagDesignated target state',
+    MEGAMEK_TAG_DESIGNATION_SOURCE_REFS,
   ),
   'tag-semi-guided-cluster-bonus': integrated(
     'tag-semi-guided-cluster-bonus',
