@@ -124,6 +124,52 @@ describe('tacticalMapProjection', () => {
     );
   });
 
+  it('includes combat modifier details in the shared projection explanation', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: terrain(1, TerrainType.LightWoods),
+      movement: movement(),
+      combat: combat({
+        targetCoverLevel: CoverLevel.Partial,
+        targetPartialCover: true,
+        targetCoverModifier: 1,
+        targetCoverReason: 'Light woods partial cover +1',
+        minimumRangePenalty: 2,
+        minimumRangeWeaponIds: ['medium-laser'],
+        minimumRangeReason: 'Minimum range penalty +2 for medium-laser',
+        toHitNumber: 8,
+        toHitReason: 'Target number 8 from engine preview',
+        indirectFireAvailable: true,
+        indirectFireSpotterId: 'spotter-1',
+        indirectFireBasis: 'los',
+        indirectFireToHitPenalty: 1,
+        indirectFireReason: 'Indirect fire via spotter-1 adds +1',
+      }),
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection.explanation).toContain('combat short 1 hexes LOS clear');
+    expect(projection.explanation).toContain('arc front');
+    expect(projection.explanation).toContain('targets enemy');
+    expect(projection.explanation).toContain('visibility visible');
+    expect(projection.explanation).toContain('weapons medium-laser');
+    expect(projection.explanation).toContain('Light woods partial cover +1');
+    expect(projection.explanation).toContain(
+      'Minimum range penalty +2 for medium-laser',
+    );
+    expect(projection.explanation).toContain(
+      'Target number 8 from engine preview',
+    );
+    expect(projection.explanation).toContain(
+      'Indirect fire via spotter-1 adds +1',
+    );
+    expect(projection.explanation).toContain('Walk reachable 2 MP');
+    expect(projection.explanation).toContain('elevation 1');
+  });
+
   it('marks blocked enemy targets without treating empty range hexes as blocked targets', () => {
     const blockedTarget = buildTacticalMapHexProjection({
       hex: { q: 1, r: 0 },

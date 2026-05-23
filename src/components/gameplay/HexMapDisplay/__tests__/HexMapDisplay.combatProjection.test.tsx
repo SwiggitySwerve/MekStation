@@ -276,6 +276,26 @@ describe('HexMapDisplay combat projection', () => {
     expect(targetHex).toHaveAttribute('data-weapons-in-range', 'medium-laser');
     expect(targetHex).toHaveAttribute('data-weapons-available', 'medium-laser');
     expect(targetHex).toHaveAttribute('data-combat-target-ids', 'enemy');
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('combat short 2 hexes LOS clear'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('arc front'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('targets enemy'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('visibility visible'),
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-explanation',
+      expect.stringContaining('weapons medium-laser'),
+    );
     expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveTextContent('S');
     expect(screen.getByTestId('hex-combat-badge-2-0')).toHaveAttribute(
       'aria-label',

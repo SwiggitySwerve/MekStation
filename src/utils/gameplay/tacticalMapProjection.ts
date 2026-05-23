@@ -256,6 +256,38 @@ function formatProjectionExplanation({
     parts.push(
       `combat ${combat.rangeBracket} ${combat.distance} hexes LOS ${combat.losState}`,
     );
+    parts.push(`arc ${combat.firingArc}`);
+    if (combat.hasTarget && combat.targetUnitIds.length > 0) {
+      parts.push(`targets ${combat.targetUnitIds.join(',')}`);
+    }
+    if (combat.targetVisibilityState !== 'none') {
+      parts.push(`visibility ${combat.targetVisibilityState}`);
+    }
+    if (combat.weaponIdsAvailable.length > 0) {
+      parts.push(`weapons ${combat.weaponIdsAvailable.join(',')}`);
+    } else if (
+      combat.weaponIdsInRange.length > 0 ||
+      combat.weaponIdsInArc.length > 0
+    ) {
+      parts.push('weapons none available');
+    }
+    if (combat.targetCoverModifier > 0) {
+      parts.push(
+        combat.targetCoverReason ??
+          `cover ${combat.targetCoverLevel} +${combat.targetCoverModifier}`,
+      );
+    }
+    if (combat.minimumRangeReason) {
+      parts.push(combat.minimumRangeReason);
+    }
+    if (combat.toHitNumber !== undefined) {
+      parts.push(
+        combat.toHitReason ?? `to-hit target number ${combat.toHitNumber}`,
+      );
+    }
+    if (combat.indirectFireReason) {
+      parts.push(combat.indirectFireReason);
+    }
   }
   if (blockedReasons.length > 0) {
     parts.push(`blocked ${blockedReasons.join('; ')}`);
