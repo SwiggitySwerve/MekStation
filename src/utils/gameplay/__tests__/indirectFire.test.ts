@@ -58,8 +58,9 @@ function makeBlockedGrid(): IHexGrid {
       hexes.set(`${q},${r}`, makeHex(q, r));
     }
   }
-  // Heavy woods at (3, 0) blocks LOS from (0,0) to (5,0)
-  hexes.set('3,0', makeHex(3, 0, TerrainType.HeavyWoods));
+  // Heavy + light woods exceed MegaMek's intervening woods LOS threshold.
+  hexes.set('2,0', makeHex(2, 0, TerrainType.HeavyWoods));
+  hexes.set('3,0', makeHex(3, 0, TerrainType.LightWoods));
   return { config: { radius: 10 }, hexes };
 }
 
@@ -131,6 +132,15 @@ describe('LRM Indirect Fire Mode', () => {
       expect(result.spotter!.entityId).toBe('spotter-1');
     });
 
+    it('should reject indirect fire from airborne attackers', () => {
+      const result = resolveIndirectFire(
+        makeRequest({ attackerAirborne: true }),
+      );
+      expect(result.permitted).toBe(false);
+      expect(result.isIndirect).toBe(false);
+      expect(result.reason).toBe('Airborne units cannot use indirect fire');
+    });
+
     it('should reject indirect fire when no spotter available', () => {
       const result = resolveIndirectFire(
         makeRequest({ spotterCandidates: [] }),
@@ -195,6 +205,19 @@ describe('Spotter Mechanics', () => {
     it('should reject attacker as its own spotter', () => {
       const spotter = makeSpotter({ entityId: 'attacker-1' });
       expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(false);
+    });
+
+    it('should reject airborne aerospace spotter without recon or imager equipment', () => {
+      const spotter = makeSpotter({ isAirborneAerospace: true });
+      expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(false);
+    });
+
+    it('should accept airborne aerospace spotter with represented recon equipment', () => {
+      const spotter = makeSpotter({
+        isAirborneAerospace: true,
+        airborneAeroSpottingEquipment: { reconCamera: true },
+      });
+      expect(isEligibleSpotter(spotter, 'attacker-1', 'team-A')).toBe(true);
     });
   });
 
@@ -303,6 +326,27 @@ describe('Spotter Mechanics', () => {
         makeClearGrid(),
       );
       expect(result).toBeNull();
+    });
+
+    it('should skip airborne aerospace spotters that lack represented spotting gear', () => {
+      const airborneAero = makeSpotter({
+        entityId: 'airborne-aero',
+        isAirborneAerospace: true,
+        position: { q: 5, r: -1 },
+      });
+      const groundSpotter = makeSpotter({
+        entityId: 'ground-spotter',
+        position: { q: 5, r: 1 },
+      });
+      const result = findBestSpotter(
+        [airborneAero, groundSpotter],
+        'attacker-1',
+        'team-A',
+        { q: 5, r: 0 },
+        makeClearGrid(),
+      );
+      expect(result).not.toBeNull();
+      expect(result!.spotter.entityId).toBe('ground-spotter');
     });
   });
 });
@@ -445,6 +489,44 @@ describe('Semi-Guided LRM with TAG', () => {
       );
       expect(result.permitted).toBe(true);
       expect(result.isIndirect).toBe(true);
+      expect(result.toHitPenalty).toBe(0);
+    });
+
+    it('should permit semi-guided TAG indirect fire when no LOS spotter is available', () => {
+      const semiGuidedContext: ISemiGuidedContext = {
+        weaponId: 'semi-guided-lrm-5',
+        equipment: { isSemiGuided: true },
+        targetStatus: { tagDesignated: true },
+      };
+      const result = resolveIndirectFireWithSemiGuided(
+        makeRequest({
+          weaponId: 'semi-guided-lrm-5',
+          spotterCandidates: [],
+        }),
+        semiGuidedContext,
+      );
+      expect(result.permitted).toBe(true);
+      expect(result.isIndirect).toBe(true);
+      expect(result.basis).toBe('semi-guided-tag');
+      expect(result.spotter).toBeUndefined();
+      expect(result.toHitPenalty).toBe(0);
+    });
+
+    it('should reject semi-guided TAG when ECM nullifies the designation and no spotter is available', () => {
+      const semiGuidedContext: ISemiGuidedContext = {
+        weaponId: 'semi-guided-lrm-5',
+        equipment: { isSemiGuided: true },
+        targetStatus: { tagDesignated: true, ecmProtected: true },
+      };
+      const result = resolveIndirectFireWithSemiGuided(
+        makeRequest({
+          weaponId: 'semi-guided-lrm-5',
+          spotterCandidates: [],
+        }),
+        semiGuidedContext,
+      );
+      expect(result.permitted).toBe(false);
+      expect(result.isIndirect).toBe(false);
       expect(result.toHitPenalty).toBe(0);
     });
 
