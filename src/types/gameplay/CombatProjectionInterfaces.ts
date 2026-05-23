@@ -1,0 +1,105 @@
+import type { IndirectFireBasis } from './CombatInterfaces';
+import type {
+  IAttackInvalidPayload,
+  IToHitModifier,
+} from './GameSessionAttackEvents';
+import type { IHexCoordinate, RangeBracket } from './HexGridInterfaces';
+import type { CoverLevel } from './TerrainTypes';
+
+export type CombatLOSState = 'clear' | 'partial' | 'blocked';
+
+export type CombatFiringArc =
+  | 'front'
+  | 'left-side'
+  | 'right-side'
+  | 'rear'
+  | 'out-of-arc';
+
+export type CombatTargetVisibilityState =
+  | 'none'
+  | 'visible'
+  | 'hidden'
+  | 'lastKnown'
+  | 'mixed';
+
+/**
+ * Rules-backed tactical attack projection for one map hex. The map uses this
+ * as an explanation layer: range, arc, LOS, target presence, and blocked reason
+ * are all derived before the player commits an attack.
+ */
+export interface ICombatRangeHex {
+  /** Hex position */
+  readonly hex: IHexCoordinate;
+  /** Distance from attacker to this hex */
+  readonly distance: number;
+  /** Best weapon range bracket covering this hex */
+  readonly rangeBracket: RangeBracket;
+  /** At least one operational weapon can reach this hex */
+  readonly inRange: boolean;
+  /** At least one operational weapon can cover this target arc */
+  readonly inArc: boolean;
+  /** Line-of-sight classifier result */
+  readonly losState: CombatLOSState;
+  /** Player-facing direct-LOS blocker explanation, even when indirect fire is legal */
+  readonly lineOfSightBlockerReason?: string;
+  /** Cover level provided by the target hex terrain */
+  readonly targetCoverLevel: CoverLevel;
+  /** Target hex grants partial cover to an occupant */
+  readonly targetPartialCover: boolean;
+  /** To-hit modifier contributed by target hex cover */
+  readonly targetCoverModifier: number;
+  /** Player-facing explanation for target hex cover, when any */
+  readonly targetCoverReason?: string;
+  /** Highest selected-weapon minimum-range to-hit penalty at this distance */
+  readonly minimumRangePenalty?: number;
+  /** Weapons contributing the displayed minimum-range penalty */
+  readonly minimumRangeWeaponIds?: readonly string[];
+  /** Player-facing minimum-range explanation */
+  readonly minimumRangeReason?: string;
+  /** Engine-style target number preview for an attack committed against this hex */
+  readonly toHitNumber?: number;
+  /** Engine-style to-hit modifier stack used to build toHitNumber */
+  readonly toHitModifiers?: readonly IToHitModifier[];
+  /** Player-facing to-hit summary */
+  readonly toHitReason?: string;
+  /** Firing arc classifier result */
+  readonly firingArc: CombatFiringArc;
+  /** Hex has at least one enemy target token */
+  readonly hasTarget: boolean;
+  /** Best player-facing visibility state for enemy contacts on this hex */
+  readonly targetVisibilityState: CombatTargetVisibilityState;
+  /** Enemy unit ids on this hex that are currently visible to the viewer */
+  readonly visibleTargetUnitIds: readonly string[];
+  /** Enemy contact ids represented only by hidden / last-known fog markers */
+  readonly obscuredTargetUnitIds: readonly string[];
+  /** Player-facing reason a fog contact cannot be committed as an attack */
+  readonly visibilityBlockedReason?: string;
+  /** A player-facing attack can be committed against a target in this hex */
+  readonly attackable: boolean;
+  /** Operational weapon ids whose range profile covers this hex */
+  readonly weaponIdsInRange: readonly string[];
+  /** Operational weapon ids whose mounting arc covers this hex */
+  readonly weaponIdsInArc: readonly string[];
+  /** Operational weapon ids satisfying both range and mounting arc */
+  readonly weaponIdsAvailable: readonly string[];
+  /** Enemy unit ids occupying this hex */
+  readonly targetUnitIds: readonly string[];
+  /** Enemy unit ids occupying this hex and satisfying range/arc/LOS */
+  readonly validTargetUnitIds: readonly string[];
+  /** Engine-aligned attack rejection reason for enemy targets on this hex */
+  readonly attackInvalidReason?: IAttackInvalidPayload['reason'];
+  /** Engine-style detail string paired with attackInvalidReason */
+  readonly attackInvalidDetails?: string;
+  /** Player-facing reason a target here is blocked or tactically unavailable */
+  readonly blockedReason?: string;
+  /** LOS-blocked attack can still be committed through indirect fire */
+  readonly indirectFireAvailable?: boolean;
+  /** Spotter unit selected for LOS-based indirect fire, when any */
+  readonly indirectFireSpotterId?: string | null;
+  /** Why indirect fire is legal: LOS spotter, beacon, or semi-guided TAG */
+  readonly indirectFireBasis?: IndirectFireBasis;
+  /** To-hit penalty contributed by indirect fire */
+  readonly indirectFireToHitPenalty?: number;
+  /** Player-facing indirect-fire explanation */
+  readonly indirectFireReason?: string;
+}

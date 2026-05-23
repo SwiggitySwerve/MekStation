@@ -40,10 +40,15 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.1, §1.2
  */
 
-import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
+import type {
+  PhysicalAttackInvalidReason,
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
 
+import type { IAttackInvalidPayload } from './GameSessionAttackEvents';
 import type { GamePhase } from './GameSessionCoreTypes';
-import type { IHexCoordinate } from './HexGridInterfaces';
+import type { IHexCoordinate, IMovementCapability } from './HexGridInterfaces';
 
 /**
  * Top-level command categories. Determines dock grouping and which
@@ -113,6 +118,18 @@ export interface ITacticalCommandContext {
   readonly phase: GamePhase;
   /** True if the local viewer can act (their turn + connected, etc). */
   readonly canAct: boolean;
+  /** True when the active unit is currently prone and can attempt to stand. */
+  readonly activeUnitProne?: boolean;
+  /** Current heat on the active unit, used for heat-reduced movement MP gates. */
+  readonly activeUnitHeat?: number;
+  /** Source-backed reason the active unit cannot complete a stand-up attempt. */
+  readonly activeUnitStandUpImpossibleReason?: string;
+  /**
+   * Engine-derived movement envelope for activeUnitId, when available.
+   * Command availability uses this to explain unavailable movement modes
+   * before a player selects a map destination.
+   */
+  readonly movementCapability?: IMovementCapability | null;
 }
 
 /**
@@ -130,6 +147,18 @@ export interface IMovementCommandPreview {
   readonly finalFacing: number;
   /** Walk vs run vs jump (drives heat preview + indicator color). */
   readonly mode: 'walk' | 'run' | 'jump';
+  /** Rules-level movement mode used for terrain/elevation pathing. */
+  readonly movementMode?: string;
+  /** Terrain modifier paid on the final step into the destination hex. */
+  readonly terrainCost?: number;
+  /** Elevation delta from the previous path hex into the destination hex. */
+  readonly elevationDelta?: number;
+  /** Elevation MP paid on the final step into the destination hex. */
+  readonly elevationCost?: number;
+  /** Heat generated if the previewed movement is committed. */
+  readonly heatGenerated?: number;
+  /** Player-facing reason the previewed destination is blocked. */
+  readonly blockedReason?: string;
   /** True if the previewed destination is unreachable (over MP). */
   readonly unreachable: boolean;
 }
@@ -141,13 +170,25 @@ export interface IMovementCommandPreview {
 export interface IWeaponAttackCommandPreview {
   readonly kind: 'weapon-attack';
   readonly targetUnitId: string;
+  /** True when the rules projection says this attack can be committed. */
+  readonly attackable: boolean;
   /** To-hit number after all modifiers (2..12). */
   readonly toHit: number | null;
   /** Range band the target falls into. */
   readonly rangeBand: 'short' | 'medium' | 'long' | 'extreme' | 'out';
+  /** Engine-aligned attack rejection reason for blocked previews. */
+  readonly attackInvalidReason?: IAttackInvalidPayload['reason'];
+  /** Engine-style detail string paired with attackInvalidReason. */
+  readonly attackInvalidDetails?: string;
+  /** Player-facing reason the attack cannot be committed. */
+  readonly blockedReason?: string;
   /** Total heat the attack will generate. */
   readonly heatCost: number;
-  /** Ammo type → number of shots consumed. */
+  /** Weapon ids included in the projected attack volley. */
+  readonly weaponIds: readonly string[];
+  /** Player-facing weapon names included in the projected attack volley. */
+  readonly weaponNames: readonly string[];
+  /** Ammo type -> number of shots consumed. */
   readonly ammoUsage: Readonly<Record<string, number>>;
   /** Per-weapon expected damage (sum across selected weapons). */
   readonly expectedDamage: number;
@@ -161,12 +202,24 @@ export interface IPhysicalAttackCommandPreview {
   readonly kind: 'physical-attack';
   readonly targetUnitId: string;
   readonly attackType: PhysicalAttackType;
+  /** Selected limb for punch/kick rows and limb-specific restrictions. */
+  readonly limb?: PhysicalAttackLimb | null;
+  /** True when the physical-attack projection says this row can commit. */
+  readonly attackable: boolean;
   readonly toHit: number | null;
   readonly damage: number;
   /** Self-damage from the attack (e.g. DFA, charge). */
   readonly selfDamage: number;
   /** Whether a piloting skill roll is required. */
   readonly requiresPSR: boolean;
+  /** Per-leg self damage for DFA-style attacks. */
+  readonly attackerLegDamagePerLeg?: number;
+  /** Miss consequence surfaced before commit. */
+  readonly onMiss?: 'AttackerFalls' | 'None' | null;
+  /** Engine-side physical restriction codes blocking this attack. */
+  readonly restrictionReasonCodes?: readonly PhysicalAttackInvalidReason[];
+  /** Player-facing restriction text derived from the physical projection. */
+  readonly blockedReasons?: readonly string[];
 }
 
 /** Discriminated union of all preview kinds. */

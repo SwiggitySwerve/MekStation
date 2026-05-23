@@ -7,10 +7,16 @@
 
 import { WeightClass } from '@/types/enums/WeightClass';
 
+import type { IMovementInvalidPayload } from './GameSessionMovementEvents';
 import type { ArmorPipState, ChassisArchetype } from './UnitSpriteTypes';
 
 import { GamePhase, GameSide, IToHitModifier } from './GameSessionInterfaces';
-import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
+import {
+  IHexCoordinate,
+  Facing,
+  FiringArc,
+  MovementType,
+} from './HexGridInterfaces';
 
 // =============================================================================
 // Layout Types
@@ -54,7 +60,9 @@ export const DEFAULT_LAYOUT_CONFIG: ILayoutConfig = {
  * anchored to axial hex coordinates; projection mode only changes how the SVG
  * layer is presented to the player.
  */
-export type MapProjectionMode = 'topDown' | 'isometricPreview';
+export type MapProjectionMode = 'topDown' | 'isometric2d' | 'isometricPreview';
+
+export type MapIsometricRotationStep = 0 | 1 | 2 | 3 | 4 | 5;
 
 export const MAP_LAYER_IDS = [
   'terrain',
@@ -413,6 +421,39 @@ export interface IMovementRangeHex {
   readonly hex: IHexCoordinate;
   /** MP cost to reach */
   readonly mpCost: number;
+  /** Terrain modifier paid on the final step into this hex. */
+  readonly terrainCost?: number;
+  /** Elevation delta from the previous path hex into this hex. */
+  readonly elevationDelta?: number;
+  /** Elevation MP paid on the final step into this hex. */
+  readonly elevationCost?: number;
+  /** Canonical path used to reach this hex, when pathfinding produced one. */
+  readonly path?: readonly IHexCoordinate[];
+  /** Player-facing reason this hex is blocked or illegal. */
+  readonly blockedReason?: string;
+  /** Engine-aligned movement rejection reason for illegal destinations. */
+  readonly movementInvalidReason?: IMovementInvalidPayload['reason'];
+  /** Engine-style detail string paired with movementInvalidReason. */
+  readonly movementInvalidDetails?: string;
+  /** Heat generated if the unit commits movement to this hex. */
+  readonly heatGenerated?: number;
+  /** True when a prone unit must stand before this movement can resolve. */
+  readonly standUpRequired?: boolean;
+  /** MP reserved for standing from prone before entering the projected path. */
+  readonly standUpCost?: number;
+  /** True when the stand-up step requires a piloting skill roll. */
+  readonly standUpPsrRequired?: boolean;
+  /** Player-facing PSR reason for the stand-up step. */
+  readonly standUpPsrReason?: string;
+  /** Projected stand-up target number when pilot state is available. */
+  readonly standUpPsrTargetNumber?: number;
+  /** Non-piloting modifier included in standUpPsrTargetNumber. */
+  readonly standUpPsrModifier?: number;
+  /** Human-readable modifier rows included in the stand-up PSR target. */
+  readonly standUpPsrModifierDetails?: readonly string[];
+  /** Reason the stand-up attempt cannot succeed, when known. */
+  readonly standUpPsrImpossibleReason?: string;
+  readonly movementMode?: string;
   /** Is this hex reachable with current MP? */
   readonly reachable: boolean;
   /** Movement type to reach (walk/run/jump) */
@@ -515,6 +556,8 @@ export interface IWeaponStatus {
   readonly name: string;
   /** Location mounted */
   readonly location: string;
+  /** Mounted firing arc, when known. Missing means legacy omnidirectional. */
+  readonly mountingArc?: FiringArc;
   /** Is weapon destroyed? */
   readonly destroyed: boolean;
   /** Was weapon fired this turn? */
@@ -545,6 +588,7 @@ export interface IWeaponStatus {
     readonly short: number;
     readonly medium: number;
     readonly long: number;
+    readonly extreme?: number;
     readonly minimum?: number;
   };
 }

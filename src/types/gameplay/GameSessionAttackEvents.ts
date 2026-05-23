@@ -156,7 +156,9 @@ export interface IAttackInvalidPayload {
     | 'OutOfAmmo'
     | 'SameHex'
     | 'OutOfRange'
+    | 'OutOfArc'
     | 'NoLineOfSight'
+    | 'TargetNotVisible'
     | 'InvalidTarget';
   readonly details?: string;
 }

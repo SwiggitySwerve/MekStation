@@ -36,6 +36,17 @@ export interface IMovementDeclaredPayload {
   /** Heat generated */
   readonly heatGenerated: number;
   /**
+   * True when this declaration represents MP spent trying to stand from
+   * prone. The prone flag is then cleared by a following `UnitStood`
+   * event only if the stand-up PSR succeeds.
+   */
+  readonly standUpAttempt?: boolean;
+  /**
+   * Replay-safe outcome for `standUpAttempt`. `false` preserves prone after a
+   * failed stand-up PSR while still recording the MP spent.
+   */
+  readonly standUpSucceeded?: boolean;
+  /**
    * Per `enrich-movement-declared-with-chain-and-displacement` (movement-system
    * delta — Movement Decomposition Fields): total hex transitions in the
    * move (`path.length - 1`). Equals the count of forward + backward +
@@ -68,6 +79,32 @@ export interface IMovementDeclaredPayload {
    * compat. Discriminated union keyed on `kind`.
    */
   readonly steps?: readonly IMovementStep[];
+}
+
+/**
+ * Movement-invalid event payload — emitted when a player-facing movement
+ * commit is rejected before any position, heat, or lock-state change occurs.
+ */
+export interface IMovementInvalidPayload {
+  readonly unitId: string;
+  readonly from: IHexCoordinate;
+  readonly to: IHexCoordinate;
+  readonly facing: Facing;
+  readonly movementType: MovementType;
+  readonly reason:
+    | 'NoMovementCapability'
+    | 'DestinationOutOfBounds'
+    | 'DestinationOccupied'
+    | 'JumpUnavailable'
+    | 'NoLegalPath'
+    | 'InsufficientMP'
+    | 'UnitImmobile'
+    | 'InvalidPath'
+    | 'TerrainBlocked'
+    | 'InvalidDestination';
+  readonly details?: string;
+  readonly mpCost?: number;
+  readonly heatGenerated?: number;
 }
 
 /**

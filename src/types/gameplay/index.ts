@@ -29,6 +29,7 @@ export * from './PSRTriggerCodes';
 
 // Combat Resolution
 export * from './CombatInterfaces';
+export * from './CombatProjectionInterfaces';
 
 // Gameplay UI
 export * from './GameplayUIInterfaces';
