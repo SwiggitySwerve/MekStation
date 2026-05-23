@@ -73,6 +73,50 @@ const MEGAMEK_TAG_CLEAR_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+
+const MEGAMEK_ECM_SUITE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MiscType defines Guardian, Clan, and Angel ECM suites with ECM flags and ECM modes.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/MiscType.java#L5630-L5789',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MiscType defines Watchdog and Nova CEWS with both ECM and BAP flags.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/MiscType.java#L5867-L5945',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_ACTIVE_PROBE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MiscType defines Beagle, Bloodhound, and Clan active probes with BAP flags.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/MiscType.java#L5404-L5572',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation: 'MiscType defines Light Active Probe with a BAP flag.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/MiscType.java#L5600-L5627',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+  MEGAMEK_ECM_SUITE_SOURCE_REFS[1],
+  {
+    kind: 'megamek-source',
+    citation:
+      'Entity.getBAPRange gives Clan Active Probe, Watchdog, and Nova CEWS a 5-hex BAP range.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L6011-L6056',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   'uac-rate-of-fire': integrated(
     'uac-rate-of-fire',
@@ -193,11 +237,13 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'artemis-ecm-suite-hydration': integrated(
     'artemis-ecm-suite-hydration',
-    'UnitHydration maps standard Guardian, Angel, Clan, Watchdog CEWS, and Nova CEWS ECM ids from hydrated BattleMech equipment and critical slots, and createInitialState seeds those suites into IGameState.electronicWarfare',
+    'Source-backed UnitHydration maps standard Guardian, Angel, Clan, Watchdog CEWS, and Nova CEWS ECM ids from hydrated BattleMech equipment and critical slots, and createInitialState seeds those suites into IGameState.electronicWarfare',
+    MEGAMEK_ECM_SUITE_SOURCE_REFS,
   ),
   'active-probe-counter-hydration': integrated(
     'active-probe-counter-hydration',
-    'UnitHydration maps Beagle, Bloodhound, Clan, light, Watchdog CEWS, and Nova CEWS active-probe equipment ids; createInitialState seeds active probes for ECM countering before Artemis cluster suppression',
+    'Source-backed UnitHydration maps Beagle, Bloodhound, Clan, light, Watchdog CEWS, and Nova CEWS active-probe equipment ids; createInitialState seeds active probes for ECM countering before Artemis cluster suppression',
+    MEGAMEK_ACTIVE_PROBE_SOURCE_REFS,
   ),
   'artemis-stealth-suppression': integrated(
     'artemis-stealth-suppression',

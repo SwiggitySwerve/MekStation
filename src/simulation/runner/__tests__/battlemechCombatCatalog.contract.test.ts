@@ -1058,6 +1058,48 @@ describe('BattleMech combat catalog validation lane', () => {
       ),
     ).toBe(true);
   });
+
+  it('pins ECM and active-probe hydration to MegaMek equipment refs', () => {
+    const sourceRefsFor = (
+      id: keyof typeof SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT,
+    ) => SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[id].sourceRefs ?? [];
+
+    expect(
+      sourceRefsFor('artemis-ecm-suite-hydration').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MiscType defines Guardian, Clan, and Angel ECM suites with ECM flags and ECM modes.',
+      'MiscType defines Watchdog and Nova CEWS with both ECM and BAP flags.',
+    ]);
+    expect(
+      sourceRefsFor('active-probe-counter-hydration').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MiscType defines Beagle, Bloodhound, and Clan active probes with BAP flags.',
+      'MiscType defines Light Active Probe with a BAP flag.',
+      'MiscType defines Watchdog and Nova CEWS with both ECM and BAP flags.',
+      'Entity.getBAPRange gives Clan Active Probe, Watchdog, and Nova CEWS a 5-hex BAP range.',
+    ]);
+
+    const refs = [
+      ...sourceRefsFor('artemis-ecm-suite-hydration'),
+      ...sourceRefsFor('active-probe-counter-hydration'),
+    ];
+
+    expect(
+      refs.every(
+        (sourceRef) =>
+          sourceRef.kind === 'megamek-source' &&
+          sourceRef.sourceVersion ===
+            '325b2504c7b7750ecdcb85468621fb2de2ad8e60' &&
+          sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
+          sourceRef.url.includes(sourceRef.sourceVersion) &&
+          sourceRef.url.includes('#L'),
+      ),
+    ).toBe(true);
+  });
 });
 
 describe('BattleMech combat feature-gap tracking', () => {

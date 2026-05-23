@@ -52,3 +52,4 @@
 - [x] 4.3.1 Add structured MegaMek source anchors for heat-induced ammo explosion threshold and ammo-bin selection behavior.
 - [x] 4.3.2 Add structured MegaMek source anchors for ejection original-unit removal and post-battle ejected-count behavior.
 - [x] 4.3.3 Add structured MegaMek source anchors for TAG and NARC marker application, TAG turn clearing, and iNARC variant scope.
+- [x] 4.3.4 Add structured MegaMek source anchors for ECM suite and active-probe hydration rows used by Artemis ECM countering.
