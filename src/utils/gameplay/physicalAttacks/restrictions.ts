@@ -77,6 +77,13 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
+  if (input.targetIsAirborne) {
+    return blocked(
+      'Physical attacks cannot target airborne units',
+      'TargetAirborne',
+    );
+  }
+
   if (
     input.targetOccupiedBuildingId &&
     input.targetOccupiedBuildingId !== input.attackerOccupiedBuildingId

@@ -149,6 +149,12 @@ export interface IUnitGameState {
    */
   readonly isMakingDFA?: boolean;
   /**
+   * Whether this unit is currently airborne. Explicit true blocks
+   * source-backed physical targetability; undefined preserves legacy fixtures
+   * without airborne state.
+   */
+  readonly isAirborne?: boolean;
+  /**
    * Optional building occupancy identifier for shared physical legality.
    * Explicit ids allow physical attacks only when attacker and target occupy
    * the same building.

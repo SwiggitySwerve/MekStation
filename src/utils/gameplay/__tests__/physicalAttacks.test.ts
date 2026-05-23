@@ -1109,6 +1109,83 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows airborne physical targets across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            targetIsAirborne: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetAirborne',
+      });
+    });
+
     it('disallows evading attackers across supported physical attack families', () => {
       expect(
         canPunch(

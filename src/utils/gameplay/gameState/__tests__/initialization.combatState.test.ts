@@ -193,6 +193,15 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.occupiedBuildingId).toBe('building-east');
   });
 
+  it('copies optional airborne state for physical targetability gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isAirborne: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isAirborne).toBe(true);
+  });
+
   it('copies optional evading state for physical attacker legality gates', () => {
     const unit = baseGameUnit({
       unitType: UnitType.BATTLEMECH,

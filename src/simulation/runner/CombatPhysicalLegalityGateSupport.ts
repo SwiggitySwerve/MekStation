@@ -198,10 +198,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared restriction helpers reject targetIsSelf before adjacency checks, event-sourced declarations emit SelfTarget before scheduling, and runner enemy selection cannot select the acting unit',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
-  'shared.target-not-airborne': unsupported(
+  'shared.target-not-airborne': integrated(
     'shared.target-not-airborne',
     'shared',
-    'airborne target state is not represented in BattleMech physical restriction input',
+    'shared restriction helpers reject targetIsAirborne, IUnitGameState exposes optional isAirborne, and eligibility/session/runner inputs thread airborne target state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
   'shared.target-not-swarming': integrated(

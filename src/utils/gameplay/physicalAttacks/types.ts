@@ -91,6 +91,7 @@ export type PhysicalAttackInvalidReason =
   | 'TargetPassenger'
   | 'TargetSwarming'
   | 'TargetMakingDFA'
+  | 'TargetAirborne'
   | 'TargetInsideBuilding'
   | 'SelfTarget'
   | 'FriendlyTarget'
@@ -173,6 +174,11 @@ export interface IPhysicalAttackInput {
    * be targeted by normal physical attacks.
    */
   readonly targetIsMakingDFA?: boolean;
+  /**
+   * Source-backed shared physical legality: airborne units cannot be targeted
+   * by normal physical attacks.
+   */
+  readonly targetIsAirborne?: boolean;
   /**
    * Source-backed shared physical legality: targets inside a building can only
    * be attacked physically by an attacker inside the same building.

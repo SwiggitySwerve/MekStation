@@ -234,6 +234,7 @@ export function createInitialUnitState(
     isPassenger: unit.isPassenger,
     isSwarming: unit.isSwarming,
     isMakingDFA: unit.isMakingDFA,
+    isAirborne: unit.isAirborne,
     occupiedBuildingId: unit.occupiedBuildingId,
     isEvading: unit.isEvading,
     side: unit.side,

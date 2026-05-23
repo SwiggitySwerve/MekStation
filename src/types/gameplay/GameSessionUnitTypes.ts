@@ -153,6 +153,11 @@ export interface IGameUnit {
    */
   readonly isMakingDFA?: boolean;
   /**
+   * Optional airborne state copied into combat state. Explicit true blocks
+   * source-backed physical target declarations against this unit.
+   */
+  readonly isAirborne?: boolean;
+  /**
    * Optional building occupancy identifier copied into combat state. Explicit
    * ids allow source-backed physical target declarations only from the same
    * building.
