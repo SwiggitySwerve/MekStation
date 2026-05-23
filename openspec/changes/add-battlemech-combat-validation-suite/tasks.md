@@ -1,0 +1,43 @@
+# Tasks: Add BattleMech Combat Validation Suite
+
+## 1. OpenSpec + catalog workflow
+
+- [x] 1.1 Create active OpenSpec change for combat validation suite headway.
+- [x] 1.2 Add catalog contract requirement for combat actions, modifiers, legality gates, and unsupported gaps.
+- [x] 1.3 Keep `docs/audits/2026-05-22-combat-validation-source-truth.md` updated as source-truth audit evidence.
+- [ ] 1.4 Add OpenSpec validation to routine combat feature verification.
+
+## 2. Physical attack legality gates
+
+- [x] 2.1 Catalog physical core actions: punch, kick, club, charge, push, death from above, and physical weapons.
+- [x] 2.2 Integrate push no-arms quirk, same-elevation, attacker-not-prone, target-not-prone, destination-valid, and target-directly-ahead gates.
+- [x] 2.3 Integrate DFA attacker-not-prone gate on top of existing jump requirement.
+- [x] 2.4 Cover integrated gates through helper, event-sourced session, runner, and catalog contract tests.
+- [x] 2.5 Integrate shared adjacent-range gate for helper, event-sourced declaration, and runner physical target selection.
+- [x] 2.6 Integrate shared self-target gate for helper and event-sourced declaration paths.
+- [x] 2.7 Integrate shared friendly-target gate for helper, event-sourced declaration, and runner physical target selection.
+- [x] 2.8 Integrate shared target-exists gate for helper, event-sourced declaration, and stale declaration resolution paths.
+- [x] 2.9 Integrate shared target-not-destroyed gate for helper, event-sourced declaration, stale declaration resolution, and runner physical target selection.
+- [x] 2.10 Partially integrate push arm-fired weapon gate for helper, event-sourced declaration, and conservative runner resolution while tracking runner weapon-location hydration as the remaining gap.
+- [x] 2.11 Integrate push both-arms-present gate for helper, eligibility, event-sourced declaration, and runner resolution through unit destroyed-location state.
+- [x] 2.12 Integrate push attacker/target Mek unit-type gates for helper, eligibility, event-sourced declaration, and runner resolution through explicit combat unit-type state.
+- [x] 2.13 Integrate charge standing-Mek target gate for helper, eligibility, event-sourced declaration, and runner resolution through target unit type and prone state.
+- [x] 2.14 Integrate charge elevation-overlap gate for helper, eligibility, event-sourced declaration, and runner resolution through source-backed BattleMech height/elevation band checks.
+- [x] 2.15 Integrate DFA infantry-family attacker gate for helper, eligibility, event-sourced declaration, and runner resolution through explicit combat unit-type state.
+- [x] 2.16 Integrate non-Mek charge target-class gate for helper, eligibility, event-sourced declaration, and runner resolution through Infantry/Battle Armor/ProtoMech unit-type checks.
+- [x] 2.17 Integrate charge target movement-complete/immobile gate for helper, eligibility, event-sourced declaration/resolution, and runner post-movement resolution through source-backed target movement-complete checks.
+- [ ] 2.18 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, runner arm-mounted weapon-location hydration, and pilot skill roll fallout.
+
+## 3. Full combat validation catalog
+
+- [ ] 3.1 Expand weapon attack action coverage across every weapon family and ammo family.
+- [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
+- [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
+- [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
+- [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
+
+## 4. Source-truth cross-checks
+
+- [x] 4.1 Cross-check current physical legality gates against MegaMek behavior notes.
+- [ ] 4.2 Add source anchors for remaining physical gaps before marking them integrated.
+- [ ] 4.3 Cross-check weapon, heat, movement, SPA, quirk, and lifecycle rows against rulebook/MegaMek/MekHQ references before implementation claims.

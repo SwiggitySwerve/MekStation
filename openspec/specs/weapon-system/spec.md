@@ -125,21 +125,30 @@ LB-X Autocannons SHALL support toggling between slug (standard) and cluster (sho
 ### Requirement: AMS Missile Reduction
 
 Anti-Missile System (AMS) SHALL reduce incoming missile hits.
+NARC pods and Thunderbolt-style single missiles SHALL use the single-missile AMS check instead of the cluster table.
 
 #### Scenario: AMS reduces incoming LRM hits
 
 - **WHEN** a unit with active AMS is targeted by a missile attack
-- **THEN** AMS SHALL reduce the number of missile hits by a random amount (typically 1d6)
-- **AND** the reduced hits SHALL be subtracted before applying damage
+- **THEN** AMS SHALL apply a -4 modifier to the missile cluster table roll
+- **AND** the modified cluster result SHALL determine remaining missile hits before applying damage
 
 #### Scenario: AMS uses ammo
 
 - **WHEN** AMS activates to defend against missiles
-- **THEN** AMS ammo SHALL be consumed
+- **THEN** ammo-fed AMS SHALL consume 1 AMS ammo round
+- **AND** ammo-fed AMS SHALL NOT activate without an available ammo bin
+
+#### Scenario: AMS single-missile interception
+
+- **WHEN** active AMS engages a NARC pod or Thunderbolt-style single missile
+- **THEN** AMS SHALL roll 1d6
+- **AND** the pod or missile SHALL be destroyed on a result of 1-3
+- **AND** the pod or missile SHALL continue on a result of 4-6
 
 ### Requirement: Artemis IV/V Cluster Bonus
 
-Artemis IV SHALL add +2 to the cluster hit table roll, and Artemis V SHALL add +2 to the cluster hit table roll.
+Artemis IV SHALL add +2 to the cluster hit table roll, and Artemis V SHALL add +3 to the cluster hit table roll.
 
 #### Scenario: Artemis IV bonus
 
@@ -150,8 +159,8 @@ Artemis IV SHALL add +2 to the cluster hit table roll, and Artemis V SHALL add +
 #### Scenario: Artemis V bonus
 
 - **WHEN** a weapon equipped with Artemis V fires cluster weapons
-- **THEN** the cluster hit table roll SHALL receive a +2 bonus
-- **AND** Artemis V SHALL be slightly harder to jam via ECM than Artemis IV
+- **THEN** the cluster hit table roll SHALL receive a +3 bonus
+- **AND** Artemis V SHALL NOT stack with Artemis IV on the same attack
 
 ### Requirement: Narc/iNarc Target Marking
 
@@ -162,6 +171,7 @@ A unit hit by a Narc or iNarc beacon SHALL receive a +2 bonus for all subsequent
 - **WHEN** a target has been hit by a Narc beacon
 - **THEN** all missile attacks against that target SHALL receive a +2 to the cluster hit table roll
 - **AND** this bonus SHALL be nullified by enemy ECM
+- **AND** a newly attached standard Narc marker SHALL emit `DesignatorMarkerApplied` with persistent `true`
 
 #### Scenario: iNarc beacon effects
 
@@ -178,6 +188,7 @@ TAG SHALL designate targets for semi-guided LRM and artillery attacks.
 - **WHEN** a unit with TAG successfully targets an enemy
 - **THEN** the target SHALL be marked as TAG-designated for the turn
 - **AND** semi-guided LRMs and Arrow IV SHALL receive targeting bonuses
+- **AND** a newly set TAG designation SHALL emit `DesignatorMarkerApplied` with persistent `false`
 
 ### Requirement: MRM Cluster Column Modifier
 

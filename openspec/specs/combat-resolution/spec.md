@@ -913,6 +913,33 @@ The projected heat used by bot heat management SHALL be computed using the same 
 - **THEN** the projection SHALL subtract the per-turn dissipation before comparing to `safeHeatThreshold`
 - **AND** the bot SHALL be willing to fire slightly more aggressively than a naive additive projection would allow
 
+### Requirement: BattleMech Ejection Lifecycle
+
+The tactical combat system SHALL provide a player-declared BattleMech ejection action. Ejection SHALL emit a `UnitEjected` event, mark the unit ejected, preserve the unit's current mech damage snapshot, remove the unit from normal action eligibility, and remove it from normal target filters, objective control, and survivor counts. Multiplayer ejection SHALL route through the same authoritative intent path as other tactical actions.
+
+#### Scenario: Ejection preserves mech damage and exits combat participation
+
+- **GIVEN** an active BattleMech with existing armor, structure, destruction, and pilot-consciousness state
+- **WHEN** the owning player declares ejection
+- **THEN** a `UnitEjected` event SHALL be appended
+- **AND** the unit SHALL have `hasEjected === true`
+- **AND** armor, structure, `destroyed`, and `pilotConscious` SHALL remain unchanged from the pre-ejection snapshot
+- **AND** the unit SHALL no longer receive movement, attack, or utility actions
+
+#### Scenario: Ejected unit is no longer a normal target
+
+- **GIVEN** a BattleMech has ejected
+- **WHEN** an opposing actor builds target choices or attempts to declare an attack against it
+- **THEN** the ejected unit SHALL be excluded from valid target lists
+- **AND** a direct attack declaration against that unit SHALL be rejected without combat side effects
+
+#### Scenario: Network ejection uses authoritative intent dispatch
+
+- **GIVEN** a multiplayer match with an active unit controlled by a player
+- **WHEN** the player submits an `Eject` combat intent for that unit
+- **THEN** the server-authoritative match host SHALL dispatch the intent to the interactive combat session
+- **AND** the resulting event stream SHALL include exactly the same `UnitEjected` lifecycle event as the local ejection command
+
 ### Requirement: Batch Outcome Aggregation
 
 The combat-resolution system SHALL expose
@@ -1261,4 +1288,3 @@ For misses (`hit: false`), the runner SHALL emit `attack_resolved` and SHALL NOT
 - **WHEN** the runner resolves the attack
 - **THEN** the event log SHALL contain exactly one `attack_resolved` event with `hit: false`
 - **AND** the event log SHALL NOT contain any of `damage_applied`, `location_destroyed`, `transfer_damage`, `critical_hit`, `critical_hit_resolved`, `component_destroyed`, `unit_destroyed` causally attributable to this attack
-

@@ -338,12 +338,13 @@ The Hot Dog SPA SHALL increase the heat threshold for shutdown checks by +3.
 
 ### Requirement: Misc SPA — Edge
 
-The Edge SPA SHALL provide a trigger-based reroll system with 6 mek-specific triggers.
+The Edge SPA SHALL provide MegaMek-style trigger-based Edge options for BattleMech and aerospace combat.
 
 #### Scenario: Edge triggers for mek combat
 
 - **WHEN** a pilot with Edge is in mek combat
-- **THEN** Edge SHALL be usable for: (1) reroll to-hit, (2) reroll damage location, (3) reroll critical hit determination, (4) reroll PSR, (5) reroll consciousness check, (6) negate one critical hit
+- **THEN** BattleMech Edge SHALL be usable for: head-hit location reroll, through-armor-critical location reroll, pilot-KO reroll, critical-explosion reroll, and MASC/Supercharger failure reroll
+- **AND** aerospace Edge SHALL expose altitude-loss, critical-explosion, pilot-KO, lucky-critical, nuke-critical, and transported-cargo-loss triggers
 - **AND** each use of Edge SHALL consume one Edge point
 - **AND** Edge points SHALL NOT regenerate during the game
 
@@ -363,7 +364,7 @@ The Edge SPA SHALL provide a trigger-based reroll system with 6 mek-specific tri
 
 - **WHEN** checking if a pilot can use Edge
 - **THEN** the system SHALL verify remainingPoints > 0
-- **AND** the system SHALL verify the trigger is one of the 6 valid types
+- **AND** the system SHALL verify the trigger is one of the MegaMek-derived Edge option ids
 
 ### Requirement: Misc SPA — Toughness
 
