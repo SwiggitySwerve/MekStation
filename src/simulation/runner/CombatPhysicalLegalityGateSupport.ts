@@ -87,7 +87,7 @@ const PUSH_ACTION_LINES =
 const CHARGE_ACTION_LINES =
   'MegaMek ChargeAttackAction.toHit, ChargeAttackAction.java:116-274';
 const DFA_ACTION_LINES =
-  'MegaMek DfaAttackAction movement validation and toHit, DfaAttackAction.java:185-329';
+  'MegaMek DfaAttackAction movement validation and toHit, DfaAttackAction.java:140-329';
 
 const PHYSICAL_ATTACK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek PhysicalAttackAction.toHitIsImpossible applies shared physical attack impossibility gates',
@@ -122,7 +122,7 @@ const CHARGE_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
 const DFA_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek DfaAttackAction applies movement-path and death-from-above-specific legality gates',
   'common/actions/DfaAttackAction.java',
-  'L185-L329',
+  'L140-L329',
 );
 
 function sourceRefsForAuthority(
@@ -372,6 +372,13 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'dfa.requires-jump',
     'dfa',
     'canDFA rejects declarations when attackerJumpedThisTurn is false',
+    DFA_ACTION_LINES,
+  ),
+  'dfa.no-mechanical-jump-booster': helperOnly(
+    'dfa.no-mechanical-jump-booster',
+    'dfa',
+    'canDFA consumes attackerUsedMechanicalJumpBooster and rejects explicit mechanical jump booster DFA attempts as MechanicalJumpBooster',
+    'Runtime movement declarations and physical eligibility do not yet hydrate the MegaMek JUMP_MEK_MECHANICAL_BOOSTER step into DFA helper inputs',
     DFA_ACTION_LINES,
   ),
   'dfa.attacker-not-infantry': integrated(

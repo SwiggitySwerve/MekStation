@@ -82,6 +82,7 @@ export type PhysicalAttackInvalidReason =
   | 'AttackerEvading'
   | 'AttackerCargoInteraction'
   | 'NoJumpThisTurn'
+  | 'MechanicalJumpBooster'
   | 'NoRunThisTurn'
   | 'AttackerInfantry'
   | 'AttackerNotMek'
@@ -304,6 +305,11 @@ export interface IPhysicalAttackInput {
    * Per task 3.6: DFA requires the attacker jumped this turn.
    */
   readonly attackerJumpedThisTurn?: boolean;
+  /**
+   * Source-backed DFA legality: MegaMek rejects DFA movement paths that use a
+   * mechanical jump booster instead of normal jump movement.
+   */
+  readonly attackerUsedMechanicalJumpBooster?: boolean;
   /**
    * Per task 3.7: charge requires the attacker ran this turn.
    */

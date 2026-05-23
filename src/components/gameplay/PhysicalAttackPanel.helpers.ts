@@ -28,6 +28,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   AttackerEvading: 'Attacker is evading',
   AttackerCargoInteraction: 'Attacker is loading or unloading cargo',
   NoJumpThisTurn: 'DFA requires jumping this turn',
+  MechanicalJumpBooster: 'DFA cannot use mechanical jump boosters',
   NoRunThisTurn: 'Charge requires running this turn',
   AttackerInfantry: 'Infantry cannot perform DFA',
   AttackerNotMek: 'Attacker must be a Mek',

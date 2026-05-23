@@ -197,6 +197,14 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **THEN** death from above SHALL be rejected before hit resolution
 - **AND** the validation catalog SHALL record the gate as integrated only when helper and runner evidence exist
 
+#### Scenario: Death from above helper rejects mechanical jump boosters
+
+- **GIVEN** a DFA helper evaluates an attacker that jumped using a mechanical jump booster
+- **WHEN** the DFA legality gate runs
+- **THEN** death from above SHALL be rejected with `MechanicalJumpBooster`
+- **AND** no damage, displacement, or PSR side effect SHALL be emitted
+- **AND** the validation catalog SHALL mark this as helper-only until runtime movement declarations hydrate the mechanical jump booster movement step
+
 #### Scenario: Death from above rejects infantry-family attackers
 
 - **GIVEN** an Infantry or Battle Armor attacker declares death from above after jumping this turn

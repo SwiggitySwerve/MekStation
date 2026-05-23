@@ -429,6 +429,14 @@ export function canDFA(
   const sharedRestriction = sharedPhysicalTargetRestriction(input);
   if (!sharedRestriction.allowed) return sharedRestriction;
 
+  if (input.attackerUsedMechanicalJumpBooster) {
+    return {
+      allowed: false,
+      reason: 'DFA cannot use mechanical jump boosters',
+      reasonCode: 'MechanicalJumpBooster',
+    };
+  }
+
   if (input.attackerJumpedThisTurn === false) {
     return {
       allowed: false,

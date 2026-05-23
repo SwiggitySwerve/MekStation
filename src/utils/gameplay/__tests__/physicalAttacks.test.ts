@@ -2325,6 +2325,21 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows DFA using mechanical jump boosters', () => {
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerUsedMechanicalJumpBooster: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'MechanicalJumpBooster',
+      });
+    });
+
     it('disallows DFA by infantry-family attackers', () => {
       expect(
         canDFA(
