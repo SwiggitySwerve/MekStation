@@ -43,6 +43,45 @@ export enum MovementType {
 }
 
 /**
+ * Rules-level movement mode used for terrain/elevation pathing. The player
+ * still chooses Walk / Run / Jump; this mode tells the rules engine whether a
+ * ground path should pay mech, tracked, wheeled, hover, VTOL, naval, or
+ * other vehicle motive terrain costs.
+ */
+export type MovementTravelMode =
+  | 'walk'
+  | 'run'
+  | 'jump'
+  | 'tracked'
+  | 'wheeled'
+  | 'hover'
+  | 'vtol'
+  | 'naval'
+  | 'hydrofoil'
+  | 'submarine'
+  | 'wige'
+  | 'rail'
+  | 'maglev';
+
+/**
+ * Persistent motive mode stored on a unit's movement capability. Run and jump
+ * are player-selected movement types, not chassis motive modes.
+ */
+export type MovementMotiveMode = Exclude<MovementTravelMode, 'run' | 'jump'>;
+
+/**
+ * Water-capable equipment represented by the tactical movement layer.
+ */
+export interface IMovementWaterCapability {
+  /** Full amphibious equipment/chassis; can use water without the normal run prohibition. */
+  readonly fullyAmphibious?: boolean;
+  /** Limited amphibious equipment; pays amphibious water cost where represented. */
+  readonly limitedAmphibious?: boolean;
+  /** Flotation hull equipment; lifts tracked/wheeled vehicle water terrain prohibition. */
+  readonly flotationHull?: boolean;
+}
+
+/**
  * Firing arc classification.
  */
 export enum FiringArc {
@@ -189,6 +228,12 @@ export interface IMovementCapability {
   readonly runMP: number;
   /** Jump MP (0 if no jump jets) */
   readonly jumpMP: number;
+  /** Chassis/squad motive mode for terrain and elevation pathing. */
+  readonly movementMode?: MovementMotiveMode;
+  /** MegaMek-style entity height used for bridge clearance checks; default is 0. */
+  readonly unitHeight?: number;
+  /** Optional equipment that modifies water movement legality and MP costs. */
+  readonly waterCapability?: IMovementWaterCapability;
 }
 
 /**

@@ -5,6 +5,8 @@
  * @spec openspec/specs/terrain-system/spec.md
  */
 
+import type { MovementTravelMode } from './HexGridInterfaces';
+
 // =============================================================================
 // Enums
 // =============================================================================
@@ -78,7 +80,7 @@ export interface ITerrainProperties {
     wheeled: number;
     hover: number;
     vtol: number;
-  };
+  } & Partial<Record<MovementTravelMode, number>>;
 
   /** To-hit modifier when intervening */
   readonly toHitInterveningModifier: number;
@@ -221,7 +223,7 @@ export const TERRAIN_PROPERTIES: Readonly<
     heatEffect: 0,
     coverLevel: CoverLevel.Partial,
     blocksLOS: false,
-    losBlockHeight: 0,
+    losBlockHeight: 2,
     requiresPSR: false,
     specialRules: [],
   },
@@ -241,7 +243,7 @@ export const TERRAIN_PROPERTIES: Readonly<
     heatEffect: 0,
     coverLevel: CoverLevel.Full,
     blocksLOS: true,
-    losBlockHeight: 1,
+    losBlockHeight: 2,
     requiresPSR: false,
     specialRules: [],
   },
