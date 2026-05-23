@@ -6,6 +6,7 @@ import { hasReachedEdge } from '@/simulation/ai/RetreatAI';
 import {
   GamePhase,
   GameSide,
+  LockState,
   type IGameEvent,
   type IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
@@ -21,18 +22,21 @@ import {
 } from '@/utils/gameplay/gameEvents';
 import {
   declareAttack,
-  declareMovement,
   declarePhysicalAttack,
   lockAttack,
   lockMovement,
 } from '@/utils/gameplay/gameSession';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import {
-  buildMovementEventPath,
-  maxMovementCostForCapability,
-} from '@/utils/gameplay/movement/eventPath';
+  gameUnitUsesMekHorizontalCover,
+  gameUnitUsesMekWaterCover,
+  getTargetCoverInfo,
+} from '@/utils/gameplay/terrainCover';
+import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { toAIUnitState } from './GameEngine.helpers';
+import { applyInteractiveSessionMovement } from './InteractiveSession.actions';
 
 export interface IInteractiveSessionAIContext {
   readonly side: GameSide;
@@ -84,31 +88,22 @@ export function runInteractiveSessionAITurn(
         cap,
       );
       if (moveEvt) {
-        const eventPath = buildMovementEventPath({
-          grid: context.grid,
-          from: refreshedUnit.position,
-          to: moveEvt.payload.to,
-          movementType: moveEvt.payload.movementType,
-          maxCost: maxMovementCostForCapability(
-            cap,
-            moveEvt.payload.movementType,
-          ),
-        });
         setSession(
-          declareMovement(
+          applyInteractiveSessionMovement({
             session,
+            grid: context.grid,
+            movementByUnit: context.movementByUnit,
             unitId,
-            refreshedUnit.position,
-            moveEvt.payload.to,
-            moveEvt.payload.facing as Facing,
-            moveEvt.payload.movementType,
-            moveEvt.payload.mpUsed,
-            moveEvt.payload.heatGenerated,
-            eventPath,
-          ),
+            to: moveEvt.payload.to,
+            facing: moveEvt.payload.facing as Facing,
+            movementType: moveEvt.payload.movementType,
+          }),
         );
+        session = context.getSession();
       }
-      setSession(lockMovement(session, unitId));
+      if (session.currentState.units[unitId]?.lockState !== LockState.Locked) {
+        setSession(lockMovement(session, unitId));
+      }
       emitUnitRetreatedIfNeeded(context, unitId);
     } else if (phase === GamePhase.WeaponAttack) {
       emitRetreatIfNeeded(context, unitId, weapons, gunnery);
@@ -123,6 +118,39 @@ export function runInteractiveSessionAITurn(
           weapons,
           unitId,
         );
+        const targetHex =
+          session.currentState.units[atkEvt.payload.targetId]?.position;
+        const targetPartialCover = targetHex
+          ? getTargetCoverInfo(
+              context.grid,
+              refreshedUnit?.position ?? unit.position,
+              targetHex,
+              {
+                horizontalCoverEligible: gameUnitUsesMekHorizontalCover(
+                  session.units.find(
+                    (entry) => entry.id === atkEvt.payload.targetId,
+                  ),
+                ),
+                targetHexWaterCoverEligible: gameUnitUsesMekWaterCover(
+                  session.units.find(
+                    (entry) => entry.id === atkEvt.payload.targetId,
+                  ),
+                ),
+              },
+            ).partialCover
+          : false;
+        const targetTerrainModifier = targetHex
+          ? calculateTargetTerrainModifierFromHex(
+              context.grid.hexes.get(`${targetHex.q},${targetHex.r}`),
+            )
+          : null;
+        const directLos = targetHex
+          ? calculateLOS(
+              refreshedUnit?.position ?? unit.position,
+              targetHex,
+              context.grid,
+            )
+          : undefined;
         setSession(
           declareAttack(
             session,
@@ -131,6 +159,11 @@ export function runInteractiveSessionAITurn(
             weaponAttacks,
             3,
             RangeBracket.Short,
+            undefined,
+            targetHex,
+            targetPartialCover,
+            directLos?.hasLOS ? directLos.interveningTerrainEffects : [],
+            targetTerrainModifier,
           ),
         );
       }
