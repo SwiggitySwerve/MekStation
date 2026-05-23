@@ -94,6 +94,8 @@ export interface IMovementWaterCapability {
   readonly limitedAmphibious?: boolean;
   /** Flotation hull equipment; lifts tracked/wheeled vehicle water terrain prohibition. */
   readonly flotationHull?: boolean;
+  /** Terrain Master: Frogman reduces represented deep-water movement cost. */
+  readonly frogmanSpecialist?: boolean;
 }
 
 /**

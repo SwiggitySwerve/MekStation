@@ -343,6 +343,13 @@ function movementTerrainProfileFromUnitData(
 function waterCapabilityFromUnitData(
   unitData: Record<string, unknown>,
 ): IMovementWaterCapability | undefined {
+  const frogmanSpecialist = booleanField(
+    unitData,
+    'frogman',
+    'hasFrogman',
+    'isFrogman',
+    'frogmanSpecialist',
+  );
   const waterCapability: IMovementWaterCapability = {
     fullyAmphibious: booleanField(
       unitData,
@@ -357,10 +364,12 @@ function waterCapabilityFromUnitData(
       'isLimitedAmphibious',
     ),
     flotationHull: booleanField(unitData, 'hasFlotationHull', 'flotationHull'),
+    ...(frogmanSpecialist ? { frogmanSpecialist } : {}),
   };
   return waterCapability.fullyAmphibious ||
     waterCapability.limitedAmphibious ||
-    waterCapability.flotationHull
+    waterCapability.flotationHull ||
+    waterCapability.frogmanSpecialist
     ? waterCapability
     : undefined;
 }

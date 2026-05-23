@@ -83,6 +83,9 @@ export function waterMovementCostModifier(
   if (hasAmphibiousWaterMovement(context.waterCapability)) {
     return 1;
   }
+  if (context.waterCapability?.frogmanSpecialist && waterLevel > 1) {
+    return 2;
+  }
   return waterLevel === 1 ? 1 : 3;
 }
 

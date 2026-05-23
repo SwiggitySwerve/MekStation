@@ -401,6 +401,21 @@ describe('CompendiumAdapter', () => {
       });
     });
 
+    it('should preserve represented Frogman water movement capability', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'PROTOMECH',
+        frogmanSpecialist: true,
+      } as unknown as IFullUnit);
+
+      expect(result.waterCapability).toEqual({
+        fullyAmphibious: false,
+        limitedAmphibious: false,
+        flotationHull: false,
+        frogmanSpecialist: true,
+      });
+    });
+
     it.each([
       ['Naval', 'naval'],
       ['Hydrofoil', 'hydrofoil'],

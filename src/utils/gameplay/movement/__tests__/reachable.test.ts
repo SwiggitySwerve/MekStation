@@ -988,6 +988,59 @@ describe('deriveReachableHexes', () => {
     });
   });
 
+  it('applies Frogman deep-water movement cost reduction when represented', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+    grid = setHex(
+      grid,
+      { q: 1, r: 0 },
+      terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
+      0,
+    );
+    const unit = makeUnitAtOrigin();
+
+    const standard = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        walkMP: 3,
+        runMP: 5,
+        jumpMP: 0,
+        movementMode: 'walk',
+      },
+      { q: 1, r: 0 },
+    );
+    const frogman = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      {
+        walkMP: 3,
+        runMP: 5,
+        jumpMP: 0,
+        movementMode: 'walk',
+        waterCapability: { frogmanSpecialist: true },
+      },
+      { q: 1, r: 0 },
+    );
+
+    expect(standard).toMatchObject({
+      reachable: false,
+      mpCost: 4,
+      terrainCost: 3,
+      movementInvalidReason: 'InsufficientMP',
+    });
+    expect(frogman).toMatchObject({
+      reachable: true,
+      mpCost: 3,
+      terrainCost: 2,
+      elevationCost: 0,
+      movementMode: 'walk',
+      movementType: MovementType.Walk,
+    });
+  });
+
   it('lets flotation-hull tracked vehicles run one first step into water', () => {
     let grid = createHexGrid({ radius: 3 });
     grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);

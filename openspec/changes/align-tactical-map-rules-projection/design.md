@@ -43,6 +43,13 @@ destinations in water terrain, does not charge represented ground-elevation
 rises while swimming, applies the represented flat swim heat, and leaves
 infantry UMU land-entry behavior to the existing UMU-specific projection.
 
+Represented Frogman deep-water movement is pinned to MegaMek tactical behavior:
+`MoveStep.calcMovementCostFor(...)` reduces the non-amphibious depth-2+
+water surcharge for Frogman Mek/ProtoMek movement from the normal deep-water
+cost to +2 MP. MekStation carries this only when the movement capability
+explicitly represents the Frogman specialist flag, so ordinary deep-water
+movement and amphibious equipment behavior remain unchanged.
+
 ## Combat Projection
 
 Combat overlays must be weapon-backed when the selected unit has configured weapons. Legacy raw `attackRange` is allowed only as a compatibility fallback when no configured weapon list exists.
