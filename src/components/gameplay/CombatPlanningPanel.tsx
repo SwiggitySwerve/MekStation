@@ -119,6 +119,7 @@ export function CombatPlanningPanel({
   const session = useGameplaySelector((s) => s.session);
   const plannedMovement = useGameplaySelector((s) => s.plannedMovement);
   const attackPlan = useGameplaySelector((s) => s.attackPlan);
+  const weaponModesByUnitId = useGameplaySelector((s) => s.weaponModesByUnitId);
   const setPlannedMovement = useGameplaySelector((s) => s.setPlannedMovement);
   const clearPlannedMovement = useGameplaySelector(
     (s) => s.clearPlannedMovement,
@@ -127,6 +128,9 @@ export function CombatPlanningPanel({
     (s) => s.commitPlannedMovement,
   );
   const togglePlannedWeapon = useGameplaySelector((s) => s.togglePlannedWeapon);
+  const setPlannedWeaponMode = useGameplaySelector(
+    (s) => s.setPlannedWeaponMode,
+  );
   const commitAttack = useGameplaySelector((s) => s.commitAttack);
   // Per `add-what-if-to-hit-preview` § 8.2: toggle state lives on the
   // store so other surfaces (e.g. ToHitForecastModal) can subscribe to
@@ -140,6 +144,9 @@ export function CombatPlanningPanel({
   const selected = useSelectedUnit();
 
   const [forecastOpen, setForecastOpen] = useState(false);
+  const selectedWeaponModes = selected
+    ? (weaponModesByUnitId[selected.id] ?? {})
+    : {};
 
   const phase = session?.currentState.phase;
 
@@ -382,8 +389,11 @@ export function CombatPlanningPanel({
             weapons={weapons}
             rangeToTarget={rangeToTarget}
             selectedWeaponIds={attackPlan.selectedWeapons}
+            weaponModesByWeaponId={selectedWeaponModes}
+            weaponModeError={attackPlan.weaponModeError}
             ammo={ammoMap}
             onToggle={togglePlannedWeapon}
+            onModeChange={setPlannedWeaponMode}
             attacker={attackerState}
             target={targetState}
             previewEnabled={previewEnabled}
@@ -465,6 +475,7 @@ export function CombatPlanningPanel({
               weapons={weapons}
               rangeToTarget={0}
               selectedWeaponIds={attackPlan.selectedWeapons}
+              weaponModesByWeaponId={selectedWeaponModes}
               ammo={ammoMap}
               // No-op toggle: even though pointer-events-none blocks
               // clicks, keyboard assistive tech might still reach the

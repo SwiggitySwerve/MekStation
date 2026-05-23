@@ -28,15 +28,25 @@ import {
   IHexCoordinate,
   IGameSession,
   IGameplayUIState,
+  IWeaponStatus,
   IMovementDeclaredPayload,
   MovementAnimationMode,
   MovementType,
+  WeaponFireMode,
   type StandUpMode,
 } from '@/types/gameplay';
 import { declarePhysicalAttack } from '@/utils/gameplay/gameSession';
 
 import { useAnimationQueue } from './useAnimationQueue';
 import { InteractivePhase } from './useGameplayStore.helpers';
+
+export {
+  clearAttackPlanLogic,
+  commitAttackLogic,
+  setAttackTargetLogic,
+  setPlannedWeaponModeLogic,
+  togglePlannedWeaponLogic,
+} from './useGameplayStore.attackPlan';
 
 /**
  * Per `add-combat-phase-ui-flows`: structured plan the player builds
@@ -69,6 +79,7 @@ export interface IPlannedMovement {
 export interface IAttackPlan {
   readonly targetUnitId: string | null;
   readonly selectedWeapons: readonly string[];
+  readonly weaponModeError: string | null;
 }
 
 /**
@@ -88,23 +99,25 @@ export interface IPhysicalAttackPlan {
 /**
  * Minimal slice of the gameplay store the combat-flow helpers need.
  */
-interface CombatFlowsSlice {
+export interface CombatFlowsSlice {
   session: IGameSession | null;
   interactiveSession: InteractiveSession | null;
   ui: IGameplayUIState;
   plannedMovement: IPlannedMovement | null;
   attackPlan: IAttackPlan;
+  weaponModesByUnitId: Record<string, Readonly<Record<string, WeaponFireMode>>>;
+  unitWeapons: Record<string, readonly IWeaponStatus[]>;
   interactivePhase: InteractivePhase;
   validMovementHexes: readonly { q: number; r: number }[];
   validTargetIds: readonly string[];
   hitChance: number | null;
 }
 
-type SetFn = {
+export type SetFn = {
   (partial: Partial<CombatFlowsSlice>): void;
   (fn: (state: CombatFlowsSlice) => Partial<CombatFlowsSlice>): void;
 };
-type GetFn = () => CombatFlowsSlice;
+export type GetFn = () => CombatFlowsSlice;
 
 // ---------------------------------------------------------------------------
 // Movement-phase planning helpers
@@ -269,77 +282,6 @@ function movementAnimationModeForType(
     default:
       return null;
   }
-}
-
-// ---------------------------------------------------------------------------
-// Attack-phase planning helpers
-// ---------------------------------------------------------------------------
-
-export function setAttackTargetLogic(unitId: string | null, set: SetFn): void {
-  set((state) => ({
-    attackPlan: { ...state.attackPlan, targetUnitId: unitId },
-    ui: { ...state.ui, targetUnitId: unitId },
-  }));
-}
-
-export function togglePlannedWeaponLogic(weaponId: string, set: SetFn): void {
-  set((state) => {
-    const current = state.attackPlan.selectedWeapons;
-    const next = current.includes(weaponId)
-      ? current.filter((id) => id !== weaponId)
-      : [...current, weaponId];
-    return {
-      attackPlan: { ...state.attackPlan, selectedWeapons: next },
-    };
-  });
-}
-
-export function clearAttackPlanLogic(set: SetFn): void {
-  set((state) => ({
-    attackPlan: { targetUnitId: null, selectedWeapons: [] },
-    ui: { ...state.ui, targetUnitId: null },
-  }));
-}
-
-/**
- * Apply the planned attack via the interactive session (emits
- * `AttackDeclared` + `AttackLocked`) and clear the plan. No-op when
- * any required slice is missing.
- */
-export function commitAttackLogic(get: GetFn, set: SetFn): void {
-  const { interactiveSession, attackPlan, ui } = get();
-  if (
-    !interactiveSession ||
-    !ui.selectedUnitId ||
-    !attackPlan.targetUnitId ||
-    attackPlan.selectedWeapons.length === 0
-  ) {
-    return;
-  }
-
-  interactiveSession.applyAttack(
-    ui.selectedUnitId,
-    attackPlan.targetUnitId,
-    attackPlan.selectedWeapons,
-  );
-
-  const gameOver = interactiveSession.isGameOver();
-
-  set((state) => ({
-    session: interactiveSession.getSession(),
-    interactivePhase: gameOver
-      ? InteractivePhase.GameOver
-      : InteractivePhase.SelectUnit,
-    attackPlan: { targetUnitId: null, selectedWeapons: [] },
-    validTargetIds: [],
-    hitChance: null,
-    ui: {
-      ...state.ui,
-      selectedUnitId: null,
-      targetUnitId: null,
-      queuedWeaponIds: [],
-    },
-  }));
 }
 
 // ---------------------------------------------------------------------------

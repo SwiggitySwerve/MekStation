@@ -24,12 +24,12 @@
 ## 4. Indirect-eligible weapon catalog + mode toggle
 
 - [x] 4.1 `INDIRECT_ELIGIBLE_WEAPON_FAMILIES` constant exported from `src/utils/gameplay/indirectFire.ts` - 5 families (LRM / LRM_IMP / MML_LRM / MEK_MORTAR / NLRM). `isIndirectFireCapable` matches `mortar` alongside `lrm`; Streak variants explicitly excluded.
-- [ ] 4.2 Reject mode-toggle on non-eligible weapons at UI + resolver
-  > Still pending because the per-weapon Direct/Indirect UI toggle is not wired.
-- [ ] 4.3 Add `weapon.mode: 'Direct' | 'Indirect'` to per-weapon combat state
-  > Engine declaration payloads now carry resolved `mode` with invalid Indirect requests normalized to Direct; UI/state toggle wiring remains pending.
+- [x] 4.2 Reject mode-toggle on non-eligible weapons at UI + resolver
+  > WeaponSelector exposes the Direct/Indirect segmented control, store validation rejects non-eligible indirect requests with a player-facing error, and the resolver still normalizes invalid Indirect requests to Direct as defense in depth.
+- [x] 4.3 Add `weapon.mode: 'Direct' | 'Indirect'` to per-weapon combat state
+  > Per-unit `weaponModesByUnitId` state now threads selected modes through `InteractiveSession.applyAttack`; engine declaration payloads carry resolved `mode` with invalid Indirect requests normalized to Direct.
 - [ ] 4.4 Persist mode in event-log replay round-trip
-  > Still pending with the per-weapon mode toggle.
+  > Still pending for replay deserialization/round-trip coverage after the UI/store toggle slice.
 - [x] 4.5 Unit tests cover the eligibility surface: accepted families and rejected Streak / direct-fire / MML-SRM variants.
 
 ## 5. Combat-resolution dispatch + event log
@@ -68,9 +68,10 @@ The indirect-fire engine path now has:
 - SSoT indirect-eligible weapon families and capability checks
 - NARC/iNarc and semi-guided TAG override support
 - Forward Observer SPA catalog entry, penalty cancellation, map projection explanation, and `IndirectFireForwardObserver` event emission
+- Per-weapon Direct/Indirect mode selection in the weapon planning UI, with non-eligible weapon rejection before commit
 - Combat-resolution dispatch and event-log formatting for the four indirect-fire event variants
 - Spotter liveness re-check with auto-miss + `IndirectFireSpotterLost`
 
 **Remaining PR-sized work:**
-- PR-K6: per-weapon Direct/Indirect mode toggle + non-eligible toggle rejection + replay round-trip (`4.2-4.4`)
+- PR-K6: per-weapon mode replay round-trip (`4.4`)
 - PR-K7: playtest notes + Arrow IV follow-up + archive readiness (`7.6`, `8.1-8.2`)

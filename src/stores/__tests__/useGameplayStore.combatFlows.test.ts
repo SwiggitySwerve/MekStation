@@ -50,6 +50,7 @@ interface FakeSessionCalls {
     attackerId: string;
     targetId: string;
     weaponIds: readonly string[];
+    weaponModesByWeaponId?: Readonly<Record<string, 'Direct' | 'Indirect'>>;
   }>;
 }
 
@@ -108,8 +109,14 @@ function buildFakeSession(): {
       attackerId: string,
       targetId: string,
       weaponIds: readonly string[],
+      weaponModesByWeaponId?: Readonly<Record<string, 'Direct' | 'Indirect'>>,
     ) => {
-      calls.attacks.push({ attackerId, targetId, weaponIds });
+      calls.attacks.push({
+        attackerId,
+        targetId,
+        weaponIds,
+        ...(weaponModesByWeaponId ? { weaponModesByWeaponId } : {}),
+      });
     },
     getSession: () => sessionSnapshot,
     getState: () => sessionSnapshot.currentState,
@@ -560,6 +567,7 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       expect(useGameplayStore.getState().attackPlan).toEqual({
         targetUnitId: null,
         selectedWeapons: [],
+        weaponModeError: null,
       });
     });
 
@@ -654,8 +662,61 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       expect(useGameplayStore.getState().attackPlan).toEqual({
         targetUnitId: null,
         selectedWeapons: [],
+        weaponModeError: null,
       });
       expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
+    });
+
+    it('setPlannedWeaponMode stores eligible indirect mode by selected unit', () => {
+      useGameplayStore.setState({
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'attacker',
+        },
+        unitWeapons: {
+          attacker: [
+            {
+              ...buildSmallLaser(),
+              id: 'lrm-15-1',
+              name: 'LRM-15',
+            },
+          ],
+        },
+      });
+
+      useGameplayStore.getState().setPlannedWeaponMode('lrm-15-1', 'Indirect');
+
+      expect(useGameplayStore.getState().weaponModesByUnitId).toEqual({
+        attacker: { 'lrm-15-1': 'Indirect' },
+      });
+      expect(useGameplayStore.getState().attackPlan.weaponModeError).toBeNull();
+    });
+
+    it('setPlannedWeaponMode rejects non-eligible indirect mode with a validation message', () => {
+      useGameplayStore.setState({
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'attacker',
+        },
+        unitWeapons: {
+          attacker: [
+            {
+              ...buildSmallLaser(),
+              id: 'ac20-1',
+              name: 'AC/20',
+            },
+          ],
+        },
+      });
+
+      useGameplayStore.getState().setPlannedWeaponMode('ac20-1', 'Indirect');
+
+      expect(useGameplayStore.getState().weaponModesByUnitId).toEqual({
+        attacker: { 'ac20-1': 'Direct' },
+      });
+      expect(useGameplayStore.getState().attackPlan.weaponModeError).toBe(
+        'AC/20 cannot fire indirectly',
+      );
     });
 
     it('commitAttack is a no-op without session/target/weapons', () => {
@@ -678,6 +739,10 @@ describe('useGameplayStore — combat-phase planning actions', () => {
         attackPlan: {
           targetUnitId: 'enemy-1',
           selectedWeapons: ['med-laser', 'ac20'],
+          weaponModeError: null,
+        },
+        weaponModesByUnitId: {
+          attacker: { 'med-laser': 'Direct', ac20: 'Indirect' },
         },
         ui: {
           ...useGameplayStore.getState().ui,
@@ -691,10 +756,12 @@ describe('useGameplayStore — combat-phase planning actions', () => {
         attackerId: 'attacker',
         targetId: 'enemy-1',
         weaponIds: ['med-laser', 'ac20'],
+        weaponModesByWeaponId: { 'med-laser': 'Direct', ac20: 'Indirect' },
       });
       expect(useGameplayStore.getState().attackPlan).toEqual({
         targetUnitId: null,
         selectedWeapons: [],
+        weaponModeError: null,
       });
     });
   });

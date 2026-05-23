@@ -29,6 +29,7 @@ import {
   IGameplayUIState,
   IPilotSpaSummary,
   IWeaponStatus,
+  WeaponFireMode,
   type StandUpMode,
 } from '@/types/gameplay';
 import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
@@ -42,6 +43,7 @@ import {
   getAttackPlanFor,
   setAttackTargetLogic,
   setPlannedMovementLogic,
+  setPlannedWeaponModeLogic,
   shouldClearAttackPlanOnPhaseChange,
   standActiveUnitLogic,
   togglePlannedWeaponLogic,
@@ -129,6 +131,7 @@ interface GameplayState {
    * state. Missing key → treated the same as an empty array.
    */
   unitSpas: Record<string, readonly IPilotSpaSummary[]>;
+  weaponModesByUnitId: Record<string, Readonly<Record<string, WeaponFireMode>>>;
   /**
    * Per `add-combat-phase-ui-flows`: in-progress movement the player is
    * building in the Movement phase. `null` until they pick a
@@ -217,6 +220,7 @@ interface GameplayActions {
    */
   setAttackTarget: (unitId: string | null) => void;
   togglePlannedWeapon: (weaponId: string) => void;
+  setPlannedWeaponMode: (weaponId: string, mode: WeaponFireMode) => void;
   clearAttackPlan: () => void;
   commitAttack: () => void;
   /**
@@ -263,8 +267,13 @@ const initialState: GameplayState = {
   pilotNames: {},
   heatSinks: {},
   unitSpas: {},
+  weaponModesByUnitId: {},
   plannedMovement: null,
-  attackPlan: { targetUnitId: null, selectedWeapons: [] },
+  attackPlan: {
+    targetUnitId: null,
+    selectedWeapons: [],
+    weaponModeError: null,
+  },
   previewEnabled: false,
 };
 
@@ -442,6 +451,8 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   standActiveUnit: (standUpMode) => standActiveUnitLogic(get, set, standUpMode),
   setAttackTarget: (unitId) => setAttackTargetLogic(unitId, set),
   togglePlannedWeapon: (weaponId) => togglePlannedWeaponLogic(weaponId, set),
+  setPlannedWeaponMode: (weaponId, mode) =>
+    setPlannedWeaponModeLogic(weaponId, mode, set),
   clearAttackPlan: () => clearAttackPlanLogic(set),
   commitAttack: () => commitAttackLogic(get, set),
   getAttackPlan: (attackerId) => {

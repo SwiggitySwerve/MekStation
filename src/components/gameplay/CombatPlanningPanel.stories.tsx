@@ -212,8 +212,12 @@ const GameplayStoreDecorator: Decorator = (Story, context) => {
           : null,
       attackPlan:
         phase === GamePhase.Movement
-          ? { targetUnitId: null, selectedWeapons: [] }
-          : { targetUnitId: 'hunchback', selectedWeapons: ['ac20'] },
+          ? { targetUnitId: null, selectedWeapons: [], weaponModeError: null }
+          : {
+              targetUnitId: 'hunchback',
+              selectedWeapons: ['ac20'],
+              weaponModeError: null,
+            },
       previewEnabled: true,
     });
 

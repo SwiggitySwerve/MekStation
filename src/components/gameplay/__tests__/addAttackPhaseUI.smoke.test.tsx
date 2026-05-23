@@ -176,6 +176,7 @@ interface FakeSessionCalls {
     attackerId: string;
     targetId: string;
     weaponIds: readonly string[];
+    weaponModesByWeaponId?: Readonly<Record<string, 'Direct' | 'Indirect'>>;
   }>;
 }
 
@@ -212,8 +213,14 @@ function buildFakeSession(): {
       attackerId: string,
       targetId: string,
       weaponIds: readonly string[],
+      weaponModesByWeaponId?: Readonly<Record<string, 'Direct' | 'Indirect'>>,
     ) => {
-      calls.attacks.push({ attackerId, targetId, weaponIds });
+      calls.attacks.push({
+        attackerId,
+        targetId,
+        weaponIds,
+        ...(weaponModesByWeaponId ? { weaponModesByWeaponId } : {}),
+      });
     },
     getSession: () => snapshot,
     getState: () => snapshot.currentState,
@@ -239,6 +246,10 @@ describe('add-attack-phase-ui § 11.4 — commit flow wires to engine applyAttac
       attackPlan: {
         targetUnitId: 'enemy-1',
         selectedWeapons: ['med-laser-1', 'ac20-1'],
+        weaponModeError: null,
+      },
+      weaponModesByUnitId: {
+        attacker: { 'med-laser-1': 'Direct', 'ac20-1': 'Indirect' },
       },
       ui: {
         ...useGameplayStore.getState().ui,
@@ -256,13 +267,78 @@ describe('add-attack-phase-ui § 11.4 — commit flow wires to engine applyAttac
       attackerId: 'attacker',
       targetId: 'enemy-1',
       weaponIds: ['med-laser-1', 'ac20-1'],
+      weaponModesByWeaponId: {
+        'med-laser-1': 'Direct',
+        'ac20-1': 'Indirect',
+      },
     });
     // Post-commit, the plan is cleared so the forecast modal cannot be
     // re-confirmed (task 9.3).
     expect(useGameplayStore.getState().attackPlan).toEqual({
       targetUnitId: null,
       selectedWeapons: [],
+      weaponModeError: null,
     });
+  });
+});
+
+describe('indirect fire mode controls', () => {
+  it('renders a Direct/Indirect segmented control for weapon rows', () => {
+    render(
+      <WeaponSelector
+        weapons={[lrm15]}
+        rangeToTarget={8}
+        selectedWeaponIds={[]}
+        weaponModesByWeaponId={{ 'lrm15-1': 'Indirect' }}
+        ammo={{ 'lrm15-1': 8 }}
+        onToggle={jest.fn()}
+        onModeChange={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('weapon-mode-control-lrm15-1')).toHaveAttribute(
+      'data-fire-mode',
+      'Indirect',
+    );
+    expect(screen.getByTestId('weapon-mode-indirect-lrm15-1')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  it('routes indirect mode clicks through onModeChange', () => {
+    const onModeChange = jest.fn();
+    render(
+      <WeaponSelector
+        weapons={[lrm15]}
+        rangeToTarget={8}
+        selectedWeaponIds={[]}
+        ammo={{ 'lrm15-1': 8 }}
+        onToggle={jest.fn()}
+        onModeChange={onModeChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('weapon-mode-indirect-lrm15-1'));
+    expect(onModeChange).toHaveBeenCalledWith('lrm15-1', 'Indirect');
+  });
+
+  it('surfaces mode validation errors without relying on color alone', () => {
+    render(
+      <WeaponSelector
+        weapons={[ac20]}
+        rangeToTarget={3}
+        selectedWeaponIds={[]}
+        weaponModeError="AC/20 cannot fire indirectly"
+        ammo={{ 'ac20-1': 5 }}
+        onToggle={jest.fn()}
+        onModeChange={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('weapon-mode-error')).toHaveTextContent(
+      'AC/20 cannot fire indirectly',
+    );
   });
 });
 
