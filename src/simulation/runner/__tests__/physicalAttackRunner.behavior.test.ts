@@ -430,6 +430,25 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
+  it('rejects injected physical declarations by cargo-interacting attackers before side effects', () => {
+    const { events, result } = runPhase('kick', {
+      attacker: { isLoadingOrUnloadingCargo: true },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'kick',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'AttackerCargoInteraction',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['opponent-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
   it('rejects source-backed push legality gates before displacement side effects', () => {
     const { events, result } = runPhase('push', {
       target: { prone: true },
@@ -1045,6 +1064,25 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     const { events } = runAutomaticPhase({
       attacker: {
         isEvading: true,
+        movementThisTurn: MovementType.Run,
+        hexesMovedThisTurn: 5,
+      },
+    });
+
+    expect(
+      events.filter(
+        (event) =>
+          event.actorId === 'player-1' &&
+          (event.type === GameEventType.PhysicalAttackDeclared ||
+            event.type === GameEventType.PhysicalAttackResolved),
+      ),
+    ).toEqual([]);
+  });
+
+  it('does not automatically select physical attacks for cargo-interacting units', () => {
+    const { events } = runAutomaticPhase({
+      attacker: {
+        isLoadingOrUnloadingCargo: true,
         movementThisTurn: MovementType.Run,
         hexesMovedThisTurn: 5,
       },

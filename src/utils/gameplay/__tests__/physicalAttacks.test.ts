@@ -1263,6 +1263,83 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows cargo-interacting attackers across supported physical attack families', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canKick(
+          makeInput({
+            attackType: 'kick',
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canCharge(
+          makeInput({
+            attackType: 'charge',
+            attackerRanThisTurn: true,
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            attackerLoadingOrUnloadingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+    });
+
     it('disallows self-targeted physical attacks before adjacency checks', () => {
       expect(
         canPunch(

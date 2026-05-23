@@ -166,6 +166,12 @@ export interface IUnitGameState {
    * preserves legacy fixtures without evasion state.
    */
   readonly isEvading?: boolean;
+  /**
+   * Whether this unit is loading or unloading cargo this turn. Explicit true
+   * blocks source-backed physical attack declarations by this attacker;
+   * undefined preserves legacy fixtures without cargo interaction state.
+   */
+  readonly isLoadingOrUnloadingCargo?: boolean;
   /** Which side this unit belongs to */
   readonly side: GameSide;
   /** Current position */

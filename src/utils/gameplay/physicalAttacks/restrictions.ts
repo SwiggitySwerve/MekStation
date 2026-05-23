@@ -56,6 +56,13 @@ function sharedPhysicalTargetRestriction(
     );
   }
 
+  if (input.attackerLoadingOrUnloadingCargo) {
+    return blocked(
+      'Physical attacks cannot be made while loading or unloading cargo',
+      'AttackerCargoInteraction',
+    );
+  }
+
   if (input.targetIsPassenger) {
     return blocked(
       'Physical attacks cannot target transported passengers',

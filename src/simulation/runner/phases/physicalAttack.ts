@@ -148,6 +148,7 @@ export function runPhysicalAttackPhase(options: {
           pilotAbilities: unit.abilities,
           unitQuirks: unit.unitQuirks,
           attackerEvading: unit.isEvading,
+          attackerLoadingOrUnloadingCargo: unit.isLoadingOrUnloadingCargo,
           elevationDifference,
         },
       );
@@ -195,6 +196,7 @@ export function runPhysicalAttackPhase(options: {
       attackerArmsFlipped: unit.armsFlipped,
       targetUnitType: target.unitType,
       attackerEvading: unit.isEvading,
+      attackerLoadingOrUnloadingCargo: unit.isLoadingOrUnloadingCargo,
       heat: unit.heat,
       hasTSM: unit.hasTSM ?? false,
       isUnderwater,

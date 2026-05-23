@@ -211,6 +211,15 @@ describe('createInitialUnitState — mech / vehicle / legacy', () => {
     expect(state.isEvading).toBe(true);
   });
 
+  it('copies optional cargo interaction state for physical attacker legality gates', () => {
+    const unit = baseGameUnit({
+      unitType: UnitType.BATTLEMECH,
+      isLoadingOrUnloadingCargo: true,
+    });
+    const state = createInitialUnitState(unit, POSITION, Facing.North);
+    expect(state.isLoadingOrUnloadingCargo).toBe(true);
+  });
+
   it('leaves combatState undefined for VEHICLE (kind: vehicle is a future variant)', () => {
     const unit = baseGameUnit({ unitType: UnitType.VEHICLE });
     const state = createInitialUnitState(unit, POSITION, Facing.North);

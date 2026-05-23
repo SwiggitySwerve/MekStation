@@ -180,10 +180,10 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'IUnitGameState exposes optional isEvading, shared restriction helpers reject attackerEvading, and eligibility/session/runner inputs thread evasion state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
-  'shared.not-loading-unloading-cargo': unsupported(
+  'shared.not-loading-unloading-cargo': integrated(
     'shared.not-loading-unloading-cargo',
     'shared',
-    'cargo interaction state is not represented in BattleMech physical restriction input',
+    'IUnitGameState exposes optional isLoadingOrUnloadingCargo, shared restriction helpers reject attackerLoadingOrUnloadingCargo, and eligibility/session/runner inputs thread cargo interaction state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
   ),
   'shared.target-not-passenger': integrated(

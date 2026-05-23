@@ -71,6 +71,7 @@ export type PhysicalAttackInvalidReason =
   | 'ShoulderDestroyed'
   | 'SameLimbUsedThisTurn'
   | 'AttackerEvading'
+  | 'AttackerCargoInteraction'
   | 'NoJumpThisTurn'
   | 'NoRunThisTurn'
   | 'AttackerInfantry'
@@ -142,6 +143,11 @@ export interface IPhysicalAttackInput {
    * cannot make normal physical attacks.
    */
   readonly attackerEvading?: boolean;
+  /**
+   * Source-backed shared physical legality: an attacker that is loading or
+   * unloading cargo cannot make physical attacks.
+   */
+  readonly attackerLoadingOrUnloadingCargo?: boolean;
   readonly attackerProne?: boolean;
   readonly targetTonnage?: number;
   /**
@@ -360,6 +366,7 @@ export interface IChooseBestPhysicalAttackOptions {
   pilotAbilities?: readonly string[];
   unitQuirks?: readonly string[];
   attackerEvading?: boolean;
+  attackerLoadingOrUnloadingCargo?: boolean;
   elevationDifference?: number;
 }
 

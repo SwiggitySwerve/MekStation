@@ -169,6 +169,12 @@ export interface IGameUnit {
    */
   readonly isEvading?: boolean;
   /**
+   * Optional end-of-turn cargo interaction state copied into combat state.
+   * Explicit true blocks source-backed physical attack declarations by this
+   * unit while it is loading or unloading cargo.
+   */
+  readonly isLoadingOrUnloadingCargo?: boolean;
+  /**
    * Per-type construction inputs consumed by `createInitialUnitState` to
    * build `combatState` via `create{Type}CombatState` factories. Each block
    * is OPTIONAL at the type level so the legacy mech-only call path stays
