@@ -369,13 +369,29 @@ describe('TacticalActionDock', () => {
         previewInputs={{
           combatInfo: makeCombatInfo({
             weaponIdsAvailable: ['medium-laser', 'ac-5'],
+            availableWeaponImpacts: [
+              {
+                weaponId: 'medium-laser',
+                weaponName: 'Medium Laser',
+                heat: 3,
+                ammoConsumed: 0,
+              },
+              {
+                weaponId: 'ac-5',
+                weaponName: 'AC/5',
+                heat: 1,
+                ammoConsumed: 1,
+                ammoRemaining: 8,
+              },
+            ],
+            availableWeaponHeat: 4,
           }),
           weaponStatuses: [
-            makeWeapon(),
+            makeWeapon({ heat: 12 }),
             makeWeapon({
               id: 'ac-5',
               name: 'AC/5',
-              heat: 1,
+              heat: 8,
               damage: 5,
               ammoRemaining: 8,
             }),

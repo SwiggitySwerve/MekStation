@@ -42,6 +42,7 @@ import { useMemo } from 'react';
 
 import type {
   ICombatRangeHex,
+  ICombatWeaponImpact,
   ICommandPreview,
   IHexCoordinate,
   IMovementRangeHex,
@@ -203,6 +204,10 @@ function buildWeaponPreview(
           availableWeaponIds.has(weapon.id),
         )
       : [];
+  const availableWeaponImpacts =
+    attackable && inputs.combatInfo
+      ? inputs.combatInfo.availableWeaponImpacts
+      : [];
 
   return {
     kind: 'weapon-attack',
@@ -216,10 +221,13 @@ function buildWeaponPreview(
     attackInvalidReason: inputs.combatInfo?.attackInvalidReason,
     attackInvalidDetails: inputs.combatInfo?.attackInvalidDetails,
     blockedReason,
-    heatCost: sumWeaponHeat(selectedWeapons),
-    weaponIds: selectedWeapons.map((weapon) => weapon.id),
-    weaponNames: selectedWeapons.map((weapon) => weapon.name),
-    ammoUsage: ammoUsageForWeapons(selectedWeapons),
+    heatCost:
+      availableWeaponImpacts.length > 0 && inputs.combatInfo
+        ? inputs.combatInfo.availableWeaponHeat
+        : 0,
+    weaponIds: availableWeaponImpacts.map((impact) => impact.weaponId),
+    weaponNames: availableWeaponImpacts.map((impact) => impact.weaponName),
+    ammoUsage: ammoUsageForImpacts(availableWeaponImpacts),
     expectedDamage: expectedDamageForWeapons(selectedWeapons, toHit),
   };
 }
@@ -255,16 +263,13 @@ function toPreviewRangeBand(
   }
 }
 
-function sumWeaponHeat(weapons: readonly IWeaponStatus[]): number {
-  return weapons.reduce((sum, weapon) => sum + weapon.heat, 0);
-}
-
-function ammoUsageForWeapons(
-  weapons: readonly IWeaponStatus[],
+function ammoUsageForImpacts(
+  impacts: readonly ICombatWeaponImpact[],
 ): Readonly<Record<string, number>> {
-  return weapons.reduce<Record<string, number>>((usage, weapon) => {
-    if (weapon.ammoRemaining === undefined) return usage;
-    usage[weapon.name] = (usage[weapon.name] ?? 0) + 1;
+  return impacts.reduce<Record<string, number>>((usage, impact) => {
+    if (impact.ammoConsumed <= 0) return usage;
+    usage[impact.weaponName] =
+      (usage[impact.weaponName] ?? 0) + impact.ammoConsumed;
     return usage;
   }, {});
 }
