@@ -12,9 +12,11 @@ import {
   GameSide,
   IGameConfig,
   IGameUnit,
+  IAttackDeclaredPayload,
   Facing,
   MovementType,
   IToHitModifier,
+  IWeaponAttackData,
 } from '@/types/gameplay';
 
 import {
@@ -1211,6 +1213,47 @@ describe('Event Serialization', () => {
       const deserialized = deserializeEvents('[]');
 
       expect(deserialized).toHaveLength(0);
+    });
+
+    it('preserves per-weapon fire modes for attack replay logs', () => {
+      const weaponAttacks: readonly IWeaponAttackData[] = [
+        {
+          weaponId: 'lrm-15-1',
+          weaponName: 'LRM-15',
+          mode: 'Indirect',
+          damage: 15,
+          heat: 5,
+        },
+        {
+          weaponId: 'medium-laser-1',
+          weaponName: 'Medium Laser',
+          mode: 'Direct',
+          damage: 5,
+          heat: 3,
+        },
+      ];
+      const original = [
+        createAttackDeclaredEvent(
+          'game-1',
+          7,
+          1,
+          'attacker',
+          'target',
+          ['lrm-15-1', 'medium-laser-1'],
+          9,
+          createTestModifiers(),
+          weaponAttacks,
+        ),
+      ];
+
+      const restored = deserializeEvents(serializeEvents(original));
+      const payload = restored[0].payload as IAttackDeclaredPayload;
+
+      expect(payload.weaponAttacks).toEqual(weaponAttacks);
+      expect(payload.weaponAttacks?.map((weapon) => weapon.mode)).toEqual([
+        'Indirect',
+        'Direct',
+      ]);
     });
   });
 

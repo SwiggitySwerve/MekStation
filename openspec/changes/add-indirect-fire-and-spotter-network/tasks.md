@@ -28,8 +28,8 @@
   > WeaponSelector exposes the Direct/Indirect segmented control, store validation rejects non-eligible indirect requests with a player-facing error, and the resolver still normalizes invalid Indirect requests to Direct as defense in depth.
 - [x] 4.3 Add `weapon.mode: 'Direct' | 'Indirect'` to per-weapon combat state
   > Per-unit `weaponModesByUnitId` state now threads selected modes through `InteractiveSession.applyAttack`; engine declaration payloads carry resolved `mode` with invalid Indirect requests normalized to Direct.
-- [ ] 4.4 Persist mode in event-log replay round-trip
-  > Still pending for replay deserialization/round-trip coverage after the UI/store toggle slice.
+- [x] 4.4 Persist mode in event-log replay round-trip
+  > Covered by attack-event serialization/deserialization regression: `AttackDeclared.weaponAttacks[].mode` survives event-log round-trip with mixed Direct/Indirect weapons.
 - [x] 4.5 Unit tests cover the eligibility surface: accepted families and rejected Streak / direct-fire / MML-SRM variants.
 
 ## 5. Combat-resolution dispatch + event log
@@ -69,9 +69,9 @@ The indirect-fire engine path now has:
 - NARC/iNarc and semi-guided TAG override support
 - Forward Observer SPA catalog entry, penalty cancellation, map projection explanation, and `IndirectFireForwardObserver` event emission
 - Per-weapon Direct/Indirect mode selection in the weapon planning UI, with non-eligible weapon rejection before commit
+- Event-log serialization coverage for mixed Direct/Indirect `AttackDeclared.weaponAttacks[].mode`
 - Combat-resolution dispatch and event-log formatting for the four indirect-fire event variants
 - Spotter liveness re-check with auto-miss + `IndirectFireSpotterLost`
 
 **Remaining PR-sized work:**
-- PR-K6: per-weapon mode replay round-trip (`4.4`)
 - PR-K7: playtest notes + Arrow IV follow-up + archive readiness (`7.6`, `8.1-8.2`)
