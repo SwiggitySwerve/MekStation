@@ -415,6 +415,12 @@ export function canDFA(
       reasonCode: 'AttackerProne',
     };
   }
+  if (input.targetMovementComplete === false && input.targetImmobile !== true) {
+    return blocked(
+      'DFA target must be done with movement',
+      'TargetMovementIncomplete',
+    );
+  }
   const displacementRestriction = chargeDfaDisplacementStateRestriction(input);
   if (!displacementRestriction.allowed) return displacementRestriction;
 

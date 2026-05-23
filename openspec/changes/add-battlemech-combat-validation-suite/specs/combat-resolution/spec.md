@@ -150,6 +150,16 @@ Physical attack declaration and resolution SHALL validate action-specific legali
 - **AND** no damage, displacement, or PSR side effect SHALL be emitted
 - **AND** eligibility UI, event-sourced declaration, and runner resolution SHALL report the same gate outcome
 
+#### Scenario: Death from above rejects targets that have not completed movement unless immobile
+
+- **GIVEN** a DFA declaration is evaluated after the attacker jumped this turn
+- **AND** the target has not completed movement this turn
+- **AND** the target is not immobile
+- **WHEN** the DFA legality gate runs
+- **THEN** death from above SHALL be rejected with `TargetMovementIncomplete`
+- **AND** immobile targets SHALL remain legal for this gate even when movement is incomplete
+- **AND** no damage, displacement, or PSR side effect SHALL be emitted on rejection
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

@@ -69,7 +69,7 @@ const PUSH_ACTION_LINES =
 const CHARGE_ACTION_LINES =
   'MegaMek ChargeAttackAction.toHit, ChargeAttackAction.java:116-274';
 const DFA_ACTION_LINES =
-  'MegaMek DfaAttackAction.toHit, DfaAttackAction.java:232-329';
+  'MegaMek DfaAttackAction movement validation and toHit, DfaAttackAction.java:185-329';
 
 const PHYSICAL_ATTACK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek PhysicalAttackAction.toHitIsImpossible applies shared physical attack impossibility gates',
@@ -102,9 +102,9 @@ const CHARGE_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
 );
 
 const DFA_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
-  'MegaMek DfaAttackAction.toHit applies death-from-above-specific legality gates',
+  'MegaMek DfaAttackAction applies movement-path and death-from-above-specific legality gates',
   'common/actions/DfaAttackAction.java',
-  'L232-L329',
+  'L185-L329',
 );
 
 function sourceRefsForAuthority(
@@ -364,6 +364,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'dfa.vtol-elevation-reachable',
     'dfa',
     'DFA restrictions do not model airborne VTOL/WIGE elevation reach against jump MP',
+    DFA_ACTION_LINES,
+  ),
+  'dfa.target-moved-or-immobile': integrated(
+    'dfa.target-moved-or-immobile',
+    'dfa',
+    'canDFA consumes targetMovementComplete and targetImmobile to reject targets that have not completed movement unless they are immobile; eligibility and event-sourced declaration/resolution thread the same post-movement gate, while runner physical resolution is already post-movement complete',
     DFA_ACTION_LINES,
   ),
   'dfa.attacker-not-prone': integrated(

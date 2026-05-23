@@ -1808,6 +1808,30 @@ describe('physicalAttacks', () => {
           makeInput({
             attackType: 'dfa',
             attackerJumpedThisTurn: true,
+            targetMovementComplete: false,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'TargetMovementIncomplete',
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
+            targetMovementComplete: false,
+            targetImmobile: true,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: true,
+      });
+      expect(
+        canDFA(
+          makeInput({
+            attackType: 'dfa',
+            attackerJumpedThisTurn: true,
             targetDistance: 2,
           }),
         ),

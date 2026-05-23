@@ -845,6 +845,49 @@ describe('BattleMech physical combat behavior validation lane', () => {
     ).toEqual(['TargetMovementIncomplete']);
   });
 
+  it('surfaces DFA target movement gates in eligibility projection', () => {
+    const attacker = unitState('attacker', GameSide.Player, { q: 0, r: 0 });
+
+    const targetStillMovingOptions = getEligiblePhysicalAttacks(
+      attacker,
+      unitState('target', GameSide.Opponent, { q: 1, r: 0 }),
+      {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetTonnage: 75,
+        attackerJumpedThisTurn: true,
+        targetMovementComplete: false,
+      },
+    );
+
+    expect(
+      targetStillMovingOptions.find((option) => option.attackType === 'dfa')
+        ?.restrictionsFailed,
+    ).toEqual(['TargetMovementIncomplete']);
+
+    const immobileTargetOptions = getEligiblePhysicalAttacks(
+      attacker,
+      unitState(
+        'target',
+        GameSide.Opponent,
+        { q: 1, r: 0 },
+        { shutdown: true },
+      ),
+      {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetTonnage: 75,
+        attackerJumpedThisTurn: true,
+        targetMovementComplete: false,
+      },
+    );
+
+    expect(
+      immobileTargetOptions.find((option) => option.attackType === 'dfa')
+        ?.restrictionsFailed,
+    ).toEqual([]);
+  });
+
   it('surfaces non-Mek charge target-class gates in eligibility projection', () => {
     const attacker = unitState(
       'attacker',
@@ -1136,6 +1179,74 @@ describe('BattleMech physical combat behavior validation lane', () => {
       hit: false,
       location: 'TargetMovementIncomplete',
     });
+  });
+
+  it('rejects DFA declarations against targets that have not completed movement', () => {
+    const rejected = declarePhysicalAttack(
+      withPhysicalPositions(physicalPhaseSession(), {
+        movementThisTurn: MovementType.Jump,
+        hexesMovedThisTurn: 4,
+      }),
+      'attacker',
+      'target',
+      'dfa',
+      physicalContext({
+        attackerJumpedThisTurn: true,
+        hexesMoved: 4,
+        targetMovementComplete: false,
+      }),
+    );
+    const rejection = rejected.events.find(
+      (event) => event.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = rejection?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(
+      rejected.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(0);
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'target',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      location: 'TargetMovementIncomplete',
+    });
+  });
+
+  it('allows DFA declarations against immobile targets that have not completed movement', () => {
+    const declared = declarePhysicalAttack(
+      withPhysicalPositions(
+        physicalPhaseSession(),
+        {
+          movementThisTurn: MovementType.Jump,
+          hexesMovedThisTurn: 4,
+        },
+        { shutdown: true },
+      ),
+      'attacker',
+      'target',
+      'dfa',
+      physicalContext({
+        attackerJumpedThisTurn: true,
+        hexesMoved: 4,
+        targetMovementComplete: false,
+      }),
+    );
+
+    expect(
+      declared.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackDeclared,
+      ),
+    ).toHaveLength(1);
+    expect(
+      declared.events.filter(
+        (event) => event.type === GameEventType.PhysicalAttackResolved,
+      ),
+    ).toHaveLength(0);
   });
 
   it('rejects DFA declarations by infantry-family attackers before scheduling resolution', () => {
