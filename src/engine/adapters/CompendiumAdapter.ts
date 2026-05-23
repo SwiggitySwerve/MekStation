@@ -14,6 +14,7 @@ import {
   Facing,
   type IMovementStandUpCapability,
   type IMovementWaterCapability,
+  type MovementStandUpArmActuator,
   MovementType,
   type MovementHeatProfile,
   type MovementMotiveMode,
@@ -403,17 +404,85 @@ function waterCapabilityFromUnitData(
 function standUpCapabilityFromUnitData(
   unitData: Record<string, unknown>,
 ): IMovementStandUpCapability | undefined {
+  const movement = recordField(unitData.movement);
+  const source =
+    recordField(unitData.standUpCapability) ??
+    recordField(movement?.standUpCapability);
+  const armActuators =
+    standUpArmActuatorsFromSource(source) ??
+    standUpArmActuatorsFromSource(movement) ??
+    standUpArmActuatorsFromSource(unitData);
   const noMinimalArmsQuirk = stringArrayField(unitData, 'quirks').some(
     (quirk) => normalizedKey(quirk) === normalizedKey(UNIT_QUIRK_IDS.NO_ARMS),
   );
-  return noMinimalArmsQuirk ? { noMinimalArmsQuirk } : undefined;
+  const tacOpsAttemptingStand =
+    booleanField(unitData, ...TAC_OPS_ATTEMPTING_STAND_FIELDS) ||
+    booleanField(movement, ...TAC_OPS_ATTEMPTING_STAND_FIELDS) ||
+    booleanField(source, ...TAC_OPS_ATTEMPTING_STAND_FIELDS);
+
+  const standUpCapability: IMovementStandUpCapability = {
+    ...(noMinimalArmsQuirk ? { noMinimalArmsQuirk } : {}),
+    ...(tacOpsAttemptingStand ? { tacOpsAttemptingStand } : {}),
+    ...(armActuators ? { armActuators } : {}),
+  };
+
+  return standUpCapability.noMinimalArmsQuirk ||
+    standUpCapability.tacOpsAttemptingStand ||
+    standUpCapability.armActuators !== undefined
+    ? standUpCapability
+    : undefined;
 }
 
 function booleanField(
-  source: Record<string, unknown>,
+  source: Record<string, unknown> | undefined,
   ...fieldNames: readonly string[]
 ): boolean {
-  return fieldNames.some((fieldName) => source[fieldName] === true);
+  return fieldNames.some((fieldName) => source?.[fieldName] === true);
+}
+
+const TAC_OPS_ATTEMPTING_STAND_FIELDS = [
+  'tacOpsAttemptingStand',
+  'tacops_attempting_stand',
+  'advancedGroundMovementTacOpsAttemptingStand',
+] as const;
+
+function standUpArmActuatorsFromSource(
+  source: Record<string, unknown> | undefined,
+): IMovementStandUpCapability['armActuators'] | undefined {
+  const armActuators = recordField(source?.armActuators);
+  const left =
+    standUpArmActuatorField(armActuators, 'left') ??
+    standUpArmActuatorField(source, 'leftArmActuator', 'left_arm_actuator');
+  const right =
+    standUpArmActuatorField(armActuators, 'right') ??
+    standUpArmActuatorField(source, 'rightArmActuator', 'right_arm_actuator');
+
+  return left || right
+    ? {
+        ...(left ? { left } : {}),
+        ...(right ? { right } : {}),
+      }
+    : undefined;
+}
+
+function standUpArmActuatorField(
+  source: Record<string, unknown> | undefined,
+  ...fieldNames: readonly string[]
+): MovementStandUpArmActuator | undefined {
+  switch (normalizedKey(stringField(source, ...fieldNames))) {
+    case 'hand':
+      return 'hand';
+    case 'lower':
+    case 'lowerarm':
+      return 'lower_arm';
+    case 'upper':
+    case 'upperarm':
+      return 'upper_arm';
+    case 'shoulder':
+      return 'shoulder';
+    default:
+      return undefined;
+  }
 }
 
 function movementModeFromUnitData(

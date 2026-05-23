@@ -44,7 +44,8 @@
   - [x] Represented TacOps Attempting to Stand destroyed-arm modifiers now source-pin MegaMek's +2 per destroyed arm and keep preview/commit PSR target numbers aligned.
   - [x] Represented no/minimal-arms stand-up quirk now source-pins MegaMek's +2 modifier and override of TacOps arm checks through adapter, preview, and commit coverage.
   - [x] Represented side-specific arm-actuator TacOps stand-up modifiers now source-pin MegaMek's first failed hand/lower/upper/shoulder actuator per arm and keep preview/commit PSR target numbers aligned.
-  - [ ] Add remaining optional Playtest2 trying-to-stand bonus, additional adapter/source fields for side-specific arm-actuator damage, and any not-yet-represented infantry-specific terrain/heat rules.
+  - [x] Adapter source fields now preserve represented TacOps stand-up arm-actuator data from nested/flat movement source fields into shared movement capability.
+  - [ ] Add remaining optional Playtest2 trying-to-stand bonus and any not-yet-represented infantry-specific terrain/heat rules.
 - [x] Ensure highlighted walk/run/jump ranges expose MP cost, heat, elevation delta, terrain reason, and invalid reason.
 
 ## 4. Terrain and elevation readability

@@ -358,6 +358,47 @@ describe('CompendiumAdapter', () => {
       });
     });
 
+    it('should preserve represented TacOps stand-up arm actuator source fields', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        standUpCapability: {
+          tacOpsAttemptingStand: true,
+          armActuators: { left: 'shoulder', right: 'Lower Arm' },
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.standUpCapability).toEqual({
+        tacOpsAttemptingStand: true,
+        armActuators: { left: 'shoulder', right: 'lower_arm' },
+      });
+      expect(toMovementCapability(result).standUpCapability).toEqual({
+        tacOpsAttemptingStand: true,
+        armActuators: { left: 'shoulder', right: 'lower_arm' },
+      });
+    });
+
+    it('should preserve represented TacOps stand-up arm actuator movement fields', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        movement: {
+          walk: 3,
+          jump: 0,
+          tacops_attempting_stand: true,
+          left_arm_actuator: 'Upper Arm',
+          rightArmActuator: 'hand',
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.standUpCapability).toEqual({
+        tacOpsAttemptingStand: true,
+        armActuators: { left: 'upper_arm', right: 'hand' },
+      });
+      expect(toMovementCapability(result).standUpCapability).toEqual({
+        tacOpsAttemptingStand: true,
+        armActuators: { left: 'upper_arm', right: 'hand' },
+      });
+    });
+
     it('should map vehicle motion type into movement pathing mode', () => {
       const result = adaptUnitFromData({
         ...createAtlasData(),
