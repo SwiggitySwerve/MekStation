@@ -127,6 +127,7 @@
 - [x] 3.5.10 Integrate destruction-cause persistence through runner state snapshots, ammo-explosion cause overrides, event replay, catalog support, and OpenSpec coverage as a MekStation lifecycle contract.
 - [x] 3.5.11 Integrate cause-specific fatal-location destruction for `head_destroyed` and `ct_destroyed` through damage helpers, runner snapshots, UnitDestroyed events, catalog support, and existing source-priority specs.
 - [x] 3.5.12 Remove shutdown from the `UnitDestroyed` destruction-cause taxonomy and keep it covered by lifecycle/action-eligibility support instead.
+- [x] 3.5.13 Hydrate catalog BattleMech critical-slot manifests from unit `criticalSlots`, seed runner attack/heat critical resolution with those manifests, and promote heat-sink critical-slot damage into integrated heat lifecycle coverage while keeping remaining ammo/equipment/jump-jet/weapon lifecycle effects explicit.
 
 ## 4. Source-truth cross-checks
 

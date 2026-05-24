@@ -66,6 +66,14 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** fallback-prevention and damage-string-hazards requirements SHALL reference those specific rows rather than relying only on broad official-catalog coverage
 - **AND** broad known-limitation filters SHALL remain banned from catalog validation gates
 
+#### Scenario: Catalog critical slots seed runner critical resolution
+
+- **GIVEN** a catalog-hydrated BattleMech unit carries location-keyed `criticalSlots`
+- **WHEN** UnitHydration prepares runner combat data for that unit
+- **THEN** occupied critical slots SHALL be mapped into the runner `CriticalSlotManifest` by source location and source slot index
+- **AND** heat sink slots SHALL resolve through `applyHeatSinkHit` so later heat phases reduce dissipation through `heatSinksDestroyed`
+- **AND** ammo, generic equipment, jump-jet, and weapon slot hydration SHALL remain separate from their incomplete full lifecycle effects until those damage paths disable or cascade through the corresponding combat state
+
 ### Requirement: Physical Attack Legality Gates
 
 Physical attack declaration and resolution SHALL validate action-specific legality gates before scheduling a combat action. Push, charge, death from above, melee weapon, punch, kick, and club logic SHALL share the same legality helpers across eligibility display, event-sourced declaration, and simulation runner resolution so UI options, game events, and automated combat cannot diverge.

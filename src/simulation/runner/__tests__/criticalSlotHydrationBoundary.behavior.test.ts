@@ -12,6 +12,7 @@ import {
 import {
   buildWeaponLookupFromCatalogFiles,
   createHydratedUnitState,
+  hydrateCriticalSlotManifestFromFullUnit,
   hydrateAIWeaponsFromFullUnit,
 } from '../UnitHydration';
 
@@ -30,7 +31,7 @@ function manifestComponentTypes(): readonly CriticalSlotComponentType[] {
 }
 
 describe('catalog critical-slot hydration boundary', () => {
-  it('keeps catalog-mounted Atlas ammo, weapon, and equipment slots explicit as hydration gaps', async () => {
+  it('hydrates Atlas catalog critical slots into the runner manifest while keeping lifecycle gaps explicit', async () => {
     const service = getNodeCanonicalUnitService();
     const fullUnit = await service.getById('atlas-as7-d');
     expect(fullUnit).not.toBeNull();
@@ -56,6 +57,35 @@ describe('catalog critical-slot hydration boundary', () => {
       (unitState as unknown as Record<string, unknown>).criticalSlotManifest,
     ).toBeUndefined();
 
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(
+      fullUnit,
+      aiWeapons,
+    );
+    expect(manifest).toBeDefined();
+    if (!manifest) return;
+
+    expect(
+      Object.values(manifest)
+        .flat()
+        .filter((slot) => slot.componentType === 'heat_sink'),
+    ).toHaveLength(8);
+    expect(manifest.head).toContainEqual(
+      expect.objectContaining({
+        slotIndex: 3,
+        componentType: 'heat_sink',
+        componentName: 'Heat Sink',
+      }),
+    );
+    expect(
+      manifest.right_torso.filter((slot) => slot.componentType === 'weapon'),
+    ).toHaveLength(10);
+    expect(
+      manifest.right_torso.filter((slot) => slot.componentType === 'ammo'),
+    ).toHaveLength(2);
+    expect(manifestComponentTypes()).toEqual(
+      expect.not.arrayContaining(['heat_sink', 'weapon', 'ammo']),
+    );
+
     const defaultManifestTypes = manifestComponentTypes();
     expect(
       CATALOG_CRITICAL_SLOT_HYDRATION_GAPS.filter((componentType) =>
@@ -67,7 +97,6 @@ describe('catalog critical-slot hydration boundary', () => {
         CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT[componentType],
       ).toMatchObject({
         level: 'helper-only',
-        gap: expect.stringContaining('UnitHydration does not build'),
       });
     }
   });

@@ -774,7 +774,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   'critical-effects': helperOnly(
     'critical-effects',
     'Critical component support covers engine, gyro, cockpit, sensors, life support, actuators, ammo, heat sinks, jump jets, equipment, and weapons',
-    'Catalog-mounted ammo, equipment, heat sink, jump jet, and weapon slots are not hydrated into the default runner manifest',
+    'Catalog-mounted ammo, equipment, jump jet, and weapon slots are hydrated as critical slots, but their full ammo-cookoff, generic-equipment, jump-capability, and AI weapon-disablement lifecycle effects remain incomplete',
     [...CRITICAL_COMPONENT_SUPPORT_REFS, ...CRITICAL_SLOT_EFFECT_SUPPORT_REFS],
   ),
   'pilot-damage-death': integrated(

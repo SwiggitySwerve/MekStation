@@ -9,14 +9,6 @@ function integrated(
   return { id, level: 'integrated', evidence };
 }
 
-function helperOnly(
-  id: CriticalSlotComponentType,
-  evidence: string,
-  gap: string,
-): ICombatFeatureSupportEntry {
-  return { id, level: 'helper-only', evidence, gap };
-}
-
 export const CRITICAL_SLOT_COMPONENT_TYPES = [
   'actuator',
   'ammo',
@@ -41,11 +33,9 @@ export const DEFAULT_CRITICAL_SLOT_COMPONENT_TYPES = [
 ] as const satisfies readonly CriticalSlotComponentType[];
 
 export const CATALOG_CRITICAL_SLOT_HYDRATION_GAPS = [
-  'ammo',
-  'equipment',
-  'heat_sink',
-  'jump_jet',
-  'weapon',
+  // Hydration coverage is intentionally separated from full component
+  // lifecycle behavior. Full ammo cookoff, weapon disablement, and jump
+  // capability effects remain cataloged under damage/effect support rows.
 ] as const satisfies readonly CriticalSlotComponentType[];
 
 export const CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT = {
@@ -73,29 +63,24 @@ export const CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT = {
     'sensor',
     'buildDefaultCriticalSlotManifest hydrates sensor slots and applySensorHit mutates sensor damage',
   ),
-  ammo: helperOnly(
+  ammo: integrated(
     'ammo',
-    'applyAmmoHit and ammo explosion helpers can resolve ammo-bin critical effects',
-    'UnitHydration does not build ammo critical slots from catalog ammo bins',
+    'hydrateCriticalSlotManifestFromFullUnit maps catalog Ammo critical-slot strings into runner critical manifests',
   ),
-  equipment: helperOnly(
+  equipment: integrated(
     'equipment',
-    'applyCriticalHitEffect can resolve generic equipment-destroyed effects',
-    'UnitHydration does not build generic equipment critical slots from mounted catalog equipment',
+    'hydrateCriticalSlotManifestFromFullUnit maps otherwise-unclassified catalog critical-slot strings into generic equipment entries',
   ),
-  heat_sink: helperOnly(
+  heat_sink: integrated(
     'heat_sink',
-    'applyHeatSinkHit mutates heatSinksDestroyed and runHeatPhase consumes destroyed heat sinks',
-    'UnitHydration does not build heat-sink critical slots from catalog heat sink data',
+    'hydrateCriticalSlotManifestFromFullUnit maps Heat Sink critical-slot strings into runner manifests and SimulationRunner seeds those manifests for attack/heat critical resolution',
   ),
-  jump_jet: helperOnly(
+  jump_jet: integrated(
     'jump_jet',
-    'applyJumpJetHit mutates jumpJetsDestroyed',
-    'UnitHydration does not build jump-jet critical slots from mounted jump jet equipment',
+    'hydrateCriticalSlotManifestFromFullUnit maps Jump Jet critical-slot strings into runner critical manifests',
   ),
-  weapon: helperOnly(
+  weapon: integrated(
     'weapon',
-    'applyWeaponHit records destroyed weapons for explicit weapon critical slots',
-    'UnitHydration does not build weapon critical slots from catalog weapon mounts or disable runner AI weapon mounts',
+    'hydrateCriticalSlotManifestFromFullUnit maps catalog weapon critical-slot strings into runner manifests and records runtime weapon ids when hydrated mount aliases match',
   ),
 } satisfies Record<CriticalSlotComponentType, ICombatFeatureSupportEntry>;

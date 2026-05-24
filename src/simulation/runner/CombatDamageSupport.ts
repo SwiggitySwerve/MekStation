@@ -174,10 +174,9 @@ export const CRITICAL_COMPONENT_COMBAT_SUPPORT = {
     'applyCriticalHitEffect returns EquipmentDestroyed for generic equipment slots',
     'default runner critical manifest has no generic equipment slots',
   ),
-  heat_sink: helperOnly(
+  heat_sink: integrated(
     'heat_sink',
-    'applyHeatSinkHit increments heatSinksDestroyed and runHeatPhase consumes that damage',
-    'default runner critical manifest does not hydrate heat-sink slots from unit equipment',
+    'hydrateCriticalSlotManifestFromFullUnit seeds catalog Heat Sink slots, applyHeatSinkHit increments heatSinksDestroyed, and runHeatPhase consumes that damage',
   ),
   jump_jet: helperOnly(
     'jump_jet',

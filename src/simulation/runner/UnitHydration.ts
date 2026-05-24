@@ -27,8 +27,14 @@
 
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 import type { IC3EquipmentMountState } from '@/utils/gameplay/c3Network';
+import type {
+  CriticalSlotComponentType,
+  CriticalSlotManifest,
+  ICriticalSlotEntry,
+} from '@/utils/gameplay/criticalHitResolution';
 import type { ECMType, IActiveProbe } from '@/utils/gameplay/electronicWarfare';
 
+import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   Facing,
   GameSide,
@@ -37,6 +43,7 @@ import {
   LockState,
   MovementType,
 } from '@/types/gameplay';
+import { buildCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage/constants';
 
 import type { IWeapon, IWeaponFiringModes } from '../ai/types';
@@ -122,6 +129,28 @@ interface IHydratableEquipmentSignal {
 type CriticalSlotMap = Readonly<Record<string, readonly (string | null)[]>>;
 
 type HeatSinkKind = 'single' | 'double';
+
+const CRITICAL_SLOT_LOCATION_COUNTS: Readonly<Record<string, number>> = {
+  head: 6,
+  center_torso: 12,
+  left_torso: 12,
+  right_torso: 12,
+  left_arm: 12,
+  right_arm: 12,
+  left_leg: 6,
+  right_leg: 6,
+};
+
+const ACTUATOR_TYPE_BY_SLOT_TEXT: Readonly<Record<string, ActuatorType>> = {
+  [normalizeCriticalSlotText(ActuatorType.SHOULDER)]: ActuatorType.SHOULDER,
+  [normalizeCriticalSlotText(ActuatorType.UPPER_ARM)]: ActuatorType.UPPER_ARM,
+  [normalizeCriticalSlotText(ActuatorType.LOWER_ARM)]: ActuatorType.LOWER_ARM,
+  [normalizeCriticalSlotText(ActuatorType.HAND)]: ActuatorType.HAND,
+  [normalizeCriticalSlotText(ActuatorType.HIP)]: ActuatorType.HIP,
+  [normalizeCriticalSlotText(ActuatorType.UPPER_LEG)]: ActuatorType.UPPER_LEG,
+  [normalizeCriticalSlotText(ActuatorType.LOWER_LEG)]: ActuatorType.LOWER_LEG,
+  [normalizeCriticalSlotText(ActuatorType.FOOT)]: ActuatorType.FOOT,
+};
 
 interface IFullUnitHeatSinks {
   readonly count?: number;
@@ -871,6 +900,217 @@ function criticalSlotsFromFullUnit(fullUnit: IFullUnit): CriticalSlotMap {
     );
   }
   return out;
+}
+
+function stripCriticalSlotRearMarker(text: string): string {
+  return text.replace(/\s*\([a-z]\)\s*$/i, '').trim();
+}
+
+function normalizedWithoutTechPrefix(normalized: string): string {
+  return normalized.replace(/^(is|clan|cl)/, '');
+}
+
+function runtimeWeaponCatalogId(weaponId: string): string {
+  return weaponId.replace(/-\d+$/, '');
+}
+
+function addAutocannonAlias(aliases: Set<string>, normalized: string): void {
+  const match = normalized.match(/^ac(\d+)$/);
+  if (match) {
+    aliases.add(`autocannon${match[1]}`);
+  }
+}
+
+function weaponAliases(weapon: IWeapon): readonly string[] {
+  const aliases = new Set<string>();
+  const baseId = normalizeCriticalSlotText(runtimeWeaponCatalogId(weapon.id));
+  const name = normalizeCriticalSlotText(weapon.name);
+
+  for (const alias of [baseId, name]) {
+    aliases.add(alias);
+    aliases.add(normalizedWithoutTechPrefix(alias));
+    addAutocannonAlias(aliases, alias);
+  }
+
+  return Array.from(aliases);
+}
+
+function criticalSlotMatchesWeapon(
+  slotText: string,
+  weapon: IWeapon,
+  sourceLocation: string,
+): boolean {
+  const weaponLocation =
+    typeof weapon.location === 'string'
+      ? normalizeEquipmentLocation(weapon.location)
+      : '';
+  if (
+    weaponLocation.length > 0 &&
+    normalizeEquipmentLocation(sourceLocation) !== weaponLocation
+  ) {
+    return false;
+  }
+
+  const normalized = normalizeCriticalSlotText(
+    stripCriticalSlotRearMarker(slotText),
+  );
+  const normalizedWithoutPrefix = normalizedWithoutTechPrefix(normalized);
+  return weaponAliases(weapon).some(
+    (alias) => alias === normalized || alias === normalizedWithoutPrefix,
+  );
+}
+
+function weaponIdForCriticalSlot(
+  slotText: string,
+  sourceLocation: string,
+  aiWeapons: readonly IWeapon[],
+): string | undefined {
+  return aiWeapons.find((weapon) =>
+    criticalSlotMatchesWeapon(slotText, weapon, sourceLocation),
+  )?.id;
+}
+
+function runnerCriticalLocationFromCatalogLocation(
+  location: string,
+): string | undefined {
+  const normalized = normalizeEquipmentLocation(location)
+    .toUpperCase()
+    .replace(/[\s-]+/g, '_');
+  return CATALOG_TO_RUNNER_LOC[normalized];
+}
+
+function classifyCriticalSlotComponent(
+  slotText: string,
+  sourceLocation: string,
+  aiWeapons: readonly IWeapon[],
+): {
+  readonly componentType: CriticalSlotComponentType;
+  readonly actuatorType?: ActuatorType;
+  readonly weaponId?: string;
+} {
+  const normalized = normalizeCriticalSlotText(
+    stripCriticalSlotRearMarker(slotText),
+  );
+  const actuatorType = ACTUATOR_TYPE_BY_SLOT_TEXT[normalized];
+  if (actuatorType !== undefined) {
+    return { componentType: 'actuator', actuatorType };
+  }
+  if (normalized.includes('lifesupport')) {
+    return { componentType: 'life_support' };
+  }
+  if (normalized.includes('sensor')) {
+    return { componentType: 'sensor' };
+  }
+  if (normalized.includes('cockpit')) {
+    return { componentType: 'cockpit' };
+  }
+  if (normalized.includes('gyro')) {
+    return { componentType: 'gyro' };
+  }
+  if (normalized.includes('engine')) {
+    return { componentType: 'engine' };
+  }
+  if (normalized.includes('heatsink')) {
+    return { componentType: 'heat_sink' };
+  }
+  if (normalized.includes('jumpjet')) {
+    return { componentType: 'jump_jet' };
+  }
+  if (normalized.includes('ammo')) {
+    return { componentType: 'ammo' };
+  }
+
+  const weaponId = weaponIdForCriticalSlot(slotText, sourceLocation, aiWeapons);
+  if (weaponId !== undefined) {
+    return { componentType: 'weapon', weaponId };
+  }
+
+  return { componentType: 'equipment' };
+}
+
+function criticalSlotEntryFromText(
+  slotText: string,
+  slotIndex: number,
+  sourceLocation: string,
+  aiWeapons: readonly IWeapon[],
+): ICriticalSlotEntry {
+  const classification = classifyCriticalSlotComponent(
+    slotText,
+    sourceLocation,
+    aiWeapons,
+  );
+
+  return {
+    slotIndex,
+    componentType: classification.componentType,
+    componentName: stripCriticalSlotRearMarker(slotText),
+    destroyed: false,
+    ...(classification.actuatorType !== undefined
+      ? { actuatorType: classification.actuatorType }
+      : {}),
+    ...(classification.weaponId !== undefined
+      ? { weaponId: classification.weaponId }
+      : {}),
+  };
+}
+
+function mergeCriticalSlotEntries(
+  baseEntries: readonly ICriticalSlotEntry[],
+  sourceEntries: readonly ICriticalSlotEntry[],
+): readonly ICriticalSlotEntry[] {
+  const bySlotIndex = new Map<number, ICriticalSlotEntry>();
+  for (const entry of baseEntries) {
+    bySlotIndex.set(entry.slotIndex, entry);
+  }
+  for (const entry of sourceEntries) {
+    bySlotIndex.set(entry.slotIndex, entry);
+  }
+  return Array.from(bySlotIndex.values()).sort(
+    (a, b) => a.slotIndex - b.slotIndex,
+  );
+}
+
+export function hydrateCriticalSlotManifestFromFullUnit(
+  fullUnit: IFullUnit,
+  aiWeapons: readonly IWeapon[] = [],
+): CriticalSlotManifest | undefined {
+  const criticalSlots = criticalSlotsFromFullUnit(fullUnit);
+  const baseManifest = buildCriticalSlotManifest();
+  const customSlots: Record<string, readonly ICriticalSlotEntry[]> = {};
+
+  for (const [sourceLocation, sourceSlots] of Object.entries(criticalSlots)) {
+    const runnerLocation =
+      runnerCriticalLocationFromCatalogLocation(sourceLocation);
+    if (runnerLocation === undefined) continue;
+
+    const sourceEntries = sourceSlots
+      .map((slotText, slotIndex) =>
+        typeof slotText === 'string'
+          ? criticalSlotEntryFromText(
+              slotText,
+              slotIndex,
+              sourceLocation,
+              aiWeapons,
+            )
+          : null,
+      )
+      .filter((entry): entry is ICriticalSlotEntry => entry !== null);
+    if (sourceEntries.length === 0) continue;
+
+    const sourceLooksComplete =
+      sourceSlots.length >=
+      (CRITICAL_SLOT_LOCATION_COUNTS[runnerLocation] ?? 0);
+    customSlots[runnerLocation] = sourceLooksComplete
+      ? sourceEntries
+      : mergeCriticalSlotEntries(
+          baseManifest[runnerLocation] ?? [],
+          sourceEntries,
+        );
+  }
+
+  return Object.keys(customSlots).length > 0
+    ? buildCriticalSlotManifest(customSlots)
+    : undefined;
 }
 
 function locationSlotTexts(

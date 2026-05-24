@@ -74,9 +74,10 @@ describe('BattleMech critical-slot hydration support catalog', () => {
     expect(
       supportIdsByLevel(CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual([...CATALOG_CRITICAL_SLOT_HYDRATION_GAPS].sort());
+    expect(CATALOG_CRITICAL_SLOT_HYDRATION_GAPS).toEqual([]);
   });
 
-  it('matches integrated support to the default runner critical manifest', () => {
+  it('keeps the default manifest scoped to core slots while catalog hydration covers mounted slots', () => {
     const defaultManifestTypes = manifestComponentTypes(
       buildDefaultCriticalSlotManifest(),
     );
@@ -86,10 +87,13 @@ describe('BattleMech critical-slot hydration support catalog', () => {
     );
     expect(
       supportIdsByLevel(CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual(defaultManifestTypes);
+    ).toEqual([...CRITICAL_SLOT_COMPONENT_TYPES].sort());
+    expect(
+      supportIdsByLevel(CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT, 'integrated'),
+    ).toEqual(expect.arrayContaining(defaultManifestTypes));
   });
 
-  it('keeps catalog-mounted equipment slot gaps explicit until UnitHydration builds those slots', () => {
+  it('keeps catalog-mounted hydration gaps empty once UnitHydration builds those slots', () => {
     const defaultManifestTypes = manifestComponentTypes(
       buildDefaultCriticalSlotManifest(),
     );
@@ -104,9 +108,9 @@ describe('BattleMech critical-slot hydration support catalog', () => {
     ).toEqual([]);
   });
 
-  it('proves the manifest builder can represent catalog slot categories once hydration provides them', () => {
+  it('proves the manifest builder can represent every catalog slot category used by hydration', () => {
     const manifest = buildCriticalSlotManifest({
-      center_torso: CATALOG_CRITICAL_SLOT_HYDRATION_GAPS.map(
+      center_torso: CRITICAL_SLOT_COMPONENT_TYPES.map(
         (componentType, slotIndex) => ({
           slotIndex,
           componentType,
@@ -117,7 +121,7 @@ describe('BattleMech critical-slot hydration support catalog', () => {
     });
 
     expect(manifestComponentTypes(manifest)).toEqual(
-      expect.arrayContaining([...CATALOG_CRITICAL_SLOT_HYDRATION_GAPS]),
+      expect.arrayContaining([...CRITICAL_SLOT_COMPONENT_TYPES]),
     );
   });
 });
