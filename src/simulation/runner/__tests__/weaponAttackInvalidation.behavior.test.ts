@@ -37,10 +37,12 @@ import type {
 import type { IWeapon } from '../../ai/types';
 import type { IViolation } from '../../invariants/types';
 
+import { BotPlayer } from '../../ai/BotPlayer';
 import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { runAttackPhase } from '../phases/weaponAttack';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
+import { toAIUnitState } from '../SimulationRunnerSupport';
 
 const AC20_WEAPON_ID = 'ac-20-test';
 const LRM15_WEAPON_ID = 'lrm-15-1';
@@ -491,6 +493,74 @@ describe('runAttackPhase invalid attacks', () => {
 
     assertNoCombatSideEffects(result, stateWithJammedWeapon, ammoBin);
     expect(result.units['player-1'].jammedWeapons).toEqual([AC20_WEAPON_ID]);
+  });
+
+  it('marks critical-destroyed weapon mounts unavailable to bot fire planning', () => {
+    const attackerUnit = createUnit('player-1', GameSide.Player, {
+      q: 0,
+      r: 0,
+    });
+    const attacker = toAIUnitState(
+      {
+        ...attackerUnit,
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          weaponsDestroyed: [AC20_WEAPON_ID],
+        },
+      },
+      [createAC20()],
+    );
+    const target = toAIUnitState(
+      createUnit('opponent-1', GameSide.Opponent, { q: 3, r: 0 }),
+    );
+
+    expect(attacker.weapons).toEqual([
+      expect.objectContaining({ id: AC20_WEAPON_ID, destroyed: true }),
+    ]);
+    expect(
+      new BotPlayer(new SeededRandom(123)).playAttackPhase(attacker, [target]),
+    ).toBeNull();
+  });
+
+  it('emits AttackInvalid for critical-destroyed weapon declarations without combat side effects', () => {
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState({ q: 3, r: 0 });
+    const stateWithDestroyedWeapon = withAttackerAmmo(
+      {
+        ...initialState,
+        units: {
+          ...initialState.units,
+          'player-1': {
+            ...initialState.units['player-1'],
+            componentDamage: {
+              ...DEFAULT_COMPONENT_DAMAGE,
+              weaponsDestroyed: [AC20_WEAPON_ID],
+            },
+          },
+        },
+      },
+      ammoBin,
+    );
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithDestroyedWeapon,
+      weapon: createAC20(),
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'WeaponDestroyed',
+    });
+
+    assertNoCombatSideEffects(result, stateWithDestroyedWeapon, ammoBin);
   });
 
   it('emits AttackInvalid for same-hex declarations without combat side effects', () => {

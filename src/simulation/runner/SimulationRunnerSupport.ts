@@ -133,6 +133,24 @@ export function createMinimalUnitState(
   };
 }
 
+export function applyDestroyedWeaponCriticalsToWeapons(
+  unit: IUnitGameState,
+  weapons: readonly IWeapon[],
+): readonly IWeapon[] {
+  const destroyedWeapons = new Set(
+    unit.componentDamage?.weaponsDestroyed ?? [],
+  );
+  if (destroyedWeapons.size === 0) {
+    return weapons;
+  }
+
+  return weapons.map((weapon) =>
+    destroyedWeapons.has(weapon.id) || destroyedWeapons.has(weapon.name)
+      ? { ...weapon, destroyed: true }
+      : weapon,
+  );
+}
+
 /**
  * Convert an `IUnitGameState` into the AI snapshot. When `hydratedWeapons`
  * is provided (Phase 1 of `add-combat-fidelity-suite` — catalog hydration),
@@ -149,15 +167,17 @@ export function toAIUnitState(
   unit: IUnitGameState,
   hydratedWeapons?: readonly IWeapon[],
 ): IAIUnitState {
+  const weapons =
+    hydratedWeapons && hydratedWeapons.length > 0
+      ? hydratedWeapons
+      : [createMinimalWeapon(`${unit.id}-weapon-1`)];
+
   return {
     unitId: unit.id,
     position: unit.position,
     facing: unit.facing,
     heat: unit.heat,
-    weapons:
-      hydratedWeapons && hydratedWeapons.length > 0
-        ? hydratedWeapons
-        : [createMinimalWeapon(`${unit.id}-weapon-1`)],
+    weapons: applyDestroyedWeaponCriticalsToWeapons(unit, weapons),
     ammo: {},
     destroyed:
       unit.destroyed || unit.hasRetreated === true || unit.hasEjected === true,

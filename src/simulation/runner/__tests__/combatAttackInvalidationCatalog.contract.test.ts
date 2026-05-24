@@ -17,6 +17,7 @@ const ATTACK_INVALID_REASONS = [
   'OutOfRange',
   'SameHex',
   'UnknownWeapon',
+  'WeaponDestroyed',
   'WeaponJammed',
 ] as const satisfies readonly IAttackInvalidPayload['reason'][];
 

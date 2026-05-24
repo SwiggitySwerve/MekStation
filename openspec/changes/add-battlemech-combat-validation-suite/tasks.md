@@ -128,7 +128,8 @@
 - [x] 3.5.11 Integrate cause-specific fatal-location destruction for `head_destroyed` and `ct_destroyed` through damage helpers, runner snapshots, UnitDestroyed events, catalog support, and existing source-priority specs.
 - [x] 3.5.12 Remove shutdown from the `UnitDestroyed` destruction-cause taxonomy and keep it covered by lifecycle/action-eligibility support instead.
 - [x] 3.5.13 Hydrate catalog BattleMech critical-slot manifests from unit `criticalSlots`, seed runner attack/heat critical resolution with those manifests, and promote heat-sink critical-slot damage into integrated heat lifecycle coverage while keeping other catalog-mounted lifecycle effects explicit.
-- [x] 3.5.14 Promote jump-jet critical-slot damage into runner movement validation by reducing effective jump MP from `jumpJetsDestroyed` before Partial Wing or jump movement validation, while keeping remaining ammo/equipment/weapon lifecycle effects explicit.
+- [x] 3.5.14 Promote jump-jet critical-slot damage into runner movement validation by reducing effective jump MP from `jumpJetsDestroyed` before Partial Wing or jump movement validation, while keeping other catalog-mounted lifecycle effects explicit.
+- [x] 3.5.15 Promote weapon critical-slot damage into runner attack availability by marking hydrated weapon mounts destroyed from `weaponsDestroyed` and rejecting stale declarations before combat side effects, while keeping remaining ammo/equipment lifecycle effects explicit.
 
 ## 4. Source-truth cross-checks
 

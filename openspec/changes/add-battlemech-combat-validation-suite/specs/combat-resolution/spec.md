@@ -73,7 +73,8 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** occupied critical slots SHALL be mapped into the runner `CriticalSlotManifest` by source location and source slot index
 - **AND** heat sink slots SHALL resolve through `applyHeatSinkHit` so later heat phases reduce dissipation through `heatSinksDestroyed`
 - **AND** jump-jet slots SHALL resolve through `applyJumpJetHit` so later movement phases reduce effective jump MP through `jumpJetsDestroyed`
-- **AND** ammo, generic equipment, and weapon slot hydration SHALL remain separate from their incomplete full lifecycle effects until those damage paths disable or cascade through the corresponding combat state
+- **AND** weapon slots hydrated with runtime weapon ids SHALL resolve through `applyWeaponHit` so later attack planning and stale declaration validation remove destroyed weapon mounts
+- **AND** ammo and generic equipment slot hydration SHALL remain separate from their incomplete full lifecycle effects until those damage paths cascade through the corresponding combat state
 
 #### Scenario: Jump-jet critical damage reduces runner jump movement
 
@@ -81,6 +82,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **WHEN** runner movement validation computes the unit's jump capability
 - **THEN** each destroyed jump jet SHALL subtract one base jump MP before jump movement validation
 - **AND** Partial Wing bonuses SHALL NOT recreate jump capability after critical damage has reduced base jump MP to zero
+
+#### Scenario: Weapon critical damage removes runner attack availability
+
+- **GIVEN** a BattleMech has hydrated weapon critical slots with runtime weapon ids
+- **WHEN** critical resolution records that weapon id in `componentDamage.weaponsDestroyed`
+- **THEN** AI attack planning SHALL see that hydrated mount as destroyed and SHALL NOT declare it
+- **AND** runner attack resolution SHALL reject any stale declaration for that destroyed weapon with `AttackInvalid` before heat, ammo, fired-weapon, or damage side effects
 
 ### Requirement: Physical Attack Legality Gates
 

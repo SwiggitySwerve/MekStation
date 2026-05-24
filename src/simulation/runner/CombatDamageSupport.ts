@@ -182,10 +182,9 @@ export const CRITICAL_COMPONENT_COMBAT_SUPPORT = {
     'jump_jet',
     'hydrateCriticalSlotManifestFromFullUnit seeds catalog Jump Jet slots, applyJumpJetHit increments jumpJetsDestroyed, and runMovementPhase reduces jump MP before movement validation',
   ),
-  weapon: helperOnly(
+  weapon: integrated(
     'weapon',
-    'applyWeaponHit records weaponsDestroyed for explicit weapon critical slots',
-    'default runner critical manifest does not hydrate weapon slots or disable AI weapon mounts',
+    'hydrateCriticalSlotManifestFromFullUnit seeds catalog Weapon slots with runtime weapon ids, applyWeaponHit records weaponsDestroyed, toAIUnitState removes those mounts from bot planning, and runAttackPhase rejects stale declarations',
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
 

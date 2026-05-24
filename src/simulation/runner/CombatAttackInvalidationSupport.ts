@@ -46,6 +46,10 @@ export const ATTACK_INVALIDATION_REASON_SUPPORT = {
     'UnknownWeapon',
     'runAttackPhase emits AttackInvalid when a hydrated declaration names no weapon in the unit weapon map',
   ),
+  WeaponDestroyed: integrated(
+    'WeaponDestroyed',
+    'toAIUnitState marks critical-destroyed weapon mounts unavailable and runAttackPhase rejects stale declarations before heat, ammo, fired-weapon, or damage side effects',
+  ),
   WeaponJammed: integrated(
     'WeaponJammed',
     'runAttackPhase emits AttackInvalid before heat, ammo, fired-weapon, or damage side effects when a persisted UAC/RAC jam blocks the declared mount',

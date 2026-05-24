@@ -52,6 +52,7 @@ import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { DEFAULT_GUNNERY } from '../SimulationRunnerConstants';
 import {
+  applyDestroyedWeaponCriticalsToWeapons,
   createMinimalWeapon,
   getRangeBracket,
   toAIUnitState,
@@ -483,9 +484,12 @@ export function runAttackPhase(options: {
     // back to the synthetic minimal weapon when hydration didn't
     // populate this unit (legacy preset / non-swarm callers).
     const hydratedWeapons = weaponsByUnit?.get(unitId);
+    const effectiveHydratedWeapons = hydratedWeapons
+      ? applyDestroyedWeaponCriticalsToWeapons(unit, hydratedWeapons)
+      : undefined;
     const weaponLookup = new Map<string, IWeapon>();
-    if (hydratedWeapons) {
-      for (const w of hydratedWeapons) {
+    if (effectiveHydratedWeapons) {
+      for (const w of effectiveHydratedWeapons) {
         weaponLookup.set(w.id, w);
       }
     }
@@ -529,6 +533,26 @@ export function runAttackPhase(options: {
       }
       const baseWeapon: IWeapon =
         hydratedWeapon ?? createMinimalWeapon(weaponId);
+      if (baseWeapon.destroyed) {
+        events.push(
+          createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.AttackInvalid,
+            currentState.turn,
+            GamePhase.WeaponAttack,
+            {
+              attackerId: unitId,
+              targetId,
+              weaponId,
+              reason: 'WeaponDestroyed' as const,
+            },
+            unitId,
+          ),
+        );
+        continue;
+      }
+
       const selectedModeId = attackEvent.payload.weaponModes?.[weaponId];
       const selectedMode = getSelectedFiringMode(baseWeapon, selectedModeId);
       const selectedShotWeapons = expandSelectedModeIntoShots(
