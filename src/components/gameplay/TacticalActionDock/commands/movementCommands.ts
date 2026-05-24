@@ -21,6 +21,8 @@ import { getHeatMovementPenalty } from '@/constants/heat';
 import {
   GamePhase,
   MovementType,
+  type IMovementRangeHex,
+  type IMovementRangeModeOption,
   type ITacticalCommand,
   type ITacticalCommandContext,
 } from '@/types/gameplay';
@@ -77,6 +79,13 @@ const MovementWalkCommand: ITacticalCommand = {
     if (modeUnavailable) {
       return { available: false, reason: modeUnavailable };
     }
+    const destinationUnavailable = movementProjectionUnavailableReason(
+      ctx,
+      MovementType.Walk,
+    );
+    if (destinationUnavailable) {
+      return { available: false, reason: destinationUnavailable };
+    }
     return { available: true };
   },
   commit() {
@@ -108,6 +117,13 @@ const MovementRunCommand: ITacticalCommand = {
     );
     if (modeUnavailable) {
       return { available: false, reason: modeUnavailable };
+    }
+    const destinationUnavailable = movementProjectionUnavailableReason(
+      ctx,
+      MovementType.Run,
+    );
+    if (destinationUnavailable) {
+      return { available: false, reason: destinationUnavailable };
     }
     return { available: true };
   },
@@ -145,6 +161,13 @@ const MovementJumpCommand: ITacticalCommand = {
         reason: 'Unit is prone and must stand before jumping.',
       };
     }
+    const destinationUnavailable = movementProjectionUnavailableReason(
+      ctx,
+      MovementType.Jump,
+    );
+    if (destinationUnavailable) {
+      return { available: false, reason: destinationUnavailable };
+    }
     return { available: true };
   },
   commit() {
@@ -171,6 +194,37 @@ function movementModeUnavailableReason(
   if (effectiveMP <= 0) return `Heat penalty leaves no ${label} MP.`;
 
   return null;
+}
+
+function movementProjectionUnavailableReason(
+  ctx: ITacticalCommandContext,
+  movementType: MovementType,
+): string | null {
+  const projection = ctx.targetMovementProjection;
+  if (!projection) return null;
+
+  const option = projection.movementModeOptions?.find(
+    (candidate) => candidate.movementType === movementType,
+  );
+  if (option) {
+    return option.reachable ? null : movementProjectionBlockedReason(option);
+  }
+
+  if (projection.movementType !== movementType) return null;
+  return projection.reachable
+    ? null
+    : movementProjectionBlockedReason(projection);
+}
+
+function movementProjectionBlockedReason(
+  projection: IMovementRangeHex | IMovementRangeModeOption,
+): string {
+  return (
+    projection.movementInvalidDetails ??
+    projection.blockedReason ??
+    projection.movementInvalidReason ??
+    'Destination is not reachable.'
+  );
 }
 
 const MovementStandCommand: ITacticalCommand = {

@@ -606,6 +606,32 @@ describe('TacticalActionDock', () => {
     );
   });
 
+  it('uses shared movement projection inputs to disable blocked movement commits', () => {
+    const onAction = jest.fn();
+    render(
+      <TacticalActionDock
+        ctx={makeCtx({ phase: GamePhase.Movement })}
+        shellMode="combat"
+        onAction={onAction}
+        previewInputs={{
+          movementInfo: makeMovementInfo({
+            movementType: MovementType.Run,
+            movementInvalidDetails: 'Destination is blocked by terrain',
+          }),
+        }}
+      />,
+    );
+
+    const run = screen.getByTestId('command-btn-movement.run');
+    expect(run).toBeDisabled();
+    fireEvent.mouseEnter(run.parentElement!);
+    expect(
+      screen.getByTestId('command-disabled-reason-movement.run'),
+    ).toHaveTextContent('Destination is blocked by terrain');
+    fireEvent.click(run);
+    expect(onAction).not.toHaveBeenCalled();
+  });
+
   it('renders a physical preview from shared physical projection inputs', () => {
     const onAction = jest.fn();
     render(

@@ -10,7 +10,7 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.2
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import type {
   CommandAvailability,
@@ -20,6 +20,8 @@ import type {
   TacticalActionHandler,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
+
+import { coordToKey } from '@/utils/gameplay/hexMath';
 
 import { filterCommandsForHex, useCommandRegistry } from './useCommandRegistry';
 
@@ -95,7 +97,20 @@ export function HexContextMenu({
   onClose,
   onAction,
 }: HexContextMenuProps): React.ReactElement {
-  const effectiveCtx: ITacticalCommandContext = { ...ctx, hoveredHex: hex };
+  const effectiveCtx = useMemo<ITacticalCommandContext>(() => {
+    const hexKey = coordToKey(hex);
+    const projectedTarget =
+      ctx.targetMovementProjection &&
+      coordToKey(ctx.targetMovementProjection.hex) === hexKey
+        ? ctx.targetMovementProjection
+        : null;
+    return {
+      ...ctx,
+      hoveredHex: hex,
+      targetMovementProjection:
+        ctx.movementProjectionByHex?.[hexKey] ?? projectedTarget,
+    };
+  }, [ctx, hex]);
   const commands = useCommandRegistry(effectiveCtx, shellMode);
   const visible = filterCommandsForHex(commands);
 

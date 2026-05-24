@@ -29,8 +29,10 @@ import {
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
   MovementType,
+  type IMovementRangeHex,
 } from '@/types/gameplay';
 import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
+import { coordToKey } from '@/utils/gameplay/hexMath';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
@@ -445,6 +447,17 @@ export function GameplayLayout({
     () => (combatGrid ? hexTerrainFromGrid(combatGrid) : []),
     [combatGrid],
   );
+
+  const movementProjectionByHex = useMemo(() => {
+    const byHex: Record<string, IMovementRangeHex> = {};
+    for (const projection of movementRange) {
+      byHex[coordToKey(projection.hex)] = projection;
+    }
+    if (hoverMovementInfo) {
+      byHex[coordToKey(hoverMovementInfo.hex)] = hoverMovementInfo;
+    }
+    return byHex;
+  }, [hoverMovementInfo, movementRange]);
 
   const commandPreviewInputs = useMemo(
     () =>
@@ -873,6 +886,9 @@ export function GameplayLayout({
                 : null,
               combatProjectionByTargetId:
                 commandPreviewInputs.combatInfoByTargetId,
+              targetMovementProjection:
+                commandPreviewInputs.movementInfo ?? null,
+              movementProjectionByHex,
               hoveredHex: null,
               phase: currentState.phase,
               canAct: isPlayerTurn,

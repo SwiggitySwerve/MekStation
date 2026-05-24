@@ -12,6 +12,8 @@
 import {
   GamePhase,
   LockState,
+  MovementType,
+  type IMovementRangeHex,
   type ITacticalCommandContext,
 } from '@/types/gameplay';
 
@@ -30,6 +32,21 @@ function makeCtx(
     activeUnitProne: true,
     activeUnitHeat: 0,
     movementCapability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+    ...overrides,
+  };
+}
+
+function makeMovementProjection(
+  overrides: Partial<IMovementRangeHex> = {},
+): IMovementRangeHex {
+  return {
+    hex: { q: 1, r: 0 },
+    mpCost: 9,
+    reachable: false,
+    movementType: MovementType.Walk,
+    blockedReason: 'Destination hex is occupied',
+    movementInvalidReason: 'DestinationOccupied',
+    movementInvalidDetails: 'Destination hex is occupied',
     ...overrides,
   };
 }
@@ -134,6 +151,60 @@ describe('movementCommands', () => {
         .find((c) => c.id === 'movement.run')!
         .availability(makeCtx({ movementCapability: null })),
     ).toEqual({ available: true });
+  });
+
+  it('walk is disabled when the target movement projection is blocked', () => {
+    const walk = commands.find((c) => c.id === 'movement.walk')!;
+
+    expect(
+      walk.availability(
+        makeCtx({
+          activeUnitProne: false,
+          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+          targetMovementProjection: makeMovementProjection(),
+        }),
+      ),
+    ).toEqual({
+      available: false,
+      reason: 'Destination hex is occupied',
+    });
+  });
+
+  it('same-hex movement options gate only the matching movement mode', () => {
+    const walk = commands.find((c) => c.id === 'movement.walk')!;
+    const run = commands.find((c) => c.id === 'movement.run')!;
+    const ctx = makeCtx({
+      activeUnitProne: false,
+      movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+      targetMovementProjection: makeMovementProjection({
+        reachable: true,
+        movementType: MovementType.Walk,
+        mpCost: 2,
+        movementModeOptions: [
+          {
+            movementType: MovementType.Walk,
+            reachable: true,
+            mpCost: 2,
+          },
+          {
+            movementType: MovementType.Run,
+            reachable: false,
+            mpCost: 7,
+            blockedReason:
+              'Destination is 7 MP away, but max range for run is 6',
+            movementInvalidReason: 'InsufficientMP',
+            movementInvalidDetails:
+              'Destination is 7 MP away, but max range for run is 6',
+          },
+        ],
+      }),
+    });
+
+    expect(walk.availability(ctx)).toEqual({ available: true });
+    expect(run.availability(ctx)).toEqual({
+      available: false,
+      reason: 'Destination is 7 MP away, but max range for run is 6',
+    });
   });
 
   it('cancel still indicates the disabled-reason when there is no unit', () => {

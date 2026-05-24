@@ -9,7 +9,12 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { GamePhase, type ITacticalCommandContext } from '@/types/gameplay';
+import {
+  GamePhase,
+  MovementType,
+  type IMovementRangeHex,
+  type ITacticalCommandContext,
+} from '@/types/gameplay';
 
 import { HexContextMenu } from '../HexContextMenu';
 
@@ -23,6 +28,21 @@ function makeCtx(
     hoveredHex: null,
     phase: GamePhase.Movement,
     canAct: true,
+    ...overrides,
+  };
+}
+
+function makeMovementProjection(
+  overrides: Partial<IMovementRangeHex> = {},
+): IMovementRangeHex {
+  return {
+    hex: { q: 3, r: 4 },
+    mpCost: 9,
+    reachable: false,
+    movementType: MovementType.Walk,
+    blockedReason: 'Destination hex is occupied',
+    movementInvalidReason: 'DestinationOccupied',
+    movementInvalidDetails: 'Destination hex is occupied',
     ...overrides,
   };
 }
@@ -126,6 +146,34 @@ describe('HexContextMenu', () => {
       screen.getByTestId('hex-menu-item-reason-movement.run'),
     ).toHaveTextContent('Heat penalty leaves no run MP.');
     fireEvent.click(run);
+    expect(onAction).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('uses the clicked hex projection to disable blocked movement commands', () => {
+    const onAction = jest.fn();
+    const onClose = jest.fn();
+    render(
+      <HexContextMenu
+        hex={{ q: 3, r: 4 }}
+        ctx={makeCtx({
+          movementProjectionByHex: {
+            '3,4': makeMovementProjection(),
+          },
+        })}
+        shellMode="combat"
+        anchor={{ x: 100, y: 100 }}
+        onClose={onClose}
+        onAction={onAction}
+      />,
+    );
+
+    const walk = screen.getByTestId('hex-menu-item-movement.walk');
+    expect(walk).toBeDisabled();
+    expect(
+      screen.getByTestId('hex-menu-item-reason-movement.walk'),
+    ).toHaveTextContent('Destination hex is occupied');
+    fireEvent.click(walk);
     expect(onAction).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
   });

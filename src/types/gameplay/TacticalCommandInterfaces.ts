@@ -47,6 +47,7 @@ import type {
 } from '@/utils/gameplay/physicalAttacks/types';
 
 import type { ICombatRangeHex } from './CombatProjectionInterfaces';
+import type { IMovementRangeHex } from './GameplayUIInterfaces';
 import type { IAttackInvalidPayload } from './GameSessionAttackEvents';
 import type { GamePhase, LockState } from './GameSessionCoreTypes';
 import type { IHexCoordinate, IMovementCapability } from './HexGridInterfaces';
@@ -126,6 +127,20 @@ export interface ITacticalCommandContext {
    */
   readonly combatProjectionByTargetId?: Readonly<
     Record<string, ICombatRangeHex>
+  >;
+  /**
+   * Shared movement projection for hoveredHex, when the map has already
+   * derived one. Movement commands use this to reject blocked destinations
+   * before commit with the same rules-backed reason shown on the map.
+   */
+  readonly targetMovementProjection?: IMovementRangeHex | null;
+  /**
+   * Hex-keyed movement projections. Hex context menus can override
+   * hoveredHex and pick the matching projection without recalculating
+   * terrain, elevation, MP, heat, or illegal-destination reasons.
+   */
+  readonly movementProjectionByHex?: Readonly<
+    Record<string, IMovementRangeHex>
   >;
   /** Hex the cursor is hovering, if any. */
   readonly hoveredHex: IHexCoordinate | null;

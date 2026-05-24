@@ -22,7 +22,7 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.1, §2.3
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import type {
   CommandAvailability,
@@ -253,22 +253,32 @@ export function TacticalActionDock({
   previewInputs,
   className = '',
 }: TacticalActionDockProps): React.ReactElement {
-  const commands = useCommandRegistry(ctx, shellMode);
+  const effectiveCtx = useMemo<ITacticalCommandContext>(
+    () =>
+      previewInputs?.movementInfo
+        ? {
+            ...ctx,
+            targetMovementProjection: previewInputs.movementInfo,
+          }
+        : ctx,
+    [ctx, previewInputs?.movementInfo],
+  );
+  const commands = useCommandRegistry(effectiveCtx, shellMode);
   const groups = groupCommandsByCategory(commands);
   const previewCommand = previewCommandForContext({
     commands,
-    ctx,
+    ctx: effectiveCtx,
     previewInputs,
   });
   const commandPreview = useCommandPreview(
     previewCommand,
-    ctx,
+    effectiveCtx,
     previewInputs ?? {},
   );
 
   const dispatchCommand = useCallback(
     (command: ITacticalCommand) => {
-      const availability = command.availability(ctx);
+      const availability = command.availability(effectiveCtx);
       if (!availability.available) {
         // Disabled-with-reason: refuse the click silently. The
         // tooltip is the explanation surface — no secondary toast.
@@ -287,14 +297,14 @@ export function TacticalActionDock({
             : window.confirm(`Confirm: ${command.label}?`);
         if (!ok) return;
       }
-      const result = command.commit(ctx);
+      const result = command.commit(effectiveCtx);
       if (result.payload === undefined) {
         onAction(result.actionId);
       } else {
         onAction(result.actionId, result.payload);
       }
     },
-    [ctx, onAction],
+    [effectiveCtx, onAction],
   );
 
   return (
@@ -318,7 +328,7 @@ export function TacticalActionDock({
             key={g.category}
             category={g.category}
             commands={g.commands}
-            ctx={ctx}
+            ctx={effectiveCtx}
             onDispatch={dispatchCommand}
           />
         ))}
