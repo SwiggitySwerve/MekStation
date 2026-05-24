@@ -587,8 +587,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'movement-enhancements': helperOnly(
     'movement-enhancements',
-    'Movement enhancement support catalogs MASC, supercharger, source-backed active TSM movement validation, and partial wing against combat movement behavior',
-    'MASC, supercharger, and partial-wing jump effects remain helper-only until combat movement capabilities, activation intents, and failure checks are wired',
+    'Movement enhancement support catalogs MASC, supercharger, source-backed active TSM movement validation, and source-backed Partial Wing jump MP/heat validation against combat movement behavior',
+    'MASC and supercharger remain helper-only until combat movement capabilities, activation intents, and failure checks are wired; Partial Wing atmosphere and damaged critical-slot lifecycle refinements remain explicit gaps until combat state hydrates them',
     MOVEMENT_ENHANCEMENT_SUPPORT_REFS,
   ),
   'heat-generation': integrated(

@@ -46,6 +46,7 @@ import {
   hydrateHasStealthArmorFromFullUnit,
   hydrateHasTSMFromFullUnit,
   hydrateHeatSinksFromFullUnit,
+  hydratePartialWingJumpBonusFromFullUnit,
   hydrateClawStateFromFullUnit,
   hydrateStructureFromFullUnit,
   hydrateTalonStateFromFullUnit,
@@ -418,6 +419,75 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     });
 
     expect(unitState.hasTSM).toBe(true);
+  });
+
+  it('hydrates BattleMech Partial Wing jump bonus by weight class', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('atlas-as7-d');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    const existingEquipment =
+      (fullUnit.equipment as readonly unknown[] | undefined) ?? [];
+    const mediumPartialWingUnit: IFullUnit = {
+      ...fullUnit,
+      id: 'medium-partial-wing-test',
+      tonnage: 55,
+      unitType: 'BattleMech',
+      equipment: [
+        ...existingEquipment,
+        { id: 'IS Partial Wing', location: 'LEFT_TORSO' },
+      ],
+    };
+    const heavyPartialWingUnit: IFullUnit = {
+      ...mediumPartialWingUnit,
+      id: 'heavy-partial-wing-test',
+      tonnage: 75,
+    };
+    const battleArmorWingUnit: IFullUnit = {
+      ...mediumPartialWingUnit,
+      id: 'battle-armor-partial-wing-test',
+      unitType: 'Battle Armor',
+      equipment: [
+        ...existingEquipment,
+        { id: 'Battle Armor Partial Wing', location: 'BODY' },
+      ],
+    };
+    const protoMechWingUnit: IFullUnit = {
+      ...mediumPartialWingUnit,
+      id: 'protomech-partial-wing-test',
+      unitType: 'ProtoMech',
+      equipment: [
+        ...existingEquipment,
+        { id: 'ProtoMech Partial Wing', location: 'TORSO' },
+      ],
+    };
+
+    expect(hydratePartialWingJumpBonusFromFullUnit(fullUnit)).toBeUndefined();
+    expect(hydratePartialWingJumpBonusFromFullUnit(mediumPartialWingUnit)).toBe(
+      2,
+    );
+    expect(hydratePartialWingJumpBonusFromFullUnit(heavyPartialWingUnit)).toBe(
+      1,
+    );
+    expect(
+      hydratePartialWingJumpBonusFromFullUnit(battleArmorWingUnit),
+    ).toBeUndefined();
+    expect(
+      hydratePartialWingJumpBonusFromFullUnit(protoMechWingUnit),
+    ).toBeUndefined();
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit: mediumPartialWingUnit,
+      aiWeapons: [],
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.partialWingJumpBonus).toBe(2);
   });
 
   it('hydrates BattleMech talons from leg critical slots into unit state', async () => {

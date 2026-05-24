@@ -128,7 +128,11 @@ export function validateMovement(
     };
   }
 
-  const heatGenerated = calculateMovementHeat(movementType, distance);
+  const heatGenerated = calculateMovementHeat(
+    movementType,
+    distance,
+    capability.partialWingJumpBonus,
+  );
 
   return {
     valid: true,

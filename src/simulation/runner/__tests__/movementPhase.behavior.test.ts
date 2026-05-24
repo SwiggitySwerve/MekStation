@@ -334,6 +334,54 @@ describe('runMovementPhase movement validation parity', () => {
     expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
+  it('applies explicit Partial Wing jump MP and jump heat support', () => {
+    const target = { q: 5, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(6),
+      target,
+      { partialWingJumpBonus: 2 },
+      {
+        movementType: MovementType.Jump,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 3 },
+      },
+    );
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      mpUsed: 5,
+      heatGenerated: 3,
+    });
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(
+      MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[MovementEnhancementType.PARTIAL_WING],
+    ).toMatchObject({
+      level: 'integrated',
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({ kind: 'megamek-source' }),
+      ]),
+    });
+  });
+
+  it('does not let Partial Wing create jump capability without base jump MP', () => {
+    const target = { q: 1, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(3),
+      target,
+      { partialWingJumpBonus: 2 },
+      {
+        movementType: MovementType.Jump,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+      },
+    );
+
+    expect(events).toEqual([]);
+    expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
   it.each([
     {
       name: 'rubble entry',

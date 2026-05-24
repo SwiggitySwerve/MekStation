@@ -405,7 +405,7 @@ Runner weapon attack declarations SHALL consume explicit target `IUnitGameState.
 
 ### Requirement: Active TSM Movement Validation
 
-Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and current heat when calculating movement capability. Active TSM SHALL follow MegaMek's source-backed sequence: apply heat movement penalties and the heat-9 TSM walk bonus to walk MP, derive run MP from that adjusted walk MP, then validate the declared movement against the adjusted capability. MASC, Supercharger, and Partial Wing movement behavior SHALL remain explicit gaps until combat movement declarations can represent their activation and failure checks.
+Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and current heat when calculating movement capability. Active TSM SHALL follow MegaMek's source-backed sequence: apply heat movement penalties and the heat-9 TSM walk bonus to walk MP, derive run MP from that adjusted walk MP, then validate the declared movement against the adjusted capability. MASC and Supercharger movement behavior SHALL remain explicit gaps until combat movement declarations can represent their activation and failure checks.
 
 #### Scenario: Active TSM expands movement validation at heat 9
 
@@ -413,7 +413,25 @@ Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and 
 - **WHEN** the runner validates a 5 MP walking movement
 - **THEN** the movement SHALL be accepted with 5 MP used
 - **AND** a BattleMech with the same TSM equipment below heat 9 SHALL NOT receive the TSM walk bonus
-- **AND** the movement-enhancement catalog SHALL mark TSM movement as integrated while leaving MASC, Supercharger, and Partial Wing helper-only
+- **AND** the movement-enhancement catalog SHALL mark TSM movement as integrated while leaving MASC and Supercharger helper-only
+
+### Requirement: Source-Backed Partial Wing Jump Movement
+
+Runner movement validation SHALL consume explicit BattleMech `partialWingJumpBonus` state when calculating jump movement capability and jump heat. Partial Wing SHALL follow MegaMek's source-backed sequence: apply the explicit bonus only when the unit already has positive base jump MP, expand jump MP by that bonus, and subtract the bonus from generated jump heat before the minimum jump-heat floor is applied. Atmosphere-specific Partial Wing bonuses and damaged/bad torso critical-slot refinements SHALL remain explicit gaps until combat state hydrates those source-backed conditions.
+
+#### Scenario: Partial Wing expands jump validation and reduces jump heat
+
+- **GIVEN** a BattleMech has `partialWingJumpBonus: 2` and base jump MP 3
+- **WHEN** the runner validates a 5 MP jumping movement
+- **THEN** the movement SHALL be accepted with 5 MP used
+- **AND** generated jump heat SHALL subtract the Partial Wing bonus before applying the minimum jump heat floor
+- **AND** the movement-enhancement catalog SHALL mark Partial Wing movement as integrated with MegaMek source anchors
+
+#### Scenario: Partial Wing does not create jump capability
+
+- **GIVEN** a BattleMech has `partialWingJumpBonus: 2` and base jump MP 0
+- **WHEN** the runner validates a jumping movement
+- **THEN** the movement SHALL be rejected as unable to jump
 
 ### Requirement: Source-Backed Dodge Maneuver To-Hit
 

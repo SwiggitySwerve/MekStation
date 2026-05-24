@@ -8,7 +8,10 @@ import {
   IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay';
-import { getHeatAdjustedMovementCapability } from '@/utils/gameplay/movement/calculations';
+import {
+  applyPartialWingJumpBonus,
+  getHeatAdjustedMovementCapability,
+} from '@/utils/gameplay/movement/calculations';
 import {
   buildMovementEventPath,
   decomposeMovementSteps,
@@ -84,10 +87,18 @@ export function runMovementPhase(options: {
     const aiUnit = toAIUnitState(unit, weaponsByUnit?.get(unitId));
     const baseCapability =
       movementCapabilitiesByUnit?.get(unitId) ?? createMovementCapability();
+    const partialWingCapability = applyPartialWingJumpBonus(
+      baseCapability,
+      unit.partialWingJumpBonus,
+    );
     const capability =
       unit.hasTSM === true
-        ? getHeatAdjustedMovementCapability(baseCapability, unit.heat, true)
-        : baseCapability;
+        ? getHeatAdjustedMovementCapability(
+            partialWingCapability,
+            unit.heat,
+            true,
+          )
+        : partialWingCapability;
     const validationHeat = unit.hasTSM === true ? 0 : unit.heat;
     const moveEvent = botPlayer.playMovementPhase(aiUnit, grid, capability);
 

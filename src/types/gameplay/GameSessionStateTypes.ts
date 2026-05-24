@@ -245,6 +245,11 @@ export interface IUnitGameState {
   /** Triple-strength myomer installed; active physical damage doubles at heat 9+. */
   readonly hasTSM?: boolean;
   /**
+   * Explicit BattleMech Partial Wing jump bonus after source-backed equipment
+   * hydration. Undefined means no supported Partial Wing combat state.
+   */
+  readonly partialWingJumpBonus?: number;
+  /**
    * Talon equipment projected into combat state. UnitHydration derives this
    * from leg critical slots for catalog units; undefined preserves synthetic
    * fixtures that do not carry mounted talon equipment.

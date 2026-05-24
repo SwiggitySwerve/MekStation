@@ -10,7 +10,14 @@ import { MovementType } from '@/types/gameplay';
 export function calculateMovementHeat(
   movementType: MovementType,
   hexesMoved: number,
+  partialWingJumpBonus: number = 0,
 ): number {
+  const normalizedPartialWingJumpBonus =
+    typeof partialWingJumpBonus === 'number' &&
+    Number.isFinite(partialWingJumpBonus)
+      ? Math.max(0, Math.floor(partialWingJumpBonus))
+      : 0;
+
   switch (movementType) {
     case MovementType.Stationary:
       return 0;
@@ -19,7 +26,7 @@ export function calculateMovementHeat(
     case MovementType.Run:
       return 2;
     case MovementType.Jump:
-      return Math.max(hexesMoved, 3);
+      return Math.max(hexesMoved - normalizedPartialWingJumpBonus, 3);
     default:
       return 0;
   }

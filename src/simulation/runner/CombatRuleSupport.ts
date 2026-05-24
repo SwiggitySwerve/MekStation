@@ -142,6 +142,30 @@ const MEGAMEK_TSM_MOVEMENT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_PARTIAL_WING_MOVEMENT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Mek.getJumpMP applies a Partial Wing jump bonus only when the Mek already has positive jump MP, and getPartialWingJumpBonus subtracts bad torso critical slots.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Mek.java#L1081-L1231`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Mek.getJumpHeat subtracts the Partial Wing jump bonus from moved MP before engine jump heat is applied.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Mek.java#L1281-L1301`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MiscType creates IS and Clan Partial Wing equipment with Mek and F_PARTIAL_WING flags.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/equipment/MiscType.java#L2278-L2314`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_DFA_TARGET_CLASS_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -401,10 +425,10 @@ export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
     'UnitHydration, physical damage resolution, getHeatAdjustedMovementCapability, and runMovementPhase consume source-backed active TSM for heat-gated melee damage and movement validation',
     MEGAMEK_TSM_MOVEMENT_SOURCE_REFS,
   ),
-  [MovementEnhancementType.PARTIAL_WING]: helperOnly(
+  [MovementEnhancementType.PARTIAL_WING]: integrated(
     MovementEnhancementType.PARTIAL_WING,
-    'MovementEnhancement definitions and equipment utilities represent partial-wing construction data',
-    'Partial-wing jump MP effects are not hydrated into combat movement capabilities or movement validation',
+    'UnitHydration derives source-backed BattleMech Partial Wing jump bonus state, runMovementPhase applies it only when base jump MP exists, and validateMovement subtracts it from generated jump heat',
+    MEGAMEK_PARTIAL_WING_MOVEMENT_SOURCE_REFS,
   ),
 } satisfies Record<
   (typeof MOVEMENT_ENHANCEMENT_DEFINITIONS)[number]['type'],

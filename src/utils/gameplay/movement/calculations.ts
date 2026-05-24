@@ -41,6 +41,38 @@ export function createMovementCapability(
   };
 }
 
+function normalizePartialWingJumpBonus(
+  partialWingJumpBonus: number | undefined,
+): number {
+  if (
+    typeof partialWingJumpBonus !== 'number' ||
+    !Number.isFinite(partialWingJumpBonus)
+  ) {
+    return 0;
+  }
+  return Math.max(0, Math.floor(partialWingJumpBonus));
+}
+
+/**
+ * Apply an explicit Partial Wing jump bonus to a movement capability. MegaMek
+ * only applies the wing bonus when the Mek already has positive jump MP.
+ */
+export function applyPartialWingJumpBonus(
+  capability: IMovementCapability,
+  partialWingJumpBonus: number | undefined,
+): IMovementCapability {
+  const bonus = normalizePartialWingJumpBonus(partialWingJumpBonus);
+  if (bonus <= 0 || capability.jumpMP <= 0) {
+    return capability;
+  }
+
+  return {
+    ...capability,
+    jumpMP: capability.jumpMP + bonus,
+    partialWingJumpBonus: bonus,
+  };
+}
+
 /**
  * Get the maximum MP available for a movement type.
  *
@@ -197,5 +229,8 @@ export function getHeatAdjustedMovementCapability(
     walkMP,
     runMP: calculateRunMP(walkMP),
     jumpMP: Math.max(0, capability.jumpMP - heatPenalty),
+    ...(capability.partialWingJumpBonus !== undefined
+      ? { partialWingJumpBonus: capability.partialWingJumpBonus }
+      : {}),
   };
 }

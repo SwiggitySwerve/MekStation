@@ -160,6 +160,62 @@ export function hydrateHasTSMFromFullUnit(fullUnit: IFullUnit): boolean {
   );
 }
 
+function isBattleMechPartialWingHost(fullUnit: IFullUnit): boolean {
+  const unitType = (fullUnit as { unitType?: unknown }).unitType;
+  if (typeof unitType !== 'string') return false;
+
+  const normalized = normalizeCriticalSlotText(unitType);
+  return (
+    normalized === 'battlemech' ||
+    normalized === 'omnimech' ||
+    normalized === 'industrialmech'
+  );
+}
+
+function isPartialWingSignal(id: string): boolean {
+  const normalized = normalizeEquipmentId(id);
+  return (
+    normalized === 'partialwing' ||
+    normalized === 'ispartialwing' ||
+    normalized === 'clpartialwing'
+  );
+}
+
+function movementEnhancementsContainPartialWing(fullUnit: IFullUnit): boolean {
+  const movement = (
+    fullUnit as {
+      movement?: { enhancements?: readonly unknown[] };
+    }
+  ).movement;
+
+  return (
+    movement?.enhancements?.some(
+      (enhancement) =>
+        typeof enhancement === 'string' && isPartialWingSignal(enhancement),
+    ) ?? false
+  );
+}
+
+export function hydratePartialWingJumpBonusFromFullUnit(
+  fullUnit: IFullUnit,
+): number | undefined {
+  if (!isBattleMechPartialWingHost(fullUnit)) return undefined;
+
+  const hasPartialWing =
+    movementEnhancementsContainPartialWing(fullUnit) ||
+    equipmentSignalsFromFullUnit(fullUnit).some((signal) =>
+      isPartialWingSignal(signal.id),
+    );
+  if (!hasPartialWing) return undefined;
+
+  const tonnage = fullUnit.tonnage;
+  if (typeof tonnage !== 'number' || !Number.isFinite(tonnage)) {
+    return undefined;
+  }
+
+  return tonnage <= 55 ? 2 : 1;
+}
+
 export function hydrateHasStealthArmorFromFullUnit(
   fullUnit: IFullUnit,
 ): boolean {
@@ -997,6 +1053,7 @@ export function createHydratedUnitState(
     heatSinks: heatSinks.count,
     heatSinkType: heatSinks.kind,
     hasTSM: hydrateHasTSMFromFullUnit(fullUnit),
+    partialWingJumpBonus: hydratePartialWingJumpBonusFromFullUnit(fullUnit),
     leftLegHasTalons: talons.leftLegHasTalons,
     rightLegHasTalons: talons.rightLegHasTalons,
     leftArmHasClaw: claws.leftArmHasClaw,

@@ -145,6 +145,11 @@ describe('movement', () => {
       expect(calculateMovementHeat(MovementType.Jump, 4)).toBe(4);
       expect(calculateMovementHeat(MovementType.Jump, 6)).toBe(6);
     });
+
+    it('should subtract Partial Wing bonus from jump heat before the floor', () => {
+      expect(calculateMovementHeat(MovementType.Jump, 5, 2)).toBe(3);
+      expect(calculateMovementHeat(MovementType.Jump, 8, 2)).toBe(6);
+    });
   });
 
   // =========================================================================

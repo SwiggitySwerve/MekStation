@@ -189,6 +189,11 @@ export interface IMovementCapability {
   readonly runMP: number;
   /** Jump MP (0 if no jump jets) */
   readonly jumpMP: number;
+  /**
+   * Effective Partial Wing jump bonus already adjusted for source-backed
+   * equipment state. Used to subtract the wing bonus from jump heat.
+   */
+  readonly partialWingJumpBonus?: number;
 }
 
 /**
