@@ -100,7 +100,10 @@ all-selected-weapons-out-of-range sweeps beyond the smoke harness.
 now includes an alternate browser scenario that selects only the represented
 short-range weapons against the four-hex target, verifying that the target is
 non-attackable with `OutOfRange`, empty available-weapon metadata, per-weapon
-`out_of_range` options, and a non-color `0/2 WPN` badge.
+`out_of_range` options, and a non-color `0/2 WPN` badge. A fixture-level Jest
+parity test now feeds that same projection into `applyInteractiveSessionAttack`
+and proves the commit path rejects it with the same `OutOfRange` reason and
+details before declaring or locking an attack.
 
 2026-05-24 partial-cover browser update: the tactical-map browser harness now
 also renders a Mech-style target in depth-1 water and verifies that the top-down

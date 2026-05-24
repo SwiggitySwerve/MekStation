@@ -46,6 +46,9 @@
 - [x] 2.19 Add fixture-level parity coverage proving the VTOL browser
   projection is accepted by movement commit validation with matching MP, heat,
   and path.
+- [x] 2.20 Add fixture-level parity coverage proving the all-selected-weapons
+  out-of-range browser projection is rejected by attack commit validation with
+  matching reason and details.
 
 ## 3. Validation
 
@@ -84,3 +87,5 @@
   still valid after switching to generated movement projection data.
 - [x] 3.19 Focused Jest parity test passes for the VTOL browser projection and
   commit validator handoff.
+- [x] 3.20 Focused Jest parity test passes for the all-selected-weapons
+  out-of-range browser projection and attack commit validator handoff.
