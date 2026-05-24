@@ -56,6 +56,7 @@ import {
   MovementStepCostBadge,
   MovementStandUpBadge,
 } from './HexCell.movementBadges';
+import { MovementBlockedOptionsBadge } from './HexCell.movementBlockedOptionsBadge';
 import {
   movementOptionCostsAttribute,
   movementOptionBlockedReasonsAttribute,
@@ -607,6 +608,12 @@ export const HexCell = React.memo(function HexCell({
       {hoverMpCost === undefined && (
         <MovementReachBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
       )}
+      <MovementBlockedOptionsBadge
+        x={x}
+        y={y}
+        hex={hex}
+        movementInfo={movementInfo}
+      />
       <MovementStepCostBadge
         x={x}
         y={y}

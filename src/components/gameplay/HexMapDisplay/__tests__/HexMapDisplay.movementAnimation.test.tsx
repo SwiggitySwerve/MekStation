@@ -850,6 +850,37 @@ describe('HexMapDisplay tactical visual layers', () => {
       `jump:${blockedReason}`,
     );
 
+    const blockedBadge = screen.getByTestId(
+      'hex-movement-blocked-options-badge-1-0',
+    );
+    expect(blockedBadge).toHaveTextContent('J BLK');
+    expect(blockedBadge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining(
+        `jump blocked 1 MP, heat +1, blocked: ${blockedReason}`,
+      ),
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-count',
+      '1',
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-types',
+      'jump',
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-reasons',
+      `jump:${blockedReason}`,
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-invalid-reasons',
+      'jump:TerrainBlocked',
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-invalid-details',
+      `jump:${blockedReason}`,
+    );
+
     fireEvent.mouseEnter(hex);
 
     const optionRows = screen.getByTestId('hex-movement-tooltip-mode-options');
