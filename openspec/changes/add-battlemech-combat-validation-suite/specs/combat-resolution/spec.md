@@ -403,6 +403,18 @@ Runner weapon attack declarations SHALL consume explicit target `IUnitGameState.
 - **AND** the normal `Partial Cover` modifier SHALL NOT also be emitted for that attack
 - **AND** a confirmed front-arc leg hit-location roll SHALL resolve against center torso through hull-down hit-location logic
 
+### Requirement: Active TSM Movement Validation
+
+Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and current heat when calculating movement capability. Active TSM SHALL follow MegaMek's source-backed sequence: apply heat movement penalties and the heat-9 TSM walk bonus to walk MP, derive run MP from that adjusted walk MP, then validate the declared movement against the adjusted capability. MASC, Supercharger, and Partial Wing movement behavior SHALL remain explicit gaps until combat movement declarations can represent their activation and failure checks.
+
+#### Scenario: Active TSM expands movement validation at heat 9
+
+- **GIVEN** a BattleMech has `hasTSM: true`, base walk MP 4, and current heat 9
+- **WHEN** the runner validates a 5 MP walking movement
+- **THEN** the movement SHALL be accepted with 5 MP used
+- **AND** a BattleMech with the same TSM equipment below heat 9 SHALL NOT receive the TSM walk bonus
+- **AND** the movement-enhancement catalog SHALL mark TSM movement as integrated while leaving MASC, Supercharger, and Partial Wing helper-only
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

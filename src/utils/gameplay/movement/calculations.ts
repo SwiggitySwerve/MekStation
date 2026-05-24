@@ -178,3 +178,24 @@ export function getEffectiveWalkMP(
   const heatPenalty = getHeatMovementPenalty(currentHeat);
   return Math.max(0, baseWalkMP + tsmBonus - heatPenalty);
 }
+
+/**
+ * Build the movement capability a BattleMech should validate against when TSM
+ * and heat are both known at runner time. MegaMek applies heat/TSM to walk MP
+ * first, then derives run MP from the adjusted walk MP; jump MP keeps the heat
+ * penalty only.
+ */
+export function getHeatAdjustedMovementCapability(
+  capability: IMovementCapability,
+  currentHeat: number,
+  hasTSM: boolean,
+): IMovementCapability {
+  const heatPenalty = getHeatMovementPenalty(currentHeat);
+  const walkMP = getEffectiveWalkMP(capability.walkMP, currentHeat, hasTSM);
+
+  return {
+    walkMP,
+    runMP: calculateRunMP(walkMP),
+    jumpMP: Math.max(0, capability.jumpMP - heatPenalty),
+  };
+}

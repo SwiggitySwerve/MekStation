@@ -36,6 +36,8 @@ const MEGAMEK_TO_HIT_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 const MEGAMEK_PHYSICAL_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+const MEGAMEK_MOVEMENT_SOURCE_VERSION =
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
 function megamekHeatSourceRef(
   citation: string,
@@ -113,6 +115,30 @@ const MEGAMEK_HULL_DOWN_SOURCE_REFS = [
       'MegaMek ComputeTerrainMods applies WeaponAttackAction.HullDown as a +2 terrain modifier for hull-down Mek targets with LOS cover.',
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/actions/compute/ComputeTerrainMods.java#L215-L218`,
     sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_TSM_MOVEMENT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek BipedMek.getWalkMP applies active TSM as +2 walk MP at heat 9+ after heat movement penalties.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/BipedMek.java#L258-L268`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek QuadMek.getWalkMP applies the same active TSM +2 walk MP gate for quad BattleMechs.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/QuadMek.java#L342-L352`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Mek.getRunMP derives running MP from the heat/TSM-adjusted walk MP.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Mek.java#L993-L1007`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -370,10 +396,10 @@ export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
     'MovementEnhancement definitions, equipment utilities, sprint_combined formula, and createSuperchargerFailurePSR factory represent the construction/helper layer',
     'No combat MovementType, game intent, wire payload, runner movement activation state, sprint MP validation, or supercharger failure trigger is wired',
   ),
-  [MovementEnhancementType.TSM]: helperOnly(
+  [MovementEnhancementType.TSM]: integrated(
     MovementEnhancementType.TSM,
-    'UnitHydration and physical damage resolution consume TSM for heat-gated melee damage',
-    'TSM movement-speed effects are not applied to combat movement capabilities or movement validation',
+    'UnitHydration, physical damage resolution, getHeatAdjustedMovementCapability, and runMovementPhase consume source-backed active TSM for heat-gated melee damage and movement validation',
+    MEGAMEK_TSM_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.PARTIAL_WING]: helperOnly(
     MovementEnhancementType.PARTIAL_WING,

@@ -8,6 +8,7 @@ import {
   IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay';
+import { getHeatAdjustedMovementCapability } from '@/utils/gameplay/movement/calculations';
 import {
   buildMovementEventPath,
   decomposeMovementSteps,
@@ -81,8 +82,13 @@ export function runMovementPhase(options: {
     }
 
     const aiUnit = toAIUnitState(unit, weaponsByUnit?.get(unitId));
-    const capability =
+    const baseCapability =
       movementCapabilitiesByUnit?.get(unitId) ?? createMovementCapability();
+    const capability =
+      unit.hasTSM === true
+        ? getHeatAdjustedMovementCapability(baseCapability, unit.heat, true)
+        : baseCapability;
+    const validationHeat = unit.hasTSM === true ? 0 : unit.heat;
     const moveEvent = botPlayer.playMovementPhase(aiUnit, grid, capability);
 
     if (moveEvent) {
@@ -109,7 +115,7 @@ export function runMovementPhase(options: {
         moveEvent.payload.facing as Facing,
         moveEvent.payload.movementType,
         capability,
-        unit.heat,
+        validationHeat,
         environmentalConditions,
       );
 

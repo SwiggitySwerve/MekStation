@@ -10,7 +10,10 @@
 
 import { describe, expect, it } from '@jest/globals';
 
-import { getEffectiveWalkMP } from '@/utils/gameplay/movement/calculations';
+import {
+  getEffectiveWalkMP,
+  getHeatAdjustedMovementCapability,
+} from '@/utils/gameplay/movement/calculations';
 
 describe('getEffectiveWalkMP — TSM + heat-penalty interaction', () => {
   describe('TSM-active mech at heat 9 (TSM activation threshold)', () => {
@@ -68,6 +71,36 @@ describe('getEffectiveWalkMP — TSM + heat-penalty interaction', () => {
       // Heat 15 → TSM active (+2), penalty floor(15/5) = 3.
       // Net: 4 + 2 − 3 = 3.
       expect(getEffectiveWalkMP(4, 15, true)).toBe(3);
+    });
+  });
+});
+
+describe('getHeatAdjustedMovementCapability', () => {
+  it('derives run MP from heat-and-TSM adjusted walk MP', () => {
+    expect(
+      getHeatAdjustedMovementCapability(
+        { walkMP: 4, runMP: 6, jumpMP: 3 },
+        9,
+        true,
+      ),
+    ).toEqual({
+      walkMP: 5,
+      runMP: 8,
+      jumpMP: 2,
+    });
+  });
+
+  it('keeps TSM dormant below heat 9 while still applying heat penalty', () => {
+    expect(
+      getHeatAdjustedMovementCapability(
+        { walkMP: 4, runMP: 6, jumpMP: 3 },
+        8,
+        true,
+      ),
+    ).toEqual({
+      walkMP: 3,
+      runMP: 5,
+      jumpMP: 2,
     });
   });
 });

@@ -68,6 +68,7 @@
 - [x] 3.1.8 Integrate source-backed helper-level iNARC ECM C3 disruption while leaving automatic C3 network formation and remaining sensor effects explicit.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
+- [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and partial-wing movement behavior explicit.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
@@ -100,3 +101,4 @@
 - [x] 4.3.4 Add structured MegaMek source anchors for ECM suite and active-probe hydration rows used by Artemis ECM countering.
 - [x] 4.3.5 Add structured MegaMek source anchors for Artemis cluster, indirect-fire, ECM, and stealth suppression rows.
 - [x] 4.3.6 Add structured MegaMek source anchors for secondary-target, Multi-Tasker, local Multi-Target, and called-shot modifier boundaries.
+- [x] 4.3.7 Add structured MegaMek source anchors for active TSM walk/run movement validation.

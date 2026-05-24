@@ -13,6 +13,7 @@ import type {
 } from '@/types/gameplay';
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import {
   Facing,
   GameEventType,
@@ -34,6 +35,7 @@ import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { COMBAT_COMMAND_ACTION_SUPPORT } from '../CombatActionSupport';
 import { RUNNER_PSR_TRIGGER_COMBAT_SUPPORT } from '../CombatLifecycleSupport';
 import {
+  MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
   MOVEMENT_RULE_COMBAT_SUPPORT,
   TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
 } from '../CombatRuleSupport';
@@ -282,6 +284,54 @@ describe('runMovementPhase movement validation parity', () => {
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.wind).toMatchObject({
       level: 'integrated',
     });
+  });
+
+  it('applies active TSM walk MP before runner movement validation', () => {
+    const target = { q: 5, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(6),
+      target,
+      { hasTSM: true, heat: 9 },
+      {
+        movementType: MovementType.Walk,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+      },
+    );
+    const payload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+
+    expect(payload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      mpUsed: 5,
+      heatGenerated: 1,
+    });
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(
+      MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[MovementEnhancementType.TSM],
+    ).toMatchObject({
+      level: 'integrated',
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({ kind: 'megamek-source' }),
+      ]),
+    });
+  });
+
+  it('keeps TSM dormant below the heat-9 activation threshold', () => {
+    const target = { q: 5, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(6),
+      target,
+      { hasTSM: true, heat: 8 },
+      {
+        movementType: MovementType.Walk,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+      },
+    );
+
+    expect(events).toEqual([]);
+    expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
   it.each([

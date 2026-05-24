@@ -1469,7 +1469,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(supportGaps(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual([]);
+    ).toEqual([MovementEnhancementType.TSM]);
     expect(
       supportIdsByLevel(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT, 'helper-only'),
     ).toEqual(
@@ -1477,7 +1477,6 @@ describe('BattleMech combat feature-gap tracking', () => {
         MovementEnhancementType.MASC,
         MovementEnhancementType.PARTIAL_WING,
         MovementEnhancementType.SUPERCHARGER,
-        MovementEnhancementType.TSM,
       ].sort(),
     );
 
