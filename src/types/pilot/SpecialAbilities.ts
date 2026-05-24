@@ -209,12 +209,13 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
   'tactical-genius': {
     id: 'tactical-genius',
     name: 'Tactical Genius',
-    description: '+1 to initiative roll for the controlling player.',
+    description:
+      'Allows an initiative reroll gate for the controlling player; not a flat initiative modifier.',
     xpCost: 75,
     prerequisites: [],
     effectType: AbilityEffectType.InitiativeModifier,
     effectParams: {
-      modifier: 1,
+      modifier: 0,
     },
   },
 

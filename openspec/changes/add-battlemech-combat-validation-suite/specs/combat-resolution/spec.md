@@ -691,6 +691,19 @@ Pilot modifier validation SHALL keep MegaMek's Shaky Stick SPA visible as an uns
 - **THEN** the SPA SHALL be unsupported with MegaMek source references to the airborne target and non-airborne attacker gates
 - **AND** Shaky Stick SHALL NOT be represented as a generic BattleMech target movement, terrain, or PSR modifier
 
+### Requirement: Source-Backed Initiative Quirk Bonuses
+
+Initiative validation SHALL apply MegaMek's Command Mech and Battle Computer force initiative bonuses from active conscious units. Battle Computer SHALL provide `+2`, Command Mech SHALL provide `+1`, and the bonuses SHALL NOT stack. Raw `2d6` initiative payload fields SHALL remain raw dice values for replay/RNG arbitration, with modifier and total fields carrying adjusted values. Tactical Genius SHALL remain an explicit reroll gap until reroll request and replacement-roll flow is modeled.
+
+#### Scenario: Battle Computer bonus remains non-cumulative with Command Mech
+
+- **GIVEN** the player force has an active conscious unit with both `battle_computer` and `command_mech`
+- **AND** raw initiative dice are lower than the opponent by 3
+- **WHEN** initiative is rolled
+- **THEN** the player receives only the source-backed `+2` bonus
+- **AND** the opponent still wins
+- **AND** the event payload retains raw `2d6` values plus modifier and total fields
+
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
 Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief, including Swamp Beast bog-down relief, SHALL remain an explicit gap until separately source-backed.

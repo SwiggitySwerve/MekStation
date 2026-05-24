@@ -16,12 +16,26 @@ export function createInitiativeRolledEvent(
   opponentRoll: number,
   winner: GameSide,
   movesFirst: GameSide,
+  initiativeModifiers?: {
+    readonly playerModifier: number;
+    readonly opponentModifier: number;
+  },
 ): IGameEvent {
   const payload: IInitiativeRolledPayload = {
     playerRoll,
     opponentRoll,
     winner,
     movesFirst,
+    ...(initiativeModifiers &&
+    (initiativeModifiers.playerModifier !== 0 ||
+      initiativeModifiers.opponentModifier !== 0)
+      ? {
+          playerModifier: initiativeModifiers.playerModifier,
+          opponentModifier: initiativeModifiers.opponentModifier,
+          playerTotal: playerRoll + initiativeModifiers.playerModifier,
+          opponentTotal: opponentRoll + initiativeModifiers.opponentModifier,
+        }
+      : {}),
   };
 
   return {

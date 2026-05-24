@@ -734,8 +734,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'pilot-skills': helperOnly(
     'pilot-skills',
-    'Pilot skill support covers gunnery, piloting, indirect-fire spotter gunnery, wound penalties, and PSR resolution',
-    'Initiative modifiers are still helper-only',
+    'Pilot skill support covers gunnery, piloting, indirect-fire spotter gunnery, wound penalties, PSR resolution, and source-backed Command Mech/Battle Computer force initiative bonuses',
+    'Tactical Genius reroll requests, Combat Intuition first-round sequencing, and command-console/HQ initiative equipment bonuses are still helper-only',
     PILOT_SKILL_SUPPORT_REFS,
   ),
   'spa-quirk-catalog': helperOnly(

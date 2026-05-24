@@ -276,10 +276,10 @@ export function getAnimalMimicryPSRModifier(
 }
 
 /**
- * Tactical Genius: +1 initiative.
+ * Tactical Genius is an initiative reroll gate, not a flat initiative bonus.
  */
-export function getTacticalGeniusBonus(abilities: readonly string[]): number {
-  return hasSPA(abilities, 'tactical_genius') ? 1 : 0;
+export function getTacticalGeniusBonus(_abilities: readonly string[]): number {
+  return 0;
 }
 
 /**

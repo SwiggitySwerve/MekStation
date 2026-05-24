@@ -159,6 +159,28 @@ export const MEGAMEK_SANDBLASTER_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek Entity.getQuirkIniBonus returns +2 for Battle Computer or +1 for Command Mech, and does not stack them.',
+    'megamek/src/megamek/common/units/Entity.java#L12859-L12871',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines QUIRK_POS_BATTLE_COMP as battle_computer and QUIRK_POS_COMMAND_MEK as command_mech.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L48-L52',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek Game.hasTacticalGenius checks for a conscious active unit with MISC_TACTICAL_GENIUS before initiative reroll handling.',
+    'megamek/src/megamek/common/game/Game.java#L617-L626',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines MISC_TACTICAL_GENIUS as tactical_genius.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L209-L214',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_PSR_SPA_SOURCE_REFS = [
   ...MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS,
   ...MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS,

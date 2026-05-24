@@ -894,6 +894,35 @@ describe('rollInitiative', () => {
     // Opponent won, so player moves first by default
     expect(rolled.currentState.firstMover).toBe(GameSide.Player);
   });
+
+  it('applies source-backed force initiative quirks without changing raw dice fields', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        unitQuirks: ['battle_computer', 'command_mech'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events[rolled.events.length - 1];
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 2,
+      opponentModifier: 0,
+      playerTotal: 4,
+      opponentTotal: 5,
+      winner: GameSide.Opponent,
+    });
+  });
 });
 
 // =============================================================================

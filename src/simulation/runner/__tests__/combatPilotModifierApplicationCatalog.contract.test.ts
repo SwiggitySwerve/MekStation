@@ -431,6 +431,50 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
     expect(applicationRefs).toEqual(sandblasterRefs);
   });
 
+  it('pins source-backed initiative quirk bonuses and Tactical Genius reroll gap', () => {
+    const commandRefs = QUIRK_COMBAT_SUPPORT.command_mech.sourceRefs ?? [];
+    const battleComputerRefs =
+      QUIRK_COMBAT_SUPPORT.battle_computer.sourceRefs ?? [];
+    const tacticalGeniusRefs =
+      SPA_COMBAT_SUPPORT['tactical-genius'].sourceRefs ?? [];
+    const applicationRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application']
+        .sourceRefs ?? [];
+
+    expect(QUIRK_COMBAT_SUPPORT.command_mech).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('rollInitiative'),
+      gap: expect.stringContaining('command-console/HQ'),
+    });
+    expect(QUIRK_COMBAT_SUPPORT.battle_computer).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('non-cumulative'),
+      gap: expect.stringContaining('command-console/HQ'),
+    });
+    expect(SPA_COMBAT_SUPPORT['tactical-genius']).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('reroll gate'),
+      gap: expect.stringContaining('replacement-roll flow'),
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application'],
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('raw 2d6 payload fields'),
+      gap: expect.stringContaining('Tactical Genius reroll'),
+    });
+    expect(commandRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Entity.getQuirkIniBonus returns +2 for Battle Computer or +1 for Command Mech, and does not stack them.',
+      'MegaMek OptionsConstants defines QUIRK_POS_BATTLE_COMP as battle_computer and QUIRK_POS_COMMAND_MEK as command_mech.',
+    ]);
+    expect(battleComputerRefs).toEqual(commandRefs);
+    expect(tacticalGeniusRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Game.hasTacticalGenius checks for a conscious active unit with MISC_TACTICAL_GENIUS before initiative reroll handling.',
+      'MegaMek OptionsConstants defines MISC_TACTICAL_GENIUS as tactical_genius.',
+    ]);
+    expect(applicationRefs).toEqual([...commandRefs, ...tacticalGeniusRefs]);
+  });
+
   it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {
     const mountaineerRefs = SPA_COMBAT_SUPPORT.tm_mountaineer.sourceRefs ?? [];
 
@@ -524,6 +568,9 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT.tm_swamp_beast.sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['cross-country'].sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['heavy-lifter'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['tactical-genius'].sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.command_mech.sourceRefs ?? []),
+      ...(QUIRK_COMBAT_SUPPORT.battle_computer.sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
       ].sourceRefs ?? []),
@@ -537,6 +584,8 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
         'ranged-to-hit-state-hydration'
       ].sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application']
+        .sourceRefs ?? []),
+      ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['initiative-application']
         .sourceRefs ?? []),
     ];
 

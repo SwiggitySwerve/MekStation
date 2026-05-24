@@ -290,7 +290,7 @@ export const SPA_CATALOG: Record<string, ISPACatalogEntry> = {
     name: 'Tactical Genius',
     category: 'tactical',
     pipelines: ['initiative'],
-    combatEffect: '+1 initiative roll',
+    combatEffect: 'initiative reroll gate; no flat roll bonus',
     requiresDesignation: false,
   },
   'speed-demon': {

@@ -39,8 +39,8 @@ export const PILOT_SKILL_COMBAT_SUPPORT = {
   ),
   'initiative-skill-modifiers': helperOnly(
     'initiative-skill-modifiers',
-    'tactical-genius SPA and command/battle-computer quirk helpers expose initiative modifiers',
-    'rollInitiative does not consume pilot abilities or unit quirks when resolving initiative',
+    'rollInitiative applies source-backed Command Mech and Battle Computer force initiative bonuses from active conscious units',
+    'Tactical Genius reroll requests, Combat Intuition first-round sequencing, and command-console/HQ initiative equipment bonuses are not wired',
   ),
   'pilot-wound-ranged-penalty': integrated(
     'pilot-wound-ranged-penalty',

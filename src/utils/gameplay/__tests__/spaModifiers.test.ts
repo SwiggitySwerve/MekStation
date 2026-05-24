@@ -404,8 +404,8 @@ describe('spaModifiers', () => {
   });
 
   describe('Tactical Genius', () => {
-    it('returns +1 initiative bonus', () => {
-      expect(getTacticalGeniusBonus(['tactical-genius'])).toBe(1);
+    it('does not expose a flat initiative bonus', () => {
+      expect(getTacticalGeniusBonus(['tactical-genius'])).toBe(0);
     });
 
     it('returns 0 without the ability', () => {

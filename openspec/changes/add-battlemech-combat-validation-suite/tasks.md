@@ -102,6 +102,7 @@
 - [x] 3.4.18 Integrate source-backed Terrain Master: Mountaineer rubble-entry PSR relief through SPA helper, PSR modifier resolution, canonicalization, catalog, and OpenSpec coverage while leaving Mountaineer movement-cost relief explicit.
 - [x] 3.4.19 Catalog MegaMek-backed Heavy Lifter lift-capacity behavior as an unsupported carry/throw-object action gap instead of an unscoped physical modifier.
 - [x] 3.4.20 Catalog MegaMek-backed Shaky Stick ground-to-air defender to-hit behavior as an unsupported airborne target-state gap instead of a generic BattleMech target modifier.
+- [x] 3.4.21 Integrate source-backed Command Mech/Battle Computer initiative quirk bonuses into `rollInitiative` while leaving Tactical Genius reroll, Combat Intuition, and command-console/HQ equipment bonuses explicit.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -143,3 +144,4 @@
 - [x] 4.3.23 Cross-check MegaMek's Heavy Lifter BattleMech/ProtoMek ground-object lift-capacity multiplier and canonical ability id.
 - [x] 4.3.24 Cross-check MegaMek's Shaky Stick ground-to-air defender to-hit modifier, airborne target gate, non-airborne attacker gate, and canonical ability id.
 - [x] 4.3.25 Cross-check MegaMek's Sandblaster cluster-table range modifiers, designated-weapon matching, Cluster Hitter precedence, eligible-weapon helper, and canonical ability id.
+- [x] 4.3.26 Cross-check MegaMek's Command Mech/Battle Computer non-cumulative initiative quirk bonus and Tactical Genius reroll gate.

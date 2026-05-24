@@ -7,9 +7,11 @@ import {
   MEGAMEK_CALLED_SHOT_SOURCE_REFS,
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+  MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_PSR_SPA_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SECONDARY_TARGET_MULTI_TASKER_SOURCE_REFS,
+  MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   MEGAMEK_TERRAIN_MASTER_DEFENSIVE_TO_HIT_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 
@@ -113,8 +115,12 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'initiative-application': helperOnly(
     'initiative-application',
-    'getTacticalGeniusBonus and calculateInitiativeQuirkModifier expose initiative modifiers',
-    'rollInitiative does not consume pilot abilities or force-level unit quirks',
+    'rollInitiative consumes source-backed Command Mech and Battle Computer force-level quirk bonuses while preserving raw 2d6 payload fields',
+    'Tactical Genius reroll requests, Combat Intuition first-round sequencing, and command-console/HQ initiative equipment bonuses are not wired',
+    [
+      ...MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
+      ...MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
+    ],
   ),
   'heat-application': integrated(
     'heat-application',

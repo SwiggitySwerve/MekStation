@@ -398,12 +398,13 @@ The Natural Grace SPA SHALL grant -1 PSR for falls.
 
 ### Requirement: Misc SPA — Tactical Genius
 
-The Tactical Genius SPA SHALL grant +1 to initiative rolls.
+The Tactical Genius SPA SHALL be modeled as an initiative reroll gate, not as a flat initiative-roll bonus.
 
-#### Scenario: Tactical Genius initiative bonus
+#### Scenario: Tactical Genius is not a flat initiative bonus
 
 - **WHEN** a force includes a pilot with Tactical Genius
-- **THEN** the initiative roll SHALL receive a +1 modifier
+- **THEN** the force SHALL NOT receive a flat numeric initiative-roll modifier
+- **AND** reroll request/replacement-roll flow SHALL be tracked separately from flat initiative bonuses
 
 ### Requirement: Misc SPA — Pain Resistance
 

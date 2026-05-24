@@ -10,7 +10,9 @@
 import {
   MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
   MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+  MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
+  MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 
 export type CombatFeatureSupportLevel =
@@ -529,8 +531,9 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'tactical-genius': helperOnly(
     'tactical-genius',
-    'getTacticalGeniusBonus',
-    'Initiative phase does not consume pilot abilities',
+    'MegaMek source identifies Tactical Genius as an initiative reroll gate rather than a flat initiative bonus',
+    'Tactical Genius initiative reroll request and replacement-roll flow is not wired',
+    MEGAMEK_TACTICAL_GENIUS_SOURCE_REFS,
   ),
   'speed-demon': unsupported(
     'speed-demon',
@@ -649,13 +652,15 @@ export const QUIRK_COMBAT_SUPPORT = {
   ),
   command_mech: helperOnly(
     'command_mech',
-    'calculateInitiativeQuirkModifier',
-    'Initiative phase does not consume unit quirks',
+    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +1 force initiative bonus from active conscious units',
+    'Automatic command-console/HQ initiative equipment bonuses are not wired',
+    MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   ),
   battle_computer: helperOnly(
     'battle_computer',
-    'calculateInitiativeQuirkModifier',
-    'Initiative phase does not consume unit quirks',
+    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +2 force initiative bonus from active conscious units and keep it non-cumulative with Command Mech',
+    'Automatic command-console/HQ initiative equipment bonuses are not wired',
+    MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   ),
   sensor_ghosts: integrated(
     'sensor_ghosts',

@@ -139,6 +139,14 @@ export interface IInitiativeRolledPayload {
   readonly playerRoll: number;
   /** Opponent roll result (2d6) */
   readonly opponentRoll: number;
+  /** Player-side initiative modifier from source-backed force bonuses. */
+  readonly playerModifier?: number;
+  /** Opponent-side initiative modifier from source-backed force bonuses. */
+  readonly opponentModifier?: number;
+  /** Player roll plus modifier, when a modifier was applied. */
+  readonly playerTotal?: number;
+  /** Opponent roll plus modifier, when a modifier was applied. */
+  readonly opponentTotal?: number;
   /** Winner of initiative */
   readonly winner: GameSide;
   /** Did the winner choose to move first? */

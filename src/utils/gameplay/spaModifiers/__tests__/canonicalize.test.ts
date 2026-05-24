@@ -194,8 +194,8 @@ describe('combat modifiers accept canonical ids', () => {
     expect(getMeleeMasterDamageBonus(['melee_master'])).toBe(1);
   });
 
-  it('getTacticalGeniusBonus fires on canonical id', () => {
-    expect(getTacticalGeniusBonus(['tactical_genius'])).toBe(1);
+  it('getTacticalGeniusBonus does not expose a flat canonical bonus', () => {
+    expect(getTacticalGeniusBonus(['tactical_genius'])).toBe(0);
   });
 
   it('getIronManModifier fires on canonical id', () => {

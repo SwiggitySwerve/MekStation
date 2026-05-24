@@ -69,6 +69,7 @@ import {
 } from './gameEvents';
 import { invalidateInvalidTargetAttack } from './gameSessionAttackResolutionValidation';
 import { allUnitsLocked, deriveState } from './gameState';
+import { calculateSideInitiativeModifier } from './initiativeModifiers';
 import {
   buildWeaponAttackAttackerToHitState,
   buildWeaponAttackTargetToHitState,
@@ -294,11 +295,21 @@ export function rollInitiative(
   // from a SeededRandom. Default preserves prior behavior (Math.random).
   const playerRoll = roll2d6(diceRoller);
   const opponentRoll = roll2d6(diceRoller);
+  const playerModifier = calculateSideInitiativeModifier(
+    session.currentState,
+    GameSide.Player,
+  );
+  const opponentModifier = calculateSideInitiativeModifier(
+    session.currentState,
+    GameSide.Opponent,
+  );
+  const playerTotal = playerRoll + playerModifier;
+  const opponentTotal = opponentRoll + opponentModifier;
 
   let winner: GameSide;
-  if (playerRoll > opponentRoll) {
+  if (playerTotal > opponentTotal) {
     winner = GameSide.Player;
-  } else if (opponentRoll > playerRoll) {
+  } else if (opponentTotal > playerTotal) {
     winner = GameSide.Opponent;
   } else {
     winner = GameSide.Player;
@@ -318,6 +329,7 @@ export function rollInitiative(
     opponentRoll,
     winner,
     actualMovesFirst,
+    { playerModifier, opponentModifier },
   );
 
   return appendEvent(session, event);
