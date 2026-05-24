@@ -5,6 +5,7 @@ import type { IHexCoordinate, IMovementRangeHex } from '@/types/gameplay';
 import {
   formatMovementModeLabel,
   formatMovementModeTitleLabel,
+  formatMovementOptionCostBadgeLabel,
   formatMovementOptionTitle,
   formatMovementTypeLabel,
   movementOptionBlockedReasonsAttribute,
@@ -14,24 +15,20 @@ import {
   movementOptionInvalidReasonsAttribute,
   movementOptionTerrainCostsAttribute,
   movementOptionsForBadge,
-  uniqueMovementTypeLabels,
 } from './HexCell.movementOptionSummaries';
 
 export function formatMovementReachBadgeLabel(
   movementInfo: IMovementRangeHex,
 ): string {
   const options = movementOptionsForBadge(movementInfo);
-  const typeLabel =
-    options.length > 1
-      ? uniqueMovementTypeLabels(options)
-      : formatMovementTypeLabel(movementInfo.movementType);
   const motiveLabel = formatMovementModeLabel(movementInfo.movementMode);
-  const modeLabel =
-    options.length > 1
-      ? typeLabel
-      : motiveLabel
-        ? `${typeLabel}/${motiveLabel}`
-        : typeLabel;
+
+  if (options.length > 1) {
+    return formatMovementOptionCostBadgeLabel(options);
+  }
+
+  const typeLabel = formatMovementTypeLabel(movementInfo.movementType);
+  const modeLabel = motiveLabel ? `${typeLabel}/${motiveLabel}` : typeLabel;
   const mpLabel = Number.isFinite(movementInfo.mpCost)
     ? `${movementInfo.mpCost}MP`
     : 'XMP';

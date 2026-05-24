@@ -685,7 +685,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
 
     const badge = screen.getByTestId('hex-movement-badge-1-0');
-    expect(badge).toHaveTextContent('W/R/J 3MP');
+    expect(badge).toHaveTextContent('W3/R3/J1 MP');
     expect(badge).toHaveAttribute(
       'aria-label',
       expect.stringContaining(
@@ -830,7 +830,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     ).toHaveAttribute('data-projection-status-badge-status', 'mixed');
 
     const badge = screen.getByTestId('hex-movement-badge-1-0');
-    expect(badge).toHaveTextContent('W/R 3MP');
+    expect(badge).toHaveTextContent('W3/R4 MP');
     expect(badge).toHaveAttribute(
       'aria-label',
       expect.stringContaining(

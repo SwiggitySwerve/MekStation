@@ -2659,7 +2659,7 @@ describe('HexMapDisplay combat projection', () => {
       projectionBadge.getAttribute('data-projection-status-badge-explanation'),
     ).toContain('Walk reachable 3 MP');
     expect(screen.getByTestId('hex-movement-badge-3-0')).toHaveTextContent(
-      'W/R 3MP',
+      'W3/R4 MP',
     );
     expect(
       screen.getByTestId('hex-combat-invalid-badge-3-0'),

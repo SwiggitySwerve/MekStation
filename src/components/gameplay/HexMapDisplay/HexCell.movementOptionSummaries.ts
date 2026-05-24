@@ -160,17 +160,19 @@ export function movementOptionStatesAttribute(
     .join('|');
 }
 
-export function uniqueMovementTypeLabels(
+export function formatMovementOptionCostBadgeLabel(
   options: readonly IMovementRangeModeOption[],
 ): string {
-  const labels = options
-    .filter((option) => option.reachable)
-    .map((option) => formatMovementTypeLabel(option.movementType));
-  const displayLabels =
-    labels.length > 0
-      ? labels
-      : options.map((option) => formatMovementTypeLabel(option.movementType));
-  return Array.from(new Set(displayLabels)).join('/');
+  const reachableOptions = options.filter((option) => option.reachable);
+  const displayOptions =
+    reachableOptions.length > 0 ? reachableOptions : options;
+  const labels = displayOptions.map((option) => {
+    const typeLabel = formatMovementTypeLabel(option.movementType);
+    const costLabel = Number.isFinite(option.mpCost) ? option.mpCost : 'X';
+    return `${typeLabel}${costLabel}`;
+  });
+
+  return `${Array.from(new Set(labels)).join('/')} MP`;
 }
 
 export function movementOptionBlockedDetail(
