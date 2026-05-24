@@ -142,6 +142,30 @@ const MEGAMEK_TSM_MOVEMENT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Mek.getRunMP asks armed MASC/Supercharger boosters to calculate boosted running MP from current walk MP.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/Mek.java#L993-L1007`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MPBoosters.calculateRunMP doubles walk MP for MASC xor Supercharger and uses ceil(walk MP * 2.5) when both are active.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/common/units/MPBoosters.java#L84-L96`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MovePathHandler invokes MASC and Supercharger failure checks during movement resolution when the path has active boosters.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L1507-L1519`,
+    sourceVersion: MEGAMEK_MOVEMENT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_PARTIAL_WING_MOVEMENT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -412,13 +436,15 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
 export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
   [MovementEnhancementType.MASC]: helperOnly(
     MovementEnhancementType.MASC,
-    'MovementEnhancement definitions, equipment utilities, sprint_masc formula, and createMASCFailurePSR factory represent the construction/helper layer',
-    'No combat MovementType, game intent, wire payload, runner movement activation state, sprint MP validation, or MASC failure trigger is wired',
+    'UnitHydration detects installed MASC, runMovementPhase consumes explicit active MASC run MP, movementEnhancementPsr queues createMASCFailurePSR, and construction helpers still expose sprint_masc formula support',
+    'No combat MovementType.Sprint, activation game intent, wire payload, repeated-use target-number lifecycle, Edge reroll, or failure critical-slot damage is wired',
+    MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.SUPERCHARGER]: helperOnly(
     MovementEnhancementType.SUPERCHARGER,
-    'MovementEnhancement definitions, equipment utilities, sprint_combined formula, and createSuperchargerFailurePSR factory represent the construction/helper layer',
-    'No combat MovementType, game intent, wire payload, runner movement activation state, sprint MP validation, or supercharger failure trigger is wired',
+    'UnitHydration detects installed Supercharger, runMovementPhase consumes explicit active Supercharger run MP, movementEnhancementPsr queues createSuperchargerFailurePSR, and construction helpers still expose sprint_combined formula support',
+    'No combat MovementType.Sprint, activation game intent, wire payload, repeated-use target-number lifecycle, Edge reroll, or failure critical-slot damage is wired',
+    MEGAMEK_MASC_SUPERCHARGER_MOVEMENT_SOURCE_REFS,
   ),
   [MovementEnhancementType.TSM]: integrated(
     MovementEnhancementType.TSM,

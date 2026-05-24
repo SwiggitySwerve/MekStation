@@ -9,6 +9,7 @@ import {
   type IMovementCapability,
 } from '@/types/gameplay';
 import {
+  applyActiveMPBoosters,
   applyPartialWingJumpBonus,
   getHeatAdjustedMovementCapability,
 } from '@/utils/gameplay/movement/calculations';
@@ -32,6 +33,7 @@ import {
   toAIUnitState,
 } from '../SimulationRunnerSupport';
 import { queueMovementDamagePSRs } from './movementDamagePsr';
+import { queueMovementEnhancementPSRs } from './movementEnhancementPsr';
 import { resolveRunnerStandUpAttempt } from './movementStandUp';
 import { queueMovementTerrainPSRs } from './movementTerrainPsr';
 import { createD6Roller, createGameEvent } from './utils';
@@ -91,15 +93,23 @@ export function runMovementPhase(options: {
       baseCapability,
       unit.partialWingJumpBonus,
     );
-    const capability =
-      unit.hasTSM === true
-        ? getHeatAdjustedMovementCapability(
-            partialWingCapability,
-            unit.heat,
-            true,
-          )
-        : partialWingCapability;
-    const validationHeat = unit.hasTSM === true ? 0 : unit.heat;
+    const hasSourceBackedMovementState =
+      unit.hasTSM === true ||
+      unit.activeMASC === true ||
+      unit.activeSupercharger === true;
+    const unboostedCapability = hasSourceBackedMovementState
+      ? getHeatAdjustedMovementCapability(
+          partialWingCapability,
+          unit.heat,
+          unit.hasTSM === true,
+        )
+      : partialWingCapability;
+    const capability = applyActiveMPBoosters(
+      unboostedCapability,
+      unit.activeMASC,
+      unit.activeSupercharger,
+    );
+    const validationHeat = hasSourceBackedMovementState ? 0 : unit.heat;
     const moveEvent = botPlayer.playMovementPhase(aiUnit, grid, capability);
 
     if (moveEvent) {
@@ -167,7 +177,7 @@ export function runMovementPhase(options: {
       // existing free-string `triggerSource` values.
       // Current runner PSR wiring covers stand-up before movement commit,
       // then terrain PSRs for rubble, running through rough, ice, water
-      // entry/exit, and skidding. Special-equipment PSRs remain follow-on work.
+      // entry/exit, skidding, and explicit active MASC/Supercharger use.
       const path = buildMovementEventPath({
         grid,
         from: unit.position,
@@ -237,6 +247,16 @@ export function runMovementPhase(options: {
         unitId,
         movementType: committedPayload.movementType,
         steps: decomposition.steps,
+      });
+
+      currentState = queueMovementEnhancementPSRs({
+        currentState,
+        events,
+        gameId,
+        unitId,
+        movementType: committedPayload.movementType,
+        activeMASC: unit.activeMASC,
+        activeSupercharger: unit.activeSupercharger,
       });
     }
   }

@@ -1,6 +1,7 @@
 export type { UnitMovementType } from './types';
 export { createMovementRecord } from './types';
 export {
+  applyActiveMPBoosters,
   calculateRunMP,
   createMovementCapability,
   getMaxMP,

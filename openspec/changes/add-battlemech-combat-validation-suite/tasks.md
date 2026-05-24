@@ -70,6 +70,7 @@
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.
 - [x] 3.2.3 Integrate source-backed Partial Wing jump MP and jump-heat behavior through explicit runner movement capability state while leaving atmosphere and damaged critical-slot refinements explicit.
+- [x] 3.2.4 Integrate source-backed explicit active MASC/Supercharger run MP and runner PSR trigger queueing while leaving sprint movement, activation intents/wire payloads, repeated-use target numbers, Edge rerolls, and failure critical-slot damage explicit.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
@@ -106,3 +107,4 @@
 - [x] 4.3.7 Add structured MegaMek source anchors for active TSM walk/run movement validation.
 - [x] 4.3.8 Add structured MegaMek source anchors for Dodge Maneuver target to-hit modifier gating.
 - [x] 4.3.9 Add structured MegaMek source anchors for Partial Wing jump movement and heat behavior.
+- [x] 4.3.10 Add structured MegaMek source anchors for MASC/Supercharger active run MP and movement failure trigger boundaries.

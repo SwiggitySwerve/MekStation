@@ -93,6 +93,14 @@ export interface IGameUnit {
    * helpers double effective weight once the unit reaches heat 9+.
    */
   readonly hasTSM?: boolean;
+  /** MASC construction flag; active use is represented separately. */
+  readonly hasMASC?: boolean;
+  /** Supercharger construction flag; active use is represented separately. */
+  readonly hasSupercharger?: boolean;
+  /** MASC active for the current movement declaration. */
+  readonly activeMASC?: boolean;
+  /** Supercharger active for the current movement declaration. */
+  readonly activeSupercharger?: boolean;
   /** Pilot SPA ids copied into combat state for modifier resolution. */
   readonly abilities?: readonly string[];
   /** SPA designation fields copied into combat state for to-hit resolution. */

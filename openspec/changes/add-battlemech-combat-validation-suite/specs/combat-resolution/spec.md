@@ -405,7 +405,7 @@ Runner weapon attack declarations SHALL consume explicit target `IUnitGameState.
 
 ### Requirement: Active TSM Movement Validation
 
-Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and current heat when calculating movement capability. Active TSM SHALL follow MegaMek's source-backed sequence: apply heat movement penalties and the heat-9 TSM walk bonus to walk MP, derive run MP from that adjusted walk MP, then validate the declared movement against the adjusted capability. MASC and Supercharger movement behavior SHALL remain explicit gaps until combat movement declarations can represent their activation and failure checks.
+Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and current heat when calculating movement capability. Active TSM SHALL follow MegaMek's source-backed sequence: apply heat movement penalties and the heat-9 TSM walk bonus to walk MP, derive run MP from that adjusted walk MP, then validate the declared movement against the adjusted capability.
 
 #### Scenario: Active TSM expands movement validation at heat 9
 
@@ -414,6 +414,26 @@ Runner movement validation SHALL consume explicit BattleMech `hasTSM` state and 
 - **THEN** the movement SHALL be accepted with 5 MP used
 - **AND** a BattleMech with the same TSM equipment below heat 9 SHALL NOT receive the TSM walk bonus
 - **AND** the movement-enhancement catalog SHALL mark TSM movement as integrated while leaving MASC and Supercharger helper-only
+
+### Requirement: Source-Backed Active MASC/Supercharger Run Movement Boundary
+
+Runner movement validation SHALL consume explicit active `activeMASC` and `activeSupercharger` BattleMech combat state when calculating running movement capability. A single active MASC or Supercharger SHALL double the effective walk MP for run validation, and active MASC plus active Supercharger SHALL validate run movement against `ceil(effectiveWalkMP * 2.5)`. Runner movement SHALL queue the corresponding MASC and/or Supercharger failure PSR triggers when an explicit active booster is used for running movement. `MovementType.Sprint`, activation command/wire payloads, repeated-use target-number lifecycle, Edge rerolls, and failure critical-slot damage SHALL remain explicit gaps.
+
+#### Scenario: Active MASC expands run validation and queues a failure PSR
+
+- **GIVEN** a BattleMech has `hasMASC: true`, `activeMASC: true`, and base walk/run MP `4/6`
+- **WHEN** the runner validates an 8 MP running movement
+- **THEN** the movement SHALL be accepted with 8 MP used
+- **AND** the unit SHALL receive a pending `MASCFailure` PSR
+- **AND** the movement-enhancement catalog SHALL keep MASC helper-only with MegaMek source anchors for the implemented run/trigger boundary and explicit gaps for sprint and full failure lifecycle
+
+#### Scenario: Active MASC and Supercharger combine for boosted run validation
+
+- **GIVEN** a BattleMech has `activeMASC: true`, `activeSupercharger: true`, and base walk/run MP `4/6`
+- **WHEN** the runner validates a 10 MP running movement
+- **THEN** the movement SHALL be accepted with 10 MP used
+- **AND** the unit SHALL receive pending `MASCFailure` and `SuperchargerFailure` PSRs
+- **AND** a BattleMech with installed but inactive MASC SHALL NOT receive expanded run MP
 
 ### Requirement: Source-Backed Partial Wing Jump Movement
 

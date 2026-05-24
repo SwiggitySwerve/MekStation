@@ -334,6 +334,125 @@ describe('runMovementPhase movement validation parity', () => {
     expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
   });
 
+  it('applies explicit active MASC run MP and queues a failure PSR', () => {
+    const target = { q: 8, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(9),
+      target,
+      { hasMASC: true, activeMASC: true },
+      {
+        movementType: MovementType.Run,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+      },
+    );
+    const movementPayload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+    const payloads = psrPayloads(events);
+
+    expect(movementPayload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      mpUsed: 8,
+    });
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(next.units['player-1'].pendingPSRs).toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.MASCFailure }),
+    );
+    expect(payloads).toContainEqual(
+      expect.objectContaining({
+        unitId: 'player-1',
+        reasonCode: PSRTrigger.MASCFailure,
+        triggerSource: PSRTrigger.MASCFailure,
+      }),
+    );
+    expect(
+      MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[MovementEnhancementType.MASC],
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('active MASC run MP'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({ kind: 'megamek-source' }),
+      ]),
+    });
+    expect(
+      RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.MASCFailure],
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('movementEnhancementPsr'),
+    });
+  });
+
+  it('keeps inactive MASC from expanding run MP', () => {
+    const target = { q: 8, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(9),
+      target,
+      { hasMASC: true },
+      {
+        movementType: MovementType.Run,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+      },
+    );
+
+    expect(events).toEqual([]);
+    expect(next.units['player-1'].position).toEqual({ q: 0, r: 0 });
+  });
+
+  it('applies combined active MASC and Supercharger run MP and queues both failure PSRs', () => {
+    const target = { q: 10, r: 0 };
+    const { next, events } = runScriptedMove(
+      createMinimalGrid(11),
+      target,
+      {
+        hasMASC: true,
+        hasSupercharger: true,
+        activeMASC: true,
+        activeSupercharger: true,
+      },
+      {
+        movementType: MovementType.Run,
+        capability: { walkMP: 4, runMP: 6, jumpMP: 0 },
+      },
+    );
+    const movementPayload = events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    )?.payload as IMovementDeclaredPayload | undefined;
+    const payloads = psrPayloads(events);
+
+    expect(movementPayload).toMatchObject({
+      unitId: 'player-1',
+      to: target,
+      mpUsed: 10,
+    });
+    expect(next.units['player-1'].position).toEqual(target);
+    expect(next.units['player-1'].pendingPSRs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ reasonCode: PSRTrigger.MASCFailure }),
+        expect.objectContaining({
+          reasonCode: PSRTrigger.SuperchargerFailure,
+        }),
+      ]),
+    );
+    expect(payloads).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ reasonCode: PSRTrigger.MASCFailure }),
+        expect.objectContaining({
+          reasonCode: PSRTrigger.SuperchargerFailure,
+        }),
+      ]),
+    );
+    expect(
+      MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[MovementEnhancementType.SUPERCHARGER],
+    ).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('active Supercharger run MP'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({ kind: 'megamek-source' }),
+      ]),
+    });
+  });
+
   it('applies explicit Partial Wing jump MP and jump heat support', () => {
     const target = { q: 5, r: 0 };
     const { next, events } = runScriptedMove(

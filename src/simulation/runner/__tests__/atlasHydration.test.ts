@@ -43,7 +43,9 @@ import {
   hydrateArmorFromFullUnit,
   hydrateActiveProbesFromFullUnit,
   hydrateECMSuitesFromFullUnit,
+  hydrateHasMASCFromFullUnit,
   hydrateHasStealthArmorFromFullUnit,
+  hydrateHasSuperchargerFromFullUnit,
   hydrateHasTSMFromFullUnit,
   hydrateHeatSinksFromFullUnit,
   hydratePartialWingJumpBonusFromFullUnit,
@@ -419,6 +421,53 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     });
 
     expect(unitState.hasTSM).toBe(true);
+  });
+
+  it('hydrates installed MASC and Supercharger without implicitly activating them', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('atlas-as7-d');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    const baseMovement =
+      (fullUnit as { movement?: Record<string, unknown> }).movement ?? {};
+    const existingEquipment =
+      (fullUnit.equipment as readonly unknown[] | undefined) ?? [];
+    const boosterUnit: IFullUnit = {
+      ...fullUnit,
+      id: 'masc-supercharger-hydration-test',
+      movement: {
+        ...baseMovement,
+        enhancements: ['MASC', 'Supercharger'],
+      },
+      equipment: [
+        ...existingEquipment,
+        { id: 'IS MASC', location: 'RIGHT_TORSO' },
+        { id: 'CLMASC(Clan)', location: 'RIGHT_TORSO' },
+        { id: 'IS Supercharger', location: 'LEFT_TORSO' },
+        { id: 'Supercharger (Clan) (OMNIPOD)', location: 'LEFT_TORSO' },
+      ],
+    };
+
+    expect(hydrateHasMASCFromFullUnit(fullUnit)).toBe(false);
+    expect(hydrateHasSuperchargerFromFullUnit(fullUnit)).toBe(false);
+    expect(hydrateHasMASCFromFullUnit(boosterUnit)).toBe(true);
+    expect(hydrateHasSuperchargerFromFullUnit(boosterUnit)).toBe(true);
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit: boosterUnit,
+      aiWeapons: hydrateAIWeaponsFromFullUnit(boosterUnit, weaponLookup),
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.hasMASC).toBe(true);
+    expect(unitState.hasSupercharger).toBe(true);
+    expect(unitState.activeMASC).toBeUndefined();
+    expect(unitState.activeSupercharger).toBeUndefined();
   });
 
   it('hydrates BattleMech Partial Wing jump bonus by weight class', async () => {

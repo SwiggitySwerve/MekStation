@@ -18,6 +18,7 @@ import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { createHexGrid, placeUnit } from '@/utils/gameplay/hexGrid';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
+  applyActiveMPBoosters,
   calculateRunMP,
   createMovementCapability,
   getMaxMP,
@@ -62,6 +63,33 @@ describe('movement', () => {
       expect(calculateRunMP(5)).toBe(8); // 5 * 1.5 = 7.5 -> 8
       expect(calculateRunMP(6)).toBe(9); // 6 * 1.5 = 9
       expect(calculateRunMP(3)).toBe(5); // 3 * 1.5 = 4.5 -> 5
+    });
+  });
+
+  describe('applyActiveMPBoosters()', () => {
+    it('doubles run MP when either MASC or Supercharger is active', () => {
+      const cap = createMovementCapability(4, 0);
+
+      expect(applyActiveMPBoosters(cap, true, false)).toMatchObject({
+        walkMP: 4,
+        runMP: 8,
+        jumpMP: 0,
+      });
+      expect(applyActiveMPBoosters(cap, false, true)).toMatchObject({
+        walkMP: 4,
+        runMP: 8,
+        jumpMP: 0,
+      });
+    });
+
+    it('uses ceil(walk MP * 2.5) when MASC and Supercharger are both active', () => {
+      expect(
+        applyActiveMPBoosters(createMovementCapability(5, 0), true, true),
+      ).toMatchObject({
+        walkMP: 5,
+        runMP: 13,
+        jumpMP: 0,
+      });
     });
   });
 

@@ -53,6 +53,16 @@ const MEGAMEK_DFA_MISS_FALL_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MovePathHandler invokes MASC and Supercharger failure checks during movement resolution when a path has active boosters.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L1507-L1519',
+    sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const ACTION_ELIGIBILITY_COMBAT_SUPPORT = {
   destroyed: integrated(
     'destroyed',
@@ -242,12 +252,14 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.MASCFailure]: helperOnly(
     PSRTrigger.MASCFailure,
-    'createMASCFailurePSR factory + resolveAllPSRs modifier math',
-    'MASC failure checks are not wired into runner movement',
+    'movementEnhancementPsr queues createMASCFailurePSR for explicit active MASC run movement; resolveAllPSRs still owns modifier math',
+    'Repeated-use target-number lifecycle, Edge reroll, and failure critical-slot damage are not wired',
+    MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
   [PSRTrigger.SuperchargerFailure]: helperOnly(
     PSRTrigger.SuperchargerFailure,
-    'createSuperchargerFailurePSR factory + resolveAllPSRs modifier math',
-    'supercharger failure checks are not wired into runner movement',
+    'movementEnhancementPsr queues createSuperchargerFailurePSR for explicit active Supercharger run movement; resolveAllPSRs still owns modifier math',
+    'Repeated-use target-number lifecycle, Edge reroll, and failure critical-slot damage are not wired',
+    MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
   ),
 } satisfies Record<PSRTrigger, ICombatFeatureSupportEntry>;

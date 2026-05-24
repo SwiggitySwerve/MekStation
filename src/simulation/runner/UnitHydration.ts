@@ -160,6 +160,68 @@ export function hydrateHasTSMFromFullUnit(fullUnit: IFullUnit): boolean {
   );
 }
 
+function movementEnhancementsContainSignal(
+  fullUnit: IFullUnit,
+  predicate: (id: string) => boolean,
+): boolean {
+  const movement = (
+    fullUnit as {
+      movement?: { enhancements?: readonly unknown[] };
+    }
+  ).movement;
+
+  return (
+    movement?.enhancements?.some(
+      (enhancement) =>
+        typeof enhancement === 'string' && predicate(enhancement),
+    ) ?? false
+  );
+}
+
+function isMASCSignal(id: string): boolean {
+  const normalized = normalizeEquipmentId(id);
+  return normalized.includes('masc');
+}
+
+function isSuperchargerSignal(id: string): boolean {
+  const normalized = normalizeEquipmentId(id);
+  return normalized.includes('supercharger');
+}
+
+export function hydrateHasMASCFromFullUnit(fullUnit: IFullUnit): boolean {
+  const movement = (
+    fullUnit as {
+      movement?: { hasMASC?: boolean };
+    }
+  ).movement;
+  if (movement?.hasMASC === true) return true;
+
+  return (
+    movementEnhancementsContainSignal(fullUnit, isMASCSignal) ||
+    equipmentSignalsFromFullUnit(fullUnit).some((signal) =>
+      isMASCSignal(signal.id),
+    )
+  );
+}
+
+export function hydrateHasSuperchargerFromFullUnit(
+  fullUnit: IFullUnit,
+): boolean {
+  const movement = (
+    fullUnit as {
+      movement?: { hasSupercharger?: boolean };
+    }
+  ).movement;
+  if (movement?.hasSupercharger === true) return true;
+
+  return (
+    movementEnhancementsContainSignal(fullUnit, isSuperchargerSignal) ||
+    equipmentSignalsFromFullUnit(fullUnit).some((signal) =>
+      isSuperchargerSignal(signal.id),
+    )
+  );
+}
+
 function isBattleMechPartialWingHost(fullUnit: IFullUnit): boolean {
   const unitType = (fullUnit as { unitType?: unknown }).unitType;
   if (typeof unitType !== 'string') return false;
@@ -182,18 +244,7 @@ function isPartialWingSignal(id: string): boolean {
 }
 
 function movementEnhancementsContainPartialWing(fullUnit: IFullUnit): boolean {
-  const movement = (
-    fullUnit as {
-      movement?: { enhancements?: readonly unknown[] };
-    }
-  ).movement;
-
-  return (
-    movement?.enhancements?.some(
-      (enhancement) =>
-        typeof enhancement === 'string' && isPartialWingSignal(enhancement),
-    ) ?? false
-  );
+  return movementEnhancementsContainSignal(fullUnit, isPartialWingSignal);
 }
 
 export function hydratePartialWingJumpBonusFromFullUnit(
@@ -1053,6 +1104,8 @@ export function createHydratedUnitState(
     heatSinks: heatSinks.count,
     heatSinkType: heatSinks.kind,
     hasTSM: hydrateHasTSMFromFullUnit(fullUnit),
+    hasMASC: hydrateHasMASCFromFullUnit(fullUnit),
+    hasSupercharger: hydrateHasSuperchargerFromFullUnit(fullUnit),
     partialWingJumpBonus: hydratePartialWingJumpBonusFromFullUnit(fullUnit),
     leftLegHasTalons: talons.leftLegHasTalons,
     rightLegHasTalons: talons.rightLegHasTalons,

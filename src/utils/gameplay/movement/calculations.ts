@@ -74,6 +74,33 @@ export function applyPartialWingJumpBonus(
 }
 
 /**
+ * Apply explicit active MASC/Supercharger run MP. MegaMek derives boosted run
+ * MP from the already-effective walk MP: one active booster doubles walk MP;
+ * both active boosters produce ceil(walk MP * 2.5).
+ */
+export function applyActiveMPBoosters(
+  capability: IMovementCapability,
+  activeMASC: boolean | undefined,
+  activeSupercharger: boolean | undefined,
+): IMovementCapability {
+  const hasMASC = activeMASC === true;
+  const hasSupercharger = activeSupercharger === true;
+  if (!hasMASC && !hasSupercharger) {
+    return capability;
+  }
+
+  const runMP =
+    hasMASC && hasSupercharger
+      ? Math.ceil(capability.walkMP * 2.5)
+      : capability.walkMP * 2;
+
+  return {
+    ...capability,
+    runMP,
+  };
+}
+
+/**
  * Get the maximum MP available for a movement type.
  *
  * Per `wire-heat-generation-and-effects` tasks 7.1 / 7.2 /

@@ -244,6 +244,14 @@ export interface IUnitGameState {
   readonly heatSinkType?: 'single' | 'double';
   /** Triple-strength myomer installed; active physical damage doubles at heat 9+. */
   readonly hasTSM?: boolean;
+  /** MASC installed; activation is explicit per combat state/intent. */
+  readonly hasMASC?: boolean;
+  /** Supercharger installed; activation is explicit per combat state/intent. */
+  readonly hasSupercharger?: boolean;
+  /** MASC active for this movement declaration. */
+  readonly activeMASC?: boolean;
+  /** Supercharger active for this movement declaration. */
+  readonly activeSupercharger?: boolean;
   /**
    * Explicit BattleMech Partial Wing jump bonus after source-backed equipment
    * hydration. Undefined means no supported Partial Wing combat state.
