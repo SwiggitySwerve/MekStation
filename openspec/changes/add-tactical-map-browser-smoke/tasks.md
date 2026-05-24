@@ -41,6 +41,8 @@
   elevation MP cost instead of hiding the cost breakdown.
 - [x] 2.17 Add browser coverage proving VTOL-style elevation changes expose
   zero elevation MP cost and unit-type movement metadata.
+- [x] 2.18 Route the VTOL-style browser scenario through the shared movement
+  destination projection instead of a hand-authored highlight row.
 
 ## 3. Validation
 
@@ -75,3 +77,5 @@
   movement metadata.
 - [x] 3.17 Focused Playwright smoke passes with VTOL-style zero-cost elevation
   movement metadata.
+- [x] 3.18 Focused typecheck and browser smoke prove the VTOL browser fixture is
+  still valid after switching to generated movement projection data.

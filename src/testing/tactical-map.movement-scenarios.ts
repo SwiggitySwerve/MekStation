@@ -1,13 +1,27 @@
 import type { MapMovementPointLegendState } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
-import type { IMovementRangeHex, IUnitToken } from '@/types/gameplay';
+import type {
+  IHexGrid,
+  IMovementCapability,
+  IMovementRangeHex,
+  IUnitGameState,
+  IUnitToken,
+} from '@/types/gameplay';
 
 import {
+  Facing,
+  GameSide,
+  LockState,
   MovementType,
   TokenUnitType,
   VehicleMotionType,
 } from '@/types/gameplay';
+import { createHexGrid } from '@/utils/gameplay/hexGrid';
+import { coordToKey } from '@/utils/gameplay/hexMath';
+import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
+import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
+  tacticalMapHexTerrain,
   tacticalMapMovementRange,
   tacticalMapMpLegend,
   tacticalMapTokens,
@@ -41,25 +55,69 @@ export const tacticalMapVtolTokens: readonly IUnitToken[] =
       : token,
   );
 
+const tacticalMapVtolCapability: IMovementCapability = {
+  walkMP: 4,
+  runMP: 6,
+  jumpMP: 0,
+  movementMode: 'vtol',
+};
+
+const tacticalMapVtolUnit: IUnitGameState = {
+  id: 'attacker',
+  side: GameSide.Player,
+  position: { q: -1, r: 0 },
+  facing: Facing.Northeast,
+  heat: 0,
+  movementThisTurn: MovementType.Stationary,
+  hexesMovedThisTurn: 0,
+  armor: {},
+  structure: {},
+  destroyedLocations: [],
+  destroyedEquipment: [],
+  ammo: {},
+  pilotWounds: 0,
+  pilotConscious: true,
+  destroyed: false,
+  lockState: LockState.Pending,
+};
+
+function tacticalMapVtolGrid(): IHexGrid {
+  const grid = createHexGrid({ radius: 3 });
+  const hexes = new Map(grid.hexes);
+
+  for (const terrain of tacticalMapHexTerrain) {
+    const key = coordToKey(terrain.coordinate);
+    const hex = hexes.get(key);
+    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
+    hexes.set(key, {
+      ...hex,
+      terrain: terrainStringFromFeatures(terrain.features),
+      elevation: terrain.elevation,
+    });
+  }
+
+  return { ...grid, hexes };
+}
+
+function requireMovementProjection(
+  projection: IMovementRangeHex | null,
+): readonly IMovementRangeHex[] {
+  if (!projection) {
+    throw new Error('Expected VTOL tactical-map movement projection');
+  }
+  return [projection];
+}
+
 export const tacticalMapVtolElevationMovementRange: readonly IMovementRangeHex[] =
-  [
-    {
-      hex: { q: 1, r: 0 },
-      mpCost: 2,
-      terrainCost: 0,
-      elevationDelta: 4,
-      elevationCost: 0,
-      heatGenerated: 0,
-      movementMode: 'vtol',
-      reachable: true,
-      movementType: MovementType.Run,
-      path: [
-        { q: -1, r: 0 },
-        { q: 0, r: 0 },
-        { q: 1, r: 0 },
-      ],
-    },
-  ];
+  requireMovementProjection(
+    deriveMovementRangeHexForDestination(
+      tacticalMapVtolUnit,
+      MovementType.Run,
+      tacticalMapVtolGrid(),
+      tacticalMapVtolCapability,
+      { q: 1, r: 0 },
+    ),
+  );
 
 export const tacticalMapVtolElevationMpLegend: MapMovementPointLegendState = {
   active: 'run',
