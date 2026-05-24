@@ -114,11 +114,11 @@ export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
   ),
   'heat-ammo-explosion-damage-cascade': integrated(
     'heat-ammo-explosion-damage-cascade',
-    'runHeatPhase empties the selected heat-cookoff bin, routes explosion damage through resolveDamage, emits damage/transfer/destruction events, and tags fatal cookoffs as ammo_explosion',
+    'runHeatPhase and resolveHeatPhase empty the selected heat-cookoff bin, route explosion damage through resolveDamage, emit damage/transfer/destruction events, and tag fatal cookoffs as ammo_explosion',
   ),
   'case-ammo-explosion-containment': integrated(
     'case-ammo-explosion-containment',
-    'UnitHydration projects mounted CASE/CASE II into per-location combat state, heat and crit ammo cookoffs emit caseProtection, and runner explosion cascades cap protected damage before transfer can occur',
+    'UnitHydration and IGameUnit setup project CASE/CASE II into per-location combat state, heat and crit ammo cookoffs emit caseProtection, and runner/event-sourced heat cascades cap protected damage before transfer can occur',
     MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS,
   ),
   'destruction-cause-state-persistence': integrated(

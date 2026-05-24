@@ -612,7 +612,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'heat-lifecycle': integrated(
     'heat-lifecycle',
-    'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, heat pilot damage, optional MaxTech heat critical damage, and heat-induced ammo explosion selection plus CASE-aware damage cascade',
+    'Heat rules cover threshold effects, shutdown checks, auto-shutdown, startup, heat pilot damage, optional MaxTech heat critical damage, and runner/event-sourced heat-induced ammo explosion selection plus CASE-aware damage cascade',
     HEAT_LIFECYCLE_SUPPORT_REFS,
   ),
   'range-validation': integrated(

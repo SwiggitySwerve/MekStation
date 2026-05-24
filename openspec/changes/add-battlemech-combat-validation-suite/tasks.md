@@ -131,7 +131,8 @@
 - [x] 3.5.14 Promote jump-jet critical-slot damage into runner movement validation by reducing effective jump MP from `jumpJetsDestroyed` before Partial Wing or jump movement validation, while keeping other catalog-mounted lifecycle effects explicit.
 - [x] 3.5.15 Promote weapon critical-slot damage into runner attack availability by marking hydrated weapon mounts destroyed from `weaponsDestroyed` and rejecting stale declarations before combat side effects, while keeping remaining equipment lifecycle effects explicit.
 - [x] 3.5.16 Promote catalog ammo critical-slot lifecycle by hydrating ammo bins from BattleMech critical-slot ammo entries, carrying `ammoBinId` through critical resolution, and targeting crit-induced cookoffs at that exact bin before legacy location fallback, while keeping CASE, special ammo, and generic equipment lifecycle nuances explicit.
-- [x] 3.5.17 Promote source-backed CASE ammo-explosion containment by hydrating per-location `caseProtection` from catalog critical slots and applying CASE-aware heat/crit cookoff caps before damage transfer, while keeping rear-armor blowout, internal-only application order, CASE-P nuance, interactive heat parity, special ammo, and generic equipment lifecycle explicit.
+- [x] 3.5.17 Promote source-backed CASE ammo-explosion containment by hydrating per-location `caseProtection` from catalog critical slots and applying CASE-aware runner heat/crit cookoff caps before damage transfer, while keeping rear-armor blowout, internal-only application order, CASE-P nuance, special ammo, and generic equipment lifecycle explicit.
+- [x] 3.5.18 Promote event-sourced heat cookoff CASE parity by seeding `IGameUnit.caseProtection`, sharing CASE cap resolution with runner paths, emptying the exploded bin, and emitting heat-phase damage/transfer/destruction events from the CASE-adjusted cascade.
 
 ## 4. Source-truth cross-checks
 
@@ -177,3 +178,4 @@
 - [x] 4.3.36 Cross-check opt-in MaxTech heat-scale critical-damage runtime routing against MegaMek `HeatResolver` heat 36/44+ avoid rolls and `oneCriticalEntity(... Compute.randomInt(8))` location selection.
 - [x] 4.3.37 Cross-check shutdown lifecycle classification against current MekStation heat support and damage specs so shutdown remains a lifecycle/PSR state rather than a destruction cause.
 - [x] 4.3.38 Cross-check MegaMek's CASE/CASE II ammo-explosion caps, same-location CASE detection, and transfer suppression before marking runner CASE containment integrated.
+- [x] 4.3.39 Cross-check event-sourced heat cookoff CASE parity against the same MegaMek CASE cap and transfer-suppression anchors before marking interactive heat containment integrated.

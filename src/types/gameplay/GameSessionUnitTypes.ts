@@ -147,6 +147,11 @@ export interface IGameUnit {
    */
   readonly ammoConstruction?: readonly IAmmoConstructionInit[];
   /**
+   * Per-location ammo explosion containment projected from construction data
+   * into interactive game sessions. Missing keys mean no CASE protection.
+   */
+  readonly caseProtection?: Readonly<Record<string, 'case' | 'case_ii'>>;
+  /**
    * Construction-side `UnitType` (BattleMech / Aerospace / Infantry / Battle
    * Armor / ProtoMech / Vehicle / etc.). Per `wire-combat-behavior-dispatch`
    * (Council #1 PR7), `createInitialUnitState` branches on this value to

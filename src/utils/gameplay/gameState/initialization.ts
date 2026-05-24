@@ -299,6 +299,9 @@ export function createInitialUnitState(
     prone: false,
     shutdown: false,
     ammoState,
+    ...(unit.caseProtection !== undefined
+      ? { caseProtection: unit.caseProtection }
+      : {}),
     pendingPSRs: [],
     weaponsFiredThisTurn: [],
     jammedWeapons: [],

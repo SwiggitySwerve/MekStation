@@ -1,16 +1,17 @@
-import type { CombatLocation, IUnitGameState } from '@/types/gameplay';
-import type { CASEProtectionLevel } from '@/utils/gameplay/ammoTracking';
+import type { IUnitGameState } from '@/types/gameplay';
+
+import type { CASEProtectionLevel } from './types';
 
 const STANDARD_CASE_DAMAGE_CAP = 10;
 const CASE_II_DAMAGE_CAP = 1;
 
-function structureLocation(location: CombatLocation): string {
+function structureLocation(location: string): string {
   return location.replace(/_rear$/, '');
 }
 
 function locationDamageCapacity(
   unit: IUnitGameState,
-  location: CombatLocation,
+  location: string,
 ): number {
   const armor = unit.armor[location] ?? 0;
   const structure = unit.structure[structureLocation(location)] ?? 0;
@@ -19,14 +20,14 @@ function locationDamageCapacity(
 
 export function caseProtectionForLocation(
   unit: IUnitGameState,
-  location: CombatLocation,
+  location: string,
 ): CASEProtectionLevel {
   return unit.caseProtection?.[location] ?? 'none';
 }
 
 export function resolveCaseAdjustedAmmoExplosionDamage(
   unit: IUnitGameState,
-  location: CombatLocation,
+  location: string,
   totalDamage: number,
 ): {
   readonly caseProtection: CASEProtectionLevel;

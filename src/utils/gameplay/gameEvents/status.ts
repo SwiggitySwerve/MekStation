@@ -149,6 +149,7 @@ export function createAmmoExplosionEvent(
     readonly binId?: string;
     readonly weaponType?: string;
     readonly roundsDestroyed?: number;
+    readonly caseProtection?: IAmmoExplosionPayload['caseProtection'];
   },
 ): IGameEvent {
   const payload: IAmmoExplosionPayload = {
@@ -162,6 +163,9 @@ export function createAmmoExplosionEvent(
       : {}),
     ...(options?.roundsDestroyed !== undefined
       ? { roundsDestroyed: options.roundsDestroyed }
+      : {}),
+    ...(options?.caseProtection !== undefined
+      ? { caseProtection: options.caseProtection }
       : {}),
   };
 

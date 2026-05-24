@@ -7,6 +7,7 @@ import {
   IGameEvent,
   IGameState,
 } from '@/types/gameplay';
+import { resolveCaseAdjustedAmmoExplosionDamage } from '@/utils/gameplay/ammoTracking';
 import {
   resolveDamage,
   type IResolveDamageResult,
@@ -18,7 +19,6 @@ import {
   applyDamageResultToState,
   buildDamageState,
 } from '../SimulationRunnerState';
-import { resolveCaseAdjustedAmmoExplosionDamage } from './ammoExplosionCase';
 import { createGameEvent } from './utils';
 import {
   damagePerRoundForBin,

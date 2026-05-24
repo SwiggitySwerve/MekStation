@@ -104,12 +104,13 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 #### Scenario: CASE-contained ammo cookoffs suppress transfer
 
 - **GIVEN** a BattleMech has mounted CASE or CASE II projected into `caseProtection` for the ammo bin location
-- **WHEN** heat-induced or crit-induced ammo explosion resolution emits `AmmoExplosion`
+- **WHEN** runner heat, runner crit, or event-sourced heat ammo explosion resolution emits `AmmoExplosion`
 - **THEN** `AmmoExplosion.caseProtection` SHALL report the protection level used for the cascade
-- **AND** standard CASE SHALL cap protected explosion damage at 10 before local runner damage resolution
-- **AND** CASE II SHALL cap protected explosion damage at 1 before local runner damage resolution
+- **AND** standard CASE SHALL cap protected explosion damage at 10 before local runner or event-sourced damage resolution
+- **AND** CASE II SHALL cap protected explosion damage at 1 before local runner or event-sourced damage resolution
 - **AND** protected explosion damage SHALL NOT emit `TransferDamage` from the CASE-protected location
-- **AND** MegaMek rear-armor blowout, internal-only application order, CASE-P nuance, and interactive heat-resolution parity SHALL remain explicit gaps until modeled in the corresponding combat state
+- **AND** event-sourced heat cookoffs SHALL empty the exploded bin before applying the CASE-adjusted damage cascade
+- **AND** MegaMek rear-armor blowout, internal-only application order, and CASE-P nuance SHALL remain explicit gaps until modeled in the corresponding combat state
 
 ### Requirement: Physical Attack Legality Gates
 

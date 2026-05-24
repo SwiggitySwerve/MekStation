@@ -6,6 +6,7 @@ import {
   getShutdownTN,
 } from '@/constants/heat';
 import {
+  CombatLocation,
   GameEventType,
   GamePhase,
   IAttackDeclaredPayload,
@@ -13,6 +14,7 @@ import {
   IGameEvent,
   IGameSession,
   IHexCoordinate,
+  IAmmoSlotState,
   IMovementDeclaredPayload,
   PSRTrigger,
 } from '@/types/gameplay';
@@ -23,11 +25,19 @@ import {
 } from '@/utils/gameplay/criticalHitResolution';
 import { logger } from '@/utils/logger';
 
-import { resolveAmmoExplosion } from './ammoTracking';
-import { resolvePilotConsciousnessCheck } from './damage';
+import {
+  caseProtectionForLocation,
+  resolveAmmoExplosion,
+  resolveCaseAdjustedAmmoExplosionDamage,
+} from './ammoTracking';
+import {
+  resolveDamage as resolveDamagePipeline,
+  resolvePilotConsciousnessCheck,
+} from './damage';
 import { type D6Roller, type DiceRoller } from './diceTypes';
 import { calculateEnvironmentalHeatModifier } from './environmentalModifiers';
 import {
+  createAmmoConsumedEvent,
   createAmmoExplosionEvent,
   createComponentDestroyedEvent,
   createCriticalHitResolvedEvent,
@@ -40,7 +50,10 @@ import {
   createUnitDestroyedEvent,
 } from './gameEvents';
 import { createEventBase } from './gameEvents/base';
-import { buildDefaultComponentDamageState } from './gameSessionAttackResolutionHelpers';
+import {
+  buildDamageStateFromUnit,
+  buildDefaultComponentDamageState,
+} from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 import { getWaterCoolingBonus } from './heat';
 import { resolveMaxTechHeatCriticalDamage } from './heatCriticalDamage';
@@ -73,6 +86,293 @@ export interface IResolveHeatPhaseOptions {
   readonly maxTechHeatScale?: boolean;
   readonly criticalManifestsByUnit?: Map<string, CriticalSlotManifest>;
   readonly maxTechCriticalLocationRoller?: () => number;
+}
+
+interface IHeatLocationDamage {
+  readonly location: CombatLocation;
+  readonly damage: number;
+  readonly armorRemaining: number;
+  readonly structureRemaining: number;
+  readonly destroyed: boolean;
+  readonly transferredDamage: number;
+  readonly transferLocation?: CombatLocation;
+}
+
+function createHeatDamageAppliedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  locationDamage: IHeatLocationDamage,
+): IGameEvent {
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.DamageApplied,
+      turn,
+      GamePhase.Heat,
+      unitId,
+    ),
+    payload: {
+      unitId,
+      location: locationDamage.location,
+      damage: locationDamage.damage,
+      armorRemaining: locationDamage.armorRemaining,
+      structureRemaining: locationDamage.structureRemaining,
+      locationDestroyed: locationDamage.destroyed,
+    },
+  };
+}
+
+function createHeatLocationDestroyedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  location: string,
+  cascadedTo?: string,
+  viaTransfer?: boolean,
+): IGameEvent {
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.LocationDestroyed,
+      turn,
+      GamePhase.Heat,
+      unitId,
+    ),
+    payload: {
+      unitId,
+      location,
+      cascadedTo,
+      viaTransfer,
+    },
+  };
+}
+
+function createHeatTransferDamageEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+  fromLocation: string,
+  toLocation: string,
+  damage: number,
+): IGameEvent {
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.TransferDamage,
+      turn,
+      GamePhase.Heat,
+      unitId,
+    ),
+    payload: {
+      unitId,
+      fromLocation,
+      toLocation,
+      damage,
+    },
+  };
+}
+
+function cascadedArmFor(
+  location: CombatLocation,
+  newlyDestroyed: readonly CombatLocation[],
+): CombatLocation | undefined {
+  if (
+    location === 'left_torso' &&
+    newlyDestroyed.includes('left_arm' as CombatLocation)
+  ) {
+    return 'left_arm' as CombatLocation;
+  }
+  if (
+    location === 'right_torso' &&
+    newlyDestroyed.includes('right_arm' as CombatLocation)
+  ) {
+    return 'right_arm' as CombatLocation;
+  }
+  return undefined;
+}
+
+function appendHeatAmmoExplosionDamageCascade(
+  session: IGameSession,
+  unitId: string,
+  location: string,
+  damage: number,
+  diceRoller: DiceRoller,
+): IGameSession {
+  const unit = session.currentState.units[unitId];
+  if (!unit || damage <= 0) {
+    return session;
+  }
+
+  const d6Roller = createD6RollerFromDiceRoller(diceRoller);
+  const damageResult = resolveDamagePipeline(
+    buildDamageStateFromUnit(unit),
+    location as CombatLocation,
+    damage,
+    d6Roller,
+  );
+  const preDestroyedSet = new Set<CombatLocation>(
+    unit.destroyedLocations as readonly CombatLocation[],
+  );
+  const newlyDestroyed = damageResult.state.destroyedLocations.filter(
+    (loc) => !preDestroyedSet.has(loc),
+  );
+
+  let currentSession = session;
+  const turn = currentSession.currentState.turn;
+  for (const locationDamage of damageResult.result.locationDamages) {
+    currentSession = appendEvent(
+      currentSession,
+      createHeatDamageAppliedEvent(
+        currentSession.id,
+        currentSession.events.length,
+        turn,
+        unitId,
+        locationDamage as IHeatLocationDamage,
+      ),
+    );
+
+    if (locationDamage.destroyed) {
+      const cascadedArm = cascadedArmFor(
+        locationDamage.location,
+        newlyDestroyed,
+      );
+      currentSession = appendEvent(
+        currentSession,
+        createHeatLocationDestroyedEvent(
+          currentSession.id,
+          currentSession.events.length,
+          turn,
+          unitId,
+          locationDamage.location,
+          cascadedArm,
+        ),
+      );
+      if (cascadedArm) {
+        currentSession = appendEvent(
+          currentSession,
+          createHeatLocationDestroyedEvent(
+            currentSession.id,
+            currentSession.events.length,
+            turn,
+            unitId,
+            cascadedArm,
+          ),
+        );
+      }
+    }
+
+    if (
+      locationDamage.transferredDamage > 0 &&
+      locationDamage.transferLocation
+    ) {
+      currentSession = appendEvent(
+        currentSession,
+        createHeatTransferDamageEvent(
+          currentSession.id,
+          currentSession.events.length,
+          turn,
+          unitId,
+          locationDamage.location,
+          locationDamage.transferLocation,
+          locationDamage.transferredDamage,
+        ),
+      );
+    }
+  }
+
+  if (damageResult.result.unitDestroyed && !unit.destroyed) {
+    currentSession = appendEvent(
+      currentSession,
+      createUnitDestroyedEvent(
+        currentSession.id,
+        currentSession.events.length,
+        turn,
+        GamePhase.Heat,
+        unitId,
+        'ammo_explosion',
+      ),
+    );
+  }
+
+  return currentSession;
+}
+
+function appendHeatAmmoExplosionEvents(
+  session: IGameSession,
+  unitId: string,
+  bin: IAmmoSlotState,
+  diceRoller: DiceRoller,
+): IGameSession {
+  const unit = session.currentState.units[unitId];
+  if (!unit) {
+    return session;
+  }
+
+  const caseProtection = caseProtectionForLocation(unit, bin.location);
+  const explosionResult = resolveAmmoExplosion(
+    unit.ammoState ?? {},
+    bin.binId,
+    bin.remainingRounds,
+    caseProtection,
+  );
+  if (!explosionResult || explosionResult.totalDamage <= 0) {
+    return session;
+  }
+
+  const caseAdjustedDamage = resolveCaseAdjustedAmmoExplosionDamage(
+    unit,
+    explosionResult.location,
+    explosionResult.totalDamage,
+  );
+  let currentSession = appendEvent(
+    session,
+    createAmmoExplosionEvent(
+      session.id,
+      session.events.length,
+      session.currentState.turn,
+      GamePhase.Heat,
+      unitId,
+      explosionResult.location,
+      explosionResult.totalDamage,
+      'HeatInduced',
+      {
+        binId: explosionResult.binId,
+        weaponType: explosionResult.weaponType,
+        roundsDestroyed: bin.remainingRounds,
+        caseProtection: caseAdjustedDamage.caseProtection,
+      },
+    ),
+  );
+
+  currentSession = appendEvent(
+    currentSession,
+    createAmmoConsumedEvent(
+      currentSession.id,
+      currentSession.events.length,
+      currentSession.currentState.turn,
+      GamePhase.Heat,
+      unitId,
+      explosionResult.binId,
+      explosionResult.weaponType,
+      bin.remainingRounds,
+      0,
+    ),
+  );
+
+  return appendHeatAmmoExplosionDamageCascade(
+    currentSession,
+    unitId,
+    explosionResult.location,
+    caseAdjustedDamage.damageToApply,
+    diceRoller,
+  );
 }
 
 function hasMaxTechHeatScaleRule(optionalRules: readonly string[]): boolean {
@@ -638,14 +938,12 @@ export function resolveHeatPhase(
     // Per `wire-heat-generation-and-effects` task 11.4: when an
     // explosive ammo bin detonates from heat, emit an
     // `AmmoExplosion` event first (location, damage, bin metadata,
-    // source = "HeatInduced"). Only emit `UnitDestroyed` when the
-    // explosion damage actually destroys the unit — the damage
-    // pipeline (parallel `integrate-damage-pipeline` change) owns CT
-    // internal structure accounting, so here we conservatively treat
-    // "explosion result present with damage > 0" as a destruction
-    // trigger to preserve legacy behavior while the new event is
-    // emitted to consumers. CASE / CASE II protection routing stays
-    // out of scope per decisions.md (deferred to damage pipeline).
+    // source = "HeatInduced"), empty the bin, then route CASE-adjusted
+    // damage through the same BattleMech damage pipeline used by weapon
+    // hits. `AmmoExplosion.damage` remains the total blast value before
+    // CASE caps; downstream `DamageApplied` / `TransferDamage` /
+    // `UnitDestroyed` events show what the protected cascade actually
+    // did to the unit.
     const ammoExplosionTN = getAmmoExplosionTN(
       finalHeat,
       hotDogTargetNumberModifier,
@@ -661,46 +959,13 @@ export function resolveHeatPhase(
         if (ammoExplosionTN === Infinity) {
           for (const bin of Object.values(unitAmmoState)) {
             if (bin.remainingRounds > 0 && bin.isExplosive) {
-              const explosionResult = resolveAmmoExplosion(
-                unitAmmoState,
-                bin.binId,
-                bin.remainingRounds,
-                'none',
+              currentSession = appendHeatAmmoExplosionEvents(
+                currentSession,
+                unitId,
+                bin,
+                diceRoller,
               );
-              if (explosionResult && explosionResult.totalDamage > 0) {
-                const explosionSequence = currentSession.events.length;
-                currentSession = appendEvent(
-                  currentSession,
-                  createAmmoExplosionEvent(
-                    currentSession.id,
-                    explosionSequence,
-                    turn,
-                    GamePhase.Heat,
-                    unitId,
-                    explosionResult.location,
-                    explosionResult.totalDamage,
-                    'HeatInduced',
-                    {
-                      binId: explosionResult.binId,
-                      weaponType: explosionResult.weaponType,
-                      roundsDestroyed: bin.remainingRounds,
-                    },
-                  ),
-                );
-                const destroySequence = currentSession.events.length;
-                currentSession = appendEvent(
-                  currentSession,
-                  createUnitDestroyedEvent(
-                    currentSession.id,
-                    destroySequence,
-                    turn,
-                    GamePhase.Heat,
-                    unitId,
-                    'ammo_explosion',
-                  ),
-                );
-                break;
-              }
+              break;
             }
           }
         } else {
@@ -710,45 +975,12 @@ export function resolveHeatPhase(
               (bin) => bin.remainingRounds > 0 && bin.isExplosive,
             );
             if (explosiveBin) {
-              const explosionResult = resolveAmmoExplosion(
-                unitAmmoState,
-                explosiveBin.binId,
-                explosiveBin.remainingRounds,
-                'none',
+              currentSession = appendHeatAmmoExplosionEvents(
+                currentSession,
+                unitId,
+                explosiveBin,
+                diceRoller,
               );
-              if (explosionResult && explosionResult.totalDamage > 0) {
-                const explosionSequence = currentSession.events.length;
-                currentSession = appendEvent(
-                  currentSession,
-                  createAmmoExplosionEvent(
-                    currentSession.id,
-                    explosionSequence,
-                    turn,
-                    GamePhase.Heat,
-                    unitId,
-                    explosionResult.location,
-                    explosionResult.totalDamage,
-                    'HeatInduced',
-                    {
-                      binId: explosionResult.binId,
-                      weaponType: explosionResult.weaponType,
-                      roundsDestroyed: explosiveBin.remainingRounds,
-                    },
-                  ),
-                );
-                const destroySequence = currentSession.events.length;
-                currentSession = appendEvent(
-                  currentSession,
-                  createUnitDestroyedEvent(
-                    currentSession.id,
-                    destroySequence,
-                    turn,
-                    GamePhase.Heat,
-                    unitId,
-                    'ammo_explosion',
-                  ),
-                );
-              }
             }
           }
         }

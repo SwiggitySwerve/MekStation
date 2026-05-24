@@ -21,6 +21,8 @@ import {
   LockState,
   IGameEvent,
   IGameUnit,
+  IAmmoExplosionPayload,
+  IDamageAppliedPayload,
   IComponentDamageState,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
@@ -102,6 +104,24 @@ function setupGameAtHeatPhase() {
   session = startGame(session, GameSide.Player);
 
   // Advance through Initiative -> Movement -> WeaponAttack -> PhysicalAttack -> Heat
+  session = advancePhase(session); // -> Movement
+  session = advancePhase(session); // -> WeaponAttack
+  session = advancePhase(session); // -> PhysicalAttack
+  session = advancePhase(session); // -> Heat
+
+  return session;
+}
+
+function setupGameAtHeatPhaseWithUnits(units: IGameUnit[]) {
+  const config = {
+    mapRadius: 10,
+    turnLimit: 10,
+    victoryConditions: ['destruction'],
+    optionalRules: [],
+  };
+
+  let session = createGameSession(config, units);
+  session = startGame(session, GameSide.Player);
   session = advancePhase(session); // -> Movement
   session = advancePhase(session); // -> WeaponAttack
   session = advancePhase(session); // -> PhysicalAttack
@@ -205,6 +225,84 @@ function setComponentDamage(
   }
 
   return currentSession;
+}
+
+function seedUnitArmorStructure(
+  session: ReturnType<typeof setupGameAtHeatPhase>,
+  unitId: string,
+  armor: Record<string, number>,
+  structure: Record<string, number>,
+) {
+  let currentSession = session;
+  const { deriveState } = require('../gameState');
+  const locations = new Set([...Object.keys(armor), ...Object.keys(structure)]);
+
+  for (const location of Array.from(locations)) {
+    const event: IGameEvent = {
+      id: `seed-${unitId}-${location}`,
+      gameId: currentSession.id,
+      sequence: currentSession.events.length,
+      timestamp: new Date().toISOString(),
+      type: GameEventType.DamageApplied,
+      turn: currentSession.currentState.turn,
+      phase: GamePhase.Heat,
+      actorId: unitId,
+      payload: {
+        unitId,
+        location,
+        damage: 0,
+        armorRemaining: armor[location] ?? 0,
+        structureRemaining: structure[location] ?? 0,
+        locationDestroyed: false,
+      },
+    };
+    const events = [...currentSession.events, event];
+    currentSession = {
+      ...currentSession,
+      events,
+      currentState: deriveState(currentSession.id, events),
+    };
+  }
+
+  return currentSession;
+}
+
+function createAmmoCookoffUnits(
+  caseProtection?: Readonly<Record<string, 'case' | 'case_ii'>>,
+): IGameUnit[] {
+  return [
+    {
+      id: 'unit-1',
+      name: 'Spotter',
+      side: GameSide.Player,
+      unitRef: 'spotter',
+      pilotRef: 'pilot-1',
+      gunnery: 4,
+      piloting: 5,
+      heatSinks: 0,
+    },
+    {
+      id: 'unit-2',
+      name: 'Ammo Subject',
+      side: GameSide.Opponent,
+      unitRef: 'ammo-subject',
+      pilotRef: 'pilot-2',
+      gunnery: 4,
+      piloting: 5,
+      heatSinks: 0,
+      ammoConstruction: [
+        {
+          binId: 'rt-ac20-bin',
+          weaponType: 'AC/20',
+          location: 'right_torso',
+          maxRounds: 5,
+          damagePerRound: 20,
+          isExplosive: true,
+        },
+      ],
+      ...(caseProtection !== undefined ? { caseProtection } : {}),
+    },
+  ];
 }
 
 // =============================================================================
@@ -624,6 +722,83 @@ describe('resolveHeatPhase', () => {
       );
       expect(pilotEvents).toHaveLength(1);
       expect((pilotEvents[0].payload as IPilotHitPayload).wounds).toBe(2);
+    });
+  });
+
+  describe('heat-induced ammo explosions with CASE', () => {
+    it('routes protected cookoff damage through CASE cap without transfer or unit destruction', () => {
+      let session = setupGameAtHeatPhaseWithUnits(
+        createAmmoCookoffUnits({ right_torso: 'case' }),
+      );
+      session = seedUnitArmorStructure(
+        session,
+        'unit-2',
+        {
+          right_torso: 10,
+          center_torso: 20,
+        },
+        {
+          right_torso: 10,
+          center_torso: 20,
+        },
+      );
+      session = setUnitHeat(session, 'unit-2', 30);
+
+      session = resolveHeatPhase(session, createDiceRoller(12));
+
+      const ammoExplosion = session.events.find(
+        (event) =>
+          event.type === GameEventType.AmmoExplosion &&
+          event.actorId === 'unit-2',
+      );
+      expect(ammoExplosion?.payload as IAmmoExplosionPayload).toMatchObject({
+        unitId: 'unit-2',
+        location: 'right_torso',
+        binId: 'rt-ac20-bin',
+        caseProtection: 'case',
+        source: 'HeatInduced',
+      });
+
+      const heatDamage = session.events
+        .filter(
+          (event) =>
+            event.type === GameEventType.DamageApplied &&
+            event.actorId === 'unit-2' &&
+            event.phase === GamePhase.Heat,
+        )
+        .map((event) => event.payload as IDamageAppliedPayload)
+        .filter((payload) => payload.damage > 0);
+      expect(heatDamage).toEqual([
+        expect.objectContaining({
+          unitId: 'unit-2',
+          location: 'right_torso',
+          damage: 10,
+          armorRemaining: 0,
+          structureRemaining: 10,
+          locationDestroyed: false,
+        }),
+      ]);
+
+      expect(
+        session.events.some(
+          (event) =>
+            event.type === GameEventType.TransferDamage &&
+            event.actorId === 'unit-2' &&
+            event.phase === GamePhase.Heat,
+        ),
+      ).toBe(false);
+      expect(
+        session.events.some(
+          (event) =>
+            event.type === GameEventType.UnitDestroyed &&
+            event.actorId === 'unit-2',
+        ),
+      ).toBe(false);
+      expect(
+        session.currentState.units['unit-2'].ammoState?.['rt-ac20-bin']
+          .remainingRounds,
+      ).toBe(0);
+      expect(session.currentState.units['unit-2'].destroyed).toBe(false);
     });
   });
 

@@ -1,3 +1,5 @@
+import type { IUnitGameState } from '@/types/gameplay';
+
 import { IAmmoSlotState } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
@@ -18,6 +20,8 @@ import {
   isEnergyWeapon,
   normalizeAmmoWeaponType,
   IAmmoConstructionData,
+  caseProtectionForLocation,
+  resolveCaseAdjustedAmmoExplosionDamage,
 } from '../ammoTracking';
 
 // =============================================================================
@@ -48,6 +52,16 @@ function makeConstructionData(
     isExplosive: true,
     ...overrides,
   };
+}
+
+function makeCaseUnit(overrides: Partial<IUnitGameState> = {}): IUnitGameState {
+  return {
+    armor: {},
+    structure: {},
+    destroyedLocations: [],
+    caseProtection: {},
+    ...overrides,
+  } as IUnitGameState;
 }
 
 const fixedDiceRoller = (value: number) => () => value;
@@ -440,6 +454,59 @@ describe('resolveAmmoExplosion with CASE variants', () => {
     expect(result!.totalDamage).toBe(100);
     expect(result!.transferDamage).toBe(100);
     expect(result!.pilotDamage).toBe(1);
+  });
+});
+
+describe('CASE-adjusted ammo explosion damage', () => {
+  it('reports no protection when a location has no CASE entry', () => {
+    const unit = makeCaseUnit();
+
+    expect(caseProtectionForLocation(unit, 'right_torso')).toBe('none');
+  });
+
+  it('caps standard CASE damage to 10 before local damage resolution', () => {
+    const unit = makeCaseUnit({
+      armor: { right_torso: 12 },
+      structure: { right_torso: 10 },
+      caseProtection: { right_torso: 'case' },
+    });
+
+    expect(
+      resolveCaseAdjustedAmmoExplosionDamage(unit, 'right_torso', 100),
+    ).toEqual({
+      caseProtection: 'case',
+      damageToApply: 10,
+    });
+  });
+
+  it('caps CASE II damage to 1 before local damage resolution', () => {
+    const unit = makeCaseUnit({
+      armor: { right_torso: 12 },
+      structure: { right_torso: 10 },
+      caseProtection: { right_torso: 'case_ii' },
+    });
+
+    expect(
+      resolveCaseAdjustedAmmoExplosionDamage(unit, 'right_torso', 100),
+    ).toEqual({
+      caseProtection: 'case_ii',
+      damageToApply: 1,
+    });
+  });
+
+  it('never applies more protected damage than the local armor plus structure can hold', () => {
+    const unit = makeCaseUnit({
+      armor: { right_torso: 4 },
+      structure: { right_torso: 3 },
+      caseProtection: { right_torso: 'case' },
+    });
+
+    expect(
+      resolveCaseAdjustedAmmoExplosionDamage(unit, 'right_torso', 100),
+    ).toEqual({
+      caseProtection: 'case',
+      damageToApply: 7,
+    });
   });
 });
 

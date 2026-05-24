@@ -24,6 +24,10 @@ export {
   getHeatAmmoExplosionTN,
   checkHeatAmmoExplosion,
 } from './ammoTracking/explosions';
+export {
+  caseProtectionForLocation,
+  resolveCaseAdjustedAmmoExplosionDamage,
+} from './ammoTracking/caseProtection';
 export { getFireableWeapons, isEnergyWeapon } from './ammoTracking/weapons';
 export type {
   CASEProtectionLevel,

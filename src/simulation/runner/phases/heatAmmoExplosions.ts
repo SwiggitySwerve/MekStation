@@ -10,6 +10,7 @@ import {
   IGameState,
   IUnitGameState,
 } from '@/types/gameplay';
+import { resolveCaseAdjustedAmmoExplosionDamage } from '@/utils/gameplay/ammoTracking';
 import { resolveDamage } from '@/utils/gameplay/damage';
 
 import type { IWeapon } from '../../ai/types';
@@ -18,7 +19,6 @@ import {
   applyDamageResultToState,
   buildDamageState,
 } from '../SimulationRunnerState';
-import { resolveCaseAdjustedAmmoExplosionDamage } from './ammoExplosionCase';
 import { createGameEvent } from './utils';
 import { damagePerRoundForBin } from './weaponAttackHelpers';
 
