@@ -1062,6 +1062,84 @@ describe('HexMapDisplay tactical visual layers', () => {
     });
   });
 
+  it('keeps hovered path cost badges tied to the primary movement option', () => {
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="map-1"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hoverMpCost={5}
+        movementRange={[
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 5,
+            terrainCost: 2,
+            elevationDelta: 1,
+            elevationCost: 1,
+            heatGenerated: 2,
+            movementMode: 'tracked',
+            reachable: true,
+            movementType: MovementType.Run,
+            movementModeOptions: [
+              {
+                movementMode: 'tracked',
+                movementType: MovementType.Run,
+                reachable: true,
+                mpCost: 5,
+                terrainCost: 2,
+                elevationDelta: 1,
+                elevationCost: 1,
+                heatGenerated: 2,
+              },
+              {
+                movementMode: 'tracked',
+                movementType: MovementType.Walk,
+                reachable: true,
+                mpCost: 3,
+                terrainCost: 2,
+                elevationDelta: 1,
+                elevationCost: 1,
+                heatGenerated: 1,
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent(
+      'R5/W3 MP',
+    );
+
+    fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+
+    expect(screen.queryByTestId('hex-movement-badge-1-0')).toBeNull();
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveTextContent(
+      'R/TRK 5MP',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'aria-label',
+      'run via tracked path preview: 5 MP',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-hover-mp-cost',
+      '5',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-type',
+      'run',
+    );
+    expect(screen.getByTestId('hex-mp-badge-1-0')).toHaveAttribute(
+      'data-movement-badge-mode',
+      'tracked',
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
   it('shows terrain and elevation inspection when no action hover is active', () => {
     const { unmount } = render(
       <HexMapDisplay

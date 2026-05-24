@@ -22,11 +22,18 @@ export function MovementHoverCostBadge({
 }): React.ReactElement | null {
   if (hoverMpCost === undefined) return null;
 
-  const label = movementInfo
-    ? formatMovementReachBadgeLabel({ ...movementInfo, mpCost: hoverMpCost })
+  const activeMovementInfo = movementInfo
+    ? {
+        ...movementInfo,
+        movementModeOptions: undefined,
+        mpCost: hoverMpCost,
+      }
+    : undefined;
+  const label = activeMovementInfo
+    ? formatMovementReachBadgeLabel(activeMovementInfo)
     : `${hoverMpCost}MP`;
-  const title = movementInfo
-    ? `${formatMovementModeTitle(movementInfo)} path preview: ${hoverMpCost} MP`
+  const title = activeMovementInfo
+    ? `${formatMovementModeTitle(activeMovementInfo)} path preview: ${hoverMpCost} MP`
     : `Movement path preview: ${hoverMpCost} MP`;
   const width = Math.max(34, label.length * 5.6 + 10);
 

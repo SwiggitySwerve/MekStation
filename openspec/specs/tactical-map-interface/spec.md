@@ -2547,6 +2547,17 @@ When live movement overlays combine multiple projections for the same destinatio
 - **THEN** the highlighted hex SHALL expose both walk and run option metadata, including reachability, MP cost, terrain cost, elevation delta/cost, and heat impact
 - **AND** a reachable run projection SHALL remain the primary active-mode projection for map-click movement planning
 
+#### Scenario: Hovered run option keeps the active path preview label
+
+- **GIVEN** a run movement overlay exposes a destination that also has a walk
+  option
+- **AND** the reachable run projection is the primary active-mode projection
+- **WHEN** the destination is hovered during path preview
+- **THEN** the hover cost badge SHALL show the run movement type, motive mode,
+  and hover MP cost
+- **AND** the hover cost badge SHALL NOT replace the active preview label with
+  the combined walk/run option summary
+
 #### Scenario: Live run overlay keeps blocked run reason with walk fallback
 
 - **GIVEN** a selected unit can walk to a destination but the corresponding run projection is blocked
