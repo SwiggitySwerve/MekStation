@@ -20,5 +20,7 @@ pathfinder.
   elevation MP component
 - **AND** over-limit downhill changes SHALL be blocked with the same explicit
   terrain-blocked projection reason as over-limit climbs
+- **AND** committed ground movement validation SHALL agree with the previewed
+  downhill MP cost or blocked reason for the same supplied path
 - **AND** VTOL, WiGE, jump, naval, and swim movement SHALL keep their existing
   elevation-cost exemptions

@@ -1960,6 +1960,119 @@ describe('applyInteractiveSessionMovement', () => {
     });
   });
 
+  it('keeps downhill elevation costs aligned between preview and commit validation', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    grid.hexes.set('0,0', makeHex(0, 0, TerrainType.Clear, 2));
+    grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear, 0));
+    const movementByUnit = capability({ walkMP: 3, runMP: 5 });
+
+    const preview = deriveReachableHexes(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+    ).find((entry) => entry.hex.q === 1 && entry.hex.r === 0);
+
+    expect(preview).toMatchObject({
+      reachable: true,
+      mpCost: 3,
+      elevationDelta: -2,
+      elevationCost: 2,
+      movementMode: 'walk',
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.MovementDeclared,
+    );
+    expect(declared).toBeDefined();
+    expect(declared!.payload as IMovementDeclaredPayload).toMatchObject({
+      unitId: 'm1',
+      to: preview!.hex,
+      movementType: preview!.movementType,
+      mpUsed: preview!.mpCost,
+      heatGenerated: preview!.heatGenerated,
+    });
+  });
+
+  it('keeps over-limit downhill elevation rejection aligned with commit validation', () => {
+    const session = setupSessionAtMovement();
+    session.currentState.units.blocker = {
+      ...session.currentState.units.blocker,
+      position: { q: 5, r: 0 },
+    };
+    const grid = makeGrid();
+    grid.hexes.set('0,0', makeHex(0, 0, TerrainType.Clear, 3));
+    grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear, 0));
+    const movementByUnit = capability({ walkMP: 5, runMP: 8 });
+
+    const preview = deriveReachableHexes(
+      session.currentState.units.m1,
+      MovementType.Walk,
+      grid,
+      movementByUnit.get('m1')!,
+    ).find((entry) => entry.hex.q === 1 && entry.hex.r === 0);
+
+    expect(preview).toMatchObject({
+      reachable: false,
+      elevationDelta: -3,
+      elevationCost: 3,
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails:
+        'Elevation change of 3 exceeds ground movement limit',
+      blockedReason: 'Elevation change of 3 exceeds ground movement limit',
+    });
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 1, r: 0 },
+      facing: Facing.Southeast,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toBe(false);
+
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: preview!.movementInvalidReason,
+      details: preview!.movementInvalidDetails,
+      heatGenerated: preview!.heatGenerated,
+    });
+  });
+
   it('keeps jump preview and commit validation aligned for off-map landings', () => {
     const session = setupSessionAtMovement();
     session.currentState.units.blocker = {

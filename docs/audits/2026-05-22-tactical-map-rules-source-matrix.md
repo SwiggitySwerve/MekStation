@@ -269,7 +269,9 @@ terrain-blocked metadata as climbs. Coverage lives in
 `src/utils/gameplay/movement/calculations.ts`,
 `src/utils/gameplay/movement/terrainRules.ts`,
 `src/__tests__/unit/utils/gameplay/movement.test.ts`, and
-`src/utils/gameplay/movement/__tests__/reachable.test.ts`.
+`src/utils/gameplay/movement/__tests__/reachable.test.ts`; preview-to-commit
+agreement coverage lives in
+`src/engine/__tests__/InteractiveSession.movement.scenario.test.ts`.
 
 Additional infantry terrain-cost pin: MegaMek `MoveStep.java:2828-2837`
 doubles elevation MP for non-flying infantry, and `MoveStep.java:2892-2899`
