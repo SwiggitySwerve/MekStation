@@ -485,6 +485,22 @@ export function applyDamageResultToState(
     }
   }
 
+  newArmor.center_torso_rear = damageState.rearArmor.center_torso;
+  newArmor.left_torso_rear = damageState.rearArmor.left_torso;
+  newArmor.right_torso_rear = damageState.rearArmor.right_torso;
+  if (damageState.structure.center_torso !== undefined) {
+    newStructure.center_torso = damageState.structure.center_torso;
+    newStructure.center_torso_rear = damageState.structure.center_torso;
+  }
+  if (damageState.structure.left_torso !== undefined) {
+    newStructure.left_torso = damageState.structure.left_torso;
+    newStructure.left_torso_rear = damageState.structure.left_torso;
+  }
+  if (damageState.structure.right_torso !== undefined) {
+    newStructure.right_torso = damageState.structure.right_torso;
+    newStructure.right_torso_rear = damageState.structure.right_torso;
+  }
+
   const destructionCause = damageResult.unitDestroyed
     ? (damageResult.destructionCause ?? target.destructionCause ?? 'damage')
     : target.destructionCause;

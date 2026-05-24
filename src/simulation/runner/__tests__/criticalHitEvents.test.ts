@@ -826,6 +826,104 @@ describe('runAttackPhase crit event chain (Phase 3, combat-resolution delta)', (
         next.units['opponent-1'].ammoState?.[loadedBin.binId].remainingRounds,
       ).toBe(0);
     });
+
+    it('CASE-contained ammo critical cookoffs blow out rear torso armor when the location survives', () => {
+      const loadedBin = createAmmoBin('right-torso-loaded-bin', 5);
+      const scenario = buildPrimedRunnerScenario();
+      const target = scenario.state.units['opponent-1'];
+      const state: IGameState = {
+        ...scenario.state,
+        units: {
+          ...scenario.state.units,
+          'opponent-1': {
+            ...target,
+            caseProtection: { right_torso: 'case' },
+            armor: {
+              ...target.armor,
+              right_torso: 0,
+              right_torso_rear: 6,
+              center_torso: 0,
+            },
+            structure: {
+              ...target.structure,
+              right_torso: 20,
+              center_torso: 10,
+            },
+            ammoState: {
+              [loadedBin.binId]: loadedBin,
+            },
+          },
+        },
+      };
+      const manifest = buildCriticalSlotManifest({
+        right_torso: [
+          {
+            slotIndex: 0,
+            componentType: 'ammo',
+            componentName: 'IS Ammo AC/20',
+            ammoBinId: loadedBin.binId,
+            destroyed: false,
+          },
+        ],
+      });
+      const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+        ['opponent-1', manifest],
+      ]);
+      const events: IGameEvent[] = [];
+
+      const next = resolveWeaponHit({
+        currentState: state,
+        events,
+        gameId: state.gameId,
+        unitId: 'player-1',
+        targetId: 'opponent-1',
+        weaponId: 'ammo-crit-probe',
+        weapon: createCritProbeWeapon('ammo-crit-probe'),
+        attackRoll: 12,
+        toHitNumber: 2,
+        firingArc: 'front',
+        partialCover: false,
+        d6Roller: scriptedRoller([3, 3, 4, 4, 1]),
+        getOrSeedManifest: () => manifest,
+        manifestsByUnit,
+        weaponsByUnit: new Map<string, readonly IWeapon[]>([
+          ['player-1', [createCritProbeWeapon('ammo-crit-probe')]],
+          ['opponent-1', [createAC20('ac-20-0')]],
+        ]),
+      });
+
+      const explosionIndex = events.findIndex(
+        (event) => event.type === GameEventType.AmmoExplosion,
+      );
+      const postExplosionDamageEvents = events
+        .slice(explosionIndex + 1)
+        .filter((event) => event.type === GameEventType.DamageApplied)
+        .map((event) => event.payload as IDamageAppliedPayload);
+
+      expect(postExplosionDamageEvents).toEqual([
+        expect.objectContaining({
+          location: 'right_torso_rear',
+          damage: 6,
+          armorRemaining: 0,
+          structureRemaining: 15,
+          locationDestroyed: false,
+        }),
+        expect.objectContaining({
+          location: 'right_torso',
+          damage: 10,
+          armorRemaining: 0,
+          structureRemaining: 5,
+          locationDestroyed: false,
+        }),
+      ]);
+      expect(
+        events.some((event) => event.type === GameEventType.TransferDamage),
+      ).toBe(false);
+      expect(next.units['opponent-1'].armor.right_torso).toBe(0);
+      expect(next.units['opponent-1'].armor.right_torso_rear).toBe(0);
+      expect(next.units['opponent-1'].structure.right_torso).toBe(5);
+      expect(next.units['opponent-1'].structure.center_torso).toBe(10);
+    });
   });
 
   describe('PSR + UnitDestroyed cascades', () => {

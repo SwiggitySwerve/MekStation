@@ -131,9 +131,10 @@
 - [x] 3.5.14 Promote jump-jet critical-slot damage into runner movement validation by reducing effective jump MP from `jumpJetsDestroyed` before Partial Wing or jump movement validation, while keeping other catalog-mounted lifecycle effects explicit.
 - [x] 3.5.15 Promote weapon critical-slot damage into runner attack availability by marking hydrated weapon mounts destroyed from `weaponsDestroyed` and rejecting stale declarations before combat side effects, while keeping remaining equipment lifecycle effects explicit.
 - [x] 3.5.16 Promote catalog ammo critical-slot lifecycle by hydrating ammo bins from BattleMech critical-slot ammo entries, carrying `ammoBinId` through critical resolution, and targeting crit-induced cookoffs at that exact bin before legacy location fallback, while keeping CASE, special ammo, and generic equipment lifecycle nuances explicit.
-- [x] 3.5.17 Promote source-backed CASE ammo-explosion containment by hydrating per-location `caseProtection` from catalog critical slots and applying CASE-aware runner heat/crit cookoff caps before damage transfer, while keeping rear-armor blowout, internal-only application order, special ammo, and generic equipment lifecycle explicit.
+- [x] 3.5.17 Promote source-backed CASE ammo-explosion containment by hydrating per-location `caseProtection` from catalog critical slots and applying CASE-aware runner heat/crit cookoff caps before damage transfer, while keeping special ammo and generic equipment lifecycle explicit.
 - [x] 3.5.18 Promote event-sourced heat cookoff CASE parity by seeding `IGameUnit.caseProtection`, sharing CASE cap resolution with runner paths, emptying the exploded bin, and emitting heat-phase damage/transfer/destruction events from the CASE-adjusted cascade.
 - [x] 3.5.19 Promote CASE-P catalog hydration parity by explicitly classifying CASE-P / prototype CASE as standard CASE protection and preventing broad substring false positives from creating phantom CASE state.
+- [x] 3.5.20 Promote source-backed ammo cookoff internal-only damage order and protected torso rear-armor blowout through shared heat/crit/event-sourced heat cascades.
 
 ## 4. Source-truth cross-checks
 
@@ -181,3 +182,4 @@
 - [x] 4.3.38 Cross-check MegaMek's CASE/CASE II ammo-explosion caps, same-location CASE detection, and transfer suppression before marking runner CASE containment integrated.
 - [x] 4.3.39 Cross-check event-sourced heat cookoff CASE parity against the same MegaMek CASE cap and transfer-suppression anchors before marking interactive heat containment integrated.
 - [x] 4.3.40 Cross-check MegaMek `Entity.locationHasCase` CASE-P detection before marking CASE-P/prototype CASE hydration integrated.
+- [x] 4.3.41 Cross-check MegaMek `applyEntityArmorDamage` ammo-explosion armor skip and `applyPlaytestExplosionReduction` rear-armor blowout before marking internal-only cookoff ordering integrated.

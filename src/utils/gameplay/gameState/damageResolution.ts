@@ -20,6 +20,20 @@ function getArmForSideTorso(location: string): string | null {
   return null;
 }
 
+function getRearTorsoLocation(location: string): string | null {
+  if (location === 'center_torso') return 'center_torso_rear';
+  if (location === 'left_torso') return 'left_torso_rear';
+  if (location === 'right_torso') return 'right_torso_rear';
+  return null;
+}
+
+function getFrontTorsoLocation(location: string): string | null {
+  if (location === 'center_torso_rear') return 'center_torso';
+  if (location === 'left_torso_rear') return 'left_torso';
+  if (location === 'right_torso_rear') return 'right_torso';
+  return null;
+}
+
 export function applyDamageApplied(
   state: IGameState,
   payload: IDamageAppliedPayload,
@@ -53,6 +67,14 @@ export function applyDamageApplied(
 
   newArmor[payload.location] = payload.armorRemaining;
   newStructure[payload.location] = payload.structureRemaining;
+  const rearTorsoLocation = getRearTorsoLocation(payload.location);
+  if (rearTorsoLocation) {
+    newStructure[rearTorsoLocation] = payload.structureRemaining;
+  }
+  const frontTorsoLocation = getFrontTorsoLocation(payload.location);
+  if (frontTorsoLocation) {
+    newStructure[frontTorsoLocation] = payload.structureRemaining;
+  }
 
   if (
     payload.locationDestroyed &&

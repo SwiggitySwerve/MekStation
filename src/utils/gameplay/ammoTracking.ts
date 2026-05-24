@@ -25,6 +25,7 @@ export {
   checkHeatAmmoExplosion,
 } from './ammoTracking/explosions';
 export {
+  applyAmmoExplosionRearArmorBlowout,
   caseProtectionForLocation,
   resolveCaseAdjustedAmmoExplosionDamage,
 } from './ammoTracking/caseProtection';

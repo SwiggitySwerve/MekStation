@@ -818,6 +818,81 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     ).toBe(0);
   });
 
+  it('applies protected HeatInduced AmmoExplosion damage to internals and blows out rear torso armor', () => {
+    const ammoState: Record<string, IAmmoSlotState> = {
+      'ac-20-bin-0': {
+        binId: 'ac-20-bin-0',
+        weaponType: 'ac-20',
+        location: 'right_torso',
+        remainingRounds: 5,
+        maxRounds: 5,
+        isExplosive: true,
+      },
+    };
+    const baseUnit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 40,
+        ammoState,
+        caseProtection: { right_torso: 'case' },
+      },
+    );
+    const unit: IUnitGameState = {
+      ...baseUnit,
+      armor: {
+        ...baseUnit.armor,
+        right_torso: 12,
+        right_torso_rear: 6,
+        center_torso: 0,
+      },
+      structure: {
+        ...baseUnit.structure,
+        right_torso: 15,
+        center_torso: 10,
+      },
+    };
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(42),
+      weaponsByUnit: new Map([['player-1', createAtlasWeapons()]]),
+    });
+
+    const damageEvents = events
+      .filter((e) => e.type === GameEventType.DamageApplied)
+      .map((e) => e.payload as IDamageAppliedPayload);
+
+    expect(damageEvents).toEqual([
+      expect.objectContaining({
+        location: 'right_torso_rear',
+        damage: 6,
+        armorRemaining: 0,
+        structureRemaining: 15,
+        locationDestroyed: false,
+      }),
+      expect.objectContaining({
+        location: 'right_torso',
+        damage: 10,
+        armorRemaining: 12,
+        structureRemaining: 5,
+        locationDestroyed: false,
+      }),
+    ]);
+    expect(events.some((e) => e.type === GameEventType.TransferDamage)).toBe(
+      false,
+    );
+    expect(newState.units['player-1'].armor.right_torso).toBe(12);
+    expect(newState.units['player-1'].armor.right_torso_rear).toBe(0);
+    expect(newState.units['player-1'].structure.right_torso).toBe(5);
+    expect(newState.units['player-1'].structure.center_torso).toBe(10);
+  });
+
   it('selects a single highest-damage loaded ammo bin for heat cookoff', () => {
     const ammoState: Record<string, IAmmoSlotState> = {
       'ac-2-bin-0': {

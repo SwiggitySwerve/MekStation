@@ -55,6 +55,13 @@ const MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
+      'MegaMek applyEntityArmorDamage skips normal armor absorption for ammoExplosion damage, so the cascade starts at internal structure.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_DAMAGE_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWDamageManagerModular.java#L2844-L2865`,
+    sourceVersion: MEGAMEK_DAMAGE_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
       'MegaMek prevents remaining ammo-explosion damage from transferring when the hit location has CASE.',
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_DAMAGE_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWDamageManagerModular.java#L520-L529`,
     sourceVersion: MEGAMEK_DAMAGE_SOURCE_VERSION,
@@ -62,7 +69,7 @@ const MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
-      'MegaMek caps ammo-explosion damage at 10 with CASE and 1 with CASE II before local damage resolution.',
+      'MegaMek caps ammo-explosion damage at 10 with CASE and 1 with CASE II before local internal damage resolution and blows out rear armor on surviving torso locations.',
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_DAMAGE_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWDamageManagerModular.java#L2435-L2489`,
     sourceVersion: MEGAMEK_DAMAGE_SOURCE_VERSION,
   },
@@ -118,7 +125,7 @@ export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
   ),
   'case-ammo-explosion-containment': integrated(
     'case-ammo-explosion-containment',
-    'UnitHydration and IGameUnit setup project CASE, CASE-P/prototype CASE, and CASE II into per-location combat state, heat and crit ammo cookoffs emit caseProtection, and runner/event-sourced heat cascades cap protected damage before transfer can occur',
+    'UnitHydration and IGameUnit setup project CASE, CASE-P/prototype CASE, and CASE II into per-location combat state; heat, crit, and event-sourced heat cookoffs emit caseProtection, route explosion damage directly to internal structure, blow out rear armor for surviving protected torso locations, and cap protected damage before transfer can occur',
     MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS,
   ),
   'destruction-cause-state-persistence': integrated(

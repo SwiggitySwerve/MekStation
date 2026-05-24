@@ -108,10 +108,11 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **THEN** `AmmoExplosion.caseProtection` SHALL report the protection level used for the cascade
 - **AND** standard CASE and CASE-P/prototype CASE SHALL cap protected explosion damage at 10 before local runner or event-sourced damage resolution
 - **AND** CASE II SHALL cap protected explosion damage at 1 before local runner or event-sourced damage resolution
+- **AND** ammo explosion damage SHALL bypass normal armor absorption and apply the capped or uncapped cascade directly to internal structure
+- **AND** protected torso ammo explosions that do not destroy the source location SHALL blow out that torso's rear armor while preserving front armor
 - **AND** protected explosion damage SHALL NOT emit `TransferDamage` from the CASE-protected location
 - **AND** event-sourced heat cookoffs SHALL empty the exploded bin before applying the CASE-adjusted damage cascade
 - **AND** broad non-CASE equipment names that merely contain the substring "case" SHALL NOT hydrate phantom CASE protection
-- **AND** MegaMek rear-armor blowout and internal-only application order SHALL remain explicit gaps until modeled in the corresponding combat state
 
 ### Requirement: Physical Attack Legality Gates
 

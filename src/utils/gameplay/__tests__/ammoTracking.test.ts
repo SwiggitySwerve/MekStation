@@ -20,6 +20,7 @@ import {
   isEnergyWeapon,
   normalizeAmmoWeaponType,
   IAmmoConstructionData,
+  applyAmmoExplosionRearArmorBlowout,
   caseProtectionForLocation,
   resolveCaseAdjustedAmmoExplosionDamage,
 } from '../ammoTracking';
@@ -494,7 +495,7 @@ describe('CASE-adjusted ammo explosion damage', () => {
     });
   });
 
-  it('never applies more protected damage than the local armor plus structure can hold', () => {
+  it('never applies more protected damage than the local internal structure can hold', () => {
     const unit = makeCaseUnit({
       armor: { right_torso: 4 },
       structure: { right_torso: 3 },
@@ -505,8 +506,69 @@ describe('CASE-adjusted ammo explosion damage', () => {
       resolveCaseAdjustedAmmoExplosionDamage(unit, 'right_torso', 100),
     ).toEqual({
       caseProtection: 'case',
-      damageToApply: 7,
+      damageToApply: 3,
     });
+  });
+
+  it('blows out protected torso rear armor when the internal structure survives', () => {
+    const result = applyAmmoExplosionRearArmorBlowout(
+      {
+        armor: {
+          head: 0,
+          center_torso: 0,
+          center_torso_rear: 0,
+          left_torso: 0,
+          left_torso_rear: 0,
+          right_torso: 12,
+          right_torso_rear: 6,
+          left_arm: 0,
+          right_arm: 0,
+          left_leg: 0,
+          right_leg: 0,
+        },
+        rearArmor: {
+          center_torso: 0,
+          left_torso: 0,
+          right_torso: 6,
+        },
+        structure: {
+          head: 0,
+          center_torso: 0,
+          center_torso_rear: 0,
+          left_torso: 0,
+          left_torso_rear: 0,
+          right_torso: 15,
+          right_torso_rear: 15,
+          left_arm: 0,
+          right_arm: 0,
+          left_leg: 0,
+          right_leg: 0,
+        },
+        destroyedLocations: [],
+        pilotWounds: 0,
+        pilotConscious: true,
+        destroyed: false,
+      },
+      'right_torso',
+      'case',
+      10,
+    );
+
+    expect(result.state.armor.right_torso).toBe(12);
+    expect(result.state.armor.right_torso_rear).toBe(0);
+    expect(result.state.rearArmor.right_torso).toBe(0);
+    expect(result.state.structure.right_torso).toBe(15);
+    expect(result.locationDamages).toEqual([
+      expect.objectContaining({
+        location: 'right_torso_rear',
+        damage: 6,
+        armorDamage: 6,
+        structureDamage: 0,
+        armorRemaining: 0,
+        structureRemaining: 15,
+        destroyed: false,
+      }),
+    ]);
   });
 });
 

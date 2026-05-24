@@ -16,6 +16,11 @@ export {
   getHeatAmmoExplosionTN,
   checkHeatAmmoExplosion,
 } from './explosions';
+export {
+  applyAmmoExplosionRearArmorBlowout,
+  caseProtectionForLocation,
+  resolveCaseAdjustedAmmoExplosionDamage,
+} from './caseProtection';
 export { getFireableWeapons, isEnergyWeapon } from './weapons';
 export type {
   CASEProtectionLevel,

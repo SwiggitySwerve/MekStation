@@ -7,9 +7,12 @@ import {
   IGameEvent,
   IGameState,
 } from '@/types/gameplay';
-import { resolveCaseAdjustedAmmoExplosionDamage } from '@/utils/gameplay/ammoTracking';
 import {
-  resolveDamage,
+  applyAmmoExplosionRearArmorBlowout,
+  resolveCaseAdjustedAmmoExplosionDamage,
+} from '@/utils/gameplay/ammoTracking';
+import {
+  resolveInternalDamage,
   type IResolveDamageResult,
 } from '@/utils/gameplay/damage';
 
@@ -131,12 +134,23 @@ export function applyCritAmmoExplosions(options: {
         ...targetForCascade,
         ammoState: emptiedAmmoState,
       });
-      const cascadeResult = resolveDamage(
+      const blowout = applyAmmoExplosionRearArmorBlowout(
         cascadeState,
+        bin.location as CombatLocation,
+        caseAdjustedDamage.caseProtection,
+        caseAdjustedDamage.damageToApply,
+      );
+      const cascadeResult = resolveInternalDamage(
+        blowout.state,
         bin.location as CombatLocation,
         caseAdjustedDamage.damageToApply,
         d6Roller,
+        { applyHeadPilotDamage: false },
       );
+      const cascadeLocationDamages = [
+        ...blowout.locationDamages,
+        ...cascadeResult.result.locationDamages,
+      ];
       // Apply the cascade state back to the target unit and
       // emit the resulting damage chain inline.
       currentState = applyDamageResultToState(
@@ -145,6 +159,7 @@ export function applyCritAmmoExplosions(options: {
         cascadeResult.state,
         {
           ...cascadeResult.result,
+          locationDamages: cascadeLocationDamages,
           destructionCause: 'ammo_explosion',
         },
       );
@@ -161,7 +176,7 @@ export function applyCritAmmoExplosions(options: {
         },
       };
 
-      const cascadeChain = cascadeResult.result.locationDamages;
+      const cascadeChain = cascadeLocationDamages;
       for (let j = 0; j < cascadeChain.length; j++) {
         const locDmg = cascadeChain[j];
         const isCascadeTransfer = j > 0;

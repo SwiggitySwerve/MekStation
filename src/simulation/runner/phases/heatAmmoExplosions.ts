@@ -10,8 +10,11 @@ import {
   IGameState,
   IUnitGameState,
 } from '@/types/gameplay';
-import { resolveCaseAdjustedAmmoExplosionDamage } from '@/utils/gameplay/ammoTracking';
-import { resolveDamage } from '@/utils/gameplay/damage';
+import {
+  applyAmmoExplosionRearArmorBlowout,
+  resolveCaseAdjustedAmmoExplosionDamage,
+} from '@/utils/gameplay/ammoTracking';
+import { resolveInternalDamage } from '@/utils/gameplay/damage';
 
 import type { IWeapon } from '../../ai/types';
 
@@ -146,12 +149,23 @@ export function applyHeatInducedAmmoExplosions(
       ...unit,
       ammoState: emptiedAmmoState,
     });
-    const cascadeResult = resolveDamage(
+    const blowout = applyAmmoExplosionRearArmorBlowout(
       cascadeState,
+      bin.location as CombatLocation,
+      caseAdjustedDamage.caseProtection,
+      caseAdjustedDamage.damageToApply,
+    );
+    const cascadeResult = resolveInternalDamage(
+      blowout.state,
       bin.location as CombatLocation,
       caseAdjustedDamage.damageToApply,
       d6Roller,
+      { applyHeadPilotDamage: false },
     );
+    const cascadeLocationDamages = [
+      ...blowout.locationDamages,
+      ...cascadeResult.result.locationDamages,
+    ];
 
     currentState = applyDamageResultToState(
       currentState,
@@ -159,6 +173,7 @@ export function applyHeatInducedAmmoExplosions(
       cascadeResult.state,
       {
         ...cascadeResult.result,
+        locationDamages: cascadeLocationDamages,
         destructionCause: 'ammo_explosion',
       },
     );
@@ -173,7 +188,7 @@ export function applyHeatInducedAmmoExplosions(
       },
     };
 
-    const cascadeChain = cascadeResult.result.locationDamages;
+    const cascadeChain = cascadeLocationDamages;
     for (let i = 0; i < cascadeChain.length; i++) {
       const locDmg = cascadeChain[i];
       const isCascadeTransfer = i > 0;

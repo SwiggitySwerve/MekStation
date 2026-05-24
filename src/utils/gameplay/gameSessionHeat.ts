@@ -26,12 +26,14 @@ import {
 import { logger } from '@/utils/logger';
 
 import {
+  applyAmmoExplosionRearArmorBlowout,
   caseProtectionForLocation,
   resolveAmmoExplosion,
   resolveCaseAdjustedAmmoExplosionDamage,
+  type CASEProtectionLevel,
 } from './ammoTracking';
 import {
-  resolveDamage as resolveDamagePipeline,
+  resolveInternalDamage as resolveInternalDamagePipeline,
   resolvePilotConsciousnessCheck,
 } from './damage';
 import { type D6Roller, type DiceRoller } from './diceTypes';
@@ -203,6 +205,7 @@ function appendHeatAmmoExplosionDamageCascade(
   unitId: string,
   location: string,
   damage: number,
+  caseProtection: CASEProtectionLevel,
   diceRoller: DiceRoller,
 ): IGameSession {
   const unit = session.currentState.units[unitId];
@@ -211,12 +214,23 @@ function appendHeatAmmoExplosionDamageCascade(
   }
 
   const d6Roller = createD6RollerFromDiceRoller(diceRoller);
-  const damageResult = resolveDamagePipeline(
+  const blowout = applyAmmoExplosionRearArmorBlowout(
     buildDamageStateFromUnit(unit),
+    location as CombatLocation,
+    caseProtection,
+    damage,
+  );
+  const damageResult = resolveInternalDamagePipeline(
+    blowout.state,
     location as CombatLocation,
     damage,
     d6Roller,
+    { applyHeadPilotDamage: false },
   );
+  const locationDamages = [
+    ...blowout.locationDamages,
+    ...damageResult.result.locationDamages,
+  ];
   const preDestroyedSet = new Set<CombatLocation>(
     unit.destroyedLocations as readonly CombatLocation[],
   );
@@ -226,7 +240,7 @@ function appendHeatAmmoExplosionDamageCascade(
 
   let currentSession = session;
   const turn = currentSession.currentState.turn;
-  for (const locationDamage of damageResult.result.locationDamages) {
+  for (const locationDamage of locationDamages) {
     currentSession = appendEvent(
       currentSession,
       createHeatDamageAppliedEvent(
@@ -371,6 +385,7 @@ function appendHeatAmmoExplosionEvents(
     unitId,
     explosionResult.location,
     caseAdjustedDamage.damageToApply,
+    caseAdjustedDamage.caseProtection,
     diceRoller,
   );
 }
