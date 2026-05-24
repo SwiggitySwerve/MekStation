@@ -81,6 +81,16 @@ to-hit partial-cover modifier from the shared combat projection. Remaining
 browser combat gaps are broader cover/elevation families and special range-mode
 sweeps beyond the smoke harness.
 
+2026-05-24 fog-contact browser update: the tactical-map browser harness now
+also renders hidden-only and last-known opponent contacts and verifies that the
+top-down combat projection marks them non-attackable with obscured target ids,
+`TargetNotVisible` rejection metadata, visibility-blocked reasons, and non-color
+invalid/visibility badges. The same browser smoke switches to isometric mode and
+verifies the fog-rule markers for hidden and last-known contacts, separating fog
+visibility limits from terrain occlusion aids. Remaining browser fog gaps are
+mixed visible/obscured same-hex contacts and broader dynamic visibility
+recalculation sweeps beyond the smoke harness.
+
 2026-05-24 movement gap update: the movement row's older frogman/swim and
 TacOps infantry pavement-bonus gaps are closed by the current
 `tactical-map-interface` spec and fixtures. Remaining movement oracle gaps are

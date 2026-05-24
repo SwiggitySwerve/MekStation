@@ -2861,9 +2861,15 @@ Replay and recovery surfaces SHALL render terrain and elevation from the same ev
 - **AND** a combat target in represented partial cover SHALL expose the cover
   level, modifier, to-hit modifier, reason, and a cover badge that does not rely
   on color alone
+- **AND** hidden-only and last-known fog contacts SHALL expose non-attackable
+  combat visibility metadata, obscured target ids, visibility-blocked reasons,
+  and invalid badges that do not rely on color alone
 - **WHEN** browser automation switches to isometric mode and rotates the camera
 - **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
   SHALL update in the rendered DOM
+- **AND** hidden-only and last-known fog contacts SHALL expose isometric
+  visibility-rule markers explaining that fog visibility, not terrain
+  occlusion, prevents direct inspection or targeting
 - **AND** rotating the camera SHALL move the active occluder metadata and
   highlight to the tall elevation stack that is actually in front for that
   camera angle

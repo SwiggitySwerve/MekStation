@@ -27,6 +27,8 @@
   distance, range-band, and available weapon option metadata.
 - [x] 2.10 Add browser coverage proving a target in represented partial cover
   exposes cover modifier, to-hit modifier, reason, and cover badge metadata.
+- [x] 2.11 Add browser coverage proving hidden-only and last-known fog contacts
+  expose non-attackable visibility metadata plus isometric fog-rule markers.
 
 ## 3. Validation
 
@@ -47,3 +49,5 @@
   metadata.
 - [x] 3.10 Focused Playwright smoke passes with partial-cover combat target
   metadata.
+- [x] 3.11 Focused Playwright smoke passes with hidden and last-known fog
+  contact visibility metadata.

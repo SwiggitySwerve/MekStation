@@ -270,6 +270,76 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('hex-combat-invalid-badge-2-0'),
     ).toHaveAttribute('data-invalid-badge-code', 'NoLineOfSight');
+    const hiddenContactHex = page.getByTestId('hex--2-1');
+    await expect(hiddenContactHex).toHaveAttribute(
+      'data-combat-target-visibility',
+      'hidden',
+    );
+    await expect(hiddenContactHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(hiddenContactHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'hidden-contact',
+    );
+    await expect(hiddenContactHex).toHaveAttribute(
+      'data-combat-visible-target-ids',
+      '',
+    );
+    await expect(hiddenContactHex).toHaveAttribute(
+      'data-combat-obscured-target-ids',
+      'hidden-contact',
+    );
+    await expect(hiddenContactHex).toHaveAttribute(
+      'data-combat-visibility-blocked-reason',
+      'Hidden contact is not currently visible',
+    );
+    await expect(hiddenContactHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'TargetNotVisible',
+    );
+    await expect(
+      page.getByTestId('hex-combat-visibility-badge--2-1'),
+    ).toHaveAttribute('data-combat-visibility-badge-state', 'hidden');
+    await expect(
+      page.getByTestId('hex-combat-invalid-badge--2-1'),
+    ).toHaveAttribute('data-invalid-badge-code', 'TargetNotVisible');
+    const lastKnownContactHex = page.getByTestId('hex--1-2');
+    await expect(lastKnownContactHex).toHaveAttribute(
+      'data-combat-target-visibility',
+      'lastKnown',
+    );
+    await expect(lastKnownContactHex).toHaveAttribute(
+      'data-combat-valid-target',
+      'false',
+    );
+    await expect(lastKnownContactHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'last-known-contact',
+    );
+    await expect(lastKnownContactHex).toHaveAttribute(
+      'data-combat-visible-target-ids',
+      '',
+    );
+    await expect(lastKnownContactHex).toHaveAttribute(
+      'data-combat-obscured-target-ids',
+      'last-known-contact',
+    );
+    await expect(lastKnownContactHex).toHaveAttribute(
+      'data-combat-visibility-blocked-reason',
+      'Last known contact is not currently visible',
+    );
+    await expect(lastKnownContactHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'TargetNotVisible',
+    );
+    await expect(
+      page.getByTestId('hex-combat-visibility-badge--1-2'),
+    ).toHaveAttribute('data-combat-visibility-badge-state', 'lastKnown');
+    await expect(
+      page.getByTestId('hex-combat-invalid-badge--1-2'),
+    ).toHaveAttribute('data-invalid-badge-code', 'TargetNotVisible');
     await expectNonBlankRender(page, 'top-down tactical map');
 
     await page.getByTestId('projection-toggle').click();
@@ -299,6 +369,37 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(page.getByTestId('hex--1-0')).not.toHaveAttribute(
       'data-isometric-occludes-units',
     );
+    await expect(page.getByTestId('unit-token-hidden-contact')).toHaveAttribute(
+      'data-isometric-visibility-rule',
+      'hidden',
+    );
+    await expect(page.getByTestId('unit-token-hidden-contact')).toHaveAttribute(
+      'data-isometric-visibility-rule-reason',
+      'Hidden contact is limited by fog or visibility rules',
+    );
+    await expect(
+      page
+        .getByTestId('isometric-visibility-rule-hidden-contact')
+        .locator('text'),
+    ).toHaveText('FOG');
+    await expect(page.getByTestId('fog-marker-hidden-contact')).toBeVisible();
+    await expect(
+      page.getByTestId('unit-token-last-known-contact'),
+    ).toHaveAttribute('data-isometric-visibility-rule', 'lastKnown');
+    await expect(
+      page.getByTestId('unit-token-last-known-contact'),
+    ).toHaveAttribute(
+      'data-isometric-visibility-rule-reason',
+      'Last known contact is limited to stale visibility information',
+    );
+    await expect(
+      page
+        .getByTestId('isometric-visibility-rule-last-known-contact')
+        .locator('text'),
+    ).toHaveText('LAST');
+    await expect(
+      page.getByTestId('fog-marker-last-known-contact'),
+    ).toBeVisible();
 
     const eastHex = page.getByTestId('isometric-scene-hex-1-0');
     const eastDepthBefore = await eastHex.getAttribute(

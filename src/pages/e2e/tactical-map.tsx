@@ -84,6 +84,33 @@ const tokens: readonly IUnitToken[] = [
     isValidTarget: true,
     unitType: TokenUnitType.Mech,
   },
+  {
+    unitId: 'hidden-contact',
+    name: 'Hidden Contact',
+    designation: 'UNK',
+    position: { q: -2, r: 1 },
+    facing: Facing.Southwest,
+    side: GameSide.Opponent,
+    isDestroyed: false,
+    isSelected: false,
+    isValidTarget: false,
+    fogStatus: 'hidden',
+    unitType: TokenUnitType.Mech,
+  },
+  {
+    unitId: 'last-known-contact',
+    name: 'Last Known Contact',
+    designation: 'LKC',
+    position: { q: -3, r: 1 },
+    lastKnownPosition: { q: -1, r: 2 },
+    facing: Facing.Southwest,
+    side: GameSide.Opponent,
+    isDestroyed: false,
+    isSelected: false,
+    isValidTarget: false,
+    fogStatus: 'lastKnown',
+    unitType: TokenUnitType.Mech,
+  },
 ];
 
 const hexTerrain: readonly IHexTerrain[] = [
