@@ -533,12 +533,13 @@ The Iron Will SPA SHALL grant -2 to consciousness check target numbers (alias fo
 
 ### Requirement: Piloting SPA — Heavy Lifter
 
-The Heavy Lifter SPA SHALL allow carrying and throwing objects in physical combat.
+The Heavy Lifter SPA SHALL remain an explicit carry/throw-object action gap in the BattleMech combat matrix until object manipulation actions exist. Source-backed MegaMek behavior SHALL be recorded as a `1.5x` ground-object lift-capacity multiplier for BattleMechs with arms, not as a generic physical attack damage or to-hit modifier.
 
-#### Scenario: Heavy Lifter object manipulation
+#### Scenario: Heavy Lifter lift capacity remains action-gated
 
-- **WHEN** a pilot with Heavy Lifter is in physical combat
-- **THEN** the pilot SHALL be able to carry and throw objects
+- **WHEN** the BattleMech combat validation catalog is generated
+- **THEN** Heavy Lifter SHALL be marked unsupported with MegaMek source references to `1.5x` ground-object lift capacity
+- **AND** the catalog SHALL state that carry/throw-object physical combat actions are not implemented
 
 ### Requirement: Piloting SPA — Animal Mimicry
 

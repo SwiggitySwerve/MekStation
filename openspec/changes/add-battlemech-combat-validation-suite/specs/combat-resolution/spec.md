@@ -649,6 +649,18 @@ Pilot modifier validation SHALL keep MegaMek's Cross-Country SPA visible as an e
 - **AND** the movement resolver family SHALL own the visible gap
 - **AND** the PSR resolver family SHALL NOT assign Cross-Country
 
+### Requirement: Source-Backed Heavy Lifter Carry/Throw Gap
+
+Pilot modifier validation SHALL keep MegaMek's Heavy Lifter SPA visible as an unsupported carry/throw-object action gap. The source-backed BattleMech behavior SHALL be recorded as a `1.5x` ground-object lift-capacity multiplier for Meks with arms, while MekStation lacks object carry/throw physical action declarations and resolution.
+
+#### Scenario: Heavy Lifter is cataloged as lift capacity without action support
+
+- **GIVEN** the BattleMech SPA and pilot modifier catalogs are generated
+- **WHEN** Heavy Lifter support is inspected
+- **THEN** the SPA SHALL be unsupported with MegaMek source references to BattleMech lift-capacity behavior
+- **AND** the movement resolver family SHALL own the visible carry/throw action gap
+- **AND** Heavy Lifter SHALL NOT be represented as a physical damage or to-hit modifier
+
 ### Requirement: Source-Backed Terrain Master Defender To-Hit Variants
 
 Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit variants from target state and target terrain: Forest Ranger SHALL add a `+1` to-hit modifier only when the target has canonical `tm_forest_ranger` or legacy `terrain-master-forest-ranger`, the target moved by walking, and the target occupies wooded terrain; Swamp Beast SHALL add a `+1` to-hit modifier only when the target has canonical `tm_swamp_beast` or legacy `terrain-master-swamp-beast`, the target moved by running, and the target occupies mud or swamp. Runner ranged attacks SHALL hydrate target terrain features into to-hit state. Generic Terrain Master movement and PSR behavior beyond source-backed Frogman water-entry and Mountaineer rubble-entry relief, including Swamp Beast bog-down relief, SHALL remain an explicit gap until separately source-backed.

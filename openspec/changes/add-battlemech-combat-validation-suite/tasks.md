@@ -98,6 +98,7 @@
 - [x] 3.4.16 Integrate source-backed Terrain Master: Forest Ranger and Swamp Beast defender to-hit variants through SPA helper, ranged to-hit aggregation, runner target-terrain hydration, canonicalization, catalog, and OpenSpec coverage while leaving generic Terrain Master movement/PSR behavior explicit.
 - [x] 3.4.17 Integrate source-backed Terrain Master: Frogman water-entry PSR relief through depth-aware terrain PSR queueing, PSR modifier resolution, catalog, and OpenSpec coverage while leaving other Terrain Master PSR/movement variants explicit.
 - [x] 3.4.18 Integrate source-backed Terrain Master: Mountaineer rubble-entry PSR relief through SPA helper, PSR modifier resolution, canonicalization, catalog, and OpenSpec coverage while leaving Mountaineer movement-cost relief explicit.
+- [x] 3.4.19 Catalog MegaMek-backed Heavy Lifter lift-capacity behavior as an unsupported carry/throw-object action gap instead of an unscoped physical modifier.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -136,3 +137,4 @@
 - [x] 4.3.20 Cross-check MegaMek's Terrain Master: Mountaineer rubble-entry PSR relief and canonical ability id.
 - [x] 4.3.21 Cross-check MegaMek's swamp bog-down piloting roll, BattleMech mud exclusion, stuck-state outcome, Swamp Beast bog-down relief, and canonical ability id.
 - [x] 4.3.22 Cross-check MegaMek's Cross-Country combat-vehicle movement-cost/passability gates and canonical ability id.
+- [x] 4.3.23 Cross-check MegaMek's Heavy Lifter BattleMech/ProtoMek ground-object lift-capacity multiplier and canonical ability id.

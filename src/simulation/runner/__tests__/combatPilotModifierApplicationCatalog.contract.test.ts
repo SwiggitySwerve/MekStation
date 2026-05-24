@@ -375,10 +375,34 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       level: 'unsupported',
       gap: expect.stringContaining('Cross-Country combat-vehicle'),
     });
-    expect(movementRefs).toEqual(crossCountryRefs);
+    expect(movementRefs).toEqual(expect.arrayContaining([...crossCountryRefs]));
     expect(
       PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
     ).toEqual(expect.arrayContaining(['cross-country']));
+  });
+
+  it('pins Heavy Lifter to MegaMek lift-capacity scope', () => {
+    const heavyLifterRefs = SPA_COMBAT_SUPPORT['heavy-lifter'].sourceRefs ?? [];
+    const movementRefs =
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['movement-application']
+        .sourceRefs ?? [];
+
+    expect(SPA_COMBAT_SUPPORT['heavy-lifter']).toMatchObject({
+      level: 'unsupported',
+      gap: expect.stringContaining('lift capacity by 1.5'),
+    });
+    expect(SPA_COMBAT_SUPPORT['heavy-lifter'].gap).toContain(
+      'no carry/throw-object physical combat action path',
+    );
+    expect(heavyLifterRefs.map(({ citation }) => citation)).toEqual([
+      'MegaMek MekWithArms.maxGroundObjectTonnage multiplies BattleMech ground-object lift capacity by 1.5 for Heavy Lifter.',
+      'MegaMek ProtoMek.maxGroundObjectTonnage multiplies ProtoMek ground-object lift capacity by 1.5 for Heavy Lifter.',
+      'MegaMek OptionsConstants defines PILOT_HVY_LIFTER as hvy_lifter.',
+    ]);
+    expect(movementRefs).toEqual(expect.arrayContaining([...heavyLifterRefs]));
+    expect(
+      PILOT_MODIFIER_RESOLVER_ASSIGNMENTS['movement-application'].spaIds,
+    ).toEqual(expect.arrayContaining(['heavy-lifter']));
   });
 
   it('pins Terrain Master Mountaineer rubble PSR relief to MegaMek semantics', () => {
@@ -473,6 +497,7 @@ describe('BattleMech pilot SPA and quirk resolver application catalog', () => {
       ...(SPA_COMBAT_SUPPORT.tm_mountaineer.sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT.tm_swamp_beast.sourceRefs ?? []),
       ...(SPA_COMBAT_SUPPORT['cross-country'].sourceRefs ?? []),
+      ...(SPA_COMBAT_SUPPORT['heavy-lifter'].sourceRefs ?? []),
       ...(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
         'multi-target-penalty-application'
       ].sourceRefs ?? []),

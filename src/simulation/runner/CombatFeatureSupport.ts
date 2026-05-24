@@ -7,7 +7,10 @@
  * known-limitation filter hide the missing rule.
  */
 
-import { MEGAMEK_CROSS_COUNTRY_SOURCE_REFS } from './CombatPilotModifierSourceRefs';
+import {
+  MEGAMEK_CROSS_COUNTRY_SOURCE_REFS,
+  MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
+} from './CombatPilotModifierSourceRefs';
 
 export type CombatFeatureSupportLevel =
   | 'integrated'
@@ -557,7 +560,8 @@ export const SPA_COMBAT_SUPPORT = {
   ),
   'heavy-lifter': unsupported(
     'heavy-lifter',
-    'Carry/throw-object physical combat is not implemented',
+    'MegaMek Heavy Lifter increases ground-object lift capacity by 1.5, but MekStation has no carry/throw-object physical combat action path',
+    MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
   ),
   'animal-mimicry': helperOnly(
     'animal-mimicry',
