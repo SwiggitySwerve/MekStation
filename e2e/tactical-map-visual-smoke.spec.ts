@@ -598,6 +598,59 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
   });
 
+  test('shows biped walk run and jump options from shared movement projection in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=biped-option-projection');
+
+    const optionHex = page.getByTestId('hex-0-1');
+    await expect(optionHex).toHaveAttribute('data-reachable', 'true');
+    await expect(optionHex).toHaveAttribute('data-movement-option-count', '3');
+    await expect(optionHex).toHaveAttribute(
+      'data-movement-option-types',
+      'walk,run,jump',
+    );
+    await expect(optionHex).toHaveAttribute(
+      'data-movement-option-states',
+      'walk:reachable|run:reachable|jump:reachable',
+    );
+    await expect(optionHex).toHaveAttribute(
+      'data-movement-option-costs',
+      'walk:3|run:3|jump:1',
+    );
+    await expect(optionHex).toHaveAttribute(
+      'data-movement-option-terrain-costs',
+      'walk:1|run:1|jump:0',
+    );
+    await expect(optionHex).toHaveAttribute(
+      'data-movement-option-elevation-deltas',
+      'walk:1|run:1|jump:1',
+    );
+    await expect(optionHex).toHaveAttribute(
+      'data-movement-option-elevation-costs',
+      'walk:1|run:1|jump:0',
+    );
+    await expect(optionHex).toHaveAttribute(
+      'data-movement-option-heats',
+      'walk:1|run:2|jump:3',
+    );
+
+    const movementBadge = page.getByTestId('hex-movement-badge-0-1');
+    await expect(movementBadge).toContainText('W3/R3/J1 MP');
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-count',
+      '3',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-costs',
+      'walk:3|run:3|jump:1',
+    );
+    await expect(movementBadge).toHaveAttribute(
+      'data-movement-badge-option-heats',
+      'walk:1|run:2|jump:3',
+    );
+  });
+
   test('shows VTOL elevation delta with zero elevation MP cost in browser', async ({
     page,
   }) => {

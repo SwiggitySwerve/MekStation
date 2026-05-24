@@ -142,6 +142,15 @@ accepts. This corrected the browser fixture from a static `3 MP / +1 elevation`
 row to the engine-backed `2 MP / -4 elevation` descent produced by the
 represented terrain on the test map.
 
+2026-05-24 biped movement browser parity update: a separate browser scenario
+now places the selected biped unit on flat ground and derives same-hex walk,
+run, and jump options from `deriveMovementRangeHexForDestination`. The focused
+Jest parity test feeds all three projected options into
+`validateCommittedMovement`, and the Playwright smoke verifies the real
+top-down map exposes matching MP, terrain cost, elevation cost/delta, heat, and
+reachable option metadata without relying on the older synthetic default
+movement row.
+
 Additional isometric building-height pin: `lineOfSight.ts` already treats
 represented building feature levels as vertical LOS height. The isometric
 readability projection now mirrors that vertical fact for presentation-only

@@ -35,6 +35,8 @@ const tacticalMapBipedCapability: IMovementCapability = {
 };
 
 const tacticalMapJumpElevationDestination = { q: 0, r: 1 } as const;
+const tacticalMapBipedOptionOrigin = { q: 0, r: 0 } as const;
+const tacticalMapBipedOptionDestination = { q: 0, r: 1 } as const;
 
 const tacticalMapMovementUnit: IUnitGameState = {
   id: 'attacker',
@@ -54,6 +56,30 @@ const tacticalMapMovementUnit: IUnitGameState = {
   destroyed: false,
   lockState: LockState.Pending,
 };
+
+const tacticalMapBipedOptionUnit: IUnitGameState = {
+  ...tacticalMapMovementUnit,
+  position: tacticalMapBipedOptionOrigin,
+};
+
+export const tacticalMapBipedOptionSelectedHex = tacticalMapBipedOptionOrigin;
+
+export const tacticalMapBipedOptionTokens: readonly IUnitToken[] =
+  tacticalMapTokens.map((token) => {
+    if (token.unitId === 'attacker') {
+      return {
+        ...token,
+        position: tacticalMapBipedOptionOrigin,
+      };
+    }
+    if (token.unitId === 'occluded') {
+      return {
+        ...token,
+        position: { q: 2, r: -1 },
+      };
+    }
+    return token;
+  });
 
 export const tacticalMapJumpElevationMpLegend: MapMovementPointLegendState = {
   ...tacticalMapMpLegend,
@@ -109,6 +135,64 @@ function requireMovementProjection(
   }
   return [projection];
 }
+
+function requireSingleMovementProjection(
+  projection: IMovementRangeHex | null,
+): IMovementRangeHex {
+  const [required] = requireMovementProjection(projection);
+  return required;
+}
+
+export const tacticalMapBipedOptionMovementRange: readonly IMovementRangeHex[] =
+  [
+    requireSingleMovementProjection(
+      deriveMovementRangeHexForDestination(
+        tacticalMapBipedOptionUnit,
+        MovementType.Walk,
+        tacticalMapMovementGrid(),
+        tacticalMapBipedCapability,
+        tacticalMapBipedOptionDestination,
+      ),
+    ),
+    requireSingleMovementProjection(
+      deriveMovementRangeHexForDestination(
+        tacticalMapBipedOptionUnit,
+        MovementType.Run,
+        tacticalMapMovementGrid(),
+        tacticalMapBipedCapability,
+        tacticalMapBipedOptionDestination,
+      ),
+    ),
+    requireSingleMovementProjection(
+      deriveMovementRangeHexForDestination(
+        tacticalMapBipedOptionUnit,
+        MovementType.Jump,
+        tacticalMapMovementGrid(),
+        tacticalMapBipedCapability,
+        tacticalMapBipedOptionDestination,
+      ),
+    ),
+  ];
+
+export function tacticalMapBipedOptionCommitInputs(): readonly ICommittedMovementValidationInput[] {
+  return tacticalMapBipedOptionMovementRange.map((projection) => ({
+    grid: tacticalMapMovementGrid(),
+    unit: tacticalMapBipedOptionUnit,
+    to: tacticalMapBipedOptionDestination,
+    facing: Facing.Northeast,
+    movementType: projection.movementType,
+    capability: tacticalMapBipedCapability,
+    path: projection.path,
+  }));
+}
+
+export const tacticalMapBipedOptionMpLegend: MapMovementPointLegendState = {
+  active: 'run',
+  walkMP: tacticalMapBipedCapability.walkMP,
+  runMP: tacticalMapBipedCapability.runMP,
+  jumpMP: tacticalMapBipedCapability.jumpMP,
+  jumpAvailable: true,
+};
 
 export const tacticalMapJumpElevationMovementRange: readonly IMovementRangeHex[] =
   requireMovementProjection(

@@ -58,6 +58,8 @@
 - [x] 2.23 Route the jump elevation browser scenario through the shared
   movement destination projection and prove commit validation accepts it with
   matching MP, heat, elevation delta, and path.
+- [x] 2.24 Add a coherent biped walk/run/jump browser scenario backed by shared
+  movement destination projections and commit-validation parity.
 
 ## 3. Validation
 
@@ -104,3 +106,5 @@
   projection and attack commit validator handoff.
 - [x] 3.23 Focused Jest parity test passes for the jump elevation browser
   projection and movement commit validator handoff.
+- [x] 3.24 Focused Jest parity and Playwright smoke pass for the biped
+  walk/run/jump projection-backed browser scenario.
