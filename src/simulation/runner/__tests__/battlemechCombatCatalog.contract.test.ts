@@ -1350,6 +1350,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       'actuator-damage',
       'attacker-movement',
       'attacker-prone',
+      'c3',
       'called-shot',
       'environmental-conditions',
       'gunnery',
@@ -1370,7 +1371,7 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['c3', 'ecm', 'hull-down']);
+    ).toEqual(['ecm', 'hull-down']);
   });
 
   it('pins source-backed to-hit modifiers to MegaMek refs', () => {
@@ -1379,6 +1380,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       [];
     const calledShotRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['called-shot'].sourceRefs ?? [];
+    const c3Refs = RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.c3.sourceRefs ?? [];
     const physicalDfaTargetClassRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['physical-dfa-target-class']
         .sourceRefs ?? [];
@@ -1394,6 +1396,10 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(calledShotRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek ComputeAttackerToHitMods applies +3 TacOps called-shot modifiers for high, low, left, and right called shots.',
     ]);
+    expect(c3Refs.map(({ citation }) => citation)).toEqual([
+      'MegaMek Compute.getRangeMods asks ComputeC3Spotter for a valid spotter and applies the best C3 range bracket when it improves the attack range.',
+      'MegaMek ComputeC3Spotter rejects C3 node paths when ComputeECM reports ECM effects on either leg of the network connection.',
+    ]);
     expect(physicalDfaTargetClassRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek DfaAttackAction.toHit applies +3 for Infantry targets and +1 for Battle Armor targets.',
     ]);
@@ -1407,6 +1413,7 @@ describe('BattleMech combat feature-gap tracking', () => {
       [
         ...secondaryTargetRefs,
         ...calledShotRefs,
+        ...c3Refs,
         ...physicalDfaTargetClassRefs,
         ...physicalDfaPilotingDifferentialRefs,
       ].every(

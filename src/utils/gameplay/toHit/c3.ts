@@ -12,7 +12,7 @@ import {
   IC3TargetingResult,
 } from '../c3Network';
 import { IWeaponRangeProfile } from '../range';
-import { calculateToHit } from './calculate';
+import { calculateToHit, type IEcmContext } from './calculate';
 
 export interface IC3ToHitInput {
   readonly attackerEntityId: string;
@@ -29,6 +29,8 @@ export function calculateToHitWithC3(
   range: number,
   c3Input: IC3ToHitInput,
   minRange: number = 0,
+  ecmContext?: IEcmContext,
+  weaponId?: string,
 ): IToHitCalculation & { readonly c3Result: IC3TargetingResult } {
   const c3Result = getC3TargetingBenefit(
     c3Input.attackerEntityId,
@@ -48,6 +50,8 @@ export function calculateToHitWithC3(
     effectiveBracket,
     range,
     minRange,
+    ecmContext,
+    weaponId,
   );
 
   if (!c3Result.benefitApplied) {

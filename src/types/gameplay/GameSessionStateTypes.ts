@@ -5,6 +5,7 @@
 
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 import type { IAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
+import type { IC3NetworkState } from '@/utils/gameplay/c3Network';
 import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 import type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
 import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
@@ -444,6 +445,12 @@ export interface IGameState {
    * scenario/session builders provide it, preserving legacy no-EW behavior.
    */
   readonly electronicWarfare?: IElectronicWarfareState;
+  /**
+   * Optional battle-wide C3 network state. Combat phases consume explicit
+   * C3/C3i networks when scenario/session builders provide them; automatic
+   * network formation from mounted equipment remains a separate hydration gap.
+   */
+  readonly c3Network?: IC3NetworkState;
 }
 
 // =============================================================================

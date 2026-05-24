@@ -28,6 +28,7 @@ import {
 const INTEGRATED_TO_HIT_MODIFIERS = [
   'actuator-damage',
   'attacker-prone',
+  'c3',
   'called-shot',
   'pilot-wounds',
   'sensor-damage',
@@ -35,7 +36,7 @@ const INTEGRATED_TO_HIT_MODIFIERS = [
   'terrain-features',
 ] as const;
 
-const HELPER_ONLY_TO_HIT_MODIFIERS = ['c3', 'ecm', 'hull-down'] as const;
+const HELPER_ONLY_TO_HIT_MODIFIERS = ['ecm', 'hull-down'] as const;
 
 type HelperOnlyToHitModifierId = (typeof HELPER_ONLY_TO_HIT_MODIFIERS)[number];
 type IntegratedToHitModifierId = (typeof INTEGRATED_TO_HIT_MODIFIERS)[number];

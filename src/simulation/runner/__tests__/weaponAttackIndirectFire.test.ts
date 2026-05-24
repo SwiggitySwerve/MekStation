@@ -41,6 +41,12 @@ import {
   GameEventType,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import {
+  addC3Network,
+  createC3MasterSlaveNetwork,
+  createC3Unit,
+  createEmptyC3State,
+} from '@/utils/gameplay/c3Network';
 
 import type { IAIPlayer, IAIUnitState, IAttackEvent } from '../../ai/IAIPlayer';
 import type { IWeapon } from '../../ai/types';
@@ -294,6 +300,58 @@ describe('runAttackPhase — Quick-Sim indirect-fire dispatch (PR-K7)', () => {
     expect(spotterPayload.spotterId).toBe('player-2');
     expect(spotterPayload.weaponId).toBe('lrm-15-1');
     expect(spotterPayload.basis).toBe('los');
+  });
+
+  it('does not apply C3 range sharing to indirect fire', () => {
+    const { state, weaponsByUnit } = buildScenario({ includeSpotter: true });
+    const network = createC3MasterSlaveNetwork('runner-indirect-c3', [
+      createC3Unit({
+        entityId: 'player-1',
+        teamId: GameSide.Player,
+        role: 'master',
+        position: { q: 0, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'player-2',
+        teamId: GameSide.Player,
+        role: 'slave',
+        position: { q: 10, r: 1 },
+      }),
+    ]);
+
+    expect(network).not.toBeNull();
+
+    const events = runPhase({
+      state: {
+        ...state,
+        c3Network: addC3Network(createEmptyC3State(), network!),
+      },
+      weaponsByUnit,
+      grid: makeBlockedGrid(),
+    });
+    const declared = events.find(
+      (e) =>
+        e.type === GameEventType.AttackDeclared &&
+        (e.payload as IAttackDeclaredPayload).attackerId === 'player-1',
+    );
+
+    expect(declared).toBeDefined();
+
+    const declaredPayload = declared!.payload as IAttackDeclaredPayload;
+    expect(declaredPayload.toHitNumber).toBe(7);
+    expect(declaredPayload.modifiers).toContainEqual(
+      expect.objectContaining({
+        name: 'Range (medium)',
+        value: 2,
+        source: 'range',
+      }),
+    );
+    expect(declaredPayload.modifiers).toContainEqual(
+      expect.objectContaining({ name: 'Indirect fire' }),
+    );
+    expect(declaredPayload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'C3 Network' }),
+    );
   });
 
   it('emits Forward Observer event when a walking spotter cancels the walked penalty', () => {

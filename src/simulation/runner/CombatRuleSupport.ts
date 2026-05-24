@@ -89,6 +89,23 @@ const MEGAMEK_CALLED_SHOT_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_C3_RANGE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Compute.getRangeMods asks ComputeC3Spotter for a valid spotter and applies the best C3 range bracket when it improves the attack range.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/compute/Compute.java#L1560-L1700`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek ComputeC3Spotter rejects C3 node paths when ComputeECM reports ECM effects on either leg of the network connection.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/megamek/src/megamek/common/compute/ComputeC3Spotter.java#L214-L250`,
+    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const MEGAMEK_DFA_TARGET_CLASS_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -223,10 +240,10 @@ export const RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT = {
     'calculateEcmModifier + calculateToHit optional ecmContext',
     'runAttackPhase does not derive ECM coverage or weapon guidance context',
   ),
-  c3: helperOnly(
+  c3: integrated(
     'c3',
-    'calculateToHitWithC3 + c3Network helpers',
-    'runAttackPhase does not call calculateToHitWithC3 or hydrate C3 network state',
+    'runAttackPhase consumes explicit IGameState.c3Network state, refreshes C3 member positions and ECM/iNARC ECM disruption from current unit state, and calls calculateToHitWithC3 for direct weapon attacks',
+    MEGAMEK_C3_RANGE_SOURCE_REFS,
   ),
   'terrain-features': integrated(
     'terrain-features',

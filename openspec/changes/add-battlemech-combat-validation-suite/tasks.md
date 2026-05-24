@@ -65,7 +65,7 @@
 - [x] 3.1.5 Integrate source-backed selected-ammo iNARC pod variant attachment for Homing, ECM, Haywire, and Nemesis while leaving remaining ECM/Nemesis pod effects helper-only.
 - [x] 3.1.6 Integrate source-backed attacker iNARC ECM flight-path suppression for Artemis IV/prototype IV/V cluster guidance as part of incremental iNARC ECM coverage.
 - [x] 3.1.7 Integrate source-backed iNARC Nemesis redirect for direct confusable missile attacks against friendly intervening Nemesis pod carriers while leaving remaining iNARC ECM helper work explicit.
-- [x] 3.1.8 Integrate source-backed helper-level iNARC ECM C3 disruption while leaving runner C3 hydration and remaining sensor effects explicit.
+- [x] 3.1.8 Integrate source-backed helper-level iNARC ECM C3 disruption while leaving automatic C3 network formation and remaining sensor effects explicit.
 - [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
@@ -76,6 +76,7 @@
 - [x] 3.4.3 Cross-link range bracket, attack invalidation, invalid target state, invalid side-effect, and to-hit modifier support rows into range/invalidation/to-hit requirement checklists.
 - [x] 3.4.4 Integrate source-backed DFA Infantry/Battle Armor target-class to-hit modifiers through helper, eligibility, event-sourced declaration, and runner resolution.
 - [x] 3.4.5 Integrate source-backed DFA attacker-minus-target piloting skill differential through helper, eligibility, event-sourced declaration, and runner resolution.
+- [x] 3.4.6 Integrate explicit runner C3 network state consumption for direct weapon attack to-hit while leaving automatic C3 equipment/network formation and C3 spotter LOS hydration explicit.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.

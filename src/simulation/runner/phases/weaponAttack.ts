@@ -15,10 +15,17 @@ import {
   RangeBracket,
 } from '@/types/gameplay';
 import { consumeAmmo } from '@/utils/gameplay/ammoTracking';
+import {
+  updateC3UnitECMStatus,
+  updateC3UnitPosition,
+  type IC3NetworkState,
+} from '@/utils/gameplay/c3Network';
 import { buildDefaultCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import {
   ECM_RADIUS,
+  createEmptyEWState,
   getECMProtectedFlag,
+  resolveC3ECMDisruption,
 } from '@/utils/gameplay/electronicWarfare';
 import { calculateEnvironmentalModifiers } from '@/utils/gameplay/environmentalModifiers';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
@@ -33,6 +40,7 @@ import {
   buildWeaponAttackAttackerToHitState,
   buildWeaponAttackTargetToHitState,
   calculateToHit,
+  calculateToHitWithC3,
 } from '@/utils/gameplay/toHit';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
@@ -160,6 +168,40 @@ function isFlightPathAffectedByINarcECM(
   attacker: IGameState['units'][string] | undefined,
 ): boolean {
   return hasINarcPodType(attacker, 'ecm');
+}
+
+function hydrateC3StateForAttack(
+  state: IGameState,
+): IC3NetworkState | undefined {
+  const c3State = state.c3Network;
+  if (!c3State) return undefined;
+
+  const members = c3State.networks.flatMap((network) =>
+    network.members.map((member) => {
+      const unit = state.units[member.entityId];
+
+      return {
+        entityId: member.entityId,
+        teamId: member.teamId,
+        position: unit?.position ?? member.position,
+        iNarcPods: unit?.iNarcPods,
+      };
+    }),
+  );
+  const disruptions = resolveC3ECMDisruption(
+    members,
+    state.electronicWarfare ?? createEmptyEWState(),
+  );
+
+  return members.reduce(
+    (hydrated, member) =>
+      updateC3UnitECMStatus(
+        updateC3UnitPosition(hydrated, member.entityId, member.position),
+        member.entityId,
+        disruptions.get(member.entityId) ?? false,
+      ),
+    c3State,
+  );
 }
 
 function selectPrimaryWeaponAttackTargetId(
@@ -622,16 +664,6 @@ export function runAttackPhase(options: {
         targetPartialCover,
       );
 
-      const toHitCalc = calculateToHit(
-        attackerState,
-        targetState,
-        rangeBracket,
-        distance,
-        baseWeapon.minRange,
-        undefined,
-        baseWeapon.id,
-      );
-
       // Wave 8 PR-K7: Quick-Sim indirect-fire dispatch.
       // The interactive path (declareAttack) and bot path (runAttackPhase)
       // pre-compute indirect-fire resolution via computeIndirectFireContext
@@ -655,12 +687,50 @@ export function runAttackPhase(options: {
         continue;
       }
       const indirectFireResolution = lineOfSight.indirectFireResolution;
+      const isIndirectFire =
+        indirectFireResolution?.permitted === true &&
+        indirectFireResolution.isIndirect;
       const indirectFirePenalty =
-        indirectFireResolution &&
-        indirectFireResolution.permitted &&
-        indirectFireResolution.isIndirect
+        isIndirectFire && indirectFireResolution
           ? indirectFireResolution.toHitPenalty
           : 0;
+      const c3State = hydrateC3StateForAttack(currentState);
+      const toHitCalc =
+        c3State !== undefined && !isIndirectFire
+          ? calculateToHitWithC3(
+              attackerState,
+              targetState,
+              rangeBracket,
+              distance,
+              {
+                attackerEntityId: unitId,
+                targetPosition: targetNow.position,
+                weaponRangeProfile: {
+                  short: baseWeapon.shortRange,
+                  medium: baseWeapon.mediumRange,
+                  long: baseWeapon.longRange,
+                  ...(baseWeapon.extremeRange !== undefined
+                    ? { extreme: baseWeapon.extremeRange }
+                    : {}),
+                  ...(baseWeapon.minRange > 0
+                    ? { minimum: baseWeapon.minRange }
+                    : {}),
+                },
+                c3State,
+              },
+              baseWeapon.minRange,
+              undefined,
+              baseWeapon.id,
+            )
+          : calculateToHit(
+              attackerState,
+              targetState,
+              rangeBracket,
+              distance,
+              baseWeapon.minRange,
+              undefined,
+              baseWeapon.id,
+            );
       const targetEcmProtected = currentState.electronicWarfare
         ? getECMProtectedFlag(
             attackerNow.position,

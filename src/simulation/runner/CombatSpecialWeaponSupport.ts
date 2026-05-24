@@ -96,8 +96,8 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'inarc-pod-variants': helperOnly(
     'inarc-pod-variants',
-    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes; selected ammo can attach each runner pod type, Homing has runner marker and missile guidance coverage, Haywire has attacker to-hit coverage, ECM suppresses attacker flight-path Artemis guidance and disrupts C3 helper state, and Nemesis redirects confusable missiles',
-    'Remaining iNarc ECM sensor effects and runner C3 state hydration are not represented in runner combat resolution',
+    'Source-backed iNarc pod variants are cataloged as separate ECM, Haywire, Nemesis, and Homing marker shapes; selected ammo can attach each runner pod type, Homing has runner marker and missile guidance coverage, Haywire has attacker to-hit coverage, ECM suppresses attacker flight-path Artemis guidance and disrupts C3 state, and Nemesis redirects confusable missiles',
+    'Remaining iNarc ECM sensor effects, automatic C3 network formation, and C3 spotter LOS hydration are not represented in runner combat resolution',
     MEGAMEK_INARC_POD_TYPE_SOURCE_REFS,
   ),
   'inarc-nemesis-redirect': integrated(
@@ -112,7 +112,7 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'inarc-ecm-c3-disruption': integrated(
     'inarc-ecm-c3-disruption',
-    'resolveC3ECMDisruption consumes attached iNarc ECM pod state as source-backed C3 ECM disruption, and C3 to-hit helpers deny network benefit through the existing ECM-disrupted path',
+    'resolveC3ECMDisruption consumes attached iNarc ECM pod state as source-backed C3 ECM disruption, and runner explicit C3 attack state denies network benefit through the existing ECM-disrupted path',
     MEGAMEK_INARC_ECM_C3_SOURCE_REFS,
   ),
   'inarc-variant-ammo-attachment': integrated(
