@@ -6,11 +6,14 @@ import { MovementType, Facing, GamePhase } from '@/types/gameplay';
 
 import {
   appendHoveredMovementProjection,
+  buildMovementModeSeedPlan,
+  buildMovementModeSeedPlanFromCommandPayload,
   buildMovementPlan,
   buildMovementLegendState,
   getEffectiveMovementMps,
   getPlannedMovementForSelectedUnit,
   mergeRunMovementRangeHexes,
+  movementTypeFromCommandPayload,
   movementPathFromRangeHex,
 } from './GameSessionPage.movementPlanning';
 
@@ -103,6 +106,74 @@ describe('getPlannedMovementForSelectedUnit', () => {
     expect(getPlannedMovementForSelectedUnit(legacyPlan, 'unit-a')).toBe(
       legacyPlan,
     );
+  });
+});
+
+describe('movement command payload planning', () => {
+  const selectedUnitState = {
+    id: 'unit-a',
+    position: { q: 0, r: 1 },
+    facing: Facing.Southeast,
+  } as IGameSession['currentState']['units'][string];
+
+  it('maps command payload modes to movement types used by map projection', () => {
+    expect(movementTypeFromCommandPayload({ mode: 'walk' })).toBe(
+      MovementType.Walk,
+    );
+    expect(movementTypeFromCommandPayload({ mode: 'run' })).toBe(
+      MovementType.Run,
+    );
+    expect(movementTypeFromCommandPayload({ mode: 'jump' })).toBe(
+      MovementType.Jump,
+    );
+    expect(movementTypeFromCommandPayload({ mode: 'careful' })).toBeNull();
+    expect(movementTypeFromCommandPayload({ volley: true })).toBeNull();
+  });
+
+  it('seeds an empty selected-unit movement plan for command mode switches', () => {
+    expect(
+      buildMovementModeSeedPlan({
+        selectedUnitState,
+        movementType: MovementType.Jump,
+      }),
+    ).toEqual({
+      unitId: 'unit-a',
+      destination: selectedUnitState.position,
+      facing: Facing.Southeast,
+      movementType: MovementType.Jump,
+      path: [],
+    });
+  });
+
+  it('builds a mode seed plan only for movement-phase command payloads', () => {
+    expect(
+      buildMovementModeSeedPlanFromCommandPayload({
+        phase: GamePhase.Movement,
+        payload: { mode: 'run' },
+        selectedUnitState,
+      }),
+    ).toMatchObject({
+      unitId: 'unit-a',
+      destination: selectedUnitState.position,
+      facing: Facing.Southeast,
+      movementType: MovementType.Run,
+      path: [],
+    });
+
+    expect(
+      buildMovementModeSeedPlanFromCommandPayload({
+        phase: GamePhase.WeaponAttack,
+        payload: { mode: 'run' },
+        selectedUnitState,
+      }),
+    ).toBeNull();
+    expect(
+      buildMovementModeSeedPlanFromCommandPayload({
+        phase: GamePhase.Movement,
+        payload: { volley: true },
+        selectedUnitState,
+      }),
+    ).toBeNull();
   });
 });
 

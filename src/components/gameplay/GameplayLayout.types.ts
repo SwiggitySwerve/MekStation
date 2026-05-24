@@ -8,6 +8,7 @@ import type {
   IHexCoordinate,
   IMovementRangeHex,
   IPilotSpaSummary,
+  TacticalActionHandler,
   IWeaponStatus,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
@@ -20,7 +21,7 @@ export interface GameplayLayoutProps {
   /** Callback when unit is selected */
   onUnitSelect: (unitId: string | null) => void;
   /** Callback when action is triggered */
-  onAction: (actionId: string) => void;
+  onAction: TacticalActionHandler;
   /** Callback when hex is clicked */
   onHexClick?: (hex: { q: number; r: number }) => void;
   /** Can the player undo? */

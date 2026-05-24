@@ -6,11 +6,11 @@
  * same output, no store reads. The dock and context menus call these
  * factories with the same context and surface the same commands.
  *
- * Engine integration is via the existing `onAction(actionId)` channel —
- * `commit()` returns the actionId string the dock forwards to the
- * existing `ActionBar` plumbing in `GameplayLayout`. The future direct-
- * dispatch refactor (Wave 7.4+) replaces this thin adapter with an
- * `engineMutation` payload; today's PR-D stays compatible with the
+ * Engine integration is via the existing `onAction(actionId, payload?)`
+ * channel — `commit()` returns the actionId string and mode payload the
+ * dock forwards to the existing `GameplayLayout` plumbing. The future
+ * direct-dispatch refactor (Wave 7.4+) replaces this thin adapter with
+ * an `engineMutation` payload; today's PR-D stays compatible with the
  * existing `getPhaseActions` action ids.
  *
  * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md

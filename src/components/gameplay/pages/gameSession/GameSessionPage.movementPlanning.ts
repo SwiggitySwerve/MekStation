@@ -88,6 +88,56 @@ export function getPlannedMovementForSelectedUnit(
   return plannedMovement;
 }
 
+export function movementTypeFromCommandPayload(
+  payload: unknown,
+): MovementType | null {
+  if (!payload || typeof payload !== 'object') return null;
+  const mode = (payload as { readonly mode?: unknown }).mode;
+  switch (mode) {
+    case 'walk':
+      return MovementType.Walk;
+    case 'run':
+      return MovementType.Run;
+    case 'jump':
+      return MovementType.Jump;
+    default:
+      return null;
+  }
+}
+
+export function buildMovementModeSeedPlan({
+  selectedUnitState,
+  movementType,
+}: {
+  readonly selectedUnitState: IGameSession['currentState']['units'][string];
+  readonly movementType: MovementType;
+}): IPlannedMovement {
+  return {
+    unitId: selectedUnitState.id,
+    destination: selectedUnitState.position,
+    facing: selectedUnitState.facing,
+    movementType,
+    path: [],
+  };
+}
+
+export function buildMovementModeSeedPlanFromCommandPayload({
+  phase,
+  payload,
+  selectedUnitState,
+}: {
+  readonly phase: GamePhase | undefined;
+  readonly payload: unknown;
+  readonly selectedUnitState:
+    | IGameSession['currentState']['units'][string]
+    | null;
+}): IPlannedMovement | null {
+  if (phase !== GamePhase.Movement || !selectedUnitState) return null;
+  const movementType = movementTypeFromCommandPayload(payload);
+  if (!movementType) return null;
+  return buildMovementModeSeedPlan({ selectedUnitState, movementType });
+}
+
 function facingFromPath(
   path: readonly IHexCoordinate[],
   fallback: Facing,

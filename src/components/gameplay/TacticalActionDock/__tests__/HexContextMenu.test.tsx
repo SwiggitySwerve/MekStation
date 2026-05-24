@@ -85,7 +85,7 @@ describe('HexContextMenu', () => {
     expect(screen.getByTestId('hex-context-menu-empty')).toBeInTheDocument();
   });
 
-  it('dispatches actionId through onAction and closes on activation', () => {
+  it('dispatches actionId with payload through onAction and closes on activation', () => {
     const onAction = jest.fn();
     const onClose = jest.fn();
     render(
@@ -99,7 +99,7 @@ describe('HexContextMenu', () => {
       />,
     );
     fireEvent.click(screen.getByTestId('hex-menu-item-movement.walk'));
-    expect(onAction).toHaveBeenCalledWith('lock');
+    expect(onAction).toHaveBeenCalledWith('lock', { mode: 'walk' });
     expect(onClose).toHaveBeenCalled();
   });
 

@@ -229,10 +229,10 @@ export type ICommandPreview =
   | IPhysicalAttackCommandPreview;
 
 /**
- * Side-effect contract returned by `command.commit(state)`. The action
- * dock dispatches the underlying `actionId` through the existing
- * `onAction(actionId)` channel; the `engineMutation` is reserved for
- * the future direct-dispatch refactor.
+ * Side-effect contract returned by `command.commit(state)`. Command
+ * surfaces dispatch the underlying `actionId` through the existing
+ * `onAction(actionId, payload?)` channel; the `engineMutation` is
+ * reserved for the future direct-dispatch refactor.
  */
 export interface ICommandCommitResult {
   /** Action id forwarded to `onAction` for the existing engine plumbing. */
@@ -240,6 +240,15 @@ export interface ICommandCommitResult {
   /** Optional structured payload for downstream engine handlers. */
   readonly payload?: Readonly<Record<string, unknown>>;
 }
+
+/** Structured command payload forwarded alongside legacy action ids. */
+export type TacticalActionPayload = ICommandCommitResult['payload'];
+
+/** Dispatch callback shared by the dock, context menus, and host layout. */
+export type TacticalActionHandler = (
+  actionId: string,
+  payload?: TacticalActionPayload,
+) => void;
 
 /**
  * The core command shape — the UI adapter over an engine action.
@@ -278,7 +287,7 @@ export interface ITacticalCommand {
   /**
    * Compute the engine-dispatch payload at commit time. Pure — does
    * NOT touch the store directly. The dock takes the returned
-   * `actionId` and routes it through `onAction`.
+   * `actionId` and optional `payload` and routes them through `onAction`.
    */
   commit(ctx: ITacticalCommandContext): ICommandCommitResult;
   /**

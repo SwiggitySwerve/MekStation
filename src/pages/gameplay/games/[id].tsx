@@ -11,6 +11,7 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { PhysicalAttackIntent } from '@/components/gameplay';
+import type { TacticalActionPayload } from '@/types/gameplay';
 
 import {
   CombatPlanningPanel,
@@ -19,6 +20,7 @@ import {
 } from '@/components/gameplay';
 import { useGameSessionLifecycle } from '@/components/gameplay/pages/gameSession/GameSessionPage.lifecycle';
 import { useGameMovementPlanning } from '@/components/gameplay/pages/gameSession/GameSessionPage.movement';
+import { buildMovementModeSeedPlanFromCommandPayload } from '@/components/gameplay/pages/gameSession/GameSessionPage.movementPlanning';
 import { planningWeaponsForSelectedUnit } from '@/components/gameplay/pages/gameSession/GameSessionPage.weaponPlanning';
 import {
   CompletedGame,
@@ -78,6 +80,9 @@ export default function GameSessionPage(): React.ReactElement {
   const skipPhase = useGameplaySelector((state) => state.skipPhase);
   const checkGameOver = useGameplaySelector((state) => state.checkGameOver);
   const standActiveUnit = useGameplaySelector((state) => state.standActiveUnit);
+  const setPlannedMovement = useGameplaySelector(
+    (state) => state.setPlannedMovement,
+  );
 
   const isCompletedForRedirect =
     session?.currentState.status === GameStatus.Completed;
@@ -143,14 +148,29 @@ export default function GameSessionPage(): React.ReactElement {
   );
 
   const handleInteractiveAction = useCallback(
-    (actionId: string) => {
+    (actionId: string, payload?: TacticalActionPayload) => {
       if (!isInteractive) {
         handleAction(actionId);
         return;
       }
 
       switch (actionId) {
-        case 'lock':
+        case 'lock': {
+          const selectedUnitState = ui.selectedUnitId
+            ? (session?.currentState.units[ui.selectedUnitId] ?? null)
+            : null;
+          const movementModePlan = buildMovementModeSeedPlanFromCommandPayload({
+            phase,
+            payload,
+            selectedUnitState,
+          });
+          if (movementModePlan) {
+            setPlannedMovement(movementModePlan);
+            return;
+          }
+          skipPhase();
+          break;
+        }
         case 'skip':
           skipPhase();
           break;
@@ -181,6 +201,10 @@ export default function GameSessionPage(): React.ReactElement {
     [
       isInteractive,
       handleAction,
+      phase,
+      session,
+      ui.selectedUnitId,
+      setPlannedMovement,
       skipPhase,
       standActiveUnit,
       runAITurn,

@@ -24,6 +24,7 @@ import type {
   CommandAvailability,
   ITacticalCommand,
   ITacticalCommandContext,
+  TacticalActionHandler,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
@@ -56,7 +57,7 @@ export interface TokenContextMenuProps {
   /** Close callback fired on Escape, outside-click, or after dispatch. */
   readonly onClose: () => void;
   /** Same dispatch contract as the dock — actionId routes to engine. */
-  readonly onAction: (actionId: string) => void;
+  readonly onAction: TacticalActionHandler;
   /**
    * Optional callback fired when an enemy-target command is selected
    * — the host updates `targetUnitId` in shell state so the dock and
@@ -154,7 +155,11 @@ export function TokenContextMenu({
         onTargetEnemy(tokenUnitId);
       }
       const result = command.commit(effectiveCtx);
-      onAction(result.actionId);
+      if (result.payload === undefined) {
+        onAction(result.actionId);
+      } else {
+        onAction(result.actionId, result.payload);
+      }
       onClose();
     },
     [effectiveCtx, isFriendly, onAction, onClose, onTargetEnemy, tokenUnitId],

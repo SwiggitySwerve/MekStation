@@ -17,6 +17,7 @@ import type {
   IHexCoordinate,
   ITacticalCommand,
   ITacticalCommandContext,
+  TacticalActionHandler,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
@@ -38,7 +39,7 @@ export interface HexContextMenuProps {
   /** Close callback. */
   readonly onClose: () => void;
   /** Same dispatch contract as the dock. */
-  readonly onAction: (actionId: string) => void;
+  readonly onAction: TacticalActionHandler;
 }
 
 interface MenuItemProps {
@@ -110,7 +111,11 @@ export function HexContextMenu({
         if (!ok) return;
       }
       const result = command.commit(effectiveCtx);
-      onAction(result.actionId);
+      if (result.payload === undefined) {
+        onAction(result.actionId);
+      } else {
+        onAction(result.actionId, result.payload);
+      }
       onClose();
     },
     [effectiveCtx, onAction, onClose],
