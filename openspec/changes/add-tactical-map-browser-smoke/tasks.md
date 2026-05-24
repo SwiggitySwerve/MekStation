@@ -19,6 +19,8 @@
   walk, run, and jump option metadata together.
 - [x] 2.6 Add browser coverage proving blocked movement destinations expose
   engine-style rejection metadata and an invalid badge.
+- [x] 2.7 Add browser coverage proving a LOS-blocked combat target exposes
+  blocker metadata and an invalid combat badge.
 
 ## 3. Validation
 
@@ -30,4 +32,6 @@
 - [x] 3.5 Focused Playwright smoke passes with same-hex walk/run/jump movement
   option metadata.
 - [x] 3.6 Focused Playwright smoke passes with blocked movement destination
+  metadata.
+- [x] 3.7 Focused Playwright smoke passes with LOS-blocked combat target
   metadata.

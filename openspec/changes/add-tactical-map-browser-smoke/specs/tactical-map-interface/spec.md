@@ -22,6 +22,8 @@ the top-down map.
   and heat metadata together
 - **AND** a movement-blocked hex SHALL expose the engine-aligned rejection
   reason and render an invalid badge that does not rely on color alone
+- **AND** a LOS-blocked combat target SHALL expose the blocked target id,
+  NoLineOfSight rejection, blocker hex metadata, and an invalid combat badge
 - **WHEN** browser automation switches to isometric mode and rotates the camera
 - **THEN** isometric stack, occluder, visibility, rotation, and depth metadata
   SHALL update in the rendered DOM

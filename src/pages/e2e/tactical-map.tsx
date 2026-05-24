@@ -41,6 +41,18 @@ const tokens: readonly IUnitToken[] = [
     isActiveTarget: true,
     unitType: TokenUnitType.Mech,
   },
+  {
+    unitId: 'blocked-target',
+    name: 'Locust LCT-1V',
+    designation: 'LCT',
+    position: { q: 2, r: 0 },
+    facing: Facing.Southwest,
+    side: GameSide.Opponent,
+    isDestroyed: false,
+    isSelected: false,
+    isValidTarget: true,
+    unitType: TokenUnitType.Mech,
+  },
 ];
 
 const hexTerrain: readonly IHexTerrain[] = [
@@ -78,6 +90,12 @@ const unitWeapons: Record<string, readonly IWeaponStatus[]> = {
       name: 'Medium Laser',
       location: 'right_arm',
       mountingArc: FiringArc.Front,
+      mountingArcs: [
+        FiringArc.Front,
+        FiringArc.Left,
+        FiringArc.Right,
+        FiringArc.Rear,
+      ],
       destroyed: false,
       firedThisTurn: false,
       heat: 3,

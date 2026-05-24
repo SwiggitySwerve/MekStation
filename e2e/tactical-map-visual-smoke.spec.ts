@@ -111,6 +111,26 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-combat-badge-distance',
       '1',
     );
+    const blockedTargetHex = page.getByTestId('hex-2-0');
+    await expect(blockedTargetHex).toHaveAttribute(
+      'data-combat-target-ids',
+      'blocked-target',
+    );
+    await expect(blockedTargetHex).toHaveAttribute(
+      'data-combat-los-state',
+      'blocked',
+    );
+    await expect(blockedTargetHex).toHaveAttribute(
+      'data-combat-invalid-reason',
+      'NoLineOfSight',
+    );
+    await expect(blockedTargetHex).toHaveAttribute(
+      'data-combat-los-blocker-hex',
+      '1,0',
+    );
+    await expect(
+      page.getByTestId('hex-combat-invalid-badge-2-0'),
+    ).toHaveAttribute('data-invalid-badge-code', 'NoLineOfSight');
     await expectNonBlankRender(map, 'top-down tactical map');
 
     await page.getByTestId('projection-toggle').click();
@@ -170,9 +190,11 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('isometric-scene-token-occluded'),
     ).toHaveAttribute('data-isometric-occluder-elevation', '6');
-    await expect(page.getByTestId('hex-1-0')).not.toHaveAttribute(
-      'data-isometric-occludes-units',
-    );
+    const eastOccludesAfterRotation =
+      (await page
+        .getByTestId('hex-1-0')
+        .getAttribute('data-isometric-occludes-units')) ?? '';
+    expect(eastOccludesAfterRotation.split(',')).not.toContain('occluded');
     await expect(page.getByTestId('hex--1-0')).toHaveAttribute(
       'data-isometric-occludes-units',
       'occluded',
