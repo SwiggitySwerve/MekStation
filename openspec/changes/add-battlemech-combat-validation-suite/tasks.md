@@ -90,6 +90,7 @@
 - [x] 3.4.10 Cross-check C3 spotter LOS against MegaMek/Total Warfare default behavior and lock the default no-LOS C3 range-sharing behavior with runner validation.
 - [x] 3.4.11 Hydrate source-backed mounted BattleMech C3 master/slave/C3i equipment roles from catalog equipment and critical slots while leaving battle-wide network assembly explicit.
 - [x] 3.4.12 Integrate source-backed Maneuvering Ace skidding PSR relief through runner terrain PSR queueing, runner PSR resolution, interactive PSR resolution, and catalog/OpenSpec coverage while leaving terrain-specific Maneuvering Ace PSRs beyond skidding explicit.
+- [x] 3.4.13 Integrate source-backed Animal Mimicry quad-Mek PSR relief through runner pending PSRs, runner stand-up PSRs, interactive pending PSRs, interactive stand-up PSRs, and catalog/OpenSpec coverage while leaving terrain-designation movement effects explicit.
 - [ ] 3.5 Expand lifecycle coverage for destruction, ejection, withdrawal, terminal events, turn-rotation removal, and targetability.
 - [x] 3.5.1 Cross-link damage, destruction-cause, critical-effect, pilot-damage, PSR-resolution, PSR-trigger, and critical-slot hydration support rows into damage/death/PSR requirement checklists.
 - [x] 3.5.2 Cross-link lifecycle, parity, event-stream, and validation-scope support rows into lifecycle/scope requirement checklists.
@@ -120,3 +121,4 @@
 - [x] 4.3.12 Add structured MegaMek source anchors for C3 master/slave/C3i mounted-equipment detection and Battle Armor C3 exclusion.
 - [x] 4.3.13 Cross-check MegaMek's MASC/Supercharger active-use flag clearing and prior-use counter decay lifecycle.
 - [x] 4.3.14 Cross-check MegaMek's movement-before-skid PSR distance table and Maneuvering Ace skidding relief.
+- [x] 4.3.15 Cross-check MegaMek's QuadMek Animal Mimicry piloting-roll modifier and canonical ability id.

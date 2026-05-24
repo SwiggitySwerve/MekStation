@@ -228,6 +228,37 @@ describe('runPSRPhase behavior', () => {
     });
   });
 
+  it('applies Animal Mimicry to quad BattleMech PSR target numbers', () => {
+    const unit = makeUnit({
+      abilities: ['animal_mimic'],
+      isQuad: true,
+      pendingPSRs: [createDamagePSR('player-1')],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+
+    runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: fixedRandom(0.5),
+    });
+
+    const resolved = events.find((e) => e.type === GameEventType.PSRResolved)
+      ?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 4,
+      modifiers: -1,
+      passed: true,
+      reasonCode: PSRTrigger.PhaseDamage20Plus,
+    });
+    expect(SPA_COMBAT_SUPPORT['animal-mimicry']).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('Animal Mimicry'),
+    });
+  });
+
   it('turns a failed pending PSR into a fall, pilot wound, and pilot-death destruction', () => {
     const unit = makeUnit({
       pilotWounds: 5,

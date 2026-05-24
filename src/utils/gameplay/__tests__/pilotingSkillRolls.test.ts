@@ -481,6 +481,34 @@ describe('Piloting Skill Rolls', () => {
       ]);
       expect(damageMods).toHaveLength(0);
     });
+
+    it('should apply Animal Mimicry only to quad Mek PSRs', () => {
+      const quadMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['animal-mimicry'],
+        true,
+      );
+      const bipedMods = calculatePSRModifiers(
+        createDamagePSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['animal_mimic'],
+        false,
+      );
+
+      expect(quadMods).toEqual([
+        {
+          name: 'Animal Mimicry',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(bipedMods).toHaveLength(0);
+    });
   });
 
   describe('PSR Trigger Generators — all 27 triggers', () => {

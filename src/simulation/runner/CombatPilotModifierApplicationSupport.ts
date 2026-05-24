@@ -86,6 +86,28 @@ const MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek QuadMek.addEntityBonuses applies -1 Animal Mimicry to quad Mek piloting rolls.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/units/QuadMek.java#L460-L469`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek OptionsConstants defines PILOT_ANIMAL_MIMIC as animal_mimic.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/megamek/src/megamek/common/options/OptionsConstants.java#L171-L178`,
+    sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_PSR_SPA_SOURCE_REFS = [
+  ...MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS,
+  ...MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export interface IPilotModifierResolverAssignment {
   readonly spaIds: readonly string[];
   readonly quirkIds: readonly string[];
@@ -140,9 +162,9 @@ export const PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT = {
   ),
   'psr-spa-application': helperOnly(
     'psr-spa-application',
-    'calculatePSRModifiers, runPSRPhase, and resolvePendingPSRs apply source-backed Maneuvering Ace relief to skidding PSR target numbers',
-    'Maneuvering Ace terrain PSRs beyond skidding, Terrain Master, Acrobat, Cross-Country, Natural Grace, and Animal Mimicry PSR modifiers are not wired',
-    MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS,
+    'calculatePSRModifiers, runPSRPhase, resolvePendingPSRs, and stand-up PSR paths apply source-backed Maneuvering Ace skidding relief and Animal Mimicry quad-Mek relief to PSR target numbers',
+    'Maneuvering Ace terrain PSRs beyond skidding, Animal Mimicry terrain-designation movement effects, Terrain Master, Acrobat, Cross-Country, and Natural Grace PSR modifiers are not wired',
+    MEGAMEK_PSR_SPA_SOURCE_REFS,
   ),
   'initiative-application': helperOnly(
     'initiative-application',

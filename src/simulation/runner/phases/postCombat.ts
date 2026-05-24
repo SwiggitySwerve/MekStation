@@ -71,6 +71,7 @@ export function runPSRPhase(options: {
       d6Roller,
       unit.unitQuirks ?? [],
       unit.abilities ?? [],
+      unit.isQuad ?? false,
     );
 
     for (const psrResult of batchResult.results) {

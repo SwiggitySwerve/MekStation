@@ -9,6 +9,8 @@ export {
   calculateDodgeManeuverModifier,
   calculateJumpingJackModifier,
   calculateMeleeSpecialistModifier,
+  calculateMultiTaskerModifier,
+  getAnimalMimicryPSRModifier,
   getClusterHitterBonus,
   getCoolUnderFireHeatReduction,
   getEffectiveWounds,
@@ -18,7 +20,6 @@ export {
   getMeleeMasterDamageBonus,
   getSomeLikeItHotHeatPenaltyReduction,
   getTacticalGeniusBonus,
-  calculateMultiTaskerModifier,
 } from './abilityModifiers';
 export {
   calculateGunnerySpecialistModifier,

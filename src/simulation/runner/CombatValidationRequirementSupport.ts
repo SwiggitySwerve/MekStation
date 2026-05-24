@@ -740,8 +740,8 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'spa-quirk-catalog': helperOnly(
     'spa-quirk-catalog',
-    'SPA and quirk support maps cover the combat SPA helper catalog, the canonical SPA catalog boundary, Maneuvering Ace skidding relief, and every mech or weapon quirk in the local catalogs',
-    'Several canonical SPA, SPA-helper, and quirk entries remain helper-only or unsupported until runner/application plumbing exists; Maneuvering Ace terrain PSRs beyond skidding remain explicit gaps',
+    'SPA and quirk support maps cover the combat SPA helper catalog, the canonical SPA catalog boundary, Maneuvering Ace skidding relief, Animal Mimicry quad-Mek PSR relief, and every mech or weapon quirk in the local catalogs',
+    'Several canonical SPA, SPA-helper, and quirk entries remain helper-only or unsupported until runner/application plumbing exists; Maneuvering Ace terrain PSRs beyond skidding and Animal Mimicry terrain-designation movement effects remain explicit gaps',
     [
       ...PILOT_ABILITY_SUPPORT_REFS,
       ...CANONICAL_SPA_SUPPORT_REFS,
@@ -750,7 +750,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT = {
   ),
   'spa-quirk-resolver-application': helperOnly(
     'spa-quirk-resolver-application',
-    'Pilot modifier resolver support maps every SPA and quirk to the combat resolver family that applies or should apply it, with ranged to-hit state, weapon to-hit quirks, and Maneuvering Ace skidding PSR relief now hydrated by attack or PSR paths',
+    'Pilot modifier resolver support maps every SPA and quirk to the combat resolver family that applies or should apply it, with ranged to-hit state, weapon to-hit quirks, Maneuvering Ace skidding PSR relief, and Animal Mimicry quad-Mek PSR relief now hydrated by attack or PSR paths',
     'Most remaining non-ranged-to-hit resolver families are still helper-only until their phases consume hydrated ability and quirk state',
     PILOT_MODIFIER_RESOLVER_SUPPORT_REFS,
   ),

@@ -144,6 +144,16 @@ export function getManeuveringAceSkidModifier(
 }
 
 /**
+ * Animal Mimicry: QuadMeks receive -1 on piloting rolls.
+ */
+export function getAnimalMimicryPSRModifier(
+  abilities: readonly string[],
+  isQuadMek: boolean,
+): number {
+  return isQuadMek && hasSPA(abilities, 'animal_mimic') ? -1 : 0;
+}
+
+/**
  * Tactical Genius: +1 initiative.
  */
 export function getTacticalGeniusBonus(abilities: readonly string[]): number {

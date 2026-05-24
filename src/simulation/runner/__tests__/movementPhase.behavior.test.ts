@@ -33,6 +33,7 @@ import { createEnvironmentalConditions } from '@/utils/gameplay/environmentalMod
 import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { COMBAT_COMMAND_ACTION_SUPPORT } from '../CombatActionSupport';
+import { SPA_COMBAT_SUPPORT } from '../CombatFeatureSupport';
 import { RUNNER_PSR_TRIGGER_COMBAT_SUPPORT } from '../CombatLifecycleSupport';
 import {
   MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
@@ -820,6 +821,36 @@ describe('runMovementPhase movement validation parity', () => {
       RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.StandingUp],
     ).toMatchObject({
       level: 'integrated',
+    });
+  });
+
+  it('applies Animal Mimicry to runner quad Mek stand-up PSRs', () => {
+    const { events } = runScriptedMove(
+      createMinimalGrid(3),
+      { q: 1, r: 0 },
+      {
+        abilities: ['animal_mimic'],
+        isQuad: true,
+        piloting: 5,
+        prone: true,
+      },
+      { random: fixedRandom(0.5) },
+    );
+    const resolved = events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    )?.payload as IPSRResolvedPayload | undefined;
+
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      reasonCode: PSRTrigger.StandingUp,
+      targetNumber: 4,
+      modifiers: -1,
+      roll: 8,
+      passed: true,
+    });
+    expect(SPA_COMBAT_SUPPORT['animal-mimicry']).toMatchObject({
+      level: 'helper-only',
+      evidence: expect.stringContaining('Animal Mimicry'),
     });
   });
 

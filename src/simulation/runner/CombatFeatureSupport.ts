@@ -260,6 +260,27 @@ const MEGAMEK_325B_MANEUVERING_ACE_SOURCE_REFS = [
   MEGAMEK_325B_MANEUVERING_ACE_OPTION,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const MEGAMEK_325B_ANIMAL_MIMICRY_QUAD_PSR = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek QuadMek.addEntityBonuses applies -1 Animal Mimicry to quad Mek piloting rolls.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/QuadMek.java#L460-L469',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_ANIMAL_MIMICRY_OPTION = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek OptionsConstants defines the source-backed Animal Mimicry SPA id as animal_mimic.',
+  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/options/OptionsConstants.java#L171-L178',
+  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_ANIMAL_MIMICRY_SOURCE_REFS = [
+  MEGAMEK_325B_ANIMAL_MIMICRY_QUAD_PSR,
+  MEGAMEK_325B_ANIMAL_MIMICRY_OPTION,
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const SPA_COMBAT_SUPPORT = {
   'weapon-specialist': integrated(
     'weapon-specialist',
@@ -401,9 +422,11 @@ export const SPA_COMBAT_SUPPORT = {
     'heavy-lifter',
     'Carry/throw-object physical combat is not implemented',
   ),
-  'animal-mimicry': unsupported(
+  'animal-mimicry': helperOnly(
     'animal-mimicry',
-    'Terrain-specific PSR modifier is not wired',
+    'getAnimalMimicryPSRModifier plus resolveAllPSRs/stand-up PSR paths apply source-backed Animal Mimicry -1 to quad Mek PSRs',
+    'Animal Mimicry terrain-designation movement effects and broader terrain specialization are not wired',
+    MEGAMEK_325B_ANIMAL_MIMICRY_SOURCE_REFS,
   ),
   antagonizer: unsupported(
     'antagonizer',

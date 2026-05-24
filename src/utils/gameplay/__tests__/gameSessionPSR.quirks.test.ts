@@ -12,7 +12,7 @@ import {
 import type { DiceRoller } from '../diceTypes';
 
 import { createGameSession, startGame } from '../gameSession';
-import { resolvePendingPSRs } from '../gameSessionPSR';
+import { attemptStandUp, resolvePendingPSRs } from '../gameSessionPSR';
 import { createDamagePSR, createSkiddingPSR } from '../pilotingSkillRolls';
 import { UNIT_QUIRK_IDS } from '../quirkModifiers';
 
@@ -65,6 +65,25 @@ function withPendingPSR(
         'player-1': {
           ...session.currentState.units['player-1'],
           pendingPSRs,
+        },
+      },
+    },
+  };
+}
+
+function withUnitState(
+  session: IGameSession,
+  overrides: Partial<IGameSession['currentState']['units'][string]>,
+): IGameSession {
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      units: {
+        ...session.currentState.units,
+        'player-1': {
+          ...session.currentState.units['player-1'],
+          ...overrides,
         },
       },
     },
@@ -151,6 +170,74 @@ describe('interactive PSR quirk application', () => {
       roll: 5,
       passed: true,
       reasonCode: PSRTrigger.Skidding,
+    });
+  });
+
+  it('applies Animal Mimicry while resolving interactive quad Mek PSRs', () => {
+    const session = withPendingPSR(
+      startGame(
+        createGameSession(
+          config(),
+          units({
+            abilities: ['animal-mimicry'],
+            isQuad: true,
+            unitQuirks: [],
+          }),
+        ),
+        GameSide.Player,
+      ),
+    );
+
+    const next = resolvePendingPSRs(session, scriptedD6([2, 3]));
+
+    const resolved = next.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    )?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 4,
+      modifiers: -1,
+      roll: 5,
+      passed: true,
+      reasonCode: PSRTrigger.PhaseDamage20Plus,
+    });
+  });
+
+  it('applies Animal Mimicry while resolving interactive quad Mek stand-up PSRs', () => {
+    const session = withUnitState(
+      startGame(
+        createGameSession(
+          config(),
+          units({
+            abilities: ['animal_mimic'],
+            isQuad: true,
+            unitQuirks: [],
+          }),
+        ),
+        GameSide.Player,
+      ),
+      {
+        prone: true,
+      },
+    );
+
+    const next = attemptStandUp(session, 'player-1', () => ({
+      dice: [2, 3],
+      total: 5,
+      isSnakeEyes: false,
+      isBoxcars: false,
+    }));
+
+    const resolved = next.events.find(
+      (event) => event.type === GameEventType.PSRResolved,
+    )?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 4,
+      modifiers: -1,
+      roll: 5,
+      passed: true,
+      reasonCode: PSRTrigger.StandingUp,
     });
   });
 });

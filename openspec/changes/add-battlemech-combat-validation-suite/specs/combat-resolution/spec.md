@@ -541,6 +541,19 @@ Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PS
 - **THEN** the target number SHALL include an additional `Maneuvering Ace` SPA modifier of `-1`
 - **AND** non-skidding PSRs SHALL NOT receive the Maneuvering Ace skidding modifier
 
+### Requirement: Source-Backed Animal Mimicry Quad-Mek PSR Relief
+
+Runner and interactive PSR resolution SHALL apply MegaMek's source-backed Animal Mimicry `-1` piloting-roll modifier only for explicit quad BattleMech combat state. Both canonical `animal_mimic` and legacy `animal-mimicry` ids SHALL resolve through the SPA canonicalization layer. Animal Mimicry terrain-designation movement effects SHALL remain an explicit catalog gap until movement state consumes those designated-terrain rules.
+
+#### Scenario: Quad Mek PSRs consume Animal Mimicry relief
+
+- **GIVEN** a BattleMech has `isQuad: true` and the `animal_mimic` SPA
+- **WHEN** runner or interactive pending PSRs resolve
+- **THEN** the target number SHALL include an `Animal Mimicry` SPA modifier of `-1`
+- **WHEN** runner or interactive stand-up PSRs resolve
+- **THEN** the same `Animal Mimicry` SPA modifier SHALL apply
+- **AND** non-quad units SHALL NOT receive the Animal Mimicry PSR modifier
+
 ### Requirement: Source-Truth Cross-Check Discipline
 
 Combat feature work SHALL update OpenSpec, the validation catalog, and executable tests together. Before marking a mechanic integrated, the implementation SHALL be cross-checked against official rules or MegaMek / MekHQ behavior notes, with gaps recorded as partial or unsupported rather than inferred as complete.

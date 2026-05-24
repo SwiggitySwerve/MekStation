@@ -19,6 +19,7 @@ import {
   resolveAllPSRs,
 } from './pilotingSkillRolls';
 import { calculatePilotingQuirkPSRModifier } from './quirkModifiers';
+import { getAnimalMimicryPSRModifier } from './spaModifiers';
 
 export function checkAndQueueDamagePSRs(session: IGameSession): IGameSession {
   let currentSession = session;
@@ -185,6 +186,7 @@ export function resolvePendingPSRs(
       d6Roller,
       unitState.unitQuirks ?? unit.unitQuirks ?? [],
       unitState.abilities ?? unit.abilities ?? [],
+      unitState.isQuad ?? unit.isQuad ?? false,
     );
 
     for (const result of batchResult.results) {
@@ -344,12 +346,17 @@ export function attemptStandUp(
     unitState.unitQuirks ?? unit.unitQuirks ?? [],
     false,
   );
+  const spaModifier = getAnimalMimicryPSRModifier(
+    unitState.abilities ?? unit.abilities ?? [],
+    unitState.isQuad ?? unit.isQuad ?? false,
+  );
   const tn =
     unit.piloting +
     gyroModifier +
     woundModifier +
     psr.additionalModifier +
-    quirkModifier;
+    quirkModifier +
+    spaModifier;
   const roll = diceRoller();
   const passed = roll.total >= tn;
 
@@ -364,7 +371,7 @@ export function attemptStandUp(
       unitId,
       tn,
       roll.total,
-      gyroModifier + woundModifier + quirkModifier,
+      gyroModifier + woundModifier + quirkModifier + spaModifier,
       passed,
       psr.reason,
       psr.reasonCode,

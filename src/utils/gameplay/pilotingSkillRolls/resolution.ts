@@ -9,7 +9,10 @@ import { IComponentDamageState, IPendingPSR } from '@/types/gameplay';
 import { defaultD6Roller } from '../diceTypes';
 import { D6Roller, roll2d6 } from '../hitLocation';
 import { calculatePilotingQuirkPSRModifier } from '../quirkModifiers';
-import { getManeuveringAceSkidModifier } from '../spaModifiers';
+import {
+  getAnimalMimicryPSRModifier,
+  getManeuveringAceSkidModifier,
+} from '../spaModifiers';
 import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
 
 function isTerrainPSR(psr: IPendingPSR): boolean {
@@ -46,6 +49,7 @@ export function resolvePSR(
   diceRoller: D6Roller = defaultD6Roller,
   unitQuirks: readonly string[] = [],
   pilotAbilities: readonly string[] = [],
+  isQuadMek = false,
 ): IPSRResult {
   const usesFixedTargetNumber = psr.fixedTargetNumber !== undefined;
   const modifiers = calculatePSRModifiers(
@@ -54,6 +58,7 @@ export function resolvePSR(
     pilotWounds,
     unitQuirks,
     pilotAbilities,
+    isQuadMek,
   );
 
   const totalModifier = modifiers.reduce((sum, m) => sum + m.value, 0);
@@ -99,6 +104,7 @@ export function resolveAllPSRs(
   diceRoller: D6Roller = defaultD6Roller,
   unitQuirks: readonly string[] = [],
   pilotAbilities: readonly string[] = [],
+  isQuadMek = false,
 ): IPSRBatchResult {
   if (pendingPSRs.length === 0) {
     return {
@@ -121,6 +127,7 @@ export function resolveAllPSRs(
       diceRoller,
       unitQuirks,
       pilotAbilities,
+      isQuadMek,
     );
     results.push(result);
 
@@ -158,6 +165,7 @@ export function calculatePSRModifiers(
   pilotWounds: number,
   unitQuirks: readonly string[] = [],
   pilotAbilities: readonly string[] = [],
+  isQuadMek = false,
 ): readonly IPSRModifier[] {
   if (psr.fixedTargetNumber !== undefined) {
     return psr.additionalModifier !== 0
@@ -253,6 +261,18 @@ export function calculatePSRModifiers(
         source: 'spa',
       });
     }
+  }
+
+  const animalMimicryModifier = getAnimalMimicryPSRModifier(
+    pilotAbilities,
+    isQuadMek,
+  );
+  if (animalMimicryModifier !== 0) {
+    modifiers.push({
+      name: 'Animal Mimicry',
+      value: animalMimicryModifier,
+      source: 'spa',
+    });
   }
 
   return modifiers;
