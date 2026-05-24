@@ -21,5 +21,6 @@ tactical rules oracle used by the local projection data
 as the source of displayed terrain facts
 **AND** legacy attack-range source references SHALL remain distinguishable from
 weapon-backed combat projection sources
-**AND** rendered hex metadata and hover tooltip metadata SHALL expose the same
-source-reference summary without recalculating movement or combat rules
+**AND** rendered hex metadata, projection status badge metadata, and hover
+tooltip metadata SHALL expose the same source-reference summary without
+recalculating movement or combat rules

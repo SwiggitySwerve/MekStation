@@ -2709,8 +2709,15 @@ describe('HexMapDisplay combat projection', () => {
       projectionBadge.getAttribute('data-projection-status-badge-reasons'),
     ).toContain("Target at 3 hexes is outside the selected weapons' range");
     expect(
+      projectionBadge.getAttribute('data-projection-status-badge-sources'),
+    ).toContain('combat:megamek:MegaMek combat target projection');
+    expect(
       projectionBadge.getAttribute('data-projection-status-badge-explanation'),
     ).toContain('Walk reachable 3 MP');
+    expect(projectionBadge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('combat: MegaMek combat target projection'),
+    );
     expect(screen.getByTestId('hex-movement-badge-3-0')).toHaveTextContent(
       'W3/R4 MP',
     );

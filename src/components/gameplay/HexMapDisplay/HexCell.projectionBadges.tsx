@@ -2,10 +2,16 @@ import React from 'react';
 
 import type { IHexCoordinate } from '@/types/gameplay';
 import type {
+  ITacticalMapProjectionSourceReference,
   TacticalMapCombatProjectionStatus,
   TacticalMapHexProjectionIntent,
   TacticalMapHexProjectionStatus,
   TacticalMapMovementProjectionStatus,
+} from '@/utils/gameplay/tacticalMapProjection';
+
+import {
+  formatTacticalProjectionSourceLabels,
+  formatTacticalProjectionSourceReferences,
 } from '@/utils/gameplay/tacticalMapProjection';
 
 function formatProjectionStatusLabel(
@@ -27,6 +33,7 @@ function formatProjectionStatusTitle({
   movementStatus,
   combatStatus,
   blockedReasons,
+  sourceReferences,
   explanation,
 }: {
   readonly status: TacticalMapHexProjectionStatus;
@@ -34,6 +41,9 @@ function formatProjectionStatusTitle({
   readonly movementStatus: TacticalMapMovementProjectionStatus | undefined;
   readonly combatStatus: TacticalMapCombatProjectionStatus | undefined;
   readonly blockedReasons: readonly string[] | undefined;
+  readonly sourceReferences:
+    | readonly ITacticalMapProjectionSourceReference[]
+    | undefined;
   readonly explanation: string | undefined;
 }): string {
   const statusLabel =
@@ -46,6 +56,10 @@ function formatProjectionStatusTitle({
   if (combatStatus) parts.push(`combat ${combatStatus}`);
   if (blockedReasons?.length)
     parts.push(`blocked ${blockedReasons.join('; ')}`);
+  if (sourceReferences?.length)
+    parts.push(
+      `sources ${formatTacticalProjectionSourceLabels(sourceReferences)}`,
+    );
   if (explanation) parts.push(explanation);
   return parts.join('; ');
 }
@@ -59,6 +73,7 @@ export function ProjectionStatusBadge({
   movementStatus,
   combatStatus,
   blockedReasons,
+  sourceReferences,
   explanation,
 }: {
   readonly x: number;
@@ -69,6 +84,7 @@ export function ProjectionStatusBadge({
   readonly movementStatus?: TacticalMapMovementProjectionStatus;
   readonly combatStatus?: TacticalMapCombatProjectionStatus;
   readonly blockedReasons?: readonly string[];
+  readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
   readonly explanation?: string;
 }): React.ReactElement | null {
   const label = formatProjectionStatusLabel(status);
@@ -80,6 +96,7 @@ export function ProjectionStatusBadge({
     movementStatus,
     combatStatus,
     blockedReasons,
+    sourceReferences,
     explanation,
   });
   const width = Math.max(28, label.length * 6 + 10);
@@ -95,6 +112,11 @@ export function ProjectionStatusBadge({
       data-projection-status-badge-movement-status={movementStatus}
       data-projection-status-badge-combat-status={combatStatus}
       data-projection-status-badge-reasons={blockedReasons?.join('|')}
+      data-projection-status-badge-sources={
+        sourceReferences && sourceReferences.length > 0
+          ? formatTacticalProjectionSourceReferences(sourceReferences)
+          : undefined
+      }
       data-projection-status-badge-explanation={explanation}
     >
       <title>{title}</title>

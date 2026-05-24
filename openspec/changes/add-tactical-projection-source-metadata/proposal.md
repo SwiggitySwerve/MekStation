@@ -14,8 +14,8 @@ caller-owned fallback overlays.
 - Add stable source-reference metadata to each tactical map hex projection.
 - Identify movement, combat, terrain/elevation, LOS-blocker, and legacy attack
   range channels without recalculating tactical rules in the renderer.
-- Surface the source metadata on rendered hex data attributes and tactical hover
-  tooltip metadata.
+- Surface the source metadata on rendered hex data attributes, projection status
+  badges, and tactical hover tooltip metadata.
 
 ## Out of Scope
 

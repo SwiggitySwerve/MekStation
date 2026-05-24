@@ -613,6 +613,7 @@ export const HexCell = React.memo(function HexCell({
         movementStatus={tacticalProjectionMovementStatus}
         combatStatus={tacticalProjectionCombatStatus}
         blockedReasons={tacticalProjectionBlockedReasons}
+        sourceReferences={tacticalProjectionSourceReferences}
         explanation={tacticalProjectionExplanation}
       />
       <TerrainBadge
