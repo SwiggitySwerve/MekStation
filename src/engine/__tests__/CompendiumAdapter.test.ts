@@ -417,6 +417,68 @@ describe('CompendiumAdapter', () => {
       expect(toMovementCapability(result).unitHeight).toBe(2);
     });
 
+    it.each([
+      ['Mek', 1],
+      ['AirMek', 0],
+      ['Fighter', 0],
+      [2, 0],
+    ] as const)(
+      'should derive represented LAM entity height from %s conversion mode',
+      (conversionMode, height) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'LandAirMek',
+          conversionMode,
+        } as unknown as IFullUnit);
+
+        expect(result.unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeight).toBe(height);
+      },
+    );
+
+    it.each([
+      ['Mek', 1],
+      ['Vehicle', 0],
+      [1, 0],
+      ['Tracked', 0],
+    ] as const)(
+      'should derive represented QuadVee entity height from %s conversion mode',
+      (conversionMode, height) => {
+        const result = adaptUnitFromData({
+          ...createAtlasData(),
+          unitType: 'QuadVee',
+          conversionMode:
+            typeof conversionMode === 'number' ? conversionMode : undefined,
+          motionType:
+            typeof conversionMode === 'string' && conversionMode === 'Tracked'
+              ? conversionMode
+              : 'Quad',
+          ...(typeof conversionMode === 'string' && conversionMode !== 'Tracked'
+            ? { conversionMode }
+            : {}),
+        } as unknown as IFullUnit);
+
+        expect(result.unitHeight).toBe(height);
+        expect(toMovementCapability(result).unitHeight).toBe(height);
+      },
+    );
+
+    it('should derive represented LAM height from a generic Mek configuration', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        unitType: 'BATTLEMECH',
+        configuration: 'LAM',
+        movement: {
+          walk: 6,
+          jump: 0,
+          conversionMode: 'AirMek',
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.unitHeight).toBe(0);
+      expect(toMovementCapability(result).unitHeight).toBe(0);
+    });
+
     it('should preserve explicit represented unit height over derived defaults', () => {
       const result = adaptUnitFromData({
         ...createAtlasData(),

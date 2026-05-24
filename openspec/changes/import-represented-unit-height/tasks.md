@@ -7,3 +7,4 @@
 - [x] 1.5 Add adapter and preview/commit bridge-clearance regression coverage.
 - [x] 1.6 Update movement spec/source matrix and validate the OpenSpec change.
 - [x] 1.7 Derive source-pinned non-Mek represented heights for VTOLs, super-heavy tanks, large support tanks, small craft, and dropships.
+- [x] 1.8 Derive conversion-mode-sensitive represented heights for LAM and QuadVee units when source mode data is represented.

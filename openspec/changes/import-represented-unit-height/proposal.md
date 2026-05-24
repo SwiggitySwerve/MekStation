@@ -15,6 +15,8 @@ adapter was not populating it from represented unit data or unit class.
 - Derive represented height for source-pinned non-Mek classes where the unit
   data carries enough identity/state: VTOLs, super-heavy tanks, large support
   tanks, small craft, and dropships by shape/airborne state.
+- Derive conversion-mode-sensitive represented height for LAM and QuadVee units
+  when canonical data carries a MegaMek conversion mode or movement mode.
 - Propagate the adapted height through shared movement capability.
 - Add preview-to-commit bridge-clearance coverage for a naval unit whose height
   now matters.
