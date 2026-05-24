@@ -150,6 +150,21 @@ export interface ITacticalCommandContext {
    * physical preview surface.
    */
   readonly targetPhysicalAttackOption?: IPhysicalAttackOption | null;
+  /**
+   * Physical attack options for the current target. Token context menus use
+   * this to gate each physical command against the right-clicked target without
+   * recalculating physical restrictions in the menu layer.
+   */
+  readonly targetPhysicalAttackOptions?:
+    | readonly IPhysicalAttackOption[]
+    | null;
+  /**
+   * Target-id keyed physical attack options. Enemy token context menus can
+   * override targetUnitId and pick the matching projection rows from this map.
+   */
+  readonly physicalAttackOptionsByTargetId?: Readonly<
+    Record<string, readonly IPhysicalAttackOption[]>
+  >;
   /** Hex the cursor is hovering, if any. */
   readonly hoveredHex: IHexCoordinate | null;
   /** Current game phase. Drives phase-filter at the registry level. */

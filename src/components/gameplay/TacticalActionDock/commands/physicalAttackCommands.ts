@@ -10,7 +10,10 @@
  */
 
 import type { ITacticalCommandContext } from '@/types/gameplay';
-import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
+import type {
+  IPhysicalAttackOption,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
 
 import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
@@ -48,31 +51,51 @@ function requireProjectedPhysicalAttack(
   if (!base.available) return base;
 
   const projectedOption = ctx.targetPhysicalAttackOption;
-  if (!projectedOption) return { available: true };
-  if (!attackTypes.includes(projectedOption.attackType)) {
+  if (projectedOption && attackTypes.includes(projectedOption.attackType)) {
+    return physicalOptionAvailability(projectedOption);
+  }
+
+  const projectedOptions =
+    ctx.targetPhysicalAttackOptions?.filter((option) =>
+      attackTypes.includes(option.attackType),
+    ) ?? [];
+  if (projectedOptions.length === 0) {
     return { available: true };
   }
-  if (
-    projectedOption.toHit.allowed &&
-    projectedOption.restrictionsFailed.length === 0
-  ) {
+  if (projectedOptions.some(isPhysicalOptionAvailable)) {
     return { available: true };
   }
+
+  const firstBlockedOption = projectedOptions[0];
+  return firstBlockedOption
+    ? physicalOptionAvailability(firstBlockedOption)
+    : { available: true };
+}
+
+function physicalOptionAvailability(
+  option: IPhysicalAttackOption,
+): { available: true } | { available: false; reason: string } {
+  if (isPhysicalOptionAvailable(option)) return { available: true };
 
   return {
     available: false,
-    reason: physicalProjectionBlockedReason(ctx),
+    reason: physicalProjectionBlockedReason(option),
   };
 }
 
-function physicalProjectionBlockedReason(ctx: ITacticalCommandContext): string {
-  const projectedOption = ctx.targetPhysicalAttackOption;
+function isPhysicalOptionAvailable(option: IPhysicalAttackOption): boolean {
+  return option.toHit.allowed && option.restrictionsFailed.length === 0;
+}
+
+function physicalProjectionBlockedReason(
+  projectedOption: IPhysicalAttackOption,
+): string {
   const reasonCode =
-    projectedOption?.restrictionsFailed[0] ??
-    projectedOption?.toHit.restrictionReasonCode;
+    projectedOption.restrictionsFailed[0] ??
+    projectedOption.toHit.restrictionReasonCode;
 
   return (
-    projectedOption?.toHit.restrictionReason ??
+    projectedOption.toHit.restrictionReason ??
     (reasonCode ? REASON_COPY[reasonCode] : undefined) ??
     'Physical attack is blocked by the current projection.'
   );

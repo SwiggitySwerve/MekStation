@@ -18,7 +18,7 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.2
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import type {
   CommandAvailability,
@@ -127,15 +127,22 @@ export function TokenContextMenu({
 }: TokenContextMenuProps): React.ReactElement {
   // For enemy tokens, override the target field per the spec's
   // `Enemy token context menu targets enemy` scenario.
-  const effectiveCtx: ITacticalCommandContext = isFriendly
-    ? ctx
-    : {
-        ...ctx,
-        targetUnitId: tokenUnitId,
-        targetCombatProjection:
-          ctx.combatProjectionByTargetId?.[tokenUnitId] ??
-          ctx.targetCombatProjection,
-      };
+  const effectiveCtx = useMemo<ITacticalCommandContext>(
+    () =>
+      isFriendly
+        ? ctx
+        : {
+            ...ctx,
+            targetUnitId: tokenUnitId,
+            targetCombatProjection:
+              ctx.combatProjectionByTargetId?.[tokenUnitId] ??
+              ctx.targetCombatProjection,
+            targetPhysicalAttackOptions:
+              ctx.physicalAttackOptionsByTargetId?.[tokenUnitId] ??
+              ctx.targetPhysicalAttackOptions,
+          },
+    [ctx, isFriendly, tokenUnitId],
+  );
 
   // Same registry as the dock — single source of truth.
   const commands = useCommandRegistry(effectiveCtx, shellMode);

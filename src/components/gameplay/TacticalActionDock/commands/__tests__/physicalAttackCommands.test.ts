@@ -162,6 +162,56 @@ describe('physicalAttackCommands', () => {
     });
   });
 
+  it('charge is disabled by target physical option collections', () => {
+    const charge = commands.find((c) => c.id === 'physical.charge')!;
+    const result = charge.availability(
+      makeCtx({
+        targetPhysicalAttackOptions: [
+          makePhysicalOption({
+            attackType: 'charge',
+            toHit: {
+              baseToHit: 5,
+              finalToHit: Number.POSITIVE_INFINITY,
+              modifiers: [],
+              allowed: false,
+              restrictionReasonCode: 'NoRunThisTurn',
+            },
+            restrictionsFailed: ['NoRunThisTurn'],
+          }),
+        ],
+      }),
+    );
+
+    expect(result).toEqual({
+      available: false,
+      reason: 'Charge requires running this turn',
+    });
+  });
+
+  it('keeps punch available when any projected limb option is legal', () => {
+    const punch = commands.find((c) => c.id === 'physical.punch')!;
+    const result = punch.availability(
+      makeCtx({
+        targetPhysicalAttackOptions: [
+          makePhysicalOption({
+            limb: 'leftArm',
+            toHit: {
+              baseToHit: 4,
+              finalToHit: Number.POSITIVE_INFINITY,
+              modifiers: [],
+              allowed: false,
+              restrictionReasonCode: 'WeaponFiredThisTurn',
+            },
+            restrictionsFailed: ['WeaponFiredThisTurn'],
+          }),
+          makePhysicalOption({ limb: 'rightArm' }),
+        ],
+      }),
+    );
+
+    expect(result).toEqual({ available: true });
+  });
+
   it('charge dispatches physical-attack actionId with attackType=charge', () => {
     const charge = commands.find((c) => c.id === 'physical.charge')!;
     expect(charge.commit(makeCtx())).toEqual({

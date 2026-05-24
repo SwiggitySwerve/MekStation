@@ -13,6 +13,8 @@ import React, {
   useEffect,
 } from 'react';
 
+import type { IPhysicalAttackOption } from '@/utils/gameplay/physicalAttacks/types';
+
 import { pixelToHex } from '@/constants/hexMap';
 import { hexTerrainFromGrid } from '@/engine/GameEngine.helpers';
 import { usePhaseQueueProjection } from '@/hooks/gameplay';
@@ -301,57 +303,76 @@ export function GameplayLayout({
   const localFogPlayerId =
     session.sideOwners?.[playerSide] ?? playerSide.toString();
 
-  const validPhysicalTargetIds = useMemo(() => {
+  const physicalAttackOptionsByTargetId = useMemo<
+    Readonly<Record<string, readonly IPhysicalAttackOption[]>>
+  >(() => {
     if (currentState.phase !== GamePhase.PhysicalAttack || !selectedUnitId) {
-      return [];
+      return {};
     }
     const attackerState = currentState.units[selectedUnitId] ?? null;
     const attackerBinding = units.find((unit) => unit.id === selectedUnitId);
-    if (!attackerState) return [];
+    if (!attackerState) return {};
 
     return Object.entries(currentState.units)
       .filter(([, targetState]) => targetState.side !== attackerState.side)
       .filter(([, targetState]) => !targetState.destroyed)
-      .filter(([targetId, targetState]) => {
-        const targetBinding = units.find((unit) => unit.id === targetId);
-        const options = getEligiblePhysicalAttacks(attackerState, targetState, {
-          attackerTonnage: 65,
-          attackerPilotingSkill:
-            attackerState.piloting ?? attackerBinding?.piloting ?? 5,
-          targetTonnage: 65,
-          attackerUnitType: attackerBinding?.unitType,
-          targetUnitType: targetBinding?.unitType,
-          weaponsFiredFromLeftArm: attackerState.weaponsFiredThisTurn,
-          weaponsFiredFromRightArm: attackerState.weaponsFiredThisTurn,
-          attackerRanThisTurn:
-            attackerState.movementThisTurn === MovementType.Run,
-          attackerJumpedThisTurn:
-            attackerState.movementThisTurn === MovementType.Jump,
-          elevationContext: combatGrid
-            ? buildPhysicalElevationContext(
-                attackerState,
-                targetState,
-                combatGrid,
-                {
-                  targetUnit: targetBinding,
-                },
-              )
-            : undefined,
-          terrainContext: combatGrid
-            ? buildPhysicalTerrainContext(
-                attackerState,
-                targetState,
-                combatGrid,
-              )
-            : undefined,
-        });
-        return options.some(
-          (option) =>
-            option.toHit.allowed && option.restrictionsFailed.length === 0,
-        );
-      })
-      .map(([unitId]) => unitId);
+      .reduce<Record<string, readonly IPhysicalAttackOption[]>>(
+        (byTargetId, [targetId, targetState]) => {
+          const targetBinding = units.find((unit) => unit.id === targetId);
+          const options = getEligiblePhysicalAttacks(
+            attackerState,
+            targetState,
+            {
+              attackerTonnage: 65,
+              attackerPilotingSkill:
+                attackerState.piloting ?? attackerBinding?.piloting ?? 5,
+              targetTonnage: 65,
+              attackerUnitType: attackerBinding?.unitType,
+              targetUnitType: targetBinding?.unitType,
+              weaponsFiredFromLeftArm: attackerState.weaponsFiredThisTurn,
+              weaponsFiredFromRightArm: attackerState.weaponsFiredThisTurn,
+              attackerRanThisTurn:
+                attackerState.movementThisTurn === MovementType.Run,
+              attackerJumpedThisTurn:
+                attackerState.movementThisTurn === MovementType.Jump,
+              elevationContext: combatGrid
+                ? buildPhysicalElevationContext(
+                    attackerState,
+                    targetState,
+                    combatGrid,
+                    {
+                      targetUnit: targetBinding,
+                    },
+                  )
+                : undefined,
+              terrainContext: combatGrid
+                ? buildPhysicalTerrainContext(
+                    attackerState,
+                    targetState,
+                    combatGrid,
+                  )
+                : undefined,
+            },
+          );
+          byTargetId[targetId] = options;
+          return byTargetId;
+        },
+        {},
+      );
   }, [combatGrid, currentState, selectedUnitId, units]);
+
+  const validPhysicalTargetIds = useMemo(
+    () =>
+      Object.entries(physicalAttackOptionsByTargetId)
+        .filter(([, options]) =>
+          options.some(
+            (option) =>
+              option.toHit.allowed && option.restrictionsFailed.length === 0,
+          ),
+        )
+        .map(([unitId]) => unitId),
+    [physicalAttackOptionsByTargetId],
+  );
 
   const baseTokens = useMemo(
     () =>
@@ -889,6 +910,12 @@ export function GameplayLayout({
               targetMovementProjection:
                 commandPreviewInputs.movementInfo ?? null,
               movementProjectionByHex,
+              targetPhysicalAttackOptions: physicalAttackPlan.targetUnitId
+                ? (physicalAttackOptionsByTargetId[
+                    physicalAttackPlan.targetUnitId
+                  ] ?? null)
+                : null,
+              physicalAttackOptionsByTargetId,
               hoveredHex: null,
               phase: currentState.phase,
               canAct: isPlayerTurn,
