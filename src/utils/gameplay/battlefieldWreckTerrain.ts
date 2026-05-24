@@ -1,6 +1,7 @@
 import type {
   IGameEvent,
   IGameSession,
+  ITerrainChangedPayload,
   IUnitGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import type {
@@ -37,6 +38,7 @@ export interface IBattlefieldWreckUnitProfile {
   readonly combatKind?: BattleWreckExcludedKind;
   readonly isLargeSupportTank?: boolean;
   readonly isGroundMap?: boolean;
+  readonly sourceEventId?: string;
 }
 
 export type BattlefieldWreckTerrainReason =
@@ -51,9 +53,15 @@ export type BattlefieldWreckTerrainReason =
 export interface IBattlefieldWreckTerrainResult {
   readonly changed: boolean;
   readonly reason: BattlefieldWreckTerrainReason;
+  readonly unitId?: string;
+  readonly hex?: IHexCoordinate;
   readonly previousTerrain?: string;
+  readonly previousElevation?: number;
   readonly terrain?: string;
+  readonly elevation?: number;
   readonly roughLevel?: number;
+  readonly sourceEventId?: string;
+  readonly optionalRule?: string;
 }
 
 function normalizeOptionalRule(rule: string): string {
@@ -158,9 +166,47 @@ export function applyBattlefieldWreckTerrainToGrid(
   return {
     changed: true,
     reason: 'terrain_updated',
+    unitId: unit.unitId,
+    hex: unit.position,
     previousTerrain: hex.terrain,
+    previousElevation: hex.elevation,
     terrain: nextTerrain,
+    elevation: hex.elevation,
     roughLevel: targetRoughLevel,
+    sourceEventId: unit.sourceEventId,
+    optionalRule: TAC_OPS_BATTLE_WRECK_OPTIONAL_RULE_KEY,
+  };
+}
+
+export function terrainChangedPayloadFromBattlefieldWreckResult(
+  result: IBattlefieldWreckTerrainResult,
+): ITerrainChangedPayload | null {
+  if (
+    !result.changed ||
+    result.hex === undefined ||
+    result.terrain === undefined
+  ) {
+    return null;
+  }
+
+  return {
+    hex: result.hex,
+    terrain: result.terrain,
+    ...(result.elevation !== undefined ? { elevation: result.elevation } : {}),
+    ...(result.previousTerrain !== undefined
+      ? { previousTerrain: result.previousTerrain }
+      : {}),
+    ...(result.previousElevation !== undefined
+      ? { previousElevation: result.previousElevation }
+      : {}),
+    reason: 'battlefield_wreckage',
+    ...(result.sourceEventId !== undefined
+      ? { sourceEventId: result.sourceEventId }
+      : {}),
+    ...(result.unitId !== undefined ? { sourceUnitId: result.unitId } : {}),
+    ...(result.optionalRule !== undefined
+      ? { optionalRule: result.optionalRule }
+      : {}),
   };
 }
 
@@ -179,6 +225,7 @@ function unitProfileFromDestroyedEvent(
     position: unit?.position,
     weightTons: tonnageByUnit.get(unitId),
     combatKind: unit?.combatState?.kind,
+    sourceEventId: event.id,
   };
 }
 

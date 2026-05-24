@@ -6,6 +6,7 @@ import {
   IGameEvent,
   IHeatPayload,
   IPilotHitPayload,
+  ITerrainChangedPayload,
   IUnitDestroyedPayload,
 } from '@/types/gameplay';
 
@@ -124,6 +125,26 @@ export function createUnitDestroyedEvent(
       turn,
       phase,
       unitId,
+    ),
+    payload,
+  };
+}
+
+export function createTerrainChangedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  payload: ITerrainChangedPayload,
+): IGameEvent {
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.TerrainChanged,
+      turn,
+      phase,
+      payload.sourceUnitId,
     ),
     payload,
   };

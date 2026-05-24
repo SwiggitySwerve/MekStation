@@ -21,8 +21,10 @@ import {
   IGameUnit,
   ILocationDestroyedPayload,
   IMovementDeclaredPayload,
+  ITerrainChangedPayload,
   IUnitDestroyedPayload,
   MovementType,
+  TerrainType,
   TokenUnitType,
 } from '@/types/gameplay';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -207,6 +209,41 @@ describe('deriveHexMapStateFromEvents', () => {
       expect(
         state.tokens.find((t) => t.unitId === 'opponent-2')?.isDestroyed,
       ).toBe(false);
+    });
+  });
+
+  describe('spec scenario: TerrainChanged projects hexTerrain', () => {
+    it('adds terrain at or before the cursor and excludes it before the event sequence', () => {
+      const terrainPayload: ITerrainChangedPayload = {
+        hex: { q: 2, r: -1 },
+        terrain: TerrainType.Rough,
+        elevation: 1,
+        previousTerrain: TerrainType.Clear,
+        previousElevation: 0,
+        reason: 'battlefield_wreckage',
+        sourceEventId: 'destroyed-event',
+        sourceUnitId: 'player-1',
+      };
+      const events: IGameEvent[] = [
+        makeStandardGameCreatedEvent(),
+        makeEvent({
+          sequence: 1,
+          type: GameEventType.TerrainChanged,
+          payload: terrainPayload,
+        }),
+      ];
+
+      const beforeTerrain = deriveHexMapStateFromEvents(events, 0);
+      const afterTerrain = deriveHexMapStateFromEvents(events, 1);
+
+      expect(beforeTerrain.hexTerrain).toEqual([]);
+      expect(afterTerrain.hexTerrain).toEqual([
+        {
+          coordinate: { q: 2, r: -1 },
+          elevation: 1,
+          features: [{ type: TerrainType.Rough, level: 1 }],
+        },
+      ]);
     });
   });
 

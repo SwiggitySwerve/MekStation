@@ -65,6 +65,7 @@ import type {
   IObjectiveLostPayload,
   IObjectiveProgressPayload,
 } from './GameSessionObjectiveEvents';
+import type { IHexCoordinate } from './HexGridInterfaces';
 
 export interface IShutdownCheckPayload {
   readonly unitId: string;
@@ -392,6 +393,23 @@ export interface IForcedWithdrawalTriggeredPayload {
 }
 
 /**
+ * Event-sourced terrain mutation. Carries the resolved terrain string rather
+ * than asking replay/hydration consumers to recompute rules from prior combat
+ * context.
+ */
+export interface ITerrainChangedPayload {
+  readonly hex: IHexCoordinate;
+  readonly terrain: string;
+  readonly elevation?: number;
+  readonly previousTerrain?: string;
+  readonly previousElevation?: number;
+  readonly reason: 'battlefield_wreckage';
+  readonly sourceEventId?: string;
+  readonly sourceUnitId?: string;
+  readonly optionalRule?: string;
+}
+
+/**
  * Union type for all event payloads.
  */
 export type GameEventPayload =
@@ -415,6 +433,7 @@ export type GameEventPayload =
   | IAmmoExplosionPayload
   | IUnitDestroyedPayload
   | IRedactedUnitDestroyedPayload
+  | ITerrainChangedPayload
   | ICriticalHitResolvedPayload
   | IPSRTriggeredPayload
   | IPSRResolvedPayload

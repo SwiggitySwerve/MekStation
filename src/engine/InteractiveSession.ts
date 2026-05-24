@@ -43,7 +43,11 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import { applyBattlefieldWreckTerrainForSessionEvents } from '@/utils/gameplay/battlefieldWreckTerrain';
+import {
+  applyBattlefieldWreckTerrainForSessionEvents,
+  terrainChangedPayloadFromBattlefieldWreckResult,
+} from '@/utils/gameplay/battlefieldWreckTerrain';
+import { createTerrainChangedEvent } from '@/utils/gameplay/gameEvents';
 import {
   createGameSession,
   startGame,
@@ -52,6 +56,7 @@ import {
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
+import { applyTerrainOverridesToGrid } from '@/utils/gameplay/terrainState';
 
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
@@ -92,6 +97,13 @@ import {
  * outcome resolves.
  */
 export type { IInteractiveSessionLinkage } from './InteractiveSession.types';
+
+function createRecoveredGridFromSession(session: IGameSession): IHexGrid {
+  return applyTerrainOverridesToGrid(
+    createMinimalGrid(session.config.mapRadius),
+    session.currentState.terrainOverrides,
+  );
+}
 
 export class InteractiveSession {
   private session: IGameSession;
@@ -202,7 +214,7 @@ export class InteractiveSession {
       session.config.mapRadius,
       session.config.turnLimit,
       new SeededRandom(0xc0ffee),
-      createMinimalGrid(session.config.mapRadius),
+      createRecoveredGridFromSession(session),
       [],
       [],
       session.units,
@@ -250,7 +262,7 @@ export class InteractiveSession {
       session.config.mapRadius,
       session.config.turnLimit,
       new SeededRandom(0xc0ffee),
-      createMinimalGrid(session.config.mapRadius),
+      createRecoveredGridFromSession(session),
       playerAdapted,
       opponentAdapted,
       session.units,
@@ -454,7 +466,11 @@ export class InteractiveSession {
   private appendAndPersistEvent(event: IGameEvent): void {
     const sessionBeforeEvent = this.session;
     this.session = appendEvent(this.session, event);
+    this.persistMatchLogEvent(event);
     this.applyBattlefieldWreckTerrainForNewEvents(sessionBeforeEvent);
+  }
+
+  private persistMatchLogEvent(event: IGameEvent): void {
     void matchLogStorage
       .appendEvent(this.session.matchId ?? this.session.id, event)
       .catch((error: unknown) => {
@@ -468,12 +484,25 @@ export class InteractiveSession {
     const newEvents = this.session.events.slice(
       sessionBeforeEvents.events.length,
     );
-    applyBattlefieldWreckTerrainForSessionEvents(
+    const results = applyBattlefieldWreckTerrainForSessionEvents(
       this.grid,
       sessionBeforeEvents,
       newEvents,
       this.tonnageByUnit,
     );
+    for (const result of results) {
+      const payload = terrainChangedPayloadFromBattlefieldWreckResult(result);
+      if (payload === null) continue;
+      const event = createTerrainChangedEvent(
+        this.session.id,
+        this.session.events.length,
+        this.session.currentState.turn,
+        this.session.currentState.phase,
+        payload,
+      );
+      this.session = appendEvent(this.session, event);
+      this.persistMatchLogEvent(event);
+    }
   }
 
   // Resolver-input shaping lives in `InteractiveSession.resolvers`.

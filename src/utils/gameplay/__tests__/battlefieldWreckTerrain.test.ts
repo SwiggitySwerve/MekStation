@@ -1,11 +1,15 @@
 import type { IAdaptedUnit } from '@/engine/types';
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IGameUnit } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IGameUnit,
+  ITerrainChangedPayload,
+} from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 
-import { GameEngine } from '@/engine/GameEngine';
+import { GameEngine, InteractiveSession } from '@/engine/GameEngine';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import {
+  GameEventType,
   GamePhase,
   GameSide,
   LockState,
@@ -196,7 +200,7 @@ describe('battlefield wreck terrain', () => {
     ).toBe(true);
   });
 
-  it('applies the terrain conversion from live interactive UnitDestroyed events', () => {
+  it('emits replayable terrain conversion from live interactive UnitDestroyed events', () => {
     const grid = createMinimalGrid(7);
     const engine = new GameEngine({
       mapRadius: 7,
@@ -219,18 +223,35 @@ describe('battlefield wreck terrain', () => {
     const session = interactive.getSession();
     const destroyedPosition = session.currentState.units[player.id].position;
 
-    interactive.appendEvent(
-      createUnitDestroyedEvent(
-        session.id,
-        session.events.length,
-        session.currentState.turn,
-        GamePhase.WeaponAttack,
-        player.id,
-        'damage',
-      ),
+    const destroyedEvent = createUnitDestroyedEvent(
+      session.id,
+      session.events.length,
+      session.currentState.turn,
+      GamePhase.WeaponAttack,
+      player.id,
+      'damage',
+    );
+    interactive.appendEvent(destroyedEvent);
+
+    const terrainKey = coordToKey(destroyedPosition);
+    const updatedSession = interactive.getSession();
+    const terrainEvent = updatedSession.events.find(
+      (event) => event.type === GameEventType.TerrainChanged,
     );
 
-    expect(grid.hexes.get(coordToKey(destroyedPosition))?.terrain).toBe(
+    expect(grid.hexes.get(terrainKey)?.terrain).toBe(TerrainType.Rough);
+    expect(
+      updatedSession.currentState.terrainOverrides?.[terrainKey]?.terrain,
+    ).toBe(TerrainType.Rough);
+    expect(terrainEvent).toBeDefined();
+
+    const payload = terrainEvent?.payload as ITerrainChangedPayload | undefined;
+    expect(payload?.sourceEventId).toBe(destroyedEvent.id);
+    expect(payload?.sourceUnitId).toBe(player.id);
+    expect(payload?.reason).toBe('battlefield_wreckage');
+
+    const recovered = InteractiveSession.fromSession(updatedSession);
+    expect(recovered.getGrid().hexes.get(terrainKey)?.terrain).toBe(
       TerrainType.Rough,
     );
   });

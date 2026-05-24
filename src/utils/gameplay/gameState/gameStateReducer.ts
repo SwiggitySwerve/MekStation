@@ -27,6 +27,7 @@ import {
   IRetreatTriggeredPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
+  ITerrainChangedPayload,
   IUnitDestroyedPayload,
   IUnitFellPayload,
   IUnitRetreatedPayload,
@@ -85,6 +86,7 @@ import {
   applyPhaseChanged,
   applyTurnStarted,
 } from './phaseManagement';
+import { applyTerrainChanged } from './terrainReducer';
 
 export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
   switch (event.type) {
@@ -143,6 +145,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitDestroyed:
       return applyUnitDestroyed(state, event.payload as IUnitDestroyedPayload);
+
+    case GameEventType.TerrainChanged:
+      return applyTerrainChanged(
+        state,
+        event.payload as ITerrainChangedPayload,
+      );
 
     case GameEventType.CriticalHitResolved:
       return applyCriticalHitResolved(

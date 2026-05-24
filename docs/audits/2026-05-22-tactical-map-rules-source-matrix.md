@@ -59,8 +59,11 @@ preserving stacked terrain. Coverage lives in
 `src/utils/gameplay/battlefieldWreckTerrain.ts`,
 `src/engine/InteractiveSession.ts`,
 `src/engine/GameEngine.ts`, and
-`src/utils/gameplay/__tests__/battlefieldWreckTerrain.test.ts`. Follow-up:
-event-sourced `TerrainChanged` replay/hydration support.
+`src/utils/gameplay/__tests__/battlefieldWreckTerrain.test.ts`. The
+conversion is now event-sourced through `TerrainChanged`, so recovered
+interactive sessions hydrate the rough terrain from derived terrain state and
+the replay projection exposes the mutation through `hexTerrain` at the correct
+timeline cursor.
 
 Additional physical-attack target-range pin: MegaMek
 `PhysicalAttackAction.java:97-100` rejects physical attacks when effective

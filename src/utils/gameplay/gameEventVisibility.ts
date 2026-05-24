@@ -12,6 +12,7 @@ const PUBLIC_EVENTS = new Set<GameEventType>([
   GameEventType.PhaseChanged,
   GameEventType.InitiativeRolled,
   GameEventType.InitiativeOrderSet,
+  GameEventType.TerrainChanged,
 ]);
 
 const ACTOR_ONLY_EVENTS = new Set<GameEventType>([

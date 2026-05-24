@@ -250,6 +250,16 @@ export interface IUnitGameState {
     | { readonly kind: 'squad'; readonly state: IBattleArmorCombatState };
 }
 
+export interface IGameTerrainOverride {
+  readonly hex: IHexCoordinate;
+  readonly terrain: string;
+  readonly elevation: number;
+  readonly reason?: 'battlefield_wreckage';
+  readonly sourceEventId?: string;
+  readonly sourceUnitId?: string;
+  readonly optionalRule?: string;
+}
+
 /**
  * Overall game state derived from events.
  */
@@ -272,6 +282,8 @@ export interface IGameState {
   readonly units: Record<string, IUnitGameState>;
   /** Optional tactical C3 network snapshot used by attack projection/commit. */
   readonly c3State?: IC3NetworkState;
+  /** Event-sourced terrain mutations keyed by canonical `"q,r"` hex. */
+  readonly terrainOverrides?: Record<string, IGameTerrainOverride>;
   /** Events this turn for display */
   readonly turnEvents: readonly IGameEvent[];
   /** Game result (if completed) */

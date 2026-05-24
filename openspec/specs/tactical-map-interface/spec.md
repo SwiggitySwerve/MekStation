@@ -1732,6 +1732,17 @@ unit events to the shared tactical grid used by movement projection.
 - **THEN** the destroyed unit's hex SHALL contain level-2 rough terrain
 - **AND** other stacked terrain features on that hex SHALL be preserved
 
+#### Scenario: Battlefield wreck terrain survives recovery
+
+- **GIVEN** `tacops_battle_wreck` is enabled
+- **AND** a destroyed heavy ground unit changes its hex to rough terrain
+- **WHEN** the session is recovered from its event-derived state
+- **THEN** the recovered interactive grid SHALL contain the same rough
+  terrain at the destroyed unit's hex
+- **AND** the session event log SHALL include `TerrainChanged` with
+  `reason: 'battlefield_wreckage'`, `sourceUnitId`, and `sourceEventId`
+  identifying the `UnitDestroyed` event that caused the terrain mutation
+
 ### Requirement: Persistent Effects Survive Replay
 
 Smoke and fire SHALL be derived from unit state (destroyed locations,

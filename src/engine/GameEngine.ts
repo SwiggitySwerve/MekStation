@@ -19,9 +19,14 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import { applyBattlefieldWreckTerrainForSessionEvents } from '@/utils/gameplay/battlefieldWreckTerrain';
-import { type D6Roller, type DiceRoller } from '@/utils/gameplay/diceTypes';
 import {
+  applyBattlefieldWreckTerrainForSessionEvents,
+  terrainChangedPayloadFromBattlefieldWreckResult,
+} from '@/utils/gameplay/battlefieldWreckTerrain';
+import { type D6Roller, type DiceRoller } from '@/utils/gameplay/diceTypes';
+import { createTerrainChangedEvent } from '@/utils/gameplay/gameEvents';
+import {
+  appendEvent,
   createGameSession,
   startGame,
   advancePhase,
@@ -149,7 +154,7 @@ export class GameEngine {
       );
       let sessionBeforeResolution = session;
       session = resolveAllAttacks(session, diceRoller);
-      this.applyBattlefieldWreckTerrainForSessionDelta(
+      session = this.applyBattlefieldWreckTerrainForSessionDelta(
         sessionBeforeResolution,
         session,
         tonnageByUnit,
@@ -167,7 +172,7 @@ export class GameEngine {
         d6Roller,
         this.grid,
       );
-      this.applyBattlefieldWreckTerrainForSessionDelta(
+      session = this.applyBattlefieldWreckTerrainForSessionDelta(
         sessionBeforeResolution,
         session,
         tonnageByUnit,
@@ -186,7 +191,7 @@ export class GameEngine {
           return waterDepthAtPosition(grid, unit?.position ?? position);
         },
       });
-      this.applyBattlefieldWreckTerrainForSessionDelta(
+      session = this.applyBattlefieldWreckTerrainForSessionDelta(
         sessionBeforeResolution,
         session,
         tonnageByUnit,
@@ -264,13 +269,29 @@ export class GameEngine {
     previousSession: IGameSession,
     nextSession: IGameSession,
     tonnageByUnit: ReadonlyMap<string, number>,
-  ): void {
+  ): IGameSession {
     const newEvents = nextSession.events.slice(previousSession.events.length);
-    applyBattlefieldWreckTerrainForSessionEvents(
+    const results = applyBattlefieldWreckTerrainForSessionEvents(
       this.grid,
       previousSession,
       newEvents,
       tonnageByUnit,
     );
+    let session = nextSession;
+    for (const result of results) {
+      const payload = terrainChangedPayloadFromBattlefieldWreckResult(result);
+      if (payload === null) continue;
+      session = appendEvent(
+        session,
+        createTerrainChangedEvent(
+          session.id,
+          session.events.length,
+          session.currentState.turn,
+          session.currentState.phase,
+          payload,
+        ),
+      );
+    }
+    return session;
   }
 }

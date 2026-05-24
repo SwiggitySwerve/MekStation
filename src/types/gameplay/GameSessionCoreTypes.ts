@@ -100,6 +100,7 @@ export enum GameEventType {
   HeatEffectApplied = 'heat_effect_applied',
   PilotHit = 'pilot_hit',
   UnitDestroyed = 'unit_destroyed',
+  TerrainChanged = 'terrain_changed',
   AmmoExplosion = 'ammo_explosion',
   CriticalHit = 'critical_hit',
 
