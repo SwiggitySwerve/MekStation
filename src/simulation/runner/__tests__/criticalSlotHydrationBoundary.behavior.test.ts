@@ -1,3 +1,4 @@
+import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 import type { CriticalSlotComponentType } from '@/utils/gameplay/criticalHitResolution';
 
 import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
@@ -184,6 +185,33 @@ describe('catalog critical-slot hydration boundary', () => {
     expect(unitState.caseProtection).toEqual({
       left_torso: 'case',
       right_torso: 'case',
+    });
+  });
+
+  it('hydrates CASE-P and prototype CASE as standard CASE without broad substring matches', () => {
+    const fullUnit = {
+      criticalSlots: {
+        LEFT_TORSO: ['CASE-P'],
+        RIGHT_TORSO: ['Prototype CASE'],
+        CENTER_TORSO: ['Showcase Mount'],
+      },
+    } as unknown as IFullUnit;
+
+    expect(hydrateCASEProtectionFromFullUnit(fullUnit)).toEqual({
+      left_torso: 'case',
+      right_torso: 'case',
+    });
+  });
+
+  it('keeps CASE II stronger than CASE-P when both are mounted in the same location', () => {
+    const fullUnit = {
+      criticalSlots: {
+        RIGHT_TORSO: ['CASE-P', 'CASE II'],
+      },
+    } as unknown as IFullUnit;
+
+    expect(hydrateCASEProtectionFromFullUnit(fullUnit)).toEqual({
+      right_torso: 'case_ii',
     });
   });
 });

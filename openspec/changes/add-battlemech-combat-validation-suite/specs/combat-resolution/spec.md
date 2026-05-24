@@ -76,7 +76,7 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 - **AND** weapon slots hydrated with runtime weapon ids SHALL resolve through `applyWeaponHit` so later attack planning and stale declaration validation remove destroyed weapon mounts
 - **AND** ammo critical-slot strings SHALL hydrate runtime ammo bins with stable `binId`, `weaponType`, location, remaining/max rounds, and explosive flag data
 - **AND** ammo critical entries SHALL carry `ammoBinId` when the catalog slot resolves to a runtime ammo bin
-- **AND** mounted CASE/CASE II critical-slot strings SHALL hydrate per-location `caseProtection` combat state
+- **AND** mounted CASE, CASE-P/prototype CASE, and CASE II critical-slot strings SHALL hydrate per-location `caseProtection` combat state
 - **AND** generic equipment and special-ammo lifecycle nuances SHALL remain explicit gaps until their damage paths cascade through the corresponding combat state
 
 #### Scenario: Jump-jet critical damage reduces runner jump movement
@@ -103,14 +103,15 @@ Combat resolution SHALL maintain a catalog-driven validation suite that enumerat
 
 #### Scenario: CASE-contained ammo cookoffs suppress transfer
 
-- **GIVEN** a BattleMech has mounted CASE or CASE II projected into `caseProtection` for the ammo bin location
+- **GIVEN** a BattleMech has mounted CASE, CASE-P/prototype CASE, or CASE II projected into `caseProtection` for the ammo bin location
 - **WHEN** runner heat, runner crit, or event-sourced heat ammo explosion resolution emits `AmmoExplosion`
 - **THEN** `AmmoExplosion.caseProtection` SHALL report the protection level used for the cascade
-- **AND** standard CASE SHALL cap protected explosion damage at 10 before local runner or event-sourced damage resolution
+- **AND** standard CASE and CASE-P/prototype CASE SHALL cap protected explosion damage at 10 before local runner or event-sourced damage resolution
 - **AND** CASE II SHALL cap protected explosion damage at 1 before local runner or event-sourced damage resolution
 - **AND** protected explosion damage SHALL NOT emit `TransferDamage` from the CASE-protected location
 - **AND** event-sourced heat cookoffs SHALL empty the exploded bin before applying the CASE-adjusted damage cascade
-- **AND** MegaMek rear-armor blowout, internal-only application order, and CASE-P nuance SHALL remain explicit gaps until modeled in the corresponding combat state
+- **AND** broad non-CASE equipment names that merely contain the substring "case" SHALL NOT hydrate phantom CASE protection
+- **AND** MegaMek rear-armor blowout and internal-only application order SHALL remain explicit gaps until modeled in the corresponding combat state
 
 ### Requirement: Physical Attack Legality Gates
 

@@ -1091,16 +1091,23 @@ function runnerCriticalLocationFromCatalogLocation(
 type UnitCaseProtection = NonNullable<IUnitGameState['caseProtection']>;
 type UnitCaseProtectionLevel = UnitCaseProtection[string];
 
+function isCaseIIEquipmentSignal(normalized: string): boolean {
+  return ['caseii', 'case2'].includes(normalized);
+}
+
+function isStandardCASEEquipmentSignal(normalized: string): boolean {
+  return ['case', 'casep', 'caseprototype', 'prototypecase'].includes(
+    normalized,
+  );
+}
+
 function classifyCASEProtection(id: string): UnitCaseProtectionLevel | null {
   const normalized = normalizeEquipmentId(id);
   const withoutTechPrefix = normalizedWithoutTechPrefix(normalized);
-  if (
-    withoutTechPrefix.includes('caseii') ||
-    withoutTechPrefix.includes('case2')
-  ) {
+  if (isCaseIIEquipmentSignal(withoutTechPrefix)) {
     return 'case_ii';
   }
-  if (withoutTechPrefix.includes('case')) {
+  if (isStandardCASEEquipmentSignal(withoutTechPrefix)) {
     return 'case';
   }
   return null;

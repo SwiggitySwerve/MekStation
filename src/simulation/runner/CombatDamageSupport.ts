@@ -118,7 +118,7 @@ export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
   ),
   'case-ammo-explosion-containment': integrated(
     'case-ammo-explosion-containment',
-    'UnitHydration and IGameUnit setup project CASE/CASE II into per-location combat state, heat and crit ammo cookoffs emit caseProtection, and runner/event-sourced heat cascades cap protected damage before transfer can occur',
+    'UnitHydration and IGameUnit setup project CASE, CASE-P/prototype CASE, and CASE II into per-location combat state, heat and crit ammo cookoffs emit caseProtection, and runner/event-sourced heat cascades cap protected damage before transfer can occur',
     MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS,
   ),
   'destruction-cause-state-persistence': integrated(
