@@ -27,6 +27,7 @@ import {
   canProjectMovementForSelectedUnit,
   getEffectiveMovementMps,
   getPlannedMovementForSelectedUnit,
+  mergeJumpMovementRangeHexes,
   mergeRunMovementRangeHexes,
   movementPathFromRangeHex,
   type IEffectiveMovementMps,
@@ -135,6 +136,26 @@ export function useGameMovementPlanning({
       'normal',
       { optionalRules },
     );
+    if (movementType === MovementType.Jump) {
+      const run = deriveReachableHexes(
+        selectedUnitState,
+        MovementType.Run,
+        movementGrid,
+        capability,
+        'normal',
+        { optionalRules },
+      );
+      const walk = deriveReachableHexes(
+        selectedUnitState,
+        MovementType.Walk,
+        movementGrid,
+        capability,
+        'normal',
+        { optionalRules },
+      );
+      return mergeJumpMovementRangeHexes(primary, run, walk);
+    }
+
     if (movementType !== MovementType.Run) return primary;
 
     const walk = deriveReachableHexes(

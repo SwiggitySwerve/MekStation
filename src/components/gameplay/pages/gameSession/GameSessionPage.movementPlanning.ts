@@ -234,6 +234,13 @@ function withRunOverlayMovementOptions(
   candidates: readonly IMovementRangeHex[],
 ): IMovementRangeHex {
   const primary = chooseRunOverlayPrimary(candidates);
+  return withPrimaryMovementOptions(primary, candidates);
+}
+
+function withPrimaryMovementOptions(
+  primary: IMovementRangeHex,
+  candidates: readonly IMovementRangeHex[],
+): IMovementRangeHex {
   if (candidates.length === 1) return primary;
   const ordered = [
     primary,
@@ -264,6 +271,34 @@ export function mergeRunMovementRangeHexes(
   for (const movementRangeHex of walk) addRangeHex(movementRangeHex);
 
   return Array.from(grouped.values()).map(withRunOverlayMovementOptions);
+}
+
+export function mergeJumpMovementRangeHexes(
+  jump: readonly IMovementRangeHex[],
+  run: readonly IMovementRangeHex[],
+  walk: readonly IMovementRangeHex[],
+): readonly IMovementRangeHex[] {
+  const alternativeOptions = new Map<string, IMovementRangeHex[]>();
+  const addAlternative = (movementRangeHex: IMovementRangeHex): void => {
+    const key = movementRangeKey(movementRangeHex.hex);
+    const entries = alternativeOptions.get(key);
+    if (entries) {
+      entries.push(movementRangeHex);
+      return;
+    }
+    alternativeOptions.set(key, [movementRangeHex]);
+  };
+
+  for (const movementRangeHex of run) addAlternative(movementRangeHex);
+  for (const movementRangeHex of walk) addAlternative(movementRangeHex);
+
+  return jump.map((jumpRangeHex) => {
+    const candidates = [
+      jumpRangeHex,
+      ...(alternativeOptions.get(movementRangeKey(jumpRangeHex.hex)) ?? []),
+    ];
+    return withPrimaryMovementOptions(jumpRangeHex, candidates);
+  });
 }
 
 export function appendHoveredMovementProjection(
