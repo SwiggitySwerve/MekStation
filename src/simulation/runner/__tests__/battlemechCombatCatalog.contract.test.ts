@@ -1260,6 +1260,30 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.cluster_master.level).toBe(
       'unsupported',
     );
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick).toMatchObject({
+      level: 'unsupported',
+      evidence: expect.stringContaining('Source-backed'),
+      gap: expect.stringContaining('ground-to-air'),
+    });
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Shaky Stick when an airborne or airborne VTOL/WIGE target is attacked by a non-airborne attacker.',
+      'MegaMek OptionsConstants defines PILOT_SHAKY_STICK as shaky_stick.',
+    ]);
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick.sourceRefs?.every(
+        (sourceRef) =>
+          sourceRef.kind === 'megamek-source' &&
+          sourceRef.sourceVersion ===
+            '325b2504c7b7750ecdcb85468621fb2de2ad8e60' &&
+          sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
+          sourceRef.url.includes(sourceRef.sourceVersion) &&
+          sourceRef.url.includes('#L'),
+      ),
+    ).toBe(true);
   });
 
   it('tracks ejection as UI-visible with lifecycle event and network intent support', () => {

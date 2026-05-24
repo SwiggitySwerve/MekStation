@@ -4,8 +4,10 @@ import { CANONICAL_SPA_LIST, resolveSPAId } from '@/lib/spa';
 
 import {
   SPA_COMBAT_SUPPORT,
+  type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
+import { MEGAMEK_SHAKY_STICK_SOURCE_REFS } from './CombatPilotModifierSourceRefs';
 
 const SPA_SUPPORT_BY_ID: Record<string, ICombatFeatureSupportEntry> =
   SPA_COMBAT_SUPPORT;
@@ -14,18 +16,39 @@ function helperOnly(
   id: string,
   evidence: string,
   gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  return { id, level: 'helper-only', evidence, gap };
+  return sourceRefs
+    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
+    : { id, level: 'helper-only', evidence, gap };
 }
 
-function unsupported(id: string, gap: string): ICombatFeatureSupportEntry {
-  return {
+function unsupported(
+  id: string,
+  gap: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
+  evidence = 'No combat behavior wired',
+): ICombatFeatureSupportEntry {
+  const entry: ICombatFeatureSupportEntry = {
     id,
     level: 'unsupported',
-    evidence: 'No combat behavior wired',
+    evidence,
     gap,
   };
+
+  return sourceRefs ? { ...entry, sourceRefs } : entry;
 }
+
+const CANONICAL_ONLY_SPA_SUPPORT: Readonly<
+  Record<string, ICombatFeatureSupportEntry>
+> = {
+  shaky_stick: unsupported(
+    'shaky_stick',
+    'MegaMek Shaky Stick is a ground-to-air defender to-hit modifier; MekStation ranged to-hit state does not hydrate airborne target/attacker state for this canonical SPA',
+    MEGAMEK_SHAKY_STICK_SOURCE_REFS,
+    'Source-backed MegaMek Shaky Stick defender to-hit modifier applies +1 against ground-to-air attacks when an airborne target is attacked by a non-airborne attacker',
+  ),
+};
 
 function cloneForCanonicalSpa(
   spa: ISPADefinition,
@@ -98,6 +121,9 @@ function canonicalSpaSupportEntry(
     (entry) => resolveSPAId(entry.id) === spa.id,
   );
   if (aliasedSupport) return cloneForCanonicalSpa(spa, aliasedSupport);
+
+  const canonicalOnlySupport = CANONICAL_ONLY_SPA_SUPPORT[spa.id];
+  if (canonicalOnlySupport) return canonicalOnlySupport;
 
   return canonicalSpaFallback(spa);
 }

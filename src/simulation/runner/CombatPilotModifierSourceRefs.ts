@@ -133,6 +133,17 @@ export const MEGAMEK_HEAVY_LIFTER_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_SHAKY_STICK_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek ComputeAbilityMods.processDefenderSPAs applies +1 Shaky Stick when an airborne or airborne VTOL/WIGE target is attacked by a non-airborne attacker.',
+    'megamek/src/megamek/common/actions/compute/ComputeAbilityMods.java#L259-L271',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines PILOT_SHAKY_STICK as shaky_stick.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L176-L188',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_PSR_SPA_SOURCE_REFS = [
   ...MEGAMEK_MANEUVERING_ACE_SKID_SOURCE_REFS,
   ...MEGAMEK_ANIMAL_MIMICRY_QUAD_PSR_SOURCE_REFS,
