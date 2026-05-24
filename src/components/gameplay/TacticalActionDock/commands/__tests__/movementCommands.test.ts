@@ -9,7 +9,11 @@
  * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md
  */
 
-import { GamePhase, type ITacticalCommandContext } from '@/types/gameplay';
+import {
+  GamePhase,
+  LockState,
+  type ITacticalCommandContext,
+} from '@/types/gameplay';
 
 import { buildMovementCommands } from '../movementCommands';
 
@@ -72,6 +76,23 @@ describe('movementCommands', () => {
     expect(result.available).toBe(false);
     if (!result.available) {
       expect(result.reason).toMatch(/not your turn/i);
+    }
+  });
+
+  it('walk/run/jump are disabled when the active unit already locked movement', () => {
+    for (const id of ['movement.walk', 'movement.run', 'movement.jump']) {
+      const command = commands.find((c) => c.id === id)!;
+      const result = command.availability(
+        makeCtx({
+          activeUnitProne: false,
+          activeUnitLockState: LockState.Locked,
+          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
+        }),
+      );
+      expect(result).toEqual({
+        available: false,
+        reason: 'Unit has already locked movement this phase',
+      });
     }
   });
 

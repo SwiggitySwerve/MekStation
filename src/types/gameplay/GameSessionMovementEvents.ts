@@ -103,6 +103,7 @@ export interface IMovementInvalidPayload {
     | 'NoLegalPath'
     | 'InsufficientMP'
     | 'UnitImmobile'
+    | 'UnitAlreadyMoved'
     | 'InvalidPath'
     | 'TerrainBlocked'
     | 'InvalidDestination';

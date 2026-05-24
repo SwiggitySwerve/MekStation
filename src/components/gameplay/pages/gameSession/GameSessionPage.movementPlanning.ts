@@ -8,9 +8,12 @@ import type {
 } from '@/types/gameplay';
 
 import { getHeatMovementPenalty } from '@/constants/heat';
-import { Facing, GamePhase, MovementType } from '@/types/gameplay';
+import { Facing, GamePhase, GameSide, MovementType } from '@/types/gameplay';
 import { AXIAL_DIRECTION_DELTAS } from '@/types/gameplay/HexGridInterfaces';
-import { getMaxMP } from '@/utils/gameplay/movement';
+import {
+  getMaxMP,
+  movementDeclarationLockInvalidState,
+} from '@/utils/gameplay/movement';
 
 export interface IEffectiveMovementMps {
   readonly walkMP: number;
@@ -88,6 +91,25 @@ export function getPlannedMovementForSelectedUnit(
   return plannedMovement;
 }
 
+export function canProjectMovementForSelectedUnit({
+  phase,
+  isPlayerControlled,
+  selectedUnitState,
+}: {
+  readonly phase: GamePhase | undefined;
+  readonly isPlayerControlled: boolean;
+  readonly selectedUnitState:
+    | IGameSession['currentState']['units'][string]
+    | null;
+}): boolean {
+  return (
+    phase === GamePhase.Movement &&
+    isPlayerControlled &&
+    selectedUnitState !== null &&
+    movementDeclarationLockInvalidState(selectedUnitState.lockState) === null
+  );
+}
+
 export function movementTypeFromCommandPayload(
   payload: unknown,
 ): MovementType | null {
@@ -132,7 +154,16 @@ export function buildMovementModeSeedPlanFromCommandPayload({
     | IGameSession['currentState']['units'][string]
     | null;
 }): IPlannedMovement | null {
-  if (phase !== GamePhase.Movement || !selectedUnitState) return null;
+  if (!selectedUnitState) return null;
+  if (
+    !canProjectMovementForSelectedUnit({
+      phase,
+      isPlayerControlled: selectedUnitState?.side === GameSide.Player,
+      selectedUnitState,
+    })
+  ) {
+    return null;
+  }
   const movementType = movementTypeFromCommandPayload(payload);
   if (!movementType) return null;
   return buildMovementModeSeedPlan({ selectedUnitState, movementType });

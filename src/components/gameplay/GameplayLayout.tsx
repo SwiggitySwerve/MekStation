@@ -870,6 +870,7 @@ export function GameplayLayout({
               phase: currentState.phase,
               canAct: isPlayerTurn,
               activeUnitProne: selectedUnit?.prone ?? false,
+              activeUnitLockState: selectedUnit?.lockState,
               activeUnitHeat: selectedUnit?.heat ?? 0,
               activeUnitStandUpImpossibleReason:
                 selectedStandUpImpossibleReason,

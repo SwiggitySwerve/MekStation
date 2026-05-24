@@ -47,7 +47,7 @@ import type {
 } from '@/utils/gameplay/physicalAttacks/types';
 
 import type { IAttackInvalidPayload } from './GameSessionAttackEvents';
-import type { GamePhase } from './GameSessionCoreTypes';
+import type { GamePhase, LockState } from './GameSessionCoreTypes';
 import type { IHexCoordinate, IMovementCapability } from './HexGridInterfaces';
 
 /**
@@ -120,6 +120,8 @@ export interface ITacticalCommandContext {
   readonly canAct: boolean;
   /** True when the active unit is currently prone and can attempt to stand. */
   readonly activeUnitProne?: boolean;
+  /** Current movement declaration lock state for the active unit. */
+  readonly activeUnitLockState?: LockState;
   /** Current heat on the active unit, used for heat-reduced movement MP gates. */
   readonly activeUnitHeat?: number;
   /** Source-backed reason the active unit cannot complete a stand-up attempt. */

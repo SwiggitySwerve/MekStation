@@ -15,6 +15,7 @@ import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 import { MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import { coordToKey } from '@/utils/gameplay/hexMath';
+import { movementDeclarationLockInvalidState } from '@/utils/gameplay/movement';
 import { gridWithUnitOccupants } from '@/utils/gameplay/movement/occupancy';
 import { deriveReachableHexes } from '@/utils/gameplay/movement/reachable';
 
@@ -49,14 +50,15 @@ export function getAvailableActionsForState(
   if (!attacker) return { validMoves: [], validTargets: [] };
 
   const occupiedGrid = gridWithUnitOccupants(options.grid, state.units);
-  const validMoves = movementCapability
-    ? deriveAvailableMovementDestinations(
-        unit,
-        movementCapability,
-        occupiedGrid,
-        options.session?.config.optionalRules ?? [],
-      )
-    : [];
+  const validMoves =
+    movementCapability && !movementDeclarationLockInvalidState(unit.lockState)
+      ? deriveAvailableMovementDestinations(
+          unit,
+          movementCapability,
+          occupiedGrid,
+          options.session?.config.optionalRules ?? [],
+        )
+      : [];
 
   const validTargetsById = new Map<string, Set<string>>();
   for (const projection of deriveCombatRangeHexes({

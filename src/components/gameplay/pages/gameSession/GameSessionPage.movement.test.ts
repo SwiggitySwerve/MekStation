@@ -2,7 +2,13 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { IGameSession, IMovementRangeHex } from '@/types/gameplay';
 
-import { MovementType, Facing, GamePhase } from '@/types/gameplay';
+import {
+  MovementType,
+  Facing,
+  GamePhase,
+  GameSide,
+  LockState,
+} from '@/types/gameplay';
 
 import {
   appendHoveredMovementProjection,
@@ -10,6 +16,7 @@ import {
   buildMovementModeSeedPlanFromCommandPayload,
   buildMovementPlan,
   buildMovementLegendState,
+  canProjectMovementForSelectedUnit,
   getEffectiveMovementMps,
   getPlannedMovementForSelectedUnit,
   mergeRunMovementRangeHexes,
@@ -112,8 +119,10 @@ describe('getPlannedMovementForSelectedUnit', () => {
 describe('movement command payload planning', () => {
   const selectedUnitState = {
     id: 'unit-a',
+    side: GameSide.Player,
     position: { q: 0, r: 1 },
     facing: Facing.Southeast,
+    lockState: LockState.Pending,
   } as IGameSession['currentState']['units'][string];
 
   it('maps command payload modes to movement types used by map projection', () => {
@@ -172,6 +181,28 @@ describe('movement command payload planning', () => {
         phase: GamePhase.Movement,
         payload: { volley: true },
         selectedUnitState,
+      }),
+    ).toBeNull();
+  });
+
+  it('refuses to seed movement projection for units that already locked movement', () => {
+    const lockedUnit = {
+      ...selectedUnitState,
+      lockState: LockState.Locked,
+    };
+
+    expect(
+      canProjectMovementForSelectedUnit({
+        phase: GamePhase.Movement,
+        isPlayerControlled: true,
+        selectedUnitState: lockedUnit,
+      }),
+    ).toBe(false);
+    expect(
+      buildMovementModeSeedPlanFromCommandPayload({
+        phase: GamePhase.Movement,
+        payload: { mode: 'walk' },
+        selectedUnitState: lockedUnit,
       }),
     ).toBeNull();
   });

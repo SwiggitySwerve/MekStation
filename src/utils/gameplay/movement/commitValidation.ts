@@ -21,6 +21,7 @@ import {
   movementCostContextForCapability,
   movementCostContextForStep,
 } from './calculations';
+import { movementDeclarationLockInvalidState } from './declarationEligibility';
 import { buildMovementEventPath } from './eventPath';
 import { movementModeForPath } from './mode';
 import { hexHasPavementRoadBonusSurface } from './pathfinding';
@@ -63,6 +64,19 @@ export function validateCommittedMovement(
   input: ICommittedMovementValidationInput,
 ): CommittedMovementValidationResult {
   const from = input.unit.position;
+  const alreadyMoved = movementDeclarationLockInvalidState(
+    input.unit.lockState,
+  );
+  if (alreadyMoved) {
+    return {
+      valid: false,
+      reason: alreadyMoved.reason,
+      details: alreadyMoved.details,
+      mpCost: 0,
+      heatGenerated: 0,
+    };
+  }
+
   const immobileReason = representedUnitImmobileReason(input.unit);
   if (immobileReason) {
     return {

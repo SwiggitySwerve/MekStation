@@ -24,6 +24,7 @@ import {
   appendHoveredMovementProjection,
   buildMovementPlan,
   buildMovementLegendState,
+  canProjectMovementForSelectedUnit,
   getEffectiveMovementMps,
   getPlannedMovementForSelectedUnit,
   mergeRunMovementRangeHexes,
@@ -90,6 +91,11 @@ export function useGameMovementPlanning({
   }, [session, selectedUnitId]);
 
   const isPlayerControlled = selectedUnitInfo?.side === GameSide.Player;
+  const canProjectMovement = canProjectMovementForSelectedUnit({
+    phase,
+    isPlayerControlled,
+    selectedUnitState,
+  });
   const plannedMovementForSelected = getPlannedMovementForSelectedUnit(
     plannedMovement,
     selectedUnitId,
@@ -115,8 +121,7 @@ export function useGameMovementPlanning({
       !selectedUnitState ||
       !capability ||
       !movementGrid ||
-      !isPlayerControlled ||
-      phase !== GamePhase.Movement ||
+      !canProjectMovement ||
       movementType === MovementType.Stationary
     ) {
       return [];
@@ -146,8 +151,7 @@ export function useGameMovementPlanning({
     selectedUnitState,
     capability,
     movementGrid,
-    isPlayerControlled,
-    phase,
+    canProjectMovement,
     movementType,
     optionalRules,
   ]);
@@ -167,8 +171,7 @@ export function useGameMovementPlanning({
       !selectedUnitState ||
       !capability ||
       !movementGrid ||
-      !isPlayerControlled ||
-      phase !== GamePhase.Movement ||
+      !canProjectMovement ||
       movementType === MovementType.Stationary ||
       baseMovementRangeLookup.has(`${hoveredHex.q},${hoveredHex.r}`)
     ) {
@@ -190,8 +193,7 @@ export function useGameMovementPlanning({
     selectedUnitState,
     capability,
     movementGrid,
-    isPlayerControlled,
-    phase,
+    canProjectMovement,
     movementType,
     baseMovementRangeLookup,
     optionalRules,
@@ -247,8 +249,7 @@ export function useGameMovementPlanning({
   }, [hoveredMovementRangeHex]);
 
   const hoverUnreachable =
-    phase === GamePhase.Movement &&
-    isPlayerControlled &&
+    canProjectMovement &&
     hoveredHex !== null &&
     movementRangeHexes.length > 0 &&
     !reachableKeySet.has(`${hoveredHex.q},${hoveredHex.r}`);
@@ -256,26 +257,22 @@ export function useGameMovementPlanning({
   const mpLegend = useMemo(() => {
     return buildMovementLegendState({
       phase,
-      isPlayerControlled,
+      isPlayerControlled: canProjectMovement,
       effectiveMovementMps,
       movementType,
       movementMode: capability?.movementMode,
     });
   }, [
     capability?.movementMode,
+    canProjectMovement,
     effectiveMovementMps,
-    isPlayerControlled,
     movementType,
     phase,
   ]);
 
   const handleHexClick = useCallback(
     (hex: IHexCoordinate) => {
-      if (
-        phase === GamePhase.Movement &&
-        isPlayerControlled &&
-        selectedUnitState
-      ) {
+      if (canProjectMovement && selectedUnitState) {
         const plan = buildMovementPlan({
           hex,
           selectedUnitState,
@@ -295,8 +292,7 @@ export function useGameMovementPlanning({
       }
     },
     [
-      phase,
-      isPlayerControlled,
+      canProjectMovement,
       selectedUnitState,
       movementRangeLookup,
       movementType,
@@ -311,10 +307,15 @@ export function useGameMovementPlanning({
       clearPlannedMovement();
       return;
     }
+    if (plannedMovement && !canProjectMovement) {
+      clearPlannedMovement();
+      return;
+    }
     if (phase !== GamePhase.Movement && plannedMovement) {
       clearPlannedMovement();
     }
   }, [
+    canProjectMovement,
     phase,
     plannedMovement,
     plannedMovementForSelected,

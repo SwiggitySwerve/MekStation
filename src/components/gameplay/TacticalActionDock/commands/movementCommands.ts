@@ -24,7 +24,11 @@ import {
   type ITacticalCommand,
   type ITacticalCommandContext,
 } from '@/types/gameplay';
-import { getMaxMP, getStandingCost } from '@/utils/gameplay/movement';
+import {
+  getMaxMP,
+  getStandingCost,
+  movementDeclarationLockInvalidState,
+} from '@/utils/gameplay/movement';
 
 /**
  * Build the movement-family command list for the current active unit.
@@ -61,6 +65,10 @@ const MovementWalkCommand: ITacticalCommand = {
     if (!ctx.canAct) {
       return { available: false, reason: 'Not your turn.' };
     }
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) {
+      return { available: false, reason: locked.details };
+    }
     return { available: true };
   },
   commit() {
@@ -83,6 +91,8 @@ const MovementRunCommand: ITacticalCommand = {
     if (!ctx.activeUnitId)
       return { available: false, reason: 'No unit is active.' };
     if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
     return { available: true };
   },
   commit() {
@@ -103,6 +113,8 @@ const MovementJumpCommand: ITacticalCommand = {
     if (!ctx.activeUnitId)
       return { available: false, reason: 'No unit is active.' };
     if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
     if (ctx.movementCapability && ctx.movementCapability.jumpMP <= 0) {
       return { available: false, reason: 'No jump capability.' };
     }
@@ -130,6 +142,8 @@ const MovementStandCommand: ITacticalCommand = {
     if (!ctx.activeUnitId)
       return { available: false, reason: 'No unit is active.' };
     if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
     if (ctx.activeUnitProne !== true) {
       return { available: false, reason: 'Unit is not prone.' };
     }
@@ -219,6 +233,8 @@ const MovementStabilizeCommand: ITacticalCommand = {
     if (!ctx.activeUnitId)
       return { available: false, reason: 'No unit is active.' };
     if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
     return { available: true };
   },
   commit() {
@@ -239,6 +255,8 @@ const MovementCancelCommand: ITacticalCommand = {
     // clear a partial preview. No disabled-reason branch.
     if (!ctx.activeUnitId)
       return { available: false, reason: 'Nothing to cancel.' };
+    const locked = movementDeclarationLockInvalidState(ctx.activeUnitLockState);
+    if (locked) return { available: false, reason: locked.details };
     return { available: true };
   },
   commit() {

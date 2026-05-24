@@ -12,6 +12,7 @@ import {
   Facing,
   GameEventType,
   GameSide,
+  LockState,
   MovementType,
   type IGameSession,
   type IGameUnit,
@@ -171,6 +172,52 @@ describe('applyInteractiveSessionMovement', () => {
       unitId: 'm1',
       reason: 'InsufficientMP',
       mpCost: 3,
+    });
+  });
+
+  it('rejects a second movement declaration after the unit is locked', () => {
+    const session = setupSessionAtMovement();
+    const grid = makeGrid();
+    const movementByUnit = capability({ walkMP: 4, runMP: 6 });
+    const first = applyInteractiveSessionMovement({
+      session,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 0, r: 1 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+    });
+
+    expect(first.currentState.units.m1.lockState).toBe(LockState.Locked);
+    expect(first.currentState.units.m1.position).toEqual({ q: 0, r: 1 });
+
+    const second = applyInteractiveSessionMovement({
+      session: first,
+      grid,
+      movementByUnit,
+      unitId: 'm1',
+      to: { q: 0, r: 2 },
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+    });
+
+    expect(second.currentState.units.m1.position).toEqual({ q: 0, r: 1 });
+    expect(
+      second.events.filter(
+        (event) => event.type === GameEventType.MovementDeclared,
+      ),
+    ).toHaveLength(1);
+    const invalid = second.events.findLast(
+      (event) => event.type === GameEventType.MovementInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IMovementInvalidPayload).toMatchObject({
+      unitId: 'm1',
+      reason: 'UnitAlreadyMoved',
+      details: 'Unit has already locked movement this phase',
+      mpCost: 0,
+      heatGenerated: 0,
     });
   });
 

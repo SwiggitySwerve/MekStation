@@ -33,3 +33,4 @@ export {
 export { findPath } from './pathfinding';
 export { deriveReachableHexes } from './reachable';
 export { gridWithUnitOccupants } from './occupancy';
+export { movementDeclarationLockInvalidState } from './declarationEligibility';
