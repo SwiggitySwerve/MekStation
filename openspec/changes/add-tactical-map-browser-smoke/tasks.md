@@ -17,6 +17,8 @@
   occluder highlight between opposing tall elevation stacks.
 - [x] 2.5 Add browser coverage proving a highlighted movement hex exposes
   walk, run, and jump option metadata together.
+- [x] 2.6 Add browser coverage proving blocked movement destinations expose
+  engine-style rejection metadata and an invalid badge.
 
 ## 3. Validation
 
@@ -27,3 +29,5 @@
   case.
 - [x] 3.5 Focused Playwright smoke passes with same-hex walk/run/jump movement
   option metadata.
+- [x] 3.6 Focused Playwright smoke passes with blocked movement destination
+  metadata.

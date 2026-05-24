@@ -48,6 +48,12 @@ and verifies the combined badge metadata for option costs, terrain costs,
 elevation costs, and heat. Remaining browser movement gaps are broad path-shape
 and invalid-destination sweeps beyond the smoke harness.
 
+2026-05-24 blocked movement browser update: the tactical-map browser harness now
+also renders an unreachable jump destination with an engine-style
+`TerrainBlocked` reason and verifies the top-down invalid badge plus rejection
+detail metadata. Remaining browser movement gaps are broader blocked-reason
+families and complete path-shape sweeps beyond the smoke harness.
+
 2026-05-24 movement gap update: the movement row's older frogman/swim and
 TacOps infantry pavement-bonus gaps are closed by the current
 `tactical-map-interface` spec and fixtures. Remaining movement oracle gaps are

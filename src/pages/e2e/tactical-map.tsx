@@ -167,6 +167,25 @@ export default function TacticalMapE2EHarness(): React.JSX.Element {
                   { q: 0, r: 1 },
                 ],
               },
+              {
+                hex: { q: 1, r: 0 },
+                mpCost: 4,
+                terrainCost: 0,
+                elevationDelta: 4,
+                elevationCost: 0,
+                heatGenerated: 3,
+                movementMode: 'jump',
+                reachable: false,
+                movementType: MovementType.Jump,
+                blockedReason: 'Jump elevation rise of 4 exceeds jump MP 3',
+                movementInvalidReason: 'TerrainBlocked',
+                movementInvalidDetails:
+                  'Jump elevation rise of 4 exceeds jump MP 3',
+                path: [
+                  { q: -1, r: 0 },
+                  { q: 1, r: 0 },
+                ],
+              },
             ]}
             highlightPath={[
               { q: -1, r: 0 },

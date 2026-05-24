@@ -86,6 +86,27 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-movement-badge-option-heats',
       'walk:0|run:2|jump:3',
     );
+    await expect(page.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-reachable',
+      'false',
+    );
+    await expect(page.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-movement-type',
+      'jump',
+    );
+    await expect(page.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-movement-invalid-reason',
+      'TerrainBlocked',
+    );
+    await expect(
+      page.getByTestId('hex-movement-invalid-badge-1-0').locator('text'),
+    ).toHaveText('ELEV');
+    await expect(
+      page.getByTestId('hex-movement-invalid-badge-1-0'),
+    ).toHaveAttribute(
+      'data-invalid-badge-reason',
+      'Jump elevation rise of 4 exceeds jump MP 3',
+    );
     await expect(page.getByTestId('hex-combat-badge-0-0')).toHaveAttribute(
       'data-combat-badge-distance',
       '1',
