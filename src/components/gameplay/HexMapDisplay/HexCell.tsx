@@ -113,6 +113,19 @@ function colorForMovementType(type: MovementType): string {
   }
 }
 
+function terrainBuildingIdsForTerrain(
+  terrain: IHexTerrain | undefined,
+): readonly string[] {
+  if (!terrain) return [];
+  return Array.from(
+    new Set(
+      terrain.features
+        .map((feature) => feature.buildingId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  );
+}
+
 export interface HexCellProps {
   hex: IHexCoordinate;
   terrain?: IHexTerrain;
@@ -204,6 +217,9 @@ export const HexCell = React.memo(function HexCell({
   const primaryFeature = getPrimaryTerrainFeature(terrain);
   const terrainType = primaryFeature?.type ?? null;
   const terrainTypes = terrain?.features.map((feature) => feature.type) ?? [];
+  const terrainBuildingIds = terrainBuildingIdsForTerrain(terrain);
+  const terrainBuildingIdAttribute =
+    terrainBuildingIds.length > 0 ? terrainBuildingIds.join(',') : undefined;
   const elevation = terrain?.elevation ?? 0;
   const elevationLabel = formatElevationLabel(elevation);
   const isIsometricTile = isIsometricProjection(projectionMode);
@@ -305,6 +321,8 @@ export const HexCell = React.memo(function HexCell({
   const hexLabel = `Hex ${hex.q},${hex.r}; terrain ${formatTerrainFeaturesLabel(
     terrainTypes,
   )}; primary ${formatTerrainLabel(terrainType)}; elevation ${elevationLabel}${
+    terrainBuildingIdAttribute ? `; building ${terrainBuildingIdAttribute}` : ''
+  }${
     movementLabel ? `; ${movementLabel}` : ''
   }${combatLabel ? `; ${combatLabel}` : ''}${
     pathLabel ? `; ${pathLabel}` : ''
@@ -360,6 +378,7 @@ export const HexCell = React.memo(function HexCell({
       data-terrain-features={
         terrainTypes.length > 0 ? terrainTypes.join(',') : undefined
       }
+      data-terrain-building-ids={terrainBuildingIdAttribute}
       data-elevation-delta={movementInfo?.elevationDelta}
       data-elevation-cost={movementInfo?.elevationCost}
       data-stand-up-required={

@@ -436,7 +436,12 @@ describe('HexMapDisplay tactical visual layers', () => {
             elevation: 1,
             features: [
               { type: TerrainType.LightWoods, level: 1 },
-              { type: TerrainType.Building, level: 1 },
+              {
+                type: TerrainType.Building,
+                level: 2,
+                buildingId: 'warehouse-a',
+                constructionFactor: 30,
+              },
             ],
           },
         ]}
@@ -499,6 +504,10 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-terrain-features',
       'light_woods,building',
     );
+    expect(reachable).toHaveAttribute(
+      'data-terrain-building-ids',
+      'warehouse-a',
+    );
     expect(reachable).toHaveAttribute('data-terrain-primary', 'building');
     expect(reachable).toHaveAttribute('data-mp-cost', '3');
     expect(reachable).toHaveAttribute('data-terrain-cost', '1');
@@ -510,7 +519,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(reachable).toHaveAttribute(
       'data-tactical-projection-sources',
       expect.stringContaining(
-        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods,building elevation 1',
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods,building level 2 id warehouse-a CF 30 elevation 1',
       ),
     );
     expect(reachable).toHaveAttribute(
@@ -565,6 +574,10 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(reachable).toHaveAttribute(
       'aria-label',
+      expect.stringContaining('building warehouse-a'),
+    );
+    expect(reachable).toHaveAttribute(
+      'aria-label',
       expect.stringContaining('walk via tracked reachable'),
     );
 
@@ -581,6 +594,12 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(
       screen.getByTestId('hex-movement-tooltip-elevation-context'),
     ).toHaveTextContent('Elevation: +1');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-building-context'),
+    ).toHaveTextContent('Building: warehouse-a');
+    expect(
+      screen.getByTestId('hex-movement-tooltip-building-context'),
+    ).toHaveAttribute('data-terrain-building-ids', 'warehouse-a');
     const projectionContext = screen.getByTestId(
       'hex-movement-tooltip-projection-context',
     );
@@ -1041,7 +1060,12 @@ describe('HexMapDisplay tactical visual layers', () => {
             elevation: 1,
             features: [
               { type: TerrainType.LightWoods, level: 1 },
-              { type: TerrainType.Building, level: 1 },
+              {
+                type: TerrainType.Building,
+                level: 2,
+                buildingId: 'warehouse-a',
+                constructionFactor: 30,
+              },
             ],
           },
         ]}
@@ -1050,12 +1074,28 @@ describe('HexMapDisplay tactical visual layers', () => {
 
     fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
 
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-terrain-building-ids',
+      'warehouse-a',
+    );
+    expect(screen.getByTestId('hex-1-0')).toHaveAttribute(
+      'data-tactical-projection-sources',
+      expect.stringContaining(
+        'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods,building level 2 id warehouse-a CF 30 elevation 1',
+      ),
+    );
     expect(screen.getByTestId('hex-terrain-tooltip-title')).toHaveTextContent(
       'Terrain: light woods, building',
     );
     expect(
       screen.getByTestId('hex-terrain-tooltip-elevation'),
     ).toHaveTextContent('Elevation: +1');
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-building-id'),
+    ).toHaveTextContent('Building: warehouse-a');
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-building-id'),
+    ).toHaveAttribute('data-terrain-building-ids', 'warehouse-a');
     expect(screen.getByTestId('hex-terrain-tooltip-cover')).toHaveTextContent(
       'Cover: partial',
     );

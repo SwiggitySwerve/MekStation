@@ -441,8 +441,25 @@ function formatTerrainSourceDetail(terrain: IHexTerrain): string {
   const terrainTypes =
     terrain.features.length === 0
       ? TerrainType.Clear
-      : terrain.features.map((feature) => feature.type).join(',');
+      : terrain.features.map(formatTerrainFeatureSourceDetail).join(',');
   return `${terrainTypes} elevation ${terrain.elevation}`;
+}
+
+function formatTerrainFeatureSourceDetail(
+  feature: IHexTerrain['features'][number],
+): string {
+  if (!feature.buildingId && feature.constructionFactor === undefined) {
+    return feature.type;
+  }
+
+  const parts = [feature.type, `level ${feature.level}`];
+  if (feature.buildingId) {
+    parts.push(`id ${feature.buildingId}`);
+  }
+  if (feature.constructionFactor !== undefined) {
+    parts.push(`CF ${feature.constructionFactor}`);
+  }
+  return parts.join(' ');
 }
 
 function formatMovementSourceDetail(movement: IMovementRangeHex): string {

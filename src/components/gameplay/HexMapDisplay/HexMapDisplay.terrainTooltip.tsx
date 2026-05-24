@@ -23,6 +23,16 @@ function terrainCoverLabel(terrain: IHexTerrain): CoverLevel {
   return bestCover;
 }
 
+function terrainBuildingIdsForTerrain(terrain: IHexTerrain): readonly string[] {
+  return Array.from(
+    new Set(
+      terrain.features
+        .map((feature) => feature.buildingId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  );
+}
+
 export function IsometricOccluderContextRows({
   info,
   testIdPrefix,
@@ -69,6 +79,9 @@ export function TerrainHoverTooltip({
   readonly isometricOccluderInfo?: IsometricTerrainOccluderInfo;
 }): React.ReactElement {
   const terrainTypes = terrain.features.map((feature) => feature.type);
+  const buildingIds = terrainBuildingIdsForTerrain(terrain);
+  const buildingIdAttribute =
+    buildingIds.length > 0 ? buildingIds.join(',') : undefined;
   const blocksLos = terrain.features.some(
     (feature) => TERRAIN_PROPERTIES[feature.type].blocksLOS,
   );
@@ -92,6 +105,14 @@ export function TerrainHoverTooltip({
       <div data-testid="hex-terrain-tooltip-elevation">
         Elevation: {formatElevationLabel(terrain.elevation)}
       </div>
+      {buildingIdAttribute && (
+        <div
+          data-testid="hex-terrain-tooltip-building-id"
+          data-terrain-building-ids={buildingIdAttribute}
+        >
+          Building: {buildingIds.join(', ')}
+        </div>
+      )}
       <div data-testid="hex-terrain-tooltip-cover">
         Cover: {terrainCoverLabel(terrain)}
       </div>
@@ -132,6 +153,9 @@ export function TerrainContextRows({
   readonly testIdPrefix: string;
 }): React.ReactElement {
   const terrainTypes = terrain.features.map((feature) => feature.type);
+  const buildingIds = terrainBuildingIdsForTerrain(terrain);
+  const buildingIdAttribute =
+    buildingIds.length > 0 ? buildingIds.join(',') : undefined;
 
   return (
     <div className="mt-1 border-t border-slate-700/70 pt-1 text-[11px] text-slate-200">
@@ -141,6 +165,14 @@ export function TerrainContextRows({
       <div data-testid={`${testIdPrefix}-elevation-context`}>
         Elevation: {formatElevationLabel(terrain.elevation)}
       </div>
+      {buildingIdAttribute && (
+        <div
+          data-testid={`${testIdPrefix}-building-context`}
+          data-terrain-building-ids={buildingIdAttribute}
+        >
+          Building: {buildingIds.join(', ')}
+        </div>
+      )}
     </div>
   );
 }

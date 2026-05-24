@@ -158,6 +158,45 @@ describe('tacticalMapProjection', () => {
     );
   });
 
+  it('includes represented building identity in terrain source detail', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: {
+        coordinate: { q: 1, r: 0 },
+        elevation: 1,
+        features: [
+          { type: TerrainType.LightWoods, level: 1 },
+          {
+            type: TerrainType.Building,
+            level: 2,
+            buildingId: 'warehouse-a',
+            constructionFactor: 30,
+          },
+        ],
+      },
+      movement: undefined,
+      combat: undefined,
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection.sourceReferences).toEqual([
+      {
+        channel: 'terrain-elevation',
+        kind: 'mekstation',
+        label: 'Rendered map terrain/elevation grid',
+        detail: 'light_woods,building level 2 id warehouse-a CF 30 elevation 1',
+      },
+    ]);
+    expect(
+      formatTacticalProjectionSourceReferences(projection.sourceReferences),
+    ).toBe(
+      'terrain-elevation:mekstation:Rendered map terrain/elevation grid:light_woods,building level 2 id warehouse-a CF 30 elevation 1',
+    );
+  });
+
   it('preserves movement and combat blocked reasons as a mixed projection', () => {
     const projection = buildTacticalMapHexProjection({
       hex: { q: 1, r: 0 },
